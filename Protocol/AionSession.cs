@@ -14,10 +14,14 @@ public sealed class AionSession
 
     private readonly TcpFlow _flow = new();
     private AionCrypt.ServerStream? _crypt;
+    private DateTime _lastFedAt;
 
     public string Label { get; }
 
-    public event Action<ushort, byte[]>? PacketDecoded;
+    /// <summary>Fired once per decoded packet: capture timestamp (of the TCP segment that completed
+    /// it -- an approximation when several frames drain from one segment, fine at DPS-math
+    /// granularity), opcode, decrypted body.</summary>
+    public event Action<DateTime, ushort, byte[]>? PacketDecoded;
     public event Action<string>? Diagnostic;
 
     public AionSession(string label)
@@ -25,8 +29,9 @@ public sealed class AionSession
         Label = label;
     }
 
-    public void FeedSegment(uint seq, byte[] payload)
+    public void FeedSegment(DateTime capturedAt, uint seq, byte[] payload)
     {
+        _lastFedAt = capturedAt;
         _flow.Feed(seq, payload);
         DrainFrames();
     }
@@ -93,7 +98,7 @@ public sealed class AionSession
 
         ushort opcode = AionCrypt.DecodeOpcode(obfOpcode);
         byte[] body = frame[7..];
-        PacketDecoded?.Invoke(opcode, body);
+        PacketDecoded?.Invoke(_lastFedAt, opcode, body);
     }
 
     private void HandleHandshakeFrame(byte[] frame)

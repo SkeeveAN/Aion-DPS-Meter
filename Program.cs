@@ -22,6 +22,7 @@ internal static class Program
     private static readonly Dictionary<string, AionSession> ConfirmedSessions = new();
     private static readonly HashSet<string> AttemptedFlows = new();
     private static readonly Dictionary<ushort, int> OpcodeCounts = new();
+    private static readonly LiveAggregator Aggregator = new();
 
     private static void Main(string[] args)
     {
@@ -97,10 +98,11 @@ internal static class Program
         }
 
         string flowKey = $"{ip.SourceAddress}:{tcp.SourcePort}->{ip.DestinationAddress}:{tcp.DestinationPort}";
+        DateTime capturedAt = raw.Timeval.Date;
 
         if (ConfirmedSessions.TryGetValue(flowKey, out var session))
         {
-            session.FeedSegment(tcp.SequenceNumber, payload);
+            session.FeedSegment(capturedAt, tcp.SequenceNumber, payload);
             return;
         }
 
@@ -116,9 +118,9 @@ internal static class Program
 
         var newSession = new AionSession(flowKey);
         newSession.Diagnostic += msg => Console.WriteLine($"[diag] {msg}");
-        newSession.PacketDecoded += (opcode, body) => HandleDecoded(flowKey, opcode, body);
+        newSession.PacketDecoded += (timestamp, opcode, body) => HandleDecoded(flowKey, timestamp, opcode, body);
         Console.WriteLine($"[diag] {flowKey}: looks like the Aion game server stream, attaching decoder.");
-        newSession.FeedSegment(tcp.SequenceNumber, payload);
+        newSession.FeedSegment(capturedAt, tcp.SequenceNumber, payload);
         ConfirmedSessions[flowKey] = newSession;
     }
 
@@ -149,7 +151,7 @@ internal static class Program
         return checksum == (ushort)~obf;
     }
 
-    private static void HandleDecoded(string flowKey, ushort opcode, byte[] body)
+    private static void HandleDecoded(string flowKey, DateTime timestamp, ushort opcode, byte[] body)
     {
         OpcodeCounts[opcode] = OpcodeCounts.GetValueOrDefault(opcode) + 1;
 
@@ -163,6 +165,16 @@ internal static class Program
             if (desc is not null)
             {
                 Console.WriteLine($"    -> {desc}");
+            }
+        }
+
+        if (opcode == Opcodes.SM_ATTACK)
+        {
+            var attack = CombatPacketParser.TryParseAttack(body);
+            if (attack is not null)
+            {
+                Aggregator.IngestAttack(timestamp, attack);
+                Console.WriteLine($"    -> live DPS (ALL view, unverified opcode -- see README): {Aggregator.Summarize()}");
             }
         }
     }

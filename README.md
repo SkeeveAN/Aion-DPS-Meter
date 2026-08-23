@@ -216,8 +216,13 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
   gibt jetzt `null` zurück statt (wie in der ersten Fassung) die rohe Schadenssumme als
   vermeintliche Rate auszugeben. Grund: eine "250.000 iDPS"-Anzeige ohne Kontext sieht in der
   späteren UI wie ein Bug aus, nicht wie "nicht definiert" – das fiel beim Testen auf den echten
-  Zahlen auf. Noch nicht an echte Pakete angebunden (`AionSession`/`CombatPacketParser` liefern
-  noch keine `DamageEvent`s), das folgt nach der Kalibrierung.
+  Zahlen auf. **Jetzt an echte Pakete angebunden**: `AionSession.PacketDecoded` trägt einen
+  Zeitstempel (aus dem Capture, `RawCapture.Timeval.Date`) mit, `Combat/LiveAggregator.cs`
+  wandelt jedes decodierte `SM_ATTACK` in `DamageEvent`s um und der Kalibrierungslauf zeigt
+  live eine Schadens-/DPS-Zeile pro Angreifer-ObjectID. `SM_ATTACK_STATUS` wird dafür bewusst
+  NICHT verwendet – dieser Paket-Layout-Stand trägt kein Angreifer-Feld (siehe
+  `CombatPacketParser`), HP/MP-Ticks lassen sich also nicht einem Spieler zuordnen. Per
+  Selbsttest verifiziert (Objekt-Ebene, ohne Bytes/Capture).
 - **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK` – erledigt**: `CombatPacketParser.TryParseAttack`
   liest jetzt die komplette variable-length Trefferliste (jeder Treffer: Schaden, Status,
   Schild-Typ, plus die vom Schild-Typ abhängigen Zusatzfelder aus `SM_ATTACK.java` – 0/12/28

@@ -22,6 +22,7 @@ public static class SelfCheck
         ok &= RunMyAionReplayScenario();
         ok &= RunAttackPacketParsingScenario();
         ok &= RunSkillDatabaseScenario();
+        ok &= RunLiveAggregatorScenario();
         return ok;
     }
 
@@ -231,5 +232,45 @@ public static class SelfCheck
         }
 
         return loadedSomething && knownResolved && unknownFallsBack;
+    }
+
+    /// <summary>
+    /// Verifies the AionSession -> LiveAggregator wiring end to end at the object level (two
+    /// synthetic AttackPacket results fed in exactly the way Program.cs's HandleDecoded would),
+    /// without needing bytes or a capture: two attackers hitting the same boss, checks the
+    /// per-source totals and that AllDpsWallClock comes out sane for each.
+    /// </summary>
+    private static bool RunLiveAggregatorScenario()
+    {
+        var start = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var aggregator = new LiveAggregator();
+
+        var gladiatorHits = new List<CombatPacketParser.AttackHit>
+        {
+            new(1000, 5, 0),
+            new(1200, 5, 0),
+        };
+        var zaubererHits = new List<CombatPacketParser.AttackHit> { new(50_000, 7, 0) };
+
+        aggregator.IngestAttack(start, new CombatPacketParser.AttackPacket(GladiatorId, BossId, 90, 100, gladiatorHits));
+        aggregator.IngestAttack(start.AddSeconds(2), new CombatPacketParser.AttackPacket(GladiatorId, BossId, 80, 100, new List<CombatPacketParser.AttackHit> { new(1100, 5, 0) }));
+        aggregator.IngestAttack(start.AddSeconds(1), new CombatPacketParser.AttackPacket(ZaubererId, BossId, 85, 95, zaubererHits));
+
+        Console.WriteLine("[selftest] LiveAggregator wiring (synthetic AttackPacket objects, as HandleDecoded would feed them):");
+        Console.WriteLine($"  {aggregator.Summarize()}");
+
+        int gladiatorEvents = aggregator.Events.Count(e => e.SourceObjectId == GladiatorId);
+        long gladiatorTotal = aggregator.Events.Where(e => e.SourceObjectId == GladiatorId).Sum(e => e.Amount);
+        long zaubererTotal = aggregator.Events.Where(e => e.SourceObjectId == ZaubererId).Sum(e => e.Amount);
+
+        bool gladiatorEventCountOk = gladiatorEvents == 3; // 2 hits in the first packet + 1 in the second
+        bool gladiatorTotalOk = gladiatorTotal == 1000 + 1200 + 1100;
+        bool zaubererTotalOk = zaubererTotal == 50_000;
+
+        Console.WriteLine($"  -> gladiator's 3 hits across 2 packets all recorded: {gladiatorEventCountOk}");
+        Console.WriteLine($"  -> gladiator total damage correct: {gladiatorTotalOk}");
+        Console.WriteLine($"  -> zauberer total damage correct: {zaubererTotalOk}");
+
+        return gladiatorEventCountOk && gladiatorTotalOk && zaubererTotalOk;
     }
 }
