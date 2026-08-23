@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Skill/class/race data + icons collected in assets/ (see assets/README.md) -- copied
+    <!-- Skill/class/race data + icons collected in assets/ (see assets/README.md), copied
          next to the built exe so Data/SkillDatabase.cs can find them via AppContext.BaseDirectory. -->
     <None Include="assets/**/*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
