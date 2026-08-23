@@ -40,7 +40,7 @@ public sealed class LiveAggregator
             .GroupBy(e => e.SourceObjectId)
             .Select(g => (SourceId: g.Key, Total: g.Sum(e => e.Amount), Dps: DpsCalculator.AllDpsWallClock(_events, g.Key)))
             .OrderByDescending(x => x.Total)
-            .Select(x => $"0x{x.SourceId:X8}: {x.Total} dmg ({x.Dps:F0} DPS)");
+            .Select(x => $"0x{x.SourceId:X8}: {x.Total} dmg ({(x.Dps is double d ? d.ToString("F0") : "n/a")} DPS)");
 
         return string.Join(" | ", lines);
     }

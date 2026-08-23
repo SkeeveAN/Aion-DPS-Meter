@@ -19,20 +19,30 @@ public static class DpsCalculator
 {
     /// <summary>
     /// "ALL" view, wall-clock variant: total damage a source dealt (to any target) divided by
-    /// the time between its first and last hit, gaps and all. Well-defined for any set of hits,
-    /// but a source with long idle stretches between fights looks worse than reality.
+    /// the time between its first and last hit, gaps and all. A source with long idle stretches
+    /// between fights looks worse than reality -- that trade-off is deliberate (see class
+    /// remarks), not a bug.
+    ///
+    /// Returns null -- not a number -- when there's only one hit (or several hits at the exact
+    /// same instant): a single point in time has no elapsed duration to divide by, so there is
+    /// no rate to compute. This is the same reasoning as <see cref="AllDpsActiveOnly"/>'s null
+    /// case, and for the same reason: a caller must not fall back to showing the raw damage total
+    /// as if it were a rate. An earlier version of this specific method did exactly that (while
+    /// AllDpsActiveOnly had already been fixed not to), and the very first attributed hit of any
+    /// real capture session is always a single, isolated hit -- so that was never an edge case in
+    /// practice, it was the very first line of live output on every run.
     /// </summary>
-    public static double AllDpsWallClock(IReadOnlyList<DamageEvent> events, int sourceObjectId)
+    public static double? AllDpsWallClock(IReadOnlyList<DamageEvent> events, int sourceObjectId)
     {
         var hits = HitsBy(events, sourceObjectId);
         if (hits.Count == 0)
         {
-            return 0;
+            return null;
         }
 
         long total = hits.Sum(e => e.Amount);
         double seconds = (hits[^1].Timestamp - hits[0].Timestamp).TotalSeconds;
-        return seconds > 0 ? total / seconds : total;
+        return seconds > 0 ? total / seconds : null;
     }
 
     /// <summary>

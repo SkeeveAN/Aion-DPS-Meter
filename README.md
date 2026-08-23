@@ -223,6 +223,13 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
   NICHT verwendet – dieser Paket-Layout-Stand trägt kein Angreifer-Feld (siehe
   `CombatPacketParser`), HP/MP-Ticks lassen sich also nicht einem Spieler zuordnen. Per
   Selbsttest verifiziert (Objekt-Ebene, ohne Bytes/Capture).
+  **Nachgebessert (Fund von `terminal_windows`)**: derselbe "Summe als Rate ausgegeben"-Bug wie
+  bei `AllDpsActiveOnly` steckte unverändert in `AllDpsWallClock` – bei genau einem Treffer (dem
+  Normalfall für die allererste Zeile jedes echten Laufs, kein Randfall) kam die rohe
+  Schadenssumme als vermeintliche DPS-Zahl heraus (z.B. "50000 DPS" für einen einzelnen
+  50.000-Schadens-Treffer). Jetzt ebenfalls auf `double?` gezogen, gibt `null`/"n/a" zurück statt
+  der Summe. Der Selbsttest prüft jetzt den tatsächlich gerenderten Text der Ausgabe, nicht nur
+  die zugrundeliegenden Summen – genau das hatte den Bug beim ersten Mal durchrutschen lassen.
 - **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK` – erledigt**: `CombatPacketParser.TryParseAttack`
   liest jetzt die komplette variable-length Trefferliste (jeder Treffer: Schaden, Status,
   Schild-Typ, plus die vom Schild-Typ abhängigen Zusatzfelder aus `SM_ATTACK.java` – 0/12/28

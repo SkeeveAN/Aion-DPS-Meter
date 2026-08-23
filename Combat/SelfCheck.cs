@@ -4,10 +4,12 @@ using AionSniffer.Protocol;
 namespace AionSniffer.Combat;
 
 /// <summary>
-/// Reproduces two known scenarios against <see cref="DpsCalculator"/> so the formulas can be
-/// verified without a live capture: the Gladiator/Zauberer "ALL view" thought experiment that
-/// motivated distinguishing DPS from iDPS in the first place, and the real numbers pulled from
-/// a public myaion.eu boss-fight session (see README) to ground-truth the iDPS formula.
+/// Verifies the DPS/iDPS math, the SM_ATTACK multi-hit parser, the skill database, and the
+/// live-aggregation wiring against synthetic and real reference data, all without needing a live
+/// capture -- run via `dotnet run -- selftest`. Includes the Gladiator/Zauberer "ALL view"
+/// thought experiment that motivated distinguishing DPS from iDPS in the first place, and the
+/// real numbers pulled from a public myaion.eu boss-fight session (see README) to ground-truth
+/// the iDPS formula.
 /// </summary>
 public static class SelfCheck
 {
@@ -46,19 +48,22 @@ public static class SelfCheck
             events.Add(new DamageEvent(start.AddSeconds(i * 60), ZaubererId, BossId, 50_000, false));
         }
 
-        double gladWall = DpsCalculator.AllDpsWallClock(events, GladiatorId);
-        double zaubWall = DpsCalculator.AllDpsWallClock(events, ZaubererId);
+        double? gladWall = DpsCalculator.AllDpsWallClock(events, GladiatorId);
+        double? zaubWall = DpsCalculator.AllDpsWallClock(events, ZaubererId);
         double? gladActive = DpsCalculator.AllDpsActiveOnly(events, GladiatorId, TimeSpan.FromSeconds(3));
         double? zaubActive = DpsCalculator.AllDpsActiveOnly(events, ZaubererId, TimeSpan.FromSeconds(3));
 
         Console.WriteLine("[selftest] Gladiator/Zauberer ALL-view scenario:");
-        Console.WriteLine($"  Gladiator: wallclock={gladWall:F1} active={Fmt(gladActive)} (300 hits x 1000 dmg, 1s apart)");
-        Console.WriteLine($"  Zauberer:  wallclock={zaubWall:F1} active={Fmt(zaubActive)} (5 hits x 50000 dmg, 60s apart)");
+        Console.WriteLine($"  Gladiator: wallclock={Fmt(gladWall)} active={Fmt(gladActive)} (300 hits x 1000 dmg, 1s apart)");
+        Console.WriteLine($"  Zauberer:  wallclock={Fmt(zaubWall)} active={Fmt(zaubActive)} (5 hits x 50000 dmg, 60s apart)");
 
-        // Expectation: on a raw wall-clock "ALL" reading the bursty Zauberer is NOT obviously
+        // Expectation: both spans have more than one hit, so wall-clock is well-defined (not
+        // null) for both here -- assert that explicitly so a regression fails loudly instead of
+        // a lifted "null > null is false" comparison quietly passing or failing for the wrong
+        // reason. Then: on a raw wall-clock "ALL" reading the bursty Zauberer is NOT obviously
         // behind the sustained Gladiator (~1042 vs ~1003) -- this is the exact unfairness the
         // user's original example was about.
-        bool wallClockLooksUnfair = zaubWall > gladWall * 0.9;
+        bool wallClockLooksUnfair = gladWall is double gw && zaubWall is double zw && zw > gw * 0.9;
 
         // Expectation: with a 3s idle threshold, every one of the Gladiator's 1s gaps counts
         // (constant activity), so a real rate comes out. Every one of the Zauberer's 60s gaps
@@ -238,7 +243,9 @@ public static class SelfCheck
     /// Verifies the AionSession -> LiveAggregator wiring end to end at the object level (two
     /// synthetic AttackPacket results fed in exactly the way Program.cs's HandleDecoded would),
     /// without needing bytes or a capture: two attackers hitting the same boss, checks the
-    /// per-source totals and that AllDpsWallClock comes out sane for each.
+    /// per-source totals AND the rendered DPS column -- specifically that a source with only one
+    /// attributed hit (the normal state of the first line of output on every real run) shows
+    /// "n/a" rather than its damage total dressed up as a rate.
     /// </summary>
     private static bool RunLiveAggregatorScenario()
     {
@@ -267,10 +274,26 @@ public static class SelfCheck
         bool gladiatorTotalOk = gladiatorTotal == 1000 + 1200 + 1100;
         bool zaubererTotalOk = zaubererTotal == 50_000;
 
+        // Caught by review: zauberer has exactly one attributed hit here, which is the normal
+        // state of the very first line of live output on every real capture run, not an edge
+        // case. Summarize() must show "n/a" for a DPS rate that has no time span to be computed
+        // from -- not the raw 50,000 damage total masquerading as "50000 DPS", which is the exact
+        // bug already fixed once for AllDpsActiveOnly and had quietly regressed via
+        // AllDpsWallClock. Assert on the actual rendered string, not just the underlying totals:
+        // that's what let the bug hide behind a passing test the first time.
+        string summary = aggregator.Summarize();
+        bool zaubererShowsNotAvailable = summary.Contains("0x00000002: 50000 dmg (n/a DPS)");
+        bool zaubererDoesNotShowTotalAsRate = !summary.Contains("(50000 DPS)");
+        double? gladiatorWallDps = DpsCalculator.AllDpsWallClock(aggregator.Events, GladiatorId);
+        bool gladiatorDpsIsReal = gladiatorWallDps is double d && d > 0;
+
         Console.WriteLine($"  -> gladiator's 3 hits across 2 packets all recorded: {gladiatorEventCountOk}");
         Console.WriteLine($"  -> gladiator total damage correct: {gladiatorTotalOk}");
         Console.WriteLine($"  -> zauberer total damage correct: {zaubererTotalOk}");
+        Console.WriteLine($"  -> zauberer's single hit renders as \"n/a\" DPS, not a fake rate: {zaubererShowsNotAvailable && zaubererDoesNotShowTotalAsRate}");
+        Console.WriteLine($"  -> gladiator (multiple hits, real time span) still gets a real DPS number: {gladiatorDpsIsReal}");
 
-        return gladiatorEventCountOk && gladiatorTotalOk && zaubererTotalOk;
+        return gladiatorEventCountOk && gladiatorTotalOk && zaubererTotalOk
+            && zaubererShowsNotAvailable && zaubererDoesNotShowTotalAsRate && gladiatorDpsIsReal;
     }
 }
