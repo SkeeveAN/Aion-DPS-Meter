@@ -84,6 +84,8 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
    dotnet run -- <deviceIndex>
    ```
    Ohne Argumente listet das Tool alle Netzwerk-Interfaces mit Index auf.
+5. Für das GUI-Grundgerüst (siehe "UI-Platzhalter" unten): `dotnet run -- gui` – öffnet das
+   WPF-Hauptfenster, mit "Load Demo Data"-Button zum Prüfen ohne Capture.
 
 ## Kalibrierungsablauf
 
@@ -247,10 +249,66 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
 - **Aggregation**: sobald Rohdaten stimmen, ist die Aggregation (DPS/HPS pro Spieler, Fenster,
   Encounter-Erkennung, AP/GP-Zähler, Export) reine Anwendungslogik ohne weitere
   Reverse-Engineering-Risiken.
-- **UI**: danach ein Live-Overlay/Fenster (WPF oder WinForms), das die aggregierten Werte
-  anzeigt – Rangliste pro Spieler (inkl. Rasse/Klassen-Icon), DPS/HPS-Verlauf, AP/GP-Zähler,
-  ähnlich UltraKikiMeter/rainy.ws, aber mit den netzwerkbasierten Live-Daten statt
-  Chat-Log-Nachlese.
+- **UI – Grundgerüst steht** (`Ui/`, WPF): Hauptfenster + Settings- und Network-Settings-Dialoge,
+  angelehnt an den vom Nutzer geteilten Screenshot der MyAion-DPS-Meter-UI. Startet über
+  `dotnet run -- gui`. Noch nicht an die echte Capture-Pipeline angebunden (siehe
+  `MainWindow.OnAttackDecoded` – dafür vorbereitet, aber noch nicht aus `Program.cs` aufgerufen);
+  über den "Load Demo Data"-Button aber schon jetzt visuell prüfbar. Siehe den eigenen Abschnitt
+  unten für alle UI-Platzhalter im Detail.
+
+## UI-Platzhalter (aktueller Stand)
+
+Der Nutzer hat Screenshots der echten MyAion-DPS-Meter-UI geteilt; das WPF-Grundgerüst
+(`Ui/MainWindow.xaml` + zugehörige Fenster) übernimmt deren Struktur, aber nur "Damage
+Distribution" hat eine echte Datenquelle. Damit nichts als fertig missverstanden wird, hier
+explizit aufgelistet, was noch fehlt und was jeweils dafür nötig wäre (auch einzeln als Tooltip
+in der jeweiligen UI-Komponente hinterlegt):
+
+- **Linke Icon-Leiste** (5 Ansichten laut Nutzer): nur *Damage Distribution* ist implementiert.
+  - *Skill-Rotation*: braucht Tracking der Skill-Cast-Reihenfolge (zeitlich sortierte Skill-IDs
+    pro Spieler) – noch nicht gebaut.
+  - *Loot-Table*: braucht Dekodierung von Item-Drop-Paketen – noch nicht identifiziert.
+  - *Character-Profile*: braucht Ausrüstungs-/Stat-Pakete – noch nicht identifiziert.
+  - *Instance-Scores*: braucht Boss-Erkennung + Aggregation über mehrere Bosskämpfe hinweg
+    (siehe iDPS-Definition oben) – Boss-Erkennungs-Opcodes sind Kandidaten, aber unbestätigt.
+- **"Mode"-Menü**: nur *Damage* funktioniert.
+  - *Heal*: `SM_ATTACK_STATUS` (das Heal-Tick-Paket) trägt in diesem Layout-Stand kein
+    Angreifer-/Heiler-Feld – Heilung lässt sich damit keinem Spieler zuordnen (siehe oben).
+  - *Relic*: keine AP/GP-Paketquelle angebunden (Kandidat `SM_SYSTEM_MESSAGE`, `msgCode`
+    unbestätigt, siehe oben).
+- **Filter-Dropdown "Source"** (vom Nutzer korrigiert, hieß zwischenzeitlich "Scope"): reiner
+  Anzeigefilter, sammelt immer weiter für alle Spieler unabhängig von der Auswahl (z.B. bei einer
+  4×6-Allianz zeigt "Group" nur die eigene Gruppe an, verwirft aber nichts). Braucht
+  Gruppen-/Allianz-/Rassen-Zuordnung, die wir noch nicht dekodieren (`SM_GROUP_MEMBER_INFO` hat
+  kein Rassenfeld, siehe oben).
+- **Filter-Dropdown "Mob/Boss"**: sollte die tatsächlich getroffenen Ziele dieser Session
+  auflisten (aus `LiveAggregator.Events` ableitbar), aktuell nur eine statische "All"-Option.
+- **"Session"-Menü**: zeigt aktuell nur "No sessions recorded yet" – keine Session-Persistenz
+  vorhanden.
+- **"App"-Menü**: nur *App Settings*, *Always on top* und *Close* sind echt. Alles andere
+  (Load/Save/Export/Validate session, Sessions-/Logs-Ordner öffnen, Reset connection, Profile
+  Settings, Key bindings, Check for updates, Minimize to system tray) ist deaktiviert, weil dafür
+  Session-Persistenz, ein Log-System bzw. ein System-Tray-Icon fehlen. **Bewusst nicht einmal als
+  Platzhalter-Stub implementiert**: "Start automatically with Windows" – das würde in die
+  Windows-Autostart-Registry schreiben, eine systemweite Änderung, die eine explizite Anfrage
+  braucht, keine UI-Parity-Checkbox.
+- **"Network"-Menü**: hier ist die Geräteliste echt (`SharpPcap.CaptureDeviceList`), Auswahl wird
+  in `MeterSettings.SelectedCaptureDeviceName` gespeichert – aber das tatsächliche Starten der
+  Aufnahme aus der GUI heraus ist noch nicht verdrahtet (`Program.cs`s Konsolen-Einstieg ist
+  weiterhin der einzige Weg, eine Aufnahme zu starten).
+- **Settings-Dialog**: bewusst nur die Checkboxen übernommen, die zu vorhandenen Datenfeldern
+  passen (Target-Bar, Players-List, Targets-List, Theme/Font). Loot-Tabelle, Kinah-Tracking,
+  Auto-Upload und Donation-Goal aus der MyAion-Referenz fehlen komplett – dafür bräuchte es
+  jeweils eigene Paketquellen bzw. ein eigenes Backend (siehe nächster Punkt).
+
+## Geplant: eigenes Backend + Webseite für Session-Uploads
+
+Der Nutzer möchte perspektivisch ein eigenes Backend mit Webseite, auf der man hochgeladene
+Sessions ansehen kann – analog zu myaion.eu's `/PvESession/<id>` (Gruppenansicht) und
+`/PvEPlayerSession/<id>` (Skill-für-Skill-Einzelansicht), siehe `assets/README.md` für die dort
+schon dokumentierte Feldstruktur. Das ist bewusst als **große, spätere Ausbaustufe** eingeordnet:
+braucht ein eigenes Backend (API + Datenbank) und Hosting, und ist nicht Teil der aktuellen
+Windows-Client-Architektur. Kommt erst, wenn der lokale Meter selbst zuverlässig funktioniert.
 
 ## Rechtlicher Hinweis
 

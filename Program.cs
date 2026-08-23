@@ -24,6 +24,7 @@ internal static class Program
     private static readonly Dictionary<ushort, int> OpcodeCounts = new();
     private static readonly LiveAggregator Aggregator = new();
 
+    [STAThread] // required for WPF (Ui/MainWindow) -- Clipboard, drag-move etc. need the STA apartment.
     private static void Main(string[] args)
     {
         if (args.Length > 0 && args[0] == "selftest")
@@ -31,6 +32,17 @@ internal static class Program
             bool ok = SelfCheck.Run();
             Console.WriteLine(ok ? "\n[selftest] ALL CHECKS PASSED" : "\n[selftest] SOME CHECKS FAILED");
             Environment.Exit(ok ? 0 : 1);
+            return;
+        }
+
+        if (args.Length > 0 && args[0] == "gui")
+        {
+            // No App.xaml on purpose: an ApplicationDefinition item would generate its own Main
+            // and collide with this one. Building System.Windows.Application by hand keeps the
+            // console entry points (selftest, capture) and the GUI in the same exe without
+            // fighting over program entry.
+            var app = new System.Windows.Application();
+            app.Run(new Ui.MainWindow());
             return;
         }
 
@@ -46,6 +58,7 @@ internal static class Program
         {
             Console.WriteLine("Usage: AionSniffer <deviceIndex> [serverIpHint]");
             Console.WriteLine("       AionSniffer selftest   (verifies the DPS/iDPS math against synthetic + real reference numbers, no capture needed)");
+            Console.WriteLine("       AionSniffer gui        (opens the WPF meter window -- see Ui/, not yet wired to a live capture, has a \"Load Demo Data\" button)");
             Console.WriteLine();
             Console.WriteLine("Available devices:");
             for (int i = 0; i < devices.Count; i++)

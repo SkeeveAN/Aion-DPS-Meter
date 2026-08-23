@@ -1,0 +1,201 @@
+<Window x:Class="AionSniffer.Ui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AionSniffer DMG Meter" Height="420" Width="620"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="CanResizeWithGrip">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#2a2a33"/>
+            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="4,2"/>
+            <Setter Property="MinWidth" Value="110"/>
+        </Style>
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- ================= Normal mode ================= -->
+        <!-- WindowStyle="None" on the Window (needed so "Hide UI" can make the whole surface
+             transparent+click-through) means there's no OS titlebar -- this Border supplies its
+             own dark background (so normal mode looks the way it always did) plus a manual
+             drag/close bar, since we gave up the OS one. -->
+        <Border x:Name="NormalContent" Background="#1e1e24" BorderBrush="#3a3a45" BorderThickness="1">
+            <DockPanel LastChildFill="True">
+
+                <Grid DockPanel.Dock="Top" Background="#151519" Height="24" MouseLeftButtonDown="OnTitleBarMouseDown">
+                    <TextBlock Text="AionSniffer DMG Meter" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="8,0"/>
+                    <Button Content="✕" Click="OnCloseClicked" HorizontalAlignment="Right" Width="28" Height="24"
+                            Background="Transparent" BorderThickness="0" Foreground="#9a9aa2" Margin="0"/>
+                </Grid>
+
+                <!-- Top menu bar: App / Network / Session / Mode, matching the myaion.eu reference.
+                     Most "App" items are placeholders (no session persistence, no tray icon, no
+                     auto-update, no auto-start-with-Windows -- the last one specifically not
+                     implemented here even as a stub, since silently writing to the Windows Run
+                     registry key on click would be exactly the kind of action that needs an
+                     explicit ask first, not a UI-parity checkbox). What IS real: App Settings,
+                     "Always on top", Close, and the whole Network menu (lists actual capture
+                     devices via SharpPcap). All "not implemented" items are listed again, with
+                     what they'd need, in README.md's UI-placeholders section. -->
+                <Menu DockPanel.Dock="Top" Background="#26262e" Foreground="#e8e8ea">
+                    <MenuItem Header="App" Foreground="#e8e8ea">
+                        <MenuItem Header="Load session" IsEnabled="False"/>
+                        <MenuItem Header="Save session" IsEnabled="False"/>
+                        <Separator/>
+                        <MenuItem Header="Export session" IsEnabled="False"/>
+                        <MenuItem Header="Validate session" IsEnabled="False"/>
+                        <Separator/>
+                        <MenuItem Header="Open sessions folder" IsEnabled="False"/>
+                        <MenuItem Header="Open logs folder" IsEnabled="False"/>
+                        <Separator/>
+                        <MenuItem Header="Reset connection" IsEnabled="False"/>
+                        <MenuItem Header="Clear sessions" Click="OnClearClicked"/>
+                        <Separator/>
+                        <MenuItem Header="App Settings" Click="OnSettingsClicked"/>
+                        <MenuItem Header="Profile Settings" IsEnabled="False"/>
+                        <MenuItem Header="Key bindings" IsEnabled="False"/>
+                        <Separator/>
+                        <MenuItem x:Name="AlwaysOnTopMenuItem" Header="Always on top" IsCheckable="True" Click="OnAlwaysOnTopClicked"/>
+                        <MenuItem Header="Check for updates" IsEnabled="False"/>
+                        <MenuItem Header="Start automatically with Windows" IsEnabled="False"
+                                  ToolTip="Not implemented on purpose: would write to the Windows startup registry key, a system-wide change that needs an explicit ask, not a UI-parity checkbox."/>
+                        <MenuItem Header="Minimize to system tray" IsEnabled="False"/>
+                        <Separator/>
+                        <MenuItem Header="Close" Click="OnCloseClicked"/>
+                    </MenuItem>
+                    <MenuItem Header="Network" Click="OnNetworkMenuClicked" Foreground="#e8e8ea"/>
+                    <MenuItem x:Name="SessionMenu" Header="Session" Foreground="#e8e8ea">
+                        <MenuItem Header="No sessions recorded yet" IsEnabled="False"/>
+                    </MenuItem>
+                    <MenuItem Header="Mode" Foreground="#e8e8ea">
+                        <MenuItem x:Name="DamageModeItem" Header="Damage" IsCheckable="True" IsChecked="True" Click="OnModeClicked"/>
+                        <MenuItem x:Name="HealModeItem" Header="Heal" IsCheckable="True" Click="OnModeClicked"
+                                  ToolTip="Not implemented: SM_ATTACK_STATUS (the heal-tick packet) carries no healer/attacker field in this build's layout, so heals can't be attributed to a player -- see README."/>
+                        <MenuItem x:Name="RelicModeItem" Header="Relic" IsCheckable="True" Click="OnModeClicked"
+                                  ToolTip="Not implemented: no relic/AP/GP packet source wired up yet."/>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Top toolbar: matches MyAion's Copy / Copy All / Pause / Clear / Hide UI row -->
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#26262e">
+                    <Button x:Name="CopyButton" Content="Copy" Click="OnCopyClicked"/>
+                    <Button x:Name="CopyAllButton" Content="Copy All" Click="OnCopyAllClicked"/>
+                    <Button x:Name="PauseButton" Content="Pause" Click="OnPauseClicked"/>
+                    <Button x:Name="ClearButton" Content="Clear" Click="OnClearClicked"/>
+                    <Button x:Name="HideUiButton" Content="Hide UI" Click="OnHideUiClicked"
+                            ToolTip="Makes the window transparent and click-through, showing only a small damage/DPS chip per player -- for overlaying on top of the game. Press Ctrl+Alt+H to bring the UI back (the button itself is unreachable once the window is click-through -- that's the whole point, and why the hotkey exists)."/>
+                    <Button x:Name="DemoButton" Content="Load Demo Data" Click="OnLoadDemoDataClicked"
+                            ToolTip="Fills the grid with synthetic data (same numbers as the selftest) -- no capture needed, for visually checking the UI."/>
+                    <Button x:Name="SettingsButton" Content="Settings" Click="OnSettingsClicked" HorizontalAlignment="Right"/>
+                </StackPanel>
+
+                <!-- Filter row: three dropdowns, matching the myaion.eu reference exactly (class
+                     list uses its internal names Bard/Gunner/Painter, not the "modern"
+                     Songweaver/Gunslinger -- Painter itself is a post-4.6 class per the user, kept
+                     here only for parity with the reference, marked in its tooltip). Scope and
+                     Mob/Boss are placeholders -- see README's UI-placeholders section for what
+                     each needs. -->
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#1e1e24">
+                    <TextBlock Text="Class:" Foreground="#c8c8ce" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    <ComboBox x:Name="ClassFilter" SelectedIndex="0">
+                        <ComboBoxItem Content="All Classes"/>
+                        <ComboBoxItem Content="Aethertech"/>
+                        <ComboBoxItem Content="Assassin"/>
+                        <ComboBoxItem Content="Bard"/>
+                        <ComboBoxItem Content="Chanter"/>
+                        <ComboBoxItem Content="Cleric"/>
+                        <ComboBoxItem Content="Gladiator"/>
+                        <ComboBoxItem Content="Gunner"/>
+                        <ComboBoxItem Content="Painter" ToolTip="Post-4.6 class per the user -- kept only for parity with the myaion.eu reference, not expected to occur on a 4.6 server."/>
+                        <ComboBoxItem Content="Ranger"/>
+                        <ComboBoxItem Content="Sorcerer"/>
+                        <ComboBoxItem Content="Spiritmaster"/>
+                        <ComboBoxItem Content="Templar"/>
+                    </ComboBox>
+                    <TextBlock Text="Source:" Foreground="#c8c8ce" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    <ComboBox x:Name="SourceFilter" SelectedIndex="0"
+                              ToolTip="Placeholder -- a DISPLAY filter only, per the user: collection always keeps everyone's damage regardless of this setting (e.g. in a 4x6 alliance, switching this to 'Group' only changes what's shown, not what's recorded). Needs group/legion/race data we don't decode yet.">
+                        <ComboBoxItem Content="All"/>
+                        <ComboBoxItem Content="Self"/>
+                        <ComboBoxItem Content="Group"/>
+                        <ComboBoxItem Content="Alliance"/>
+                        <ComboBoxItem Content="Legion"/>
+                        <ComboBoxItem Content="Elyos"/>
+                        <ComboBoxItem Content="Asmodian"/>
+                    </ComboBox>
+                    <TextBlock Text="Mob/Boss:" Foreground="#c8c8ce" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    <ComboBox x:Name="MobBossFilter" SelectedIndex="0"
+                              ToolTip="Placeholder -- should list the distinct targets actually seen this session, not a static list.">
+                        <ComboBoxItem Content="All"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Bottom status row: only what we actually have a signal for -- see code-behind remarks. -->
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Background="#26262e" Height="26">
+                    <Ellipse x:Name="ServerStatusDot" Width="10" Height="10" Fill="Gray" Margin="8,0,4,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="ServerStatusText" Text="Aion server: not connected" Foreground="#c8c8ce" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Left nav rail: mirrors MyAion's 5 view icons. Only "Damage Distribution" has a
+                     real data source right now (Combat/LiveAggregator) -- the rest are
+                     placeholders, not fake functionality, until their packet sources exist
+                     (skill-cast order, loot events, equipment/profile packets, cross-encounter
+                     instance aggregation). See README's UI-placeholders section. -->
+                <StackPanel DockPanel.Dock="Left" Background="#26262e">
+                    <Button Style="{StaticResource NavButton}" Content="Rot" ToolTip="Skill Rotation (not implemented -- needs skill-cast-order tracking)" IsEnabled="False"/>
+                    <Button Style="{StaticResource NavButton}" Content="Dmg" ToolTip="Damage Distribution -- the current view" Click="OnShowDamageView" FontWeight="Bold"/>
+                    <Button Style="{StaticResource NavButton}" Content="Loot" ToolTip="Loot Table (not implemented -- needs item-drop packet decoding)" IsEnabled="False"/>
+                    <Button Style="{StaticResource NavButton}" Content="Char" ToolTip="Character Profile (not implemented -- needs equipment/stat packet decoding)" IsEnabled="False"/>
+                    <Button Style="{StaticResource NavButton}" Content="Inst" ToolTip="Instance Scores (not implemented -- needs cross-encounter aggregation + boss detection)" IsEnabled="False"/>
+                </StackPanel>
+
+                <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          Background="#1e1e24" Foreground="#e8e8ea" RowBackground="#22222a" AlternatingRowBackground="#26262e"
+                          GridLinesVisibility="Horizontal" HeadersVisibility="Column" CanUserAddRows="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="120"/>
+                        <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="110"/>
+                        <DataGridTextColumn Header="Level" Binding="{Binding Level}" Width="50"/>
+                        <DataGridTextColumn Header="Damage" Binding="{Binding Damage, StringFormat=N0}" Width="110"/>
+                        <DataGridTextColumn Header="DPS" Binding="{Binding DpsDisplay}" Width="90"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+
+        <!-- ================= Hide-UI overlay mode ================= -->
+        <!-- Collapsed by default. Everything behind the window shows through (Window.Background
+             is Transparent and NormalContent is hidden while this is visible); only a small dark
+             chip per player stays visible, matching what the user described from the reference
+             tool. See OnHideUiClicked / NativeOverlay.cs for the click-through + hotkey handling
+             that makes this safe to use over the actual game window. -->
+        <ItemsControl x:Name="OverlayContent" Visibility="Collapsed" Background="Transparent"
+                      HorizontalAlignment="Left" VerticalAlignment="Top">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="#99000000" CornerRadius="3" Margin="2" Padding="6,2">
+                        <TextBlock Foreground="White" FontWeight="Bold" FontSize="12">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0}: {1} dmg ({2} DPS)">
+                                    <Binding Path="Name"/>
+                                    <Binding Path="Damage" StringFormat="N0"/>
+                                    <Binding Path="DpsDisplay"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>

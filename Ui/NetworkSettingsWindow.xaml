@@ -1,0 +1,47 @@
+<Window x:Class="AionSniffer.Ui.NetworkSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Network settings" Height="360" Width="420"
+        Background="#1e1e24" WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#2a2a33"/>
+            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#c8c8ce"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel LastChildFill="True" Margin="8">
+        <TextBlock DockPanel.Dock="Top" Text="Detected network adapters:" Margin="0,0,0,6"/>
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+            <Button Content="Enable" Click="OnEnableClicked"/>
+            <Button Content="Disable" Click="OnDisableClicked"/>
+            <Button Content="Save" Click="OnSaveClicked" HorizontalAlignment="Right" Margin="60,4,4,4"/>
+            <Button Content="Cancel" Click="OnCancelClicked"/>
+        </StackPanel>
+
+        <!-- Real device list from SharpPcap.CaptureDeviceList -- see code-behind. Unlike the
+             myaion.eu reference (which can apparently capture on several adapters at once), this
+             tool's capture pipeline (AionSession/Program.cs) only ever reads from the single
+             device index passed on the command line, so at most one row here can be "Active". -->
+        <ListBox x:Name="DeviceList" Background="#26262e" Foreground="#e8e8ea" BorderThickness="0">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="70"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Description}" Margin="4"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Status}" Margin="4" Opacity="0.7"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>
