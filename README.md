@@ -99,6 +99,13 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
 ## Anforderungen an den fertigen Meter (Stand dieser Session)
 
 - **DMG** (Kern) – über `SM_ATTACK` / `SM_ATTACK_STATUS`
+- **iDPS** ("aktiver" DPS, nur die Zeit zählt, in der tatsächlich Schaden gemacht wurde) neben
+  normalem DPS – blendet lange Lücken zwischen großen Skills aus (Beispiel: Zauberer mit 60s-CD
+  vs. Gladiator mit konstantem Auto-Attack/Weaving sollen bei iDPS vergleichbar sein, nicht nur
+  bei rohem DPS). Reine Aggregations-Logik auf Basis von (Zeitstempel, Schaden) pro Spieler –
+  braucht keine zusätzlichen Pakete. Offene Design-Frage für später: ab welcher Lückenlänge gilt
+  ein Zeitabschnitt als "inaktiv" (Default-Vorschlag: > 3s ohne ausgehenden Schaden dieses
+  Spielers zählt nicht in die iDPS-Zeitbasis).
 - **HEAL** – dieselben Pakete, positiver statt negativer Wert
 - **AP (Abyss Points)** und **GP (Glory Points)** – vermutlich über `SM_SYSTEM_MESSAGE`,
   `msgCode` noch zu bestätigen (siehe oben)
