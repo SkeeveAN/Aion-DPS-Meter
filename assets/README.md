@@ -19,12 +19,13 @@ im Meter verwendet wird.
   gemacht. Für andere Sprachen bräuchte es entweder eine sprachspezifische 4.x-Version der Seite
   (existiert nicht) oder die Namenstabelle aus dem Client selbst (`L10N/<sprache>/...`, siehe
   Haupt-README).
-- **Wichtige Einschränkung, vor Nutzung prüfen**: Das Set enthält Klassen wie *Aethertech* und
-  *Songweaver* (inkl. der Vorläuferbezeichnung *Muse*), die laut offizieller Patch-Historie erst
-  **nach** Patch 4.6 eingeführt wurden. Der `/4x/`-Bucket ist also vermutlich kein exaktes
-  4.6-Archiv, sondern ein breiterer "4.x irgendwann"-Snapshot. Vor produktivem Einsatz stichprobenhaft
-  ein paar Skillnamen/-level gegen den echten `OriginAion`-4.6-Client vergleichen (z.B. Tooltip
-  eines bekannten Skills im Spiel vs. Eintrag hier).
+- **Korrektur**: Aethertech, Songweaver und Gunslinger gehören laut Nutzer tatsächlich zum
+  regulären 4.6-Umfang – `OriginAion` hat sie als privater Server gezielt deaktiviert. Das ist also
+  keine Verunreinigung des `/4x/`-Buckets durch eine spätere Version, sondern korrekt für 4.6
+  allgemein. Der Meter soll ohnehin nicht nur für `OriginAion` gelten, sondern für 4.6-Server
+  generell – die vollständige Klassenliste ist dafür richtig. Trotzdem bleibt der `/4x/`-Bucket
+  selbst unbestätigt in Details (exakte Skill-Level/-Werte); vor produktivem Einsatz stichprobenhaft
+  ein paar Skillnamen gegen einen echten 4.6-Client vergleichen.
 - Format je Skill: `{id, name, icon, class, slot, levels[]}`. `levels` sind die Charakterlevel, ab
   denen der jeweilige Rang lernbar ist (mehrere Ranks/Level pro Skill-ID zusammengefasst).
 
@@ -39,10 +40,35 @@ im Meter verwendet wird.
   ist das von Hand trivial und unstrittig (öffentliches Allgemeinwissen zu AION-Klassen), aber
   bewusst nicht automatisch verknüpft, um keine falsche Zuordnung als "verifiziert" auszugeben.
 
+## `classes/icons/` + `races/icons/` (Quelle: myaion.eu)
+
+- Gefunden über die öffentlichen Bosskampf-Session-Reports von myaion.eu (z.B.
+  `/PvESession/1716393`, `/PvEPlayerSession/8602573`) – dort werden pro Spieler Rassen-/Klassen-Icon
+  direkt referenziert (`/Images/Races/<Rasse>.png`, `/Images/Classes/<Klasse>.png`).
+- Rassen: `Elyos.png`, `Asmodian.png` – eindeutig.
+- Klassen, bestätigt vorhanden (HTTP 200 direkt abgefragt): `Gladiator, Templar, Assassin,
+  Ranger, Sorcerer, Spiritmaster, Cleric, Chanter, Aethertech, Bard, Priest, Gunner, Painter`.
+  **Ungeklärt**: `Bard`, `Priest`, `Gunner`, `Painter` passen nicht sauber auf die 12 bekannten
+  finalen Klassennamen (kein `Songweaver.png`, `Gunslinger.png`, `Cleric`+`Priest` beide vorhanden
+  o.ä. unter den naheliegenden Namen gefunden – ergaben HTTP 400). Vermutung: unterschiedliche
+  interne Namenskonvention von myaion.eu (evtl. alte/Beta-Klassennamen oder Basisklassen-Embleme
+  vor der finalen Entscheidung), aber nicht verifiziert – die Icons selbst sind gespeichert, ihre
+  Zuordnung zu den echten Klassennamen muss noch von jemandem mit Spielkenntnis bestätigt werden.
+- Skill-Icons wurden von myaion.eu **nicht** gesammelt (kein browsbarer Datenbank-Bereich
+  gefunden, nur einzelne Icons in Session-Tooltips) – aioncodex.com bleibt dafür die Quelle.
+- **Keine Mehrsprachigkeit**: myaion.eu hat keinen Sprachumschalter, alle Texte sind Englisch.
+
+## Idee für später: Online-Session-Sharing (aus myaion.eu übernommen)
+
+Der Nutzer fand das Feature von myaion.eu gut, Bosskämpfe als Web-Link teilbar zu machen:
+Gruppenansicht (`/PvESession/<id>`: Rangliste pro Spieler mit bossDPS/bossDMG/allDPS/allDMG/Heal)
+und Einzelansicht (`/PvEPlayerSession/<id>`: Skill-für-Skill-Aufschlüsselung mit
+Uses/Crit/Resist/Dodge/Parry/Block/Min/Max/Avg/Damage, plus eine Zeitleiste mit
+Time/Status/Damage/Heal/Target). Als **spätere, große Ausbaustufe** notiert – braucht ein eigenes
+Backend (API + Datenbank) und Hosting, ist also kein Teil der aktuellen Windows-Client-Architektur
+und kommt erst, wenn der lokale Meter selbst funktioniert.
+
 ## Was fehlt (bewusst nicht gemacht)
 
-- **Klassen-Icons**: aioncodex.com hat dafür keinen sauberen Daten-Endpunkt gefunden (die
-  `/book/`-Query liefert Skillbook-**Items**, nicht Klassen-Embleme). Robusterer Weg: Icons direkt
-  aus den lokalen `OriginAion`-Client-Assets extrahieren (eigener Client, kein Scraping-Thema).
 - Weitere Sprachen für Skillnamen (siehe Einschränkung oben – ohne Client-Datenquelle nicht
-  risikofrei möglich).
+  risikofrei möglich; myaion.eu bietet ebenfalls keine anderen Sprachen).

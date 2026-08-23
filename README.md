@@ -128,8 +128,8 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
     angeblich bekanntes Datenbankschema, ein Feature-Vergleich aiDPS-vs-MyAion). Diese
     Detailbehauptungen wurden **nicht** übernommen – sie sind nicht verifizierbar und wirken wie
     plausibel klingende Erfindungen. Bosse/Opcodes/IDs für den echten Meter müssen aus
-    verifizierten Quellen kommen (eigene Kalibrierung oder die MyAion-Dekompilierung), nicht aus
-    unbelegten KI-Antworten.
+    verifizierten Quellen kommen (eigene Kalibrierung – MyAion-Dekompilierung ist keine Option
+    mehr, siehe Tabelle oben), nicht aus unbelegten KI-Antworten.
 - **HEAL** – dieselben Pakete, positiver statt negativer Wert
 - **AP (Abyss Points)** und **GP (Glory Points)** – vermutlich über `SM_SYSTEM_MESSAGE`,
   `msgCode` noch zu bestätigen (siehe oben)
@@ -163,10 +163,15 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
   aus echten Beobachtungen der eigenen Kalibrierung kommen (MyAion-Dekompile ist keine Option
   mehr, siehe Tabelle oben), nicht aus unbestätigten Listen – siehe Warnhinweis oben.
 - **Skill-/Klassen-Assets gesammelt**: siehe [`assets/README.md`](assets/README.md) – 974
-  Skillnamen+Icons (Englisch, `aioncodex.com`-Bucket `/4x/`, **nicht als exakt 4.6 verifiziert** –
-  enthält Klassen wie Aethertech/Songweaver, die erst nach 4.6 kamen) und Klassennamen in
-  EN/DE/FR/RU (aus der aktuellen DB, nicht index-verifiziert zwischen den Sprachen). Klassen-Icons
-  fehlen noch – kein sauberer Endpunkt gefunden, Vorschlag: aus lokalen Client-Assets extrahieren.
+  Skillnamen+Icons (Englisch, `aioncodex.com`-Bucket `/4x/`) und Klassennamen in EN/DE/FR/RU
+  (aus der aktuellen DB, nicht index-verifiziert zwischen den Sprachen). Aethertech/Songweaver/
+  Gunslinger gehören laut Nutzer regulär zu 4.6 (nur von `OriginAion` deaktiviert) – der Meter
+  zielt ohnehin allgemein auf 4.6-Server, nicht nur `OriginAion`. Klassen-/Rassen-Icons inzwischen
+  von `myaion.eu` übernommen (siehe `assets/README.md`), Zuordnung einiger Dateinamen zu den
+  finalen Klassennamen aber noch ungeklärt.
+- **Online-Session-Sharing** (Idee von `myaion.eu` übernommen): Bosskämpfe als Web-Link teilbar
+  machen (Gruppenansicht + Skill-für-Skill-Einzelansicht, siehe `assets/README.md`). Große,
+  spätere Ausbaustufe – braucht eigenes Backend/Hosting, kommt erst nach dem lokalen Client.
 - **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK`**: aktuell wird nur der erste Treffer mit
   `shieldType == 0` sauber geparst; AoE-Skills mit mehreren Zielen oder reflektierte/geblockte
   Treffer brauchen die variable-length-Felder aus dem Original-`SM_ATTACK.java`.
