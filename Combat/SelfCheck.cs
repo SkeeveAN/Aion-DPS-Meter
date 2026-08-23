@@ -111,10 +111,13 @@ public static class SelfCheck
 
     /// <summary>
     /// Builds a synthetic SM_ATTACK body byte-for-byte the way the emulator's SM_ATTACK.java
-    /// writeImpl would (see CombatPacketParser.TryParseAttack's doc comment), with two hits: one
-    /// plain hit (shieldType 0, no extra fields) and one protected hit (shieldType 8, +12 bytes),
-    /// to verify the parser actually walks the variable-length list and picks the right extra
-    /// block size instead of assuming a fixed layout.
+    /// writeImpl would (see CombatPacketParser.TryParseAttack's doc comment), covering all three
+    /// extra-field sizes the shieldType switch can produce: 0 bytes (plain hit), 12 bytes
+    /// (protected hit), and 28 bytes (the shieldType-16 / catch-all case) -- followed by one more
+    /// plain hit, so a wrong 28-byte guess would misalign it and get caught, not just silently
+    /// produce a plausible-looking-but-wrong result. An earlier version only covered the 0- and
+    /// 12-byte branches, leaving the 28-byte catch-all -- the one most likely to hide a bug --
+    /// completely unverified.
     /// </summary>
     private static bool RunAttackPacketParsingScenario()
     {
@@ -133,7 +136,7 @@ public static class SelfCheck
         body.Add(targetHp);
         body.Add(attackerHp);
         WriteI32(body, 0); // counter flag
-        body.Add(2); // hitCount
+        body.Add(4); // hitCount
 
         // Hit 1: plain, shieldType 0 -> no extra fields.
         WriteI32(body, 1000);
@@ -150,27 +153,48 @@ public static class SelfCheck
         WriteI32(body, 111); // protectedDamage
         WriteI32(body, 222); // protectedSkillId
 
+        // Hit 3: reflected, shieldType 16 -> +28 bytes (7 x i32, values irrelevant here).
+        WriteI32(body, 3000);
+        body.Add(7); // attackStatusId
+        body.Add(16); // shieldType
+        body.AddRange(new byte[16]);
+        for (int i = 0; i < 7; i++)
+        {
+            WriteI32(body, 0);
+        }
+
+        // Hit 4: plain again. Only reachable at the right values if hit 3's 28-byte skip was
+        // correct -- a wrong extraLen for shieldType 16 would misalign this hit's fields instead.
+        WriteI32(body, 4000);
+        body.Add(9); // attackStatusId
+        body.Add(0); // shieldType
+        body.AddRange(new byte[16]);
+
         body.Add(0); // trailing list-size byte
 
         var parsed = CombatPacketParser.TryParseAttack(body.ToArray());
 
-        Console.WriteLine("[selftest] SM_ATTACK multi-hit parsing (synthetic, 1 plain + 1 shielded hit):");
+        Console.WriteLine("[selftest] SM_ATTACK multi-hit parsing (synthetic, plain + 12-byte + 28-byte + plain hits):");
         Console.WriteLine($"  parsed: {(parsed is null ? "null" : CombatPacketParser.TryDescribeAttack(body.ToArray()))}");
 
         bool structureOk = parsed is not null
-            && parsed.Hits.Count == 2
+            && parsed.Hits.Count == 4
             && parsed.AttackerObjectId == attacker
             && parsed.TargetObjectId == target
             && parsed.TargetHpPercent == targetHp
             && parsed.AttackerHpPercent == attackerHp;
         bool hit1Ok = parsed is not null && parsed.Hits[0] == new CombatPacketParser.AttackHit(1000, 5, 0);
         bool hit2Ok = parsed is not null && parsed.Hits[1] == new CombatPacketParser.AttackHit(2000, 3, 8);
+        bool hit3Ok = parsed is not null && parsed.Hits[2] == new CombatPacketParser.AttackHit(3000, 7, 16);
+        bool hit4Ok = parsed is not null && parsed.Hits[3] == new CombatPacketParser.AttackHit(4000, 9, 0);
 
         Console.WriteLine($"  -> header fields correct: {structureOk}");
-        Console.WriteLine($"  -> hit 1 (plain) correct: {hit1Ok}");
-        Console.WriteLine($"  -> hit 2 (shielded, correctly skipped 12 extra bytes to find hit 2): {hit2Ok}");
+        Console.WriteLine($"  -> hit 1 (plain, 0 extra bytes) correct: {hit1Ok}");
+        Console.WriteLine($"  -> hit 2 (shielded, 12 extra bytes) correct: {hit2Ok}");
+        Console.WriteLine($"  -> hit 3 (reflected, 28 extra bytes -- previously untested) correct: {hit3Ok}");
+        Console.WriteLine($"  -> hit 4 (plain, only aligned right if hit 3's 28-byte skip was correct): {hit4Ok}");
 
-        return structureOk && hit1Ok && hit2Ok;
+        return structureOk && hit1Ok && hit2Ok && hit3Ok && hit4Ok;
     }
 
     private static void WriteI32(List<byte> buf, int value) => buf.AddRange(BitConverter.GetBytes(value));

@@ -83,11 +83,26 @@ public static class CombatPacketParser
             byte shieldType = body[offset + 5];
             offset += 4 + 1 + 1 + 16;
 
+            // The "_ => 28" catch-all is deliberate, not a shortcut: in the emulator source itself,
+            // shieldType 16 AND its unlabeled "default" branch (its own comment admits shieldType 1
+            // and 4 are real, seen-in-the-wild values it never bothered to name -- "TODO find out 4")
+            // both write exactly 28 bytes. So "unknown shieldType" is not the same as "corrupt data"
+            // here; rejecting anything outside {0,2,8,10,16} would misparse legitimate traffic
+            // (types 1, 4, ...) just as often as it would catch a real desync.
+            //
+            // What this does NOT protect against: the frame this body came from was already
+            // length- and checksum-validated by AionSession using the wire's own length prefix, so
+            // a wrong extraLen guess here cannot corrupt framing or bleed into the next packet --
+            // but within *this* packet, if there's enough slack in the body for a wrong guess to
+            // avoid an outright bounds failure, it will silently produce a plausible-looking but
+            // wrong AttackPacket rather than an error. There is no separate downstream check that
+            // catches that; it's an accepted risk until 0x36 is confirmed to really be SM_ATTACK
+            // with this exact layout (see calibration status in README.md).
             int extraLen = shieldType switch
             {
                 0 or 2 => 0,
                 8 or 10 => 12,
-                _ => 28, // covers shieldType 16 and the writeImpl "default" branch alike
+                _ => 28,
             };
 
             if (offset + extraLen > body.Length)
