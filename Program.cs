@@ -147,31 +147,25 @@ internal static class Program
         string asciiPreview = AsciiPreview(body);
         Console.WriteLine($"[0x{opcode:X4} len={body.Length}] {hexPreview}  '{asciiPreview}'");
 
-        if (opcode == Opcodes.SM_ATTACK_STATUS)
+        if (Describers.TryGetValue(opcode, out var describe))
         {
-            var desc = CombatPacketParser.TryDescribeAttackStatus(body);
-            if (desc is not null)
-            {
-                Console.WriteLine($"    -> {desc}");
-            }
-        }
-        else if (opcode == Opcodes.SM_ATTACK)
-        {
-            var desc = CombatPacketParser.TryDescribeAttack(body);
-            if (desc is not null)
-            {
-                Console.WriteLine($"    -> {desc}");
-            }
-        }
-        else if (opcode == Opcodes.SM_SYSTEM_MESSAGE)
-        {
-            var desc = CombatPacketParser.TryDescribeSystemMessage(body);
+            var desc = describe(body);
             if (desc is not null)
             {
                 Console.WriteLine($"    -> {desc}");
             }
         }
     }
+
+    private static readonly Dictionary<ushort, Func<byte[], string?>> Describers = new()
+    {
+        [Opcodes.SM_ATTACK_STATUS] = CombatPacketParser.TryDescribeAttackStatus,
+        [Opcodes.SM_ATTACK] = CombatPacketParser.TryDescribeAttack,
+        [Opcodes.SM_SYSTEM_MESSAGE] = CombatPacketParser.TryDescribeSystemMessage,
+        [Opcodes.SM_NPC_INFO] = CombatPacketParser.TryDescribeNpcInfo,
+        [Opcodes.SM_DELETE] = CombatPacketParser.TryDescribeDelete,
+        [Opcodes.SM_GROUP_MEMBER_INFO] = CombatPacketParser.TryDescribeGroupMemberInfo,
+    };
 
     private static string AsciiPreview(byte[] body)
     {

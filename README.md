@@ -55,6 +55,16 @@ Kandidaten-Opcodes (unbestätigt für OriginAion):
   im Paket, nicht als Binärzahl. Die konkrete `msgCode` für AP/GP-Gewinn ist im Emulator-Quelltext
   selbst uneindeutig (zwei verschiedene Zahlen an zwei Stellen: `1320000`/`1300965` für AP,
   `1402081`/`1402219` für GP) – muss im echten Traffic beobachtet werden.
+- `0x0E` = `SM_NPC_INFO` – NPC wird sichtbar: `objectId`, `npcId` (Monster-Template-ID – das Feld,
+  auf das eine Boss-Erkennungsliste zielen würde), `nameId`. Fixe Header-Felder, danach folgen
+  Ausrüstung/Buffs variabler Länge (nicht geparst).
+- `0x16` = `SM_DELETE` – Objekt (NPC oder Spieler) verschwindet aus der Sicht. Kandidat für
+  "Kampf/Boss beendet", aber nicht eindeutig von "außer Sichtweite" unterscheidbar ohne
+  zusätzlichen Kontext (z.B. HP zuvor auf 0 über `SM_ATTACK_STATUS`).
+- `0x5B` = `SM_GROUP_MEMBER_INFO` – Gruppen-Roster-Update: `objectId`, HP/MP/FP, Position,
+  `classId`, `level`, und (je Event-Typ) der Spielername als UTF-16LE-Text. **Kein Rassenfeld** –
+  AION-Gruppen sind immer einfaktionig, die Rasse ist implizit die des lokalen Spielers. Bester
+  Kandidat für Namens-/Klassenauflösung der eigenen Gruppe.
 
 Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/Opcodes.cs`
 (Opcodes) – dort anpassen, falls sich beim Kalibrieren zeigt, dass sie nicht passen.
@@ -141,14 +151,15 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
 
 ## Nächste Schritte (nach erfolgreicher Kalibrierung)
 
-- **Namensauflösung + Rasse/Klasse**: Object-IDs → Spielername/Rasse/Klasse brauchen den
-  Spawn-Opcode – noch nicht identifiziert, aber nach demselben Muster wie `SM_ATTACK_STATUS`
-  ableitbar, sobald der Opcode bestätigt ist. Vermutlich ein einziges Paket liefert alle drei
-  Felder zusammen mit der Object-ID.
-- **Boss-Erkennung für iDPS**: braucht (a) ein NPC-Spawn-Paket mit Template-ID, um Instanzbosse
-  von Trash zu unterscheiden, und (b) ein Death/Despawn-Paket, um das Kampfende zu erkennen.
-  Beide Opcodes sind noch nicht identifiziert. Die Boss-Template-ID-Liste selbst müsste aus
-  echten Beobachtungen (eigene Kalibrierung oder MyAion-Dekompile) kommen, nicht aus
+- **Namensauflösung + Klasse**: Kandidat jetzt implementiert (`0x5B`/`SM_GROUP_MEMBER_INFO`,
+  `CombatPacketParser.TryDescribeGroupMemberInfo`) – liefert `objectId`, `classId`, `level` und
+  (je Event) den Namen für die eigene Gruppe. Muss im Kalibrierungslauf verifiziert werden.
+  Deckt nur Gruppenmitglieder ab, keine beliebigen sichtbaren Spieler.
+- **Boss-Erkennung für iDPS**: Kandidaten jetzt implementiert – `0x0E`/`SM_NPC_INFO` liefert
+  `objectId` + `npcId` (Template-ID) beim Sichtbarwerden, `0x16`/`SM_DELETE` liefert `objectId`
+  beim Verschwinden (Tod oder außer Sichtweite – nicht eindeutig unterscheidbar, ggf. mit
+  "HP zuvor auf 0%" aus `SM_ATTACK_STATUS` kombinieren). Die Boss-Template-ID-Liste selbst muss
+  aus echten Beobachtungen kommen (eigene Kalibrierung oder MyAion-Dekompile), nicht aus
   unbestätigten Listen – siehe Warnhinweis oben.
 - **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK`**: aktuell wird nur der erste Treffer mit
   `shieldType == 0` sauber geparst; AoE-Skills mit mehreren Zielen oder reflektierte/geblockte

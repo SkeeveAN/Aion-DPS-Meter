@@ -116,6 +116,80 @@ public static class CombatPacketParser
         return $"SYSTEM_MESSAGE code={code} npcObjId=0x{npcObjId:X8} params=[{string.Join(", ", parts)}]{tag}";
     }
 
+    /// <summary>
+    /// SM_NPC_INFO fixed header (36 bytes; equipment/buffs/etc. follow at a variable offset and
+    /// are not parsed): x,y,z:f32*3, objectId:i32, npcId:i32 (repeated field skipped), typeId:u8,
+    /// state:u16, heading:u8, nameId:i32, titleId:i32. `npcId` is the monster template ID -- the
+    /// field a boss-detection allowlist would key on, once real boss template IDs are observed.
+    /// </summary>
+    public static string? TryDescribeNpcInfo(byte[] body)
+    {
+        if (body.Length < 36)
+        {
+            return null;
+        }
+
+        int objectId = ReadI32(body, 12);
+        int npcId = ReadI32(body, 16);
+        byte typeId = body[24];
+        int nameId = ReadI32(body, 28);
+        int titleId = ReadI32(body, 32);
+
+        return $"NPC_INFO objectId=0x{objectId:X8} npcId={npcId} typeId={typeId} nameId={nameId} titleId={titleId}";
+    }
+
+    /// <summary>SM_DELETE (5 bytes): objectId:i32, animSpeed:u8. Despawn/death candidate signal.</summary>
+    public static string? TryDescribeDelete(byte[] body)
+    {
+        if (body.Length < 5)
+        {
+            return null;
+        }
+
+        int objectId = ReadI32(body, 0);
+        return $"DELETE objectId=0x{objectId:X8}";
+    }
+
+    /// <summary>
+    /// SM_GROUP_MEMBER_INFO fixed header (63 bytes), see writeImpl in the emulator source:
+    /// groupId:i32, objectId:i32, maxHp/curHp/maxMp/curMp/maxFp/curFp:i32*6, unk:i32,
+    /// mapId:i32*2, x/y/z:f32*3, classId:u8, genderId:u8, level:u8, eventId:u8, channel:u16,
+    /// mentor:u8. For most event types a UTF-16LE name string follows -- attempted opportunistically.
+    /// No race field: AION groups are single-faction, race is whatever the local player's is.
+    /// </summary>
+    public static string? TryDescribeGroupMemberInfo(byte[] body)
+    {
+        const int headerLen = 4 + 4 + 4 * 6 + 4 + 4 * 2 + 4 * 3 + 1 + 1 + 1 + 1 + 2 + 1; // = 63
+        if (body.Length < headerLen)
+        {
+            return null;
+        }
+
+        int objectId = ReadI32(body, 4);
+        byte classId = body[56];
+        byte genderId = body[57];
+        byte level = body[58];
+        byte eventId = body[59];
+
+        string name = "";
+        if (body.Length > headerLen)
+        {
+            int offset = headerLen;
+            int start = offset;
+            while (offset + 2 <= body.Length && ReadU16(body, offset) != 0)
+            {
+                offset += 2;
+            }
+
+            if (offset > start)
+            {
+                name = Encoding.Unicode.GetString(body, start, offset - start);
+            }
+        }
+
+        return $"GROUP_MEMBER objectId=0x{objectId:X8} name='{name}' classId={classId} gender={genderId} level={level} event={eventId}";
+    }
+
     private static int ReadI32(byte[] b, int o) => b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24);
     private static ushort ReadU16(byte[] b, int o) => (ushort)(b[o] | (b[o + 1] << 8));
 }

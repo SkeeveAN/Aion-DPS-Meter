@@ -19,6 +19,19 @@ public static class Opcodes
     /// narration). See <see cref="CombatPacketParser.TryDescribeSystemMessage"/>.
     /// </summary>
     public const ushort SM_SYSTEM_MESSAGE = 0x19;
+
+    /// <summary>NPC becomes visible: object ID, template ID (npcId), display name ID. Boss-detection candidate.</summary>
+    public const ushort SM_NPC_INFO = 0x0E;
+
+    /// <summary>Object (NPC or player) is no longer visible -- despawn/death candidate signal.</summary>
+    public const ushort SM_DELETE = 0x16;
+
+    /// <summary>
+    /// Party roster update: object ID, HP/MP/FP, position, class ID, gender, level, and (for
+    /// most event types) the player's name. No race field -- AION parties are same-faction only,
+    /// so race is implied by the local player's own faction. Name/class/level resolution candidate.
+    /// </summary>
+    public const ushort SM_GROUP_MEMBER_INFO = 0x5B;
 }
 
 /// <summary>
