@@ -1,3 +1,4 @@
+using AionSniffer.Data;
 using AionSniffer.Protocol;
 
 namespace AionSniffer.Combat;
@@ -20,6 +21,7 @@ public static class SelfCheck
         ok &= RunGladiatorVsZaubererScenario();
         ok &= RunMyAionReplayScenario();
         ok &= RunAttackPacketParsingScenario();
+        ok &= RunSkillDatabaseScenario();
         return ok;
     }
 
@@ -199,4 +201,35 @@ public static class SelfCheck
 
     private static void WriteI32(List<byte> buf, int value) => buf.AddRange(BitConverter.GetBytes(value));
     private static void WriteU16(List<byte> buf, ushort value) => buf.AddRange(BitConverter.GetBytes(value));
+
+    /// <summary>
+    /// Verifies SkillDatabase actually finds and parses assets/skills/skills_en_4x.json at
+    /// runtime -- this exercises the real deployment path (AppContext.BaseDirectory + the
+    /// csproj's CopyToOutputDirectory setting for assets/), not just the JSON parsing in
+    /// isolation. Skill 1 ("Basic Sword Training") is the first row in that file.
+    /// </summary>
+    private static bool RunSkillDatabaseScenario()
+    {
+        var table = SkillDatabase.Load();
+        string knownName = SkillDatabase.DisplayName(1);
+        string unknownName = SkillDatabase.DisplayName(999_999_999);
+
+        Console.WriteLine("[selftest] SkillDatabase load (assets/skills/skills_en_4x.json):");
+        Console.WriteLine($"  loaded {table.Count} skills; skill 1 = \"{knownName}\"; unknown id -> \"{unknownName}\"");
+
+        bool loadedSomething = table.Count > 500; // expect ~974; loose bound so minor rescrapes don't break this
+        bool knownResolved = knownName == "Basic Sword Training";
+        bool unknownFallsBack = unknownName.Contains("unknown");
+
+        Console.WriteLine($"  -> table loaded with a plausible size: {loadedSomething}");
+        Console.WriteLine($"  -> skill 1 resolved to its real name: {knownResolved}");
+        Console.WriteLine($"  -> unknown id falls back cleanly instead of throwing: {unknownFallsBack}");
+
+        if (!loadedSomething || !knownResolved)
+        {
+            Console.WriteLine($"  (looked for assets at: {Path.Combine(AppContext.BaseDirectory, "assets", "skills", "skills_en_4x.json")})");
+        }
+
+        return loadedSomething && knownResolved && unknownFallsBack;
+    }
 }

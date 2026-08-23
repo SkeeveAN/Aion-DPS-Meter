@@ -1,4 +1,5 @@
 using System.Text;
+using AionSniffer.Data;
 
 namespace AionSniffer.Protocol;
 
@@ -29,8 +30,9 @@ public static class CombatPacketParser
 
         string kind = value < 0 ? "DAMAGE" : "GAIN";
         int amount = Math.Abs(value);
+        string skillName = skillId == 0 ? "(none)" : SkillDatabase.DisplayName(skillId);
 
-        return $"ATTACK_STATUS target=0x{creatureObjId:X8} {kind}={amount} hp%={hpPercent} type={type} skill={skillId} log={logId}";
+        return $"ATTACK_STATUS target=0x{creatureObjId:X8} {kind}={amount} hp%={hpPercent} type={type} skill={skillId} \"{skillName}\" log={logId}";
     }
 
     /// <summary>One hit result inside an SM_ATTACK packet's hit list.</summary>

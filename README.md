@@ -156,9 +156,12 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
 - **Rasse (Elyos/Asmodian) und Klasse pro Spieler** – steckt vermutlich im noch nicht
   identifizierten Spawn-Paket (im Emulator `SM_PLAYER_INFO`/`SM_PLAYER_SPAWN` o.ä.), zusammen mit
   dem Namen
-- **Skill-Erkennung** – die `skillId` steht schon in `SM_ATTACK_STATUS`/`SM_ATTACK`; fehlt noch
-  die Zuordnung ID → Skillname/Icon (reine Datentabelle, kein Reverse-Engineering mehr, siehe
-  unten)
+- **Skill-Erkennung – ID→Name-Auflösung erledigt**: `Data/SkillDatabase.cs` lädt
+  `assets/skills/skills_en_4x.json` (974 Skills, siehe `assets/README.md`) und löst die
+  `skillId` aus `SM_ATTACK_STATUS` jetzt direkt in einen Namen auf, statt nur die rohe Zahl
+  anzuzeigen. Nur `SM_ATTACK_STATUS` trägt eine `skillId` im Paket – `SM_ATTACK` (der direkte
+  Schwung-Schaden) offenbar nicht, siehe Struktur oben. Icon-Auflösung (Dateiname → tatsächliches
+  Bild) noch nicht angebunden, das kommt mit der UI.
 - **UI** – Live-Overlay (WPF/WinForms) mit Rangliste pro Spieler, DPS/HPS-Verlauf, ähnlich
   UltraKikiMeter/rainy.ws, aber mit Live-Netzwerkdaten statt Chat-Log-Nachlese
   - **Live-Anzeige während der Aufnahme**: DPS (Gesamtschaden ÷ verstrichene Aufnahmezeit, die
