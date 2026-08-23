@@ -20,7 +20,19 @@ namespace AionSniffer;
 internal static class Program
 {
     private static readonly Dictionary<string, AionSession> ConfirmedSessions = new();
-    private static readonly HashSet<string> AttemptedFlows = new();
+
+    /// <summary>
+    /// Per-flow count of handshake-check attempts. Deliberately NOT a one-shot HashSet: an
+    /// earlier version gave every flow exactly one try at LooksLikeAionHandshake and then
+    /// blacklisted it forever via HashSet.Add's "already present" return, permanently discarding
+    /// a flow if its very first captured payload happened to be a partial/misaligned segment --
+    /// found during the first real calibration run against a live server (see README), where it
+    /// meant a failed heuristic on packet 1 could never be revisited even if packet 2 or 3 of the
+    /// same flow would have matched.
+    /// </summary>
+    private static readonly Dictionary<string, int> HandshakeAttempts = new();
+    private const int MaxHandshakeAttempts = 5;
+
     private static readonly Dictionary<ushort, int> OpcodeCounts = new();
     private static readonly LiveAggregator Aggregator = new();
 
@@ -119,10 +131,13 @@ internal static class Program
             return;
         }
 
-        if (!AttemptedFlows.Add(flowKey))
+        int attempts = HandshakeAttempts.GetValueOrDefault(flowKey);
+        if (attempts >= MaxHandshakeAttempts)
         {
-            return; // already tried this flow's first segment and it wasn't Aion's handshake
+            return; // gave this flow enough early packets to prove itself, moving on
         }
+
+        HandshakeAttempts[flowKey] = attempts + 1;
 
         if (!LooksLikeAionHandshake(payload))
         {
