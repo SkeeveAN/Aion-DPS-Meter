@@ -99,17 +99,26 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
 ## Anforderungen an den fertigen Meter (Stand dieser Session)
 
 - **DMG** (Kern) – über `SM_ATTACK` / `SM_ATTACK_STATUS`
-- **DPS vs. iDPS** – zwei Kennzahlen aus (Zeitstempel, Schaden) pro Spieler, reine
-  Aggregations-Logik, braucht keine zusätzlichen Pakete:
-  - **DPS** = Schaden ÷ nur die *aktive* Zeit (lange Lücken zwischen Skills zählen nicht in den
-    Nenner). Macht Klassen mit seltenen großen Nukes künstlich stark.
-  - **iDPS** = Schaden ÷ die *komplette* Encounter-Dauer, inklusive Leerlaufzeiten. Das ist die
-    korrigierte, faire Zahl: ein Zauberer, der nur alle 60s einen großen Skill nutzt (sonst
-    nichts tut), sieht bei DPS weit vor einem Gladiator mit konstanten Auto-Attacks/Weaving aus,
-    bei iDPS (die 60s Leerlauf zählen mit) relativiert sich das.
-  - Offene Design-Frage für später: ab welcher Lückenlänge gilt ein Zeitabschnitt als "inaktiv"
-    und fällt aus dem DPS-Nenner (Default-Vorschlag: > 3s ohne ausgehenden Schaden dieses
-    Spielers).
+- **DPS vs. iDPS** (Definition nach Diskussion, Stand: geklärt):
+  - **DPS** = Schaden ÷ komplette Session-/Instanz-Dauer, inkl. Laufwege, Trash, Wartezeiten
+    zwischen Pulls.
+  - **iDPS** = **gewichteter Durchschnitt über alle Bosskämpfe**: Summe(Schaden an
+    Instanzbossen) ÷ Summe(Kampfdauer aller Bosskämpfe). Kampfdauer pro Boss = erster
+    registrierter Treffer bis Boss-Tod. Trash-Schaden, Laufwege, Cutscenes, Wartezeit
+    zwischen Bosskämpfen zählen nicht mit. Das ist ein gewichteter Durchschnitt (längere
+    Kämpfe zählen stärker), nicht der Mittelwert der einzelnen Boss-DPS-Werte.
+  - Braucht zusätzlich zur Schadens-Erkennung: eine Boss-Erkennung (bekannte NPC-Objekt-IDs
+    für Instanzbosse) und Kampf-Start/Ende-Events (erster Treffer / Death-Paket) – siehe
+    "Nächste Schritte".
+  - **Vorsicht**: In dieser Session wurden mehrfach ausführliche ChatGPT-generierte Erklärungen
+    zu iDPS/Boss-Erkennung eingebracht, die im Kern (obige Definition) plausibel und übernommen
+    wurden, aber auch sehr konkret klingende, unbestätigte Details enthielten (exakte
+    NPC-Template-IDs einzelner Bosse, Opcode-Namen, C++-Code, eine SQL-Query gegen ein
+    angeblich bekanntes Datenbankschema, ein Feature-Vergleich aiDPS-vs-MyAion). Diese
+    Detailbehauptungen wurden **nicht** übernommen – sie sind nicht verifizierbar und wirken wie
+    plausibel klingende Erfindungen. Bosse/Opcodes/IDs für den echten Meter müssen aus
+    verifizierten Quellen kommen (eigene Kalibrierung oder die MyAion-Dekompilierung), nicht aus
+    unbelegten KI-Antworten.
 - **HEAL** – dieselben Pakete, positiver statt negativer Wert
 - **AP (Abyss Points)** und **GP (Glory Points)** – vermutlich über `SM_SYSTEM_MESSAGE`,
   `msgCode` noch zu bestätigen (siehe oben)
@@ -136,6 +145,11 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
   Spawn-Opcode – noch nicht identifiziert, aber nach demselben Muster wie `SM_ATTACK_STATUS`
   ableitbar, sobald der Opcode bestätigt ist. Vermutlich ein einziges Paket liefert alle drei
   Felder zusammen mit der Object-ID.
+- **Boss-Erkennung für iDPS**: braucht (a) ein NPC-Spawn-Paket mit Template-ID, um Instanzbosse
+  von Trash zu unterscheiden, und (b) ein Death/Despawn-Paket, um das Kampfende zu erkennen.
+  Beide Opcodes sind noch nicht identifiziert. Die Boss-Template-ID-Liste selbst müsste aus
+  echten Beobachtungen (eigene Kalibrierung oder MyAion-Dekompile) kommen, nicht aus
+  unbestätigten Listen – siehe Warnhinweis oben.
 - **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK`**: aktuell wird nur der erste Treffer mit
   `shieldType == 0` sauber geparst; AoE-Skills mit mehreren Zielen oder reflektierte/geblockte
   Treffer brauchen die variable-length-Felder aus dem Original-`SM_ATTACK.java`.
