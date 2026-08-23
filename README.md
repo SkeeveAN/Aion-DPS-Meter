@@ -160,8 +160,13 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
   `objectId` + `npcId` (Template-ID) beim Sichtbarwerden, `0x16`/`SM_DELETE` liefert `objectId`
   beim Verschwinden (Tod oder außer Sichtweite – nicht eindeutig unterscheidbar, ggf. mit
   "HP zuvor auf 0%" aus `SM_ATTACK_STATUS` kombinieren). Die Boss-Template-ID-Liste selbst muss
-  aus echten Beobachtungen kommen (eigene Kalibrierung oder MyAion-Dekompile), nicht aus
-  unbestätigten Listen – siehe Warnhinweis oben.
+  aus echten Beobachtungen der eigenen Kalibrierung kommen (MyAion-Dekompile ist keine Option
+  mehr, siehe Tabelle oben), nicht aus unbestätigten Listen – siehe Warnhinweis oben.
+- **Skill-/Klassen-Assets gesammelt**: siehe [`assets/README.md`](assets/README.md) – 974
+  Skillnamen+Icons (Englisch, `aioncodex.com`-Bucket `/4x/`, **nicht als exakt 4.6 verifiziert** –
+  enthält Klassen wie Aethertech/Songweaver, die erst nach 4.6 kamen) und Klassennamen in
+  EN/DE/FR/RU (aus der aktuellen DB, nicht index-verifiziert zwischen den Sprachen). Klassen-Icons
+  fehlen noch – kein sauberer Endpunkt gefunden, Vorschlag: aus lokalen Client-Assets extrahieren.
 - **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK`**: aktuell wird nur der erste Treffer mit
   `shieldType == 0` sauber geparst; AoE-Skills mit mehreren Zielen oder reflektierte/geblockte
   Treffer brauchen die variable-length-Felder aus dem Original-`SM_ATTACK.java`.

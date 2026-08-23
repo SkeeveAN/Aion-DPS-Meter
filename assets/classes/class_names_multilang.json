@@ -1,0 +1,58 @@
+{
+  "us": [
+    "Aethertech",
+    "Assassin",
+    "Chanter",
+    "Cleric",
+    "Gladiator",
+    "Gunslinger",
+    "Muse",
+    "Ranger",
+    "Songweaver",
+    "Sorcerer",
+    "Spiritmaster",
+    "Templar"
+  ],
+  "de": [
+    "Assassine",
+    "Barde",
+    "Beschwörer",
+    "Gladiator",
+    "Jäger",
+    "Kantor",
+    "Kleriker",
+    "Künstler",
+    "Schütze",
+    "Templer",
+    "Zauberer",
+    "Äthertech"
+  ],
+  "fr": [
+    "Artiste",
+    "Assassin",
+    "Aède",
+    "Barde",
+    "Clerc",
+    "Gladiateur",
+    "Pistolero",
+    "Rôdeur",
+    "Sorcier",
+    "Spiritualiste",
+    "Templier",
+    "Éthertech"
+  ],
+  "ru": [
+    "Артист",
+    "Бард",
+    "Волшебник",
+    "Гладиатор",
+    "Заклинатель",
+    "Пилот",
+    "Снайпер",
+    "Страж",
+    "Стрелок",
+    "Убийца",
+    "Целитель",
+    "Чародей"
+  ]
+}
