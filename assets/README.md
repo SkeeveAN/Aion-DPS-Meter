@@ -48,12 +48,15 @@ im Meter verwendet wird.
 - Rassen: `Elyos.png`, `Asmodian.png` – eindeutig.
 - Klassen, bestätigt vorhanden (HTTP 200 direkt abgefragt): `Gladiator, Templar, Assassin,
   Ranger, Sorcerer, Spiritmaster, Cleric, Chanter, Aethertech, Bard, Priest, Gunner, Painter`.
-  **Ungeklärt**: `Bard`, `Priest`, `Gunner`, `Painter` passen nicht sauber auf die 12 bekannten
-  finalen Klassennamen (kein `Songweaver.png`, `Gunslinger.png`, `Cleric`+`Priest` beide vorhanden
-  o.ä. unter den naheliegenden Namen gefunden – ergaben HTTP 400). Vermutung: unterschiedliche
-  interne Namenskonvention von myaion.eu (evtl. alte/Beta-Klassennamen oder Basisklassen-Embleme
-  vor der finalen Entscheidung), aber nicht verifiziert – die Icons selbst sind gespeichert, ihre
-  Zuordnung zu den echten Klassennamen muss noch von jemandem mit Spielkenntnis bestätigt werden.
+  Zuordnung (vom Nutzer bestätigt):
+  - `Gunner` = Gunslinger
+  - `Bard` = Barde/Songweaver-Linie
+  - `Priest` = Grundklasse von Cleric und Chanter, Level 1–9 vor der Klassenwahl (dasselbe Muster
+    wie `fighter`/`knight` bei aioncodex, nur eben ein eigenes Emblem statt eines geteilten)
+  - `Painter` = eigene, neuere Klasse (kam laut Nutzer erst mit Patch ~7.2) – **für 4.6 irrelevant**,
+    Icon bleibt zur Vollständigkeit gespeichert, aber nicht in eine 4.6-Klassenliste einsortieren.
+  - `Songweaver.png`/`Gunslinger.png` existieren unter diesen Namen nicht – die Seite nutzt intern
+    andere Bezeichner für dieselben Klassen (s.o.).
 - Skill-Icons wurden von myaion.eu **nicht** gesammelt (kein browsbarer Datenbank-Bereich
   gefunden, nur einzelne Icons in Session-Tooltips) – aioncodex.com bleibt dafür die Quelle.
 - **Keine Mehrsprachigkeit**: myaion.eu hat keinen Sprachumschalter, alle Texte sind Englisch.
