@@ -206,12 +206,15 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
   mit gemeinsamer Kampfdauer, Instanz-iDPS als gewichteter Durchschnitt). Per
   `dotnet run -- selftest` ohne Capture verifizierbar – reproduziert sowohl das
   Gladiator/Zauberer-Gedankenexperiment als auch die echten myaion.eu-Zahlen
-  (84.360.277 Schaden / 438.288 iDPS aus `/PvESession/1716393`). Bekannte, dokumentierte
-  Lücke: bei komplett isolierten Einzeltreffern (keine zwei Treffer näher als die
-  Idle-Schwelle) hat "active-only" keine sinnvolle Zeitbasis und fällt auf den rohen
-  Schadenswert zurück – im Selbsttest absichtlich sichtbar gemacht, nicht versteckt. Noch nicht
-  an echte Pakete angebunden (`AionSession`/`CombatPacketParser` liefern noch keine
-  `DamageEvent`s), das folgt nach der Kalibrierung.
+  (84.360.277 Schaden / 438.288 iDPS aus `/PvESession/1716393`, exakt getroffen). Von
+  `terminal_windows` gebaut+ausgeführt: 0 Warnungen, 0 Fehler, alle Checks bestanden.
+  **Nachgebessert nach Rückmeldung**: bei komplett isolierten Einzeltreffern (keine zwei Treffer
+  näher als die Idle-Schwelle) hat "active-only" keine sinnvolle Zeitbasis – `AllDpsActiveOnly`
+  gibt jetzt `null` zurück statt (wie in der ersten Fassung) die rohe Schadenssumme als
+  vermeintliche Rate auszugeben. Grund: eine "250.000 iDPS"-Anzeige ohne Kontext sieht in der
+  späteren UI wie ein Bug aus, nicht wie "nicht definiert" – das fiel beim Testen auf den echten
+  Zahlen auf. Noch nicht an echte Pakete angebunden (`AionSession`/`CombatPacketParser` liefern
+  noch keine `DamageEvent`s), das folgt nach der Kalibrierung.
 - **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK`**: aktuell wird nur der erste Treffer mit
   `shieldType == 0` sauber geparst; AoE-Skills mit mehreren Zielen oder reflektierte/geblockte
   Treffer brauchen die variable-length-Felder aus dem Original-`SM_ATTACK.java`.

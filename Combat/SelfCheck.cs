@@ -42,12 +42,12 @@ public static class SelfCheck
 
         double gladWall = DpsCalculator.AllDpsWallClock(events, GladiatorId);
         double zaubWall = DpsCalculator.AllDpsWallClock(events, ZaubererId);
-        double gladActive = DpsCalculator.AllDpsActiveOnly(events, GladiatorId, TimeSpan.FromSeconds(3));
-        double zaubActive = DpsCalculator.AllDpsActiveOnly(events, ZaubererId, TimeSpan.FromSeconds(3));
+        double? gladActive = DpsCalculator.AllDpsActiveOnly(events, GladiatorId, TimeSpan.FromSeconds(3));
+        double? zaubActive = DpsCalculator.AllDpsActiveOnly(events, ZaubererId, TimeSpan.FromSeconds(3));
 
         Console.WriteLine("[selftest] Gladiator/Zauberer ALL-view scenario:");
-        Console.WriteLine($"  Gladiator: wallclock={gladWall:F1} active={gladActive:F1} (300 hits x 1000 dmg, 1s apart)");
-        Console.WriteLine($"  Zauberer:  wallclock={zaubWall:F1} active={zaubActive:F1} (5 hits x 50000 dmg, 60s apart)");
+        Console.WriteLine($"  Gladiator: wallclock={gladWall:F1} active={Fmt(gladActive)} (300 hits x 1000 dmg, 1s apart)");
+        Console.WriteLine($"  Zauberer:  wallclock={zaubWall:F1} active={Fmt(zaubActive)} (5 hits x 50000 dmg, 60s apart)");
 
         // Expectation: on a raw wall-clock "ALL" reading the bursty Zauberer is NOT obviously
         // behind the sustained Gladiator (~1042 vs ~1003) -- this is the exact unfairness the
@@ -55,20 +55,22 @@ public static class SelfCheck
         bool wallClockLooksUnfair = zaubWall > gladWall * 0.9;
 
         // Expectation: with a 3s idle threshold, every one of the Gladiator's 1s gaps counts
-        // (constant activity), but every one of the Zauberer's 60s gaps is excluded outright --
-        // there's no gap short enough to count, so the "active" denominator collapses to zero
-        // and the fallback (returning raw total damage as if it were a rate) kicks in. That's a
-        // known, deliberate limitation: isolated instantaneous bursts have no well-defined
-        // "active duration" under this simple gap-sum model -- flagged here, not hidden.
-        bool gladiatorActiveIsReasonable = gladActive > 900 && gladActive < 1100;
-        bool zaubererActiveHitsFallback = Math.Abs(zaubActive - 250_000) < 1;
+        // (constant activity), so a real rate comes out. Every one of the Zauberer's 60s gaps
+        // is excluded outright -- there's no gap short enough to count, so there is no active
+        // time to divide by. AllDpsActiveOnly returns null for that rather than the raw damage
+        // total (an earlier version did that, and it reads as a UI bug -- "250,000 iDPS" with no
+        // context looks broken, not "undefined"; a real build would show "n/a" here instead).
+        bool gladiatorActiveIsReasonable = gladActive is double g && g > 900 && g < 1100;
+        bool zaubererActiveIsUndefined = zaubActive is null;
 
         Console.WriteLine($"  -> wall-clock makes the bursty caster look competitive: {wallClockLooksUnfair}");
         Console.WriteLine($"  -> active-only correctly rates the sustained gladiator: {gladiatorActiveIsReasonable}");
-        Console.WriteLine($"  -> active-only hits the known isolated-burst fallback for the caster (expected, documented limitation): {zaubererActiveHitsFallback}");
+        Console.WriteLine($"  -> active-only correctly reports \"undefined\" for the isolated-burst caster: {zaubererActiveIsUndefined}");
 
-        return wallClockLooksUnfair && gladiatorActiveIsReasonable && zaubererActiveHitsFallback;
+        return wallClockLooksUnfair && gladiatorActiveIsReasonable && zaubererActiveIsUndefined;
     }
+
+    private static string Fmt(double? v) => v.HasValue ? v.Value.ToString("F1") : "n/a";
 
     /// <summary>
     /// Replays the real numbers from myaion.eu's public session /PvESession/1716393: player
@@ -97,7 +99,7 @@ public static class SelfCheck
 
         double? iDps = DpsCalculator.TargetIDps(events, BossId, GladiatorId);
         Console.WriteLine("[selftest] myaion.eu replay (Strohmie vs. boss, /PvESession/1716393):");
-        Console.WriteLine($"  expected iDPS={expectedIDps}, computed iDPS={(iDps.HasValue ? iDps.Value.ToString("F1") : "null")}");
+        Console.WriteLine($"  expected iDPS={expectedIDps}, computed iDPS={Fmt(iDps)}");
 
         bool matches = iDps is double v && Math.Abs(v - expectedIDps) < 1.0;
         Console.WriteLine($"  -> matches within rounding: {matches}");

@@ -41,13 +41,19 @@ public static class DpsCalculator
     /// between mobs, waiting for a pull) are excluded entirely. Convention: the tail after the
     /// very last hit of a stretch is not counted either, so this slightly undercounts on
     /// purpose rather than guess at a "still fighting" grace period.
+    ///
+    /// Returns null -- not a number -- when every gap exceeded the threshold (e.g. a source
+    /// that only ever lands isolated, far-apart hits): there is no active time to divide by, and
+    /// a caller must not fall back to showing the raw damage total as if it were a rate (a real
+    /// build of this once did exactly that during testing, and it reads as a UI bug: a "250,000
+    /// iDPS" figure with no context looks broken, not "undefined").
     /// </summary>
-    public static double AllDpsActiveOnly(IReadOnlyList<DamageEvent> events, int sourceObjectId, TimeSpan idleThreshold)
+    public static double? AllDpsActiveOnly(IReadOnlyList<DamageEvent> events, int sourceObjectId, TimeSpan idleThreshold)
     {
         var hits = HitsBy(events, sourceObjectId);
         if (hits.Count == 0)
         {
-            return 0;
+            return null;
         }
 
         long total = hits.Sum(e => e.Amount);
@@ -61,7 +67,7 @@ public static class DpsCalculator
             }
         }
 
-        return activeSeconds > 0 ? total / activeSeconds : total;
+        return activeSeconds > 0 ? total / activeSeconds : null;
     }
 
     /// <summary>
