@@ -161,6 +161,15 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
   unten)
 - **UI** – Live-Overlay (WPF/WinForms) mit Rangliste pro Spieler, DPS/HPS-Verlauf, ähnlich
   UltraKikiMeter/rainy.ws, aber mit Live-Netzwerkdaten statt Chat-Log-Nachlese
+  - **Live-Anzeige während der Aufnahme**: DPS (Gesamtschaden ÷ verstrichene Aufnahmezeit, die
+    "ALL"-Rate) muss durchgehend berechnet und angezeigt werden, solange aufgenommen wird – immer
+    wohldefiniert, unabhängig davon, wie viele verschiedene Ziele getroffen wurden. iDPS wird
+    daneben angezeigt, aber nur wenn wohldefiniert: sobald die Aufnahme mehrere unterschiedliche
+    Ziele/Encounter mischt (offene Welt, wechselnde Mobs), gibt es keine einzelne gemeinsame
+    Kampfdauer mehr, durch die man teilen könnte. In dem Fall statt einer (irreführenden) Zahl
+    einen kleinen Hinweis zeigen: "iDPS in der ALL-Ansicht nicht verfügbar – funktioniert nur pro
+    Ziel." iDPS wird also nur angezeigt, wenn die aktuelle Ansicht/Aufnahme auf ein einzelnes Ziel
+    eingegrenzt ist (oder bisher nur eines getroffen hat).
 - **Mehrsprachigkeit** – die *Erkennung* ist bauartbedingt schon sprachunabhängig: auf dem Draht
   stehen nur numerische IDs (`skillId`, `msgCode`, Rassen-/Klassen-Enums), keine lokalisierten
   Texte. Das ist der Kernunterschied zu UltraKikiMeter/rainy.ws, die pro Sprache eigene
