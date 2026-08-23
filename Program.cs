@@ -163,6 +163,14 @@ internal static class Program
                 Console.WriteLine($"    -> {desc}");
             }
         }
+        else if (opcode == Opcodes.SM_SYSTEM_MESSAGE)
+        {
+            var desc = CombatPacketParser.TryDescribeSystemMessage(body);
+            if (desc is not null)
+            {
+                Console.WriteLine($"    -> {desc}");
+            }
+        }
     }
 
     private static string AsciiPreview(byte[] body)

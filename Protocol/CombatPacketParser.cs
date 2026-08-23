@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace AionSniffer.Protocol;
 
 /// <summary>
@@ -61,6 +63,57 @@ public static class CombatPacketParser
         return $"ATTACK attacker=0x{attackerObjId:X8} target=0x{targetObjId:X8} hits={hitCount} " +
                $"firstHit.damage={firstDamage} status={attackStatusId} shield={shieldType} " +
                $"targetHp%={targetHp} attackerHp%={attackerHp} attackNo={attackNo}";
+    }
+
+    /// <summary>
+    /// SM_SYSTEM_MESSAGE body: textColorId:u8, unk:u8, npcObjId:i32, msgCode:i32, paramCount:u8,
+    /// then paramCount entries that are either a DescriptionId (fixed 8 bytes, starts with the
+    /// marker short 0x0024) or a null-terminated UTF-16LE string. This is the same generic packet
+    /// AION uses for AP/GP gain notifications ("You have earned %num0 Abyss Points") and for
+    /// plain-text combat narration ("You inflicted %num1 damage on %0") -- useful as a
+    /// human-readable cross-check against the binary SM_ATTACK/SM_ATTACK_STATUS decode, and as
+    /// the (probable) source for AP/GP tracking once the real msgCode values are confirmed.
+    /// </summary>
+    public static string? TryDescribeSystemMessage(byte[] body)
+    {
+        if (body.Length < 11)
+        {
+            return null;
+        }
+
+        int npcObjId = ReadI32(body, 2);
+        int code = ReadI32(body, 6);
+        byte paramCount = body[10];
+        int offset = 11;
+        var parts = new List<string>();
+
+        for (int i = 0; i < paramCount && offset + 2 <= body.Length; i++)
+        {
+            ushort marker = ReadU16(body, offset);
+            if (marker == 0x0024 && offset + 8 <= body.Length)
+            {
+                int descId = ReadI32(body, offset + 2);
+                parts.Add($"#{descId}");
+                offset += 8;
+            }
+            else
+            {
+                int start = offset;
+                while (offset + 2 <= body.Length && ReadU16(body, offset) != 0)
+                {
+                    offset += 2;
+                }
+
+                parts.Add(Encoding.Unicode.GetString(body, start, offset - start));
+                offset += 2; // null terminator
+            }
+        }
+
+        string tag = code is 1320000 or 1300965 or 1402081 or 1402219
+            ? " [AP/GP CANDIDATE -- unconfirmed msgCode]"
+            : "";
+
+        return $"SYSTEM_MESSAGE code={code} npcObjId=0x{npcObjId:X8} params=[{string.Join(", ", parts)}]{tag}";
     }
 
     private static int ReadI32(byte[] b, int o) => b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24);

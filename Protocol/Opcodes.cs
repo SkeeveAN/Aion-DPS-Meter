@@ -13,6 +13,12 @@ public static class Opcodes
 
     /// <summary>Direct attack/skill result: attacker vs target, one or more hit results with damage.</summary>
     public const ushort SM_ATTACK = 0x36;
+
+    /// <summary>
+    /// Generic localized system message (chat-window notices, AP/GP gain, plain-text combat
+    /// narration). See <see cref="CombatPacketParser.TryDescribeSystemMessage"/>.
+    /// </summary>
+    public const ushort SM_SYSTEM_MESSAGE = 0x19;
 }
 
 /// <summary>

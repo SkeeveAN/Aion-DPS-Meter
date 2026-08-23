@@ -43,9 +43,18 @@ Payload (nach Entschlüsselung):
 - **Opcode-Verschleierung**: `obfuscated = (real + 0xCC) XOR 0xDD`.
 
 Kandidaten-Opcodes (unbestätigt für OriginAion):
-- `0x05` = `SM_ATTACK_STATUS` – HP/MP/FP-Tick (Schaden negativ, Heal positiv), 14 Byte Body
+- `0x05` = `SM_ATTACK_STATUS` – HP/MP/FP-Tick (Schaden negativ ⇒ DMG, positiv ⇒ **HEAL**/Regen),
+  14 Byte Body. Heal-Tracking braucht also keinen eigenen Opcode, nur eine Unterscheidung
+  nach `type`/`logId`.
 - `0x36` = `SM_ATTACK` – direkter Skill/Attacke mit Trefferliste, Damage-Feld ist das, was ein
   DMG-Meter eigentlich braucht
+- `0x19` = `SM_SYSTEM_MESSAGE` – generische lokalisierte Textnachricht (Chat-Fenster-Hinweise).
+  Wird u.a. für **AP-/GP-Gewinn** benutzt ("You have earned %num0 Abyss/Glory Points") und für
+  eine rein textuelle Kampf-Narration ("You inflicted %num1 damage on %0") – gut als
+  menschenlesbarer Gegen-Check zu `SM_ATTACK`. Zahlenwerte stehen hier als UTF-16LE-**Text**
+  im Paket, nicht als Binärzahl. Die konkrete `msgCode` für AP/GP-Gewinn ist im Emulator-Quelltext
+  selbst uneindeutig (zwei verschiedene Zahlen an zwei Stellen: `1320000`/`1300965` für AP,
+  `1402081`/`1402219` für GP) – muss im echten Traffic beobachtet werden.
 
 Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/Opcodes.cs`
 (Opcodes) – dort anpassen, falls sich beim Kalibrieren zeigt, dass sie nicht passen.
@@ -84,17 +93,56 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
    HP%-Werte plausibel)? Falls nicht: mit `grep` nach Paketen suchen, die in der richtigen
    Größenordnung ein plausibles `i32`-Feld enthalten – das sind dann die echten Opcodes für
    OriginAion, `Protocol/Opcodes.cs` entsprechend anpassen.
+6. Beim Erhalt von AP (Kill/Objective in der Abyss) bzw. GP (Glory-Arena): nach `0x0019`-Zeilen
+   mit `[AP/GP CANDIDATE]`-Markierung suchen und die tatsächliche `code`-Zahl notieren.
+
+## Anforderungen an den fertigen Meter (Stand dieser Session)
+
+- **DMG** (Kern) – über `SM_ATTACK` / `SM_ATTACK_STATUS`
+- **HEAL** – dieselben Pakete, positiver statt negativer Wert
+- **AP (Abyss Points)** und **GP (Glory Points)** – vermutlich über `SM_SYSTEM_MESSAGE`,
+  `msgCode` noch zu bestätigen (siehe oben)
+- **Rasse (Elyos/Asmodian) und Klasse pro Spieler** – steckt vermutlich im noch nicht
+  identifizierten Spawn-Paket (im Emulator `SM_PLAYER_INFO`/`SM_PLAYER_SPAWN` o.ä.), zusammen mit
+  dem Namen
+- **Skill-Erkennung** – die `skillId` steht schon in `SM_ATTACK_STATUS`/`SM_ATTACK`; fehlt noch
+  die Zuordnung ID → Skillname/Icon (reine Datentabelle, kein Reverse-Engineering mehr, siehe
+  unten)
+- **UI** – Live-Overlay (WPF/WinForms) mit Rangliste pro Spieler, DPS/HPS-Verlauf, ähnlich
+  UltraKikiMeter/rainy.ws, aber mit Live-Netzwerkdaten statt Chat-Log-Nachlese
+- **Mehrsprachigkeit** – die *Erkennung* ist bauartbedingt schon sprachunabhängig: auf dem Draht
+  stehen nur numerische IDs (`skillId`, `msgCode`, Rassen-/Klassen-Enums), keine lokalisierten
+  Texte. Das ist der Kernunterschied zu UltraKikiMeter/rainy.ws, die pro Sprache eigene
+  Regex-Parser für den lokalisierten Chat-Text brauchen. Sprachabhängig ist nur die *Anzeige*
+  (ID → Name) – dafür bräuchte man die Namenstabelle aus dem Client selbst
+  (`L10N/<sprache>/data/data.pak`, proprietäres AION-PAK-Format, aktuell nur `eng` installiert)
+  oder eine eigene, von Hand gepflegte ID→Name-Tabelle. Die UI-Texte des Meters selbst (Labels,
+  Buttons) sind unabhängig davon triviale eigene i18n-Strings.
 
 ## Nächste Schritte (nach erfolgreicher Kalibrierung)
 
-- **Namensauflösung**: Object-IDs → Spielernamen brauchen den Spawn-Opcode (im Emulator
-  `SM_PLAYER_INFO`/`SM_PLAYER_SPAWN` o.ä.) – noch nicht implementiert, aber nach demselben Muster
-  wie `SM_ATTACK_STATUS` ableitbar, sobald der Opcode bestätigt ist.
+- **Namensauflösung + Rasse/Klasse**: Object-IDs → Spielername/Rasse/Klasse brauchen den
+  Spawn-Opcode – noch nicht identifiziert, aber nach demselben Muster wie `SM_ATTACK_STATUS`
+  ableitbar, sobald der Opcode bestätigt ist. Vermutlich ein einziges Paket liefert alle drei
+  Felder zusammen mit der Object-ID.
 - **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK`**: aktuell wird nur der erste Treffer mit
   `shieldType == 0` sauber geparst; AoE-Skills mit mehreren Zielen oder reflektierte/geblockte
   Treffer brauchen die variable-length-Felder aus dem Original-`SM_ATTACK.java`.
-- **Aggregation/UI**: sobald Rohdaten stimmen, ist die Aggregation (DPS pro Spieler, Fenster,
-  Export) reine Anwendungslogik ohne weitere Reverse-Engineering-Risiken.
+- **AP/GP-`msgCode` bestätigen** (siehe Kalibrierungsablauf Punkt 6) und ggf. `SM_SYSTEM_MESSAGE`
+  gezielt danach filtern statt der generischen Textausgabe.
+- **Skill-Namen/Icons**: Skill-ID → Name/Icon-Mapping wird eine reine Datentabelle sein, kein
+  weiteres Netzwerk-Reverse-Engineering. Der Nutzer hat `aioncodex.com` als mögliche Bildquelle
+  genannt – vor dem Scrapen/Hotlinken dort erst die Nutzungsbedingungen der Seite prüfen; robuster
+  wäre, Skill-Icons direkt aus den lokalen Client-Assets zu extrahieren (`OriginAion`-Installation
+  enthält vermutlich die Original-`.dds`/Sprite-Dateien), das ist rechtlich unproblematischer, da
+  es der eigene Client ist.
+- **Aggregation**: sobald Rohdaten stimmen, ist die Aggregation (DPS/HPS pro Spieler, Fenster,
+  Encounter-Erkennung, AP/GP-Zähler, Export) reine Anwendungslogik ohne weitere
+  Reverse-Engineering-Risiken.
+- **UI**: danach ein Live-Overlay/Fenster (WPF oder WinForms), das die aggregierten Werte
+  anzeigt – Rangliste pro Spieler (inkl. Rasse/Klassen-Icon), DPS/HPS-Verlauf, AP/GP-Zähler,
+  ähnlich UltraKikiMeter/rainy.ws, aber mit den netzwerkbasierten Live-Daten statt
+  Chat-Log-Nachlese.
 
 ## Rechtlicher Hinweis
 
