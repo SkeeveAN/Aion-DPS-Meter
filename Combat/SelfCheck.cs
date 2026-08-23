@@ -1,3 +1,5 @@
+using AionSniffer.Protocol;
+
 namespace AionSniffer.Combat;
 
 /// <summary>
@@ -17,6 +19,7 @@ public static class SelfCheck
         bool ok = true;
         ok &= RunGladiatorVsZaubererScenario();
         ok &= RunMyAionReplayScenario();
+        ok &= RunAttackPacketParsingScenario();
         return ok;
     }
 
@@ -105,4 +108,71 @@ public static class SelfCheck
         Console.WriteLine($"  -> matches within rounding: {matches}");
         return matches;
     }
+
+    /// <summary>
+    /// Builds a synthetic SM_ATTACK body byte-for-byte the way the emulator's SM_ATTACK.java
+    /// writeImpl would (see CombatPacketParser.TryParseAttack's doc comment), with two hits: one
+    /// plain hit (shieldType 0, no extra fields) and one protected hit (shieldType 8, +12 bytes),
+    /// to verify the parser actually walks the variable-length list and picks the right extra
+    /// block size instead of assuming a fixed layout.
+    /// </summary>
+    private static bool RunAttackPacketParsingScenario()
+    {
+        const int attacker = 0x1000_1234;
+        const int target = 0x2000_5678;
+        const byte targetHp = 80;
+        const byte attackerHp = 95;
+
+        var body = new List<byte>();
+        WriteI32(body, attacker);
+        body.Add(1); // attackNo
+        WriteU16(body, 0); // time
+        body.Add(0); // simpleAttackType
+        body.Add(0); // type
+        WriteI32(body, target);
+        body.Add(targetHp);
+        body.Add(attackerHp);
+        WriteI32(body, 0); // counter flag
+        body.Add(2); // hitCount
+
+        // Hit 1: plain, shieldType 0 -> no extra fields.
+        WriteI32(body, 1000);
+        body.Add(5); // attackStatusId
+        body.Add(0); // shieldType
+        body.AddRange(new byte[16]);
+
+        // Hit 2: protected, shieldType 8 -> +12 bytes (protectorId, protectedDamage, protectedSkillId).
+        WriteI32(body, 2000);
+        body.Add(3); // attackStatusId
+        body.Add(8); // shieldType
+        body.AddRange(new byte[16]);
+        WriteI32(body, 999); // protectorId
+        WriteI32(body, 111); // protectedDamage
+        WriteI32(body, 222); // protectedSkillId
+
+        body.Add(0); // trailing list-size byte
+
+        var parsed = CombatPacketParser.TryParseAttack(body.ToArray());
+
+        Console.WriteLine("[selftest] SM_ATTACK multi-hit parsing (synthetic, 1 plain + 1 shielded hit):");
+        Console.WriteLine($"  parsed: {(parsed is null ? "null" : CombatPacketParser.TryDescribeAttack(body.ToArray()))}");
+
+        bool structureOk = parsed is not null
+            && parsed.Hits.Count == 2
+            && parsed.AttackerObjectId == attacker
+            && parsed.TargetObjectId == target
+            && parsed.TargetHpPercent == targetHp
+            && parsed.AttackerHpPercent == attackerHp;
+        bool hit1Ok = parsed is not null && parsed.Hits[0] == new CombatPacketParser.AttackHit(1000, 5, 0);
+        bool hit2Ok = parsed is not null && parsed.Hits[1] == new CombatPacketParser.AttackHit(2000, 3, 8);
+
+        Console.WriteLine($"  -> header fields correct: {structureOk}");
+        Console.WriteLine($"  -> hit 1 (plain) correct: {hit1Ok}");
+        Console.WriteLine($"  -> hit 2 (shielded, correctly skipped 12 extra bytes to find hit 2): {hit2Ok}");
+
+        return structureOk && hit1Ok && hit2Ok;
+    }
+
+    private static void WriteI32(List<byte> buf, int value) => buf.AddRange(BitConverter.GetBytes(value));
+    private static void WriteU16(List<byte> buf, ushort value) => buf.AddRange(BitConverter.GetBytes(value));
 }
