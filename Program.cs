@@ -1,4 +1,5 @@
 using System.Text;
+using AionSniffer.Combat;
 using AionSniffer.Protocol;
 using PacketDotNet;
 using SharpPcap;
@@ -24,6 +25,14 @@ internal static class Program
 
     private static void Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "selftest")
+        {
+            bool ok = SelfCheck.Run();
+            Console.WriteLine(ok ? "\n[selftest] ALL CHECKS PASSED" : "\n[selftest] SOME CHECKS FAILED");
+            Environment.Exit(ok ? 0 : 1);
+            return;
+        }
+
         var devices = CaptureDeviceList.Instance;
 
         if (devices.Count == 0)
@@ -35,6 +44,7 @@ internal static class Program
         if (args.Length == 0)
         {
             Console.WriteLine("Usage: AionSniffer <deviceIndex> [serverIpHint]");
+            Console.WriteLine("       AionSniffer selftest   (verifies the DPS/iDPS math against synthetic + real reference numbers, no capture needed)");
             Console.WriteLine();
             Console.WriteLine("Available devices:");
             for (int i = 0; i < devices.Count; i++)

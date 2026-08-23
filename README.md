@@ -201,6 +201,17 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
 - **Online-Session-Sharing** (Idee von `myaion.eu` übernommen): Bosskämpfe als Web-Link teilbar
   machen (Gruppenansicht + Skill-für-Skill-Einzelansicht, siehe `assets/README.md`). Große,
   spätere Ausbaustufe – braucht eigenes Backend/Hosting, kommt erst nach dem lokalen Client.
+- **DPS/iDPS-Berechnung implementiert** (`Combat/DpsCalculator.cs`): reine, protokollunabhängige
+  Logik nach der oben festgelegten Definition (ALL-Ansicht wallclock/active-only, iDPS pro Ziel
+  mit gemeinsamer Kampfdauer, Instanz-iDPS als gewichteter Durchschnitt). Per
+  `dotnet run -- selftest` ohne Capture verifizierbar – reproduziert sowohl das
+  Gladiator/Zauberer-Gedankenexperiment als auch die echten myaion.eu-Zahlen
+  (84.360.277 Schaden / 438.288 iDPS aus `/PvESession/1716393`). Bekannte, dokumentierte
+  Lücke: bei komplett isolierten Einzeltreffern (keine zwei Treffer näher als die
+  Idle-Schwelle) hat "active-only" keine sinnvolle Zeitbasis und fällt auf den rohen
+  Schadenswert zurück – im Selbsttest absichtlich sichtbar gemacht, nicht versteckt. Noch nicht
+  an echte Pakete angebunden (`AionSession`/`CombatPacketParser` liefern noch keine
+  `DamageEvent`s), das folgt nach der Kalibrierung.
 - **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK`**: aktuell wird nur der erste Treffer mit
   `shieldType == 0` sauber geparst; AoE-Skills mit mehreren Zielen oder reflektierte/geblockte
   Treffer brauchen die variable-length-Felder aus dem Original-`SM_ATTACK.java`.
