@@ -215,9 +215,12 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
   späteren UI wie ein Bug aus, nicht wie "nicht definiert" – das fiel beim Testen auf den echten
   Zahlen auf. Noch nicht an echte Pakete angebunden (`AionSession`/`CombatPacketParser` liefern
   noch keine `DamageEvent`s), das folgt nach der Kalibrierung.
-- **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK`**: aktuell wird nur der erste Treffer mit
-  `shieldType == 0` sauber geparst; AoE-Skills mit mehreren Zielen oder reflektierte/geblockte
-  Treffer brauchen die variable-length-Felder aus dem Original-`SM_ATTACK.java`.
+- **Mehrfach-Treffer/Schild-Varianten in `SM_ATTACK` – erledigt**: `CombatPacketParser.TryParseAttack`
+  liest jetzt die komplette variable-length Trefferliste (jeder Treffer: Schaden, Status,
+  Schild-Typ, plus die vom Schild-Typ abhängigen Zusatzfelder aus `SM_ATTACK.java` – 0/12/28
+  Byte je nach Typ), nicht mehr nur den ersten Treffer. Liefert ein strukturiertes `AttackPacket`
+  (Attacker/Target/Hits-Liste), nicht nur einen Debug-String – bereit, um später direkt in
+  `DamageEvent`s umgewandelt zu werden.
 - **AP/GP-`msgCode` bestätigen** (siehe Kalibrierungsablauf Punkt 6) und ggf. `SM_SYSTEM_MESSAGE`
   gezielt danach filtern statt der generischen Textausgabe.
 - **Skill-Namen/Icons**: Skill-ID → Name/Icon-Mapping wird eine reine Datentabelle sein, kein

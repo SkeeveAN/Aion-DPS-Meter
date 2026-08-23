@@ -33,22 +33,36 @@ public static class CombatPacketParser
         return $"ATTACK_STATUS target=0x{creatureObjId:X8} {kind}={amount} hp%={hpPercent} type={type} skill={skillId} log={logId}";
     }
 
+    /// <summary>One hit result inside an SM_ATTACK packet's hit list.</summary>
+    public readonly record struct AttackHit(long Damage, byte AttackStatusId, byte ShieldType);
+
+    /// <summary>A fully parsed SM_ATTACK packet: attacker/target plus every hit, not just the first.</summary>
+    public sealed record AttackPacket(
+        int AttackerObjectId,
+        int TargetObjectId,
+        byte TargetHpPercent,
+        byte AttackerHpPercent,
+        IReadOnlyList<AttackHit> Hits);
+
     /// <summary>
-    /// SM_ATTACK fixed header (24 bytes) + first hit's fixed fields (6 bytes: damage:i32,
-    /// attackStatus:u8, shieldType:u8). Multi-hit lists and non-zero shieldType extra fields
-    /// are NOT parsed here yet (variable-length; add once opcode/layout is confirmed).
+    /// SM_ATTACK fixed header (20 bytes): attacker:i32, attackNo:u8, time:u16,
+    /// simpleAttackType:u8, type:u8, target:i32, targetHp%:u8, attackerHp%:u8, counterFlag:i32,
+    /// hitCount:u8. Then `hitCount` hit records, each: damage:i32, attackStatusId:u8,
+    /// shieldType:u8, 16 reserved bytes, then a shieldType-dependent extra block (see
+    /// SM_ATTACK.java writeImpl): 0 bytes for shieldType 0/2, 12 bytes for 8/10 (protector
+    /// id/damage/skill), 28 bytes for 16 or anything else (reflect/protect fields). A trailing
+    /// list-size byte (always written as 0 in the source) follows the hits.
     /// </summary>
-    public static string? TryDescribeAttack(byte[] body)
+    public static AttackPacket? TryParseAttack(byte[] body)
     {
         const int headerLen = 4 + 1 + 2 + 1 + 1 + 4 + 1 + 1 + 4 + 1; // = 20
-        if (body.Length < headerLen + 6)
+        if (body.Length < headerLen)
         {
             return null;
         }
 
         int attackerObjId = ReadI32(body, 0);
-        byte attackNo = body[4];
-        int offset = 5 + 2 + 1 + 1; // skip time:u16, simpleAttackType:u8, type:u8
+        int offset = 5 + 2 + 1 + 1; // skip attackNo:u8, time:u16, simpleAttackType:u8, type:u8
         int targetObjId = ReadI32(body, offset);
         offset += 4;
         byte targetHp = body[offset++];
@@ -56,13 +70,51 @@ public static class CombatPacketParser
         offset += 4; // counter flag (u32)
         byte hitCount = body[offset++];
 
-        int firstDamage = ReadI32(body, offset);
-        byte attackStatusId = body[offset + 4];
-        byte shieldType = body[offset + 5];
+        var hits = new List<AttackHit>(hitCount);
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (offset + 4 + 1 + 1 + 16 > body.Length)
+            {
+                break; // truncated/desynced packet -- return what parsed cleanly so far
+            }
 
-        return $"ATTACK attacker=0x{attackerObjId:X8} target=0x{targetObjId:X8} hits={hitCount} " +
-               $"firstHit.damage={firstDamage} status={attackStatusId} shield={shieldType} " +
-               $"targetHp%={targetHp} attackerHp%={attackerHp} attackNo={attackNo}";
+            long damage = ReadI32(body, offset);
+            byte attackStatusId = body[offset + 4];
+            byte shieldType = body[offset + 5];
+            offset += 4 + 1 + 1 + 16;
+
+            int extraLen = shieldType switch
+            {
+                0 or 2 => 0,
+                8 or 10 => 12,
+                _ => 28, // covers shieldType 16 and the writeImpl "default" branch alike
+            };
+
+            if (offset + extraLen > body.Length)
+            {
+                hits.Add(new AttackHit(damage, attackStatusId, shieldType));
+                break;
+            }
+
+            offset += extraLen;
+            hits.Add(new AttackHit(damage, attackStatusId, shieldType));
+        }
+
+        return new AttackPacket(attackerObjId, targetObjId, targetHp, attackerHp, hits);
+    }
+
+    /// <summary>Human-readable summary of <see cref="TryParseAttack"/>, for the calibration dump.</summary>
+    public static string? TryDescribeAttack(byte[] body)
+    {
+        var attack = TryParseAttack(body);
+        if (attack is null)
+        {
+            return null;
+        }
+
+        string hitsDesc = string.Join(", ", attack.Hits.Select(h => $"{h.Damage}(status={h.AttackStatusId},shield={h.ShieldType})"));
+        return $"ATTACK attacker=0x{attack.AttackerObjectId:X8} target=0x{attack.TargetObjectId:X8} " +
+               $"hits=[{hitsDesc}] targetHp%={attack.TargetHpPercent} attackerHp%={attack.AttackerHpPercent}";
     }
 
     /// <summary>
