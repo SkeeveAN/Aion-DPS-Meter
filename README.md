@@ -110,38 +110,46 @@ Alle Konstanten stehen zentral in `Crypto/AionCrypt.cs` (Krypto) und `Protocol/O
 ## Anforderungen an den fertigen Meter (Stand dieser Session)
 
 - **DMG** (Kern) – über `SM_ATTACK` / `SM_ATTACK_STATUS`
-- **DPS vs. iDPS** (Definition nach Diskussion, Stand: geklärt):
-  - **DPS** = Schaden ÷ komplette Session-/Instanz-Dauer, inkl. Laufwege, Trash, Wartezeiten
-    zwischen Pulls.
-  - **iDPS** = **gewichteter Durchschnitt über alle Bosskämpfe**: Summe(Schaden an
-    Instanzbossen) ÷ Summe(Kampfdauer aller Bosskämpfe). Kampfdauer pro Boss = erster
-    registrierter Treffer bis Boss-Tod. Trash-Schaden, Laufwege, Cutscenes, Wartezeit
-    zwischen Bosskämpfen zählen nicht mit. Das ist ein gewichteter Durchschnitt (längere
-    Kämpfe zählen stärker), nicht der Mittelwert der einzelnen Boss-DPS-Werte.
-  - Braucht zusätzlich zur Schadens-Erkennung: eine Boss-Erkennung (bekannte NPC-Objekt-IDs
-    für Instanzbosse) und Kampf-Start/Ende-Events (erster Treffer / Death-Paket) – siehe
-    "Nächste Schritte".
+- **DPS vs. iDPS** (finale, in sich konsistente Definition – vom Nutzer durch eigenes Live-Testen
+  von MyAion bestätigt, deckt sich mit der Zahlen-Gegenprobe unten):
+  - **iDPS** = Schaden an **einem konkreten Ziel** (ein Mob/Boss) ÷ Kampfdauer mit *diesem* Ziel
+    (erster Treffer bis Tod), mit **einer gemeinsamen Kampfdauer für die ganze Gruppe** – nicht
+    individuell pro Spieler gemessen. Grund für die gemeinsame Dauer: bei unterschiedlichen
+    Spielweisen (Zauberer nutzt alle 60s einen großen Skill vs. Gladiator haut permanent zu) wäre
+    eine individuelle Pro-Spieler-Zeitmessung unfair – der Zauberer hätte dann eine winzige
+    "aktive Zeit" und einen künstlich aufgeblasenen Wert. Bei mehreren Bossen in einer Instanz
+    wird daraus ein **gewichteter Durchschnitt**: Summe(Schaden an allen Bossen) ÷ Summe(deren
+    Kampfdauern) – die einzelne Zielkampf-Formel verallgemeinert auf mehrere Encounter, kein
+    Widerspruch dazu.
+  - **DPS** in der "ALL"-/Open-World-Ansicht = Schaden über **beliebig viele, wechselnde Ziele**
+    ÷ verstrichene reale Zeit. Hier ist es tatsächlich uneindeutig, ob zeitliche Lücken zwischen
+    einzelnen Kills mitgezählt werden (z.B. alle 5s einen Mob für 2s bekämpfen, dazwischen laufen)
+    – je nachdem ergeben sich unterschiedliche Werte. **Das war das ursprüngliche
+    Gladiator/Zauberer-Beispiel** – es bezog sich also gar nicht auf iDPS, sondern auf genau diese
+    Lücken-Frage in der globalen "ALL"-Ansicht.
+  - **Auf myaion.eu heißt iDPS in der UI schlicht "DPS"** (`bossDPS`/`allDPS`) – die Webseite zeigt
+    für einen einzelnen Bosskampf effektiv iDPS an, nennt es aber nicht so. Das erklärt die
+    Zahlen-Gegenprobe unten: bei einem Einzelziel *ist* iDPS = "die eine gemeinsame Kampfdauer",
+    kein Sonderfall.
+  - Braucht zusätzlich zur Schadens-Erkennung: eine Boss-/Ziel-Erkennung (NPC-Objekt-IDs) und
+    Kampf-Start/Ende-Events (erster Treffer / Death-Paket) – siehe "Nächste Schritte".
   - **Vorsicht**: In dieser Session wurden mehrfach ausführliche ChatGPT-generierte Erklärungen
-    zu iDPS/Boss-Erkennung eingebracht, die im Kern (obige Definition) plausibel und übernommen
-    wurden, aber auch sehr konkret klingende, unbestätigte Details enthielten (exakte
-    NPC-Template-IDs einzelner Bosse, Opcode-Namen, C++-Code, eine SQL-Query gegen ein
-    angeblich bekanntes Datenbankschema, ein Feature-Vergleich aiDPS-vs-MyAion). Diese
-    Detailbehauptungen wurden **nicht** übernommen – sie sind nicht verifizierbar und wirken wie
-    plausibel klingende Erfindungen. Bosse/Opcodes/IDs für den echten Meter müssen aus
-    verifizierten Quellen kommen (eigene Kalibrierung – MyAion-Dekompilierung ist keine Option
-    mehr, siehe Tabelle oben), nicht aus unbelegten KI-Antworten.
-  - **Gegenprobe an echten myaion.eu-Zahlen** (`/PvESession/1716393`, `/PvEPlayerSession/8602573`):
-    für alle 6 Spieler ergibt Schaden ÷ angezeigte DPS praktisch dieselbe Zeit (~192,4–192,5s,
-    Abweichung nur Rundung der ganzzahligen DPS-Anzeige). Das heißt: `bossDPS`/`allDPS` bei
-    myaion.eu ist Schaden ÷ **eine gemeinsame Kampfdauer für die ganze Gruppe**, nicht individuell
-    pro Spieler gemessen. Das **widerlegt** die frühere ChatGPT-Behauptung "Der Timer ist pro
-    Spieler, nicht global" (samt erfundenem 120,0s-vs-118,2s-Beispiel) – gut, dass sie oben schon
-    nicht übernommen wurde. Auf beiden geprüften Seiten taucht der Begriff "iDPS" gar nicht auf,
-    passt zur Einordnung als Instanz-übergreifender Aggregatwert (erscheint vermutlich erst auf
-    Instanz-/Ranking-Seiten, nicht auf der Einzelkampf-Seite).
-  - Zusätzlich aus der Skill-Tabelle der Einzelansicht bestätigt: `Damage = Uses × Avg`
-    (z.B. 30 × 287.484 ≈ 8.624.524 ✓), `Crit-% = Crit ÷ Uses`, die Prozentangabe hinter dem
-    Skill-Schaden ist der Anteil am **Gesamtschaden des Spielers** (nicht am Bossschaden).
+    zu iDPS/Boss-Erkennung eingebracht, die im Kern brauchbar waren, aber auch sehr konkret
+    klingende, unbestätigte Details enthielten (exakte NPC-Template-IDs einzelner Bosse,
+    Opcode-Namen, C++-Code, eine SQL-Query gegen ein angeblich bekanntes Datenbankschema, ein
+    Feature-Vergleich aiDPS-vs-MyAion, und – **inzwischen widerlegt** – die Behauptung "Der Timer
+    ist pro Spieler, nicht global" samt erfundenem 120,0s-vs-118,2s-Beispiel). Diese
+    Detailbehauptungen wurden **nicht** übernommen. Bosse/Opcodes/IDs für den echten Meter müssen
+    aus verifizierten Quellen kommen (eigene Kalibrierung – MyAion-Dekompilierung ist keine
+    Option mehr, siehe Tabelle oben), nicht aus unbelegten KI-Antworten.
+  - **Zahlen-Gegenprobe an echten myaion.eu-Sessions** (`/PvESession/1716393`,
+    `/PvEPlayerSession/8602573`): für alle 6 Spieler ergibt Schaden ÷ angezeigte DPS praktisch
+    dieselbe Zeit (~192,4–192,5s, Abweichung nur Rundung der ganzzahligen DPS-Anzeige) – bestätigt
+    die gemeinsame Kampfdauer. Kein Vorkommen von "iDPS" als Begriff auf beiden Seiten (passt: die
+    UI nennt es einfach "DPS", siehe oben). Zusätzlich aus der Skill-Tabelle der Einzelansicht
+    bestätigt: `Damage = Uses × Avg` (z.B. 30 × 287.484 ≈ 8.624.524 ✓), `Crit-% = Crit ÷ Uses`,
+    die Prozentangabe hinter dem Skill-Schaden ist der Anteil am **Gesamtschaden des Spielers**
+    (nicht am Bossschaden).
 - **HEAL** – dieselben Pakete, positiver statt negativer Wert
 - **AP (Abyss Points)** und **GP (Glory Points)** – vermutlich über `SM_SYSTEM_MESSAGE`,
   `msgCode` noch zu bestätigen (siehe oben)
