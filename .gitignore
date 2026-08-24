@@ -2,3 +2,8 @@ bin/
 obj/
 .vs/
 *.user
+
+# Real player traffic captures (logins, chat, etc.) -- never commit or sync these.
+captures/
+*.pcap
+*.pcapng

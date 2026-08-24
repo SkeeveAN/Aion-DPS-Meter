@@ -1,6 +1,15 @@
+using System.IO;
 using System.Text.Json;
 
 namespace AionSniffer.Ui;
+
+/// <summary>One of the user's own characters, entered by hand in Settings -- see MeterSettings.
+/// Characters remarks for why this can't be auto-detected from Chat.log.</summary>
+public sealed class CharacterProfile
+{
+    public string Name { get; set; } = "";
+    public string ClassName { get; set; } = "";
+}
 
 /// <summary>
 /// Settings for the meter UI. Scoped deliberately to what the tool actually has a data source
@@ -11,15 +20,6 @@ namespace AionSniffer.Ui;
 /// </summary>
 public sealed class MeterSettings
 {
-    // Target (NPC) bar
-    public bool ShowAutoDetectedRankedBosses { get; set; } = true;
-    public bool ShowManuallySelectedTarget { get; set; } = true;
-    public bool ShowAutoDetectedTarget { get; set; } = true;
-
-    // Players list columns
-    public bool ShowDps { get; set; } = true;
-    public bool ShowLevel { get; set; } = true;
-
     // Targets list filters (which NPC ranks are shown at all)
     public bool ShowPlayers { get; set; } = true;
     public bool ShowMinionNpcs { get; set; } = true;
@@ -32,10 +32,63 @@ public sealed class MeterSettings
     public string Theme { get; set; } = "Dark";
     public string FontSize { get; set; } = "Medium";
 
+    /// <summary>MainWindow's size/position, saved on close and restored on next launch -- found
+    /// necessary by the user, who resized the window and had it reset every restart. All four
+    /// null (fresh install / older settings file) means "use the XAML default", not "0x0 at the
+    /// origin".</summary>
+    public double? WindowWidth { get; set; }
+    public double? WindowHeight { get; set; }
+    public double? WindowLeft { get; set; }
+    public double? WindowTop { get; set; }
+
+    /// <summary>PlayersGrid's Name/Damage-DPS column widths, same save-on-close/restore-on-open
+    /// deal as the window geometry above -- a DataGridColumn is user-resizable by dragging its
+    /// border, but nothing persisted that on its own; found the same way (the user resized both,
+    /// found gone again next launch).</summary>
+    public double? NameColumnWidth { get; set; }
+    public double? DpsColumnWidth { get; set; }
+
     /// <summary>SharpPcap device name chosen in the Network settings dialog. Persisted, but not
     /// yet consumed anywhere -- the console entry point still takes its device index from the
     /// command line (see README's UI-placeholders section).</summary>
     public string? SelectedCaptureDeviceName { get; set; }
+
+    /// <summary>Root folder of the Aion client install (e.g. "D:\Spiele\AION\OriginAion"), set in
+    /// the Settings dialog. This is where Chat.log lives -- needed for the chat-log-based path
+    /// (see README) since, unlike the network path, there's no way to auto-discover it from a
+    /// capture device. Consumed by MainWindow's ChatLogTailer, restarted whenever this changes.</summary>
+    public string? AionInstallFolder { get; set; }
+
+    /// <summary>
+    /// The user's own characters (name + class), entered by hand. Chat.log never reveals the
+    /// local player's real name -- verified against a real, large session: the active character
+    /// is invariably written as the literal string "You", never its own name; "X has logged in"
+    /// lines only ever name OTHER people (friend/legion notifications), never the reader. There is
+    /// therefore no way to auto-detect this, and no point guessing (a silently wrong guessed name
+    /// would corrupt the data without anyone noticing) -- the user must maintain the list, exactly
+    /// as they asked for ("mehrere Namen, damit du weisst welchen Namen du eintragen musst").
+    /// </summary>
+    public List<CharacterProfile> Characters { get; set; } = new();
+
+    /// <summary>Which entry in <see cref="Characters"/> "You" currently means. Null (or a name no
+    /// longer in the list) falls back to displaying the literal "You". When
+    /// <see cref="AutoDetectActiveCharacter"/> is true (the default), MainWindow's
+    /// UpdateActiveCharacterFromSkill keeps overwriting this automatically from whichever skill
+    /// "You" was last seen using; when
+    /// false, only the Settings dialog's "Active character" picker changes it.</summary>
+    public string? ActiveCharacterName { get; set; }
+
+    /// <summary>
+    /// Per the user: running two Aion clients at once (see MainWindow.IsNamedCopyOfRegisteredCharacter
+    /// remarks) means BOTH registered characters can be generating "You used skill" lines in the
+    /// same session, so skill-based auto-detection would otherwise flip ActiveCharacterName back
+    /// and forth between them constantly -- exactly the opposite of what's wanted when the whole
+    /// point is to pick ONE of the two to track and discard the other's lines as duplicates.
+    /// Defaults to true (the original "YOU + genutzte Skills sollte ausreichen" behavior, correct
+    /// for the common single-character case); turning it off freezes ActiveCharacterName at
+    /// whatever the Settings dialog's picker last set, until turned back on or changed again.
+    /// </summary>
+    public bool AutoDetectActiveCharacter { get; set; } = true;
 
     private static string SettingsPath => Path.Combine(AppContext.BaseDirectory, "meter-settings.json");
 

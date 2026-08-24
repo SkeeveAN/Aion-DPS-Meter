@@ -25,7 +25,7 @@
             <Button Content="Cancel" Click="OnCancelClicked"/>
         </StackPanel>
 
-        <!-- Real device list from SharpPcap.CaptureDeviceList -- see code-behind. Unlike the
+        <!-- Real device list from SharpPcap.CaptureDeviceList - see code-behind. Unlike the
              myaion.eu reference (which can apparently capture on several adapters at once), this
              tool's capture pipeline (AionSession/Program.cs) only ever reads from the single
              device index passed on the command line, so at most one row here can be "Active". -->

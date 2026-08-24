@@ -1,4 +1,7 @@
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
+using AionSniffer.ChatLog;
 using AionSniffer.Combat;
 using AionSniffer.Protocol;
 using PacketDotNet;
@@ -36,14 +39,39 @@ internal static class Program
     private static readonly Dictionary<ushort, int> OpcodeCounts = new();
     private static readonly LiveAggregator Aggregator = new();
 
+    private const int AttachParentProcess = -1;
+
+    [DllImport("kernel32.dll")]
+    private static extern bool AttachConsole(int dwProcessId);
+
     [STAThread] // required for WPF (Ui/MainWindow) -- Clipboard, drag-move etc. need the STA apartment.
     private static void Main(string[] args)
     {
+        // The csproj builds this as WinExe now (no automatic console), specifically so "gui" mode
+        // doesn't pop up an empty terminal window next to the meter - found by the user. The CLI
+        // modes below (selftest/chatlog/capture) still need visible Console.WriteLine output when
+        // launched from an existing shell, so attach to whichever console started this process, if
+        // any; this is a no-op (returns false, nothing happens) when there isn't one, e.g.
+        // double-clicking the exe straight into "gui" mode.
+        AttachConsole(AttachParentProcess);
+
         if (args.Length > 0 && args[0] == "selftest")
         {
             bool ok = SelfCheck.Run();
             Console.WriteLine(ok ? "\n[selftest] ALL CHECKS PASSED" : "\n[selftest] SOME CHECKS FAILED");
             Environment.Exit(ok ? 0 : 1);
+            return;
+        }
+
+        if (args.Length > 0 && args[0] == "chatlog")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionSniffer chatlog <path-to-Chat.log>");
+                return;
+            }
+
+            RunChatLogMode(args[1]);
             return;
         }
 
@@ -71,6 +99,7 @@ internal static class Program
             Console.WriteLine("Usage: AionSniffer <deviceIndex> [serverIpHint]");
             Console.WriteLine("       AionSniffer selftest   (verifies the DPS/iDPS math against synthetic + real reference numbers, no capture needed)");
             Console.WriteLine("       AionSniffer gui        (opens the WPF meter window -- see Ui/, not yet wired to a live capture, has a \"Load Demo Data\" button)");
+            Console.WriteLine("       AionSniffer chatlog <path-to-Chat.log>   (parses a Chat.log file, prints the same live-DPS summary as the network path)");
             Console.WriteLine();
             Console.WriteLine("Available devices:");
             for (int i = 0; i < devices.Count; i++)
@@ -102,6 +131,34 @@ internal static class Program
         {
             Console.WriteLine($"  0x{kv.Key:X4} : {kv.Value}");
         }
+    }
+
+    /// <summary>
+    /// One-shot Chat.log parse: no live tailing yet (see README's "leere Themen" list --
+    /// following the file as new lines are appended is the natural next step once this static
+    /// parse is confirmed against a real fight, not implemented here to avoid guessing at
+    /// polling/FileSystemWatcher behavior before there's a real log to test it against).
+    /// </summary>
+    private static void RunChatLogMode(string path)
+    {
+        if (!File.Exists(path))
+        {
+            Console.WriteLine($"chatlog: file not found: {path}");
+            return;
+        }
+
+        var parser = new ChatLogParser();
+        var events = parser.ParseFile(path);
+        int healCount = events.Count(e => e.IsHeal);
+        // Found by terminal_windows against the real file: this used to say "N damage events" for
+        // the raw total, which includes heals -- misleading right above a damage-only summary line
+        // that (correctly) shows a smaller number, reading like a discrepancy/miscount rather than
+        // two different, both-correct figures.
+        Console.WriteLine($"chatlog: parsed {events.Count} events ({events.Count - healCount} damage, {healCount} heal) from {path}");
+
+        var aggregator = new LiveAggregator();
+        aggregator.IngestEvents(events);
+        Console.WriteLine(aggregator.Summarize(id => parser.Names.NameFor(id)));
     }
 
     private static void OnPacketArrival(object sender, PacketCapture e)

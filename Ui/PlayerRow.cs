@@ -13,6 +13,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
 {
     private long _damage;
     private double? _dps;
+    private long? _ap;
 
     private string _name = "?";
     private string _className = "?";
@@ -53,6 +54,19 @@ public sealed class PlayerRow : INotifyPropertyChanged
     }
 
     public string DpsDisplay => Dps is double d ? d.ToString("F0") : "n/a";
+
+    /// <summary>Null for every row except "You"'s -- per the user, shown as a second line under
+    /// Damage/DPS. AP is a session-wide personal total (see ChatLogParser.PersonalStatChanged
+    /// remarks: it's never attributed to a specific target the way damage is), not something a
+    /// mob or other player row could ever have a real value for, so this stays null there rather
+    /// than showing a fabricated 0.</summary>
+    public long? Ap
+    {
+        get => _ap;
+        set { _ap = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); }
+    }
+
+    public string ApDisplay => Ap is long ap ? $"AP: {ap:N0}" : "";
 
     public PlayerRow(int objectId)
     {

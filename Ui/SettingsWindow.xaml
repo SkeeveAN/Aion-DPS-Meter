@@ -1,29 +1,179 @@
 <Window x:Class="AionSniffer.Ui.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="User Settings" Height="480" Width="420"
+        xmlns:local="clr-namespace:AionSniffer.Ui"
+        Title="User Settings" Height="600" Width="440"
         Background="#1e1e24" WindowStartupLocation="CenterOwner">
     <Window.Resources>
+        <local:ClassIconConverter x:Key="ClassIconConverter"/>
+        <!-- Same dark CheckBox fix as MainWindow - a Foreground setter never reaches the box
+             itself, only its default (previously stock white) template does. -->
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="#e8e8ea"/>
             <Setter Property="Margin" Value="4,3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="Box" Width="14" Height="14" Background="#26262e"
+                                    BorderBrush="#5a5a66" BorderThickness="1" Margin="0,0,6,0">
+                                <Path x:Name="Check" Data="M 2,7 L 6,11 L 12,3" Stroke="#e8e8ea"
+                                      StrokeThickness="1.6" Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="#8a8a99"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
+        <!-- Per the user: the border around each section was too heavy (the OS's own themed
+             GroupBox chrome - there's no BorderThickness setter that touches it, same lesson as
+             every other control this session; only a full template replacement does). Thin,
+             flat 1px border instead, header sitting above it rather than notched into the line. -->
         <Style TargetType="GroupBox">
             <Setter Property="Foreground" Value="#c8c8ce"/>
             <Setter Property="BorderBrush" Value="#3a3a45"/>
             <Setter Property="Margin" Value="6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <DockPanel>
+                            <ContentPresenter DockPanel.Dock="Top" ContentSource="Header" Margin="2,0,0,3"
+                                              TextElement.FontWeight="SemiBold"/>
+                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="2">
+                                <ContentPresenter Margin="6"/>
+                            </Border>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="#c8c8ce"/>
         </Style>
+        <!-- Same dark ScrollBar fix as MainWindow - this window's own ScrollViewer can show one
+             once the settings list grows past the window height. -->
+        <Style x:Key="DarkScrollThumb" TargetType="Thumb">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border Background="#4a4a55" CornerRadius="2"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="#1e1e24"/>
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="{TemplateBinding Background}">
+                            <Track x:Name="PART_Track" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0"/>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource DarkScrollThumb}" Margin="2"/>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Same dark ComboBox fix as MainWindow (see its Window.Resources comment for why a
+             Background/Foreground setter alone doesn't do it) - ThemeBox/FontSizeBox were
+             rendering with WPF's default light-theme chrome and popup otherwise. -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#26262e"/>
+            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="#3a3a45"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#3a3a45"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style TargetType="ComboBox">
             <Setter Property="Margin" Value="4"/>
+            <Setter Property="Background" Value="#26262e"/>
+            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton" Focusable="False"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                                            <Path Data="M0,0 L4,4 L8,0 Z" Fill="#c8c8ce" Margin="0,0,8,0"
+                                                  HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              Margin="6,3,20,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
+                                   Focusable="False" PopupAnimation="Slide">
+                                <Border Background="#26262e" BorderBrush="#3a3a45" BorderThickness="1"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         <Style TargetType="Button">
             <Setter Property="Background" Value="#2a2a33"/>
             <Setter Property="Foreground" Value="#e8e8ea"/>
             <Setter Property="Padding" Value="12,4"/>
             <Setter Property="Margin" Value="4"/>
+        </Style>
+        <!-- Learned from the DataGrid selection fix: a plain Background/BorderBrush setter is
+             enough for ListBox's own chrome, but the selected-ITEM highlight is driven by
+             SystemColors.Highlight* inside the default template regardless - overridden the same
+             way, scoped to just this list (see the CharactersList.Resources below). -->
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="#26262e"/>
+            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="BorderBrush" Value="#3a3a45"/>
+        </Style>
+        <!-- Same dark ToolTip fix as MainWindow - the class-name tooltips on the icon-only
+             ComboBoxItems below would otherwise show a bright white box. -->
+        <Style TargetType="ToolTip">
+            <Setter Property="Background" Value="#26262e"/>
+            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Padding" Value="6,4"/>
         </Style>
     </Window.Resources>
 
@@ -36,29 +186,114 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel>
 
-                <!-- Every checkbox here has a matching field in Combat/*.cs or Ui/PlayerRow.cs
-                     already -- this dialog deliberately does NOT include MyAion's Loot Table,
-                     Kinah tracking, Auto-upload, or Donation Goal sections: none of those have a
-                     packet source or backend wired up yet (see README's UI-placeholders
-                     section), and an inert checkbox that looks functional but does nothing is
-                     worse than no checkbox at all. -->
-                <GroupBox Header="Target (NPC) Bar">
+                <!-- Modeled directly on the AionRainMeter/rainy.ws reference UI the user shared
+                     ("Log path: select Aion folder ROOT", a folder-browse button, and a red
+                     warning when the wrong path is selected). Needed for the chat-log-based path
+                     (see README): Chat.log lives inside this folder, and unlike the network path
+                     there is no capture device to auto-discover it from. Moved to be first, per
+                     the user's requested section order (Aion Installation / Your Characters /
+                     Targets List / User Interface). -->
+                <GroupBox Header="Aion Installation">
                     <StackPanel>
-                        <CheckBox x:Name="ShowAutoDetectedRankedBossesBox" Content="Display auto detected ranked bosses"/>
-                        <CheckBox x:Name="ShowManuallySelectedTargetBox" Content="Display manually selected target"/>
-                        <CheckBox x:Name="ShowAutoDetectedTargetBox" Content="Display auto detected target"/>
+                        <TextBlock Text="Folder: select the Aion install ROOT (the folder containing Chat.log)"
+                                   TextWrapping="Wrap" Margin="4,2"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="AionInstallFolderBox" Width="260" IsReadOnly="True"
+                                     Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45" Margin="4,2"/>
+                            <Button Content="Select Folder..." Click="OnSelectAionFolderClicked"/>
+                        </StackPanel>
+                        <TextBlock x:Name="AionInstallFolderStatus" Margin="4,2" TextWrapping="Wrap" FontStyle="Italic"/>
                     </StackPanel>
                 </GroupBox>
 
-                <GroupBox Header="Players List">
+                <!-- Chat.log never reveals the local player's own name - verified against a real
+                     session (see MeterSettings.Characters remarks): the active character is
+                     always written as the literal "You", and even login notifications only ever
+                     name OTHER people. There is no way to auto-detect this, so the user maintains
+                     the list by hand - exactly what they asked for ("mehrere Namen, damit du
+                     weisst welchen Namen du eintragen musst"). Class is stored alongside the name
+                     so the Players grid can finally show something other than "?" for the local
+                     player, which Chat.log can't supply either. -->
+                <GroupBox Header="Your Characters">
                     <StackPanel>
-                        <CheckBox x:Name="ShowDpsBox" Content="Display DPS (Damage Per Second)"/>
-                        <CheckBox x:Name="ShowLevelBox" Content="Display Level"/>
-                        <TextBlock Text="Legion / Position / Unassigned Damage: not shown -- no data source yet"
-                                   FontStyle="Italic" Margin="4,2" TextWrapping="Wrap" Opacity="0.7"/>
+                        <ListBox x:Name="CharactersList" Height="90" SelectionMode="Single">
+                            <ListBox.Resources>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3a3a45"/>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#e8e8ea"/>
+                            </ListBox.Resources>
+                            <!-- Icon before the character's name, per the user's request - the
+                                 icon here identifies the CLASS, the text is the character's NAME.
+                                 NewCharacterClassBox below shows icon + class name too (picking a
+                                 class to register a new character needs the name legible, not just
+                                 the icon - found by terminal_windows after the icon-visibility fix
+                                 still left that dropdown unreadable for anyone who doesn't have all
+                                 13 class icons memorized). MainWindow's read-only ClassFilter stays
+                                 icon-only on purpose: filtering by your own class doesn't need the
+                                 name spelled out the way picking one to register does. -->
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
+                                               Height="20" Width="20" Margin="0,0,6,0" ToolTip="{Binding ClassName}"/>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <!-- VerticalAlignment/VerticalContentAlignment="Center" needed here,
+                                 found by the user: without them the box (and the text inside it)
+                                 sits at the TOP of the row instead of centered against its taller
+                                 siblings (NewCharacterClassBox's icon+text content, Add/Remove) -
+                                 TextBox doesn't stretch/center itself against a taller row by
+                                 default the way those other controls' own templates already do. -->
+                            <TextBox x:Name="NewCharacterNameBox" Width="120" Margin="4,2"
+                                     VerticalAlignment="Center" VerticalContentAlignment="Center"
+                                     Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45"/>
+                            <ComboBox x:Name="NewCharacterClassBox" Width="130" SelectedIndex="0">
+                                <ComboBoxItem Tag="Aethertech" AutomationProperties.Name="Aethertech" ToolTip="Aethertech"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Aethertech.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Aethertech" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Assassin" AutomationProperties.Name="Assassin" ToolTip="Assassin"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Assassin.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Assassin" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Bard" AutomationProperties.Name="Bard" ToolTip="Bard"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Bard.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Bard" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Chanter" AutomationProperties.Name="Chanter" ToolTip="Chanter"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Chanter.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Chanter" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Cleric" AutomationProperties.Name="Cleric" ToolTip="Cleric"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Cleric.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Cleric" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Gladiator" AutomationProperties.Name="Gladiator" ToolTip="Gladiator"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Gladiator.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Gladiator" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Gunner" AutomationProperties.Name="Gunner" ToolTip="Gunner"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Gunner.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Gunner" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Ranger" AutomationProperties.Name="Ranger" ToolTip="Ranger"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Ranger.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Ranger" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Sorcerer" AutomationProperties.Name="Sorcerer" ToolTip="Sorcerer"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Sorcerer.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Sorcerer" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Spiritmaster" AutomationProperties.Name="Spiritmaster" ToolTip="Spiritmaster"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Spiritmaster.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Spiritmaster" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                                <ComboBoxItem Tag="Templar" AutomationProperties.Name="Templar" ToolTip="Templar"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Templar.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Templar" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                            </ComboBox>
+                            <Button Content="Add" Click="OnAddCharacterClicked"/>
+                            <Button Content="Remove" Click="OnRemoveCharacterClicked"/>
+                        </StackPanel>
+                        <!-- Per the user: running two Aion clients at once with two registered
+                             characters means skill-based auto-detection can get stuck on the wrong
+                             one (both may share a class, or both keep generating "You used skill"
+                             lines from their own client) with no way to tell it apart from here -
+                             see MeterSettings.AutoDetectActiveCharacter remarks. Unchecking this
+                             freezes ActiveCharacterName at whatever's picked below, changeable any
+                             time by coming back here (per the user, "später möchte ich mich vllt.
+                             umentscheiden"). -->
+                        <CheckBox x:Name="AutoDetectActiveCharacterBox" Content="Auto-detect active character from skills used"
+                                  Margin="4,8,4,0" Checked="OnAutoDetectActiveCharacterChanged" Unchecked="OnAutoDetectActiveCharacterChanged"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Active character:" VerticalAlignment="Center" Margin="4,0"/>
+                            <ComboBox x:Name="ActiveCharacterBox" Width="150"/>
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
 
+                <!-- "Target (NPC) Bar" and "Players List" (Display DPS / Display Level) removed
+                     per the user: both were entirely inert (no code anywhere reads ShowDps,
+                     ShowLevel, or the three Target-Bar flags - matching MyAion's Target Bar
+                     concept, which was never wired to a data source here) and DPS/Level were
+                     never actually optional in practice (DPS always shows; Level lost its column
+                     entirely earlier this session). Backing properties removed from
+                     MeterSettings too - see git history if this section is ever revived once a
+                     real data source exists. This dialog still deliberately does NOT include
+                     MyAion's Loot Table, Kinah tracking, Auto-upload, or Donation Goal sections
+                     for the same reason: an inert checkbox that looks functional but does nothing
+                     is worse than no checkbox at all. -->
                 <GroupBox Header="Targets List (which ranks are shown at all)">
                     <StackPanel>
                         <CheckBox x:Name="ShowPlayersBox" Content="Display players"/>

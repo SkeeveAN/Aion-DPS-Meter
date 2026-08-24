@@ -1,7 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <!-- WinExe, not Exe: an Exe-subsystem binary always gets a console window from Windows even
+         when launched straight into "gui" mode - found by the user, a console flashing up next to
+         the meter window on every start. Program.Main still supports the CLI modes (selftest,
+         chatlog, capture) by attaching to the LAUNCHING console via AttachConsole when one exists
+         (e.g. run from cmd/PowerShell); double-clicking the exe (no parent console) just opens the
+         GUI with nothing else. -->
+    <OutputType>WinExe</OutputType>
     <!-- -windows suffix needed for WPF (Ui/); the tool was always Windows-only anyway (Npcap). -->
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -21,6 +27,15 @@
     <!-- Skill/class/race data + icons collected in assets/ (see assets/README.md), copied
          next to the built exe so Data/SkillDatabase.cs can find them via AppContext.BaseDirectory. -->
     <None Include="assets/**/*.*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- captures/ holds standalone diagnostic probe scripts with their own top-level-statement
+         Main (see captures/probe-source-Program.cs), gitignored real traffic captures, and
+         analysis logs; none of it belongs to this project's build. Without this exclusion, the
+         probe's top-level statements silently take over as the real entry point instead of
+         Program.Main, so "dotnet run" launches the probe sniffer instead of this tool. -->
+    <Compile Remove="captures/**/*.cs" />
   </ItemGroup>
 
 </Project>

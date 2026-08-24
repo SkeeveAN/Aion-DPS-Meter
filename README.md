@@ -19,6 +19,86 @@ Konstanten gerne. Dieses Tool ist deshalb zunächst ein **Kalibrierungswerkzeug*
 Meter: es soll zeigen, ob die Annahmen für OriginAion stimmen, und wenn nicht, die echten Werte
 sichtbar machen.
 
+## Aktueller Stand: Netzwerkweg pausiert, Chat-Log-Fallback existiert
+
+Die Aion-Lightning-Hypothese oben wurde gegen echte Mitschnitte geprüft und **widerlegt** – kein
+Konstanten-Tausch (auch nicht andere dokumentierte Versionsstände 4.3/4.5/4.7/4.7.5) reproduziert
+die echten Bytes. Der SM_KEY-Handshake selbst ist dabei vollständig verstanden (3 unabhängige
+Sessions vermessen: 11 Byte, 7 feste Bytes `C9 3A 11 AD 97 9A 98` + 4 Byte Session-Seed, Boot-Key
+beginnt `C2 3A`), aber der Body-Stream danach nicht. Eine anschließende Ghidra-Analyse (statisch,
+nur Datei, kein laufender Prozess) beider Client-Binaries (32- und 64-Bit) ergab: **beide sind
+durch einen kommerziellen Protector gepackt** (64-Bit: `aegisty64.bin`/`SecureEngineSDK64.dll`,
+`.aion0`/`.aion1`-Sektionen, `.aion1` ist `rwx`; 32-Bit: zufällig benannte `rwx`-Sektionen, anderer
+Packer). Der echte Code – und damit der Schlüssel – existiert nur im laufenden, entpackten
+Prozess. Ein Versuch, den 64-Bit-Prozessspeicher per Windows-Bordmitteln auszulesen, kam mit 0
+Byte zurück (vom Anti-Cheat blockiert). Aggressivere Wege (Debugger, Injektion) sind aus den
+eingangs gesetzten Gründen (Account-/Bann-Risiko) ausgeschlossen, auch testweise.
+
+Damit ist der Netzwerkweg für diesen Client **nicht abgebrochen, sondern an eine harte technische
+Grenze gestoßen**, die mit den vereinbarten Regeln nicht überwindbar ist. Der Nutzer hat direkten
+Kontakt zum OriginAion-Betreiber und eine Anfrage nach den Krypto-Parametern läuft. Bis (falls)
+das etwas ergibt, existiert als Fallback ein **Chat-Log-basierter Parser** (`ChatLog/`) – gegen
+eine echte, ~44.000 Zeilen lange OriginAion-`Chat.log` aus einer realen Spielsitzung entwickelt
+und verifiziert (nicht nur handverlesene Beispielzeilen: die Regex-Muster wurden vorab in Python
+gegen die komplette Datei getestet, um echte Abdeckung statt Vermutung zu messen – siehe
+`ChatLogParser.cs`-Kommentare für die genauen Zahlen). Aufruf: `dotnet run -- chatlog
+<Pfad-zu-Chat.log>`. Selbsttests: `Combat/SelfCheck.cs`, `RunChatLogParserScenario` (Dedup-Fall)
+und `RunChatLogRealWorldPatternsScenario` (Crit/Skill/Incoming/Reflect/Heal-Varianten).
+
+**Wichtiger Fund dabei**: Aion schreibt Zahlen mit `.` als Tausender-, nicht als Dezimaltrennzeichen
+(`1.911` = 1911, nicht 1,911). Eine frühere Parser-Version hätte solche Zahlen um den Faktor ~1000
+zu niedrig gelesen, ohne dass die Zeile als fehlerhaft aufgefallen wäre.
+
+**Was der Chat-Log-Parser kann:**
+- Schaden UND Heal, ausgehend UND eingehend → `DamageEvent`, läuft direkt in die bestehende
+  `DpsCalculator`/`LiveAggregator`-Logik (unverändert, die war von Anfang an protokoll-unabhängig
+  gebaut). Konkret abgedeckt (alle an der realen Datei verifiziert): normaler Schaden, kritischer
+  Schaden (beide real vorkommenden Formulierungen), Skill-Schaden, Schaden durch Reflect,
+  eingehender Schaden (beide Formen), DoT-Ticks mit erkennbarer Quelle ("... after you used ..."),
+  Heilung an andere, Selbstheilung (für jeden sichtbaren Charakter, nicht nur "You"), Heilung durch
+  andere (dritte und erste Person). Macht 95,5% aller "damage"/"HP"-Zeilen in der echten Testdatei
+  aus.
+- Bewusst NICHT geraten, weil die Zeile keine erkennbare Schadensquelle nennt (nur einen
+  Skill-/Effektnamen): DoT-Ticks der Form "X received N damage due to the effect of Skill." –
+  könnte der eigene oder ein fremder DoT sein, Raten würde ungefähr so oft falsch wie richtig liegen.
+- Namen kommen direkt aus dem Log (`PlayerNameRegistry`) – kein `SM_GROUP_MEMBER_INFO`-Rätselraten
+  nötig wie beim Netzwerkweg.
+- Erkennt und verwirft zuverlässig Nicht-Kampf-Zeilen (Evade, "too far", Login, Chat-Kanäle,
+  Buff-Ansagen ohne konkreten Betrag).
+- Dedupliziert exakte Broadcast-Duplikate, wenn zwei Aion-Clients dieselbe `Chat.log`-Datei
+  gemeinsam beschreiben (real beobachtet und verifiziert – siehe Klassendokumentation).
+
+**Live-Tailing in der GUI: implementiert.** `Ui/MainWindow` startet beim Öffnen automatisch eine
+`ChatLog/ChatLogTailer`-Instanz gegen `<AionInstallFolder>\Chat.log` (aus den Settings, siehe
+"Aion-Installationsordner" im UI-Platzhalter-Abschnitt unten) und pollt sie per `DispatcherTimer`
+(1s-Intervall). Setzt exakt
+die vom Nutzer vorgegebene Regel um: `ChatLogTailer` springt im Konstruktor auf die AKTUELLE
+Dateilänge (nie Zeile 1), und `Poll(paused)` rückt die Leseposition auch während Pause weiter
+(verworfen, nicht aufgeschoben – ein Resume spielt nie nach, was währenddessen passiert ist, wie
+bei einem echten, gerade angehaltenen Tonbandgerät). Neuer Aion-Ordner in den Settings → sofortiger
+Neustart des Tailers, wieder ab dessen aktuellem Dateiende. `ChatLogParser.Parse` wurde dafür von
+lokalen auf Instanz-Felder für den Dedup-Bucket umgestellt, damit ein Duplikat, das über zwei
+Poll-Intervalle verteilt ankommt, weiterhin erkannt wird. Bewusst noch nicht gebaut: die
+In-Game-Chat-Befehle (`.pause`/`.resume`/`.clear`/…, siehe unten) als Alternative zu den GUI-Buttons.
+
+**Was noch fehlt (bewusst nicht geraten, siehe Doku in `ChatLogParser.cs`):**
+- **Seltene Sonderformen** (unter 0,2% der Zeilen in der Testdatei): zusammengesetzte
+  Status-Effekt-Zeilen ("... inflicted N damage AND the rune carve effect on ...") – andere
+  Satzstruktur um "on" herum, nicht den Regex-Mehraufwand wert für den Anteil am echten Verkehr.
+- **AP/Kinah/Loot**: reale Zeilenformate bestätigt (`"You have gained N Abyss Points."`, `"You have
+  earned N Kinah."`, `"You have acquired [item:ID;verV;;;;]."`) – genau die fehlenden Datenquellen
+  für den "Relic"-Mode bzw. die Loot-Table-Ansicht (siehe UI-Platzhalter unten), aber noch nicht
+  implementiert; kein `DamageEvent`, bräuchte einen eigenen Event-Typ und eigene UI-Anbindung.
+- **"You"-Mehrdeutigkeit bei zwei gleichzeitig kämpfenden Clients**: siehe `PlayerNameRegistry`-
+  Doku – wenn zwei Clients dieselbe `Chat.log` teilen UND beide gleichzeitig kämpfen, lässt sich
+  "You" nicht mehr eindeutig einem der beiden zuordnen. Im aktuellen Setup des Nutzers (ein
+  Charakter kämpft, der zweite steht nur für die Gruppenanforderung herum) tritt das nicht auf.
+- **`ShugoConsole`**: das vom Nutzer benutzte Tool, um die Client-interne "Basic Chatlog"-Option
+  (`builder_dev_dialog` in `L10N/2_eng/data/ui/UI_Game.xml`, ein normalerweise GM-gebundenes
+  Debug-Menü) freizuschalten. Undokumentiert, keine öffentliche Analyse – vermutlich ein
+  Speicher-Patch im laufenden Prozess, damit potenziell im selben Risikobereich wie der oben
+  ausgeschlossene Live-Speicherzugriff. Nicht von diesem Projekt geprüft oder empfohlen.
+
 ## Protokoll-Zusammenfassung (Quelle: Aion-Lightning-Emulator)
 
 Jedes Server→Client-Paket auf dem TCP-Stream:
@@ -281,17 +361,26 @@ in der jeweiligen UI-Komponente hinterlegt):
   4×6-Allianz zeigt "Group" nur die eigene Gruppe an, verwirft aber nichts). Braucht
   Gruppen-/Allianz-/Rassen-Zuordnung, die wir noch nicht dekodieren (`SM_GROUP_MEMBER_INFO` hat
   kein Rassenfeld, siehe oben).
-- **Filter-Dropdown "Mob/Boss"**: sollte die tatsächlich getroffenen Ziele dieser Session
-  auflisten (aus `LiveAggregator.Events` ableitbar), aktuell nur eine statische "All"-Option.
+- **Filter-Dropdown "Mob/Boss"**: implementiert. Listet die tatsächlich getroffenen Ziele dieser
+  Session (aus `LiveAggregator.Events` abgeleitet), inkl. echter Filterung: "All" zeigt pro Quelle
+  die Gesamtschaden/DPS-Zahl über alle Ziele hinweg (die absichtlich mehrdeutige Wall-Clock-Sicht,
+  siehe `DpsCalculator`), die Auswahl eines konkreten Ziels schaltet die Spalte auf echtes
+  Ziel-iDPS um (`DpsCalculator.TargetIDps`, gemeinsames Engagement-Fenster) – die Spaltenüberschrift
+  wechselt dabei sichtbar zwischen "DPS" und "iDPS". Fehlt weiterhin: Zielnamen kommen aktuell nur
+  für die Demo-Daten aus einer manuell gesetzten Tabelle (`MainWindow._targetNames`) – für den
+  Netzwerk- oder Chat-Log-Pfad braucht es noch eine echte Namensquelle für NPCs/Bosse.
 - **"Session"-Menü**: zeigt aktuell nur "No sessions recorded yet" – keine Session-Persistenz
   vorhanden.
-- **"App"-Menü**: nur *App Settings*, *Always on top* und *Close* sind echt. Alles andere
-  (Load/Save/Export/Validate session, Sessions-/Logs-Ordner öffnen, Reset connection, Profile
-  Settings, Key bindings, Check for updates, Minimize to system tray) ist deaktiviert, weil dafür
-  Session-Persistenz, ein Log-System bzw. ein System-Tray-Icon fehlen. **Bewusst nicht einmal als
-  Platzhalter-Stub implementiert**: "Start automatically with Windows" – das würde in die
-  Windows-Autostart-Registry schreiben, eine systemweite Änderung, die eine explizite Anfrage
-  braucht, keine UI-Parity-Checkbox.
+- **"App"-Menü**: nur *Close*, *Load Demo Data* und *Clear sessions* sind echt. Alles andere
+  (Load/Save/Export/Validate session, Sessions-/Logs-Ordner öffnen, Reset connection, Check for
+  updates, Minimize to system tray) ist deaktiviert, weil dafür Session-Persistenz, ein Log-System
+  bzw. ein System-Tray-Icon fehlen. **Bewusst nicht einmal als Platzhalter-Stub implementiert**:
+  "Start automatically with Windows" – das würde in die Windows-Autostart-Registry schreiben, eine
+  systemweite Änderung, die eine explizite Anfrage braucht, keine UI-Parity-Checkbox.
+- **"Settings"-Menü** (neu, aus "App" herausgelöst auf Wunsch des Nutzers – "App" war zu einer
+  langen, gemischten Ansammlung aus Session-/Dev-/Settings-Einträgen geworden, ohne festen Platz
+  für Einstellungen): *App Settings* und *Always on top* sind echt, *Profile Settings* und
+  *Key bindings* weiterhin Platzhalter aus denselben Gründen wie oben.
 - **"Network"-Menü**: hier ist die Geräteliste echt (`SharpPcap.CaptureDeviceList`), Auswahl wird
   in `MeterSettings.SelectedCaptureDeviceName` gespeichert – aber das tatsächliche Starten der
   Aufnahme aus der GUI heraus ist noch nicht verdrahtet (`Program.cs`s Konsolen-Einstieg ist
@@ -300,6 +389,18 @@ in der jeweiligen UI-Komponente hinterlegt):
   passen (Target-Bar, Players-List, Targets-List, Theme/Font). Loot-Tabelle, Kinah-Tracking,
   Auto-Upload und Donation-Goal aus der MyAion-Referenz fehlen komplett – dafür bräuchte es
   jeweils eigene Paketquellen bzw. ein eigenes Backend (siehe nächster Punkt).
+- **Aion-Installationsordner** (implementiert): eigene Gruppe im Settings-Dialog, angelehnt an die
+  vom Nutzer geteilte AionRainMeter/rainy.ws-Referenz-UI ("Log path: select Aion folder ROOT").
+  Ordnerauswahl über `Microsoft.Win32.OpenFolderDialog` (kein WinForms nötig), Validierung prüft auf
+  `bin64\game.dll`/`AION.bin` ("Wrong path selected!" analog zur Referenz) und meldet separat, ob
+  `Chat.log` dort schon existiert. Persistiert in `MeterSettings.AionInstallFolder` und wird von
+  `MainWindow` direkt für das Live-Tailing genutzt (siehe oben) – Ändern und Speichern in den
+  Settings startet den Tailer sofort neu, wieder ab dem dann aktuellen Dateiende.
+- **In-Game-Commands** (vom Nutzer als Referenz geteilt, z. B. `.pause`/`.resume`/`.clear`/`.dmg`/
+  `.heal` als Chat-Zeilen statt GUI-Klicks): passt konzeptionell gut zur "keine Vergangenheit
+  lesen"-Regel oben (`.pause` würde exakt steuern, was aufgezeichnet wird). Das Live-Tailing, das
+  dafür nötig ist, steht jetzt (siehe oben) – es fehlt noch eine Erkennung, welche Chat.log-Zeile die
+  eigene, gerade abgeschickte Chat-Nachricht ist.
 
 ## Geplant: eigenes Backend + Webseite für Session-Uploads
 
