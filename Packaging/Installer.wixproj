@@ -8,9 +8,9 @@
     <ProductVersion Condition="'$(ProductVersion)' == ''">0.0.1</ProductVersion>
     <DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
     <!-- Set from the CI workflow (-p:PublishDir=...) to the `dotnet publish` output that gets
-         harvested below; defaults to the conventional publish path for local builds
-         (`dotnet publish ..\AionSniffer.csproj -c Release -r win-x64 --self-contained -o publish`
-         run from the repo root before building this project). -->
+         harvested below; defaults to the conventional publish path for local builds (publish
+         AionSniffer.csproj for win-x64, self contained, Release config, -o publish, run from the
+         repo root before building this project). -->
     <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\publish\</PublishDir>
   </PropertyGroup>
 
@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <!-- Harvests every file under the publish output (the exe, its dependencies, and assets/)
-         into a component group at build time -- see Product.wxs's remarks on why this isn't
+         into a component group at build time, see Product.wxs's remarks on why this isn't
          hand-authored. -->
     <HarvestDirectory Include="$(PublishDir)">
       <ComponentGroupName>PublishedFiles</ComponentGroupName>

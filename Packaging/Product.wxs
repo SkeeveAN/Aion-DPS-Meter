@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   MSI authoring for Aion DPS Meter. Built against WiX v5. The actual file list under
-  INSTALLFOLDER is not hand-maintained here -- it's harvested at build time from the
+  INSTALLFOLDER is not hand-maintained here, it's harvested at build time from the
   publish output directory (see Installer.wixproj's HarvestDirectory item), since
   assets/ (skill/item/npc data + icons, see AionSniffer.csproj) is copied wholesale
   and its exact file list changes independently of this installer.
