@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 using AionSniffer.Combat;
 
 namespace AionSniffer.ChatLog;
@@ -58,7 +59,16 @@ public sealed class ChatLogTailer
         }
 
         stream.Seek(_position, SeekOrigin.Begin);
-        using var reader = new StreamReader(stream);
+        // Aion writes Chat.log as Windows-1252/Latin-1, NOT UTF-8 -- confirmed by terminal_windows
+        // against real German/French/Spanish lines (e.g. "Ihr habt \xDCbungsziel..." on disk, 0xDC
+        // being "Ü" as a single Latin-1 byte, not a valid UTF-8 sequence). Reading as UTF-8 (the
+        // StreamReader/File.ReadLines default) silently replaces every accented character with
+        // U+FFFD instead of throwing, so this went unnoticed for English (pure ASCII decodes
+        // identically either way) until DE/FR/ES patterns were tested against 60 real non-English
+        // lines and matched zero of them -- not a pattern bug, a decoding bug upstream of every
+        // pattern. This is the single prerequisite for ANY non-English Chat.log support to work at
+        // all; see ParseFile's matching fix for the one-shot (non-tailing) read path.
+        using var reader = new StreamReader(stream, Encoding.Latin1);
         var newLines = new List<string>();
         string? line;
         while ((line = reader.ReadLine()) != null)

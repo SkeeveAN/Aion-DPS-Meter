@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using AionSniffer.Combat;
 
@@ -46,10 +47,37 @@ namespace AionSniffer.ChatLog;
 ///   "You inflicted continuous damage on X by using Y."        (DoT application notice, no amount)
 ///   "Naduka...inflicted 460 damage AND the rune carve effect on..." (compound-effect phrasing,
 ///     &lt;0.2% of lines -- different literal structure around "on", not worth a second branch for)
+///
+/// Multi-language support (German/French/Russian): per the user's explicit instruction ("Alle vier
+/// bauen (EN/DE/FR/RU), best-effort") this parser also tries German, French, and Russian sentence
+/// shapes for every line the English patterns above don't match. UNLIKE the English patterns,
+/// these three are NOT validated against any real Chat.log -- no non-English sample has ever been
+/// seen. They were written from general language knowledge, mirroring the English patterns'
+/// sentence shapes and capture-group names one-for-one so the same dispatch logic
+/// (TryParseWithPatternSet) can run all four languages without duplicating the attribution rules.
+/// Confirmed real (via aioncodex.com's own localized skill/item query buckets, byte-size-diffed
+/// against each other) that Aion is genuinely localized into exactly these three languages besides
+/// English -- other tested locale codes (es/it/pl/tr/us) all silently fall back to one identical
+/// default response, i.e. not real localizations. That only proves the DATA exists in four
+/// languages, not that these specific SENTENCES are phrased the way this file guesses.
+/// Confidence, highest to lowest: German (native-adjacent grammar knowledge) > French > Russian.
+/// Russian carries an extra, structural risk beyond just "wrong words": Aion's real sentences would
+/// grammatically gender-agree past-tense verbs with the (unknown, per-line) grammatical gender of
+/// whoever performed the action -- these patterns therefore accept multiple gender endings
+/// (masculine/feminine/neuter) wherever that applies, but the exact endings Aion's own localizers
+/// chose, and whether foreign character names decline in the way assumed here, are both unverified.
+/// A real non-English Chat.log sample would let all of this move from "best-effort" to "confirmed"
+/// the same way the English patterns already are -- until then, expect these three to under-match
+/// (miss real lines) more than to mis-match (attribute a line wrongly); the patterns are written
+/// tight (anchored start/end) specifically to fail closed rather than guess.
 /// </summary>
 public sealed partial class ChatLogParser
 {
     private const string YouName = "You";
+
+    // ===================================================================================
+    // English -- confirmed real, see class remarks. Unchanged from the validated version.
+    // ===================================================================================
 
     // "Your attack on Torch Spirit Iprita was reflected and inflicted 246 damage on you." --
     // MUST be tried before DamagePattern for the same reason as DamageInflictedOnYouPattern: this
@@ -145,6 +173,280 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^(?<who>.+) (?:recovered|restored) (?<amount>[\d.]+) HP(?: by (?:using (?<skill>.+)|.+))?\.$")]
     private static partial Regex HealSelfPattern();
 
+    // ===================================================================================
+    // German (DE) -- CONFIRMED for damage (self and on-you), self-heal, heal-by-other, and loot.
+    // The user's Chat.log turned out to contain real German lines too (he tested a second client
+    // language after French, see the FR block below for how this file shares one log across two
+    // simultaneous clients) -- so this is direct real-gameplay evidence, not just the client
+    // string table lookup (ids 900389/900390) an earlier pass of this file relied on. That earlier
+    // lookup DID correctly predict the single biggest fix -- formal "Ihr/Euch/Euer" address, never
+    // informal "du/dir/dich" -- but got the skill-attribution word order wrong; real lines fixed
+    // that too. Confirmed real lines (verbatim, only numbers/names vary):
+    //   "Ihr habt Übungsziel 450 Schaden zugefügt."                                      (no skill)
+    //   "Kritischer Treffer! Ihr habt Übungsziel 1.028 kritischen Schaden zugefügt."     (crit, no skill)
+    //   "Ihr habt Übungsziel durch Benutzung von Klinge der Provokation I 577 Schaden zugefügt."
+    //   "Kritischer Treffer!Ihr habt Übungsziel durch Benutzung von Wilder Schlag VI 1.418 Schaden zugefügt."
+    //   "Katzugawa hat Euch 98 Schaden zugefügt."                                        (on you, no skill)
+    //   "Katzugawa hat Euch durch Geheiligter Schlag I 84 Schaden zugefügt."             (on you, with skill)
+    //   "Katzugawa hat durch Licht der Erneuerung I 17 TP wiederhergestellt."             (self-heal)
+    //   "Healmimi hat 1.156 TP wiederhergestellt, weil Shibui Blitz-Wiederherstellung I eingesetzt hat."
+    //   "Ihr habt [item:167000769;ver6;;;;] erhalten."                                    (loot)
+    // Corrections this forced beyond the formal-address fix: (1) the skill clause comes BEFORE
+    // the amount, not after ("durch Benutzung von X 577 Schaden", not "577 Schaden durch X") --
+    // the string-table lookup's two bare-bodied ids never showed a skill-attributed example at
+    // all, so this word order was pure guesswork before; (2) German uses "TP" (Trefferpunkte) for
+    // HP, not "HP" -- another guess the string table simply had no opportunity to catch since
+    // none of its confirmed strings mentioned HP/TP; (3) the general (self-as-attacker) form says
+    // "durch Benutzung von X" (through the use of X) while the on-you and self-heal forms say just
+    // "durch X" -- a real, confirmed asymmetry between templates, not a simplification; (4) in
+    // HealByOtherPatternDe, the healer name must be captured as a single token (\S+), not greedily
+    // (.+) -- unlike English's "because X used Y", German's "weil X Y eingesetzt hat" has no
+    // keyword between the healer's name and the skill name, so a greedy capture swallows the first
+    // word of a multi-word skill name into the healer's name (confirmed by testing against the
+    // Shibui/"Blitz-Wiederherstellung I" line above, which mismatched under English's greedy
+    // approach); a bare, space-free capture works because Aion character names never contain
+    // spaces. Full-log coverage check (candidate lines containing "Schaden"/"TP wiederherge.../
+    // "[item:" near "Ihr"/"habt"): 98.9% match (181/183), with the 2 unmatched being the German
+    // counterparts of this file's own documented deliberate gaps -- an unattributed effect-only
+    // DoT tick ("Ihr erhaltet durch Effekt X 48 Schaden.") and a no-amount continuous-regen notice
+    // ("Die TP von X werden ... fortwährend wiederhergestellt.") -- correctly left unmatched
+    // rather than guessed at, same as English's and French's equivalents.
+    // Still UNCONFIRMED, best-effort: Reflect, the third-party generalization of "received damage"
+    // (DamageReceivedPatternDe), the DoT-after-your-own-skill form, healing someone ELSE by name
+    // (HealOtherPatternDe -- only self-heals were observed), and AP/GP/Kinah/XP (no such event
+    // occurred during the played German session either).
+    // ===================================================================================
+
+    [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?Euer Angriff auf (?<attacker>.+) wurde reflektiert und hat Euch (?<amount>[\d.]+) Schaden zugefügt\.$")]
+    private static partial Regex ReflectedDamagePatternDe();
+
+    [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?<attacker>Ihr|.+?) (?:habt|hat) (?<target>.+?)(?: durch Benutzung von (?<skill>.+?))? (?<amount>[\d.]+)(?: kritischen)? Schaden zugefügt\.$")]
+    private static partial Regex DamagePatternDe();
+
+    [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?<attacker>.+) hat Euch(?: durch (?<skill>.+?))? (?<amount>[\d.]+) Schaden zugefügt\.$")]
+    private static partial Regex DamageInflictedOnYouPatternDe();
+
+    [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?<target>.+) hat (?<amount>[\d.]+) Schaden von (?<attacker>.+) erhalten\.$")]
+    private static partial Regex DamageReceivedPatternDe();
+
+    [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?<target>.+) hat (?<amount>[\d.]+)(?: \w+)? Schaden erhalten, nachdem Ihr (?<skill>.+) eingesetzt habt\.$")]
+    private static partial Regex DotDamageAttributedToYouPatternDe();
+
+    [GeneratedRegex(@"^Ihr habt durch (?<skill>.+) (?<amount>[\d.]+) von (?<target>.+)s TP wiederhergestellt\.$")]
+    private static partial Regex HealOtherPatternDe();
+
+    [GeneratedRegex(@"^(?<target>.+) hat (?<amount>[\d.]+) TP wiederhergestellt, weil (?<healer>\S+) .+? eingesetzt hat\.$")]
+    private static partial Regex HealByOtherPatternDe();
+
+    [GeneratedRegex(@"^(?<who>Ihr|.+?) (?:habt|hat)(?: durch (?<skill>.+?))? (?<amount>[\d.]+) TP wiederhergestellt\.$")]
+    private static partial Regex HealSelfPatternDe();
+
+    // ===================================================================================
+    // French (FR) -- CONFIRMED for the core damage/heal-self shapes. The user's Chat.log turned
+    // out to contain thousands of real French lines: he runs two simultaneous Aion clients
+    // sharing one Chat.log (see PlayerNameRegistry remarks elsewhere in this file), and switched
+    // ONE of them to French while the other stayed English -- so this same file, read directly
+    // (no client string extraction needed this time), IS the real sample this class's own remarks
+    // said would be needed. Confirmed real lines (verbatim, only the numbers/names vary):
+    //   "Vous avez infligé 319 points de dégâts à Mannequin d'entraînement en utilisant Tourment I."
+    //   "Redamha a infligé 371 points de dégâts à Mannequin d'entraînement."
+    //   "Coup critique !Ddx a infligé 1.483 points de dégâts à Mannequin d'entraînement en utilisant Coup divin II."
+    //   "Vous avez subi 144 points de dégâts de la part de : Mitzuhiko."
+    //   "Vous avez récupéré 17 PV en utilisant Lumière du renouveau I."
+    //   "Katzugawa a récupéré 269 PV grâce à Halo de soins II."
+    // Two corrections this forced, both parallel to the German fix above: (1) formal address --
+    // "Vous avez", never the "Tu as" this file originally guessed (same systemic formal-register
+    // convention as German's "Ihr/Euch", just French's own form); (2) "points de dégâts", not
+    // bare "dégâts" as guessed. Also newly confirmed: incoming damage on you is phrased as "Vous
+    // avez subi ... de la part de : X" (suffered ... from X), NOT the attacker-first "X t'a
+    // infligé..." this file originally guessed -- a structurally different sentence, not just a
+    // wrong pronoun. Skill attribution has TWO real interchangeable connectors, "en utilisant"
+    // (by using) and "grâce à" (thanks to) -- both confirmed for the exact same skill in adjacent
+    // real lines, so both are accepted rather than picking one.
+    // Still UNCONFIRMED, best-effort: Reflect, DoT-after-your-skill, healing someone ELSE (only
+    // self-heals were seen), AP/GP/Kinah/XP, and loot -- the played French session never happened
+    // to produce any of those events. One related real, NON-matchable shape found along the way,
+    // noted here so it isn't rediscovered and mistaken for a bug: "X voit sa PV s'améliorer car Y
+    // a utilisé Z." (X's HP is seen to improve because Y used Z) is a real regen/buff notice with
+    // NO concrete amount, the French counterpart of English's "Your HP has been boosted by using
+    // X." deliberate gap -- correctly left unmatched, not something to force an amount onto. A
+    // third-party generalization of "a subi ... de la part de" (some other mob/character as the
+    // one receiving named damage, not just "Vous") was not observed either but is kept as a
+    // plausible, still-unconfirmed extension in DamageReceivedPatternFr, mirroring how English's
+    // own DamageReceivedPattern generalizes beyond only what was directly observed.
+    // ===================================================================================
+
+    [GeneratedRegex(@"^(?:Coup critique !\s?)?Votre attaque sur (?<attacker>.+) a été reflétée et vous a infligé (?<amount>[\d.]+) points de dégâts\.$")]
+    private static partial Regex ReflectedDamagePatternFr();
+
+    // "critiques" (plural adjective on "dégâts") confirmed by terminal_windows as a real,
+    // separate crit marker from the "Coup critique !" prefix -- both can occur on the same line
+    // ("Coup critique ! Vous avez infligé 649 points de dégâts critiques à ..."), mirroring
+    // English's own "Critical Hit!X inflicted N critical damage on Y." dual-marker shape.
+    [GeneratedRegex(@"^(?:Coup critique !\s?)?(?<attacker>Vous|.+?) (?:avez|a) infligé (?<amount>[\d.]+) points de dégâts(?: critiques)? à (?<target>.+?)(?: (?:en utilisant|grâce à) (?<skill>.+))?\.$")]
+    private static partial Regex DamagePatternFr();
+
+    [GeneratedRegex(@"^(?:Coup critique !\s?)?Vous avez subi (?<amount>[\d.]+) points de dégâts de la part de\s*:\s*(?<attacker>.+)\.$")]
+    private static partial Regex DamageInflictedOnYouPatternFr();
+
+    [GeneratedRegex(@"^(?:Coup critique !\s?)?(?<target>.+) a subi (?<amount>[\d.]+) points de dégâts de la part de\s*:\s*(?<attacker>.+)\.$")]
+    private static partial Regex DamageReceivedPatternFr();
+
+    [GeneratedRegex(@"^(?:Coup critique !\s?)?(?<target>.+) a subi (?<amount>[\d.]+)(?: \S+)? points de dégâts après que vous avez utilisé (?<skill>.+)\.$")]
+    private static partial Regex DotDamageAttributedToYouPatternFr();
+
+    [GeneratedRegex(@"^Vous avez restauré (?<amount>[\d.]+) PV de (?<target>.+) (?:en utilisant|grâce à) (?<skill>.+)\.$")]
+    private static partial Regex HealOtherPatternFr();
+
+    [GeneratedRegex(@"^(?<target>.+) a récupéré (?<amount>[\d.]+) PV car (?<healer>.+) a utilisé .+?\.$")]
+    private static partial Regex HealByOtherPatternFr();
+
+    [GeneratedRegex(@"^(?<who>Vous|.+?) (?:avez|a) (?:récupéré|restauré) (?<amount>[\d.]+) PV(?: (?:en utilisant|grâce à) (?<skill>.+))?\.$")]
+    private static partial Regex HealSelfPatternFr();
+
+    // ===================================================================================
+    // Spanish (ES) -- CONFIRMED for the core damage/heal-self shapes, same as German/French
+    // above: Spanish turned out to be the AION community's real 4th language here, not Russian
+    // (0 occurrences of Russian in the user's ~497k-line Chat.log, vs. 3,991 Spanish lines --
+    // Spanish was added to this file's language list once that became clear; the RU patterns
+    // below are kept, unchanged, as harmless best-effort insurance rather than removed).
+    // Confirmed real lines (verbatim, only numbers/names vary), extracted and coverage-tested by
+    // terminal_windows against the user's real log:
+    //   "Habéis infligido 98 de daño a Mitzuhiko."                                    (no skill)
+    //   "Habéis infligido 84 de daño a Mitzuhiko utilizando la habilidad Golpe sagrado I."
+    //   "Mitzuhiko ha infligido 1.086 de daño a Maniquí de entrenamiento."             (3rd person)
+    //   "¡Golpe crítico!Ueeu ha infligido 751 de daño a Maniquí de entrenamiento."     (crit, glued)
+    //   "Mitzuhiko os ha infligido 37 de daño."                                        (on you)
+    //   "Habéis restaurado 17 PV mediante la habilidad Luz de la renovación I."        (self-heal)
+    // Formal address again ("Habéis", 2nd person plural/formal "you have", not an informal "tú"
+    // form) -- the same systemic pattern as German's "Ihr" and French's "Vous", just Spanish's own
+    // shape. Two structural traps found and fixed here, both confirmed by testing against the real
+    // lines above, not guessed: (1) "Habéis" already IS the conjugated verb (subject dropped, as
+    // Spanish commonly does) with NO separate verb word following it ("Habéis infligido", not
+    // "Habéis ha infligido"), while a third-party attacker needs an explicit " ha" ("Mitzuhiko ha
+    // infligido") -- one regex handles both by making " ha" optional rather than writing two
+    // separate templates; (2) incoming damage on the local player inserts the object pronoun "os"
+    // BEFORE the verb ("Mitzuhiko os ha infligido..."), and this is the ONLY reliable marker that
+    // distinguishes "attacked" from "attacking" here (unlike English's differently-worded
+    // "received .../inflicted..." or German's differing verb-phrase target) -- a pattern that only
+    // recognizes "ha infligido" without checking for "os" would misattribute every incoming hit as
+    // the ATTACKER's own outgoing damage. Confirmed no separate "critical" adjective exists (no
+    // "de daño crítico" the way French has "dégâts critiques") -- the crit prefix "¡Golpe
+    // crítico!" (confirmed in both the spaced and glued-to-the-name forms, same dual shape as
+    // "Critical Hit!"/"Coup critique !") is the only crit marker. The skill clause sits AFTER the
+    // target ("a Ziel utilizando la habilidad X"), a different position than German's (before the
+    // amount) -- each language's word order was taken from its own real lines, not assumed to
+    // match another language's.
+    // Still UNCONFIRMED, best-effort: Reflect, DoT-after-your-own-skill (a real unattributed
+    // effect-only DoT line was found -- "Mitzuhiko recibe 48 puntos de daño mediante la habilidad
+    // Efecto de Promesa del viento I." -- but that's the Spanish counterpart of this file's
+    // documented deliberate gaps, an effect name standing in for a real source, not something to
+    // match), healing someone else by name, the third-party generalization of "received damage",
+    // and AP/GP/Kinah/XP/loot (none of these occurred in the played Spanish session either).
+    // ===================================================================================
+
+    [GeneratedRegex(@"^(?:¡Golpe crítico!\s?)?Vuestro ataque a (?<attacker>.+) ha sido reflejado y os ha infligido (?<amount>[\d.]+) de daño\.$")]
+    private static partial Regex ReflectedDamagePatternEs();
+
+    [GeneratedRegex(@"^(?:¡Golpe crítico!\s?)?(?<attacker>Habéis|.+?) (?:ha )?infligido (?<amount>[\d.]+) de daño a (?<target>.+?)(?: utilizando la habilidad (?<skill>.+))?\.$")]
+    private static partial Regex DamagePatternEs();
+
+    [GeneratedRegex(@"^(?:¡Golpe crítico!\s?)?(?<attacker>.+) os ha infligido (?<amount>[\d.]+) de daño(?: utilizando la habilidad (?<skill>.+))?\.$")]
+    private static partial Regex DamageInflictedOnYouPatternEs();
+
+    [GeneratedRegex(@"^(?<target>.+) ha recibido (?<amount>[\d.]+) de daño de (?<attacker>.+)\.$")]
+    private static partial Regex DamageReceivedPatternEs();
+
+    [GeneratedRegex(@"^(?<target>.+) recibe (?<amount>[\d.]+) puntos de daño después de que utilizasteis (?<skill>.+)\.$")]
+    private static partial Regex DotDamageAttributedToYouPatternEs();
+
+    [GeneratedRegex(@"^Habéis restaurado (?<amount>[\d.]+) PV de (?<target>.+) mediante la habilidad (?<skill>.+)\.$")]
+    private static partial Regex HealOtherPatternEs();
+
+    [GeneratedRegex(@"^(?<target>.+) ha restaurado (?<amount>[\d.]+) PV porque (?<healer>\S+) ha utilizado .+?\.$")]
+    private static partial Regex HealByOtherPatternEs();
+
+    [GeneratedRegex(@"^(?<who>Habéis|.+?) (?:ha )?restaurado (?<amount>[\d.]+) PV(?: mediante la habilidad (?<skill>.+))?\.$")]
+    private static partial Regex HealSelfPatternEs();
+
+    // ===================================================================================
+    // Russian (RU) -- BEST-EFFORT, UNVALIDATED, HIGHEST RISK. See class remarks for why: past-
+    // tense verbs here grammatically agree with the actor's gender, which this parser cannot know
+    // per line, so every such verb is written with alternated masculine/feminine/(neuter) endings
+    // to at least not fail-closed on that alone. Whether Aion's real Russian client phrases these
+    // sentences this way at all -- word choice, case endings on foreign character names -- is
+    // simply unverified; treat this block as the weakest guess in the file.
+    // ===================================================================================
+
+    [GeneratedRegex(@"^(?:Критический удар!\s?)?Твоя атака на (?<attacker>.+) была отражена и нанесла тебе (?<amount>[\d.]+) урона\.$")]
+    private static partial Regex ReflectedDamagePatternRu();
+
+    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?<attacker>.+) нан(?:ёс|есла|есло) (?<target>.+?) (?<amount>[\d.]+)(?: критического)? урона(?: используя (?<skill>.+)| .+)?\.$")]
+    private static partial Regex DamagePatternRu();
+
+    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?<attacker>.+) нан(?:ёс|есла|есло) тебе (?<amount>[\d.]+) урона(?: используя .+)?\.$")]
+    private static partial Regex DamageInflictedOnYouPatternRu();
+
+    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?<target>.+) получил(?:а|о)? (?<amount>[\d.]+) урона от (?<attacker>.+)\.$")]
+    private static partial Regex DamageReceivedPatternRu();
+
+    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?<target>.+) получил(?:а|о)? (?<amount>[\d.]+)(?: \S+)? урона после того, как ты использовал(?:а)? (?<skill>.+)\.$")]
+    private static partial Regex DotDamageAttributedToYouPatternRu();
+
+    [GeneratedRegex(@"^Ты восстановил(?:а)? (?<target>.+) (?<amount>[\d.]+) ОЗ, используя (?<skill>.+)\.$")]
+    private static partial Regex HealOtherPatternRu();
+
+    [GeneratedRegex(@"^(?<target>.+) восстановил(?:а|о)? (?<amount>[\d.]+) ОЗ, потому что (?<healer>.+) использовал(?:а|о)? .+?\.$")]
+    private static partial Regex HealByOtherPatternRu();
+
+    [GeneratedRegex(@"^(?<who>.+) восстановил(?:а|о)? (?<amount>[\d.]+) ОЗ(?: используя (?<skill>.+))?\.$")]
+    private static partial Regex HealSelfPatternRu();
+
+    // ===================================================================================
+    // Per-language pattern-set plumbing: one record per language holding the 8 damage/heal
+    // regexes, all sharing English's group names, so a single dispatcher (TryParseWithPatternSet)
+    // implements the attribution rules exactly once instead of once per language.
+    // ===================================================================================
+
+    private readonly record struct DamageHealPatternSet(
+        Regex Reflected,
+        Regex InflictedOnYou,
+        Regex Received,
+        Regex DotAttributedToYou,
+        Regex General,
+        Regex HealOther,
+        Regex HealByOther,
+        Regex HealSelf,
+        string[] LocalPlayerLiterals);
+
+    // English first (validated, most likely to match), then DE/FR/ES/RU -- order only matters for
+    // which language's SkillUsed/class-detection text a match reports, not for correctness, since
+    // a single Chat.log is written consistently in one language and only that language's set will
+    // ever actually match a given real file.
+    private static IReadOnlyList<DamageHealPatternSet> DamageHealPatternSets { get; } = new[]
+    {
+        new DamageHealPatternSet(
+            ReflectedDamagePattern(), DamageInflictedOnYouPattern(), DamageReceivedPattern(),
+            DotDamageAttributedToYouPattern(), DamagePattern(), HealOtherPattern(),
+            HealByOtherPattern(), HealSelfPattern(), new[] { "you" }),
+        new DamageHealPatternSet(
+            ReflectedDamagePatternDe(), DamageInflictedOnYouPatternDe(), DamageReceivedPatternDe(),
+            DotDamageAttributedToYouPatternDe(), DamagePatternDe(), HealOtherPatternDe(),
+            HealByOtherPatternDe(), HealSelfPatternDe(), new[] { "euch", "ihr" }),
+        new DamageHealPatternSet(
+            ReflectedDamagePatternFr(), DamageInflictedOnYouPatternFr(), DamageReceivedPatternFr(),
+            DotDamageAttributedToYouPatternFr(), DamagePatternFr(), HealOtherPatternFr(),
+            HealByOtherPatternFr(), HealSelfPatternFr(), new[] { "vous" }),
+        new DamageHealPatternSet(
+            ReflectedDamagePatternEs(), DamageInflictedOnYouPatternEs(), DamageReceivedPatternEs(),
+            DotDamageAttributedToYouPatternEs(), DamagePatternEs(), HealOtherPatternEs(),
+            HealByOtherPatternEs(), HealSelfPatternEs(), new[] { "habéis" }),
+        new DamageHealPatternSet(
+            ReflectedDamagePatternRu(), DamageInflictedOnYouPatternRu(), DamageReceivedPatternRu(),
+            DotDamageAttributedToYouPatternRu(), DamagePatternRu(), HealOtherPatternRu(),
+            HealByOtherPatternRu(), HealSelfPatternRu(), new[] { "тебе", "тебя", "ты" }),
+    };
+
     public PlayerNameRegistry Names { get; } = new();
 
     /// <summary>
@@ -164,6 +466,8 @@ public sealed partial class ChatLogParser
     // log reacts. A leading "\." preceded by a word character is excluded so this never fires on
     // ordinary numbers ("3.123" -- the digit after "." rules it out on its own) or on a dotted
     // abbreviation glued to a word.
+    // Language-independent: the command word itself is typed verbatim by the user regardless of
+    // which language their Aion client is running in, so this needs no DE/FR/RU counterpart.
     [GeneratedRegex(@"(?<!\w)\.(?<cmd>[a-zA-Z]+)\b[ \t]*(?<args>\S.*)?")]
     private static partial Regex CommandPattern();
 
@@ -175,6 +479,9 @@ public sealed partial class ChatLogParser
     // (".gear" x3, ".l", ".decompose", ".der") -- a stranger typing ".cleardmg" in LFG would have
     // silently wiped the local user's whole session with no visible cause. This capture lets the
     // caller compare against the locally active character and refuse anything else.
+    // Language-independent: this tag is the client's own internal markup for "who said this",
+    // not translated chat text, so it's assumed (not confirmed against a non-English sample) to be
+    // identical across locales -- same reasoning as CommandPattern above.
     [GeneratedRegex(@"\[charname:(?<charname>[^;\]]+)")]
     private static partial Regex ChatSpeakerPattern();
 
@@ -190,6 +497,9 @@ public sealed partial class ChatLogParser
     // so this can't misfire mid-sentence -- a real chat line always opens with an optional
     // "[N.Channel] " tag followed immediately by "Name:", which ordinary damage/heal/system lines
     // never do (none of ChatLogParser's other patterns produce a line shaped like that).
+    // Language-independent for the same reason as ChatSpeakerPattern -- the "Name:" shape doesn't
+    // depend on the client's display language, only the channel tag word would, and that's not
+    // captured here.
     [GeneratedRegex(@"^(?:\[\d+\.\w+\]\s)?(?<charname>[^:\[\]]+):")]
     private static partial Regex ChatSpeakerFallbackPattern();
 
@@ -233,6 +543,104 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^You have gained (?<amount>[\d.]+) Glory Points?\.$")]
     private static partial Regex GpGainedPattern();
 
+    // German -- "Ihr habt" (formal address, see class remarks above) and "EP" for XP are confirmed
+    // real German client terms (id 901692 STR_QUEST_REWARD_EXP "%0 XP" -> "%0 EP"; formal address
+    // confirmed systemically). "Abyss-Punkte" (WITH a hyphen) is confirmed too (id 903488
+    // STR_ABYSS_POINT "Abyss Points" -> "Abyss-Punkte"; this file originally guessed the wrong,
+    // unhyphenated "Abysspunkte"). Still an unconfirmed guess: "Ruhmespunkte" for Glory Points --
+    // no matching string was found by keyword search in the client's own locale data.
+    [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) Abyss-Punkte erhalten\.$")]
+    private static partial Regex ApGainedPatternDe();
+
+    [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) Abyss-Punkte verloren\.$")]
+    private static partial Regex ApLostPatternDe();
+
+    [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) Kinah erhalten\.$")]
+    private static partial Regex KinahEarnedPatternDe();
+
+    [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) Kinah ausgegeben\.$")]
+    private static partial Regex KinahSpentPatternDe();
+
+    [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) EP von .+ erhalten\.$")]
+    private static partial Regex XpGainedPatternDe();
+
+    [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) Ruhmespunkte erhalten\.$")]
+    private static partial Regex GpGainedPatternDe();
+
+    // French -- still BEST-EFFORT/UNVALIDATED (the real French session that confirmed the damage/
+    // heal-self patterns above never happened to gain AP/GP/Kinah/XP), but corrected to the
+    // confirmed formal "Vous avez" register rather than the originally-guessed informal "Tu as".
+    [GeneratedRegex(@"^Vous avez gagné (?<amount>[\d.]+) points d'Abysse\.$")]
+    private static partial Regex ApGainedPatternFr();
+
+    [GeneratedRegex(@"^Vous avez perdu (?<amount>[\d.]+) points d'Abysse\.$")]
+    private static partial Regex ApLostPatternFr();
+
+    [GeneratedRegex(@"^Vous avez gagné (?<amount>[\d.]+) Kinah\.$")]
+    private static partial Regex KinahEarnedPatternFr();
+
+    [GeneratedRegex(@"^Vous avez dépensé (?<amount>[\d.]+) Kinah\.$")]
+    private static partial Regex KinahSpentPatternFr();
+
+    [GeneratedRegex(@"^Vous avez gagné (?<amount>[\d.]+) XP grâce à .+\.$")]
+    private static partial Regex XpGainedPatternFr();
+
+    [GeneratedRegex(@"^Vous avez gagné (?<amount>[\d.]+) points de Gloire\.$")]
+    private static partial Regex GpGainedPatternFr();
+
+    // Spanish -- still BEST-EFFORT/UNVALIDATED (no such event occurred during the played Spanish
+    // session either), using the confirmed formal "Habéis" register from the damage/heal patterns.
+    [GeneratedRegex(@"^Habéis ganado (?<amount>[\d.]+) Puntos del Abismo\.$")]
+    private static partial Regex ApGainedPatternEs();
+
+    [GeneratedRegex(@"^Habéis perdido (?<amount>[\d.]+) Puntos del Abismo\.$")]
+    private static partial Regex ApLostPatternEs();
+
+    [GeneratedRegex(@"^Habéis ganado (?<amount>[\d.]+) Kinah\.$")]
+    private static partial Regex KinahEarnedPatternEs();
+
+    [GeneratedRegex(@"^Habéis gastado (?<amount>[\d.]+) Kinah\.$")]
+    private static partial Regex KinahSpentPatternEs();
+
+    [GeneratedRegex(@"^Habéis ganado (?<amount>[\d.]+) PE gracias a .+\.$")]
+    private static partial Regex XpGainedPatternEs();
+
+    [GeneratedRegex(@"^Habéis ganado (?<amount>[\d.]+) Puntos de Gloria\.$")]
+    private static partial Regex GpGainedPatternEs();
+
+    // Russian -- BEST-EFFORT, UNVALIDATED, HIGHEST RISK, see class remarks. "Ты получил(а)"
+    // alternates the local player's unknown grammatical gender; "Кина" (Kinah) is a guessed,
+    // unconfirmed transliteration.
+    [GeneratedRegex(@"^Ты получил(?:а)? (?<amount>[\d.]+) очков Бездны\.$")]
+    private static partial Regex ApGainedPatternRu();
+
+    [GeneratedRegex(@"^Ты потерял(?:а)? (?<amount>[\d.]+) очков Бездны\.$")]
+    private static partial Regex ApLostPatternRu();
+
+    [GeneratedRegex(@"^Ты получил(?:а)? (?<amount>[\d.]+) Кина\.$")]
+    private static partial Regex KinahEarnedPatternRu();
+
+    [GeneratedRegex(@"^Ты потратил(?:а)? (?<amount>[\d.]+) Кина\.$")]
+    private static partial Regex KinahSpentPatternRu();
+
+    [GeneratedRegex(@"^Ты получил(?:а)? (?<amount>[\d.]+) очков опыта от .+\.$")]
+    private static partial Regex XpGainedPatternRu();
+
+    [GeneratedRegex(@"^Ты получил(?:а)? (?<amount>[\d.]+) очков Славы\.$")]
+    private static partial Regex GpGainedPatternRu();
+
+    private readonly record struct PersonalStatPatternSet(
+        Regex ApGained, Regex ApLost, Regex KinahEarned, Regex KinahSpent, Regex XpGained, Regex GpGained);
+
+    private static IReadOnlyList<PersonalStatPatternSet> PersonalStatPatternSets { get; } = new[]
+    {
+        new PersonalStatPatternSet(ApGainedPattern(), ApLostPattern(), KinahEarnedPattern(), KinahSpentPattern(), XpGainedPattern(), GpGainedPattern()),
+        new PersonalStatPatternSet(ApGainedPatternDe(), ApLostPatternDe(), KinahEarnedPatternDe(), KinahSpentPatternDe(), XpGainedPatternDe(), GpGainedPatternDe()),
+        new PersonalStatPatternSet(ApGainedPatternFr(), ApLostPatternFr(), KinahEarnedPatternFr(), KinahSpentPatternFr(), XpGainedPatternFr(), GpGainedPatternFr()),
+        new PersonalStatPatternSet(ApGainedPatternEs(), ApLostPatternEs(), KinahEarnedPatternEs(), KinahSpentPatternEs(), XpGainedPatternEs(), GpGainedPatternEs()),
+        new PersonalStatPatternSet(ApGainedPatternRu(), ApLostPatternRu(), KinahEarnedPatternRu(), KinahSpentPatternRu(), XpGainedPatternRu(), GpGainedPatternRu()),
+    };
+
     /// <summary>Fires once per matched personal-stat line, signed (positive for a gain, negative
     /// for a loss/spend) so the subscriber can just accumulate a running total per kind.</summary>
     public event Action<PersonalStatKind, long>? PersonalStatChanged;
@@ -257,6 +665,60 @@ public sealed partial class ChatLogParser
     // subject isn't captured, just assumed.
     [GeneratedRegex(@"^You received (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) items? as reward for the survey\.$")]
     private static partial Regex LootSurveyPattern();
+
+    // German -- "erhalten" as the verb for "acquired" is corroborated (not just guessed) by id
+    // 900708/900709 in the client's own strings ("You have acquired ... as a reward" -> "Ihr habt
+    // ... erhalten"); formal "Ihr habt/hat" mirrors the confirmed damage-pattern fix above.
+    // "Spezialwürfel" (special cube) remains an unconfirmed guess.
+    [GeneratedRegex(@"^(?<subject>Ihr|.+?) (?:habt|hat) (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) erhalten(?: und in Eurem Spezialwürfel verstaut)?\.$")]
+    private static partial Regex LootAcquiredPatternDe();
+
+    [GeneratedRegex(@"^Ihr habt (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) als Belohnung für die Umfrage erhalten\.$")]
+    private static partial Regex LootSurveyPatternDe();
+
+    // French -- still BEST-EFFORT/UNVALIDATED (no real loot event occurred during the French
+    // session either), corrected to the confirmed formal "Vous avez" register.
+    [GeneratedRegex(@"^(?<subject>Vous|.+?) (?:avez|a) obtenu (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: .+ cube spécial)?\.$")]
+    private static partial Regex LootAcquiredPatternFr();
+
+    [GeneratedRegex(@"^Vous avez reçu (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) comme récompense pour le sondage\.$")]
+    private static partial Regex LootSurveyPatternFr();
+
+    // Spanish -- still BEST-EFFORT/UNVALIDATED (no real loot event occurred during the played
+    // Spanish session either), using the confirmed formal "Habéis"/"ha" alternation from the
+    // damage/heal patterns above.
+    [GeneratedRegex(@"^(?<subject>Habéis|.+?) (?:ha )?obtenido (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: .+ cubo especial)?\.$")]
+    private static partial Regex LootAcquiredPatternEs();
+
+    [GeneratedRegex(@"^Habéis recibido (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) como recompensa por la encuesta\.$")]
+    private static partial Regex LootSurveyPatternEs();
+
+    // Russian -- BEST-EFFORT, UNVALIDATED, HIGHEST RISK. Same unknown-gender caveat as the
+    // personal-stat patterns above applies to "получил(а/о)" here too.
+    [GeneratedRegex(@"^(?<subject>.+?) получил(?:а|о)? (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: и убрал(?:а|о)? (?:его|их) в специальный куб)?\.$")]
+    private static partial Regex LootAcquiredPatternRu();
+
+    [GeneratedRegex(@"^Ты получил(?:а)? (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) в награду за опрос\.$")]
+    private static partial Regex LootSurveyPatternRu();
+
+    // LocalPlayerLiterals mirrors DamageHealPatternSet's field of the same name: German's,
+    // French's, and Spanish's Acquired patterns all use the same "Ihr/Vous/Habéis|any name"
+    // alternation as their confirmed damage patterns do (see DamagePatternDe's/Fr's/Es's remarks).
+    // German's loot line itself was directly confirmed real ("Ihr habt [item:...] erhalten.");
+    // French's and Spanish's loot events were never actually observed, but applying the same
+    // confirmed formal-register fix to them anyway is far more likely correct than leaving the
+    // original informal guess in place. Only Russian's subject capture remains a plain,
+    // unconstrained name with no such literal to canonicalize.
+    private readonly record struct LootPatternSet(Regex Acquired, Regex Survey, string[] LocalPlayerLiterals);
+
+    private static IReadOnlyList<LootPatternSet> LootPatternSets { get; } = new[]
+    {
+        new LootPatternSet(LootAcquiredPattern(), LootSurveyPattern(), Array.Empty<string>()),
+        new LootPatternSet(LootAcquiredPatternDe(), LootSurveyPatternDe(), new[] { "ihr" }),
+        new LootPatternSet(LootAcquiredPatternFr(), LootSurveyPatternFr(), new[] { "vous" }),
+        new LootPatternSet(LootAcquiredPatternEs(), LootSurveyPatternEs(), new[] { "habéis" }),
+        new LootPatternSet(LootAcquiredPatternRu(), LootSurveyPatternRu(), Array.Empty<string>()),
+    };
 
     /// <summary>Fires once per matched loot line -- see LootEvent remarks. Deliberately excludes
     /// "You have purchased [item:...]." (a shop purchase, not loot, per the user/terminal_windows)
@@ -359,71 +821,113 @@ public sealed partial class ChatLogParser
         return events;
     }
 
-    /// <summary>See the Ap/Kinah/Xp *Pattern remarks and PersonalStatChanged's own remarks --
-    /// tried in this order for no particular reason (none of these five shapes can match more
-    /// than one of the five patterns), unlike TryParseDamageOrHeal's order, which matters.</summary>
+    /// <summary>See the Ap/Kinah/Xp *Pattern remarks and PersonalStatChanged's own remarks -- each
+    /// language's set of five shapes is tried in this fixed internal order for no particular
+    /// reason (none of the five can match more than one pattern within the same language), but
+    /// English is tried before DE/FR/RU since it's the confirmed, validated case.</summary>
     private void RaisePersonalStatIfPresent(string message)
     {
-        if (ApGainedPattern().Match(message) is { Success: true } apGained)
+        foreach (var p in PersonalStatPatternSets)
         {
-            PersonalStatChanged?.Invoke(PersonalStatKind.AbyssPoints, ParseGroupedAmount(apGained.Groups["amount"].Value));
-        }
-        else if (ApLostPattern().Match(message) is { Success: true } apLost)
-        {
-            PersonalStatChanged?.Invoke(PersonalStatKind.AbyssPoints, -ParseGroupedAmount(apLost.Groups["amount"].Value));
-        }
-        else if (KinahEarnedPattern().Match(message) is { Success: true } kinahEarned)
-        {
-            PersonalStatChanged?.Invoke(PersonalStatKind.Kinah, ParseGroupedAmount(kinahEarned.Groups["amount"].Value));
-        }
-        else if (KinahSpentPattern().Match(message) is { Success: true } kinahSpent)
-        {
-            PersonalStatChanged?.Invoke(PersonalStatKind.Kinah, -ParseGroupedAmount(kinahSpent.Groups["amount"].Value));
-        }
-        else if (XpGainedPattern().Match(message) is { Success: true } xpGained)
-        {
-            PersonalStatChanged?.Invoke(PersonalStatKind.Experience, ParseGroupedAmount(xpGained.Groups["amount"].Value));
-        }
-        else if (GpGainedPattern().Match(message) is { Success: true } gpGained)
-        {
-            PersonalStatChanged?.Invoke(PersonalStatKind.GloryPoints, ParseGroupedAmount(gpGained.Groups["amount"].Value));
+            if (p.ApGained.Match(message) is { Success: true } apGained)
+            {
+                PersonalStatChanged?.Invoke(PersonalStatKind.AbyssPoints, ParseGroupedAmount(apGained.Groups["amount"].Value));
+                return;
+            }
+            if (p.ApLost.Match(message) is { Success: true } apLost)
+            {
+                PersonalStatChanged?.Invoke(PersonalStatKind.AbyssPoints, -ParseGroupedAmount(apLost.Groups["amount"].Value));
+                return;
+            }
+            if (p.KinahEarned.Match(message) is { Success: true } kinahEarned)
+            {
+                PersonalStatChanged?.Invoke(PersonalStatKind.Kinah, ParseGroupedAmount(kinahEarned.Groups["amount"].Value));
+                return;
+            }
+            if (p.KinahSpent.Match(message) is { Success: true } kinahSpent)
+            {
+                PersonalStatChanged?.Invoke(PersonalStatKind.Kinah, -ParseGroupedAmount(kinahSpent.Groups["amount"].Value));
+                return;
+            }
+            if (p.XpGained.Match(message) is { Success: true } xpGained)
+            {
+                PersonalStatChanged?.Invoke(PersonalStatKind.Experience, ParseGroupedAmount(xpGained.Groups["amount"].Value));
+                return;
+            }
+            if (p.GpGained.Match(message) is { Success: true } gpGained)
+            {
+                PersonalStatChanged?.Invoke(PersonalStatKind.GloryPoints, ParseGroupedAmount(gpGained.Groups["amount"].Value));
+                return;
+            }
         }
     }
 
-    /// <summary>See LootAcquiredPattern/LootSurveyPattern remarks. Tried in this order for no
-    /// particular reason -- a survey-reward line's "received ... as reward for the survey" tail
-    /// never matches the "acquired" shape.</summary>
+    /// <summary>See LootAcquiredPattern/LootSurveyPattern remarks. Each language's pair is tried
+    /// in this order for no particular reason (a survey-reward line's tail never matches the
+    /// "acquired" shape within the same language); English first as the confirmed, validated
+    /// case, DE/FR/RU as best-effort fallbacks.</summary>
     private void RaiseLootIfPresent(string message)
     {
-        if (LootAcquiredPattern().Match(message) is { Success: true } acquired)
+        foreach (var p in LootPatternSets)
         {
-            LootAcquired?.Invoke(new LootEvent(
-                acquired.Groups["subject"].Value,
-                int.Parse(acquired.Groups["id"].Value),
-                acquired.Groups["tag"].Value,
-                acquired.Groups["qty"].Success ? ParseGroupedAmount(acquired.Groups["qty"].Value) : 1));
-        }
-        else if (LootSurveyPattern().Match(message) is { Success: true } survey)
-        {
-            LootAcquired?.Invoke(new LootEvent(
-                YouName,
-                int.Parse(survey.Groups["id"].Value),
-                survey.Groups["tag"].Value,
-                survey.Groups["qty"].Success ? ParseGroupedAmount(survey.Groups["qty"].Value) : 1));
+            if (p.Acquired.Match(message) is { Success: true } acquired)
+            {
+                // Canonicalize the same way TryParseWithPatternSet's General branch does for
+                // German's "Ihr habt [item] erhalten." -- see LootPatternSet's remarks.
+                string subject = acquired.Groups["subject"].Value;
+                bool subjectIsLocalPlayer = p.LocalPlayerLiterals.Any(literal => string.Equals(subject, literal, StringComparison.OrdinalIgnoreCase));
+                LootAcquired?.Invoke(new LootEvent(
+                    subjectIsLocalPlayer ? YouName : subject,
+                    int.Parse(acquired.Groups["id"].Value),
+                    acquired.Groups["tag"].Value,
+                    acquired.Groups["qty"].Success ? ParseGroupedAmount(acquired.Groups["qty"].Value) : 1));
+                return;
+            }
+            if (p.Survey.Match(message) is { Success: true } survey)
+            {
+                LootAcquired?.Invoke(new LootEvent(
+                    YouName,
+                    int.Parse(survey.Groups["id"].Value),
+                    survey.Groups["tag"].Value,
+                    survey.Groups["qty"].Success ? ParseGroupedAmount(survey.Groups["qty"].Value) : 1));
+                return;
+            }
         }
     }
 
     /// <summary>
-    /// Order matters: more specific patterns first, the broad catch-alls (DamagePattern,
-    /// HealSelfPattern) last -- see DamageInflictedOnYouPattern's remarks for a concrete case
-    /// (incoming skill damage) where checking the general pattern first would silently misattribute
-    /// events, not just fail to match.
+    /// Tries each language's pattern set in turn (English first -- confirmed/validated; DE/FR/RU
+    /// as best-effort fallbacks, see class remarks) and dispatches through the shared, language-
+    /// agnostic attribution logic in TryParseWithPatternSet.
     /// </summary>
     private bool TryParseDamageOrHeal(string message, out int sourceId, out int targetId, out long amount, out bool isHeal)
     {
+        foreach (var set in DamageHealPatternSets)
+        {
+            if (TryParseWithPatternSet(set, message, out sourceId, out targetId, out amount, out isHeal))
+            {
+                return true;
+            }
+        }
+
+        sourceId = targetId = 0;
+        amount = 0;
+        isHeal = false;
+        return false;
+    }
+
+    /// <summary>
+    /// Order matters: more specific patterns first, the broad catch-alls (General, HealSelf)
+    /// last -- see DamageInflictedOnYouPattern's remarks for a concrete case (incoming skill
+    /// damage) where checking the general pattern first would silently misattribute events, not
+    /// just fail to match. Written once, generic over which language's DamageHealPatternSet is
+    /// passed in, since every set shares English's group names by construction.
+    /// </summary>
+    private bool TryParseWithPatternSet(DamageHealPatternSet p, string message, out int sourceId, out int targetId, out long amount, out bool isHeal)
+    {
         Match match;
 
-        if ((match = ReflectedDamagePattern().Match(message)).Success)
+        if ((match = p.Reflected.Match(message)).Success)
         {
             isHeal = false;
             sourceId = Names.GetOrAssignId(match.Groups["attacker"].Value);
@@ -432,7 +936,7 @@ public sealed partial class ChatLogParser
             return true;
         }
 
-        if ((match = DamageInflictedOnYouPattern().Match(message)).Success)
+        if ((match = p.InflictedOnYou.Match(message)).Success)
         {
             isHeal = false;
             sourceId = Names.GetOrAssignId(match.Groups["attacker"].Value);
@@ -441,7 +945,7 @@ public sealed partial class ChatLogParser
             return true;
         }
 
-        if ((match = DamageReceivedPattern().Match(message)).Success)
+        if ((match = p.Received.Match(message)).Success)
         {
             isHeal = false;
             sourceId = Names.GetOrAssignId(match.Groups["attacker"].Value);
@@ -450,7 +954,7 @@ public sealed partial class ChatLogParser
             return true;
         }
 
-        if ((match = DotDamageAttributedToYouPattern().Match(message)).Success)
+        if ((match = p.DotAttributedToYou.Match(message)).Success)
         {
             isHeal = false;
             sourceId = Names.GetOrAssignId(YouName);
@@ -460,27 +964,34 @@ public sealed partial class ChatLogParser
             return true;
         }
 
-        if ((match = DamagePattern().Match(message)).Success)
+        if ((match = p.General.Match(message)).Success)
         {
             isHeal = false;
-            sourceId = Names.GetOrAssignId(match.Groups["attacker"].Value);
-            // Canonicalize a literal lowercase "you" target the same way
+            // Canonicalize a literal local-player pronoun on EITHER side the same way
             // DamageInflictedOnYouPattern already does for its own target -- found necessary by
-            // terminal_windows via the Spiritmaster-pet feature: "X inflicted N damage on you."
-            // (no "has", 38 real occurrences alongside 678 with "has" and 3222 "received" for the
-            // same real target) hits this general pattern instead of DamageInflictedOnYouPattern,
-            // and without this, "you" registers as a SEPARATE identity from "You" -- the exact
-            // same identity-split failure this file's own remarks describe for the reflect-damage
-            // case above, just not caught here until a feature (pet-damage attribution) that
-            // specifically checks "is the target You" made it externally visible.
+            // terminal_windows via the Spiritmaster-pet feature: a general-shaped "X inflicted N
+            // damage on you." (no "has") hits this general pattern instead of the more specific
+            // "on you" one, and without this, "you" registers as a SEPARATE identity from "You" --
+            // the exact same identity-split failure this file's own remarks describe for the
+            // reflect-damage case above. Applied defensively for every language, not just English,
+            // even though only English has a real confirmed instance of this collision.
+            // The ATTACKER side matters too for German specifically: its confirmed real template
+            // (STR_MSG_ATTACK_DAMAGE, "Ihr habt %0 %num1 Schaden zugefügt.") uses the fixed literal
+            // "Ihr" for the local player as attacker, captured through the same "attacker" group as
+            // any other name -- without this canonicalization "Ihr" would register as a separate
+            // identity from "You" for every German outgoing hit.
+            string attackerName = match.Groups["attacker"].Value;
+            bool attackerIsLocalPlayer = p.LocalPlayerLiterals.Any(literal => string.Equals(attackerName, literal, StringComparison.OrdinalIgnoreCase));
+            sourceId = Names.GetOrAssignId(attackerIsLocalPlayer ? YouName : attackerName);
             string targetName = match.Groups["target"].Value;
-            targetId = Names.GetOrAssignId(string.Equals(targetName, "you", StringComparison.OrdinalIgnoreCase) ? YouName : targetName);
+            bool targetIsLocalPlayer = p.LocalPlayerLiterals.Any(literal => string.Equals(targetName, literal, StringComparison.OrdinalIgnoreCase));
+            targetId = Names.GetOrAssignId(targetIsLocalPlayer ? YouName : targetName);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
-            RaiseSkillUsedIfPresent(match, match.Groups["attacker"].Value);
+            RaiseSkillUsedIfPresent(match, attackerIsLocalPlayer ? YouName : attackerName);
             return true;
         }
 
-        if ((match = HealOtherPattern().Match(message)).Success)
+        if ((match = p.HealOther.Match(message)).Success)
         {
             isHeal = true;
             sourceId = Names.GetOrAssignId(YouName);
@@ -490,7 +1001,7 @@ public sealed partial class ChatLogParser
             return true;
         }
 
-        if ((match = HealByOtherPattern().Match(message)).Success)
+        if ((match = p.HealByOther.Match(message)).Success)
         {
             isHeal = true;
             sourceId = Names.GetOrAssignId(match.Groups["healer"].Value);
@@ -499,7 +1010,7 @@ public sealed partial class ChatLogParser
             return true;
         }
 
-        if ((match = HealSelfPattern().Match(message)).Success)
+        if ((match = p.HealSelf.Match(message)).Success)
         {
             isHeal = true;
             sourceId = Names.GetOrAssignId(match.Groups["who"].Value);
@@ -533,5 +1044,8 @@ public sealed partial class ChatLogParser
     private static long ParseGroupedAmount(string raw) =>
         long.Parse(raw.Replace(".", string.Empty), NumberStyles.Integer, CultureInfo.InvariantCulture);
 
-    public List<DamageEvent> ParseFile(string path) => Parse(File.ReadLines(path));
+    // See ChatLogTailer.Poll's matching remark: Chat.log is Windows-1252/Latin-1 on disk, not
+    // UTF-8 -- File.ReadLines' default encoding silently mangles every accented character
+    // otherwise.
+    public List<DamageEvent> ParseFile(string path) => Parse(File.ReadLines(path, Encoding.Latin1));
 }

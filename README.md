@@ -99,6 +99,93 @@ In-Game-Chat-Befehle (`.pause`/`.resume`/`.clear`/…, siehe unten) als Alternat
   Speicher-Patch im laufenden Prozess, damit potenziell im selben Risikobereich wie der oben
   ausgeschlossene Live-Speicherzugriff. Nicht von diesem Projekt geprüft oder empfohlen.
 
+## Mehrsprachigkeit im Chat-Log-Parser
+
+`ChatLogParser.cs` versucht pro Zeile zuerst die englischen Satzmuster (an einer echten
+~488.000-Zeilen-Datei verifiziert), danach deutsche, französische, spanische und russische
+Varianten derselben Ereignisse (eigener/erlittener Schaden, Reflect, Heilung, AP/GP/Kinah/XP,
+Loot). Grund: das Tool ist für die Community gedacht, nicht nur für den Autor, und in einer
+AION-4.6-Community sind mehrere Client-Sprachen im Einsatz.
+
+### Kritischer Encoding-Bug (gefunden von `terminal_windows`, behoben)
+
+Chat.log wird von Aion als **Windows-1252/Latin-1** geschrieben, nicht als UTF-8 – belegt an
+Rohbytes einer echten Zeile (`0xDC` für "Ü", kein gültiges UTF-8). `ChatLogTailer.cs` und
+`ChatLogParser.ParseFile` lasen die Datei aber mit der Standard-Kodierung UTF-8, die jedes
+Sonderzeichen (ü, ä, é, à, ñ, …) klanglos durch U+FFFD ersetzt statt einen Fehler zu werfen. Für
+Englisch fällt das nie auf (reines ASCII ist in beiden Kodierungen identisch) – bei einem Test mit
+60 echten fremdsprachigen Zeilen kam dadurch aber exakt **0 Treffer** heraus, unabhängig davon, wie
+gut die Satzmuster selbst waren. Das war also der eigentliche Blocker, nicht die Muster. Beide
+Lesepfade lesen jetzt explizit mit `Encoding.Latin1`. Nach dem Fix, an echten Zeilen erneut
+geprüft: DE 90 %, FR 71 % Treffer (die Differenz zu den 98,9 %/81,8 % weiter unten kommt von einem
+großzügigeren Zeilenfilter bei der Gegenprobe, kein Widerspruch) – vorher lagen alle drei bei 0 %.
+
+### Sprachlandkarte in der echten Chat.log-Datei des Nutzers
+
+Er hat inzwischen tatsächlich in vier Sprachen gespielt (zwei gleichzeitige Aion-Clients teilen
+sich eine Chat.log-Datei, siehe `PlayerNameRegistry`-Doku, jeweils unterschiedlich eingestellt).
+Zeilenzahlen in der ~497.000 Zeilen langen Datei: EN 262.416, ES 3.991, FR 473, DE 161, **RU 0**.
+Russisch kommt also gar nicht vor – ursprünglich als vierte AION-Lokalisierung angenommen
+(bestätigt über aioncodex.com), aber in DIESER Community faktisch durch **Spanisch** ersetzt.
+Die RU-Muster bleiben im Code (schaden nicht), werden aber nicht weiter priorisiert; ES wird neu
+aufgenommen.
+
+### Deutsch und Französisch: jetzt an echten gespielten Zeilen bestätigt
+
+Nicht mehr nur aus Client-Strings oder allgemeinem Sprachwissen geraten, sondern direkt aus der
+echten Chat.log extrahiert und gegen hunderte Zeilen coverage-getestet:
+- **Deutsch**: 98,9 % Treffer auf 183 echte Kandidatenzeilen. Bestätigt u. a. `"Ihr habt
+  Übungsziel durch Benutzung von Klinge der Provokation I 577 Schaden zugefügt."` (Skill-Klausel
+  kommt VOR dem Betrag, nicht danach – ursprünglich falsch geraten), `"TP"` statt `"HP"` für
+  Trefferpunkte, sowie die aus den Client-Strings vorab bestätigte Höflichkeitsform
+  "Ihr/Euch/Euer". Bei `HealByOtherPatternDe` musste der Heiler-Name auf ein einzelnes Wort
+  (`\S+`) begrenzt werden, weil "weil X Y eingesetzt hat" anders als Englisch keinen trennenden
+  Schlüsselbegriff zwischen Name und Skill hat – ein gieriger Regex-Fang hätte sonst das erste
+  Wort eines mehrteiligen Skillnamens fälschlich zum Charakternamen gemacht.
+- **Französisch**: 81,8 % Treffer auf 521 echte Kandidatenzeilen. Bestätigt u. a. formelle Anrede
+  ("Vous avez", nicht "Tu as"), `"points de dégâts"` statt bloß `"dégâts"`, zwei austauschbare
+  Skill-Konnektoren ("en utilisant" / "grâce à"), und für erlittenen Schaden eine strukturell
+  andere Zeile als angenommen: `"Vous avez subi N points de dégâts de la part de : X."` statt der
+  ursprünglich (falsch) geratenen `"X t'a infligé..."`-Form. `terminal_windows` fand zusätzlich
+  eine zweite Kritisch-Markierung (`"dégâts critiques"`, ein Adjektiv, unabhängig vom
+  `"Coup critique !"`-Präfix), jetzt ebenfalls abgedeckt.
+- Beide Sprachen haben je einen unmatchten Rest, der bewusst NICHT gematcht wird – die jeweiligen
+  Gegenstücke zu Englands bekannten Lücken (nicht zuordenbare DoT-Ticks, Buff-Ticks ohne Betrag).
+
+### Spanisch: ebenfalls an echten Zeilen gebaut
+
+`terminal_windows` hat alle 17 echten spanischen Satzformen aus 70 Zeilen extrahiert. Bestätigt:
+formelle Anrede `"Habéis"` (2. Person Plural/Höflichkeitsform, wie DE "Ihr" und FR "Vous"), aber
+mit einer Eigenheit – "Habéis" ist bereits das volle Verb (kein Subjektpronomen nötig, "Habéis
+infligido" ohne "ha" dazwischen), während die dritte Person ein explizites "ha" braucht
+(`"Mitzuhiko ha infligido..."`). Eine echte Stolperfalle bestätigt: erlittener Schaden setzt das
+Objektpronomen "os" VOR das Verb (`"Mitzuhiko os ha infligido 37 de daño."`) – das einzige
+verlässliche Unterscheidungsmerkmal zu ausgehendem Schaden, ohne das jeder eingehende Treffer dem
+Angreifer fälschlich als eigener Schaden gutgeschrieben worden wäre. Kein separates
+Kritisch-Adjektiv (anders als Französisch) – nur das `"¡Golpe crítico!"`-Präfix, wieder in beiden
+Leerzeichen-Varianten. Skill-Klausel steht hinter dem Ziel (`"a Ziel utilizando la habilidad X"`),
+eine andere Position als im Deutschen. Reflect/DoT-mit-Person/Heilung-an-andere/AP/Kinah/XP/Loot
+kamen im gespielten Abschnitt nicht vor und bleiben Best-Effort-Platzhalter.
+
+**Realer Abdeckungslauf von `terminal_windows` (nach dem Encoding-Fix, an der echten Datei, nicht
+in einer Nachbildung):** DE 90 % (146/162 Zeilen), FR 71 % (367/517), ES 87 % (61/70) roh gezählt –
+die Unterschiede zu den oben genannten 98,9 %/81,8 %/97 % kommen jeweils von einem großzügigeren
+Zeilenfilter (Kanal-/Verbindungs-/Duell-Meldungen wie `"Habéis accedido al canal..."` oder
+`"Vous avez modifié le statut de votre connexion..."` zählen mit, sollen aber gar nicht gematcht
+werden). Auf die tatsächlich relevanten Zeilen bezogen liegt Spanisch bei 61 von 63 (≈97 %),
+also auf demselben Niveau wie Deutsch – und `DamagePatternEs` lässt dabei korrekt alle
+Nicht-Kampf-"Habéis"-Zeilen durch (die trennende "infligido"-Verb-Prüfung greift wie gedacht).
+
+### Weiterhin offen
+
+Für Deutsch fehlen bislang jegliche Heilzeilen (0 von 162 in der Testdatei), für Spanisch fehlen
+Reflect, AP, GP, Kinah, XP und Loot komplett (0 Belegzeilen) – mit den bisherigen Daten prinzipiell
+nicht schließbar. Für Französisch gibt es wenigstens 34 Heilzeilen, aber auch dort fehlen
+Reflect/AP/GP/Kinah/XP/Loot. Eine kurze Spielsitzung mit einem Loot-Drop und ein paar
+Abyss-Punkten (in irgendeiner der drei Sprachen) würde die größte verbleibende Lücke schließen.
+Russisch bleibt komplett unbelegt (0 Vorkommen in der echten Datei) und wird nicht weiter
+verfolgt, solange es dort nicht auftaucht.
+
 ## Protokoll-Zusammenfassung (Quelle: Aion-Lightning-Emulator)
 
 Jedes Server→Client-Paket auf dem TCP-Stream:
