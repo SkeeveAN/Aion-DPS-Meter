@@ -22,9 +22,10 @@
     <PackageReference Include="WixToolset.Heat" Version="5.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="Product.wxs" />
-  </ItemGroup>
+  <!-- No explicit <Compile Include="Product.wxs" /> here: WixToolset.Sdk, like Microsoft.NET.Sdk,
+       auto-globs *.wxs under the project directory as Compile items already, adding it
+       explicitly compiled Product.wxs twice, producing two copies of its Package entry point
+       ("Multiple entry sections" from the WiX compiler). -->
 
   <ItemGroup>
     <!-- Harvests every file under the publish output (the exe, its dependencies, and assets/)
