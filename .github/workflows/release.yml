@@ -40,7 +40,14 @@ jobs:
       - name: Derive version from tag
         id: version
         shell: bash
-        run: echo "number=${TAG#v}" >> "$GITHUB_OUTPUT"
+        # MSI ProductVersion must be plain major.minor.build (each under its own numeric limit,
+        # see ICE24/ICE80's sibling ICE for the exact caps) with no prerelease label -- strip
+        # everything from the first "-" onward so a tag like "v1.0.0-beta.1" still produces a
+        # valid "1.0.0" rather than failing the MSI build entirely.
+        run: |
+          version="${TAG#v}"
+          version="${version%%-*}"
+          echo "number=$version" >> "$GITHUB_OUTPUT"
         env:
           TAG: ${{ steps.tag.outputs.name }}
 
