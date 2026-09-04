@@ -1,0 +1,38 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>AionDpsMeter</OutputName>
+    <!-- Set from the CI workflow (-p:ProductVersion=X.Y.Z, derived from the pushed git tag);
+         defaults to a placeholder for local/manual builds so this still builds standalone. -->
+    <ProductVersion Condition="'$(ProductVersion)' == ''">0.0.1</ProductVersion>
+    <DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
+    <!-- Set from the CI workflow (-p:PublishDir=...) to the `dotnet publish` output that gets
+         harvested below; defaults to the conventional publish path for local builds
+         (`dotnet publish ..\AionSniffer.csproj -c Release -r win-x64 --self-contained -o publish`
+         run from the repo root before building this project). -->
+    <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\publish\</PublishDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.Heat" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Harvests every file under the publish output (the exe, its dependencies, and assets/)
+         into a component group at build time -- see Product.wxs's remarks on why this isn't
+         hand-authored. -->
+    <HarvestDirectory Include="$(PublishDir)">
+      <ComponentGroupName>PublishedFiles</ComponentGroupName>
+      <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+      <PreprocessorVariable>var.PublishDir</PreprocessorVariable>
+    </HarvestDirectory>
+  </ItemGroup>
+
+</Project>
