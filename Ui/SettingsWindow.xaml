@@ -203,6 +203,14 @@
                             <Button Content="Select Folder..." Click="OnSelectAionFolderClicked"/>
                         </StackPanel>
                         <TextBlock x:Name="AionInstallFolderStatus" Margin="4,2" TextWrapping="Wrap" FontStyle="Italic"/>
+
+                        <!-- Ports ShugoConsole's manual "Chat Log" checkbox into the tool itself
+                             (see ChatLog/ChatLogCvarSwitch.cs) -- OFF by default, explicit opt-in
+                             per the anti-cheat/ban-risk caveat documented in README. -->
+                        <CheckBox x:Name="AutoEnableChatLogCvarBox" Content="Chat.log automatisch aktivieren (g_chatlog Memory-Patch)"
+                                  Margin="4,10,4,0"/>
+                        <TextBlock Text="Schreibt periodisch in den Speicher des laufenden Aion-Prozesses, um das CryEngine-CVar g_chatlog auf 1 zu setzen -- dieselbe Technik wie ShugoConsole. Nicht offiziell unterstützt, siehe README."
+                                   Margin="4,2" TextWrapping="Wrap" FontStyle="Italic" Foreground="#c8a83a"/>
                     </StackPanel>
                 </GroupBox>
 

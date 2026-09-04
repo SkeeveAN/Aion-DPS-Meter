@@ -59,6 +59,12 @@ public sealed class MeterSettings
     /// capture device. Consumed by MainWindow's ChatLogTailer, restarted whenever this changes.</summary>
     public string? AionInstallFolder { get; set; }
 
+    /// <summary>Ein/Aus-Schalter für ChatLog/ChatLogCvarSwitch: while true, MainWindow's chat-log
+    /// timer forces the Aion client's g_chatlog CryEngine console variable to 1 via a process-
+    /// memory patch, the same technique ShugoConsole uses (see its class docs). OFF by default --
+    /// explicit opt-in, per the risk noted in README's ShugoConsole section.</summary>
+    public bool AutoEnableChatLogCvar { get; set; }
+
     /// <summary>
     /// The user's own characters (name + class), entered by hand. Chat.log never reveals the
     /// local player's real name -- verified against a real, large session: the active character

@@ -29,6 +29,7 @@ public partial class SettingsWindow : Window
         _aionInstallFolder = settings.AionInstallFolder;
         AionInstallFolderBox.Text = _aionInstallFolder ?? "(not set)";
         UpdateAionFolderStatus();
+        AutoEnableChatLogCvarBox.IsChecked = settings.AutoEnableChatLogCvar;
 
         RefreshCharacterLists();
         if (settings.ActiveCharacterName is string activeName && _characters.Any(c => c.Name == activeName))
@@ -170,6 +171,7 @@ public partial class SettingsWindow : Window
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Content as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Content as string ?? _settings.FontSize;
         _settings.AionInstallFolder = _aionInstallFolder;
+        _settings.AutoEnableChatLogCvar = AutoEnableChatLogCvarBox.IsChecked ?? false;
         _settings.Characters = _characters;
         _settings.ActiveCharacterName = ActiveCharacterBox.SelectedItem as string;
         _settings.AutoDetectActiveCharacter = AutoDetectActiveCharacterBox.IsChecked ?? true;

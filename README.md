@@ -95,9 +95,23 @@ In-Game-Chat-Befehle (`.pause`/`.resume`/`.clear`/…, siehe unten) als Alternat
   Charakter kämpft, der zweite steht nur für die Gruppenanforderung herum) tritt das nicht auf.
 - **`ShugoConsole`**: das vom Nutzer benutzte Tool, um die Client-interne "Basic Chatlog"-Option
   (`builder_dev_dialog` in `L10N/2_eng/data/ui/UI_Game.xml`, ein normalerweise GM-gebundenes
-  Debug-Menü) freizuschalten. Undokumentiert, keine öffentliche Analyse – vermutlich ein
-  Speicher-Patch im laufenden Prozess, damit potenziell im selben Risikobereich wie der oben
-  ausgeschlossene Live-Speicherzugriff. Nicht von diesem Projekt geprüft oder empfohlen.
+  Debug-Menü) freizuschalten. Undokumentiert, keine öffentliche Analyse vom Autor – aus dem
+  öffentlichen Quellcode (github.com/grenadium/ShugoConsole) rekonstruiert: kein GM-Dialog-Trick,
+  sondern exakt der oben beschriebene Live-Speicherzugriff, nur read+write statt nur read – ein
+  `VirtualQueryEx`-Scan über alle privaten, beschreibbaren Speicherregionen des `aion.exe`-Prozesses
+  nach dem Namens-Byte-Pattern der CryEngine-Konsolenvariable `g_chatlog` (16-Byte-aligned, ein
+  Gültigkeits-Flag-Byte gefolgt vom Variablennamen als ASCII), danach `WriteProcessMemory` auf die
+  int/float/string-Repräsentation an einem festen, nur bitness-abhängigen Offset relativ zur
+  gefundenen Adresse. Namensbasierter statt fixer Offset-Scan macht das clientversion-unabhängig.
+
+  **Jetzt in dmg_meter selbst portiert** (`Native/CryCVarScanner.cs`, `Native/CryCVarHandle.cs`,
+  `ChatLog/ChatLogCvarSwitch.cs`) statt ShugoConsole extern laufen zu lassen – als Ein/Aus-Schalter
+  in Settings (`AutoEnableChatLogCvar`, **standardmäßig aus**), der bei aktivem Chat-Log-Pfad
+  einmal pro Sekunde `g_chatlog` auf 1 erzwingt. Explizite Risikoentscheidung des Nutzers trotz des
+  oben dokumentierten Anti-Cheat-Funds (0-Byte-Read beim Versuch, den Krypto-Schlüssel im
+  Prozessspeicher zu finden) – ob dieselbe Schutzmaßnahme auch die CVar-Speicherregion abdeckt, ist
+  unbestätigt in beide Richtungen; ShugoConsole (dieselbe Technik) läuft beim Nutzer nachweislich
+  ohne Bann.
 
 ## Mehrsprachigkeit im Chat-Log-Parser
 

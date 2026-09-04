@@ -78,7 +78,14 @@ public partial class MainWindow : Window
     // only exist in this registry.
     private ChatLogParser? _chatLogParser;
     private ChatLogTailer? _chatLogTailer;
+    private string? _chatLogPath;
     private readonly DispatcherTimer _chatLogTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+
+    // g_chatlog memory patch (see ChatLogCvarSwitch's own docs) -- ridden on the same 1s timer as
+    // the tailer above, since it's meaningless without chat-log mode also being active. Mirrors
+    // MeterSettings.AutoEnableChatLogCvar; off by default, only ticks when the user opted in.
+    private readonly ChatLogCvarSwitch _chatLogCvarSwitch = new();
+    private bool _autoEnableChatLogCvar;
 
     public MainWindow()
     {
@@ -299,10 +306,19 @@ public partial class MainWindow : Window
         _chatLogParser = null;
         _chatLogTailer = null;
 
-        string? folder = settings.AionInstallFolder;
-        string? chatLogPath = string.IsNullOrEmpty(folder) ? null : Path.Combine(folder, "Chat.log");
+        // Applied before the early-return below, since it's Settings' own opt-in flag, not
+        // dependent on a valid Chat.log path -- turning it off must take effect immediately even
+        // if the folder itself is (still) unset or invalid.
+        _autoEnableChatLogCvar = settings.AutoEnableChatLogCvar;
+        if (!_autoEnableChatLogCvar)
+        {
+            _chatLogCvarSwitch.Reset();
+        }
 
-        if (chatLogPath is null || !File.Exists(chatLogPath))
+        string? folder = settings.AionInstallFolder;
+        _chatLogPath = string.IsNullOrEmpty(folder) ? null : Path.Combine(folder, "Chat.log");
+
+        if (_chatLogPath is null)
         {
             return;
         }
@@ -312,7 +328,17 @@ public partial class MainWindow : Window
         _chatLogParser.CommandReceived += OnChatCommand;
         _chatLogParser.PersonalStatChanged += OnPersonalStatChanged;
         _chatLogParser.LootAcquired += OnLootAcquired;
-        _chatLogTailer = new ChatLogTailer(chatLogPath, _chatLogParser);
+
+        // Chat.log may not exist yet on a fresh client that has never had chat logging enabled --
+        // exactly the case AutoEnableChatLogCvar exists to fix. Don't gate the whole timer (and
+        // therefore the CVar-patch ticks below) on the file already being there, or the switch
+        // could never create the very file it's meant to bring into existence. OnChatLogTimerTick
+        // creates the tailer lazily once the file appears.
+        if (File.Exists(_chatLogPath))
+        {
+            _chatLogTailer = new ChatLogTailer(_chatLogPath, _chatLogParser);
+        }
+
         _chatLogTimer.Start();
     }
 
@@ -502,6 +528,16 @@ public partial class MainWindow : Window
 
     private void OnChatLogTimerTick(object? sender, EventArgs e)
     {
+        if (_autoEnableChatLogCvar)
+        {
+            _chatLogCvarSwitch.Tick();
+        }
+
+        if (_chatLogTailer is null && _chatLogParser is not null && _chatLogPath is not null && File.Exists(_chatLogPath))
+        {
+            _chatLogTailer = new ChatLogTailer(_chatLogPath, _chatLogParser);
+        }
+
         var events = _chatLogTailer?.Poll(_paused);
         if (events is { Count: > 0 })
         {
@@ -653,6 +689,7 @@ public partial class MainWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _chatLogTimer.Stop();
+        _chatLogCvarSwitch.Dispose();
         _overlay?.Dispose();
         base.OnClosed(e);
     }
