@@ -205,7 +205,7 @@
                         <TextBlock x:Name="AionInstallFolderStatus" Margin="4,2" TextWrapping="Wrap" FontStyle="Italic"/>
 
                         <!-- Ports ShugoConsole's manual "Chat Log" checkbox into the tool itself
-                             (see ChatLog/ChatLogCvarSwitch.cs) -- OFF by default, explicit opt-in
+                             (see ChatLog/ChatLogCvarSwitch.cs), OFF by default, explicit opt-in
                              per the anti-cheat/ban-risk caveat documented in README. -->
                         <CheckBox x:Name="AutoEnableChatLogCvarBox" Content="Chat.log automatisch aktivieren (g_chatlog Memory-Patch)"
                                   Margin="4,10,4,0"/>
