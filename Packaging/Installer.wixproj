@@ -6,12 +6,15 @@
     <!-- Set from the CI workflow (-p:ProductVersion=X.Y.Z, derived from the pushed git tag);
          defaults to a placeholder for local/manual builds so this still builds standalone. -->
     <ProductVersion Condition="'$(ProductVersion)' == ''">0.0.1</ProductVersion>
-    <DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
     <!-- Set from the CI workflow (-p:PublishDir=...) to the `dotnet publish` output that gets
          harvested below; defaults to the conventional publish path for local builds (publish
          AionSniffer.csproj for win-x64, self contained, Release config, -o publish, run from the
          repo root before building this project). -->
     <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\publish\</PublishDir>
+    <!-- Both need to reach the .wxs preprocessor as var.X, not just be MSBuild properties:
+         HarvestDirectory's own PreprocessorVariable metadata below only names the variable it
+         emits into the generated fragment, it doesn't define it for the compiler. -->
+    <DefineConstants>ProductVersion=$(ProductVersion);PublishDir=$(PublishDir)</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
