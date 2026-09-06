@@ -47,16 +47,20 @@ internal static class Program
     [STAThread] // required for WPF (Ui/MainWindow) -- Clipboard, drag-move etc. need the STA apartment.
     private static void Main(string[] args)
     {
-        // The csproj builds this as WinExe now (no automatic console), specifically so "gui" mode
-        // doesn't pop up an empty terminal window next to the meter - found by the user. The CLI
-        // modes below (selftest/chatlog/capture) still need visible Console.WriteLine output when
-        // launched from an existing shell, so attach to whichever console started this process, if
-        // any. The return value matters beyond that side effect: false means there is no console
-        // at all (double-click, desktop shortcut, MSI Start-menu shortcut -- Packaging/Product.wxs
-        // passes no arguments either), and a process with nowhere to print must not "start" by
-        // writing usage text into the void. That is exactly what it used to do in that case: no
-        // window, no message, nothing happened at all -- reported by the user. See the GUI branch.
-        bool hasConsole = AttachConsole(AttachParentProcess);
+        // The csproj builds this as WinExe (no automatic console), specifically so the GUI doesn't
+        // pop up an empty terminal window next to the meter - found by the user. The CLI modes
+        // (selftest/chatlog/capture/devices) still need visible Console.WriteLine output when
+        // launched from an existing shell, so attach to whichever console started this process,
+        // if any; a no-op when there is none.
+        //
+        // No arguments opens the GUI, always -- per the user: the installed exe should show the
+        // meter with no parameters, and the CLI is what needs one. The rule therefore does not
+        // depend on how the process was started: the installer's shortcut (Packaging/Product.wxs
+        // passes no arguments), a double-click, and "AionSniffer" typed in a shell all open the
+        // window. An earlier version made this conditional on there being no console, which left
+        // the shell case printing a device list instead; that list now needs its own "devices"
+        // argument, since it was the only thing standing between a bare launch and a window.
+        AttachConsole(AttachParentProcess);
 
         if (args.Length > 0 && args[0] == "selftest")
         {
@@ -78,10 +82,7 @@ internal static class Program
             return;
         }
 
-        // "gui" explicitly, or no arguments at all with no console to talk to -- see hasConsole
-        // above. Launched from a shell without arguments you still get the usage/device list
-        // further down, which is what someone typing the command there is asking for.
-        if ((args.Length > 0 && args[0] == "gui") || (args.Length == 0 && !hasConsole))
+        if (args.Length == 0 || args[0] == "gui")
         {
             // No App.xaml on purpose: an ApplicationDefinition item would generate its own Main
             // and collide with this one. Building System.Windows.Application by hand keeps the
@@ -112,11 +113,16 @@ internal static class Program
             return;
         }
 
-        if (args.Length == 0)
+        // The explicit words, plus anything that is not a device index at all: an unrecognized
+        // argument is far likelier a typo than a number, and showing what the tool accepts beats
+        // throwing out of int.Parse below.
+        if (args[0] is "devices" or "help" or "--help" or "-h" or "/?" || !int.TryParse(args[0], out _))
         {
-            Console.WriteLine("Usage: AionSniffer <deviceIndex> [serverIpHint]");
+            Console.WriteLine("Usage: AionSniffer                       (no arguments: opens the meter window)");
+            Console.WriteLine("       AionSniffer devices     (lists the capture devices below without starting anything)");
+            Console.WriteLine("       AionSniffer <deviceIndex> [serverIpHint]");
             Console.WriteLine("       AionSniffer selftest   (verifies the DPS/iDPS math against synthetic + real reference numbers, no capture needed)");
-            Console.WriteLine("       AionSniffer gui        (opens the WPF meter window -- see Ui/, not yet wired to a live capture, has a \"Load Demo Data\" button)");
+            Console.WriteLine("       AionSniffer gui        (same as passing nothing; kept because existing shortcuts pass it)");
             Console.WriteLine("       AionSniffer chatlog <path-to-Chat.log>   (parses a Chat.log file, prints the same live-DPS summary as the network path)");
             Console.WriteLine();
             Console.WriteLine("Available devices:");
