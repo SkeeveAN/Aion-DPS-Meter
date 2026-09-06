@@ -51,9 +51,12 @@ internal static class Program
         // doesn't pop up an empty terminal window next to the meter - found by the user. The CLI
         // modes below (selftest/chatlog/capture) still need visible Console.WriteLine output when
         // launched from an existing shell, so attach to whichever console started this process, if
-        // any; this is a no-op (returns false, nothing happens) when there isn't one, e.g.
-        // double-clicking the exe straight into "gui" mode.
-        AttachConsole(AttachParentProcess);
+        // any. The return value matters beyond that side effect: false means there is no console
+        // at all (double-click, desktop shortcut, MSI Start-menu shortcut -- Packaging/Product.wxs
+        // passes no arguments either), and a process with nowhere to print must not "start" by
+        // writing usage text into the void. That is exactly what it used to do in that case: no
+        // window, no message, nothing happened at all -- reported by the user. See the GUI branch.
+        bool hasConsole = AttachConsole(AttachParentProcess);
 
         if (args.Length > 0 && args[0] == "selftest")
         {
@@ -75,14 +78,29 @@ internal static class Program
             return;
         }
 
-        if (args.Length > 0 && args[0] == "gui")
+        // "gui" explicitly, or no arguments at all with no console to talk to -- see hasConsole
+        // above. Launched from a shell without arguments you still get the usage/device list
+        // further down, which is what someone typing the command there is asking for.
+        if ((args.Length > 0 && args[0] == "gui") || (args.Length == 0 && !hasConsole))
         {
             // No App.xaml on purpose: an ApplicationDefinition item would generate its own Main
             // and collide with this one. Building System.Windows.Application by hand keeps the
             // console entry points (selftest, capture) and the GUI in the same exe without
             // fighting over program entry.
             var app = new System.Windows.Application();
-            app.Run(new Ui.MainWindow());
+            try
+            {
+                app.Run(new Ui.MainWindow());
+            }
+            catch (Exception ex)
+            {
+                // Without a console there is nowhere for an unhandled startup exception to show
+                // up, so the failure looks exactly like the argument bug above ("nothing happens")
+                // -- put it on screen instead of letting the process die silently.
+                System.Windows.MessageBox.Show(ex.ToString(), "AionSniffer konnte nicht starten",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+
             return;
         }
 
