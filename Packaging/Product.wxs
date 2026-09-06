@@ -20,6 +20,12 @@
     <MajorUpgrade DowngradeErrorMessage="Es ist bereits eine neuere Version von Aion DPS Meter installiert." />
     <MediaTemplate EmbedCab="yes" />
 
+    <!-- Same .ico the exe carries (see AionSniffer.csproj). The Start-menu shortcut takes its icon
+         from the exe on its own; this entry is what gives "Apps und Features" / "Programme und
+         Funktionen" an icon instead of the generic installer box. -->
+    <Icon Id="AppIcon.ico" SourceFile="..\assets\app\aionsniffer.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="Aion DPS Meter" />
     </StandardDirectory>
@@ -33,7 +39,8 @@
                 Name="Aion DPS Meter"
                 Description="Chat.log-based DPS/loot meter for Aion"
                 Target="[INSTALLFOLDER]AionSniffer.exe"
-                WorkingDirectory="INSTALLFOLDER" />
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="AppIcon.ico" />
       <RemoveFolder Id="CleanUpShortcutFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
       <RegistryValue Root="HKCU" Key="Software\SkeeveAN\AionDpsMeter" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
     </Component>

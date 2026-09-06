@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.IO;
+using System.Security.Principal;
 using System.Runtime.InteropServices;
 using System.Text;
 using AionSniffer.ChatLog;
@@ -84,6 +86,16 @@ internal static class Program
 
         if (args.Length == 0 || args[0] == "gui")
         {
+            // Packet capture needs elevated rights (see README's setup), so the GUI asks for them
+            // -- here rather than in the manifest, and rather than by ticking "run as
+            // administrator" on each shortcut: the manifest would prompt for the console modes
+            // too, and a shortcut's checkbox is lost as soon as someone recreates the shortcut,
+            // which is exactly what happened to this project's desktop entry.
+            if (!IsElevated() && !args.Contains(ElevatedMarker) && TryRelaunchElevated())
+            {
+                return;
+            }
+
             // No App.xaml on purpose: an ApplicationDefinition item would generate its own Main
             // and collide with this one. Building System.Windows.Application by hand keeps the
             // console entry points (selftest, capture) and the GUI in the same exe without
@@ -163,6 +175,49 @@ internal static class Program
     /// parse is confirmed against a real fight, not implemented here to avoid guessing at
     /// polling/FileSystemWatcher behavior before there's a real log to test it against).
     /// </summary>
+    /// <summary>Marker argument on the elevated re-launch, so the new process doesn't try to
+    /// elevate again (and again) if the check below ever reports false for it.</summary>
+    private const string ElevatedMarker = "--elevated";
+
+    private static bool IsElevated()
+    {
+        using var identity = WindowsIdentity.GetCurrent();
+        return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
+    }
+
+    /// <summary>
+    /// Restarts this exe through ShellExecute's "runas" verb, which is what raises the UAC prompt.
+    /// Returns false when the relaunch did not happen, in which case the caller carries on
+    /// unelevated instead of exiting: someone who declines the prompt still gets a working meter
+    /// for the chat-log path, which needs no privileges -- only live packet capture does.
+    /// </summary>
+    private static bool TryRelaunchElevated()
+    {
+        string? exe = Environment.ProcessPath;
+        if (exe is null)
+        {
+            return false;
+        }
+
+        var startInfo = new ProcessStartInfo(exe)
+        {
+            UseShellExecute = true, // required for "runas"; without it the verb is ignored
+            Verb = "runas",
+            Arguments = ElevatedMarker,
+            WorkingDirectory = AppContext.BaseDirectory,
+        };
+
+        try
+        {
+            return Process.Start(startInfo) is not null;
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            // Prompt declined (ERROR_CANCELLED) or elevation unavailable -- run as we are.
+            return false;
+        }
+    }
+
     private static void RunChatLogMode(string path)
     {
         if (!File.Exists(path))
