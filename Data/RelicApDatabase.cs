@@ -7,16 +7,20 @@ namespace AionSniffer.Data;
 /// where all 16 sit in one contiguous block, 186000051-186000066, in exactly the reverse of the
 /// order the dialog lists them.
 ///
-/// Why this table exists at all: relics carry no AP until they are exchanged, so Chat.log never
-/// shows AP for them -- confirmed against a real 18k-line session, which contains loot lines for
-/// 22 relics (Kisame 12, the local player 10) and not a single AP line of any kind. Without this
-/// mapping, a group's actual AP haul is invisible to the meter, which is what the user asked to
-/// fix: relic loot counts toward the AP total of whoever picked it up.
+/// Why this table exists at all: relics carry no AP until they are exchanged, and a relic pickup
+/// is logged as plain loot with no value attached, so the AP a group actually hauled out is
+/// invisible to the meter without this mapping. It is also the only way to see it for OTHER
+/// players: the client reports AP gains ("You have gained N Abyss Points.") for the local player
+/// alone, so everyone else's AP can only be reconstructed from what they picked up.
 ///
-/// Consequence worth knowing: an AP figure that includes relics is "AP earned, once exchanged",
-/// not "AP in your pocket right now". Should a future client build start logging the exchange
-/// itself as an AP gain, the two would need reconciling -- today they cannot collide, because
-/// nothing in the log reports it.
+/// Two things this figure is NOT. It is "AP once exchanged", not AP already earned -- the relics
+/// may still be sitting in the bag. And it will double-count against the exchange itself: the
+/// Relic Appraiser's payout arrives as an ordinary AP gain line (the user's own dialog offered
+/// 12.900 AP for 12 relics), which the personal-stat parser adds on top of the relic value
+/// already counted here. An earlier version of this comment claimed the log contained no AP lines
+/// at all and therefore no collision was possible; that was wrong -- the real session has 36 of
+/// them, they just say "Abyss Points" rather than "AP". PlayerRow.RelicAp keeps the relic share
+/// visible in the UI for exactly this reason, rather than burying it in one total.
 /// </summary>
 public static class RelicApDatabase
 {

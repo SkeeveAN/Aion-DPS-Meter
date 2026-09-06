@@ -797,6 +797,8 @@ public partial class MainWindow : Window
         row.Name = ResolveDisplayName(sourceId);
         row.ClassName = ResolveClassName(sourceId);
 
+        _relicApByPerson.TryGetValue(row.Name, out long rowRelicAp);
+        row.RelicAp = rowRelicAp;
         row.Ap = ApTotalFor(row.Name, isLocalPlayer: _chatLogParser?.Names.NameFor(sourceId) == "You");
     }
 

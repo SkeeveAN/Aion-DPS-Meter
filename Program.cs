@@ -166,6 +166,18 @@ internal static class Program
         }
 
         var parser = new ChatLogParser();
+
+        // Personal stats are accumulated here rather than ignored (the GUI shows them in its
+        // footer, this mode used to drop them) because they are what a chat-log run can be
+        // checked against from outside: AP per kill in particular is reported by the client
+        // itself, so seeing the same total here proves the pattern actually fired.
+        var personalTotals = new Dictionary<PersonalStatKind, long>();
+        parser.PersonalStatChanged += (kind, delta) =>
+        {
+            personalTotals.TryGetValue(kind, out long running);
+            personalTotals[kind] = running + delta;
+        };
+
         var events = parser.ParseFile(path);
         int healCount = events.Count(e => e.IsHeal);
         // Found by terminal_windows against the real file: this used to say "N damage events" for
@@ -177,6 +189,35 @@ internal static class Program
         var aggregator = new LiveAggregator();
         aggregator.IngestEvents(events);
         Console.WriteLine(aggregator.Summarize(id => parser.Names.NameFor(id)));
+
+        if (personalTotals.Count > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("personal totals: " + string.Join(" | ",
+                personalTotals.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key} {kv.Value:N0}")));
+        }
+
+        // Damage grouped by TARGET, which the source-side leaderboard above cannot show. Exists to
+        // check the meter against a known quantity: a boss's HP is published (origincdx.com lists
+        // max_hp per npc), so "damage dealt to that boss" has an expected value, and a parser that
+        // silently drops a line shape shows up here as a total that falls short of it.
+        var byTarget = events
+            .Where(e => !e.IsHeal)
+            .GroupBy(e => e.TargetObjectId)
+            .Select(g => (Name: parser.Names.NameFor(g.Key) ?? $"0x{g.Key:X8}", Total: g.Sum(e => e.Amount), Hits: g.Count()))
+            .OrderByDescending(x => x.Total)
+            .Take(15)
+            .ToList();
+
+        if (byTarget.Count > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("damage taken, by target (top 15):");
+            foreach (var (name, total, hits) in byTarget)
+            {
+                Console.WriteLine($"  {name,-42} {total,14:N0}  ({hits:N0} hits)");
+            }
+        }
     }
 
     private static void OnPacketArrival(object sender, PacketCapture e)
