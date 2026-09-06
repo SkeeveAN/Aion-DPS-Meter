@@ -34,6 +34,12 @@
       <Directory Id="ApplicationProgramsFolder" Name="Aion DPS Meter" />
     </StandardDirectory>
 
+    <StandardDirectory Id="DesktopFolder" />
+
+    <!-- Asked during setup (see the ShortcutDlg below), default on. Secure="yes" so the choice can
+         also be made on a silent install with INSTALLDESKTOPSHORTCUT=0 / =1 on the command line. -->
+    <Property Id="INSTALLDESKTOPSHORTCUT" Value="1" Secure="yes" />
+
     <Component Id="ApplicationShortcut" Directory="ApplicationProgramsFolder" Guid="8F0B5B1E-6C0C-4E9E-9C2E-6B0B7B7A2D3A">
       <Shortcut Id="StartMenuShortcut"
                 Name="Aion DPS Meter"
@@ -45,11 +51,72 @@
       <RegistryValue Root="HKCU" Key="Software\SkeeveAN\AionDpsMeter" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
     </Component>
 
+    <!-- A real installed component rather than something created by a custom action, so that
+         uninstalling removes the shortcut again. Its condition is the property the dialog sets:
+         unchecked means the component is simply not installed. -->
+    <Component Id="DesktopShortcut" Directory="DesktopFolder" Guid="B4A1D2E6-7C33-4F8A-9E51-1D0C6A2B4F97"
+               Condition="INSTALLDESKTOPSHORTCUT">
+      <Shortcut Id="DesktopShortcutFile"
+                Name="Aion DPS Meter"
+                Description="Chat.log-based DPS/loot meter for Aion"
+                Target="[INSTALLFOLDER]AionSniffer.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="AppIcon.ico" />
+      <RegistryValue Root="HKCU" Key="Software\SkeeveAN\AionDpsMeter" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+
     <Feature Id="MainFeature" Title="Aion DPS Meter" Level="1">
       <ComponentGroupRef Id="PublishedFiles" />
       <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
     </Feature>
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <!--
+      The desktop-shortcut question, asked as the last step before installing rather than on the
+      finish page. It has to be asked before the files are laid down: the shortcut is an MSI
+      component, so Windows Installer creates and removes it along with everything else. Asking
+      afterwards would mean creating it by hand in a custom action, and an uninstall would then
+      leave it behind on the desktop.
+
+      The dialog is spliced between InstallDirDlg and VerifyReadyDlg. The Order values continue
+      where WixUI_InstallDir's own publishes stop (its last one is Order 4), so this NewDialog is
+      evaluated after them and wins, while keeping the same path-validity condition it uses.
+    -->
+    <UI>
+      <Dialog Id="ShortcutDlg" Width="370" Height="270" Title="[ProductName] Setup">
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes"
+                 Text="{\WixUI_Font_Title}Verknüpfungen" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes"
+                 Text="Wo soll [ProductName] verfügbar sein?" />
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallDirDlgBannerBitmap)" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+
+        <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="20" Y="70" Width="330" Height="17"
+                 Property="INSTALLDESKTOPSHORTCUT" CheckBoxValue="1"
+                 Text="Verknüpfung auf dem Desktop erstellen" />
+        <Control Id="StartMenuNote" Type="Text" X="36" Y="92" Width="310" Height="24" Transparent="yes"
+                 Text="Der Eintrag im Startmenü wird immer angelegt. Beim Deinstallieren werden beide wieder entfernt." />
+
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)">
+          <Publish Event="NewDialog" Value="InstallDirDlg" />
+        </Control>
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)">
+          <Publish Event="NewDialog" Value="VerifyReadyDlg" />
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <!-- Same condition WixUI_InstallDir puts on its own Next->VerifyReadyDlg publish, not just
+           the path-valid half of it: with WIXUI_DONTVALIDATEPATH set, only the standard publish
+           would fire and this dialog would be skipped silently. -->
+      <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="ShortcutDlg" Order="5"
+               Condition="WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID=&quot;1&quot;" />
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="ShortcutDlg" Order="5" />
+    </UI>
   </Package>
 </Wix>
