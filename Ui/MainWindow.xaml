@@ -601,9 +601,10 @@
                         <!-- Damage and DPS merged into one column per the user - originally two
                              stacked lines, now (per a later request) DPS sits on the SAME line as
                              Damage instead, and the second line shows AP gained so far instead
-                             (only ever populated for "You"'s row - see PlayerRow.Ap remarks - blank
-                             for every mob/other-player row, same empty-slot pattern as the class
-                             icon for an unmatched class). The header still needs to say DPS vs
+                             (populated for "You"'s row, and for any other player who looted a
+                             relic - see PlayerRow.Ap remarks - blank for mob rows and players
+                             with nothing to show, same empty-slot pattern as the class icon for
+                             an unmatched class). The header still needs to say DPS vs
                              iDPS depending on the Mob/Boss filter (see OnMobBossFilterChanged,
                              unchanged logic). -->
                         <DataGridTemplateColumn x:Name="DpsColumn" Header="Damage / DPS" Width="124">

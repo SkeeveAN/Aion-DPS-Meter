@@ -326,6 +326,12 @@ public partial class MainWindow : Window
         _chatLogTimer.Start();
     }
 
+    // AP earned from looted relics, per person (see Data/RelicApDatabase for why Chat.log can
+    // never report this itself). Keyed by the same resolved person name the Loot list uses, so
+    // "You" is already mapped to the active character here -- that is what lets a relic picked up
+    // by anyone in the group land on their own row, not just the local player's.
+    private readonly Dictionary<string, long> _relicApByPerson = new();
+
     // Running totals for the footer row -- see ChatLogParser.PersonalStatChanged remarks for why
     // these are simple accumulators, not per-row PlayerRow fields like Damage (Exp/AP/GP/Kinah
     // only ever apply to "You", there's no "other player's XP" to track). Session-scoped like
@@ -345,8 +351,7 @@ public partial class MainWindow : Window
                 break;
             case PersonalStatKind.AbyssPoints:
                 _totalAp += delta;
-                ApValueText.Text = _totalAp.ToString("N0");
-                RefreshRows(); // updates the "You" row's second AP line too, see ApplyIdentity
+                RefreshApDisplays(); // footer + the "You" row's second AP line, relics included
                 break;
             case PersonalStatKind.GloryPoints:
                 _totalGp += delta;
@@ -375,6 +380,16 @@ public partial class MainWindow : Window
         if (person is null)
         {
             return;
+        }
+
+        // Before the loot-list filter below, deliberately: relics are Rare grade, so IsTrackedLoot
+        // drops them from the Loot view as ordinary trash -- correct there, since the user asked
+        // not to list every drop, but their AP still has to count. Both facts are true at once.
+        if (RelicApDatabase.IsRelic(loot.ItemId))
+        {
+            _relicApByPerson.TryGetValue(person, out long relicAp);
+            _relicApByPerson[person] = relicAp + RelicApDatabase.ApFor(loot.ItemId, loot.Quantity);
+            RefreshApDisplays();
         }
 
         string itemName = ItemDatabase.DisplayName(loot.ItemId);
@@ -782,10 +797,29 @@ public partial class MainWindow : Window
         row.Name = ResolveDisplayName(sourceId);
         row.ClassName = ResolveClassName(sourceId);
 
-        if (_chatLogParser?.Names.NameFor(sourceId) == "You")
-        {
-            row.Ap = _totalAp;
-        }
+        row.Ap = ApTotalFor(row.Name, isLocalPlayer: _chatLogParser?.Names.NameFor(sourceId) == "You");
+    }
+
+    /// <summary>
+    /// What a row's "AP:" line shows: the session's own AP counter (local player only -- Chat.log
+    /// reports AP gains for nobody else) plus relic AP, which exists for every person in the group
+    /// (see Data/RelicApDatabase). Null, not 0, when there is nothing to show, so mob and
+    /// non-looting player rows stay blank instead of claiming a real zero.
+    /// </summary>
+    private long? ApTotalFor(string personName, bool isLocalPlayer)
+    {
+        _relicApByPerson.TryGetValue(personName, out long relicAp);
+        long total = relicAp + (isLocalPlayer ? _totalAp : 0);
+        return isLocalPlayer || relicAp > 0 ? total : null;
+    }
+
+    /// <summary>Repaints both places AP appears -- the footer counter and the per-row "AP:" lines
+    /// -- after relic loot changed a total. Called from OnLootAcquired, which runs on the chat-log
+    /// timer just like damage updates do.</summary>
+    private void RefreshApDisplays()
+    {
+        ApValueText.Text = ApTotalFor(ResolveLootPerson("You") ?? "You", isLocalPlayer: true)?.ToString("N0") ?? "-";
+        RefreshRows();
     }
 
     /// <summary>"You" resolves via the active character's registered profile; anyone else via
@@ -923,6 +957,7 @@ public partial class MainWindow : Window
 
         _lootRows.Clear();
         _lootRowsByKey.Clear();
+        _relicApByPerson.Clear();
 
         while (MobBossFilter.Items.Count > 1) // keep the XAML-declared "All" entry, drop the rest
         {
@@ -949,7 +984,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            CopyRowsToClipboard();
+            CopyTextToClipboardIfAny(BuildDmgChatLine());
         }
     }
 
@@ -961,7 +996,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            CopyTextToClipboardIfAny(BuildDmgChatLine());
+            CopyRowsToClipboard();
         }
     }
 

@@ -55,11 +55,12 @@ public sealed class PlayerRow : INotifyPropertyChanged
 
     public string DpsDisplay => Dps is double d ? d.ToString("F0") : "n/a";
 
-    /// <summary>Null for every row except "You"'s -- per the user, shown as a second line under
-    /// Damage/DPS. AP is a session-wide personal total (see ChatLogParser.PersonalStatChanged
-    /// remarks: it's never attributed to a specific target the way damage is), not something a
-    /// mob or other player row could ever have a real value for, so this stays null there rather
-    /// than showing a fabricated 0.</summary>
+    /// <summary>Shown as a second line under Damage/DPS. Two sources feed it (see
+    /// MainWindow.ApTotalFor): the session's personal AP counter, which Chat.log only ever reports
+    /// for the local player, and AP from looted relics, which any group member can earn (see
+    /// Data/RelicApDatabase). So this is populated for "You" always, and for another player as
+    /// soon as they pick up a relic -- null everywhere else, including mob rows, rather than a
+    /// fabricated 0.</summary>
     public long? Ap
     {
         get => _ap;

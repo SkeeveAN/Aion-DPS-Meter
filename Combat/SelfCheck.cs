@@ -29,7 +29,73 @@ public static class SelfCheck
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
+        ok &= RunRelicApScenario();
         return ok;
+    }
+
+    /// <summary>
+    /// Checks the relic AP table against the Relic Appraiser dialog the user transcribed it from:
+    /// four relic types, four tiers each, every tier of a type worth a fixed multiple (1x/2x/3x/4x)
+    /// of its own base -- 300 for Icon, 600 for Seal, 1.200 for Goblet, 2.400 for Crown. Worth
+    /// asserting because the table is hand-entered id-by-id: a transposed digit would silently
+    /// misprice one relic forever, and the ids run in the REVERSE order of the dialog's listing
+    /// (186000051 is the most valuable, 186000066 the least), which is exactly the kind of detail
+    /// a later edit gets backwards. The totals below are the real haul from the user's own
+    /// session, counted independently from his Chat.log: Kisame 19.800 AP, the local player 11.100.
+    /// </summary>
+    private static bool RunRelicApScenario()
+    {
+        Console.WriteLine("[selftest] Relic AP table:");
+
+        bool allSixteenPresent = RelicApDatabase.All.Count == 16;
+
+        // Ordered cheapest-to-dearest within each type, which is descending item id.
+        var tiers = new (string Type, int Base, int[] Ids)[]
+        {
+            ("Icon", 300, new[] { 186000066, 186000065, 186000064, 186000063 }),
+            ("Seal", 600, new[] { 186000062, 186000061, 186000060, 186000059 }),
+            ("Goblet", 1_200, new[] { 186000058, 186000057, 186000056, 186000055 }),
+            ("Crown", 2_400, new[] { 186000054, 186000053, 186000052, 186000051 }),
+        };
+
+        bool tiersOk = true;
+        foreach (var (type, baseAp, ids) in tiers)
+        {
+            for (int i = 0; i < ids.Length; i++)
+            {
+                long expected = (long)baseAp * (i + 1);
+                long actual = RelicApDatabase.ApFor(ids[i]);
+                if (actual != expected)
+                {
+                    Console.WriteLine($"  !! {type} tier {i + 1} (id {ids[i]}): expected {expected} AP, got {actual}");
+                    tiersOk = false;
+                }
+            }
+        }
+
+        // Kisame's real haul: 3 Lesser Goblet, 3 Lesser Seal, 2 Lesser Icon, 1 Greater Crown,
+        // 1 Ancient Icon, 1 Lesser Crown, 1 Greater Goblet.
+        long kisame = RelicApDatabase.ApFor(186000058, 3) + RelicApDatabase.ApFor(186000062, 3)
+            + RelicApDatabase.ApFor(186000066, 2) + RelicApDatabase.ApFor(186000052)
+            + RelicApDatabase.ApFor(186000065) + RelicApDatabase.ApFor(186000054)
+            + RelicApDatabase.ApFor(186000056);
+
+        // The local player's: 3 Lesser Icon, 1 each of Ancient Goblet, Greater Seal, Lesser Seal,
+        // Ancient Icon, Lesser Goblet, Major Seal, Major Icon.
+        long you = RelicApDatabase.ApFor(186000066, 3) + RelicApDatabase.ApFor(186000057)
+            + RelicApDatabase.ApFor(186000060) + RelicApDatabase.ApFor(186000062)
+            + RelicApDatabase.ApFor(186000065) + RelicApDatabase.ApFor(186000058)
+            + RelicApDatabase.ApFor(186000059) + RelicApDatabase.ApFor(186000063);
+
+        bool haulOk = kisame == 19_800 && you == 11_100;
+        bool nonRelicIsZero = RelicApDatabase.ApFor(186000936) == 0 && !RelicApDatabase.IsRelic(186000936);
+
+        Console.WriteLine($"  -> all 16 relics present: {allSixteenPresent}");
+        Console.WriteLine($"  -> every tier is its type's 1x/2x/3x/4x multiple: {tiersOk}");
+        Console.WriteLine($"  -> real session haul reproduces (Kisame {kisame}, You {you}): {haulOk}");
+        Console.WriteLine($"  -> an ordinary looted item is not priced as a relic: {nonRelicIsZero}");
+
+        return allSixteenPresent && tiersOk && haulOk && nonRelicIsZero;
     }
 
     /// <summary>
