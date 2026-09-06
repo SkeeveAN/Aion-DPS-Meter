@@ -934,11 +934,13 @@ public partial class MainWindow : Window
 
     // Copy/CopyAll are shared between the Damage and Loot views (see OnShowDamageView/
     // OnShowLootView) rather than adding a second pair of buttons just for Loot -- whichever
-    // grid is currently visible decides what gets copied. While Loot is active the two buttons
-    // deliberately diverge (per the user): Copy is the compact string meant for pasting into the
-    // Aion chat box (same payload as the ".loot" in-game command), CopyAll is the full Markdown
-    // table meant for Discord -- unlike the Damage view, where they're still just each other's
-    // duplicate (see CopyRowsToClipboard's own remarks on that).
+    // grid is currently visible decides what gets copied. In BOTH views the two buttons follow
+    // the same split, which is what their "String"/"Table" labels have always promised: Copy
+    // produces the one-line string meant for pasting into a chat box (Aion chat here, the
+    // ".loot" payload in the Loot view), CopyAll produces the multi-line table meant for reading
+    // outside the game (tab-separated here, Discord Markdown in the Loot view). The Damage view
+    // used to hand BOTH buttons the same tab-separated table -- reported by the user, who
+    // expected a postable string from the first one.
     private void OnCopyClicked(object sender, RoutedEventArgs e)
     {
         if (LootGrid.Visibility == Visibility.Visible)
@@ -959,7 +961,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            CopyRowsToClipboard();
+            CopyTextToClipboardIfAny(BuildDmgChatLine());
         }
     }
 
@@ -1005,6 +1007,32 @@ public partial class MainWindow : Window
                 ? Math.Round(dps).ToString("N0", DotGroupedNumberFormat)
                 : "n/a";
             parts.Add($"{i + 1}, {row.Name}, {damageText} [{dpsText}]");
+        }
+
+        return string.Join(", ", parts);
+    }
+
+    /// <summary>
+    /// Copy's payload in the Damage view: one line, "Name Damage (DPS)" per entry, entries joined
+    /// by ", " and ranked by damage descending regardless of how the grid is currently sorted --
+    /// format specified by the user for pasting straight into the Aion chat box. Deliberately
+    /// leaner than BuildDmgRankingText (the ".dmg" command's payload, which prefixes each entry
+    /// with its rank and brackets the DPS): both stay as their own specified formats rather than
+    /// one being bent into the other. Numbers use Aion's own "." thousands grouping, and a row
+    /// whose DPS is undefined (single hit, no elapsed time -- see DpsCalculator) shows "n/a"
+    /// rather than a fabricated rate.
+    /// </summary>
+    private string BuildDmgChatLine()
+    {
+        var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
+        var parts = new List<string>(ranked.Count);
+        foreach (PlayerRow row in ranked)
+        {
+            string damageText = row.Damage.ToString("N0", DotGroupedNumberFormat);
+            string dpsText = row.Dps is double dps
+                ? Math.Round(dps).ToString("N0", DotGroupedNumberFormat)
+                : "n/a";
+            parts.Add($"{row.Name} {damageText} ({dpsText})");
         }
 
         return string.Join(", ", parts);
@@ -1179,10 +1207,12 @@ public partial class MainWindow : Window
         SetCopyButtonsShowLabels(true);
     }
 
-    /// <summary>Swaps Copy/CopyAll between their plain icon (Damage view, where both buttons still
-    /// do the same thing) and a "String"/"Table" text label (Loot view, where they now produce
-    /// genuinely different payloads -- see OnCopyClicked/OnCopyAllClicked) -- per the user, who
-    /// wanted to tell the two apart without having to hover for the ToolTip.</summary>
+    /// <summary>Swaps Copy/CopyAll between their plain icon (Damage view) and a "String"/"Table"
+    /// text label (Loot view) -- per the user, who wanted to tell the two apart without having to
+    /// hover for the ToolTip. Both views now have genuinely different payloads per button (see
+    /// OnCopyClicked/OnCopyAllClicked), so the same argument would justify labels in the Damage
+    /// view as well; not done unasked, since it changes a toolbar the user did not complain
+    /// about.</summary>
     private void SetCopyButtonsShowLabels(bool showLabels)
     {
         CopyIcon.Visibility = showLabels ? Visibility.Collapsed : Visibility.Visible;

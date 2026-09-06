@@ -367,10 +367,12 @@
                          - per the user: while the Loot view is active, Copy and CopyAll produce
                          genuinely different payloads (chat string vs Discord table, see
                          OnCopyClicked/OnCopyAllClicked) and a generic icon no longer says which is
-                         which. The Damage view keeps the plain icon since there both buttons still
-                         do the same thing (see CopyRowsToClipboard's own remarks). -->
+                         which. The Damage view still shows the plain icon, though its two buttons
+                         now differ as well (chat string vs tab-separated table). Left as-is
+                         because the user asked only for the missing payload, not a toolbar
+                         change; showing the labels there too would apply the same reasoning. -->
                     <Button x:Name="CopyButton" Click="OnCopyClicked" Padding="6,4"
-                            ToolTip="Copy visible rows (tab-separated), or an Aion-chat loot summary if the Loot view is active.">
+                            ToolTip="Copy a one-line chat string (Name Damage (DPS), ...), or an Aion-chat loot summary if the Loot view is active.">
                         <Grid Height="16">
                             <Grid x:Name="CopyIcon" Width="18" Height="16" HorizontalAlignment="Left">
                                 <Rectangle Width="11" Height="12" Stroke="#e8e8ea" StrokeThickness="1.2"
@@ -382,11 +384,12 @@
                                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Grid>
                     </Button>
-                    <!-- Copy/CopyAll are currently functionally identical: no per-source filter
-                         exists yet for "all" to differ from "visible". ToolTip says so plainly
-                         rather than implying a distinction that isn't there yet. -->
+                    <!-- The pair differs by FORMAT, not by row selection: both cover the rows the
+                         grid is showing (no per-source filter exists yet for "all" to differ from
+                         "visible"), but Copy yields the one-line chat string and CopyAll the
+                         tab-separated table, which is what the String/Table labels say. -->
                     <Button x:Name="CopyAllButton" Click="OnCopyAllClicked" Padding="6,4"
-                            ToolTip="Copy ALL rows (same as Copy for now), or a Discord loot table if the Loot view is active.">
+                            ToolTip="Copy all rows as a tab-separated table, or a Discord loot table if the Loot view is active.">
                         <Grid Height="16">
                             <Grid x:Name="CopyAllIcon" Width="18" Height="16" HorizontalAlignment="Left">
                                 <Rectangle Width="10" Height="10" Stroke="#e8e8ea" StrokeThickness="1.1"
