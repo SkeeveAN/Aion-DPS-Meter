@@ -753,10 +753,20 @@ public sealed partial class ChatLogParser
     /// broadcast twice, byte-for-byte, at the same one-second timestamp -- confirmed in a real
     /// capture where an unrelated combat line from the OTHER client landed physically between the
     /// two copies (so a simple "skip if same as the previous line" check would have missed it).
-    /// Guards against that specific, observed pattern: an exact duplicate message within the same
-    /// timestamp is dropped. Never observed for genuine damage lines in practice (only one client
-    /// was ever fighting at a time), but cheap to guard against since the evidence for it is
-    /// sitting in our own capture.
+    /// An exact duplicate message within the same timestamp is therefore dropped -- EXCEPT for
+    /// damage/heal lines, which are always counted.
+    ///
+    /// That exception is the whole point, and it was a real bug: this guard used to apply to
+    /// combat lines too, on the assumption (written into this comment) that genuine damage lines
+    /// never repeat identically within one second. They do, constantly -- Chat.log has only
+    /// one-second resolution, and equal hits on the same target with the same skill produce
+    /// byte-identical lines. Measured against the user's own 18,378-line Chat.log: 7.7% of all
+    /// damage lines were being discarded, and for his own character ("You", a Gladiator weaving
+    /// fast attacks) 32% of his total damage simply vanished, while other players lost 1-2% --
+    /// so the meter did not just undercount, it undercounted each player differently. The same
+    /// file also settles which explanation is right: 163 seconds contain the same combat line
+    /// three times and 9 contain it four times, which two clients writing one file cannot
+    /// produce (that tops out at two copies).
     /// </summary>
     public List<DamageEvent> Parse(IEnumerable<string> lines)
     {
@@ -777,14 +787,18 @@ public sealed partial class ChatLogParser
                 _commandsSeenThisBucket.Clear();
             }
 
-            if (!_seenThisBucket.Add(e.Message))
-            {
-                continue; // exact duplicate within the same second -- second client's copy
-            }
+            // Recorded either way, but acted on only for non-combat lines (see method remarks):
+            // a repeated damage/heal line is a real second hit, a repeated broadcast is the other
+            // client's copy of one event.
+            bool duplicateInBucket = !_seenThisBucket.Add(e.Message);
 
             if (TryParseDamageOrHeal(e.Message, out int sourceId, out int targetId, out long amount, out bool isHeal))
             {
                 events.Add(new DamageEvent(e.Timestamp, sourceId, targetId, amount, isHeal));
+            }
+            else if (duplicateInBucket)
+            {
+                continue; // exact duplicate within the same second -- second client's copy
             }
 
             if (CommandPattern().Match(e.Message) is { Success: true } commandMatch)

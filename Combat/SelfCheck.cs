@@ -306,8 +306,13 @@ public static class SelfCheck
     /// (2026-08-23), plus a synthetic duplicate-with-interleaving block modeled on a pattern
     /// found in that same real file: two clients sharing one Chat.log each logged an identical
     /// broadcast line, but a combat line from the OTHER client landed physically between the two
-    /// copies (see ChatLogParser remarks) -- so the dedup check below only counts as verified if
-    /// the interleaving still gets caught, not just an adjacent-duplicate case.
+    /// copies (see ChatLogParser remarks).
+    ///
+    /// This assertion was inverted deliberately: it used to require that the repeated Barracuda
+    /// DAMAGE line be counted once, which is what made the parser silently drop a third of the
+    /// user's own damage on real data (see ChatLogParser.Parse remarks for the measurement).
+    /// Identical damage lines in one second are real repeat hits and must all count; the
+    /// broadcast guard now only applies to non-combat lines.
     /// </summary>
     private static bool RunChatLogParserScenario()
     {
@@ -332,15 +337,10 @@ public static class SelfCheck
         Console.WriteLine("[selftest] ChatLogParser (real OriginAion Chat.log lines + synthetic dedup case):");
         Console.WriteLine($"  parsed {events.Count} damage events from {lines.Length} lines");
 
-        // 3 Ulgorn Raider hits (the interleaved 21:32:16 one is a real, distinct event -- different
-        // timestamp bucket than the first two, and a different message than Barracuda's within its
-        // own bucket, so seenThisBucket correctly leaves it alone) + 1 "You" hit + 1 of the 2
-        // duplicate Barracuda hits. Caught by review: an earlier version of this assertion (== 4)
-        // undercounted by excluding exactly the event the dedup test was designed to prove isn't
-        // wrongly dropped -- it passed only because a test bug and a hypothetical dedup-over-reach
-        // bug would have looked the same from the total alone; the per-source checks below (Ulgorn
-        // count, Barracuda total) are what actually distinguish them.
-        bool countOk = events.Count == 5;
+        // 3 Ulgorn Raider hits + 1 "You" hit + BOTH Barracuda hits: two identical damage lines in
+        // one second are two real hits, even with an unrelated line between them (that is exactly
+        // how a fast weapon reads in a log with one-second resolution).
+        bool countOk = events.Count == 6;
         int ulgornHitCount = events.Count(e => parser.Names.NameFor(e.SourceObjectId) == "Ulgorn Raider");
         bool ulgornCountOk = ulgornHitCount == 3;
         bool evadeSkipped = !events.Any(e => parser.Names.NameFor(e.SourceObjectId) == "Training Dummy");
@@ -351,16 +351,16 @@ public static class SelfCheck
         long barracudaTotal = events
             .Where(e => parser.Names.NameFor(e.SourceObjectId) == "Barracuda")
             .Sum(e => e.Amount);
-        bool duplicateInterleavedAcrossOtherLineWasDropped = barracudaTotal == 500; // not 1000
+        bool repeatedDamageLineCountedTwice = barracudaTotal == 1000; // both hits, not deduped to 500
 
-        Console.WriteLine($"  -> event count correct (dedup caught the interleaved duplicate): {countOk}");
+        Console.WriteLine($"  -> event count correct (repeat hits kept, non-combat dedup unaffected): {countOk}");
         Console.WriteLine($"  -> non-damage lines (evade/too-far/login/LFG) produced no events: {evadeSkipped}");
         Console.WriteLine($"  -> \"You\" resolved to a real damage event: {youResolved}");
         Console.WriteLine($"  -> name registry gives stable, distinct ids: {stableDistinctIds}");
         Console.WriteLine($"  -> the interleaved Ulgorn Raider hit still counted (all 3 present, not just 2): {ulgornCountOk}");
-        Console.WriteLine($"  -> duplicate broadcast-style damage line (split by an unrelated line) counted once: {duplicateInterleavedAcrossOtherLineWasDropped}");
+        Console.WriteLine($"  -> identical damage line repeated in the same second counted twice: {repeatedDamageLineCountedTwice}");
 
-        return countOk && ulgornCountOk && evadeSkipped && youResolved && stableDistinctIds && duplicateInterleavedAcrossOtherLineWasDropped;
+        return countOk && ulgornCountOk && evadeSkipped && youResolved && stableDistinctIds && repeatedDamageLineCountedTwice;
     }
 
     /// <summary>
