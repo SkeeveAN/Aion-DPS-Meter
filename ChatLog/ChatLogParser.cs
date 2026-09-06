@@ -220,8 +220,44 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?Euer Angriff auf (?<attacker>.+) wurde reflektiert und hat Euch (?<amount>[\d.]+) Schaden zugefügt\.$")]
     private static partial Regex ReflectedDamagePatternDe();
 
-    [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?<attacker>Ihr|.+?) (?:habt|hat) (?<target>.+?)(?: durch Benutzung von (?<skill>.+?))? (?<amount>[\d.]+)(?: kritischen)? Schaden zugefügt\.$")]
+    // Two real sentence shapes, not one: the perfect ("X hat Y ... Schaden zugefügt.") and a
+    // present-tense form ("Suno fügt Goldur durch Magische Umkehr VII 1.304 Schaden zu und löst
+    // einige der magischen Verstärkungen auf."), the latter used by skills that do something
+    // besides damage and therefore carry a trailing clause. Both confirmed against a real German
+    // Chat.log from a Cleric's client; before this every present-tense line was silently dropped.
+    // Duplicate group names across alternatives are fine in .NET -- the matching branch wins.
+    [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?:(?<attacker>Ihr|.+?) (?:habt|hat) (?<target>.+?)(?: durch Benutzung von (?<skill>.+?))? (?<amount>[\d.]+)(?: kritischen)? Schaden zugefügt|(?<attacker>.+?) fügt (?<target>.+?) durch (?<skill>.+?) (?<amount>[\d.]+) Schaden zu(?: und .+?)?)\.$")]
     private static partial Regex DamagePatternDe();
+
+    /// <summary>
+    /// Damage redirected onto someone else by a protective effect ("Ein Schutzeffekt überträgt die
+    /// von Goldur bei Suno angerichteten 439 Schaden auf Erdgeist."). Must be parsed, because the
+    /// ordinary damage line accompanying it reports ZERO ("Goldur hat Suno durch Benutzung von
+    /// Durchdringende Welle I 0 Schaden zugefügt.") -- the real number appears nowhere else. Found
+    /// in a real German log where a Spiritmaster redirected onto their spirit: 49 such lines, with
+    /// the meter showing the protected player as taking 42 hits for 0 damage. Attributed to the
+    /// attacker, and to whoever actually absorbed it rather than the original victim.
+    /// </summary>
+    [GeneratedRegex(@"^Ein Schutzeffekt überträgt die von (?<attacker>.+?) bei .+? angerichteten (?<amount>[\d.]+) Schaden auf (?<target>.+?)\.$")]
+    private static partial Regex DamageRedirectedPatternDe();
+
+    /// <summary>
+    /// The cast that starts a damage-over-time effect ("Suno hat Kette der Erde V eingesetzt und
+    /// Goldur erleidet fortwährend Schaden."). Carries no damage itself; it is what makes the
+    /// following ticks attributable, since those name only the skill (see DotTickPatternDe).
+    /// </summary>
+    [GeneratedRegex(@"^(?:(?<caster>.+?) hat (?<skill>.+?) eingesetzt und (?<target>.+?) erleidet fortwährend Schaden|(?<caster>Ihr) fügt (?<target>.+?) durch (?<skill>.+?) fortwährend Schaden zu)\.$")]
+    private static partial Regex DotAnnouncementPatternDe();
+
+    /// <summary>
+    /// A damage-over-time tick ("Goldur erhält durch Erosion VI 386 Schaden."). Names the skill but
+    /// not who cast it, so by itself it is exactly the unattributable case English's DoT rule
+    /// drops. Here it need not be dropped: the German client logs the cast first, so the skill name
+    /// identifies the caster (see DotAnnouncementPatternDe). Attribution is refused, not guessed,
+    /// when two different casters were seen using the same skill on the same target.
+    /// </summary>
+    [GeneratedRegex(@"^(?<target>.+?) erhält durch (?<skill>.+?) (?<amount>[\d.]+) Schaden\.$")]
+    private static partial Regex DotTickPatternDe();
 
     [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?<attacker>.+) hat Euch(?: durch (?<skill>.+?))? (?<amount>[\d.]+) Schaden zugefügt\.$")]
     private static partial Regex DamageInflictedOnYouPatternDe();
@@ -235,7 +271,10 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^Ihr habt durch (?<skill>.+) (?<amount>[\d.]+) von (?<target>.+)s TP wiederhergestellt\.$")]
     private static partial Regex HealOtherPatternDe();
 
-    [GeneratedRegex(@"^(?<target>.+) hat (?<amount>[\d.]+) TP wiederhergestellt, weil (?<healer>\S+) .+? eingesetzt hat\.$")]
+    // "weil <Name> ... eingesetzt hat" and "weil Ihr ... benutzt habt" are both real: the second
+    // is what the log says when the healer is the local player, and without it every heal the
+    // user themselves landed on someone else went uncounted.
+    [GeneratedRegex(@"^(?<target>.+) hat (?<amount>[\d.]+) TP wiederhergestellt, weil (?:(?<healer>Ihr) .+? benutzt habt|(?<healer>\S+) .+? eingesetzt hat)\.$")]
     private static partial Regex HealByOtherPatternDe();
 
     [GeneratedRegex(@"^(?<who>Ihr|.+?) (?:habt|hat)(?: durch (?<skill>.+?))? (?<amount>[\d.]+) TP wiederhergestellt\.$")]
@@ -417,7 +456,13 @@ public sealed partial class ChatLogParser
         Regex HealOther,
         Regex HealByOther,
         Regex HealSelf,
-        string[] LocalPlayerLiterals);
+        string[] LocalPlayerLiterals,
+        // Only German has confirmed lines for these three so far; every other language keeps the
+        // defaults until a real log proves an equivalent shape exists there too. Guessing one in
+        // would be the unvalidated-pattern habit this file keeps warning against.
+        Regex? DamageRedirected = null,
+        Regex? DotAnnouncement = null,
+        Regex? DotTick = null);
 
     // English first (validated, most likely to match), then DE/FR/ES/RU -- order only matters for
     // which language's SkillUsed/class-detection text a match reports, not for correctness, since
@@ -432,7 +477,8 @@ public sealed partial class ChatLogParser
         new DamageHealPatternSet(
             ReflectedDamagePatternDe(), DamageInflictedOnYouPatternDe(), DamageReceivedPatternDe(),
             DotDamageAttributedToYouPatternDe(), DamagePatternDe(), HealOtherPatternDe(),
-            HealByOtherPatternDe(), HealSelfPatternDe(), new[] { "euch", "ihr" }),
+            HealByOtherPatternDe(), HealSelfPatternDe(), new[] { "euch", "ihr" },
+            DamageRedirectedPatternDe(), DotAnnouncementPatternDe(), DotTickPatternDe()),
         new DamageHealPatternSet(
             ReflectedDamagePatternFr(), DamageInflictedOnYouPatternFr(), DamageReceivedPatternFr(),
             DotDamageAttributedToYouPatternFr(), DamagePatternFr(), HealOtherPatternFr(),
@@ -561,7 +607,9 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) Kinah ausgegeben\.$")]
     private static partial Regex KinahSpentPatternDe();
 
-    [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) EP von .+ erhalten\.$")]
+    // Trailing parenthetical is real ("... erhalten (Energie der Rast 2)." -- the rested-XP
+    // bonus marker), and an anchored pattern without it drops those lines entirely.
+    [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) EP von .+ erhalten(?: \([^)]*\))?\.$")]
     private static partial Regex XpGainedPatternDe();
 
     [GeneratedRegex(@"^Ihr habt (?<amount>[\d.]+) Ruhmespunkte erhalten\.$")]
@@ -657,48 +705,48 @@ public sealed partial class ChatLogParser
     // for "X has acquired" lines about pets/other characters) and, in a few lines, a suffix packed
     // with literal 0x3F ('?') bytes (confirmed on the byte level, not a mis-decoded character) --
     // so the id-then-anything-but-']' capture below is deliberate, not a shortcut.
-    [GeneratedRegex(@"^(?<subject>.+?) (?:have|has) acquired (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?:\(s\)|s)?(?: and stored (?:it|them) in your special cube)?\.$")]
+    [GeneratedRegex(@"^(?<subject>.+?) (?:have|has) acquired (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?:\(s\)|s)?(?: and stored (?:it|them) in your special cube)?\.$")]
     private static partial Regex LootAcquiredPattern();
 
     // Survey reward: different verb and tail than "acquired" ("You received ... as reward for the
     // survey."), confirmed always "You" in real data (never seen for another character) so the
     // subject isn't captured, just assumed.
-    [GeneratedRegex(@"^You received (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) items? as reward for the survey\.$")]
+    [GeneratedRegex(@"^You received (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) items? as reward for the survey\.$")]
     private static partial Regex LootSurveyPattern();
 
     // German -- "erhalten" as the verb for "acquired" is corroborated (not just guessed) by id
     // 900708/900709 in the client's own strings ("You have acquired ... as a reward" -> "Ihr habt
     // ... erhalten"); formal "Ihr habt/hat" mirrors the confirmed damage-pattern fix above.
     // "Spezialwürfel" (special cube) remains an unconfirmed guess.
-    [GeneratedRegex(@"^(?<subject>Ihr|.+?) (?:habt|hat) (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) erhalten(?: und in Eurem Spezialwürfel verstaut)?\.$")]
+    [GeneratedRegex(@"^(?<subject>Ihr|.+?) (?:habt|hat) (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) erhalten(?: und (?:in Eurem Spezialwürfel|im Würfel für Quest-Gegenstände, Münzen und Tickets) verstaut)?\.$")]
     private static partial Regex LootAcquiredPatternDe();
 
-    [GeneratedRegex(@"^Ihr habt (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) als Belohnung für die Umfrage erhalten\.$")]
+    [GeneratedRegex(@"^Ihr habt (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) als Belohnung für die Umfrage erhalten\.$")]
     private static partial Regex LootSurveyPatternDe();
 
     // French -- still BEST-EFFORT/UNVALIDATED (no real loot event occurred during the French
     // session either), corrected to the confirmed formal "Vous avez" register.
-    [GeneratedRegex(@"^(?<subject>Vous|.+?) (?:avez|a) obtenu (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: .+ cube spécial)?\.$")]
+    [GeneratedRegex(@"^(?<subject>Vous|.+?) (?:avez|a) obtenu (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: .+ cube spécial)?\.$")]
     private static partial Regex LootAcquiredPatternFr();
 
-    [GeneratedRegex(@"^Vous avez reçu (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) comme récompense pour le sondage\.$")]
+    [GeneratedRegex(@"^Vous avez reçu (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) comme récompense pour le sondage\.$")]
     private static partial Regex LootSurveyPatternFr();
 
     // Spanish -- still BEST-EFFORT/UNVALIDATED (no real loot event occurred during the played
     // Spanish session either), using the confirmed formal "Habéis"/"ha" alternation from the
     // damage/heal patterns above.
-    [GeneratedRegex(@"^(?<subject>Habéis|.+?) (?:ha )?obtenido (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: .+ cubo especial)?\.$")]
+    [GeneratedRegex(@"^(?<subject>Habéis|.+?) (?:ha )?obtenido (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: .+ cubo especial)?\.$")]
     private static partial Regex LootAcquiredPatternEs();
 
-    [GeneratedRegex(@"^Habéis recibido (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) como recompensa por la encuesta\.$")]
+    [GeneratedRegex(@"^Habéis recibido (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) como recompensa por la encuesta\.$")]
     private static partial Regex LootSurveyPatternEs();
 
     // Russian -- BEST-EFFORT, UNVALIDATED, HIGHEST RISK. Same unknown-gender caveat as the
     // personal-stat patterns above applies to "получил(а/о)" here too.
-    [GeneratedRegex(@"^(?<subject>.+?) получил(?:а|о)? (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: и убрал(?:а|о)? (?:его|их) в специальный куб)?\.$")]
+    [GeneratedRegex(@"^(?<subject>.+?) получил(?:а|о)? (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: и убрал(?:а|о)? (?:его|их) в специальный куб)?\.$")]
     private static partial Regex LootAcquiredPatternRu();
 
-    [GeneratedRegex(@"^Ты получил(?:а)? (?:(?<qty>\d+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) в награду за опрос\.$")]
+    [GeneratedRegex(@"^Ты получил(?:а)? (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) в награду за опрос\.$")]
     private static partial Regex LootSurveyPatternRu();
 
     // LocalPlayerLiterals mirrors DamageHealPatternSet's field of the same name: German's,
@@ -937,9 +985,61 @@ public sealed partial class ChatLogParser
     /// just fail to match. Written once, generic over which language's DamageHealPatternSet is
     /// passed in, since every set shares English's group names by construction.
     /// </summary>
+    // Which player was last seen casting a given damage-over-time skill on a given target, so a
+    // later tick line naming only the skill can be attributed (see DotTickPatternDe). A second,
+    // different caster for the same key sets it to null: from that point the ticks are genuinely
+    // ambiguous and are dropped rather than credited to whoever happened to cast first.
+    private readonly Dictionary<(string Skill, string Target), string?> _dotCasterBySkillAndTarget = new();
+
     private bool TryParseWithPatternSet(DamageHealPatternSet p, string message, out int sourceId, out int targetId, out long amount, out bool isHeal)
     {
         Match match;
+
+        if (p.DotAnnouncement is { } dotAnnouncement && (match = dotAnnouncement.Match(message)).Success)
+        {
+            string rawCaster = match.Groups["caster"].Value;
+            string caster = p.LocalPlayerLiterals.Any(l => string.Equals(rawCaster, l, StringComparison.OrdinalIgnoreCase))
+                ? YouName
+                : rawCaster;
+            var key = (match.Groups["skill"].Value, match.Groups["target"].Value);
+            _dotCasterBySkillAndTarget[key] = _dotCasterBySkillAndTarget.TryGetValue(key, out string? known) && known != caster
+                ? null
+                : caster;
+            RaiseSkillUsedIfPresent(match, caster);
+            // The announcement itself carries no damage -- fall through to "no event", not to the
+            // patterns below, which must not see a line already understood.
+            sourceId = targetId = 0;
+            amount = 0;
+            isHeal = false;
+            return false;
+        }
+
+        if (p.DotTick is { } dotTick && (match = dotTick.Match(message)).Success)
+        {
+            string target = match.Groups["target"].Value;
+            if (_dotCasterBySkillAndTarget.TryGetValue((match.Groups["skill"].Value, target), out string? caster) && caster is not null)
+            {
+                isHeal = false;
+                sourceId = Names.GetOrAssignId(caster);
+                targetId = Names.GetOrAssignId(target);
+                amount = ParseGroupedAmount(match.Groups["amount"].Value);
+                return true;
+            }
+
+            sourceId = targetId = 0;
+            amount = 0;
+            isHeal = false;
+            return false;
+        }
+
+        if (p.DamageRedirected is { } redirected && (match = redirected.Match(message)).Success)
+        {
+            isHeal = false;
+            sourceId = Names.GetOrAssignId(match.Groups["attacker"].Value);
+            targetId = Names.GetOrAssignId(match.Groups["target"].Value);
+            amount = ParseGroupedAmount(match.Groups["amount"].Value);
+            return true;
+        }
 
         if ((match = p.Reflected.Match(message)).Success)
         {

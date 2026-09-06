@@ -30,7 +30,75 @@ public static class SelfCheck
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
         ok &= RunRelicApScenario();
+        ok &= RunGermanChatLogScenario();
         return ok;
+    }
+
+    /// <summary>
+    /// German lines taken verbatim from a real OriginAion Chat.log written by another player's
+    /// German client (a Cleric grouped with a Spiritmaster). Until that file existed, the German
+    /// patterns were derived from the client's own string table and had never met real output;
+    /// four shapes turned out to be missing entirely, and each one below is here because it was
+    /// silently dropped:
+    ///
+    /// - present tense ("X fügt Y durch Z N Schaden zu und ..."), used by skills that do more than
+    ///   damage. The parser only knew the perfect form.
+    /// - redirected damage. This is the important one: when a protective effect moves damage onto
+    ///   someone else, the ordinary damage line reports 0 and the real number appears ONLY in the
+    ///   "Ein Schutzeffekt überträgt ..." line. The meter showed the protected player taking 42
+    ///   hits for zero damage while ~21.500 damage went unrecorded.
+    /// - damage-over-time ticks, which name the skill but not its caster. German logs the cast
+    ///   first, so the cast is what makes the ticks attributable.
+    /// - a second "stored it in your cube" wording, and quantities written with a thousands dot
+    ///   ("Ihr habt 1.634 [item:...] erhalten"), which the qty pattern rejected outright.
+    /// </summary>
+    private static bool RunGermanChatLogScenario()
+    {
+        var lines = new[]
+        {
+            "2026.09.07 00:50:00 : Suno hat Goldur durch Benutzung von Seelenflut I 1.234 Schaden zugefügt. ",
+            "2026.09.07 00:50:01 : Suno fügt Goldur durch Magische Umkehr VII 1.304 Schaden zu und löst einige der magischen Verstärkungen auf. ",
+            "2026.09.07 00:50:02 : Goldur hat Suno durch Benutzung von Durchdringende Welle I 0 Schaden zugefügt. ",
+            "2026.09.07 00:50:02 : Ein Schutzeffekt überträgt die von Goldur bei Suno angerichteten 439 Schaden auf Erdgeist. ",
+            "2026.09.07 00:50:03 : Suno hat Kette der Erde V eingesetzt und Goldur erleidet fortwährend Schaden. ",
+            "2026.09.07 00:50:04 : Goldur erhält durch Kette der Erde V 87 Schaden. ",
+            "2026.09.07 00:50:05 : Goldur erhält durch Erosion VI 386 Schaden. ",
+            "2026.09.07 00:50:06 : Ihr habt durch Licht der Verjüngung V 512 TP wiederhergestellt. ",
+            "2026.09.07 00:50:07 : Kojima hat 618 TP wiederhergestellt, weil Ihr Blitz-Wiederherstellung VII benutzt habt. ",
+        };
+
+        var parser = new ChatLogParser();
+        var events = parser.Parse(lines);
+        long DamageBy(string name) => events
+            .Where(e => !e.IsHeal && parser.Names.NameFor(e.SourceObjectId) == name)
+            .Sum(e => e.Amount);
+        long DamageTo(string name) => events
+            .Where(e => !e.IsHeal && parser.Names.NameFor(e.TargetObjectId) == name)
+            .Sum(e => e.Amount);
+
+        Console.WriteLine("[selftest] German Chat.log (verbatim lines from a real German client):");
+
+        // 1.234 perfect + 1.304 present tense + 87 attributed DoT tick.
+        bool sunoOk = DamageBy("Suno") == 2_625;
+
+        // The zero-damage line plus the 439 it was redirected for -- and the redirect lands on the
+        // spirit that absorbed it, not on the player it was aimed at.
+        bool redirectOk = DamageBy("Goldur") == 439 && DamageTo("Erdgeist") == 439 && DamageTo("Suno") == 0;
+
+        // "Erosion VI" was never announced in this excerpt, so its caster is unknown and the tick
+        // must NOT be credited to whoever happened to cast something else.
+        bool unannouncedDotDropped = !events.Any(e => e.Amount == 386);
+
+        bool healsOk = events.Count(e => e.IsHeal) == 2
+            && events.Any(e => e.IsHeal && e.Amount == 512)
+            && events.Any(e => e.IsHeal && e.Amount == 618);
+
+        Console.WriteLine($"  -> perfect + present tense + attributed DoT all counted: {sunoOk}");
+        Console.WriteLine($"  -> redirected damage recorded, and charged to the absorber: {redirectOk}");
+        Console.WriteLine($"  -> DoT tick with no known caster left uncounted: {unannouncedDotDropped}");
+        Console.WriteLine($"  -> self-heal and heal-by-you-on-another both counted: {healsOk}");
+
+        return sunoOk && redirectOk && unannouncedDotDropped && healsOk;
     }
 
     /// <summary>
