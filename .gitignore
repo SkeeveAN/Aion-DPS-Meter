@@ -7,3 +7,7 @@ obj/
 captures/
 *.pcap
 *.pcapng
+
+# Build output of the release flow (dotnet publish -o publish, then the MSI into dist/).
+publish/
+dist/
