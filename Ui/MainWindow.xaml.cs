@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -84,6 +85,18 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        // Version in the title, read back from the assembly rather than typed here a second time:
+        // AionSniffer.csproj's <Version> is the only place it is written. Needed because builds are
+        // handed around the group by hand -- a screenshot or a Chat.log recorded by someone else is
+        // otherwise impossible to pin to a build, which already cost a round of guesswork once.
+        // InformationalVersion carries a "+<commit sha>" suffix from the SDK; only the part before
+        // it is the version anyone means.
+        string version = (Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+            ?? "").Split('+')[0];
+        Title = version.Length > 0 ? $"AionSniffer DMG Meter {version}" : "AionSniffer DMG Meter";
+
         PlayersGrid.ItemsSource = _rows;
         LootGrid.ItemsSource = _lootRows;
         OverlayContent.ItemsSource = _rows;
@@ -724,7 +737,7 @@ public partial class MainWindow : Window
         var damageOnly = _aggregator.Events.Where(ev => !ev.IsHeal);
         var filtered = _selectedTargetId is int targetId
             ? damageOnly.Where(ev => ev.TargetObjectId == targetId).ToList()
-            : damageOnly.ToList();
+            : RestrictToEngagedTargets(damageOnly.ToList());
 
         // "Players only", always on per the user's request ("Players only ist IMMER vorhanden.") --
         // no toggle anymore, mobs never show. Real Aion character names never contain a space,
@@ -936,6 +949,71 @@ public partial class MainWindow : Window
     }
 
     private void OnClearClicked(object sender, RoutedEventArgs e) => ClearAllData();
+
+    /// <summary>
+    /// Drops damage on targets the local player's own side never fought -- the "All" view's
+    /// counterpart to picking a single mob in the Mob/Boss filter. Same root cause as
+    /// DropEventsFromRegisteredCharacterNames (two Aion clients sharing one Chat.log), but the
+    /// opposite direction: there the second client duplicates hits on the SAME fight, here it
+    /// narrates a COMPLETELY UNRELATED one. Confirmed against a real Sauro Supply Base run where
+    /// the second client sat next to a training dummy in town: two strangers whacking that dummy
+    /// (1.8M damage between them) ranked 6th and 7th in a run they were never part of.
+    ///
+    /// "Own side" is grown in two steps rather than taken as "whatever You hit", so a mob the
+    /// tank pulls and the local player never touches still counts: seed with the targets You
+    /// traded damage with (either direction, so a pure healer who deals no damage but gets hit
+    /// still seeds), take everyone who attacked those as the group, then keep everything the
+    /// group attacked. An empty seed means the local player never appears in a damage line at
+    /// all -- nothing to anchor on, so nothing is filtered rather than blanking the whole grid.
+    /// </summary>
+    private List<DamageEvent> RestrictToEngagedTargets(List<DamageEvent> damageEvents)
+    {
+        // Network path: no Chat.log name table, so there is no "You" id to anchor the seed on.
+        if (_chatLogParser is null)
+        {
+            return damageEvents;
+        }
+
+        int youId = _chatLogParser.Names.GetOrAssignId("You");
+
+        var seedTargets = new HashSet<int>();
+        foreach (DamageEvent ev in damageEvents)
+        {
+            if (ev.SourceObjectId == youId)
+            {
+                seedTargets.Add(ev.TargetObjectId);
+            }
+            else if (ev.TargetObjectId == youId)
+            {
+                seedTargets.Add(ev.SourceObjectId);
+            }
+        }
+
+        if (seedTargets.Count == 0)
+        {
+            return damageEvents;
+        }
+
+        var ownSide = new HashSet<int> { youId };
+        foreach (DamageEvent ev in damageEvents)
+        {
+            if (seedTargets.Contains(ev.TargetObjectId))
+            {
+                ownSide.Add(ev.SourceObjectId);
+            }
+        }
+
+        var engagedTargets = new HashSet<int>(seedTargets);
+        foreach (DamageEvent ev in damageEvents)
+        {
+            if (ownSide.Contains(ev.SourceObjectId))
+            {
+                engagedTargets.Add(ev.TargetObjectId);
+            }
+        }
+
+        return damageEvents.Where(ev => engagedTargets.Contains(ev.TargetObjectId)).ToList();
+    }
 
     /// <summary>Shared by the toolbar Clear button and the ".cleardmg" in-game command.</summary>
     private void ClearAllData()

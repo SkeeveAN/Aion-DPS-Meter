@@ -63,6 +63,11 @@ public static class SelfCheck
             "2026.09.07 00:50:03 : Suno hat Kette der Erde V eingesetzt und Goldur erleidet fortwährend Schaden. ",
             "2026.09.07 00:50:04 : Goldur erhält durch Kette der Erde V 87 Schaden. ",
             "2026.09.07 00:50:05 : Goldur erhält durch Erosion VI 386 Schaden. ",
+            // Verbatim from the German Assassin's client during the Sauro Supply Base run (the
+            // thousands dot and the crit prefix glued to the target's name are both as-logged).
+            // This shape carried 427.217 damage in that single run and matched nothing before.
+            "2026.09.07 20:57:03 : Gardenführer Achradim erhält durch Euren Einsatz von Siegelgravur V 380 Schaden und den Effekt 'Siegelgravur'. ",
+            "2026.09.07 20:57:16 : Kritischer Treffer!Gardenführer Achradim erhält durch Euren Einsatz von Siegelangriff IV 1.262 Schaden und den Effekt 'Siegelgravur'. ",
             "2026.09.07 00:50:06 : Ihr habt durch Licht der Verjüngung V 512 TP wiederhergestellt. ",
             "2026.09.07 00:50:07 : Kojima hat 618 TP wiederhergestellt, weil Ihr Blitz-Wiederherstellung VII benutzt habt. ",
         };
@@ -96,9 +101,19 @@ public static class SelfCheck
         Console.WriteLine($"  -> perfect + present tense + attributed DoT all counted: {sunoOk}");
         Console.WriteLine($"  -> redirected damage recorded, and charged to the absorber: {redirectOk}");
         Console.WriteLine($"  -> DoT tick with no known caster left uncounted: {unannouncedDotDropped}");
-        Console.WriteLine($"  -> self-heal and heal-by-you-on-another both counted: {healsOk}");
+        // The rider-effect shape ("X erhält durch Euren Einsatz von Y N Schaden und den Effekt
+        // 'Z'."), German's rendering of English's rune-carve line -- target-first word order, so
+        // no widening of DamagePatternDe could ever have caught it. Both lines are the local
+        // player's own hits, so both must be credited to "You" and land on ONE target name: a
+        // leaked "Kritischer Treffer!" prefix would split Achradim into two mobs.
+        bool riderEffectOk = DamageBy("You") == 380 + 1_262
+            && DamageTo("Gardenführer Achradim") == 380 + 1_262
+            && !events.Any(e => (parser.Names.NameFor(e.TargetObjectId) ?? "").Contains("Kritischer Treffer"));
 
-        return sunoOk && redirectOk && unannouncedDotDropped && healsOk;
+        Console.WriteLine($"  -> self-heal and heal-by-you-on-another both counted: {healsOk}");
+        Console.WriteLine($"  -> rider-effect hits (\"...N Schaden und den Effekt 'X'\") counted, crit prefix stripped: {riderEffectOk}");
+
+        return sunoOk && redirectOk && unannouncedDotDropped && healsOk && riderEffectOk;
     }
 
     /// <summary>
@@ -522,6 +537,11 @@ public static class SelfCheck
             // crit -- exactly the kind of gap only a bigger real sample exposes.
             "2026.08.24 22:08:39 : Critical Hit!Sparky has inflicted 999 damage on you by using Wing Buffet. ",
             "2026.08.24 22:08:40 : Critical Hit!You received 888 damage from Sparky. ",
+            // A hit that applies a rider on landing says "damage and the <X> effect on" instead of
+            // the plain "damage on" -- verbatim shape from a real Sauro Supply Base run, where the
+            // group's Assassin lost 427.217 damage (27% of his total, 1014 lines) to this because
+            // DamagePattern required the literal "damage on" and dropped every Rune Carve hit.
+            "2026.08.24 22:08:40 : Vanquisher inflicted 568 damage and the rune carve effect on Icy Kalgolem by using Rune Carve V. ",
             "2026.08.24 22:08:41 : Your attack on Torch Spirit Iprita was reflected and inflicted 246 damage on you. ",
             "2026.08.24 22:08:42 : You restored 95 of Hestika's HP by using Major Recovery Potion. ",
             "2026.08.24 22:08:43 : Mortelle recovered 156 HP by using Healing Light I. ",
@@ -568,6 +588,8 @@ public static class SelfCheck
             && NameOf(e.SourceObjectId) == "Sparky" && NameOf(e.TargetObjectId) == "You");
         bool critIncomingBasicOk = events.Any(e => !e.IsHeal && e.Amount == 888
             && NameOf(e.SourceObjectId) == "Sparky" && NameOf(e.TargetObjectId) == "You");
+        bool runeCarveOk = events.Any(e => !e.IsHeal && e.Amount == 568
+            && NameOf(e.SourceObjectId) == "Vanquisher" && NameOf(e.TargetObjectId) == "Icy Kalgolem");
         bool reflectOk = events.Any(e => !e.IsHeal && e.Amount == 246
             && NameOf(e.SourceObjectId) == "Torch Spirit Iprita" && NameOf(e.TargetObjectId) == "You");
         bool healOtherOk = events.Any(e => e.IsHeal && e.Amount == 95
@@ -596,7 +618,7 @@ public static class SelfCheck
         bool noCriticalHitLeak = !events.Any(e =>
             (NameOf(e.SourceObjectId) ?? "").Contains("Critical Hit") || (NameOf(e.TargetObjectId) ?? "").Contains("Critical Hit"));
 
-        bool dotLinesProducedNoEvents = events.Count == 11; // the 2 unattributed DoT lines above must not add events
+        bool dotLinesProducedNoEvents = events.Count == 12; // the 2 unattributed DoT lines above must not add events
 
         Console.WriteLine($"  -> crit + skill, grouped number 1.911 -> 1911: {critWithSkillOk}");
         Console.WriteLine($"  -> crit, \"critical damage\" wording, grouped number 1.022 -> 1022: {critWordOk}");
@@ -605,6 +627,7 @@ public static class SelfCheck
         Console.WriteLine($"  -> incoming CRIT skill damage (has inflicted...on you), prefix stripped: {critIncomingSkillOk}");
         Console.WriteLine($"  -> incoming CRIT basic damage (received...from), prefix stripped: {critIncomingBasicOk}");
         Console.WriteLine($"  -> reflected damage, correctly attributed to the mob, not \"Your attack...\": {reflectOk}");
+        Console.WriteLine($"  -> hit carrying a rider effect (\"damage and the rune carve effect on\") counted: {runeCarveOk}");
         Console.WriteLine($"  -> heal-other (You restored...of X's HP): {healOtherOk}");
         Console.WriteLine($"  -> self-heal for a NAMED character, not just You: {healSelfOtherCharacterOk}");
         Console.WriteLine($"  -> heal-by-other, third person: {healByOtherThirdPersonOk}");
@@ -616,7 +639,7 @@ public static class SelfCheck
         Console.WriteLine($"    {summary}");
 
         return critWithSkillOk && critWordOk && incomingSkillOk && incomingBasicOk
-            && critIncomingSkillOk && critIncomingBasicOk && reflectOk
+            && critIncomingSkillOk && critIncomingBasicOk && reflectOk && runeCarveOk
             && healOtherOk && healSelfOtherCharacterOk && healByOtherThirdPersonOk && healByOtherOnYouOk
             && noIdentitySplit && noCriticalHitLeak && dotLinesProducedNoEvents && healersExcludedFromDamageSummary;
     }

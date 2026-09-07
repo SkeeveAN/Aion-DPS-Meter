@@ -107,7 +107,13 @@ public sealed partial class ChatLogParser
     // ("by reflecting the attack.") -- used both to auto-detect the local player's class from
     // which skill "You" just used, and to detect OTHER players' classes the same way, see
     // MainWindow's SkillUsed subscription.
-    [GeneratedRegex(@"^(?:Critical Hit!\s?)?(?<attacker>.+) inflicted (?<amount>[\d.]+)(?: critical)? damage on (?<target>.+?)(?: by (?:using (?<skill>.+)|.+))?\.$")]
+    // The optional "and the <X> effect" clause covers hits that apply a rider on landing: "Badigadi
+    // inflicted 568 damage and the rune carve effect on Guard Captain Rohuka by using Rune Carve V."
+    // Without it the whole line failed to match (it has no literal "damage on"), silently dropping
+    // every such hit -- 1014 lines in the validation log, worth 427.217 damage in a single Sauro
+    // run, i.e. 27% of that Assassin's real total. "rune carve" is the only rider observed so far,
+    // hence the generic word capture rather than hardcoding it.
+    [GeneratedRegex(@"^(?:Critical Hit!\s?)?(?<attacker>.+) inflicted (?<amount>[\d.]+)(?: critical)? damage(?: and the [\w ]+ effect)? on (?<target>.+?)(?: by (?:using (?<skill>.+)|.+))?\.$")]
     private static partial Regex DamagePattern();
 
     // Incoming damage, skill-attributed form: "Icy Kalgolem has inflicted 994 damage on you by
@@ -265,7 +271,26 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?<target>.+) hat (?<amount>[\d.]+) Schaden von (?<attacker>.+) erhalten\.$")]
     private static partial Regex DamageReceivedPatternDe();
 
-    [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?<target>.+) hat (?<amount>[\d.]+)(?: \w+)? Schaden erhalten, nachdem Ihr (?<skill>.+) eingesetzt habt\.$")]
+    // Two alternatives. The first ("X hat N Schaden erhalten, nachdem Ihr Y eingesetzt habt.") was
+    // best-effort guesswork from the start -- still unconfirmed, kept rather than dropped in case
+    // it is a real template this project simply has not seen fire yet.
+    //
+    // The second is confirmed verbatim, from a German Assassin's own client recorded during the
+    // same Sauro Supply Base run as the English log used for the rest of this file's validation:
+    // "Kritischer Treffer!Susu-Arbeiter erhält durch Euren Einsatz von Siegelgravur V 1.181 Schaden
+    // und den Effekt 'Siegelgravur'." It is the German rendering of English's "X inflicted N damage
+    // and the rune carve effect on Y" -- note the word order is inverted (target first, "durch
+    // Euren Einsatz von" instead of a named attacker), so it could never have matched DamagePatternDe
+    // no matter how that one was widened. 3714 lines in that log, 427.217 damage in the Sauro run
+    // alone, cross-checked to the unit against the same player's total in two other players'
+    // English logs of the same run. The "Kritischer Treffer!" prefix attaches to the TARGET here
+    // (same subject-side attachment as English's "Critical Hit!You received...") and must be
+    // stripped, or the target's name splits into a crit and a non-crit variant.
+    //
+    // The trailing effect clause is optional even though every observed line carries one: the
+    // damage is what matters and a rider-less variant of the same sentence would otherwise be
+    // dropped for a purely cosmetic difference.
+    [GeneratedRegex(@"^(?:Kritischer Treffer!\s?)?(?:(?<target>.+) hat (?<amount>[\d.]+)(?: \w+)? Schaden erhalten, nachdem Ihr (?<skill>.+) eingesetzt habt|(?<target>.+?) erhält durch Euren Einsatz von (?<skill>.+?) (?<amount>[\d.]+) Schaden(?: und den Effekt '.+?')?)\.$")]
     private static partial Regex DotDamageAttributedToYouPatternDe();
 
     [GeneratedRegex(@"^Ihr habt durch (?<skill>.+) (?<amount>[\d.]+) von (?<target>.+)s TP wiederhergestellt\.$")]

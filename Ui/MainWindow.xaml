@@ -672,9 +672,12 @@
                     <Border Background="#99000000" CornerRadius="3" Margin="2" Padding="6,2">
                         <TextBlock Foreground="White" FontWeight="Bold" FontSize="12">
                             <TextBlock.Text>
-                                <MultiBinding StringFormat="{}{0}: {1} dmg ({2} DPS)">
+                                <!-- The thousands separator has to live in this MultiBinding's own
+                                     format string: WPF ignores StringFormat on a child Binding of a
+                                     MultiBinding, which is why the overlay showed raw "360832". -->
+                                <MultiBinding StringFormat="{}{0}: {1:N0} dmg ({2} DPS)">
                                     <Binding Path="Name"/>
-                                    <Binding Path="Damage" StringFormat="N0"/>
+                                    <Binding Path="Damage"/>
                                     <Binding Path="DpsDisplay"/>
                                 </MultiBinding>
                             </TextBlock.Text>
