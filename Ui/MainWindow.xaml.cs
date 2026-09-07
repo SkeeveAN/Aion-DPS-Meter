@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -81,15 +82,21 @@ public partial class MainWindow : Window
     private string? _chatLogPath;
     private readonly DispatcherTimer _chatLogTimer = new() { Interval = TimeSpan.FromSeconds(1) };
 
-    // g_chatlog memory patch (see ChatLogCvarSwitch's own docs) -- ridden on the same 1s timer as
-    // the tailer above, since it's meaningless without chat-log mode also being active. Mirrors
-    // MeterSettings.AutoEnableChatLogCvar; off by default, only ticks when the user opted in.
-    private readonly ChatLogCvarSwitch _chatLogCvarSwitch = new();
-    private bool _autoEnableChatLogCvar;
-
     public MainWindow()
     {
         InitializeComponent();
+
+        // Version in the title, read back from the assembly rather than typed here a second time:
+        // AionSniffer.csproj's <Version> is the only place it is written. Needed because builds are
+        // handed around the group by hand -- a screenshot or a Chat.log recorded by someone else is
+        // otherwise impossible to pin to a build, which already cost a round of guesswork once.
+        // InformationalVersion carries a "+<commit sha>" suffix from the SDK; only the part before
+        // it is the version anyone means.
+        string version = (Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+            ?? "").Split('+')[0];
+        Title = version.Length > 0 ? $"AionSniffer DMG Meter {version}" : "AionSniffer DMG Meter";
+
         PlayersGrid.ItemsSource = _rows;
         LootGrid.ItemsSource = _lootRows;
         OverlayContent.ItemsSource = _rows;
@@ -306,15 +313,6 @@ public partial class MainWindow : Window
         _chatLogParser = null;
         _chatLogTailer = null;
 
-        // Applied before the early-return below, since it's Settings' own opt-in flag, not
-        // dependent on a valid Chat.log path -- turning it off must take effect immediately even
-        // if the folder itself is (still) unset or invalid.
-        _autoEnableChatLogCvar = settings.AutoEnableChatLogCvar;
-        if (!_autoEnableChatLogCvar)
-        {
-            _chatLogCvarSwitch.Reset();
-        }
-
         string? folder = settings.AionInstallFolder;
         _chatLogPath = string.IsNullOrEmpty(folder) ? null : Path.Combine(folder, "Chat.log");
 
@@ -329,10 +327,9 @@ public partial class MainWindow : Window
         _chatLogParser.PersonalStatChanged += OnPersonalStatChanged;
         _chatLogParser.LootAcquired += OnLootAcquired;
 
-        // Chat.log may not exist yet on a fresh client that has never had chat logging enabled --
-        // exactly the case AutoEnableChatLogCvar exists to fix. Don't gate the whole timer (and
-        // therefore the CVar-patch ticks below) on the file already being there, or the switch
-        // could never create the very file it's meant to bring into existence. OnChatLogTimerTick
+        // Chat.log may not exist yet on a client that has never had chat logging (g_chatlog)
+        // enabled -- don't gate the timer on the file already being there, or enabling logging
+        // later, while this window is already open, would go unnoticed. OnChatLogTimerTick
         // creates the tailer lazily once the file appears.
         if (File.Exists(_chatLogPath))
         {
@@ -341,6 +338,12 @@ public partial class MainWindow : Window
 
         _chatLogTimer.Start();
     }
+
+    // AP earned from looted relics, per person (see Data/RelicApDatabase for why Chat.log can
+    // never report this itself). Keyed by the same resolved person name the Loot list uses, so
+    // "You" is already mapped to the active character here -- that is what lets a relic picked up
+    // by anyone in the group land on their own row, not just the local player's.
+    private readonly Dictionary<string, long> _relicApByPerson = new();
 
     // Running totals for the footer row -- see ChatLogParser.PersonalStatChanged remarks for why
     // these are simple accumulators, not per-row PlayerRow fields like Damage (Exp/AP/GP/Kinah
@@ -361,8 +364,7 @@ public partial class MainWindow : Window
                 break;
             case PersonalStatKind.AbyssPoints:
                 _totalAp += delta;
-                ApValueText.Text = _totalAp.ToString("N0");
-                RefreshRows(); // updates the "You" row's second AP line too, see ApplyIdentity
+                RefreshApDisplays(); // footer + the "You" row's second AP line, relics included
                 break;
             case PersonalStatKind.GloryPoints:
                 _totalGp += delta;
@@ -391,6 +393,16 @@ public partial class MainWindow : Window
         if (person is null)
         {
             return;
+        }
+
+        // Before the loot-list filter below, deliberately: relics are Rare grade, so IsTrackedLoot
+        // drops them from the Loot view as ordinary trash -- correct there, since the user asked
+        // not to list every drop, but their AP still has to count. Both facts are true at once.
+        if (RelicApDatabase.IsRelic(loot.ItemId))
+        {
+            _relicApByPerson.TryGetValue(person, out long relicAp);
+            _relicApByPerson[person] = relicAp + RelicApDatabase.ApFor(loot.ItemId, loot.Quantity);
+            RefreshApDisplays();
         }
 
         string itemName = ItemDatabase.DisplayName(loot.ItemId);
@@ -528,11 +540,6 @@ public partial class MainWindow : Window
 
     private void OnChatLogTimerTick(object? sender, EventArgs e)
     {
-        if (_autoEnableChatLogCvar)
-        {
-            _chatLogCvarSwitch.Tick();
-        }
-
         if (_chatLogTailer is null && _chatLogParser is not null && _chatLogPath is not null && File.Exists(_chatLogPath))
         {
             _chatLogTailer = new ChatLogTailer(_chatLogPath, _chatLogParser);
@@ -689,7 +696,6 @@ public partial class MainWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _chatLogTimer.Stop();
-        _chatLogCvarSwitch.Dispose();
         _overlay?.Dispose();
         base.OnClosed(e);
     }
@@ -731,7 +737,7 @@ public partial class MainWindow : Window
         var damageOnly = _aggregator.Events.Where(ev => !ev.IsHeal);
         var filtered = _selectedTargetId is int targetId
             ? damageOnly.Where(ev => ev.TargetObjectId == targetId).ToList()
-            : damageOnly.ToList();
+            : RestrictToEngagedTargets(damageOnly.ToList());
 
         // "Players only", always on per the user's request ("Players only ist IMMER vorhanden.") --
         // no toggle anymore, mobs never show. Real Aion character names never contain a space,
@@ -804,10 +810,31 @@ public partial class MainWindow : Window
         row.Name = ResolveDisplayName(sourceId);
         row.ClassName = ResolveClassName(sourceId);
 
-        if (_chatLogParser?.Names.NameFor(sourceId) == "You")
-        {
-            row.Ap = _totalAp;
-        }
+        _relicApByPerson.TryGetValue(row.Name, out long rowRelicAp);
+        row.RelicAp = rowRelicAp;
+        row.Ap = ApTotalFor(row.Name, isLocalPlayer: _chatLogParser?.Names.NameFor(sourceId) == "You");
+    }
+
+    /// <summary>
+    /// What a row's "AP:" line shows: the session's own AP counter (local player only -- Chat.log
+    /// reports AP gains for nobody else) plus relic AP, which exists for every person in the group
+    /// (see Data/RelicApDatabase). Null, not 0, when there is nothing to show, so mob and
+    /// non-looting player rows stay blank instead of claiming a real zero.
+    /// </summary>
+    private long? ApTotalFor(string personName, bool isLocalPlayer)
+    {
+        _relicApByPerson.TryGetValue(personName, out long relicAp);
+        long total = relicAp + (isLocalPlayer ? _totalAp : 0);
+        return isLocalPlayer || relicAp > 0 ? total : null;
+    }
+
+    /// <summary>Repaints both places AP appears -- the footer counter and the per-row "AP:" lines
+    /// -- after relic loot changed a total. Called from OnLootAcquired, which runs on the chat-log
+    /// timer just like damage updates do.</summary>
+    private void RefreshApDisplays()
+    {
+        ApValueText.Text = ApTotalFor(ResolveLootPerson("You") ?? "You", isLocalPlayer: true)?.ToString("N0") ?? "-";
+        RefreshRows();
     }
 
     /// <summary>"You" resolves via the active character's registered profile; anyone else via
@@ -923,6 +950,71 @@ public partial class MainWindow : Window
 
     private void OnClearClicked(object sender, RoutedEventArgs e) => ClearAllData();
 
+    /// <summary>
+    /// Drops damage on targets the local player's own side never fought -- the "All" view's
+    /// counterpart to picking a single mob in the Mob/Boss filter. Same root cause as
+    /// DropEventsFromRegisteredCharacterNames (two Aion clients sharing one Chat.log), but the
+    /// opposite direction: there the second client duplicates hits on the SAME fight, here it
+    /// narrates a COMPLETELY UNRELATED one. Confirmed against a real Sauro Supply Base run where
+    /// the second client sat next to a training dummy in town: two strangers whacking that dummy
+    /// (1.8M damage between them) ranked 6th and 7th in a run they were never part of.
+    ///
+    /// "Own side" is grown in two steps rather than taken as "whatever You hit", so a mob the
+    /// tank pulls and the local player never touches still counts: seed with the targets You
+    /// traded damage with (either direction, so a pure healer who deals no damage but gets hit
+    /// still seeds), take everyone who attacked those as the group, then keep everything the
+    /// group attacked. An empty seed means the local player never appears in a damage line at
+    /// all -- nothing to anchor on, so nothing is filtered rather than blanking the whole grid.
+    /// </summary>
+    private List<DamageEvent> RestrictToEngagedTargets(List<DamageEvent> damageEvents)
+    {
+        // Network path: no Chat.log name table, so there is no "You" id to anchor the seed on.
+        if (_chatLogParser is null)
+        {
+            return damageEvents;
+        }
+
+        int youId = _chatLogParser.Names.GetOrAssignId("You");
+
+        var seedTargets = new HashSet<int>();
+        foreach (DamageEvent ev in damageEvents)
+        {
+            if (ev.SourceObjectId == youId)
+            {
+                seedTargets.Add(ev.TargetObjectId);
+            }
+            else if (ev.TargetObjectId == youId)
+            {
+                seedTargets.Add(ev.SourceObjectId);
+            }
+        }
+
+        if (seedTargets.Count == 0)
+        {
+            return damageEvents;
+        }
+
+        var ownSide = new HashSet<int> { youId };
+        foreach (DamageEvent ev in damageEvents)
+        {
+            if (seedTargets.Contains(ev.TargetObjectId))
+            {
+                ownSide.Add(ev.SourceObjectId);
+            }
+        }
+
+        var engagedTargets = new HashSet<int>(seedTargets);
+        foreach (DamageEvent ev in damageEvents)
+        {
+            if (ownSide.Contains(ev.SourceObjectId))
+            {
+                engagedTargets.Add(ev.TargetObjectId);
+            }
+        }
+
+        return damageEvents.Where(ev => engagedTargets.Contains(ev.TargetObjectId)).ToList();
+    }
+
     /// <summary>Shared by the toolbar Clear button and the ".cleardmg" in-game command.</summary>
     private void ClearAllData()
     {
@@ -945,6 +1037,7 @@ public partial class MainWindow : Window
 
         _lootRows.Clear();
         _lootRowsByKey.Clear();
+        _relicApByPerson.Clear();
 
         while (MobBossFilter.Items.Count > 1) // keep the XAML-declared "All" entry, drop the rest
         {
@@ -956,11 +1049,13 @@ public partial class MainWindow : Window
 
     // Copy/CopyAll are shared between the Damage and Loot views (see OnShowDamageView/
     // OnShowLootView) rather than adding a second pair of buttons just for Loot -- whichever
-    // grid is currently visible decides what gets copied. While Loot is active the two buttons
-    // deliberately diverge (per the user): Copy is the compact string meant for pasting into the
-    // Aion chat box (same payload as the ".loot" in-game command), CopyAll is the full Markdown
-    // table meant for Discord -- unlike the Damage view, where they're still just each other's
-    // duplicate (see CopyRowsToClipboard's own remarks on that).
+    // grid is currently visible decides what gets copied. In BOTH views the two buttons follow
+    // the same split, which is what their "String"/"Table" labels have always promised: Copy
+    // produces the one-line string meant for pasting into a chat box (Aion chat here, the
+    // ".loot" payload in the Loot view), CopyAll produces the multi-line table meant for reading
+    // outside the game (tab-separated here, Discord Markdown in the Loot view). The Damage view
+    // used to hand BOTH buttons the same tab-separated table -- reported by the user, who
+    // expected a postable string from the first one.
     private void OnCopyClicked(object sender, RoutedEventArgs e)
     {
         if (LootGrid.Visibility == Visibility.Visible)
@@ -969,7 +1064,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            CopyRowsToClipboard();
+            CopyTextToClipboardIfAny(BuildDmgChatLine());
         }
     }
 
@@ -1027,6 +1122,32 @@ public partial class MainWindow : Window
                 ? Math.Round(dps).ToString("N0", DotGroupedNumberFormat)
                 : "n/a";
             parts.Add($"{i + 1}, {row.Name}, {damageText} [{dpsText}]");
+        }
+
+        return string.Join(", ", parts);
+    }
+
+    /// <summary>
+    /// Copy's payload in the Damage view: one line, "Name Damage (DPS)" per entry, entries joined
+    /// by ", " and ranked by damage descending regardless of how the grid is currently sorted --
+    /// format specified by the user for pasting straight into the Aion chat box. Deliberately
+    /// leaner than BuildDmgRankingText (the ".dmg" command's payload, which prefixes each entry
+    /// with its rank and brackets the DPS): both stay as their own specified formats rather than
+    /// one being bent into the other. Numbers use Aion's own "." thousands grouping, and a row
+    /// whose DPS is undefined (single hit, no elapsed time -- see DpsCalculator) shows "n/a"
+    /// rather than a fabricated rate.
+    /// </summary>
+    private string BuildDmgChatLine()
+    {
+        var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
+        var parts = new List<string>(ranked.Count);
+        foreach (PlayerRow row in ranked)
+        {
+            string damageText = row.Damage.ToString("N0", DotGroupedNumberFormat);
+            string dpsText = row.Dps is double dps
+                ? Math.Round(dps).ToString("N0", DotGroupedNumberFormat)
+                : "n/a";
+            parts.Add($"{row.Name} {damageText} ({dpsText})");
         }
 
         return string.Join(", ", parts);
@@ -1201,10 +1322,12 @@ public partial class MainWindow : Window
         SetCopyButtonsShowLabels(true);
     }
 
-    /// <summary>Swaps Copy/CopyAll between their plain icon (Damage view, where both buttons still
-    /// do the same thing) and a "String"/"Table" text label (Loot view, where they now produce
-    /// genuinely different payloads -- see OnCopyClicked/OnCopyAllClicked) -- per the user, who
-    /// wanted to tell the two apart without having to hover for the ToolTip.</summary>
+    /// <summary>Swaps Copy/CopyAll between their plain icon (Damage view) and a "String"/"Table"
+    /// text label (Loot view) -- per the user, who wanted to tell the two apart without having to
+    /// hover for the ToolTip. Both views now have genuinely different payloads per button (see
+    /// OnCopyClicked/OnCopyAllClicked), so the same argument would justify labels in the Damage
+    /// view as well; not done unasked, since it changes a toolbar the user did not complain
+    /// about.</summary>
     private void SetCopyButtonsShowLabels(bool showLabels)
     {
         CopyIcon.Visibility = showLabels ? Visibility.Collapsed : Visibility.Visible;

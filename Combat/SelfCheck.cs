@@ -29,7 +29,156 @@ public static class SelfCheck
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
+        ok &= RunRelicApScenario();
+        ok &= RunGermanChatLogScenario();
         return ok;
+    }
+
+    /// <summary>
+    /// German lines taken verbatim from a real OriginAion Chat.log written by another player's
+    /// German client (a Cleric grouped with a Spiritmaster). Until that file existed, the German
+    /// patterns were derived from the client's own string table and had never met real output;
+    /// four shapes turned out to be missing entirely, and each one below is here because it was
+    /// silently dropped:
+    ///
+    /// - present tense ("X fügt Y durch Z N Schaden zu und ..."), used by skills that do more than
+    ///   damage. The parser only knew the perfect form.
+    /// - redirected damage. This is the important one: when a protective effect moves damage onto
+    ///   someone else, the ordinary damage line reports 0 and the real number appears ONLY in the
+    ///   "Ein Schutzeffekt überträgt ..." line. The meter showed the protected player taking 42
+    ///   hits for zero damage while ~21.500 damage went unrecorded.
+    /// - damage-over-time ticks, which name the skill but not its caster. German logs the cast
+    ///   first, so the cast is what makes the ticks attributable.
+    /// - a second "stored it in your cube" wording, and quantities written with a thousands dot
+    ///   ("Ihr habt 1.634 [item:...] erhalten"), which the qty pattern rejected outright.
+    /// </summary>
+    private static bool RunGermanChatLogScenario()
+    {
+        var lines = new[]
+        {
+            "2026.09.07 00:50:00 : Suno hat Goldur durch Benutzung von Seelenflut I 1.234 Schaden zugefügt. ",
+            "2026.09.07 00:50:01 : Suno fügt Goldur durch Magische Umkehr VII 1.304 Schaden zu und löst einige der magischen Verstärkungen auf. ",
+            "2026.09.07 00:50:02 : Goldur hat Suno durch Benutzung von Durchdringende Welle I 0 Schaden zugefügt. ",
+            "2026.09.07 00:50:02 : Ein Schutzeffekt überträgt die von Goldur bei Suno angerichteten 439 Schaden auf Erdgeist. ",
+            "2026.09.07 00:50:03 : Suno hat Kette der Erde V eingesetzt und Goldur erleidet fortwährend Schaden. ",
+            "2026.09.07 00:50:04 : Goldur erhält durch Kette der Erde V 87 Schaden. ",
+            "2026.09.07 00:50:05 : Goldur erhält durch Erosion VI 386 Schaden. ",
+            // Verbatim from the German Assassin's client during the Sauro Supply Base run (the
+            // thousands dot and the crit prefix glued to the target's name are both as-logged).
+            // This shape carried 427.217 damage in that single run and matched nothing before.
+            "2026.09.07 20:57:03 : Gardenführer Achradim erhält durch Euren Einsatz von Siegelgravur V 380 Schaden und den Effekt 'Siegelgravur'. ",
+            "2026.09.07 20:57:16 : Kritischer Treffer!Gardenführer Achradim erhält durch Euren Einsatz von Siegelangriff IV 1.262 Schaden und den Effekt 'Siegelgravur'. ",
+            "2026.09.07 00:50:06 : Ihr habt durch Licht der Verjüngung V 512 TP wiederhergestellt. ",
+            "2026.09.07 00:50:07 : Kojima hat 618 TP wiederhergestellt, weil Ihr Blitz-Wiederherstellung VII benutzt habt. ",
+        };
+
+        var parser = new ChatLogParser();
+        var events = parser.Parse(lines);
+        long DamageBy(string name) => events
+            .Where(e => !e.IsHeal && parser.Names.NameFor(e.SourceObjectId) == name)
+            .Sum(e => e.Amount);
+        long DamageTo(string name) => events
+            .Where(e => !e.IsHeal && parser.Names.NameFor(e.TargetObjectId) == name)
+            .Sum(e => e.Amount);
+
+        Console.WriteLine("[selftest] German Chat.log (verbatim lines from a real German client):");
+
+        // 1.234 perfect + 1.304 present tense + 87 attributed DoT tick.
+        bool sunoOk = DamageBy("Suno") == 2_625;
+
+        // The zero-damage line plus the 439 it was redirected for -- and the redirect lands on the
+        // spirit that absorbed it, not on the player it was aimed at.
+        bool redirectOk = DamageBy("Goldur") == 439 && DamageTo("Erdgeist") == 439 && DamageTo("Suno") == 0;
+
+        // "Erosion VI" was never announced in this excerpt, so its caster is unknown and the tick
+        // must NOT be credited to whoever happened to cast something else.
+        bool unannouncedDotDropped = !events.Any(e => e.Amount == 386);
+
+        bool healsOk = events.Count(e => e.IsHeal) == 2
+            && events.Any(e => e.IsHeal && e.Amount == 512)
+            && events.Any(e => e.IsHeal && e.Amount == 618);
+
+        Console.WriteLine($"  -> perfect + present tense + attributed DoT all counted: {sunoOk}");
+        Console.WriteLine($"  -> redirected damage recorded, and charged to the absorber: {redirectOk}");
+        Console.WriteLine($"  -> DoT tick with no known caster left uncounted: {unannouncedDotDropped}");
+        // The rider-effect shape ("X erhält durch Euren Einsatz von Y N Schaden und den Effekt
+        // 'Z'."), German's rendering of English's rune-carve line -- target-first word order, so
+        // no widening of DamagePatternDe could ever have caught it. Both lines are the local
+        // player's own hits, so both must be credited to "You" and land on ONE target name: a
+        // leaked "Kritischer Treffer!" prefix would split Achradim into two mobs.
+        bool riderEffectOk = DamageBy("You") == 380 + 1_262
+            && DamageTo("Gardenführer Achradim") == 380 + 1_262
+            && !events.Any(e => (parser.Names.NameFor(e.TargetObjectId) ?? "").Contains("Kritischer Treffer"));
+
+        Console.WriteLine($"  -> self-heal and heal-by-you-on-another both counted: {healsOk}");
+        Console.WriteLine($"  -> rider-effect hits (\"...N Schaden und den Effekt 'X'\") counted, crit prefix stripped: {riderEffectOk}");
+
+        return sunoOk && redirectOk && unannouncedDotDropped && healsOk && riderEffectOk;
+    }
+
+    /// <summary>
+    /// Checks the relic AP table against the Relic Appraiser dialog the user transcribed it from:
+    /// four relic types, four tiers each, every tier of a type worth a fixed multiple (1x/2x/3x/4x)
+    /// of its own base -- 300 for Icon, 600 for Seal, 1.200 for Goblet, 2.400 for Crown. Worth
+    /// asserting because the table is hand-entered id-by-id: a transposed digit would silently
+    /// misprice one relic forever, and the ids run in the REVERSE order of the dialog's listing
+    /// (186000051 is the most valuable, 186000066 the least), which is exactly the kind of detail
+    /// a later edit gets backwards. The totals below are the real haul from the user's own
+    /// session, counted independently from his Chat.log: Kisame 19.800 AP, the local player 11.100.
+    /// </summary>
+    private static bool RunRelicApScenario()
+    {
+        Console.WriteLine("[selftest] Relic AP table:");
+
+        bool allSixteenPresent = RelicApDatabase.All.Count == 16;
+
+        // Ordered cheapest-to-dearest within each type, which is descending item id.
+        var tiers = new (string Type, int Base, int[] Ids)[]
+        {
+            ("Icon", 300, new[] { 186000066, 186000065, 186000064, 186000063 }),
+            ("Seal", 600, new[] { 186000062, 186000061, 186000060, 186000059 }),
+            ("Goblet", 1_200, new[] { 186000058, 186000057, 186000056, 186000055 }),
+            ("Crown", 2_400, new[] { 186000054, 186000053, 186000052, 186000051 }),
+        };
+
+        bool tiersOk = true;
+        foreach (var (type, baseAp, ids) in tiers)
+        {
+            for (int i = 0; i < ids.Length; i++)
+            {
+                long expected = (long)baseAp * (i + 1);
+                long actual = RelicApDatabase.ApFor(ids[i]);
+                if (actual != expected)
+                {
+                    Console.WriteLine($"  !! {type} tier {i + 1} (id {ids[i]}): expected {expected} AP, got {actual}");
+                    tiersOk = false;
+                }
+            }
+        }
+
+        // Kisame's real haul: 3 Lesser Goblet, 3 Lesser Seal, 2 Lesser Icon, 1 Greater Crown,
+        // 1 Ancient Icon, 1 Lesser Crown, 1 Greater Goblet.
+        long kisame = RelicApDatabase.ApFor(186000058, 3) + RelicApDatabase.ApFor(186000062, 3)
+            + RelicApDatabase.ApFor(186000066, 2) + RelicApDatabase.ApFor(186000052)
+            + RelicApDatabase.ApFor(186000065) + RelicApDatabase.ApFor(186000054)
+            + RelicApDatabase.ApFor(186000056);
+
+        // The local player's: 3 Lesser Icon, 1 each of Ancient Goblet, Greater Seal, Lesser Seal,
+        // Ancient Icon, Lesser Goblet, Major Seal, Major Icon.
+        long you = RelicApDatabase.ApFor(186000066, 3) + RelicApDatabase.ApFor(186000057)
+            + RelicApDatabase.ApFor(186000060) + RelicApDatabase.ApFor(186000062)
+            + RelicApDatabase.ApFor(186000065) + RelicApDatabase.ApFor(186000058)
+            + RelicApDatabase.ApFor(186000059) + RelicApDatabase.ApFor(186000063);
+
+        bool haulOk = kisame == 19_800 && you == 11_100;
+        bool nonRelicIsZero = RelicApDatabase.ApFor(186000936) == 0 && !RelicApDatabase.IsRelic(186000936);
+
+        Console.WriteLine($"  -> all 16 relics present: {allSixteenPresent}");
+        Console.WriteLine($"  -> every tier is its type's 1x/2x/3x/4x multiple: {tiersOk}");
+        Console.WriteLine($"  -> real session haul reproduces (Kisame {kisame}, You {you}): {haulOk}");
+        Console.WriteLine($"  -> an ordinary looted item is not priced as a relic: {nonRelicIsZero}");
+
+        return allSixteenPresent && tiersOk && haulOk && nonRelicIsZero;
     }
 
     /// <summary>
@@ -306,8 +455,13 @@ public static class SelfCheck
     /// (2026-08-23), plus a synthetic duplicate-with-interleaving block modeled on a pattern
     /// found in that same real file: two clients sharing one Chat.log each logged an identical
     /// broadcast line, but a combat line from the OTHER client landed physically between the two
-    /// copies (see ChatLogParser remarks) -- so the dedup check below only counts as verified if
-    /// the interleaving still gets caught, not just an adjacent-duplicate case.
+    /// copies (see ChatLogParser remarks).
+    ///
+    /// This assertion was inverted deliberately: it used to require that the repeated Barracuda
+    /// DAMAGE line be counted once, which is what made the parser silently drop a third of the
+    /// user's own damage on real data (see ChatLogParser.Parse remarks for the measurement).
+    /// Identical damage lines in one second are real repeat hits and must all count; the
+    /// broadcast guard now only applies to non-combat lines.
     /// </summary>
     private static bool RunChatLogParserScenario()
     {
@@ -332,15 +486,10 @@ public static class SelfCheck
         Console.WriteLine("[selftest] ChatLogParser (real OriginAion Chat.log lines + synthetic dedup case):");
         Console.WriteLine($"  parsed {events.Count} damage events from {lines.Length} lines");
 
-        // 3 Ulgorn Raider hits (the interleaved 21:32:16 one is a real, distinct event -- different
-        // timestamp bucket than the first two, and a different message than Barracuda's within its
-        // own bucket, so seenThisBucket correctly leaves it alone) + 1 "You" hit + 1 of the 2
-        // duplicate Barracuda hits. Caught by review: an earlier version of this assertion (== 4)
-        // undercounted by excluding exactly the event the dedup test was designed to prove isn't
-        // wrongly dropped -- it passed only because a test bug and a hypothetical dedup-over-reach
-        // bug would have looked the same from the total alone; the per-source checks below (Ulgorn
-        // count, Barracuda total) are what actually distinguish them.
-        bool countOk = events.Count == 5;
+        // 3 Ulgorn Raider hits + 1 "You" hit + BOTH Barracuda hits: two identical damage lines in
+        // one second are two real hits, even with an unrelated line between them (that is exactly
+        // how a fast weapon reads in a log with one-second resolution).
+        bool countOk = events.Count == 6;
         int ulgornHitCount = events.Count(e => parser.Names.NameFor(e.SourceObjectId) == "Ulgorn Raider");
         bool ulgornCountOk = ulgornHitCount == 3;
         bool evadeSkipped = !events.Any(e => parser.Names.NameFor(e.SourceObjectId) == "Training Dummy");
@@ -351,16 +500,16 @@ public static class SelfCheck
         long barracudaTotal = events
             .Where(e => parser.Names.NameFor(e.SourceObjectId) == "Barracuda")
             .Sum(e => e.Amount);
-        bool duplicateInterleavedAcrossOtherLineWasDropped = barracudaTotal == 500; // not 1000
+        bool repeatedDamageLineCountedTwice = barracudaTotal == 1000; // both hits, not deduped to 500
 
-        Console.WriteLine($"  -> event count correct (dedup caught the interleaved duplicate): {countOk}");
+        Console.WriteLine($"  -> event count correct (repeat hits kept, non-combat dedup unaffected): {countOk}");
         Console.WriteLine($"  -> non-damage lines (evade/too-far/login/LFG) produced no events: {evadeSkipped}");
         Console.WriteLine($"  -> \"You\" resolved to a real damage event: {youResolved}");
         Console.WriteLine($"  -> name registry gives stable, distinct ids: {stableDistinctIds}");
         Console.WriteLine($"  -> the interleaved Ulgorn Raider hit still counted (all 3 present, not just 2): {ulgornCountOk}");
-        Console.WriteLine($"  -> duplicate broadcast-style damage line (split by an unrelated line) counted once: {duplicateInterleavedAcrossOtherLineWasDropped}");
+        Console.WriteLine($"  -> identical damage line repeated in the same second counted twice: {repeatedDamageLineCountedTwice}");
 
-        return countOk && ulgornCountOk && evadeSkipped && youResolved && stableDistinctIds && duplicateInterleavedAcrossOtherLineWasDropped;
+        return countOk && ulgornCountOk && evadeSkipped && youResolved && stableDistinctIds && repeatedDamageLineCountedTwice;
     }
 
     /// <summary>
@@ -388,6 +537,11 @@ public static class SelfCheck
             // crit -- exactly the kind of gap only a bigger real sample exposes.
             "2026.08.24 22:08:39 : Critical Hit!Sparky has inflicted 999 damage on you by using Wing Buffet. ",
             "2026.08.24 22:08:40 : Critical Hit!You received 888 damage from Sparky. ",
+            // A hit that applies a rider on landing says "damage and the <X> effect on" instead of
+            // the plain "damage on" -- verbatim shape from a real Sauro Supply Base run, where the
+            // group's Assassin lost 427.217 damage (27% of his total, 1014 lines) to this because
+            // DamagePattern required the literal "damage on" and dropped every Rune Carve hit.
+            "2026.08.24 22:08:40 : Vanquisher inflicted 568 damage and the rune carve effect on Icy Kalgolem by using Rune Carve V. ",
             "2026.08.24 22:08:41 : Your attack on Torch Spirit Iprita was reflected and inflicted 246 damage on you. ",
             "2026.08.24 22:08:42 : You restored 95 of Hestika's HP by using Major Recovery Potion. ",
             "2026.08.24 22:08:43 : Mortelle recovered 156 HP by using Healing Light I. ",
@@ -434,6 +588,8 @@ public static class SelfCheck
             && NameOf(e.SourceObjectId) == "Sparky" && NameOf(e.TargetObjectId) == "You");
         bool critIncomingBasicOk = events.Any(e => !e.IsHeal && e.Amount == 888
             && NameOf(e.SourceObjectId) == "Sparky" && NameOf(e.TargetObjectId) == "You");
+        bool runeCarveOk = events.Any(e => !e.IsHeal && e.Amount == 568
+            && NameOf(e.SourceObjectId) == "Vanquisher" && NameOf(e.TargetObjectId) == "Icy Kalgolem");
         bool reflectOk = events.Any(e => !e.IsHeal && e.Amount == 246
             && NameOf(e.SourceObjectId) == "Torch Spirit Iprita" && NameOf(e.TargetObjectId) == "You");
         bool healOtherOk = events.Any(e => e.IsHeal && e.Amount == 95
@@ -462,7 +618,7 @@ public static class SelfCheck
         bool noCriticalHitLeak = !events.Any(e =>
             (NameOf(e.SourceObjectId) ?? "").Contains("Critical Hit") || (NameOf(e.TargetObjectId) ?? "").Contains("Critical Hit"));
 
-        bool dotLinesProducedNoEvents = events.Count == 11; // the 2 unattributed DoT lines above must not add events
+        bool dotLinesProducedNoEvents = events.Count == 12; // the 2 unattributed DoT lines above must not add events
 
         Console.WriteLine($"  -> crit + skill, grouped number 1.911 -> 1911: {critWithSkillOk}");
         Console.WriteLine($"  -> crit, \"critical damage\" wording, grouped number 1.022 -> 1022: {critWordOk}");
@@ -471,6 +627,7 @@ public static class SelfCheck
         Console.WriteLine($"  -> incoming CRIT skill damage (has inflicted...on you), prefix stripped: {critIncomingSkillOk}");
         Console.WriteLine($"  -> incoming CRIT basic damage (received...from), prefix stripped: {critIncomingBasicOk}");
         Console.WriteLine($"  -> reflected damage, correctly attributed to the mob, not \"Your attack...\": {reflectOk}");
+        Console.WriteLine($"  -> hit carrying a rider effect (\"damage and the rune carve effect on\") counted: {runeCarveOk}");
         Console.WriteLine($"  -> heal-other (You restored...of X's HP): {healOtherOk}");
         Console.WriteLine($"  -> self-heal for a NAMED character, not just You: {healSelfOtherCharacterOk}");
         Console.WriteLine($"  -> heal-by-other, third person: {healByOtherThirdPersonOk}");
@@ -482,7 +639,7 @@ public static class SelfCheck
         Console.WriteLine($"    {summary}");
 
         return critWithSkillOk && critWordOk && incomingSkillOk && incomingBasicOk
-            && critIncomingSkillOk && critIncomingBasicOk && reflectOk
+            && critIncomingSkillOk && critIncomingBasicOk && reflectOk && runeCarveOk
             && healOtherOk && healSelfOtherCharacterOk && healByOtherThirdPersonOk && healByOtherOnYouOk
             && noIdentitySplit && noCriticalHitLeak && dotLinesProducedNoEvents && healersExcludedFromDamageSummary;
     }

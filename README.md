@@ -104,14 +104,13 @@ In-Game-Chat-Befehle (`.pause`/`.resume`/`.clear`/…, siehe unten) als Alternat
   int/float/string-Repräsentation an einem festen, nur bitness-abhängigen Offset relativ zur
   gefundenen Adresse. Namensbasierter statt fixer Offset-Scan macht das clientversion-unabhängig.
 
-  **Jetzt in dmg_meter selbst portiert** (`Native/CryCVarScanner.cs`, `Native/CryCVarHandle.cs`,
-  `ChatLog/ChatLogCvarSwitch.cs`) statt ShugoConsole extern laufen zu lassen – als Ein/Aus-Schalter
-  in Settings (`AutoEnableChatLogCvar`, **standardmäßig aus**), der bei aktivem Chat-Log-Pfad
-  einmal pro Sekunde `g_chatlog` auf 1 erzwingt. Explizite Risikoentscheidung des Nutzers trotz des
-  oben dokumentierten Anti-Cheat-Funds (0-Byte-Read beim Versuch, den Krypto-Schlüssel im
-  Prozessspeicher zu finden) – ob dieselbe Schutzmaßnahme auch die CVar-Speicherregion abdeckt, ist
-  unbestätigt in beide Richtungen; ShugoConsole (dieselbe Technik) läuft beim Nutzer nachweislich
-  ohne Bann.
+  **War kurzzeitig in dmg_meter selbst portiert und ist wieder entfernt.** Der Schalter
+  `AutoEnableChatLogCvar` in Settings und die Klassen dahinter (`Native/CryCVarScanner.cs`,
+  `Native/CryCVarHandle.cs`, `ChatLog/ChatLogCvarSwitch.cs`) haben `g_chatlog` einmal pro Sekunde
+  per `WriteProcessMemory` auf 1 erzwungen. Danach startete der Client nicht mehr, und der Nutzer
+  aktiviert `g_chatlog` inzwischen auf anderem Weg – also raus damit. **dmg_meter schreibt nicht
+  in den Aion-Prozess und liest ihn auch nicht**: es liest ausschließlich die fertige `Chat.log`;
+  das Einschalten des Chat-Logs passiert außerhalb dieses Tools.
 
 ## Mehrsprachigkeit im Chat-Log-Parser
 

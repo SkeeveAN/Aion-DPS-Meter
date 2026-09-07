@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.IO;
+using System.Security.Principal;
 using System.Runtime.InteropServices;
 using System.Text;
 using AionSniffer.ChatLog;
@@ -47,12 +49,19 @@ internal static class Program
     [STAThread] // required for WPF (Ui/MainWindow) -- Clipboard, drag-move etc. need the STA apartment.
     private static void Main(string[] args)
     {
-        // The csproj builds this as WinExe now (no automatic console), specifically so "gui" mode
-        // doesn't pop up an empty terminal window next to the meter - found by the user. The CLI
-        // modes below (selftest/chatlog/capture) still need visible Console.WriteLine output when
-        // launched from an existing shell, so attach to whichever console started this process, if
-        // any; this is a no-op (returns false, nothing happens) when there isn't one, e.g.
-        // double-clicking the exe straight into "gui" mode.
+        // The csproj builds this as WinExe (no automatic console), specifically so the GUI doesn't
+        // pop up an empty terminal window next to the meter - found by the user. The CLI modes
+        // (selftest/chatlog/capture/devices) still need visible Console.WriteLine output when
+        // launched from an existing shell, so attach to whichever console started this process,
+        // if any; a no-op when there is none.
+        //
+        // No arguments opens the GUI, always -- per the user: the installed exe should show the
+        // meter with no parameters, and the CLI is what needs one. The rule therefore does not
+        // depend on how the process was started: the installer's shortcut (Packaging/Product.wxs
+        // passes no arguments), a double-click, and "AionSniffer" typed in a shell all open the
+        // window. An earlier version made this conditional on there being no console, which left
+        // the shell case printing a device list instead; that list now needs its own "devices"
+        // argument, since it was the only thing standing between a bare launch and a window.
         AttachConsole(AttachParentProcess);
 
         if (args.Length > 0 && args[0] == "selftest")
@@ -75,14 +84,36 @@ internal static class Program
             return;
         }
 
-        if (args.Length > 0 && args[0] == "gui")
+        if (args.Length == 0 || args[0] == "gui")
         {
+            // Packet capture needs elevated rights (see README's setup), so the GUI asks for them
+            // -- here rather than in the manifest, and rather than by ticking "run as
+            // administrator" on each shortcut: the manifest would prompt for the console modes
+            // too, and a shortcut's checkbox is lost as soon as someone recreates the shortcut,
+            // which is exactly what happened to this project's desktop entry.
+            if (!IsElevated() && !args.Contains(ElevatedMarker) && TryRelaunchElevated())
+            {
+                return;
+            }
+
             // No App.xaml on purpose: an ApplicationDefinition item would generate its own Main
             // and collide with this one. Building System.Windows.Application by hand keeps the
             // console entry points (selftest, capture) and the GUI in the same exe without
             // fighting over program entry.
             var app = new System.Windows.Application();
-            app.Run(new Ui.MainWindow());
+            try
+            {
+                app.Run(new Ui.MainWindow());
+            }
+            catch (Exception ex)
+            {
+                // Without a console there is nowhere for an unhandled startup exception to show
+                // up, so the failure looks exactly like the argument bug above ("nothing happens")
+                // -- put it on screen instead of letting the process die silently.
+                System.Windows.MessageBox.Show(ex.ToString(), "AionSniffer konnte nicht starten",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+
             return;
         }
 
@@ -94,11 +125,16 @@ internal static class Program
             return;
         }
 
-        if (args.Length == 0)
+        // The explicit words, plus anything that is not a device index at all: an unrecognized
+        // argument is far likelier a typo than a number, and showing what the tool accepts beats
+        // throwing out of int.Parse below.
+        if (args[0] is "devices" or "help" or "--help" or "-h" or "/?" || !int.TryParse(args[0], out _))
         {
-            Console.WriteLine("Usage: AionSniffer <deviceIndex> [serverIpHint]");
+            Console.WriteLine("Usage: AionSniffer                       (no arguments: opens the meter window)");
+            Console.WriteLine("       AionSniffer devices     (lists the capture devices below without starting anything)");
+            Console.WriteLine("       AionSniffer <deviceIndex> [serverIpHint]");
             Console.WriteLine("       AionSniffer selftest   (verifies the DPS/iDPS math against synthetic + real reference numbers, no capture needed)");
-            Console.WriteLine("       AionSniffer gui        (opens the WPF meter window -- see Ui/, not yet wired to a live capture, has a \"Load Demo Data\" button)");
+            Console.WriteLine("       AionSniffer gui        (same as passing nothing; kept because existing shortcuts pass it)");
             Console.WriteLine("       AionSniffer chatlog <path-to-Chat.log>   (parses a Chat.log file, prints the same live-DPS summary as the network path)");
             Console.WriteLine();
             Console.WriteLine("Available devices:");
@@ -139,6 +175,49 @@ internal static class Program
     /// parse is confirmed against a real fight, not implemented here to avoid guessing at
     /// polling/FileSystemWatcher behavior before there's a real log to test it against).
     /// </summary>
+    /// <summary>Marker argument on the elevated re-launch, so the new process doesn't try to
+    /// elevate again (and again) if the check below ever reports false for it.</summary>
+    private const string ElevatedMarker = "--elevated";
+
+    private static bool IsElevated()
+    {
+        using var identity = WindowsIdentity.GetCurrent();
+        return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
+    }
+
+    /// <summary>
+    /// Restarts this exe through ShellExecute's "runas" verb, which is what raises the UAC prompt.
+    /// Returns false when the relaunch did not happen, in which case the caller carries on
+    /// unelevated instead of exiting: someone who declines the prompt still gets a working meter
+    /// for the chat-log path, which needs no privileges -- only live packet capture does.
+    /// </summary>
+    private static bool TryRelaunchElevated()
+    {
+        string? exe = Environment.ProcessPath;
+        if (exe is null)
+        {
+            return false;
+        }
+
+        var startInfo = new ProcessStartInfo(exe)
+        {
+            UseShellExecute = true, // required for "runas"; without it the verb is ignored
+            Verb = "runas",
+            Arguments = ElevatedMarker,
+            WorkingDirectory = AppContext.BaseDirectory,
+        };
+
+        try
+        {
+            return Process.Start(startInfo) is not null;
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            // Prompt declined (ERROR_CANCELLED) or elevation unavailable -- run as we are.
+            return false;
+        }
+    }
+
     private static void RunChatLogMode(string path)
     {
         if (!File.Exists(path))
@@ -148,6 +227,18 @@ internal static class Program
         }
 
         var parser = new ChatLogParser();
+
+        // Personal stats are accumulated here rather than ignored (the GUI shows them in its
+        // footer, this mode used to drop them) because they are what a chat-log run can be
+        // checked against from outside: AP per kill in particular is reported by the client
+        // itself, so seeing the same total here proves the pattern actually fired.
+        var personalTotals = new Dictionary<PersonalStatKind, long>();
+        parser.PersonalStatChanged += (kind, delta) =>
+        {
+            personalTotals.TryGetValue(kind, out long running);
+            personalTotals[kind] = running + delta;
+        };
+
         var events = parser.ParseFile(path);
         int healCount = events.Count(e => e.IsHeal);
         // Found by terminal_windows against the real file: this used to say "N damage events" for
@@ -159,6 +250,35 @@ internal static class Program
         var aggregator = new LiveAggregator();
         aggregator.IngestEvents(events);
         Console.WriteLine(aggregator.Summarize(id => parser.Names.NameFor(id)));
+
+        if (personalTotals.Count > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("personal totals: " + string.Join(" | ",
+                personalTotals.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key} {kv.Value:N0}")));
+        }
+
+        // Damage grouped by TARGET, which the source-side leaderboard above cannot show. Exists to
+        // check the meter against a known quantity: a boss's HP is published (origincdx.com lists
+        // max_hp per npc), so "damage dealt to that boss" has an expected value, and a parser that
+        // silently drops a line shape shows up here as a total that falls short of it.
+        var byTarget = events
+            .Where(e => !e.IsHeal)
+            .GroupBy(e => e.TargetObjectId)
+            .Select(g => (Name: parser.Names.NameFor(g.Key) ?? $"0x{g.Key:X8}", Total: g.Sum(e => e.Amount), Hits: g.Count()))
+            .OrderByDescending(x => x.Total)
+            .Take(15)
+            .ToList();
+
+        if (byTarget.Count > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("damage taken, by target (top 15):");
+            foreach (var (name, total, hits) in byTarget)
+            {
+                Console.WriteLine($"  {name,-42} {total,14:N0}  ({hits:N0} hits)");
+            }
+        }
     }
 
     private static void OnPacketArrival(object sender, PacketCapture e)

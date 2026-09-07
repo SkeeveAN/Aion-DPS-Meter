@@ -16,6 +16,20 @@
     <RootNamespace>AionSniffer</RootNamespace>
     <AssemblyName>AionSniffer</AssemblyName>
     <!-- Npcap (in "WinPcap API-compatible Mode") must be installed on the Windows machine. -->
+    <!-- Elevation is requested in the manifest, not left to a shortcut's "run as administrator"
+         checkbox: the MSI's Start-menu entry, the desktop shortcut and a plain double-click then
+         all behave identically, and a shortcut recreated later cannot lose the setting. -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Winged sword: the wings for Aion's Daeva iconography, the blade for what the tool measures.
+         Generated rather than drawn by hand: assets/app/make-icon.py rebuilds the .ico from
+         scratch (no image library needed), so the shape is adjustable in code, not in a binary. -->
+    <ApplicationIcon>assets/app/aionsniffer.ico</ApplicationIcon>
+    <!-- Single source of truth for the version the user sees. The window title reads it back at
+         runtime (see MainWindow's constructor) and the MSI takes it from the git tag the release
+         workflow was triggered by, so a build can always be identified from a screenshot or a
+         Chat.log someone sends in. That was exactly what was missing when a group member's log
+         had to be matched to "the 0.3.0 build" from memory. Keep in step with the release tag. -->
+    <Version>0.4.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

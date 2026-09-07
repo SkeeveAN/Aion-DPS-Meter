@@ -367,10 +367,12 @@
                          - per the user: while the Loot view is active, Copy and CopyAll produce
                          genuinely different payloads (chat string vs Discord table, see
                          OnCopyClicked/OnCopyAllClicked) and a generic icon no longer says which is
-                         which. The Damage view keeps the plain icon since there both buttons still
-                         do the same thing (see CopyRowsToClipboard's own remarks). -->
+                         which. The Damage view still shows the plain icon, though its two buttons
+                         now differ as well (chat string vs tab-separated table). Left as-is
+                         because the user asked only for the missing payload, not a toolbar
+                         change; showing the labels there too would apply the same reasoning. -->
                     <Button x:Name="CopyButton" Click="OnCopyClicked" Padding="6,4"
-                            ToolTip="Copy visible rows (tab-separated), or an Aion-chat loot summary if the Loot view is active.">
+                            ToolTip="Copy a one-line chat string (Name Damage (DPS), ...), or an Aion-chat loot summary if the Loot view is active.">
                         <Grid Height="16">
                             <Grid x:Name="CopyIcon" Width="18" Height="16" HorizontalAlignment="Left">
                                 <Rectangle Width="11" Height="12" Stroke="#e8e8ea" StrokeThickness="1.2"
@@ -382,11 +384,12 @@
                                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Grid>
                     </Button>
-                    <!-- Copy/CopyAll are currently functionally identical: no per-source filter
-                         exists yet for "all" to differ from "visible". ToolTip says so plainly
-                         rather than implying a distinction that isn't there yet. -->
+                    <!-- The pair differs by FORMAT, not by row selection: both cover the rows the
+                         grid is showing (no per-source filter exists yet for "all" to differ from
+                         "visible"), but Copy yields the one-line chat string and CopyAll the
+                         tab-separated table, which is what the String/Table labels say. -->
                     <Button x:Name="CopyAllButton" Click="OnCopyAllClicked" Padding="6,4"
-                            ToolTip="Copy ALL rows (same as Copy for now), or a Discord loot table if the Loot view is active.">
+                            ToolTip="Copy all rows as a tab-separated table, or a Discord loot table if the Loot view is active.">
                         <Grid Height="16">
                             <Grid x:Name="CopyAllIcon" Width="18" Height="16" HorizontalAlignment="Left">
                                 <Rectangle Width="10" Height="10" Stroke="#e8e8ea" StrokeThickness="1.1"
@@ -598,9 +601,10 @@
                         <!-- Damage and DPS merged into one column per the user - originally two
                              stacked lines, now (per a later request) DPS sits on the SAME line as
                              Damage instead, and the second line shows AP gained so far instead
-                             (only ever populated for "You"'s row - see PlayerRow.Ap remarks - blank
-                             for every mob/other-player row, same empty-slot pattern as the class
-                             icon for an unmatched class). The header still needs to say DPS vs
+                             (populated for "You"'s row, and for any other player who looted a
+                             relic - see PlayerRow.Ap remarks - blank for mob rows and players
+                             with nothing to show, same empty-slot pattern as the class icon for
+                             an unmatched class). The header still needs to say DPS vs
                              iDPS depending on the Mob/Boss filter (see OnMobBossFilterChanged,
                              unchanged logic). -->
                         <DataGridTemplateColumn x:Name="DpsColumn" Header="Damage / DPS" Width="124">
@@ -668,9 +672,12 @@
                     <Border Background="#99000000" CornerRadius="3" Margin="2" Padding="6,2">
                         <TextBlock Foreground="White" FontWeight="Bold" FontSize="12">
                             <TextBlock.Text>
-                                <MultiBinding StringFormat="{}{0}: {1} dmg ({2} DPS)">
+                                <!-- The thousands separator has to live in this MultiBinding's own
+                                     format string: WPF ignores StringFormat on a child Binding of a
+                                     MultiBinding, which is why the overlay showed raw "360832". -->
+                                <MultiBinding StringFormat="{}{0}: {1:N0} dmg ({2} DPS)">
                                     <Binding Path="Name"/>
-                                    <Binding Path="Damage" StringFormat="N0"/>
+                                    <Binding Path="Damage"/>
                                     <Binding Path="DpsDisplay"/>
                                 </MultiBinding>
                             </TextBlock.Text>
