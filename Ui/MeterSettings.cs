@@ -9,6 +9,13 @@ public sealed class CharacterProfile
 {
     public string Name { get; set; } = "";
     public string ClassName { get; set; } = "";
+
+    /// <summary>"Elyos" or "Asmodian". Chat.log never states a faction for anyone, not even the
+    /// local player, so this is the one fact the meter cannot derive and has to be told. Everyone
+    /// else's faction is then worked out relative to it -- see Combat/FactionResolver. Empty for
+    /// characters registered before this field existed; the resolver still separates the two sides
+    /// in that case, it just cannot put a name to either.</summary>
+    public string Faction { get; set; } = "";
 }
 
 /// <summary>

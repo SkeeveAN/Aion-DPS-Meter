@@ -769,6 +769,8 @@ public partial class MainWindow : Window
             sourceIds = sourceIds.Where(id => ResolveClassName(id) == classFilter).ToList();
         }
 
+        var sides = ResolveSides();
+
         foreach (int staleId in _rowsByObjectId.Keys.Except(sourceIds).ToList())
         {
             _rows.Remove(_rowsByObjectId[staleId]);
@@ -793,8 +795,72 @@ public partial class MainWindow : Window
             row.Dps = _selectedTargetId is int t
                 ? DpsCalculator.TargetIDps(_aggregator.Events, t, sourceId)
                 : DpsCalculator.AllDpsWallClock(_aggregator.Events, sourceId);
+
+            ApplySide(row, sourceId, sides);
         }
     }
+
+    /// <summary>
+    /// Works out, for this refresh, who is on which side. Recomputed rather than remembered: a
+    /// player only becomes classifiable once they heal someone or trade a hit, which can happen
+    /// several minutes into a fight, and a row created before that must pick the answer up when it
+    /// arrives.
+    /// </summary>
+    private IReadOnlyDictionary<int, Side> ResolveSides()
+    {
+        if (_chatLogParser is null)
+        {
+            return new Dictionary<int, Side>();
+        }
+
+        // Loot lines only ever name your own group, so everyone who looted is on your side --
+        // together with the characters registered in Settings, that is what tells the resolver
+        // which of the two separated sides is actually yours.
+        var anchors = new HashSet<string>(_characters.Select(c => c.Name), StringComparer.Ordinal);
+        foreach (LootRow loot in _lootRows)
+        {
+            anchors.Add(loot.Person);
+        }
+
+        return FactionResolver.Resolve(
+            _aggregator.Events,
+            id => _chatLogParser.Names.NameFor(id),
+            IsPlayerName,
+            _chatLogParser.Names.GetOrAssignId("You"),
+            anchors);
+    }
+
+    /// <summary>Same test the grid's "players only" filter uses, so the resolver never tries to
+    /// put a mob on a side.</summary>
+    private bool IsPlayerName(int id)
+    {
+        string name = ResolveDisplayName(id);
+        return SpiritmasterPetNames.Contains(name)
+            || (!name.Contains(' ') && !NpcDatabase.IsKnownNpc(name));
+    }
+
+    /// <summary>
+    /// Turns a resolved side into what the row shows. The faction NAME can only be filled in when
+    /// the user has told the meter their own -- Chat.log states nobody's faction, so with that
+    /// unanswered the meter still knows who the enemy is, it just cannot say which banner they
+    /// fight under. That is why IsEnemy is set regardless and Faction is left blank.
+    /// </summary>
+    private void ApplySide(PlayerRow row, int sourceId, IReadOnlyDictionary<int, Side> sides)
+    {
+        Side side = sides.GetValueOrDefault(sourceId, Side.Unknown);
+        row.IsEnemy = side == Side.Enemy;
+
+        string own = _characters.FirstOrDefault(c => c.Name == _activeCharacterName)?.Faction
+            ?? _characters.FirstOrDefault(c => c.Faction.Length > 0)?.Faction
+            ?? "";
+
+        row.Faction = own.Length == 0 || side == Side.Unknown
+            ? ""
+            : side == Side.Own ? own : Opposite(own);
+    }
+
+    private static string Opposite(string faction) =>
+        faction == "Elyos" ? "Asmodian" : faction == "Asmodian" ? "Elyos" : "";
 
     /// <summary>Sets Name/ClassName/Level for one row from whichever identity source applies:
     /// _playerIdentities (demo data) first, else Chat.log's own name registry with "You" remapped

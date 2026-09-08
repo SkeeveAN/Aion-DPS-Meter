@@ -19,6 +19,8 @@ public sealed class PlayerRow : INotifyPropertyChanged
     private string _name = "?";
     private string _className = "?";
     private int _level;
+    private string _faction = "";
+    private bool _isEnemy;
 
     public int ObjectId { get; }
 
@@ -38,6 +40,23 @@ public sealed class PlayerRow : INotifyPropertyChanged
     {
         get => _level;
         set { _level = value; OnPropertyChanged(); }
+    }
+
+    /// <summary>"Elyos"/"Asmodian", or empty while nothing has placed this player on a side yet.
+    /// Derived, never read from the log -- see Combat/FactionResolver.</summary>
+    public string Faction
+    {
+        get => _faction;
+        set { _faction = value; OnPropertyChanged(); }
+    }
+
+    /// <summary>Drives the row's background. Kept separate from <see cref="Faction"/> because the
+    /// two answer different questions: a faction can be known while the side is not (nobody has
+    /// registered a character yet), and a side can be known while the faction has no name.</summary>
+    public bool IsEnemy
+    {
+        get => _isEnemy;
+        set { _isEnemy = value; OnPropertyChanged(); }
     }
 
     public long Damage

@@ -7,6 +7,7 @@
         ResizeMode="CanResizeWithGrip">
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
+        <local:RaceIconConverter x:Key="RaceIconConverter"/>
         <local:ItemGradeColorConverter x:Key="ItemGradeColorConverter"/>
         <!-- Found by the user (left nav rail looked bright/white), then found AGAIN by
              terminal_windows measuring actual rendered pixels after the first fix: BasedOn alone
@@ -558,6 +559,19 @@
                           Background="#1e1e24" Foreground="#e8e8ea" RowBackground="#22222a" AlternatingRowBackground="#26262e"
                           BorderBrush="#3a3a45" HorizontalGridLinesBrush="#3a3a45"
                           GridLinesVisibility="Horizontal" HeadersVisibility="Column" CanUserAddRows="False">
+                    <!-- Enemy rows get a dark red ground. A trigger rather than a converter so it
+                         overrides RowBackground AND AlternatingRowBackground above: those are set
+                         on the DataGrid itself and would otherwise win on every second row, which
+                         would make the marking look like it came and went at random. -->
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                    <Setter Property="Background" Value="#4a1f24"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <!-- Found by terminal_windows measuring rendered pixels: clicking a row lit it
                          up #F0F0F0 - the default DataGridCell template pulls its selected-state
                          colors from SystemColors.Highlight*, which ignores the window's own
@@ -599,6 +613,13 @@
                                              the explicit size (e.g. "the image is 18px anyway") would
                                              collapse the slot to zero width for every classless row
                                              and misalign the names. -->
+                                        <!-- Faction emblem first, then class, then the name. Fixed
+                                             size for the same reason as the class icon below: an
+                                             unclassified player (nobody has healed or fought them
+                                             yet) has no emblem, and without a reserved slot every
+                                             such row's name would sit 22px to the left of the rest. -->
+                                        <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
+                                               Height="18" Width="18" Margin="0,0,4,0" ToolTip="{Binding Faction}"/>
                                         <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                                Height="18" Width="18" Margin="0,0,4,0" ToolTip="{Binding ClassName}"/>
                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>

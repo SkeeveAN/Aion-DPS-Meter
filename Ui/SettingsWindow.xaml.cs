@@ -76,8 +76,9 @@ public partial class SettingsWindow : Window
         // Content is now the class icon <Image>, not text (see XAML) -- the class name lives in
         // Tag instead, since it's still needed as data even though it's no longer displayed.
         string className = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
-        _characters.RemoveAll(c => c.Name == name); // re-adding an existing name replaces its class
-        _characters.Add(new CharacterProfile { Name = name, ClassName = className });
+        string faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
+        _characters.RemoveAll(c => c.Name == name); // re-adding an existing name replaces class+faction
+        _characters.Add(new CharacterProfile { Name = name, ClassName = className, Faction = faction });
         NewCharacterNameBox.Text = "";
         RefreshCharacterLists();
     }

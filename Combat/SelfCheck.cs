@@ -27,6 +27,7 @@ public static class SelfCheck
         ok &= RunSkillDatabaseScenario();
         ok &= RunItemDatabaseScenario();
         ok &= RunAppVersionScenario();
+        ok &= RunFactionResolverScenario();
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
@@ -269,6 +270,60 @@ public static class SelfCheck
         bool matches = iDps is double v && Math.Abs(v - expectedIDps) < 1.0;
         Console.WriteLine($"  -> matches within rounding: {matches}");
         return matches;
+    }
+
+    /// <summary>
+    /// Friend/foe separation, built from the shape of a real Terath Dredgion fight: two six-player
+    /// teams, a healer on each side, and damage only ever crossing between them.
+    ///
+    /// The last case is the one that matters. It reproduces what a second Aion client writing into
+    /// the same Chat.log actually did on 2026-09-08: both clients were in the same Dredgion on
+    /// OPPOSITE sides, and both narrate their own character as "You", so "You" healed members of
+    /// both teams. Following those edges merged all twelve players into one team where everyone was
+    /// everyone's ally. FactionResolver ignores heals involving "You" for exactly this reason, and
+    /// this check fails if that ever gets "simplified" back in.
+    /// </summary>
+    private static bool RunFactionResolverScenario()
+    {
+        const int you = 1, ourHealer = 2, ourDps = 3, theirHealer = 4, theirDps = 5, mob = 6;
+        var names = new Dictionary<int, string>
+        {
+            [you] = "You", [ourHealer] = "Askila", [ourDps] = "Kisame",
+            [theirHealer] = "Mortelle", [theirDps] = "Neodein", [mob] = "Terath Vanquisher",
+        };
+        var start = new DateTime(2026, 9, 8, 20, 0, 0, DateTimeKind.Utc);
+
+        var events = new List<DamageEvent>
+        {
+            new(start, ourHealer, ourDps, 500, IsHeal: true),          // third person: proof of alliance
+            new(start.AddSeconds(1), theirHealer, theirDps, 500, IsHeal: true),
+            new(start.AddSeconds(2), ourDps, theirDps, 900, IsHeal: false),
+            new(start.AddSeconds(3), theirDps, you, 900, IsHeal: false),
+
+            // The poison edges: "You" (really two different people) healing both sides.
+            new(start.AddSeconds(4), you, ourDps, 300, IsHeal: true),
+            new(start.AddSeconds(5), you, theirHealer, 300, IsHeal: true),
+        };
+
+        var sides = FactionResolver.Resolve(
+            events,
+            id => names.GetValueOrDefault(id),
+            id => id != mob,
+            you,
+            new HashSet<string> { "Askila" });
+
+        bool ownSideFound = sides.GetValueOrDefault(ourHealer) == Side.Own
+            && sides.GetValueOrDefault(ourDps) == Side.Own
+            && sides.GetValueOrDefault(you) == Side.Own;
+        bool enemiesFound = sides.GetValueOrDefault(theirDps) == Side.Enemy;
+        bool enemyHealerNotAdopted = sides.GetValueOrDefault(theirHealer) != Side.Own;
+
+        Console.WriteLine("[selftest] Friend/foe separation (Dredgion-shaped, two clients on one log):");
+        Console.WriteLine($"  -> own side identified from a third-person heal + anchor: {ownSideFound}");
+        Console.WriteLine($"  -> a player who fought us is marked enemy: {enemiesFound}");
+        Console.WriteLine($"  -> \"You\" healing the enemy healer does NOT make them an ally: {enemyHealerNotAdopted}");
+
+        return ownSideFound && enemiesFound && enemyHealerNotAdopted;
     }
 
     /// <summary>
