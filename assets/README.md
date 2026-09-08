@@ -40,26 +40,24 @@ im Meter verwendet wird.
   ist das von Hand trivial und unstrittig (öffentliches Allgemeinwissen zu AION-Klassen), aber
   bewusst nicht automatisch verknüpft, um keine falsche Zuordnung als "verifiziert" auszugeben.
 
-## `classes/icons/` + `races/icons/` (Quelle: myaion.eu)
+## `classes/icons/` + `races/icons/`
 
-- Gefunden über die öffentlichen Bosskampf-Session-Reports von myaion.eu (z.B.
-  `/PvESession/1716393`, `/PvEPlayerSession/8602573`) – dort werden pro Spieler Rassen-/Klassen-Icon
-  direkt referenziert (`/Images/Races/<Rasse>.png`, `/Images/Classes/<Klasse>.png`).
-- Rassen: `Elyos.png`, `Asmodian.png` – eindeutig.
-- Klassen, bestätigt vorhanden (HTTP 200 direkt abgefragt): `Gladiator, Templar, Assassin,
-  Ranger, Sorcerer, Spiritmaster, Cleric, Chanter, Aethertech, Bard, Priest, Gunner, Painter`.
-  Zuordnung (vom Nutzer bestätigt):
-  - `Gunner` = Gunslinger
-  - `Bard` = Barde/Songweaver-Linie
-  - `Priest` = Grundklasse von Cleric und Chanter, Level 1–9 vor der Klassenwahl (dasselbe Muster
-    wie `fighter`/`knight` bei aioncodex, nur eben ein eigenes Emblem statt eines geteilten)
-  - `Painter` = eigene, neuere Klasse (kam laut Nutzer erst mit Patch ~7.2) – **für 4.6 irrelevant**,
-    Icon bleibt zur Vollständigkeit gespeichert, aber nicht in eine 4.6-Klassenliste einsortieren.
-  - `Songweaver.png`/`Gunslinger.png` existieren unter diesen Namen nicht – die Seite nutzt intern
-    andere Bezeichner für dieselben Klassen (s.o.).
-- Skill-Icons wurden von myaion.eu **nicht** gesammelt (kein browsbarer Datenbank-Bereich
-  gefunden, nur einzelne Icons in Session-Tooltips) – aioncodex.com bleibt dafür die Quelle.
-- **Keine Mehrsprachigkeit**: myaion.eu hat keinen Sprachumschalter, alle Texte sind Englisch.
+- **Klassen-Icons** (13 Stück, 64×64 RGBA): `https://myaion.eu/Images/Classes/<Klasse>.png`.
+- **Fraktions-Wappen** (Elyos/Asmodian, 32×32 RGBA): `https://aioncodex.com/images/elyos.png` bzw.
+  `.../asmo.png`. **Nicht** von myaion.eu, obwohl es dort auch welche gibt: die sind nur 16×16 und
+  wurden auf 18px hochskaliert sichtbar matschig – vom Nutzer gemeldet („auf dem dunklen
+  Hintergrund schwer zu erkennen"). Beide Wappen sind hell (Elyos rgb(144,217,243),
+  Asmodian rgb(249,189,79)) und haben Alpha, stehen also auf dem dunklen UI-Hintergrund.
+  Achtung bei aioncodex: die meisten naheliegenden Dateinamen (`icon_race_light.png`,
+  `asmodian.png`, `race_dark.png` …) liefern **200 mit einem Platzhalterbild**, nicht 404 – nur
+  `elyos.png` und `asmo.png` sind echt. Beim Nachladen also den Bildinhalt prüfen, nicht den
+  HTTP-Status.
+- **Alle Icons sind echte PNGs.** Das war nicht immer so: die ursprünglich eingecheckten Dateien
+  waren **WebP mit `.png`-Endung**. WPF kann WebP nicht von sich aus dekodieren – es funktionierte
+  nur, weil Windows 11 einen WebP-Codec in WIC mitbringt. Auf einem System ohne diesen Codec wären
+  sämtliche Icons stillschweigend unsichtbar geblieben. Beim Nachladen darauf achten, dass wirklich
+  PNG ankommt (`file <datei>`).
+- Bewusst nur Icons, keine weiteren Bilddaten – die Loot-Liste braucht Namen, kein Bild.
 
 ## `items/items_origincdx_4x.json`
 
