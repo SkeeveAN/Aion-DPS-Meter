@@ -31,6 +31,7 @@ public static class SelfCheck
         ok &= RunFactionResolverScenario();
         ok &= RunAsciiTableScenario();
         ok &= RunToolbarIconScenario();
+        ok &= RunChatLogMaintenanceScenario();
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
@@ -273,6 +274,64 @@ public static class SelfCheck
         bool matches = iDps is double v && Math.Abs(v - expectedIDps) < 1.0;
         Console.WriteLine($"  -> matches within rounding: {matches}");
         return matches;
+    }
+
+    /// <summary>
+    /// Emptying Chat.log, against a real file. Worth testing for real rather than by reading the
+    /// code: the interesting case is truncating a file that another handle still has open, which
+    /// is exactly the situation this feature exists for -- Aion holds its log open the whole time
+    /// the client runs. A wrong FileShare flag here does not fail at compile time, it fails on the
+    /// user's machine with the game running.
+    /// </summary>
+    private static bool RunChatLogMaintenanceScenario()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"aion-dps-meter-selftest-{Guid.NewGuid():N}.log");
+        bool sizeSeen, lockedWhileFree, lockedWhileOpen, emptiedWhileOpen, sizeAfter;
+
+        try
+        {
+            File.WriteAllText(path, new string('x', 4096));
+            sizeSeen = ChatLogMaintenance.SizeOf(path) == 4096;
+            lockedWhileFree = !ChatLogMaintenance.IsHeldByAnotherProcess(path);
+
+            // Stand-in for the running client: opened for append, sharing read and write, which is
+            // how a log file is normally held.
+            using (var client = new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+            {
+                lockedWhileOpen = ChatLogMaintenance.IsHeldByAnotherProcess(path);
+                emptiedWhileOpen = ChatLogMaintenance.Empty(path) == EmptyResult.Emptied;
+
+                // The client keeps writing afterwards; with an append handle that lands at the new
+                // start, leaving no gap of NUL bytes.
+                client.Write(System.Text.Encoding.Latin1.GetBytes("still here\n"));
+                client.Flush();
+            }
+
+            // The finding this test exists for. Truncating a file another handle still has open
+            // does NOT reclaim anything: the writer keeps its offset, so the next append restores
+            // the file to its old length as NUL bytes and adds to it. Emptying a 50 MB Chat.log
+            // while Aion runs would leave 50 MB of zeros -- the exact problem being solved.
+            // Hence the UI refuses to do it while the file is held. Asserted, not just believed:
+            // this was assumed safe on the reasoning that log files are opened for append, and
+            // measuring it proved that wrong.
+            sizeAfter = ChatLogMaintenance.SizeOf(path) == 4096 + "still here\n".Length;
+        }
+        finally
+        {
+            try { File.Delete(path); } catch (IOException) { /* temp file, best effort */ }
+        }
+
+        bool missingFileIsZero = ChatLogMaintenance.SizeOf(Path.Combine(Path.GetTempPath(), "does-not-exist.log")) == 0;
+
+        Console.WriteLine("[selftest] Chat.log maintenance:");
+        Console.WriteLine($"  -> file size reported correctly: {sizeSeen}");
+        Console.WriteLine($"  -> an unheld file reads as not locked: {lockedWhileFree}");
+        Console.WriteLine($"  -> a file another handle holds reads as locked: {lockedWhileOpen}");
+        Console.WriteLine($"  -> emptying works while that handle is open: {emptiedWhileOpen}");
+        Console.WriteLine($"  -> emptying a held file does NOT reclaim space (NUL gap): {sizeAfter}");
+        Console.WriteLine($"  -> a missing file reports 0 rather than throwing: {missingFileIsZero}");
+
+        return sizeSeen && lockedWhileFree && lockedWhileOpen && emptiedWhileOpen && sizeAfter && missingFileIsZero;
     }
 
     /// <summary>

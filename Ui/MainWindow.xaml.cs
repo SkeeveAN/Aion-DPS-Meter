@@ -81,6 +81,10 @@ public partial class MainWindow : Window
     private string? _chatLogPath;
     private readonly DispatcherTimer _chatLogTimer = new() { Interval = TimeSpan.FromSeconds(1) };
 
+    /// <summary>Counts chat-log ticks so the file-size check runs every 30 seconds rather than
+    /// every second (see OnChatLogTimerTick).</summary>
+    private int _chatLogSizeTickCounter;
+
     /// <summary>Five minutes, per the user. GitHub's anonymous API allows 60 requests an hour per
     /// IP, so 12 is comfortably inside it even with a second client running alongside.</summary>
     private readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromMinutes(5) };
@@ -559,6 +563,14 @@ public partial class MainWindow : Window
         if (_chatLogTailer is null && _chatLogParser is not null && _chatLogPath is not null && File.Exists(_chatLogPath))
         {
             _chatLogTailer = new ChatLogTailer(_chatLogPath, _chatLogParser);
+        }
+
+        // Once every 30 ticks, not every one: this is a stat() against a file the game is writing
+        // to, and the answer changes by kilobytes a second at most.
+        if (++_chatLogSizeTickCounter >= 30)
+        {
+            _chatLogSizeTickCounter = 0;
+            RefreshChatLogSizeWarning();
         }
 
         var events = _chatLogTailer?.Poll(_paused);
@@ -1164,6 +1176,87 @@ public partial class MainWindow : Window
         // because it ends the process itself -- so save first, then hand over.
         SaveWindowStateToSettings();
         UpdateService.ApplyAndRestart(update);
+    }
+
+    /// <summary>
+    /// Shows how big Chat.log has got, once it passes the threshold. Aion never rotates or trims
+    /// that file -- it only grows, for as long as the client is installed -- so nothing else will
+    /// ever tell the user about it.
+    /// </summary>
+    private void RefreshChatLogSizeWarning()
+    {
+        long size = _chatLogPath is null ? 0 : ChatLogMaintenance.SizeOf(_chatLogPath);
+        if (size < ChatLogMaintenance.WarnThresholdBytes)
+        {
+            ChatLogSizeWarning.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        ChatLogSizeWarning.Text = $"Chat.log {size / (1024.0 * 1024.0):F0} MB - click to empty";
+        ChatLogSizeWarning.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>
+    /// Empties Chat.log after asking. Deliberately a confirmation and not a quiet action: this is
+    /// the only thing the meter does that writes outside its own settings, and what it discards is
+    /// the user's chat history, not the meter's data.
+    /// </summary>
+    private void OnEmptyChatLogClicked(object sender, RoutedEventArgs e)
+    {
+        if (_chatLogPath is null || !File.Exists(_chatLogPath))
+        {
+            MessageBox.Show(this, "No Chat.log found. Set your Aion folder under Settings first.",
+                "Empty Chat.log", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        long size = ChatLogMaintenance.SizeOf(_chatLogPath);
+        string question =
+            $"Empty Chat.log?\n\n{_chatLogPath}\ncurrently {size / (1024.0 * 1024.0):F0} MB\n\n" +
+            "The file is emptied, not deleted, and the meter keeps recording. Everything Aion wrote " +
+            "into it so far is gone for good - including chat, not just combat lines.";
+
+        // Refused, not merely discouraged. Truncating a file another process holds open does not
+        // reclaim anything: the client keeps its write offset, so its next line restores the file
+        // to its old length as NUL bytes first. Emptying a 50 MB log with Aion running would leave
+        // 50 MB of zeros behind -- the very thing the user is trying to get rid of. Measured, see
+        // SelfCheck.RunChatLogMaintenanceScenario.
+        if (ChatLogMaintenance.IsHeldByAnotherProcess(_chatLogPath))
+        {
+            MessageBox.Show(this,
+                "Aion has Chat.log open right now, so emptying it would not free anything.\n\n" +
+                "The client keeps writing at the position it already reached, so the file would " +
+                "immediately grow back to its current size as empty bytes. Close Aion first, then " +
+                "empty it - the meter can stay open.",
+                "Empty Chat.log", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        if (MessageBox.Show(this, question, "Empty Chat.log", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        switch (ChatLogMaintenance.Empty(_chatLogPath))
+        {
+            case EmptyResult.Emptied:
+                RefreshChatLogSizeWarning();
+                break;
+
+            case EmptyResult.NoPermission:
+                MessageBox.Show(this,
+                    "Windows would not let the meter write there.\n\n" +
+                    "That happens when Aion is installed under Program Files: the meter runs without " +
+                    "administrator rights on purpose, so it cannot modify files in a protected folder. " +
+                    "Empty the file by hand, or move the Aion install somewhere in your user profile.",
+                    "Empty Chat.log", MessageBoxButton.OK, MessageBoxImage.Warning);
+                break;
+
+            case EmptyResult.Failed:
+                MessageBox.Show(this, "Chat.log could not be emptied - something is holding it open exclusively.",
+                    "Empty Chat.log", MessageBoxButton.OK, MessageBoxImage.Warning);
+                break;
+        }
     }
 
     private void OnClearClicked(object sender, RoutedEventArgs e) => ClearActiveView();

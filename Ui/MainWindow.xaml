@@ -411,6 +411,19 @@
                             <Path x:Name="PlayIcon" Data="M3,1 L3,15 L15,8 Z" Fill="#e8e8ea" Visibility="Collapsed"/>
                         </Grid>
                     </Button>
+                    <!-- Empties Aion's Chat.log itself, which nothing else in the game or the
+                         meter ever does: the client only ever appends to it. Sits next to Clear
+                         because both are "throw data away", but they touch different things:
+                         Clear resets the view, this one rewrites a file on disk. -->
+                    <Button x:Name="EmptyChatLogButton" Click="OnEmptyChatLogClicked" Padding="6,4"
+                            ToolTip="Empty Aion's Chat.log on disk. The meter keeps running; only the file's history is discarded.">
+                        <Grid Width="18" Height="16">
+                            <Path Data="M4,1 L11,1 L14,4 L14,15 L4,15 Z M11,1 L11,4 L14,4"
+                                  Stroke="#e8e8ea" StrokeThickness="1.2" StrokeLineJoin="Round"/>
+                            <Path Data="M6,8 L12,13 M12,8 L6,13" Stroke="#e8a0a0" StrokeThickness="1.4"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        </Grid>
+                    </Button>
                     <Button x:Name="ClearButton" Click="OnClearClicked" Padding="6,4"
                             ToolTip="Clear the view you are looking at - damage or loot, not both (does not touch Chat.log itself).">
                         <Grid Width="18" Height="16">
@@ -521,6 +534,15 @@
                     <TextBlock x:Name="GpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
                     <TextBlock Text="Kinah:" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
                     <TextBlock x:Name="KinahValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
+
+                    <!-- Only appears once Chat.log passes the threshold. In the status row rather
+                         than as a popup for the same reason as the update notice: this window sits
+                         on top of a running game, and nothing here is urgent enough to steal focus
+                         from a fight. -->
+                    <TextBlock x:Name="ChatLogSizeWarning" Visibility="Collapsed" VerticalAlignment="Center"
+                               Margin="16,0,8,0" Foreground="#f0b71c" FontWeight="Bold" Cursor="Hand"
+                               MouseLeftButtonUp="OnEmptyChatLogClicked"
+                               ToolTip="Aion never trims Chat.log by itself. Click to empty it."/>
 
                     <!-- Update notice. Deliberately a quiet line in the status row and NOT a
                          popup: the meter sits on top of a running game, and a modal dialog
