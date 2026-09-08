@@ -15,7 +15,11 @@ public partial class SettingsWindow : Window
     {
         InitializeComponent();
         _settings = settings;
-        _characters = settings.Characters.Select(c => new CharacterProfile { Name = c.Name, ClassName = c.ClassName }).ToList();
+        // Faction copied along with the rest -- leaving it out here silently wiped a saved
+        // faction on the next Save, since this copy is what gets written back.
+        _characters = settings.Characters
+            .Select(c => new CharacterProfile { Name = c.Name, ClassName = c.ClassName, Faction = c.Faction })
+            .ToList();
 
         ShowPlayersBox.IsChecked = settings.ShowPlayers;
         ShowMinionNpcsBox.IsChecked = settings.ShowMinionNpcs;
@@ -81,6 +85,85 @@ public partial class SettingsWindow : Window
         _characters.Add(new CharacterProfile { Name = name, ClassName = className, Faction = faction });
         NewCharacterNameBox.Text = "";
         RefreshCharacterLists();
+    }
+
+    /// <summary>
+    /// Picking a character loads it into the fields above, so Update has something to work from
+    /// and the current class/faction are visible rather than having to be remembered.
+    /// </summary>
+    private void OnCharacterSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (CharactersList.SelectedItem is not CharacterProfile selected)
+        {
+            return;
+        }
+
+        NewCharacterNameBox.Text = selected.Name;
+        SelectByTag(NewCharacterClassBox, selected.ClassName);
+        SelectByTag(NewCharacterFactionBox, selected.Faction);
+    }
+
+    private static void SelectByTag(ComboBox box, string tag)
+    {
+        foreach (object item in box.Items)
+        {
+            if (item is ComboBoxItem entry && (entry.Tag as string) == tag)
+            {
+                box.SelectedItem = entry;
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies the fields to the SELECTED character rather than adding a new one -- which is what
+    /// makes renaming possible at all: Add keys on the name, so editing a name there would leave
+    /// the old entry behind and create a second one.
+    /// </summary>
+    private void OnUpdateCharacterClicked(object sender, RoutedEventArgs e)
+    {
+        int index = CharactersList.SelectedIndex;
+        if (index < 0 || index >= _characters.Count)
+        {
+            return;
+        }
+
+        string name = NewCharacterNameBox.Text.Trim();
+        if (name.Length == 0)
+        {
+            return;
+        }
+
+        // A rename onto a name that already exists would leave two entries answering to it, and
+        // everything downstream (active character, the faction anchors) keys on the name.
+        if (_characters.Any(c => c.Name == name) && _characters[index].Name != name)
+        {
+            MessageBox.Show(this, $"A character named \"{name}\" is already registered.",
+                "Update character", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        string previousName = _characters[index].Name;
+        _characters[index] = new CharacterProfile
+        {
+            Name = name,
+            ClassName = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
+            Faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
+        };
+
+        // The active character is stored by name, so a rename has to carry it along or the
+        // selection silently falls back to "none".
+        if (_settings.ActiveCharacterName == previousName)
+        {
+            _settings.ActiveCharacterName = name;
+        }
+
+        RefreshCharacterLists();
+        ActiveCharacterBox.SelectedItem = name;
+
+        // RefreshCharacterLists rebinds the list, which drops the selection -- put it back so the
+        // row you just edited stays highlighted and can be edited again without re-picking it.
+        CharactersList.SelectedIndex = index;
     }
 
     private void OnRemoveCharacterClicked(object sender, RoutedEventArgs e)

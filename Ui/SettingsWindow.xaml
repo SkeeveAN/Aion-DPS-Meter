@@ -217,7 +217,8 @@
                      player, which Chat.log can't supply either. -->
                 <GroupBox Header="Your Characters">
                     <StackPanel>
-                        <ListBox x:Name="CharactersList" Height="90" SelectionMode="Single">
+                        <ListBox x:Name="CharactersList" Height="90" SelectionMode="Single"
+                                 SelectionChanged="OnCharacterSelected">
                             <ListBox.Resources>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3a3a45"/>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#e8e8ea"/>
@@ -243,13 +244,17 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
+                        <!-- Two rows, per the user: with name, class, faction, Add and Remove all
+                             on one line the buttons were pushed off the right edge of the dialog
+                             and could not be clicked at all. The fields stay on top, the actions
+                             go underneath where they always fit regardless of how wide the
+                             dropdowns render. -->
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                             <!-- VerticalAlignment/VerticalContentAlignment="Center" needed here,
                                  found by the user: without them the box (and the text inside it)
                                  sits at the TOP of the row instead of centered against its taller
-                                 siblings (NewCharacterClassBox's icon+text content, Add/Remove) -
-                                 TextBox doesn't stretch/center itself against a taller row by
-                                 default the way those other controls' own templates already do. -->
+                                 siblings, since TextBox doesn't stretch/center itself against a
+                                 taller row the way the ComboBoxes' own templates already do. -->
                             <TextBox x:Name="NewCharacterNameBox" Width="120" Margin="4,2"
                                      VerticalAlignment="Center" VerticalContentAlignment="Center"
                                      Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45"/>
@@ -266,15 +271,18 @@
                                 <ComboBoxItem Tag="Spiritmaster" AutomationProperties.Name="Spiritmaster" ToolTip="Spiritmaster"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Spiritmaster.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Spiritmaster" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                                 <ComboBoxItem Tag="Templar" AutomationProperties.Name="Templar" ToolTip="Templar"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Templar.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Templar" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                             </ComboBox>
-                            <!-- Faction picked here rather than derived: Chat.log states nobody's
-                                 faction, not even the local player's. This one answer is what lets
-                                 every other player's side be named instead of just separated. -->
                             <ComboBox x:Name="NewCharacterFactionBox" Width="120" SelectedIndex="0" Margin="4,2">
                                 <ComboBoxItem Tag="Elyos" AutomationProperties.Name="Elyos" ToolTip="Elyos"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/races/icons/Elyos.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Elyos" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                                 <ComboBoxItem Tag="Asmodian" AutomationProperties.Name="Asmodian" ToolTip="Asmodian"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/races/icons/Asmodian.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Asmodian" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                             </ComboBox>
-                            <Button Content="Add" Click="OnAddCharacterClicked"/>
-                            <Button Content="Remove" Click="OnRemoveCharacterClicked"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
+                            <Button Content="Add" Click="OnAddCharacterClicked" Width="70" Margin="0,0,6,0"
+                                    ToolTip="Registers the name above as a new character."/>
+                            <Button Content="Update" Click="OnUpdateCharacterClicked" Width="70" Margin="0,0,6,0"
+                                    ToolTip="Applies the fields above to the character selected in the list - including renaming it."/>
+                            <Button Content="Remove" Click="OnRemoveCharacterClicked" Width="70"
+                                    ToolTip="Deletes the character selected in the list."/>
                         </StackPanel>
                         <!-- Per the user: running two Aion clients at once with two registered
                              characters means skill-based auto-detection can get stuck on the wrong
