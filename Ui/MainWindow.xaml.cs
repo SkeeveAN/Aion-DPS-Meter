@@ -24,6 +24,10 @@ namespace AionSniffer.Ui;
 public partial class MainWindow : Window
 {
     private readonly ObservableCollection<PlayerRow> _rows = new();
+
+    /// <summary>Everyone the meter has ever identified, with class and faction, so someone seen in
+    /// an earlier session is recognised the moment they appear again. See Ui/KnownPlayers.</summary>
+    private readonly KnownPlayers _knownPlayers = KnownPlayers.Load();
     private readonly Dictionary<int, PlayerRow> _rowsByObjectId = new();
     private readonly Dictionary<int, string> _targetNames = new();
 
@@ -727,6 +731,7 @@ public partial class MainWindow : Window
         var settings = MeterSettings.Load();
         SaveWindowGeometry(settings);
         settings.Save();
+        _knownPlayers.SaveIfChanged();
     }
 
     protected override void OnClosed(EventArgs e)
@@ -879,6 +884,15 @@ public partial class MainWindow : Window
         row.Faction = own.Length == 0 || side == Side.Unknown
             ? ""
             : side == Side.Own ? own : Opposite(own);
+
+        // Same rule as the class above: this session's evidence wins, memory fills the gaps. A
+        // faction cannot change, so a remembered one stays valid indefinitely -- unlike a class.
+        if (row.Faction.Length == 0 && _knownPlayers.Find(row.Name) is { Faction.Length: > 0 } seenBefore)
+        {
+            row.Faction = seenBefore.Faction;
+        }
+
+        _knownPlayers.Remember(row.Name, row.ClassName, row.Faction);
     }
 
     private static string? FirstFaction(IEnumerable<CharacterProfile> characters) =>
@@ -904,6 +918,14 @@ public partial class MainWindow : Window
 
         row.Name = ResolveDisplayName(sourceId);
         row.ClassName = ResolveClassName(sourceId);
+
+        // Fill from what an earlier session worked out. Only where this session has nothing: a
+        // class detected live is current evidence and outranks a remembered one, which could be
+        // from before the player rerolled or transferred.
+        if (row.ClassName is "?" or "" && _knownPlayers.Find(row.Name) is { ClassName.Length: > 0 } remembered)
+        {
+            row.ClassName = remembered.ClassName;
+        }
 
         _relicApByPerson.TryGetValue(row.Name, out long rowRelicAp);
         row.RelicAp = rowRelicAp;

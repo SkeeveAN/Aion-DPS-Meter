@@ -32,6 +32,7 @@ public static class SelfCheck
         ok &= RunAsciiTableScenario();
         ok &= RunToolbarIconScenario();
         ok &= RunChatLogMaintenanceScenario();
+        ok &= RunKnownPlayersScenario();
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
@@ -277,6 +278,50 @@ public static class SelfCheck
     }
 
     /// <summary>
+    /// The remembered-player table. The rule that matters is that it never downgrades: MainWindow
+    /// calls Remember on every grid refresh, about once a second, and a row that has not been
+    /// identified yet carries "?" for its class and "" for its faction. Writing those through
+    /// would erase everything the file knows within a second of the next session starting.
+    /// </summary>
+    private static bool RunKnownPlayersScenario()
+    {
+        var db = new KnownPlayers();
+        db.Remember("Badigadi", "Assassin", "Elyos");
+        db.Remember("Badigadi", "?", "");          // a fresh, not-yet-identified row
+        db.Remember("Badigadi", null, null);
+
+        var kept = db.Find("Badigadi");
+        bool survivesPlaceholders = kept?.ClassName == "Assassin" && kept.Faction == "Elyos";
+
+        // Learning happens in pieces: a class often arrives long before a faction.
+        db.Remember("Kisame", "Cleric", "");
+        db.Remember("Kisame", "", "Elyos");
+        var pieced = db.Find("Kisame");
+        bool learnsIncrementally = pieced?.ClassName == "Cleric" && pieced.Faction == "Elyos";
+
+        // A real correction must still get through -- someone can be seen on the other side.
+        db.Remember("Tijari", "Ranger", "Elyos");
+        db.Remember("Tijari", "Ranger", "Asmodian");
+        bool realValueOverwrites = db.Find("Tijari")?.Faction == "Asmodian";
+
+        // "You" is not a name; storing it would attach one entry to whoever is playing.
+        db.Remember("You", "Gladiator", "Elyos");
+        bool localPlayerNotStored = db.Find("You") is null;
+
+        bool unknownIsNull = db.Find("Nobody") is null;
+
+        Console.WriteLine("[selftest] Remembered players:");
+        Console.WriteLine($"  -> placeholders do not erase what is known: {survivesPlaceholders}");
+        Console.WriteLine($"  -> class and faction can be learned separately: {learnsIncrementally}");
+        Console.WriteLine($"  -> a real new value still overwrites: {realValueOverwrites}");
+        Console.WriteLine($"  -> \"You\" is never stored as a name: {localPlayerNotStored}");
+        Console.WriteLine($"  -> an unseen player reports null: {unknownIsNull}");
+
+        return survivesPlaceholders && learnsIncrementally && realValueOverwrites
+            && localPlayerNotStored && unknownIsNull;
+    }
+
+    /// <summary>
     /// Emptying Chat.log, against a real file. Worth testing for real rather than by reading the
     /// code: the interesting case is truncating a file that another handle still has open, which
     /// is exactly the situation this feature exists for -- Aion holds its log open the whole time
@@ -480,13 +525,44 @@ public static class SelfCheck
             new HashSet<string> { "Askila", "Alhamdulilah" });
 
         bool healerlessMemberIsOwn = pveSides.GetValueOrDefault(lootOnly) == Side.Own;
+
+        // Reported from a screenshot: a whole group showed no faction emblem. Everyone was dealing
+        // damage to the same bosses, nobody had looted yet, and the only healing ran through "You"
+        // -- so nothing connected them to the anchor and they all stayed Unknown. Sharing a target
+        // with a known member is now enough. ourDps hits the mob alongside the anchor's side.
+        var damageOnly = new List<DamageEvent>
+        {
+            new(start, ourHealer, mob, 100, IsHeal: false),
+            new(start.AddSeconds(1), ourDps, mob, 900, IsHeal: false),
+        };
+        var damageOnlySides = FactionResolver.Resolve(
+            damageOnly, id => names.GetValueOrDefault(id), id => id != mob, you,
+            new HashSet<string> { "Askila" });
+        bool damageDealerIsOwn = damageOnlySides.GetValueOrDefault(ourDps) == Side.Own;
+
+        // ...but sharing a mob must NOT make an opponent an ally: in a Dredgion both teams fight
+        // the same instance mobs. Enemies are settled before allies are grown, so hostility wins.
+        var mixed = new List<DamageEvent>
+        {
+            new(start, ourDps, theirDps, 900, IsHeal: false),      // hostility, established first
+            new(start.AddSeconds(1), ourDps, mob, 900, IsHeal: false),
+            new(start.AddSeconds(2), theirDps, mob, 900, IsHeal: false), // same mob, both sides
+            new(start.AddSeconds(3), ourHealer, ourDps, 500, IsHeal: true),
+        };
+        var mixedSides = FactionResolver.Resolve(
+            mixed, id => names.GetValueOrDefault(id), id => id != mob, you,
+            new HashSet<string> { "Askila" });
+        bool sharedMobDoesNotFlipEnemy = mixedSides.GetValueOrDefault(theirDps) == Side.Enemy;
         bool noEnemiesInPve = !pveSides.Values.Contains(Side.Enemy);
 
         Console.WriteLine($"  -> a group member with no heal edge is still our side: {healerlessMemberIsOwn}");
         Console.WriteLine($"  -> a PvE run produces no enemies at all: {noEnemiesInPve}");
+        Console.WriteLine($"  -> a pure damage dealer sharing our target is our side: {damageDealerIsOwn}");
+        Console.WriteLine($"  -> sharing a mob does NOT turn an opponent into an ally: {sharedMobDoesNotFlipEnemy}");
 
         return ownSideFound && enemiesFound && enemyHealerNotAdopted
-            && healerlessMemberIsOwn && noEnemiesInPve;
+            && healerlessMemberIsOwn && noEnemiesInPve
+            && damageDealerIsOwn && sharedMobDoesNotFlipEnemy;
     }
 
     /// <summary>

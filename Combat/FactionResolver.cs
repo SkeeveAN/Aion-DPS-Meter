@@ -47,94 +47,148 @@ public static class FactionResolver
         IReadOnlySet<string> anchors)
     {
         var allies = new Dictionary<int, HashSet<int>>();
-        var fought = new HashSet<(int, int)>();
+        var fought = new Dictionary<int, HashSet<int>>();
+        var sameTarget = new Dictionary<int, HashSet<int>>();
 
         foreach (DamageEvent e in events)
         {
-            if (e.SourceObjectId == e.TargetObjectId || !isPlayer(e.SourceObjectId) || !isPlayer(e.TargetObjectId))
-            {
-                continue;
-            }
+            bool sourceIsPlayer = isPlayer(e.SourceObjectId);
+            bool targetIsPlayer = isPlayer(e.TargetObjectId);
 
             if (e.IsHeal)
             {
-                // The "You" exclusion this whole class exists to get right -- see the remarks above.
-                if (e.SourceObjectId == youId || e.TargetObjectId == youId)
+                // The "You" exclusion this class exists to get right -- see the remarks above.
+                if (sourceIsPlayer && targetIsPlayer && e.SourceObjectId != e.TargetObjectId
+                    && e.SourceObjectId != youId && e.TargetObjectId != youId)
                 {
-                    continue;
+                    Link(allies, e.SourceObjectId, e.TargetObjectId);
+                }
+            }
+            else if (sourceIsPlayer && targetIsPlayer && e.SourceObjectId != e.TargetObjectId)
+            {
+                Link(fought, e.SourceObjectId, e.TargetObjectId);
+            }
+            else if (sourceIsPlayer && !targetIsPlayer)
+            {
+                // Everyone hitting this mob, so people who only ever deal damage can still be
+                // placed. Without it a group with no healer -- or one whose healer heals the local
+                // player, whose heals are unusable here -- stayed entirely unclassified.
+                if (!sameTarget.TryGetValue(e.TargetObjectId, out var attackers))
+                {
+                    sameTarget[e.TargetObjectId] = attackers = new HashSet<int>();
                 }
 
-                Link(allies, e.SourceObjectId, e.TargetObjectId);
-            }
-            else
-            {
-                fought.Add((e.SourceObjectId, e.TargetObjectId));
-                fought.Add((e.TargetObjectId, e.SourceObjectId));
+                attackers.Add(e.SourceObjectId);
             }
         }
 
-        // Own side, seeded from the anchors and the local player, then grown through the heal
-        // graph. Seeding FIRST and expanding second is load-bearing: an earlier version only
-        // looked at players that had a heal edge, so an anchor who never healed and was never
-        // healed -- which is most classes, and was the local player's own second-client row in a
-        // real Sauro run -- was left Unknown despite being provably in the group.
-        var side = new Dictionary<int, Side>();
-        var own = new HashSet<int> { youId };
-        foreach ((int id, HashSet<int> _) in allies)
-        {
-            if (nameOf(id) is string n && anchors.Contains(n))
-            {
-                own.Add(id);
-            }
-        }
-
+        var known = new HashSet<int> { youId };
         foreach (DamageEvent e in events)
         {
             foreach (int id in new[] { e.SourceObjectId, e.TargetObjectId })
             {
                 if (isPlayer(id) && nameOf(id) is string n && anchors.Contains(n))
                 {
-                    own.Add(id);
+                    known.Add(id);
                 }
             }
         }
 
-        // Everyone heal-connected to a known member is a member too.
-        var queue = new Queue<int>(own);
-        while (queue.Count > 0)
+        // Hostility is settled from the PROVABLE core only -- the anchors plus whoever heals with
+        // them -- and settled before allies are grown any further. Both halves of that are
+        // load-bearing, and both were got wrong first:
+        //
+        // Seeding from anchors alone missed an enemy whose only fight was against a non-anchor
+        // teammate. Seeding from the fully grown side instead cascaded catastrophically: the
+        // shared-target rule had already pulled the opposing team in, so their opponents -- our own
+        // group -- came back out as enemies. Against two real Dredgion runs that mislabelled three
+        // of five teammates in one and one of five in the other.
+        var core = Grow(known, allies);
+        var enemies = Grow(Seed(core, fought), allies, core);
+        enemies.ExceptWith(core);
+
+        // Only now the looser signal: sharing a mob with someone already on our side. Enemies are
+        // fixed by this point, so a Dredgion's shared instance mobs cannot drag an opponent in.
+        var own = new HashSet<int>(core);
+        bool changed = true;
+        while (changed)
         {
-            int current = queue.Dequeue();
-            if (!allies.TryGetValue(current, out var neighbours))
+            changed = false;
+            foreach (HashSet<int> attackers in sameTarget.Values)
             {
-                continue;
+                if (attackers.Overlaps(own))
+                {
+                    changed |= Absorb(own, enemies, attackers);
+                }
             }
 
-            foreach (int other in neighbours)
+            foreach (int id in own.ToList())
             {
-                if (own.Add(other))
-                {
-                    queue.Enqueue(other);
-                }
+                changed |= Absorb(own, enemies, allies.GetValueOrDefault(id));
             }
         }
 
+        var side = new Dictionary<int, Side>();
         foreach (int id in own)
         {
             side[id] = Side.Own;
         }
 
-        // Anyone who traded damage with our side is on the other one. Applied after the components
-        // above so a player with no heals at all -- common, most classes never heal -- still gets
-        // classified from their fighting alone.
-        foreach ((int a, int b) in fought)
+        foreach (int id in enemies)
         {
-            if (side.GetValueOrDefault(a) == Side.Own && side.GetValueOrDefault(b) != Side.Own)
-            {
-                side[b] = Side.Enemy;
-            }
+            side[id] = Side.Enemy;
         }
 
         return side;
+    }
+
+    /// <summary>Everyone who traded blows with someone already known to be on our side.</summary>
+    private static HashSet<int> Seed(HashSet<int> known, Dictionary<int, HashSet<int>> fought)
+    {
+        var seed = new HashSet<int>();
+        foreach (int id in known)
+        {
+            if (fought.TryGetValue(id, out var opponents))
+            {
+                seed.UnionWith(opponents);
+            }
+        }
+
+        seed.ExceptWith(known);
+        return seed;
+    }
+
+    /// <summary>Follows an edge set outward from a seed -- used to pull a side's healer in with it.</summary>
+    private static HashSet<int> Grow(HashSet<int> seed, Dictionary<int, HashSet<int>> edges, IReadOnlySet<int>? block = null)
+    {
+        var result = new HashSet<int>(seed);
+        var stack = new Stack<int>(seed);
+        while (stack.Count > 0)
+        {
+            foreach (int other in edges.GetValueOrDefault(stack.Pop()) ?? Enumerable.Empty<int>())
+            {
+                if (block?.Contains(other) != true && result.Add(other))
+                {
+                    stack.Push(other);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static bool Absorb(HashSet<int> own, HashSet<int> enemies, IEnumerable<int>? candidates)
+    {
+        bool changed = false;
+        foreach (int id in candidates ?? Enumerable.Empty<int>())
+        {
+            if (!enemies.Contains(id) && own.Add(id))
+            {
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     private static void Link(Dictionary<int, HashSet<int>> graph, int a, int b)
