@@ -126,8 +126,38 @@ public sealed partial class ChatLogParser
     // larger Chat.log by terminal_windows after this file's first version shipped without it --
     // same identity-split failure mode as the "on you" fix above, just missed here initially
     // because the small validation sample happened not to include an incoming crit.
-    [GeneratedRegex(@"^(?:Critical Hit!\s?)?(?<attacker>.+) has inflicted (?<amount>[\d.]+) damage on you(?: by .+)?\.$")]
+    // Second alternative: "Relock used Aegis Breaker I to deal you 1.234 damage and dispel some of
+    // your magical buffs." A plain hit that happens to strip buffs, narrated in a sentence shape of
+    // its own. Found in a 1v1 arena log where it carried 18.477 damage -- a fifth of everything the
+    // opponent dealt -- and matched nothing, so their row was short by that much.
+    [GeneratedRegex(@"^(?:Critical Hit!\s?)?(?:(?<attacker>.+) has inflicted (?<amount>[\d.]+) damage on you(?: by .+)?|(?<attacker>.+?) used (?<skill>.+?) to deal you (?<amount>[\d.]+) damage(?: and .+?)?)\.$")]
     private static partial Regex DamageInflictedOnYouPattern();
+
+    /// <summary>
+    /// The cast that starts a damage-over-time effect, English. Carries no damage itself; it is
+    /// what makes the ticks below attributable, since those name only the skill. Two real shapes:
+    /// third person ("Nicorobin used Flame Cage V to inflict the continuous damage effect on Guard
+    /// Captain Ahuradim.") and the local player as victim ("You received continuous damage because
+    /// Relock used Erosion VI.").
+    /// </summary>
+    [GeneratedRegex(@"^(?:(?<caster>.+?) used (?<skill>.+?) to inflict the continuous damage effect on (?<target>.+?)|(?<target>You) received continuous damage because (?<caster>.+?) used (?<skill>.+?))\.$")]
+    private static partial Regex DotAnnouncementPattern();
+
+    /// <summary>
+    /// A damage-over-time tick, English. Names the skill but never the caster, which is why this
+    /// file used to drop them all as unattributable -- documented as a deliberate gap for a long
+    /// time. It is only a gap without the announcement above: with it, the skill identifies who
+    /// cast it, exactly as the German path has always worked. Attribution is still refused, not
+    /// guessed, when two different casters were seen using the same skill on the same target.
+    ///
+    /// <para>What this was costing: 35.019 damage from one Spiritmaster in a single 1v1 arena
+    /// match, and in a Sauro Supply Base run a Sorcerer's Flame Cage ticks across every boss.</para>
+    ///
+    /// <para>Note the tense. Ticks on someone else read "received", ticks on the local player read
+    /// "receive" -- present -- and drop the words "the effect of".</para>
+    /// </summary>
+    [GeneratedRegex(@"^(?:(?<target>.+?) received (?<amount>[\d.]+)(?: \w+)? damage due to the effect of (?<skill>.+?)|(?<target>You) receive (?<amount>[\d.]+)(?: \w+)? damage due to (?<skill>.+?))\.$")]
+    private static partial Regex DotTickPattern();
 
     // Incoming damage, basic-attack form: "You received 172 damage from Icy Kalgolem." Subject
     // isn't always "You" -- a controlled pet/summon (seen in real data as "Superclyde") takes hits
@@ -482,9 +512,10 @@ public sealed partial class ChatLogParser
         Regex HealByOther,
         Regex HealSelf,
         string[] LocalPlayerLiterals,
-        // Only German has confirmed lines for these three so far; every other language keeps the
-        // defaults until a real log proves an equivalent shape exists there too. Guessing one in
-        // would be the unvalidated-pattern habit this file keeps warning against.
+        // English and German have confirmed lines for the DoT pair; only the redirect shape is
+        // still German-only. Every other language keeps the defaults until a real log proves an
+        // equivalent exists there too -- guessing one in would be the unvalidated-pattern habit
+        // this file keeps warning against.
         Regex? DamageRedirected = null,
         Regex? DotAnnouncement = null,
         Regex? DotTick = null);
@@ -498,7 +529,8 @@ public sealed partial class ChatLogParser
         new DamageHealPatternSet(
             ReflectedDamagePattern(), DamageInflictedOnYouPattern(), DamageReceivedPattern(),
             DotDamageAttributedToYouPattern(), DamagePattern(), HealOtherPattern(),
-            HealByOtherPattern(), HealSelfPattern(), new[] { "you" }),
+            HealByOtherPattern(), HealSelfPattern(), new[] { "you" },
+            DamageRedirected: null, DotAnnouncement: DotAnnouncementPattern(), DotTick: DotTickPattern()),
         new DamageHealPatternSet(
             ReflectedDamagePatternDe(), DamageInflictedOnYouPatternDe(), DamageReceivedPatternDe(),
             DotDamageAttributedToYouPatternDe(), DamagePatternDe(), HealOtherPatternDe(),

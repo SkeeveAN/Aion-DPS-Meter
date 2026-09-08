@@ -875,10 +875,20 @@ public static class SelfCheck
             "2026.08.24 22:08:43 : Mortelle recovered 156 HP by using Healing Light I. ",
             "2026.08.24 22:08:44 : Thai recovered 195 HP because Inss used Healing Light I. ",
             "2026.08.24 22:08:45 : You recovered 157 HP because Gsghost used Healing Light VI on you. ",
-            // Deliberately unattributed DoT-tick lines (see ChatLogParser's "Known, deliberate
-            // gaps") -- must NOT produce events, since neither names a real source character.
+            // DoT ticks with NO announcement anywhere -- still unattributable, still dropped.
             "2026.08.24 22:08:46 : Drakan Crewhand received 2.649 damage due to the effect of Spray Drana Acid. ",
             "2026.08.24 22:08:47 : You receive 56 damage due to Fire Strike. ",
+
+            // The same shapes WITH an announcement naming the caster, which is what makes them
+            // attributable. Both forms are real: third person, and the local player as the victim.
+            // Verbatim from a Sauro Supply Base run and a 1v1 arena respectively.
+            "2026.08.24 22:08:48 : Nicorobin used Flame Cage V to inflict the continuous damage effect on Icy Kalgolem. ",
+            "2026.08.24 22:08:49 : Icy Kalgolem received 777 damage due to the effect of Flame Cage V. ",
+            "2026.08.24 22:08:50 : You received continuous damage because Relock used Erosion VI. ",
+            "2026.08.24 22:08:51 : You receive 333 damage due to Erosion VI. ",
+
+            // A plain hit that also strips buffs, in a sentence shape of its own.
+            "2026.08.24 22:08:52 : Relock used Aegis Breaker I to deal you 444 damage and dispel some of your magical buffs. ",
         };
 
         var parser = new ChatLogParser();
@@ -946,7 +956,22 @@ public static class SelfCheck
         bool noCriticalHitLeak = !events.Any(e =>
             (NameOf(e.SourceObjectId) ?? "").Contains("Critical Hit") || (NameOf(e.TargetObjectId) ?? "").Contains("Critical Hit"));
 
-        bool dotLinesProducedNoEvents = events.Count == 12; // the 2 unattributed DoT lines above must not add events
+        // 12 as before, plus the 3 newly attributable lines (two ticks and the buff-stripping hit).
+        // The 2 unannounced ticks must STILL add nothing, and the 2 announcements carry no damage
+        // of their own, so they must not either.
+        bool dotLinesProducedNoEvents = events.Count == 15;
+
+        // The whole point: a tick is credited to whoever the announcement named, on both sides of
+        // the fight. Worth 35.019 damage from one Spiritmaster in a single arena match, and a
+        // Sorcerer's Flame Cage across every boss of a Sauro run -- all of it silently missing
+        // before, which is why the English parser disagreed with the German one by 7,6% on the
+        // same fight.
+        bool announcedDotAttributed = events.Any(e => !e.IsHeal && e.Amount == 777
+            && NameOf(e.SourceObjectId) == "Nicorobin" && NameOf(e.TargetObjectId) == "Icy Kalgolem");
+        bool incomingDotAttributed = events.Any(e => !e.IsHeal && e.Amount == 333
+            && NameOf(e.SourceObjectId) == "Relock" && NameOf(e.TargetObjectId) == "You");
+        bool buffStrippingHitCounted = events.Any(e => !e.IsHeal && e.Amount == 444
+            && NameOf(e.SourceObjectId) == "Relock" && NameOf(e.TargetObjectId) == "You");
 
         Console.WriteLine($"  -> crit + skill, grouped number 1.911 -> 1911: {critWithSkillOk}");
         Console.WriteLine($"  -> crit, \"critical damage\" wording, grouped number 1.022 -> 1022: {critWordOk}");
@@ -962,13 +987,17 @@ public static class SelfCheck
         Console.WriteLine($"  -> heal-by-other, first person with \"on you\": {healByOtherOnYouOk}");
         Console.WriteLine($"  -> no You/you identity split across any of the above: {noIdentitySplit}");
         Console.WriteLine($"  -> no \"Critical Hit!\" prefix leaked into any captured name: {noCriticalHitLeak}");
-        Console.WriteLine($"  -> unattributed DoT-tick lines correctly produced no events: {dotLinesProducedNoEvents}");
+        Console.WriteLine($"  -> unannounced DoT ticks still produce no events: {dotLinesProducedNoEvents}");
+        Console.WriteLine($"  -> an announced DoT tick is credited to its caster: {announcedDotAttributed}");
+        Console.WriteLine($"  -> a DoT ticking on the local player is credited too: {incomingDotAttributed}");
+        Console.WriteLine($"  -> a buff-stripping hit counts as damage: {buffStrippingHitCounted}");
         Console.WriteLine($"  -> LiveAggregator.Summarize excludes pure healers from the damage list: {healersExcludedFromDamageSummary}");
         Console.WriteLine($"    {summary}");
 
         return critWithSkillOk && critWordOk && incomingSkillOk && incomingBasicOk
             && critIncomingSkillOk && critIncomingBasicOk && reflectOk && runeCarveOk
             && healOtherOk && healSelfOtherCharacterOk && healByOtherThirdPersonOk && healByOtherOnYouOk
-            && noIdentitySplit && noCriticalHitLeak && dotLinesProducedNoEvents && healersExcludedFromDamageSummary;
+            && noIdentitySplit && noCriticalHitLeak && dotLinesProducedNoEvents && healersExcludedFromDamageSummary
+            && announcedDotAttributed && incomingDotAttributed && buffStrippingHitCounted;
     }
 }
