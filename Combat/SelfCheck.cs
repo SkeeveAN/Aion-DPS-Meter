@@ -889,6 +889,13 @@ public static class SelfCheck
 
             // A plain hit that also strips buffs, in a sentence shape of its own.
             "2026.08.24 22:08:52 : Relock used Aegis Breaker I to deal you 444 damage and dispel some of your magical buffs. ",
+
+            // A second caster takes the same DoT over. The game replaces the effect rather than
+            // stacking it, so every tick after this line belongs to Mortelle, not Nicorobin. The
+            // parser used to give up here and drop both players' ticks for the rest of the fight,
+            // which cost a group with two Spiritmasters their entire DoT output.
+            "2026.08.24 22:08:53 : Tijari used Flame Cage V to inflict the continuous damage effect on Icy Kalgolem. ",
+            "2026.08.24 22:08:54 : Icy Kalgolem received 888 damage due to the effect of Flame Cage V. ",
         };
 
         var parser = new ChatLogParser();
@@ -959,7 +966,7 @@ public static class SelfCheck
         // 12 as before, plus the 3 newly attributable lines (two ticks and the buff-stripping hit).
         // The 2 unannounced ticks must STILL add nothing, and the 2 announcements carry no damage
         // of their own, so they must not either.
-        bool dotLinesProducedNoEvents = events.Count == 15;
+        bool dotLinesProducedNoEvents = events.Count == 16;
 
         // The whole point: a tick is credited to whoever the announcement named, on both sides of
         // the fight. Worth 35.019 damage from one Spiritmaster in a single arena match, and a
@@ -972,6 +979,15 @@ public static class SelfCheck
             && NameOf(e.SourceObjectId) == "Relock" && NameOf(e.TargetObjectId) == "You");
         bool buffStrippingHitCounted = events.Any(e => !e.IsHeal && e.Amount == 444
             && NameOf(e.SourceObjectId) == "Relock" && NameOf(e.TargetObjectId) == "You");
+
+        // Ownership moves to the newer caster, and -- the half that matters -- the tick is still
+        // counted at all. Giving up on ambiguity looked cautious and was simply lossy.
+        // Deliberately NOT one of the healers above: they are asserted to stay out of the damage
+        // summary, and a name reused here would fail that check for the right reason.
+        bool takeoverAttributedToNewCaster = events.Any(e => !e.IsHeal && e.Amount == 888
+            && NameOf(e.SourceObjectId) == "Tijari" && NameOf(e.TargetObjectId) == "Icy Kalgolem");
+        bool earlierTickKeptItsOwner = events.Any(e => !e.IsHeal && e.Amount == 777
+            && NameOf(e.SourceObjectId) == "Nicorobin");
 
         Console.WriteLine($"  -> crit + skill, grouped number 1.911 -> 1911: {critWithSkillOk}");
         Console.WriteLine($"  -> crit, \"critical damage\" wording, grouped number 1.022 -> 1022: {critWordOk}");
@@ -991,6 +1007,8 @@ public static class SelfCheck
         Console.WriteLine($"  -> an announced DoT tick is credited to its caster: {announcedDotAttributed}");
         Console.WriteLine($"  -> a DoT ticking on the local player is credited too: {incomingDotAttributed}");
         Console.WriteLine($"  -> a buff-stripping hit counts as damage: {buffStrippingHitCounted}");
+        Console.WriteLine($"  -> a second caster takes the DoT over, ticks still counted: {takeoverAttributedToNewCaster}");
+        Console.WriteLine($"  -> the earlier caster keeps the ticks that were already his: {earlierTickKeptItsOwner}");
         Console.WriteLine($"  -> LiveAggregator.Summarize excludes pure healers from the damage list: {healersExcludedFromDamageSummary}");
         Console.WriteLine($"    {summary}");
 
@@ -998,6 +1016,7 @@ public static class SelfCheck
             && critIncomingSkillOk && critIncomingBasicOk && reflectOk && runeCarveOk
             && healOtherOk && healSelfOtherCharacterOk && healByOtherThirdPersonOk && healByOtherOnYouOk
             && noIdentitySplit && noCriticalHitLeak && dotLinesProducedNoEvents && healersExcludedFromDamageSummary
-            && announcedDotAttributed && incomingDotAttributed && buffStrippingHitCounted;
+            && announcedDotAttributed && incomingDotAttributed && buffStrippingHitCounted
+            && takeoverAttributedToNewCaster && earlierTickKeptItsOwner;
     }
 }

@@ -147,8 +147,9 @@ public sealed partial class ChatLogParser
     /// A damage-over-time tick, English. Names the skill but never the caster, which is why this
     /// file used to drop them all as unattributable -- documented as a deliberate gap for a long
     /// time. It is only a gap without the announcement above: with it, the skill identifies who
-    /// cast it, exactly as the German path has always worked. Attribution is still refused, not
-    /// guessed, when two different casters were seen using the same skill on the same target.
+    /// cast it, exactly as the German path has always worked. A second player casting the same
+    /// skill on the same target takes ownership from that point, because the effect is replaced
+    /// rather than stacked.
     ///
     /// <para>What this was costing: 35.019 damage from one Spiritmaster in a single 1v1 arena
     /// match, and in a Sauro Supply Base run a Sorcerer's Flame Cage ticks across every boss.</para>
@@ -289,8 +290,9 @@ public sealed partial class ChatLogParser
     /// A damage-over-time tick ("Goldur erhält durch Erosion VI 386 Schaden."). Names the skill but
     /// not who cast it, so by itself it is exactly the unattributable case English's DoT rule
     /// drops. Here it need not be dropped: the German client logs the cast first, so the skill name
-    /// identifies the caster (see DotAnnouncementPatternDe). Attribution is refused, not guessed,
-    /// when two different casters were seen using the same skill on the same target.
+    /// identifies the caster (see DotAnnouncementPatternDe). When a second player casts the same
+    /// skill on the same target, the newer cast takes over -- it replaces the effect rather than
+    /// stacking with it, so the later caster owns every tick from then on.
     /// </summary>
     [GeneratedRegex(@"^(?<target>.+?) erhält durch (?<skill>.+?) (?<amount>[\d.]+) Schaden\.$")]
     private static partial Regex DotTickPatternDe();
@@ -1042,11 +1044,35 @@ public sealed partial class ChatLogParser
     /// just fail to match. Written once, generic over which language's DamageHealPatternSet is
     /// passed in, since every set shares English's group names by construction.
     /// </summary>
-    // Which player was last seen casting a given damage-over-time skill on a given target, so a
-    // later tick line naming only the skill can be attributed (see DotTickPatternDe). A second,
-    // different caster for the same key sets it to null: from that point the ticks are genuinely
-    // ambiguous and are dropped rather than credited to whoever happened to cast first.
+    // Who last cast a given damage-over-time skill on a given target, so a later tick line naming
+    // only the skill can be attributed (see DotTickPattern).
+    //
+    // The most recent caster wins, which is not a guess but how the game works: the same skill from
+    // a second player does not stack on one target, it REPLACES what was there. From that line on,
+    // every tick belongs to the new caster, and the old one's effect is gone. This used to give up
+    // instead -- a second caster set the entry to null and all further ticks were dropped -- which
+    // threw away the entire DoT output of both players for the rest of the fight whenever a group
+    // ran two Spiritmasters, two Sorcerers or two Clerics. Keyed by target as well as skill, so
+    // two casters working different targets never interfere in the first place.
     private readonly Dictionary<(string Skill, string Target), string?> _dotCasterBySkillAndTarget = new();
+
+    /// <summary>
+    /// Any damage line that names both an attacker and a skill also settles who owns that skill on
+    /// that target, so a later tick naming only the skill can be attributed even when no separate
+    /// cast announcement was logged. Same last-caster-wins rule as the announcements: the newer
+    /// application replaces the older effect rather than stacking with it.
+    ///
+    /// <para>Found via a 1v1 arena: the opponent's Magic Implosion appeared only as an ordinary
+    /// hit, never as an announcement, so its 8.013 damage of ticks stayed unattributed while every
+    /// other DoT of theirs was counted.</para>
+    /// </summary>
+    private void RememberDotCaster(Match match, string caster, string target)
+    {
+        if (match.Groups["skill"] is { Success: true, Value.Length: > 0 } skill)
+        {
+            _dotCasterBySkillAndTarget[(skill.Value, target)] = caster;
+        }
+    }
 
     private bool TryParseWithPatternSet(DamageHealPatternSet p, string message, out int sourceId, out int targetId, out long amount, out bool isHeal)
     {
@@ -1059,9 +1085,7 @@ public sealed partial class ChatLogParser
                 ? YouName
                 : rawCaster;
             var key = (match.Groups["skill"].Value, match.Groups["target"].Value);
-            _dotCasterBySkillAndTarget[key] = _dotCasterBySkillAndTarget.TryGetValue(key, out string? known) && known != caster
-                ? null
-                : caster;
+            _dotCasterBySkillAndTarget[key] = caster;
             RaiseSkillUsedIfPresent(match, caster);
             // The announcement itself carries no damage -- fall through to "no event", not to the
             // patterns below, which must not see a line already understood.
@@ -1113,6 +1137,8 @@ public sealed partial class ChatLogParser
             sourceId = Names.GetOrAssignId(match.Groups["attacker"].Value);
             targetId = Names.GetOrAssignId(YouName);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
+            RaiseSkillUsedIfPresent(match, match.Groups["attacker"].Value);
+            RememberDotCaster(match, match.Groups["attacker"].Value, YouName);
             return true;
         }
 
@@ -1159,6 +1185,8 @@ public sealed partial class ChatLogParser
             targetId = Names.GetOrAssignId(targetIsLocalPlayer ? YouName : targetName);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
             RaiseSkillUsedIfPresent(match, attackerIsLocalPlayer ? YouName : attackerName);
+            RememberDotCaster(match, attackerIsLocalPlayer ? YouName : attackerName,
+                targetIsLocalPlayer ? YouName : targetName);
             return true;
         }
 
