@@ -48,15 +48,9 @@ public sealed class MeterSettings
     public double? NameColumnWidth { get; set; }
     public double? DpsColumnWidth { get; set; }
 
-    /// <summary>SharpPcap device name chosen in the Network settings dialog. Persisted, but not
-    /// yet consumed anywhere -- the console entry point still takes its device index from the
-    /// command line (see README's UI-placeholders section).</summary>
-    public string? SelectedCaptureDeviceName { get; set; }
-
     /// <summary>Root folder of the Aion client install (e.g. "D:\Spiele\AION\OriginAion"), set in
-    /// the Settings dialog. This is where Chat.log lives -- needed for the chat-log-based path
-    /// (see README) since, unlike the network path, there's no way to auto-discover it from a
-    /// capture device. Consumed by MainWindow's ChatLogTailer, restarted whenever this changes.</summary>
+    /// the Settings dialog. This is where Chat.log lives, and there is no way to auto-discover it,
+    /// so the user picks it once. Consumed by MainWindow's ChatLogTailer, restarted on change.</summary>
     public string? AionInstallFolder { get; set; }
 
     /// <summary>
@@ -90,15 +84,33 @@ public sealed class MeterSettings
     /// </summary>
     public bool AutoDetectActiveCharacter { get; set; } = true;
 
-    private static string SettingsPath => Path.Combine(AppContext.BaseDirectory, "meter-settings.json");
+    /// <summary>
+    /// Per-user settings location, NOT next to the exe. The MSI installs per-machine under
+    /// Program Files, which an unprivileged process cannot write to -- and this app stopped
+    /// asking for administrator rights when the packet-capture path was removed, since reading
+    /// Chat.log needs none. Writing beside the exe would therefore fail silently for every
+    /// installed copy: settings would appear to save and be gone again next launch.
+    /// </summary>
+    private static string SettingsPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "Aion DPS Meter", "meter-settings.json");
+
+    /// <summary>Where older, elevated builds kept the file. Read once, on first launch after the
+    /// upgrade, so an existing Aion folder and character list survive the move instead of the
+    /// user finding an empty settings dialog.</summary>
+    private static string LegacySettingsPath => Path.Combine(AppContext.BaseDirectory, "meter-settings.json");
 
     public static MeterSettings Load()
     {
         try
         {
-            if (File.Exists(SettingsPath))
+            string path = File.Exists(SettingsPath) ? SettingsPath
+                : File.Exists(LegacySettingsPath) ? LegacySettingsPath
+                : SettingsPath;
+
+            if (File.Exists(path))
             {
-                var loaded = JsonSerializer.Deserialize<MeterSettings>(File.ReadAllText(SettingsPath));
+                var loaded = JsonSerializer.Deserialize<MeterSettings>(File.ReadAllText(path));
                 if (loaded is not null)
                 {
                     return loaded;
@@ -115,6 +127,7 @@ public sealed class MeterSettings
 
     public void Save()
     {
+        Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
         File.WriteAllText(SettingsPath, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
     }
 }

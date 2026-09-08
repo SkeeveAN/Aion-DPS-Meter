@@ -2,12 +2,12 @@
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
   <assemblyIdentity version="1.0.0.0" name="AionSniffer.app"/>
 
-  <!-- asInvoker on purpose, even though the meter wants admin rights: requireAdministrator here
-       would put a UAC prompt in front of EVERY invocation, including the console modes
-       (selftest / chatlog / devices) that need no privileges at all and are run repeatedly while
-       developing. Program.Main instead re-launches itself elevated when, and only when, it is
-       opening the GUI - so a shortcut, a double-click and the installer's Start-menu entry all
-       end up running as administrator, while the CLI stays promptless. -->
+  <!-- asInvoker, and nothing anywhere asks for more: the meter reads Aion's Chat.log and nothing
+       else, which needs no privileges. An earlier version had Program.Main re-launch itself
+       through the "runas" verb before opening the GUI, because live packet capture did need
+       elevation; that path is gone, and with it the UAC prompt. Settings moved out of the install
+       directory for the same reason - see MeterSettings.SettingsPath, an unprivileged process
+       cannot write under Program Files. -->
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">

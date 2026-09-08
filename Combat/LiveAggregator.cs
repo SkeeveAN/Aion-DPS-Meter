@@ -1,13 +1,10 @@
-using AionSniffer.Protocol;
-
 namespace AionSniffer.Combat;
 
 /// <summary>
-/// Turns decoded SM_ATTACK packets into DamageEvents and keeps a running per-source damage
-/// tally, so the calibration tool can show live DPS numbers once the opcodes are confirmed --
-/// not just raw packet dumps. SM_ATTACK_STATUS is deliberately not fed in here: in this
-/// server-build's layout it carries no attacker field at all (see CombatPacketParser), so its
-/// HP/MP ticks can't be attributed to a source and would only pollute per-player numbers.
+/// Keeps a running per-source damage tally over the DamageEvents the Chat.log parser produces,
+/// and renders the leaderboard the console mode prints. Deliberately knows nothing about where
+/// the events came from: it predates the chat-log path and survived the removal of the packet
+/// one unchanged, which is the whole point of DamageEvent sitting between them.
 /// </summary>
 public sealed class LiveAggregator
 {
@@ -15,21 +12,8 @@ public sealed class LiveAggregator
 
     public IReadOnlyList<DamageEvent> Events => _events;
 
-    public void IngestAttack(DateTime timestamp, CombatPacketParser.AttackPacket attack)
-    {
-        foreach (var hit in attack.Hits)
-        {
-            if (hit.Damage > 0)
-            {
-                _events.Add(new DamageEvent(timestamp, attack.AttackerObjectId, attack.TargetObjectId, hit.Damage, IsHeal: false));
-            }
-        }
-    }
-
     /// <summary>
-    /// Feeds already-decoded DamageEvents straight in -- the ChatLog path's entry point
-    /// (AionSniffer.ChatLog.ChatLogParser produces DamageEvents directly, there is no
-    /// protocol-specific AttackPacket to unwrap like the network path's IngestAttack).
+    /// Feeds parsed DamageEvents in -- AionSniffer.ChatLog.ChatLogParser produces them directly.
     /// </summary>
     public void IngestEvents(IEnumerable<DamageEvent> events) => _events.AddRange(events);
 
@@ -52,8 +36,7 @@ public sealed class LiveAggregator
         // group ALL events (heals included) while the Dps column below already filtered heals out
         // via DpsCalculator.HitsBy -- so a pure healer showed up as "Potion: 3526 dmg (n/a DPS)",
         // a damage total with no rate to match it, because the total and the rate were silently
-        // computed over two different event sets. The network path never triggered this (its
-        // AttackPackets are always IsHeal: false), only the chat-log path's real heal lines did.
+        // computed over two different event sets.
         var damageEvents = _events.Where(e => !e.IsHeal).ToList();
         if (damageEvents.Count == 0)
         {

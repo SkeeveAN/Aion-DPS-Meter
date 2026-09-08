@@ -1,46 +1,24 @@
-using System.Diagnostics;
 using System.IO;
-using System.Security.Principal;
 using System.Runtime.InteropServices;
-using System.Text;
 using AionSniffer.ChatLog;
 using AionSniffer.Combat;
-using AionSniffer.Protocol;
-using PacketDotNet;
-using SharpPcap;
 
 namespace AionSniffer;
 
 /// <summary>
-/// Calibration tool: sniffs live traffic, tries to detect the Aion game-server TCP stream via
-/// its SM_KEY handshake, decrypts everything after that, and prints every decoded packet
-/// (opcode + hex preview + ascii preview) plus a best-effort decode for the two combat opcodes
-/// we're hoping are still SM_ATTACK_STATUS (0x05) / SM_ATTACK (0x36).
+/// Entry point for all three ways this program is used: the meter window (no arguments), a
+/// one-shot parse of a Chat.log file, and the self-check suite.
 ///
-/// Run this WHILE (RE)CONNECTING to the game server (start capture first, then log in / change
-/// channel / reconnect) -- the handshake is only sent once, at the start of the TCP connection.
-/// If nothing gets decoded, the constants in Crypto/AionCrypt.cs and Protocol/Opcodes.cs are
-/// wrong for this server build and need adjusting from what this tool prints (see README.md).
+/// Everything the meter knows comes from Aion's own Chat.log. There is no packet capture and no
+/// access to the game process -- an earlier version of this file drove a live SharpPcap capture
+/// and decrypted the game-server stream, which was removed once the chat-log path had been
+/// validated against real raid logs and the network path had run into a packed client whose
+/// crypto could not be reached without touching a running process. Removing it also let the GUI
+/// drop its self-elevation: reading a text file needs no administrator rights, and a meter that
+/// runs unprivileged next to the client is the less intrusive neighbour.
 /// </summary>
 internal static class Program
 {
-    private static readonly Dictionary<string, AionSession> ConfirmedSessions = new();
-
-    /// <summary>
-    /// Per-flow count of handshake-check attempts. Deliberately NOT a one-shot HashSet: an
-    /// earlier version gave every flow exactly one try at LooksLikeAionHandshake and then
-    /// blacklisted it forever via HashSet.Add's "already present" return, permanently discarding
-    /// a flow if its very first captured payload happened to be a partial/misaligned segment --
-    /// found during the first real calibration run against a live server (see README), where it
-    /// meant a failed heuristic on packet 1 could never be revisited even if packet 2 or 3 of the
-    /// same flow would have matched.
-    /// </summary>
-    private static readonly Dictionary<string, int> HandshakeAttempts = new();
-    private const int MaxHandshakeAttempts = 5;
-
-    private static readonly Dictionary<ushort, int> OpcodeCounts = new();
-    private static readonly LiveAggregator Aggregator = new();
-
     private const int AttachParentProcess = -1;
 
     [DllImport("kernel32.dll")]
@@ -51,17 +29,15 @@ internal static class Program
     {
         // The csproj builds this as WinExe (no automatic console), specifically so the GUI doesn't
         // pop up an empty terminal window next to the meter - found by the user. The CLI modes
-        // (selftest/chatlog/capture/devices) still need visible Console.WriteLine output when
-        // launched from an existing shell, so attach to whichever console started this process,
-        // if any; a no-op when there is none.
+        // (selftest/chatlog) still need visible Console.WriteLine output when launched from an
+        // existing shell, so attach to whichever console started this process, if any; a no-op
+        // when there is none.
         //
         // No arguments opens the GUI, always -- per the user: the installed exe should show the
         // meter with no parameters, and the CLI is what needs one. The rule therefore does not
         // depend on how the process was started: the installer's shortcut (Packaging/Product.wxs
         // passes no arguments), a double-click, and "AionSniffer" typed in a shell all open the
-        // window. An earlier version made this conditional on there being no console, which left
-        // the shell case printing a device list instead; that list now needs its own "devices"
-        // argument, since it was the only thing standing between a bare launch and a window.
+        // window.
         AttachConsole(AttachParentProcess);
 
         if (args.Length > 0 && args[0] == "selftest")
@@ -86,20 +62,9 @@ internal static class Program
 
         if (args.Length == 0 || args[0] == "gui")
         {
-            // Packet capture needs elevated rights (see README's setup), so the GUI asks for them
-            // -- here rather than in the manifest, and rather than by ticking "run as
-            // administrator" on each shortcut: the manifest would prompt for the console modes
-            // too, and a shortcut's checkbox is lost as soon as someone recreates the shortcut,
-            // which is exactly what happened to this project's desktop entry.
-            if (!IsElevated() && !args.Contains(ElevatedMarker) && TryRelaunchElevated())
-            {
-                return;
-            }
-
             // No App.xaml on purpose: an ApplicationDefinition item would generate its own Main
             // and collide with this one. Building System.Windows.Application by hand keeps the
-            // console entry points (selftest, capture) and the GUI in the same exe without
-            // fighting over program entry.
+            // console entry points and the GUI in the same exe without fighting over program entry.
             var app = new System.Windows.Application();
             try
             {
@@ -108,8 +73,8 @@ internal static class Program
             catch (Exception ex)
             {
                 // Without a console there is nowhere for an unhandled startup exception to show
-                // up, so the failure looks exactly like the argument bug above ("nothing happens")
-                // -- put it on screen instead of letting the process die silently.
+                // up, so the failure looks like nothing happening at all -- put it on screen
+                // instead of letting the process die silently.
                 System.Windows.MessageBox.Show(ex.ToString(), "AionSniffer konnte nicht starten",
                     System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
@@ -117,105 +82,11 @@ internal static class Program
             return;
         }
 
-        var devices = CaptureDeviceList.Instance;
-
-        if (devices.Count == 0)
-        {
-            Console.WriteLine("No capture devices found. Is Npcap installed (WinPcap API-compatible mode)?");
-            return;
-        }
-
-        // The explicit words, plus anything that is not a device index at all: an unrecognized
-        // argument is far likelier a typo than a number, and showing what the tool accepts beats
-        // throwing out of int.Parse below.
-        if (args[0] is "devices" or "help" or "--help" or "-h" or "/?" || !int.TryParse(args[0], out _))
-        {
-            Console.WriteLine("Usage: AionSniffer                       (no arguments: opens the meter window)");
-            Console.WriteLine("       AionSniffer devices     (lists the capture devices below without starting anything)");
-            Console.WriteLine("       AionSniffer <deviceIndex> [serverIpHint]");
-            Console.WriteLine("       AionSniffer selftest   (verifies the DPS/iDPS math against synthetic + real reference numbers, no capture needed)");
-            Console.WriteLine("       AionSniffer gui        (same as passing nothing; kept because existing shortcuts pass it)");
-            Console.WriteLine("       AionSniffer chatlog <path-to-Chat.log>   (parses a Chat.log file, prints the same live-DPS summary as the network path)");
-            Console.WriteLine();
-            Console.WriteLine("Available devices:");
-            for (int i = 0; i < devices.Count; i++)
-            {
-                Console.WriteLine($"  [{i}] {devices[i].Name} - {devices[i].Description}");
-            }
-
-            return;
-        }
-
-        int deviceIndex = int.Parse(args[0]);
-        string? serverIpHint = args.Length > 1 ? args[1] : null;
-
-        using var device = devices[deviceIndex];
-        device.Open(DeviceModes.Promiscuous, 1000);
-        device.Filter = serverIpHint is null ? "tcp" : $"tcp and host {serverIpHint}";
-        device.OnPacketArrival += OnPacketArrival;
-
-        Console.WriteLine($"Capturing on {device.Name} ({device.Description})...");
-        Console.WriteLine("Log into / reconnect to the game server now. Press Enter to stop.");
-
-        device.StartCapture();
-        Console.ReadLine();
-        device.StopCapture();
-
-        Console.WriteLine();
-        Console.WriteLine("Opcode counts seen this run:");
-        foreach (var kv in OpcodeCounts.OrderByDescending(kv => kv.Value))
-        {
-            Console.WriteLine($"  0x{kv.Key:X4} : {kv.Value}");
-        }
-    }
-
-    /// <summary>
-    /// One-shot Chat.log parse: no live tailing yet (see README's "leere Themen" list --
-    /// following the file as new lines are appended is the natural next step once this static
-    /// parse is confirmed against a real fight, not implemented here to avoid guessing at
-    /// polling/FileSystemWatcher behavior before there's a real log to test it against).
-    /// </summary>
-    /// <summary>Marker argument on the elevated re-launch, so the new process doesn't try to
-    /// elevate again (and again) if the check below ever reports false for it.</summary>
-    private const string ElevatedMarker = "--elevated";
-
-    private static bool IsElevated()
-    {
-        using var identity = WindowsIdentity.GetCurrent();
-        return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
-    }
-
-    /// <summary>
-    /// Restarts this exe through ShellExecute's "runas" verb, which is what raises the UAC prompt.
-    /// Returns false when the relaunch did not happen, in which case the caller carries on
-    /// unelevated instead of exiting: someone who declines the prompt still gets a working meter
-    /// for the chat-log path, which needs no privileges -- only live packet capture does.
-    /// </summary>
-    private static bool TryRelaunchElevated()
-    {
-        string? exe = Environment.ProcessPath;
-        if (exe is null)
-        {
-            return false;
-        }
-
-        var startInfo = new ProcessStartInfo(exe)
-        {
-            UseShellExecute = true, // required for "runas"; without it the verb is ignored
-            Verb = "runas",
-            Arguments = ElevatedMarker,
-            WorkingDirectory = AppContext.BaseDirectory,
-        };
-
-        try
-        {
-            return Process.Start(startInfo) is not null;
-        }
-        catch (System.ComponentModel.Win32Exception)
-        {
-            // Prompt declined (ERROR_CANCELLED) or elevation unavailable -- run as we are.
-            return false;
-        }
+        // Anything else is a typo far more often than it is an attempt at something real, so say
+        // what the program accepts rather than failing silently or opening the window anyway.
+        Console.WriteLine("Usage: AionSniffer                       (no arguments: opens the meter window)");
+        Console.WriteLine("       AionSniffer chatlog <path-to-Chat.log>   (parses a Chat.log file and prints a summary)");
+        Console.WriteLine("       AionSniffer selftest                     (runs the parser and DPS self-checks)");
     }
 
     private static void RunChatLogMode(string path)
@@ -279,129 +150,5 @@ internal static class Program
                 Console.WriteLine($"  {name,-42} {total,14:N0}  ({hits:N0} hits)");
             }
         }
-    }
-
-    private static void OnPacketArrival(object sender, PacketCapture e)
-    {
-        var raw = e.GetPacket();
-        var packet = Packet.ParsePacket(raw.LinkLayerType, raw.Data);
-        var ip = packet.Extract<IPPacket>();
-        var tcp = packet.Extract<TcpPacket>();
-
-        if (ip is null || tcp is null)
-        {
-            return;
-        }
-
-        byte[] payload = tcp.PayloadData;
-        if (payload.Length == 0)
-        {
-            return;
-        }
-
-        string flowKey = $"{ip.SourceAddress}:{tcp.SourcePort}->{ip.DestinationAddress}:{tcp.DestinationPort}";
-        DateTime capturedAt = raw.Timeval.Date;
-
-        if (ConfirmedSessions.TryGetValue(flowKey, out var session))
-        {
-            session.FeedSegment(capturedAt, tcp.SequenceNumber, payload);
-            return;
-        }
-
-        int attempts = HandshakeAttempts.GetValueOrDefault(flowKey);
-        if (attempts >= MaxHandshakeAttempts)
-        {
-            return; // gave this flow enough early packets to prove itself, moving on
-        }
-
-        HandshakeAttempts[flowKey] = attempts + 1;
-
-        if (!LooksLikeAionHandshake(payload))
-        {
-            return;
-        }
-
-        var newSession = new AionSession(flowKey);
-        newSession.Diagnostic += msg => Console.WriteLine($"[diag] {msg}");
-        newSession.PacketDecoded += (timestamp, opcode, body) => HandleDecoded(flowKey, timestamp, opcode, body);
-        Console.WriteLine($"[diag] {flowKey}: looks like the Aion game server stream, attaching decoder.");
-        newSession.FeedSegment(capturedAt, tcp.SequenceNumber, payload);
-        ConfirmedSessions[flowKey] = newSession;
-    }
-
-    /// <summary>
-    /// Cheap pre-check on a flow's first observed payload, before paying for full session
-    /// tracking: does it look exactly like the plaintext 11-byte SM_KEY packet?
-    /// </summary>
-    private static bool LooksLikeAionHandshake(byte[] payload)
-    {
-        if (payload.Length < 11)
-        {
-            return false;
-        }
-
-        ushort totalLen = (ushort)(payload[0] | (payload[1] << 8));
-        if (totalLen != 11)
-        {
-            return false;
-        }
-
-        if (payload[4] != Crypto.AionCrypt.StaticServerPacketCode)
-        {
-            return false;
-        }
-
-        ushort obf = (ushort)(payload[2] | (payload[3] << 8));
-        ushort checksum = (ushort)(payload[5] | (payload[6] << 8));
-        return checksum == (ushort)~obf;
-    }
-
-    private static void HandleDecoded(string flowKey, DateTime timestamp, ushort opcode, byte[] body)
-    {
-        OpcodeCounts[opcode] = OpcodeCounts.GetValueOrDefault(opcode) + 1;
-
-        string hexPreview = Convert.ToHexString(body.Take(32).ToArray());
-        string asciiPreview = AsciiPreview(body);
-        Console.WriteLine($"[0x{opcode:X4} len={body.Length}] {hexPreview}  '{asciiPreview}'");
-
-        if (Describers.TryGetValue(opcode, out var describe))
-        {
-            var desc = describe(body);
-            if (desc is not null)
-            {
-                Console.WriteLine($"    -> {desc}");
-            }
-        }
-
-        if (opcode == Opcodes.SM_ATTACK)
-        {
-            var attack = CombatPacketParser.TryParseAttack(body);
-            if (attack is not null)
-            {
-                Aggregator.IngestAttack(timestamp, attack);
-                Console.WriteLine($"    -> live DPS (ALL view, unverified opcode -- see README): {Aggregator.Summarize()}");
-            }
-        }
-    }
-
-    private static readonly Dictionary<ushort, Func<byte[], string?>> Describers = new()
-    {
-        [Opcodes.SM_ATTACK_STATUS] = CombatPacketParser.TryDescribeAttackStatus,
-        [Opcodes.SM_ATTACK] = CombatPacketParser.TryDescribeAttack,
-        [Opcodes.SM_SYSTEM_MESSAGE] = CombatPacketParser.TryDescribeSystemMessage,
-        [Opcodes.SM_NPC_INFO] = CombatPacketParser.TryDescribeNpcInfo,
-        [Opcodes.SM_DELETE] = CombatPacketParser.TryDescribeDelete,
-        [Opcodes.SM_GROUP_MEMBER_INFO] = CombatPacketParser.TryDescribeGroupMemberInfo,
-    };
-
-    private static string AsciiPreview(byte[] body)
-    {
-        var sb = new StringBuilder();
-        foreach (byte b in body.Take(48))
-        {
-            sb.Append(b is >= 0x20 and < 0x7F ? (char)b : '.');
-        }
-
-        return sb.ToString();
     }
 }

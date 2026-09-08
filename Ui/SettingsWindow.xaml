@@ -188,9 +188,9 @@
 
                 <!-- Modeled directly on the AionRainMeter/rainy.ws reference UI the user shared
                      ("Log path: select Aion folder ROOT", a folder-browse button, and a red
-                     warning when the wrong path is selected). Needed for the chat-log-based path
-                     (see README): Chat.log lives inside this folder, and unlike the network path
-                     there is no capture device to auto-discover it from. Moved to be first, per
+                     warning when the wrong path is selected). Chat.log lives inside this folder
+                     and there is nothing to auto-discover it from, so it is asked for once and
+                     everything else depends on it. Moved to be first, per
                      the user's requested section order (Aion Installation / Your Characters /
                      Targets List / User Interface). -->
                 <GroupBox Header="Aion Installation">

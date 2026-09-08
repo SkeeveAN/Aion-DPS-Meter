@@ -8,17 +8,14 @@
          (e.g. run from cmd/PowerShell); double-clicking the exe (no parent console) just opens the
          GUI with nothing else. -->
     <OutputType>WinExe</OutputType>
-    <!-- -windows suffix needed for WPF (Ui/); the tool was always Windows-only anyway (Npcap). -->
+    <!-- -windows suffix needed for WPF (Ui/); Aion itself is Windows-only, so the tool always was. -->
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>AionSniffer</RootNamespace>
     <AssemblyName>AionSniffer</AssemblyName>
-    <!-- Npcap (in "WinPcap API-compatible Mode") must be installed on the Windows machine. -->
-    <!-- Elevation is requested in the manifest, not left to a shortcut's "run as administrator"
-         checkbox: the MSI's Start-menu entry, the desktop shortcut and a plain double-click then
-         all behave identically, and a shortcut recreated later cannot lose the setting. -->
+    <!-- asInvoker: the meter only reads Chat.log, so it needs no elevation. See app.manifest. -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Winged sword: the wings for Aion's Daeva iconography, the blade for what the tool measures.
          Generated rather than drawn by hand: assets/app/make-icon.py rebuilds the .ico from
@@ -31,11 +28,6 @@
          had to be matched to "the 0.3.0 build" from memory. Keep in step with the release tag. -->
     <Version>0.4.0</Version>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="SharpPcap" Version="6.3.0" />
-    <PackageReference Include="PacketDotNet" Version="1.4.7" />
-  </ItemGroup>
 
   <ItemGroup>
     <!-- Skill/class/race data + icons collected in assets/ (see assets/README.md), copied

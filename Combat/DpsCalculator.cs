@@ -1,7 +1,7 @@
 namespace AionSniffer.Combat;
 
 /// <summary>
-/// Pure DPS/iDPS math, deliberately separated from any live capture state so it can be
+/// Pure DPS/iDPS math, deliberately separated from any live session state so it can be
 /// verified against synthetic data. Definitions as settled on (see README "DPS vs. iDPS"):
 ///
 /// - "DPS" (the ALL/open-world view) = a source's damage across however many different

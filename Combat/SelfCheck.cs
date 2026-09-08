@@ -1,7 +1,6 @@
 using System.IO;
 using AionSniffer.ChatLog;
 using AionSniffer.Data;
-using AionSniffer.Protocol;
 
 namespace AionSniffer.Combat;
 
@@ -24,7 +23,6 @@ public static class SelfCheck
         bool ok = true;
         ok &= RunGladiatorVsZaubererScenario();
         ok &= RunMyAionReplayScenario();
-        ok &= RunAttackPacketParsingScenario();
         ok &= RunSkillDatabaseScenario();
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
@@ -271,97 +269,6 @@ public static class SelfCheck
     }
 
     /// <summary>
-    /// Builds a synthetic SM_ATTACK body byte-for-byte the way the emulator's SM_ATTACK.java
-    /// writeImpl would (see CombatPacketParser.TryParseAttack's doc comment), covering all three
-    /// extra-field sizes the shieldType switch can produce: 0 bytes (plain hit), 12 bytes
-    /// (protected hit), and 28 bytes (the shieldType-16 / catch-all case) -- followed by one more
-    /// plain hit, so a wrong 28-byte guess would misalign it and get caught, not just silently
-    /// produce a plausible-looking-but-wrong result. An earlier version only covered the 0- and
-    /// 12-byte branches, leaving the 28-byte catch-all -- the one most likely to hide a bug --
-    /// completely unverified.
-    /// </summary>
-    private static bool RunAttackPacketParsingScenario()
-    {
-        const int attacker = 0x1000_1234;
-        const int target = 0x2000_5678;
-        const byte targetHp = 80;
-        const byte attackerHp = 95;
-
-        var body = new List<byte>();
-        WriteI32(body, attacker);
-        body.Add(1); // attackNo
-        WriteU16(body, 0); // time
-        body.Add(0); // simpleAttackType
-        body.Add(0); // type
-        WriteI32(body, target);
-        body.Add(targetHp);
-        body.Add(attackerHp);
-        WriteI32(body, 0); // counter flag
-        body.Add(4); // hitCount
-
-        // Hit 1: plain, shieldType 0 -> no extra fields.
-        WriteI32(body, 1000);
-        body.Add(5); // attackStatusId
-        body.Add(0); // shieldType
-        body.AddRange(new byte[16]);
-
-        // Hit 2: protected, shieldType 8 -> +12 bytes (protectorId, protectedDamage, protectedSkillId).
-        WriteI32(body, 2000);
-        body.Add(3); // attackStatusId
-        body.Add(8); // shieldType
-        body.AddRange(new byte[16]);
-        WriteI32(body, 999); // protectorId
-        WriteI32(body, 111); // protectedDamage
-        WriteI32(body, 222); // protectedSkillId
-
-        // Hit 3: reflected, shieldType 16 -> +28 bytes (7 x i32, values irrelevant here).
-        WriteI32(body, 3000);
-        body.Add(7); // attackStatusId
-        body.Add(16); // shieldType
-        body.AddRange(new byte[16]);
-        for (int i = 0; i < 7; i++)
-        {
-            WriteI32(body, 0);
-        }
-
-        // Hit 4: plain again. Only reachable at the right values if hit 3's 28-byte skip was
-        // correct -- a wrong extraLen for shieldType 16 would misalign this hit's fields instead.
-        WriteI32(body, 4000);
-        body.Add(9); // attackStatusId
-        body.Add(0); // shieldType
-        body.AddRange(new byte[16]);
-
-        body.Add(0); // trailing list-size byte
-
-        var parsed = CombatPacketParser.TryParseAttack(body.ToArray());
-
-        Console.WriteLine("[selftest] SM_ATTACK multi-hit parsing (synthetic, plain + 12-byte + 28-byte + plain hits):");
-        Console.WriteLine($"  parsed: {(parsed is null ? "null" : CombatPacketParser.TryDescribeAttack(body.ToArray()))}");
-
-        bool structureOk = parsed is not null
-            && parsed.Hits.Count == 4
-            && parsed.AttackerObjectId == attacker
-            && parsed.TargetObjectId == target
-            && parsed.TargetHpPercent == targetHp
-            && parsed.AttackerHpPercent == attackerHp;
-        bool hit1Ok = parsed is not null && parsed.Hits[0] == new CombatPacketParser.AttackHit(1000, 5, 0);
-        bool hit2Ok = parsed is not null && parsed.Hits[1] == new CombatPacketParser.AttackHit(2000, 3, 8);
-        bool hit3Ok = parsed is not null && parsed.Hits[2] == new CombatPacketParser.AttackHit(3000, 7, 16);
-        bool hit4Ok = parsed is not null && parsed.Hits[3] == new CombatPacketParser.AttackHit(4000, 9, 0);
-
-        Console.WriteLine($"  -> header fields correct: {structureOk}");
-        Console.WriteLine($"  -> hit 1 (plain, 0 extra bytes) correct: {hit1Ok}");
-        Console.WriteLine($"  -> hit 2 (shielded, 12 extra bytes) correct: {hit2Ok}");
-        Console.WriteLine($"  -> hit 3 (reflected, 28 extra bytes -- previously untested) correct: {hit3Ok}");
-        Console.WriteLine($"  -> hit 4 (plain, only aligned right if hit 3's 28-byte skip was correct): {hit4Ok}");
-
-        return structureOk && hit1Ok && hit2Ok && hit3Ok && hit4Ok;
-    }
-
-    private static void WriteI32(List<byte> buf, int value) => buf.AddRange(BitConverter.GetBytes(value));
-    private static void WriteU16(List<byte> buf, ushort value) => buf.AddRange(BitConverter.GetBytes(value));
-
-    /// <summary>
     /// Verifies SkillDatabase actually finds and parses assets/skills/skills_en_4x.json at
     /// runtime -- this exercises the real deployment path (AppContext.BaseDirectory + the
     /// csproj's CopyToOutputDirectory setting for assets/), not just the JSON parsing in
@@ -393,37 +300,33 @@ public static class SelfCheck
     }
 
     /// <summary>
-    /// Verifies the AionSession -> LiveAggregator wiring end to end at the object level (two
-    /// synthetic AttackPacket results fed in exactly the way Program.cs's HandleDecoded would),
-    /// without needing bytes or a capture: two attackers hitting the same boss, checks the
-    /// per-source totals AND the rendered DPS column -- specifically that a source with only one
-    /// attributed hit (the normal state of the first line of output on every real run) shows
-    /// "n/a" rather than its damage total dressed up as a rate.
+    /// Verifies the LiveAggregator end to end at the object level: two attackers hitting the same
+    /// boss, checking the per-source totals AND the rendered DPS column -- specifically that a
+    /// source with only one attributed hit (the normal state of the first line of output on every
+    /// real run) shows "n/a" rather than its damage total dressed up as a rate. Events are built
+    /// by hand rather than parsed, so this stays a test of the aggregator alone.
     /// </summary>
     private static bool RunLiveAggregatorScenario()
     {
         var start = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var aggregator = new LiveAggregator();
 
-        var gladiatorHits = new List<CombatPacketParser.AttackHit>
+        aggregator.IngestEvents(new[]
         {
-            new(1000, 5, 0),
-            new(1200, 5, 0),
-        };
-        var zaubererHits = new List<CombatPacketParser.AttackHit> { new(50_000, 7, 0) };
+            new DamageEvent(start, GladiatorId, BossId, 1000, IsHeal: false),
+            new DamageEvent(start, GladiatorId, BossId, 1200, IsHeal: false),
+            new DamageEvent(start.AddSeconds(2), GladiatorId, BossId, 1100, IsHeal: false),
+            new DamageEvent(start.AddSeconds(1), ZaubererId, BossId, 50_000, IsHeal: false),
+        });
 
-        aggregator.IngestAttack(start, new CombatPacketParser.AttackPacket(GladiatorId, BossId, 90, 100, gladiatorHits));
-        aggregator.IngestAttack(start.AddSeconds(2), new CombatPacketParser.AttackPacket(GladiatorId, BossId, 80, 100, new List<CombatPacketParser.AttackHit> { new(1100, 5, 0) }));
-        aggregator.IngestAttack(start.AddSeconds(1), new CombatPacketParser.AttackPacket(ZaubererId, BossId, 85, 95, zaubererHits));
-
-        Console.WriteLine("[selftest] LiveAggregator wiring (synthetic AttackPacket objects, as HandleDecoded would feed them):");
+        Console.WriteLine("[selftest] LiveAggregator wiring (hand-built DamageEvents):");
         Console.WriteLine($"  {aggregator.Summarize()}");
 
         int gladiatorEvents = aggregator.Events.Count(e => e.SourceObjectId == GladiatorId);
         long gladiatorTotal = aggregator.Events.Where(e => e.SourceObjectId == GladiatorId).Sum(e => e.Amount);
         long zaubererTotal = aggregator.Events.Where(e => e.SourceObjectId == ZaubererId).Sum(e => e.Amount);
 
-        bool gladiatorEventCountOk = gladiatorEvents == 3; // 2 hits in the first packet + 1 in the second
+        bool gladiatorEventCountOk = gladiatorEvents == 3; // two at t=0, one two seconds later
         bool gladiatorTotalOk = gladiatorTotal == 1000 + 1200 + 1100;
         bool zaubererTotalOk = zaubererTotal == 50_000;
 
@@ -440,7 +343,7 @@ public static class SelfCheck
         double? gladiatorWallDps = DpsCalculator.AllDpsWallClock(aggregator.Events, GladiatorId);
         bool gladiatorDpsIsReal = gladiatorWallDps is double d && d > 0;
 
-        Console.WriteLine($"  -> gladiator's 3 hits across 2 packets all recorded: {gladiatorEventCountOk}");
+        Console.WriteLine($"  -> gladiator's 3 hits all recorded: {gladiatorEventCountOk}");
         Console.WriteLine($"  -> gladiator total damage correct: {gladiatorTotalOk}");
         Console.WriteLine($"  -> zauberer total damage correct: {zaubererTotalOk}");
         Console.WriteLine($"  -> zauberer's single hit renders as \"n/a\" DPS, not a fake rate: {zaubererShowsNotAvailable && zaubererDoesNotShowTotalAsRate}");

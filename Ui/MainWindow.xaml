@@ -182,7 +182,7 @@
              lesson as Button/ComboBox/CheckBox before it - a Background/Foreground setter alone
              leaves whatever border/bevel chrome the default MenuItem template draws untouched;
              only replacing the template removes it. One template covers top-level headers (App,
-             Session, Settings, Mode), leaf items with no children (Network, Close, ...), and
+             Session, Settings, Mode), leaf items with no children (Close, Load Demo Data, ...), and
              submenu entries - WPF's MenuItem is the same class for all three, distinguished only
              by its Role property, which the Popup.Placement trigger below accounts for. -->
         <Style TargetType="MenuItem">
@@ -290,8 +290,8 @@
                             Background="Transparent" BorderThickness="0" Foreground="#9a9aa2" Margin="0"/>
                 </Grid>
 
-                <!-- Top menu bar: App / Network / Session / Settings / Mode. The original
-                     App/Network/Session/Mode set matched the myaion.eu reference; Settings was
+                <!-- Top menu bar: App / Session / Settings / Mode. The original
+                     App/Session/Mode set matched the myaion.eu reference; Settings was
                      split out of App into its own dropdown per the user's request, since App had
                      grown into one long grab-bag of session/dev/settings items with no fixed place
                      to look for any one of them. Most remaining "App" items are placeholders (no
@@ -299,10 +299,8 @@
                      - the last one specifically not implemented here even as a stub, since
                      silently writing to the Windows Run registry key on click would be exactly the
                      kind of action that needs an explicit ask first, not a UI-parity checkbox).
-                     What IS real: Close, Load Demo Data, Clear sessions, the whole Network menu
-                     (lists actual capture devices via SharpPcap), and everything under Settings.
-                     All "not implemented" items are listed again, with what they'd need, in
-                     README.md's UI-placeholders section. -->
+                     What IS real: Close, Load Demo Data, Clear sessions, and everything under
+                     Settings. -->
                 <Menu DockPanel.Dock="Top" Background="#26262e" Foreground="#e8e8ea">
                     <MenuItem Header="App" Foreground="#e8e8ea">
                         <MenuItem Header="Load session" IsEnabled="False"/>
@@ -321,7 +319,7 @@
                              literally pushing Settings off-screen and unreachable) - a synthetic
                              data loader is a dev/test aid, not something reached every session. -->
                         <MenuItem Header="Load Demo Data" Click="OnLoadDemoDataClicked"
-                                  ToolTip="Fills the grid with synthetic data (same numbers as the selftest) - no capture needed, for visually checking the UI."/>
+                                  ToolTip="Fills the grid with synthetic data (same numbers as the selftest), for visually checking the UI without playing."/>
                         <Separator/>
                         <MenuItem Header="Check for updates" IsEnabled="False"/>
                         <MenuItem Header="Start automatically with Windows" IsEnabled="False"
@@ -330,7 +328,6 @@
                         <Separator/>
                         <MenuItem Header="Close" Click="OnCloseClicked"/>
                     </MenuItem>
-                    <MenuItem Header="Network" Click="OnNetworkMenuClicked" Foreground="#e8e8ea"/>
                     <MenuItem x:Name="SessionMenu" Header="Session" Foreground="#e8e8ea">
                         <MenuItem Header="No sessions recorded yet" IsEnabled="False"/>
                     </MenuItem>

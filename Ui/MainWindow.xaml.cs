@@ -13,14 +13,12 @@ using System.Windows.Threading;
 using AionSniffer.ChatLog;
 using AionSniffer.Combat;
 using AionSniffer.Data;
-using AionSniffer.Protocol;
 
 namespace AionSniffer.Ui;
 
 /// <summary>
-/// The main meter window. Currently self-contained (its own LiveAggregator, fed only by
-/// "Load Demo Data") -- wiring it to Program.cs's real capture loop is a follow-up once the
-/// calibration run confirms the opcodes; see OnAttackDecoded, which is already shaped for that.
+/// The main meter window. Holds its own LiveAggregator, fed entirely from Aion's Chat.log via
+/// ChatLogTailer, with "Load Demo Data" as the offline stand-in for checking the UI.
 /// </summary>
 public partial class MainWindow : Window
 {
@@ -701,22 +699,6 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Real wiring point for the capture pipeline: Program.cs's HandleDecoded would call this
-    /// (via Dispatcher.Invoke/BeginInvoke, since packets arrive on SharpPcap's capture thread,
-    /// not the UI thread) once SM_ATTACK opcode 0x36 is confirmed against a live server.
-    /// </summary>
-    public void OnAttackDecoded(DateTime timestamp, CombatPacketParser.AttackPacket attack)
-    {
-        if (_paused)
-        {
-            return;
-        }
-
-        _aggregator.IngestAttack(timestamp, attack);
-        RefreshRows();
-    }
-
-    /// <summary>
     /// Rebuilds the grid from scratch against the current Mob/Boss filter rather than patching
     /// existing rows in place: with a target filter active, a source's presence in the grid
     /// itself depends on the filter (no damage to the selected target -> no row at all), so an
@@ -912,7 +894,7 @@ public partial class MainWindow : Window
     private void OnLoadDemoDataClicked(object sender, RoutedEventArgs e)
     {
         // Same numbers as SelfCheck's Gladiator/Zauberer scenario -- lets the UI be checked
-        // visually without a capture, and the DPS column can be eyeballed against the selftest's
+        // visually without playing, and the DPS column can be eyeballed against the selftest's
         // console output for the same inputs.
         var start = DateTime.UtcNow;
         const int gladiator = 1;
@@ -930,20 +912,19 @@ public partial class MainWindow : Window
         _playerIdentities[gladiator] = ("Strohmie", "Gladiator", 80);
         _playerIdentities[zauberer] = ("Nxrse", "Sorcerer", 80);
 
-        _aggregator.IngestAttack(start, new CombatPacketParser.AttackPacket(gladiator, boss, 90, 100,
-            new List<CombatPacketParser.AttackHit> { new(1000, 5, 0), new(1200, 5, 0) }));
-        _aggregator.IngestAttack(start.AddSeconds(2), new CombatPacketParser.AttackPacket(gladiator, boss, 80, 100,
-            new List<CombatPacketParser.AttackHit> { new(1100, 5, 0) }));
-        _aggregator.IngestAttack(start.AddSeconds(1), new CombatPacketParser.AttackPacket(zauberer, boss, 85, 95,
-            new List<CombatPacketParser.AttackHit> { new(50_000, 7, 0) }));
+        _aggregator.IngestEvents(new[]
+        {
+            new DamageEvent(start, gladiator, boss, 1000, IsHeal: false),
+            new DamageEvent(start, gladiator, boss, 1200, IsHeal: false),
+            new DamageEvent(start.AddSeconds(2), gladiator, boss, 1100, IsHeal: false),
+            new DamageEvent(start.AddSeconds(1), zauberer, boss, 50_000, IsHeal: false),
 
-        // Second target, hit by only one of the two sources -- so switching the Mob/Boss filter
-        // to it visibly changes both which rows appear and what their DPS/iDPS numbers are,
-        // instead of just relabeling the same aggregate total.
-        _aggregator.IngestAttack(start.AddSeconds(3), new CombatPacketParser.AttackPacket(gladiator, eliteGuard, 70, 100,
-            new List<CombatPacketParser.AttackHit> { new(800, 5, 0) }));
-        _aggregator.IngestAttack(start.AddSeconds(5), new CombatPacketParser.AttackPacket(gladiator, eliteGuard, 50, 100,
-            new List<CombatPacketParser.AttackHit> { new(900, 5, 0) }));
+            // Second target, hit by only one of the two sources -- so switching the Mob/Boss
+            // filter to it visibly changes both which rows appear and what their DPS/iDPS numbers
+            // are, instead of just relabeling the same aggregate total.
+            new DamageEvent(start.AddSeconds(3), gladiator, eliteGuard, 800, IsHeal: false),
+            new DamageEvent(start.AddSeconds(5), gladiator, eliteGuard, 900, IsHeal: false),
+        });
 
         RefreshRows();
     }
@@ -968,7 +949,7 @@ public partial class MainWindow : Window
     /// </summary>
     private List<DamageEvent> RestrictToEngagedTargets(List<DamageEvent> damageEvents)
     {
-        // Network path: no Chat.log name table, so there is no "You" id to anchor the seed on.
+        // Demo data has no Chat.log name table, so there is no "You" id to anchor the seed on.
         if (_chatLogParser is null)
         {
             return damageEvents;
@@ -1269,11 +1250,6 @@ public partial class MainWindow : Window
         };
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
-    }
-
-    private void OnNetworkMenuClicked(object sender, RoutedEventArgs e)
-    {
-        new NetworkSettingsWindow { Owner = this }.ShowDialog();
     }
 
     /// <summary>
