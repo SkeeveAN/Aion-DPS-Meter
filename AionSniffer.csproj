@@ -26,7 +26,7 @@
          workflow was triggered by, so a build can always be identified from a screenshot or a
          Chat.log someone sends in. That was exactly what was missing when a group member's log
          had to be matched to "the 0.3.0 build" from memory. Keep in step with the release tag. -->
-    <Version>0.6.9</Version>
+    <Version>0.6.10</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1283,69 +1283,14 @@ public partial class MainWindow : Window
 
     private void OnClearClicked(object sender, RoutedEventArgs e) => ClearActiveView();
 
-    /// <summary>
-    /// Drops damage on targets the local player's own side never fought -- the "All" view's
-    /// counterpart to picking a single mob in the Mob/Boss filter. Same root cause as
-    /// DropEventsFromRegisteredCharacterNames (two Aion clients sharing one Chat.log), but the
-    /// opposite direction: there the second client duplicates hits on the SAME fight, here it
-    /// narrates a COMPLETELY UNRELATED one. Confirmed against a real Sauro Supply Base run where
-    /// the second client sat next to a training dummy in town: two strangers whacking that dummy
-    /// (1.8M damage between them) ranked 6th and 7th in a run they were never part of.
-    ///
-    /// "Own side" is grown in two steps rather than taken as "whatever You hit", so a mob the
-    /// tank pulls and the local player never touches still counts: seed with the targets You
-    /// traded damage with (either direction, so a pure healer who deals no damage but gets hit
-    /// still seeds), take everyone who attacked those as the group, then keep everything the
-    /// group attacked. An empty seed means the local player never appears in a damage line at
-    /// all -- nothing to anchor on, so nothing is filtered rather than blanking the whole grid.
-    /// </summary>
+    /// <summary>Delegates to Combat/EngagedTargets, which is where the two failure modes this
+    /// filter exists for are documented and tested.</summary>
     private List<DamageEvent> RestrictToEngagedTargets(List<DamageEvent> damageEvents)
     {
-        // Demo data has no Chat.log name table, so there is no "You" id to anchor the seed on.
-        if (_chatLogParser is null)
-        {
-            return damageEvents;
-        }
-
-        int youId = _chatLogParser.Names.GetOrAssignId("You");
-
-        var seedTargets = new HashSet<int>();
-        foreach (DamageEvent ev in damageEvents)
-        {
-            if (ev.SourceObjectId == youId)
-            {
-                seedTargets.Add(ev.TargetObjectId);
-            }
-            else if (ev.TargetObjectId == youId)
-            {
-                seedTargets.Add(ev.SourceObjectId);
-            }
-        }
-
-        if (seedTargets.Count == 0)
-        {
-            return damageEvents;
-        }
-
-        var ownSide = new HashSet<int> { youId };
-        foreach (DamageEvent ev in damageEvents)
-        {
-            if (seedTargets.Contains(ev.TargetObjectId))
-            {
-                ownSide.Add(ev.SourceObjectId);
-            }
-        }
-
-        var engagedTargets = new HashSet<int>(seedTargets);
-        foreach (DamageEvent ev in damageEvents)
-        {
-            if (ownSide.Contains(ev.SourceObjectId))
-            {
-                engagedTargets.Add(ev.TargetObjectId);
-            }
-        }
-
-        return damageEvents.Where(ev => engagedTargets.Contains(ev.TargetObjectId)).ToList();
+        // Demo data has no Chat.log name table, so there is no "You" id to anchor on.
+        return _chatLogParser is null
+            ? damageEvents
+            : EngagedTargets.Filter(damageEvents, _chatLogParser.Names.GetOrAssignId("You"));
     }
 
     /// <summary>Shared by the toolbar Clear button and the ".cleardmg" in-game command.</summary>

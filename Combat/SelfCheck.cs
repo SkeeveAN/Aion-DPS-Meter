@@ -29,6 +29,7 @@ public static class SelfCheck
         ok &= RunItemDatabaseScenario();
         ok &= RunAppVersionScenario();
         ok &= RunFactionResolverScenario();
+        ok &= RunEngagedTargetsScenario();
         ok &= RunAsciiTableScenario();
         ok &= RunToolbarIconScenario();
         ok &= RunChatLogMaintenanceScenario();
@@ -450,6 +451,50 @@ public static class SelfCheck
         Console.WriteLine($"  -> no rows produces no empty frame: {emptyStaysEmpty}");
 
         return fenced && hasRule && aligned && numbersRightAligned && emptyStaysEmpty;
+    }
+
+    /// <summary>
+    /// The filter that keeps a second client's unrelated fight out of the grid. Both cases here
+    /// are real ones the user hit: the Sauro run where strangers at a training dummy in town
+    /// ranked 6th and 7th, and the 1v1 arena where the opponent was missing from the grid
+    /// altogether because every line they produced had the local player as its target.
+    /// </summary>
+    private static bool RunEngagedTargetsScenario()
+    {
+        const int you = 1, mate = 2, boss = 3, opponent = 4, stranger = 5, dummy = 6;
+        var start = new DateTime(2026, 9, 8, 22, 0, 0, DateTimeKind.Utc);
+
+        var events = new List<DamageEvent>
+        {
+            new(start, you, boss, 500, IsHeal: false),                    // our fight
+            new(start.AddSeconds(1), mate, boss, 500, IsHeal: false),     // a teammate joins it
+            new(start.AddSeconds(2), boss, mate, 400, IsHeal: false),     // the boss hits back
+            new(start.AddSeconds(3), opponent, you, 900, IsHeal: false),  // 1v1: only ever hits US
+            new(start.AddSeconds(4), stranger, dummy, 900, IsHeal: false),// the other client's town
+        };
+
+        var kept = EngagedTargets.Filter(events, you);
+
+        bool ourDamageKept = kept.Any(e => e.SourceObjectId == you && e.TargetObjectId == boss);
+        bool teammateKept = kept.Any(e => e.SourceObjectId == mate);
+        bool incomingOnUsKept = kept.Any(e => e.SourceObjectId == opponent && e.TargetObjectId == you);
+        bool incomingOnMateKept = kept.Any(e => e.SourceObjectId == boss && e.TargetObjectId == mate);
+        bool strangerDropped = !kept.Any(e => e.SourceObjectId == stranger);
+
+        // With no local player in sight there is nothing to anchor on; filtering everything away
+        // would leave an empty grid, which is worse than showing too much.
+        bool anchorlessPassesThrough = EngagedTargets.Filter(events, 999).Count == events.Count;
+
+        Console.WriteLine("[selftest] Engaged-target filter:");
+        Console.WriteLine($"  -> our own damage kept: {ourDamageKept}");
+        Console.WriteLine($"  -> a teammate on the same target kept: {teammateKept}");
+        Console.WriteLine($"  -> a 1v1 opponent who only ever hits US is kept: {incomingOnUsKept}");
+        Console.WriteLine($"  -> damage taken by a teammate is kept: {incomingOnMateKept}");
+        Console.WriteLine($"  -> a stranger's unrelated fight is dropped: {strangerDropped}");
+        Console.WriteLine($"  -> nothing to anchor on leaves everything alone: {anchorlessPassesThrough}");
+
+        return ourDamageKept && teammateKept && incomingOnUsKept && incomingOnMateKept
+            && strangerDropped && anchorlessPassesThrough;
     }
 
     /// <summary>
