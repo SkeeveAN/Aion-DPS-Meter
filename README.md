@@ -1,4 +1,4 @@
-**English** · [Deutsch](README.de.md) · [Français](README.fr.md) · [Español](README.es.md)
+🇬🇧 **English** · 🇩🇪 [Deutsch](README.de.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md)
 
 # Aion DPS Meter
 
