@@ -899,9 +899,9 @@ public sealed partial class ChatLogParser
             // client's copy of one event.
             bool duplicateInBucket = !_seenThisBucket.Add(e.Message);
 
-            if (TryParseDamageOrHeal(e.Message, out int sourceId, out int targetId, out long amount, out bool isHeal))
+            if (TryParseDamageOrHeal(e.Message, out int sourceId, out int targetId, out long amount, out bool isHeal, out string? skill))
             {
-                events.Add(new DamageEvent(e.Timestamp, sourceId, targetId, amount, isHeal));
+                events.Add(new DamageEvent(e.Timestamp, sourceId, targetId, amount, isHeal, skill, IsCriticalLine(e.Message)));
             }
             else if (duplicateInBucket)
             {
@@ -1021,11 +1021,33 @@ public sealed partial class ChatLogParser
     /// as best-effort fallbacks, see class remarks) and dispatches through the shared, language-
     /// agnostic attribution logic in TryParseWithPatternSet.
     /// </summary>
-    private bool TryParseDamageOrHeal(string message, out int sourceId, out int targetId, out long amount, out bool isHeal)
+    /// <summary>
+    /// Every language marks a critical hit with a prefix on the whole line, so the raw text answers
+    /// this without touching thirty regexes -- and it keeps working for the shapes where the prefix
+    /// attaches to the target rather than the attacker.
+    ///
+    /// <para>Only trustworthy for the LOCAL player. Measured across four logs of one Sauro fight:
+    /// an observer's client marks about half of another player's crits (8,8% where that player's
+    /// own client recorded 19,0%), and one client marked none at all because its chat filter for
+    /// crits was off. Anything built on this for someone else is a floor, not a rate.</para>
+    /// </summary>
+    private static bool IsCriticalLine(string message) =>
+        CriticalHitPrefixes.Any(prefix => message.StartsWith(prefix, StringComparison.Ordinal));
+
+    private static readonly string[] CriticalHitPrefixes =
+    {
+        "Critical Hit!",        // English
+        "Kritischer Treffer!",  // German
+        "Coup critique !",      // French
+        "¡Golpe crítico!",      // Spanish
+        "Критический удар!",    // Russian
+    };
+
+    private bool TryParseDamageOrHeal(string message, out int sourceId, out int targetId, out long amount, out bool isHeal, out string? skill)
     {
         foreach (var set in DamageHealPatternSets)
         {
-            if (TryParseWithPatternSet(set, message, out sourceId, out targetId, out amount, out isHeal))
+            if (TryParseWithPatternSet(set, message, out sourceId, out targetId, out amount, out isHeal, out skill))
             {
                 return true;
             }
@@ -1034,6 +1056,7 @@ public sealed partial class ChatLogParser
         sourceId = targetId = 0;
         amount = 0;
         isHeal = false;
+        skill = null;
         return false;
     }
 
@@ -1074,9 +1097,10 @@ public sealed partial class ChatLogParser
         }
     }
 
-    private bool TryParseWithPatternSet(DamageHealPatternSet p, string message, out int sourceId, out int targetId, out long amount, out bool isHeal)
+    private bool TryParseWithPatternSet(DamageHealPatternSet p, string message, out int sourceId, out int targetId, out long amount, out bool isHeal, out string? skill)
     {
         Match match;
+        skill = null;
 
         if (p.DotAnnouncement is { } dotAnnouncement && (match = dotAnnouncement.Match(message)).Success)
         {
@@ -1104,6 +1128,7 @@ public sealed partial class ChatLogParser
                 sourceId = Names.GetOrAssignId(caster);
                 targetId = Names.GetOrAssignId(target);
                 amount = ParseGroupedAmount(match.Groups["amount"].Value);
+                skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
                 return true;
             }
 
@@ -1119,6 +1144,7 @@ public sealed partial class ChatLogParser
             sourceId = Names.GetOrAssignId(match.Groups["attacker"].Value);
             targetId = Names.GetOrAssignId(match.Groups["target"].Value);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
+            skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }
 
@@ -1128,6 +1154,7 @@ public sealed partial class ChatLogParser
             sourceId = Names.GetOrAssignId(match.Groups["attacker"].Value);
             targetId = Names.GetOrAssignId(YouName);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
+            skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }
 
@@ -1139,6 +1166,7 @@ public sealed partial class ChatLogParser
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
             RaiseSkillUsedIfPresent(match, match.Groups["attacker"].Value);
             RememberDotCaster(match, match.Groups["attacker"].Value, YouName);
+            skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }
 
@@ -1148,6 +1176,7 @@ public sealed partial class ChatLogParser
             sourceId = Names.GetOrAssignId(match.Groups["attacker"].Value);
             targetId = Names.GetOrAssignId(match.Groups["target"].Value);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
+            skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }
 
@@ -1158,6 +1187,7 @@ public sealed partial class ChatLogParser
             targetId = Names.GetOrAssignId(match.Groups["target"].Value);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
             RaiseSkillUsedIfPresent(match, YouName);
+            skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }
 
@@ -1187,6 +1217,7 @@ public sealed partial class ChatLogParser
             RaiseSkillUsedIfPresent(match, attackerIsLocalPlayer ? YouName : attackerName);
             RememberDotCaster(match, attackerIsLocalPlayer ? YouName : attackerName,
                 targetIsLocalPlayer ? YouName : targetName);
+            skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }
 
@@ -1197,6 +1228,7 @@ public sealed partial class ChatLogParser
             targetId = Names.GetOrAssignId(match.Groups["target"].Value);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
             RaiseSkillUsedIfPresent(match, YouName);
+            skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }
 
@@ -1206,6 +1238,7 @@ public sealed partial class ChatLogParser
             sourceId = Names.GetOrAssignId(match.Groups["healer"].Value);
             targetId = Names.GetOrAssignId(match.Groups["target"].Value);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
+            skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }
 
@@ -1216,6 +1249,7 @@ public sealed partial class ChatLogParser
             targetId = sourceId;
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
             RaiseSkillUsedIfPresent(match, match.Groups["who"].Value);
+            skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }
 

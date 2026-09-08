@@ -877,9 +877,15 @@ public partial class MainWindow : Window
         // an emblem -- exactly what the user saw after a Sauro run, since characters registered
         // before the faction field existed carry an empty one. Skipping empties instead means one
         // character with a faction set is enough to label the whole run.
-        string own = FirstFaction(_characters.Where(c => c.Name == _activeCharacterName))
-            ?? FirstFaction(_characters)
-            ?? "";
+        // A hand-set faction is the user's answer and outranks anything derived from the log.
+        if (_knownPlayers.Find(row.Name) is { FactionIsManual: true, Faction.Length: > 0 } pinned)
+        {
+            row.Faction = pinned.Faction;
+            _knownPlayers.Remember(row.Name, row.ClassName, null);
+            return;
+        }
+
+        string own = OwnFaction();
 
         row.Faction = own.Length == 0 || side == Side.Unknown
             ? ""
@@ -894,6 +900,11 @@ public partial class MainWindow : Window
 
         _knownPlayers.Remember(row.Name, row.ClassName, row.Faction);
     }
+
+    /// <summary>The local player's own faction, from the active character or any registered one
+    /// that has it set. Everyone else's is derived relative to this.</summary>
+    private string OwnFaction() =>
+        FirstFaction(_characters.Where(c => c.Name == _activeCharacterName)) ?? FirstFaction(_characters) ?? "";
 
     private static string? FirstFaction(IEnumerable<CharacterProfile> characters) =>
         characters.Select(c => c.Faction).FirstOrDefault(f => !string.IsNullOrEmpty(f));
@@ -1279,6 +1290,50 @@ public partial class MainWindow : Window
                     "Empty Chat.log", MessageBoxButton.OK, MessageBoxImage.Warning);
                 break;
         }
+    }
+
+    /// <summary>
+    /// Flips the selected player between the two factions and pins that choice. Needed because the
+    /// log cannot always answer it: an arena opponent is frequently the SAME faction as you, and
+    /// trading blows with someone proves only that you are fighting them.
+    ///
+    /// <para>Written through SetFactionManually rather than Remember, so the resolver's own verdict
+    /// never quietly takes it back on the next refresh.</para>
+    /// </summary>
+    private void OnSwitchFactionClicked(object sender, RoutedEventArgs e)
+    {
+        if (PlayersGrid.SelectedItem is not PlayerRow row || row.Name.Length == 0)
+        {
+            return;
+        }
+
+        // With nothing known yet, start from whichever faction is not the local player's -- the
+        // reason to reach for this menu is almost always an opponent.
+        string current = row.Faction;
+        string next = current == "Elyos" ? "Asmodian"
+            : current == "Asmodian" ? "Elyos"
+            : Opposite(OwnFaction()) is { Length: > 0 } opposite ? opposite : "Elyos";
+
+        _knownPlayers.SetFactionManually(row.Name, next);
+        _knownPlayers.SaveIfChanged();
+        row.Faction = next;
+    }
+
+    private void OnShowPlayerDetailsClicked(object sender, RoutedEventArgs e)
+    {
+        if (PlayersGrid.SelectedItem is not PlayerRow row)
+        {
+            return;
+        }
+
+        bool isLocalPlayer = _chatLogParser?.Names.NameFor(row.ObjectId) == "You";
+        var mine = _aggregator.Events.Where(ev => ev.SourceObjectId == row.ObjectId).ToList();
+
+        new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, isLocalPlayer, mine,
+            id => _chatLogParser?.Names.NameFor(id) ?? ResolveDisplayName(id))
+        {
+            Owner = this,
+        }.Show();
     }
 
     private void OnClearClicked(object sender, RoutedEventArgs e) => ClearActiveView();

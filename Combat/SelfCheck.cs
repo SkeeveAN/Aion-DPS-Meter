@@ -30,6 +30,7 @@ public static class SelfCheck
         ok &= RunAppVersionScenario();
         ok &= RunFactionResolverScenario();
         ok &= RunEngagedTargetsScenario();
+        ok &= RunCritEstimatorScenario();
         ok &= RunAsciiTableScenario();
         ok &= RunToolbarIconScenario();
         ok &= RunChatLogMaintenanceScenario();
@@ -305,6 +306,20 @@ public static class SelfCheck
         db.Remember("Tijari", "Ranger", "Asmodian");
         bool realValueOverwrites = db.Find("Tijari")?.Faction == "Asmodian";
 
+        // A hand-set faction survives everything the resolver later decides. In an arena the
+        // opponent is often the same faction, which no evidence in the log can reveal, so the
+        // user's correction has to be the last word rather than one input among several.
+        db.Remember("Neodein", "Sorcerer", "Asmodian");
+        db.SetFactionManually("Neodein", "Elyos");
+        db.Remember("Neodein", "Sorcerer", "Asmodian");
+        bool manualFactionSticks = db.Find("Neodein")?.Faction == "Elyos";
+
+        // ...but the class must still keep learning; only the faction is pinned.
+        db.SetFactionManually("Azazil", "Elyos");
+        db.Remember("Azazil", "Chanter", "Asmodian");
+        var pinnedButLearning = db.Find("Azazil");
+        bool classStillLearned = pinnedButLearning?.ClassName == "Chanter" && pinnedButLearning.Faction == "Elyos";
+
         // "You" is not a name; storing it would attach one entry to whoever is playing.
         db.Remember("You", "Gladiator", "Elyos");
         bool localPlayerNotStored = db.Find("You") is null;
@@ -317,9 +332,11 @@ public static class SelfCheck
         Console.WriteLine($"  -> a real new value still overwrites: {realValueOverwrites}");
         Console.WriteLine($"  -> \"You\" is never stored as a name: {localPlayerNotStored}");
         Console.WriteLine($"  -> an unseen player reports null: {unknownIsNull}");
+        Console.WriteLine($"  -> a hand-set faction is never overwritten: {manualFactionSticks}");
+        Console.WriteLine($"  -> pinning the faction does not freeze the class: {classStillLearned}");
 
         return survivesPlaceholders && learnsIncrementally && realValueOverwrites
-            && localPlayerNotStored && unknownIsNull;
+            && localPlayerNotStored && unknownIsNull && manualFactionSticks && classStillLearned;
     }
 
     /// <summary>
@@ -451,6 +468,68 @@ public static class SelfCheck
         Console.WriteLine($"  -> no rows produces no empty frame: {emptyStaysEmpty}");
 
         return fenced && hasRule && aligned && numbersRightAligned && emptyStaysEmpty;
+    }
+
+    /// <summary>
+    /// Estimating another player's crits from the damage numbers, since their client only marks
+    /// about half of them. Built from a skill whose normal hit lands for ~900 and whose crit lands
+    /// for ~2.100 -- the 2,3x ratio measured on labelled data.
+    /// </summary>
+    private static bool RunCritEstimatorScenario()
+    {
+        const int attacker = 1, boss = 2, otherBoss = 3;
+        var start = new DateTime(2026, 9, 8, 22, 0, 0, DateTimeKind.Utc);
+        var events = new List<DamageEvent>();
+
+        // Eight normal hits and two crits on one boss.
+        foreach (long amount in new long[] { 880, 910, 895, 920, 870, 905, 930, 890 })
+        {
+            events.Add(new DamageEvent(start, attacker, boss, amount, IsHeal: false, Skill: "Swift Edge"));
+        }
+
+        events.Add(new DamageEvent(start, attacker, boss, 2100, IsHeal: false, Skill: "Swift Edge"));
+        events.Add(new DamageEvent(start, attacker, boss, 2210, IsHeal: false, Skill: "Swift Edge"));
+
+        var marked = CritEstimator.Estimate(events, trustLoggedFlag: false);
+        bool critsFound = marked.Count(kv => kv.Value) == 2;
+        bool normalsNotFlagged = events.Take(8).All(e => !marked[e]);
+
+        // A second boss with different defence: the same skill lands for less there, and pooling
+        // the two would drag the threshold up until the first boss's crits looked normal.
+        var mixed = new List<DamageEvent>(events);
+        foreach (long amount in new long[] { 300, 310, 295, 305, 315, 290 })
+        {
+            mixed.Add(new DamageEvent(start, attacker, otherBoss, amount, IsHeal: false, Skill: "Swift Edge"));
+        }
+
+        var mixedMarked = CritEstimator.Estimate(mixed, trustLoggedFlag: false);
+        bool targetsKeptApart = mixedMarked.Count(kv => kv.Value) == 2;
+
+        // Too few samples to see two clusters: guessing there would invent a crit rate.
+        var sparse = new List<DamageEvent>
+        {
+            new(start, attacker, boss, 900, IsHeal: false, Skill: "Rare Skill"),
+            new(start, attacker, boss, 2100, IsHeal: false, Skill: "Rare Skill"),
+        };
+        bool sparseGroupsSkipped = !CritEstimator.Estimate(sparse, trustLoggedFlag: false).Any(kv => kv.Value);
+
+        // For the local player the log is the answer and must not be second-guessed.
+        var logged = new List<DamageEvent>
+        {
+            new(start, attacker, boss, 900, IsHeal: false, Skill: "Swift Edge", IsCritical: true),
+            new(start, attacker, boss, 5000, IsHeal: false, Skill: "Swift Edge"),
+        };
+        var trusted = CritEstimator.Estimate(logged, trustLoggedFlag: true);
+        bool logBeatsGuess = trusted[logged[0]] && !trusted[logged[1]];
+
+        Console.WriteLine("[selftest] Crit estimation from damage alone:");
+        Console.WriteLine($"  -> both crits found among normal hits: {critsFound}");
+        Console.WriteLine($"  -> normal hits not flagged: {normalsNotFlagged}");
+        Console.WriteLine($"  -> a second target with its own damage range does not blur it: {targetsKeptApart}");
+        Console.WriteLine($"  -> too few samples means no guessing: {sparseGroupsSkipped}");
+        Console.WriteLine($"  -> the local player's own log outranks the estimate: {logBeatsGuess}");
+
+        return critsFound && normalsNotFlagged && targetsKeptApart && sparseGroupsSkipped && logBeatsGuess;
     }
 
     /// <summary>

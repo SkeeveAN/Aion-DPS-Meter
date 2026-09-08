@@ -580,6 +580,17 @@
                          overrides RowBackground AND AlternatingRowBackground above: those are set
                          on the DataGrid itself and would otherwise win on every second row, which
                          would make the marking look like it came and went at random. -->
+                    <!-- Right-click menu per row. Faction is correctable by hand because the log
+                         cannot always answer it: in an arena the opponent is frequently the SAME
+                         faction, and fighting someone only ever proves hostility, never which
+                         banner they fight under. -->
+                    <DataGrid.ContextMenu>
+                        <ContextMenu Background="#26262e" Foreground="#e8e8ea">
+                            <MenuItem Header="Details anzeigen" Click="OnShowPlayerDetailsClicked"/>
+                            <Separator/>
+                            <MenuItem Header="Fraktion wechseln" Click="OnSwitchFactionClicked"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Style.Triggers>

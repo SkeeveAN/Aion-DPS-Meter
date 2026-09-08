@@ -10,6 +10,12 @@ public sealed class KnownPlayer
     public string ClassName { get; set; } = "";
     public string Faction { get; set; } = "";
 
+    /// <summary>Set when the user corrected the faction by hand. The resolver then leaves this
+    /// player alone: in an arena the opponent is often the SAME faction, which no amount of
+    /// evidence from the log can reveal -- fighting someone proves hostility, never their
+    /// banner.</summary>
+    public bool FactionIsManual { get; set; }
+
     /// <summary>When this entry was last confirmed, so a stale record can be judged later. Stored
     /// as UTC: a raid group spans time zones, and a local timestamp would be meaningless the
     /// moment the file is compared with anyone else's.</summary>
@@ -69,9 +75,32 @@ public sealed class KnownPlayers
     public KnownPlayer? Find(string name) => _byName.GetValueOrDefault(name);
 
     /// <summary>
+    /// Records the user's own answer, which from then on outranks anything derived. Kept apart
+    /// from <see cref="Remember"/> so an automatic update cannot quietly overwrite a correction.
+    /// </summary>
+    public void SetFactionManually(string name, string faction)
+    {
+        if (name.Length == 0 || name is "You" or "you")
+        {
+            return;
+        }
+
+        if (!_byName.TryGetValue(name, out var entry))
+        {
+            _byName[name] = entry = new KnownPlayer { Name = name };
+        }
+
+        entry.Faction = faction;
+        entry.FactionIsManual = true;
+        entry.LastSeenUtc = DateTime.UtcNow;
+        _dirty = true;
+    }
+
+    /// <summary>
     /// Records what is currently known about a player. Empty or placeholder values are ignored
     /// rather than written, so calling this on every grid refresh -- which is what MainWindow does
-    /// -- cannot erode the file down to bare names.
+    /// -- cannot erode the file down to bare names. A faction the user set by hand is never
+    /// overwritten here.
     /// </summary>
     public void Remember(string name, string? className, string? faction)
     {
@@ -92,7 +121,7 @@ public sealed class KnownPlayers
             _dirty = true;
         }
 
-        if (IsReal(faction) && entry.Faction != faction)
+        if (IsReal(faction) && entry.Faction != faction && !entry.FactionIsManual)
         {
             entry.Faction = faction!;
             _dirty = true;
