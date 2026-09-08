@@ -1,6 +1,7 @@
 using System.IO;
 using AionSniffer.ChatLog;
 using AionSniffer.Data;
+using AionSniffer.Update;
 
 namespace AionSniffer.Combat;
 
@@ -25,6 +26,7 @@ public static class SelfCheck
         ok &= RunMyAionReplayScenario();
         ok &= RunSkillDatabaseScenario();
         ok &= RunItemDatabaseScenario();
+        ok &= RunAppVersionScenario();
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
@@ -267,6 +269,50 @@ public static class SelfCheck
         bool matches = iDps is double v && Math.Abs(v - expectedIDps) < 1.0;
         Console.WriteLine($"  -> matches within rounding: {matches}");
         return matches;
+    }
+
+    /// <summary>
+    /// Version parsing for the update check. Cheap to test and easy to get subtly wrong, and the
+    /// failure mode is invisible: a build that quietly believes it is newer than every release
+    /// never offers an update again, and nobody notices until someone asks why they are still on
+    /// an old version.
+    ///
+    /// The revision case is the real trap. The assembly reports "0.5.1.0" while the release it was
+    /// built from is tagged "v0.5.1" -- compared as-is, System.Version says 0.5.1.0 &gt; 0.5.1 and
+    /// every installed copy would consider itself ahead of the release forever.
+    /// </summary>
+    private static bool RunAppVersionScenario()
+    {
+        Console.WriteLine("[selftest] Update version comparison:");
+        Console.WriteLine($"  running build reports \"{AppVersion.Text}\" -> {AppVersion.Current}");
+
+        bool tagPrefixStripped = AppVersion.Parse("v0.5.1") == new Version(0, 5, 1)
+            && AppVersion.Parse("0.5.1") == new Version(0, 5, 1);
+        bool prereleaseSuffixDropped = AppVersion.Parse("v1.0.0-beta.2") == new Version(1, 0, 0);
+        bool revisionIgnored = AppVersion.Parse("0.5.1.0") == AppVersion.Parse("v0.5.1");
+        bool shortFormPadded = AppVersion.Parse("v2.0") == new Version(2, 0, 0);
+        bool garbageIsNotNewer = AppVersion.Parse("nightly") == new Version(0, 0, 0);
+        bool ordersCorrectly = AppVersion.Parse("v0.5.2") > AppVersion.Parse("v0.5.1")
+            && AppVersion.Parse("v0.10.0") > AppVersion.Parse("v0.9.9");
+
+        // The running build must know its own version. This started out as a throwaway line in the
+        // output above and immediately failed: Current was declared before Text, so it parsed a
+        // null and every build reported 0.0.0 -- meaning every release looks newer and the update
+        // notice never goes away. Asserted, not just printed, so the ordering cannot silently
+        // regress.
+        bool knowsItsOwnVersion = AppVersion.Current > new Version(0, 0, 0)
+            && AppVersion.Current == AppVersion.Parse(AppVersion.Text);
+
+        Console.WriteLine($"  -> \"v\" prefix stripped: {tagPrefixStripped}");
+        Console.WriteLine($"  -> prerelease suffix dropped: {prereleaseSuffixDropped}");
+        Console.WriteLine($"  -> assembly's trailing .0 revision does not read as newer: {revisionIgnored}");
+        Console.WriteLine($"  -> two-part tag padded to three: {shortFormPadded}");
+        Console.WriteLine($"  -> unparsable tag cannot outrank a real one: {garbageIsNotNewer}");
+        Console.WriteLine($"  -> newer releases compare greater (incl. 10 > 9): {ordersCorrectly}");
+        Console.WriteLine($"  -> the running build knows its own version: {knowsItsOwnVersion}");
+
+        return tagPrefixStripped && prereleaseSuffixDropped && revisionIgnored
+            && shortFormPadded && garbageIsNotNewer && ordersCorrectly && knowsItsOwnVersion;
     }
 
     /// <summary>

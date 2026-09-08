@@ -2,8 +2,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,7 @@ using System.Windows.Threading;
 using AionSniffer.ChatLog;
 using AionSniffer.Combat;
 using AionSniffer.Data;
+using AionSniffer.Update;
 
 namespace AionSniffer.Ui;
 
@@ -80,6 +82,14 @@ public partial class MainWindow : Window
     private string? _chatLogPath;
     private readonly DispatcherTimer _chatLogTimer = new() { Interval = TimeSpan.FromSeconds(1) };
 
+    /// <summary>Five minutes, per the user. GitHub's anonymous API allows 60 requests an hour per
+    /// IP, so 12 is comfortably inside it even with a second client running alongside.</summary>
+    private readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromMinutes(5) };
+
+    /// <summary>The update already found and shown in the status row, so a repeating check does
+    /// not keep re-announcing the same one -- and so clicking the notice knows what to install.</summary>
+    private UpdateInfo? _pendingUpdate;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -88,12 +98,7 @@ public partial class MainWindow : Window
         // AionSniffer.csproj's <Version> is the only place it is written. Needed because builds are
         // handed around the group by hand -- a screenshot or a Chat.log recorded by someone else is
         // otherwise impossible to pin to a build, which already cost a round of guesswork once.
-        // InformationalVersion carries a "+<commit sha>" suffix from the SDK; only the part before
-        // it is the version anyone means.
-        string version = (Assembly.GetExecutingAssembly()
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-            ?? "").Split('+')[0];
-        Title = version.Length > 0 ? $"AionSniffer DMG Meter {version}" : "AionSniffer DMG Meter";
+        Title = AppVersion.Text.Length > 0 ? $"AionSniffer DMG Meter {AppVersion.Text}" : "AionSniffer DMG Meter";
 
         PlayersGrid.ItemsSource = _rows;
         LootGrid.ItemsSource = _lootRows;
@@ -119,6 +124,13 @@ public partial class MainWindow : Window
         lootView.LiveSortingProperties.Add(nameof(LootRow.Quantity));
 
         _chatLogTimer.Tick += OnChatLogTimerTick;
+
+        // Startup check plus every five minutes after that, both silent about failures (see
+        // RunUpdateCheck). Fire-and-forget on purpose: an update check must never delay the window
+        // appearing, and there is nothing to wait for -- its only outcome is a line in the footer.
+        _updateTimer.Tick += (_, _) => _ = RunUpdateCheck(announceResult: false);
+        _updateTimer.Start();
+        _ = RunUpdateCheck(announceResult: false);
         var settings = MeterSettings.Load();
         RestoreWindowGeometry(settings);
         StartChatLogTailing(settings);
@@ -694,6 +706,7 @@ public partial class MainWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _chatLogTimer.Stop();
+        _updateTimer.Stop();
         _overlay?.Dispose();
         base.OnClosed(e);
     }
@@ -927,6 +940,117 @@ public partial class MainWindow : Window
         });
 
         RefreshRows();
+    }
+
+    /// <summary>
+    /// Asks GitHub whether a newer release exists and, if so, puts a quiet line in the status row.
+    ///
+    /// <paramref name="announceResult"/> separates the two callers. The automatic checks (startup
+    /// and the five-minute timer) pass false: they swallow every failure, because a machine that
+    /// is offline, or a GitHub that is rate-limiting, would otherwise produce a message box on top
+    /// of a boss fight every five minutes. The menu item passes true, because a check the user
+    /// just asked for that silently does nothing is indistinguishable from "you are up to date",
+    /// which is the one answer it must not fake.
+    /// </summary>
+    private async Task RunUpdateCheck(bool announceResult)
+    {
+        // The automatic checks respect the setting; the menu item ignores it, since clicking it IS
+        // the consent that setting stands in for.
+        if (!announceResult && !MeterSettings.Load().CheckForUpdates)
+        {
+            return;
+        }
+
+        UpdateInfo? update;
+        try
+        {
+            update = await UpdateChecker.CheckAsync();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        {
+            if (announceResult)
+            {
+                MessageBox.Show(this, $"Could not reach GitHub to check for updates.\n\n{ex.Message}",
+                    "Check for updates", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+            return;
+        }
+
+        _pendingUpdate = update;
+
+        if (update is null)
+        {
+            UpdateNotice.Visibility = Visibility.Collapsed;
+            if (announceResult)
+            {
+                MessageBox.Show(this, $"You are running the latest version ({AppVersion.Text}).",
+                    "Check for updates", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+            return;
+        }
+
+        UpdateNotice.Text = $"Update {update.TagName} available";
+        UpdateNotice.Visibility = Visibility.Visible;
+
+        if (announceResult)
+        {
+            OfferUpdate(update);
+        }
+    }
+
+    private void OnCheckForUpdatesClicked(object sender, RoutedEventArgs e) => _ = RunUpdateCheck(announceResult: true);
+
+    private void OnUpdateNoticeClicked(object sender, MouseButtonEventArgs e)
+    {
+        if (_pendingUpdate is { } update)
+        {
+            OfferUpdate(update);
+        }
+    }
+
+    /// <summary>
+    /// Asks before doing anything, and says plainly what will happen: the installer needs this
+    /// process gone to replace its own files, and a per-machine MSI raises its own UAC prompt.
+    /// Downloading ~57 MB and closing the meter mid-raid is not something to do unannounced, so
+    /// nothing here runs without the user having clicked twice.
+    /// </summary>
+    private async void OfferUpdate(UpdateInfo update)
+    {
+        string question = update.MsiUrl is null
+            ? $"Version {update.TagName} is available (you have {AppVersion.Text}).\n\n" +
+              "This release has no installer attached. Open the release page in your browser?"
+            : $"Version {update.TagName} is available (you have {AppVersion.Text}).\n\n" +
+              "Download it and start the installer? The meter will close, and Windows will ask for " +
+              "administrator rights to install.";
+
+        if (MessageBox.Show(this, question, "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        if (update.MsiUrl is null)
+        {
+            UpdateChecker.OpenReleasePage(update.ReleasePageUrl);
+            return;
+        }
+
+        try
+        {
+            UpdateNotice.Text = $"Downloading {update.TagName}...";
+            string msi = await UpdateChecker.DownloadMsiAsync(update);
+            UpdateChecker.LaunchInstaller(msi);
+            Close();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or UnauthorizedAccessException)
+        {
+            UpdateNotice.Text = $"Update {update.TagName} available";
+            MessageBox.Show(this,
+                $"The download failed.\n\n{ex.Message}\n\nOpening the release page instead so you can install it by hand.",
+                "Update", MessageBoxButton.OK, MessageBoxImage.Warning);
+            UpdateChecker.OpenReleasePage(update.ReleasePageUrl);
+        }
     }
 
     private void OnClearClicked(object sender, RoutedEventArgs e) => ClearAllData();

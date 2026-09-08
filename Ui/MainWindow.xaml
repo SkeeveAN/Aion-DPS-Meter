@@ -321,7 +321,7 @@
                         <MenuItem Header="Load Demo Data" Click="OnLoadDemoDataClicked"
                                   ToolTip="Fills the grid with synthetic data (same numbers as the selftest), for visually checking the UI without playing."/>
                         <Separator/>
-                        <MenuItem Header="Check for updates" IsEnabled="False"/>
+                        <MenuItem Header="Check for updates" Click="OnCheckForUpdatesClicked"/>
                         <MenuItem Header="Start automatically with Windows" IsEnabled="False"
                                   ToolTip="Not implemented on purpose: would write to the Windows startup registry key, a system-wide change that needs an explicit ask, not a UI-parity checkbox."/>
                         <MenuItem Header="Minimize to system tray" IsEnabled="False"/>
@@ -525,6 +525,17 @@
                     <TextBlock x:Name="GpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
                     <TextBlock Text="Kinah:" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
                     <TextBlock x:Name="KinahValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
+
+                    <!-- Update notice. Deliberately a quiet line in the status row and NOT a
+                         popup: the meter sits on top of a running game, and a modal dialog
+                         appearing mid-boss because a background timer fired would steal focus
+                         from the fight. It only becomes visible when there is something to say,
+                         and clicking it is what starts anything. -->
+                    <TextBlock x:Name="UpdateNotice" Visibility="Collapsed" VerticalAlignment="Center"
+                               Margin="16,0,8,0" Foreground="#69e15e" Cursor="Hand"
+                               MouseLeftButtonUp="OnUpdateNoticeClicked"
+                               TextDecorations="Underline"
+                               ToolTip="A newer version is available - click to download and install it."/>
                 </StackPanel>
 
                 <!-- Left nav rail: mirrors MyAion's 5 view icons. Only "Damage Distribution" has a

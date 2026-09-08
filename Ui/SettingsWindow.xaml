@@ -325,6 +325,13 @@
                     </StackPanel>
                 </GroupBox>
 
+                <!-- The meter's only outbound network call, so it gets a real switch rather than
+                     being an invisible background behaviour. See MeterSettings.CheckForUpdates. -->
+                <GroupBox Header="Updates">
+                    <CheckBox x:Name="CheckForUpdatesBox" Content="Check GitHub for new versions (at startup and every 5 minutes)"
+                              ToolTip="The only thing this program ever sends anywhere. Turn it off and nothing leaves your machine; 'Check for updates' in the App menu still works when you ask for it."/>
+                </GroupBox>
+
             </StackPanel>
         </ScrollViewer>
     </DockPanel>

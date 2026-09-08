@@ -48,6 +48,14 @@ public sealed class MeterSettings
     public double? NameColumnWidth { get; set; }
     public double? DpsColumnWidth { get; set; }
 
+    /// <summary>Whether the meter asks GitHub for a newer release -- at startup and every five
+    /// minutes while it runs (see MainWindow's update timer). Default on, but a real switch and
+    /// not a decorative one: this is the program's only outbound network call, and the README
+    /// promises that nothing leaves the machine, so anyone who wants that promise kept literally
+    /// can turn it off. The "Check for updates" menu item still works when it is off -- that one
+    /// is the user asking, not the program deciding.</summary>
+    public bool CheckForUpdates { get; set; } = true;
+
     /// <summary>Root folder of the Aion client install (e.g. "D:\Spiele\AION\OriginAion"), set in
     /// the Settings dialog. This is where Chat.log lives, and there is no way to auto-discover it,
     /// so the user picks it once. Consumed by MainWindow's ChatLogTailer, restarted on change.</summary>

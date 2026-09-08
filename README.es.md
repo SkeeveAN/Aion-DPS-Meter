@@ -6,7 +6,9 @@ Un medidor de DPS y botín para **AION 4.6 (OriginAion)** que funciona exclusiva
 archivo `Chat.log` del juego.
 
 Lee un archivo de texto que el cliente escribe por su cuenta. No captura tráfico de red ni lee o
-escribe en el proceso del juego. No se envía nada a ninguna parte: todo se queda en tu equipo.
+escribe en el proceso del juego. Nada de tu partida sale de tu equipo: ni daño, ni botín, ni
+nombres. Lo único que envía es una comprobación de actualizaciones, que pregunta a GitHub si
+existe una versión más nueva y se puede desactivar; consulta [Actualizaciones](#actualizaciones).
 
 ## Instalación
 
@@ -72,6 +74,25 @@ Escríbelos como líneas de chat normales para manejar el medidor sin salir del 
 Solo los personajes que hayas registrado en los ajustes pueden lanzarlos, de modo que un
 `.cleardmg` escrito por un desconocido en un canal que ni siquiera estás leyendo no puede borrar
 tu sesión.
+
+## Actualizaciones
+
+El medidor pregunta a GitHub por una versión más nueva al arrancar y cada cinco minutos mientras
+está abierto. Cuando encuentra una, aparece una línea verde en la barra de estado inferior: nada
+de ventanas emergentes, porque el programa está encima de un juego en marcha y un diálogo que roba
+el foco en mitad de un jefe es peor que una actualización tardía. Al pulsar esa línea se te
+pregunta si descargar el instalador; si aceptas, el medidor se cierra y entrega el MSI a Windows
+Installer. **App → Check for updates** hace lo mismo cuando tú lo pides y también te dice si ya
+estás al día.
+
+La comprobación lee una sola URL y no envía nada más que la propia petición:
+
+```
+https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases?per_page=10
+```
+
+Se desactiva en **Settings → App Settings → Updates**. La entrada de menú sigue funcionando: esa
+la pides tú, no la decide el programa.
 
 ## Idiomas del cliente
 

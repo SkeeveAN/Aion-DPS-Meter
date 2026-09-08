@@ -6,8 +6,10 @@ Ein DPS- und Loot-Meter für **AION 4.6 (OriginAion)**, das ausschließlich aus 
 Spiels arbeitet.
 
 Es liest eine Textdatei, die der Client von sich aus schreibt. Es zeichnet keinen Netzwerkverkehr
-auf und liest weder aus dem Spielprozess noch schreibt es hinein. Es wird nichts versendet —
-alles bleibt auf deinem Rechner.
+auf und liest weder aus dem Spielprozess noch schreibt es hinein. Nichts von deinem Spiel verlässt
+deinen Rechner — keine Schadenszahlen, kein Loot, keine Namen. Das Einzige, was es sendet, ist die
+Update-Prüfung, die GitHub nach einer neueren Version fragt und sich abschalten lässt; siehe
+[Updates](#updates).
 
 ## Installation
 
@@ -73,6 +75,24 @@ Diese als normale Chat-Zeilen tippen, um den Meter zu steuern, ohne das Spiel zu
 Nur Charaktere, die du in den Einstellungen hinterlegt hast, dürfen sie auslösen — ein `.cleardmg`,
 das ein Fremder in einem Kanal tippt, den du nicht einmal liest, kann deine Session also nicht
 löschen.
+
+## Updates
+
+Der Meter fragt beim Start und danach alle fünf Minuten bei GitHub nach einer neueren Version.
+Findet er eine, erscheint unten in der Statuszeile eine grüne Zeile — kein Popup, denn das Fenster
+liegt über einem laufenden Spiel, und ein Dialog, der mitten im Boss den Fokus klaut, ist
+schlimmer als ein spätes Update. Ein Klick darauf fragt, ob der Installer geladen werden soll,
+schließt bei Zustimmung den Meter und übergibt die MSI an den Windows-Installer.
+**App → Check for updates** macht dasselbe auf Zuruf und sagt dir auch, wenn du schon aktuell bist.
+
+Die Prüfung liest genau eine URL und sendet nichts außer der Anfrage selbst:
+
+```
+https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases?per_page=10
+```
+
+Abschalten unter **Settings → App Settings → Updates**. Der Menüpunkt funktioniert weiterhin —
+der ist deine Nachfrage, nicht die Entscheidung des Programms.
 
 ## Client-Sprachen
 

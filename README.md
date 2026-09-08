@@ -6,8 +6,9 @@ A DPS and loot meter for **AION 4.6 (OriginAion)** that works entirely from the 
 `Chat.log` file.
 
 It reads a text file the client writes on its own. It does not capture network traffic, and it
-does not read from or write to the game process. Nothing is sent anywhere — everything stays on
-your machine.
+does not read from or write to the game process. Nothing about your play leaves your machine —
+no damage numbers, no loot, no names. The one thing it sends is an update check, which asks
+GitHub whether a newer release exists and can be switched off; see [Updates](#updates).
 
 ## Install
 
@@ -69,6 +70,24 @@ Type these as normal chat lines to drive the meter without leaving the game:
 
 Only characters you registered in the settings can issue them, so a `.cleardmg` typed by a
 stranger in a channel you are not even reading cannot wipe your session.
+
+## Updates
+
+The meter checks GitHub for a newer release at startup and every five minutes while it runs. When
+it finds one, a green line appears in the status row at the bottom — no popup, because the window
+sits on top of a running game and a dialog stealing focus mid-boss is worse than a late update.
+Clicking that line asks whether to download the installer and, if you agree, closes the meter and
+hands the MSI to Windows Installer. **App → Check for updates** does the same on demand and tells
+you when you are already current.
+
+The check reads one URL and sends nothing but the request itself:
+
+```
+https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases?per_page=10
+```
+
+Turn it off under **Settings → App Settings → Updates**. The menu item keeps working when it is
+off — that one is you asking, not the program deciding.
 
 ## Client languages
 

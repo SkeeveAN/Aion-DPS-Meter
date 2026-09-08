@@ -23,6 +23,7 @@ public partial class SettingsWindow : Window
         ShowEliteNpcsBox.IsChecked = settings.ShowEliteNpcs;
         ShowHeroicNpcsBox.IsChecked = settings.ShowHeroicNpcs;
         ShowLegendaryNpcsBox.IsChecked = settings.ShowLegendaryNpcs;
+        CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
 
@@ -167,6 +168,7 @@ public partial class SettingsWindow : Window
         _settings.ShowEliteNpcs = ShowEliteNpcsBox.IsChecked ?? false;
         _settings.ShowHeroicNpcs = ShowHeroicNpcsBox.IsChecked ?? false;
         _settings.ShowLegendaryNpcs = ShowLegendaryNpcsBox.IsChecked ?? false;
+        _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Content as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Content as string ?? _settings.FontSize;
         _settings.AionInstallFolder = _aionInstallFolder;

@@ -6,8 +6,9 @@ Un compteur de DPS et de butin pour **AION 4.6 (OriginAion)** qui fonctionne uni
 du fichier `Chat.log` du jeu.
 
 Il lit un fichier texte que le client écrit de lui-même. Il ne capture aucun trafic réseau et ne
-lit ni n'écrit dans le processus du jeu. Rien n'est envoyé nulle part — tout reste sur votre
-machine.
+lit ni n'écrit dans le processus du jeu. Rien de votre partie ne quitte votre machine : ni dégâts,
+ni butin, ni noms. La seule chose qu'il envoie est une vérification de mise à jour, qui demande à
+GitHub s'il existe une version plus récente et peut être désactivée ; voir [Mises à jour](#mises-à-jour).
 
 ## Installation
 
@@ -73,6 +74,24 @@ et **Copy All** donne un tableau Markdown pour Discord.
 Seuls les personnages enregistrés dans les paramètres peuvent les déclencher : un `.cleardmg`
 tapé par un inconnu dans un canal que vous ne lisez même pas ne peut donc pas effacer votre
 session.
+
+## Mises à jour
+
+Le compteur interroge GitHub au démarrage puis toutes les cinq minutes. S'il trouve une version
+plus récente, une ligne verte apparaît dans la barre d'état en bas — pas de fenêtre surgissante :
+le programme est posé sur un jeu en cours, et un dialogue qui vole le focus en plein boss est pire
+qu'une mise à jour tardive. Un clic sur cette ligne demande s'il faut télécharger l'installeur,
+puis ferme le compteur et confie le MSI à Windows Installer. **App → Check for updates** fait la
+même chose à la demande et vous dit aussi quand vous êtes déjà à jour.
+
+La vérification lit une seule URL et n'envoie rien d'autre que la requête elle-même :
+
+```
+https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases?per_page=10
+```
+
+Désactivable dans **Settings → App Settings → Updates**. L'entrée de menu continue de fonctionner :
+celle-là, c'est vous qui demandez, pas le programme qui décide.
 
 ## Langues du client
 
