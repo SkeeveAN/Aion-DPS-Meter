@@ -1297,15 +1297,31 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// The Damage view's "Table" payload: a fixed-width table in a code fence, ready to paste into
+    /// Discord. Was tab-separated, which Discord collapses into an unreadable run of text -- per
+    /// the user, this needs to arrive as an aligned ASCII table.
+    /// </summary>
     private void CopyRowsToClipboard()
     {
-        var sb = new StringBuilder();
-        foreach (var row in _rows)
-        {
-            sb.AppendLine($"{row.Name}\t{row.ClassName}\t{row.Level}\t{row.Damage}\t{row.DpsDisplay}");
-        }
+        var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
+        var rows = ranked
+            .Select(r => (IReadOnlyList<string>)new[]
+            {
+                r.Name,
+                r.ClassName,
+                r.Level > 0 ? r.Level.ToString() : "",
+                r.Damage.ToString("N0", DotGroupedNumberFormat),
+                r.DpsDisplay,
+            })
+            .ToList();
 
-        CopyTextToClipboardIfAny(sb.ToString(), "No damage has been recorded yet.");
+        string table = AsciiTable.Render(
+            new[] { "Name", "Class", "Lvl", "Damage", "DPS" },
+            rows,
+            new[] { false, false, true, true, true });
+
+        CopyTextToClipboardIfAny(table, "No damage has been recorded yet.");
     }
 
     /// <summary>Guards Clipboard.SetText against an empty result -- shared by CopyRowsToClipboard
@@ -1392,8 +1408,10 @@ public partial class MainWindow : Window
     private static readonly NumberFormatInfo DotGroupedNumberFormat = new() { NumberGroupSeparator = "." };
 
     /// <summary>
-    /// Markdown table for Discord (CopyAll's payload while the Loot view is active -- see
-    /// OnCopyAllClicked), grouped by person then quantity descending. Grade is shown as its name
+    /// Fixed-width table in a code fence for Discord (CopyAll's payload while the Loot view is
+    /// active -- see OnCopyAllClicked), grouped by person then quantity descending. It used to be a
+    /// Markdown table, which Discord does not render at all: the pipes arrived literally and
+    /// nothing lined up. Grade is shown as its name
     /// (Common/Rare/Hero/Unique/Legendary/Ultimate) rather than a color, since Discord doesn't
     /// render Aion's in-chat rarity colors; "?" for an id ItemDatabase couldn't resolve.
     /// </summary>
@@ -1405,15 +1423,16 @@ public partial class MainWindow : Window
             return "";
         }
 
-        var sb = new StringBuilder();
-        sb.AppendLine("| Person | Item | Qty | Grade |");
-        sb.AppendLine("|---|---|---|---|");
-        foreach (var row in ranked)
-        {
-            sb.AppendLine($"| {row.Person} | {row.ItemName} | {row.Quantity:N0} | {(row.Grade is ItemGrade g ? g.ToString() : "?")} |");
-        }
-
-        return sb.ToString();
+        return AsciiTable.Render(
+            new[] { "Person", "Item", "Qty", "Grade" },
+            ranked.Select(r => (IReadOnlyList<string>)new[]
+            {
+                r.Person,
+                r.ItemName,
+                r.Quantity.ToString("N0", DotGroupedNumberFormat),
+                r.Grade is ItemGrade g ? g.ToString() : "?",
+            }).ToList(),
+            new[] { false, false, true, false });
     }
 
     // aiontools.com's U+E000-U+E06F in-game chat icons (see memopad_icons.png, sent to the user

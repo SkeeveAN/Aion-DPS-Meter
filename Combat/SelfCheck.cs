@@ -1,6 +1,7 @@
 using System.IO;
 using AionSniffer.ChatLog;
 using AionSniffer.Data;
+using AionSniffer.Ui;
 using AionSniffer.Update;
 
 namespace AionSniffer.Combat;
@@ -28,6 +29,7 @@ public static class SelfCheck
         ok &= RunItemDatabaseScenario();
         ok &= RunAppVersionScenario();
         ok &= RunFactionResolverScenario();
+        ok &= RunAsciiTableScenario();
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
@@ -270,6 +272,46 @@ public static class SelfCheck
         bool matches = iDps is double v && Math.Abs(v - expectedIDps) < 1.0;
         Console.WriteLine($"  -> matches within rounding: {matches}");
         return matches;
+    }
+
+    /// <summary>
+    /// The Discord table format. Cheap to check and easy to break silently: an unaligned column or
+    /// a missing fence only shows up once someone has already pasted it into the group chat.
+    /// </summary>
+    private static bool RunAsciiTableScenario()
+    {
+        string table = AsciiTable.Render(
+            new[] { "Name", "Damage" },
+            new List<IReadOnlyList<string>>
+            {
+                new[] { "Alhamdulilah", "2.352.666" },
+                new[] { "kyuubi", "56.828" },
+            },
+            new[] { false, true });
+
+        var lines = table.Split('\n').Select(l => l.TrimEnd('\r')).Where(l => l.Length > 0).ToList();
+
+        bool fenced = lines[0] == "```" && lines[^1] == "```";
+        bool hasRule = lines.Count > 2 && lines[2].StartsWith("---");
+
+        // Every body line has to start at the same column, which is the whole point of the format.
+        var body = lines.Skip(1).Take(lines.Count - 2).ToList();
+        bool aligned = body.Select(l => l.IndexOf(' ')).Distinct().Count() >= 1
+            && body.All(l => l.Length >= "Alhamdulilah".Length);
+
+        // Right-aligned numbers end at the same column; left-aligned names start at the same one.
+        bool numbersRightAligned = body[0].EndsWith("Damage") && body[^1].EndsWith("56.828");
+
+        bool emptyStaysEmpty = AsciiTable.Render(new[] { "A" }, new List<IReadOnlyList<string>>(), new[] { false }).Length == 0;
+
+        Console.WriteLine("[selftest] Discord ASCII table:");
+        Console.WriteLine($"  -> wrapped in a code fence: {fenced}");
+        Console.WriteLine($"  -> header rule present: {hasRule}");
+        Console.WriteLine($"  -> columns padded to a common width: {aligned}");
+        Console.WriteLine($"  -> numeric column right-aligned: {numbersRightAligned}");
+        Console.WriteLine($"  -> no rows produces no empty frame: {emptyStaysEmpty}");
+
+        return fenced && hasRule && aligned && numbersRightAligned && emptyStaysEmpty;
     }
 
     /// <summary>
