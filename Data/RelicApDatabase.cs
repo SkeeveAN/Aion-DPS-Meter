@@ -3,7 +3,7 @@ namespace AionSniffer.Data;
 /// <summary>
 /// The Abyss Point value of the 16 "Ancient" relics, i.e. what the in-game Relic Appraiser pays
 /// for each when exchanged ("Exchange Core" / "Add All Relics Owned"). Values transcribed from
-/// that dialog by the user; item ids confirmed against ItemDatabase (assets/items/items_en_4x.json),
+/// that dialog by the user; item ids confirmed against ItemDatabase (assets/items/items_origincdx_4x.json),
 /// where all 16 sit in one contiguous block, 186000051-186000066, in exactly the reverse of the
 /// order the dialog lists them.
 ///

@@ -4,31 +4,46 @@ using System.Text.Json;
 namespace AionSniffer.Data;
 
 /// <summary>
-/// Aion's six item rarity tiers, in ascending order. Numeric values match aioncodex.com's own
-/// "item_grade_N" CSS classes (see assets/README.md) -- NOT guessed from general game knowledge,
-/// confirmed against the site's own stylesheet colors (Common/Rare "#fff"/"#69e15e" are the same
-/// value for grade 0 and 1, hence Common covering both here).
+/// Aion's item rarity tiers, in ascending order, named the way the server itself names them.
+///
+/// The names come from Origin Codex (origincdx.com), which publishes a "quality" string per item
+/// for this exact server build. They used to be this project's own invention -- Hero/Legendary/
+/// Ultimate for what OriginAion calls LEGEND/EPIC/MYTHIC -- which put the wrong word in front of
+/// the user: an Epic drop was labelled "Legendary" in the Loot grid, and anyone pasting the
+/// Discord table shared that mislabelling onward. The colors were right the whole time, only the
+/// words were wrong.
+///
+/// Numeric values are unchanged and load-bearing: MainWindow's loot filter keeps everything
+/// >= Unique, i.e. gold and above.
 /// </summary>
 public enum ItemGrade
 {
+    Junk = 0,
     Common = 1,
     Rare = 2,
-    Hero = 3,
+    Legend = 3,
     Unique = 4,
-    Legendary = 5,
-    Ultimate = 6,
+    Epic = 5,
+    Mythic = 6,
 }
 
-/// <summary>One item entry from assets/items/items_en_4x.json (see assets/README.md for provenance).</summary>
+/// <summary>One item entry from assets/items/items_origincdx_4x.json (see assets/README.md).</summary>
 public sealed record ItemInfo(int Id, string Name, ItemGrade Grade);
 
 /// <summary>
-/// Loads the item ID -> name/grade table collected from aioncodex.com's "/4x/" snapshot (91,492
-/// entries, same source and locale-bucket reasoning as Data/SkillDatabase.cs). Exists so the Loot
-/// list can show "Premium Accessory Flux" instead of a bare "152011048" -- Chat.log's
-/// "[item:ID;...]" tags only ever carry the numeric id, never a readable name (confirmed by
-/// terminal_windows: no item name appears anywhere near the tag in real loot lines). Grade is
-/// used by MainWindow to filter "trash" loot down to Unique (Gold) and above, per the user.
+/// Loads the item ID -> name/quality table. Exists so the Loot list can show "Premium Accessory
+/// Flux" instead of a bare "152011048" -- Chat.log's "[item:ID;...]" tags only ever carry the
+/// numeric id, never a readable name (confirmed by terminal_windows: no item name appears
+/// anywhere near the tag in real loot lines). Grade is used by MainWindow to filter "trash" loot
+/// down to Unique (Gold) and above, per the user.
+///
+/// Origin Codex is the source of truth: it describes the server actually being played, and it
+/// carries OriginAion's own items, which a retail 4.x dump simply does not have (a real Sauro run
+/// dropped "Cosmic Fragment" and "Eternity Comet", both unresolvable before). Where aioncodex
+/// knows an id Origin Codex does not, that entry is kept rather than dropped -- 6.149 such ids,
+/// and on the 85.343 ids both describe the two sources agree on the quality tier without a single
+/// exception, so filling the gaps costs nothing in consistency. See assets/README.md for how the
+/// merged file is produced.
 /// </summary>
 public static class ItemDatabase
 {
@@ -44,7 +59,7 @@ public static class ItemDatabase
             return cached;
         }
 
-        string path = Path.Combine(AppContext.BaseDirectory, "assets", "items", "items_en_4x.json");
+        string path = Path.Combine(AppContext.BaseDirectory, "assets", "items", "items_origincdx_4x.json");
         var result = new Dictionary<int, ItemInfo>();
 
         if (File.Exists(path))
@@ -54,11 +69,7 @@ public static class ItemDatabase
                 var rows = JsonSerializer.Deserialize<List<ItemRow>>(File.ReadAllText(path), JsonOptions) ?? new List<ItemRow>();
                 foreach (var row in rows)
                 {
-                    // Source data's grade 0 ("Junk", extremely rare, only 3.4k of 91.5k items) is
-                    // folded into Common -- both render as the exact same white (#fff) in
-                    // aioncodex's own CSS, so there's no distinct color/tier to preserve.
-                    var grade = row.Grade <= 1 ? ItemGrade.Common : (ItemGrade)row.Grade;
-                    result[row.Id] = new ItemInfo(row.Id, row.Name ?? $"Item #{row.Id}", grade);
+                    result[row.Id] = new ItemInfo(row.Id, row.Name ?? $"Item #{row.Id}", ParseQuality(row.Quality));
                 }
             }
             catch (JsonException ex)
@@ -71,9 +82,26 @@ public static class ItemDatabase
         return result;
     }
 
+    /// <summary>
+    /// Origin Codex's quality string -> tier. An unrecognised value falls back to Common rather
+    /// than throwing: a new tier appearing in a future data refresh should cost the loot row its
+    /// color, not take the whole table down with it.
+    /// </summary>
+    private static ItemGrade ParseQuality(string? quality) => quality?.ToUpperInvariant() switch
+    {
+        "JUNK" => ItemGrade.Junk,
+        "COMMON" => ItemGrade.Common,
+        "RARE" => ItemGrade.Rare,
+        "LEGEND" => ItemGrade.Legend,
+        "UNIQUE" => ItemGrade.Unique,
+        "EPIC" => ItemGrade.Epic,
+        "MYTHIC" => ItemGrade.Mythic,
+        _ => ItemGrade.Common,
+    };
+
     /// <summary>Convenience lookup: a name if known, a clearly-marked placeholder otherwise -- not
-    /// every id seen in a real Chat.log resolves (confirmed: 93.4% of real ids do), so this must
-    /// never throw or silently return an empty string.</summary>
+    /// every id seen in a real Chat.log resolves, so this must never throw or silently return an
+    /// empty string.</summary>
     public static string DisplayName(int itemId) =>
         Load().TryGetValue(itemId, out var info) ? info.Name : $"Item #{itemId}";
 
@@ -87,6 +115,6 @@ public static class ItemDatabase
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public int Grade { get; set; }
+        public string? Quality { get; set; }
     }
 }

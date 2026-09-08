@@ -61,35 +61,41 @@ im Meter verwendet wird.
   gefunden, nur einzelne Icons in Session-Tooltips) – aioncodex.com bleibt dafür die Quelle.
 - **Keine Mehrsprachigkeit**: myaion.eu hat keinen Sprachumschalter, alle Texte sind Englisch.
 
-## `items/items_en_4x.json`
+## `items/items_origincdx_4x.json`
 
-- Quelle: `https://aioncodex.com/query.php?a=items&l=4x` (derselbe `/4x/`-Locale-Bucket wie bei den
-  Skills, dieselbe Begründung: eine feste 4.x-Version statt der aktuellen Live-Datenbank).
-- 91.492 Items, Format je Eintrag: `{id, name}`. Bewusst OHNE Icons (anders als bei den Skills) –
-  bei über 90.000 Items wäre das Herunterladen aller Icon-Dateien unverhältnismäßig, und die Loot-
-  Liste braucht nur den Namen, kein Bild.
+- **Quelle der Wahrheit: Origin Codex** (`https://origincdx.com/item_basic_lookup.json`, die
+  JSON-Tabelle, aus der die Seite selbst ihre Item-Suche speist). Grund: Origin Codex beschreibt
+  **genau den gespielten Server**, nicht Retail-4.x – es kennt OriginAion-eigene Items, die in
+  keinem Retail-Abzug stehen. Jeder Eintrag liefert `item_id`, `display_name` und `quality`
+  als Klartext (`JUNK`/`COMMON`/`RARE`/`LEGEND`/`UNIQUE`/`EPIC`/`MYTHIC`).
+- **Ergänzt aus dem alten aioncodex-Abzug** (`query.php?a=items&l=4x`), aber nur dort, wo Origin
+  Codex eine ID gar nicht kennt: 6.149 von 91.739 Einträgen. Das ist kein Kompromiss bei der
+  Wahrheit, sondern reine Lückenfüllung – auf den 85.343 IDs, die **beide** Quellen beschreiben,
+  stimmen die Qualitätsstufen **ausnahmslos** überein (0 Abweichungen). Ohne diese Ergänzung
+  würden 6.149 bekannte Items im Loot-Grid wieder zu „Item #ID" werden.
+- Format je Eintrag: `{id, name, quality}`. Bewusst OHNE Icons – bei über 90.000 Items wäre das
+  Herunterladen aller Icon-Dateien unverhältnismäßig, und die Loot-Liste braucht nur den Namen.
 - Grund für diese Datenbank: Chat.log-Loot-Zeilen ("You have acquired [item:ID;...].", gefunden von
   terminal_windows) enthalten NUR die numerische Item-ID im `[item:...]`-Tag, nirgends einen
-  lesbaren Namen im sichtbaren Text – ohne diese Tabelle würde die Loot-Liste nur bedeutungslose
-  Zahlen zeigen.
-- **Nicht jede in Chat.log vorkommende ID ist hier vorhanden** – gegen echte Loot-Zeilen geprüft
-  von terminal_windows: 256 von 274 realen IDs (93,4 %) lösen sich auf. Die Lücke korreliert klar
-  mit der Stellenzahl der ID, NICHT mit der Tag-Form (eine erste Vermutung dazu wurde mit Zahlen
-  widerlegt): alle 6 real vorkommenden 10-stelligen IDs fehlen (100 % Fehlrate), 9-stellige IDs
-  fehlen nur zu ca. 5 %. Direkt auf aioncodex.com nachgeprüft (`/4x/item/<10-stellige-ID>/`): die
-  Detailseite selbst ist leer, kein Katalogeintrag – das ist also keine Lücke im hiesigen Abruf,
-  sondern vermutlich eine andere, nicht katalogisierte ID-Klasse (z. B. dynamisch erzeugte
-  Instanz-IDs statt Item-Templates). Zwei 9-stellige IDs (`186000936`, `186000938`, je 16
-  Vorkommen in der geprüften Session) bleiben trotzdem ungeklärt fehlend – passen in keines der
-  beiden Muster. `ItemDatabase.DisplayName` fällt für jeden nicht gefundenen Fall auf
-  `"Item #<ID>"` zurück statt zu crashen oder eine falsche Zahl zu zeigen.
-- **Grade-Farben** (für eine grade-basierte Loot-Filterung, per Nutzerwunsch) direkt aus
-  `https://aioncodex.com/css/aioncodex.min.css` entnommen, nicht aus Spielwissen geraten:
-  `item_grade_0/1`=`#fff` (Common/Weiß), `_2`=`#69e15e` (Rare/Grün), `_3`=`#4ccfff` (Hero/Blau),
-  `_4`=`#f0b71c` (Unique/Gold), `_5`=`#f08033` (Legendary/Orange), `_6`=`#8f39ce` (Ultimate/Lila).
-  Grade 7–9 existieren in der CSS, kommen aber in keinem Item aus dem `/4x/`-Bucket vor – vermutlich
-  erst mit einem Patch nach 4.6 eingeführt (Fabled/Mythic-artige Tiers), für diesen Datensatz also
-  irrelevant.
+  lesbaren Namen im sichtbaren Text.
+- **Damit gelöst**: die beiden IDs `186000936` und `186000938`, die der alte Abzug nicht kannte und
+  die hier früher als „ungeklärt fehlend" dokumentiert waren. Es sind **Cosmic Fragment** und
+  **Eternity Comet**, beides OriginAion-Währungen – gefallen in einem echten Sauro-Run.
+  `ItemDatabase.DisplayName` fällt für jeden weiterhin unbekannten Fall auf `"Item #<ID>"` zurück.
+- **Stufen-Namen kommen von Origin Codex, Farben weiter von aioncodex.** Das `ItemGrade`-Enum hieß
+  vorher Common/Rare/**Hero**/Unique/**Legendary**/**Ultimate** – das waren Erfindungen dieses
+  Projekts. Der Server nennt dieselben Stufen LEGEND/UNIQUE/EPIC/MYTHIC, und das Loot-Grid zeigte
+  dadurch das falsche Wort (ein EPIC-Item stand als „Legendary" da). Die Hex-Farben stammen
+  unverändert aus `https://aioncodex.com/css/aioncodex.min.css`, wo sie nach Stufen-Nummer und
+  nicht nach Namen sortiert sind: `item_grade_0/1`=`#fff` (Junk+Common/Weiß), `_2`=`#69e15e`
+  (Rare/Grün), `_3`=`#4ccfff` (Legend/Blau), `_4`=`#f0b71c` (Unique/Gold), `_5`=`#f08033`
+  (Epic/Orange), `_6`=`#8f39ce` (Mythic/Lila). Grade 7–9 existieren in der CSS, kommen aber in
+  keinem Item vor.
+- **Neu erzeugen** (wenn Origin Codex nachzieht): `item_basic_lookup.json` laden, pro Eintrag
+  `{item_id, display_name, quality}` übernehmen, die 6.149 nur-aioncodex-IDs aus dem alten Abzug
+  anhängen, nach ID sortiert als JSON-Array schreiben. Origin Codex enthält 6.691 Schlüssel, die
+  auf eine bereits vorhandene `item_id` zeigen (Groß-/Kleinschreibungs-Varianten desselben
+  internen Keys); die sind inhaltlich identisch und werden zusammengefasst – geprüft, 0 Konflikte.
 
 ## Idee für später: Online-Session-Sharing (aus myaion.eu übernommen)
 

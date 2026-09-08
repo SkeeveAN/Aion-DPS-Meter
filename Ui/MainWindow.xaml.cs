@@ -1193,8 +1193,8 @@ public partial class MainWindow : Window
             {
                 Person = g.Key,
                 Gold = g.Where(r => r.Grade == ItemGrade.Unique).Sum(r => r.Quantity),
-                Orange = g.Where(r => r.Grade == ItemGrade.Legendary).Sum(r => r.Quantity),
-                Purple = g.Where(r => r.Grade == ItemGrade.Ultimate).Sum(r => r.Quantity),
+                Orange = g.Where(r => r.Grade == ItemGrade.Epic).Sum(r => r.Quantity),
+                Purple = g.Where(r => r.Grade == ItemGrade.Mythic).Sum(r => r.Quantity),
             })
             .Where(p => p.Gold > 0 || p.Orange > 0 || p.Purple > 0)
             .OrderBy(p => p.Person, StringComparer.Ordinal);

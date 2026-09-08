@@ -24,6 +24,7 @@ public static class SelfCheck
         ok &= RunGladiatorVsZaubererScenario();
         ok &= RunMyAionReplayScenario();
         ok &= RunSkillDatabaseScenario();
+        ok &= RunItemDatabaseScenario();
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
@@ -266,6 +267,45 @@ public static class SelfCheck
         bool matches = iDps is double v && Math.Abs(v - expectedIDps) < 1.0;
         Console.WriteLine($"  -> matches within rounding: {matches}");
         return matches;
+    }
+
+    /// <summary>
+    /// Item table sanity, with Origin Codex as the source of truth. The three checks are the ones
+    /// that would have caught what was actually wrong: a real Sauro run dropped two items no
+    /// retail 4.x dump contains (they showed as bare "Item #186000936"), and the tier a Sauren Bow
+    /// was labelled with did not match what the server calls it -- the grid said "Legendary" for
+    /// an item OriginAion calls EPIC, and the Discord table shared that word onward.
+    /// </summary>
+    private static bool RunItemDatabaseScenario()
+    {
+        var table = ItemDatabase.Load();
+
+        Console.WriteLine("[selftest] ItemDatabase load (assets/items/items_origincdx_4x.json):");
+        Console.WriteLine($"  loaded {table.Count} items");
+
+        bool loadedSomething = table.Count > 80_000; // expect ~91.7k; loose bound for a rescrape
+
+        // Server-specific items: present in Origin Codex, absent from every retail 4.x dump.
+        bool originOnlyItemsResolve =
+            ItemDatabase.DisplayName(186_000_936) == "Cosmic Fragment" &&
+            ItemDatabase.DisplayName(186_000_938) == "Eternity Comet";
+
+        // One real drop per tier from that same run, checked against the name the server uses.
+        bool tiersNamedLikeTheServer =
+            ItemDatabase.GradeOf(112_101_454) == ItemGrade.Mythic &&   // Sauro Commander's Pauldrons
+            ItemDatabase.GradeOf(101_701_258) == ItemGrade.Epic &&     // Sauren Bow
+            ItemDatabase.GradeOf(111_601_448) == ItemGrade.Unique &&   // Sauro Guard's Gauntlets
+            ItemDatabase.GradeOf(188_052_576) == ItemGrade.Legend &&   // Veteran's Composite Manastone Bundle
+            ItemDatabase.GradeOf(186_000_238) == ItemGrade.Rare;       // Conqueror's Mark
+
+        bool unknownIdStaysNull = ItemDatabase.GradeOf(999_999_999) is null;
+
+        Console.WriteLine($"  -> table loaded with a plausible size: {loadedSomething}");
+        Console.WriteLine($"  -> OriginAion-only items resolve to a name: {originOnlyItemsResolve}");
+        Console.WriteLine($"  -> real Sauro drops carry the server's own tier names: {tiersNamedLikeTheServer}");
+        Console.WriteLine($"  -> unresolved id reports null rather than guessing Common: {unknownIdStaysNull}");
+
+        return loadedSomething && originOnlyItemsResolve && tiersNamedLikeTheServer && unknownIdStaysNull;
     }
 
     /// <summary>
