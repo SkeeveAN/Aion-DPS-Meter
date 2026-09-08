@@ -40,6 +40,7 @@ public static class SelfCheck
         ok &= RunChatLogRealWorldPatternsScenario();
         ok &= RunRelicApScenario();
         ok &= RunGermanChatLogScenario();
+        ok &= RunPlayerLoggedInScenario();
         return ok;
     }
 
@@ -123,6 +124,39 @@ public static class SelfCheck
         Console.WriteLine($"  -> rider-effect hits (\"...N Schaden und den Effekt 'X'\") counted, crit prefix stripped: {riderEffectOk}");
 
         return sunoOk && redirectOk && unannouncedDotDropped && healsOk && riderEffectOk;
+    }
+
+    /// <summary>
+    /// The login-notification line that lets MainWindow tell "you switched characters" apart from
+    /// "a friend logged in" -- see ChatLogParser.PlayerLoggedIn for why the line alone cannot say
+    /// which. Both languages confirmed from real logs: "Tsunade has logged in." and "Zetsu hat sich
+    /// eingeloggt.", the latter verbatim from the exact log where an Assassin renamed to Zetsu and,
+    /// two minutes later, a Ranger's own damage resumed under the same "Ihr" -- what this line
+    /// exists to catch.
+    /// </summary>
+    private static bool RunPlayerLoggedInScenario()
+    {
+        var lines = new[]
+        {
+            "2026.09.08 22:56:05 : Tsunade has logged in. ",
+            "2026.09.08 23:55:10 : Zetsu hat sich eingeloggt. ",
+        };
+
+        var seen = new List<string>();
+        var parser = new ChatLogParser();
+        parser.PlayerLoggedIn += name => seen.Add(name);
+        var events = parser.Parse(lines);
+
+        bool englishCaught = seen.Contains("Tsunade");
+        bool germanCaught = seen.Contains("Zetsu");
+        bool noDamageEventProduced = events.Count == 0;
+
+        Console.WriteLine("[selftest] Player-login notifications:");
+        Console.WriteLine($"  -> English \"has logged in\" recognised: {englishCaught}");
+        Console.WriteLine($"  -> German \"hat sich eingeloggt\" recognised: {germanCaught}");
+        Console.WriteLine($"  -> neither line is mistaken for damage: {noDamageEventProduced}");
+
+        return englishCaught && germanCaught && noDamageEventProduced;
     }
 
     /// <summary>

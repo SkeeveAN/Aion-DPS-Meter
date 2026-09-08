@@ -753,6 +753,24 @@ public sealed partial class ChatLogParser
     public event Action<PersonalStatKind, long>? PersonalStatChanged;
 
     /// <summary>
+    /// Fires whenever Aion announces that a named character has logged in -- a friends-list/legion
+    /// notification, so it fires for real friends too, not just the local player. On its own this
+    /// says nothing about who is at the keyboard; it only becomes useful to a caller that knows
+    /// which names are the user's OWN registered characters (see MainWindow), where a login by a
+    /// DIFFERENT one of them is the closest thing Chat.log has to "you just switched characters".
+    ///
+    /// <para>Found necessary from a real log spanning several days on one shared installation: an
+    /// Assassin's own damage and a Ranger's own damage, both narrated as "Ihr"/"You" because both
+    /// were the same person's characters played at different times, merged into a single absurd
+    /// total when the whole file was analysed at once. There is no line that announces "you have
+    /// switched characters" directly -- the connection-status line only fires once per client
+    /// launch, not per character-select swap -- so this is the least unreliable signal available,
+    /// gated by the caller to only the user's own names to keep a real friend's login from ever
+    /// being mistaken for one.</para>
+    /// </summary>
+    public event Action<string>? PlayerLoggedIn;
+
+    /// <summary>
     /// The zone the local player is in, from the region channel Aion announces on every move.
     /// Empty until the first such line -- the meter never reads history, so a session that starts
     /// mid-zone learns the zone only on the next change.
@@ -948,6 +966,12 @@ public sealed partial class ChatLogParser
 
             RaisePersonalStatIfPresent(e.Message);
 
+            if (PlayerLoggedInPattern().Match(e.Message) is { Success: true } loggedIn)
+            {
+                PlayerLoggedIn?.Invoke(loggedIn.Groups["name"].Value);
+            }
+
+
             // Chat/trade spam ("[3.LFG] ...", "[charname:...]: WTS [item:...] ...") always starts
             // with a channel or charname tag -- every confirmed real loot line starts with a bare
             // subject name instead, so this alone keeps trade chat out without needing to parse it.
@@ -1067,6 +1091,14 @@ public sealed partial class ChatLogParser
     /// </summary>
     [GeneratedRegex(@"^You have joined the (?<zone>.+) region channel\.$")]
     private static partial Regex RegionChannelPattern();
+
+    /// <summary>
+    /// "Tsunade has logged in." / "Zetsu hat sich eingeloggt." -- Aion's friends-list/legion login
+    /// notification. Confirmed in both languages from real logs. Says nothing about identity by
+    /// itself; see PlayerLoggedIn's remarks for why and how the caller has to gate it.
+    /// </summary>
+    [GeneratedRegex(@"^(?:(?<name>.+) has logged in|(?<name>.+) hat sich eingeloggt)\.$")]
+    private static partial Regex PlayerLoggedInPattern();
 
     private static readonly string[] CriticalHitPrefixes =
     {

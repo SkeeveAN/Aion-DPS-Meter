@@ -269,6 +269,58 @@ public partial class MainWindow : Window
     /// forth between two registered characters with no way to pin it to the one actually meant to
     /// be tracked).
     /// </summary>
+    /// <summary>
+    /// Fires when Aion announces that a named character has logged in -- see
+    /// ChatLogParser.PlayerLoggedIn for why that alone means nothing. Only a REGISTERED character
+    /// of the user's own can trigger anything here; a real friend logging in is the common case for
+    /// this line and must never be read as a switch.
+    ///
+    /// <para>Found from a real Chat.log spanning several days on one shared installation: an
+    /// Assassin's and a Ranger's own damage, both narrated as "Ihr"/"You" because both were the
+    /// same person's characters played at different sittings, summed into one absurd total because
+    /// nothing ever told the meter the local identity had changed. This is the closest thing
+    /// Chat.log has to that signal -- there is no line that says "you switched characters"
+    /// directly, and the connection-status line only fires once per client launch, not per
+    /// character-select swap.</para>
+    ///
+    /// <para>Gated behind the same "Auto-detect active character" setting as the skill-based
+    /// detection, and for the same reason it exists: with two clients open at once, whichever one
+    /// happens to log a groupmate's login notification must not flip which of the two registered
+    /// characters this session believes it is.</para>
+    /// </summary>
+    private void OnPlayerLoggedIn(string name)
+    {
+        if (!_autoDetectActiveCharacter || !_characters.Any(c => c.Name == name))
+        {
+            return;
+        }
+
+        // The same character logging back in -- a relog, or simply the first login line of a
+        // fresh session -- is not a switch; there is nothing to separate it from.
+        if (name == _activeCharacterName)
+        {
+            return;
+        }
+
+        bool switchedFromKnownCharacter = _activeCharacterName is not null;
+
+        _activeCharacterName = name;
+        var settings = MeterSettings.Load();
+        settings.ActiveCharacterName = name;
+        settings.Save();
+
+        if (switchedFromKnownCharacter)
+        {
+            // Everything recorded so far belongs to whoever was just playing, not to the character
+            // that just logged in -- carrying it forward would keep merging two different people's
+            // (or, as found, one person's two different characters') damage into one row.
+            ClearDamageData();
+            ClearLootData();
+        }
+
+        RefreshRows();
+    }
+
     private void UpdateActiveCharacterFromSkill(string[] classNames)
     {
         if (!_autoDetectActiveCharacter)
@@ -345,6 +397,7 @@ public partial class MainWindow : Window
         _chatLogParser.CommandReceived += OnChatCommand;
         _chatLogParser.PersonalStatChanged += OnPersonalStatChanged;
         _chatLogParser.LootAcquired += OnLootAcquired;
+        _chatLogParser.PlayerLoggedIn += OnPlayerLoggedIn;
 
         // Chat.log may not exist yet on a client that has never had chat logging (g_chatlog)
         // enabled -- don't gate the timer on the file already being there, or enabling logging
