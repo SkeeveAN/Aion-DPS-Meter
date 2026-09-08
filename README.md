@@ -12,12 +12,17 @@ GitHub whether a newer release exists and can be switched off; see [Updates](#up
 
 ## Install
 
-1. Download `AionDpsMeter.msi` from the [latest release](../../releases/latest) and run it.
-   Everything is bundled; you do not need .NET installed.
-2. Start **Aion DPS Meter** from the Start menu (the installer offers a desktop shortcut too).
-3. Open **Settings → App Settings** and pick your **Aion installation folder** — the root folder,
+1. Download `AionDpsMeter-win-Setup.exe` from the [latest release](../../releases/latest) and run
+   it. There is nothing to click through — it installs into your user profile and starts the
+   meter. No administrator rights, no .NET needed.
+2. Open **Settings → App Settings** and pick your **Aion installation folder** — the root folder,
    the one containing `bin64\game.dll`. The dialog tells you right away whether it found a valid
    install and whether a `Chat.log` already exists there.
+
+> **Upgrading from 0.5.2 or older?** Uninstall the old version first (Windows Settings → Apps →
+> *Aion DPS Meter*), then run the new installer. Those versions installed into `Program Files`,
+> which is why they could never update themselves. This is a one-time step — from here on updates
+> apply on their own.
 
 ### Prerequisite: the client's chat log must be on
 
@@ -73,27 +78,26 @@ stranger in a channel you are not even reading cannot wipe your session.
 
 ## Updates
 
-The meter checks GitHub for a newer release at startup and every five minutes while it runs. When
-it finds one, a green line appears in the status row at the bottom — no popup, because the window
-sits on top of a running game and a dialog stealing focus mid-boss is worse than a late update.
-Clicking that line asks whether to download the installer and, if you agree, closes the meter and
-hands the MSI to Windows Installer. **App → Check for updates** does the same on demand and tells
-you when you are already current.
+The meter updates itself. It asks GitHub for a newer release at startup and every five minutes
+while it runs, downloads it in the background, and swaps it in the next time you start the meter.
+No installer to run, no UAC prompt, nothing to click. That works because it lives in your user
+profile rather than in `Program Files`, so it is allowed to replace its own files.
+
+When an update is ready, a green line appears in the status row at the bottom, and clicking it
+offers to restart right away. Declining costs nothing — the version is already downloaded and
+applies on the next normal start. There is deliberately no popup: the window sits on top of a
+running game, and a dialog stealing focus mid-boss is worse than a late update.
+
+**App → Check for updates** does the same on demand and tells you when you are already current.
 
 The check reads one URL and sends nothing but the request itself:
 
 ```
-https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases?per_page=10
+https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
 Turn it off under **Settings → App Settings → Updates**. The menu item keeps working when it is
 off — that one is you asking, not the program deciding.
-
-## Client languages
-
-Chat lines are recognised in **English, German, French, Spanish and Russian**. Two players in one
-group can run clients in different languages and both get counted correctly — the meter matches
-each line against every language's sentence shapes, not just your own client's.
 
 ## How accurate is it?
 

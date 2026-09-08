@@ -12,13 +12,17 @@ existe una versión más nueva y se puede desactivar; consulta [Actualizaciones]
 
 ## Instalación
 
-1. Descarga `AionDpsMeter.msi` desde la [última versión](../../releases/latest) y ejecútalo. Todo
-   viene incluido, no necesitas tener .NET instalado.
-2. Abre **Aion DPS Meter** desde el menú Inicio (el instalador también ofrece un acceso directo en
-   el escritorio).
-3. Ve a **Settings → App Settings** y elige tu **carpeta de instalación de Aion**: la carpeta
+1. Descarga `AionDpsMeter-win-Setup.exe` desde la [última versión](../../releases/latest) y
+   ejecútalo. No hay nada que confirmar: se instala en tu perfil de usuario y abre el medidor. Sin
+   permisos de administrador y sin necesidad de .NET.
+2. Ve a **Settings → App Settings** y elige tu **carpeta de instalación de Aion**: la carpeta
    raíz, la que contiene `bin64\game.dll`. El diálogo te dice al momento si ha encontrado una
    instalación válida y si ya existe allí un `Chat.log`.
+
+> **¿Vienes de la 0.5.2 o anterior?** Desinstala primero la versión antigua (Configuración de
+> Windows → Aplicaciones → *Aion DPS Meter*) y ejecuta después el nuevo instalador. Aquellas
+> versiones se instalaban en `Program Files`, y por eso nunca pudieron actualizarse solas. Es un
+> paso único; a partir de ahí las actualizaciones llegan por su cuenta.
 
 ### Requisito previo: el registro de chat del cliente debe estar activado
 
@@ -77,29 +81,27 @@ tu sesión.
 
 ## Actualizaciones
 
-El medidor pregunta a GitHub por una versión más nueva al arrancar y cada cinco minutos mientras
-está abierto. Cuando encuentra una, aparece una línea verde en la barra de estado inferior: nada
-de ventanas emergentes, porque el programa está encima de un juego en marcha y un diálogo que roba
-el foco en mitad de un jefe es peor que una actualización tardía. Al pulsar esa línea se te
-pregunta si descargar el instalador; si aceptas, el medidor se cierra y entrega el MSI a Windows
-Installer. **App → Check for updates** hace lo mismo cuando tú lo pides y también te dice si ya
-estás al día.
+El medidor se actualiza solo. Pregunta a GitHub al arrancar y cada cinco minutos, descarga la
+nueva versión en segundo plano y la deja lista para el siguiente arranque. Sin instalador que
+ejecutar, sin aviso de UAC, sin nada que pulsar. Funciona porque vive en tu perfil de usuario y no
+en `Program Files`: ahí sí puede reemplazar sus propios archivos.
+
+Cuando una actualización está lista aparece una línea verde en la barra de estado inferior; al
+pulsarla se te ofrece reiniciar en ese momento. Rechazar no cuesta nada: la versión ya está
+descargada y se aplicará en el siguiente arranque normal. No hay ventanas emergentes a propósito:
+el programa está encima de un juego en marcha y un diálogo que roba el foco en mitad de un jefe es
+peor que una actualización tardía.
+
+**App → Check for updates** hace lo mismo cuando tú lo pides y también te dice si ya estás al día.
 
 La comprobación lee una sola URL y no envía nada más que la propia petición:
 
 ```
-https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases?per_page=10
+https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
 Se desactiva en **Settings → App Settings → Updates**. La entrada de menú sigue funcionando: esa
 la pides tú, no la decide el programa.
-
-## Idiomas del cliente
-
-Las líneas de chat se reconocen en **inglés, alemán, francés, español y ruso**. Dos jugadores del
-mismo grupo pueden usar clientes en idiomas distintos y ambos se contabilizan correctamente: el
-medidor compara cada línea con las estructuras de todos los idiomas, no solo con las de tu propio
-cliente.
 
 ## ¿Cuánta precisión tiene?
 

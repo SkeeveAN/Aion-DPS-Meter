@@ -1,4 +1,4 @@
-name: Build and attach MSI to release
+name: Build and attach the installer to a release
 
 # Runs on every "vX.Y.Z" tag push (the normal release flow) and can also be triggered
 # manually for a tag that already exists (workflow_dispatch) -- needed the first time this
@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing tag to build and attach the MSI to (e.g. v0.2.0)"
+        description: "Existing tag to build and attach the installer to (e.g. v0.5.3)"
         required: true
 
 permissions:
@@ -61,24 +61,56 @@ jobs:
           dotnet publish AionSniffer.csproj -c Release -r win-x64 --self-contained true
           -p:PublishSingleFile=false -o publish
 
-      - name: Install WiX tool
-        run: dotnet tool install --global wix --version 5.0.2
+      - name: Install the Velopack CLI
+        run: dotnet tool install --global vpk --version 1.2.0
 
-      - name: Build MSI
-        working-directory: Packaging
-        run: >
-          dotnet build Installer.wixproj -c Release
-          -p:PublishDir=${{ github.workspace }}\publish\
-          -p:ProductVersion=${{ steps.version.outputs.number }}
-          -o ${{ github.workspace }}\dist
-
-      - name: Upload MSI as build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: AionDpsMeter-${{ steps.tag.outputs.name }}-msi
-          path: dist/AionDpsMeter.msi
-
-      - name: Attach MSI to the GitHub release
+      # Delta packages are built by diffing against the previous release, so the previous release
+      # has to be on disk before packing -- with an empty output directory every release would be
+      # a full ~70 MB download for everyone. Allowed to fail: the very first Velopack release has
+      # nothing to fetch, and a missed delta only costs bandwidth, never correctness.
+      #
+      # --pre because every release of this project is marked prerelease; without it this finds
+      # nothing, exactly like GitHub's own /releases/latest endpoint.
+      - name: Fetch the previous release (for delta packages)
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ steps.tag.outputs.name }}" "dist/AionDpsMeter.msi" --clobber
+        run: >
+          vpk download github
+          --repoUrl https://github.com/${{ github.repository }}
+          --channel win --pre true --token $env:GH_TOKEN --outputDir releases
+        shell: pwsh
+
+      # Produces, in "releases": the installer (AionDpsMeter-win-Setup.exe), a full .nupkg, a
+      # delta .nupkg when a previous release was fetched above, and releases.win.json -- the index
+      # the installed app reads to discover updates. Velopack's GithubSource resolves all of them
+      # by asset name from the GitHub release, so they must be attached to it.
+      - name: Build the Velopack release
+        run: >
+          vpk pack
+          --packId AionDpsMeter
+          --packTitle "Aion DPS Meter"
+          --packAuthors SkeeveAN
+          --packVersion ${{ steps.version.outputs.number }}
+          --packDir publish
+          --mainExe AionSniffer.exe
+          --icon assets/app/aionsniffer.ico
+          --channel win
+          --outputDir releases
+
+      - name: Upload the installer as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AionDpsMeter-${{ steps.tag.outputs.name }}
+          path: releases/AionDpsMeter-win-Setup.exe
+
+      # Everything except the portable zip, which is another ~70 MB per release and duplicates
+      # what the installer already carries. The index files are small but load-bearing: without
+      # releases.win.json the installed app cannot see the release at all.
+      - name: Attach the release files to the GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $files = Get-ChildItem releases -File | Where-Object { $_.Name -ne 'AionDpsMeter-win-Portable.zip' }
+          gh release upload "${{ steps.tag.outputs.name }}" $files.FullName --clobber
+        shell: pwsh

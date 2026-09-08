@@ -2,6 +2,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using AionSniffer.ChatLog;
 using AionSniffer.Combat;
+using Velopack;
 
 namespace AionSniffer;
 
@@ -35,10 +36,16 @@ internal static class Program
         //
         // No arguments opens the GUI, always -- per the user: the installed exe should show the
         // meter with no parameters, and the CLI is what needs one. The rule therefore does not
-        // depend on how the process was started: the installer's shortcut (Packaging/Product.wxs
-        // passes no arguments), a double-click, and "AionSniffer" typed in a shell all open the
+        // depend on how the process was started: the installer's shortcuts (Velopack creates them
+        // with no arguments), a double-click, and "AionSniffer" typed in a shell all open the
         // window.
         AttachConsole(AttachParentProcess);
+
+        // Must run before anything else, and before any window exists: this is what handles
+        // Velopack's own install/update/uninstall hook arguments, which the updater passes to a
+        // freshly-swapped build. Getting a meter window on screen in those runs instead of doing
+        // the hook's job is exactly how a self-updating app breaks its own update.
+        VelopackApp.Build().Run();
 
         if (args.Length > 0 && args[0] == "selftest")
         {

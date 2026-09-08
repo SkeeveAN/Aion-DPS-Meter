@@ -22,12 +22,20 @@
          scratch (no image library needed), so the shape is adjustable in code, not in a binary. -->
     <ApplicationIcon>assets/app/aionsniffer.ico</ApplicationIcon>
     <!-- Single source of truth for the version the user sees. The window title reads it back at
-         runtime (see MainWindow's constructor) and the MSI takes it from the git tag the release
+         runtime (see MainWindow's constructor) and the installer takes it from the git tag the release
          workflow was triggered by, so a build can always be identified from a screenshot or a
          Chat.log someone sends in. That was exactly what was missing when a group member's log
          had to be matched to "the 0.3.0 build" from memory. Keep in step with the release tag. -->
     <Version>0.5.2</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Self-updating: installs per-user under %LOCALAPPDATA%, so replacing the app's own files
+         needs no elevation and an update can apply without a UAC prompt. That is the whole reason
+         the WiX/MSI packaging was dropped: a per-machine install under Program Files can only be
+         updated by an elevated process. See Update/UpdateService.cs and .github/workflows/release.yml. -->
+    <PackageReference Include="Velopack" Version="1.2.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Skill/class/race data + icons collected in assets/ (see assets/README.md), copied

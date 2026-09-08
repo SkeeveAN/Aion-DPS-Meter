@@ -33,7 +33,7 @@ public static class AppVersion
 
     /// <summary>
     /// Turns "v0.5.1", "0.5.1" or "v1.0.0-beta.2" into a Version. Everything from the first "-" is
-    /// dropped, the same way the release workflow derives the MSI's ProductVersion from the tag --
+    /// dropped, the same way the release workflow derives the package version from the tag --
     /// so a prerelease tag compares as its base version instead of failing to parse at all.
     /// </summary>
     public static Version Parse(string? text)

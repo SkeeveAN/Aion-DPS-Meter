@@ -12,13 +12,17 @@ GitHub s'il existe une version plus récente et peut être désactivée ; voir [
 
 ## Installation
 
-1. Téléchargez `AionDpsMeter.msi` depuis la [dernière version](../../releases/latest) et
-   lancez-le. Tout est inclus, vous n'avez pas besoin d'installer .NET.
-2. Lancez **Aion DPS Meter** depuis le menu Démarrer (l'installeur propose aussi un raccourci sur
-   le bureau).
-3. Ouvrez **Settings → App Settings** et choisissez votre **dossier d'installation d'Aion** — le
+1. Téléchargez `AionDpsMeter-win-Setup.exe` depuis la [dernière version](../../releases/latest) et
+   lancez-le. Il n'y a rien à valider : l'installation se fait dans votre profil utilisateur et le
+   compteur démarre. Aucun droit administrateur, aucun .NET requis.
+2. Ouvrez **Settings → App Settings** et choisissez votre **dossier d'installation d'Aion** — le
    dossier racine, celui qui contient `bin64\game.dll`. La fenêtre indique immédiatement si elle a
    trouvé une installation valide et si un `Chat.log` s'y trouve déjà.
+
+> **Vous venez de la 0.5.2 ou d'une version antérieure ?** Désinstallez d'abord l'ancienne
+> (Paramètres Windows → Applications → *Aion DPS Meter*), puis lancez le nouvel installeur. Ces
+> versions s'installaient dans `Program Files`, ce qui les empêchait de se mettre à jour
+> elles-mêmes. C'est une étape unique ; ensuite tout se fait tout seul.
 
 ### Prérequis : le journal de chat du client doit être activé
 
@@ -77,28 +81,29 @@ session.
 
 ## Mises à jour
 
-Le compteur interroge GitHub au démarrage puis toutes les cinq minutes. S'il trouve une version
-plus récente, une ligne verte apparaît dans la barre d'état en bas — pas de fenêtre surgissante :
-le programme est posé sur un jeu en cours, et un dialogue qui vole le focus en plein boss est pire
-qu'une mise à jour tardive. Un clic sur cette ligne demande s'il faut télécharger l'installeur,
-puis ferme le compteur et confie le MSI à Windows Installer. **App → Check for updates** fait la
-même chose à la demande et vous dit aussi quand vous êtes déjà à jour.
+Le compteur se met à jour tout seul. Il interroge GitHub au démarrage puis toutes les cinq
+minutes, télécharge la nouvelle version en arrière-plan et la met en place au démarrage suivant.
+Aucun installeur à lancer, aucune invite UAC, rien à cliquer. C'est possible parce qu'il vit dans
+votre profil utilisateur et non dans `Program Files` : il a le droit de remplacer ses propres
+fichiers.
+
+Quand une mise à jour est prête, une ligne verte apparaît dans la barre d'état en bas ; un clic
+propose de redémarrer immédiatement. Refuser ne coûte rien : la version est déjà téléchargée et
+s'appliquera au prochain démarrage normal. Pas de fenêtre surgissante, volontairement : le
+programme est posé sur un jeu en cours, et un dialogue qui vole le focus en plein boss est pire
+qu'une mise à jour tardive.
+
+**App → Check for updates** fait la même chose à la demande et vous dit aussi quand vous êtes déjà
+à jour.
 
 La vérification lit une seule URL et n'envoie rien d'autre que la requête elle-même :
 
 ```
-https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases?per_page=10
+https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
 Désactivable dans **Settings → App Settings → Updates**. L'entrée de menu continue de fonctionner :
 celle-là, c'est vous qui demandez, pas le programme qui décide.
-
-## Langues du client
-
-Les lignes de chat sont reconnues en **anglais, allemand, français, espagnol et russe**. Deux
-joueurs d'un même groupe peuvent utiliser des clients en langues différentes et être tous les deux
-comptés correctement — le compteur compare chaque ligne aux tournures de toutes les langues, pas
-seulement à celles de votre propre client.
 
 ## Quelle est sa précision ?
 

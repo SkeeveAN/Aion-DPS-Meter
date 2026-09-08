@@ -93,11 +93,11 @@ public sealed class MeterSettings
     public bool AutoDetectActiveCharacter { get; set; } = true;
 
     /// <summary>
-    /// Per-user settings location, NOT next to the exe. The MSI installs per-machine under
-    /// Program Files, which an unprivileged process cannot write to -- and this app stopped
-    /// asking for administrator rights when the packet-capture path was removed, since reading
-    /// Chat.log needs none. Writing beside the exe would therefore fail silently for every
-    /// installed copy: settings would appear to save and be gone again next launch.
+    /// Per-user settings location, NOT next to the exe. Beside the exe is where a self-updating
+    /// install is least safe to keep anything: Velopack swaps the whole application directory when
+    /// an update applies, so settings written there would be replaced along with it. (The same
+    /// path was already wrong for the older per-machine MSI, which put the exe under Program Files
+    /// where an unprivileged process cannot write at all.)
     /// </summary>
     private static string SettingsPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

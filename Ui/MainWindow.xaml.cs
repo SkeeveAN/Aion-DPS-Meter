@@ -2,9 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
-using System.Net.Http;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,6 +13,7 @@ using AionSniffer.ChatLog;
 using AionSniffer.Combat;
 using AionSniffer.Data;
 using AionSniffer.Update;
+using VelopackUpdateInfo = Velopack.UpdateInfo;
 
 namespace AionSniffer.Ui;
 
@@ -86,9 +85,11 @@ public partial class MainWindow : Window
     /// IP, so 12 is comfortably inside it even with a second client running alongside.</summary>
     private readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromMinutes(5) };
 
-    /// <summary>The update already found and shown in the status row, so a repeating check does
-    /// not keep re-announcing the same one -- and so clicking the notice knows what to install.</summary>
-    private UpdateInfo? _pendingUpdate;
+    /// <summary>The update already downloaded and staged, so a repeating check does not fetch the
+    /// same one twelve times an hour -- and so clicking the notice knows what to restart into.
+    /// Aliased because Velopack's UpdateInfo would otherwise collide with nothing in particular,
+    /// but reads ambiguously next to this project's own update code.</summary>
+    private VelopackUpdateInfo? _downloadedUpdate;
 
     public MainWindow()
     {
@@ -697,10 +698,18 @@ public partial class MainWindow : Window
     /// </summary>
     protected override void OnClosing(CancelEventArgs e)
     {
+        SaveWindowStateToSettings();
+        base.OnClosing(e);
+    }
+
+    /// <summary>Extracted from OnClosing so the update restart can reuse it: Velopack's
+    /// ApplyUpdatesAndRestart ends the process itself and never reaches OnClosing, which would
+    /// silently lose the window position every time someone updated.</summary>
+    private void SaveWindowStateToSettings()
+    {
         var settings = MeterSettings.Load();
         SaveWindowGeometry(settings);
         settings.Save();
-        base.OnClosing(e);
     }
 
     protected override void OnClosed(EventArgs e)
@@ -943,14 +952,16 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Asks GitHub whether a newer release exists and, if so, puts a quiet line in the status row.
+    /// Asks GitHub whether a newer release exists and, if so, downloads it in the background and
+    /// says so in the status row. Nothing is swapped while the meter runs: Velopack stages the new
+    /// version and it becomes active on the next start, so an update never interrupts a fight.
     ///
     /// <paramref name="announceResult"/> separates the two callers. The automatic checks (startup
-    /// and the five-minute timer) pass false: they swallow every failure, because a machine that
-    /// is offline, or a GitHub that is rate-limiting, would otherwise produce a message box on top
-    /// of a boss fight every five minutes. The menu item passes true, because a check the user
-    /// just asked for that silently does nothing is indistinguishable from "you are up to date",
-    /// which is the one answer it must not fake.
+    /// and the five-minute timer) pass false: they swallow every failure, because a machine that is
+    /// offline, or a GitHub that is rate-limiting, would otherwise produce a message box on top of
+    /// a boss fight every five minutes. The menu item passes true, because a check the user just
+    /// asked for that silently does nothing is indistinguishable from "you are up to date", which
+    /// is the one answer it must not fake.
     /// </summary>
     private async Task RunUpdateCheck(bool announceResult)
     {
@@ -961,12 +972,26 @@ public partial class MainWindow : Window
             return;
         }
 
-        UpdateInfo? update;
+        if (!UpdateService.CanUpdate)
+        {
+            if (announceResult)
+            {
+                MessageBox.Show(this,
+                    "This copy was not installed by the updater, so it cannot update itself.\n\n" +
+                    "That is normal for a build run straight from source or unzipped by hand. " +
+                    "Installed copies update themselves silently.",
+                    "Check for updates", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+            return;
+        }
+
+        VelopackUpdateInfo? update;
         try
         {
-            update = await UpdateChecker.CheckAsync();
+            update = await UpdateService.CheckAsync();
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        catch (Exception ex)
         {
             if (announceResult)
             {
@@ -976,8 +1001,6 @@ public partial class MainWindow : Window
 
             return;
         }
-
-        _pendingUpdate = update;
 
         if (update is null)
         {
@@ -991,12 +1014,40 @@ public partial class MainWindow : Window
             return;
         }
 
-        UpdateNotice.Text = $"Update {update.TagName} available";
+        string version = update.TargetFullRelease.Version.ToString();
+
+        // Downloading the same update again on every timer tick would re-fetch it twelve times an
+        // hour for as long as the meter stays open.
+        if (_downloadedUpdate is not null)
+        {
+            return;
+        }
+
+        UpdateNotice.Text = $"Downloading {version}...";
         UpdateNotice.Visibility = Visibility.Visible;
+
+        try
+        {
+            await UpdateService.DownloadAsync(update);
+        }
+        catch (Exception ex)
+        {
+            UpdateNotice.Visibility = Visibility.Collapsed;
+            if (announceResult)
+            {
+                MessageBox.Show(this, $"The update could not be downloaded.\n\n{ex.Message}",
+                    "Check for updates", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+            return;
+        }
+
+        _downloadedUpdate = update;
+        UpdateNotice.Text = $"Update {version} ready - click to restart";
 
         if (announceResult)
         {
-            OfferUpdate(update);
+            OfferRestart(update, version);
         }
     }
 
@@ -1004,53 +1055,36 @@ public partial class MainWindow : Window
 
     private void OnUpdateNoticeClicked(object sender, MouseButtonEventArgs e)
     {
-        if (_pendingUpdate is { } update)
+        if (_downloadedUpdate is { } update)
         {
-            OfferUpdate(update);
+            OfferRestart(update, update.TargetFullRelease.Version.ToString());
         }
     }
 
     /// <summary>
-    /// Asks before doing anything, and says plainly what will happen: the installer needs this
-    /// process gone to replace its own files, and a per-machine MSI raises its own UAC prompt.
-    /// Downloading ~57 MB and closing the meter mid-raid is not something to do unannounced, so
-    /// nothing here runs without the user having clicked twice.
+    /// The update is already on disk by this point; all that is left is a restart, which is quick
+    /// and needs no installer and no elevation. Still asked rather than done: the meter is being
+    /// watched during a fight, and deciding on its own to disappear and come back mid-boss is not
+    /// its call to make. Declining costs nothing -- the staged version applies on the next normal
+    /// start anyway.
     /// </summary>
-    private async void OfferUpdate(UpdateInfo update)
+    private void OfferRestart(VelopackUpdateInfo update, string version)
     {
-        string question = update.MsiUrl is null
-            ? $"Version {update.TagName} is available (you have {AppVersion.Text}).\n\n" +
-              "This release has no installer attached. Open the release page in your browser?"
-            : $"Version {update.TagName} is available (you have {AppVersion.Text}).\n\n" +
-              "Download it and start the installer? The meter will close, and Windows will ask for " +
-              "administrator rights to install.";
+        var answer = MessageBox.Show(this,
+            $"Version {version} has been downloaded (you have {AppVersion.Text}).\n\n" +
+            "Restart the meter now to use it? If you'd rather not, it will be applied the next " +
+            "time you start the meter anyway.",
+            "Update ready", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-        if (MessageBox.Show(this, question, "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        if (answer != MessageBoxResult.Yes)
         {
             return;
         }
 
-        if (update.MsiUrl is null)
-        {
-            UpdateChecker.OpenReleasePage(update.ReleasePageUrl);
-            return;
-        }
-
-        try
-        {
-            UpdateNotice.Text = $"Downloading {update.TagName}...";
-            string msi = await UpdateChecker.DownloadMsiAsync(update);
-            UpdateChecker.LaunchInstaller(msi);
-            Close();
-        }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or UnauthorizedAccessException)
-        {
-            UpdateNotice.Text = $"Update {update.TagName} available";
-            MessageBox.Show(this,
-                $"The download failed.\n\n{ex.Message}\n\nOpening the release page instead so you can install it by hand.",
-                "Update", MessageBoxButton.OK, MessageBoxImage.Warning);
-            UpdateChecker.OpenReleasePage(update.ReleasePageUrl);
-        }
+        // Window geometry and settings are saved in OnClosing, which ApplyAndRestart never reaches
+        // because it ends the process itself -- so save first, then hand over.
+        SaveWindowStateToSettings();
+        UpdateService.ApplyAndRestart(update);
     }
 
     private void OnClearClicked(object sender, RoutedEventArgs e) => ClearAllData();
