@@ -359,7 +359,7 @@ public partial class MainWindow : Window
     // Running totals for the footer row -- see ChatLogParser.PersonalStatChanged remarks for why
     // these are simple accumulators, not per-row PlayerRow fields like Damage (Exp/AP/GP/Kinah
     // only ever apply to "You", there's no "other player's XP" to track). Session-scoped like
-    // damage totals: reset by ClearAllData, not persisted across restarts.
+    // damage totals: reset by ClearDamageData, not persisted across restarts.
     private long _totalExp;
     private long _totalAp;
     private long _totalGp;
@@ -541,7 +541,10 @@ public partial class MainWindow : Window
                 CopyTextToClipboardIfAny(BuildDmgRankingText(), "No damage has been recorded yet.");
                 break;
             case "cleardmg":
-                ClearAllData();
+                ClearDamageData();
+                break;
+            case "clearloot":
+                ClearLootData();
                 break;
             case "loot":
                 CopyTextToClipboardIfAny(BuildLootChatSummary(),
@@ -1163,7 +1166,7 @@ public partial class MainWindow : Window
         UpdateService.ApplyAndRestart(update);
     }
 
-    private void OnClearClicked(object sender, RoutedEventArgs e) => ClearAllData();
+    private void OnClearClicked(object sender, RoutedEventArgs e) => ClearActiveView();
 
     /// <summary>
     /// Drops damage on targets the local player's own side never fought -- the "All" view's
@@ -1231,7 +1234,24 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Shared by the toolbar Clear button and the ".cleardmg" in-game command.</summary>
-    private void ClearAllData()
+    /// <summary>
+    /// Clears whichever view is showing, per the user: damage and loot are separate records of the
+    /// same session and are wanted separately -- clearing a botched pull should not throw away the
+    /// loot that already dropped, and vice versa.
+    /// </summary>
+    private void ClearActiveView()
+    {
+        if (LootGrid.Visibility == Visibility.Visible)
+        {
+            ClearLootData();
+        }
+        else
+        {
+            ClearDamageData();
+        }
+    }
+
+    private void ClearDamageData()
     {
         _aggregator.Clear();
         _rows.Clear();
@@ -1241,6 +1261,8 @@ public partial class MainWindow : Window
         _selectedTargetId = null;
         DpsColumn.Header = "Damage / DPS";
 
+        // Personal stats belong to the damage side: they are the run's own counters (XP/AP/GP/Kinah
+        // earned while fighting), not a property of the loot table.
         _totalExp = 0;
         _totalAp = 0;
         _totalGp = 0;
@@ -1250,16 +1272,21 @@ public partial class MainWindow : Window
         GpValueText.Text = "-";
         KinahValueText.Text = "-";
 
-        _lootRows.Clear();
-        _lootRowsByKey.Clear();
-        _relicApByPerson.Clear();
-
         while (MobBossFilter.Items.Count > 1) // keep the XAML-declared "All" entry, drop the rest
         {
             MobBossFilter.Items.RemoveAt(1);
         }
 
         MobBossFilter.SelectedIndex = 0;
+    }
+
+    private void ClearLootData()
+    {
+        _lootRows.Clear();
+        _lootRowsByKey.Clear();
+
+        // Relic AP is derived purely from looted relics, so it goes with the loot, not the damage.
+        _relicApByPerson.Clear();
     }
 
     // Copy/CopyAll are shared between the Damage and Loot views (see OnShowDamageView/
@@ -1577,7 +1604,6 @@ public partial class MainWindow : Window
         LootGrid.Visibility = Visibility.Collapsed;
         DamageNavButton.FontWeight = FontWeights.Bold;
         LootNavButton.FontWeight = FontWeights.Normal;
-        SetCopyButtonsShowLabels(false);
     }
 
     private void OnShowLootView(object sender, RoutedEventArgs e)
@@ -1586,22 +1612,8 @@ public partial class MainWindow : Window
         LootGrid.Visibility = Visibility.Visible;
         DamageNavButton.FontWeight = FontWeights.Normal;
         LootNavButton.FontWeight = FontWeights.Bold;
-        SetCopyButtonsShowLabels(true);
     }
 
-    /// <summary>Swaps Copy/CopyAll between their plain icon (Damage view) and a "String"/"Table"
-    /// text label (Loot view) -- per the user, who wanted to tell the two apart without having to
-    /// hover for the ToolTip. Both views now have genuinely different payloads per button (see
-    /// OnCopyClicked/OnCopyAllClicked), so the same argument would justify labels in the Damage
-    /// view as well; not done unasked, since it changes a toolbar the user did not complain
-    /// about.</summary>
-    private void SetCopyButtonsShowLabels(bool showLabels)
-    {
-        CopyIcon.Visibility = showLabels ? Visibility.Collapsed : Visibility.Visible;
-        CopyLabel.Visibility = showLabels ? Visibility.Visible : Visibility.Collapsed;
-        CopyAllIcon.Visibility = showLabels ? Visibility.Collapsed : Visibility.Visible;
-        CopyAllLabel.Visibility = showLabels ? Visibility.Visible : Visibility.Collapsed;
-    }
 
     private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
     {

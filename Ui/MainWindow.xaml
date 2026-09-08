@@ -314,7 +314,7 @@
                         <MenuItem Header="Open logs folder" IsEnabled="False"/>
                         <Separator/>
                         <MenuItem Header="Reset connection" IsEnabled="False"/>
-                        <MenuItem Header="Clear sessions" Click="OnClearClicked"/>
+                        <MenuItem Header="Clear current view" Click="OnClearClicked"/>
                         <!-- Moved out of the toolbar (found by terminal_windows: the toolbar
                              overflowed the window at its default width once Char/Hide UI grew it,
                              literally pushing Settings off-screen and unreachable) - a synthetic
@@ -369,16 +369,14 @@
                          now differ as well (chat string vs tab-separated table). Left as-is
                          because the user asked only for the missing payload, not a toolbar
                          change; showing the labels there too would apply the same reasoning. -->
+                    <!-- Same two buttons in both views, per the user: an "A" for the chat string
+                         and Discord's own mark for the table. They used to swap between an icon and
+                         a text label depending on the active view, which meant the same button
+                         looked like two different controls. -->
                     <Button x:Name="CopyButton" Click="OnCopyClicked" Padding="6,4"
-                            ToolTip="Copy a one-line chat string (Name Damage (DPS), ...), or an Aion-chat loot summary if the Loot view is active.">
-                        <Grid Height="16">
-                            <Grid x:Name="CopyIcon" Width="18" Height="16" HorizontalAlignment="Left">
-                                <Rectangle Width="11" Height="12" Stroke="#e8e8ea" StrokeThickness="1.2"
-                                           RadiusX="1.5" RadiusY="1.5" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-                                <Rectangle Width="11" Height="12" Stroke="#e8e8ea" StrokeThickness="1.2" Fill="#26262e"
-                                           RadiusX="1.5" RadiusY="1.5" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                            </Grid>
-                            <TextBlock x:Name="CopyLabel" Text="String" FontSize="11" Visibility="Collapsed"
+                            ToolTip="Copy a one-line chat string - the damage ranking, or an Aion-chat loot summary if the Loot view is active.">
+                        <Grid Width="18" Height="16">
+                            <TextBlock Text="A" FontSize="15" FontWeight="Bold" Foreground="#e8e8ea"
                                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Grid>
                     </Button>
@@ -387,18 +385,15 @@
                          "visible"), but Copy yields the one-line chat string and CopyAll the
                          tab-separated table, which is what the String/Table labels say. -->
                     <Button x:Name="CopyAllButton" Click="OnCopyAllClicked" Padding="6,4"
-                            ToolTip="Copy all rows as a tab-separated table, or a Discord loot table if the Loot view is active.">
-                        <Grid Height="16">
-                            <Grid x:Name="CopyAllIcon" Width="18" Height="16" HorizontalAlignment="Left">
-                                <Rectangle Width="10" Height="10" Stroke="#e8e8ea" StrokeThickness="1.1"
-                                           RadiusX="1.3" RadiusY="1.3" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-                                <Rectangle Width="10" Height="10" Stroke="#e8e8ea" StrokeThickness="1.1" Fill="#26262e"
-                                           RadiusX="1.3" RadiusY="1.3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <Rectangle Width="10" Height="10" Stroke="#e8e8ea" StrokeThickness="1.1" Fill="#26262e"
-                                           RadiusX="1.3" RadiusY="1.3" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                            </Grid>
-                            <TextBlock x:Name="CopyAllLabel" Text="Table" FontSize="11" Visibility="Collapsed"
-                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            ToolTip="Copy an ASCII table in a code block, ready to paste into Discord - damage, or loot if the Loot view is active.">
+                        <Grid Width="18" Height="16">
+                            <!-- Discord's own mark, from the simple-icons 24x24 viewBox. The SVG
+                                 packs arc flags ("0 0 0-4.88"), which WPF's geometry parser rejects,
+                                 so the flags are spaced out and bare ".5" numbers are written "0.5".
+                                 SelfCheck parses this string, because a malformed Data attribute
+                                 throws while the window is being built - the app would not start. -->
+                            <Path Data="M 20.317 4.3698a 19.7913 19.7913 0 0 0 -4.8851 -1.5152 0.0741 0.0741 0 0 0 -0.0785 0.0371c -0.211 0.3753 -0.4447 0.8648 -0.6083 1.2495 -1.8447 -0.2762 -3.68 -0.2762 -5.4868 0 -0.1636 -0.3933 -0.4058 -0.8742 -0.6177 -1.2495a 0.077 0.077 0 0 0 -0.0785 -0.037 19.7363 19.7363 0 0 0 -4.8852 1.515 0.0699 0.0699 0 0 0 -0.0321 0.0277C 0.5334 9.0458 -0.319 13.5799 0.0992 18.0578a 0.0824 0.0824 0 0 0 0.0312 0.0561c 2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a 0.0777 0.0777 0 0 0 0.0842 -0.0276c 0.4616 -0.6304 0.8731 -1.2952 1.226 -1.9942a 0.076 0.076 0 0 0 -0.0416 -0.1057c -0.6528 -0.2476 -1.2743 -0.5495 -1.8722 -0.8923a 0.077 0.077 0 0 1 -0.0076 -0.1277c 0.1258 -0.0943 0.2517 -0.1923 0.3718 -0.2914a 0.0743 0.0743 0 0 1 0.0776 -0.0105c 3.9278 1.7933 8.18 1.7933 12.0614 0a 0.0739 0.0739 0 0 1 0.0785 0.0095c 0.1202 0.099 0.246 0.1981 0.3728 0.2924a 0.077 0.077 0 0 1 -0.0066 0.1276 12.2986 12.2986 0 0 1 -1.873 0.8914 0.0766 0.0766 0 0 0 -0.0407 0.1067c 0.3604 0.698 0.7719 1.3628 1.225 1.9932a 0.076 0.076 0 0 0 0.0842 0.0286c 1.961 -0.6067 3.9495 -1.5219 6.0023 -3.0294a 0.077 0.077 0 0 0 0.0313 -0.0552c 0.5004 -5.177 -0.8382 -9.6739 -3.5485 -13.6604a 0.061 0.061 0 0 0 -0.0312 -0.0286zM 8.02 15.3312c -1.1825 0 -2.1569 -1.0857 -2.1569 -2.419 0 -1.3332 0.9555 -2.4189 2.157 -2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332 -0.9555 2.4189 -2.1569 2.4189zm 7.9748 0c -1.1825 0 -2.1569 -1.0857 -2.1569 -2.419 0 -1.3332 0.9554 -2.4189 2.1569 -2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332 -0.946 2.4189 -2.1568 2.4189Z"
+                                  Fill="#e8e8ea" Stretch="Uniform" Width="16" Height="16"/>
                         </Grid>
                     </Button>
                     <!-- Pause/Resume: one button, two overlaid glyphs (pause bars / play triangle)
@@ -417,7 +412,7 @@
                         </Grid>
                     </Button>
                     <Button x:Name="ClearButton" Click="OnClearClicked" Padding="6,4"
-                            ToolTip="Clear all recorded data and reset the grid (does not touch Chat.log itself).">
+                            ToolTip="Clear the view you are looking at - damage or loot, not both (does not touch Chat.log itself).">
                         <Grid Width="18" Height="16">
                             <Path Data="M4,4 L14,4 M6,4 L6,1 L12,1 L12,4 M5,4 L5,15 L13,15 L13,4"
                                   Stroke="#e8e8ea" StrokeThickness="1.3" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>

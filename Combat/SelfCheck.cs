@@ -30,6 +30,7 @@ public static class SelfCheck
         ok &= RunAppVersionScenario();
         ok &= RunFactionResolverScenario();
         ok &= RunAsciiTableScenario();
+        ok &= RunToolbarIconScenario();
         ok &= RunLiveAggregatorScenario();
         ok &= RunChatLogParserScenario();
         ok &= RunChatLogRealWorldPatternsScenario();
@@ -272,6 +273,39 @@ public static class SelfCheck
         bool matches = iDps is double v && Math.Abs(v - expectedIDps) < 1.0;
         Console.WriteLine($"  -> matches within rounding: {matches}");
         return matches;
+    }
+
+    /// <summary>
+    /// The Discord mark on the copy-table button. Its Data string came from an SVG, and SVG packs
+    /// arc flags ("0 0 0-4.88") in a way WPF's geometry parser rejects -- a malformed Data attribute
+    /// throws while MainWindow is being constructed, so the app would not start at all. Parsing it
+    /// here turns that from a crash on launch into a failing check.
+    /// </summary>
+    private static bool RunToolbarIconScenario()
+    {
+        const string discord = "M 20.317 4.3698a 19.7913 19.7913 0 0 0 -4.8851 -1.5152 0.0741 0.0741 0 0 0 -0.0785 0.0371c -0.211 0.3753 -0.4447 0.8648 -0.6083 1.2495 -1.8447 -0.2762 -3.68 -0.2762 -5.4868 0 -0.1636 -0.3933 -0.4058 -0.8742 -0.6177 -1.2495a 0.077 0.077 0 0 0 -0.0785 -0.037 19.7363 19.7363 0 0 0 -4.8852 1.515 0.0699 0.0699 0 0 0 -0.0321 0.0277C 0.5334 9.0458 -0.319 13.5799 0.0992 18.0578a 0.0824 0.0824 0 0 0 0.0312 0.0561c 2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a 0.0777 0.0777 0 0 0 0.0842 -0.0276c 0.4616 -0.6304 0.8731 -1.2952 1.226 -1.9942a 0.076 0.076 0 0 0 -0.0416 -0.1057c -0.6528 -0.2476 -1.2743 -0.5495 -1.8722 -0.8923a 0.077 0.077 0 0 1 -0.0076 -0.1277c 0.1258 -0.0943 0.2517 -0.1923 0.3718 -0.2914a 0.0743 0.0743 0 0 1 0.0776 -0.0105c 3.9278 1.7933 8.18 1.7933 12.0614 0a 0.0739 0.0739 0 0 1 0.0785 0.0095c 0.1202 0.099 0.246 0.1981 0.3728 0.2924a 0.077 0.077 0 0 1 -0.0066 0.1276 12.2986 12.2986 0 0 1 -1.873 0.8914 0.0766 0.0766 0 0 0 -0.0407 0.1067c 0.3604 0.698 0.7719 1.3628 1.225 1.9932a 0.076 0.076 0 0 0 0.0842 0.0286c 1.961 -0.6067 3.9495 -1.5219 6.0023 -3.0294a 0.077 0.077 0 0 0 0.0313 -0.0552c 0.5004 -5.177 -0.8382 -9.6739 -3.5485 -13.6604a 0.061 0.061 0 0 0 -0.0312 -0.0286zM 8.02 15.3312c -1.1825 0 -2.1569 -1.0857 -2.1569 -2.419 0 -1.3332 0.9555 -2.4189 2.157 -2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332 -0.9555 2.4189 -2.1569 2.4189zm 7.9748 0c -1.1825 0 -2.1569 -1.0857 -2.1569 -2.419 0 -1.3332 0.9554 -2.4189 2.1569 -2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332 -0.946 2.4189 -2.1568 2.4189Z";
+
+        bool parses;
+        double width = 0;
+        try
+        {
+            var geometry = System.Windows.Media.Geometry.Parse(discord);
+            width = geometry.Bounds.Width;
+            parses = true;
+        }
+        catch (FormatException)
+        {
+            parses = false;
+        }
+
+        // A geometry that parses but is empty would render as a blank button.
+        bool hasShape = width > 1;
+
+        Console.WriteLine("[selftest] Toolbar icons:");
+        Console.WriteLine($"  -> Discord mark parses as a WPF geometry: {parses}");
+        Console.WriteLine($"  -> and covers a real area (width {width:F1}): {hasShape}");
+
+        return parses && hasShape;
     }
 
     /// <summary>
