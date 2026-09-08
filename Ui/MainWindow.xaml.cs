@@ -905,7 +905,17 @@ public partial class MainWindow : Window
             row.Faction = seenBefore.Faction;
         }
 
-        _knownPlayers.Remember(row.Name, row.ClassName, row.Faction);
+        // A faction is only ever WRITTEN when it was proven, never when it was merely inferred from
+        // fighting someone. Hostility is not evidence of a banner: an arena opponent is frequently
+        // your own faction, and the meter cannot reliably tell it is in an arena at all -- the zone
+        // line is announced once on entry, so a meter started mid-match never sees it.
+        //
+        // Deriving for the current session is still useful (a Dredgion enemy really is the other
+        // faction), so the row keeps showing it. It simply does not outlive the session, and a
+        // wrong guess in an arena cannot poison the database. Own side is a different matter: that
+        // is proven by heals, loot and group membership, so it is written.
+        bool provenFaction = side == Side.Own || _knownPlayers.Find(row.Name)?.FactionIsManual == true;
+        _knownPlayers.Remember(row.Name, row.ClassName, provenFaction ? row.Faction : null);
     }
 
     /// <summary>The local player's own faction, from the active character or any registered one

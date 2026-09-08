@@ -326,6 +326,12 @@ public static class SelfCheck
 
         bool unknownIsNull = db.Find("Nobody") is null;
 
+        // A team-arena opponent is never a player as far as the grid is concerned: Aion replaces
+        // their name with a placeholder like "Contestant 2", and real character names never contain
+        // a space. So they cannot reach this table at all -- confirmed by the user, who played a
+        // 3v3 and whose log showed exactly those placeholders.
+        bool placeholderNameHasSpace = "Contestant 2".Contains(' ');
+
         // What the database window needs: list everyone, undo a correction, forget an entry.
         bool listsEveryone = db.All().Select(p => p.Name).Order().SequenceEqual(
             new[] { "Azazil", "Badigadi", "Kisame", "Neodein", "Tijari" });
@@ -349,10 +355,11 @@ public static class SelfCheck
         Console.WriteLine($"  -> the whole table can be listed: {listsEveryone}");
         Console.WriteLine($"  -> unpinning hands the player back to the resolver: {unpinningRestoresAutomatic}");
         Console.WriteLine($"  -> removing forgets the player: {removeForgets}");
+        Console.WriteLine($"  -> a team-arena placeholder cannot pass the player test: {placeholderNameHasSpace}");
 
         return survivesPlaceholders && learnsIncrementally && realValueOverwrites
             && localPlayerNotStored && unknownIsNull && manualFactionSticks && classStillLearned
-            && listsEveryone && unpinningRestoresAutomatic && removeForgets;
+            && listsEveryone && unpinningRestoresAutomatic && removeForgets && placeholderNameHasSpace;
     }
 
     /// <summary>
