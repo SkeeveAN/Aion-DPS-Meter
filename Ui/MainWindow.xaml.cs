@@ -1428,14 +1428,27 @@ public partial class MainWindow : Window
     // checked against color: the computed position for "Orange" rendered as a rust-orange sphere,
     // "Gold" as a gold sphere, "Lila" as a purple ring -- matching the user's own color naming,
     // not just the position count alone.
-    private const string GoldIcon = "";
-    private const string OrangeIcon = "";
-    private const string PurpleIcon = "";
+
+    // Aion's own chat glyphs for the four item-quality tiers, taken from characters the user
+    // pasted straight out of the client. Written as escapes rather than literal characters on
+    // purpose: they live in the Unicode Private Use Area, so they are invisible in every editor
+    // and diff outside the game, and a literal would be silently lost or mangled by anything that
+    // strips PUA -- which is exactly what happened trying to send them through chat.
+    //
+    // Two of these were WRONG until now, and invisibly so: gold was U+E02E and epic U+E02C, which
+    // are some other glyph entirely, so every loot summary posted to the group showed the wrong
+    // symbols. Only mythic was right. Verified against the client's own output, tier by tier.
+    private const string LegendIcon = "\ue036";   // blue
+    private const string UniqueIcon = "\ue038";   // gold
+    private const string EpicIcon = "\ue03e";     // orange
+    private const string MythicIcon = "\ue033";   // purple
 
     /// <summary>
     /// The ".loot" in-game command's clipboard payload: per person, one repeated icon per
-    /// Unique(Gold)/Legendary(Orange)/Ultimate(Purple) item quantity they're credited with this
-    /// session -- "wie oft Spieler 1 Gold, Orange oder Lila bekommen hat", per the user. Godstones/
+    /// Legend(blue)/Unique(gold)/Epic(orange)/Mythic(purple) item quantity they're credited with
+    /// this session. Blue was added on the user's request -- the Veteran's Composite Manastone
+    /// Bundle that drops in Sauro is a Legend, and leaving it out meant the summary silently
+    /// skipped the one drop the group cares most about after the rare top-tier pieces. Godstones/
     /// Designs/Recipes are tracked (see IsTrackedLoot) but deliberately don't contribute here --
     /// this summary is specifically about rarity tier, not about those categories. Capped per
     /// color per person so one freak stack can't produce an unpasteable wall of icons.
@@ -1447,15 +1460,19 @@ public partial class MainWindow : Window
             .Select(g => new
             {
                 Person = g.Key,
-                Gold = g.Where(r => r.Grade == ItemGrade.Unique).Sum(r => r.Quantity),
-                Orange = g.Where(r => r.Grade == ItemGrade.Epic).Sum(r => r.Quantity),
-                Purple = g.Where(r => r.Grade == ItemGrade.Mythic).Sum(r => r.Quantity),
+                Legend = g.Where(r => r.Grade == ItemGrade.Legend).Sum(r => r.Quantity),
+                Unique = g.Where(r => r.Grade == ItemGrade.Unique).Sum(r => r.Quantity),
+                Epic = g.Where(r => r.Grade == ItemGrade.Epic).Sum(r => r.Quantity),
+                Mythic = g.Where(r => r.Grade == ItemGrade.Mythic).Sum(r => r.Quantity),
             })
-            .Where(p => p.Gold > 0 || p.Orange > 0 || p.Purple > 0)
+            .Where(p => p.Legend > 0 || p.Unique > 0 || p.Epic > 0 || p.Mythic > 0)
             .OrderBy(p => p.Person, StringComparer.Ordinal);
 
+        // Ascending rarity, so the rarest sits at the end of each person's run of icons where it
+        // is easiest to spot when the line is scanned quickly in chat.
         return string.Join("  ", byPerson.Select(p =>
-            $"{p.Person}: {RepeatIcon(GoldIcon, p.Gold)}{RepeatIcon(OrangeIcon, p.Orange)}{RepeatIcon(PurpleIcon, p.Purple)}"));
+            $"{p.Person}: {RepeatIcon(LegendIcon, p.Legend)}{RepeatIcon(UniqueIcon, p.Unique)}"
+            + $"{RepeatIcon(EpicIcon, p.Epic)}{RepeatIcon(MythicIcon, p.Mythic)}"));
     }
 
     private const int MaxIconsPerColor = 30;

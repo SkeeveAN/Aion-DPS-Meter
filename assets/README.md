@@ -40,6 +40,34 @@ im Meter verwendet wird.
   ist das von Hand trivial und unstrittig (öffentliches Allgemeinwissen zu AION-Klassen), aber
   bewusst nicht automatisch verknüpft, um keine falsche Zuordnung als "verifiziert" auszugeben.
 
+## Aion-Chat-Glyphen für Item-Stufen (keine Datei, Konstanten in `Ui/MainWindow.xaml.cs`)
+
+Die Loot-Chat-Zusammenfassung (`.loot` bzw. der „String"-Knopf) benutzt Aions **eigene**
+Chat-Symbole, damit die Zeile im Spiel bunt statt textlastig aussieht:
+
+| Stufe (Origin Codex) | Farbe | Codepoint |
+|---|---|---|
+| LEGEND | blau | `U+E036` |
+| UNIQUE | gold | `U+E038` |
+| EPIC | orange | `U+E03E` |
+| MYTHIC | lila | `U+E033` |
+
+- Das sind **Private-Use-Area-Zeichen**: Sie werden nur von der Client-Schriftart gerendert. Außerhalb
+  von Aion – Editor, Zwischenablage-Viewer, Git-Diff, dieser Chat hier – sind sie **unsichtbar**.
+  Genau das führte zur Fehlmeldung „der String-Knopf kopiert nichts": kopiert wurde korrekt, nur
+  war das Ergebnis außerhalb des Spiels nicht zu sehen.
+- Im Code deshalb als `"\ue036"`-Escapes geschrieben, nicht als literale Zeichen. Ein literales
+  PUA-Zeichen überlebt weder Copy-Paste durch beliebige Werkzeuge noch eine Pipeline, die
+  Steuerzeichen filtert.
+- **So kommt man an sie heran**, falls sie je neu ermittelt werden müssen: im Spiel je einen
+  Gegenstand der Stufe in den Chat verlinken, die Zeile in eine Textdatei einfügen, speichern und
+  die Bytes auslesen (`xxd`). Über einen Chat/Ticket verschicken funktioniert **nicht** – die
+  Zeichen werden unterwegs verworfen.
+- Historie als Warnung: `U+E038` (gold) und `U+E03E` (episch) standen ursprünglich falsch im Code
+  (`U+E02E` bzw. `U+E02C`) und zeigten damit fremde Glyphen. Aufgefallen ist das erst, als die
+  Zeichen einmal Byte für Byte gegen die echte Client-Ausgabe geprüft wurden – im Diff und in jedem
+  Editor sahen beide Varianten identisch (nämlich leer) aus.
+
 ## `classes/icons/` + `races/icons/`
 
 - **Klassen-Icons** (13 Stück, 64×64 RGBA): `https://myaion.eu/Images/Classes/<Klasse>.png`.
