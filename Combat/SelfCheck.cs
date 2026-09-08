@@ -323,7 +323,35 @@ public static class SelfCheck
         Console.WriteLine($"  -> a player who fought us is marked enemy: {enemiesFound}");
         Console.WriteLine($"  -> \"You\" healing the enemy healer does NOT make them an ally: {enemyHealerNotAdopted}");
 
-        return ownSideFound && enemiesFound && enemyHealerNotAdopted;
+        // PvE: no enemy players at all, and a group member who neither heals nor is healed. Taken
+        // from a real Sauro Supply Base run, where the local player's own name appeared as its own
+        // row (narrated in third person by the second client) with no heal edge to anything. An
+        // earlier version only considered players that had a heal edge, so that row -- provably in
+        // the group, it is in the loot lines -- stayed unclassified and showed no emblem.
+        const int lootOnly = 7;
+        var pveNames = new Dictionary<int, string>(names) { [lootOnly] = "Alhamdulilah" };
+        var pveEvents = new List<DamageEvent>
+        {
+            new(start, ourHealer, ourDps, 500, IsHeal: true),
+            new(start.AddSeconds(1), ourDps, mob, 900, IsHeal: false),
+            new(start.AddSeconds(2), lootOnly, mob, 900, IsHeal: false),
+        };
+
+        var pveSides = FactionResolver.Resolve(
+            pveEvents,
+            id => pveNames.GetValueOrDefault(id),
+            id => id != mob,
+            you,
+            new HashSet<string> { "Askila", "Alhamdulilah" });
+
+        bool healerlessMemberIsOwn = pveSides.GetValueOrDefault(lootOnly) == Side.Own;
+        bool noEnemiesInPve = !pveSides.Values.Contains(Side.Enemy);
+
+        Console.WriteLine($"  -> a group member with no heal edge is still our side: {healerlessMemberIsOwn}");
+        Console.WriteLine($"  -> a PvE run produces no enemies at all: {noEnemiesInPve}");
+
+        return ownSideFound && enemiesFound && enemyHealerNotAdopted
+            && healerlessMemberIsOwn && noEnemiesInPve;
     }
 
     /// <summary>

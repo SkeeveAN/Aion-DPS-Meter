@@ -73,56 +73,54 @@ public static class FactionResolver
             }
         }
 
-        // Heal-connected components: everyone who healed, or was healed by, someone in the group.
-        var component = new Dictionary<int, int>();
-        int next = 0;
-        foreach (int id in allies.Keys)
+        // Own side, seeded from the anchors and the local player, then grown through the heal
+        // graph. Seeding FIRST and expanding second is load-bearing: an earlier version only
+        // looked at players that had a heal edge, so an anchor who never healed and was never
+        // healed -- which is most classes, and was the local player's own second-client row in a
+        // real Sauro run -- was left Unknown despite being provably in the group.
+        var side = new Dictionary<int, Side>();
+        var own = new HashSet<int> { youId };
+        foreach ((int id, HashSet<int> _) in allies)
         {
-            if (component.ContainsKey(id))
+            if (nameOf(id) is string n && anchors.Contains(n))
+            {
+                own.Add(id);
+            }
+        }
+
+        foreach (DamageEvent e in events)
+        {
+            foreach (int id in new[] { e.SourceObjectId, e.TargetObjectId })
+            {
+                if (isPlayer(id) && nameOf(id) is string n && anchors.Contains(n))
+                {
+                    own.Add(id);
+                }
+            }
+        }
+
+        // Everyone heal-connected to a known member is a member too.
+        var queue = new Queue<int>(own);
+        while (queue.Count > 0)
+        {
+            int current = queue.Dequeue();
+            if (!allies.TryGetValue(current, out var neighbours))
             {
                 continue;
             }
 
-            var stack = new Stack<int>();
-            stack.Push(id);
-            component[id] = next;
-            while (stack.Count > 0)
+            foreach (int other in neighbours)
             {
-                foreach (int other in allies[stack.Pop()])
+                if (own.Add(other))
                 {
-                    if (component.TryAdd(other, next))
-                    {
-                        stack.Push(other);
-                    }
+                    queue.Enqueue(other);
                 }
             }
-
-            next++;
         }
 
-        // Which components are ours: the ones an anchor sits in. The local player is always in.
-        var ownComponents = new HashSet<int>();
-        foreach ((int id, int comp) in component)
+        foreach (int id in own)
         {
-            if (nameOf(id) is string name && anchors.Contains(name))
-            {
-                ownComponents.Add(comp);
-            }
-        }
-
-        var side = new Dictionary<int, Side>();
-        foreach ((int id, int comp) in component)
-        {
-            side[id] = ownComponents.Contains(comp) ? Side.Own : Side.Unknown;
-        }
-
-        side[youId] = Side.Own;
-        foreach ((int id, int _) in component)
-        {
-            if (nameOf(id) is string name && anchors.Contains(name))
-            {
-                side[id] = Side.Own;
-            }
+            side[id] = Side.Own;
         }
 
         // Anyone who traded damage with our side is on the other one. Applied after the components

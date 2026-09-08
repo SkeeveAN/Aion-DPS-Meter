@@ -538,13 +538,15 @@ public partial class MainWindow : Window
                 SetPaused(false);
                 break;
             case "dmg":
-                CopyTextToClipboardIfAny(BuildDmgRankingText());
+                CopyTextToClipboardIfAny(BuildDmgRankingText(), "No damage has been recorded yet.");
                 break;
             case "cleardmg":
                 ClearAllData();
                 break;
             case "loot":
-                CopyTextToClipboardIfAny(BuildLootChatSummary());
+                CopyTextToClipboardIfAny(BuildLootChatSummary(),
+                "No loot of Unique grade or better has dropped yet, and the chat summary only lists "
+                + "those. Use the Table button next to it for the full loot list.");
                 break;
         }
     }
@@ -850,14 +852,22 @@ public partial class MainWindow : Window
         Side side = sides.GetValueOrDefault(sourceId, Side.Unknown);
         row.IsEnemy = side == Side.Enemy;
 
-        string own = _characters.FirstOrDefault(c => c.Name == _activeCharacterName)?.Faction
-            ?? _characters.FirstOrDefault(c => c.Faction.Length > 0)?.Faction
+        // The "?? fallback" this replaced was dead code: a registered active character whose
+        // Faction is empty returns "" rather than null, so the fallback never fired and NOBODY got
+        // an emblem -- exactly what the user saw after a Sauro run, since characters registered
+        // before the faction field existed carry an empty one. Skipping empties instead means one
+        // character with a faction set is enough to label the whole run.
+        string own = FirstFaction(_characters.Where(c => c.Name == _activeCharacterName))
+            ?? FirstFaction(_characters)
             ?? "";
 
         row.Faction = own.Length == 0 || side == Side.Unknown
             ? ""
             : side == Side.Own ? own : Opposite(own);
     }
+
+    private static string? FirstFaction(IEnumerable<CharacterProfile> characters) =>
+        characters.Select(c => c.Faction).FirstOrDefault(f => !string.IsNullOrEmpty(f));
 
     private static string Opposite(string faction) =>
         faction == "Elyos" ? "Asmodian" : faction == "Asmodian" ? "Elyos" : "";
@@ -1265,11 +1275,13 @@ public partial class MainWindow : Window
     {
         if (LootGrid.Visibility == Visibility.Visible)
         {
-            CopyTextToClipboardIfAny(BuildLootChatSummary());
+            CopyTextToClipboardIfAny(BuildLootChatSummary(),
+                "No loot of Unique grade or better has dropped yet, and the chat summary only lists "
+                + "those. Use the Table button next to it for the full loot list.");
         }
         else
         {
-            CopyTextToClipboardIfAny(BuildDmgChatLine());
+            CopyTextToClipboardIfAny(BuildDmgChatLine(), "No damage has been recorded yet.");
         }
     }
 
@@ -1277,7 +1289,7 @@ public partial class MainWindow : Window
     {
         if (LootGrid.Visibility == Visibility.Visible)
         {
-            CopyTextToClipboardIfAny(BuildLootDiscordTable());
+            CopyTextToClipboardIfAny(BuildLootDiscordTable(), "No loot has been recorded yet.");
         }
         else
         {
@@ -1293,16 +1305,35 @@ public partial class MainWindow : Window
             sb.AppendLine($"{row.Name}\t{row.ClassName}\t{row.Level}\t{row.Damage}\t{row.DpsDisplay}");
         }
 
-        CopyTextToClipboardIfAny(sb.ToString());
+        CopyTextToClipboardIfAny(sb.ToString(), "No damage has been recorded yet.");
     }
 
     /// <summary>Guards Clipboard.SetText against an empty result -- shared by CopyRowsToClipboard
     /// and the ".dmg" in-game command, same as the pre-existing "if (sb.Length > 0)" check.</summary>
-    private static void CopyTextToClipboardIfAny(string text)
+    private void CopyTextToClipboardIfAny(string text, string whatWasEmpty)
     {
-        if (text.Length > 0)
+        if (text.Length == 0)
+        {
+            // Reported by the user as "clicking String puts nothing on the clipboard". It did
+            // exactly what it was told to -- the loot summary only counts Unique and above, so a
+            // run without such a drop produces an empty string -- but silently doing nothing is
+            // indistinguishable from a broken button. Say which, instead.
+            MessageBox.Show(this, whatWasEmpty, "Nothing to copy",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        try
         {
             Clipboard.SetText(text);
+        }
+        catch (System.Runtime.InteropServices.COMException ex)
+        {
+            // The clipboard is a single system-wide resource and any other process can hold it
+            // open for a moment; SetText then throws instead of waiting. Unhandled, that took the
+            // whole meter down mid-raid for something as minor as a failed copy.
+            MessageBox.Show(this, $"The clipboard was busy and the copy failed.\n\n{ex.Message}",
+                "Copy", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
