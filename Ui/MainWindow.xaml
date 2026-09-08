@@ -339,6 +339,8 @@
                          entry buried among a dozen others. -->
                     <MenuItem Header="Settings" Foreground="#e8e8ea">
                         <MenuItem Header="App Settings" Click="OnSettingsClicked"/>
+                        <MenuItem Header="Player Database" Click="OnPlayerDatabaseClicked"
+                                  ToolTip="Everyone the meter has identified, with their class and faction - and where a wrongly derived faction can be corrected later."/>
                         <MenuItem x:Name="AlwaysOnTopMenuItem" Header="Always on top" IsCheckable="True" Click="OnAlwaysOnTopClicked"/>
                         <Separator/>
                         <MenuItem Header="Profile Settings" IsEnabled="False"/>

@@ -1,0 +1,60 @@
+<Window x:Class="AionSniffer.Ui.PlayerDatabaseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:AionSniffer.Ui"
+        Title="Player Database" Height="500" Width="640"
+        Background="#1e1e24" Foreground="#e8e8ea" WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <local:ClassIconConverter x:Key="ClassIconConverter"/>
+        <local:RaceIconConverter x:Key="RaceIconConverter"/>
+    </Window.Resources>
+    <DockPanel Margin="10">
+        <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Foreground="#9a9aa2" Margin="0,0,0,8"
+                   Text="Everyone the meter has identified. Class and faction are worked out while you play and kept between sessions, so someone seen once is recognised straight away next time. A faction you set here is pinned and the meter will not derive over it again."/>
+
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <TextBox x:Name="SearchBox" Width="200" TextChanged="OnSearchChanged"
+                     Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45"
+                     VerticalContentAlignment="Center"/>
+            <TextBlock x:Name="CountText" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="#9a9aa2"/>
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+            <Button Content="Fraktion wechseln" Click="OnSwitchFactionClicked" Width="140" Margin="0,0,6,0"
+                    ToolTip="Switches the selected player between Elyos and Asmodian and pins that choice."/>
+            <Button Content="Automatik zurück" Click="OnClearManualClicked" Width="140" Margin="0,0,6,0"
+                    ToolTip="Drops a hand-set faction and lets the meter work it out from the log again."/>
+            <Button Content="Eintrag löschen" Click="OnRemoveClicked" Width="140"
+                    ToolTip="Forgets this player entirely."/>
+        </StackPanel>
+
+        <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                  Background="#1e1e24" Foreground="#e8e8ea" RowBackground="#22222a"
+                  AlternatingRowBackground="#26262e" BorderBrush="#3a3a45"
+                  HorizontalGridLinesBrush="#3a3a45" GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column" CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Name" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
+                                       Height="18" Width="18" Margin="0,0,4,0" ToolTip="{Binding Faction}"/>
+                                <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
+                                       Height="18" Width="18" Margin="0,0,6,0" ToolTip="{Binding ClassName}"/>
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="110"/>
+                <DataGridTextColumn Header="Faction" Binding="{Binding Faction}" Width="90"/>
+                <!-- So a pinned row is visibly different from a derived one; otherwise the two
+                     buttons below give no clue which of them applies. -->
+                <DataGridTextColumn Header="Set" Binding="{Binding Pinned}" Width="45"/>
+                <DataGridTextColumn Header="Last seen" Binding="{Binding LastSeen}" Width="130"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>

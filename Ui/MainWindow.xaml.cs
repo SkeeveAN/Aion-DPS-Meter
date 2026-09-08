@@ -1319,6 +1319,19 @@ public partial class MainWindow : Window
         row.Faction = next;
     }
 
+    /// <summary>
+    /// Opens the remembered-player list. Reachable from the menu rather than only from a row's
+    /// context menu, because the thing most likely to need fixing -- a faction derived wrongly in
+    /// an arena -- concerns someone who is no longer in the current session.
+    /// </summary>
+    private void OnPlayerDatabaseClicked(object sender, RoutedEventArgs e)
+    {
+        new PlayerDatabaseWindow(_knownPlayers, OwnFaction()) { Owner = this }.ShowDialog();
+
+        // A faction corrected in there has to reach the rows that are on screen right now.
+        RefreshRows();
+    }
+
     private void OnShowPlayerDetailsClicked(object sender, RoutedEventArgs e)
     {
         if (PlayersGrid.SelectedItem is not PlayerRow row)

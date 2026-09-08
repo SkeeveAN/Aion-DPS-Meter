@@ -74,6 +74,33 @@ public sealed class KnownPlayers
 
     public KnownPlayer? Find(string name) => _byName.GetValueOrDefault(name);
 
+    /// <summary>Everyone on record, newest confirmation first -- the people from the session that
+    /// just ended are the ones most likely to need correcting.</summary>
+    public IReadOnlyList<KnownPlayer> All() =>
+        _byName.Values.OrderByDescending(p => p.LastSeenUtc).ThenBy(p => p.Name, StringComparer.Ordinal).ToList();
+
+    /// <summary>Forgets a player entirely. For a name that was recorded wrongly, or one that simply
+    /// should not be remembered -- deleting is cleaner than leaving a bad entry to be believed.</summary>
+    public void Remove(string name)
+    {
+        if (_byName.Remove(name))
+        {
+            _dirty = true;
+        }
+    }
+
+    /// <summary>Drops a hand-set faction and lets the resolver decide again. The way back from a
+    /// correction that turned out to be the wrong one.</summary>
+    public void ClearManualFaction(string name)
+    {
+        if (_byName.TryGetValue(name, out var entry) && entry.FactionIsManual)
+        {
+            entry.FactionIsManual = false;
+            entry.Faction = "";
+            _dirty = true;
+        }
+    }
+
     /// <summary>
     /// Records the user's own answer, which from then on outranks anything derived. Kept apart
     /// from <see cref="Remember"/> so an automatic update cannot quietly overwrite a correction.

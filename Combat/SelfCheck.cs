@@ -326,6 +326,18 @@ public static class SelfCheck
 
         bool unknownIsNull = db.Find("Nobody") is null;
 
+        // What the database window needs: list everyone, undo a correction, forget an entry.
+        bool listsEveryone = db.All().Select(p => p.Name).Order().SequenceEqual(
+            new[] { "Azazil", "Badigadi", "Kisame", "Neodein", "Tijari" });
+
+        // Undoing a pin has to hand the player back to the resolver, not freeze the old value.
+        db.ClearManualFaction("Neodein");
+        db.Remember("Neodein", null, "Asmodian");
+        bool unpinningRestoresAutomatic = db.Find("Neodein") is { Faction: "Asmodian", FactionIsManual: false };
+
+        db.Remove("Tijari");
+        bool removeForgets = db.Find("Tijari") is null;
+
         Console.WriteLine("[selftest] Remembered players:");
         Console.WriteLine($"  -> placeholders do not erase what is known: {survivesPlaceholders}");
         Console.WriteLine($"  -> class and faction can be learned separately: {learnsIncrementally}");
@@ -334,9 +346,13 @@ public static class SelfCheck
         Console.WriteLine($"  -> an unseen player reports null: {unknownIsNull}");
         Console.WriteLine($"  -> a hand-set faction is never overwritten: {manualFactionSticks}");
         Console.WriteLine($"  -> pinning the faction does not freeze the class: {classStillLearned}");
+        Console.WriteLine($"  -> the whole table can be listed: {listsEveryone}");
+        Console.WriteLine($"  -> unpinning hands the player back to the resolver: {unpinningRestoresAutomatic}");
+        Console.WriteLine($"  -> removing forgets the player: {removeForgets}");
 
         return survivesPlaceholders && learnsIncrementally && realValueOverwrites
-            && localPlayerNotStored && unknownIsNull && manualFactionSticks && classStillLearned;
+            && localPlayerNotStored && unknownIsNull && manualFactionSticks && classStillLearned
+            && listsEveryone && unpinningRestoresAutomatic && removeForgets;
     }
 
     /// <summary>
