@@ -997,6 +997,19 @@ public static class SelfCheck
         var events = parser.Parse(lines);
         string? NameOf(int id) => parser.Names.NameFor(id);
 
+        // Where the local player is, from the region channel Aion announces on every zone change.
+        // The arena case is what this is for: it is the one place an OPPONENT can share your
+        // faction, so a side derived from fighting must not be turned into a faction there.
+        var zones = new ChatLogParser();
+        zones.Parse(new[] { "2026.09.08 23:35:02 : You have joined the Sanctum region channel. " });
+        bool ordinaryZoneIsNotArena = zones.CurrentZone == "Sanctum" && !zones.InArena;
+
+        zones.Parse(new[] { "2026.09.08 23:35:02 : You have joined the Arena of Discipline region channel. " });
+        bool arenaRecognised = zones.InArena;
+
+        zones.Parse(new[] { "2026.09.08 23:59:02 : You have joined the Katalam region channel. " });
+        bool leavingArenaRecognised = !zones.InArena;
+
         // Found by terminal_windows against the same second, larger real session: LiveAggregator
         // (and, separately, MainWindow's row-building code) summed ALL events including heals into
         // the damage total, while the DPS *rate* next to it already filtered heals out via
@@ -1102,6 +1115,9 @@ public static class SelfCheck
         Console.WriteLine($"  -> an announced DoT tick is credited to its caster: {announcedDotAttributed}");
         Console.WriteLine($"  -> a DoT ticking on the local player is credited too: {incomingDotAttributed}");
         Console.WriteLine($"  -> a buff-stripping hit counts as damage: {buffStrippingHitCounted}");
+        Console.WriteLine($"  -> an ordinary zone is not mistaken for an arena: {ordinaryZoneIsNotArena}");
+        Console.WriteLine($"  -> entering an arena is recognised: {arenaRecognised}");
+        Console.WriteLine($"  -> leaving it again is too: {leavingArenaRecognised}");
         Console.WriteLine($"  -> a second caster takes the DoT over, ticks still counted: {takeoverAttributedToNewCaster}");
         Console.WriteLine($"  -> the earlier caster keeps the ticks that were already his: {earlierTickKeptItsOwner}");
         Console.WriteLine($"  -> LiveAggregator.Summarize excludes pure healers from the damage list: {healersExcludedFromDamageSummary}");
@@ -1112,6 +1128,7 @@ public static class SelfCheck
             && healOtherOk && healSelfOtherCharacterOk && healByOtherThirdPersonOk && healByOtherOnYouOk
             && noIdentitySplit && noCriticalHitLeak && dotLinesProducedNoEvents && healersExcludedFromDamageSummary
             && announcedDotAttributed && incomingDotAttributed && buffStrippingHitCounted
-            && takeoverAttributedToNewCaster && earlierTickKeptItsOwner;
+            && takeoverAttributedToNewCaster && earlierTickKeptItsOwner
+            && ordinaryZoneIsNotArena && arenaRecognised && leavingArenaRecognised;
     }
 }

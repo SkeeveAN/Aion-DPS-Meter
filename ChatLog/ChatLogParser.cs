@@ -752,6 +752,24 @@ public sealed partial class ChatLogParser
     /// for a loss/spend) so the subscriber can just accumulate a running total per kind.</summary>
     public event Action<PersonalStatKind, long>? PersonalStatChanged;
 
+    /// <summary>
+    /// The zone the local player is in, from the region channel Aion announces on every move.
+    /// Empty until the first such line -- the meter never reads history, so a session that starts
+    /// mid-zone learns the zone only on the next change.
+    /// </summary>
+    public string CurrentZone { get; private set; } = "";
+
+    /// <summary>
+    /// True while the local player is in an arena instance -- Discipline (1v1), Harmony (3v3),
+    /// Chaos, or Glory. It matters because an arena is the one place where an OPPONENT can share
+    /// your faction: the log proves you are fighting them, never which banner they fight under.
+    /// Matching on the zone name covers all four arenas and their training variants without
+    /// needing a list that a new patch could invalidate.
+    /// </summary>
+    public bool InArena =>
+        CurrentZone.Contains("Arena", StringComparison.OrdinalIgnoreCase)
+        || CurrentZone.Contains("Training Grounds", StringComparison.OrdinalIgnoreCase);
+
     // Loot: "You have acquired [item:ID;...]." and its variants. Every literal below (including
     // the two DIFFERENT plural markers) was confirmed by terminal_windows against real lines, not
     // guessed -- "(s)" with literal parens ("acquired 5 [item:...](s).") and a bare "s" with none
@@ -948,6 +966,12 @@ public sealed partial class ChatLogParser
     /// English is tried before DE/FR/RU since it's the confirmed, validated case.</summary>
     private void RaisePersonalStatIfPresent(string message)
     {
+        if (RegionChannelPattern().Match(message) is { Success: true } zone)
+        {
+            CurrentZone = zone.Groups["zone"].Value;
+            return;
+        }
+
         foreach (var p in PersonalStatPatternSets)
         {
             if (p.ApGained.Match(message) is { Success: true } apGained)
@@ -1033,6 +1057,16 @@ public sealed partial class ChatLogParser
     /// </summary>
     private static bool IsCriticalLine(string message) =>
         CriticalHitPrefixes.Any(prefix => message.StartsWith(prefix, StringComparison.Ordinal));
+
+    /// <summary>
+    /// "You have joined the Arena of Discipline region channel." -- Aion announces the region
+    /// channel on entering any zone, which is the only reliable statement of where the player is
+    /// that Chat.log makes at all. English only for now: no non-English log this project has
+    /// contains one, and inventing four translations of a line nobody has seen is exactly the
+    /// unvalidated-pattern habit the rest of this file warns about.
+    /// </summary>
+    [GeneratedRegex(@"^You have joined the (?<zone>.+) region channel\.$")]
+    private static partial Regex RegionChannelPattern();
 
     private static readonly string[] CriticalHitPrefixes =
     {

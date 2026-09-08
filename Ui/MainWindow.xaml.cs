@@ -887,7 +887,14 @@ public partial class MainWindow : Window
 
         string own = OwnFaction();
 
-        row.Faction = own.Length == 0 || side == Side.Unknown
+        // In an arena the opponent can be your OWN faction -- Discipline, Harmony, Chaos and Glory
+        // all mix them -- so fighting someone there says nothing about their banner. Their faction
+        // is left blank rather than derived, and since Remember ignores empty values, nothing wrong
+        // is written to the database either. A faction learned elsewhere, or set by hand, still
+        // shows: that is real knowledge, and hiding it would be its own kind of wrong.
+        bool derivable = side != Side.Unknown && !(side == Side.Enemy && (_chatLogParser?.InArena ?? false));
+
+        row.Faction = own.Length == 0 || !derivable
             ? ""
             : side == Side.Own ? own : Opposite(own);
 
