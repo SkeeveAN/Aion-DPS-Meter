@@ -1,8 +1,9 @@
 import { asc, desc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
-import { bosses, encounterParticipants, encounters, encounterSkillUsage, players } from "../db/schema.js";
+import { bosses, encounterParticipants, encounters, encounterSkillUsage, players, uploads } from "../db/schema.js";
 import { resolveSkillIcon } from "../skills/skillIconResolver.js";
+import { topSkillsByParticipant } from "../skills/topSkills.js";
 
 // One specific fight's full group roster (mirrors myaion.eu's PvESession) - reachable from the
 // leaderboard's "top groups" list so a run can be linked to directly, not just expanded inline.
@@ -18,6 +19,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         id: encounters.id,
         bossId: encounters.bossId,
         bossName: bosses.name,
+        lootRules: bosses.lootRules,
         startedAt: encounters.startedAt,
         endedAt: encounters.endedAt,
         durationSeconds: encounters.durationSeconds,
@@ -31,6 +33,17 @@ export async function encounterRoutes(app: FastifyInstance) {
     if (!encounter) {
       return reply.status(404).send({ error: "encounter_not_found" });
     }
+
+    // An encounter is merged from however many group members' own uploads (see
+    // matching/merge.ts) - there is no single "the" client version for it, only whichever build
+    // sent the most recent one, which is what actually matters for "is this run's data trustworthy
+    // under the latest fixes" (see e.g. the totalDamage-scoping bug fixed in 0.7.13).
+    const latestUpload = db
+      .select({ clientVersion: uploads.clientVersion })
+      .from(uploads)
+      .where(eq(uploads.matchedEncounterId, encounterId))
+      .orderBy(desc(uploads.receivedAt))
+      .get();
 
     const roster = db
       .select({
@@ -52,7 +65,13 @@ export async function encounterRoutes(app: FastifyInstance) {
       .orderBy(desc(encounterParticipants.totalDamage))
       .all();
 
-    return reply.send({ encounter, roster });
+    const topSkills = topSkillsByParticipant(roster.map((r) => r.participantId));
+    const rosterWithSkills = roster.map((r) => ({ ...r, topSkills: topSkills.get(r.participantId) ?? [] }));
+
+    return reply.send({
+      encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null },
+      roster: rosterWithSkills,
+    });
   });
 
   // One player's skill breakdown for one specific fight (mirrors myaion.eu's PvEPlayerSession).

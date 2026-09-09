@@ -60,6 +60,30 @@ erhalten (weiter per Direktlink `/api/bosses/:id/leaderboard` erreichbar), versc
 UPDATE bosses SET is_trash_mob = 1 WHERE name = '<Bossname>';
 ```
 
+## Solo-Bosse (Top 10 pro Klasse statt Top 10 Gruppen)
+
+Ein Boss ist entweder ein echter Gruppenkampf (Standardfall - die Bossseite zeigt die Top 10
+Gruppen) oder ein Solo-Übungsziel wie ein Training Dummy (die Bossseite zeigt stattdessen Top 10
+pro Klasse). Es gibt keine automatische Erkennung dafür - genau wie bei Trash-Mobs manuell per SQL
+markieren:
+
+```sql
+UPDATE bosses SET is_solo = 1 WHERE name = '<Bossname>';
+```
+
+## Loot-Regeln pflegen
+
+`bosses.loot_rules` ist ein JSON-Array `{item, rule}[]`, das auf der Encounter-Detailseite als
+"Loot-Tabelle (bekannte Regeln)" angezeigt wird. Wird nie aus Uploads abgeleitet (Loot ist
+grundsätzlich kein Bestandteil eines Uploads, siehe `encounterParticipants` in `src/db/schema.ts`)
+- rein manuell gepflegtes Referenzwissen:
+
+```sql
+UPDATE bosses
+SET loot_rules = '[{"item":"<Item>","rule":"<Regel, z.B. \"1x pro Gruppe, Rolle: Need\">"}]'
+WHERE name = '<Bossname>';
+```
+
 ## Deployment (alfahosting)
 
 nginx ist bereits fertig konfiguriert: `dpsmeter.skeeve.tv` (Port 443) proxied auf

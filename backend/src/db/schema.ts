@@ -79,6 +79,21 @@ export const bosses = sqliteTable(
     // link), just hidden from GET /api/instances/:id/bosses. Manually curated, same as the
     // instance mapping itself (see backend/README.md) - never inferred automatically.
     isTrashMob: integer("is_trash_mob", { mode: "boolean" }).notNull().default(false),
+    // Per the user: a solo practice/check target (nothing tied to a real group fight, e.g. a
+    // Training Dummy) ranks meaningfully by INDIVIDUAL best iDPS per class - the "top 10 groups"
+    // leaderboard that makes sense for a real boss would just show one-person "groups" there,
+    // which is the same ranking as topByClass but presented as if it needed a roster. Manually
+    // curated, same pattern as isTrashMob above (see README).
+    isSolo: integer("is_solo", { mode: "boolean" }).notNull().default(false),
+    // Curated, static drop-rule reference text ("bekannte Regeln") - never inferred from uploads,
+    // since loot is deliberately never part of an upload payload at all (see
+    // encounterParticipants' own remarks: only combat performance is uploaded). A JSON array of
+    // {item, rule} rather than a separate table: this is simple, rarely-edited reference data, the
+    // same reasoning npcNameAliases below already used for its own array column.
+    lootRules: text("loot_rules", { mode: "json" })
+      .$type<{ item: string; rule: string }[]>()
+      .notNull()
+      .default(sql`'[]'`),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(current_timestamp)`),

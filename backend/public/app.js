@@ -252,24 +252,53 @@ async function renderBosses(instanceId) {
   app.replaceChildren(el("h2", { textContent: t("bosses.heading") }), list);
 }
 
-function rosterTable(roster) {
-  const rows = roster.map((p) =>
-    el("tr", {}, [
-      el("td", {}, [
-        iconLabel(factionIcon(p.faction), p.participantId ? link(p.playerName, `#/participants/${p.participantId}`) : p.playerName),
-      ]),
-      el("td", {}, [iconLabel(classIcon(p.className), p.className)]),
-      el("td", { textContent: formatNumber(p.totalDamage) }),
-      el("td", { textContent: formatNumber(p.idps) }),
-    ]),
+// Faction + class icon + name in one cell - matches myaion.eu's own combined "Player" column
+// rather than the three separate ones the old accordion-based rosterTable used, which is also why
+// this single helper now covers both the boss leaderboard's group rows AND an encounter's own
+// roster (see rankedRow/rankedTable below), not two parallel almost-identical implementations.
+function playerCell(faction, className, name, href) {
+  return el(
+    "span",
+    { className: "icon-label" },
+    [factionIcon(faction), classIcon(className), href ? link(name, href) : name].filter((x) => x != null),
   );
-  return el("table", {}, [
+}
+
+// The small icon+hit-count row myaion.eu labels "Buffs" next to a player - actually that
+// player's own top-used (damage) skills, not real buffs (see topSkills.ts on the backend); kept
+// under that name since that's the label the user asked for and what myaion.eu itself calls it.
+function buffsCell(topSkills) {
+  return el(
+    "span",
+    { className: "buffs-row" },
+    (topSkills ?? []).map((s) => iconLabel(skillIcon(s.icon), String(s.hits))),
+  );
+}
+
+// One ranked entry - either one of a boss's top 10 groups (represented by its top damage dealer)
+// or one member of a single encounter's own roster; both need the same rank/player/DPS/DMG/
+// Heal/Buffs shape, so both render through this one row and its table wrapper.
+function rankedRow(rank, faction, className, name, href, dps, dmg, heal, topSkills) {
+  return el("tr", {}, [
+    el("td", { textContent: `${rank}` }),
+    el("td", {}, [playerCell(faction, className, name, href)]),
+    el("td", { textContent: formatNumber(dps) }),
+    el("td", { textContent: formatNumber(dmg) }),
+    el("td", { textContent: formatNumber(heal) }),
+    el("td", {}, [buffsCell(topSkills)]),
+  ]);
+}
+
+function rankedTable(rows) {
+  return el("table", { className: "ranked-table" }, [
     el("thead", {}, [
       el("tr", {}, [
+        el("th", { textContent: "#" }),
         el("th", { textContent: t("table.player") }),
-        el("th", { textContent: t("table.class") }),
+        el("th", { textContent: t("participant.dps") }),
         el("th", { textContent: t("table.damage") }),
-        el("th", { textContent: t("table.idps") }),
+        el("th", { textContent: t("participant.totalHealing") }),
+        el("th", { textContent: t("table.buffs") }),
       ]),
     ]),
     el("tbody", {}, rows),
@@ -283,52 +312,119 @@ async function renderLeaderboard(bossId) {
   const data = await fetchJson(`/api/bosses/${bossId}/leaderboard?serverId=${encodeURIComponent(currentServerId)}`);
   setBreadcrumb([link(t("breadcrumb.instances"), "#/"), translateGameName(data.boss.name)]);
 
+  // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) are never
+  // both at once, so the page shows exactly one of these two rankings, never both - "top 10 per
+  // class" only makes sense (and only appears) for a solo boss.
+  if (data.boss.isSolo) {
+    const classNames = Object.keys(data.topByClass).sort();
+    if (classNames.length === 0) {
+      app.replaceChildren(el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") }));
+      return;
+    }
+
+    const classSection = el("section", {}, [
+      el("h2", { textContent: t("leaderboard.topByClassHeading") }),
+      el(
+        "div",
+        { className: "class-grid" },
+        classNames.map((className) => {
+          const rows = data.topByClass[className].map((p, i) =>
+            rankedRow(
+              i + 1,
+              p.faction,
+              className,
+              p.playerName,
+              `#/encounters/${p.encounterId}`,
+              p.idps,
+              p.totalDamage,
+              p.totalHealing,
+              p.topSkills,
+            ),
+          );
+          return el("div", { className: "class-block" }, [
+            el("h3", {}, [iconLabel(classIcon(className), className)]),
+            rankedTable(rows),
+          ]);
+        }),
+      ),
+    ]);
+
+    app.replaceChildren(classSection);
+    return;
+  }
+
   if (data.topGroups.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") }));
     return;
   }
 
+  const rows = data.topGroups.map((g, i) =>
+    rankedRow(
+      i + 1,
+      g.representative?.faction,
+      g.representative?.className,
+      g.representative?.playerName ?? "?",
+      `#/encounters/${g.encounterId}`,
+      g.groupIDps,
+      g.totalDamage,
+      g.totalHealing,
+      g.representative?.topSkills,
+    ),
+  );
+
   const groupsSection = el("section", {}, [
     el("h2", { textContent: t("leaderboard.topGroupsHeading", { n: data.topGroups.length }) }),
-    ...data.topGroups.map((g, i) =>
-      el("details", { open: i === 0 }, [
-        el("summary", {
-          textContent: t("leaderboard.groupSummary", {
-            rank: i + 1,
-            idps: formatNumber(g.groupIDps),
-            playerCount: g.roster.length,
-            uploadCount: g.mergedUploadCount,
-          }),
-        }),
-        el("p", { className: "download-meta" }, [link(t("leaderboard.viewSession"), `#/encounters/${g.encounterId}`)]),
-        rosterTable(g.roster),
-      ]),
-    ),
+    rankedTable(rows),
   ]);
 
-  const classNames = Object.keys(data.topByClass).sort();
-  const classSection = el("section", {}, [
-    el("h2", { textContent: t("leaderboard.topByClassHeading") }),
-    el(
-      "div",
-      { className: "class-grid" },
-      classNames.map((className) => {
-        const rows = data.topByClass[className].map((p, i) =>
-          el("tr", {}, [
-            el("td", { textContent: `${i + 1}.` }),
-            el("td", {}, [iconLabel(factionIcon(p.faction), link(p.playerName, `#/search/${encodeURIComponent(p.playerName)}`))]),
-            el("td", { textContent: formatNumber(p.idps) }),
-          ]),
-        );
-        return el("div", { className: "class-block" }, [
-          el("h3", {}, [iconLabel(classIcon(className), className)]),
-          el("table", {}, [el("tbody", {}, rows)]),
-        ]);
-      }),
-    ),
-  ]);
+  app.replaceChildren(groupsSection);
+}
 
-  app.replaceChildren(groupsSection, classSection);
+// m:ss - short enough to sit next to "Zeitpunkt"/"App Version" in a two-column meta table, unlike
+// the full duration-implying-precision formatting a stopwatch library would produce.
+function formatDuration(totalSeconds) {
+  const rounded = Math.round(totalSeconds);
+  const minutes = Math.floor(rounded / 60);
+  const seconds = rounded % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function metaRow(label, value) {
+  return el("tr", {}, [el("td", { textContent: label }), el("td", { textContent: value })]);
+}
+
+// Damage each roster member dealt to the boss, as a share of the group's combined damage - same
+// idea as myaion.eu's "Damage Contribution" chart, computed straight from the roster this page
+// already has (totalDamage is already scoped to hits on this specific boss, see the client's
+// BuildEncounterUpload), no separate endpoint needed.
+function damageDistributionChart(roster) {
+  const total = roster.reduce((sum, p) => sum + p.totalDamage, 0);
+  const rows = [...roster]
+    .sort((a, b) => b.totalDamage - a.totalDamage)
+    .map((p) => {
+      const pct = total > 0 ? (p.totalDamage / total) * 100 : 0;
+      return el("div", { className: "contribution-row" }, [
+        el("div", { className: "contribution-label", textContent: `${p.playerName} - ${pct.toFixed(1)}%` }),
+        el("div", { className: "contribution-track" }, [
+          el("div", { className: "contribution-bar", style: `width: ${pct.toFixed(1)}%` }),
+        ]),
+      ]);
+    });
+  return el("div", { className: "contribution-chart" }, rows);
+}
+
+// "bekannte Regeln" - curated reference text (see bosses.lootRules), never inferred from uploads:
+// loot is deliberately never part of an upload payload at all.
+function lootTable(lootRules) {
+  if (!lootRules || lootRules.length === 0) {
+    return el("p", { className: "empty", textContent: t("encounter.lootEmpty") });
+  }
+
+  const rows = lootRules.map((r) => el("tr", {}, [el("td", { textContent: r.item }), el("td", { textContent: r.rule })]));
+  return el("table", {}, [
+    el("thead", {}, [el("tr", {}, [el("th", { textContent: t("table.item") }), el("th", { textContent: t("table.rule") })])]),
+    el("tbody", {}, rows),
+  ]);
 }
 
 async function renderEncounter(encounterId) {
@@ -338,17 +434,29 @@ async function renderEncounter(encounterId) {
   const data = await fetchJson(`/api/encounters/${encounterId}`);
   setBreadcrumb([link(t("breadcrumb.instances"), "#/"), link(translateGameName(data.encounter.bossName), `#/bosses/${data.encounter.bossId}`)]);
 
-  const meta = el("p", {
-    className: "download-meta",
-    textContent: t("encounter.meta", {
-      idps: formatNumber(data.encounter.groupIDps),
-      playerCount: data.roster.length,
-      uploadCount: data.encounter.mergedUploadCount,
-      date: formatDate(new Date(data.encounter.startedAt)),
-    }),
-  });
+  const metaTable = el("table", { className: "meta-table" }, [
+    el("tbody", {}, [
+      metaRow(t("encounter.name"), translateGameName(data.encounter.bossName)),
+      metaRow(t("encounter.timestamp"), formatDate(new Date(data.encounter.startedAt))),
+      metaRow(t("encounter.duration"), formatDuration(data.encounter.durationSeconds)),
+      metaRow(t("encounter.appVersion"), data.encounter.appVersion ?? t("encounter.appVersionUnknown")),
+    ]),
+  ]);
 
-  app.replaceChildren(el("h2", { textContent: translateGameName(data.encounter.bossName) }), meta, rosterTable(data.roster));
+  const rosterRows = data.roster.map((p, i) =>
+    rankedRow(i + 1, p.faction, p.className, p.playerName, `#/participants/${p.participantId}`, p.idps, p.totalDamage, p.totalHealing, p.topSkills),
+  );
+
+  app.replaceChildren(
+    el("h2", { textContent: translateGameName(data.encounter.bossName) }),
+    metaTable,
+    el("h3", { textContent: t("encounter.groupMembersHeading") }),
+    rankedTable(rosterRows),
+    el("h3", { textContent: t("encounter.damageDistributionHeading") }),
+    damageDistributionChart(data.roster),
+    el("h3", { textContent: t("encounter.lootHeading") }),
+    lootTable(data.encounter.lootRules),
+  );
 }
 
 function skillTable(skills) {

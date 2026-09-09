@@ -315,3 +315,68 @@ th {
 h3 .icon-label {
   gap: 8px;
 }
+
+/* Boss leaderboard's top 10 groups/solo rows, and an encounter's own roster - both render through
+   the same rankedRow/rankedTable (see app.js), so one style covers both. */
+.ranked-table td {
+  vertical-align: middle;
+}
+
+.buffs-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.buffs-row .icon-label {
+  gap: 3px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* Compact key/value block (NAME/Zeitpunkt/Dauer/App Version) at the top of an encounter's detail
+   page - deliberately not full-width like a roster/skill table, so a 2-column fact sheet doesn't
+   stretch its right column across the whole content width. */
+.meta-table {
+  width: auto;
+  max-width: 420px;
+  margin-bottom: 8px;
+}
+
+.meta-table td:first-child {
+  color: var(--text-dim);
+  padding-right: 24px;
+  white-space: nowrap;
+}
+
+.contribution-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 8px 0 20px;
+}
+
+.contribution-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.contribution-label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.contribution-track {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  height: 18px;
+  overflow: hidden;
+}
+
+.contribution-bar {
+  background: var(--accent);
+  height: 100%;
+}
