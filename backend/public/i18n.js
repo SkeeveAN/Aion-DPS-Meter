@@ -802,6 +802,31 @@ const GAME_NAME_TRANSLATIONS = {
     tr: "Çelik Gülün Kabini",
     zh: "铁玫瑰号船室",
   },
+  // Boss NPC names - verified the same way, from Strings/client_strings_dic_monster.xml (a
+  // stable per-language ID there, unlike the raw nameplate table client_strings_monster.xml where
+  // the same ID can land on a completely unrelated creature in a different language - "Zauberer
+  // der Stahlrose"/Steel Rose Sorcerer only exists in that unstable table, so it's deliberately
+  // left untranslated rather than risk showing the wrong monster's name).
+  "Maintenance Chief Notakiki": {
+    en: "Maintenance Chief Notakiki",
+    de: "Wartungsleiterin Notakiki",
+    fr: "Responsable de la maintenance Notakiki",
+    es: "Jefa de mantenimiento Notaquiqui",
+    ru: "Штурман Нотакики",
+    pl: "Kierowniczka Konserwacji Notakiki",
+    tr: "Bakım Müdiresi Notakiki",
+    zh: "维修班长诺塔奇奇",
+  },
+  "Accountant Kanerunerk": {
+    en: "Accountant Kanerunerk",
+    de: "Buchhalter Kanerunerk",
+    fr: "Comptable Kanerunerk",
+    es: "Contable Caneruner",
+    ru: "Бухгалтер Канэрунг",
+    pl: "Księgowy Kanerunerk",
+    tr: "Muhasebeci Kanerunerk",
+    zh: "会计师卡内隆",
+  },
 };
 
 export function translateGameName(rawName) {

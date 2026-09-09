@@ -247,7 +247,7 @@ async function renderBosses(instanceId) {
   const list = el(
     "ul",
     { className: "plain" },
-    bosses.map((b) => el("li", {}, [link(b.name, `#/bosses/${b.id}`)])),
+    bosses.map((b) => el("li", {}, [link(translateGameName(b.name), `#/bosses/${b.id}`)])),
   );
   app.replaceChildren(el("h2", { textContent: t("bosses.heading") }), list);
 }
@@ -281,7 +281,7 @@ async function renderLeaderboard(bossId) {
   app.replaceChildren(el("p", { textContent: t("loading.leaderboard") }));
 
   const data = await fetchJson(`/api/bosses/${bossId}/leaderboard?serverId=${encodeURIComponent(currentServerId)}`);
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), data.boss.name]);
+  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), translateGameName(data.boss.name)]);
 
   if (data.topGroups.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") }));
@@ -336,7 +336,7 @@ async function renderEncounter(encounterId) {
   app.replaceChildren(el("p", { textContent: t("loading.encounter") }));
 
   const data = await fetchJson(`/api/encounters/${encounterId}`);
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), link(data.encounter.bossName, `#/bosses/${data.encounter.bossId}`)]);
+  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), link(translateGameName(data.encounter.bossName), `#/bosses/${data.encounter.bossId}`)]);
 
   const meta = el("p", {
     className: "download-meta",
@@ -348,7 +348,7 @@ async function renderEncounter(encounterId) {
     }),
   });
 
-  app.replaceChildren(el("h2", { textContent: data.encounter.bossName }), meta, rosterTable(data.roster));
+  app.replaceChildren(el("h2", { textContent: translateGameName(data.encounter.bossName) }), meta, rosterTable(data.roster));
 }
 
 function skillTable(skills) {
@@ -386,7 +386,7 @@ async function renderParticipant(participantId) {
   const data = await fetchJson(`/api/participants/${participantId}`);
   setBreadcrumb([
     link(t("breadcrumb.instances"), "#/"),
-    link(data.encounter.bossName, `#/bosses/${data.encounter.bossId}`),
+    link(translateGameName(data.encounter.bossName), `#/bosses/${data.encounter.bossId}`),
     data.participant.playerName,
   ]);
 
@@ -430,7 +430,7 @@ async function renderPlayerProfile(playerId) {
   const rows = data.history.map((h) =>
     el("tr", {}, [
       el("td", { textContent: formatDate(new Date(h.startedAt)) }),
-      el("td", {}, [link(h.bossName, `#/bosses/${h.bossId}`)]),
+      el("td", {}, [link(translateGameName(h.bossName), `#/bosses/${h.bossId}`)]),
       el("td", {}, [iconLabel(classIcon(h.className), h.className)]),
       el("td", { textContent: formatNumber(h.totalDamage) }),
       el("td", { textContent: formatNumber(h.idps) }),
