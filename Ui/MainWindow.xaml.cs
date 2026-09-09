@@ -1147,9 +1147,19 @@ public partial class MainWindow : Window
             }
         }
 
-        MobBossFilter.SelectedItem = MobBossFilter.Items.OfType<ComboBoxItem>()
-            .FirstOrDefault(item => Equals(item.Tag as int?, previouslySelected))
-            ?? _mobBossAllItem;
+        // Only reassign SelectedItem when the previous selection actually survived the filter -
+        // per the user, forcing it back to "All" (the first item, whenever nothing survives)
+        // on every keystroke was what visibly stole focus from the search box mid-word, jumping
+        // the dropdown to its first entry after each letter typed. Leaving SelectedItem alone
+        // when nothing matches (WPF already cleared it via Items.Clear() above) means the box
+        // simply shows no selection while a search is narrowing the list, instead of fighting the
+        // user's typing for keyboard focus.
+        var stillPresent = MobBossFilter.Items.OfType<ComboBoxItem>()
+            .FirstOrDefault(item => Equals(item.Tag as int?, previouslySelected));
+        if (stillPresent is not null)
+        {
+            MobBossFilter.SelectedItem = stillPresent;
+        }
     }
 
     /// <summary>
@@ -1384,8 +1394,19 @@ public partial class MainWindow : Window
         ShowUploadStatus($"Uploading {targetIds.Count} boss fight(s)...");
         int uploaded = 0;
         string? lastError = null;
+        bool first = true;
         foreach (int targetId in targetIds)
         {
+            // A big "Reload from Chat.log" can surface dozens of distinct bosses/mobs at once -
+            // found live when a real batch this size tripped the backend's own upload rate limit
+            // (see backend/src/server.ts). A small gap between requests keeps even a very large
+            // batch comfortably under it instead of firing every request back-to-back.
+            if (!first)
+            {
+                await Task.Delay(100);
+            }
+            first = false;
+
             _selectedTargetId = targetId;
             RefreshRows();
             var payload = BuildEncounterUpload(targetId, fingerprint, displayName);
