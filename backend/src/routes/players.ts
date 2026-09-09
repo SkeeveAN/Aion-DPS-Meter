@@ -64,6 +64,7 @@ export async function playerRoutes(app: FastifyInstance) {
         bossName: bosses.name,
         startedAt: encounters.startedAt,
         className: encounterParticipants.className,
+        faction: encounterParticipants.faction,
         totalDamage: encounterParticipants.totalDamage,
         idps: encounterParticipants.idps,
         critRatePercent: encounterParticipants.critRatePercent,

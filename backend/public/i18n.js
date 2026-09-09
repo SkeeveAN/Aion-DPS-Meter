@@ -88,6 +88,7 @@ const TRANSLATIONS = {
     "leaderboard.viewSession": "Volle Session ansehen ↗",
     "table.details": "Details",
     "encounter.meta": "{idps} iDPS ({playerCount} Spieler, {uploadCount} Uploads) - {date}",
+    "participant.faction": "Fraktion",
     "participant.dps": "DPS",
     "participant.totalHealing": "Heilung",
     "participant.hps": "HPS",
@@ -176,6 +177,7 @@ const TRANSLATIONS = {
     "leaderboard.viewSession": "View full session ↗",
     "table.details": "Details",
     "encounter.meta": "{idps} iDPS ({playerCount} players, {uploadCount} uploads) - {date}",
+    "participant.faction": "Faction",
     "participant.dps": "DPS",
     "participant.totalHealing": "Healing",
     "participant.hps": "HPS",
@@ -264,6 +266,7 @@ const TRANSLATIONS = {
     "leaderboard.viewSession": "Voir la session complète ↗",
     "table.details": "Détails",
     "encounter.meta": "{idps} iDPS ({playerCount} joueurs, {uploadCount} envois) - {date}",
+    "participant.faction": "Faction",
     "participant.dps": "DPS",
     "participant.totalHealing": "Soins",
     "participant.hps": "HPS",
@@ -352,6 +355,7 @@ const TRANSLATIONS = {
     "leaderboard.viewSession": "Ver sesión completa ↗",
     "table.details": "Detalles",
     "encounter.meta": "{idps} iDPS ({playerCount} jugadores, {uploadCount} subidas) - {date}",
+    "participant.faction": "Facción",
     "participant.dps": "DPS",
     "participant.totalHealing": "Curación",
     "participant.hps": "HPS",
@@ -440,6 +444,7 @@ const TRANSLATIONS = {
     "leaderboard.viewSession": "Смотреть всю сессию ↗",
     "table.details": "Подробнее",
     "encounter.meta": "{idps} iDPS ({playerCount} игроков, {uploadCount} загрузок) - {date}",
+    "participant.faction": "Фракция",
     "participant.dps": "DPS",
     "participant.totalHealing": "Лечение",
     "participant.hps": "HPS",
@@ -528,6 +533,7 @@ const TRANSLATIONS = {
     "leaderboard.viewSession": "Zobacz pełną sesję ↗",
     "table.details": "Szczegóły",
     "encounter.meta": "{idps} iDPS ({playerCount} graczy, {uploadCount} przesłań) - {date}",
+    "participant.faction": "Frakcja",
     "participant.dps": "DPS",
     "participant.totalHealing": "Leczenie",
     "participant.hps": "HPS",
@@ -616,6 +622,7 @@ const TRANSLATIONS = {
     "leaderboard.viewSession": "Tam oturumu görüntüle ↗",
     "table.details": "Detaylar",
     "encounter.meta": "{idps} iDPS ({playerCount} oyuncu, {uploadCount} yükleme) - {date}",
+    "participant.faction": "Fraksiyon",
     "participant.dps": "DPS",
     "participant.totalHealing": "İyileştirme",
     "participant.hps": "HPS",
@@ -700,6 +707,7 @@ const TRANSLATIONS = {
     "leaderboard.viewSession": "查看完整场次 ↗",
     "table.details": "详情",
     "encounter.meta": "{idps} iDPS（{playerCount} 名玩家，{uploadCount} 次上传）- {date}",
+    "participant.faction": "阵营",
     "participant.dps": "DPS",
     "participant.totalHealing": "治疗",
     "participant.hps": "HPS",
@@ -716,16 +724,13 @@ const TRANSLATIONS = {
   },
 };
 
+// Per the user: English is the default for every first-time visitor, not a browser-language
+// guess - a visitor from anywhere lands on the same language until they pick one themselves via
+// the switcher, which is what actually persists (dpsmeter.locale).
 function detectLocale() {
   const stored = localStorage.getItem("dpsmeter.locale");
   if (stored && SUPPORTED_CODES.includes(stored)) {
     return stored;
-  }
-  for (const lang of navigator.languages ?? [navigator.language]) {
-    const code = lang.slice(0, 2).toLowerCase();
-    if (SUPPORTED_CODES.includes(code)) {
-      return code;
-    }
   }
   return "en";
 }
@@ -765,4 +770,23 @@ export function formatNumber(n) {
 
 export function formatDate(date) {
   return date.toLocaleString(intlTag());
+}
+
+// Instance/boss names come from the DB as a single literal string (whatever language the
+// operator typed when mapping a boss to a real instance, see backend/README.md) - the UI
+// translation table above has no reach into that data. Only verified name pairs go in here (en
+// confirmed via Aion Wiki/Codex, de via the actual game client's own strings) - an unmapped name
+// is left exactly as the DB has it rather than guessing a translation, same "never guess" rule
+// the backend itself follows for instance/boss assignment.
+const GAME_NAME_TRANSLATIONS = {
+  "Stahlrose: Anlegestelle": { en: "Steel Rose Cargo", de: "Stahlrose: Anlegestelle" },
+  "Stahlrose: Kabine": { en: "Steel Rose Quarters", de: "Stahlrose: Kabine" },
+};
+
+export function translateGameName(rawName) {
+  const entry = GAME_NAME_TRANSLATIONS[rawName];
+  if (!entry) {
+    return rawName;
+  }
+  return entry[currentLocale] ?? entry.en ?? rawName;
 }

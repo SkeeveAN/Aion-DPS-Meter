@@ -2,6 +2,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, encounterSkillUsage, players } from "../db/schema.js";
+import { resolveSkillIcon } from "../skills/skillIconResolver.js";
 
 // One specific fight's full group roster (mirrors myaion.eu's PvESession) - reachable from the
 // leaderboard's "top groups" list so a run can be linked to directly, not just expanded inline.
@@ -37,6 +38,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         playerId: encounterParticipants.playerId,
         playerName: players.name,
         className: encounterParticipants.className,
+        faction: encounterParticipants.faction,
         totalDamage: encounterParticipants.totalDamage,
         dps: encounterParticipants.dps,
         idps: encounterParticipants.idps,
@@ -67,6 +69,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         playerId: encounterParticipants.playerId,
         playerName: players.name,
         className: encounterParticipants.className,
+        faction: encounterParticipants.faction,
         totalDamage: encounterParticipants.totalDamage,
         dps: encounterParticipants.dps,
         idps: encounterParticipants.idps,
@@ -110,11 +113,13 @@ export async function encounterRoutes(app: FastifyInstance) {
       .orderBy(asc(encounterSkillUsage.isHeal), desc(encounterSkillUsage.totalDamage))
       .all();
 
+    const withIcons = skills.map((s) => ({ ...s, icon: resolveSkillIcon(s.skillName) }));
+
     return reply.send({
       participant,
       encounter,
-      damageSkills: skills.filter((s) => !s.isHeal),
-      healSkills: skills.filter((s) => s.isHeal),
+      damageSkills: withIcons.filter((s) => !s.isHeal),
+      healSkills: withIcons.filter((s) => s.isHeal),
     });
   });
 }

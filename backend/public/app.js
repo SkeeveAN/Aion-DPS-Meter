@@ -1,4 +1,4 @@
-import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate } from "./i18n.js";
+import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
 
 const app = document.getElementById("app");
 const breadcrumb = document.getElementById("breadcrumb");
@@ -49,6 +49,32 @@ function el(tag, props = {}, children = []) {
 
 function link(text, hash) {
   return el("a", { href: hash, textContent: text });
+}
+
+// Icons are best-effort - a class/faction/skill name with no matching file (an unmapped class,
+// an unknown faction, a skill the collected dataset doesn't cover) just renders without one,
+// mirroring the desktop client's own Convert() returning null for a missing asset rather than
+// erroring.
+function icon(src, className) {
+  const img = el("img", { src, alt: "", className });
+  img.addEventListener("error", () => img.remove(), { once: true });
+  return img;
+}
+
+function classIcon(className) {
+  return icon(`/icons/classes/${encodeURIComponent(className)}.png`, "class-icon");
+}
+
+function factionIcon(faction) {
+  return faction ? icon(`/icons/races/${encodeURIComponent(faction)}.png`, "faction-icon") : null;
+}
+
+function skillIcon(iconFile) {
+  return iconFile ? icon(`/icons/skills/${encodeURIComponent(iconFile)}`, "skill-icon") : null;
+}
+
+function iconLabel(iconEl, text) {
+  return el("span", { className: "icon-label" }, [iconEl, text].filter((x) => x != null));
 }
 
 function setBreadcrumb(parts) {
@@ -203,7 +229,7 @@ async function renderInstances() {
   const list = el(
     "ul",
     { className: "plain" },
-    instances.map((i) => el("li", {}, [link(i.name, `#/instances/${i.id}`)])),
+    instances.map((i) => el("li", {}, [link(translateGameName(i.name), `#/instances/${i.id}`)])),
   );
   app.replaceChildren(el("h2", { textContent: t("instances.heading") }), list);
 }
@@ -229,8 +255,10 @@ async function renderBosses(instanceId) {
 function rosterTable(roster) {
   const rows = roster.map((p) =>
     el("tr", {}, [
-      el("td", {}, [p.participantId ? link(p.playerName, `#/participants/${p.participantId}`) : p.playerName]),
-      el("td", { textContent: p.className }),
+      el("td", {}, [
+        iconLabel(factionIcon(p.faction), p.participantId ? link(p.playerName, `#/participants/${p.participantId}`) : p.playerName),
+      ]),
+      el("td", {}, [iconLabel(classIcon(p.className), p.className)]),
       el("td", { textContent: formatNumber(p.totalDamage) }),
       el("td", { textContent: formatNumber(p.idps) }),
     ]),
@@ -288,12 +316,12 @@ async function renderLeaderboard(bossId) {
         const rows = data.topByClass[className].map((p, i) =>
           el("tr", {}, [
             el("td", { textContent: `${i + 1}.` }),
-            el("td", {}, [link(p.playerName, `#/search/${encodeURIComponent(p.playerName)}`)]),
+            el("td", {}, [iconLabel(factionIcon(p.faction), link(p.playerName, `#/search/${encodeURIComponent(p.playerName)}`))]),
             el("td", { textContent: formatNumber(p.idps) }),
           ]),
         );
         return el("div", { className: "class-block" }, [
-          el("h3", { textContent: className }),
+          el("h3", {}, [iconLabel(classIcon(className), className)]),
           el("table", {}, [el("tbody", {}, rows)]),
         ]);
       }),
@@ -326,7 +354,7 @@ async function renderEncounter(encounterId) {
 function skillTable(skills) {
   const rows = skills.map((s) =>
     el("tr", {}, [
-      el("td", { textContent: s.skillName }),
+      el("td", {}, [iconLabel(skillIcon(s.icon), s.skillName)]),
       el("td", { textContent: formatNumber(s.hits) }),
       el("td", { textContent: formatNumber(s.critHits) }),
       el("td", { textContent: s.hits > 0 ? `${((s.critHits / s.hits) * 100).toFixed(1)}%` : "-" }),
@@ -365,7 +393,8 @@ async function renderParticipant(participantId) {
   const p = data.participant;
   const statsTable = el("table", {}, [
     el("tbody", {}, [
-      el("tr", {}, [el("td", { textContent: t("table.class") }), el("td", { textContent: p.className })]),
+      el("tr", {}, [el("td", { textContent: t("table.class") }), el("td", {}, [iconLabel(classIcon(p.className), p.className)])]),
+      ...(p.faction ? [el("tr", {}, [el("td", { textContent: t("participant.faction") }), el("td", {}, [iconLabel(factionIcon(p.faction), p.faction)])])] : []),
       el("tr", {}, [el("td", { textContent: t("table.damage") }), el("td", { textContent: formatNumber(p.totalDamage) })]),
       el("tr", {}, [el("td", { textContent: t("participant.dps") }), el("td", { textContent: formatNumber(p.dps) })]),
       el("tr", {}, [el("td", { textContent: t("table.idps") }), el("td", { textContent: formatNumber(p.idps) })]),
@@ -402,7 +431,7 @@ async function renderPlayerProfile(playerId) {
     el("tr", {}, [
       el("td", { textContent: formatDate(new Date(h.startedAt)) }),
       el("td", {}, [link(h.bossName, `#/bosses/${h.bossId}`)]),
-      el("td", { textContent: h.className }),
+      el("td", {}, [iconLabel(classIcon(h.className), h.className)]),
       el("td", { textContent: formatNumber(h.totalDamage) }),
       el("td", { textContent: formatNumber(h.idps) }),
       el("td", { textContent: `${h.critRatePercent.toFixed(1)}%` }),
