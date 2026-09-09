@@ -42,6 +42,7 @@ public static class SelfCheck
         ok &= RunGermanChatLogScenario();
         ok &= RunPlayerLoggedInScenario();
         ok &= RunTemplateLanguagesChatLogScenario();
+        ok &= RunBuffCastScenario();
         return ok;
     }
 
@@ -1302,5 +1303,50 @@ public static class SelfCheck
             && announcedDotAttributed && incomingDotAttributed && buffStrippingHitCounted
             && takeoverAttributedToNewCaster && earlierTickKeptItsOwner
             && ordinaryZoneIsNotArena && arenaRecognised && leavingArenaRecognised;
+    }
+
+    /// <summary>
+    /// Real buff-cast lines, verbatim from a real ~130k-line OriginAion Chat.log (2.399 "is in the
+    /// boost" lines total) - see ChatLogParser.BuffCast's own remarks for the two confirmed shapes
+    /// and why a third, ambiguous one ("Your X has been boosted by using Y.") is deliberately not
+    /// parsed as one of them.
+    /// </summary>
+    private static bool RunBuffCastScenario()
+    {
+        var lines = new[]
+        {
+            // Self-buff, explicit "because X used Y" clause naming the same person twice.
+            "2026.09.08 22:53:41 : Void is in the boost Attack state because Void used Berserking I. ",
+            // The exact debuff-flavored counterpart of the line above (same sentence shape, same
+            // caster/target, only "weaken" instead of "boost") - must NOT be treated as a buff.
+            // This is the whole reason no separate buff/debuff classification had to be built: the
+            // game already spells out the difference with this one word.
+            "2026.09.08 22:53:41 : Void is in the weaken Physical Def state because Void used Berserking I. ",
+            // Self-buff, the shorter "after using Y" shape with no repeated caster name at all.
+            "2026.09.09 00:20:07 : Clown is in the boost recovery skill state after using Blessed Shield III. ",
+            // One player buffing another - caster and recipient are different names, confirming
+            // this is a real caster+skill pair and not just "someone got buffed" noise.
+            "2026.09.09 19:14:58 : Zetsu is in the boost HP state because Noonaheal used Blessing of Health I. ",
+        };
+
+        var parser = new ChatLogParser();
+        var casts = new List<BuffCastEvent>();
+        parser.BuffCast += evt => casts.Add(evt);
+        parser.Parse(lines);
+
+        bool selfBuffOk = casts.Any(c => c.Caster == "Void" && c.Skill == "Berserking I");
+        bool weakenNotCountedAsBuff = !casts.Any(c => c.Skill == "Berserking I" && c.Caster != "Void")
+            && casts.Count(c => c.Caster == "Void") == 1;
+        bool afterUsingSelfBuffOk = casts.Any(c => c.Caster == "Clown" && c.Skill == "Blessed Shield III");
+        bool allyBuffAttributedToCasterNotRecipientOk = casts.Any(c => c.Caster == "Noonaheal" && c.Skill == "Blessing of Health I")
+            && !casts.Any(c => c.Caster == "Zetsu" && c.Skill == "Blessing of Health I");
+
+        Console.WriteLine("[selftest] Real buff casts (English, verbatim from a real Chat.log):");
+        Console.WriteLine($"  -> self-buff via \"because X used Y\" counted, attributed to the caster: {selfBuffOk}");
+        Console.WriteLine($"  -> the matching \"weaken\" (debuff) line is NOT counted as a buff: {weakenNotCountedAsBuff}");
+        Console.WriteLine($"  -> self-buff via the shorter \"after using Y\" shape counted: {afterUsingSelfBuffOk}");
+        Console.WriteLine($"  -> one player buffing another attributed to the CASTER, not the recipient: {allyBuffAttributedToCasterNotRecipientOk}");
+
+        return selfBuffOk && weakenNotCountedAsBuff && afterUsingSelfBuffOk && allyBuffAttributedToCasterNotRecipientOk;
     }
 }

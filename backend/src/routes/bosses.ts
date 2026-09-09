@@ -2,7 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, players } from "../db/schema.js";
-import { topSkillsByParticipant } from "../skills/topSkills.js";
+import { topBuffsByParticipant, type TopBuff } from "../skills/topBuffs.js";
 
 const TOP_N = 10;
 
@@ -69,10 +69,10 @@ export async function bossRoutes(app: FastifyInstance) {
         const topParticipantIds = Object.values(topByClass)
           .flat()
           .map((p) => p.participantId);
-        const topSkills = topSkillsByParticipant(topParticipantIds);
+        const topBuffs = topBuffsByParticipant(topParticipantIds);
         for (const list of Object.values(topByClass)) {
           for (const p of list as any[]) {
-            p.topSkills = topSkills.get(p.participantId) ?? [];
+            p.topBuffs = topBuffs.get(p.participantId) ?? [];
           }
         }
 
@@ -95,8 +95,7 @@ export async function bossRoutes(app: FastifyInstance) {
 
       // roster carries every member's name (per the user: a group row must show everyone, not
       // just one "face of this run") - representative (highest damage dealer, roster[0] once
-      // sorted by damage) is kept alongside it only for the Buffs column, which shows one
-      // person's top skills rather than the whole group's.
+      // sorted by damage) is kept alongside it only to pick a face/class-icon for the row.
       const groupsWithRoster = topGroups.map((group) => {
         const roster = db
           .select({
@@ -132,19 +131,24 @@ export async function bossRoutes(app: FastifyInstance) {
         };
       });
 
-      const topSkills = topSkillsByParticipant(
-        groupsWithRoster
-          .map((g) => g.representative?.participantId)
-          .filter((id): id is number => id != null),
-      );
-      const topGroupsWithSkills = groupsWithRoster.map((g) => ({
-        ...g,
-        representative: g.representative
-          ? { ...g.representative, topSkills: topSkills.get(g.representative.participantId) ?? [] }
-          : null,
-      }));
+      // Per the user: a group row's Buffs must reflect the whole group's reinforcements, not just
+      // its top damage dealer's - summed by skill across every member, then capped the same way a
+      // single participant's own topBuffs already is.
+      const buffsByParticipant = topBuffsByParticipant(groupsWithRoster.flatMap((g) => g.roster.map((p) => p.participantId)));
+      const topGroupsWithBuffs = groupsWithRoster.map((g) => {
+        const castsBySkill = new Map<string, TopBuff>();
+        for (const p of g.roster) {
+          for (const buff of buffsByParticipant.get(p.participantId) ?? []) {
+            const existing = castsBySkill.get(buff.skillName);
+            castsBySkill.set(buff.skillName, { ...buff, casts: (existing?.casts ?? 0) + buff.casts });
+          }
+        }
 
-      return reply.send({ boss: bossResponse, topGroups: topGroupsWithSkills, topByClass: {} });
+        const groupBuffs = [...castsBySkill.values()].sort((a, b) => b.casts - a.casts).slice(0, 8);
+        return { ...g, groupBuffs };
+      });
+
+      return reply.send({ boss: bossResponse, topGroups: topGroupsWithBuffs, topByClass: {} });
     },
   );
 }

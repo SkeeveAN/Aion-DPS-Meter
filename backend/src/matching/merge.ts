@@ -2,6 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
   bosses,
+  encounterBuffUsage,
   encounterParticipants,
   encounterSkillUsage,
   encounters,
@@ -176,6 +177,18 @@ function insertSkillUsage(participantId: number, skills: ParticipantUpload["skil
     .run();
 }
 
+/** Same idea as insertSkillUsage above, but for real buffs (see encounterBuffUsage's own remarks
+ * on why it's a separate table rather than another isHeal-style flag). */
+function insertBuffUsage(participantId: number, buffs: ParticipantUpload["buffs"]) {
+  if (buffs.length === 0) {
+    return;
+  }
+
+  db.insert(encounterBuffUsage)
+    .values(buffs.map((b) => ({ participantId, skillName: b.skill, casts: b.casts })))
+    .run();
+}
+
 function insertParticipant(
   encounterId: number,
   serverId: number,
@@ -204,6 +217,7 @@ function insertParticipant(
 
   insertSkillUsage(participantId, participant.skills, false);
   insertSkillUsage(participantId, participant.healSkills, true);
+  insertBuffUsage(participantId, participant.buffs);
 }
 
 function critRateOf(participant: ParticipantUpload): number {
@@ -232,6 +246,9 @@ function overwriteParticipant(participantId: number, participant: ParticipantUpl
   db.delete(encounterSkillUsage).where(eq(encounterSkillUsage.participantId, participantId)).run();
   insertSkillUsage(participantId, participant.skills, false);
   insertSkillUsage(participantId, participant.healSkills, true);
+
+  db.delete(encounterBuffUsage).where(eq(encounterBuffUsage.participantId, participantId)).run();
+  insertBuffUsage(participantId, participant.buffs);
 }
 
 function recomputeEncounterTotals(encounterId: number, startedAtIso: string, endedAtIso: string) {

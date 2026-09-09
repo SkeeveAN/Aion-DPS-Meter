@@ -419,6 +419,7 @@ public partial class MainWindow : Window
         _chatLogParser.PersonalStatChanged += OnPersonalStatChanged;
         _chatLogParser.LootAcquired += OnLootAcquired;
         _chatLogParser.PlayerLoggedIn += OnPlayerLoggedIn;
+        _chatLogParser.BuffCast += OnBuffCast;
 
         // Chat.log may not exist yet on a client that has never had chat logging (g_chatlog)
         // enabled -- don't gate the timer on the file already being there, or enabling logging
@@ -514,6 +515,24 @@ public partial class MainWindow : Window
 
         row.Quantity += loot.Quantity;
         row.LastTag = loot.RawTag;
+    }
+
+    // Per fight: which real buffs (not damage/heal skills) each caster landed, for the web
+    // frontend's "Buffs" column (see BuildEncounterUpload) - a parallel side-channel list, same
+    // shape/reasoning as _lootRows above, since a buff cast is neither a DamageEvent nor something
+    // LiveAggregator's damage/heal model has any use for.
+    private readonly List<(DateTime Timestamp, int CasterId, string Skill)> _buffCasts = new();
+
+    private void OnBuffCast(BuffCastEvent evt)
+    {
+        string? caster = ResolveLootPerson(evt.Caster);
+        if (caster is null)
+        {
+            return;
+        }
+
+        int casterId = _chatLogParser!.Names.GetOrAssignId(caster == _activeCharacterName ? "You" : caster);
+        _buffCasts.Add((evt.Timestamp, casterId, evt.Skill));
     }
 
     /// <summary>Null return means "drop this line" (see OnLootAcquired remarks) -- everything
@@ -1315,9 +1334,20 @@ public partial class MainWindow : Window
                     && e.Timestamp >= windowStart && e.Timestamp <= windowEnd)
                 .Sum(e => e.Amount);
 
+            // Real reinforcements this row cast during the fight (see ChatLog/BuffCastEvent) -
+            // capped and ranked by cast count, same "top N" shape SkillBreakdown already uses for
+            // damage/heal skills above, just counting casts instead of summing damage.
+            var buffs = _buffCasts
+                .Where(b => b.CasterId == row.ObjectId && b.Timestamp >= windowStart && b.Timestamp <= windowEnd)
+                .GroupBy(b => b.Skill)
+                .Select(g => new BuffUsageUpload(g.Key, g.Count()))
+                .OrderByDescending(b => b.Casts)
+                .Take(8)
+                .ToList();
+
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
-                totalDamage, idps, idps, totalHealing, hps, skills, healSkills, damageTaken));
+                totalDamage, idps, idps, totalHealing, hps, skills, healSkills, damageTaken, buffs));
         }
 
         // The backend requires exactly one isSelf participant per upload (see uploadSchema.ts) -
@@ -1567,12 +1597,14 @@ public partial class MainWindow : Window
         // recover - every one of them ever typed in this Chat.log's history would otherwise fire
         // again right now (found the hard way: an old ".ui" from a past session flipped the window
         // into its click-through overlay state mid-reload). SkillUsed/PersonalStatChanged/
-        // LootAcquired/PlayerLoggedIn are pure data and are exactly what this is meant to recover.
+        // LootAcquired/PlayerLoggedIn/BuffCast are pure data and are exactly what this is meant to
+        // recover.
         var parser = new ChatLogParser();
         parser.SkillUsed += OnSkillUsed;
         parser.PersonalStatChanged += OnPersonalStatChanged;
         parser.LootAcquired += OnLootAcquired;
         parser.PlayerLoggedIn += OnPlayerLoggedIn;
+        parser.BuffCast += OnBuffCast;
         _chatLogParser = parser;
 
         List<DamageEvent> events = parser.ParseFile(_chatLogPath!);
@@ -2019,6 +2051,7 @@ public partial class MainWindow : Window
         _rowsByObjectId.Clear();
         _targetNames.Clear();
         _playerIdentities.Clear();
+        _buffCasts.Clear();
         _selectedTargetId = null;
         DpsColumn.Header = "Damage / DPS";
 

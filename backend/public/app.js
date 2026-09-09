@@ -275,14 +275,14 @@ function groupPlayersCell(roster, encounterId) {
   );
 }
 
-// The small icon+hit-count row myaion.eu labels "Buffs" next to a player - actually that
-// player's own top-used (damage) skills, not real buffs (see topSkills.ts on the backend); kept
-// under that name since that's the label the user asked for and what myaion.eu itself calls it.
-function buffsCell(topSkills) {
+// Real reinforcements (see the client's ChatLog/BuffCastEvent and backend/src/skills/topBuffs.ts)
+// - icon + cast count per buff, ranked by how often it was cast. Per the user: this must be actual
+// buffs, not a damage/heal skill breakdown (the roster table already has that).
+function buffsCell(buffs) {
   return el(
     "span",
     { className: "buffs-row" },
-    (topSkills ?? []).map((s) => iconLabel(skillIcon(s.icon), String(s.hits))),
+    (buffs ?? []).map((b) => iconLabel(skillIcon(b.icon), String(b.casts))),
   );
 }
 
@@ -291,14 +291,14 @@ function buffsCell(topSkills) {
 // so all three render through this one row and its table wrapper. playerCellNode is a prebuilt DOM
 // node (playerCell for one person, groupPlayersCell for a whole group) rather than raw fields,
 // since a group row's "player" column is structurally different (many people, not one).
-function rankedRow(rank, playerCellNode, dps, dmg, heal, topSkills) {
+function rankedRow(rank, playerCellNode, dps, dmg, heal, buffs) {
   return el("tr", {}, [
     el("td", { textContent: `${rank}` }),
     el("td", {}, [playerCellNode]),
     el("td", { textContent: formatNumber(dps) }),
     el("td", { textContent: formatNumber(dmg) }),
     el("td", { textContent: formatNumber(heal) }),
-    el("td", {}, [buffsCell(topSkills)]),
+    el("td", {}, [buffsCell(buffs)]),
   ]);
 }
 
@@ -348,7 +348,7 @@ async function renderLeaderboard(bossId) {
               p.idps,
               p.totalDamage,
               p.totalHealing,
-              p.topSkills,
+              p.topBuffs,
             ),
           );
           return el("div", { className: "class-block" }, [
@@ -375,7 +375,7 @@ async function renderLeaderboard(bossId) {
       g.groupIDps,
       g.totalDamage,
       g.totalHealing,
-      g.representative?.topSkills,
+      g.groupBuffs,
     ),
   );
 
@@ -457,7 +457,7 @@ async function renderEncounter(encounterId) {
       p.idps,
       p.totalDamage,
       p.totalHealing,
-      p.topSkills,
+      p.topBuffs,
     ),
   );
 

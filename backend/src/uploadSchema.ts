@@ -11,6 +11,13 @@ const skillUsageSchema = z.object({
   max: z.number().int().min(0).max(2_000_000_000),
 });
 
+// A real reinforcement (buff) cast - see the client's ChatLog/BuffCastEvent. No damage/crit/min/
+// max here on purpose: a buff cast has none of those to report, unlike skillUsageSchema above.
+const buffUsageSchema = z.object({
+  skill: z.string().min(1).max(120),
+  casts: z.number().int().positive().max(100_000),
+});
+
 export const participantSchema = z.object({
   name: z.string().trim().min(1).max(64),
   className: z.string().trim().min(1).max(40),
@@ -32,6 +39,10 @@ export const participantSchema = z.object({
   // successfully during the rollout window before everyone has auto-updated (see Update/
   // UpdateService.cs - the client is Velopack-managed, not instant), just without this number yet.
   damageTaken: z.number().int().min(0).max(2_000_000_000).default(0),
+  // Real reinforcements this row cast (see buffUsageSchema) - what the web frontend's "Buffs"
+  // column actually shows now, not a damage/heal skill. Defaulted for the same rollout reason as
+  // damageTaken above.
+  buffs: z.array(buffUsageSchema).max(80).default([]),
 });
 
 export const uploadSchema = z.object({

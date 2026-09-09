@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, encounterSkillUsage, players, uploads } from "../db/schema.js";
 import { resolveSkillIcon } from "../skills/skillIconResolver.js";
-import { topSkillsByParticipant } from "../skills/topSkills.js";
+import { topBuffsByParticipant } from "../skills/topBuffs.js";
 
 // One specific fight's full group roster (mirrors myaion.eu's PvESession) - reachable from the
 // leaderboard's "top groups" list so a run can be linked to directly, not just expanded inline.
@@ -66,12 +66,12 @@ export async function encounterRoutes(app: FastifyInstance) {
       .orderBy(desc(encounterParticipants.totalDamage))
       .all();
 
-    const topSkills = topSkillsByParticipant(roster.map((r) => r.participantId));
-    const rosterWithSkills = roster.map((r) => ({ ...r, topSkills: topSkills.get(r.participantId) ?? [] }));
+    const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId));
+    const rosterWithBuffs = roster.map((r) => ({ ...r, topBuffs: topBuffs.get(r.participantId) ?? [] }));
 
     return reply.send({
       encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null },
-      roster: rosterWithSkills,
+      roster: rosterWithBuffs,
     });
   });
 

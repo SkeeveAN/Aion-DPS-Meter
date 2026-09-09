@@ -14,6 +14,12 @@ public readonly record struct UploadResult(bool Success, string? Error)
 /// uploadSchema.ts zod schema expects (skill/hits/critHits/total/min/max).</summary>
 public sealed record SkillUsageUpload(string Skill, int Hits, int CritHits, long Total, long Min, long Max);
 
+/// <summary>One real reinforcement this participant cast (see ChatLog/BuffCastEvent) - deliberately
+/// its own, narrower record rather than reusing SkillUsageUpload: a buff cast has no damage/crit/
+/// min/max to report, and forcing those fields to 0 would misrepresent them as measured zeros
+/// rather than "not applicable".</summary>
+public sealed record BuffUsageUpload(string Skill, int Casts);
+
 /// <summary>One player's contribution to an encounter. <see cref="IsSelf"/> mirrors the client's own
 /// "You" check (see MainWindow.ResolveDisplayName) - the backend trusts THIS row's crit rate for
 /// this player permanently once received, since Aion only flags crits reliably in the scorer's own
@@ -37,7 +43,10 @@ public sealed record ParticipantUpload(
     // web frontend's damage-distribution chart is meant to show who took the boss's hits, not who
     // hit the boss - a different question a raid needs answered (aggro/tank checks) that the
     // existing dealt-damage total cannot answer.
-    long DamageTaken = 0);
+    long DamageTaken = 0,
+    // Per the user: the web frontend's "Buffs" column must show real reinforcements, not the
+    // damage/heal skills it showed before - see ChatLog/BuffCastEvent.
+    IReadOnlyList<BuffUsageUpload>? Buffs = null);
 
 /// <summary>One boss encounter, as sent to POST /api/uploads. The backend recognizes the same real
 /// fight across several independent uploads (one per group member) by boss + time window + roster

@@ -231,6 +231,27 @@ export const encounterSkillUsage = sqliteTable(
   }),
 );
 
+// Real reinforcements (buffs) a participant cast - see the client's ChatLog/BuffCastEvent for how
+// these are decoded ("X is in the boost ... state because Y used Z", distinguished from a debuff
+// purely by that one word in Aion's own narration). Deliberately a separate table from
+// encounterSkillUsage above rather than another isHeal-style flag on it: a buff cast has no
+// damage/crit/min/max to report, and those columns being NOT NULL there would force meaningless
+// zeros rather than leaving them out entirely.
+export const encounterBuffUsage = sqliteTable(
+  "encounter_buff_usage",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    participantId: integer("participant_id")
+      .notNull()
+      .references(() => encounterParticipants.id),
+    skillName: text("skill_name").notNull(),
+    casts: integer("casts").notNull(),
+  },
+  (table) => ({
+    participantIdIdx: index("encounter_buff_usage_participant_id_idx").on(table.participantId),
+  }),
+);
+
 export const uploads = sqliteTable(
   "uploads",
   {

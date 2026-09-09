@@ -1077,6 +1077,34 @@ public sealed partial class ChatLogParser
         CurrentZone.Contains("Arena", StringComparison.OrdinalIgnoreCase)
         || CurrentZone.Contains("Training Grounds", StringComparison.OrdinalIgnoreCase);
 
+    // Real buffs, English, confirmed against a real ~130k-line Chat.log. Aion narrates a beneficial
+    // effect landing as "<recipient> is in the boost <state(s)> state because <caster> used
+    // <skill>." (2.288 of 2.399 real occurrences) -- caster and recipient are the same name for a
+    // self-buff ("Void is in the boost Attack state because Void used Berserking I."), a different
+    // name for one player buffing another ("Ahri is in the boost HP state because Elimona used
+    // ..."), confirming this is a real caster+skill pair, not just "someone is buffed" noise. The
+    // 111 remaining occurrences drop the "because X used" clause entirely when the recipient buffed
+    // themselves ("Belovend is in the boost recovery skill state after using Blessed Shield III."),
+    // so BuffAfterUsingPattern below covers that shape with caster implicitly the same as recipient.
+    // Deliberately distinct from a "weaken <state> state because..." line (the exact debuff-flavored
+    // counterpart, same sentence otherwise) purely by that one word -- verified the game itself
+    // never uses "boost" for a detrimental effect, so no separate classification list had to be
+    // built or guessed. There is a THIRD, redundant narration for the recipient's own local client
+    // specifically ("Your Attack has been boosted by using Berserking I.") that never names a
+    // caster at all -- deliberately NOT parsed for BuffCast: it carries no attribution this event
+    // needs that the two patterns below don't already give more reliably (the same real buff always
+    // also produces one of the two lines above, using the recipient's real character name even when
+    // that recipient is the local player -- confirmed via a real "Hidan is in the boost Movement
+    // Speed, Flight Speed state because Hidan used Charge I." line, "You" is never the subject of
+    // this template).
+    [GeneratedRegex(@"^(?<recipient>.+?) is in the boost .+? because (?<caster>.+?) used (?<skill>.+)\.$")]
+    private static partial Regex BuffBecauseUsedPattern();
+
+    // The self-buff shorthand missing an explicit "because X used" clause - caster is the
+    // recipient themselves ("Blasterboy is in the boost skill state after using Focused Shots I.").
+    [GeneratedRegex(@"^(?<recipient>.+?) is in the boost .+? after using (?<skill>.+)\.$")]
+    private static partial Regex BuffAfterUsingPattern();
+
     // Loot: "You have acquired [item:ID;...]." and its variants. Every literal below (including
     // the two DIFFERENT plural markers) was confirmed by terminal_windows against real lines, not
     // guessed -- "(s)" with literal parens ("acquired 5 [item:...](s).") and a bare "s" with none
@@ -1199,6 +1227,19 @@ public sealed partial class ChatLogParser
     /// not just a defensive, filter.</summary>
     public event Action<LootEvent>? LootAcquired;
 
+    /// <summary>
+    /// Fires once per matched real-buff cast -- see BuffCastEvent remarks and
+    /// BuffBecauseUsedPattern/BuffAfterUsingPattern below for the two confirmed line shapes.
+    /// English only so far: verified against a real ~130k-line Chat.log (2.399 "is in the boost"
+    /// lines), not yet checked against DE/FR/RU/PL/TR/ZH equivalents the way the damage/heal
+    /// patterns are (see this class's own remarks on why English-only client can't validate those).
+    /// Deliberately narrower than SkillUsed: a "weaken ..." line (a debuff landing on an opponent,
+    /// same sentence shape otherwise) is a different word and never matches either pattern here --
+    /// confirmed the game itself distinguishes the two with that one word, so no separate buff/
+    /// debuff classification had to be guessed.
+    /// </summary>
+    public event Action<BuffCastEvent>? BuffCast;
+
     // Instance fields, not locals inside Parse(): ChatLogTailer calls Parse() repeatedly with
     // successive small batches of newly-appended lines (live tailing), not once with the whole
     // file. Bucket state must survive across those calls, or a duplicate broadcast pair split
@@ -1311,9 +1352,30 @@ public sealed partial class ChatLogParser
             {
                 RaiseLootIfPresent(e.Message);
             }
+
+            RaiseBuffCastIfPresent(e.Message, e.Timestamp);
         }
 
         return events;
+    }
+
+    /// <summary>See BuffCast's own remarks for the two line shapes and why the third ("Your X has
+    /// been boosted...") is deliberately not one of them. BuffBecauseUsedPattern tried first since
+    /// BuffAfterUsingPattern's ".+? after using" would also match its tail if tried first (the
+    /// "because ... used" clause itself contains "used").</summary>
+    private void RaiseBuffCastIfPresent(string message, DateTime timestamp)
+    {
+        if (BuffBecauseUsedPattern().Match(message) is { Success: true } because)
+        {
+            BuffCast?.Invoke(new BuffCastEvent(timestamp, because.Groups["caster"].Value, because.Groups["skill"].Value));
+            return;
+        }
+
+        if (BuffAfterUsingPattern().Match(message) is { Success: true } after)
+        {
+            string recipient = after.Groups["recipient"].Value;
+            BuffCast?.Invoke(new BuffCastEvent(timestamp, recipient, after.Groups["skill"].Value));
+        }
     }
 
     /// <summary>See the Ap/Kinah/Xp *Pattern remarks and PersonalStatChanged's own remarks -- each
