@@ -428,14 +428,20 @@
                     <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="#e8e8ea">
                         <!-- Uploads exactly the currently filtered boss - same action as the
                              Damage view's Upload button (OnUploadCurrentBossClicked), reachable
-                             here too since the button only shows in that one view. -->
-                        <MenuItem Header="{local:Loc Main.MenuSession.UploadBoss}" Click="OnUploadCurrentBossClicked"
+                             here too since the button only shows in that one view. Collapsed by
+                             default (per the user: no point offering an upload with nothing
+                             recorded to upload yet) - RefreshUploadAvailability shows it again the
+                             moment the Mob/Boss filter has at least one real target. -->
+                        <MenuItem x:Name="UploadBossMenuItem" Header="{local:Loc Main.MenuSession.UploadBoss}" Click="OnUploadCurrentBossClicked"
+                                  Visibility="Collapsed"
                                   ToolTip="Uploads the fight currently selected in the Mob/Boss filter to dpsmeter.skeeve.tv."/>
                         <!-- Everything the Mob/Boss filter has accumulated since the last Clear -
                              one upload request per boss, so a group that split the upload across
                              its members still gets recognized as one run server-side (see
-                             backend/src/matching/merge.ts). -->
-                        <MenuItem Header="{local:Loc Main.MenuSession.UploadRun}" Click="OnUploadLastRunClicked"
+                             backend/src/matching/merge.ts). Same Collapsed-until-there's-something
+                             rule as UploadBossMenuItem above. -->
+                        <MenuItem x:Name="UploadRunMenuItem" Header="{local:Loc Main.MenuSession.UploadRun}" Click="OnUploadLastRunClicked"
+                                  Visibility="Collapsed"
                                   ToolTip="Uploads every boss fight recorded since the last Clear, one by one, to dpsmeter.skeeve.tv."/>
                     </MenuItem>
                     <!-- Consolidated here from the App menu, per the user's request - App had
@@ -560,6 +566,22 @@
                                     M12,15 A3,3 0 1 0 12,9 3,3 0 1 0 12,15 Z"
                               Fill="#e8e8ea" Width="18" Height="14" Stretch="Uniform"/>
                     </Button>
+                    <!-- Moved here from the filter-dropdown row, per the user: it belongs in the
+                         icon row next to the other actions, not off to the right of the three
+                         dropdowns - and, per the same request, an icon (upward arrow into a tray)
+                         instead of the word "Upload", matching every other button in this row.
+                         Uploads exactly the boss the Mob/Boss filter is currently showing - hidden
+                         in the Loot view and whenever there's nothing recorded yet, both still
+                         handled the same way by RefreshUploadAvailability regardless of where the
+                         button physically sits. -->
+                    <Button x:Name="UploadBossButton" Style="{StaticResource ToolbarIconButton}" Click="OnUploadCurrentBossClicked" Padding="6,4"
+                            Visibility="Collapsed"
+                            ToolTip="Uploads this boss fight to dpsmeter.skeeve.tv.">
+                        <Path Data="M9,2 L9,10 M4,7 L9,2 L14,7 M3,13 L15,13"
+                              Stroke="#e8e8ea" StrokeThickness="1.6" StrokeLineJoin="Round"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                              Width="18" Height="15" Stretch="Uniform"/>
+                    </Button>
                 </StackPanel>
 
                 <!-- Filter row: three dropdowns, matching the myaion.eu reference exactly (class
@@ -624,14 +646,6 @@
                               ToolTip="Filter by target. 'All' sums damage across every target seen. Type in the dropdown to search.">
                         <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
                     </ComboBox>
-                    <!-- Uploads exactly the boss the Mob/Boss filter above is currently showing -
-                         per the user's request for a Damage-view button next to the Session menu's
-                         "upload last run" item. Hidden in the Loot view (see OnShowDamageView/
-                         OnShowLootView) since a target filter has no meaning there. -->
-                    <Button x:Name="UploadBossButton" Click="OnUploadCurrentBossClicked" Margin="8,0,0,0" Padding="6,4"
-                            ToolTip="Uploads this boss fight to dpsmeter.skeeve.tv.">
-                        <TextBlock Text="{local:Loc Main.UploadButton}" VerticalAlignment="Center"/>
-                    </Button>
                 </StackPanel>
 
                 <!-- Bottom status row, per the user: connection/Chat.log status removed ("Die Infos

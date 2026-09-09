@@ -1101,7 +1101,26 @@ public partial class MainWindow : Window
         if (added)
         {
             ApplyMobBossSearchFilter();
+            RefreshUploadAvailability();
         }
+    }
+
+    /// <summary>
+    /// Per the user: the upload entry points (the Session menu's two items, and the Damage view's
+    /// own button) should not be offered at all until there is something real to upload - shows
+    /// them the moment the Mob/Boss filter has at least one real target, hides them again after
+    /// Clear. UploadBossButton additionally stays Loot-view-collapsed regardless (a target filter
+    /// has no meaning there), so its visibility is never JUST "has data" the way the two menu
+    /// items' is.
+    /// </summary>
+    private void RefreshUploadAvailability()
+    {
+        bool hasBossData = _mobBossEntries.Count > 0;
+        UploadBossMenuItem.Visibility = hasBossData ? Visibility.Visible : Visibility.Collapsed;
+        UploadRunMenuItem.Visibility = hasBossData ? Visibility.Visible : Visibility.Collapsed;
+        UploadBossButton.Visibility = hasBossData && PlayersGrid.Visibility == Visibility.Visible
+            ? Visibility.Visible
+            : Visibility.Collapsed;
     }
 
     /// <summary>
@@ -1735,6 +1754,7 @@ public partial class MainWindow : Window
 
         _mobBossEntries.Clear();
         ApplyMobBossSearchFilter();
+        RefreshUploadAvailability();
     }
 
     private void ClearLootData()
@@ -2086,7 +2106,7 @@ public partial class MainWindow : Window
         LootGrid.Visibility = Visibility.Collapsed;
         DamageNavButton.FontWeight = FontWeights.Bold;
         LootNavButton.FontWeight = FontWeights.Normal;
-        UploadBossButton.Visibility = Visibility.Visible;
+        RefreshUploadAvailability();
     }
 
     private void OnShowLootView(object sender, RoutedEventArgs e)
@@ -2097,7 +2117,9 @@ public partial class MainWindow : Window
         LootNavButton.FontWeight = FontWeights.Bold;
         // The Mob/Boss filter next to it has no meaning for loot, so neither does uploading "the
         // currently filtered boss" - the Session menu's upload items stay reachable regardless.
-        UploadBossButton.Visibility = Visibility.Collapsed;
+        // RefreshUploadAvailability already collapses UploadBossButton whenever PlayersGrid isn't
+        // the visible grid, which is exactly this case.
+        RefreshUploadAvailability();
     }
 
 
