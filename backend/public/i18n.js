@@ -891,6 +891,66 @@ const GAME_NAME_TRANSLATIONS = {
     tr: "Tahmes",
     zh: "塔梅斯",
   },
+  // Verified from client_strings_dic_etc.xml (id STR_DIC_W_IDVritra_Base_all - the internal zone
+  // code "Vritra_Base" has no relation to "Sauro" at all, it's purely the in-game display name).
+  "Sauro-Kriegsdepot": {
+    en: "Sauro Supply Base",
+    de: "Sauro-Kriegsdepot",
+    fr: "Dépôt de guerre de Sauro",
+    es: "Almacén de Guerra de Sauro",
+    ru: "Военная база Сауро",
+    pl: "Skład Wojenny Sauro",
+    tr: "Sauro Savaş Deposu",
+    zh: "萨乌洛军需基地",
+  },
+  // Boss names below verified from client_strings_dic_monster.xml (Rohuka/Kurmata) and the raw,
+  // per-language client_strings_monster.xml (Derakanak - not present in the "dic" table; see
+  // assets/README.md's own remarks on that table missing some real bosses). All three joined
+  // across languages by the client's own stable <name> string key (STR_..._Drakan_As_65_Ae2_Nmd
+  // etc.), not just the raw numeric <id>, which is NOT guaranteed stable across language builds.
+  "Wachhauptmann Rohuka": {
+    en: "Guard Captain Rohuka",
+    de: "Wachhauptmann Rohuka",
+    fr: "Capitaine de la garde Rohuka",
+    es: "Capitán de la guardia Rojuca",
+    ru: "Начальник охраны Рохка",
+    pl: "Kapitan Straży Rohuka",
+    tr: "Rohuka Nöbetçi Yüzbaşısı",
+    zh: "警备队长罗赫卡",
+  },
+  "Chefkanonierin Kurmata": {
+    en: "Chief Gunner Kurmata",
+    de: "Chefkanonierin Kurmata",
+    fr: "Canonnier en chef Kurmata",
+    es: "Jefe artillero Curmata",
+    ru: "Главный канонир Курмата",
+    pl: "Naczelny Kanonier Kurmata",
+    tr: "Topçu Başı Kurmata",
+    zh: "炮兵队长库尔玛塔",
+  },
+  // No zh entry: genuinely absent from this client's Chinese string table (dated 2014 internally,
+  // an older content patch that predates this boss) - left untranslated there rather than guessed.
+  "Dunkelverschlinger Derakanak": {
+    en: "Derakanak the Reaver",
+    de: "Dunkelverschlinger Derakanak",
+    fr: "Derakanak sombre-glouton",
+    es: "Devorador oscuro Deracanac",
+    ru: "Поглотитель тьмы Дераканак",
+    pl: "Pochłaniacz Ciemności Derakanak",
+    tr: "Karanlık Yok Edici Derakanak",
+  },
+  // Stored in the DB as the English name (uploaded from an English client) - translations for the
+  // other 7 languages, verified the same way as the Sauro bosses above.
+  "Raksha Boilheart": {
+    en: "Raksha Boilheart",
+    de: "Raksha Kochherz",
+    fr: "Raksha Cœur-bouilli",
+    es: "Rajsá Pulsohirviente",
+    ru: "Разгневанный Ракши",
+    pl: "Raksha Serce Kucharza",
+    tr: "Rakşa Kaynayan Kalp",
+    zh: "愤怒的拉克莎",
+  },
   "Stahlrose: Anlegestelle": {
     en: "Steel Rose Cargo",
     de: "Stahlrose: Anlegestelle",
