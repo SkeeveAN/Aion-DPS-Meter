@@ -286,7 +286,14 @@
             <DockPanel LastChildFill="True">
 
                 <Grid DockPanel.Dock="Top" Background="#151519" Height="24" MouseLeftButtonDown="OnTitleBarMouseDown">
-                    <TextBlock Text="AionSniffer DMG Meter" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="8,0"/>
+                    <!-- Per the user: the version belongs where it's actually seen. Window.Title
+                         already carries it (set in the constructor from AppVersion.Text, see its
+                         remarks on why a screenshot needs to identify its build), but WindowStyle=
+                         "None" means the OS never draws that text anywhere; this hand-drawn bar is
+                         the only titlebar a user ever sees, so it has to show the same string
+                         rather than a second, separately-hardcoded one that could drift from it. -->
+                    <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Foreground="#9a9aa2" VerticalAlignment="Center" Margin="8,0"/>
                     <Button Content="✕" Click="OnCloseClicked" HorizontalAlignment="Right" Width="28" Height="24"
                             Background="Transparent" BorderThickness="0" Foreground="#9a9aa2" Margin="0"/>
                 </Grid>
