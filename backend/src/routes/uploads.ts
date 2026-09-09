@@ -15,12 +15,14 @@ export async function uploadRoutes(app: FastifyInstance) {
   app.post("/api/uploads", async (request, reply) => {
     const parseResult = uploadSchema.safeParse(request.body);
     if (!parseResult.success) {
+      app.log.warn({ details: parseResult.error.flatten(), body: request.body }, "upload rejected: invalid payload");
       return reply.status(400).send({ error: "invalid_payload", details: parseResult.error.flatten() });
     }
     const payload = parseResult.data;
 
     const selfCount = payload.participants.filter((p) => p.isSelf).length;
     if (selfCount !== 1) {
+      app.log.warn({ selfCount, bossNpcName: payload.bossNpcName }, "upload rejected: not exactly one self participant");
       return reply.status(400).send({ error: "exactly_one_self_participant_required" });
     }
 
