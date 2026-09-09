@@ -287,22 +287,27 @@ function buffsCell(buffs) {
 }
 
 // One ranked entry - either one of a boss's top 10 groups, one member of a single encounter's own
-// roster, or one solo attempt; all three need the same rank/player-cell/DPS/DMG/Heal/Buffs shape,
-// so all three render through this one row and its table wrapper. playerCellNode is a prebuilt DOM
-// node (playerCell for one person, groupPlayersCell for a whole group) rather than raw fields,
-// since a group row's "player" column is structurally different (many people, not one).
-function rankedRow(rank, playerCellNode, dps, dmg, heal, buffs) {
+// roster, or one solo attempt; all three need the same rank/player-cell/DPS/DMG/Heal shape, so all
+// three render through this one row and its table wrapper. playerCellNode is a prebuilt DOM node
+// (playerCell for one person, groupPlayersCell for a whole group) rather than raw fields, since a
+// group row's "player" column is structurally different (many people, not one).
+//
+// showBuffs is false on the two leaderboard listings (top 10 groups, top 10 per class) - per the
+// user, that column is redundant there since clicking through to the encounter/participant details
+// page already shows it; kept true (the default) for that details page's own roster table, which
+// is the one place it actually belongs.
+function rankedRow(rank, playerCellNode, dps, dmg, heal, buffs, showBuffs = true) {
   return el("tr", {}, [
     el("td", { textContent: `${rank}` }),
     el("td", {}, [playerCellNode]),
     el("td", { textContent: formatNumber(dps) }),
     el("td", { textContent: formatNumber(dmg) }),
     el("td", { textContent: formatNumber(heal) }),
-    el("td", {}, [buffsCell(buffs)]),
+    ...(showBuffs ? [el("td", {}, [buffsCell(buffs)])] : []),
   ]);
 }
 
-function rankedTable(rows) {
+function rankedTable(rows, showBuffs = true) {
   return el("table", { className: "ranked-table" }, [
     el("thead", {}, [
       el("tr", {}, [
@@ -311,7 +316,7 @@ function rankedTable(rows) {
         el("th", { textContent: t("participant.dps") }),
         el("th", { textContent: t("table.damage") }),
         el("th", { textContent: t("participant.totalHealing") }),
-        el("th", { textContent: t("table.buffs") }),
+        ...(showBuffs ? [el("th", { textContent: t("table.buffs") })] : []),
       ]),
     ]),
     el("tbody", {}, rows),
@@ -349,11 +354,12 @@ async function renderLeaderboard(bossId) {
               p.totalDamage,
               p.totalHealing,
               p.topBuffs,
+              false,
             ),
           );
           return el("div", { className: "class-block" }, [
             el("h3", {}, [iconLabel(classIcon(className), className)]),
-            rankedTable(rows),
+            rankedTable(rows, false),
           ]);
         }),
       ),
@@ -376,12 +382,13 @@ async function renderLeaderboard(bossId) {
       g.totalDamage,
       g.totalHealing,
       g.groupBuffs,
+      false,
     ),
   );
 
   const groupsSection = el("section", {}, [
     el("h2", { textContent: t("leaderboard.topGroupsHeading", { n: data.topGroups.length }) }),
-    rankedTable(rows),
+    rankedTable(rows, false),
   ]);
 
   app.replaceChildren(groupsSection);
