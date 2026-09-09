@@ -1463,6 +1463,57 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
+    /// Explicit, user-triggered exception to ChatLogTailer's "never look into the past" rule (see
+    /// its own remarks) - recovers a run lost when the app itself restarts (a crash, or an
+    /// auto-update: neither is something the user chose mid-fight), since Chat.log on disk still
+    /// has it even though _aggregator's in-memory events do not survive the process exiting. Never
+    /// runs on its own; the live tailer's default EOF-seeking behavior is completely untouched,
+    /// this is only reachable by clicking the menu item for it.
+    ///
+    /// Replaces, not adds to, the current session (same ClearDamageData reset the toolbar Clear
+    /// button uses) - re-parsing the whole file with a brand new ChatLogParser rather than reusing
+    /// the live one avoids double-counting whatever little the live tailer already ingested since
+    /// this restart. A fresh ChatLogTailer then picks up from the file's new end, so ordinary live
+    /// tailing afterward never re-counts anything this just parsed.
+    /// </summary>
+    private void OnReloadChatLogClicked(object sender, RoutedEventArgs e)
+    {
+        if (_chatLogPath is null || !File.Exists(_chatLogPath))
+        {
+            ShowUploadStatus("No Chat.log found - set the Aion install folder in Settings first.");
+            return;
+        }
+
+        ClearDamageData();
+
+        var parser = new ChatLogParser();
+        parser.SkillUsed += OnSkillUsed;
+        parser.CommandReceived += OnChatCommand;
+        parser.PersonalStatChanged += OnPersonalStatChanged;
+        parser.LootAcquired += OnLootAcquired;
+        parser.PlayerLoggedIn += OnPlayerLoggedIn;
+        _chatLogParser = parser;
+
+        List<DamageEvent> events = parser.ParseFile(_chatLogPath);
+        _chatLogTailer = new ChatLogTailer(_chatLogPath, parser);
+
+        // Same pet-attribution/named-copy filtering the live tick applies (OnChatLogTimerTick) -
+        // skipping it here would count a Spiritmaster's pet as its own row, or double-count a
+        // registered character seen under a placeholder name, only for reloaded history.
+        var counted = events
+            .Where(ev => !IsNamedCopyOfRegisteredCharacter(ev.SourceObjectId))
+            .Select(AttributePetDamageToOwner)
+            .ToList();
+        if (counted.Count > 0)
+        {
+            _aggregator.IngestEvents(counted);
+        }
+
+        RefreshRows();
+        ShowUploadStatus($"Reloaded {counted.Count} event(s) from Chat.log.");
+    }
+
+    /// <summary>
     /// Asks GitHub whether a newer release exists and, if so, downloads it in the background and
     /// says so in the status row. Nothing is swapped while the meter runs: Velopack stages the new
     /// version and it becomes active on the next start, so an update never interrupts a fight.

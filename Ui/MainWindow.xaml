@@ -411,6 +411,13 @@
                         <Separator/>
                         <MenuItem Header="{local:Loc Main.MenuApp.ResetConnection}" IsEnabled="False"/>
                         <MenuItem Header="{local:Loc Main.MenuApp.ClearCurrentView}" Click="OnClearClicked"/>
+                        <!-- Explicit, opt-in exception to ChatLogTailer's "never look into the
+                             past" rule (see its own remarks) - recovers a run lost when the app
+                             itself restarts (crash, or an auto-update), since Chat.log on disk
+                             still has it even though _aggregator's in-memory events don't survive
+                             a restart. Never runs on its own; only this menu click triggers it. -->
+                        <MenuItem Header="{local:Loc Main.MenuApp.ReloadChatLog}" Click="OnReloadChatLogClicked"
+                                  ToolTip="Re-reads the entire Chat.log file and replaces the current session with it - use after a restart/update wiped an in-progress run, since the live recorder itself never looks at anything before it started."/>
                         <!-- Moved out of the toolbar (found by terminal_windows: the toolbar
                              overflowed the window at its default width once Char/Hide UI grew it,
                              literally pushing Settings off-screen and unreachable) - a synthetic

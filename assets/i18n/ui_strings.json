@@ -79,6 +79,16 @@
     "tr": "Bağlantıyı sıfırla",
     "zh": "重置连接"
   },
+  "Main.MenuApp.ReloadChatLog": {
+    "en": "Reload from Chat.log",
+    "de": "Aus Chat.log neu laden",
+    "fr": "Recharger depuis Chat.log",
+    "es": "Recargar desde Chat.log",
+    "ru": "Перезагрузить из Chat.log",
+    "pl": "Wczytaj ponownie z Chat.log",
+    "tr": "Chat.log'dan yeniden yükle",
+    "zh": "从 Chat.log 重新加载"
+  },
   "Main.MenuApp.ClearCurrentView": {
     "en": "Clear current view",
     "de": "Aktuelle Ansicht leeren",
