@@ -1486,9 +1486,14 @@ public partial class MainWindow : Window
 
         ClearDamageData();
 
+        // CommandReceived deliberately NOT wired here: ".ui"/".pause"/".resume"/".cleardmg"/
+        // ".clearloot"/".dmg" are live control signals (see OnChatCommand's switch), not data to
+        // recover - every one of them ever typed in this Chat.log's history would otherwise fire
+        // again right now (found the hard way: an old ".ui" from a past session flipped the window
+        // into its click-through overlay state mid-reload). SkillUsed/PersonalStatChanged/
+        // LootAcquired/PlayerLoggedIn are pure data and are exactly what this is meant to recover.
         var parser = new ChatLogParser();
         parser.SkillUsed += OnSkillUsed;
-        parser.CommandReceived += OnChatCommand;
         parser.PersonalStatChanged += OnPersonalStatChanged;
         parser.LootAcquired += OnLootAcquired;
         parser.PlayerLoggedIn += OnPlayerLoggedIn;
