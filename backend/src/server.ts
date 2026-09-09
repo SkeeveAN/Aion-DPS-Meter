@@ -20,7 +20,12 @@ export async function buildServer() {
 
   await app.register(cors, { origin: env.CORS_ORIGIN });
   await app.register(rateLimit, {
-    max: 30,
+    // 30/min looked generous until a real client hit it: "Upload last run"/"Reload from
+    // Chat.log" (see the client's MainWindow.xaml.cs) can legitimately fire dozens of uploads in
+    // one burst - a full-file reload surfaces every distinct boss/mob across however many real
+    // sessions the log spans, and the client sends them back-to-back with no delay. 120/min gives
+    // real headroom for that while still bounding a single IP.
+    max: 120,
     timeWindow: "1 minute",
     // Only the upload endpoint needs protecting - the read-only leaderboard
     // routes are cheap, indexed lookups with no reason to throttle browsing.
