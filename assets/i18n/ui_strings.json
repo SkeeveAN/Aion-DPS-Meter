@@ -159,6 +159,36 @@
     "tr": "Henüz kaydedilmiş oturum yok",
     "zh": "尚无已记录的会话"
   },
+  "Main.MenuSession.UploadBoss": {
+    "en": "Upload current boss",
+    "de": "Aktuellen Boss hochladen",
+    "fr": "Télécharger le boss actuel",
+    "es": "Subir jefe actual",
+    "ru": "Загрузить текущего босса",
+    "pl": "Wyślij aktualnego bossa",
+    "tr": "Mevcut patronu yükle",
+    "zh": "上传当前首领战斗"
+  },
+  "Main.MenuSession.UploadRun": {
+    "en": "Upload last run (all bosses)",
+    "de": "Letzten Run hochladen (alle Bosse)",
+    "fr": "Télécharger la dernière run (tous les boss)",
+    "es": "Subir última run (todos los jefes)",
+    "ru": "Загрузить последний забег (все боссы)",
+    "pl": "Wyślij ostatni run (wszyscy bossowie)",
+    "tr": "Son koşuyu yükle (tüm patronlar)",
+    "zh": "上传本次副本(全部首领)"
+  },
+  "Main.UploadButton": {
+    "en": "Upload",
+    "de": "Hochladen",
+    "fr": "Télécharger",
+    "es": "Subir",
+    "ru": "Загрузить",
+    "pl": "Wyślij",
+    "tr": "Yükle",
+    "zh": "上传"
+  },
   "Main.MenuSettings": {
     "en": "Settings",
     "de": "Einstellungen",

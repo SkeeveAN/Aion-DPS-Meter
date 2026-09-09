@@ -28,24 +28,15 @@ public partial class PlayerDetailsWindow : Window
 
         // The local player's client flags its own crits properly; nobody else's does. Estimating
         // over a known answer would only add error, so the flag wins where it is trustworthy.
-        var isCrit = CritEstimator.Estimate(damage, trustLoggedFlag: isLocalPlayer);
-
-        var rows = damage
-            .GroupBy(e => e.Skill ?? "(auto attack)")
-            .Select(g =>
-            {
-                var amounts = g.Select(e => e.Amount).ToList();
-                int crits = g.Count(e => isCrit.GetValueOrDefault(e));
-                return new SkillRow(
-                    g.Key,
-                    amounts.Count,
-                    100.0 * crits / amounts.Count,
-                    amounts.Sum(),
-                    amounts.Min(),
-                    amounts.Max(),
-                    (long)Math.Round(amounts.Average()));
-            })
-            .OrderByDescending(r => r.Total)
+        var rows = SkillBreakdown.For(events, trustLoggedFlag: isLocalPlayer)
+            .Select(u => new SkillRow(
+                u.Skill,
+                u.Hits,
+                100.0 * u.CritHits / u.Hits,
+                u.Total,
+                u.Min,
+                u.Max,
+                (long)Math.Round((double)u.Total / u.Hits)))
             .ToList();
 
         SkillsGrid.ItemsSource = rows;

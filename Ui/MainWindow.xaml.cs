@@ -12,6 +12,7 @@ using AionSniffer.ChatLog;
 using AionSniffer.Combat;
 using AionSniffer.Data;
 using AionSniffer.Update;
+using AionSniffer.Upload;
 using VelopackUpdateInfo = Velopack.UpdateInfo;
 
 namespace AionSniffer.Ui;
@@ -546,11 +547,13 @@ public partial class MainWindow : Window
     /// AionRainMeter-style in-game commands, per the user's request ("Bitte ingame Befehle
     /// umsetzen") -- typing e.g. ".ui" into any in-game chat box reaches here via
     /// ChatLogParser.CommandReceived. Only the commands actually wired below do anything; every
-    /// other word from the reference list (.exp/.ap/.gt/.codex/.rank/.item/.url/.google/.yt/.ping/
+    /// other word from the reference list (.exp/.gt/.codex/.rank/.item/.url/.google/.yt/.ping/
     /// .iptrace/.report/.check/.timer/.tr/.timerreset/.timerkill/.switch/.alpha/.upload/.ss/.db/
     /// .sort/.sortclear/.hit/.heal) either needs game data this build doesn't have (stats, items,
     /// timers) or a decision on what it should even mean here, and is deliberately left alone
-    /// rather than silently doing nothing under a name that implies it works.
+    /// rather than silently doing nothing under a name that implies it works. ".ap" is now wired,
+    /// per the user, to the group's relic AP only -- see BuildRelicApText -- not to a general AP
+    /// stat dump, since redistributing relics fairly is the actual use case for typing it in Aion.
     ///
     /// speakerName is checked against the locally authorized character and anything else is
     /// silently ignored, INCLUDING a null speaker (an unrecognized line shape) -- fail closed, not
@@ -606,6 +609,10 @@ public partial class MainWindow : Window
                 CopyTextToClipboardIfAny(BuildLootChatSummary(),
                 "No loot of Unique grade or better has dropped yet, and the chat summary only lists "
                 + "those. Use the Table button next to it for the full loot list.");
+                break;
+            case "ap":
+                CopyTextToClipboardIfAny(BuildRelicApText(),
+                "Nobody in the group has picked up a relic yet.");
                 break;
         }
     }
@@ -1005,14 +1012,13 @@ public partial class MainWindow : Window
 
         _relicApByPerson.TryGetValue(row.Name, out long rowRelicAp);
         row.RelicAp = rowRelicAp;
-        row.Ap = ApTotalFor(row.Name, isLocalPlayer: _chatLogParser?.Names.NameFor(sourceId) == "You");
     }
 
     /// <summary>
-    /// What a row's "AP:" line shows: the session's own AP counter (local player only -- Chat.log
+    /// The footer's "AP:" counter: the session's own AP counter (local player only -- Chat.log
     /// reports AP gains for nobody else) plus relic AP, which exists for every person in the group
-    /// (see Data/RelicApDatabase). Null, not 0, when there is nothing to show, so mob and
-    /// non-looting player rows stay blank instead of claiming a real zero.
+    /// (see Data/RelicApDatabase). Null, not 0, when there is nothing to show. Not used for the
+    /// per-row line anymore -- see PlayerRow.RelicAp -- since that one is deliberately relics-only.
     /// </summary>
     private long? ApTotalFor(string personName, bool isLocalPlayer)
     {
@@ -1087,6 +1093,132 @@ public partial class MainWindow : Window
         _selectedTargetId = (MobBossFilter.SelectedItem as ComboBoxItem)?.Tag as int?;
         DpsColumn.Header = _selectedTargetId is int ? "Damage / iDPS" : "Damage / DPS";
         RefreshRows();
+    }
+
+    /// <summary>
+    /// Builds the upload payload for whichever target <paramref name="targetId"/> refers to, from
+    /// <see cref="_rows"/> as it stands right now -- so the caller must have already pointed
+    /// <see cref="_selectedTargetId"/> at this target and called <see cref="RefreshRows"/>, the same
+    /// way the grid itself gets Name/ClassName/Faction resolved (see ApplyIdentity/ApplySide). This
+    /// deliberately reuses that already-correct state rather than re-deriving faction/class logic a
+    /// second time here. Returns null when there is nothing to upload (target never hit, or no
+    /// player rows survived the "players only" filter).
+    /// </summary>
+    private EncounterUploadRequest? BuildEncounterUpload(int targetId)
+    {
+        var targetHits = _aggregator.Events.Where(e => e.TargetObjectId == targetId && !e.IsHeal).ToList();
+        if (targetHits.Count == 0 || _rows.Count == 0)
+        {
+            return null;
+        }
+
+        DateTime startedAt = targetHits.Min(e => e.Timestamp).ToUniversalTime();
+        DateTime endedAt = targetHits.Max(e => e.Timestamp).ToUniversalTime();
+        string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
+
+        var participants = new List<ParticipantUpload>();
+        foreach (PlayerRow row in _rows)
+        {
+            var hitsOnBoss = targetHits.Where(e => e.SourceObjectId == row.ObjectId).ToList();
+            if (hitsOnBoss.Count == 0)
+            {
+                continue;
+            }
+
+            bool isSelf = _chatLogParser?.Names.NameFor(row.ObjectId) == "You";
+            double idps = DpsCalculator.TargetIDps(_aggregator.Events, targetId, row.ObjectId) ?? 0;
+            var skills = SkillBreakdown.For(hitsOnBoss, trustLoggedFlag: isSelf)
+                .Select(s => new SkillUsageUpload(s.Skill, s.Hits, s.CritHits, s.Total, s.Min, s.Max))
+                .ToList();
+
+            participants.Add(new ParticipantUpload(
+                row.Name, row.ClassName, row.Faction, isSelf,
+                row.Damage, idps, idps, ApTotal: null, skills));
+        }
+
+        if (participants.Count == 0)
+        {
+            return null;
+        }
+
+        return new EncounterUploadRequest(AppVersion.Text, bossName, startedAt, endedAt, participants);
+    }
+
+    /// <summary>Uploads exactly the boss the Mob/Boss filter is currently showing - the Damage
+    /// view's Upload button, and the Session menu's "Upload current boss".</summary>
+    private async void OnUploadCurrentBossClicked(object sender, RoutedEventArgs e)
+    {
+        if (_selectedTargetId is not int targetId)
+        {
+            ShowUploadStatus("Select a boss in the Mob/Boss filter first.");
+            return;
+        }
+
+        var payload = BuildEncounterUpload(targetId);
+        if (payload is null)
+        {
+            ShowUploadStatus("Nothing recorded for this boss yet.");
+            return;
+        }
+
+        ShowUploadStatus("Uploading...");
+        bool ok = await UploadClient.SendAsync(payload);
+        ShowUploadStatus(ok ? "Uploaded." : "Upload failed - dpsmeter.skeeve.tv unreachable.");
+    }
+
+    /// <summary>
+    /// Uploads every boss the Mob/Boss filter has accumulated since the last Clear, one request
+    /// each - the server recognizes fights uploaded by different group members as the same run
+    /// itself (see backend/src/matching/merge.ts), so this does not need to know whether anyone
+    /// else in the group already uploaded. Temporarily drives the same _selectedTargetId/RefreshRows
+    /// state the filter dropdown itself uses for each boss in turn, then restores whatever the user
+    /// had selected - visibly flipping the grid through each boss while it runs, which is expected
+    /// for a menu action the user triggered on purpose (not a background operation).
+    /// </summary>
+    private async void OnUploadLastRunClicked(object sender, RoutedEventArgs e)
+    {
+        int? previousTarget = _selectedTargetId;
+        var targetIds = MobBossFilter.Items.OfType<ComboBoxItem>()
+            .Where(i => i.Tag is int)
+            .Select(i => (int)i.Tag!)
+            .ToList();
+
+        if (targetIds.Count == 0)
+        {
+            ShowUploadStatus("No boss fights recorded since the last Clear.");
+            return;
+        }
+
+        ShowUploadStatus($"Uploading {targetIds.Count} boss fight(s)...");
+        int uploaded = 0;
+        foreach (int targetId in targetIds)
+        {
+            _selectedTargetId = targetId;
+            RefreshRows();
+            var payload = BuildEncounterUpload(targetId);
+            if (payload is null)
+            {
+                continue;
+            }
+
+            if (await UploadClient.SendAsync(payload))
+            {
+                uploaded++;
+            }
+        }
+
+        _selectedTargetId = previousTarget;
+        RefreshRows();
+
+        ShowUploadStatus(uploaded > 0
+            ? $"Uploaded {uploaded} of {targetIds.Count} boss fight(s)."
+            : "Upload failed - dpsmeter.skeeve.tv unreachable.");
+    }
+
+    private void ShowUploadStatus(string message)
+    {
+        UploadStatusText.Text = message;
+        UploadStatusText.Visibility = Visibility.Visible;
     }
 
     private void OnClassFilterChanged(object sender, SelectionChangedEventArgs e)
@@ -1719,6 +1851,24 @@ public partial class MainWindow : Window
     private static string RepeatIcon(string icon, long count) =>
         string.Concat(Enumerable.Repeat(icon, (int)Math.Min(count, MaxIconsPerColor)));
 
+    /// <summary>
+    /// The ".ap" in-game command's clipboard payload: per person, only what their held relics will
+    /// pay out once exchanged (see Data/RelicApDatabase) -- ranked highest first, same "Name AP"
+    /// shape as BuildDmgChatLine, joined by ", " for pasting straight into the Aion chat box.
+    /// Deliberately excludes the session's real AP total (Chat.log only reports that for the local
+    /// player anyway): this line exists so the group can see who's still holding relics and decide
+    /// who to route them to next, not to report anyone's overall AP progress.
+    /// </summary>
+    private string BuildRelicApText()
+    {
+        var parts = _relicApByPerson
+            .Where(kv => kv.Value > 0)
+            .OrderByDescending(kv => kv.Value)
+            .Select(kv => $"{kv.Key} {kv.Value.ToString("N0", DotGroupedNumberFormat)}");
+
+        return string.Join(", ", parts);
+    }
+
     private void OnPauseClicked(object sender, RoutedEventArgs e) => SetPaused(!_paused);
 
     /// <summary>Shared by the toolbar Pause/Resume button and the ".pause"/".resume" in-game
@@ -1804,6 +1954,7 @@ public partial class MainWindow : Window
         LootGrid.Visibility = Visibility.Collapsed;
         DamageNavButton.FontWeight = FontWeights.Bold;
         LootNavButton.FontWeight = FontWeights.Normal;
+        UploadBossButton.Visibility = Visibility.Visible;
     }
 
     private void OnShowLootView(object sender, RoutedEventArgs e)
@@ -1812,6 +1963,9 @@ public partial class MainWindow : Window
         LootGrid.Visibility = Visibility.Visible;
         DamageNavButton.FontWeight = FontWeights.Normal;
         LootNavButton.FontWeight = FontWeights.Bold;
+        // The Mob/Boss filter next to it has no meaning for loot, so neither does uploading "the
+        // currently filtered boss" - the Session menu's upload items stay reachable regardless.
+        UploadBossButton.Visibility = Visibility.Collapsed;
     }
 
 
@@ -1841,6 +1995,14 @@ public partial class MainWindow : Window
         NormalContent.Visibility = _hideUiActive ? Visibility.Collapsed : Visibility.Visible;
         OverlayContent.Visibility = _hideUiActive ? Visibility.Visible : Visibility.Collapsed;
         _overlay?.SetClickThrough(_hideUiActive);
+
+        // Per the user: the corner resize-grip glyph (from the window's own
+        // ResizeMode="CanResizeWithGrip", not anything drawn by NormalContent) stayed visible even
+        // once the rest of the chrome vanished, floating over the game with nothing around it to
+        // explain what it was. NoResize removes the glyph along with the ability to drag-resize,
+        // which is fine here: the window is click-through while this mode is active, so a mouse
+        // couldn't reach the grip to drag it anyway.
+        ResizeMode = _hideUiActive ? ResizeMode.NoResize : ResizeMode.CanResizeWithGrip;
 
         if (_hideUiActive)
         {

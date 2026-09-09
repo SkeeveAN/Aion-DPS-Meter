@@ -13,7 +13,6 @@ public sealed class PlayerRow : INotifyPropertyChanged
 {
     private long _damage;
     private double? _dps;
-    private long? _ap;
     private long? _relicAp;
 
     private string _name = "?";
@@ -75,35 +74,24 @@ public sealed class PlayerRow : INotifyPropertyChanged
 
     public string DpsDisplay => Dps is double d ? d.ToString("F0") : "n/a";
 
-    /// <summary>Shown as a second line under Damage/DPS. Two sources feed it (see
-    /// MainWindow.ApTotalFor): the session's personal AP counter, which Chat.log only ever reports
-    /// for the local player, and AP from looted relics, which any group member can earn (see
-    /// Data/RelicApDatabase). So this is populated for "You" always, and for another player as
-    /// soon as they pick up a relic -- null everywhere else, including mob rows, rather than a
-    /// fabricated 0.</summary>
-    public long? Ap
-    {
-        get => _ap;
-        set { _ap = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); }
-    }
-
-    /// <summary>AP earned from relics, part of <see cref="Ap"/> rather than additional to it --
-    /// shown separately because the two halves are not the same kind of number: the rest is what
-    /// the client reported gaining, this is what the relics in the bag WILL pay once exchanged.
-    /// Exchanging them makes the client report that payout as an ordinary AP gain, at which point
-    /// the same AP is in the total twice; seeing the relic share is what makes that visible
-    /// instead of silently inflating the figure.</summary>
+    /// <summary>AP the relics currently in this player's bag will pay out once exchanged (see
+    /// Data/RelicApDatabase) -- shown on its own, not folded into the session's real AP total,
+    /// because the two are not the same kind of number: this is a projection, not AP already
+    /// earned, and it's what decides who still needs relics handed to them before the group
+    /// exchanges.</summary>
     public long? RelicAp
     {
         get => _relicAp;
         set { _relicAp = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); }
     }
 
-    public string ApDisplay => Ap is not long ap
-        ? ""
-        : RelicAp is long relic && relic > 0
-            ? $"AP: {ap:N0} ({relic:N0} Rel.)"
-            : $"AP: {ap:N0}";
+    /// <summary>Per the user: only the relic share, not the combined total -- this line's whole
+    /// purpose is deciding who still needs relics handed to them before the group exchanges them,
+    /// and a number that mixes in already-earned AP obscures exactly that. Blank once the relics
+    /// are exchanged (RelicAp drops back to 0/null), same as any player who never picked one up.</summary>
+    public string ApDisplay => RelicAp is long relic && relic > 0
+        ? $"Relic AP: {relic:N0}"
+        : "";
 
     public PlayerRow(int objectId)
     {

@@ -330,7 +330,17 @@
                         <MenuItem Header="{local:Loc Main.MenuApp.Close}" Click="OnCloseClicked"/>
                     </MenuItem>
                     <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="#e8e8ea">
-                        <MenuItem Header="{local:Loc Main.MenuSession.None}" IsEnabled="False"/>
+                        <!-- Uploads exactly the currently filtered boss - same action as the
+                             Damage view's Upload button (OnUploadCurrentBossClicked), reachable
+                             here too since the button only shows in that one view. -->
+                        <MenuItem Header="{local:Loc Main.MenuSession.UploadBoss}" Click="OnUploadCurrentBossClicked"
+                                  ToolTip="Uploads the fight currently selected in the Mob/Boss filter to dpsmeter.skeeve.tv."/>
+                        <!-- Everything the Mob/Boss filter has accumulated since the last Clear -
+                             one upload request per boss, so a group that split the upload across
+                             its members still gets recognized as one run server-side (see
+                             backend/src/matching/merge.ts). -->
+                        <MenuItem Header="{local:Loc Main.MenuSession.UploadRun}" Click="OnUploadLastRunClicked"
+                                  ToolTip="Uploads every boss fight recorded since the last Clear, one by one, to dpsmeter.skeeve.tv."/>
                     </MenuItem>
                     <!-- Consolidated here from the App menu, per the user's request - App had
                          become a long, mixed grab-bag of session/dev/settings items; splitting
@@ -512,6 +522,14 @@
                               ToolTip="Filter by target. 'All' sums damage across every target seen.">
                         <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
                     </ComboBox>
+                    <!-- Uploads exactly the boss the Mob/Boss filter above is currently showing -
+                         per the user's request for a Damage-view button next to the Session menu's
+                         "upload last run" item. Hidden in the Loot view (see OnShowDamageView/
+                         OnShowLootView) since a target filter has no meaning there. -->
+                    <Button x:Name="UploadBossButton" Click="OnUploadCurrentBossClicked" Margin="8,0,0,0" Padding="6,4"
+                            ToolTip="Uploads this boss fight to dpsmeter.skeeve.tv.">
+                        <TextBlock Text="{local:Loc Main.UploadButton}" VerticalAlignment="Center"/>
+                    </Button>
                 </StackPanel>
 
                 <!-- Bottom status row, per the user: connection/Chat.log status removed ("Die Infos
@@ -556,6 +574,12 @@
                                MouseLeftButtonUp="OnUpdateNoticeClicked"
                                TextDecorations="Underline"
                                ToolTip="A newer version is available - click to download and install it."/>
+
+                    <!-- Quiet result line for the two upload actions (Session menu + the Damage
+                         view's Upload button) - same reasoning as UpdateNotice above: this window
+                         sits on top of a running fight, so a result never pops a modal dialog. -->
+                    <TextBlock x:Name="UploadStatusText" Visibility="Collapsed" VerticalAlignment="Center"
+                               Margin="16,0,8,0" Foreground="#9a9aa2"/>
                 </StackPanel>
 
                 <!-- Left nav rail: mirrors MyAion's 5 view icons. Only "Damage Distribution" has a
@@ -721,26 +745,47 @@
         <!-- ================= Hide-UI overlay mode ================= -->
         <!-- Collapsed by default. Everything behind the window shows through (Window.Background
              is Transparent and NormalContent is hidden while this is visible); only a small dark
-             chip per player stays visible, matching what the user described from the reference
-             tool. See OnHideUiClicked / NativeOverlay.cs for the click-through + hotkey handling
-             that makes this safe to use over the actual game window. -->
+             chip per player stays visible. See OnHideUiClicked / NativeOverlay.cs for the
+             click-through + hotkey handling that makes this safe to use over the actual game
+             window.
+             Per the user ("im Transparenten Modus identisch anzeigen, nur ohne UI Rahmen"): each
+             chip now mirrors PlayersGrid's own two columns - faction + class icon, name, then
+             Damage/DPS on one line with the RelicAp line underneath - instead of the old single
+             "Name: Damage dmg (DPS)" text line, so switching modes doesn't also change what
+             information is visible. It's the same content minus the window chrome (title bar,
+             menu, toolbar, column headers, borders), not a different view. -->
         <ItemsControl x:Name="OverlayContent" Visibility="Collapsed" Background="Transparent"
                       HorizontalAlignment="Left" VerticalAlignment="Top">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Background="#99000000" CornerRadius="3" Margin="2" Padding="6,2">
-                        <TextBlock Foreground="White" FontWeight="Bold" FontSize="12">
-                            <TextBlock.Text>
-                                <!-- The thousands separator has to live in this MultiBinding's own
-                                     format string: WPF ignores StringFormat on a child Binding of a
-                                     MultiBinding, which is why the overlay showed raw "360832". -->
-                                <MultiBinding StringFormat="{}{0}: {1:N0} dmg ({2} DPS)">
-                                    <Binding Path="Name"/>
-                                    <Binding Path="Damage"/>
-                                    <Binding Path="DpsDisplay"/>
-                                </MultiBinding>
-                            </TextBlock.Text>
-                        </TextBlock>
+                    <Border Margin="2" Padding="6,3" CornerRadius="3">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#99000000"/>
+                                <Style.Triggers>
+                                    <!-- Same rule as PlayersGrid.RowStyle, so an enemy row reads
+                                         the same way in both modes. -->
+                                    <DataTrigger Binding="{Binding IsEnemy}" Value="True">
+                                        <Setter Property="Background" Value="#994a1f24"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
+                                       Height="16" Width="16" Margin="0,0,4,0"/>
+                                <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
+                                       Height="16" Width="16" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding Name}" Foreground="White" FontWeight="Bold"
+                                           FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding Damage, StringFormat=N0}" Foreground="White"
+                                           FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding DpsDisplay}" Foreground="#c8c8ce" FontSize="10"
+                                           Margin="6,0,0,0" VerticalAlignment="Bottom"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding ApDisplay}" Foreground="#c8c8ce" FontSize="10"/>
+                        </StackPanel>
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

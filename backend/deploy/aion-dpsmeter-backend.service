@@ -1,0 +1,21 @@
+[Unit]
+Description=Aion DPS-Meter - Backend API + Leaderboard Frontend
+After=network.target
+
+[Service]
+Type=simple
+User=aion-dpsmeter
+Group=aion-dpsmeter
+WorkingDirectory=/opt/dpsmeter/backend
+EnvironmentFile=/opt/dpsmeter/backend/.env
+ExecStart=/opt/dpsmeter/backend/node_modules/.bin/tsx /opt/dpsmeter/backend/src/index.ts
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/dpsmeter/backend/data
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

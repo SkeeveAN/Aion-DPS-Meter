@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Stabiles Bootstrap-Skript - wird 1:1 (nicht als Symlink!) nach
+# /usr/local/bin/dpsmeter_install kopiert und bleibt bewusst unverändert
+# liegen, solange sich nicht sein eigener Ablauf ändert.
+#
+# Zieht den aktuellen main-Branch nach /opt/dpsmeter und übergibt danach
+# per `exec` an backend/deploy/install-backend.sh - als frisch gestarteter
+# Prozess, der die gerade aktualisierte Datei von Anfang an liest. So kann
+# sich das eigentliche Installationsskript beliebig ändern, ohne dass sich
+# ein laufendes Bash mitten in der Ausführung selbst unter den Füßen wegzieht.
+set -euo pipefail
+
+REPO_DIR="/opt/dpsmeter"
+REPO_URL="https://github.com/SkeeveAN/Aion-DPS-Meter.git"
+SERVICE_USER="aion-dpsmeter"
+
+if [[ "$EUID" -ne 0 ]]; then
+  echo "dpsmeter_install muss als root laufen." >&2
+  exit 1
+fi
+
+if ! id -u "$SERVICE_USER" >/dev/null 2>&1; then
+  echo "==> Lege Systemuser $SERVICE_USER an..."
+  useradd --system --create-home --shell /usr/sbin/nologin "$SERVICE_USER"
+fi
+
+if [[ ! -d "$REPO_DIR/.git" ]]; then
+  echo "==> Noch kein Git-Checkout unter $REPO_DIR gefunden, klone frisch..."
+  mkdir -p "$REPO_DIR"
+  chown "$SERVICE_USER:$SERVICE_USER" "$REPO_DIR"
+  su - "$SERVICE_USER" -s /bin/bash -c "git clone --branch main '$REPO_URL' '$REPO_DIR'"
+fi
+
+echo "==> Hole aktuellen Code..."
+su - "$SERVICE_USER" -s /bin/bash -c "
+  set -e
+  cd '$REPO_DIR'
+  git fetch origin
+  git reset --hard origin/main
+"
+
+exec bash "$REPO_DIR/backend/deploy/install-backend.sh"

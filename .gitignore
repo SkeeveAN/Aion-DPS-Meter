@@ -11,3 +11,11 @@ captures/
 # Build output of the release flow (dotnet publish -o publish, then the MSI into dist/).
 publish/
 dist/
+
+# Backend (Node/TypeScript, see backend/)
+node_modules/
+backend/data/*.sqlite
+backend/data/*.sqlite-*
+backend/.env
+backend/.env.*
+!backend/.env.example

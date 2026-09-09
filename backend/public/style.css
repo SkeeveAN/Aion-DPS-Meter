@@ -1,0 +1,157 @@
+:root {
+  color-scheme: dark;
+  --bg: #1e1e24;
+  --bg-alt: #26262e;
+  --border: #3a3a45;
+  --text: #e8e8ea;
+  --text-dim: #9a9aa2;
+  --accent: #69e15e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+header .logo {
+  width: 32px;
+  height: 32px;
+}
+
+header h1 {
+  font-size: 18px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.search {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.search input {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  min-width: 200px;
+}
+
+.search button,
+select,
+.link-button {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.breadcrumb {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.breadcrumb a {
+  color: var(--text-dim);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+main {
+  padding: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+h2 {
+  font-size: 16px;
+  margin: 20px 0 8px;
+}
+
+ul.plain {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+ul.plain li a {
+  display: block;
+  padding: 8px 10px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+ul.plain li a:hover {
+  border-color: var(--accent);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  color: var(--text-dim);
+  font-weight: normal;
+}
+
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.class-block {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.class-block h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.empty {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.error {
+  color: #ff6b6b;
+}
