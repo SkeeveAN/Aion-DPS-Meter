@@ -93,9 +93,11 @@ export async function bossRoutes(app: FastifyInstance) {
         .limit(TOP_N)
         .all();
 
-      // The representative shown on a group's row - highest damage dealer, same "who's the face
-      // of this run" choice as picking roster[0] once sorted by damage, per participant, below.
-      const groupsWithRepresentative = topGroups.map((group) => {
+      // roster carries every member's name (per the user: a group row must show everyone, not
+      // just one "face of this run") - representative (highest damage dealer, roster[0] once
+      // sorted by damage) is kept alongside it only for the Buffs column, which shows one
+      // person's top skills rather than the whole group's.
+      const groupsWithRoster = topGroups.map((group) => {
         const roster = db
           .select({
             participantId: encounterParticipants.id,
@@ -104,6 +106,7 @@ export async function bossRoutes(app: FastifyInstance) {
             faction: encounterParticipants.faction,
             totalDamage: encounterParticipants.totalDamage,
             totalHealing: encounterParticipants.totalHealing,
+            damageTaken: encounterParticipants.damageTaken,
           })
           .from(encounterParticipants)
           .innerJoin(players, eq(encounterParticipants.playerId, players.id))
@@ -124,16 +127,17 @@ export async function bossRoutes(app: FastifyInstance) {
           playerCount: roster.length,
           totalDamage,
           totalHealing,
+          roster,
           representative,
         };
       });
 
       const topSkills = topSkillsByParticipant(
-        groupsWithRepresentative
+        groupsWithRoster
           .map((g) => g.representative?.participantId)
           .filter((id): id is number => id != null),
       );
-      const topGroupsWithSkills = groupsWithRepresentative.map((g) => ({
+      const topGroupsWithSkills = groupsWithRoster.map((g) => ({
         ...g,
         representative: g.representative
           ? { ...g.representative, topSkills: topSkills.get(g.representative.participantId) ?? [] }

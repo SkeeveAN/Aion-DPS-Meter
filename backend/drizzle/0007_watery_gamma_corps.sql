@@ -1,0 +1,1 @@
+ALTER TABLE `encounter_participants` ADD `damage_taken` integer DEFAULT 0 NOT NULL;

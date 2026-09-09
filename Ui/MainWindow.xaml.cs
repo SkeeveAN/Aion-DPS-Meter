@@ -1306,9 +1306,18 @@ public partial class MainWindow : Window
             // this exact line.
             long totalDamage = hitsOnBoss.Sum(e => e.Amount);
 
+            // The opposite direction from hitsOnBoss above: what the BOSS did to this row, over the
+            // same window - answers "who ate the boss's damage" (aggro/tank checks), which
+            // totalDamage (dealt TO the boss) cannot. Windowed the same way healsBySelf is, not
+            // targetHits-derived, since the boss is the SOURCE here, not the target.
+            long damageTaken = _aggregator.Events
+                .Where(e => !e.IsHeal && e.SourceObjectId == targetId && e.TargetObjectId == row.ObjectId
+                    && e.Timestamp >= windowStart && e.Timestamp <= windowEnd)
+                .Sum(e => e.Amount);
+
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
-                totalDamage, idps, idps, totalHealing, hps, skills, healSkills));
+                totalDamage, idps, idps, totalHealing, hps, skills, healSkills, damageTaken));
         }
 
         // The backend requires exactly one isSelf participant per upload (see uploadSchema.ts) -

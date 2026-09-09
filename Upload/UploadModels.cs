@@ -31,7 +31,13 @@ public sealed record ParticipantUpload(
     long TotalHealing,
     double Hps,
     IReadOnlyList<SkillUsageUpload> Skills,
-    IReadOnlyList<SkillUsageUpload> HealSkills);
+    IReadOnlyList<SkillUsageUpload> HealSkills,
+    // How much of the BOSS's own damage output this row ate, over the same window TotalDamage was
+    // computed for - the opposite direction from TotalDamage (dealt TO the boss). Per the user: the
+    // web frontend's damage-distribution chart is meant to show who took the boss's hits, not who
+    // hit the boss - a different question a raid needs answered (aggro/tank checks) that the
+    // existing dealt-damage total cannot answer.
+    long DamageTaken = 0);
 
 /// <summary>One boss encounter, as sent to POST /api/uploads. The backend recognizes the same real
 /// fight across several independent uploads (one per group member) by boss + time window + roster

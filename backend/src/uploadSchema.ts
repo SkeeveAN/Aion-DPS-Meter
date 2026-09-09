@@ -26,6 +26,12 @@ export const participantSchema = z.object({
   hps: z.number().min(0).max(5_000_000),
   skills: z.array(skillUsageSchema).max(80),
   healSkills: z.array(skillUsageSchema).max(80),
+  // Opposite direction from totalDamage (dealt TO the boss) - how much of the boss's own damage
+  // this row ate, for the frontend's damage-distribution chart (see routes/encounters.ts).
+  // Defaulted, not required: an older client that predates this field must keep uploading
+  // successfully during the rollout window before everyone has auto-updated (see Update/
+  // UpdateService.cs - the client is Velopack-managed, not instant), just without this number yet.
+  damageTaken: z.number().int().min(0).max(2_000_000_000).default(0),
 });
 
 export const uploadSchema = z.object({

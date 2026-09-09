@@ -195,6 +195,7 @@ function insertParticipant(
       idps: participant.idps,
       totalHealing: participant.totalHealing,
       hps: participant.hps,
+      damageTaken: participant.damageTaken,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
     })
@@ -221,6 +222,7 @@ function overwriteParticipant(participantId: number, participant: ParticipantUpl
       idps: participant.idps,
       totalHealing: participant.totalHealing,
       hps: participant.hps,
+      damageTaken: participant.damageTaken,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
     })

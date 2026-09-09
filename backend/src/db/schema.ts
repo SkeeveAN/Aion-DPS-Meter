@@ -186,6 +186,11 @@ export const encounterParticipants = sqliteTable(
     // can crit too, so overloading it would silently conflate two different rates.
     totalHealing: integer("total_healing").notNull().default(0),
     hps: real("hps").notNull().default(0),
+    // Opposite direction from totalDamage (dealt TO the boss) - how much of the boss's own damage
+    // this participant absorbed, over the same window. Powers the frontend's damage-distribution
+    // chart (who ate the boss's hits, not who hit the boss - an aggro/tank question totalDamage
+    // cannot answer). Defaults to 0 for rows from a client older than this column.
+    damageTaken: integer("damage_taken").notNull().default(0),
     critRatePercent: real("crit_rate_percent").notNull(),
     // True once this participant's own upload (isSelf) supplied the crit rate -
     // Aion only flags crits reliably in the scorer's own log (see the client's

@@ -253,14 +253,25 @@ async function renderBosses(instanceId) {
 }
 
 // Faction + class icon + name in one cell - matches myaion.eu's own combined "Player" column
-// rather than the three separate ones the old accordion-based rosterTable used, which is also why
-// this single helper now covers both the boss leaderboard's group rows AND an encounter's own
-// roster (see rankedRow/rankedTable below), not two parallel almost-identical implementations.
+// rather than the three separate ones the old accordion-based rosterTable used. Used for a single
+// person (an encounter's own roster, or one solo attempt) - see groupPlayersCell below for the
+// boss leaderboard's group rows, which need to show every member, not just one.
 function playerCell(faction, className, name, href) {
   return el(
     "span",
     { className: "icon-label" },
     [factionIcon(faction), classIcon(className), href ? link(name, href) : name].filter((x) => x != null),
+  );
+}
+
+// Per the user: a top-10-groups row must show every group member, not just one "face of this
+// run" - each name still links to the same encounter (there's no single-player page a group row
+// could point at instead).
+function groupPlayersCell(roster, encounterId) {
+  return el(
+    "span",
+    { className: "group-players" },
+    (roster ?? []).map((p) => playerCell(p.faction, p.className, p.playerName, `#/encounters/${encounterId}`)),
   );
 }
 
@@ -275,13 +286,15 @@ function buffsCell(topSkills) {
   );
 }
 
-// One ranked entry - either one of a boss's top 10 groups (represented by its top damage dealer)
-// or one member of a single encounter's own roster; both need the same rank/player/DPS/DMG/
-// Heal/Buffs shape, so both render through this one row and its table wrapper.
-function rankedRow(rank, faction, className, name, href, dps, dmg, heal, topSkills) {
+// One ranked entry - either one of a boss's top 10 groups, one member of a single encounter's own
+// roster, or one solo attempt; all three need the same rank/player-cell/DPS/DMG/Heal/Buffs shape,
+// so all three render through this one row and its table wrapper. playerCellNode is a prebuilt DOM
+// node (playerCell for one person, groupPlayersCell for a whole group) rather than raw fields,
+// since a group row's "player" column is structurally different (many people, not one).
+function rankedRow(rank, playerCellNode, dps, dmg, heal, topSkills) {
   return el("tr", {}, [
     el("td", { textContent: `${rank}` }),
-    el("td", {}, [playerCell(faction, className, name, href)]),
+    el("td", {}, [playerCellNode]),
     el("td", { textContent: formatNumber(dps) }),
     el("td", { textContent: formatNumber(dmg) }),
     el("td", { textContent: formatNumber(heal) }),
@@ -331,10 +344,7 @@ async function renderLeaderboard(bossId) {
           const rows = data.topByClass[className].map((p, i) =>
             rankedRow(
               i + 1,
-              p.faction,
-              className,
-              p.playerName,
-              `#/encounters/${p.encounterId}`,
+              playerCell(p.faction, className, p.playerName, `#/encounters/${p.encounterId}`),
               p.idps,
               p.totalDamage,
               p.totalHealing,
@@ -361,10 +371,7 @@ async function renderLeaderboard(bossId) {
   const rows = data.topGroups.map((g, i) =>
     rankedRow(
       i + 1,
-      g.representative?.faction,
-      g.representative?.className,
-      g.representative?.playerName ?? "?",
-      `#/encounters/${g.encounterId}`,
+      groupPlayersCell(g.roster, g.encounterId),
       g.groupIDps,
       g.totalDamage,
       g.totalHealing,
@@ -393,16 +400,16 @@ function metaRow(label, value) {
   return el("tr", {}, [el("td", { textContent: label }), el("td", { textContent: value })]);
 }
 
-// Damage each roster member dealt to the boss, as a share of the group's combined damage - same
-// idea as myaion.eu's "Damage Contribution" chart, computed straight from the roster this page
-// already has (totalDamage is already scoped to hits on this specific boss, see the client's
-// BuildEncounterUpload), no separate endpoint needed.
+// Per the user: this chart is about the BOSS's damage, not the group's - who ate the boss's hits
+// (damageTaken, an aggro/tank question), not who hit the boss (totalDamage, already shown in the
+// roster table above). damageTaken is 0 for every row from a client older than the field itself
+// (see uploadSchema.ts) - such an encounter just renders an all-zero chart rather than erroring.
 function damageDistributionChart(roster) {
-  const total = roster.reduce((sum, p) => sum + p.totalDamage, 0);
+  const total = roster.reduce((sum, p) => sum + p.damageTaken, 0);
   const rows = [...roster]
-    .sort((a, b) => b.totalDamage - a.totalDamage)
+    .sort((a, b) => b.damageTaken - a.damageTaken)
     .map((p) => {
-      const pct = total > 0 ? (p.totalDamage / total) * 100 : 0;
+      const pct = total > 0 ? (p.damageTaken / total) * 100 : 0;
       return el("div", { className: "contribution-row" }, [
         el("div", { className: "contribution-label", textContent: `${p.playerName} - ${pct.toFixed(1)}%` }),
         el("div", { className: "contribution-track" }, [
@@ -444,7 +451,14 @@ async function renderEncounter(encounterId) {
   ]);
 
   const rosterRows = data.roster.map((p, i) =>
-    rankedRow(i + 1, p.faction, p.className, p.playerName, `#/participants/${p.participantId}`, p.idps, p.totalDamage, p.totalHealing, p.topSkills),
+    rankedRow(
+      i + 1,
+      playerCell(p.faction, p.className, p.playerName, `#/participants/${p.participantId}`),
+      p.idps,
+      p.totalDamage,
+      p.totalHealing,
+      p.topSkills,
+    ),
   );
 
   app.replaceChildren(

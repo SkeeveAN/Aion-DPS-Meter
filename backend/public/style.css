@@ -326,6 +326,15 @@ h3 .icon-label {
   vertical-align: middle;
 }
 
+/* A top-10-groups row's "Player" cell - every member's icon-label, not just one representative
+   (see app.js groupPlayersCell). */
+.group-players {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 4px;
+  column-gap: 14px;
+}
+
 .buffs-row {
   display: flex;
   flex-wrap: wrap;

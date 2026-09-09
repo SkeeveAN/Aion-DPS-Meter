@@ -50,6 +50,13 @@
       "when": 1788983330169,
       "tag": "0006_dry_monster_badoon",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1788985546152,
+      "tag": "0007_watery_gamma_corps",
+      "breakpoints": true
     }
   ]
 }
