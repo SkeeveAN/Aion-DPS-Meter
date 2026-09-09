@@ -1253,10 +1253,18 @@ public partial class MainWindow : Window
 
             long totalHealing = healsBySelf.Sum(e => e.Amount);
             double hps = totalHealing / durationSeconds;
+            // NOT row.Damage: that field tracks whatever the Mob/Boss filter currently has
+            // selected (see RefreshRows), so it silently went stale/wrong whenever an upload ran
+            // while a different filter was active than when the fight itself happened. hitsOnBoss
+            // is already independently scoped to exactly this targetId, the same data idps/skills
+            // above are already computed from - a real upload bug (two uploads for the same fight
+            // reporting wildly different totalDamage but identical, correct idps) traced back to
+            // this exact line.
+            long totalDamage = hitsOnBoss.Sum(e => e.Amount);
 
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
-                row.Damage, idps, idps, totalHealing, hps, skills, healSkills));
+                totalDamage, idps, idps, totalHealing, hps, skills, healSkills));
         }
 
         if (participants.Count == 0)
