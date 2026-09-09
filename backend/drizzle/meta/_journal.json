@@ -22,6 +22,13 @@
       "when": 1788952483839,
       "tag": "0002_add_heal_tracking_drop_ap_total",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1788953643733,
+      "tag": "0003_acoustic_cannonball",
+      "breakpoints": true
     }
   ]
 }

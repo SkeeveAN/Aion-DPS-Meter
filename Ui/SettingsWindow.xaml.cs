@@ -11,6 +11,11 @@ public partial class SettingsWindow : Window
     private string? _aionInstallFolder;
     private readonly List<CharacterProfile> _characters;
 
+    /// <summary>Loaded once, asynchronously, right after the window opens - see LoadServerCatalogAsync.
+    /// Empty until that finishes (or if the backend is unreachable), in which case
+    /// NewCharacterServerBox is simply empty rather than blocking the whole dialog on a network call.</summary>
+    private List<AionSniffer.Server.ServerCatalogEntry> _serverCatalog = new();
+
     public SettingsWindow(MeterSettings settings)
     {
         InitializeComponent();
@@ -25,6 +30,7 @@ public partial class SettingsWindow : Window
                 Faction = c.Faction,
                 ServerFingerprint = c.ServerFingerprint,
                 ServerDisplayName = c.ServerDisplayName,
+                ServerVersion = c.ServerVersion,
             })
             .ToList();
 
@@ -57,6 +63,8 @@ public partial class SettingsWindow : Window
         UpdateAionFolderStatus();
         UpdateServerFingerprint();
         ServerDisplayNameBox.Text = settings.ServerDisplayName ?? "";
+
+        _ = LoadServerCatalogAsync();
 
         RefreshCharacterLists();
         if (settings.ActiveCharacterName is string activeName && _characters.Any(c => c.Name == activeName))
@@ -92,11 +100,38 @@ public partial class SettingsWindow : Window
         }
     }
 
+    /// <summary>
+    /// Fetched once when the window opens. On success, populates NewCharacterServerBox - done here
+    /// rather than blocking the constructor, since a slow/unreachable backend must not delay the
+    /// whole Settings dialog opening for a picker that only matters when actually adding a
+    /// character.
+    /// </summary>
+    private async Task LoadServerCatalogAsync()
+    {
+        _serverCatalog = await AionSniffer.Server.ServerCatalogClient.FetchAsync();
+
+        NewCharacterServerBox.Items.Clear();
+        foreach (var entry in _serverCatalog)
+        {
+            NewCharacterServerBox.Items.Add(new ComboBoxItem { Content = entry.ToString(), Tag = entry });
+        }
+    }
+
     private void OnAddCharacterClicked(object sender, RoutedEventArgs e)
     {
         string name = NewCharacterNameBox.Text.Trim();
         if (name.Length == 0)
         {
+            return;
+        }
+
+        // Per the user: which server a character is on is now a required, explicit pick from the
+        // backend's curated list, not something silently stamped in the background - refusing the
+        // Add here (rather than falling back to "unknown") is what actually makes it required.
+        if (NewCharacterServerBox.SelectedItem is not ComboBoxItem { Tag: AionSniffer.Server.ServerCatalogEntry server })
+        {
+            MessageBox.Show(this, "Please pick which server this character is on first.",
+                "Add character", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -111,18 +146,12 @@ public partial class SettingsWindow : Window
             ClassName = className,
             Faction = faction,
             ServerFingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
-            ServerDisplayName = CurrentServerDisplayNameOrNull(),
+            ServerDisplayName = server.Name,
+            ServerVersion = server.Version,
         });
         NewCharacterNameBox.Text = "";
         RefreshCharacterLists();
     }
-
-    /// <summary>Per the user: a character's server is stamped automatically, from whatever is
-    /// currently detected for the Aion Installation section above (see ServerIdentity.cs) - not
-    /// typed by hand, since a character can't actually exist on a different server than the one its
-    /// own client connects to.</summary>
-    private string? CurrentServerDisplayNameOrNull() =>
-        string.IsNullOrWhiteSpace(ServerDisplayNameBox.Text) ? null : ServerDisplayNameBox.Text.Trim();
 
     /// <summary>
     /// Picking a character loads it into the fields above, so Update has something to work from
@@ -138,7 +167,22 @@ public partial class SettingsWindow : Window
         NewCharacterNameBox.Text = selected.Name;
         SelectByTag(NewCharacterClassBox, selected.ClassName);
         SelectByTag(NewCharacterFactionBox, selected.Faction);
+
+        // Best-effort: if the catalog hasn't finished loading yet, or this character predates the
+        // picker and has no name/version to match, this simply leaves nothing selected rather than
+        // guessing - OnUpdateCharacterClicked already falls back to the character's existing value
+        // in that case instead of wiping it out.
+        NewCharacterServerBox.SelectedItem = NewCharacterServerBox.Items
+            .OfType<ComboBoxItem>()
+            .FirstOrDefault(item => item.Tag is AionSniffer.Server.ServerCatalogEntry entry
+                && entry.Name == selected.ServerDisplayName && entry.Version == selected.ServerVersion);
     }
+
+    /// <summary>Used only for the Aion Installation section's own install-level display name, not
+    /// per-character (see OnAddCharacterClicked/OnUpdateCharacterClicked for those - they read a
+    /// pick from NewCharacterServerBox instead).</summary>
+    private string? CurrentServerDisplayNameOrNull() =>
+        string.IsNullOrWhiteSpace(ServerDisplayNameBox.Text) ? null : ServerDisplayNameBox.Text.Trim();
 
     private static void SelectByTag(ComboBox box, string tag)
     {
@@ -181,13 +225,16 @@ public partial class SettingsWindow : Window
         }
 
         string previousName = _characters[index].Name;
-        // Server fields keep their existing value rather than always re-stamping from whatever is
-        // currently detected: a character belongs to exactly one server permanently, and blindly
-        // overwriting it here would misattribute an existing character to a different server the
-        // moment someone points the Aion Installation section above at a different install to
-        // register a second character. Only backfills when nothing was recorded yet (a character
-        // added before this field existed, or before any Aion folder was configured).
+        // The technical fingerprint keeps its existing value rather than always re-stamping from
+        // whatever is currently detected: blindly overwriting it here would misattribute an
+        // existing character to a different server the moment someone points the Aion Installation
+        // section above at a different install to register a second character. The catalog pick
+        // (name/version) DOES update if the user picked something in NewCharacterServerBox - see
+        // OnCharacterSelected, which pre-selects the character's current pick so editing something
+        // else (e.g. fixing a class) doesn't require re-picking the server too, but explicitly
+        // choosing a different one here is exactly how a wrong pick gets corrected.
         CharacterProfile previous = _characters[index];
+        var pickedServer = (NewCharacterServerBox.SelectedItem as ComboBoxItem)?.Tag as AionSniffer.Server.ServerCatalogEntry;
         _characters[index] = new CharacterProfile
         {
             Name = name,
@@ -195,7 +242,8 @@ public partial class SettingsWindow : Window
             Faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
             ServerFingerprint = previous.ServerFingerprint
                 ?? AionSniffer.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
-            ServerDisplayName = previous.ServerDisplayName ?? CurrentServerDisplayNameOrNull(),
+            ServerDisplayName = pickedServer?.Name ?? previous.ServerDisplayName,
+            ServerVersion = pickedServer?.Version ?? previous.ServerVersion,
         };
 
         // The active character is stored by name, so a rename has to carry it along or the

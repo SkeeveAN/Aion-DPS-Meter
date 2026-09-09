@@ -8,6 +8,22 @@ import {
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
+// A curated, human-facing reference list of real Aion servers (official and private, researched
+// against actual server sites/rankings) - deliberately separate from `servers` below. That table
+// is auto-populated from a technical fingerprint the moment an upload arrives; this one exists so
+// the CLIENT can offer "which server is this character on" as a picker (name + patch version)
+// when a character is registered, before that character has ever uploaded anything at all. Seeded
+// by migration, not user-editable from the client.
+export const serverCatalog = sqliteTable("server_catalog", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
+  // Free text on purpose ("4.6", "4.6.2", "7.7", "1.2-2.5") - private servers don't share one
+  // numbering scheme, so forcing this into a structured major/minor pair would misrepresent some
+  // of them.
+  version: text("version").notNull(),
+  kind: text("kind", { enum: ["official", "private"] }).notNull(),
+});
+
 // Per-private-server identity. Gear/rate standards differ completely between servers (per the
 // user: EuroAion is nowhere near this server's gear level), so any table with real run data --
 // players, encounters -- must be scoped to one of these and never merged or leaderboarded across

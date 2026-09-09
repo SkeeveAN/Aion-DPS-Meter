@@ -305,6 +305,17 @@
                                 <ComboBoxItem Tag="Asmodian" AutomationProperties.Name="Asmodian" ToolTip="Asmodian"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/races/icons/Asmodian.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Asmodian" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                             </ComboBox>
                         </StackPanel>
+                        <!-- Per the user: which server a character is on is now a required, explicit
+                             pick from the backend's curated list (GET /api/server-catalog), not
+                             free text or a silent auto-stamp - own row, since Name/Class/Faction
+                             above already fill the dialog's width. Populated asynchronously by
+                             LoadServerCatalogAsync; empty (not broken) if the backend is briefly
+                             unreachable when the dialog opens. -->
+                        <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
+                            <TextBlock Text="Server:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <ComboBox x:Name="NewCharacterServerBox" Width="280"
+                                      ToolTip="Which real server this character is on - required, since two different servers' characters/runs must never be confused with each other."/>
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
                             <Button Content="{local:Loc Settings.Add}" Click="OnAddCharacterClicked" Width="70" Margin="0,0,6,0"
                                     ToolTip="Registers the name above as a new character."/>

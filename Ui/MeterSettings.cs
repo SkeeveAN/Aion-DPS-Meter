@@ -17,28 +17,38 @@ public sealed class CharacterProfile
     /// in that case, it just cannot put a name to either.</summary>
     public string Faction { get; set; } = "";
 
-    /// <summary>Per the user: a character belongs to exactly one server, so the list needs to say
-    /// which -- someone with characters on two different private servers could otherwise register
-    /// the same name twice with no way to tell the entries apart. Stamped automatically from
-    /// whatever Server/ServerIdentity.cs currently detects for the configured Aion install folder
-    /// (see SettingsWindow's Add/Update handlers), not typed by hand: a character can't actually
-    /// exist on a server other than the one its own client connects to, so asking the user to enter
-    /// this manually would only add a chance to get it wrong. Null for a character added before
-    /// this field existed, or before any Aion folder was configured.</summary>
+    /// <summary>The technical server identity (see Server/ServerIdentity.cs), auto-stamped from
+    /// whatever config.ini currently reports for the configured Aion install folder at the moment
+    /// this character is added -- separate from the user's own <see cref="ServerDisplayName"/>/
+    /// <see cref="ServerVersion"/> pick below, which is what actually gets shown. Not typed by
+    /// hand: a character can't actually exist on a server other than the one its own client
+    /// connects to. Null for a character added before this field existed, or before any Aion
+    /// folder was configured.</summary>
     public string? ServerFingerprint { get; set; }
 
-    /// <summary>Cosmetic label for <see cref="ServerFingerprint"/>, same snapshot-at-add-time
-    /// origin as MeterSettings.ServerDisplayName -- kept alongside the character so the list still
-    /// reads as a name (e.g. "Origin Aion") even if the install folder's own label changes later.</summary>
+    /// <summary>Per the user: a character belongs to exactly one server, and which one is now a
+    /// required, explicit choice from the backend's curated server list (GET /api/server-catalog -
+    /// see Server/ServerCatalogClient.cs), not free text -- someone with characters on two
+    /// different private servers could otherwise register the same name twice with no way to tell
+    /// the entries apart, or mistype a name the backend's own list already has the correct spelling
+    /// for. Null only for a character registered before this picker existed.</summary>
     public string? ServerDisplayName { get; set; }
 
-    /// <summary>What the character list actually displays, parens and all: the friendly name when
-    /// there is one, the raw fingerprint as a fallback (still better than nothing), or blank for a
-    /// character predating server tracking -- never a fabricated guess. Pre-formatted here rather
-    /// than via a XAML converter, same reasoning as PlayerRow.ApDisplay: an empty string renders as
-    /// nothing, which is simpler than a StringFormat + visibility-converter pair for the same
-    /// result.</summary>
-    public string ServerLabel => (ServerDisplayName ?? ServerFingerprint) is string label ? $" ({label})" : "";
+    /// <summary>The chosen catalog entry's patch version (e.g. "4.6") - kept alongside the name
+    /// since private servers don't share one numbering scheme and the version is exactly the fact
+    /// that tells two same-named-era servers apart.</summary>
+    public string? ServerVersion { get; set; }
+
+    /// <summary>What the character list actually displays, parens and all: name+version when both
+    /// are known (the normal case for anything registered through the catalog picker), the name
+    /// alone, the raw technical fingerprint as a last-resort fallback (still better than nothing),
+    /// or blank for a character predating server tracking entirely -- never a fabricated guess.
+    /// Pre-formatted here rather than via a XAML converter, same reasoning as PlayerRow.ApDisplay:
+    /// an empty string renders as nothing, simpler than a StringFormat + visibility-converter pair
+    /// for the same result.</summary>
+    public string ServerLabel => ServerDisplayName is string name
+        ? ServerVersion is string version ? $" ({name} {version})" : $" ({name})"
+        : ServerFingerprint is string fingerprint ? $" ({fingerprint})" : "";
 }
 
 /// <summary>

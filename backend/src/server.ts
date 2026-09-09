@@ -10,6 +10,7 @@ import { instanceRoutes } from "./routes/instances.js";
 import { bossRoutes } from "./routes/bosses.js";
 import { playerRoutes } from "./routes/players.js";
 import { serverRoutes } from "./routes/servers.js";
+import { serverCatalogRoutes } from "./routes/serverCatalog.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,6 +31,7 @@ export async function buildServer() {
   await app.register(bossRoutes);
   await app.register(playerRoutes);
   await app.register(serverRoutes);
+  await app.register(serverCatalogRoutes);
 
   await app.register(staticPlugin, {
     root: path.join(__dirname, "..", "public"),
