@@ -778,9 +778,30 @@ export function formatDate(date) {
 // confirmed via Aion Wiki/Codex, de via the actual game client's own strings) - an unmapped name
 // is left exactly as the DB has it rather than guessing a translation, same "never guess" rule
 // the backend itself follows for instance/boss assignment.
+// Verified straight from the game client's own Strings/client_strings_dic_place.xml (all 8
+// L10N/<lang>/Data/data.pak, joined by the client's own <id> - see assets/README.md) rather than
+// guessed or machine-translated.
 const GAME_NAME_TRANSLATIONS = {
-  "Stahlrose: Anlegestelle": { en: "Steel Rose Cargo", de: "Stahlrose: Anlegestelle" },
-  "Stahlrose: Kabine": { en: "Steel Rose Quarters", de: "Stahlrose: Kabine" },
+  "Stahlrose: Anlegestelle": {
+    en: "Steel Rose Cargo",
+    de: "Stahlrose: Anlegestelle",
+    fr: "Embarcadère de la Rose d'acier",
+    es: "Embarcadero de la Rosa de Acero",
+    ru: "Пристань Стальной розы",
+    pl: "Pracownica Stalowej Róży",
+    tr: "Çelik Gülün İskelesi",
+    zh: "铁玫瑰号船舱",
+  },
+  "Stahlrose: Kabine": {
+    en: "Steel Rose Quarters",
+    de: "Stahlrose: Kabine",
+    fr: "Cabine de la Rose d'acier",
+    es: "Cabina de la Rosa de Acero",
+    ru: "Пассажирский салон Стальной розы",
+    pl: "Kabina Stalowej Róży",
+    tr: "Çelik Gülün Kabini",
+    zh: "铁玫瑰号船室",
+  },
 };
 
 export function translateGameName(rawName) {

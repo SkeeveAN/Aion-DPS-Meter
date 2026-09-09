@@ -1,6 +1,6 @@
-# Assets von aioncodex.com
+# Assets von aioncodex.com, Origin Codex und den Client-Strings selbst
 
-Gesammelt für die spätere UI (Skill-/Klassennamen und -Icons). Alles hier ist Rohmaterial zur
+Gesammelt für die spätere UI (Skill-/Klassen-/Ortsnamen und -Icons). Alles hier ist Rohmaterial zur
 Weiterverarbeitung, kein fertiges, verifiziertes Datenset – siehe Einschränkungen unten, bevor es
 im Meter verwendet wird.
 
@@ -69,6 +69,40 @@ im Meter verwendet wird.
   "Gladiator" (en) ↔ "Gladiator" (de) ↔ "Gladiateur" (fr) ↔ "Гладиатор" (ru). Bei nur 12 Klassen
   ist das von Hand trivial und unstrittig (öffentliches Allgemeinwissen zu AION-Klassen), aber
   bewusst nicht automatisch verknüpft, um keine falsche Zuordnung als "verifiziert" auszugeben.
+
+## `places/places_multilang.json` + `places/instances_multilang.json`
+
+- **Quelle: die echten Client-Strings selbst**, nicht aioncodex oder Origin Codex (beide sind
+  englisch-only für Karten-/Instanznamen, siehe unten) – `Strings/client_strings_dic_place.xml`
+  (Groß-/Kleinschreibung des Ordners variiert zwischen den Sprachpaketen: die meisten `L10N/<lang>/
+  Data/data.pak` haben `strings/`, das `plk`-Paket hat `Strings/` – beim Entpacken beide Schreibweisen
+  probieren) aus allen acht `L10N/<lang>/Data/data.pak`, `<lang>` = `deu/eng/esn/fra/ita/plk/trk/chn`.
+  Dieselbe `ita`=Polnisch/`plk`=Russisch-Verwechslung wie bei den Skill-Strings (s.o.) gilt auch hier.
+- **1314 Orts-Einträge**, jeweils über die vom Client selbst genutzte `<id>` (nicht per Textabgleich
+  wie beim Skill-Datensatz) über alle acht Sprachen hinweg verknüpft – die IDs sind hier bereits
+  sprachübergreifend stabil, ein Textabgleich war also nicht nötig. `<body>` ist
+  `"Anzeigename;Beschreibung"`, hier wird nur der Anzeigename (vor dem `;`) übernommen.
+- `places_multilang.json`: der komplette Rohdump, Format je Eintrag `{id, name, en, de, fr, es, ru,
+  pl, tr, zh}` – `name` ist der sprachunabhängige interne Key (`STR_DIC_...`), enthält sowohl offene
+  Zonen (z.B. "Ishalgen Wilderness") als auch Instanz-Teilbereiche (z.B. die drei Stahlrose-Decks).
+- `instances_multilang.json`: 42 davon einer echten Instanz aus Origin Codex' Kartenliste
+  (`https://origincdx.com/api/search/bootstrap` → `npcMaps`, Kartencode beginnt mit `ID` als
+  Unterscheidung Instanz vs. offene Zone, z.B. `IDShulackShip_02` vs. `DF1A`=Altgard) per exaktem
+  Namensabgleich zugeordnet, inkl. `mapCode`/`mapLabel` aus Origin Codex zur Rückverfolgung.
+  **Deckt NICHT alle 111 Instanz-Kartencodes ab** – bei vielen großen Gruppen-Dungeons (Kromede's
+  Trial, Dark Poeta, Dredgion, Steel Rake, …) enthält `client_strings_dic_place.xml` nur die
+  internen Raum-/Etagen-Labels (z.B. Kromede's Trial: "Temple Vault"/"Kaliga Dungeons"/"Kaliga
+  Treasury"), nicht den Dungeon-Gesamtnamen selbst – der dürfte in einer anderen Client-Stringdatei
+  liegen (nicht weiter verfolgt, da für den aktuellen Bedarf – die zwei Stahlrose-Instanzen des
+  Meters – nicht nötig).
+- Origin Codex selbst (`origincdx.com`, Quelle der Wahrheit für Items, s.u.) wurde geprüft und
+  liefert **keine** anderssprachigen Karten-/Instanznamen (`npcMaps` ist englisch-only); die
+  Subdomain `translator.origincdx.com` sah vielversprechend aus, ist aber der
+  Elyos↔Asmodian-Chat-Chiffrierer aus dem Spiel selbst, kein Sprachübersetzer.
+- **Neu erzeugen**: `unzip -j data.pak strings/client_strings_dic_place.xml` (bzw. `Strings/` bei
+  `plk`) je Sprache, `iconv -f UTF-16LE -t UTF-8`, `<string><id>/<name>/<body></string>`-Tripel
+  einlesen, über `<id>` gegen die anderen sieben Sprachen joinen, `<body>` vor dem ersten `;` als
+  Anzeigename nehmen.
 
 ## `i18n/ui_strings.json`
 
