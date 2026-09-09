@@ -1267,7 +1267,13 @@ public partial class MainWindow : Window
                 totalDamage, idps, idps, totalHealing, hps, skills, healSkills));
         }
 
-        if (participants.Count == 0)
+        // The backend requires exactly one isSelf participant per upload (see uploadSchema.ts) -
+        // always true for a fight the local player took part in, but a target only a group member
+        // hit (e.g. someone else's solo Training Dummy check) still gets tracked here since combat
+        // log lines for the whole group flow through the same Chat.log. Uploading it anyway would
+        // just get rejected with a 400 every time - same "nothing to upload" signal as an empty
+        // participants list.
+        if (participants.Count == 0 || !participants.Any(p => p.IsSelf))
         {
             return null;
         }
