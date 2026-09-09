@@ -204,6 +204,26 @@
                             <Button Content="{local:Loc Settings.SelectFolder}" Click="OnSelectAionFolderClicked"/>
                         </StackPanel>
                         <TextBlock x:Name="AionInstallFolderStatus" Margin="4,2" TextWrapping="Wrap" FontStyle="Italic"/>
+
+                        <!-- Per the user: EuroAion runs on a completely different gear standard
+                             than this server, so community-backend runs must never be mixed
+                             between servers. Chat.log itself carries no server identity at all
+                             (checked and confirmed), so this reads bin64\config.ini's own
+                             [ServerAddr] IP:port instead (see Server/ServerIdentity.cs) - stable
+                             and unique per private-server operator. Read-only: it's a detected
+                             fact, not something to hand-edit into agreeing with a different
+                             server's config file. The name below is purely cosmetic labeling for
+                             that same fingerprint, sent alongside it so leaderboards can show a
+                             name instead of a bare IP:port. -->
+                        <TextBlock Text="Detected server (used to keep community-backend runs from mixing across servers):"
+                                   TextWrapping="Wrap" Margin="4,8,4,2"/>
+                        <TextBlock x:Name="ServerFingerprintText" Margin="4,2" FontStyle="Italic" Foreground="#9a9aa2"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Display name:" VerticalAlignment="Center" Margin="4,0,6,0"/>
+                            <TextBox x:Name="ServerDisplayNameBox" Width="200"
+                                     Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45"
+                                     ToolTip="Optional label for the detected server above (e.g. &quot;Origin Aion&quot;) - cosmetic only, shown on the community leaderboard instead of the raw IP:port."/>
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
 
@@ -240,6 +260,15 @@
                                         <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                                Height="20" Width="20" Margin="0,0,6,0" ToolTip="{Binding ClassName}"/>
                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        <!-- Per the user: which server a character is on has to be
+                                             visible in the list itself, not just inferred - blank
+                                             for a character predating server tracking, same
+                                             ApDisplay-style "empty string, not a placeholder" rule
+                                             as everywhere else this app shows an unknown value
+                                             (CharacterProfile.ServerLabel already includes the
+                                             surrounding " (...)", so no StringFormat is needed here). -->
+                                        <TextBlock Text="{Binding ServerLabel}"
+                                                   VerticalAlignment="Center" Foreground="#9a9aa2" FontSize="11"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>

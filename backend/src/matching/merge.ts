@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
   bosses,
@@ -7,6 +7,7 @@ import {
   encounters,
   instances,
   players,
+  servers,
 } from "../db/schema.js";
 import { normalizeName, jaccardSimilarity, withinRelativeTolerance } from "./roster.js";
 import type { ParticipantUpload, UploadPayload } from "../uploadSchema.js";
@@ -22,6 +23,22 @@ const DAMAGE_MATCH_TOLERANCE = 0.15;
 export interface ProcessResult {
   status: "created" | "merged";
   encounterId: number;
+  serverId: number;
+}
+
+/** Looks up the server by fingerprint, inserting it on first sight; a later, non-empty displayName
+ * always overwrites an earlier one (same "latest upload wins" rule as upsertPlayer's name). */
+function upsertServer(fingerprint: string, displayName: string | undefined): number {
+  const existing = db.select().from(servers).where(eq(servers.fingerprint, fingerprint)).get();
+  if (existing) {
+    if (displayName) {
+      db.update(servers).set({ displayName }).where(eq(servers.id, existing.id)).run();
+    }
+    return existing.id;
+  }
+
+  const inserted = db.insert(servers).values({ fingerprint, displayName: displayName ?? null }).run();
+  return Number(inserted.lastInsertRowid);
 }
 
 function resolveBossId(npcName: string): number {
@@ -53,9 +70,13 @@ function resolveBossId(npcName: string): number {
   return Number(insertedBoss.lastInsertRowid);
 }
 
-function upsertPlayer(name: string): number {
+function upsertPlayer(name: string, serverId: number): number {
   const nameNormalized = normalizeName(name);
-  const existing = db.select().from(players).where(eq(players.nameNormalized, nameNormalized)).get();
+  const existing = db
+    .select()
+    .from(players)
+    .where(and(eq(players.serverId, serverId), eq(players.nameNormalized, nameNormalized)))
+    .get();
   if (existing) {
     db.update(players)
       .set({ name, lastSeenAt: sql`(current_timestamp)` })
@@ -64,18 +85,21 @@ function upsertPlayer(name: string): number {
     return existing.id;
   }
 
-  const inserted = db.insert(players).values({ name, nameNormalized }).run();
+  const inserted = db.insert(players).values({ name, nameNormalized, serverId }).run();
   return Number(inserted.lastInsertRowid);
 }
 
-function findCandidateEncounter(bossId: number, payload: UploadPayload) {
+function findCandidateEncounter(bossId: number, serverId: number, payload: UploadPayload) {
   const startedAtMs = Date.parse(payload.startedAt);
   const endedAtMs = Date.parse(payload.endedAt);
 
+  // serverId first: two different servers must never be candidates for the same encounter even if
+  // boss, timing and roster all happen to coincide (per the user, gear standards differ completely
+  // between servers, so a merge across them would be actively misleading, not just imprecise).
   const timeCandidates = db
     .select()
     .from(encounters)
-    .where(eq(encounters.bossId, bossId))
+    .where(and(eq(encounters.serverId, serverId), eq(encounters.bossId, bossId)))
     .all()
     .filter((e) => {
       const existingStartMs = Date.parse(e.startedAt);
@@ -129,8 +153,36 @@ function findCandidateEncounter(bossId: number, payload: UploadPayload) {
   return best?.encounterId ?? null;
 }
 
-function insertParticipant(encounterId: number, participant: ParticipantUpload, authoritative: boolean) {
-  const playerId = upsertPlayer(participant.name);
+/** Shared by insertParticipant/overwriteParticipant for both the damage and heal skill lists -
+ * isHeal is what tells them apart in encounter_skill_usage (see schema.ts's own remarks). */
+function insertSkillUsage(participantId: number, skills: ParticipantUpload["skills"], isHeal: boolean) {
+  if (skills.length === 0) {
+    return;
+  }
+
+  db.insert(encounterSkillUsage)
+    .values(
+      skills.map((s) => ({
+        participantId,
+        skillName: s.skill,
+        hits: s.hits,
+        critHits: s.critHits,
+        totalDamage: s.total,
+        minHit: s.min,
+        maxHit: s.max,
+        isHeal,
+      })),
+    )
+    .run();
+}
+
+function insertParticipant(
+  encounterId: number,
+  serverId: number,
+  participant: ParticipantUpload,
+  authoritative: boolean,
+) {
+  const playerId = upsertPlayer(participant.name, serverId);
   const inserted = db
     .insert(encounterParticipants)
     .values({
@@ -141,28 +193,16 @@ function insertParticipant(encounterId: number, participant: ParticipantUpload, 
       totalDamage: participant.totalDamage,
       dps: participant.dps,
       idps: participant.idps,
+      totalHealing: participant.totalHealing,
+      hps: participant.hps,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
-      apTotal: participant.apTotal ?? null,
     })
     .run();
   const participantId = Number(inserted.lastInsertRowid);
 
-  if (participant.skills.length > 0) {
-    db.insert(encounterSkillUsage)
-      .values(
-        participant.skills.map((s) => ({
-          participantId,
-          skillName: s.skill,
-          hits: s.hits,
-          critHits: s.critHits,
-          totalDamage: s.total,
-          minHit: s.min,
-          maxHit: s.max,
-        })),
-      )
-      .run();
-  }
+  insertSkillUsage(participantId, participant.skills, false);
+  insertSkillUsage(participantId, participant.healSkills, true);
 }
 
 function critRateOf(participant: ParticipantUpload): number {
@@ -179,29 +219,17 @@ function overwriteParticipant(participantId: number, participant: ParticipantUpl
       totalDamage: participant.totalDamage,
       dps: participant.dps,
       idps: participant.idps,
+      totalHealing: participant.totalHealing,
+      hps: participant.hps,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
-      apTotal: participant.apTotal ?? null,
     })
     .where(eq(encounterParticipants.id, participantId))
     .run();
 
   db.delete(encounterSkillUsage).where(eq(encounterSkillUsage.participantId, participantId)).run();
-  if (participant.skills.length > 0) {
-    db.insert(encounterSkillUsage)
-      .values(
-        participant.skills.map((s) => ({
-          participantId,
-          skillName: s.skill,
-          hits: s.hits,
-          critHits: s.critHits,
-          totalDamage: s.total,
-          minHit: s.min,
-          maxHit: s.max,
-        })),
-      )
-      .run();
-  }
+  insertSkillUsage(participantId, participant.skills, false);
+  insertSkillUsage(participantId, participant.healSkills, true);
 }
 
 function recomputeEncounterTotals(encounterId: number, startedAtIso: string, endedAtIso: string) {
@@ -240,7 +268,7 @@ function recomputeEncounterTotals(encounterId: number, startedAtIso: string, end
 }
 
 /** Merges a new upload's participants into an already-matched encounter, correcting a wrong self-name where possible. */
-function mergeIntoEncounter(encounterId: number, payload: UploadPayload) {
+function mergeIntoEncounter(encounterId: number, serverId: number, payload: UploadPayload) {
   const existing = db.select().from(encounters).where(eq(encounters.id, encounterId)).get()!;
   const existingParticipants = db
     .select()
@@ -261,7 +289,7 @@ function mergeIntoEncounter(encounterId: number, payload: UploadPayload) {
       if (match && !match.encounter_participants.isCritRateAuthoritative) {
         overwriteParticipant(match.encounter_participants.id, participant, false);
       } else if (!match) {
-        insertParticipant(encounterId, participant, false);
+        insertParticipant(encounterId, serverId, participant, false);
       }
       continue;
     }
@@ -287,7 +315,7 @@ function mergeIntoEncounter(encounterId: number, payload: UploadPayload) {
         // data conflict, not a naming problem. Adding a new row is safer than
         // guessing which of two contradictory reports to keep, or reassigning
         // some OTHER, unrelated row's identity to resolve it.
-        insertParticipant(encounterId, participant, true);
+        insertParticipant(encounterId, serverId, participant, true);
       }
       continue;
     }
@@ -308,7 +336,7 @@ function mergeIntoEncounter(encounterId: number, payload: UploadPayload) {
     );
 
     if (candidates.length === 1) {
-      const playerId = upsertPlayer(participant.name);
+      const playerId = upsertPlayer(participant.name, serverId);
       db.update(encounterParticipants)
         .set({ playerId })
         .where(eq(encounterParticipants.id, candidates[0].encounter_participants.id))
@@ -317,7 +345,7 @@ function mergeIntoEncounter(encounterId: number, payload: UploadPayload) {
     } else {
       // Ambiguous or no match at all - safer to add a new row than to guess
       // wrong and silently rename the wrong person.
-      insertParticipant(encounterId, participant, true);
+      insertParticipant(encounterId, serverId, participant, true);
     }
   }
 
@@ -335,10 +363,11 @@ function mergeIntoEncounter(encounterId: number, payload: UploadPayload) {
   recomputeEncounterTotals(encounterId, newStartedAt, newEndedAt);
 }
 
-function createEncounter(bossId: number, payload: UploadPayload): number {
+function createEncounter(bossId: number, serverId: number, payload: UploadPayload): number {
   const inserted = db
     .insert(encounters)
     .values({
+      serverId,
       bossId,
       startedAt: payload.startedAt,
       endedAt: payload.endedAt,
@@ -351,7 +380,7 @@ function createEncounter(bossId: number, payload: UploadPayload): number {
   const encounterId = Number(inserted.lastInsertRowid);
 
   for (const participant of payload.participants) {
-    insertParticipant(encounterId, participant, participant.isSelf);
+    insertParticipant(encounterId, serverId, participant, participant.isSelf);
   }
 
   recomputeEncounterTotals(encounterId, payload.startedAt, payload.endedAt);
@@ -359,14 +388,15 @@ function createEncounter(bossId: number, payload: UploadPayload): number {
 }
 
 export function processUpload(payload: UploadPayload): ProcessResult {
+  const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   const bossId = resolveBossId(payload.bossNpcName);
-  const candidateEncounterId = findCandidateEncounter(bossId, payload);
+  const candidateEncounterId = findCandidateEncounter(bossId, serverId, payload);
 
   if (candidateEncounterId) {
-    mergeIntoEncounter(candidateEncounterId, payload);
-    return { status: "merged", encounterId: candidateEncounterId };
+    mergeIntoEncounter(candidateEncounterId, serverId, payload);
+    return { status: "merged", encounterId: candidateEncounterId, serverId };
   }
 
-  const encounterId = createEncounter(bossId, payload);
-  return { status: "created", encounterId };
+  const encounterId = createEncounter(bossId, serverId, payload);
+  return { status: "created", encounterId, serverId };
 }

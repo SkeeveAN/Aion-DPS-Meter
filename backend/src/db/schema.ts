@@ -8,6 +8,25 @@ import {
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
+// Per-private-server identity. Gear/rate standards differ completely between servers (per the
+// user: EuroAion is nowhere near this server's gear level), so any table with real run data --
+// players, encounters -- must be scoped to one of these and never merged or leaderboarded across
+// rows with a different serverId. Instances/bosses stay UNscoped on purpose: the raid content
+// itself (names, roster) is the same regardless of which server runs it.
+export const servers = sqliteTable("servers", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  // The client's own bin64\config.ini [ServerAddr] BIND_ADDR:BIND_PORT (see the client's
+  // Server/ServerIdentity.cs) - stable and unique per private-server operator, since Chat.log
+  // itself carries no server identity at all.
+  fingerprint: text("fingerprint").notNull().unique(),
+  // Cosmetic label ("Origin Aion", "EuroAion"), latest upload wins - same update-in-place pattern
+  // as players.name below. Null until some client sends one.
+  displayName: text("display_name"),
+  firstSeenAt: text("first_seen_at")
+    .notNull()
+    .default(sql`(current_timestamp)`),
+});
+
 export const instances = sqliteTable("instances", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull().unique(),
@@ -42,6 +61,11 @@ export const players = sqliteTable(
   "players",
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
+    // Nullable only at the SQL level, so the add-servers migration can add this column to an
+    // existing table without a full rebuild (SQLite can't ADD COLUMN ... NOT NULL with a FK
+    // reference in one step); the migration backfills every existing row immediately after adding
+    // it, and every code path from here on always supplies one - see matching/merge.ts upsertPlayer.
+    serverId: integer("server_id").references(() => servers.id),
     // Display name, latest-seen casing. Uniqueness/lookup goes through
     // nameNormalized below since SQLite text columns compare case-sensitively
     // by default and Aion names are otherwise unique per side.
@@ -54,13 +78,24 @@ export const players = sqliteTable(
       .notNull()
       .default(sql`(current_timestamp)`),
   },
-  (table) => ({ nameNormalizedIdx: uniqueIndex("players_name_normalized_idx").on(table.nameNormalized) }),
+  (table) => ({
+    // A name is only unique WITHIN one server - two independent servers can each have their own
+    // "Anna", and treating them as the same player would blend two unrelated people's history.
+    serverIdNameNormalizedIdx: uniqueIndex("players_server_id_name_normalized_idx").on(
+      table.serverId,
+      table.nameNormalized,
+    ),
+  }),
 );
 
 export const encounters = sqliteTable(
   "encounters",
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
+    // See players.serverId above for why this is nullable at the SQL level despite every row from
+    // here on always having one - matching/merge.ts never matches or creates across two different
+    // serverId values, which is the whole point (see servers table's own remarks).
+    serverId: integer("server_id").references(() => servers.id),
     bossId: integer("boss_id")
       .notNull()
       .references(() => bosses.id),
@@ -81,6 +116,8 @@ export const encounters = sqliteTable(
   (table) => ({
     bossIdIdx: index("encounters_boss_id_idx").on(table.bossId),
     startedAtIdx: index("encounters_started_at_idx").on(table.startedAt),
+    // The leaderboard query and the matching-candidate lookup both filter by exactly this pair.
+    serverIdBossIdIdx: index("encounters_server_id_boss_id_idx").on(table.serverId, table.bossId),
   }),
 );
 
@@ -99,6 +136,12 @@ export const encounterParticipants = sqliteTable(
     totalDamage: integer("total_damage").notNull(),
     dps: real("dps").notNull(),
     idps: real("idps").notNull(),
+    // Per the user: AP/Kinah/EXP/loot are never uploaded, only combat performance - the healing
+    // half of that (damage is totalDamage/dps/idps above). No isHeal-scoped crit rate alongside
+    // critRatePercent below: that one column has only ever meant the damage crit rate, and heals
+    // can crit too, so overloading it would silently conflate two different rates.
+    totalHealing: integer("total_healing").notNull().default(0),
+    hps: real("hps").notNull().default(0),
     critRatePercent: real("crit_rate_percent").notNull(),
     // True once this participant's own upload (isSelf) supplied the crit rate -
     // Aion only flags crits reliably in the scorer's own log (see the client's
@@ -107,7 +150,6 @@ export const encounterParticipants = sqliteTable(
     isCritRateAuthoritative: integer("is_crit_rate_authoritative", { mode: "boolean" })
       .notNull()
       .default(false),
-    apTotal: integer("ap_total"),
   },
   (table) => ({
     encounterIdIdx: index("encounter_participants_encounter_id_idx").on(table.encounterId),
@@ -125,9 +167,15 @@ export const encounterSkillUsage = sqliteTable(
     skillName: text("skill_name").notNull(),
     hits: integer("hits").notNull(),
     critHits: integer("crit_hits").notNull(),
+    // Column names kept as damage-flavored (totalDamage/minHit/maxHit) rather than renamed to
+    // something neutral - renaming an existing column forces a full SQLite table rebuild for a
+    // purely cosmetic gain, whereas isHeal below is the actual, load-bearing distinction: it's what
+    // separates a participant's damage skill breakdown from their heal skill breakdown, both stored
+    // in this one table rather than a duplicated parallel one.
     totalDamage: integer("total_damage").notNull(),
     minHit: integer("min_hit").notNull(),
     maxHit: integer("max_hit").notNull(),
+    isHeal: integer("is_heal", { mode: "boolean" }).notNull().default(false),
   },
   (table) => ({
     participantIdIdx: index("encounter_skill_usage_participant_id_idx").on(table.participantId),
@@ -142,6 +190,10 @@ export const uploads = sqliteTable(
       .notNull()
       .default(sql`(current_timestamp)`),
     clientVersion: text("client_version").notNull().default(""),
+    // Set on the success path only (see routes/uploads.ts) - a payload that fails schema
+    // validation or throws before a server row could be resolved leaves this null, which is fine:
+    // it's an audit log entry, not something a leaderboard ever reads.
+    serverId: integer("server_id").references(() => servers.id),
     uploaderReportedName: text("uploader_reported_name").notNull(),
     // Salted hash, never the raw IP - only used for rate-limit bookkeeping/abuse review.
     ipHash: text("ip_hash").notNull(),

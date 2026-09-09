@@ -21,8 +21,11 @@ export const participantSchema = z.object({
   totalDamage: z.number().int().min(0).max(2_000_000_000),
   dps: z.number().min(0).max(5_000_000),
   idps: z.number().min(0).max(5_000_000),
-  apTotal: z.number().int().min(0).max(100_000_000).optional(),
+  // Per the user: AP/Kinah/EXP/loot are never uploaded, only combat performance - damage AND heal.
+  totalHealing: z.number().int().min(0).max(2_000_000_000),
+  hps: z.number().min(0).max(5_000_000),
   skills: z.array(skillUsageSchema).max(80),
+  healSkills: z.array(skillUsageSchema).max(80),
 });
 
 export const uploadSchema = z.object({
@@ -32,6 +35,14 @@ export const uploadSchema = z.object({
   endedAt: z.string().min(1),
   // 6-man groups up to 24-man alliance instances.
   participants: z.array(participantSchema).min(1).max(24),
+  // The client's bin64\config.ini [ServerAddr] IP:port (see the client's Server/ServerIdentity.cs)
+  // - required, not optional: without it there is no way to keep this upload's runs from being
+  // merged or leaderboarded against a different, incompatible server's (per the user, EuroAion's
+  // gear standard is nothing like this server's).
+  serverFingerprint: z.string().trim().min(1).max(64),
+  // Cosmetic label for the fingerprint above ("Origin Aion", "EuroAion") - optional, since the
+  // fingerprint alone is already enough to keep servers apart correctly.
+  serverName: z.string().trim().max(60).optional(),
 });
 
 export type UploadPayload = z.infer<typeof uploadSchema>;

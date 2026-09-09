@@ -15,10 +15,17 @@ public partial class SettingsWindow : Window
     {
         InitializeComponent();
         _settings = settings;
-        // Faction copied along with the rest -- leaving it out here silently wiped a saved
-        // faction on the next Save, since this copy is what gets written back.
+        // Faction/server copied along with the rest -- leaving any of these out here silently
+        // wipes them on the next Save, since this copy is what gets written back.
         _characters = settings.Characters
-            .Select(c => new CharacterProfile { Name = c.Name, ClassName = c.ClassName, Faction = c.Faction })
+            .Select(c => new CharacterProfile
+            {
+                Name = c.Name,
+                ClassName = c.ClassName,
+                Faction = c.Faction,
+                ServerFingerprint = c.ServerFingerprint,
+                ServerDisplayName = c.ServerDisplayName,
+            })
             .ToList();
 
         ShowPlayersBox.IsChecked = settings.ShowPlayers;
@@ -48,6 +55,8 @@ public partial class SettingsWindow : Window
         _aionInstallFolder = settings.AionInstallFolder;
         AionInstallFolderBox.Text = _aionInstallFolder ?? "(not set)";
         UpdateAionFolderStatus();
+        UpdateServerFingerprint();
+        ServerDisplayNameBox.Text = settings.ServerDisplayName ?? "";
 
         RefreshCharacterLists();
         if (settings.ActiveCharacterName is string activeName && _characters.Any(c => c.Name == activeName))
@@ -96,10 +105,24 @@ public partial class SettingsWindow : Window
         string className = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
         string faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
         _characters.RemoveAll(c => c.Name == name); // re-adding an existing name replaces class+faction
-        _characters.Add(new CharacterProfile { Name = name, ClassName = className, Faction = faction });
+        _characters.Add(new CharacterProfile
+        {
+            Name = name,
+            ClassName = className,
+            Faction = faction,
+            ServerFingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
+            ServerDisplayName = CurrentServerDisplayNameOrNull(),
+        });
         NewCharacterNameBox.Text = "";
         RefreshCharacterLists();
     }
+
+    /// <summary>Per the user: a character's server is stamped automatically, from whatever is
+    /// currently detected for the Aion Installation section above (see ServerIdentity.cs) - not
+    /// typed by hand, since a character can't actually exist on a different server than the one its
+    /// own client connects to.</summary>
+    private string? CurrentServerDisplayNameOrNull() =>
+        string.IsNullOrWhiteSpace(ServerDisplayNameBox.Text) ? null : ServerDisplayNameBox.Text.Trim();
 
     /// <summary>
     /// Picking a character loads it into the fields above, so Update has something to work from
@@ -158,11 +181,21 @@ public partial class SettingsWindow : Window
         }
 
         string previousName = _characters[index].Name;
+        // Server fields keep their existing value rather than always re-stamping from whatever is
+        // currently detected: a character belongs to exactly one server permanently, and blindly
+        // overwriting it here would misattribute an existing character to a different server the
+        // moment someone points the Aion Installation section above at a different install to
+        // register a second character. Only backfills when nothing was recorded yet (a character
+        // added before this field existed, or before any Aion folder was configured).
+        CharacterProfile previous = _characters[index];
         _characters[index] = new CharacterProfile
         {
             Name = name,
             ClassName = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
             Faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
+            ServerFingerprint = previous.ServerFingerprint
+                ?? AionSniffer.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
+            ServerDisplayName = previous.ServerDisplayName ?? CurrentServerDisplayNameOrNull(),
         };
 
         // The active character is stored by name, so a rename has to carry it along or the
@@ -206,7 +239,17 @@ public partial class SettingsWindow : Window
             _aionInstallFolder = dialog.FolderName;
             AionInstallFolderBox.Text = _aionInstallFolder;
             UpdateAionFolderStatus();
+            UpdateServerFingerprint();
         }
+    }
+
+    /// <summary>See Server/ServerIdentity.cs for why this, and not Chat.log or the client's file
+    /// version, is what identifies the server.</summary>
+    private void UpdateServerFingerprint()
+    {
+        string? fingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder);
+        ServerFingerprintText.Text = fingerprint
+            ?? "Not detected (bin64\\config.ini / bin32\\config.ini not found here).";
     }
 
     /// <summary>
@@ -291,6 +334,7 @@ public partial class SettingsWindow : Window
         _settings.Language = LocalizationManager.Instance.Language;
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.AionInstallFolder = _aionInstallFolder;
+        _settings.ServerDisplayName = CurrentServerDisplayNameOrNull();
         _settings.Characters = _characters;
         _settings.ActiveCharacterName = ActiveCharacterBox.SelectedItem as string;
         _settings.AutoDetectActiveCharacter = AutoDetectActiveCharacterBox.IsChecked ?? true;

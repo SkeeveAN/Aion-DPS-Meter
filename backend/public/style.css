@@ -39,6 +39,17 @@ header h1 {
   flex-shrink: 0;
 }
 
+.server-indicator {
+  color: var(--text-dim);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.server-indicator a {
+  color: var(--accent);
+  margin-left: 6px;
+}
+
 .search {
   margin-left: auto;
   display: flex;

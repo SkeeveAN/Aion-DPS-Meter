@@ -1104,7 +1104,7 @@ public partial class MainWindow : Window
     /// second time here. Returns null when there is nothing to upload (target never hit, or no
     /// player rows survived the "players only" filter).
     /// </summary>
-    private EncounterUploadRequest? BuildEncounterUpload(int targetId)
+    private EncounterUploadRequest? BuildEncounterUpload(int targetId, string serverFingerprint, string? serverName)
     {
         var targetHits = _aggregator.Events.Where(e => e.TargetObjectId == targetId && !e.IsHeal).ToList();
         if (targetHits.Count == 0 || _rows.Count == 0)
@@ -1112,15 +1112,30 @@ public partial class MainWindow : Window
             return null;
         }
 
-        DateTime startedAt = targetHits.Min(e => e.Timestamp).ToUniversalTime();
-        DateTime endedAt = targetHits.Max(e => e.Timestamp).ToUniversalTime();
+        // Kept separate from the UTC startedAt/endedAt below (those are for the outgoing payload's
+        // own fields): heals never target the boss, so they can only be scoped to this encounter by
+        // time window, and that window has to be compared against DamageEvent.Timestamp's own
+        // (local) DateTimeKind, not a UTC-converted copy.
+        DateTime windowStart = targetHits.Min(e => e.Timestamp);
+        DateTime windowEnd = targetHits.Max(e => e.Timestamp);
+        double durationSeconds = Math.Max((windowEnd - windowStart).TotalSeconds, 0.001);
+
+        DateTime startedAt = windowStart.ToUniversalTime();
+        DateTime endedAt = windowEnd.ToUniversalTime();
         string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
 
         var participants = new List<ParticipantUpload>();
         foreach (PlayerRow row in _rows)
         {
             var hitsOnBoss = targetHits.Where(e => e.SourceObjectId == row.ObjectId).ToList();
-            if (hitsOnBoss.Count == 0)
+            // Per the user: heals must be uploaded alongside damage - a pure healer who never hit
+            // the boss would otherwise be silently dropped from the roster entirely, so a row
+            // survives on EITHER contribution, not damage alone.
+            var healsBySelf = _aggregator.Events
+                .Where(e => e.IsHeal && e.SourceObjectId == row.ObjectId
+                    && e.Timestamp >= windowStart && e.Timestamp <= windowEnd)
+                .ToList();
+            if (hitsOnBoss.Count == 0 && healsBySelf.Count == 0)
             {
                 continue;
             }
@@ -1130,10 +1145,16 @@ public partial class MainWindow : Window
             var skills = SkillBreakdown.For(hitsOnBoss, trustLoggedFlag: isSelf)
                 .Select(s => new SkillUsageUpload(s.Skill, s.Hits, s.CritHits, s.Total, s.Min, s.Max))
                 .ToList();
+            var healSkills = SkillBreakdown.For(healsBySelf, trustLoggedFlag: isSelf, heals: true)
+                .Select(s => new SkillUsageUpload(s.Skill, s.Hits, s.CritHits, s.Total, s.Min, s.Max))
+                .ToList();
+
+            long totalHealing = healsBySelf.Sum(e => e.Amount);
+            double hps = totalHealing / durationSeconds;
 
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
-                row.Damage, idps, idps, ApTotal: null, skills));
+                row.Damage, idps, idps, totalHealing, hps, skills, healSkills));
         }
 
         if (participants.Count == 0)
@@ -1141,8 +1162,28 @@ public partial class MainWindow : Window
             return null;
         }
 
-        return new EncounterUploadRequest(AppVersion.Text, bossName, startedAt, endedAt, participants);
+        return new EncounterUploadRequest(
+            AppVersion.Text, bossName, startedAt, endedAt, participants, serverFingerprint, serverName);
     }
+
+    /// <summary>
+    /// The server this install connects to (see Server/ServerIdentity.cs), resolved fresh from
+    /// Settings on every upload rather than cached -- matches how every other setting in this class
+    /// is read (MeterSettings.Load() on demand, never held in a field), and means a folder the user
+    /// just corrected in Settings takes effect on the very next upload with no restart. Null when
+    /// the install folder is unset or its config.ini could not be read: uploading without a real
+    /// fingerprint is refused outright rather than falling back to some placeholder, since a wrong
+    /// guess here is exactly what would let two different servers' runs get merged.
+    /// </summary>
+    private static (string Fingerprint, string? DisplayName)? ResolveServerIdentity()
+    {
+        MeterSettings settings = MeterSettings.Load();
+        string? fingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
+        return fingerprint is null ? null : (fingerprint, settings.ServerDisplayName);
+    }
+
+    private const string ServerNotIdentifiedMessage =
+        "Could not identify this server (bin64\\config.ini / bin32\\config.ini not found under the Aion install folder in Settings) - upload refused rather than risk mixing runs from different servers.";
 
     /// <summary>Uploads exactly the boss the Mob/Boss filter is currently showing - the Damage
     /// view's Upload button, and the Session menu's "Upload current boss".</summary>
@@ -1154,7 +1195,13 @@ public partial class MainWindow : Window
             return;
         }
 
-        var payload = BuildEncounterUpload(targetId);
+        if (ResolveServerIdentity() is not (string fingerprint, var displayName))
+        {
+            ShowUploadStatus(ServerNotIdentifiedMessage);
+            return;
+        }
+
+        var payload = BuildEncounterUpload(targetId, fingerprint, displayName);
         if (payload is null)
         {
             ShowUploadStatus("Nothing recorded for this boss yet.");
@@ -1189,13 +1236,19 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (ResolveServerIdentity() is not (string fingerprint, var displayName))
+        {
+            ShowUploadStatus(ServerNotIdentifiedMessage);
+            return;
+        }
+
         ShowUploadStatus($"Uploading {targetIds.Count} boss fight(s)...");
         int uploaded = 0;
         foreach (int targetId in targetIds)
         {
             _selectedTargetId = targetId;
             RefreshRows();
-            var payload = BuildEncounterUpload(targetId);
+            var payload = BuildEncounterUpload(targetId, fingerprint, displayName);
             if (payload is null)
             {
                 continue;

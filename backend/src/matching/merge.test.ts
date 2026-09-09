@@ -16,8 +16,8 @@ const migrationsFolder = path.join(path.dirname(fileURLToPath(import.meta.url)),
 migrate(db, { migrationsFolder });
 
 const { processUpload } = await import("./merge.js");
-const { encounterParticipants, players } = await import("../db/schema.js");
-const { eq } = await import("drizzle-orm");
+const { encounterParticipants, encounterSkillUsage, players } = await import("../db/schema.js");
+const { and, eq } = await import("drizzle-orm");
 
 function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {}) {
   return {
@@ -25,6 +25,7 @@ function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {
     bossNpcName: "Raksha Kochherz",
     startedAt: "2026-01-01T20:00:00.000Z",
     endedAt: "2026-01-01T20:03:12.000Z",
+    serverFingerprint: "70.0.0.150:10241",
     participants: [
       {
         name: "Anna",
@@ -34,7 +35,10 @@ function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {
         totalDamage: 800_000,
         dps: 4100,
         idps: 4100,
+        totalHealing: 0,
+        hps: 0,
         skills: [{ skill: "Skyfall", hits: 100, critHits: 20, total: 800_000, min: 2000, max: 12_000 }],
+        healSkills: [],
       },
       {
         name: "Bob",
@@ -44,7 +48,10 @@ function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {
         totalDamage: 900_000,
         dps: 4600,
         idps: 4600,
+        totalHealing: 0,
+        hps: 0,
         skills: [{ skill: "Stab", hits: 150, critHits: 10, total: 900_000, min: 1000, max: 9000 }],
+        healSkills: [],
       },
     ],
     ...overrides,
@@ -82,7 +89,10 @@ test("worst case: uploader's own name is wrong, gets corrected from a teammate's
           totalDamage: 800_000,
           dps: 4100,
           idps: 4100,
+          totalHealing: 0,
+          hps: 0,
           skills: [{ skill: "Skyfall", hits: 100, critHits: 9, total: 800_000, min: 2000, max: 12_000 }],
+          healSkills: [],
         },
         {
           name: "XxSlayerxX",
@@ -92,7 +102,10 @@ test("worst case: uploader's own name is wrong, gets corrected from a teammate's
           totalDamage: 905_000,
           dps: 4620,
           idps: 4620,
+          totalHealing: 0,
+          hps: 0,
           skills: [{ skill: "Stab", hits: 150, critHits: 32, total: 905_000, min: 1000, max: 9000 }],
+          healSkills: [],
         },
       ],
     }),
@@ -138,7 +151,10 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
           totalDamage: 800_000,
           dps: 4100,
           idps: 4100,
+          totalHealing: 0,
+          hps: 0,
           skills: [{ skill: "Skyfall", hits: 100, critHits: 20, total: 800_000, min: 2000, max: 12_000 }],
+          healSkills: [],
         },
       ],
     }),
@@ -156,7 +172,10 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
           totalDamage: 800_000,
           dps: 4100,
           idps: 4100,
+          totalHealing: 0,
+          hps: 0,
           skills: [{ skill: "Skyfall", hits: 100, critHits: 9, total: 800_000, min: 2000, max: 12_000 }],
+          healSkills: [],
         },
         {
           name: "Anna",
@@ -166,7 +185,10 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
           totalDamage: 700_000,
           dps: 3900,
           idps: 3900,
+          totalHealing: 0,
+          hps: 0,
           skills: [{ skill: "Skyfall", hits: 90, critHits: 15, total: 700_000, min: 1500, max: 11_000 }],
+          healSkills: [],
         },
       ],
     }),
@@ -183,4 +205,79 @@ test("same boss but far apart in time creates a separate encounter", () => {
   );
   assert.equal(second.status, "created");
   assert.notEqual(second.encounterId, first.encounterId);
+});
+
+test("an identical fight uploaded from a different server never merges - gear standards aren't comparable", () => {
+  const first = processUpload(basePayload());
+  const second = processUpload(basePayload({ serverFingerprint: "222.231.10.116:10241" }));
+  assert.equal(second.status, "created");
+  assert.notEqual(second.encounterId, first.encounterId);
+  assert.notEqual(second.serverId, first.serverId);
+});
+
+test("the same player name on two different servers is tracked as two separate players", () => {
+  const first = processUpload(basePayload());
+  const second = processUpload(basePayload({ serverFingerprint: "222.231.10.116:10241" }));
+
+  const annaOnFirstServer = db
+    .select({ id: players.id })
+    .from(players)
+    .where(and(eq(players.serverId, first.serverId), eq(players.nameNormalized, "anna")))
+    .get();
+  const annaOnSecondServer = db
+    .select({ id: players.id })
+    .from(players)
+    .where(and(eq(players.serverId, second.serverId), eq(players.nameNormalized, "anna")))
+    .get();
+
+  assert.ok(annaOnFirstServer, "Anna should exist on the first server");
+  assert.ok(annaOnSecondServer, "Anna should exist on the second server");
+  assert.notEqual(annaOnFirstServer!.id, annaOnSecondServer!.id, "the two Annas must be different player rows");
+});
+
+test("a pure healer with zero boss damage still gets an encounter row - not just damage dealers", () => {
+  const result = processUpload(
+    basePayload({
+      participants: [
+        {
+          name: "Healmimi",
+          className: "Cleric",
+          faction: "Elyos",
+          isSelf: true,
+          totalDamage: 0,
+          dps: 0,
+          idps: 0,
+          totalHealing: 300_000,
+          hps: 1666.7,
+          skills: [],
+          healSkills: [
+            { skill: "Healing Light V", hits: 40, critHits: 3, total: 300_000, min: 5000, max: 12_000 },
+          ],
+        },
+      ],
+    }),
+  );
+
+  const row = db
+    .select({
+      totalDamage: encounterParticipants.totalDamage,
+      totalHealing: encounterParticipants.totalHealing,
+      hps: encounterParticipants.hps,
+      id: encounterParticipants.id,
+    })
+    .from(encounterParticipants)
+    .where(eq(encounterParticipants.encounterId, result.encounterId))
+    .get()!;
+
+  assert.equal(row.totalDamage, 0);
+  assert.equal(row.totalHealing, 300_000);
+  assert.ok(Math.abs(row.hps - 1666.7) < 0.1);
+
+  const skillRow = db
+    .select({ skillName: encounterSkillUsage.skillName, isHeal: encounterSkillUsage.isHeal })
+    .from(encounterSkillUsage)
+    .where(eq(encounterSkillUsage.participantId, row.id))
+    .get()!;
+  assert.equal(skillRow.skillName, "Healing Light V");
+  assert.equal(skillRow.isHeal, true);
 });

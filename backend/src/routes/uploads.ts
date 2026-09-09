@@ -47,6 +47,7 @@ export async function uploadRoutes(app: FastifyInstance) {
     db.insert(uploads)
       .values({
         clientVersion: payload.clientVersion,
+        serverId: result.serverId,
         uploaderReportedName,
         ipHash,
         matchedEncounterId: result.encounterId,

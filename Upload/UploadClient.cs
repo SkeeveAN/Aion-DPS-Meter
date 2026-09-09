@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AionSniffer.Upload;
 
@@ -15,9 +16,15 @@ public static class UploadClient
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
 
+    // WhenWritingNull is load-bearing, not cosmetic: the backend's zod schema marks optional fields
+    // like serverName as .optional() (accepts a MISSING key) rather than .nullable() (accepts an
+    // explicit null) - without this, a C# `null` (e.g. ServerName when nobody set a display name)
+    // would serialize as a literal "null" in the JSON body and the whole upload would fail schema
+    // validation, not just have that one field come through empty.
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
     /// <summary>Posts one encounter. Returns false (never throws) on any network/server failure -

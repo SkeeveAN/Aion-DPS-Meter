@@ -8,6 +8,20 @@
       "when": 1788947418751,
       "tag": "0000_thankful_mikhail_rasputin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788951675529,
+      "tag": "0001_yummy_red_hulk",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788952483839,
+      "tag": "0002_add_heal_tracking_drop_ap_total",
+      "breakpoints": true
     }
   ]
 }

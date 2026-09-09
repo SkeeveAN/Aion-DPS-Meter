@@ -16,6 +16,29 @@ public sealed class CharacterProfile
     /// characters registered before this field existed; the resolver still separates the two sides
     /// in that case, it just cannot put a name to either.</summary>
     public string Faction { get; set; } = "";
+
+    /// <summary>Per the user: a character belongs to exactly one server, so the list needs to say
+    /// which -- someone with characters on two different private servers could otherwise register
+    /// the same name twice with no way to tell the entries apart. Stamped automatically from
+    /// whatever Server/ServerIdentity.cs currently detects for the configured Aion install folder
+    /// (see SettingsWindow's Add/Update handlers), not typed by hand: a character can't actually
+    /// exist on a server other than the one its own client connects to, so asking the user to enter
+    /// this manually would only add a chance to get it wrong. Null for a character added before
+    /// this field existed, or before any Aion folder was configured.</summary>
+    public string? ServerFingerprint { get; set; }
+
+    /// <summary>Cosmetic label for <see cref="ServerFingerprint"/>, same snapshot-at-add-time
+    /// origin as MeterSettings.ServerDisplayName -- kept alongside the character so the list still
+    /// reads as a name (e.g. "Origin Aion") even if the install folder's own label changes later.</summary>
+    public string? ServerDisplayName { get; set; }
+
+    /// <summary>What the character list actually displays, parens and all: the friendly name when
+    /// there is one, the raw fingerprint as a fallback (still better than nothing), or blank for a
+    /// character predating server tracking -- never a fabricated guess. Pre-formatted here rather
+    /// than via a XAML converter, same reasoning as PlayerRow.ApDisplay: an empty string renders as
+    /// nothing, which is simpler than a StringFormat + visibility-converter pair for the same
+    /// result.</summary>
+    public string ServerLabel => (ServerDisplayName ?? ServerFingerprint) is string label ? $" ({label})" : "";
 }
 
 /// <summary>
@@ -82,6 +105,14 @@ public sealed class MeterSettings
     /// the Settings dialog. This is where Chat.log lives, and there is no way to auto-discover it,
     /// so the user picks it once. Consumed by MainWindow's ChatLogTailer, restarted on change.</summary>
     public string? AionInstallFolder { get; set; }
+
+    /// <summary>Friendly label for the server this install connects to (e.g. "Origin Aion",
+    /// "EuroAion") -- purely cosmetic, sent alongside the real identifier (see
+    /// Server/ServerIdentity.cs) so the community backend's leaderboards show a name instead of a
+    /// bare IP:port. Optional: the backend groups correctly by the detected fingerprint alone even
+    /// if this is never set, since gear/roster differences between servers mean two servers' runs
+    /// must never be merged regardless of whether either has a name attached.</summary>
+    public string? ServerDisplayName { get; set; }
 
     /// <summary>
     /// The user's own characters (name + class), entered by hand. Chat.log never reveals the

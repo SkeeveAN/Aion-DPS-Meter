@@ -1,5 +1,29 @@
 const app = document.getElementById("app");
 const breadcrumb = document.getElementById("breadcrumb");
+const serverIndicator = document.getElementById("server-indicator");
+
+// Which server's data is being browsed - required for the leaderboard endpoint and used to scope
+// player search, since two different servers can have a player of the same name (per the user:
+// their gear levels are nowhere near comparable, so their runs must never share a leaderboard
+// either). Persisted across reloads so switching pages doesn't ask again every time; explicitly
+// changeable via the indicator link in the header.
+let currentServerId = localStorage.getItem("dpsmeter.serverId");
+let currentServerName = localStorage.getItem("dpsmeter.serverName");
+
+function setCurrentServer(id, name) {
+  currentServerId = String(id);
+  currentServerName = name;
+  localStorage.setItem("dpsmeter.serverId", currentServerId);
+  localStorage.setItem("dpsmeter.serverName", name ?? "");
+  updateServerIndicator();
+}
+
+function updateServerIndicator() {
+  serverIndicator.replaceChildren();
+  if (currentServerId) {
+    serverIndicator.append(currentServerName || `Server #${currentServerId}`, link("wechseln", "#/servers"));
+  }
+}
 
 async function fetchJson(url) {
   const res = await fetch(url);
@@ -34,6 +58,33 @@ function setBreadcrumb(parts) {
 
 function formatNumber(n) {
   return Math.round(n).toLocaleString("de-DE");
+}
+
+async function renderServerPicker() {
+  setBreadcrumb(["Server wählen"]);
+  app.replaceChildren(el("p", { textContent: "Lade Server…" }));
+
+  const servers = await fetchJson("/api/servers");
+  if (servers.length === 0) {
+    app.replaceChildren(el("p", { className: "empty", textContent: "Noch kein Server erfasst - lade den ersten Boss-Kampf über den DPS-Meter hoch." }));
+    return;
+  }
+
+  const list = el(
+    "ul",
+    { className: "plain" },
+    servers.map((s) => {
+      const label = s.displayName || s.fingerprint;
+      const a = el("a", { href: "#/", textContent: label });
+      a.addEventListener("click", () => setCurrentServer(s.id, s.displayName));
+      return el("li", {}, [a]);
+    }),
+  );
+  app.replaceChildren(
+    el("h2", { textContent: "Server wählen" }),
+    el("p", { className: "empty", textContent: "Verschiedene Server sind nicht vergleichbar (unterschiedlicher Gear-Stand) - Ranglisten und Spielersuche beziehen sich immer auf genau einen." }),
+    list,
+  );
 }
 
 async function renderInstances() {
@@ -98,7 +149,7 @@ async function renderLeaderboard(bossId) {
   setBreadcrumb([link("Instanzen", "#/"), "Leaderboard"]);
   app.replaceChildren(el("p", { textContent: "Lade Leaderboard…" }));
 
-  const data = await fetchJson(`/api/bosses/${bossId}/leaderboard`);
+  const data = await fetchJson(`/api/bosses/${bossId}/leaderboard?serverId=${encodeURIComponent(currentServerId)}`);
   setBreadcrumb([link("Instanzen", "#/"), data.boss.name]);
 
   if (data.topGroups.length === 0) {
@@ -186,7 +237,9 @@ async function renderSearchResults(query) {
   setBreadcrumb([link("Instanzen", "#/"), `Suche: ${query}`]);
   app.replaceChildren(el("p", { textContent: "Suche…" }));
 
-  const results = await fetchJson(`/api/players/search?q=${encodeURIComponent(query)}`);
+  const results = await fetchJson(
+    `/api/players/search?q=${encodeURIComponent(query)}&serverId=${encodeURIComponent(currentServerId)}`,
+  );
   if (results.length === 1) {
     location.hash = `#/players/${results[0].id}`;
     return;
@@ -208,8 +261,17 @@ async function route() {
   const hash = location.hash.replace(/^#\/?/, "");
   const [section, param] = hash.split("/");
 
+  updateServerIndicator();
+
   try {
-    if (!section) {
+    // Every other view either needs a server (leaderboard, search) or is meaningless to browse
+    // before one is even picked (the whole point of a "which instance/boss" drill-down is to reach
+    // a server-specific leaderboard) - so nothing else renders until one is chosen, once.
+    if (section !== "servers" && !currentServerId) {
+      await renderServerPicker();
+    } else if (section === "servers") {
+      await renderServerPicker();
+    } else if (!section) {
       await renderInstances();
     } else if (section === "instances" && param) {
       await renderBosses(param);
