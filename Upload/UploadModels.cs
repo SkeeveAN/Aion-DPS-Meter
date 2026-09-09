@@ -1,5 +1,15 @@
 namespace AionSniffer.Upload;
 
+/// <summary>Outcome of one UploadClient.SendAsync call. <see cref="Error"/> is null exactly when
+/// <see cref="Success"/> is true - carries the real reason for a failure (HTTP status + response
+/// body, or the exception message) rather than collapsing every failure into one generic message.</summary>
+public readonly record struct UploadResult(bool Success, string? Error)
+{
+    public static UploadResult Ok { get; } = new(true, null);
+
+    public static UploadResult Failed(string error) => new(false, error);
+}
+
 /// <summary>One skill's usage for one participant - field-for-field what the backend's
 /// uploadSchema.ts zod schema expects (skill/hits/critHits/total/min/max).</summary>
 public sealed record SkillUsageUpload(string Skill, int Hits, int CritHits, long Total, long Min, long Max);

@@ -27,19 +27,31 @@ public static class UploadClient
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    /// <summary>Posts one encounter. Returns false (never throws) on any network/server failure -
-    /// a failed upload must not interrupt whatever the user is doing with a running boss fight.</summary>
-    public static async Task<bool> SendAsync(EncounterUploadRequest payload)
+    /// <summary>Posts one encounter. Never throws - on any network/server failure a failed upload
+    /// must not interrupt whatever the user is doing with a running boss fight. <see cref="UploadResult.Error"/>
+    /// carries the actual reason (an HTTP status/body, or the exception message) so the UI can show
+    /// something more useful than a blanket "unreachable", which was misleading for e.g. a rejected
+    /// payload - per the user, not knowing whether/why an upload failed was itself the problem.</summary>
+    public static async Task<UploadResult> SendAsync(EncounterUploadRequest payload)
     {
         try
         {
             using HttpResponseMessage response =
                 await Http.PostAsJsonAsync($"{ApiBaseUrl}/api/uploads", payload, JsonOptions);
-            return response.IsSuccessStatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                return UploadResult.Ok;
+            }
+
+            string body = await response.Content.ReadAsStringAsync();
+            return UploadResult.Failed($"{(int)response.StatusCode} {response.ReasonPhrase}: {Truncate(body, 200)}");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return false;
+            return UploadResult.Failed(ex.Message);
         }
     }
+
+    private static string Truncate(string s, int maxLength) =>
+        s.Length <= maxLength ? s : s[..maxLength] + "...";
 }

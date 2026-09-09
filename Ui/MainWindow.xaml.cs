@@ -1287,13 +1287,28 @@ public partial class MainWindow : Window
     private const string ServerNotIdentifiedMessage =
         "Could not identify this server (bin64\\config.ini / bin32\\config.ini not found under the Aion install folder in Settings) - upload refused rather than risk mixing runs from different servers.";
 
-    /// <summary>Uploads exactly the boss the Mob/Boss filter is currently showing - the Damage
-    /// view's Upload button, and the Session menu's "Upload current boss".</summary>
+    /// <summary>The Mob/Boss filter target whose last hit is the most recent, i.e. whichever boss
+    /// was just fought - used as the "Upload current boss" default when the filter is still on
+    /// "All" rather than forcing a manual pick first (see OnUploadCurrentBossClicked).</summary>
+    private int? MostRecentlyFoughtTargetId()
+    {
+        var knownIds = _mobBossEntries.Select(entry => entry.TargetId).ToHashSet();
+        return _aggregator.Events
+            .Where(ev => !ev.IsHeal && knownIds.Contains(ev.TargetObjectId))
+            .GroupBy(ev => ev.TargetObjectId)
+            .OrderByDescending(g => g.Max(ev => ev.Timestamp))
+            .Select(g => (int?)g.Key)
+            .FirstOrDefault();
+    }
+
+    /// <summary>Uploads the boss the Mob/Boss filter is currently showing, or - per the user,
+    /// "current boss" should mean the one just fought, not force a manual filter pick first -
+    /// whichever boss most recently took damage, if the filter is still on "All".</summary>
     private async void OnUploadCurrentBossClicked(object sender, RoutedEventArgs e)
     {
-        if (_selectedTargetId is not int targetId)
+        if ((_selectedTargetId ?? MostRecentlyFoughtTargetId()) is not int targetId)
         {
-            ShowUploadStatus("Select a boss in the Mob/Boss filter first.");
+            ShowUploadStatus("No boss fights recorded yet.");
             return;
         }
 
@@ -1311,8 +1326,8 @@ public partial class MainWindow : Window
         }
 
         ShowUploadStatus("Uploading...");
-        bool ok = await UploadClient.SendAsync(payload);
-        ShowUploadStatus(ok ? "Uploaded." : "Upload failed - dpsmeter.skeeve.tv unreachable.");
+        UploadResult result = await UploadClient.SendAsync(payload);
+        ShowUploadStatus(result.Success ? "Uploaded." : $"Upload failed: {result.Error}");
     }
 
     /// <summary>
@@ -1346,6 +1361,7 @@ public partial class MainWindow : Window
 
         ShowUploadStatus($"Uploading {targetIds.Count} boss fight(s)...");
         int uploaded = 0;
+        string? lastError = null;
         foreach (int targetId in targetIds)
         {
             _selectedTargetId = targetId;
@@ -1356,9 +1372,14 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            if (await UploadClient.SendAsync(payload))
+            UploadResult result = await UploadClient.SendAsync(payload);
+            if (result.Success)
             {
                 uploaded++;
+            }
+            else
+            {
+                lastError = result.Error;
             }
         }
 
@@ -1367,7 +1388,7 @@ public partial class MainWindow : Window
 
         ShowUploadStatus(uploaded > 0
             ? $"Uploaded {uploaded} of {targetIds.Count} boss fight(s)."
-            : "Upload failed - dpsmeter.skeeve.tv unreachable.");
+            : $"Upload failed: {lastError}");
     }
 
     private void ShowUploadStatus(string message)
