@@ -22,6 +22,11 @@ export const serverCatalog = sqliteTable("server_catalog", {
   // of them.
   version: text("version").notNull(),
   kind: text("kind", { enum: ["official", "private"] }).notNull(),
+  // Per the user: a handful of researched entries turned out not worth offering (unclear
+  // reliability) - marked inactive rather than deleted, same "never just discard a row" rule as
+  // e.g. the unassigned-instance bucket. GET /api/server-catalog filters these out; the row stays
+  // in the table as a record of what was researched and rejected, not silently gone.
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
 });
 
 // Per-private-server identity. Gear/rate standards differ completely between servers (per the

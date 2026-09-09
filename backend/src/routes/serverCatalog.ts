@@ -1,4 +1,4 @@
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { serverCatalog } from "../db/schema.js";
@@ -11,6 +11,7 @@ export async function serverCatalogRoutes(app: FastifyInstance) {
     const rows = db
       .select({ id: serverCatalog.id, name: serverCatalog.name, version: serverCatalog.version, kind: serverCatalog.kind })
       .from(serverCatalog)
+      .where(eq(serverCatalog.active, true))
       .orderBy(asc(serverCatalog.kind), asc(serverCatalog.name))
       .all();
     return reply.send(rows);
