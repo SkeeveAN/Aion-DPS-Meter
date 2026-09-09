@@ -59,6 +59,11 @@ public partial class MainWindow : Window
     /// result when nobody of that class is present is the correct, intended behavior, not a bug.</summary>
     private string? _selectedClassFilter;
 
+    /// <summary>Per the user: an option to switch the whole grid to "PVP DMG" - damage against
+    /// other PLAYERS only, mobs/bosses excluded. Overrides the Mob/Boss filter (a specific NPC
+    /// target means nothing here) rather than combining with it - see RefreshRows/OnPvpOnlyClicked.</summary>
+    private bool _pvpOnly;
+
     /// <summary>Master list backing the Mob/Boss dropdown -- kept separate from MobBossFilter's own
     /// Items, which now show a SEARCH-FILTERED subset (see ApplyMobBossSearchFilter/the
     /// SearchableComboBox template in the XAML). RefreshMobBossFilterItems's dedup and "upload
@@ -860,9 +865,15 @@ public partial class MainWindow : Window
         // this event set for the totals or the row list itself. Same underlying issue as
         // LiveAggregator.Summarize -- see its remarks.
         var damageOnly = _aggregator.Events.Where(ev => !ev.IsHeal);
-        var filtered = _selectedTargetId is int targetId
-            ? damageOnly.Where(ev => ev.TargetObjectId == targetId).ToList()
-            : RestrictToEngagedTargets(damageOnly.ToList());
+
+        // PVP DMG, per the user: damage against other PLAYERS only - mobs/bosses excluded
+        // regardless of the Mob/Boss filter, which only ever lists NPC targets anyway (a specific
+        // mob selection means nothing once mobs are out of the picture entirely).
+        var filtered = _pvpOnly
+            ? damageOnly.Where(ev => IsPlayerName(ev.TargetObjectId)).ToList()
+            : _selectedTargetId is int targetId
+                ? damageOnly.Where(ev => ev.TargetObjectId == targetId).ToList()
+                : RestrictToEngagedTargets(damageOnly.ToList());
 
         // "Players only", always on per the user's request ("Players only ist IMMER vorhanden.") --
         // no toggle anymore, mobs never show. Real Aion character names never contain a space,
@@ -913,9 +924,15 @@ public partial class MainWindow : Window
             ApplyIdentity(row, sourceId);
 
             row.Damage = filtered.Where(ev => ev.SourceObjectId == sourceId).Sum(ev => ev.Amount);
-            row.Dps = _selectedTargetId is int t
-                ? DpsCalculator.TargetIDps(_aggregator.Events, t, sourceId)
-                : DpsCalculator.AllDpsWallClock(_aggregator.Events, sourceId);
+            // PVP mode's rate must come from the SAME PVP-only event set row.Damage above was
+            // just summed from, not the unfiltered full history - same reasoning as the
+            // Mob/Boss-filtered iDPS case below (see BuildEncounterUpload's own remarks on the
+            // totalDamage/idps-must-share-one-source-of-truth bug this pattern once caused).
+            row.Dps = _pvpOnly
+                ? DpsCalculator.AllDpsWallClock(filtered, sourceId)
+                : _selectedTargetId is int t
+                    ? DpsCalculator.TargetIDps(_aggregator.Events, t, sourceId)
+                    : DpsCalculator.AllDpsWallClock(_aggregator.Events, sourceId);
 
             ApplySide(row, sourceId, sides);
         }
@@ -1222,8 +1239,31 @@ public partial class MainWindow : Window
         }
 
         _selectedTargetId = (MobBossFilter.SelectedItem as ComboBoxItem)?.Tag as int?;
-        DpsColumn.Header = _selectedTargetId is int ? "Damage / iDPS" : "Damage / DPS";
+        UpdateDpsColumnHeader();
         RefreshRows();
+    }
+
+    /// <summary>Per the user: an option to switch the whole grid to damage against other PLAYERS
+    /// only (PvP - Arena/Abyss/GvG), mobs and bosses excluded entirely. Mutually exclusive with
+    /// the Mob/Boss filter (see RefreshRows) - reset to "All" here so the dropdown doesn't keep
+    /// showing a now-irrelevant mob selection while PVP mode is active.</summary>
+    private void OnPvpOnlyClicked(object sender, RoutedEventArgs e)
+    {
+        _pvpOnly = PvpOnlyBox.IsChecked == true;
+
+        if (_pvpOnly)
+        {
+            _selectedTargetId = null;
+            MobBossFilter.SelectedItem = _mobBossAllItem;
+        }
+
+        UpdateDpsColumnHeader();
+        RefreshRows();
+    }
+
+    private void UpdateDpsColumnHeader()
+    {
+        DpsColumn.Header = _pvpOnly ? "Damage / DPS (PvP)" : _selectedTargetId is int ? "Damage / iDPS" : "Damage / DPS";
     }
 
     /// <summary>
@@ -2063,7 +2103,7 @@ public partial class MainWindow : Window
         _playerIdentities.Clear();
         _buffCasts.Clear();
         _selectedTargetId = null;
-        DpsColumn.Header = "Damage / DPS";
+        UpdateDpsColumnHeader();
 
         // Personal stats belong to the damage side: they are the run's own counters (XP/AP/GP/Kinah
         // earned while fighting), not a property of the loot table.

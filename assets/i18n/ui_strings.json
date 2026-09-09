@@ -359,6 +359,16 @@
     "tr": "Tümü",
     "zh": "全部"
   },
+  "Main.PvpOnly": {
+    "en": "PVP DMG",
+    "de": "PvP-Schaden",
+    "fr": "Dégâts JcJ",
+    "es": "Daño JcJ",
+    "ru": "Урон в PvP",
+    "pl": "Obrażenia PvP",
+    "tr": "PVP Hasarı",
+    "zh": "PVP 伤害"
+  },
   "Main.FilterSelf": {
     "en": "Self",
     "de": "Ich",

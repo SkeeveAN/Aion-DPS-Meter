@@ -653,6 +653,13 @@
                               ToolTip="Filter by target. 'All' sums damage across every target seen. Type in the dropdown to search.">
                         <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
                     </ComboBox>
+                    <!-- Per the user: damage against other PLAYERS only (Arena/Abyss/GvG), mobs and
+                         bosses excluded entirely - overrides the Mob/Boss filter above rather than
+                         combining with it (see RefreshRows/OnPvpOnlyClicked), since a specific mob
+                         selection means nothing once mobs are out of the picture. -->
+                    <CheckBox x:Name="PvpOnlyBox" Content="{local:Loc Main.PvpOnly}" VerticalAlignment="Center"
+                              Margin="10,0,0,0" Click="OnPvpOnlyClicked"
+                              ToolTip="Only counts damage dealt to other players (PvP) - mobs and bosses are excluded entirely."/>
                 </StackPanel>
 
                 <!-- Bottom status row, per the user: connection/Chat.log status removed ("Die Infos
