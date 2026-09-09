@@ -59,6 +59,24 @@ public partial class MainWindow : Window
     /// result when nobody of that class is present is the correct, intended behavior, not a bug.</summary>
     private string? _selectedClassFilter;
 
+    /// <summary>Master list backing the Mob/Boss dropdown -- kept separate from MobBossFilter's own
+    /// Items, which now show a SEARCH-FILTERED subset (see ApplyMobBossSearchFilter/the
+    /// SearchableComboBox template in the XAML). RefreshMobBossFilterItems's dedup and "upload
+    /// every boss since Clear" (OnUploadLastRunClicked) both need the full, unfiltered set
+    /// regardless of whatever the user currently has typed into the search box.</summary>
+    private readonly List<(int TargetId, string Name)> _mobBossEntries = new();
+
+    /// <summary>The XAML-declared "All" entry, captured once in the constructor so
+    /// ApplyMobBossSearchFilter can keep re-inserting this SAME instance (preserving its
+    /// {local:Loc Main.FilterAll} binding) instead of fabricating a plain-text replacement every
+    /// time the list rebuilds.</summary>
+    private readonly ComboBoxItem _mobBossAllItem;
+
+    /// <summary>Found once, in OnWindowLoaded, via the SearchableComboBox template's
+    /// PART_SearchBox -- null until then, and also whenever the template hasn't produced one for
+    /// some reason (defensive; every code path already tolerates a no-op filter in that case).</summary>
+    private TextBox? _mobBossSearchBox;
+
     /// <summary>
     /// The user's own characters, from Settings -- see MeterSettings.Characters remarks for why
     /// Chat.log itself can never supply the local player's real name. _activeCharacterName is
@@ -102,6 +120,13 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        // Captured now, before anything ever rebuilds MobBossFilter.Items, so
+        // ApplyMobBossSearchFilter can keep re-inserting this exact instance rather than a plain
+        // "All" it would have to build itself -- this one keeps the XAML {local:Loc Main.FilterAll}
+        // binding, which is only set up once, at parse time, on this specific object.
+        _mobBossAllItem = (ComboBoxItem)MobBossFilter.Items[0]!;
+        Loaded += OnWindowLoaded;
 
         // Version in the title, read back from the assembly rather than typed here a second time:
         // AionSniffer.csproj's <Version> is the only place it is written. Needed because builds are
@@ -1058,10 +1083,8 @@ public partial class MainWindow : Window
     /// remarks for the same underlying IsHeal-filter gap in a different consumer).</summary>
     private void RefreshMobBossFilterItems()
     {
-        var knownIds = MobBossFilter.Items.OfType<ComboBoxItem>()
-            .Where(i => i.Tag is int)
-            .Select(i => (int)i.Tag!)
-            .ToHashSet();
+        var knownIds = _mobBossEntries.Select(entry => entry.TargetId).ToHashSet();
+        bool added = false;
 
         foreach (int targetId in _aggregator.Events.Where(ev => !ev.IsHeal).Select(ev => ev.TargetObjectId).Distinct())
         {
@@ -1070,12 +1093,72 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            MobBossFilter.Items.Add(new ComboBoxItem
-            {
-                Content = _targetNames.TryGetValue(targetId, out string? name) ? name : ResolveDisplayName(targetId),
-                Tag = targetId,
-            });
+            string name = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
+            _mobBossEntries.Add((targetId, name));
+            added = true;
         }
+
+        if (added)
+        {
+            ApplyMobBossSearchFilter();
+        }
+    }
+
+    /// <summary>
+    /// Rebuilds MobBossFilter's VISIBLE Items from <see cref="_mobBossEntries"/>, keeping only
+    /// names that CONTAIN the search box's current text - substring, case-insensitive ("like
+    /// '%word%'", per the user, not WPF's own built-in type-ahead, which only matches from the
+    /// start). "All" is always shown regardless of the search text - it isn't a target name to
+    /// search for at all. Re-selects whichever target was selected before the rebuild, if it
+    /// survived the filter: every rebuild creates new ComboBoxItem instances, so without this the
+    /// selection (and _selectedTargetId with it) would reset on every keystroke.
+    /// </summary>
+    private void ApplyMobBossSearchFilter()
+    {
+        int? previouslySelected = _selectedTargetId;
+        string search = _mobBossSearchBox?.Text ?? "";
+
+        MobBossFilter.Items.Clear();
+        MobBossFilter.Items.Add(_mobBossAllItem);
+        foreach (var entry in _mobBossEntries)
+        {
+            if (search.Length == 0 || entry.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+            {
+                MobBossFilter.Items.Add(new ComboBoxItem { Content = entry.Name, Tag = entry.TargetId });
+            }
+        }
+
+        MobBossFilter.SelectedItem = MobBossFilter.Items.OfType<ComboBoxItem>()
+            .FirstOrDefault(item => Equals(item.Tag as int?, previouslySelected))
+            ?? _mobBossAllItem;
+    }
+
+    /// <summary>
+    /// Wires up the SearchableComboBox template's PART_SearchBox - has to wait for the real
+    /// visual tree (Loaded), since a ComboBox's template isn't materialized yet at construction
+    /// time and Template.FindName needs it to be. Clearing the search text on every DropDownOpened
+    /// (not just once here) is what keeps a stale search from an earlier session hiding the target
+    /// the user wants next time they open the list.
+    /// </summary>
+    private void OnWindowLoaded(object sender, RoutedEventArgs e)
+    {
+        MobBossFilter.ApplyTemplate();
+        _mobBossSearchBox = MobBossFilter.Template.FindName("PART_SearchBox", MobBossFilter) as TextBox;
+        if (_mobBossSearchBox is null)
+        {
+            return;
+        }
+
+        _mobBossSearchBox.TextChanged += (_, _) => ApplyMobBossSearchFilter();
+        MobBossFilter.DropDownOpened += (_, _) =>
+        {
+            _mobBossSearchBox.Text = "";
+            // BeginInvoke, not a direct call: the popup's own content isn't reliably focusable
+            // yet at the instant DropDownOpened fires (same class of timing issue as focusing
+            // anything else inside a just-opened Popup) -- Input priority runs it right after the
+            // popup finishes opening, not on some arbitrary later frame.
+            Dispatcher.BeginInvoke(() => _mobBossSearchBox.Focus(), System.Windows.Threading.DispatcherPriority.Input);
+        };
     }
 
     private void OnMobBossFilterChanged(object sender, SelectionChangedEventArgs e)
@@ -1225,10 +1308,10 @@ public partial class MainWindow : Window
     private async void OnUploadLastRunClicked(object sender, RoutedEventArgs e)
     {
         int? previousTarget = _selectedTargetId;
-        var targetIds = MobBossFilter.Items.OfType<ComboBoxItem>()
-            .Where(i => i.Tag is int)
-            .Select(i => (int)i.Tag!)
-            .ToList();
+        // The full, unfiltered set, not whatever the dropdown happens to be showing under an
+        // active search right now (see _mobBossEntries's own remarks) - a stale search must never
+        // silently shrink how many fights this uploads.
+        var targetIds = _mobBossEntries.Select(entry => entry.TargetId).ToList();
 
         if (targetIds.Count == 0)
         {
@@ -1650,12 +1733,8 @@ public partial class MainWindow : Window
         GpValueText.Text = "-";
         KinahValueText.Text = "-";
 
-        while (MobBossFilter.Items.Count > 1) // keep the XAML-declared "All" entry, drop the rest
-        {
-            MobBossFilter.Items.RemoveAt(1);
-        }
-
-        MobBossFilter.SelectedIndex = 0;
+        _mobBossEntries.Clear();
+        ApplyMobBossSearchFilter();
     }
 
     private void ClearLootData()

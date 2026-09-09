@@ -55,6 +55,38 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="Margin" Value="4"/>
         </Style>
+        <!-- Per the user: the Copy/CopyAll/Pause/EmptyChatLog/Clear/HideUi icon row (shared by the
+             Damage and Loot views) sat only one shade above the toolbar's own #26262e background
+             (#2a2a33 idle), which barely separated the icon chips from their surroundings. A full
+             template copy rather than a BasedOn override of just the Background setter: the
+             default Button template's hover/pressed colors (#34343f/#1e1e24) are hardcoded inside
+             its ControlTemplate.Triggers, not TemplateBinding'd, so a lighter idle color alone
+             would leave hover barely distinguishable from idle (or, worse, darker than it). -->
+        <Style x:Key="ToolbarIconButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#34343f"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#40404e"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#26262e"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <!-- Same root cause, different control: an implicit ComboBox style only setting
              Margin/MinWidth does nothing to the default WPF chrome, which is light-themed
              regardless of the window's own colors (the closed box AND, worse, the dropdown
@@ -127,7 +159,11 @@
         <Style TargetType="ComboBox">
             <Setter Property="Margin" Value="4,2"/>
             <Setter Property="MinWidth" Value="110"/>
-            <Setter Property="Background" Value="#26262e"/>
+            <!-- Per the user: the closed box previously matched the surrounding toolbar/window
+                 background (#26262e) almost exactly, so the three filter dropdowns barely read as
+                 controls. A distinct, still-dark shade here - the dropdown POPUP below keeps
+                 #26262e on purpose, so the open list still matches the rest of the app's flyouts. -->
+            <Setter Property="Background" Value="#32323e"/>
             <Setter Property="Foreground" Value="#e8e8ea"/>
             <Setter Property="BorderBrush" Value="#3a3a45"/>
             <Setter Property="Template">
@@ -160,6 +196,59 @@
                                     <ScrollViewer SnapsToDevicePixels="True">
                                         <ItemsPresenter/>
                                     </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Per the user: the Mob/Boss target dropdown needed a search box, filtering the list as
+             you type by substring ("like '%word%'"), not just WPF's own built-in type-ahead (which
+             only matches from the start of an item's text). A ComboBox's normal IsEditable="True"
+             would need this template to define a PART_EditableTextBox, replacing the closed box's
+             own display - not what's wanted here, since the closed box should keep showing the
+             CURRENT SELECTION, not become a typing field itself. Instead, PART_SearchBox lives
+             inside the dropdown POPUP, above the list, exactly where MainWindow.xaml.cs's
+             ApplyMobBossSearchFilter expects to find it (via Template.FindName, wired up once in
+             OnWindowLoaded) - it only affects what the OPEN list shows, never the closed box. -->
+        <Style x:Key="SearchableComboBox" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton" Focusable="False"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                                            <Path Data="M0,0 L4,4 L8,0 Z" Fill="#c8c8ce" Margin="0,0,8,0"
+                                                  HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              Margin="6,3,20,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
+                                   Focusable="False" PopupAnimation="Slide">
+                                <Border Background="#26262e" BorderBrush="#3a3a45" BorderThickness="1"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <DockPanel>
+                                        <TextBox x:Name="PART_SearchBox" DockPanel.Dock="Top"
+                                                 Background="#1e1e24" Foreground="#e8e8ea"
+                                                 BorderBrush="#3a3a45" BorderThickness="0,0,0,1"
+                                                 Padding="5,4" Margin="0"/>
+                                        <ScrollViewer SnapsToDevicePixels="True" MaxHeight="240">
+                                            <ItemsPresenter/>
+                                        </ScrollViewer>
+                                    </DockPanel>
                                 </Border>
                             </Popup>
                         </Grid>
@@ -392,7 +481,7 @@
                          and Discord's own mark for the table. They used to swap between an icon and
                          a text label depending on the active view, which meant the same button
                          looked like two different controls. -->
-                    <Button x:Name="CopyButton" Click="OnCopyClicked" Padding="6,4"
+                    <Button x:Name="CopyButton" Style="{StaticResource ToolbarIconButton}" Click="OnCopyClicked" Padding="6,4"
                             ToolTip="Copy a one-line chat string - the damage ranking, or an Aion-chat loot summary if the Loot view is active.">
                         <Grid Width="18" Height="16">
                             <TextBlock Text="A" FontSize="15" FontWeight="Bold" Foreground="#e8e8ea"
@@ -403,7 +492,7 @@
                          grid is showing (no per-source filter exists yet for "all" to differ from
                          "visible"), but Copy yields the one-line chat string and CopyAll the
                          tab-separated table, which is what the String/Table labels say. -->
-                    <Button x:Name="CopyAllButton" Click="OnCopyAllClicked" Padding="6,4"
+                    <Button x:Name="CopyAllButton" Style="{StaticResource ToolbarIconButton}" Click="OnCopyAllClicked" Padding="6,4"
                             ToolTip="Copy an ASCII table in a code block, ready to paste into Discord - damage, or loot if the Loot view is active.">
                         <Grid Width="18" Height="16">
                             <!-- Discord's own mark, from the simple-icons 24x24 viewBox. The SVG
@@ -420,7 +509,7 @@
                          ToolTip text, since the icon alone no longer carries the word "Resume".
                          Paused Chat.log lines are read but discarded, never replayed on Resume -
                          see ChatLogTailer's "never look into the past" rule for why. -->
-                    <Button x:Name="PauseButton" Click="OnPauseClicked" Padding="6,4"
+                    <Button x:Name="PauseButton" Style="{StaticResource ToolbarIconButton}" Click="OnPauseClicked" Padding="6,4"
                             ToolTip="Pause recording.">
                         <Grid Width="18" Height="16">
                             <StackPanel x:Name="PauseIcon" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -434,7 +523,7 @@
                          meter ever does: the client only ever appends to it. Sits next to Clear
                          because both are "throw data away", but they touch different things:
                          Clear resets the view, this one rewrites a file on disk. -->
-                    <Button x:Name="EmptyChatLogButton" Click="OnEmptyChatLogClicked" Padding="6,4"
+                    <Button x:Name="EmptyChatLogButton" Style="{StaticResource ToolbarIconButton}" Click="OnEmptyChatLogClicked" Padding="6,4"
                             ToolTip="Empty Aion's Chat.log on disk. The meter keeps running; only the file's history is discarded.">
                         <Grid Width="18" Height="16">
                             <Path Data="M4,1 L11,1 L14,4 L14,15 L4,15 Z M11,1 L11,4 L14,4"
@@ -448,7 +537,7 @@
                          is the active view), so this one icon change covers both tabs. Red matches
                          the same accent already used for the destructive X on EmptyChatLogButton
                          above and the Player Database's own delete action. -->
-                    <Button x:Name="ClearButton" Click="OnClearClicked" Padding="6,4"
+                    <Button x:Name="ClearButton" Style="{StaticResource ToolbarIconButton}" Click="OnClearClicked" Padding="6,4"
                             ToolTip="Clear the view you are looking at - damage or loot, not both (does not touch Chat.log itself).">
                         <Grid Width="18" Height="16">
                             <Path Data="M4,3 L14,13 M14,3 L4,13" Stroke="#e0464f" StrokeThickness="2"
@@ -465,7 +554,7 @@
                          click-through overlay sitting behind the game or cluttering the taskbar
                          would defeat the point); the button itself becomes unreachable once the
                          window is click-through, which is why Ctrl+Alt+H exists to bring it back. -->
-                    <Button x:Name="HideUiButton" Click="OnHideUiClicked" Padding="6,4"
+                    <Button x:Name="HideUiButton" Style="{StaticResource ToolbarIconButton}" Click="OnHideUiClicked" Padding="6,4"
                             ToolTip="Overlay mode: transparent, click-through, shows a small DPS chip per player. Ctrl+Alt+H brings the UI back.">
                         <Path Data="M1,12 C1,12 4.5,5 12,5 19.5,5 23,12 23,12 23,12 19.5,19 12,19 4.5,19 1,12 1,12 Z
                                     M12,15 A3,3 0 1 0 12,9 3,3 0 1 0 12,15 Z"
@@ -530,8 +619,9 @@
                     <!-- Lists targets actually seen this session. "All" sums each source's damage
                          across every target (the ambiguous wall-clock view - see DpsCalculator
                          remarks); picking one target switches DPS to true per-target iDPS. -->
-                    <ComboBox x:Name="MobBossFilter" SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="8,0,0,0"
-                              ToolTip="Filter by target. 'All' sums damage across every target seen.">
+                    <ComboBox x:Name="MobBossFilter" Style="{StaticResource SearchableComboBox}"
+                              SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="8,0,0,0"
+                              ToolTip="Filter by target. 'All' sums damage across every target seen. Type in the dropdown to search.">
                         <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
                     </ComboBox>
                     <!-- Uploads exactly the boss the Mob/Boss filter above is currently showing -
