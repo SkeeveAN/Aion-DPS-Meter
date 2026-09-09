@@ -1243,13 +1243,17 @@ public partial class MainWindow : Window
         RefreshRows();
     }
 
-    /// <summary>Per the user: an option to switch the whole grid to damage against other PLAYERS
-    /// only (PvP - Arena/Abyss/GvG), mobs and bosses excluded entirely. Mutually exclusive with
+    /// <summary>Per the user: a two-way segmented toggle (PVE/PVP), not an independent checkbox -
+    /// exactly one side is active, enforced here rather than via RadioButton's own chrome (see the
+    /// style comment in the XAML). PVP restricts the whole grid to damage against other PLAYERS
+    /// only (Arena/Abyss/GvG), mobs and bosses excluded entirely, and is mutually exclusive with
     /// the Mob/Boss filter (see RefreshRows) - reset to "All" here so the dropdown doesn't keep
     /// showing a now-irrelevant mob selection while PVP mode is active.</summary>
-    private void OnPvpOnlyClicked(object sender, RoutedEventArgs e)
+    private void OnPvpModeToggleClicked(object sender, RoutedEventArgs e)
     {
-        _pvpOnly = PvpOnlyBox.IsChecked == true;
+        _pvpOnly = ReferenceEquals(sender, PvpModeButton);
+        PveModeButton.IsChecked = !_pvpOnly;
+        PvpModeButton.IsChecked = _pvpOnly;
 
         if (_pvpOnly)
         {

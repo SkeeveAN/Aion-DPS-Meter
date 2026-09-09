@@ -359,15 +359,25 @@
     "tr": "Tümü",
     "zh": "全部"
   },
-  "Main.PvpOnly": {
-    "en": "PVP DMG",
-    "de": "PvP-Schaden",
-    "fr": "Dégâts JcJ",
-    "es": "Daño JcJ",
-    "ru": "Урон в PvP",
-    "pl": "Obrażenia PvP",
-    "tr": "PVP Hasarı",
-    "zh": "PVP 伤害"
+  "Main.ModePve": {
+    "en": "PVE",
+    "de": "PvE",
+    "fr": "JcE",
+    "es": "JcE",
+    "ru": "PvE",
+    "pl": "PvE",
+    "tr": "PVE",
+    "zh": "PVE"
+  },
+  "Main.ModePvp": {
+    "en": "PVP",
+    "de": "PvP",
+    "fr": "JcJ",
+    "es": "JcJ",
+    "ru": "PvP",
+    "pl": "PvP",
+    "tr": "PVP",
+    "zh": "PVP"
   },
   "Main.FilterSelf": {
     "en": "Self",

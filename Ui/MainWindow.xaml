@@ -87,6 +87,70 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- PVE/PVP mode switch, per the user: not an independent checkbox but a two-way segmented
+             toggle where exactly one side is active - PveModeButton starts IsChecked in the XAML
+             below, and OnPvpModeToggleClicked keeps the pair mutually exclusive in code (plain
+             ToggleButtons rather than RadioButtons, since only two segments ever exist and this
+             keeps the "which one is active" logic in one small method instead of fighting
+             RadioButton's own default chrome). The checked segment gets the same green (#69e15e)
+             already used for this app's other accent/link text, dark text on top of it for contrast
+             (mirrors a filled button on a light background, not this app's usual light-on-dark). -->
+        <Style x:Key="PvpModeToggleLeft" TargetType="ToggleButton">
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bd" Background="#34343f" BorderBrush="#3a3a45" BorderThickness="1,1,0,1"
+                                CornerRadius="4,0,0,4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#69e15e"/>
+                                <Setter Property="Foreground" Value="#1e1e24"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Bd" Property="Background" Value="#40404e"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PvpModeToggleRight" TargetType="ToggleButton" BasedOn="{StaticResource PvpModeToggleLeft}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bd" Background="#34343f" BorderBrush="#3a3a45" BorderThickness="1"
+                                CornerRadius="0,4,4,0" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#69e15e"/>
+                                <Setter Property="Foreground" Value="#1e1e24"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Bd" Property="Background" Value="#40404e"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <!-- Same root cause, different control: an implicit ComboBox style only setting
              Margin/MinWidth does nothing to the default WPF chrome, which is light-themed
              regardless of the window's own colors (the closed box AND, worse, the dropdown
@@ -589,6 +653,18 @@
                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                               Width="18" Height="15" Stretch="Uniform"/>
                     </Button>
+                    <!-- PVE/PVP mode switch, per the user: one row up from the filter dropdowns, a
+                         segmented toggle (exactly one side active) rather than an independent
+                         checkbox. PVP restricts the whole grid to damage against other players,
+                         mobs/bosses excluded entirely, and overrides the Mob/Boss filter rather than
+                         combining with it - see OnPvpModeToggleClicked/RefreshRows. -->
+                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center"
+                                ToolTip="PVE: damage against mobs/bosses (default). PVP: damage against other players only - Arena/Abyss/GvG.">
+                        <ToggleButton x:Name="PveModeButton" Style="{StaticResource PvpModeToggleLeft}"
+                                      Content="{local:Loc Main.ModePve}" IsChecked="True" Click="OnPvpModeToggleClicked"/>
+                        <ToggleButton x:Name="PvpModeButton" Style="{StaticResource PvpModeToggleRight}"
+                                      Content="{local:Loc Main.ModePvp}" Click="OnPvpModeToggleClicked"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- Filter row: three dropdowns, matching the myaion.eu reference exactly (class
@@ -653,13 +729,6 @@
                               ToolTip="Filter by target. 'All' sums damage across every target seen. Type in the dropdown to search.">
                         <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
                     </ComboBox>
-                    <!-- Per the user: damage against other PLAYERS only (Arena/Abyss/GvG), mobs and
-                         bosses excluded entirely - overrides the Mob/Boss filter above rather than
-                         combining with it (see RefreshRows/OnPvpOnlyClicked), since a specific mob
-                         selection means nothing once mobs are out of the picture. -->
-                    <CheckBox x:Name="PvpOnlyBox" Content="{local:Loc Main.PvpOnly}" VerticalAlignment="Center"
-                              Margin="10,0,0,0" Click="OnPvpOnlyClicked"
-                              ToolTip="Only counts damage dealt to other players (PvP) - mobs and bosses are excluded entirely."/>
                 </StackPanel>
 
                 <!-- Bottom status row, per the user: connection/Chat.log status removed ("Die Infos
