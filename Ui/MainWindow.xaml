@@ -668,41 +668,51 @@
                      ServerStatusDot/Text and ChatLogStatusDot/Text (connection state) aren't shown
                      anywhere else now - Chat.log validity is still visible in Settings'
                      AionInstallFolderStatus if that needs checking. -->
-                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Background="#26262e" Height="26">
-                    <TextBlock Text="{local:Loc Main.StatExp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="8,0,4,0"/>
-                    <TextBlock x:Name="ExpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
-                    <TextBlock Text="{local:Loc Main.StatAp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                    <TextBlock x:Name="ApValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
-                    <TextBlock Text="{local:Loc Main.StatGp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                    <TextBlock x:Name="GpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
-                    <TextBlock Text="{local:Loc Main.StatKinah}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                    <TextBlock x:Name="KinahValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
+                <!-- Two rows, not one: the stats row alone already fills most of a narrow window,
+                     so any notice below (update available, Chat.log size warning, an upload
+                     result) used to get clipped instead of just wrapping - found by the user
+                     against a real screenshot where "Update 0.7.16" was cut off mid-text. Splitting
+                     the stats (always shown) from the notices (each collapsed until there's
+                     something to say) gives the notices their own row's full width instead of
+                     fighting the stats for what's left of one shared line. -->
+                <StackPanel DockPanel.Dock="Bottom" Background="#26262e">
+                    <StackPanel Orientation="Horizontal" Height="22">
+                        <TextBlock Text="{local:Loc Main.StatExp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                        <TextBlock x:Name="ExpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
+                        <TextBlock Text="{local:Loc Main.StatAp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                        <TextBlock x:Name="ApValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
+                        <TextBlock Text="{local:Loc Main.StatGp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                        <TextBlock x:Name="GpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
+                        <TextBlock Text="{local:Loc Main.StatKinah}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                        <TextBlock x:Name="KinahValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Height="22">
+                        <!-- Only appears once Chat.log passes the threshold. In the status row
+                             rather than as a popup for the same reason as the update notice: this
+                             window sits on top of a running game, and nothing here is urgent
+                             enough to steal focus from a fight. -->
+                        <TextBlock x:Name="ChatLogSizeWarning" Visibility="Collapsed" VerticalAlignment="Center"
+                                   Margin="8,0,8,0" Foreground="#f0b71c" FontWeight="Bold" Cursor="Hand"
+                                   MouseLeftButtonUp="OnEmptyChatLogClicked"
+                                   ToolTip="Aion never trims Chat.log by itself. Click to empty it."/>
 
-                    <!-- Only appears once Chat.log passes the threshold. In the status row rather
-                         than as a popup for the same reason as the update notice: this window sits
-                         on top of a running game, and nothing here is urgent enough to steal focus
-                         from a fight. -->
-                    <TextBlock x:Name="ChatLogSizeWarning" Visibility="Collapsed" VerticalAlignment="Center"
-                               Margin="16,0,8,0" Foreground="#f0b71c" FontWeight="Bold" Cursor="Hand"
-                               MouseLeftButtonUp="OnEmptyChatLogClicked"
-                               ToolTip="Aion never trims Chat.log by itself. Click to empty it."/>
+                        <!-- Update notice. Deliberately a quiet line in the status row and NOT a
+                             popup: the meter sits on top of a running game, and a modal dialog
+                             appearing mid-boss because a background timer fired would steal focus
+                             from the fight. It only becomes visible when there is something to say,
+                             and clicking it is what starts anything. -->
+                        <TextBlock x:Name="UpdateNotice" Visibility="Collapsed" VerticalAlignment="Center"
+                                   Margin="8,0,8,0" Foreground="#69e15e" Cursor="Hand"
+                                   MouseLeftButtonUp="OnUpdateNoticeClicked"
+                                   TextDecorations="Underline"
+                                   ToolTip="A newer version is available - click to download and install it."/>
 
-                    <!-- Update notice. Deliberately a quiet line in the status row and NOT a
-                         popup: the meter sits on top of a running game, and a modal dialog
-                         appearing mid-boss because a background timer fired would steal focus
-                         from the fight. It only becomes visible when there is something to say,
-                         and clicking it is what starts anything. -->
-                    <TextBlock x:Name="UpdateNotice" Visibility="Collapsed" VerticalAlignment="Center"
-                               Margin="16,0,8,0" Foreground="#69e15e" Cursor="Hand"
-                               MouseLeftButtonUp="OnUpdateNoticeClicked"
-                               TextDecorations="Underline"
-                               ToolTip="A newer version is available - click to download and install it."/>
-
-                    <!-- Quiet result line for the two upload actions (Session menu + the Damage
-                         view's Upload button) - same reasoning as UpdateNotice above: this window
-                         sits on top of a running fight, so a result never pops a modal dialog. -->
-                    <TextBlock x:Name="UploadStatusText" Visibility="Collapsed" VerticalAlignment="Center"
-                               Margin="16,0,8,0" Foreground="#9a9aa2"/>
+                        <!-- Quiet result line for the two upload actions (Session menu + the Damage
+                             view's Upload button) - same reasoning as UpdateNotice above: this window
+                             sits on top of a running fight, so a result never pops a modal dialog. -->
+                        <TextBlock x:Name="UploadStatusText" Visibility="Collapsed" VerticalAlignment="Center"
+                                   Margin="8,0,8,0" Foreground="#9a9aa2"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- Left nav rail: mirrors MyAion's 5 view icons. Only "Damage Distribution" has a
