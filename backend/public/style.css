@@ -80,8 +80,12 @@ header h1 a {
   margin-left: 6px;
 }
 
-.search {
+.lang-switcher {
   margin-left: auto;
+  flex-shrink: 0;
+}
+
+.search {
   display: flex;
   gap: 6px;
 }

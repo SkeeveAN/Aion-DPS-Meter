@@ -58,6 +58,7 @@ export async function playerRoutes(app: FastifyInstance) {
 
     const history = db
       .select({
+        participantId: encounterParticipants.id,
         encounterId: encounters.id,
         bossId: bosses.id,
         bossName: bosses.name,

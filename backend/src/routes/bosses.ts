@@ -44,6 +44,7 @@ export async function bossRoutes(app: FastifyInstance) {
       const groupsWithRosters = topGroups.map((group) => {
         const roster = db
           .select({
+            participantId: encounterParticipants.id,
             playerName: players.name,
             className: encounterParticipants.className,
             totalDamage: encounterParticipants.totalDamage,
@@ -62,6 +63,7 @@ export async function bossRoutes(app: FastifyInstance) {
       // group and cap in JS.
       const allParticipants = db
         .select({
+          participantId: encounterParticipants.id,
           playerName: players.name,
           className: encounterParticipants.className,
           idps: encounterParticipants.idps,

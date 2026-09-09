@@ -8,6 +8,7 @@ import { env } from "./env.js";
 import { uploadRoutes } from "./routes/uploads.js";
 import { instanceRoutes } from "./routes/instances.js";
 import { bossRoutes } from "./routes/bosses.js";
+import { encounterRoutes } from "./routes/encounters.js";
 import { playerRoutes } from "./routes/players.js";
 import { serverRoutes } from "./routes/servers.js";
 import { serverCatalogRoutes } from "./routes/serverCatalog.js";
@@ -29,6 +30,7 @@ export async function buildServer() {
   await app.register(uploadRoutes);
   await app.register(instanceRoutes);
   await app.register(bossRoutes);
+  await app.register(encounterRoutes);
   await app.register(playerRoutes);
   await app.register(serverRoutes);
   await app.register(serverCatalogRoutes);
