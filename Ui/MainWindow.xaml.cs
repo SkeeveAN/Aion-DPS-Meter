@@ -1237,7 +1237,15 @@ public partial class MainWindow : Window
                 .Where(e => e.IsHeal && e.SourceObjectId == row.ObjectId
                     && e.Timestamp >= windowStart && e.Timestamp <= windowEnd)
                 .ToList();
-            if (hitsOnBoss.Count == 0 && healsBySelf.Count == 0)
+            // Per the user: a group member (row.IsEnemy false - see ApplySide/FactionResolver)
+            // must always appear in the roster, even at 0, not just when they happen to land a
+            // hit or heal inside this exact fight's tight damage-derived time window - found from
+            // a real healer who buffed/healed the group only before this window started and
+            // landed no heal inside it, so she was silently missing from the whole roster. An
+            // actual enemy (or anyone whose side is still unresolved either way) with no
+            // contribution to this target is still skipped - only a known ally survives on
+            // presence alone.
+            if (hitsOnBoss.Count == 0 && healsBySelf.Count == 0 && row.IsEnemy)
             {
                 continue;
             }
