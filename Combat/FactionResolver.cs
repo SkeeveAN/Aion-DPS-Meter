@@ -47,6 +47,7 @@ public static class FactionResolver
         IReadOnlySet<string> anchors)
     {
         var allies = new Dictionary<int, HashSet<int>>();
+        var oneWayHits = new HashSet<(int From, int To)>();
         var fought = new Dictionary<int, HashSet<int>>();
         var sameTarget = new Dictionary<int, HashSet<int>>();
 
@@ -66,7 +67,7 @@ public static class FactionResolver
             }
             else if (sourceIsPlayer && targetIsPlayer && e.SourceObjectId != e.TargetObjectId)
             {
-                Link(fought, e.SourceObjectId, e.TargetObjectId);
+                oneWayHits.Add((e.SourceObjectId, e.TargetObjectId));
             }
             else if (sourceIsPlayer && !targetIsPlayer)
             {
@@ -79,6 +80,25 @@ public static class FactionResolver
                 }
 
                 attackers.Add(e.SourceObjectId);
+            }
+        }
+
+        // A hit sourced by the LOCAL PLAYER specifically needs the reverse hit too before it counts
+        // as hostility - found from a real report: "Zetsu received 950 bleeding damage after you
+        // used Blade Rampage", a real Dredgion teammate caught by the local player's own AOE/DoT,
+        // who obviously never hit back. That one one-way "You hit Zetsu" edge was enough to seed
+        // Zetsu as an enemy outright; since "enemies are fixed" once seeded (see the remarks
+        // below), growing the enemy side through the ally graph from that single bad edge dragged
+        // in every other real teammate connected to Zetsu by a heal, flipping the whole group
+        // except the local player. Every OTHER hit (an enemy hitting you, or two third parties
+        // fighting each other) is trusted on one line alone, same as before - the local player is
+        // the one participant whose own outgoing AOE this meter can actually mis-attribute as
+        // hostility; nothing says a THIRD party's hit on someone else is similarly suspect.
+        foreach ((int from, int to) in oneWayHits)
+        {
+            if (from != youId || oneWayHits.Contains((to, from)))
+            {
+                Link(fought, from, to);
             }
         }
 

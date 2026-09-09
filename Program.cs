@@ -2,6 +2,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using AionSniffer.ChatLog;
 using AionSniffer.Combat;
+using AionSniffer.Data;
 using Velopack;
 
 namespace AionSniffer;
@@ -67,20 +68,40 @@ internal static class Program
             return;
         }
 
+        // Temporary diagnostic for a live bug report (real teammates flipping to "enemy" mid-
+        // session) - runs FactionResolver.Resolve() the exact same way MainWindow.ResolveSides()
+        // does, but against a one-shot full-file parse, and dumps the resulting side per name plus
+        // the raw fought/sameTarget edges for the names given. Not wired into the normal usage list
+        // on purpose: this is an investigation tool, not a feature.
+        if (args.Length > 0 && args[0] == "factioncheck")
+        {
+            if (args.Length < 3)
+            {
+                Console.WriteLine("Usage: AionSniffer factioncheck <path-to-Chat.log> <name1,name2,...>");
+                return;
+            }
+
+            RunFactionCheckMode(args[1], args[2].Split(',', StringSplitOptions.TrimEntries));
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "upload")
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: AionSniffer upload <boss-name> [gap-seconds]");
-                Console.WriteLine("  Reads the Chat.log already configured in Settings, splits every kill of");
-                Console.WriteLine("  <boss-name> into separate runs by a time gap (default 120s), and uploads");
-                Console.WriteLine("  each one - same pipeline as the GUI's \"Reload from Chat.log\" + \"Upload");
-                Console.WriteLine("  last run\", just driven from a shell instead of clicking through both.");
+                Console.WriteLine("Usage: AionSniffer upload <boss-name> [gap-seconds] [path-to-Chat.log]");
+                Console.WriteLine("  Reads the Chat.log already configured in Settings (or the one given as the");
+                Console.WriteLine("  third argument - e.g. a differently-named log from another client language),");
+                Console.WriteLine("  splits every kill of <boss-name> into separate runs by a time gap (default");
+                Console.WriteLine("  120s), and uploads each one - same pipeline as the GUI's \"Reload from");
+                Console.WriteLine("  Chat.log\" + \"Upload last run\", just driven from a shell instead of");
+                Console.WriteLine("  clicking through both.");
                 return;
             }
 
             double gapSeconds = args.Length > 2 && double.TryParse(args[2], out double g) ? g : 120;
-            RunHeadlessUploadMode(args[1], gapSeconds);
+            string? logPathOverride = args.Length > 3 ? args[3] : null;
+            RunHeadlessUploadMode(args[1], gapSeconds, logPathOverride);
             return;
         }
 
@@ -126,7 +147,7 @@ internal static class Program
     /// pumping by the time the work starts; app.Shutdown() in the finally block is what ends Run()
     /// once the work (success or failure) is done.
     /// </summary>
-    private static void RunHeadlessUploadMode(string bossName, double gapSeconds)
+    private static void RunHeadlessUploadMode(string bossName, double gapSeconds, string? logPathOverride)
     {
         var app = new System.Windows.Application();
         var window = new Ui.MainWindow();
@@ -136,7 +157,7 @@ internal static class Program
         {
             try
             {
-                string report = await window.RunHeadlessClusteredUploadAsync(bossName, gapSeconds);
+                string report = await window.RunHeadlessClusteredUploadAsync(bossName, gapSeconds, logPathOverride);
                 Console.WriteLine(report);
             }
             catch (Exception ex)
@@ -152,6 +173,80 @@ internal static class Program
 
         app.Run();
         Environment.Exit(exitCode);
+    }
+
+    private static void RunFactionCheckMode(string path, string[] watchNames)
+    {
+        if (!File.Exists(path))
+        {
+            Console.WriteLine($"factioncheck: file not found: {path}");
+            return;
+        }
+
+        var parser = new ChatLogParser();
+        List<DamageEvent> events = parser.ParseFile(path);
+        string? NameOf(int id) => parser.Names.NameFor(id);
+        bool IsPlayer(int id)
+        {
+            string name = NameOf(id) ?? "";
+            return !name.Contains(' ') && !NpcDatabase.IsKnownNpc(name);
+        }
+
+        int youId = parser.Names.GetOrAssignId("You");
+
+        // No settings/anchors available outside MainWindow - empty anchors is the worst case
+        // (matches a fresh session with no registered characters and no loot seen yet), which is
+        // exactly the scenario worth checking since it puts the most weight on the fought/sameTarget
+        // logic alone.
+        var sides = FactionResolver.Resolve(events, NameOf, IsPlayer, youId, new HashSet<string>());
+
+        Console.WriteLine($"factioncheck: {events.Count} events, youId={youId}");
+        foreach (string watch in watchNames)
+        {
+            int id = parser.Names.GetOrAssignId(watch);
+            Side side = sides.GetValueOrDefault(id, Side.Unknown);
+            Console.WriteLine($"  {watch,-15} id={id} isPlayer={IsPlayer(id)} side={side}");
+        }
+
+        // Raw edge dump for the watched names - who they fought (player-vs-player) and which
+        // non-player targets they share attackers with, straight from the same events FactionResolver
+        // itself used, so a wrong verdict above can be traced to the exact edge that caused it.
+        var watchIds = watchNames.Select(n => parser.Names.GetOrAssignId(n)).ToHashSet();
+        var fought = new Dictionary<int, HashSet<int>>();
+        var sameTargetByTarget = new Dictionary<int, HashSet<int>>();
+        foreach (DamageEvent e in events)
+        {
+            bool sourceIsPlayer = IsPlayer(e.SourceObjectId);
+            bool targetIsPlayer = IsPlayer(e.TargetObjectId);
+            if (!e.IsHeal && sourceIsPlayer && targetIsPlayer && e.SourceObjectId != e.TargetObjectId)
+            {
+                if (!fought.TryGetValue(e.SourceObjectId, out var set)) fought[e.SourceObjectId] = set = new HashSet<int>();
+                set.Add(e.TargetObjectId);
+            }
+            if (!e.IsHeal && sourceIsPlayer && !targetIsPlayer)
+            {
+                if (!sameTargetByTarget.TryGetValue(e.TargetObjectId, out var attackers)) sameTargetByTarget[e.TargetObjectId] = attackers = new HashSet<int>();
+                attackers.Add(e.SourceObjectId);
+            }
+        }
+
+        Console.WriteLine("  -- fought edges involving watched names --");
+        foreach (int id in watchIds)
+        {
+            if (fought.TryGetValue(id, out var opponents))
+            {
+                Console.WriteLine($"  {NameOf(id)} fought: {string.Join(", ", opponents.Select(o => NameOf(o) ?? o.ToString()))}");
+            }
+        }
+
+        Console.WriteLine("  -- shared non-player targets involving watched names --");
+        foreach ((int targetId, HashSet<int> attackers) in sameTargetByTarget)
+        {
+            if (attackers.Overlaps(watchIds))
+            {
+                Console.WriteLine($"  target={NameOf(targetId)}: attackers={string.Join(", ", attackers.Select(a => NameOf(a) ?? a.ToString()))}");
+            }
+        }
     }
 
     private static void RunChatLogMode(string path)

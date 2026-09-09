@@ -861,9 +861,31 @@ public static class SelfCheck
         Console.WriteLine($"  -> a pure damage dealer sharing our target is our side: {damageDealerIsOwn}");
         Console.WriteLine($"  -> sharing a mob does NOT turn an opponent into an ally: {sharedMobDoesNotFlipEnemy}");
 
+        // Reported live from a real Terath Dredgion: the whole real group (except the local
+        // player) suddenly showed as the enemy faction. Root cause, found via a dedicated
+        // "factioncheck" CLI diagnostic against the actual Chat.log: "Zetsu received 950 bleeding
+        // damage after you used Blade Rampage" - a real teammate caught by the local player's own
+        // AOE/DoT cleave, parsed (correctly) as a real DamageEvent(You -> Zetsu), which used to be
+        // enough on its own to seed Zetsu as an enemy. Once seeded, "enemies are fixed" (see
+        // above) meant every other real teammate connected to Zetsu by a heal got dragged in too.
+        // ourDps standing in for Zetsu here: a real ally, heal-connected to the anchor, hit ONCE by
+        // "You" and never hitting back - must stay Own, not get flipped by that one friendly-fire
+        // hit alone.
+        var friendlyFire = new List<DamageEvent>
+        {
+            new(start, ourHealer, ourDps, 500, IsHeal: true), // proof of alliance, same as ownSideFound above
+            new(start.AddSeconds(1), you, ourDps, 950, IsHeal: false), // the AOE/DoT friendly-fire hit
+        };
+        var friendlyFireSides = FactionResolver.Resolve(
+            friendlyFire, id => names.GetValueOrDefault(id), id => id != mob, you,
+            new HashSet<string> { "Askila" });
+        bool friendlyFireDoesNotFlipAlly = friendlyFireSides.GetValueOrDefault(ourDps) == Side.Own;
+        Console.WriteLine($"  -> the local player's own AOE hitting a real ally once does NOT mark them enemy: {friendlyFireDoesNotFlipAlly}");
+
         return ownSideFound && enemiesFound && enemyHealerNotAdopted
             && healerlessMemberIsOwn && noEnemiesInPve
-            && damageDealerIsOwn && sharedMobDoesNotFlipEnemy;
+            && damageDealerIsOwn && sharedMobDoesNotFlipEnemy
+            && friendlyFireDoesNotFlipAlly;
     }
 
     /// <summary>

@@ -1642,9 +1642,19 @@ public partial class MainWindow : Window
     /// target id that means "this is a new fight, not a continuation" - real Raksha Boilheart kills
     /// run ~2-2.5 minutes with no gap inside one, and 5 real farmed kills were reliably ~9-12
     /// minutes apart, so 120s cleanly separates kills without ever splitting one kill in two.
+    ///
+    /// <paramref name="logPathOverride"/> lets this read a DIFFERENT Chat.log than the one
+    /// Settings resolved from the Aion install folder - e.g. another client's differently-named
+    /// log for a non-English language (see ChatLogTailer/ChatLogParser's own per-language pattern
+    /// sets), which the GUI's own file picker has no reason to ever point at.
     /// </summary>
-    internal async Task<string> RunHeadlessClusteredUploadAsync(string bossNameContains, double gapSeconds)
+    internal async Task<string> RunHeadlessClusteredUploadAsync(string bossNameContains, double gapSeconds, string? logPathOverride = null)
     {
+        if (logPathOverride is not null)
+        {
+            _chatLogPath = logPathOverride;
+        }
+
         if (_chatLogPath is null || !File.Exists(_chatLogPath))
         {
             return "No Chat.log found - set the Aion install folder in Settings first.";
