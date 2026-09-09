@@ -84,6 +84,56 @@ SET loot_rules = '[{"item":"<Item>","rule":"<Regel, z.B. \"1x pro Gruppe, Rolle:
 WHERE name = '<Bossname>';
 ```
 
+## Buff-Dauer (welche Buffs im "Buffs"-Feld erscheinen)
+
+Per Nutzeranfrage: das "Buffs"-Feld einer Encounter-Detailseite soll keine kurzen
+Kampf-Rotations-Buffs zeigen (z.B. Berserking I, 30s), sondern nur echte, länger stehende
+Verstärkungen (> 3 Minuten) - plus "Divine Power" unabhängig von der Dauer (siehe
+`src/skills/skillDurations.ts`, `ALWAYS_SHOWN_BUFFS`). Aion selbst nennt keine Dauer im Chat.log -
+die Werte in `src/data/skill_durations.json` (Kopie von `assets/skills/skill_durations.json`)
+stammen aus dem Beschreibungstext jeder Skillseite auf aioncodex.com ("Increases ... for 30s."/
+"... for 1h."), einmalig für alle 974 bekannten Skills abgerufen, nicht geschätzt.
+
+Neu erzeugen (wenn aioncodex nachzieht oder weitere Skills dazukommen):
+
+```bash
+python3 - <<'PY'
+import json, re, time, urllib.request
+SRC = "assets/skills/skills_multilang_4x.json"
+OUT = "assets/skills/skill_durations.json"
+skills = json.load(open(SRC, encoding="utf-8"))
+ids = sorted({s["id"] for s in skills})
+UNIT_RE = r"(hours|hour|hrs|hr|h|minutes|minute|mins|min|m|seconds|second|secs|sec|s)"
+DUR_RE = re.compile(r"\bfor\s+(\d+)\s*" + UNIT_RE + r"\b", re.IGNORECASE)
+def to_seconds(n, unit):
+    unit = unit.lower()
+    return n * 3600 if unit.startswith("h") else n * 60 if (unit == "m" or unit.startswith("min")) else n
+results = {}
+for sid in ids:
+    html = urllib.request.urlopen(urllib.request.Request(
+        f"https://aioncodex.com/4x/skill/{sid}/", headers={"User-Agent": "Mozilla/5.0"}), timeout=10).read().decode("utf-8", "replace")
+    text = re.sub(r"\s+", " ", re.sub("<[^>]+>", " | ", html))
+    window = text[text.find("Cooldown:"):][:400]
+    m = DUR_RE.search(window)
+    results[str(sid)] = {
+        "durationSeconds": to_seconds(int(m.group(1)), m.group(2)) if m else None,
+        "permanent": "permanent" in window.lower(),
+    }
+    time.sleep(0.05)
+json.dump(results, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+PY
+cp assets/skills/skill_durations.json backend/src/data/skill_durations.json
+```
+
+Wichtig: aioncodex schreibt Dauern als Kurzformen (`30s`/`5m`/`1h`), nicht als volle Wörter - eine
+frühere Version dieser Regex kannte nur `s`/`min` und übersah dadurch reale Langzeit-Gruppenbuffs
+komplett (Word of Wind I mit `for 5m.` und Blessing of Health I mit `for 1h.` kamen beide ohne
+Dauer zurück, bis das aufgefallen ist). Immer stichprobenartig gegen bekannte lange Buffs prüfen,
+bevor die Datei übernommen wird.
+
+Grenzwert (`MIN_DURATION_SECONDS = 180`) und die `ALWAYS_SHOWN_BUFFS`-Ausnahmeliste stehen in
+`src/skills/skillDurations.ts` - eine Skill-Ausnahme dort per Namen eintragen, keine SQL nötig.
+
 ## Deployment (alfahosting)
 
 nginx ist bereits fertig konfiguriert: `dpsmeter.skeeve.tv` (Port 443) proxied auf

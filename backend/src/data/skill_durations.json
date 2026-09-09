@@ -1,0 +1,3898 @@
+{
+ "1": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "4": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "5": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "6": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "7": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "8": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "9": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "10": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "12": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "13": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "14": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "15": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "16": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "17": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "18": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "19": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "30": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "53": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "64": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "67": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "70": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "71": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "75": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "76": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "77": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "78": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "79": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "81": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "82": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "83": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "90": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "91": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "92": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "96": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "97": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "101": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "102": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "103": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "104": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "105": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "108": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "110": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "111": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "112": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "113": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "114": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "115": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "116": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "117": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "119": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "120": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "121": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "122": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "123": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "124": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "129": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "140": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "141": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "151": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "154": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "158": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "161": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "165": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "169": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "173": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "182": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "183": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "225": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "226": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "227": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "229": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "231": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "232": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "233": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "234": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "235": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "236": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "241": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "244": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "245": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "246": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "247": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "248": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "249": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "250": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "251": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "255": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "258": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "261": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "264": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "267": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "269": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "271": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "272": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "273": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "276": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "278": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "282": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "284": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "287": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "290": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "291": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "312": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "320": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "321": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "322": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "326": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "333": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "348": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "351": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "353": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "355": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "356": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "357": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "362": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "365": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "374": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "376": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "383": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "385": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "390": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "391": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "392": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "396": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "397": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "398": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "399": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "400": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "401": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "402": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "403": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "409": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "410": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "411": {
+  "durationSeconds": 2,
+  "permanent": false
+ },
+ "412": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "413": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "414": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "416": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "417": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "424": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "426": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "427": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "431": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "438": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "441": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "444": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "445": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "474": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "475": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "476": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "480": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "487": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "500": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "503": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "506": {
+  "durationSeconds": 180,
+  "permanent": false
+ },
+ "507": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "511": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "513": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "514": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "516": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "517": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "519": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "520": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "523": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "524": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "525": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "528": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "529": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "531": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "537": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "540": {
+  "durationSeconds": 4,
+  "permanent": false
+ },
+ "544": {
+  "durationSeconds": 2,
+  "permanent": false
+ },
+ "546": {
+  "durationSeconds": 2,
+  "permanent": false
+ },
+ "547": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "548": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "549": {
+  "durationSeconds": 2,
+  "permanent": false
+ },
+ "550": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "551": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "555": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "559": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "560": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "564": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "568": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "572": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "577": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "618": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "619": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "620": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "621": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "622": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "625": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "627": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "628": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "629": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "630": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "631": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "632": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "633": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "636": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "639": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "640": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "641": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "642": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "643": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "644": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "645": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "646": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "647": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "648": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "649": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "650": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "651": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "652": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "655": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "657": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "659": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "661": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "663": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "665": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "667": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "668": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "671": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "672": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "674": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "677": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "678": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "681": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "683": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "684": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "685": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "686": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "692": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "693": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "695": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "697": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "699": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "701": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "702": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "704": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "707": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "709": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "724": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "731": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "734": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "751": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "758": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "767": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "770": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "773": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "776": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "777": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "778": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "780": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "783": {
+  "durationSeconds": 4,
+  "permanent": false
+ },
+ "786": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "789": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "792": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "793": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "794": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "798": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "799": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "801": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "802": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "803": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "805": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "807": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "810": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "813": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "815": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "816": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "819": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "820": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "823": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "825": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "829": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "832": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "833": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "836": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "837": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "838": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "839": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "841": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "842": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "843": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "846": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "847": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "849": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "850": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "851": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "852": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "889": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "896": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "905": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "908": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "911": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "912": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "913": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "914": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "915": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "917": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "918": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "919": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "920": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "921": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "926": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "927": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "929": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "935": {
+  "durationSeconds": 2,
+  "permanent": false
+ },
+ "940": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "941": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "942": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "943": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "944": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "945": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "946": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "947": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "948": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "949": {
+  "durationSeconds": 180,
+  "permanent": false
+ },
+ "951": {
+  "durationSeconds": 3600,
+  "permanent": false
+ },
+ "952": {
+  "durationSeconds": 3600,
+  "permanent": false
+ },
+ "955": {
+  "durationSeconds": 3600,
+  "permanent": false
+ },
+ "958": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "962": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "965": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "969": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "972": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "975": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "979": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1021": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1022": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1023": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1024": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1027": {
+  "durationSeconds": 27,
+  "permanent": false
+ },
+ "1029": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1030": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1031": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "1032": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1033": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1034": {
+  "durationSeconds": 9,
+  "permanent": false
+ },
+ "1038": {
+  "durationSeconds": 21,
+  "permanent": false
+ },
+ "1039": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1040": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "1041": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "1042": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1043": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1044": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1045": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1048": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1049": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1050": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1051": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1054": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1056": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1057": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1060": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "1062": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1063": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1066": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1069": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1071": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1076": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1078": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1079": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1083": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1086": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1089": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1090": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1093": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1095": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1098": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1099": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "1102": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1103": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1105": {
+  "durationSeconds": 600,
+  "permanent": false
+ },
+ "1107": {
+  "durationSeconds": 600,
+  "permanent": false
+ },
+ "1146": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1153": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1160": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1163": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "1164": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "1165": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1166": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1169": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "1170": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1171": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1176": {
+  "durationSeconds": 57,
+  "permanent": false
+ },
+ "1177": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1178": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1180": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1183": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1184": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1188": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1189": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1192": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1193": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1196": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "1197": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1198": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1199": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1200": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1201": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1204": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1207": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1211": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1213": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1214": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1217": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1218": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1219": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1220": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "1223": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1224": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1225": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1227": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1229": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1230": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "1231": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1233": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "1234": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1235": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1236": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "1242": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "1246": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "1249": {
+  "durationSeconds": 4,
+  "permanent": false
+ },
+ "1290": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1297": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1304": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1305": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1306": {
+  "durationSeconds": 38,
+  "permanent": false
+ },
+ "1309": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1312": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1315": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "1316": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1318": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "1321": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "1322": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1323": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "1324": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1326": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1327": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1328": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "1334": {
+  "durationSeconds": 4,
+  "permanent": false
+ },
+ "1335": {
+  "durationSeconds": 4,
+  "permanent": false
+ },
+ "1337": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1338": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1340": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1343": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1344": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1345": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1351": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1355": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1358": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1362": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "1366": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1370": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1373": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1377": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "1381": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1382": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1424": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1425": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1426": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "1428": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1430": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1431": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1432": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "1433": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1434": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1435": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "1439": {
+  "durationSeconds": 4,
+  "permanent": false
+ },
+ "1440": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1441": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1442": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1443": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1444": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1445": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "1446": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1447": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1448": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1449": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1450": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1452": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1453": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1454": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1455": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1456": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1457": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1458": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1459": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1463": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1464": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1465": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1469": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1472": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "1481": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1482": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1483": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1484": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1495": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1497": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1498": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "1503": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1541": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1548": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1553": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1554": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1555": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1556": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1557": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1560": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1564": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "1566": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "1567": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1568": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1570": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1571": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1572": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1573": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "1574": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "1581": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1582": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1584": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "1585": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "1587": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1588": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1594": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1597": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "1601": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1602": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1603": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "1604": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1605": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1606": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1607": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1608": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "1609": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1611": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1614": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1617": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1620": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1622": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1625": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1627": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1628": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1631": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1634": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1636": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "1641": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1642": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1643": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1645": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1648": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1651": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1654": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1656": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1659": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1661": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1662": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "1663": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1664": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1665": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1666": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "1668": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1671": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1674": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1676": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1681": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1683": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1685": {
+  "durationSeconds": 11,
+  "permanent": false
+ },
+ "1727": {
+  "durationSeconds": 1200,
+  "permanent": false
+ },
+ "1728": {
+  "durationSeconds": 1200,
+  "permanent": false
+ },
+ "1732": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1739": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1746": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "1747": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1750": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1753": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1754": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1755": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1760": {
+  "durationSeconds": 600,
+  "permanent": false
+ },
+ "1763": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1764": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1765": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1766": {
+  "durationSeconds": 600,
+  "permanent": false
+ },
+ "1769": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "1770": {
+  "durationSeconds": 25,
+  "permanent": false
+ },
+ "1771": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1772": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1774": {
+  "durationSeconds": 54,
+  "permanent": false
+ },
+ "1778": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1781": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "1782": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "1785": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1789": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1794": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1798": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1799": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1800": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1808": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1816": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1968": {
+  "durationSeconds": 7,
+  "permanent": false
+ },
+ "1969": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1970": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1971": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1973": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1975": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1976": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1977": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1978": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1979": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1980": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1981": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "1982": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1984": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "1986": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1987": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1988": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "1989": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "1990": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1991": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1992": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "1993": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1995": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1997": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "1998": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "1999": {
+  "durationSeconds": 7,
+  "permanent": false
+ },
+ "2000": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2001": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "2002": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2003": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2004": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2006": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "2008": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "2009": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2010": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2011": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2012": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "2264": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "2267": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2269": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2271": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2273": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2277": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "2278": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2279": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2281": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2285": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "2286": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "2288": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2289": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2291": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2292": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2295": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2298": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2300": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "2304": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "2308": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "2312": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "2316": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "2317": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "2318": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "2319": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "2320": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2324": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2328": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2332": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2344": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2345": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "2346": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "2347": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2348": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2349": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2350": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2351": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2352": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2353": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2354": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2355": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2356": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2357": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "2358": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "2359": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2360": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2361": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2362": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2363": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2364": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2365": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2366": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2367": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "2368": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "2369": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2370": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2371": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2372": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2373": {
+  "durationSeconds": 9,
+  "permanent": false
+ },
+ "2374": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2375": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2376": {
+  "durationSeconds": 7,
+  "permanent": false
+ },
+ "2377": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2378": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "2379": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2380": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2381": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "2386": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "2391": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2394": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2395": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2396": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "2397": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "2398": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2402": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2403": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "2404": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "2405": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2406": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2407": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2412": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "2679": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2701": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2702": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2703": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2704": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2705": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2706": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2707": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2708": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2710": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "2711": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2712": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2713": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2714": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "2717": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2718": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2719": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "2720": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2721": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "2722": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2723": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2724": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2725": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2726": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2727": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2728": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "2729": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "2730": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "2731": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2732": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2733": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2734": {
+  "durationSeconds": 7,
+  "permanent": false
+ },
+ "2735": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "2736": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2737": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2740": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2741": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2742": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2745": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "2746": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2749": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2750": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2751": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2752": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2753": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "2754": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2755": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2758": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2759": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2760": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2761": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "2762": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2763": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "2764": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2765": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "2766": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2767": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "2768": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "2769": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "3031": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3037": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3043": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3044": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3050": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "3055": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3059": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3063": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3064": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3069": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3074": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3079": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3084": {
+  "durationSeconds": 3600,
+  "permanent": false
+ },
+ "3086": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3089": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "3090": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "3094": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3098": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3102": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "3109": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3111": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3112": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3115": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3118": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3121": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3124": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3127": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "3128": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3129": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "3131": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3138": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "3139": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3143": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3144": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3145": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3146": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3148": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3150": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "3151": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "3152": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "3153": {
+  "durationSeconds": 1800,
+  "permanent": false
+ },
+ "3154": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3155": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3156": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3157": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3160": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "3161": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3164": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3168": {
+  "durationSeconds": 6,
+  "permanent": false
+ },
+ "3172": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3188": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3209": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3211": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3215": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "3242": {
+  "durationSeconds": 7,
+  "permanent": false
+ },
+ "3243": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3244": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3245": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "3246": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "3247": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3250": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "3267": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3277": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3278": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3281": {
+  "durationSeconds": 30,
+  "permanent": false
+ },
+ "3282": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "3283": {
+  "durationSeconds": 300,
+  "permanent": false
+ },
+ "3291": {
+  "durationSeconds": 120,
+  "permanent": false
+ },
+ "3293": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3294": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3300": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3301": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3302": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3303": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3304": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3305": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "3306": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3307": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3312": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3317": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3318": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3322": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3327": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "3331": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3335": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3339": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3345": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3350": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3351": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3357": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3364": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3367": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3370": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3375": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3381": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3382": {
+  "durationSeconds": 5,
+  "permanent": false
+ },
+ "3389": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3391": {
+  "durationSeconds": 4,
+  "permanent": false
+ },
+ "3392": {
+  "durationSeconds": 9,
+  "permanent": false
+ },
+ "3399": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3400": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3405": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3410": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3419": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3440": {
+  "durationSeconds": 9,
+  "permanent": false
+ },
+ "3443": {
+  "durationSeconds": 18,
+  "permanent": false
+ },
+ "3450": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3455": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3458": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3463": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3471": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3472": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3481": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3493": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3498": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3500": {
+  "durationSeconds": 2,
+  "permanent": false
+ },
+ "3519": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "3522": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3525": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3540": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3559": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3577": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3582": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3583": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3584": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3586": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3587": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3589": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3593": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3594": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3595": {
+  "durationSeconds": 12,
+  "permanent": false
+ },
+ "3596": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "3597": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3602": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3607": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3609": {
+  "durationSeconds": 3,
+  "permanent": false
+ },
+ "3614": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3620": {
+  "durationSeconds": 1,
+  "permanent": false
+ },
+ "3624": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3628": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3633": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3634": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3637": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3652": {
+  "durationSeconds": 14,
+  "permanent": false
+ },
+ "3656": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3662": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3667": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3668": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3671": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3672": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3673": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3676": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3678": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3679": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3681": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3702": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3705": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3720": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3725": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3728": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3732": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3739": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3740": {
+  "durationSeconds": 7,
+  "permanent": false
+ },
+ "3742": {
+  "durationSeconds": 2,
+  "permanent": false
+ },
+ "3743": {
+  "durationSeconds": 18,
+  "permanent": false
+ },
+ "3750": {
+  "durationSeconds": 15,
+  "permanent": false
+ },
+ "3756": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3760": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3761": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3766": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3771": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3775": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3776": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3779": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3786": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "3791": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3794": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3797": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3798": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3799": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3804": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3807": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "3815": {
+  "durationSeconds": 180,
+  "permanent": false
+ },
+ "3818": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3819": {
+  "durationSeconds": 60,
+  "permanent": false
+ },
+ "3821": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3826": {
+  "durationSeconds": 20,
+  "permanent": false
+ },
+ "3831": {
+  "durationSeconds": 10,
+  "permanent": false
+ },
+ "3832": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3833": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3834": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3838": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3840": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3842": {
+  "durationSeconds": 8,
+  "permanent": false
+ },
+ "3844": {
+  "durationSeconds": null,
+  "permanent": false
+ },
+ "3853": {
+  "durationSeconds": null,
+  "permanent": false
+ }
+}
