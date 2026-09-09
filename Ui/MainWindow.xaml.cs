@@ -1219,7 +1219,7 @@ public partial class MainWindow : Window
     private EncounterUploadRequest? BuildEncounterUpload(int targetId, string serverFingerprint, string? serverName)
     {
         var targetHits = _aggregator.Events.Where(e => e.TargetObjectId == targetId && !e.IsHeal).ToList();
-        if (targetHits.Count == 0 || _rows.Count == 0)
+        if (targetHits.Count == 0)
         {
             return null;
         }
@@ -1230,6 +1230,27 @@ public partial class MainWindow : Window
         // (local) DateTimeKind, not a UTC-converted copy.
         DateTime windowStart = targetHits.Min(e => e.Timestamp);
         DateTime windowEnd = targetHits.Max(e => e.Timestamp);
+        return BuildEncounterUpload(targetId, serverFingerprint, serverName, targetHits, windowStart, windowEnd);
+    }
+
+    /// <summary>
+    /// Same payload construction, but with the target's hits and the time window supplied by the
+    /// caller instead of always spanning that target id's ENTIRE history. Needed because
+    /// ChatLogParser assigns object ids by name (see PlayerNameRegistry), so a boss farmed multiple
+    /// times in one Chat.log keeps the same target id across every kill - a headless clustered
+    /// upload (see RunHeadlessClusteredUploadAsync) has to pass in one kill-cluster's hits/window at
+    /// a time so each real fight gets its own upload instead of one merged across the whole file.
+    /// The 3-argument overload above is just this one, called with that target's full history.
+    /// </summary>
+    private EncounterUploadRequest? BuildEncounterUpload(
+        int targetId, string serverFingerprint, string? serverName,
+        IReadOnlyList<DamageEvent> targetHits, DateTime windowStart, DateTime windowEnd)
+    {
+        if (targetHits.Count == 0 || _rows.Count == 0)
+        {
+            return null;
+        }
+
         double durationSeconds = Math.Max((windowEnd - windowStart).TotalSeconds, 0.001);
 
         DateTime startedAt = windowStart.ToUniversalTime();
@@ -1261,7 +1282,12 @@ public partial class MainWindow : Window
             }
 
             bool isSelf = _chatLogParser?.Names.NameFor(row.ObjectId) == "You";
-            double idps = DpsCalculator.TargetIDps(_aggregator.Events, targetId, row.ObjectId) ?? 0;
+            // targetHits, not _aggregator.Events: TargetIDps derives its own duration from
+            // whichever events it's given, so passing the full history back in here would silently
+            // widen a clustered upload's iDPS window back out to the target id's entire history -
+            // targetHits is already scoped to exactly this fight (see the two BuildEncounterUpload
+            // overloads above).
+            double idps = DpsCalculator.TargetIDps(targetHits, targetId, row.ObjectId) ?? 0;
             var skills = SkillBreakdown.For(hitsOnBoss, trustLoggedFlag: isSelf)
                 .Select(s => new SkillUsageUpload(s.Skill, s.Hits, s.CritHits, s.Total, s.Min, s.Max))
                 .ToList();
@@ -1513,6 +1539,18 @@ public partial class MainWindow : Window
             return;
         }
 
+        int counted = ReloadChatLogFromDisk();
+        ShowUploadStatus($"Reloaded {counted} event(s) from Chat.log.");
+    }
+
+    /// <summary>
+    /// The actual re-parse behind both OnReloadChatLogClicked and the headless CLI upload path
+    /// (RunHeadlessClusteredUploadAsync) - split out so the two share one code path instead of the
+    /// CLI mode risking a subtly different re-parse than the one already validated in the GUI.
+    /// Caller must have already checked _chatLogPath exists.
+    /// </summary>
+    private int ReloadChatLogFromDisk()
+    {
         ClearDamageData();
 
         // CommandReceived deliberately NOT wired here: ".ui"/".pause"/".resume"/".cleardmg"/
@@ -1528,8 +1566,8 @@ public partial class MainWindow : Window
         parser.PlayerLoggedIn += OnPlayerLoggedIn;
         _chatLogParser = parser;
 
-        List<DamageEvent> events = parser.ParseFile(_chatLogPath);
-        _chatLogTailer = new ChatLogTailer(_chatLogPath, parser);
+        List<DamageEvent> events = parser.ParseFile(_chatLogPath!);
+        _chatLogTailer = new ChatLogTailer(_chatLogPath!, parser);
 
         // Same pet-attribution/named-copy filtering the live tick applies (OnChatLogTimerTick) -
         // skipping it here would count a Spiritmaster's pet as its own row, or double-count a
@@ -1544,7 +1582,121 @@ public partial class MainWindow : Window
         }
 
         RefreshRows();
-        ShowUploadStatus($"Reloaded {counted.Count} event(s) from Chat.log.");
+        return counted.Count;
+    }
+
+    /// <summary>
+    /// Headless entry point for the "upload" CLI mode (see Program.cs) - lets a real farm session
+    /// already sitting in Chat.log be extracted and uploaded straight from a shell, without the GUI
+    /// (and without a human re-clicking through "Reload from Chat.log" + "Upload last run" and
+    /// hitting the server's rate limit doing it, per the batch-upload 429 fixed in 0.7.19).
+    ///
+    /// Reuses ReloadChatLogFromDisk/RefreshRows/BuildEncounterUpload exactly as the GUI menu items
+    /// do, so class/faction/roster resolution is identical to what a live session would have
+    /// produced - the one thing genuinely new here is splitting a repeatedly-farmed boss back into
+    /// separate fights. ChatLogParser assigns object ids by NAME (see PlayerNameRegistry), so every
+    /// kill of "Raksha Boilheart" in one Chat.log shares the same target id; without this, one
+    /// upload would report a single fight spanning the entire farm session instead of N separate
+    /// ones. <paramref name="gapSeconds"/> is the silence threshold between two hits on the same
+    /// target id that means "this is a new fight, not a continuation" - real Raksha Boilheart kills
+    /// run ~2-2.5 minutes with no gap inside one, and 5 real farmed kills were reliably ~9-12
+    /// minutes apart, so 120s cleanly separates kills without ever splitting one kill in two.
+    /// </summary>
+    internal async Task<string> RunHeadlessClusteredUploadAsync(string bossNameContains, double gapSeconds)
+    {
+        if (_chatLogPath is null || !File.Exists(_chatLogPath))
+        {
+            return "No Chat.log found - set the Aion install folder in Settings first.";
+        }
+
+        ReloadChatLogFromDisk();
+
+        var matchingTargetIds = _mobBossEntries
+            .Where(entry => entry.Name.Contains(bossNameContains, StringComparison.OrdinalIgnoreCase))
+            .Select(entry => entry.TargetId)
+            .Distinct()
+            .ToList();
+
+        if (matchingTargetIds.Count == 0)
+        {
+            return $"No boss matching \"{bossNameContains}\" found in Chat.log.";
+        }
+
+        if (ResolveServerIdentity() is not (string fingerprint, var displayName))
+        {
+            return ServerNotIdentifiedMessage;
+        }
+
+        var report = new System.Text.StringBuilder();
+        int totalUploaded = 0;
+        int totalRuns = 0;
+        bool first = true;
+
+        foreach (int targetId in matchingTargetIds)
+        {
+            // Same reasoning as "Upload last run": _rows must reflect this target before
+            // BuildEncounterUpload reads them for Name/ClassName/Faction/IsEnemy.
+            _selectedTargetId = targetId;
+            RefreshRows();
+
+            var hits = _aggregator.Events
+                .Where(ev => ev.TargetObjectId == targetId && !ev.IsHeal)
+                .OrderBy(ev => ev.Timestamp)
+                .ToList();
+
+            var clusters = new List<List<DamageEvent>>();
+            foreach (DamageEvent hit in hits)
+            {
+                if (clusters.Count > 0 && (hit.Timestamp - clusters[^1][^1].Timestamp).TotalSeconds <= gapSeconds)
+                {
+                    clusters[^1].Add(hit);
+                }
+                else
+                {
+                    clusters.Add(new List<DamageEvent> { hit });
+                }
+            }
+
+            string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
+            report.AppendLine($"{bossName}: {clusters.Count} run(s) found in Chat.log.");
+            totalRuns += clusters.Count;
+
+            foreach (List<DamageEvent> cluster in clusters)
+            {
+                if (!first)
+                {
+                    // Same 100ms spacing as "Upload last run" - keeps a big batch comfortably under
+                    // the backend's rate limit instead of firing every request back-to-back.
+                    await Task.Delay(100);
+                }
+
+                first = false;
+
+                DateTime windowStart = cluster[0].Timestamp;
+                DateTime windowEnd = cluster[^1].Timestamp;
+                var payload = BuildEncounterUpload(targetId, fingerprint, displayName, cluster, windowStart, windowEnd);
+                if (payload is null)
+                {
+                    report.AppendLine($"  {windowStart:HH:mm:ss}-{windowEnd:HH:mm:ss}: nothing to upload (skipped).");
+                    continue;
+                }
+
+                UploadResult result = await UploadClient.SendAsync(payload);
+                if (result.Success)
+                {
+                    totalUploaded++;
+                    report.AppendLine(
+                        $"  {windowStart:HH:mm:ss}-{windowEnd:HH:mm:ss} ({payload.Participants.Count} participants): uploaded.");
+                }
+                else
+                {
+                    report.AppendLine($"  {windowStart:HH:mm:ss}-{windowEnd:HH:mm:ss}: FAILED - {result.Error}");
+                }
+            }
+        }
+
+        report.AppendLine($"Total: uploaded {totalUploaded} of {totalRuns} run(s).");
+        return report.ToString();
     }
 
     /// <summary>

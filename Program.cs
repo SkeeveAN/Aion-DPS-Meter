@@ -67,6 +67,23 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "upload")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionSniffer upload <boss-name> [gap-seconds]");
+                Console.WriteLine("  Reads the Chat.log already configured in Settings, splits every kill of");
+                Console.WriteLine("  <boss-name> into separate runs by a time gap (default 120s), and uploads");
+                Console.WriteLine("  each one - same pipeline as the GUI's \"Reload from Chat.log\" + \"Upload");
+                Console.WriteLine("  last run\", just driven from a shell instead of clicking through both.");
+                return;
+            }
+
+            double gapSeconds = args.Length > 2 && double.TryParse(args[2], out double g) ? g : 120;
+            RunHeadlessUploadMode(args[1], gapSeconds);
+            return;
+        }
+
         if (args.Length == 0 || args[0] == "gui")
         {
             // No App.xaml on purpose: an ApplicationDefinition item would generate its own Main
@@ -94,6 +111,47 @@ internal static class Program
         Console.WriteLine("Usage: AionSniffer                       (no arguments: opens the meter window)");
         Console.WriteLine("       AionSniffer chatlog <path-to-Chat.log>   (parses a Chat.log file and prints a summary)");
         Console.WriteLine("       AionSniffer selftest                     (runs the parser and DPS self-checks)");
+        Console.WriteLine("       AionSniffer upload <boss-name> [gap-seconds]   (re-parses Chat.log and uploads every run of that boss)");
+    }
+
+    /// <summary>
+    /// Constructs the exact same MainWindow the GUI uses, but never calls .Show() on it - so its
+    /// class/faction/roster logic and Upload/UploadClient calls run identically to a live session,
+    /// without a window actually appearing. A running Dispatcher message loop is still required:
+    /// the headless method awaits UploadClient.SendAsync, and that continuation is posted back onto
+    /// MainWindow's own DispatcherSynchronizationContext (set up as soon as the window/Application
+    /// exist) rather than resuming inline - without app.Run() pumping that queue, execution would
+    /// never get past the first await. Dispatcher.BeginInvoke queues the async work onto that same
+    /// loop instead of running it synchronously here, so app.Run() is guaranteed to already be
+    /// pumping by the time the work starts; app.Shutdown() in the finally block is what ends Run()
+    /// once the work (success or failure) is done.
+    /// </summary>
+    private static void RunHeadlessUploadMode(string bossName, double gapSeconds)
+    {
+        var app = new System.Windows.Application();
+        var window = new Ui.MainWindow();
+        int exitCode = 0;
+
+        window.Dispatcher.BeginInvoke(new Action(async () =>
+        {
+            try
+            {
+                string report = await window.RunHeadlessClusteredUploadAsync(bossName, gapSeconds);
+                Console.WriteLine(report);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"upload: failed - {ex}");
+                exitCode = 1;
+            }
+            finally
+            {
+                app.Shutdown();
+            }
+        }));
+
+        app.Run();
+        Environment.Exit(exitCode);
     }
 
     private static void RunChatLogMode(string path)
