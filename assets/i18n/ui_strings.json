@@ -1,0 +1,762 @@
+{
+  "Main.MenuApp": {
+    "en": "App",
+    "de": "App",
+    "fr": "App",
+    "es": "App",
+    "ru": "Приложение",
+    "pl": "Aplikacja",
+    "tr": "Uygulama",
+    "zh": "应用"
+  },
+  "Main.MenuApp.LoadSession": {
+    "en": "Load session",
+    "de": "Sitzung laden",
+    "fr": "Charger la session",
+    "es": "Cargar sesión",
+    "ru": "Загрузить сессию",
+    "pl": "Wczytaj sesję",
+    "tr": "Oturumu yükle",
+    "zh": "加载会话"
+  },
+  "Main.MenuApp.SaveSession": {
+    "en": "Save session",
+    "de": "Sitzung speichern",
+    "fr": "Enregistrer la session",
+    "es": "Guardar sesión",
+    "ru": "Сохранить сессию",
+    "pl": "Zapisz sesję",
+    "tr": "Oturumu kaydet",
+    "zh": "保存会话"
+  },
+  "Main.MenuApp.ExportSession": {
+    "en": "Export session",
+    "de": "Sitzung exportieren",
+    "fr": "Exporter la session",
+    "es": "Exportar sesión",
+    "ru": "Экспортировать сессию",
+    "pl": "Eksportuj sesję",
+    "tr": "Oturumu dışa aktar",
+    "zh": "导出会话"
+  },
+  "Main.MenuApp.ValidateSession": {
+    "en": "Validate session",
+    "de": "Sitzung überprüfen",
+    "fr": "Valider la session",
+    "es": "Validar sesión",
+    "ru": "Проверить сессию",
+    "pl": "Zweryfikuj sesję",
+    "tr": "Oturumu doğrula",
+    "zh": "验证会话"
+  },
+  "Main.MenuApp.OpenSessionsFolder": {
+    "en": "Open sessions folder",
+    "de": "Sitzungsordner öffnen",
+    "fr": "Ouvrir le dossier des sessions",
+    "es": "Abrir carpeta de sesiones",
+    "ru": "Открыть папку сессий",
+    "pl": "Otwórz folder sesji",
+    "tr": "Oturum klasörünü aç",
+    "zh": "打开会话文件夹"
+  },
+  "Main.MenuApp.OpenLogsFolder": {
+    "en": "Open logs folder",
+    "de": "Protokollordner öffnen",
+    "fr": "Ouvrir le dossier des journaux",
+    "es": "Abrir carpeta de registros",
+    "ru": "Открыть папку журналов",
+    "pl": "Otwórz folder dzienników",
+    "tr": "Günlük klasörünü aç",
+    "zh": "打开日志文件夹"
+  },
+  "Main.MenuApp.ResetConnection": {
+    "en": "Reset connection",
+    "de": "Verbindung zurücksetzen",
+    "fr": "Réinitialiser la connexion",
+    "es": "Restablecer conexión",
+    "ru": "Сбросить соединение",
+    "pl": "Zresetuj połączenie",
+    "tr": "Bağlantıyı sıfırla",
+    "zh": "重置连接"
+  },
+  "Main.MenuApp.ClearCurrentView": {
+    "en": "Clear current view",
+    "de": "Aktuelle Ansicht leeren",
+    "fr": "Effacer la vue actuelle",
+    "es": "Borrar vista actual",
+    "ru": "Очистить текущий вид",
+    "pl": "Wyczyść bieżący widok",
+    "tr": "Geçerli görünümü temizle",
+    "zh": "清除当前视图"
+  },
+  "Main.MenuApp.LoadDemoData": {
+    "en": "Load Demo Data",
+    "de": "Demodaten laden",
+    "fr": "Charger des données de démo",
+    "es": "Cargar datos de demostración",
+    "ru": "Загрузить демо-данные",
+    "pl": "Wczytaj dane demo",
+    "tr": "Demo verilerini yükle",
+    "zh": "加载演示数据"
+  },
+  "Main.MenuApp.CheckForUpdates": {
+    "en": "Check for updates",
+    "de": "Nach Updates suchen",
+    "fr": "Rechercher des mises à jour",
+    "es": "Buscar actualizaciones",
+    "ru": "Проверить обновления",
+    "pl": "Sprawdź aktualizacje",
+    "tr": "Güncellemeleri denetle",
+    "zh": "检查更新"
+  },
+  "Main.MenuApp.StartWithWindows": {
+    "en": "Start automatically with Windows",
+    "de": "Automatisch mit Windows starten",
+    "fr": "Démarrer automatiquement avec Windows",
+    "es": "Iniciar automáticamente con Windows",
+    "ru": "Запускать автоматически с Windows",
+    "pl": "Uruchamiaj automatycznie z Windows",
+    "tr": "Windows ile otomatik başlat",
+    "zh": "随 Windows 自动启动"
+  },
+  "Main.MenuApp.MinimizeToTray": {
+    "en": "Minimize to system tray",
+    "de": "In den Infobereich minimieren",
+    "fr": "Réduire dans la barre d'état système",
+    "es": "Minimizar a la bandeja del sistema",
+    "ru": "Свернуть в трей",
+    "pl": "Zminimalizuj do zasobnika systemowego",
+    "tr": "Sistem tepsisine küçült",
+    "zh": "最小化到系统托盘"
+  },
+  "Main.MenuApp.Close": {
+    "en": "Close",
+    "de": "Schließen",
+    "fr": "Fermer",
+    "es": "Cerrar",
+    "ru": "Закрыть",
+    "pl": "Zamknij",
+    "tr": "Kapat",
+    "zh": "关闭"
+  },
+  "Main.MenuSession": {
+    "en": "Session",
+    "de": "Sitzung",
+    "fr": "Session",
+    "es": "Sesión",
+    "ru": "Сессия",
+    "pl": "Sesja",
+    "tr": "Oturum",
+    "zh": "会话"
+  },
+  "Main.MenuSession.None": {
+    "en": "No sessions recorded yet",
+    "de": "Noch keine Sitzungen aufgezeichnet",
+    "fr": "Aucune session enregistrée pour le moment",
+    "es": "Aún no se han grabado sesiones",
+    "ru": "Пока нет записанных сессий",
+    "pl": "Nie zapisano jeszcze żadnej sesji",
+    "tr": "Henüz kaydedilmiş oturum yok",
+    "zh": "尚无已记录的会话"
+  },
+  "Main.MenuSettings": {
+    "en": "Settings",
+    "de": "Einstellungen",
+    "fr": "Paramètres",
+    "es": "Ajustes",
+    "ru": "Настройки",
+    "pl": "Ustawienia",
+    "tr": "Ayarlar",
+    "zh": "设置"
+  },
+  "Main.MenuSettings.AppSettings": {
+    "en": "App Settings",
+    "de": "App-Einstellungen",
+    "fr": "Paramètres de l'application",
+    "es": "Ajustes de la aplicación",
+    "ru": "Настройки приложения",
+    "pl": "Ustawienia aplikacji",
+    "tr": "Uygulama ayarları",
+    "zh": "应用设置"
+  },
+  "Main.MenuSettings.PlayerDatabase": {
+    "en": "Player Database",
+    "de": "Spielerdatenbank",
+    "fr": "Base de données des joueurs",
+    "es": "Base de datos de jugadores",
+    "ru": "База игроков",
+    "pl": "Baza graczy",
+    "tr": "Oyuncu Veritabanı",
+    "zh": "玩家数据库"
+  },
+  "Main.MenuSettings.AlwaysOnTop": {
+    "en": "Always on top",
+    "de": "Immer im Vordergrund",
+    "fr": "Toujours au premier plan",
+    "es": "Siempre visible",
+    "ru": "Поверх всех окон",
+    "pl": "Zawsze na wierzchu",
+    "tr": "Her zaman üstte",
+    "zh": "总在最前"
+  },
+  "Main.MenuSettings.ProfileSettings": {
+    "en": "Profile Settings",
+    "de": "Profileinstellungen",
+    "fr": "Paramètres du profil",
+    "es": "Ajustes de perfil",
+    "ru": "Настройки профиля",
+    "pl": "Ustawienia profilu",
+    "tr": "Profil ayarları",
+    "zh": "角色设置"
+  },
+  "Main.MenuSettings.KeyBindings": {
+    "en": "Key bindings",
+    "de": "Tastenkürzel",
+    "fr": "Raccourcis clavier",
+    "es": "Atajos de teclado",
+    "ru": "Горячие клавиши",
+    "pl": "Skróty klawiszowe",
+    "tr": "Kısayol tuşları",
+    "zh": "快捷键"
+  },
+  "Main.MenuMode": {
+    "en": "Mode",
+    "de": "Modus",
+    "fr": "Mode",
+    "es": "Modo",
+    "ru": "Режим",
+    "pl": "Tryb",
+    "tr": "Mod",
+    "zh": "模式"
+  },
+  "Main.ModeDamage": {
+    "en": "Damage",
+    "de": "Schaden",
+    "fr": "Dégâts",
+    "es": "Daño",
+    "ru": "Урон",
+    "pl": "Obrażenia",
+    "tr": "Hasar",
+    "zh": "伤害"
+  },
+  "Main.ModeHeal": {
+    "en": "Heal",
+    "de": "Heilung",
+    "fr": "Soins",
+    "es": "Curación",
+    "ru": "Лечение",
+    "pl": "Leczenie",
+    "tr": "İyileştirme",
+    "zh": "治疗"
+  },
+  "Main.ModeRelic": {
+    "en": "Relic",
+    "de": "Relikt",
+    "fr": "Relique",
+    "es": "Reliquia",
+    "ru": "Реликвия",
+    "pl": "Relikwia",
+    "tr": "Kalıntı",
+    "zh": "圣物"
+  },
+  "Main.NavDmg": {
+    "en": "Dmg",
+    "de": "Sch.",
+    "fr": "Dgt",
+    "es": "Daño",
+    "ru": "Урн",
+    "pl": "Obr.",
+    "tr": "Hsr",
+    "zh": "伤害"
+  },
+  "Main.NavLoot": {
+    "en": "Loot",
+    "de": "Beut",
+    "fr": "But.",
+    "es": "Bot.",
+    "ru": "Доб.",
+    "pl": "Łupy",
+    "tr": "Gnm.",
+    "zh": "掉落"
+  },
+  "Main.NavRot": {
+    "en": "Rot",
+    "de": "Rot.",
+    "fr": "Rot.",
+    "es": "Rot.",
+    "ru": "Рот.",
+    "pl": "Rot.",
+    "tr": "Rot.",
+    "zh": "轮换"
+  },
+  "Main.NavChar": {
+    "en": "Char",
+    "de": "Char",
+    "fr": "Perso",
+    "es": "Pers",
+    "ru": "Перс",
+    "pl": "Post",
+    "tr": "Krk",
+    "zh": "角色"
+  },
+  "Main.NavInst": {
+    "en": "Inst",
+    "de": "Inst",
+    "fr": "Inst",
+    "es": "Inst",
+    "ru": "Инст",
+    "pl": "Inst",
+    "tr": "Zdn",
+    "zh": "副本"
+  },
+  "Main.FilterAll": {
+    "en": "All",
+    "de": "Alle",
+    "fr": "Tous",
+    "es": "Todos",
+    "ru": "Все",
+    "pl": "Wszyscy",
+    "tr": "Tümü",
+    "zh": "全部"
+  },
+  "Main.FilterSelf": {
+    "en": "Self",
+    "de": "Ich",
+    "fr": "Moi",
+    "es": "Yo",
+    "ru": "Я",
+    "pl": "Ja",
+    "tr": "Kendim",
+    "zh": "自己"
+  },
+  "Main.FilterGroup": {
+    "en": "Group",
+    "de": "Gruppe",
+    "fr": "Groupe",
+    "es": "Grupo",
+    "ru": "Группа",
+    "pl": "Grupa",
+    "tr": "Grup",
+    "zh": "小队"
+  },
+  "Main.FilterAlliance": {
+    "en": "Alliance",
+    "de": "Allianz",
+    "fr": "Alliance",
+    "es": "Alianza",
+    "ru": "Альянс",
+    "pl": "Sojusz",
+    "tr": "İttifak",
+    "zh": "联盟"
+  },
+  "Main.FilterLegion": {
+    "en": "Legion",
+    "de": "Legion",
+    "fr": "Légion",
+    "es": "Legión",
+    "ru": "Легион",
+    "pl": "Legion",
+    "tr": "Lejyon",
+    "zh": "军团"
+  },
+  "Main.ColumnName": {
+    "en": "Name",
+    "de": "Name",
+    "fr": "Nom",
+    "es": "Nombre",
+    "ru": "Имя",
+    "pl": "Nazwa",
+    "tr": "İsim",
+    "zh": "名称"
+  },
+  "Main.ColumnDamageDps": {
+    "en": "Damage / DPS",
+    "de": "Schaden / DPS",
+    "fr": "Dégâts / DPS",
+    "es": "Daño / DPS",
+    "ru": "Урон / DPS",
+    "pl": "Obrażenia / DPS",
+    "tr": "Hasar / DPS",
+    "zh": "伤害 / DPS"
+  },
+  "Main.ColumnPerson": {
+    "en": "Person",
+    "de": "Person",
+    "fr": "Personne",
+    "es": "Persona",
+    "ru": "Игрок",
+    "pl": "Osoba",
+    "tr": "Kişi",
+    "zh": "玩家"
+  },
+  "Main.ColumnItem": {
+    "en": "Item",
+    "de": "Gegenstand",
+    "fr": "Objet",
+    "es": "Objeto",
+    "ru": "Предмет",
+    "pl": "Przedmiot",
+    "tr": "Eşya",
+    "zh": "物品"
+  },
+  "Main.ColumnQty": {
+    "en": "Qty",
+    "de": "Anz.",
+    "fr": "Qté",
+    "es": "Cant.",
+    "ru": "Кол-во",
+    "pl": "Ilość",
+    "tr": "Adet",
+    "zh": "数量"
+  },
+  "Main.StatExp": {
+    "en": "Exp:",
+    "de": "Erf.:",
+    "fr": "Exp :",
+    "es": "Exp:",
+    "ru": "Опыт:",
+    "pl": "Dośw.:",
+    "tr": "Tec.:",
+    "zh": "经验："
+  },
+  "Main.StatAp": {
+    "en": "AP:",
+    "de": "AP:",
+    "fr": "PA :",
+    "es": "PA:",
+    "ru": "ОБ:",
+    "pl": "PO:",
+    "tr": "AP:",
+    "zh": "深渊点："
+  },
+  "Main.StatGp": {
+    "en": "GP:",
+    "de": "RP:",
+    "fr": "PG :",
+    "es": "PG:",
+    "ru": "ОС:",
+    "pl": "PC:",
+    "tr": "GP:",
+    "zh": "荣誉点："
+  },
+  "Main.StatKinah": {
+    "en": "Kinah:",
+    "de": "Kinah:",
+    "fr": "Kinah :",
+    "es": "Kinah:",
+    "ru": "Кина:",
+    "pl": "Kinah:",
+    "tr": "Kinah:",
+    "zh": "金币："
+  },
+  "Settings.WindowTitle": {
+    "en": "User Settings",
+    "de": "Benutzereinstellungen",
+    "fr": "Paramètres utilisateur",
+    "es": "Ajustes de usuario",
+    "ru": "Настройки пользователя",
+    "pl": "Ustawienia użytkownika",
+    "tr": "Kullanıcı ayarları",
+    "zh": "用户设置"
+  },
+  "Settings.TargetsList": {
+    "en": "Targets List (which ranks are shown at all)",
+    "de": "Zielliste (welche Ränge überhaupt angezeigt werden)",
+    "fr": "Liste des cibles (quels rangs sont affichés)",
+    "es": "Lista de objetivos (qué rangos se muestran)",
+    "ru": "Список целей (какие ранги вообще показывать)",
+    "pl": "Lista celów (które rangi są w ogóle pokazywane)",
+    "tr": "Hedef listesi (hangi rütbelerin gösterileceği)",
+    "zh": "目标列表（显示哪些等级）"
+  },
+  "Settings.ShowPlayers": {
+    "en": "Display players",
+    "de": "Spieler anzeigen",
+    "fr": "Afficher les joueurs",
+    "es": "Mostrar jugadores",
+    "ru": "Показывать игроков",
+    "pl": "Pokazuj graczy",
+    "tr": "Oyuncuları göster",
+    "zh": "显示玩家"
+  },
+  "Settings.ShowMinionNpcs": {
+    "en": "Display minion NPCs (servants, summons, energies)",
+    "de": "Diener-NPCs anzeigen (Diener, Beschwörungen, Energien)",
+    "fr": "Afficher les PNJ serviteurs (serviteurs, invocations, énergies)",
+    "es": "Mostrar PNJ sirvientes (sirvientes, invocaciones, energías)",
+    "ru": "Показывать NPC-слуг (слуги, призывы, сущности)",
+    "pl": "Pokazuj pomocnicze NPC (słudzy, przywołania, energie)",
+    "tr": "Yardımcı NPC'leri göster (uşaklar, çağırmalar, enerjiler)",
+    "zh": "显示仆从类NPC（仆从、召唤物、能量体）"
+  },
+  "Settings.ShowCommonNpcs": {
+    "en": "Display common NPCs",
+    "de": "Gewöhnliche NPCs anzeigen",
+    "fr": "Afficher les PNJ normaux",
+    "es": "Mostrar PNJ comunes",
+    "ru": "Показывать обычных NPC",
+    "pl": "Pokazuj zwykłe NPC",
+    "tr": "Sıradan NPC'leri göster",
+    "zh": "显示普通NPC"
+  },
+  "Settings.ShowEliteNpcs": {
+    "en": "Display elite NPCs",
+    "de": "Elite-NPCs anzeigen",
+    "fr": "Afficher les PNJ d'élite",
+    "es": "Mostrar PNJ de élite",
+    "ru": "Показывать элитных NPC",
+    "pl": "Pokazuj elitarne NPC",
+    "tr": "Elit NPC'leri göster",
+    "zh": "显示精英NPC"
+  },
+  "Settings.ShowHeroicNpcs": {
+    "en": "Display heroic NPCs",
+    "de": "Heroische NPCs anzeigen",
+    "fr": "Afficher les PNJ héroïques",
+    "es": "Mostrar PNJ heroicos",
+    "ru": "Показывать героических NPC",
+    "pl": "Pokazuj heroiczne NPC",
+    "tr": "Kahramanlık NPC'lerini göster",
+    "zh": "显示英雄级NPC"
+  },
+  "Settings.ShowLegendaryNpcs": {
+    "en": "Display legendary NPCs",
+    "de": "Legendäre NPCs anzeigen",
+    "fr": "Afficher les PNJ légendaires",
+    "es": "Mostrar PNJ legendarios",
+    "ru": "Показывать легендарных NPC",
+    "pl": "Pokazuj legendarne NPC",
+    "tr": "Efsanevi NPC'leri göster",
+    "zh": "显示传说级NPC"
+  },
+  "Settings.UserInterface": {
+    "en": "User Interface",
+    "de": "Benutzeroberfläche",
+    "fr": "Interface utilisateur",
+    "es": "Interfaz de usuario",
+    "ru": "Интерфейс",
+    "pl": "Interfejs użytkownika",
+    "tr": "Kullanıcı arayüzü",
+    "zh": "用户界面"
+  },
+  "Settings.Theme": {
+    "en": "Theme:",
+    "de": "Design:",
+    "fr": "Thème :",
+    "es": "Tema:",
+    "ru": "Тема:",
+    "pl": "Motyw:",
+    "tr": "Tema:",
+    "zh": "主题："
+  },
+  "Settings.FontSize": {
+    "en": "Font Size:",
+    "de": "Schriftgröße:",
+    "fr": "Taille de police :",
+    "es": "Tamaño de fuente:",
+    "ru": "Размер шрифта:",
+    "pl": "Rozmiar czcionki:",
+    "tr": "Yazı boyutu:",
+    "zh": "字体大小："
+  },
+  "Settings.Language": {
+    "en": "Language:",
+    "de": "Sprache:",
+    "fr": "Langue :",
+    "es": "Idioma:",
+    "ru": "Язык:",
+    "pl": "Język:",
+    "tr": "Dil:",
+    "zh": "语言："
+  },
+  "Settings.AlwaysOnTop": {
+    "en": "Always on top at startup",
+    "de": "Beim Start immer im Vordergrund",
+    "fr": "Toujours au premier plan au démarrage",
+    "es": "Siempre visible al iniciar",
+    "ru": "Поверх всех окон при запуске",
+    "pl": "Zawsze na wierzchu przy starcie",
+    "tr": "Başlangıçta her zaman üstte",
+    "zh": "启动时总在最前"
+  },
+  "Settings.ThemeDark": {
+    "en": "Dark",
+    "de": "Dunkel",
+    "fr": "Sombre",
+    "es": "Oscuro",
+    "ru": "Тёмная",
+    "pl": "Ciemny",
+    "tr": "Koyu",
+    "zh": "深色"
+  },
+  "Settings.ThemeLight": {
+    "en": "Light",
+    "de": "Hell",
+    "fr": "Clair",
+    "es": "Claro",
+    "ru": "Светлая",
+    "pl": "Jasny",
+    "tr": "Açık",
+    "zh": "浅色"
+  },
+  "Settings.SizeSmall": {
+    "en": "Small",
+    "de": "Klein",
+    "fr": "Petite",
+    "es": "Pequeño",
+    "ru": "Маленький",
+    "pl": "Mały",
+    "tr": "Küçük",
+    "zh": "小"
+  },
+  "Settings.SizeMedium": {
+    "en": "Medium",
+    "de": "Mittel",
+    "fr": "Moyenne",
+    "es": "Mediano",
+    "ru": "Средний",
+    "pl": "Średni",
+    "tr": "Orta",
+    "zh": "中"
+  },
+  "Settings.SizeLarge": {
+    "en": "Large",
+    "de": "Groß",
+    "fr": "Grande",
+    "es": "Grande",
+    "ru": "Большой",
+    "pl": "Duży",
+    "tr": "Büyük",
+    "zh": "大"
+  },
+  "Settings.Updates": {
+    "en": "Updates",
+    "de": "Updates",
+    "fr": "Mises à jour",
+    "es": "Actualizaciones",
+    "ru": "Обновления",
+    "pl": "Aktualizacje",
+    "tr": "Güncellemeler",
+    "zh": "更新"
+  },
+  "Settings.CheckForUpdates": {
+    "en": "Check GitHub for new versions (at startup and every 5 minutes)",
+    "de": "Bei GitHub nach neuen Versionen suchen (beim Start und alle 5 Minuten)",
+    "fr": "Rechercher de nouvelles versions sur GitHub (au démarrage et toutes les 5 minutes)",
+    "es": "Buscar nuevas versiones en GitHub (al iniciar y cada 5 minutos)",
+    "ru": "Проверять новые версии на GitHub (при запуске и каждые 5 минут)",
+    "pl": "Sprawdzaj nowe wersje na GitHub (przy starcie i co 5 minut)",
+    "tr": "GitHub'da yeni sürümleri denetle (başlangıçta ve her 5 dakikada)",
+    "zh": "在 GitHub 检查新版本（启动时及每 5 分钟一次）"
+  },
+  "Settings.AionInstallation": {
+    "en": "Aion Installation",
+    "de": "Aion-Installation",
+    "fr": "Installation d'Aion",
+    "es": "Instalación de Aion",
+    "ru": "Установка Aion",
+    "pl": "Instalacja Aion",
+    "tr": "Aion Kurulumu",
+    "zh": "永恒之塔安装"
+  },
+  "Settings.FolderHint": {
+    "en": "Folder: select the Aion install ROOT (the folder containing Chat.log)",
+    "de": "Ordner: das AION-Installations-Stammverzeichnis wählen (der Ordner mit Chat.log)",
+    "fr": "Dossier : sélectionnez le dossier RACINE d'installation d'Aion (celui contenant Chat.log)",
+    "es": "Carpeta: seleccione la carpeta RAÍZ de instalación de Aion (la que contiene Chat.log)",
+    "ru": "Папка: выберите КОРНЕВУЮ папку установки Aion (папку с Chat.log)",
+    "pl": "Folder: wybierz GŁÓWNY folder instalacji Aion (folder zawierający Chat.log)",
+    "tr": "Klasör: Aion kurulum KÖK klasörünü seçin (Chat.log dosyasını içeren klasör)",
+    "zh": "文件夹：选择永恒之塔安装的根目录（包含 Chat.log 的文件夹）"
+  },
+  "Settings.SelectFolder": {
+    "en": "Select Folder...",
+    "de": "Ordner auswählen …",
+    "fr": "Sélectionner un dossier…",
+    "es": "Seleccionar carpeta…",
+    "ru": "Выбрать папку…",
+    "pl": "Wybierz folder…",
+    "tr": "Klasör Seç...",
+    "zh": "选择文件夹…"
+  },
+  "Settings.YourCharacters": {
+    "en": "Your Characters",
+    "de": "Deine Charaktere",
+    "fr": "Vos personnages",
+    "es": "Tus personajes",
+    "ru": "Ваши персонажи",
+    "pl": "Twoje postacie",
+    "tr": "Karakterleriniz",
+    "zh": "你的角色"
+  },
+  "Settings.ActiveCharacter": {
+    "en": "Active character:",
+    "de": "Aktiver Charakter:",
+    "fr": "Personnage actif :",
+    "es": "Personaje activo:",
+    "ru": "Активный персонаж:",
+    "pl": "Aktywna postać:",
+    "tr": "Etkin karakter:",
+    "zh": "当前角色："
+  },
+  "Settings.AutoDetectActiveCharacter": {
+    "en": "Auto-detect active character from skills used",
+    "de": "Aktiven Charakter automatisch anhand genutzter Skills erkennen",
+    "fr": "Détecter automatiquement le personnage actif d'après les compétences utilisées",
+    "es": "Detectar automáticamente el personaje activo según las habilidades usadas",
+    "ru": "Определять активного персонажа автоматически по используемым навыкам",
+    "pl": "Wykrywaj aktywną postać automatycznie na podstawie użytych umiejętności",
+    "tr": "Etkin karakteri kullanılan becerilerden otomatik algıla",
+    "zh": "根据使用的技能自动识别当前角色"
+  },
+  "Settings.Add": {
+    "en": "Add",
+    "de": "Hinzufügen",
+    "fr": "Ajouter",
+    "es": "Añadir",
+    "ru": "Добавить",
+    "pl": "Dodaj",
+    "tr": "Ekle",
+    "zh": "添加"
+  },
+  "Settings.Update": {
+    "en": "Update",
+    "de": "Aktualisieren",
+    "fr": "Mettre à jour",
+    "es": "Actualizar",
+    "ru": "Обновить",
+    "pl": "Aktualizuj",
+    "tr": "Güncelle",
+    "zh": "更新"
+  },
+  "Settings.Remove": {
+    "en": "Remove",
+    "de": "Entfernen",
+    "fr": "Supprimer",
+    "es": "Eliminar",
+    "ru": "Удалить",
+    "pl": "Usuń",
+    "tr": "Kaldır",
+    "zh": "移除"
+  },
+  "Settings.Cancel": {
+    "en": "Cancel",
+    "de": "Abbrechen",
+    "fr": "Annuler",
+    "es": "Cancelar",
+    "ru": "Отмена",
+    "pl": "Anuluj",
+    "tr": "İptal",
+    "zh": "取消"
+  },
+  "Settings.Save": {
+    "en": "Save",
+    "de": "Speichern",
+    "fr": "Enregistrer",
+    "es": "Guardar",
+    "ru": "Сохранить",
+    "pl": "Zapisz",
+    "tr": "Kaydet",
+    "zh": "保存"
+  }
+}

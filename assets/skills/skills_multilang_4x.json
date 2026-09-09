@@ -7,7 +7,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Schwert",
+    "fr": "Entraînement basique : Épée"
   },
   {
     "id": 3,
@@ -17,7 +19,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Streitkolben",
+    "fr": "Entraînement basique : Masse"
   },
   {
     "id": 4,
@@ -27,7 +31,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Einfaches Gewand",
+    "fr": "Armure : Costumes basiques"
   },
   {
     "id": 5,
@@ -37,7 +43,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Einfache Lederrüstung",
+    "fr": "Armure : Cuir basique"
   },
   {
     "id": 6,
@@ -47,7 +55,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Einfache Kettenrüstung",
+    "fr": "Armure : Mailles basiques"
   },
   {
     "id": 7,
@@ -57,7 +67,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Schild",
+    "fr": "Entraînement basique : Bouclier"
   },
   {
     "id": 8,
@@ -67,7 +79,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittenes Schwert I",
+    "fr": "Entraînement avancé : Épée I"
   },
   {
     "id": 9,
@@ -77,7 +91,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittener Dolch I",
+    "fr": "Entraînement avancé : Dagues I"
   },
   {
     "id": 10,
@@ -87,7 +103,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittener Streitkolben I",
+    "fr": "Entraînement avancé : Masse I"
   },
   {
     "id": 12,
@@ -98,7 +116,9 @@
     "levels": [
       9,
       10
-    ]
+    ],
+    "de": "Fortgeschrittene Lederrüstung I",
+    "fr": "Armure : Cuir avancé"
   },
   {
     "id": 13,
@@ -108,7 +128,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittene Kettenrüstung I",
+    "fr": "Armure : Mailles avancées"
   },
   {
     "id": 14,
@@ -118,7 +140,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittenes Schild I",
+    "fr": "Entraînement avancé : Bouclier I"
   },
   {
     "id": 15,
@@ -128,7 +152,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittenes Großschwert I",
+    "fr": "Entraînement avancé : Espadon I"
   },
   {
     "id": 16,
@@ -138,7 +164,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittene Stangenwaffe I",
+    "fr": "Entraînement avancé : Guisarmes I"
   },
   {
     "id": 17,
@@ -148,7 +176,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittener Bogen I",
+    "fr": "Entraînement avancé : Arc I"
   },
   {
     "id": 18,
@@ -158,7 +188,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittene Plattenrüstung I",
+    "fr": "Armure : Plates avancées"
   },
   {
     "id": 19,
@@ -170,7 +202,9 @@
       5,
       10,
       20
-    ]
+    ],
+    "de": "Fortgeschrittener Zweihandkampf I",
+    "fr": "Ambidextrie avancée I"
   },
   {
     "id": 30,
@@ -180,7 +214,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Dolch",
+    "fr": "Entraînement basique : Dague"
   },
   {
     "id": 53,
@@ -190,7 +226,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittener Stab I",
+    "fr": "Entraînement avancé : Bâton I"
   },
   {
     "id": 64,
@@ -200,7 +238,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Zauberbuch",
+    "fr": "Entraînement basique : Grimoire"
   },
   {
     "id": 67,
@@ -210,7 +250,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Einfache Stoffrüstung",
+    "fr": "Armure : Tissu basique"
   },
   {
     "id": 70,
@@ -221,7 +263,9 @@
     "levels": [
       9,
       10
-    ]
+    ],
+    "de": "Fortgeschrittene Stoffrüstung I",
+    "fr": "Armure : Tissu avancé I"
   },
   {
     "id": 71,
@@ -231,7 +275,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittenes Zauberbuch I",
+    "fr": "Entraînement avancé : Grimoires I"
   },
   {
     "id": 75,
@@ -241,7 +287,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Fortgeschrittene Kugel I",
+    "fr": "Entraînement avancé : Orbe I"
   },
   {
     "id": 76,
@@ -251,7 +299,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Ätherrevolver I",
+    "fr": "Revolver à Éther I"
   },
   {
     "id": 77,
@@ -261,7 +311,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Fortgeschrittene Ätherkanone I",
+    "fr": "Canon à Éther perfectionné I"
   },
   {
     "id": 78,
@@ -271,7 +323,9 @@
     "slot": "passive",
     "levels": [
       1
-    ]
+    ],
+    "de": "Saiteninstrument",
+    "fr": "Instrument à cordes"
   },
   {
     "id": 79,
@@ -281,7 +335,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Ätherschlüssel",
+    "fr": "Clé éthérée"
   },
   {
     "id": 81,
@@ -291,7 +347,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Phys. Verteidigung erhöhen",
+    "fr": "Vol : augmentation de la défense physique"
   },
   {
     "id": 82,
@@ -301,7 +359,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Schussgottes",
+    "fr": "Vol : Bénédiction du dieu du tir"
   },
   {
     "id": 83,
@@ -311,7 +371,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Fortgeschrittene Ätherrevolver I",
+    "fr": "Revolver à Éther perfectionné I"
   },
   {
     "id": 90,
@@ -321,7 +383,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Erholung verbessern",
+    "fr": "Vol : Amélioration de la récupération"
   },
   {
     "id": 91,
@@ -331,7 +395,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Bardengottes",
+    "fr": "Vol : Bénédiction du dieu des bardes"
   },
   {
     "id": 92,
@@ -341,7 +407,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Fortgeschrittenes Saiteninstrument I",
+    "fr": "Instrument à cordes perfectionné I"
   },
   {
     "id": 96,
@@ -351,7 +419,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Magischen Angriff erhöhen",
+    "fr": "Vol : Attaque magique augmentée"
   },
   {
     "id": 97,
@@ -361,7 +431,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Mech-Meisters",
+    "fr": "Vol : Bénédiction du mecha"
   },
   {
     "id": 101,
@@ -371,7 +443,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Mantra-Reichweite erhöhen I",
+    "fr": "Portée des Mantras augmentée I"
   },
   {
     "id": 102,
@@ -381,7 +455,9 @@
     "slot": "passive",
     "levels": [
       13
-    ]
+    ],
+    "de": "Verärgerung I",
+    "fr": "Aggravation I"
   },
   {
     "id": 103,
@@ -391,7 +467,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Zornaufbaugeschwindigkeit reduzieren I",
+    "fr": "Accumulation d'hostilité réduite I"
   },
   {
     "id": 104,
@@ -401,7 +479,9 @@
     "slot": "passive",
     "levels": [
       37
-    ]
+    ],
+    "de": "Niederwerfen erhöhen I",
+    "fr": "Techniques de mise au sol I"
   },
   {
     "id": 105,
@@ -411,7 +491,9 @@
     "slot": "passive",
     "levels": [
       5
-    ]
+    ],
+    "de": "Konzentration I",
+    "fr": "Concentration I"
   },
   {
     "id": 108,
@@ -421,7 +503,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Heilung erhöhen I",
+    "fr": "Augmentation de la guérison I"
   },
   {
     "id": 110,
@@ -431,7 +515,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Bogenreichweite erhöhen I",
+    "fr": "Portée des arcs augmentée I"
   },
   {
     "id": 111,
@@ -442,7 +528,9 @@
     "levels": [
       16,
       25
-    ]
+    ],
+    "de": "Blocken erhöhen I",
+    "fr": "Augmentation du Blocage I"
   },
   {
     "id": 112,
@@ -452,7 +540,9 @@
     "slot": "passive",
     "levels": [
       9
-    ]
+    ],
+    "de": "Ausweichrate erhöhen I",
+    "fr": "Esquive augmentée I"
   },
   {
     "id": 113,
@@ -463,7 +553,9 @@
     "levels": [
       5,
       40
-    ]
+    ],
+    "de": "Präzision erhöhen I",
+    "fr": "Augmentation de précision I"
   },
   {
     "id": 114,
@@ -473,7 +565,9 @@
     "slot": "passive",
     "levels": [
       16
-    ]
+    ],
+    "de": "Angriffswiderstand erhöhen I",
+    "fr": "Résistance aux attaques augmentée I"
   },
   {
     "id": 115,
@@ -483,7 +577,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Schwächende Magie verstärken I",
+    "fr": "Magie d'affaiblissement I"
   },
   {
     "id": 116,
@@ -493,7 +589,9 @@
     "slot": "passive",
     "levels": [
       16
-    ]
+    ],
+    "de": "Magiewiderstand erhöhen I",
+    "fr": "Résistance magique augmentée I"
   },
   {
     "id": 117,
@@ -503,7 +601,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Magischen Angriff erhöhen I",
+    "fr": "Attaque magique augmentée I"
   },
   {
     "id": 119,
@@ -513,7 +613,9 @@
     "slot": "passive",
     "levels": [
       16
-    ]
+    ],
+    "de": "Maximale MP erhöhen I",
+    "fr": "Augmentation des PM maximum I"
   },
   {
     "id": 120,
@@ -524,7 +626,9 @@
     "levels": [
       9,
       16
-    ]
+    ],
+    "de": "Parieren erhöhen I",
+    "fr": "Augmentation de la parade I"
   },
   {
     "id": 121,
@@ -534,7 +638,9 @@
     "slot": "passive",
     "levels": [
       5
-    ]
+    ],
+    "de": "TP erhöhen I",
+    "fr": "Augmentation des PV I"
   },
   {
     "id": 122,
@@ -545,7 +651,9 @@
     "levels": [
       1,
       25
-    ]
+    ],
+    "de": "Physischer Angriff erhöhen I",
+    "fr": "Augmentation physique I"
   },
   {
     "id": 123,
@@ -556,7 +664,9 @@
     "levels": [
       10,
       22
-    ]
+    ],
+    "de": "Elementarabwehr erhöhen I",
+    "fr": "Résistance élémentaire augmentée I"
   },
   {
     "id": 124,
@@ -566,7 +676,9 @@
     "slot": "passive",
     "levels": [
       40
-    ]
+    ],
+    "de": "Entschlossenheit I",
+    "fr": "Détermination I"
   },
   {
     "id": 129,
@@ -576,7 +688,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Krit. Trefferchance erhöhen I",
+    "fr": "Taux de crit. physiques augmenté I"
   },
   {
     "id": 140,
@@ -586,7 +700,9 @@
     "slot": "passive",
     "levels": [
       19
-    ]
+    ],
+    "de": "Elementarverteidigung I erhöhen",
+    "fr": "Défenses élémentaires consolidées I"
   },
   {
     "id": 141,
@@ -596,7 +712,9 @@
     "slot": "passive",
     "levels": [
       30
-    ]
+    ],
+    "de": "Mag. krit. Trefferresistenz I",
+    "fr": "Résistance critique magique I"
   },
   {
     "id": 151,
@@ -614,7 +732,9 @@
       11,
       12,
       13
-    ]
+    ],
+    "de": "Kräftiger Hieb I",
+    "fr": "Coup affaiblissant énergique I"
   },
   {
     "id": 154,
@@ -632,7 +752,9 @@
       15,
       16,
       17
-    ]
+    ],
+    "de": "Schildkonter I",
+    "fr": "Contre-attaque au bouclier I"
   },
   {
     "id": 158,
@@ -650,7 +772,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Provozieren I",
+    "fr": "Défi I"
   },
   {
     "id": 161,
@@ -668,7 +792,9 @@
       13,
       14,
       15
-    ]
+    ],
+    "de": "Kampfschrei I",
+    "fr": "Rage I"
   },
   {
     "id": 165,
@@ -686,7 +812,9 @@
       9,
       10,
       11
-    ]
+    ],
+    "de": "Robuster Hieb I",
+    "fr": "Coup robuste I"
   },
   {
     "id": 169,
@@ -704,7 +832,9 @@
       7,
       8,
       9
-    ]
+    ],
+    "de": "Wilder Schlag I",
+    "fr": "Frappe féroce I"
   },
   {
     "id": 173,
@@ -714,7 +844,9 @@
     "slot": "active",
     "levels": [
       3
-    ]
+    ],
+    "de": "Schildabwehr I",
+    "fr": "Blocage I"
   },
   {
     "id": 182,
@@ -725,7 +857,9 @@
     "levels": [
       16,
       25
-    ]
+    ],
+    "de": "Ansturm I",
+    "fr": "Charge I"
   },
   {
     "id": 183,
@@ -735,7 +869,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Torzerstörung I",
+    "fr": "Siège endigué I"
   },
   {
     "id": 225,
@@ -745,7 +881,9 @@
     "slot": "active",
     "levels": [
       48
-    ]
+    ],
+    "de": "Grausamkeit I",
+    "fr": "Férocité I"
   },
   {
     "id": 226,
@@ -763,7 +901,9 @@
       57,
       58,
       59
-    ]
+    ],
+    "de": "Todestreffer I",
+    "fr": "Frappe finale I"
   },
   {
     "id": 227,
@@ -773,7 +913,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Sehnenzerstückler I",
+    "fr": "Coupe-tendon I"
   },
   {
     "id": 229,
@@ -783,7 +925,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Wirbelnder Schlag I",
+    "fr": "Frappe tourbillonnante I"
   },
   {
     "id": 231,
@@ -801,7 +945,9 @@
       59,
       60,
       61
-    ]
+    ],
+    "de": "Explosion des Zorns I",
+    "fr": "Explosion courroucée I"
   },
   {
     "id": 232,
@@ -811,7 +957,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Kraftreserve I",
+    "fr": "Retour de bourrasque I"
   },
   {
     "id": 233,
@@ -821,7 +969,9 @@
     "slot": "active",
     "levels": [
       55
-    ]
+    ],
+    "de": "Zerschmetternder Schlag I",
+    "fr": "Pilonnage I"
   },
   {
     "id": 234,
@@ -831,7 +981,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Sicherer Schlag I",
+    "fr": "Frappe infaillible I"
   },
   {
     "id": 235,
@@ -841,7 +993,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Blutsaugendes Schwert I",
+    "fr": "Épée du vide I"
   },
   {
     "id": 236,
@@ -851,7 +1005,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Schwächender Schlag I",
+    "fr": "Coup affaiblissant énergique I"
   },
   {
     "id": 241,
@@ -861,7 +1017,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Unerschrockener Geist I",
+    "fr": "Esprit audacieux I"
   },
   {
     "id": 244,
@@ -871,7 +1029,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Zerstörerischer Angriff I",
+    "fr": "Frappe destructive I"
   },
   {
     "id": 245,
@@ -881,7 +1041,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Sturmhaltung I",
+    "fr": "Posture d'assaut I"
   },
   {
     "id": 246,
@@ -891,7 +1053,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Technischer Konter I",
+    "fr": "Riposte technique I"
   },
   {
     "id": 247,
@@ -901,7 +1065,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Scharfer Schlag I",
+    "fr": "Frappe brusque I"
   },
   {
     "id": 248,
@@ -911,7 +1077,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Schwerer Zertrümmerungsschlag I",
+    "fr": "Coup destructeur énergique I"
   },
   {
     "id": 249,
@@ -921,7 +1089,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Trennender Schlag I",
+    "fr": "Frappe tranchante I"
   },
   {
     "id": 250,
@@ -931,7 +1101,9 @@
     "slot": "active",
     "levels": [
       37
-    ]
+    ],
+    "de": "Konzentriertes Blocken I",
+    "fr": "Blocage concentré I"
   },
   {
     "id": 251,
@@ -941,7 +1113,9 @@
     "slot": "active",
     "levels": [
       13
-    ]
+    ],
+    "de": "Angriffsvorbereitung I",
+    "fr": "Force d'Aion I"
   },
   {
     "id": 255,
@@ -951,7 +1125,9 @@
     "slot": "stigma",
     "levels": [
       22
-    ]
+    ],
+    "de": "Verkrüppelnder Schnitt I",
+    "fr": "Coupure handicapante I"
   },
   {
     "id": 258,
@@ -961,7 +1137,9 @@
     "slot": "active",
     "levels": [
       25
-    ]
+    ],
+    "de": "Verteidigungsvorbereitung I",
+    "fr": "Préparation défensive I"
   },
   {
     "id": 261,
@@ -979,7 +1157,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Erzwungene Landung I",
+    "fr": "Coup écrasant I"
   },
   {
     "id": 264,
@@ -989,7 +1169,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Geheul I",
+    "fr": "Complainte I"
   },
   {
     "id": 267,
@@ -999,7 +1181,9 @@
     "slot": "stigma",
     "levels": [
       31
-    ]
+    ],
+    "de": "Gefängnis I",
+    "fr": "Verrouillage I"
   },
   {
     "id": 269,
@@ -1009,7 +1193,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Verbesserte Ausdauer I",
+    "fr": "Endurance améliorée I"
   },
   {
     "id": 271,
@@ -1027,7 +1213,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Luftgefängnis I",
+    "fr": "Blocage aérien I"
   },
   {
     "id": 272,
@@ -1037,7 +1225,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Ansturm-Haltung I",
+    "fr": "Fureur du Daeva I"
   },
   {
     "id": 273,
@@ -1055,7 +1245,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Zorniger Schlag I",
+    "fr": "Frappe courroucée I"
   },
   {
     "id": 276,
@@ -1073,7 +1265,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Wagemutiger Schlag I",
+    "fr": "Frappe imprudente I"
   },
   {
     "id": 278,
@@ -1091,7 +1285,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Zerreißen I",
+    "fr": "Rupture I"
   },
   {
     "id": 282,
@@ -1109,7 +1305,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Seismische Woge I",
+    "fr": "Ondulation sismique I"
   },
   {
     "id": 284,
@@ -1127,7 +1325,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Seismische Welle I",
+    "fr": "Onde sismique I"
   },
   {
     "id": 287,
@@ -1138,7 +1338,9 @@
     "levels": [
       34,
       37
-    ]
+    ],
+    "de": "Rüstung des Gleichgewichts I",
+    "fr": "Dévotion inébranlable I"
   },
   {
     "id": 290,
@@ -1156,7 +1358,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Ausdauer-Wiederherstellung I",
+    "fr": "Récupération d'endurance I"
   },
   {
     "id": 291,
@@ -1174,7 +1378,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Flügelklinge I",
+    "fr": "Clivage I"
   },
   {
     "id": 312,
@@ -1192,7 +1398,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Erste Klinge I",
+    "fr": "Clivage de force I"
   },
   {
     "id": 320,
@@ -1210,7 +1418,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Machtexplosion I",
+    "fr": "Souffle de force I"
   },
   {
     "id": 321,
@@ -1228,7 +1438,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Durchdringende Welle I",
+    "fr": "Vague perçante I"
   },
   {
     "id": 322,
@@ -1238,7 +1450,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Knöchel-Verlangsamung I",
+    "fr": "Prise à la cheville I"
   },
   {
     "id": 326,
@@ -1248,7 +1462,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Phys. Angriff erhöhen I",
+    "fr": "Force ailée I"
   },
   {
     "id": 333,
@@ -1258,7 +1474,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Schwertgottes",
+    "fr": "Rage ailée"
   },
   {
     "id": 348,
@@ -1276,7 +1494,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Brodelnde Explosion I",
+    "fr": "Explosion de fureur I"
   },
   {
     "id": 351,
@@ -1294,7 +1514,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Körperschlag I",
+    "fr": "Brise corps I"
   },
   {
     "id": 353,
@@ -1312,7 +1534,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Schockwelle I",
+    "fr": "Onde de choc I"
   },
   {
     "id": 355,
@@ -1330,7 +1554,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Druckwelle I",
+    "fr": "Vague de pression I"
   },
   {
     "id": 356,
@@ -1348,7 +1574,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Wiederholter Klingenwirbel I",
+    "fr": "Grand clivage I"
   },
   {
     "id": 357,
@@ -1366,7 +1594,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Tanzende Flammenklinge I",
+    "fr": "Clivage parfait I"
   },
   {
     "id": 362,
@@ -1384,7 +1614,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Explosion der Wut I",
+    "fr": "Explosion de fureur I"
   },
   {
     "id": 365,
@@ -1402,7 +1634,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Welle des Zorns I",
+    "fr": "Vague courroucée I"
   },
   {
     "id": 374,
@@ -1420,7 +1654,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Erste Klinge I",
+    "fr": "Clivage de force I"
   },
   {
     "id": 376,
@@ -1430,7 +1666,9 @@
     "slot": "stigma",
     "levels": [
       44
-    ]
+    ],
+    "de": "Erbebenwelle I",
+    "fr": "Vague de tremblement de terre I"
   },
   {
     "id": 383,
@@ -1440,7 +1678,9 @@
     "slot": "active",
     "levels": [
       46
-    ]
+    ],
+    "de": "Flügel stärken I",
+    "fr": "Ailes renforcées I"
   },
   {
     "id": 385,
@@ -1450,7 +1690,9 @@
     "slot": "stigma",
     "levels": [
       48
-    ]
+    ],
+    "de": "Kampfvorbereitung I",
+    "fr": "Préparation au combat I"
   },
   {
     "id": 390,
@@ -1460,7 +1702,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Segen des Nezekan I",
+    "fr": "Bénédiction de Nezekan I"
   },
   {
     "id": 391,
@@ -1470,7 +1714,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Segen des Zikel I",
+    "fr": "Bénédiction de Zikel I"
   },
   {
     "id": 392,
@@ -1480,7 +1726,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Schlag der Rache I",
+    "fr": "Frappe vengeresse I"
   },
   {
     "id": 396,
@@ -1490,7 +1738,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrale Machtexplosion I",
+    "fr": "Souffle de force ancestrale I"
   },
   {
     "id": 397,
@@ -1500,7 +1750,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrale Durchdringende Welle I",
+    "fr": "Vague perçante ancestrale I"
   },
   {
     "id": 398,
@@ -1510,7 +1762,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Blutsaugender Schlag I",
+    "fr": "Coup drainant I"
   },
   {
     "id": 399,
@@ -1520,7 +1774,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Schwertmacht-Zerreißen I",
+    "fr": "Vague tranchante I"
   },
   {
     "id": 400,
@@ -1530,7 +1786,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Durchdringendes Zerreißen I",
+    "fr": "Rupture perçante I"
   },
   {
     "id": 401,
@@ -1540,7 +1798,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Äther-Rüstung I",
+    "fr": "Armure éthérée I"
   },
   {
     "id": 402,
@@ -1550,7 +1810,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Wut hervorrufen I",
+    "fr": "Poussée de rage I"
   },
   {
     "id": 403,
@@ -1568,7 +1830,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Schlag der Züchtigung I",
+    "fr": "Coup vengeur"
   },
   {
     "id": 409,
@@ -1578,7 +1842,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Große Gesundheit I",
+    "fr": "Grande réanimation I"
   },
   {
     "id": 410,
@@ -1588,7 +1854,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Kraft brechen I",
+    "fr": "Brise pouvoir I"
   },
   {
     "id": 411,
@@ -1598,7 +1866,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Gedankenzerstörung I",
+    "fr": "Destruction mentale I"
   },
   {
     "id": 412,
@@ -1608,7 +1878,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Magischer Schmetterschlag I",
+    "fr": "Fracas magique I"
   },
   {
     "id": 413,
@@ -1618,7 +1890,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Stabiler Schild I",
+    "fr": "Bouclier de la Foi I"
   },
   {
     "id": 414,
@@ -1628,7 +1902,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Bestrafung I",
+    "fr": "Tranchage divin I"
   },
   {
     "id": 416,
@@ -1638,7 +1914,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Wut der Zerstörung I",
+    "fr": "Rage de destruction I"
   },
   {
     "id": 417,
@@ -1648,7 +1926,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Kameradenschutz I",
+    "fr": "Garde du corps I"
   },
   {
     "id": 424,
@@ -1658,7 +1938,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Heiliger Schild I",
+    "fr": "Bouclier sacré I"
   },
   {
     "id": 426,
@@ -1668,7 +1950,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Eisenhaut I",
+    "fr": "Peau de fer I"
   },
   {
     "id": 427,
@@ -1686,7 +1970,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Urteil I",
+    "fr": "Jugement I"
   },
   {
     "id": 431,
@@ -1696,7 +1982,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Spottendes Brüllen I",
+    "fr": "Rugissement de provocation I"
   },
   {
     "id": 438,
@@ -1706,7 +1994,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Schutzpanzer I",
+    "fr": "Prière victorieuse I"
   },
   {
     "id": 441,
@@ -1724,7 +2014,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Schildschlag I",
+    "fr": "Coup de bouclier I"
   },
   {
     "id": 444,
@@ -1742,7 +2034,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Schildansturm I",
+    "fr": "Charge faciale I"
   },
   {
     "id": 445,
@@ -1760,7 +2054,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Glänzender Schnitt I",
+    "fr": "Entaille luisante I"
   },
   {
     "id": 474,
@@ -1778,7 +2074,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Bestrafung des Todesgottes I",
+    "fr": "Châtiment juste I"
   },
   {
     "id": 475,
@@ -1788,7 +2086,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Nezekans Schild I",
+    "fr": "Bouclier de Nezekan I"
   },
   {
     "id": 476,
@@ -1798,7 +2098,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Zikels Schild I",
+    "fr": "Bouclier de Zikel I"
   },
   {
     "id": 480,
@@ -1808,7 +2110,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Phys. Verteidigung erhöhen I",
+    "fr": "Défense ailée I"
   },
   {
     "id": 487,
@@ -1818,7 +2122,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Wächter-Generals I",
+    "fr": "Gardien ailé"
   },
   {
     "id": 500,
@@ -1836,7 +2142,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Göttliche Züchtigung I",
+    "fr": "Châtiment divin I"
   },
   {
     "id": 503,
@@ -1854,7 +2162,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Spottender schwerer Hieb I",
+    "fr": "Coup provocant énergique I"
   },
   {
     "id": 506,
@@ -1864,7 +2174,9 @@
     "slot": "active",
     "levels": [
       13
-    ]
+    ],
+    "de": "Rüstung des empyrian. Gebieters I",
+    "fr": "Armure empyréenne I"
   },
   {
     "id": 507,
@@ -1882,7 +2194,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Schildhieb I",
+    "fr": "Contre-attaque au bouclier provocante I"
   },
   {
     "id": 511,
@@ -1900,7 +2214,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Zornesschlag I",
+    "fr": "Colère divine I"
   },
   {
     "id": 513,
@@ -1910,7 +2226,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Empörung I",
+    "fr": "Fureur divine I"
   },
   {
     "id": 514,
@@ -1928,7 +2246,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Wiederholter Hieb I",
+    "fr": "Coup divin I"
   },
   {
     "id": 516,
@@ -1938,7 +2258,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Heilende Hand I",
+    "fr": "Main de soin I"
   },
   {
     "id": 517,
@@ -1956,7 +2278,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Entkräftender schwerer Hieb I",
+    "fr": "Coup étourdissant énergique I"
   },
   {
     "id": 519,
@@ -1974,7 +2298,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Abstumpfender schwerer Hieb I",
+    "fr": "Coup contondant énergique I"
   },
   {
     "id": 520,
@@ -1992,7 +2318,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Züchtigung der Finsternis I",
+    "fr": "Châtiment des ténèbres I"
   },
   {
     "id": 523,
@@ -2002,7 +2330,9 @@
     "slot": "stigma",
     "levels": [
       22
-    ]
+    ],
+    "de": "Gefangenschaft I",
+    "fr": "Attraction fatale I"
   },
   {
     "id": 524,
@@ -2012,7 +2342,9 @@
     "slot": "active",
     "levels": [
       22
-    ]
+    ],
+    "de": "Stahlmauer-Verteidigung I",
+    "fr": "Mur d'acier I"
   },
   {
     "id": 525,
@@ -2022,7 +2354,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Festnahme I",
+    "fr": "Empoignade divine I"
   },
   {
     "id": 528,
@@ -2040,7 +2374,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Arterienschnitt I",
+    "fr": "Coupure d'artère I"
   },
   {
     "id": 529,
@@ -2058,7 +2394,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Schildschwung I",
+    "fr": "Représailles au bouclier I"
   },
   {
     "id": 531,
@@ -2068,7 +2406,9 @@
     "slot": "stigma",
     "levels": [
       44
-    ]
+    ],
+    "de": "Macht der Wiederherstellung I",
+    "fr": "Puissance de rétablissement I"
   },
   {
     "id": 537,
@@ -2078,7 +2418,9 @@
     "slot": "active",
     "levels": [
       46
-    ]
+    ],
+    "de": "Schild der Geschwindigkeit I",
+    "fr": "Prière de liberté I"
   },
   {
     "id": 540,
@@ -2088,7 +2430,9 @@
     "slot": "stigma",
     "levels": [
       48
-    ]
+    ],
+    "de": "Furchtbares Geheul I",
+    "fr": "Complainte affreuse I"
   },
   {
     "id": 544,
@@ -2106,7 +2450,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Bestrafung des empyrianischen Gebieters I",
+    "fr": "Punition sacrée I"
   },
   {
     "id": 546,
@@ -2116,7 +2462,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrale Bestrafung des empyrianischen Gebieters I",
+    "fr": "Punition sacrée ancestrale I"
   },
   {
     "id": 547,
@@ -2126,7 +2474,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrale Bestrafung des Todesgottes I",
+    "fr": "Châtiment juste ancestral I"
   },
   {
     "id": 548,
@@ -2136,7 +2486,9 @@
     "slot": "passive",
     "levels": [
       31
-    ]
+    ],
+    "de": "Siegel des Schutzes I",
+    "fr": "Sceau de protection I"
   },
   {
     "id": 549,
@@ -2146,7 +2498,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Bestrafung des Lichts I",
+    "fr": "Punition de la lumière I"
   },
   {
     "id": 550,
@@ -2156,7 +2510,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Bestrafung der Finsternis I",
+    "fr": "Punition des ténèbres I"
   },
   {
     "id": 551,
@@ -2174,7 +2530,9 @@
       9,
       10,
       11
-    ]
+    ],
+    "de": "Überraschungsangriff I",
+    "fr": "Attaque surprise I"
   },
   {
     "id": 555,
@@ -2192,7 +2550,9 @@
       11,
       12,
       13
-    ]
+    ],
+    "de": "Gegenangriff I",
+    "fr": "Contre-attaque I"
   },
   {
     "id": 559,
@@ -2202,7 +2562,9 @@
     "slot": "active",
     "levels": [
       5
-    ]
+    ],
+    "de": "Verstecken I",
+    "fr": "Furtivité I"
   },
   {
     "id": 560,
@@ -2212,7 +2574,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Lebenskraft des Windes I",
+    "fr": "Repli stratégique I"
   },
   {
     "id": 564,
@@ -2230,7 +2594,9 @@
       7,
       8,
       9
-    ]
+    ],
+    "de": "Schnelle Klinge I",
+    "fr": "Entaille rapide I"
   },
   {
     "id": 568,
@@ -2248,7 +2614,9 @@
       13,
       14,
       15
-    ]
+    ],
+    "de": "Seelenschnitt I",
+    "fr": "Coupure de l'âme I"
   },
   {
     "id": 572,
@@ -2258,7 +2626,9 @@
     "slot": "active",
     "levels": [
       1
-    ]
+    ],
+    "de": "Konzentriertes Ausweichen I",
+    "fr": "Evasion concentrée I"
   },
   {
     "id": 577,
@@ -2268,7 +2638,9 @@
     "slot": "active",
     "levels": [
       9
-    ]
+    ],
+    "de": "Hingabe I",
+    "fr": "Dévotion I"
   },
   {
     "id": 618,
@@ -2278,7 +2650,9 @@
     "slot": "active",
     "levels": [
       48
-    ]
+    ],
+    "de": "Kämpfender Rückzug I",
+    "fr": "Attaque de repli I"
   },
   {
     "id": 619,
@@ -2288,7 +2662,9 @@
     "slot": "active",
     "levels": [
       51
-    ]
+    ],
+    "de": "Schlaffalle I",
+    "fr": "Narco-piège I"
   },
   {
     "id": 620,
@@ -2298,7 +2674,9 @@
     "slot": "active",
     "levels": [
       51
-    ]
+    ],
+    "de": "Schlaffalle I",
+    "fr": "Narco-piège I"
   },
   {
     "id": 621,
@@ -2308,7 +2686,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Lodernde Falle I",
+    "fr": "Piège embrasé I"
   },
   {
     "id": 622,
@@ -2318,7 +2698,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Lodernde Falle I",
+    "fr": "Piège embrasé I"
   },
   {
     "id": 625,
@@ -2328,7 +2710,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Pfeile schärfen I",
+    "fr": "Flèches aiguisées I"
   },
   {
     "id": 627,
@@ -2346,7 +2730,9 @@
       59,
       60,
       61
-    ]
+    ],
+    "de": "Pfeil des Anfalls I",
+    "fr": "Flèche saisissante I"
   },
   {
     "id": 628,
@@ -2356,7 +2742,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Kondor herbeirufen I",
+    "fr": "Appel du Condor I"
   },
   {
     "id": 629,
@@ -2366,7 +2754,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Kondor herbeirufen I",
+    "fr": "Appel du Condor I"
   },
   {
     "id": 630,
@@ -2384,7 +2774,9 @@
       61,
       62,
       63
-    ]
+    ],
+    "de": "Zielgenauer Pfeil I",
+    "fr": "Flèche infaillible I"
   },
   {
     "id": 631,
@@ -2394,7 +2786,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Blitzpfeil I",
+    "fr": "Flèche-éclair I"
   },
   {
     "id": 632,
@@ -2404,7 +2798,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Quälender Pfeil I",
+    "fr": "Flèche-tourment I"
   },
   {
     "id": 633,
@@ -2414,7 +2810,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Falle: Abbremsen I",
+    "fr": "Piège de ralentissement I"
   },
   {
     "id": 636,
@@ -2424,7 +2822,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Falle: Abbremsen I",
+    "fr": "Piège de ralentissement I"
   },
   {
     "id": 639,
@@ -2434,7 +2834,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Bogen des Segens I",
+    "fr": "Arc de bénédiction I"
   },
   {
     "id": 640,
@@ -2444,7 +2846,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Böenpfeil I",
+    "fr": "Flèche rafale I"
   },
   {
     "id": 641,
@@ -2454,7 +2858,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Raserei des Mistral I",
+    "fr": "Mistral frénétique I"
   },
   {
     "id": 642,
@@ -2464,7 +2870,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Explosionspfeil I",
+    "fr": "Flèche de déflagration I"
   },
   {
     "id": 643,
@@ -2474,7 +2882,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Entschlossenheit des Jägers I",
+    "fr": "Résolution de chasseur I"
   },
   {
     "id": 644,
@@ -2484,7 +2894,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Pfeil des tobenden Windes I",
+    "fr": "Flèche de vent rageur I"
   },
   {
     "id": 645,
@@ -2494,7 +2906,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Tödlicher Pfeil I",
+    "fr": "Flèche de furie I"
   },
   {
     "id": 646,
@@ -2504,7 +2918,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Tigerauge I",
+    "fr": "Fureur de la bête I"
   },
   {
     "id": 647,
@@ -2514,7 +2930,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Griffonix-Pfeil I",
+    "fr": "Flèche sacrée I"
   },
   {
     "id": 648,
@@ -2524,7 +2942,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Consierds Pfeil I",
+    "fr": "Flèche mortelle I"
   },
   {
     "id": 649,
@@ -2534,7 +2954,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestraler Greifenpfeil I",
+    "fr": "Flèche claire-ailette ancestrale I"
   },
   {
     "id": 650,
@@ -2544,7 +2966,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestraler Kondorpfeil I",
+    "fr": "Flèche sombre-ailette ancestrale I"
   },
   {
     "id": 651,
@@ -2562,7 +2986,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Pfeilsturm I",
+    "fr": "Tempête de flèches I"
   },
   {
     "id": 652,
@@ -2580,7 +3006,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Pfeilschlag I",
+    "fr": "Frappe de flèche I"
   },
   {
     "id": 655,
@@ -2590,7 +3018,9 @@
     "slot": "stigma",
     "levels": [
       22
-    ]
+    ],
+    "de": "Rückzugsschlag I",
+    "fr": "Coupure de retraite I"
   },
   {
     "id": 657,
@@ -2600,7 +3030,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Atem der Natur I",
+    "fr": "Souffle de la Nature I"
   },
   {
     "id": 659,
@@ -2618,7 +3050,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Beruhigendes Flüstern I",
+    "fr": "Chuchotement apaisant I"
   },
   {
     "id": 661,
@@ -2636,7 +3070,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Zerreißender Pfeil I",
+    "fr": "Flèche de rupture I"
   },
   {
     "id": 663,
@@ -2654,7 +3090,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Explosionsfalle I",
+    "fr": "Piège explosif I"
   },
   {
     "id": 665,
@@ -2672,7 +3110,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Falle: Sandsturm I",
+    "fr": "Piège de Tempête de sable I"
   },
   {
     "id": 667,
@@ -2690,7 +3130,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Falle: Stachelbiss I",
+    "fr": "Piège de Morsure piquante I"
   },
   {
     "id": 668,
@@ -2708,7 +3150,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Falle: Stachel I",
+    "fr": "Piège de Pique I"
   },
   {
     "id": 671,
@@ -2726,7 +3170,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Schockpfeil I",
+    "fr": "Flèche choquante I"
   },
   {
     "id": 672,
@@ -2744,7 +3190,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Fesselpfeil I",
+    "fr": "Flèche enchaînante I"
   },
   {
     "id": 674,
@@ -2762,7 +3210,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Umschlingender Schuss I",
+    "fr": "Tir empêtrant I"
   },
   {
     "id": 677,
@@ -2780,7 +3230,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Wilder Luftschuss I",
+    "fr": "Coup sauvage aérien I"
   },
   {
     "id": 678,
@@ -2798,7 +3250,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Betäubender Schuss I",
+    "fr": "Tir étourdissant I"
   },
   {
     "id": 681,
@@ -2816,7 +3270,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Explosionsfalle I",
+    "fr": "Piège explosif I"
   },
   {
     "id": 683,
@@ -2834,7 +3290,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Falle: Sandsturm I",
+    "fr": "Piège de Tempête de sable I"
   },
   {
     "id": 684,
@@ -2844,7 +3302,9 @@
     "slot": "stigma",
     "levels": [
       44
-    ]
+    ],
+    "de": "Auge des Angriffs I",
+    "fr": "Tirs concentrés I"
   },
   {
     "id": 685,
@@ -2862,7 +3322,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Falle: Stachelbiss I",
+    "fr": "Piège de Morsure piquante I"
   },
   {
     "id": 686,
@@ -2880,7 +3342,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Falle: Stachel I",
+    "fr": "Piège de Pique I"
   },
   {
     "id": 692,
@@ -2890,7 +3354,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Heckenschützen-Haltung I",
+    "fr": "Posture de sniper I"
   },
   {
     "id": 693,
@@ -2900,7 +3366,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Geistiges Auge I",
+    "fr": "Instinct de chasseur I"
   },
   {
     "id": 695,
@@ -2910,7 +3378,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Schlafpfeil I",
+    "fr": "Flèche de sommeil I"
   },
   {
     "id": 697,
@@ -2920,7 +3390,9 @@
     "slot": "active",
     "levels": [
       34
-    ]
+    ],
+    "de": "Schneller Bogen I",
+    "fr": "Tourbillon de flèches I"
   },
   {
     "id": 699,
@@ -2938,7 +3410,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Spiralpfeil I",
+    "fr": "Flèche en spirale I"
   },
   {
     "id": 701,
@@ -2948,7 +3422,9 @@
     "slot": "active",
     "levels": [
       46
-    ]
+    ],
+    "de": "Flügelheilung I",
+    "fr": "Soin aux ailes I"
   },
   {
     "id": 702,
@@ -2958,7 +3434,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Pfeilhagel I",
+    "fr": "Déluge de flèches I"
   },
   {
     "id": 704,
@@ -2976,7 +3454,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Heckenschuss I",
+    "fr": "Tir rapide I"
   },
   {
     "id": 707,
@@ -2986,7 +3466,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Verlangsamungsfalle I",
+    "fr": "Piège entravant I"
   },
   {
     "id": 709,
@@ -2996,7 +3478,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Verlangsamungsfalle I",
+    "fr": "Piège entravant I"
   },
   {
     "id": 724,
@@ -3006,7 +3490,9 @@
     "slot": "stigma",
     "levels": [
       48
-    ]
+    ],
+    "de": "Entschlossener Widerstand I",
+    "fr": "Détermination de la Nature I"
   },
   {
     "id": 731,
@@ -3024,7 +3510,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Greifenpfeil I",
+    "fr": "Flèche claire-ailette I"
   },
   {
     "id": 734,
@@ -3042,7 +3530,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Kondorpfeil I",
+    "fr": "Flèche sombre-ailette I"
   },
   {
     "id": 751,
@@ -3052,7 +3542,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Angriffsreichweite erhöhen I",
+    "fr": "Portée ailée I"
   },
   {
     "id": 758,
@@ -3062,7 +3554,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Pfeilgottes I",
+    "fr": "Vengeur ailé"
   },
   {
     "id": 767,
@@ -3080,7 +3574,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Äther-Pfeil I",
+    "fr": "Flèche éthérée I"
   },
   {
     "id": 770,
@@ -3098,7 +3594,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Giftfalle I",
+    "fr": "Piège empoisonné I"
   },
   {
     "id": 773,
@@ -3116,7 +3614,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Giftfalle I",
+    "fr": "Piège empoisonné I"
   },
   {
     "id": 776,
@@ -3126,7 +3626,9 @@
     "slot": "active",
     "levels": [
       19
-    ]
+    ],
+    "de": "Konzentriertes Auge I",
+    "fr": "Ciblage I"
   },
   {
     "id": 777,
@@ -3136,7 +3638,9 @@
     "slot": "active",
     "levels": [
       13
-    ]
+    ],
+    "de": "Vorsichtiges Auge I",
+    "fr": "Esquive I"
   },
   {
     "id": 778,
@@ -3154,7 +3658,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Giftpfeil I",
+    "fr": "Flèche empoisonnée I"
   },
   {
     "id": 780,
@@ -3164,7 +3670,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Verwandlung: Mau I",
+    "fr": "Forme de Mau I"
   },
   {
     "id": 783,
@@ -3174,7 +3682,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Schweigepfeil I",
+    "fr": "Flèche de silence I"
   },
   {
     "id": 786,
@@ -3184,7 +3694,9 @@
     "slot": "active",
     "levels": [
       25
-    ]
+    ],
+    "de": "Stärkendes Auge I",
+    "fr": "Tirs puissants I"
   },
   {
     "id": 789,
@@ -3194,7 +3706,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Verwandlung: Mau I",
+    "fr": "Forme de Mau I"
   },
   {
     "id": 792,
@@ -3212,7 +3726,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Ahlenpfeil I",
+    "fr": "Flèche coupe-chair I"
   },
   {
     "id": 793,
@@ -3222,7 +3738,9 @@
     "slot": "stigma",
     "levels": [
       31
-    ]
+    ],
+    "de": "Falle der Hellsicht I",
+    "fr": "Piège de clairvoyance I"
   },
   {
     "id": 794,
@@ -3232,7 +3750,9 @@
     "slot": "stigma",
     "levels": [
       31
-    ]
+    ],
+    "de": "Falle der Hellsicht I",
+    "fr": "Piège de clairvoyance I"
   },
   {
     "id": 798,
@@ -3250,7 +3770,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Falle der Zerstörung I",
+    "fr": "Piège de destruction I"
   },
   {
     "id": 799,
@@ -3268,7 +3790,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Falle der Zerstörung I",
+    "fr": "Piège de destruction I"
   },
   {
     "id": 801,
@@ -3286,7 +3810,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Rückenbrecher I",
+    "fr": "Coup affaiblissant I"
   },
   {
     "id": 802,
@@ -3296,7 +3822,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Blendende Explosion I",
+    "fr": "Déflagration aveuglante I"
   },
   {
     "id": 803,
@@ -3306,7 +3834,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Hinterhalt I",
+    "fr": "Embuscade I"
   },
   {
     "id": 805,
@@ -3324,7 +3854,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Beruhigendes Flüstern I",
+    "fr": "Chuchotement apaisant I"
   },
   {
     "id": 807,
@@ -3342,7 +3874,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Siegelgravur I",
+    "fr": "Gravure de rune I"
   },
   {
     "id": 810,
@@ -3352,7 +3886,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Ketten-Siegelgravur I",
+    "fr": "Frappe de sceau I"
   },
   {
     "id": 813,
@@ -3362,7 +3898,9 @@
     "slot": "active",
     "levels": [
       22
-    ]
+    ],
+    "de": "Klarer Fokus I",
+    "fr": "Concentration claire I"
   },
   {
     "id": 815,
@@ -3380,7 +3918,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Attentat I",
+    "fr": "Assassinat I"
   },
   {
     "id": 816,
@@ -3398,7 +3938,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Sprintangriff I",
+    "fr": "Ruée I"
   },
   {
     "id": 819,
@@ -3408,7 +3950,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Siegel-Zusammenbruch I",
+    "fr": "Broyage de sceau I"
   },
   {
     "id": 820,
@@ -3426,7 +3970,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Wirbelwindschnitt I",
+    "fr": "Tourbillon I"
   },
   {
     "id": 823,
@@ -3444,7 +3990,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Himmelsklinge I",
+    "fr": "Rune de lien I"
   },
   {
     "id": 825,
@@ -3462,7 +4010,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Fallen I",
+    "fr": "Attaque de vent tumultueux I"
   },
   {
     "id": 829,
@@ -3480,7 +4030,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Gift auftragen I",
+    "fr": "Empoisonnement I"
   },
   {
     "id": 832,
@@ -3498,7 +4050,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Siegelangriff I",
+    "fr": "Entaille runique I"
   },
   {
     "id": 833,
@@ -3516,7 +4070,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Siegel-Explosion I",
+    "fr": "Rune de souffrance I"
   },
   {
     "id": 836,
@@ -3526,7 +4082,9 @@
     "slot": "stigma",
     "levels": [
       31
-    ]
+    ],
+    "de": "Eid der Präzision I",
+    "fr": "Voeu de précision I"
   },
   {
     "id": 837,
@@ -3536,7 +4094,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Narbe der Bestie I",
+    "fr": "Cicatrice bestiale I"
   },
   {
     "id": 838,
@@ -3546,7 +4106,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Qualvolle Klinge I",
+    "fr": "Entaille vive I"
   },
   {
     "id": 839,
@@ -3556,7 +4118,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Folgeschlag I",
+    "fr": "Oeil assassin I"
   },
   {
     "id": 841,
@@ -3566,7 +4130,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Sprengpulveranwendung I",
+    "fr": "Application de poudre explosive I"
   },
   {
     "id": 842,
@@ -3576,7 +4142,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Blitzschneller Angriff I",
+    "fr": "Coupure foudroyante I"
   },
   {
     "id": 843,
@@ -3594,7 +4162,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Brüllen der Bestie I",
+    "fr": "Morsure de croc I"
   },
   {
     "id": 846,
@@ -3604,7 +4174,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Wiederholte Siegel-Explosion I",
+    "fr": "Rune d'agonie I"
   },
   {
     "id": 847,
@@ -3622,7 +4194,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Tritt der Bestie I",
+    "fr": "Coup de la bête I"
   },
   {
     "id": 849,
@@ -3640,7 +4214,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Schlag der Bestie I",
+    "fr": "Volée de la bête I"
   },
   {
     "id": 850,
@@ -3650,7 +4226,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Auge des Zorns I",
+    "fr": "Oeil de colère I"
   },
   {
     "id": 851,
@@ -3660,7 +4238,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Windschritt I",
+    "fr": "Marche du vent I"
   },
   {
     "id": 852,
@@ -3670,7 +4250,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Überfall-Schlag I",
+    "fr": "Coupure de Raid I"
   },
   {
     "id": 889,
@@ -3680,7 +4262,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Krit. Trefferrate erhöhen I",
+    "fr": "Fureur ailée"
   },
   {
     "id": 896,
@@ -3690,7 +4274,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Mordgottes I",
+    "fr": "Mort ailée"
   },
   {
     "id": 905,
@@ -3708,7 +4294,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Schlag der Finsternis I",
+    "fr": "Frappe des ténèbres I"
   },
   {
     "id": 908,
@@ -3726,7 +4314,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Göttlicher Schlag I",
+    "fr": "Frappe divine I"
   },
   {
     "id": 911,
@@ -3744,7 +4334,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Erschöpfende Siegel-Explosion I",
+    "fr": "Rune de sang I"
   },
   {
     "id": 912,
@@ -3754,7 +4346,9 @@
     "slot": "active",
     "levels": [
       13
-    ]
+    ],
+    "de": "Raserei I",
+    "fr": "Sprint I"
   },
   {
     "id": 913,
@@ -3764,7 +4358,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Schneller Vertrag I",
+    "fr": "Tourbillon I"
   },
   {
     "id": 914,
@@ -3782,7 +4378,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Volltreffer-Sprengsiegel I",
+    "fr": "Rune d'aiguille I"
   },
   {
     "id": 915,
@@ -3792,7 +4390,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Siegel-Klinge I",
+    "fr": "Couteau runique I"
   },
   {
     "id": 917,
@@ -3802,7 +4402,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Erkennendes Auge I",
+    "fr": "Oeil investigateur I"
   },
   {
     "id": 918,
@@ -3812,7 +4414,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Durchschauendes Auge I",
+    "fr": "Omniscience I"
   },
   {
     "id": 919,
@@ -3822,7 +4426,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Tödliches Gift auftragen I",
+    "fr": "Application de poison mortel I"
   },
   {
     "id": 920,
@@ -3832,7 +4438,9 @@
     "slot": "stigma",
     "levels": [
       22
-    ]
+    ],
+    "de": "Vertrag des Ausweichens I",
+    "fr": "Torsion éthérée I"
   },
   {
     "id": 921,
@@ -3842,7 +4450,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Spiralschnitt I",
+    "fr": "Spirale tranchante I"
   },
   {
     "id": 926,
@@ -3852,7 +4462,9 @@
     "slot": "active",
     "levels": [
       42
-    ]
+    ],
+    "de": "Wachsame Haltung I",
+    "fr": "Esquive de sort I"
   },
   {
     "id": 927,
@@ -3862,7 +4474,9 @@
     "slot": "active",
     "levels": [
       42
-    ]
+    ],
+    "de": "Angriffshaltung I",
+    "fr": "Rage de l'ombre I"
   },
   {
     "id": 929,
@@ -3872,7 +4486,9 @@
     "slot": "stigma",
     "levels": [
       44
-    ]
+    ],
+    "de": "Wurfstern werfen I",
+    "fr": "Lancer de shuriken I"
   },
   {
     "id": 935,
@@ -3890,7 +4506,9 @@
       52,
       53,
       54
-    ]
+    ],
+    "de": "Wurfdolch I",
+    "fr": "Lancer de couteau I"
   },
   {
     "id": 940,
@@ -3908,7 +4526,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Strahlende Rune I",
+    "fr": "Rune rayonnante I"
   },
   {
     "id": 941,
@@ -3926,7 +4546,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Finstere Siegel-Nova I",
+    "fr": "Rune de ténèbres I"
   },
   {
     "id": 942,
@@ -3944,7 +4566,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Vaizels Langdolch I",
+    "fr": "Poignard de Vaizel I"
   },
   {
     "id": 943,
@@ -3962,7 +4586,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Triniels Langdolch I",
+    "fr": "Dague de Triniel I"
   },
   {
     "id": 944,
@@ -3972,7 +4598,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrale Strahlende Rune I",
+    "fr": "Rune rayonnante ancestrale I"
   },
   {
     "id": 945,
@@ -3982,7 +4610,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrale Finstere Siegel-Nova I",
+    "fr": "Rune de ténèbres ancestrale I"
   },
   {
     "id": 946,
@@ -3992,7 +4622,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Himmels-Siegel-Explosion I",
+    "fr": "Rune divine I"
   },
   {
     "id": 947,
@@ -4002,7 +4634,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Höllenexplosion I",
+    "fr": "Eruption lunaire I"
   },
   {
     "id": 948,
@@ -4012,7 +4646,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Schattenschritt I",
+    "fr": "Marche de l'ombre I"
   },
   {
     "id": 949,
@@ -4022,7 +4658,9 @@
     "slot": "stigma",
     "levels": [
       48
-    ]
+    ],
+    "de": "Entschlossenheit I",
+    "fr": "Abandon mortel I"
   },
   {
     "id": 951,
@@ -4032,7 +4670,9 @@
     "slot": "active",
     "levels": [
       3
-    ]
+    ],
+    "de": "Segen der Gesundheit I",
+    "fr": "Bénédiction de vitalité I"
   },
   {
     "id": 952,
@@ -4042,7 +4682,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Lobpreisung des Lebens I",
+    "fr": "Louange de la vie I"
   },
   {
     "id": 955,
@@ -4052,7 +4694,9 @@
     "slot": "active",
     "levels": [
       5
-    ]
+    ],
+    "de": "Segen des Felsens I",
+    "fr": "Bénédiction rocheuse I"
   },
   {
     "id": 958,
@@ -4070,7 +4714,9 @@
       11,
       12,
       13
-    ]
+    ],
+    "de": "Licht der Erneuerung I",
+    "fr": "Lumière du renouveau I"
   },
   {
     "id": 962,
@@ -4088,7 +4734,9 @@
       9,
       10,
       11
-    ]
+    ],
+    "de": "Geheiligter Schlag I",
+    "fr": "Frappe bénie I"
   },
   {
     "id": 965,
@@ -4106,7 +4754,9 @@
       7,
       8,
       9
-    ]
+    ],
+    "de": "Heilendes Licht I",
+    "fr": "Halo de soins I"
   },
   {
     "id": 969,
@@ -4124,7 +4774,9 @@
       15,
       16,
       17
-    ]
+    ],
+    "de": "Versprechen des Windes I",
+    "fr": "Promesse du vent I"
   },
   {
     "id": 972,
@@ -4134,7 +4786,9 @@
     "slot": "active",
     "levels": [
       9
-    ]
+    ],
+    "de": "Licht der Wiederauferstehung I",
+    "fr": "Lumière de résurrection I"
   },
   {
     "id": 975,
@@ -4152,7 +4806,9 @@
       7,
       8,
       9
-    ]
+    ],
+    "de": "Zerschmettern I",
+    "fr": "Tourment I"
   },
   {
     "id": 979,
@@ -4170,7 +4826,9 @@
       13,
       14,
       15
-    ]
+    ],
+    "de": "Himmelsurteil I",
+    "fr": "Jugement céleste I"
   },
   {
     "id": 1021,
@@ -4180,7 +4838,9 @@
     "slot": "active",
     "levels": [
       48
-    ]
+    ],
+    "de": "Undurchdringlicher Schleier I",
+    "fr": "Voile imperméable I"
   },
   {
     "id": 1022,
@@ -4190,7 +4850,9 @@
     "slot": "active",
     "levels": [
       51
-    ]
+    ],
+    "de": "Amplifikation I",
+    "fr": "Amplification I"
   },
   {
     "id": 1023,
@@ -4200,7 +4862,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Beschwörung: Heilende Energie I",
+    "fr": "Invocation : Serviteur soigneur I"
   },
   {
     "id": 1024,
@@ -4210,7 +4874,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Beschwörung: Heilende Energie I",
+    "fr": "Invocation : Serviteur soigneur I"
   },
   {
     "id": 1027,
@@ -4220,7 +4886,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Schwächende Explosion I",
+    "fr": "Détonation affaiblissante I"
   },
   {
     "id": 1029,
@@ -4238,7 +4906,9 @@
       59,
       60,
       61
-    ]
+    ],
+    "de": "Sturm der Rache I",
+    "fr": "Tempête de représailles I"
   },
   {
     "id": 1030,
@@ -4248,7 +4918,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Bestrafende Erde I",
+    "fr": "Terre vengeresse I"
   },
   {
     "id": 1031,
@@ -4258,7 +4930,9 @@
     "slot": "active",
     "levels": [
       55
-    ]
+    ],
+    "de": "Unsterblicher Mantel I",
+    "fr": "Suaire immortel I"
   },
   {
     "id": 1032,
@@ -4268,7 +4942,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Wohlwollen I",
+    "fr": "Générosité I"
   },
   {
     "id": 1033,
@@ -4278,7 +4954,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Blitz herbeirufen I",
+    "fr": "Invocation de foudre I"
   },
   {
     "id": 1034,
@@ -4288,7 +4966,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Zorn der Erde I",
+    "fr": "Colère de la Terre I"
   },
   {
     "id": 1038,
@@ -4298,7 +4978,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Pracht der Wiedergeburt I",
+    "fr": "Splendeur de renaissance I"
   },
   {
     "id": 1039,
@@ -4308,7 +4990,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Gedächtnisverlust I",
+    "fr": "Vide-mémoire I"
   },
   {
     "id": 1040,
@@ -4318,7 +5002,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Kette des Leidens I",
+    "fr": "Chaîne de souffrance I"
   },
   {
     "id": 1041,
@@ -4328,7 +5014,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Hand der Reinkarnation I",
+    "fr": "Toucher de réincarnation I"
   },
   {
     "id": 1042,
@@ -4338,7 +5026,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Welle der Reinigung I",
+    "fr": "Ondulation de purification I"
   },
   {
     "id": 1043,
@@ -4348,7 +5038,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Beschwörung: Edle Energie I",
+    "fr": "Invocation : Énergie noble I"
   },
   {
     "id": 1044,
@@ -4358,7 +5050,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Beschwörung: Edle Energie I",
+    "fr": "Invocation : Énergie noble I"
   },
   {
     "id": 1045,
@@ -4376,7 +5070,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Beruhigung I",
+    "fr": "Tranquillité I"
   },
   {
     "id": 1048,
@@ -4386,7 +5082,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Stabilität I",
+    "fr": "Stabilité I"
   },
   {
     "id": 1049,
@@ -4396,7 +5094,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Yustiels Pracht I",
+    "fr": "Splendeur de Yustiel I"
   },
   {
     "id": 1050,
@@ -4406,7 +5106,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Marchutans Pracht I",
+    "fr": "Splendeur de Marchutan I"
   },
   {
     "id": 1051,
@@ -4416,7 +5118,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Gnade der Wiederauferstehung I",
+    "fr": "Grâce de résurrection I"
   },
   {
     "id": 1054,
@@ -4426,7 +5130,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Gesegneter Schild I",
+    "fr": "Bouclier béni I"
   },
   {
     "id": 1056,
@@ -4436,7 +5142,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Blendendes Licht I",
+    "fr": "Lumière aveuglante I"
   },
   {
     "id": 1057,
@@ -4446,7 +5154,9 @@
     "slot": "active",
     "levels": [
       37
-    ]
+    ],
+    "de": "Wiederauferstehungs-Beschwörung I",
+    "fr": "Résurrection de Loci I"
   },
   {
     "id": 1060,
@@ -4456,7 +5166,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Eiternde Wunde I",
+    "fr": "Blessure purulente I"
   },
   {
     "id": 1062,
@@ -4466,7 +5178,9 @@
     "slot": "active",
     "levels": [
       13
-    ]
+    ],
+    "de": "Auflösung I",
+    "fr": "Dissipation I"
   },
   {
     "id": 1063,
@@ -4476,7 +5190,9 @@
     "slot": "active",
     "levels": [
       19
-    ]
+    ],
+    "de": "Geist heilen I",
+    "fr": "Soin spirituel I"
   },
   {
     "id": 1066,
@@ -4494,7 +5210,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Beschwörung: Heiliger Diener I",
+    "fr": "Invocation : Serviteur sacré I"
   },
   {
     "id": 1069,
@@ -4512,7 +5230,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Göttlicher Funke I",
+    "fr": "Etincelle divine I"
   },
   {
     "id": 1071,
@@ -4530,7 +5250,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Göttliche Berührung I",
+    "fr": "Toucher divin I"
   },
   {
     "id": 1076,
@@ -4548,7 +5270,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Licht der Wiederherstellung I",
+    "fr": "Lumière de récupération I"
   },
   {
     "id": 1078,
@@ -4558,7 +5282,9 @@
     "slot": "active",
     "levels": [
       37
-    ]
+    ],
+    "de": "Gebet des Fokus I",
+    "fr": "Prière de concentration I"
   },
   {
     "id": 1079,
@@ -4576,7 +5302,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Strahlende Heilung I",
+    "fr": "Soin rayonnant I"
   },
   {
     "id": 1083,
@@ -4594,7 +5322,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Beschwörung: Heiliger Diener I",
+    "fr": "Invocation : Serviteur sacré I"
   },
   {
     "id": 1086,
@@ -4612,7 +5342,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Donnerschlag I",
+    "fr": "Éclair I"
   },
   {
     "id": 1089,
@@ -4622,7 +5354,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Pracht der Wiederherstellung I",
+    "fr": "Splendeur de récupération I"
   },
   {
     "id": 1090,
@@ -4640,7 +5374,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Heilender Wind I",
+    "fr": "Vent curatif I"
   },
   {
     "id": 1093,
@@ -4658,7 +5394,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Buße I",
+    "fr": "Pénitence I"
   },
   {
     "id": 1095,
@@ -4676,7 +5414,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Licht der Verjüngung I",
+    "fr": "Lumière de rajeunissement I"
   },
   {
     "id": 1098,
@@ -4686,7 +5426,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Zustand umkehren I",
+    "fr": "Condition inverse I"
   },
   {
     "id": 1099,
@@ -4704,7 +5446,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Zügelung I",
+    "fr": "Enracinement I"
   },
   {
     "id": 1102,
@@ -4714,7 +5458,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Wissen des Weisen I",
+    "fr": "Sagesse du sage I"
   },
   {
     "id": 1103,
@@ -4732,7 +5478,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Dornenhaut I",
+    "fr": "Peau épineuse I"
   },
   {
     "id": 1105,
@@ -4742,7 +5490,9 @@
     "slot": "active",
     "levels": [
       25
-    ]
+    ],
+    "de": "Sommerkreis I",
+    "fr": "Cercle estival I"
   },
   {
     "id": 1107,
@@ -4752,7 +5502,9 @@
     "slot": "active",
     "levels": [
       25
-    ]
+    ],
+    "de": "Winterkreis I",
+    "fr": "Cercle hivernal I"
   },
   {
     "id": 1146,
@@ -4762,7 +5514,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Erholung verbessern",
+    "fr": "Récupération ailée"
   },
   {
     "id": 1153,
@@ -4772,7 +5526,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Heilgottes I",
+    "fr": "Bénédiction ailée"
   },
   {
     "id": 1160,
@@ -4782,7 +5538,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Blitz-Wiederherstellung I",
+    "fr": "Éclat de récupération I"
   },
   {
     "id": 1163,
@@ -4792,7 +5550,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Gabe des empyrianischen Gebieters I",
+    "fr": "Grâce de Seigneur Empyréen I"
   },
   {
     "id": 1164,
@@ -4802,7 +5562,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Schimmernder Schutz I",
+    "fr": "Protection brillante I"
   },
   {
     "id": 1165,
@@ -4812,7 +5574,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Freispruch I",
+    "fr": "Acquittement I"
   },
   {
     "id": 1166,
@@ -4822,7 +5586,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Erlösung I",
+    "fr": "Salut I"
   },
   {
     "id": 1169,
@@ -4832,7 +5598,9 @@
     "slot": "active",
     "levels": [
       22
-    ]
+    ],
+    "de": "Wiedergeburt I",
+    "fr": "Renaissance I"
   },
   {
     "id": 1170,
@@ -4850,7 +5618,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Züchtigung I",
+    "fr": "Châtiment I"
   },
   {
     "id": 1171,
@@ -4860,7 +5630,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Pandämonium-Schutz I",
+    "fr": "Protection de Pandaemonium I"
   },
   {
     "id": 1176,
@@ -4870,7 +5642,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Wort der Zerstörung I",
+    "fr": "Mot de la destruction I"
   },
   {
     "id": 1177,
@@ -4888,7 +5662,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Blitz der Züchtigung I",
+    "fr": "Vent de châtiment I"
   },
   {
     "id": 1178,
@@ -4906,7 +5682,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Blitz des göttlichen Angriffs I",
+    "fr": "Vent tranchant I"
   },
   {
     "id": 1180,
@@ -4916,7 +5694,9 @@
     "slot": "stigma",
     "levels": [
       44
-    ]
+    ],
+    "de": "Pracht der Reinigung I",
+    "fr": "Splendeur de purification I"
   },
   {
     "id": 1183,
@@ -4934,7 +5714,9 @@
       52,
       53,
       54
-    ]
+    ],
+    "de": "Pracht des Fluges I",
+    "fr": "Splendeur du vol I"
   },
   {
     "id": 1184,
@@ -4944,7 +5726,9 @@
     "slot": "stigma",
     "levels": [
       48
-    ]
+    ],
+    "de": "Mitfühlende Heilung I",
+    "fr": "Soin compatissant I"
   },
   {
     "id": 1188,
@@ -4962,7 +5746,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Yustiels Licht I",
+    "fr": "Lumière de Yustiel I"
   },
   {
     "id": 1189,
@@ -4980,7 +5766,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Marchutans Licht I",
+    "fr": "Lumière de Marchutan I"
   },
   {
     "id": 1192,
@@ -4990,7 +5778,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrales Yustiel-Licht I",
+    "fr": "Lumière de Yustiel ancestrale I"
   },
   {
     "id": 1193,
@@ -5000,7 +5790,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrale Marchutan-Licht I",
+    "fr": "Lumière de Marchutan ancestrale I"
   },
   {
     "id": 1196,
@@ -5010,7 +5802,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Wiederherstellungszauber I",
+    "fr": "Sort de récupération I"
   },
   {
     "id": 1197,
@@ -5020,7 +5814,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Vorhang des Blockierens I",
+    "fr": "Rideau divin I"
   },
   {
     "id": 1198,
@@ -5030,7 +5826,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Vorhang des Ätherfeldes I",
+    "fr": "Rideau d'Éther I"
   },
   {
     "id": 1199,
@@ -5040,7 +5838,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestraler Zauber der Blockade I",
+    "fr": "Parole anti-sort ancestrale I"
   },
   {
     "id": 1200,
@@ -5050,7 +5850,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestraler Zauber des Ätherfelds I",
+    "fr": "Champ éthéré ancestral I"
   },
   {
     "id": 1201,
@@ -5060,7 +5862,9 @@
     "slot": "stigma",
     "levels": [
       22
-    ]
+    ],
+    "de": "Sicherer Schutzbereich I",
+    "fr": "Protection I"
   },
   {
     "id": 1204,
@@ -5070,7 +5874,9 @@
     "slot": "active",
     "levels": [
       25
-    ]
+    ],
+    "de": "Mantra des ruhigen Geistes I",
+    "fr": "Mantra de l'esprit clément I"
   },
   {
     "id": 1207,
@@ -5080,7 +5886,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Siegesmantra I",
+    "fr": "Mantra de victoire I"
   },
   {
     "id": 1211,
@@ -5090,7 +5898,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Spritzender Schwung I",
+    "fr": "Swing jaillissant I"
   },
   {
     "id": 1213,
@@ -5100,7 +5910,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Wiederhergestellte Ausdauer I",
+    "fr": "Restauration d'endurance I"
   },
   {
     "id": 1214,
@@ -5110,7 +5922,9 @@
     "slot": "active",
     "levels": [
       19
-    ]
+    ],
+    "de": "Geschwindigkeitsmantra I",
+    "fr": "Mantra de célérité I"
   },
   {
     "id": 1217,
@@ -5120,7 +5934,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Segen des Windes I",
+    "fr": "Bénédiction du vent I"
   },
   {
     "id": 1218,
@@ -5130,7 +5946,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Magische Erholung I",
+    "fr": "Récupération magique I"
   },
   {
     "id": 1219,
@@ -5140,7 +5958,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Heilverbindung I",
+    "fr": "Intermédiaire de soins I"
   },
   {
     "id": 1220,
@@ -5158,7 +5978,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Versprechen der Erde I",
+    "fr": "Promesse de la terre I"
   },
   {
     "id": 1223,
@@ -5168,7 +5990,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Beschwörungsformel der Inspiration I",
+    "fr": "Mot d'inspiration I"
   },
   {
     "id": 1224,
@@ -5178,7 +6002,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Zauber des Schutzes I",
+    "fr": "Parole de protection I"
   },
   {
     "id": 1225,
@@ -5188,7 +6014,9 @@
     "slot": "active",
     "levels": [
       22
-    ]
+    ],
+    "de": "Konzentriertes Parieren I",
+    "fr": "Parade concentrée I"
   },
   {
     "id": 1227,
@@ -5206,7 +6034,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Riposte I",
+    "fr": "Frappe de parade I"
   },
   {
     "id": 1229,
@@ -5224,7 +6054,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Pentagramm-Schock I",
+    "fr": "Choc de pentacle I"
   },
   {
     "id": 1230,
@@ -5234,7 +6066,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Schutz des Felsens I",
+    "fr": "Bénédiction de Pierre I"
   },
   {
     "id": 1231,
@@ -5252,7 +6086,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Schall-Angriff I",
+    "fr": "Assaut tonitruant I"
   },
   {
     "id": 1233,
@@ -5262,7 +6098,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Bergrutsch I",
+    "fr": "Crash de montagne I"
   },
   {
     "id": 1234,
@@ -5272,7 +6110,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Unbesiegbarkeitsmantra I",
+    "fr": "Mantra d'invincibilité I"
   },
   {
     "id": 1235,
@@ -5290,7 +6130,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Resonanztrübung I",
+    "fr": "Brume de résonance I"
   },
   {
     "id": 1236,
@@ -5308,7 +6150,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Schall-Ansturm I",
+    "fr": "Fracas tonitruant I"
   },
   {
     "id": 1242,
@@ -5326,7 +6170,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Schall-Schwung I",
+    "fr": "Frappe tonitruante I"
   },
   {
     "id": 1246,
@@ -5344,7 +6190,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Glühender Hieb I",
+    "fr": "Frappe incandescente I"
   },
   {
     "id": 1249,
@@ -5362,7 +6210,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Meteor-Hieb I",
+    "fr": "Frappe de météore I"
   },
   {
     "id": 1290,
@@ -5372,7 +6222,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Mantra-Reichweite erhöhen",
+    "fr": "Mantra ailée"
   },
   {
     "id": 1297,
@@ -5382,7 +6234,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Verstärkungsgottes",
+    "fr": "Catalyseur ailé"
   },
   {
     "id": 1304,
@@ -5392,7 +6246,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Yustiels Schutz I",
+    "fr": "Protection de Yustiel I"
   },
   {
     "id": 1305,
@@ -5402,7 +6258,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Marchutans Schutz I",
+    "fr": "Protection de Marchutan I"
   },
   {
     "id": 1306,
@@ -5420,7 +6278,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Zauber der Wiederbelebung I",
+    "fr": "Parole de renouveau I"
   },
   {
     "id": 1309,
@@ -5430,7 +6290,9 @@
     "slot": "active",
     "levels": [
       13
-    ]
+    ],
+    "de": "Schildmantra I",
+    "fr": "Mantra de bouclier I"
   },
   {
     "id": 1312,
@@ -5440,7 +6302,9 @@
     "slot": "active",
     "levels": [
       16
-    ]
+    ],
+    "de": "Magiemantra I",
+    "fr": "Mantra magique I"
   },
   {
     "id": 1315,
@@ -5450,7 +6314,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Wutzauber I",
+    "fr": "Sort de fureur I"
   },
   {
     "id": 1316,
@@ -5460,7 +6326,9 @@
     "slot": "active",
     "levels": [
       22
-    ]
+    ],
+    "de": "Wiederbelebungsmantra I",
+    "fr": "Mantra de renouveau I"
   },
   {
     "id": 1318,
@@ -5470,7 +6338,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Versprechen des Äthers I",
+    "fr": "Promesse de l'Éther I"
   },
   {
     "id": 1321,
@@ -5480,7 +6350,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Zauber der Falle I",
+    "fr": "Parole de lien I"
   },
   {
     "id": 1322,
@@ -5490,7 +6362,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Intensitätsmantra I",
+    "fr": "Mantra d'intensité I"
   },
   {
     "id": 1323,
@@ -5500,7 +6374,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Zeichen des Zorns I",
+    "fr": "Tremblement I"
   },
   {
     "id": 1324,
@@ -5510,7 +6386,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Zauber des Lebens I",
+    "fr": "Parole de vie I"
   },
   {
     "id": 1326,
@@ -5520,7 +6398,9 @@
     "slot": "active",
     "levels": [
       37
-    ]
+    ],
+    "de": "Zauber der Flinkheit I",
+    "fr": "Parole de vivacité I"
   },
   {
     "id": 1327,
@@ -5530,7 +6410,9 @@
     "slot": "active",
     "levels": [
       37
-    ]
+    ],
+    "de": "Schutzmantra I",
+    "fr": "Mantra de protection I"
   },
   {
     "id": 1328,
@@ -5540,7 +6422,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Zauberformel des Sturms I",
+    "fr": "Parole du vent I"
   },
   {
     "id": 1334,
@@ -5558,7 +6442,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Gefangennahme I",
+    "fr": "Jugement inéluctable I"
   },
   {
     "id": 1335,
@@ -5576,7 +6462,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Festhalteschlag I",
+    "fr": "Frappe d'âme I"
   },
   {
     "id": 1337,
@@ -5586,7 +6474,9 @@
     "slot": "stigma",
     "levels": [
       44
-    ]
+    ],
+    "de": "Verstärkungsmantra I",
+    "fr": "Mantra d'amélioration I"
   },
   {
     "id": 1338,
@@ -5604,7 +6494,9 @@
       52,
       53,
       54
-    ]
+    ],
+    "de": "Geschwindigkeitszauber I",
+    "fr": "Promptitude I"
   },
   {
     "id": 1340,
@@ -5614,7 +6506,9 @@
     "slot": "stigma",
     "levels": [
       48
-    ]
+    ],
+    "de": "Geistiger Zusammenbruch I",
+    "fr": "Ame écrasée I"
   },
   {
     "id": 1343,
@@ -5624,7 +6518,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Zauber der Zügelung I",
+    "fr": "Parole apaisante I"
   },
   {
     "id": 1344,
@@ -5642,7 +6538,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Zauber der Blockade I",
+    "fr": "Parole anti-sort I"
   },
   {
     "id": 1345,
@@ -5660,7 +6558,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Zauber des Ätherfelds I",
+    "fr": "Champ éthéré I"
   },
   {
     "id": 1351,
@@ -5678,7 +6578,9 @@
       7,
       8,
       9
-    ]
+    ],
+    "de": "Flammenpfeil I",
+    "fr": "Éclair de feu I"
   },
   {
     "id": 1355,
@@ -5696,7 +6598,9 @@
       13,
       14,
       15
-    ]
+    ],
+    "de": "Gefrierschock I",
+    "fr": "Choc gelé I"
   },
   {
     "id": 1358,
@@ -5714,7 +6618,9 @@
       11,
       12,
       13
-    ]
+    ],
+    "de": "Erosion I",
+    "fr": "Erosion I"
   },
   {
     "id": 1362,
@@ -5732,7 +6638,9 @@
       9,
       10,
       11
-    ]
+    ],
+    "de": "Eiskette I",
+    "fr": "Chaîne de glace I"
   },
   {
     "id": 1366,
@@ -5750,7 +6658,9 @@
       11,
       12,
       13
-    ]
+    ],
+    "de": "Brand I",
+    "fr": "Flambée I"
   },
   {
     "id": 1370,
@@ -5768,7 +6678,9 @@
       15,
       16,
       17
-    ]
+    ],
+    "de": "Energieabsorption I",
+    "fr": "Absorption d'énergie"
   },
   {
     "id": 1373,
@@ -5778,7 +6690,9 @@
     "slot": "active",
     "levels": [
       1
-    ]
+    ],
+    "de": "Zügelung I",
+    "fr": "Enracinement I"
   },
   {
     "id": 1377,
@@ -5796,7 +6710,9 @@
       13,
       14,
       15
-    ]
+    ],
+    "de": "Steinhaut I",
+    "fr": "Peau de pierre I"
   },
   {
     "id": 1381,
@@ -5814,7 +6730,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Himmlisches Wort I",
+    "fr": "Sort éthéré I"
   },
   {
     "id": 1382,
@@ -5832,7 +6750,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Pandämonium-Fokus I",
+    "fr": "Concentration de Pandaemonium I"
   },
   {
     "id": 1424,
@@ -5842,7 +6762,9 @@
     "slot": "active",
     "levels": [
       48
-    ]
+    ],
+    "de": "Raum-/Zeitsprung I",
+    "fr": "Saut de l'Espace-temps I"
   },
   {
     "id": 1425,
@@ -5860,7 +6782,9 @@
       57,
       58,
       59
-    ]
+    ],
+    "de": "Funkelnde Scherbe I",
+    "fr": "Éclat réfringent I"
   },
   {
     "id": 1426,
@@ -5870,7 +6794,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Elementar-Schutzbereich I",
+    "fr": "Protection élémentaire I"
   },
   {
     "id": 1428,
@@ -5880,7 +6806,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Arkaner Donnerschlag I",
+    "fr": "Éclair des arcanes I"
   },
   {
     "id": 1430,
@@ -5890,7 +6818,9 @@
     "slot": "active",
     "levels": [
       53
-    ]
+    ],
+    "de": "Verfluchter alter Baum I",
+    "fr": "Arbre maudit I"
   },
   {
     "id": 1431,
@@ -5900,7 +6830,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Lebenskraft tauschen I",
+    "fr": "Échange de vitalité I"
   },
   {
     "id": 1432,
@@ -5910,7 +6842,9 @@
     "slot": "active",
     "levels": [
       55
-    ]
+    ],
+    "de": "Magieexplosion I",
+    "fr": "Support magique I"
   },
   {
     "id": 1433,
@@ -5920,7 +6854,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Winterrüstung I",
+    "fr": "Armure glaciale I"
   },
   {
     "id": 1434,
@@ -5930,7 +6866,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Gletscherscherbe I",
+    "fr": "Éclat de givre I"
   },
   {
     "id": 1435,
@@ -5940,7 +6878,9 @@
     "slot": "stigma",
     "levels": [
       31
-    ]
+    ],
+    "de": "Schneidender Wind I",
+    "fr": "Vent aiguisé I"
   },
   {
     "id": 1439,
@@ -5950,7 +6890,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Illusionssturm I",
+    "fr": "Tempête illusoire I"
   },
   {
     "id": 1440,
@@ -5960,7 +6902,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Illusion I",
+    "fr": "Illusion I"
   },
   {
     "id": 1441,
@@ -5970,7 +6914,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Beschwörung: Fels I",
+    "fr": "Invocation : Rocher I"
   },
   {
     "id": 1442,
@@ -5980,7 +6926,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Bittgebet des Fokus I",
+    "fr": "Supplication de concentration I"
   },
   {
     "id": 1443,
@@ -5990,7 +6938,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Schlafsturm I",
+    "fr": "Tempête endormie I"
   },
   {
     "id": 1444,
@@ -6000,7 +6950,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Flammenangriff I",
+    "fr": "Atomiseur enflammé I"
   },
   {
     "id": 1445,
@@ -6010,7 +6962,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Gabe der Eisengewandung I",
+    "fr": "Souhait de fer I"
   },
   {
     "id": 1446,
@@ -6020,7 +6974,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Eisharpune I",
+    "fr": "Harpon de glace I"
   },
   {
     "id": 1447,
@@ -6030,7 +6986,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Großer Vulkanausbruch I",
+    "fr": "Grande éruption de magma I"
   },
   {
     "id": 1448,
@@ -6040,7 +6998,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Lavasturm I",
+    "fr": "Tempête de lave I"
   },
   {
     "id": 1449,
@@ -6050,7 +7010,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestraler Vulkanausbruch I",
+    "fr": "Eruption de magma ancestral I"
   },
   {
     "id": 1450,
@@ -6060,7 +7022,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrale Lavaflut I",
+    "fr": "Tsunami de lave ancestral I"
   },
   {
     "id": 1452,
@@ -6070,7 +7034,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Kaisinels Zorn I",
+    "fr": "Colère de Kaisinel I"
   },
   {
     "id": 1453,
@@ -6080,7 +7046,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Lumiels Zorn I",
+    "fr": "Colère de Lumiel I"
   },
   {
     "id": 1454,
@@ -6090,7 +7058,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Fluch: Baum I",
+    "fr": "Malédiction des racines I"
   },
   {
     "id": 1455,
@@ -6108,7 +7078,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Vulkanausbruch I",
+    "fr": "Eruption de magma I"
   },
   {
     "id": 1456,
@@ -6126,7 +7098,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Lavaflut I",
+    "fr": "Tsunami de lave I"
   },
   {
     "id": 1457,
@@ -6136,7 +7110,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Frostsäule I",
+    "fr": "Plaque de glace I"
   },
   {
     "id": 1458,
@@ -6146,7 +7122,9 @@
     "slot": "active",
     "levels": [
       22
-    ]
+    ],
+    "de": "Illusionstor I",
+    "fr": "Portail illusoire I"
   },
   {
     "id": 1459,
@@ -6164,7 +7142,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Verzögerte Explosion I",
+    "fr": "Explosion retardée I"
   },
   {
     "id": 1463,
@@ -6174,7 +7154,9 @@
     "slot": "active",
     "levels": [
       13
-    ]
+    ],
+    "de": "Blinder Sprung I",
+    "fr": "Bond aveugle I"
   },
   {
     "id": 1464,
@@ -6192,7 +7174,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Feuerschuss I",
+    "fr": "Flamme d'Éther I"
   },
   {
     "id": 1465,
@@ -6210,7 +7194,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Flammenkäfig I",
+    "fr": "Prison de flammes I"
   },
   {
     "id": 1469,
@@ -6228,7 +7214,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Winterbindung I",
+    "fr": "Lien hivernal I"
   },
   {
     "id": 1472,
@@ -6246,7 +7234,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Managewinn I",
+    "fr": "Gain de mana I"
   },
   {
     "id": 1481,
@@ -6256,7 +7246,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Frostsäule I",
+    "fr": "Plaque de glace I"
   },
   {
     "id": 1482,
@@ -6266,7 +7258,9 @@
     "slot": "active",
     "levels": [
       22
-    ]
+    ],
+    "de": "Illusionstor I",
+    "fr": "Portail illusoire I"
   },
   {
     "id": 1483,
@@ -6284,7 +7278,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Magische Faust I",
+    "fr": "Poing magique I"
   },
   {
     "id": 1484,
@@ -6294,7 +7290,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Flammenexplosion I",
+    "fr": "Explosion de feu I"
   },
   {
     "id": 1495,
@@ -6304,7 +7302,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Schlaf I",
+    "fr": "Sommeil I"
   },
   {
     "id": 1497,
@@ -6314,7 +7314,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Schlafwolke I",
+    "fr": "Nuage tranquillisant I"
   },
   {
     "id": 1498,
@@ -6332,7 +7334,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Seelenfrost I",
+    "fr": "Gel de l'âme I"
   },
   {
     "id": 1503,
@@ -6350,7 +7354,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Äthergriff I",
+    "fr": "Prise d'Éther I"
   },
   {
     "id": 1541,
@@ -6360,7 +7366,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: Magischen Angriff erhöhen I",
+    "fr": "Magie ailée"
   },
   {
     "id": 1548,
@@ -6370,7 +7378,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Zauberergottes",
+    "fr": "Sage ailé"
   },
   {
     "id": 1553,
@@ -6380,7 +7390,9 @@
     "slot": "active",
     "levels": [
       25
-    ]
+    ],
+    "de": "Gabe des Friedens I",
+    "fr": "Souhait de paix I"
   },
   {
     "id": 1554,
@@ -6390,7 +7402,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Vaizels Weisheit I",
+    "fr": "Sagesse de Vaizel I"
   },
   {
     "id": 1555,
@@ -6400,7 +7414,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Zikels Weisheit I",
+    "fr": "Sagesse de Zikel I"
   },
   {
     "id": 1556,
@@ -6410,7 +7426,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Lumiels Weisheit I",
+    "fr": "Sagesse de Lumiel I"
   },
   {
     "id": 1557,
@@ -6428,7 +7446,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Flammenharpune I",
+    "fr": "Harpon enflammé I"
   },
   {
     "id": 1560,
@@ -6438,7 +7458,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Fluch der Schwäche I",
+    "fr": "Malédiction de faiblesse I"
   },
   {
     "id": 1564,
@@ -6456,7 +7478,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Robe der Flamme I",
+    "fr": "Robe de flammes I"
   },
   {
     "id": 1566,
@@ -6474,7 +7498,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Robe der Kälte I",
+    "fr": "Robe du froid I"
   },
   {
     "id": 1567,
@@ -6492,7 +7518,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Flamme der Hölle I",
+    "fr": "Inferno I"
   },
   {
     "id": 1568,
@@ -6510,7 +7538,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Kalte Luft beschwören I",
+    "fr": "Vent glacial I"
   },
   {
     "id": 1570,
@@ -6528,7 +7558,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Flammenschmelze I",
+    "fr": "Fusion de flammes I"
   },
   {
     "id": 1571,
@@ -6538,7 +7570,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Gabe der Scharfsicht I",
+    "fr": "Souhait de Clairvoyance I"
   },
   {
     "id": 1572,
@@ -6556,7 +7590,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Seelenabsorption I",
+    "fr": "Absorption de l'âme I"
   },
   {
     "id": 1573,
@@ -6574,7 +7610,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Flammenwalze I",
+    "fr": "Météorite de feu I"
   },
   {
     "id": 1574,
@@ -6584,7 +7622,9 @@
     "slot": "active",
     "levels": [
       13
-    ]
+    ],
+    "de": "Robe der Erde I",
+    "fr": "Robe de la Terre I"
   },
   {
     "id": 1581,
@@ -6594,7 +7634,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Göttliche Explosion I",
+    "fr": "Éclat de lumière I"
   },
   {
     "id": 1582,
@@ -6604,7 +7646,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Finstere Explosion I",
+    "fr": "Éclat d'ombre I"
   },
   {
     "id": 1584,
@@ -6622,7 +7666,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Frost I",
+    "fr": "Gel I"
   },
   {
     "id": 1585,
@@ -6640,7 +7686,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Beißende Kälte I",
+    "fr": "Engelure I"
   },
   {
     "id": 1587,
@@ -6650,7 +7698,9 @@
     "slot": "stigma",
     "levels": [
       44
-    ]
+    ],
+    "de": "Gabe der Verstärkung I",
+    "fr": "Souhait de renforcement I"
   },
   {
     "id": 1588,
@@ -6660,7 +7710,9 @@
     "slot": "stigma",
     "levels": [
       44
-    ]
+    ],
+    "de": "Gabe der Flinkheit I",
+    "fr": "Souhait de vivacité I"
   },
   {
     "id": 1594,
@@ -6678,7 +7730,9 @@
       52,
       53,
       54
-    ]
+    ],
+    "de": "Kometenschlag I",
+    "fr": "Pluie de comètes I"
   },
   {
     "id": 1597,
@@ -6688,7 +7742,9 @@
     "slot": "stigma",
     "levels": [
       48
-    ]
+    ],
+    "de": "Barriere der Trennung I",
+    "fr": "Barrière de tranchage I"
   },
   {
     "id": 1601,
@@ -6698,7 +7754,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestraler Elementarfluss I",
+    "fr": "Esprit ancestral : Flux élémentaire I"
   },
   {
     "id": 1602,
@@ -6708,7 +7766,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Anzestrale Selbstzerstörung I",
+    "fr": "Esprit ancestral : Autodestruction I"
   },
   {
     "id": 1603,
@@ -6718,7 +7778,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Zyklon des Zorns I",
+    "fr": "Cyclone de colère I"
   },
   {
     "id": 1604,
@@ -6728,7 +7790,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Befehl: Zu Asche verbrennen I",
+    "fr": "Esprit : Réduire en cendres I"
   },
   {
     "id": 1605,
@@ -6738,7 +7802,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Befehl: Explosion I",
+    "fr": "Esprit : explosion I"
   },
   {
     "id": 1606,
@@ -6748,7 +7814,9 @@
     "slot": "active",
     "levels": [
       25
-    ]
+    ],
+    "de": "Beschwörung: Gruppenmitglied I",
+    "fr": "Invocation : Coéquipier I"
   },
   {
     "id": 1607,
@@ -6758,7 +7826,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Abzeichen des Versteckens I",
+    "fr": "Parole de dissimulation I"
   },
   {
     "id": 1608,
@@ -6768,7 +7838,9 @@
     "slot": "stigma",
     "levels": [
       31
-    ]
+    ],
+    "de": "Segen des Feuers I",
+    "fr": "Bénédiction de feu I"
   },
   {
     "id": 1609,
@@ -6786,7 +7858,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Beschwörung: Energie des Landes I",
+    "fr": "Invocation : Énergie de la pierre I"
   },
   {
     "id": 1611,
@@ -6804,7 +7878,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Beschwörung: Winddiener I",
+    "fr": "Invocation : Serviteur du vent I"
   },
   {
     "id": 1614,
@@ -6822,7 +7898,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Beschwörung: Erdgeist I",
+    "fr": "Invocation : Esprit de la terre I"
   },
   {
     "id": 1617,
@@ -6840,7 +7918,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Beschwörung: Feuergeist I",
+    "fr": "Invocation : Esprit du feu I"
   },
   {
     "id": 1620,
@@ -6858,7 +7938,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Beschwörung: Wassergeist I",
+    "fr": "Invocation : Esprit de l'eau I"
   },
   {
     "id": 1622,
@@ -6876,7 +7958,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Beschwörung: Windgeist I",
+    "fr": "Invocation : Esprit du Vent I"
   },
   {
     "id": 1625,
@@ -6886,7 +7970,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Geist schwächen I",
+    "fr": "Affaiblissement d'esprit I"
   },
   {
     "id": 1627,
@@ -6896,7 +7982,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Entzauberung I",
+    "fr": "Désenchantement I"
   },
   {
     "id": 1628,
@@ -6906,7 +7994,9 @@
     "slot": "active",
     "levels": [
       16
-    ]
+    ],
+    "de": "Magie auflösen I",
+    "fr": "Dissipation magique I"
   },
   {
     "id": 1631,
@@ -6924,7 +8014,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Kette der Erde I",
+    "fr": "Chaine de la Terre I"
   },
   {
     "id": 1634,
@@ -6934,7 +8026,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Magieverbrennung I",
+    "fr": "Inflammation d'Éther I"
   },
   {
     "id": 1636,
@@ -6944,7 +8038,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Furcht I",
+    "fr": "Terreur I"
   },
   {
     "id": 1641,
@@ -6954,7 +8050,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Beschwörung: Zyklon-Diener I",
+    "fr": "Invocation : Serviteur du cyclone I"
   },
   {
     "id": 1642,
@@ -6964,7 +8062,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Beschwörung: Zyklon-Diener I",
+    "fr": "Invocation : Serviteur du cyclone I"
   },
   {
     "id": 1643,
@@ -6982,7 +8082,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Beschwörung: Energie des Landes I",
+    "fr": "Invocation : Énergie de la pierre I"
   },
   {
     "id": 1645,
@@ -7000,7 +8102,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Beschwörung: Winddiener I",
+    "fr": "Invocation : Serviteur du vent I"
   },
   {
     "id": 1648,
@@ -7018,7 +8122,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Beschwörung: Erdgeist I",
+    "fr": "Invocation : Esprit de la terre I"
   },
   {
     "id": 1651,
@@ -7036,7 +8142,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Beschwörung: Feuergeist I",
+    "fr": "Invocation : Esprit du feu I"
   },
   {
     "id": 1654,
@@ -7054,7 +8162,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Beschwörung: Wassergeist I",
+    "fr": "Invocation : Esprit de l'eau I"
   },
   {
     "id": 1656,
@@ -7072,7 +8182,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Beschwörung: Windgeist I",
+    "fr": "Invocation : Esprit du Vent I"
   },
   {
     "id": 1659,
@@ -7082,7 +8194,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Befehl: Explosionsklaue I",
+    "fr": "Esprit de Griffe détonante I"
   },
   {
     "id": 1661,
@@ -7092,7 +8206,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Befehl: Mauer des Schutzes I",
+    "fr": "Esprit : Mur de protection I"
   },
   {
     "id": 1662,
@@ -7102,7 +8218,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Rüstung des Geistes I",
+    "fr": "Esprit fortifiant : Armure enchantée I"
   },
   {
     "id": 1663,
@@ -7112,7 +8230,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Stigma der Macht I",
+    "fr": "Menotte de léthargieI"
   },
   {
     "id": 1664,
@@ -7122,7 +8242,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Magische Umkehr I",
+    "fr": "Renversement magique I"
   },
   {
     "id": 1665,
@@ -7132,7 +8254,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Befehl: Ruinöser Angriff I",
+    "fr": "Offensive spirituelle lourde I"
   },
   {
     "id": 1666,
@@ -7142,7 +8266,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Höllenqualen I",
+    "fr": "Douleur infernale I"
   },
   {
     "id": 1668,
@@ -7160,7 +8286,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Befehl: Donnerschlag-Klaue I",
+    "fr": "Esprit : Griffe éclair I"
   },
   {
     "id": 1671,
@@ -7178,7 +8306,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Befehl: Drohende Haltung I",
+    "fr": "Menace spirituelle I"
   },
   {
     "id": 1674,
@@ -7188,7 +8318,9 @@
     "slot": "active",
     "levels": [
       19
-    ]
+    ],
+    "de": "Befehl: Zorn-Haltung I",
+    "fr": "Esprit : Posture énervée I"
   },
   {
     "id": 1676,
@@ -7206,7 +8338,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Elementarauffrischung I",
+    "fr": "Récupération d'élément I"
   },
   {
     "id": 1681,
@@ -7224,7 +8358,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Steinschock I",
+    "fr": "Choc de pierre I"
   },
   {
     "id": 1683,
@@ -7234,7 +8370,9 @@
     "slot": "stigma",
     "levels": [
       22
-    ]
+    ],
+    "de": "Zorntausch I",
+    "fr": "Modification d'hostilité I"
   },
   {
     "id": 1685,
@@ -7244,7 +8382,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Angstschrei I",
+    "fr": "Hurlement de peur I"
   },
   {
     "id": 1727,
@@ -7262,7 +8402,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Beschwörung: Sturmgeist I",
+    "fr": "Invocation : Esprit de la tempête I"
   },
   {
     "id": 1728,
@@ -7280,7 +8422,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Beschwörung: Magmageist I",
+    "fr": "Invocation : Esprit du magma I"
   },
   {
     "id": 1732,
@@ -7290,7 +8434,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Flug: MP erhöhen",
+    "fr": "Dévotion ailée"
   },
   {
     "id": 1739,
@@ -7300,7 +8446,9 @@
     "slot": "passive",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flug: Segen des Geistgottes",
+    "fr": "Esprit ailé"
   },
   {
     "id": 1746,
@@ -7310,7 +8458,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Zwangsjacke I",
+    "fr": "Camisole de force I"
   },
   {
     "id": 1747,
@@ -7328,7 +8478,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Beschwörung: Energie des Feuers I",
+    "fr": "Invocation : Énergie du feu I"
   },
   {
     "id": 1750,
@@ -7346,7 +8498,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Beschwörung: Energie des Feuers I",
+    "fr": "Invocation : Énergie du feu I"
   },
   {
     "id": 1753,
@@ -7364,7 +8518,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Beschwörung: Wasserenergie I",
+    "fr": "Invocation : Énergie de l'eau I"
   },
   {
     "id": 1754,
@@ -7382,7 +8538,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Beschwörung: Wasserenergie I",
+    "fr": "Invocation : Énergie de l'eau I"
   },
   {
     "id": 1755,
@@ -7392,7 +8550,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Lebenskraft I",
+    "fr": "Absorption de vitalité I"
   },
   {
     "id": 1760,
@@ -7402,7 +8562,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Stärkender Geist: Rüstung des Lichts I",
+    "fr": "Esprit : Armure de lumière I"
   },
   {
     "id": 1763,
@@ -7412,7 +8574,9 @@
     "slot": "active",
     "levels": [
       37
-    ]
+    ],
+    "de": "Klinge der Erde I",
+    "fr": "Lame de la terre I"
   },
   {
     "id": 1764,
@@ -7422,7 +8586,9 @@
     "slot": "active",
     "levels": [
       22
-    ]
+    ],
+    "de": "Befehl: Erosion I",
+    "fr": "Erosion spirituelle I"
   },
   {
     "id": 1765,
@@ -7432,7 +8598,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Befehl: Störung I",
+    "fr": "Esprit dérangé I"
   },
   {
     "id": 1766,
@@ -7442,7 +8610,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Stärkender Geist: Rüstung der Finsternis I",
+    "fr": "Esprit : Armure de ténèbres I"
   },
   {
     "id": 1769,
@@ -7452,7 +8622,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Magieblock I",
+    "fr": "Sceau de silence I"
   },
   {
     "id": 1770,
@@ -7462,7 +8634,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Entkräftendes Festhalten I",
+    "fr": "Enracinement amollissant I"
   },
   {
     "id": 1771,
@@ -7472,7 +8646,9 @@
     "slot": "active",
     "levels": [
       34
-    ]
+    ],
+    "de": "Geistabsorption I",
+    "fr": "Absorption spirituelle I"
   },
   {
     "id": 1772,
@@ -7490,7 +8666,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Umfangreiche Erosion I",
+    "fr": "Éclate-sable I"
   },
   {
     "id": 1774,
@@ -7500,7 +8678,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Fluchwolke I",
+    "fr": "Peste-nimbus I"
   },
   {
     "id": 1778,
@@ -7510,7 +8690,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Mudra der Unterwerfung I",
+    "fr": "Invocation rapide I"
   },
   {
     "id": 1781,
@@ -7520,7 +8702,9 @@
     "slot": "active",
     "levels": [
       42
-    ]
+    ],
+    "de": "Fluch: Feuergeist I",
+    "fr": "Malédiction de feu I"
   },
   {
     "id": 1782,
@@ -7530,7 +8714,9 @@
     "slot": "active",
     "levels": [
       42
-    ]
+    ],
+    "de": "Fluch: Wassergeist I",
+    "fr": "Malédiction d'eau I"
   },
   {
     "id": 1785,
@@ -7540,7 +8726,9 @@
     "slot": "stigma",
     "levels": [
       44
-    ]
+    ],
+    "de": "Stärkender Geist: Wiederherstellung I",
+    "fr": "Récupération spirituelle I"
   },
   {
     "id": 1789,
@@ -7550,7 +8738,9 @@
     "slot": "active",
     "levels": [
       46
-    ]
+    ],
+    "de": "Flügel-Festhalten I",
+    "fr": "Enracinement des ailes I"
   },
   {
     "id": 1794,
@@ -7560,7 +8750,9 @@
     "slot": "stigma",
     "levels": [
       48
-    ]
+    ],
+    "de": "Befehl: Vertretung I",
+    "fr": "Esprit : Substitution I"
   },
   {
     "id": 1798,
@@ -7570,7 +8762,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Befehl: Elementarfluss I",
+    "fr": "Esprit : Flux élémentaire I"
   },
   {
     "id": 1799,
@@ -7580,7 +8774,9 @@
     "slot": "active",
     "levels": [
       50
-    ]
+    ],
+    "de": "Befehl: Selbstzerstörung I",
+    "fr": "Esprit : Autodestruction I"
   },
   {
     "id": 1800,
@@ -7590,7 +8786,9 @@
     "slot": "active",
     "levels": [
       34
-    ]
+    ],
+    "de": "Vertrag der Resistenz I",
+    "fr": "Contrat de résistance I"
   },
   {
     "id": 1808,
@@ -7608,7 +8806,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Vaizels Pfeil I",
+    "fr": "Flèche de Vaizel I"
   },
   {
     "id": 1816,
@@ -7626,7 +8826,9 @@
       56,
       57,
       58
-    ]
+    ],
+    "de": "Triniels Pfeil I",
+    "fr": "Flèche de Triniel I"
   },
   {
     "id": 1968,
@@ -7636,7 +8838,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Schock entfernen I",
+    "fr": "Dissipation de choc I"
   },
   {
     "id": 1969,
@@ -7646,7 +8850,9 @@
     "slot": "active",
     "levels": [
       48
-    ]
+    ],
+    "de": "Geist erfrischen I",
+    "fr": "Esprit revigoré I"
   },
   {
     "id": 1970,
@@ -7664,7 +8870,9 @@
       57,
       58,
       59
-    ]
+    ],
+    "de": "Schildstoß I",
+    "fr": "Contre-attaque au bouclier balancier"
   },
   {
     "id": 1971,
@@ -7674,7 +8882,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Bedrohlicher Spott I",
+    "fr": "Agression I"
   },
   {
     "id": 1973,
@@ -7684,7 +8894,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Bestrafende Welle I",
+    "fr": "Vague de châtiment I"
   },
   {
     "id": 1975,
@@ -7694,7 +8906,9 @@
     "slot": "active",
     "levels": [
       53
-    ]
+    ],
+    "de": "Fangender Schlag I",
+    "fr": "Frappe-grappin I"
   },
   {
     "id": 1976,
@@ -7704,7 +8918,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Stahlbarrikade I",
+    "fr": "Barrage d'acier I"
   },
   {
     "id": 1977,
@@ -7722,7 +8938,9 @@
       61,
       62,
       63
-    ]
+    ],
+    "de": "Barbarischer Hieb I",
+    "fr": "Volée sans merci I"
   },
   {
     "id": 1978,
@@ -7732,7 +8950,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Empyrianische Vorsehung I",
+    "fr": "Protection empyréenne I"
   },
   {
     "id": 1979,
@@ -7742,7 +8962,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Schildsprengung I",
+    "fr": "Bouclier hurlant I"
   },
   {
     "id": 1980,
@@ -7760,7 +8982,9 @@
       54,
       55,
       56
-    ]
+    ],
+    "de": "Explodierender Flammenangriff I",
+    "fr": "Frappe enflammée explosive I"
   },
   {
     "id": 1981,
@@ -7770,7 +8994,9 @@
     "slot": "active",
     "levels": [
       51
-    ]
+    ],
+    "de": "Ausweicherhöhung I",
+    "fr": "Amélioration d'évasion I"
   },
   {
     "id": 1982,
@@ -7780,7 +9006,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Betäubende Explosion I",
+    "fr": "Salve explosive I"
   },
   {
     "id": 1984,
@@ -7790,7 +9018,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Sinnesverstärkung I",
+    "fr": "Amplification des sens I"
   },
   {
     "id": 1986,
@@ -7808,7 +9038,9 @@
       59,
       60,
       61
-    ]
+    ],
+    "de": "Zyklonschnitt I",
+    "fr": "Tranche-cyclone I"
   },
   {
     "id": 1987,
@@ -7818,7 +9050,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Giftangriff I",
+    "fr": "Frappe venimeuse I"
   },
   {
     "id": 1988,
@@ -7828,7 +9062,9 @@
     "slot": "active",
     "levels": [
       55
-    ]
+    ],
+    "de": "Tödlicher Fokus I",
+    "fr": "Focalisation fatale I"
   },
   {
     "id": 1989,
@@ -7838,7 +9074,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Siegel-Schweigen I",
+    "fr": "Marque de mutisme I"
   },
   {
     "id": 1990,
@@ -7848,7 +9086,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Beschleunigter Untergang I",
+    "fr": "Condamnation rapide I"
   },
   {
     "id": 1991,
@@ -7866,7 +9106,9 @@
       54,
       55,
       56
-    ]
+    ],
+    "de": "Vergeltung I",
+    "fr": "Rétribution I"
   },
   {
     "id": 1992,
@@ -7876,7 +9118,9 @@
     "slot": "active",
     "levels": [
       51
-    ]
+    ],
+    "de": "Selbstbewusste Verteidigung I",
+    "fr": "Défense confiante I"
   },
   {
     "id": 1993,
@@ -7886,7 +9130,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Desorientierender Hieb I",
+    "fr": "Frappe déstabilisante I"
   },
   {
     "id": 1995,
@@ -7896,7 +9142,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Heilschub I",
+    "fr": "Salve de guérison I"
   },
   {
     "id": 1997,
@@ -7914,7 +9162,9 @@
       59,
       60,
       61
-    ]
+    ],
+    "de": "Rückkopplung I",
+    "fr": "Retour de force I"
   },
   {
     "id": 1998,
@@ -7924,7 +9174,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Treffermantra I",
+    "fr": "Mantra de coup I"
   },
   {
     "id": 1999,
@@ -7934,7 +9186,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Abstumpfender Hieb I",
+    "fr": "Frappe engourdissante I"
   },
   {
     "id": 2000,
@@ -7952,7 +9206,9 @@
       61,
       62,
       63
-    ]
+    ],
+    "de": "Seismischer Bodendruck I",
+    "fr": "Crash sismique I"
   },
   {
     "id": 2001,
@@ -7962,7 +9218,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Elementare Abschirmung I",
+    "fr": "Forteresse inexpugnable I"
   },
   {
     "id": 2002,
@@ -7980,7 +9238,9 @@
       54,
       55,
       56
-    ]
+    ],
+    "de": "Rächende Rauchgasexplosion I",
+    "fr": "Retour de flammes vengeur I"
   },
   {
     "id": 2003,
@@ -7998,7 +9258,9 @@
       57,
       58,
       59
-    ]
+    ],
+    "de": "Rauchgasexplosion I",
+    "fr": "Retour de flammes I"
   },
   {
     "id": 2004,
@@ -8008,7 +9270,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Geistheilung I",
+    "fr": "Esprit de guérison I"
   },
   {
     "id": 2006,
@@ -8018,7 +9282,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Hand des Schlafes I",
+    "fr": "Toucher de stupeur I"
   },
   {
     "id": 2008,
@@ -8028,7 +9294,9 @@
     "slot": "active",
     "levels": [
       53
-    ]
+    ],
+    "de": "Flammen der Pein I",
+    "fr": "Flammes de supplice I"
   },
   {
     "id": 2009,
@@ -8038,7 +9306,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Grausige Düsternis I",
+    "fr": "Ténèbres cinglantes I"
   },
   {
     "id": 2010,
@@ -8048,7 +9318,9 @@
     "slot": "active",
     "levels": [
       55
-    ]
+    ],
+    "de": "Befehl: Schützender Geist I",
+    "fr": "Préservation spirituelle I"
   },
   {
     "id": 2011,
@@ -8058,7 +9330,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Geisthypnose I",
+    "fr": "Hypnose I"
   },
   {
     "id": 2012,
@@ -8068,7 +9342,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Höllenfäulnis I",
+    "fr": "Souillure infernale I"
   },
   {
     "id": 2264,
@@ -8086,7 +9362,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Sprungschlitzer I",
+    "fr": "Coupure bondissante I"
   },
   {
     "id": 2267,
@@ -8096,7 +9374,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Wutabsorption I",
+    "fr": "Furie d'absorption I"
   },
   {
     "id": 2269,
@@ -8114,7 +9394,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Spottruf I",
+    "fr": "Cri de dérision I"
   },
   {
     "id": 2271,
@@ -8124,7 +9406,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Schlag des Inquisitors I",
+    "fr": "Frappe de l'Inquisiteur I"
   },
   {
     "id": 2273,
@@ -8142,7 +9426,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Todesschuss I",
+    "fr": "Tir mortel I"
   },
   {
     "id": 2277,
@@ -8152,7 +9438,9 @@
     "slot": "stigma",
     "levels": [
       48
-    ]
+    ],
+    "de": "Kühne Klugheit I",
+    "fr": "Astuce acérée I"
   },
   {
     "id": 2278,
@@ -8162,7 +9450,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Blitzschnell I",
+    "fr": "Éclat de rapidité I"
   },
   {
     "id": 2279,
@@ -8180,7 +9470,9 @@
       49,
       50,
       51
-    ]
+    ],
+    "de": "Reißerklauenschlag I",
+    "fr": "Griffe déchirante I"
   },
   {
     "id": 2281,
@@ -8198,7 +9490,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Aions Sturm I",
+    "fr": "Tempête d'Aion I"
   },
   {
     "id": 2285,
@@ -8208,7 +9502,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Edle Anmut I",
+    "fr": "Noble grâce I"
   },
   {
     "id": 2286,
@@ -8218,7 +9514,9 @@
     "slot": "stigma",
     "levels": [
       43
-    ]
+    ],
+    "de": "Seelenschloss I",
+    "fr": "Verrou d'âme I"
   },
   {
     "id": 2288,
@@ -8228,7 +9526,9 @@
     "slot": "active",
     "levels": [
       45
-    ]
+    ],
+    "de": "Perfektes Parieren I",
+    "fr": "Parade parfaite I"
   },
   {
     "id": 2289,
@@ -8246,7 +9546,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Ausdauerabsorption I",
+    "fr": "Absorption d'endurance I"
   },
   {
     "id": 2291,
@@ -8256,7 +9558,9 @@
     "slot": "stigma",
     "levels": [
       43
-    ]
+    ],
+    "de": "Wirbelwind beschwören I",
+    "fr": "Invocation de tourbillon I"
   },
   {
     "id": 2292,
@@ -8266,7 +9570,9 @@
     "slot": "stigma",
     "levels": [
       43
-    ]
+    ],
+    "de": "Wirbelwind beschwören I",
+    "fr": "Invocation de tourbillon I"
   },
   {
     "id": 2295,
@@ -8284,7 +9590,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Erstickungssog I",
+    "fr": "Etouffement du vide I"
   },
   {
     "id": 2298,
@@ -8294,7 +9602,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Übertragung I",
+    "fr": "Transfert de soutien I"
   },
   {
     "id": 2300,
@@ -8304,7 +9614,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Verwandlung: Weißer Tiger I",
+    "fr": "Transformation : Tigre blanc I"
   },
   {
     "id": 2304,
@@ -8314,7 +9626,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Verwandlung: Weißer Tiger I",
+    "fr": "Transformation : Tigre blanc I"
   },
   {
     "id": 2308,
@@ -8324,7 +9638,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Verwandlung: Krall I",
+    "fr": "Transformation : Krall I"
   },
   {
     "id": 2312,
@@ -8334,7 +9650,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Verwandlung: Krall I",
+    "fr": "Transformation : Krall I"
   },
   {
     "id": 2316,
@@ -8344,7 +9662,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Schlaf: Vogelscheuche I",
+    "fr": "Sommeil : Epouvantail I"
   },
   {
     "id": 2317,
@@ -8354,7 +9674,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Schlaf: Schreckmais I",
+    "fr": "Sommeil : Maltrueux I"
   },
   {
     "id": 2318,
@@ -8364,7 +9686,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Furcht: Porgus I",
+    "fr": "Peur : Porgus I"
   },
   {
     "id": 2319,
@@ -8374,7 +9698,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Furcht: Ginseng I",
+    "fr": "Peur : Ginseng I"
   },
   {
     "id": 2320,
@@ -8392,7 +9718,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Beschwörung: Göttlicher Spiegel I",
+    "fr": "Invocation : Miroir divin I"
   },
   {
     "id": 2324,
@@ -8410,7 +9738,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Beschwörung: Göttlicher Spiegel I",
+    "fr": "Invocation : Miroir divin I"
   },
   {
     "id": 2328,
@@ -8428,7 +9758,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Beschwörung: Göttlicher Kristall I",
+    "fr": "Invocation : Cristal divin I"
   },
   {
     "id": 2332,
@@ -8446,7 +9778,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Beschwörung: Göttlicher Kristall I",
+    "fr": "Invocation : Cristal divin I"
   },
   {
     "id": 2344,
@@ -8464,7 +9798,9 @@
       65,
       66,
       67
-    ]
+    ],
+    "de": "Energie-Explosion I",
+    "fr": "Impact d'énergie I"
   },
   {
     "id": 2345,
@@ -8474,7 +9810,9 @@
     "slot": "active",
     "levels": [
       57
-    ]
+    ],
+    "de": "Rüstung der Rache I",
+    "fr": "Armure d'attrition I"
   },
   {
     "id": 2346,
@@ -8484,7 +9822,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Wirbelndes Blocken I",
+    "fr": "Anti-tournoiement I"
   },
   {
     "id": 2347,
@@ -8502,7 +9842,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Konter der Absorption I",
+    "fr": "Contre-drain I"
   },
   {
     "id": 2348,
@@ -8520,7 +9862,9 @@
       62,
       63,
       64
-    ]
+    ],
+    "de": "Wiederholter Körperschlag I",
+    "fr": "Enchaînement corporel I"
   },
   {
     "id": 2349,
@@ -8530,7 +9874,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Welle der Erschöpfung I",
+    "fr": "Onde d'épuisement I"
   },
   {
     "id": 2350,
@@ -8540,7 +9886,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Welle der Regeneration I",
+    "fr": "Onde de renouveau I"
   },
   {
     "id": 2351,
@@ -8550,7 +9898,9 @@
     "slot": "active",
     "levels": [
       57
-    ]
+    ],
+    "de": "Schild des Mutes I",
+    "fr": "Bouclier courageux I"
   },
   {
     "id": 2352,
@@ -8560,7 +9910,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Trotziger Geist I",
+    "fr": "Esprit têtu I"
   },
   {
     "id": 2353,
@@ -8570,7 +9922,9 @@
     "slot": "active",
     "levels": [
       59
-    ]
+    ],
+    "de": "Rüstung des Schutzes I",
+    "fr": "Armure de protection I"
   },
   {
     "id": 2354,
@@ -8580,7 +9934,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Illusionsketten I",
+    "fr": "Chaînes d'illusion I"
   },
   {
     "id": 2355,
@@ -8598,7 +9954,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Schwertwind I",
+    "fr": "Épée de tempête I"
   },
   {
     "id": 2356,
@@ -8616,7 +9974,9 @@
       62,
       63,
       64
-    ]
+    ],
+    "de": "Wiederholter Schildschlag I",
+    "fr": "Choc de bouclier I"
   },
   {
     "id": 2357,
@@ -8626,7 +9986,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Falle des Rachegeistes I",
+    "fr": "Piège d'entrave aérienne I"
   },
   {
     "id": 2358,
@@ -8636,7 +9998,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Falle des Rachegeistes I",
+    "fr": "Piège d'entrave aérienne I"
   },
   {
     "id": 2359,
@@ -8654,7 +10018,9 @@
       65,
       66,
       67
-    ]
+    ],
+    "de": "Pfeil des Manaraubs I",
+    "fr": "Tir de sangsue à mana I"
   },
   {
     "id": 2360,
@@ -8672,7 +10038,9 @@
       63,
       64,
       65
-    ]
+    ],
+    "de": "Tödlicher Giftpfeil I",
+    "fr": "Tir de Sourcevenin I"
   },
   {
     "id": 2361,
@@ -8682,7 +10050,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Pfeil des Schreis I",
+    "fr": "Tir de misère I"
   },
   {
     "id": 2362,
@@ -8700,7 +10070,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Dämonenpfeil I",
+    "fr": "Tir dispersif I"
   },
   {
     "id": 2363,
@@ -8718,7 +10090,9 @@
       62,
       63,
       64
-    ]
+    ],
+    "de": "Sprung der Bestie I",
+    "fr": "Saut de la bête I"
   },
   {
     "id": 2364,
@@ -8728,7 +10102,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Schattenfall I",
+    "fr": "Ombrechute I"
   },
   {
     "id": 2365,
@@ -8746,7 +10122,9 @@
       65,
       66,
       67
-    ]
+    ],
+    "de": "Kettenvernichtung I",
+    "fr": "Destruction à la chaîne I"
   },
   {
     "id": 2366,
@@ -8764,7 +10142,9 @@
       63,
       64,
       65
-    ]
+    ],
+    "de": "Kreuzschnitt I",
+    "fr": "Entaille croisée I"
   },
   {
     "id": 2367,
@@ -8774,7 +10154,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Verwandlung: Schlächter I",
+    "fr": "Apparence de Tueur I"
   },
   {
     "id": 2368,
@@ -8784,7 +10166,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Verwandlung: Schlächter I",
+    "fr": "Apparence de Tueur I"
   },
   {
     "id": 2369,
@@ -8802,7 +10186,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Massaker I",
+    "fr": "Massacre I"
   },
   {
     "id": 2370,
@@ -8820,7 +10206,9 @@
       62,
       63,
       64
-    ]
+    ],
+    "de": "Donnerhieb I",
+    "fr": "Foudréclair I"
   },
   {
     "id": 2371,
@@ -8830,7 +10218,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Macht der Zerstörung I",
+    "fr": "Puissance destructrice I"
   },
   {
     "id": 2372,
@@ -8840,7 +10230,9 @@
     "slot": "active",
     "levels": [
       59
-    ]
+    ],
+    "de": "Reinigendes Licht I",
+    "fr": "Purification I"
   },
   {
     "id": 2373,
@@ -8858,7 +10250,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Urteilsschlinge I",
+    "fr": "Aéro-piège I"
   },
   {
     "id": 2374,
@@ -8876,7 +10270,9 @@
       63,
       64,
       65
-    ]
+    ],
+    "de": "Schild des Lebens I",
+    "fr": "Voile de vie I"
   },
   {
     "id": 2375,
@@ -8886,7 +10282,9 @@
     "slot": "active",
     "levels": [
       59
-    ]
+    ],
+    "de": "Ausdauer-Strahlung I",
+    "fr": "Pulsion d'endurance I"
   },
   {
     "id": 2376,
@@ -8896,7 +10294,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Aufwachen I",
+    "fr": "Elévation I"
   },
   {
     "id": 2377,
@@ -8914,7 +10314,9 @@
       62,
       63,
       64
-    ]
+    ],
+    "de": "Blitzschlag I",
+    "fr": "Foudréclair I"
   },
   {
     "id": 2378,
@@ -8924,7 +10326,9 @@
     "slot": "active",
     "levels": [
       57
-    ]
+    ],
+    "de": "Zauber des Durchbruchs I",
+    "fr": "Imparable I"
   },
   {
     "id": 2379,
@@ -8934,7 +10338,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Vernichtungsfeuer I",
+    "fr": "Annihilation I"
   },
   {
     "id": 2380,
@@ -8944,7 +10350,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Sprengung I",
+    "fr": "Déflagration I"
   },
   {
     "id": 2381,
@@ -8954,7 +10362,9 @@
     "slot": "active",
     "levels": [
       60
-    ]
+    ],
+    "de": "Zauber des Erwachens I",
+    "fr": "Sort d'ascension I"
   },
   {
     "id": 2386,
@@ -8964,7 +10374,9 @@
     "slot": "active",
     "levels": [
       56
-    ]
+    ],
+    "de": "Schneller Atem I",
+    "fr": "Doigts de fée I"
   },
   {
     "id": 2391,
@@ -8974,7 +10386,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Rettende Hand I",
+    "fr": "Grâce rédemptrice I"
   },
   {
     "id": 2394,
@@ -8992,7 +10406,9 @@
       62,
       63,
       64
-    ]
+    ],
+    "de": "Speer des Windes I",
+    "fr": "Lance du vent I"
   },
   {
     "id": 2395,
@@ -9002,7 +10418,9 @@
     "slot": "active",
     "levels": [
       57
-    ]
+    ],
+    "de": "Illusion des Winters I",
+    "fr": "Brise-étreinte I"
   },
   {
     "id": 2396,
@@ -9012,7 +10430,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Abkühlung I",
+    "fr": "Zéro absolu I"
   },
   {
     "id": 2397,
@@ -9022,7 +10442,9 @@
     "slot": "active",
     "levels": [
       59
-    ]
+    ],
+    "de": "Robe des Windes I",
+    "fr": "Robes aériennes I"
   },
   {
     "id": 2398,
@@ -9040,7 +10462,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Meteorit beschwören I",
+    "fr": "Météorite I"
   },
   {
     "id": 2402,
@@ -9050,7 +10474,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Schlag des Sturms I",
+    "fr": "Frappe tempête I"
   },
   {
     "id": 2403,
@@ -9060,7 +10486,9 @@
     "slot": "stigma",
     "levels": [
       60
-    ]
+    ],
+    "de": "Seelisches Mitgefühl I",
+    "fr": "Esprit empathique I"
   },
   {
     "id": 2404,
@@ -9078,7 +10506,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Mana-Explosion I",
+    "fr": "Brise-égide I"
   },
   {
     "id": 2405,
@@ -9088,7 +10518,9 @@
     "slot": "active",
     "levels": [
       57
-    ]
+    ],
+    "de": "Albtraumfessel I",
+    "fr": "Immobilisation de cauchemars I"
   },
   {
     "id": 2406,
@@ -9106,7 +10538,9 @@
       65,
       66,
       67
-    ]
+    ],
+    "de": "Befehl: Groll I",
+    "fr": "Déception spirituelle I"
   },
   {
     "id": 2407,
@@ -9116,7 +10550,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Seelenflut I",
+    "fr": "Torrent des âmes I"
   },
   {
     "id": 2412,
@@ -9126,7 +10562,9 @@
     "slot": "active",
     "levels": [
       60
-    ]
+    ],
+    "de": "Stärkender Geist: Rüstung des Elementes I",
+    "fr": "Armure spirituelle élémentaire I"
   },
   {
     "id": 2679,
@@ -9136,7 +10574,9 @@
     "slot": "passive",
     "levels": [
       10
-    ]
+    ],
+    "de": "Magieausgleich erhöhen I",
+    "fr": "Augmentation de supression magique I"
   },
   {
     "id": 2701,
@@ -9154,7 +10594,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Welle der Absorption I",
+    "fr": "Onde d'absorption I"
   },
   {
     "id": 2702,
@@ -9172,7 +10614,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Körperhieb I",
+    "fr": "Frappe au corps I"
   },
   {
     "id": 2703,
@@ -9182,7 +10626,9 @@
     "slot": "active",
     "levels": [
       63
-    ]
+    ],
+    "de": "Gegenangriffsvorbereitung I",
+    "fr": "Préparation de la contre-attaque I"
   },
   {
     "id": 2704,
@@ -9200,7 +10646,9 @@
       70,
       71,
       72
-    ]
+    ],
+    "de": "Welle des Drachenschnitts I",
+    "fr": "Déferlante d'entailles du Dragon I"
   },
   {
     "id": 2705,
@@ -9218,7 +10666,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Rasender Hieb I",
+    "fr": "Pluie de coups I"
   },
   {
     "id": 2706,
@@ -9228,7 +10678,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Fußfesseln I",
+    "fr": "Entraves I"
   },
   {
     "id": 2707,
@@ -9246,7 +10698,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Windpfeil I",
+    "fr": "Flèche de vent I"
   },
   {
     "id": 2708,
@@ -9264,7 +10718,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Stangenwaffe der Flamme I",
+    "fr": "Guisarme de flamme I"
   },
   {
     "id": 2710,
@@ -9282,7 +10738,9 @@
       69,
       70,
       71
-    ]
+    ],
+    "de": "Wiederholter Schutzschild I",
+    "fr": "Bouclier protecteur répété I"
   },
   {
     "id": 2711,
@@ -9300,7 +10758,9 @@
       70,
       71,
       72
-    ]
+    ],
+    "de": "Verzögerte Hitzewelle I",
+    "fr": "Frappe brûlante retardée I"
   },
   {
     "id": 2712,
@@ -9318,7 +10778,9 @@
       70,
       71,
       72
-    ]
+    ],
+    "de": "Verzögerte Hitzewelle I",
+    "fr": "Frappe brûlante retardée I"
   },
   {
     "id": 2713,
@@ -9336,7 +10798,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Feuer der magischen Kraft I",
+    "fr": "Feu de force magique I"
   },
   {
     "id": 2714,
@@ -9346,7 +10810,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Tiefschlaf herbeiführen I",
+    "fr": "Profond sommeil I"
   },
   {
     "id": 2717,
@@ -9364,7 +10830,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Konzentrierte Festnahme I",
+    "fr": "Arrestation concentrée I"
   },
   {
     "id": 2718,
@@ -9382,7 +10850,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Schnitt des Blutschwerts I",
+    "fr": "Entaille d'épée sanguinaire I"
   },
   {
     "id": 2719,
@@ -9392,7 +10862,9 @@
     "slot": "active",
     "levels": [
       63
-    ]
+    ],
+    "de": "Luftwechsel I",
+    "fr": "Changement d'air I"
   },
   {
     "id": 2720,
@@ -9402,7 +10874,9 @@
     "slot": "active",
     "levels": [
       64
-    ]
+    ],
+    "de": "Gebrüll der Ermutigung I",
+    "fr": "Grognement d'encouragement I"
   },
   {
     "id": 2721,
@@ -9420,7 +10894,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Welle der Bedrohung I",
+    "fr": "Onde de menace I"
   },
   {
     "id": 2722,
@@ -9430,7 +10906,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Schlag der Beseitigung I",
+    "fr": "Frappe d'élimination I"
   },
   {
     "id": 2723,
@@ -9448,7 +10926,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Pfeil des Überfalls I",
+    "fr": "Flèche d'assaut I"
   },
   {
     "id": 2724,
@@ -9466,7 +10946,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Schnellfeuer des Schreis I",
+    "fr": "Tir rapide hurlant I"
   },
   {
     "id": 2725,
@@ -9484,7 +10966,9 @@
       69,
       70,
       71
-    ]
+    ],
+    "de": "Finaler Sturmangriff I",
+    "fr": "Assaut final I"
   },
   {
     "id": 2726,
@@ -9502,7 +10986,9 @@
       70,
       71,
       72
-    ]
+    ],
+    "de": "Falle: Schock I",
+    "fr": "Piège : Choc I"
   },
   {
     "id": 2727,
@@ -9520,7 +11006,9 @@
       70,
       71,
       72
-    ]
+    ],
+    "de": "Falle: Schock I",
+    "fr": "Piège : Choc I"
   },
   {
     "id": 2728,
@@ -9538,7 +11026,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Sturmmine I",
+    "fr": "Mine orageuse I"
   },
   {
     "id": 2729,
@@ -9556,7 +11046,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Sturmmine I",
+    "fr": "Mine orageuse I"
   },
   {
     "id": 2730,
@@ -9566,7 +11058,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Pfeil des Siegels I",
+    "fr": "Flèche du glyphe I"
   },
   {
     "id": 2731,
@@ -9576,7 +11070,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Schattentarnung I",
+    "fr": "Refuge de l'ombre I"
   },
   {
     "id": 2732,
@@ -9594,7 +11090,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Angriff aus dem Hinterhalt I",
+    "fr": "Attaque en embuscade I"
   },
   {
     "id": 2733,
@@ -9612,7 +11110,9 @@
       69,
       70,
       71
-    ]
+    ],
+    "de": "Attacke aus dem Hinterhalt I",
+    "fr": "Assaut en embuscade I"
   },
   {
     "id": 2734,
@@ -9622,7 +11122,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Fluchthaltung I",
+    "fr": "Faux-fuyant I"
   },
   {
     "id": 2735,
@@ -9632,7 +11134,9 @@
     "slot": "active",
     "levels": [
       65
-    ]
+    ],
+    "de": "Schattenillusion I",
+    "fr": "Illusion des ombres I"
   },
   {
     "id": 2736,
@@ -9642,7 +11146,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Überfall aus dem Hinterhalt I",
+    "fr": "Raid en embuscade I"
   },
   {
     "id": 2737,
@@ -9652,7 +11158,9 @@
     "slot": "active",
     "levels": [
       64
-    ]
+    ],
+    "de": "Hinterhältiger Überfall I",
+    "fr": "Attaque sournoise I"
   },
   {
     "id": 2740,
@@ -9670,7 +11178,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Wut der Erde I",
+    "fr": "Courroux de la terre I"
   },
   {
     "id": 2741,
@@ -9688,7 +11198,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Explosion der Macht I",
+    "fr": "Explosion de puissance I"
   },
   {
     "id": 2742,
@@ -9706,7 +11218,9 @@
       69,
       70,
       71
-    ]
+    ],
+    "de": "Blitz der Heilung I",
+    "fr": "Foudre de guérison I"
   },
   {
     "id": 2745,
@@ -9724,7 +11238,9 @@
       70,
       71,
       72
-    ]
+    ],
+    "de": "Machtverstärkung I",
+    "fr": "Renforcement de puissance I"
   },
   {
     "id": 2746,
@@ -9742,7 +11258,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Heilende Pracht I",
+    "fr": "Splendeur de soin I"
   },
   {
     "id": 2749,
@@ -9760,7 +11278,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Blitz der Vergeltung I",
+    "fr": "Éclair de représailles I"
   },
   {
     "id": 2750,
@@ -9778,7 +11298,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Energie der Geschwindigkeit I",
+    "fr": "Énergie de vitesse I"
   },
   {
     "id": 2751,
@@ -9796,7 +11318,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Wiederholtes Zerschmettern I",
+    "fr": "Tourment répété I"
   },
   {
     "id": 2752,
@@ -9814,7 +11338,9 @@
       69,
       70,
       71
-    ]
+    ],
+    "de": "Spaltschlag I",
+    "fr": "Coup pourfendeur I"
   },
   {
     "id": 2753,
@@ -9824,7 +11350,9 @@
     "slot": "active",
     "levels": [
       64
-    ]
+    ],
+    "de": "Raum-Zeit-Flucht I",
+    "fr": "Fuite spatiotemporelle I"
   },
   {
     "id": 2754,
@@ -9834,7 +11362,9 @@
     "slot": "active",
     "levels": [
       65
-    ]
+    ],
+    "de": "Mantra des Windes I",
+    "fr": "Mantra du vent I"
   },
   {
     "id": 2755,
@@ -9844,7 +11374,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Tödlicher Hieb I",
+    "fr": "Coup mortel I"
   },
   {
     "id": 2758,
@@ -9862,7 +11394,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Beschwörung: Energie der Elemente I",
+    "fr": "Invocation : Énergie des éléments I"
   },
   {
     "id": 2759,
@@ -9880,7 +11414,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Beschwörung: Energie der Elemente I",
+    "fr": "Invocation : Énergie des éléments I"
   },
   {
     "id": 2760,
@@ -9898,7 +11434,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Elementarschlag I",
+    "fr": "Frappe élémentaire I"
   },
   {
     "id": 2761,
@@ -9908,7 +11446,9 @@
     "slot": "active",
     "levels": [
       64
-    ]
+    ],
+    "de": "Fluch der magischen Kraft I",
+    "fr": "Malédiction de force magique I"
   },
   {
     "id": 2762,
@@ -9918,7 +11458,9 @@
     "slot": "active",
     "levels": [
       65
-    ]
+    ],
+    "de": "Befehl: Sturm der Elemente I",
+    "fr": "Ordre : Tempête des éléments I"
   },
   {
     "id": 2763,
@@ -9928,7 +11470,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Befehl: Schutz I",
+    "fr": "Ordre : Protection I"
   },
   {
     "id": 2764,
@@ -9938,7 +11482,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Sofortiges Sprinten I",
+    "fr": "Ruée instantanée I"
   },
   {
     "id": 2765,
@@ -9948,7 +11494,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Schutz der Erde I",
+    "fr": "Protection de la Terre I"
   },
   {
     "id": 2766,
@@ -9958,7 +11506,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Sprint-Fertigkeit I",
+    "fr": "Célérité I"
   },
   {
     "id": 2767,
@@ -9968,7 +11518,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Zauberabwehr I",
+    "fr": "Sort de défense I"
   },
   {
     "id": 2768,
@@ -9978,7 +11530,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Hand der Wiederherstellung I",
+    "fr": "Main régénérante I"
   },
   {
     "id": 2769,
@@ -9996,7 +11550,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Welle der Bedrohung I",
+    "fr": "Onde de menace I"
   },
   {
     "id": 3031,
@@ -10014,7 +11570,9 @@
       13,
       14,
       15
-    ]
+    ],
+    "de": "Harmonie der Kälte I",
+    "fr": "Harmonie du froid I"
   },
   {
     "id": 3037,
@@ -10032,7 +11590,9 @@
       11,
       12,
       13
-    ]
+    ],
+    "de": "Sanftes Echo I",
+    "fr": "Léger écho I"
   },
   {
     "id": 3043,
@@ -10042,7 +11602,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Barriere I",
+    "fr": "Barrière I"
   },
   {
     "id": 3044,
@@ -10060,7 +11622,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Harmonie der Flamme I",
+    "fr": "Harmonie des flammes I"
   },
   {
     "id": 3050,
@@ -10078,7 +11642,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Melodie des Schildes I",
+    "fr": "Mélodie du bouclier I"
   },
   {
     "id": 3055,
@@ -10096,7 +11662,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Harmonie der Seele I",
+    "fr": "Harmonie de l'âme I"
   },
   {
     "id": 3059,
@@ -10114,7 +11682,9 @@
       26,
       27,
       28
-    ]
+    ],
+    "de": "Echo der Eleganz I",
+    "fr": "Echo d'élégance I"
   },
   {
     "id": 3063,
@@ -10124,7 +11694,9 @@
     "slot": "active",
     "levels": [
       36
-    ]
+    ],
+    "de": "Melodie des Angriffs I",
+    "fr": "Mélodie de l'attaque I"
   },
   {
     "id": 3064,
@@ -10142,7 +11714,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Symphonie des Zorns I",
+    "fr": "Symphonie de la fureur I"
   },
   {
     "id": 3069,
@@ -10160,7 +11734,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Mildes Echo I",
+    "fr": "Doux écho I"
   },
   {
     "id": 3074,
@@ -10178,7 +11754,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Lauter Knall I",
+    "fr": "Claquement assourdissant I"
   },
   {
     "id": 3079,
@@ -10196,7 +11774,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Harmonie der Erde I",
+    "fr": "Harmonie de la terre I"
   },
   {
     "id": 3084,
@@ -10206,7 +11786,9 @@
     "slot": "active",
     "levels": [
       16
-    ]
+    ],
+    "de": "Melodie des Lebens I",
+    "fr": "Mélodie de la vie I"
   },
   {
     "id": 3086,
@@ -10216,7 +11798,9 @@
     "slot": "active",
     "levels": [
       19
-    ]
+    ],
+    "de": "Melodie der Reinigung I",
+    "fr": "Mélodie de purification I"
   },
   {
     "id": 3089,
@@ -10226,7 +11810,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Tanz des Gauklers I",
+    "fr": "Danse du saltimbanque I"
   },
   {
     "id": 3090,
@@ -10244,7 +11830,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Durchdringender Reibelaut I",
+    "fr": "Cri perforant I"
   },
   {
     "id": 3094,
@@ -10262,7 +11850,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Echo der Klarheit I",
+    "fr": "Echo de lucidité I"
   },
   {
     "id": 3098,
@@ -10280,7 +11870,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Harmonie des Todes I",
+    "fr": "Harmonie funeste I"
   },
   {
     "id": 3102,
@@ -10290,7 +11882,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Melodie der Verjüngung I",
+    "fr": "Mélodie du rajeunissement I"
   },
   {
     "id": 3109,
@@ -10300,7 +11894,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Geflügelte Melodie I",
+    "fr": "Mélodie d'oiseau I"
   },
   {
     "id": 3111,
@@ -10310,7 +11906,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Rhapsodie des Himmels I",
+    "fr": "Rhapsodie des cieux I"
   },
   {
     "id": 3112,
@@ -10320,7 +11918,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Störender Tanz I",
+    "fr": "Danse troublante I"
   },
   {
     "id": 3115,
@@ -10338,7 +11938,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Symphonie der Zerstörung I",
+    "fr": "Symphonie de la destruction I"
   },
   {
     "id": 3118,
@@ -10356,7 +11958,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Leises Echo I",
+    "fr": "Echo silencieux I"
   },
   {
     "id": 3121,
@@ -10374,7 +11978,9 @@
       42,
       43,
       44
-    ]
+    ],
+    "de": "Harmonie der Zerstörung I",
+    "fr": "Harmonie de la destruction I"
   },
   {
     "id": 3124,
@@ -10392,7 +11998,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Widerhall des Angriffs I",
+    "fr": "Renvoi de l'attaque I"
   },
   {
     "id": 3127,
@@ -10402,7 +12010,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Melodie der Hoffnung I",
+    "fr": "Mélodie de l'espoir I"
   },
   {
     "id": 3128,
@@ -10412,7 +12022,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Requiem der Vergessenheit I",
+    "fr": "Requiem de l'oubli I"
   },
   {
     "id": 3129,
@@ -10430,7 +12042,9 @@
       53,
       54,
       55
-    ]
+    ],
+    "de": "Melodie der Würdigung I",
+    "fr": "Mélodie de la reconnaissance I"
   },
   {
     "id": 3131,
@@ -10440,7 +12054,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Mosky-Requiem I",
+    "fr": "Requiem de Mosky I"
   },
   {
     "id": 3138,
@@ -10450,7 +12066,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Melodie der Disziplin I",
+    "fr": "Mélodie de la discipline I"
   },
   {
     "id": 3139,
@@ -10460,7 +12078,9 @@
     "slot": "stigma",
     "levels": [
       43
-    ]
+    ],
+    "de": "Marsch der Bienen I",
+    "fr": "Marche des apidés I"
   },
   {
     "id": 3143,
@@ -10470,7 +12090,9 @@
     "slot": "active",
     "levels": [
       64
-    ]
+    ],
+    "de": "Melodie des blauen Himmels I",
+    "fr": "Mélodie du ciel bleu I"
   },
   {
     "id": 3144,
@@ -10488,7 +12110,9 @@
       63,
       64,
       65
-    ]
+    ],
+    "de": "Requiem der Böe I",
+    "fr": "Requiem de bourrasque I"
   },
   {
     "id": 3145,
@@ -10498,7 +12122,9 @@
     "slot": "active",
     "levels": [
       59
-    ]
+    ],
+    "de": "Klang der Magiestörung I",
+    "fr": "Claquement de la perturbation magique I"
   },
   {
     "id": 3146,
@@ -10516,7 +12142,9 @@
       54,
       55,
       56
-    ]
+    ],
+    "de": "Reines Echo I",
+    "fr": "Echo pur I"
   },
   {
     "id": 3148,
@@ -10534,7 +12162,9 @@
       49,
       50,
       51
-    ]
+    ],
+    "de": "Harmonie des Windes I",
+    "fr": "Harmonie du vent I"
   },
   {
     "id": 3150,
@@ -10544,7 +12174,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Atemberaubender Knall I",
+    "fr": "Claquement étourdissant I"
   },
   {
     "id": 3151,
@@ -10554,7 +12186,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Melodie der Schneeblume I",
+    "fr": "Mélodie de la fleur de neige I"
   },
   {
     "id": 3152,
@@ -10572,7 +12206,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Harmonie des Schweigens I",
+    "fr": "Harmonie du silence I"
   },
   {
     "id": 3153,
@@ -10582,7 +12218,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Melodie des Mutes I",
+    "fr": "Mélodie du courage I"
   },
   {
     "id": 3154,
@@ -10592,7 +12230,9 @@
     "slot": "active",
     "levels": [
       49
-    ]
+    ],
+    "de": "Knall des Schocks I",
+    "fr": "Résonance du choc I"
   },
   {
     "id": 3155,
@@ -10602,7 +12242,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Spielart der Heilung I",
+    "fr": "Mode de guérison I"
   },
   {
     "id": 3156,
@@ -10612,7 +12254,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Spielart der Magieverstärkung I",
+    "fr": "Mode de puissance magique I"
   },
   {
     "id": 3157,
@@ -10630,7 +12274,9 @@
       69,
       70,
       71
-    ]
+    ],
+    "de": "Variation des Meeres I",
+    "fr": "Variation de la mer I"
   },
   {
     "id": 3160,
@@ -10640,7 +12286,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Widerhall der Lähmung I",
+    "fr": "Renvoi de la paralysie I"
   },
   {
     "id": 3161,
@@ -10658,7 +12306,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Variation der Illusion I",
+    "fr": "Variation de l'illusion I"
   },
   {
     "id": 3164,
@@ -10668,7 +12318,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Disharmonie I",
+    "fr": "Dysharmonie I"
   },
   {
     "id": 3168,
@@ -10678,7 +12330,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Melodie des Freispruchs I",
+    "fr": "Mélodie de l'acquittement I"
   },
   {
     "id": 3172,
@@ -10688,7 +12342,9 @@
     "slot": "stigma",
     "levels": [
       53
-    ]
+    ],
+    "de": "Variation der Heilung I",
+    "fr": "Variation de guérison I"
   },
   {
     "id": 3188,
@@ -10698,7 +12354,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Variation der Ruhe I",
+    "fr": "Variation du silence I"
   },
   {
     "id": 3209,
@@ -10708,7 +12366,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Serenade des Friedens I",
+    "fr": "Sérénade de la paix I"
   },
   {
     "id": 3211,
@@ -10726,7 +12386,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Requiem der Flutwelle I",
+    "fr": "Requiem du tsunami I"
   },
   {
     "id": 3215,
@@ -10736,7 +12398,9 @@
     "slot": "active",
     "levels": [
       63
-    ]
+    ],
+    "de": "Stärkender Geist: Blutdurst",
+    "fr": "Esprit fortifiant : Absorption de vitalité"
   },
   {
     "id": 3242,
@@ -10746,7 +12410,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Rasende Ermutigung I",
+    "fr": "Vague d'encouragement I"
   },
   {
     "id": 3243,
@@ -10756,7 +12422,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Schlafzustand entfernen I",
+    "fr": "Dissipation du sommeil I"
   },
   {
     "id": 3244,
@@ -10766,7 +12434,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Überlebensinstinkt I",
+    "fr": "Instinct de survie I"
   },
   {
     "id": 3245,
@@ -10776,7 +12446,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Melodie des Eisernen Panzers I",
+    "fr": "Mélodie du char d'acier I"
   },
   {
     "id": 3246,
@@ -10786,7 +12458,9 @@
     "slot": "active",
     "levels": [
       3
-    ]
+    ],
+    "de": "Marsch des Gauklers I",
+    "fr": "Marche du saltimbanque I"
   },
   {
     "id": 3247,
@@ -10804,7 +12478,9 @@
       9,
       10,
       11
-    ]
+    ],
+    "de": "Variation des Kampfes I",
+    "fr": "Variation de bataille I"
   },
   {
     "id": 3250,
@@ -10822,7 +12498,9 @@
       15,
       16,
       17
-    ]
+    ],
+    "de": "Melodie der Besinnung I",
+    "fr": "Mélodie de méditation I"
   },
   {
     "id": 3267,
@@ -10840,7 +12518,9 @@
       7,
       8,
       9
-    ]
+    ],
+    "de": "Klang des Windhauchs I",
+    "fr": "Bourdonnement du souffle de vent I"
   },
   {
     "id": 3277,
@@ -10850,7 +12530,9 @@
     "slot": "active",
     "levels": [
       16
-    ]
+    ],
+    "de": "Kontrolliertes Ausweichen I",
+    "fr": "Esquive sous contrôle I"
   },
   {
     "id": 3278,
@@ -10868,7 +12550,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Gedächtnismanipulation I",
+    "fr": "Manipulation des souvenirs I"
   },
   {
     "id": 3281,
@@ -10878,7 +12562,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Magieauge der Klarsicht I",
+    "fr": "Vision magique de clairvoyance I"
   },
   {
     "id": 3282,
@@ -10888,7 +12574,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Kraft der Magie I",
+    "fr": "Pouvoir de la magie I"
   },
   {
     "id": 3283,
@@ -10898,7 +12586,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Atem der magischen Kraft I",
+    "fr": "Souffle de force magique I"
   },
   {
     "id": 3291,
@@ -10916,7 +12606,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Versprechen der magischen Kraft I",
+    "fr": "Promesse de force magique I"
   },
   {
     "id": 3293,
@@ -10926,7 +12618,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Gabe der magischen Kraft I",
+    "fr": "Don de force magique I"
   },
   {
     "id": 3294,
@@ -10936,7 +12630,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Magisches Geschoss verstärken I",
+    "fr": "Renforcement du projectile magique I"
   },
   {
     "id": 3300,
@@ -10946,7 +12642,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Schnellfeuerhaltung I",
+    "fr": "Esquive de tirs rapides I"
   },
   {
     "id": 3301,
@@ -10956,7 +12654,9 @@
     "slot": "active",
     "levels": [
       63
-    ]
+    ],
+    "de": "Geistiges Auge I",
+    "fr": "Instinct de chasseur I"
   },
   {
     "id": 3302,
@@ -10966,7 +12666,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Magisches Geschoss einlegen I",
+    "fr": "Insertion du projectile magique I"
   },
   {
     "id": 3303,
@@ -10976,7 +12678,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Magisches Geschoss laden I",
+    "fr": "Chargement du projectile magique I"
   },
   {
     "id": 3304,
@@ -10994,7 +12698,9 @@
       13,
       14,
       15
-    ]
+    ],
+    "de": "Materialisierte Form der Mauer I",
+    "fr": "Forme matérialisée du mur I"
   },
   {
     "id": 3305,
@@ -11004,7 +12710,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Magieauge des Volltreffers I",
+    "fr": "Vision magique d'extrême précision I"
   },
   {
     "id": 3306,
@@ -11022,7 +12730,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Schweres Geschoss I",
+    "fr": "Projectile lourd I"
   },
   {
     "id": 3307,
@@ -11040,7 +12750,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Hemmende Salve I",
+    "fr": "Salve inhibitrice I"
   },
   {
     "id": 3312,
@@ -11058,7 +12770,9 @@
       41,
       42,
       43
-    ]
+    ],
+    "de": "Störschuss I",
+    "fr": "Tir de perturbation I"
   },
   {
     "id": 3317,
@@ -11076,7 +12790,9 @@
       15,
       16,
       17
-    ]
+    ],
+    "de": "Störbombe I",
+    "fr": "Bombe de perturbation I"
   },
   {
     "id": 3318,
@@ -11094,7 +12810,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Gezielter Flügelschuss I",
+    "fr": "Coup d'aile ciblé I"
   },
   {
     "id": 3322,
@@ -11112,7 +12830,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Kopfschuss I",
+    "fr": "Exécution sommaire I"
   },
   {
     "id": 3327,
@@ -11122,7 +12842,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Zwischen die Augen I",
+    "fr": "En plein dans le mille I"
   },
   {
     "id": 3331,
@@ -11140,7 +12862,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Seelensalve I",
+    "fr": "Salve spirituelle I"
   },
   {
     "id": 3335,
@@ -11158,7 +12882,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Wiederholtes Schnellfeuer I",
+    "fr": "Tirs rapides répétés I"
   },
   {
     "id": 3339,
@@ -11176,7 +12902,9 @@
       11,
       12,
       13
-    ]
+    ],
+    "de": "Wiederholte Salve I",
+    "fr": "Salve répétée I"
   },
   {
     "id": 3345,
@@ -11194,7 +12922,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Schwachstellenschuss I",
+    "fr": "Tir sur les points faibles I"
   },
   {
     "id": 3350,
@@ -11212,7 +12942,9 @@
       59,
       60,
       61
-    ]
+    ],
+    "de": "Entrinnen I",
+    "fr": "Echappatoire I"
   },
   {
     "id": 3351,
@@ -11230,7 +12962,9 @@
       9,
       10,
       11
-    ]
+    ],
+    "de": "Pistolenschuss I",
+    "fr": "Tir de pistolet I"
   },
   {
     "id": 3357,
@@ -11240,7 +12974,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Schnelle Salve I",
+    "fr": "Salve rapide I"
   },
   {
     "id": 3364,
@@ -11258,7 +12994,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Siegelschuss I",
+    "fr": "Tir de scellement I"
   },
   {
     "id": 3367,
@@ -11276,7 +13014,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Seelenschnellfeuer I",
+    "fr": "Tir rapide d'âme I"
   },
   {
     "id": 3370,
@@ -11294,7 +13034,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Seelenschuss I",
+    "fr": "Tir spirituel I"
   },
   {
     "id": 3375,
@@ -11312,7 +13054,9 @@
       7,
       8,
       9
-    ]
+    ],
+    "de": "Gezielter Schuss I",
+    "fr": "Tir de précision I"
   },
   {
     "id": 3381,
@@ -11330,7 +13074,9 @@
       65,
       66,
       67
-    ]
+    ],
+    "de": "Gezielter Schwachstellenschuss I",
+    "fr": "Tir ciblé sur les points faibles I"
   },
   {
     "id": 3382,
@@ -11340,7 +13086,9 @@
     "slot": "stigma",
     "levels": [
       28
-    ]
+    ],
+    "de": "Geschoss des Schweigens I",
+    "fr": "Projectile du silence I"
   },
   {
     "id": 3389,
@@ -11358,7 +13106,9 @@
       54,
       55,
       56
-    ]
+    ],
+    "de": "Geschoss des Anfalls I",
+    "fr": "Projectile saisissant I"
   },
   {
     "id": 3391,
@@ -11376,7 +13126,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Umschlingende Bombe I",
+    "fr": "Bombe empêtrante I"
   },
   {
     "id": 3392,
@@ -11386,7 +13138,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Durchdringung der Lebensader I",
+    "fr": "Pénétration de l'artère vitale I"
   },
   {
     "id": 3399,
@@ -11404,7 +13158,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Salve der Wiederherstellung I",
+    "fr": "Salve régénérante I"
   },
   {
     "id": 3400,
@@ -11422,7 +13178,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Rückzugsschuss I",
+    "fr": "Tir de retraite I"
   },
   {
     "id": 3405,
@@ -11432,7 +13190,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Schuss des Seelensaugers I",
+    "fr": "Tir d'absorption d'âme I"
   },
   {
     "id": 3410,
@@ -11450,7 +13210,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Belagerungskanone I",
+    "fr": "Canon de siège I"
   },
   {
     "id": 3419,
@@ -11460,7 +13222,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Flammenbombardement I",
+    "fr": "Bombardement de flammes I"
   },
   {
     "id": 3440,
@@ -11470,7 +13234,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Zügelungskanone I",
+    "fr": "Canon d'enracinement I"
   },
   {
     "id": 3443,
@@ -11480,7 +13246,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Kanonenkugel der Spaltung I",
+    "fr": "Boulet de canon de la fissure I"
   },
   {
     "id": 3450,
@@ -11498,7 +13266,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Magischer Kanonenschuss I",
+    "fr": "Tir de canon magique I"
   },
   {
     "id": 3455,
@@ -11516,7 +13286,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Seelenbombardement I",
+    "fr": "Bombardement d'âme I"
   },
   {
     "id": 3458,
@@ -11526,7 +13298,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Kanonenkugel der Fesselung I",
+    "fr": "Boulet de canon enracinant I"
   },
   {
     "id": 3463,
@@ -11536,7 +13310,9 @@
     "slot": "stigma",
     "levels": [
       35
-    ]
+    ],
+    "de": "Frostkanone I",
+    "fr": "Canon de glace I"
   },
   {
     "id": 3471,
@@ -11554,7 +13330,9 @@
       63,
       64,
       65
-    ]
+    ],
+    "de": "Schneegeschoss I",
+    "fr": "Boule de neige I"
   },
   {
     "id": 3472,
@@ -11572,7 +13350,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Magisches Bombardement I",
+    "fr": "Bombardement magique I"
   },
   {
     "id": 3481,
@@ -11582,7 +13362,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Seelenkanone I",
+    "fr": "Canon d'âme I"
   },
   {
     "id": 3493,
@@ -11600,7 +13382,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Gezielter Kanonenschuss I",
+    "fr": "Tir de canon ciblé I"
   },
   {
     "id": 3498,
@@ -11618,7 +13402,9 @@
       59,
       60,
       61
-    ]
+    ],
+    "de": "Kanonenkugel der Hölle I",
+    "fr": "Boulet de canon infernal I"
   },
   {
     "id": 3500,
@@ -11628,7 +13414,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Schockkanone I",
+    "fr": "Canon de choc I"
   },
   {
     "id": 3519,
@@ -11646,7 +13434,9 @@
       70,
       71,
       72
-    ]
+    ],
+    "de": "Flakbombardement I",
+    "fr": "Bombardement antiaérien I"
   },
   {
     "id": 3522,
@@ -11656,7 +13446,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Geisterkanone I",
+    "fr": "Canon fantasmagorique I"
   },
   {
     "id": 3525,
@@ -11674,7 +13466,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Feuerkanone I",
+    "fr": "Canon de feu I"
   },
   {
     "id": 3540,
@@ -11684,7 +13478,9 @@
     "slot": "stigma",
     "levels": [
       36
-    ]
+    ],
+    "de": "Kanone des Feuerteufels I",
+    "fr": "Canon du diable de feu I"
   },
   {
     "id": 3559,
@@ -11702,7 +13498,9 @@
       41,
       42,
       43
-    ]
+    ],
+    "de": "Variation der aufgestiegenen Seele I",
+    "fr": "Variation de l'ascension de l'âme I"
   },
   {
     "id": 3577,
@@ -11720,7 +13518,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Fesselnder Knall I",
+    "fr": "Claquement captivant I"
   },
   {
     "id": 3582,
@@ -11738,7 +13538,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Klinge der Provokation I",
+    "fr": "Lame de provocation I"
   },
   {
     "id": 3583,
@@ -11756,7 +13558,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Flug: Gefangenschaft I",
+    "fr": "Vol : Capture I"
   },
   {
     "id": 3584,
@@ -11774,7 +13578,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Flugdolch I",
+    "fr": "Dague de vol I"
   },
   {
     "id": 3586,
@@ -11792,7 +13598,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Schwächender Pfeil I",
+    "fr": "Flèche affaiblissante I"
   },
   {
     "id": 3587,
@@ -11802,7 +13610,9 @@
     "slot": "active",
     "levels": [
       65
-    ]
+    ],
+    "de": "Glut I",
+    "fr": "Braise I"
   },
   {
     "id": 3589,
@@ -11820,7 +13630,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Zorn der Wildnis I",
+    "fr": "Fureur de la nature sauvage I"
   },
   {
     "id": 3593,
@@ -11838,7 +13650,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Schlag der Vehemenz I",
+    "fr": "Frappe véhémente I"
   },
   {
     "id": 3594,
@@ -11856,7 +13670,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Betäubender Hammer I",
+    "fr": "Marteau étourdissant I"
   },
   {
     "id": 3595,
@@ -11874,7 +13690,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Flug: Schuss I",
+    "fr": "Vol : Tir I"
   },
   {
     "id": 3596,
@@ -11884,7 +13702,9 @@
     "slot": "active",
     "levels": [
       65
-    ]
+    ],
+    "de": "Melodie der Heiterkeit I",
+    "fr": "Mélodie joyeuse I"
   },
   {
     "id": 3597,
@@ -11894,7 +13714,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Mech rufen I",
+    "fr": "Appel de mecha I"
   },
   {
     "id": 3602,
@@ -11912,7 +13734,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Brennender Kanonenschuss I",
+    "fr": "Tir de canon ardent I"
   },
   {
     "id": 3607,
@@ -11922,7 +13746,9 @@
     "slot": "stigma",
     "levels": [
       58
-    ]
+    ],
+    "de": "Wiederholter Kanonenschuss I",
+    "fr": "Tir de canon répété I"
   },
   {
     "id": 3609,
@@ -11940,7 +13766,9 @@
       19,
       20,
       21
-    ]
+    ],
+    "de": "Welle der Abkühlung I",
+    "fr": "Vague de froid I"
   },
   {
     "id": 3614,
@@ -11950,7 +13778,9 @@
     "slot": "stigma",
     "levels": [
       34
-    ]
+    ],
+    "de": "Welle der Zerstörung I",
+    "fr": "Vague destructrice I"
   },
   {
     "id": 3620,
@@ -11968,7 +13798,9 @@
       25,
       26,
       27
-    ]
+    ],
+    "de": "Elektrischer Schock I",
+    "fr": "Choc électrique I"
   },
   {
     "id": 3624,
@@ -11986,7 +13818,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Elektrische Schlinge I",
+    "fr": "Boucle électrique I"
   },
   {
     "id": 3628,
@@ -12004,7 +13838,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Zweihandschlag I",
+    "fr": "Coup à deux mains I"
   },
   {
     "id": 3633,
@@ -12022,7 +13858,9 @@
       69,
       70,
       71
-    ]
+    ],
+    "de": "Flamme der Zerstörung I",
+    "fr": "Flamme destructrice I"
   },
   {
     "id": 3634,
@@ -12040,7 +13878,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Flammenausstoß I",
+    "fr": "Dégagement de flammes I"
   },
   {
     "id": 3637,
@@ -12058,7 +13898,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Idium-Faust I",
+    "fr": "Poing d'Idium I"
   },
   {
     "id": 3652,
@@ -12076,7 +13918,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Klingenhieb I",
+    "fr": "Frappe de lame I"
   },
   {
     "id": 3656,
@@ -12086,7 +13930,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Sturmschlag I",
+    "fr": "Tempête I"
   },
   {
     "id": 3662,
@@ -12104,7 +13950,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Schlag I",
+    "fr": "Frappe I"
   },
   {
     "id": 3667,
@@ -12122,7 +13970,9 @@
       63,
       64,
       65
-    ]
+    ],
+    "de": "Leichte Attacke I",
+    "fr": "Assaut léger I"
   },
   {
     "id": 3668,
@@ -12140,7 +13990,9 @@
       37,
       38,
       39
-    ]
+    ],
+    "de": "Schwächender Stich I",
+    "fr": "Piqûre affaiblissante I"
   },
   {
     "id": 3671,
@@ -12158,7 +14010,9 @@
       67,
       68,
       69
-    ]
+    ],
+    "de": "Starke Attacke I",
+    "fr": "Assaut puissant I"
   },
   {
     "id": 3672,
@@ -12176,7 +14030,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Wiederholter Angriff I",
+    "fr": "Attaque répétée I"
   },
   {
     "id": 3673,
@@ -12194,7 +14050,9 @@
       40,
       41,
       42
-    ]
+    ],
+    "de": "Woge des Ruhms I",
+    "fr": "Vague de gloire I"
   },
   {
     "id": 3676,
@@ -12212,7 +14070,9 @@
       58,
       59,
       60
-    ]
+    ],
+    "de": "Mana-Absorption I",
+    "fr": "Absorption de mana I"
   },
   {
     "id": 3678,
@@ -12230,7 +14090,9 @@
       66,
       67,
       68
-    ]
+    ],
+    "de": "Magieraub I",
+    "fr": "Vol de magie I"
   },
   {
     "id": 3679,
@@ -12248,7 +14110,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Blutsaugende Welle I",
+    "fr": "Vague sanguinaire I"
   },
   {
     "id": 3681,
@@ -12258,7 +14122,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Idium-Peitsche I",
+    "fr": "Fouet d'Idium I"
   },
   {
     "id": 3702,
@@ -12276,7 +14142,9 @@
       71,
       72,
       73
-    ]
+    ],
+    "de": "Idium-Strahl I",
+    "fr": "Rayon d'Idium I"
   },
   {
     "id": 3705,
@@ -12286,7 +14154,9 @@
     "slot": "stigma",
     "levels": [
       40
-    ]
+    ],
+    "de": "Idium-Bombardement I",
+    "fr": "Bombardement d'Idium I"
   },
   {
     "id": 3720,
@@ -12304,7 +14174,9 @@
       16,
       17,
       18
-    ]
+    ],
+    "de": "Provozierender Wind I",
+    "fr": "Vent de provocation I"
   },
   {
     "id": 3725,
@@ -12322,7 +14194,9 @@
       43,
       44,
       45
-    ]
+    ],
+    "de": "Konter I",
+    "fr": "Riposte I"
   },
   {
     "id": 3728,
@@ -12340,7 +14214,9 @@
       34,
       35,
       36
-    ]
+    ],
+    "de": "Luftschuss I",
+    "fr": "Coup aérien I"
   },
   {
     "id": 3732,
@@ -12350,7 +14226,9 @@
     "slot": "stigma",
     "levels": [
       25
-    ]
+    ],
+    "de": "Rüstung spalten I",
+    "fr": "Armure fendue I"
   },
   {
     "id": 3739,
@@ -12368,7 +14246,9 @@
       31,
       32,
       33
-    ]
+    ],
+    "de": "Fausthieb I",
+    "fr": "Levée de poing I"
   },
   {
     "id": 3740,
@@ -12386,7 +14266,9 @@
       54,
       55,
       56
-    ]
+    ],
+    "de": "Schmetterschlag des Schweigens I",
+    "fr": "Fracas du silence I"
   },
   {
     "id": 3742,
@@ -12404,7 +14286,9 @@
       65,
       66,
       67
-    ]
+    ],
+    "de": "Konternder Kanonenschuss I",
+    "fr": "Tir de canon de riposte I"
   },
   {
     "id": 3743,
@@ -12414,7 +14298,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Schnitt in die Lebensader I",
+    "fr": "Sectionnement de l'artère vitale I"
   },
   {
     "id": 3750,
@@ -12424,7 +14310,9 @@
     "slot": "stigma",
     "levels": [
       50
-    ]
+    ],
+    "de": "Elektrische Fessel I",
+    "fr": "Entraves électriques I"
   },
   {
     "id": 3756,
@@ -12434,7 +14322,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Meteor-Hieb I",
+    "fr": "Frappe de météore I"
   },
   {
     "id": 3760,
@@ -12452,7 +14342,9 @@
       70,
       71,
       72
-    ]
+    ],
+    "de": "Flug: Kanonenschuss I",
+    "fr": "Vol : Tir de canon I"
   },
   {
     "id": 3761,
@@ -12470,7 +14362,9 @@
       28,
       29,
       30
-    ]
+    ],
+    "de": "Sprintschlag I",
+    "fr": "Coup éclair I"
   },
   {
     "id": 3766,
@@ -12488,7 +14382,9 @@
       22,
       23,
       24
-    ]
+    ],
+    "de": "Mystischer Panzer I",
+    "fr": "Char mythique I"
   },
   {
     "id": 3771,
@@ -12498,7 +14394,9 @@
     "slot": "stigma",
     "levels": [
       55
-    ]
+    ],
+    "de": "Id-Schutzschild I",
+    "fr": "Bouclier protecteur d'Id I"
   },
   {
     "id": 3775,
@@ -12508,7 +14406,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Sofortiges Verteidigungsschild I",
+    "fr": "Bouclier de défense immédiat I"
   },
   {
     "id": 3776,
@@ -12518,7 +14418,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Mobilitätsverstärkung I",
+    "fr": "Mobilité accrue I"
   },
   {
     "id": 3779,
@@ -12528,7 +14430,9 @@
     "slot": "stigma",
     "levels": [
       45
-    ]
+    ],
+    "de": "Kampfkraftverstärkung I",
+    "fr": "Catalyseur de force de frappe I"
   },
   {
     "id": 3786,
@@ -12538,7 +14442,9 @@
     "slot": "active",
     "levels": [
       10
-    ]
+    ],
+    "de": "Durchbruch I",
+    "fr": "Percée I"
   },
   {
     "id": 3791,
@@ -12548,7 +14454,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Volle Regeneration I",
+    "fr": "Régénération totale I"
   },
   {
     "id": 3794,
@@ -12566,7 +14474,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Kanone des göttlichen Drachen I",
+    "fr": "Canon du dragon divin I"
   },
   {
     "id": 3797,
@@ -12576,7 +14486,9 @@
     "slot": "active",
     "levels": [
       13
-    ]
+    ],
+    "de": "Schnelles Vorpreschen I",
+    "fr": "Ruées rapides I"
   },
   {
     "id": 3798,
@@ -12586,7 +14498,9 @@
     "slot": "active",
     "levels": [
       37
-    ]
+    ],
+    "de": "Wiederholtes Vorpreschen I",
+    "fr": "Ruées répétées I"
   },
   {
     "id": 3799,
@@ -12596,7 +14510,9 @@
     "slot": "stigma",
     "levels": [
       37
-    ]
+    ],
+    "de": "Schnelles Aufladen I",
+    "fr": "Recharge rapide I"
   },
   {
     "id": 3804,
@@ -12606,7 +14522,9 @@
     "slot": "stigma",
     "levels": [
       62
-    ]
+    ],
+    "de": "Magische Regeneration I",
+    "fr": "Régénération magique I"
   },
   {
     "id": 3807,
@@ -12616,7 +14534,9 @@
     "slot": "stigma",
     "levels": [
       20
-    ]
+    ],
+    "de": "Magische Konzentration I",
+    "fr": "Concentration magique I"
   },
   {
     "id": 3815,
@@ -12626,7 +14546,9 @@
     "slot": "active",
     "levels": [
       31
-    ]
+    ],
+    "de": "Aktivierung der Regeneration I",
+    "fr": "Activation de la régénération I"
   },
   {
     "id": 3818,
@@ -12636,7 +14558,9 @@
     "slot": "active",
     "levels": [
       58
-    ]
+    ],
+    "de": "Notausstieg I",
+    "fr": "Issue de secours I"
   },
   {
     "id": 3819,
@@ -12646,7 +14570,9 @@
     "slot": "stigma",
     "levels": [
       54
-    ]
+    ],
+    "de": "Sensorische Verstärkung I",
+    "fr": "Renforcement sensoriel I"
   },
   {
     "id": 3821,
@@ -12656,7 +14582,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Leistungsverstärkung I",
+    "fr": "Montée en puissance I"
   },
   {
     "id": 3826,
@@ -12666,7 +14594,9 @@
     "slot": "stigma",
     "levels": [
       52
-    ]
+    ],
+    "de": "Magischer Schleier I",
+    "fr": "Voile magique I"
   },
   {
     "id": 3831,
@@ -12676,7 +14606,9 @@
     "slot": "stigma",
     "levels": [
       65
-    ]
+    ],
+    "de": "Absorbierender Reflektorschild I",
+    "fr": "Bouclier réflecteur absorbant I"
   },
   {
     "id": 3832,
@@ -12686,7 +14618,9 @@
     "slot": "active",
     "levels": [
       28
-    ]
+    ],
+    "de": "Notinstandhaltung I",
+    "fr": "Réparation d'urgence I"
   },
   {
     "id": 3833,
@@ -12696,7 +14630,9 @@
     "slot": "active",
     "levels": [
       40
-    ]
+    ],
+    "de": "Flug: Instandhaltung I",
+    "fr": "Vol : Maintenance I"
   },
   {
     "id": 3834,
@@ -12706,7 +14642,9 @@
     "slot": "active",
     "levels": [
       25
-    ]
+    ],
+    "de": "Flugzeit aufladen I",
+    "fr": "Recharge du temps de vol I"
   },
   {
     "id": 3838,
@@ -12724,7 +14662,9 @@
       48,
       49,
       50
-    ]
+    ],
+    "de": "Zornwelle I",
+    "fr": "Vague de fureur I"
   },
   {
     "id": 3840,
@@ -12742,7 +14682,9 @@
       54,
       55,
       56
-    ]
+    ],
+    "de": "Kinnhaken I",
+    "fr": "Direct au menton I"
   },
   {
     "id": 3842,
@@ -12752,7 +14694,9 @@
     "slot": "active",
     "levels": [
       53
-    ]
+    ],
+    "de": "Schützender Schleier I",
+    "fr": "Voile protecteur I"
   },
   {
     "id": 3844,
@@ -12770,7 +14714,9 @@
       46,
       47,
       48
-    ]
+    ],
+    "de": "Luftangriff I",
+    "fr": "Attaque aérienne I"
   },
   {
     "id": 3853,
@@ -12780,6 +14726,8 @@
     "slot": "active",
     "levels": [
       58
-    ]
+    ],
+    "de": "Notausstieg I",
+    "fr": "Issue de secours I"
   }
 ]

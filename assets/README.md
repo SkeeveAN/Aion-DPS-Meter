@@ -4,21 +4,41 @@ Gesammelt für die spätere UI (Skill-/Klassennamen und -Icons). Alles hier ist 
 Weiterverarbeitung, kein fertiges, verifiziertes Datenset – siehe Einschränkungen unten, bevor es
 im Meter verwendet wird.
 
-## `skills/skills_en_4x.json` + `skills/icons/`
+## `skills/skills_multilang_4x.json` + `skills/icons/`
 
-- Quelle: `https://aioncodex.com/query.php?a=skills&type=<klasse>&slot=<active|passive|stigma>&l=4x`
-  für alle 11 Klassen-Typen (`fighter, knight, assassin, ranger, wizard, elementalist, priest,
-  chanter, gunner, bard, rider`).
+- Quelle der Klassifikation (Class/Icon/Slot/Levels):
+  `https://aioncodex.com/query.php?a=skills&type=<klasse>&slot=<active|passive|stigma>&l=4x` für
+  alle 11 Klassen-Typen (`fighter, knight, assassin, ranger, wizard, elementalist, priest, chanter,
+  gunner, bard, rider`).
 - 974 eindeutige Skills, 930 Icon-Dateien (`icons/*.png`, direkt von
   `https://aioncodex.com/skills/<dateiname>` geladen).
-- **Nur Englisch.** Grund: der `/4x/`-Locale-Bucket ist eine eigenständige, versionsgebundene
-  Datenbank – sobald man auf der Seite die Sprache wechselt (de/fr/ru/…), landet man auf der
-  **aktuellen** (Live-Server-)Datenbank, nicht auf einer 4.x-Version in der jeweiligen Sprache.
-  Skill-IDs/-Namen zwischen "4.x-Snapshot" und "aktuelle Version" 1:1 zu verknüpfen wäre riskant
-  (Skills werden über die Jahre umbenannt/entfernt/neu vergeben) – deshalb wurde das bewusst NICHT
-  gemacht. Für andere Sprachen bräuchte es entweder eine sprachspezifische 4.x-Version der Seite
-  (existiert nicht) oder die Namenstabelle aus dem Client selbst (`L10N/<sprache>/...`, siehe
-  Haupt-README).
+- **Namen jetzt in drei Sprachen** (`name`=Englisch, `de`, `fr` – jeweils optional, fehlt nur für
+  Skills ohne Texttreffer): kommen aus dem Aion-Client selbst, nicht von aioncodex. Grund für den
+  Umweg: der `/4x/`-Locale-Bucket auf aioncodex.com ist eine eigenständige, versionsgebundene
+  Datenbank – sobald man dort die Sprache wechselt (de/fr/ru/…), landet man auf der **aktuellen**
+  (Live-Server-)Datenbank, nicht auf einer 4.x-Version in der jeweiligen Sprache. Skill-IDs/-Namen
+  zwischen "4.x-Snapshot" und "aktuelle Version" 1:1 zu verknüpfen wäre riskant (Skills werden über
+  die Jahre umbenannt/entfernt/neu vergeben) – deshalb weiterhin bewusst nicht gemacht.
+- **Stattdessen aus dem Client selbst extrahiert**, wie am 2026-09-09 vom Nutzer vorgeschlagen:
+  `strings/client_strings_skill.xml` (UTF-16) aus `data.pak` (ein gewöhnliches ZIP) unter
+  `<AION>/L10N/<lang>/Data/data.pak` – vorhanden für `deu`, `eng`, `fra` (weitere Sprachen wie
+  `2_xxx` enthalten nur `dialogs.pak`/`font.pak`, keine Skill-Strings). Jeder `<string>`-Eintrag
+  trägt `<id>`, einen sprachunabhängigen internen `<name>`-Key (`STR_SKILL_xxx`) und den
+  lokalisierten `<body>`-Text; `<id>`/`<name>` sind über alle drei Sprachdateien hinweg identisch
+  (stichprobenverifiziert), nur `<body>` unterscheidet sich – **das** ist also die Zuordnung
+  zwischen den drei Sprachen, nicht der numerische `id`-Wert des aioncodex-4x-Datensatzes (andere
+  Nummernkreise, s. o.).
+- **Verknüpfung mit dem aioncodex-4x-Datensatz**: über den englischen Skill-**Namen** als Text
+  (nicht über die ID) – für jeden der 974 Einträge den `<body>`-Text mit exakt gleichem `name`
+  gesucht (HTML-Entities aus dem aioncodex-Scrape vorher aufgelöst, z. B. `&#39;` -> `'`), dessen
+  `<id>` gemerkt, und darüber die deutsche/französische `<body>` derselben `<id>` aus den anderen
+  beiden Sprachdateien übernommen. **974 von 974 Einträgen (100 %) fanden einen eindeutigen
+  Treffer.** Origin Aions eigener Client-Meter (siehe Entscheidung unten) geht den entgegengesetzten
+  Weg – er leitet die Klasse direkt aus dem `<name>`-Key ab (Substring-Suche nach `_WA_`/`_SC_`/…
+  gegen eine fest kodierte Kürzel-Tabelle) statt wie hier über einen kuratierten externen Datensatz;
+  das wäre robuster gegenüber Client-Updates, wurde hier aber (noch) nicht übernommen, weil die
+  textbasierte Verknüpfung bereits 100 % Abdeckung liefert und Class/Icon/Slot/Levels ohnehin aus
+  aioncodex stammen müssen.
 - **Korrektur**: Aethertech, Songweaver und Gunslinger gehören laut Nutzer tatsächlich zum
   regulären 4.6-Umfang – `OriginAion` hat sie als privater Server gezielt deaktiviert. Das ist also
   keine Verunreinigung des `/4x/`-Buckets durch eine spätere Version, sondern korrekt für 4.6
@@ -26,8 +46,18 @@ im Meter verwendet wird.
   generell – die vollständige Klassenliste ist dafür richtig. Trotzdem bleibt der `/4x/`-Bucket
   selbst unbestätigt in Details (exakte Skill-Level/-Werte); vor produktivem Einsatz stichprobenhaft
   ein paar Skillnamen gegen einen echten 4.6-Client vergleichen.
-- Format je Skill: `{id, name, icon, class, slot, levels[]}`. `levels` sind die Charakterlevel, ab
-  denen der jeweilige Rang lernbar ist (mehrere Ranks/Level pro Skill-ID zusammengefasst).
+- Format je Skill: `{id, name, icon, class, slot, levels[], de?, fr?}`. `levels` sind die
+  Charakterlevel, ab denen der jeweilige Rang lernbar ist (mehrere Ranks/Level pro Skill-ID
+  zusammengefasst). `id`/`icon`/`class`/`slot`/`levels` bleiben aioncodex-Nummerierung, unabhängig
+  vom Client-eigenen `id`-Nummernkreis aus `client_strings_skill.xml`.
+- **Neu erzeugen** (wenn aioncodex nachzieht oder weitere Sprachen dazukommen sollen):
+  `client_strings_skill.xml` aus dem jeweiligen `L10N/<lang>/Data/data.pak` entpacken
+  (`unzip -j data.pak strings/client_strings_skill.xml`), von UTF-16 nach UTF-8 konvertieren
+  (`iconv -f UTF-16LE -t UTF-8`), `<string><id>/<body></string>`-Paare einlesen, pro Zeile aus
+  `skills_en_4x.json`-artigen Rohdaten den `name` (HTML-entity-entschärft) exakt gegen die
+  englische `<body>`-Tabelle matchen (bei fehlendem Treffer ersatzweise den in
+  `Data/SkillDatabase.cs` (`RankSuffix`-Regex `\s+[IVXLCDM]+$`) beschriebenen Rang-Suffix
+  abschneiden und erneut versuchen), dann `de`/`fr` aus der jeweils gleichen `<id>` übernehmen.
 
 ## `classes/class_names_multilang.json`
 
@@ -39,6 +69,30 @@ im Meter verwendet wird.
   "Gladiator" (en) ↔ "Gladiator" (de) ↔ "Gladiateur" (fr) ↔ "Гладиатор" (ru). Bei nur 12 Klassen
   ist das von Hand trivial und unstrittig (öffentliches Allgemeinwissen zu AION-Klassen), aber
   bewusst nicht automatisch verknüpft, um keine falsche Zuordnung als "verifiziert" auszugeben.
+
+## `i18n/ui_strings.json`
+
+- Die GUI-Übersetzungstabelle: pro Schlüssel ein Objekt `{en, de, fr, es, ru, pl, tr, zh}`,
+  geladen von `Ui/Localization.cs` (`LocalizationManager`) und über die WPF-MarkupExtension
+  `{local:Loc SchlüsselName}` in `Ui/MainWindow.xaml` und `Ui/SettingsWindow.xaml` gebunden.
+  Sprachauswahl unabhängig von der Chat.log-Sprache (siehe `ChatLog/ChatLogParser.cs`) – ein
+  deutscher Spieler kann einen englischen Client spielen oder umgekehrt.
+- **Bewusst NICHT übersetzt**: Klassen- und Fraktionsnamen (Gladiator, Elyos, …) bleiben in ihrer
+  spielkanonischen englischen Form. `classes/class_names_multilang.json` (siehe oben) ist
+  ausdrücklich NICHT index-verknüpft – eine automatische Übersetzung dieser Eigennamen wäre
+  entweder eine ungeprüfte Vermutung oder bräuchte die gleiche Handverifizierung, die dort bewusst
+  aufgeschoben wurde. Ebenso bewusst ausgelassen: die langen erklärenden ToolTip-Texte (nur
+  sichtbare Menüs/Buttons/Labels/Spaltenüberschriften sind übersetzt) – Umfang und Fehlerrisiko
+  bei ~30 langen Sätzen × 8 Sprachen stand in keinem Verhältnis zum Nutzen einer Hover-Erklärung.
+  `Ui/PlayerDatabaseWindow.xaml` und `Ui/PlayerDetailsWindow.xaml` sind ebenfalls noch nicht
+  angebunden (bleiben Englisch) – ein Folge-Schritt, keine vergessene Datei.
+- **Sprachliste identisch mit der von `ChatLogParser.cs`** (siehe dessen Klassenkommentar) – acht
+  Sprachen, nicht mehr: en/de/fr/es (aus echten Chat.log-Sessions bestätigt) plus ru/pl/tr/zh
+  (2026-09-09 aus den echten Client-Templates in `L10N/<sprache>/Data/data.pak` ergänzt, siehe
+  dort für die "ita"=Polnisch/"plk"=Russisch-Ordnernamen-Verwechslung).
+- Format je Schlüssel: `"Bereich.Name": {"en": "...", "de": "...", ...}`. Fehlt ein Schlüssel oder
+  eine Sprache darin, fällt `LocalizationManager` zuerst auf Englisch, dann auf den rohen Schlüssel
+  selbst zurück (sichtbar falsch statt leer oder abstürzend) – nie eine Ausnahme.
 
 ## Aion-Chat-Glyphen für Item-Stufen (keine Datei, Konstanten in `Ui/MainWindow.xaml.cs`)
 
@@ -135,5 +189,19 @@ und kommt erst, wenn der lokale Meter selbst funktioniert.
 
 ## Was fehlt (bewusst nicht gemacht)
 
-- Weitere Sprachen für Skillnamen (siehe Einschränkung oben – ohne Client-Datenquelle nicht
-  risikofrei möglich; myaion.eu bietet ebenfalls keine anderen Sprachen).
+- **Erledigt seit 2026-09-09**: Deutsch/Französisch für Skillnamen (siehe
+  `skills/skills_multilang_4x.json` oben) – der damals fehlende Baustein war eine
+  Client-Datenquelle, die jetzt über `L10N/<lang>/Data/data.pak` verfügbar ist.
+- **Korrektur/erledigt seit 2026-09-09**: Der Satz "kein `L10N/rus/`-Ordner gefunden" oben war
+  richtig, aber die Schlussfolgerung falsch – es gibt keinen Ordner NAMENS `rus`, aber es gibt
+  echtes Russisch: im Ordner `L10N/plk/` (der Name ist irreführend, der Inhalt ist Russisch, nicht
+  Polnisch – siehe den Abschnitt `skills/skills_multilang_4x.json` oben für die volle Geschichte
+  der `ita`/`plk`-Ordnernamen-Verwechslung). `skills_multilang_4x.json` enthält bislang trotzdem
+  nur de/fr (die beiden zuerst gebauten Sprachen) – Russisch (und Polnisch, aus dem `ita`-Ordner)
+  ließen sich mit demselben Verfahren ergänzen, wurden aber noch nicht nachgezogen; nur der
+  Chat.log-Parser (`ChatLog/ChatLogParser.cs`) und die GUI (`i18n/ui_strings.json`, siehe unten)
+  wurden bereits auf alle acht echten Sprachen erweitert.
+- Der von OriginAion selbst genutzte Ansatz, die Klasse direkt aus dem `<name>`-Key abzuleiten
+  (Kürzel-Substring-Suche wie `_WA_`/`_SC_`/… gegen eine feste Kürzel→Klassen-Tabelle, siehe
+  Abschnitt oben) – robuster gegen Client-Patches als der hier gewählte Namens-Textabgleich, aber
+  bislang nicht nötig, da Letzterer bereits 974/974 (100 %) trifft.

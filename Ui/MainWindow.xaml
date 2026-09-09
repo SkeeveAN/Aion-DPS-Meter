@@ -303,54 +303,54 @@
                      What IS real: Close, Load Demo Data, Clear sessions, and everything under
                      Settings. -->
                 <Menu DockPanel.Dock="Top" Background="#26262e" Foreground="#e8e8ea">
-                    <MenuItem Header="App" Foreground="#e8e8ea">
-                        <MenuItem Header="Load session" IsEnabled="False"/>
-                        <MenuItem Header="Save session" IsEnabled="False"/>
+                    <MenuItem Header="{local:Loc Main.MenuApp}" Foreground="#e8e8ea">
+                        <MenuItem Header="{local:Loc Main.MenuApp.LoadSession}" IsEnabled="False"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.SaveSession}" IsEnabled="False"/>
                         <Separator/>
-                        <MenuItem Header="Export session" IsEnabled="False"/>
-                        <MenuItem Header="Validate session" IsEnabled="False"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.ExportSession}" IsEnabled="False"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.ValidateSession}" IsEnabled="False"/>
                         <Separator/>
-                        <MenuItem Header="Open sessions folder" IsEnabled="False"/>
-                        <MenuItem Header="Open logs folder" IsEnabled="False"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.OpenSessionsFolder}" IsEnabled="False"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.OpenLogsFolder}" IsEnabled="False"/>
                         <Separator/>
-                        <MenuItem Header="Reset connection" IsEnabled="False"/>
-                        <MenuItem Header="Clear current view" Click="OnClearClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.ResetConnection}" IsEnabled="False"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.ClearCurrentView}" Click="OnClearClicked"/>
                         <!-- Moved out of the toolbar (found by terminal_windows: the toolbar
                              overflowed the window at its default width once Char/Hide UI grew it,
                              literally pushing Settings off-screen and unreachable) - a synthetic
                              data loader is a dev/test aid, not something reached every session. -->
-                        <MenuItem Header="Load Demo Data" Click="OnLoadDemoDataClicked"
+                        <MenuItem Header="{local:Loc Main.MenuApp.LoadDemoData}" Click="OnLoadDemoDataClicked"
                                   ToolTip="Fills the grid with synthetic data (same numbers as the selftest), for visually checking the UI without playing."/>
                         <Separator/>
-                        <MenuItem Header="Check for updates" Click="OnCheckForUpdatesClicked"/>
-                        <MenuItem Header="Start automatically with Windows" IsEnabled="False"
+                        <MenuItem Header="{local:Loc Main.MenuApp.CheckForUpdates}" Click="OnCheckForUpdatesClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.StartWithWindows}" IsEnabled="False"
                                   ToolTip="Not implemented on purpose: would write to the Windows startup registry key, a system-wide change that needs an explicit ask, not a UI-parity checkbox."/>
-                        <MenuItem Header="Minimize to system tray" IsEnabled="False"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.MinimizeToTray}" IsEnabled="False"/>
                         <Separator/>
-                        <MenuItem Header="Close" Click="OnCloseClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuApp.Close}" Click="OnCloseClicked"/>
                     </MenuItem>
-                    <MenuItem x:Name="SessionMenu" Header="Session" Foreground="#e8e8ea">
-                        <MenuItem Header="No sessions recorded yet" IsEnabled="False"/>
+                    <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="#e8e8ea">
+                        <MenuItem Header="{local:Loc Main.MenuSession.None}" IsEnabled="False"/>
                     </MenuItem>
                     <!-- Consolidated here from the App menu, per the user's request - App had
                          become a long, mixed grab-bag of session/dev/settings items; splitting
                          out everything settings-related into its own top-level dropdown (right of
                          Session) makes it a fixed, predictable place to look, rather than one more
                          entry buried among a dozen others. -->
-                    <MenuItem Header="Settings" Foreground="#e8e8ea">
-                        <MenuItem Header="App Settings" Click="OnSettingsClicked"/>
-                        <MenuItem Header="Player Database" Click="OnPlayerDatabaseClicked"
+                    <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="#e8e8ea">
+                        <MenuItem Header="{local:Loc Main.MenuSettings.AppSettings}" Click="OnSettingsClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuSettings.PlayerDatabase}" Click="OnPlayerDatabaseClicked"
                                   ToolTip="Everyone the meter has identified, with their class and faction - and where a wrongly derived faction can be corrected later."/>
-                        <MenuItem x:Name="AlwaysOnTopMenuItem" Header="Always on top" IsCheckable="True" Click="OnAlwaysOnTopClicked"/>
+                        <MenuItem x:Name="AlwaysOnTopMenuItem" Header="{local:Loc Main.MenuSettings.AlwaysOnTop}" IsCheckable="True" Click="OnAlwaysOnTopClicked"/>
                         <Separator/>
-                        <MenuItem Header="Profile Settings" IsEnabled="False"/>
-                        <MenuItem Header="Key bindings" IsEnabled="False"/>
+                        <MenuItem Header="{local:Loc Main.MenuSettings.ProfileSettings}" IsEnabled="False"/>
+                        <MenuItem Header="{local:Loc Main.MenuSettings.KeyBindings}" IsEnabled="False"/>
                     </MenuItem>
-                    <MenuItem Header="Modus" Foreground="#e8e8ea">
-                        <MenuItem x:Name="DamageModeItem" Header="Damage" IsCheckable="True" IsChecked="True" Click="OnModeClicked"/>
-                        <MenuItem x:Name="HealModeItem" Header="Heal" IsCheckable="True" Click="OnModeClicked"
+                    <MenuItem Header="{local:Loc Main.MenuMode}" Foreground="#e8e8ea">
+                        <MenuItem x:Name="DamageModeItem" Header="{local:Loc Main.ModeDamage}" IsCheckable="True" IsChecked="True" Click="OnModeClicked"/>
+                        <MenuItem x:Name="HealModeItem" Header="{local:Loc Main.ModeHeal}" IsCheckable="True" Click="OnModeClicked"
                                   ToolTip="Not implemented: SM_ATTACK_STATUS (the heal-tick packet) carries no healer/attacker field in this build's layout, so heals can't be attributed to a player - see README."/>
-                        <MenuItem x:Name="RelicModeItem" Header="Relic" IsCheckable="True" Click="OnModeClicked"
+                        <MenuItem x:Name="RelicModeItem" Header="{local:Loc Main.ModeRelic}" IsCheckable="True" Click="OnModeClicked"
                                   ToolTip="Not implemented: no relic/AP/GP packet source wired up yet."/>
                     </MenuItem>
                 </Menu>
@@ -476,7 +476,7 @@
                          raw type name. Same gap would affect a screen reader, not just test
                          tooling - explicit Name fixes both with the same one-liner. -->
                     <ComboBox x:Name="ClassFilter" SelectedIndex="0" Margin="6,0,0,0" SelectionChanged="OnClassFilterChanged">
-                        <ComboBoxItem Content="All"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
                         <ComboBoxItem Tag="Aethertech" AutomationProperties.Name="Aethertech"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Aethertech.png" Height="18" Margin="0,0,4,0"/><TextBlock Text="Aethertech" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                         <ComboBoxItem Tag="Assassin" AutomationProperties.Name="Assassin"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Assassin.png" Height="18" Margin="0,0,4,0"/><TextBlock Text="Assassin" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                         <ComboBoxItem Tag="Bard" AutomationProperties.Name="Bard"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Bard.png" Height="18" Margin="0,0,4,0"/><TextBlock Text="Bard" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
@@ -497,11 +497,11 @@
                          decode yet. -->
                     <ComboBox x:Name="SourceFilter" SelectedIndex="0" Margin="8,0,0,0"
                               ToolTip="Not wired up yet (display filter only).">
-                        <ComboBoxItem Content="All"/>
-                        <ComboBoxItem Content="Self"/>
-                        <ComboBoxItem Content="Group"/>
-                        <ComboBoxItem Content="Alliance"/>
-                        <ComboBoxItem Content="Legion"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterSelf}"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterGroup}"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterAlliance}"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterLegion}"/>
                         <ComboBoxItem Content="Elyos"/>
                         <ComboBoxItem Content="Asmodian"/>
                     </ComboBox>
@@ -510,7 +510,7 @@
                          remarks); picking one target switches DPS to true per-target iDPS. -->
                     <ComboBox x:Name="MobBossFilter" SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="8,0,0,0"
                               ToolTip="Filter by target. 'All' sums damage across every target seen.">
-                        <ComboBoxItem Content="All"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
                     </ComboBox>
                 </StackPanel>
 
@@ -528,13 +528,13 @@
                      anywhere else now - Chat.log validity is still visible in Settings'
                      AionInstallFolderStatus if that needs checking. -->
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Background="#26262e" Height="26">
-                    <TextBlock Text="Exp:" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                    <TextBlock Text="{local:Loc Main.StatExp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="8,0,4,0"/>
                     <TextBlock x:Name="ExpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
-                    <TextBlock Text="AP:" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                    <TextBlock Text="{local:Loc Main.StatAp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
                     <TextBlock x:Name="ApValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
-                    <TextBlock Text="GP:" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                    <TextBlock Text="{local:Loc Main.StatGp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
                     <TextBlock x:Name="GpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
-                    <TextBlock Text="Kinah:" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                    <TextBlock Text="{local:Loc Main.StatKinah}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
                     <TextBlock x:Name="KinahValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
 
                     <!-- Only appears once Chat.log passes the threshold. In the status row rather
@@ -564,14 +564,14 @@
                      (skill-cast order, loot events, equipment/profile packets, cross-encounter
                      instance aggregation). See README's UI-placeholders section. -->
                 <StackPanel DockPanel.Dock="Left" Background="#26262e">
-                    <Button Style="{StaticResource NavButton}" Content="Rot" ToolTip="Skill Rotation (not implemented - needs skill-cast-order tracking)" IsEnabled="False"/>
-                    <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" Content="Dmg" ToolTip="Damage Distribution" Click="OnShowDamageView" FontWeight="Bold"/>
+                    <Button Style="{StaticResource NavButton}" Content="{local:Loc Main.NavRot}" ToolTip="Skill Rotation (not implemented - needs skill-cast-order tracking)" IsEnabled="False"/>
+                    <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" Content="{local:Loc Main.NavDmg}" ToolTip="Damage Distribution" Click="OnShowDamageView" FontWeight="Bold"/>
                     <!-- Real now, per the user - "You have acquired [item:ID;...]." lines parsed
                          by ChatLogParser.LootAcquired, item names resolved via Data/ItemDatabase
                          (see assets/README.md for its aioncodex.com "/4x/" source). -->
-                    <Button x:Name="LootNavButton" Style="{StaticResource NavButton}" Content="Loot" ToolTip="Loot Table" Click="OnShowLootView"/>
-                    <Button Style="{StaticResource NavButton}" Content="Char" ToolTip="Character Profile (not implemented - needs equipment/stat packet decoding)" IsEnabled="False"/>
-                    <Button Style="{StaticResource NavButton}" Content="Inst" ToolTip="Instance Scores (not implemented - needs cross-encounter aggregation + boss detection)" IsEnabled="False"/>
+                    <Button x:Name="LootNavButton" Style="{StaticResource NavButton}" Content="{local:Loc Main.NavLoot}" ToolTip="Loot Table" Click="OnShowLootView"/>
+                    <Button Style="{StaticResource NavButton}" Content="{local:Loc Main.NavChar}" ToolTip="Character Profile (not implemented - needs equipment/stat packet decoding)" IsEnabled="False"/>
+                    <Button Style="{StaticResource NavButton}" Content="{local:Loc Main.NavInst}" ToolTip="Instance Scores (not implemented - needs cross-encounter aggregation + boss detection)" IsEnabled="False"/>
                 </StackPanel>
 
                 <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True"
@@ -630,7 +630,7 @@
                              SaveWindowGeometry) - the 179/124 defaults here match what the user
                              last resized them to, measured live by terminal_windows since a
                              manual column drag isn't saved anywhere until the window closes. -->
-                        <DataGridTemplateColumn x:Name="NameColumn" Header="Name" Width="179">
+                        <DataGridTemplateColumn x:Name="NameColumn" Header="{local:Loc Main.ColumnName}" Width="179">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -666,7 +666,7 @@
                              an unmatched class). The header still needs to say DPS vs
                              iDPS depending on the Mob/Boss filter (see OnMobBossFilterChanged,
                              unchanged logic). -->
-                        <DataGridTemplateColumn x:Name="DpsColumn" Header="Damage / DPS" Width="124">
+                        <DataGridTemplateColumn x:Name="DpsColumn" Header="{local:Loc Main.ColumnDamageDps}" Width="124">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel>
@@ -699,12 +699,12 @@
                         <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#e8e8ea"/>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Person" Binding="{Binding Person}" Width="90"/>
+                        <DataGridTextColumn Header="{local:Loc Main.ColumnPerson}" Binding="{Binding Person}" Width="90"/>
                         <!-- Colored by rarity grade, per the user ("mit Farbe") - same exact
                              colors Aion itself uses (see ItemGradeColorConverter), not a generic
                              text color. A grade-less row (id ItemDatabase has no entry for at all)
                              renders muted rather than any rarity color, since it has none. -->
-                        <DataGridTemplateColumn Header="Item" Width="200">
+                        <DataGridTemplateColumn Header="{local:Loc Main.ColumnItem}" Width="200">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding ItemName}" VerticalAlignment="Center"
@@ -712,7 +712,7 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="Qty" Binding="{Binding Quantity, StringFormat=N0}" Width="60"/>
+                        <DataGridTextColumn Header="{local:Loc Main.ColumnQty}" Binding="{Binding Quantity, StringFormat=N0}" Width="60"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>

@@ -39,6 +39,21 @@ public sealed class MeterSettings
     public string Theme { get; set; } = "Dark";
     public string FontSize { get; set; } = "Medium";
 
+    /// <summary>GUI display language, an ISO 639-1 code from LocalizationManager.SupportedLanguages
+    /// (e.g. "de"), or "" on a fresh install to mean "use whatever LocalizationManager already
+    /// auto-detected from the OS at startup, and don't overwrite it here." Independent of Chat.log's
+    /// own language (see ChatLogParser's multi-language remarks and Localization.cs) -- this is
+    /// purely which language the meter's OWN menus/buttons/labels render in.</summary>
+    public string Language { get; set; } = "";
+
+    /// <summary>Whether the meter window starts pinned above every other window, including the game
+    /// itself. Defaults to off -- per the user, existing behaviour (an ordinary window, until turned
+    /// on from the View menu's "Always on top" toggle) should not change for anyone who never asked
+    /// for this. That toggle and this setting are the same value now, not two independent switches:
+    /// checking one updates the other and saves immediately, the same save-on-change treatment
+    /// CheckForUpdates already gets, so "how I last left it" is what a fresh launch restores.</summary>
+    public bool AlwaysOnTopOnStartup { get; set; }
+
     /// <summary>MainWindow's size/position, saved on close and restored on next launch -- found
     /// necessary by the user, who resized the window and had it reset every restart. All four
     /// null (fresh install / older settings file) means "use the XAML default", not "0x0 at the

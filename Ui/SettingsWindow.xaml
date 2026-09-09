@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AionSniffer.Ui"
-        Title="User Settings" Height="600" Width="440"
+        Title="{local:Loc Settings.WindowTitle}" Height="600" Width="440"
         Background="#1e1e24" WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
@@ -180,8 +180,8 @@
 
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Save" Click="OnSaveClicked"/>
-            <Button Content="Cancel" Click="OnCancelClicked"/>
+            <Button Content="{local:Loc Settings.Save}" Click="OnSaveClicked"/>
+            <Button Content="{local:Loc Settings.Cancel}" Click="OnCancelClicked"/>
         </StackPanel>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -194,14 +194,14 @@
                      everything else depends on it. Moved to be first, per
                      the user's requested section order (Aion Installation / Your Characters /
                      Targets List / User Interface). -->
-                <GroupBox Header="Aion Installation">
+                <GroupBox Header="{local:Loc Settings.AionInstallation}">
                     <StackPanel>
-                        <TextBlock Text="Folder: select the Aion install ROOT (the folder containing Chat.log)"
+                        <TextBlock Text="{local:Loc Settings.FolderHint}"
                                    TextWrapping="Wrap" Margin="4,2"/>
                         <StackPanel Orientation="Horizontal">
                             <TextBox x:Name="AionInstallFolderBox" Width="260" IsReadOnly="True"
                                      Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45" Margin="4,2"/>
-                            <Button Content="Select Folder..." Click="OnSelectAionFolderClicked"/>
+                            <Button Content="{local:Loc Settings.SelectFolder}" Click="OnSelectAionFolderClicked"/>
                         </StackPanel>
                         <TextBlock x:Name="AionInstallFolderStatus" Margin="4,2" TextWrapping="Wrap" FontStyle="Italic"/>
                     </StackPanel>
@@ -215,7 +215,7 @@
                      weisst welchen Namen du eintragen musst"). Class is stored alongside the name
                      so the Players grid can finally show something other than "?" for the local
                      player, which Chat.log can't supply either. -->
-                <GroupBox Header="Your Characters">
+                <GroupBox Header="{local:Loc Settings.YourCharacters}">
                     <StackPanel>
                         <ListBox x:Name="CharactersList" Height="90" SelectionMode="Single"
                                  SelectionChanged="OnCharacterSelected">
@@ -277,11 +277,11 @@
                             </ComboBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
-                            <Button Content="Add" Click="OnAddCharacterClicked" Width="70" Margin="0,0,6,0"
+                            <Button Content="{local:Loc Settings.Add}" Click="OnAddCharacterClicked" Width="70" Margin="0,0,6,0"
                                     ToolTip="Registers the name above as a new character."/>
-                            <Button Content="Update" Click="OnUpdateCharacterClicked" Width="70" Margin="0,0,6,0"
+                            <Button Content="{local:Loc Settings.Update}" Click="OnUpdateCharacterClicked" Width="70" Margin="0,0,6,0"
                                     ToolTip="Applies the fields above to the character selected in the list - including renaming it."/>
-                            <Button Content="Remove" Click="OnRemoveCharacterClicked" Width="70"
+                            <Button Content="{local:Loc Settings.Remove}" Click="OnRemoveCharacterClicked" Width="70"
                                     ToolTip="Deletes the character selected in the list."/>
                         </StackPanel>
                         <!-- Per the user: running two Aion clients at once with two registered
@@ -292,10 +292,10 @@
                              freezes ActiveCharacterName at whatever's picked below, changeable any
                              time by coming back here (per the user, "später möchte ich mich vllt.
                              umentscheiden"). -->
-                        <CheckBox x:Name="AutoDetectActiveCharacterBox" Content="Auto-detect active character from skills used"
+                        <CheckBox x:Name="AutoDetectActiveCharacterBox" Content="{local:Loc Settings.AutoDetectActiveCharacter}"
                                   Margin="4,8,4,0" Checked="OnAutoDetectActiveCharacterChanged" Unchecked="OnAutoDetectActiveCharacterChanged"/>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="Active character:" VerticalAlignment="Center" Margin="4,0"/>
+                            <TextBlock Text="{local:Loc Settings.ActiveCharacter}" VerticalAlignment="Center" Margin="4,0"/>
                             <ComboBox x:Name="ActiveCharacterBox" Width="150"/>
                         </StackPanel>
                     </StackPanel>
@@ -312,41 +312,55 @@
                      MyAion's Loot Table, Kinah tracking, Auto-upload, or Donation Goal sections
                      for the same reason: an inert checkbox that looks functional but does nothing
                      is worse than no checkbox at all. -->
-                <GroupBox Header="Targets List (which ranks are shown at all)">
+                <GroupBox Header="{local:Loc Settings.TargetsList}">
                     <StackPanel>
-                        <CheckBox x:Name="ShowPlayersBox" Content="Display players"/>
-                        <CheckBox x:Name="ShowMinionNpcsBox" Content="Display minion NPCs (servants, summons, energies)"/>
-                        <CheckBox x:Name="ShowCommonNpcsBox" Content="Display common NPCs"/>
-                        <CheckBox x:Name="ShowEliteNpcsBox" Content="Display elite NPCs"/>
-                        <CheckBox x:Name="ShowHeroicNpcsBox" Content="Display heroic NPCs"/>
-                        <CheckBox x:Name="ShowLegendaryNpcsBox" Content="Display legendary NPCs"/>
+                        <CheckBox x:Name="ShowPlayersBox" Content="{local:Loc Settings.ShowPlayers}"/>
+                        <CheckBox x:Name="ShowMinionNpcsBox" Content="{local:Loc Settings.ShowMinionNpcs}"/>
+                        <CheckBox x:Name="ShowCommonNpcsBox" Content="{local:Loc Settings.ShowCommonNpcs}"/>
+                        <CheckBox x:Name="ShowEliteNpcsBox" Content="{local:Loc Settings.ShowEliteNpcs}"/>
+                        <CheckBox x:Name="ShowHeroicNpcsBox" Content="{local:Loc Settings.ShowHeroicNpcs}"/>
+                        <CheckBox x:Name="ShowLegendaryNpcsBox" Content="{local:Loc Settings.ShowLegendaryNpcs}"/>
                     </StackPanel>
                 </GroupBox>
 
-                <GroupBox Header="User Interface">
+                <GroupBox Header="{local:Loc Settings.UserInterface}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Theme:" VerticalAlignment="Center" Width="80"/>
+                            <TextBlock Text="{local:Loc Settings.Theme}" VerticalAlignment="Center" Width="80"/>
                             <ComboBox x:Name="ThemeBox" Width="150">
-                                <ComboBoxItem Content="Dark"/>
-                                <ComboBoxItem Content="Light"/>
+                                <ComboBoxItem Content="{local:Loc Settings.ThemeDark}" Tag="Dark"/>
+                                <ComboBoxItem Content="{local:Loc Settings.ThemeLight}" Tag="Light"/>
                             </ComboBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Font Size:" VerticalAlignment="Center" Width="80"/>
+                            <TextBlock Text="{local:Loc Settings.FontSize}" VerticalAlignment="Center" Width="80"/>
                             <ComboBox x:Name="FontSizeBox" Width="150">
-                                <ComboBoxItem Content="Small"/>
-                                <ComboBoxItem Content="Medium"/>
-                                <ComboBoxItem Content="Large"/>
+                                <ComboBoxItem Content="{local:Loc Settings.SizeSmall}" Tag="Small"/>
+                                <ComboBoxItem Content="{local:Loc Settings.SizeMedium}" Tag="Medium"/>
+                                <ComboBoxItem Content="{local:Loc Settings.SizeLarge}" Tag="Large"/>
                             </ComboBox>
                         </StackPanel>
+                        <!-- Items generated in code-behind (see SettingsWindow's constructor) from
+                             LocalizationManager.SupportedLanguages, rather than eight hardcoded
+                             ComboBoxItems here: one list, not two that could drift apart. Changes
+                             LocalizationManager.Instance.Language immediately on selection (see
+                             OnLanguageChanged), so every open window's {local:Loc ...} bindings
+                             repaint right away instead of only after Save. -->
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{local:Loc Settings.Language}" VerticalAlignment="Center" Width="80"/>
+                            <ComboBox x:Name="LanguageBox" Width="150" SelectionChanged="OnLanguageChanged"/>
+                        </StackPanel>
+                        <!-- Same value as the View menu's "Always on top" toggle: see
+                             MeterSettings.AlwaysOnTopOnStartup's remarks for why this is one
+                             setting reachable two ways, not two independent switches. -->
+                        <CheckBox x:Name="AlwaysOnTopBox" Content="{local:Loc Settings.AlwaysOnTop}"/>
                     </StackPanel>
                 </GroupBox>
 
                 <!-- The meter's only outbound network call, so it gets a real switch rather than
                      being an invisible background behaviour. See MeterSettings.CheckForUpdates. -->
-                <GroupBox Header="Updates">
-                    <CheckBox x:Name="CheckForUpdatesBox" Content="Check GitHub for new versions (at startup and every 5 minutes)"
+                <GroupBox Header="{local:Loc Settings.Updates}">
+                    <CheckBox x:Name="CheckForUpdatesBox" Content="{local:Loc Settings.CheckForUpdates}"
                               ToolTip="The only thing this program ever sends anywhere. Turn it off and nothing leaves your machine; 'Check for updates' in the App menu still works when you ask for it."/>
                 </GroupBox>
 

@@ -48,28 +48,43 @@ namespace AionSniffer.ChatLog;
 ///   "Naduka...inflicted 460 damage AND the rune carve effect on..." (compound-effect phrasing,
 ///     &lt;0.2% of lines -- different literal structure around "on", not worth a second branch for)
 ///
-/// Multi-language support (German/French/Russian): per the user's explicit instruction ("Alle vier
-/// bauen (EN/DE/FR/RU), best-effort") this parser also tries German, French, and Russian sentence
-/// shapes for every line the English patterns above don't match. UNLIKE the English patterns,
-/// these three are NOT validated against any real Chat.log -- no non-English sample has ever been
-/// seen. They were written from general language knowledge, mirroring the English patterns'
-/// sentence shapes and capture-group names one-for-one so the same dispatch logic
-/// (TryParseWithPatternSet) can run all four languages without duplicating the attribution rules.
-/// Confirmed real (via aioncodex.com's own localized skill/item query buckets, byte-size-diffed
-/// against each other) that Aion is genuinely localized into exactly these three languages besides
-/// English -- other tested locale codes (es/it/pl/tr/us) all silently fall back to one identical
-/// default response, i.e. not real localizations. That only proves the DATA exists in four
-/// languages, not that these specific SENTENCES are phrased the way this file guesses.
-/// Confidence, highest to lowest: German (native-adjacent grammar knowledge) > French > Russian.
-/// Russian carries an extra, structural risk beyond just "wrong words": Aion's real sentences would
-/// grammatically gender-agree past-tense verbs with the (unknown, per-line) grammatical gender of
-/// whoever performed the action -- these patterns therefore accept multiple gender endings
-/// (masculine/feminine/neuter) wherever that applies, but the exact endings Aion's own localizers
-/// chose, and whether foreign character names decline in the way assumed here, are both unverified.
-/// A real non-English Chat.log sample would let all of this move from "best-effort" to "confirmed"
-/// the same way the English patterns already are -- until then, expect these three to under-match
-/// (miss real lines) more than to mis-match (attribute a line wrongly); the patterns are written
-/// tight (anchored start/end) specifically to fail closed rather than guess.
+/// Multi-language support (German/French/Spanish/Russian/Polish/Turkish/Chinese): this parser also
+/// tries seven non-English sentence shapes for every line the English patterns above don't match,
+/// dispatched generically by TryParseWithPatternSet over one DamageHealPatternSet per language, all
+/// sharing English's capture-group names.
+///
+/// Two different sources feed these, with correspondingly different confidence:
+///
+/// German, French, Spanish -- CONFIRMED against real Chat.log lines a played session actually
+/// produced (see each language's own block below for the verbatim examples and what they corrected
+/// versus the original guess).
+///
+/// Russian, Polish, Turkish, Chinese -- CONFIRMED FROM CLIENT TEMPLATE, not (yet) from a played
+/// session: on 2026-09-09 the user pointed out that `L10N/&lt;lang&gt;/Data/data.pak` inside a real
+/// OriginAion install is a plain ZIP holding `strings/client_strings_msg.xml`, the client's own
+/// combat-message string table -- the exact source that generates every Chat.log line, in every
+/// language the client supports, complete with the %-placeholders that become the capture groups
+/// below. That is a stronger source than "general language knowledge" (what produced the original
+/// Russian guess this file used to carry, now replaced) but still not the same as a real played
+/// line: it proves the SENTENCE SHAPE, not that a real session won't turn up a variant this file
+/// hasn't seen, or a number-formatting convention different from the "." thousands separator
+/// English/German/French/Spanish share (assumed, not independently confirmed, for these four).
+///
+/// Two folder-name traps found along the way, corrected here rather than left for the next person
+/// to rediscover: `L10N/ita/` is NOT Italian -- its content is genuinely Polish -- and `L10N/plk/`
+/// is NOT Polish -- its content is genuinely Russian. The private server evidently swapped which
+/// folder each language's download populates without renaming the folders themselves; the
+/// OriginAion launcher's own language picker still lists "Polski" and "Русский" as two correct,
+/// separate options, confirming both are real rather than one being a mislabeled copy of the other.
+/// There is no genuinely Italian string table anywhere in this install -- no Italian support was
+/// added as a result, rather than inventing grammar with no source at all. See assets/README.md and
+/// the per-language READMEs for the full story.
+///
+/// Confidence, highest to lowest: German (confirmed real, native-adjacent grammar) > French/Spanish
+/// (confirmed real) > Russian/Polish/Turkish/Chinese (confirmed template, unplayed). Expect the
+/// last four to under-match (miss a real variant) more than to mis-match (attribute a line
+/// wrongly) -- every pattern here, old and new, is written tight (anchored start/end) specifically
+/// to fail closed rather than guess.
 /// </summary>
 public sealed partial class ChatLogParser
 {
@@ -466,37 +481,299 @@ public sealed partial class ChatLogParser
     private static partial Regex HealSelfPatternEs();
 
     // ===================================================================================
-    // Russian (RU) -- BEST-EFFORT, UNVALIDATED, HIGHEST RISK. See class remarks for why: past-
-    // tense verbs here grammatically agree with the actor's gender, which this parser cannot know
-    // per line, so every such verb is written with alternated masculine/feminine/(neuter) endings
-    // to at least not fail-closed on that alone. Whether Aion's real Russian client phrases these
-    // sentences this way at all -- word choice, case endings on foreign character names -- is
-    // simply unverified; treat this block as the weakest guess in the file.
+    // Russian (RU) -- CONFIRMED FROM CLIENT TEMPLATE, not yet validated against a real played
+    // session. Superseded 2026-09-09: the OLD guessed block above (past-tense verbs, gender
+    // alternation) turned out to be systematically wrong once a real source was found -- see
+    // below -- and has been replaced outright rather than kept as a second fallback.
+    //
+    // Source: `strings/client_strings_msg.xml` inside `L10N/plk/Data/data.pak` of a real OriginAion
+    // install. Despite the "plk" folder name, its content is Russian, not Polish -- confirmed
+    // beyond doubt by "Критический удар!" and "ед. урона" throughout, and by the OriginAion
+    // launcher's own language picker (screenshotted by the user) listing "Polski" and "Русский" as
+    // two DIFFERENT, both-real options -- the private server evidently swapped which folder each
+    // download populates without renaming the folders themselves. See assets/README.md and
+    // README.ru.md for the full story; the genuinely-Polish content lives one folder over, in "ita"
+    // (see the Polish block below).
+    //
+    // This is a template, not a played line -- id/name/body straight from the client's own string
+    // table, the same mechanism that produces the literal Chat.log text, just not yet cross-checked
+    // against a real session the way English/German/French/Spanish were. Two things it already
+    // proves wrong about the old guess: verbs are PRESENT tense throughout ("наносит"/"получает"/
+    // "восстанавливает"), not past tense, and there is no gender alternation anywhere in these
+    // templates -- the past-tense-gender-agreement risk the old block's comment warned about
+    // simply doesn't arise because Aion's Russian client never phrases these sentences in the past
+    // tense to begin with.
+    //
+    // Confirmed template bodies (id, %-placeholders substituted with this file's group names):
+    //   1200000 "Вы нанесли {amount} ед. урона цели {target}."                    (self, no skill)
+    //   1200001 "Критический удар! Вы нанесли {amount} ед. критического урона цели {target}."
+    //   1200002 "{attacker} наносит {amount} ед. урона цели {target}."            (third person)
+    //   1200003 "Критический удар! {attacker} наносит {amount} ед. критического урона цели {target}."
+    //   1200489 "{skill}: {target} получает {amount} ед. урона."                  (self, skill-named --
+    //     structurally its own sentence, not an optional clause on the shape above; no word for
+    //     "you" at all, folded into DamagePatternRu as a third alternative)
+    //   1210006 "{attacker} наносит вам {amount} ед. урона."                      (received, on you)
+    //   1210007 "Критический удар! {attacker} наносит вам {amount} ед. урона критической атакой."
+    //     (note: the crit MARKER moves to the tail here, "критической атакой" instead of
+    //     "критического" before "урона" like every other crit line -- confirmed as-is, not
+    //     normalized away, in case a real line needs exactly this shape)
+    //   1200642 "{attacker} использует: {skill}. Вы получаете {amount} ед. урона."  (received, skill-named)
+    //   1200370 "{skill}: вы восстанавливаете {amount} HP."                       (self-heal, skill-named;
+    //     no bare/no-skill self-heal template found, so -- unlike every other language here -- the
+    //     skill clause is NOT optional for Russian; a skill-less self-heal line is a documented gap)
+    //   1200523 "{skill}: {target} восстанавливает {amount} HP."                  (heal other)
+    //   1200676 "{healer} использует: {skill}. Вы восстанавливаете {amount} HP."  (healed BY other, on you)
+    //   1200982 "{healer} использует: {skill}. {target} восстанавливает {amount} HP." (healed BY other, third person)
+    //   1300396 "Получено: {tag}."                                                (loot, you -- passive,
+    //     genuinely no subject word at all, unlike every other language's loot line)
+    //   1390001 "{subject} получает: {tag}."                                      (loot, someone else)
+    // No template found for Reflected, or for a DoT tick with a named caster -- left as an honest
+    // gap (Reflected literally cannot match; DotAttributedToYou duplicates InflictedOnYou, which is
+    // never uniquely reached since InflictedOnYou is tried first) rather than inventing wording this
+    // file has no source for, unlike the discarded guess this block replaces.
     // ===================================================================================
 
-    [GeneratedRegex(@"^(?:Критический удар!\s?)?Твоя атака на (?<attacker>.+) была отражена и нанесла тебе (?<amount>[\d.]+) урона\.$")]
+    [GeneratedRegex(@"(?!)")]
     private static partial Regex ReflectedDamagePatternRu();
 
-    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?<attacker>.+) нан(?:ёс|есла|есло) (?<target>.+?) (?<amount>[\d.]+)(?: критического)? урона(?: используя (?<skill>.+)| .+)?\.$")]
+    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?:(?<attacker>Вы|.+?) (?:нанесли|наносит) (?<amount>[\d.]+) ед\.(?: критического)? урона цели (?<target>.+)|(?<skill>.+?): (?<target>.+?) получает (?<amount>[\d.]+) ед\. урона)\.$")]
     private static partial Regex DamagePatternRu();
 
-    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?<attacker>.+) нан(?:ёс|есла|есло) тебе (?<amount>[\d.]+) урона(?: используя .+)?\.$")]
+    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?:(?<attacker>.+?) наносит вам (?<amount>[\d.]+) ед\.(?: критического)? урона(?: критической атакой)?|(?<attacker>.+?) использует: (?<skill>.+?)\. Вы получаете (?<amount>[\d.]+) ед\. урона)\.$")]
     private static partial Regex DamageInflictedOnYouPatternRu();
 
-    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?<target>.+) получил(?:а|о)? (?<amount>[\d.]+) урона от (?<attacker>.+)\.$")]
+    // No confirmed third-party-target ("pet receives damage") template, unlike English's -- this
+    // duplicates InflictedOnYou as a harmless, never-uniquely-firing placeholder (InflictedOnYou is
+    // tried first in TryParseWithPatternSet and already matches everything this shape would).
+    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?:(?<attacker>.+?) наносит вам (?<amount>[\d.]+) ед\.(?: критического)? урона(?: критической атакой)?|(?<attacker>.+?) использует: (?<skill>.+?)\. Вы получаете (?<amount>[\d.]+) ед\. урона)\.$")]
     private static partial Regex DamageReceivedPatternRu();
 
-    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?<target>.+) получил(?:а|о)? (?<amount>[\d.]+)(?: \S+)? урона после того, как ты использовал(?:а)? (?<skill>.+)\.$")]
+    [GeneratedRegex(@"^(?:Критический удар!\s?)?(?:(?<attacker>.+?) наносит вам (?<amount>[\d.]+) ед\.(?: критического)? урона(?: критической атакой)?|(?<attacker>.+?) использует: (?<skill>.+?)\. Вы получаете (?<amount>[\d.]+) ед\. урона)\.$")]
     private static partial Regex DotDamageAttributedToYouPatternRu();
 
-    [GeneratedRegex(@"^Ты восстановил(?:а)? (?<target>.+) (?<amount>[\d.]+) ОЗ, используя (?<skill>.+)\.$")]
+    // "skill"/"target" exclude periods deliberately: without that, this pattern's lazy groups
+    // happily swallow a WHOLE HealByOther line too ("Кодзима использует: Свет исцеления. Манекен
+    // восстанавливает 180 HP." -- "skill" absorbing "Кодзима использует" up to the first colon,
+    // "target" absorbing "Свет исцеления. Манекен" up to " восстанавливает", the mid-sentence
+    // period and all), stealing it from HealByOtherPatternRu below (tried later in
+    // TryParseWithPatternSet) and misattributing the heal to You with a garbled target name.
+    // Found by this file's own template-derived selftest, not a real log.
+    [GeneratedRegex(@"^(?<skill>[^.]+?): (?<target>[^.]+?) восстанавливает (?<amount>[\d.]+) HP\.$")]
     private static partial Regex HealOtherPatternRu();
 
-    [GeneratedRegex(@"^(?<target>.+) восстановил(?:а|о)? (?<amount>[\d.]+) ОЗ, потому что (?<healer>.+) использовал(?:а|о)? .+?\.$")]
+    [GeneratedRegex(@"^(?<healer>[^.]+?) использует: (?<skill>[^.]+?)\. (?<target>Вы|[^.]+?) восстанавлива(?:ете|ет) (?<amount>[\d.]+) HP\.$")]
     private static partial Regex HealByOtherPatternRu();
 
-    [GeneratedRegex(@"^(?<who>.+) восстановил(?:а|о)? (?<amount>[\d.]+) ОЗ(?: используя (?<skill>.+))?\.$")]
+    // No confirmed skill-less self-heal template (see remarks above) -- the skill clause is
+    // required, not optional, unlike every other language's HealSelf here.
+    [GeneratedRegex(@"^(?<skill>[^.]+?): (?<who>вы) восстанавливаете (?<amount>[\d.]+) HP\.$")]
     private static partial Regex HealSelfPatternRu();
+
+    // ===================================================================================
+    // Polish (PL) -- CONFIRMED FROM CLIENT TEMPLATE, not yet validated against a real played
+    // session. New language, not present before 2026-09-09. Source: `client_strings_msg.xml`
+    // inside `L10N/ita/Data/data.pak` -- despite the "ita" folder name, its content is Polish
+    // ("Trafienie krytyczne!", "obrażeń" throughout), not Italian; there is no genuinely Italian
+    // client string table anywhere in this OriginAion install (see the Russian remarks above for
+    // the matching plk/Русский swap, and assets/README.md for the full story). No real Italian
+    // support exists here as a result -- adding one would mean inventing grammar with zero source,
+    // exactly what this file's rewrite was meant to stop doing.
+    //
+    // Notable grammar: third-person lines use "Postać X" (lit. "the character X") as the subject,
+    // and "postać" is a grammatically FEMININE noun in Polish -- so every third-person verb below
+    // agrees with THAT word, not with the real gender of whoever X is, and needs no alternation at
+    // all. Only the SELF ("you") forms are genuinely gendered, and the client marks exactly where:
+    // its own templates carry an explicit `[f:"..."]` masculine/feminine alternative right in the
+    // string (e.g. "przywróciłeś[f:\"przywróciłaś\"]"), which is what the alternations below are
+    // built from -- not guessed endings. Several self-shapes (self damage, self-heal's subject, the
+    // self branch of skill-named self-damage) have no subject word at all, Polish being pro-drop for
+    // "you" the way Russian's skill-named lines are -- those alternatives simply don't declare an
+    // "attacker"/"who" group, which .NET regex resolves as an unmatched (empty-string) capture; ""
+    // is added to this pattern set's LocalPlayerLiterals so that empty capture still canonicalizes
+    // to the local player, the same mechanism German/French/Spanish/Russian use for their own
+    // formal-pronoun literals.
+    //
+    // Confirmed template bodies used below:
+    //   1200000 "{target} doznaje {amount} obr."                                 (self, no skill)
+    //   1200001 "Trafienie krytyczne! {target} doznaje {amount} obr. kryt."
+    //   1200002 "Postać {attacker} zadała {target} {amount} obrażeń."            (third person)
+    //   1200003 "Trafienie krytyczne! Postać {attacker} zadała {target} {amount} obrażeń."
+    //   1210006 "Postać {attacker} zadała ci {amount} obrażeń."                  (received, on you)
+    //   1210007 "Trafienie krytyczne! Postać {attacker} zadała ci {amount} obrażeń."
+    //   1200642 "Postać {attacker} zadała ci {amount} obrażeń używając umiejętności {skill}."
+    //   1200489 "{target} doznaje {amount} obr. wskutek użycia umiejętności {skill}" (self, skill-named
+    //     other -- note NO trailing period in this specific template, confirmed as-is)
+    //   1200370 "Używając umiejętności {skill}, przywróciłeś[f:\"przywróciłaś\"] {amount} PŻ."
+    //   1200523 "Postać {target} przywróciła {amount} PŻ, ponieważ użyłeś[f:\"użyłaś\"] umiejętności {skill}."
+    //   1200676 "Przywróciłeś[f:\"Przywróciłaś\"] {amount} PŻ, ponieważ postać {healer} użyła umiejętności {skill}."
+    //   1200982 "Postać {target} przywróciła {amount} PŻ, ponieważ postać {healer} użyła umiejętności {skill}."
+    //   1300396 "Otrzymałeś[f:\"Otrzymałaś\"] {tag}."                            (loot, you)
+    //   1390001 "{subject} otrzymał {tag}."                                      (loot, someone else)
+    // No template found for Reflected -- left as an honest gap, same reasoning as Russian above.
+    // ===================================================================================
+
+    [GeneratedRegex(@"(?!)")]
+    private static partial Regex ReflectedDamagePatternPl();
+
+    // Note the self branch's OWN trailing period: "obr."/"kryt." are already-abbreviated words
+    // that end in a period of their own, doing double duty as the sentence terminator -- unlike
+    // "obrażeń" in the third-person branch, which is a full word with a SEPARATE sentence-ending
+    // period after it. An earlier version of this pattern required a second, non-existent period
+    // after "obr."/"kryt." and silently matched nothing for the self shape as a result.
+    [GeneratedRegex(@"^(?:Trafienie krytyczne!\s?)?(?:(?<target>.+) doznaje (?<amount>[\d.]+) obr\.(?: kryt\.)?|Postać (?<attacker>.+) zadała (?<target>.+) (?<amount>[\d.]+) obrażeń\.)$")]
+    private static partial Regex DamagePatternPl();
+
+    [GeneratedRegex(@"^(?:Trafienie krytyczne!\s?)?Postać (?<attacker>.+) zadała ci (?<amount>[\d.]+) obrażeń(?: używając umiejętności (?<skill>.+))?\.$")]
+    private static partial Regex DamageInflictedOnYouPatternPl();
+
+    // No confirmed third-party-target template -- duplicates InflictedOnYou as a harmless,
+    // never-uniquely-firing placeholder, same reasoning as Russian's Received above.
+    [GeneratedRegex(@"^(?:Trafienie krytyczne!\s?)?Postać (?<attacker>.+) zadała ci (?<amount>[\d.]+) obrażeń(?: używając umiejętności (?<skill>.+))?\.$")]
+    private static partial Regex DamageReceivedPatternPl();
+
+    [GeneratedRegex(@"^(?:Trafienie krytyczne!\s?)?Postać (?<attacker>.+) zadała ci (?<amount>[\d.]+) obrażeń(?: używając umiejętności (?<skill>.+))?\.$")]
+    private static partial Regex DotDamageAttributedToYouPatternPl();
+
+    [GeneratedRegex(@"^Postać (?<target>.+) przywróciła (?<amount>[\d.]+) PŻ, ponieważ (?:użyłeś|użyłaś) umiejętności (?<skill>.+)\.$")]
+    private static partial Regex HealOtherPatternPl();
+
+    [GeneratedRegex(@"^(?:(?:Przywróciłeś|Przywróciłaś) (?<amount>[\d.]+) PŻ, ponieważ postać (?<healer>.+) użyła|Postać (?<target>.+) przywróciła (?<amount>[\d.]+) PŻ, ponieważ postać (?<healer>.+) użyła) umiejętności (?<skill>.+)\.$")]
+    private static partial Regex HealByOtherPatternPl();
+
+    [GeneratedRegex(@"^(?:Używając umiejętności (?<skill>.+), )?(?:przywróciłeś|przywróciłaś) (?<amount>[\d.]+) PŻ\.$")]
+    private static partial Regex HealSelfPatternPl();
+
+    // ===================================================================================
+    // Turkish (TR) -- CONFIRMED FROM CLIENT TEMPLATE, not yet validated against a real played
+    // session. New language, not present before 2026-09-09. Source: `client_strings_msg.xml`
+    // inside `L10N/trk/Data/data.pak` -- this folder's content genuinely IS Turkish, unlike the
+    // ita/plk swap documented above.
+    //
+    // Turkish is pro-drop like Polish/Russian's skill-named lines: "you" is carried entirely by the
+    // verb suffix ("kazandın" = you gained, "kazandı" = [someone] gained), never a separate word, so
+    // the self-heal shape declares no "who" group at all and relies on the same empty-capture ->
+    // LocalPlayerLiterals("") canonicalization described in the Polish remarks above.
+    //
+    // Confirmed template bodies used below:
+    //   1200000 "{target} öğesine {amount} hasar verdin."                       (self, no skill)
+    //   1200001 "Kritik isabet! {target} oyuncusuna {amount} kritik hasar verdin." (different noun
+    //     for "target" than the non-crit line above -- "öğesine" vs "oyuncusuna" -- both accepted)
+    //   1200002 "{target}, {attacker} tarafından {amount} hasara uğratıldı."    (third person, passive:
+    //     target named FIRST, attacker second via "tarafından" = "by")
+    //   1200003 "Kritik isabet! {target}, {attacker} tarafından {amount} hasara uğratıldı."
+    //   1210006 "{attacker}, sana {amount} hasar verdi."                        (received, on you)
+    //   1210007 "Kritik isabet! {attacker}, sana {amount} hasar verdi."
+    //   1200642 "{attacker}, {skill} becerisini kullanarak sana {amount} hasar verdi." (received, skill-named)
+    //   1200489 "{skill} becerisini kullandığın için {target} hedefine {amount} hasar verdin." (self, skill-named)
+    //   1200370 "{skill} becerisi ile yeniden {amount} İP kazandın."             (self-heal, no subject word)
+    //   1200523 "{target}, {skill} becerisini kullandığın için yeniden {amount} İP kazandı." (heal other)
+    //   1200676 "{healer}, {skill} becerisini kullandığı için yeniden {amount} İP kazandın." (healed BY other, on you)
+    //   1200982 "{healer}, {skill} becerisini kullandığı için {target} yeniden {amount} İP kazandı." (healed BY other, third person)
+    //   1300396 "{tag} aldın."                                                  (loot, you)
+    //   1390001 "{subject}, {tag} aldı."                                        (loot, someone else)
+    // No template found for Reflected -- left as an honest gap, same reasoning as Russian above.
+    // ===================================================================================
+
+    [GeneratedRegex(@"(?!)")]
+    private static partial Regex ReflectedDamagePatternTr();
+
+    [GeneratedRegex(@"^(?:Kritik isabet!\s?)?(?:(?<target>.+) (?:öğesine|oyuncusuna) (?<amount>[\d.]+)(?: kritik)? hasar verdin|(?<target>.+), (?<attacker>.+) tarafından (?<amount>[\d.]+) hasara uğratıldı)\.$")]
+    private static partial Regex DamagePatternTr();
+
+    [GeneratedRegex(@"^(?:Kritik isabet!\s?)?(?<attacker>.+?), (?:(?<skill>.+?) becerisini kullanarak )?sana (?<amount>[\d.]+) hasar verdi\.$")]
+    private static partial Regex DamageInflictedOnYouPatternTr();
+
+    [GeneratedRegex(@"^(?:Kritik isabet!\s?)?(?<attacker>.+?), (?:(?<skill>.+?) becerisini kullanarak )?sana (?<amount>[\d.]+) hasar verdi\.$")]
+    private static partial Regex DamageReceivedPatternTr();
+
+    [GeneratedRegex(@"^(?:Kritik isabet!\s?)?(?<attacker>.+?), (?:(?<skill>.+?) becerisini kullanarak )?sana (?<amount>[\d.]+) hasar verdi\.$")]
+    private static partial Regex DotDamageAttributedToYouPatternTr();
+
+    [GeneratedRegex(@"^(?<target>.+?), (?<skill>.+?) becerisini kullandığın için yeniden (?<amount>[\d.]+) İP kazandı\.$")]
+    private static partial Regex HealOtherPatternTr();
+
+    [GeneratedRegex(@"^(?<healer>.+?), (?<skill>.+?) becerisini kullandığı için (?:yeniden (?<amount>[\d.]+) İP kazandın|(?<target>.+?) yeniden (?<amount>[\d.]+) İP kazandı)\.$")]
+    private static partial Regex HealByOtherPatternTr();
+
+    [GeneratedRegex(@"^(?<skill>.+?) becerisi ile yeniden (?<amount>[\d.]+) İP kazandın\.$")]
+    private static partial Regex HealSelfPatternTr();
+
+    // ===================================================================================
+    // Chinese (ZH) -- CONFIRMED FROM CLIENT TEMPLATE, not yet validated against a real played
+    // session. New language, not present before 2026-09-09. Source: `client_strings_msg.xml`
+    // inside `L10N/chn/Data/data.pak`.
+    //
+    // No spaces between words, so "attacker"/"target"/"skill" captures are lazy (.+?) throughout to
+    // avoid swallowing neighboring literal text -- there is no whitespace boundary to stop at the
+    // way every other language here has. Sentences end in the fullwidth ideographic full stop "。"
+    // (U+3002) and crits are marked with the fullwidth "！" (U+FF01), NOT the ASCII "."/"!" any other
+    // block in this file uses -- both are literal in the patterns below, not a transcription choice.
+    // Self ("you") lines drop the subject entirely, same pro-drop pattern as Polish/Russian/Turkish
+    // above; those branches declare no "attacker" group and rely on the same empty-capture ->
+    // LocalPlayerLiterals("") canonicalization.
+    //
+    // Two confirmed asymmetries kept as-is rather than "cleaned up", in case a real line needs
+    // exactly this shape: the crit-received template doubles the exclamation mark ("！！", id
+    // 1210007, vs a single "！" everywhere else) and adds "给"/"了" that the non-crit received
+    // template (id 1210006) lacks; the heal-by-other/third-person template (id 1200982) ends in
+    // "精神力" (MP/spirit, not "生命力"/HP like every other heal template here) despite being the
+    // Chinese counterpart of an English HP-heal string -- both handled by making the differing
+    // pieces optional/alternated rather than picking one and silently dropping the other.
+    //
+    // Confirmed template bodies used below:
+    //   1200000 "给{target}造成了{amount}的伤害。"                                (self, no skill)
+    //   1200001 "致命一击！给{target}造成了{amount}的致命一击伤害。"
+    //   1200002 "{attacker}给{target}造成了{amount}的伤害。"                      (third person)
+    //   1200003 "致命一击！{attacker}给{target}造成了{amount}的致命一击伤害。"
+    //   1210006 "{attacker}造成{amount}的伤害。"                                 (received, on you --
+    //     no "给" here, unlike the third-person shape above)
+    //   1210007 "致命一击！！给{attacker}造成了{amount}的致命一击伤害。"           (received, crit --
+    //     see asymmetry note above)
+    //   1200642 "受到{attacker}使用的{skill}的影响，受到了{amount}的伤害。"        (received, skill-named)
+    //   1200489 "使用{skill}技能，对{target}造成了{amount}的伤害。"               (self, skill-named)
+    //   1200370 "使用{skill}技能，恢复了{amount}的生命力。"                       (self-heal)
+    //   1200523 "使用{skill}技能，{target}恢复了{amount}的生命力。"               (heal other)
+    //   1200676 "受到{healer}使用的{skill}的影响，恢复了{amount}的生命力。"        (healed BY other, on you)
+    //   1200982 "{healer}使用{skill}技能，{target}恢复了{amount}的精神力。"        (healed BY other, third
+    //     person -- "精神力" not "生命力", see asymmetry note above)
+    //   1300396 "获得了{tag}。"                                                  (loot, you)
+    //   1390001 "{subject}获得了{tag}%。"                                        (loot, someone else --
+    //     trailing "%" confirmed literal in the template; made optional below rather than assumed)
+    // No template found for Reflected -- left as an honest gap, same reasoning as Russian above.
+    // ===================================================================================
+
+    [GeneratedRegex(@"(?!)")]
+    private static partial Regex ReflectedDamagePatternZh();
+
+    [GeneratedRegex(@"^(?:致命一击！)?(?:(?<attacker>.*?)给(?<target>.+?)造成了(?<amount>[\d.]+)的(?:致命一击)?伤害|使用(?<skill>.+?)技能，对(?<target>.+?)造成了(?<amount>[\d.]+)的伤害)。$")]
+    private static partial Regex DamagePatternZh();
+
+    // The two received branches are written as the two EXACT confirmed shapes (no "给"/no "了" for
+    // non-crit, "致命一击！！给...了" for crit -- see the class remarks' asymmetry note) rather than
+    // with independently-optional "给"/"了"/prefix pieces: an earlier version that treated those as
+    // independently optional also matched the THIRD-PERSON general shape ("{attacker}给{target}造
+    // 成了{amount}的伤害。", which always has both "给" and "了"), stealing lines from
+    // DamagePatternZh below (tried later in TryParseWithPatternSet) and reporting the real
+    // attacker as the target instead, with the target's name misread as the attacker's. Found by
+    // this file's own template-derived selftest, not a real log. The crit branch's DOUBLE "！！"
+    // is itself the other half of that disambiguation: general/third-person crit uses a single "！".
+    [GeneratedRegex(@"^(?:(?<attacker>.+?)造成(?<amount>[\d.]+)的伤害|致命一击！！给(?<attacker>.+?)造成了(?<amount>[\d.]+)的致命一击伤害|受到(?<attacker>.+?)使用的(?<skill>.+?)的影响，受到了(?<amount>[\d.]+)的伤害)。$")]
+    private static partial Regex DamageInflictedOnYouPatternZh();
+
+    [GeneratedRegex(@"^(?:(?<attacker>.+?)造成(?<amount>[\d.]+)的伤害|致命一击！！给(?<attacker>.+?)造成了(?<amount>[\d.]+)的致命一击伤害|受到(?<attacker>.+?)使用的(?<skill>.+?)的影响，受到了(?<amount>[\d.]+)的伤害)。$")]
+    private static partial Regex DamageReceivedPatternZh();
+
+    [GeneratedRegex(@"^(?:(?<attacker>.+?)造成(?<amount>[\d.]+)的伤害|致命一击！！给(?<attacker>.+?)造成了(?<amount>[\d.]+)的致命一击伤害|受到(?<attacker>.+?)使用的(?<skill>.+?)的影响，受到了(?<amount>[\d.]+)的伤害)。$")]
+    private static partial Regex DotDamageAttributedToYouPatternZh();
+
+    [GeneratedRegex(@"^使用(?<skill>.+?)技能，(?<target>.+?)恢复了(?<amount>[\d.]+)的生命力。$")]
+    private static partial Regex HealOtherPatternZh();
+
+    [GeneratedRegex(@"^(?:受到(?<healer>.+?)使用的(?<skill>.+?)的影响，恢复了(?<amount>[\d.]+)的(?:生命力|精神力)|(?<healer>.+?)使用(?<skill>.+?)技能，(?<target>.+?)恢复了(?<amount>[\d.]+)的(?:生命力|精神力))。$")]
+    private static partial Regex HealByOtherPatternZh();
+
+    [GeneratedRegex(@"^使用(?<skill>.+?)技能，恢复了(?<amount>[\d.]+)的生命力。$")]
+    private static partial Regex HealSelfPatternZh();
 
     // ===================================================================================
     // Per-language pattern-set plumbing: one record per language holding the 8 damage/heal
@@ -549,7 +826,19 @@ public sealed partial class ChatLogParser
         new DamageHealPatternSet(
             ReflectedDamagePatternRu(), DamageInflictedOnYouPatternRu(), DamageReceivedPatternRu(),
             DotDamageAttributedToYouPatternRu(), DamagePatternRu(), HealOtherPatternRu(),
-            HealByOtherPatternRu(), HealSelfPatternRu(), new[] { "тебе", "тебя", "ты" }),
+            HealByOtherPatternRu(), HealSelfPatternRu(), new[] { "вы", "" }),
+        new DamageHealPatternSet(
+            ReflectedDamagePatternPl(), DamageInflictedOnYouPatternPl(), DamageReceivedPatternPl(),
+            DotDamageAttributedToYouPatternPl(), DamagePatternPl(), HealOtherPatternPl(),
+            HealByOtherPatternPl(), HealSelfPatternPl(), new[] { "" }),
+        new DamageHealPatternSet(
+            ReflectedDamagePatternTr(), DamageInflictedOnYouPatternTr(), DamageReceivedPatternTr(),
+            DotDamageAttributedToYouPatternTr(), DamagePatternTr(), HealOtherPatternTr(),
+            HealByOtherPatternTr(), HealSelfPatternTr(), new[] { "" }),
+        new DamageHealPatternSet(
+            ReflectedDamagePatternZh(), DamageInflictedOnYouPatternZh(), DamageReceivedPatternZh(),
+            DotDamageAttributedToYouPatternZh(), DamagePatternZh(), HealOtherPatternZh(),
+            HealByOtherPatternZh(), HealSelfPatternZh(), new[] { "" }),
     };
 
     public PlayerNameRegistry Names { get; } = new();
@@ -836,13 +1125,47 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^Habéis recibido (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) como recompensa por la encuesta\.$")]
     private static partial Regex LootSurveyPatternEs();
 
-    // Russian -- BEST-EFFORT, UNVALIDATED, HIGHEST RISK. Same unknown-gender caveat as the
-    // personal-stat patterns above applies to "получил(а/о)" here too.
-    [GeneratedRegex(@"^(?<subject>.+?) получил(?:а|о)? (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])(?: и убрал(?:а|о)? (?:его|их) в специальный куб)?\.$")]
+    // Russian -- CONFIRMED FROM CLIENT TEMPLATE (id 1300396 "Получено: {tag}." for you, id
+    // 1390001 "{subject} получает: {tag}." for someone else -- see the damage/heal Russian remarks
+    // above for provenance). The "you" shape is genuinely subject-less in real Aion Russian, not a
+    // simplification -- "Получено" is a bare passive participle ("Received:"), so that branch
+    // declares no "subject" group at all and relies on the same empty-capture ->
+    // LocalPlayerLiterals("") canonicalization the damage/heal patterns use. No confirmed survey-
+    // reward template; its tail stays best-effort, adapted from the confirmed "Получено:" verb.
+    [GeneratedRegex(@"^(?:Получено: (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])|(?<subject>.+?) получает: (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]))\.$")]
     private static partial Regex LootAcquiredPatternRu();
 
-    [GeneratedRegex(@"^Ты получил(?:а)? (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) в награду за опрос\.$")]
+    [GeneratedRegex(@"^Получено: (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) в награду за опрос\.$")]
     private static partial Regex LootSurveyPatternRu();
+
+    // Polish -- CONFIRMED FROM CLIENT TEMPLATE (id 1300396 "Otrzymałeś[f:\"Otrzymałaś\"] {tag}." for
+    // you, id 1390001 "{subject} otrzymał {tag}." for someone else). Same pro-drop "you" shape as
+    // the damage/heal Polish patterns -- no subject word, empty-capture -> LocalPlayerLiterals("").
+    // No confirmed survey-reward template; kept best-effort.
+    [GeneratedRegex(@"^(?:(?:Otrzymałeś|Otrzymałaś) (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\])|(?<subject>.+?) otrzymał (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]))\.$")]
+    private static partial Regex LootAcquiredPatternPl();
+
+    [GeneratedRegex(@"^(?:Otrzymałeś|Otrzymałaś) (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) w nagrodę za ankietę\.$")]
+    private static partial Regex LootSurveyPatternPl();
+
+    // Turkish -- CONFIRMED FROM CLIENT TEMPLATE (id 1300396 "{tag} aldın." for you, id 1390001
+    // "{subject}, {tag} aldı." for someone else). Pro-drop "you" again, same mechanism. No
+    // confirmed survey-reward template; kept best-effort.
+    [GeneratedRegex(@"^(?:(?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) aldın|(?<subject>.+?), (?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) aldı)\.$")]
+    private static partial Regex LootAcquiredPatternTr();
+
+    [GeneratedRegex(@"^(?:(?<qty>[\d.]+) )?(?<tag>\[item:(?<id>\d+)[^\]]*\]) öğesini anket ödülü olarak aldın\.$")]
+    private static partial Regex LootSurveyPatternTr();
+
+    // Chinese -- CONFIRMED FROM CLIENT TEMPLATE (id 1300396 "获得了{tag}。" for you, id 1390001
+    // "{subject}获得了{tag}%。" for someone else -- trailing "%" confirmed literal, made optional
+    // rather than assumed). Pro-drop "you" again, same mechanism. No confirmed survey-reward
+    // template or confirmed quantity phrasing; both kept best-effort/optional.
+    [GeneratedRegex(@"^(?:获得了(?:(?<qty>[\d.]+)个)?(?<tag>\[item:(?<id>\d+)[^\]]*\])|(?<subject>.+?)获得了(?:(?<qty>[\d.]+)个)?(?<tag>\[item:(?<id>\d+)[^\]]*\]))%?。$")]
+    private static partial Regex LootAcquiredPatternZh();
+
+    [GeneratedRegex(@"^获得了(?<tag>\[item:(?<id>\d+)[^\]]*\])作为问卷奖励。$")]
+    private static partial Regex LootSurveyPatternZh();
 
     // LocalPlayerLiterals mirrors DamageHealPatternSet's field of the same name: German's,
     // French's, and Spanish's Acquired patterns all use the same "Ihr/Vous/Habéis|any name"
@@ -850,8 +1173,9 @@ public sealed partial class ChatLogParser
     // German's loot line itself was directly confirmed real ("Ihr habt [item:...] erhalten.");
     // French's and Spanish's loot events were never actually observed, but applying the same
     // confirmed formal-register fix to them anyway is far more likely correct than leaving the
-    // original informal guess in place. Only Russian's subject capture remains a plain,
-    // unconstrained name with no such literal to canonicalize.
+    // original informal guess in place. Russian/Polish/Turkish/Chinese's "you" shape is pro-drop
+    // (no subject word survives to canonicalize), so their entry adds "" instead -- an unmatched
+    // "subject" group evaluates to string.Empty, and that empty string is what gets compared here.
     private readonly record struct LootPatternSet(Regex Acquired, Regex Survey, string[] LocalPlayerLiterals);
 
     private static IReadOnlyList<LootPatternSet> LootPatternSets { get; } = new[]
@@ -860,7 +1184,10 @@ public sealed partial class ChatLogParser
         new LootPatternSet(LootAcquiredPatternDe(), LootSurveyPatternDe(), new[] { "ihr" }),
         new LootPatternSet(LootAcquiredPatternFr(), LootSurveyPatternFr(), new[] { "vous" }),
         new LootPatternSet(LootAcquiredPatternEs(), LootSurveyPatternEs(), new[] { "habéis" }),
-        new LootPatternSet(LootAcquiredPatternRu(), LootSurveyPatternRu(), Array.Empty<string>()),
+        new LootPatternSet(LootAcquiredPatternRu(), LootSurveyPatternRu(), new[] { "" }),
+        new LootPatternSet(LootAcquiredPatternPl(), LootSurveyPatternPl(), new[] { "" }),
+        new LootPatternSet(LootAcquiredPatternTr(), LootSurveyPatternTr(), new[] { "" }),
+        new LootPatternSet(LootAcquiredPatternZh(), LootSurveyPatternZh(), new[] { "" }),
     };
 
     /// <summary>Fires once per matched loot line -- see LootEvent remarks. Deliberately excludes
@@ -975,7 +1302,12 @@ public sealed partial class ChatLogParser
             // Chat/trade spam ("[3.LFG] ...", "[charname:...]: WTS [item:...] ...") always starts
             // with a channel or charname tag -- every confirmed real loot line starts with a bare
             // subject name instead, so this alone keeps trade chat out without needing to parse it.
-            if (!e.Message.StartsWith('['))
+            // EXCEPT Turkish (added 2026-09-09, see ChatLogParser's Turkish remarks): its own "you
+            // acquired" template is object-first, "[item:...] aldın." -- the item tag genuinely IS
+            // the first thing on the line for that one language, so a bare "starts with '['" check
+            // would silently drop every Turkish self-loot event. Distinguished from real spam by
+            // checking for "[item:" specifically -- a channel tag is never spelled that way.
+            if (!e.Message.StartsWith('[') || e.Message.StartsWith("[item:", StringComparison.Ordinal))
             {
                 RaiseLootIfPresent(e.Message);
             }
@@ -1301,8 +1633,20 @@ public sealed partial class ChatLogParser
         if ((match = p.HealByOther.Match(message)).Success)
         {
             isHeal = true;
-            sourceId = Names.GetOrAssignId(match.Groups["healer"].Value);
-            targetId = Names.GetOrAssignId(match.Groups["target"].Value);
+            // Canonicalize both sides the same way General already does -- found necessary while
+            // adding Russian/Polish/Turkish/Chinese's pro-drop "healed on you" shapes, which capture
+            // no literal target text at all (see those languages' remarks); without this, an
+            // unmatched "target" group's empty string would register as a distinct, wrongly-named
+            // player instead of resolving to YouName. Also fixes a latent gap for French's/
+            // Spanish's own HealByOther, whose "target" capture is literally "Vous"/"Habéis" for the
+            // local-player case and was never being canonicalized against LocalPlayerLiterals here,
+            // unlike every other slot in this dispatcher.
+            string healerName = match.Groups["healer"].Value;
+            bool healerIsLocalPlayer = p.LocalPlayerLiterals.Any(literal => string.Equals(healerName, literal, StringComparison.OrdinalIgnoreCase));
+            sourceId = Names.GetOrAssignId(healerIsLocalPlayer ? YouName : healerName);
+            string healTargetName = match.Groups["target"].Value;
+            bool healTargetIsLocalPlayer = p.LocalPlayerLiterals.Any(literal => string.Equals(healTargetName, literal, StringComparison.OrdinalIgnoreCase));
+            targetId = Names.GetOrAssignId(healTargetIsLocalPlayer ? YouName : healTargetName);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
             skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
@@ -1311,10 +1655,17 @@ public sealed partial class ChatLogParser
         if ((match = p.HealSelf.Match(message)).Success)
         {
             isHeal = true;
-            sourceId = Names.GetOrAssignId(match.Groups["who"].Value);
+            // Same canonicalization as above -- Russian/Polish/Turkish's self-heal shapes are
+            // pro-drop (no word for "you" at all; see their remarks), so "who" is often an
+            // unmatched, empty capture that must still resolve to the local player. Also fixes the
+            // same latent French/Spanish gap HealByOther had: their "who" capture is literally
+            // "Vous"/"Habéis" and was never being compared against LocalPlayerLiterals before.
+            string who = match.Groups["who"].Value;
+            bool whoIsLocalPlayer = p.LocalPlayerLiterals.Any(literal => string.Equals(who, literal, StringComparison.OrdinalIgnoreCase));
+            sourceId = Names.GetOrAssignId(whoIsLocalPlayer ? YouName : who);
             targetId = sourceId;
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
-            RaiseSkillUsedIfPresent(match, match.Groups["who"].Value);
+            RaiseSkillUsedIfPresent(match, whoIsLocalPlayer ? YouName : who);
             skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }

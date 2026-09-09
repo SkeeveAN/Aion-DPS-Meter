@@ -30,6 +30,20 @@ public partial class SettingsWindow : Window
         CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
+        AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
+
+        // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML -- see
+        // LanguageBox's own remarks. Each item's Content is the language's OWN native name
+        // (LocalizationManager.Instance changes what CONTENT="{local:Loc ...}" renders as
+        // elsewhere, but this ComboBox's own items are plain strings, not themselves localized --
+        // "Deutsch" should read as "Deutsch" regardless of which language is currently active, the
+        // same way a real language picker never translates its own entries).
+        foreach (var (code, nativeName) in LocalizationManager.SupportedLanguages)
+        {
+            LanguageBox.Items.Add(new ComboBoxItem { Content = nativeName, Tag = code });
+        }
+
+        SelectComboItem(LanguageBox, LocalizationManager.Instance.Language);
 
         _aionInstallFolder = settings.AionInstallFolder;
         AionInstallFolderBox.Text = _aionInstallFolder ?? "(not set)";
@@ -230,11 +244,15 @@ public partial class SettingsWindow : Window
         AionInstallFolderStatus.Foreground = new SolidColorBrush(hasChatLog ? Colors.LightGreen : Colors.Khaki);
     }
 
-    private static void SelectComboItem(ComboBox box, string content)
+    /// <summary>Matches by Tag, not Content: Content is now a {local:Loc ...} binding (so it reads
+    /// as "Dunkel"/"Ciemny"/... depending on the current GUI language), while Tag stays the fixed,
+    /// language-independent value ("Dark") that MeterSettings actually stores -- see
+    /// ThemeBox's/FontSizeBox's XAML.</summary>
+    private static void SelectComboItem(ComboBox box, string tag)
     {
         foreach (var item in box.Items)
         {
-            if (item is ComboBoxItem cbi && string.Equals(cbi.Content as string, content, StringComparison.OrdinalIgnoreCase))
+            if (item is ComboBoxItem cbi && string.Equals(cbi.Tag as string, tag, StringComparison.OrdinalIgnoreCase))
             {
                 box.SelectedItem = cbi;
                 return;
@@ -242,6 +260,21 @@ public partial class SettingsWindow : Window
         }
 
         box.SelectedIndex = 0;
+    }
+
+    /// <summary>Live preview, not just a save-time value: picking a language repaints every open
+    /// window's {local:Loc ...} bindings immediately (see LocalizationManager.Language's remarks),
+    /// so the effect of the choice is visible before Save/Cancel is even clicked -- unlike
+    /// Theme/FontSize just below, which only apply once Save is pressed. Persisted to
+    /// MeterSettings only in OnSaveClicked; clicking Cancel after changing the language leaves
+    /// LocalizationManager changed for the rest of this run (nothing reverts it), but does not
+    /// write a new default for the next launch.</summary>
+    private void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (LanguageBox.SelectedItem is ComboBoxItem { Tag: string code })
+        {
+            LocalizationManager.Instance.Language = code;
+        }
     }
 
     private void OnSaveClicked(object sender, RoutedEventArgs e)
@@ -253,8 +286,10 @@ public partial class SettingsWindow : Window
         _settings.ShowHeroicNpcs = ShowHeroicNpcsBox.IsChecked ?? false;
         _settings.ShowLegendaryNpcs = ShowLegendaryNpcsBox.IsChecked ?? false;
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
-        _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Content as string ?? _settings.Theme;
-        _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Content as string ?? _settings.FontSize;
+        _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
+        _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
+        _settings.Language = LocalizationManager.Instance.Language;
+        _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.AionInstallFolder = _aionInstallFolder;
         _settings.Characters = _characters;
         _settings.ActiveCharacterName = ActiveCharacterBox.SelectedItem as string;

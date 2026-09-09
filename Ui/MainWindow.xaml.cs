@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -141,6 +140,20 @@ public partial class MainWindow : Window
         _updateTimer.Start();
         _ = RunUpdateCheck(announceResult: false);
         var settings = MeterSettings.Load();
+
+        // Empty means "a fresh install, or a settings file older than this feature" -- leave
+        // LocalizationManager on whatever it already auto-detected from the OS at construction
+        // time (see its DetectSystemLanguage remarks) rather than forcing English.
+        if (settings.Language.Length > 0)
+        {
+            LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        // Same value as the View menu's "Always on top" toggle (see OnAlwaysOnTopClicked) --
+        // applied here so a saved preference survives a restart, not just a runtime toggle.
+        Topmost = settings.AlwaysOnTopOnStartup;
+        AlwaysOnTopMenuItem.IsChecked = settings.AlwaysOnTopOnStartup;
+
         RestoreWindowGeometry(settings);
         StartChatLogTailing(settings);
         RefreshCharacterSettings(settings);
@@ -202,14 +215,6 @@ public partial class MainWindow : Window
         _autoDetectActiveCharacter = settings.AutoDetectActiveCharacter;
     }
 
-    /// <summary>Strips a trailing skill-rank numeral ("Ferocious Strike VI" -> "Ferocious Strike")
-    /// so a chat-log skill mention matches SkillDatabase regardless of which rank was actually used.
-    /// Found necessary by terminal_windows against a real ~44k-line session: the database only
-    /// carries the rank-I name for 905 of 931 skills, but the log always names the rank actually
-    /// cast -- an exact-string match therefore missed 84% of real "You used X" mentions (e.g.
-    /// "Rupture IV"/"Robust Blow VI"/"Cleave IV" never matching their rank-I-only DB rows).</summary>
-    private static readonly Regex SkillRankSuffix = new(@"\s+[IVXLCDM]+$");
-
     /// <summary>Detected class per real player name, from OTHER players' own skill usage (see
     /// UpdateOtherPlayerClass) -- per the user ("es wurde keine Klasse der anderen Spieler
     /// erkannt"), consulted by ApplyIdentity for any row that isn't "You". Session-scoped like
@@ -225,20 +230,10 @@ public partial class MainWindow : Window
     /// </summary>
     private void OnSkillUsed(string actorName, string skillName)
     {
-        // Exact match first, rank-normalized fallback only on a miss -- found necessary by
-        // terminal_windows: an exact-rank DB entry can be UNAMBIGUOUS ("Blessing of Health II" ->
-        // Chanter only) while the rank-I entry the normalized lookup used to land on regardless
-        // is ambiguous ("Blessing of Health I" -> "Cleric, Chanter"), silently discarding real
-        // information the log actually gave us. Falling back to the normalized match preserves
-        // the original ~85% hit rate for the common case (a used rank, like "Rupture IV", that
-        // has no exact DB entry at all, only a rank-I one) -- this only changes the outcome when
-        // an EXACT entry for the rank actually used exists AND resolves less ambiguously.
-        // FirstOrDefault over Dictionary.Values also has no guaranteed order, so preferring an
-        // exact match isn't just more informative, it's the only reliable choice here.
-        var skillsByName = SkillDatabase.Load().Values;
-        string baseName = SkillRankSuffix.Replace(skillName, "");
-        var skillInfo = skillsByName.FirstOrDefault(s => s.Name == skillName)
-            ?? skillsByName.FirstOrDefault(s => SkillRankSuffix.Replace(s.Name, "") == baseName);
+        // Matches skillName against whichever of the three client languages it's actually in (see
+        // SkillDatabase.FindByLocalizedName), exact match preferred over the rank-normalized
+        // fallback for the reasons documented there.
+        var skillInfo = SkillDatabase.FindByLocalizedName(skillName);
         if (skillInfo is null || skillInfo.Class.Length == 0)
         {
             return;
@@ -1777,6 +1772,13 @@ public partial class MainWindow : Window
     private void OnAlwaysOnTopClicked(object sender, RoutedEventArgs e)
     {
         Topmost = AlwaysOnTopMenuItem.IsChecked;
+
+        // The menu toggle and MeterSettings.AlwaysOnTopOnStartup are the same value now, not two
+        // independent switches (see that property's remarks) -- saved immediately, same as
+        // CheckForUpdates, so "how I last left it" is what the next launch restores.
+        var settings = MeterSettings.Load();
+        settings.AlwaysOnTopOnStartup = Topmost;
+        settings.Save();
     }
 
     private void OnModeClicked(object sender, RoutedEventArgs e)

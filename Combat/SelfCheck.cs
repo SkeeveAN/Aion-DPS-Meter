@@ -41,6 +41,7 @@ public static class SelfCheck
         ok &= RunRelicApScenario();
         ok &= RunGermanChatLogScenario();
         ok &= RunPlayerLoggedInScenario();
+        ok &= RunTemplateLanguagesChatLogScenario();
         return ok;
     }
 
@@ -157,6 +158,124 @@ public static class SelfCheck
         Console.WriteLine($"  -> neither line is mistaken for damage: {noDamageEventProduced}");
 
         return englishCaught && germanCaught && noDamageEventProduced;
+    }
+
+    /// <summary>
+    /// Russian, Polish, Turkish, and Chinese are CONFIRMED FROM CLIENT TEMPLATE (see
+    /// ChatLogParser's class remarks), not from a real played session -- no line here was ever
+    /// actually logged by a real client. Each line below is one of those templates instantiated
+    /// with a concrete number and name, so this checks that the regexes correctly parse their OWN
+    /// source template, not that a real client necessarily writes exactly this text (word order for
+    /// a name that declines differently, or a rare second phrasing, could still differ). About as
+    /// much verification as is possible without a real non-English log in any of these four -- the
+    /// same gap the German/French/Spanish blocks used to have before a real log closed it for them.
+    /// </summary>
+    private static bool RunTemplateLanguagesChatLogScenario()
+    {
+        var lines = new[]
+        {
+            // Russian (id 1200000/1200001/1200002/1200489, 1210006/1200642, 1200370/1200982, 1300396/1390001)
+            "2026.09.09 00:00:00 : Вы нанесли 500 ед. урона цели Манекен. ",
+            "2026.09.09 00:00:01 : Критический удар! Гракх наносит 300 ед. критического урона цели Манекен. ",
+            "2026.09.09 00:00:02 : Огненный шар: Манекен получает 900 ед. урона. ",
+            "2026.09.09 00:00:03 : Гракх наносит вам 200 ед. урона. ",
+            "2026.09.09 00:00:04 : Гракх использует: Огненный шар. Вы получаете 400 ед. урона. ",
+            "2026.09.09 00:00:05 : Свет исцеления: вы восстанавливаете 150 HP. ",
+            "2026.09.09 00:00:06 : Кодзима использует: Свет исцеления. Манекен восстанавливает 180 HP. ",
+            "2026.09.09 00:00:07 : Получено: [item:12345;ver6;;;;]. ",
+            "2026.09.09 00:00:08 : Кодзима получает: [item:99999;ver6;;;;]. ",
+            // Polish (id 1200000/1200001/1200002, 1200642, 1200370-bare, 1200982, 1300396/1390001)
+            "2026.09.09 00:00:09 : Manekin doznaje 500 obr. ",
+            "2026.09.09 00:00:10 : Trafienie krytyczne! Postać Gracz2 zadała Manekin 620 obrażeń. ",
+            "2026.09.09 00:00:11 : Postać Gracz2 zadała ci 400 obrażeń używając umiejętności Ognista Kula. ",
+            "2026.09.09 00:00:12 : przywróciłaś 90 PŻ. ",
+            "2026.09.09 00:00:13 : Postać Manekin przywróciła 180 PŻ, ponieważ postać Kodzima użyła umiejętności Światło uzdrowienia. ",
+            "2026.09.09 00:00:14 : Otrzymałeś [item:12345;ver6;;;;]. ",
+            "2026.09.09 00:00:15 : Kodzima otrzymał [item:99999;ver6;;;;]. ",
+            // Turkish (id 1200000/1200002/1200003, 1200642, 1200370, 1200982, 1300396/1390001)
+            "2026.09.09 00:00:16 : Manken öğesine 500 hasar verdin. ",
+            "2026.09.09 00:00:17 : Kritik isabet! Manken, Gracz2 tarafından 620 hasara uğratıldı. ",
+            "2026.09.09 00:00:18 : Gracz2, Ateş Topu becerisini kullanarak sana 400 hasar verdi. ",
+            "2026.09.09 00:00:19 : Şifa Işığı becerisi ile yeniden 150 İP kazandın. ",
+            "2026.09.09 00:00:20 : Kodzima, Şifa Işığı becerisini kullandığı için Manken yeniden 180 İP kazandı. ",
+            "2026.09.09 00:00:21 : [item:12345;ver6;;;;] aldın. ",
+            "2026.09.09 00:00:22 : Kodzima, [item:99999;ver6;;;;] aldı. ",
+            // Chinese (id 1200000/1200002/1200003, 1200642, 1200370, 1200982, 1300396/1390001)
+            "2026.09.09 00:00:23 : 给训练假人造成了500的伤害。 ",
+            "2026.09.09 00:00:24 : 致命一击！小明给训练假人造成了620的致命一击伤害。 ",
+            "2026.09.09 00:00:25 : 受到小明使用的火球术的影响，受到了400的伤害。 ",
+            "2026.09.09 00:00:26 : 使用治愈之光技能，恢复了150的生命力。 ",
+            "2026.09.09 00:00:27 : 科吉马使用治愈之光技能，训练假人恢复了180的精神力。 ",
+            "2026.09.09 00:00:28 : 获得了[item:12345;ver6;;;;]。 ",
+            "2026.09.09 00:00:29 : 小明获得了[item:99999;ver6;;;;]%。 ",
+        };
+
+        // Each language gets its OWN parser/name-registry: "You" means "the local player" the
+        // same way in all four, so running every line through one shared parser (as an earlier
+        // version of this test did) would silently sum all four languages' self-damage into one
+        // combined "You" total instead of checking each language in isolation.
+        Console.WriteLine("[selftest] Russian/Polish/Turkish/Chinese Chat.log (client-template-derived synthetic lines):");
+
+        var ruParser = new ChatLogParser();
+        var ruLoot = new List<(string? Who, int ItemId)>();
+        ruParser.LootAcquired += e => ruLoot.Add((e.Subject, e.ItemId));
+        var ruEvents = ruParser.Parse(lines[0..9]);
+        long RuDamageBy(string n) => ruEvents.Where(e => !e.IsHeal && ruParser.Names.NameFor(e.SourceObjectId) == n).Sum(e => e.Amount);
+        long RuDamageTo(string n) => ruEvents.Where(e => !e.IsHeal && ruParser.Names.NameFor(e.TargetObjectId) == n).Sum(e => e.Amount);
+        long RuHealBy(string n) => ruEvents.Where(e => e.IsHeal && ruParser.Names.NameFor(e.SourceObjectId) == n).Sum(e => e.Amount);
+        long RuHealTo(string n) => ruEvents.Where(e => e.IsHeal && ruParser.Names.NameFor(e.TargetObjectId) == n).Sum(e => e.Amount);
+        // 500 self, no-skill + 900 self, skill-named-to-other (line 2's "Огненный шар: Манекен
+        // получает 900..." shape); Гракх's 300 third-person hit, 200 incoming hit, and 400
+        // incoming skill-named hit are all HIS damage, none of it Yours.
+        bool ruDamageOk = RuDamageBy("You") == 500 + 900 && RuDamageBy("Гракх") == 300 + 200 + 400;
+        bool ruIncomingOk = RuDamageTo("You") == 200 + 400;
+        bool ruHealOk = RuHealBy("You") == 150 && RuHealTo("Манекен") == 180;
+        bool ruLootOk = ruLoot.Contains(("You", 12345)) && ruLoot.Contains(("Кодзима", 99999));
+        Console.WriteLine($"  -> Russian: self+skill-named damage, incoming, heals, loot (self+other) all attributed: {ruDamageOk && ruIncomingOk && ruHealOk && ruLootOk}");
+
+        var plParser = new ChatLogParser();
+        var plLoot = new List<(string? Who, int ItemId)>();
+        plParser.LootAcquired += e => plLoot.Add((e.Subject, e.ItemId));
+        var plEvents = plParser.Parse(lines[9..16]);
+        long PlDamageBy(string n) => plEvents.Where(e => !e.IsHeal && plParser.Names.NameFor(e.SourceObjectId) == n).Sum(e => e.Amount);
+        long PlHealBy(string n) => plEvents.Where(e => e.IsHeal && plParser.Names.NameFor(e.SourceObjectId) == n).Sum(e => e.Amount);
+        long PlHealTo(string n) => plEvents.Where(e => e.IsHeal && plParser.Names.NameFor(e.TargetObjectId) == n).Sum(e => e.Amount);
+        // 500 self, no-skill; Gracz2's 620 third-person hit and 400 incoming skill-named hit (on
+        // You) are both HIS damage dealt, not Yours -- the skill-named line targets You, it isn't
+        // a second self-hit.
+        bool plDamageOk = PlDamageBy("You") == 500 && PlDamageBy("Gracz2") == 620 + 400;
+        bool plHealOk = PlHealBy("You") == 90 && PlHealTo("Manekin") == 180;
+        bool plLootOk = plLoot.Contains(("You", 12345)) && plLoot.Contains(("Kodzima", 99999));
+        Console.WriteLine($"  -> Polish: self+incoming damage, self-heal, heal-by-other, loot (self+other) all attributed: {plDamageOk && plHealOk && plLootOk}");
+
+        var trParser = new ChatLogParser();
+        var trLoot = new List<(string? Who, int ItemId)>();
+        trParser.LootAcquired += e => trLoot.Add((e.Subject, e.ItemId));
+        var trEvents = trParser.Parse(lines[16..23]);
+        long TrDamageBy(string n) => trEvents.Where(e => !e.IsHeal && trParser.Names.NameFor(e.SourceObjectId) == n).Sum(e => e.Amount);
+        long TrHealBy(string n) => trEvents.Where(e => e.IsHeal && trParser.Names.NameFor(e.SourceObjectId) == n).Sum(e => e.Amount);
+        long TrHealTo(string n) => trEvents.Where(e => e.IsHeal && trParser.Names.NameFor(e.TargetObjectId) == n).Sum(e => e.Amount);
+        bool trDamageOk = TrDamageBy("You") == 500 && TrDamageBy("Gracz2") == 620 + 400;
+        bool trHealOk = TrHealBy("You") == 150 && TrHealTo("Manken") == 180;
+        bool trLootOk = trLoot.Contains(("You", 12345)) && trLoot.Contains(("Kodzima", 99999));
+        Console.WriteLine($"  -> Turkish: self+incoming damage, self-heal, heal-by-other, loot (self+other) all attributed: {trDamageOk && trHealOk && trLootOk}");
+
+        var zhParser = new ChatLogParser();
+        var zhLoot = new List<(string? Who, int ItemId)>();
+        zhParser.LootAcquired += e => zhLoot.Add((e.Subject, e.ItemId));
+        var zhEvents = zhParser.Parse(lines[23..30]);
+        long ZhDamageBy(string n) => zhEvents.Where(e => !e.IsHeal && zhParser.Names.NameFor(e.SourceObjectId) == n).Sum(e => e.Amount);
+        long ZhHealBy(string n) => zhEvents.Where(e => e.IsHeal && zhParser.Names.NameFor(e.SourceObjectId) == n).Sum(e => e.Amount);
+        long ZhHealTo(string n) => zhEvents.Where(e => e.IsHeal && zhParser.Names.NameFor(e.TargetObjectId) == n).Sum(e => e.Amount);
+        bool zhDamageOk = ZhDamageBy("You") == 500 && ZhDamageBy("小明") == 620 + 400;
+        bool zhHealOk = ZhHealBy("You") == 150 && ZhHealTo("训练假人") == 180;
+        bool zhLootOk = zhLoot.Contains(("You", 12345)) && zhLoot.Contains(("小明", 99999));
+        Console.WriteLine($"  -> Chinese: self+incoming damage, self-heal, heal-by-other, loot (self+other) all attributed: {zhDamageOk && zhHealOk && zhLootOk}");
+
+        return ruDamageOk && ruIncomingOk && ruHealOk && ruLootOk
+            && plDamageOk && plHealOk && plLootOk
+            && trDamageOk && trHealOk && trLootOk
+            && zhDamageOk && zhHealOk && zhLootOk;
     }
 
     /// <summary>
@@ -830,10 +949,13 @@ public static class SelfCheck
     }
 
     /// <summary>
-    /// Verifies SkillDatabase actually finds and parses assets/skills/skills_en_4x.json at
+    /// Verifies SkillDatabase actually finds and parses assets/skills/skills_multilang_4x.json at
     /// runtime -- this exercises the real deployment path (AppContext.BaseDirectory + the
     /// csproj's CopyToOutputDirectory setting for assets/), not just the JSON parsing in
-    /// isolation. Skill 1 ("Basic Sword Training") is the first row in that file.
+    /// isolation. Skill 1 ("Basic Sword Training") is the first row in that file. Also checks
+    /// FindByLocalizedName against a real German and French Chat.log skill name (from the same
+    /// client string tables the file itself was built from -- see assets/README.md), since a
+    /// German/French client is exactly the case this multi-language lookup exists for.
     /// </summary>
     private static bool RunSkillDatabaseScenario()
     {
@@ -841,23 +963,32 @@ public static class SelfCheck
         string knownName = SkillDatabase.DisplayName(1);
         string unknownName = SkillDatabase.DisplayName(999_999_999);
 
-        Console.WriteLine("[selftest] SkillDatabase load (assets/skills/skills_en_4x.json):");
+        Console.WriteLine("[selftest] SkillDatabase load (assets/skills/skills_multilang_4x.json):");
         Console.WriteLine($"  loaded {table.Count} skills; skill 1 = \"{knownName}\"; unknown id -> \"{unknownName}\"");
 
         bool loadedSomething = table.Count > 500; // expect ~974; loose bound so minor rescrapes don't break this
         bool knownResolved = knownName == "Basic Sword Training";
         bool unknownFallsBack = unknownName.Contains("unknown");
 
+        // "Ferocious Strike I" -> Gladiator, Templar; body text taken verbatim from a real
+        // German/French client_strings_skill.xml (see assets/README.md).
+        var germanMatch = SkillDatabase.FindByLocalizedName("Wilder Schlag I");
+        var frenchMatch = SkillDatabase.FindByLocalizedName("Frappe féroce I");
+        bool germanResolved = germanMatch?.Class == "Gladiator, Templar";
+        bool frenchResolved = frenchMatch?.Class == "Gladiator, Templar";
+
         Console.WriteLine($"  -> table loaded with a plausible size: {loadedSomething}");
         Console.WriteLine($"  -> skill 1 resolved to its real name: {knownResolved}");
         Console.WriteLine($"  -> unknown id falls back cleanly instead of throwing: {unknownFallsBack}");
+        Console.WriteLine($"  -> a German skill name resolves to the right class(es): {germanResolved}");
+        Console.WriteLine($"  -> a French skill name resolves to the right class(es): {frenchResolved}");
 
         if (!loadedSomething || !knownResolved)
         {
-            Console.WriteLine($"  (looked for assets at: {Path.Combine(AppContext.BaseDirectory, "assets", "skills", "skills_en_4x.json")})");
+            Console.WriteLine($"  (looked for assets at: {Path.Combine(AppContext.BaseDirectory, "assets", "skills", "skills_multilang_4x.json")})");
         }
 
-        return loadedSomething && knownResolved && unknownFallsBack;
+        return loadedSomething && knownResolved && unknownFallsBack && germanResolved && frenchResolved;
     }
 
     /// <summary>
