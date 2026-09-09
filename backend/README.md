@@ -46,6 +46,20 @@ anlegen. Es gibt bewusst keine vorab geratene Instanzliste im Seed - die genaue 
 dieses konkreten Servers ist von hier aus nicht zuverlässig bekannt, eine falsche Zuordnung wäre
 schlimmer als eine leere.
 
+## Trash-Mobs ausblenden
+
+Genau wie die Instanz-Zuordnung gibt es keine automatische Unterscheidung "echter Boss" vs.
+"beliebiger Mob, den die Gruppe zufällig bekämpft hat" - ein Upload legt jeden neuen Bossnamen
+gleichwertig an (siehe `src/matching/merge.ts`). Wenn sich ein Eintrag als reiner Trash-Mob
+herausstellt (z.B. "Zauberer der Stahlrose" in Steel Rose Cargo - laut Nutzer nur ein regulärer Mob,
+nicht der Instanz-Endboss), per SQL markieren statt löschen - Zeile und ihre Encounters bleiben
+erhalten (weiter per Direktlink `/api/bosses/:id/leaderboard` erreichbar), verschwinden aber aus
+`GET /api/instances/:id/bosses` und damit aus der normalen Bossliste:
+
+```sql
+UPDATE bosses SET is_trash_mob = 1 WHERE name = '<Bossname>';
+```
+
 ## Deployment (alfahosting)
 
 nginx ist bereits fertig konfiguriert: `dpsmeter.skeeve.tv` (Port 443) proxied auf

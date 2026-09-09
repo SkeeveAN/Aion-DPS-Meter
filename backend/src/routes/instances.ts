@@ -1,4 +1,4 @@
-import { ne, eq, asc } from "drizzle-orm";
+import { ne, eq, and, asc } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, instances } from "../db/schema.js";
@@ -24,7 +24,7 @@ export async function instanceRoutes(app: FastifyInstance) {
     const rows = db
       .select({ id: bosses.id, name: bosses.name })
       .from(bosses)
-      .where(eq(bosses.instanceId, instanceId))
+      .where(and(eq(bosses.instanceId, instanceId), eq(bosses.isTrashMob, false)))
       .orderBy(asc(bosses.name))
       .all();
     return reply.send(rows);

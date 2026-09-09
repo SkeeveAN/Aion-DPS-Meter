@@ -36,6 +36,13 @@
       "when": 1788954392407,
       "tag": "0004_tired_cannonball",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1788973628996,
+      "tag": "0005_careful_mauler",
+      "breakpoints": true
     }
   ]
 }

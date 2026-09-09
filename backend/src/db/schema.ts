@@ -71,6 +71,14 @@ export const bosses = sqliteTable(
       .$type<string[]>()
       .notNull()
       .default(sql`'[]'`),
+    // A boss name auto-lands here on first upload with no way to tell "real boss" from "random
+    // trash mob the group happened to fight" (see merge.ts) - per the user, a regular mob (e.g.
+    // "Zauberer der Stahlrose" in Steel Rose Cargo) isn't leaderboard-worthy the way the
+    // instance's actual boss is. Same "mark, never delete" pattern as serverCatalog.active: the
+    // row and its encounters stay intact (still reachable by direct /api/bosses/:id/leaderboard
+    // link), just hidden from GET /api/instances/:id/bosses. Manually curated, same as the
+    // instance mapping itself (see backend/README.md) - never inferred automatically.
+    isTrashMob: integer("is_trash_mob", { mode: "boolean" }).notNull().default(false),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(current_timestamp)`),

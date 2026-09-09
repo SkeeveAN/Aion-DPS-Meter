@@ -1,0 +1,1 @@
+ALTER TABLE `bosses` ADD `is_trash_mob` integer DEFAULT false NOT NULL;
