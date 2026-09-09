@@ -878,6 +878,19 @@ export function formatDate(date) {
 // L10N/<lang>/Data/data.pak, joined by the client's own <id> - see assets/README.md) rather than
 // guessed or machine-translated.
 const GAME_NAME_TRANSLATIONS = {
+  // Verified two ways: the client's own client_strings_dic_place.xml (id STR_DIC_W_IDRaksha_Whole,
+  // mapCode IDRaksha) AND the real English Chat.log itself narrating "You have joined the Raksang
+  // region channel." when fighting here - the German client calls the exact same zone "Tahmes".
+  Tahmes: {
+    en: "Raksang",
+    de: "Tahmes",
+    fr: "Raksang",
+    es: "Tames",
+    ru: "Тамарэс",
+    pl: "Tahmes",
+    tr: "Tahmes",
+    zh: "塔梅斯",
+  },
   "Stahlrose: Anlegestelle": {
     en: "Steel Rose Cargo",
     de: "Stahlrose: Anlegestelle",
