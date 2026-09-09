@@ -176,10 +176,14 @@ th {
   font-weight: normal;
 }
 
+/* One full-width block per class, stacked - not a multi-column grid: each block now holds a full
+   6-column ranked-table (rank/player/DPS/damage/heal/buffs, see app.js rankedTable), which needs
+   far more room than the old 3-column mini table this grid was originally sized for. A narrow
+   grid column just clipped the table's right-hand columns instead of wrapping them. */
 .class-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .class-block {
