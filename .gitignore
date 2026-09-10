@@ -19,3 +19,4 @@ backend/data/*.sqlite-*
 backend/.env
 backend/.env.*
 !backend/.env.example
+.claude/settings.local.json
