@@ -939,6 +939,95 @@ const GAME_NAME_TRANSLATIONS = {
     pl: "Pochłaniacz Ciemności Derakanak",
     tr: "Karanlık Yok Edici Derakanak",
   },
+  // The remaining 7 Sauro-Kriegsdepot bosses (the instance has 10 total, not 3) - same
+  // client_strings_dic_monster.xml/client_strings_monster.xml sourcing and cross-language <name>-key
+  // join as Rohuka/Kurmata/Derakanak above.
+  "Stabschef Moriata": {
+    en: "Chief of Staff Moriata",
+    de: "Stabschef Moriata",
+    fr: "Chef d'état-major Moriata",
+    es: "Jefe del estado mayor Moriata",
+    ru: "Главный советник Мориата",
+    pl: "Szef Sztabu Moriata",
+    tr: "Alay Başkanı Moriata",
+    zh: "参谋长摩里亚塔",
+  },
+  "Forscherin Teselik": {
+    en: "Researcher Teselik",
+    de: "Forscherin Teselik",
+    fr: "Chercheuse Teselik",
+    es: "Investigadora Teselic",
+    ru: "Исследовательница Тесерик",
+    pl: "Badaczka Teselik",
+    tr: "Araştırmacı Teselik",
+    zh: "研究专家泰塞里克",
+  },
+  "Versorgungskommandant Ranodim": {
+    en: "Commander Ranodim",
+    de: "Versorgungskommandant Ranodim",
+    fr: "Commandant chargé de l'approvisionnement Ranodim",
+    es: "Comandante de abastecimiento Ranodim",
+    ru: "Командир Ланодим",
+    pl: "Komendant Zaopatrzenia Ranodim",
+    tr: "Tedarik Komutanı Ranodim",
+    zh: "兵站指挥官拉诺丁",
+  },
+  // en is genuinely "Gatekeeper Stranir" in this client's own string table, not a "Slurt"
+  // translated/transliterated from any other language - verified against the raw <name> key
+  // (STR_IDVritra_Base_Vri_Ba_SN_65_Ae2), not guessed. No zh entry for the same reason as Derakanak
+  // above (2014-dated Chinese table predates this boss).
+  "Torwächter Slurt": {
+    en: "Gatekeeper Stranir",
+    de: "Torwächter Slurt",
+    fr: "Gardien Slurt",
+    es: "Portero Eslurte",
+    ru: "Защитник врат Слот",
+    pl: "Strażnik Bramy Slurt",
+    tr: "Kapı Muhafızı Slurt",
+  },
+  // Same STR_IDVritra_Base_Vri_As_SN_65_Ae2 key as en "Darkblade Ovanuka", but this client's own
+  // German text spells it "Obanuka" (v->b) and uses a different title entirely ("Inspektionsoffizier"
+  // = Inspection Officer, not "Dunkelklingen-..."/Darkblade) - not a typo introduced here, the raw
+  // client string itself. If the DB row for this boss was actually uploaded from an English client
+  // and is keyed "Darkblade Ovanuka" instead, this entry's key needs adjusting to match - couldn't
+  // verify the live `bosses.name` value from here. No zh entry, same reason as Slurt above.
+  "Inspektionsoffizier Obanuka": {
+    en: "Darkblade Ovanuka",
+    de: "Inspektionsoffizier Obanuka",
+    fr: "Officier inspecteur Obanuka",
+    es: "Oficial de inspección Obanuca",
+    ru: "Офицер-инспектор Ованка",
+    pl: "Oficer Inspekcji Obanuka",
+    tr: "Obanuka Teftiş Subayı",
+  },
+  // STR_IDVritra_Base_Vri_Wi_SN_65_Ae2 - same "Inspektionsoffizier" title pattern as Obanuka above
+  // (they're a matched pair in this encounter, same client-side monster family). No zh entry, same
+  // reason as Slurt/Obanuka above.
+  "Inspektionsoffizier Sayahum": {
+    en: "Archmagus Sayahum",
+    de: "Inspektionsoffizier Sayahum",
+    fr: "Officier inspecteur Sayahum",
+    es: "Oficial de inspección Sayaum",
+    ru: "Офицер-инспектор Саяхум",
+    pl: "Oficer Inspekcji Sayahum",
+    tr: "Sayahum Teftiş Subayı",
+  },
+  // STR_BIDVritra_Base_Boss2 (also duplicated verbatim under STR_IDVritra_Base_Drakan_Fi_B4_65_Ae2_Nmd).
+  // Same "Ovanuka/Obanuka"-style spelling drift: this client's German text is "Achradim" (u->c, h
+  // dropped), not "Ahuradim" - and translates the title as "Gardenführer" (literally "garden
+  // leader"), not "Wachhauptmann"/Guard Captain as the en text says. Confirmed as the client's own
+  // real text, not a decode error here - Polish independently carries the same "garden" mistranslation
+  // ("Kierownik Ogrodu" = Garden Manager). Same live-DB-key caveat as Obanuka above applies. No zh
+  // entry, same reason as Slurt/Obanuka/Sayahum above.
+  "Gardenführer Achradim": {
+    en: "Guard Captain Ahuradim",
+    de: "Gardenführer Achradim",
+    fr: "Chef de la garde Achradim",
+    es: "Líder de guardias Acradim",
+    ru: "Командир стражи Ахрадим",
+    pl: "Kierownik Ogrodu Achradim",
+    tr: "Muhafız Lideri Ahradim",
+  },
   // Stored in the DB as the English name (uploaded from an English client) - translations for the
   // other 7 languages, verified the same way as the Sauro bosses above.
   "Raksha Boilheart": {
@@ -950,6 +1039,158 @@ const GAME_NAME_TRANSLATIONS = {
     pl: "Raksha Serce Kucharza",
     tr: "Rakşa Kaynayan Kalp",
     zh: "愤怒的拉克莎",
+  },
+  // The rest of Tahmes's bosses (12 more, all stored in the DB as their English name like Raksha
+  // Boilheart above) - same client_strings_dic_monster.xml/client_strings_monster.xml sourcing as
+  // the Sauro bosses. The four Seal Generators aren't in either monster table at all - they're
+  // client_strings_npc.xml entries (STR_OBJ_IDRaksha_1F_Supply1-4), a mechanical object, not a
+  // creature, which just happens to take damage and die like one.
+  "Alpha Seal Generator": {
+    en: "Alpha Seal Generator",
+    de: "1. Siegel-Schutzgerät",
+    fr: "Générateur du sceau alpha",
+    es: "1.er Dispositivo de protección del sello",
+    ru: "1-е устройство поддержания печати",
+    pl: "1. Ochronne Urządzenie Pieczęci",
+    tr: "1. Mühür Koruma Cihazı",
+    zh: "第1封印维持装置",
+  },
+  "Beta Seal Generator": {
+    en: "Beta Seal Generator",
+    de: "2. Siegel-Schutzgerät",
+    fr: "Générateur du sceau bêta",
+    es: "2.º Dispositivo de protección del sello",
+    ru: "2-е устройство поддержания печати",
+    pl: "2. Ochronne Urządzenie Pieczęci",
+    tr: "2. Mühür Koruma Cihazı",
+    zh: "第2封印维持装置",
+  },
+  "Gamma Seal Generator": {
+    en: "Gamma Seal Generator",
+    de: "3. Siegel-Schutzgerät",
+    fr: "Générateur du sceau gamma",
+    es: "3.er Dispositivo de protección del sello",
+    ru: "3-е устройство поддержания печати",
+    pl: "3. Ochronne Urządzenie Pieczęci",
+    tr: "3. Mühür Koruma Cihazı",
+    zh: "第3封印维持装置",
+  },
+  "Delta Seal Generator": {
+    en: "Delta Seal Generator",
+    de: "4. Siegel-Schutzgerät",
+    fr: "Générateur du sceau delta",
+    es: "4.º Dispositivo de protección del sello",
+    ru: "4-е устройство поддержания печати",
+    pl: "4. Ochronne Urządzenie Pieczęci",
+    tr: "4. Mühür Koruma Cihazı",
+    zh: "第4封印维持装置",
+  },
+  // Two spaces between "Chantra" and "Fighter" is the client's own text, not a typo - matches the
+  // DB row's name exactly (`bosses.name = 'Chantra  Fighter'`); do not "fix" the spacing here or
+  // the translation stops matching.
+  "Chantra  Fighter": {
+    en: "Chantra  Fighter",
+    de: "Tahmes-Beobachter der Chantra",
+    fr: "Guerrier de Chantra",
+    es: "Observador de Tames de la Chantra",
+    ru: "Дракан-воитель 51-го легиона",
+    pl: "Obserwator Tahmes Chantra",
+    tr: "Çantra Tahmes Gözetleyicisi",
+    zh: "第51德拉坎战斗兵",
+  },
+  "Chantra Guardian": {
+    en: "Chantra Guardian",
+    de: "Tahmes-Kämpfer der Chantra",
+    fr: "Gardien de Chantra",
+    es: "Luchador de Tames de la Chantra",
+    ru: "Дракан-налетчик 51-го легиона",
+    pl: "Wojownik Tahmes Chantra",
+    tr: "Çantra Tahmes Dövüşçüsü",
+    zh: "第51德拉坎突击兵",
+  },
+  "Drakan Seal Protector": {
+    en: "Drakan Seal Protector",
+    de: "Drakan-Siegelbewacher",
+    fr: "Protecteur de sceau drakan",
+    es: "Guardián del sello dracan",
+    ru: "Запечатанный дракан-хранитель 51-го легиона",
+    pl: "Stróż Pieczęci Drakan",
+    tr: "Drakan Mühür Bekçisi",
+    zh: "第51德拉坎封印守护兵",
+  },
+  // en/DB name "Gatekeeper Melkennis" - the other 7 languages call this same monster (same
+  // STR_DIC_M_IDRaksha_0F_DrakanAssassin_kNmd1_57_Ae key) an "Overseer"/"Warden", not a
+  // "Gatekeeper" - a real per-language title difference in the client, same as Ovanuka/Ahuradim in
+  // the Sauro bosses above, not a translation error introduced here.
+  "Gatekeeper Melkennis": {
+    en: "Gatekeeper Melkennis",
+    de: "Aufseher Mashutanu",
+    fr: "Gardien[s] de porte Melkennis",
+    es: "Guardián Masutanu",
+    ru: "Защитник врат Машутану",
+    pl: "Nadzorca Mashutanu",
+    tr: "Gözetmen Maşutanu",
+    zh: "门将马修塔努",
+  },
+  "Hellpath Guardian Fireye": {
+    en: "Hellpath Guardian Fireye",
+    de: "Präfekt Sumeda",
+    fr: "Gardien œil-de-braise de la Marche des enfers",
+    es: "Prefecto Sumeda",
+    ru: "Караульный бездны Сумеда",
+    pl: "Prefekt Sumeda",
+    tr: "Reis Sumeda",
+    zh: "地狱路卫兵苏美达",
+  },
+  "Kerop Deathguard": {
+    en: "Kerop Deathguard",
+    de: "Keros-Todeswächter",
+    fr: "Garde[s] mortel[s] Keros",
+    es: "Guarda mortal Queros",
+    ru: "Цербер - хранитель смерти",
+    pl: "Strażnik Śmierci Keros",
+    tr: "Keros Ölüm Muhafızı",
+    zh: "守护死亡的凯洛斯",
+  },
+  "Kerop Lifesnatch": {
+    en: "Kerop Lifesnatch",
+    de: "Keros-Lebensentreißer",
+    fr: "Arrache-vie[s] Keros",
+    es: "Arrebatavidas Queros",
+    ru: "Смертоносный цербер",
+    pl: "Wyrywacz Życia Keros",
+    tr: "Keros Hayat Koparıcısı",
+    zh: "夺取生命的凯洛斯",
+  },
+  "Raksang Rubble": {
+    en: "Raksang Rubble",
+    de: "Raksha-Trümmer",
+    fr: "Gravas de Raksang",
+    es: "Escombros de Rajsá",
+    ru: "Обломок Тамарэса",
+    pl: "Szczątki Rakshy",
+    tr: "Rakşa Yıkıntısı",
+    zh: "塔梅斯的残骸",
+  },
+  "Scout Ksellid": {
+    en: "Scout Ksellid",
+    de: "Späher-Ksellid",
+    fr: "Éclaireur Ksellid",
+    es: "Sélido explorador",
+    ru: "Кселлид-разведчик",
+    pl: "Zwiadowca Ksellid",
+    tr: "Keşif Eri Ksellid",
+    zh: "侦察科塞利德",
+  },
+  "Vasuki Lifespark": {
+    en: "Vasuki Lifespark",
+    de: "Vasuki-Lebensfunken",
+    fr: "Vasuki Étincelle-de-vie",
+    es: "Vasuqui Chispadevida",
+    ru: "Реаниматор Паски",
+    pl: "Iskra Życia Vasuki",
+    tr: "Vasuki Yaşam Kıvılcımı",
+    zh: "复活师巴苏奇",
   },
   "Stahlrose: Anlegestelle": {
     en: "Steel Rose Cargo",
@@ -995,6 +1236,533 @@ const GAME_NAME_TRANSLATIONS = {
     pl: "Księgowy Kanerunerk",
     tr: "Muhasebeci Kanerunerk",
     zh: "会计师卡内隆",
+  },
+  // Everything below is pre-staged ahead of any real Chat.log/upload evidence - none of these
+  // fights have ever been recorded, so there is no `bosses` row for any of them yet and nothing
+  // here does anything until one appears. Verified the same way as everything above (client's own
+  // data.pak strings, joined by the stable <name> key across all 8 languages), not guessed - see
+  // each group's own remarks for the specific keys/zones and any per-language naming quirks found
+  // along the way.
+  // --- Sauro-Kriegsdepot's real B1-B5 boss chain (STR_NPCTITLE_IDVritra_Base_Boss_Ent_01..05) -
+  // never actually uploaded/fought yet (absent from every Chat.log seen so far), pre-staged so the
+  // translation is ready the moment someone's run reaches them. B4 (Ahuradim) is also one of the 10
+  // side-room bosses already above - same monster, same translation.
+  "Sly Uterunerk": {
+    en: "Sly Uterunerk",
+    de: "Heimtückischer Uterunerk",
+    fr: "Uterunerk le sournois",
+    es: "Pérfido Uteruner",
+    ru: "Коварный Утерун",
+    pl: "Podstępny Uterunerk",
+    tr: "Sinsi Uterunerk",
+    zh: "阴险的乌泰隆",
+  },
+  "Medical Officer Surkihan": {
+    en: "Medical Officer Surkihan",
+    de: "Sanitätsoffizier Surkihan",
+    fr: "Officier médical Surkihan",
+    es: "Oficial sanitario Surquiján",
+    ru: "Офицер лекарей Суркихан",
+    pl: "Oficer Medyczny Surkihan",
+    tr: "Surkihan Sıhhiye Subayı",
+    zh: "军医官苏勒奇汗",
+  },
+  "Inquisitor Jardaraka": {
+    en: "Inquisitor Jardaraka",
+    de: "Untersuchungsleiter Jardaraka",
+    fr: "Directeur de recherches Jardaraka",
+    es: "Jefe de investigación Jardaraca",
+    ru: "Следователь Джартарака",
+    pl: "Kierownik Badań Jardaraka",
+    tr: "Soruşturma Yöneticisi Jardaraka",
+    zh: "审讯官加尔达拉卡",
+  },
+  // Sauro-Kriegsdepot's actual final boss (B5) - de/fr/es/ru/pl/tr all call her "Shita", not
+  // "Sheba" (the internal client key itself is _Shita_) - same per-language name drift as
+  // Ovanuka/Obanuka above, not a mistake.
+  "Brigade General Sheba": {
+    en: "Brigade General Sheba",
+    de: "Brigadegeneralin der 40. Armee Shita",
+    fr: "Général de brigade de la 40e armée Shita",
+    es: "General de brigada Sita del 40.º ejército",
+    ru: "Командир 40-го легиона Шитха",
+    pl: "Generał Brygady 40 Armii, Shita",
+    tr: "40. Ordunun Tuğgenerali Şita",
+    zh: "第40军团长西塔",
+  },
+  // Steel Rose's actual final boss (all 3 decks combined) - "Maintenance Chief Notakiki" above is
+  // explicitly described in the client's own text as "Rumakiki's right-hand man", not the real
+  // endboss. Her own third deck/bridge area isn't in our instances table yet (no upload has reached
+  // it) - keyed by the client_strings_dic_monster.xml name, which differs from the in-combat
+  // nameplate "Captain Rumakiki".
+  "Steel Rose Rumakiki": {
+    en: "Steel Rose Rumakiki",
+    de: "Stahlrose Rumakiki",
+    fr: "Rumakiki Rose d'acier",
+    es: "Rumaquiqui la Rosa de acero",
+    ru: "Румакики Стальная роза",
+    pl: "Stalowa Róża Rumakiki",
+    tr: "Çelik Gül Rumakiki",
+    zh: "铁玫瑰路玛奇奇",
+  },
+  // Tiamat's Fortress - all 6 named generals plus the instance's real endboss, Tiamat herself.
+  // None of this instance's fights have ever been uploaded either - pre-staged the same way as the
+  // Sauro chain above.
+  "Brigade General Chantra": {
+    en: "Brigade General Chantra",
+    de: "Brigadegeneral Chantra",
+    fr: "Général de brigade Chantra",
+    es: "General de brigada Chantra",
+    ru: "Легат Джантра",
+    pl: "Generał Brygady Chantra",
+    tr: "Tuğgeneral Çantra",
+    zh: "军团长赞特拉",
+  },
+  "Brigade General Terath": {
+    en: "Brigade General Terath",
+    de: "Brigadegeneral Sadha",
+    fr: "Général de brigade Sadha",
+    es: "General de brigada Sada",
+    ru: "Легат Садх",
+    pl: "Generał Brygady Sadha",
+    tr: "Tuğgeneral Sadha",
+    zh: "军团长萨德哈",
+  },
+  "Traitor Kumbanda": {
+    en: "Traitor Kumbanda",
+    de: "Verräter Kumbanda",
+    fr: "Kumbanda le traître",
+    es: "Cumbanda el Traidor",
+    ru: "Предатель Кумбанда",
+    pl: "Zdrajca Kumbanda",
+    tr: "Hain Kumbanda",
+    zh: "背叛者昆班达",
+  },
+  "Brigade General Laksyaka": {
+    en: "Brigade General Laksyaka",
+    de: "Brigadegeneral Rakshaka",
+    fr: "Général de brigade Rakshaka",
+    es: "General de brigada Rajsaca",
+    ru: "Легат Ракшака",
+    pl: "Generał Brygady Rakshaka",
+    tr: "Tuğgeneral Rakşa",
+    zh: "军团长拉克夏卡",
+  },
+  "Adjutant Anuhart": {
+    en: "Adjutant Anuhart",
+    de: "Adjutant Anuhart",
+    fr: "Adjudant Anuhart",
+    es: "Edecán Anuhart",
+    ru: "Офицер Анухарт",
+    pl: "Adiutant Anuhart",
+    tr: "Emir Subayı Anuhart",
+    zh: "副官阿努哈尔特",
+  },
+  "Brigade General Tahabata": {
+    en: "Brigade General Tahabata",
+    de: "Brigadegeneral Tahabata",
+    fr: "Général de brigade Tahabata",
+    es: "General de brigada Tahabata",
+    ru: "Легат Тахабата",
+    pl: "Generał Brygady Tahabata",
+    tr: "Tuğgeneral Tahabata",
+    zh: "军团长塔哈巴塔",
+  },
+  // The instance's real endboss (3-phase fight: Drakan form -> dragon form -> "dying" form, same
+  // name throughout).
+  "Tiamat": {
+    en: "Tiamat",
+    de: "Tiamat",
+    fr: "Tiamat",
+    es: "Tiamat",
+    ru: "Тиамат",
+    pl: "Tiamat",
+    tr: "Tiamat",
+    zh: "提亚马特",
+  },
+  // Beshmundir Temple - considerably more than "4+1": the real client data shows at least 14
+  // named room bosses (STR_IDCatacombs_Boss_<type> slots) before the actual endboss, Stormwing.
+  // zh is missing for about half of these - a real gap in the extracted Chinese client dump for
+  // this late endgame content, not a failed search.
+  "Taros Lifebane": {
+    en: "Taros Lifebane",
+    de: "Taros Lebensbann",
+    fr: "Taros Mort-fléau",
+    es: "Taros Maldicevidas",
+    ru: "Пленный воин Тарос",
+    pl: "Klątwa Życia Taro",
+    tr: "Taros Yaşam Aforozu",
+  },
+  "Macunbello": {
+    en: "Macunbello",
+    de: "Macunbello",
+    fr: "Macunbello",
+    es: "Macunbello",
+    ru: "Темный волшебник Махунбелло",
+    pl: "Macunbello",
+    tr: "Makunbello",
+  },
+  "Captain Lakhara": {
+    en: "Captain Lakhara",
+    de: "Hauptmann Lakhara",
+    fr: "Capitaine Lakhara",
+    es: "Capitán Lajara",
+    ru: "Капитан часовых Ракхара",
+    pl: "Kapitan Lakhara",
+    tr: "Yüzbaşı Lakhara",
+  },
+  "The Great Virhana": {
+    en: "The Great Virhana",
+    de: "Virhana der Große",
+    fr: "Virhana le Grand",
+    es: "Virhana el Grande",
+    ru: "Памятник великому Вирхану",
+    pl: "Wielki Virhana",
+    tr: "Büyük Virhana",
+  },
+  "Ahbana the Wicked": {
+    en: "Ahbana the Wicked",
+    de: "Ahbana die Boshafte",
+    fr: "Ahbana la Mauvaise",
+    es: "Ahbana el Maligno",
+    ru: "Привязанный Ахбана",
+    pl: "Złośliwy Ahbana",
+    tr: "Kötü Ahbana",
+  },
+  "Protector Pahraza": {
+    en: "Protector Pahraza",
+    de: "Beschützer Pahraza",
+    fr: "Protecteur Pahraza",
+    es: "Protector Pahraza",
+    ru: "Задумчивый Фахран",
+    pl: "Obrońca Pahraza",
+    tr: "Koruyucu Fraza",
+  },
+  "Judge Kramaka": {
+    en: "Judge Kramaka",
+    de: "Richter Kramaka",
+    fr: "Juge Kramaka",
+    es: "Juez Cramaca",
+    ru: "Ходатай Краман",
+    pl: "Sędzia Kramaka",
+    tr: "Hakim Kramaka",
+  },
+  "Dorakiki the Bold": {
+    en: "Dorakiki the Bold",
+    de: "Dorakiki der Dreiste",
+    fr: "Dorakiki l'Audacieux",
+    es: "Doraquiqui el Atrevido",
+    ru: "Отважный Тораки",
+    pl: "Zuchwały Dorakiki",
+    tr: "Cesur Dorakiki",
+  },
+  "Manadar": {
+    en: "Manadar",
+    de: "Manadar",
+    fr: "Manadar",
+    es: "Manadar",
+    ru: "Преданный Манадар",
+    pl: "Manadar",
+    tr: "Manadar",
+  },
+  "Shadowshift": {
+    en: "Shadowshift",
+    de: "Schattenschreiter",
+    fr: "Crépuscule",
+    es: "Pisasombras",
+    ru: "Верный Сулаган",
+    pl: "Kroczący w Cieniu",
+    tr: "Gölge Nöbetçisi",
+    zh: "忠诚的苏拉甘",
+  },
+  "The Plaguebearer": {
+    en: "The Plaguebearer",
+    de: "Pestbringer",
+    fr: "Porte-peste",
+    es: "Portapestes",
+    ru: "Гигантский Мермук",
+    pl: "Przynosiciel Zarazy",
+    tr: "Veba Getiren",
+  },
+  "Flarestorm": {
+    en: "Flarestorm",
+    de: "Flammensturm",
+    fr: "Brûle-tempête",
+    es: "Tormentígneo",
+    ru: "Фланас",
+    pl: "Płomienna Burza",
+    tr: "Alev Fırtınası",
+  },
+  "Thurzon the Undying": {
+    en: "Thurzon the Undying",
+    de: "Thurzon der Untote",
+    fr: "Thurzon le Non-mort",
+    es: "Turzon el No Muerto",
+    ru: "Бессмертный Софин",
+    pl: "Nieumarły Thurzon",
+    tr: "Yaşayan Ölü Turzon",
+    zh: "不死的斯皮纳特",
+  },
+  "Isbariya the Resolute": {
+    en: "Isbariya the Resolute",
+    de: "Isbariya der Entschlossene",
+    fr: "Isbariya le déterminé",
+    es: "Isbariya el Decidido",
+    ru: "Хранитель печати Исбария",
+    pl: "Isbariya Zdeterminowany",
+    tr: "Kararlı İsbariya",
+    zh: "封印守护者伊斯巴里亚",
+  },
+  // The instance's real endboss.
+  "Stormwing": {
+    en: "Stormwing",
+    de: "Orkanschwinge",
+    fr: "Aile-Ouragan",
+    es: "Alaciclón",
+    ru: "Рудра бури",
+    pl: "Skrzydło Huraganu",
+    tr: "Kasırga Kanatlı",
+    zh: "封印的暴风之鲁德拉",
+  },
+  // Danuar Reliquary's endboss - en calls her "Enraged Queen Modor" (full name per Codex: Modor
+  // Arrownail); the other 6 languages still show an older name, "Grendal" (confirms the "Furious
+  // Grendal the Witch" lead) - same boss, different content-patch snapshot per language, not a
+  // mismatch introduced here. No zh entry found.
+  "Enraged Queen Modor": {
+    en: "Enraged Queen Modor",
+    de: "Zornige Hexe Grendal",
+    fr: "Sorcière Grendal enragée",
+    es: "Grendal, la bruja enfurecida",
+    ru: "Яростная ведьма Грендаль",
+    pl: "Gniewna Czarownica Grendal",
+    tr: "Öfkeli Cadı Grendal",
+  },
+  // Danuar Sanctuary's two bosses.
+  "Chief Medic Tagnu": {
+    en: "Chief Medic Tagnu",
+    de: "Oberheilerin Tagnu",
+    fr: "Maîtresse soigneuse Tagnu",
+    es: "Sanadora superior Tañu",
+    ru: "Капитан целителей Такну",
+    pl: "Główna uzdrowicielka Tagnu",
+    tr: "Yüksek Şifacı Tagnu",
+    zh: "医务队长塔格努",
+  },
+  // The user's lead named this "Staff Officer Syaroka" - the client's real en name is
+  // "Warmage Suyaroka".
+  "Warmage Suyaroka": {
+    en: "Warmage Suyaroka",
+    de: "Stabsoffizierin Syaroka",
+    fr: "Officier supérieur Syaroka",
+    es: "Oficial superior Siaroca",
+    ru: "Советница Саярока",
+    pl: "Oficer sztabu Syaroka",
+    tr: "Binbaşı Syaroka",
+    zh: "参谋士官斯亚罗卡",
+  },
+  // Infinity Shard's endboss. No zh entry found.
+  "Hyperion": {
+    en: "Hyperion",
+    de: "Hyperion",
+    fr: "Hypérion",
+    es: "Hiperión",
+    ru: "Гиперион",
+    pl: "Hyperion",
+    tr: "Hiperion",
+  },
+  // Illuminary Obelisk's endboss - real en name is "Test Weapon Dynatoum", not "Dynatum
+  // Prototype".
+  "Test Weapon Dynatoum": {
+    en: "Test Weapon Dynatoum",
+    de: "Prototyp Dainatum",
+    fr: "Prototype de Dainatum",
+    es: "Prototipo Dainatum",
+    ru: "Тестовое орудие Дайнатум",
+    pl: "Prototyp Dainatum",
+    tr: "Prototip Dainatum",
+    zh: "实验兵器戴纳通",
+  },
+  // Eternal Bastion - a wave-defense instance, not a classic dungeon: 3x3 wave commanders plus 2
+  // base commanders before the real endboss, Grand Commander Pashid. zh missing throughout (same
+  // gap as Beshmundir Temple above).
+  "Pashid Scout Commander Azute": {
+    en: "Pashid Scout Commander Azute",
+    de: "Kommandant des Spähtrupps Azut",
+    fr: "Commandant de la troupe de reconnaissance Azut",
+    es: "Comandante Azut de la tropa de exploración",
+    ru: "Командир разведки Азут",
+    pl: "Komendant Oddziału Zwiadowczego Azut",
+    tr: "Keşif Eri Birliği Azutun Komutanı",
+  },
+  "Pashid Scout Commander Zest": {
+    en: "Pashid Scout Commander Zest",
+    de: "Kommandant des 43. Spähtrupps Zest",
+    fr: "Commandant de la 43e troupe de reconnaissance Zest",
+    es: "Comandante Cest de la 43.ª tropa de exploración",
+    ru: "Командир разведки 43-го легиона Зест",
+    pl: "Komendant 43 Oddziału Zwiadowczego Zest",
+    tr: "43. Keşif Eri Birliği Komutanı",
+  },
+  "Pashid Scout Commander Sartas": {
+    en: "Pashid Scout Commander Sartas",
+    de: "Kommandant des 43. Spähtrupps Sartas",
+    fr: "Commandant de la 43e troupe de reconnaissance Sartas",
+    es: "Comandante Sartas de la 43.ª tropa de exploración",
+    ru: "Командир разведки 43-го легиона Сартас",
+    pl: "Komendant 43 Oddziału Zwiadowczego Sarty",
+    tr: "43. Keşif Eri Birliği Sartasın Komutanı",
+  },
+  "Pashid Infantry Commander Matuk": {
+    en: "Pashid Infantry Commander Matuk",
+    de: "Gefechtskommandant der 43. Armee Matuk",
+    fr: "Commandant de combat de la 43e armée Matuk",
+    es: "Comandante de combate Matuc del 43.er ejército",
+    ru: "Командир ударного отряда 43-го легиона Матук",
+    pl: "Komendant Walki 43 Armii Matuk",
+    tr: "43. Ordu Matukun Çatışma Komutanı",
+  },
+  "Pashid Assault Commander Badute": {
+    en: "Pashid Assault Commander Badute",
+    de: "Kommandant des 43. Sturmtrupps Badut",
+    fr: "Commandant du 43e escadron d'assaut Badut",
+    es: "Comandante Badut de la 43.ª tropa de ataque",
+    ru: "Командир ударного отряда 43-го легиона Бадут",
+    pl: "Komendant 43 Oddziału Szturmowego Badut",
+    tr: "43. Taaruz Birliği Badutun Komutanı",
+  },
+  "Pashid Assault Commander Katsu": {
+    en: "Pashid Assault Commander Katsu",
+    de: "Kommandant des 43. Sturmtrupps Kasutu",
+    fr: "Commandant du 43e escadron d'assaut Kasutu",
+    es: "Comandante Casutu de la 43.ª tropa de ataque",
+    ru: "Командир ударного отряда 43-го легиона Касту",
+    pl: "Komendant 43 Oddziału Szturmowego Kasutu",
+    tr: "43. Taaruz Birliği Kasutunun Komutanı",
+  },
+  "Pashid Artillery Commander Murat": {
+    en: "Pashid Artillery Commander Murat",
+    de: "Kommandant des 43. Kanoniertrupps Murat",
+    fr: "Commandant de la 43e troupe d'artillerie Murat",
+    es: "Comandante Murat de la 43.ª tropa de artilleros",
+    ru: "Командир артиллерии 43-го легиона Мурат",
+    pl: "Komendant 43 Oddziału Kanonierów Murat",
+    tr: "43. Topçu Birliği Muratın Komutanı",
+  },
+  "Pashid Artillery Commander Kaimdu": {
+    en: "Pashid Artillery Commander Kaimdu",
+    de: "Kommandant des 43. Kanoniertrupps Kaimdu",
+    fr: "Commandant de la 43e troupe d'artillerie Kaimdu",
+    es: "Comandante Caimdú de la 43.ª tropa de artilleros",
+    ru: "Командир артиллерии 43-го легиона Каимду",
+    pl: "Komendant 43 Oddziału Kanonierów Kaimdu",
+    tr: "43. Topçu Birliği Kaimdunun Komutanı",
+  },
+  "Pashid Infantry Commander Nirta": {
+    en: "Pashid Infantry Commander Nirta",
+    de: "Gefechtskommandant der 43. Armee Nirta",
+    fr: "Commandant de combat de la 43e armée Nirta",
+    es: "Comandante de combate Nirta del 43.er ejército",
+    ru: "Командир артиллерии 43-го легиона Нирта",
+    pl: "Komendant Walki 43 Armii Nirta",
+    tr: "43. Ordu Nirtanın Çatışma Komutanı",
+  },
+  "Commander Hakunta": {
+    en: "Commander Hakunta",
+    de: "Kommandant Hakunda",
+    fr: "Commandant Hakunda",
+    es: "Comandante Hacunda",
+    ru: "Командир цитадели Хакунда",
+    pl: "Komendant Hakunda",
+    tr: "Komutan Hakunda",
+    zh: "据点指挥官哈昆塔",
+  },
+  "Commander Rakunta": {
+    en: "Commander Rakunta",
+    de: "Kommandant Lakunda",
+    fr: "Commandant Lakunda",
+    es: "Comandante Lacunda",
+    ru: "Командир цитадели Ракунта",
+    pl: "Komendant Lakunda",
+    tr: "Komutan Lakunda",
+    zh: "据点指挥官拉昆塔",
+  },
+  // The real endboss of Eternal Bastion.
+  "Grand Commander Pashid": {
+    en: "Grand Commander Pashid",
+    de: "Oberbefehlshaber Paschid",
+    fr: "Commandant en chef Paschid",
+    es: "Comandante en jefe Pashid",
+    ru: "Главнокомандующий Фашид",
+    pl: "Naczelny Dowódca Paschid",
+    tr: "Başkomutan Paşid",
+    zh: "总指挥官帕希德",
+  },
+  // "Tiamat Treasure Hoard", not "Satra Treasure Hoard" - the internal zone code (IDTiamat_Reward)
+  // says Tiamat, not Satra. Two phases of the same dragon.
+  "Muzzled Punisher": {
+    en: "Muzzled Punisher",
+    de: "Gynulash",
+    fr: "Vengeur muselé",
+    es: "Giniurás",
+    ru: "Каратель Гинраш",
+    pl: "Gynulash",
+    tr: "Ginulaş",
+    zh: "惩罚者基纽拉希",
+  },
+  "Punisher Unleashed": {
+    en: "Punisher Unleashed",
+    de: "Unkontrollierbarer Gynulash",
+    fr: "Vengeur déchaîné",
+    es: "Giniurás el Incontrolable",
+    ru: "Взбешенный Гинраш",
+    pl: "Nieposkromiony Gynulash",
+    tr: "Kontrol Edilemeyen Ginulaş",
+    zh: "暴走的基纽拉希",
+  },
+  // Endboss of "Void Cube", not "Void Room" - only the display name differs from the user's lead.
+  "Furious Barukan": {
+    en: "Furious Barukan",
+    de: "Rasender Barukan",
+    fr: "Barukan l'insaisissable",
+    es: "Barucan el Atroz",
+    ru: "Яростный Барукан",
+    pl: "Wściekły Barukan",
+    tr: "Hızlı Barukan",
+    zh: "暴走的巴鲁坎",
+  },
+  // Tiamat's Shelter's boss.
+  "Calindi Flamelord": {
+    en: "Calindi Flamelord",
+    de: "Calindi Flammenlord",
+    fr: "Calindi, Seigneur des flammes",
+    es: "Calindi el Señor de las Llamas",
+    ru: "Хозяин пламени Каллинди",
+    pl: "Pan Płomieni Calindi",
+    tr: "Alev Lordu Kalindi",
+    zh: "火焰的主人卡林迪",
+  },
+  // Padmarashka's Cave's boss - Russian calls the same monster "Marissa" instead (a different
+  // content-patch snapshot, same pattern as the Danuar Reliquary boss above), not a mistake here.
+  "Padmarashka": {
+    en: "Padmarashka",
+    de: "Padmarashka",
+    fr: "Padmarashka",
+    es: "Padmarasca",
+    ru: "Чуткая Марисса",
+    pl: "Padmarashka",
+    tr: "Padmaraşka",
+    zh: "敏锐的帕德玛夏",
+  },
+  // Rentus Base's boss.
+  "Brigade General Vasharti": {
+    en: "Brigade General Vasharti",
+    de: "Brigadegeneral Vasharti",
+    fr: "Général de brigade de Vasharti",
+    es: "General de brigada Vasarti",
+    ru: "Легат Васатри",
+    pl: "Generał Brygady Vasharti",
+    tr: "Tuğgeneral Vaşarti",
+    zh: "军团长巴萨尔提",
   },
 };
 
