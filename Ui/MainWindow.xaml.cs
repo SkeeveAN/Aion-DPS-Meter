@@ -1320,6 +1320,14 @@ public partial class MainWindow : Window
         DateTime endedAt = windowEnd.ToUniversalTime();
         string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
 
+        // Per the user: practice dummies are not real encounters and must never be uploaded, no
+        // matter how many people happen to share the target id - see TrainingDummyNames's own
+        // remarks (this is also what used to blow past the backend's 24-participant cap with a 400).
+        if (TrainingDummyNames.IsTrainingDummy(bossName))
+        {
+            return null;
+        }
+
         var participants = new List<ParticipantUpload>();
         foreach (PlayerRow row in _rows)
         {
