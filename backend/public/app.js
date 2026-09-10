@@ -245,7 +245,24 @@ const INSTANCE_IMAGES = {
   "Rentus-Basis": "/images/instances/rentus_base.jpg",
   "Tiamats Festung": "/images/instances/tiamat_fortress.jpg",
   "Tiamats Unterschlupf": "/images/instances/tiamat_fortress.jpg",
+  // These two keyed by English name instead (like "Raksha Boilheart" above) - found via
+  // origincdx.com's own map list (IDLDF5Re_03 / IDLDF5_Under_02), but not present under either name
+  // in this client's own client_strings_dic_place.xml, so the real German name a German-client
+  // upload would actually carry is unconfirmed - fix the key once a real row shows it.
+  "Void Cube": "/images/instances/void_cube.jpg",
+  "Danuar Sanctuary": "/images/instances/danuar_sanctuary.jpg",
 };
+
+// Shared by the instance grid and the boss grid below - a "poster" tile is just a photo (optional),
+// a dark scrim for legibility, and a light title overlaid on top, linking somewhere.
+function posterCard(href, photo, title) {
+  const children = [el("div", { className: "poster-scrim" })];
+  if (photo) {
+    children.unshift(icon(photo, "poster-photo"));
+  }
+  children.push(el("div", { className: "poster-title", textContent: title }));
+  return el("a", { className: "poster-card", href }, children);
+}
 
 async function renderInstances() {
   setBreadcrumb([t("breadcrumb.instances")]);
@@ -259,16 +276,10 @@ async function renderInstances() {
 
   const grid = el(
     "div",
-    { className: "instance-grid" },
-    instances.map((i) => {
-      const photo = INSTANCE_IMAGES[i.name];
-      const children = [el("div", { className: "instance-poster-scrim" })];
-      if (photo) {
-        children.unshift(icon(photo, "instance-poster-photo"));
-      }
-      children.push(el("div", { className: "instance-poster-title", textContent: translateGameName(i.name) }));
-      return el("a", { className: "instance-poster", href: `#/instances/${i.id}` }, children);
-    }),
+    { className: "poster-grid" },
+    instances.map((i) =>
+      posterCard(`#/instances/${i.id}`, INSTANCE_IMAGES[i.name], translateGameName(i.name)),
+    ),
   );
   app.replaceChildren(el("h2", { textContent: t("instances.heading") }), grid);
 }
@@ -277,18 +288,31 @@ async function renderBosses(instanceId) {
   setBreadcrumb([link(t("breadcrumb.instances"), "#/"), t("breadcrumb.bosses")]);
   app.replaceChildren(el("p", { textContent: t("loading.bosses") }));
 
-  const bosses = await fetchJson(`/api/instances/${instanceId}/bosses`);
+  // The bosses endpoint doesn't carry the instance's own name (see backend/src/routes/instances.ts)
+  // - fetched separately (the instances list is tiny) rather than adding a field there just for
+  // this. Every boss card in this instance shares its one loading-screen photo: real, individual
+  // per-boss art doesn't exist in this client the way per-zone loading screens do (checked - no
+  // portrait/bestiary-icon asset tied to specific named monsters, only generic per-race icons), so
+  // reusing the instance's own art (rather than inventing or omitting one) is what's actually true
+  // of this content: every boss here IS this instance.
+  const [bosses, instances] = await Promise.all([
+    fetchJson(`/api/instances/${instanceId}/bosses`),
+    fetchJson("/api/instances"),
+  ]);
   if (bosses.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("bosses.emptyNoBosses") }));
     return;
   }
 
-  const list = el(
-    "ul",
-    { className: "plain" },
-    bosses.map((b) => el("li", {}, [link(translateGameName(b.name), `#/bosses/${b.id}`)])),
+  const instance = instances.find((i) => String(i.id) === String(instanceId));
+  const photo = instance ? INSTANCE_IMAGES[instance.name] : undefined;
+
+  const grid = el(
+    "div",
+    { className: "poster-grid" },
+    bosses.map((b) => posterCard(`#/bosses/${b.id}`, photo, translateGameName(b.name))),
   );
-  app.replaceChildren(el("h2", { textContent: t("bosses.heading") }), list);
+  app.replaceChildren(el("h2", { textContent: t("bosses.heading") }), grid);
 }
 
 // Faction + class icon + name in one cell - matches myaion.eu's own combined "Player" column

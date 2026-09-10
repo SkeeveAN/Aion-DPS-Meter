@@ -292,14 +292,14 @@ th {
    manual @media breakpoint) mirrors .feature-grid's existing pattern: 300px keeps exactly 3 columns
    at this page's real content width (1140px minus padding) while still collapsing gracefully on a
    narrow viewport. */
-.instance-grid {
+.poster-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
   margin: 12px 0 24px;
 }
 
-.instance-poster {
+.poster-card {
   display: block;
   position: relative;
   height: 200px;
@@ -312,14 +312,14 @@ th {
   transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
-.instance-poster:hover {
+.poster-card:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
 }
 
 /* No image mapped for this instance yet (see app.js's INSTANCE_IMAGES) - the card still works as a
    plain dark tile, same fallback spirit as icon()'s onerror removal elsewhere in this file. */
-.instance-poster-photo {
+.poster-photo {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -328,17 +328,17 @@ th {
   transition: transform 0.25s ease;
 }
 
-.instance-poster:hover .instance-poster-photo {
+.poster-card:hover .poster-photo {
   transform: scale(1.05);
 }
 
-.instance-poster-scrim {
+.poster-scrim {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.82) 100%);
 }
 
-.instance-poster-title {
+.poster-title {
   position: absolute;
   left: 14px;
   right: 14px;
