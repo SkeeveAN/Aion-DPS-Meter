@@ -595,7 +595,13 @@ async function renderSearchResults(query) {
     `/api/players/search?q=${encodeURIComponent(query)}&serverId=${encodeURIComponent(currentServerId)}`,
   );
   if (results.length === 1) {
-    location.hash = `#/players/${results[0].id}`;
+    // Not location.hash = ... : that pushes a NEW history entry on top of this search - pressing
+    // Back from the profile then lands back on this exact search, which (still one result) just
+    // redirects forward again immediately. Feels like Back is broken, since it visibly does
+    // nothing. replaceState swaps this entry in place instead, so Back skips past the search
+    // straight to whatever came before it - what the user was actually navigating away from.
+    history.replaceState(null, "", `#/players/${results[0].id}`);
+    await renderPlayerProfile(String(results[0].id));
     return;
   }
   if (results.length === 0) {
