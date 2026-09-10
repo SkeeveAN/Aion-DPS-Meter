@@ -253,12 +253,41 @@ const INSTANCE_IMAGES = {
   "Danuar Sanctuary": "/images/instances/danuar_sanctuary.jpg",
 };
 
+// Per the user: real per-boss art, not the instance's own photo reused - found on aion.fandom.com,
+// which turns out to keep one dedicated character-model render per named Sauro/Tahmes boss (found
+// via its own MediaWiki API, allimages with the boss's exact English title as the filename prefix -
+// e.g. "Guard_Captain_Ahuradim.png" - not a guess, confirmed present before use). Keyed the same way
+// as INSTANCE_IMAGES: the literal boss name a real upload carries. Two of the four bosses actually
+// live right now (Buchhalter Kanerunerk, Raksha Boilheart) have no page on that wiki at all - they
+// fall back to the instance photo via BOSS_IMAGES[name] ?? INSTANCE_IMAGES[instanceName] below,
+// same as before this existed.
+const BOSS_IMAGES = {
+  "Wachhauptmann Rohuka": "/images/bosses/rohuka.jpg",
+  "Chefkanonierin Kurmata": "/images/bosses/kurmata.jpg",
+  "Dunkelverschlinger Derakanak": "/images/bosses/derakanak.jpg",
+  "Stabschef Moriata": "/images/bosses/moriata.jpg",
+  "Forscherin Teselik": "/images/bosses/teselik.jpg",
+  "Versorgungskommandant Ranodim": "/images/bosses/ranodim.jpg",
+  "Torwächter Slurt": "/images/bosses/stranir.jpg",
+  "Inspektionsoffizier Obanuka": "/images/bosses/ovanuka.jpg",
+  "Inspektionsoffizier Sayahum": "/images/bosses/sayahum.jpg",
+  "Gardenführer Achradim": "/images/bosses/ahuradim.jpg",
+  "Wartungsleiterin Notakiki": "/images/bosses/notakiki.jpg",
+  "Brigade General Sheba": "/images/bosses/sheba.jpg",
+};
+
 // Shared by the instance grid and the boss grid below - a "poster" tile is just a photo (optional),
-// a dark scrim for legibility, and a light title overlaid on top, linking somewhere.
-function posterCard(href, photo, title) {
+// a dark scrim for legibility, and a light title overlaid on top, linking somewhere. objectPosition
+// defaults to centered (right for a landscape instance photo) but a boss portrait is a tall
+// character render - "top" keeps the face in frame instead of centering on the torso.
+function posterCard(href, photo, title, objectPosition) {
   const children = [el("div", { className: "poster-scrim" })];
   if (photo) {
-    children.unshift(icon(photo, "poster-photo"));
+    const img = icon(photo, "poster-photo");
+    if (objectPosition) {
+      img.style.objectPosition = objectPosition;
+    }
+    children.unshift(img);
   }
   children.push(el("div", { className: "poster-title", textContent: title }));
   return el("a", { className: "poster-card", href }, children);
@@ -290,11 +319,9 @@ async function renderBosses(instanceId) {
 
   // The bosses endpoint doesn't carry the instance's own name (see backend/src/routes/instances.ts)
   // - fetched separately (the instances list is tiny) rather than adding a field there just for
-  // this. Every boss card in this instance shares its one loading-screen photo: real, individual
-  // per-boss art doesn't exist in this client the way per-zone loading screens do (checked - no
-  // portrait/bestiary-icon asset tied to specific named monsters, only generic per-race icons), so
-  // reusing the instance's own art (rather than inventing or omitting one) is what's actually true
-  // of this content: every boss here IS this instance.
+  // this. Falls back to the instance's own photo only for a boss BOSS_IMAGES has no dedicated
+  // portrait for (see that const's own remarks) - better than no image at all, but a real per-boss
+  // photo always wins when one exists.
   const [bosses, instances] = await Promise.all([
     fetchJson(`/api/instances/${instanceId}/bosses`),
     fetchJson("/api/instances"),
@@ -305,12 +332,14 @@ async function renderBosses(instanceId) {
   }
 
   const instance = instances.find((i) => String(i.id) === String(instanceId));
-  const photo = instance ? INSTANCE_IMAGES[instance.name] : undefined;
+  const instancePhoto = instance ? INSTANCE_IMAGES[instance.name] : undefined;
 
   const grid = el(
     "div",
     { className: "poster-grid" },
-    bosses.map((b) => posterCard(`#/bosses/${b.id}`, photo, translateGameName(b.name))),
+    bosses.map((b) =>
+      posterCard(`#/bosses/${b.id}`, BOSS_IMAGES[b.name] ?? instancePhoto, translateGameName(b.name), "top"),
+    ),
   );
   app.replaceChildren(el("h2", { textContent: t("bosses.heading") }), grid);
 }
