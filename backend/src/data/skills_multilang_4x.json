@@ -1107,7 +1107,7 @@
   },
   {
     "id": 251,
-    "name": "Aion&#39;s Strength I",
+    "name": "Aion's Strength I",
     "icon": "cbt_fi_aggressivemode_g1.png",
     "class": "Gladiator",
     "slot": "active",
@@ -1708,7 +1708,7 @@
   },
   {
     "id": 391,
-    "name": "Zikel&#39;s Threat I",
+    "name": "Zikel's Threat I",
     "icon": "cbt_fi_berserk_g1.png",
     "class": "Gladiator",
     "slot": "active",
@@ -2080,7 +2080,7 @@
   },
   {
     "id": 475,
-    "name": "Nezekan&#39;s Shield I",
+    "name": "Nezekan's Shield I",
     "icon": "cbt_kn_avataadvent_g1.png",
     "class": "Templar",
     "slot": "active",
@@ -2092,7 +2092,7 @@
   },
   {
     "id": 476,
-    "name": "Zikel&#39;s Shield I",
+    "name": "Zikel's Shield I",
     "icon": "cbt_kn_demonicadvent_g1.png",
     "class": "Templar",
     "slot": "active",
@@ -2876,7 +2876,7 @@
   },
   {
     "id": 643,
-    "name": "Hunter&#39;s Might I",
+    "name": "Hunter's Might I",
     "icon": "live_ra_huntermind_g1.png",
     "class": "Ranger",
     "slot": "stigma",
@@ -3360,7 +3360,7 @@
   },
   {
     "id": 693,
-    "name": "Hunter&#39;s Eye I",
+    "name": "Hunter's Eye I",
     "icon": "cbt_ra_mindseye_g1.png",
     "class": "Ranger",
     "slot": "active",
@@ -3484,7 +3484,7 @@
   },
   {
     "id": 724,
-    "name": "Nature&#39;s Resolve I",
+    "name": "Nature's Resolve I",
     "icon": "cbt_ra_resistmind_g1.png",
     "class": "Ranger",
     "slot": "stigma",
@@ -4112,7 +4112,7 @@
   },
   {
     "id": 839,
-    "name": "Killer&#39;s Eye I",
+    "name": "Killer's Eye I",
     "icon": "cbt_as_strikingintention_g1.png",
     "class": "Assassin",
     "slot": "active",
@@ -4552,7 +4552,7 @@
   },
   {
     "id": 942,
-    "name": "Vaizel&#39;s Dirk I",
+    "name": "Vaizel's Dirk I",
     "icon": "cbt_as_soulbreak_g1.png",
     "class": "Assassin",
     "slot": "active",
@@ -4572,7 +4572,7 @@
   },
   {
     "id": 943,
-    "name": "Triniel&#39;s Dirk I",
+    "name": "Triniel's Dirk I",
     "icon": "cbt_as_deathbringer_g1.png",
     "class": "Assassin",
     "slot": "active",
@@ -4960,7 +4960,7 @@
   },
   {
     "id": 1034,
-    "name": "Earth&#39;s Wrath I",
+    "name": "Earth's Wrath I",
     "icon": "live_pr_purgatory_g1.png",
     "class": "Cleric",
     "slot": "stigma",
@@ -5088,7 +5088,7 @@
   },
   {
     "id": 1049,
-    "name": "Yustiel&#39;s Splendor I",
+    "name": "Yustiel's Splendor I",
     "icon": "live_pr_stigma_divinesanctuary_g1.png",
     "class": "Cleric",
     "slot": "stigma",
@@ -5100,7 +5100,7 @@
   },
   {
     "id": 1050,
-    "name": "Marchutan&#39;s Splendor I",
+    "name": "Marchutan's Splendor I",
     "icon": "live_pr_stigma_abysalsanctuary_g1.png",
     "class": "Cleric",
     "slot": "stigma",
@@ -5452,7 +5452,7 @@
   },
   {
     "id": 1102,
-    "name": "Sage&#39;s Wisdom I",
+    "name": "Sage's Wisdom I",
     "icon": "cbt_pr_sageswisdom_g1.png",
     "class": "Cleric",
     "slot": "stigma",
@@ -5624,7 +5624,7 @@
   },
   {
     "id": 1171,
-    "name": "Pandaemonium&#39;s Protection I",
+    "name": "Pandaemonium's Protection I",
     "icon": "cbt_pr_secretprecept_g1.png",
     "class": "Cleric",
     "slot": "active",
@@ -5732,7 +5732,7 @@
   },
   {
     "id": 1188,
-    "name": "Yustiel&#39;s Light I",
+    "name": "Yustiel's Light I",
     "icon": "cbt_pr_divinecircle_g1.png",
     "class": "Cleric",
     "slot": "active",
@@ -5752,7 +5752,7 @@
   },
   {
     "id": 1189,
-    "name": "Marchutan&#39;s Light I",
+    "name": "Marchutan's Light I",
     "icon": "cbt_pr_abysalcircle_g1.png",
     "class": "Cleric",
     "slot": "active",
@@ -5772,7 +5772,7 @@
   },
   {
     "id": 1192,
-    "name": "Ancestral Yustiel&#39;s Light I",
+    "name": "Ancestral Yustiel's Light I",
     "icon": "cbt_pr_divinecircle_g1.png",
     "class": "Cleric",
     "slot": "stigma",
@@ -5784,7 +5784,7 @@
   },
   {
     "id": 1193,
-    "name": "Ancestral Marchutan&#39;s Light I",
+    "name": "Ancestral Marchutan's Light I",
     "icon": "cbt_pr_abysalcircle_g1.png",
     "class": "Cleric",
     "slot": "stigma",
@@ -6240,7 +6240,7 @@
   },
   {
     "id": 1304,
-    "name": "Yustiel&#39;s Protection I",
+    "name": "Yustiel's Protection I",
     "icon": "cbt_ch_holygloria_g1.png",
     "class": "Chanter",
     "slot": "active",
@@ -6252,7 +6252,7 @@
   },
   {
     "id": 1305,
-    "name": "Marchutan&#39;s Protection I",
+    "name": "Marchutan's Protection I",
     "icon": "cbt_ch_abyssgloria_g1.png",
     "class": "Chanter",
     "slot": "active",
@@ -7028,7 +7028,7 @@
   },
   {
     "id": 1452,
-    "name": "Kaisinel&#39;s Wrath I",
+    "name": "Kaisinel's Wrath I",
     "icon": "cbt_wi_divineslayer_g1.png",
     "class": "Sorcerer",
     "slot": "active",
@@ -7040,7 +7040,7 @@
   },
   {
     "id": 1453,
-    "name": "Lumiel&#39;s Wrath I",
+    "name": "Lumiel's Wrath I",
     "icon": "cbt_wi_abysalslayer_g1.png",
     "class": "Sorcerer",
     "slot": "active",
@@ -7340,7 +7340,7 @@
   },
   {
     "id": 1503,
-    "name": "Aether&#39;s Hold I",
+    "name": "Aether's Hold I",
     "icon": "cbt_wi_wizardryhook_g1.png",
     "class": "Sorcerer",
     "slot": "active",
@@ -7396,7 +7396,7 @@
   },
   {
     "id": 1554,
-    "name": "Vaizel&#39;s Wisdom I",
+    "name": "Vaizel's Wisdom I",
     "icon": "cbt_wi_arcaneboost_g1.png",
     "class": "Sorcerer",
     "slot": "stigma",
@@ -7408,7 +7408,7 @@
   },
   {
     "id": 1555,
-    "name": "Zikel&#39;s Wisdom I",
+    "name": "Zikel's Wisdom I",
     "icon": "cbt_wi_arcanepower_g1.png",
     "class": "Sorcerer",
     "slot": "stigma",
@@ -7420,7 +7420,7 @@
   },
   {
     "id": 1556,
-    "name": "Lumiel&#39;s Wisdom I",
+    "name": "Lumiel's Wisdom I",
     "icon": "cbt_wi_arcanewisdom_g1.png",
     "class": "Sorcerer",
     "slot": "stigma",
@@ -8792,7 +8792,7 @@
   },
   {
     "id": 1808,
-    "name": "Vaizel&#39;s Arrow I",
+    "name": "Vaizel's Arrow I",
     "icon": "cbt_angel_ra_dp_deathblow.png",
     "class": "Ranger",
     "slot": "active",
@@ -8812,7 +8812,7 @@
   },
   {
     "id": 1816,
-    "name": "Triniel&#39;s Arrow I",
+    "name": "Triniel's Arrow I",
     "icon": "cbt_devil_ra_dp_deathblow.png",
     "class": "Ranger",
     "slot": "active",
@@ -9400,7 +9400,7 @@
   },
   {
     "id": 2271,
-    "name": "Inquisitor&#39;s Blow I",
+    "name": "Inquisitor's Blow I",
     "icon": "live_kn_thunderblade_g1.png",
     "class": "Templar",
     "slot": "stigma",
@@ -10684,7 +10684,7 @@
   },
   {
     "id": 2707,
-    "name": "Triniel&#39;s Breath I",
+    "name": "Triniel's Breath I",
     "icon": "wi_windarrow_g1.png",
     "class": "Sorcerer",
     "slot": "active",
@@ -11164,7 +11164,7 @@
   },
   {
     "id": 2740,
-    "name": "Land&#39;s Rage I",
+    "name": "Land's Rage I",
     "icon": "pr_angerofearth_g1.png",
     "class": "Cleric",
     "slot": "active",
@@ -11184,7 +11184,7 @@
   },
   {
     "id": 2741,
-    "name": "Land&#39;s Bargain I",
+    "name": "Land's Bargain I",
     "icon": "pr_holyexplosion_g1.png",
     "class": "Cleric",
     "slot": "active",
@@ -11204,7 +11204,7 @@
   },
   {
     "id": 2742,
-    "name": "Vitality&#39;s Gift I",
+    "name": "Vitality's Gift I",
     "icon": "pr_holylight_1_g1.png",
     "class": "Cleric",
     "slot": "active",
@@ -11440,7 +11440,7 @@
   },
   {
     "id": 2761,
-    "name": "Magic&#39;s Freedom I",
+    "name": "Magic's Freedom I",
     "icon": "el_magicalbreakdown_g1.png",
     "class": "Spiritmaster",
     "slot": "active",
@@ -11700,7 +11700,7 @@
   },
   {
     "id": 3064,
-    "name": "Minstrel&#39;s Flair I",
+    "name": "Minstrel's Flair I",
     "icon": "live_ba_songofanger_g1.png",
     "class": "Songweaver",
     "slot": "active",
@@ -11888,7 +11888,7 @@
   },
   {
     "id": 3109,
-    "name": "Sparrow&#39;s Chirp I",
+    "name": "Sparrow's Chirp I",
     "icon": "live_ba_songofsparrow_g1.png",
     "class": "Songweaver",
     "slot": "active",
@@ -12168,7 +12168,7 @@
   },
   {
     "id": 3150,
-    "name": "Composer&#39;s Bar I",
+    "name": "Composer's Bar I",
     "icon": "live_ba_songofbind_g1.png",
     "class": "Songweaver",
     "slot": "stigma",
@@ -12260,7 +12260,7 @@
   },
   {
     "id": 3157,
-    "name": "Harpist&#39;s Pod I",
+    "name": "Harpist's Pod I",
     "icon": "live_ba_songofgravity_g1.png",
     "class": "Songweaver",
     "slot": "active",
@@ -12580,7 +12580,7 @@
   },
   {
     "id": 3283,
-    "name": "Nature&#39;s Favor I",
+    "name": "Nature's Favor I",
     "icon": "live_gu_magicalbreathing_g1.png",
     "class": "Gunslinger",
     "slot": "stigma",
@@ -12592,7 +12592,7 @@
   },
   {
     "id": 3291,
-    "name": "Aion&#39;s Favor I",
+    "name": "Aion's Favor I",
     "icon": "live_gu_magicalpromise_g1.png",
     "class": "Gunslinger",
     "slot": "active",

@@ -88,11 +88,16 @@ WHERE name = '<Bossname>';
 
 Per Nutzeranfrage: das "Buffs"-Feld einer Encounter-Detailseite soll keine kurzen
 Kampf-Rotations-Buffs zeigen (z.B. Berserking I, 30s), sondern nur echte, länger stehende
-Verstärkungen (> 3 Minuten) - plus "Divine Power" unabhängig von der Dauer (siehe
-`src/skills/skillDurations.ts`, `ALWAYS_SHOWN_BUFFS`). Aion selbst nennt keine Dauer im Chat.log -
-die Werte in `src/data/skill_durations.json` (Kopie von `assets/skills/skill_durations.json`)
-stammen aus dem Beschreibungstext jeder Skillseite auf aioncodex.com ("Increases ... for 30s."/
-"... for 1h."), einmalig für alle 974 bekannten Skills abgerufen, nicht geschätzt.
+Verstärkungen (> 3 Minuten) - plus jeden Skill, der Göttliche Kraft/Divine Power kostet, unabhängig
+von dessen eigener Dauer (wie auf myaion.eu). Eine frühere Version dieser Regel hatte stattdessen
+eine wörtliche Namens-Ausnahme für einen Skill namens "Divine Power" - den es unter diesem exakten
+Namen nirgends in aioncodex' 4x-Katalog gibt; aufgefallen an "Daevic Fury I" (Gladiator), das nur
+30s hält, aber 2000 DP auf 30 Minuten Abklingzeit kostet und deshalb komplett unsichtbar blieb, bis
+diese Regel korrigiert wurde. Aion selbst nennt weder Dauer noch Ressourcenkosten im Chat.log - die
+Werte in `src/data/skill_durations.json`/`src/data/skill_dp_cost.json` (Kopien von
+`assets/skills/skill_durations.json`/`assets/skills/skill_dp_cost.json`) stammen aus dem
+Beschreibungstext jeder Skillseite auf aioncodex.com ("Increases ... for 30s."/"... for 1h." bzw.
+"Usage Cost: DP 2000"), einmalig für alle 974 bekannten Skills abgerufen, nicht geschätzt.
 
 Neu erzeugen (wenn aioncodex nachzieht oder weitere Skills dazukommen):
 
@@ -131,8 +136,38 @@ komplett (Word of Wind I mit `for 5m.` und Blessing of Health I mit `for 1h.` ka
 Dauer zurück, bis das aufgefallen ist). Immer stichprobenartig gegen bekannte lange Buffs prüfen,
 bevor die Datei übernommen wird.
 
-Grenzwert (`MIN_DURATION_SECONDS = 180`) und die `ALWAYS_SHOWN_BUFFS`-Ausnahmeliste stehen in
-`src/skills/skillDurations.ts` - eine Skill-Ausnahme dort per Namen eintragen, keine SQL nötig.
+`skill_dp_cost.json` nach demselben Muster neu erzeugen (welche Skills Göttliche Kraft kosten):
+
+```bash
+python3 - <<'PY'
+import json, re, time, urllib.request
+SRC = "assets/skills/skills_multilang_4x.json"
+OUT = "assets/skills/skill_dp_cost.json"
+skills = json.load(open(SRC, encoding="utf-8"))
+ids = sorted({s["id"] for s in skills})
+COST_RE = re.compile(r"Usage Cost:\s*([A-Za-z]+)\s*([\d,]*)")
+dp_ids = []
+for sid in ids:
+    html = urllib.request.urlopen(urllib.request.Request(
+        f"https://aioncodex.com/4x/skill/{sid}/", headers={"User-Agent": "Mozilla/5.0"}), timeout=10).read().decode("utf-8", "replace")
+    m = COST_RE.search(html)
+    if m and m.group(1) == "DP":
+        dp_ids.append(sid)
+    time.sleep(0.05)
+json.dump(sorted(dp_ids), open(OUT, "w", encoding="utf-8"), indent=1)
+PY
+cp assets/skills/skill_dp_cost.json backend/src/data/skill_dp_cost.json
+```
+
+Grenzwert (`MIN_DURATION_SECONDS = 180`) und die DP-Kosten-Prüfung stehen in
+`src/skills/skillDurations.ts` (`loadDpCostSkillIds`) - beide id-basiert (über
+`skills_multilang_4x.json`'s `<name>`-Zuordnung), keine Namens-Ausnahmeliste und keine SQL nötig.
+
+Nebenbei behoben, als diese Datei entstand: 41 Skillnamen in `skills_multilang_4x.json` trugen noch
+rohe HTML-Entities (`Triniel&#39;s Dirk I` statt `Triniel's Dirk I`) - kam beim ursprünglichen
+Aufbau der Datei nie zur Auflösung, fiel aber erst hier auf, weil ausgerechnet mehrere DP-Skills
+einen Apostroph im Namen tragen und ohne die Korrektur nie gegen echten Chat.log-Text gematcht
+hätten. `html.unescape()` auf `name`/`de`/`fr` behebt es dauerhaft.
 
 ## Deployment (alfahosting)
 
