@@ -1305,6 +1305,8 @@ public partial class MainWindow : Window
     /// a time so each real fight gets its own upload instead of one merged across the whole file.
     /// The 3-argument overload above is just this one, called with that target's full history.
     /// </summary>
+    private static readonly TimeSpan BuffPrePullGrace = TimeSpan.FromSeconds(30);
+
     private EncounterUploadRequest? BuildEncounterUpload(
         int targetId, string serverFingerprint, string? serverName,
         IReadOnlyList<DamageEvent> targetHits, DateTime windowStart, DateTime windowEnd)
@@ -1389,8 +1391,21 @@ public partial class MainWindow : Window
             // Real reinforcements this row cast during the fight (see ChatLog/BuffCastEvent) -
             // capped and ranked by cast count, same "top N" shape SkillBreakdown already uses for
             // damage/heal skills above, just counting casts instead of summing damage.
+            //
+            // The lower bound is windowStart minus BuffPrePullGrace, not windowStart itself - found
+            // from a real run where a pre-pull buff (Daevic Fury I) landed one second before the
+            // first recorded hit and was silently dropped from the upload entirely (not just
+            // filtered by isLongLastingBuff server-side - it never made it into the payload at
+            // all). Buffing right as you engage, a fraction of a second before your first hit
+            // actually lands, is completely normal, so the strict windowStart the damage/heal
+            // events above use is too tight specifically for buffs. Not unbounded, though: this
+            // target id persists across every future kill of the same boss in this Chat.log (see
+            // RunHeadlessClusteredUploadAsync's own remarks), so a buff from a genuinely separate,
+            // much earlier kill must not bleed into this one - 30s is generous enough for any real
+            // pre-pull buff sequence without reaching back that far.
             var buffs = _buffCasts
-                .Where(b => b.CasterId == row.ObjectId && b.Timestamp >= windowStart && b.Timestamp <= windowEnd)
+                .Where(b => b.CasterId == row.ObjectId
+                    && b.Timestamp >= windowStart - BuffPrePullGrace && b.Timestamp <= windowEnd)
                 .GroupBy(b => b.Skill)
                 .Select(g => new BuffUsageUpload(g.Key, g.Count()))
                 .OrderByDescending(b => b.Casts)
