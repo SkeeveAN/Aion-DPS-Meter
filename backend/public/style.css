@@ -299,10 +299,16 @@ th {
   margin: 12px 0 24px;
 }
 
+/* max-width, not just the grid's own minmax(300px, 1fr): auto-fit gives a lone leftover card (an
+   instance with only 1 boss so far, or a 4th instance wrapping to its own row) the ENTIRE row's
+   free space via that 1fr, ballooning it far past the ~360px the track-sizing implies for a real
+   3-per-row - fine for a landscape instance photo, but it stretched a boss's tall portrait render
+   into an unrecognizable sliver (found by the user against a real single-boss instance page). */
 .poster-card {
   display: block;
   position: relative;
   height: 200px;
+  max-width: 360px;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--border);
