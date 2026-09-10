@@ -257,10 +257,8 @@ const INSTANCE_IMAGES = {
 // which turns out to keep one dedicated character-model render per named Sauro/Tahmes boss (found
 // via its own MediaWiki API, allimages with the boss's exact English title as the filename prefix -
 // e.g. "Guard_Captain_Ahuradim.png" - not a guess, confirmed present before use). Keyed the same way
-// as INSTANCE_IMAGES: the literal boss name a real upload carries. Two of the four bosses actually
-// live right now (Buchhalter Kanerunerk, Raksha Boilheart) have no page on that wiki at all - they
-// fall back to the instance photo via BOSS_IMAGES[name] ?? INSTANCE_IMAGES[instanceName] below,
-// same as before this existed.
+// as INSTANCE_IMAGES: the literal boss name a real upload carries. An entry with no image here falls
+// back to the instance photo via BOSS_IMAGES[name] ?? INSTANCE_IMAGES[instanceName] below.
 const BOSS_IMAGES = {
   "Wachhauptmann Rohuka": "/images/bosses/rohuka.jpg",
   "Chefkanonierin Kurmata": "/images/bosses/kurmata.jpg",
@@ -274,6 +272,8 @@ const BOSS_IMAGES = {
   "Gardenführer Achradim": "/images/bosses/ahuradim.jpg",
   "Wartungsleiterin Notakiki": "/images/bosses/notakiki.jpg",
   "Brigade General Sheba": "/images/bosses/sheba.jpg",
+  // From the user directly (a real screenshot, not the wiki - Raksha Boilheart has no page there).
+  "Raksha Boilheart": "/images/bosses/raksha_boilheart.jpg",
 };
 
 // Shared by the instance grid and the boss grid below - a "poster" tile is just a photo (optional),
