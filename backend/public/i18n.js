@@ -1243,43 +1243,18 @@ const GAME_NAME_TRANSLATIONS = {
   // data.pak strings, joined by the stable <name> key across all 8 languages), not guessed - see
   // each group's own remarks for the specific keys/zones and any per-language naming quirks found
   // along the way.
-  // --- Sauro-Kriegsdepot's real B1-B5 boss chain (STR_NPCTITLE_IDVritra_Base_Boss_Ent_01..05) -
-  // never actually uploaded/fought yet (absent from every Chat.log seen so far), pre-staged so the
-  // translation is ready the moment someone's run reaches them. B4 (Ahuradim) is also one of the 10
-  // side-room bosses already above - same monster, same translation.
-  "Sly Uterunerk": {
-    en: "Sly Uterunerk",
-    de: "Heimtückischer Uterunerk",
-    fr: "Uterunerk le sournois",
-    es: "Pérfido Uteruner",
-    ru: "Коварный Утерун",
-    pl: "Podstępny Uterunerk",
-    tr: "Sinsi Uterunerk",
-    zh: "阴险的乌泰隆",
-  },
-  "Medical Officer Surkihan": {
-    en: "Medical Officer Surkihan",
-    de: "Sanitätsoffizier Surkihan",
-    fr: "Officier médical Surkihan",
-    es: "Oficial sanitario Surquiján",
-    ru: "Офицер лекарей Суркихан",
-    pl: "Oficer Medyczny Surkihan",
-    tr: "Surkihan Sıhhiye Subayı",
-    zh: "军医官苏勒奇汗",
-  },
-  "Inquisitor Jardaraka": {
-    en: "Inquisitor Jardaraka",
-    de: "Untersuchungsleiter Jardaraka",
-    fr: "Directeur de recherches Jardaraka",
-    es: "Jefe de investigación Jardaraca",
-    ru: "Следователь Джартарака",
-    pl: "Kierownik Badań Jardaraka",
-    tr: "Soruşturma Yöneticisi Jardaraka",
-    zh: "审讯官加尔达拉卡",
-  },
-  // Sauro-Kriegsdepot's actual final boss (B5) - de/fr/es/ru/pl/tr all call her "Shita", not
-  // "Sheba" (the internal client key itself is _Shita_) - same per-language name drift as
-  // Ovanuka/Obanuka above, not a mistake.
+  // Sauro-Kriegsdepot's actual two important endbosses, per the user - not the 9 side-room bosses
+  // already tracked above (Sheba's bodyguards/staff), and not the other names the client's own
+  // Boss_Ent_01..05 room chain or its separate BossN encounter set turned up along the way (Sly
+  // Uterunerk, Medical Officer Surkihan, Inquisitor Jardaraka, Jadram the Mad, Chief Medical
+  // Officer, Relics Expedition Leader) - none of those are one of the two the user cares about, and
+  // none has ever actually been uploaded/fought in a real Chat.log seen so far (see
+  // project_sauro_important_bosses in this session's memory for the full picture).
+  //
+  // "1 Schlüssel" (easier) - already one of the 9 side-room bosses above, same translation.
+  // "2 Schlüssel" (harder, better loot) - de/fr/es/ru/pl/tr all call her "Shita", not "Sheba" (the
+  // internal client key itself is _Shita_) - same per-language name drift as Ovanuka/Obanuka above,
+  // not a mistake. Never actually uploaded/fought yet either.
   "Brigade General Sheba": {
     en: "Brigade General Sheba",
     de: "Brigadegeneralin der 40. Armee Shita",
