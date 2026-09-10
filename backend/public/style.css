@@ -287,6 +287,68 @@ th {
   padding: 1px 5px;
 }
 
+/* Instance picker (#/) - per the user, real client loading-screen art per instance with the name
+   overlaid in light text, 3-per-row on desktop. auto-fit/minmax (not a fixed repeat(3, ...) or a
+   manual @media breakpoint) mirrors .feature-grid's existing pattern: 300px keeps exactly 3 columns
+   at this page's real content width (1140px minus padding) while still collapsing gracefully on a
+   narrow viewport. */
+.instance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin: 12px 0 24px;
+}
+
+.instance-poster {
+  display: block;
+  position: relative;
+  height: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  background: var(--bg-alt);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.instance-poster:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* No image mapped for this instance yet (see app.js's INSTANCE_IMAGES) - the card still works as a
+   plain dark tile, same fallback spirit as icon()'s onerror removal elsewhere in this file. */
+.instance-poster-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.instance-poster:hover .instance-poster-photo {
+  transform: scale(1.05);
+}
+
+.instance-poster-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.82) 100%);
+}
+
+.instance-poster-title {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
 .empty {
   color: var(--text-dim);
   font-style: italic;

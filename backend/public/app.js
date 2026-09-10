@@ -216,6 +216,37 @@ async function renderServerPicker() {
   );
 }
 
+// Per the user: real client loading-screen art (see backend/public/images/instances/, sourced from
+// this project's own AION client - Textures/loading/loading_<zone>.dds, decoded/cropped/re-encoded,
+// not fabricated) instead of the plain text list this used to be. Keyed by the literal instance
+// name, same convention as i18n.js's GAME_NAME_TRANSLATIONS - an instance with no entry here just
+// renders without a photo (icon()'s own onerror-remove handles a bad path the same way), it's never
+// guessed. Steel Rose's two tracked sub-instances share one image on purpose: the client itself only
+// ships a single loading screen for the whole ship (see the 3 identical loading_IDShulack_rose_0N.dds
+// files - checked by hash, not assumed).
+const INSTANCE_IMAGES = {
+  "Sauro-Kriegsdepot": "/images/instances/sauro.jpg",
+  Tahmes: "/images/instances/tahmes.jpg",
+  "Stahlrose: Anlegestelle": "/images/instances/steelrose.jpg",
+  "Stahlrose: Kabine": "/images/instances/steelrose.jpg",
+  // The rest are pre-staged the same way as the Sauro/Tahmes boss-name translations in i18n.js -
+  // none of these instances have ever been uploaded yet, so the key (the exact German name a real
+  // upload would carry, per assets/places/instances_multilang.json's own "de" field) is provisional
+  // until a real row confirms it. "Ruhnadium"/"Jormungand-Marschroute" are the client's real German
+  // names, not "Danuar Reliquary"/"Ophidan Bridge" translated - same per-language-name-drift pattern
+  // documented throughout i18n.js.
+  "Beshmundirs Tempel": "/images/instances/beshmundir.jpg",
+  Ruhnadium: "/images/instances/danuar_reliquary.jpg",
+  "Schutzturm der Ruhn": "/images/instances/illuminary_obelisk.jpg",
+  Katalamize: "/images/instances/infinity_shard.jpg",
+  Stahlmauerbastion: "/images/instances/eternal_bastion.jpg",
+  "Schlachtfeld der Stahlmauerbastion": "/images/instances/iron_wall_warfront.jpg",
+  "Jormungand-Marschroute": "/images/instances/ophidan_bridge.jpg",
+  "Rentus-Basis": "/images/instances/rentus_base.jpg",
+  "Tiamats Festung": "/images/instances/tiamat_fortress.jpg",
+  "Tiamats Unterschlupf": "/images/instances/tiamat_fortress.jpg",
+};
+
 async function renderInstances() {
   setBreadcrumb([t("breadcrumb.instances")]);
   app.replaceChildren(el("p", { textContent: t("loading.instances") }));
@@ -226,12 +257,20 @@ async function renderInstances() {
     return;
   }
 
-  const list = el(
-    "ul",
-    { className: "plain" },
-    instances.map((i) => el("li", {}, [link(translateGameName(i.name), `#/instances/${i.id}`)])),
+  const grid = el(
+    "div",
+    { className: "instance-grid" },
+    instances.map((i) => {
+      const photo = INSTANCE_IMAGES[i.name];
+      const children = [el("div", { className: "instance-poster-scrim" })];
+      if (photo) {
+        children.unshift(icon(photo, "instance-poster-photo"));
+      }
+      children.push(el("div", { className: "instance-poster-title", textContent: translateGameName(i.name) }));
+      return el("a", { className: "instance-poster", href: `#/instances/${i.id}` }, children);
+    }),
   );
-  app.replaceChildren(el("h2", { textContent: t("instances.heading") }), list);
+  app.replaceChildren(el("h2", { textContent: t("instances.heading") }), grid);
 }
 
 async function renderBosses(instanceId) {
