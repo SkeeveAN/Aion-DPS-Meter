@@ -37,20 +37,95 @@ public enum LootTier
 /// in English) holds the single boss "Hyperion" - the instance nearly everyone just calls by its
 /// boss's name.
 ///
-/// Per the user, the same "65er" jewelry rule also covers the rest of the level-65 Danuar
-/// instance family: Danuar Reliquary (Modor/Grendal - two-phase fight, English calls her Modor,
-/// every other language calls her Grendal instead, same inconsistency pattern as Sheba/Shita),
-/// Illuminary Obelisk (Dynatoum/Dainatum - same English/everyone-else spelling split again), and
-/// Danuar Sanctuary (Ukahim - no such split this time, every language keeps "Ukahim"). A fourth
-/// instance in this family, Ophidan Bridge, is deliberately NOT curated here: it's a siege/PvP-
-/// flavored instance with no single clear PvE boss NPC in the client strings (only a generic
-/// "cannon" object, not a proper name, in every non-English language) - a real chat log from an
-/// actual run would be needed to resolve it properly rather than guess.
+/// Per the user, the same "65er" jewelry rule also covers Sauro's own side-room trash mobs (see
+/// their own remarks below - loot picked up before Ahuradim/Sheba is dead otherwise falls through
+/// to the ordinary rule, since nothing has told CurrentLootTier which instance this is yet) and
+/// the rest of the level-65 Danuar instance family: Danuar Reliquary (Modor/Grendal - two-phase
+/// fight, English calls her Modor, every other language calls her Grendal instead, same
+/// inconsistency pattern as Sheba/Shita), Illuminary Obelisk (Dynatoum/Dainatum - same
+/// English/everyone-else spelling split again), Danuar Sanctuary (three co-equal bosses -
+/// Tagnu/Suyaroka/Ukahim), and Ophidan Bridge's PVE encounter (Vera/Surkana Aetherturret/Beritran
+/// Support Magus - see that entry's own remarks on why it's less certain than the rest of this
+/// table, not yet confirmed by a real Chat.log).
 /// </summary>
 public static class InstanceTierDatabase
 {
     private static readonly Dictionary<string, LootTier> TierByBossName = new(StringComparer.Ordinal)
     {
+        // Sauro Supply Base's side-room trash mobs, not just its two real bosses - found necessary
+        // from a real report: loot picked up on the way to Ahuradim/Sheba (before either is dead)
+        // showed up untouched by the 65er rule, since nothing had yet told CurrentLootTier which
+        // instance this is. These names/translations are already verified in the backend's own
+        // GAME_NAME_TRANSLATIONS (see backend/public/i18n.js) against client_strings_dic_monster.xml.
+        ["Guard Captain Rohuka"] = LootTier.SixtyFive, // en
+        ["Wachhauptmann Rohuka"] = LootTier.SixtyFive, // de
+        ["Capitaine de la garde Rohuka"] = LootTier.SixtyFive, // fr
+        ["Capitán de la guardia Rojuca"] = LootTier.SixtyFive, // es
+        ["Начальник охраны Рохка"] = LootTier.SixtyFive, // ru
+        ["Kapitan Straży Rohuka"] = LootTier.SixtyFive, // pl
+        ["Rohuka Nöbetçi Yüzbaşısı"] = LootTier.SixtyFive, // tr
+        ["警备队长罗赫卡"] = LootTier.SixtyFive, // zh
+        ["Chief Gunner Kurmata"] = LootTier.SixtyFive, // en
+        ["Chefkanonierin Kurmata"] = LootTier.SixtyFive, // de
+        ["Canonnier en chef Kurmata"] = LootTier.SixtyFive, // fr
+        ["Jefe artillero Curmata"] = LootTier.SixtyFive, // es
+        ["Главный канонир Курмата"] = LootTier.SixtyFive, // ru
+        ["Naczelny Kanonier Kurmata"] = LootTier.SixtyFive, // pl
+        ["Topçu Başı Kurmata"] = LootTier.SixtyFive, // tr
+        ["炮兵队长库尔玛塔"] = LootTier.SixtyFive, // zh
+        ["Derakanak the Reaver"] = LootTier.SixtyFive, // en
+        ["Dunkelverschlinger Derakanak"] = LootTier.SixtyFive, // de
+        ["Derakanak sombre-glouton"] = LootTier.SixtyFive, // fr
+        ["Devorador oscuro Deracanac"] = LootTier.SixtyFive, // es
+        ["Поглотитель тьмы Дераканак"] = LootTier.SixtyFive, // ru
+        ["Pochłaniacz Ciemności Derakanak"] = LootTier.SixtyFive, // pl
+        ["Karanlık Yok Edici Derakanak"] = LootTier.SixtyFive, // tr
+        ["Chief of Staff Moriata"] = LootTier.SixtyFive, // en
+        ["Stabschef Moriata"] = LootTier.SixtyFive, // de
+        ["Chef d'état-major Moriata"] = LootTier.SixtyFive, // fr
+        ["Jefe del estado mayor Moriata"] = LootTier.SixtyFive, // es
+        ["Главный советник Мориата"] = LootTier.SixtyFive, // ru
+        ["Szef Sztabu Moriata"] = LootTier.SixtyFive, // pl
+        ["Alay Başkanı Moriata"] = LootTier.SixtyFive, // tr
+        ["参谋长摩里亚塔"] = LootTier.SixtyFive, // zh
+        ["Researcher Teselik"] = LootTier.SixtyFive, // en
+        ["Forscherin Teselik"] = LootTier.SixtyFive, // de
+        ["Chercheuse Teselik"] = LootTier.SixtyFive, // fr
+        ["Investigadora Teselic"] = LootTier.SixtyFive, // es
+        ["Исследовательница Тесерик"] = LootTier.SixtyFive, // ru
+        ["Badaczka Teselik"] = LootTier.SixtyFive, // pl
+        ["Araştırmacı Teselik"] = LootTier.SixtyFive, // tr
+        ["研究专家泰塞里克"] = LootTier.SixtyFive, // zh
+        ["Commander Ranodim"] = LootTier.SixtyFive, // en
+        ["Versorgungskommandant Ranodim"] = LootTier.SixtyFive, // de
+        ["Commandant chargé de l'approvisionnement Ranodim"] = LootTier.SixtyFive, // fr
+        ["Comandante de abastecimiento Ranodim"] = LootTier.SixtyFive, // es
+        ["Командир Ланодим"] = LootTier.SixtyFive, // ru
+        ["Komendant Zaopatrzenia Ranodim"] = LootTier.SixtyFive, // pl
+        ["Tedarik Komutanı Ranodim"] = LootTier.SixtyFive, // tr
+        ["兵站指挥官拉诺丁"] = LootTier.SixtyFive, // zh
+        ["Gatekeeper Stranir"] = LootTier.SixtyFive, // en
+        ["Torwächter Slurt"] = LootTier.SixtyFive, // de
+        ["Gardien Slurt"] = LootTier.SixtyFive, // fr
+        ["Portero Eslurte"] = LootTier.SixtyFive, // es
+        ["Защитник врат Слот"] = LootTier.SixtyFive, // ru
+        ["Strażnik Bramy Slurt"] = LootTier.SixtyFive, // pl
+        ["Kapı Muhafızı Slurt"] = LootTier.SixtyFive, // tr
+        ["Darkblade Ovanuka"] = LootTier.SixtyFive, // en
+        ["Inspektionsoffizier Obanuka"] = LootTier.SixtyFive, // de
+        ["Officier inspecteur Obanuka"] = LootTier.SixtyFive, // fr
+        ["Oficial de inspección Obanuca"] = LootTier.SixtyFive, // es
+        ["Офицер-инспектор Ованка"] = LootTier.SixtyFive, // ru
+        ["Oficer Inspekcji Obanuka"] = LootTier.SixtyFive, // pl
+        ["Obanuka Teftiş Subayı"] = LootTier.SixtyFive, // tr
+        ["Archmagus Sayahum"] = LootTier.SixtyFive, // en
+        ["Inspektionsoffizier Sayahum"] = LootTier.SixtyFive, // de
+        ["Officier inspecteur Sayahum"] = LootTier.SixtyFive, // fr
+        ["Oficial de inspección Sayaum"] = LootTier.SixtyFive, // es
+        ["Офицер-инспектор Саяхум"] = LootTier.SixtyFive, // ru
+        ["Oficer Inspekcji Sayahum"] = LootTier.SixtyFive, // pl
+        ["Sayahum Teftiş Subayı"] = LootTier.SixtyFive, // tr
+
         // Guard Captain Ahuradim - Sauro Supply Base, 65er
         ["Guard Captain Ahuradim"] = LootTier.SixtyFive, // en
         ["Gardenführer Achradim"] = LootTier.SixtyFive, // de
@@ -114,7 +189,9 @@ public static class InstanceTierDatabase
         ["Тестовое орудие Дайнатум"] = LootTier.SixtyFive, // ru
         ["Prototip Dainatum"] = LootTier.SixtyFive, // tr
 
-        // Virulent Ukahim - Danuar Sanctuary, 65er
+        // Danuar Sanctuary's three co-equal bosses (the dictionary text names all three as
+        // interchangeable "Special Research Team" commanders from "Beritra's Fang unit" - see
+        // backend/public/i18n.js's own remarks on how this was confirmed).
         ["Virulent Ukahim"] = LootTier.SixtyFive, // en
         ["Schreckensklinge Ukahim"] = LootTier.SixtyFive, // de
         ["Ucaím Filoterrorífico"] = LootTier.SixtyFive, // es
@@ -122,6 +199,22 @@ public static class InstanceTierDatabase
         ["Ostrze Strachu Ukahim"] = LootTier.SixtyFive, // pl
         ["Убийца Укахим"] = LootTier.SixtyFive, // ru
         ["Korku Bıçağı Ukahim"] = LootTier.SixtyFive, // tr
+        ["Chief Medic Tagnu"] = LootTier.SixtyFive, // en
+        ["Oberheilerin Tagnu"] = LootTier.SixtyFive, // de
+        ["Maîtresse soigneuse Tagnu"] = LootTier.SixtyFive, // fr
+        ["Sanadora superior Tañu"] = LootTier.SixtyFive, // es
+        ["Капитан целителей Такну"] = LootTier.SixtyFive, // ru
+        ["Główna uzdrowicielka Tagnu"] = LootTier.SixtyFive, // pl
+        ["Yüksek Şifacı Tagnu"] = LootTier.SixtyFive, // tr
+        ["医务队长塔格努"] = LootTier.SixtyFive, // zh
+        ["Warmage Suyaroka"] = LootTier.SixtyFive, // en
+        ["Stabsoffizierin Syaroka"] = LootTier.SixtyFive, // de
+        ["Officier supérieur Syaroka"] = LootTier.SixtyFive, // fr
+        ["Oficial superior Siaroca"] = LootTier.SixtyFive, // es
+        ["Советница Саярока"] = LootTier.SixtyFive, // ru
+        ["Oficer sztabu Syaroka"] = LootTier.SixtyFive, // pl
+        ["Binbaşı Syaroka"] = LootTier.SixtyFive, // tr
+        ["参谋士官斯亚罗卡"] = LootTier.SixtyFive, // zh
 
         // Ophidan Bridge's final encounter (1 mage + 2 turrets), 65er - per the user, NOT yet
         // confirmed by a real Chat.log (their group hasn't run it): matched from the client's own
