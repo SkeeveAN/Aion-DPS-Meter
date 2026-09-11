@@ -53,6 +53,20 @@ public partial class MainWindow : Window
     /// <summary>Null = "All" (the Mob/Boss filter's first, always-present entry).</summary>
     private int? _selectedTargetId;
 
+    /// <summary>
+    /// Both null = the whole history of whichever target _selectedTargetId names (every kill of it
+    /// combined), matching this app's original behavior. Both set = one specific numbered run
+    /// picked from the dropdown (see ApplyMobBossSearchFilter's own remarks on why a boss farmed
+    /// repeatedly - per the user, "e.g. Raksang Boilheart 5x in a row" - gets split into "#1".."#N"
+    /// entries there instead of one entry silently averaging all of them together). Consulted by
+    /// RefreshRows (to scope the live table) and the 3-arg BuildEncounterUpload overload (to scope
+    /// an upload) - every OTHER place that sets _selectedTargetId directly (not via the dropdown)
+    /// must also set these back to null, since they all want that target's full history, not
+    /// whatever run happened to be selected in the UI before that code ran.
+    /// </summary>
+    private DateTime? _selectedRunWindowStart;
+    private DateTime? _selectedRunWindowEnd;
+
     /// <summary>Null = "All" (ClassFilter's first entry, no Tag). Per the user: was purely
     /// decorative until now (see the XAML comment on ClassFilter's own history) -- expected to
     /// actually filter once other players' classes started being detected at all, and an empty
@@ -940,10 +954,14 @@ public partial class MainWindow : Window
         // PVP DMG, per the user: damage against other PLAYERS only - mobs/bosses excluded
         // regardless of the Mob/Boss filter, which only ever lists NPC targets anyway (a specific
         // mob selection means nothing once mobs are out of the picture entirely).
+        // A specific numbered run (both _selectedRunWindow* set - see MobBossTag's own remarks)
+        // narrows further to that one run's own time span, not the target's whole history.
         var filtered = _pvpOnly
             ? damageOnly.Where(ev => IsPlayerName(ev.TargetObjectId)).ToList()
             : _selectedTargetId is int targetId
-                ? damageOnly.Where(ev => ev.TargetObjectId == targetId).ToList()
+                ? damageOnly.Where(ev => ev.TargetObjectId == targetId
+                        && (_selectedRunWindowStart is not DateTime rs || (ev.Timestamp >= rs && ev.Timestamp <= _selectedRunWindowEnd)))
+                    .ToList()
                 : RestrictToEngagedTargets(damageOnly.ToList());
 
         var sides = ResolveSides();
@@ -1035,10 +1053,14 @@ public partial class MainWindow : Window
             // just summed from, not the unfiltered full history - same reasoning as the
             // Mob/Boss-filtered iDPS case below (see BuildEncounterUpload's own remarks on the
             // totalDamage/idps-must-share-one-source-of-truth bug this pattern once caused).
+            // `filtered`, not `_aggregator.Events`, in the targeted branch too: a specific
+            // numbered run's iDPS must come from that same run's own window, the same
+            // one-source-of-truth reasoning the PVP branch above already follows (see
+            // BuildEncounterUpload's own remarks on the totalDamage/idps bug this once caused).
             row.Dps = _pvpOnly
                 ? DpsCalculator.AllDpsWallClock(filtered, sourceId)
                 : _selectedTargetId is int t
-                    ? DpsCalculator.TargetIDps(_aggregator.Events, t, sourceId)
+                    ? DpsCalculator.TargetIDps(filtered, t, sourceId)
                     : DpsCalculator.AllDpsWallClock(_aggregator.Events, sourceId);
 
             ApplySide(row, sourceId, sides);
@@ -1275,19 +1297,94 @@ public partial class MainWindow : Window
     /// survived the filter: every rebuild creates new ComboBoxItem instances, so without this the
     /// selection (and _selectedTargetId with it) would reset on every keystroke.
     /// </summary>
+    /// <summary>One dropdown entry's Tag - null WindowStart/End means "this target's whole
+    /// history", a real pair means one specific numbered run (see MobBossTagsFor).</summary>
+    private readonly record struct MobBossTag(int TargetId, DateTime? WindowStart, DateTime? WindowEnd);
+
+    /// <summary>Gap between hits, in seconds, past which two hits on the same target count as
+    /// separate runs rather than one continuous fight - same default the CLI's headless clustered
+    /// upload already uses (see Program.cs), reused here so the dropdown's own split agrees with
+    /// what "AionSniffer upload" would produce for the same Chat.log.</summary>
+    private const double RunClusterGapSeconds = 120;
+
+    /// <summary>
+    /// One or more (Tag, DisplayName, Damage) rows for a single Mob/Boss entry - per the user, a
+    /// boss farmed repeatedly in one Chat.log (their example: Raksang Boilheart, five kills in a
+    /// row) must appear as "Name #1".."Name #N" so each run stays individually selectable
+    /// afterward, not just as one entry that silently combines every kill's numbers together. A
+    /// target hit only once (the common case) still gets exactly one row, unnumbered and with a
+    /// null window - identical to this method's pre-existing behavior for that case.
+    /// </summary>
+    private IEnumerable<(MobBossTag Tag, string Name, long Damage)> MobBossRowsFor(int targetId, string name)
+    {
+        var hits = _aggregator.Events
+            .Where(ev => !ev.IsHeal && ev.TargetObjectId == targetId)
+            .OrderBy(ev => ev.Timestamp)
+            .ToList();
+        if (hits.Count == 0)
+        {
+            yield return (new MobBossTag(targetId, null, null), name, 0);
+            yield break;
+        }
+
+        var clusters = new List<List<DamageEvent>>();
+        foreach (DamageEvent hit in hits)
+        {
+            if (clusters.Count > 0 && (hit.Timestamp - clusters[^1][^1].Timestamp).TotalSeconds <= RunClusterGapSeconds)
+            {
+                clusters[^1].Add(hit);
+            }
+            else
+            {
+                clusters.Add(new List<DamageEvent> { hit });
+            }
+        }
+
+        if (clusters.Count == 1)
+        {
+            yield return (new MobBossTag(targetId, null, null), name, clusters[0].Sum(e => e.Amount));
+            yield break;
+        }
+
+        for (int i = 0; i < clusters.Count; i++)
+        {
+            List<DamageEvent> cluster = clusters[i];
+            var tag = new MobBossTag(targetId, cluster[0].Timestamp, cluster[^1].Timestamp);
+            yield return (tag, $"{name} #{i + 1}", cluster.Sum(e => e.Amount));
+        }
+    }
+
     private void ApplyMobBossSearchFilter()
     {
-        int? previouslySelected = _selectedTargetId;
+        MobBossTag? previouslySelected = _selectedTargetId is int previousTargetId
+            ? new MobBossTag(previousTargetId, _selectedRunWindowStart, _selectedRunWindowEnd)
+            : null;
         string search = _mobBossSearchBox?.Text ?? "";
+        // TextChanged rebuilds Items below, which regenerates the ComboBox's item containers and,
+        // as a side effect, steals keyboard focus away from PART_SearchBox back to the ComboBox
+        // itself - found from a real report: typing more than one letter required clicking back
+        // into the search box after every single character. Caret position is saved too. Restored
+        // via BeginInvoke at Input priority, same timing reasoning as DropDownOpened's own focus
+        // hand-off a few lines below - the rebuilt containers aren't necessarily focusable yet on
+        // this exact call frame.
+        bool searchBoxHadFocus = _mobBossSearchBox?.IsFocused ?? false;
+        int caretIndex = _mobBossSearchBox?.CaretIndex ?? 0;
+
+        // Per the user: a real boss should always sort above trash mobs, by however much combined
+        // damage the group actually did to it - not alphabetically, and not by discovery order.
+        // Descending by damage puts a boss (tens of thousands of hits) far above a random trash
+        // mob (a few hits in passing) without needing any curated "this is a real boss" list.
+        var rows = _mobBossEntries
+            .SelectMany(entry => MobBossRowsFor(entry.TargetId, entry.Name))
+            .Where(row => search.Length == 0 || row.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(row => row.Damage)
+            .ToList();
 
         MobBossFilter.Items.Clear();
         MobBossFilter.Items.Add(_mobBossAllItem);
-        foreach (var entry in _mobBossEntries)
+        foreach (var row in rows)
         {
-            if (search.Length == 0 || entry.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
-            {
-                MobBossFilter.Items.Add(new ComboBoxItem { Content = entry.Name, Tag = entry.TargetId });
-            }
+            MobBossFilter.Items.Add(new ComboBoxItem { Content = row.Name, Tag = row.Tag });
         }
 
         // Only reassign SelectedItem when the previous selection actually survived the filter -
@@ -1298,10 +1395,20 @@ public partial class MainWindow : Window
         // simply shows no selection while a search is narrowing the list, instead of fighting the
         // user's typing for keyboard focus.
         var stillPresent = MobBossFilter.Items.OfType<ComboBoxItem>()
-            .FirstOrDefault(item => Equals(item.Tag as int?, previouslySelected));
+            .FirstOrDefault(item => Equals(item.Tag as MobBossTag?, previouslySelected));
         if (stillPresent is not null)
         {
             MobBossFilter.SelectedItem = stillPresent;
+        }
+
+        if (searchBoxHadFocus && _mobBossSearchBox is not null)
+        {
+            TextBox searchBox = _mobBossSearchBox;
+            Dispatcher.BeginInvoke(() =>
+            {
+                searchBox.Focus();
+                searchBox.CaretIndex = Math.Min(caretIndex, searchBox.Text.Length);
+            }, System.Windows.Threading.DispatcherPriority.Input);
         }
     }
 
@@ -1314,6 +1421,8 @@ public partial class MainWindow : Window
     /// </summary>
     private void OnWindowLoaded(object sender, RoutedEventArgs e)
     {
+        ApplyClassFilterAvailability();
+
         MobBossFilter.ApplyTemplate();
         _mobBossSearchBox = MobBossFilter.Template.FindName("PART_SearchBox", MobBossFilter) as TextBox;
         if (_mobBossSearchBox is null)
@@ -1345,7 +1454,19 @@ public partial class MainWindow : Window
             return;
         }
 
-        _selectedTargetId = (MobBossFilter.SelectedItem as ComboBoxItem)?.Tag as int?;
+        if ((MobBossFilter.SelectedItem as ComboBoxItem)?.Tag is MobBossTag tag)
+        {
+            _selectedTargetId = tag.TargetId;
+            _selectedRunWindowStart = tag.WindowStart;
+            _selectedRunWindowEnd = tag.WindowEnd;
+        }
+        else
+        {
+            _selectedTargetId = null;
+            _selectedRunWindowStart = null;
+            _selectedRunWindowEnd = null;
+        }
+
         UpdateDpsColumnHeader();
         RefreshRows();
     }
@@ -1365,6 +1486,8 @@ public partial class MainWindow : Window
         if (_pvpOnly)
         {
             _selectedTargetId = null;
+            _selectedRunWindowStart = null;
+            _selectedRunWindowEnd = null;
             MobBossFilter.SelectedItem = _mobBossAllItem;
         }
 
@@ -1385,10 +1508,17 @@ public partial class MainWindow : Window
     /// deliberately reuses that already-correct state rather than re-deriving faction/class logic a
     /// second time here. Returns null when there is nothing to upload (target never hit, or no
     /// player rows survived the "players only" filter).
+    ///
+    /// Scoped to one specific numbered run when <see cref="_selectedRunWindowStart"/>/
+    /// <see cref="_selectedRunWindowEnd"/> are set (the dropdown's "#N" entries - see MobBossTag's
+    /// own remarks), otherwise spans the target's whole history exactly as before.
     /// </summary>
     private EncounterUploadRequest? BuildEncounterUpload(int targetId, string serverFingerprint, string? serverName)
     {
-        var targetHits = _aggregator.Events.Where(e => e.TargetObjectId == targetId && !e.IsHeal).ToList();
+        var allTargetHits = _aggregator.Events.Where(e => e.TargetObjectId == targetId && !e.IsHeal);
+        var targetHits = _selectedRunWindowStart is DateTime runStart
+            ? allTargetHits.Where(e => e.Timestamp >= runStart && e.Timestamp <= _selectedRunWindowEnd).ToList()
+            : allTargetHits.ToList();
         if (targetHits.Count == 0)
         {
             return null;
@@ -1548,6 +1678,38 @@ public partial class MainWindow : Window
     /// fingerprint is refused outright rather than falling back to some placeholder, since a wrong
     /// guess here is exactly what would let two different servers' runs get merged.
     /// </summary>
+    /// <summary>
+    /// Per the user: the Class dropdown shouldn't offer a class that cannot exist on whichever
+    /// server this install is pointed at (see ServerClassAvailability's own remarks on which
+    /// servers exclude which classes, and why). Called at startup and again whenever Settings is
+    /// saved (the install folder or the display name may have just changed). Hides rather than
+    /// removes each excluded entry - the dropdown's items are static XAML, not a
+    /// rebuilt-from-scratch collection like MobBossFilter's, so there is nothing to restore later
+    /// if the server identity ever changes back.
+    /// </summary>
+    private void ApplyClassFilterAvailability()
+    {
+        MeterSettings settings = MeterSettings.Load();
+        string? fingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
+        var excluded = AionSniffer.Server.ServerClassAvailability.ExcludedClassesFor(fingerprint, settings.ServerDisplayName);
+
+        bool selectedClassHidden = false;
+        foreach (ComboBoxItem item in ClassFilter.Items.OfType<ComboBoxItem>())
+        {
+            bool hide = item.Tag is string className && excluded.Contains(className);
+            item.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+            if (hide && ReferenceEquals(item, ClassFilter.SelectedItem))
+            {
+                selectedClassHidden = true;
+            }
+        }
+
+        if (selectedClassHidden)
+        {
+            ClassFilter.SelectedIndex = 0;
+        }
+    }
+
     private static (string Fingerprint, string? DisplayName)? ResolveServerIdentity()
     {
         MeterSettings settings = MeterSettings.Load();
@@ -1613,6 +1775,8 @@ public partial class MainWindow : Window
     private async void OnUploadLastRunClicked(object sender, RoutedEventArgs e)
     {
         int? previousTarget = _selectedTargetId;
+        DateTime? previousRunWindowStart = _selectedRunWindowStart;
+        DateTime? previousRunWindowEnd = _selectedRunWindowEnd;
         // The full, unfiltered set, not whatever the dropdown happens to be showing under an
         // active search right now (see _mobBossEntries's own remarks) - a stale search must never
         // silently shrink how many fights this uploads.
@@ -1646,7 +1810,11 @@ public partial class MainWindow : Window
             }
             first = false;
 
+            // Full history, not whatever specific run happened to be selected in the UI before
+            // this ran - "upload every boss since Clear" means every kill of each one, combined.
             _selectedTargetId = targetId;
+            _selectedRunWindowStart = null;
+            _selectedRunWindowEnd = null;
             RefreshRows();
             var payload = BuildEncounterUpload(targetId, fingerprint, displayName);
             if (payload is null)
@@ -1666,6 +1834,8 @@ public partial class MainWindow : Window
         }
 
         _selectedTargetId = previousTarget;
+        _selectedRunWindowStart = previousRunWindowStart;
+        _selectedRunWindowEnd = previousRunWindowEnd;
         RefreshRows();
 
         ShowUploadStatus(uploaded > 0
@@ -1860,8 +2030,12 @@ public partial class MainWindow : Window
         foreach (int targetId in matchingTargetIds)
         {
             // Same reasoning as "Upload last run": _rows must reflect this target before
-            // BuildEncounterUpload reads them for Name/ClassName/Faction/IsEnemy.
+            // BuildEncounterUpload reads them for Name/ClassName/Faction/IsEnemy. Full history,
+            // not a specific run - the per-cluster window below is passed explicitly to the
+            // 5-arg BuildEncounterUpload overload a few lines down, not read from this field.
             _selectedTargetId = targetId;
+            _selectedRunWindowStart = null;
+            _selectedRunWindowEnd = null;
             RefreshRows();
 
             var hits = _aggregator.Events
@@ -2237,6 +2411,8 @@ public partial class MainWindow : Window
         _playerIdentities.Clear();
         _buffCasts.Clear();
         _selectedTargetId = null;
+        _selectedRunWindowStart = null;
+        _selectedRunWindowEnd = null;
         UpdateDpsColumnHeader();
 
         // Personal stats belong to the damage side: they are the run's own counters (XP/AP/GP/Kinah
@@ -2569,6 +2745,7 @@ public partial class MainWindow : Window
             settings.Save();
             StartChatLogTailing(settings); // possibly a new/changed AionInstallFolder
             RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
+            ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
             RefreshRows();
         };
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
