@@ -621,17 +621,23 @@ public partial class MainWindow : Window
         JewelrySlotKeywords.Any(k => itemName.Contains(k, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
-    /// Which loot-fairness tier currently applies, from whichever InstanceTierDatabase-curated
+    /// Which loot-fairness tier currently applies. Zone-first: per the user, the rule has to cover
+    /// EVERY mob in the instance, not just a curated list of named bosses, which only the current
+    /// zone (ChatLogParser.CurrentZone, from the local client's own region-channel join line - see
+    /// InstanceTierDatabase's own remarks) can actually guarantee. Falls back to whichever curated
     /// boss was most recently involved in a damage event (either side - a boss's own hits on the
-    /// group count exactly as much as the group's hits on it) - same "latest timestamp wins"
-    /// approach as MostRecentlyFoughtTargetId. Per the user, this is deliberately keyed on the
-    /// BOSS actually fought, not the raw zone-channel text (see InstanceTierDatabase's own remarks
-    /// on why that text can't be trusted here). Loot from an ordinary trash mob between pulls
-    /// still inherits whichever tier boss was fought last, since the rule is about which instance
-    /// a drop came from, not about the specific NPC that happened to drop it.
+    /// group count exactly as much as the group's hits on it, same "latest timestamp wins"
+    /// approach as MostRecentlyFoughtTargetId) only for the brief window where CurrentZone is still
+    /// empty - a session that starts mid-zone learns it only on the next zone change.
     /// </summary>
     private LootTier CurrentLootTier()
     {
+        LootTier zoneTier = InstanceTierDatabase.TierOfZone(_chatLogParser?.CurrentZone ?? "");
+        if (zoneTier != LootTier.None)
+        {
+            return zoneTier;
+        }
+
         LootTier tier = LootTier.None;
         DateTime latest = DateTime.MinValue;
         foreach (DamageEvent ev in _aggregator.Events)

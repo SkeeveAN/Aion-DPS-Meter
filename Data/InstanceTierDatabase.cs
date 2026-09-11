@@ -11,11 +11,21 @@ public enum LootTier
 }
 
 /// <summary>
+/// Two lookups, tried in this order by MainWindow's CurrentLootTier - zone first, boss as a
+/// fallback. The rule was originally keyed on the boss actually fought rather than the raw
+/// zone-channel text, since Aion's own English name for Tahmes turned out to be "Raksang", not
+/// "Tahmes" - a guessed zone string would have been just as wrong as the earlier "Gardenführer
+/// Achradim" boss-alias mistake. That held while the rule only cared about two named bosses per
+/// instance, but per the user it must cover EVERY mob in the instance, not just curated named
+/// ones - a boss-only list can never scale to that, so CurrentZone (see ChatLogParser, populated
+/// from "You have joined the &lt;zone&gt; region channel." - English-only, but that line only ever
+/// narrates the LOCAL player's own client, which is English here) is now the primary signal,
+/// confirmed against the same client_strings_dic_place.xml/dic_etc.xml sourcing as everything
+/// else below. The boss lookup still matters for the small window right after a session starts
+/// mid-zone, before the next zone change - see CurrentZone's own remarks on why it starts empty.
+///
 /// Curated boss name (every language variant actually shipped by THIS server, see below) -&gt;
-/// which instance's loot-fairness tier it belongs to. Per the user, deliberately keyed on the
-/// BOSS actually fought, not on the raw zone-channel text Chat.log narrates: Aion's own English
-/// name for Tahmes is "Raksang", not "Tahmes" (confirmed below), so a zone-text guess would have
-/// been just as wrong as the earlier "Gardenführer Achradim" boss-alias mistake.
+/// which instance's loot-fairness tier it belongs to.
 ///
 /// Names were extracted from the client's own L10N/&lt;lang&gt;/Data/data.pak
 /// strings/client_strings_monster.xml (a plain, unencrypted zip - unlike Npcs/npcs.pak and
@@ -252,4 +262,29 @@ public static class InstanceTierDatabase
 
     public static LootTier TierOf(string bossName) =>
         TierByBossName.TryGetValue(bossName, out LootTier tier) ? tier : LootTier.None;
+
+    /// <summary>
+    /// English zone name (ChatLogParser.CurrentZone, from the local player's own "You have joined
+    /// the &lt;zone&gt; region channel." line) -&gt; loot tier. Per the user: this must cover every mob in
+    /// the instance, not just curated named bosses, which only a zone-wide rule can actually do.
+    /// "Sauro Supply Base" is doubly confirmed - both this dictionary source and a real Chat.log's
+    /// own region-channel line. The rest are confirmed against the client's own
+    /// client_strings_dic_place.xml/dic_etc.xml (the same source used throughout this file and
+    /// backend/public/i18n.js) but not independently re-checked against a live region-channel join
+    /// for each one - a private server could in principle narrate the join line differently from
+    /// its own dictionary text, though nothing found so far suggests it does.
+    /// </summary>
+    private static readonly Dictionary<string, LootTier> TierByZoneName = new(StringComparer.Ordinal)
+    {
+        ["Sauro Supply Base"] = LootTier.SixtyFive,
+        ["Raksang"] = LootTier.Sixty,
+        ["Infinity Shard"] = LootTier.Hyperion,
+        ["Danuar Reliquary"] = LootTier.SixtyFive,
+        ["Illuminary Obelisk"] = LootTier.SixtyFive,
+        ["Danuar Sanctuary"] = LootTier.SixtyFive,
+        ["Ophidan Bridge"] = LootTier.SixtyFive,
+    };
+
+    public static LootTier TierOfZone(string zoneName) =>
+        TierByZoneName.TryGetValue(zoneName, out LootTier tier) ? tier : LootTier.None;
 }
