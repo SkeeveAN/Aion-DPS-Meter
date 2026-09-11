@@ -1067,14 +1067,18 @@ const GAME_NAME_TRANSLATIONS = {
   // real text, not a decode error here - Polish independently carries the same "garden" mistranslation
   // ("Kierownik Ogrodu" = Garden Manager). Same live-DB-key caveat as Obanuka above applies. No zh
   // entry, same reason as Slurt/Obanuka/Sayahum above.
+  // Per the user: "(1 Key)"/"(2 Key)" on this and Sheba below distinguish Sauro's two keyed
+  // bosses by which door opens them - community shorthand for the Danuar Omphanium Key count, not
+  // an official client string (unlike every other word in this table), so translated here rather
+  // than extracted.
   "Gardenführer Achradim": {
-    en: "Guard Captain Ahuradim",
-    de: "Gardenführer Achradim",
-    fr: "Chef de la garde Achradim",
-    es: "Líder de guardias Acradim",
-    ru: "Командир стражи Ахрадим",
-    pl: "Kierownik Ogrodu Achradim",
-    tr: "Muhafız Lideri Ahradim",
+    en: "Guard Captain Ahuradim (1 Key)",
+    de: "Gardenführer Achradim (1 Schlüssel)",
+    fr: "Chef de la garde Achradim (1 clé)",
+    es: "Líder de guardias Acradim (1 llave)",
+    ru: "Командир стражи Ахрадим (1 ключ)",
+    pl: "Kierownik Ogrodu Achradim (1 klucz)",
+    tr: "Muhafız Lideri Ahradim (1 anahtar)",
   },
   // Stored in the DB as the English name (uploaded from an English client) - translations for the
   // other 7 languages, verified the same way as the Sauro bosses above.
@@ -1303,15 +1307,16 @@ const GAME_NAME_TRANSLATIONS = {
   // "2 Schlüssel" (harder, better loot) - de/fr/es/ru/pl/tr all call her "Shita", not "Sheba" (the
   // internal client key itself is _Shita_) - same per-language name drift as Ovanuka/Obanuka above,
   // not a mistake. Never actually uploaded/fought yet either.
+  // "(2 Key)" - see Gardenführer Achradim's own remarks above.
   "Brigade General Sheba": {
-    en: "Brigade General Sheba",
-    de: "Brigadegeneralin der 40. Armee Shita",
-    fr: "Général de brigade de la 40e armée Shita",
-    es: "General de brigada Sita del 40.º ejército",
-    ru: "Командир 40-го легиона Шитха",
-    pl: "Generał Brygady 40 Armii, Shita",
-    tr: "40. Ordunun Tuğgenerali Şita",
-    zh: "第40军团长西塔",
+    en: "Brigade General Sheba (2 Key)",
+    de: "Brigadegeneralin der 40. Armee Shita (2 Schlüssel)",
+    fr: "Général de brigade de la 40e armée Shita (2 clés)",
+    es: "General de brigada Sita del 40.º ejército (2 llaves)",
+    ru: "Командир 40-го легиона Шитха (2 ключа)",
+    pl: "Generał Brygady 40 Armii, Shita (2 klucze)",
+    tr: "40. Ordunun Tuğgenerali Şita (2 anahtar)",
+    zh: "第40军团长西塔 (2把钥匙)",
   },
   // Steel Rose's actual final boss (all 3 decks combined) - "Maintenance Chief Notakiki" above is
   // explicitly described in the client's own text as "Rumakiki's right-hand man", not the real

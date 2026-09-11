@@ -339,10 +339,19 @@ async function renderBosses(instanceId) {
   const instance = instances.find((i) => String(i.id) === String(instanceId));
   const instancePhoto = instance ? INSTANCE_IMAGES[instance.name] : undefined;
 
+  // Per the user: Sauro's two keyed bosses must show 1-key before 2-key - the API's own ordering
+  // is alphabetical on the raw (untranslated) name, which happens to put Sheba's ahead of
+  // Ahuradim's. A tiny curated override rather than a general boss-ordering feature.
+  const BOSS_SORT_OVERRIDE = { "Gardenführer Achradim": 0, "Brigade General Sheba": 1 };
+  const sortedBosses = [...bosses].sort((a, b) => {
+    const priority = (BOSS_SORT_OVERRIDE[a.name] ?? Infinity) - (BOSS_SORT_OVERRIDE[b.name] ?? Infinity);
+    return priority !== 0 ? priority : a.name.localeCompare(b.name);
+  });
+
   const grid = el(
     "div",
     { className: "poster-grid" },
-    bosses.map((b) =>
+    sortedBosses.map((b) =>
       posterCard(`#/bosses/${b.id}`, BOSS_IMAGES[b.name] ?? instancePhoto, translateGameName(b.name), "top"),
     ),
   );
