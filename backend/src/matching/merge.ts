@@ -86,6 +86,22 @@ function upsertPlayer(name: string, serverId: number): number {
     return existing.id;
   }
 
+  // Per the user: a renamed character otherwise gets a brand new `players` row every time its OLD
+  // name resurfaces (a late/replayed upload of an older Chat.log) - see
+  // players.aliasNamesNormalized's own remarks. Checked only once the direct lookup above has
+  // already missed, and deliberately never touches `name`/`nameNormalized` on a match: an old
+  // aliased name showing up again must not regress the player's current display name backward.
+  const aliasMatch = db
+    .select()
+    .from(players)
+    .where(eq(players.serverId, serverId))
+    .all()
+    .find((p) => p.aliasNamesNormalized.includes(nameNormalized));
+  if (aliasMatch) {
+    db.update(players).set({ lastSeenAt: sql`(current_timestamp)` }).where(eq(players.id, aliasMatch.id)).run();
+    return aliasMatch.id;
+  }
+
   const inserted = db.insert(players).values({ name, nameNormalized, serverId }).run();
   return Number(inserted.lastInsertRowid);
 }
@@ -406,8 +422,97 @@ function createEncounter(bossId: number, serverId: number, payload: UploadPayloa
   return encounterId;
 }
 
+/** Sums a and b's skill/heal-skill/buff lists by matching skill name - the shared merge step for
+ * both mergeDuplicateParticipants below and any future spot that needs to combine two of these
+ * lists (min/max widen to cover both sides, everything else adds). */
+function mergeSkillLists<T extends { skill: string; hits?: number; critHits?: number; total?: number; min?: number; max?: number; casts?: number }>(
+  a: T[],
+  b: T[],
+): T[] {
+  const bySkill = new Map<string, T>();
+  for (const s of [...a, ...b]) {
+    const existing = bySkill.get(s.skill);
+    if (!existing) {
+      bySkill.set(s.skill, { ...s });
+      continue;
+    }
+
+    bySkill.set(s.skill, {
+      ...existing,
+      hits: (existing.hits ?? 0) + (s.hits ?? 0),
+      critHits: (existing.critHits ?? 0) + (s.critHits ?? 0),
+      total: (existing.total ?? 0) + (s.total ?? 0),
+      min: existing.min !== undefined && s.min !== undefined ? Math.min(existing.min, s.min) : (existing.min ?? s.min),
+      max: existing.max !== undefined && s.max !== undefined ? Math.max(existing.max, s.max) : (existing.max ?? s.max),
+      casts: (existing.casts ?? 0) + (s.casts ?? 0),
+    } as T);
+  }
+
+  return [...bySkill.values()];
+}
+
+/**
+ * Per the user: a real character rename otherwise splits one person across two participant rows
+ * in the SAME upload forever, since the client's own Chat.log parsing has no way to know
+ * "Alhamdulilah" and "Hidan" are the same real person - only a manually curated alias (see
+ * players.aliasNamesNormalized) can say so. Runs once, before anything else touches
+ * payload.participants, so every downstream step (self-participant count check, boss/roster
+ * matching, participant insertion) only ever sees one row per real person. Two participants
+ * collapse into one only when they resolve to the very same existing `players` row - two
+ * genuinely different people who happen to share a normalized name on two different servers are
+ * unaffected, since aliases are looked up within one specific serverId.
+ */
+function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId: number): ParticipantUpload[] {
+  const allOnServer = db.select().from(players).where(eq(players.serverId, serverId)).all();
+  const canonicalIdOf = new Map<string, number>();
+  for (const p of allOnServer) {
+    canonicalIdOf.set(p.nameNormalized, p.id);
+    for (const alias of p.aliasNamesNormalized) {
+      canonicalIdOf.set(alias, p.id);
+    }
+  }
+
+  // Group by canonical player id when one is known, otherwise by the reported name itself (a
+  // brand new player this upload is introducing has no `players` row yet to key on).
+  const groups = new Map<string | number, ParticipantUpload[]>();
+  for (const participant of participants) {
+    const normalized = normalizeName(participant.name);
+    const key = canonicalIdOf.get(normalized) ?? normalized;
+    const group = groups.get(key) ?? [];
+    group.push(participant);
+    groups.set(key, group);
+  }
+
+  return [...groups.values()].map((group) => {
+    if (group.length === 1) {
+      return group[0];
+    }
+
+    // The isSelf row (if any) wins for name/className/faction - it's the uploader's own
+    // authoritative report of themselves, the same trust order insertParticipant already gives
+    // a self-report over a third-person one.
+    const primary = group.find((p) => p.isSelf) ?? group[0];
+    return {
+      ...primary,
+      isSelf: group.some((p) => p.isSelf),
+      totalDamage: group.reduce((sum, p) => sum + p.totalDamage, 0),
+      totalHealing: group.reduce((sum, p) => sum + p.totalHealing, 0),
+      // idps/dps are already rates, not sums-of-rates - re-derived from the summed totals divided
+      // by whichever single row's own rate implies the longest window, so a merge never invents a
+      // faster clip than either half actually sustained on its own.
+      dps: Math.max(...group.map((p) => p.dps)),
+      idps: Math.max(...group.map((p) => p.idps)),
+      damageTaken: group.reduce((sum, p) => sum + p.damageTaken, 0),
+      skills: group.reduce((acc, p) => mergeSkillLists(acc, p.skills), [] as ParticipantUpload["skills"]),
+      healSkills: group.reduce((acc, p) => mergeSkillLists(acc, p.healSkills), [] as ParticipantUpload["healSkills"]),
+      buffs: group.reduce((acc, p) => mergeSkillLists(acc, p.buffs), [] as ParticipantUpload["buffs"]),
+    };
+  });
+}
+
 export function processUpload(payload: UploadPayload): ProcessResult {
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
+  payload = { ...payload, participants: mergeDuplicateParticipants(payload.participants, serverId) };
   const bossId = resolveBossId(payload.bossNpcName);
   const candidateEncounterId = findCandidateEncounter(bossId, serverId, payload);
 

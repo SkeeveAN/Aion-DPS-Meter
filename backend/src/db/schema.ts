@@ -115,6 +115,18 @@ export const players = sqliteTable(
     // by default and Aion names are otherwise unique per side.
     name: text("name").notNull(),
     nameNormalized: text("name_normalized").notNull(),
+    // Old names this same real character used to go by, normalized the same way nameNormalized
+    // is - manually curated (never inferred: Aion's Chat.log never announces a rename, so there is
+    // no automatic signal to detect one from). Same "mark, never guess" pattern as bosses'
+    // npc_name_aliases. Exists because a rename otherwise splits one real person across two
+    // `players` rows forever - found from a real report: "Alhamdulilah" and "Hidan" are the same
+    // character, and a single upload for one old fight reported both as separate participants (the
+    // rename happened outside that instance, cause otherwise unconfirmed - see
+    // matching/merge.ts's own remarks on how this list is consulted).
+    aliasNamesNormalized: text("alias_names_normalized", { mode: "json" })
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'`),
     firstSeenAt: text("first_seen_at")
       .notNull()
       .default(sql`(current_timestamp)`),

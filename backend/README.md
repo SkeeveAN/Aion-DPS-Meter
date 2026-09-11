@@ -84,6 +84,27 @@ SET loot_rules = '[{"item":"<Item>","rule":"<Regel, z.B. \"1x pro Gruppe, Rolle:
 WHERE name = '<Bossname>';
 ```
 
+## Charakter-Umbenennungen (Spieler-Aliase pflegen)
+
+Aion kennt keine stabile Spieler-ID im Chat.log, nur den Namen - eine echte Umbenennung
+("Alhamdulilah" → "Hidan") erzeugt sonst für immer zwei getrennte `players`-Zeilen für dieselbe
+Person, ohne dass es je ein automatisches Signal dafür gäbe (das Chat.log kündigt eine Umbenennung
+nirgends an). `players.alias_names_normalized` ist deshalb, genau wie `bosses.npc_name_aliases`,
+rein manuell gepflegtes Wissen - nie geraten:
+
+```sql
+UPDATE players
+SET alias_names_normalized = '["<alter Name, klein geschrieben>"]'
+WHERE name = '<Aktueller Name>' AND server_id = <ServerId>;
+```
+
+Mehrere alte Namen sind ein JSON-Array mit mehreren Einträgen. Ein Alias-Treffer aktualisiert nie
+`name`/`name_normalized` der Zielzeile zurück auf den alten Namen - ein später erneut hochgeladenes
+altes Chat.log darf den aktuellen Anzeigenamen nicht wieder zurückdrehen. Innerhalb EINES einzelnen
+Uploads werden zwei Teilnehmer, die auf dieselbe `players`-Zeile auflösen (direkter Name-Treffer
+oder Alias), automatisch zu einem einzigen Eintrag zusammengeführt (Schaden/Heilung addiert,
+Skill-Listen gemerged) - siehe `mergeDuplicateParticipants` in `src/matching/merge.ts`.
+
 ## Buff-Dauer (welche Buffs im "Buffs"-Feld erscheinen)
 
 Per Nutzeranfrage: das "Buffs"-Feld einer Encounter-Detailseite soll keine kurzen

@@ -1,0 +1,1 @@
+ALTER TABLE `players` ADD `alias_names_normalized` text DEFAULT '[]' NOT NULL;
