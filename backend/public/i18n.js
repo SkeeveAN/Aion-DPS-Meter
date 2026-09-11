@@ -903,6 +903,48 @@ const GAME_NAME_TRANSLATIONS = {
     tr: "Sauro Savaş Deposu",
     zh: "萨乌洛军需基地",
   },
+  // Instance names below verified from assets/places/instances_multilang.json (itself pulled from
+  // the client's own client_strings_dic_place.xml) - real DB rows now exist for all four, keyed by
+  // their German name to match app.js's pre-staged INSTANCE_IMAGES (see that file's own remarks).
+  Katalamize: {
+    en: "Infinity Shard",
+    de: "Katalamize",
+    fr: "Katalamize",
+    es: "Cantalonice",
+    ru: "Каталамадж",
+    pl: "Katalamize",
+    tr: "Katalamize",
+    zh: "卡塔拉麦兹",
+  },
+  Ruhnadium: {
+    en: "Danuar Reliquary",
+    de: "Ruhnadium",
+    fr: "Ruhnadium",
+    es: "Runadio",
+    ru: "Рунадиум",
+    pl: "Ruhnadium",
+    tr: "Runadyum",
+    zh: "鲁纳迪姆",
+  },
+  "Schutzturm der Ruhn": {
+    en: "Illuminary Obelisk",
+    de: "Schutzturm der Ruhn",
+    fr: "Tour de garde ruhn",
+    es: "Torre Protectora de los Run",
+    ru: "Защитная башня рунов",
+    pl: "Wieża Ochronna Ruhnów",
+    tr: "Run koruma Kulesi",
+    zh: "符文保护塔",
+  },
+  // Per the user: the DB row here holds the PVE variant (a mage + two turrets), not the War/PVP
+  // fight - "Jormungand-Marschroute" above is confirmed to be that War variant's own German name
+  // (instances_multilang.json, mapCode IDLDF5_Under_01_War = "Engulfed Ophidan Bridge"), so it must
+  // not be reused as this entry's translation. Plain "Ophidan Bridge" (mapCode IDLDF5_Under_01) is
+  // NOT present in that same source at all - English only until a real non-English upload or a
+  // confirmed source turns up; every other language deliberately left out rather than guessed.
+  "Ophidan Bridge": {
+    en: "Ophidan Bridge",
+  },
   // Boss names below verified from client_strings_dic_monster.xml (Rohuka/Kurmata) and the raw,
   // per-language client_strings_monster.xml (Derakanak - not present in the "dic" table; see
   // assets/README.md's own remarks on that table missing some real bosses). All three joined

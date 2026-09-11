@@ -242,6 +242,11 @@ const INSTANCE_IMAGES = {
   Stahlmauerbastion: "/images/instances/eternal_bastion.jpg",
   "Schlachtfeld der Stahlmauerbastion": "/images/instances/iron_wall_warfront.jpg",
   "Jormungand-Marschroute": "/images/instances/ophidan_bridge.jpg",
+  // The PVE variant (the one actually curated so far - a mage plus two named turrets, not the
+  // War/PVP siege fight above) - reuses the same loading-screen art, checked by eye (a generic
+  // icy-cavern bridge shot, nothing War/PVP-specific in it), same "one photo, several
+  // sub-instances" reasoning as Steel Rose's two decks above.
+  "Ophidan Bridge": "/images/instances/ophidan_bridge.jpg",
   "Rentus-Basis": "/images/instances/rentus_base.jpg",
   "Tiamats Festung": "/images/instances/tiamat_fortress.jpg",
   "Tiamats Unterschlupf": "/images/instances/tiamat_fortress.jpg",
