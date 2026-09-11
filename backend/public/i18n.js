@@ -937,13 +937,19 @@ const GAME_NAME_TRANSLATIONS = {
     zh: "符文保护塔",
   },
   // Per the user: the DB row here holds the PVE variant (a mage + two turrets), not the War/PVP
-  // fight - "Jormungand-Marschroute" above is confirmed to be that War variant's own German name
-  // (instances_multilang.json, mapCode IDLDF5_Under_01_War = "Engulfed Ophidan Bridge"), so it must
-  // not be reused as this entry's translation. Plain "Ophidan Bridge" (mapCode IDLDF5_Under_01) is
-  // NOT present in that same source at all - English only until a real non-English upload or a
-  // confirmed source turns up; every other language deliberately left out rather than guessed.
+  // fight - "Jormungand-Marschroute" above is that War variant's own German name (mapCode
+  // IDLDF5_Under_01_War). Plain "Ophidan Bridge" (IDLDF5_Under_01, no _War) has a genuinely
+  // different name of its own - found in client_strings_dic_etc.xml, not
+  // instances_multilang.json (no row there for this map code either way). No pl/zh entry: not
+  // found in either language's dic_etc.xml (pl's own STR_DIC_W_IDLDF5_Under_01 entry appears to be
+  // missing outright, not just untranslated; zh wasn't checked - no zh L10N pak on this install).
   "Ophidan Bridge": {
     en: "Ophidan Bridge",
+    de: "Jormungand-Brücke",
+    fr: "Pont de Jormungand",
+    es: "Puente de Yórmungan",
+    ru: "Мост Йормунганда",
+    tr: "Jormungand Köprüsü",
   },
   // Boss names below verified from client_strings_dic_monster.xml (Rohuka/Kurmata) and the raw,
   // per-language client_strings_monster.xml (Derakanak - not present in the "dic" table; see
@@ -1560,6 +1566,10 @@ const GAME_NAME_TRANSLATIONS = {
   "Danuar Sanctuary": {
     en: "Danuar Sanctuary",
     de: "Zuflucht des Ruhn-Stammes",
+    fr: "Sanctuaire du peuple ruhn",
+    es: "Refugio de la Tribu Run",
+    ru: "Прибежище рунов",
+    tr: "Run Kabilesi Sığınağı",
   },
   // Danuar Sanctuary's three co-equal bosses ("Special Research Team" commanders, all three from
   // "Beritra's Fang unit" per their identical dictionary blurb, STR_DIC_M_IDF5_U2_P_Vri*) - NOT two
