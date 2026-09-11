@@ -581,15 +581,80 @@ public partial class MainWindow : Window
     /// is tracked rather than dropped: silently hiding something we can't even name is worse than
     /// showing "Item #ID" for a rare gap in the data.
     /// </summary>
-    private static bool IsTrackedLoot(int itemId, string itemName)
+    private bool IsTrackedLoot(int itemId, string itemName)
     {
+        LootTier tier = CurrentLootTier();
+        // Per the user: Hyperion (Infinity Shard) hands out personal loot boxes to everyone, so
+        // there is no group-fairness question to track there at all - not even Godstones/Designs/
+        // Recipes, which is why this check runs before, not after, the "always tracked" list below.
+        if (tier == LootTier.Hyperion)
+        {
+            return false;
+        }
+
         if (itemName.Contains("Godstone:") || itemName.Contains("Design:") || itemName.Contains("Recipe:")
             || AlwaysTrackedItemNames.Contains(itemName))
         {
             return true;
         }
 
-        return ItemDatabase.GradeOf(itemId) is not ItemGrade grade || grade >= ItemGrade.Unique;
+        ItemGrade? grade = ItemDatabase.GradeOf(itemId);
+
+        // Per the user: gold/epic jewelry (belt/ring/earring/necklace/helm) from a 65er instance
+        // doesn't count as loot (mythic jewelry still does); a 60er instance draws that same line
+        // one grade lower - only gold jewelry is excluded, epic still counts.
+        if (grade is ItemGrade knownGrade && IsJewelrySlot(itemName)
+            && ((tier == LootTier.SixtyFive && knownGrade is ItemGrade.Unique or ItemGrade.Epic)
+                || (tier == LootTier.Sixty && knownGrade == ItemGrade.Unique)))
+        {
+            return false;
+        }
+
+        return grade is not ItemGrade g || g >= ItemGrade.Unique;
+    }
+
+    /// <summary>Slot categories the user calls "Schmuck" for the 65er/60er jewelry rule above -
+    /// English substrings since ItemDatabase's names are all English (see its own remarks).</summary>
+    private static readonly string[] JewelrySlotKeywords = { "Belt", "Ring", "Earring", "Necklace", "Helm", "Helmet" };
+
+    private static bool IsJewelrySlot(string itemName) =>
+        JewelrySlotKeywords.Any(k => itemName.Contains(k, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// Which loot-fairness tier currently applies, from whichever InstanceTierDatabase-curated
+    /// boss was most recently involved in a damage event (either side - a boss's own hits on the
+    /// group count exactly as much as the group's hits on it) - same "latest timestamp wins"
+    /// approach as MostRecentlyFoughtTargetId. Per the user, this is deliberately keyed on the
+    /// BOSS actually fought, not the raw zone-channel text (see InstanceTierDatabase's own remarks
+    /// on why that text can't be trusted here). Loot from an ordinary trash mob between pulls
+    /// still inherits whichever tier boss was fought last, since the rule is about which instance
+    /// a drop came from, not about the specific NPC that happened to drop it.
+    /// </summary>
+    private LootTier CurrentLootTier()
+    {
+        LootTier tier = LootTier.None;
+        DateTime latest = DateTime.MinValue;
+        foreach (DamageEvent ev in _aggregator.Events)
+        {
+            if (ev.Timestamp <= latest)
+            {
+                continue;
+            }
+
+            LootTier evTier = InstanceTierDatabase.TierOf(ResolveDisplayName(ev.SourceObjectId));
+            if (evTier == LootTier.None)
+            {
+                evTier = InstanceTierDatabase.TierOf(ResolveDisplayName(ev.TargetObjectId));
+            }
+
+            if (evTier != LootTier.None)
+            {
+                latest = ev.Timestamp;
+                tier = evTier;
+            }
+        }
+
+        return tier;
     }
 
     /// <summary>
