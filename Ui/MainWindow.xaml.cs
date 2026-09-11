@@ -875,6 +875,8 @@ public partial class MainWindow : Window
                 ? damageOnly.Where(ev => ev.TargetObjectId == targetId).ToList()
                 : RestrictToEngagedTargets(damageOnly.ToList());
 
+        var sides = ResolveSides();
+
         // "Players only", always on per the user's request ("Players only ist IMMER vorhanden.") --
         // no toggle anymore, mobs never show. Real Aion character names never contain a space,
         // verified against a real session -- that covers ordinary multi-word mob names. It does
@@ -887,9 +889,45 @@ public partial class MainWindow : Window
         // exactly one registered Spiritmaster their damage never keeps its own source id at all
         // (see AttributePetDamageToOwner), but with two or more it deliberately does, specifically
         // so it can still show here as its own row instead of vanishing.
+        //
+        // A PURE healer -- someone who never once landed a hit on whichever target is currently
+        // selected -- has no event at all in `filtered` (damageOnly is heal-free by construction),
+        // so without healSourceIds below they'd never get a row here, and BuildEncounterUpload
+        // only ever iterates _rows -- a healer with zero damage on the boss would silently vanish
+        // from that boss's whole upload, not just show 0 damage. Found from a real report: Sardine
+        // (a Cleric) healed the group for the entire Ahuradim fight and still landed no hit on
+        // Ahuradim, so she was missing from the uploaded roster entirely. Re-adding "IsHeal"
+        // sources wholesale would resurrect the exact "Potion" ghost-row bug the comment above
+        // describes, since a stray heal-effect name is just as space-free and just as absent from
+        // NpcDatabase as a real player -- gating on sides.Own instead of IsPlayerName alone is what
+        // tells them apart: a real healer earns that classification from FactionResolver's ally
+        // graph (through a heal to some OTHER real teammate, not just the local player -- see
+        // FactionResolver's own remarks on why heals to/from "You" don't count there), while a
+        // one-off parsing artifact like "Potion" never appears on either end of a corroborating
+        // heal and stays Side.Unknown forever.
+        //
+        // Bounded to `filtered`'s own time span, not the whole session: an ally proven Side.Own
+        // from a heal HOURS away from the currently selected target (a different subgroup, a
+        // different pull entirely) is real, but not relevant to THIS boss - without the bound,
+        // every such ally re-appears in every single future upload at a permanent 0, which is
+        // exactly what happened on the first version of this fix (a 6-person Ahuradim roster
+        // ballooned to 14, most of them strangers to that specific pull, and the extra names threw
+        // off findCandidateEncounter's roster-similarity match on the backend badly enough that it
+        // filed the re-upload as a brand new encounter instead of merging into the existing one).
+        (DateTime, DateTime)? filteredSpan = filtered.Count > 0
+            ? (filtered.Min(ev => ev.Timestamp), filtered.Max(ev => ev.Timestamp))
+            : null;
+
+        var healSourceIds = filteredSpan is (DateTime spanStart, DateTime spanEnd)
+            ? _aggregator.Events
+                .Where(ev => ev.IsHeal && ev.Timestamp >= spanStart && ev.Timestamp <= spanEnd
+                    && sides.GetValueOrDefault(ev.SourceObjectId) == Side.Own)
+                .Select(ev => ev.SourceObjectId)
+            : Enumerable.Empty<int>();
+
         var sourceIds = filtered.Select(ev => ev.SourceObjectId).Distinct()
-            .Where(id => SpiritmasterPetNames.Contains(ResolveDisplayName(id))
-                || (!ResolveDisplayName(id).Contains(' ') && !NpcDatabase.IsKnownNpc(ResolveDisplayName(id))))
+            .Union(healSourceIds)
+            .Where(IsPlayerName)
             .ToList();
 
         // ClassFilter, per the user: was purely decorative until other players' classes started
@@ -900,8 +938,6 @@ public partial class MainWindow : Window
         {
             sourceIds = sourceIds.Where(id => ResolveClassName(id) == classFilter).ToList();
         }
-
-        var sides = ResolveSides();
 
         foreach (int staleId in _rowsByObjectId.Keys.Except(sourceIds).ToList())
         {
@@ -2284,6 +2320,11 @@ public partial class MainWindow : Window
     /// whose DPS is undefined (single hit, no elapsed time -- see DpsCalculator) shows "n/a"
     /// rather than a fabricated rate.
     /// </summary>
+    /// <summary>
+    /// Per the user: when the Mob/Boss filter has a specific target selected, the copied line must
+    /// lead with that target's name -- otherwise a line pasted into Aion chat carries damage numbers
+    /// with no indication of which fight they're from.
+    /// </summary>
     private string BuildDmgChatLine()
     {
         var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
@@ -2297,7 +2338,14 @@ public partial class MainWindow : Window
             parts.Add($"{row.Name} {damageText} ({dpsText})");
         }
 
-        return string.Join(", ", parts);
+        string line = string.Join(", ", parts);
+        if (_selectedTargetId is not int targetId || line.Length == 0)
+        {
+            return line;
+        }
+
+        string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
+        return $"{bossName}: {line}";
     }
 
     private static readonly NumberFormatInfo DotGroupedNumberFormat = new() { NumberGroupSeparator = "." };
