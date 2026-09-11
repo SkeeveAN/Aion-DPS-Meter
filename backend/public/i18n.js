@@ -1554,7 +1554,18 @@ const GAME_NAME_TRANSLATIONS = {
     pl: "Gniewna Czarownica Grendal",
     tr: "Öfkeli Cadı Grendal",
   },
-  // Danuar Sanctuary's two bosses.
+  // Danuar Sanctuary itself - "Zuflucht des Ruhn-Stammes" (Refuge of the Ruhn Tribe), verified from
+  // client_strings_dic_etc.xml (STR_DIC_W_IDLDF5_Under_02_all), not instances_multilang.json (that
+  // file has no row for this map code at all - see its own generation caveats).
+  "Danuar Sanctuary": {
+    en: "Danuar Sanctuary",
+    de: "Zuflucht des Ruhn-Stammes",
+  },
+  // Danuar Sanctuary's three co-equal bosses ("Special Research Team" commanders, all three from
+  // "Beritra's Fang unit" per their identical dictionary blurb, STR_DIC_M_IDF5_U2_P_Vri*) - NOT two
+  // as this entry originally said. Ukahim was missed here at first and, separately, mistaken for
+  // this instance's ONLY boss in an earlier pass before the dictionary text (client_strings_dic_etc/
+  // dic_monster.xml) turned up all three side by side.
   "Chief Medic Tagnu": {
     en: "Chief Medic Tagnu",
     de: "Oberheilerin Tagnu",
@@ -1576,6 +1587,15 @@ const GAME_NAME_TRANSLATIONS = {
     pl: "Oficer sztabu Syaroka",
     tr: "Binbaşı Syaroka",
     zh: "参谋士官斯亚罗卡",
+  },
+  "Virulent Ukahim": {
+    en: "Virulent Ukahim",
+    de: "Schreckensklinge Ukahim",
+    fr: "Lame-effroi Ukahim",
+    es: "Ucaím Filoterrorífico",
+    ru: "Убийца Укахим",
+    pl: "Ostrze Strachu Ukahim",
+    tr: "Korku Bıçağı Ukahim",
   },
   // Infinity Shard's endboss. No zh entry found.
   "Hyperion": {
