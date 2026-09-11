@@ -940,15 +940,15 @@ const GAME_NAME_TRANSLATIONS = {
   // fight - "Jormungand-Marschroute" above is that War variant's own German name (mapCode
   // IDLDF5_Under_01_War). Plain "Ophidan Bridge" (IDLDF5_Under_01, no _War) has a genuinely
   // different name of its own - found in client_strings_dic_etc.xml, not
-  // instances_multilang.json (no row there for this map code either way). No pl/zh entry: not
-  // found in either language's dic_etc.xml (pl's own STR_DIC_W_IDLDF5_Under_01 entry appears to be
-  // missing outright, not just untranslated; zh wasn't checked - no zh L10N pak on this install).
+  // instances_multilang.json (no row there for this map code either way). No zh entry - no zh
+  // L10N pak on this install to check at all.
   "Ophidan Bridge": {
     en: "Ophidan Bridge",
     de: "Jormungand-Brücke",
     fr: "Pont de Jormungand",
     es: "Puente de Yórmungan",
     ru: "Мост Йормунганда",
+    pl: "Most Jormunganda",
     tr: "Jormungand Köprüsü",
   },
   // Boss names below verified from client_strings_dic_monster.xml (Rohuka/Kurmata) and the raw,
@@ -1569,6 +1569,7 @@ const GAME_NAME_TRANSLATIONS = {
     fr: "Sanctuaire du peuple ruhn",
     es: "Refugio de la Tribu Run",
     ru: "Прибежище рунов",
+    pl: "Schronienie Plemienia Ruhnów",
     tr: "Run Kabilesi Sığınağı",
   },
   // Danuar Sanctuary's three co-equal bosses ("Special Research Team" commanders, all three from
