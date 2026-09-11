@@ -122,6 +122,39 @@ public static class InstanceTierDatabase
         ["Ostrze Strachu Ukahim"] = LootTier.SixtyFive, // pl
         ["Убийца Укахим"] = LootTier.SixtyFive, // ru
         ["Korku Bıçağı Ukahim"] = LootTier.SixtyFive, // tr
+
+        // Ophidan Bridge's final encounter (1 mage + 2 turrets), 65er - per the user, NOT yet
+        // confirmed by a real Chat.log (their group hasn't run it): matched from the client's own
+        // PVE-mode strings against the user's own description ("ein Mage und 2 Kanonen"), not the
+        // "Engulfed"/War PVP variant's differently-named champions. Only English names the turrets
+        // as proper nouns ("Vera"/"Surkana Aetherturret") - every other language just says
+        // "cannon"/"turret" generically, so those generic words are still the real alias a
+        // non-English upload would report. Weaker than every other entry in this table in one
+        // specific way: "Vera" and "Top" (Turkish for "cannon") are also perfectly ordinary human
+        // names, so a real character named either one would misfire this lookup - a risk no other
+        // boss name here carries, worth knowing about even though it's still better than guessing
+        // nothing at all for an instance the group hasn't run yet.
+        ["Beritran Support Magus"] = LootTier.SixtyFive, // en
+        ["Verstärkungsmagier der Reserveeinheit"] = LootTier.SixtyFive, // de
+        ["Mago de refuerzo de la unidad de reserva"] = LootTier.SixtyFive, // es
+        ["Mage de renfort de l'unité de réserve"] = LootTier.SixtyFive, // fr
+        ["Magik Posiłków Jednostki Rezerwy"] = LootTier.SixtyFive, // pl
+        ["Маг резерва"] = LootTier.SixtyFive, // ru
+        ["Rezerve Bölüğü Takviye Büyücüsü"] = LootTier.SixtyFive, // tr
+        ["Vera"] = LootTier.SixtyFive, // en
+        ["Geschütz"] = LootTier.SixtyFive, // de
+        ["Cañón"] = LootTier.SixtyFive, // es
+        ["Canon"] = LootTier.SixtyFive, // fr
+        ["Działo"] = LootTier.SixtyFive, // pl
+        ["Бомбард"] = LootTier.SixtyFive, // ru
+        ["Top"] = LootTier.SixtyFive, // tr
+        ["Surkana Aetherturret"] = LootTier.SixtyFive, // en
+        ["Surkana-Panzerabwehrätherkanone"] = LootTier.SixtyFive, // de
+        ["Cañón etéreo de defensa de tanque de surcana"] = LootTier.SixtyFive, // es
+        ["Canon à Éther de défense anti-char au Surkana"] = LootTier.SixtyFive, // fr
+        ["Pancerne Eterowe Działo Obronne Surkany"] = LootTier.SixtyFive, // pl
+        ["Мощная пушка сурканы"] = LootTier.SixtyFive, // ru
+        ["Surkana Anti Panzer Eter Topu"] = LootTier.SixtyFive, // tr
     };
 
     public static LootTier TierOf(string bossName) =>
