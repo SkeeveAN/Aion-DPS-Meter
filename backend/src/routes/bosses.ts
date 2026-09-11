@@ -28,7 +28,13 @@ export async function bossRoutes(app: FastifyInstance) {
         return reply.status(404).send({ error: "boss_not_found" });
       }
 
-      const bossResponse = { id: boss.id, name: boss.name, isSolo: boss.isSolo, lootRules: boss.lootRules };
+      const bossResponse = {
+        id: boss.id,
+        name: boss.name,
+        instanceId: boss.instanceId,
+        isSolo: boss.isSolo,
+        lootRules: boss.lootRules,
+      };
 
       // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) rank
       // completely differently - one boss is never both, so only the query the page actually

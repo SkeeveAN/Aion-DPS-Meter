@@ -384,6 +384,13 @@ th {
   border-radius: 3px;
 }
 
+/* Per the user: a small marker next to a boss leaderboard's group heading when loot_rules has
+   known drops documented for it - see renderLeaderboard's own remarks. */
+.loot-known-badge {
+  font-size: 0.85em;
+  cursor: help;
+}
+
 h3 .icon-label {
   gap: 8px;
 }

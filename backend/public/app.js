@@ -433,8 +433,20 @@ async function renderLeaderboard(bossId) {
   setBreadcrumb([link(t("breadcrumb.instances"), "#/"), t("breadcrumb.leaderboard")]);
   app.replaceChildren(el("p", { textContent: t("loading.leaderboard") }));
 
-  const data = await fetchJson(`/api/bosses/${bossId}/leaderboard?serverId=${encodeURIComponent(currentServerId)}`);
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), translateGameName(data.boss.name)]);
+  // instances fetched alongside the leaderboard itself so the breadcrumb can link back to THIS
+  // boss's own instance page (#/instances/:id), not just all the way out to the top-level instance
+  // picker - per the user, there was previously no way back to the boss list of the instance you
+  // came from without using the browser's own back button.
+  const [data, instances] = await Promise.all([
+    fetchJson(`/api/bosses/${bossId}/leaderboard?serverId=${encodeURIComponent(currentServerId)}`),
+    fetchJson("/api/instances"),
+  ]);
+  const instance = instances.find((i) => i.id === data.boss.instanceId);
+  setBreadcrumb([
+    link(t("breadcrumb.instances"), "#/"),
+    ...(instance ? [link(translateGameName(instance.name), `#/instances/${instance.id}`)] : []),
+    translateGameName(data.boss.name),
+  ]);
 
   // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) are never
   // both at once, so the page shows exactly one of these two rankings, never both - "top 10 per
@@ -492,8 +504,20 @@ async function renderLeaderboard(bossId) {
     ),
   );
 
+  // Per the user: a small marker next to the group table's own heading when this boss has known
+  // loot documented (bosses.lootRules - see lootTable's own remarks) - loot is never tied to one
+  // specific encounter (it's deliberately not part of any upload), so this can only ever say
+  // "loot is known for this BOSS", not which of the rows below actually saw it drop.
+  const lootBadge =
+    data.boss.lootRules && data.boss.lootRules.length > 0
+      ? el("span", { className: "loot-known-badge", title: t("leaderboard.lootKnownTitle") }, ["💎"])
+      : null;
+
   const groupsSection = el("section", {}, [
-    el("h2", { textContent: t("leaderboard.topGroupsHeading", { n: data.topGroups.length }) }),
+    el("h2", {}, [
+      t("leaderboard.topGroupsHeading", { n: data.topGroups.length }),
+      ...(lootBadge ? [" ", lootBadge] : []),
+    ]),
     rankedTable(rows, false),
   ]);
 
