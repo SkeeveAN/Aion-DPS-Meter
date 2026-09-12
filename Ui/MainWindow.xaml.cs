@@ -581,6 +581,10 @@ public partial class MainWindow : Window
     private static readonly HashSet<string> AlwaysTrackedItemNames = new()
     {
         "Veteran's Composite Manastone Bundle",
+        // Stahlmauerbastion's own reward box - Legend grade (confirmed in
+        // assets/items/items_origincdx_4x.json, id 188052600), so it would otherwise fall below
+        // the Unique+ threshold below just like the Manastone Bundle above.
+        "Beritran Supply Box",
     };
 
     /// <summary>
