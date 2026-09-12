@@ -13,8 +13,10 @@ export interface TopBuff {
 }
 
 /**
- * The web frontend's "Buffs" column - real reinforcements a participant cast (see the client's
- * ChatLog/BuffCastEvent), ranked by cast count. Replaces an earlier version of this column that
+ * The web frontend's "Buffs" column - real reinforcements a participant RECEIVED (see the client's
+ * ChatLog/BuffCastEvent), ranked by count. A Cleric/Chanter's group-wide buff is attributed to
+ * every party member it landed on, not only whoever cast it. Replaces an earlier version of this
+ * column that
  * showed top DAMAGE skills instead (see topSkills.ts, now unused) - the user pointed out that a
  * damage/heal skill breakdown already has its own place (the roster table itself) and isn't what
  * "Buffs" should mean.

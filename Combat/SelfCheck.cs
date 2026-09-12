@@ -1356,19 +1356,22 @@ public static class SelfCheck
         parser.BuffCast += evt => casts.Add(evt);
         parser.Parse(lines);
 
-        bool selfBuffOk = casts.Any(c => c.Caster == "Void" && c.Skill == "Berserking I");
+        bool selfBuffOk = casts.Any(c => c.Caster == "Void" && c.Recipient == "Void" && c.Skill == "Berserking I");
         bool weakenNotCountedAsBuff = !casts.Any(c => c.Skill == "Berserking I" && c.Caster != "Void")
             && casts.Count(c => c.Caster == "Void") == 1;
-        bool afterUsingSelfBuffOk = casts.Any(c => c.Caster == "Clown" && c.Skill == "Blessed Shield III");
-        bool allyBuffAttributedToCasterNotRecipientOk = casts.Any(c => c.Caster == "Noonaheal" && c.Skill == "Blessing of Health I")
-            && !casts.Any(c => c.Caster == "Zetsu" && c.Skill == "Blessing of Health I");
+        bool afterUsingSelfBuffOk = casts.Any(c => c.Caster == "Clown" && c.Recipient == "Clown" && c.Skill == "Blessed Shield III");
+        // Per the user (encounter #288: a Cleric's group buff only showed up on the Cleric, not on
+        // the party members it actually landed on) - the web frontend's "Buffs" column is keyed off
+        // Recipient (see MainWindow.BuildEncounterUpload), so Zetsu, who RECEIVED the buff, must be
+        // the one it's attributed to downstream, not Noonaheal who merely cast it.
+        bool allyBuffAttributedToRecipientOk = casts.Any(c => c.Caster == "Noonaheal" && c.Recipient == "Zetsu" && c.Skill == "Blessing of Health I");
 
         Console.WriteLine("[selftest] Real buff casts (English, verbatim from a real Chat.log):");
         Console.WriteLine($"  -> self-buff via \"because X used Y\" counted, attributed to the caster: {selfBuffOk}");
         Console.WriteLine($"  -> the matching \"weaken\" (debuff) line is NOT counted as a buff: {weakenNotCountedAsBuff}");
         Console.WriteLine($"  -> self-buff via the shorter \"after using Y\" shape counted: {afterUsingSelfBuffOk}");
-        Console.WriteLine($"  -> one player buffing another attributed to the CASTER, not the recipient: {allyBuffAttributedToCasterNotRecipientOk}");
+        Console.WriteLine($"  -> one player buffing another attributed to the RECIPIENT: {allyBuffAttributedToRecipientOk}");
 
-        return selfBuffOk && weakenNotCountedAsBuff && afterUsingSelfBuffOk && allyBuffAttributedToCasterNotRecipientOk;
+        return selfBuffOk && weakenNotCountedAsBuff && afterUsingSelfBuffOk && allyBuffAttributedToRecipientOk;
     }
 }

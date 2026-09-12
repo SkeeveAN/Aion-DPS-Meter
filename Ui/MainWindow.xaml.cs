@@ -536,22 +536,29 @@ public partial class MainWindow : Window
         row.LastTag = loot.RawTag;
     }
 
-    // Per fight: which real buffs (not damage/heal skills) each caster landed, for the web
+    // Per fight: which real buffs (not damage/heal skills) each RECIPIENT received, for the web
     // frontend's "Buffs" column (see BuildEncounterUpload) - a parallel side-channel list, same
     // shape/reasoning as _lootRows above, since a buff cast is neither a DamageEvent nor something
-    // LiveAggregator's damage/heal model has any use for.
-    private readonly List<(DateTime Timestamp, int CasterId, string Skill)> _buffCasts = new();
+    // LiveAggregator's damage/heal model has any use for. Keyed by recipient rather than caster so
+    // a Cleric/Chanter's group-wide buff shows up on every party member it actually landed on, not
+    // only on whoever cast it (see BuffCastEvent's own remarks).
+    private readonly List<(DateTime Timestamp, int RecipientId, string Skill)> _buffCasts = new();
 
     private void OnBuffCast(BuffCastEvent evt)
     {
-        string? caster = ResolveLootPerson(evt.Caster);
-        if (caster is null)
+        // Same ResolveLootPerson dedup this app already applies to loot lines: with more than one
+        // registered character's Chat.log feeding this app, a group buff's "X is in the boost..."
+        // line is independently narrated in every affected member's own log, so a recipient who is
+        // ANOTHER registered character is dropped here - their own log's copy of the same line is
+        // what attributes it to them, avoiding a double count.
+        string? recipient = ResolveLootPerson(evt.Recipient);
+        if (recipient is null)
         {
             return;
         }
 
-        int casterId = _chatLogParser!.Names.GetOrAssignId(caster == _activeCharacterName ? "You" : caster);
-        _buffCasts.Add((evt.Timestamp, casterId, evt.Skill));
+        int recipientId = _chatLogParser!.Names.GetOrAssignId(recipient == _activeCharacterName ? "You" : recipient);
+        _buffCasts.Add((evt.Timestamp, recipientId, evt.Skill));
     }
 
     /// <summary>Null return means "drop this line" (see OnLootAcquired remarks) -- everything
@@ -1378,7 +1385,14 @@ public partial class MainWindow : Window
         // damage the group actually did to it - not alphabetically, and not by discovery order.
         // Descending by damage puts a boss (tens of thousands of hits) far above a random trash
         // mob (a few hits in passing) without needing any curated "this is a real boss" list.
+        //
+        // _mobBossEntries is append-only for the whole session and mixes mob/boss targets with
+        // player targets (a PVP fight's TargetObjectId points at another player, not a mob) - per
+        // the user, PVE mode's list should only ever offer mobs/bosses, PVP mode's only players.
+        // Filtering here (rather than in RefreshMobBossFilterItems) keeps both sets around so
+        // switching modes mid-session doesn't lose entries seen while the other mode was active.
         var rows = _mobBossEntries
+            .Where(entry => IsPlayerName(entry.TargetId) == _pvpOnly)
             .SelectMany(entry => MobBossRowsFor(entry.TargetId, entry.Name))
             .Where(row => search.Length == 0 || row.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(row => row.Damage)
@@ -1495,6 +1509,7 @@ public partial class MainWindow : Window
             MobBossFilter.SelectedItem = _mobBossAllItem;
         }
 
+        ApplyMobBossSearchFilter();
         UpdateDpsColumnHeader();
         RefreshRows();
     }
@@ -1629,9 +1644,11 @@ public partial class MainWindow : Window
                     && e.Timestamp >= windowStart && e.Timestamp <= windowEnd)
                 .Sum(e => e.Amount);
 
-            // Real reinforcements this row cast during the fight (see ChatLog/BuffCastEvent) -
-            // capped and ranked by cast count, same "top N" shape SkillBreakdown already uses for
-            // damage/heal skills above, just counting casts instead of summing damage.
+            // Real reinforcements this row RECEIVED during the fight (see ChatLog/BuffCastEvent) -
+            // capped and ranked by count, same "top N" shape SkillBreakdown already uses for
+            // damage/heal skills above, just counting applications instead of summing damage. Keyed
+            // by recipient, not caster, so a Cleric/Chanter group buff shows up on every party
+            // member's own row, not only on whoever cast it.
             //
             // The lower bound is windowStart minus BuffPrePullGrace, not windowStart itself - found
             // from a real run where a pre-pull buff (Daevic Fury I) landed one second before the
@@ -1645,7 +1662,7 @@ public partial class MainWindow : Window
             // much earlier kill must not bleed into this one - 30s is generous enough for any real
             // pre-pull buff sequence without reaching back that far.
             var buffs = _buffCasts
-                .Where(b => b.CasterId == row.ObjectId
+                .Where(b => b.RecipientId == row.ObjectId
                     && b.Timestamp >= windowStart - BuffPrePullGrace && b.Timestamp <= windowEnd)
                 .GroupBy(b => b.Skill)
                 .Select(g => new BuffUsageUpload(g.Key, g.Count()))

@@ -14,10 +14,12 @@ public readonly record struct UploadResult(bool Success, string? Error)
 /// uploadSchema.ts zod schema expects (skill/hits/critHits/total/min/max).</summary>
 public sealed record SkillUsageUpload(string Skill, int Hits, int CritHits, long Total, long Min, long Max);
 
-/// <summary>One real reinforcement this participant cast (see ChatLog/BuffCastEvent) - deliberately
-/// its own, narrower record rather than reusing SkillUsageUpload: a buff cast has no damage/crit/
-/// min/max to report, and forcing those fields to 0 would misrepresent them as measured zeros
-/// rather than "not applicable".</summary>
+/// <summary>One real reinforcement this participant RECEIVED (see ChatLog/BuffCastEvent) -
+/// deliberately its own, narrower record rather than reusing SkillUsageUpload: a buff cast has no
+/// damage/crit/min/max to report, and forcing those fields to 0 would misrepresent them as measured
+/// zeros rather than "not applicable". <see cref="Casts"/> counts how many times this row was
+/// affected by the skill, whether self-cast or landed on them by a Cleric/Chanter's group buff -
+/// not how many times this row itself cast it.</summary>
 public sealed record BuffUsageUpload(string Skill, int Casts);
 
 /// <summary>One player's contribution to an encounter. <see cref="IsSelf"/> mirrors the client's own

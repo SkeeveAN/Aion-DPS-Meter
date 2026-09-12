@@ -1367,14 +1367,15 @@ public sealed partial class ChatLogParser
     {
         if (BuffBecauseUsedPattern().Match(message) is { Success: true } because)
         {
-            BuffCast?.Invoke(new BuffCastEvent(timestamp, because.Groups["caster"].Value, because.Groups["skill"].Value));
+            BuffCast?.Invoke(new BuffCastEvent(
+                timestamp, because.Groups["caster"].Value, because.Groups["recipient"].Value, because.Groups["skill"].Value));
             return;
         }
 
         if (BuffAfterUsingPattern().Match(message) is { Success: true } after)
         {
             string recipient = after.Groups["recipient"].Value;
-            BuffCast?.Invoke(new BuffCastEvent(timestamp, recipient, after.Groups["skill"].Value));
+            BuffCast?.Invoke(new BuffCastEvent(timestamp, recipient, recipient, after.Groups["skill"].Value));
         }
     }
 

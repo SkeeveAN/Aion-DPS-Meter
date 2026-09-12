@@ -243,9 +243,11 @@ export const encounterSkillUsage = sqliteTable(
   }),
 );
 
-// Real reinforcements (buffs) a participant cast - see the client's ChatLog/BuffCastEvent for how
-// these are decoded ("X is in the boost ... state because Y used Z", distinguished from a debuff
-// purely by that one word in Aion's own narration). Deliberately a separate table from
+// Real reinforcements (buffs) a participant RECEIVED - see the client's ChatLog/BuffCastEvent for
+// how these are decoded ("X is in the boost ... state because Y used Z", distinguished from a
+// debuff purely by that one word in Aion's own narration) and keyed by recipient rather than
+// caster, so a Cleric/Chanter's group-wide buff is attributed to every party member it actually
+// landed on instead of only whoever cast it. Deliberately a separate table from
 // encounterSkillUsage above rather than another isHeal-style flag on it: a buff cast has no
 // damage/crit/min/max to report, and those columns being NOT NULL there would force meaningless
 // zeros rather than leaving them out entirely.
