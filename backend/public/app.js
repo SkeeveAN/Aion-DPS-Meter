@@ -229,6 +229,7 @@ const INSTANCE_IMAGES = {
   Tahmes: "/images/instances/tahmes.jpg",
   "Stahlrose: Anlegestelle": "/images/instances/steelrose.jpg",
   "Stahlrose: Kabine": "/images/instances/steelrose.jpg",
+  "Stahlrose: Deck": "/images/instances/steelrose.jpg",
   // The rest are pre-staged the same way as the Sauro/Tahmes boss-name translations in i18n.js -
   // none of these instances have ever been uploaded yet, so the key (the exact German name a real
   // upload would carry, per assets/places/instances_multilang.json's own "de" field) is provisional

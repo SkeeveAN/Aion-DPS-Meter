@@ -1272,6 +1272,31 @@ const GAME_NAME_TRANSLATIONS = {
     tr: "Çelik Gülün Kabini",
     zh: "铁玫瑰号船室",
   },
+  // Steel Rose's 3rd deck/bridge - the real GROUP-instance zone, above the two solo decks above
+  // (Anlegestelle/Kabine). Names from the client's own places_multilang.json
+  // (STR_DIC_W_IDShulackShip_02_SZ_3F), same source/method as the two entries above.
+  "Stahlrose: Deck": {
+    en: "Steel Rose Deck",
+    de: "Stahlrose: Deck",
+    fr: "Pont de la Rose d'acier",
+    es: "Cubierta de la Rosa de Acero",
+    ru: "Палуба Стальной розы",
+    pl: "Pokład Stalowej Róży",
+    tr: "Çelik Gülün Güvertesi",
+    zh: "铁玫瑰号甲板",
+  },
+  // Stahlmauerbastion (Grand Commander Pashid) - names from places_multilang.json
+  // (STR_DIC_W_IDLDF5b_TD), same source/method as everywhere else in this file.
+  "Stahlmauerbastion": {
+    en: "The Eternal Bastion",
+    de: "Stahlmauerbastion",
+    fr: "Bastion du mur d'acier",
+    es: "Bastión del Muro de Acero",
+    ru: "Неприступный бастион",
+    pl: "Bastion Stalowego Muru",
+    tr: "Çelik Duvar Tabyası",
+    zh: "铁壁堡垒",
+  },
   // Boss NPC names - verified the same way, from Strings/client_strings_dic_monster.xml (a
   // stable per-language ID there, unlike the raw nameplate table client_strings_monster.xml where
   // the same ID can land on a completely unrelated creature in a different language - "Zauberer
