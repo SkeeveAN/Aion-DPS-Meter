@@ -48,13 +48,38 @@ schlimmer als eine leere.
 
 ## Trash-Mobs ausblenden
 
-Genau wie die Instanz-Zuordnung gibt es keine automatische Unterscheidung "echter Boss" vs.
-"beliebiger Mob, den die Gruppe zufällig bekämpft hat" - ein Upload legt jeden neuen Bossnamen
-gleichwertig an (siehe `src/matching/merge.ts`). Wenn sich ein Eintrag als reiner Trash-Mob
-herausstellt (z.B. "Zauberer der Stahlrose" in Steel Rose Cargo - laut Nutzer nur ein regulärer Mob,
-nicht der Instanz-Endboss), per SQL markieren statt löschen - Zeile und ihre Encounters bleiben
-erhalten (weiter per Direktlink `/api/bosses/:id/leaderboard` erreichbar), verschwinden aber aus
-`GET /api/instances/:id/bosses` und damit aus der normalen Bossliste:
+Ein eindeutiger Trash-Mob wird automatisch schon beim Upload abgelehnt (siehe
+`src/npc/trashMobs.ts`, aufgerufen aus `src/routes/uploads.ts`, `400 trash_mob_rejected`): jeder
+Name, der im aioncodex-4x-Katalog (`src/data/npc_trash_mob_names.json`, abgeleitet aus des Clients
+eigener `assets/npcs/npcs_en_4x.json`) AUSSCHLIESSLICH als Rang "Normal" auftaucht (z.B. "Kobold
+Peon"), landet erst gar nicht in der DB - der Client selbst filtert das schon vorher genauso (siehe
+`Data/NpcDatabase.IsTrashMob`/`Ui/MainWindow.BuildEncounterUpload`), diese Prüfung ist nur die
+Verteidigungslinie gegen einen älteren Client, der das noch nicht kennt.
+
+Neu erzeugen (wenn aioncodex nachzieht oder weitere NPCs dazukommen):
+
+```bash
+python3 -c "
+import json
+data = json.load(open('assets/npcs/npcs_en_4x.json'))
+from collections import defaultdict
+name_ranks = defaultdict(set)
+for d in data:
+    name_ranks[d['name']].add(d['rank'])
+trash_only = sorted(n for n, r in name_ranks.items() if r == {'Normal'})
+json.dump(trash_only, open('backend/src/data/npc_trash_mob_names.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+"
+```
+
+Das deckt nur den eindeutigen Fall ab (ein Name, der IMMER Rang "Normal" ist - ein Name, der
+irgendwo auch als Elite/Heroic/Legendary auftaucht, z.B. "Boreas", wird absichtlich nie automatisch
+abgelehnt, um keinen echten Bosskampf fälschlich zu blockieren). Für alles, was diese automatische
+Prüfung nicht erfasst - ein Elite-Mob, den der Nutzer für eine bestimmte Instanz trotzdem als
+uninteressant einstuft, oder ein Name außerhalb des Katalogs (z.B. "Zauberer der Stahlrose" in Steel
+Rose Cargo, laut Nutzer nur ein regulärer Mob, nicht der Instanz-Endboss) - weiterhin die manuelle
+Markierung per SQL, Zeile und Encounters bleiben dabei erhalten (weiter per Direktlink
+`/api/bosses/:id/leaderboard` erreichbar), verschwinden aber aus `GET /api/instances/:id/bosses` und
+damit aus der normalen Bossliste:
 
 ```sql
 UPDATE bosses SET is_trash_mob = 1 WHERE name = '<Bossname>';

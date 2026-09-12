@@ -1256,7 +1256,12 @@ public partial class MainWindow : Window
     /// id. Heal targets excluded on purpose -- found against a real Chat.log session where a
     /// healed party member ("Thai", from "... recovered ... HP because Inss used ...") showed up
     /// as a selectable "Mob/Boss", which they plainly aren't (see LiveAggregator.Summarize's
-    /// remarks for the same underlying IsHeal-filter gap in a different consumer).</summary>
+    /// remarks for the same underlying IsHeal-filter gap in a different consumer).
+    ///
+    /// A non-player target additionally has to be a curated real end boss (see EndBossDatabase) --
+    /// per the user, a mini-boss/trash mob killed on the way to a real end boss must never appear
+    /// in this dropdown or its search at all, not just be excluded from upload later. A player
+    /// target (PVP) is never subject to that check - EndBossDatabase only curates PVE bosses.</summary>
     private void RefreshMobBossFilterItems()
     {
         var knownIds = _mobBossEntries.Select(entry => entry.TargetId).ToHashSet();
@@ -1270,6 +1275,11 @@ public partial class MainWindow : Window
             }
 
             string name = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
+            if (!IsPlayerName(targetId) && !EndBossDatabase.IsKnownEndBoss(name))
+            {
+                continue;
+            }
+
             _mobBossEntries.Add((targetId, name));
             added = true;
         }
@@ -1582,6 +1592,18 @@ public partial class MainWindow : Window
         // matter how many people happen to share the target id - see TrainingDummyNames's own
         // remarks (this is also what used to blow past the backend's 24-participant cap with a 400).
         if (TrainingDummyNames.IsTrainingDummy(bossName))
+        {
+            return null;
+        }
+
+        // Per the user: only a real, curated end boss - one you could also target via the game's
+        // own Instance Info GUI - may ever be uploaded. A rank-based heuristic isn't enough (Elite,
+        // even Legendary-rank "mini-bosses" exist on the way to a real end boss in group instances,
+        // per the user), so this is an ALLOWLIST, not a blocklist - see EndBossDatabase's own
+        // remarks. Same gate already keeps a non-curated name out of the Mob/Boss dropdown/search
+        // entirely (see RefreshMobBossFilterItems), so reaching this line with an unknown bossName
+        // should only happen via the headless upload path's own direct target lookup.
+        if (!EndBossDatabase.IsKnownEndBoss(bossName))
         {
             return null;
         }
