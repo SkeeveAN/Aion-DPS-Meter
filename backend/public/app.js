@@ -203,9 +203,15 @@ async function renderServerPicker() {
     "ul",
     { className: "plain" },
     servers.map((s) => {
-      const label = s.displayName || s.fingerprint;
-      const a = el("a", { href: "#/", textContent: label });
-      a.addEventListener("click", () => setCurrentServer(s.id, s.displayName));
+      // s.id is null for a catalog server nobody has ever uploaded from yet (see servers.ts's own
+      // remarks) - nothing to click through to, so render it as plain, unlinked text instead of an
+      // <a> that would navigate to an empty leaderboard with no real serverId to query.
+      if (s.id === null) {
+        return el("li", { className: "empty" }, [`${s.name} (${t("servers.noDataYet")})`]);
+      }
+
+      const a = el("a", { href: "#/", textContent: s.name });
+      a.addEventListener("click", () => setCurrentServer(s.id, s.name));
       return el("li", {}, [a]);
     }),
   );

@@ -64,6 +64,7 @@ const TRANSLATIONS = {
     "servers.emptyNoServers": "Noch kein Server erfasst - lade den ersten Boss-Kampf über den DPS-Meter hoch.",
     "servers.chooseHint":
       "Verschiedene Server sind nicht vergleichbar (unterschiedlicher Gear-Stand) - Ranglisten und Spielersuche beziehen sich immer auf genau einen.",
+    "servers.noDataYet": "Noch keine Daten hochgeladen",
     "instances.emptyNoInstances": "Noch keine Instanzen erfasst - lade den ersten Boss-Kampf über den DPS-Meter hoch.",
     "instances.heading": "Instanz wählen",
     "bosses.emptyNoBosses": "Für diese Instanz wurden noch keine Bosse hochgeladen.",
@@ -166,6 +167,7 @@ const TRANSLATIONS = {
     "servers.emptyNoServers": "No server recorded yet - upload the first boss fight via the DPS Meter.",
     "servers.chooseHint":
       "Different servers aren't comparable (different gear levels) - leaderboards and player search always refer to exactly one.",
+    "servers.noDataYet": "No data uploaded yet",
     "instances.emptyNoInstances": "No instances recorded yet - upload the first boss fight via the DPS Meter.",
     "instances.heading": "Choose instance",
     "bosses.emptyNoBosses": "No bosses have been uploaded for this instance yet.",
@@ -268,6 +270,7 @@ const TRANSLATIONS = {
     "servers.emptyNoServers": "Aucun serveur enregistré pour le moment - envoyez le premier combat de boss via le DPS Meter.",
     "servers.chooseHint":
       "Les différents serveurs ne sont pas comparables (niveaux d'équipement différents) - les classements et la recherche de joueurs se rapportent toujours à un seul serveur.",
+    "servers.noDataYet": "Aucune donnée envoyée pour le moment",
     "instances.emptyNoInstances": "Aucune instance enregistrée pour le moment - envoyez le premier combat de boss via le DPS Meter.",
     "instances.heading": "Choisir une instance",
     "bosses.emptyNoBosses": "Aucun boss n'a encore été téléversé pour cette instance.",
@@ -370,6 +373,7 @@ const TRANSLATIONS = {
     "servers.emptyNoServers": "Aún no hay ningún servidor registrado - sube el primer combate contra un jefe con el DPS Meter.",
     "servers.chooseHint":
       "Los distintos servidores no son comparables (diferentes niveles de equipo) - las clasificaciones y la búsqueda de jugadores siempre se refieren a un único servidor.",
+    "servers.noDataYet": "Aún no se han subido datos",
     "instances.emptyNoInstances": "Aún no hay instancias registradas - sube el primer combate contra un jefe con el DPS Meter.",
     "instances.heading": "Elegir instancia",
     "bosses.emptyNoBosses": "Aún no se ha subido ningún jefe para esta instancia.",
@@ -472,6 +476,7 @@ const TRANSLATIONS = {
     "servers.emptyNoServers": "Пока не зафиксировано ни одного сервера - загрузи первый бой с боссом через DPS Meter.",
     "servers.chooseHint":
       "Разные серверы несравнимы (разный уровень снаряжения) - рейтинги и поиск игроков всегда относятся ровно к одному серверу.",
+    "servers.noDataYet": "Данные ещё не загружены",
     "instances.emptyNoInstances": "Пока не зафиксировано ни одного инстанса - загрузи первый бой с боссом через DPS Meter.",
     "instances.heading": "Выбор инстанса",
     "bosses.emptyNoBosses": "Для этого инстанса пока не загружено ни одного босса.",
@@ -574,6 +579,7 @@ const TRANSLATIONS = {
     "servers.emptyNoServers": "Nie zarejestrowano jeszcze żadnego serwera - przesyłaj pierwszą walkę z bossem przez DPS Meter.",
     "servers.chooseHint":
       "Różne serwery nie są porównywalne (inny poziom ekwipunku) - rankingi i wyszukiwanie graczy zawsze odnoszą się do jednego konkretnego serwera.",
+    "servers.noDataYet": "Jeszcze nie przesłano żadnych danych",
     "instances.emptyNoInstances": "Nie zarejestrowano jeszcze żadnych instancji - przesyłaj pierwszą walkę z bossem przez DPS Meter.",
     "instances.heading": "Wybierz instancję",
     "bosses.emptyNoBosses": "Dla tej instancji nie przesłano jeszcze żadnych bossów.",
@@ -676,6 +682,7 @@ const TRANSLATIONS = {
     "servers.emptyNoServers": "Henüz kayıtlı bir sunucu yok - DPS Meter üzerinden ilk boss savaşını yükleyin.",
     "servers.chooseHint":
       "Farklı sunucular karşılaştırılabilir değildir (farklı ekipman seviyeleri) - lider tabloları ve oyuncu araması her zaman tek bir sunucuya aittir.",
+    "servers.noDataYet": "Henüz veri yüklenmedi",
     "instances.emptyNoInstances": "Henüz kayıtlı bir zindan yok - DPS Meter üzerinden ilk boss savaşını yükleyin.",
     "instances.heading": "Zindan seç",
     "bosses.emptyNoBosses": "Bu zindan için henüz herhangi bir boss yüklenmedi.",
@@ -774,6 +781,7 @@ const TRANSLATIONS = {
     "servers.title": "选择服务器",
     "servers.emptyNoServers": "尚未记录任何服务器——请通过 DPS Meter 上传第一场首领战斗。",
     "servers.chooseHint": "不同服务器之间不具可比性（装备水平不同）——排行榜和玩家搜索始终只针对某一个服务器。",
+    "servers.noDataYet": "尚未上传任何数据",
     "instances.emptyNoInstances": "尚未记录任何副本——请通过 DPS Meter 上传第一场首领战斗。",
     "instances.heading": "选择副本",
     "bosses.emptyNoBosses": "该副本尚未上传任何首领战斗。",
