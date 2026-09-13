@@ -1124,6 +1124,22 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^Your .+? has been boosted by using (?<skill>.+)\.$")]
     private static partial Regex BuffBoostedYourOwnPattern();
 
+    // A real, beneficial self-transformation (per the user: "Slayer" is an Assassin Stigma,
+    // "Mau" is the Ranger's Divine Power skill) - "<recipient> has transformed into <form> by
+    // using <skill>." (179 real occurrences, 38 Slayer Form I + 5 Mau Form IV + 136 hostile ones
+    // excluded below), always self-cast (recipient == caster) in every one of those 179 lines.
+    // Deliberately distinct from the HOSTILE transformation a crowd-control skill inflicts on a
+    // victim, confirmed as a completely different clause even though it starts with the identical
+    // "has transformed into <form>" words: "<victim> has transformed into Fire Spirit BECAUSE
+    // <attacker> USED Fear Shriek I." (no "by using" at all) and its first-person twin "<attacker>
+    // transformed YOU into a(n) Fire Spirit by using Fear Shriek I." (a different subject/verb
+    // shape entirely - "transformed you into", not "has transformed into"). Neither of those is a
+    // buff for the victim, so this pattern's literal " by using " requirement already excludes the
+    // first, and its "has transformed" (not "transformed you") excludes the second - no separate
+    // classification list needed, same reasoning as the boost/weaken word already used above.
+    [GeneratedRegex(@"^(?<recipient>.+?) has transformed into .+? by using (?<skill>.+)\.$")]
+    private static partial Regex TransformedSelfPattern();
+
     // Loot: "You have acquired [item:ID;...]." and its variants. Every literal below (including
     // the two DIFFERENT plural markers) was confirmed by terminal_windows against real lines, not
     // guessed -- "(s)" with literal parens ("acquired 5 [item:...](s).") and a bare "s" with none
@@ -1248,14 +1264,18 @@ public sealed partial class ChatLogParser
 
     /// <summary>
     /// Fires once per matched real-buff cast -- see BuffCastEvent remarks and
-    /// BuffBecauseUsedPattern/BuffAfterUsingPattern/BuffBoostedYourOwnPattern below for the three
-    /// confirmed line shapes. English only so far: verified against a real ~130k-line Chat.log
-    /// (2.399 "is in the boost" lines), not yet checked against DE/FR/RU/PL/TR/ZH equivalents the
-    /// way the damage/heal patterns are (see this class's own remarks on why English-only client
-    /// can't validate those). Deliberately narrower than SkillUsed: a "weaken ..." line (a debuff
-    /// landing on an opponent, same sentence shape otherwise) is a different word and never matches
-    /// any pattern here -- confirmed the game itself distinguishes the two with that one word, so no
-    /// separate buff/debuff classification had to be guessed.
+    /// BuffBecauseUsedPattern/BuffAfterUsingPattern/BuffBoostedYourOwnPattern/TransformedSelfPattern
+    /// below for the four confirmed line shapes. English only so far: verified against a real
+    /// ~130k-line Chat.log (2.399 "is in the boost" lines, 179 "has transformed into" lines), not
+    /// yet checked against DE/FR/RU/PL/TR/ZH equivalents the way the damage/heal patterns are (see
+    /// this class's own remarks on why English-only client can't validate those). Deliberately
+    /// narrower than SkillUsed: a "weaken ..." line (a debuff landing on an opponent, same sentence
+    /// shape otherwise) is a different word and never matches any pattern here -- confirmed the game
+    /// itself distinguishes the two with that one word, so no separate buff/debuff classification
+    /// had to be guessed. A real beneficial self-transformation (e.g. "Slayer Form I", an Assassin
+    /// Stigma; "Mau Form IV", the Ranger's Divine Power) counts as a buff here too, same reasoning -
+    /// a HOSTILE transformation a crowd-control skill inflicts on a victim is a different clause
+    /// shape entirely (see TransformedSelfPattern's own remarks) and never matches.
     ///
     /// Fires at most once per real cast even though a single skill routinely produces several
     /// identically-timestamped lines, one per affected stat - confirmed real: "Blessing of Nezekan
@@ -1416,10 +1436,17 @@ public sealed partial class ChatLogParser
         if (BuffBoostedYourOwnPattern().Match(message) is { Success: true } yours)
         {
             RaiseBuffCastDeduped(timestamp, YouName, YouName, yours.Groups["skill"].Value);
+            return;
+        }
+
+        if (TransformedSelfPattern().Match(message) is { Success: true } transformed)
+        {
+            string recipient = transformed.Groups["recipient"].Value;
+            RaiseBuffCastDeduped(timestamp, recipient, recipient, transformed.Groups["skill"].Value);
         }
     }
 
-    /// <summary>Shared by all three BuffCast line shapes - see BuffCast's own remarks on why a
+    /// <summary>Shared by all four BuffCast line shapes - see BuffCast's own remarks on why a
     /// single real cast must only ever raise one event despite routinely narrating as several
     /// identically-timestamped lines.</summary>
     private void RaiseBuffCastDeduped(DateTime timestamp, string recipient, string caster, string skill)

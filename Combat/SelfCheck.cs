@@ -1368,6 +1368,18 @@ public static class SelfCheck
             "2026.09.13 08:49:59 : Anthra is in the boost Physical Def state because Anthra used Blessing of Nezekan I. ",
             "2026.09.13 08:49:59 : Anthra is in the boost Speed state because Anthra used Blessing of Nezekan I. ",
             "2026.09.13 08:49:59 : Anthra is in the boost Atk Speed state because Anthra used Blessing of Nezekan I. ",
+            // A real, beneficial self-transformation - per the user, "Slayer" is an Assassin
+            // Stigma and "Mau" is the Ranger's Divine Power skill. Verbatim real lines.
+            "2026.09.12 16:11:59 : Agatsuma has transformed into Slayer by using Slayer Form I. ",
+            "2026.09.12 16:23:56 : Silence has transformed into Mau by using Mau Form IV. ",
+            // The HOSTILE counterpart, same "has transformed into" opening words but a completely
+            // different clause ("because X used Y", not "by using Y") - a crowd-control skill
+            // landing on a victim, not a buff for them. Must NOT be counted.
+            "2026.09.12 18:18:59 : Vmchotmnndpdr has transformed into Fire Spirit because Spiritbox used Fear Shriek I. ",
+            // The victim's own first-person narration of that same hostile effect - a different
+            // subject/verb shape entirely ("transformed you into", not "has transformed into").
+            // Must NOT be counted either.
+            "2026.09.12 17:50:45 : Ezzz transformed you into a(n) Slumbering Lamb by using Somnolence I. ",
         };
 
         var parser = new ChatLogParser();
@@ -1393,6 +1405,12 @@ public static class SelfCheck
         // Stunde.") - four identically-timestamped "is in the boost <state>" lines for the same
         // skill must still collapse into exactly ONE real cast, not four.
         bool multiStateSingleCastDedupedOk = casts.Count(c => c.Caster == "Anthra" && c.Skill == "Blessing of Nezekan I") == 1;
+        bool selfTransformationOk = casts.Any(c => c.Caster == "Agatsuma" && c.Recipient == "Agatsuma" && c.Skill == "Slayer Form I")
+            && casts.Any(c => c.Caster == "Silence" && c.Recipient == "Silence" && c.Skill == "Mau Form IV");
+        // Neither hostile transformation (the CC skill's own third-person "because X used Y" line,
+        // nor the victim's first-person "transformed you into" line) may be counted as a buff for
+        // the victim - see TransformedSelfPattern's own remarks on why they never match at all.
+        bool hostileTransformationNotCountedAsBuff = !casts.Any(c => c.Skill == "Fear Shriek I" || c.Skill == "Somnolence I");
 
         Console.WriteLine("[selftest] Real buff casts (English, verbatim from a real Chat.log):");
         Console.WriteLine($"  -> self-buff via \"because X used Y\" counted, attributed to the caster: {selfBuffOk}");
@@ -1402,8 +1420,11 @@ public static class SelfCheck
         Console.WriteLine($"  -> local player's own \"Your X has been boosted...\" counted exactly once: {localPlayerSelfBuffOk}");
         Console.WriteLine($"  -> local player's own matching \"weakened\" (debuff) line is NOT counted as a buff: {localPlayerWeakenNotCountedAsBuff}");
         Console.WriteLine($"  -> a single cast narrated as 4 same-second \"boost <state>\" lines counts as 1: {multiStateSingleCastDedupedOk}");
+        Console.WriteLine($"  -> a real self-transformation (Slayer Form I, Mau Form IV) counted as a buff: {selfTransformationOk}");
+        Console.WriteLine($"  -> a HOSTILE transformation (Fear Shriek I, Somnolence I) is NOT counted as a buff: {hostileTransformationNotCountedAsBuff}");
 
         return selfBuffOk && weakenNotCountedAsBuff && afterUsingSelfBuffOk && allyBuffAttributedToRecipientOk
-            && localPlayerSelfBuffOk && localPlayerWeakenNotCountedAsBuff && multiStateSingleCastDedupedOk;
+            && localPlayerSelfBuffOk && localPlayerWeakenNotCountedAsBuff && multiStateSingleCastDedupedOk
+            && selfTransformationOk && hostileTransformationNotCountedAsBuff;
     }
 }
