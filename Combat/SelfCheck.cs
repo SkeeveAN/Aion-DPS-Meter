@@ -1329,9 +1329,7 @@ public static class SelfCheck
 
     /// <summary>
     /// Real buff-cast lines, verbatim from a real ~130k-line OriginAion Chat.log (2.399 "is in the
-    /// boost" lines total) - see ChatLogParser.BuffCast's own remarks for the two confirmed shapes
-    /// and why a third, ambiguous one ("Your X has been boosted by using Y.") is deliberately not
-    /// parsed as one of them.
+    /// boost" lines total) - see ChatLogParser.BuffCast's own remarks for the three confirmed shapes.
     /// </summary>
     private static bool RunBuffCastScenario()
     {
@@ -1349,6 +1347,27 @@ public static class SelfCheck
             // One player buffing another - caster and recipient are different names, confirming
             // this is a real caster+skill pair and not just "someone got buffed" noise.
             "2026.09.09 19:14:58 : Zetsu is in the boost HP state because Noonaheal used Blessing of Health I. ",
+            // The LOCAL PLAYER'S own self-cast, real lines from encounter #289's own Chat.log -
+            // found to have NO companion "Hidan is in the boost ... because Hidan used Daevic Fury
+            // I." line anywhere in that ~140k-line log at all (confirmed by grep), so this third
+            // shape is now the ONLY way the local player's own self-buffs are ever seen. Two lines,
+            // same second, same skill - must still count as exactly ONE cast (see the dedup check
+            // below), not two.
+            "2026.09.13 08:51:49 : Your Attack has been boosted by using Daevic Fury I. ",
+            "2026.09.13 08:51:49 : Your Atk Speed has been boosted by using Daevic Fury I. ",
+            // The debuff-flavored counterpart of the line above - must NOT be counted as a buff,
+            // same "boost"/"weaken" distinction as Void's Berserking I above. Real: the same
+            // Berserking I cast produces both a boost and a weaken line for the local player too.
+            "2026.09.13 08:51:49 : Your Physical Def has been weakened by using Berserking I. ",
+            // A single real cast of "Blessing of Nezekan I" (a once-per-hour skill) narrating as
+            // FOUR separate "is in the boost <state> because ... used" lines, one per affected stat
+            // - real lines from encounter #289's own Chat.log (reported by the user: "Anthra soll 4x
+            // Nezekan genutzt haben? Das geht nur 1x die Stunde."). Without dedup this counted as 4
+            // casts of a skill that can only be used once an hour.
+            "2026.09.13 08:49:59 : Anthra is in the boost Attack state because Anthra used Blessing of Nezekan I. ",
+            "2026.09.13 08:49:59 : Anthra is in the boost Physical Def state because Anthra used Blessing of Nezekan I. ",
+            "2026.09.13 08:49:59 : Anthra is in the boost Speed state because Anthra used Blessing of Nezekan I. ",
+            "2026.09.13 08:49:59 : Anthra is in the boost Atk Speed state because Anthra used Blessing of Nezekan I. ",
         };
 
         var parser = new ChatLogParser();
@@ -1365,13 +1384,26 @@ public static class SelfCheck
         // Recipient (see MainWindow.BuildEncounterUpload), so Zetsu, who RECEIVED the buff, must be
         // the one it's attributed to downstream, not Noonaheal who merely cast it.
         bool allyBuffAttributedToRecipientOk = casts.Any(c => c.Caster == "Noonaheal" && c.Recipient == "Zetsu" && c.Skill == "Blessing of Health I");
+        // Per the user (encounter #289: their own Netzekan/Aetric Fury never showed up at all) -
+        // "Your X has been boosted by using Y." must count as exactly ONE cast attributed to "You",
+        // even though it fired as two identically-timestamped lines (Attack, Atk Speed).
+        bool localPlayerSelfBuffOk = casts.Count(c => c.Caster == "You" && c.Recipient == "You" && c.Skill == "Daevic Fury I") == 1;
+        bool localPlayerWeakenNotCountedAsBuff = !casts.Any(c => c.Skill == "Berserking I" && c.Caster == "You");
+        // Per the user (encounter #289: "Anthra soll 4x Nezekan genutzt haben? Das geht nur 1x die
+        // Stunde.") - four identically-timestamped "is in the boost <state>" lines for the same
+        // skill must still collapse into exactly ONE real cast, not four.
+        bool multiStateSingleCastDedupedOk = casts.Count(c => c.Caster == "Anthra" && c.Skill == "Blessing of Nezekan I") == 1;
 
         Console.WriteLine("[selftest] Real buff casts (English, verbatim from a real Chat.log):");
         Console.WriteLine($"  -> self-buff via \"because X used Y\" counted, attributed to the caster: {selfBuffOk}");
         Console.WriteLine($"  -> the matching \"weaken\" (debuff) line is NOT counted as a buff: {weakenNotCountedAsBuff}");
         Console.WriteLine($"  -> self-buff via the shorter \"after using Y\" shape counted: {afterUsingSelfBuffOk}");
         Console.WriteLine($"  -> one player buffing another attributed to the RECIPIENT: {allyBuffAttributedToRecipientOk}");
+        Console.WriteLine($"  -> local player's own \"Your X has been boosted...\" counted exactly once: {localPlayerSelfBuffOk}");
+        Console.WriteLine($"  -> local player's own matching \"weakened\" (debuff) line is NOT counted as a buff: {localPlayerWeakenNotCountedAsBuff}");
+        Console.WriteLine($"  -> a single cast narrated as 4 same-second \"boost <state>\" lines counts as 1: {multiStateSingleCastDedupedOk}");
 
-        return selfBuffOk && weakenNotCountedAsBuff && afterUsingSelfBuffOk && allyBuffAttributedToRecipientOk;
+        return selfBuffOk && weakenNotCountedAsBuff && afterUsingSelfBuffOk && allyBuffAttributedToRecipientOk
+            && localPlayerSelfBuffOk && localPlayerWeakenNotCountedAsBuff && multiStateSingleCastDedupedOk;
     }
 }
