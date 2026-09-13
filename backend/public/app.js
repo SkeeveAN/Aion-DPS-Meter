@@ -399,10 +399,12 @@ function buffsCell(buffs) {
 // (playerCell for one person, groupPlayersCell for a whole group) rather than raw fields, since a
 // group row's "player" column is structurally different (many people, not one).
 //
-// showBuffs is false on the two leaderboard listings (top 10 groups, top 10 per class) - per the
-// user, that column is redundant there since clicking through to the encounter/participant details
-// page already shows it; kept true (the default) for that details page's own roster table, which
-// is the one place it actually belongs.
+// showBuffs defaults to true but every call site currently passes false, hiding the column
+// everywhere (leaderboards, and the encounter roster table it used to show on) - per the user, buff
+// tracking doesn't work reliably enough yet (real Chat.log limitations: e.g. another player's own
+// item-based transformation is never narrated at all, only their skill-based ones are) to keep
+// showing it. Flip a call site back to true (or drop this default) once that's solid again -
+// buffsCell/topBuffs/groupBuffs themselves are untouched, this only stops rendering the column.
 function rankedRow(rank, playerCellNode, dps, dmg, heal, buffs, showBuffs = true) {
   return el("tr", {}, [
     el("td", { textContent: `${rank}` }),
@@ -596,6 +598,7 @@ async function renderEncounter(encounterId) {
       p.totalDamage,
       p.totalHealing,
       p.topBuffs,
+      false,
     ),
   );
 
@@ -603,7 +606,7 @@ async function renderEncounter(encounterId) {
     el("h2", { textContent: translateGameName(data.encounter.bossName) }),
     metaTable,
     el("h3", { textContent: t("encounter.groupMembersHeading") }),
-    rankedTable(rosterRows),
+    rankedTable(rosterRows, false),
     el("h3", { textContent: t("encounter.damageDistributionHeading") }),
     damageDistributionChart(data.roster),
     el("h3", { textContent: t("encounter.lootHeading") }),
