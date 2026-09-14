@@ -266,25 +266,36 @@ public partial class MainWindow : Window
     /// Per the user: found from a real report where Settings had Aion Riftshade selected (and its
     /// own Chat.log folder, see SettingsWindow's ServerInstallFolders remarks) while the meter kept
     /// showing "Hidan" - a character actually registered on Origin Aion, left over as
-    /// ActiveCharacterName from a previous session on a different server entirely. Which server
-    /// this install's Chat.log even belongs to (see Server/ServerIdentity.cs) is a stronger signal
-    /// than a guess: if it has exactly ONE registered character, that one must be "You" here, full
-    /// stop. Deliberately NOT gated behind AutoDetectActiveCharacter (unlike
+    /// ActiveCharacterName from a previous session on a different server entirely.
+    ///
+    /// Matches by ServerDisplayName (the explicit catalog pick, e.g. "Aion Riftshade" - see
+    /// SettingsWindow's AionInstallServerBox), NOT ServerFingerprint, even though this whole
+    /// mechanism was originally built around the fingerprint: a real settings file turned up
+    /// Hidan (Origin Aion) and Aahz (Aion Riftshade) sharing the exact same
+    /// "70.0.0.150:10241" fingerprint, so that first version found two matches and correctly
+    /// refused to guess between them - the wrong outcome here, not a bug in the "don't guess" rule
+    /// itself. ServerIdentity's own docstring calls the fingerprint "stable and unique per
+    /// private-server operator", which two DIFFERENT operators apparently do not have to honor
+    /// (e.g. both reachable through the same gateway IP:port). The catalog display name has no
+    /// such assumption to break: server_catalog.name is unique by construction, and it is exactly
+    /// what the user explicitly picked in the Aion Installation section - stronger than a
+    /// technical detail the game's own network layer does not actually guarantee.
+    ///
+    /// Deliberately NOT gated behind AutoDetectActiveCharacter (unlike
     /// UpdateActiveCharacterFromSkill/OnPlayerLoggedIn) - which character belongs to which server
     /// is a fact the user stated directly when registering it in Settings, not a heuristic guess
     /// that toggle exists to suppress. Silently does nothing with zero or 2+ matches (e.g. two
-    /// registered characters on the same server) - genuinely ambiguous, same "leave it rather than
-    /// guess" rule as the skill-based detection.
+    /// registered characters on the same server), or if no server is selected at all - genuinely
+    /// ambiguous/unknown, same "leave it rather than guess" rule as the skill-based detection.
     /// </summary>
     private void ApplyActiveCharacterForCurrentServer(MeterSettings settings)
     {
-        string? fingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
-        if (fingerprint is null)
+        if (settings.ServerDisplayName is not string serverName)
         {
             return;
         }
 
-        var matches = _characters.Where(c => c.ServerFingerprint == fingerprint).ToList();
+        var matches = _characters.Where(c => c.ServerDisplayName == serverName).ToList();
         if (matches.Count != 1 || matches[0].Name == _activeCharacterName)
         {
             return;
