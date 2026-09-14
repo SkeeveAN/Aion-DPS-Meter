@@ -1,6 +1,6 @@
 # Aion DPS-Meter Backend
 
-API + minimalistisches Web-Frontend für `dpsmeter.skeeve.tv`. Nimmt Boss-Kampf-Uploads vom
+API + minimalistisches Web-Frontend für `aiondps.com`. Nimmt Boss-Kampf-Uploads vom
 [AionSniffer](../) DPS-Meter-Client entgegen, erkennt serverseitig, welche Uploads verschiedener
 Gruppenmitglieder zum selben Kampf gehören (siehe `src/matching/merge.ts`), und zeigt Leaderboards
 sowie Spielerprofile an.
@@ -217,7 +217,7 @@ hätten. `html.unescape()` auf `name`/`de`/`fr` behebt es dauerhaft.
 
 ## Deployment (alfahosting)
 
-nginx ist bereits fertig konfiguriert: `dpsmeter.skeeve.tv` (Port 443) proxied auf
+nginx ist bereits fertig konfiguriert: `aiondps.com` (Port 443) proxied auf
 `127.0.0.1:4000`, inklusive `/ws`. Deployment folgt exakt dem Muster von
 `../../timetable/deploy/`:
 

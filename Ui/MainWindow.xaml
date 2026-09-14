@@ -505,7 +505,7 @@
                              moment the Mob/Boss filter has at least one real target. -->
                         <MenuItem x:Name="UploadBossMenuItem" Header="{local:Loc Main.MenuSession.UploadBoss}" Click="OnUploadCurrentBossClicked"
                                   Visibility="Collapsed"
-                                  ToolTip="Uploads the fight currently selected in the Mob/Boss filter to dpsmeter.skeeve.tv."/>
+                                  ToolTip="Uploads the fight currently selected in the Mob/Boss filter to aiondps.com."/>
                         <!-- Everything the Mob/Boss filter has accumulated since the last Clear -
                              one upload request per boss, so a group that split the upload across
                              its members still gets recognized as one run server-side (see
@@ -513,7 +513,7 @@
                              rule as UploadBossMenuItem above. -->
                         <MenuItem x:Name="UploadRunMenuItem" Header="{local:Loc Main.MenuSession.UploadRun}" Click="OnUploadLastRunClicked"
                                   Visibility="Collapsed"
-                                  ToolTip="Uploads every boss fight recorded since the last Clear, one by one, to dpsmeter.skeeve.tv."/>
+                                  ToolTip="Uploads every boss fight recorded since the last Clear, one by one, to aiondps.com."/>
                     </MenuItem>
                     <!-- Consolidated here from the App menu, per the user's request - App had
                          become a long, mixed grab-bag of session/dev/settings items; splitting
@@ -647,7 +647,7 @@
                          button physically sits. -->
                     <Button x:Name="UploadBossButton" Style="{StaticResource ToolbarIconButton}" Click="OnUploadCurrentBossClicked" Padding="6,4"
                             Visibility="Collapsed"
-                            ToolTip="Uploads this boss fight to dpsmeter.skeeve.tv.">
+                            ToolTip="Uploads this boss fight to aiondps.com.">
                         <Path Data="M9,2 L9,10 M4,7 L9,2 L14,7 M3,13 L15,13"
                               Stroke="#e8e8ea" StrokeThickness="1.6" StrokeLineJoin="Round"
                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"

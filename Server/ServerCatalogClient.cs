@@ -10,7 +10,7 @@ namespace AionSniffer.Server;
 /// and would be an odd, unrelated coupling for a plain GET with no body.</summary>
 public static class ServerCatalogClient
 {
-    private const string ApiBaseUrl = "https://dpsmeter.skeeve.tv";
+    private const string ApiBaseUrl = "https://aiondps.com";
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(10) };
 

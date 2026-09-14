@@ -6,13 +6,13 @@ using System.Text.Json.Serialization;
 namespace AionSniffer.Upload;
 
 /// <summary>
-/// Sends an encounter to the community backend (dpsmeter.skeeve.tv). One static HttpClient for the
+/// Sends an encounter to the community backend (aiondps.com). One static HttpClient for the
 /// process's lifetime, per the usual .NET guidance (a fresh client per call exhausts sockets under
 /// load) - not a concern here at this call volume, but free to get right.
 /// </summary>
 public static class UploadClient
 {
-    private const string ApiBaseUrl = "https://dpsmeter.skeeve.tv";
+    private const string ApiBaseUrl = "https://aiondps.com";
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
 
