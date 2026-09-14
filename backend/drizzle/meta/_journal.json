@@ -85,6 +85,13 @@
       "when": 1789394308523,
       "tag": "0011_rename_aionriftshade_display_name",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1789394813666,
+      "tag": "0012_add_beshmundir_rentus_tiamat",
+      "breakpoints": true
     }
   ]
 }
