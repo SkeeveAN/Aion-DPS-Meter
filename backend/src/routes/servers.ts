@@ -18,12 +18,18 @@ import { serverCatalog, servers } from "../db/schema.js";
  * that same server (with its own real fingerprint) could never match back up with (see
  * matching/merge.ts's own fingerprint-based upsert). The frontend disables click-through for a null
  * id rather than querying a leaderboard with no serverId at all.
+ *
+ * serverCatalogId is the OTHER id a row carries, always present regardless of real uploads - per
+ * the user, which instances even show up (GET /api/instances?serverCatalogId=...) differs by
+ * server (Origin/EuroAion share one list, Riftshade's is wider), and that filter has to key off
+ * something that exists before any upload does, which servers.id (possibly null here) cannot.
  */
 export async function serverRoutes(app: FastifyInstance) {
   app.get("/api/servers", async (_request, reply) => {
     const rows = db
       .select({
         id: servers.id,
+        serverCatalogId: serverCatalog.id,
         fingerprint: servers.fingerprint,
         name: serverCatalog.name,
         kind: serverCatalog.kind,

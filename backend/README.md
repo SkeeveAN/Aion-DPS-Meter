@@ -46,6 +46,21 @@ anlegen. Es gibt bewusst keine vorab geratene Instanzliste im Seed - die genaue 
 dieses konkreten Servers ist von hier aus nicht zuverlässig bekannt, eine falsche Zuordnung wäre
 schlimmer als eine leere.
 
+## Welcher Server zeigt welche Instanzen
+
+`instances`/`bosses` selbst bleiben unscoped (derselbe Kampf ist derselbe Kampf, egal welcher
+Server ihn austrägt), aber welche Instanzen ein Server überhaupt ANBIETET, ist es laut dem Nutzer
+nicht: Origin Aion und EuroAion (beide 4.6) teilen sich eine Liste, Aion Riftshade (4.8) hat eine
+breitere. Das steuert `server_catalog_instances` (reine Zuordnungstabelle, `GET /api/instances`
+filtert per `?serverCatalogId=`). Ein Server ohne Zeilen hier zeigt eine LEERE Instanzliste, nie
+eine geratene - gleiche "leer schlägt falsch"-Regel wie oben. Neue Zuordnung anlegen:
+
+```sql
+INSERT INTO server_catalog_instances (server_catalog_id, instance_id)
+SELECT sc.id, i.id FROM server_catalog sc, instances i
+WHERE sc.name = '<Servername>' AND i.name = '<Instanzname>';
+```
+
 ## Trash-Mobs ausblenden
 
 Ein eindeutiger Trash-Mob wird automatisch schon beim Upload abgelehnt (siehe

@@ -92,6 +92,20 @@
       "when": 1789394813666,
       "tag": "0012_add_beshmundir_rentus_tiamat",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1789395227863,
+      "tag": "0013_add_server_catalog_instances",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1789395239769,
+      "tag": "0014_seed_server_catalog_instances",
+      "breakpoints": true
     }
   ]
 }

@@ -13,21 +13,33 @@ const serverIndicator = document.getElementById("server-indicator");
 // currentServerId can be null even after a server is picked - a server_catalog entry nobody has
 // ever uploaded from yet has no real `servers` row (see servers.ts's own remarks), so there's no
 // numeric id to store. currentServerPicked is the separate "has the user chosen one at all" flag
-// route() actually gates on, so instances/bosses (never server-scoped to begin with, see
-// instances.ts) stay browsable for a server with no data yet - only a real per-server leaderboard
-// or player search has nothing to show until a real upload creates that row.
+// route() actually gates on, so instances/bosses stay browsable for a server with no data yet -
+// only a real per-server leaderboard or player search has nothing to show until a real upload
+// creates that row.
+//
+// currentServerCatalogId is the OTHER id (server_catalog.id, see servers.ts's own remarks) -
+// always present regardless of real uploads, unlike currentServerId. Per the user, which
+// instances even exist differs by server (Origin/EuroAion share one list, Riftshade's is wider),
+// so GET /api/instances needs this one specifically to filter correctly (see renderInstances).
 let currentServerId = localStorage.getItem("dpsmeter.serverId");
 let currentServerName = localStorage.getItem("dpsmeter.serverName");
+let currentServerCatalogId = localStorage.getItem("dpsmeter.serverCatalogId");
 let currentServerPicked = localStorage.getItem("dpsmeter.serverPicked") === "1";
 
-function setCurrentServer(id, name) {
+function setCurrentServer(id, name, serverCatalogId) {
   currentServerId = id === null ? null : String(id);
   currentServerName = name;
+  currentServerCatalogId = serverCatalogId === null ? null : String(serverCatalogId);
   currentServerPicked = true;
   if (currentServerId === null) {
     localStorage.removeItem("dpsmeter.serverId");
   } else {
     localStorage.setItem("dpsmeter.serverId", currentServerId);
+  }
+  if (currentServerCatalogId === null) {
+    localStorage.removeItem("dpsmeter.serverCatalogId");
+  } else {
+    localStorage.setItem("dpsmeter.serverCatalogId", currentServerCatalogId);
   }
   localStorage.setItem("dpsmeter.serverName", name ?? "");
   localStorage.setItem("dpsmeter.serverPicked", "1");
@@ -223,7 +235,7 @@ async function renderServerPicker() {
       // a per-server leaderboard/player search has nothing to show yet, which the "no data" hint
       // still calls out.
       const a = el("a", { href: "#/", textContent: s.name });
-      a.addEventListener("click", () => setCurrentServer(s.id, s.name));
+      a.addEventListener("click", () => setCurrentServer(s.id, s.name, s.serverCatalogId));
       const children = [a];
       if (s.id === null) {
         children.push(` (${t("servers.noDataYet")})`);
@@ -332,7 +344,14 @@ async function renderInstances() {
   setBreadcrumb([t("breadcrumb.instances")]);
   app.replaceChildren(el("p", { textContent: t("loading.instances") }));
 
-  const instances = await fetchJson("/api/instances");
+  // Per the user: which instances even exist differs by server (Origin/EuroAion share one list,
+  // Riftshade's is wider) - currentServerCatalogId is always set once a server is picked, real
+  // uploads or not (see setCurrentServer's own remarks), so this is never omitted in practice.
+  const instancesUrl =
+    currentServerCatalogId === null
+      ? "/api/instances"
+      : `/api/instances?serverCatalogId=${encodeURIComponent(currentServerCatalogId)}`;
+  const instances = await fetchJson(instancesUrl);
   if (instances.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("instances.emptyNoInstances") }));
     return;
@@ -797,7 +816,11 @@ async function route() {
     // download page is the one exception: it's server-agnostic (the client works the same
     // regardless of which server it's pointed at), so it must stay reachable even before anyone
     // has picked one.
-    if (section !== "servers" && section !== "download" && !currentServerPicked) {
+    // currentServerCatalogId is checked too, not just currentServerPicked: it's a newer field than
+    // dpsmeter.serverPicked, so anyone who picked a server before it existed has it stored as null
+    // and gets sent back to the picker once, rather than silently browsing the unfiltered
+    // instance list until they happen to switch servers again.
+    if (section !== "servers" && section !== "download" && (!currentServerPicked || currentServerCatalogId === null)) {
       await renderServerPicker();
     } else if (section === "servers") {
       await renderServerPicker();

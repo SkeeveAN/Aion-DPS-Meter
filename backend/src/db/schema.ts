@@ -32,8 +32,12 @@ export const serverCatalog = sqliteTable("server_catalog", {
 // Per-private-server identity. Gear/rate standards differ completely between servers (per the
 // user: EuroAion is nowhere near this server's gear level), so any table with real run data --
 // players, encounters -- must be scoped to one of these and never merged or leaderboarded across
-// rows with a different serverId. Instances/bosses stay UNscoped on purpose: the raid content
-// itself (names, roster) is the same regardless of which server runs it.
+// rows with a different serverId. The bosses/encounters roster (which NPC is which boss, its
+// aliases, loot rules) stays unscoped - the fight itself is the same regardless of which server
+// runs it - but which INSTANCES a given server even offers is NOT the same everywhere (see
+// serverCatalogInstances below): per the user, Origin Aion and EuroAion (both 4.6) share one list,
+// while Aion Riftshade (4.8) has a wider one, and a level-65 server has no reason to show a
+// level-40-ish instance from a much earlier patch either.
 export const servers = sqliteTable("servers", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   // The client's own bin64\config.ini [ServerAddr] BIND_ADDR:BIND_PORT (see the client's
@@ -56,6 +60,34 @@ export const instances = sqliteTable("instances", {
     .notNull()
     .default(sql`(current_timestamp)`),
 });
+
+// Which instances a given catalog server actually offers - per the user, this genuinely differs
+// (Origin/EuroAion share one list, Riftshade's 4.8 list is wider, the rest are unknown so far and
+// deliberately left unmapped rather than guessed - same "empty beats wrong" rule as everywhere else
+// in this schema). A join table rather than a column on either side: an instance can belong to
+// several servers' lists (Origin and EuroAion both list Sauro) and this needs to grow server-by-
+// server as the user confirms more, without ever touching the shared instances/bosses rows
+// themselves. GET /api/instances filters by this when a serverCatalogId is given (see
+// instances.ts) - a server with no rows here yet simply shows no instances, not every instance
+// ever seen, until someone curates it (see backend/README.md).
+export const serverCatalogInstances = sqliteTable(
+  "server_catalog_instances",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    serverCatalogId: integer("server_catalog_id")
+      .notNull()
+      .references(() => serverCatalog.id),
+    instanceId: integer("instance_id")
+      .notNull()
+      .references(() => instances.id),
+  },
+  (table) => ({
+    serverCatalogIdInstanceIdIdx: uniqueIndex("server_catalog_instances_pair_idx").on(
+      table.serverCatalogId,
+      table.instanceId,
+    ),
+  }),
+);
 
 export const bosses = sqliteTable(
   "bosses",
