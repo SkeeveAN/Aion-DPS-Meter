@@ -9,11 +9,11 @@
 -- verifies the real names and adds them there too.
 INSERT OR IGNORE INTO `instances` (`name`, `sort_order`) VALUES
 	('Mantor', 0),
-	("Jormungand's Bridge", 0),
+	('Jormungand''s Bridge', 0),
 	('Linkgate Foundry', 0),
 	('Lost Rentus Base', 0),
 	('Lost Refuge', 0),
-	("Tiamat's Hidden Space", 0),
+	('Tiamat''s Hidden Space', 0),
 	('Makarna', 0);
 --> statement-breakpoint
 
@@ -25,9 +25,9 @@ INSERT INTO `bosses` (`instance_id`, `name`, `is_solo`) VALUES
 -- read as three co-equal bosses (same pattern as Danuar Sanctuary's own three), with "Spirited
 -- Velkur" as an alternate name for the same Velkur.
 INSERT INTO `bosses` (`instance_id`, `name`, `npc_name_aliases`) VALUES
-	((SELECT id FROM instances WHERE name = "Jormungand's Bridge"), 'Fugitive Mazikin', '[]'),
-	((SELECT id FROM instances WHERE name = "Jormungand's Bridge"), 'Fugitive Asachin', '[]'),
-	((SELECT id FROM instances WHERE name = "Jormungand's Bridge"), 'Velkur', '["Spirited Velkur"]');
+	((SELECT id FROM instances WHERE name = 'Jormungand''s Bridge'), 'Fugitive Mazikin', '[]'),
+	((SELECT id FROM instances WHERE name = 'Jormungand''s Bridge'), 'Fugitive Asachin', '[]'),
+	((SELECT id FROM instances WHERE name = 'Jormungand''s Bridge'), 'Velkur', '["Spirited Velkur"]');
 --> statement-breakpoint
 
 -- Hall of Knowledge (added migration 0010 with no boss at all, on the ORIGINAL list's claim of "no
@@ -55,7 +55,7 @@ INSERT INTO `bosses` (`instance_id`, `name`) VALUES
 --> statement-breakpoint
 
 INSERT INTO `bosses` (`instance_id`, `name`) VALUES
-	((SELECT id FROM instances WHERE name = "Tiamat's Hidden Space"), 'Tiamat');
+	((SELECT id FROM instances WHERE name = 'Tiamat''s Hidden Space'), 'Tiamat');
 --> statement-breakpoint
 
 INSERT INTO `bosses` (`instance_id`, `name`) VALUES
@@ -68,11 +68,11 @@ SELECT sc.id, i.id
 FROM `server_catalog` sc
 JOIN `instances` i ON i.name IN (
 	'Mantor',
-	"Jormungand's Bridge",
+	'Jormungand''s Bridge',
 	'Linkgate Foundry',
 	'Lost Rentus Base',
 	'Lost Refuge',
-	"Tiamat's Hidden Space",
+	'Tiamat''s Hidden Space',
 	'Makarna'
 )
 WHERE sc.name = 'Aion Riftshade';
