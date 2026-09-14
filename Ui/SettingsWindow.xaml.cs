@@ -62,6 +62,7 @@ public partial class SettingsWindow : Window
         AionInstallFolderBox.Text = _aionInstallFolder ?? "(not set)";
         UpdateAionFolderStatus();
         UpdateServerFingerprint();
+        RefreshServerFolderList();
 
         _ = LoadServerCatalogAsync();
 
@@ -152,6 +153,27 @@ public partial class SettingsWindow : Window
             UpdateAionFolderStatus();
             UpdateServerFingerprint();
         }
+    }
+
+    /// <summary>
+    /// Per the user: MeterSettings.ServerInstallFolders existed but nothing on screen ever showed
+    /// it, so there was no way to tell the feature was there at all short of testing it by
+    /// switching servers and watching the folder box change. Lists every remembered pairing
+    /// directly - reads _settings.ServerInstallFolders (already updated in memory, even before
+    /// Save is clicked - see OnSaveClicked) rather than re-loading from disk, so a pairing just set
+    /// this session shows up immediately. Called after anything that could change what should be
+    /// listed: initial load, the catalog finishing (so a remembered name can resolve to a
+    /// display string), picking a different folder, and picking a different server.
+    /// </summary>
+    private void RefreshServerFolderList()
+    {
+        var lines = _settings.ServerInstallFolders
+            .OrderBy(pair => pair.Key)
+            .Select(pair => $"{pair.Key}: {pair.Value}")
+            .ToList();
+
+        ServerFolderMappingsList.ItemsSource = lines;
+        ServerFolderMappingsEmptyText.Visibility = lines.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnAddCharacterClicked(object sender, RoutedEventArgs e)
@@ -327,6 +349,17 @@ public partial class SettingsWindow : Window
             AionInstallFolderBox.Text = _aionInstallFolder;
             UpdateAionFolderStatus();
             UpdateServerFingerprint();
+
+            // Remembered immediately, not just at Save - per the user, the whole point was for
+            // this pairing to be VISIBLE, so "Remembered folders" below (RefreshServerFolderList)
+            // must show it the moment it's picked rather than only after clicking Save. OnSaveClicked
+            // does the same write again, which is fine - a dictionary entry set to the same value
+            // twice is a no-op.
+            if (CurrentServerDisplayNameOrNull() is string serverName)
+            {
+                _settings.ServerInstallFolders[serverName] = _aionInstallFolder;
+                RefreshServerFolderList();
+            }
         }
     }
 

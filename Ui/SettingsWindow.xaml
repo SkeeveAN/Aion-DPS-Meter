@@ -196,8 +196,29 @@
                      Targets List / User Interface). -->
                 <GroupBox Header="{local:Loc Settings.AionInstallation}">
                     <StackPanel>
+                        <!-- Server picked FIRST, folder second - per the user, this section's
+                             whole point was not visible before: each server remembers its OWN
+                             Chat.log folder (MeterSettings.ServerInstallFolders), so switching the
+                             server here is what actually switches the folder below, not something
+                             set independently of it. -->
+                        <TextBlock Text="Each server below remembers its own Chat.log folder - pick a server, then set (or confirm) its folder."
+                                   TextWrapping="Wrap" Margin="4,2" FontStyle="Italic" Foreground="#9a9aa2"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Server:" VerticalAlignment="Center" Margin="4,0,6,0"/>
+                            <!-- Same curated catalog as the "Add character" section's own server
+                                 picker below (populated in LoadServerCatalogAsync), not free text -
+                                 per the user, different servers are different Aion installs with
+                                 different Chat.log paths, so this pick is also the key into
+                                 MeterSettings.ServerInstallFolders (see OnAionServerSelected):
+                                 switching it recalls that server's own folder instead of leaving
+                                 whatever folder happened to be selected before. -->
+                            <ComboBox x:Name="AionInstallServerBox" Width="220"
+                                      SelectionChanged="OnAionServerSelected"
+                                      ToolTip="Which server this Aion install connects to - picking one loads its own saved folder below, if any."/>
+                        </StackPanel>
+
                         <TextBlock Text="{local:Loc Settings.FolderHint}"
-                                   TextWrapping="Wrap" Margin="4,2"/>
+                                   TextWrapping="Wrap" Margin="4,8,4,2"/>
                         <StackPanel Orientation="Horizontal">
                             <TextBox x:Name="AionInstallFolderBox" Width="260" IsReadOnly="True"
                                      Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45" Margin="4,2"/>
@@ -212,25 +233,27 @@
                              [ServerAddr] IP:port instead (see Server/ServerIdentity.cs) - stable
                              and unique per private-server operator. Read-only: it's a detected
                              fact, not something to hand-edit into agreeing with a different
-                             server's config file. The name below is purely cosmetic labeling for
-                             that same fingerprint, sent alongside it so leaderboards can show a
-                             name instead of a bare IP:port. -->
+                             server's config file. -->
                         <TextBlock Text="Detected server (used to keep community-backend runs from mixing across servers):"
                                    TextWrapping="Wrap" Margin="4,8,4,2"/>
                         <TextBlock x:Name="ServerFingerprintText" Margin="4,2" FontStyle="Italic" Foreground="#9a9aa2"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="Server:" VerticalAlignment="Center" Margin="4,0,6,0"/>
-                            <!-- Same curated catalog as the "Add character" section's own server
-                                 picker below (populated in LoadServerCatalogAsync), not free text -
-                                 per the user, different servers are different Aion installs with
-                                 different Chat.log paths, so this pick is also the key into
-                                 MeterSettings.ServerInstallFolders (see OnAionServerSelected):
-                                 switching it recalls that server's own folder instead of leaving
-                                 whatever folder happened to be selected before. -->
-                            <ComboBox x:Name="AionInstallServerBox" Width="220"
-                                      SelectionChanged="OnAionServerSelected"
-                                      ToolTip="Which server this Aion install connects to - picking one recalls its own folder below if it was set before."/>
-                        </StackPanel>
+
+                        <!-- Makes MeterSettings.ServerInstallFolders itself visible, not just its
+                             effect - per the user, the binding existed in code (added previous
+                             session) but nothing on screen ever showed it. One line per
+                             remembered server, refreshed in RefreshServerFolderList (constructor,
+                             LoadServerCatalogAsync, OnAionServerSelected and OnSelectAionFolderClicked
+                             all call it so this never goes stale while the dialog is open). -->
+                        <TextBlock Text="Remembered folders:" Margin="4,8,4,2" FontWeight="Bold"/>
+                        <ItemsControl x:Name="ServerFolderMappingsList" Margin="4,0,4,4">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Foreground="#9a9aa2" FontStyle="Italic" TextWrapping="Wrap"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock x:Name="ServerFolderMappingsEmptyText" Text="(none yet - pick a server above, set its folder, then Save)"
+                                   Margin="4,0,4,4" FontStyle="Italic" Foreground="#9a9aa2"/>
                     </StackPanel>
                 </GroupBox>
 
