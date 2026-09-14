@@ -7,9 +7,10 @@ import { topBuffsByParticipant, type TopBuff } from "../skills/topBuffs.js";
 const TOP_N = 10;
 
 export async function bossRoutes(app: FastifyInstance) {
-  // serverId is required, not optional-with-a-default: per the user, different servers' gear
-  // standards are incomparable, so there is no sane "all servers" leaderboard to fall back to --
-  // the frontend must always ask for one specific server (see GET /api/servers for the list).
+  // serverId has no cross-server default: per the user, different servers' gear standards are
+  // incomparable, so there is no sane "all servers" leaderboard to fall back to - a real, present
+  // serverId always scopes to just that one. Absent entirely is its own case, not "all servers"
+  // (see below) - a server_catalog entry nobody has uploaded from yet.
   app.get<{ Params: { id: string }; Querystring: { serverId?: string } }>(
     "/api/bosses/:id/leaderboard",
     async (request, reply) => {
@@ -18,9 +19,16 @@ export async function bossRoutes(app: FastifyInstance) {
         return reply.status(400).send({ error: "invalid_boss_id" });
       }
 
-      const serverId = Number(request.query.serverId);
-      if (!Number.isInteger(serverId)) {
-        return reply.status(400).send({ error: "missing_or_invalid_server_id" });
+      // Present but invalid (not a real number) is a genuine bad request; ABSENT is the frontend
+      // browsing a server_catalog entry with no real `servers` row yet (see servers.ts's own
+      // remarks) - there can be no encounters for it either way, so this returns the same empty
+      // shape a real serverId with zero uploads would, rather than rejecting the request outright.
+      let serverId: number | null = null;
+      if (request.query.serverId !== undefined) {
+        serverId = Number(request.query.serverId);
+        if (!Number.isInteger(serverId)) {
+          return reply.status(400).send({ error: "missing_or_invalid_server_id" });
+        }
       }
 
       const boss = db.select().from(bosses).where(eq(bosses.id, bossId)).get();
@@ -35,6 +43,14 @@ export async function bossRoutes(app: FastifyInstance) {
         isSolo: boss.isSolo,
         lootRules: boss.lootRules,
       };
+
+      if (serverId === null) {
+        return reply.send(
+          boss.isSolo
+            ? { boss: bossResponse, topGroups: [], topByClass: {} }
+            : { boss: bossResponse, topGroups: [] },
+        );
+      }
 
       // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) rank
       // completely differently - one boss is never both, so only the query the page actually

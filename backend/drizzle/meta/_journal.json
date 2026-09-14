@@ -78,6 +78,13 @@
       "when": 1789392551824,
       "tag": "0010_add_aionriftshade_and_48_instances",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1789394308523,
+      "tag": "0011_rename_aionriftshade_display_name",
+      "breakpoints": true
     }
   ]
 }

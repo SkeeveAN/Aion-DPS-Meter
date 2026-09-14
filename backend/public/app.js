@@ -9,20 +9,34 @@ const serverIndicator = document.getElementById("server-indicator");
 // their gear levels are nowhere near comparable, so their runs must never share a leaderboard
 // either). Persisted across reloads so switching pages doesn't ask again every time; explicitly
 // changeable via the indicator link in the header.
+//
+// currentServerId can be null even after a server is picked - a server_catalog entry nobody has
+// ever uploaded from yet has no real `servers` row (see servers.ts's own remarks), so there's no
+// numeric id to store. currentServerPicked is the separate "has the user chosen one at all" flag
+// route() actually gates on, so instances/bosses (never server-scoped to begin with, see
+// instances.ts) stay browsable for a server with no data yet - only a real per-server leaderboard
+// or player search has nothing to show until a real upload creates that row.
 let currentServerId = localStorage.getItem("dpsmeter.serverId");
 let currentServerName = localStorage.getItem("dpsmeter.serverName");
+let currentServerPicked = localStorage.getItem("dpsmeter.serverPicked") === "1";
 
 function setCurrentServer(id, name) {
-  currentServerId = String(id);
+  currentServerId = id === null ? null : String(id);
   currentServerName = name;
-  localStorage.setItem("dpsmeter.serverId", currentServerId);
+  currentServerPicked = true;
+  if (currentServerId === null) {
+    localStorage.removeItem("dpsmeter.serverId");
+  } else {
+    localStorage.setItem("dpsmeter.serverId", currentServerId);
+  }
   localStorage.setItem("dpsmeter.serverName", name ?? "");
+  localStorage.setItem("dpsmeter.serverPicked", "1");
   updateServerIndicator();
 }
 
 function updateServerIndicator() {
   serverIndicator.replaceChildren();
-  if (currentServerId) {
+  if (currentServerPicked) {
     serverIndicator.append(
       currentServerName || t("serverIndicator.number", { id: currentServerId }),
       link(t("serverIndicator.switch"), "#/servers"),
@@ -204,15 +218,17 @@ async function renderServerPicker() {
     { className: "plain" },
     servers.map((s) => {
       // s.id is null for a catalog server nobody has ever uploaded from yet (see servers.ts's own
-      // remarks) - nothing to click through to, so render it as plain, unlinked text instead of an
-      // <a> that would navigate to an empty leaderboard with no real serverId to query.
-      if (s.id === null) {
-        return el("li", { className: "empty" }, [`${s.name} (${t("servers.noDataYet")})`]);
-      }
-
+      // remarks) - still clickable: instances/bosses are never server-scoped to begin with (see
+      // instances.ts), so there's a real global list to browse even with no serverId at all. Only
+      // a per-server leaderboard/player search has nothing to show yet, which the "no data" hint
+      // still calls out.
       const a = el("a", { href: "#/", textContent: s.name });
       a.addEventListener("click", () => setCurrentServer(s.id, s.name));
-      return el("li", {}, [a]);
+      const children = [a];
+      if (s.id === null) {
+        children.push(` (${t("servers.noDataYet")})`);
+      }
+      return el("li", {}, children);
     }),
   );
   app.replaceChildren(
@@ -453,10 +469,14 @@ async function renderLeaderboard(bossId) {
   // boss's own instance page (#/instances/:id), not just all the way out to the top-level instance
   // picker - per the user, there was previously no way back to the boss list of the instance you
   // came from without using the browser's own back button.
-  const [data, instances] = await Promise.all([
-    fetchJson(`/api/bosses/${bossId}/leaderboard?serverId=${encodeURIComponent(currentServerId)}`),
-    fetchJson("/api/instances"),
-  ]);
+  // currentServerId is null for a catalog server with no real uploads yet (see setCurrentServer's
+  // own remarks) - omitted here rather than sent as the literal string "null", so the backend can
+  // tell "browsing with nothing to show" apart from a genuinely malformed request.
+  const leaderboardUrl =
+    currentServerId === null
+      ? `/api/bosses/${bossId}/leaderboard`
+      : `/api/bosses/${bossId}/leaderboard?serverId=${encodeURIComponent(currentServerId)}`;
+  const [data, instances] = await Promise.all([fetchJson(leaderboardUrl), fetchJson("/api/instances")]);
   const instance = instances.find((i) => i.id === data.boss.instanceId);
   setBreadcrumb([
     link(t("breadcrumb.instances"), "#/"),
@@ -777,7 +797,7 @@ async function route() {
     // download page is the one exception: it's server-agnostic (the client works the same
     // regardless of which server it's pointed at), so it must stay reachable even before anyone
     // has picked one.
-    if (section !== "servers" && section !== "download" && !currentServerId) {
+    if (section !== "servers" && section !== "download" && !currentServerPicked) {
       await renderServerPicker();
     } else if (section === "servers") {
       await renderServerPicker();
