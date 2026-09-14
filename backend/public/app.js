@@ -301,6 +301,16 @@ const INSTANCE_IMAGES = {
   "Aturam Sky Fortress": "/images/instances/aturam.png",
   "Baruna Research Laboratory": "/images/instances/linkgate_foundry.png",
   "Hall of Knowledge": "/images/instances/danuar_mysticarium.png",
+  // Real in-game screenshot from aion.fandom.com's own "Raksang Ruins" page, which explicitly
+  // confirms "also known as Mantor" - not this project's usual client-file/loading-screen
+  // sourcing (that path is blocked for this still-unconfirmed instance), but a real, on-topic
+  // screenshot rather than a guess.
+  Mantor: "/images/instances/mantor.jpg",
+  // Both "Lost" - reuse their own already-covered non-Lost counterpart's real loading-screen
+  // photo rather than fetch a lower-quality alternative: same location/reskin, same reasoning as
+  // Tiamats Festung/Unterschlupf sharing one photo above.
+  "Lost Rentus Base": "/images/instances/rentus_base.jpg",
+  "Lost Refuge": "/images/instances/danuar_sanctuary.jpg",
 };
 
 // Per the user: real per-boss art, not the instance's own photo reused - found on aion.fandom.com,
@@ -324,6 +334,15 @@ const BOSS_IMAGES = {
   "Brigade General Sheba": "/images/bosses/sheba.jpg",
   // From the user directly (a real screenshot, not the wiki - Raksha Boilheart has no page there).
   "Raksha Boilheart": "/images/bosses/raksha_boilheart.jpg",
+  // aion.fandom.com has its own dedicated character page/render for each of these three.
+  "Brigade General Vasharti": "/images/bosses/vasharti.jpg",
+  Tiamat: "/images/bosses/tiamat.jpg",
+  // Per the user's own report this boss is "Beritrakt", but no such name turns up anywhere on the
+  // web - the instance's own wiki page names its endboss "Beritra" instead, and this render is
+  // Beritra's. Filed under the DB's own "Beritrakt" key on the assumption they're the same NPC
+  // (a plausible mishearing/typo in the original report), not a confirmed match - fix the key if
+  // a real upload ever settles which name this server's Chat.log actually uses.
+  Beritrakt: "/images/bosses/beritrakt.jpg",
 };
 
 // Shared by the instance grid and the boss grid below - a "poster" tile is just a photo (optional),

@@ -1977,7 +1977,10 @@ const GAME_NAME_TRANSLATIONS = {
   "Nasto": { en: "Nasto" },
   "Jormungand's Bridge": { en: "Jormungand's Bridge" },
   "Fugitive Mazikin": { en: "Fugitive Mazikin" },
-  "Fugitive Asachin": { en: "Fugitive Asachin" },
+  // "Escapee Asachin", not "Fugitive Asachin" (this app's own earlier name, per the user's
+  // original report) - aion.fandom.com's Ophidan Bridge/Jormungand's Bridge page uses this
+  // spelling instead. Corrected here and in the DB (see the migration that renamed this row).
+  "Escapee Asachin": { en: "Escapee Asachin" },
   "Velkur": { en: "Velkur" },
   "Linkgate Foundry": { en: "Linkgate Foundry" },
   // Hall of Knowledge itself already has an entry above (added migration 0010, on the ORIGINAL
