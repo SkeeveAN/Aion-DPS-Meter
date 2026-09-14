@@ -136,7 +136,7 @@ function applyStaticTranslations() {
 const GITHUB_REPO = "SkeeveAN/Aion-DPS-Meter";
 
 /**
- * Per the user: the DPS Meter client itself should be offered for download right here, with an
+ * Per the user: the Aion DPS client itself should be offered for download right here, with an
  * explanation - reachable without picking a server first (see route()), since the client works
  * the same regardless of which server it's pointed at.
  *
@@ -152,7 +152,7 @@ async function renderDownload() {
   const hero = el("div", { className: "download-hero" }, [
     el("img", { src: "/logo.ico", alt: "" }),
     el("div", {}, [
-      el("h2", { textContent: "Aion DPS-Meter" }),
+      el("h2", { textContent: "Aion DPS" }),
       el("p", { textContent: t("download.heroDescription") }),
     ]),
   ]);
