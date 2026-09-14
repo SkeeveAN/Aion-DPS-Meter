@@ -258,6 +258,55 @@ public partial class MainWindow : Window
         _characters = settings.Characters;
         _activeCharacterName = settings.ActiveCharacterName;
         _autoDetectActiveCharacter = settings.AutoDetectActiveCharacter;
+
+        ApplyActiveCharacterForCurrentServer(settings);
+    }
+
+    /// <summary>
+    /// Per the user: found from a real report where Settings had Aion Riftshade selected (and its
+    /// own Chat.log folder, see SettingsWindow's ServerInstallFolders remarks) while the meter kept
+    /// showing "Hidan" - a character actually registered on Origin Aion, left over as
+    /// ActiveCharacterName from a previous session on a different server entirely. Which server
+    /// this install's Chat.log even belongs to (see Server/ServerIdentity.cs) is a stronger signal
+    /// than a guess: if it has exactly ONE registered character, that one must be "You" here, full
+    /// stop. Deliberately NOT gated behind AutoDetectActiveCharacter (unlike
+    /// UpdateActiveCharacterFromSkill/OnPlayerLoggedIn) - which character belongs to which server
+    /// is a fact the user stated directly when registering it in Settings, not a heuristic guess
+    /// that toggle exists to suppress. Silently does nothing with zero or 2+ matches (e.g. two
+    /// registered characters on the same server) - genuinely ambiguous, same "leave it rather than
+    /// guess" rule as the skill-based detection.
+    /// </summary>
+    private void ApplyActiveCharacterForCurrentServer(MeterSettings settings)
+    {
+        string? fingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
+        if (fingerprint is null)
+        {
+            return;
+        }
+
+        var matches = _characters.Where(c => c.ServerFingerprint == fingerprint).ToList();
+        if (matches.Count != 1 || matches[0].Name == _activeCharacterName)
+        {
+            return;
+        }
+
+        bool switchedFromKnownCharacter = _activeCharacterName is not null;
+
+        _activeCharacterName = matches[0].Name;
+        settings.ActiveCharacterName = _activeCharacterName;
+        settings.Save();
+
+        if (switchedFromKnownCharacter)
+        {
+            // Same reasoning as OnPlayerLoggedIn's own switch handling: everything recorded so far
+            // belongs to whoever this session used to think "You" was, not the character this
+            // server just resolved to - carrying it forward would merge two different people's (or
+            // two different servers' worth of one person's) damage into one row.
+            ClearDamageData();
+            ClearLootData();
+        }
+
+        RefreshRows();
     }
 
     /// <summary>Detected class per real player name, from OTHER players' own skill usage (see
