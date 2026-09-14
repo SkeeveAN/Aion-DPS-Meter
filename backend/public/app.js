@@ -294,9 +294,12 @@ const INSTANCE_IMAGES = {
   // These three, plus Ashunatal Shadowslip/Belsagos in BOSS_IMAGES below, are aionriftshade.com's
   // own 4.8 content - photos are the real loading-screen art (Textures/loading/*.dds, a plain
   // uncompressed-DXT1 file, not the encrypted Npcs/World paks), decoded straight from that
-  // server's own game install rather than a screenshot or a wiki crop.
+  // server's own game install rather than a screenshot or a wiki crop. Filed under
+  // linkgate_foundry.png from when this instance was still misnamed "Linkgate Foundry" (see
+  // migration 0015) - the real "Linkgate Foundry" is a separate, still-unconfirmed instance, so the
+  // file wasn't renamed to avoid implying that one now has a photo too.
   "Aturam Sky Fortress": "/images/instances/aturam.png",
-  "Linkgate Foundry": "/images/instances/linkgate_foundry.png",
+  "Baruna Research Laboratory": "/images/instances/linkgate_foundry.png",
   "Hall of Knowledge": "/images/instances/danuar_mysticarium.png",
 };
 

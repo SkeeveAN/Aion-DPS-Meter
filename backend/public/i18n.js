@@ -1893,6 +1893,23 @@ const GAME_NAME_TRANSLATIONS = {
     tr: "Surkana Anti Panzer Eter Topu",
     zh: "大战车苏尔卡纳魔力炮",
   },
+  // These three were added (migration 0012) without ever getting an entry here - missed at the
+  // time, found while adding Tiamats Festung below. English names per the user's own later, more
+  // detailed instance list.
+  "Beshmundirs Tempel": {
+    en: "Beshmundir Temple",
+    de: "Beshmundirs Tempel",
+  },
+  "Rentus-Basis": {
+    en: "Rentus Base",
+    de: "Rentus-Basis",
+  },
+  // Not "Dragon Lord's Refuge" (this app's own earlier guess) - the user's own later list calls
+  // this one "Tiamat's Hideout".
+  "Tiamats Unterschlupf": {
+    en: "Tiamat's Hideout",
+    de: "Tiamats Unterschlupf",
+  },
   // aionriftshade.com's own 4.8 content below - verified against that server's own game install
   // (L10N/deu/Data/data.pak; its English pack was still mid-download at the time, per the user, so
   // only German is client-confirmed here - see app.js's own INSTANCE_IMAGES remarks and the
@@ -1907,10 +1924,12 @@ const GAME_NAME_TRANSLATIONS = {
     en: "Ashunatal Shadowslip",
     de: "Ashunatal-Schattengleiter",
   },
-  // No confirmed "whole zone" string for this mapCode (IDLDF4Re_01) in the client's own dictionary
-  // at all - "Linkgate Foundry" is the user's own name for it, not independently verified here.
-  "Linkgate Foundry": {
-    en: "Linkgate Foundry",
+  // mapCode IDLDF4Re_01 - per the user, "Baruna Research Laboratory" is this instance's real name
+  // (not "Linkgate Foundry", this app's own earlier guess - see migration 0015). Matches the lore
+  // text found on Belsagos itself below ("Baruna-Forschungslabor"). "Linkgate Foundry" is a
+  // genuinely separate, still-unconfirmed instance per the user - not this one.
+  "Baruna Research Laboratory": {
+    en: "Baruna Research Laboratory",
   },
   // One NPC across 3 escalating named states (client_strings_monster.xml, id prefix
   // STR_IDLDF4_Re_01_BOSS_Fi) - "Belsagos" itself is the proper noun per
@@ -1921,11 +1940,30 @@ const GAME_NAME_TRANSLATIONS = {
     de: "Belsagos",
   },
   // mapCode IDLDF5RE_solo - de "Halle des Wissens" is a direct, unambiguous match for this English
-  // name (unlike most entries here, not a guess bridging two differently-drifted names). A solo
-  // puzzle/lore instance, no classic endboss.
+  // name (unlike most entries here, not a guess bridging two differently-drifted names). Per the
+  // user's own later, more detailed list this instance actually DOES have scenario-dependent
+  // bosses ("Secret Test Subject 48123-A"/"Doomtread Kurores") - neither confirmed in this app's
+  // own client data yet, so no boss row exists here so far (see backend/README.md's curation
+  // pattern) - not, as first assumed, a classic-endboss-free instance.
   "Hall of Knowledge": {
     en: "Hall of Knowledge",
     de: "Halle des Wissens",
+  },
+  // mapCode IDTiamat_1 (en "Tiamat Stronghold" per assets/places/instances_multilang.json, though
+  // the user's own name below is used as the canonical one here, same as this file's usual
+  // practice of preferring the user/community name when it's more specific than the raw dictionary
+  // string) - NOT the same instance as "Tiamats Unterschlupf"/IDTiamat_2 below, whose own boss is
+  // Tiamat herself.
+  "Tiamats Festung": {
+    en: "Tiamat's Fortress",
+    de: "Tiamats Festung",
+  },
+  // Tiamats Festung's endboss - client_strings_dic_monster.xml id
+  // STR_DIC_M_IDTiamat_Tahabata_Named_60_Ah ("Brigadegeneral Tahabata"), confirmed the same in the
+  // real nameplate table and in assets/npcs/npcs_en_4x.json (id 219358, Heroic).
+  "Brigade General Tahabata": {
+    en: "Brigade General Tahabata",
+    de: "Brigadegeneral Tahabata",
   },
 };
 

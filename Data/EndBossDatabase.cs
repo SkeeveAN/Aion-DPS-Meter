@@ -233,13 +233,22 @@ public static class EndBossDatabase
         "Ashunatal Shadowslip", // en (npcs_en_4x.json, not yet re-verified against Riftshade's own English pack)
         "Ashunatal-Schattengleiter", // de
 
-        // Belsagos - Linkgate Foundry's endboss (solo), one NPC across 3 escalating named states
-        // (client_strings_monster.xml id prefix STR_IDLDF4_Re_01_BOSS_Fi, all three -> this same
-        // name). Also verified against aionriftshade.com's own install, same caveat as Ashunatal
-        // Shadowslip above - "Belsagos" itself is confirmed as the proper noun via
-        // client_strings_dic_monster.xml, but no English phase-adjective text was available to
-        // check (English pack still downloading), so only the bare name is listed.
+        // Belsagos - Baruna Research Laboratory's endboss (solo; NOT "Linkgate Foundry", this
+        // file's own earlier guess at that instance's name - see backend's migration 0015), one NPC
+        // across 3 escalating named states (client_strings_monster.xml id prefix
+        // STR_IDLDF4_Re_01_BOSS_Fi, all three -> this same name). Also verified against
+        // aionriftshade.com's own install, same caveat as Ashunatal Shadowslip above - "Belsagos"
+        // itself is confirmed as the proper noun via client_strings_dic_monster.xml, but no English
+        // phase-adjective text was available to check (English pack still downloading), so only the
+        // bare name is listed.
         "Belsagos", // en/de (identical proper noun)
+
+        // Brigade General Tahabata - Tiamats Festung's endboss. Verified against
+        // aionriftshade.com's own install (client_strings_dic_monster.xml id
+        // STR_DIC_M_IDTiamat_Tahabata_Named_60_Ah, confirmed the same in the real nameplate table)
+        // and against assets/npcs/npcs_en_4x.json (id 219358, Heroic).
+        "Brigade General Tahabata", // en
+        "Brigadegeneral Tahabata", // de
     };
 
     /// <summary>True only for a curated real end-boss name - see this class's own remarks on why
