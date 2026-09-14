@@ -311,6 +311,9 @@ const INSTANCE_IMAGES = {
   // Tiamats Festung/Unterschlupf sharing one photo above.
   "Lost Rentus Base": "/images/instances/rentus_base.jpg",
   "Lost Refuge": "/images/instances/danuar_sanctuary.jpg",
+  // Per the user: the same place as Tiamats Unterschlupf/Tiamats Festung (an alliance-size mode of
+  // it, not a separate location) - same photo-reuse reasoning as those two.
+  "Tiamat's Hidden Space": "/images/instances/tiamat_fortress.jpg",
 };
 
 // Per the user: real per-boss art, not the instance's own photo reused - found on aion.fandom.com,
