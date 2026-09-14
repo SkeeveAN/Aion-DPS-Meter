@@ -124,6 +124,17 @@ public sealed class MeterSettings
     /// must never be merged regardless of whether either has a name attached.</summary>
     public string? ServerDisplayName { get; set; }
 
+    /// <summary>Per the user: different servers are different Aion installs with different
+    /// Chat.log paths (e.g. Origin Aion under "D:\Spiele\AION\OriginAion", Aion Riftshade under
+    /// "D:\Spiele\AION\Aion Riftshade") - remembered here, keyed by the same server-catalog display
+    /// name as <see cref="ServerDisplayName"/>/<see cref="CharacterProfile.ServerDisplayName"/>, so
+    /// picking a known server in Settings recalls its folder instead of having to browse to it
+    /// again every time. Purely a convenience cache for the Settings dialog: <see
+    /// cref="AionInstallFolder"/> above is still the one, single "currently active" folder
+    /// MainWindow's ChatLogTailer actually reads from - this app tails one Chat.log at a time, it
+    /// does not watch every known server's install at once.</summary>
+    public Dictionary<string, string> ServerInstallFolders { get; set; } = new();
+
     /// <summary>
     /// The user's own characters (name + class), entered by hand. Chat.log never reveals the
     /// local player's real name -- verified against a real, large session: the active character

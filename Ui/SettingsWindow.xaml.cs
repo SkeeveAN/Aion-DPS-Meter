@@ -62,7 +62,6 @@ public partial class SettingsWindow : Window
         AionInstallFolderBox.Text = _aionInstallFolder ?? "(not set)";
         UpdateAionFolderStatus();
         UpdateServerFingerprint();
-        ServerDisplayNameBox.Text = settings.ServerDisplayName ?? "";
 
         _ = LoadServerCatalogAsync();
 
@@ -111,9 +110,47 @@ public partial class SettingsWindow : Window
         _serverCatalog = await AionSniffer.Server.ServerCatalogClient.FetchAsync();
 
         NewCharacterServerBox.Items.Clear();
+        AionInstallServerBox.Items.Clear();
         foreach (var entry in _serverCatalog)
         {
             NewCharacterServerBox.Items.Add(new ComboBoxItem { Content = entry.ToString(), Tag = entry });
+            AionInstallServerBox.Items.Add(new ComboBoxItem { Content = entry.ToString(), Tag = entry });
+        }
+
+        // Pre-select whatever this install was already labeled as, now that the catalog it's
+        // matched against has actually loaded - matches by Name only (not Name+Version, unlike
+        // OnCharacterSelected below): this box predates the version being tracked at all, so an
+        // install saved before that existed only has a name to go by.
+        if (_settings.ServerDisplayName is string existingName)
+        {
+            AionInstallServerBox.SelectedItem = AionInstallServerBox.Items
+                .OfType<ComboBoxItem>()
+                .FirstOrDefault(item => item.Tag is AionSniffer.Server.ServerCatalogEntry entry && entry.Name == existingName);
+        }
+    }
+
+    /// <summary>
+    /// Per the user: different servers are different Aion installs with different Chat.log paths -
+    /// picking one here recalls its own folder from <see cref="MeterSettings.ServerInstallFolders"/>
+    /// if this dialog (in a previous session) ever saved one for it, instead of leaving whatever
+    /// folder happened to be selected before. Does nothing if this server has no remembered folder
+    /// yet - the current folder box is left as-is, same as opening Settings for the very first time,
+    /// and Save below will start remembering one for it from here on.
+    /// </summary>
+    private void OnAionServerSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (AionInstallServerBox.SelectedItem is not ComboBoxItem { Tag: AionSniffer.Server.ServerCatalogEntry server })
+        {
+            return;
+        }
+
+        if (_settings.ServerInstallFolders.TryGetValue(server.Name, out string? rememberedFolder)
+            && Directory.Exists(rememberedFolder))
+        {
+            _aionInstallFolder = rememberedFolder;
+            AionInstallFolderBox.Text = rememberedFolder;
+            UpdateAionFolderStatus();
+            UpdateServerFingerprint();
         }
     }
 
@@ -182,7 +219,9 @@ public partial class SettingsWindow : Window
     /// per-character (see OnAddCharacterClicked/OnUpdateCharacterClicked for those - they read a
     /// pick from NewCharacterServerBox instead).</summary>
     private string? CurrentServerDisplayNameOrNull() =>
-        string.IsNullOrWhiteSpace(ServerDisplayNameBox.Text) ? null : ServerDisplayNameBox.Text.Trim();
+        (AionInstallServerBox.SelectedItem as ComboBoxItem)?.Tag is AionSniffer.Server.ServerCatalogEntry server
+            ? server.Name
+            : null;
 
     private static void SelectByTag(ComboBox box, string tag)
     {
@@ -383,6 +422,14 @@ public partial class SettingsWindow : Window
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.AionInstallFolder = _aionInstallFolder;
         _settings.ServerDisplayName = CurrentServerDisplayNameOrNull();
+
+        // Remembers this server's folder for next time (see OnAionServerSelected) - only when both
+        // are actually known, so picking a server without ever setting a folder (or vice versa)
+        // does not overwrite an already-remembered pairing with nothing.
+        if (_settings.ServerDisplayName is string serverName && !string.IsNullOrEmpty(_aionInstallFolder))
+        {
+            _settings.ServerInstallFolders[serverName] = _aionInstallFolder;
+        }
         _settings.Characters = _characters;
         _settings.ActiveCharacterName = ActiveCharacterBox.SelectedItem as string;
         _settings.AutoDetectActiveCharacter = AutoDetectActiveCharacterBox.IsChecked ?? true;

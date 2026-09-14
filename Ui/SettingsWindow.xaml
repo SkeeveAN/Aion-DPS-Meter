@@ -219,10 +219,17 @@
                                    TextWrapping="Wrap" Margin="4,8,4,2"/>
                         <TextBlock x:Name="ServerFingerprintText" Margin="4,2" FontStyle="Italic" Foreground="#9a9aa2"/>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="Display name:" VerticalAlignment="Center" Margin="4,0,6,0"/>
-                            <TextBox x:Name="ServerDisplayNameBox" Width="200"
-                                     Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45"
-                                     ToolTip="Optional label for the detected server above (e.g. &quot;Origin Aion&quot;) - cosmetic only, shown on the community leaderboard instead of the raw IP:port."/>
+                            <TextBlock Text="Server:" VerticalAlignment="Center" Margin="4,0,6,0"/>
+                            <!-- Same curated catalog as the "Add character" section's own server
+                                 picker below (populated in LoadServerCatalogAsync), not free text -
+                                 per the user, different servers are different Aion installs with
+                                 different Chat.log paths, so this pick is also the key into
+                                 MeterSettings.ServerInstallFolders (see OnAionServerSelected):
+                                 switching it recalls that server's own folder instead of leaving
+                                 whatever folder happened to be selected before. -->
+                            <ComboBox x:Name="AionInstallServerBox" Width="220"
+                                      SelectionChanged="OnAionServerSelected"
+                                      ToolTip="Which server this Aion install connects to - picking one recalls its own folder below if it was set before."/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
