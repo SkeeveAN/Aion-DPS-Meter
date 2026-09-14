@@ -126,6 +126,11 @@ public partial class MainWindow : Window
     /// every second (see OnChatLogTimerTick).</summary>
     private int _chatLogSizeTickCounter;
 
+    /// <summary>Counts chat-log ticks so AutoDetectServerFromChatLogActivity runs every 10 seconds
+    /// rather than every second - a stat() per known server folder each tick would be wasteful for
+    /// something that only matters once someone has actually switched clients.</summary>
+    private int _serverAutoDetectTickCounter;
+
     /// <summary>Five minutes, per the user. GitHub's anonymous API allows 60 requests an hour per
     /// IP, so 12 is comfortably inside it even with a second client running alongside.</summary>
     private readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromMinutes(5) };
@@ -512,6 +517,82 @@ public partial class MainWindow : Window
         _chatLogTimer.Start();
     }
 
+    /// <summary>Only a genuinely fresh write counts as "this client is the one being played right
+    /// now" - without this, right after a fresh install (neither client having run yet, or both
+    /// long idle) whichever Chat.log happens to have a marginally newer mtime would "win" forever,
+    /// for no real reason. 30 seconds - the same value BuffPrePullGrace already uses for "still
+    /// close enough to count as the same moment", not an exact reuse of that constant (a
+    /// pre-pull buff window and a client-switch window are different things), just a reasonable
+    /// default of the same size.</summary>
+    private static readonly TimeSpan RecentChatLogWriteWindow = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// Per the user: rather than requiring a manual switch in Settings every time play moves to a
+    /// different registered server's client, figure out which one is actually active right now
+    /// from which KNOWN Chat.log has the freshest new content - the same signal a person glancing
+    /// at file timestamps in Explorer would use. Runs every ~10 seconds (see
+    /// OnChatLogTimerTick), comparing every folder in MeterSettings.ServerInstallFolders (not just
+    /// the currently configured one) by their own Chat.log's LastWriteTimeUtc.
+    ///
+    /// Switches only when some OTHER known server's Chat.log was written to within
+    /// <see cref="RecentChatLogWriteWindow"/> while the CURRENTLY configured one was not - if both
+    /// are fresh (two clients genuinely running at once) or neither is, this does nothing rather
+    /// than flip-flop or guess between them. Reuses StartChatLogTailing/RefreshCharacterSettings,
+    /// the exact same path Settings' own Save button triggers - so this both starts tailing the
+    /// newly-active Chat.log AND (via ApplyActiveCharacterForCurrentServer) resolves the right
+    /// registered character for it in one go.
+    /// </summary>
+    private void AutoDetectServerFromChatLogActivity()
+    {
+        var settings = MeterSettings.Load();
+        if (settings.ServerInstallFolders.Count < 2)
+        {
+            return; // nothing to tell apart from the currently configured folder
+        }
+
+        DateTime utcNow = DateTime.UtcNow;
+
+        // Every REGISTERED server whose own Chat.log was written to just now. Built from all of
+        // them, not just "everything except the current one" - so two clients open at once (the
+        // current one AND another) is recognized as ambiguous too, not just two others racing.
+        var freshServers = settings.ServerInstallFolders
+            .Where(pair => LastChatLogWriteUtc(pair.Value) is DateTime writeUtc && utcNow - writeUtc <= RecentChatLogWriteWindow)
+            .ToList();
+
+        if (freshServers.Count != 1)
+        {
+            // Nobody currently playing on any registered server, or two/more at once - genuinely
+            // ambiguous either way, same "leave it rather than guess" rule as everywhere else this
+            // app resolves an active character.
+            return;
+        }
+
+        (string serverName, string folder) = freshServers[0];
+        if (string.Equals(folder, settings.AionInstallFolder, StringComparison.OrdinalIgnoreCase))
+        {
+            return; // already tailing the one that's actually active
+        }
+
+        settings.AionInstallFolder = folder;
+        settings.ServerDisplayName = serverName;
+        settings.Save();
+
+        StartChatLogTailing(settings);
+        RefreshCharacterSettings(settings);
+        ApplyClassFilterAvailability();
+    }
+
+    private static DateTime? LastChatLogWriteUtc(string? folder)
+    {
+        if (string.IsNullOrEmpty(folder))
+        {
+            return null;
+        }
+
+        string logPath = Path.Combine(folder, "Chat.log");
+        return File.Exists(logPath) ? File.GetLastWriteTimeUtc(logPath) : null;
+    }
+
     // AP earned from looted relics, per person (see Data/RelicApDatabase for why Chat.log can
     // never report this itself). Keyed by the same resolved person name the Loot list uses, so
     // "You" is already mapped to the active character here -- that is what lets a relic picked up
@@ -835,6 +916,13 @@ public partial class MainWindow : Window
         {
             _chatLogSizeTickCounter = 0;
             RefreshChatLogSizeWarning();
+        }
+
+        // Once every 10 ticks - see AutoDetectServerFromChatLogActivity's own remarks.
+        if (++_serverAutoDetectTickCounter >= 10)
+        {
+            _serverAutoDetectTickCounter = 0;
+            AutoDetectServerFromChatLogActivity();
         }
 
         var events = _chatLogTailer?.Poll(_paused);

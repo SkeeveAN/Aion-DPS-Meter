@@ -145,14 +145,23 @@ public partial class SettingsWindow : Window
             return;
         }
 
+        // Per the user: showing the PREVIOUSLY selected server's folder here would look like it
+        // belongs to the one just picked - genuinely no folder set yet for this server must show
+        // as no folder set, not silently keep whatever was on screen before.
         if (_settings.ServerInstallFolders.TryGetValue(server.Name, out string? rememberedFolder)
             && Directory.Exists(rememberedFolder))
         {
             _aionInstallFolder = rememberedFolder;
             AionInstallFolderBox.Text = rememberedFolder;
-            UpdateAionFolderStatus();
-            UpdateServerFingerprint();
         }
+        else
+        {
+            _aionInstallFolder = null;
+            AionInstallFolderBox.Text = "(not set)";
+        }
+
+        UpdateAionFolderStatus();
+        UpdateServerFingerprint();
     }
 
     /// <summary>
