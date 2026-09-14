@@ -93,7 +93,7 @@ jobs:
           --packAuthors SkeeveAN
           --packVersion ${{ steps.version.outputs.number }}
           --packDir publish
-          --mainExe AionSniffer.exe
+          --mainExe "Aion DPS.exe"
           --icon assets/app/aionsniffer.ico
           --channel win
           --outputDir releases

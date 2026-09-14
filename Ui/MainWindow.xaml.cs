@@ -156,7 +156,7 @@ public partial class MainWindow : Window
         // AionSniffer.csproj's <Version> is the only place it is written. Needed because builds are
         // handed around the group by hand -- a screenshot or a Chat.log recorded by someone else is
         // otherwise impossible to pin to a build, which already cost a round of guesswork once.
-        Title = AppVersion.Text.Length > 0 ? $"AionSniffer DMG Meter {AppVersion.Text}" : "AionSniffer DMG Meter";
+        Title = AppVersion.Text.Length > 0 ? $"Aion DPS {AppVersion.Text}" : "Aion DPS";
 
         PlayersGrid.ItemsSource = _rows;
         LootGrid.ItemsSource = _lootRows;

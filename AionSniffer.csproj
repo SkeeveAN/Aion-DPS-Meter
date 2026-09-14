@@ -14,7 +14,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>AionSniffer</RootNamespace>
-    <AssemblyName>AionSniffer</AssemblyName>
+    <!-- Per the user: the exe, window title and Task Manager process name should all read "Aion
+         DPS" - AssemblyName drives the built exe's filename directly, and (together with Product/
+         FileDescription below) the FileDescription version-resource field Task Manager's Name
+         column actually shows, which does not otherwise follow the raw filename. RootNamespace is
+         left as AionSniffer on purpose - an internal C# namespace with no user-visible bearing on
+         any of the three things actually asked for, and renaming it would touch every file's
+         `namespace AionSniffer.*`/`using AionSniffer.*` for no visible benefit. -->
+    <AssemblyName>Aion DPS</AssemblyName>
+    <Product>Aion DPS</Product>
+    <AssemblyTitle>Aion DPS</AssemblyTitle>
     <!-- asInvoker: the meter only reads Chat.log, so it needs no elevation. See app.manifest. -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Winged sword: the wings for Aion's Daeva iconography, the blade for what the tool measures.
@@ -26,7 +35,7 @@
          workflow was triggered by, so a build can always be identified from a screenshot or a
          Chat.log someone sends in. That was exactly what was missing when a group member's log
          had to be matched to "the 0.3.0 build" from memory. Keep in step with the release tag. -->
-    <Version>0.7.38</Version>
+    <Version>0.7.39</Version>
   </PropertyGroup>
 
   <ItemGroup>

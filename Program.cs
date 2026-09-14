@@ -38,7 +38,7 @@ internal static class Program
         // No arguments opens the GUI, always -- per the user: the installed exe should show the
         // meter with no parameters, and the CLI is what needs one. The rule therefore does not
         // depend on how the process was started: the installer's shortcuts (Velopack creates them
-        // with no arguments), a double-click, and "AionSniffer" typed in a shell all open the
+        // with no arguments), a double-click, and "Aion DPS" typed in a shell all open the
         // window.
         AttachConsole(AttachParentProcess);
 
@@ -120,7 +120,7 @@ internal static class Program
                 // Without a console there is nowhere for an unhandled startup exception to show
                 // up, so the failure looks like nothing happening at all -- put it on screen
                 // instead of letting the process die silently.
-                System.Windows.MessageBox.Show(ex.ToString(), "AionSniffer konnte nicht starten",
+                System.Windows.MessageBox.Show(ex.ToString(), "Aion DPS konnte nicht starten",
                     System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
 
