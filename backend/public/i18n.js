@@ -1965,6 +1965,30 @@ const GAME_NAME_TRANSLATIONS = {
     en: "Brigade General Tahabata",
     de: "Brigadegeneral Tahabata",
   },
+  // Everything from here down is taken directly from the user's own 4.8 instance list, NOT
+  // independently verified against any client string dump (unlike every entry above - the German
+  // L10N pack that made that possible is gone from this server's install, and the English one/its
+  // Riftshade-specific override both turned out to be non-plain-zip/obfuscated). English only, on
+  // the user's own explicit decision to accept the list as given rather than leave these entries
+  // missing. Deliberately NOT added to the C# client's EndBossDatabase.cs allowlist for the same
+  // reason - a real upload for any of these still gets rejected by the client until someone
+  // verifies the real names.
+  "Mantor": { en: "Mantor" },
+  "Nasto": { en: "Nasto" },
+  "Jormungand's Bridge": { en: "Jormungand's Bridge" },
+  "Fugitive Mazikin": { en: "Fugitive Mazikin" },
+  "Fugitive Asachin": { en: "Fugitive Asachin" },
+  "Velkur": { en: "Velkur" },
+  "Linkgate Foundry": { en: "Linkgate Foundry" },
+  // Hall of Knowledge itself already has an entry above (added migration 0010, on the ORIGINAL
+  // list's claim of "no classic endboss") - just its two scenario-dependent bosses are new here.
+  "Secret Test Subject 48123-A": { en: "Secret Test Subject 48123-A" },
+  "Doomtread Kurores": { en: "Doomtread Kurores" },
+  "Lost Rentus Base": { en: "Lost Rentus Base" },
+  "Lost Refuge": { en: "Lost Refuge" },
+  "Tiamat's Hidden Space": { en: "Tiamat's Hidden Space" },
+  "Makarna": { en: "Makarna" },
+  "Beritrakt": { en: "Beritrakt" },
 };
 
 export function translateGameName(rawName) {

@@ -113,6 +113,13 @@
       "when": 1789396203133,
       "tag": "0015_add_tiamat_fortress_rename_baruna_lab",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1789399685120,
+      "tag": "0016_add_user_reported_riftshade_instances",
+      "breakpoints": true
     }
   ]
 }
