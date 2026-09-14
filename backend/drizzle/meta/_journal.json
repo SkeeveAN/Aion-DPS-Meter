@@ -71,6 +71,13 @@
       "when": 1789136468685,
       "tag": "0009_same_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1789392551824,
+      "tag": "0010_add_aionriftshade_and_48_instances",
+      "breakpoints": true
     }
   ]
 }

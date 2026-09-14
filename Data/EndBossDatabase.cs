@@ -220,6 +220,26 @@ public static class EndBossDatabase
         "Dowódca Paschid", // pl (from the "ita" folder - mislabeled, see header remarks)
         "Главнокомандующий Фашид", // ru (from the "plk" folder - mislabeled, see header remarks)
         "Başkomutan Paşid", // tr
+
+        // Ashunatal Shadowslip - Aturam Sky Fortress's endboss, a solo instance. Verified against a
+        // SECOND server's own game install this time, not Origin's: aionriftshade.com
+        // (D:\Spiele\AION\Aion Riftshade\L10N\deu\Data\data.pak, strings/client_strings_monster.xml
+        // id STR_IDStation_DrakanNinja_NM_58_An) - that server's English L10N pack was still
+        // mid-download at the time (per the user), so only German is confirmed this way. The en
+        // spelling below is taken from the existing assets/npcs/npcs_en_4x.json catalog instead
+        // (id 217376/219183) rather than guessed - one step less certain than this file's usual
+        // from-this-server standard, same caveat this file already applies to a few zh entries
+        // elsewhere.
+        "Ashunatal Shadowslip", // en (npcs_en_4x.json, not yet re-verified against Riftshade's own English pack)
+        "Ashunatal-Schattengleiter", // de
+
+        // Belsagos - Linkgate Foundry's endboss (solo), one NPC across 3 escalating named states
+        // (client_strings_monster.xml id prefix STR_IDLDF4_Re_01_BOSS_Fi, all three -> this same
+        // name). Also verified against aionriftshade.com's own install, same caveat as Ashunatal
+        // Shadowslip above - "Belsagos" itself is confirmed as the proper noun via
+        // client_strings_dic_monster.xml, but no English phase-adjective text was available to
+        // check (English pack still downloading), so only the bare name is listed.
+        "Belsagos", // en/de (identical proper noun)
     };
 
     /// <summary>True only for a curated real end-boss name - see this class's own remarks on why

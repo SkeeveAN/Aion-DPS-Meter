@@ -1858,6 +1858,75 @@ const GAME_NAME_TRANSLATIONS = {
     tr: "Tuğgeneral Vaşarti",
     zh: "军团长巴萨尔提",
   },
+  // Ophidan Bridge's PVE encounter (1 mage + 2 turrets) - real and confirmed per the client's own
+  // EndBossDatabase.cs (fr/es/pl/ru/tr/zh copied straight from there, already verified against
+  // Origin's own game install). "Vera" is also just an ordinary human name in English, so a real
+  // character named that would misfire this lookup - a risk this one entry carries that no other
+  // boss name here does.
+  "Vera": {
+    en: "Vera",
+    de: "Geschütz",
+    fr: "Canon",
+    es: "Cañón",
+    pl: "Działo",
+    ru: "Бомбард",
+    tr: "Top",
+    zh: "投石炮",
+  },
+  "Beritran Support Magus": {
+    en: "Beritran Support Magus",
+    de: "Verstärkungsmagier der Reserveeinheit",
+    fr: "Mage de renfort de l'unité de réserve",
+    es: "Mago de refuerzo de la unidad de reserva",
+    pl: "Magik Posiłków Jednostki Rezerwy",
+    ru: "Маг резерва",
+    tr: "Rezerve Bölüğü Takviye Büyücüsü",
+    zh: "预备部队法师支援兵",
+  },
+  "Surkana Aetherturret": {
+    en: "Surkana Aetherturret",
+    de: "Surkana-Panzerabwehrätherkanone",
+    fr: "Canon à Éther de défense anti-char au Surkana",
+    es: "Cañón etéreo de defensa de tanque de surcana",
+    pl: "Pancerne Eterowe Działo Obronne Surkany",
+    ru: "Мощная пушка сурканы",
+    tr: "Surkana Anti Panzer Eter Topu",
+    zh: "大战车苏尔卡纳魔力炮",
+  },
+  // aionriftshade.com's own 4.8 content below - verified against that server's own game install
+  // (L10N/deu/Data/data.pak; its English pack was still mid-download at the time, per the user, so
+  // only German is client-confirmed here - see app.js's own INSTANCE_IMAGES remarks and the
+  // migration that added these rows).
+  "Aturam Sky Fortress": {
+    en: "Aturam Sky Fortress",
+    de: "Aturam-Himmelsfestung",
+  },
+  // The Drakan boss guarding the Aturam Sky Fortress's control room - client_strings_monster.xml id
+  // STR_IDStation_DrakanNinja_NM_58_An. No fr/es/pl/ru/tr/zh L10N pack was available to check yet.
+  "Ashunatal Shadowslip": {
+    en: "Ashunatal Shadowslip",
+    de: "Ashunatal-Schattengleiter",
+  },
+  // No confirmed "whole zone" string for this mapCode (IDLDF4Re_01) in the client's own dictionary
+  // at all - "Linkgate Foundry" is the user's own name for it, not independently verified here.
+  "Linkgate Foundry": {
+    en: "Linkgate Foundry",
+  },
+  // One NPC across 3 escalating named states (client_strings_monster.xml, id prefix
+  // STR_IDLDF4_Re_01_BOSS_Fi) - "Belsagos" itself is the proper noun per
+  // client_strings_dic_monster.xml; no English phase-adjective text confirmed yet (English pack
+  // still downloading), so only the bare name is given here rather than guessed.
+  "Belsagos": {
+    en: "Belsagos",
+    de: "Belsagos",
+  },
+  // mapCode IDLDF5RE_solo - de "Halle des Wissens" is a direct, unambiguous match for this English
+  // name (unlike most entries here, not a guess bridging two differently-drifted names). A solo
+  // puzzle/lore instance, no classic endboss.
+  "Hall of Knowledge": {
+    en: "Hall of Knowledge",
+    de: "Halle des Wissens",
+  },
 };
 
 export function translateGameName(rawName) {

@@ -263,6 +263,13 @@ const INSTANCE_IMAGES = {
   // upload would actually carry is unconfirmed - fix the key once a real row shows it.
   "Void Cube": "/images/instances/void_cube.jpg",
   "Danuar Sanctuary": "/images/instances/danuar_sanctuary.jpg",
+  // These three, plus Ashunatal Shadowslip/Belsagos in BOSS_IMAGES below, are aionriftshade.com's
+  // own 4.8 content - photos are the real loading-screen art (Textures/loading/*.dds, a plain
+  // uncompressed-DXT1 file, not the encrypted Npcs/World paks), decoded straight from that
+  // server's own game install rather than a screenshot or a wiki crop.
+  "Aturam Sky Fortress": "/images/instances/aturam.png",
+  "Linkgate Foundry": "/images/instances/linkgate_foundry.png",
+  "Hall of Knowledge": "/images/instances/danuar_mysticarium.png",
 };
 
 // Per the user: real per-boss art, not the instance's own photo reused - found on aion.fandom.com,
