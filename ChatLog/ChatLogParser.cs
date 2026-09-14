@@ -894,7 +894,15 @@ public sealed partial class ChatLogParser
     // Language-independent for the same reason as ChatSpeakerPattern -- the "Name:" shape doesn't
     // depend on the client's display language, only the channel tag word would, and that's not
     // captured here.
-    [GeneratedRegex(@"^(?:\[\d+\.\w+\]\s)?(?<charname>[^:\[\]]+):")]
+    //
+    // The optional leading "?" (not captured, so it never ends up glued onto charname) is a real
+    // Aion Riftshade quirk found from the user's own Chat.log: one self-typed ".ui" line out of
+    // ~6300 was written as "?Aahz: .ui" instead of the usual "Aahz: .ui" -- rare (this was the
+    // only occurrence in that whole file) but real, and without this it silently fails the
+    // speaker-name check downstream (the captured charname becomes "?Aahz", which is never equal
+    // to the registered character's own name "Aahz") with no visible cause, exactly the kind of
+    // silent failure this fallback pattern itself was added to fix in the first place.
+    [GeneratedRegex(@"^(?:\[\d+\.\w+\]\s)?\??(?<charname>[^:\[\]]+):")]
     private static partial Regex ChatSpeakerFallbackPattern();
 
     /// <summary>
