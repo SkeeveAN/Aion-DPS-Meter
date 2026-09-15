@@ -60,6 +60,19 @@ public static class EndBossDatabase
         "Tuğgeneral Şita", // tr
         "第40军团长西塔", // zh
 
+        // Brigade General Vasharti - Rentus-Basis / Lost Rentus Base (HM). Per the user: NOT
+        // verified against this server's own game install like every other entry here - Aion
+        // Riftshade's own L10N/eng/data.pak resists this project's usual extraction method (its zip
+        // signatures are simply inverted, same trick as everywhere else, but its compressed payload
+        // bytes don't inflate even once that's undone - a further, unidentified protection layer).
+        // English name taken instead from the aioncodex npcs_en_4x.json dataset (rank "Heroic", a
+        // real boss rank) - already used verbatim as this exact string in the backend's own
+        // `bosses` table for both instances (no npc_name_aliases), suggesting a real Chat.log upload
+        // already confirmed it independently. Riftshade's own client install here has no non-English
+        // L10N folder anyway, so English alone is enough for this server. Replace this comment once
+        // a real extraction (or a confirmed non-English Chat.log line) verifies it directly.
+        "Brigade General Vasharti", // en (aioncodex, not client-file-verified - see comment above)
+
         // Raksha Boilheart - Tahmes/Raksang
         "Raksha Boilheart", // en
         "Raksha Kochherz", // de
