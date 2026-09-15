@@ -322,6 +322,10 @@ const INSTANCE_IMAGES = {
   // Per the user: the same place as Tiamats Unterschlupf (an alliance-size/HM mode of it, not a
   // separate location) - reuses its encounter photo above, NOT Tiamats Festung's.
   "Tiamat's Hidden Space": "/images/instances/tiamat_hideout.jpg",
+  // Real official loading-screen art (visible "AION" watermark, bottom-left) of the instance's own
+  // icy dragon-like boss in its arena - per the user, via a Google Images cache link, same
+  // unconfirmed-original-page caveat as Tiamats Unterschlupf's photo above.
+  Makarna: "/images/instances/makarna.jpg",
 };
 
 // Per the user: real per-boss art, not the instance's own photo reused - found on aion.fandom.com,
