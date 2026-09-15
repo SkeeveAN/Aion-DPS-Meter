@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
   bosses,
@@ -27,18 +27,48 @@ export interface ProcessResult {
   serverId: number;
 }
 
-/** Looks up the server by fingerprint, inserting it on first sight; a later, non-empty displayName
- * always overwrites an earlier one (same "latest upload wins" rule as upsertPlayer's name). */
+/** Looks up the server by (fingerprint, displayName), inserting it on first sight. A real incident
+ * (see schema.ts's own remarks on `servers`) confirmed the fingerprint alone can collide between
+ * two genuinely different private-server operators - matching on displayName too, not overwriting
+ * a differently-named row's name, is what keeps them apart instead of one silently hijacking the
+ * other's row (and, with it, every one of its already-uploaded players/encounters). */
 function upsertServer(fingerprint: string, displayName: string | undefined): number {
+  if (displayName) {
+    const exact = db
+      .select()
+      .from(servers)
+      .where(and(eq(servers.fingerprint, fingerprint), eq(servers.displayName, displayName)))
+      .get();
+    if (exact) {
+      return exact.id;
+    }
+
+    // A same-fingerprint row with no displayName yet (an older upload from before this field
+    // existed, or a client that never reported one) is this same server still finding its name -
+    // claim it rather than creating a duplicate unnamed row next to a properly named one.
+    const unnamed = db
+      .select()
+      .from(servers)
+      .where(and(eq(servers.fingerprint, fingerprint), isNull(servers.displayName)))
+      .get();
+    if (unnamed) {
+      db.update(servers).set({ displayName }).where(eq(servers.id, unnamed.id)).run();
+      return unnamed.id;
+    }
+
+    const inserted = db.insert(servers).values({ fingerprint, displayName }).run();
+    return Number(inserted.lastInsertRowid);
+  }
+
+  // No displayName on this upload at all - fall back to fingerprint alone, same best-effort
+  // behavior as before (genuinely ambiguous only if two different real servers share a
+  // fingerprint AND this particular upload came in nameless).
   const existing = db.select().from(servers).where(eq(servers.fingerprint, fingerprint)).get();
   if (existing) {
-    if (displayName) {
-      db.update(servers).set({ displayName }).where(eq(servers.id, existing.id)).run();
-    }
     return existing.id;
   }
 
-  const inserted = db.insert(servers).values({ fingerprint, displayName: displayName ?? null }).run();
+  const inserted = db.insert(servers).values({ fingerprint, displayName: null }).run();
   return Number(inserted.lastInsertRowid);
 }
 

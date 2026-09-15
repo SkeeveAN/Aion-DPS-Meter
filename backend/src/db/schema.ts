@@ -38,19 +38,34 @@ export const serverCatalog = sqliteTable("server_catalog", {
 // serverCatalogInstances below): per the user, Origin Aion and EuroAion (both 4.6) share one list,
 // while Aion Riftshade (4.8) has a wider one, and a level-65 server has no reason to show a
 // level-40-ish instance from a much earlier patch either.
-export const servers = sqliteTable("servers", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  // The client's own bin64\config.ini [ServerAddr] BIND_ADDR:BIND_PORT (see the client's
-  // Server/ServerIdentity.cs) - stable and unique per private-server operator, since Chat.log
-  // itself carries no server identity at all.
-  fingerprint: text("fingerprint").notNull().unique(),
-  // Cosmetic label ("Origin Aion", "EuroAion"), latest upload wins - same update-in-place pattern
-  // as players.name below. Null until some client sends one.
-  displayName: text("display_name"),
-  firstSeenAt: text("first_seen_at")
-    .notNull()
-    .default(sql`(current_timestamp)`),
-});
+// The client's own bin64\config.ini [ServerAddr] BIND_ADDR:BIND_PORT (see the client's
+// Server/ServerIdentity.cs) turned out NOT to be unique per private-server operator despite
+// ServerIdentity's own docstring claiming so - a real incident had Aion Riftshade and Origin Aion
+// resolve to the exact same "70.0.0.150:10241" (both reachable through the same gateway), which
+// under the old `fingerprint.unique()` made the second server's every upload silently reuse -
+// and relabel - the first server's own row (see matching/merge.ts's own remarks on upsertServer).
+// fingerprint alone is therefore no longer unique; (fingerprint, displayName) together are - two
+// operators sharing a fingerprint still get their own row as long as their displayName differs,
+// which is exactly the signal a real upload always carries (see uploadSchema.ts's serverName).
+export const servers = sqliteTable(
+  "servers",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    fingerprint: text("fingerprint").notNull(),
+    // Cosmetic label ("Origin Aion", "EuroAion"), latest upload wins - same update-in-place pattern
+    // as players.name below. Null until some client sends one.
+    displayName: text("display_name"),
+    firstSeenAt: text("first_seen_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+  },
+  (table) => ({
+    fingerprintDisplayNameIdx: uniqueIndex("servers_fingerprint_display_name_idx").on(
+      table.fingerprint,
+      table.displayName,
+    ),
+  }),
+);
 
 export const instances = sqliteTable("instances", {
   id: integer("id").primaryKey({ autoIncrement: true }),

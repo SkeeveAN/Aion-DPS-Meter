@@ -141,6 +141,20 @@
       "when": 1789458065975,
       "tag": "0019_fix_riftshade_curation_name_typo",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1789490366453,
+      "tag": "0020_fix_servers_fingerprint_uniqueness",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1789490405130,
+      "tag": "0021_split_riftshade_data_from_origin_aion_fingerprint_clash",
+      "breakpoints": true
     }
   ]
 }

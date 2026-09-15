@@ -58,8 +58,12 @@ export const uploadSchema = z.object({
   // merged or leaderboarded against a different, incompatible server's (per the user, EuroAion's
   // gear standard is nothing like this server's).
   serverFingerprint: z.string().trim().min(1).max(64),
-  // Cosmetic label for the fingerprint above ("Origin Aion", "EuroAion") - optional, since the
-  // fingerprint alone is already enough to keep servers apart correctly.
+  // Label for the fingerprint above ("Origin Aion", "EuroAion") - optional in this schema (an
+  // older client might not send one), but NOT merely cosmetic: a real incident had two different
+  // operators' servers resolve to the same fingerprint, so this is what upsertServer (see
+  // matching/merge.ts) actually relies on to keep them apart. An upload with neither a distinct
+  // fingerprint nor a name is the one genuinely ambiguous case left, same as any other "can't tell
+  // them apart" situation elsewhere in this schema.
   serverName: z.string().trim().max(60).optional(),
 });
 
