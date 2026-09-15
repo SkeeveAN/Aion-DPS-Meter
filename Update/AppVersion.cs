@@ -1,9 +1,9 @@
 using System.Reflection;
 
-namespace AionSniffer.Update;
+namespace AionDPS.Update;
 
 /// <summary>
-/// The running build's version, read back from the assembly so AionSniffer.csproj's &lt;Version&gt;
+/// The running build's version, read back from the assembly so AionDPS.csproj's &lt;Version&gt;
 /// stays the only place it is written. Both the window title and the update check need it, and a
 /// second hand-typed copy is exactly how a title and an update comparison drift apart.
 /// </summary>

@@ -2,7 +2,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace AionSniffer.Server;
+namespace AionDPS.Server;
 
 /// <summary>Fetches the curated server list from the community backend, for the "which server is
 /// this character on" picker in Settings. Own HttpClient rather than reusing Upload/UploadClient's

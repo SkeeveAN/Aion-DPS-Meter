@@ -1,4 +1,4 @@
-namespace AionSniffer.Combat;
+namespace AionDPS.Combat;
 
 /// <summary>
 /// Pure DPS/iDPS math, deliberately separated from any live session state so it can be

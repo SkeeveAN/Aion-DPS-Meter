@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>
 /// Win32 interop backing "Hide UI": makes the window click-through (mouse input passes to

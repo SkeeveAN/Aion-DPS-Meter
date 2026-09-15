@@ -2,7 +2,7 @@ using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace AionSniffer.Data;
+namespace AionDPS.Data;
 
 /// <summary>One skill entry from assets/skills/skills_multilang_4x.json (see assets/README.md for
 /// provenance/caveats). <see cref="Name"/> is the aioncodex.com (English) name the Class/Icon/Slot
@@ -31,6 +31,24 @@ public static class SkillDatabase
     /// rank-I-only DB rows).</summary>
     private static readonly Regex RankSuffix = new(@"\s+[IVXLCDM]+$");
 
+    /// <summary>
+    /// aioncodex.com's own skill dataset tags these three classes by their "modern" names -
+    /// Gunslinger/Songweaver/Muse - not the internal names this app uses everywhere else (the
+    /// client's own dropdown Tag values, ServerClassAvailability, assets/classes/icons/*.png), per
+    /// MainWindow.xaml's own remarks on this exact naming split. Left unmapped, a Gunner/Bard/
+    /// Painter's own skill usage would tag them with a class name nothing else in this app
+    /// recognizes - found from a real report ("der Gunner in Riftshade wird nicht erkannt"):
+    /// SkillDatabase.Class came back "Gunslinger", which never matches the ClassFilter dropdown's
+    /// "Gunner" Tag nor any icons/*.png file, so the class silently never resolves past "?".
+    /// Applied once here, at load time, rather than at every comparison site.
+    /// </summary>
+    private static readonly Dictionary<string, string> ModernToInternalClassName = new(StringComparer.Ordinal)
+    {
+        ["Gunslinger"] = "Gunner",
+        ["Songweaver"] = "Bard",
+        ["Muse"] = "Painter",
+    };
+
     private static IReadOnlyDictionary<int, SkillInfo>? _cache;
 
     /// <summary>Loads and caches the table on first use. Returns an empty table (not an exception) if the data file is missing.</summary>
@@ -51,7 +69,7 @@ public static class SkillDatabase
                 var rows = JsonSerializer.Deserialize<List<SkillRow>>(File.ReadAllText(path), JsonOptions) ?? new List<SkillRow>();
                 foreach (var row in rows)
                 {
-                    result[row.Id] = new SkillInfo(row.Id, row.Name ?? $"Skill #{row.Id}", row.Icon, row.Class ?? "", row.Slot ?? "", row.Levels ?? Array.Empty<int>(), row.De, row.Fr);
+                    result[row.Id] = new SkillInfo(row.Id, row.Name ?? $"Skill #{row.Id}", row.Icon, NormalizeClassNames(row.Class), row.Slot ?? "", row.Levels ?? Array.Empty<int>(), row.De, row.Fr);
                 }
             }
             catch (JsonException ex)
@@ -62,6 +80,22 @@ public static class SkillDatabase
 
         _cache = result;
         return result;
+    }
+
+    /// <summary>Renames any "modern" class names in a comma-separated Class field (see
+    /// <see cref="ModernToInternalClassName"/>) to this app's internal ones - other names pass
+    /// through unchanged. Preserves the original ", "-joined format so downstream `Split(',')`
+    /// callers (see MainWindow.OnSkillUsed) don't need to know this happened.</summary>
+    private static string NormalizeClassNames(string? classField)
+    {
+        if (string.IsNullOrEmpty(classField))
+        {
+            return "";
+        }
+
+        var names = classField.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Select(name => ModernToInternalClassName.TryGetValue(name, out string? internalName) ? internalName : name);
+        return string.Join(", ", names);
     }
 
     /// <summary>Convenience lookup for the calibration dump: a name if known, a clearly-marked placeholder otherwise.</summary>

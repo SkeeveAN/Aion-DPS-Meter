@@ -1,4 +1,4 @@
-namespace AionSniffer.ChatLog;
+namespace AionDPS.ChatLog;
 
 /// <summary>
 /// One "You/Name have/has acquired [item:...]." (or survey-reward) line, before any filtering by

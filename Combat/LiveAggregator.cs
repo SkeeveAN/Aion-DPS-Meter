@@ -1,4 +1,4 @@
-namespace AionSniffer.Combat;
+namespace AionDPS.Combat;
 
 /// <summary>
 /// Keeps a running per-source damage tally over the DamageEvents the Chat.log parser produces,
@@ -13,7 +13,7 @@ public sealed class LiveAggregator
     public IReadOnlyList<DamageEvent> Events => _events;
 
     /// <summary>
-    /// Feeds parsed DamageEvents in -- AionSniffer.ChatLog.ChatLogParser produces them directly.
+    /// Feeds parsed DamageEvents in -- AionDPS.ChatLog.ChatLogParser produces them directly.
     /// </summary>
     public void IngestEvents(IEnumerable<DamageEvent> events) => _events.AddRange(events);
 

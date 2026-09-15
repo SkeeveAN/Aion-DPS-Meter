@@ -1,4 +1,4 @@
-namespace AionSniffer.Data;
+namespace AionDPS.Data;
 
 /// <summary>Which loot-fairness rule (see MainWindow's IsTrackedLoot) currently applies.</summary>
 public enum LootTier

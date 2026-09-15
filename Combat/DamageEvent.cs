@@ -1,4 +1,4 @@
-namespace AionSniffer.Combat;
+namespace AionDPS.Combat;
 
 /// <summary>
 /// One damage or heal instance, already decoded from whatever produced it. Deliberately

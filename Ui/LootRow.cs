@@ -1,8 +1,8 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using AionSniffer.Data;
+using AionDPS.Data;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>
 /// One distinct (person, item) pair in the session's loot list -- see

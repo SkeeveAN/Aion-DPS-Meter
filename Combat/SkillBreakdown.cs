@@ -1,4 +1,4 @@
-namespace AionSniffer.Combat;
+namespace AionDPS.Combat;
 
 /// <summary>One skill's raw usage counts for one player against one target/window - shared between
 /// the Player Details view and the backend upload payload so both read the exact same numbers.</summary>
@@ -6,7 +6,7 @@ public sealed record SkillUsage(string Skill, int Hits, int CritHits, long Total
 
 /// <summary>
 /// Groups a player's damage events by skill and counts hits/crits/totals per group. Extracted from
-/// <see cref="AionSniffer.Ui.PlayerDetailsWindow"/> so the backend upload (Backend/UploadClient.cs)
+/// <see cref="AionDPS.Ui.PlayerDetailsWindow"/> so the backend upload (Backend/UploadClient.cs)
 /// computes crit rates the same way the UI already shows them, rather than a second, potentially
 /// diverging implementation.
 /// </summary>

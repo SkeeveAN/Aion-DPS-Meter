@@ -13,14 +13,15 @@
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>AionSniffer</RootNamespace>
+    <RootNamespace>AionDPS</RootNamespace>
     <!-- Per the user: the exe, window title and Task Manager process name should all read "Aion
          DPS" - AssemblyName drives the built exe's filename directly, and (together with Product/
          FileDescription below) the FileDescription version-resource field Task Manager's Name
-         column actually shows, which does not otherwise follow the raw filename. RootNamespace is
-         left as AionSniffer on purpose - an internal C# namespace with no user-visible bearing on
-         any of the three things actually asked for, and renaming it would touch every file's
-         `namespace AionSniffer.*`/`using AionSniffer.*` for no visible benefit. -->
+         column actually shows, which does not otherwise follow the raw filename. RootNamespace was
+         briefly left as the old "AionSniffer" internal C# namespace (no user-visible bearing on
+         any of the three things above), but per the user that leftover had to go too - every
+         `namespace AionSniffer.*`/`using AionSniffer.*` in the project was renamed to AionDPS to
+         match. -->
     <AssemblyName>Aion DPS</AssemblyName>
     <Product>Aion DPS</Product>
     <AssemblyTitle>Aion DPS</AssemblyTitle>
@@ -29,7 +30,7 @@
     <!-- Winged sword: the wings for Aion's Daeva iconography, the blade for what the tool measures.
          Generated rather than drawn by hand: assets/app/make-icon.py rebuilds the .ico from
          scratch (no image library needed), so the shape is adjustable in code, not in a binary. -->
-    <ApplicationIcon>assets/app/aionsniffer.ico</ApplicationIcon>
+    <ApplicationIcon>assets/app/aiondps.ico</ApplicationIcon>
     <!-- Single source of truth for the version the user sees. The window title reads it back at
          runtime (see MainWindow's constructor) and the installer takes it from the git tag the release
          workflow was triggered by, so a build can always be identified from a screenshot or a

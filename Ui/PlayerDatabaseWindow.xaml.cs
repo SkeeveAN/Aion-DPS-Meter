@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>One remembered player as the grid shows them.</summary>
 public sealed record KnownPlayerRow(string Name, string ClassName, string Faction, string Pinned, string LastSeen);

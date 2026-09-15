@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>One player the meter has seen before, with whatever it managed to work out about them.</summary>
 public sealed class KnownPlayer

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace AionSniffer.Server;
+namespace AionDPS.Server;
 
 /// <summary>
 /// Identifies which private server an Aion install actually connects to. Chat.log itself carries

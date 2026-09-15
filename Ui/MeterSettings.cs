@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>One of the user's own characters, entered by hand in Settings -- see MeterSettings.
 /// Characters remarks for why this can't be auto-detected from Chat.log.</summary>

@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>
 /// One row in the main window's player list. Deliberately a plain mutable view model (not a

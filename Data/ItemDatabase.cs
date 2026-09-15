@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace AionSniffer.Data;
+namespace AionDPS.Data;
 
 /// <summary>
 /// Aion's item rarity tiers, in ascending order, named the way the server itself names them.

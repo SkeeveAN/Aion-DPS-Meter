@@ -1,7 +1,7 @@
 using System.Windows;
-using AionSniffer.Combat;
+using AionDPS.Combat;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>One skill's contribution for one player, as shown in the details grid.</summary>
 public sealed record SkillRow(string Skill, int Hits, double CritRate, long Total, long Min, long Max, long Average);

@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>
 /// Fixed-width text tables wrapped in a Markdown code fence, for pasting into Discord.

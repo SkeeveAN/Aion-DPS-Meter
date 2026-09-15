@@ -1,4 +1,4 @@
-namespace AionSniffer.Server;
+namespace AionDPS.Server;
 
 /// <summary>
 /// Which classes exist on a given private server - per the user, the Class dropdown should not

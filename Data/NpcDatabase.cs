@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace AionSniffer.Data;
+namespace AionDPS.Data;
 
 /// <summary>
 /// Known NPC/monster names collected from aioncodex.com's "/4x/" snapshot (38,090 entries, same

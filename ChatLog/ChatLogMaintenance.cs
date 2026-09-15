@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace AionSniffer.ChatLog;
+namespace AionDPS.ChatLog;
 
 /// <summary>What happened when the meter tried to empty Chat.log.</summary>
 public enum EmptyResult

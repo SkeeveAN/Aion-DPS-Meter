@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace AionSniffer.ChatLog;
+namespace AionDPS.ChatLog;
 
 /// <summary>
 /// Splits one raw Chat.log line into timestamp + message text. Verified against a real

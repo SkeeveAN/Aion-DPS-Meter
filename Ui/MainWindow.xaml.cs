@@ -8,14 +8,14 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
-using AionSniffer.ChatLog;
-using AionSniffer.Combat;
-using AionSniffer.Data;
-using AionSniffer.Update;
-using AionSniffer.Upload;
+using AionDPS.ChatLog;
+using AionDPS.Combat;
+using AionDPS.Data;
+using AionDPS.Update;
+using AionDPS.Upload;
 using VelopackUpdateInfo = Velopack.UpdateInfo;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>
 /// The main meter window. Holds its own LiveAggregator, fed entirely from Aion's Chat.log via
@@ -153,7 +153,7 @@ public partial class MainWindow : Window
         Loaded += OnWindowLoaded;
 
         // Version in the title, read back from the assembly rather than typed here a second time:
-        // AionSniffer.csproj's <Version> is the only place it is written. Needed because builds are
+        // AionDPS.csproj's <Version> is the only place it is written. Needed because builds are
         // handed around the group by hand -- a screenshot or a Chat.log recorded by someone else is
         // otherwise impossible to pin to a build, which already cost a round of guesswork once.
         Title = AppVersion.Text.Length > 0 ? $"Aion DPS {AppVersion.Text}" : "Aion DPS";
@@ -1473,7 +1473,7 @@ public partial class MainWindow : Window
     /// <summary>Gap between hits, in seconds, past which two hits on the same target count as
     /// separate runs rather than one continuous fight - same default the CLI's headless clustered
     /// upload already uses (see Program.cs), reused here so the dropdown's own split agrees with
-    /// what "AionSniffer upload" would produce for the same Chat.log.</summary>
+    /// what "AionDPS upload" would produce for the same Chat.log.</summary>
     private const double RunClusterGapSeconds = 120;
 
     /// <summary>
@@ -1881,8 +1881,8 @@ public partial class MainWindow : Window
     private void ApplyClassFilterAvailability()
     {
         MeterSettings settings = MeterSettings.Load();
-        string? fingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
-        var excluded = AionSniffer.Server.ServerClassAvailability.ExcludedClassesFor(fingerprint, settings.ServerDisplayName);
+        string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
+        var excluded = AionDPS.Server.ServerClassAvailability.ExcludedClassesFor(fingerprint, settings.ServerDisplayName);
 
         bool selectedClassHidden = false;
         foreach (ComboBoxItem item in ClassFilter.Items.OfType<ComboBoxItem>())
@@ -1904,7 +1904,7 @@ public partial class MainWindow : Window
     private static (string Fingerprint, string? DisplayName)? ResolveServerIdentity()
     {
         MeterSettings settings = MeterSettings.Load();
-        string? fingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
+        string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
         return fingerprint is null ? null : (fingerprint, settings.ServerDisplayName);
     }
 

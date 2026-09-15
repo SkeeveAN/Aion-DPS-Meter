@@ -1,4 +1,4 @@
-namespace AionSniffer.ChatLog;
+namespace AionDPS.ChatLog;
 
 /// <summary>
 /// One real reinforcement (buff) cast, decoded from Chat.log's "X is in the boost ... state

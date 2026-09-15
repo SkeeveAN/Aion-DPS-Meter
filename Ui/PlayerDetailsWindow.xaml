@@ -1,8 +1,8 @@
-<Window x:Class="AionSniffer.Ui.PlayerDetailsWindow"
+<Window x:Class="AionDPS.Ui.PlayerDetailsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Character Details" Height="460" Width="720"
-        xmlns:local="clr-namespace:AionSniffer.Ui"
+        xmlns:local="clr-namespace:AionDPS.Ui"
         Background="#1e1e24" Foreground="#e8e8ea" WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>

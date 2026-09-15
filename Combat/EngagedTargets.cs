@@ -1,4 +1,4 @@
-namespace AionSniffer.Combat;
+namespace AionDPS.Combat;
 
 /// <summary>
 /// Drops damage belonging to a fight the local player's side was not part of.

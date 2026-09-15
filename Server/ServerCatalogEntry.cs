@@ -1,4 +1,4 @@
-namespace AionSniffer.Server;
+namespace AionDPS.Server;
 
 /// <summary>One entry from the backend's curated GET /api/server-catalog list - name/version/kind
 /// of a real Aion server (official or private), researched by hand rather than auto-discovered.

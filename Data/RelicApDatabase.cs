@@ -1,4 +1,4 @@
-namespace AionSniffer.Data;
+namespace AionDPS.Data;
 
 /// <summary>
 /// The Abyss Point value of the 16 "Ancient" relics, i.e. what the in-game Relic Appraiser pays

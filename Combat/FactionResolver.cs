@@ -1,4 +1,4 @@
-namespace AionSniffer.Combat;
+namespace AionDPS.Combat;
 
 /// <summary>Which side of a fight a player is on, relative to the local player.</summary>
 public enum Side

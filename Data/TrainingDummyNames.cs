@@ -1,4 +1,4 @@
-namespace AionSniffer.Data;
+namespace AionDPS.Data;
 
 /// <summary>
 /// "Training Dummy" in all 8 languages Chat.log can appear in - verified from the client's own

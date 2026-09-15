@@ -1,4 +1,4 @@
-namespace AionSniffer.Upload;
+namespace AionDPS.Upload;
 
 /// <summary>Outcome of one UploadClient.SendAsync call. <see cref="Error"/> is null exactly when
 /// <see cref="Success"/> is true - carries the real reason for a failure (HTTP status + response

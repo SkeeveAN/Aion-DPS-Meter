@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>
 /// Faction name -> its emblem, the same assets/races/icons/*.png files the settings dialog uses.

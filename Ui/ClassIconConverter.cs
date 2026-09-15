@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>
 /// Class name -> icon, for the places a class name is bound at runtime rather than hardcoded in

@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using AionSniffer.Data;
+using AionDPS.Data;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>
 /// ItemGrade? -> the exact color Aion itself uses for that rarity tier, so an item's name in the

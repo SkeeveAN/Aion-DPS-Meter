@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace AionSniffer.Upload;
+namespace AionDPS.Upload;
 
 /// <summary>
 /// Sends an encounter to the community backend (aiondps.com). One static HttpClient for the

@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Windows.Data;
 using System.Windows.Markup;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 /// <summary>
 /// The GUI's own display language -- independent of whatever language Chat.log happens to be
@@ -123,7 +123,7 @@ public sealed class LocalizationManager : INotifyPropertyChanged
 }
 
 /// <summary>
-/// XAML usage: `Header="{loc:Loc MenuFile}"` (with `xmlns:loc="clr-namespace:AionSniffer.Ui"` on
+/// XAML usage: `Header="{loc:Loc MenuFile}"` (with `xmlns:loc="clr-namespace:AionDPS.Ui"` on
 /// the window root). Resolves to a live one-way binding against
 /// <see cref="LocalizationManager.Instance"/>'s indexer, not a one-shot string lookup -- so
 /// changing the language in Settings repaints this element immediately, the same way any other

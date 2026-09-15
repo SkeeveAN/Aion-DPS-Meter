@@ -1,4 +1,4 @@
-namespace AionSniffer.ChatLog;
+namespace AionDPS.ChatLog;
 
 /// <summary>
 /// Assigns stable synthetic object ids to combatant names seen in Chat.log, so the existing

@@ -1,4 +1,4 @@
-namespace AionSniffer.Combat;
+namespace AionDPS.Combat;
 
 /// <summary>
 /// Works out which hits were critical from the damage numbers alone, for players whose client

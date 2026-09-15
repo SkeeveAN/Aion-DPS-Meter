@@ -1,8 +1,8 @@
 using System.IO;
 using System.Text;
-using AionSniffer.Combat;
+using AionDPS.Combat;
 
-namespace AionSniffer.ChatLog;
+namespace AionDPS.ChatLog;
 
 /// <summary>
 /// Watches Chat.log going forward ONLY -- never the past. Explicit rule from the user: a

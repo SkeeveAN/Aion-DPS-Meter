@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace AionSniffer.Ui;
+namespace AionDPS.Ui;
 
 public partial class SettingsWindow : Window
 {
@@ -14,7 +14,7 @@ public partial class SettingsWindow : Window
     /// <summary>Loaded once, asynchronously, right after the window opens - see LoadServerCatalogAsync.
     /// Empty until that finishes (or if the backend is unreachable), in which case
     /// NewCharacterServerBox is simply empty rather than blocking the whole dialog on a network call.</summary>
-    private List<AionSniffer.Server.ServerCatalogEntry> _serverCatalog = new();
+    private List<AionDPS.Server.ServerCatalogEntry> _serverCatalog = new();
 
     public SettingsWindow(MeterSettings settings)
     {
@@ -108,7 +108,7 @@ public partial class SettingsWindow : Window
     /// </summary>
     private async Task LoadServerCatalogAsync()
     {
-        _serverCatalog = await AionSniffer.Server.ServerCatalogClient.FetchAsync();
+        _serverCatalog = await AionDPS.Server.ServerCatalogClient.FetchAsync();
 
         NewCharacterServerBox.Items.Clear();
         AionInstallServerBox.Items.Clear();
@@ -126,7 +126,7 @@ public partial class SettingsWindow : Window
         {
             AionInstallServerBox.SelectedItem = AionInstallServerBox.Items
                 .OfType<ComboBoxItem>()
-                .FirstOrDefault(item => item.Tag is AionSniffer.Server.ServerCatalogEntry entry && entry.Name == existingName);
+                .FirstOrDefault(item => item.Tag is AionDPS.Server.ServerCatalogEntry entry && entry.Name == existingName);
         }
     }
 
@@ -140,7 +140,7 @@ public partial class SettingsWindow : Window
     /// </summary>
     private void OnAionServerSelected(object sender, SelectionChangedEventArgs e)
     {
-        if (AionInstallServerBox.SelectedItem is not ComboBoxItem { Tag: AionSniffer.Server.ServerCatalogEntry server })
+        if (AionInstallServerBox.SelectedItem is not ComboBoxItem { Tag: AionDPS.Server.ServerCatalogEntry server })
         {
             return;
         }
@@ -196,7 +196,7 @@ public partial class SettingsWindow : Window
         // Per the user: which server a character is on is now a required, explicit pick from the
         // backend's curated list, not something silently stamped in the background - refusing the
         // Add here (rather than falling back to "unknown") is what actually makes it required.
-        if (NewCharacterServerBox.SelectedItem is not ComboBoxItem { Tag: AionSniffer.Server.ServerCatalogEntry server })
+        if (NewCharacterServerBox.SelectedItem is not ComboBoxItem { Tag: AionDPS.Server.ServerCatalogEntry server })
         {
             MessageBox.Show(this, "Please pick which server this character is on first.",
                 "Add character", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -213,7 +213,7 @@ public partial class SettingsWindow : Window
             Name = name,
             ClassName = className,
             Faction = faction,
-            ServerFingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
+            ServerFingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
             ServerDisplayName = server.Name,
             ServerVersion = server.Version,
         });
@@ -242,7 +242,7 @@ public partial class SettingsWindow : Window
         // in that case instead of wiping it out.
         NewCharacterServerBox.SelectedItem = NewCharacterServerBox.Items
             .OfType<ComboBoxItem>()
-            .FirstOrDefault(item => item.Tag is AionSniffer.Server.ServerCatalogEntry entry
+            .FirstOrDefault(item => item.Tag is AionDPS.Server.ServerCatalogEntry entry
                 && entry.Name == selected.ServerDisplayName && entry.Version == selected.ServerVersion);
     }
 
@@ -250,7 +250,7 @@ public partial class SettingsWindow : Window
     /// per-character (see OnAddCharacterClicked/OnUpdateCharacterClicked for those - they read a
     /// pick from NewCharacterServerBox instead).</summary>
     private string? CurrentServerDisplayNameOrNull() =>
-        (AionInstallServerBox.SelectedItem as ComboBoxItem)?.Tag is AionSniffer.Server.ServerCatalogEntry server
+        (AionInstallServerBox.SelectedItem as ComboBoxItem)?.Tag is AionDPS.Server.ServerCatalogEntry server
             ? server.Name
             : null;
 
@@ -304,14 +304,14 @@ public partial class SettingsWindow : Window
         // else (e.g. fixing a class) doesn't require re-picking the server too, but explicitly
         // choosing a different one here is exactly how a wrong pick gets corrected.
         CharacterProfile previous = _characters[index];
-        var pickedServer = (NewCharacterServerBox.SelectedItem as ComboBoxItem)?.Tag as AionSniffer.Server.ServerCatalogEntry;
+        var pickedServer = (NewCharacterServerBox.SelectedItem as ComboBoxItem)?.Tag as AionDPS.Server.ServerCatalogEntry;
         _characters[index] = new CharacterProfile
         {
             Name = name,
             ClassName = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
             Faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
             ServerFingerprint = previous.ServerFingerprint
-                ?? AionSniffer.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
+                ?? AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
             ServerDisplayName = pickedServer?.Name ?? previous.ServerDisplayName,
             ServerVersion = pickedServer?.Version ?? previous.ServerVersion,
         };
@@ -376,7 +376,7 @@ public partial class SettingsWindow : Window
     /// version, is what identifies the server.</summary>
     private void UpdateServerFingerprint()
     {
-        string? fingerprint = AionSniffer.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder);
+        string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder);
         ServerFingerprintText.Text = fingerprint
             ?? "Not detected (bin64\\config.ini / bin32\\config.ini not found here).";
     }

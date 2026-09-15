@@ -1,11 +1,11 @@
 using System.IO;
 using System.Runtime.InteropServices;
-using AionSniffer.ChatLog;
-using AionSniffer.Combat;
-using AionSniffer.Data;
+using AionDPS.ChatLog;
+using AionDPS.Combat;
+using AionDPS.Data;
 using Velopack;
 
-namespace AionSniffer;
+namespace AionDPS;
 
 /// <summary>
 /// Entry point for all three ways this program is used: the meter window (no arguments), a
@@ -60,7 +60,7 @@ internal static class Program
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: AionSniffer chatlog <path-to-Chat.log>");
+                Console.WriteLine("Usage: AionDPS chatlog <path-to-Chat.log>");
                 return;
             }
 
@@ -77,7 +77,7 @@ internal static class Program
         {
             if (args.Length < 3)
             {
-                Console.WriteLine("Usage: AionSniffer factioncheck <path-to-Chat.log> <name1,name2,...>");
+                Console.WriteLine("Usage: AionDPS factioncheck <path-to-Chat.log> <name1,name2,...>");
                 return;
             }
 
@@ -89,7 +89,7 @@ internal static class Program
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: AionSniffer upload <boss-name> [gap-seconds] [path-to-Chat.log]");
+                Console.WriteLine("Usage: AionDPS upload <boss-name> [gap-seconds] [path-to-Chat.log]");
                 Console.WriteLine("  Reads the Chat.log already configured in Settings (or the one given as the");
                 Console.WriteLine("  third argument - e.g. a differently-named log from another client language),");
                 Console.WriteLine("  splits every kill of <boss-name> into separate runs by a time gap (default");
@@ -129,10 +129,10 @@ internal static class Program
 
         // Anything else is a typo far more often than it is an attempt at something real, so say
         // what the program accepts rather than failing silently or opening the window anyway.
-        Console.WriteLine("Usage: AionSniffer                       (no arguments: opens the meter window)");
-        Console.WriteLine("       AionSniffer chatlog <path-to-Chat.log>   (parses a Chat.log file and prints a summary)");
-        Console.WriteLine("       AionSniffer selftest                     (runs the parser and DPS self-checks)");
-        Console.WriteLine("       AionSniffer upload <boss-name> [gap-seconds]   (re-parses Chat.log and uploads every run of that boss)");
+        Console.WriteLine("Usage: AionDPS                       (no arguments: opens the meter window)");
+        Console.WriteLine("       AionDPS chatlog <path-to-Chat.log>   (parses a Chat.log file and prints a summary)");
+        Console.WriteLine("       AionDPS selftest                     (runs the parser and DPS self-checks)");
+        Console.WriteLine("       AionDPS upload <boss-name> [gap-seconds]   (re-parses Chat.log and uploads every run of that boss)");
     }
 
     /// <summary>

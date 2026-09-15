@@ -1,7 +1,7 @@
 using Velopack;
 using Velopack.Sources;
 
-namespace AionSniffer.Update;
+namespace AionDPS.Update;
 
 /// <summary>
 /// Self-updating, via Velopack. The meter installs per-user under %LOCALAPPDATA%, so it can

@@ -123,6 +123,6 @@ if __name__=="__main__":
         head=struct.pack("<HHH",0,1,len(sizes)); off=6+16*len(sizes); dirs=b""
         for s,i in zip(sizes,images):
             dirs+=struct.pack("<BBBBHHII",0 if s==256 else s,0 if s==256 else s,0,0,1,32,len(i),off); off+=len(i)
-        open("assets/app/aionsniffer.ico","wb").write(head+dirs+b"".join(images))
+        open("assets/app/aiondps.ico","wb").write(head+dirs+b"".join(images))
         open(SC+"icon256.png","wb").write(images[-1]); open(SC+"icon32.png","wb").write(images[2])
         print("ICO geschrieben")

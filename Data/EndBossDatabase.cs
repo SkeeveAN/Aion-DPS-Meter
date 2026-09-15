@@ -1,4 +1,4 @@
-namespace AionSniffer.Data;
+namespace AionDPS.Data;
 
 /// <summary>
 /// Curated ALLOWLIST of real, selectable end-boss names only - deliberately just the boss subset

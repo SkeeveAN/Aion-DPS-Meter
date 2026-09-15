@@ -1,10 +1,10 @@
 using System.IO;
-using AionSniffer.ChatLog;
-using AionSniffer.Data;
-using AionSniffer.Ui;
-using AionSniffer.Update;
+using AionDPS.ChatLog;
+using AionDPS.Data;
+using AionDPS.Ui;
+using AionDPS.Update;
 
-namespace AionSniffer.Combat;
+namespace AionDPS.Combat;
 
 /// <summary>
 /// Verifies the DPS/iDPS math, the SM_ATTACK multi-hit parser, the skill database, and the
