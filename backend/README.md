@@ -1,7 +1,7 @@
 # Aion DPS-Meter Backend
 
 API + minimalistisches Web-Frontend für `aiondps.com`. Nimmt Boss-Kampf-Uploads vom
-[AionSniffer](../) DPS-Meter-Client entgegen, erkennt serverseitig, welche Uploads verschiedener
+[Aion DPS](../) DPS-Meter-Client entgegen, erkennt serverseitig, welche Uploads verschiedener
 Gruppenmitglieder zum selben Kampf gehören (siehe `src/matching/merge.ts`), und zeigt Leaderboards
 sowie Spielerprofile an.
 
@@ -40,6 +40,15 @@ ihn einer echten Instanz zuzuordnen: in der `instances`-Tabelle die Zeile anlege
 ```sql
 UPDATE bosses SET instance_id = <echte instance id> WHERE name = '<Bossname>';
 ```
+
+**Nie zwei `bosses`-Zeilen mit demselben `name` in verschiedenen Instanzen anlegen** -
+`resolveBossId` (`src/matching/merge.ts`) matcht rein über den Namen, ohne jeden Zonen-/Instanz-
+Kontext (der Client lädt keinen hoch) - bei zwei gleichnamigen Zeilen landet JEDER Upload
+undeterministisch bei der ersten gefundenen, nie bei der "richtigen". Real passiert bei "Brigade
+General Vasharti" (Rentus-Basis vs. Lost Rentus Base, siehe Migration 0022) - der Name existiert im
+Spiel für beide Instanzen identisch, die App kann sie serverseitig nicht auseinanderhalten. Teilen
+sich zwei Instanzen denselben Boss wirklich, gehört er in EINE `bosses`-Zeile (Instanz-Zuordnung so
+wählen, wie die Gruppe ihn tatsächlich spielt), nicht in zwei.
 
 Eine passende Instanz-Zeile fehlt noch? Erst per `INSERT INTO instances (name, sort_order) VALUES (...)`
 anlegen. Es gibt bewusst keine vorab geratene Instanzliste im Seed - die genaue Instanz-/Boss-Liste

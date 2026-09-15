@@ -155,6 +155,13 @@
       "when": 1789490405130,
       "tag": "0021_split_riftshade_data_from_origin_aion_fingerprint_clash",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1789495627861,
+      "tag": "0022_merge_duplicate_vasharti_boss_rows",
+      "breakpoints": true
     }
   ]
 }
