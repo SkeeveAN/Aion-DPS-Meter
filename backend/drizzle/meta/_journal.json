@@ -162,6 +162,13 @@
       "when": 1789495627861,
       "tag": "0022_merge_duplicate_vasharti_boss_rows",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1789496253967,
+      "tag": "0023_normalize_modern_class_names",
+      "breakpoints": true
     }
   ]
 }

@@ -18,9 +18,26 @@ const buffUsageSchema = z.object({
   casts: z.number().int().positive().max(100_000),
 });
 
+// The client's own skill dataset (assets/skills/skills_multilang_4x.json) tags these three classes
+// by their "modern" names, not the internal ones the client uses everywhere else - normalized
+// client-side since AionDPS v0.7.41 (see Data/SkillDatabase.cs's own remarks), but kept here too as
+// a server-side backstop for uploads from an older, not-yet-updated client (Velopack's rollout is
+// gradual, never instant - see Update/UpdateService.cs) and for the historical rows already stored
+// this way (see migration 0023).
+const MODERN_TO_INTERNAL_CLASS_NAME: Record<string, string> = {
+  Gunslinger: "Gunner",
+  Songweaver: "Bard",
+  Muse: "Painter",
+};
+
 export const participantSchema = z.object({
   name: z.string().trim().min(1).max(64),
-  className: z.string().trim().min(1).max(40),
+  className: z
+    .string()
+    .trim()
+    .min(1)
+    .max(40)
+    .transform((name) => MODERN_TO_INTERNAL_CLASS_NAME[name] ?? name),
   faction: z.string().trim().max(20).default(""),
   // Mirrors the client's `_chatLogParser.Names.NameFor(id) == "You"` check -
   // true for exactly one participant per upload, the uploader themselves.
