@@ -283,8 +283,16 @@ const INSTANCE_IMAGES = {
   // sub-instances" reasoning as Steel Rose's two decks above.
   "Ophidan Bridge": "/images/instances/ophidan_bridge.jpg",
   "Rentus-Basis": "/images/instances/rentus_base.jpg",
-  "Tiamats Festung": "/images/instances/tiamat_fortress.jpg",
-  "Tiamats Unterschlupf": "/images/instances/tiamat_fortress.jpg",
+  // Real in-game screenshot ("TS - North Wing"), not cinematic loading-screen art - from
+  // aion.fandom.com's own Tiamat Stronghold page (static.wikia.nocookie.net), replacing an earlier
+  // fortress-skyline art piece per the user.
+  "Tiamats Festung": "/images/instances/tiamat_stronghold.webp",
+  // Per the user: NOT the same photo as Tiamats Festung above - a real encounter shot of Tiamat
+  // herself (the dragon) facing down a Daeva in astral form, not the fortress skyline. Sourced from
+  // a Google Images cache link the user provided rather than this project's usual client-file/wiki
+  // sourcing, so the original page is unconfirmed - fix the provenance comment once a primary source
+  // turns up.
+  "Tiamats Unterschlupf": "/images/instances/tiamat_hideout.jpg",
   // These two keyed by English name instead (like "Raksha Boilheart" above) - found via
   // origincdx.com's own map list (IDLDF5Re_03 / IDLDF5_Under_02), but not present under either name
   // in this client's own client_strings_dic_place.xml, so the real German name a German-client
@@ -307,13 +315,13 @@ const INSTANCE_IMAGES = {
   // screenshot rather than a guess.
   Mantor: "/images/instances/mantor.jpg",
   // Both "Lost" - reuse their own already-covered non-Lost counterpart's real loading-screen
-  // photo rather than fetch a lower-quality alternative: same location/reskin, same reasoning as
-  // Tiamats Festung/Unterschlupf sharing one photo above.
+  // photo rather than fetch a lower-quality alternative: same location/reskin, same "one photo,
+  // several sub-instances" reasoning as Steel Rose's two decks above.
   "Lost Rentus Base": "/images/instances/rentus_base.jpg",
   "Lost Refuge": "/images/instances/danuar_sanctuary.jpg",
-  // Per the user: the same place as Tiamats Unterschlupf/Tiamats Festung (an alliance-size mode of
-  // it, not a separate location) - same photo-reuse reasoning as those two.
-  "Tiamat's Hidden Space": "/images/instances/tiamat_fortress.jpg",
+  // Per the user: the same place as Tiamats Unterschlupf (an alliance-size/HM mode of it, not a
+  // separate location) - reuses its encounter photo above, NOT Tiamats Festung's.
+  "Tiamat's Hidden Space": "/images/instances/tiamat_hideout.jpg",
 };
 
 // Per the user: real per-boss art, not the instance's own photo reused - found on aion.fandom.com,

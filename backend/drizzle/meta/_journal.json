@@ -127,6 +127,13 @@
       "when": 1789414449777,
       "tag": "0017_rename_fugitive_asachin",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1789457123066,
+      "tag": "0018_curate_riftshade_instance_list",
+      "breakpoints": true
     }
   ]
 }
