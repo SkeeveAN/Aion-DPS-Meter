@@ -35,6 +35,11 @@ public static class ServerClassAvailability
     {
         // EuroAion: 4.6 keeping Aethertech/Bard(Songweaver)/Gunner, missing only Painter.
         ["euroaion"] = new[] { "Painter" },
+        // Aion Riftshade: 4.8, confirmed per the user to keep Aethertech/Bard/Gunner too - unlike
+        // Origin Aion's "original 8 classes" 4.6 ruleset above. Painter's status here was not part
+        // of that confirmation, so it stays shown rather than guessed at, same as any other
+        // not-yet-confirmed class.
+        ["riftshade"] = Array.Empty<string>(),
     };
 
     /// <summary>Class names (matching the dropdown's own Tag values) that do not exist on this
