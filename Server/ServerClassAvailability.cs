@@ -8,14 +8,16 @@ namespace AionDPS.Server;
 /// post-4.6 class kept in the dropdown only "for parity with the myaion.eu reference" per
 /// MainWindow.xaml's own remarks).
 ///
-/// Keyed by <see cref="ServerIdentity"/>'s fingerprint ("IP:PORT") where a real one is known -
-/// confirmed for Origin Aion via its own backend's servers table (fingerprint "70.0.0.150:10241",
-/// display name "Origin Aion"). Servers whose fingerprint has never been seen fall back to a
-/// case-insensitive match on the user's own free-text ServerDisplayName setting instead - lower
-/// confidence (a user could type anything there), but the only signal available before a real
-/// upload has ever confirmed that server's fingerprint. An unrecognized server (neither lookup
-/// matches) shows every class, same as today - never guess a server's own patch/class roster from
-/// nothing.
+/// Keyed by <see cref="ServerIdentity"/>'s fingerprint ("IP:PORT") for Origin Aion
+/// ("70.0.0.150:10241") and by a case-insensitive match on the user's own free-text
+/// ServerDisplayName setting for everything else - checked displayName-FIRST despite fingerprint
+/// being the "harder" identifier, because a real report proved <see cref="ServerIdentity"/>'s own
+/// claim that it is "stable and unique per private-server operator" false: Aion Riftshade shares
+/// Origin Aion's exact fingerprint (same gateway), so a fingerprint-first lookup wrongly applied
+/// Origin Aion's exclusions to Riftshade too (see ExcludedClassesFor's own remarks, and
+/// MainWindow.xaml.cs's ApplyActiveCharacterForCurrentServer for the same fix applied earlier to a
+/// different feature). An unrecognized server (neither lookup matches) shows every class, same as
+/// today - never guess a server's own patch/class roster from nothing.
 /// </summary>
 public static class ServerClassAvailability
 {
@@ -46,11 +48,15 @@ public static class ServerClassAvailability
     /// server - empty when the server is unrecognized by either fingerprint or display name.</summary>
     public static IReadOnlySet<string> ExcludedClassesFor(string? fingerprint, string? displayName)
     {
-        if (fingerprint is not null && ExcludedClassesByFingerprint.TryGetValue(fingerprint, out string[]? byFingerprint))
-        {
-            return byFingerprint.ToHashSet();
-        }
-
+        // displayName checked FIRST, fingerprint only as a fallback - reversed from this method's
+        // original order after a real report ("im Dropdown fehlen Aethertech/Gunner/Bard" on
+        // Riftshade) traced back to the exact same fingerprint collision already fixed for the
+        // backend's own `servers` table and for MainWindow's ApplyActiveCharacterForCurrentServer:
+        // Aion Riftshade and Origin Aion share the identical "70.0.0.150:10241" fingerprint (same
+        // gateway), so the fingerprint-first lookup below always matched Origin Aion's entry first
+        // and wrongly excluded Riftshade's own Aethertech/Bard/Gunner too. displayName is the
+        // explicit catalog pick the user actually made (see SettingsWindow's AionInstallServerBox)
+        // and, per that same earlier fix, the more trustworthy signal of the two.
         if (displayName is not null)
         {
             foreach ((string needle, string[] excluded) in ExcludedClassesByDisplayName)
@@ -60,6 +66,11 @@ public static class ServerClassAvailability
                     return excluded.ToHashSet();
                 }
             }
+        }
+
+        if (fingerprint is not null && ExcludedClassesByFingerprint.TryGetValue(fingerprint, out string[]? byFingerprint))
+        {
+            return byFingerprint.ToHashSet();
         }
 
         return new HashSet<string>();
