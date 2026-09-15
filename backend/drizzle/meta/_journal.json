@@ -134,6 +134,13 @@
       "when": 1789457123066,
       "tag": "0018_curate_riftshade_instance_list",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1789458065975,
+      "tag": "0019_fix_riftshade_curation_name_typo",
+      "breakpoints": true
     }
   ]
 }
