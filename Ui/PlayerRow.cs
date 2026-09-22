@@ -14,6 +14,11 @@ public sealed class PlayerRow : INotifyPropertyChanged
     private long _damage;
     private double? _dps;
     private long? _relicAp;
+    private int _rank;
+    private double _sharePercent;
+    private long _damageTaken;
+    private bool _showShareBar = true;
+    private bool _showDamageTaken = true;
 
     private string _name = "?";
     private string _className = "?";
@@ -92,6 +97,48 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string ApDisplay => RelicAp is long relic && relic > 0
         ? $"Relic AP: {relic:N0}"
         : "";
+
+    /// <summary>1-based position by damage within the rows currently shown, independent of how
+    /// the user sorted the grid; 0 (blank) until the first refresh ranks the row.</summary>
+    public int Rank
+    {
+        get => _rank;
+        set { _rank = value; OnPropertyChanged(); OnPropertyChanged(nameof(RankDisplay)); }
+    }
+
+    public string RankDisplay => Rank > 0 ? Rank.ToString() : "";
+
+    /// <summary>This row's share of the shown rows' combined damage, 0-100 - what the bar under the
+    /// Damage/DPS line visualises.</summary>
+    public double SharePercent
+    {
+        get => _sharePercent;
+        set { _sharePercent = value; OnPropertyChanged(); }
+    }
+
+    /// <summary>Damage this player RECEIVED inside the shown window (from the selected target
+    /// only when one is picked) - the tank/aggro question the dealt-damage columns cannot answer.</summary>
+    public long DamageTaken
+    {
+        get => _damageTaken;
+        set { _damageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); }
+    }
+
+    public string TakenDisplay => ShowDamageTaken && DamageTaken > 0 ? $"↓ {DamageTaken:N0}" : "";
+
+    /// <summary>Mirror MeterSettings.ShowShareBars/ShowDamageTaken - set on every refresh so a
+    /// changed setting reaches rows that already exist.</summary>
+    public bool ShowShareBar
+    {
+        get => _showShareBar;
+        set { _showShareBar = value; OnPropertyChanged(); }
+    }
+
+    public bool ShowDamageTaken
+    {
+        get => _showDamageTaken;
+        set { _showDamageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); }
+    }
 
     public PlayerRow(int objectId)
     {

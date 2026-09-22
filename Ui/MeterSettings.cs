@@ -77,6 +77,12 @@ public sealed class MeterSettings
     public string Theme { get; set; } = "Dark";
     public string FontSize { get; set; } = "Medium";
 
+    /// <summary>Share-of-group bar under each row's Damage/DPS line (see PlayerRow.SharePercent).</summary>
+    public bool ShowShareBars { get; set; } = true;
+
+    /// <summary>"↓ N" damage-received figure on each row's second line (see PlayerRow.DamageTaken).</summary>
+    public bool ShowDamageTaken { get; set; } = true;
+
     /// <summary>GUI display language, an ISO 639-1 code from LocalizationManager.SupportedLanguages
     /// (e.g. "de"), or "" on a fresh install to mean "use whatever LocalizationManager already
     /// auto-detected from the OS at startup, and don't overwrite it here." Independent of Chat.log's

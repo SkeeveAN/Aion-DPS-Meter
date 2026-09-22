@@ -57,6 +57,8 @@ public partial class SettingsWindow : Window
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
+        ShowShareBarsBox.IsChecked = settings.ShowShareBars;
+        ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
 
         // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML -- see
         // LanguageBox's own remarks. Each item's Content is the language's OWN native name
@@ -555,6 +557,8 @@ public partial class SettingsWindow : Window
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
         _settings.Language = LocalizationManager.Instance.Language;
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
+        _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
+        _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? true;
         _settings.Game = _game;
         _settings.AionInstallFolder = _aionInstallFolder;
         _settings.ServerDisplayName = CurrentServerDisplayNameOrNull();

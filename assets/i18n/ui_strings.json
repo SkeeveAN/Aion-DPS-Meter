@@ -639,6 +639,26 @@
     "tr": "Başlangıçta her zaman üstte",
     "zh": "启动时总在最前"
   },
+  "Settings.ShowShareBars": {
+    "en": "Show damage-share bars",
+    "de": "Schadensanteil-Balken anzeigen",
+    "fr": "Afficher les barres de part de dégâts",
+    "es": "Mostrar barras de porcentaje de daño",
+    "ru": "Показывать полосы доли урона",
+    "pl": "Pokaż paski udziału w obrażeniach",
+    "tr": "Hasar payı çubuklarını göster",
+    "zh": "显示伤害占比条"
+  },
+  "Settings.ShowDamageTaken": {
+    "en": "Show damage taken per player",
+    "de": "Erlittenen Schaden pro Spieler anzeigen",
+    "fr": "Afficher les dégâts subis par joueur",
+    "es": "Mostrar daño recibido por jugador",
+    "ru": "Показывать полученный урон по игрокам",
+    "pl": "Pokaż otrzymane obrażenia na gracza",
+    "tr": "Oyuncu başına alınan hasarı göster",
+    "zh": "显示每位玩家承受的伤害"
+  },
   "Settings.ThemeDark": {
     "en": "Dark",
     "de": "Dunkel",

@@ -10,6 +10,26 @@
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
         <local:ItemGradeColorConverter x:Key="ItemGradeColorConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <!-- Share-of-group bar under a row's Damage/DPS line (PlayerRow.SharePercent, 0-100). A
+             ProgressBar only for its PART_Indicator width math; the template is a flat track +
+             fill so it reads as a meter bar, not as WPF's stock progress chrome. -->
+        <Style x:Key="ShareBar" TargetType="ProgressBar">
+            <Setter Property="Height" Value="3"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="Maximum" Value="100"/>
+            <Setter Property="Margin" Value="0,2,0,1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid>
+                            <Border x:Name="PART_Track" Background="{DynamicResource Brush.Control}" CornerRadius="1"/>
+                            <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{DynamicResource Brush.Accent}" Opacity="0.7" CornerRadius="1"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <!-- Found by the user (left nav rail looked bright/white), then found AGAIN by
              terminal_windows measuring actual rendered pixels after the first fix: BasedOn alone
              fixed enabled buttons, but the four disabled nav buttons still rendered #F4F4F4 -
@@ -864,6 +884,16 @@
                              SaveWindowGeometry) - the 179/124 defaults here match what the user
                              last resized them to, measured live by terminal_windows since a
                              manual column drag isn't saved anywhere until the window closes. -->
+                        <!-- Rank by damage within the shown rows (PlayerRow.Rank) - stays correct
+                             however the user sorts the grid, which is the point of showing it. -->
+                        <DataGridTemplateColumn Header="#" Width="26">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextMuted}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <DataGridTemplateColumn x:Name="NameColumn" Header="{local:Loc Main.ColumnName}" Width="179">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -909,7 +939,15 @@
                                             <TextBlock Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
                                                        Margin="6,0,0,0" VerticalAlignment="Bottom"/>
                                         </StackPanel>
-                                        <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
+                                        <ProgressBar Style="{StaticResource ShareBar}" Value="{Binding SharePercent, Mode=OneWay}"
+                                                     Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
+                                        <!-- Second line: relic AP (see ApDisplay) and damage received
+                                             (TakenDisplay) - either is blank when there is nothing to say. -->
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
+                                            <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Margin="6,0,0,0"
+                                                       ToolTip="Damage this player received in the shown window"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -983,6 +1021,8 @@
                         </Border.Style>
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
+                                           VerticalAlignment="Center" Margin="0,0,4,0" MinWidth="10"/>
                                 <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
                                        Height="16" Width="16" Margin="0,0,4,0"/>
                                 <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
@@ -994,7 +1034,12 @@
                                 <TextBlock Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
                                            Margin="6,0,0,0" VerticalAlignment="Bottom"/>
                             </StackPanel>
-                            <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"/>
+                            <ProgressBar Style="{StaticResource ShareBar}" Value="{Binding SharePercent, Mode=OneWay}"
+                                         Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"/>
+                                <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10" Margin="6,0,0,0"/>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
                 </DataTemplate>

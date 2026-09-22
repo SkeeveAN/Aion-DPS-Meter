@@ -431,6 +431,9 @@
                              MeterSettings.AlwaysOnTopOnStartup's remarks for why this is one
                              setting reachable two ways, not two independent switches. -->
                         <CheckBox x:Name="AlwaysOnTopBox" Content="{local:Loc Settings.AlwaysOnTop}"/>
+                        <!-- Per-row extras in the Damage view (see PlayerRow.SharePercent/DamageTaken). -->
+                        <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,4,0,0"/>
+                        <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}"/>
                     </StackPanel>
                 </GroupBox>
 

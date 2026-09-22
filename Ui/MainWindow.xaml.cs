@@ -116,6 +116,11 @@ public partial class MainWindow : Window
     /// only changes via Settings.</summary>
     private bool _autoDetectActiveCharacter = true;
 
+    /// <summary>Mirror MeterSettings.ShowShareBars/ShowDamageTaken - cached here because
+    /// RefreshRows runs every second and must not re-read the settings file each time.</summary>
+    private bool _showShareBars = true;
+    private bool _showDamageTaken = true;
+
     // Where combat data comes from (see Combat/Sources/ICombatSource) - today always the Chat.log
     // source; its Entities directory is what RefreshRows/RefreshMobBossFilterItems resolve names
     // through for ids this window didn't assign itself (demo data has its own _playerIdentities/
@@ -262,6 +267,8 @@ public partial class MainWindow : Window
     /// called once at startup and again after Settings is saved, alongside StartChatLogTailing.</summary>
     private void RefreshCharacterSettings(MeterSettings settings)
     {
+        _showShareBars = settings.ShowShareBars;
+        _showDamageTaken = settings.ShowDamageTaken;
         _characters = settings.Characters;
         _activeCharacterName = settings.ActiveCharacterName;
         _autoDetectActiveCharacter = settings.AutoDetectActiveCharacter;
@@ -1207,6 +1214,17 @@ public partial class MainWindow : Window
             .Where(IsPlayerName)
             .ToList();
 
+        // Damage RECEIVED per row (PlayerRow.DamageTaken): everything that hit them inside the
+        // shown window - from the selected target only when one is picked, so the figure answers
+        // "how much did this boss put on whom", the same scope BuildEncounterUpload's damageTaken
+        // uses for the website's distribution chart.
+        var damageTakenById = (filteredSpan is (DateTime takenStart, DateTime takenEnd)
+                ? damageOnly.Where(ev => ev.Timestamp >= takenStart && ev.Timestamp <= takenEnd)
+                : Enumerable.Empty<DamageEvent>())
+            .Where(ev => _pvpOnly || _selectedTargetId is not int selectedAttacker || ev.SourceObjectId == selectedAttacker)
+            .GroupBy(ev => ev.TargetObjectId)
+            .ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount));
+
         // ClassFilter, per the user: was purely decorative until other players' classes started
         // being detected at all (see ResolveClassName) -- now that a class can actually be known
         // for someone besides "You", picking one filters the grid down to it for real. An empty
@@ -1250,8 +1268,21 @@ public partial class MainWindow : Window
                 : _selectedTargetId is int t
                     ? DpsCalculator.TargetIDps(filtered, t, sourceId)
                     : DpsCalculator.AllDpsWallClock(_aggregator.Events, sourceId);
+            row.DamageTaken = damageTakenById.GetValueOrDefault(sourceId);
+            row.ShowShareBar = _showShareBars;
+            row.ShowDamageTaken = _showDamageTaken;
 
             ApplySide(row, sourceId, sides);
+        }
+
+        // Rank and share are relative to what is on screen, so they are settled once every row's
+        // damage for this refresh is known - and by damage, not by the grid's current sort order.
+        long shownTotal = _rows.Sum(r => r.Damage);
+        int rank = 0;
+        foreach (PlayerRow row in _rows.OrderByDescending(r => r.Damage))
+        {
+            row.Rank = ++rank;
+            row.SharePercent = shownTotal > 0 ? 100.0 * row.Damage / shownTotal : 0;
         }
     }
 
