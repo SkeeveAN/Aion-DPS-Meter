@@ -1,5 +1,5 @@
 import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
-import { INSTANCE_IMAGES, BOSS_IMAGES } from "./game-data.js";
+import { INSTANCE_IMAGES, BOSS_IMAGES, INSTANCE_MIN_LEVEL } from "./game-data.js";
 
 const app = document.getElementById("app");
 const breadcrumb = document.getElementById("breadcrumb");
@@ -411,6 +411,23 @@ function displayName(row) {
   return translated !== row.name ? translated : row.nameEn ?? row.name;
 }
 
+/** displayName() plus " ( Lv. N )" when INSTANCE_MIN_LEVEL has an entry for this instance - per
+ * the user, for the instance grid's own card titles. No suffix (not "Lv. ?" or similar) when the
+ * level isn't known, same "don't show, don't guess" rule INSTANCE_IMAGES already follows. */
+function instanceCardLabel(instance) {
+  const level = INSTANCE_MIN_LEVEL[instance.name];
+  return level === undefined ? displayName(instance) : `${displayName(instance)} ( Lv. ${level} )`;
+}
+
+/** Highest minimum level first, unknown-level instances last (not first - an unranked instance is
+ * not the same as a confirmed low-level one) - per the user. Stable, so instances that tie (most
+ * classic-Aion ones, which have no entry at all yet) keep the API's own name order. */
+function byMinLevelDescending(a, b) {
+  const av = INSTANCE_MIN_LEVEL[a.name] ?? -1;
+  const bv = INSTANCE_MIN_LEVEL[b.name] ?? -1;
+  return bv - av;
+}
+
 async function renderInstances() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.instances")]);
   showLoading(t("loading.instances"));
@@ -427,8 +444,10 @@ async function renderInstances() {
     return;
   }
 
-  // Aion 2 sorts its dungeons into kinds (expedition, transcendence, …) - one grid per kind, in
-  // the order the API returns them. Classic Aion has no categories, so it stays one flat grid.
+  // Aion 2 sorts its dungeons into kinds (expedition, transcendence, …) - one grid per kind, kept
+  // in the order the API returns them (its own sortOrder) so category headings don't jump around;
+  // only the instances WITHIN each grid are re-sorted, by level (see byMinLevelDescending above).
+  // Classic Aion has no categories, so it stays one flat grid, itself level-sorted the same way.
   const groups = new Map();
   for (const i of instances) {
     const key = i.category ?? "other";
@@ -441,7 +460,9 @@ async function renderInstances() {
     el(
       "div",
       { className: "poster-grid" },
-      list.map((i) => posterCard(gp(`/instances/${i.slug}`), INSTANCE_IMAGES[i.name], displayName(i))),
+      [...list]
+        .sort(byMinLevelDescending)
+        .map((i) => posterCard(gp(`/instances/${i.slug}`), INSTANCE_IMAGES[i.name], instanceCardLabel(i))),
     );
   const sections = [el("h2", { textContent: t("instances.heading") })];
   if (groups.size === 1 && groups.has("other")) {

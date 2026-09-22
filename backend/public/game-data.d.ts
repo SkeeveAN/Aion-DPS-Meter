@@ -12,3 +12,4 @@ export interface LocalizedName {
 export const GAME_NAME_TRANSLATIONS: Record<string, LocalizedName>;
 export const INSTANCE_IMAGES: Record<string, string>;
 export const BOSS_IMAGES: Record<string, string>;
+export const INSTANCE_MIN_LEVEL: Record<string, number>;

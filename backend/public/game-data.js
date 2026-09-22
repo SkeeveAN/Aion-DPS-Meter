@@ -1188,6 +1188,46 @@ export const INSTANCE_IMAGES = {
   // icy dragon-like boss in its arena - per the user, via a Google Images cache link, same
   // unconfirmed-original-page caveat as Tiamats Unterschlupf's photo above.
   Makarna: "/images/instances/makarna.jpg",
+
+  // Aion 2's first real instance photos - found via web search (no client to pull loading-screen
+  // art from yet, see the Aion 2 expansion plan). Two sources, both real and non-AI-generated
+  // (checked filenames/content against known AI-art-stock dungeon sites before using either):
+  //
+  // 1) aion2.wiki.fextralife.com/Expeditions - the only page that wiki actually has content on
+  //    (every individual dungeon's own page, e.g. /Fire_Temple, is still an unwritten "redlink").
+  //    These six are real in-game UI screenshots (the Expedition browser, dungeon art behind the
+  //    room list) rather than clean loading-screen art, so some HUD chrome survives the poster
+  //    card's center-crop - accepted as the only real option right now. Each one's own screenshot
+  //    also happens to show its actual in-game "Entry Requirements: Lv. 45" - see
+  //    INSTANCE_MIN_LEVEL below, which was corrected FROM this exact evidence.
+  "Krao Cave": "/images/aion2/instances/krao-cave.png",
+  Draupnir: "/images/aion2/instances/draupnir.png",
+  "Urugugu Canyon": "/images/aion2/instances/urugugu-canyon.png",
+  "Vakron Sky Island": "/images/aion2/instances/vakron-sky-island.png",
+  "Fire Temple": "/images/aion2/instances/fire-temple.png",
+  "Ferocious Horn Den": "/images/aion2/instances/ferocious-horn-den.png",
+  //
+  // 2) about.ncsoft.com's own newsroom (blogfiles.ncsoft.net CDN) - each of these five is that
+  //    dungeon's own reveal-article hero image, confirmed by its Korean title text literally
+  //    naming this exact dungeon (e.g. "신규 성역 무스펠의 성배" = "New Sanctuary: Chalice of
+  //    Muspel"), not a generic season/patch banner reused across unrelated dungeons (several
+  //    NCSoft articles turned out to only have THAT for an accompanying image - e.g. Dying
+  //    Dramata's Nest and Hall of Illusion's own announcement posts both just reused the
+  //    Second/Third Season key art, Abyssal Forge: Ludra's a patch-notes slide - none of those
+  //    three were used here, checked by eye against the article's own text before accepting).
+  "Cradle of Nihility": "/images/aion2/instances/cradle-of-nihility.jpg",
+  "Mirror of Scarlet Desire": "/images/aion2/instances/mirror-of-scarlet-desire.jpg",
+  "Chalice of Muspel": "/images/aion2/instances/chalice-of-muspel.jpg",
+  "Corroded Decontamination Facility": "/images/aion2/instances/corroded-decontamination-facility.jpg",
+  "Submerged Life Temple": "/images/aion2/instances/submerged-life-temple.jpg",
+  // These two DO share one photo (about.ncsoft.com/en/news/article/aion2_update_260706, a
+  // "Chapter 1: Lands of Sand and Snow" banner covering both dungeons' joint announcement) - unlike
+  // the five above, it isn't either dungeon's own dedicated art, just a neutral mountain-fortress
+  // landscape with no season-banner characters or text specific to something else in it, same
+  // "checked by eye, generic enough to not actively mislead" reasoning as Ophidan Bridge's reused
+  // photo further up. Fix once either dungeon gets real dedicated art.
+  "Citadel of the Fallen Daeva": "/images/aion2/instances/citadel-of-the-fallen-daeva.jpg",
+  "Abyssal Horn Den": "/images/aion2/instances/abyssal-horn-den.jpg",
 };
 
 // Per the user: real per-boss art, not the instance's own photo reused - found on aion.fandom.com,
@@ -1220,4 +1260,32 @@ export const BOSS_IMAGES = {
   // (a plausible mishearing/typo in the original report), not a confirmed match - fix the key if
   // a real upload ever settles which name this server's Chat.log actually uses.
   Beritrakt: "/images/bosses/beritrakt.jpg",
+};
+
+// Per the user: each instance card should show its minimum level, and the instance list should
+// sort by it (highest on top, lowest at the bottom) - same "keyed by the literal name a DB row
+// carries" convention as INSTANCE_IMAGES/BOSS_IMAGES above, not a DB column (see
+// backend/src/content/aion2Content.ts's own Aion2Boss.level remark - that field exists in the
+// derived content but was never synced into the bosses table or exposed via the API, so there is
+// nothing server-side to join against yet).
+//
+// CORRECTED, not derived from bosses.json's own `level` field anymore: an earlier version of this
+// table used the lowest boss level per instance from that file as a stand-in for the dungeon's
+// entry-level requirement. The six Fextralife screenshots above (see INSTANCE_IMAGES) each show
+// their own dungeon's real "Entry Requirements: Lv. NN" panel, and ALL SIX read "Lv. 45" -
+// including three (Fire Temple, Vakron Sky Island, Ferocious Horn Den) this table previously had
+// at 63/86/63. bosses.json's `level` is evidently some other per-boss figure (internal combat
+// level, not the instance's entry gate) - that whole derivation was wrong, not just those three
+// entries, so every instance without its own confirmed screenshot has been removed rather than
+// left in place on a method now proven unreliable. Same "don't show, don't guess" rule
+// INSTANCE_IMAGES follows: no entry means no level suffix and no change to that instance's sort
+// position, not a guessed number. Re-add an instance here once a real Entry Requirements screenshot
+// (or another primary source) confirms its actual value.
+export const INSTANCE_MIN_LEVEL = {
+  "Krao Cave": 45,
+  Draupnir: 45,
+  "Urugugu Canyon": 45,
+  "Vakron Sky Island": 45,
+  "Fire Temple": 45,
+  "Ferocious Horn Den": 45,
 };
