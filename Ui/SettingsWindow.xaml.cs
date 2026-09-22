@@ -59,6 +59,7 @@ public partial class SettingsWindow : Window
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
         ShowShareBarsBox.IsChecked = settings.ShowShareBars;
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
+        RecordFightHistoryBox.IsChecked = settings.RecordFightHistory;
 
         // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML -- see
         // LanguageBox's own remarks. Each item's Content is the language's OWN native name
@@ -559,6 +560,7 @@ public partial class SettingsWindow : Window
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
         _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? true;
+        _settings.RecordFightHistory = RecordFightHistoryBox.IsChecked ?? true;
         _settings.Game = _game;
         _settings.AionInstallFolder = _aionInstallFolder;
         _settings.ServerDisplayName = CurrentServerDisplayNameOrNull();

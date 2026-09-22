@@ -15,6 +15,7 @@ using AionDPS.Combat;
 using AionDPS.Combat.Sources;
 using AionDPS.Data;
 using AionDPS.Game;
+using AionDPS.History;
 using AionDPS.Update;
 using AionDPS.Upload;
 using VelopackUpdateInfo = Velopack.UpdateInfo;
@@ -121,6 +122,19 @@ public partial class MainWindow : Window
     private bool _showShareBars = true;
     private bool _showDamageTaken = true;
 
+    // Local fight history (History/). The store is opened once and shared between the recorder
+    // (files finished fights from the live event list) and the history window. _historyMode is
+    // true while a past fight is loaded into the grid instead of the live session - the recorder
+    // stays quiet then, and the banner offers the way back.
+    private FightStore? _fightStore;
+    private FightRecorder? _fightRecorder;
+    private FightHistoryWindow? _fightHistoryWindow;
+    private bool _recordFightHistory = true;
+    private bool _historyMode;
+    private int _historyTickCounter;
+    private GameKind _currentGame = GameKind.Aion;
+    private string? _currentServerDisplayName;
+
     // Where combat data comes from (see Combat/Sources/ICombatSource) - today always the Chat.log
     // source; its Entities directory is what RefreshRows/RefreshMobBossFilterItems resolve names
     // through for ids this window didn't assign itself (demo data has its own _playerIdentities/
@@ -213,6 +227,7 @@ public partial class MainWindow : Window
 
         RestoreWindowGeometry(settings);
         StartChatLogTailing(settings);
+        InitializeFightHistory(settings);
         RefreshCharacterSettings(settings);
     }
 
@@ -269,6 +284,8 @@ public partial class MainWindow : Window
     {
         _showShareBars = settings.ShowShareBars;
         _showDamageTaken = settings.ShowDamageTaken;
+        _currentGame = settings.Game;
+        _currentServerDisplayName = settings.ServerDisplayName;
         _characters = settings.Characters;
         _activeCharacterName = settings.ActiveCharacterName;
         _autoDetectActiveCharacter = settings.AutoDetectActiveCharacter;
@@ -975,6 +992,146 @@ public partial class MainWindow : Window
 
             RefreshRows();
         }
+
+        // Every five seconds is plenty: a fight only counts as finished 120 s after its last hit.
+        if (++_historyTickCounter >= 5)
+        {
+            _historyTickCounter = 0;
+            RecordFinishedFights(flushAll: false);
+        }
+    }
+
+    private void InitializeFightHistory(MeterSettings settings)
+    {
+        _recordFightHistory = settings.RecordFightHistory;
+        if (_fightStore is not null)
+        {
+            return;
+        }
+
+        try
+        {
+            _fightStore = new FightStore(FightStore.DefaultPath);
+            _fightStore.Prune(settings.HistoryRetentionDays, settings.HistoryMaxFights);
+            _fightRecorder = new FightRecorder(_fightStore);
+        }
+        catch (Exception ex)
+        {
+            // A locked or corrupt history file must never keep the meter itself from running.
+            ShowUploadStatus($"Fight history unavailable: {ex.Message}");
+        }
+    }
+
+    /// <summary>Files every fight that has been silent long enough (or all open ones on flush -
+    /// Clear and exit) into the local history. Never while a past fight is being viewed.</summary>
+    private void RecordFinishedFights(bool flushAll)
+    {
+        if (_historyMode || !_recordFightHistory || _fightRecorder is null || _aggregator.Events.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            int written = _fightRecorder.Tick(_aggregator.Events, DateTime.Now, BuildFightContext(), flushAll);
+            if (written > 0 && _fightHistoryWindow is not null)
+            {
+                _fightHistoryWindow.Refresh();
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowUploadStatus($"Fight history: {ex.Message}");
+        }
+    }
+
+    /// <summary>The recorder describes participants exactly the way the grid does - same name,
+    /// class and side resolution, handed over as callbacks.</summary>
+    private FightContext BuildFightContext() => new(
+        NameOf: ResolveDisplayName,
+        ClassOf: ResolveClassName,
+        FactionOf: id => _rowsByObjectId.GetValueOrDefault(id)?.Faction ?? "",
+        IsPlayer: IsPlayerName,
+        IsSelf: id => _source?.Entities.IsLocalPlayer(id) == true,
+        IsEnemy: id => _rowsByObjectId.GetValueOrDefault(id)?.IsEnemy ?? false,
+        // Only dummies are filtered by name: the client has no trash-mob catalog of its own (the
+        // backend rejects known trash on upload), so short pulls are kept out by the recorder's
+        // minimum duration and the history's retention cap instead.
+        IsIgnoredTarget: TrainingDummyNames.IsTrainingDummy,
+        Game: _currentGame.ToToken(),
+        ServerName: _currentServerDisplayName);
+
+    private void OnFightHistoryClicked(object sender, RoutedEventArgs e)
+    {
+        if (_fightStore is null)
+        {
+            ShowUploadStatus("Fight history is unavailable - see the earlier notice.");
+            return;
+        }
+
+        if (_fightHistoryWindow is not null)
+        {
+            _fightHistoryWindow.Refresh();
+            _fightHistoryWindow.Activate();
+            return;
+        }
+
+        _fightHistoryWindow = new FightHistoryWindow(_fightStore) { Owner = this };
+        _fightHistoryWindow.LoadRequested += EnterHistoryMode;
+        _fightHistoryWindow.Closed += (_, _) => _fightHistoryWindow = null;
+        _fightHistoryWindow.Show();
+    }
+
+    /// <summary>
+    /// Shows a stored fight in the grid instead of the live session. The live source is swapped
+    /// for a FakeCombatSource that knows the fight's names, and the stored events are remapped
+    /// onto that source's ids (ids are per session, only names travel). Nothing is recorded while
+    /// this is on; the banner in the status row is the way back to live.
+    /// </summary>
+    private void EnterHistoryMode(FightDetail detail)
+    {
+        RecordFinishedFights(flushAll: true);
+        _historyMode = true;
+
+        var replay = new FakeCombatSource();
+        var idMap = detail.Names.ToDictionary(kv => kv.Key, kv => replay.Entities.GetOrAssignId(kv.Value));
+        ReplaceSource(replay);
+        ClearDamageData();
+
+        foreach (FightParticipant participant in detail.Participants)
+        {
+            if (participant.ClassName != "?" && participant.Name != "You")
+            {
+                _detectedClassByName[participant.Name] = participant.ClassName;
+            }
+        }
+
+        _aggregator.IngestEvents(detail.Events.Select(ev => ev with
+        {
+            SourceObjectId = idMap.GetValueOrDefault(ev.SourceObjectId, ev.SourceObjectId),
+            TargetObjectId = idMap.GetValueOrDefault(ev.TargetObjectId, ev.TargetObjectId),
+        }));
+
+        HistoryBanner.Text = string.Format(LocalizationManager.Instance["Main.HistoryBanner"], detail.Summary.TargetName, detail.Summary.StartedAt.ToString("g"));
+        HistoryBanner.Visibility = Visibility.Visible;
+        RefreshRows();
+        Activate();
+    }
+
+    private void OnHistoryBannerClicked(object sender, MouseButtonEventArgs e) => ExitHistoryMode();
+
+    private void ExitHistoryMode()
+    {
+        if (!_historyMode)
+        {
+            return;
+        }
+
+        _historyMode = false;
+        HistoryBanner.Visibility = Visibility.Collapsed;
+        ClearDamageData();
+        StartChatLogTailing(MeterSettings.Load());
+        RefreshRows();
     }
 
     /// <summary>Per the user: a Spiritmaster's summoned pets, from Aion 4.6's four base elemental
@@ -1122,6 +1279,9 @@ public partial class MainWindow : Window
     {
         _chatLogTimer.Stop();
         _updateTimer.Stop();
+        RecordFinishedFights(flushAll: true);
+        _fightStore?.Dispose();
+        _source?.Dispose();
         _overlay?.Dispose();
         base.OnClosed(e);
     }
@@ -2667,6 +2827,10 @@ public partial class MainWindow : Window
 
     private void ClearDamageData()
     {
+        // Whatever is still open is over now - file it before it is gone.
+        RecordFinishedFights(flushAll: true);
+        _fightRecorder?.Reset();
+
         _aggregator.Clear();
         _rows.Clear();
         _rowsByObjectId.Clear();
@@ -3007,7 +3171,9 @@ public partial class MainWindow : Window
         {
             settings.Save();
             ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
+            ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
             StartChatLogTailing(settings); // possibly a new/changed AionInstallFolder
+            InitializeFightHistory(settings); // possibly toggled recording
             RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
             ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
             RefreshRows();

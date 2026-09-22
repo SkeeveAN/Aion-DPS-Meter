@@ -45,6 +45,7 @@ public static class SelfCheck
         ok &= RunBuffCastScenario();
         ok &= SelfCheckAion2.Run();
         ok &= SelfCheckThemes.Run();
+        ok &= SelfCheckHistory.Run();
         return ok;
     }
 

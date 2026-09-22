@@ -507,6 +507,9 @@
                              overflowed the window at its default width once Char/Hide UI grew it,
                              literally pushing Settings off-screen and unreachable) - a synthetic
                              data loader is a dev/test aid, not something reached every session. -->
+                        <!-- Local, searchable history of finished fights (History/FightStore) - a
+                             fight can be loaded back into this grid; see EnterHistoryMode. -->
+                        <MenuItem Header="{local:Loc Main.MenuApp.FightHistory}" Click="OnFightHistoryClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuApp.LoadDemoData}" Click="OnLoadDemoDataClicked"
                                   ToolTip="Fills the grid with synthetic data (same numbers as the selftest), for visually checking the UI without playing."/>
                         <Separator/>
@@ -809,6 +812,13 @@
                              sits on top of a running fight, so a result never pops a modal dialog. -->
                         <TextBlock x:Name="UploadStatusText" Visibility="Collapsed" VerticalAlignment="Center"
                                    Margin="8,0,8,0" Foreground="{DynamicResource Brush.TextMuted}"/>
+
+                        <!-- Shown while a past fight from the history is loaded instead of the live
+                             session (see EnterHistoryMode); clicking it returns to live. -->
+                        <TextBlock x:Name="HistoryBanner" Visibility="Collapsed" VerticalAlignment="Center"
+                                   Margin="8,0,8,0" Foreground="{DynamicResource Brush.Warning}" FontWeight="Bold" Cursor="Hand"
+                                   MouseLeftButtonUp="OnHistoryBannerClicked"
+                                   ToolTip="A stored fight is shown. Click to return to the live session."/>
                     </StackPanel>
                 </StackPanel>
 

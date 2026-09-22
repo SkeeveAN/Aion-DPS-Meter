@@ -1,0 +1,96 @@
+<Window x:Class="AionDPS.Ui.FightHistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:AionDPS.Ui"
+        Title="{local:Loc History.Title}" Height="520" Width="760"
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
+        FontSize="{DynamicResource FontSize.Base}">
+    <Window.Resources>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Padding" Value="6,4"/>
+        </Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="{DynamicResource Brush.Window}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="RowBackground" Value="{DynamicResource Brush.RowAlt}"/>
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource Brush.Control}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource Brush.ControlRaised}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="Padding" Value="4,3"/>
+        </Style>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
+    </Window.Resources>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="170"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Search: target or participant name, substring, case-insensitive (see FightStore.Query). -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,6">
+            <TextBlock x:Name="CountText" DockPanel.Dock="Right" VerticalAlignment="Center" Margin="8,0,0,0"
+                       Foreground="{DynamicResource Brush.TextMuted}"/>
+            <TextBlock Text="{local:Loc History.Search}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <TextBox x:Name="SearchBox" TextChanged="OnSearchChanged"/>
+        </DockPanel>
+
+        <DataGrid x:Name="FightsGrid" Grid.Row="1" SelectionChanged="OnFightSelected" MouseDoubleClick="OnFightDoubleClick">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{local:Loc History.ColumnDate}" Binding="{Binding StartedAt, StringFormat=g}" Width="130"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnTarget}" Binding="{Binding TargetName}" Width="*"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnDuration}" Binding="{Binding DurationDisplay}" Width="70"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnDamage}" Binding="{Binding TotalDamage, StringFormat=N0}" Width="110"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnPlayers}" Binding="{Binding ParticipantCount}" Width="60"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnServer}" Binding="{Binding ServerName}" Width="120"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="2" Text="{local:Loc History.Participants}" Margin="0,8,0,4" FontWeight="Bold"/>
+
+        <DataGrid x:Name="ParticipantsGrid" Grid.Row="3">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{local:Loc Main.ColumnName}" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnClass}" Binding="{Binding ClassName}" Width="100"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage, StringFormat=N0}" Width="110"/>
+                <DataGridTextColumn Header="DPS" Binding="{Binding DpsDisplay}" Width="70"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnHealing}" Binding="{Binding Healing, StringFormat=N0}" Width="100"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnTaken}" Binding="{Binding DamageTaken, StringFormat=N0}" Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+            <TextBlock x:Name="HintText" Text="{local:Loc History.Hint}" VerticalAlignment="Center"
+                       Foreground="{DynamicResource Brush.TextMuted}" Margin="0,0,12,0"/>
+            <Button x:Name="LoadButton" Content="{local:Loc History.LoadIntoMeter}" Click="OnLoadClicked" IsEnabled="False"/>
+            <Button Content="{local:Loc Settings.Cancel}" Click="OnCloseClicked"/>
+        </StackPanel>
+    </Grid>
+</Window>
