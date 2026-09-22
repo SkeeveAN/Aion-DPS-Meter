@@ -105,6 +105,11 @@ function gameLabel(game) {
 
 function updateServerIndicator() {
   serverIndicator.replaceChildren();
+  // Aion 2 has official, same-standard servers whose groups span them: no server to pick, the
+  // rankings are combined and each player carries their server as a tag instead (see playerCell).
+  if (currentGame === "aion2") {
+    return;
+  }
   if (currentServerPicked) {
     serverIndicator.append(
       currentServerName || t("serverIndicator.number", { id: currentServerId }),
@@ -497,11 +502,14 @@ async function renderBosses(instanceSlug) {
 // rather than the three separate ones the old accordion-based rosterTable used. Used for a single
 // person (an encounter's own roster, or one solo attempt) - see groupPlayersCell below for the
 // boss leaderboard's group rows, which need to show every member, not just one.
-function playerCell(faction, className, name, href) {
+function playerCell(faction, className, name, href, serverName) {
+  // Aion 2 rankings mix servers (per the user: cross-server runs exist there), so the server rides
+  // along as a tag; classic Aion's pages are always scoped to one server and need none.
+  const tag = currentGame === "aion2" && serverName ? el("span", { className: "server-tag", textContent: serverName, title: serverName }) : null;
   return el(
     "span",
     { className: "icon-label" },
-    [factionIcon(faction), classIcon(className), href ? link(name, href) : name].filter((x) => x != null),
+    [factionIcon(faction), classIcon(className), href ? link(name, href) : name, tag].filter((x) => x != null),
   );
 }
 
@@ -512,7 +520,7 @@ function groupPlayersCell(roster, encounterId) {
   return el(
     "span",
     { className: "group-players" },
-    (roster ?? []).map((p) => playerCell(p.faction, p.className, p.playerName, gp(`/encounters/${encounterId}`))),
+    (roster ?? []).map((p) => playerCell(p.faction, p.className, p.playerName, gp(`/encounters/${encounterId}`), p.serverName)),
   );
 }
 
@@ -570,7 +578,7 @@ function rankedTable(rows, showBuffs = true) {
 // gear standards differ completely). Tabs are real links (?server=slug), so every server's
 // ranking has its own shareable address.
 function serverTabs(data, bossPath) {
-  if (data.servers.length === 0) {
+  if (data.servers.length === 0 || currentGame === "aion2") {
     return null;
   }
   return el("nav", { className: "server-tabs" }, [
@@ -598,7 +606,7 @@ async function renderLeaderboard(bossSlug, params) {
     query.set("server", params.get("server"));
   } else if (params.get("serverId")) {
     query.set("serverId", params.get("serverId"));
-  } else if (currentServerPicked && currentServerId !== null) {
+  } else if (currentGame !== "aion2" && currentServerPicked && currentServerId !== null) {
     query.set("serverId", currentServerId);
   }
   const data = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/leaderboard?${query}`);
@@ -641,7 +649,7 @@ async function renderLeaderboard(bossSlug, params) {
           const rows = data.topByClass[className].map((p, i) =>
             rankedRow(
               i + 1,
-              playerCell(p.faction, className, p.playerName, gp(`/encounters/${p.encounterId}`)),
+              playerCell(p.faction, className, p.playerName, gp(`/encounters/${p.encounterId}`), p.serverName),
               p.idps,
               p.totalDamage,
               p.totalHealing,
@@ -795,7 +803,7 @@ async function renderEncounter(encounterId) {
   const rosterRows = data.roster.map((p, i) =>
     rankedRow(
       i + 1,
-      playerCell(p.faction, p.className, p.playerName, gp(`/participants/${p.participantId}`)),
+      playerCell(p.faction, p.className, p.playerName, gp(`/participants/${p.participantId}`), p.serverName),
       p.idps,
       p.totalDamage,
       p.totalHealing,

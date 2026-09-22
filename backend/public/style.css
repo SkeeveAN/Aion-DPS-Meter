@@ -199,6 +199,17 @@ header h1 a {
   font-size: 12px;
 }
 
+/* Player's server on Aion 2 pages, where one ranking spans servers (see app.js playerCell). */
+.server-tag {
+  font-size: 10px;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 4px;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
 .derived-note {
   color: var(--text-dim);
   font-size: 12px;

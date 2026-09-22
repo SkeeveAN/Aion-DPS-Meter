@@ -138,35 +138,40 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
   const instanceName = found.instanceNameEn ?? found.instanceName;
   const label = GAME_LABEL[game];
   const serverList = serversWithEncounters(boss.id);
-  const selected = selectServer(serverList, query);
+  // Aion 2: one ranking across its official servers unless a server is asked for (see bosses.ts).
+  const combined = game === "aion2" && !query.server;
+  const selected = combined ? null : selectServer(serverList, query);
   const server = selected !== null && selected !== "invalid" ? serverList.find((s) => s.id === selected.id) ?? null : null;
+  const scope: number | null | undefined = combined ? (serverList.length > 0 ? null : undefined) : server?.id;
+  const scopeLabel = combined ? "all servers" : server?.name ?? "";
+  const tag = (p: { playerName: string; serverName: string | null }) => (combined && p.serverName ? `${p.playerName} [${p.serverName}]` : p.playerName);
   const basePath = `/${game}/bosses/${boss.slug}`;
   const canonicalPath = query.server && server?.slug === query.server ? `${basePath}?server=${server.slug}` : basePath;
 
   let table: Raw;
   let summary: string;
-  if (!server) {
+  if (scope === undefined) {
     table = html`<p class="empty">No fights uploaded for this boss yet.</p>`;
     summary = `${name} (${instanceName}, ${label}) – community DPS leaderboard. No fights uploaded yet.`;
   } else if (boss.isSolo) {
-    const byClass = topByClass(boss.id, server.id);
+    const byClass = topByClass(boss.id, scope);
     const classes = Object.keys(byClass).sort();
     table = html`<table><thead><tr><th>Class</th><th>Player</th><th>iDPS</th><th>Damage</th></tr></thead><tbody>
-      ${classes.map((c) => html`<tr><td>${c}</td><td>${byClass[c][0].playerName}</td><td>${formatInt(byClass[c][0].idps)}</td><td>${formatInt(byClass[c][0].totalDamage)}</td></tr>`)}
+      ${classes.map((c) => html`<tr><td>${c}</td><td>${tag(byClass[c][0])}</td><td>${formatInt(byClass[c][0].idps)}</td><td>${formatInt(byClass[c][0].totalDamage)}</td></tr>`)}
     </tbody></table>`;
-    summary = `Best solo iDPS per class against ${name} on ${server.name}: ${classes
+    summary = `Best solo iDPS per class against ${name} on ${scopeLabel}: ${classes
       .slice(0, 4)
       .map((c) => `${c} ${formatInt(byClass[c][0].idps)}`)
       .join(", ")}.`;
   } else {
-    const groups = topGroups(boss.id, server.id);
+    const groups = topGroups(boss.id, scope);
     table = html`<table class="ranked-table"><thead><tr><th>#</th><th>Group</th><th>iDPS</th><th>Damage</th><th>Healing</th></tr></thead><tbody>
-      ${groups.map((g, i) => html`<tr><td>${i + 1}</td><td>${g.roster.map((p) => p.playerName).join(", ")}</td><td>${formatInt(g.groupIDps)}</td><td>${formatInt(g.totalDamage)}</td><td>${formatInt(g.totalHealing)}</td></tr>`)}
+      ${groups.map((g, i) => html`<tr><td>${i + 1}</td><td>${g.roster.map(tag).join(", ")}</td><td>${formatInt(g.groupIDps)}</td><td>${formatInt(g.totalDamage)}</td><td>${formatInt(g.totalHealing)}</td></tr>`)}
     </tbody></table>`;
     const top = groups[0];
     summary = top
-      ? `Top ${groups.length} groups vs ${name} on ${server.name}: best ${formatInt(top.groupIDps)} iDPS by ${top.roster.map((p) => p.playerName).join(", ")}.`
-      : `${name} (${instanceName}) – community DPS leaderboard on ${server.name}.`;
+      ? `Top ${groups.length} groups vs ${name} on ${scopeLabel}: best ${formatInt(top.groupIDps)} iDPS by ${top.roster.map(tag).join(", ")}.`
+      : `${name} (${instanceName}) – community DPS leaderboard on ${scopeLabel}.`;
   }
 
   // Aion 2 bosses double as mechanics guides - the guide is the part worth ranking for while no
@@ -208,10 +213,10 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
     },
     body: html`
       <h2>${name}</h2>
-      <p>${instanceName} · ${label}${server ? html` · Leaderboard for <strong>${server.name}</strong>` : ""}</p>
+      <p>${instanceName} · ${label}${server ? html` · Leaderboard for <strong>${server.name}</strong>` : combined && scope === null ? html` · Leaderboard across all servers` : ""}</p>
       ${mechanicsBlock}
       ${mechanics.length > 0 ? html`<h3>Leaderboard</h3>` : ""}
-      ${serverList.length > 1 ? html`<p>Servers: ${serverList.map((s) => html`<a href="${basePath}?server=${s.slug ?? ""}">${s.name}</a> `)}</p>` : ""}
+      ${!combined && serverList.length > 1 ? html`<p>Servers: ${serverList.map((s) => html`<a href="${basePath}?server=${s.slug ?? ""}">${s.name}</a> `)}</p>` : ""}
       ${table}`,
   };
 }

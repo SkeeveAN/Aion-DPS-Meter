@@ -54,7 +54,7 @@ export function serversWithEncounters(bossId: number) {
     .all();
 }
 
-export function topGroups(bossId: number, serverId: number) {
+export function topGroups(bossId: number, serverId: number | null) {
   const groups = db
     .select({
       encounterId: encounters.id,
@@ -64,7 +64,7 @@ export function topGroups(bossId: number, serverId: number) {
       mergedUploadCount: encounters.mergedUploadCount,
     })
     .from(encounters)
-    .where(and(eq(encounters.bossId, bossId), eq(encounters.serverId, serverId)))
+    .where(serverId === null ? eq(encounters.bossId, bossId) : and(eq(encounters.bossId, bossId), eq(encounters.serverId, serverId)))
     .orderBy(desc(encounters.groupIDps))
     .limit(TOP_N)
     .all();
@@ -77,6 +77,7 @@ export function topGroups(bossId: number, serverId: number) {
       .select({
         participantId: encounterParticipants.id,
         playerName: players.name,
+        serverName: servers.displayName,
         className: encounterParticipants.className,
         faction: encounterParticipants.faction,
         totalDamage: encounterParticipants.totalDamage,
@@ -85,6 +86,7 @@ export function topGroups(bossId: number, serverId: number) {
       })
       .from(encounterParticipants)
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
+      .leftJoin(servers, eq(players.serverId, servers.id))
       .where(eq(encounterParticipants.encounterId, group.encounterId))
       .orderBy(desc(encounterParticipants.totalDamage))
       .all();
@@ -117,12 +119,13 @@ export function topGroups(bossId: number, serverId: number) {
 }
 
 /** "Top 10 per class" for a solo target - fetch once, group and cap in JS (a few thousand rows at most). */
-export function topByClass(bossId: number, serverId: number) {
+export function topByClass(bossId: number, serverId: number | null) {
   const allParticipants = db
     .select({
       participantId: encounterParticipants.id,
       encounterId: encounterParticipants.encounterId,
       playerName: players.name,
+      serverName: servers.displayName,
       className: encounterParticipants.className,
       faction: encounterParticipants.faction,
       idps: encounterParticipants.idps,
@@ -132,7 +135,8 @@ export function topByClass(bossId: number, serverId: number) {
     .from(encounterParticipants)
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
     .innerJoin(players, eq(encounterParticipants.playerId, players.id))
-    .where(and(eq(encounters.bossId, bossId), eq(encounters.serverId, serverId)))
+    .leftJoin(servers, eq(players.serverId, servers.id))
+    .where(serverId === null ? eq(encounters.bossId, bossId) : and(eq(encounters.bossId, bossId), eq(encounters.serverId, serverId)))
     .all();
 
   const byClass = new Map<string, typeof allParticipants>();
@@ -219,22 +223,28 @@ export async function bossRoutes(app: FastifyInstance) {
         hasMechanics: mechanicsFor(boss.id, boss.instanceId).mechanics.length > 0,
       };
       const serverList = serversWithEncounters(boss.id);
-      const selected = selectServer(serverList, request.query);
+      // Aion 2 runs official, same-standard servers and its groups can span them, so its
+      // ranking is one list across every server unless one is asked for explicitly. Classic
+      // Aion's private servers are never merged (see selectServer).
+      const explicitServer = request.query.serverId !== undefined || request.query.server !== undefined;
+      const combined = found.game === "aion2" && !explicitServer;
+      const selected = combined ? null : selectServer(serverList, request.query);
       if (selected === "invalid") {
         return reply.status(400).send({ error: "missing_or_invalid_server_id" });
       }
 
-      if (selected === null) {
-        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: null, topGroups: [], topByClass: {} });
+      if (selected === null && !combined) {
+        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: null, combined: false, topGroups: [], topByClass: {} });
       }
+      const scope = combined ? null : selected!.id;
 
       // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) rank
       // completely differently - one boss is never both, so only the query the page actually
       // needs runs. isSolo is manually curated (see README), same pattern as isTrashMob.
       if (boss.isSolo) {
-        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: selected.id, topGroups: [], topByClass: topByClass(boss.id, selected.id) });
+        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: [], topByClass: topByClass(boss.id, scope) });
       }
-      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: selected.id, topGroups: topGroups(boss.id, selected.id), topByClass: {} });
+      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: topGroups(boss.id, scope), topByClass: {} });
     },
   );
 

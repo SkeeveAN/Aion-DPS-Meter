@@ -1,7 +1,7 @@
 import { asc, desc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
-import { bosses, encounterParticipants, encounters, encounterSkillUsage, players, uploads } from "../db/schema.js";
+import { bosses, encounterParticipants, encounters, encounterSkillUsage, players, servers, uploads } from "../db/schema.js";
 import { resolveSkillIcon } from "../skills/skillIconResolver.js";
 import { topBuffsByParticipant } from "../skills/topBuffs.js";
 
@@ -50,6 +50,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         participantId: encounterParticipants.id,
         playerId: encounterParticipants.playerId,
         playerName: players.name,
+        serverName: servers.displayName,
         className: encounterParticipants.className,
         faction: encounterParticipants.faction,
         totalDamage: encounterParticipants.totalDamage,
@@ -62,6 +63,7 @@ export async function encounterRoutes(app: FastifyInstance) {
       })
       .from(encounterParticipants)
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
+      .leftJoin(servers, eq(players.serverId, servers.id))
       .where(eq(encounterParticipants.encounterId, encounterId))
       .orderBy(desc(encounterParticipants.totalDamage))
       .all();
@@ -88,6 +90,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         encounterId: encounterParticipants.encounterId,
         playerId: encounterParticipants.playerId,
         playerName: players.name,
+        serverName: servers.displayName,
         className: encounterParticipants.className,
         faction: encounterParticipants.faction,
         totalDamage: encounterParticipants.totalDamage,
