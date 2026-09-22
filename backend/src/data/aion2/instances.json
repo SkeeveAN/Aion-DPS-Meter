@@ -1,0 +1,395 @@
+{
+  "_meta": {
+    "source": "derived",
+    "sourceKind": "third-party-dataset",
+    "derivedAt": "2026-09-22",
+    "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync."
+  },
+  "items": [
+    {
+      "key": "Krao",
+      "slug": "krao-cave",
+      "name": {
+        "en": "Krao Cave",
+        "ko": "크라오 동굴",
+        "zh": "克拉奧洞窟"
+      },
+      "category": "expedition",
+      "sortOrder": 1
+    },
+    {
+      "key": "DDN",
+      "slug": "dying-dramatas-nest",
+      "name": {
+        "en": "Dying Dramata's Nest",
+        "ko": "죽은 드라마타의 둥지",
+        "zh": "死亡德拉瑪塔巢穴"
+      },
+      "category": "expedition",
+      "sortOrder": 7
+    },
+    {
+      "key": "FT",
+      "slug": "fire-temple",
+      "name": {
+        "en": "Fire Temple",
+        "ko": "불의 신전",
+        "zh": "火之神殿"
+      },
+      "category": "expedition",
+      "sortOrder": 3
+    },
+    {
+      "key": "Draupnir",
+      "slug": "draupnir",
+      "name": {
+        "en": "Draupnir",
+        "ko": "드라웁니르",
+        "zh": "德拉烏伯尼爾"
+      },
+      "category": "expedition",
+      "sortOrder": 4
+    },
+    {
+      "key": "Bakron",
+      "slug": "vakron-sky-island",
+      "name": {
+        "en": "Vakron Sky Island",
+        "ko": "바크론의 공중섬",
+        "zh": "巴克隆空中島"
+      },
+      "category": "expedition",
+      "sortOrder": 5
+    },
+    {
+      "key": "CradleNihility",
+      "slug": "cradle-of-nihility",
+      "name": {
+        "en": "Cradle of Nihility",
+        "ko": "허무의 요람",
+        "zh": "虛無搖籃"
+      },
+      "category": "expedition",
+      "sortOrder": 8
+    },
+    {
+      "key": "SunkenTemple",
+      "slug": "submerged-life-temple",
+      "name": {
+        "en": "Submerged Life Temple",
+        "ko": "가라앉은 생명의 신전",
+        "zh": "沉沒的生命神殿"
+      },
+      "category": "transcendence",
+      "sortOrder": 4
+    },
+    {
+      "key": "Arkanis",
+      "slug": "shattered-arkanis",
+      "name": {
+        "en": "Shattered Arkanis",
+        "ko": "조각난 아르카니스",
+        "zh": "破碎的雅爾卡尼斯"
+      },
+      "category": "transcendence",
+      "sortOrder": 5
+    },
+    {
+      "key": "DeusCenter",
+      "slug": "deus-research-base",
+      "name": {
+        "en": "Deus Research Base",
+        "ko": "데우스 연구기지",
+        "zh": "德烏斯研究基地"
+      },
+      "category": "transcendence",
+      "sortOrder": 6
+    },
+    {
+      "key": "ReforgedAbyss",
+      "slug": "abyssal-forge-ludra",
+      "name": {
+        "en": "Abyssal Forge: Ludra",
+        "ko": "심연의 재련 : 루드라",
+        "zh": "深淵重鑄：盧德萊"
+      },
+      "category": null,
+      "sortOrder": 109
+    },
+    {
+      "key": "DraconicCrisis",
+      "slug": "draconic-crisis-subjugation",
+      "name": {
+        "en": "Draconic Crisis (Subjugation)",
+        "ko": "토벌전 (드라코닉 크라이시스)",
+        "zh": "討伐戰 (龍族危機)"
+      },
+      "category": null,
+      "sortOrder": 110
+    },
+    {
+      "key": "Nightmare",
+      "slug": "nightmare",
+      "name": {
+        "en": "Nightmare",
+        "ko": "악몽",
+        "zh": "噩夢"
+      },
+      "category": null,
+      "sortOrder": 111
+    },
+    {
+      "key": "PhantomsHall",
+      "slug": "hall-of-illusion",
+      "name": {
+        "en": "Hall of Illusion",
+        "ko": "환영의 전당",
+        "zh": "幻影大殿"
+      },
+      "category": "expedition",
+      "sortOrder": 9
+    },
+    {
+      "key": "ErosionPurifier",
+      "slug": "corroded-decontamination-facility",
+      "name": {
+        "en": "Corroded Decontamination Facility",
+        "ko": "침식의 정화소",
+        "zh": "侵蝕淨化所"
+      },
+      "category": "sanctuary",
+      "sortOrder": 2
+    },
+    {
+      "key": "UC",
+      "slug": "urugugu-canyon",
+      "name": {
+        "en": "Urugugu Canyon",
+        "ko": "우루구구 협곡",
+        "zh": "烏努庫庫峽谷"
+      },
+      "category": "expedition",
+      "sortOrder": 2
+    },
+    {
+      "key": "MauCave",
+      "slug": "ferocious-horn-den",
+      "name": {
+        "en": "Ferocious Horn Den",
+        "ko": "사나운 뿔 암굴",
+        "zh": "凶猛的角岩窟"
+      },
+      "category": "expedition",
+      "sortOrder": 6
+    },
+    {
+      "key": "BlueBreathIsle",
+      "slug": "azure-breath-island",
+      "name": {
+        "en": "Azure Breath Island",
+        "ko": "푸른 숨의 섬",
+        "zh": "青息之島"
+      },
+      "category": "expedition",
+      "sortOrder": 10
+    },
+    {
+      "key": "MusphelHolyGrail",
+      "slug": "chalice-of-muspel",
+      "name": {
+        "en": "Chalice of Muspel",
+        "ko": "무스펠의 성배",
+        "zh": "穆斯費爾聖杯"
+      },
+      "category": "sanctuary",
+      "sortOrder": 3
+    },
+    {
+      "key": "MirrorHeart",
+      "slug": "mirror-of-scarlet-desire",
+      "name": {
+        "en": "Mirror of Scarlet Desire",
+        "ko": "붉은 연심의 거울",
+        "zh": "緋紅羈絆之鏡"
+      },
+      "category": "transcendence",
+      "sortOrder": 3
+    },
+    {
+      "key": "NightmareAltar",
+      "slug": "nightmare-altar",
+      "name": {
+        "en": "Nightmare Altar",
+        "ko": "악몽의 제단",
+        "zh": "惡夢祭壇"
+      },
+      "category": "awakening",
+      "sortOrder": 120
+    },
+    {
+      "key": "TyrantsHideout",
+      "slug": "tyrants-hideout",
+      "name": {
+        "en": "Tyrant's Hideout",
+        "ko": "폭군의 은신처",
+        "zh": "暴君藏身處"
+      },
+      "category": "awakening",
+      "sortOrder": 121
+    },
+    {
+      "key": "SanctumOfLoathing",
+      "slug": "sanctum-of-loathing",
+      "name": {
+        "en": "Sanctum of Loathing",
+        "ko": "증오의 성소",
+        "zh": "憎惡聖所"
+      },
+      "category": "awakening",
+      "sortOrder": 122
+    },
+    {
+      "key": "DepositoryOfFates",
+      "slug": "depository-of-fates",
+      "name": {
+        "en": "Depository of Fates",
+        "ko": "궤적 보관소",
+        "zh": "軌跡保管所"
+      },
+      "category": "awakening",
+      "sortOrder": 123
+    },
+    {
+      "key": "ForgottenRepository",
+      "slug": "forgotten-repository",
+      "name": {
+        "en": "Forgotten Repository",
+        "ko": "잊힌 저장소",
+        "zh": "被遺忘的儲藏所"
+      },
+      "category": "awakening",
+      "sortOrder": 124
+    },
+    {
+      "key": "ChamberOfTheDead",
+      "slug": "chamber-of-the-dead",
+      "name": {
+        "en": "Chamber of the Dead",
+        "ko": "죽은 자의 침실",
+        "zh": "死者寢室"
+      },
+      "category": "awakening",
+      "sortOrder": 125
+    },
+    {
+      "key": "DaevaCitadel",
+      "slug": "citadel-of-the-fallen-daeva",
+      "name": {
+        "en": "Citadel of the Fallen Daeva",
+        "ko": "타락한 데바의 성",
+        "zh": "墮落守護者之城"
+      },
+      "category": "expedition",
+      "sortOrder": 11
+    },
+    {
+      "key": "FafniteGully",
+      "slug": "abyssal-horn-den",
+      "name": {
+        "en": "Abyssal Horn Den",
+        "ko": "심연의 뿔 암굴",
+        "zh": "深淵角岩窟"
+      },
+      "category": "transcendence",
+      "sortOrder": 2
+    },
+    {
+      "key": "BlasphemyLab",
+      "slug": "consumed-deus-research-base",
+      "name": {
+        "en": "Consumed Deus Research Base",
+        "ko": "잠식된 데우스 연구기지",
+        "zh": "被蠶食的德烏斯研究基地"
+      },
+      "category": "expedition",
+      "sortOrder": 12
+    },
+    {
+      "key": "LegacyNoiran",
+      "slug": "noirans-hidden-legacy",
+      "name": {
+        "en": "Noiran's Hidden Legacy",
+        "ko": "노이란의 숨겨진 유산",
+        "zh": "諾伊蘭隱藏的遺產"
+      },
+      "category": "transcendence",
+      "sortOrder": 1
+    },
+    {
+      "key": "SealDark067",
+      "slug": "pure-spring",
+      "name": {
+        "en": "Pure Spring",
+        "ko": "순수의 샘",
+        "zh": "純粹之泉"
+      },
+      "category": "hideout",
+      "sortOrder": 130
+    },
+    {
+      "key": "SealDark069",
+      "slug": "cave-of-the-stranded",
+      "name": {
+        "en": "Cave of the Stranded",
+        "ko": "돌아가지 못한 자의 동굴",
+        "zh": "未歸之人洞穴"
+      },
+      "category": "hideout",
+      "sortOrder": 131
+    },
+    {
+      "key": "DefunctCreionLaboratory",
+      "slug": "defunct-creion-laboratory",
+      "name": {
+        "en": "Defunct Creion Laboratory",
+        "ko": "실패한 크레이온 실험실",
+        "zh": "失敗的克雷恩實驗室"
+      },
+      "category": "hideout",
+      "sortOrder": 132
+    },
+    {
+      "key": "FallenHaven",
+      "slug": "fallen-haven",
+      "name": {
+        "en": "Fallen Haven",
+        "ko": "스러진 안식처",
+        "zh": "消逝的安息處"
+      },
+      "category": "hideout",
+      "sortOrder": 133
+    },
+    {
+      "key": "FilthyCave",
+      "slug": "filthy-cave",
+      "name": {
+        "en": "Filthy Cave",
+        "ko": "지저분한 동굴",
+        "zh": "亂七八糟的洞穴"
+      },
+      "category": "hideout",
+      "sortOrder": 134
+    },
+    {
+      "key": "CaveOfTheExiledOnes",
+      "slug": "cave-of-the-exiled-ones",
+      "name": {
+        "en": "Cave of the Exiled Ones",
+        "ko": "쫓겨난 자들의 굴",
+        "zh": "被驅逐者巢穴"
+      },
+      "category": "hideout",
+      "sortOrder": 135
+    }
+  ]
+}

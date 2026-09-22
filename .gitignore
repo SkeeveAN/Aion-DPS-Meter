@@ -20,3 +20,6 @@ backend/.env
 backend/.env.*
 !backend/.env.example
 .claude/settings.local.json
+
+# Working notes from content derivation (third-party prose, never checked in)
+*.review.json

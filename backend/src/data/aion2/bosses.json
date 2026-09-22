@@ -1,0 +1,1797 @@
+{
+  "_meta": {
+    "source": "derived",
+    "sourceKind": "third-party-dataset",
+    "derivedAt": "2026-09-22",
+    "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync."
+  },
+  "items": [
+    {
+      "key": "Arkanis/ruthilis-of-pain",
+      "instanceKey": "Arkanis",
+      "slug": "ruthilis-of-pain",
+      "name": {
+        "en": "Ruthilis of Pain",
+        "ko": "고통의 루탈리스",
+        "zh": "痛苦路堤里斯"
+      },
+      "npcIds": [
+        2300708,
+        2330708,
+        2340708,
+        2350708,
+        2351708,
+        2352708,
+        2353708,
+        2354708,
+        2355708,
+        2356708,
+        2357708
+      ],
+      "level": 45,
+      "internalName": "M_PD_Arkanis_NagaElite_02_V01",
+      "hasMechanics": true
+    },
+    {
+      "key": "Arkanis/siliator-of-deceit",
+      "instanceKey": "Arkanis",
+      "slug": "siliator-of-deceit",
+      "name": {
+        "en": "Siliator of Deceit",
+        "ko": "거짓의 실리아토르",
+        "zh": "謊言席利亞多爾"
+      },
+      "npcIds": [
+        2300707,
+        2330707,
+        2340707,
+        2350707,
+        2351707,
+        2352707,
+        2353707,
+        2354707,
+        2355707,
+        2356707,
+        2357707
+      ],
+      "level": 45,
+      "internalName": "M_PD_Arkanis_NagaElite_01_V01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "Arkanis/talisra-of-the-void",
+      "instanceKey": "Arkanis",
+      "slug": "talisra-of-the-void",
+      "name": {
+        "en": "Talisra of the Void",
+        "ko": "공허의 탈리스라",
+        "zh": "空虛塔里斯拉"
+      },
+      "npcIds": [
+        2300709,
+        2330709,
+        2340709,
+        2350709,
+        2351709,
+        2352709,
+        2353709,
+        2354709,
+        2355709,
+        2356709,
+        2357709
+      ],
+      "level": 45,
+      "internalName": "M_PD_Arkanis_Thalythra_01",
+      "hasMechanics": true
+    },
+    {
+      "key": "Bakron/thamon",
+      "instanceKey": "Bakron",
+      "slug": "thamon",
+      "name": {
+        "en": "Thamon",
+        "ko": "타몬",
+        "zh": "塔蒙"
+      },
+      "npcIds": [
+        2300581,
+        2300811,
+        2310811,
+        2320811
+      ],
+      "level": 86,
+      "internalName": "M_PD_BakronIsland_T_01_Tamon_01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "Bakron/tiere",
+      "instanceKey": "Bakron",
+      "slug": "tiere",
+      "name": {
+        "en": "Tiere",
+        "ko": "티에",
+        "zh": "提耶"
+      },
+      "npcIds": [
+        2300580,
+        2300810,
+        2310810,
+        2320810
+      ],
+      "level": 86,
+      "internalName": "M_PD_BakronIsland_T_01_Tie_01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "Bakron/vakron",
+      "instanceKey": "Bakron",
+      "slug": "vakron",
+      "name": {
+        "en": "Vakron",
+        "ko": "바크론",
+        "zh": "巴克隆"
+      },
+      "npcIds": [
+        2300582,
+        2300812,
+        2310812,
+        2320812
+      ],
+      "level": 86,
+      "internalName": "M_PD_T_01_EleKing_01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "BlasphemyLab/lab-director-zylus",
+      "instanceKey": "BlasphemyLab",
+      "slug": "lab-director-zylus",
+      "name": {
+        "en": "Lab Director Zylus",
+        "ko": "연구소장 자일러스",
+        "zh": "研究所長札伊洛斯"
+      },
+      "npcIds": [
+        2300409,
+        2300555,
+        2301749
+      ],
+      "level": 84,
+      "internalName": "M_PD_BlasphemyLab_Lepharist_M_03_V01_001_Easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "BlasphemyLab/overseer-gromkas",
+      "instanceKey": "BlasphemyLab",
+      "slug": "overseer-gromkas",
+      "name": {
+        "en": "Overseer Gromkas",
+        "ko": "감독관 그롬카스",
+        "zh": "監督官格羅卡斯"
+      },
+      "npcIds": [
+        2300410,
+        2300556,
+        2301750
+      ],
+      "level": 84,
+      "internalName": "M_PD_BlasphemyLab_Gelcos_01_001_Easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "BlasphemyLab/prideful-atiel",
+      "instanceKey": "BlasphemyLab",
+      "slug": "prideful-atiel",
+      "name": {
+        "en": "Prideful Atiel",
+        "ko": "오만의 아티엘",
+        "zh": "傲慢亞提埃爾"
+      },
+      "npcIds": [
+        2300407,
+        2300481,
+        2301748
+      ],
+      "level": 84,
+      "internalName": "M_PD_BlasphemyLab_Atiel_01_Easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "BlueBreathIsle/awakened-alturadon",
+      "instanceKey": "BlueBreathIsle",
+      "slug": "awakened-alturadon",
+      "name": {
+        "en": "Awakened Alturadon",
+        "ko": "깨어난 알투라돈",
+        "zh": "甦醒的艾圖拉頓"
+      },
+      "npcIds": [
+        2300188,
+        2300200,
+        2300243
+      ],
+      "level": 78,
+      "internalName": "M_PD_BlueBreathIsle_Alturadon_01_001_easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "BlueBreathIsle/expanding-xyrepe",
+      "instanceKey": "BlueBreathIsle",
+      "slug": "expanding-xyrepe",
+      "name": {
+        "en": "Expanding Xyrepe",
+        "ko": "팽창하는 자이르페",
+        "zh": "膨脹的札伊爾佩"
+      },
+      "npcIds": [
+        2300190,
+        2300230,
+        2300245
+      ],
+      "level": 78,
+      "internalName": "M_PD_BlueBreathIsle_ToxFungus_01_V01_001_easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "BlueBreathIsle/wise-baumnute",
+      "instanceKey": "BlueBreathIsle",
+      "slug": "wise-baumnute",
+      "name": {
+        "en": "Wise Baumnute",
+        "ko": "현명한 바움누트",
+        "zh": "賢明的巴溫努特"
+      },
+      "npcIds": [
+        2300189,
+        2300219,
+        2300244
+      ],
+      "level": 78,
+      "internalName": "M_PD_BlueBreathIsle_Agrint_05_V01_001_easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "CaveOfTheExiledOnes/leader-korin",
+      "instanceKey": "CaveOfTheExiledOnes",
+      "slug": "leader-korin",
+      "name": {
+        "en": "Leader Korin",
+        "ko": "우두머리 코린",
+        "zh": "頭目柯林"
+      },
+      "npcIds": [
+        2702177
+      ],
+      "level": 45,
+      "internalName": "M_Seal_Dark_070_Boss_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "ChamberOfTheDead/eloen",
+      "instanceKey": "ChamberOfTheDead",
+      "slug": "eloen",
+      "name": {
+        "en": "Eloen",
+        "ko": "엘로엔",
+        "zh": "耶爾羅恩"
+      },
+      "npcIds": [
+        2702359,
+        2702462,
+        2702475,
+        2702488,
+        2702501,
+        2702611,
+        2702623
+      ],
+      "level": 45,
+      "internalName": "M_Dungeon_Awaken_006_01_Owlapri_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "CradleNihility/afflicted-bakarma",
+      "instanceKey": "CradleNihility",
+      "slug": "afflicted-bakarma-cradle-of-nihility",
+      "name": {
+        "en": "Afflicted Bakarma",
+        "ko": "고뇌하는 바카르마",
+        "zh": "苦惱的巴卡爾摩"
+      },
+      "npcIds": [
+        2301301,
+        2311301,
+        2321301
+      ],
+      "level": 70,
+      "internalName": "M_PD_CradleNihility_Bakarma_01_V01_001_easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "CradleNihility/multiverse-veltiras",
+      "instanceKey": "CradleNihility",
+      "slug": "multiverse-veltiras",
+      "name": {
+        "en": "Multiverse Veltiras",
+        "ko": "다차원의 벨티라스",
+        "zh": "多次元貝提拉斯"
+      },
+      "npcIds": [
+        2301302,
+        2311302,
+        2321302
+      ],
+      "level": 70,
+      "internalName": "M_PD_CradleNihility_Radvima_01_V03_001_easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "CradleNihility/solemn-valkan",
+      "instanceKey": "CradleNihility",
+      "slug": "solemn-valkan",
+      "name": {
+        "en": "Solemn Valkan",
+        "ko": "엄숙한 발칸",
+        "zh": "嚴肅的巴爾坎"
+      },
+      "npcIds": [
+        2301303,
+        2311303,
+        2321303
+      ],
+      "level": 70,
+      "internalName": "M_PD_CradleNihility_BeritraC_08_V01_001_easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "DaevaCitadel/basilus-the-false",
+      "instanceKey": "DaevaCitadel",
+      "slug": "basilus-the-false",
+      "name": {
+        "en": "Basilus the False",
+        "ko": "위악의 바실루스",
+        "zh": "偽惡巴席路斯"
+      },
+      "npcIds": [
+        2301603,
+        2301703,
+        2301723
+      ],
+      "level": 82,
+      "internalName": "M_PD_DaevaCitadel_MOB_Idris_01_V01_001_Easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "DaevaCitadel/forbidden-hexbeast-griosa",
+      "instanceKey": "DaevaCitadel",
+      "slug": "forbidden-hexbeast-griosa",
+      "name": {
+        "en": "Forbidden Hexbeast Griosa",
+        "ko": "금기의 마수 그리오사",
+        "zh": "禁忌魔手格里歐薩"
+      },
+      "npcIds": [
+        2301602,
+        2301702,
+        2301722
+      ],
+      "level": 82,
+      "internalName": "M_PD_DaevaCitadel_MOB_Griosa_01_001_Easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "DaevaCitadel/willful-turgen",
+      "instanceKey": "DaevaCitadel",
+      "slug": "willful-turgen",
+      "name": {
+        "en": "Willful Turgen",
+        "ko": "의지의 투르겐",
+        "zh": "意志圖勒根"
+      },
+      "npcIds": [
+        2301601,
+        2301701,
+        2301721
+      ],
+      "level": 82,
+      "internalName": "M_PD_DaevaCitadel_MOB_DaevaWar_05_V01_001_Easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "DDN/broodkeeper-nayatman",
+      "instanceKey": "DDN",
+      "slug": "broodkeeper-nayatman",
+      "name": {
+        "en": "Broodkeeper Nayatman",
+        "ko": "부화의 나야트만",
+        "zh": "孵化那亞特曼"
+      },
+      "npcIds": [
+        2300154,
+        2300508,
+        2310508,
+        2320508,
+        2321508,
+        2322508,
+        2323508,
+        2324508,
+        2325508,
+        2326508,
+        2327508,
+        2328508,
+        2329508
+      ],
+      "level": 74,
+      "internalName": "M_PD_DDN_Hard_BeritraD_01_V01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "DDN/decaying-durvati",
+      "instanceKey": "DDN",
+      "slug": "decaying-durvati",
+      "name": {
+        "en": "Decaying Durvati",
+        "ko": "부패한 두르바티",
+        "zh": "腐敗的杜勒巴提"
+      },
+      "npcIds": [
+        2300155,
+        2300509,
+        2310509,
+        2320509,
+        2321509,
+        2322509,
+        2323509,
+        2324509,
+        2325509,
+        2326509,
+        2327509,
+        2328509,
+        2329509
+      ],
+      "level": 74,
+      "internalName": "M_PD_DDN_Hard_Durbati_01",
+      "hasMechanics": true
+    },
+    {
+      "key": "DDN/decaying-durvati-specimen",
+      "instanceKey": "DDN",
+      "slug": "decaying-durvati-specimen",
+      "name": {
+        "en": "Decaying Durvati (Specimen)",
+        "ko": "부패한 두르바티 (표본)",
+        "zh": "腐敗的杜勒巴提(樣本)"
+      },
+      "npcIds": [
+        2300502,
+        2300515,
+        2300517,
+        2310502,
+        2310515,
+        2310517,
+        2320502,
+        2320515,
+        2320517,
+        2321502,
+        2321515,
+        2321517,
+        2322502,
+        2322515,
+        2322517,
+        2323502,
+        2323515,
+        2323517,
+        2324502,
+        2324515,
+        2324517,
+        2325502,
+        2325515,
+        2325517,
+        2326502,
+        2326515,
+        2326517,
+        2327502,
+        2327515,
+        2327517,
+        2328502,
+        2328515,
+        2328517,
+        2329502,
+        2329515,
+        2329517
+      ],
+      "level": 65,
+      "internalName": "M_PD_DDN_Easy_Durbati_01_006_1",
+      "hasMechanics": false
+    },
+    {
+      "key": "DDN/durvatis-poison-fluid",
+      "instanceKey": "DDN",
+      "slug": "durvatis-poison-fluid",
+      "name": {
+        "en": "Durvati's Poison Fluid",
+        "ko": "두르바티의 독액",
+        "zh": "杜勒巴提毒液"
+      },
+      "npcIds": [
+        2300162,
+        2300519,
+        2310519
+      ],
+      "level": 74,
+      "internalName": "M_PD_DDN_Hard_Invisible_Dramata_Event_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "DDN/manager-nasium",
+      "instanceKey": "DDN",
+      "slug": "manager-nasium",
+      "name": {
+        "en": "Manager Nasium",
+        "ko": "관리자 나지움",
+        "zh": "管理者納吉溫"
+      },
+      "npcIds": [
+        2300153,
+        2300507,
+        2310507,
+        2320507,
+        2321507,
+        2322507,
+        2323507,
+        2324507,
+        2325507,
+        2326507,
+        2327507,
+        2328507,
+        2329507
+      ],
+      "level": 74,
+      "internalName": "M_PD_DDN_Hard_BeritraA_01_V01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "DefunctCreionLaboratory/mutated-malgerre",
+      "instanceKey": "DefunctCreionLaboratory",
+      "slug": "mutated-malgerre",
+      "name": {
+        "en": "Mutated Malgerre",
+        "ko": "변이된 말게르",
+        "zh": "變異的麥杰爾"
+      },
+      "npcIds": [
+        2702564
+      ],
+      "level": 45,
+      "internalName": "M_Seal_Light_068_Boss_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "DepositoryOfFates/claudia",
+      "instanceKey": "DepositoryOfFates",
+      "slug": "claudia",
+      "name": {
+        "en": "Claudia",
+        "ko": "클라우디아",
+        "zh": "克勞蒂亞"
+      },
+      "npcIds": [
+        2701892,
+        2701913,
+        2701930,
+        2701947,
+        2702298,
+        2702309
+      ],
+      "level": 45,
+      "internalName": "M_Dungeon_Awaken_004_01_DarkLeda_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "DeusCenter/atiel",
+      "instanceKey": "DeusCenter",
+      "slug": "atiel",
+      "name": {
+        "en": "Atiel",
+        "ko": "아티엘",
+        "zh": "亞提埃爾"
+      },
+      "npcIds": [
+        2300601,
+        2310601,
+        2320601,
+        2330601,
+        2340601,
+        2341601,
+        2342601,
+        2343601,
+        2344601,
+        2345601,
+        2346601,
+        2347601
+      ],
+      "level": 45,
+      "internalName": "M_PD_DeusCenter_Atiel_01_001_easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "DeusCenter/gelcos",
+      "instanceKey": "DeusCenter",
+      "slug": "gelcos",
+      "name": {
+        "en": "Gelcos",
+        "ko": "겔코스",
+        "zh": "格爾闊斯"
+      },
+      "npcIds": [
+        2300616,
+        2310616,
+        2320616,
+        2330616,
+        2340616,
+        2341616,
+        2342616,
+        2343616,
+        2344616,
+        2345616,
+        2346616,
+        2347616
+      ],
+      "level": 45,
+      "internalName": "M_PD_DeusCenter_Gelcos_01_easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "DeusCenter/nazmun",
+      "instanceKey": "DeusCenter",
+      "slug": "nazmun",
+      "name": {
+        "en": "Nazmun",
+        "ko": "나즈문",
+        "zh": "納茲文"
+      },
+      "npcIds": [
+        2300615,
+        2310615,
+        2320615,
+        2330615,
+        2340615,
+        2341615,
+        2342615,
+        2343615,
+        2344615,
+        2345615,
+        2346615,
+        2347615
+      ],
+      "level": 45,
+      "internalName": "M_PD_DeusCenter_Nazmun_01_easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "Draupnir/afflicted-bakarma",
+      "instanceKey": "Draupnir",
+      "slug": "afflicted-bakarma-draupnir",
+      "name": {
+        "en": "Afflicted Bakarma",
+        "ko": "고뇌하는 바카르마",
+        "zh": "苦惱的巴卡爾摩"
+      },
+      "npcIds": [
+        2300470,
+        2300471,
+        2310470,
+        2310471,
+        2320470,
+        2320471,
+        2330423,
+        2330424
+      ],
+      "level": 45,
+      "internalName": "M_PD_Draupnir_Bakarma_01",
+      "hasMechanics": true
+    },
+    {
+      "key": "Draupnir/phantasmal-lakshmi",
+      "instanceKey": "Draupnir",
+      "slug": "phantasmal-lakshmi",
+      "name": {
+        "en": "Phantasmal Lakshmi",
+        "ko": "몽환의 라크슈미",
+        "zh": "夢幻拉克修米"
+      },
+      "npcIds": [
+        2300401,
+        2310401,
+        2320401,
+        2330401
+      ],
+      "level": 45,
+      "internalName": "M_PD_Draupnir_NagaElite_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "Draupnir/predator-saraswati",
+      "instanceKey": "Draupnir",
+      "slug": "predator-saraswati",
+      "name": {
+        "en": "Predator Saraswati",
+        "ko": "포식자 사라스와티",
+        "zh": "捕食者薩拉斯瓦提"
+      },
+      "npcIds": [
+        2300403,
+        2310403,
+        2320403,
+        2330403
+      ],
+      "level": 45,
+      "internalName": "M_PD_Draupnir_NagaElite_02",
+      "hasMechanics": false
+    },
+    {
+      "key": "Draupnir/transcendent-bakarma",
+      "instanceKey": "Draupnir",
+      "slug": "transcendent-bakarma",
+      "name": {
+        "en": "Transcendent Bakarma",
+        "ko": "초월한 바카르마",
+        "zh": "超越的巴卡爾摩"
+      },
+      "npcIds": [
+        2300471,
+        2310471,
+        2320471,
+        2330424
+      ],
+      "level": 45,
+      "internalName": "M_PD_Draupnir_Bakarma_02",
+      "hasMechanics": false
+    },
+    {
+      "key": "ErosionPurifier/black-blood-blatt",
+      "instanceKey": "ErosionPurifier",
+      "slug": "black-blood-blatt",
+      "name": {
+        "en": "Black Blood Blatt",
+        "ko": "검은 피 블라트",
+        "zh": "黑血布拉特"
+      },
+      "npcIds": [
+        2301207
+      ],
+      "level": 80,
+      "internalName": "M_PD_ErosionPurifier_FafBlood_02_V02_001_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ErosionPurifier/devouring-klawfly",
+      "instanceKey": "ErosionPurifier",
+      "slug": "devouring-klawfly",
+      "name": {
+        "en": "Devouring Klawfly",
+        "ko": "포식하는 뉴트라",
+        "zh": "捕食的紐特拉"
+      },
+      "npcIds": [
+        2301209
+      ],
+      "level": 80,
+      "internalName": "M_PD_ErosionPurifier_Neuth_03_V01_001_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ErosionPurifier/surveillance-device",
+      "instanceKey": "ErosionPurifier",
+      "slug": "surveillance-device",
+      "name": {
+        "en": "Surveillance Device",
+        "ko": "감시 장치",
+        "zh": "監視裝置"
+      },
+      "npcIds": [
+        2301216
+      ],
+      "level": 80,
+      "internalName": "M_PD_ErosionPurifier_DracoTurret_L_01_V01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ErosionPurifier/terminator-bargott",
+      "instanceKey": "ErosionPurifier",
+      "slug": "terminator-bargott",
+      "name": {
+        "en": "Terminator Bargott",
+        "ko": "중합체 바고트",
+        "zh": "聚合物巴考特"
+      },
+      "npcIds": [
+        2301208
+      ],
+      "level": 80,
+      "internalName": "M_PD_ErosionPurifier_Bargot_01_V02_001_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "FafniteGully/dhakan",
+      "instanceKey": "FafniteGully",
+      "slug": "dhakan",
+      "name": {
+        "en": "Dhakan",
+        "ko": "다칸",
+        "zh": "達坎"
+      },
+      "npcIds": [
+        2300474,
+        2300492,
+        2300528,
+        2300545
+      ],
+      "level": 80,
+      "internalName": "M_PD_AbyssalHornCave_G_01_Lycan_04_V01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "FafniteGully/gargaum",
+      "instanceKey": "FafniteGully",
+      "slug": "gargaum",
+      "name": {
+        "en": "Gargaum",
+        "ko": "가르가움",
+        "zh": "加爾加姆"
+      },
+      "npcIds": [
+        2300475,
+        2300493,
+        2300529,
+        2300546
+      ],
+      "level": 80,
+      "internalName": "M_PD_AbyssalHornCave_G_01_Ferk_01_V02_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "FafniteGully/kapu",
+      "instanceKey": "FafniteGully",
+      "slug": "kapu",
+      "name": {
+        "en": "Kapu",
+        "ko": "카푸",
+        "zh": "卡普"
+      },
+      "npcIds": [
+        2300473,
+        2300491,
+        2300527,
+        2300544
+      ],
+      "level": 80,
+      "internalName": "M_PD_AbyssalHornCave_G_01_KalnifElite_01_V02_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "FallenHaven/revenant-tifus",
+      "instanceKey": "FallenHaven",
+      "slug": "revenant-tifus",
+      "name": {
+        "en": "Revenant Tifus",
+        "ko": "원혼 티푸스",
+        "zh": "冤魂提普斯"
+      },
+      "npcIds": [
+        2702241
+      ],
+      "level": 45,
+      "internalName": "M_Seal_Light_069_GraveUn_02_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "FilthyCave/filthy-grollack",
+      "instanceKey": "FilthyCave",
+      "slug": "filthy-grollack",
+      "name": {
+        "en": "Filthy Grollack",
+        "ko": "지저분한 그롤라크",
+        "zh": "亂七八糟的格婁拉克"
+      },
+      "npcIds": [
+        2702326
+      ],
+      "level": 45,
+      "internalName": "M_Seal_Light_067_Boss_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "ForgottenRepository/karlix",
+      "instanceKey": "ForgottenRepository",
+      "slug": "karlix",
+      "name": {
+        "en": "Karlix",
+        "ko": "칼릭스",
+        "zh": "卡爾利斯"
+      },
+      "npcIds": [
+        2702461,
+        2702648,
+        2702659,
+        2702670,
+        2702681,
+        2702692,
+        2702703
+      ],
+      "level": 45,
+      "internalName": "M_Dungeon_Awaken_005_01_Nua_01_V01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "FT/black-smoke-murute",
+      "instanceKey": "FT",
+      "slug": "black-smoke-murute",
+      "name": {
+        "en": "Black Smoke Murute",
+        "ko": "검은연기 무르트",
+        "zh": "黑煙穆勒特"
+      },
+      "npcIds": [
+        2300312,
+        2310312,
+        2320312,
+        2330312
+      ],
+      "level": 63,
+      "internalName": "M_PD_Fire_Temple_AshGuard_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "FT/kromedes-desire",
+      "instanceKey": "FT",
+      "slug": "kromedes-desire",
+      "name": {
+        "en": "Kromede's Desire",
+        "ko": "크로메데의 욕망",
+        "zh": "克羅梅德欲望"
+      },
+      "npcIds": [
+        2300371,
+        2310371,
+        2320371,
+        2330371
+      ],
+      "level": 63,
+      "internalName": "M_PD_Fire_Temple_Cromede_01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "FT/red-spark-ignus",
+      "instanceKey": "FT",
+      "slug": "red-spark-ignus",
+      "name": {
+        "en": "Red Spark Ignus",
+        "ko": "붉은불꽃 이그누스",
+        "zh": "紅火花伊格努斯"
+      },
+      "npcIds": [
+        2300311,
+        2310311,
+        2320311,
+        2330311
+      ],
+      "level": 63,
+      "internalName": "M_PD_Fire_Temple_FireGuard_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "FT/silver-blade-rotan",
+      "instanceKey": "FT",
+      "slug": "silver-blade-rotan",
+      "name": {
+        "en": "Silver Blade Rotan",
+        "ko": "은빛칼날 로탄",
+        "zh": "銀刃羅坦"
+      },
+      "npcIds": [
+        2300310,
+        2310310,
+        2320310,
+        2330310
+      ],
+      "level": 63,
+      "internalName": "M_PD_Fire_Temple_Rotan_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "Krao/enhanced-harcon",
+      "instanceKey": "Krao",
+      "slug": "enhanced-harcon",
+      "name": {
+        "en": "Enhanced Harcon",
+        "ko": "강화된 하르콘",
+        "zh": "強化的哈爾坤"
+      },
+      "npcIds": [
+        2300104,
+        2310104,
+        2320104,
+        2330104
+      ],
+      "level": 45,
+      "internalName": "M_PD_Krao_KraoElite_03",
+      "hasMechanics": false
+    },
+    {
+      "key": "Krao/neglected-gadioton",
+      "instanceKey": "Krao",
+      "slug": "neglected-gadioton",
+      "name": {
+        "en": "Neglected Gadioton",
+        "ko": "방치된 가디오톤",
+        "zh": "棄置的加迪爾頓"
+      },
+      "npcIds": [
+        2300108,
+        2310108,
+        2320108,
+        2330108
+      ],
+      "level": 45,
+      "internalName": "M_PD_Krao_KraoElite_03_V01",
+      "hasMechanics": false
+    },
+    {
+      "key": "Krao/ultimate-berk",
+      "instanceKey": "Krao",
+      "slug": "ultimate-berk",
+      "name": {
+        "en": "Ultimate Berk",
+        "ko": "완성체 베르크",
+        "zh": "完成體貝爾克"
+      },
+      "npcIds": [
+        2300171,
+        2300172,
+        2300173,
+        2300174,
+        2300178,
+        2310171,
+        2310172,
+        2310173,
+        2310174,
+        2310178,
+        2320171,
+        2320172,
+        2320173,
+        2320174,
+        2320178,
+        2330171
+      ],
+      "level": 45,
+      "internalName": "M_PD_Krao_Berc_P1_Type01",
+      "hasMechanics": true
+    },
+    {
+      "key": "LegacyNoiran/askran",
+      "instanceKey": "LegacyNoiran",
+      "slug": "askran",
+      "name": {
+        "en": "Askran",
+        "ko": "아스크란",
+        "zh": "阿斯克藍"
+      },
+      "npcIds": [
+        2300436,
+        2300439,
+        2300442,
+        2300445
+      ],
+      "level": 82,
+      "internalName": "M_PD_LegacyNoiran_Askran_01_001_Grade1",
+      "hasMechanics": true
+    },
+    {
+      "key": "LegacyNoiran/incomplete-braunt",
+      "instanceKey": "LegacyNoiran",
+      "slug": "incomplete-braunt",
+      "name": {
+        "en": "Incomplete Braunt",
+        "ko": "불완전한 브라운트",
+        "zh": "不完整的布勞恩特"
+      },
+      "npcIds": [
+        2300437,
+        2300440,
+        2300443,
+        2300446
+      ],
+      "level": 82,
+      "internalName": "M_PD_LegacyNoiran_Vraunt_01_001_Grade1",
+      "hasMechanics": true
+    },
+    {
+      "key": "LegacyNoiran/mad-klominster",
+      "instanceKey": "LegacyNoiran",
+      "slug": "mad-klominster",
+      "name": {
+        "en": "Mad Klominster",
+        "ko": "광기의 클로민스터",
+        "zh": "狂氣克羅明斯特"
+      },
+      "npcIds": [
+        2300438,
+        2300441,
+        2300444,
+        2300447
+      ],
+      "level": 82,
+      "internalName": "M_PD_LegacyNoiran_Clominster_01_001_Grade1",
+      "hasMechanics": true
+    },
+    {
+      "key": "MauCave/ferocious-horn-nuakum",
+      "instanceKey": "MauCave",
+      "slug": "ferocious-horn-nuakum",
+      "name": {
+        "en": "Ferocious Horn Nuakum",
+        "ko": "사나운 뿔 누아쿰",
+        "zh": "凶猛的角努亞庫"
+      },
+      "npcIds": [
+        2300910,
+        2310910,
+        2320910
+      ],
+      "level": 63,
+      "internalName": "M_PD_FierceHornCave_Ferk_01_V01",
+      "hasMechanics": true
+    },
+    {
+      "key": "MauCave/necromancer-duanka",
+      "instanceKey": "MauCave",
+      "slug": "necromancer-duanka",
+      "name": {
+        "en": "Necromancer Duanka",
+        "ko": "강령술사 두안카",
+        "zh": "降靈術士杜安卡"
+      },
+      "npcIds": [
+        2300909,
+        2310909,
+        2320909
+      ],
+      "level": 63,
+      "internalName": "M_PD_FierceHornCave_Lycan_04_V01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "MauCave/shining-mau-totem",
+      "instanceKey": "MauCave",
+      "slug": "shining-mau-totem",
+      "name": {
+        "en": "Shining Mau Totem",
+        "ko": "빛나는 라이칸 토템",
+        "zh": "閃耀的萊卡恩圖騰"
+      },
+      "npcIds": [
+        2300907,
+        2310907,
+        2320907
+      ],
+      "level": 63,
+      "internalName": "M_PD_FierceHornCave_LycanTotem_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "MauCave/watchdog-kwapo",
+      "instanceKey": "MauCave",
+      "slug": "watchdog-kwapo",
+      "name": {
+        "en": "Watchdog Kwapo",
+        "ko": "번견 쿠하푸",
+        "zh": "護衛犬庫哈普"
+      },
+      "npcIds": [
+        2300908,
+        2310908,
+        2320908
+      ],
+      "level": 63,
+      "internalName": "M_PD_FierceHornCave_KalnifElite_01_V02_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "MirrorHeart/kromedes-desolation",
+      "instanceKey": "MirrorHeart",
+      "slug": "kromedes-desolation",
+      "name": {
+        "en": "Kromede's Desolation",
+        "ko": "크로메데의 심연",
+        "zh": "克羅梅德深淵"
+      },
+      "npcIds": [
+        2300261,
+        2300317,
+        2300336,
+        2300355
+      ],
+      "level": 78,
+      "internalName": "M_PD_MirrorHeart_G_01_Cromede_01_V02_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "MirrorHeart/ordeal-of-love",
+      "instanceKey": "MirrorHeart",
+      "slug": "ordeal-of-love",
+      "name": {
+        "en": "Ordeal of Love",
+        "ko": "사랑의 시련",
+        "zh": "愛的試煉"
+      },
+      "npcIds": [
+        2300258,
+        2300276,
+        2300333,
+        2300352,
+        2300397,
+        2300398,
+        2300399,
+        2300400
+      ],
+      "level": 78,
+      "internalName": "M_PD_MirrorHeart_G_01_TrialWall_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "MirrorHeart/robstino",
+      "instanceKey": "MirrorHeart",
+      "slug": "robstino",
+      "name": {
+        "en": "Robstino",
+        "ko": "롭스티노",
+        "zh": "羅普斯提諾"
+      },
+      "npcIds": [
+        2300260,
+        2300300,
+        2300335,
+        2300354
+      ],
+      "level": 78,
+      "internalName": "M_PD_MirrorHeart_G_01_EvSpirit_02_V01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "MirrorHeart/rotar",
+      "instanceKey": "MirrorHeart",
+      "slug": "rotar",
+      "name": {
+        "en": "Rotar",
+        "ko": "로타르",
+        "zh": "羅塔爾"
+      },
+      "npcIds": [
+        2300259,
+        2300299,
+        2300334,
+        2300353
+      ],
+      "level": 78,
+      "internalName": "M_PD_MirrorHeart_G_01_WraPrst_01_V01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "MusphelHolyGrail/blazing-guardian-sword",
+      "instanceKey": "MusphelHolyGrail",
+      "slug": "blazing-guardian-sword",
+      "name": {
+        "en": "Blazing Guardian Sword",
+        "ko": "염화의 수호검",
+        "zh": "炎火守護劍"
+      },
+      "npcIds": [
+        2301055,
+        2301067,
+        2301085,
+        2301097
+      ],
+      "level": 85,
+      "internalName": "M_PD_MusphelHolyGrail_Mus_StatueA_02_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "MusphelHolyGrail/iscariel",
+      "instanceKey": "MusphelHolyGrail",
+      "slug": "iscariel",
+      "name": {
+        "en": "Iscariel",
+        "ko": "이스카리엘",
+        "zh": "伊斯卡利爾"
+      },
+      "npcIds": [
+        2301059,
+        2301089
+      ],
+      "level": 85,
+      "internalName": "M_PD_MusphelHolyGrail_AltKnife_07_V01_01",
+      "hasMechanics": true
+    },
+    {
+      "key": "MusphelHolyGrail/kaldrix",
+      "instanceKey": "MusphelHolyGrail",
+      "slug": "kaldrix",
+      "name": {
+        "en": "Kaldrix",
+        "ko": "칼드릭스",
+        "zh": "凱德利斯"
+      },
+      "npcIds": [
+        2301060,
+        2301061,
+        2301090,
+        2301091
+      ],
+      "level": 85,
+      "internalName": "M_PD_MusphelHolyGrail_Ramu_01_V01_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "NightmareAltar/divided-aponos",
+      "instanceKey": "NightmareAltar",
+      "slug": "divided-aponos",
+      "name": {
+        "en": "Divided Aponos",
+        "ko": "분열체 아포노스",
+        "zh": "分裂體阿布諾斯"
+      },
+      "npcIds": [
+        2701753,
+        2701789,
+        2701807,
+        2701866,
+        2702396,
+        2702409
+      ],
+      "level": 45,
+      "internalName": "M_Dungeon_Awaken_001_01_DebrisGuardian_05_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "PhantomsHall/glassvein",
+      "instanceKey": "PhantomsHall",
+      "slug": "glassvein",
+      "name": {
+        "en": "Glassvein",
+        "ko": "글래스베인",
+        "zh": "格蕾絲貝因"
+      },
+      "npcIds": [
+        2301401,
+        2311401,
+        2321401
+      ],
+      "level": 74,
+      "internalName": "M_PD_PhantomsHall_Protect_01_V01_001_Easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "PhantomsHall/nathara",
+      "instanceKey": "PhantomsHall",
+      "slug": "nathara",
+      "name": {
+        "en": "Nathara",
+        "ko": "나트하라",
+        "zh": "納特哈拉"
+      },
+      "npcIds": [
+        2301403,
+        2311403,
+        2321403
+      ],
+      "level": 74,
+      "internalName": "M_PD_PhantomsHall__DarkLeda_02_V01_001_Easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "PhantomsHall/nazarak",
+      "instanceKey": "PhantomsHall",
+      "slug": "nazarak",
+      "name": {
+        "en": "Nazarak",
+        "ko": "나사라크",
+        "zh": "那薩拉克"
+      },
+      "npcIds": [
+        2301402,
+        2311402,
+        2321402
+      ],
+      "level": 74,
+      "internalName": "M_PD_PhantomsHall_Hiladr_01_V01_001_Easy",
+      "hasMechanics": true
+    },
+    {
+      "key": "ReforgedAbyss/abyssal-wings-ketu",
+      "instanceKey": "ReforgedAbyss",
+      "slug": "abyssal-wings-ketu",
+      "name": {
+        "en": "Abyssal Wings Ketu",
+        "ko": "심연의 날개 케투",
+        "zh": "深淵翅膀凱圖"
+      },
+      "npcIds": [
+        2301007
+      ],
+      "level": 76,
+      "internalName": "M_PD_ReforgedAbyss_Kashapa_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ReforgedAbyss/central-abyss-fusion-reactor",
+      "instanceKey": "ReforgedAbyss",
+      "slug": "central-abyss-fusion-reactor",
+      "name": {
+        "en": "Central Abyss Fusion Reactor",
+        "ko": "중앙 심연 융합로",
+        "zh": "中央深淵融合爐"
+      },
+      "npcIds": [
+        2301008
+      ],
+      "level": 76,
+      "internalName": "M_PD_ReforgedAbyss_OrcusGem_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ReforgedAbyss/eternal-ludra",
+      "instanceKey": "ReforgedAbyss",
+      "slug": "eternal-ludra",
+      "name": {
+        "en": "Eternal Ludra",
+        "ko": "영겁의 루드라",
+        "zh": "永劫盧德萊"
+      },
+      "npcIds": [
+        2301014
+      ],
+      "level": 76,
+      "internalName": "M_PD_ReforgedAbyss_Durbati_01_V01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "ReforgedAbyss/isolation-specialist-rahu",
+      "instanceKey": "ReforgedAbyss",
+      "slug": "isolation-specialist-rahu",
+      "name": {
+        "en": "Isolation Specialist Rahu",
+        "ko": "이격의 라후",
+        "zh": "隔絕者拉胡"
+      },
+      "npcIds": [
+        2301006
+      ],
+      "level": 76,
+      "internalName": "M_PD_ReforgedAbyss_Lagta_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "SanctumOfLoathing/featherstorm-duduri",
+      "instanceKey": "SanctumOfLoathing",
+      "slug": "featherstorm-duduri",
+      "name": {
+        "en": "Featherstorm Duduri",
+        "ko": "깃털포화 두두리",
+        "zh": "羽毛砲火杜杜里"
+      },
+      "npcIds": [
+        2701774,
+        2701829,
+        2701841,
+        2701853,
+        2702372,
+        2702384
+      ],
+      "level": 60,
+      "internalName": "M_Dungeon_Awaken_003_04_Duduri_01_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "SanctumOfLoathing/watchful-raptor-dodori",
+      "instanceKey": "SanctumOfLoathing",
+      "slug": "watchful-raptor-dodori",
+      "name": {
+        "en": "Watchful Raptor Dodori",
+        "ko": "눈 뜬 맹조 도도리",
+        "zh": "覺醒的猛禽多多里"
+      },
+      "npcIds": [
+        2701788,
+        2701830,
+        2701842,
+        2701854,
+        2702373,
+        2702385
+      ],
+      "level": 60,
+      "internalName": "M_Dungeon_Awaken_003_04_Duduri_01_02",
+      "hasMechanics": false
+    },
+    {
+      "key": "SealDark067/arbellun",
+      "instanceKey": "SealDark067",
+      "slug": "arbellun",
+      "name": {
+        "en": "Arbellun",
+        "ko": "아르벨룬",
+        "zh": "阿爾貝倫"
+      },
+      "npcIds": [
+        2702076
+      ],
+      "level": 20,
+      "internalName": "M_Seal_Dark_067_WaterEle_03_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "SealDark067/pure-water-spirit",
+      "instanceKey": "SealDark067",
+      "slug": "pure-water-spirit",
+      "name": {
+        "en": "Pure Water Spirit",
+        "ko": "순수의 물정령",
+        "zh": "純粹水精靈"
+      },
+      "npcIds": [
+        2702074,
+        2702075
+      ],
+      "level": 20,
+      "internalName": "M_Seal_Dark_067_WaterEle_02_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "SealDark067/water-spirit",
+      "instanceKey": "SealDark067",
+      "slug": "water-spirit",
+      "name": {
+        "en": "Water Spirit",
+        "ko": "물정령",
+        "zh": "水精靈"
+      },
+      "npcIds": [
+        2702073
+      ],
+      "level": 20,
+      "internalName": "M_Seal_Dark_067_WaterEle_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "SealDark069/lamiphedon",
+      "instanceKey": "SealDark069",
+      "slug": "lamiphedon",
+      "name": {
+        "en": "Lamiphedon",
+        "ko": "라미페돈",
+        "zh": "拉米佩頓"
+      },
+      "npcIds": [
+        2702574
+      ],
+      "level": 45,
+      "internalName": "M_Seal_Dark_069_SpiritKnt_02_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "SealDark069/mau-boss-tshulaga",
+      "instanceKey": "SealDark069",
+      "slug": "mau-boss-tshulaga",
+      "name": {
+        "en": "Mau Boss Tshulaga",
+        "ko": "라이칸 우두머리 슐라그",
+        "zh": "萊卡恩頭目舒拉格"
+      },
+      "npcIds": [
+        2702026
+      ],
+      "level": 20,
+      "internalName": "M_Seal_Dark_069_Boss_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "SealDark069/mau-brawler",
+      "instanceKey": "SealDark069",
+      "slug": "mau-brawler",
+      "name": {
+        "en": "Mau Brawler",
+        "ko": "라이칸 투사",
+        "zh": "萊卡恩鬥士"
+      },
+      "npcIds": [
+        2702024
+      ],
+      "level": 20,
+      "internalName": "M_Seal_Dark_069_Lycan_01_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "SealDark069/mau-mender",
+      "instanceKey": "SealDark069",
+      "slug": "mau-mender",
+      "name": {
+        "en": "Mau Mender",
+        "ko": "라이칸 치유병",
+        "zh": "萊卡恩治癒兵"
+      },
+      "npcIds": [
+        2702023
+      ],
+      "level": 20,
+      "internalName": "M_Seal_Dark_069_Lycan_02_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "SealDark069/mau-sentry-soldier",
+      "instanceKey": "SealDark069",
+      "slug": "mau-sentry-soldier",
+      "name": {
+        "en": "Mau Sentry Soldier",
+        "ko": "라이칸 경계병사",
+        "zh": "萊卡恩警戒兵師"
+      },
+      "npcIds": [
+        2702025
+      ],
+      "level": 20,
+      "internalName": "M_Seal_Dark_069_Lycan_03_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "SunkenTemple/deep-sea-pydeon",
+      "instanceKey": "SunkenTemple",
+      "slug": "deep-sea-pydeon",
+      "name": {
+        "en": "Deep Sea Pydeon",
+        "ko": "심해의 파이디온",
+        "zh": "深海帕伊迪溫"
+      },
+      "npcIds": [
+        2300001,
+        2300016,
+        2300031,
+        2300046,
+        2300061,
+        2300076,
+        2300091,
+        2300117,
+        2300132,
+        2301502
+      ],
+      "level": 72,
+      "internalName": "M_PD_SunkenTemple_Kalgolem_03_CV02_001_Grade2",
+      "hasMechanics": true
+    },
+    {
+      "key": "SunkenTemple/singing-ellyde",
+      "instanceKey": "SunkenTemple",
+      "slug": "singing-ellyde",
+      "name": {
+        "en": "Singing Ellyde",
+        "ko": "노래하는 엘라이드",
+        "zh": "唱歌的艾拉伊德"
+      },
+      "npcIds": [
+        2300002,
+        2300017,
+        2300032,
+        2300047,
+        2300062,
+        2300077,
+        2300092,
+        2300118,
+        2300133,
+        2301503
+      ],
+      "level": 72,
+      "internalName": "M_PD_SunkenTemple_WaterEle_04_V02_001_Grade2",
+      "hasMechanics": true
+    },
+    {
+      "key": "SunkenTemple/submerged-emon",
+      "instanceKey": "SunkenTemple",
+      "slug": "submerged-emon",
+      "name": {
+        "en": "Submerged Emon",
+        "ko": "가라앉은 에몬",
+        "zh": "沉沒的艾蒙"
+      },
+      "npcIds": [
+        2300000,
+        2300015,
+        2300030,
+        2300045,
+        2300060,
+        2300075,
+        2300090,
+        2300116,
+        2300131,
+        2301501
+      ],
+      "level": 72,
+      "internalName": "M_PD_SunkenTemple_Gauss_01_V01_001_Grade2",
+      "hasMechanics": true
+    },
+    {
+      "key": "TyrantsHideout/menoch",
+      "instanceKey": "TyrantsHideout",
+      "slug": "menoch",
+      "name": {
+        "en": "Menoch",
+        "ko": "메녹스",
+        "zh": "梅諾克斯"
+      },
+      "npcIds": [
+        2701964,
+        2701990,
+        2702001,
+        2702012,
+        2702274,
+        2702286
+      ],
+      "level": 45,
+      "internalName": "M_Dungeon_Awaken_002_01_TasinB_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "UC/divine-auldor",
+      "instanceKey": "UC",
+      "slug": "divine-auldor",
+      "name": {
+        "en": "Divine Auldor",
+        "ko": "신성한 아울도르",
+        "zh": "神聖的奧多勒"
+      },
+      "npcIds": [
+        2300218,
+        2310218,
+        2320218,
+        2330218
+      ],
+      "level": 53,
+      "internalName": "M_PD_UC_Owldor_01",
+      "hasMechanics": true
+    },
+    {
+      "key": "UC/guardian-captain-raur",
+      "instanceKey": "UC",
+      "slug": "guardian-captain-raur",
+      "name": {
+        "en": "Guardian Captain Raur",
+        "ko": "수호대장 라우르",
+        "zh": "守護隊長勞爾"
+      },
+      "npcIds": [
+        2300206,
+        2310206,
+        2320206,
+        2330206
+      ],
+      "level": 53,
+      "internalName": "M_PD_UC_SubBoss01",
+      "hasMechanics": true
+    },
+    {
+      "key": "UC/judge-urahum",
+      "instanceKey": "UC",
+      "slug": "judge-urahum",
+      "name": {
+        "en": "Judge Urahum",
+        "ko": "심판자 우라훔",
+        "zh": "審判者烏拉姆"
+      },
+      "npcIds": [
+        2300207,
+        2310207,
+        2320207,
+        2330207
+      ],
+      "level": 53,
+      "internalName": "M_PD_UC_SubBoss02",
+      "hasMechanics": true
+    }
+  ]
+}

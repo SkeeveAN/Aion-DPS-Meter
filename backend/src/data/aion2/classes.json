@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "source": "derived",
+    "sourceKind": "third-party-dataset",
+    "derivedAt": "2026-09-22",
+    "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync."
+  },
+  "items": [
+    {
+      "name": "Assassin",
+      "slug": "assassin",
+      "abbreviation": "ASN"
+    },
+    {
+      "name": "Chanter",
+      "slug": "chanter",
+      "abbreviation": "CHA"
+    },
+    {
+      "name": "Cleric",
+      "slug": "cleric",
+      "abbreviation": "CLR"
+    },
+    {
+      "name": "Elementalist",
+      "slug": "elementalist",
+      "abbreviation": "ELE"
+    },
+    {
+      "name": "Fighter",
+      "slug": "fighter",
+      "abbreviation": "FTR"
+    },
+    {
+      "name": "Gladiator",
+      "slug": "gladiator",
+      "abbreviation": "GLA"
+    },
+    {
+      "name": "Ranger",
+      "slug": "ranger",
+      "abbreviation": "RNG"
+    },
+    {
+      "name": "Sorcerer",
+      "slug": "sorcerer",
+      "abbreviation": "SOR"
+    },
+    {
+      "name": "Templar",
+      "slug": "templar",
+      "abbreviation": "TPL"
+    }
+  ]
+}

@@ -1,0 +1,3483 @@
+{
+  "_meta": {
+    "source": "derived",
+    "sourceKind": "third-party-dataset",
+    "derivedAt": "2026-09-22",
+    "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync."
+  },
+  "items": [
+    {
+      "bossKey": "Krao/ultimate-berk",
+      "key": "cleave",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Krao/ultimate-berk",
+      "key": "whirlwind",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Krao/ultimate-berk",
+      "key": "pillars",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Krao/ultimate-berk",
+      "key": "stagger-50",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Krao/ultimate-berk",
+      "key": "enrage",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "ErosionPurifier",
+      "key": "roll",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MusphelHolyGrail/iscariel",
+      "key": "beam-push",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MusphelHolyGrail/iscariel",
+      "key": "kick-67",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 67,
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MusphelHolyGrail/iscariel",
+      "key": "push-50",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MusphelHolyGrail/iscariel",
+      "key": "kick-tornado-33",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 33,
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Draupnir/afflicted-bakarma",
+      "key": "stagger-waves-1",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Draupnir/afflicted-bakarma",
+      "key": "jump-waves",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Draupnir/afflicted-bakarma",
+      "key": "stagger-waves-2",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "UC/guardian-captain-raur",
+      "key": "shield-strike-aoe",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "UC/judge-urahum",
+      "key": "poison",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "UC/divine-auldor",
+      "key": "group-soak",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "UC/divine-auldor",
+      "key": "arena-shrink",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 25,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "Bakron",
+      "key": "persistent-debuff",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Bakron/tiere",
+      "key": "poison-flower",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Bakron/thamon",
+      "key": "heal-color",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Bakron/thamon",
+      "key": "petrify",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Bakron/vakron",
+      "key": "root-aoe",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Bakron/vakron",
+      "key": "waves",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Bakron/vakron",
+      "key": "stone-circle",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FT/black-smoke-murute",
+      "key": "ground-circles",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FT/black-smoke-murute",
+      "key": "expanding-aoe",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FT/red-spark-ignus",
+      "key": "periodic-aoe",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FT/red-spark-ignus",
+      "key": "pool-debuff",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FT/silver-blade-rotan",
+      "key": "optional-boss",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FT/kromedes-desire",
+      "key": "stay-behind",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FT/kromedes-desire",
+      "key": "flame-walls",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 70,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FT/kromedes-desire",
+      "key": "edge-projectiles",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FT/kromedes-desire",
+      "key": "clones",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MauCave/watchdog-kwapo",
+      "key": "lightning-orbs",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MauCave/watchdog-kwapo",
+      "key": "roar-wave",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MauCave",
+      "key": "challenge-room",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MauCave/necromancer-duanka",
+      "key": "sentry-souls",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MauCave/necromancer-duanka",
+      "key": "group-soak",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MauCave/necromancer-duanka",
+      "key": "soul-caller",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MauCave/ferocious-horn-nuakum",
+      "key": "bleed-pools",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MauCave/ferocious-horn-nuakum",
+      "key": "clone-circles",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MauCave/ferocious-horn-nuakum",
+      "key": "black-hole-orbs",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MauCave/ferocious-horn-nuakum",
+      "key": "red-orb-soak",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DDN/broodkeeper-nayatman",
+      "key": "floating-orbs",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DDN/broodkeeper-nayatman",
+      "key": "spears",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DDN/broodkeeper-nayatman",
+      "key": "link",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DDN/manager-nasium",
+      "key": "blades",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DDN/decaying-durvati",
+      "key": "stay-behind",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DDN/decaying-durvati",
+      "key": "slam-wave",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DDN/decaying-durvati",
+      "key": "eggs-poison",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DDN/decaying-durvati",
+      "key": "pillar-jump",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 60,
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DDN/decaying-durvati",
+      "key": "egg-hatch",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "hp",
+        "pct": 30,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/multiverse-veltiras",
+      "key": "blue-orbs",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/multiverse-veltiras",
+      "key": "color-barrier",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/multiverse-veltiras",
+      "key": "jump-wave",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/solemn-valkan",
+      "key": "color-pillar",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/solemn-valkan",
+      "key": "ice-swords",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/afflicted-bakarma",
+      "key": "spinning-weapons",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/afflicted-bakarma",
+      "key": "arrow-line-stack",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/afflicted-bakarma",
+      "key": "tank-ring",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/afflicted-bakarma",
+      "key": "second-ring-50",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "CradleNihility/afflicted-bakarma",
+      "key": "hard-teleport",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "PhantomsHall/nazarak",
+      "key": "eye-mark-ghost",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "PhantomsHall/nazarak",
+      "key": "main-ghost-kite",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "PhantomsHall/glassvein",
+      "key": "avoid-crystals",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "PhantomsHall/glassvein",
+      "key": "pull-center",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "PhantomsHall/glassvein",
+      "key": "red-pool",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "PhantomsHall/nathara",
+      "key": "reflect-orbs",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "PhantomsHall/nathara",
+      "key": "reflect-orbs-30",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 30,
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "PhantomsHall/nathara",
+      "key": "hard-clone-split",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/wise-baumnute",
+      "key": "keep-moving-stuns",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/wise-baumnute",
+      "key": "crystal-aoe-chain",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/wise-baumnute",
+      "key": "stagger-behind",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/wise-baumnute",
+      "key": "red-aoe-spread",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/expanding-xyrepe",
+      "key": "color-match-mushroom",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/expanding-xyrepe",
+      "key": "matching-spores",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/awakened-alturadon",
+      "key": "collect-orbs",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/awakened-alturadon",
+      "key": "phase2-fields-clones",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 70,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/awakened-alturadon",
+      "key": "hard-lasers",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlueBreathIsle/awakened-alturadon",
+      "key": "phase3-charge-pillars",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 30,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/willful-turgen",
+      "key": "swords-75",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/willful-turgen",
+      "key": "turgen-cleaves",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/willful-turgen",
+      "key": "turgen-aoe",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/forbidden-hexbeast-griosa",
+      "key": "circle-cone-75",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/forbidden-hexbeast-griosa",
+      "key": "pillars-70",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 70,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/forbidden-hexbeast-griosa",
+      "key": "donut-stack-60",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "hp",
+        "pct": 60,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/forbidden-hexbeast-griosa",
+      "key": "griosa-fillers",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/basilus-the-false",
+      "key": "shields",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/basilus-the-false",
+      "key": "cones-soldiers",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/basilus-the-false",
+      "key": "souls-judgment",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DaevaCitadel/basilus-the-false",
+      "key": "basilus-fillers",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/overseer-gromkas",
+      "key": "lightning-fields",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/overseer-gromkas",
+      "key": "gromkas-behind-block",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/lab-director-zylus",
+      "key": "activate-fields",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/lab-director-zylus",
+      "key": "front-lasers",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/lab-director-zylus",
+      "key": "field-lasers",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/lab-director-zylus",
+      "key": "red-field-spread",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/prideful-atiel",
+      "key": "hug-grab",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/prideful-atiel",
+      "key": "red-crosses",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/prideful-atiel",
+      "key": "tether-3-to-1",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/prideful-atiel",
+      "key": "stay-close-10m",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/prideful-atiel",
+      "key": "wind-shift",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "BlasphemyLab/prideful-atiel",
+      "key": "red-wind-stagger",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "DeusCenter",
+      "key": "kill-quota",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "DeusCenter",
+      "key": "elite-purple-puddle",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "DeusCenter",
+      "key": "trash-boost-below-50",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "DeusCenter",
+      "key": "judgment-stacks",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "DeusCenter",
+      "key": "runner-kibelisks",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/gelcos",
+      "key": "route-to-gelcos",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/gelcos",
+      "key": "mark-dash-line",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/gelcos",
+      "key": "jump-on-the-mark",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/gelcos",
+      "key": "whip-pull-cleaves",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/gelcos",
+      "key": "drag-field-50",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/gelcos",
+      "key": "center-jump-donut-star",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/gelcos",
+      "key": "puddles-erupt-25",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "hp",
+        "pct": 25,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/gelcos",
+      "key": "route-to-nazmun",
+      "sortOrder": 7,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/nazmun",
+      "key": "laser-pillars-edge",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/nazmun",
+      "key": "mines",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/nazmun",
+      "key": "donut-time-bomb-75",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/nazmun",
+      "key": "repeating-line-beam",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/nazmun",
+      "key": "lunge-point-blank",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/nazmun",
+      "key": "four-small-circles",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/nazmun",
+      "key": "route-to-atiel",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/atiel",
+      "key": "ring-destruction-75",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/atiel",
+      "key": "drone-dashes-75",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/atiel",
+      "key": "tether-to-tank",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/atiel",
+      "key": "stack-marker",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/atiel",
+      "key": "tether-to-boss-50",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/atiel",
+      "key": "atiel-fillers",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "DeusCenter/atiel",
+      "key": "morphic-world-25",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "hp",
+        "pct": 25,
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "Arkanis",
+      "key": "kill-quota",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "Arkanis",
+      "key": "elite-blood-puddle",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "Arkanis",
+      "key": "clustered-trash-boost",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "Arkanis",
+      "key": "boss-stagger-bars",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "Arkanis",
+      "key": "runner-kibelisks",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/siliator-of-deceit",
+      "key": "route-to-siliator",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/siliator-of-deceit",
+      "key": "flank-lines-chakram-pair",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/siliator-of-deceit",
+      "key": "chakram-contact-hitbox",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/siliator-of-deceit",
+      "key": "stagger-lock-circle-chakrams",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/siliator-of-deceit",
+      "key": "chakram-return-lines",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/siliator-of-deceit",
+      "key": "furthest-target-line",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/siliator-of-deceit",
+      "key": "tank-circle-aoe",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/siliator-of-deceit",
+      "key": "fan-cleave-donut",
+      "sortOrder": 7,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/siliator-of-deceit",
+      "key": "route-to-ruthilis",
+      "sortOrder": 8,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/ruthilis-of-pain",
+      "key": "stagger-lock-quadrant-lightning",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/ruthilis-of-pain",
+      "key": "repeating-circles-time-bomb",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/ruthilis-of-pain",
+      "key": "furthest-target-donut",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "hp",
+        "pct": 95,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/ruthilis-of-pain",
+      "key": "line-aoes-bleed",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/ruthilis-of-pain",
+      "key": "route-to-talisra",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "droplets-domes-colour-raidwide",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "second-iteration-closing-rings",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "cast-fall-light-spear",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "big-frontal-cleave",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "double-jumpable-ring",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "red-pillars",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "litany-of-line-aoes",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "lingering-frontal-fan",
+      "sortOrder": 7,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "furthest-target-line-volley",
+      "sortOrder": 8,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "diamond-jail",
+      "sortOrder": 9,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "tank-dash",
+      "sortOrder": 10,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "Arkanis/talisra-of-the-void",
+      "key": "teleport-point-blank",
+      "sortOrder": 11,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "SunkenTemple",
+      "key": "kill-quota",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "SunkenTemple",
+      "key": "hp-leech-nerf",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "SunkenTemple",
+      "key": "starline-projectile-affix",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "SunkenTemple",
+      "key": "elite-death-poison-cloud",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "SunkenTemple",
+      "key": "bubble-room",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "SunkenTemple",
+      "key": "healer-cleanse-debuffs",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/singing-ellyde",
+      "key": "route-to-ellyde",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/singing-ellyde",
+      "key": "ellyde-tune-line-dash",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/singing-ellyde",
+      "key": "ellyde-tune-walls",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/singing-ellyde",
+      "key": "ellyde-tune-triple-donut",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/singing-ellyde",
+      "key": "ellyde-filler-pointblank-donut",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/singing-ellyde",
+      "key": "ellyde-filler-following-aoes-bubble",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/singing-ellyde",
+      "key": "ellyde-filler-water-splash",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/singing-ellyde",
+      "key": "route-after-ellyde",
+      "sortOrder": 7,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/deep-sea-pydeon",
+      "key": "sealed-statues",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/deep-sea-pydeon",
+      "key": "pydeon-diamond-cone",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 65,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/deep-sea-pydeon",
+      "key": "pydeon-tide-rings",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "hp",
+        "pct": 55,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/deep-sea-pydeon",
+      "key": "pydeon-starline-walls",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/deep-sea-pydeon",
+      "key": "pydeon-tank-dash-slams",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/deep-sea-pydeon",
+      "key": "pydeon-orb-point-blank",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/deep-sea-pydeon",
+      "key": "pydeon-fist-rectangles",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/deep-sea-pydeon",
+      "key": "route-after-pydeon",
+      "sortOrder": 7,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/submerged-emon",
+      "key": "screaming-storm-75",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/submerged-emon",
+      "key": "rotating-wall-wisps-judgement",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "wipe",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/submerged-emon",
+      "key": "screaming-storm-25",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "hp",
+        "pct": 25,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/submerged-emon",
+      "key": "hammer-slam-jumpable-ring",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/submerged-emon",
+      "key": "point-blank-puddles-spin-dash",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/submerged-emon",
+      "key": "leash-ghost-tether",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "SunkenTemple/submerged-emon",
+      "key": "starline-aoe-bubble",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MirrorHeart",
+      "key": "kill-quota",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MirrorHeart",
+      "key": "frenzy-affix",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MirrorHeart",
+      "key": "afterimage-affix",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MirrorHeart",
+      "key": "barrage-affix",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MirrorHeart",
+      "key": "route-start-to-rotar",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MirrorHeart",
+      "key": "route-rectangular-garden",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MirrorHeart",
+      "key": "route-crossroad-to-robstino",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MirrorHeart",
+      "key": "kibelisk-at-robstino",
+      "sortOrder": 7,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "MirrorHeart",
+      "key": "route-vows-corridor-to-final",
+      "sortOrder": 8,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/rotar",
+      "key": "rotar-honest-heart",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/rotar",
+      "key": "rotar-troubled-heart",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 65,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/rotar",
+      "key": "rotar-filler-aoe-set-and-donut",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/rotar",
+      "key": "rotar-filler-line-aoe",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/rotar",
+      "key": "rotar-shared-damage-tether",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "hp",
+        "pct": 50,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/rotar",
+      "key": "rotar-paired-orbs-tether",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "hp",
+        "pct": 35,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/robstino",
+      "key": "flowers",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/robstino",
+      "key": "expanding-cleave",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/robstino",
+      "key": "point-blank-flowers",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "hp",
+        "pct": 95,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/robstino",
+      "key": "jump-donuts",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 95,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/robstino",
+      "key": "reverse-stack",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "hp",
+        "pct": 90,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/robstino",
+      "key": "line-puddle",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/robstino",
+      "key": "circle-barrage",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/robstino",
+      "key": "arena-control",
+      "sortOrder": 7,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "mark-players-1-4",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "kromedes-invitation-75",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "domes-pink-soup-75",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "kromede-clone-mark-single-or-double",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "kromede-truth-within-the-mirror",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "bait-red-circles-55",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "hp",
+        "pct": 55,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "path-of-love-35",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "hp",
+        "pct": 35,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "kromede-dash-then-line-volley",
+      "sortOrder": 7,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "kromede-projectile-fan-triple",
+      "sortOrder": 8,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "kromede-pointblank-jumpable-ring",
+      "sortOrder": 9,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "kromede-back-then-front-cleave",
+      "sortOrder": 10,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "MirrorHeart/kromedes-desolation",
+      "key": "kromede-donut-and-pointblank-puddles",
+      "sortOrder": 11,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "FafniteGully",
+      "key": "roar-affix",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/kapu",
+      "key": "kapu-lightning-balls",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/dhakan",
+      "key": "dhakan-strikes-from-the-sky",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/dhakan",
+      "key": "dhakan-souls-altar-buff",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/dhakan",
+      "key": "dhakan-poison-pool-share",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/dhakan",
+      "key": "dhakan-centre-lightning-explosion",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/gargaum",
+      "key": "gargaum-clone-at-stage-4",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/gargaum",
+      "key": "gargaum-jump-mark",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/gargaum",
+      "key": "gargaum-ball-throw-intercept",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/gargaum",
+      "key": "gargaum-jumping-aoe",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "FafniteGully/gargaum",
+      "key": "gargaum-black-hole",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "LegacyNoiran",
+      "key": "kill-quota",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "LegacyNoiran",
+      "key": "neodyle-corrosion-affix",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "LegacyNoiran",
+      "key": "snipe-test-subject-affix",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "LegacyNoiran",
+      "key": "firebomb-rain-affix",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "LegacyNoiran",
+      "key": "route-start-to-braunt",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "LegacyNoiran",
+      "key": "route-braunt-to-klominster",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "instanceKey": "LegacyNoiran",
+      "key": "route-klominster-to-askran",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/incomplete-braunt",
+      "key": "braunt-centre-blast-donut",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "hp",
+        "pct": 65,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/incomplete-braunt",
+      "key": "braunt-poison-waves-and-spread",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 65,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/incomplete-braunt",
+      "key": "braunt-filler-circles",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/incomplete-braunt",
+      "key": "braunt-filler-pull-circles-donut",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/incomplete-braunt",
+      "key": "braunt-filler-star-lines",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/incomplete-braunt",
+      "key": "braunt-filler-fan-lines-cleave",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/mad-klominster",
+      "key": "klominster-vent-bombs",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/mad-klominster",
+      "key": "klominster-blank-mark-laser",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/mad-klominster",
+      "key": "klominster-star-then-donut",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/mad-klominster",
+      "key": "klominster-filler-rotation",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-tower-spinning-cones",
+      "sortOrder": 0,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-area-incineration",
+      "sortOrder": 1,
+      "trigger": {
+        "type": "hp",
+        "pct": 75,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-lava-fans",
+      "sortOrder": 2,
+      "trigger": {
+        "type": "hp",
+        "pct": 55,
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-containment-protocol",
+      "sortOrder": 3,
+      "trigger": {
+        "type": "hp",
+        "pct": 35,
+        "label": ""
+      },
+      "severity": "wipe_avoidable",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-lanterns-petrify",
+      "sortOrder": 4,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-filler-knockback-lasers",
+      "sortOrder": 5,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-filler-x-lasers",
+      "sortOrder": 6,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-filler-homing-cannon",
+      "sortOrder": 7,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-filler-grab-slam",
+      "sortOrder": 8,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    },
+    {
+      "bossKey": "LegacyNoiran/askran",
+      "key": "askran-filler-jump-lightning-puddle",
+      "sortOrder": 9,
+      "trigger": {
+        "type": "phase",
+        "label": ""
+      },
+      "severity": "mechanic",
+      "action": "",
+      "detail": "",
+      "positionSheet": null
+    }
+  ]
+}
