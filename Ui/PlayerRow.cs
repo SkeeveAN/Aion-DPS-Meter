@@ -19,6 +19,8 @@ public sealed class PlayerRow : INotifyPropertyChanged
     private long _damageTaken;
     private bool _showShareBar = true;
     private bool _showDamageTaken = true;
+    private string _defenseDisplay = "";
+    private string _pvpDisplay = "";
 
     private string _name = "?";
     private string _className = "?";
@@ -138,6 +140,22 @@ public sealed class PlayerRow : INotifyPropertyChanged
     {
         get => _showDamageTaken;
         set { _showDamageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); }
+    }
+
+    /// <summary>Avoided-attack tally ("D 3 · P 12 · B 8 (41%)", see Combat/DefenseStats) - blank
+    /// when nothing was aimed at this player in the shown window, or when the setting is off.</summary>
+    public string DefenseDisplay
+    {
+        get => _defenseDisplay;
+        set { _defenseDisplay = value; OnPropertyChanged(); }
+    }
+
+    /// <summary>Kills/deaths/biggest hit against players (see Combat/PvpStats) - only filled in
+    /// PVP mode, blank otherwise.</summary>
+    public string PvpDisplay
+    {
+        get => _pvpDisplay;
+        set { _pvpDisplay = value; OnPropertyChanged(); }
     }
 
     public PlayerRow(int objectId)

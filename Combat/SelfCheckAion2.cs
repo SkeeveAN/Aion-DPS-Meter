@@ -68,7 +68,7 @@ public static class SelfCheckAion2
             bool notReplayed = source.Poll(false).IsEmpty;
 
             // Reload reads everything, history included, and live tailing continues afterwards.
-            int reloaded = source.ReloadFromDisk().Count;
+            int reloaded = source.ReloadFromDisk().Damage.Count;
             bool reloadedAll = reloaded == history.Length + live.Length + whilePaused.Length;
             bool capabilities = source.Capabilities.HasFlag(SourceCapabilities.Reparse) && source.Capabilities.HasFlag(SourceCapabilities.Loot);
 

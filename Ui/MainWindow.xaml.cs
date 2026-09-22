@@ -121,6 +121,13 @@ public partial class MainWindow : Window
     /// RefreshRows runs every second and must not re-read the settings file each time.</summary>
     private bool _showShareBars = true;
     private bool _showDamageTaken = true;
+    private bool _showDefenseStats = true;
+
+    /// <summary>Avoided attacks and kill announcements from the source, kept beside the
+    /// aggregator's damage events (they are not DamageEvents - see Combat/Sources). Cleared with
+    /// the damage data; scoped to the shown window at refresh time like everything else.</summary>
+    private readonly List<AvoidEvent> _avoids = new();
+    private readonly List<KillEvent> _kills = new();
 
     // Local fight history (History/). The store is opened once and shared between the recorder
     // (files finished fights from the live event list) and the history window. _historyMode is
@@ -284,6 +291,7 @@ public partial class MainWindow : Window
     {
         _showShareBars = settings.ShowShareBars;
         _showDamageTaken = settings.ShowDamageTaken;
+        _showDefenseStats = settings.ShowDefenseStats;
         _currentGame = settings.Game;
         _currentServerDisplayName = settings.ServerDisplayName;
         _characters = settings.Characters;
@@ -978,8 +986,10 @@ public partial class MainWindow : Window
         }
 
         CombatBatch batch = _source?.Poll(_paused) ?? CombatBatch.Empty;
+        _avoids.AddRange(batch.Avoids);
+        _kills.AddRange(batch.Kills);
         IReadOnlyList<DamageEvent> events = batch.Damage;
-        if (events.Count > 0)
+        if (events.Count > 0 || batch.Avoids.Count > 0 || batch.Kills.Count > 0)
         {
             var counted = events
                 .Where(ev => !IsNamedCopyOfRegisteredCharacter(ev.SourceObjectId))
@@ -1385,6 +1395,17 @@ public partial class MainWindow : Window
             .GroupBy(ev => ev.TargetObjectId)
             .ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount));
 
+        // Defensive tally (avoided vs. landed incoming attacks) over the same window, and the PvP
+        // record when the grid is in PVP mode - both blank otherwise (see PlayerRow).
+        IReadOnlyDictionary<int, DefenseSummary> defenseById = _showDefenseStats && filteredSpan is (DateTime defStart, DateTime defEnd)
+            ? DefenseStats.ByDefender(
+                _avoids.Where(a => a.Timestamp >= defStart && a.Timestamp <= defEnd),
+                damageOnly.Where(ev => ev.Timestamp >= defStart && ev.Timestamp <= defEnd))
+            : new Dictionary<int, DefenseSummary>();
+        IReadOnlyDictionary<int, PvpSummary> pvpById = _pvpOnly
+            ? PvpStats.ByPlayer(_kills, damageOnly, IsPlayerName)
+            : new Dictionary<int, PvpSummary>();
+
         // ClassFilter, per the user: was purely decorative until other players' classes started
         // being detected at all (see ResolveClassName) -- now that a class can actually be known
         // for someone besides "You", picking one filters the grid down to it for real. An empty
@@ -1431,6 +1452,8 @@ public partial class MainWindow : Window
             row.DamageTaken = damageTakenById.GetValueOrDefault(sourceId);
             row.ShowShareBar = _showShareBars;
             row.ShowDamageTaken = _showDamageTaken;
+            row.DefenseDisplay = defenseById.GetValueOrDefault(sourceId)?.Display ?? "";
+            row.PvpDisplay = pvpById.GetValueOrDefault(sourceId)?.Display ?? "";
 
             ApplySide(row, sourceId, sides);
         }
@@ -2370,7 +2393,10 @@ public partial class MainWindow : Window
         }
 
         ClearDamageData();
-        List<DamageEvent> events = chatSource.ReloadFromDisk();
+        CombatBatch reloaded = chatSource.ReloadFromDisk();
+        IReadOnlyList<DamageEvent> events = reloaded.Damage;
+        _avoids.AddRange(reloaded.Avoids);
+        _kills.AddRange(reloaded.Kills);
 
         // Same pet-attribution/named-copy filtering the live tick applies (OnChatLogTimerTick) -
         // skipping it here would count a Spiritmaster's pet as its own row, or double-count a
@@ -2832,6 +2858,8 @@ public partial class MainWindow : Window
         _fightRecorder?.Reset();
 
         _aggregator.Clear();
+        _avoids.Clear();
+        _kills.Clear();
         _rows.Clear();
         _rowsByObjectId.Clear();
         _targetNames.Clear();

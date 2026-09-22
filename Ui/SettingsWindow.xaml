@@ -434,6 +434,7 @@
                         <!-- Per-row extras in the Damage view (see PlayerRow.SharePercent/DamageTaken). -->
                         <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,4,0,0"/>
                         <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}"/>
+                        <CheckBox x:Name="ShowDefenseStatsBox" Content="{local:Loc Settings.ShowDefenseStats}"/>
                         <!-- Local only (History/FightStore, %AppData%) - nothing about it is uploaded. -->
                         <CheckBox x:Name="RecordFightHistoryBox" Content="{local:Loc Settings.RecordFightHistory}" Margin="0,4,0,0"/>
                     </StackPanel>

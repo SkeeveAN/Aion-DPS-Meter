@@ -83,6 +83,9 @@ public sealed class MeterSettings
     /// <summary>"↓ N" damage-received figure on each row's second line (see PlayerRow.DamageTaken).</summary>
     public bool ShowDamageTaken { get; set; } = true;
 
+    /// <summary>Dodge/parry/block/resist tally per row (see Combat/DefenseStats).</summary>
+    public bool ShowDefenseStats { get; set; } = true;
+
     /// <summary>Whether finished fights are filed into the local history (History/FightRecorder,
     /// %AppData%\Aion DPS Meter\fights.db). Local only - nothing about it is ever uploaded.</summary>
     public bool RecordFightHistory { get; set; } = true;

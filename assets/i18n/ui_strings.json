@@ -659,6 +659,16 @@
     "tr": "Oyuncu başına alınan hasarı göster",
     "zh": "显示每位玩家承受的伤害"
   },
+  "Settings.ShowDefenseStats": {
+    "en": "Show avoided attacks (dodge/parry/block/resist) per player",
+    "de": "Abgewehrte Angriffe (Ausweichen/Parieren/Blocken/Widerstehen) pro Spieler anzeigen",
+    "fr": "Afficher les attaques évitées par joueur",
+    "es": "Mostrar ataques evitados por jugador",
+    "ru": "Показывать избегнутые атаки по игрокам",
+    "pl": "Pokaż unikniete ataki na gracza",
+    "tr": "Oyuncu başına savuşturulan saldırıları göster",
+    "zh": "显示每位玩家规避的攻击"
+  },
   "Settings.ThemeDark": {
     "en": "Dark",
     "de": "Dunkel",

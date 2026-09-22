@@ -32,7 +32,7 @@ public sealed class ChatLogCombatSource : ICombatSource
 
     public SourceCapabilities Capabilities =>
         SourceCapabilities.Loot | SourceCapabilities.ChatCommands | SourceCapabilities.PersonalStats
-        | SourceCapabilities.Buffs | SourceCapabilities.Reparse;
+        | SourceCapabilities.Buffs | SourceCapabilities.Reparse | SourceCapabilities.Defense | SourceCapabilities.Kills;
 
     public IEntityDirectory Entities => _entities;
 
@@ -66,7 +66,15 @@ public sealed class ChatLogCombatSource : ICombatSource
         }
 
         List<DamageEvent> events = _tailer!.Poll(paused);
-        return events.Count == 0 ? CombatBatch.Empty : CombatBatch.DamageOnly(events);
+        // Drained either way so paused time is discarded here too, not replayed on resume.
+        List<AvoidEvent> avoids = _parser.DrainAvoids();
+        List<KillEvent> kills = _parser.DrainKills();
+        if (paused)
+        {
+            return CombatBatch.Empty;
+        }
+
+        return new CombatBatch(events, avoids, kills);
     }
 
     /// <summary>
@@ -78,7 +86,7 @@ public sealed class ChatLogCombatSource : ICombatSource
     /// parser is swapped before parsing so handlers that resolve names during the replay already
     /// see the new registry.
     /// </summary>
-    public List<DamageEvent> ReloadFromDisk()
+    public CombatBatch ReloadFromDisk()
     {
         var parser = new ChatLogParser();
         _forwardCommands = false;
@@ -89,7 +97,7 @@ public sealed class ChatLogCombatSource : ICombatSource
 
         _forwardCommands = true;
         _tailer = new ChatLogTailer(_path, parser);
-        return events;
+        return new CombatBatch(events, parser.DrainAvoids(), parser.DrainKills());
     }
 
     public void Dispose() => Stop();

@@ -1370,10 +1370,18 @@ public sealed partial class ChatLogParser
             {
                 events.Add(new DamageEvent(e.Timestamp, sourceId, targetId, amount, isHeal, skill, IsCriticalLine(e.Message)));
             }
+            else if (TryParseAvoid(e.Message, e.Timestamp))
+            {
+                // Combat line, same as damage: a repeat within the second is a real second parry.
+            }
             else if (duplicateInBucket)
             {
                 continue; // exact duplicate within the same second -- second client's copy
             }
+
+            // After the duplicate check on purpose: a kill announcement is a broadcast, and two
+            // clients sharing one Chat.log each write their own copy of it.
+            RaiseKillIfPresent(e.Message, e.Timestamp);
 
             if (CommandPattern().Match(e.Message) is { Success: true } commandMatch)
             {

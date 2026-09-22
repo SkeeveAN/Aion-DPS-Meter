@@ -957,6 +957,10 @@
                                             <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
                                             <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Margin="6,0,0,0"
                                                        ToolTip="Damage this player received in the shown window"/>
+                                            <TextBlock Text="{Binding DefenseDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Margin="6,0,0,0"
+                                                       ToolTip="Avoided incoming attacks: D dodged, P parried, B blocked, R resisted (share of all incoming attacks)"/>
+                                            <TextBlock Text="{Binding PvpDisplay}" Foreground="{DynamicResource Brush.Accent}" FontSize="11" Margin="6,0,0,0"
+                                                       ToolTip="PVP: kills / deaths and the biggest hit landed on a player"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </DataTemplate>
@@ -1049,6 +1053,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"/>
                                 <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10" Margin="6,0,0,0"/>
+                                <TextBlock Text="{Binding DefenseDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10" Margin="6,0,0,0"/>
+                                <TextBlock Text="{Binding PvpDisplay}" Foreground="{DynamicResource Brush.Accent}" FontSize="10" Margin="6,0,0,0"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
