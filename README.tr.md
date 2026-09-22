@@ -126,6 +126,7 @@ toplamda birleştirilir.
 ## Kaynaktan derleme
 
 ```
+cd Client
 dotnet build
 dotnet run -- selftest                    # ayrıştırıcı ve DPS hesaplaması için iç testler
 dotnet run -- chatlog <Chat.log-yolu>     # dosyayı ayrıştır ve özet yazdır

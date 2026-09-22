@@ -16,7 +16,7 @@ which asks GitHub whether a newer release exists and can be switched off; see [U
 reads the game's own network traffic on your machine through the [Npcap](https://npcap.com)
 driver — passively: it never sends a packet and never touches the game process. Live tracking
 starts once the packet layout has been calibrated for the current game version (see
-`assets/aion2/protocol/opcodes.json`); until then the meter says so in its status line. Everything
+`Client/assets/aion2/protocol/opcodes.json`); until then the meter says so in its status line. Everything
 stays local exactly as for classic Aion, unless you choose to upload a boss fight to the community
 leaderboards.
 
@@ -131,6 +131,7 @@ Two known, harmless outliers: a boss whose shield absorbs damage still has that 
 ## Building from source
 
 ```
+cd Client
 dotnet build
 dotnet run -- selftest                    # parser and DPS-maths self-checks
 dotnet run -- chatlog <path-to-Chat.log>  # parse a file and print the summary

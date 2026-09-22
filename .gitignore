@@ -12,13 +12,13 @@ captures/
 publish/
 dist/
 
-# Backend (Node/TypeScript, see backend/)
+# Backend (Node/TypeScript, see Backend/)
 node_modules/
-backend/data/*.sqlite
-backend/data/*.sqlite-*
-backend/.env
-backend/.env.*
-!backend/.env.example
+Backend/data/*.sqlite
+Backend/data/*.sqlite-*
+Backend/.env
+Backend/.env.*
+!Backend/.env.example
 .claude/settings.local.json
 
 # Working notes from content derivation (third-party prose, never checked in)

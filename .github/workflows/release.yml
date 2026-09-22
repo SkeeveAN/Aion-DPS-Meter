@@ -58,7 +58,7 @@ jobs:
 
       - name: Publish AionDPS (win-x64, self-contained)
         run: >
-          dotnet publish AionDPS.csproj -c Release -r win-x64 --self-contained true
+          dotnet publish Client/AionDPS.csproj -c Release -r win-x64 --self-contained true
           -p:PublishSingleFile=false -o publish
 
       - name: Install the Velopack CLI
@@ -94,7 +94,7 @@ jobs:
           --packVersion ${{ steps.version.outputs.number }}
           --packDir publish
           --mainExe "Aion DPS.exe"
-          --icon assets/app/aiondps.ico
+          --icon Client/assets/app/aiondps.ico
           --channel win
           --outputDir releases
 

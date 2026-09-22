@@ -17,7 +17,7 @@ und sich abschalten lässt; siehe [Updates](#updates).
 Meter stattdessen den Netzwerkverkehr des Spiels auf deinem Rechner über den
 [Npcap](https://npcap.com)-Treiber mit — passiv: er sendet nie ein Paket und fasst den
 Spielprozess nie an. Live-Tracking startet, sobald das Paket-Layout für die aktuelle Spielversion
-kalibriert ist (siehe `assets/aion2/protocol/opcodes.json`); bis dahin sagt der Meter das in
+kalibriert ist (siehe `Client/assets/aion2/protocol/opcodes.json`); bis dahin sagt der Meter das in
 seiner Statuszeile. Alles bleibt genauso lokal wie beim klassischen Aion, sofern du einen
 Bosskampf nicht selbst in die Community-Ranglisten hochlädst.
 
@@ -137,6 +137,7 @@ Namen werden zusammengezählt.
 ## Aus dem Quellcode bauen
 
 ```
+cd Client
 dotnet build
 dotnet run -- selftest                    # Selbsttests für Parser und DPS-Rechnung
 dotnet run -- chatlog <Pfad-zur-Chat.log> # Datei parsen und Zusammenfassung ausgeben

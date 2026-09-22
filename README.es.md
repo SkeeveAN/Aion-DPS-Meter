@@ -129,6 +129,7 @@ juntos.
 ## Compilar desde el código fuente
 
 ```
+cd Client
 dotnet build
 dotnet run -- selftest                      # autocomprobaciones del parser y del cálculo de DPS
 dotnet run -- chatlog <ruta-al-Chat.log>    # analizar un archivo e imprimir el resumen

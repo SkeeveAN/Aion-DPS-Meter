@@ -128,6 +128,7 @@ https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ## Сборка из исходного кода
 
 ```
+cd Client
 dotnet build
 dotnet run -- selftest                    # внутренние тесты парсера и расчёта DPS
 dotnet run -- chatlog <путь-к-Chat.log>   # разобрать файл и вывести сводку

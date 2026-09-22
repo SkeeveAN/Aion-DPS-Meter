@@ -114,6 +114,7 @@ https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ## 从源码构建
 
 ```
+cd Client
 dotnet build
 dotnet run -- selftest                    # 解析器与 DPS 计算的自检测试
 dotnet run -- chatlog <Chat.log 路径>      # 解析文件并输出摘要

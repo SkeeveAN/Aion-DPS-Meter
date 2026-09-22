@@ -128,6 +128,7 @@ liczonych razem.
 ## Budowanie ze źródeł
 
 ```
+cd Client
 dotnet build
 dotnet run -- selftest                    # testy wewnętrzne parsera i obliczeń DPS
 dotnet run -- chatlog <ścieżka-do-Chat.log> # sparsuj plik i wypisz podsumowanie

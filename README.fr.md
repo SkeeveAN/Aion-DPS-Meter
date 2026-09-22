@@ -130,6 +130,7 @@ additionnés.
 ## Compiler depuis les sources
 
 ```
+cd Client
 dotnet build
 dotnet run -- selftest                       # auto-tests du parseur et des calculs de DPS
 dotnet run -- chatlog <chemin-vers-Chat.log> # analyser un fichier et afficher le résumé
