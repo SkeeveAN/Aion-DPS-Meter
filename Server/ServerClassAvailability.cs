@@ -42,6 +42,10 @@ public static class ServerClassAvailability
         // of that confirmation, so it stays shown rather than guessed at, same as any other
         // not-yet-confirmed class.
         ["riftshade"] = Array.Empty<string>(),
+        // Aion 2, per the user: Europe (and NA) launched with the eight base classes; Korea and
+        // Taiwan already have the ninth, Brawler. Mirrors the backend's SERVER_EXCLUDED_CLASSES.
+        ["aion 2 europe"] = new[] { "Brawler" },
+        ["aion 2 north america"] = new[] { "Brawler" },
     };
 
     /// <summary>Class names (matching the dropdown's own Tag values) that do not exist on this

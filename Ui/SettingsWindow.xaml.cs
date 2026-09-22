@@ -119,7 +119,9 @@ public partial class SettingsWindow : Window
 
     /// <summary>Class picker built from ClassCatalog rather than static XAML, since the roster
     /// differs per game. Icon + name where an icon file exists; Aion 2's classes have none yet and
-    /// show their name alone.</summary>
+    /// show their name alone. Region-specific gaps (see OnNewCharacterServerSelected - per the
+    /// user, Aion 2 Europe/NA still lack Brawler while Korea/Taiwan already have it) hide rather
+    /// than remove an entry, same pattern as ApplyClassFilterAvailability on the main window.</summary>
     private void RebuildClassBox()
     {
         string? previous = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string;
@@ -149,7 +151,44 @@ public partial class SettingsWindow : Window
         {
             NewCharacterClassBox.SelectedIndex = 0;
         }
+
+        ApplyRegionalClassAvailability();
     }
+
+    /// <summary>
+    /// Hides whichever classes the currently picked server (NewCharacterServerBox) doesn't offer
+    /// yet - per the user, Aion 2 launched region-by-region with different rosters (Europe/NA:
+    /// the eight base classes; Korea/Taiwan: Brawler too). The backend is the source of truth
+    /// (ServerCatalogEntry.ExcludedClasses, see ServerCatalogClient); a backend predating that
+    /// field or no server picked yet leaves every class visible rather than guessing.
+    /// </summary>
+    private void ApplyRegionalClassAvailability()
+    {
+        IReadOnlySet<string> excluded = NewCharacterServerBox.SelectedItem is ComboBoxItem { Tag: AionDPS.Server.ServerCatalogEntry server }
+            ? (server.ExcludedClasses ?? Array.Empty<string>()).ToHashSet()
+            : new HashSet<string>();
+
+        bool selectedHidden = false;
+        foreach (ComboBoxItem item in NewCharacterClassBox.Items.OfType<ComboBoxItem>())
+        {
+            bool hide = item.Tag is string className && excluded.Contains(className);
+            item.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+            if (hide && ReferenceEquals(item, NewCharacterClassBox.SelectedItem))
+            {
+                selectedHidden = true;
+            }
+        }
+
+        if (selectedHidden)
+        {
+            NewCharacterClassBox.SelectedItem = NewCharacterClassBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Visibility == Visibility.Visible);
+        }
+    }
+
+    /// <summary>Picking a server can change which classes are even offered yet (see
+    /// ApplyRegionalClassAvailability) - re-applied every time, not just once, since the class
+    /// box is otherwise untouched by a server change.</summary>
+    private void OnNewCharacterServerSelected(object sender, SelectionChangedEventArgs e) => ApplyRegionalClassAvailability();
 
     private void ApplyGameToInstallSection()
     {

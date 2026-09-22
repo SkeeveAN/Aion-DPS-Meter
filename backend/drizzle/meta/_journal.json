@@ -176,6 +176,13 @@
       "when": 1790077096095,
       "tag": "0024_add_game_and_slugs",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1790083007779,
+      "tag": "0025_add_aion2_server_catalog",
+      "breakpoints": true
     }
   ]
 }

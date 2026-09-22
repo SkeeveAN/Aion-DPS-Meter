@@ -27,9 +27,9 @@
       "abbreviation": "ELE"
     },
     {
-      "name": "Fighter",
-      "slug": "fighter",
-      "abbreviation": "FTR"
+      "name": "Brawler",
+      "slug": "brawler",
+      "abbreviation": "BRW"
     },
     {
       "name": "Gladiator",

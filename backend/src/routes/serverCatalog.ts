@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { serverCatalog } from "../db/schema.js";
 import { gameFromQuery } from "./instances.js";
+import { SERVER_EXCLUDED_CLASSES } from "../constants.js";
 
 /** The curated name+version list the client's character registration UI picks from - see
  * schema.ts's serverCatalog remarks for why this is separate from the fingerprint-based
@@ -28,6 +29,8 @@ export async function serverCatalogRoutes(app: FastifyInstance) {
       .where(and(eq(serverCatalog.active, true), eq(serverCatalog.game, game)))
       .orderBy(asc(serverCatalog.kind), asc(serverCatalog.name))
       .all();
-    return reply.send(rows);
+    // Which of the game's classes this server lacks (see constants.ts) - the client's class picker
+    // hides them for characters registered on that server.
+    return reply.send(rows.map((r) => ({ ...r, excludedClasses: r.slug ? SERVER_EXCLUDED_CLASSES[r.slug] ?? [] : [] })));
   });
 }

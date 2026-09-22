@@ -346,7 +346,7 @@
                              unreachable when the dialog opens. -->
                         <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
                             <TextBlock Text="Server:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <ComboBox x:Name="NewCharacterServerBox" Width="280"
+                            <ComboBox x:Name="NewCharacterServerBox" Width="280" SelectionChanged="OnNewCharacterServerSelected"
                                       ToolTip="Which real server this character is on - required, since two different servers' characters/runs must never be confused with each other."/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="4,4,0,0">

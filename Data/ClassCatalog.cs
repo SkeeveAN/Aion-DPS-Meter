@@ -8,7 +8,9 @@ namespace AionDPS.Data;
 /// (icon files, ClassFilter tags, upload payloads, backend validation). Classic Aion's list is the
 /// full 4.x roster - which of them a given private server actually offers is
 /// Server/ServerClassAvailability's business. Aion 2 ships nine classes and, so far, no icon
-/// files of our own, so <see cref="HasIcon"/> tells the UI when to fall back to text.
+/// files of our own, so <see cref="HasIcon"/> tells the UI when to fall back to text. Which of
+/// the nine a given SERVER offers is Server/ServerClassAvailability's business (EU/NA launched
+/// without Brawler).
 /// </summary>
 public static class ClassCatalog
 {
@@ -20,7 +22,7 @@ public static class ClassCatalog
 
     private static readonly string[] Aion2Classes =
     {
-        "Assassin", "Chanter", "Cleric", "Elementalist", "Fighter", "Gladiator", "Ranger", "Sorcerer", "Templar",
+        "Assassin", "Brawler", "Chanter", "Cleric", "Elementalist", "Gladiator", "Ranger", "Sorcerer", "Templar",
     };
 
     public static IReadOnlyList<string> ClassesFor(GameKind game) => game == GameKind.Aion2 ? Aion2Classes : AionClasses;
@@ -35,7 +37,7 @@ public static class ClassCatalog
         "Chanter" => "CHA",
         "Cleric" => "CLR",
         "Elementalist" => "ELE",
-        "Fighter" => "FTR",
+        "Brawler" => "BRW",
         "Gladiator" => "GLA",
         "Ranger" => "RNG",
         "Sorcerer" => "SOR",

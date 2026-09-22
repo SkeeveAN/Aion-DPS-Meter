@@ -8,7 +8,10 @@ namespace AionDPS.Server;
 /// declare which real server a character is on, before that character has ever uploaded anything.
 /// <see cref="Game"/> is the backend's game token ("aion" | "aion2"); a backend from before the
 /// field existed omits it, which deserializes to the default and can only mean classic Aion.</summary>
-public sealed record ServerCatalogEntry(int Id, string Name, string Version, string Kind, string Game = "aion", string? Slug = null)
+public sealed record ServerCatalogEntry(int Id, string Name, string Version, string Kind, string Game = "aion", string? Slug = null,
+    // Classes this server does not offer (backend constants.ts SERVER_EXCLUDED_CLASSES) - empty for
+    // a full roster and for a backend that predates the field.
+    string[]? ExcludedClasses = null)
 {
     public override string ToString() => $"{Name} ({Version})";
 }

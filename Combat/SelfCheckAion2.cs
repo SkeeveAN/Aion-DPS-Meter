@@ -234,11 +234,11 @@ public static class SelfCheckAion2
     {
         Console.WriteLine("[selftest] Class catalog per game:");
         bool aion2Roster = ClassCatalog.ClassesFor(GameKind.Aion2).Count == 9 && ClassCatalog.IsKnownClass(GameKind.Aion2, "Elementalist") && !ClassCatalog.IsKnownClass(GameKind.Aion2, "Spiritmaster");
-        bool aionRoster = ClassCatalog.IsKnownClass(GameKind.Aion, "Spiritmaster") && !ClassCatalog.IsKnownClass(GameKind.Aion, "Fighter");
+        bool aionRoster = ClassCatalog.IsKnownClass(GameKind.Aion, "Spiritmaster") && !ClassCatalog.IsKnownClass(GameKind.Aion, "Brawler");
         bool abbreviations = ClassCatalog.Abbreviation("Elementalist") == "ELE" && ClassCatalog.Abbreviation("Templar") == "TPL";
         bool tokens = GameKind.Aion2.ToToken() == "aion2" && GameKindExtensions.ParseToken("aion2") == GameKind.Aion2 && GameKindExtensions.ParseToken(null) == GameKind.Aion;
         Console.WriteLine($"  -> Aion 2 has nine classes incl. Elementalist, no Spiritmaster: {aion2Roster}");
-        Console.WriteLine($"  -> classic roster has Spiritmaster, no Fighter: {aionRoster}");
+        Console.WriteLine($"  -> classic roster has Spiritmaster, no Brawler: {aionRoster}");
         Console.WriteLine($"  -> badge abbreviations match the website's: {abbreviations}");
         Console.WriteLine($"  -> game tokens round-trip: {tokens}");
         return aion2Roster && aionRoster && abbreviations && tokens;

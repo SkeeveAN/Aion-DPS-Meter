@@ -170,7 +170,7 @@ const AION2_CLASS_ABBREVIATIONS = {
   Chanter: "CHA",
   Cleric: "CLR",
   Elementalist: "ELE",
-  Fighter: "FTR",
+  Brawler: "BRW",
   Gladiator: "GLA",
   Ranger: "RNG",
   Sorcerer: "SOR",

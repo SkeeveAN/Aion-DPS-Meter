@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AION2_CLASSES, GAMES } from "./constants.js";
+import { AION2_CLASS_ALIASES, AION2_CLASSES, GAMES } from "./constants.js";
 
 // Generous but real ceilings - these guard against garbage/abuse, not against
 // a legitimately long or hard-hitting fight, so they're deliberately loose.
@@ -38,7 +38,7 @@ export const participantSchema = z.object({
     .trim()
     .min(1)
     .max(40)
-    .transform((name) => MODERN_TO_INTERNAL_CLASS_NAME[name] ?? name),
+    .transform((name) => MODERN_TO_INTERNAL_CLASS_NAME[name] ?? AION2_CLASS_ALIASES[name] ?? name),
   faction: z.string().trim().max(20).default(""),
   // Mirrors the client's `_chatLogParser.Names.NameFor(id) == "You"` check -
   // true for exactly one participant per upload, the uploader themselves.

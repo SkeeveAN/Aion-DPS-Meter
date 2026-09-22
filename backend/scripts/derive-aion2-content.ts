@@ -54,7 +54,7 @@ const AION2_CLASSES: Aion2Class[] = [
   { name: "Chanter", slug: "chanter", abbreviation: "CHA" },
   { name: "Cleric", slug: "cleric", abbreviation: "CLR" },
   { name: "Elementalist", slug: "elementalist", abbreviation: "ELE" },
-  { name: "Fighter", slug: "fighter", abbreviation: "FTR" },
+  { name: "Brawler", slug: "brawler", abbreviation: "BRW" },
   { name: "Gladiator", slug: "gladiator", abbreviation: "GLA" },
   { name: "Ranger", slug: "ranger", abbreviation: "RNG" },
   { name: "Sorcerer", slug: "sorcerer", abbreviation: "SOR" },

@@ -24,12 +24,24 @@ export function isGame(value: unknown): value is Game {
   return typeof value === "string" && (GAMES as readonly string[]).includes(value);
 }
 
+// The 9th class (skill prefix 19) is "Brawler" in the client's own string table; some sources call it
+// "Fighter" - accepted on upload and mapped here.
+export const AION2_CLASS_ALIASES: Record<string, string> = { Fighter: "Brawler" };
+
+// Which classes a server does NOT offer, by server_catalog slug. Per the user: Aion 2 in Europe
+// (and NA) launched with the eight base classes; Korea and Taiwan already have Brawler. Empty/
+// missing = every class of the game (see ClassCatalog on the client for the game's roster).
+export const SERVER_EXCLUDED_CLASSES: Record<string, readonly string[]> = {
+  "aion-2-europe": ["Brawler"],
+  "aion-2-north-america": ["Brawler"],
+};
+
 export const AION2_CLASSES = [
   "Assassin",
   "Chanter",
   "Cleric",
   "Elementalist",
-  "Fighter",
+  "Brawler",
   "Gladiator",
   "Ranger",
   "Sorcerer",

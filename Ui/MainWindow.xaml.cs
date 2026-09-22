@@ -2128,7 +2128,7 @@ public partial class MainWindow : Window
         string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
         // Aion 2 has its own, smaller roster (see ClassCatalog); classic Aion's exclusions are
         // per private server. Aion 2 classes without an entry in this static dropdown
-        // (Elementalist, Fighter) simply can't be filtered on until the XAML grows them.
+        // (Elementalist, Brawler) simply can't be filtered on until the XAML grows them.
         IReadOnlySet<string> excluded = settings.Game == GameKind.Aion2
             ? ClassFilter.Items.OfType<ComboBoxItem>()
                 .Select(item => item.Tag as string)
