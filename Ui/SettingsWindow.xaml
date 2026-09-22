@@ -204,14 +204,23 @@
                              set independently of it. -->
                         <!-- Which game this install is for (MeterSettings.Game) - decides the
                              combat source (Chat.log tailer vs. Aion 2 packet capture), the class
-                             roster and which server catalog the pickers below offer. -->
-                        <StackPanel Orientation="Horizontal" Margin="0,2,0,6">
+                             roster and which server catalog the pickers below offer. Same
+                             auto-vs-manual pattern as AutoDetectActiveCharacterBox further down:
+                             checked (the default, MeterSettings.GameDetectionMode) keeps this in
+                             sync with whichever client is actually running and disables the picker
+                             below since it would just be overwritten; unchecked freezes it at
+                             whatever's picked there. -->
+                        <CheckBox x:Name="AutoDetectGameBox" Content="{local:Loc Settings.AutoDetectGame}"
+                                  Margin="4,2,4,4" Checked="OnAutoDetectGameChanged" Unchecked="OnAutoDetectGameChanged"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
                             <TextBlock Text="{local:Loc Settings.Game}" VerticalAlignment="Center" Margin="4,0,6,0"/>
                             <ComboBox x:Name="GameBox" Width="220" SelectionChanged="OnGameSelected">
                                 <ComboBoxItem Content="Aion" Tag="aion"/>
                                 <ComboBoxItem Content="Aion 2" Tag="aion2"/>
                             </ComboBox>
                         </StackPanel>
+                        <TextBlock x:Name="GameDetectionStatus" TextWrapping="Wrap"
+                                   Margin="4,0,4,6" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"/>
                         <TextBlock x:Name="Aion2Hint" Text="{local:Loc Settings.Aion2Hint}" TextWrapping="Wrap"
                                    Margin="4,0,4,6" Foreground="{DynamicResource Brush.WarningSoft}" Visibility="Collapsed"/>
                         <TextBlock Text="Each server below remembers its own Chat.log folder - pick a server, then set (or confirm) its folder."

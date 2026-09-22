@@ -154,6 +154,12 @@ public partial class MainWindow : Window
     /// every second (see OnChatLogTimerTick).</summary>
     private int _chatLogSizeTickCounter;
 
+    /// <summary>Counts chat-log ticks so ApplyGameDetection runs every 10 seconds rather than every
+    /// second - a process-list scan each tick would be wasteful for something that only matters
+    /// once the played game actually changes. Same cadence as the analogous per-server detection
+    /// below, for the same reason.</summary>
+    private int _gameDetectionTickCounter;
+
     /// <summary>Counts chat-log ticks so AutoDetectServerFromChatLogActivity runs every 10 seconds
     /// rather than every second - a stat() per known server folder each tick would be wasteful for
     /// something that only matters once someone has actually switched clients.</summary>
@@ -607,6 +613,46 @@ public partial class MainWindow : Window
     /// newly-active Chat.log AND (via ApplyActiveCharacterForCurrentServer) resolves the right
     /// registered character for it in one go.
     /// </summary>
+    /// <summary>
+    /// Per the user: Aion and Aion 2 should be told apart clearly, without having to remember to
+    /// flip Settings' Game dropdown by hand every time the played game changes - same "figure it
+    /// out from what's actually happening" idea AutoDetectServerFromChatLogActivity below already
+    /// applies to servers, this time for which GAME is even running (see Game/GameDetector.cs).
+    /// Runs every ~10 seconds, same cadence.
+    ///
+    /// A no-op under <see cref="GameDetectionMode.Manual"/> (see MeterSettings.GameDetectionMode -
+    /// Settings' dropdown then controls Game directly, same as before this existed), when neither
+    /// client's process is currently running (keeps whatever game was last active rather than
+    /// flapping to a default the moment both clients are closed), or when the detected game already
+    /// matches what's configured. Reuses StartChatLogTailing/RefreshCharacterSettings, the exact
+    /// same path Settings' own Save button triggers - so this both swaps the combat source AND (via
+    /// RefreshCharacterSettings/ApplyActiveCharacterForCurrentServer) resolves the right class list
+    /// and active character for the newly-detected game in one go.
+    /// </summary>
+    private void ApplyGameDetection()
+    {
+        var settings = MeterSettings.Load();
+        if (settings.GameDetectionMode != GameDetectionMode.Automatic)
+        {
+            return;
+        }
+
+        if (GameDetector.Detect() is not GameKind detected || detected == settings.Game)
+        {
+            return;
+        }
+
+        settings.Game = detected;
+        settings.Save();
+
+        ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
+        StartChatLogTailing(settings);
+        InitializeFightHistory(settings);
+        RefreshCharacterSettings(settings);
+        ApplyClassFilterAvailability();
+        RefreshRows();
+    }
+
     private void AutoDetectServerFromChatLogActivity()
     {
         var settings = MeterSettings.Load();
@@ -976,6 +1022,14 @@ public partial class MainWindow : Window
         {
             _chatLogSizeTickCounter = 0;
             RefreshChatLogSizeWarning();
+        }
+
+        // Once every 10 ticks - see ApplyGameDetection's own remarks. Runs before the per-server
+        // detection below, which only makes sense once the played GAME is already settled.
+        if (++_gameDetectionTickCounter >= 10)
+        {
+            _gameDetectionTickCounter = 0;
+            ApplyGameDetection();
         }
 
         // Once every 10 ticks - see AutoDetectServerFromChatLogActivity's own remarks.

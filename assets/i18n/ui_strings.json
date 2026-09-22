@@ -759,6 +759,16 @@
     "tr": "Aion Kurulumu",
     "zh": "永恒之塔安装"
   },
+  "Settings.AutoDetectGame": {
+    "en": "Auto-detect which game is running (Aion / Aion 2)",
+    "de": "Automatisch erkennen, welches Spiel läuft (Aion / Aion 2)",
+    "fr": "Détecter automatiquement le jeu en cours (Aion / Aion 2)",
+    "es": "Detectar automáticamente qué juego se está ejecutando (Aion / Aion 2)",
+    "ru": "Определять автоматически, какая игра запущена (Aion / Aion 2)",
+    "pl": "Wykrywaj automatycznie, która gra jest uruchomiona (Aion / Aion 2)",
+    "tr": "Hangi oyunun çalıştığını otomatik algıla (Aion / Aion 2)",
+    "zh": "自动识别当前运行的游戏（永恒之塔 / 永恒之塔2）"
+  },
   "Settings.Game": {
     "en": "Game:",
     "de": "Spiel:",

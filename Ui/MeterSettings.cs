@@ -138,8 +138,17 @@ public sealed class MeterSettings
     /// <summary>Which game the meter is currently pointed at - decides the combat source MainWindow
     /// builds (Chat.log tailer for classic Aion, packet capture for Aion 2), which class list and
     /// server catalog Settings offer, and what uploads are tagged as. One active game at a time,
-    /// same as one active Chat.log; missing in older settings files = classic Aion.</summary>
+    /// same as one active Chat.log; missing in older settings files = classic Aion. While
+    /// <see cref="GameDetectionMode"/> is Automatic, MainWindow keeps overwriting this to match
+    /// whichever client is actually running (see Game/GameDetector.cs) - same relationship
+    /// <see cref="ActiveCharacterName"/> has to <see cref="AutoDetectActiveCharacter"/>.</summary>
     public GameKind Game { get; set; } = GameKind.Aion;
+
+    /// <summary>Whether <see cref="Game"/> is kept in sync with the running client (Automatic, the
+    /// default per the user - Aion and Aion 2 should be told apart clearly without having to
+    /// remember to flip Settings' Game dropdown) or is a fixed pick Settings' dropdown controls
+    /// directly (Manual). Missing in older settings files = Automatic.</summary>
+    public GameDetectionMode GameDetectionMode { get; set; } = GameDetectionMode.Automatic;
 
     /// <summary>Root folder of the Aion client install (e.g. "D:\Spiele\AION\OriginAion"), set in
     /// the Settings dialog. This is where Chat.log lives, and there is no way to auto-discover it,

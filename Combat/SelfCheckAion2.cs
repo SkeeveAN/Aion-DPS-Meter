@@ -249,6 +249,7 @@ public static class SelfCheckAion2
         Console.WriteLine("[selftest] Settings migration (game field):");
         var legacy = JsonSerializer.Deserialize<MeterSettings>("""{"Theme":"Dark","Characters":[{"Name":"Old","ClassName":"Cleric"}]}""")!;
         bool legacyIsAion = legacy.Game == GameKind.Aion && legacy.Characters[0].Game == GameKind.Aion;
+        bool legacyIsAutomatic = legacy.GameDetectionMode == GameDetectionMode.Automatic;
 
         var aion2 = JsonSerializer.Deserialize<MeterSettings>("""{"Game":"aion2","Characters":[{"Name":"New","ClassName":"Templar","Game":"aion2"}]}""")!;
         bool aion2Read = aion2.Game == GameKind.Aion2 && aion2.Characters[0].Game == GameKind.Aion2;
@@ -256,9 +257,15 @@ public static class SelfCheckAion2
         string written = JsonSerializer.Serialize(aion2);
         bool writtenAsToken = written.Contains("\"Game\":\"aion2\"") && !written.Contains("\"Game\":1");
 
+        var manual = JsonSerializer.Deserialize<MeterSettings>("""{"GameDetectionMode":"manual"}""")!;
+        bool manualRead = manual.GameDetectionMode == GameDetectionMode.Manual;
+        bool manualWrittenAsToken = JsonSerializer.Serialize(manual).Contains("\"GameDetectionMode\":\"manual\"");
+
         Console.WriteLine($"  -> settings without a game field mean classic Aion: {legacyIsAion}");
+        Console.WriteLine($"  -> settings without a detection-mode field default to Automatic: {legacyIsAutomatic}");
         Console.WriteLine($"  -> \"aion2\" reads back as Aion2 for settings and characters: {aion2Read}");
         Console.WriteLine($"  -> serialized as the backend's token, not a number: {writtenAsToken}");
-        return legacyIsAion && aion2Read && writtenAsToken;
+        Console.WriteLine($"  -> \"manual\" reads back and round-trips as a token, not a number: {manualRead && manualWrittenAsToken}");
+        return legacyIsAion && legacyIsAutomatic && aion2Read && writtenAsToken && manualRead && manualWrittenAsToken;
     }
 }

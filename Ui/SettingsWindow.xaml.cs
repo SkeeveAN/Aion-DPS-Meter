@@ -18,6 +18,10 @@ public partial class SettingsWindow : Window
     /// class list, which server catalog is fetched and whether an install folder is even needed.</summary>
     private GameKind _game;
 
+    /// <summary>See MeterSettings.GameDetectionMode - whether <see cref="_game"/> tracks the
+    /// running client (Automatic, the default) or is this dialog's own deliberate pick (Manual).</summary>
+    private GameDetectionMode _detectionMode;
+
     /// <summary>Loaded once, asynchronously, right after the window opens - see LoadServerCatalogAsync.
     /// Empty until that finishes (or if the backend is unreachable), in which case
     /// NewCharacterServerBox is simply empty rather than blocking the whole dialog on a network call.</summary>
@@ -46,6 +50,14 @@ public partial class SettingsWindow : Window
         SelectComboItem(GameBox, _game.ToToken());
         RebuildClassBox();
         ApplyGameToInstallSection();
+
+        _detectionMode = settings.GameDetectionMode;
+        // Also fires OnAutoDetectGameChanged (see AutoDetectActiveCharacterBox's own remarks on
+        // why a property-value change already raises Checked/Unchecked) - that sets GameBox's
+        // initial IsEnabled and, if detection now disagrees with the saved pick, brings this
+        // dialog's class list/server catalog in line with what's actually running before the user
+        // sees anything.
+        AutoDetectGameBox.IsChecked = _detectionMode == GameDetectionMode.Automatic;
 
         ShowPlayersBox.IsChecked = settings.ShowPlayers;
         ShowMinionNpcsBox.IsChecked = settings.ShowMinionNpcs;
@@ -115,6 +127,44 @@ public partial class SettingsWindow : Window
         RebuildClassBox();
         ApplyGameToInstallSection();
         _ = LoadServerCatalogAsync();
+    }
+
+    /// <summary>Same auto-vs-manual pattern as OnAutoDetectActiveCharacterChanged: checked disables
+    /// GameBox (MainWindow's own detection loop would just overwrite a manual pick anyway, see
+    /// MainWindow.ApplyGameDetection) and, if detection disagrees with what's currently configured,
+    /// immediately brings the class list/server catalog in line with what's actually running rather
+    /// than leaving this dialog stale until the background loop catches up; unchecked re-enables the
+    /// picker for a deliberate choice.</summary>
+    private void OnAutoDetectGameChanged(object sender, RoutedEventArgs e)
+    {
+        _detectionMode = AutoDetectGameBox.IsChecked == true ? GameDetectionMode.Automatic : GameDetectionMode.Manual;
+        GameBox.IsEnabled = _detectionMode == GameDetectionMode.Manual;
+        RefreshGameDetectionStatus();
+
+        if (_detectionMode == GameDetectionMode.Automatic && GameDetector.Detect() is GameKind detected && detected != _game)
+        {
+            _game = detected;
+            SelectComboItem(GameBox, _game.ToToken());
+            RebuildClassBox();
+            ApplyGameToInstallSection();
+            _ = LoadServerCatalogAsync();
+        }
+    }
+
+    /// <summary>Hardcoded English, same as AionInstallFolderStatus's own validation text further
+    /// down - this reflects a live process check (Game/GameDetector.cs), not a static label worth
+    /// routing through ui_strings.json.</summary>
+    private void RefreshGameDetectionStatus()
+    {
+        if (_detectionMode == GameDetectionMode.Manual)
+        {
+            GameDetectionStatus.Text = "";
+            return;
+        }
+
+        GameDetectionStatus.Text = GameDetector.Detect() is GameKind detected
+            ? $"Currently detected: {detected.DisplayName()}."
+            : "No client currently running - keeping the last detected game until one starts.";
     }
 
     /// <summary>Class picker built from ClassCatalog rather than static XAML, since the roster
@@ -603,6 +653,7 @@ public partial class SettingsWindow : Window
         _settings.ShowDefenseStats = ShowDefenseStatsBox.IsChecked ?? true;
         _settings.RecordFightHistory = RecordFightHistoryBox.IsChecked ?? true;
         _settings.Game = _game;
+        _settings.GameDetectionMode = _detectionMode;
         _settings.AionInstallFolder = _aionInstallFolder;
         _settings.ServerDisplayName = CurrentServerDisplayNameOrNull();
 
