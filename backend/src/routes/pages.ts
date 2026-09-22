@@ -68,15 +68,15 @@ export async function pageRoutes(app: FastifyInstance) {
       return handler(game, request, reply);
     };
 
-  app.get<GameParams>("/:game", withGame(async (game, _request, reply) => reply.redirect(`/${game}/instances`, 301)));
+  app.get<GameParams>("/:game(^(?:aion|aion2)$)", withGame(async (game, _request, reply) => reply.redirect(`/${game}/instances`, 301)));
 
   app.get<GameParams>(
-    "/:game/instances",
+    "/:game(^(?:aion|aion2)$)/instances",
     withGame((game, request, reply) => sendCached(request, reply, () => instancesPage(game))),
   );
 
   app.get<GameParams & { Params: { idOrSlug: string } }>(
-    "/:game/instances/:idOrSlug",
+    "/:game(^(?:aion|aion2)$)/instances/:idOrSlug",
     withGame((game, request, reply) => {
       const { idOrSlug } = request.params as { idOrSlug: string };
       // Old numeric links (shared before slugs existed) move to the slug URL for good.
@@ -89,7 +89,7 @@ export async function pageRoutes(app: FastifyInstance) {
   );
 
   app.get<GameParams & { Params: { idOrSlug: string }; Querystring: { server?: string } }>(
-    "/:game/bosses/:idOrSlug",
+    "/:game(^(?:aion|aion2)$)/bosses/:idOrSlug",
     withGame((game, request, reply) => {
       const { idOrSlug } = request.params as { idOrSlug: string };
       const query = request.query as { server?: string };
@@ -106,7 +106,7 @@ export async function pageRoutes(app: FastifyInstance) {
   );
 
   app.get<GameParams & { Params: { id: string } }>(
-    "/:game/players/:id",
+    "/:game(^(?:aion|aion2)$)/players/:id",
     withGame((game, request, reply) => {
       const page = playerPage(game, (request.params as { id: string }).id);
       return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
@@ -115,8 +115,8 @@ export async function pageRoutes(app: FastifyInstance) {
 
   const appOnly = (kind: "servers" | "search" | "encounter" | "participant") =>
     withGame((game, request, reply) => send(reply, render(appOnlyPage(game, kind, request.url.split("?")[0]), requestPath(request))));
-  app.get<GameParams>("/:game/servers", appOnly("servers"));
-  app.get<GameParams>("/:game/search", appOnly("search"));
-  app.get<GameParams & { Params: { id: string } }>("/:game/encounters/:id", appOnly("encounter"));
-  app.get<GameParams & { Params: { id: string } }>("/:game/participants/:id", appOnly("participant"));
+  app.get<GameParams>("/:game(^(?:aion|aion2)$)/servers", appOnly("servers"));
+  app.get<GameParams>("/:game(^(?:aion|aion2)$)/search", appOnly("search"));
+  app.get<GameParams & { Params: { id: string } }>("/:game(^(?:aion|aion2)$)/encounters/:id", appOnly("encounter"));
+  app.get<GameParams & { Params: { id: string } }>("/:game(^(?:aion|aion2)$)/participants/:id", appOnly("participant"));
 }
