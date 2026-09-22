@@ -659,6 +659,16 @@
     "tr": "Açık",
     "zh": "浅色"
   },
+  "Settings.ThemeHighContrast": {
+    "en": "High contrast",
+    "de": "Hoher Kontrast",
+    "fr": "Contraste élevé",
+    "es": "Alto contraste",
+    "ru": "Высокий контраст",
+    "pl": "Wysoki kontrast",
+    "tr": "Yüksek kontrast",
+    "zh": "高对比度"
+  },
   "Settings.SizeSmall": {
     "en": "Small",
     "de": "Klein",

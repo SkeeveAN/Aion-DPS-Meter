@@ -1,0 +1,56 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Midnight theme - generated palette, one Color.* and matching Brush.* per token.
+         Consumed via {DynamicResource Brush.X} across Ui/*.xaml; swapped at runtime by
+         Ui/ThemeManager.cs. Keep every theme defining the same token set (SelfCheck enforces it). -->
+    <Color x:Key="Color.Window">#0F1220</Color>
+    <Color x:Key="Color.TitleBar">#0A0C18</Color>
+    <Color x:Key="Color.Panel">#161A2E</Color>
+    <Color x:Key="Color.RowAlt">#131728</Color>
+    <Color x:Key="Color.Control">#1C2138</Color>
+    <Color x:Key="Color.ControlRaised">#222846</Color>
+    <Color x:Key="Color.ControlHover">#283052</Color>
+    <Color x:Key="Color.ControlHoverStrong">#303A62</Color>
+    <Color x:Key="Color.Border">#2C3352</Color>
+    <Color x:Key="Color.ScrollThumb">#3A4370</Color>
+    <Color x:Key="Color.CheckBorder">#4A5486</Color>
+    <Color x:Key="Color.CheckBorderHover">#6A76B0</Color>
+    <Color x:Key="Color.TextDisabled">#5C6488</Color>
+    <Color x:Key="Color.TextMuted">#8F98C2</Color>
+    <Color x:Key="Color.TextSubtle">#B8BFE0</Color>
+    <Color x:Key="Color.Text">#E8ECFF</Color>
+    <Color x:Key="Color.Accent">#6FB1FF</Color>
+    <Color x:Key="Color.RowEnemy">#4A1F34</Color>
+    <Color x:Key="Color.OverlayBg">#A6000820</Color>
+    <Color x:Key="Color.OverlayEnemy">#A64A1F34</Color>
+    <Color x:Key="Color.OverlayText">#FFFFFF</Color>
+    <Color x:Key="Color.Warning">#F0B71C</Color>
+    <Color x:Key="Color.WarningSoft">#F0A848</Color>
+    <Color x:Key="Color.Danger">#FF5C6A</Color>
+    <Color x:Key="Color.DangerSoft">#F0A0B0</Color>
+    <SolidColorBrush x:Key="Brush.Window" Color="{StaticResource Color.Window}"/>
+    <SolidColorBrush x:Key="Brush.TitleBar" Color="{StaticResource Color.TitleBar}"/>
+    <SolidColorBrush x:Key="Brush.Panel" Color="{StaticResource Color.Panel}"/>
+    <SolidColorBrush x:Key="Brush.RowAlt" Color="{StaticResource Color.RowAlt}"/>
+    <SolidColorBrush x:Key="Brush.Control" Color="{StaticResource Color.Control}"/>
+    <SolidColorBrush x:Key="Brush.ControlRaised" Color="{StaticResource Color.ControlRaised}"/>
+    <SolidColorBrush x:Key="Brush.ControlHover" Color="{StaticResource Color.ControlHover}"/>
+    <SolidColorBrush x:Key="Brush.ControlHoverStrong" Color="{StaticResource Color.ControlHoverStrong}"/>
+    <SolidColorBrush x:Key="Brush.Border" Color="{StaticResource Color.Border}"/>
+    <SolidColorBrush x:Key="Brush.ScrollThumb" Color="{StaticResource Color.ScrollThumb}"/>
+    <SolidColorBrush x:Key="Brush.CheckBorder" Color="{StaticResource Color.CheckBorder}"/>
+    <SolidColorBrush x:Key="Brush.CheckBorderHover" Color="{StaticResource Color.CheckBorderHover}"/>
+    <SolidColorBrush x:Key="Brush.TextDisabled" Color="{StaticResource Color.TextDisabled}"/>
+    <SolidColorBrush x:Key="Brush.TextMuted" Color="{StaticResource Color.TextMuted}"/>
+    <SolidColorBrush x:Key="Brush.TextSubtle" Color="{StaticResource Color.TextSubtle}"/>
+    <SolidColorBrush x:Key="Brush.Text" Color="{StaticResource Color.Text}"/>
+    <SolidColorBrush x:Key="Brush.Accent" Color="{StaticResource Color.Accent}"/>
+    <SolidColorBrush x:Key="Brush.RowEnemy" Color="{StaticResource Color.RowEnemy}"/>
+    <SolidColorBrush x:Key="Brush.OverlayBg" Color="{StaticResource Color.OverlayBg}"/>
+    <SolidColorBrush x:Key="Brush.OverlayEnemy" Color="{StaticResource Color.OverlayEnemy}"/>
+    <SolidColorBrush x:Key="Brush.OverlayText" Color="{StaticResource Color.OverlayText}"/>
+    <SolidColorBrush x:Key="Brush.Warning" Color="{StaticResource Color.Warning}"/>
+    <SolidColorBrush x:Key="Brush.WarningSoft" Color="{StaticResource Color.WarningSoft}"/>
+    <SolidColorBrush x:Key="Brush.Danger" Color="{StaticResource Color.Danger}"/>
+    <SolidColorBrush x:Key="Brush.DangerSoft" Color="{StaticResource Color.DangerSoft}"/>
+</ResourceDictionary>

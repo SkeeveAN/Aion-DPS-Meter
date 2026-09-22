@@ -129,6 +129,10 @@ internal static class Program
             var app = new System.Windows.Application();
             try
             {
+                // Before the first window exists: every window's brushes resolve through the
+                // theme dictionary this merges in (see Ui/ThemeManager).
+                Ui.MeterSettings startupSettings = Ui.MeterSettings.Load();
+                Ui.ThemeManager.Apply(app, startupSettings.Theme, startupSettings.FontSize);
                 app.Run(new Ui.MainWindow());
             }
             catch (Exception ex)
@@ -200,6 +204,8 @@ internal static class Program
     private static void RunHeadlessUploadMode(string bossName, double gapSeconds, string? logPathOverride)
     {
         var app = new System.Windows.Application();
+        Ui.MeterSettings headlessSettings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, headlessSettings.Theme, headlessSettings.FontSize);
         var window = new Ui.MainWindow();
         int exitCode = 0;
 

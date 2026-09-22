@@ -3,22 +3,23 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AionDPS.Ui"
         Title="{local:Loc Settings.WindowTitle}" Height="600" Width="440"
-        Background="#1e1e24" WindowStartupLocation="CenterOwner">
+        Background="{DynamicResource Brush.Window}" WindowStartupLocation="CenterOwner"
+        FontSize="{DynamicResource FontSize.Base}">
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
         <!-- Same dark CheckBox fix as MainWindow - a Foreground setter never reaches the box
              itself, only its default (previously stock white) template does. -->
         <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
             <Setter Property="Margin" Value="4,3"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
                         <StackPanel Orientation="Horizontal">
-                            <Border x:Name="Box" Width="14" Height="14" Background="#26262e"
-                                    BorderBrush="#5a5a66" BorderThickness="1" Margin="0,0,6,0">
-                                <Path x:Name="Check" Data="M 2,7 L 6,11 L 12,3" Stroke="#e8e8ea"
+                            <Border x:Name="Box" Width="14" Height="14" Background="{DynamicResource Brush.Panel}"
+                                    BorderBrush="{DynamicResource Brush.CheckBorder}" BorderThickness="1" Margin="0,0,6,0">
+                                <Path x:Name="Check" Data="M 2,7 L 6,11 L 12,3" Stroke="{DynamicResource Brush.Text}"
                                       StrokeThickness="1.6" Visibility="Collapsed"/>
                             </Border>
                             <ContentPresenter VerticalAlignment="Center"/>
@@ -28,7 +29,7 @@
                                 <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Box" Property="BorderBrush" Value="#8a8a99"/>
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBorderHover}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -40,8 +41,8 @@
              every other control this session; only a full template replacement does). Thin,
              flat 1px border instead, header sitting above it rather than notched into the line. -->
         <Style TargetType="GroupBox">
-            <Setter Property="Foreground" Value="#c8c8ce"/>
-            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextSubtle}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="Margin" Value="6"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -58,7 +59,7 @@
             </Setter>
         </Style>
         <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#c8c8ce"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextSubtle}"/>
         </Style>
         <!-- Same dark ScrollBar fix as MainWindow - this window's own ScrollViewer can show one
              once the settings list grows past the window height. -->
@@ -66,13 +67,13 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
-                        <Border Background="#4a4a55" CornerRadius="2"/>
+                        <Border Background="{DynamicResource Brush.ScrollThumb}" CornerRadius="2"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
         <Style TargetType="ScrollBar">
-            <Setter Property="Background" Value="#1e1e24"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Window}"/>
             <Setter Property="Width" Value="12"/>
             <Setter Property="Height" Value="12"/>
             <Setter Property="Template">
@@ -99,23 +100,23 @@
              Background/Foreground setter alone doesn't do it) - ThemeBox/FontSizeBox were
              rendering with WPF's default light-theme chrome and popup otherwise. -->
         <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="#26262e"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
             <Setter Property="Padding" Value="6,3"/>
             <Style.Triggers>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="#3a3a45"/>
+                    <Setter Property="Background" Value="{DynamicResource Brush.Border}"/>
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#3a3a45"/>
+                    <Setter Property="Background" Value="{DynamicResource Brush.Border}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
         <Style TargetType="ComboBox">
             <Setter Property="Margin" Value="4"/>
-            <Setter Property="Background" Value="#26262e"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
-            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
@@ -129,7 +130,7 @@
                                     <ControlTemplate TargetType="ToggleButton">
                                         <Border Background="{TemplateBinding Background}"
                                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
-                                            <Path Data="M0,0 L4,4 L8,0 Z" Fill="#c8c8ce" Margin="0,0,8,0"
+                                            <Path Data="M0,0 L4,4 L8,0 Z" Fill="{DynamicResource Brush.TextSubtle}" Margin="0,0,8,0"
                                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                         </Border>
                                     </ControlTemplate>
@@ -141,7 +142,7 @@
                                               Margin="6,3,20,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                             <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
                                    Focusable="False" PopupAnimation="Slide">
-                                <Border Background="#26262e" BorderBrush="#3a3a45" BorderThickness="1"
+                                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                         MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ScrollViewer SnapsToDevicePixels="True">
                                         <ItemsPresenter/>
@@ -154,8 +155,8 @@
             </Setter>
         </Style>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#2a2a33"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Control}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
             <Setter Property="Padding" Value="12,4"/>
             <Setter Property="Margin" Value="4"/>
         </Style>
@@ -164,16 +165,16 @@
              SystemColors.Highlight* inside the default template regardless - overridden the same
              way, scoped to just this list (see the CharactersList.Resources below). -->
         <Style TargetType="ListBox">
-            <Setter Property="Background" Value="#26262e"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
-            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
         </Style>
         <!-- Same dark ToolTip fix as MainWindow - the class-name tooltips on the icon-only
              ComboBoxItems below would otherwise show a bright white box. -->
         <Style TargetType="ToolTip">
-            <Setter Property="Background" Value="#26262e"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
-            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="Padding" Value="6,4"/>
         </Style>
     </Window.Resources>
@@ -212,9 +213,9 @@
                             </ComboBox>
                         </StackPanel>
                         <TextBlock x:Name="Aion2Hint" Text="{local:Loc Settings.Aion2Hint}" TextWrapping="Wrap"
-                                   Margin="4,0,4,6" Foreground="#f0a848" Visibility="Collapsed"/>
+                                   Margin="4,0,4,6" Foreground="{DynamicResource Brush.WarningSoft}" Visibility="Collapsed"/>
                         <TextBlock Text="Each server below remembers its own Chat.log folder - pick a server, then set (or confirm) its folder."
-                                   TextWrapping="Wrap" Margin="4,2" FontStyle="Italic" Foreground="#9a9aa2"/>
+                                   TextWrapping="Wrap" Margin="4,2" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                             <TextBlock Text="Server:" VerticalAlignment="Center" Margin="4,0,6,0"/>
                             <!-- Same curated catalog as the "Add character" section's own server
@@ -233,7 +234,7 @@
                                    TextWrapping="Wrap" Margin="4,8,4,2"/>
                         <StackPanel Orientation="Horizontal">
                             <TextBox x:Name="AionInstallFolderBox" Width="260" IsReadOnly="True"
-                                     Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45" Margin="4,2"/>
+                                     Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}" Margin="4,2"/>
                             <Button Content="{local:Loc Settings.SelectFolder}" Click="OnSelectAionFolderClicked"/>
                         </StackPanel>
                         <TextBlock x:Name="AionInstallFolderStatus" Margin="4,2" TextWrapping="Wrap" FontStyle="Italic"/>
@@ -248,7 +249,7 @@
                              server's config file. -->
                         <TextBlock Text="Detected server (used to keep community-backend runs from mixing across servers):"
                                    TextWrapping="Wrap" Margin="4,8,4,2"/>
-                        <TextBlock x:Name="ServerFingerprintText" Margin="4,2" FontStyle="Italic" Foreground="#9a9aa2"/>
+                        <TextBlock x:Name="ServerFingerprintText" Margin="4,2" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"/>
 
                         <!-- Makes MeterSettings.ServerInstallFolders itself visible, not just its
                              effect - per the user, the binding existed in code (added previous
@@ -260,12 +261,12 @@
                         <ItemsControl x:Name="ServerFolderMappingsList" Margin="4,0,4,4">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding}" Foreground="#9a9aa2" FontStyle="Italic" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding}" Foreground="{DynamicResource Brush.TextMuted}" FontStyle="Italic" TextWrapping="Wrap"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <TextBlock x:Name="ServerFolderMappingsEmptyText" Text="(none yet - pick a server above, set its folder, then Save)"
-                                   Margin="4,0,4,4" FontStyle="Italic" Foreground="#9a9aa2"/>
+                                   Margin="4,0,4,4" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"/>
                     </StackPanel>
                 </GroupBox>
 
@@ -282,8 +283,8 @@
                         <ListBox x:Name="CharactersList" Height="90" SelectionMode="Single"
                                  SelectionChanged="OnCharacterSelected">
                             <ListBox.Resources>
-                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3a3a45"/>
-                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#e8e8ea"/>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
                             </ListBox.Resources>
                             <!-- Icon before the character's name, per the user's request - the
                                  icon here identifies the CLASS, the text is the character's NAME.
@@ -310,7 +311,7 @@
                                              (CharacterProfile.ServerLabel already includes the
                                              surrounding " (...)", so no StringFormat is needed here). -->
                                         <TextBlock Text="{Binding ServerLabel}"
-                                                   VerticalAlignment="Center" Foreground="#9a9aa2" FontSize="11"/>
+                                                   VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -328,7 +329,7 @@
                                  taller row the way the ComboBoxes' own templates already do. -->
                             <TextBox x:Name="NewCharacterNameBox" Width="120" Margin="4,2"
                                      VerticalAlignment="Center" VerticalContentAlignment="Center"
-                                     Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45"/>
+                                     Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
                             <ComboBox x:Name="NewCharacterClassBox" Width="150">
                                 <!-- Items come from ClassCatalog.ClassesFor(game) - see RebuildClassBox. -->
                             </ComboBox>
@@ -402,6 +403,10 @@
                             <ComboBox x:Name="ThemeBox" Width="150">
                                 <ComboBoxItem Content="{local:Loc Settings.ThemeDark}" Tag="Dark"/>
                                 <ComboBoxItem Content="{local:Loc Settings.ThemeLight}" Tag="Light"/>
+                                <ComboBoxItem Content="Midnight" Tag="Midnight"/>
+                                <ComboBoxItem Content="Elyos" Tag="Elyos"/>
+                                <ComboBoxItem Content="Asmodian" Tag="Asmodian"/>
+                                <ComboBoxItem Content="{local:Loc Settings.ThemeHighContrast}" Tag="HighContrast"/>
                             </ComboBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">

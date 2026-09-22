@@ -44,6 +44,7 @@ public static class SelfCheck
         ok &= RunTemplateLanguagesChatLogScenario();
         ok &= RunBuffCastScenario();
         ok &= SelfCheckAion2.Run();
+        ok &= SelfCheckThemes.Run();
         return ok;
     }
 

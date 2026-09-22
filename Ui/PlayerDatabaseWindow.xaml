@@ -3,21 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AionDPS.Ui"
         Title="Player Database" Height="500" Width="640"
-        Background="#1e1e24" Foreground="#e8e8ea" WindowStartupLocation="CenterOwner">
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" WindowStartupLocation="CenterOwner"
+        FontSize="{DynamicResource FontSize.Base}">
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
     </Window.Resources>
     <DockPanel Margin="10">
-        <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Foreground="#9a9aa2" Margin="0,0,0,8"
+        <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,0,0,8"
                    Text="Everyone the meter has identified. Class and faction are worked out while you play and kept between sessions, so someone seen once is recognised straight away next time. A faction you set here is pinned and the meter will not derive over it again."/>
 
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
             <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0"/>
             <TextBox x:Name="SearchBox" Width="200" TextChanged="OnSearchChanged"
-                     Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45"
+                     Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"
                      VerticalContentAlignment="Center"/>
-            <TextBlock x:Name="CountText" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="#9a9aa2"/>
+            <TextBlock x:Name="CountText" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{DynamicResource Brush.TextMuted}"/>
         </StackPanel>
 
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
@@ -30,9 +31,9 @@
         </StackPanel>
 
         <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
-                  Background="#1e1e24" Foreground="#e8e8ea" RowBackground="#22222a"
-                  AlternatingRowBackground="#26262e" BorderBrush="#3a3a45"
-                  HorizontalGridLinesBrush="#3a3a45" GridLinesVisibility="Horizontal"
+                  Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
+                  AlternatingRowBackground="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
+                  HorizontalGridLinesBrush="{DynamicResource Brush.Border}" GridLinesVisibility="Horizontal"
                   HeadersVisibility="Column" CanUserAddRows="False">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Name" Width="*">

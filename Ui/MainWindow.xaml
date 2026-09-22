@@ -4,7 +4,8 @@
         xmlns:local="clr-namespace:AionDPS.Ui"
         Title="Aion DPS" Height="492" Width="357"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        ResizeMode="CanResizeWithGrip">
+        ResizeMode="CanResizeWithGrip"
+        FontSize="{DynamicResource FontSize.Base}">
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
@@ -18,9 +19,9 @@
              replacing the template does. Full custom template below: a plain Border + trigger for
              hover/pressed/disabled, so disabled means "dimmed", not "WPF's stock light chrome". -->
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#2a2a33"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
-            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Control}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -34,10 +35,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#34343f"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.ControlHover}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#1e1e24"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Window}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
@@ -63,7 +64,7 @@
              its ControlTemplate.Triggers, not TemplateBinding'd, so a lighter idle color alone
              would leave hover barely distinguishable from idle (or, worse, darker than it). -->
         <Style x:Key="ToolbarIconButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="Background" Value="#34343f"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.ControlHover}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -74,10 +75,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#40404e"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.ControlHoverStrong}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#26262e"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Panel}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
@@ -99,18 +100,18 @@
             <Setter Property="Padding" Value="10,3"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Border x:Name="Bd" Background="#34343f" BorderBrush="#3a3a45" BorderThickness="1,1,0,1"
+                        <Border x:Name="Bd" Background="{DynamicResource Brush.ControlHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1,1,0,1"
                                 CornerRadius="4,0,0,4" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#69e15e"/>
-                                <Setter Property="Foreground" Value="#1e1e24"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Window}"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
                             </Trigger>
                             <MultiTrigger>
@@ -118,7 +119,7 @@
                                     <Condition Property="IsMouseOver" Value="True"/>
                                     <Condition Property="IsChecked" Value="False"/>
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="Bd" Property="Background" Value="#40404e"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.ControlHoverStrong}"/>
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -129,14 +130,14 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Border x:Name="Bd" Background="#34343f" BorderBrush="#3a3a45" BorderThickness="1"
+                        <Border x:Name="Bd" Background="{DynamicResource Brush.ControlHover}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                 CornerRadius="0,4,4,0" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#69e15e"/>
-                                <Setter Property="Foreground" Value="#1e1e24"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Window}"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
                             </Trigger>
                             <MultiTrigger>
@@ -144,7 +145,7 @@
                                     <Condition Property="IsMouseOver" Value="True"/>
                                     <Condition Property="IsChecked" Value="False"/>
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="Bd" Property="Background" Value="#40404e"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.ControlHoverStrong}"/>
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -159,15 +160,15 @@
              default ComboBox ControlTemplate does not consistently use those properties for its
              chrome; only a full template replacement reliably does. -->
         <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="#26262e"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
             <Setter Property="Padding" Value="6,3"/>
             <Style.Triggers>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="#3a3a45"/>
+                    <Setter Property="Background" Value="{DynamicResource Brush.Border}"/>
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#3a3a45"/>
+                    <Setter Property="Background" Value="{DynamicResource Brush.Border}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -176,9 +177,9 @@
              default template DOES respect a plain Background/Foreground/BorderBrush setter, it
              just never had one set in the first place. -->
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#26262e"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
-            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="BorderThickness" Value="0,0,1,1"/>
             <Setter Property="Padding" Value="6,4"/>
         </Style>
@@ -191,13 +192,13 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
-                        <Border Background="#4a4a55" CornerRadius="2"/>
+                        <Border Background="{DynamicResource Brush.ScrollThumb}" CornerRadius="2"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
         <Style TargetType="ScrollBar">
-            <Setter Property="Background" Value="#1e1e24"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Window}"/>
             <Setter Property="Width" Value="12"/>
             <Setter Property="Height" Value="12"/>
             <Setter Property="Template">
@@ -227,9 +228,9 @@
                  background (#26262e) almost exactly, so the three filter dropdowns barely read as
                  controls. A distinct, still-dark shade here - the dropdown POPUP below keeps
                  #26262e on purpose, so the open list still matches the rest of the app's flyouts. -->
-            <Setter Property="Background" Value="#32323e"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
-            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.ControlRaised}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
@@ -243,7 +244,7 @@
                                     <ControlTemplate TargetType="ToggleButton">
                                         <Border Background="{TemplateBinding Background}"
                                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
-                                            <Path Data="M0,0 L4,4 L8,0 Z" Fill="#c8c8ce" Margin="0,0,8,0"
+                                            <Path Data="M0,0 L4,4 L8,0 Z" Fill="{DynamicResource Brush.TextSubtle}" Margin="0,0,8,0"
                                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                         </Border>
                                     </ControlTemplate>
@@ -255,7 +256,7 @@
                                               Margin="6,3,20,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                             <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
                                    Focusable="False" PopupAnimation="Slide">
-                                <Border Background="#26262e" BorderBrush="#3a3a45" BorderThickness="1"
+                                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                         MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ScrollViewer SnapsToDevicePixels="True">
                                         <ItemsPresenter/>
@@ -290,7 +291,7 @@
                                     <ControlTemplate TargetType="ToggleButton">
                                         <Border Background="{TemplateBinding Background}"
                                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
-                                            <Path Data="M0,0 L4,4 L8,0 Z" Fill="#c8c8ce" Margin="0,0,8,0"
+                                            <Path Data="M0,0 L4,4 L8,0 Z" Fill="{DynamicResource Brush.TextSubtle}" Margin="0,0,8,0"
                                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                         </Border>
                                     </ControlTemplate>
@@ -302,12 +303,12 @@
                                               Margin="6,3,20,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                             <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
                                    Focusable="False" PopupAnimation="Slide">
-                                <Border Background="#26262e" BorderBrush="#3a3a45" BorderThickness="1"
+                                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
                                         MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                     <DockPanel>
                                         <TextBox x:Name="PART_SearchBox" DockPanel.Dock="Top"
-                                                 Background="#1e1e24" Foreground="#e8e8ea"
-                                                 BorderBrush="#3a3a45" BorderThickness="0,0,0,1"
+                                                 Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
+                                                 BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,0,1"
                                                  Padding="5,4" Margin="0"/>
                                         <ScrollViewer SnapsToDevicePixels="True" MaxHeight="240">
                                             <ItemsPresenter/>
@@ -328,10 +329,10 @@
              Scoped to Window.Resources (not the Menu element) because these specific keys don't
              overlap with the Highlight* keys already scoped to the DataGrid/ListBox, so there's
              no risk of the two fixes fighting each other. -->
-        <SolidColorBrush x:Key="{x:Static SystemColors.MenuBrushKey}" Color="#26262e"/>
-        <SolidColorBrush x:Key="{x:Static SystemColors.MenuTextBrushKey}" Color="#e8e8ea"/>
-        <SolidColorBrush x:Key="{x:Static SystemColors.MenuHighlightBrushKey}" Color="#3a3a45"/>
-        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#26262e"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.MenuBrushKey}" Color="{DynamicResource Color.Panel}"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.MenuTextBrushKey}" Color="{DynamicResource Color.Text}"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.MenuHighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{DynamicResource Color.Panel}"/>
         <!-- Found by the user: menu items rendered with an ugly per-item border/bevel. Same
              lesson as Button/ComboBox/CheckBox before it - a Background/Foreground setter alone
              leaves whatever border/bevel chrome the default MenuItem template draws untouched;
@@ -340,8 +341,8 @@
              submenu entries - WPF's MenuItem is the same class for all three, distinguished only
              by its Role property, which the Popup.Placement trigger below accounts for. -->
         <Style TargetType="MenuItem">
-            <Setter Property="Background" Value="#26262e"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -353,7 +354,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Path x:Name="Check" Grid.Column="0" Data="M 2,7 L 6,11 L 12,3" Stroke="#e8e8ea"
+                                    <Path x:Name="Check" Grid.Column="0" Data="M 2,7 L 6,11 L 12,3" Stroke="{DynamicResource Brush.Text}"
                                           StrokeThickness="1.6" Margin="0,0,8,0" Visibility="Collapsed"/>
                                     <ContentPresenter Grid.Column="1" ContentSource="Header"
                                                       RecognizesAccessKey="True" VerticalAlignment="Center"/>
@@ -361,7 +362,7 @@
                             </Border>
                             <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsSubmenuOpen}"
                                    AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
-                                <Border Background="#26262e" BorderBrush="#3a3a45" BorderThickness="1">
+                                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
                                     <ItemsPresenter/>
                                 </Border>
                             </Popup>
@@ -371,10 +372,10 @@
                                 <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
                             </Trigger>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#3a3a45"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Border}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#6a6a75"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextDisabled}"/>
                             </Trigger>
                             <Trigger Property="Role" Value="SubmenuItem">
                                 <Setter TargetName="Popup" Property="Placement" Value="Right"/>
@@ -385,16 +386,16 @@
             </Setter>
         </Style>
         <Style TargetType="Separator">
-            <Setter Property="Background" Value="#3a3a45"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Border}"/>
         </Style>
         <!-- Found by the user: a ToolTip popup (e.g. the Char-quick-switch's, back when it still
              existed) rendered as a bright white box - same popup-chrome issue as everything above, ToolTip's default template
              ignores Background/Foreground the same way. Simple setters ARE enough here (ToolTip's
              default template is a plain bordered box, no bevel/3D chrome to fight). -->
         <Style TargetType="ToolTip">
-            <Setter Property="Background" Value="#26262e"/>
-            <Setter Property="Foreground" Value="#e8e8ea"/>
-            <Setter Property="BorderBrush" Value="#3a3a45"/>
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="Padding" Value="6,4"/>
         </Style>
         <!-- Found by terminal_windows measuring pixels again: a CheckBox's own box (the now-removed
@@ -408,9 +409,9 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
                         <StackPanel Orientation="Horizontal">
-                            <Border x:Name="Box" Width="14" Height="14" Background="#26262e"
-                                    BorderBrush="#5a5a66" BorderThickness="1" Margin="0,0,6,0">
-                                <Path x:Name="Check" Data="M 2,7 L 6,11 L 12,3" Stroke="#e8e8ea"
+                            <Border x:Name="Box" Width="14" Height="14" Background="{DynamicResource Brush.Panel}"
+                                    BorderBrush="{DynamicResource Brush.CheckBorder}" BorderThickness="1" Margin="0,0,6,0">
+                                <Path x:Name="Check" Data="M 2,7 L 6,11 L 12,3" Stroke="{DynamicResource Brush.Text}"
                                       StrokeThickness="1.6" Visibility="Collapsed"/>
                             </Border>
                             <ContentPresenter VerticalAlignment="Center"/>
@@ -420,7 +421,7 @@
                                 <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Box" Property="BorderBrush" Value="#8a8a99"/>
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBorderHover}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -435,10 +436,10 @@
              transparent+click-through) means there's no OS titlebar - this Border supplies its
              own dark background (so normal mode looks the way it always did) plus a manual
              drag/close bar, since we gave up the OS one. -->
-        <Border x:Name="NormalContent" Background="#1e1e24" BorderBrush="#3a3a45" BorderThickness="1">
+        <Border x:Name="NormalContent" Background="{DynamicResource Brush.Window}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
             <DockPanel LastChildFill="True">
 
-                <Grid DockPanel.Dock="Top" Background="#151519" Height="24" MouseLeftButtonDown="OnTitleBarMouseDown">
+                <Grid DockPanel.Dock="Top" Background="{DynamicResource Brush.TitleBar}" Height="24" MouseLeftButtonDown="OnTitleBarMouseDown">
                     <!-- Per the user: the version belongs where it's actually seen. Window.Title
                          already carries it (set in the constructor from AppVersion.Text, see its
                          remarks on why a screenshot needs to identify its build), but WindowStyle=
@@ -446,9 +447,9 @@
                          the only titlebar a user ever sees, so it has to show the same string
                          rather than a second, separately-hardcoded one that could drift from it. -->
                     <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
-                               Foreground="#9a9aa2" VerticalAlignment="Center" Margin="8,0"/>
+                               Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="8,0"/>
                     <Button Content="✕" Click="OnCloseClicked" HorizontalAlignment="Right" Width="28" Height="24"
-                            Background="Transparent" BorderThickness="0" Foreground="#9a9aa2" Margin="0"/>
+                            Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0"/>
                 </Grid>
 
                 <!-- Top menu bar: App / Session / Settings / Mode. The original
@@ -462,8 +463,8 @@
                      kind of action that needs an explicit ask first, not a UI-parity checkbox).
                      What IS real: Close, Load Demo Data, Clear sessions, and everything under
                      Settings. -->
-                <Menu DockPanel.Dock="Top" Background="#26262e" Foreground="#e8e8ea">
-                    <MenuItem Header="{local:Loc Main.MenuApp}" Foreground="#e8e8ea">
+                <Menu DockPanel.Dock="Top" Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}">
+                    <MenuItem Header="{local:Loc Main.MenuApp}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuApp.LoadSession}" IsEnabled="False"/>
                         <MenuItem Header="{local:Loc Main.MenuApp.SaveSession}" IsEnabled="False"/>
                         <Separator/>
@@ -496,7 +497,7 @@
                         <Separator/>
                         <MenuItem Header="{local:Loc Main.MenuApp.Close}" Click="OnCloseClicked"/>
                     </MenuItem>
-                    <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="#e8e8ea">
+                    <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="{DynamicResource Brush.Text}">
                         <!-- Uploads exactly the currently filtered boss - same action as the
                              Damage view's Upload button (OnUploadCurrentBossClicked), reachable
                              here too since the button only shows in that one view. Collapsed by
@@ -520,7 +521,7 @@
                          out everything settings-related into its own top-level dropdown (right of
                          Session) makes it a fixed, predictable place to look, rather than one more
                          entry buried among a dozen others. -->
-                    <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="#e8e8ea">
+                    <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuSettings.AppSettings}" Click="OnSettingsClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuSettings.PlayerDatabase}" Click="OnPlayerDatabaseClicked"
                                   ToolTip="Everyone the meter has identified, with their class and faction - and where a wrongly derived faction can be corrected later."/>
@@ -529,7 +530,7 @@
                         <MenuItem Header="{local:Loc Main.MenuSettings.ProfileSettings}" IsEnabled="False"/>
                         <MenuItem Header="{local:Loc Main.MenuSettings.KeyBindings}" IsEnabled="False"/>
                     </MenuItem>
-                    <MenuItem Header="{local:Loc Main.MenuMode}" Foreground="#e8e8ea">
+                    <MenuItem Header="{local:Loc Main.MenuMode}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem x:Name="DamageModeItem" Header="{local:Loc Main.ModeDamage}" IsCheckable="True" IsChecked="True" Click="OnModeClicked"/>
                         <MenuItem x:Name="HealModeItem" Header="{local:Loc Main.ModeHeal}" IsCheckable="True" Click="OnModeClicked"
                                   ToolTip="Not implemented: SM_ATTACK_STATUS (the heal-tick packet) carries no healer/attacker field in this build's layout, so heals can't be attributed to a player - see README."/>
@@ -545,7 +546,7 @@
                      (2 rects for Copy, 3 for CopyAll, to visually hint "more"); the back rect(s) are
                      given the toolbar's own Background as Fill so the front rect's edge reads as an
                      overlap rather than a plus-sign of crossing lines. -->
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#26262e">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="{DynamicResource Brush.Panel}">
                     <!-- Icon vs text label toggled per view (see OnShowDamageView/OnShowLootView)
                          - per the user: while the Loot view is active, Copy and CopyAll produce
                          genuinely different payloads (chat string vs Discord table, see
@@ -561,7 +562,7 @@
                     <Button x:Name="CopyButton" Style="{StaticResource ToolbarIconButton}" Click="OnCopyClicked" Padding="6,4"
                             ToolTip="Copy a one-line chat string - the damage ranking, or an Aion-chat loot summary if the Loot view is active.">
                         <Grid Width="18" Height="16">
-                            <TextBlock Text="A" FontSize="15" FontWeight="Bold" Foreground="#e8e8ea"
+                            <TextBlock Text="A" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Brush.Text}"
                                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Grid>
                     </Button>
@@ -578,7 +579,7 @@
                                  SelfCheck parses this string, because a malformed Data attribute
                                  throws while the window is being built - the app would not start. -->
                             <Path Data="M 20.317 4.3698a 19.7913 19.7913 0 0 0 -4.8851 -1.5152 0.0741 0.0741 0 0 0 -0.0785 0.0371c -0.211 0.3753 -0.4447 0.8648 -0.6083 1.2495 -1.8447 -0.2762 -3.68 -0.2762 -5.4868 0 -0.1636 -0.3933 -0.4058 -0.8742 -0.6177 -1.2495a 0.077 0.077 0 0 0 -0.0785 -0.037 19.7363 19.7363 0 0 0 -4.8852 1.515 0.0699 0.0699 0 0 0 -0.0321 0.0277C 0.5334 9.0458 -0.319 13.5799 0.0992 18.0578a 0.0824 0.0824 0 0 0 0.0312 0.0561c 2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a 0.0777 0.0777 0 0 0 0.0842 -0.0276c 0.4616 -0.6304 0.8731 -1.2952 1.226 -1.9942a 0.076 0.076 0 0 0 -0.0416 -0.1057c -0.6528 -0.2476 -1.2743 -0.5495 -1.8722 -0.8923a 0.077 0.077 0 0 1 -0.0076 -0.1277c 0.1258 -0.0943 0.2517 -0.1923 0.3718 -0.2914a 0.0743 0.0743 0 0 1 0.0776 -0.0105c 3.9278 1.7933 8.18 1.7933 12.0614 0a 0.0739 0.0739 0 0 1 0.0785 0.0095c 0.1202 0.099 0.246 0.1981 0.3728 0.2924a 0.077 0.077 0 0 1 -0.0066 0.1276 12.2986 12.2986 0 0 1 -1.873 0.8914 0.0766 0.0766 0 0 0 -0.0407 0.1067c 0.3604 0.698 0.7719 1.3628 1.225 1.9932a 0.076 0.076 0 0 0 0.0842 0.0286c 1.961 -0.6067 3.9495 -1.5219 6.0023 -3.0294a 0.077 0.077 0 0 0 0.0313 -0.0552c 0.5004 -5.177 -0.8382 -9.6739 -3.5485 -13.6604a 0.061 0.061 0 0 0 -0.0312 -0.0286zM 8.02 15.3312c -1.1825 0 -2.1569 -1.0857 -2.1569 -2.419 0 -1.3332 0.9555 -2.4189 2.157 -2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332 -0.9555 2.4189 -2.1569 2.4189zm 7.9748 0c -1.1825 0 -2.1569 -1.0857 -2.1569 -2.419 0 -1.3332 0.9554 -2.4189 2.1569 -2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332 -0.946 2.4189 -2.1568 2.4189Z"
-                                  Fill="#e8e8ea" Stretch="Uniform" Width="16" Height="16"/>
+                                  Fill="{DynamicResource Brush.Text}" Stretch="Uniform" Width="16" Height="16"/>
                         </Grid>
                     </Button>
                     <!-- Pause/Resume: one button, two overlaid glyphs (pause bars / play triangle)
@@ -590,10 +591,10 @@
                             ToolTip="Pause recording.">
                         <Grid Width="18" Height="16">
                             <StackPanel x:Name="PauseIcon" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Rectangle Width="4" Height="14" Fill="#e8e8ea" Margin="0,0,3,0"/>
-                                <Rectangle Width="4" Height="14" Fill="#e8e8ea"/>
+                                <Rectangle Width="4" Height="14" Fill="{DynamicResource Brush.Text}" Margin="0,0,3,0"/>
+                                <Rectangle Width="4" Height="14" Fill="{DynamicResource Brush.Text}"/>
                             </StackPanel>
-                            <Path x:Name="PlayIcon" Data="M3,1 L3,15 L15,8 Z" Fill="#e8e8ea" Visibility="Collapsed"/>
+                            <Path x:Name="PlayIcon" Data="M3,1 L3,15 L15,8 Z" Fill="{DynamicResource Brush.Text}" Visibility="Collapsed"/>
                         </Grid>
                     </Button>
                     <!-- Empties Aion's Chat.log itself, which nothing else in the game or the
@@ -604,8 +605,8 @@
                             ToolTip="Empty Aion's Chat.log on disk. The meter keeps running; only the file's history is discarded.">
                         <Grid Width="18" Height="16">
                             <Path Data="M4,1 L11,1 L14,4 L14,15 L4,15 Z M11,1 L11,4 L14,4"
-                                  Stroke="#e8e8ea" StrokeThickness="1.2" StrokeLineJoin="Round"/>
-                            <Path Data="M6,8 L12,13 M12,8 L6,13" Stroke="#e8a0a0" StrokeThickness="1.4"
+                                  Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.2" StrokeLineJoin="Round"/>
+                            <Path Data="M6,8 L12,13 M12,8 L6,13" Stroke="{DynamicResource Brush.DangerSoft}" StrokeThickness="1.4"
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                         </Grid>
                     </Button>
@@ -617,7 +618,7 @@
                     <Button x:Name="ClearButton" Style="{StaticResource ToolbarIconButton}" Click="OnClearClicked" Padding="6,4"
                             ToolTip="Clear the view you are looking at - damage or loot, not both (does not touch Chat.log itself).">
                         <Grid Width="18" Height="16">
-                            <Path Data="M4,3 L14,13 M14,3 L4,13" Stroke="#e0464f" StrokeThickness="2"
+                            <Path Data="M4,3 L14,13 M14,3 L4,13" Stroke="{DynamicResource Brush.Danger}" StrokeThickness="2"
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                         </Grid>
                     </Button>
@@ -635,7 +636,7 @@
                             ToolTip="Overlay mode: transparent, click-through, shows a small DPS chip per player. Ctrl+Alt+H brings the UI back.">
                         <Path Data="M1,12 C1,12 4.5,5 12,5 19.5,5 23,12 23,12 23,12 19.5,19 12,19 4.5,19 1,12 1,12 Z
                                     M12,15 A3,3 0 1 0 12,9 3,3 0 1 0 12,15 Z"
-                              Fill="#e8e8ea" Width="18" Height="14" Stretch="Uniform"/>
+                              Fill="{DynamicResource Brush.Text}" Width="18" Height="14" Stretch="Uniform"/>
                     </Button>
                     <!-- Moved here from the filter-dropdown row, per the user: it belongs in the
                          icon row next to the other actions, not off to the right of the three
@@ -649,7 +650,7 @@
                             Visibility="Collapsed"
                             ToolTip="Uploads this boss fight to aiondps.com.">
                         <Path Data="M9,2 L9,10 M4,7 L9,2 L14,7 M3,13 L15,13"
-                              Stroke="#e8e8ea" StrokeThickness="1.6" StrokeLineJoin="Round"
+                              Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.6" StrokeLineJoin="Round"
                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                               Width="18" Height="15" Stretch="Uniform"/>
                     </Button>
@@ -679,7 +680,7 @@
                      dropdown's own ToolTip plus, for ClassFilter now, the visible class name inside
                      it, carries enough meaning without a preceding "Class:"/"Source:"/"Mob/Boss:"
                      text label. -->
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#1e1e24">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="{DynamicResource Brush.Window}">
                     <!-- Icon + class name, per the user ("das Dropdown darf die Namen enthalten") -
                          previously icon-only; ClassIconConverter/pack://siteoforigin remarks that
                          used to sit here now live on NewCharacterClassBox in SettingsWindow.xaml,
@@ -751,16 +752,16 @@
                      the stats (always shown) from the notices (each collapsed until there's
                      something to say) gives the notices their own row's full width instead of
                      fighting the stats for what's left of one shared line. -->
-                <StackPanel DockPanel.Dock="Bottom" Background="#26262e">
+                <StackPanel DockPanel.Dock="Bottom" Background="{DynamicResource Brush.Panel}">
                     <StackPanel Orientation="Horizontal" Height="22">
-                        <TextBlock Text="{local:Loc Main.StatExp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="8,0,4,0"/>
-                        <TextBlock x:Name="ExpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
-                        <TextBlock Text="{local:Loc Main.StatAp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                        <TextBlock x:Name="ApValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
-                        <TextBlock Text="{local:Loc Main.StatGp}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                        <TextBlock x:Name="GpValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
-                        <TextBlock Text="{local:Loc Main.StatKinah}" Foreground="#9a9aa2" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                        <TextBlock x:Name="KinahValueText" Text="-" Foreground="#c8c8ce" VerticalAlignment="Center"/>
+                        <TextBlock Text="{local:Loc Main.StatExp}" Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                        <TextBlock x:Name="ExpValueText" Text="-" Foreground="{DynamicResource Brush.TextSubtle}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{local:Loc Main.StatAp}" Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                        <TextBlock x:Name="ApValueText" Text="-" Foreground="{DynamicResource Brush.TextSubtle}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{local:Loc Main.StatGp}" Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                        <TextBlock x:Name="GpValueText" Text="-" Foreground="{DynamicResource Brush.TextSubtle}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{local:Loc Main.StatKinah}" Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                        <TextBlock x:Name="KinahValueText" Text="-" Foreground="{DynamicResource Brush.TextSubtle}" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Height="22">
                         <!-- Only appears once Chat.log passes the threshold. In the status row
@@ -768,7 +769,7 @@
                              window sits on top of a running game, and nothing here is urgent
                              enough to steal focus from a fight. -->
                         <TextBlock x:Name="ChatLogSizeWarning" Visibility="Collapsed" VerticalAlignment="Center"
-                                   Margin="8,0,8,0" Foreground="#f0b71c" FontWeight="Bold" Cursor="Hand"
+                                   Margin="8,0,8,0" Foreground="{DynamicResource Brush.Warning}" FontWeight="Bold" Cursor="Hand"
                                    MouseLeftButtonUp="OnEmptyChatLogClicked"
                                    ToolTip="Aion never trims Chat.log by itself. Click to empty it."/>
 
@@ -778,7 +779,7 @@
                              from the fight. It only becomes visible when there is something to say,
                              and clicking it is what starts anything. -->
                         <TextBlock x:Name="UpdateNotice" Visibility="Collapsed" VerticalAlignment="Center"
-                                   Margin="8,0,8,0" Foreground="#69e15e" Cursor="Hand"
+                                   Margin="8,0,8,0" Foreground="{DynamicResource Brush.Accent}" Cursor="Hand"
                                    MouseLeftButtonUp="OnUpdateNoticeClicked"
                                    TextDecorations="Underline"
                                    ToolTip="A newer version is available - click to download and install it."/>
@@ -787,7 +788,7 @@
                              view's Upload button) - same reasoning as UpdateNotice above: this window
                              sits on top of a running fight, so a result never pops a modal dialog. -->
                         <TextBlock x:Name="UploadStatusText" Visibility="Collapsed" VerticalAlignment="Center"
-                                   Margin="8,0,8,0" Foreground="#9a9aa2"/>
+                                   Margin="8,0,8,0" Foreground="{DynamicResource Brush.TextMuted}"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -796,7 +797,7 @@
                      placeholders, not fake functionality, until their packet sources exist
                      (skill-cast order, loot events, equipment/profile packets, cross-encounter
                      instance aggregation). See README's UI-placeholders section. -->
-                <StackPanel DockPanel.Dock="Left" Background="#26262e">
+                <StackPanel DockPanel.Dock="Left" Background="{DynamicResource Brush.Panel}">
                     <Button Style="{StaticResource NavButton}" Content="{local:Loc Main.NavRot}" ToolTip="Skill Rotation (not implemented - needs skill-cast-order tracking)" IsEnabled="False"/>
                     <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" Content="{local:Loc Main.NavDmg}" ToolTip="Damage Distribution" Click="OnShowDamageView" FontWeight="Bold"/>
                     <!-- Real now, per the user - "You have acquired [item:ID;...]." lines parsed
@@ -808,8 +809,8 @@
                 </StackPanel>
 
                 <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                          Background="#1e1e24" Foreground="#e8e8ea" RowBackground="#22222a" AlternatingRowBackground="#26262e"
-                          BorderBrush="#3a3a45" HorizontalGridLinesBrush="#3a3a45"
+                          Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}" AlternatingRowBackground="{DynamicResource Brush.Panel}"
+                          BorderBrush="{DynamicResource Brush.Border}" HorizontalGridLinesBrush="{DynamicResource Brush.Border}"
                           GridLinesVisibility="Horizontal" HeadersVisibility="Column" CanUserAddRows="False">
                     <!-- Enemy rows get a dark red ground. A trigger rather than a converter so it
                          overrides RowBackground AND AlternatingRowBackground above: those are set
@@ -820,7 +821,7 @@
                          faction, and fighting someone only ever proves hostility, never which
                          banner they fight under. -->
                     <DataGrid.ContextMenu>
-                        <ContextMenu Background="#26262e" Foreground="#e8e8ea">
+                        <ContextMenu Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}">
                             <MenuItem Header="Details anzeigen" Click="OnShowPlayerDetailsClicked"/>
                             <Separator/>
                             <MenuItem Header="Fraktion wechseln" Click="OnSwitchFactionClicked"/>
@@ -830,7 +831,7 @@
                         <Style TargetType="DataGridRow">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsEnemy}" Value="True">
-                                    <Setter Property="Background" Value="#4a1f24"/>
+                                    <Setter Property="Background" Value="{DynamicResource Brush.RowEnemy}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -843,10 +844,10 @@
                          selection visuals without touching anything else that might reference the
                          same system keys (e.g. a MenuItem's own highlight). -->
                     <DataGrid.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3a3a45"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#e8e8ea"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#3a3a45"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#e8e8ea"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
                         <!-- Column widths trimmed slightly (Level 50->40) after terminal_windows
@@ -905,10 +906,10 @@
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Damage, StringFormat=N0}"/>
-                                            <TextBlock Text="{Binding DpsDisplay}" Foreground="#9a9aa2" FontSize="11"
+                                            <TextBlock Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
                                                        Margin="6,0,0,0" VerticalAlignment="Bottom"/>
                                         </StackPanel>
-                                        <TextBlock Text="{Binding ApDisplay}" Foreground="#9a9aa2" FontSize="11"/>
+                                        <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -922,14 +923,14 @@
                      Godstones/Designs/Recipes plus Unique(Gold)+ grade items are tracked at all
                      (see IsTrackedLoot) - per the user, not every single drop. -->
                 <DataGrid x:Name="LootGrid" AutoGenerateColumns="False" IsReadOnly="True" Visibility="Collapsed"
-                          Background="#1e1e24" Foreground="#e8e8ea" RowBackground="#22222a" AlternatingRowBackground="#26262e"
-                          BorderBrush="#3a3a45" HorizontalGridLinesBrush="#3a3a45"
+                          Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}" AlternatingRowBackground="{DynamicResource Brush.Panel}"
+                          BorderBrush="{DynamicResource Brush.Border}" HorizontalGridLinesBrush="{DynamicResource Brush.Border}"
                           GridLinesVisibility="Horizontal" HeadersVisibility="Column" CanUserAddRows="False">
                     <DataGrid.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3a3a45"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#e8e8ea"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#3a3a45"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#e8e8ea"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="{local:Loc Main.ColumnPerson}" Binding="{Binding Person}" Width="90"/>
@@ -970,12 +971,12 @@
                     <Border Margin="2" Padding="6,3" CornerRadius="3">
                         <Border.Style>
                             <Style TargetType="Border">
-                                <Setter Property="Background" Value="#99000000"/>
+                                <Setter Property="Background" Value="{DynamicResource Brush.OverlayBg}"/>
                                 <Style.Triggers>
                                     <!-- Same rule as PlayersGrid.RowStyle, so an enemy row reads
                                          the same way in both modes. -->
                                     <DataTrigger Binding="{Binding IsEnemy}" Value="True">
-                                        <Setter Property="Background" Value="#994a1f24"/>
+                                        <Setter Property="Background" Value="{DynamicResource Brush.OverlayEnemy}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -986,14 +987,14 @@
                                        Height="16" Width="16" Margin="0,0,4,0"/>
                                 <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                        Height="16" Width="16" Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding Name}" Foreground="White" FontWeight="Bold"
+                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
                                            FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Text="{Binding Damage, StringFormat=N0}" Foreground="White"
+                                <TextBlock Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}"
                                            FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding DpsDisplay}" Foreground="#c8c8ce" FontSize="10"
+                                <TextBlock Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
                                            Margin="6,0,0,0" VerticalAlignment="Bottom"/>
                             </StackPanel>
-                            <TextBlock Text="{Binding ApDisplay}" Foreground="#c8c8ce" FontSize="10"/>
+                            <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"/>
                         </StackPanel>
                     </Border>
                 </DataTemplate>

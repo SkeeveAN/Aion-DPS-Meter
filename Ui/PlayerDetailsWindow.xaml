@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Character Details" Height="460" Width="720"
         xmlns:local="clr-namespace:AionDPS.Ui"
-        Background="#1e1e24" Foreground="#e8e8ea" WindowStartupLocation="CenterOwner">
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" WindowStartupLocation="CenterOwner"
+        FontSize="{DynamicResource FontSize.Base}">
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
@@ -17,20 +18,20 @@
                        Height="22" Width="22" Margin="0,0,8,0" ToolTip="{Binding ClassName}"/>
                 <TextBlock x:Name="HeaderText" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
             </StackPanel>
-            <TextBlock x:Name="SummaryText" Foreground="#9a9aa2" Margin="0,4,0,0"/>
+            <TextBlock x:Name="SummaryText" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,4,0,0"/>
         </StackPanel>
 
         <!-- Says plainly where the crit column's numbers come from. For anyone but the local player
              they are estimated from the damage spread, because Aion only flags crits properly in
              the log of the player who scored them. A column that quietly mixed measured and
              estimated values would be worse than no column. -->
-        <TextBlock x:Name="CritNoteText" DockPanel.Dock="Bottom" Foreground="#9a9aa2"
+        <TextBlock x:Name="CritNoteText" DockPanel.Dock="Bottom" Foreground="{DynamicResource Brush.TextMuted}"
                    TextWrapping="Wrap" Margin="0,8,0,0" FontStyle="Italic"/>
 
         <DataGrid x:Name="SkillsGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                  Background="#1e1e24" Foreground="#e8e8ea" RowBackground="#22222a"
-                  AlternatingRowBackground="#26262e" BorderBrush="#3a3a45"
-                  HorizontalGridLinesBrush="#3a3a45" GridLinesVisibility="Horizontal"
+                  Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
+                  AlternatingRowBackground="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
+                  HorizontalGridLinesBrush="{DynamicResource Brush.Border}" GridLinesVisibility="Horizontal"
                   HeadersVisibility="Column" CanUserAddRows="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Skill" Binding="{Binding Skill}" Width="*"/>

@@ -2975,6 +2975,7 @@ public partial class MainWindow : Window
         _settingsWindow.Saved += () =>
         {
             settings.Save();
+            ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
             StartChatLogTailing(settings); // possibly a new/changed AionInstallFolder
             RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
             ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
