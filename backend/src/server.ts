@@ -12,6 +12,8 @@ import { encounterRoutes } from "./routes/encounters.js";
 import { playerRoutes } from "./routes/players.js";
 import { serverRoutes } from "./routes/servers.js";
 import { serverCatalogRoutes } from "./routes/serverCatalog.js";
+import { seoRoutes } from "./routes/seo.js";
+import { pageRoutes, sendNotFound } from "./routes/pages.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,9 +41,24 @@ export async function buildServer() {
   await app.register(playerRoutes);
   await app.register(serverRoutes);
   await app.register(serverCatalogRoutes);
+  await app.register(seoRoutes);
+  await app.register(pageRoutes);
 
+  // Assets only - HTML comes from pageRoutes above so it can carry per-page <head> content and
+  // stay uncached, while everything here may sit in browser caches for an hour (revalidated via ETag).
   await app.register(staticPlugin, {
     root: path.join(__dirname, "..", "public"),
+    index: false,
+    maxAge: "1h",
+  });
+
+  // A wrong address must answer 404 with a real page, never 200 with an empty app shell - crawlers
+  // would otherwise index every typo as a page. API callers keep getting JSON.
+  app.setNotFoundHandler((request, reply) => {
+    if (request.url.startsWith("/api/")) {
+      return reply.status(404).send({ error: "not_found" });
+    }
+    return sendNotFound(request, reply);
   });
 
   return app;

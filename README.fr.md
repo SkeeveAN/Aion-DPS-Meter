@@ -2,6 +2,8 @@
 
 # Aion DPS Meter
 
+Site web avec classements de boss communautaires : **https://aiondps.com**
+
 Un compteur de DPS et de butin pour **AION 4.6 (OriginAion)** qui fonctionne uniquement à partir
 du fichier `Chat.log` du jeu.
 

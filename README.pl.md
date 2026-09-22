@@ -2,6 +2,8 @@
 
 # Aion DPS Meter
 
+Strona z rankingami bossów społeczności: **https://aiondps.com**
+
 Miernik obrażeń i łupów dla **AION 4.6 (OriginAion)**, działający wyłącznie na podstawie
 własnego pliku `Chat.log` gry.
 

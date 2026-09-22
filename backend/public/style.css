@@ -75,6 +75,140 @@ header h1 a {
   white-space: nowrap;
 }
 
+/* Game switch in the header (Aion / Aion 2) - the first URL segment, see app.js route(). */
+.game-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.game-tabs a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 13px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.game-tabs a.active {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+/* Per-server tabs above a boss leaderboard - real links (?server=slug), see app.js serverTabs(). */
+.server-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 12px;
+  font-size: 13px;
+}
+
+.server-tabs-label {
+  color: var(--text-dim);
+  margin-right: 4px;
+}
+
+.server-tabs a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.server-tabs a.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.game-card {
+  text-decoration: none;
+  color: inherit;
+}
+
+.category-heading {
+  margin: 18px 0 4px;
+  font-size: 14px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Aion 2 class stand-in until real icons exist (see app.js classIcon). */
+.class-badge {
+  display: inline-block;
+  min-width: 34px;
+  padding: 1px 4px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+/* Boss mechanics reference (see app.js mechanicsSection). Severity colours the row's left edge. */
+.mechanics-table td {
+  vertical-align: top;
+}
+
+.mechanics-table tr.sev-wipe td:first-child {
+  border-left: 3px solid #ff6b6b;
+}
+
+.mechanics-table tr.sev-wipe-avoidable td:first-child {
+  border-left: 3px solid #f0a848;
+}
+
+.mechanics-table tr.sev-mechanic td:first-child {
+  border-left: 3px solid #5ea8e1;
+}
+
+.trigger-badge,
+.severity-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.sev-wipe .severity-badge {
+  color: #ff6b6b;
+}
+
+.sev-wipe-avoidable .severity-badge {
+  color: #f0a848;
+}
+
+.sev-mechanic .severity-badge {
+  color: #5ea8e1;
+}
+
+.mechanics-table details {
+  margin-top: 4px;
+}
+
+.mechanics-table summary {
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.derived-note {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.game-card:hover {
+  border-color: var(--accent);
+}
+
 .server-indicator a {
   color: var(--accent);
   margin-left: 6px;

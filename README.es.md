@@ -2,6 +2,8 @@
 
 # Aion DPS Meter
 
+Sitio web con clasificaciones de jefes de la comunidad: **https://aiondps.com**
+
 Un medidor de DPS y botín para **AION 4.6 (OriginAion)** que funciona exclusivamente a partir del
 archivo `Chat.log` del juego.
 

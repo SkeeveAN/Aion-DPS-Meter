@@ -2,6 +2,8 @@
 
 # Aion DPS Meter
 
+Website mit Community-Bossranglisten: **https://aiondps.com**
+
 Ein DPS- und Loot-Meter für **AION 4.6 (OriginAion)**, das ausschließlich aus der `Chat.log` des
 Spiels arbeitet.
 

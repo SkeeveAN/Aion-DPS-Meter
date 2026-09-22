@@ -2,6 +2,8 @@
 
 # Aion DPS Meter
 
+社区首领排行榜网站：**https://aiondps.com**
+
 一个专为 **AION 4.6（OriginAion）** 打造的伤害与掉落统计工具，完全基于游戏自身的 `Chat.log`
 文件运行。
 

@@ -1,30 +1,79 @@
 import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
+import { INSTANCE_IMAGES, BOSS_IMAGES } from "./game-data.js";
 
 const app = document.getElementById("app");
 const breadcrumb = document.getElementById("breadcrumb");
 const serverIndicator = document.getElementById("server-indicator");
+const gameTabs = document.getElementById("game-tabs");
 
-// Which server's data is being browsed - required for the leaderboard endpoint and used to scope
-// player search, since two different servers can have a player of the same name (per the user:
-// their gear levels are nowhere near comparable, so their runs must never share a leaderboard
-// either). Persisted across reloads so switching pages doesn't ask again every time; explicitly
-// changeable via the indicator link in the header.
+// Real path URLs (/aion/bosses/raksha-boilheart) - one address per page, so search engines and
+// Discord previews see distinct pages (the old #/... hash routes all looked like one URL to them).
+// The first path segment names the game; everything a page fetches is scoped to it.
+const GAMES = ["aion", "aion2"];
+const DEFAULT_GAME = "aion";
+let currentGame = DEFAULT_GAME;
+
+// Links shared before the URL change (#/bosses/12, #/download, …) still land where they used to:
+// the hash is translated to the new path once, and the server then 301s numeric ids to slugs.
+(function redirectLegacyHash() {
+  const match = location.hash.match(/^#\/?(.*)$/);
+  if (!match) {
+    return;
+  }
+  const [section, param] = match[1].split("/");
+  let target = null;
+  if (!section) {
+    target = `/${DEFAULT_GAME}/instances`;
+  } else if (section === "download") {
+    target = "/download";
+  } else if (section === "servers") {
+    target = `/${DEFAULT_GAME}/servers`;
+  } else if (["instances", "bosses", "players", "encounters", "participants"].includes(section) && param) {
+    target = `/${DEFAULT_GAME}/${section}/${param}`;
+  } else if (section === "search" && param) {
+    target = `/${DEFAULT_GAME}/search?q=${param}`;
+  }
+  if (target) {
+    location.replace(target);
+  }
+})();
+
+// Which server's data is being browsed - scopes leaderboards and player search, since two servers
+// can each have a player of the same name (per the user: their gear levels are nowhere near
+// comparable, so their runs must never share a leaderboard either). Remembered per game so picking
+// an Aion 2 server never hides the classic-Aion one. No server picked is fine now: instance lists
+// show everything, a leaderboard defaults to the busiest server for that boss and offers the others
+// as tabs, and player search spans every server (each hit says which one it is from).
 //
 // currentServerId can be null even after a server is picked - a server_catalog entry nobody has
 // ever uploaded from yet has no real `servers` row (see servers.ts's own remarks), so there's no
-// numeric id to store. currentServerPicked is the separate "has the user chosen one at all" flag
-// route() actually gates on, so instances/bosses stay browsable for a server with no data yet -
-// only a real per-server leaderboard or player search has nothing to show until a real upload
-// creates that row.
-//
-// currentServerCatalogId is the OTHER id (server_catalog.id, see servers.ts's own remarks) -
-// always present regardless of real uploads, unlike currentServerId. Per the user, which
-// instances even exist differs by server (Origin/EuroAion share one list, Riftshade's is wider),
-// so GET /api/instances needs this one specifically to filter correctly (see renderInstances).
-let currentServerId = localStorage.getItem("dpsmeter.serverId");
-let currentServerName = localStorage.getItem("dpsmeter.serverName");
-let currentServerCatalogId = localStorage.getItem("dpsmeter.serverCatalogId");
-let currentServerPicked = localStorage.getItem("dpsmeter.serverPicked") === "1";
+// numeric id to store. currentServerCatalogId is the OTHER id (server_catalog.id) - always present
+// once picked, and what GET /api/instances filters on (which instances even exist differs by server).
+let currentServerId = null;
+let currentServerName = null;
+let currentServerCatalogId = null;
+let currentServerPicked = false;
+
+(function migrateLegacyServerKeys() {
+  for (const key of ["serverId", "serverName", "serverCatalogId", "serverPicked"]) {
+    const value = localStorage.getItem(`dpsmeter.${key}`);
+    if (value !== null) {
+      localStorage.setItem(`dpsmeter.aion.${key}`, value);
+      localStorage.removeItem(`dpsmeter.${key}`);
+    }
+  }
+})();
+
+function storageKey(name) {
+  return `dpsmeter.${currentGame}.${name}`;
+}
+
+function loadServerState() {
+  currentServerId = localStorage.getItem(storageKey("serverId"));
+  currentServerName = localStorage.getItem(storageKey("serverName"));
+  currentServerCatalogId = localStorage.getItem(storageKey("serverCatalogId"));
+  currentServerPicked = localStorage.getItem(storageKey("serverPicked")) === "1" && currentServerCatalogId !== null;
+}
 
 function setCurrentServer(id, name, serverCatalogId) {
   currentServerId = id === null ? null : String(id);
@@ -32,18 +81,26 @@ function setCurrentServer(id, name, serverCatalogId) {
   currentServerCatalogId = serverCatalogId === null ? null : String(serverCatalogId);
   currentServerPicked = true;
   if (currentServerId === null) {
-    localStorage.removeItem("dpsmeter.serverId");
+    localStorage.removeItem(storageKey("serverId"));
   } else {
-    localStorage.setItem("dpsmeter.serverId", currentServerId);
+    localStorage.setItem(storageKey("serverId"), currentServerId);
   }
   if (currentServerCatalogId === null) {
-    localStorage.removeItem("dpsmeter.serverCatalogId");
+    localStorage.removeItem(storageKey("serverCatalogId"));
   } else {
-    localStorage.setItem("dpsmeter.serverCatalogId", currentServerCatalogId);
+    localStorage.setItem(storageKey("serverCatalogId"), currentServerCatalogId);
   }
-  localStorage.setItem("dpsmeter.serverName", name ?? "");
-  localStorage.setItem("dpsmeter.serverPicked", "1");
+  localStorage.setItem(storageKey("serverName"), name ?? "");
+  localStorage.setItem(storageKey("serverPicked"), "1");
   updateServerIndicator();
+}
+
+function gp(path) {
+  return `/${currentGame}${path}`;
+}
+
+function gameLabel(game) {
+  return t(`game.${game}`);
 }
 
 function updateServerIndicator() {
@@ -51,9 +108,23 @@ function updateServerIndicator() {
   if (currentServerPicked) {
     serverIndicator.append(
       currentServerName || t("serverIndicator.number", { id: currentServerId }),
-      link(t("serverIndicator.switch"), "#/servers"),
+      link(t("serverIndicator.switch"), gp("/servers")),
     );
+  } else {
+    serverIndicator.append(link(t("serverIndicator.choose"), gp("/servers")));
   }
+}
+
+function updateGameTabs() {
+  gameTabs.replaceChildren(
+    ...GAMES.map((g) => {
+      const a = link(gameLabel(g), `/${g}/instances`);
+      if (g === currentGame) {
+        a.className = "active";
+      }
+      return a;
+    }),
+  );
 }
 
 async function fetchJson(url) {
@@ -73,8 +144,8 @@ function el(tag, props = {}, children = []) {
   return node;
 }
 
-function link(text, hash) {
-  return el("a", { href: hash, textContent: text });
+function link(text, href) {
+  return el("a", { href, textContent: text });
 }
 
 // Icons are best-effort - a class/faction/skill name with no matching file (an unmapped class,
@@ -87,7 +158,24 @@ function icon(src, className) {
   return img;
 }
 
+// Aion 2's nine classes have no icon files yet - a short text badge stands in until we have our
+// own artwork (mirrors src/data/aion2/classes.json).
+const AION2_CLASS_ABBREVIATIONS = {
+  Assassin: "ASN",
+  Chanter: "CHA",
+  Cleric: "CLR",
+  Elementalist: "ELE",
+  Fighter: "FTR",
+  Gladiator: "GLA",
+  Ranger: "RNG",
+  Sorcerer: "SOR",
+  Templar: "TPL",
+};
+
 function classIcon(className) {
+  if (currentGame === "aion2") {
+    return el("span", { className: "class-badge", title: className, textContent: AION2_CLASS_ABBREVIATIONS[className] ?? className.slice(0, 3).toUpperCase() });
+  }
   return icon(`/icons/classes/${encodeURIComponent(className)}.png`, "class-icon");
 }
 
@@ -103,14 +191,39 @@ function iconLabel(iconEl, text) {
   return el("span", { className: "icon-label" }, [iconEl, text].filter((x) => x != null));
 }
 
+const SITE_TITLE = "Aion DPS Meter";
+const HOME_TITLE = "Aion DPS Meter – Free Damage Meter & Boss Leaderboards";
+
 function setBreadcrumb(parts) {
   breadcrumb.replaceChildren();
   parts.forEach((part, i) => {
     if (i > 0) {
       breadcrumb.append(" › ");
     }
-    breadcrumb.append(typeof part === "string" ? part : part);
+    breadcrumb.append(part);
   });
+  // The trailing crumb is always the most specific thing on screen (boss, player, instance…), which
+  // makes it the right tab title / bookmark label / Discord preview text.
+  const last = parts[parts.length - 1];
+  const text = typeof last === "string" ? last : last?.textContent;
+  document.title = text ? `${text} – ${SITE_TITLE}` : HOME_TITLE;
+}
+
+/** Root crumbs every game-scoped page shares: start page › this game's instance list. */
+function gameCrumbs() {
+  return [link(t("breadcrumb.home"), "/"), link(t("breadcrumb.instances"), gp("/instances"))];
+}
+
+// The server may already have rendered this exact page into <main> (see backend/src/seo/pages.ts):
+// a crawler or link preview sees real content without JavaScript. When that pre-rendered fragment
+// matches the current address, the "Loading…" placeholder is skipped so the page doesn't flash
+// empty before the full interactive version replaces it.
+let hydrating = app.firstElementChild?.dataset?.ssr === location.pathname + location.search;
+
+function showLoading(text) {
+  if (!hydrating) {
+    app.replaceChildren(el("p", { textContent: text }));
+  }
 }
 
 // Language switcher in the header - persists via i18n.setLocale(), then re-renders the static
@@ -135,10 +248,32 @@ function applyStaticTranslations() {
 
 const GITHUB_REPO = "SkeeveAN/Aion-DPS-Meter";
 
+function renderHome() {
+  setBreadcrumb([]);
+  document.title = HOME_TITLE;
+  const hero = el("div", { className: "download-hero" }, [
+    el("img", { src: "/logo.ico", alt: "" }),
+    el("div", {}, [el("h2", { textContent: SITE_TITLE }), el("p", { textContent: t("home.tagline") })]),
+  ]);
+  const games = el("div", { className: "feature-grid" }, [
+    gameCard("aion", t("home.gameCardAion")),
+    gameCard("aion2", t("home.gameCardAion2")),
+  ]);
+  const cta = el("p", {}, [el("a", { className: "download-cta", href: "/download", textContent: t("home.downloadCta") })]);
+  app.replaceChildren(hero, el("h2", { textContent: t("home.chooseGame") }), games, cta);
+}
+
+function gameCard(game, text) {
+  return el("a", { className: "feature-card game-card", href: `/${game}/instances` }, [
+    el("h3", { textContent: gameLabel(game) }),
+    el("p", { textContent: text }),
+  ]);
+}
+
 /**
  * Per the user: the Aion DPS client itself should be offered for download right here, with an
- * explanation - reachable without picking a server first (see route()), since the client works
- * the same regardless of which server it's pointed at.
+ * explanation - reachable without picking a server first, since the client works the same
+ * regardless of which server it's pointed at.
  *
  * The download link/version comes from GitHub's own releases list, fetched client-side (GitHub's
  * API sends CORS headers for this, no backend proxy needed) - NOT /releases/latest, which 404s for
@@ -146,8 +281,8 @@ const GITHUB_REPO = "SkeeveAN/Aion-DPS-Meter";
  * Update/UpdateService.cs works around); releases[0] is the newest one regardless of that flag.
  */
 async function renderDownload() {
-  setBreadcrumb([t("breadcrumb.download")]);
-  app.replaceChildren(el("p", { textContent: t("loading.version") }));
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.download")]);
+  showLoading(t("loading.version"));
 
   const hero = el("div", { className: "download-hero" }, [
     el("img", { src: "/logo.ico", alt: "" }),
@@ -180,8 +315,6 @@ async function renderDownload() {
     t("download.repoLinkPrefix"),
     el("a", { href: `https://github.com/${GITHUB_REPO}`, textContent: `github.com/${GITHUB_REPO}`, target: "_blank", rel: "noopener" }),
   ]);
-
-  app.replaceChildren(hero, el("p", { textContent: t("loading.version") }));
 
   let downloadSection;
   try {
@@ -216,10 +349,10 @@ function formatBytes(bytes) {
 }
 
 async function renderServerPicker() {
-  setBreadcrumb([t("breadcrumb.servers")]);
-  app.replaceChildren(el("p", { textContent: t("loading.servers") }));
+  setBreadcrumb([...gameCrumbs(), t("breadcrumb.servers")]);
+  showLoading(t("loading.servers"));
 
-  const servers = await fetchJson("/api/servers");
+  const servers = await fetchJson(`/api/servers?game=${currentGame}`);
   if (servers.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("servers.emptyNoServers") }));
     return;
@@ -234,7 +367,7 @@ async function renderServerPicker() {
       // instances.ts), so there's a real global list to browse even with no serverId at all. Only
       // a per-server leaderboard/player search has nothing to show yet, which the "no data" hint
       // still calls out.
-      const a = el("a", { href: "#/", textContent: s.name });
+      const a = el("a", { href: gp("/instances"), textContent: s.name });
       a.addEventListener("click", () => setCurrentServer(s.id, s.name, s.serverCatalogId));
       const children = [a];
       if (s.id === null) {
@@ -249,116 +382,6 @@ async function renderServerPicker() {
     list,
   );
 }
-
-// Per the user: real client loading-screen art (see backend/public/images/instances/, sourced from
-// this project's own AION client - Textures/loading/loading_<zone>.dds, decoded/cropped/re-encoded,
-// not fabricated) instead of the plain text list this used to be. Keyed by the literal instance
-// name, same convention as i18n.js's GAME_NAME_TRANSLATIONS - an instance with no entry here just
-// renders without a photo (icon()'s own onerror-remove handles a bad path the same way), it's never
-// guessed. Steel Rose's two tracked sub-instances share one image on purpose: the client itself only
-// ships a single loading screen for the whole ship (see the 3 identical loading_IDShulack_rose_0N.dds
-// files - checked by hash, not assumed).
-const INSTANCE_IMAGES = {
-  "Sauro-Kriegsdepot": "/images/instances/sauro.jpg",
-  Tahmes: "/images/instances/tahmes.jpg",
-  "Stahlrose: Anlegestelle": "/images/instances/steelrose.jpg",
-  "Stahlrose: Kabine": "/images/instances/steelrose.jpg",
-  "Stahlrose: Deck": "/images/instances/steelrose.jpg",
-  // The rest are pre-staged the same way as the Sauro/Tahmes boss-name translations in i18n.js -
-  // none of these instances have ever been uploaded yet, so the key (the exact German name a real
-  // upload would carry, per assets/places/instances_multilang.json's own "de" field) is provisional
-  // until a real row confirms it. "Ruhnadium"/"Jormungand-Marschroute" are the client's real German
-  // names, not "Danuar Reliquary"/"Ophidan Bridge" translated - same per-language-name-drift pattern
-  // documented throughout i18n.js.
-  "Beshmundirs Tempel": "/images/instances/beshmundir.jpg",
-  Ruhnadium: "/images/instances/danuar_reliquary.jpg",
-  "Schutzturm der Ruhn": "/images/instances/illuminary_obelisk.jpg",
-  Katalamize: "/images/instances/infinity_shard.jpg",
-  Stahlmauerbastion: "/images/instances/eternal_bastion.jpg",
-  "Schlachtfeld der Stahlmauerbastion": "/images/instances/iron_wall_warfront.jpg",
-  "Jormungand-Marschroute": "/images/instances/ophidan_bridge.jpg",
-  // The PVE variant (the one actually curated so far - a mage plus two named turrets, not the
-  // War/PVP siege fight above) - reuses the same loading-screen art, checked by eye (a generic
-  // icy-cavern bridge shot, nothing War/PVP-specific in it), same "one photo, several
-  // sub-instances" reasoning as Steel Rose's two decks above.
-  "Ophidan Bridge": "/images/instances/ophidan_bridge.jpg",
-  "Rentus-Basis": "/images/instances/rentus_base.jpg",
-  // Real in-game screenshot ("TS - North Wing"), not cinematic loading-screen art - from
-  // aion.fandom.com's own Tiamat Stronghold page (static.wikia.nocookie.net), replacing an earlier
-  // fortress-skyline art piece per the user.
-  "Tiamats Festung": "/images/instances/tiamat_stronghold.webp",
-  // Per the user: NOT the same photo as Tiamats Festung above - a real encounter shot of Tiamat
-  // herself (the dragon) facing down a Daeva in astral form, not the fortress skyline. Sourced from
-  // a Google Images cache link the user provided rather than this project's usual client-file/wiki
-  // sourcing, so the original page is unconfirmed - fix the provenance comment once a primary source
-  // turns up.
-  "Tiamats Unterschlupf": "/images/instances/tiamat_hideout.jpg",
-  // These two keyed by English name instead (like "Raksha Boilheart" above) - found via
-  // origincdx.com's own map list (IDLDF5Re_03 / IDLDF5_Under_02), but not present under either name
-  // in this client's own client_strings_dic_place.xml, so the real German name a German-client
-  // upload would actually carry is unconfirmed - fix the key once a real row shows it.
-  "Void Cube": "/images/instances/void_cube.jpg",
-  "Danuar Sanctuary": "/images/instances/danuar_sanctuary.jpg",
-  // These three, plus Ashunatal Shadowslip/Belsagos in BOSS_IMAGES below, are aionriftshade.com's
-  // own 4.8 content - photos are the real loading-screen art (Textures/loading/*.dds, a plain
-  // uncompressed-DXT1 file, not the encrypted Npcs/World paks), decoded straight from that
-  // server's own game install rather than a screenshot or a wiki crop. Filed under
-  // linkgate_foundry.png from when this instance was still misnamed "Linkgate Foundry" (see
-  // migration 0015) - the real "Linkgate Foundry" is a separate, still-unconfirmed instance, so the
-  // file wasn't renamed to avoid implying that one now has a photo too.
-  "Aturam Sky Fortress": "/images/instances/aturam.png",
-  "Baruna Research Laboratory": "/images/instances/linkgate_foundry.png",
-  "Hall of Knowledge": "/images/instances/danuar_mysticarium.png",
-  // Real in-game screenshot from aion.fandom.com's own "Raksang Ruins" page, which explicitly
-  // confirms "also known as Mantor" - not this project's usual client-file/loading-screen
-  // sourcing (that path is blocked for this still-unconfirmed instance), but a real, on-topic
-  // screenshot rather than a guess.
-  Mantor: "/images/instances/mantor.jpg",
-  // Both "Lost" - reuse their own already-covered non-Lost counterpart's real loading-screen
-  // photo rather than fetch a lower-quality alternative: same location/reskin, same "one photo,
-  // several sub-instances" reasoning as Steel Rose's two decks above.
-  "Lost Rentus Base": "/images/instances/rentus_base.jpg",
-  "Lost Refuge": "/images/instances/danuar_sanctuary.jpg",
-  // Per the user: the same place as Tiamats Unterschlupf (an alliance-size/HM mode of it, not a
-  // separate location) - reuses its encounter photo above, NOT Tiamats Festung's.
-  "Tiamat's Hidden Space": "/images/instances/tiamat_hideout.jpg",
-  // Real official loading-screen art (visible "AION" watermark, bottom-left) of the instance's own
-  // icy dragon-like boss in its arena - per the user, via a Google Images cache link, same
-  // unconfirmed-original-page caveat as Tiamats Unterschlupf's photo above.
-  Makarna: "/images/instances/makarna.jpg",
-};
-
-// Per the user: real per-boss art, not the instance's own photo reused - found on aion.fandom.com,
-// which turns out to keep one dedicated character-model render per named Sauro/Tahmes boss (found
-// via its own MediaWiki API, allimages with the boss's exact English title as the filename prefix -
-// e.g. "Guard_Captain_Ahuradim.png" - not a guess, confirmed present before use). Keyed the same way
-// as INSTANCE_IMAGES: the literal boss name a real upload carries. An entry with no image here falls
-// back to the instance photo via BOSS_IMAGES[name] ?? INSTANCE_IMAGES[instanceName] below.
-const BOSS_IMAGES = {
-  "Wachhauptmann Rohuka": "/images/bosses/rohuka.jpg",
-  "Chefkanonierin Kurmata": "/images/bosses/kurmata.jpg",
-  "Dunkelverschlinger Derakanak": "/images/bosses/derakanak.jpg",
-  "Stabschef Moriata": "/images/bosses/moriata.jpg",
-  "Forscherin Teselik": "/images/bosses/teselik.jpg",
-  "Versorgungskommandant Ranodim": "/images/bosses/ranodim.jpg",
-  "Torwächter Slurt": "/images/bosses/stranir.jpg",
-  "Inspektionsoffizier Obanuka": "/images/bosses/ovanuka.jpg",
-  "Inspektionsoffizier Sayahum": "/images/bosses/sayahum.jpg",
-  "Gardenführer Achradim": "/images/bosses/ahuradim.jpg",
-  "Wartungsleiterin Notakiki": "/images/bosses/notakiki.jpg",
-  "Brigade General Sheba": "/images/bosses/sheba.jpg",
-  // From the user directly (a real screenshot, not the wiki - Raksha Boilheart has no page there).
-  "Raksha Boilheart": "/images/bosses/raksha_boilheart.jpg",
-  // aion.fandom.com has its own dedicated character page/render for each of these three.
-  "Brigade General Vasharti": "/images/bosses/vasharti.jpg",
-  Tiamat: "/images/bosses/tiamat.jpg",
-  // Per the user's own report this boss is "Beritrakt", but no such name turns up anywhere on the
-  // web - the instance's own wiki page names its endboss "Beritra" instead, and this render is
-  // Beritra's. Filed under the DB's own "Beritrakt" key on the assumption they're the same NPC
-  // (a plausible mishearing/typo in the original report), not a confirmed match - fix the key if
-  // a real upload ever settles which name this server's Chat.log actually uses.
-  Beritrakt: "/images/bosses/beritrakt.jpg",
-};
 
 // Shared by the instance grid and the boss grid below - a "poster" tile is just a photo (optional),
 // a dark scrim for legibility, and a light title overlaid on top, linking somewhere. objectPosition
@@ -377,36 +400,61 @@ function posterCard(href, photo, title, objectPosition) {
   return el("a", { className: "poster-card", href }, children);
 }
 
+/** Display name as the UI translation table knows it, else the English name the DB carries, else the raw name. */
+function displayName(row) {
+  const translated = translateGameName(row.name);
+  return translated !== row.name ? translated : row.nameEn ?? row.name;
+}
+
 async function renderInstances() {
-  setBreadcrumb([t("breadcrumb.instances")]);
-  app.replaceChildren(el("p", { textContent: t("loading.instances") }));
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.instances")]);
+  showLoading(t("loading.instances"));
 
   // Per the user: which instances even exist differs by server (Origin/EuroAion share one list,
-  // Riftshade's is wider) - currentServerCatalogId is always set once a server is picked, real
-  // uploads or not (see setCurrentServer's own remarks), so this is never omitted in practice.
-  const instancesUrl =
-    currentServerCatalogId === null
-      ? "/api/instances"
-      : `/api/instances?serverCatalogId=${encodeURIComponent(currentServerCatalogId)}`;
-  const instances = await fetchJson(instancesUrl);
+  // Riftshade's is wider) - filtered once a server is picked, otherwise the game's full list.
+  const params = new URLSearchParams({ game: currentGame });
+  if (currentServerPicked && currentServerCatalogId !== null) {
+    params.set("serverCatalogId", currentServerCatalogId);
+  }
+  const instances = await fetchJson(`/api/instances?${params}`);
   if (instances.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("instances.emptyNoInstances") }));
     return;
   }
 
-  const grid = el(
-    "div",
-    { className: "poster-grid" },
-    instances.map((i) =>
-      posterCard(`#/instances/${i.id}`, INSTANCE_IMAGES[i.name], translateGameName(i.name)),
-    ),
-  );
-  app.replaceChildren(el("h2", { textContent: t("instances.heading") }), grid);
+  // Aion 2 sorts its dungeons into kinds (expedition, transcendence, …) - one grid per kind, in
+  // the order the API returns them. Classic Aion has no categories, so it stays one flat grid.
+  const groups = new Map();
+  for (const i of instances) {
+    const key = i.category ?? "other";
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(i);
+  }
+  const grid = (list) =>
+    el(
+      "div",
+      { className: "poster-grid" },
+      list.map((i) => posterCard(gp(`/instances/${i.slug}`), INSTANCE_IMAGES[i.name], displayName(i))),
+    );
+  const sections = [el("h2", { textContent: t("instances.heading") })];
+  if (groups.size === 1 && groups.has("other")) {
+    sections.push(grid(instances));
+  } else {
+    for (const [category, list] of groups) {
+      sections.push(el("h3", { className: "category-heading", textContent: t(`category.${category}`) }), grid(list));
+    }
+  }
+  if (currentGame === "aion2") {
+    sections.push(el("p", { className: "derived-note", textContent: t("aion2.derivedNote") }));
+  }
+  app.replaceChildren(...sections);
 }
 
-async function renderBosses(instanceId) {
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), t("breadcrumb.bosses")]);
-  app.replaceChildren(el("p", { textContent: t("loading.bosses") }));
+async function renderBosses(instanceSlug) {
+  setBreadcrumb([...gameCrumbs(), t("breadcrumb.bosses")]);
+  showLoading(t("loading.bosses"));
 
   // The bosses endpoint doesn't carry the instance's own name (see backend/src/routes/instances.ts)
   // - fetched separately (the instances list is tiny) rather than adding a field there just for
@@ -414,15 +462,18 @@ async function renderBosses(instanceId) {
   // portrait for (see that const's own remarks) - better than no image at all, but a real per-boss
   // photo always wins when one exists.
   const [bosses, instances] = await Promise.all([
-    fetchJson(`/api/instances/${instanceId}/bosses`),
-    fetchJson("/api/instances"),
+    fetchJson(`/api/instances/${encodeURIComponent(instanceSlug)}/bosses?game=${currentGame}`),
+    fetchJson(`/api/instances?game=${currentGame}`),
   ]);
+  const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
+  if (instance) {
+    setBreadcrumb([...gameCrumbs(), displayName(instance)]);
+  }
   if (bosses.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("bosses.emptyNoBosses") }));
     return;
   }
 
-  const instance = instances.find((i) => String(i.id) === String(instanceId));
   const instancePhoto = instance ? INSTANCE_IMAGES[instance.name] : undefined;
 
   // Per the user: Sauro's two keyed bosses must show 1-key before 2-key - the API's own ordering
@@ -437,9 +488,7 @@ async function renderBosses(instanceId) {
   const grid = el(
     "div",
     { className: "poster-grid" },
-    sortedBosses.map((b) =>
-      posterCard(`#/bosses/${b.id}`, BOSS_IMAGES[b.name] ?? instancePhoto, translateGameName(b.name), "top"),
-    ),
+    sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}`), BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), "top")),
   );
   app.replaceChildren(el("h2", { textContent: t("bosses.heading") }), grid);
 }
@@ -463,7 +512,7 @@ function groupPlayersCell(roster, encounterId) {
   return el(
     "span",
     { className: "group-players" },
-    (roster ?? []).map((p) => playerCell(p.faction, p.className, p.playerName, `#/encounters/${encounterId}`)),
+    (roster ?? []).map((p) => playerCell(p.faction, p.className, p.playerName, gp(`/encounters/${encounterId}`))),
   );
 }
 
@@ -517,28 +566,61 @@ function rankedTable(rows, showBuffs = true) {
   ]);
 }
 
-async function renderLeaderboard(bossId) {
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), t("breadcrumb.leaderboard")]);
-  app.replaceChildren(el("p", { textContent: t("loading.leaderboard") }));
-
-  // instances fetched alongside the leaderboard itself so the breadcrumb can link back to THIS
-  // boss's own instance page (#/instances/:id), not just all the way out to the top-level instance
-  // picker - per the user, there was previously no way back to the boss list of the instance you
-  // came from without using the browser's own back button.
-  // currentServerId is null for a catalog server with no real uploads yet (see setCurrentServer's
-  // own remarks) - omitted here rather than sent as the literal string "null", so the backend can
-  // tell "browsing with nothing to show" apart from a genuinely malformed request.
-  const leaderboardUrl =
-    currentServerId === null
-      ? `/api/bosses/${bossId}/leaderboard`
-      : `/api/bosses/${bossId}/leaderboard?serverId=${encodeURIComponent(currentServerId)}`;
-  const [data, instances] = await Promise.all([fetchJson(leaderboardUrl), fetchJson("/api/instances")]);
-  const instance = instances.find((i) => i.id === data.boss.instanceId);
-  setBreadcrumb([
-    link(t("breadcrumb.instances"), "#/"),
-    ...(instance ? [link(translateGameName(instance.name), `#/instances/${instance.id}`)] : []),
-    translateGameName(data.boss.name),
+// One tab per server that has fights for this boss (per the user: never merged across servers -
+// gear standards differ completely). Tabs are real links (?server=slug), so every server's
+// ranking has its own shareable address.
+function serverTabs(data, bossPath) {
+  if (data.servers.length === 0) {
+    return null;
+  }
+  return el("nav", { className: "server-tabs" }, [
+    el("span", { className: "server-tabs-label", textContent: t("leaderboard.servers") }),
+    ...data.servers.map((s) => {
+      const href = s.slug ? `${bossPath}?server=${encodeURIComponent(s.slug)}` : `${bossPath}?serverId=${s.id}`;
+      const a = link(s.name ?? t("serverIndicator.number", { id: s.id }), href);
+      if (s.id === data.selectedServerId) {
+        a.className = "active";
+      }
+      return a;
+    }),
   ]);
+}
+
+async function renderLeaderboard(bossSlug, params) {
+  setBreadcrumb([...gameCrumbs(), t("breadcrumb.leaderboard")]);
+  showLoading(t("loading.leaderboard"));
+
+  // Server precedence: an explicit ?server=/?serverId= in the address (a shared link or a tab
+  // click), else the server this visitor picked, else the API's own default (the busiest server
+  // for this boss). currentServerId is null for a catalog server with no uploads yet - omitted then.
+  const query = new URLSearchParams({ game: currentGame });
+  if (params.get("server")) {
+    query.set("server", params.get("server"));
+  } else if (params.get("serverId")) {
+    query.set("serverId", params.get("serverId"));
+  } else if (currentServerPicked && currentServerId !== null) {
+    query.set("serverId", currentServerId);
+  }
+  const data = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/leaderboard?${query}`);
+  const bossPath = gp(`/bosses/${data.boss.slug}`);
+  const bossName = displayName(data.boss);
+  setBreadcrumb([
+    ...gameCrumbs(),
+    link(displayName({ name: data.boss.instanceName, nameEn: data.boss.instanceNameEn }), gp(`/instances/${data.boss.instanceSlug}`)),
+    bossName,
+  ]);
+
+  const heading = el("h2", { textContent: bossName });
+  const tabs = serverTabs(data, bossPath);
+  const sections = [heading];
+  if (data.boss.hasMechanics) {
+    const mechanics = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/mechanics?game=${currentGame}`);
+    sections.push(...mechanicsSection(mechanics));
+    sections.push(el("h2", { textContent: t("leaderboard.heading") }));
+  }
+  if (tabs) {
+    sections.push(tabs);
+  }
 
   // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) are never
   // both at once, so the page shows exactly one of these two rankings, never both - "top 10 per
@@ -546,7 +628,7 @@ async function renderLeaderboard(bossId) {
   if (data.boss.isSolo) {
     const classNames = Object.keys(data.topByClass).sort();
     if (classNames.length === 0) {
-      app.replaceChildren(el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") }));
+      app.replaceChildren(...sections, el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") }));
       return;
     }
 
@@ -559,7 +641,7 @@ async function renderLeaderboard(bossId) {
           const rows = data.topByClass[className].map((p, i) =>
             rankedRow(
               i + 1,
-              playerCell(p.faction, className, p.playerName, `#/encounters/${p.encounterId}`),
+              playerCell(p.faction, className, p.playerName, gp(`/encounters/${p.encounterId}`)),
               p.idps,
               p.totalDamage,
               p.totalHealing,
@@ -575,12 +657,12 @@ async function renderLeaderboard(bossId) {
       ),
     ]);
 
-    app.replaceChildren(classSection);
+    app.replaceChildren(...sections, classSection);
     return;
   }
 
   if (data.topGroups.length === 0) {
-    app.replaceChildren(el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") }));
+    app.replaceChildren(...sections, el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") }));
     return;
   }
 
@@ -606,14 +688,45 @@ async function renderLeaderboard(bossId) {
       : null;
 
   const groupsSection = el("section", {}, [
-    el("h2", {}, [
+    el("h3", {}, [
       t("leaderboard.topGroupsHeading", { n: data.topGroups.length }),
       ...(lootBadge ? [" ", lootBadge] : []),
     ]),
     rankedTable(rows, false),
   ]);
 
-  app.replaceChildren(groupsSection);
+  app.replaceChildren(...sections, groupsSection);
+}
+
+// Wipe-mechanics reference (see backend/src/db/schema.ts bossMechanics): trigger badge, severity,
+// what to do, optional detail. Facts (trigger, severity, ordering) come from game data; the prose
+// is ours and may still be empty for a row - shown as "in progress" rather than hidden, so the
+// mechanic itself is at least known to exist.
+function mechanicsSection(data) {
+  const row = (m) =>
+    el("tr", { className: `sev-${m.severity.replace("_", "-")}` }, [
+      el("td", {}, [el("span", { className: "trigger-badge", textContent: m.triggerType === "hp" && m.triggerPct != null ? t("mechanics.hp", { pct: m.triggerPct }) : t("mechanics.phase") }), m.triggerLabel ? ` ${m.triggerLabel}` : ""]),
+      el("td", {}, [el("span", { className: "severity-badge", textContent: t(`mechanics.severity.${m.severity}`) })]),
+      el("td", {}, [
+        m.action ? m.action : el("span", { className: "empty", textContent: t("mechanics.pending") }),
+        ...(m.detail ? [el("details", {}, [el("summary", { textContent: t("mechanics.detail") }), el("p", { textContent: m.detail })])] : []),
+      ]),
+    ]);
+  const table = (rows) =>
+    el("table", { className: "mechanics-table" }, [
+      el("thead", {}, [el("tr", {}, [el("th", { textContent: t("mechanics.trigger") }), el("th", { textContent: t("mechanics.severity") }), el("th", { textContent: t("mechanics.action") })])]),
+      el("tbody", {}, rows.map(row)),
+    ]);
+
+  const sections = [el("h2", { textContent: t("mechanics.heading") })];
+  if (data.instanceWide.length > 0) {
+    sections.push(el("h3", { textContent: t("mechanics.instanceWide") }), table(data.instanceWide));
+  }
+  if (data.mechanics.length > 0) {
+    sections.push(table(data.mechanics));
+  }
+  sections.push(el("p", { className: "derived-note", textContent: t("aion2.derivedNote") }));
+  return sections;
 }
 
 // m:ss - short enough to sit next to "Zeitpunkt"/"App Version" in a two-column meta table, unlike
@@ -664,11 +777,11 @@ function lootTable(lootRules) {
 }
 
 async function renderEncounter(encounterId) {
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), t("loading.encounter")]);
-  app.replaceChildren(el("p", { textContent: t("loading.encounter") }));
+  setBreadcrumb([...gameCrumbs(), t("loading.encounter")]);
+  showLoading(t("loading.encounter"));
 
-  const data = await fetchJson(`/api/encounters/${encounterId}`);
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), link(translateGameName(data.encounter.bossName), `#/bosses/${data.encounter.bossId}`)]);
+  const data = await fetchJson(`/api/encounters/${encodeURIComponent(encounterId)}`);
+  setBreadcrumb([...gameCrumbs(), link(translateGameName(data.encounter.bossName), gp(`/bosses/${data.encounter.bossId}`))]);
 
   const metaTable = el("table", { className: "meta-table" }, [
     el("tbody", {}, [
@@ -682,7 +795,7 @@ async function renderEncounter(encounterId) {
   const rosterRows = data.roster.map((p, i) =>
     rankedRow(
       i + 1,
-      playerCell(p.faction, p.className, p.playerName, `#/participants/${p.participantId}`),
+      playerCell(p.faction, p.className, p.playerName, gp(`/participants/${p.participantId}`)),
       p.idps,
       p.totalDamage,
       p.totalHealing,
@@ -732,13 +845,13 @@ function skillTable(skills) {
 }
 
 async function renderParticipant(participantId) {
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), t("loading.participant")]);
-  app.replaceChildren(el("p", { textContent: t("loading.participant") }));
+  setBreadcrumb([...gameCrumbs(), t("loading.participant")]);
+  showLoading(t("loading.participant"));
 
-  const data = await fetchJson(`/api/participants/${participantId}`);
+  const data = await fetchJson(`/api/participants/${encodeURIComponent(participantId)}`);
   setBreadcrumb([
-    link(t("breadcrumb.instances"), "#/"),
-    link(translateGameName(data.encounter.bossName), `#/bosses/${data.encounter.bossId}`),
+    ...gameCrumbs(),
+    link(translateGameName(data.encounter.bossName), gp(`/bosses/${data.encounter.bossId}`)),
     data.participant.playerName,
   ]);
 
@@ -768,11 +881,11 @@ async function renderParticipant(participantId) {
 }
 
 async function renderPlayerProfile(playerId) {
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), t("breadcrumb.playerProfile")]);
-  app.replaceChildren(el("p", { textContent: t("loading.playerProfile") }));
+  setBreadcrumb([...gameCrumbs(), t("breadcrumb.playerProfile")]);
+  showLoading(t("loading.playerProfile"));
 
-  const data = await fetchJson(`/api/players/${playerId}`);
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), data.player.name]);
+  const data = await fetchJson(`/api/players/${encodeURIComponent(playerId)}`);
+  setBreadcrumb([...gameCrumbs(), data.player.name]);
 
   if (data.history.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("player.emptyNoFights") }));
@@ -782,17 +895,17 @@ async function renderPlayerProfile(playerId) {
   const rows = data.history.map((h) =>
     el("tr", {}, [
       el("td", { textContent: formatDate(new Date(h.startedAt)) }),
-      el("td", {}, [link(translateGameName(h.bossName), `#/bosses/${h.bossId}`)]),
+      el("td", {}, [link(translateGameName(h.bossName), gp(`/bosses/${h.bossId}`))]),
       el("td", {}, [iconLabel(classIcon(h.className), h.className)]),
       el("td", { textContent: formatNumber(h.totalDamage) }),
       el("td", { textContent: formatNumber(h.idps) }),
       el("td", { textContent: `${h.critRatePercent.toFixed(1)}%` }),
-      el("td", {}, [link(t("table.details"), `#/participants/${h.participantId}`)]),
+      el("td", {}, [link(t("table.details"), gp(`/participants/${h.participantId}`))]),
     ]),
   );
 
   app.replaceChildren(
-    el("h2", { textContent: data.player.name }),
+    el("h2", { textContent: data.player.name + (data.player.serverName ? ` – ${data.player.serverName}` : "") }),
     el("table", {}, [
       el("thead", {}, [
         el("tr", {}, [
@@ -811,20 +924,20 @@ async function renderPlayerProfile(playerId) {
 }
 
 async function renderSearchResults(query) {
-  setBreadcrumb([link(t("breadcrumb.instances"), "#/"), t("breadcrumb.search", { query })]);
-  app.replaceChildren(el("p", { textContent: t("loading.search") }));
+  setBreadcrumb([...gameCrumbs(), t("breadcrumb.search", { query })]);
+  showLoading(t("loading.search"));
 
-  const results = await fetchJson(
-    `/api/players/search?q=${encodeURIComponent(query)}&serverId=${encodeURIComponent(currentServerId)}`,
-  );
+  // Scoped to the picked server when there is one; otherwise every server, with each hit labelled
+  // (the API returns serverName per row exactly for that case).
+  const params = new URLSearchParams({ q: query });
+  if (currentServerPicked && currentServerId !== null) {
+    params.set("serverId", currentServerId);
+  }
+  const results = await fetchJson(`/api/players/search?${params}`);
   if (results.length === 1) {
-    // Not location.hash = ... : that pushes a NEW history entry on top of this search - pressing
-    // Back from the profile then lands back on this exact search, which (still one result) just
-    // redirects forward again immediately. Feels like Back is broken, since it visibly does
-    // nothing. replaceState swaps this entry in place instead, so Back skips past the search
-    // straight to whatever came before it - what the user was actually navigating away from.
-    history.replaceState(null, "", `#/players/${results[0].id}`);
-    await renderPlayerProfile(String(results[0].id));
+    // replaceState, not pushState: Back from the profile must not land on a search that would just
+    // redirect forward again.
+    navigate(gp(`/players/${results[0].id}`), { replace: true });
     return;
   }
   if (results.length === 0) {
@@ -835,65 +948,110 @@ async function renderSearchResults(query) {
   const list = el(
     "ul",
     { className: "plain" },
-    results.map((p) => el("li", {}, [link(p.name, `#/players/${p.id}`)])),
+    results.map((p) => el("li", {}, [link(p.serverName ? `${p.name} (${p.serverName})` : p.name, gp(`/players/${p.id}`))])),
   );
   app.replaceChildren(el("h2", { textContent: t("search.multipleResultsHeading") }), list);
 }
 
-async function route() {
-  const hash = location.hash.replace(/^#\/?/, "");
-  const [section, param] = hash.split("/");
+function renderNotFound() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("notFound.title")]);
+  app.replaceChildren(el("h2", { textContent: t("notFound.title") }), el("p", {}, [link(t("notFound.backHome"), "/")]));
+}
 
+function navigate(path, { replace = false } = {}) {
+  if (replace) {
+    history.replaceState(null, "", path);
+  } else {
+    history.pushState(null, "", path);
+  }
+  return route();
+}
+
+function isAppPath(pathname) {
+  return pathname === "/" || pathname === "/download" || GAMES.some((g) => pathname === `/${g}` || pathname.startsWith(`/${g}/`));
+}
+
+async function route() {
+  const path = location.pathname.replace(/\/+$/, "") || "/";
+  const params = new URLSearchParams(location.search);
+  const segments = path.split("/").filter(Boolean);
+
+  let section;
+  let param;
+  if (segments.length === 0) {
+    currentGame = DEFAULT_GAME;
+    section = "home";
+  } else if (segments[0] === "download") {
+    section = "download";
+  } else if (GAMES.includes(segments[0])) {
+    currentGame = segments[0];
+    section = segments[1] ?? "instances";
+    param = segments[2];
+  } else {
+    section = "notfound";
+  }
+
+  loadServerState();
   updateServerIndicator();
+  updateGameTabs();
 
   try {
-    // Every other view either needs a server (leaderboard, search) or is meaningless to browse
-    // before one is even picked (the whole point of a "which instance/boss" drill-down is to reach
-    // a server-specific leaderboard) - so nothing else renders until one is chosen, once. The
-    // download page is the one exception: it's server-agnostic (the client works the same
-    // regardless of which server it's pointed at), so it must stay reachable even before anyone
-    // has picked one.
-    // currentServerCatalogId is checked too, not just currentServerPicked: it's a newer field than
-    // dpsmeter.serverPicked, so anyone who picked a server before it existed has it stored as null
-    // and gets sent back to the picker once, rather than silently browsing the unfiltered
-    // instance list until they happen to switch servers again.
-    if (section !== "servers" && section !== "download" && (!currentServerPicked || currentServerCatalogId === null)) {
-      await renderServerPicker();
-    } else if (section === "servers") {
-      await renderServerPicker();
+    if (section === "home") {
+      renderHome();
     } else if (section === "download") {
       await renderDownload();
-    } else if (!section) {
+    } else if (section === "servers") {
+      await renderServerPicker();
+    } else if (section === "instances" && !param) {
       await renderInstances();
-    } else if (section === "instances" && param) {
+    } else if (section === "instances") {
       await renderBosses(param);
     } else if (section === "bosses" && param) {
-      await renderLeaderboard(param);
+      await renderLeaderboard(param, params);
     } else if (section === "encounters" && param) {
       await renderEncounter(param);
     } else if (section === "participants" && param) {
       await renderParticipant(param);
     } else if (section === "players" && param) {
       await renderPlayerProfile(param);
-    } else if (section === "search" && param) {
-      await renderSearchResults(decodeURIComponent(param));
+    } else if (section === "search" && params.get("q")) {
+      await renderSearchResults(params.get("q"));
     } else {
-      await renderInstances();
+      renderNotFound();
     }
   } catch (err) {
     app.replaceChildren(el("p", { className: "error", textContent: t("general.error", { msg: err.message }) }));
+  } finally {
+    hydrating = false;
   }
 }
+
+// Internal links navigate in place (History API) instead of reloading; anything else - external
+// links, modifier-clicks for a new tab, downloads, static files - keeps the browser's default.
+document.addEventListener("click", (e) => {
+  const anchor = e.target.closest("a[href]");
+  if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download") || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+    return;
+  }
+  const url = new URL(anchor.href, location.href);
+  if (url.origin !== location.origin || !isAppPath(url.pathname)) {
+    return;
+  }
+  e.preventDefault();
+  if (url.pathname + url.search !== location.pathname + location.search) {
+    navigate(url.pathname + url.search);
+  }
+});
 
 document.getElementById("search-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const query = document.getElementById("search-input").value.trim();
   if (query) {
-    location.hash = `#/search/${encodeURIComponent(query)}`;
+    navigate(gp(`/search?q=${encodeURIComponent(query)}`));
   }
 });
 
-window.addEventListener("hashchange", route);
+window.addEventListener("popstate", route);
 setupLanguageSwitcher();
 applyStaticTranslations();
 route();

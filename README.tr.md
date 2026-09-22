@@ -2,6 +2,8 @@
 
 # Aion DPS Meter
 
+Topluluk boss sıralamalarının bulunduğu web sitesi: **https://aiondps.com**
+
 **AION 4.6 (OriginAion)** için, tamamen oyunun kendi `Chat.log` dosyasından çalışan bir DPS ve
 ganimet ölçer.
 
