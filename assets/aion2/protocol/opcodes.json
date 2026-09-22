@@ -1,0 +1,52 @@
+{
+  "_readme": [
+    "Aion 2 wire layout for Aion2/Protocol/Aion2Protocol.cs. Everything the packet source knows about",
+    "the game's frames lives here so a patch that shifts an opcode is a data fix, not a rebuild.",
+    "calibrated=false means: nothing below has been verified against a real capture yet - the",
+    "packet source then only reports that state and decodes nothing.",
+    "",
+    "Calibration procedure: run `Aion DPS.exe aion2-record fight.jsonl [port,...]` during a fight,",
+    "then find the frame length prefix and the opcode families in the recording (damage numbers",
+    "are the easiest anchor: look for the values the game showed on screen). Fill frame/opcodes/",
+    "fields, set calibrated=true and gameVersion, and add the recording as a SelfCheck fixture.",
+    "",
+    "Field offsets are relative to the frame start (header included). Integer fields: offset+size",
+    "(+signed). Strings: 2-byte char count followed by UTF-16LE at offset, or encoding=utf8z.",
+    "flags.mask is a hex bitmask marking a critical hit."
+  ],
+  "calibrated": false,
+  "gameVersion": "",
+  "serverPorts": [],
+  "frame": {
+    "lengthOffset": 0,
+    "lengthSize": 2,
+    "littleEndian": true,
+    "lengthIncludesHeader": true,
+    "headerSize": 4,
+    "opcodeOffset": 2,
+    "opcodeSize": 2,
+    "maxFrameLength": 65535
+  },
+  "opcodes": {
+    "damage": [],
+    "dot": [],
+    "heal": [],
+    "hpUpdate": [],
+    "nickname": [],
+    "session": [],
+    "kill": [],
+    "avoid": [],
+    "npcSpawn": [],
+    "zone": []
+  },
+  "fields": {
+    "damage": {},
+    "dot": {},
+    "heal": {},
+    "nickname": {},
+    "session": {},
+    "kill": {},
+    "avoid": {},
+    "zone": {}
+  }
+}

@@ -5,13 +5,21 @@
 Website mit Community-Bossranglisten: **https://aiondps.com**
 
 Ein DPS- und Loot-Meter für **AION 4.6 (OriginAion)**, das ausschließlich aus der `Chat.log` des
-Spiels arbeitet.
+Spiels arbeitet — **Aion-2**-Unterstützung ist in Vorbereitung.
 
-Es liest eine Textdatei, die der Client von sich aus schreibt. Es zeichnet keinen Netzwerkverkehr
-auf und liest weder aus dem Spielprozess noch schreibt es hinein. Nichts von deinem Spiel verlässt
-deinen Rechner — keine Schadenszahlen, kein Loot, keine Namen. Das Einzige, was es sendet, ist die
-Update-Prüfung, die GitHub nach einer neueren Version fragt und sich abschalten lässt; siehe
-[Updates](#updates).
+Für das klassische Aion liest es eine Textdatei, die der Client von sich aus schreibt. Es
+zeichnet keinen Netzwerkverkehr auf und liest weder aus dem Spielprozess noch schreibt es hinein.
+Nichts von deinem Spiel verlässt deinen Rechner — keine Schadenszahlen, kein Loot, keine Namen.
+Das Einzige, was es sendet, ist die Update-Prüfung, die GitHub nach einer neueren Version fragt
+und sich abschalten lässt; siehe [Updates](#updates).
+
+**Aion 2** schreibt kein Chat.log. Stellst du in den Einstellungen das Spiel auf Aion 2, liest der
+Meter stattdessen den Netzwerkverkehr des Spiels auf deinem Rechner über den
+[Npcap](https://npcap.com)-Treiber mit — passiv: er sendet nie ein Paket und fasst den
+Spielprozess nie an. Live-Tracking startet, sobald das Paket-Layout für die aktuelle Spielversion
+kalibriert ist (siehe `assets/aion2/protocol/opcodes.json`); bis dahin sagt der Meter das in
+seiner Statuszeile. Alles bleibt genauso lokal wie beim klassischen Aion, sofern du einen
+Bosskampf nicht selbst in die Community-Ranglisten hochlädst.
 
 ## Installation
 

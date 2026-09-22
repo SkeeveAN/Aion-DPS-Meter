@@ -5,12 +5,20 @@
 Website with community boss leaderboards: **https://aiondps.com**
 
 A DPS and loot meter for **AION 4.6 (OriginAion)** that works entirely from the game's own
-`Chat.log` file.
+`Chat.log` file, with **Aion 2** support in preparation.
 
-It reads a text file the client writes on its own. It does not capture network traffic, and it
-does not read from or write to the game process. Nothing about your play leaves your machine —
-no damage numbers, no loot, no names. The one thing it sends is an update check, which asks
-GitHub whether a newer release exists and can be switched off; see [Updates](#updates).
+For classic Aion it reads a text file the client writes on its own. It does not capture network
+traffic, and it does not read from or write to the game process. Nothing about your play leaves
+your machine — no damage numbers, no loot, no names. The one thing it sends is an update check,
+which asks GitHub whether a newer release exists and can be switched off; see [Updates](#updates).
+
+**Aion 2** writes no Chat.log. When you switch the game to Aion 2 in Settings, the meter instead
+reads the game's own network traffic on your machine through the [Npcap](https://npcap.com)
+driver — passively: it never sends a packet and never touches the game process. Live tracking
+starts once the packet layout has been calibrated for the current game version (see
+`assets/aion2/protocol/opcodes.json`); until then the meter says so in its status line. Everything
+stays local exactly as for classic Aion, unless you choose to upload a boss fight to the community
+leaderboards.
 
 ## Install
 

@@ -85,6 +85,22 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-record")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-record <out.jsonl> [port[,port...]]");
+                Console.WriteLine("  Records the raw TCP payloads exchanged with the Aion 2 game server (Npcap,");
+                Console.WriteLine("  passive) into a JSON-lines file for protocol calibration - see");
+                Console.WriteLine("  assets/aion2/protocol/opcodes.json. Without ports, every TCP stream is");
+                Console.WriteLine("  recorded; press Enter to stop.");
+                return;
+            }
+
+            RunAion2RecordMode(args[1], args.Length > 2 ? args[2] : null);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "upload")
         {
             if (args.Length < 2)
@@ -133,6 +149,40 @@ internal static class Program
         Console.WriteLine("       AionDPS chatlog <path-to-Chat.log>   (parses a Chat.log file and prints a summary)");
         Console.WriteLine("       AionDPS selftest                     (runs the parser and DPS self-checks)");
         Console.WriteLine("       AionDPS upload <boss-name> [gap-seconds]   (re-parses Chat.log and uploads every run of that boss)");
+        Console.WriteLine("       AionDPS aion2-record <out.jsonl> [ports]  (records Aion 2 game traffic for protocol calibration)");
+    }
+
+    /// <summary>
+    /// Calibration recorder for the Aion 2 packet source (see Aion2/Protocol/Aion2Protocol.cs):
+    /// captures the game-server TCP stream passively and writes it as JSON lines. The first real
+    /// fight recorded this way is what turns opcodes.json from a template into a working layout,
+    /// and then becomes a replayable SelfCheck fixture. Ports come from the argument, else from
+    /// the shipped protocol file, else everything TCP is recorded.
+    /// </summary>
+    private static void RunAion2RecordMode(string outPath, string? portList)
+    {
+        var npcap = Aion2.Capture.NpcapAvailability.Detect();
+        if (!npcap.IsInstalled)
+        {
+            Console.WriteLine($"aion2-record: Npcap is not installed - get it from {Aion2.Capture.NpcapAvailability.DownloadUrl}");
+            Environment.Exit(1);
+            return;
+        }
+
+        List<int> ports = portList is null
+            ? Aion2.Protocol.Aion2Protocol.Load().ServerPorts.ToList()
+            : portList.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
+
+        using var writer = new Aion2.Capture.SegmentRecording.Writer(outPath);
+        using var capture = new Aion2.Capture.NpcapCaptureService(
+            ports,
+            writer.Write,
+            (state, message) => Console.WriteLine($"aion2-record: [{state}] {message}"));
+
+        capture.Start();
+        Console.WriteLine($"aion2-record: writing to {outPath} (filter \"{capture.Filter}\"). Press Enter to stop.");
+        Console.ReadLine();
+        Console.WriteLine($"aion2-record: {writer.Count} segment(s) from {capture.Packets} packet(s) written; server endpoint {capture.ServerEndpoint ?? "not seen"}.");
     }
 
     /// <summary>

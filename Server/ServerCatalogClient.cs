@@ -26,12 +26,14 @@ public static class ServerCatalogClient
 
     /// <summary>Empty list (never throws) on any network/server failure -- the Settings dialog must
     /// still open and work for everything else if the backend is briefly unreachable.</summary>
-    public static async Task<List<ServerCatalogEntry>> FetchAsync()
+    public static async Task<List<ServerCatalogEntry>> FetchAsync(AionDPS.Game.GameKind game = AionDPS.Game.GameKind.Aion)
     {
         try
         {
+            // ?game= is what keeps an Aion 2 server out of a classic character's picker (and vice
+            // versa); a backend without the parameter ignores it and returns the classic list.
             var result = await Http.GetFromJsonAsync<List<ServerCatalogEntry>>(
-                $"{ApiBaseUrl}/api/server-catalog", JsonOptions);
+                $"{ApiBaseUrl}/api/server-catalog?game={AionDPS.Game.GameKindExtensions.ToToken(game)}", JsonOptions);
             return result ?? new List<ServerCatalogEntry>();
         }
         catch (Exception)

@@ -45,6 +45,12 @@
          the WiX/MSI packaging was dropped: a per-machine install under Program Files can only be
          updated by an elevated process. See Update/UpdateService.cs and .github/workflows/release.yml. -->
     <PackageReference Include="Velopack" Version="1.2.0" />
+    <!-- Aion 2 input (see Aion2/): the UE5 client writes no Chat.log, so combat is read from the
+         game's network traffic through the Npcap driver - passively, never touching the game
+         process. Only loaded when the Aion 2 source is active; classic Aion keeps needing neither
+         the driver nor these assemblies at runtime. -->
+    <PackageReference Include="SharpPcap" Version="6.3.0" />
+    <PackageReference Include="PacketDotNet" Version="1.4.7" />
   </ItemGroup>
 
   <ItemGroup>

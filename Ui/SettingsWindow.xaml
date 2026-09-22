@@ -201,6 +201,18 @@
                              Chat.log folder (MeterSettings.ServerInstallFolders), so switching the
                              server here is what actually switches the folder below, not something
                              set independently of it. -->
+                        <!-- Which game this install is for (MeterSettings.Game) - decides the
+                             combat source (Chat.log tailer vs. Aion 2 packet capture), the class
+                             roster and which server catalog the pickers below offer. -->
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,6">
+                            <TextBlock Text="{local:Loc Settings.Game}" VerticalAlignment="Center" Margin="4,0,6,0"/>
+                            <ComboBox x:Name="GameBox" Width="220" SelectionChanged="OnGameSelected">
+                                <ComboBoxItem Content="Aion" Tag="aion"/>
+                                <ComboBoxItem Content="Aion 2" Tag="aion2"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <TextBlock x:Name="Aion2Hint" Text="{local:Loc Settings.Aion2Hint}" TextWrapping="Wrap"
+                                   Margin="4,0,4,6" Foreground="#f0a848" Visibility="Collapsed"/>
                         <TextBlock Text="Each server below remembers its own Chat.log folder - pick a server, then set (or confirm) its folder."
                                    TextWrapping="Wrap" Margin="4,2" FontStyle="Italic" Foreground="#9a9aa2"/>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
@@ -317,18 +329,8 @@
                             <TextBox x:Name="NewCharacterNameBox" Width="120" Margin="4,2"
                                      VerticalAlignment="Center" VerticalContentAlignment="Center"
                                      Background="#26262e" Foreground="#e8e8ea" BorderBrush="#3a3a45"/>
-                            <ComboBox x:Name="NewCharacterClassBox" Width="130" SelectedIndex="0">
-                                <ComboBoxItem Tag="Aethertech" AutomationProperties.Name="Aethertech" ToolTip="Aethertech"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Aethertech.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Aethertech" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Assassin" AutomationProperties.Name="Assassin" ToolTip="Assassin"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Assassin.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Assassin" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Bard" AutomationProperties.Name="Bard" ToolTip="Bard"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Bard.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Bard" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Chanter" AutomationProperties.Name="Chanter" ToolTip="Chanter"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Chanter.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Chanter" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Cleric" AutomationProperties.Name="Cleric" ToolTip="Cleric"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Cleric.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Cleric" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Gladiator" AutomationProperties.Name="Gladiator" ToolTip="Gladiator"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Gladiator.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Gladiator" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Gunner" AutomationProperties.Name="Gunner" ToolTip="Gunner"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Gunner.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Gunner" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Ranger" AutomationProperties.Name="Ranger" ToolTip="Ranger"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Ranger.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Ranger" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Sorcerer" AutomationProperties.Name="Sorcerer" ToolTip="Sorcerer"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Sorcerer.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Sorcerer" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Spiritmaster" AutomationProperties.Name="Spiritmaster" ToolTip="Spiritmaster"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Spiritmaster.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Spiritmaster" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
-                                <ComboBoxItem Tag="Templar" AutomationProperties.Name="Templar" ToolTip="Templar"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Templar.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Templar" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
+                            <ComboBox x:Name="NewCharacterClassBox" Width="150">
+                                <!-- Items come from ClassCatalog.ClassesFor(game) - see RebuildClassBox. -->
                             </ComboBox>
                             <ComboBox x:Name="NewCharacterFactionBox" Width="120" SelectedIndex="0" Margin="4,2">
                                 <ComboBoxItem Tag="Elyos" AutomationProperties.Name="Elyos" ToolTip="Elyos"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/races/icons/Elyos.png" Height="20" Margin="0,0,6,0"/><TextBlock Text="Elyos" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>

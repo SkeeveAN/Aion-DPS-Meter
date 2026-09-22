@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Game;
 
 namespace AionDPS.Ui;
 
@@ -9,6 +10,10 @@ public sealed class CharacterProfile
 {
     public string Name { get; set; } = "";
     public string ClassName { get; set; } = "";
+
+    /// <summary>Which game this character exists in. Absent in settings files written before Aion 2
+    /// support, which can only mean classic Aion.</summary>
+    public GameKind Game { get; set; } = GameKind.Aion;
 
     /// <summary>"Elyos" or "Asmodian". Chat.log never states a faction for anyone, not even the
     /// local player, so this is the one fact the meter cannot derive and has to be told. Everyone
@@ -111,9 +116,16 @@ public sealed class MeterSettings
     /// is the user asking, not the program deciding.</summary>
     public bool CheckForUpdates { get; set; } = true;
 
+    /// <summary>Which game the meter is currently pointed at - decides the combat source MainWindow
+    /// builds (Chat.log tailer for classic Aion, packet capture for Aion 2), which class list and
+    /// server catalog Settings offer, and what uploads are tagged as. One active game at a time,
+    /// same as one active Chat.log; missing in older settings files = classic Aion.</summary>
+    public GameKind Game { get; set; } = GameKind.Aion;
+
     /// <summary>Root folder of the Aion client install (e.g. "D:\Spiele\AION\OriginAion"), set in
     /// the Settings dialog. This is where Chat.log lives, and there is no way to auto-discover it,
-    /// so the user picks it once. Consumed by MainWindow's ChatLogTailer, restarted on change.</summary>
+    /// so the user picks it once. Consumed by MainWindow's ChatLogTailer, restarted on change.
+    /// Not needed for Aion 2, whose source captures network traffic rather than reading a file.</summary>
     public string? AionInstallFolder { get; set; }
 
     /// <summary>Friendly label for the server this install connects to (e.g. "Origin Aion",

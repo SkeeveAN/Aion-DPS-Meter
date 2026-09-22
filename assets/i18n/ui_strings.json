@@ -719,6 +719,20 @@
     "tr": "Aion Kurulumu",
     "zh": "永恒之塔安装"
   },
+  "Settings.Game": {
+    "en": "Game:",
+    "de": "Spiel:",
+    "fr": "Jeu :",
+    "es": "Juego:",
+    "ru": "Игра:",
+    "pl": "Gra:",
+    "tr": "Oyun:",
+    "zh": "游戏："
+  },
+  "Settings.Aion2Hint": {
+    "en": "Aion 2 has no Chat.log. The meter reads the game's network traffic through the Npcap driver (passive, nothing is sent and the game process is never touched). Npcap must be installed from npcap.com; live tracking starts once the packet layout has been calibrated for the current game version.",
+    "de": "Aion 2 hat kein Chat.log. Der Meter liest den Netzwerkverkehr des Spiels über den Npcap-Treiber mit (passiv, es wird nichts gesendet und der Spielprozess nie angefasst). Npcap muss von npcap.com installiert sein; Live-Tracking startet, sobald das Paket-Layout für die aktuelle Spielversion kalibriert ist."
+  },
   "Settings.FolderHint": {
     "en": "Folder: select the Aion install ROOT (the folder containing Chat.log)",
     "de": "Ordner: das AION-Installations-Stammverzeichnis wählen (der Ordner mit Chat.log)",

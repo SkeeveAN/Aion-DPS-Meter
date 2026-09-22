@@ -8,9 +8,13 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using AionDPS.Aion2;
+using AionDPS.Aion2.Protocol;
 using AionDPS.ChatLog;
 using AionDPS.Combat;
+using AionDPS.Combat.Sources;
 using AionDPS.Data;
+using AionDPS.Game;
 using AionDPS.Update;
 using AionDPS.Upload;
 using VelopackUpdateInfo = Velopack.UpdateInfo;
@@ -112,13 +116,11 @@ public partial class MainWindow : Window
     /// only changes via Settings.</summary>
     private bool _autoDetectActiveCharacter = true;
 
-    // Chat-log live tailing. _chatLogParser is kept alongside the tailer (not just inside it) so
-    // RefreshRows/RefreshMobBossFilterItems can resolve real names for ids this window didn't
-    // itself assign (see ResolveDisplayName) -- the network path and demo data have their own
-    // name sources (_playerIdentities/_targetNames), but ids that arrive purely from Chat.log
-    // only exist in this registry.
-    private ChatLogParser? _chatLogParser;
-    private ChatLogTailer? _chatLogTailer;
+    // Where combat data comes from (see Combat/Sources/ICombatSource) - today always the Chat.log
+    // source; its Entities directory is what RefreshRows/RefreshMobBossFilterItems resolve names
+    // through for ids this window didn't assign itself (demo data has its own _playerIdentities/
+    // _targetNames). Null until Settings name an install folder.
+    private ICombatSource? _source;
     private string? _chatLogPath;
     private readonly DispatcherTimer _chatLogTimer = new() { Interval = TimeSpan.FromSeconds(1) };
 
@@ -486,8 +488,17 @@ public partial class MainWindow : Window
     private void StartChatLogTailing(MeterSettings settings)
     {
         _chatLogTimer.Stop();
-        _chatLogParser = null;
-        _chatLogTailer = null;
+        ReplaceSource(null);
+
+        if (settings.Game == GameKind.Aion2)
+        {
+            // Aion 2 writes no Chat.log - its source captures the game's network traffic instead
+            // (see Aion2/). Same one-second poll drives it; there is no file to point at.
+            _chatLogPath = null;
+            ReplaceSource(new Aion2PacketCombatSource(Aion2Protocol.Load()));
+            _chatLogTimer.Start();
+            return;
+        }
 
         string? folder = settings.AionInstallFolder;
         _chatLogPath = string.IsNullOrEmpty(folder) ? null : Path.Combine(folder, "Chat.log");
@@ -497,24 +508,46 @@ public partial class MainWindow : Window
             return;
         }
 
-        _chatLogParser = new ChatLogParser();
-        _chatLogParser.SkillUsed += OnSkillUsed;
-        _chatLogParser.CommandReceived += OnChatCommand;
-        _chatLogParser.PersonalStatChanged += OnPersonalStatChanged;
-        _chatLogParser.LootAcquired += OnLootAcquired;
-        _chatLogParser.PlayerLoggedIn += OnPlayerLoggedIn;
-        _chatLogParser.BuffCast += OnBuffCast;
-
         // Chat.log may not exist yet on a client that has never had chat logging (g_chatlog)
-        // enabled -- don't gate the timer on the file already being there, or enabling logging
-        // later, while this window is already open, would go unnoticed. OnChatLogTimerTick
-        // creates the tailer lazily once the file appears.
-        if (File.Exists(_chatLogPath))
+        // enabled -- the source keeps looking for it on every poll, so enabling logging later,
+        // while this window is already open, is picked up without a restart.
+        ReplaceSource(new ChatLogCombatSource(_chatLogPath));
+        _chatLogTimer.Start();
+    }
+
+    /// <summary>Swaps the combat source. Handlers are subscribed once per source - the source
+    /// itself forwards from whatever parser/capture it currently holds, so a "Reload from Chat.log"
+    /// swapping the parser underneath never needs this window to re-subscribe.</summary>
+    private void ReplaceSource(ICombatSource? source)
+    {
+        _source?.Dispose();
+        _source = source;
+        if (source is null)
         {
-            _chatLogTailer = new ChatLogTailer(_chatLogPath, _chatLogParser);
+            return;
         }
 
-        _chatLogTimer.Start();
+        source.SkillUsed += OnSkillUsed;
+        source.CommandReceived += OnChatCommand;
+        source.PersonalStatChanged += OnPersonalStatChanged;
+        source.LootAcquired += OnLootAcquired;
+        source.PlayerLoggedIn += OnPlayerLoggedIn;
+        source.BuffCast += OnBuffCast;
+        source.StatusChanged += OnSourceStatusChanged;
+        source.Start();
+    }
+
+    /// <summary>Only states the user can act on reach the status line; "connected" is the normal
+    /// case and needs no announcement. Marshalled because a capture-based source reports from its
+    /// own thread.</summary>
+    private void OnSourceStatusChanged(SourceStatus status)
+    {
+        if (status.State is not (SourceState.Waiting or SourceState.Error))
+        {
+            return;
+        }
+
+        Dispatcher.BeginInvoke(new Action(() => ShowUploadStatus(status.Message)));
     }
 
     /// <summary>Only a genuinely fresh write counts as "this client is the one being played right
@@ -698,7 +731,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        int recipientId = _chatLogParser!.Names.GetOrAssignId(recipient == _activeCharacterName ? "You" : recipient);
+        int recipientId = recipient == _activeCharacterName ? _source!.Entities.LocalPlayerId : _source!.Entities.GetOrAssignId(recipient);
         _buffCasts.Add((evt.Timestamp, recipientId, evt.Skill));
     }
 
@@ -798,7 +831,7 @@ public partial class MainWindow : Window
     /// </summary>
     private LootTier CurrentLootTier()
     {
-        LootTier zoneTier = InstanceTierDatabase.TierOfZone(_chatLogParser?.CurrentZone ?? "");
+        LootTier zoneTier = InstanceTierDatabase.TierOfZone(_source?.CurrentZone ?? "");
         if (zoneTier != LootTier.None)
         {
             return zoneTier;
@@ -905,11 +938,6 @@ public partial class MainWindow : Window
 
     private void OnChatLogTimerTick(object? sender, EventArgs e)
     {
-        if (_chatLogTailer is null && _chatLogParser is not null && _chatLogPath is not null && File.Exists(_chatLogPath))
-        {
-            _chatLogTailer = new ChatLogTailer(_chatLogPath, _chatLogParser);
-        }
-
         // Once every 30 ticks, not every one: this is a stat() against a file the game is writing
         // to, and the answer changes by kilobytes a second at most.
         if (++_chatLogSizeTickCounter >= 30)
@@ -925,8 +953,9 @@ public partial class MainWindow : Window
             AutoDetectServerFromChatLogActivity();
         }
 
-        var events = _chatLogTailer?.Poll(_paused);
-        if (events is { Count: > 0 })
+        CombatBatch batch = _source?.Poll(_paused) ?? CombatBatch.Empty;
+        IReadOnlyList<DamageEvent> events = batch.Damage;
+        if (events.Count > 0)
         {
             var counted = events
                 .Where(ev => !IsNamedCopyOfRegisteredCharacter(ev.SourceObjectId))
@@ -970,7 +999,7 @@ public partial class MainWindow : Window
     /// </summary>
     private DamageEvent AttributePetDamageToOwner(DamageEvent ev)
     {
-        string? sourceName = _chatLogParser?.Names.NameFor(ev.SourceObjectId);
+        string? sourceName = _source?.Entities.NameFor(ev.SourceObjectId);
         if (sourceName is null || !SpiritmasterPetNames.Contains(sourceName))
         {
             return ev;
@@ -987,7 +1016,7 @@ public partial class MainWindow : Window
         // damage they received rather than dealt. A pet never attacks its own owner, so "this
         // pet-named source hit ME" is, by construction, always the hostile mob instead -- no NPC
         // lookup needed, just the hit's direction.
-        int youId = _chatLogParser!.Names.GetOrAssignId("You");
+        int youId = _source!.Entities.LocalPlayerId;
         if (ev.TargetObjectId == youId)
         {
             return ev;
@@ -1029,7 +1058,7 @@ public partial class MainWindow : Window
     /// </summary>
     private bool IsNamedCopyOfRegisteredCharacter(int sourceObjectId)
     {
-        string? sourceName = _chatLogParser?.Names.NameFor(sourceObjectId);
+        string? sourceName = _source?.Entities.NameFor(sourceObjectId);
         return sourceName is not null && _characters.Any(c => c.Name == sourceName);
     }
 
@@ -1041,8 +1070,8 @@ public partial class MainWindow : Window
     /// _activeCharacterName remarks) -- Chat.log itself never contains a name to use instead.</summary>
     private string ResolveDisplayName(int objectId)
     {
-        string? raw = _chatLogParser?.Names.NameFor(objectId);
-        if (raw == "You" && !string.IsNullOrEmpty(_activeCharacterName))
+        string? raw = _source?.Entities.NameFor(objectId);
+        if (raw is not null && _source!.Entities.IsLocalPlayer(objectId) && !string.IsNullOrEmpty(_activeCharacterName))
         {
             return _activeCharacterName;
         }
@@ -1234,7 +1263,7 @@ public partial class MainWindow : Window
     /// </summary>
     private IReadOnlyDictionary<int, Side> ResolveSides()
     {
-        if (_chatLogParser is null)
+        if (_source is null)
         {
             return new Dictionary<int, Side>();
         }
@@ -1250,9 +1279,9 @@ public partial class MainWindow : Window
 
         return FactionResolver.Resolve(
             _aggregator.Events,
-            id => _chatLogParser.Names.NameFor(id),
+            id => _source.Entities.NameFor(id),
             IsPlayerName,
-            _chatLogParser.Names.GetOrAssignId("You"),
+            _source.Entities.LocalPlayerId,
             anchors);
     }
 
@@ -1296,7 +1325,7 @@ public partial class MainWindow : Window
         // is left blank rather than derived, and since Remember ignores empty values, nothing wrong
         // is written to the database either. A faction learned elsewhere, or set by hand, still
         // shows: that is real knowledge, and hiding it would be its own kind of wrong.
-        bool derivable = side != Side.Unknown && !(side == Side.Enemy && (_chatLogParser?.InArena ?? false));
+        bool derivable = side != Side.Unknown && !(side == Side.Enemy && (_source?.InArena ?? false));
 
         row.Faction = own.Length == 0 || !derivable
             ? ""
@@ -1391,7 +1420,7 @@ public partial class MainWindow : Window
     /// remarks), so both agree on exactly the same answer for the same id.</summary>
     private string ResolveClassName(int sourceId)
     {
-        if (_chatLogParser?.Names.NameFor(sourceId) == "You")
+        if (_source?.Entities.IsLocalPlayer(sourceId) == true)
         {
             return _characters.FirstOrDefault(c => c.Name == _activeCharacterName)?.ClassName ?? "?";
         }
@@ -1780,7 +1809,7 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            bool isSelf = _chatLogParser?.Names.NameFor(row.ObjectId) == "You";
+            bool isSelf = _source?.Entities.IsLocalPlayer(row.ObjectId) == true;
             // targetHits, not _aggregator.Events: TargetIDps derives its own duration from
             // whichever events it's given, so passing the full history back in here would silently
             // widen a clustered upload's iDPS window back out to the target id's entire history -
@@ -1857,7 +1886,8 @@ public partial class MainWindow : Window
         }
 
         return new EncounterUploadRequest(
-            AppVersion.Text, bossName, startedAt, endedAt, participants, serverFingerprint, serverName);
+            AppVersion.Text, bossName, startedAt, endedAt, participants, serverFingerprint, serverName,
+            Game: MeterSettings.Load().Game.ToToken());
     }
 
     /// <summary>
@@ -1882,7 +1912,16 @@ public partial class MainWindow : Window
     {
         MeterSettings settings = MeterSettings.Load();
         string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
-        var excluded = AionDPS.Server.ServerClassAvailability.ExcludedClassesFor(fingerprint, settings.ServerDisplayName);
+        // Aion 2 has its own, smaller roster (see ClassCatalog); classic Aion's exclusions are
+        // per private server. Aion 2 classes without an entry in this static dropdown
+        // (Elementalist, Fighter) simply can't be filtered on until the XAML grows them.
+        IReadOnlySet<string> excluded = settings.Game == GameKind.Aion2
+            ? ClassFilter.Items.OfType<ComboBoxItem>()
+                .Select(item => item.Tag as string)
+                .Where(tag => tag is not null && !ClassCatalog.IsKnownClass(GameKind.Aion2, tag))
+                .Select(tag => tag!)
+                .ToHashSet()
+            : AionDPS.Server.ServerClassAvailability.ExcludedClassesFor(fingerprint, settings.ServerDisplayName);
 
         bool selectedClassHidden = false;
         foreach (ComboBoxItem item in ClassFilter.Items.OfType<ComboBoxItem>())
@@ -1901,9 +1940,16 @@ public partial class MainWindow : Window
         }
     }
 
-    private static (string Fingerprint, string? DisplayName)? ResolveServerIdentity()
+    private (string Fingerprint, string? DisplayName)? ResolveServerIdentity()
     {
         MeterSettings settings = MeterSettings.Load();
+        if (settings.Game == GameKind.Aion2)
+        {
+            // No config.ini to read for Aion 2 - the capture knows which server it is talking to.
+            string? captured = (_source as Aion2PacketCombatSource)?.ServerFingerprint;
+            return captured is null ? null : (captured, settings.ServerDisplayName);
+        }
+
         string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
         return fingerprint is null ? null : (fingerprint, settings.ServerDisplayName);
     }
@@ -2125,25 +2171,15 @@ public partial class MainWindow : Window
     /// </summary>
     private int ReloadChatLogFromDisk()
     {
+        // Only the Chat.log source has a history on disk to re-read (SourceCapabilities.Reparse);
+        // the source itself keeps chat COMMANDS out of the replay - see its ReloadFromDisk remarks.
+        if (_source is not ChatLogCombatSource chatSource)
+        {
+            return 0;
+        }
+
         ClearDamageData();
-
-        // CommandReceived deliberately NOT wired here: ".ui"/".pause"/".resume"/".cleardmg"/
-        // ".clearloot"/".dmg" are live control signals (see OnChatCommand's switch), not data to
-        // recover - every one of them ever typed in this Chat.log's history would otherwise fire
-        // again right now (found the hard way: an old ".ui" from a past session flipped the window
-        // into its click-through overlay state mid-reload). SkillUsed/PersonalStatChanged/
-        // LootAcquired/PlayerLoggedIn/BuffCast are pure data and are exactly what this is meant to
-        // recover.
-        var parser = new ChatLogParser();
-        parser.SkillUsed += OnSkillUsed;
-        parser.PersonalStatChanged += OnPersonalStatChanged;
-        parser.LootAcquired += OnLootAcquired;
-        parser.PlayerLoggedIn += OnPlayerLoggedIn;
-        parser.BuffCast += OnBuffCast;
-        _chatLogParser = parser;
-
-        List<DamageEvent> events = parser.ParseFile(_chatLogPath!);
-        _chatLogTailer = new ChatLogTailer(_chatLogPath!, parser);
+        List<DamageEvent> events = chatSource.ReloadFromDisk();
 
         // Same pet-attribution/named-copy filtering the live tick applies (OnChatLogTimerTick) -
         // skipping it here would count a Spiritmaster's pet as its own row, or double-count a
@@ -2193,6 +2229,11 @@ public partial class MainWindow : Window
         if (_chatLogPath is null || !File.Exists(_chatLogPath))
         {
             return "No Chat.log found - set the Aion install folder in Settings first.";
+        }
+
+        if (_source is not ChatLogCombatSource current || current.ChatLogPath != _chatLogPath)
+        {
+            ReplaceSource(new ChatLogCombatSource(_chatLogPath));
         }
 
         ReloadChatLogFromDisk();
@@ -2553,11 +2594,11 @@ public partial class MainWindow : Window
             return;
         }
 
-        bool isLocalPlayer = _chatLogParser?.Names.NameFor(row.ObjectId) == "You";
+        bool isLocalPlayer = _source?.Entities.IsLocalPlayer(row.ObjectId) == true;
         var mine = _aggregator.Events.Where(ev => ev.SourceObjectId == row.ObjectId).ToList();
 
         new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, isLocalPlayer, mine,
-            id => _chatLogParser?.Names.NameFor(id) ?? ResolveDisplayName(id))
+            id => _source?.Entities.NameFor(id) ?? ResolveDisplayName(id))
         {
             Owner = this,
         }.Show();
@@ -2570,9 +2611,9 @@ public partial class MainWindow : Window
     private List<DamageEvent> RestrictToEngagedTargets(List<DamageEvent> damageEvents)
     {
         // Demo data has no Chat.log name table, so there is no "You" id to anchor on.
-        return _chatLogParser is null
+        return _source is null
             ? damageEvents
-            : EngagedTargets.Filter(damageEvents, _chatLogParser.Names.GetOrAssignId("You"));
+            : EngagedTargets.Filter(damageEvents, _source.Entities.LocalPlayerId);
     }
 
     /// <summary>Shared by the toolbar Clear button and the ".cleardmg" in-game command.</summary>

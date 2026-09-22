@@ -43,6 +43,7 @@ public static class SelfCheck
         ok &= RunPlayerLoggedInScenario();
         ok &= RunTemplateLanguagesChatLogScenario();
         ok &= RunBuffCastScenario();
+        ok &= SelfCheckAion2.Run();
         return ok;
     }
 
