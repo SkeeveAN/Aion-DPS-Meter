@@ -12,19 +12,79 @@ TypeScript + Fastify + better-sqlite3 + drizzle-orm + zod - bewusst identisch zu
 bei den erwarteten Upload-Mengen (siehe Projekt-Notizen) ist SQLite/WAL im selben Prozess klar
 ausreichend, siehe die Diskussion, die dieser Entscheidung vorausging.
 
-Frontend: reines Vanilla-JS/HTML/CSS unter `public/`, kein Build-Schritt - von Fastify selbst per
-`@fastify/static` unter `/` ausgeliefert, API unter `/api/*`.
+Frontend: reines Vanilla-JS/HTML/CSS unter `public/`, kein Build-Schritt. Die HTML-Seiten kommen
+aus `src/routes/pages.ts` (Shell = `public/index.html` mit pro Seite gefülltem `<head>` und einem
+serverseitig gerenderten Inhaltsfragment, siehe `src/seo/`), Assets per `@fastify/static`, API
+unter `/api/*`.
 
 ## Lokale Entwicklung
 
 ```bash
 pnpm install
 cp .env.example .env
-pnpm run db:migrate
-pnpm run db:seed
-pnpm run dev        # http://127.0.0.1:4000
-pnpm run test       # Matching-Algorithmus-Tests, node:test
+pnpm run db:migrate     # Migrationen + Slug-Backfill (src/db/backfill.ts)
+pnpm run db:seed        # "Unbekannt"-Bucket je Spiel
+pnpm run content:sync   # Aion-2-Referenzdaten aus src/data/aion2 in die DB
+pnpm run dev            # http://127.0.0.1:4000
+pnpm run test           # Matching- und Slug-Tests, node:test
 ```
+
+## Spiele: `aion` und `aion2`
+
+Seit Migration 0024 tragen `server_catalog` und `instances` eine `game`-Spalte (`aion` = klassischer
+4.x-Client mit Chat.log-Meter, `aion2` = UE5-Client); `bosses`, `servers`, `players`, `encounters`
+erben das Spiel über Instanz bzw. Server. Alles, was die Kennung nicht kennt (Clients bis 0.7.x,
+alte URLs), meint `aion`. Konsequenzen:
+
+- Instanznamen sind nur noch **pro Spiel** eindeutig ("Fire Temple" gibt es in beiden), den
+  "Unbekannt"-Bucket gibt es einmal je Spiel, und `resolveBossId` (`src/matching/merge.ts`) matcht
+  Bossnamen nur innerhalb des Spiels des Uploads - ein Aion-2-Upload landet nie auf einem
+  klassischen Boss gleichen Namens.
+- Aion-2-Uploads können `bossNpcId` mitschicken; `boss_npc_ids` löst das eindeutig auf, weil sich
+  Aion-2-Bossnamen dungeonübergreifend wiederholen. Klassennamen werden für `aion2` gegen die neun
+  Klassen in `src/constants.ts` geprüft (für `aion` bewusst nicht - private Server haben verschiedene
+  Klassensets).
+- Jede API nimmt `?game=` (Default `aion`): `/api/instances`, `/api/instances/:idOrSlug/bosses`,
+  `/api/bosses/:idOrSlug/leaderboard`, `/api/bosses/:idOrSlug/mechanics`, `/api/servers`,
+  `/api/server-catalog`.
+
+## URLs, Slugs und SEO
+
+Jede Seite hat eine echte Adresse: `/`, `/download`, `/{game}/instances`,
+`/{game}/instances/{slug}`, `/{game}/bosses/{slug}[?server={server-slug}]`, `/{game}/players/{id}`
+(noindex). Slugs (`instances.slug`, `bosses.slug`, `server_catalog.slug`) werden nie von Hand
+gesetzt: `src/db/backfill.ts` füllt sie nach jeder Migration aus dem englischen Namen
+(`public/game-data.js`, Fallback Rohname), Bosse mit gleichem Namen im selben Spiel bekommen den
+Instanz-Slug angehängt. Ein einmal vergebener Slug bleibt auch bei Umbenennung stehen (URLs dürfen
+nicht brechen); numerische Alt-URLs antworten mit 301 auf den Slug, alte `#/…`-Links leitet
+`public/app.js` beim Laden um. `robots.txt`/`sitemap.xml` kommen aus `src/routes/seo.ts`
+(Spielerprofile, Encounters und Suche bleiben draußen). Serverseitige Dinge, die nicht im Repo
+liegen (nginx-Redirects, Search Console), stehen in `deploy/NGINX.md`.
+
+## Aion 2 Content (Instanzen, Bosse, Mechaniken)
+
+Die Aion-2-Referenzdaten liegen als JSON in `src/data/aion2/` (`instances`, `bosses`, `mechanics`,
+`classes`) und werden bei jedem Deploy per `pnpm run content:sync` (`src/content/syncAion2.ts`)
+additiv in die DB geschrieben - Match über `(game, name)` bzw. `(instance, name)`, nie löschen,
+handgesetzte Flags (`is_trash_mob`, `is_solo`, `loot_rules`) bleiben unberührt.
+
+Erzeugt werden die JSONs mit `scripts/derive-aion2-content.ts` aus einem **nicht im Repo
+liegenden** Drittanbieter-Datensatz:
+
+```bash
+pnpm run content:derive -- --source /pfad/zum/datensatz --review-out ../aion2.review.json
+```
+
+Übernommen werden ausschließlich Fakten: Namen wie der Spielclient sie anzeigt (en/ko/zh),
+NPC-IDs, Rollen, Level, welche Mechanik zu welchem Boss gehört, Auslösertyp/-prozent und Schwere.
+Fremde Texte (Auslöser-Labels, Handlungs- und Detailbeschreibungen, Positionsskizzen) und Bilder
+werden **nicht** kopiert - die Felder `trigger.label`, `action`, `detail` starten leer, die
+Review-Datei außerhalb des Repos dient nur als Lesestoff für eigene Formulierungen. Eigene Texte
+und Übersetzungen (`name.de`/`name.fr`) direkt in den JSONs pflegen; ein erneuter `content:derive`
+behält sie und aktualisiert nur die abgeleiteten Felder. Alle so entstandenen DB-Zeilen tragen
+`source = 'derived'`; das Frontend blendet dazu einen Herkunftshinweis ein. Sobald eigene
+Client-Daten verfügbar sind (EU/NA-Start), ersetzt ein eigener Extraktor den Drittanbieter-Input,
+das Zielschema bleibt.
 
 `better-sqlite3` braucht zum Kompilieren entweder einen vorgebauten Binary (üblich für
 LTS-Node-Versionen wie 22) oder `make`/`gcc`/`python3` lokal installiert.
@@ -41,17 +101,19 @@ ihn einer echten Instanz zuzuordnen: in der `instances`-Tabelle die Zeile anlege
 UPDATE bosses SET instance_id = <echte instance id> WHERE name = '<Bossname>';
 ```
 
-**Nie zwei `bosses`-Zeilen mit demselben `name` in verschiedenen Instanzen anlegen** -
-`resolveBossId` (`src/matching/merge.ts`) matcht rein über den Namen, ohne jeden Zonen-/Instanz-
-Kontext (der Client lädt keinen hoch) - bei zwei gleichnamigen Zeilen landet JEDER Upload
-undeterministisch bei der ersten gefundenen, nie bei der "richtigen". Real passiert bei "Brigade
+**Nie zwei `bosses`-Zeilen mit demselben `name` in verschiedenen Instanzen desselben Spiels
+anlegen** - `resolveBossId` (`src/matching/merge.ts`) matcht innerhalb eines Spiels rein über den
+Namen, ohne Zonen-/Instanz-Kontext (der klassische Client lädt keinen hoch) - bei zwei gleichnamigen
+Zeilen landet JEDER Upload undeterministisch bei der ersten gefundenen, nie bei der "richtigen".
+(Für Aion 2 gilt das nur für Uploads ohne `bossNpcId`, siehe "Spiele" oben.) Real passiert bei "Brigade
 General Vasharti" (Rentus-Basis vs. Lost Rentus Base, siehe Migration 0022) - der Name existiert im
 Spiel für beide Instanzen identisch, die App kann sie serverseitig nicht auseinanderhalten. Teilen
 sich zwei Instanzen denselben Boss wirklich, gehört er in EINE `bosses`-Zeile (Instanz-Zuordnung so
 wählen, wie die Gruppe ihn tatsächlich spielt), nicht in zwei.
 
-Eine passende Instanz-Zeile fehlt noch? Erst per `INSERT INTO instances (name, sort_order) VALUES (...)`
-anlegen. Es gibt bewusst keine vorab geratene Instanzliste im Seed - die genaue Instanz-/Boss-Liste
+Eine passende Instanz-Zeile fehlt noch? Erst per
+`INSERT INTO instances (name, game, sort_order) VALUES (...)` anlegen (`slug`/`name_en` füllt der
+nächste `db:migrate`-Lauf nach). Es gibt bewusst keine vorab geratene Instanzliste im Seed - die genaue Instanz-/Boss-Liste
 dieses konkreten Servers ist von hier aus nicht zuverlässig bekannt, eine falsche Zuordnung wäre
 schlimmer als eine leere.
 

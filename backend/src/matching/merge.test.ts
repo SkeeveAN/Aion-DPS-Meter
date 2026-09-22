@@ -1,4 +1,4 @@
-import { test } from "node:test";
+import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -11,17 +11,21 @@ import { fileURLToPath } from "node:url";
 process.env.DATABASE_PATH = path.join(mkdtempSync(path.join(tmpdir(), "dpsmeter-test-")), "test.sqlite");
 
 const { migrate } = await import("drizzle-orm/better-sqlite3/migrator");
-const { db } = await import("../db/client.js");
+const { db, sqlite } = await import("../db/client.js");
 const migrationsFolder = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "drizzle");
 migrate(db, { migrationsFolder });
 
+// Finalize every prepared statement before Node tears the environment down (see db/client.ts).
+after(() => sqlite.close());
+
 const { processUpload } = await import("./merge.js");
-const { encounterParticipants, encounterSkillUsage, players } = await import("../db/schema.js");
+const { bossNpcIds, bosses, encounterParticipants, encounterSkillUsage, encounters, instances, players } = await import("../db/schema.js");
 const { and, eq } = await import("drizzle-orm");
 
 function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {}) {
   return {
     clientVersion: "test",
+    game: "aion" as const,
     bossNpcName: "Raksha Kochherz",
     startedAt: "2026-01-01T20:00:00.000Z",
     endedAt: "2026-01-01T20:03:12.000Z",
@@ -247,6 +251,65 @@ test("the same player name on two different servers is tracked as two separate p
   assert.ok(annaOnFirstServer, "Anna should exist on the first server");
   assert.ok(annaOnSecondServer, "Anna should exist on the second server");
   assert.notEqual(annaOnFirstServer!.id, annaOnSecondServer!.id, "the two Annas must be different player rows");
+});
+
+test("the same boss name in Aion and Aion 2 resolves to two different boss rows in their own game's bucket", () => {
+  const classic = processUpload(basePayload({ bossNpcName: "Kromede" }));
+  const aion2 = processUpload(
+    basePayload({
+      game: "aion2",
+      bossNpcName: "Kromede",
+      serverFingerprint: "aion2:10.0.0.1:7777",
+      serverName: "Aion 2 EU",
+      participants: basePayload().participants.map((p) => ({ ...p, className: "Gladiator" })),
+    }),
+  );
+  assert.equal(aion2.status, "created");
+
+  const bossOf = (encounterId: number) =>
+    db
+      .select({ bossId: bosses.id, slug: bosses.slug, game: instances.game, instanceName: instances.name })
+      .from(encounters)
+      .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+      .innerJoin(instances, eq(bosses.instanceId, instances.id))
+      .where(eq(encounters.id, encounterId))
+      .get()!;
+  const classicBoss = bossOf(classic.encounterId);
+  const aion2Boss = bossOf(aion2.encounterId);
+  assert.notEqual(classicBoss.bossId, aion2Boss.bossId);
+  assert.equal(classicBoss.game, "aion");
+  assert.equal(aion2Boss.game, "aion2");
+  assert.equal(classicBoss.slug, "kromede");
+  assert.equal(aion2Boss.slug, "kromede", "slugs are per game, so both may be plain");
+});
+
+test("an Aion 2 upload with a known bossNpcId lands on that boss even when the name differs", () => {
+  const seeded = processUpload(
+    basePayload({
+      game: "aion2",
+      bossNpcName: "Ultimate Berk",
+      serverFingerprint: "aion2:10.0.0.1:7777",
+      serverName: "Aion 2 EU",
+      participants: basePayload().participants.map((p) => ({ ...p, className: "Templar" })),
+    }),
+  );
+  const seededBossId = db.select({ bossId: encounters.bossId }).from(encounters).where(eq(encounters.id, seeded.encounterId)).get()!.bossId;
+  db.insert(bossNpcIds).values({ bossId: seededBossId, npcId: 2300171 }).run();
+
+  const byId = processUpload(
+    basePayload({
+      game: "aion2",
+      bossNpcName: "Ultimate Berk (Hard)",
+      bossNpcId: 2300171,
+      serverFingerprint: "aion2:10.0.0.1:7777",
+      serverName: "Aion 2 EU",
+      startedAt: "2026-02-01T20:00:00.000Z",
+      endedAt: "2026-02-01T20:04:00.000Z",
+      participants: basePayload().participants.map((p) => ({ ...p, className: "Templar" })),
+    }),
+  );
+  const resolvedBossId = db.select({ bossId: encounters.bossId }).from(encounters).where(eq(encounters.id, byId.encounterId)).get()!.bossId;
+  assert.equal(resolvedBossId, seededBossId);
 });
 
 test("a pure healer with zero boss damage still gets an encounter row - not just damage dealers", () => {

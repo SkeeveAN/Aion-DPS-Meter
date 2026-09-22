@@ -29,6 +29,7 @@ su - "$SERVICE_USER" -s /bin/bash -c "
   fi
   pnpm run db:migrate
   pnpm run db:seed
+  pnpm run content:sync
 "
 
 echo "==> Installiere/aktualisiere systemd-Unit..."

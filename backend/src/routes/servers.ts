@@ -1,7 +1,8 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { serverCatalog, servers } from "../db/schema.js";
+import { gameFromQuery } from "./instances.js";
 
 /**
  * Lets the frontend offer a server picker before asking for any leaderboard - GET
@@ -23,20 +24,28 @@ import { serverCatalog, servers } from "../db/schema.js";
  * the user, which instances even show up (GET /api/instances?serverCatalogId=...) differs by
  * server (Origin/EuroAion share one list, Riftshade's is wider), and that filter has to key off
  * something that exists before any upload does, which servers.id (possibly null here) cannot.
+ *
+ * `?game=` picks the game's servers; absent means classic Aion (see constants.ts).
  */
 export async function serverRoutes(app: FastifyInstance) {
-  app.get("/api/servers", async (_request, reply) => {
+  app.get<{ Querystring: { game?: string } }>("/api/servers", async (request, reply) => {
+    const game = gameFromQuery(request.query.game, reply);
+    if (game === null) {
+      return;
+    }
     const rows = db
       .select({
         id: servers.id,
         serverCatalogId: serverCatalog.id,
         fingerprint: servers.fingerprint,
         name: serverCatalog.name,
+        slug: serverCatalog.slug,
         kind: serverCatalog.kind,
+        game: serverCatalog.game,
       })
       .from(serverCatalog)
       .leftJoin(servers, eq(servers.displayName, serverCatalog.name))
-      .where(eq(serverCatalog.active, true))
+      .where(and(eq(serverCatalog.active, true), eq(serverCatalog.game, game)))
       .orderBy(asc(serverCatalog.kind), asc(serverCatalog.name))
       .all();
     return reply.send(rows);

@@ -1,6 +1,7 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
+  bossNpcIds,
   bosses,
   encounterBuffUsage,
   encounterParticipants,
@@ -12,7 +13,9 @@ import {
 } from "../db/schema.js";
 import { normalizeName, jaccardSimilarity, withinRelativeTolerance } from "./roster.js";
 import type { ParticipantUpload, UploadPayload } from "../uploadSchema.js";
-import { UNASSIGNED_INSTANCE_NAME } from "../constants.js";
+import { UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
+import { englishNameFor } from "../db/backfill.js";
+import { slugify, uniqueSlug } from "../seo/slug.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -72,31 +75,53 @@ function upsertServer(fingerprint: string, displayName: string | undefined): num
   return Number(inserted.lastInsertRowid);
 }
 
-function resolveBossId(npcName: string): number {
-  const allBosses = db.select().from(bosses).all();
-  const match = allBosses.find(
-    (b) => b.name === npcName || b.npcNameAliases.includes(npcName),
-  );
+/** Boss rows of one game - the game lives on the instance, so this is always a join. */
+function bossesOfGame(game: Game) {
+  return db
+    .select({ boss: bosses, instanceSlug: instances.slug })
+    .from(bosses)
+    .innerJoin(instances, eq(bosses.instanceId, instances.id))
+    .where(eq(instances.game, game))
+    .all();
+}
+
+function resolveBossId(payload: UploadPayload): number {
+  // Aion 2 clients know the NPC's numeric id, which is unambiguous where names are not (the same
+  // boss name recurs across dungeons there) - so it wins whenever the boss is on file.
+  if (payload.bossNpcId !== undefined) {
+    const byNpcId = db.select({ bossId: bossNpcIds.bossId }).from(bossNpcIds).where(eq(bossNpcIds.npcId, payload.bossNpcId)).get();
+    if (byNpcId) {
+      return byNpcId.bossId;
+    }
+  }
+
+  // Never across games: "Kromede" in Aion 2's Fire Temple is not the Aion boss of the same name.
+  const gameBosses = bossesOfGame(payload.game);
+  const npcName = payload.bossNpcName;
+  const match = gameBosses.find(({ boss }) => boss.name === npcName || boss.npcNameAliases.includes(npcName));
   if (match) {
-    return match.id;
+    return match.boss.id;
   }
 
   let unassigned = db
-    .select()
+    .select({ id: instances.id })
     .from(instances)
-    .where(eq(instances.name, UNASSIGNED_INSTANCE_NAME))
+    .where(and(eq(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.game, payload.game)))
     .get();
   if (!unassigned) {
     const inserted = db
       .insert(instances)
-      .values({ name: UNASSIGNED_INSTANCE_NAME, sortOrder: -1 })
+      .values({ name: UNASSIGNED_INSTANCE_NAME, nameEn: "Unassigned", slug: "unassigned", game: payload.game, sortOrder: -1 })
       .run();
-    unassigned = { id: Number(inserted.lastInsertRowid), name: UNASSIGNED_INSTANCE_NAME, sortOrder: -1, createdAt: "" };
+    unassigned = { id: Number(inserted.lastInsertRowid) };
   }
 
+  const takenSlugs = new Set(gameBosses.map(({ boss }) => boss.slug).filter((s): s is string => s !== null));
+  const nameEn = payload.game === "aion" ? englishNameFor(npcName) : npcName;
+  const slug = uniqueSlug(slugify(nameEn ?? npcName) || "boss", (s) => takenSlugs.has(s));
   const insertedBoss = db
     .insert(bosses)
-    .values({ instanceId: unassigned.id, name: npcName, npcNameAliases: [] })
+    .values({ instanceId: unassigned.id, name: npcName, nameEn, slug, npcNameAliases: [] })
     .run();
   return Number(insertedBoss.lastInsertRowid);
 }
@@ -543,7 +568,7 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
 export function processUpload(payload: UploadPayload): ProcessResult {
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   payload = { ...payload, participants: mergeDuplicateParticipants(payload.participants, serverId) };
-  const bossId = resolveBossId(payload.bossNpcName);
+  const bossId = resolveBossId(payload);
   const candidateEncounterId = findCandidateEncounter(bossId, serverId, payload);
 
   if (candidateEncounterId) {

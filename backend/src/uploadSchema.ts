@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AION2_CLASSES, GAMES } from "./constants.js";
 
 // Generous but real ceilings - these guard against garbage/abuse, not against
 // a legitimately long or hard-hitting fight, so they're deliberately loose.
@@ -63,9 +64,17 @@ export const participantSchema = z.object({
   buffs: z.array(buffUsageSchema).max(80).default([]),
 });
 
-export const uploadSchema = z.object({
+export const uploadSchema = z
+  .object({
   clientVersion: z.string().max(40).default(""),
+  // Which game this fight is from (see constants.ts GAMES). Defaulted: every client up to 0.7.x
+  // predates the field and only ever captured classic Aion, so a missing value can only mean that.
+  game: z.enum(GAMES).default("aion"),
   bossNpcName: z.string().trim().min(1).max(80),
+  // Aion 2 clients see the boss's numeric NPC id in the traffic they capture - unambiguous where
+  // the name alone is not (the same name recurs across dungeons there, see boss_npc_ids). Classic
+  // Aion's Chat.log has no such id, so it stays optional.
+  bossNpcId: z.number().int().positive().optional(),
   startedAt: z.string().min(1),
   endedAt: z.string().min(1),
   // 6-man groups up to 24-man alliance instances.
@@ -82,7 +91,25 @@ export const uploadSchema = z.object({
   // fingerprint nor a name is the one genuinely ambiguous case left, same as any other "can't tell
   // them apart" situation elsewhere in this schema.
   serverName: z.string().trim().max(60).optional(),
-});
+  })
+  .superRefine((payload, ctx) => {
+    // Aion 2 has a fixed, small class roster; a classic-Aion class name on an Aion 2 upload is a
+    // client bug worth rejecting loudly rather than storing as a phantom class. Classic Aion stays
+    // unvalidated here on purpose - private servers ship different class sets (see the client's
+    // Server/ServerClassAvailability.cs), so there is no single right list to check against.
+    if (payload.game !== "aion2") {
+      return;
+    }
+    payload.participants.forEach((p, i) => {
+      if (!(AION2_CLASSES as readonly string[]).includes(p.className)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["participants", i, "className"],
+          message: `unknown Aion 2 class: ${p.className}`,
+        });
+      }
+    });
+  });
 
 export type UploadPayload = z.infer<typeof uploadSchema>;
 export type ParticipantUpload = z.infer<typeof participantSchema>;

@@ -9,7 +9,9 @@ import { env } from "../env.js";
 // does not track an empty one - a fresh checkout has no data/ at all.
 mkdirSync(dirname(env.DATABASE_PATH), { recursive: true });
 
-const sqlite = new Database(env.DATABASE_PATH);
+// Exported so tests can close the handle before the process exits: better-sqlite3 statements that
+// are still alive at environment teardown trip a native assertion on recent Node versions.
+export const sqlite = new Database(env.DATABASE_PATH);
 sqlite.pragma("journal_mode = WAL");
 
 export const db = drizzle(sqlite, { schema });

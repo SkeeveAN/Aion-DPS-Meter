@@ -169,6 +169,13 @@
       "when": 1789496253967,
       "tag": "0023_normalize_modern_class_names",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1790077096095,
+      "tag": "0024_add_game_and_slugs",
+      "breakpoints": true
     }
   ]
 }
