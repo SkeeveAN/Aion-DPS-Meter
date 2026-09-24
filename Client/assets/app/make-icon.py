@@ -1,3 +1,6 @@
+# Stale: aiondps.ico now ships an AI-generated DPS gauge icon (see AionDPS.csproj's
+# ApplicationIcon remarks), not this script's procedural winged sword. Running this would
+# overwrite it with the old design. Kept as history, not deleted, in case the sword ever comes back.
 import struct, zlib, math, sys
 
 BG_TOP=(0x2b,0x2d,0x3d); BG_BOT=(0x14,0x15,0x1d); EDGE=(0x4a,0x4c,0x5c)

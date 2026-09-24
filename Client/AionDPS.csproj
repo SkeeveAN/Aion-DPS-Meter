@@ -27,9 +27,13 @@
     <AssemblyTitle>Aion DPS</AssemblyTitle>
     <!-- asInvoker: the meter only reads Chat.log, so it needs no elevation. See app.manifest. -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <!-- Winged sword: the wings for Aion's Daeva iconography, the blade for what the tool measures.
-         Generated rather than drawn by hand: assets/app/make-icon.py rebuilds the .ico from
-         scratch (no image library needed), so the shape is adjustable in code, not in a binary. -->
+    <!-- Damage-meter badge (metal ring + rising bars, molten/lava treatment) - supplied directly by
+         the user as a finished .ico (opaque square, not alpha-masked like the earlier generated
+         icons it replaced). The website now uses its own separate artwork
+         (../../Web-Frontend/logo.png + favicon-*.png, also user-supplied) rather than sharing this
+         exact file. See git history for the bar-chart/gauge-needle/winged-sword designs this
+         replaced; assets/app/make-icon.py (the winged sword's generator) is stale/unused, kept only
+         as history. -->
     <ApplicationIcon>assets/app/aiondps.ico</ApplicationIcon>
     <!-- Single source of truth for the version the user sees. The window title reads it back at
          runtime (see MainWindow's constructor) and the installer takes it from the git tag the release

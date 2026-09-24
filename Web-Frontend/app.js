@@ -257,7 +257,7 @@ function renderHome() {
   setBreadcrumb([]);
   document.title = HOME_TITLE;
   const hero = el("div", { className: "download-hero" }, [
-    el("img", { src: "/logo.ico", alt: "" }),
+    el("img", { src: "/logo.png", alt: "" }),
     el("div", {}, [el("h2", { textContent: SITE_TITLE }), el("p", { textContent: t("home.tagline") })]),
   ]);
   const games = el("div", { className: "feature-grid" }, [
@@ -290,7 +290,7 @@ async function renderDownload() {
   showLoading(t("loading.version"));
 
   const hero = el("div", { className: "download-hero" }, [
-    el("img", { src: "/logo.ico", alt: "" }),
+    el("img", { src: "/logo.png", alt: "" }),
     el("div", {}, [
       el("h2", { textContent: "Aion DPS" }),
       el("p", { textContent: t("download.heroDescription") }),
