@@ -3,8 +3,11 @@ using AionDPS.Combat;
 
 namespace AionDPS.Ui;
 
-/// <summary>One skill's contribution for one player, as shown in the details grid.</summary>
-public sealed record SkillRow(string Skill, int Hits, double CritRate, long Total, long Min, long Max, long Average);
+/// <summary>One skill's contribution for one player, as shown in the details grid.
+/// SharePercent is this skill's share of the player's OWN total damage (0-100), not the raid's -
+/// it drives the ShareBar under the Total column, mirroring PlayerRow.SharePercent in
+/// MainWindow.</summary>
+public sealed record SkillRow(string Skill, int Hits, double CritRate, long Total, long Min, long Max, long Average, double SharePercent);
 
 /// <summary>
 /// What the meter has gathered about one character: which abilities they used, how often, how hard
@@ -28,7 +31,9 @@ public partial class PlayerDetailsWindow : Window
 
         // The local player's client flags its own crits properly; nobody else's does. Estimating
         // over a known answer would only add error, so the flag wins where it is trustworthy.
-        var rows = SkillBreakdown.For(events, trustLoggedFlag: isLocalPlayer)
+        var breakdown = SkillBreakdown.For(events, trustLoggedFlag: isLocalPlayer).ToList();
+        long total = breakdown.Sum(u => u.Total);
+        var rows = breakdown
             .Select(u => new SkillRow(
                 u.Skill,
                 u.Hits,
@@ -36,15 +41,34 @@ public partial class PlayerDetailsWindow : Window
                 u.Total,
                 u.Min,
                 u.Max,
-                (long)Math.Round((double)u.Total / u.Hits)))
+                (long)Math.Round((double)u.Total / u.Hits),
+                total > 0 ? 100.0 * u.Total / total : 0))
             .ToList();
 
         SkillsGrid.ItemsSource = rows;
 
-        long total = rows.Sum(r => r.Total);
         int hits = rows.Sum(r => r.Hits);
         var targets = damage.Select(e => nameOf(e.TargetObjectId)).Where(n => n is not null).Distinct().Count();
-        SummaryText.Text = $"{className} · {total:N0} damage over {hits:N0} hits, {rows.Count} abilities, {targets} targets";
+        SummaryText.Text = $"{className} · {rows.Count} abilities, {targets} targets";
+
+        // Wall-clock, first hit to last hit -- same definition as DpsCalculator.AllDpsWallClock's
+        // "ALL" view (that method itself isn't reusable here: it filters events by sourceObjectId,
+        // but `damage` is already this one player's events with no object id available to filter
+        // by). Null below its one-hit/zero-duration floor, same reasoning as that method's own
+        // remarks: a rate over no elapsed time is not a number, and showing the raw total instead
+        // would read as a real rate rather than as "undefined".
+        double? seconds = damage.Count > 1
+            ? (damage.Max(e => e.Timestamp) - damage.Min(e => e.Timestamp)).TotalSeconds
+            : null;
+        if (seconds is <= 0)
+        {
+            seconds = null;
+        }
+
+        DmgTileText.Text = total.ToString("N0");
+        DpsTileText.Text = seconds is double s ? (total / s).ToString("N0") : "n/a";
+        TimeTileText.Text = seconds is double s2 ? TimeSpan.FromSeconds(s2).ToString(@"mm\:ss") : "n/a";
+        HitsPerSecTileText.Text = seconds is double s3 ? (hits / s3).ToString("F1") : "n/a";
 
         CritNoteText.Text = isLocalPlayer
             ? "Crit rates are read straight from your own log, where Aion flags them reliably."

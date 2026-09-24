@@ -12,6 +12,7 @@ import { encounterRoutes } from "./routes/encounters.js";
 import { playerRoutes } from "./routes/players.js";
 import { serverRoutes } from "./routes/servers.js";
 import { serverCatalogRoutes } from "./routes/serverCatalog.js";
+import { statsRoutes } from "./routes/stats.js";
 import { seoRoutes } from "./routes/seo.js";
 import { pageRoutes, sendNotFound } from "./routes/pages.js";
 
@@ -41,6 +42,7 @@ export async function buildServer() {
   await app.register(playerRoutes);
   await app.register(serverRoutes);
   await app.register(serverCatalogRoutes);
+  await app.register(statsRoutes);
   await app.register(seoRoutes);
   await app.register(pageRoutes);
 

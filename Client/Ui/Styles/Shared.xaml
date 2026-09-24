@@ -1,0 +1,26 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Share-of-total bar under a row's main number (e.g. PlayerRow.SharePercent in MainWindow's
+         Damage/DPS column, SkillRow.SharePercent in PlayerDetailsWindow's skill table), 0-100. A
+         ProgressBar only for its PART_Indicator width math; the template is a flat track + fill so
+         it reads as a meter bar, not as WPF's stock progress chrome. Theme-independent (only
+         DynamicResource brush references), merged once into Application.Resources in Program.cs
+         rather than duplicated per window, so any window's DataGrid can reference it via
+         StaticResource. -->
+    <Style x:Key="ShareBar" TargetType="ProgressBar">
+        <Setter Property="Height" Value="3"/>
+        <Setter Property="Minimum" Value="0"/>
+        <Setter Property="Maximum" Value="100"/>
+        <Setter Property="Margin" Value="0,2,0,1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Grid>
+                        <Border x:Name="PART_Track" Background="{DynamicResource Brush.Control}" CornerRadius="1"/>
+                        <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{DynamicResource Brush.Accent}" Opacity="0.7" CornerRadius="1"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -1,9 +1,10 @@
-import { ne, eq, and, asc, inArray } from "drizzle-orm";
+import { ne, eq, and, asc, count, desc, inArray } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import { db } from "../db/client.js";
-import { bosses, instances, serverCatalogInstances } from "../db/schema.js";
+import { bosses, encounters, instances, serverCatalogInstances } from "../db/schema.js";
 import { DEFAULT_GAME, isGame, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { parseIdOrSlug } from "../seo/slug.js";
+import { selectServer, serversWithEncountersForBossIds, statsForBossIds } from "./bosses.js";
 
 /** `?game=` is optional everywhere - absent means classic Aion, the only game older callers know. */
 export function gameFromQuery(raw: string | undefined, reply: FastifyReply): Game | null {
@@ -97,6 +98,80 @@ export async function instanceRoutes(app: FastifyInstance) {
       .where(and(eq(bosses.instanceId, instance.id), eq(bosses.isTrashMob, false)))
       .orderBy(asc(bosses.name))
       .all();
+    return reply.send(rows);
+  });
+
+  // Best group iDPS / average kill time / run count across every one of this instance's real
+  // bosses (trash mobs excluded, same filter as /bosses above) - powers the instance hero's stat
+  // pills and, later, an instance-level "Statistiken" tab. Server scoping mirrors a boss
+  // leaderboard exactly (see bosses.ts selectServer/statsForBossIds): never merged across
+  // classic-Aion servers, combined by default only for Aion 2.
+  app.get<{ Params: { id: string }; Querystring: { game?: string; serverId?: string; server?: string } }>(
+    "/api/instances/:id/stats",
+    async (request, reply) => {
+      const game = gameFromQuery(request.query.game, reply);
+      if (game === null) {
+        return;
+      }
+      const instance = findInstance(request.params.id, game);
+      if (!instance) {
+        return reply.status(404).send({ error: "instance_not_found" });
+      }
+
+      const bossIds = db
+        .select({ id: bosses.id })
+        .from(bosses)
+        .where(and(eq(bosses.instanceId, instance.id), eq(bosses.isTrashMob, false)))
+        .all()
+        .map((r) => r.id);
+
+      const serverList = serversWithEncountersForBossIds(bossIds);
+      const explicitServer = request.query.serverId !== undefined || request.query.server !== undefined;
+      const combined = game === "aion2" && !explicitServer;
+      const selected = combined ? null : selectServer(serverList, request.query);
+      if (selected === "invalid") {
+        return reply.status(400).send({ error: "missing_or_invalid_server_id" });
+      }
+
+      if (selected === null && !combined) {
+        return reply.send({
+          instanceId: instance.id,
+          servers: serverList,
+          selectedServerId: null,
+          combined: false,
+          runCount: 0,
+          bestIdps: null,
+          avgDurationSeconds: null,
+        });
+      }
+      const scope = combined ? null : selected!.id;
+      const stats = statsForBossIds(bossIds, scope);
+      return reply.send({ instanceId: instance.id, servers: serverList, selectedServerId: scope, combined, ...stats });
+    },
+  );
+
+  // "Top instances" by real run count (aiondps_design_pack_v1 startseite brief's "Featured
+  // Instances", replaced with an actual ranking rather than just the first N by sortOrder) - summed
+  // across every server, unlike a DPS leaderboard: a run count is just activity volume, not a
+  // gear-standard comparison, so classic-Aion servers being incomparable for DPS doesn't apply here.
+  app.get<{ Querystring: { game?: string; limit?: string } }>("/api/instances/top", async (request, reply) => {
+    const game = gameFromQuery(request.query.game, reply);
+    if (game === null) {
+      return;
+    }
+    const limit = Math.min(Math.max(Number(request.query.limit ?? 8) || 8, 1), 50);
+
+    const rows = db
+      .select({ ...instanceColumns, runCount: count(encounters.id) })
+      .from(instances)
+      .innerJoin(bosses, eq(bosses.instanceId, instances.id))
+      .innerJoin(encounters, eq(encounters.bossId, bosses.id))
+      .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME)))
+      .groupBy(instances.id)
+      .orderBy(desc(count(encounters.id)))
+      .limit(limit)
+      .all();
+
     return reply.send(rows);
   });
 }

@@ -12,6 +12,8 @@ import {
   instancesPage,
   notFoundPage,
   playerPage,
+  privacyPage,
+  termsPage,
   type Page,
 } from "../seo/pages.js";
 import { findBoss } from "./bosses.js";
@@ -56,6 +58,8 @@ type GameParams = { Params: { game: string } };
 export async function pageRoutes(app: FastifyInstance) {
   app.get("/", async (request, reply) => send(reply, render(homePage(), requestPath(request))));
   app.get("/download", async (request, reply) => send(reply, render(downloadPage(), requestPath(request))));
+  app.get("/privacy", async (request, reply) => send(reply, render(privacyPage(), requestPath(request))));
+  app.get("/terms", async (request, reply) => send(reply, render(termsPage(), requestPath(request))));
 
   // Every game-scoped page validates the game segment first; an unknown one is a 404, not aion.
   const withGame =

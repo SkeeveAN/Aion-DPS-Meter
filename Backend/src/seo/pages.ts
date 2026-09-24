@@ -63,6 +63,39 @@ export function downloadPage(): Page {
   };
 }
 
+// Minimal English fallback fragment, like every other SSR page here - app.js's renderPrivacy/
+// renderTerms replace this with the full, localized version (Web-Frontend/i18n.js "legal.*" keys)
+// once the client hydrates.
+export function privacyPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "Privacy Policy – Aion DPS Meter",
+      description: "What Aion DPS Meter's client and website collect, and why: local Chat.log reading, optional uploads, hashed IPs, no accounts, no tracking.",
+      canonicalPath: "/privacy",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Privacy Policy", path: "/privacy" }])],
+    },
+    body: html`
+      <h2>Privacy Policy</h2>
+      <p>Aion DPS Meter is a free, open-source, hobby-run community project. The client only reads your own local Chat.log to compute stats locally; uploading a parse to the community leaderboards is optional. See the full policy on the site for details on what gets stored and your rights.</p>`,
+  };
+}
+
+export function termsPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "Terms of Service – Aion DPS Meter",
+      description: "Terms for using Aion DPS Meter's free client and website: fan-made project, provided as-is, acceptable use of the upload feature.",
+      canonicalPath: "/terms",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Terms of Service", path: "/terms" }])],
+    },
+    body: html`
+      <h2>Terms of Service</h2>
+      <p>Aion DPS Meter is a free, fan-made community project, not affiliated with or endorsed by NCSoft or any official Aion publisher. It is provided "as is", without warranty. See the full terms on the site for acceptable use and liability details.</p>`,
+  };
+}
+
 export function instancesPage(game: Game): Page {
   const rows = db
     .select(instanceColumns)

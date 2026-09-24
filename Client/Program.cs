@@ -46,6 +46,16 @@ internal static class Program
         // Velopack's own install/update/uninstall hook arguments, which the updater passes to a
         // freshly-swapped build. Getting a meter window on screen in those runs instead of doing
         // the hook's job is exactly how a self-updating app breaks its own update.
+        //
+        // No manual shortcut handling here on purpose: Velopack.Windows.Shortcuts is explicitly
+        // marked obsolete ("Desktop and StartMenuRoot shortcuts are now created and removed
+        // automatically when your app is installed / uninstalled"), and upstream issue #67
+        // ("Shortcuts not updated when --packTitle or application icon changes", fixed by PR
+        // #165) covers exactly the symptom the user reported (Start Menu still showing the old
+        // app icon after an in-place update) -- already handled by Velopack itself on the 1.2.0
+        // this project packs with (see AionDpsMeter's release.yml). If it recurs, suspect Windows'
+        // own shell icon cache (a stale bitmap cached against the unchanged .lnk file) or a
+        // locally installed build old enough to predate that upstream fix, not a gap here.
         VelopackApp.Build().Run();
 
         if (args.Length > 0 && args[0] == "selftest")
@@ -130,7 +140,12 @@ internal static class Program
             try
             {
                 // Before the first window exists: every window's brushes resolve through the
-                // theme dictionary this merges in (see Ui/ThemeManager).
+                // theme dictionary this merges in (see Ui/ThemeManager). Shared.xaml is
+                // theme-independent (DynamicResource brush refs only) and merged once here so any
+                // window can reference its styles (e.g. ShareBar) via StaticResource without
+                // redefining them.
+                app.Resources.MergedDictionaries.Add(
+                    (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
                 Ui.MeterSettings startupSettings = Ui.MeterSettings.Load();
                 Ui.ThemeManager.Apply(app, startupSettings.Theme, startupSettings.FontSize);
                 app.Run(new Ui.MainWindow());

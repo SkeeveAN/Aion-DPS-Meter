@@ -8,9 +8,33 @@
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
+        <local:SkillIconConverter x:Key="SkillIconConverter"/>
+        <!-- One DMG/DPS/TIME/HITS-PER-SEC stat tile: a small muted label over a large bold value,
+             boxed, so the headline numbers read at a glance instead of being buried in
+             SummaryText's sentence - same idea as the stat cards in a certain other meter's
+             post-fight "Details" panel, adapted to this window's existing dark theme rather than
+             copying its colors. -->
+        <Style x:Key="StatTile" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="MinWidth" Value="86"/>
+        </Style>
+        <Style x:Key="StatTileLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
+        </Style>
+        <Style x:Key="StatTileValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
     </Window.Resources>
     <DockPanel Margin="10">
-        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal">
                 <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
                        Height="22" Width="22" Margin="0,0,4,0" ToolTip="{Binding Faction}"/>
@@ -18,7 +42,38 @@
                        Height="22" Width="22" Margin="0,0,8,0" ToolTip="{Binding ClassName}"/>
                 <TextBlock x:Name="HeaderText" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
             </StackPanel>
-            <TextBlock x:Name="SummaryText" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,4,0,0"/>
+            <!-- DMG/DPS/TIME/HITS-PER-SEC: the four numbers a reader looks for first, pulled out of
+                 SummaryText's sentence and given their own tiles. DpsTileText/TimeTileText read
+                 "n/a" when the events span less than one second (see DpsCalculator.AllDpsWallClock's
+                 null case) - a single isolated hit has no elapsed duration to divide by, and a
+                 tile showing a rate in that case would be worse than one saying "n/a". -->
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <Border Style="{StaticResource StatTile}">
+                    <StackPanel>
+                        <TextBlock Text="DMG" Style="{StaticResource StatTileLabel}"/>
+                        <TextBlock x:Name="DmgTileText" Style="{StaticResource StatTileValue}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatTile}">
+                    <StackPanel>
+                        <TextBlock Text="DPS" Style="{StaticResource StatTileLabel}"/>
+                        <TextBlock x:Name="DpsTileText" Style="{StaticResource StatTileValue}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatTile}">
+                    <StackPanel>
+                        <TextBlock Text="TIME" Style="{StaticResource StatTileLabel}"/>
+                        <TextBlock x:Name="TimeTileText" Style="{StaticResource StatTileValue}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatTile}">
+                    <StackPanel>
+                        <TextBlock Text="HITS/S" Style="{StaticResource StatTileLabel}"/>
+                        <TextBlock x:Name="HitsPerSecTileText" Style="{StaticResource StatTileValue}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            <TextBlock x:Name="SummaryText" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,8,0,0"/>
         </StackPanel>
 
         <!-- Says plainly where the crit column's numbers come from. For anyone but the local player
@@ -34,10 +89,38 @@
                   HorizontalGridLinesBrush="{DynamicResource Brush.Border}" GridLinesVisibility="Horizontal"
                   HeadersVisibility="Column" CanUserAddRows="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Skill" Binding="{Binding Skill}" Width="*"/>
+                <!-- Icon + name, not plain text - SkillIconConverter resolves the (possibly
+                     rank-suffixed, EN/DE/FR) skill name via SkillDatabase.FindByLocalizedName and
+                     falls back to no image (Image just collapses to its blank space) for anything
+                     the database doesn't recognise, rather than showing a broken-image glyph. -->
+                <DataGridTemplateColumn Header="Skill" Width="*" SortMemberPath="Skill">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding Skill, Converter={StaticResource SkillIconConverter}}"
+                                       Height="18" Width="18" Margin="0,0,6,0"/>
+                                <TextBlock Text="{Binding Skill}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Hits" Binding="{Binding Hits, StringFormat=N0}" Width="60"/>
                 <DataGridTextColumn Header="Crit %" Binding="{Binding CritRate, StringFormat={}{0:F1}%}" Width="70"/>
-                <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N0}" Width="100"/>
+                <!-- Total as text plus a ShareBar underneath (SkillRow.SharePercent = this skill's
+                     share of the player's own total damage) - same "number + bar under it" pattern
+                     as MainWindow's Damage/DPS column, so the skill breakdown reads at a glance
+                     instead of requiring a column-by-column comparison. -->
+                <DataGridTemplateColumn Header="Total" Width="110" SortMemberPath="Total">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Total, StringFormat=N0}"/>
+                                <ProgressBar Style="{StaticResource ShareBar}" Value="{Binding SharePercent, Mode=OneWay}"
+                                             ToolTip="{Binding SharePercent, StringFormat={}{0:F1}% of total damage dealt by this player}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Min" Binding="{Binding Min, StringFormat=N0}" Width="80"/>
                 <DataGridTextColumn Header="Max" Binding="{Binding Max, StringFormat=N0}" Width="80"/>
                 <DataGridTextColumn Header="Avg" Binding="{Binding Average, StringFormat=N0}" Width="80"/>

@@ -11,25 +11,10 @@
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
         <local:ItemGradeColorConverter x:Key="ItemGradeColorConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-        <!-- Share-of-group bar under a row's Damage/DPS line (PlayerRow.SharePercent, 0-100). A
-             ProgressBar only for its PART_Indicator width math; the template is a flat track +
-             fill so it reads as a meter bar, not as WPF's stock progress chrome. -->
-        <Style x:Key="ShareBar" TargetType="ProgressBar">
-            <Setter Property="Height" Value="3"/>
-            <Setter Property="Minimum" Value="0"/>
-            <Setter Property="Maximum" Value="100"/>
-            <Setter Property="Margin" Value="0,2,0,1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ProgressBar">
-                        <Grid>
-                            <Border x:Name="PART_Track" Background="{DynamicResource Brush.Control}" CornerRadius="1"/>
-                            <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{DynamicResource Brush.Accent}" Opacity="0.7" CornerRadius="1"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <!-- ShareBar (share-of-group bar under a row's Damage/DPS line, PlayerRow.SharePercent)
+             now lives in Ui/Styles/Shared.xaml, merged into Application.Resources in Program.cs -
+             PlayerDetailsWindow's skill table needs the same style, and duplicating a
+             ControlTemplate per window invites the two copies drifting apart. -->
         <!-- Found by the user (left nav rail looked bright/white), then found AGAIN by
              terminal_windows measuring actual rendered pixels after the first fix: BasedOn alone
              fixed enabled buttons, but the four disabled nav buttons still rendered #F4F4F4 -

@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, max, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounters, instances, players, serverCatalog, servers } from "../db/schema.js";
@@ -155,6 +155,62 @@ export function topByClass(bossId: number, serverId: number | null) {
   return result;
 }
 
+export type FightStats = {
+  runCount: number;
+  bestIdps: number | null;
+  avgDurationSeconds: number | null;
+};
+
+/**
+ * Best group iDPS, average kill time and run count across one or more bosses (a single boss for
+ * the boss leaderboard, every non-trash boss of an instance for the instance overview) - scoped
+ * the same way a leaderboard is (see selectServer): never merged across classic-Aion servers,
+ * only ever the picked one or (Aion 2) explicitly combined. Empty beats wrong - a boss/instance
+ * with no encounters yet reports null stats, never a fabricated zero.
+ */
+export function statsForBossIds(bossIds: number[], serverId: number | null): FightStats {
+  if (bossIds.length === 0) {
+    return { runCount: 0, bestIdps: null, avgDurationSeconds: null };
+  }
+  const scope = serverId === null ? inArray(encounters.bossId, bossIds) : and(inArray(encounters.bossId, bossIds), eq(encounters.serverId, serverId));
+  const row = db
+    .select({
+      runCount: count(encounters.id),
+      bestIdps: max(encounters.groupIDps),
+      avgDurationSeconds: sql<number | null>`avg(${encounters.durationSeconds})`,
+    })
+    .from(encounters)
+    .where(scope)
+    .get();
+  return {
+    runCount: row?.runCount ?? 0,
+    bestIdps: row?.bestIdps ?? null,
+    avgDurationSeconds: row?.avgDurationSeconds ?? null,
+  };
+}
+
+/** Same server list as serversWithEncounters, generalized to several bosses at once - what an
+ * instance-level stats request offers as server tabs (see instances.ts /api/instances/:id/stats). */
+export function serversWithEncountersForBossIds(bossIds: number[]) {
+  if (bossIds.length === 0) {
+    return [];
+  }
+  return db
+    .select({
+      id: servers.id,
+      name: servers.displayName,
+      slug: serverCatalog.slug,
+      encounterCount: count(encounters.id),
+    })
+    .from(encounters)
+    .innerJoin(servers, eq(encounters.serverId, servers.id))
+    .leftJoin(serverCatalog, eq(serverCatalog.name, servers.displayName))
+    .where(inArray(encounters.bossId, bossIds))
+    .groupBy(servers.id)
+    .orderBy(desc(count(encounters.id)))
+    .all();
+}
+
 /** Wipe-mechanics reference for a boss: its own rows plus the dungeon-wide rules of its instance. */
 export function mechanicsFor(bossId: number, instanceId: number) {
   const rows = db
@@ -234,17 +290,26 @@ export async function bossRoutes(app: FastifyInstance) {
       }
 
       if (selected === null && !combined) {
-        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: null, combined: false, topGroups: [], topByClass: {} });
+        return reply.send({
+          boss: bossResponse,
+          servers: serverList,
+          selectedServerId: null,
+          combined: false,
+          topGroups: [],
+          topByClass: {},
+          stats: statsForBossIds([boss.id], null),
+        });
       }
       const scope = combined ? null : selected!.id;
+      const stats = statsForBossIds([boss.id], scope);
 
       // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) rank
       // completely differently - one boss is never both, so only the query the page actually
       // needs runs. isSolo is manually curated (see README), same pattern as isTrashMob.
       if (boss.isSolo) {
-        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: [], topByClass: topByClass(boss.id, scope) });
+        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: [], topByClass: topByClass(boss.id, scope), stats });
       }
-      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: topGroups(boss.id, scope), topByClass: {} });
+      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: topGroups(boss.id, scope), topByClass: {}, stats });
     },
   );
 

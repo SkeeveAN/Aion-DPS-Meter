@@ -3,6 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Applies the visitor's saved theme (aiondps_design_pack_v1) before the stylesheet is even
+       parsed, so the page never flashes the default look first. Always "dark" with no saved
+       preference yet - the brand's cinematic look is dark-first by design, not the OS's own
+       light/dark preference (must match theme.js's DEFAULT_THEME, or that module's later re-sync
+       would itself cause the flash this script exists to avoid). Kept in sync afterwards by
+       theme.js; see that module's own remarks. -->
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem("dpsmeter.theme") || "dark";
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {}
+    })();
+  </script>
   <!--SEO:HEAD-->
   <title>Aion DPS Meter – Free Damage Meter & Boss Leaderboards</title>
   <meta name="description" content="Free open-source DPS/HPS meter for Aion (Origin Aion, Aion Riftshade, EuroAion) with community boss leaderboards per server. Reads only your Chat.log – no packet sniffing, no game hooks." />
@@ -32,14 +46,21 @@
     <div class="header-inner">
       <img src="/logo.png" alt="Aion DPS" class="logo" />
       <h1><a href="/">Aion DPS</a></h1>
-      <nav id="game-tabs" class="game-tabs" aria-label="Game"></nav>
-      <span id="server-indicator" class="server-indicator"></span>
-      <a href="/download" class="nav-download-link">⬇ Aion DPS</a>
-      <select id="lang-switcher" class="lang-switcher" aria-label="Language"></select>
-      <form id="search-form" class="search">
-        <input id="search-input" type="text" autocomplete="off" />
-        <button id="search-button" type="submit"></button>
-      </form>
+      <!-- Mobile only (see style.css's 720px breakpoint) - toggles #header-controls below itself
+           without a full drawer overlay: a real page section that pushes content down when open,
+           not an absolutely-positioned panel, so it needs no extra scroll-locking or z-index. -->
+      <button id="nav-toggle" class="nav-toggle" type="button" aria-expanded="false" aria-controls="header-controls" aria-label="Menu">☰</button>
+      <div id="header-controls" class="header-controls">
+        <nav id="game-tabs" class="game-tabs" aria-label="Game"></nav>
+        <span id="server-indicator" class="server-indicator"></span>
+        <a href="/download" class="nav-download-link">⬇ Aion DPS</a>
+        <select id="theme-switcher" class="theme-switcher" aria-label="Theme"></select>
+        <select id="lang-switcher" class="lang-switcher" aria-label="Language"></select>
+        <form id="search-form" class="search">
+          <input id="search-input" type="text" autocomplete="off" />
+          <button id="search-button" type="submit"></button>
+        </form>
+      </div>
     </div>
   </header>
 

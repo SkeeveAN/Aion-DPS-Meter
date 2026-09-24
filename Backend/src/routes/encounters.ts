@@ -1,13 +1,60 @@
 import { asc, desc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
-import { bosses, encounterParticipants, encounters, encounterSkillUsage, players, servers, uploads } from "../db/schema.js";
+import { bosses, encounterParticipants, encounters, encounterSkillUsage, instances, players, servers, uploads } from "../db/schema.js";
 import { resolveSkillIcon } from "../skills/skillIconResolver.js";
 import { topBuffsByParticipant } from "../skills/topBuffs.js";
+import { gameFromQuery } from "./instances.js";
 
 // One specific fight's full group roster (mirrors myaion.eu's PvESession) - reachable from the
 // leaderboard's "top groups" list so a run can be linked to directly, not just expanded inline.
 export async function encounterRoutes(app: FastifyInstance) {
+  // Homepage "recent activity" feed - the most recently merged real fights, newest first, each
+  // with its top damage dealer as the row's "face" (same representative-picking idea as
+  // bosses.ts's topGroups, just one person instead of a whole roster). Never a fabricated event -
+  // an empty game just returns an empty list.
+  app.get<{ Querystring: { game?: string; limit?: string } }>("/api/activity/recent", async (request, reply) => {
+    const game = gameFromQuery(request.query.game, reply);
+    if (game === null) {
+      return;
+    }
+    const limit = Math.min(Math.max(Number(request.query.limit ?? 8) || 8, 1), 20);
+
+    const rows = db
+      .select({
+        encounterId: encounters.id,
+        createdAt: encounters.createdAt,
+        groupIDps: encounters.groupIDps,
+        durationSeconds: encounters.durationSeconds,
+        bossName: bosses.name,
+        bossNameEn: bosses.nameEn,
+        bossSlug: bosses.slug,
+        instanceName: instances.name,
+        instanceNameEn: instances.nameEn,
+        instanceSlug: instances.slug,
+      })
+      .from(encounters)
+      .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+      .innerJoin(instances, eq(bosses.instanceId, instances.id))
+      .where(eq(instances.game, game))
+      .orderBy(desc(encounters.createdAt))
+      .limit(limit)
+      .all();
+
+    const withTopPlayer = rows.map((row) => {
+      const top = db
+        .select({ playerName: players.name, className: encounterParticipants.className })
+        .from(encounterParticipants)
+        .innerJoin(players, eq(encounterParticipants.playerId, players.id))
+        .where(eq(encounterParticipants.encounterId, row.encounterId))
+        .orderBy(desc(encounterParticipants.totalDamage))
+        .get();
+      return { ...row, topPlayerName: top?.playerName ?? null, topPlayerClassName: top?.className ?? null };
+    });
+
+    return reply.send(withTopPlayer);
+  });
+
   app.get<{ Params: { id: string } }>("/api/encounters/:id", async (request, reply) => {
     const encounterId = Number(request.params.id);
     if (!Number.isInteger(encounterId)) {

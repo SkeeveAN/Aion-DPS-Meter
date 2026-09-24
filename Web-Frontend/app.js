@@ -1,5 +1,6 @@
 import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
 import { INSTANCE_IMAGES, BOSS_IMAGES, INSTANCE_MIN_LEVEL } from "./game-data.js";
+import { initThemeSwitcher } from "./theme.js";
 
 const app = document.getElementById("app");
 const breadcrumb = document.getElementById("breadcrumb");
@@ -126,6 +127,7 @@ function updateGameTabs() {
       const a = link(gameLabel(g), `/${g}/instances`);
       if (g === currentGame) {
         a.className = "active";
+        a.setAttribute("aria-current", "page");
       }
       return a;
     }),
@@ -158,7 +160,11 @@ function link(text, href) {
 // mirroring the desktop client's own Convert() returning null for a missing asset rather than
 // erroring.
 function icon(src, className) {
-  const img = el("img", { src, alt: "", className });
+  // Lazy by default (aiondps_design_pack_v1 section 16: "Lazy Loading für Kartenbilder") - covers
+  // every card photo (via posterCard) and every small class/faction/skill icon alike; a hero image
+  // is never built through this helper (see instanceHero/bossHero), so it keeps the browser's
+  // default eager loading instead.
+  const img = el("img", { src, alt: "", className, loading: "lazy" });
   img.addEventListener("error", () => img.remove(), { once: true });
   return img;
 }
@@ -242,6 +248,7 @@ function setupLanguageSwitcher() {
   select.addEventListener("change", () => {
     setLocale(select.value);
     applyStaticTranslations();
+    initThemeSwitcher(t);
     route();
   });
 }
@@ -249,30 +256,206 @@ function setupLanguageSwitcher() {
 function applyStaticTranslations() {
   document.getElementById("search-input").placeholder = t("nav.searchPlaceholder");
   document.getElementById("search-button").textContent = t("nav.searchButton");
+  document.getElementById("nav-toggle").setAttribute("aria-label", t("nav.menu"));
+}
+
+// Mobile hamburger/drawer (aiondps_design_pack_v1 section 15) - see index.html's #nav-toggle and
+// style.css's 720px breakpoint. Above that breakpoint #header-controls is always visible and this
+// button is hidden, so the .open class simply never matters there.
+function setupNavToggle() {
+  const toggle = document.getElementById("nav-toggle");
+  const controls = document.getElementById("header-controls");
+  toggle.addEventListener("click", () => {
+    const isOpen = controls.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(isOpen));
+  });
+  // A link inside the drawer (game switch, download, server picker) navigates the page - the
+  // drawer should close rather than stay open over the new page underneath it.
+  controls.addEventListener("click", (e) => {
+    if (e.target.closest("a")) {
+      controls.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    }
+  });
 }
 
 const GITHUB_REPO = "SkeeveAN/Aion-DPS-Meter";
 
-function renderHome() {
+/**
+ * Homepage (aiondps_design_pack_v1 startseite brief) - a fast way in to the client download and
+ * the real Aion/Aion 2 data, not a marketing funnel. Everything below the hero is real data or
+ * omitted entirely: the live stats bar only appears once at least one real number is non-zero
+ * (Backend/src/routes/stats.ts already returns honest zeros for an empty game), and the featured
+ * instances/boss spotlight only draw from whichever games actually have real rows.
+ */
+async function renderHome() {
   setBreadcrumb([]);
   document.title = HOME_TITLE;
-  const hero = el("div", { className: "download-hero" }, [
-    el("img", { src: "/logo.png", alt: "" }),
-    el("div", {}, [el("h2", { textContent: SITE_TITLE }), el("p", { textContent: t("home.tagline") })]),
+  showLoading(t("loading.instances"));
+
+  // Centered hero (aiondps_claude_design_pack prototype comparison, 2026-09-24, "index-3.html"):
+  // no side quick-start card competing with the hero text - those same three real destinations
+  // fold into inline pills below the CTAs instead.
+  const hero = el("div", { className: "home-hero" }, [
+    el("p", { className: "home-hero-eyebrow", textContent: t("home.eyebrow") }),
+    el("h1", { className: "home-hero-title", textContent: SITE_TITLE }),
+    el("p", { className: "home-hero-slogan", textContent: t("home.slogan") }),
+    el("p", { className: "home-hero-tagline", textContent: t("home.tagline") }),
+    el("div", { className: "home-hero-ctas" }, [
+      el("a", { className: "download-cta", href: "/download", textContent: t("home.downloadCta") }),
+      el("a", { className: "link-button", href: `/${DEFAULT_GAME}/instances`, textContent: t("home.secondaryCta") }),
+    ]),
+    el("div", { className: "home-hero-pills" }, [
+      link(t("home.quickStartDownload"), "/download"),
+      link(t("home.quickStartAion"), "/aion/instances"),
+      link(t("home.quickStartAion2"), "/aion2/instances"),
+    ]),
   ]);
-  const games = el("div", { className: "feature-grid" }, [
-    gameCard("aion", t("home.gameCardAion")),
-    gameCard("aion2", t("home.gameCardAion2")),
+  const heroRow = el("div", { className: "home-hero-row" }, [hero]);
+
+  // Combined across both games - the homepage is the front door for either, so its one live-data
+  // bar reflects the whole community, not just whichever game happens to be currentGame here.
+  const [aionStats, aion2Stats] = await Promise.all([
+    fetchJson("/api/stats/summary?game=aion").catch(() => null),
+    fetchJson("/api/stats/summary?game=aion2").catch(() => null),
   ]);
-  const cta = el("p", {}, [el("a", { className: "download-cta", href: "/download", textContent: t("home.downloadCta") })]);
-  app.replaceChildren(hero, el("h2", { textContent: t("home.chooseGame") }), games, cta);
+  const totals = {
+    encounterCount: (aionStats?.encounterCount ?? 0) + (aion2Stats?.encounterCount ?? 0),
+    parseCount: (aionStats?.parseCount ?? 0) + (aion2Stats?.parseCount ?? 0),
+    playerCount: (aionStats?.playerCount ?? 0) + (aion2Stats?.playerCount ?? 0),
+  };
+  const statsBar =
+    totals.encounterCount + totals.parseCount + totals.playerCount > 0
+      ? el("div", { className: "home-stats-card" }, [
+          homeStatItem(ICON_STAT_ENCOUNTERS, formatNumber(totals.encounterCount), t("home.statEncounters")),
+          homeStatItem(ICON_STAT_PARSES, formatNumber(totals.parseCount), t("home.statParses")),
+          homeStatItem(ICON_STAT_PLAYERS, formatNumber(totals.playerCount), t("home.statPlayers")),
+        ])
+      : null;
+
+  const [aionInstances, aion2Instances] = await Promise.all([
+    fetchJson("/api/instances?game=aion").catch(() => []),
+    fetchJson("/api/instances?game=aion2").catch(() => []),
+  ]);
+  const featured = [
+    ...aionInstances.slice(0, 3).map((i) => ({ ...i, game: "aion" })),
+    ...aion2Instances.slice(0, 3).map((i) => ({ ...i, game: "aion2" })),
+  ];
+  const featuredSection =
+    featured.length > 0
+      ? el("section", { className: "home-section-card" }, [
+          el("h2", { textContent: t("home.featuredInstancesHeading") }),
+          el(
+            "div",
+            { className: "poster-grid" },
+            featured.map((i) => posterCard(`/${i.game}/instances/${i.slug}`, INSTANCE_IMAGES[i.name], instanceCardLabel(i))),
+          ),
+        ])
+      : null;
+
+  // Aion 2's official servers are one comparable standard, so its ranking always runs combined;
+  // classic Aion's are never comparable (see Backend/src/routes/players.ts topPlayersOverall), so
+  // it only ever appears here once the visitor has actually picked one of its own servers. The two
+  // are never merged into one ranked list - unlike recent activity below, a DPS ranking across two
+  // unrelated games would misrepresent them as comparable.
+  let topPlayers = await fetchJson("/api/players/top?game=aion2&limit=5").catch(() => []);
+  let topPlayersGame = "aion2";
+  if (topPlayers.length === 0 && currentServerPicked && currentServerId !== null) {
+    topPlayersGame = "aion";
+    topPlayers = await fetchJson(`/api/players/top?game=aion&serverId=${currentServerId}&limit=5`).catch(() => []);
+  }
+  const topPlayersSection = topPlayers.length > 0 ? buildTopPlayersSection(topPlayers, topPlayersGame) : null;
+
+  // Recent activity spans both games at once (just a timeline of what happened, not a ranking), so
+  // each row carries its own game tag.
+  const [aionActivity, aion2Activity] = await Promise.all([
+    fetchJson("/api/activity/recent?game=aion&limit=5").catch(() => []),
+    fetchJson("/api/activity/recent?game=aion2&limit=5").catch(() => []),
+  ]);
+  const recentActivity = [...aionActivity.map((r) => ({ ...r, game: "aion" })), ...aion2Activity.map((r) => ({ ...r, game: "aion2" }))]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 6);
+  const recentActivitySectionEl = recentActivity.length > 0 ? buildRecentActivitySection(recentActivity) : null;
+
+  // 3-column footer (aiondps_claude_design_pack prototype comparison, index-3.html): logo left,
+  // CTA centered, legal + real social links right - the prototype only had the center CTA wired
+  // up before; these are the same real destinations that comparison page used.
+  const footerCta = el("div", { className: "home-footer-cta" }, [
+    el("div", { className: "home-footer-logo" }, [el("span", { textContent: "AION" }), el("span", { className: "accent", textContent: "DPS" })]),
+    el("div", { className: "home-footer-center" }, [
+      el("h2", { textContent: t("home.footerCtaHeading") }),
+      el("a", { className: "download-cta", href: "/download", textContent: t("home.downloadCta") }),
+    ]),
+    el("div", { className: "home-footer-links" }, [
+      el("div", { className: "home-footer-legal" }, [
+        link(t("legal.privacyTitle"), "/privacy"),
+        link(t("legal.termsTitle"), "/terms"),
+      ]),
+      el("div", { className: "home-footer-social" }, [
+        el("a", { href: "https://aiondps.com/twitch", target: "_blank", rel: "noopener", title: "Twitch", innerHTML: ICON_SOCIAL_TWITCH }),
+        el("a", { href: "https://aiondps.com/discord", target: "_blank", rel: "noopener", title: "Discord", innerHTML: ICON_SOCIAL_DISCORD }),
+        el("a", { href: "https://aiondps.com/steam_aion2", target: "_blank", rel: "noopener", title: "Steam", innerHTML: ICON_SOCIAL_STEAM }),
+      ]),
+    ]),
+  ]);
+
+  // Leaderboard + recent activity side by side 50/50 (per the user, 2026-09-24), boss spotlight
+  // removed, featured instances now a full-width row of its own below that.
+  const contentGrid = el("div", { className: "home-content-grid" }, [
+    el("div", { className: "home-content-col" }, [...(topPlayersSection ? [topPlayersSection] : [])]),
+    el("div", { className: "home-content-col" }, [...(recentActivitySectionEl ? [recentActivitySectionEl] : [])]),
+  ]);
+
+  app.replaceChildren(heroRow, ...(statsBar ? [statsBar] : []), contentGrid, ...(featuredSection ? [featuredSection] : []), footerCta);
 }
 
-function gameCard(game, text) {
-  return el("a", { className: "feature-card game-card", href: `/${game}/instances` }, [
-    el("h3", { textContent: gameLabel(game) }),
-    el("p", { textContent: text }),
+function buildTopPlayersSection(rows, game) {
+  const tableRows = rows.map((r, i) =>
+    el("tr", {}, [
+      el("td", { textContent: `${i + 1}` }),
+      el("td", {}, [playerCell(null, r.className, r.playerName, null, r.serverName)]),
+      el("td", {}, [link(displayName({ name: r.bossName, nameEn: r.bossNameEn }), `/${game}/bosses/${r.bossSlug}`)]),
+      el("td", { textContent: formatNumber(r.idps) }),
+    ]),
+  );
+  const table = el("table", { className: "ranked-table" }, [
+    el("thead", {}, [
+      el("tr", {}, [
+        el("th", { textContent: "#" }),
+        el("th", { textContent: t("table.player") }),
+        el("th", { textContent: t("table.boss") }),
+        el("th", { textContent: t("table.idps") }),
+      ]),
+    ]),
+    el("tbody", {}, tableRows),
   ]);
+  return el("section", { className: "home-section-card" }, [el("h2", { textContent: t("home.topPlayersHeading") }), table]);
+}
+
+function buildRecentActivitySection(rows) {
+  const table = el("table", { className: "activity-table" }, [
+    el("thead", {}, [
+      el("tr", {}, [
+        el("th", { textContent: t("table.player") }),
+        el("th", { textContent: t("table.boss") }),
+        el("th", { textContent: t("table.idps") }),
+        el("th", { textContent: t("table.date") }),
+      ]),
+    ]),
+    el(
+      "tbody",
+      {},
+      rows.map((r) =>
+        el("tr", { className: "activity-row" }, [
+          el("td", {}, [el("span", { className: "icon-label" }, [classIcon(r.topPlayerClassName), r.topPlayerName ?? t("table.player")])]),
+          el("td", {}, [link(displayName({ name: r.bossName, nameEn: r.bossNameEn }), `/${r.game}/bosses/${r.bossSlug}`)]),
+          el("td", { textContent: formatNumber(r.groupIDps) }),
+          el("td", { className: "activity-time", textContent: formatRelativeTime(r.createdAt) }),
+        ]),
+      ),
+    ),
+  ]);
+  return el("section", { className: "home-section-card" }, [el("h2", { textContent: t("home.recentActivityHeading") }), table]);
 }
 
 /**
@@ -285,6 +468,35 @@ function gameCard(game, text) {
  * this repo because every release here is marked prerelease (same trap the client's own
  * Update/UpdateService.cs works around); releases[0] is the newest one regardless of that flag.
  */
+/** Shared by renderPrivacy/renderTerms below - both are just a title, an intro paragraph, and a
+ * flat run of numbered i18n sections ("legal.<prefix>Section<N>Heading/Body"), stopping at the
+ * first missing key. */
+function renderLegalPage(prefix, titleKey, introKey) {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t(titleKey)]);
+  document.title = `${t(titleKey)} – ${SITE_TITLE}`;
+  const sections = [];
+  for (let i = 1; ; i++) {
+    const headingKey = `legal.${prefix}Section${i}Heading`;
+    const bodyKey = `legal.${prefix}Section${i}Body`;
+    const heading = t(headingKey);
+    if (heading === headingKey) {
+      break;
+    }
+    sections.push(el("section", { className: "legal-section" }, [el("h2", { textContent: heading }), el("p", { textContent: t(bodyKey) })]));
+  }
+  app.replaceChildren(
+    el("div", { className: "legal-page" }, [el("h1", { textContent: t(titleKey) }), el("p", { className: "legal-intro", textContent: t(introKey) }), ...sections]),
+  );
+}
+
+async function renderPrivacy() {
+  renderLegalPage("privacy", "legal.privacyTitle", "legal.privacyIntro");
+}
+
+async function renderTerms() {
+  renderLegalPage("terms", "legal.termsTitle", "legal.termsIntro");
+}
+
 async function renderDownload() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.download")]);
   showLoading(t("loading.version"));
@@ -402,7 +614,11 @@ function posterCard(href, photo, title, objectPosition) {
     children.unshift(img);
   }
   children.push(el("div", { className: "poster-title", textContent: title }));
-  return el("a", { className: "poster-card", href }, children);
+  // The title text is always white (matches a real photo's own dark scrim) - without one, the
+  // card needs its own fixed dark backdrop instead of the theme's --color-surface, which is
+  // near-white on the light theme and would make that white text unreadable (see .poster-card
+  // vs .poster-card--no-photo in style.css).
+  return el("a", { className: photo ? "poster-card" : "poster-card poster-card--no-photo", href }, children);
 }
 
 /** Display name as the UI translation table knows it, else the English name the DB carries, else the raw name. */
@@ -426,6 +642,15 @@ function byMinLevelDescending(a, b) {
   const av = INSTANCE_MIN_LEVEL[a.name] ?? -1;
   const bv = INSTANCE_MIN_LEVEL[b.name] ?? -1;
   return bv - av;
+}
+
+// Per the user: search/category filtering must only ever act on instances actually returned by
+// the API (real name, real category) - never a fabricated difficulty/DPS field the design pack's
+// mockups show but the data model doesn't have yet.
+function instanceCard(i) {
+  const card = posterCard(gp(`/instances/${i.slug}`), INSTANCE_IMAGES[i.name], instanceCardLabel(i));
+  card.dataset.searchText = displayName(i).toLowerCase();
+  return card;
 }
 
 async function renderInstances() {
@@ -457,20 +682,80 @@ async function renderInstances() {
     groups.get(key).push(i);
   }
   const grid = (list) =>
-    el(
-      "div",
-      { className: "poster-grid" },
-      [...list]
-        .sort(byMinLevelDescending)
-        .map((i) => posterCard(gp(`/instances/${i.slug}`), INSTANCE_IMAGES[i.name], instanceCardLabel(i))),
-    );
-  const sections = [el("h2", { textContent: t("instances.heading") })];
-  if (groups.size === 1 && groups.has("other")) {
-    sections.push(grid(instances));
-  } else {
-    for (const [category, list] of groups) {
-      sections.push(el("h3", { className: "category-heading", textContent: t(`category.${category}`) }), grid(list));
+    el("div", { className: "poster-grid" }, [...list].sort(byMinLevelDescending).map(instanceCard));
+
+  const hasCategories = !(groups.size === 1 && groups.has("other"));
+  const groupSections = hasCategories
+    ? [...groups].map(([category, list]) => ({
+        category,
+        headingEl: el("h3", { className: "category-heading", textContent: t(`category.${category}`) }),
+        gridEl: grid(list),
+      }))
+    : [{ category: null, headingEl: null, gridEl: grid(instances) }];
+
+  // Live client-side filter, no reload/refetch - the whole list is already on the page (see
+  // groupSections above), this only toggles which cards/sections are visible.
+  function applyInstanceFilters(searchInput, categoryFilter) {
+    const query = searchInput.value.trim().toLowerCase();
+    const activeCategory = categoryFilter?.querySelector("button.active")?.dataset.category ?? "all";
+    for (const section of groupSections) {
+      const categoryMatches = activeCategory === "all" || section.category === activeCategory;
+      let visibleCount = 0;
+      for (const card of section.gridEl.children) {
+        const matches = categoryMatches && (!query || card.dataset.searchText.includes(query));
+        card.hidden = !matches;
+        if (matches) {
+          visibleCount++;
+        }
+      }
+      const sectionVisible = categoryMatches && visibleCount > 0;
+      section.gridEl.hidden = !sectionVisible;
+      if (section.headingEl) {
+        section.headingEl.hidden = !sectionVisible;
+      }
     }
+  }
+
+  const searchInput = el("input", {
+    type: "text",
+    className: "instance-search",
+    placeholder: t("instances.searchPlaceholder"),
+    autocomplete: "off",
+  });
+  let categoryFilter = null;
+  if (hasCategories) {
+    const categoryButtons = [{ key: "all", label: t("category.all") }, ...[...groups.keys()].map((c) => ({ key: c, label: t(`category.${c}`) }))].map(
+      ({ key, label }, i) => {
+        const button = el("button", { type: "button", textContent: label, className: i === 0 ? "active" : "" });
+        button.dataset.category = key;
+        button.setAttribute("aria-pressed", String(i === 0));
+        button.addEventListener("click", () => {
+          for (const sibling of button.parentElement.children) {
+            sibling.classList.remove("active");
+            sibling.setAttribute("aria-pressed", "false");
+          }
+          button.classList.add("active");
+          button.setAttribute("aria-pressed", "true");
+          applyInstanceFilters(searchInput, categoryFilter);
+        });
+        return button;
+      },
+    );
+    categoryFilter = el("div", { className: "category-filter" }, categoryButtons);
+  }
+  searchInput.addEventListener("input", () => applyInstanceFilters(searchInput, categoryFilter));
+  const toolbarChildren = [searchInput];
+  if (categoryFilter) {
+    toolbarChildren.push(categoryFilter);
+  }
+  const toolbar = el("div", { className: "instances-toolbar" }, toolbarChildren);
+
+  const sections = [el("h2", { textContent: t("instances.heading") }), toolbar];
+  for (const section of groupSections) {
+    if (section.headingEl) {
+      sections.push(section.headingEl);
+    }
+    sections.push(section.gridEl);
   }
   if (currentGame === "aion2") {
     sections.push(el("p", { className: "derived-note", textContent: t("aion2.derivedNote") }));
@@ -478,25 +763,131 @@ async function renderInstances() {
   app.replaceChildren(...sections);
 }
 
+/** One compact KPI card (aiondps_design_pack_v1 section 8) - a big real number over a short label. */
+function statCard(value, label) {
+  return el("div", { className: "stat-card" }, [
+    el("div", { className: "stat-card-value", textContent: value }),
+    el("div", { className: "stat-card-label", textContent: label }),
+  ]);
+}
+
+// Small generic glyphs (not game art, just UI icons) for the homepage's floating stats card -
+// copied verbatim from the aiondps_claude_design_pack prototype comparison (index-3.html).
+const ICON_STAT_ENCOUNTERS =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 3.5 20.5 9.5M6 18l-2.5 2.5M9 15l-5.5 5.5M14.5 3.5 5 13l1.5 1.5L16 5l-1.5-1.5z"/><path d="M18 4l2 2"/></svg>';
+const ICON_STAT_PARSES = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>';
+const ICON_STAT_PLAYERS =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>';
+
+// Footer social icons - real, currently-true destinations (same ones already wired up in
+// production nginx as /twitch, /discord, /steam_aion2 redirects). Official brand marks
+// (simple-icons project), not hand-drawn approximations.
+const ICON_SOCIAL_TWITCH =
+  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>';
+const ICON_SOCIAL_DISCORD =
+  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>';
+const ICON_SOCIAL_STEAM =
+  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.253 0-2.265-1.014-2.265-2.265z"/></svg>';
+
+/** One item in the homepage's floating stats card (icon + big number + label) - distinct from the
+ * generic statCard() above, which other pages (boss/instance stat rows) still use unmodified. */
+function homeStatItem(icon, value, label) {
+  return el("div", { className: "home-stat-item" }, [
+    el("div", { className: "home-stat-icon", innerHTML: icon }),
+    el("div", { className: "home-stat-text" }, [
+      el("strong", { textContent: value }),
+      el("span", { textContent: label }),
+    ]),
+  ]);
+}
+
+/** Best iDPS / avg kill time / run count row (Backend/src/routes/bosses.ts statsForBossIds) - null
+ * (never rendered as a zero) with zero runs, since "empty beats wrong" applies to stats exactly
+ * like it does to assets: a boss/instance nobody has fought yet shows no stats row at all. */
+function fightStatsRow(stats) {
+  if (!stats || stats.runCount === 0) {
+    return null;
+  }
+  const cards = [];
+  if (stats.bestIdps !== null) {
+    cards.push(statCard(formatNumber(stats.bestIdps), t("stats.bestDps")));
+  }
+  if (stats.avgDurationSeconds !== null) {
+    cards.push(statCard(formatDuration(stats.avgDurationSeconds), t("stats.avgTime")));
+  }
+  cards.push(statCard(formatNumber(stats.runCount), t("stats.runs")));
+  return el("div", { className: "stats-row" }, cards);
+}
+
+/** Cinematic hero banner for an instance's boss list (aiondps_design_pack_v1 section 6) - only
+ * ever real data: the instance's own photo (INSTANCE_IMAGES) and level (INSTANCE_MIN_LEVEL) when
+ * known, the real boss count already fetched, and (once any exist) real best-DPS/run-count pills
+ * from /api/instances/:id/stats. No difficulty/player-count pill - the API has no such fields yet,
+ * and this project doesn't show a number it can't back with real data. */
+function instanceHero(instance, bossCount, stats) {
+  const photo = INSTANCE_IMAGES[instance.name];
+  const level = INSTANCE_MIN_LEVEL[instance.name];
+  const pills = [];
+  if (level !== undefined) {
+    pills.push(el("span", { className: "instance-hero-pill", textContent: `Lv. ${level}` }));
+  }
+  pills.push(
+    el("span", {
+      className: "instance-hero-pill",
+      textContent: bossCount === 1 ? t("bosses.countLabelOne") : t("bosses.countLabel", { count: bossCount }),
+    }),
+  );
+  if (stats && stats.runCount > 0) {
+    if (stats.bestIdps !== null) {
+      pills.push(el("span", { className: "instance-hero-pill", textContent: `${t("stats.bestDps")} ${formatNumber(stats.bestIdps)}` }));
+    }
+    pills.push(el("span", { className: "instance-hero-pill", textContent: `${formatNumber(stats.runCount)} ${t("stats.runs")}` }));
+  }
+
+  const children = [el("div", { className: "instance-hero-scrim" })];
+  if (photo) {
+    // Eager + high priority, unlike icon()'s card photos below the fold (aiondps_design_pack_v1
+    // section 16: "Hero-Bilder priorisieren").
+    children.unshift(el("img", { src: photo, alt: "", className: "instance-hero-photo", fetchPriority: "high" }));
+  }
+  children.push(
+    el("div", { className: "instance-hero-content" }, [
+      el("h1", { className: "instance-hero-title", textContent: displayName(instance) }),
+      el("div", { className: "instance-hero-meta" }, pills),
+    ]),
+  );
+  return el("div", { className: "instance-hero" }, children);
+}
+
 async function renderBosses(instanceSlug) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.bosses")]);
   showLoading(t("loading.bosses"));
+
+  // Same server-scope precedence as a boss leaderboard (see renderLeaderboard): never merged
+  // across classic-Aion servers, combined by default only for Aion 2.
+  const statsQuery = new URLSearchParams({ game: currentGame });
+  if (currentGame !== "aion2" && currentServerPicked && currentServerId !== null) {
+    statsQuery.set("serverId", currentServerId);
+  }
 
   // The bosses endpoint doesn't carry the instance's own name (see Backend/src/routes/instances.ts)
   // - fetched separately (the instances list is tiny) rather than adding a field there just for
   // this. Falls back to the instance's own photo only for a boss BOSS_IMAGES has no dedicated
   // portrait for (see that const's own remarks) - better than no image at all, but a real per-boss
   // photo always wins when one exists.
-  const [bosses, instances] = await Promise.all([
+  const [bosses, instances, stats] = await Promise.all([
     fetchJson(`/api/instances/${encodeURIComponent(instanceSlug)}/bosses?game=${currentGame}`),
     fetchJson(`/api/instances?game=${currentGame}`),
+    fetchJson(`/api/instances/${encodeURIComponent(instanceSlug)}/stats?${statsQuery}`),
   ]);
   const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
   if (instance) {
     setBreadcrumb([...gameCrumbs(), displayName(instance)]);
   }
+
+  const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
   if (bosses.length === 0) {
-    app.replaceChildren(el("p", { className: "empty", textContent: t("bosses.emptyNoBosses") }));
+    app.replaceChildren(...hero, el("p", { className: "empty", textContent: t("bosses.emptyNoBosses") }));
     return;
   }
 
@@ -516,7 +907,7 @@ async function renderBosses(instanceSlug) {
     { className: "poster-grid" },
     sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}`), BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), "top")),
   );
-  app.replaceChildren(el("h2", { textContent: t("bosses.heading") }), grid);
+  app.replaceChildren(...hero, el("h2", { textContent: t("bosses.heading") }), grid);
 }
 
 // Faction + class icon + name in one cell - matches myaion.eu's own combined "Player" column
@@ -609,10 +1000,51 @@ function serverTabs(data, bossPath) {
       const a = link(s.name ?? t("serverIndicator.number", { id: s.id }), href);
       if (s.id === data.selectedServerId) {
         a.className = "active";
+        a.setAttribute("aria-current", "page");
       }
       return a;
     }),
   ]);
+}
+
+/** Cinematic hero for a boss detail page (aiondps_design_pack_v1 section 7) - same real-photo-or-
+ * nothing rule as instanceHero: the boss's own portrait when one exists, else its instance's photo
+ * (same fallback renderBosses already uses for a boss's poster-card), else no image at all. Level
+ * comes from the instance (INSTANCE_MIN_LEVEL has no per-boss entries); isSolo is real schema data,
+ * not a guess. No difficulty pill - that field doesn't exist in the API yet. */
+function bossHero(data) {
+  const boss = data.boss;
+  const photo = BOSS_IMAGES[boss.name] ?? INSTANCE_IMAGES[boss.instanceName];
+  const level = INSTANCE_MIN_LEVEL[boss.instanceName];
+  const pills = [];
+  if (level !== undefined) {
+    pills.push(el("span", { className: "instance-hero-pill", textContent: `Lv. ${level}` }));
+  }
+  if (boss.isSolo) {
+    pills.push(el("span", { className: "instance-hero-pill", textContent: t("bosses.soloPill") }));
+  }
+
+  const children = [el("div", { className: "instance-hero-scrim" })];
+  if (photo) {
+    // "top", not centered: a boss portrait is a tall character render (see posterCard's own
+    // objectPosition remarks) - centering would crop the face out of frame.
+    const img = el("img", { src: photo, alt: "", className: "instance-hero-photo", fetchPriority: "high" });
+    img.style.objectPosition = "top";
+    children.unshift(img);
+  }
+  const instanceLink = el("a", {
+    href: gp(`/instances/${boss.instanceSlug}`),
+    textContent: displayName({ name: boss.instanceName, nameEn: boss.instanceNameEn }),
+    className: "instance-hero-subtitle",
+  });
+  children.push(
+    el("div", { className: "instance-hero-content" }, [
+      instanceLink,
+      el("h1", { className: "instance-hero-title", textContent: displayName(boss) }),
+      el("div", { className: "instance-hero-meta" }, pills),
+    ]),
+  );
+  return el("div", { className: "instance-hero" }, children);
 }
 
 async function renderLeaderboard(bossSlug, params) {
@@ -639,9 +1071,10 @@ async function renderLeaderboard(bossSlug, params) {
     bossName,
   ]);
 
-  const heading = el("h2", { textContent: bossName });
+  const hero = bossHero(data);
   const tabs = serverTabs(data, bossPath);
-  const sections = [heading];
+  const stats = fightStatsRow(data.stats);
+  const sections = [hero, ...(stats ? [stats] : [])];
   if (data.boss.hasMechanics) {
     const mechanics = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/mechanics?game=${currentGame}`);
     sections.push(...mechanicsSection(mechanics));
@@ -765,6 +1198,23 @@ function formatDuration(totalSeconds) {
   const minutes = Math.floor(rounded / 60);
   const seconds = rounded % 60;
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+// "vor 2h" style relative time for the homepage's recent-activity feed - real elapsed time from
+// the encounter's own createdAt, never a made-up freshness label.
+function formatRelativeTime(iso) {
+  const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (minutes < 1) {
+    return t("time.justNow");
+  }
+  if (minutes < 60) {
+    return t("time.minutesAgo", { count: minutes });
+  }
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) {
+    return t("time.hoursAgo", { count: hours });
+  }
+  return t("time.daysAgo", { count: Math.round(hours / 24) });
 }
 
 function metaRow(label, value) {
@@ -1012,6 +1462,10 @@ async function route() {
     section = "home";
   } else if (segments[0] === "download") {
     section = "download";
+  } else if (segments[0] === "privacy") {
+    section = "privacy";
+  } else if (segments[0] === "terms") {
+    section = "terms";
   } else if (GAMES.includes(segments[0])) {
     currentGame = segments[0];
     section = segments[1] ?? "instances";
@@ -1026,9 +1480,13 @@ async function route() {
 
   try {
     if (section === "home") {
-      renderHome();
+      await renderHome();
     } else if (section === "download") {
       await renderDownload();
+    } else if (section === "privacy") {
+      await renderPrivacy();
+    } else if (section === "terms") {
+      await renderTerms();
     } else if (section === "servers") {
       await renderServerPicker();
     } else if (section === "instances" && !param) {
@@ -1082,5 +1540,7 @@ document.getElementById("search-form").addEventListener("submit", (e) => {
 
 window.addEventListener("popstate", route);
 setupLanguageSwitcher();
+initThemeSwitcher(t);
+setupNavToggle();
 applyStaticTranslations();
 route();
