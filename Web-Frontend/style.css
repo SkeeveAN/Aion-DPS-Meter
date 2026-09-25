@@ -600,29 +600,33 @@ th {
   margin-bottom: 18px;
 }
 
-/* Blue, not orange: that's the primary CTA's color and this is the secondary one - reuses the
-   same accent blue as the hero glow/pills below (rgba(95, 168, 255, ...)) so the hero reads as one
-   deliberate two-accent palette rather than a randomly-picked third color. Padding/font-size match
-   .download-cta so the pair reads as equally-weighted buttons, not a button next to a text link. */
+/* Same filled-button design as .download-cta (size, weight, shadow, dark-on-light text) - only the
+   hue differs. Blue, not orange: that's the primary CTA's color and this is the secondary one.
+   #5fa8ff is the same accent blue already used for the hero glow/pills below, so the hero reads as
+   one deliberate two-accent palette rather than a randomly-picked third color. Dark text (not
+   white, unlike the translucent pills) because #5fa8ff is light enough that white text fails
+   contrast here - same reasoning as .download-cta's --color-primary-on swap. */
 .home-hero .link-button {
-  background: rgba(95, 168, 255, 0.16);
-  color: #fff;
-  border: 1px solid rgba(95, 168, 255, 0.6);
+  display: inline-block;
+  background: #5fa8ff;
+  color: #101820;
+  border: 1px solid color-mix(in srgb, #5fa8ff 80%, white);
   padding: 12px 24px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: 6px;
-  transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+  box-shadow: 0 4px 18px rgba(95, 168, 255, 0.2);
+  transition: background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
 
 .home-hero .link-button:hover {
-  background: rgba(95, 168, 255, 0.26);
-  border-color: rgba(95, 168, 255, 0.85);
+  background: color-mix(in srgb, #5fa8ff 80%, white);
+  box-shadow: 0 6px 24px rgba(95, 168, 255, 0.32);
   transform: translateY(-1px);
 }
 
 .home-hero .link-button:active {
-  background: rgba(95, 168, 255, 0.32);
+  background: color-mix(in srgb, #5fa8ff 90%, black);
   transform: translateY(0);
 }
 
