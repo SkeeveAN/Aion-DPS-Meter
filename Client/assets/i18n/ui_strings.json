@@ -579,6 +579,36 @@
     "tr": "Kullanıcı ayarları",
     "zh": "用户设置"
   },
+  "Settings.Nav.Characters": {
+    "en": "Characters",
+    "de": "Charaktere",
+    "fr": "Personnages",
+    "es": "Personajes",
+    "ru": "Персонажи",
+    "pl": "Postacie",
+    "tr": "Karakterler",
+    "zh": "角色"
+  },
+  "Settings.Nav.Targets": {
+    "en": "Targets",
+    "de": "Ziele",
+    "fr": "Cibles",
+    "es": "Objetivos",
+    "ru": "Цели",
+    "pl": "Cele",
+    "tr": "Hedefler",
+    "zh": "目标"
+  },
+  "Settings.Nav.Interface": {
+    "en": "Interface",
+    "de": "Oberfläche",
+    "fr": "Interface",
+    "es": "Interfaz",
+    "ru": "Интерфейс",
+    "pl": "Interfejs",
+    "tr": "Arayüz",
+    "zh": "界面"
+  },
   "Settings.TargetsList": {
     "en": "Targets List (which ranks are shown at all)",
     "de": "Zielliste (welche Ränge überhaupt angezeigt werden)",

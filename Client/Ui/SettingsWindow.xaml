@@ -236,7 +236,7 @@
              existing {DynamicResource Brush.*} bindings untouched. -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="128"/>
+                <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -247,7 +247,7 @@
                             <Path Data="M2,3 L12,3 L12,9 L2,9 Z M5,12 L9,12 M7,9 L7,12"
                                   Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
                                   StrokeThickness="1.3" Width="14" Height="12" Margin="0,0,7,0"/>
-                            <TextBlock Text="{local:Loc Settings.AionInstallation}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                            <TextBlock Text="{local:Loc Settings.AionInstallation}" TextWrapping="Wrap" Width="84" FontSize="11.5"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
@@ -259,7 +259,7 @@
                                 <Path Data="M1,13 L1,11 Q7,7 13,11 L13,13 Z"
                                       Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3"/>
                             </Grid>
-                            <TextBlock Text="{local:Loc Settings.YourCharacters}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                            <TextBlock Text="{local:Loc Settings.Nav.Characters}" TextWrapping="Wrap" Width="84" FontSize="11.5"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
@@ -270,7 +270,7 @@
                                 <Path Data="M7,0 L7,4 M7,10 L7,14 M0,7 L4,7 M10,7 L14,7"
                                       Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3"/>
                             </Grid>
-                            <TextBlock Text="{local:Loc Settings.TargetsList}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                            <TextBlock Text="{local:Loc Settings.Nav.Targets}" TextWrapping="Wrap" Width="84" FontSize="11.5"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
@@ -284,7 +284,7 @@
                                 <Ellipse Width="4" Height="4" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
                                          HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,2"/>
                             </Grid>
-                            <TextBlock Text="{local:Loc Settings.UserInterface}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                            <TextBlock Text="{local:Loc Settings.Nav.Interface}" TextWrapping="Wrap" Width="84" FontSize="11.5"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
@@ -293,7 +293,7 @@
                             <Path Data="M2,6 L6,2 L6,5 L11,5 M11,6 L7,10 L7,7 L2,7"
                                   Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
                                   StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,7,0"/>
-                            <TextBlock Text="{local:Loc Settings.Updates}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                            <TextBlock Text="{local:Loc Settings.Updates}" TextWrapping="Wrap" Width="84" FontSize="11.5"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
@@ -347,11 +347,16 @@
 
                         <TextBlock Text="{local:Loc Settings.FolderHint}"
                                    TextWrapping="Wrap" Margin="4,8,4,2"/>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBox x:Name="AionInstallFolderBox" Width="260" IsReadOnly="True"
-                                     Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}" Margin="4,2"/>
-                            <Button Content="{local:Loc Settings.SelectFolder}" Click="OnSelectAionFolderClicked"/>
-                        </StackPanel>
+                        <!-- Stacked, not side-by-side, per the user: the sidebar layout leaves this
+                             column narrower than the old single-column dialog did, and a fixed-width
+                             TextBox plus a Button next to it no longer both fit - the Button was
+                             pushed past the window edge and stayed there even after a manual resize,
+                             since nothing here persists SettingsWindow's size across reopens. Stacking
+                             needs no extra width at all, at any window size. -->
+                        <TextBox x:Name="AionInstallFolderBox" IsReadOnly="True"
+                                 Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}" Margin="4,2"/>
+                        <Button Content="{local:Loc Settings.SelectFolder}" Click="OnSelectAionFolderClicked"
+                                HorizontalAlignment="Left" Margin="4,2"/>
                         <TextBlock x:Name="AionInstallFolderStatus" Margin="4,2" TextWrapping="Wrap" FontStyle="Italic"/>
 
                         <!-- Per the user: EuroAion runs on a completely different gear standard
@@ -507,35 +512,47 @@
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding IsChecked, ElementName=NavUi, Converter={StaticResource BoolToVis}}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{local:Loc Settings.Theme}" VerticalAlignment="Center" Width="80"/>
-                            <ComboBox x:Name="ThemeBox" Width="150">
+                        <!-- Grid instead of 3 separate horizontal StackPanels, per the user: a
+                             StackPanel's fixed-Width label doesn't clip its TextBlock, so a longer
+                             translated label (e.g. "Schriftgröße") simply overflowed past its 80px
+                             slot instead of wrapping, visually shifting where that row's ComboBox
+                             looked like it started - a Grid's first column is a real boundary every
+                             row shares, so all three ComboBoxes now line up regardless of label
+                             length in any language. -->
+                        <!-- Only one Theme for now, per the user: the App-Menü/Settings chrome is
+                             hard-coded navy/orange (see AppMenuFlyoutStyle/SettingsNavItem remarks)
+                             and doesn't follow Brush.Accent the way the rest of the window still
+                             does - offering 5 more themes here would just look broken against that
+                             new chrome until they're properly re-checked against it. -->
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{local:Loc Settings.Theme}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" x:Name="ThemeBox" HorizontalAlignment="Left" Width="150">
                                 <ComboBoxItem Content="{local:Loc Settings.ThemeDark}" Tag="Dark"/>
-                                <ComboBoxItem Content="{local:Loc Settings.ThemeLight}" Tag="Light"/>
-                                <ComboBoxItem Content="Midnight" Tag="Midnight"/>
-                                <ComboBoxItem Content="Elyos" Tag="Elyos"/>
-                                <ComboBoxItem Content="Asmodian" Tag="Asmodian"/>
-                                <ComboBoxItem Content="{local:Loc Settings.ThemeHighContrast}" Tag="HighContrast"/>
                             </ComboBox>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{local:Loc Settings.FontSize}" VerticalAlignment="Center" Width="80"/>
-                            <ComboBox x:Name="FontSizeBox" Width="150">
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{local:Loc Settings.FontSize}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="FontSizeBox" HorizontalAlignment="Left" Width="150">
                                 <ComboBoxItem Content="{local:Loc Settings.SizeSmall}" Tag="Small"/>
                                 <ComboBoxItem Content="{local:Loc Settings.SizeMedium}" Tag="Medium"/>
                                 <ComboBoxItem Content="{local:Loc Settings.SizeLarge}" Tag="Large"/>
                             </ComboBox>
-                        </StackPanel>
-                        <!-- Items generated in code-behind (see SettingsWindow's constructor) from
-                             LocalizationManager.SupportedLanguages, rather than eight hardcoded
-                             ComboBoxItems here: one list, not two that could drift apart. Changes
-                             LocalizationManager.Instance.Language immediately on selection (see
-                             OnLanguageChanged), so every open window's {local:Loc ...} bindings
-                             repaint right away instead of only after Save. -->
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{local:Loc Settings.Language}" VerticalAlignment="Center" Width="80"/>
-                            <ComboBox x:Name="LanguageBox" Width="150" SelectionChanged="OnLanguageChanged"/>
-                        </StackPanel>
+                            <!-- Items generated in code-behind (see SettingsWindow's constructor) from
+                                 LocalizationManager.SupportedLanguages, rather than eight hardcoded
+                                 ComboBoxItems here: one list, not two that could drift apart. Changes
+                                 LocalizationManager.Instance.Language immediately on selection (see
+                                 OnLanguageChanged), so every open window's {local:Loc ...} bindings
+                                 repaint right away instead of only after Save. -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{local:Loc Settings.Language}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                            <ComboBox Grid.Row="2" Grid.Column="1" x:Name="LanguageBox" HorizontalAlignment="Left" Width="150" SelectionChanged="OnLanguageChanged"/>
+                        </Grid>
                         <!-- Same value as the View menu's "Always on top" toggle: see
                              MeterSettings.AlwaysOnTopOnStartup's remarks for why this is one
                              setting reachable two ways, not two independent switches. -->
