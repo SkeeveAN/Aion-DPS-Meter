@@ -301,9 +301,15 @@ async function renderHome() {
     el("h1", { className: "home-hero-title", textContent: SITE_TITLE }),
     el("p", { className: "home-hero-slogan", textContent: t("home.slogan") }),
     el("p", { className: "home-hero-tagline", textContent: t("home.tagline") }),
-    el("div", { className: "home-hero-ctas" }, [
-      el("a", { className: "download-cta", href: "/download", textContent: t("home.downloadCta") }),
-      el("a", { className: "link-button", href: `/${DEFAULT_GAME}/instances`, textContent: t("home.secondaryCta") }),
+    el("div", { className: "home-hero-ctas button-row" }, [
+      el("a", { className: "btn btn-orange", href: "/download" }, [
+        el("span", { className: "btn-icon", textContent: "↓" }),
+        // The "⬇ " prefix baked into home.downloadCta (still used bare by the footer CTA below)
+        // moves into its own .btn-icon span here - keeping both in the string is what made this
+        // button's line box taller than .btn-blue's plain text in the first place.
+        el("span", { textContent: t("home.downloadCta").replace(/^⬇\s*/, "") }),
+      ]),
+      el("a", { className: "btn btn-blue", href: `/${DEFAULT_GAME}/instances` }, [el("span", { textContent: t("home.secondaryCta") })]),
     ]),
     el("div", { className: "home-hero-pills" }, [
       link(t("home.quickStartDownload"), "/download"),
