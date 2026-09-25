@@ -175,6 +175,10 @@ public partial class MainWindow : Window
     /// but reads ambiguously next to this project's own update code.</summary>
     private VelopackUpdateInfo? _downloadedUpdate;
 
+    /// <summary>The update the in-app restart card (UpdateRestartOverlay) is currently offering,
+    /// so its two buttons know what to act on without re-threading it through the event args.</summary>
+    private VelopackUpdateInfo? _pendingRestartUpdate;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -1127,6 +1131,9 @@ public partial class MainWindow : Window
 
     private void OnFightHistoryClicked(object sender, RoutedEventArgs e)
     {
+        // Closes the App-menu flyout (AppMenuFlyoutStyle) when reached from there - a no-op
+        // when this fires from anywhere else, since IsSubmenuOpen is already false then.
+        AppMenu.IsSubmenuOpen = false;
         if (_fightStore is null)
         {
             ShowUploadStatus("Fight history is unavailable - see the earlier notice.");
@@ -2369,6 +2376,7 @@ public partial class MainWindow : Window
 
     private void OnLoadDemoDataClicked(object sender, RoutedEventArgs e)
     {
+        AppMenu.IsSubmenuOpen = false;
         // Same numbers as SelfCheck's Gladiator/Zauberer scenario -- lets the UI be checked
         // visually without playing, and the DPS column can be eyeballed against the selftest's
         // console output for the same inputs.
@@ -2421,6 +2429,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void OnReloadChatLogClicked(object sender, RoutedEventArgs e)
     {
+        AppMenu.IsSubmenuOpen = false;
         if (_chatLogPath is null || !File.Exists(_chatLogPath))
         {
             ShowUploadStatus("No Chat.log found - set the Aion install folder in Settings first.");
@@ -2701,7 +2710,11 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnCheckForUpdatesClicked(object sender, RoutedEventArgs e) => _ = RunUpdateCheck(announceResult: true);
+    private void OnCheckForUpdatesClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        _ = RunUpdateCheck(announceResult: true);
+    }
 
     private void OnUpdateNoticeClicked(object sender, MouseButtonEventArgs e)
     {
@@ -2717,24 +2730,41 @@ public partial class MainWindow : Window
     /// watched during a fight, and deciding on its own to disappear and come back mid-boss is not
     /// its call to make. Declining costs nothing -- the staged version applies on the next normal
     /// start anyway.
+    ///
+    /// <para>
+    /// Shown as an in-window, app-themed card (UpdateRestartOverlay) rather than MessageBox: this
+    /// window draws its own chrome everywhere else (WindowStyle="None"), and a native OS dialog
+    /// looked out of place glued onto it (per the user).
+    /// </para>
     /// </summary>
     private void OfferRestart(VelopackUpdateInfo update, string version)
     {
-        var answer = MessageBox.Show(this,
-            $"Version {version} has been downloaded (you have {AppVersion.Text}).\n\n" +
-            "Restart the meter now to use it? If you'd rather not, it will be applied the next " +
-            "time you start the meter anyway.",
-            "Update ready", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        _pendingRestartUpdate = update;
+        UpdateRestartText.Text = string.Format(
+            LocalizationManager.Instance["Main.UpdateReady.Message"], version, AppVersion.Text);
+        UpdateRestartOverlay.Visibility = Visibility.Visible;
+    }
 
-        if (answer != MessageBoxResult.Yes)
+    private void OnUpdateRestartNowClicked(object sender, RoutedEventArgs e)
+    {
+        UpdateRestartOverlay.Visibility = Visibility.Collapsed;
+        if (_pendingRestartUpdate is not { } update)
         {
             return;
         }
+
+        _pendingRestartUpdate = null;
 
         // Window geometry and settings are saved in OnClosing, which ApplyAndRestart never reaches
         // because it ends the process itself -- so save first, then hand over.
         SaveWindowStateToSettings();
         UpdateService.ApplyAndRestart(update);
+    }
+
+    private void OnUpdateRestartLaterClicked(object sender, RoutedEventArgs e)
+    {
+        UpdateRestartOverlay.Visibility = Visibility.Collapsed;
+        _pendingRestartUpdate = null;
     }
 
     /// <summary>
@@ -2875,7 +2905,11 @@ public partial class MainWindow : Window
         }.Show();
     }
 
-    private void OnClearClicked(object sender, RoutedEventArgs e) => ClearActiveView();
+    private void OnClearClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        ClearActiveView();
+    }
 
     /// <summary>Delegates to Combat/EngagedTargets, which is where the two failure modes this
     /// filter exists for are documented and tested.</summary>
@@ -3330,7 +3364,11 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnCloseClicked(object sender, RoutedEventArgs e) => Close();
+    private void OnCloseClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        Close();
+    }
 
     private void OnHideUiClicked(object sender, RoutedEventArgs e) => SetHideUi();
 

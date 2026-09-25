@@ -8,6 +8,42 @@
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <!-- Einstellungen A ("Seitenleiste", vom User gebilligter Prototyp): one row-style shared
+             by the 5 sidebar RadioButtons below. Colors hard-coded navy/orange like the App-Menü
+             flyout in MainWindow.xaml - same user decision ("Orange fest verdrahten"), same
+             reasoning (no current theme has an orange accent). Foreground here becomes each
+             RadioButton's own Foreground (muted by default, accent when checked - see the
+             Trigger below); the icon Paths inside bind to it explicitly via
+             RelativeSource/AncestorType since Path.Stroke isn't an inherited property the way
+             TextBlock.Foreground is. -->
+        <Style x:Key="SettingsNavItem" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#9db3c2"/>
+            <Setter Property="Padding" Value="8,8"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1a2b38"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#26405a"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Foreground" Value="#ffba42"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <!-- Same dark CheckBox fix as MainWindow - a Foreground setter never reaches the box
              itself, only its default (previously stock white) template does. -->
         <Style TargetType="CheckBox">
@@ -185,18 +221,88 @@
             <Button Content="{local:Loc Settings.Cancel}" Click="OnCancelClicked"/>
         </StackPanel>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel>
+        <!-- Einstellungen A ("Seitenleiste"): the ScrollViewer>StackPanel>5×GroupBox column this
+             replaced is still exactly how MeterSettings.Load/Save and every OnXxx handler in
+             SettingsWindow.xaml.cs expect to find these controls - only the SURROUNDING chrome
+             changed (sidebar nav instead of one long scroll), every x:Name below is unchanged and
+             in the same relative order. Categories are the same 5 as before (Aion-Installation /
+             Charaktere / Ziele-Targets / Benutzeroberfläche / Updates) - NOT the 6-category split
+             ("Allgemein"/"Anzeige") the HTML prototype explored, since that would restructure the
+             settings themselves, not just their navigation (see the plan this was built from).
+             GroupBox headers are gone: the sidebar names the category now, a second label would
+             just repeat it. Colors: same "Orange fest verdrahten" decision as the App-Menü flyout
+             - only this new chrome (sidebar background/active state/icons) is hard-coded
+             navy/orange; the reused inner controls (ComboBox/CheckBox/TextBox above) keep their
+             existing {DynamicResource Brush.*} bindings untouched. -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="128"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                <!-- Modeled directly on the AionRainMeter/rainy.ws reference UI the user shared
-                     ("Log path: select Aion folder ROOT", a folder-browse button, and a red
-                     warning when the wrong path is selected). Chat.log lives inside this folder
-                     and there is nothing to auto-discover it from, so it is asked for once and
-                     everything else depends on it. Moved to be first, per
-                     the user's requested section order (Aion Installation / Your Characters /
-                     Targets List / User Interface). -->
-                <GroupBox Header="{local:Loc Settings.AionInstallation}">
-                    <StackPanel>
+            <Border Grid.Column="0" Background="#11202b" BorderBrush="#294557" BorderThickness="0,0,1,0">
+                <StackPanel Margin="6">
+                    <RadioButton x:Name="NavInstall" GroupName="SettingsNav" IsChecked="True" Style="{StaticResource SettingsNavItem}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M2,3 L12,3 L12,9 L2,9 Z M5,12 L9,12 M7,9 L7,12"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                  StrokeThickness="1.3" Width="14" Height="12" Margin="0,0,7,0"/>
+                            <TextBlock Text="{local:Loc Settings.AionInstallation}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton x:Name="NavChars" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Width="14" Height="14" Margin="0,0,7,0">
+                                <Ellipse Width="6" Height="6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                         StrokeThickness="1.3" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                <Path Data="M1,13 L1,11 Q7,7 13,11 L13,13 Z"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3"/>
+                            </Grid>
+                            <TextBlock Text="{local:Loc Settings.YourCharacters}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton x:Name="NavTargets" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Width="14" Height="14" Margin="0,0,7,0">
+                                <Ellipse Width="10" Height="10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.2"/>
+                                <Path Data="M7,0 L7,4 M7,10 L7,14 M0,7 L4,7 M10,7 L14,7"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3"/>
+                            </Grid>
+                            <TextBlock Text="{local:Loc Settings.TargetsList}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton x:Name="NavUi" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Width="14" Height="14" Margin="0,0,7,0">
+                                <Path Data="M1,4 L13,4 M1,10 L13,10"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3"/>
+                                <Ellipse Width="4" Height="4" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                         HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,2,0,0"/>
+                                <Ellipse Width="4" Height="4" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                         HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,2"/>
+                            </Grid>
+                            <TextBlock Text="{local:Loc Settings.UserInterface}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton x:Name="NavUpdates" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M2,6 L6,2 L6,5 L11,5 M11,6 L7,10 L7,7 L2,7"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                  StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,7,0"/>
+                            <TextBlock Text="{local:Loc Settings.Updates}" TextWrapping="Wrap" Width="70" FontSize="11.5"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                        </StackPanel>
+                    </RadioButton>
+                </StackPanel>
+            </Border>
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="10">
+                <StackPanel Visibility="{Binding IsChecked, ElementName=NavInstall, Converter={StaticResource BoolToVis}}">
                         <!-- Server picked FIRST, folder second - per the user, this section's
                              whole point was not visible before: each server remembers its OWN
                              Chat.log folder (MeterSettings.ServerInstallFolders), so switching the
@@ -277,7 +383,6 @@
                         <TextBlock x:Name="ServerFolderMappingsEmptyText" Text="(none yet - pick a server above, set its folder, then Save)"
                                    Margin="4,0,4,4" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"/>
                     </StackPanel>
-                </GroupBox>
 
                 <!-- Chat.log never reveals the local player's own name - verified against a real
                      session (see MeterSettings.Characters remarks): the active character is
@@ -287,8 +392,7 @@
                      weisst welchen Namen du eintragen musst"). Class is stored alongside the name
                      so the Players grid can finally show something other than "?" for the local
                      player, which Chat.log can't supply either. -->
-                <GroupBox Header="{local:Loc Settings.YourCharacters}">
-                    <StackPanel>
+                <StackPanel Visibility="{Binding IsChecked, ElementName=NavChars, Converter={StaticResource BoolToVis}}">
                         <ListBox x:Name="CharactersList" Height="90" SelectionMode="Single"
                                  SelectionChanged="OnCharacterSelected">
                             <ListBox.Resources>
@@ -381,7 +485,6 @@
                             <ComboBox x:Name="ActiveCharacterBox" Width="150"/>
                         </StackPanel>
                     </StackPanel>
-                </GroupBox>
 
                 <!-- "Target (NPC) Bar" and "Players List" (Display DPS / Display Level) removed
                      per the user: both were entirely inert (no code anywhere reads ShowDps,
@@ -394,19 +497,16 @@
                      MyAion's Loot Table, Kinah tracking, Auto-upload, or Donation Goal sections
                      for the same reason: an inert checkbox that looks functional but does nothing
                      is worse than no checkbox at all. -->
-                <GroupBox Header="{local:Loc Settings.TargetsList}">
-                    <StackPanel>
+                <StackPanel Visibility="{Binding IsChecked, ElementName=NavTargets, Converter={StaticResource BoolToVis}}">
                         <CheckBox x:Name="ShowPlayersBox" Content="{local:Loc Settings.ShowPlayers}"/>
                         <CheckBox x:Name="ShowMinionNpcsBox" Content="{local:Loc Settings.ShowMinionNpcs}"/>
                         <CheckBox x:Name="ShowCommonNpcsBox" Content="{local:Loc Settings.ShowCommonNpcs}"/>
                         <CheckBox x:Name="ShowEliteNpcsBox" Content="{local:Loc Settings.ShowEliteNpcs}"/>
                         <CheckBox x:Name="ShowHeroicNpcsBox" Content="{local:Loc Settings.ShowHeroicNpcs}"/>
                         <CheckBox x:Name="ShowLegendaryNpcsBox" Content="{local:Loc Settings.ShowLegendaryNpcs}"/>
-                    </StackPanel>
-                </GroupBox>
+                </StackPanel>
 
-                <GroupBox Header="{local:Loc Settings.UserInterface}">
-                    <StackPanel>
+                <StackPanel Visibility="{Binding IsChecked, ElementName=NavUi, Converter={StaticResource BoolToVis}}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{local:Loc Settings.Theme}" VerticalAlignment="Center" Width="80"/>
                             <ComboBox x:Name="ThemeBox" Width="150">
@@ -446,17 +546,17 @@
                         <CheckBox x:Name="ShowDefenseStatsBox" Content="{local:Loc Settings.ShowDefenseStats}"/>
                         <!-- Local only (History/FightStore, %AppData%) - nothing about it is uploaded. -->
                         <CheckBox x:Name="RecordFightHistoryBox" Content="{local:Loc Settings.RecordFightHistory}" Margin="0,4,0,0"/>
-                    </StackPanel>
-                </GroupBox>
+                </StackPanel>
 
                 <!-- The meter's only outbound network call, so it gets a real switch rather than
                      being an invisible background behaviour. See MeterSettings.CheckForUpdates. -->
-                <GroupBox Header="{local:Loc Settings.Updates}">
+                <StackPanel Visibility="{Binding IsChecked, ElementName=NavUpdates, Converter={StaticResource BoolToVis}}">
                     <CheckBox x:Name="CheckForUpdatesBox" Content="{local:Loc Settings.CheckForUpdates}"
                               ToolTip="The only thing this program ever sends anywhere. Turn it off and nothing leaves your machine; 'Check for updates' in the App menu still works when you ask for it."/>
-                </GroupBox>
+                </StackPanel>
 
-            </StackPanel>
+            </Grid>
         </ScrollViewer>
+        </Grid>
     </DockPanel>
 </Window>

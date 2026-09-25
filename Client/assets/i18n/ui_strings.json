@@ -9,6 +9,26 @@
     "tr": "Uygulama",
     "zh": "应用"
   },
+  "Main.MenuApp.SessionGroup": {
+    "en": "Session",
+    "de": "Sitzung",
+    "fr": "Session",
+    "es": "Sesión",
+    "ru": "Сессия",
+    "pl": "Sesja",
+    "tr": "Oturum",
+    "zh": "会话"
+  },
+  "Main.MenuApp.ExportGroup": {
+    "en": "Export",
+    "de": "Export",
+    "fr": "Exporter",
+    "es": "Exportar",
+    "ru": "Экспорт",
+    "pl": "Eksport",
+    "tr": "Dışa aktar",
+    "zh": "导出"
+  },
   "Main.MenuApp.LoadSession": {
     "en": "Load session",
     "de": "Sitzung laden",
@@ -118,6 +138,46 @@
     "pl": "Sprawdź aktualizacje",
     "tr": "Güncellemeleri denetle",
     "zh": "检查更新"
+  },
+  "Main.UpdateReady.Title": {
+    "en": "Update ready",
+    "de": "Update bereit",
+    "fr": "Mise à jour prête",
+    "es": "Actualización lista",
+    "ru": "Обновление готово",
+    "pl": "Aktualizacja gotowa",
+    "tr": "Güncelleme hazır",
+    "zh": "更新已就绪"
+  },
+  "Main.UpdateReady.Message": {
+    "en": "Version {0} has been downloaded (you have {1}).\n\nRestart the meter now to use it? If you'd rather not, it will be applied the next time you start the meter anyway.",
+    "de": "Version {0} wurde heruntergeladen (du hast {1}).\n\nJetzt neu starten, um sie zu verwenden? Falls nicht, wird sie beim nächsten Start ohnehin angewendet.",
+    "fr": "La version {0} a été téléchargée (vous avez {1}).\n\nRedémarrer le compteur maintenant pour l'utiliser ? Sinon, elle sera appliquée au prochain démarrage.",
+    "es": "Se ha descargado la versión {0} (tienes {1}).\n\n¿Reiniciar el medidor ahora para usarla? Si prefieres no hacerlo, se aplicará la próxima vez que inicies el medidor.",
+    "ru": "Версия {0} загружена (у вас {1}).\n\nПерезапустить счётчик сейчас, чтобы использовать её? Если нет, она будет применена при следующем запуске.",
+    "pl": "Wersja {0} została pobrana (masz {1}).\n\nZrestartować licznik teraz, aby jej użyć? Jeśli nie, zostanie zastosowana przy następnym uruchomieniu.",
+    "tr": "{0} sürümü indirildi (şu an {1} sürümündesiniz).\n\nKullanmak için ölçer şimdi yeniden başlatılsın mı? İstemezseniz, bir sonraki başlatmada zaten uygulanacaktır.",
+    "zh": "已下载版本 {0}(当前版本为 {1})。\n\n现在重启以使用新版本吗?如果不重启，下次启动时也会自动应用。"
+  },
+  "Main.UpdateReady.Later": {
+    "en": "Later",
+    "de": "Später",
+    "fr": "Plus tard",
+    "es": "Más tarde",
+    "ru": "Позже",
+    "pl": "Później",
+    "tr": "Daha sonra",
+    "zh": "稍后"
+  },
+  "Main.UpdateReady.RestartNow": {
+    "en": "Restart now",
+    "de": "Jetzt neu starten",
+    "fr": "Redémarrer maintenant",
+    "es": "Reiniciar ahora",
+    "ru": "Перезапустить сейчас",
+    "pl": "Uruchom ponownie teraz",
+    "tr": "Şimdi yeniden başlat",
+    "zh": "立即重启"
   },
   "Main.MenuApp.StartWithWindows": {
     "en": "Start automatically with Windows",

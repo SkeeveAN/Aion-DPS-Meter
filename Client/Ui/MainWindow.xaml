@@ -390,6 +390,188 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- App-Menü A ("Flyout-Karte", vom User gebilligter Prototyp): shared row style for both
+             the plain-action Buttons and the two expandable-group ToggleButtons below (ButtonBase
+             covers both). Kept separate from the plain global Button style further up so it never
+             leaks its rounded/hover chrome onto ordinary buttons elsewhere in the window. -->
+        <Style x:Key="AppMenuRow" TargetType="ButtonBase">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="8,7"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ButtonBase">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="7"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1f3141"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Only the "App" MenuItem gets this - Session/Settings/Mode keep the plain global
+             MenuItem style above (real WPF submenus, keyboard nav intact). Popup content is
+             hand-authored (Border+StackPanel), not <ItemsPresenter/>, because the rows below are
+             plain Buttons/ToggleButtons, not child MenuItems - see the "App" MenuItem itself for
+             why (its 14 child MenuItems were replaced by this). Colors here are deliberately
+             hard-coded navy/orange, not {DynamicResource Brush.*} - per the user, who chose this
+             over matching the current app theme (no theme's own accent is orange). No logo/
+             version/close header like the standalone design prototype had: this window already
+             draws both in its own titlebar just above, a second copy here would be redundant. -->
+        <Style x:Key="AppMenuFlyoutStyle" TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Grid>
+                            <Border x:Name="Bd" Background="{TemplateBinding Background}">
+                                <Grid Margin="{TemplateBinding Padding}">
+                                    <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsSubmenuOpen}"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="#152532" BorderBrush="#294557" BorderThickness="1" CornerRadius="10" Width="260">
+                                    <StackPanel Margin="6">
+                                        <!-- Sitzung: Load/Save, both IsEnabled=False today - shown as an
+                                             expandable group (no click target of its own) rather than two
+                                             disabled rows, matching the approved prototype. -->
+                                        <ToggleButton x:Name="SessionGroupToggle" Style="{StaticResource AppMenuRow}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M1,4 L4,4 L5,5.5 L11,5.5 L11,10 L1,10 Z" Stroke="#9db3c2"
+                                                      StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.SessionGroup}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </ToggleButton>
+                                        <StackPanel Margin="22,0,0,2"
+                                                    Visibility="{Binding IsChecked, ElementName=SessionGroupToggle, Converter={StaticResource BoolToVis}}">
+                                            <Grid Margin="0,3"><TextBlock Text="{local:Loc Main.MenuApp.LoadSession}" Foreground="#5c6b74" FontSize="11.5"/></Grid>
+                                            <Grid Margin="0,3"><TextBlock Text="{local:Loc Main.MenuApp.SaveSession}" Foreground="#5c6b74" FontSize="11.5"/></Grid>
+                                        </StackPanel>
+
+                                        <!-- Export: Export/Validate, same reasoning as Sitzung above. -->
+                                        <ToggleButton x:Name="ExportGroupToggle" Style="{StaticResource AppMenuRow}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M6,1 L6,7 M3,4 L6,1 L9,4 M1,10 L11,10" Stroke="#9db3c2"
+                                                      StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.ExportGroup}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </ToggleButton>
+                                        <StackPanel Margin="22,0,0,2"
+                                                    Visibility="{Binding IsChecked, ElementName=ExportGroupToggle, Converter={StaticResource BoolToVis}}">
+                                            <Grid Margin="0,3"><TextBlock Text="{local:Loc Main.MenuApp.ExportSession}" Foreground="#5c6b74" FontSize="11.5"/></Grid>
+                                            <Grid Margin="0,3"><TextBlock Text="{local:Loc Main.MenuApp.ValidateSession}" Foreground="#5c6b74" FontSize="11.5"/></Grid>
+                                        </StackPanel>
+
+                                        <Border Height="1" Background="#21374a" Margin="4,6"/>
+
+                                        <!-- Ordner öffnen ×2 - still IsEnabled=False today, but at the
+                                             top level (not tucked in a group) since each is one line. -->
+                                        <StackPanel Orientation="Horizontal" Margin="8,5">
+                                            <Path Data="M1,3 L5,3 L6,4.5 L11,4.5 L11,10 L1,10 Z" Stroke="#5c6b74" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{local:Loc Main.MenuApp.OpenSessionsFolder}" Foreground="#5c6b74" VerticalAlignment="Center" FontSize="11.5"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="8,5">
+                                            <Path Data="M1,3 L5,3 L6,4.5 L11,4.5 L11,10 L1,10 Z" Stroke="#5c6b74" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{local:Loc Main.MenuApp.OpenLogsFolder}" Foreground="#5c6b74" VerticalAlignment="Center" FontSize="11.5"/>
+                                        </StackPanel>
+
+                                        <Border Height="1" Background="#21374a" Margin="4,6"/>
+
+                                        <!-- Verbindung zurücksetzen: still IsEnabled=False today. -->
+                                        <StackPanel Orientation="Horizontal" Margin="8,5">
+                                            <Path Data="M2,2 L5,5 M9,9 L12,12 M2,12 L5,9 M9,5 L12,2" Stroke="#5c6b74" StrokeThickness="1.3" Width="14" Height="14" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{local:Loc Main.MenuApp.ResetConnection}" Foreground="#5c6b74" VerticalAlignment="Center" FontSize="11.5"/>
+                                        </StackPanel>
+
+                                        <!-- Ansicht leeren: real action - same red-X path the toolbar's
+                                             own ClearButton already draws (OnClearClicked), so the two
+                                             stay visually identical instead of drifting apart. -->
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnClearClicked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M4,3 L14,13 M14,3 L4,13" Stroke="#ff5a4f" StrokeThickness="1.8" Width="14" Height="10" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.ClearCurrentView}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <!-- Chat.log neu laden: real action (OnReloadChatLogClicked). -->
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnReloadChatLogClicked"
+                                                ToolTip="Re-reads the entire Chat.log file and replaces the current session with it.">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M2,6 L6,2 L6,5 L11,5 M11,6 L7,10 L7,7 L2,7" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.ReloadChatLog}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <!-- Kampfverlauf: real action (OnFightHistoryClicked). -->
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnFightHistoryClicked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Grid Width="14" Height="14" Margin="0,0,8,0">
+                                                    <Ellipse Stroke="#9db3c2" StrokeThickness="1.3"/>
+                                                    <Path Data="M7,4 L7,7.2 L9.4,8.6" Stroke="#9db3c2" StrokeThickness="1.3"/>
+                                                </Grid>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.FightHistory}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <!-- Demo-Daten laden: real action (OnLoadDemoDataClicked). -->
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnLoadDemoDataClicked"
+                                                ToolTip="Fills the grid with synthetic data, for visually checking the UI without playing.">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M5,1 L9,1 M5,1 L5,6 L1,12 L13,12 L9,6 L9,1" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="12" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.LoadDemoData}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Border Height="1" Background="#21374a" Margin="4,6"/>
+
+                                        <!-- Nach Updates suchen: real action (OnCheckForUpdatesClicked). -->
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnCheckForUpdatesClicked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M7,1 L7,8 M3,6 L7,10 L11,6 M2,12 L12,12" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="13" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.CheckForUpdates}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <!-- Mit Windows starten / In Tray minimieren: still IsEnabled=False
+                                             today - see the plain MenuItem list this replaced for why
+                                             (writing to the Windows Run key or hiding the tray icon both
+                                             need an explicit ask first). -->
+                                        <StackPanel Orientation="Horizontal" Margin="8,5">
+                                            <Path Data="M2,4 L2,10 L12,10 L12,4 Z M7,1 L7,6" Stroke="#5c6b74" StrokeThickness="1.3" Width="14" Height="12" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{local:Loc Main.MenuApp.StartWithWindows}" Foreground="#5c6b74" VerticalAlignment="Center" FontSize="11.5"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="8,5">
+                                            <Path Data="M2,3 L12,3 L12,10 L2,10 Z M2,8 L12,8" Stroke="#5c6b74" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{local:Loc Main.MenuApp.MinimizeToTray}" Foreground="#5c6b74" VerticalAlignment="Center" FontSize="11.5"/>
+                                        </StackPanel>
+
+                                        <Border Height="1" Background="#21374a" Margin="4,6"/>
+
+                                        <!-- Beenden: real action (OnCloseClicked, the same one the
+                                             titlebar's own ✕ button already calls) - danger-colored, its
+                                             own row rather than the standalone prototype's separate
+                                             brand-wordmark footer (redundant here, see the Style's own
+                                             remarks above). -->
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnCloseClicked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M6,1 L2,1 L2,13 L6,13 M10,4 L13,7 L10,10 M13,7 L5,7" Stroke="#ff8a7d" StrokeThickness="1.4" Width="14" Height="13" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.Close}" Foreground="#ff8a7d" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Border}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style TargetType="Separator">
             <Setter Property="Background" Value="{DynamicResource Brush.Border}"/>
         </Style>
@@ -442,6 +624,7 @@
              own dark background (so normal mode looks the way it always did) plus a manual
              drag/close bar, since we gave up the OS one. -->
         <Border x:Name="NormalContent" Background="{DynamicResource Brush.Window}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
+            <Grid>
             <DockPanel LastChildFill="True">
 
                 <Grid DockPanel.Dock="Top" Background="{DynamicResource Brush.TitleBar}" Height="24" MouseLeftButtonDown="OnTitleBarMouseDown">
@@ -469,42 +652,17 @@
                      What IS real: Close, Load Demo Data, Clear sessions, and everything under
                      Settings. -->
                 <Menu DockPanel.Dock="Top" Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}">
-                    <MenuItem Header="{local:Loc Main.MenuApp}" Foreground="{DynamicResource Brush.Text}">
-                        <MenuItem Header="{local:Loc Main.MenuApp.LoadSession}" IsEnabled="False"/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.SaveSession}" IsEnabled="False"/>
-                        <Separator/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.ExportSession}" IsEnabled="False"/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.ValidateSession}" IsEnabled="False"/>
-                        <Separator/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.OpenSessionsFolder}" IsEnabled="False"/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.OpenLogsFolder}" IsEnabled="False"/>
-                        <Separator/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.ResetConnection}" IsEnabled="False"/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.ClearCurrentView}" Click="OnClearClicked"/>
-                        <!-- Explicit, opt-in exception to ChatLogTailer's "never look into the
-                             past" rule (see its own remarks) - recovers a run lost when the app
-                             itself restarts (crash, or an auto-update), since Chat.log on disk
-                             still has it even though _aggregator's in-memory events don't survive
-                             a restart. Never runs on its own; only this menu click triggers it. -->
-                        <MenuItem Header="{local:Loc Main.MenuApp.ReloadChatLog}" Click="OnReloadChatLogClicked"
-                                  ToolTip="Re-reads the entire Chat.log file and replaces the current session with it - use after a restart/update wiped an in-progress run, since the live recorder itself never looks at anything before it started."/>
-                        <!-- Moved out of the toolbar (found by terminal_windows: the toolbar
-                             overflowed the window at its default width once Char/Hide UI grew it,
-                             literally pushing Settings off-screen and unreachable) - a synthetic
-                             data loader is a dev/test aid, not something reached every session. -->
-                        <!-- Local, searchable history of finished fights (History/FightStore) - a
-                             fight can be loaded back into this grid; see EnterHistoryMode. -->
-                        <MenuItem Header="{local:Loc Main.MenuApp.FightHistory}" Click="OnFightHistoryClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.LoadDemoData}" Click="OnLoadDemoDataClicked"
-                                  ToolTip="Fills the grid with synthetic data (same numbers as the selftest), for visually checking the UI without playing."/>
-                        <Separator/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.CheckForUpdates}" Click="OnCheckForUpdatesClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.StartWithWindows}" IsEnabled="False"
-                                  ToolTip="Not implemented on purpose: would write to the Windows startup registry key, a system-wide change that needs an explicit ask, not a UI-parity checkbox."/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.MinimizeToTray}" IsEnabled="False"/>
-                        <Separator/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.Close}" Click="OnCloseClicked"/>
-                    </MenuItem>
+                    <!-- App-Menü A ("Flyout-Karte", vom User gebilligt): all 14 child MenuItems that
+                         used to live here (Load/SaveSession, Export/ValidateSession, both folder
+                         items, ResetConnection, ClearCurrentView, ReloadChatLog, FightHistory,
+                         LoadDemoData, CheckForUpdates, StartWithWindows, MinimizeToTray, Close)
+                         moved into AppMenuFlyoutStyle's own hand-authored Popup content above -
+                         same Click targets, same {local:Loc} keys, same IsEnabled=False items
+                         (now shown as muted rows instead of greyed-out MenuItems). Nothing here
+                         needs children anymore since the Popup no longer renders via
+                         <ItemsPresenter/>. -->
+                    <MenuItem x:Name="AppMenu" Header="{local:Loc Main.MenuApp}" Foreground="{DynamicResource Brush.Text}"
+                              Style="{StaticResource AppMenuFlyoutStyle}"/>
                     <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="{DynamicResource Brush.Text}">
                         <!-- Uploads exactly the currently filtered boss - same action as the
                              Damage view's Upload button (OnUploadCurrentBossClicked), reachable
@@ -987,6 +1145,30 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>
+
+            <!-- Update-ready confirmation, in-app and app-themed. WindowStyle="None" above means
+                 this window draws its own chrome everywhere else; a native MessageBox here would
+                 pop up with the OS's own title bar and buttons, clashing with that (per the user).
+                 A dimmed backdrop plus a themed card, both inside NormalContent, keeps it looking
+                 like part of the app and keeps it out of the way in Hide-UI overlay mode (which
+                 collapses NormalContent entirely, see OnHideUiClicked). -->
+            <Border x:Name="UpdateRestartOverlay" Visibility="Collapsed" Background="#AA000000">
+                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
+                        BorderThickness="1" CornerRadius="4" Padding="20" MaxWidth="380"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="{local:Loc Main.UpdateReady.Title}" FontWeight="Bold" FontSize="14"
+                                   Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,10"/>
+                        <TextBlock x:Name="UpdateRestartText" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,16"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="{local:Loc Main.UpdateReady.Later}" Click="OnUpdateRestartLaterClicked" Margin="0,0,8,0" Padding="12,4"/>
+                            <Button Content="{local:Loc Main.UpdateReady.RestartNow}" Click="OnUpdateRestartNowClicked" Padding="12,4"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Border>
+            </Grid>
         </Border>
 
         <!-- ================= Hide-UI overlay mode ================= -->
