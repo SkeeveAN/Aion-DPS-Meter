@@ -409,6 +409,7 @@ select,
   border-radius: 4px;
   padding: 6px 10px;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .breadcrumb {
@@ -599,10 +600,30 @@ th {
   margin-bottom: 18px;
 }
 
+/* Blue, not orange: that's the primary CTA's color and this is the secondary one - reuses the
+   same accent blue as the hero glow/pills below (rgba(95, 168, 255, ...)) so the hero reads as one
+   deliberate two-accent palette rather than a randomly-picked third color. Padding/font-size match
+   .download-cta so the pair reads as equally-weighted buttons, not a button next to a text link. */
 .home-hero .link-button {
-  background: rgba(19, 33, 42, 0.7);
+  background: rgba(95, 168, 255, 0.16);
   color: #fff;
-  border-color: rgba(54, 90, 112, 0.7);
+  border: 1px solid rgba(95, 168, 255, 0.6);
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.home-hero .link-button:hover {
+  background: rgba(95, 168, 255, 0.26);
+  border-color: rgba(95, 168, 255, 0.85);
+  transform: translateY(-1px);
+}
+
+.home-hero .link-button:active {
+  background: rgba(95, 168, 255, 0.32);
+  transform: translateY(0);
 }
 
 .home-hero-pills {
