@@ -72,9 +72,16 @@ export async function encounterRoutes(app: FastifyInstance) {
         durationSeconds: encounters.durationSeconds,
         groupIDps: encounters.groupIDps,
         mergedUploadCount: encounters.mergedUploadCount,
+        // Which server this run actually happened on - so a page reached from a cross-server list
+        // (homepage "recent activity"/"top players") can bring the visitor's server context back in
+        // sync with the run they clicked, instead of leaving it pointed at whichever server they'd
+        // picked before (see Web-Frontend app.js renderEncounter's server-override).
+        serverId: encounters.serverId,
+        serverName: servers.displayName,
       })
       .from(encounters)
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+      .leftJoin(servers, eq(encounters.serverId, servers.id))
       .where(eq(encounters.id, encounterId))
       .get();
     if (!encounter) {

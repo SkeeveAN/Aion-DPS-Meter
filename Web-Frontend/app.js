@@ -55,6 +55,25 @@ let currentServerName = null;
 let currentServerCatalogId = null;
 let currentServerPicked = false;
 
+// A visitor can land on a specific run (via the homepage's cross-server "recent activity"/"top
+// players" lists) whose server differs from the one they'd picked before. Rather than showing that
+// run next to a server indicator/leaderboard-default that doesn't match it, applyServerOverride
+// below switches the in-memory server context to the run's own server for as long as the visitor
+// keeps browsing from there - never persisted to localStorage, and cleared again the moment route()
+// lands back on the homepage (browser Back or the header logo), so their real pick reappears there.
+let serverOverride = null;
+
+function applyServerOverride(id, name) {
+  if (id === null) {
+    return;
+  }
+  serverOverride = { id: String(id), name };
+  currentServerId = serverOverride.id;
+  currentServerName = serverOverride.name;
+  currentServerPicked = true;
+  updateServerIndicator();
+}
+
 (function migrateLegacyServerKeys() {
   for (const key of ["serverId", "serverName", "serverCatalogId", "serverPicked"]) {
     const value = localStorage.getItem(`dpsmeter.${key}`);
@@ -390,7 +409,10 @@ async function renderHome() {
     el("div", { className: "home-footer-logo" }, [el("span", { textContent: "AION" }), el("span", { className: "accent", textContent: "DPS" })]),
     el("div", { className: "home-footer-center" }, [
       el("h2", { textContent: t("home.footerCtaHeading") }),
-      el("a", { className: "download-cta", href: "/download", textContent: t("home.downloadCta") }),
+      el("a", { className: "btn btn-orange", href: "/download" }, [
+        el("span", { className: "btn-icon", textContent: "↓" }),
+        el("span", { textContent: t("home.downloadCta").replace(/^⬇\s*/, "") }),
+      ]),
     ]),
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
@@ -420,7 +442,10 @@ function buildTopPlayersSection(rows, game) {
     el("tr", {}, [
       el("td", { textContent: `${i + 1}` }),
       el("td", {}, [playerCell(null, r.className, r.playerName, null, r.serverName)]),
-      el("td", {}, [link(displayName({ name: r.bossName, nameEn: r.bossNameEn }), `/${game}/bosses/${r.bossSlug}`)]),
+      // The specific run this score came from, not the boss's general leaderboard - that leaderboard
+      // defaults to the visitor's currently picked server (or the busiest one), which can easily be a
+      // different server than the one this row's run actually happened on.
+      el("td", {}, [link(displayName({ name: r.bossName, nameEn: r.bossNameEn }), `/${game}/encounters/${r.encounterId}`)]),
       el("td", { textContent: formatNumber(r.idps) }),
     ]),
   );
@@ -454,7 +479,9 @@ function buildRecentActivitySection(rows) {
       rows.map((r) =>
         el("tr", { className: "activity-row" }, [
           el("td", {}, [el("span", { className: "icon-label" }, [classIcon(r.topPlayerClassName), r.topPlayerName ?? t("table.player")])]),
-          el("td", {}, [link(displayName({ name: r.bossName, nameEn: r.bossNameEn }), `/${r.game}/bosses/${r.bossSlug}`)]),
+          // Same reasoning as buildTopPlayersSection: link the exact run, not the boss's general
+          // (currently-picked-server) leaderboard.
+          el("td", {}, [link(displayName({ name: r.bossName, nameEn: r.bossNameEn }), `/${r.game}/encounters/${r.encounterId}`)]),
           el("td", { textContent: formatNumber(r.groupIDps) }),
           el("td", { className: "activity-time", textContent: formatRelativeTime(r.createdAt) }),
         ]),
@@ -1266,6 +1293,11 @@ async function renderEncounter(encounterId) {
   showLoading(t("loading.encounter"));
 
   const data = await fetchJson(`/api/encounters/${encodeURIComponent(encounterId)}`);
+  // Classic Aion only - Aion 2's servers share one standard and are never individually picked (see
+  // updateServerIndicator).
+  if (currentGame === "aion") {
+    applyServerOverride(data.encounter.serverId, data.encounter.serverName);
+  }
   setBreadcrumb([...gameCrumbs(), link(translateGameName(data.encounter.bossName), gp(`/bosses/${data.encounter.bossId}`))]);
 
   const metaTable = el("table", { className: "meta-table" }, [
@@ -1480,7 +1512,15 @@ async function route() {
     section = "notfound";
   }
 
+  if (section === "home") {
+    serverOverride = null;
+  }
   loadServerState();
+  if (serverOverride) {
+    currentServerId = serverOverride.id;
+    currentServerName = serverOverride.name;
+    currentServerPicked = true;
+  }
   updateServerIndicator();
   updateGameTabs();
 
