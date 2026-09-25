@@ -120,13 +120,6 @@ public sealed class MeterSettings
     public double? WindowLeft { get; set; }
     public double? WindowTop { get; set; }
 
-    /// <summary>PlayersGrid's Name/Damage-DPS column widths, same save-on-close/restore-on-open
-    /// deal as the window geometry above -- a DataGridColumn is user-resizable by dragging its
-    /// border, but nothing persisted that on its own; found the same way (the user resized both,
-    /// found gone again next launch).</summary>
-    public double? NameColumnWidth { get; set; }
-    public double? DpsColumnWidth { get; set; }
-
     /// <summary>Whether the meter asks GitHub for a newer release -- at startup and every five
     /// minutes while it runs (see MainWindow's update timer). Default on, but a real switch and
     /// not a decorative one: this is the program's only outbound network call, and the README

@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using AionDPS.Aion2;
 using AionDPS.Aion2.Protocol;
@@ -254,8 +255,9 @@ public partial class MainWindow : Window
     /// <summary>Applies a previously saved size/position, if any -- see SaveWindowGeometry, its
     /// counterpart on close. Left null-checked separately from Width/Height since a user who's
     /// only ever resized (not moved) the window would have one pair set and the other still
-    /// null. Also restores the Name/Damage-DPS column widths, same deal -- a DataGridColumn drag-
-    /// resize is otherwise not persisted anywhere either.</summary>
+    /// null. No longer also restores Name/Damage-DPS column widths -- those two independently-
+    /// resizable columns were merged into one Width="*" PlayerColumn (see its own remarks in
+    /// MainWindow.xaml) that always fills whatever this window's own persisted width leaves it.</summary>
     private void RestoreWindowGeometry(MeterSettings settings)
     {
         if (settings.WindowWidth is double width && settings.WindowHeight is double height)
@@ -269,23 +271,13 @@ public partial class MainWindow : Window
             Left = left;
             Top = top;
         }
-
-        if (settings.NameColumnWidth is double nameWidth)
-        {
-            NameColumn.Width = new DataGridLength(nameWidth);
-        }
-
-        if (settings.DpsColumnWidth is double dpsWidth)
-        {
-            DpsColumn.Width = new DataGridLength(dpsWidth);
-        }
     }
 
     /// <summary>Persists the current size/position so it survives a restart -- found necessary by
     /// the user, who resized the window and had it reset every time. Reads WindowState-independent
     /// values (RestoreBounds instead of Width/Height/Left/Top directly) so a maximized or minimized
-    /// window on close doesn't save that transient state as if it were the normal size. Also
-    /// persists the current Name/Damage-DPS column widths, same reasoning as RestoreWindowGeometry.</summary>
+    /// window on close doesn't save that transient state as if it were the normal size. See
+    /// RestoreWindowGeometry's own remarks for why column widths are no longer part of this.</summary>
     private void SaveWindowGeometry(MeterSettings settings)
     {
         Rect bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
@@ -293,9 +285,6 @@ public partial class MainWindow : Window
         settings.WindowHeight = bounds.Height;
         settings.WindowLeft = bounds.X;
         settings.WindowTop = bounds.Y;
-
-        settings.NameColumnWidth = NameColumn.ActualWidth;
-        settings.DpsColumnWidth = DpsColumn.ActualWidth;
     }
 
     /// <summary>Re-reads Characters/ActiveCharacterName/AutoDetectActiveCharacter from Settings --
@@ -1928,10 +1917,11 @@ public partial class MainWindow : Window
     private void OnMobBossFilterChanged(object sender, SelectionChangedEventArgs e)
     {
         // MobBossFilter's XAML sets SelectedIndex="0", which makes WPF fire this handler from
-        // inside InitializeComponent itself -- while the rest of the tree (including DpsColumn,
-        // declared further down in the XAML) hasn't been built yet. Found the hard way: every
-        // single GUI launch crashed with a NullReferenceException on DpsColumn before a window
-        // ever appeared. IsInitialized only becomes true once the whole tree exists.
+        // inside InitializeComponent itself -- while the rest of the tree (including
+        // DpsHeaderText, declared further down in the XAML) hasn't been built yet. Found the hard
+        // way: every single GUI launch crashed with a NullReferenceException before a window ever
+        // appeared (back when this read DpsColumn, the merged column's predecessor). IsInitialized
+        // only becomes true once the whole tree exists.
         if (!IsInitialized)
         {
             return;
@@ -1981,7 +1971,7 @@ public partial class MainWindow : Window
 
     private void UpdateDpsColumnHeader()
     {
-        DpsColumn.Header = _pvpOnly ? "Damage / DPS (PvP)" : _selectedTargetId is int ? "Damage / iDPS" : "Damage / DPS";
+        DpsHeaderText.Text = _pvpOnly ? "Damage / DPS (PvP)" : _selectedTargetId is int ? "Damage / iDPS" : "Damage / DPS";
     }
 
     /// <summary>
@@ -3340,8 +3330,7 @@ public partial class MainWindow : Window
     {
         PlayersGrid.Visibility = Visibility.Visible;
         LootGrid.Visibility = Visibility.Collapsed;
-        DamageNavButton.FontWeight = FontWeights.Bold;
-        LootNavButton.FontWeight = FontWeights.Normal;
+        SetActiveNavButton(DamageNavButton, LootNavButton);
         RefreshUploadAvailability();
     }
 
@@ -3349,8 +3338,7 @@ public partial class MainWindow : Window
     {
         PlayersGrid.Visibility = Visibility.Collapsed;
         LootGrid.Visibility = Visibility.Visible;
-        DamageNavButton.FontWeight = FontWeights.Normal;
-        LootNavButton.FontWeight = FontWeights.Bold;
+        SetActiveNavButton(LootNavButton, DamageNavButton);
         // The Mob/Boss filter next to it has no meaning for loot, so neither does uploading "the
         // currently filtered boss" - the Session menu's upload items stay reachable regardless.
         // RefreshUploadAvailability already collapses UploadBossButton whenever PlayersGrid isn't
@@ -3358,6 +3346,17 @@ public partial class MainWindow : Window
         RefreshUploadAvailability();
     }
 
+    /// <summary>Swaps which of the two nav-rail view buttons reads as "active" - an orange fill
+    /// (Brush.Accent) with dark-on-orange text (Brush.Window, same contrast pairing as the PVE/PVP
+    /// toggle) for the one just selected, back to NavButton's own plain default for the other.
+    /// Replaces the old FontWeight-only swap now that both buttons show an icon, not text.</summary>
+    private void SetActiveNavButton(Button active, Button inactive)
+    {
+        active.Background = (Brush)FindResource("Brush.Accent");
+        active.Foreground = (Brush)FindResource("Brush.Window");
+        inactive.Background = (Brush)FindResource("Brush.Control");
+        inactive.Foreground = (Brush)FindResource("Brush.Text");
+    }
 
     private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
     {
@@ -3372,6 +3371,8 @@ public partial class MainWindow : Window
         AppMenu.IsSubmenuOpen = false;
         Close();
     }
+
+    private void OnMinimizeClicked(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
     private void OnHideUiClicked(object sender, RoutedEventArgs e) => SetHideUi();
 

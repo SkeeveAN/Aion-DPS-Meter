@@ -73,7 +73,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4"
                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -247,7 +247,7 @@
                                           ClickMode="Press">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
-                                        <Border Background="{TemplateBinding Background}"
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="4"
                                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
                                             <Path Data="M0,0 L4,4 L8,0 Z" Fill="{DynamicResource Brush.TextSubtle}" Margin="0,0,8,0"
                                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
@@ -261,7 +261,7 @@
                                               Margin="6,3,20,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                             <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
                                    Focusable="False" PopupAnimation="Slide">
-                                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+                                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" CornerRadius="4"
                                         MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ScrollViewer SnapsToDevicePixels="True">
                                         <ItemsPresenter/>
@@ -627,7 +627,12 @@
             <Grid>
             <DockPanel LastChildFill="True">
 
-                <Grid DockPanel.Dock="Top" Background="{DynamicResource Brush.TitleBar}" Height="24" MouseLeftButtonDown="OnTitleBarMouseDown">
+                <Grid DockPanel.Dock="Top" Background="{DynamicResource Brush.TitleBar}" Height="30" MouseLeftButtonDown="OnTitleBarMouseDown">
+                    <!-- Small brand mark, per the reference layout - same navy/orange gradient chip
+                         as the App-Menü flyout/Settings sidebar this session, kept purely decorative
+                         (no click target) since the real menu already sits one row below. -->
+                    <Border Width="16" Height="16" CornerRadius="4" Margin="8,0,0,0" HorizontalAlignment="Left"
+                            Background="{DynamicResource Brush.Accent}"/>
                     <!-- Per the user: the version belongs where it's actually seen. Window.Title
                          already carries it (set in the constructor from AppVersion.Text, see its
                          remarks on why a screenshot needs to identify its build), but WindowStyle=
@@ -635,9 +640,16 @@
                          the only titlebar a user ever sees, so it has to show the same string
                          rather than a second, separately-hardcoded one that could drift from it. -->
                     <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
-                               Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="8,0"/>
-                    <Button Content="✕" Click="OnCloseClicked" HorizontalAlignment="Right" Width="28" Height="24"
-                            Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0"/>
+                               Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="30,0,0,0"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <!-- Missing until now: with WindowStyle="None" there was no way at all to
+                             minimize from the UI (no OS chrome draws one either). Per the reference
+                             layout's window-action row. -->
+                        <Button Content="─" Click="OnMinimizeClicked" Width="28" Height="30"
+                                Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0"/>
+                        <Button Content="✕" Click="OnCloseClicked" Width="28" Height="30"
+                                Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0"/>
+                    </StackPanel>
                 </Grid>
 
                 <!-- Top menu bar: App / Session / Settings / Mode. The original
@@ -972,13 +984,32 @@
                      Distribution" has a real data source right now (Combat/LiveAggregator);
                      Character Profile stays as a disabled placeholder since it wasn't asked to go
                      too. See README's UI-placeholders section. -->
+                <!-- Icons instead of text per the reference layout - NavButton's Background is
+                     already TemplateBinding'd (see its Button base style above), so the active/
+                     inactive swap in OnShowDamageView/OnShowLootView is a plain property set, no
+                     new style needed. Each Path's Stroke binds to its own Button's Foreground
+                     (which that same code toggles alongside Background) rather than a fixed color,
+                     since Path.Stroke isn't inherited the way TextBlock.Foreground is. -->
                 <StackPanel DockPanel.Dock="Left" Background="{DynamicResource Brush.Panel}">
-                    <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" Content="{local:Loc Main.NavDmg}" ToolTip="Damage Distribution" Click="OnShowDamageView" FontWeight="Bold"/>
+                    <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" ToolTip="Damage Distribution" Click="OnShowDamageView"
+                            Background="{DynamicResource Brush.Accent}" Foreground="{DynamicResource Brush.Window}">
+                        <Path Data="M3,16 L3,10 M8,16 L8,5 M13,16 L13,12" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="16" Height="16"/>
+                    </Button>
                     <!-- Real now, per the user - "You have acquired [item:ID;...]." lines parsed
                          by ChatLogParser.LootAcquired, item names resolved via Data/ItemDatabase
                          (see assets/README.md for its aioncodex.com "/4x/" source). -->
-                    <Button x:Name="LootNavButton" Style="{StaticResource NavButton}" Content="{local:Loc Main.NavLoot}" ToolTip="Loot Table" Click="OnShowLootView"/>
-                    <Button Style="{StaticResource NavButton}" Content="{local:Loc Main.NavChar}" ToolTip="Character Profile (not implemented - needs equipment/stat packet decoding)" IsEnabled="False"/>
+                    <Button x:Name="LootNavButton" Style="{StaticResource NavButton}" ToolTip="Loot Table" Click="OnShowLootView">
+                        <Path Data="M2,6 L14,6 L13,15 L3,15 Z M5,6 L5,3 L11,3 L11,6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="1.6" StrokeLineJoin="Round" Width="16" Height="16"/>
+                    </Button>
+                    <Button Style="{StaticResource NavButton}" ToolTip="Character Profile (not implemented - needs equipment/stat packet decoding)" IsEnabled="False">
+                        <Grid Width="16" Height="16">
+                            <Ellipse Width="7" Height="7" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                     StrokeThickness="1.6" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                            <Path Data="M1,15 L1,12.5 Q8,8 15,12.5 L15,15 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6"/>
+                        </Grid>
+                    </Button>
                 </StackPanel>
 
                 <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True"
@@ -1033,70 +1064,84 @@
                              the way a character actually presents. Icon falls back to nothing (no
                              icon, no crash) for "?" or any class name without a matching
                              assets/classes/icons/*.png - see ClassIconConverter. -->
-                        <!-- Widths restored/saved by MainWindow (see RestoreWindowGeometry/
-                             SaveWindowGeometry) - the 179/124 defaults here match what the user
-                             last resized them to, measured live by terminal_windows since a
-                             manual column drag isn't saved anywhere until the window closes. -->
                         <!-- Rank by damage within the shown rows (PlayerRow.Rank) - stays correct
                              however the user sorts the grid, which is the point of showing it. -->
-                        <DataGridTemplateColumn Header="#" Width="26">
+                        <DataGridTemplateColumn Header="#" Width="34">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextMuted}"
-                                               HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn x:Name="NameColumn" Header="{local:Loc Main.ColumnName}" Width="179">
+                        <!-- Name and Damage/DPS used to be two independently-resizable columns
+                             (NameColumn/DpsColumn, widths persisted via MeterSettings) - merged into
+                             one Width="*" column per the user's reference layout, so the ShareBar
+                             below can span the row's full remaining width instead of being boxed
+                             into the old 124px Damage column. That's the one real trade-off: the two
+                             columns' independent drag-resize/persistence is gone (RestoreWindowGeometry/
+                             SaveWindowGeometry no longer touch it), replaced by the column simply
+                             always filling whatever the (now much wider, still itself persisted)
+                             window leaves available. -->
+                        <DataGridTemplateColumn x:Name="PlayerColumn" Width="*">
+                            <!-- A literal UIElement, not a HeaderTemplate/DataTemplate - it is built
+                                 once, not per row, so it lives in the window's own NameScope and
+                                 DpsHeaderText below is a real code-behind field, the same as any
+                                 other x:Name (see OnMobBossFilterChanged/RefreshRows, which used to
+                                 write DpsColumn.Header and now write DpsHeaderText.Text instead). -->
+                            <DataGridTemplateColumn.Header>
+                                <Grid>
+                                    <TextBlock Text="{local:Loc Main.ColumnName}"/>
+                                    <TextBlock x:Name="DpsHeaderText" Text="{local:Loc Main.ColumnDamageDps}"
+                                               HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                </Grid>
+                            </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <!-- Height/Width="18" here are load-bearing, not decorative:
-                                             confirmed by terminal_windows that WPF reserves this
-                                             fixed slot in the StackPanel even when the converter
-                                             returns null (unknown/"?" class, no icon file) - that's
-                                             the only reason every row's name lines up at the same
-                                             x regardless of whether it has a class icon. Removing
-                                             the explicit size (e.g. "the image is 18px anyway") would
-                                             collapse the slot to zero width for every classless row
-                                             and misalign the names. -->
-                                        <!-- Faction emblem first, then class, then the name. Fixed
-                                             size for the same reason as the class icon below: an
-                                             unclassified player (nobody has healed or fought them
-                                             yet) has no emblem, and without a reserved slot every
-                                             such row's name would sit 22px to the left of the rest. -->
-                                        <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
-                                               Height="18" Width="18" Margin="0,0,4,0" ToolTip="{Binding Faction}"/>
-                                        <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
-                                               Height="18" Width="18" Margin="0,0,4,0" ToolTip="{Binding ClassName}"/>
-                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!-- Damage and DPS merged into one column per the user - originally two
-                             stacked lines, now (per a later request) DPS sits on the SAME line as
-                             Damage instead, and the second line shows AP gained so far instead
-                             (populated for "You"'s row, and for any other player who looted a
-                             relic - see PlayerRow.Ap remarks - blank for mob rows and players
-                             with nothing to show, same empty-slot pattern as the class icon for
-                             an unmatched class). The header still needs to say DPS vs
-                             iDPS depending on the Mob/Boss filter (see OnMobBossFilterChanged,
-                             unchanged logic). -->
-                        <DataGridTemplateColumn x:Name="DpsColumn" Header="{local:Loc Main.ColumnDamageDps}" Width="124">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding Damage, StringFormat=N0}"/>
-                                            <TextBlock Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
-                                                       Margin="6,0,0,0" VerticalAlignment="Bottom"/>
-                                        </StackPanel>
-                                        <ProgressBar Style="{StaticResource ShareBar}" Value="{Binding SharePercent, Mode=OneWay}"
-                                                     Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
-                                        <!-- Second line: relic AP (see ApDisplay) and damage received
-                                             (TakenDisplay) - either is blank when there is nothing to say. -->
-                                        <StackPanel Orientation="Horizontal">
+                                    <Grid Margin="0,4">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <!-- Height/Width="20" here are load-bearing, not decorative
+                                                 (unchanged reasoning from the old NameColumn): WPF
+                                                 reserves this fixed slot even when the converter
+                                                 returns null (unknown/"?" class or faction), which is
+                                                 the only reason every row's name still lines up at the
+                                                 same x regardless of whether it has an icon. -->
+                                            <Image Grid.Column="0" Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
+                                                   Height="20" Width="20" Margin="0,0,4,0" ToolTip="{Binding Faction}"/>
+                                            <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
+                                                   Height="20" Width="20" Margin="0,0,6,0" ToolTip="{Binding ClassName}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Name}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding Damage, StringFormat=N0}" VerticalAlignment="Center" FontWeight="SemiBold" Margin="10,0,0,0"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
+                                                       VerticalAlignment="Bottom" Margin="6,0,0,0"/>
+                                        </Grid>
+
+                                        <!-- Same ShareBar as before (Ui/Styles/Shared.xaml), now
+                                             spanning this whole merged column instead of just the old
+                                             124px Damage column - Margin.Left (50) lines its start up
+                                             with where the name text above begins (20+4+20+6). -->
+                                        <ProgressBar Grid.Row="1" Style="{StaticResource ShareBar}" Value="{Binding SharePercent, Mode=OneWay}"
+                                                     Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"
+                                                     Margin="50,2,0,1"/>
+
+                                        <!-- Second line: relic AP (ApDisplay), damage received
+                                             (TakenDisplay), avoided attacks (DefenseDisplay - real
+                                             D/P/B/R values, never invented placeholders) and PVP stats
+                                             (PvpDisplay) - each blank when there is nothing to say. -->
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="50,0,0,0">
                                             <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
                                             <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Margin="6,0,0,0"
                                                        ToolTip="Damage this player received in the shown window"/>
@@ -1105,7 +1150,7 @@
                                             <TextBlock Text="{Binding PvpDisplay}" Foreground="{DynamicResource Brush.Accent}" FontSize="11" Margin="6,0,0,0"
                                                        ToolTip="PVP: kills / deaths and the biggest hit landed on a player"/>
                                         </StackPanel>
-                                    </StackPanel>
+                                    </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
