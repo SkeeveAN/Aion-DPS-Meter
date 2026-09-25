@@ -596,6 +596,11 @@ th {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  /* Without this, flex's default align-items:stretch forces .link-button to match
+     .download-cta's slightly taller line box (the "⬇" glyph needs a bit more line-height
+     than plain text), leaving its single-line text sitting near the top of an oversized box
+     instead of centered. */
+  align-items: center;
   gap: 10px;
   margin-bottom: 18px;
 }
