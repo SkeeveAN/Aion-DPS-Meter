@@ -965,20 +965,20 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Left nav rail: mirrors MyAion's 5 view icons. Only "Damage Distribution" has a
-                     real data source right now (Combat/LiveAggregator) - the rest are
-                     placeholders, not fake functionality, until their packet sources exist
-                     (skill-cast order, loot events, equipment/profile packets, cross-encounter
-                     instance aggregation). See README's UI-placeholders section. -->
+                <!-- Left nav rail: mirrors MyAion's view icons, minus Skill Rotation and Instance
+                     Scores - per the user, removed rather than kept as disabled placeholders
+                     (neither has a packet source to ever back it: skill-cast order, resp.
+                     cross-encounter instance aggregation + boss detection). Only "Damage
+                     Distribution" has a real data source right now (Combat/LiveAggregator);
+                     Character Profile stays as a disabled placeholder since it wasn't asked to go
+                     too. See README's UI-placeholders section. -->
                 <StackPanel DockPanel.Dock="Left" Background="{DynamicResource Brush.Panel}">
-                    <Button Style="{StaticResource NavButton}" Content="{local:Loc Main.NavRot}" ToolTip="Skill Rotation (not implemented - needs skill-cast-order tracking)" IsEnabled="False"/>
                     <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" Content="{local:Loc Main.NavDmg}" ToolTip="Damage Distribution" Click="OnShowDamageView" FontWeight="Bold"/>
                     <!-- Real now, per the user - "You have acquired [item:ID;...]." lines parsed
                          by ChatLogParser.LootAcquired, item names resolved via Data/ItemDatabase
                          (see assets/README.md for its aioncodex.com "/4x/" source). -->
                     <Button x:Name="LootNavButton" Style="{StaticResource NavButton}" Content="{local:Loc Main.NavLoot}" ToolTip="Loot Table" Click="OnShowLootView"/>
                     <Button Style="{StaticResource NavButton}" Content="{local:Loc Main.NavChar}" ToolTip="Character Profile (not implemented - needs equipment/stat packet decoding)" IsEnabled="False"/>
-                    <Button Style="{StaticResource NavButton}" Content="{local:Loc Main.NavInst}" ToolTip="Instance Scores (not implemented - needs cross-encounter aggregation + boss detection)" IsEnabled="False"/>
                 </StackPanel>
 
                 <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True"

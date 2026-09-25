@@ -221,12 +221,15 @@ public partial class MainWindow : Window
 
         _chatLogTimer.Tick += OnChatLogTimerTick;
 
-        // Startup check plus every five minutes after that, both silent about failures (see
-        // RunUpdateCheck). Fire-and-forget on purpose: an update check must never delay the window
-        // appearing, and there is nothing to wait for -- its only outcome is a line in the footer.
+        // Startup check is announced (per the user: should behave exactly like clicking "Check for
+        // updates" in the App menu, not stay silent) -- a launch is never mid-fight, so a message
+        // box here costs nothing. The recurring five-minute timer stays silent (see RunUpdateCheck):
+        // that one CAN land mid-boss, and a background timer popping a dialog over a fight is
+        // exactly what announceResult=false was added to prevent. Fire-and-forget on purpose
+        // either way -- an update check must never delay the window appearing.
         _updateTimer.Tick += (_, _) => _ = RunUpdateCheck(announceResult: false);
         _updateTimer.Start();
-        _ = RunUpdateCheck(announceResult: false);
+        _ = RunUpdateCheck(announceResult: true);
         var settings = MeterSettings.Load();
 
         // Empty means "a fresh install, or a settings file older than this feature" -- leave

@@ -2,16 +2,20 @@
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
   <assemblyIdentity version="1.0.0.0" name="AionDPS.app"/>
 
-  <!-- asInvoker, and nothing anywhere asks for more: the meter reads Aion's Chat.log and nothing
-       else, which needs no privileges. An earlier version had Program.Main re-launch itself
-       through the "runas" verb before opening the GUI, because live packet capture did need
-       elevation; that path is gone, and with it the UAC prompt. Settings moved out of the install
-       directory for the same reason - see MeterSettings.SettingsPath, an unprivileged process
-       cannot write under Program Files. -->
+  <!-- requireAdministrator, per the user: back to needing elevation, this time for Aion 2's real
+       packet capture (Aion2/, via SharpPcap/Npcap - opening the Npcap driver handle needs admin
+       rights, unlike classic Aion's Chat.log reading, which never did). An earlier version of this
+       manifest was "asInvoker" for exactly that reason (classic Aion only), with Program.Main
+       re-launching itself through the "runas" verb earlier still, back when packet capture first
+       existed - both are gone now in favor of the OS just enforcing it here: Windows shows the UAC
+       prompt on every launch (double-click, shortcut, Velopack's own relaunch after an update) and
+       refuses to start at all without it, for both games now, not only when Aion 2 is selected.
+       Settings still live outside the install directory (MeterSettings.SettingsPath) regardless -
+       that was never about elevation, just about the per-user Velopack install layout. -->
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <requestedExecutionLevel level="asInvoker" uiAccess="false"/>
+        <requestedExecutionLevel level="requireAdministrator" uiAccess="false"/>
       </requestedPrivileges>
     </security>
   </trustInfo>
