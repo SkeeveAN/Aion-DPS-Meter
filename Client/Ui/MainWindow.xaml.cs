@@ -1121,6 +1121,15 @@ public partial class MainWindow : Window
         Game: _currentGame.ToToken(),
         ServerName: _currentServerDisplayName);
 
+    private void OnAppMenuClicked(object sender, RoutedEventArgs e)
+    {
+        // AppMenu has no child MenuItems anymore (AppMenuFlyoutStyle hand-authors the Popup
+        // content instead), so WPF assigns it MenuItemRole.TopLevelItem instead of
+        // TopLevelHeader and never opens IsSubmenuOpen on click by itself - toggle it here.
+        AppMenu.IsSubmenuOpen = !AppMenu.IsSubmenuOpen;
+        e.Handled = true;
+    }
+
     private void OnFightHistoryClicked(object sender, RoutedEventArgs e)
     {
         // Closes the App-menu flyout (AppMenuFlyoutStyle) when reached from there - a no-op

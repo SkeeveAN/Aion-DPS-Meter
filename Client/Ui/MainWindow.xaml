@@ -674,7 +674,7 @@
                          needs children anymore since the Popup no longer renders via
                          <ItemsPresenter/>. -->
                     <MenuItem x:Name="AppMenu" Header="{local:Loc Main.MenuApp}" Foreground="{DynamicResource Brush.Text}"
-                              Style="{StaticResource AppMenuFlyoutStyle}"/>
+                              Style="{StaticResource AppMenuFlyoutStyle}" Click="OnAppMenuClicked"/>
                     <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="{DynamicResource Brush.Text}">
                         <!-- Uploads exactly the currently filtered boss - same action as the
                              Damage view's Upload button (OnUploadCurrentBossClicked), reachable
