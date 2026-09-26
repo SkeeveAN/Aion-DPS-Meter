@@ -1,6 +1,6 @@
 import { and, asc, eq, ne } from "drizzle-orm";
 import { db } from "../db/client.js";
-import { bosses, instances, players, servers } from "../db/schema.js";
+import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
 import { GAMES, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { findInstance, instanceColumns } from "../routes/instances.js";
 import { findBoss, mechanicsFor, selectServer, serversWithEncounters, topByClass, topGroups } from "../routes/bosses.js";
@@ -32,7 +32,7 @@ export function homePage(): Page {
     meta: {
       title: "Aion DPS Meter – Free Damage Meter & Boss Leaderboards",
       description:
-        "Free open-source DPS/HPS meter for Aion (Origin Aion, Aion Riftshade, EuroAion) with community boss leaderboards per server. Reads only your Chat.log – no packet sniffing, no game hooks.",
+        "Free open-source DPS/HPS meter for Aion (Chat.log-based, Origin Aion/Aion Riftshade/EuroAion) and Aion 2 (passive network packet capture) with community boss leaderboards per server. Never reads game memory, never hooks the client.",
       canonicalPath: "/",
       jsonLd: [softwareApplicationJsonLd()],
     },
@@ -52,13 +52,13 @@ export function downloadPage(): Page {
     meta: {
       title: "Download Aion DPS Meter for Windows – Free Damage Meter",
       description:
-        "Free Aion damage meter with live DPS/HPS per player, transparent click-through overlay and optional leaderboard upload. Reads only Chat.log. Windows installer, auto-updates.",
+        "Free Aion and Aion 2 damage meter with live DPS/HPS per player, transparent click-through overlay and optional leaderboard upload. Aion via Chat.log, Aion 2 via passive packet capture. Windows installer, auto-updates.",
       canonicalPath: "/download",
       jsonLd: [softwareApplicationJsonLd(), breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Download", path: "/download" }])],
     },
     body: html`
       <h2>Download Aion DPS Meter</h2>
-      <p>A damage/heal meter for Aion servers that only reads your client's Chat.log – no packet sniffing, no interference with the game. Runs beside the game as its own window or as a transparent overlay.</p>
+      <p>A damage/heal meter for Aion and Aion 2 - classic Aion by reading your client's own Chat.log, Aion 2 by passively capturing its network traffic. Neither reads game memory nor hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
       <p><a class="download-cta" href="https://github.com/SkeeveAN/Aion-DPS-Meter/releases">Latest release on GitHub</a></p>`,
   };
 }
@@ -280,13 +280,66 @@ export function playerPage(game: Game, id: string): Page | null {
   };
 }
 
+/** One boss fight's link preview - per the user, a shared encounter link showed nothing but a
+ * generic "Boss fight details" title/description regardless of which boss or server it actually
+ * was. Boss name and server come first in the title (asked for explicitly); participant count and
+ * group iDPS round out the description when there's anything to show. Deliberately still
+ * noindex - this is a link-preview/crawler fragment, not a page meant to rank in search, same as
+ * appOnlyPage's other kinds. */
+export function encounterPage(game: Game, id: string): Page | null {
+  const encounterId = Number(id);
+  if (!Number.isInteger(encounterId)) {
+    return null;
+  }
+
+  const row = db
+    .select({
+      id: encounters.id,
+      durationSeconds: encounters.durationSeconds,
+      groupIDps: encounters.groupIDps,
+      bossName: bosses.name,
+      bossNameEn: bosses.nameEn,
+      instanceGame: instances.game,
+      serverName: servers.displayName,
+    })
+    .from(encounters)
+    .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+    .innerJoin(instances, eq(bosses.instanceId, instances.id))
+    .leftJoin(servers, eq(encounters.serverId, servers.id))
+    .where(eq(encounters.id, encounterId))
+    .get();
+  if (!row || row.instanceGame !== game) {
+    return null;
+  }
+
+  const participantCount = db
+    .select({ id: encounterParticipants.id })
+    .from(encounterParticipants)
+    .where(eq(encounterParticipants.encounterId, encounterId))
+    .all().length;
+
+  const name = displayName({ name: row.bossName, nameEn: row.bossNameEn });
+  const server = row.serverName;
+  const title = `${name}${server ? ` (${server})` : ""} – Boss Fight – ${SITE}`;
+  const stats = [
+    participantCount > 0 ? `${participantCount} player${participantCount === 1 ? "" : "s"}` : "",
+    row.groupIDps ? `${formatInt(row.groupIDps)} group iDPS` : "",
+  ].filter(Boolean);
+  const description = `Boss fight against ${name}${server ? ` on ${server}` : ""}${stats.length > 0 ? `: ${stats.join(", ")}` : ""}. Aion DPS community leaderboards.`;
+
+  return {
+    status: 200,
+    meta: { title, description, canonicalPath: `/${game}/encounters/${encounterId}`, noindex: true },
+    body: html`<h2>${name}</h2><p>${server ?? ""}</p>`,
+  };
+}
+
 /** Pages that exist only as the interactive app (server picker, search, single encounters). */
-export function appOnlyPage(game: Game | null, kind: "servers" | "search" | "encounter" | "participant", path: string): Page {
+export function appOnlyPage(game: Game | null, kind: "servers" | "search" | "participant", path: string): Page {
   const label = game ? GAME_LABEL[game] : SITE;
   const titles = {
     servers: `Choose a server – ${label} | ${SITE}`,
     search: `Player search – ${SITE}`,
-    encounter: `Boss fight details – ${SITE}`,
     participant: `Player fight details – ${SITE}`,
   };
   return {

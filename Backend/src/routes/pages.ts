@@ -7,6 +7,7 @@ import {
   appOnlyPage,
   bossPage,
   downloadPage,
+  encounterPage,
   homePage,
   instancePage,
   instancesPage,
@@ -117,10 +118,18 @@ export async function pageRoutes(app: FastifyInstance) {
     }),
   );
 
-  const appOnly = (kind: "servers" | "search" | "encounter" | "participant") =>
+  const appOnly = (kind: "servers" | "search" | "participant") =>
     withGame((game, request, reply) => send(reply, render(appOnlyPage(game, kind, request.url.split("?")[0]), requestPath(request))));
   app.get<GameParams>("/:game(^(?:aion|aion2)$)/servers", appOnly("servers"));
   app.get<GameParams>("/:game(^(?:aion|aion2)$)/search", appOnly("search"));
-  app.get<GameParams & { Params: { id: string } }>("/:game(^(?:aion|aion2)$)/encounters/:id", appOnly("encounter"));
+  // Real boss name + server in the link preview, per the user - a shared encounter link used to
+  // show only the generic "Boss fight details" placeholder regardless of which fight it was.
+  app.get<GameParams & { Params: { id: string } }>(
+    "/:game(^(?:aion|aion2)$)/encounters/:id",
+    withGame((game, request, reply) => {
+      const page = encounterPage(game, (request.params as { id: string }).id);
+      return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
+    }),
+  );
   app.get<GameParams & { Params: { id: string } }>("/:game(^(?:aion|aion2)$)/participants/:id", appOnly("participant"));
 }
