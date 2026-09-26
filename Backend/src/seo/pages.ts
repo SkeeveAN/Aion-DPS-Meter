@@ -312,10 +312,14 @@ export function encounterPage(game: Game, id: string): Page | null {
     return null;
   }
 
+  // Excludes pets/summons (Water Spirit, Coyote, ...) - Chat.log never narrates who owns someone
+  // ELSE's pet, so the client uploads them as their own participant row with className "?" (a
+  // real player's class is always resolved by upload time). Per the user, who noticed a 13-player
+  // count that was actually 12 real players plus 2 elemental spirits.
   const participantCount = db
     .select({ id: encounterParticipants.id })
     .from(encounterParticipants)
-    .where(eq(encounterParticipants.encounterId, encounterId))
+    .where(and(eq(encounterParticipants.encounterId, encounterId), ne(encounterParticipants.className, "?")))
     .all().length;
 
   const name = displayName({ name: row.bossName, nameEn: row.bossNameEn });

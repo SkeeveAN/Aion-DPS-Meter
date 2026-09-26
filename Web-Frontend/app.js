@@ -1312,6 +1312,10 @@ async function renderEncounter(encounterId) {
   const metaTable = el("table", { className: "meta-table" }, [
     el("tbody", {}, [
       metaRow(t("encounter.name"), translateGameName(data.encounter.bossName)),
+      // Per the user: which server this run happened on wasn't shown anywhere on the page at all
+      // (only the breadcrumb/boss name were) - classic Aion only, same scoping as
+      // applyServerOverride just above (Aion 2 has no per-run server to show, see its remarks).
+      ...(currentGame === "aion" && data.encounter.serverName ? [metaRow(t("encounter.server"), data.encounter.serverName)] : []),
       metaRow(t("encounter.timestamp"), formatDate(new Date(data.encounter.startedAt))),
       metaRow(t("encounter.duration"), formatDuration(data.encounter.durationSeconds)),
       metaRow(t("encounter.appVersion"), data.encounter.appVersion ?? t("encounter.appVersionUnknown")),
