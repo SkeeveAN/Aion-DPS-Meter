@@ -402,10 +402,28 @@ async function renderHome() {
     .slice(0, 6);
   const recentActivitySectionEl = recentActivity.length > 0 ? buildRecentActivitySection(recentActivity) : null;
 
-  // 3-column footer (aiondps_claude_design_pack prototype comparison, index-3.html): logo left,
-  // CTA centered, legal + real social links right - the prototype only had the center CTA wired
-  // up before; these are the same real destinations that comparison page used.
-  const footerCta = el("div", { className: "home-footer-cta" }, [
+  // Leaderboard + recent activity side by side 50/50 (per the user, 2026-09-24), boss spotlight
+  // removed, featured instances now a full-width row of its own below that.
+  const contentGrid = el("div", { className: "home-content-grid" }, [
+    el("div", { className: "home-content-col" }, [...(topPlayersSection ? [topPlayersSection] : [])]),
+    el("div", { className: "home-content-col" }, [...(recentActivitySectionEl ? [recentActivitySectionEl] : [])]),
+  ]);
+
+  // Footer itself is appended centrally by route() (buildSiteFooter), not here - see its own
+  // remarks for why this used to be the ONE page that had it.
+  app.replaceChildren(heroRow, ...(statsBar ? [statsBar] : []), contentGrid, ...(featuredSection ? [featuredSection] : []));
+}
+
+// 3-column footer (aiondps_claude_design_pack prototype comparison, index-3.html): logo left, CTA
+// centered, legal + real social links right - the prototype only had the center CTA wired up
+// before; these are the same real destinations that comparison page used. Used to be built only
+// inside renderHome, so every other page (encounters, instances, bosses, leaderboard, participant/
+// player profiles, search, legal pages, download, 404...) silently had no footer at all - reported
+// by the user for the encounter page specifically, but it was really every non-home route. Now a
+// standalone builder appended once, centrally, by route() itself (see its own remarks) rather than
+// something every individual render function has to remember to add.
+function buildSiteFooter() {
+  return el("div", { className: "home-footer-cta" }, [
     el("div", { className: "home-footer-logo" }, [el("span", { textContent: "AION" }), el("span", { className: "accent", textContent: "DPS" })]),
     el("div", { className: "home-footer-center" }, [
       el("h2", { textContent: t("home.footerCtaHeading") }),
@@ -426,15 +444,6 @@ async function renderHome() {
       ]),
     ]),
   ]);
-
-  // Leaderboard + recent activity side by side 50/50 (per the user, 2026-09-24), boss spotlight
-  // removed, featured instances now a full-width row of its own below that.
-  const contentGrid = el("div", { className: "home-content-grid" }, [
-    el("div", { className: "home-content-col" }, [...(topPlayersSection ? [topPlayersSection] : [])]),
-    el("div", { className: "home-content-col" }, [...(recentActivitySectionEl ? [recentActivitySectionEl] : [])]),
-  ]);
-
-  app.replaceChildren(heroRow, ...(statsBar ? [statsBar] : []), contentGrid, ...(featuredSection ? [featuredSection] : []), footerCta);
 }
 
 function buildTopPlayersSection(rows, game) {
@@ -1557,6 +1566,11 @@ async function route() {
   } finally {
     hydrating = false;
   }
+
+  // Appended once here, after whichever branch above replaced #app's content - every route gets
+  // it this way (including the error branch), not just whichever render function remembered to
+  // build it itself. See buildSiteFooter's own remarks.
+  app.appendChild(buildSiteFooter());
 }
 
 // Internal links navigate in place (History API) instead of reloading; anything else - external

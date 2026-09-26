@@ -156,6 +156,7 @@ export async function encounterRoutes(app: FastifyInstance) {
       })
       .from(encounterParticipants)
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
+      .leftJoin(servers, eq(players.serverId, servers.id))
       .where(eq(encounterParticipants.id, participantId))
       .get();
     if (!participant) {
