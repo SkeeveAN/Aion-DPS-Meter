@@ -136,14 +136,16 @@ public sealed class MeterSettings
     public double? SettingsWindowHeight { get; set; }
 
     /// <summary>Set right before an update-triggered restart (OnUpdateRestartNowClicked) to the
-    /// moment Chat.log had been read up to; consumed once by the NEXT startup
-    /// (ResumeFromChatLogSince) and cleared immediately after, so an ordinary restart later never
-    /// replays it again. Per the user: a self-update ends the process and starts a fresh one
-    /// seconds later, which would otherwise silently drop whatever happened in Chat.log during
-    /// that gap - unlike an ordinary restart (closing the meter and reopening it later), where
-    /// ChatLogTailer's own "never look into the past" rule is exactly what's wanted instead. Local
-    /// time, matching Chat.log's own timestamps (see EventBlob's remarks on why those are
-    /// Kind-unspecified local values, not UTC).</summary>
+    /// earliest event this session already had tracked (not just DateTime.Now) - consumed once by
+    /// the NEXT startup (ResumeFromChatLogSince) and cleared immediately after, so an ordinary
+    /// restart later never replays it again. Per the user: a self-update ends the process and
+    /// starts a fresh one seconds later, which would otherwise silently drop not just those few
+    /// seconds of Chat.log but the WHOLE session that had already accumulated in memory before the
+    /// restart (the first version of this only anchored to the restart moment, which caught the
+    /// gap but still lost everything tracked before it). Unlike an ordinary restart (closing the
+    /// meter and reopening it later), where ChatLogTailer's own "never look into the past" rule is
+    /// exactly what's wanted instead. Local time, matching Chat.log's own timestamps (see
+    /// EventBlob's remarks on why those are Kind-unspecified local values, not UTC).</summary>
     public DateTime? PendingResumeFrom { get; set; }
 
     /// <summary>Whether the meter asks GitHub for a newer release -- at startup and every five

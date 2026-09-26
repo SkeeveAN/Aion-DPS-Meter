@@ -295,14 +295,18 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Per the user: an update-triggered restart shouldn't silently drop whatever
-    /// Chat.log narrated during the few seconds the process was down for it. Reuses
-    /// ChatLogCombatSource.ReloadFromDisk() - the exact same full re-parse "Reload from Chat.log"
-    /// already does, including its own fresh ChatLogTailer that seeks to the CURRENT end of file
-    /// afterward (see its own remarks), so live tailing continues normally the instant this
-    /// returns - just filtered down to events at/after <paramref name="sinceLocal"/> instead of
-    /// ingesting the whole file. A no-op if the Chat.log source couldn't even be created (e.g. no
-    /// Aion install folder configured) - StartChatLogTailing already reported why.</summary>
+    /// <summary>Per the user: an update-triggered restart shouldn't silently drop the session that
+    /// had already accumulated in _aggregator/_avoids/_kills before the restart, nor whatever
+    /// Chat.log narrated during the few seconds the process was down for it - <paramref
+    /// name="sinceLocal"/> is OnUpdateRestartNowClicked's PendingResumeFrom, the earliest event
+    /// this session already had, not the restart moment itself, so this recovers both in one pass
+    /// (Chat.log itself isn't touched by an update, so everything since then is still right there
+    /// to re-parse). Reuses ChatLogCombatSource.ReloadFromDisk() - the exact same full re-parse
+    /// "Reload from Chat.log" already does, including its own fresh ChatLogTailer that seeks to the
+    /// CURRENT end of file afterward (see its own remarks), so live tailing continues normally the
+    /// instant this returns - just filtered down to events at/after <paramref name="sinceLocal"/>
+    /// instead of ingesting the whole file. A no-op if the Chat.log source couldn't even be created
+    /// (e.g. no Aion install folder configured) - StartChatLogTailing already reported why.</summary>
     private void ResumeFromChatLogSince(DateTime sinceLocal)
     {
         if (_source is not ChatLogCombatSource chatSource)
@@ -326,7 +330,7 @@ public partial class MainWindow : Window
 
         _aggregator.IngestEvents(events);
         RefreshRows();
-        ShowUploadStatus($"Resumed {events.Count} event(s) narrated while the update restart was in progress.");
+        ShowUploadStatus($"Resumed {events.Count} event(s) from before the update restart.");
     }
 
     /// <summary>Applies a previously saved size/position, if any -- see SaveWindowGeometry, its
@@ -3094,12 +3098,28 @@ public partial class MainWindow : Window
         // because it ends the process itself -- so save first, then hand over.
         SaveWindowStateToSettings();
 
-        // Per the user: an update-triggered restart shouldn't silently drop whatever Chat.log
-        // narrates during the few seconds the process is down - see PendingResumeFrom's own
-        // remarks for why this is set ONLY here, not in SaveWindowStateToSettings (shared with an
-        // ordinary close, which must keep ChatLogTailer's "never look into the past" rule intact).
+        // Per the user: an update-triggered restart must not just fill the few-second gap while
+        // the process was down - it must not drop the WHOLE session that had already accumulated
+        // before the restart either (everything in _aggregator/_avoids/_kills lives only in
+        // memory and does not survive the process exiting). Anchoring to this session's own
+        // earliest still-tracked event, not DateTime.Now, is what makes ResumeFromChatLogSince
+        // re-derive the whole thing from Chat.log on the other side, not just the gap - Chat.log
+        // itself still has those lines (it isn't touched by the update), so a full re-parse from
+        // that anchor recovers everything in one pass. Falls back to DateTime.Now only when
+        // nothing has been tracked yet this session (a fresh Clear right before the update hit),
+        // where there is no earlier state to lose in the first place.
+        // Enumerable.Min over a Nullable<DateTime> sequence ignores the nulls and returns null
+        // only when every source is empty -- exactly "earliest of whichever of these three has
+        // anything, or null if none do".
+        DateTime? earliestTracked = new DateTime?[]
+        {
+            _aggregator.Events.Count > 0 ? _aggregator.Events.Min(ev => ev.Timestamp) : null,
+            _avoids.Count > 0 ? _avoids.Min(a => a.Timestamp) : null,
+            _kills.Count > 0 ? _kills.Min(k => k.Timestamp) : null,
+        }.Min();
+
         var settings = MeterSettings.Load();
-        settings.PendingResumeFrom = DateTime.Now;
+        settings.PendingResumeFrom = earliestTracked ?? DateTime.Now;
         settings.Save();
 
         UpdateService.ApplyAndRestart(update);
