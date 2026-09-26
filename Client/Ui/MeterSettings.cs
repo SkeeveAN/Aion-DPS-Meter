@@ -120,6 +120,14 @@ public sealed class MeterSettings
     public double? WindowLeft { get; set; }
     public double? WindowTop { get; set; }
 
+    /// <summary>Settings window's own size, saved on close - per the user, who resized it (the
+    /// Characters tab needs real room) and had it reset every time. Position isn't remembered on
+    /// purpose: it always opens CenterOwner'd on MainWindow instead, which stays correct
+    /// regardless of where MainWindow itself currently is; only WindowWidth/Height above (the
+    /// MAIN window) also remember position, since that one has nothing to center against.</summary>
+    public double? SettingsWindowWidth { get; set; }
+    public double? SettingsWindowHeight { get; set; }
+
     /// <summary>Whether the meter asks GitHub for a newer release -- at startup and every five
     /// minutes while it runs (see MainWindow's update timer). Default on, but a real switch and
     /// not a decorative one: this is the program's only outbound network call, and the README

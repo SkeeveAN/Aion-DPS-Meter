@@ -5,11 +5,14 @@ using System.Windows.Interop;
 namespace AionDPS.Ui;
 
 /// <summary>
-/// Colors a window's native OS titlebar dark (Windows 10 1809+ / 11) via DWM, for windows that
-/// keep the normal OS chrome (unlike MainWindow, which draws its own via WindowStyle="None").
-/// Without this, a plain WPF Window's titlebar stays the OS's default light color regardless of
-/// the app's own dark theme - see SettingsWindow, whose titlebar looked out of place next to
-/// MainWindow's dark one.
+/// Colors a window's native OS titlebar dark (Windows 10 1809+ / 11) via DWM, for a window that
+/// keeps the normal OS chrome (unlike MainWindow/SettingsWindow, which both draw their own via
+/// WindowStyle="None" now). Without this, a plain WPF Window's titlebar stays the OS's default
+/// light color regardless of the app's own dark theme. Currently unused - SettingsWindow was
+/// this class's original reason to exist, but per the user it later got the full custom titlebar
+/// treatment instead of just a recolored native one; kept here as a one-line fix ready for
+/// whichever of the app's other still-native-chrome dialogs (FightHistoryWindow,
+/// PlayerDetailsWindow, PlayerDatabaseWindow) gets asked for next, without redoing this DWM call.
 /// </summary>
 internal static class DarkTitleBar
 {

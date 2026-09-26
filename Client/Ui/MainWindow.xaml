@@ -1120,11 +1120,20 @@
                                  DpsHeaderText below is a real code-behind field, the same as any
                                  other x:Name (see OnMobBossFilterChanged/RefreshRows, which used to
                                  write DpsColumn.Header and now write DpsHeaderText.Text instead). -->
+                            <!-- Two real columns, not two overlaid TextBlocks kept apart only by
+                                 alignment - per the user, "Name" and "Damage / DPS" visually
+                                 overlapped/garbled into each other once the window was narrow
+                                 enough that the left-aligned "Name" text ran into the right-aligned
+                                 DPS label with nothing actually reserving space between them. -->
                             <DataGridTemplateColumn.Header>
                                 <Grid>
-                                    <TextBlock Text="{local:Loc Main.ColumnName}"/>
-                                    <TextBlock x:Name="DpsHeaderText" Text="{local:Loc Main.ColumnDamageDps}"
-                                               HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{local:Loc Main.ColumnName}"/>
+                                    <TextBlock Grid.Column="1" x:Name="DpsHeaderText" Text="{local:Loc Main.ColumnDamageDps}"
+                                               Margin="0,0,8,0"/>
                                 </Grid>
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>

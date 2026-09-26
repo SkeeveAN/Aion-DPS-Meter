@@ -27,15 +27,31 @@ public partial class SettingsWindow : Window
     /// NewCharacterServerBox is simply empty rather than blocking the whole dialog on a network call.</summary>
     private List<AionDPS.Server.ServerCatalogEntry> _serverCatalog = new();
 
-    // Keeps the OS titlebar itself dark, matching MainWindow's own chrome (see DarkTitleBar) -
-    // this dialog is the only window left using the plain OS titlebar/border instead of drawing
-    // its own, so it's the one place this still needs doing explicitly.
-    private void OnSourceInitialized(object? sender, EventArgs e) => DarkTitleBar.Apply(this);
-
     public SettingsWindow(MeterSettings settings)
     {
         InitializeComponent();
         _settings = settings;
+
+        // Same saved-size pattern as MainWindow's own RestoreWindowGeometry/SaveWindowGeometry -
+        // per the user, who resized this dialog (the Characters tab needs real room) and had it
+        // reset every time. Position stays CenterOwner (see the XAML), not restored here.
+        if (settings.SettingsWindowWidth is double width && settings.SettingsWindowHeight is double height)
+        {
+            Width = width;
+            Height = height;
+        }
+
+        // Same GDI decode as MainWindow's own AppIconImage - see its remarks on why a plain
+        // pack://siteoforigin Source doesn't render this specific .ico at all.
+        try
+        {
+            using var appIcon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "assets", "app", "aiondps.ico"));
+            AppIconImage.Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+                appIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException)
+        {
+        }
         // Faction/server copied along with the rest -- leaving any of these out here silently
         // wipes them on the next Save, since this copy is what gets written back.
         _characters = settings.Characters
@@ -711,5 +727,33 @@ public partial class SettingsWindow : Window
     private void OnCancelClicked(object sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    private void OnTitleBarMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+        {
+            DragMove();
+        }
+    }
+
+    private void OnMinimizeClicked(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+    /// <summary>Saves size regardless of Save/Cancel/titlebar-✕/Alt-F4 - all of them end up here,
+    /// same reasoning as MainWindow's own OnClosing/SaveWindowGeometry. Deliberately a FRESH
+    /// MeterSettings.Load() rather than writing through _settings (this dialog's own working copy,
+    /// which Cancel must NOT persist to disk) - only the size field changes, exactly like
+    /// MainWindow's own geometry save stays decoupled from whatever else might be in flight.
+    /// RestoreBounds (not Width/Height directly) so closing while minimized/maximized doesn't
+    /// persist that transient state as if it were the normal size - CanResizeWithGrip allows
+    /// maximizing too, same as MainWindow's own.</summary>
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        Rect bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
+        MeterSettings onDisk = MeterSettings.Load();
+        onDisk.SettingsWindowWidth = bounds.Width;
+        onDisk.SettingsWindowHeight = bounds.Height;
+        onDisk.Save();
+        base.OnClosing(e);
     }
 }

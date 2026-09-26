@@ -4,7 +4,8 @@
         xmlns:local="clr-namespace:AionDPS.Ui"
         Title="{local:Loc Settings.WindowTitle}" Height="600" Width="440"
         Background="{DynamicResource Brush.Window}" WindowStartupLocation="CenterOwner"
-        FontSize="{DynamicResource FontSize.Base}" SourceInitialized="OnSourceInitialized">
+        FontSize="{DynamicResource FontSize.Base}"
+        WindowStyle="None" ResizeMode="CanResizeWithGrip">
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
@@ -216,6 +217,23 @@
     </Window.Resources>
 
     <DockPanel LastChildFill="True">
+        <!-- Same custom titlebar as MainWindow (App-Icon + title + minimize/close), per the user:
+             this dialog previously kept the OS's own chrome (colored dark via DarkTitleBar's DWM
+             call, but still not actually part of this app's UI) while the main window draws
+             everything itself - the app icon in particular only ever showed here, not there,
+             which is what prompted asking for the two to match. "✕" reuses OnCancelClicked (close
+             without saving), the same as the OS close button always meant on this dialog. -->
+        <Grid DockPanel.Dock="Top" Background="{DynamicResource Brush.TitleBar}" Height="30" MouseLeftButtonDown="OnTitleBarMouseDown">
+            <Image x:Name="AppIconImage" Width="16" Height="16" Margin="8,0,0,0" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="HighQuality"/>
+            <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
+                       Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="30,0,0,0"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="─" Click="OnMinimizeClicked" Width="28" Height="30"
+                        Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0"/>
+                <Button Content="✕" Click="OnCancelClicked" Width="28" Height="30"
+                        Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Brush.TextMuted}" Margin="0"/>
+            </StackPanel>
+        </Grid>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="{local:Loc Settings.Save}" Click="OnSaveClicked"/>
             <Button Content="{local:Loc Settings.Cancel}" Click="OnCancelClicked"/>
