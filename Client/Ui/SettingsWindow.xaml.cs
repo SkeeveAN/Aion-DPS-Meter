@@ -90,6 +90,9 @@ public partial class SettingsWindow : Window
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
+        // Reflects the REAL registry state, not the last value this dialog wrote - see
+        // OnStartWithWindowsChanged's own remarks.
+        StartWithWindowsBox.IsChecked = StartupRegistration.IsEnabled();
         ShowShareBarsBox.IsChecked = settings.ShowShareBars;
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
         ShowDefenseStatsBox.IsChecked = settings.ShowDefenseStats;
@@ -675,6 +678,25 @@ public partial class SettingsWindow : Window
             // repaints - RebuildClassBox writes each item's Text as a plain string once, so
             // switching language needs telling explicitly, same as ApplyGameToInstallSection.
             RebuildClassBox();
+        }
+    }
+
+    /// <summary>Not deferred to Save, unlike every checkbox around it -- writes the HKCU Run-key
+    /// entry right away (StartupRegistration.cs), so the effect matches what the checkbox shows
+    /// even if the user then clicks Cancel. Checked/Unchecked fires AFTER IsChecked has already
+    /// flipped, so this reads the new state directly.</summary>
+    private void OnStartWithWindowsChanged(object sender, RoutedEventArgs e)
+    {
+        bool enable = StartWithWindowsBox.IsChecked == true;
+        try
+        {
+            StartupRegistration.SetEnabled(enable);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            StartWithWindowsBox.IsChecked = !enable;
+            MessageBox.Show(this, $"Could not update the Windows startup setting.\n\n{ex.Message}",
+                "Start with Windows", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 

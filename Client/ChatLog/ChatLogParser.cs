@@ -210,7 +210,11 @@ public sealed partial class ChatLogParser
     // making that suffix optional. Tried before HealSelfPattern: its "because ..." clause can't
     // match HealSelfPattern's stricter shape anyway, but keeping the more specific pattern first is
     // the same defensive ordering principle as the damage patterns above.
-    [GeneratedRegex(@"^(?<target>.+) recovered (?<amount>[\d.]+) HP because (?<healer>.+) used .+?(?: on you)?\.$")]
+    // Skill now a NAMED capture (was a plain, unnamed ".+?") - needed so RememberHotCaster can key
+    // its caster memory by (skill, target), same as RememberDotCaster already does for damage; see
+    // that dictionary's own remarks for why (this exact gap silently defeated the fix the first
+    // time it was tried - every HealByOther match kept setting skill = null regardless).
+    [GeneratedRegex(@"^(?<target>.+) recovered (?<amount>[\d.]+) HP because (?<healer>.+) used (?<skill>.+?)(?: on you)?\.$")]
     private static partial Regex HealByOtherPattern();
 
     // Self-heal (own skill/potion/regen tick), ANY character -- not just "You": real data shows
@@ -346,7 +350,7 @@ public sealed partial class ChatLogParser
     // "weil <Name> ... eingesetzt hat" and "weil Ihr ... benutzt habt" are both real: the second
     // is what the log says when the healer is the local player, and without it every heal the
     // user themselves landed on someone else went uncounted.
-    [GeneratedRegex(@"^(?<target>.+) hat (?<amount>[\d.]+) TP wiederhergestellt, weil (?:(?<healer>Ihr) .+? benutzt habt|(?<healer>\S+) .+? eingesetzt hat)\.$")]
+    [GeneratedRegex(@"^(?<target>.+) hat (?<amount>[\d.]+) TP wiederhergestellt, weil (?:(?<healer>Ihr) (?<skill>.+?) benutzt habt|(?<healer>\S+) (?<skill>.+?) eingesetzt hat)\.$")]
     private static partial Regex HealByOtherPatternDe();
 
     [GeneratedRegex(@"^(?<who>Ihr|.+?) (?:habt|hat)(?: durch (?<skill>.+?))? (?<amount>[\d.]+) TP wiederhergestellt\.$")]
@@ -409,7 +413,7 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^Vous avez restauré (?<amount>[\d.]+) PV de (?<target>.+) (?:en utilisant|grâce à) (?<skill>.+)\.$")]
     private static partial Regex HealOtherPatternFr();
 
-    [GeneratedRegex(@"^(?<target>.+) a récupéré (?<amount>[\d.]+) PV car (?<healer>.+) a utilisé .+?\.$")]
+    [GeneratedRegex(@"^(?<target>.+) a récupéré (?<amount>[\d.]+) PV car (?<healer>.+) a utilisé (?<skill>.+?)\.$")]
     private static partial Regex HealByOtherPatternFr();
 
     [GeneratedRegex(@"^(?<who>Vous|.+?) (?:avez|a) (?:récupéré|restauré) (?<amount>[\d.]+) PV(?: (?:en utilisant|grâce à) (?<skill>.+))?\.$")]
@@ -474,7 +478,7 @@ public sealed partial class ChatLogParser
     [GeneratedRegex(@"^Habéis restaurado (?<amount>[\d.]+) PV de (?<target>.+) mediante la habilidad (?<skill>.+)\.$")]
     private static partial Regex HealOtherPatternEs();
 
-    [GeneratedRegex(@"^(?<target>.+) ha restaurado (?<amount>[\d.]+) PV porque (?<healer>\S+) ha utilizado .+?\.$")]
+    [GeneratedRegex(@"^(?<target>.+) ha restaurado (?<amount>[\d.]+) PV porque (?<healer>\S+) ha utilizado (?<skill>.+?)\.$")]
     private static partial Regex HealByOtherPatternEs();
 
     [GeneratedRegex(@"^(?<who>Habéis|.+?) (?:ha )?restaurado (?<amount>[\d.]+) PV(?: mediante la habilidad (?<skill>.+))?\.$")]
@@ -1656,6 +1660,57 @@ public sealed partial class ChatLogParser
         }
     }
 
+    // Who last cast a given heal-over-time/buff-heal skill on a given target - the same "recovered
+    // N HP by using SkillName." tick line HealSelfPattern already matches for a genuine self-heal
+    // also fires for every FOLLOW-UP tick of someone ELSE's ongoing heal on you, since Chat.log
+    // narrates a HoT tick from the RECIPIENT's own perspective ("you...used...") without repeating
+    // who originally cast it - Aion's own equivalent of the DoT tick gap above, just discovered
+    // from real uploads instead of a synthetic test: a Gladiator's own heal-skill breakdown showing
+    // "Ripple of Purification" (Cleric), "Stamina Absorption" (Sorcerer) and "Elemental Spirit
+    // Armor" (Spiritmaster) - skills that class can never cast - all confirmed by the user as
+    // someone ELSE's heals landing on him. Same last-caster-wins rule as DoTs: a second healer
+    // re-applying the identical skill on the same target REPLACES the first as far as later ticks
+    // go, which is exactly what the user described happening 2 seconds apart between two Clerics.
+    private readonly Dictionary<(string Skill, string Target), string?> _hotCasterBySkillAndTarget = new();
+
+    // Skill-agnostic fallback for the same problem when even the skill name is missing - per the
+    // user, an entry literally labeled "(auto attack)" (this app's own placeholder for "no skill
+    // captured at all") showed up in a Gladiator's OWN heal breakdown too. A skill-keyed lookup has
+    // nothing to match on a bare "recovered N HP." line with no "by using ..." clause whatsoever,
+    // so this remembers, per TARGET only, whoever most recently healed them by any named skill -
+    // consulted only when the skill-specific dictionary above has nothing for this line. Never
+    // populated for a target no one has explicitly healed yet, so an ungrouped solo player's own
+    // background regen/potion ticks (nothing to fall back to) are correctly left as self-attributed.
+    private readonly Dictionary<string, string> _lastHealerByTarget = new();
+
+    private void RememberHotCaster(Match match, string caster, string target)
+    {
+        _lastHealerByTarget[target] = caster;
+        if (match.Groups["skill"] is { Success: true, Value.Length: > 0 } skill)
+        {
+            _hotCasterBySkillAndTarget[(skill.Value, target)] = caster;
+        }
+    }
+
+    /// <summary>Resolves who a heal TICK with no explicit caster (HealSelfPattern's match, "who"
+    /// grammatically the recipient) actually belongs to. A NAMED skill either resolves via the
+    /// skill-specific memory or is trusted as a genuine self-cast (e.g. "Second Wind I", a real
+    /// Gladiator self-heal that was never externally cast on anyone - the skill-agnostic fallback
+    /// below must NOT override that just because some OTHER skill was recently healing "who").
+    /// Only a line with NO skill captured at all falls through to that per-target fallback. See
+    /// _hotCasterBySkillAndTarget/_lastHealerByTarget's own remarks for why both exist.</summary>
+    private string ResolveHealSelfCaster(Match match, string who)
+    {
+        if (match.Groups["skill"] is { Success: true, Value.Length: > 0 } skill)
+        {
+            return _hotCasterBySkillAndTarget.TryGetValue((skill.Value, who), out string? bySkill) && bySkill is not null
+                ? bySkill
+                : who;
+        }
+
+        return _lastHealerByTarget.TryGetValue(who, out string? byTarget) && byTarget is not null ? byTarget : who;
+    }
+
     private bool TryParseWithPatternSet(DamageHealPatternSet p, string message, out int sourceId, out int targetId, out long amount, out bool isHeal, out string? skill)
     {
         Match match;
@@ -1810,6 +1865,7 @@ public sealed partial class ChatLogParser
             targetId = Names.GetOrAssignId(healTargetIsLocalPlayer ? YouName : healTargetName);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
             skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
+            RememberHotCaster(match, healerIsLocalPlayer ? YouName : healerName, healTargetIsLocalPlayer ? YouName : healTargetName);
             return true;
         }
 
@@ -1823,10 +1879,18 @@ public sealed partial class ChatLogParser
             // "Vous"/"Habéis" and was never being compared against LocalPlayerLiterals before.
             string who = match.Groups["who"].Value;
             bool whoIsLocalPlayer = p.LocalPlayerLiterals.Any(literal => string.Equals(who, literal, StringComparison.OrdinalIgnoreCase));
-            sourceId = Names.GetOrAssignId(whoIsLocalPlayer ? YouName : who);
-            targetId = sourceId;
+            string whoName = whoIsLocalPlayer ? YouName : who;
+            // This line's grammar always presents "who" as the one who "used" the skill - true for
+            // a real self-heal, but also how Aion narrates every FOLLOW-UP tick of someone ELSE's
+            // ongoing heal-over-time on "who", without repeating the original caster (see
+            // ResolveHealSelfCaster's own remarks). Confirmed by the user against a real upload:
+            // healer skills from three different classes, and even a bare unattributed tick, all
+            // showing up in a Gladiator's own "self-heal" breakdown.
+            string caster = ResolveHealSelfCaster(match, whoName);
+            sourceId = Names.GetOrAssignId(caster);
+            targetId = Names.GetOrAssignId(whoName);
             amount = ParseGroupedAmount(match.Groups["amount"].Value);
-            RaiseSkillUsedIfPresent(match, whoIsLocalPlayer ? YouName : who);
+            RaiseSkillUsedIfPresent(match, caster);
             skill = match.Groups["skill"] is { Success: true, Value.Length: > 0 } s ? s.Value : null;
             return true;
         }

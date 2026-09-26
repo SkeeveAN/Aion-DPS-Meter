@@ -57,9 +57,9 @@
              Button style above entirely instead of adding to it - it only ever set
              Width/Height/Margin, leaving colors/template at WPF's defaults. BasedOn fixes it. -->
         <Style x:Key="NavButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="3"/>
         </Style>
         <!-- Per the user: the Copy/CopyAll/Pause/EmptyChatLog/Clear/HideUi icon row (shared by the
              Damage and Loot views) sat only one shade above the toolbar's own #26262e background
@@ -342,7 +342,7 @@
              lesson as Button/ComboBox/CheckBox before it - a Background/Foreground setter alone
              leaves whatever border/bevel chrome the default MenuItem template draws untouched;
              only replacing the template removes it. One template covers top-level headers (App,
-             Session, Settings, Mode), leaf items with no children (Close, Load Demo Data, ...), and
+             Session, Settings, Mode), leaf items with no children (Close, Reload from Chat.log, ...), and
              submenu entries - WPF's MenuItem is the same class for all three, distinguished only
              by its Role property, which the Popup.Placement trigger below accounts for. -->
         <Style TargetType="MenuItem">
@@ -530,15 +530,6 @@
                                                 <TextBlock Text="{local:Loc Main.MenuApp.FightHistory}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
-                                        <!-- Demo-Daten laden: real action (OnLoadDemoDataClicked). -->
-                                        <Button Style="{StaticResource AppMenuRow}" Click="OnLoadDemoDataClicked"
-                                                ToolTip="Fills the grid with synthetic data, for visually checking the UI without playing.">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path Data="M5,1 L9,1 M5,1 L5,6 L1,12 L13,12 L9,6 L9,1" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="12" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{local:Loc Main.MenuApp.LoadDemoData}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Button>
-
                                         <Border Height="1" Background="#21374a" Margin="4,6"/>
 
                                         <!-- Nach Updates suchen: real action (OnCheckForUpdatesClicked). -->
@@ -548,26 +539,6 @@
                                                 <TextBlock Text="{local:Loc Main.MenuApp.CheckForUpdates}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
-                                        <!-- Mit Windows starten: real action now (StartupRegistration.cs,
-                                             a per-user HKCU Run-key entry - explicit ask given, per the
-                                             user). Checkmark on the right, per the user asking for the
-                                             8-language dropdowns elsewhere too - reads as ON/OFF, not a
-                                             momentary click like the Buttons around it. IsChecked set
-                                             from the real registry state in the constructor, not assumed. -->
-                                        <ToggleButton x:Name="StartWithWindowsToggle" Style="{StaticResource AppMenuRow}" Click="OnStartWithWindowsClicked">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Path Grid.Column="0" Data="M2,4 L2,10 L12,10 L12,4 Z M7,1 L7,6" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="12" Margin="0,0,8,0"/>
-                                                <TextBlock Grid.Column="1" Text="{local:Loc Main.MenuApp.StartWithWindows}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
-                                                <Path Grid.Column="2" Data="M1,4 L4,7.5 L9,1" Stroke="#f2a33d" StrokeThickness="1.8"
-                                                      Visibility="{Binding IsChecked, ElementName=StartWithWindowsToggle, Converter={StaticResource BoolToVis}}"
-                                                      Width="10" Height="8" Margin="8,0,0,0"/>
-                                            </Grid>
-                                        </ToggleButton>
                                         <!-- In den Infobereich minimieren: real action (OnMinimizeToTrayClicked,
                                              TrayIcon.cs) - a momentary click (hide now), not a persisted
                                              setting like the toggle above, so a plain Button/row like the
@@ -707,7 +678,7 @@
                     <!-- App-Menü A ("Flyout-Karte", vom User gebilligt): all 14 child MenuItems that
                          used to live here (Load/SaveSession, Export/ValidateSession, both folder
                          items, ResetConnection, ClearCurrentView, ReloadChatLog, FightHistory,
-                         LoadDemoData, CheckForUpdates, StartWithWindows, MinimizeToTray, Close)
+                         CheckForUpdates, MinimizeToTray, Close)
                          moved into AppMenuFlyoutStyle's own hand-authored Popup content above -
                          same Click targets, same {local:Loc} keys (muted rows instead of
                          greyed-out MenuItems for whichever were still placeholders at the time -
@@ -857,22 +828,6 @@
                                     M12,15 A3,3 0 1 0 12,9 3,3 0 1 0 12,15 Z"
                               Fill="{DynamicResource Brush.Text}" Width="18" Height="14" Stretch="Uniform"/>
                     </Button>
-                    <!-- Moved here from the filter-dropdown row, per the user: it belongs in the
-                         icon row next to the other actions, not off to the right of the three
-                         dropdowns - and, per the same request, an icon (upward arrow into a tray)
-                         instead of the word "Upload", matching every other button in this row.
-                         Uploads exactly the boss the Mob/Boss filter is currently showing - hidden
-                         in the Loot view and whenever there's nothing recorded yet, both still
-                         handled the same way by RefreshUploadAvailability regardless of where the
-                         button physically sits. -->
-                    <Button x:Name="UploadBossButton" Style="{StaticResource ToolbarIconButton}" Click="OnUploadCurrentBossClicked" Padding="6,4"
-                            Visibility="Collapsed"
-                            ToolTip="Uploads this boss fight to aiondps.com.">
-                        <Path Data="M9,2 L9,10 M4,7 L9,2 L14,7 M3,13 L15,13"
-                              Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.6" StrokeLineJoin="Round"
-                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                              Width="18" Height="15" Stretch="Uniform"/>
-                    </Button>
                     <!-- PVE/PVP mode switch, per the user: one row up from the filter dropdowns, a
                          segmented toggle (exactly one side active) rather than an independent
                          checkbox. PVP restricts the whole grid to damage against other players,
@@ -886,6 +841,69 @@
                                       Content="{local:Loc Main.ModePvp}" Click="OnPvpModeToggleClicked"/>
                     </StackPanel>
                 </StackPanel>
+
+                <!-- View nav (Damage/Loot/Character Profile) plus Upload, in one row above the
+                     filter dropdowns - per the user: used to be a full-height rail down the left
+                     edge of the grid, eating horizontal space the grid itself could use, and Upload
+                     sat up in the icon toolbar instead. NavButton shrunk from 40x40 to 30x30 for
+                     this row (still bigger than the plain toolbar icon buttons above, per the same
+                     request, just no longer tall enough to justify its own column). Grid with an
+                     Auto/*/Auto column split, not a single StackPanel, so Upload sits flush right
+                     without needing to know how wide the nav icons end up. -->
+                <Grid DockPanel.Dock="Top" Background="{DynamicResource Brush.Panel}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Icons instead of text per the reference layout - NavButton's Background is
+                         already TemplateBinding'd (see its Button base style above), so the active/
+                         inactive swap in OnShowDamageView/OnShowLootView is a plain property set, no
+                         new style needed. Each Path's Stroke binds to its own Button's Foreground
+                         (which that same code toggles alongside Background) rather than a fixed color,
+                         since Path.Stroke isn't inherited the way TextBlock.Foreground is. Minus Skill
+                         Rotation and Instance Scores from MyAion's own icon set - per the user,
+                         removed rather than kept as disabled placeholders (neither has a packet
+                         source to ever back it: skill-cast order, resp. cross-encounter instance
+                         aggregation + boss detection). Character Profile stays as a disabled
+                         placeholder since it wasn't asked to go too. See README's UI-placeholders
+                         section. -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" ToolTip="Damage Distribution" Click="OnShowDamageView"
+                                Background="{DynamicResource Brush.Accent}" Foreground="{DynamicResource Brush.Window}">
+                            <Path Data="M3,16 L3,10 M8,16 L8,5 M13,16 L13,12" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="16" Height="16"/>
+                        </Button>
+                        <!-- Real now, per the user - "You have acquired [item:ID;...]." lines parsed
+                             by ChatLogParser.LootAcquired, item names resolved via Data/ItemDatabase
+                             (see assets/README.md for its aioncodex.com "/4x/" source). -->
+                        <Button x:Name="LootNavButton" Style="{StaticResource NavButton}" ToolTip="Loot Table" Click="OnShowLootView">
+                            <Path Data="M2,6 L14,6 L13,15 L3,15 Z M5,6 L5,3 L11,3 L11,6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  StrokeThickness="1.6" StrokeLineJoin="Round" Width="16" Height="16"/>
+                        </Button>
+                        <Button Style="{StaticResource NavButton}" ToolTip="Character Profile (not implemented - needs equipment/stat packet decoding)" IsEnabled="False">
+                            <Grid Width="16" Height="16">
+                                <Ellipse Width="7" Height="7" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                         StrokeThickness="1.6" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                <Path Data="M1,15 L1,12.5 Q8,8 15,12.5 L15,15 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6"/>
+                            </Grid>
+                        </Button>
+                    </StackPanel>
+                    <!-- Moved here from the icon toolbar above, per the user - same action either
+                         way (OnUploadCurrentBossClicked), an icon (upward arrow into a tray) instead
+                         of the word "Upload". Uploads exactly the boss the Mob/Boss filter is
+                         currently showing - hidden in the Loot view and whenever there's nothing
+                         recorded yet, both still handled the same way by RefreshUploadAvailability
+                         regardless of where the button physically sits. -->
+                    <Button x:Name="UploadBossButton" Grid.Column="2" Style="{StaticResource ToolbarIconButton}" Click="OnUploadCurrentBossClicked" Padding="6,4"
+                            Margin="4" Visibility="Collapsed"
+                            ToolTip="Uploads this boss fight to aiondps.com.">
+                        <Path Data="M9,2 L9,10 M4,7 L9,2 L14,7 M3,13 L15,13"
+                              Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.6" StrokeLineJoin="Round"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                              Width="18" Height="15" Stretch="Uniform"/>
+                    </Button>
+                </Grid>
 
                 <!-- Filter row: three dropdowns, matching the myaion.eu reference exactly (class
                      list uses its internal names Bard/Gunner/Painter, not the "modern"
@@ -1018,45 +1036,17 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Left nav rail: mirrors MyAion's view icons, minus Skill Rotation and Instance
-                     Scores - per the user, removed rather than kept as disabled placeholders
-                     (neither has a packet source to ever back it: skill-cast order, resp.
-                     cross-encounter instance aggregation + boss detection). Only "Damage
-                     Distribution" has a real data source right now (Combat/LiveAggregator);
-                     Character Profile stays as a disabled placeholder since it wasn't asked to go
-                     too. See README's UI-placeholders section. -->
-                <!-- Icons instead of text per the reference layout - NavButton's Background is
-                     already TemplateBinding'd (see its Button base style above), so the active/
-                     inactive swap in OnShowDamageView/OnShowLootView is a plain property set, no
-                     new style needed. Each Path's Stroke binds to its own Button's Foreground
-                     (which that same code toggles alongside Background) rather than a fixed color,
-                     since Path.Stroke isn't inherited the way TextBlock.Foreground is. -->
-                <StackPanel DockPanel.Dock="Left" Background="{DynamicResource Brush.Panel}">
-                    <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" ToolTip="Damage Distribution" Click="OnShowDamageView"
-                            Background="{DynamicResource Brush.Accent}" Foreground="{DynamicResource Brush.Window}">
-                        <Path Data="M3,16 L3,10 M8,16 L8,5 M13,16 L13,12" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                              StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="16" Height="16"/>
-                    </Button>
-                    <!-- Real now, per the user - "You have acquired [item:ID;...]." lines parsed
-                         by ChatLogParser.LootAcquired, item names resolved via Data/ItemDatabase
-                         (see assets/README.md for its aioncodex.com "/4x/" source). -->
-                    <Button x:Name="LootNavButton" Style="{StaticResource NavButton}" ToolTip="Loot Table" Click="OnShowLootView">
-                        <Path Data="M2,6 L14,6 L13,15 L3,15 Z M5,6 L5,3 L11,3 L11,6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                              StrokeThickness="1.6" StrokeLineJoin="Round" Width="16" Height="16"/>
-                    </Button>
-                    <Button Style="{StaticResource NavButton}" ToolTip="Character Profile (not implemented - needs equipment/stat packet decoding)" IsEnabled="False">
-                        <Grid Width="16" Height="16">
-                            <Ellipse Width="7" Height="7" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                     StrokeThickness="1.6" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                            <Path Data="M1,15 L1,12.5 Q8,8 15,12.5 L15,15 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6"/>
-                        </Grid>
-                    </Button>
-                </StackPanel>
 
+                <!-- GridLinesVisibility="None", not "Horizontal" - per the user, the bright
+                     Border-colored separator line between rows contrasted very differently
+                     against RowAlt (dark) than against Panel (lighter), which read as the lighter
+                     rows extending past their real edge ("heller Hintergrund wirkt höher"). The
+                     alternating RowBackground/AlternatingRowBackground colors already separate one
+                     player's row from the next without it. -->
                 <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True"
                           Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}" AlternatingRowBackground="{DynamicResource Brush.Panel}"
-                          BorderBrush="{DynamicResource Brush.Border}" HorizontalGridLinesBrush="{DynamicResource Brush.Border}"
-                          GridLinesVisibility="Horizontal" HeadersVisibility="Column" CanUserAddRows="False">
+                          BorderBrush="{DynamicResource Brush.Border}"
+                          GridLinesVisibility="None" HeadersVisibility="None" CanUserAddRows="False">
                     <!-- Enemy rows get a dark red ground. A trigger rather than a converter so it
                          overrides RowBackground AND AlternatingRowBackground above: those are set
                          on the DataGrid itself and would otherwise win on every second row, which

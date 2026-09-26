@@ -129,16 +129,6 @@
     "tr": "Geçerli görünümü temizle",
     "zh": "清除当前视图"
   },
-  "Main.MenuApp.LoadDemoData": {
-    "en": "Load Demo Data",
-    "de": "Demodaten laden",
-    "fr": "Charger des données de démo",
-    "es": "Cargar datos de demostración",
-    "ru": "Загрузить демо-данные",
-    "pl": "Wczytaj dane demo",
-    "tr": "Demo verilerini yükle",
-    "zh": "加载演示数据"
-  },
   "Main.MenuApp.CheckForUpdates": {
     "en": "Check for updates",
     "de": "Nach Updates suchen",
@@ -189,7 +179,7 @@
     "tr": "Şimdi yeniden başlat",
     "zh": "立即重启"
   },
-  "Main.MenuApp.StartWithWindows": {
+  "Settings.StartWithWindows": {
     "en": "Start automatically with Windows",
     "de": "Automatisch mit Windows starten",
     "fr": "Démarrer automatiquement avec Windows",

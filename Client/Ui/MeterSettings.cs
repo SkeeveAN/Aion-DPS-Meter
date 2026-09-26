@@ -128,6 +128,17 @@ public sealed class MeterSettings
     public double? SettingsWindowWidth { get; set; }
     public double? SettingsWindowHeight { get; set; }
 
+    /// <summary>Set right before an update-triggered restart (OnUpdateRestartNowClicked) to the
+    /// moment Chat.log had been read up to; consumed once by the NEXT startup
+    /// (ResumeFromChatLogSince) and cleared immediately after, so an ordinary restart later never
+    /// replays it again. Per the user: a self-update ends the process and starts a fresh one
+    /// seconds later, which would otherwise silently drop whatever happened in Chat.log during
+    /// that gap - unlike an ordinary restart (closing the meter and reopening it later), where
+    /// ChatLogTailer's own "never look into the past" rule is exactly what's wanted instead. Local
+    /// time, matching Chat.log's own timestamps (see EventBlob's remarks on why those are
+    /// Kind-unspecified local values, not UTC).</summary>
+    public DateTime? PendingResumeFrom { get; set; }
+
     /// <summary>Whether the meter asks GitHub for a newer release -- at startup and every five
     /// minutes while it runs (see MainWindow's update timer). Default on, but a real switch and
     /// not a decorative one: this is the program's only outbound network call, and the README

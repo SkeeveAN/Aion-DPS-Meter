@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AionDPS.Ui"
         Title="{local:Loc Settings.WindowTitle}" Height="600" Width="440"
-        Background="{DynamicResource Brush.Window}" WindowStartupLocation="CenterOwner"
+        Background="Transparent" WindowStartupLocation="CenterOwner"
         FontSize="{DynamicResource FontSize.Base}"
-        WindowStyle="None" ResizeMode="CanResizeWithGrip">
+        WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip">
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
@@ -191,11 +191,41 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- Same flat template as MainWindow's own implicit Button style (Ui/MainWindow.xaml) -
+             per the user, whose new titlebar minimize/close glyphs ("─"/"✕") were hard to make out
+             here: without this template override, WPF's DEFAULT button chrome (3D bevel, focus
+             rectangle) was still in effect - Foreground alone changes the glyph's color, not the
+             chunky default chrome it sits inside, which is what actually made it read differently
+             from MainWindow's own flat titlebar buttons. -->
         <Style TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource Brush.Control}"/>
             <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
             <Setter Property="Padding" Value="12,4"/>
             <Setter Property="Margin" Value="4"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.ControlHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Window}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         <!-- Learned from the DataGrid selection fix: a plain Background/BorderBrush setter is
              enough for ListBox's own chrome, but the selected-ITEM highlight is driven by
@@ -216,6 +246,14 @@
         </Style>
     </Window.Resources>
 
+    <!-- Same Border-carries-the-real-background pattern as MainWindow's own NormalContent - per
+         the user, who spotted a thin white sliver at the top edge that MainWindow doesn't have.
+         WindowStyle="None" + ResizeMode="CanResizeWithGrip" without AllowsTransparency leaves the
+         OS drawing its own small non-client resize-border sliver in its default (light) color,
+         since only AllowsTransparency hands the ENTIRE window surface to WPF's own content all the
+         way to the true edge - Window.Background alone only ever painted the client area, not
+         that sliver. -->
+    <Border Background="{DynamicResource Brush.Window}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
     <DockPanel LastChildFill="True">
         <!-- Same custom titlebar as MainWindow (App-Icon + title + minimize/close), per the user:
              this dialog previously kept the OS's own chrome (colored dark via DarkTitleBar's DWM
@@ -499,7 +537,7 @@
                              unreachable when the dialog opens. -->
                         <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
                             <TextBlock Text="Server:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <ComboBox x:Name="NewCharacterServerBox" Width="280" SelectionChanged="OnNewCharacterServerSelected"
+                            <ComboBox x:Name="NewCharacterServerBox" Width="200" SelectionChanged="OnNewCharacterServerSelected"
                                       ToolTip="Which real server this character is on - required, since two different servers' characters/runs must never be confused with each other."/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
@@ -598,6 +636,13 @@
                              left=4, so the whole list's checkmarks didn't actually line up under
                              one another despite all being in the same plain StackPanel. -->
                         <CheckBox x:Name="AlwaysOnTopBox" Content="{local:Loc Settings.AlwaysOnTop}" Margin="0,3"/>
+                        <!-- Unlike the other checkboxes on this tab, this one is not deferred to
+                             Save - it writes the HKCU Run-key entry (StartupRegistration.cs)
+                             immediately on Checked/Unchecked, the same as the App menu's old
+                             toggle did, since the registry is the actual source of truth (a user
+                             could remove the entry by hand, e.g. via Task Manager's Startup tab). -->
+                        <CheckBox x:Name="StartWithWindowsBox" Content="{local:Loc Settings.StartWithWindows}" Margin="0,3"
+                                  Checked="OnStartWithWindowsChanged" Unchecked="OnStartWithWindowsChanged"/>
                         <!-- Per-row extras in the Damage view (see PlayerRow.SharePercent/DamageTaken). -->
                         <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,4,0,0"/>
                         <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}" Margin="0,3"/>
@@ -617,4 +662,5 @@
         </ScrollViewer>
         </Grid>
     </DockPanel>
+    </Border>
 </Window>

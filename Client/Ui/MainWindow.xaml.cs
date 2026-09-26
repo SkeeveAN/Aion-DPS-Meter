@@ -29,7 +29,7 @@ namespace AionDPS.Ui;
 
 /// <summary>
 /// The main meter window. Holds its own LiveAggregator, fed entirely from Aion's Chat.log via
-/// ChatLogTailer, with "Load Demo Data" as the offline stand-in for checking the UI.
+/// ChatLogTailer.
 /// </summary>
 public partial class MainWindow : Window
 {
@@ -45,12 +45,13 @@ public partial class MainWindow : Window
     private readonly Dictionary<(string Person, int ItemId), LootRow> _lootRowsByKey = new();
 
     /// <summary>
-    /// Identity (name/class/level) per source object id, independent of PlayerRow. Found by
-    /// terminal_windows: RefreshRows removes and later re-creates a row for any source that drops
-    /// out of the current Mob/Boss filter, but a fresh PlayerRow only ever gets "0x########" --
-    /// the real identity, set once by OnLoadDemoDataClicked directly on the row object, was lost
-    /// for good the moment that row got filtered out once. Mirrors _targetNames, which already
-    /// solved the identical problem for target display names.
+    /// Identity (name/class/level) per source object id, independent of PlayerRow. RefreshRows
+    /// removes and later re-creates a row for any source that drops out of the current Mob/Boss
+    /// filter, but a fresh PlayerRow only ever gets "0x########" -- the real identity, set once
+    /// directly on the row object, would otherwise be lost for good the moment that row got
+    /// filtered out once. Mirrors _targetNames, which already solved the identical problem for
+    /// target display names. Reserved for the network (Aion 2 packet-capture) path, which does not
+    /// populate it yet -- see ResolveDisplayName's own remarks.
     /// </summary>
     private readonly Dictionary<int, (string Name, string ClassName, int Level)> _playerIdentities = new();
 
@@ -105,11 +106,6 @@ public partial class MainWindow : Window
     /// PART_SearchBox -- null until then, and also whenever the template hasn't produced one for
     /// some reason (defensive; every code path already tolerates a no-op filter in that case).</summary>
     private TextBox? _mobBossSearchBox;
-
-    /// <summary>Found once, in OnWindowLoaded, the same way as _mobBossSearchBox above - it's
-    /// declared inside AppMenuFlyoutStyle's own ControlTemplate, so InitializeComponent never
-    /// generates a plain field for it the way a top-level x:Name would get.</summary>
-    private ToggleButton? _startWithWindowsToggle;
 
     /// <summary>
     /// The user's own characters, from Settings -- see MeterSettings.Characters remarks for why
@@ -182,8 +178,7 @@ public partial class MainWindow : Window
 
     // Where combat data comes from (see Combat/Sources/ICombatSource) - today always the Chat.log
     // source; its Entities directory is what RefreshRows/RefreshMobBossFilterItems resolve names
-    // through for ids this window didn't assign itself (demo data has its own _playerIdentities/
-    // _targetNames). Null until Settings name an install folder.
+    // through for ids this window didn't assign itself. Null until Settings name an install folder.
     private ICombatSource? _source;
     private string? _chatLogPath;
     private readonly DispatcherTimer _chatLogTimer = new() { Interval = TimeSpan.FromSeconds(1) };
@@ -287,6 +282,50 @@ public partial class MainWindow : Window
         StartChatLogTailing(settings);
         InitializeFightHistory(settings);
         RefreshCharacterSettings(settings);
+
+        // Consumed (and cleared) exactly once here - see PendingResumeFrom's own remarks for why
+        // this is a narrow exception to ChatLogTailer's usual "never look into the past" rule,
+        // not a general one.
+        if (settings.PendingResumeFrom is DateTime resumeFrom)
+        {
+            settings.PendingResumeFrom = null;
+            settings.Save();
+            ResumeFromChatLogSince(resumeFrom);
+        }
+    }
+
+    /// <summary>Per the user: an update-triggered restart shouldn't silently drop whatever
+    /// Chat.log narrated during the few seconds the process was down for it. Reuses
+    /// ChatLogCombatSource.ReloadFromDisk() - the exact same full re-parse "Reload from Chat.log"
+    /// already does, including its own fresh ChatLogTailer that seeks to the CURRENT end of file
+    /// afterward (see its own remarks), so live tailing continues normally the instant this
+    /// returns - just filtered down to events at/after <paramref name="sinceLocal"/> instead of
+    /// ingesting the whole file. A no-op if the Chat.log source couldn't even be created (e.g. no
+    /// Aion install folder configured) - StartChatLogTailing already reported why.</summary>
+    private void ResumeFromChatLogSince(DateTime sinceLocal)
+    {
+        if (_source is not ChatLogCombatSource chatSource)
+        {
+            return;
+        }
+
+        CombatBatch reloaded = chatSource.ReloadFromDisk();
+        var events = reloaded.Damage
+            .Where(ev => ev.Timestamp >= sinceLocal)
+            .Where(ev => !IsNamedCopyOfRegisteredCharacter(ev.SourceObjectId))
+            .Select(AttributePetDamageToOwner)
+            .ToList();
+        _avoids.AddRange(reloaded.Avoids.Where(a => a.Timestamp >= sinceLocal));
+        _kills.AddRange(reloaded.Kills.Where(k => k.Timestamp >= sinceLocal));
+
+        if (events.Count == 0)
+        {
+            return;
+        }
+
+        _aggregator.IngestEvents(events);
+        RefreshRows();
+        ShowUploadStatus($"Resumed {events.Count} event(s) narrated while the update restart was in progress.");
     }
 
     /// <summary>Applies a previously saved size/position, if any -- see SaveWindowGeometry, its
@@ -1027,7 +1066,7 @@ public partial class MainWindow : Window
                 SetPaused(false);
                 break;
             case "dmg":
-                CopyTextToClipboardIfAny(BuildDmgRankingText(), "No damage has been recorded yet.");
+                CopyChatLineChunk(BuildDmgRankingText(), "No damage has been recorded yet.");
                 break;
             case "cleardmg":
                 ClearDamageData();
@@ -1337,10 +1376,10 @@ public partial class MainWindow : Window
 
     /// <summary>Falls back to the chat-log parser's own name registry for ids this window never
     /// assigned an identity/target name for itself -- e.g. every id from live Chat.log tailing.
-    /// Demo data and (eventually) the network path keep using _playerIdentities/_targetNames
-    /// first; this is only reached when neither of those has an entry. "You" specifically is
-    /// remapped to whichever of the user's own characters is currently active (see
-    /// _activeCharacterName remarks) -- Chat.log itself never contains a name to use instead.</summary>
+    /// The (eventual) network path would keep using _playerIdentities/_targetNames first; this is
+    /// only reached when that has no entry. "You" specifically is remapped to whichever of the
+    /// user's own characters is currently active (see _activeCharacterName remarks) -- Chat.log
+    /// itself never contains a name to use instead.</summary>
     private string ResolveDisplayName(int objectId)
     {
         string? raw = _source?.Entities.NameFor(objectId);
@@ -1677,10 +1716,9 @@ public partial class MainWindow : Window
         faction == "Elyos" ? "Asmodian" : faction == "Asmodian" ? "Elyos" : "";
 
     /// <summary>Sets Name/ClassName/Level for one row from whichever identity source applies:
-    /// _playerIdentities (demo data) first, else Chat.log's own name registry with "You" remapped
-    /// to the active character (see ResolveDisplayName) and its class resolved via
-    /// ResolveClassName -- Chat.log never supplies a class as data, only skill usage to infer it
-    /// from.</summary>
+    /// _playerIdentities first, else Chat.log's own name registry with "You" remapped to the
+    /// active character (see ResolveDisplayName) and its class resolved via ResolveClassName --
+    /// Chat.log never supplies a class as data, only skill usage to infer it from.</summary>
     private void ApplyIdentity(PlayerRow row, int sourceId)
     {
         if (_playerIdentities.TryGetValue(sourceId, out var identity))
@@ -2054,15 +2092,6 @@ public partial class MainWindow : Window
         {
             // Missing/corrupt icon file must not stop the window from opening - the titlebar
             // just shows no icon at all, same as before this existed.
-        }
-
-        // Reflects the REAL registry state, not an assumed default - a user could have removed
-        // the Run-key entry by hand (e.g. via Task Manager's own Startup tab) since it was set.
-        AppMenu.ApplyTemplate();
-        _startWithWindowsToggle = AppMenu.Template.FindName("StartWithWindowsToggle", AppMenu) as ToggleButton;
-        if (_startWithWindowsToggle is not null)
-        {
-            _startWithWindowsToggle.IsChecked = StartupRegistration.IsEnabled();
         }
 
         MobBossFilter.ApplyTemplate();
@@ -2537,45 +2566,6 @@ public partial class MainWindow : Window
         RefreshRows();
     }
 
-    private void OnLoadDemoDataClicked(object sender, RoutedEventArgs e)
-    {
-        AppMenu.IsSubmenuOpen = false;
-        // Same numbers as SelfCheck's Gladiator/Zauberer scenario -- lets the UI be checked
-        // visually without playing, and the DPS column can be eyeballed against the selftest's
-        // console output for the same inputs.
-        var start = DateTime.UtcNow;
-        const int gladiator = 1;
-        const int zauberer = 2;
-        const int boss = 100;
-        const int eliteGuard = 101;
-
-        _targetNames[boss] = "Training Dummy";
-        _targetNames[eliteGuard] = "Elite Guard";
-
-        // Identity set BEFORE the row exists, not patched onto it afterwards: a row created by
-        // RefreshRows only knows the identity if it's already in _playerIdentities by then (see
-        // that dictionary's remarks -- a PlayerRow patched in place loses its name/class/level for
-        // good the moment it gets filtered out and later recreated).
-        _playerIdentities[gladiator] = ("Strohmie", "Gladiator", 80);
-        _playerIdentities[zauberer] = ("Nxrse", "Sorcerer", 80);
-
-        _aggregator.IngestEvents(new[]
-        {
-            new DamageEvent(start, gladiator, boss, 1000, IsHeal: false),
-            new DamageEvent(start, gladiator, boss, 1200, IsHeal: false),
-            new DamageEvent(start.AddSeconds(2), gladiator, boss, 1100, IsHeal: false),
-            new DamageEvent(start.AddSeconds(1), zauberer, boss, 50_000, IsHeal: false),
-
-            // Second target, hit by only one of the two sources -- so switching the Mob/Boss
-            // filter to it visibly changes both which rows appear and what their DPS/iDPS numbers
-            // are, instead of just relabeling the same aggregate total.
-            new DamageEvent(start.AddSeconds(3), gladiator, eliteGuard, 800, IsHeal: false),
-            new DamageEvent(start.AddSeconds(5), gladiator, eliteGuard, 900, IsHeal: false),
-        });
-
-        RefreshRows();
-    }
-
     private void OnLoadSessionClicked(object sender, RoutedEventArgs e)
     {
         AppMenu.IsSubmenuOpen = false;
@@ -2742,27 +2732,6 @@ public partial class MainWindow : Window
         }
 
         Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
-    }
-
-    /// <summary>ToggleButton.Click fires AFTER IsChecked has already flipped, so this reads the
-    /// NEW (post-click) state directly - per the user, an explicit ask for exactly this action.
-    /// Uses <paramref name="sender"/> rather than the stored _startWithWindowsToggle field - both
-    /// point at the same instance, but the field could in principle still be null this early
-    /// (OnWindowLoaded hasn't necessarily run first in every code path), while sender never is.</summary>
-    private void OnStartWithWindowsClicked(object sender, RoutedEventArgs e)
-    {
-        var toggle = (ToggleButton)sender;
-        bool enable = toggle.IsChecked == true;
-        try
-        {
-            StartupRegistration.SetEnabled(enable);
-        }
-        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
-        {
-            toggle.IsChecked = !enable;
-            MessageBox.Show(this, $"Could not update the Windows startup setting.\n\n{ex.Message}",
-                "Start with Windows", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
     }
 
     private void OnMinimizeToTrayClicked(object sender, RoutedEventArgs e)
@@ -3121,6 +3090,15 @@ public partial class MainWindow : Window
         // Window geometry and settings are saved in OnClosing, which ApplyAndRestart never reaches
         // because it ends the process itself -- so save first, then hand over.
         SaveWindowStateToSettings();
+
+        // Per the user: an update-triggered restart shouldn't silently drop whatever Chat.log
+        // narrates during the few seconds the process is down - see PendingResumeFrom's own
+        // remarks for why this is set ONLY here, not in SaveWindowStateToSettings (shared with an
+        // ordinary close, which must keep ChatLogTailer's "never look into the past" rule intact).
+        var settings = MeterSettings.Load();
+        settings.PendingResumeFrom = DateTime.Now;
+        settings.Save();
+
         UpdateService.ApplyAndRestart(update);
     }
 
@@ -3293,7 +3271,7 @@ public partial class MainWindow : Window
     /// filter exists for are documented and tested.</summary>
     private List<DamageEvent> RestrictToEngagedTargets(List<DamageEvent> damageEvents)
     {
-        // Demo data has no Chat.log name table, so there is no "You" id to anchor on.
+        // No source yet (e.g. before Settings names an install folder) means no "You" id to anchor on.
         return _source is null
             ? damageEvents
             : EngagedTargets.Filter(damageEvents, _source.Entities.LocalPlayerId);
@@ -3382,7 +3360,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            CopyTextToClipboardIfAny(BuildDmgChatLine(), "No damage has been recorded yet.");
+            CopyChatLineChunk(BuildDmgChatLine(), "No damage has been recorded yet.");
         }
     }
 
@@ -3451,19 +3429,56 @@ public partial class MainWindow : Window
             // whole meter down mid-raid for something as minor as a failed copy.
             MessageBox.Show(this, $"The clipboard was busy and the copy failed.\n\n{ex.Message}",
                 "Copy", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    /// <summary>Which chunk (see ChunkChatLineParts) CopyChatLineChunk hands out next, and for
+    /// which exact chunk set - reset to 0 the moment the underlying text changes (more damage
+    /// since the last copy, a different target selected, etc.) rather than silently continuing a
+    /// stale cycle against numbers that no longer match what's on screen.</summary>
+    private List<string> _lastChatChunks = new();
+    private int _nextChatChunkIndex;
+
+    /// <summary>Copies ONE chat-line chunk per call, cycling back to the first after the last -
+    /// per the user, reported twice: even a single joined multi-line clipboard payload (each line
+    /// individually well under ChatLineCharLimit) still failed to paste into Aion chat at all the
+    /// moment it contained more than one line, exactly like the earlier over-length single-line
+    /// case did. Aion's chat box apparently rejects (or otherwise cannot handle) a pasted string
+    /// containing a newline at all, not just an over-long one - so each clipboard payload here is
+    /// now genuinely a single line, the one shape already confirmed to work, and the user pastes
+    /// each part in turn instead of hoping the game splits a multi-line paste into several
+    /// messages on its own.</summary>
+    private void CopyChatLineChunk(List<string> chunks, string whatWasEmpty)
+    {
+        if (chunks.Count == 0)
+        {
+            MessageBox.Show(this, whatWasEmpty, "Nothing to copy",
+                MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
-        // A big roster's chat line comes back as several lines (ChunkChatLineParts) - a single
-        // paste puts all of them in the clipboard, but Aion's own chat box still only accepts one
-        // line per Enter, and silently rejects a pasted line once it's too long (see
-        // ChatLineCharLimit's own remarks) rather than truncating it. Said here, not just left
-        // for the user to discover by a paste that mysteriously "does nothing" a second time.
-        int lineCount = text.Count(c => c == '\n') + 1;
-        if (lineCount > 1)
+        if (!chunks.SequenceEqual(_lastChatChunks))
         {
-            ShowUploadStatus($"Copied {lineCount} chat lines - paste and send each one separately, Aion's chat box rejects one this long as a single message.");
+            _lastChatChunks = chunks;
+            _nextChatChunkIndex = 0;
         }
+
+        int index = _nextChatChunkIndex % chunks.Count;
+        try
+        {
+            Clipboard.SetText(chunks[index]);
+        }
+        catch (System.Runtime.InteropServices.COMException ex)
+        {
+            MessageBox.Show(this, $"The clipboard was busy and the copy failed.\n\n{ex.Message}",
+                "Copy", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        _nextChatChunkIndex = index + 1;
+        ShowUploadStatus(chunks.Count > 1
+            ? $"Copied part {index + 1}/{chunks.Count} - paste it, then click Copy again for the next part."
+            : "Copied to clipboard.");
     }
 
     /// <summary>
@@ -3515,7 +3530,7 @@ public partial class MainWindow : Window
         return lines;
     }
 
-    private string BuildDmgRankingText()
+    private List<string> BuildDmgRankingText()
     {
         var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
         var parts = new List<string>(ranked.Count);
@@ -3529,7 +3544,7 @@ public partial class MainWindow : Window
             parts.Add($"{i + 1}, {row.Name}, {damageText} [{dpsText}]");
         }
 
-        return string.Join("\n", ChunkChatLineParts(parts, ChatLineCharLimit));
+        return ChunkChatLineParts(parts, ChatLineCharLimit);
     }
 
     /// <summary>
@@ -3547,7 +3562,7 @@ public partial class MainWindow : Window
     /// lead with that target's name -- otherwise a line pasted into Aion chat carries damage numbers
     /// with no indication of which fight they're from.
     /// </summary>
-    private string BuildDmgChatLine()
+    private List<string> BuildDmgChatLine()
     {
         var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
         var parts = new List<string>(ranked.Count);
@@ -3562,7 +3577,7 @@ public partial class MainWindow : Window
 
         if (parts.Count == 0)
         {
-            return "";
+            return new List<string>();
         }
 
         List<string> lines = ChunkChatLineParts(parts, ChatLineCharLimit);
@@ -3572,7 +3587,7 @@ public partial class MainWindow : Window
             lines[0] = $"{bossName}: {lines[0]}";
         }
 
-        return string.Join("\n", lines);
+        return lines;
     }
 
     private static readonly NumberFormatInfo DotGroupedNumberFormat = new() { NumberGroupSeparator = "." };

@@ -40,6 +40,7 @@ public static class SelfCheck
         ok &= RunChatLogRealWorldPatternsScenario();
         ok &= RunRelicApScenario();
         ok &= RunGermanChatLogScenario();
+        ok &= RunHealCasterAttributionScenario();
         ok &= RunPlayerLoggedInScenario();
         ok &= RunTemplateLanguagesChatLogScenario();
         ok &= RunBuffCastScenario();
@@ -130,6 +131,63 @@ public static class SelfCheck
         Console.WriteLine($"  -> rider-effect hits (\"...N Schaden und den Effekt 'X'\") counted, crit prefix stripped: {riderEffectOk}");
 
         return sunoOk && redirectOk && unannouncedDotDropped && healsOk && riderEffectOk;
+    }
+
+    /// <summary>
+    /// Synthetic (not from a real capture - see RunGermanChatLogScenario/RunChatLogRealWorldPatternsScenario
+    /// for those) regression test for the heal-tick caster-attribution bug reported by the user
+    /// against a real aiondps.com upload: a Gladiator's own "healing by skill" breakdown showed
+    /// Cleric/Sorcerer/Spiritmaster skill names (and even a bare, skill-less tick) that he never
+    /// cast himself. Root cause: Chat.log narrates every FOLLOW-UP tick of someone else's ongoing
+    /// heal-over-time from the RECIPIENT's own grammatical perspective ("You recovered N HP by
+    /// using SkillName."), identical in shape to a genuine self-heal, without repeating who
+    /// originally cast it - the same gap RememberDotCaster/_dotCasterBySkillAndTarget already
+    /// closed for damage-over-time, mirrored here for healing (_hotCasterBySkillAndTarget/
+    /// _lastHealerByTarget/ResolveHealSelfCaster).
+    /// </summary>
+    private static bool RunHealCasterAttributionScenario()
+    {
+        var lines = new[]
+        {
+            // Explicit cast: Klerika heals You for 100, naming both caster and skill.
+            "2026.09.26 20:00:01 : You recovered 100 HP because Klerika used Healing Light V on you. ",
+            // Follow-up HoT tick, same skill, no caster named - must resolve to Klerika.
+            "2026.09.26 20:00:03 : You recovered 50 HP by using Healing Light V. ",
+            // A second healer re-casts the SAME skill on You - replaces Klerika as its owner here,
+            // not a guess: the effect itself is replaced in-game, not stacked (same rule as DoTs).
+            "2026.09.26 20:00:05 : You recovered 80 HP because Zweiterkleriker used Healing Light V on you. ",
+            "2026.09.26 20:00:07 : You recovered 60 HP by using Healing Light V. ",
+            // Skill-agnostic fallback: a bare tick with NO skill named at all still must not land
+            // on You - Zweiterkleriker is the last known healer of You, by any skill.
+            "2026.09.26 20:00:09 : You recovered 30 HP. ",
+            // A genuine self-heal via a NAMED skill nobody else has ever cast on You must stay
+            // self-attributed even though Zweiterkleriker healed You moments ago via a DIFFERENT
+            // skill - the skill-agnostic fallback must never override a known, unrelated skill.
+            "2026.09.26 20:00:11 : You recovered 999 HP by using Second Wind I. ",
+        };
+
+        var parser = new ChatLogParser();
+        var events = parser.Parse(lines);
+        long HealBy(string name) => events
+            .Where(e => e.IsHeal && parser.Names.NameFor(e.SourceObjectId) == name)
+            .Sum(e => e.Amount);
+
+        bool countOk = events.Count(e => e.IsHeal) == 6;
+        // Klerika's cast (100) plus the one follow-up tick before being replaced (50).
+        bool firstHealerOk = HealBy("Klerika") == 100 + 50;
+        // Zweiterkleriker's own cast (80) plus both later ticks - one still naming the skill (60),
+        // one bare with no skill at all (30, the skill-agnostic fallback).
+        bool secondHealerTookOverOk = HealBy("Zweiterkleriker") == 80 + 60 + 30;
+        // Only the genuine self-heal (999) - none of the externally-caused healing above.
+        bool selfHealStillSelfOk = HealBy("You") == 999;
+
+        Console.WriteLine("[selftest] Heal-tick caster attribution (synthetic, mirrors the DoT-tick fix for healing):");
+        Console.WriteLine($"  -> all 6 heal events counted: {countOk}");
+        Console.WriteLine($"  -> cast + its follow-up tick both credited to the real caster, not the recipient: {firstHealerOk}");
+        Console.WriteLine($"  -> a second caster re-casting the same skill replaces the first for later ticks (skill-named AND bare): {secondHealerTookOverOk}");
+        Console.WriteLine($"  -> a genuine self-heal (named skill, never externally cast) stays self-attributed: {selfHealStillSelfOk}");
+
+        return countOk && firstHealerOk && secondHealerTookOverOk && selfHealStillSelfOk;
     }
 
     /// <summary>
