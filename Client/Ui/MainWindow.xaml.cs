@@ -93,7 +93,7 @@ public partial class MainWindow : Window
 
     /// <summary>The XAML-declared "All" entry, captured once in the constructor so
     /// ApplyMobBossSearchFilter can keep re-inserting this SAME instance (preserving its
-    /// {local:Loc Main.FilterAll} binding) instead of fabricating a plain-text replacement every
+    /// {local:Loc Main.FilterAllTargets} binding) instead of fabricating a plain-text replacement every
     /// time the list rebuilds.</summary>
     private readonly ComboBoxItem _mobBossAllItem;
 
@@ -209,7 +209,7 @@ public partial class MainWindow : Window
 
         // Captured now, before anything ever rebuilds MobBossFilter.Items, so
         // ApplyMobBossSearchFilter can keep re-inserting this exact instance rather than a plain
-        // "All" it would have to build itself -- this one keeps the XAML {local:Loc Main.FilterAll}
+        // "All" it would have to build itself -- this one keeps the XAML {local:Loc Main.FilterAllTargets}
         // binding, which is only set up once, at parse time, on this specific object.
         _mobBossAllItem = (ComboBoxItem)MobBossFilter.Items[0]!;
         Loaded += OnWindowLoaded;

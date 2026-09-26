@@ -419,15 +419,35 @@
     "tr": "Zdn",
     "zh": "副本"
   },
-  "Main.FilterAll": {
-    "en": "All",
-    "de": "Alle",
-    "fr": "Tous",
-    "es": "Todos",
-    "ru": "Все",
-    "pl": "Wszyscy",
-    "tr": "Tümü",
-    "zh": "全部"
+  "Main.FilterAllClasses": {
+    "en": "All Classes",
+    "de": "Alle Klassen",
+    "fr": "Toutes les classes",
+    "es": "Todas las clases",
+    "ru": "Все классы",
+    "pl": "Wszystkie klasy",
+    "tr": "Tüm Sınıflar",
+    "zh": "全部职业"
+  },
+  "Main.FilterAllGroups": {
+    "en": "All Groups",
+    "de": "Alle Konstellationen",
+    "fr": "Tous les groupes",
+    "es": "Todos los grupos",
+    "ru": "Все группы",
+    "pl": "Wszystkie grupy",
+    "tr": "Tüm Gruplar",
+    "zh": "全部团队"
+  },
+  "Main.FilterAllTargets": {
+    "en": "All Targets",
+    "de": "Alle Ziele",
+    "fr": "Toutes les cibles",
+    "es": "Todos los objetivos",
+    "ru": "Все цели",
+    "pl": "Wszystkie cele",
+    "tr": "Tüm Hedefler",
+    "zh": "全部目标"
   },
   "Main.ModePve": {
     "en": "PVE",

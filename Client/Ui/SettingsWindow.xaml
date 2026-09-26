@@ -572,12 +572,18 @@
                         </Grid>
                         <!-- Same value as the View menu's "Always on top" toggle: see
                              MeterSettings.AlwaysOnTopOnStartup's remarks for why this is one
-                             setting reachable two ways, not two independent switches. -->
-                        <CheckBox x:Name="AlwaysOnTopBox" Content="{local:Loc Settings.AlwaysOnTop}"/>
+                             setting reachable two ways, not two independent switches.
+                             Margin.Left explicit and identical (0) on all five below, per the
+                             user: two of them overrode the implicit CheckBox style's own
+                             Margin="4,3" with "0,4,0,0" for extra top spacing, but that also
+                             zeroed just THEIR left margin - the other three kept the style's
+                             left=4, so the whole list's checkmarks didn't actually line up under
+                             one another despite all being in the same plain StackPanel. -->
+                        <CheckBox x:Name="AlwaysOnTopBox" Content="{local:Loc Settings.AlwaysOnTop}" Margin="0,3"/>
                         <!-- Per-row extras in the Damage view (see PlayerRow.SharePercent/DamageTaken). -->
                         <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,4,0,0"/>
-                        <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}"/>
-                        <CheckBox x:Name="ShowDefenseStatsBox" Content="{local:Loc Settings.ShowDefenseStats}"/>
+                        <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}" Margin="0,3"/>
+                        <CheckBox x:Name="ShowDefenseStatsBox" Content="{local:Loc Settings.ShowDefenseStats}" Margin="0,3"/>
                         <!-- Local only (History/FightStore, %AppData%) - nothing about it is uploaded. -->
                         <CheckBox x:Name="RecordFightHistoryBox" Content="{local:Loc Settings.RecordFightHistory}" Margin="0,4,0,0"/>
                 </StackPanel>

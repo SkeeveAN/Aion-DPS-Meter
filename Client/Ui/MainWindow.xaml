@@ -874,7 +874,7 @@
                          raw type name. Same gap would affect a screen reader, not just test
                          tooling - explicit Name fixes both with the same one-liner. -->
                     <ComboBox x:Name="ClassFilter" SelectedIndex="0" Margin="6,0,0,0" SelectionChanged="OnClassFilterChanged">
-                        <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterAllClasses}"/>
                         <ComboBoxItem Tag="Aethertech" AutomationProperties.Name="Aethertech"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Aethertech.png" Height="18" Margin="0,0,4,0"/><TextBlock Text="Aethertech" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                         <ComboBoxItem Tag="Assassin" AutomationProperties.Name="Assassin"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Assassin.png" Height="18" Margin="0,0,4,0"/><TextBlock Text="Assassin" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                         <ComboBoxItem Tag="Bard" AutomationProperties.Name="Bard"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Bard.png" Height="18" Margin="0,0,4,0"/><TextBlock Text="Bard" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
@@ -895,7 +895,7 @@
                          decode yet. -->
                     <ComboBox x:Name="SourceFilter" SelectedIndex="0" Margin="8,0,0,0"
                               ToolTip="Not wired up yet (display filter only).">
-                        <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterAllGroups}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterSelf}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterGroup}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterAlliance}"/>
@@ -909,7 +909,7 @@
                     <ComboBox x:Name="MobBossFilter" Style="{StaticResource SearchableComboBox}"
                               SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="8,0,0,0"
                               ToolTip="Filter by target. 'All' sums damage across every target seen. Type in the dropdown to search.">
-                        <ComboBoxItem Content="{local:Loc Main.FilterAll}"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterAllTargets}"/>
                     </ComboBox>
                 </StackPanel>
 
