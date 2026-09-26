@@ -1,13 +1,17 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AionDPS.Aion2;
 using AionDPS.Aion2.Protocol;
@@ -102,6 +106,11 @@ public partial class MainWindow : Window
     /// some reason (defensive; every code path already tolerates a no-op filter in that case).</summary>
     private TextBox? _mobBossSearchBox;
 
+    /// <summary>Found once, in OnWindowLoaded, the same way as _mobBossSearchBox above - it's
+    /// declared inside AppMenuFlyoutStyle's own ControlTemplate, so InitializeComponent never
+    /// generates a plain field for it the way a top-level x:Name would get.</summary>
+    private ToggleButton? _startWithWindowsToggle;
+
     /// <summary>
     /// The user's own characters, from Settings -- see MeterSettings.Characters remarks for why
     /// Chat.log itself can never supply the local player's real name. _activeCharacterName is
@@ -162,6 +171,11 @@ public partial class MainWindow : Window
     private FightHistoryWindow? _fightHistoryWindow;
     private bool _recordFightHistory = true;
     private bool _historyMode;
+
+    /// <summary>"Minimize to system tray" (OnMinimizeToTrayClicked) - null until the first time
+    /// it's actually used, so a user who never touches this never costs a single Shell_NotifyIcon
+    /// call.</summary>
+    private TrayIcon? _trayIcon;
     private int _historyTickCounter;
     private GameKind _currentGame = GameKind.Aion;
     private string? _currentServerDisplayName;
@@ -1378,6 +1392,7 @@ public partial class MainWindow : Window
         _fightStore?.Dispose();
         _source?.Dispose();
         _overlay?.Dispose();
+        _trayIcon?.Dispose();
         base.OnClosed(e);
     }
 
@@ -2025,6 +2040,31 @@ public partial class MainWindow : Window
     {
         ApplyClassFilterAvailability();
 
+        // See AppIconImage's own XAML remarks: a plain pack://siteoforigin Source silently
+        // rendered nothing for this specific .ico, so it's decoded via GDI instead - the same
+        // path Explorer itself uses for any .ico, rather than WPF's own (apparently less
+        // reliable, for this file) BitmapImage/pack-URI decoding.
+        try
+        {
+            using var appIcon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "assets", "app", "aiondps.ico"));
+            AppIconImage.Source = Imaging.CreateBitmapSourceFromHIcon(
+                appIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException)
+        {
+            // Missing/corrupt icon file must not stop the window from opening - the titlebar
+            // just shows no icon at all, same as before this existed.
+        }
+
+        // Reflects the REAL registry state, not an assumed default - a user could have removed
+        // the Run-key entry by hand (e.g. via Task Manager's own Startup tab) since it was set.
+        AppMenu.ApplyTemplate();
+        _startWithWindowsToggle = AppMenu.Template.FindName("StartWithWindowsToggle", AppMenu) as ToggleButton;
+        if (_startWithWindowsToggle is not null)
+        {
+            _startWithWindowsToggle.IsChecked = StartupRegistration.IsEnabled();
+        }
+
         MobBossFilter.ApplyTemplate();
         _mobBossSearchBox = MobBossFilter.Template.FindName("PART_SearchBox", MobBossFilter) as TextBox;
         if (_mobBossSearchBox is null)
@@ -2534,6 +2574,206 @@ public partial class MainWindow : Window
         });
 
         RefreshRows();
+    }
+
+    private void OnLoadSessionClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        Directory.CreateDirectory(SessionFile.DefaultDirectory);
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            InitialDirectory = SessionFile.DefaultDirectory,
+            Filter = $"Aion DPS session (*{SessionFile.Extension})|*{SessionFile.Extension}",
+        };
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            SessionFile.LoadedSession session = SessionFile.Load(dialog.FileName);
+            LoadSessionIntoMeter(session);
+            ShowUploadStatus($"Loaded session from {session.SavedAt:g} ({session.Events.Count} event(s)).");
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException or UnauthorizedAccessException)
+        {
+            MessageBox.Show(this, $"Could not load this session file.\n\n{ex.Message}", "Load Session",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    /// <summary>Per the user: Load/Save Session are a portable, manual snapshot of the WHOLE
+    /// current session (every damage/avoid/kill event, plus personal stat totals) - independent
+    /// of Chat.log, and deliberately separate from Fight History (FightStore), which auto-records
+    /// individual finished fights on its own. Loot isn't included yet - see SessionFile's own
+    /// remarks on why.</summary>
+    private void OnSaveSessionClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        if (_aggregator.Events.Count == 0)
+        {
+            ShowUploadStatus("Nothing to save yet - no damage has been recorded this session.");
+            return;
+        }
+
+        Directory.CreateDirectory(SessionFile.DefaultDirectory);
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            InitialDirectory = SessionFile.DefaultDirectory,
+            FileName = $"Session {DateTime.Now:yyyy-MM-dd HH-mm-ss}{SessionFile.Extension}",
+            Filter = $"Aion DPS session (*{SessionFile.Extension})|*{SessionFile.Extension}",
+            DefaultExt = SessionFile.Extension,
+        };
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        // Every object id the saved events/avoids/kills can reference, resolved to a real name
+        // now while _source's own registry (whichever combat source is live) can still answer it -
+        // a session file has no other way to carry identity, and LoadSessionIntoMeter needs every
+        // one of these to remap ids through a fresh FakeCombatSource on load.
+        var ids = new HashSet<int>();
+        foreach (DamageEvent ev in _aggregator.Events)
+        {
+            ids.Add(ev.SourceObjectId);
+            ids.Add(ev.TargetObjectId);
+        }
+
+        foreach (AvoidEvent av in _avoids)
+        {
+            ids.Add(av.SourceObjectId);
+            ids.Add(av.TargetObjectId);
+        }
+
+        foreach (KillEvent k in _kills)
+        {
+            ids.Add(k.VictimObjectId);
+            if (k.KillerObjectId is int killer)
+            {
+                ids.Add(killer);
+            }
+        }
+
+        Dictionary<int, string> names = ids.ToDictionary(id => id, ResolveDisplayName);
+
+        try
+        {
+            SessionFile.Save(dialog.FileName, _aggregator.Events, _avoids, _kills, names, _totalExp, _totalAp, _totalGp, _totalKinah);
+            ShowUploadStatus($"Session saved to {Path.GetFileName(dialog.FileName)}.");
+        }
+        catch (IOException ex)
+        {
+            MessageBox.Show(this, $"Could not save the session.\n\n{ex.Message}", "Save Session",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    /// <summary>Replays a loaded session the same way EnterHistoryMode replays one stored fight -
+    /// a FakeCombatSource so live Chat.log tailing doesn't interfere, object ids remapped through
+    /// it by name so PlayerRow/aggregator identity works exactly like a live session's would.
+    /// Restores avoids/kills too (EnterHistoryMode doesn't - FightStore's own single-fight replay
+    /// never needed defense/PVP stats to survive a reload) and re-runs class detection from each
+    /// event's own Skill field (OnSkillUsed) since a session file has no separate per-participant
+    /// class table the way FightStore's SQLite schema does.</summary>
+    private void LoadSessionIntoMeter(SessionFile.LoadedSession session)
+    {
+        RecordFinishedFights(flushAll: true);
+        _historyMode = true;
+
+        var replay = new FakeCombatSource();
+        var idMap = session.Names.ToDictionary(kv => kv.Key, kv => replay.Entities.GetOrAssignId(kv.Value));
+        int Remap(int id) => idMap.GetValueOrDefault(id, id);
+
+        ReplaceSource(replay);
+        ClearDamageData();
+
+        var events = session.Events
+            .Select(ev => ev with { SourceObjectId = Remap(ev.SourceObjectId), TargetObjectId = Remap(ev.TargetObjectId) })
+            .ToList();
+        _avoids.AddRange(session.Avoids.Select(a => a with { SourceObjectId = Remap(a.SourceObjectId), TargetObjectId = Remap(a.TargetObjectId) }));
+        _kills.AddRange(session.Kills.Select(k => k with
+        {
+            KillerObjectId = k.KillerObjectId is int killerId ? Remap(killerId) : null,
+            VictimObjectId = Remap(k.VictimObjectId),
+        }));
+
+        _aggregator.IngestEvents(events);
+
+        foreach (DamageEvent ev in events)
+        {
+            if (ev.Skill is string skill)
+            {
+                OnSkillUsed(ResolveDisplayName(ev.SourceObjectId), skill);
+            }
+        }
+
+        _totalExp = session.Exp;
+        _totalAp = session.Ap;
+        _totalGp = session.Gp;
+        _totalKinah = session.Kinah;
+        ExpValueText.Text = _totalExp.ToString("N0");
+        GpValueText.Text = _totalGp.ToString("N0");
+        KinahValueText.Text = _totalKinah.ToString("N0");
+        RefreshApDisplays();
+
+        HistoryBanner.Text = string.Format(LocalizationManager.Instance["Main.SessionBanner"], session.SavedAt.ToString("g"));
+        HistoryBanner.Visibility = Visibility.Visible;
+        RefreshRows();
+        Activate();
+    }
+
+    private void OnOpenSessionsFolderClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        Directory.CreateDirectory(SessionFile.DefaultDirectory);
+        Process.Start(new ProcessStartInfo(SessionFile.DefaultDirectory) { UseShellExecute = true });
+    }
+
+    private void OnOpenLogsFolderClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        string? folder = _chatLogPath is not null ? Path.GetDirectoryName(_chatLogPath) : null;
+        if (folder is null || !Directory.Exists(folder))
+        {
+            ShowUploadStatus("No Chat.log folder is set yet - configure it in Settings first.");
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
+    }
+
+    /// <summary>ToggleButton.Click fires AFTER IsChecked has already flipped, so this reads the
+    /// NEW (post-click) state directly - per the user, an explicit ask for exactly this action.
+    /// Uses <paramref name="sender"/> rather than the stored _startWithWindowsToggle field - both
+    /// point at the same instance, but the field could in principle still be null this early
+    /// (OnWindowLoaded hasn't necessarily run first in every code path), while sender never is.</summary>
+    private void OnStartWithWindowsClicked(object sender, RoutedEventArgs e)
+    {
+        var toggle = (ToggleButton)sender;
+        bool enable = toggle.IsChecked == true;
+        try
+        {
+            StartupRegistration.SetEnabled(enable);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            toggle.IsChecked = !enable;
+            MessageBox.Show(this, $"Could not update the Windows startup setting.\n\n{ex.Message}",
+                "Start with Windows", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    private void OnMinimizeToTrayClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        _trayIcon ??= new TrayIcon(this,
+            Path.Combine(AppContext.BaseDirectory, "assets", "app", "aiondps.ico"),
+            "Aion DPS Meter",
+            LocalizationManager.Instance["Main.Tray.Show"],
+            LocalizationManager.Instance["Main.MenuApp.Close"]);
+        _trayIcon.MinimizeToTray();
     }
 
     /// <summary>

@@ -447,10 +447,19 @@
                                                 <TextBlock Text="{local:Loc Main.MenuApp.SessionGroup}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </ToggleButton>
-                                        <StackPanel Margin="22,0,0,2"
+                                        <StackPanel Margin="14,0,0,2"
                                                     Visibility="{Binding IsChecked, ElementName=SessionGroupToggle, Converter={StaticResource BoolToVis}}">
-                                            <Grid Margin="0,3"><TextBlock Text="{local:Loc Main.MenuApp.LoadSession}" Foreground="#5c6b74" FontSize="11.5"/></Grid>
-                                            <Grid Margin="0,3"><TextBlock Text="{local:Loc Main.MenuApp.SaveSession}" Foreground="#5c6b74" FontSize="11.5"/></Grid>
+                                            <!-- Load/Save Session: real actions now (SessionFile.cs) - a
+                                                 portable snapshot of the whole current session (every
+                                                 damage/avoid/kill event plus personal stats), independent
+                                                 of Chat.log. Deliberately separate from Fight History,
+                                                 which auto-records individual finished fights instead. -->
+                                            <Button Style="{StaticResource AppMenuRow}" Click="OnLoadSessionClicked">
+                                                <TextBlock Text="{local:Loc Main.MenuApp.LoadSession}" Foreground="#f2f5f7" FontSize="11.5"/>
+                                            </Button>
+                                            <Button Style="{StaticResource AppMenuRow}" Click="OnSaveSessionClicked">
+                                                <TextBlock Text="{local:Loc Main.MenuApp.SaveSession}" Foreground="#f2f5f7" FontSize="11.5"/>
+                                            </Button>
                                         </StackPanel>
 
                                         <!-- Export: Export/Validate, same reasoning as Sitzung above. -->
@@ -469,16 +478,22 @@
 
                                         <Border Height="1" Background="#21374a" Margin="4,6"/>
 
-                                        <!-- Ordner öffnen ×2 - still IsEnabled=False today, but at the
-                                             top level (not tucked in a group) since each is one line. -->
-                                        <StackPanel Orientation="Horizontal" Margin="8,5">
-                                            <Path Data="M1,3 L5,3 L6,4.5 L11,4.5 L11,10 L1,10 Z" Stroke="#5c6b74" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
-                                            <TextBlock Text="{local:Loc Main.MenuApp.OpenSessionsFolder}" Foreground="#5c6b74" VerticalAlignment="Center" FontSize="11.5"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="8,5">
-                                            <Path Data="M1,3 L5,3 L6,4.5 L11,4.5 L11,10 L1,10 Z" Stroke="#5c6b74" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
-                                            <TextBlock Text="{local:Loc Main.MenuApp.OpenLogsFolder}" Foreground="#5c6b74" VerticalAlignment="Center" FontSize="11.5"/>
-                                        </StackPanel>
+                                        <!-- Ordner öffnen ×2 - real actions now: Sessions opens
+                                             SessionFile.DefaultDirectory, Logs opens whatever folder
+                                             Chat.log currently lives in (Settings' Aion install folder),
+                                             not tucked in a group since each is one line. -->
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnOpenSessionsFolderClicked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M1,3 L5,3 L6,4.5 L11,4.5 L11,10 L1,10 Z" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.OpenSessionsFolder}" Foreground="#f2f5f7" VerticalAlignment="Center" FontSize="11.5"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnOpenLogsFolderClicked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M1,3 L5,3 L6,4.5 L11,4.5 L11,10 L1,10 Z" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.OpenLogsFolder}" Foreground="#f2f5f7" VerticalAlignment="Center" FontSize="11.5"/>
+                                            </StackPanel>
+                                        </Button>
 
                                         <Border Height="1" Background="#21374a" Margin="4,6"/>
 
@@ -533,18 +548,36 @@
                                                 <TextBlock Text="{local:Loc Main.MenuApp.CheckForUpdates}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
-                                        <!-- Mit Windows starten / In Tray minimieren: still IsEnabled=False
-                                             today - see the plain MenuItem list this replaced for why
-                                             (writing to the Windows Run key or hiding the tray icon both
-                                             need an explicit ask first). -->
-                                        <StackPanel Orientation="Horizontal" Margin="8,5">
-                                            <Path Data="M2,4 L2,10 L12,10 L12,4 Z M7,1 L7,6" Stroke="#5c6b74" StrokeThickness="1.3" Width="14" Height="12" Margin="0,0,8,0"/>
-                                            <TextBlock Text="{local:Loc Main.MenuApp.StartWithWindows}" Foreground="#5c6b74" VerticalAlignment="Center" FontSize="11.5"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="8,5">
-                                            <Path Data="M2,3 L12,3 L12,10 L2,10 Z M2,8 L12,8" Stroke="#5c6b74" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
-                                            <TextBlock Text="{local:Loc Main.MenuApp.MinimizeToTray}" Foreground="#5c6b74" VerticalAlignment="Center" FontSize="11.5"/>
-                                        </StackPanel>
+                                        <!-- Mit Windows starten: real action now (StartupRegistration.cs,
+                                             a per-user HKCU Run-key entry - explicit ask given, per the
+                                             user). Checkmark on the right, per the user asking for the
+                                             8-language dropdowns elsewhere too - reads as ON/OFF, not a
+                                             momentary click like the Buttons around it. IsChecked set
+                                             from the real registry state in the constructor, not assumed. -->
+                                        <ToggleButton x:Name="StartWithWindowsToggle" Style="{StaticResource AppMenuRow}" Click="OnStartWithWindowsClicked">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Path Grid.Column="0" Data="M2,4 L2,10 L12,10 L12,4 Z M7,1 L7,6" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="12" Margin="0,0,8,0"/>
+                                                <TextBlock Grid.Column="1" Text="{local:Loc Main.MenuApp.StartWithWindows}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                                <Path Grid.Column="2" Data="M1,4 L4,7.5 L9,1" Stroke="#f2a33d" StrokeThickness="1.8"
+                                                      Visibility="{Binding IsChecked, ElementName=StartWithWindowsToggle, Converter={StaticResource BoolToVis}}"
+                                                      Width="10" Height="8" Margin="8,0,0,0"/>
+                                            </Grid>
+                                        </ToggleButton>
+                                        <!-- In den Infobereich minimieren: real action (OnMinimizeToTrayClicked,
+                                             TrayIcon.cs) - a momentary click (hide now), not a persisted
+                                             setting like the toggle above, so a plain Button/row like the
+                                             other real actions rather than another checkmark row. -->
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnMinimizeToTrayClicked">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M2,3 L12,3 L12,10 L2,10 Z M2,8 L12,8" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuApp.MinimizeToTray}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
 
                                         <Border Height="1" Background="#21374a" Margin="4,6"/>
 
@@ -633,8 +666,12 @@
                          showed the placeholder navy/orange accent chip from before the icon
                          existed, not the actual logo shown everywhere else (taskbar, installer,
                          Settings' OS titlebar). Purely decorative here too (no click target), same
-                         as the chip it replaces. -->
-                    <Image Source="pack://siteoforigin:,,,/assets/app/aiondps.ico" Width="16" Height="16"
+                         as the chip it replaces. Source set in code-behind (OnWindowLoaded), not
+                         here - a plain pack://siteoforigin Source on this Image silently rendered
+                         nothing at all for this specific .ico, unlike the PNG icons elsewhere in
+                         this app; System.Drawing.Icon + CreateBitmapSourceFromHIcon is the same
+                         battle-tested decode path Explorer itself uses for any .ico. -->
+                    <Image x:Name="AppIconImage" Width="16" Height="16"
                            Margin="8,0,0,0" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="HighQuality"/>
                     <!-- Per the user: the version belongs where it's actually seen. Window.Title
                          already carries it (set in the constructor from AppVersion.Text, see its
@@ -659,21 +696,22 @@
                      App/Session/Mode set matched the myaion.eu reference; Settings was
                      split out of App into its own dropdown per the user's request, since App had
                      grown into one long grab-bag of session/dev/settings items with no fixed place
-                     to look for any one of them. Most remaining "App" items are placeholders (no
-                     session persistence, no tray icon, no auto-update, no auto-start-with-Windows
-                     - the last one specifically not implemented here even as a stub, since
-                     silently writing to the Windows Run registry key on click would be exactly the
-                     kind of action that needs an explicit ask first, not a UI-parity checkbox).
-                     What IS real: Close, Load Demo Data, Clear sessions, and everything under
-                     Settings. -->
+                     to look for any one of them. Load/Save Session, both folder buttons, Start
+                     with Windows and Minimize to tray were placeholders for a while (explicit ask
+                     needed first for the Windows-Run-key/tray-icon ones specifically) - given by
+                     the user, and all four are real now (SessionFile.cs, StartupRegistration.cs,
+                     TrayIcon.cs). Reset Connection is still the one remaining placeholder - no
+                     live network connection exists to reset in a Chat.log-tailing meter, so it
+                     was left out of that same round rather than built for the sake of it. -->
                 <Menu DockPanel.Dock="Top" Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}">
                     <!-- App-Menü A ("Flyout-Karte", vom User gebilligt): all 14 child MenuItems that
                          used to live here (Load/SaveSession, Export/ValidateSession, both folder
                          items, ResetConnection, ClearCurrentView, ReloadChatLog, FightHistory,
                          LoadDemoData, CheckForUpdates, StartWithWindows, MinimizeToTray, Close)
                          moved into AppMenuFlyoutStyle's own hand-authored Popup content above -
-                         same Click targets, same {local:Loc} keys, same IsEnabled=False items
-                         (now shown as muted rows instead of greyed-out MenuItems). Nothing here
+                         same Click targets, same {local:Loc} keys (muted rows instead of
+                         greyed-out MenuItems for whichever were still placeholders at the time -
+                         see that Popup content's own remarks for which still are). Nothing here
                          needs children anymore since the Popup no longer renders via
                          <ItemsPresenter/>. -->
                     <MenuItem x:Name="AppMenu" Header="{local:Loc Main.MenuApp}" Foreground="{DynamicResource Brush.Text}"
@@ -1091,7 +1129,13 @@
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="0,4">
+                                    <!-- Margin.Right 8 (not just the DpsDisplay TextBlock's own
+                                         smaller margin below) - per the user, the numbers were
+                                         still flush against the window's right edge; padding the
+                                         whole row template here is what actually guarantees
+                                         clearance regardless of how the DataGridTemplateColumn's
+                                         own Auto/Star columns end up sized. -->
+                                    <Grid Margin="0,4,8,4">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
@@ -1134,7 +1178,11 @@
                                              (TakenDisplay), avoided attacks (DefenseDisplay - real
                                              D/P/B/R values, never invented placeholders) and PVP stats
                                              (PvpDisplay) - each blank when there is nothing to say. -->
-                                        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="50,0,0,0">
+                                        <!-- Flush left (Margin.Left 0), matching the ShareBar right
+                                             above it - per the user, this line still had the OLD
+                                             margin (50, aligned under the name) from before the bar
+                                             itself moved to start under the faction icon instead. -->
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal">
                                             <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
                                             <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Margin="6,0,0,0"
                                                        ToolTip="Damage this player received in the shown window"/>

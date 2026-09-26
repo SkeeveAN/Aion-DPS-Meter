@@ -1202,5 +1202,35 @@
     "pl": "obecnie",
     "tr": "şu anda",
     "zh": "当前"
+  },
+  "Main.HistoryBanner": {
+    "en": "Viewing stored fight: {0} ({1}) - click to return to the live session.",
+    "de": "Gespeicherter Kampf wird angezeigt: {0} ({1}) - klicken, um zur laufenden Sitzung zurückzukehren.",
+    "fr": "Combat enregistré affiché : {0} ({1}) - cliquez pour revenir à la session en direct.",
+    "es": "Mostrando combate guardado: {0} ({1}) - haz clic para volver a la sesión en vivo.",
+    "ru": "Показан сохранённый бой: {0} ({1}) - нажмите, чтобы вернуться к текущей сессии.",
+    "pl": "Wyświetlana zapisana walka: {0} ({1}) - kliknij, aby wrócić do bieżącej sesji.",
+    "tr": "Kaydedilmiş savaş gösteriliyor: {0} ({1}) - canlı oturuma dönmek için tıklayın.",
+    "zh": "正在查看已保存的战斗：{0}（{1}）- 点击返回当前实时会话。"
+  },
+  "Main.SessionBanner": {
+    "en": "Viewing a loaded session from {0} - click to return to the live session.",
+    "de": "Geladene Sitzung vom {0} wird angezeigt - klicken, um zur laufenden Sitzung zurückzukehren.",
+    "fr": "Session chargée du {0} affichée - cliquez pour revenir à la session en direct.",
+    "es": "Mostrando una sesión cargada del {0} - haz clic para volver a la sesión en vivo.",
+    "ru": "Показана загруженная сессия от {0} - нажмите, чтобы вернуться к текущей сессии.",
+    "pl": "Wyświetlana wczytana sesja z {0} - kliknij, aby wrócić do bieżącej sesji.",
+    "tr": "{0} tarihli yüklenmiş oturum gösteriliyor - canlı oturuma dönmek için tıklayın.",
+    "zh": "正在查看载入的会话（{0}）- 点击返回当前实时会话。"
+  },
+  "Main.Tray.Show": {
+    "en": "Show",
+    "de": "Anzeigen",
+    "fr": "Afficher",
+    "es": "Mostrar",
+    "ru": "Показать",
+    "pl": "Pokaż",
+    "tr": "Göster",
+    "zh": "显示"
   }
 }

@@ -11,6 +11,10 @@
     <!-- -windows suffix needed for WPF (Ui/); Aion itself is Windows-only, so the tool always was. -->
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <!-- WPF has no tray-icon API of its own - System.Windows.Forms.NotifyIcon (TrayIcon.cs, backing
+         "Minimize to system tray") is the standard way every WPF app gets one, hence this flag
+         purely for that one type. -->
+    <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>AionDPS</RootNamespace>
@@ -40,8 +44,20 @@
          workflow was triggered by, so a build can always be identified from a screenshot or a
          Chat.log someone sends in. That was exactly what was missing when a group member's log
          had to be matched to "the 0.3.0 build" from memory. Keep in step with the release tag. -->
-    <Version>0.8.7</Version>
+    <Version>0.8.8</Version>
   </PropertyGroup>
+
+  <!-- UseWindowsForms's own implicit-usings set adds a PROJECT-WIDE global "using
+       System.Windows.Forms" the moment ImplicitUsings is enabled - not scoped to TrayIcon.cs,
+       which is the only file that actually wants it. That collided with WPF's own
+       System.Windows.{Application,ComboBox,Button,TextBox,...} everywhere else in the project
+       (CS0104, ambiguous reference) the instant UseWindowsForms was turned on above. Removed here;
+       TrayIcon.cs keeps its own ordinary file-scoped "using System.Windows.Forms" instead, which
+       doesn't have this problem since nothing else in that one file collides with it. -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Self-updating: installs per-user under %LOCALAPPDATA%, so replacing the app's own files
