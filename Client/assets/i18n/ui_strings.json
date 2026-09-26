@@ -109,6 +109,16 @@
     "tr": "Chat.log'dan yeniden yükle",
     "zh": "从 Chat.log 重新加载"
   },
+  "Main.MenuApp.FightHistory": {
+    "en": "Fight History",
+    "de": "Kampfverlauf",
+    "fr": "Historique des combats",
+    "es": "Historial de combates",
+    "ru": "История боёв",
+    "pl": "Historia walk",
+    "tr": "Savaş Geçmişi",
+    "zh": "战斗记录"
+  },
   "Main.MenuApp.ClearCurrentView": {
     "en": "Clear current view",
     "de": "Aktuelle Ansicht leeren",
@@ -759,6 +769,16 @@
     "tr": "Oyuncu başına savuşturulan saldırıları göster",
     "zh": "显示每位玩家规避的攻击"
   },
+  "Settings.RecordFightHistory": {
+    "en": "Record fight history",
+    "de": "Kampfverlauf aufzeichnen",
+    "fr": "Enregistrer l'historique des combats",
+    "es": "Registrar historial de combates",
+    "ru": "Записывать историю боёв",
+    "pl": "Zapisuj historię walk",
+    "tr": "Savaş geçmişini kaydet",
+    "zh": "记录战斗历史"
+  },
   "Settings.ThemeDark": {
     "en": "Dark",
     "de": "Dunkel",
@@ -972,5 +992,195 @@
     "pl": "Zapisz",
     "tr": "Kaydet",
     "zh": "保存"
+  },
+  "History.Title": {
+    "en": "Fight History",
+    "de": "Kampfverlauf",
+    "fr": "Historique des combats",
+    "es": "Historial de combates",
+    "ru": "История боёв",
+    "pl": "Historia walk",
+    "tr": "Savaş Geçmişi",
+    "zh": "战斗记录"
+  },
+  "History.Search": {
+    "en": "Search:",
+    "de": "Suche:",
+    "fr": "Recherche :",
+    "es": "Buscar:",
+    "ru": "Поиск:",
+    "pl": "Szukaj:",
+    "tr": "Ara:",
+    "zh": "搜索："
+  },
+  "History.ColumnDate": {
+    "en": "Date",
+    "de": "Datum",
+    "fr": "Date",
+    "es": "Fecha",
+    "ru": "Дата",
+    "pl": "Data",
+    "tr": "Tarih",
+    "zh": "日期"
+  },
+  "History.ColumnTarget": {
+    "en": "Target",
+    "de": "Ziel",
+    "fr": "Cible",
+    "es": "Objetivo",
+    "ru": "Цель",
+    "pl": "Cel",
+    "tr": "Hedef",
+    "zh": "目标"
+  },
+  "History.ColumnDuration": {
+    "en": "Duration",
+    "de": "Dauer",
+    "fr": "Durée",
+    "es": "Duración",
+    "ru": "Длительность",
+    "pl": "Czas trwania",
+    "tr": "Süre",
+    "zh": "持续时间"
+  },
+  "History.ColumnDamage": {
+    "en": "Damage",
+    "de": "Schaden",
+    "fr": "Dégâts",
+    "es": "Daño",
+    "ru": "Урон",
+    "pl": "Obrażenia",
+    "tr": "Hasar",
+    "zh": "伤害"
+  },
+  "History.ColumnPlayers": {
+    "en": "Players",
+    "de": "Spieler",
+    "fr": "Joueurs",
+    "es": "Jugadores",
+    "ru": "Игроки",
+    "pl": "Gracze",
+    "tr": "Oyuncular",
+    "zh": "玩家"
+  },
+  "History.ColumnServer": {
+    "en": "Server",
+    "de": "Server",
+    "fr": "Serveur",
+    "es": "Servidor",
+    "ru": "Сервер",
+    "pl": "Serwer",
+    "tr": "Sunucu",
+    "zh": "服务器"
+  },
+  "History.Participants": {
+    "en": "Participants",
+    "de": "Teilnehmer",
+    "fr": "Participants",
+    "es": "Participantes",
+    "ru": "Участники",
+    "pl": "Uczestnicy",
+    "tr": "Katılımcılar",
+    "zh": "参与者"
+  },
+  "History.ColumnClass": {
+    "en": "Class",
+    "de": "Klasse",
+    "fr": "Classe",
+    "es": "Clase",
+    "ru": "Класс",
+    "pl": "Klasa",
+    "tr": "Sınıf",
+    "zh": "职业"
+  },
+  "History.ColumnHealing": {
+    "en": "Healing",
+    "de": "Heilung",
+    "fr": "Soins",
+    "es": "Curación",
+    "ru": "Лечение",
+    "pl": "Leczenie",
+    "tr": "İyileştirme",
+    "zh": "治疗"
+  },
+  "History.ColumnTaken": {
+    "en": "Taken",
+    "de": "Erlitten",
+    "fr": "Subis",
+    "es": "Recibido",
+    "ru": "Получено",
+    "pl": "Otrzymane",
+    "tr": "Alınan",
+    "zh": "承受"
+  },
+  "History.Hint": {
+    "en": "Double-click a fight to load it into the meter.",
+    "de": "Doppelklick auf einen Kampf lädt ihn ins Meter.",
+    "fr": "Double-cliquez sur un combat pour le charger dans le compteur.",
+    "es": "Haz doble clic en un combate para cargarlo en el medidor.",
+    "ru": "Дважды щёлкните по бою, чтобы загрузить его в счётчик.",
+    "pl": "Kliknij dwukrotnie walkę, aby wczytać ją do licznika.",
+    "tr": "Sayaca yüklemek için bir savaşa çift tıklayın.",
+    "zh": "双击一场战斗即可将其载入计量器。"
+  },
+  "History.LoadIntoMeter": {
+    "en": "Load into Meter",
+    "de": "Ins Meter laden",
+    "fr": "Charger dans le compteur",
+    "es": "Cargar en el medidor",
+    "ru": "Загрузить в счётчик",
+    "pl": "Wczytaj do licznika",
+    "tr": "Sayaca yükle",
+    "zh": "载入计量器"
+  },
+  "Common.Yes": {
+    "en": "Yes",
+    "de": "Ja",
+    "fr": "Oui",
+    "es": "Sí",
+    "ru": "Да",
+    "pl": "Tak",
+    "tr": "Evet",
+    "zh": "是"
+  },
+  "Common.No": {
+    "en": "No",
+    "de": "Nein",
+    "fr": "Non",
+    "es": "No",
+    "ru": "Нет",
+    "pl": "Nie",
+    "tr": "Hayır",
+    "zh": "否"
+  },
+  "Main.EmptyChatLogConfirm.Title": {
+    "en": "Empty Chat.log?",
+    "de": "Chat.log leeren?",
+    "fr": "Vider Chat.log ?",
+    "es": "¿Vaciar Chat.log?",
+    "ru": "Очистить Chat.log?",
+    "pl": "Wyczyścić Chat.log?",
+    "tr": "Chat.log boşaltılsın mı?",
+    "zh": "清空 Chat.log？"
+  },
+  "Main.EmptyChatLogConfirm.Warning": {
+    "en": "The file is emptied, not deleted, and the meter keeps recording. Everything Aion wrote into it so far is gone for good - including chat, not just combat lines.",
+    "de": "Die Datei wird geleert, nicht gelöscht, und der Meter zeichnet weiter auf. Alles, was Aion bisher hineingeschrieben hat, ist unwiderruflich weg - auch der Chat, nicht nur Kampfzeilen.",
+    "fr": "Le fichier est vidé, pas supprimé, et le compteur continue d'enregistrer. Tout ce qu'Aion y a écrit jusqu'ici est perdu définitivement - y compris le chat, pas seulement les lignes de combat.",
+    "es": "El archivo se vacía, no se elimina, y el medidor sigue grabando. Todo lo que Aion escribió en él hasta ahora se pierde para siempre, incluido el chat, no solo las líneas de combate.",
+    "ru": "Файл очищается, а не удаляется, и счётчик продолжает запись. Всё, что Aion успел туда записать, теряется безвозвратно - включая чат, а не только строки боя.",
+    "pl": "Plik zostaje wyczyszczony, a nie usunięty, a licznik nadal nagrywa. Wszystko, co Aion do tej pory tam zapisał, przepada bezpowrotnie - łącznie z czatem, nie tylko liniami walki.",
+    "tr": "Dosya siliniyor değil, boşaltılıyor ve sayaç kayda devam ediyor. Aion'un şimdiye kadar içine yazdığı her şey - sadece savaş satırları değil, sohbet de dahil - kalıcı olarak kayboluyor.",
+    "zh": "文件会被清空而非删除，计量器会继续记录。Aion 目前为止写入其中的一切都将永久消失 - 不仅是战斗记录，聊天内容也包括在内。"
+  },
+  "Main.EmptyChatLogConfirm.CurrentSize": {
+    "en": "currently",
+    "de": "aktuell",
+    "fr": "actuellement",
+    "es": "actualmente",
+    "ru": "сейчас",
+    "pl": "obecnie",
+    "tr": "şu anda",
+    "zh": "当前"
   }
 }

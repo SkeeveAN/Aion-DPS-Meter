@@ -1,0 +1,142 @@
+{
+  "Aethertech": {
+    "en": "Aethertech",
+    "de": "Äthertech",
+    "fr": "Éthertech",
+    "es": "Piloto de Éter",
+    "ru": "Пилот",
+    "pl": "Pilot Eteru",
+    "tr": "Esir Pilotu",
+    "zh": "以太科技师"
+  },
+  "Assassin": {
+    "en": "Assassin",
+    "de": "Assassine",
+    "fr": "Assassin",
+    "es": "Asesino",
+    "ru": "Убийца",
+    "pl": "Assasyn",
+    "tr": "Suikastçı",
+    "zh": "刺客"
+  },
+  "Bard": {
+    "en": "Bard",
+    "de": "Barde",
+    "fr": "Barde",
+    "es": "Bardo",
+    "ru": "Бард",
+    "pl": "Bard",
+    "tr": "Ozan",
+    "zh": "吟游诗人"
+  },
+  "Brawler": {
+    "en": "Brawler",
+    "de": "Raufbold",
+    "fr": "Bagarreur",
+    "es": "Luchador",
+    "ru": "Боец",
+    "pl": "Awanturnik",
+    "tr": "Kavgacı",
+    "zh": "格斗家"
+  },
+  "Chanter": {
+    "en": "Chanter",
+    "de": "Kantor",
+    "fr": "Aède",
+    "es": "Cantor",
+    "ru": "Заклинатель",
+    "pl": "Kantor",
+    "tr": "Duacı",
+    "zh": "圣咏者"
+  },
+  "Cleric": {
+    "en": "Cleric",
+    "de": "Kleriker",
+    "fr": "Clerc",
+    "es": "Clérigo",
+    "ru": "Целитель",
+    "pl": "Kleryk",
+    "tr": "Rahip",
+    "zh": "牧师"
+  },
+  "Elementalist": {
+    "en": "Elementalist",
+    "de": "Elementarist",
+    "fr": "Élémentaliste",
+    "es": "Elementalista",
+    "ru": "Элементалист",
+    "pl": "Elementalista",
+    "tr": "Elementalist",
+    "zh": "元素使"
+  },
+  "Gladiator": {
+    "en": "Gladiator",
+    "de": "Gladiator",
+    "fr": "Gladiateur",
+    "es": "Gladiador",
+    "ru": "Гладиатор",
+    "pl": "Gladiator",
+    "tr": "Gladyatör",
+    "zh": "角斗士"
+  },
+  "Gunner": {
+    "en": "Gunner",
+    "de": "Schütze",
+    "fr": "Pistolero",
+    "es": "Artillero",
+    "ru": "Снайпер",
+    "pl": "Strzelec",
+    "tr": "Nişancı",
+    "zh": "枪手"
+  },
+  "Painter": {
+    "en": "Painter",
+    "de": "Künstler",
+    "fr": "Artiste",
+    "es": "Pintor",
+    "ru": "Артист",
+    "pl": "Malarz",
+    "tr": "Ressam",
+    "zh": "画师"
+  },
+  "Ranger": {
+    "en": "Ranger",
+    "de": "Jäger",
+    "fr": "Rôdeur",
+    "es": "Explorador",
+    "ru": "Стрелок",
+    "pl": "Łowca",
+    "tr": "Okçu",
+    "zh": "弓箭手"
+  },
+  "Sorcerer": {
+    "en": "Sorcerer",
+    "de": "Zauberer",
+    "fr": "Sorcier",
+    "es": "Hechicero",
+    "ru": "Чародей",
+    "pl": "Czarodziej",
+    "tr": "Büyücü",
+    "zh": "魔法师"
+  },
+  "Spiritmaster": {
+    "en": "Spiritmaster",
+    "de": "Beschwörer",
+    "fr": "Spiritualiste",
+    "es": "Invocador",
+    "ru": "Волшебник",
+    "pl": "Mistrz Duchów",
+    "tr": "Ruh Ustası",
+    "zh": "灵术师"
+  },
+  "Templar": {
+    "en": "Templar",
+    "de": "Templer",
+    "fr": "Templier",
+    "es": "Templario",
+    "ru": "Страж",
+    "pl": "Templariusz",
+    "tr": "Tapınak Şövalyesi",
+    "zh": "圣骑士"
+  }
+}

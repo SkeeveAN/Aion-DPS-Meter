@@ -11,10 +11,11 @@ namespace AionDPS.Ui;
 /// written in (see ChatLog/ChatLogParser's multi-language remarks): a German player can run an
 /// English game client, or vice versa, and the two settings have nothing to do with each other.
 /// Backed by assets/i18n/ui_strings.json, a flat "key -> {language code: text}" table covering the
-/// menu bar, buttons, group headers and tooltips -- deliberately NOT game-proper-noun class/faction
-/// names (Gladiator, Elyos, ...), which stay in their game-canonical English form for now; see
-/// assets/README.md for why translating those safely needs a verified per-language mapping this
-/// project doesn't have yet (its own class_names_multilang.json is explicitly not index-aligned).
+/// menu bar, buttons, group headers and tooltips. Class names are a separate table instead
+/// (AionDPS.Data.ClassCatalog.DisplayName, assets/classes/class_names_i18n.json) - see its own
+/// remarks on why assets/classes/class_names_multilang.json couldn't just be wired in as-is.
+/// Faction names (Elyos, Asmodian) stay icon-only in the UI that shows them (Settings >
+/// Characters) rather than needing text at all - see NewCharacterFactionBox's own remarks.
 ///
 /// A single process-wide instance (<see cref="Instance"/>) rather than one per window: every open
 /// window's bindings need to repaint together the instant the language changes in Settings, and a

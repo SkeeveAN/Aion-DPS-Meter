@@ -27,6 +27,11 @@ public partial class SettingsWindow : Window
     /// NewCharacterServerBox is simply empty rather than blocking the whole dialog on a network call.</summary>
     private List<AionDPS.Server.ServerCatalogEntry> _serverCatalog = new();
 
+    // Keeps the OS titlebar itself dark, matching MainWindow's own chrome (see DarkTitleBar) -
+    // this dialog is the only window left using the plain OS titlebar/border instead of drawing
+    // its own, so it's the one place this still needs doing explicitly.
+    private void OnSourceInitialized(object? sender, EventArgs e) => DarkTitleBar.Apply(this);
+
     public SettingsWindow(MeterSettings settings)
     {
         InitializeComponent();
@@ -189,8 +194,26 @@ public partial class SettingsWindow : Window
                 });
             }
 
-            panel.Children.Add(new TextBlock { Text = className, VerticalAlignment = VerticalAlignment.Center });
-            NewCharacterClassBox.Items.Add(new ComboBoxItem { Content = panel, Tag = className, ToolTip = className });
+            // Text is the localized display name (ClassCatalog.DisplayName) - per the user, who
+            // wants the 8 UI languages honored here too; Tag stays the raw English name
+            // (RebuildClassBox's own callers - Add/Update/RefreshUploadAvailability etc. - all key
+            // off Tag). MaxWidth+TextTrimming is the safety net for the rare translation that
+            // doesn't fit NewCharacterClassBox's own width (see its remarks) - the ToolTip carries
+            // both names in full so nothing is actually lost, just not always shown untrimmed.
+            string displayName = ClassCatalog.DisplayName(className, LocalizationManager.Instance.Language);
+            panel.Children.Add(new TextBlock
+            {
+                Text = displayName,
+                VerticalAlignment = VerticalAlignment.Center,
+                MaxWidth = 80,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+            });
+            NewCharacterClassBox.Items.Add(new ComboBoxItem
+            {
+                Content = panel,
+                Tag = className,
+                ToolTip = displayName == className ? className : $"{displayName} ({className})",
+            });
         }
 
         if (previous is not null && ClassCatalog.IsKnownClass(_game, previous))
@@ -632,6 +655,10 @@ public partial class SettingsWindow : Window
         if (LanguageBox.SelectedItem is ComboBoxItem { Tag: string code })
         {
             LocalizationManager.Instance.Language = code;
+            // Not covered by the {local:Loc ...} bindings LocalizationManager.Language already
+            // repaints - RebuildClassBox writes each item's Text as a plain string once, so
+            // switching language needs telling explicitly, same as ApplyGameToInstallSection.
+            RebuildClassBox();
         }
     }
 

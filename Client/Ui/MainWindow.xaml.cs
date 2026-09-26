@@ -130,6 +130,29 @@ public partial class MainWindow : Window
     private readonly List<AvoidEvent> _avoids = new();
     private readonly List<KillEvent> _kills = new();
 
+    /// <summary>Rolling baseline of ordinary (non-boss-looking) PVE kills' (total damage taken,
+    /// fight duration) - what <see cref="LooksLikeBoss"/> compares a target against to flag an
+    /// uncurated map/world boss for the Mob/Boss dropdown, per the user: a target that took much
+    /// more damage to bring down, or much longer to kill, than the mobs killed shortly before it
+    /// is a boss even with a name EndBossDatabase has never seen. Deliberately built from
+    /// DamageEvent/KillEvent alone (no rank, no name list) so it works identically for Chat.log
+    /// (Aion) and packet capture (Aion 2). This ONLY decides what's shown locally - what may ever
+    /// be UPLOADED stays EndBossDatabase's own, separate, stricter allowlist.
+    /// <see cref="_trashBaselineTargetIds"/> guards against folding the same completed kill into
+    /// this queue twice across repeated RefreshMobBossFilterItems calls.</summary>
+    private readonly Queue<(long Damage, double DurationSeconds)> _recentTrashKills = new();
+    private readonly HashSet<int> _trashBaselineTargetIds = new();
+    private const int BossBaselineWindow = 20;
+    private const int BossBaselineMinSamples = 3;
+    private const double BossDamageFactor = 5.0;
+    private const double BossDurationFactor = 4.0;
+
+    /// <summary>Absolute fallback for when there's no baseline to compare against at all (a fresh
+    /// Chat.log, or the meter started mid-fight) - per the user, "several minutes with several
+    /// players" is a boss on its own regardless of what's been killed around it, if anything.</summary>
+    private const double BossAbsoluteDurationSeconds = 180;
+    private const int BossAbsoluteMinParticipants = 2;
+
     // Local fight history (History/). The store is opened once and shared between the recorder
     // (files finished fights from the live event list) and the history window. _historyMode is
     // true while a past fight is loaded into the grid instead of the live session - the recorder
@@ -1711,10 +1734,13 @@ public partial class MainWindow : Window
     /// as a selectable "Mob/Boss", which they plainly aren't (see LiveAggregator.Summarize's
     /// remarks for the same underlying IsHeal-filter gap in a different consumer).
     ///
-    /// A non-player target additionally has to be a curated real end boss (see EndBossDatabase) --
-    /// per the user, a mini-boss/trash mob killed on the way to a real end boss must never appear
-    /// in this dropdown or its search at all, not just be excluded from upload later. A player
-    /// target (PVP) is never subject to that check - EndBossDatabase only curates PVE bosses.</summary>
+    /// A non-player target additionally has to EITHER be a curated real end boss (see
+    /// EndBossDatabase) OR look like one on its own numbers (see LooksLikeBoss) -- per the user, a
+    /// mini-boss/trash mob killed on the way to a real end boss must never appear in this dropdown
+    /// or its search at all, not just be excluded from upload later, while an uncurated map/world
+    /// boss (no curated name, so EndBossDatabase alone would hide it entirely) should still show
+    /// up once its own fight marks it as clearly tougher than what's been killed around it. A
+    /// player target (PVP) is never subject to either check - both only curate/detect PVE bosses.</summary>
     private void RefreshMobBossFilterItems()
     {
         var knownIds = _mobBossEntries.Select(entry => entry.TargetId).ToHashSet();
@@ -1722,13 +1748,19 @@ public partial class MainWindow : Window
 
         foreach (int targetId in _aggregator.Events.Where(ev => !ev.IsHeal).Select(ev => ev.TargetObjectId).Distinct())
         {
+            bool isPlayerTarget = IsPlayerName(targetId);
+            if (!isPlayerTarget)
+            {
+                UpdateTrashBaseline(targetId);
+            }
+
             if (knownIds.Contains(targetId))
             {
                 continue;
             }
 
             string name = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
-            if (!IsPlayerName(targetId) && !EndBossDatabase.IsKnownEndBoss(name))
+            if (!isPlayerTarget && !EndBossDatabase.IsKnownEndBoss(name) && !LooksLikeBoss(targetId))
             {
                 continue;
             }
@@ -1742,6 +1774,95 @@ public partial class MainWindow : Window
             ApplyMobBossSearchFilter();
             RefreshUploadAvailability();
         }
+    }
+
+    /// <summary>Folds ONE completed (killed), still-ordinary PVE target into
+    /// <see cref="_recentTrashKills"/> - guarded by <see cref="_trashBaselineTargetIds"/> so a
+    /// target already folded in is never counted twice across repeated calls, and by
+    /// <see cref="LooksLikeBoss"/> itself so a target that already reads as a boss never drags
+    /// the baseline up for the next one. Does nothing for a target that hasn't died yet (no
+    /// matching KillEvent) - its final damage/duration aren't known until it has.</summary>
+    private void UpdateTrashBaseline(int targetId)
+    {
+        if (_trashBaselineTargetIds.Contains(targetId) || LooksLikeBoss(targetId))
+        {
+            return;
+        }
+
+        var matchingKills = _kills.Where(k => !k.VictimIsPlayer && k.VictimObjectId == targetId).ToList();
+        if (matchingKills.Count == 0)
+        {
+            return;
+        }
+
+        KillEvent kill = matchingKills[^1];
+
+        var hits = _aggregator.Events.Where(ev => !ev.IsHeal && ev.TargetObjectId == targetId).OrderBy(ev => ev.Timestamp).ToList();
+        if (hits.Count == 0)
+        {
+            return;
+        }
+
+        _trashBaselineTargetIds.Add(targetId);
+        _recentTrashKills.Enqueue((hits.Sum(e => e.Amount), (kill.Timestamp - hits[0].Timestamp).TotalSeconds));
+        if (_recentTrashKills.Count > BossBaselineWindow)
+        {
+            _recentTrashKills.Dequeue();
+        }
+    }
+
+    /// <summary>Whether a PVE target's OWN fight - total damage taken so far, and how long it's
+    /// run so far - already stands out from <see cref="_recentTrashKills"/>, the recent ordinary
+    /// kills around it, OR already clears an absolute bar on its own. No name or rank data needed,
+    /// so this works identically for Chat.log (Aion) and packet capture (Aion 2); see
+    /// RefreshMobBossFilterItems's own remarks for why this exists alongside, not instead of,
+    /// EndBossDatabase. Median rather than mean for the relative check - one real boss or one
+    /// oddly-long AFK pull sitting in the baseline window must not drag the bar itself up.</summary>
+    private bool LooksLikeBoss(int targetId)
+    {
+        var hits = _aggregator.Events.Where(ev => !ev.IsHeal && ev.TargetObjectId == targetId).OrderBy(ev => ev.Timestamp).ToList();
+        if (hits.Count == 0)
+        {
+            return false;
+        }
+
+        long damage = hits.Sum(e => e.Amount);
+        double duration = (hits[^1].Timestamp - hits[0].Timestamp).TotalSeconds;
+
+        // Absolute fallback, per the user: Chat.log may have just been emptied or the meter only
+        // just started mid-fight, with nothing at all recorded yet to compare against - a fight
+        // that's already run several minutes with several players in it is a boss on its own
+        // merits regardless, so this is checked before (not only as a last resort after) the
+        // baseline-relative rule below, which needs history this session may not have yet.
+        if (duration >= BossAbsoluteDurationSeconds
+            && hits.Select(e => e.SourceObjectId).Distinct().Count(IsPlayerName) >= BossAbsoluteMinParticipants)
+        {
+            return true;
+        }
+
+        // Too early in the session to know what "ordinary" even looks like here yet.
+        if (_recentTrashKills.Count < BossBaselineMinSamples)
+        {
+            return false;
+        }
+
+        long medianDamage = Median(_recentTrashKills.Select(k => k.Damage));
+        double medianDuration = Median(_recentTrashKills.Select(k => k.DurationSeconds));
+
+        return (medianDamage > 0 && damage >= medianDamage * BossDamageFactor)
+            || (medianDuration > 0 && duration >= medianDuration * BossDurationFactor);
+    }
+
+    private static long Median(IEnumerable<long> values)
+    {
+        var sorted = values.OrderBy(v => v).ToList();
+        return sorted.Count == 0 ? 0 : sorted[sorted.Count / 2];
+    }
+
+    private static double Median(IEnumerable<double> values)
+    {
+        var sorted = values.OrderBy(v => v).ToList();
+        return sorted.Count == 0 ? 0 : sorted[sorted.Count / 2];
     }
 
     /// <summary>
@@ -2802,10 +2923,6 @@ public partial class MainWindow : Window
         }
 
         long size = ChatLogMaintenance.SizeOf(_chatLogPath);
-        string question =
-            $"Empty Chat.log?\n\n{_chatLogPath}\ncurrently {size / (1024.0 * 1024.0):F0} MB\n\n" +
-            "The file is emptied, not deleted, and the meter keeps recording. Everything Aion wrote " +
-            "into it so far is gone for good - including chat, not just combat lines.";
 
         // Refused, not merely discouraged. Truncating a file another process holds open does not
         // reclaim anything: the client keeps its write offset, so its next line restores the file
@@ -2823,7 +2940,26 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (MessageBox.Show(this, question, "Empty Chat.log", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+        // In-app confirmation (EmptyChatLogConfirmOverlay) instead of a blocking MessageBox, per
+        // the user - see the overlay's own remarks in MainWindow.xaml. Continues asynchronously
+        // in OnEmptyChatLogConfirmYesClicked instead of returning a result here.
+        EmptyChatLogConfirmPathText.Text = $"{_chatLogPath}\n{ChatLogSizeText(size)}";
+        EmptyChatLogConfirmOverlay.Visibility = Visibility.Visible;
+    }
+
+    private static string ChatLogSizeText(long size) =>
+        $"{LocalizationManager.Instance["Main.EmptyChatLogConfirm.CurrentSize"]} {size / (1024.0 * 1024.0):F0} MB";
+
+    private void OnEmptyChatLogConfirmNoClicked(object sender, RoutedEventArgs e)
+    {
+        EmptyChatLogConfirmOverlay.Visibility = Visibility.Collapsed;
+    }
+
+    private void OnEmptyChatLogConfirmYesClicked(object sender, RoutedEventArgs e)
+    {
+        EmptyChatLogConfirmOverlay.Visibility = Visibility.Collapsed;
+
+        if (_chatLogPath is null)
         {
             return;
         }
@@ -2972,6 +3108,8 @@ public partial class MainWindow : Window
         KinahValueText.Text = "-";
 
         _mobBossEntries.Clear();
+        _recentTrashKills.Clear();
+        _trashBaselineTargetIds.Clear();
         ApplyMobBossSearchFilter();
         RefreshUploadAvailability();
     }
@@ -3073,6 +3211,18 @@ public partial class MainWindow : Window
             // whole meter down mid-raid for something as minor as a failed copy.
             MessageBox.Show(this, $"The clipboard was busy and the copy failed.\n\n{ex.Message}",
                 "Copy", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        // A big roster's chat line comes back as several lines (ChunkChatLineParts) - a single
+        // paste puts all of them in the clipboard, but Aion's own chat box still only accepts one
+        // line per Enter, and silently rejects a pasted line once it's too long (see
+        // ChatLineCharLimit's own remarks) rather than truncating it. Said here, not just left
+        // for the user to discover by a paste that mysteriously "does nothing" a second time.
+        int lineCount = text.Count(c => c == '\n') + 1;
+        if (lineCount > 1)
+        {
+            ShowUploadStatus($"Copied {lineCount} chat lines - paste and send each one separately, Aion's chat box rejects one this long as a single message.");
         }
     }
 
@@ -3085,6 +3235,46 @@ public partial class MainWindow : Window
     /// ChatLogParser's number-format remarks) for visual consistency with what the game itself
     /// would show, not because DPS is naturally an integer -- it's rounded to match.
     /// </summary>
+    /// <summary>Aion's own chat box rejects a paste outright once the resulting line would be too
+    /// long, rather than truncating it - reported by the user as "pasting did nothing at all".
+    /// Empirically confirmed by the user: a manually-typed 255-character line went through fine,
+    /// a pasted ~275-character line didn't. Per the user, 255 exactly - the confirmed-working
+    /// boundary itself, not a margin below it.</summary>
+    private const int ChatLineCharLimit = 255;
+
+    /// <summary>Splits already-formatted "one entry per row" strings into lines that each fit
+    /// under <see cref="ChatLineCharLimit"/> (joined by ", " within a line, same as the
+    /// unsplit format before this existed) - multiple lines are meant to be pasted into Aion
+    /// chat and sent one at a time, not as a single paste.</summary>
+    private static List<string> ChunkChatLineParts(IReadOnlyList<string> parts, int limit)
+    {
+        var lines = new List<string>();
+        var current = new StringBuilder();
+        foreach (string part in parts)
+        {
+            int prospectiveLength = current.Length == 0 ? part.Length : current.Length + 2 + part.Length;
+            if (current.Length > 0 && prospectiveLength > limit)
+            {
+                lines.Add(current.ToString());
+                current.Clear();
+            }
+
+            if (current.Length > 0)
+            {
+                current.Append(", ");
+            }
+
+            current.Append(part);
+        }
+
+        if (current.Length > 0)
+        {
+            lines.Add(current.ToString());
+        }
+
+        return lines;
+    }
+
     private string BuildDmgRankingText()
     {
         var ranked = _rows.OrderByDescending(r => r.Damage).ToList();
@@ -3099,7 +3289,7 @@ public partial class MainWindow : Window
             parts.Add($"{i + 1}, {row.Name}, {damageText} [{dpsText}]");
         }
 
-        return string.Join(", ", parts);
+        return string.Join("\n", ChunkChatLineParts(parts, ChatLineCharLimit));
     }
 
     /// <summary>
@@ -3130,14 +3320,19 @@ public partial class MainWindow : Window
             parts.Add($"{row.Name} {damageText} ({dpsText})");
         }
 
-        string line = string.Join(", ", parts);
-        if (_selectedTargetId is not int targetId || line.Length == 0)
+        if (parts.Count == 0)
         {
-            return line;
+            return "";
         }
 
-        string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
-        return $"{bossName}: {line}";
+        List<string> lines = ChunkChatLineParts(parts, ChatLineCharLimit);
+        if (_selectedTargetId is int targetId)
+        {
+            string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
+            lines[0] = $"{bossName}: {lines[0]}";
+        }
+
+        return string.Join("\n", lines);
     }
 
     private static readonly NumberFormatInfo DotGroupedNumberFormat = new() { NumberGroupSeparator = "." };

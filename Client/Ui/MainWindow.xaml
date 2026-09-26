@@ -628,11 +628,14 @@
             <DockPanel LastChildFill="True">
 
                 <Grid DockPanel.Dock="Top" Background="{DynamicResource Brush.TitleBar}" Height="30" MouseLeftButtonDown="OnTitleBarMouseDown">
-                    <!-- Small brand mark, per the reference layout - same navy/orange gradient chip
-                         as the App-Menü flyout/Settings sidebar this session, kept purely decorative
-                         (no click target) since the real menu already sits one row below. -->
-                    <Border Width="16" Height="16" CornerRadius="4" Margin="8,0,0,0" HorizontalAlignment="Left"
-                            Background="{DynamicResource Brush.Accent}"/>
+                    <!-- The real app icon (assets/app/aiondps.ico, also ApplicationIcon in the
+                         .csproj - see its remarks) - per the user, who noticed this corner still
+                         showed the placeholder navy/orange accent chip from before the icon
+                         existed, not the actual logo shown everywhere else (taskbar, installer,
+                         Settings' OS titlebar). Purely decorative here too (no click target), same
+                         as the chip it replaces. -->
+                    <Image Source="pack://siteoforigin:,,,/assets/app/aiondps.ico" Width="16" Height="16"
+                           Margin="8,0,0,0" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="HighQuality"/>
                     <!-- Per the user: the version belongs where it's actually seen. Window.Title
                          already carries it (set in the constructor from AppVersion.Text, see its
                          remarks on why a screenshot needs to identify its build), but WindowStyle=
@@ -1064,16 +1067,6 @@
                              the way a character actually presents. Icon falls back to nothing (no
                              icon, no crash) for "?" or any class name without a matching
                              assets/classes/icons/*.png - see ClassIconConverter. -->
-                        <!-- Rank by damage within the shown rows (PlayerRow.Rank) - stays correct
-                             however the user sorts the grid, which is the point of showing it. -->
-                        <DataGridTemplateColumn Header="#" Width="34">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextMuted}"
-                                               HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
                         <!-- Name and Damage/DPS used to be two independently-resizable columns
                              (NameColumn/DpsColumn, widths persisted via MeterSettings) - merged into
                              one Width="*" column per the user's reference layout, so the ShareBar
@@ -1126,16 +1119,16 @@
                                             <TextBlock Grid.Column="2" Text="{Binding Name}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                                             <TextBlock Grid.Column="3" Text="{Binding Damage, StringFormat=N0}" VerticalAlignment="Center" FontWeight="SemiBold" Margin="10,0,0,0"/>
                                             <TextBlock Grid.Column="4" Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
-                                                       VerticalAlignment="Bottom" Margin="6,0,0,0"/>
+                                                       VerticalAlignment="Bottom" Margin="6,0,4,0"/>
                                         </Grid>
 
                                         <!-- Same ShareBar as before (Ui/Styles/Shared.xaml), now
                                              spanning this whole merged column instead of just the old
-                                             124px Damage column - Margin.Left (50) lines its start up
-                                             with where the name text above begins (20+4+20+6). -->
+                                             124px Damage column - per the user, starts flush under the
+                                             faction icon (Margin.Left 0) rather than under the name. -->
                                         <ProgressBar Grid.Row="1" Style="{StaticResource ShareBar}" Value="{Binding SharePercent, Mode=OneWay}"
                                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"
-                                                     Margin="50,2,0,1"/>
+                                                     Margin="0,2,0,1"/>
 
                                         <!-- Second line: relic AP (ApDisplay), damage received
                                              (TakenDisplay), avoided attacks (DefenseDisplay - real
@@ -1209,6 +1202,36 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Content="{local:Loc Main.UpdateReady.Later}" Click="OnUpdateRestartLaterClicked" Margin="0,0,8,0" Padding="12,4"/>
                             <Button Content="{local:Loc Main.UpdateReady.RestartNow}" Click="OnUpdateRestartNowClicked" Padding="12,4"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Border>
+
+            <!-- "Empty Chat.log?" confirmation, in-app and app-themed - per the user, same
+                 reasoning as UpdateRestartOverlay just above (a native MessageBox would carry the
+                 OS's own chrome, clashing with everything else this window draws itself). No/Yes
+                 order (not Windows' native Yes/No) matches UpdateRestartOverlay's own
+                 safe-option-left, destructive-option-right layout (Later/RestartNow) rather than
+                 the OS default. -->
+            <Border x:Name="EmptyChatLogConfirmOverlay" Visibility="Collapsed" Background="#AA000000">
+                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
+                        BorderThickness="1" CornerRadius="4" Padding="20" MaxWidth="380"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <Path Data="M8,1 L15,14 L1,14 Z M8,5.5 L8,9.3 M8,11.2 L8,11.5" Stroke="{DynamicResource Brush.Warning}"
+                                  StrokeThickness="1.3" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Width="16" Height="15" Margin="0,0,8,0"/>
+                            <TextBlock Text="{local:Loc Main.EmptyChatLogConfirm.Title}" FontWeight="Bold" FontSize="14"
+                                       Foreground="{DynamicResource Brush.Text}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock x:Name="EmptyChatLogConfirmPathText" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,10"/>
+                        <TextBlock Text="{local:Loc Main.EmptyChatLogConfirm.Warning}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource Brush.Danger}" Margin="0,0,0,16"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="{local:Loc Common.No}" Click="OnEmptyChatLogConfirmNoClicked" Margin="0,0,8,0" Padding="12,4"/>
+                            <Button Content="{local:Loc Common.Yes}" Click="OnEmptyChatLogConfirmYesClicked" Padding="12,4"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
