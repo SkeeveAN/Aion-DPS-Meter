@@ -19,6 +19,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     private long _damageTaken;
     private bool _showShareBar = true;
     private bool _showDamageTaken = true;
+    private bool _showRelicAp;
     private string _defenseDisplay = "";
     private string _pvpDisplay = "";
 
@@ -89,14 +90,22 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public long? RelicAp
     {
         get => _relicAp;
-        set { _relicAp = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); }
+        set { _relicAp = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
+    }
+
+    /// <summary>Mirror MeterSettings.ShowRelicAp - see ShowDamageTaken's own remarks.</summary>
+    public bool ShowRelicAp
+    {
+        get => _showRelicAp;
+        set { _showRelicAp = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     /// <summary>Per the user: only the relic share, not the combined total -- this line's whole
     /// purpose is deciding who still needs relics handed to them before the group exchanges them,
     /// and a number that mixes in already-earned AP obscures exactly that. Blank once the relics
-    /// are exchanged (RelicAp drops back to 0/null), same as any player who never picked one up.</summary>
-    public string ApDisplay => RelicAp is long relic && relic > 0
+    /// are exchanged (RelicAp drops back to 0/null), same as any player who never picked one up,
+    /// or whenever the setting is off.</summary>
+    public string ApDisplay => ShowRelicAp && RelicAp is long relic && relic > 0
         ? $"Relic AP: {relic:N0}"
         : "";
 
@@ -123,10 +132,17 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public long DamageTaken
     {
         get => _damageTaken;
-        set { _damageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); }
+        set { _damageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     public string TakenDisplay => ShowDamageTaken && DamageTaken > 0 ? $"↓ {DamageTaken:N0}" : "";
+
+    /// <summary>Whether the second info line (AP/Taken/Defense/Pvp) has anything to show at all -
+    /// per the user, that line should default to invisible (and its Auto row collapse to zero
+    /// height with it) rather than sit there empty, since AP/Taken/Defense are all opt-in settings
+    /// now and most rows will have none of them on.</summary>
+    public bool HasSecondaryInfo =>
+        ApDisplay.Length > 0 || TakenDisplay.Length > 0 || DefenseDisplay.Length > 0 || PvpDisplay.Length > 0;
 
     /// <summary>Mirror MeterSettings.ShowShareBars/ShowDamageTaken - set on every refresh so a
     /// changed setting reaches rows that already exist.</summary>
@@ -139,7 +155,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public bool ShowDamageTaken
     {
         get => _showDamageTaken;
-        set { _showDamageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); }
+        set { _showDamageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     /// <summary>Avoided-attack tally ("D 3 · P 12 · B 8 (41%)", see Combat/DefenseStats) - blank
@@ -147,7 +163,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string DefenseDisplay
     {
         get => _defenseDisplay;
-        set { _defenseDisplay = value; OnPropertyChanged(); }
+        set { _defenseDisplay = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     /// <summary>Kills/deaths/biggest hit against players (see Combat/PvpStats) - only filled in
@@ -155,7 +171,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string PvpDisplay
     {
         get => _pvpDisplay;
-        set { _pvpDisplay = value; OnPropertyChanged(); }
+        set { _pvpDisplay = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     public PlayerRow(int objectId)

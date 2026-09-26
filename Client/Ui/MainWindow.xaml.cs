@@ -126,8 +126,9 @@ public partial class MainWindow : Window
     /// <summary>Mirror MeterSettings.ShowShareBars/ShowDamageTaken - cached here because
     /// RefreshRows runs every second and must not re-read the settings file each time.</summary>
     private bool _showShareBars = true;
-    private bool _showDamageTaken = true;
-    private bool _showDefenseStats = true;
+    private bool _showDamageTaken;
+    private bool _showDefenseStats;
+    private bool _showRelicAp;
 
     /// <summary>Avoided attacks and kill announcements from the source, kept beside the
     /// aggregator's damage events (they are not DamageEvents - see Combat/Sources). Cleared with
@@ -370,6 +371,7 @@ public partial class MainWindow : Window
         _showShareBars = settings.ShowShareBars;
         _showDamageTaken = settings.ShowDamageTaken;
         _showDefenseStats = settings.ShowDefenseStats;
+        _showRelicAp = settings.ShowRelicAp;
         _currentGame = settings.Game;
         _currentServerDisplayName = settings.ServerDisplayName;
         _characters = settings.Characters;
@@ -1591,6 +1593,7 @@ public partial class MainWindow : Window
             row.DamageTaken = damageTakenById.GetValueOrDefault(sourceId);
             row.ShowShareBar = _showShareBars;
             row.ShowDamageTaken = _showDamageTaken;
+            row.ShowRelicAp = _showRelicAp;
             row.DefenseDisplay = defenseById.GetValueOrDefault(sourceId)?.Display ?? "";
             row.PvpDisplay = pvpById.GetValueOrDefault(sourceId)?.Display ?? "";
 

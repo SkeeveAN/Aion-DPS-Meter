@@ -643,8 +643,13 @@
                              could remove the entry by hand, e.g. via Task Manager's Startup tab). -->
                         <CheckBox x:Name="StartWithWindowsBox" Content="{local:Loc Settings.StartWithWindows}" Margin="0,3"
                                   Checked="OnStartWithWindowsChanged" Unchecked="OnStartWithWindowsChanged"/>
-                        <!-- Per-row extras in the Damage view (see PlayerRow.SharePercent/DamageTaken). -->
+                        <!-- Per-row extras in the Damage view (see PlayerRow.SharePercent/DamageTaken).
+                             ShowRelicApBox/ShowDamageTakenBox/ShowDefenseStatsBox all default off
+                             (MeterSettings) - per the user, most rows have none of this on, so the
+                             second info line stays collapsed (see PlayerRow.HasSecondaryInfo) until
+                             someone opts in here. -->
                         <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,4,0,0"/>
+                        <CheckBox x:Name="ShowRelicApBox" Content="{local:Loc Settings.ShowRelicAp}" Margin="0,3"/>
                         <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}" Margin="0,3"/>
                         <CheckBox x:Name="ShowDefenseStatsBox" Content="{local:Loc Settings.ShowDefenseStats}" Margin="0,3"/>
                         <!-- Local only (History/FightStore, %AppData%) - nothing about it is uploaded. -->

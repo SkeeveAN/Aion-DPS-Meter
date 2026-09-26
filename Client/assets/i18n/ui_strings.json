@@ -759,6 +759,16 @@
     "tr": "Hasar payı çubuklarını göster",
     "zh": "显示伤害占比条"
   },
+  "Settings.ShowRelicAp": {
+    "en": "Show Relic AP per player",
+    "de": "Relic-AP pro Spieler anzeigen",
+    "fr": "Afficher l'AP de relique par joueur",
+    "es": "Mostrar AP de reliquia por jugador",
+    "ru": "Показывать реликтовые AP по игрокам",
+    "pl": "Pokaż AP reliktu na gracza",
+    "tr": "Oyuncu başına Relic AP göster",
+    "zh": "显示每位玩家的圣物AP"
+  },
   "Settings.ShowDamageTaken": {
     "en": "Show damage taken per player",
     "de": "Erlittenen Schaden pro Spieler anzeigen",

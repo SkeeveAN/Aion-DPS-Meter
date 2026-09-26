@@ -94,6 +94,7 @@ public partial class SettingsWindow : Window
         // OnStartWithWindowsChanged's own remarks.
         StartWithWindowsBox.IsChecked = StartupRegistration.IsEnabled();
         ShowShareBarsBox.IsChecked = settings.ShowShareBars;
+        ShowRelicApBox.IsChecked = settings.ShowRelicAp;
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
         ShowDefenseStatsBox.IsChecked = settings.ShowDefenseStats;
         RecordFightHistoryBox.IsChecked = settings.RecordFightHistory;
@@ -714,8 +715,9 @@ public partial class SettingsWindow : Window
         _settings.Language = LocalizationManager.Instance.Language;
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
-        _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? true;
-        _settings.ShowDefenseStats = ShowDefenseStatsBox.IsChecked ?? true;
+        _settings.ShowRelicAp = ShowRelicApBox.IsChecked ?? false;
+        _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? false;
+        _settings.ShowDefenseStats = ShowDefenseStatsBox.IsChecked ?? false;
         _settings.RecordFightHistory = RecordFightHistoryBox.IsChecked ?? true;
         _settings.Game = _game;
         _settings.GameDetectionMode = _detectionMode;

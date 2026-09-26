@@ -80,11 +80,18 @@ public sealed class MeterSettings
     /// <summary>Share-of-group bar under each row's Damage/DPS line (see PlayerRow.SharePercent).</summary>
     public bool ShowShareBars { get; set; } = true;
 
-    /// <summary>"↓ N" damage-received figure on each row's second line (see PlayerRow.DamageTaken).</summary>
-    public bool ShowDamageTaken { get; set; } = true;
+    /// <summary>"↓ N" damage-received figure on each row's second line (see PlayerRow.DamageTaken).
+    /// Off by default, per the user: most players never want this second line at all, so the row
+    /// stays at its narrower single-line height until someone opts in.</summary>
+    public bool ShowDamageTaken { get; set; }
 
-    /// <summary>Dodge/parry/block/resist tally per row (see Combat/DefenseStats).</summary>
-    public bool ShowDefenseStats { get; set; } = true;
+    /// <summary>Dodge/parry/block/resist tally per row (see Combat/DefenseStats). Off by default -
+    /// same reasoning as ShowDamageTaken above.</summary>
+    public bool ShowDefenseStats { get; set; }
+
+    /// <summary>Relic AP figure on each row's second line (see PlayerRow.ApDisplay). Off by
+    /// default - same reasoning as ShowDamageTaken above.</summary>
+    public bool ShowRelicAp { get; set; }
 
     /// <summary>Whether finished fights are filed into the local history (History/FightRecorder,
     /// %AppData%\Aion DPS Meter\fights.db). Local only - nothing about it is ever uploaded.</summary>
