@@ -732,13 +732,13 @@ th {
 .home-stats-card {
   position: relative;
   z-index: 3;
-  /* Anchored 80px above the cards' top edge (its own ~72px height leaves an 8px gap), measured
+  /* Anchored 95px above the cards' top edge (its own ~76px height leaves a ~19px gap), measured
      from .home-below-hero rather than down from the hero, so the gap never depends on the card's
-     rendered height - the prototype's exact geometry. */
+     rendered height - the user's chosen "1c" from a round of position prototypes. */
   position: absolute;
   left: 0;
   right: 0;
-  top: -80px;
+  top: -95px;
   margin: 0 auto;
   /* Shrinks to its three items (a centered pill), not a 1300px-wide bar. */
   width: fit-content;
