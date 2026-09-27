@@ -389,13 +389,22 @@ async function renderHome() {
         ])
       : null;
 
+  // Classic Aion's instance list genuinely differs by server (Origin/EuroAion share one, Riftshade's
+  // is wider - see renderInstances' own remarks); scoped here the same way once a server is picked,
+  // so this teaser never shows an instance the visitor's own server doesn't even have. Never scoped
+  // by the SAME id for Aion 2, whose servers share one standard catalog - a classic-Aion
+  // serverCatalogId matches none of its server_catalog_instances rows and would empty the list out.
+  const aionParams = new URLSearchParams({ game: "aion" });
+  if (currentServerPicked && currentServerCatalogId !== null) {
+    aionParams.set("serverCatalogId", currentServerCatalogId);
+  }
   const [aionInstances, aion2Instances] = await Promise.all([
-    fetchJson("/api/instances?game=aion").catch(() => []),
+    fetchJson(`/api/instances?${aionParams}`).catch(() => []),
     fetchJson("/api/instances?game=aion2").catch(() => []),
   ]);
   const featured = [
-    ...aionInstances.slice(0, 3).map((i) => ({ ...i, game: "aion" })),
-    ...aion2Instances.slice(0, 3).map((i) => ({ ...i, game: "aion2" })),
+    ...[...aionInstances].sort(byMinLevelDescending).slice(0, 3).map((i) => ({ ...i, game: "aion" })),
+    ...[...aion2Instances].sort(byMinLevelDescending).slice(0, 3).map((i) => ({ ...i, game: "aion2" })),
   ];
   const featuredSection =
     featured.length > 0
