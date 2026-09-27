@@ -521,9 +521,9 @@ th {
 /* Centered hero (aiondps_claude_design_pack prototype comparison, 2026-09-24, "index-3.html") -
    full-bleed photo, text centered, no side quick-start card. */
 .home-hero-row {
-  /* Cancels out main's own 16px top padding so the hero photo sits flush against the header, like
-     the prototype comparison page - no gap between them. */
-  margin-top: -16px;
+  /* Cancels out main's own 16px top / 24px side padding so the hero photo runs flush against the
+     header and edge to edge (the chosen prototype has no side gutters on the hero). */
+  margin: -16px -24px 0;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -539,11 +539,10 @@ th {
      negative margin-top is what creates its overlap into the hero photo below; a margin here would
      partly cancel it out via margin collapsing. */
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  border: none;
   /* No border-radius (the prototype comparison page had none either) - flush against the header
      above, a rounded top corner there would look like a broken seam, not a clean card. */
   border-radius: 0;
-  box-shadow: var(--shadow-card);
 }
 
 .home-hero-row::before {
@@ -557,9 +556,11 @@ th {
   content: "";
   position: absolute;
   inset: 0;
+  /* Light touch, per the chosen prototype: the artwork stays clearly visible (only 55% dark at
+     the very bottom) so it keeps shining through the glass cards that overlap it. */
   background:
-    radial-gradient(ellipse at 30% 20%, rgba(95, 168, 255, 0.14) 0%, transparent 50%),
-    radial-gradient(ellipse at center, rgba(14, 24, 32, 0.55) 0%, rgba(14, 24, 32, 0.88) 85%);
+    radial-gradient(ellipse at 30% 20%, rgba(140, 120, 255, 0.28) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(10, 20, 32, 0.3) 0%, rgba(10, 20, 32, 0.45) 55%, rgba(10, 20, 32, 0.55) 100%);
 }
 
 .home-hero-row > * {
@@ -737,12 +738,15 @@ th {
      exactly on the cards' top edge - a negative margin rather than translateY so no layout space
      stays reserved where the card used to be. */
   margin: -276px auto 0;
-  padding: 20px 12px;
+  /* Shrinks to its three items (a centered pill), not a 1300px-wide bar. */
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
   display: flex;
   justify-content: center;
-  background: rgba(21, 37, 50, 0.85);
+  background: color-mix(in srgb, var(--color-background) 72%, transparent);
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: 16px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-shadow: var(--shadow-card);
@@ -751,8 +755,8 @@ th {
 .home-stat-item {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 0 56px;
+  gap: 12px;
+  padding: 16px 40px;
 }
 
 .home-stat-item:not(:last-child) {
@@ -783,13 +787,17 @@ th {
 .home-stat-text strong {
   display: block;
   font-size: 22px;
-  line-height: 1.15;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   color: #fff;
 }
 
 .home-stat-text span {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Footer closing CTA (aiondps_claude_design_pack prototype comparison, index-3.html) - logo left,
@@ -1769,4 +1777,56 @@ header .wordmark {
     width: auto;
     align-self: flex-start;
   }
+}
+
+/* Soft "aurora" glow bleeding out of the hero seam behind the glass cards (part of the chosen
+   prototype). Paints inside the grid's own stacking context, i.e. above the hero, below the cards. */
+.home-content-grid::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 360px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 60% at 22% 20%, rgba(140, 120, 255, 0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 78% 30%, rgba(80, 200, 255, 0.16) 0%, transparent 70%);
+  filter: blur(30px);
+}
+
+/* Tables inside the homepage cards: small tracked uppercase column heads, hairline rows, links
+   without underlines - the same treatment the prototype's tables had. */
+.home-section-card th {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: none;
+  padding: 0 8px 8px;
+}
+
+.home-section-card td {
+  padding: 7px 8px;
+  border-bottom: none;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+.home-section-card td a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.home-section-card td a:hover {
+  text-decoration: underline;
+}
+
+.home-section-card .ranked-table td:first-child {
+  color: var(--color-text-muted);
+}
+
+.home-section-card .ranked-table tr:first-child td:first-child {
+  color: var(--color-primary);
+  font-weight: 800;
 }
