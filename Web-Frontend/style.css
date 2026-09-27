@@ -530,10 +530,13 @@ th {
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: 420px;
-  padding: 40px 24px;
+  min-height: 620px;
+  /* The big bottom padding pushes the title/CTAs up: the stats card and the top of both content
+     cards live INSIDE the artwork below them (see .home-stats-card / .home-content-grid), per the
+     user's chosen prototype ("Variante 2c", 2026-09-27). */
+  padding: 40px 24px 300px;
   /* No margin-bottom (the prototype comparison page had none either) - the stats card's own
-     -36px margin-top is what creates its overlap into the hero photo below; a margin here would
+     negative margin-top is what creates its overlap into the hero photo below; a margin here would
      partly cancel it out via margin collapsing. */
   overflow: hidden;
   border: 1px solid var(--color-border);
@@ -547,7 +550,7 @@ th {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("/images/ui/hero-background.webp") center 35% / cover no-repeat;
+  background: url("/images/ui/hero-obelisk.webp") center 30% / cover no-repeat;
 }
 
 .home-hero-row::after {
@@ -727,12 +730,13 @@ th {
    prototype comparison, index-3.html), replacing the plain stats-row strip below the hero. */
 .home-stats-card {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   max-width: 1300px;
-  /* -43px is half this card's actual rendered height (~86px) - a translateY(-50%) would center
-     it more robustly, but it doesn't shrink the layout space reserved below the card, leaving an
-     oversized gap before the next section; a matched negative margin avoids that. */
-  margin: -43px auto 20px;
+  /* Pulled 276px up into the hero: 190px (how far the content cards below reach into the
+     artwork, see .home-content-grid) plus this card's own ~86px height, so its bottom edge lands
+     exactly on the cards' top edge - a negative margin rather than translateY so no layout space
+     stays reserved where the card used to be. */
+  margin: -276px auto 0;
   padding: 20px 12px;
   display: flex;
   justify-content: center;
@@ -809,13 +813,20 @@ th {
 }
 
 .home-footer-logo {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.home-footer-logo .accent {
-  color: #ffba42;
+.home-footer-emblem {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgba(255, 120, 40, 0.4);
+}
+
+.home-footer-logo .wordmark {
+  height: 48px;
 }
 
 .home-footer-center {
@@ -1572,4 +1583,190 @@ h3 .icon-label {
 
 .legal-section p {
   margin: 0;
+}
+
+/* ---- Homepage redesign (user's "Variante 2c", 2026-09-27): logo lockup, sun/moon theme switch,
+   metal 3D buttons, glass content cards floating up into the hero artwork. ---- */
+
+/* Wordmark: the AION DPS lettering generated in logo.png's own colors (cracked steel + lava),
+   next to the unchanged emblem - same pair in the header and the footer. */
+header .logo {
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(255, 120, 40, 0.4);
+}
+
+header h1 {
+  line-height: 0;
+}
+
+header .wordmark {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+
+/* Sun / moon pair replacing the old <select>. */
+.theme-switcher {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+}
+
+.theme-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.theme-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.theme-button.active {
+  background: var(--color-primary);
+  color: var(--color-primary-on);
+}
+
+.theme-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Metal finish on the 3D buttons: a bright bevel on top running into the edge color at the
+   bottom, uppercase tracking - the shape/press mechanics stay .btn's. */
+.btn {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 14px;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #ffffff 0%, var(--btn-color-top) 18%, var(--btn-color-bottom) 55%, var(--btn-edge) 100%);
+  box-shadow:
+    0 3px 0 var(--btn-edge),
+    0 8px 16px var(--btn-shadow),
+    inset 0 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.25);
+}
+
+.nav-download-link {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+  font-weight: 700;
+  background: linear-gradient(to bottom, #fff2b8 0%, var(--color-primary) 45%, #c98f14 100%);
+  border: 1px solid #c98f14;
+  box-shadow:
+    0 2px 0 #c98f14,
+    0 5px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Eyebrow with the two short rules either side. */
+.home-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.14em;
+}
+
+.home-hero-eyebrow::before,
+.home-hero-eyebrow::after {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* Both content cards reach 190px up into the hero artwork (the stats card sits on their top
+   edge, see .home-stats-card). Glass: the artwork keeps showing through the frosted surface. */
+.home-content-grid {
+  position: relative;
+  z-index: 2;
+}
+
+.home-content-grid-single {
+  grid-template-columns: 1fr;
+}
+
+.home-section-card {
+  background: color-mix(in srgb, var(--color-surface) 76%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 20px 22px;
+}
+
+/* Heading + its small tag: Top players flush left, Recent activity mirrored flush right. */
+.home-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.home-section-head h2 {
+  margin: 0;
+  font-weight: 800;
+}
+
+.home-section-head-right {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+.home-section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.home-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--color-success);
+  box-shadow: 0 0 8px var(--color-success);
+}
+
+/* Narrow screens: no room for the overlap choreography - hero, stats and cards just stack. */
+@media (max-width: 720px) {
+  .home-hero-row {
+    min-height: 420px;
+    padding-bottom: 40px;
+  }
+
+  .home-stats-card {
+    margin: -43px auto 20px;
+  }
+
+  .home-content-grid {
+    margin-top: 0;
+  }
+
+  .theme-switcher {
+    width: auto;
+    align-self: flex-start;
+  }
 }

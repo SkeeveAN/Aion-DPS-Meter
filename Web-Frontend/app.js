@@ -424,10 +424,15 @@ async function renderHome() {
   // otherwise never lists individual instances - a picked classic-Aion server plus Aion 2's own
   // unscoped catalog made "Featured instances" here look mixed/inconsistent (per the user), so it
   // was dropped rather than fixed again; /aion/instances and /aion2/instances are the real lists.
-  const contentGrid = el("div", { className: "home-content-grid" }, [
-    el("div", { className: "home-content-col" }, [...(topPlayersSection ? [topPlayersSection] : [])]),
-    el("div", { className: "home-content-col" }, [...(recentActivitySectionEl ? [recentActivitySectionEl] : [])]),
-  ]);
+  // With only one of the two present (no server picked yet, say), that one takes the full row
+  // rather than leaving an empty half beside it - the cards float over the hero artwork, so an
+  // empty slot there would read as a hole, not as whitespace.
+  const sections = [topPlayersSection, recentActivitySectionEl].filter((s) => s != null);
+  const contentGrid = el(
+    "div",
+    { className: "home-content-grid" + (sections.length === 1 ? " home-content-grid-single" : "") },
+    sections.map((s) => el("div", { className: "home-content-col" }, [s])),
+  );
 
   // Footer itself is appended centrally by route() (buildSiteFooter), not here - see its own
   // remarks for why this used to be the ONE page that had it.
@@ -444,7 +449,10 @@ async function renderHome() {
 // something every individual render function has to remember to add.
 function buildSiteFooter() {
   return el("div", { className: "home-footer-cta" }, [
-    el("div", { className: "home-footer-logo" }, [el("span", { textContent: "AION" }), el("span", { className: "accent", textContent: "DPS" })]),
+    el("div", { className: "home-footer-logo" }, [
+      el("img", { src: "/logo.png", alt: "", className: "home-footer-emblem", loading: "lazy" }),
+      el("img", { src: "/images/ui/aion-dps-wordmark.png", alt: "Aion DPS", className: "wordmark", loading: "lazy" }),
+    ]),
     el("div", { className: "home-footer-center" }, [
       el("h2", { textContent: t("home.footerCtaHeading") }),
       el("a", { className: "btn btn-orange", href: "/download" }, [
@@ -489,7 +497,14 @@ function buildTopPlayersSection(rows, game) {
     ]),
     el("tbody", {}, tableRows),
   ]);
-  return el("section", { className: "home-section-card" }, [el("h2", { textContent: t("home.topPlayersHeading") }), table]);
+  // Which scope this ranking covers, right next to the heading: Aion 2 is always combined across
+  // its servers, classic Aion is always exactly the visitor's picked server (see renderHome).
+  const scopeTag = game === "aion2" ? gameLabel(game) : currentServerName;
+  const head = el("div", { className: "home-section-head" }, [
+    el("h2", { textContent: t("home.topPlayersHeading") }),
+    ...(scopeTag ? [el("span", { className: "home-section-tag", textContent: scopeTag })] : []),
+  ]);
+  return el("section", { className: "home-section-card" }, [head, table]);
 }
 
 function buildRecentActivitySection(rows) {
@@ -517,7 +532,13 @@ function buildRecentActivitySection(rows) {
       ),
     ),
   ]);
-  return el("section", { className: "home-section-card" }, [el("h2", { textContent: t("home.recentActivityHeading") }), table]);
+  // Per the user: this heading sits flush RIGHT (mirroring Top players' flush-left one), with the
+  // live marker directly beside it.
+  const head = el("div", { className: "home-section-head home-section-head-right" }, [
+    el("h2", { textContent: t("home.recentActivityHeading") }),
+    el("span", { className: "home-section-tag" }, [el("span", { className: "home-live-dot" }), t("home.liveTag")]),
+  ]);
+  return el("section", { className: "home-section-card" }, [head, table]);
 }
 
 /**
