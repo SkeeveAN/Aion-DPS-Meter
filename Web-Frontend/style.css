@@ -1298,6 +1298,13 @@ th {
   margin-top: 2px;
 }
 
+.stat-card-note {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 .empty {
   color: var(--color-text-muted);
   font-style: italic;
@@ -1366,49 +1373,180 @@ h3 .icon-label {
   color: var(--color-text-muted);
 }
 
-/* Compact key/value block (NAME/Zeitpunkt/Dauer/App Version) at the top of an encounter's detail
-   page - deliberately not full-width like a roster/skill table, so a 2-column fact sheet doesn't
-   stretch its right column across the whole content width. */
-.meta-table {
-  width: auto;
-  max-width: 420px;
-  margin-bottom: 8px;
+/* Encounter page (app.js renderEncounter): the roster/Aggro/Loot panels below its hero+stats-row
+   sit in a 2-column grid, the Schaden/Heilung roster taking twice the width of the stacked Aggro
+   + Loot column beside it; one column below the 720px breakpoint like every other grid here. */
+.encounter-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
 }
 
-.meta-table td:first-child {
-  color: var(--color-text-muted);
-  padding-right: 24px;
-  white-space: nowrap;
-}
-
-.contribution-chart {
+.encounter-side-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 8px 0 20px;
+  gap: 20px;
 }
 
-.contribution-row {
+@media (max-width: 720px) {
+  .encounter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.meter-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 18px 20px;
+}
+
+.meter-panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.meter-panel-heading {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
-.contribution-label {
+.meter-panel-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.meter-panel-subtitle {
   font-size: 13px;
   color: var(--color-text-muted);
 }
 
-.contribution-track {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  height: 18px;
-  overflow: hidden;
+.meter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.contribution-bar {
-  background: var(--color-primary);
+.meter-list-compact {
+  gap: 4px;
+}
+
+/* One ranked bar row (Schaden/Heilung roster, or the Aggro list) - the fill sits absolutely
+   behind the row's content at a width set inline per row (see app.js meterRow/aggroPanel), same
+   "background track + colored fill" idea as the old .contribution-track/-bar, just inlined as one
+   row instead of a separate label-then-bar stack, and clickable through to that participant. */
+.meter-row {
+  position: relative;
+  display: block;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-background);
+  border: 1px solid transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+.meter-row:hover {
+  border-color: var(--color-primary);
+}
+
+.meter-row-compact {
+  height: 28px;
+}
+
+.meter-row-pet {
+  opacity: 0.65;
+}
+
+.meter-row-fill {
+  position: absolute;
+  inset: 0;
+  right: auto;
+}
+
+.meter-row-fill-danger {
+  background: color-mix(in srgb, var(--color-danger) 30%, transparent);
+}
+
+.meter-row-content {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.meter-rank {
+  width: 18px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.meter-rank-top {
+  color: var(--color-primary);
+}
+
+.meter-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meter-row-compact .meter-name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.meter-role-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.meter-value {
+  margin-left: auto;
+  padding-left: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.loot-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--color-background);
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.loot-empty-icon {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+}
+
+.loot-empty-icon svg {
+  width: 100%;
   height: 100%;
 }
 

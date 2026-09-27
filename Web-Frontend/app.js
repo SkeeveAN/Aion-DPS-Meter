@@ -202,6 +202,37 @@ const AION2_CLASS_ABBREVIATIONS = {
   Templar: "TPL",
 };
 
+// Per-class accent color + trinity role for the encounter page's meter bars (see meterRow below)
+// - covers every class of both games this table's author is confident about the trinity role of.
+// A pet ("?" className) gets its own PET_META; any OTHER unmapped className (a class this list
+// hasn't caught up with yet, e.g. one of icons/classes' Aethertech/Bard/Painter/Priest, none of
+// which have shown up in real uploads so far) gets UNKNOWN_CLASS_META instead of silently being
+// mislabeled a pet/companion - see classMeta and meterRow's role-badge check.
+const CLASS_META = {
+  Cleric: { color: "#ffd166", role: "healer" },
+  Chanter: { color: "#06d6a0", role: "healer" },
+  Templar: { color: "#5b8fb9", role: "tank" },
+  Gladiator: { color: "#ef476f", role: "dd" },
+  Brawler: { color: "#e07a5f", role: "dd" },
+  Assassin: { color: "#9b5de5", role: "dd" },
+  Ranger: { color: "#80ed99", role: "dd" },
+  Sorcerer: { color: "#4cc9f0", role: "dd" },
+  Spiritmaster: { color: "#f4a261", role: "dd" },
+  Elementalist: { color: "#7c9eff", role: "dd" },
+  Gunner: { color: "#d4a373", role: "dd" },
+};
+const PET_META = { color: "#8a99a3", role: "companion" };
+// role: null - a real class we just don't have a confident trinity role for yet (see above),
+// never asserted in the UI (meterRow skips the role badge entirely when role is falsy).
+const UNKNOWN_CLASS_META = { color: "#9fb3c8", role: null };
+
+function classMeta(className) {
+  if (className === "?") {
+    return PET_META;
+  }
+  return CLASS_META[className] ?? UNKNOWN_CLASS_META;
+}
+
 function classIcon(className) {
   if (currentGame === "aion2") {
     return el("span", { className: "class-badge", title: className, textContent: AION2_CLASS_ABBREVIATIONS[className] ?? className.slice(0, 3).toUpperCase() });
@@ -806,9 +837,13 @@ async function renderInstances() {
 }
 
 /** One compact KPI card (aiondps_design_pack_v1 section 8) - a big real number over a short label. */
-function statCard(value, label) {
+function statCard(value, label, note) {
+  const valueChildren = [document.createTextNode(value)];
+  if (note) {
+    valueChildren.push(el("span", { className: "stat-card-note", textContent: note }));
+  }
   return el("div", { className: "stat-card" }, [
-    el("div", { className: "stat-card-value", textContent: value }),
+    el("div", { className: "stat-card-value" }, valueChildren),
     el("div", { className: "stat-card-label", textContent: label }),
   ]);
 }
@@ -1183,7 +1218,7 @@ async function renderLeaderboard(bossSlug, params) {
   );
 
   // Per the user: a small marker next to the group table's own heading when this boss has known
-  // loot documented (bosses.lootRules - see lootTable's own remarks) - loot is never tied to one
+  // loot documented (bosses.lootRules - see lootPanel's own remarks) - loot is never tied to one
   // specific encounter (it's deliberately not part of any upload), so this can only ever say
   // "loot is known for this BOSS", not which of the rows below actually saw it drop.
   const lootBadge =
@@ -1259,43 +1294,159 @@ function formatRelativeTime(iso) {
   return t("time.daysAgo", { count: Math.round(hours / 24) });
 }
 
-function metaRow(label, value) {
-  return el("tr", {}, [el("td", { textContent: label }), el("td", { textContent: value })]);
+function hexToRgba(hex, alpha) {
+  const v = hex.replace("#", "");
+  const r = parseInt(v.substring(0, 2), 16);
+  const g = parseInt(v.substring(2, 4), 16);
+  const b = parseInt(v.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-// Per the user: this chart is about the BOSS's damage, not the group's - who ate the boss's hits
-// (damageTaken, an aggro/tank question), not who hit the boss (totalDamage, already shown in the
-// roster table above). damageTaken is 0 for every row from a client older than the field itself
-// (see uploadSchema.ts) - such an encounter just renders an all-zero chart rather than erroring.
-function damageDistributionChart(roster) {
-  const total = roster.reduce((sum, p) => sum + p.damageTaken, 0);
-  const rows = [...roster]
-    .sort((a, b) => b.damageTaken - a.damageTaken)
-    .map((p) => {
-      const pct = total > 0 ? (p.damageTaken / total) * 100 : 0;
-      return el("div", { className: "contribution-row" }, [
-        el("div", { className: "contribution-label", textContent: `${p.playerName} - ${pct.toFixed(1)}%` }),
-        el("div", { className: "contribution-track" }, [
-          el("div", { className: "contribution-bar", style: `width: ${pct.toFixed(1)}%` }),
-        ]),
-      ]);
+const ROLE_LABEL_KEYS = {
+  healer: "participant.roleHealer",
+  tank: "participant.roleTank",
+  dd: "participant.roleDd",
+  companion: "participant.roleCompanion",
+};
+
+function roleLabel(role) {
+  return t(ROLE_LABEL_KEYS[role] ?? ROLE_LABEL_KEYS.dd);
+}
+
+// One ranked row of the encounter's own Schaden/Heilung meter (see meterPanel) - the whole row is
+// the link (to that participant's own breakdown), not just the name, for a bigger click target
+// than the old roster table had. Bar fill width is relative to the CURRENT metric's top value
+// (recomputed by meterPanel on every toggle), never a fixed scale.
+function meterRow(rank, p, metric, max) {
+  const meta = classMeta(p.className);
+  const value = p[metric];
+  const pct = max > 0 ? (value / max) * 100 : 0;
+  const isPet = p.className === "?";
+  const serverTag = currentGame === "aion2" && p.serverName ? el("span", { className: "server-tag", textContent: p.serverName, title: p.serverName }) : null;
+
+  return el(
+    "a",
+    { className: "meter-row" + (isPet ? " meter-row-pet" : ""), href: gp(`/participants/${p.participantId}`) },
+    [
+      el("div", { className: "meter-row-fill", style: `width: ${pct.toFixed(1)}%; background: ${hexToRgba(meta.color, 0.28)};` }),
+      el("div", { className: "meter-row-content" }, [
+        el("span", { className: "meter-rank" + (rank === 1 ? " meter-rank-top" : ""), textContent: `${rank}` }),
+        ...[factionIcon(p.faction), classIcon(p.className)].filter((x) => x != null),
+        el("span", { className: "meter-name", textContent: p.playerName }),
+        serverTag,
+        meta.role
+          ? el("span", { className: "meter-role-badge", style: `color: ${meta.color}; background: ${hexToRgba(meta.color, 0.16)};`, textContent: roleLabel(meta.role) })
+          : null,
+        el("span", { className: "meter-value", textContent: formatNumber(value) }),
+      ].filter((x) => x != null)),
+    ],
+  );
+}
+
+// Toggleable Schaden/Heilung ranking - replaces the old flat roster table with meter bars (per
+// the user: easier to scan at a glance than a column of raw numbers), and folds the metric switch
+// into one panel instead of two separate always-visible tables.
+function meterPanel(roster) {
+  let metric = "totalDamage";
+  const petCount = roster.filter((p) => p.className === "?").length;
+  const petsSuffix = petCount > 0 ? t("encounter.petsSuffix", { count: petCount }) : "";
+
+  const titleEl = el("span", { className: "meter-panel-title" });
+  const subtitleEl = el("span", { className: "meter-panel-subtitle" });
+  const listEl = el("div", { className: "meter-list" });
+
+  const dmgBtn = el("button", { type: "button", className: "active", textContent: t("table.damage") });
+  const healBtn = el("button", { type: "button", textContent: t("participant.totalHealing") });
+  dmgBtn.setAttribute("aria-pressed", "true");
+  healBtn.setAttribute("aria-pressed", "false");
+
+  function renderRows() {
+    const sorted = [...roster].sort((a, b) => b[metric] - a[metric]);
+    const max = Math.max(...sorted.map((p) => p[metric]), 1);
+    titleEl.textContent = metric === "totalDamage" ? t("table.damage") : t("participant.totalHealing");
+    subtitleEl.textContent = t("encounter.rosterSubtitle", {
+      count: roster.length,
+      pets: petsSuffix,
+      sorted: t(metric === "totalDamage" ? "encounter.sortedByDamage" : "encounter.sortedByHealing"),
     });
-  return el("div", { className: "contribution-chart" }, rows);
+    listEl.replaceChildren(...sorted.map((p, i) => meterRow(i + 1, p, metric, max)));
+  }
+
+  function selectMetric(newMetric, activeBtn, inactiveBtn) {
+    if (metric === newMetric) {
+      return;
+    }
+    metric = newMetric;
+    activeBtn.classList.add("active");
+    activeBtn.setAttribute("aria-pressed", "true");
+    inactiveBtn.classList.remove("active");
+    inactiveBtn.setAttribute("aria-pressed", "false");
+    renderRows();
+  }
+  dmgBtn.addEventListener("click", () => selectMetric("totalDamage", dmgBtn, healBtn));
+  healBtn.addEventListener("click", () => selectMetric("totalHealing", healBtn, dmgBtn));
+  renderRows();
+
+  return el("div", { className: "meter-panel" }, [
+    el("div", { className: "meter-panel-header" }, [
+      el("div", { className: "meter-panel-heading" }, [titleEl, subtitleEl]),
+      el("div", { className: "category-filter" }, [dmgBtn, healBtn]),
+    ]),
+    listEl,
+  ]);
+}
+
+// Damage TAKEN from the boss, i.e. aggro/tanking - a different question from the Schaden panel
+// above (who hit the boss) and kept visually distinct (compact rows, danger-tinted bars, its own
+// subheading) so the two are never mistaken for the same ranking, unlike the old page's two
+// same-looking bar charts. damageTaken is 0 for every row from a client older than the field
+// itself (see uploadSchema.ts) - such an encounter just renders an all-zero list rather than
+// erroring.
+function aggroPanel(roster) {
+  const sorted = [...roster].sort((a, b) => b.damageTaken - a.damageTaken);
+  const max = Math.max(...sorted.map((p) => p.damageTaken), 1);
+  const rows = sorted.map((p) =>
+    el("a", { className: "meter-row meter-row-compact", href: gp(`/participants/${p.participantId}`) }, [
+      el("div", { className: "meter-row-fill meter-row-fill-danger", style: `width: ${((p.damageTaken / max) * 100).toFixed(1)}%;` }),
+      el("div", { className: "meter-row-content" }, [
+        el("span", { className: "meter-name", textContent: p.playerName }),
+        el("span", { className: "meter-value", textContent: formatNumber(p.damageTaken) }),
+      ]),
+    ]),
+  );
+  return el("div", { className: "meter-panel" }, [
+    el("div", { className: "meter-panel-heading" }, [
+      el("span", { className: "meter-panel-title", textContent: t("encounter.aggroHeading") }),
+      el("span", { className: "meter-panel-subtitle", textContent: t("encounter.aggroSubheading") }),
+    ]),
+    el("div", { className: "meter-list meter-list-compact", style: "margin-top: 14px" }, rows),
+  ]);
 }
 
 // "bekannte Regeln" - curated reference text (see bosses.lootRules), never inferred from uploads:
 // loot is deliberately never part of an upload payload at all.
-function lootTable(lootRules) {
-  if (!lootRules || lootRules.length === 0) {
-    return el("p", { className: "empty", textContent: t("encounter.lootEmpty") });
-  }
-
-  const rows = lootRules.map((r) => el("tr", {}, [el("td", { textContent: r.item }), el("td", { textContent: r.rule })]));
-  return el("table", {}, [
-    el("thead", {}, [el("tr", {}, [el("th", { textContent: t("table.item") }), el("th", { textContent: t("table.rule") })])]),
-    el("tbody", {}, rows),
+function lootPanel(lootRules) {
+  const hasRules = lootRules && lootRules.length > 0;
+  const body = hasRules
+    ? el("table", {}, [
+        el("thead", {}, [el("tr", {}, [el("th", { textContent: t("table.item") }), el("th", { textContent: t("table.rule") })])]),
+        el("tbody", {}, lootRules.map((r) => el("tr", {}, [el("td", { textContent: r.item }), el("td", { textContent: r.rule })]))),
+      ])
+    : el("div", { className: "loot-empty" }, [
+        el("span", { className: "loot-empty-icon", innerHTML: ICON_LOOT_EMPTY }),
+        el("span", { textContent: t("encounter.lootEmpty") }),
+      ]);
+  return el("div", { className: "meter-panel" }, [
+    el("div", { className: "meter-panel-heading" }, [
+      el("span", { className: "meter-panel-title", textContent: t("encounter.lootPanelHeading") }),
+      el("span", { className: "meter-panel-subtitle", textContent: t("encounter.lootSubheading") }),
+    ]),
+    el("div", { style: "margin-top: 14px" }, [body]),
   ]);
 }
+
+const ICON_LOOT_EMPTY =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7z"/><path d="M3 7l2-4h14l2 4"/><path d="M9 11h6"/></svg>';
 
 async function renderEncounter(encounterId) {
   setBreadcrumb([...gameCrumbs(), t("loading.encounter")]);
@@ -1309,41 +1460,46 @@ async function renderEncounter(encounterId) {
   }
   setBreadcrumb([...gameCrumbs(), link(translateGameName(data.encounter.bossName), gp(`/bosses/${data.encounter.bossId}`))]);
 
-  const metaTable = el("table", { className: "meta-table" }, [
-    el("tbody", {}, [
-      metaRow(t("encounter.name"), translateGameName(data.encounter.bossName)),
-      // Per the user: which server this run happened on wasn't shown anywhere on the page at all
-      // (only the breadcrumb/boss name were) - classic Aion only, same scoping as
-      // applyServerOverride just above (Aion 2 has no per-run server to show, see its remarks).
-      ...(currentGame === "aion" && data.encounter.serverName ? [metaRow(t("encounter.server"), data.encounter.serverName)] : []),
-      metaRow(t("encounter.timestamp"), formatDate(new Date(data.encounter.startedAt))),
-      metaRow(t("encounter.duration"), formatDuration(data.encounter.durationSeconds)),
-      metaRow(t("encounter.appVersion"), data.encounter.appVersion ?? t("encounter.appVersionUnknown")),
+  const bossName = translateGameName(data.encounter.bossName);
+  const pills = [
+    ...(currentGame === "aion" && data.encounter.serverName ? [el("span", { className: "instance-hero-pill", textContent: data.encounter.serverName })] : []),
+    el("span", { className: "instance-hero-pill", textContent: formatDate(new Date(data.encounter.startedAt)) }),
+    el("span", {
+      className: "instance-hero-pill",
+      textContent: `${t("encounter.appVersion")} ${data.encounter.appVersion ?? t("encounter.appVersionUnknown")}`,
+    }),
+  ];
+  const photo = BOSS_IMAGES[data.encounter.bossName] ?? null;
+  const heroChildren = [el("div", { className: "instance-hero-scrim" })];
+  if (photo) {
+    const img = el("img", { src: photo, alt: "", className: "instance-hero-photo", fetchPriority: "high" });
+    img.style.objectPosition = "top";
+    heroChildren.unshift(img);
+  }
+  heroChildren.push(
+    el("div", { className: "instance-hero-content" }, [
+      el("h1", { className: "instance-hero-title", textContent: bossName }),
+      el("div", { className: "instance-hero-meta" }, pills),
     ]),
+  );
+  const hero = el("div", { className: "instance-hero" }, heroChildren);
+
+  const realPlayerCount = data.roster.filter((p) => p.className !== "?").length;
+  const petCount = data.roster.length - realPlayerCount;
+  const totalDamage = data.roster.reduce((sum, p) => sum + p.totalDamage, 0);
+  const statsRow = el("div", { className: "stats-row" }, [
+    statCard(formatNumber(data.encounter.groupIDps), t("stats.groupIdps")),
+    statCard(`${realPlayerCount}`, t("stats.participants"), petCount > 0 ? t("stats.participantsNote", { count: petCount }) : undefined),
+    statCard(formatDuration(data.encounter.durationSeconds), t("encounter.duration")),
+    statCard(formatNumber(totalDamage), t("stats.totalDamage")),
   ]);
 
-  const rosterRows = data.roster.map((p, i) =>
-    rankedRow(
-      i + 1,
-      playerCell(p.faction, p.className, p.playerName, gp(`/participants/${p.participantId}`), p.serverName),
-      p.idps,
-      p.totalDamage,
-      p.totalHealing,
-      p.topBuffs,
-      false,
-    ),
-  );
+  const grid = el("div", { className: "encounter-grid" }, [
+    meterPanel(data.roster),
+    el("div", { className: "encounter-side-col" }, [aggroPanel(data.roster), lootPanel(data.encounter.lootRules)]),
+  ]);
 
-  app.replaceChildren(
-    el("h2", { textContent: translateGameName(data.encounter.bossName) }),
-    metaTable,
-    el("h3", { textContent: t("encounter.groupMembersHeading") }),
-    rankedTable(rosterRows, false),
-    el("h3", { textContent: t("encounter.damageDistributionHeading") }),
-    damageDistributionChart(data.roster),
-    el("h3", { textContent: t("encounter.lootHeading") }),
-    lootTable(data.encounter.lootRules),
-  );
+  app.replaceChildren(hero, statsRow, grid);
 }
 
 function skillTable(skills) {
