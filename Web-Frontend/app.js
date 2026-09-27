@@ -123,11 +123,15 @@ function gameLabel(game) {
   return t(`game.${game}`);
 }
 
-function updateServerIndicator() {
+function updateServerIndicator(isHome = false) {
   serverIndicator.replaceChildren();
   // Aion 2 has official, same-standard servers whose groups span them: no server to pick, the
   // rankings are combined and each player carries their server as a tag instead (see playerCell).
-  if (currentGame === "aion2") {
+  // The homepage combines both games too (see renderHome's Featured Instances) - showing one
+  // game's server pick there implied everything below was scoped to it (per the user, that read
+  // as "these are Aion 1 + this server's instances" for a section that's actually a mix of both
+  // games' own catalogs).
+  if (currentGame === "aion2" || isHome) {
     return;
   }
   if (currentServerPicked) {
@@ -140,11 +144,14 @@ function updateServerIndicator() {
   }
 }
 
-function updateGameTabs() {
+// isHome leaves neither tab marked active - the homepage isn't "really" on either game (currentGame
+// is only forced to DEFAULT_GAME there for its own CTA links), and highlighting one implied its
+// content (Featured Instances, stats) was scoped to that game alone when it actually combines both.
+function updateGameTabs(isHome = false) {
   gameTabs.replaceChildren(
     ...GAMES.map((g) => {
       const a = link(gameLabel(g), `/${g}/instances`);
-      if (g === currentGame) {
+      if (!isHome && g === currentGame) {
         a.className = "active";
         a.setAttribute("aria-current", "page");
       }
@@ -1690,7 +1697,8 @@ async function route() {
     section = "notfound";
   }
 
-  if (section === "home") {
+  const isHome = section === "home";
+  if (isHome) {
     serverOverride = null;
   }
   loadServerState();
@@ -1699,11 +1707,11 @@ async function route() {
     currentServerName = serverOverride.name;
     currentServerPicked = true;
   }
-  updateServerIndicator();
-  updateGameTabs();
+  updateServerIndicator(isHome);
+  updateGameTabs(isHome);
 
   try {
-    if (section === "home") {
+    if (isHome) {
       await renderHome();
     } else if (section === "download") {
       await renderDownload();
