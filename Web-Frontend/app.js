@@ -436,7 +436,10 @@ async function renderHome() {
 
   // Footer itself is appended centrally by route() (buildSiteFooter), not here - see its own
   // remarks for why this used to be the ONE page that had it.
-  app.replaceChildren(heroRow, ...(statsBar ? [statsBar] : []), contentGrid);
+  // One wrapper carries the 190px pull-up into the hero, so the stats card can sit at a fixed
+  // offset above the cards' top edge (see .home-below-hero / .home-stats-card) exactly as in the
+  // prototype, instead of being measured down from the hero's bottom.
+  app.replaceChildren(heroRow, el("div", { className: "home-below-hero" }, [...(statsBar ? [statsBar] : []), contentGrid]));
 }
 
 // 3-column footer (aiondps_claude_design_pack prototype comparison, index-3.html): logo left, CTA
