@@ -342,8 +342,8 @@ const GITHUB_REPO = "SkeeveAN/Aion-DPS-Meter";
  * Homepage (aiondps_design_pack_v1 startseite brief) - a fast way in to the client download and
  * the real Aion/Aion 2 data, not a marketing funnel. Everything below the hero is real data or
  * omitted entirely: the live stats bar only appears once at least one real number is non-zero
- * (Backend/src/routes/stats.ts already returns honest zeros for an empty game), and the featured
- * instances/boss spotlight only draw from whichever games actually have real rows.
+ * (Backend/src/routes/stats.ts already returns honest zeros for an empty game), and the top
+ * players/recent activity columns only draw from whichever games actually have real rows.
  */
 async function renderHome() {
   setBreadcrumb([]);
@@ -396,35 +396,6 @@ async function renderHome() {
         ])
       : null;
 
-  // Classic Aion's instance list genuinely differs by server (Origin/EuroAion share one, Riftshade's
-  // is wider - see renderInstances' own remarks); scoped here the same way once a server is picked,
-  // so this teaser never shows an instance the visitor's own server doesn't even have. Never scoped
-  // by the SAME id for Aion 2, whose servers share one standard catalog - a classic-Aion
-  // serverCatalogId matches none of its server_catalog_instances rows and would empty the list out.
-  const aionParams = new URLSearchParams({ game: "aion" });
-  if (currentServerPicked && currentServerCatalogId !== null) {
-    aionParams.set("serverCatalogId", currentServerCatalogId);
-  }
-  const [aionInstances, aion2Instances] = await Promise.all([
-    fetchJson(`/api/instances?${aionParams}`).catch(() => []),
-    fetchJson("/api/instances?game=aion2").catch(() => []),
-  ]);
-  const featured = [
-    ...[...aionInstances].sort(byMinLevelDescending).slice(0, 3).map((i) => ({ ...i, game: "aion" })),
-    ...[...aion2Instances].sort(byMinLevelDescending).slice(0, 3).map((i) => ({ ...i, game: "aion2" })),
-  ];
-  const featuredSection =
-    featured.length > 0
-      ? el("section", { className: "home-section-card" }, [
-          el("h2", { textContent: t("home.featuredInstancesHeading") }),
-          el(
-            "div",
-            { className: "poster-grid" },
-            featured.map((i) => posterCard(`/${i.game}/instances/${i.slug}`, INSTANCE_IMAGES[i.name], instanceCardLabel(i))),
-          ),
-        ])
-      : null;
-
   // Aion 2's official servers are one comparable standard, so its ranking always runs combined;
   // classic Aion's are never comparable (see Backend/src/routes/players.ts topPlayersOverall), so
   // it only ever appears here once the visitor has actually picked one of its own servers. The two
@@ -449,8 +420,10 @@ async function renderHome() {
     .slice(0, 6);
   const recentActivitySectionEl = recentActivity.length > 0 ? buildRecentActivitySection(recentActivity) : null;
 
-  // Leaderboard + recent activity side by side 50/50 (per the user, 2026-09-24), boss spotlight
-  // removed, featured instances now a full-width row of its own below that.
+  // Leaderboard + recent activity side by side 50/50 (per the user, 2026-09-24). The homepage
+  // otherwise never lists individual instances - a picked classic-Aion server plus Aion 2's own
+  // unscoped catalog made "Featured instances" here look mixed/inconsistent (per the user), so it
+  // was dropped rather than fixed again; /aion/instances and /aion2/instances are the real lists.
   const contentGrid = el("div", { className: "home-content-grid" }, [
     el("div", { className: "home-content-col" }, [...(topPlayersSection ? [topPlayersSection] : [])]),
     el("div", { className: "home-content-col" }, [...(recentActivitySectionEl ? [recentActivitySectionEl] : [])]),
@@ -458,7 +431,7 @@ async function renderHome() {
 
   // Footer itself is appended centrally by route() (buildSiteFooter), not here - see its own
   // remarks for why this used to be the ONE page that had it.
-  app.replaceChildren(heroRow, ...(statsBar ? [statsBar] : []), contentGrid, ...(featuredSection ? [featuredSection] : []));
+  app.replaceChildren(heroRow, ...(statsBar ? [statsBar] : []), contentGrid);
 }
 
 // 3-column footer (aiondps_claude_design_pack prototype comparison, index-3.html): logo left, CTA
