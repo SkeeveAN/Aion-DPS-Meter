@@ -481,9 +481,8 @@ function buildSiteFooter() {
 }
 
 function buildTopPlayersSection(rows, game) {
-  const tableRows = rows.map((r, i) =>
+  const tableRows = rows.map((r) =>
     el("tr", {}, [
-      el("td", { textContent: `${i + 1}` }),
       el("td", {}, [playerCell(null, r.className, r.playerName, null, r.serverName)]),
       // The specific run this score came from, not the boss's general leaderboard - that leaderboard
       // defaults to the visitor's currently picked server (or the busiest one), which can easily be a
@@ -495,7 +494,6 @@ function buildTopPlayersSection(rows, game) {
   const table = el("table", { className: "ranked-table" }, [
     el("thead", {}, [
       el("tr", {}, [
-        el("th", { textContent: "#" }),
         el("th", { textContent: t("table.player") }),
         el("th", { textContent: t("table.boss") }),
         el("th", { textContent: t("table.idps") }),

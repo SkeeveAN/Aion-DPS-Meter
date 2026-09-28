@@ -1843,15 +1843,6 @@ header .wordmark {
   text-decoration: underline;
 }
 
-.home-section-card .ranked-table td:first-child {
-  color: var(--color-text-muted);
-}
-
-.home-section-card .ranked-table tr:first-child td:first-child {
-  color: var(--color-primary);
-  font-weight: 800;
-}
-
 /* Narrow screens: the three stat items stack, so the divider runs between rows, not beside them. */
 @media (max-width: 720px) {
   .home-stat-item {
