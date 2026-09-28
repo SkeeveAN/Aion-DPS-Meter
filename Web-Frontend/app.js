@@ -123,15 +123,16 @@ function gameLabel(game) {
   return t(`game.${game}`);
 }
 
-function updateServerIndicator(isHome = false) {
+function updateServerIndicator(isGameless = false) {
   serverIndicator.replaceChildren();
   // Aion 2 has official, same-standard servers whose groups span them: no server to pick, the
   // rankings are combined and each player carries their server as a tag instead (see playerCell).
   // The homepage combines both games too (see renderHome's Featured Instances) - showing one
   // game's server pick there implied everything below was scoped to it (per the user, that read
   // as "these are Aion 1 + this server's instances" for a section that's actually a mix of both
-  // games' own catalogs).
-  if (currentGame === "aion2" || isHome) {
+  // games' own catalogs). Same reasoning covers download/privacy/terms/notfound - none of them are
+  // scoped to a game, so currentGame is just whatever the last /aion* page happened to leave behind.
+  if (currentGame === "aion2" || isGameless) {
     return;
   }
   if (currentServerPicked) {
@@ -144,14 +145,16 @@ function updateServerIndicator(isHome = false) {
   }
 }
 
-// isHome leaves neither tab marked active - the homepage isn't "really" on either game (currentGame
-// is only forced to DEFAULT_GAME there for its own CTA links), and highlighting one implied its
-// content (Featured Instances, stats) was scoped to that game alone when it actually combines both.
-function updateGameTabs(isHome = false) {
+// isGameless leaves neither tab marked active - the homepage isn't "really" on either game
+// (currentGame is only forced to DEFAULT_GAME there for its own CTA links), and highlighting one
+// implied its content (Featured Instances, stats) was scoped to that game alone when it actually
+// combines both. download/privacy/terms/notfound aren't scoped to a game either, and currentGame
+// there is just leftover from whatever /aion* page was visited last.
+function updateGameTabs(isGameless = false) {
   gameTabs.replaceChildren(
     ...GAMES.map((g) => {
       const a = link(gameLabel(g), `/${g}/instances`);
-      if (!isHome && g === currentGame) {
+      if (!isGameless && g === currentGame) {
         a.className = "active";
         a.setAttribute("aria-current", "page");
       }
@@ -1695,6 +1698,7 @@ async function route() {
   }
 
   const isHome = section === "home";
+  const isGameless = isHome || section === "download" || section === "privacy" || section === "terms" || section === "notfound";
   if (isHome) {
     serverOverride = null;
   }
@@ -1704,8 +1708,8 @@ async function route() {
     currentServerName = serverOverride.name;
     currentServerPicked = true;
   }
-  updateServerIndicator(isHome);
-  updateGameTabs(isHome);
+  updateServerIndicator(isGameless);
+  updateGameTabs(isGameless);
 
   try {
     if (isHome) {
