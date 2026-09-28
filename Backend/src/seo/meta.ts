@@ -2,7 +2,9 @@ import { env } from "../env.js";
 import { escapeHtml } from "./html.js";
 
 export const SITE_NAME = "Aion DPS";
-export const DEFAULT_OG_IMAGE = "/og/default.png";
+// ?v= busts Discord/Slack/etc link-preview caches, which key on the exact image URL and otherwise
+// keep showing a stale image indefinitely. Bump it whenever og/default.png changes.
+export const DEFAULT_OG_IMAGE = "/og/default.png?v=20260926";
 
 export interface PageMeta {
   title: string;
