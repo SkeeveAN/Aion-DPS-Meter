@@ -46,9 +46,10 @@
 :root[data-theme="light"] {
   color-scheme: light;
   --color-background: #f3f6f8;
-  --color-surface: #ffffff;
-  --color-surface2: #e8edf1;
-  --color-border: #d7dee3;
+  /* Blue-gray, not pure white (per the user, comparing 3 swatch prototypes - "C" chosen). */
+  --color-surface: #e6ebf1;
+  --color-surface2: #d9e0e8;
+  --color-border: #c3ccd6;
   --color-text: #17202a;
   --color-text-muted: #687783;
   --shadow-card: 0 2px 8px rgba(23, 32, 42, 0.08);
