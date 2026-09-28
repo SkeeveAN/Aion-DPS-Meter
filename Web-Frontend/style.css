@@ -51,7 +51,8 @@
   --color-surface2: #d9e0e8;
   --color-border: #c3ccd6;
   --color-text: #17202a;
-  --color-text-muted: #687783;
+  /* Darkened a step further (per the user) for readability against the new blue-gray surface. */
+  --color-text-muted: #56636d;
   --shadow-card: 0 2px 8px rgba(23, 32, 42, 0.08);
   --color-danger: #c0392b;
   --color-warning: #a9770f;
@@ -778,8 +779,10 @@ th {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255, 186, 66, 0.15);
-  color: #ffba42;
+  /* var(--color-primary), not a fixed orange - darker in light mode (per the user) same as the
+     rest of the primary accent's per-theme contrast swap. */
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
