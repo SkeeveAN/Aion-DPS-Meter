@@ -4,13 +4,22 @@
 
 Sitio web con clasificaciones de jefes de la comunidad: **https://aiondps.com**
 
-Un medidor de DPS y botín para **AION 4.6 (OriginAion)** que funciona exclusivamente a partir del
-archivo `Chat.log` del juego.
+Un medidor de DPS y botín para **AION 4.6 (OriginAion)** que funciona a partir del archivo
+`Chat.log` del juego — el soporte para **Aion 2** está en preparación.
 
-Lee un archivo de texto que el cliente escribe por su cuenta. No captura tráfico de red ni lee o
-escribe en el proceso del juego. Nada de tu partida sale de tu equipo: ni daño, ni botín, ni
-nombres. Lo único que envía es una comprobación de actualizaciones, que pregunta a GitHub si
-existe una versión más nueva y se puede desactivar; consulta [Actualizaciones](#actualizaciones).
+Para el Aion clásico, lee un archivo de texto que el cliente escribe por su cuenta. No captura
+tráfico de red ni lee o escribe en el proceso del juego. Nada de tu partida sale de tu equipo: ni
+daño, ni botín, ni nombres. Lo único que envía es una comprobación de actualizaciones, que
+pregunta a GitHub si existe una versión más nueva y se puede desactivar; consulta
+[Actualizaciones](#actualizaciones).
+
+**Aion 2** no escribe `Chat.log`. Si cambias el juego a Aion 2 en los ajustes, el medidor lee en
+su lugar el tráfico de red del propio juego en tu equipo a través del controlador
+[Npcap](https://npcap.com) — de forma pasiva: nunca envía un paquete ni toca el proceso del
+juego. El seguimiento en vivo empieza en cuanto el formato de paquetes se ha calibrado para la
+versión actual del juego (ver `Client/assets/aion2/protocol/opcodes.json`); hasta entonces, el
+medidor lo indica en su barra de estado. Todo permanece tan local como en el Aion clásico, salvo
+que decidas subir un combate contra un jefe a las clasificaciones de la comunidad.
 
 ## Instalación
 
@@ -140,6 +149,7 @@ los idiomas admitidos y son la forma más rápida de ver si un cambio en el pars
 
 ## Nota sobre las reglas del servidor
 
-Esta herramienta solo lee un archivo de registro que genera el propio juego. Aun así, los
-servidores privados fijan sus propias reglas sobre herramientas de terceros y addons: conviene
+En el Aion clásico, esta herramienta solo lee un archivo de registro que genera el propio juego;
+en Aion 2 observa en su lugar, de forma pasiva, el tráfico de red del juego. En cualquier caso,
+los servidores privados fijan sus propias reglas sobre herramientas de terceros y addons: conviene
 revisar las de OriginAion antes de usarla.

@@ -4,13 +4,22 @@
 
 Topluluk boss sıralamalarının bulunduğu web sitesi: **https://aiondps.com**
 
-**AION 4.6 (OriginAion)** için, tamamen oyunun kendi `Chat.log` dosyasından çalışan bir DPS ve
-ganimet ölçer.
+**AION 4.6 (OriginAion)** için, oyunun kendi `Chat.log` dosyasından çalışan bir DPS ve ganimet
+ölçer — **Aion 2** desteği hazırlık aşamasındadır.
 
-İstemcinin kendiliğinden yazdığı bir metin dosyasını okur. Ağ trafiğini yakalamaz, oyun sürecinden
-okuma veya oyun sürecine yazma yapmaz. Oynayışınıza dair hiçbir şey bilgisayarınızdan çıkmaz —
-hasar sayıları yok, ganimet yok, isim yok. Gönderdiği tek şey, GitHub'a daha yeni bir sürüm olup
-olmadığını soran ve kapatılabilen güncelleme kontrolüdür; bkz. [Güncellemeler](#güncellemeler).
+Klasik Aion için istemcinin kendiliğinden yazdığı bir metin dosyasını okur. Ağ trafiğini
+yakalamaz, oyun sürecinden okuma veya oyun sürecine yazma yapmaz. Oynayışınıza dair hiçbir şey
+bilgisayarınızdan çıkmaz — hasar sayıları yok, ganimet yok, isim yok. Gönderdiği tek şey,
+GitHub'a daha yeni bir sürüm olup olmadığını soran ve kapatılabilen güncelleme kontrolüdür; bkz.
+[Güncellemeler](#güncellemeler).
+
+**Aion 2**, `Chat.log` yazmaz. Ayarlarda oyunu Aion 2'ye çevirdiğinizde ölçer, bunun yerine
+bilgisayarınızdaki oyunun kendi ağ trafiğini [Npcap](https://npcap.com) sürücüsü üzerinden pasif
+olarak izler — pasif: asla bir paket göndermez ve oyun sürecine asla dokunmaz. Canlı takip, paket
+düzeni geçerli oyun sürümü için kalibre edildiğinde başlar (bkz.
+`Client/assets/aion2/protocol/opcodes.json`); o zamana kadar ölçer bunu durum çubuğunda belirtir.
+Bir boss savaşını topluluk sıralamalarına yüklemeyi seçmediğiniz sürece her şey klasik Aion'da
+olduğu kadar yerel kalır.
 
 ## Kurulum
 
@@ -138,6 +147,7 @@ en hızlı yoludur.
 
 ## Sunucu kuralları hakkında not
 
-Bu araç yalnızca oyunun kendisinin oluşturduğu bir günlük dosyasını okur. Yine de özel sunucuların
+Klasik Aion'da bu araç yalnızca oyunun kendisinin oluşturduğu bir günlük dosyasını okur; Aion
+2'de ise bunun yerine oyunun ağ trafiğini pasif olarak izler. Her iki durumda da özel sunucuların
 üçüncü taraf yazılım ve eklentilerle ilgili kendi kuralları vardır — kullanmadan önce
 OriginAion'ınkilere bir göz atmakta fayda var.

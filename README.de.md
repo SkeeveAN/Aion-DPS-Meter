@@ -149,6 +149,7 @@ kaputt gemacht hat.
 
 ## Hinweis zu Server-Regeln
 
-Dieses Tool liest nur eine Log-Datei, die das Spiel selbst erzeugt. Trotzdem setzen private Server
-eigene Regeln zu Drittsoftware und Addons — ein Blick in die von OriginAion lohnt sich vor dem
+Bei klassischem Aion liest dieses Tool nur eine Log-Datei, die das Spiel selbst erzeugt; bei
+Aion 2 beobachtet es stattdessen passiv den Netzwerkverkehr des Spiels. So oder so setzen private
+Server eigene Regeln zu Drittsoftware und Addons — ein Blick in die von OriginAion lohnt sich vor dem
 Einsatz.

@@ -4,13 +4,22 @@
 
 Site web avec classements de boss communautaires : **https://aiondps.com**
 
-Un compteur de DPS et de butin pour **AION 4.6 (OriginAion)** qui fonctionne uniquement à partir
-du fichier `Chat.log` du jeu.
+Un compteur de DPS et de butin pour **AION 4.6 (OriginAion)** qui fonctionne à partir du fichier
+`Chat.log` du jeu — le support d'**Aion 2** est en préparation.
 
-Il lit un fichier texte que le client écrit de lui-même. Il ne capture aucun trafic réseau et ne
-lit ni n'écrit dans le processus du jeu. Rien de votre partie ne quitte votre machine : ni dégâts,
-ni butin, ni noms. La seule chose qu'il envoie est une vérification de mise à jour, qui demande à
-GitHub s'il existe une version plus récente et peut être désactivée ; voir [Mises à jour](#mises-à-jour).
+Pour Aion classique, il lit un fichier texte que le client écrit de lui-même. Il ne capture aucun
+trafic réseau et ne lit ni n'écrit dans le processus du jeu. Rien de votre partie ne quitte votre
+machine : ni dégâts, ni butin, ni noms. La seule chose qu'il envoie est une vérification de mise à
+jour, qui demande à GitHub s'il existe une version plus récente et peut être désactivée ; voir
+[Mises à jour](#mises-à-jour).
+
+**Aion 2** n'écrit pas de `Chat.log`. Si vous passez le jeu à Aion 2 dans les paramètres, le
+compteur lit à la place le trafic réseau du jeu sur votre machine via le pilote
+[Npcap](https://npcap.com) — de façon passive : il n'envoie jamais de paquet et ne touche jamais
+au processus du jeu. Le suivi en direct démarre dès que le format des paquets a été calibré pour
+la version actuelle du jeu (voir `Client/assets/aion2/protocol/opcodes.json`) ; en attendant, le
+compteur l'indique dans sa barre de statut. Tout reste aussi local que pour Aion classique, sauf
+si vous choisissez d'envoyer un combat de boss aux classements de la communauté.
 
 ## Installation
 
@@ -142,6 +151,7 @@ modification du parseur a cassé quelque chose.
 
 ## À propos des règles du serveur
 
-Cet outil ne lit qu'un fichier journal que le jeu produit lui-même. Cela dit, les serveurs privés
-fixent leurs propres règles sur les outils tiers et les addons — un coup d'œil à celles
-d'OriginAion s'impose avant utilisation.
+Pour Aion classique, cet outil ne lit qu'un fichier journal que le jeu produit lui-même ; pour
+Aion 2, il observe à la place, de façon passive, le trafic réseau du jeu. Dans tous les cas, les
+serveurs privés fixent leurs propres règles sur les outils tiers et les addons — un coup d'œil à
+celles d'OriginAion s'impose avant utilisation.

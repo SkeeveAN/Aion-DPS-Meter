@@ -142,5 +142,6 @@ language and is the fastest way to see whether a parser change broke anything.
 
 ## A note on server rules
 
-This tool only reads a log file the game itself produces. Even so, private servers set their own
-rules about third-party tools and addons — worth a look at OriginAion's before using it.
+For classic Aion this tool only reads a log file the game itself produces; for Aion 2 it passively
+observes the game's own network traffic instead. Either way, private servers set their own rules
+about third-party tools and addons — worth a look at OriginAion's before using it.

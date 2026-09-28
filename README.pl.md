@@ -4,14 +4,22 @@
 
 Strona z rankingami bossów społeczności: **https://aiondps.com**
 
-Miernik obrażeń i łupów dla **AION 4.6 (OriginAion)**, działający wyłącznie na podstawie
-własnego pliku `Chat.log` gry.
+Miernik obrażeń i łupów dla **AION 4.6 (OriginAion)**, działający na podstawie własnego pliku
+`Chat.log` gry — wsparcie dla **Aion 2** jest w przygotowaniu.
 
-Program czyta plik tekstowy, który klient zapisuje sam z siebie. Nie przechwytuje ruchu
-sieciowego i nie czyta ani nie zapisuje niczego w procesie gry. Nic z Twojej rozgrywki nie
-opuszcza Twojego komputera — żadnych liczb obrażeń, żadnych łupów, żadnych nazw. Jedyną rzeczą,
-którą wysyła, jest sprawdzenie aktualizacji, które pyta GitHub, czy istnieje nowsza wersja, i
-które można wyłączyć; zobacz [Aktualizacje](#aktualizacje).
+Dla klasycznego Aion program czyta plik tekstowy, który klient zapisuje sam z siebie. Nie
+przechwytuje ruchu sieciowego i nie czyta ani nie zapisuje niczego w procesie gry. Nic z Twojej
+rozgrywki nie opuszcza Twojego komputera — żadnych liczb obrażeń, żadnych łupów, żadnych nazw.
+Jedyną rzeczą, którą wysyła, jest sprawdzenie aktualizacji, które pyta GitHub, czy istnieje
+nowsza wersja, i które można wyłączyć; zobacz [Aktualizacje](#aktualizacje).
+
+**Aion 2** nie zapisuje `Chat.log`. Gdy przełączysz grę na Aion 2 w ustawieniach, miernik zamiast
+tego odczytuje ruch sieciowy gry na Twoim komputerze przez sterownik
+[Npcap](https://npcap.com) — pasywnie: nigdy nie wysyła pakietu i nigdy nie dotyka procesu gry.
+Śledzenie na żywo zaczyna działać, gdy tylko układ pakietów zostanie skalibrowany dla aktualnej
+wersji gry (zobacz `Client/assets/aion2/protocol/opcodes.json`); do tego czasu miernik informuje
+o tym w swoim pasku stanu. Wszystko pozostaje tak samo lokalne jak w klasycznym Aion, chyba że
+sam zdecydujesz się przesłać walkę z bossem do rankingów społeczności.
 
 ## Instalacja
 
@@ -140,6 +148,7 @@ czegoś nie zepsuła.
 
 ## Uwaga o zasadach serwera
 
-To narzędzie czyta tylko plik dziennika, który sama gra tworzy. Mimo to prywatne serwery mają
-własne zasady dotyczące oprogramowania i dodatków firm trzecich — warto zajrzeć do zasad
-OriginAion przed użyciem.
+W klasycznym Aion to narzędzie czyta tylko plik dziennika, który sama gra tworzy; w Aion 2
+zamiast tego pasywnie obserwuje ruch sieciowy gry. Tak czy inaczej, prywatne serwery mają własne
+zasady dotyczące oprogramowania i dodatków firm trzecich — warto zajrzeć do zasad OriginAion
+przed użyciem.

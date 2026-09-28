@@ -71,13 +71,14 @@ export function privacyPage(): Page {
     status: 200,
     meta: {
       title: "Privacy Policy – Aion DPS Meter",
-      description: "What Aion DPS Meter's client and website collect, and why: local Chat.log reading, optional uploads, hashed IPs, no accounts, no tracking.",
+      description:
+        "What Aion DPS Meter's client and website collect, and why: local Chat.log reading (Aion) or passive network capture (Aion 2), optional uploads, hashed IPs, no accounts, no tracking.",
       canonicalPath: "/privacy",
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Privacy Policy", path: "/privacy" }])],
     },
     body: html`
       <h2>Privacy Policy</h2>
-      <p>Aion DPS Meter is a free, open-source, hobby-run community project. The client only reads your own local Chat.log to compute stats locally; uploading a parse to the community leaderboards is optional. See the full policy on the site for details on what gets stored and your rights.</p>`,
+      <p>Aion DPS Meter is a free, open-source, hobby-run community project. The client reads your own local Chat.log for Aion, or passively observes your own network traffic for Aion 2, to compute stats locally; uploading a parse to the community leaderboards is optional. See the full policy on the site for details on what gets stored and your rights.</p>`,
   };
 }
 
