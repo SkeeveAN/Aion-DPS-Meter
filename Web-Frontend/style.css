@@ -753,7 +753,11 @@ th {
   padding: 0;
   display: flex;
   justify-content: center;
-  background: color-mix(in srgb, var(--color-background) 72%, transparent);
+  /* Fixed dark tint, not var(--color-background) - this card overlaps the hero photo below it
+     (see .home-hero-row's own dark-scrimmed-regardless-of-theme reasoning), and its text below is
+     hardcoded light-on-dark to match, so the glass must stay dark even in the light theme or the
+     numbers disappear. */
+  background: color-mix(in srgb, #0e1820 72%, transparent);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   backdrop-filter: blur(8px);
@@ -1679,6 +1683,10 @@ header .wordmark {
   letter-spacing: 0.05em;
   font-size: 12px;
   font-weight: 700;
+  /* Fixed dark ink, not the first rule's var(--color-primary-on) - this gradient is always
+     light-gold-topped regardless of theme (same reasoning as .btn-orange/.btn-blue below), so the
+     text must stay fixed-dark too or it washes out against the light-mode primary swap. */
+  color: #111827;
   background: linear-gradient(to bottom, #fff2b8 0%, var(--color-primary) 45%, #c98f14 100%);
   border: 1px solid #c98f14;
   box-shadow:
