@@ -188,7 +188,7 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
     table = html`<p class="empty">No fights uploaded for this boss yet.</p>`;
     summary = `${name} (${instanceName}, ${label}) – community DPS leaderboard. No fights uploaded yet.`;
   } else if (boss.isSolo) {
-    const byClass = topByClass(boss.id, scope);
+    const byClass = topByClass(boss.id, scope, game);
     const classes = Object.keys(byClass).sort();
     table = html`<table><thead><tr><th>Class</th><th>Player</th><th>iDPS</th><th>Damage</th></tr></thead><tbody>
       ${classes.map((c) => html`<tr><td>${c}</td><td>${tag(byClass[c][0])}</td><td>${formatInt(byClass[c][0].idps)}</td><td>${formatInt(byClass[c][0].totalDamage)}</td></tr>`)}
@@ -198,7 +198,7 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
       .map((c) => `${c} ${formatInt(byClass[c][0].idps)}`)
       .join(", ")}.`;
   } else {
-    const groups = topGroups(boss.id, scope);
+    const groups = topGroups(boss.id, scope, game);
     table = html`<table class="ranked-table"><thead><tr><th>#</th><th>Group</th><th>iDPS</th><th>Damage</th><th>Healing</th></tr></thead><tbody>
       ${groups.map((g, i) => html`<tr><td>${i + 1}</td><td>${g.roster.map(tag).join(", ")}</td><td>${formatInt(g.groupIDps)}</td><td>${formatInt(g.totalDamage)}</td><td>${formatInt(g.totalHealing)}</td></tr>`)}
     </tbody></table>`;

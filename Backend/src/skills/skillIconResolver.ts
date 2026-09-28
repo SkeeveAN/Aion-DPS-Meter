@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { Game } from "../constants.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,8 +40,18 @@ function load(): SkillRow[] {
   return rows!;
 }
 
-/** Icon filename (e.g. "cbt_fi_wingblade_g1.png") for a skill name as uploaded, or undefined if unknown. */
-export function resolveSkillIcon(skillName: string): string | undefined {
+/**
+ * Icon filename (e.g. "cbt_fi_wingblade_g1.png") for a skill name as uploaded, or undefined if
+ * unknown. `game` gates the lookup: the collected dataset below is Aion 1 only, and some skill
+ * names are generic enough (verbs like "Rest"/"Sprint") to coincidentally match an Aion 2 skill
+ * of the same name - without this check an Aion 2 upload could silently get handed an Aion 1
+ * skill's icon. There is no Aion 2 icon file set yet (see assets/aion2/skills/README.md), so
+ * every non-"aion" game returns undefined for now rather than a wrong or broken image.
+ */
+export function resolveSkillIcon(skillName: string, game: Game = "aion"): string | undefined {
+  if (game !== "aion") {
+    return undefined;
+  }
   if (skillName === AUTO_ATTACK_LABEL) {
     return AUTO_ATTACK_ICON;
   }

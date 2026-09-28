@@ -54,7 +54,7 @@ export function serversWithEncounters(bossId: number) {
     .all();
 }
 
-export function topGroups(bossId: number, serverId: number | null) {
+export function topGroups(bossId: number, serverId: number | null, game: Game) {
   const groups = db
     .select({
       encounterId: encounters.id,
@@ -104,7 +104,10 @@ export function topGroups(bossId: number, serverId: number | null) {
   // Per the user: a group row's Buffs must reflect the whole group's reinforcements, not just
   // its top damage dealer's - summed by skill across every member, then capped the same way a
   // single participant's own topBuffs already is.
-  const buffsByParticipant = topBuffsByParticipant(groupsWithRoster.flatMap((g) => g.roster.map((p) => p.participantId)));
+  const buffsByParticipant = topBuffsByParticipant(
+    groupsWithRoster.flatMap((g) => g.roster.map((p) => p.participantId)),
+    game,
+  );
   return groupsWithRoster.map((g) => {
     const castsBySkill = new Map<string, TopBuff>();
     for (const p of g.roster) {
@@ -119,7 +122,7 @@ export function topGroups(bossId: number, serverId: number | null) {
 }
 
 /** "Top 10 per class" for a solo target - fetch once, group and cap in JS (a few thousand rows at most). */
-export function topByClass(bossId: number, serverId: number | null) {
+export function topByClass(bossId: number, serverId: number | null, game: Game) {
   const allParticipants = db
     .select({
       participantId: encounterParticipants.id,
@@ -148,7 +151,10 @@ export function topByClass(bossId: number, serverId: number | null) {
 
   const result: Record<string, (typeof allParticipants[number] & { topBuffs: TopBuff[] })[]> = {};
   const capped = [...byClass.entries()].map(([className, list]) => [className, list.sort((a, b) => b.idps - a.idps).slice(0, TOP_N)] as const);
-  const topBuffs = topBuffsByParticipant(capped.flatMap(([, list]) => list.map((p) => p.participantId)));
+  const topBuffs = topBuffsByParticipant(
+    capped.flatMap(([, list]) => list.map((p) => p.participantId)),
+    game,
+  );
   for (const [className, list] of capped) {
     result[className] = list.map((p) => ({ ...p, topBuffs: topBuffs.get(p.participantId) ?? [] }));
   }
@@ -307,9 +313,9 @@ export async function bossRoutes(app: FastifyInstance) {
       // completely differently - one boss is never both, so only the query the page actually
       // needs runs. isSolo is manually curated (see README), same pattern as isTrashMob.
       if (boss.isSolo) {
-        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: [], topByClass: topByClass(boss.id, scope), stats });
+        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: [], topByClass: topByClass(boss.id, scope, found.game), stats });
       }
-      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: topGroups(boss.id, scope), topByClass: {}, stats });
+      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: topGroups(boss.id, scope, found.game), topByClass: {}, stats });
     },
   );
 

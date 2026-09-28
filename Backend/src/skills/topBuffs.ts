@@ -3,6 +3,7 @@ import { db } from "../db/client.js";
 import { encounterBuffUsage } from "../db/schema.js";
 import { resolveSkillIcon } from "./skillIconResolver.js";
 import { isLongLastingBuff } from "./skillDurations.js";
+import type { Game } from "../constants.js";
 
 const TOP_BUFFS_PER_PARTICIPANT = 8;
 
@@ -25,7 +26,7 @@ export interface TopBuff {
  * are shown here (see isLongLastingBuff) - a short combat-rotation buff isn't discarded, just not
  * surfaced in this specific column, so the threshold can change later without losing history.
  */
-export function topBuffsByParticipant(participantIds: number[]): Map<number, TopBuff[]> {
+export function topBuffsByParticipant(participantIds: number[], game: Game = "aion"): Map<number, TopBuff[]> {
   const result = new Map<number, TopBuff[]>();
   if (participantIds.length === 0) {
     return result;
@@ -49,7 +50,7 @@ export function topBuffsByParticipant(participantIds: number[]): Map<number, Top
 
     const list = result.get(row.participantId) ?? [];
     if (list.length < TOP_BUFFS_PER_PARTICIPANT) {
-      list.push({ skillName: row.skillName, icon: resolveSkillIcon(row.skillName), casts: row.casts });
+      list.push({ skillName: row.skillName, icon: resolveSkillIcon(row.skillName, game), casts: row.casts });
     }
     result.set(row.participantId, list);
   }

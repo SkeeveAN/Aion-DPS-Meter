@@ -78,9 +78,11 @@ export async function encounterRoutes(app: FastifyInstance) {
         // picked before (see Web-Frontend app.js renderEncounter's server-override).
         serverId: encounters.serverId,
         serverName: servers.displayName,
+        game: instances.game,
       })
       .from(encounters)
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+      .innerJoin(instances, eq(bosses.instanceId, instances.id))
       .leftJoin(servers, eq(encounters.serverId, servers.id))
       .where(eq(encounters.id, encounterId))
       .get();
@@ -122,7 +124,7 @@ export async function encounterRoutes(app: FastifyInstance) {
       .orderBy(desc(encounterParticipants.totalDamage))
       .all();
 
-    const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId));
+    const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId), encounter.game);
     const rosterWithBuffs = roster.map((r) => ({ ...r, topBuffs: topBuffs.get(r.participantId) ?? [] }));
 
     return reply.send({
@@ -170,9 +172,11 @@ export async function encounterRoutes(app: FastifyInstance) {
         bossName: bosses.name,
         startedAt: encounters.startedAt,
         durationSeconds: encounters.durationSeconds,
+        game: instances.game,
       })
       .from(encounters)
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+      .innerJoin(instances, eq(bosses.instanceId, instances.id))
       .where(eq(encounters.id, participant.encounterId))
       .get();
 
@@ -191,7 +195,7 @@ export async function encounterRoutes(app: FastifyInstance) {
       .orderBy(asc(encounterSkillUsage.isHeal), desc(encounterSkillUsage.totalDamage))
       .all();
 
-    const withIcons = skills.map((s) => ({ ...s, icon: resolveSkillIcon(s.skillName) }));
+    const withIcons = skills.map((s) => ({ ...s, icon: resolveSkillIcon(s.skillName, encounter?.game) }));
 
     return reply.send({
       participant,
