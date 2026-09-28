@@ -753,11 +753,7 @@ th {
   padding: 0;
   display: flex;
   justify-content: center;
-  /* Fixed dark tint, not var(--color-background) - this card overlaps the hero photo below it
-     (see .home-hero-row's own dark-scrimmed-regardless-of-theme reasoning), and its text below is
-     hardcoded light-on-dark to match, so the glass must stay dark even in the light theme or the
-     numbers disappear. */
-  background: color-mix(in srgb, #0e1820 72%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   backdrop-filter: blur(8px);
@@ -803,14 +799,14 @@ th {
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.01em;
-  color: #fff;
+  color: var(--color-text);
 }
 
 .home-stat-text span {
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 /* Footer closing CTA (aiondps_claude_design_pack prototype comparison, index-3.html) - logo left,
