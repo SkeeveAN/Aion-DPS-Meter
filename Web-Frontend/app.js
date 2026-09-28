@@ -371,11 +371,6 @@ async function renderHome() {
       ]),
       el("a", { className: "btn btn-blue", href: `/${DEFAULT_GAME}/instances` }, [el("span", { textContent: t("home.secondaryCta") })]),
     ]),
-    el("div", { className: "home-hero-pills" }, [
-      link(t("home.quickStartDownload"), "/download"),
-      link(t("home.quickStartAion"), "/aion/instances"),
-      link(t("home.quickStartAion2"), "/aion2/instances"),
-    ]),
   ]);
   const heroRow = el("div", { className: "home-hero-row" }, [hero]);
 

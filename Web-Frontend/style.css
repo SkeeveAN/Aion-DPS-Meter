@@ -719,23 +719,6 @@ th {
   color: #08213d;
 }
 
-.home-hero-pills {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
-
-.home-hero-pills a {
-  padding: 6px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(54, 90, 112, 0.7);
-  background: rgba(95, 168, 255, 0.08);
-  color: #fff;
-  text-decoration: none;
-  font-size: 13px;
-}
-
 /* Floating glass card overlapping up into the hero photo's bottom edge (aiondps_claude_design_pack
    prototype comparison, index-3.html), replacing the plain stats-row strip below the hero. */
 .home-stats-card {
