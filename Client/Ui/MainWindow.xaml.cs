@@ -181,6 +181,9 @@ public partial class MainWindow : Window
     /// call.</summary>
     private TrayIcon? _trayIcon;
     private int _historyTickCounter;
+    /// <summary>Set by the console test modes before they construct the window: nothing may open a dialog.</summary>
+    internal static bool Headless { get; set; }
+
     private GameKind _currentGame = GameKind.Aion;
     private string? _currentServerDisplayName;
 
@@ -273,9 +276,16 @@ public partial class MainWindow : Window
         // that one CAN land mid-boss, and a background timer popping a dialog over a fight is
         // exactly what announceResult=false was added to prevent. Fire-and-forget on purpose
         // either way -- an update check must never delay the window appearing.
-        _updateTimer.Tick += (_, _) => _ = RunUpdateCheck(announceResult: false);
-        _updateTimer.Start();
-        _ = RunUpdateCheck(announceResult: true);
+        // Not in the headless test modes (aion2-ui-test, aion2-ui-live, aion2-upload-dryrun): they build
+        // this window without showing it, and the announced check would put a message box on the
+        // user's screen - from a build folder, where there is never an Update.exe.
+        if (!Headless)
+        {
+            _updateTimer.Tick += (_, _) => _ = RunUpdateCheck(announceResult: false);
+            _updateTimer.Start();
+            _ = RunUpdateCheck(announceResult: true);
+        }
+
         var settings = MeterSettings.Load();
 
         // Empty means "a fresh install, or a settings file older than this feature" -- leave
@@ -2357,8 +2367,23 @@ public partial class MainWindow : Window
         }
 
         var participants = new List<ParticipantUpload>();
+        // Aion 2: the name only exists for players whose "appeared" frame the client saw, and the
+        // class for those seen casting - an unnamed "Player #id" or a row without a class the backend
+        // knows would make the backend reject the whole upload (class check) or store a nameless
+        // player, so only complete rows go in. The own character is told by its name too: the game
+        // gives a new object id on a map change, and the old one stops being "local".
+        var aion2Directory = _source?.Entities as Aion2.Aion2EntityDirectory;
+        string? ownName = aion2Directory?.LocalCharacter?.Name;
         foreach (PlayerRow row in _rows)
         {
+            if (aion2Directory is not null
+                && (row.Name.StartsWith("Player #", StringComparison.Ordinal)
+                    || row.Name.StartsWith("0x", StringComparison.Ordinal)
+                    || !ClassCatalog.IsKnownClass(GameKind.Aion2, row.ClassName)))
+            {
+                continue;
+            }
+
             var hitsOnBoss = targetHits.Where(e => e.SourceObjectId == row.ObjectId).ToList();
             // Per the user: heals must be uploaded alongside damage - a pure healer who never hit
             // the boss would otherwise be silently dropped from the roster entirely, so a row
@@ -2380,7 +2405,19 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            bool isSelf = _source?.Entities.IsLocalPlayer(row.ObjectId) == true;
+            // Aion 2 has no side to tell allies from bystanders, so "an ally survives on presence
+            // alone" would put every player standing nearby into the roster - and the backend takes
+            // at most 24. A player counts when they hit or healed in this fight or took hits from the
+            // boss; the own character always does.
+            if (aion2Directory is not null && hitsOnBoss.Count == 0 && healsBySelf.Count == 0
+                && !(ownName is not null && row.Name == ownName)
+                && !_aggregator.Events.Any(e => !e.IsHeal && e.SourceObjectId == targetId && e.TargetObjectId == row.ObjectId
+                    && e.Timestamp >= windowStart && e.Timestamp <= windowEnd))
+            {
+                continue;
+            }
+
+            bool isSelf = _source?.Entities.IsLocalPlayer(row.ObjectId) == true || (ownName is not null && row.Name == ownName);
             // targetHits, not _aggregator.Events: TargetIDps derives its own duration from
             // whichever events it's given, so passing the full history back in here would silently
             // widen a clustered upload's iDPS window back out to the target id's entire history -
@@ -2443,8 +2480,16 @@ public partial class MainWindow : Window
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
                 totalDamage, idps, idps, totalHealing, hps, skills, healSkills, damageTaken, buffs,
-                (_source?.Entities as Aion2.Aion2EntityDirectory)?.GuildOf(row.ObjectId),
-                BuildProfileUpload(row.ObjectId)));
+                aion2Directory?.GuildOf(ProfileIdOf(row)),
+                BuildProfileUpload(ProfileIdOf(row))));
+        }
+
+        // Two rows of the own character (the object id changed during the run) would both be "self";
+        // the backend wants exactly one, and merges same-named participants itself afterwards.
+        if (participants.Count(p => p.IsSelf) > 1)
+        {
+            ParticipantUpload keep = participants.Where(p => p.IsSelf).MaxBy(p => p.TotalDamage)!;
+            participants = participants.Select(p => p.IsSelf && !ReferenceEquals(p, keep) ? p with { IsSelf = false } : p).ToList();
         }
 
         // The backend requires exactly one isSelf participant per upload (see uploadSchema.ts) -
@@ -2519,14 +2564,48 @@ public partial class MainWindow : Window
         MeterSettings settings = MeterSettings.Load();
         if (settings.Game == GameKind.Aion2)
         {
-            // No config.ini to read for Aion 2 - the capture knows which server it is talking to.
-            string? captured = (_source as Aion2PacketCombatSource)?.ServerFingerprint;
-            return captured is null ? null : (captured, settings.ServerDisplayName);
+            // No config.ini to read for Aion 2, and the game server's IP is no server identity (it
+            // changed between two sessions of the same character): the server is the one the user
+            // registered the own character on, else the one chosen in Settings - but only a real
+            // Aion 2 server name counts, Settings may still hold a classic Aion server from before.
+            string? name = Aion2ServerName(settings);
+            return name is null ? null : ("aion2:" + ServerSlug(name), name);
         }
 
         string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
         return fingerprint is null ? null : (fingerprint, settings.ServerDisplayName);
     }
+
+    private static readonly System.Text.RegularExpressions.Regex Aion2ServerNamePattern =
+        new(@"^(Europe|NA West|NA East|Asia|LATAM) - \S+", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+    private static bool IsAion2ServerName(string? name) =>
+        !string.IsNullOrWhiteSpace(name) && Aion2ServerNamePattern.IsMatch(name);
+
+    private static string ServerSlug(string name) =>
+        System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
+
+    /// <summary>The Aion 2 server of the uploader: the server of the registered Aion 2 character that
+    /// has the name the game sent for the own character, else Settings' server when it is an Aion 2
+    /// one, else null.</summary>
+    private string? Aion2ServerName(MeterSettings settings)
+    {
+        string? own = (_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter?.Name;
+        string? registered = own is null
+            ? null
+            : _characters.FirstOrDefault(c => c.Game == GameKind.Aion2 && c.Name == own)?.ServerDisplayName;
+        if (IsAion2ServerName(registered))
+        {
+            return registered;
+        }
+
+        return IsAion2ServerName(settings.ServerDisplayName) ? settings.ServerDisplayName : null;
+    }
+
+    private string ServerNotIdentified =>
+        MeterSettings.Load().Game == GameKind.Aion2
+            ? "Your Aion 2 server is not set - upload refused rather than file your run under the wrong server. Settings > Characters: add your Aion 2 character with its server (for example Europe - Kaisinel)."
+            : ServerNotIdentifiedMessage;
 
     private const string ServerNotIdentifiedMessage =
         "Could not identify this server (bin64\\config.ini / bin32\\config.ini not found under the Aion install folder in Settings) - upload refused rather than risk mixing runs from different servers.";
@@ -2577,7 +2656,7 @@ public partial class MainWindow : Window
 
         if (ResolveServerIdentity() is not (string fingerprint, var displayName))
         {
-            ShowUploadStatus(ServerNotIdentifiedMessage);
+            ShowUploadStatus(ServerNotIdentified);
             return;
         }
 
@@ -2599,7 +2678,7 @@ public partial class MainWindow : Window
     {
         if (ResolveServerIdentity() is not (string fingerprint, var displayName))
         {
-            ShowUploadStatus(ServerNotIdentifiedMessage);
+            ShowUploadStatus(ServerNotIdentified);
             return;
         }
 
@@ -2684,7 +2763,7 @@ public partial class MainWindow : Window
 
         if (ResolveServerIdentity() is not (string fingerprint, var displayName))
         {
-            ShowUploadStatus(ServerNotIdentifiedMessage);
+            ShowUploadStatus(ServerNotIdentified);
             return;
         }
 
@@ -3999,6 +4078,13 @@ public partial class MainWindow : Window
     /// <summary>The Aion 2 character profile to attach to a participant: the full own record for the
     /// local player (also when it was restored from disk), what the "player appeared" frame showed
     /// for everyone else; null when there is nothing to say (classic Aion, or no frame seen).</summary>
+    /// <summary>The id to read a row's guild and profile under: the own character's row may carry an
+    /// older object id than the one the game currently knows it by.</summary>
+    private int ProfileIdOf(PlayerRow row) =>
+        _source?.Entities is Aion2.Aion2EntityDirectory { LocalCharacter: { } own } && row.Name == own.Name
+            ? own.CombatId
+            : row.ObjectId;
+
     private ProfileUpload? BuildProfileUpload(int objectId)
     {
         if (_source?.Entities is not Aion2.Aion2EntityDirectory directory)

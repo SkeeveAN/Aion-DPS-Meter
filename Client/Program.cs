@@ -125,6 +125,20 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-upload-dryrun")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-upload-dryrun <recording.jsonl> [server-name] [server-port]");
+                Console.WriteLine("  Plays a recording through the meter's own window logic (no window is shown), then builds the");
+                Console.WriteLine("  upload for every boss it recognised and prints it. Nothing is sent.");
+                return;
+            }
+
+            RunAion2UploadDryRun(args[1], args.Length > 2 ? args[2] : "Europe - Kaisinel", args.Length > 3 ? int.Parse(args[3]) : 13328);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-ui-live")
         {
             RunAion2UiLiveMode(args.Length > 1 ? int.Parse(args[1]) : 70);
@@ -318,6 +332,7 @@ internal static class Program
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
         var window = new Ui.MainWindow();
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         var type = typeof(Ui.MainWindow);
@@ -356,13 +371,75 @@ internal static class Program
         Environment.Exit(0);
     }
 
+    private static void RunAion2UploadDryRun(string path, string serverName, int serverPort)
+    {
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        var window = new Ui.MainWindow();
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var type = typeof(Ui.MainWindow);
+        var source = new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load());
+        type.GetField("_source", flags)!.SetValue(window, source);
+        var tick = type.GetMethod("OnChatLogTimerTick", flags)!;
+
+        var segments = Aion2.Capture.SegmentRecording.Read(path)
+            .Where(s => s.Source.EndsWith(":" + serverPort, StringComparison.Ordinal) || s.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+            .Select(s => s with { FromServer = s.Source.EndsWith(":" + serverPort, StringComparison.Ordinal) })
+            .ToList();
+        Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+        var entries = (System.Collections.IList)type.GetField("_mobBossEntries", flags)!.GetValue(window)!;
+        var build = type.GetMethod("BuildEncounterUpload", flags, null, new[] { typeof(int), typeof(string), typeof(string) }, null)!;
+        string fingerprint = "aion2:" + serverName.ToLowerInvariant().Replace(' ', '-');
+
+        // The meter clears its rows at a later map change, and an upload is built from the rows - so
+        // like a real user, build while playing (after every step) and keep the fullest result per boss.
+        var best = new Dictionary<int, Upload.EncounterUploadRequest>();
+        int chunk = Math.Max(1, segments.Count / 400);
+        for (int i = 0; i < segments.Count; i += chunk)
+        {
+            foreach (var segment in segments.Skip(i).Take(chunk))
+            {
+                source.Ingest(segment);
+            }
+
+            tick.Invoke(window, new object?[] { null, EventArgs.Empty });
+            foreach (object entry in entries.Cast<object>().ToList())
+            {
+                var (targetId, _) = ((int, string))entry;
+                if (build.Invoke(window, new object?[] { targetId, fingerprint, serverName }) is Upload.EncounterUploadRequest request
+                    && (!best.TryGetValue(targetId, out var old) || request.Participants.Sum(p => p.TotalDamage) >= old.Participants.Sum(p => p.TotalDamage)))
+                {
+                    best[targetId] = request;
+                }
+            }
+        }
+
+        Console.WriteLine($"aion2-upload-dryrun: {segments.Count} segments played; uploads that would be sent:");
+        int uploads = 0;
+        foreach (var (targetId, request) in best)
+        {
+            uploads++;
+            Console.WriteLine($"  {request.BossNpcName} (entity {targetId}) NPC id {request.BossNpcId}, game {request.Game}, server {request.ServerName} [{request.ServerFingerprint}], {request.StartedAt:HH:mm:ss}-{request.EndedAt:HH:mm:ss} UTC, {request.Participants.Count} participant(s), {request.Participants.Count(p => p.IsSelf)} self");
+            foreach (var p in request.Participants.OrderByDescending(x => x.TotalDamage))
+            {
+                Console.WriteLine($"      {p.Name,-12} {p.ClassName,-13} self={p.IsSelf,-5} damage {p.TotalDamage,9:N0} taken {p.DamageTaken,8:N0} heal {p.TotalHealing,7:N0} guild {p.Guild ?? "-"} profile {(p.Profile is null ? "-" : p.Profile.Source)}");
+            }
+        }
+
+        Console.WriteLine($"aion2-upload-dryrun: {uploads} upload(s) would be sent. Nothing was sent.");
+        Environment.Exit(0);
+    }
+
     private static void RunAion2UiTestMode(string path, int serverPort)
     {
         {
             var app = new System.Windows.Application();
             var settings = Ui.MeterSettings.Load();
             Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
-            var window = new Ui.MainWindow();
+            Ui.MainWindow.Headless = true;
+        var window = new Ui.MainWindow();
             var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
             var type = typeof(Ui.MainWindow);
 
@@ -554,6 +631,7 @@ internal static class Program
         var app = new System.Windows.Application();
         Ui.MeterSettings headlessSettings = Ui.MeterSettings.Load();
         Ui.ThemeManager.Apply(app, headlessSettings.Theme, headlessSettings.FontSize);
+        Ui.MainWindow.Headless = true;
         var window = new Ui.MainWindow();
         int exitCode = 0;
 

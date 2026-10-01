@@ -3,7 +3,8 @@
     "source": "derived",
     "sourceKind": "third-party-dataset",
     "derivedAt": "2026-09-22",
-    "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync."
+    "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync.",
+    "localizedNames": "de/fr/ru names added 2026-10-02 from the EU client list (Aion2.app client snapshot 2026-09-18, cross-checked with AION2HUB); only entries marked verified there, unverified fallbacks are left out."
   },
   "items": [
     {
@@ -734,7 +735,8 @@
       "name": {
         "en": "Transcendent Bakarma",
         "ko": "초월한 바카르마",
-        "zh": "超越的巴卡爾摩"
+        "zh": "超越的巴卡爾摩",
+        "de": "Transzendierter Bakarma"
       },
       "npcIds": [
         2300471,
@@ -947,7 +949,8 @@
       "name": {
         "en": "Kromede's Desire",
         "ko": "크로메데의 욕망",
-        "zh": "克羅梅德欲望"
+        "zh": "克羅梅德欲望",
+        "de": "Kromedes Gier"
       },
       "npcIds": [
         2300371,
@@ -1004,7 +1007,8 @@
       "name": {
         "en": "Enhanced Harcon",
         "ko": "강화된 하르콘",
-        "zh": "強化的哈爾坤"
+        "zh": "強化的哈爾坤",
+        "de": "Verstärkter Harcon"
       },
       "npcIds": [
         2300104,
@@ -1023,7 +1027,8 @@
       "name": {
         "en": "Neglected Gadioton",
         "ko": "방치된 가디오톤",
-        "zh": "棄置的加迪爾頓"
+        "zh": "棄置的加迪爾頓",
+        "de": "Vergessener Gadioton"
       },
       "npcIds": [
         2300108,
@@ -1042,7 +1047,8 @@
       "name": {
         "en": "Ultimate Berk",
         "ko": "완성체 베르크",
-        "zh": "完成體貝爾克"
+        "zh": "完成體貝爾克",
+        "de": "Vollendete Berk"
       },
       "npcIds": [
         2300171,
@@ -1130,7 +1136,8 @@
       "name": {
         "en": "Ferocious Horn Nuakum",
         "ko": "사나운 뿔 누아쿰",
-        "zh": "凶猛的角努亞庫"
+        "zh": "凶猛的角努亞庫",
+        "de": "Nuakum (Grimmhorn)"
       },
       "npcIds": [
         2300910,
@@ -1331,6 +1338,18 @@
       "hasMechanics": false
     },
     {
+      "key": "MusphelHolyGrail/mutated-elite-chief",
+      "instanceKey": "MusphelHolyGrail",
+      "slug": "mutated-elite-chief",
+      "name": {
+        "en": "Mutated Elite Chief"
+      },
+      "npcIds": [],
+      "level": null,
+      "internalName": null,
+      "hasMechanics": false
+    },
+    {
       "key": "NightmareAltar/divided-aponos",
       "instanceKey": "NightmareAltar",
       "slug": "divided-aponos",
@@ -1444,7 +1463,8 @@
       "name": {
         "en": "Eternal Ludra",
         "ko": "영겁의 루드라",
-        "zh": "永劫盧德萊"
+        "zh": "永劫盧德萊",
+        "de": "Ludra der Ewigkeit"
       },
       "npcIds": [
         2301014
@@ -1743,7 +1763,8 @@
       "name": {
         "en": "Divine Auldor",
         "ko": "신성한 아울도르",
-        "zh": "神聖的奧多勒"
+        "zh": "神聖的奧多勒",
+        "de": "Heiliger Auldor"
       },
       "npcIds": [
         2300218,
@@ -1762,7 +1783,8 @@
       "name": {
         "en": "Guardian Captain Raur",
         "ko": "수호대장 라우르",
-        "zh": "守護隊長勞爾"
+        "zh": "守護隊長勞爾",
+        "de": "Hüterhauptmann Raur"
       },
       "npcIds": [
         2300206,

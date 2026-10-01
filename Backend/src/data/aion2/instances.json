@@ -3,7 +3,8 @@
     "source": "derived",
     "sourceKind": "third-party-dataset",
     "derivedAt": "2026-09-22",
-    "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync."
+    "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync.",
+    "localizedNames": "de/fr/ru names added 2026-10-02 from the EU client list (Aion2.app client snapshot 2026-09-18, cross-checked with AION2HUB); only entries marked verified there, unverified fallbacks are left out."
   },
   "items": [
     {
@@ -12,7 +13,9 @@
       "name": {
         "en": "Krao Cave",
         "ko": "크라오 동굴",
-        "zh": "克拉奧洞窟"
+        "zh": "克拉奧洞窟",
+        "de": "Kraohöhle",
+        "fr": "Grotte de Krao"
       },
       "category": "expedition",
       "sortOrder": 1
@@ -23,7 +26,8 @@
       "name": {
         "en": "Dying Dramata's Nest",
         "ko": "죽은 드라마타의 둥지",
-        "zh": "死亡德拉瑪塔巢穴"
+        "zh": "死亡德拉瑪塔巢穴",
+        "de": "Nest des Toten Dramatha"
       },
       "category": "expedition",
       "sortOrder": 7
@@ -34,7 +38,9 @@
       "name": {
         "en": "Fire Temple",
         "ko": "불의 신전",
-        "zh": "火之神殿"
+        "zh": "火之神殿",
+        "de": "Feuertempel",
+        "fr": "Temple du Feu"
       },
       "category": "expedition",
       "sortOrder": 3
@@ -56,7 +62,9 @@
       "name": {
         "en": "Vakron Sky Island",
         "ko": "바크론의 공중섬",
-        "zh": "巴克隆空中島"
+        "zh": "巴克隆空中島",
+        "de": "Vakrons Luftinsel",
+        "fr": "Île céleste de Vakron"
       },
       "category": "expedition",
       "sortOrder": 5
@@ -67,7 +75,9 @@
       "name": {
         "en": "Cradle of Nihility",
         "ko": "허무의 요람",
-        "zh": "虛無搖籃"
+        "zh": "虛無搖籃",
+        "de": "Wiege des Nichts",
+        "ru": "Колыбель Небытия"
       },
       "category": "expedition",
       "sortOrder": 8
@@ -78,7 +88,8 @@
       "name": {
         "en": "Submerged Life Temple",
         "ko": "가라앉은 생명의 신전",
-        "zh": "沉沒的生命神殿"
+        "zh": "沉沒的生命神殿",
+        "de": "Versunkener Lebenstempel"
       },
       "category": "transcendence",
       "sortOrder": 4
@@ -89,7 +100,8 @@
       "name": {
         "en": "Shattered Arkanis",
         "ko": "조각난 아르카니스",
-        "zh": "破碎的雅爾卡尼斯"
+        "zh": "破碎的雅爾卡尼斯",
+        "de": "Zersplitterter Arkanis"
       },
       "category": "transcendence",
       "sortOrder": 5
@@ -100,7 +112,8 @@
       "name": {
         "en": "Deus Research Base",
         "ko": "데우스 연구기지",
-        "zh": "德烏斯研究基地"
+        "zh": "德烏斯研究基地",
+        "de": "Forschungsbasis Deus"
       },
       "category": "transcendence",
       "sortOrder": 6
@@ -111,7 +124,8 @@
       "name": {
         "en": "Abyssal Forge: Ludra",
         "ko": "심연의 재련 : 루드라",
-        "zh": "深淵重鑄：盧德萊"
+        "zh": "深淵重鑄：盧德萊",
+        "de": "Abgrundsveredelung: Ludra"
       },
       "category": null,
       "sortOrder": 109
@@ -144,7 +158,9 @@
       "name": {
         "en": "Hall of Illusion",
         "ko": "환영의 전당",
-        "zh": "幻影大殿"
+        "zh": "幻影大殿",
+        "de": "Illusionskorridor",
+        "ru": "Зал Иллюзий"
       },
       "category": "expedition",
       "sortOrder": 9
@@ -155,7 +171,8 @@
       "name": {
         "en": "Corroded Decontamination Facility",
         "ko": "침식의 정화소",
-        "zh": "侵蝕淨化所"
+        "zh": "侵蝕淨化所",
+        "de": "Läuterungsstätte der Korrosion"
       },
       "category": "sanctuary",
       "sortOrder": 2
@@ -166,7 +183,9 @@
       "name": {
         "en": "Urugugu Canyon",
         "ko": "우루구구 협곡",
-        "zh": "烏努庫庫峽谷"
+        "zh": "烏努庫庫峽谷",
+        "de": "Uruguguschlucht",
+        "fr": "Canyon d'Urugugu"
       },
       "category": "expedition",
       "sortOrder": 2
@@ -177,7 +196,9 @@
       "name": {
         "en": "Ferocious Horn Den",
         "ko": "사나운 뿔 암굴",
-        "zh": "凶猛的角岩窟"
+        "zh": "凶猛的角岩窟",
+        "de": "Grimmhornhöhle",
+        "fr": "Antre de la Corne féroce"
       },
       "category": "expedition",
       "sortOrder": 6
@@ -188,7 +209,8 @@
       "name": {
         "en": "Azure Breath Island",
         "ko": "푸른 숨의 섬",
-        "zh": "青息之島"
+        "zh": "青息之島",
+        "de": "Insel des Blauatems"
       },
       "category": "expedition",
       "sortOrder": 10
@@ -199,7 +221,8 @@
       "name": {
         "en": "Chalice of Muspel",
         "ko": "무스펠의 성배",
-        "zh": "穆斯費爾聖杯"
+        "zh": "穆斯費爾聖杯",
+        "de": "Kelch von Muspel"
       },
       "category": "sanctuary",
       "sortOrder": 3
@@ -210,7 +233,8 @@
       "name": {
         "en": "Mirror of Scarlet Desire",
         "ko": "붉은 연심의 거울",
-        "zh": "緋紅羈絆之鏡"
+        "zh": "緋紅羈絆之鏡",
+        "de": "Roter Spiegel des Verlangens"
       },
       "category": "transcendence",
       "sortOrder": 3
@@ -287,7 +311,8 @@
       "name": {
         "en": "Citadel of the Fallen Daeva",
         "ko": "타락한 데바의 성",
-        "zh": "墮落守護者之城"
+        "zh": "墮落守護者之城",
+        "de": "Zitadelle der gefallenen Daeva"
       },
       "category": "expedition",
       "sortOrder": 11
@@ -298,7 +323,8 @@
       "name": {
         "en": "Abyssal Horn Den",
         "ko": "심연의 뿔 암굴",
-        "zh": "深淵角岩窟"
+        "zh": "深淵角岩窟",
+        "de": "Abyss-Hornhöhle"
       },
       "category": "transcendence",
       "sortOrder": 2
