@@ -30,7 +30,7 @@ public sealed class CharacterWindow : Window
     {
         _directory = directory;
         Title = "Character";
-        Width = 1075;
+        Width = 1115;
         Height = 740;
         MinWidth = 820;
         MinHeight = 480;
@@ -43,6 +43,28 @@ public sealed class CharacterWindow : Window
         _directory.CharacterChanged += OnCharacterChanged;
         Closed += (_, _) => _directory.CharacterChanged -= OnCharacterChanged;
         Render();
+        Loaded += (_, _) => FitHeightToContent();
+    }
+
+    /// <summary>Opens (and grows, when a re-render adds rows) to the height the content needs, so
+    /// everything is visible at once - never taller than the screen's work area, where the scroll
+    /// bar takes over.</summary>
+    private void FitHeightToContent()
+    {
+        if (_host.Content is not UIElement content)
+        {
+            return;
+        }
+
+        content.Measure(new Size(Math.Max(ActualWidth - 20, 200), double.PositiveInfinity));
+        double wanted = content.DesiredSize.Height + 30 /* title bar */ + 4;
+        Rect area = SystemParameters.WorkArea;
+        double height = Math.Min(wanted, area.Height);
+        if (height > ActualHeight + 1)
+        {
+            Height = height;
+            Top = Math.Max(area.Top, Math.Min(Top, area.Bottom - height));
+        }
     }
 
     /// <summary>Puts the window to the right of the meter, or to its left when the screen ends
@@ -195,7 +217,7 @@ public sealed class CharacterWindow : Window
         Title = $"{character.Name} - Character";
 
         var layout = new Grid { Margin = new Thickness(14) };
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(280) });
+        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(320) });
         layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
         layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(465) });
         layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
@@ -225,6 +247,10 @@ public sealed class CharacterWindow : Window
             + "Stones, rolled stats and stigmas are not decoded and not shown.",
             11, brush: Res("Brush.TextMuted"), margin: new Thickness(16, 0, 16, 12), wrap: TextWrapping.Wrap));
         _host.Content = page;
+        if (IsLoaded)
+        {
+            Dispatcher.BeginInvoke(new Action(FitHeightToContent), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
     }
 
     private UIElement BuildProfile(Aion2CharacterInfo character, string className, string? guild, double average, int skillCount, int nodeCount)
@@ -312,7 +338,7 @@ public sealed class CharacterWindow : Window
             var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
             row.Children.Add(BoardMap(board));
 
-            var text = new StackPanel { Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, MaxWidth = 140 };
+            var text = new StackPanel { Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, MaxWidth = 160 };
             text.Children.Add(Text($"{summary.Name} · {summary.ActiveNodes} nodes", 12, FontWeights.SemiBold));
             string bonuses = string.Join(", ", summary.SkillBonuses.Select(kv => $"{skillNames.GetValueOrDefault(kv.Key, kv.Key.ToString())} +{kv.Value}"));
             if (bonuses.Length > 0)
