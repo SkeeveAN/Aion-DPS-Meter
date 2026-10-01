@@ -32,6 +32,8 @@ public static class SelfCheckAion2
         ok &= RunAion2MidStreamScenario();
         ok &= RunAion2CharacterScenario();
         ok &= RunAion2LoginListsScenario();
+        ok &= RunAion2CharacterStoreScenario();
+        ok &= RunAion2SeenProfileScenario();
         ok &= RunClassCatalogScenario();
         ok &= RunSettingsMigrationScenario();
         return ok;
@@ -415,6 +417,102 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> belt +4, amulet +3, plain helm +0 (and nothing invented elsewhere): {equipment}");
         Console.WriteLine($"  -> {skills.Count} skills with total/base level (Rending Blow 12 = 10+2, Blood Absorption 11 = 10+1 ...): {skillLevels}");
         return equipment && skillLevels && daevanion;
+    }
+
+    /// <summary>The local player's data survives a meter restart: it is written when the game sends it
+    /// and read back by the next session, which shows it (marked restored) without making the stale
+    /// combat id the local player.</summary>
+    private static bool RunAion2CharacterStoreScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 character data kept across restarts:");
+        string path = Path.Combine(Path.GetTempPath(), "aiondps-char-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            var directory = new Aion2EntityDirectory();
+            // Mirror what the source does: save on every fresh change.
+            directory.CharacterChanged += _ =>
+            {
+                if (directory.ToSaved() is { } snapshot)
+                {
+                    Aion2CharacterStore.Save(path, snapshot);
+                }
+            };
+            directory.SetLocalCharacter(new Aion2CharacterInfo(331, "Aahz", 6, 33, new[] { new Aion2EquippedItem(1, 110150026) }, DateTime.Now));
+            directory.SetLocalEquipment(new[] { new Aion2EquippedItem(1, 110150026), new Aion2EquippedItem(17, 215250001, 4) });
+            directory.SetLocalSkills(new[] { new Aion2SkillEntry(11010000, 12, 10) });
+            directory.SetLocalDaevanion(new[] { new Aion2DaevanionBoard(11, new[] { 110113, 110033 }) });
+            bool written = File.Exists(path);
+
+            // A "new session": nothing yet, then the saved record is restored.
+            var next = new Aion2EntityDirectory();
+            if (Aion2CharacterStore.Load(path) is { } saved)
+            {
+                next.RestoreFrom(saved);
+            }
+
+            Aion2CharacterInfo? restored = next.LocalCharacter;
+            bool header = restored is { Name: "Aahz", Level: 33, ClassCode: 6, Restored: true };
+            bool lists = next.LocalEquipment.Any(i => i.ItemId == 215250001 && i.Enchant == 4)
+                && next.LocalSkills.Any(s => s.SkillId == 11010000 && s.Level == 12 && s.BaseLevel == 10)
+                && next.LocalDaevanion.Count == 1 && next.LocalDaevanion[0].NodeIds.Count == 2;
+            bool notLocal = next.LocalPlayerId == -1; // the saved combat id belongs to a past session
+
+            // Fresh data replaces the restored record.
+            next.SetLocalCharacter(new Aion2CharacterInfo(2037, "Aahz", 6, 34, Array.Empty<Aion2EquippedItem>(), DateTime.Now));
+            bool replaced = next.LocalCharacter is { Level: 34, Restored: false } && next.LocalPlayerId == 2037;
+            bool className = Aion2SkillNames.ClassFromCode(6) == "Gladiator" && Aion2SkillNames.ClassFromCode(34) == "Chanter" && Aion2SkillNames.ClassFromCode(18) == "Assassin" && Aion2SkillNames.ClassFromCode(7) is null;
+
+            Console.WriteLine($"  -> the data is written to disk when the game sends it: {written}");
+            Console.WriteLine($"  -> a new session restores name, level, gear with enchant, skills and boards: {header && lists}");
+            Console.WriteLine($"  -> the restored record does not claim the old combat id as the local player: {notLocal}");
+            Console.WriteLine($"  -> fresh data from the game replaces it: {replaced}");
+            Console.WriteLine($"  -> class from the record's class code (Gladiator 6, Assassin 18, Chanter 34): {className}");
+            return written && header && lists && notLocal && replaced && className;
+        }
+        finally
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (IOException)
+            {
+            }
+        }
+    }
+
+    /// <summary>What the "player appeared" frame says about another player - class and faction from
+    /// the class code, and the visible equipment: a real frame's head and item block (the long
+    /// middle cut out), from the 2026-10-01 relog capture.</summary>
+    private static bool RunAion2SeenProfileScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 other players' profile (class, faction, visible gear):");
+        byte[] body = Convert.FromHexString("4536fc3e0320a0010707496363617275732100000000000000000000e0f9460fde489b06000100000000000000000000000000030000000000000000000000000eb888890c000200000000000000005758ca010003000000000000000000000000dd0e5e0f8b0c000300000000000000005858ca0100030000000000000000000000000e7e7b860c000400000000000000005558ca010003000000000000000000000000dd0e1702880c000500000000000000000000000000030000000000000000000000000ef7958c0c00060000000000000000000000000003000000000000000000000000dd0e981c8e0c000700000000000000000000000000030000000000000000000000000e3ea38f0c00080000000000000000ab21ca010003000000000000000000000000dd0e7e5c7c12000900000000000000000000000000030000000000000000000000000e18e37d12000a0000000000000000000000000003000000000000000000000000dd0e18e37d12000b00000000000000000000000000030000");
+        var wire = new List<byte>();
+        int length = body.Length + 4;
+        while (length >= 0x80)
+        {
+            wire.Add((byte)(length & 0x7f | 0x80));
+            length >>= 7;
+        }
+
+        wire.Add((byte)length);
+        wire.AddRange(body);
+
+        Aion2Protocol protocol = Aion2Protocol.Load();
+        using var source = new Aion2PacketCombatSource(protocol);
+        source.Ingest(Segment(600, wire.ToArray()));
+        var entities = (Aion2EntityDirectory)source.Entities;
+        Aion2SeenProfile? seen = entities.SeenProfileOf(8060);
+        string? name = entities.NameFor(8060);
+        bool named = name == "Iccarus";
+        bool classFaction = seen is { ClassId: 8, Faction: 1 };
+        var gear = seen?.Gear.Select(g => Aion2ItemCatalog.Find(g.ItemId)?.Name).ToList() ?? new List<string?>();
+        bool items = gear.Count == 11 && gear[0] == "Drifter Staff" && gear[1] == "Judicator Helm" && gear[10] == "Judicator Earrings";
+        Console.WriteLine($"  -> player named Iccarus: {named}");
+        Console.WriteLine($"  -> class id 8 and faction bit 1 read from the class code: {classFaction}");
+        Console.WriteLine($"  -> eleven visible items (Drifter Staff ... Judicator Earrings): {items}");
+        return named && classFaction && items;
     }
 
     private static bool RunTcpReassemblerScenario()

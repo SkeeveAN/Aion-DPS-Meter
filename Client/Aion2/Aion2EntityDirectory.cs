@@ -9,12 +9,16 @@ public sealed record Aion2EquippedItem(int SlotIndex, int ItemId, int Enchant = 
 /// difference is a bonus from gear or other sources.</summary>
 public sealed record Aion2SkillEntry(int SkillId, int Level, int BaseLevel);
 
+/// <summary>What the "player appeared" frame says about another player: class and faction (decoded
+/// from its class code) and the visible equipment (no enchant levels in that list).</summary>
+public sealed record Aion2SeenProfile(int? ClassId, int? Faction, IReadOnlyList<Aion2EquippedItem> Gear);
+
 /// <summary>The activated node ids of one Daevanion board (the start node included).</summary>
 public sealed record Aion2DaevanionBoard(int BoardId, IReadOnlyList<int> NodeIds);
 
 /// <summary>The local player's character record (opcode 0x3336), as of when the server last sent it
 /// - at login and on every zone change.</summary>
-public sealed record Aion2CharacterInfo(int CombatId, string Name, int ClassCode, int Level, IReadOnlyList<Aion2EquippedItem> Equipment, DateTime ReceivedAt);
+public sealed record Aion2CharacterInfo(int CombatId, string Name, int ClassCode, int Level, IReadOnlyList<Aion2EquippedItem> Equipment, DateTime ReceivedAt, bool Restored = false);
 
 /// <summary>Aion 2 frames carry the game's own object ids, so this maps those to names as nickname
 /// frames reveal them. The local player is whichever id the session frame names. Names that never
@@ -118,6 +122,49 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     public event Action<Aion2CharacterInfo>? CharacterChanged;
 
+    /// <summary>Loads what an earlier session saved (see <see cref="Aion2CharacterStore"/>). The combat
+    /// id of a saved record is meaningless in this session, so it is not made the local player; the
+    /// record just fills the Character view and the profile upload until the game sends the real one.</summary>
+    public void RestoreFrom(Aion2SavedCharacter saved)
+    {
+        lock (_gate)
+        {
+            if (_character is not null)
+            {
+                return; // fresh data already arrived
+            }
+
+            var equipment = saved.Equipment.Select(i => new Aion2EquippedItem(i.Slot, i.ItemId, i.Enchant)).ToList();
+            _character = new Aion2CharacterInfo(-1, saved.Name, saved.ClassCode, saved.Level, equipment, saved.SavedAt, Restored: true);
+            _fullEquipment = equipment;
+            _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel)).ToList();
+            _daevanion = saved.Daevanion.Select(b => new Aion2DaevanionBoard(b.Board, b.Nodes)).ToList();
+        }
+    }
+
+    /// <summary>The local player's data as it should be kept on disk, or null before any is known.</summary>
+    public Aion2SavedCharacter? ToSaved()
+    {
+        lock (_gate)
+        {
+            if (_character is not { Restored: false } c)
+            {
+                return null;
+            }
+
+            return new Aion2SavedCharacter
+            {
+                Name = c.Name,
+                ClassCode = c.ClassCode,
+                Level = c.Level,
+                SavedAt = DateTime.Now,
+                Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel)).ToList(),
+                Daevanion = (_daevanion ?? Array.Empty<Aion2DaevanionBoard>()).Select(b => new Aion2SavedCharacter.SavedBoard(b.BoardId, b.NodeIds.ToList())).ToList(),
+            };
+        }
+    }
+
     private IReadOnlyList<Aion2EquippedItem>? _fullEquipment;
     private IReadOnlyList<Aion2SkillEntry>? _skills;
 
@@ -194,6 +241,24 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         if (current is not null)
         {
             CharacterChanged?.Invoke(current);
+        }
+    }
+
+    private readonly Dictionary<int, Aion2SeenProfile> _seen = new();
+
+    public void SetSeenProfile(int id, Aion2SeenProfile profile)
+    {
+        lock (_gate)
+        {
+            _seen[id] = profile;
+        }
+    }
+
+    public Aion2SeenProfile? SeenProfileOf(int id)
+    {
+        lock (_gate)
+        {
+            return _seen.GetValueOrDefault(id);
         }
     }
 

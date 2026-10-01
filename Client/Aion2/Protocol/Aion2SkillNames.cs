@@ -97,6 +97,22 @@ public static class Aion2SkillNames
         return skillId >= 10000000 && prefix is >= 11 and <= 19 ? ClassByPrefix[prefix - 11] : null;
     }
 
+    private static readonly string[] ClassById =
+    {
+        "Gladiator", "Templar", "Ranger", "Assassin", "Elementalist", "Sorcerer", "Cleric", "Chanter",
+    };
+
+    /// <summary>
+    /// The class in a character record's class code: <c>4 * class id + faction bit</c> (Gladiator 5/6,
+    /// Templar 9/10, Ranger 13/14, Assassin 17/18, Elementalist 21/22, Sorcerer 25/26, Cleric 29/30,
+    /// Chanter 33/34). Verified on four known characters; null for anything outside that pattern.
+    /// </summary>
+    public static string? ClassFromCode(int classCode)
+    {
+        int id = classCode / 4;
+        return classCode % 4 is 1 or 2 && id is >= 1 and <= 8 ? ClassById[id - 1] : null;
+    }
+
     public static string NameOf(int skillId)
     {
         IReadOnlyDictionary<int, string> table = Load();

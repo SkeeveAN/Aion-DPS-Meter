@@ -51,7 +51,27 @@ public sealed record ParticipantUpload(
     IReadOnlyList<BuffUsageUpload>? Buffs = null,
     // Aion 2 only: the guild the packet stream named next to this player. Null where unknown
     // (classic Aion's Chat.log never states one).
-    string? Guild = null);
+    string? Guild = null,
+    // Aion 2 only: the character profile (see ProfileUpload).
+    ProfileUpload? Profile = null);
+
+/// <summary>An Aion 2 character as the client read it from the game's traffic (ids only; the website
+/// resolves names). Source "self" is the uploader's own character - level, full equipment with
+/// enchants, skills and Daevanion; "seen" is what could be read off another player.</summary>
+public sealed record ProfileUpload(
+    string Source,
+    int? Level,
+    int? ClassId,
+    int? Faction,
+    IReadOnlyList<ProfileGearUpload> Gear,
+    IReadOnlyList<ProfileSkillUpload> Skills,
+    IReadOnlyList<ProfileBoardUpload> Daevanion);
+
+public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant);
+
+public sealed record ProfileSkillUpload(int Id, int Level, int BaseLevel);
+
+public sealed record ProfileBoardUpload(int Board, IReadOnlyList<int> Nodes);
 
 /// <summary>One boss encounter, as sent to POST /api/uploads. The backend recognizes the same real
 /// fight across several independent uploads (one per group member) by boss + time window + roster

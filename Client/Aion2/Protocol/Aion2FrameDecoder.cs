@@ -333,6 +333,7 @@ public sealed class Aion2FrameDecoder
             if (TryReadName(frame, k, out string name))
             {
                 _entities.Register((int)id, name);
+                ReadSeenProfile(frame, (int)id, k + 1 + name.Length);
 
                 // The rest of the frame repeats the guild name behind the same 18 05 marker the
                 // roster uses; remember it so the roster's leftover name is the player's, not it.
@@ -571,6 +572,40 @@ public sealed class Aion2FrameDecoder
         if (skills.Count > 0)
         {
             _entities.SetLocalSkills(skills);
+        }
+    }
+
+    /// <summary>
+    /// What a "player appeared" frame says about the player after the name: a class code
+    /// (<c>4 * class id + faction bit</c>, see <see cref="Aion2SkillNames.ClassFromCode"/>) and the
+    /// visible equipment, entries of item id (u32), <c>00</c>, slot index (1-12), <c>00</c>.
+    /// </summary>
+    private void ReadSeenProfile(ReadOnlySpan<byte> frame, int id, int afterName)
+    {
+        if (afterName + 4 > frame.Length)
+        {
+            return;
+        }
+
+        int code = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[afterName..]));
+        int? classId = code % 4 is 1 or 2 && code / 4 is >= 1 and <= 8 ? code / 4 : null;
+        int? faction = classId is null ? null : code % 4;
+
+        var gear = new List<Aion2EquippedItem>();
+        var slots = new HashSet<int>();
+        for (int q = afterName + 4; q + 8 <= frame.Length; q++)
+        {
+            int itemId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[q..]));
+            if (frame[q + 4] == 0 && frame[q + 5] is >= 1 and <= 12 && frame[q + 6] == 0
+                && Aion2ItemCatalog.Find(itemId) is not null && slots.Add(frame[q + 5]))
+            {
+                gear.Add(new Aion2EquippedItem(frame[q + 5], itemId));
+            }
+        }
+
+        if (classId is not null || gear.Count > 0)
+        {
+            _entities.SetSeenProfile(id, new Aion2SeenProfile(classId, faction, gear.OrderBy(g => g.SlotIndex).ToList()));
         }
     }
 

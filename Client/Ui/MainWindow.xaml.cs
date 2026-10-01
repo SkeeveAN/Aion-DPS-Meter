@@ -614,7 +614,7 @@ public partial class MainWindow : Window
             // Aion 2 writes no Chat.log - its source captures the game's network traffic instead
             // (see Aion2/). Same one-second poll drives it; there is no file to point at.
             _chatLogPath = null;
-            var aion2Source = new Aion2PacketCombatSource(Aion2Protocol.Load(), settings.CaptureAdapterId, settings.Aion2CharacterName);
+            var aion2Source = new Aion2PacketCombatSource(Aion2Protocol.Load(), settings.CaptureAdapterId, settings.Aion2CharacterName, Aion2CharacterStore.DefaultPath);
             // Remember the name the stream reveals, so the next (solo) session knows it without a party.
             aion2Source.LocalNameLearned += learned =>
             {
@@ -2403,7 +2403,8 @@ public partial class MainWindow : Window
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
                 totalDamage, idps, idps, totalHealing, hps, skills, healSkills, damageTaken, buffs,
-                (_source?.Entities as Aion2.Aion2EntityDirectory)?.GuildOf(row.ObjectId)));
+                (_source?.Entities as Aion2.Aion2EntityDirectory)?.GuildOf(row.ObjectId),
+                BuildProfileUpload(row.ObjectId)));
         }
 
         // The backend requires exactly one isSelf participant per upload (see uploadSchema.ts) -
@@ -3866,6 +3867,45 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>The Aion 2 character profile to attach to a participant: the full own record for the
+    /// local player (also when it was restored from disk), what the "player appeared" frame showed
+    /// for everyone else; null when there is nothing to say (classic Aion, or no frame seen).</summary>
+    private ProfileUpload? BuildProfileUpload(int objectId)
+    {
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory directory)
+        {
+            return null;
+        }
+
+        if (directory.IsLocalPlayer(objectId) && directory.LocalCharacter is { } character)
+        {
+            int code = character.ClassCode;
+            bool known = code % 4 is 1 or 2 && code / 4 is >= 1 and <= 8;
+            return new ProfileUpload(
+                "self",
+                character.Level,
+                known ? code / 4 : null,
+                known ? code % 4 : null,
+                directory.LocalEquipment.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel)).ToList(),
+                directory.LocalDaevanion.Select(b => new ProfileBoardUpload(b.BoardId, b.NodeIds.ToList())).ToList());
+        }
+
+        if (directory.SeenProfileOf(objectId) is { } seen)
+        {
+            return new ProfileUpload(
+                "seen",
+                null,
+                seen.ClassId,
+                seen.Faction,
+                seen.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                Array.Empty<ProfileSkillUpload>(),
+                Array.Empty<ProfileBoardUpload>());
+        }
+
+        return null;
+    }
+
     private void OnShowDamageView(object sender, RoutedEventArgs e)
     {
         PlayersGrid.Visibility = Visibility.Visible;
@@ -3919,7 +3959,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        string className = directory.ClassOf(character.CombatId) ?? "?";
+        string className = directory.ClassOf(character.CombatId) ?? Aion2.Protocol.Aion2SkillNames.ClassFromCode(character.ClassCode) ?? "?";
         CharacterContent.Children.Add(Line(character.Name, 16, FontWeights.Bold));
         CharacterContent.Children.Add(Line($"{className}  ·  Level {character.Level}", 12, brush: muted));
         if (directory.GuildOf(character.CombatId) is string guild)
@@ -4022,7 +4062,10 @@ public partial class MainWindow : Window
         }
 
         CharacterContent.Children.Add(Line(
-            $"As sent by the game at login / zone change (record from {character.ReceivedAt:HH:mm:ss}). Stones, rolled stats and stigmas are not decoded and not shown.",
+            (character.Restored
+                ? $"Saved from your last login ({character.ReceivedAt:yyyy-MM-dd HH:mm}); updated on every relog. "
+                : $"As sent by the game at login / zone change (record from {character.ReceivedAt:HH:mm:ss}). ")
+            + "Stones, rolled stats and stigmas are not decoded and not shown.",
             11, brush: muted, margin: new Thickness(0, 8, 0, 0)));
     }
 

@@ -25,10 +25,27 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     private Capture.NpcapCaptureService? _capture;
     private SourceStatus _status = new(SourceState.Idle, "");
 
-    public Aion2PacketCombatSource(Protocol.Aion2Protocol protocol, string? adapterId = null, string? ownCharacterName = null)
+    public Aion2PacketCombatSource(Protocol.Aion2Protocol protocol, string? adapterId = null, string? ownCharacterName = null, string? characterStorePath = null)
     {
         _adapterId = adapterId;
         _entities.SetConfiguredLocalName(ownCharacterName);
+        if (characterStorePath is not null)
+        {
+            // Data from the last login, so the Character view and the profile upload are never empty
+            // after a mid-session start; every fresh record the game sends replaces and re-saves it.
+            if (Aion2CharacterStore.Load(characterStorePath) is { } saved)
+            {
+                _entities.RestoreFrom(saved);
+            }
+
+            _entities.CharacterChanged += _ =>
+            {
+                if (_entities.ToSaved() is { } snapshot)
+                {
+                    Aion2CharacterStore.Save(characterStorePath, snapshot);
+                }
+            };
+        }
         _protocol = protocol;
         _decoder = new Protocol.Aion2FrameDecoder(protocol, _entities);
     }
