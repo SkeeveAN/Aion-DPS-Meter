@@ -4,7 +4,7 @@
     "sourceKind": "third-party-dataset",
     "derivedAt": "2026-09-22",
     "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync.",
-    "localizedNames": "de/fr/ru names added 2026-10-02 from the EU client list (Aion2.app client snapshot 2026-09-18, cross-checked with AION2HUB); only entries marked verified there, unverified fallbacks are left out."
+    "localizedNames": "de/fr/es/ja/pt/ru names read from the game client's own text tables (L10NString.dat of the EU client, 2026-10-02); en and ko are kept from the original dataset. Names the client does not contain (content not in the EU client) have no translation."
   },
   "items": [
     {
@@ -15,7 +15,11 @@
         "ko": "크라오 동굴",
         "zh": "克拉奧洞窟",
         "de": "Kraohöhle",
-        "fr": "Grotte de Krao"
+        "fr": "Grotte de Krao",
+        "es": "Cueva de Krao",
+        "ja": "クラオ洞窟",
+        "pt": "Caverna de Krao",
+        "ru": "Пещера крао"
       },
       "category": "expedition",
       "sortOrder": 1
@@ -27,7 +31,12 @@
         "en": "Dying Dramata's Nest",
         "ko": "죽은 드라마타의 둥지",
         "zh": "死亡德拉瑪塔巢穴",
-        "de": "Nest des Toten Dramatha"
+        "de": "Nest des Toten Dramatha",
+        "es": "Nido del Dramata Muerto",
+        "fr": "Nid du Dramata Mort",
+        "ja": "死んだドラマタの巣",
+        "pt": "Ninho de Dramata Morto",
+        "ru": "Гнездо мертвой драматы"
       },
       "category": "expedition",
       "sortOrder": 7
@@ -40,7 +49,11 @@
         "ko": "불의 신전",
         "zh": "火之神殿",
         "de": "Feuertempel",
-        "fr": "Temple du Feu"
+        "fr": "Temple Divin du Feu",
+        "es": "Templo de Fuego",
+        "ja": "炎の神殿",
+        "pt": "Templo Divino do Fogo",
+        "ru": "Храм огня"
       },
       "category": "expedition",
       "sortOrder": 3
@@ -51,7 +64,13 @@
       "name": {
         "en": "Draupnir",
         "ko": "드라웁니르",
-        "zh": "德拉烏伯尼爾"
+        "zh": "德拉烏伯尼爾",
+        "de": "Draupnir",
+        "es": "Draupnir",
+        "fr": "Draupnir",
+        "ja": "ドラウプニル",
+        "pt": "Draupnir",
+        "ru": "Драупнир"
       },
       "category": "expedition",
       "sortOrder": 4
@@ -64,7 +83,11 @@
         "ko": "바크론의 공중섬",
         "zh": "巴克隆空中島",
         "de": "Vakrons Luftinsel",
-        "fr": "Île céleste de Vakron"
+        "fr": "Île Céleste de Vakron",
+        "es": "Isla Aérea de Vakron",
+        "ja": "バクロンの空中島",
+        "pt": "Ilha Aérea de Vakron",
+        "ru": "Парящий остров Вакрона"
       },
       "category": "expedition",
       "sortOrder": 5
@@ -77,7 +100,11 @@
         "ko": "허무의 요람",
         "zh": "虛無搖籃",
         "de": "Wiege des Nichts",
-        "ru": "Колыбель Небытия"
+        "ru": "Колыбель пустоты",
+        "es": "Cuna de la Nada",
+        "fr": "Berceau du Néant",
+        "ja": "武の揺りかご",
+        "pt": "Berço do Vazio"
       },
       "category": "expedition",
       "sortOrder": 8
@@ -89,7 +116,12 @@
         "en": "Submerged Life Temple",
         "ko": "가라앉은 생명의 신전",
         "zh": "沉沒的生命神殿",
-        "de": "Versunkener Lebenstempel"
+        "de": "Versunkener Lebenstempel",
+        "es": "Templo Divino de Vida Hundido",
+        "fr": "Temple Divin de la Vie Englouti",
+        "ja": "沈んだ生命の神殿",
+        "pt": "Templo Divino da Vida Submerso",
+        "ru": "Затонувший храм жизни"
       },
       "category": "transcendence",
       "sortOrder": 4
@@ -101,7 +133,12 @@
         "en": "Shattered Arkanis",
         "ko": "조각난 아르카니스",
         "zh": "破碎的雅爾卡尼斯",
-        "de": "Zersplitterter Arkanis"
+        "de": "Zersplitterter Arkanis",
+        "es": "Arkanis Fragmentado",
+        "fr": "Arcanis Fragmenté",
+        "ja": "砕けたアルカニス",
+        "pt": "Arcanis Despedaçada",
+        "ru": "Расколотый Арканис"
       },
       "category": "transcendence",
       "sortOrder": 5
@@ -113,7 +150,12 @@
         "en": "Deus Research Base",
         "ko": "데우스 연구기지",
         "zh": "德烏斯研究基地",
-        "de": "Forschungsbasis Deus"
+        "de": "Forschungsbasis Deus",
+        "es": "Base de Investigación Deus",
+        "fr": "Base de Recherche Deus",
+        "ja": "デウス研究基地",
+        "pt": "Base de Pesquisa Deus",
+        "ru": "Исследовательская база Деус"
       },
       "category": "transcendence",
       "sortOrder": 6
@@ -125,7 +167,12 @@
         "en": "Abyssal Forge: Ludra",
         "ko": "심연의 재련 : 루드라",
         "zh": "深淵重鑄：盧德萊",
-        "de": "Abgrundsveredelung: Ludra"
+        "de": "Abgrundsveredelung: Ludra",
+        "es": "Forja Abismal: Ludra",
+        "fr": "Creuset de l'Abîme : Ludra",
+        "ja": "深淵の再錬：ルドラ",
+        "pt": "Reforja Abissal: Ludra",
+        "ru": "Закалка пропасти: Рудра"
       },
       "category": null,
       "sortOrder": 109
@@ -160,7 +207,11 @@
         "ko": "환영의 전당",
         "zh": "幻影大殿",
         "de": "Illusionskorridor",
-        "ru": "Зал Иллюзий"
+        "ru": "Галерея иллюзий",
+        "es": "Corredor de la Ilusión",
+        "fr": "Corridor d'Illusion",
+        "ja": "幻影の回廊",
+        "pt": "Corredor da Ilusão"
       },
       "category": "expedition",
       "sortOrder": 9
@@ -172,7 +223,12 @@
         "en": "Corroded Decontamination Facility",
         "ko": "침식의 정화소",
         "zh": "侵蝕淨化所",
-        "de": "Läuterungsstätte der Korrosion"
+        "de": "Läuterungsstätte der Korrosion",
+        "es": "Purificatorio de Erosión",
+        "fr": "Sanctuaire de Purification de l'Érosion",
+        "ja": "侵食の浄化所",
+        "pt": "Posto de Purificação da Erosão",
+        "ru": "Чистилище скверны"
       },
       "category": "sanctuary",
       "sortOrder": 2
@@ -185,7 +241,11 @@
         "ko": "우루구구 협곡",
         "zh": "烏努庫庫峽谷",
         "de": "Uruguguschlucht",
-        "fr": "Canyon d'Urugugu"
+        "fr": "Canyon Urugugu",
+        "es": "Cañón de Urugugu",
+        "ja": "ウルググ峡谷",
+        "pt": "Desfiladeiro de Urugugu",
+        "ru": "Ущелье ауругу"
       },
       "category": "expedition",
       "sortOrder": 2
@@ -198,7 +258,11 @@
         "ko": "사나운 뿔 암굴",
         "zh": "凶猛的角岩窟",
         "de": "Grimmhornhöhle",
-        "fr": "Antre de la Corne féroce"
+        "fr": "Grotte de la Corne Féroce",
+        "es": "Caverna del Cuerno Feroz",
+        "ja": "獰猛な角岩窟",
+        "pt": "Gruta do Chifre Feroz",
+        "ru": "Логово Свирепого Рога"
       },
       "category": "expedition",
       "sortOrder": 6
@@ -210,7 +274,12 @@
         "en": "Azure Breath Island",
         "ko": "푸른 숨의 섬",
         "zh": "青息之島",
-        "de": "Insel des Blauatems"
+        "de": "Insel des Blauatems",
+        "es": "Isla del Aliento Azul",
+        "fr": "Île du Souffle Azuré",
+        "ja": "青い息の島",
+        "pt": "Ilha do Sopro Azul",
+        "ru": "Остров лазурного дыхания"
       },
       "category": "expedition",
       "sortOrder": 10
@@ -222,7 +291,12 @@
         "en": "Chalice of Muspel",
         "ko": "무스펠의 성배",
         "zh": "穆斯費爾聖杯",
-        "de": "Kelch von Muspel"
+        "de": "Kelch von Muspel",
+        "es": "Cáliz de Muspel",
+        "fr": "Calice de Muspel",
+        "ja": "ムスフェルの聖杯",
+        "pt": "Cálice de Muspel",
+        "ru": "Чаша Мусфеля"
       },
       "category": "sanctuary",
       "sortOrder": 3
@@ -234,7 +308,12 @@
         "en": "Mirror of Scarlet Desire",
         "ko": "붉은 연심의 거울",
         "zh": "緋紅羈絆之鏡",
-        "de": "Roter Spiegel des Verlangens"
+        "de": "Roter Spiegel des Verlangens",
+        "es": "Espejo de Deseo Rojo",
+        "fr": "Miroir de l'Affection Rouge",
+        "ja": "赤い恋心の鏡",
+        "pt": "Espelho do Afeto Escarlate",
+        "ru": "Красное зеркало тяготения"
       },
       "category": "transcendence",
       "sortOrder": 3
@@ -245,7 +324,13 @@
       "name": {
         "en": "Nightmare Altar",
         "ko": "악몽의 제단",
-        "zh": "惡夢祭壇"
+        "zh": "惡夢祭壇",
+        "de": "Altar der Albträume",
+        "es": "Altar de Pesadilla",
+        "fr": "Autel des Cauchemars",
+        "ja": "悪夢の祭壇",
+        "pt": "Altar do Pesadelo",
+        "ru": "Алтарь кошмара"
       },
       "category": "awakening",
       "sortOrder": 120
@@ -256,7 +341,13 @@
       "name": {
         "en": "Tyrant's Hideout",
         "ko": "폭군의 은신처",
-        "zh": "暴君藏身處"
+        "zh": "暴君藏身處",
+        "de": "Versteck des Tyrannen",
+        "es": "Escondite del Tirano",
+        "fr": "Repaire du Tyran",
+        "ja": "暴君の隠れ家",
+        "pt": "Esconderijo do Tirano",
+        "ru": "Убежище тирана"
       },
       "category": "awakening",
       "sortOrder": 121
@@ -267,7 +358,13 @@
       "name": {
         "en": "Sanctum of Loathing",
         "ko": "증오의 성소",
-        "zh": "憎惡聖所"
+        "zh": "憎惡聖所",
+        "de": "Sanktuarium des Hasses",
+        "es": "Sagrario del Odio",
+        "fr": "Sanctuaire de la Haine",
+        "ja": "憎悪の聖所",
+        "pt": "Sacrário do Ódio",
+        "ru": "Святилище ненависти"
       },
       "category": "awakening",
       "sortOrder": 122
@@ -278,7 +375,13 @@
       "name": {
         "en": "Depository of Fates",
         "ko": "궤적 보관소",
-        "zh": "軌跡保管所"
+        "zh": "軌跡保管所",
+        "de": "Kammer der Laufbahn",
+        "es": "Depósito de Trayectoria",
+        "fr": "Dépôt des Trajectoires",
+        "ja": "軌跡保管所",
+        "pt": "Depósito de Trajetórias",
+        "ru": "Хранилище траекторий"
       },
       "category": "awakening",
       "sortOrder": 123
@@ -289,7 +392,13 @@
       "name": {
         "en": "Forgotten Repository",
         "ko": "잊힌 저장소",
-        "zh": "被遺忘的儲藏所"
+        "zh": "被遺忘的儲藏所",
+        "de": "Vergessener Speicher",
+        "es": "Repositorio Olvidado",
+        "fr": "Entrepôt Oublié",
+        "ja": "忘れられた保存庫",
+        "pt": "Repositório Esquecido",
+        "ru": "Забытый тайник"
       },
       "category": "awakening",
       "sortOrder": 124
@@ -300,7 +409,13 @@
       "name": {
         "en": "Chamber of the Dead",
         "ko": "죽은 자의 침실",
-        "zh": "死者寢室"
+        "zh": "死者寢室",
+        "de": "Schlafstätte der Toten",
+        "es": "Alcoba de los Muertos",
+        "fr": "Chambre du Mort",
+        "ja": "死者の寝室",
+        "pt": "Dormitório dos Mortos",
+        "ru": "Опочивальня мертвых"
       },
       "category": "awakening",
       "sortOrder": 125
@@ -312,7 +427,12 @@
         "en": "Citadel of the Fallen Daeva",
         "ko": "타락한 데바의 성",
         "zh": "墮落守護者之城",
-        "de": "Zitadelle der gefallenen Daeva"
+        "de": "Zitadelle der gefallenen Daeva",
+        "es": "Ciudadela del Daeva Caído",
+        "fr": "Citadelle du Daeva déchu",
+        "ja": "堕落したディーヴァの城",
+        "pt": "Cidadela do Daeva Caído",
+        "ru": "Цитадель павших даэвов"
       },
       "category": "expedition",
       "sortOrder": 11
@@ -324,7 +444,12 @@
         "en": "Abyssal Horn Den",
         "ko": "심연의 뿔 암굴",
         "zh": "深淵角岩窟",
-        "de": "Abyss-Hornhöhle"
+        "de": "Abyss-Hornhöhle",
+        "es": "Guarida del Cuerno Abismal",
+        "fr": "Antre de la Corne abyssale",
+        "ja": "深淵の角岩窟",
+        "pt": "Covil do Chifre do Abismo",
+        "ru": "Логово рога Бездны"
       },
       "category": "transcendence",
       "sortOrder": 2
@@ -357,7 +482,13 @@
       "name": {
         "en": "Pure Spring",
         "ko": "순수의 샘",
-        "zh": "純粹之泉"
+        "zh": "純粹之泉",
+        "de": "Quelle der Reinheit",
+        "es": "Manantial de Pureza",
+        "fr": "Fontaine de Pureté",
+        "ja": "純粋の泉",
+        "pt": "Fonte da Pureza",
+        "ru": "Источник чистоты"
       },
       "category": "hideout",
       "sortOrder": 130
@@ -368,7 +499,13 @@
       "name": {
         "en": "Cave of the Stranded",
         "ko": "돌아가지 못한 자의 동굴",
-        "zh": "未歸之人洞穴"
+        "zh": "未歸之人洞穴",
+        "de": "Höhle der Gestrandeten",
+        "es": "Cueva de los Varados",
+        "fr": "Grotte des Naufragés",
+        "ja": "帰れぬ者の洞窟",
+        "pt": "Caverna dos Abandonados",
+        "ru": "Пещера заточенных"
       },
       "category": "hideout",
       "sortOrder": 131
@@ -379,7 +516,13 @@
       "name": {
         "en": "Defunct Creion Laboratory",
         "ko": "실패한 크레이온 실험실",
-        "zh": "失敗的克雷恩實驗室"
+        "zh": "失敗的克雷恩實驗室",
+        "de": "Aufgegebene Versuchsstätte der Creion",
+        "es": "Laboratorio de Creion abandonado",
+        "fr": "Laboratoire Creion désaffecté",
+        "ja": "失敗したクレイオンの実験室",
+        "pt": "Laboratório Creion Desativado",
+        "ru": "Заброшенная лаборатория крейонов"
       },
       "category": "hideout",
       "sortOrder": 132
@@ -390,7 +533,13 @@
       "name": {
         "en": "Fallen Haven",
         "ko": "스러진 안식처",
-        "zh": "消逝的安息處"
+        "zh": "消逝的安息處",
+        "de": "Gefallene Zuflucht",
+        "es": "Refugio Caído",
+        "fr": "Paradis perdu",
+        "ja": "荒廃した安息所",
+        "pt": "Abrigo Caído",
+        "ru": "Павшее пристанище"
       },
       "category": "hideout",
       "sortOrder": 133
@@ -401,7 +550,13 @@
       "name": {
         "en": "Filthy Cave",
         "ko": "지저분한 동굴",
-        "zh": "亂七八糟的洞穴"
+        "zh": "亂七八糟的洞穴",
+        "de": "Schmutzige Höhle",
+        "es": "Cueva Mugrienta",
+        "fr": "Grotte souillée",
+        "ja": "汚い洞窟",
+        "pt": "Caverna Imunda",
+        "ru": "Грязная пещера"
       },
       "category": "hideout",
       "sortOrder": 134
@@ -412,7 +567,13 @@
       "name": {
         "en": "Cave of the Exiled Ones",
         "ko": "쫓겨난 자들의 굴",
-        "zh": "被驅逐者巢穴"
+        "zh": "被驅逐者巢穴",
+        "de": "Höhle der Verbannten",
+        "es": "Cueva de los Exiliados",
+        "fr": "Grotte des Exilés",
+        "ja": "追放された者たちの洞窟",
+        "pt": "Caverna dos Exilados",
+        "ru": "Пещера изгнанников"
       },
       "category": "hideout",
       "sortOrder": 135

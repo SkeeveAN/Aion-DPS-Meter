@@ -106,6 +106,8 @@ function loadJson<T>(file: string, fallback: T): T {
 
 let itemInfo: Record<string, ItemInfo> | null = null;
 let skillNames: Record<string, string> | null = null;
+// Player skills in every language of the game client (de, en, es, fr, ja, ko, pt, ru), by skill id.
+let skillNamesI18n: Record<string, Record<string, string>> | null = null;
 let daevanion: DaevanionData | null = null;
 
 export type ProfileView = {
@@ -116,14 +118,14 @@ export type ProfileView = {
   faction: "Elyos" | "Asmodian" | null;
   gear: { slot: number; slotName: string; itemId: number; name: string; itemLevel: number; grade: number; tier: number; enchant: number }[];
   averageItemLevel: number | null;
-  skills: { id: number; name: string; level: number; baseLevel: number }[];
+  skills: { id: number; name: string; names?: Record<string, string>; level: number; baseLevel: number }[];
   daevanion: {
     board: number;
     name: string;
     activeNodes: number;
     knownNodes: number;
     stats: Record<string, number>;
-    skillBonuses: { id: number; name: string; value: number }[];
+    skillBonuses: { id: number; name: string; names?: Record<string, string>; value: number }[];
     /** Known active nodes for the board map: [row, col, kind] (1-based; kind 0 start, 1 stat, 2 skill level). */
     cells: [number, number, number][];
   }[];
@@ -137,6 +139,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
   }
   itemInfo ??= loadJson<Record<string, ItemInfo>>("item_info.json", {});
   skillNames ??= loadJson<Record<string, string>>("skill_names.json", {});
+  skillNamesI18n ??= loadJson<Record<string, Record<string, string>>>("skill_names_i18n.json", {});
   daevanion ??= loadJson<DaevanionData>("daevanion_nodes.json", { boards: {}, nodes: {} });
 
   const gear = (JSON.parse(row.gearJson) as { slot: number; itemId: number; enchant: number }[])
@@ -160,7 +163,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
   // variants, which would repeat the same name.
   const skills = (JSON.parse(row.skillsJson) as { id: number; level: number; baseLevel: number }[])
     .filter((s) => s.id % 10000 === 0)
-    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), level: s.level, baseLevel: s.baseLevel }))
+    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), names: skillNamesI18n![String(s.id)], level: s.level, baseLevel: s.baseLevel }))
     .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
 
   const boards = (JSON.parse(row.daevanionJson) as { board: number; nodes: number[] }[]).map((b) => {
@@ -195,7 +198,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
       activeNodes: active,
       knownNodes,
       stats,
-      skillBonuses: [...bonuses].map(([id, value]) => ({ id, name: skillNames![String(id)] ?? String(id), value })),
+      skillBonuses: [...bonuses].map(([id, value]) => ({ id, name: skillNames![String(id)] ?? String(id), names: skillNamesI18n![String(id)], value })),
       cells,
     };
   });

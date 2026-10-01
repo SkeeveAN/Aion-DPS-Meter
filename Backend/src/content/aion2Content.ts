@@ -13,6 +13,10 @@ export interface LocalizedText {
   zh?: string;
   de?: string;
   fr?: string;
+  es?: string;
+  ja?: string;
+  pt?: string;
+  ru?: string;
 }
 
 export interface Aion2Instance {

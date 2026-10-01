@@ -4,7 +4,7 @@
     "sourceKind": "third-party-dataset",
     "derivedAt": "2026-09-22",
     "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync.",
-    "localizedNames": "de/fr/ru names added 2026-10-02 from the EU client list (Aion2.app client snapshot 2026-09-18, cross-checked with AION2HUB); only entries marked verified there, unverified fallbacks are left out."
+    "localizedNames": "de/fr/es/ja/pt/ru names read from the game client's own text tables (L10NString.dat of the EU client, 2026-10-02); en and ko are kept from the original dataset. Names the client does not contain (content not in the EU client) have no translation."
   },
   "items": [
     {
@@ -14,7 +14,13 @@
       "name": {
         "en": "Ruthilis of Pain",
         "ko": "고통의 루탈리스",
-        "zh": "痛苦路堤里斯"
+        "zh": "痛苦路堤里斯",
+        "de": "Ruthilis des Schmerzes",
+        "es": "Ruthilis del dolor",
+        "fr": "Ruthilis de la douleur",
+        "ja": "苦痛のルタリス",
+        "pt": "Ruthilis da Dor",
+        "ru": "Руталис боли"
       },
       "npcIds": [
         2300708,
@@ -40,7 +46,13 @@
       "name": {
         "en": "Siliator of Deceit",
         "ko": "거짓의 실리아토르",
-        "zh": "謊言席利亞多爾"
+        "zh": "謊言席利亞多爾",
+        "de": "Siliator der Täuschung",
+        "es": "Siliator de falsedad",
+        "fr": "Siliator du mensonge",
+        "ja": "偽りのシリアトール",
+        "pt": "Siliator da Falsidade",
+        "ru": "Силиатор лжи"
       },
       "npcIds": [
         2300707,
@@ -66,7 +78,13 @@
       "name": {
         "en": "Talisra of the Void",
         "ko": "공허의 탈리스라",
-        "zh": "空虛塔里斯拉"
+        "zh": "空虛塔里斯拉",
+        "de": "Talisra der Leere",
+        "es": "Talisra del vacío",
+        "fr": "Talisra du Néant",
+        "ja": "空虚のターリスラ",
+        "pt": "Talisra do Vazio",
+        "ru": "Талира пустоты"
       },
       "npcIds": [
         2300709,
@@ -92,7 +110,13 @@
       "name": {
         "en": "Thamon",
         "ko": "타몬",
-        "zh": "塔蒙"
+        "zh": "塔蒙",
+        "de": "Thamon",
+        "es": "Thamon",
+        "fr": "Thamon",
+        "ja": "タモン",
+        "pt": "Thamon",
+        "ru": "Тамон"
       },
       "npcIds": [
         2300581,
@@ -111,7 +135,13 @@
       "name": {
         "en": "Tiere",
         "ko": "티에",
-        "zh": "提耶"
+        "zh": "提耶",
+        "de": "Tière",
+        "es": "Tiere",
+        "fr": "Tiere",
+        "ja": "ティエ",
+        "pt": "Tiere",
+        "ru": "Тие"
       },
       "npcIds": [
         2300580,
@@ -130,7 +160,13 @@
       "name": {
         "en": "Vakron",
         "ko": "바크론",
-        "zh": "巴克隆"
+        "zh": "巴克隆",
+        "de": "Vakron",
+        "es": "Vakron",
+        "fr": "Vakron",
+        "ja": "バクロン",
+        "pt": "Vakron",
+        "ru": "Вакрон"
       },
       "npcIds": [
         2300582,
@@ -203,7 +239,13 @@
       "name": {
         "en": "Awakened Alturadon",
         "ko": "깨어난 알투라돈",
-        "zh": "甦醒的艾圖拉頓"
+        "zh": "甦醒的艾圖拉頓",
+        "de": "Erwachter Althuradon",
+        "es": "Alturadon despierto",
+        "fr": "Alturadon éveillé",
+        "ja": "目覚めたアルタラドン",
+        "pt": "Alturadon Desperto",
+        "ru": "Пробудившийся Альтурадон"
       },
       "npcIds": [
         2300188,
@@ -221,7 +263,13 @@
       "name": {
         "en": "Expanding Xyrepe",
         "ko": "팽창하는 자이르페",
-        "zh": "膨脹的札伊爾佩"
+        "zh": "膨脹的札伊爾佩",
+        "de": "Expandierender Zairpe",
+        "es": "Zairpe efusivo",
+        "fr": "Zairpe expansif",
+        "ja": "膨張するザイルフェ",
+        "pt": "Xyrepe em Dilatação",
+        "ru": "Разбухший Заиреф"
       },
       "npcIds": [
         2300190,
@@ -239,7 +287,13 @@
       "name": {
         "en": "Wise Baumnute",
         "ko": "현명한 바움누트",
-        "zh": "賢明的巴溫努特"
+        "zh": "賢明的巴溫努特",
+        "de": "Weiser Baumnut",
+        "es": "Baumnut prudente",
+        "fr": "Baumnute le sage",
+        "ja": "賢明なバウムヌート",
+        "pt": "Baumnute Prudente",
+        "ru": "Мудрый Ваумнут"
       },
       "npcIds": [
         2300189,
@@ -257,7 +311,13 @@
       "name": {
         "en": "Leader Korin",
         "ko": "우두머리 코린",
-        "zh": "頭目柯林"
+        "zh": "頭目柯林",
+        "de": "Anführer Korin",
+        "es": "Korin líder",
+        "fr": "Chef Korin",
+        "ja": "リーダー コーリン",
+        "pt": "Líder Korin",
+        "ru": "Вождь Корин"
       },
       "npcIds": [
         2702177
@@ -273,7 +333,13 @@
       "name": {
         "en": "Eloen",
         "ko": "엘로엔",
-        "zh": "耶爾羅恩"
+        "zh": "耶爾羅恩",
+        "de": "Eloen",
+        "es": "Eloen",
+        "fr": "Eloen",
+        "ja": "エルロエン",
+        "pt": "Eloen",
+        "ru": "Элойн"
       },
       "npcIds": [
         2702359,
@@ -295,7 +361,13 @@
       "name": {
         "en": "Afflicted Bakarma",
         "ko": "고뇌하는 바카르마",
-        "zh": "苦惱的巴卡爾摩"
+        "zh": "苦惱的巴卡爾摩",
+        "de": "Gequälter Bakarma",
+        "es": "Bakarma agonizante",
+        "fr": "Bakarma tourmenté",
+        "ja": "苦悩するヴォカルマ",
+        "pt": "Bakarma Agonizado",
+        "ru": "Мучающийся Бакрам"
       },
       "npcIds": [
         2301301,
@@ -313,7 +385,13 @@
       "name": {
         "en": "Multiverse Veltiras",
         "ko": "다차원의 벨티라스",
-        "zh": "多次元貝提拉斯"
+        "zh": "多次元貝提拉斯",
+        "de": "Veltiras der Multidimension",
+        "es": "Veltiras multidimensional",
+        "fr": "Veltiras multidimensionnelle",
+        "ja": "多次元のベルティラス",
+        "pt": "Veltiras Multidimensional",
+        "ru": "Белтирас иных измерений"
       },
       "npcIds": [
         2301302,
@@ -331,7 +409,13 @@
       "name": {
         "en": "Solemn Valkan",
         "ko": "엄숙한 발칸",
-        "zh": "嚴肅的巴爾坎"
+        "zh": "嚴肅的巴爾坎",
+        "de": "Ehrwürdiger Valkan",
+        "es": "Valkan solemne",
+        "fr": "Balkan solennel",
+        "ja": "厳粛なバルカン",
+        "pt": "Valkan Solene",
+        "ru": "Суровый Валкан"
       },
       "npcIds": [
         2301303,
@@ -349,7 +433,13 @@
       "name": {
         "en": "Basilus the False",
         "ko": "위악의 바실루스",
-        "zh": "偽惡巴席路斯"
+        "zh": "偽惡巴席路斯",
+        "de": "Basilus der Falsche",
+        "es": "Basilus, el Falso",
+        "fr": "Basilus le fourbe",
+        "ja": "偽悪のバチルス",
+        "pt": "Basilus, o Falso",
+        "ru": "Базилус Лживый"
       },
       "npcIds": [
         2301603,
@@ -367,7 +457,13 @@
       "name": {
         "en": "Forbidden Hexbeast Griosa",
         "ko": "금기의 마수 그리오사",
-        "zh": "禁忌魔手格里歐薩"
+        "zh": "禁忌魔手格里歐薩",
+        "de": "Verbotene Hexbestie Griosa",
+        "es": "Griosa, la Bestia Prohibida de Hex",
+        "fr": "Griosa, la bête maudite",
+        "ja": "禁忌の魔獣グリオサ",
+        "pt": "Griosa, Hexafera Proibida",
+        "ru": "Запретный зверь-чернокнижник Гриоса"
       },
       "npcIds": [
         2301602,
@@ -385,7 +481,13 @@
       "name": {
         "en": "Willful Turgen",
         "ko": "의지의 투르겐",
-        "zh": "意志圖勒根"
+        "zh": "意志圖勒根",
+        "de": "Willensstarker Turgen",
+        "es": "Turgen, el Obstinado",
+        "fr": "Turgen l'Indomptable",
+        "ja": "意志のトゥールゲン",
+        "pt": "Turgen Determinado",
+        "ru": "Своевольный Турген"
       },
       "npcIds": [
         2301601,
@@ -403,7 +505,13 @@
       "name": {
         "en": "Broodkeeper Nayatman",
         "ko": "부화의 나야트만",
-        "zh": "孵化那亞特曼"
+        "zh": "孵化那亞特曼",
+        "de": "Brutpflegerin Nayatman",
+        "es": "Incubador Nayatman",
+        "fr": "Nayatman d'éclosion",
+        "ja": "孵化のナヤトマン",
+        "pt": "Nayatman da Eclosão",
+        "ru": "Наятман инкубации"
       },
       "npcIds": [
         2300154,
@@ -431,7 +539,13 @@
       "name": {
         "en": "Decaying Durvati",
         "ko": "부패한 두르바티",
-        "zh": "腐敗的杜勒巴提"
+        "zh": "腐敗的杜勒巴提",
+        "de": "Korrumpierte Durvati",
+        "es": "Durvati podrido",
+        "fr": "Durvati décomposée",
+        "ja": "腐敗したドゥルバティ",
+        "pt": "Durvati Putrefata",
+        "ru": "Гнилой Дурбати"
       },
       "npcIds": [
         2300155,
@@ -459,7 +573,13 @@
       "name": {
         "en": "Decaying Durvati (Specimen)",
         "ko": "부패한 두르바티 (표본)",
-        "zh": "腐敗的杜勒巴提(樣本)"
+        "zh": "腐敗的杜勒巴提(樣本)",
+        "de": "Korrumpierte Durvati (Exemplar)",
+        "es": "Durvati podrido (espécimen)",
+        "fr": "Décomposé Durvati (spécimen)",
+        "ja": "腐敗したドゥルバティ(見本)",
+        "pt": "Durvati Putrefata (Amostra)",
+        "ru": "Гнилой Дурбати (образец)"
       },
       "npcIds": [
         2300502,
@@ -510,7 +630,13 @@
       "name": {
         "en": "Durvati's Poison Fluid",
         "ko": "두르바티의 독액",
-        "zh": "杜勒巴提毒液"
+        "zh": "杜勒巴提毒液",
+        "de": "Durvatis Gift",
+        "es": "Ponzoña de Durvati",
+        "fr": "Venin de Durvati",
+        "ja": "ドゥルバティの毒液",
+        "pt": "Veneno de Durvati",
+        "ru": "Ядовитая жидкость Дурбати"
       },
       "npcIds": [
         2300162,
@@ -528,7 +654,13 @@
       "name": {
         "en": "Manager Nasium",
         "ko": "관리자 나지움",
-        "zh": "管理者納吉溫"
+        "zh": "管理者納吉溫",
+        "de": "Verwalter Nasium",
+        "es": "Administrador Nasium",
+        "fr": "Administrateur Nasium",
+        "ja": "管理者ナジウン",
+        "pt": "Gestor Nasium",
+        "ru": "Управляющий Назиум"
       },
       "npcIds": [
         2300153,
@@ -556,7 +688,13 @@
       "name": {
         "en": "Mutated Malgerre",
         "ko": "변이된 말게르",
-        "zh": "變異的麥杰爾"
+        "zh": "變異的麥杰爾",
+        "de": "Mutierter Malgerre",
+        "es": "Malgerre mutado",
+        "fr": "Malgerre altéré",
+        "ja": "変異したマルゲル",
+        "pt": "Malgerre Aberrante",
+        "ru": "Мутировавший Малгерре"
       },
       "npcIds": [
         2702564
@@ -572,7 +710,13 @@
       "name": {
         "en": "Claudia",
         "ko": "클라우디아",
-        "zh": "克勞蒂亞"
+        "zh": "克勞蒂亞",
+        "de": "Claudia",
+        "es": "Claudia",
+        "fr": "Claudia",
+        "ja": "クラウディア",
+        "pt": "Claudia",
+        "ru": "Клаудия"
       },
       "npcIds": [
         2701892,
@@ -593,7 +737,13 @@
       "name": {
         "en": "Atiel",
         "ko": "아티엘",
-        "zh": "亞提埃爾"
+        "zh": "亞提埃爾",
+        "de": "Atiel",
+        "es": "Atiel",
+        "fr": "Atiel",
+        "ja": "アティエル",
+        "pt": "Atiel",
+        "ru": "Атиэль"
       },
       "npcIds": [
         2300601,
@@ -620,7 +770,13 @@
       "name": {
         "en": "Gelcos",
         "ko": "겔코스",
-        "zh": "格爾闊斯"
+        "zh": "格爾闊斯",
+        "de": "Gelcos",
+        "es": "Gelcos",
+        "fr": "Gelcos",
+        "ja": "ガルコス",
+        "pt": "Gelcos",
+        "ru": "Гелькос"
       },
       "npcIds": [
         2300616,
@@ -647,7 +803,13 @@
       "name": {
         "en": "Nazmun",
         "ko": "나즈문",
-        "zh": "納茲文"
+        "zh": "納茲文",
+        "de": "Nazmun",
+        "es": "Nazmun",
+        "fr": "Nazmun",
+        "ja": "ナズムン",
+        "pt": "Nazmun",
+        "ru": "Назмун"
       },
       "npcIds": [
         2300615,
@@ -674,7 +836,13 @@
       "name": {
         "en": "Afflicted Bakarma",
         "ko": "고뇌하는 바카르마",
-        "zh": "苦惱的巴卡爾摩"
+        "zh": "苦惱的巴卡爾摩",
+        "de": "Gequälter Bakarma",
+        "es": "Bakarma agonizante",
+        "fr": "Bakarma tourmenté",
+        "ja": "苦悩するヴォカルマ",
+        "pt": "Bakarma Agonizado",
+        "ru": "Мучающийся Бакрам"
       },
       "npcIds": [
         2300470,
@@ -697,7 +865,13 @@
       "name": {
         "en": "Phantasmal Lakshmi",
         "ko": "몽환의 라크슈미",
-        "zh": "夢幻拉克修米"
+        "zh": "夢幻拉克修米",
+        "de": "Phantom-Lakshmi",
+        "es": "Lakshmi de ensueño",
+        "fr": "Lakshmi onirique",
+        "ja": "夢幻のラクシュミ",
+        "pt": "Lakshmi Onírica",
+        "ru": "Лакшми видения"
       },
       "npcIds": [
         2300401,
@@ -716,7 +890,13 @@
       "name": {
         "en": "Predator Saraswati",
         "ko": "포식자 사라스와티",
-        "zh": "捕食者薩拉斯瓦提"
+        "zh": "捕食者薩拉斯瓦提",
+        "de": "Verschlinger Saraswati",
+        "es": "Saraswati depredador",
+        "fr": "Saraswati le Prédateur",
+        "ja": "捕食者サラスワティ",
+        "pt": "Predador Saraswati",
+        "ru": "Хищница Сарасвати"
       },
       "npcIds": [
         2300403,
@@ -736,7 +916,12 @@
         "en": "Transcendent Bakarma",
         "ko": "초월한 바카르마",
         "zh": "超越的巴卡爾摩",
-        "de": "Transzendierter Bakarma"
+        "de": "Transzendierter Bakarma",
+        "es": "Bakarma trascendido",
+        "fr": "Bakarma transcendé",
+        "ja": "超越したヴォカルマ",
+        "pt": "Bakarma Transcendido",
+        "ru": "Возвышенный Бакрам"
       },
       "npcIds": [
         2300471,
@@ -755,7 +940,13 @@
       "name": {
         "en": "Black Blood Blatt",
         "ko": "검은 피 블라트",
-        "zh": "黑血布拉特"
+        "zh": "黑血布拉特",
+        "de": "Schwarzblut-Blat",
+        "es": "Blatt de sangre negra",
+        "fr": "Blat au sang noir",
+        "ja": "黒血ブラット",
+        "pt": "Blat de Sangue Negro",
+        "ru": "Блат черной крови"
       },
       "npcIds": [
         2301207
@@ -771,7 +962,13 @@
       "name": {
         "en": "Devouring Klawfly",
         "ko": "포식하는 뉴트라",
-        "zh": "捕食的紐特拉"
+        "zh": "捕食的紐特拉",
+        "de": "Schwelgender Klawfly",
+        "es": "Klawra devorador",
+        "fr": "Klawfly prédateur",
+        "ja": "捕食するニュートラ",
+        "pt": "Neuthra Devorador",
+        "ru": "Пожирающий Ньютра"
       },
       "npcIds": [
         2301209
@@ -787,7 +984,13 @@
       "name": {
         "en": "Surveillance Device",
         "ko": "감시 장치",
-        "zh": "監視裝置"
+        "zh": "監視裝置",
+        "de": "Überwachungsapparat",
+        "es": "Dispositivo de vigilancia",
+        "fr": "Dispositif de surveillance",
+        "ja": "監視装置",
+        "pt": "Dispositivo de Vigilância",
+        "ru": "Устройство наблюдения"
       },
       "npcIds": [
         2301216
@@ -803,7 +1006,13 @@
       "name": {
         "en": "Terminator Bargott",
         "ko": "중합체 바고트",
-        "zh": "聚合物巴考特"
+        "zh": "聚合物巴考特",
+        "de": "Polymerbargott",
+        "es": "Bargott polímero",
+        "fr": "Bargott polymère",
+        "ja": "重合体バゴット",
+        "pt": "Bargott Polímero",
+        "ru": "Полимерный Багот"
       },
       "npcIds": [
         2301208
@@ -819,7 +1028,13 @@
       "name": {
         "en": "Dhakan",
         "ko": "다칸",
-        "zh": "達坎"
+        "zh": "達坎",
+        "de": "Dhakan",
+        "es": "Dhakan",
+        "fr": "Dhakan",
+        "ja": "ダカン",
+        "pt": "Dhakan",
+        "ru": "Дхакан"
       },
       "npcIds": [
         2300474,
@@ -838,7 +1053,13 @@
       "name": {
         "en": "Gargaum",
         "ko": "가르가움",
-        "zh": "加爾加姆"
+        "zh": "加爾加姆",
+        "de": "Gargaum",
+        "es": "Gargaum",
+        "fr": "Gargaum",
+        "ja": "ガルガウム",
+        "pt": "Gargaum",
+        "ru": "Гаргаум"
       },
       "npcIds": [
         2300475,
@@ -857,7 +1078,13 @@
       "name": {
         "en": "Kapu",
         "ko": "카푸",
-        "zh": "卡普"
+        "zh": "卡普",
+        "de": "Kapu",
+        "es": "Kapu",
+        "fr": "Kapu",
+        "ja": "カープ",
+        "pt": "Kapu",
+        "ru": "Капу"
       },
       "npcIds": [
         2300473,
@@ -876,7 +1103,13 @@
       "name": {
         "en": "Revenant Tifus",
         "ko": "원혼 티푸스",
-        "zh": "冤魂提普斯"
+        "zh": "冤魂提普斯",
+        "de": "Rachegeist Tifus",
+        "es": "Aparición de Tifus",
+        "fr": "Tifus revenant",
+        "ja": "怨魂ティプス",
+        "pt": "Espectro Retornado Tifus",
+        "ru": "Мстительный дух Тифус"
       },
       "npcIds": [
         2702241
@@ -892,7 +1125,13 @@
       "name": {
         "en": "Filthy Grollack",
         "ko": "지저분한 그롤라크",
-        "zh": "亂七八糟的格婁拉克"
+        "zh": "亂七八糟的格婁拉克",
+        "de": "Schmutziger Grollack",
+        "es": "Grollack mugriento",
+        "fr": "Grollack le crasseux",
+        "ja": "汚いグロラック",
+        "pt": "Grollack Imundo",
+        "ru": "Гроллак-грязнуля"
       },
       "npcIds": [
         2702326
@@ -908,7 +1147,13 @@
       "name": {
         "en": "Karlix",
         "ko": "칼릭스",
-        "zh": "卡爾利斯"
+        "zh": "卡爾利斯",
+        "de": "Karlix",
+        "es": "Karlix",
+        "fr": "Karlix",
+        "ja": "カリックス",
+        "pt": "Karlix",
+        "ru": "Карликс"
       },
       "npcIds": [
         2702461,
@@ -930,7 +1175,13 @@
       "name": {
         "en": "Black Smoke Murute",
         "ko": "검은연기 무르트",
-        "zh": "黑煙穆勒特"
+        "zh": "黑煙穆勒特",
+        "de": "Schwarzrauch Murute",
+        "es": "Humo negro Murute",
+        "fr": "Murute de fumée noire",
+        "ja": "黒煙モルト",
+        "pt": "Murute da Fumaça Negra",
+        "ru": "Мурт черного дыма"
       },
       "npcIds": [
         2300312,
@@ -950,7 +1201,12 @@
         "en": "Kromede's Desire",
         "ko": "크로메데의 욕망",
         "zh": "克羅梅德欲望",
-        "de": "Kromedes Gier"
+        "de": "Kromedes Gier",
+        "es": "Ambición de Kromede",
+        "fr": "Désir de Kromede",
+        "ja": "クロメデの欲望",
+        "pt": "Desejo de Kromede",
+        "ru": "Желание Кромед"
       },
       "npcIds": [
         2300371,
@@ -969,7 +1225,13 @@
       "name": {
         "en": "Red Spark Ignus",
         "ko": "붉은불꽃 이그누스",
-        "zh": "紅火花伊格努斯"
+        "zh": "紅火花伊格努斯",
+        "de": "Rotflamme Ignus",
+        "es": "Fulgor rojo Ignus",
+        "fr": "Ignus de flamme rouge",
+        "ja": "赤い炎イグヌス",
+        "pt": "Ignus da Chama Vermelha",
+        "ru": "Игнус красного языка пламени"
       },
       "npcIds": [
         2300311,
@@ -988,7 +1250,13 @@
       "name": {
         "en": "Silver Blade Rotan",
         "ko": "은빛칼날 로탄",
-        "zh": "銀刃羅坦"
+        "zh": "銀刃羅坦",
+        "de": "Silberklinge Rotan",
+        "es": "Rotan de la cuchilla de plata",
+        "fr": "Rotan à la lame d'argent",
+        "ja": "銀色の刃ロータン",
+        "pt": "Rotan da Lâmina Prateada",
+        "ru": "Серебряный рокан"
       },
       "npcIds": [
         2300310,
@@ -1008,7 +1276,12 @@
         "en": "Enhanced Harcon",
         "ko": "강화된 하르콘",
         "zh": "強化的哈爾坤",
-        "de": "Verstärkter Harcon"
+        "de": "Verstärkter Harcon",
+        "es": "Harcon mejorado",
+        "fr": "Harcon amélioré",
+        "ja": "強化されたハルコン",
+        "pt": "Harcon Aprimorado",
+        "ru": "Усиленный Харкон"
       },
       "npcIds": [
         2300104,
@@ -1028,7 +1301,12 @@
         "en": "Neglected Gadioton",
         "ko": "방치된 가디오톤",
         "zh": "棄置的加迪爾頓",
-        "de": "Vergessener Gadioton"
+        "de": "Vergessener Gadioton",
+        "es": "Gadioton descuidado",
+        "fr": "Gadioton délaissé",
+        "ja": "放置されたガディオトン",
+        "pt": "Gadioton Abandonado",
+        "ru": "Брошенный Гадиотон"
       },
       "npcIds": [
         2300108,
@@ -1048,7 +1326,12 @@
         "en": "Ultimate Berk",
         "ko": "완성체 베르크",
         "zh": "完成體貝爾克",
-        "de": "Vollendete Berk"
+        "de": "Vollendete Berk",
+        "es": "Berk definitivo",
+        "fr": "Berk accomplie",
+        "ja": "完成体ベルク",
+        "pt": "Berk em Forma Final",
+        "ru": "Завершенная форма Берка"
       },
       "npcIds": [
         2300171,
@@ -1137,7 +1420,12 @@
         "en": "Ferocious Horn Nuakum",
         "ko": "사나운 뿔 누아쿰",
         "zh": "凶猛的角努亞庫",
-        "de": "Nuakum (Grimmhorn)"
+        "de": "Nuakum (Grimmhorn)",
+        "es": "Nuakum del Cuerno Feroz",
+        "fr": "Nuakum à cornes féroces",
+        "ja": "獰猛な角ヌアクム",
+        "pt": "Nuakum do Chifre Feroz",
+        "ru": "Нуакум свирепого рога"
       },
       "npcIds": [
         2300910,
@@ -1155,7 +1443,13 @@
       "name": {
         "en": "Necromancer Duanka",
         "ko": "강령술사 두안카",
-        "zh": "降靈術士杜安卡"
+        "zh": "降靈術士杜安卡",
+        "de": "Nekromantin Duanka",
+        "es": "Duanka nigromante",
+        "fr": "Duanka nécromancienne",
+        "ja": "降霊術士ドゥアンカ",
+        "pt": "Necromante Duanka",
+        "ru": "Некромант Дванка"
       },
       "npcIds": [
         2300909,
@@ -1173,7 +1467,13 @@
       "name": {
         "en": "Shining Mau Totem",
         "ko": "빛나는 라이칸 토템",
-        "zh": "閃耀的萊卡恩圖騰"
+        "zh": "閃耀的萊卡恩圖騰",
+        "de": "Strahlendes Totem (Mau)",
+        "es": "Tótem de Mau brillante",
+        "fr": "Totem Mau brillant",
+        "ja": "光るライカン トーテム",
+        "pt": "Totem Brilhante dos Licanos",
+        "ru": "Блестящий тотем оборотней"
       },
       "npcIds": [
         2300907,
@@ -1191,7 +1491,13 @@
       "name": {
         "en": "Watchdog Kwapo",
         "ko": "번견 쿠하푸",
-        "zh": "護衛犬庫哈普"
+        "zh": "護衛犬庫哈普",
+        "de": "Wachhund Kwapo",
+        "es": "Perro guardián Kwapo",
+        "fr": "Kwapo le chien de garde",
+        "ja": "番犬クハプ",
+        "pt": "Cão de Ataque Kwapo",
+        "ru": "Сторожевой пес Кухапу"
       },
       "npcIds": [
         2300908,
@@ -1209,7 +1515,13 @@
       "name": {
         "en": "Kromede's Desolation",
         "ko": "크로메데의 심연",
-        "zh": "克羅梅德深淵"
+        "zh": "克羅梅德深淵",
+        "de": "Kromedes Abgrund",
+        "es": "Abismo de Kromede",
+        "fr": "Abîme de Kromede",
+        "ja": "クロメデの深淵",
+        "pt": "Desolação de Kromede",
+        "ru": "Пропасть Кромед"
       },
       "npcIds": [
         2300261,
@@ -1228,7 +1540,13 @@
       "name": {
         "en": "Ordeal of Love",
         "ko": "사랑의 시련",
-        "zh": "愛的試煉"
+        "zh": "愛的試煉",
+        "de": "Prüfung der Liebe",
+        "es": "Prueba de amor",
+        "fr": "Épreuve de l'amour",
+        "ja": "愛の試練",
+        "pt": "Provação do Amor",
+        "ru": "Испытание любви"
       },
       "npcIds": [
         2300258,
@@ -1251,7 +1569,13 @@
       "name": {
         "en": "Robstino",
         "ko": "롭스티노",
-        "zh": "羅普斯提諾"
+        "zh": "羅普斯提諾",
+        "de": "Robstino",
+        "es": "Robstino",
+        "fr": "Robstino",
+        "ja": "ロプスティノ",
+        "pt": "Robstino",
+        "ru": "Робстино"
       },
       "npcIds": [
         2300260,
@@ -1270,7 +1594,13 @@
       "name": {
         "en": "Rotar",
         "ko": "로타르",
-        "zh": "羅塔爾"
+        "zh": "羅塔爾",
+        "de": "Rotar",
+        "es": "Rothar",
+        "fr": "Lothar",
+        "ja": "ロータル",
+        "pt": "Lothar",
+        "ru": "Лотар"
       },
       "npcIds": [
         2300259,
@@ -1289,7 +1619,13 @@
       "name": {
         "en": "Blazing Guardian Sword",
         "ko": "염화의 수호검",
-        "zh": "炎火守護劍"
+        "zh": "炎火守護劍",
+        "de": "Flammendes Hüterschwert",
+        "es": "Espada guardiana llameante",
+        "fr": "Épée du gardien flamboyante",
+        "ja": "炎火の守護剣",
+        "pt": "Espada Guardiã Flamejante",
+        "ru": "Пылающий меч стража"
       },
       "npcIds": [
         2301055,
@@ -1308,7 +1644,13 @@
       "name": {
         "en": "Iscariel",
         "ko": "이스카리엘",
-        "zh": "伊斯卡利爾"
+        "zh": "伊斯卡利爾",
+        "de": "Iscariel",
+        "es": "Iscariel",
+        "fr": "Iscariel",
+        "ja": "イスカリエル",
+        "pt": "Iscariel",
+        "ru": "Искариэль"
       },
       "npcIds": [
         2301059,
@@ -1325,7 +1667,13 @@
       "name": {
         "en": "Kaldrix",
         "ko": "칼드릭스",
-        "zh": "凱德利斯"
+        "zh": "凱德利斯",
+        "de": "Kaldrix",
+        "es": "Kaldrix",
+        "fr": "Kaldrix",
+        "ja": "カルドリックス",
+        "pt": "Kaldrix",
+        "ru": "Калдрикс"
       },
       "npcIds": [
         2301060,
@@ -1342,7 +1690,13 @@
       "instanceKey": "MusphelHolyGrail",
       "slug": "mutated-elite-chief",
       "name": {
-        "en": "Mutated Elite Chief"
+        "en": "Mutated Elite Chief",
+        "de": "Mutierter Elitekommandant",
+        "es": "Jefe de élite mutado",
+        "fr": "Commandant d'élite mutant",
+        "ja": "変異した精鋭指揮官",
+        "pt": "Chefe de Elite Mutante",
+        "ru": "Мутировавший элитный командир"
       },
       "npcIds": [],
       "level": null,
@@ -1356,7 +1710,13 @@
       "name": {
         "en": "Divided Aponos",
         "ko": "분열체 아포노스",
-        "zh": "分裂體阿布諾斯"
+        "zh": "分裂體阿布諾斯",
+        "de": "Fragmentierter Aponos",
+        "es": "Aponos de fragmentación",
+        "fr": "Aponos entité fendue",
+        "ja": "分裂体アフォノス",
+        "pt": "Entidade Fendida Aponos",
+        "ru": "Фрагмент Апноса"
       },
       "npcIds": [
         2701753,
@@ -1377,7 +1737,13 @@
       "name": {
         "en": "Glassvein",
         "ko": "글래스베인",
-        "zh": "格蕾絲貝因"
+        "zh": "格蕾絲貝因",
+        "de": "Glassbane",
+        "es": "Glassvein",
+        "fr": "Glassvein",
+        "ja": "グラスベイン",
+        "pt": "Glassvein",
+        "ru": "Глесбейн"
       },
       "npcIds": [
         2301401,
@@ -1395,7 +1761,13 @@
       "name": {
         "en": "Nathara",
         "ko": "나트하라",
-        "zh": "納特哈拉"
+        "zh": "納特哈拉",
+        "de": "Nathara",
+        "es": "Nathara",
+        "fr": "Nathara",
+        "ja": "ナトハラ",
+        "pt": "Nathara",
+        "ru": "Натхара"
       },
       "npcIds": [
         2301403,
@@ -1413,7 +1785,13 @@
       "name": {
         "en": "Nazarak",
         "ko": "나사라크",
-        "zh": "那薩拉克"
+        "zh": "那薩拉克",
+        "de": "Nasarak",
+        "es": "Nasarak",
+        "fr": "Nasarak",
+        "ja": "ナサラク",
+        "pt": "Nasarak",
+        "ru": "Насарак"
       },
       "npcIds": [
         2301402,
@@ -1431,7 +1809,13 @@
       "name": {
         "en": "Abyssal Wings Ketu",
         "ko": "심연의 날개 케투",
-        "zh": "深淵翅膀凱圖"
+        "zh": "深淵翅膀凱圖",
+        "de": "Abgrundsflügel Ketu",
+        "es": "Alas abismales Ketu",
+        "fr": "Ketu aux ailes d'Abîme",
+        "ja": "深淵の翼ケトゥ",
+        "pt": "Asas Abissais Ketu",
+        "ru": "Крылья пропасти Кету"
       },
       "npcIds": [
         2301007
@@ -1447,7 +1831,13 @@
       "name": {
         "en": "Central Abyss Fusion Reactor",
         "ko": "중앙 심연 융합로",
-        "zh": "中央深淵融合爐"
+        "zh": "中央深淵融合爐",
+        "de": "Zentraler Fusionsreaktor (Abgrund)",
+        "es": "Reactor de fusión abismal central",
+        "fr": "Réacteur à fusion central d'Abîme",
+        "ja": "中央の深淵融合炉",
+        "pt": "Reator de Fusão Central Abissal",
+        "ru": "Центральное ядро синтеза пропасти"
       },
       "npcIds": [
         2301008
@@ -1464,7 +1854,12 @@
         "en": "Eternal Ludra",
         "ko": "영겁의 루드라",
         "zh": "永劫盧德萊",
-        "de": "Ludra der Ewigkeit"
+        "de": "Ludra der Ewigkeit",
+        "es": "Ludra de la eternidad",
+        "fr": "Ludra de perpétuité",
+        "ja": "永劫のルドラ",
+        "pt": "Ludra da Eternidade",
+        "ru": "Рудра веков"
       },
       "npcIds": [
         2301014
@@ -1480,7 +1875,13 @@
       "name": {
         "en": "Isolation Specialist Rahu",
         "ko": "이격의 라후",
-        "zh": "隔絕者拉胡"
+        "zh": "隔絕者拉胡",
+        "de": "Rahu der Isolation",
+        "es": "Rahu aislado",
+        "fr": "Rahu de la disjonction",
+        "ja": "離隔のラフ",
+        "pt": "Rahu da Disjunção",
+        "ru": "Раху разрыва"
       },
       "npcIds": [
         2301006
@@ -1496,7 +1897,13 @@
       "name": {
         "en": "Featherstorm Duduri",
         "ko": "깃털포화 두두리",
-        "zh": "羽毛砲火杜杜里"
+        "zh": "羽毛砲火杜杜里",
+        "de": "Federsturmduduri",
+        "es": "Duduri emplumado",
+        "fr": "Duduri au barrage de plumes",
+        "ja": "羽根の砲火ドゥドゥリ",
+        "pt": "Duduri da Chuva de Penas",
+        "ru": "Пернатый Дудури"
       },
       "npcIds": [
         2701774,
@@ -1517,7 +1924,13 @@
       "name": {
         "en": "Watchful Raptor Dodori",
         "ko": "눈 뜬 맹조 도도리",
-        "zh": "覺醒的猛禽多多里"
+        "zh": "覺醒的猛禽多多里",
+        "de": "Hellwachsamer Raubvogel Dodori",
+        "es": "Dodori de corriente torrentosa despierto",
+        "fr": "Dodori rapace aux yeux ouverts",
+        "ja": "目を見開いた猛鳥ドドリ",
+        "pt": "Ave de Rapina Desperta Dodori",
+        "ru": "Пробудившийся хищнокрыл Додори"
       },
       "npcIds": [
         2701788,
@@ -1571,7 +1984,13 @@
       "name": {
         "en": "Water Spirit",
         "ko": "물정령",
-        "zh": "水精靈"
+        "zh": "水精靈",
+        "de": "Wassergeist",
+        "es": "Espíritu de agua",
+        "fr": "Esprit de l'eau",
+        "ja": "水の精霊",
+        "pt": "Espírito da Água",
+        "ru": "Дух воды"
       },
       "npcIds": [
         2702073
@@ -1587,7 +2006,13 @@
       "name": {
         "en": "Lamiphedon",
         "ko": "라미페돈",
-        "zh": "拉米佩頓"
+        "zh": "拉米佩頓",
+        "de": "Lamiphedon",
+        "es": "Lamiphedon",
+        "fr": "Lamiphedon",
+        "ja": "ラミフェドン",
+        "pt": "Lamiphedon",
+        "ru": "Ламифедон"
       },
       "npcIds": [
         2702574
@@ -1603,7 +2028,13 @@
       "name": {
         "en": "Mau Boss Tshulaga",
         "ko": "라이칸 우두머리 슐라그",
-        "zh": "萊卡恩頭目舒拉格"
+        "zh": "萊卡恩頭目舒拉格",
+        "de": "Anführer Tshulaga (Mau)",
+        "es": "Líder Mau Schlag",
+        "fr": "Shulag chef Mau",
+        "ja": "ライカン リーダー シュラグ",
+        "pt": "Shulag Chefe Licano",
+        "ru": "Лидер оборотней Шлаг"
       },
       "npcIds": [
         2702026
@@ -1651,7 +2082,13 @@
       "name": {
         "en": "Mau Sentry Soldier",
         "ko": "라이칸 경계병사",
-        "zh": "萊卡恩警戒兵師"
+        "zh": "萊卡恩警戒兵師",
+        "de": "Wachsoldat (Mau)",
+        "es": "Mau vigilante",
+        "fr": "Soldat de guet Mau",
+        "ja": "ライカン警戒兵士",
+        "pt": "Sentinela Licano",
+        "ru": "Солдат-пограничник оборотней"
       },
       "npcIds": [
         2702025
@@ -1667,7 +2104,13 @@
       "name": {
         "en": "Deep Sea Pydeon",
         "ko": "심해의 파이디온",
-        "zh": "深海帕伊迪溫"
+        "zh": "深海帕伊迪溫",
+        "de": "Pydeon der Tiefsee",
+        "es": "Pydeon del mar profundo",
+        "fr": "Pydeon des profondeurs",
+        "ja": "深海のパイディオン",
+        "pt": "Pydeon Abissal",
+        "ru": "Пайдион пучины"
       },
       "npcIds": [
         2300001,
@@ -1692,7 +2135,13 @@
       "name": {
         "en": "Singing Ellyde",
         "ko": "노래하는 엘라이드",
-        "zh": "唱歌的艾拉伊德"
+        "zh": "唱歌的艾拉伊德",
+        "de": "Singende Ellyde",
+        "es": "Ellyde del canto",
+        "fr": "Ellyde chantant",
+        "ja": "歌うエレイド",
+        "pt": "Ellyde Cantante",
+        "ru": "Поющий Элайд"
       },
       "npcIds": [
         2300002,
@@ -1717,7 +2166,13 @@
       "name": {
         "en": "Submerged Emon",
         "ko": "가라앉은 에몬",
-        "zh": "沉沒的艾蒙"
+        "zh": "沉沒的艾蒙",
+        "de": "Versunkener Emon",
+        "es": "Emon hundido",
+        "fr": "Emon englouti",
+        "ja": "沈んだエモン",
+        "pt": "Emone Submerso",
+        "ru": "Затонувший Эмон"
       },
       "npcIds": [
         2300000,
@@ -1742,7 +2197,13 @@
       "name": {
         "en": "Menoch",
         "ko": "메녹스",
-        "zh": "梅諾克斯"
+        "zh": "梅諾克斯",
+        "de": "Menox",
+        "es": "Menoch",
+        "fr": "Menox",
+        "ja": "メノックス",
+        "pt": "Menoch",
+        "ru": "Менокс"
       },
       "npcIds": [
         2701964,
@@ -1764,7 +2225,12 @@
         "en": "Divine Auldor",
         "ko": "신성한 아울도르",
         "zh": "神聖的奧多勒",
-        "de": "Heiliger Auldor"
+        "de": "Heiliger Auldor",
+        "es": "Auldor sagrado",
+        "fr": "Auldor sacré",
+        "ja": "神聖なアウルドール",
+        "pt": "Auldor Divino",
+        "ru": "Священный Аулдор"
       },
       "npcIds": [
         2300218,
@@ -1784,7 +2250,12 @@
         "en": "Guardian Captain Raur",
         "ko": "수호대장 라우르",
         "zh": "守護隊長勞爾",
-        "de": "Hüterhauptmann Raur"
+        "de": "Hüterhauptmann Raur",
+        "es": "Capitán de la Guardia Raur",
+        "fr": "Raur le Capitaine de la garde",
+        "ja": "守護隊長ラウル",
+        "pt": "Capitão Guardião Raur",
+        "ru": "Капитан охраны Лаур"
       },
       "npcIds": [
         2300206,
@@ -1803,7 +2274,13 @@
       "name": {
         "en": "Judge Urahum",
         "ko": "심판자 우라훔",
-        "zh": "審判者烏拉姆"
+        "zh": "審判者烏拉姆",
+        "de": "Richter Urahum",
+        "es": "Juez Urahum",
+        "fr": "Juge Urahum",
+        "ja": "審判者ウラフム",
+        "pt": "Juiz Urahum",
+        "ru": "Судья Урахум"
       },
       "npcIds": [
         2300207,

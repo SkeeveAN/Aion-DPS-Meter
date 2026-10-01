@@ -163,6 +163,8 @@ test("through the real routes: upload with a profile, then the player endpoint r
     assert.equal(body.profile.gear.find((g: { name: string }) => g.name === "Noble Belt").enchant, 4);
     assert.equal(body.profile.daevanion[0].name, "Nezekan");
     assert.equal(body.profile.skills.find((s: { name: string }) => s.name === "Blood Absorption").level, 11);
+    // Skill names come with the game client's translations (de, en, es, fr, ja, ko, pt, ru).
+    assert.ok(body.profile.skills.some((s: { names?: { de?: string } }) => typeof s.names?.de === "string" && s.names.de.length > 0));
 
     const seenId = db.select().from(players).where(eq(players.name, "Seen")).get()!.id;
     const seen = (await app.inject({ url: `/api/players/${seenId}` })).json();

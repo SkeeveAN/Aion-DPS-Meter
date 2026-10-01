@@ -1585,6 +1585,12 @@ function statLabel(token) {
 // bars in the middle, skills with level pips on the right. Everything is resolved server-side from
 // ids (see Backend/src/profile.ts); skills and Daevanion only exist when the player's own client
 // uploaded them.
+// Skill names come in the game client's languages (de, en, es, fr, ja, ko, pt, ru); the site's other
+// languages (pl, tr, zh) fall back to the English name.
+function localizedSkillName(skill) {
+  return skill.names?.[getLocale()] ?? skill.name;
+}
+
 function itemHeat(ratio) {
   return ratio >= 0.95 ? "good" : ratio >= 0.8 ? "ok" : ratio >= 0.65 ? "mid" : "low";
 }
@@ -1658,7 +1664,7 @@ function renderCharacterProfile(profile, player) {
       el("div", { className: "pf-card" }, [
         el("h4", { textContent: t("profile.daevanion") }),
         ...profile.daevanion.map((b) => {
-          const bonuses = b.skillBonuses.map((x) => `${x.name} +${x.value}`).join(", ");
+          const bonuses = b.skillBonuses.map((x) => `${localizedSkillName(x)} +${x.value}`).join(", ");
           const stats = Object.entries(b.stats)
             .sort((x, y) => y[1] - x[1])
             .slice(0, 3)
@@ -1706,7 +1712,7 @@ function renderCharacterProfile(profile, player) {
         el("h4", { textContent: t("profile.skills", { count: profile.skills.length }) }),
         ...profile.skills.map((s) =>
           el("div", { className: "pf-skill" }, [
-            el("span", { className: "name", textContent: s.name }),
+            el("span", { className: "name", textContent: localizedSkillName(s) }),
             el(
               "span",
               { className: "pips" },
