@@ -100,7 +100,14 @@ public partial class MainWindow : Window
     /// ApplyMobBossSearchFilter can keep re-inserting this SAME instance (preserving its
     /// {local:Loc Main.FilterAllTargets} binding) instead of fabricating a plain-text replacement every
     /// time the list rebuilds.</summary>
-    private readonly ComboBoxItem _mobBossAllItem;
+    // Replaced with a fresh item on every rebuild of the dropdown (see ApplyMobBossSearchFilter):
+    // re-adding the same ComboBoxItem right after Items.Clear() can still have the old logical
+    // parent and throws "Das Element besitzt bereits ein logisches übergeordnetes Element".
+    private bool _mobBossFilterNeedsRebuild;
+    private ComboBoxItem _mobBossAllItem;
+    private readonly object? _mobBossAllContent;
+    private readonly BindingBase? _mobBossAllContentBinding;
+    private readonly object? _mobBossAllTag;
 
     /// <summary>Found once, in OnWindowLoaded, via the SearchableComboBox template's
     /// PART_SearchBox -- null until then, and also whenever the template hasn't produced one for
@@ -223,6 +230,10 @@ public partial class MainWindow : Window
         // "All" it would have to build itself -- this one keeps the XAML {local:Loc Main.FilterAllTargets}
         // binding, which is only set up once, at parse time, on this specific object.
         _mobBossAllItem = (ComboBoxItem)MobBossFilter.Items[0]!;
+        _mobBossAllContent = _mobBossAllItem.Content;
+        // The XAML item's text is a localisation binding; a fresh item gets the same binding.
+        _mobBossAllContentBinding = BindingOperations.GetBindingBase(_mobBossAllItem, ContentControl.ContentProperty);
+        _mobBossAllTag = _mobBossAllItem.Tag;
         Loaded += OnWindowLoaded;
 
         // Version in the title, read back from the assembly rather than typed here a second time:
@@ -1890,7 +1901,7 @@ public partial class MainWindow : Window
             added = true;
         }
 
-        if (added)
+        if (added || _mobBossFilterNeedsRebuild)
         {
             ApplyMobBossSearchFilter();
             RefreshUploadAvailability();
@@ -2106,12 +2117,34 @@ public partial class MainWindow : Window
             .OrderByDescending(row => row.Damage)
             .ToList();
 
-        MobBossFilter.Items.Clear();
-        MobBossFilter.Items.Add(_mobBossAllItem);
-        foreach (var row in rows)
+        try
         {
-            MobBossFilter.Items.Add(new ComboBoxItem { Content = row.Name, Tag = row.Tag });
+            MobBossFilter.Items.Clear();
+            _mobBossAllItem = new ComboBoxItem { Tag = _mobBossAllTag };
+            if (_mobBossAllContentBinding is not null)
+            {
+                BindingOperations.SetBinding(_mobBossAllItem, ContentControl.ContentProperty, _mobBossAllContentBinding);
+            }
+            else
+            {
+                _mobBossAllItem.Content = _mobBossAllContent;
+            }
+
+            MobBossFilter.Items.Add(_mobBossAllItem);
+            foreach (var row in rows)
+            {
+                MobBossFilter.Items.Add(new ComboBoxItem { Content = row.Name, Tag = row.Tag });
+            }
         }
+        catch (InvalidOperationException)
+        {
+            // A WPF container hiccup while the dropdown is busy: not worth ending the meter over;
+            // the next refresh tick rebuilds the list again.
+            _mobBossFilterNeedsRebuild = true;
+            return;
+        }
+
+        _mobBossFilterNeedsRebuild = false;
 
         // Only reassign SelectedItem when the previous selection actually survived the filter -
         // per the user, forcing it back to "All" (the first item, whenever nothing survives)
