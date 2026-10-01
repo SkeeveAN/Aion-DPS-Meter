@@ -42,11 +42,13 @@ export async function serverRoutes(app: FastifyInstance) {
         slug: serverCatalog.slug,
         kind: serverCatalog.kind,
         game: serverCatalog.game,
+        region: serverCatalog.region,
+        faction: serverCatalog.faction,
       })
       .from(serverCatalog)
       .leftJoin(servers, eq(servers.displayName, serverCatalog.name))
       .where(and(eq(serverCatalog.active, true), eq(serverCatalog.game, game)))
-      .orderBy(asc(serverCatalog.kind), asc(serverCatalog.name))
+      .orderBy(asc(serverCatalog.kind), asc(serverCatalog.region), asc(serverCatalog.faction), asc(serverCatalog.name))
       .all();
     return reply.send(rows);
   });

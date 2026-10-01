@@ -44,6 +44,13 @@ export const serverCatalog = sqliteTable("server_catalog", {
   // e.g. the unassigned-instance bucket. GET /api/server-catalog filters these out; the row stays
   // in the table as a record of what was researched and rejected, not silently gone.
   active: integer("active", { mode: "boolean" }).notNull().default(true),
+  // Aion 2 is organised region -> server ("Europe" -> "Siel"), and the same server name exists in
+  // several regions, so each server is its own row named "<Region> - <Server>" and carries its
+  // region here. Null for classic Aion, which has no such level.
+  region: text("region"),
+  // Each Aion 2 server belongs to one faction ("Elyos" | "Asmodian"); the two halves of a pair
+  // (Siel <-> Israphel) are separate rows. Null where the game has no faction-bound servers.
+  faction: text("faction"),
 });
 
 // Per-private-server identity. Gear/rate standards differ completely between servers (per the
@@ -252,6 +259,10 @@ export const players = sqliteTable(
     // by default and Aion names are otherwise unique per side.
     name: text("name").notNull(),
     nameNormalized: text("name_normalized").notNull(),
+    // The guild the player was last seen in, as the uploader's client reported it (Aion 2's
+    // frames name a player's guild next to their name). Latest-seen wins, like `name`; null until
+    // an upload carries one, and an upload WITHOUT one never clears it.
+    guild: text("guild"),
     // Old names this same real character used to go by, normalized the same way nameNormalized
     // is - manually curated (never inferred: Aion's Chat.log never announces a rename, so there is
     // no automatic signal to detect one from). Same "mark, never guess" pattern as bosses'

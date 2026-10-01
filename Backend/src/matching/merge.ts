@@ -126,7 +126,7 @@ function resolveBossId(payload: UploadPayload): number {
   return Number(insertedBoss.lastInsertRowid);
 }
 
-function upsertPlayer(name: string, serverId: number): number {
+function upsertPlayer(name: string, serverId: number, guild?: string): number {
   const nameNormalized = normalizeName(name);
   const existing = db
     .select()
@@ -135,7 +135,7 @@ function upsertPlayer(name: string, serverId: number): number {
     .get();
   if (existing) {
     db.update(players)
-      .set({ name, lastSeenAt: sql`(current_timestamp)` })
+      .set({ name, lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}) })
       .where(eq(players.id, existing.id))
       .run();
     return existing.id;
@@ -153,11 +153,14 @@ function upsertPlayer(name: string, serverId: number): number {
     .all()
     .find((p) => p.aliasNamesNormalized.includes(nameNormalized));
   if (aliasMatch) {
-    db.update(players).set({ lastSeenAt: sql`(current_timestamp)` }).where(eq(players.id, aliasMatch.id)).run();
+    db.update(players)
+      .set({ lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}) })
+      .where(eq(players.id, aliasMatch.id))
+      .run();
     return aliasMatch.id;
   }
 
-  const inserted = db.insert(players).values({ name, nameNormalized, serverId }).run();
+  const inserted = db.insert(players).values({ name, nameNormalized, serverId, guild: guild ?? null }).run();
   return Number(inserted.lastInsertRowid);
 }
 
@@ -266,7 +269,7 @@ function insertParticipant(
   participant: ParticipantUpload,
   authoritative: boolean,
 ) {
-  const playerId = upsertPlayer(participant.name, serverId);
+  const playerId = upsertPlayer(participant.name, serverId, participant.guild);
   const inserted = db
     .insert(encounterParticipants)
     .values({
@@ -426,7 +429,7 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
     );
 
     if (candidates.length === 1) {
-      const playerId = upsertPlayer(participant.name, serverId);
+      const playerId = upsertPlayer(participant.name, serverId, participant.guild);
       db.update(encounterParticipants)
         .set({ playerId })
         .where(eq(encounterParticipants.id, candidates[0].encounter_participants.id))

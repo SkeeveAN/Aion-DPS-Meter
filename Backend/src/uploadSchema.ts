@@ -40,6 +40,13 @@ export const participantSchema = z.object({
     .max(40)
     .transform((name) => MODERN_TO_INTERNAL_CLASS_NAME[name] ?? AION2_CLASS_ALIASES[name] ?? name),
   faction: z.string().trim().max(20).default(""),
+  // Optional: only Aion 2 clients know a player's guild. Empty counts as absent.
+  guild: z
+    .string()
+    .trim()
+    .max(40)
+    .optional()
+    .transform((value) => (value ? value : undefined)),
   // Mirrors the client's `_chatLogParser.Names.NameFor(id) == "You"` check -
   // true for exactly one participant per upload, the uploader themselves.
   isSelf: z.boolean(),

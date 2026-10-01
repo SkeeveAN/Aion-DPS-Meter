@@ -106,6 +106,7 @@ export async function playerRoutes(app: FastifyInstance) {
       .select({
         id: players.id,
         name: players.name,
+        guild: players.guild,
         serverId: players.serverId,
         serverName: servers.displayName,
         serverFingerprint: servers.fingerprint,
@@ -128,6 +129,7 @@ export async function playerRoutes(app: FastifyInstance) {
       .select({
         id: players.id,
         name: players.name,
+        guild: players.guild,
         serverId: players.serverId,
         serverName: servers.displayName,
         serverFingerprint: servers.fingerprint,

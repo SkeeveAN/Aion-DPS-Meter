@@ -28,9 +28,19 @@ export function isGame(value: unknown): value is Game {
 // "Fighter" - accepted on upload and mapped here.
 export const AION2_CLASS_ALIASES: Record<string, string> = { Fighter: "Brawler" };
 
-// Which classes a server does NOT offer, by server_catalog slug. Per the user: Aion 2 in Europe
-// (and NA) launched with the eight base classes; Korea and Taiwan already have Brawler. Empty/
-// missing = every class of the game (see ClassCatalog on the client for the game's roster).
+// Which classes a server does NOT offer, by server_catalog region (Aion 2) - per the user, Europe
+// and North America launched with the eight base classes; Korea and Taiwan already have Brawler.
+// Asia and LATAM are unknown so far and therefore offer everything. Empty/missing = every class of
+// the game (see ClassCatalog on the client for the game's roster).
+export const REGION_EXCLUDED_CLASSES: Record<string, readonly string[]> = {
+  Europe: ["Brawler"],
+  "NA West": ["Brawler"],
+  "NA East": ["Brawler"],
+  // Legacy region rows from before the per-server catalog (migration 0026 deactivates them).
+  "North America": ["Brawler"],
+};
+
+// Older clients looked the exclusions up by slug; kept for those rows.
 export const SERVER_EXCLUDED_CLASSES: Record<string, readonly string[]> = {
   "aion-2-europe": ["Brawler"],
   "aion-2-north-america": ["Brawler"],
