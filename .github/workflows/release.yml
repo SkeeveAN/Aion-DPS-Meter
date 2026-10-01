@@ -111,6 +111,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          $tag = "${{ steps.tag.outputs.name }}"
+          # A pushed tag without a release used to fail here ("release not found") and leave
+          # installed clients with nothing to update to. Every release of this project is a
+          # prerelease, so create it as one when it does not exist yet.
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --prerelease --title $tag --notes "Release $tag"
+          }
           $files = Get-ChildItem releases -File | Where-Object { $_.Name -ne 'AionDpsMeter-win-Portable.zip' }
           gh release upload "${{ steps.tag.outputs.name }}" $files.FullName --clobber
         shell: pwsh
