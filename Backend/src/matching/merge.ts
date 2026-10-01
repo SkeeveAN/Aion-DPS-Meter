@@ -12,7 +12,7 @@ import {
   servers,
 } from "../db/schema.js";
 import { normalizeName, jaccardSimilarity, withinRelativeTolerance } from "./roster.js";
-import type { ParticipantUpload, UploadPayload } from "../uploadSchema.js";
+import type { ParticipantUpload, ProfilesUploadPayload, UploadPayload } from "../uploadSchema.js";
 import { UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { englishNameFor } from "../db/backfill.js";
 import { slugify, uniqueSlug } from "../seo/slug.js";
@@ -588,4 +588,18 @@ export function processUpload(payload: UploadPayload): ProcessResult {
 
   const encounterId = createEncounter(bossId, serverId, payload);
   return { status: "created", encounterId, serverId };
+}
+
+/**
+ * Stores the profiles of an upload that has no boss fight (see profilesUploadSchema): the server and
+ * the players are found or created like for a fight, then each profile goes through upsertProfile
+ * (a "seen" profile never replaces a "self" one there).
+ */
+export function processProfilesUpload(payload: ProfilesUploadPayload): { serverId: number; players: number } {
+  const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
+  for (const participant of payload.participants) {
+    const playerId = upsertPlayer(participant.name, serverId, participant.guild);
+    upsertProfile(playerId, participant.profile);
+  }
+  return { serverId, players: payload.participants.length };
 }

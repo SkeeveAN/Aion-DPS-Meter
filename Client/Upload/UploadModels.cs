@@ -96,3 +96,21 @@ public sealed record EncounterUploadRequest(
     // not (the same boss name recurs across Aion 2 dungeons). Null on the Chat.log path, which
     // never sees an id.
     int? BossNpcId = null);
+
+/// <summary>Aion 2 players without a boss fight, as sent to POST /api/uploads/profiles: the
+/// character profiles the client read off the network, with no encounter and no damage attached.
+/// Exactly one participant is the uploader themselves (<see cref="ParticipantUpload.IsSelf"/>).</summary>
+public sealed record ProfilesUploadRequest(
+    string ClientVersion,
+    string ServerFingerprint,
+    string? ServerName,
+    IReadOnlyList<ProfileParticipantUpload> Participants,
+    string Game = "aion2");
+
+public sealed record ProfileParticipantUpload(
+    string Name,
+    string ClassName,
+    string Faction,
+    bool IsSelf,
+    string? Guild,
+    ProfileUpload Profile);

@@ -128,3 +128,33 @@ export const uploadSchema = z
 
 export type UploadPayload = z.infer<typeof uploadSchema>;
 export type ParticipantUpload = z.infer<typeof participantSchema>;
+
+/**
+ * Aion 2 players without a boss fight: a client that has read characters off the network (its own
+ * and the visible ones around it) but has no boss kill to attach them to. Only profiles are stored -
+ * no encounter, no damage. Same participant shape as a fight upload, with the profile required.
+ */
+export const profilesUploadSchema = z
+  .object({
+    clientVersion: z.string().max(40).default(""),
+    game: z.literal("aion2"),
+    serverFingerprint: z.string().trim().min(1).max(64),
+    serverName: z.string().trim().max(60).optional(),
+    participants: z
+      .array(
+        participantSchema
+          .pick({ name: true, className: true, faction: true, guild: true, isSelf: true })
+          .extend({ profile: profileSchema }),
+      )
+      .min(1)
+      .max(60),
+  })
+  .superRefine((payload, ctx) => {
+    payload.participants.forEach((p, i) => {
+      if (!(AION2_CLASSES as readonly string[]).includes(p.className)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["participants", i, "className"], message: `unknown Aion 2 class: ${p.className}` });
+      }
+    });
+  });
+
+export type ProfilesUploadPayload = z.infer<typeof profilesUploadSchema>;

@@ -627,6 +627,12 @@ public partial class MainWindow : Window
                 }
             };
             ReplaceSource(aion2Source);
+            // The upload entries appear once the own character is known (see RefreshUploadAvailability).
+            if (aion2Source.Entities is Aion2.Aion2EntityDirectory aion2Entities)
+            {
+                aion2Entities.CharacterChanged += _ => Dispatcher.BeginInvoke(new Action(RefreshUploadAvailability));
+            }
+
             _chatLogTimer.Start();
             return;
         }
@@ -1983,9 +1989,12 @@ public partial class MainWindow : Window
     private void RefreshUploadAvailability()
     {
         bool hasBossData = _mobBossEntries.Count > 0;
-        UploadBossMenuItem.Visibility = hasBossData ? Visibility.Visible : Visibility.Collapsed;
+        // Aion 2 can also upload players without any boss fight (their character profiles), so the
+        // single-upload entries stay available as soon as the own character is known.
+        bool hasProfiles = _source?.Entities is Aion2.Aion2EntityDirectory { LocalCharacter: not null };
+        UploadBossMenuItem.Visibility = hasBossData || hasProfiles ? Visibility.Visible : Visibility.Collapsed;
         UploadRunMenuItem.Visibility = hasBossData ? Visibility.Visible : Visibility.Collapsed;
-        UploadBossButton.Visibility = hasBossData && PlayersGrid.Visibility == Visibility.Visible
+        UploadBossButton.Visibility = (hasBossData || hasProfiles) && PlayersGrid.Visibility == Visibility.Visible
             ? Visibility.Visible
             : Visibility.Collapsed;
     }
@@ -2501,6 +2510,13 @@ public partial class MainWindow : Window
     {
         if ((_selectedTargetId ?? MostRecentlyFoughtTargetId()) is not int targetId)
         {
+            // No boss fight, but Aion 2 still has characters worth uploading (per the user).
+            if (_source?.Entities is Aion2.Aion2EntityDirectory)
+            {
+                await UploadPlayersOnlyAsync();
+                return;
+            }
+
             ShowUploadStatus("No boss fights recorded yet.");
             return;
         }
@@ -2521,6 +2537,70 @@ public partial class MainWindow : Window
         ShowUploadStatus("Uploading...");
         UploadResult result = await UploadClient.SendAsync(payload);
         ShowUploadStatus(result.Success ? "Uploaded." : $"Upload failed: {result.Error}");
+    }
+
+    /// <summary>Aion 2 without a boss fight: uploads the own character and every other player whose
+    /// name, class and equipment were read from the network, as profiles only (no encounter).</summary>
+    private async Task UploadPlayersOnlyAsync()
+    {
+        if (ResolveServerIdentity() is not (string fingerprint, var displayName))
+        {
+            ShowUploadStatus(ServerNotIdentifiedMessage);
+            return;
+        }
+
+        var payload = BuildProfilesUpload(fingerprint, displayName);
+        if (payload is null)
+        {
+            ShowUploadStatus("No character data to upload yet - log in once with the meter running.");
+            return;
+        }
+
+        ShowUploadStatus($"Uploading {payload.Participants.Count} character(s)...");
+        UploadResult result = await UploadClient.SendProfilesAsync(payload);
+        ShowUploadStatus(result.Success ? $"Uploaded {payload.Participants.Count} character(s)." : $"Upload failed: {result.Error}");
+    }
+
+    private ProfilesUploadRequest? BuildProfilesUpload(string fingerprint, string? displayName)
+    {
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory directory || directory.LocalCharacter is not { } local)
+        {
+            return null;
+        }
+
+        var participants = new List<ProfileParticipantUpload>();
+        void Add(int id, string name, string className, bool isSelf)
+        {
+            if (BuildProfileUpload(id) is { } profile)
+            {
+                participants.Add(new ProfileParticipantUpload(name, className, "", isSelf, directory.GuildOf(id), profile));
+            }
+        }
+
+        string localClass = directory.ClassOf(local.CombatId) ?? Aion2.Protocol.Aion2SkillNames.ClassFromCode(local.ClassCode) ?? "";
+        if (localClass.Length == 0)
+        {
+            return null;
+        }
+
+        Add(local.CombatId, local.Name, localClass, true);
+        foreach (int id in directory.SeenProfileIds())
+        {
+            string? name = directory.NameFor(id);
+            string? className = directory.ClassOf(id)
+                ?? (directory.SeenProfileOf(id) is { ClassId: int classId } ? Aion2.Protocol.Aion2SkillNames.ClassFromCode(classId * 4 + 1) : null);
+            // Anonymous "Player #id" entries have no name to attach a profile to.
+            if (id == local.CombatId || name is null || name.StartsWith("Player #") || className is null)
+            {
+                continue;
+            }
+
+            Add(id, name, className, false);
+        }
+
+        return participants.Count == 0
+            ? null
+            : new ProfilesUploadRequest(AppVersion.Text, fingerprint, displayName, participants.Take(60).ToList());
     }
 
     /// <summary>

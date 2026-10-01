@@ -177,3 +177,36 @@ test("through the real routes: upload with a profile, then the player endpoint r
     await app.close();
   }
 });
+
+test("players without a boss fight: POST /api/uploads/profiles stores profiles and no encounter", async () => {
+  const { buildServer } = await import("./server.js");
+  const { encounters } = await import("./db/schema.js");
+  const app = await buildServer();
+  try {
+    const before = db.select().from(encounters).all().length;
+    const payload = {
+      clientVersion: "0.9.0",
+      game: "aion2",
+      serverFingerprint: "aion2:test:13328",
+      participants: [
+        { name: "Solo", className: "Gladiator", faction: "", guild: "Akatsuki", isSelf: true, profile: selfProfile },
+        { name: "Passerby", className: "Cleric", faction: "", isSelf: false, profile: { source: "seen", classId: 7, faction: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] } },
+      ],
+    };
+    const ok = await app.inject({ method: "POST", url: "/api/uploads/profiles", payload });
+    assert.equal(ok.statusCode, 200, ok.body);
+    assert.equal(db.select().from(encounters).all().length, before);
+
+    const id = db.select().from(players).where(eq(players.name, "Solo")).get()!.id;
+    const body = (await app.inject({ url: `/api/players/${id}` })).json();
+    assert.equal(body.player.guild, "Akatsuki");
+    assert.equal(body.profile.className, "Gladiator");
+
+    const noSelf = await app.inject({ method: "POST", url: "/api/uploads/profiles", payload: { ...payload, participants: [payload.participants[1]] } });
+    assert.equal(noSelf.statusCode, 400);
+    const classic = await app.inject({ method: "POST", url: "/api/uploads/profiles", payload: { ...payload, game: "aion" } });
+    assert.equal(classic.statusCode, 400);
+  } finally {
+    await app.close();
+  }
+});

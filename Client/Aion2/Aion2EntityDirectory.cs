@@ -254,6 +254,15 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    /// <summary>The ids of every player whose equipment has been seen so far.</summary>
+    public IReadOnlyList<int> SeenProfileIds()
+    {
+        lock (_gate)
+        {
+            return _seen.Keys.ToList();
+        }
+    }
+
     public Aion2SeenProfile? SeenProfileOf(int id)
     {
         lock (_gate)

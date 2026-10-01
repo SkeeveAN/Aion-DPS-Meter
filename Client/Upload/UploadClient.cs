@@ -52,6 +52,28 @@ public static class UploadClient
         }
     }
 
+    /// <summary>Posts Aion 2 character profiles that have no boss fight to attach to. Same
+    /// never-throws contract as <see cref="SendAsync"/>.</summary>
+    public static async Task<UploadResult> SendProfilesAsync(ProfilesUploadRequest payload)
+    {
+        try
+        {
+            using HttpResponseMessage response =
+                await Http.PostAsJsonAsync($"{ApiBaseUrl}/api/uploads/profiles", payload, JsonOptions);
+            if (response.IsSuccessStatusCode)
+            {
+                return UploadResult.Ok;
+            }
+
+            string body = await response.Content.ReadAsStringAsync();
+            return UploadResult.Failed($"{(int)response.StatusCode} {response.ReasonPhrase}: {Truncate(body, 200)}");
+        }
+        catch (Exception ex)
+        {
+            return UploadResult.Failed(ex.Message);
+        }
+    }
+
     private static string Truncate(string s, int maxLength) =>
         s.Length <= maxLength ? s : s[..maxLength] + "...";
 }
