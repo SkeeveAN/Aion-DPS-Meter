@@ -3114,7 +3114,8 @@ public partial class MainWindow : Window
                 MessageBox.Show(this,
                     "This copy was not installed by the updater, so it cannot update itself.\n\n" +
                     "That is normal for a build run straight from source or unzipped by hand. " +
-                    "Installed copies update themselves silently.",
+                    "Installed copies update themselves silently.\n\n" +
+                    UpdateDiagnostics(),
                     "Check for updates", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 
@@ -3184,6 +3185,18 @@ public partial class MainWindow : Window
         {
             OfferRestart(update, version);
         }
+    }
+
+    /// <summary>Where this copy runs and whether the updater sits next to it, so a "not installed by
+    /// the updater" message says why (an installed copy keeps Update.exe one folder above its
+    /// "current" folder).</summary>
+    private static string UpdateDiagnostics()
+    {
+        string folder = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
+        string? parent = Path.GetDirectoryName(folder);
+        string updater = parent is null ? "" : Path.Combine(parent, "Update.exe");
+        return $"Running from: {folder}\nUpdate.exe expected at: {updater}\n"
+            + (File.Exists(updater) ? "Update.exe: found." : "Update.exe: MISSING.");
     }
 
     private void OnCheckForUpdatesClicked(object sender, RoutedEventArgs e)
