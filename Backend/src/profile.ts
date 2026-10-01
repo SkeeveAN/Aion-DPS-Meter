@@ -205,7 +205,8 @@ export function buildProfileView(playerId: number): ProfileView | null {
     updatedAt: row.updatedAt,
     level: row.level,
     className: row.classId ? (AION2_CLASS_BY_ID[row.classId] ?? null) : null,
-    faction: row.faction === 2 ? "Elyos" : row.faction === 1 ? "Asmodian" : null,
+    // Only 2 (Elyos) is verified; 1 also occurs inside an Elyos legion, so its meaning is unknown.
+    faction: row.faction === 2 ? "Elyos" : null,
     gear,
     averageItemLevel: known.length > 0 ? Math.round((known.reduce((s, g) => s + g.itemLevel, 0) / known.length) * 10) / 10 : null,
     skills,

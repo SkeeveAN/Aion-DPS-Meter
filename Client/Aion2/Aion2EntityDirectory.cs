@@ -254,15 +254,16 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    /// <summary>"Elyos" / "Asmodian" as the network states it: the faction bit of the class code
-    /// (2 = Elyos, 1 = Asmodian - checked against an Elyos character), from the own character's
-    /// record or a seen appearance. Null where the client has not seen one.</summary>
+    /// <summary>"Elyos" as the network states it: the low bits of the class code are 2 for Elyos
+    /// (checked against two Elyos characters and the Elyos legion Akatsuki's member list). The other
+    /// value seen (1) also occurs inside that Elyos legion, so it is NOT shown as Asmodian - its
+    /// meaning is unknown. From the own character's record or a seen appearance; null otherwise.</summary>
     public string? FactionOf(int id)
     {
         int? bit = IsLocalPlayer(id) && LocalCharacter is { } own && own.ClassCode % 4 is 1 or 2
             ? own.ClassCode % 4
             : SeenProfileOf(id)?.Faction;
-        return bit switch { 2 => "Elyos", 1 => "Asmodian", _ => null };
+        return bit == 2 ? "Elyos" : null;
     }
 
     /// <summary>The ids of every player whose equipment has been seen so far.</summary>
