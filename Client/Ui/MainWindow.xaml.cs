@@ -1710,6 +1710,14 @@ public partial class MainWindow : Window
         Side side = sides.GetValueOrDefault(sourceId, Side.Unknown);
         row.IsEnemy = side == Side.Enemy;
 
+        // Aion 2 states every player's faction in the network data; the registered classic
+        // characters' faction (which the logic below derives from) says nothing about it.
+        if (_source?.Entities is Aion2.Aion2EntityDirectory aion2Directory)
+        {
+            row.Faction = aion2Directory.FactionOf(sourceId) ?? "";
+            return;
+        }
+
         // The "?? fallback" this replaced was dead code: a registered active character whose
         // Faction is empty returns "" rather than null, so the fallback never fired and NOBODY got
         // an emblem -- exactly what the user saw after a Sauro run, since characters registered
