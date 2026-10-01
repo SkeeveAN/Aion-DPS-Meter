@@ -181,6 +181,7 @@ public partial class MainWindow : Window
     // source; its Entities directory is what RefreshRows/RefreshMobBossFilterItems resolve names
     // through for ids this window didn't assign itself. Null until Settings name an install folder.
     private ICombatSource? _source;
+    private CharacterWindow? _characterWindow;
     private string? _chatLogPath;
     private readonly DispatcherTimer _chatLogTimer = new() { Interval = TimeSpan.FromSeconds(1) };
 
@@ -626,17 +627,6 @@ public partial class MainWindow : Window
                 }
             };
             ReplaceSource(aion2Source);
-            // Keep the Character view current when the game re-sends the record (zone change).
-            if (aion2Source.Entities is Aion2.Aion2EntityDirectory aion2Entities)
-            {
-                aion2Entities.CharacterChanged += _ => Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    if (CharacterPanel.Visibility == Visibility.Visible)
-                    {
-                        RenderCharacterPanel();
-                    }
-                }));
-            }
             _chatLogTimer.Start();
             return;
         }
@@ -3910,173 +3900,37 @@ public partial class MainWindow : Window
     {
         PlayersGrid.Visibility = Visibility.Visible;
         LootGrid.Visibility = Visibility.Collapsed;
-        CharacterPanel.Visibility = Visibility.Collapsed;
         SetActiveNavButton(DamageNavButton, LootNavButton);
-        CharacterNavButton.Background = (Brush)FindResource("Brush.Control");
-        CharacterNavButton.Foreground = (Brush)FindResource("Brush.Text");
         RefreshUploadAvailability();
     }
 
+    /// <summary>Opens (or brings forward) the character window beside the meter. It lives in its own
+    /// window, wider than the meter, and redraws itself when the game re-sends the record.</summary>
     private void OnShowCharacterView(object sender, RoutedEventArgs e)
     {
-        PlayersGrid.Visibility = Visibility.Collapsed;
-        LootGrid.Visibility = Visibility.Collapsed;
-        CharacterPanel.Visibility = Visibility.Visible;
-        SetActiveNavButton(CharacterNavButton, DamageNavButton);
-        LootNavButton.Background = (Brush)FindResource("Brush.Control");
-        LootNavButton.Foreground = (Brush)FindResource("Brush.Text");
-        RenderCharacterPanel();
-        RefreshUploadAvailability();
-    }
-
-    /// <summary>
-    /// Fills the Character view from the Aion 2 stream's own character record: header (name, class,
-    /// level, guild), one row per equipped item (slot, name, item level) and a one-line summary.
-    /// Says plainly what is not there: the record carries item ids, not enchant levels, stones or
-    /// skill levels, so none of those are shown rather than guessed.
-    /// </summary>
-    private void RenderCharacterPanel()
-    {
-        CharacterContent.Children.Clear();
-        Brush text = (Brush)FindResource("Brush.Text");
-        Brush muted = (Brush)FindResource("Brush.TextMuted");
-
-        TextBlock Line(string value, double size = 12, FontWeight? weight = null, Brush? brush = null, Thickness? margin = null) => new()
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory directory)
         {
-            Text = value,
-            FontSize = size,
-            FontWeight = weight ?? FontWeights.Normal,
-            Foreground = brush ?? text,
-            TextWrapping = TextWrapping.Wrap,
-            Margin = margin ?? new Thickness(0, 1, 0, 1),
-        };
-
-        if (_source?.Entities is not Aion2.Aion2EntityDirectory directory || directory.LocalCharacter is not { } character)
-        {
-            CharacterContent.Children.Add(Line(_source?.Entities is Aion2.Aion2EntityDirectory
-                ? "No character data yet. The game sends it when you log in or change zone."
-                : "The character view reads Aion 2's network data - it is empty for classic Aion.", brush: muted));
+            MessageBox.Show(this, "The character window reads Aion 2's network data - it is empty for classic Aion.", "Character", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
-        string className = directory.ClassOf(character.CombatId) ?? Aion2.Protocol.Aion2SkillNames.ClassFromCode(character.ClassCode) ?? "?";
-        CharacterContent.Children.Add(Line(character.Name, 16, FontWeights.Bold));
-        CharacterContent.Children.Add(Line($"{className}  ·  Level {character.Level}", 12, brush: muted));
-        if (directory.GuildOf(character.CombatId) is string guild)
+        if (_characterWindow is { IsLoaded: true })
         {
-            CharacterContent.Children.Add(Line($"Legion: {guild}", 12, brush: muted));
+            _characterWindow.Activate();
+            return;
         }
 
-        var rows = directory.LocalEquipment
-            .Select(e => (e.SlotIndex, Info: Aion2.Protocol.Aion2ItemCatalog.Find(e.ItemId), e.ItemId, e.Enchant))
-            .OrderBy(r => r.SlotIndex)
-            .ToList();
-        int maxLevel = rows.Where(r => r.Info is not null).Select(r => r.Info!.ItemLevel).DefaultIfEmpty(0).Max();
-        int minLevel = rows.Where(r => r.Info is not null).Select(r => r.Info!.ItemLevel).DefaultIfEmpty(0).Min();
-
-        var grid = new Grid { Margin = new Thickness(0, 8, 0, 4) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(78) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        int row = 0;
-        foreach (var item in rows)
-        {
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            string slot = item.Info?.Slot is { Length: > 0 } s ? s : $"Slot {item.SlotIndex}";
-            Brush levelBrush = item.Info is not null && rows.Count > 1 && item.Info.ItemLevel == minLevel && minLevel < maxLevel
-                ? (Brush)FindResource("Brush.Warning") : text;
-            var slotText = Line(slot, 12, brush: muted, margin: new Thickness(0, 2, 6, 2));
-            var nameText = Line((item.Info?.Name ?? $"Item {item.ItemId}") + (item.Enchant > 0 ? $"  +{item.Enchant}" : ""), 12, margin: new Thickness(0, 2, 6, 2));
-            var levelText = Line(item.Info is null ? "?" : item.Info.ItemLevel.ToString(), 12, FontWeights.SemiBold, levelBrush, new Thickness(0, 2, 0, 2));
-            Grid.SetRow(slotText, row);
-            Grid.SetRow(nameText, row);
-            Grid.SetRow(levelText, row);
-            Grid.SetColumn(nameText, 1);
-            Grid.SetColumn(levelText, 2);
-            grid.Children.Add(slotText);
-            grid.Children.Add(nameText);
-            grid.Children.Add(levelText);
-            row++;
-        }
-
-        CharacterContent.Children.Add(grid);
-        var known = rows.Where(r => r.Info is not null).Select(r => r.Info!).ToList();
-        if (known.Count > 0)
-        {
-            var weakest = known.OrderBy(i => i.ItemLevel).First();
-            CharacterContent.Children.Add(Line(
-                $"Average item level {known.Average(i => i.ItemLevel):F1} over {known.Count} items; weakest: {weakest.Name} ({weakest.ItemLevel}).", 12, FontWeights.SemiBold));
-        }
-
-        // Skills as listed at login: total level, with "base+bonus" when gear or similar adds some.
-        var names = Aion2.Protocol.Aion2SkillNames.Load();
-        var skills = directory.LocalSkills
-            .Where(k => k.SkillId % 10000 == 0)
-            .OrderByDescending(k => k.Level)
-            .ThenBy(k => names.GetValueOrDefault(k.SkillId, ""))
-            .ToList();
-        if (skills.Count > 0)
-        {
-            CharacterContent.Children.Add(Line($"Skills ({skills.Count})", 13, FontWeights.Bold, margin: new Thickness(0, 10, 0, 2)));
-            var skillGrid = new Grid();
-            skillGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            skillGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            int skillRow = 0;
-            foreach (var skill in skills)
-            {
-                skillGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-                var nameText = Line(names.GetValueOrDefault(skill.SkillId, skill.SkillId.ToString()), 12, margin: new Thickness(0, 1, 6, 1));
-                var levelText = Line(skill.Level > skill.BaseLevel ? $"Lv {skill.Level}  ({skill.BaseLevel}+{skill.Level - skill.BaseLevel})" : $"Lv {skill.Level}", 12, FontWeights.SemiBold, margin: new Thickness(0, 1, 0, 1));
-                Grid.SetRow(nameText, skillRow);
-                Grid.SetRow(levelText, skillRow);
-                Grid.SetColumn(levelText, 1);
-                skillGrid.Children.Add(nameText);
-                skillGrid.Children.Add(levelText);
-                skillRow++;
-            }
-
-            CharacterContent.Children.Add(skillGrid);
-        }
-
-        // Daevanion boards: activated nodes per board, summed into stat totals and skill bonuses.
-        if (directory.LocalDaevanion.Count > 0)
-        {
-            CharacterContent.Children.Add(Line("Daevanion", 13, FontWeights.Bold, margin: new Thickness(0, 10, 0, 2)));
-            var skillNames = Aion2.Protocol.Aion2SkillNames.Load();
-            foreach (var board in directory.LocalDaevanion)
-            {
-                var summary = Aion2.Protocol.Aion2DaevanionCatalog.Summarize(board.BoardId, board.NodeIds);
-                CharacterContent.Children.Add(Line($"{summary.Name}: {summary.ActiveNodes} nodes" + (summary.KnownNodes < summary.ActiveNodes ? $" ({summary.KnownNodes} with known effect)" : ""), 12, FontWeights.SemiBold, margin: new Thickness(0, 3, 0, 0)));
-                string stats = string.Join(", ", summary.Stats.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key} +{kv.Value}"));
-                string bonuses = string.Join(", ", summary.SkillBonuses.Select(kv => $"{skillNames.GetValueOrDefault(kv.Key, kv.Key.ToString())} +{kv.Value}"));
-                if (bonuses.Length > 0)
-                {
-                    CharacterContent.Children.Add(Line($"Skills: {bonuses}", 11, brush: muted));
-                }
-
-                if (stats.Length > 0)
-                {
-                    CharacterContent.Children.Add(Line(stats, 11, brush: muted));
-                }
-            }
-        }
-
-        CharacterContent.Children.Add(Line(
-            (character.Restored
-                ? $"Saved from your last login ({character.ReceivedAt:yyyy-MM-dd HH:mm}); updated on every relog. "
-                : $"As sent by the game at login / zone change (record from {character.ReceivedAt:HH:mm:ss}). ")
-            + "Stones, rolled stats and stigmas are not decoded and not shown.",
-            11, brush: muted, margin: new Thickness(0, 8, 0, 0)));
+        _characterWindow = new CharacterWindow(directory) { Owner = this };
+        _characterWindow.Closed += (_, _) => _characterWindow = null;
+        _characterWindow.PlaceBeside(this);
+        _characterWindow.Show();
     }
 
     private void OnShowLootView(object sender, RoutedEventArgs e)
     {
         PlayersGrid.Visibility = Visibility.Collapsed;
         LootGrid.Visibility = Visibility.Visible;
-        CharacterPanel.Visibility = Visibility.Collapsed;
         SetActiveNavButton(LootNavButton, DamageNavButton);
-        CharacterNavButton.Background = (Brush)FindResource("Brush.Control");
-        CharacterNavButton.Foreground = (Brush)FindResource("Brush.Text");
         // The Mob/Boss filter next to it has no meaning for loot, so neither does uploading "the
         // currently filtered boss" - the Session menu's upload items stay reachable regardless.
         // RefreshUploadAvailability already collapses UploadBossButton whenever PlayersGrid isn't

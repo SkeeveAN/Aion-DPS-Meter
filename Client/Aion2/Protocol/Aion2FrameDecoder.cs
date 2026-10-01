@@ -286,11 +286,11 @@ public sealed class Aion2FrameDecoder
             _entities.NoteClass((int)actor, className);
         }
 
+        // No "skill used" notification for the window: its handler (Chat.log's way of finding the
+        // active character and other players' classes) refreshes the row list, which must only
+        // happen on the UI thread - and this runs on the capture thread. Aion 2 knows each
+        // player's class from the skill ids themselves (see Aion2EntityDirectory.NoteClass).
         string skill = Aion2SkillNames.NameOf(skillId);
-        if (_entities.NameFor((int)actor) is string actorName)
-        {
-            _skillUses.Enqueue((actorName, skill));
-        }
 
         // A heal-family skill aimed at its caster (Blood Absorption) or at another known player is a
         // heal; the same skill aimed at anything else (a mob) stays damage.

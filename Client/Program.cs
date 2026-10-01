@@ -111,6 +111,26 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-ui-test")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-ui-test <recording.jsonl> [server-port]");
+                Console.WriteLine("  Runs the REAL meter window logic (never shown) on a recording: plays part of it, presses");
+                Console.WriteLine("  Clear (the red X), plays on, and prints how many rows the list has at each stage.");
+                return;
+            }
+
+            RunAion2UiTestMode(args[1], args.Length > 2 ? int.Parse(args[2]) : 13328);
+            return;
+        }
+
+        if (args.Length > 0 && args[0] == "aion2-ui-live")
+        {
+            RunAion2UiLiveMode(args.Length > 1 ? int.Parse(args[1]) : 70);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-live")
         {
             RunAion2LiveMode(args.Length > 1 ? int.Parse(args[1]) : 20);
@@ -259,6 +279,148 @@ internal static class Program
         foreach (var actor in events.Where(e => !e.IsHeal).GroupBy(e => e.SourceObjectId).OrderByDescending(g => g.Sum(e => e.Amount)).Take(6))
         {
             Console.WriteLine($"  {source.Entities.NameFor(actor.Key) ?? actor.Key.ToString(),-22} damage {actor.Sum(e => e.Amount),9:N0}  hits {actor.Count(),4}");
+        }
+    }
+
+    /// <summary>The real window logic with the real live capture, never shown: ticks once a second
+    /// like the window's timer, presses Clear a third of the way through, and prints the row list
+    /// every few seconds - to tell a capture/decoder problem from a window problem on a live game.</summary>
+    private static void RunAion2UiLiveMode(int seconds)
+    {
+        // Write through at once and end the process by hand: the capture threads keep it alive
+        // otherwise, and a killed process loses whatever stdout had buffered.
+        Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        var window = new Ui.MainWindow();
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var type = typeof(Ui.MainWindow);
+        Console.WriteLine("aion2-ui-live: window created, starting the live source...");
+        type.GetMethod("StartChatLogTailing", flags)!.Invoke(window, new object?[] { settings });
+        Console.WriteLine("aion2-ui-live: source started");
+        var tick = type.GetMethod("OnChatLogTimerTick", flags)!;
+        var clear = type.GetMethod("ClearDamageData", flags)!;
+        var rows = (System.Collections.IList)type.GetField("_rows", flags)!.GetValue(window)!;
+        var aggregator = type.GetField("_aggregator", flags)!.GetValue(window)!;
+        var events = (System.Collections.ICollection)aggregator.GetType().GetProperty("Events")!.GetValue(aggregator)!;
+
+        int clearAt = seconds / 3;
+        for (int t = 1; t <= seconds; t++)
+        {
+            Thread.Sleep(1000);
+            if (t <= 3)
+            {
+                Console.WriteLine($"[{t,3}s] ticking...");
+            }
+
+            tick.Invoke(window, new object?[] { null, EventArgs.Empty });
+            if (t == clearAt)
+            {
+                clear.Invoke(window, null);
+                Console.WriteLine($"[{t,3}s] >>> Clear pressed");
+            }
+
+            if (t % 5 == 0 || t == clearAt + 1)
+            {
+                string top = rows.Count > 0 ? string.Join(", ", rows.Cast<Ui.PlayerRow>().Take(3).Select(r => $"{r.Name} {r.Damage:N0}")) : "-";
+                Console.WriteLine($"[{t,3}s] aggregator events {events.Count,5} | rows {rows.Count,3} | {top}");
+            }
+        }
+
+        Environment.Exit(0);
+    }
+
+    private static void RunAion2UiTestMode(string path, int serverPort)
+    {
+        {
+            var app = new System.Windows.Application();
+            var settings = Ui.MeterSettings.Load();
+            Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+            var window = new Ui.MainWindow();
+            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var type = typeof(Ui.MainWindow);
+
+            // Not Start()ed: no capture, the recording is fed in by hand, one chunk per timer tick.
+            var source = new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load());
+            type.GetField("_source", flags)!.SetValue(window, source);
+            var tick = type.GetMethod("OnChatLogTimerTick", flags)!;
+            var clear = type.GetMethod("ClearDamageData", flags)!;
+            var rows = (System.Collections.IList)type.GetField("_rows", flags)!.GetValue(window)!;
+
+            var segments = Aion2.Capture.SegmentRecording.Read(path)
+                .Where(s => s.Source.EndsWith(":" + serverPort, StringComparison.Ordinal) || s.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+                .Select(s => s with { FromServer = s.Source.EndsWith(":" + serverPort, StringComparison.Ordinal) })
+                .ToList();
+            int chunk = Math.Max(1, segments.Count / 60);
+            int next = 0;
+
+            string Describe() => $"{rows.Count} row(s)" + (rows.Count > 0 ? ": " + string.Join(", ", rows.Cast<Ui.PlayerRow>().Take(4).Select(r => $"{r.Name} {r.Damage:N0}")) : "");
+            void Play(int ticks)
+            {
+                for (int i = 0; i < ticks && next < segments.Count; i++)
+                {
+                    foreach (var segment in segments.Skip(next).Take(chunk))
+                    {
+                        source.Ingest(segment);
+                    }
+
+                    next += chunk;
+                    tick.Invoke(window, new object?[] { null, EventArgs.Empty });
+                }
+            }
+
+            Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+            Console.WriteLine($"aion2-ui-test: {segments.Count} segments fed from a second thread (like the capture), the window ticks once per 500 ms");
+
+            // The feeder is the "capture thread": it hands segments to the source in small bursts.
+            bool feederDone = false;
+            var feeder = new Thread(() =>
+            {
+                try
+                {
+                    while (next < segments.Count)
+                    {
+                        foreach (var segment in segments.Skip(next).Take(chunk))
+                        {
+                            source.Ingest(segment);
+                        }
+
+                        next += chunk;
+                        Thread.Sleep(250);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"  !! feeder thread died: {ex.GetType().Name}: {ex.Message}");
+                }
+
+                feederDone = true;
+            });
+            feeder.Start();
+
+            int ticks = 0;
+            bool cleared = false;
+            while (!feederDone && ticks < 400)
+            {
+                Thread.Sleep(500);
+                tick.Invoke(window, new object?[] { null, EventArgs.Empty });
+                ticks++;
+                if (!cleared && next > segments.Count / 3)
+                {
+                    clear.Invoke(window, null);
+                    cleared = true;
+                    Console.WriteLine($"  [tick {ticks}] >>> Clear pressed: {Describe()}");
+                }
+
+                if (ticks % 10 == 0)
+                {
+                    Console.WriteLine($"  [tick {ticks}] fed {next}/{segments.Count} | {Describe()}");
+                }
+            }
+
+            Console.WriteLine($"  end: {Describe()} (feeder finished: {feederDone})");
+            Environment.Exit(0);
         }
     }
 

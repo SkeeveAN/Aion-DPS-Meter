@@ -34,6 +34,14 @@ public sealed class NpcapCaptureService : IDisposable
 
     public long Packets => Interlocked.Read(ref _packets);
 
+    /// <summary>Packets whose handling threw. A bad packet is counted and skipped; before this, one
+    /// exception in the callback ended the capture thread without a word.</summary>
+    public int CallbackErrors => Volatile.Read(ref _callbackErrors);
+
+    public string? LastCallbackError { get; private set; }
+
+    private int _callbackErrors;
+
     public string Filter => _serverPorts.Count == 0
         ? "tcp"
         : "tcp and (" + string.Join(" or ", _serverPorts.Select(p => $"port {p}")) + ")";
@@ -114,7 +122,16 @@ public sealed class NpcapCaptureService : IDisposable
         }
 
         Interlocked.Increment(ref _packets);
-        _onSegment(new TcpSegment(raw.Timeval.Date.ToLocalTime(), source, destination, tcp.SequenceNumber, payload, fromServer));
+        try
+        {
+            _onSegment(new TcpSegment(raw.Timeval.Date.ToLocalTime(), source, destination, tcp.SequenceNumber, payload, fromServer));
+        }
+        catch (Exception ex)
+        {
+            // Never let a handler's exception end the capture thread.
+            Interlocked.Increment(ref _callbackErrors);
+            LastCallbackError = $"{ex.GetType().Name}: {ex.Message}";
+        }
     }
 
     public void Dispose()

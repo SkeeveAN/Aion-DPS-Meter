@@ -153,7 +153,9 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             desyncs = _reassembler.Desyncs;
         }
 
-        Report(SourceState.Connected, $"Aion 2: {endpoint} - {frames:N0} frames, {_eventsDecoded:N0} events, {desyncs:N0} resyncs");
+        int errors = _capture.CallbackErrors;
+        Report(SourceState.Connected, $"Aion 2: {endpoint} - {frames:N0} frames, {_eventsDecoded:N0} events, {desyncs:N0} resyncs"
+            + (errors > 0 ? $", {errors:N0} errors ({_capture.LastCallbackError})" : ""));
     }
 
     /// <summary>Feeds one captured segment through reassembly and decoding - the live capture's
