@@ -81,6 +81,9 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.Appearance:
                 DecodeAppearance(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.NpcSpawn:
+                DecodeNpcSpawn(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Nickname:
                 DecodeNickname(frame, fields, layout.LittleEndian);
                 return Array.Empty<DamageEvent>();
@@ -238,6 +241,24 @@ public sealed class Aion2FrameDecoder
     /// The variable block is skipped by looking for the hit count; every frame of the reference
     /// capture (5,779 + 931 + 11,000 frames) carries one.
     /// </summary>
+    /// <summary>
+    /// "A monster appears": entity id (varint), three type bytes, then the monster's NPC id as a
+    /// little-endian uint32 (verified on a Krao Cave run: 2300104 = Enhanced Harcon). Only boss ids
+    /// are kept - see <see cref="Aion2BossCatalog"/>.
+    /// </summary>
+    private void DecodeNpcSpawn(ReadOnlySpan<byte> frame)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long entityId) || frame.Length < p + 7)
+        {
+            return;
+        }
+
+        p += 3;
+        int npcId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
+        _entities.RegisterNpc(unchecked((int)entityId), npcId);
+    }
+
     private IEnumerable<DamageEvent> DecodeVarintDamage(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;

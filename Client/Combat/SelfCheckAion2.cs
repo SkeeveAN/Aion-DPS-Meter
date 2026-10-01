@@ -34,6 +34,7 @@ public static class SelfCheckAion2
         ok &= RunAion2LoginListsScenario();
         ok &= RunAion2CharacterStoreScenario();
         ok &= RunAion2SeenProfileScenario();
+        ok &= RunAion2BossSpawnScenario();
         ok &= RunClassCatalogScenario();
         ok &= RunSettingsMigrationScenario();
         return ok;
@@ -484,6 +485,45 @@ public static class SelfCheckAion2
     /// <summary>What the "player appeared" frame says about another player - class and faction from
     /// the class code, and the visible equipment: a real frame's head and item block (the long
     /// middle cut out), from the 2026-10-01 relog capture.</summary>
+    private static bool RunAion2BossSpawnScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 boss recognition (monster-appears frames from a recorded Krao Cave run):");
+        // Entity 30410 announced with NPC id 2300104 (Enhanced Harcon), entity 24155 with 2300171 (Ultimate Berk).
+        string[] frames =
+        {
+            "4136caed010c2200c81823000002291745c609d96e4600000fc300a00c4300640180dddb0180dddb01640000006400000000000000000000000000000000000000504600005046000001000000000000000000000000000000000000000602110181969800ffffffffffffffff8075d52abb030000caed010114291745c609d96e4600000fc3110284969800ffffffffffffffff8075d52abb030000caed0101291745c609d96e4600000fc301002d0000000301b0040000b004000006b6e88b00",
+            "4136dbbc010c22000b19230000026df41ac6973a684300002cc500983243007f0180859f0380859f03640000006400000000000000000000000000000000000000409c0000409c000001000000000000000000000000000000000000000603110181969800ffffffffffffffff8075d52abb030000dbbc0101086df41ac6973a684300002cc5110284969800ffffffffffffffff8075d52abb030000dbbc01016df41ac6973a684300002cc511045dae1201ffffffffffffffff8075d52abb030000dbbc01016df41ac6973a684300002cc501002d0000000301f0000000f0000000a5b5688a00",
+        };
+        Aion2Protocol protocol = Aion2Protocol.Load();
+        using var source = new Aion2PacketCombatSource(protocol);
+        uint seq = 900;
+        foreach (string hex in frames)
+        {
+            byte[] body = Convert.FromHexString(hex);
+            var wire = new List<byte>();
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+            source.Ingest(Segment(seq, wire.ToArray()));
+            seq += (uint)wire.Count;
+        }
+
+        var entities = (Aion2EntityDirectory)source.Entities;
+        bool harcon = entities.BossNpcIdOf(30410) == 2300104 && entities.NameFor(30410) == "Enhanced Harcon";
+        bool berk = entities.BossNpcIdOf(24155) == 2300171 && entities.NameFor(24155) == "Ultimate Berk";
+        bool mobIgnored = entities.BossNpcIdOf(12345) is null;
+        Console.WriteLine($"  -> entity 30410 is Enhanced Harcon (NPC 2300104): {harcon}");
+        Console.WriteLine($"  -> entity 24155 is Ultimate Berk (NPC 2300171): {berk}");
+        Console.WriteLine($"  -> an unknown entity is no boss: {mobIgnored}");
+        return harcon && berk && mobIgnored;
+    }
+
     private static bool RunAion2SeenProfileScenario()
     {
         Console.WriteLine("[selftest] Aion 2 other players' profile (class, faction, visible gear):");

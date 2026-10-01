@@ -246,6 +246,42 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     private readonly Dictionary<int, Aion2SeenProfile> _seen = new();
 
+    // Entity id -> NPC id, kept only for monsters that are bosses (see Aion2BossCatalog).
+    private readonly Dictionary<int, int> _bossNpcs = new();
+
+    /// <summary>Remembers that the monster with this entity id is the boss with this NPC id. Called
+    /// when the game announces a monster; ids that are no boss are ignored.</summary>
+    public void RegisterNpc(int entityId, int npcId)
+    {
+        if (Protocol.Aion2BossCatalog.Find(npcId) is null)
+        {
+            return;
+        }
+
+        lock (_gate)
+        {
+            _bossNpcs[entityId] = npcId;
+        }
+    }
+
+    /// <summary>Every monster recognised as a boss so far: entity id and NPC id.</summary>
+    public IReadOnlyList<(int EntityId, int NpcId)> KnownBosses()
+    {
+        lock (_gate)
+        {
+            return _bossNpcs.Select(kv => (kv.Key, kv.Value)).ToList();
+        }
+    }
+
+    /// <summary>The boss NPC id of an entity, or null when it is no known boss.</summary>
+    public int? BossNpcIdOf(int entityId)
+    {
+        lock (_gate)
+        {
+            return _bossNpcs.TryGetValue(entityId, out int npcId) ? npcId : null;
+        }
+    }
+
     public void SetSeenProfile(int id, Aion2SeenProfile profile)
     {
         lock (_gate)
@@ -374,6 +410,11 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             registered = _names.GetValueOrDefault(id);
+            if (registered is null && _bossNpcs.TryGetValue(id, out int npcId) && Protocol.Aion2BossCatalog.Find(npcId) is { } boss)
+            {
+                return boss.Name;
+            }
+
             if (registered is null && InferLocalPlayer() == id)
             {
                 registered = LocalRosterName();

@@ -521,6 +521,17 @@ internal static class Program
         }
 
         int local = source.Entities.LocalPlayerId;
+        if (source.Entities is Aion2.Aion2EntityDirectory bossDirectory)
+        {
+            foreach (var (entityId, npcId) in bossDirectory.KnownBosses())
+            {
+                var info = Aion2.Protocol.Aion2BossCatalog.Find(npcId);
+                int hitCount = events.Count(e => !e.IsHeal && e.TargetObjectId == entityId);
+                long taken = events.Where(e => !e.IsHeal && e.TargetObjectId == entityId).Sum(e => e.Amount);
+                Console.WriteLine($"aion2-replay: boss entity {entityId} = NPC {npcId} {info?.Name} ({info?.Instance}): {hitCount} hits, {taken:N0} damage taken");
+            }
+        }
+
         Console.WriteLine($"aion2-replay: local player id {(local >= 0 ? local.ToString() : "unknown")} = {(local >= 0 ? source.Entities.NameFor(local) : "-")}");
         long heal = events.Where(e => e.IsHeal).Sum(e => e.Amount);
         Console.WriteLine($"aion2-replay: self-heals {heal:N0} ({events.Count(e => e.IsHeal)} event(s))");

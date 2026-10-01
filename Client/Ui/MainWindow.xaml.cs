@@ -1892,7 +1892,7 @@ public partial class MainWindow : Window
             }
 
             string name = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
-            if (!isPlayerTarget && !EndBossDatabase.IsKnownEndBoss(name) && !LooksLikeBoss(targetId))
+            if (!isPlayerTarget && !IsKnownBoss(name, targetId) && !LooksLikeBoss(targetId))
             {
                 continue;
             }
@@ -2351,7 +2351,7 @@ public partial class MainWindow : Window
         // remarks. Same gate already keeps a non-curated name out of the Mob/Boss dropdown/search
         // entirely (see RefreshMobBossFilterItems), so reaching this line with an unknown bossName
         // should only happen via the headless upload path's own direct target lookup.
-        if (!EndBossDatabase.IsKnownEndBoss(bossName))
+        if (!IsKnownBoss(bossName, targetId))
         {
             return null;
         }
@@ -2460,7 +2460,8 @@ public partial class MainWindow : Window
 
         return new EncounterUploadRequest(
             AppVersion.Text, bossName, startedAt, endedAt, participants, serverFingerprint, serverName,
-            Game: MeterSettings.Load().Game.ToToken());
+            Game: MeterSettings.Load().Game.ToToken(),
+            BossNpcId: BossNpcIdOf(targetId));
     }
 
     /// <summary>
@@ -2529,6 +2530,18 @@ public partial class MainWindow : Window
 
     private const string ServerNotIdentifiedMessage =
         "Could not identify this server (bin64\\config.ini / bin32\\config.ini not found under the Aion install folder in Settings) - upload refused rather than risk mixing runs from different servers.";
+
+    /// <summary>Whether a target is a curated end boss: classic Aion by name (the allowlist in
+    /// EndBossDatabase), Aion 2 by the NPC id the game announced for it (Aion2BossCatalog) - its names
+    /// are not in the classic list.</summary>
+    private bool IsKnownBoss(string name, int targetId) =>
+        _source?.Entities is Aion2.Aion2EntityDirectory directory
+            ? directory.BossNpcIdOf(targetId) is not null
+            : EndBossDatabase.IsKnownEndBoss(name);
+
+    /// <summary>The Aion 2 NPC id of the boss behind a target, for the upload; null for classic Aion.</summary>
+    private int? BossNpcIdOf(int targetId) =>
+        (_source?.Entities as Aion2.Aion2EntityDirectory)?.BossNpcIdOf(targetId);
 
     /// <summary>The Mob/Boss filter target whose last hit is the most recent, i.e. whichever boss
     /// was just fought - used as the "Upload current boss" default when the filter is still on

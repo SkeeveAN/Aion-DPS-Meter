@@ -1,0 +1,1742 @@
+{
+"_readme": [
+"Aion 2 boss NPC ids -> English boss name and instance.",
+"Source: Backend/src/data/aion2/bosses.json (facts only: names as shown by the game client, NPC ids).",
+"The id is what the game sends when a monster appears (spawn frame, opcode 0x4136, u32 after the entity id and 3 type bytes) - verified on a Krao Cave run: 2300104 = Enhanced Harcon, 2300171 = Ultimate Berk.",
+"Regenerate when bosses.json changes: see assets/aion2/npcs/README.md."
+],
+"bosses": {
+"2300708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2330708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2340708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2350708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2351708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2352708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2353708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2354708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2355708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2356708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2357708": {
+"name": "Ruthilis of Pain",
+"instance": "Shattered Arkanis"
+},
+"2300707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2330707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2340707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2350707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2351707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2352707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2353707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2354707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2355707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2356707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2357707": {
+"name": "Siliator of Deceit",
+"instance": "Shattered Arkanis"
+},
+"2300709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2330709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2340709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2350709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2351709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2352709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2353709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2354709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2355709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2356709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2357709": {
+"name": "Talisra of the Void",
+"instance": "Shattered Arkanis"
+},
+"2300581": {
+"name": "Thamon",
+"instance": "Vakron Sky Island"
+},
+"2300811": {
+"name": "Thamon",
+"instance": "Vakron Sky Island"
+},
+"2310811": {
+"name": "Thamon",
+"instance": "Vakron Sky Island"
+},
+"2320811": {
+"name": "Thamon",
+"instance": "Vakron Sky Island"
+},
+"2300580": {
+"name": "Tiere",
+"instance": "Vakron Sky Island"
+},
+"2300810": {
+"name": "Tiere",
+"instance": "Vakron Sky Island"
+},
+"2310810": {
+"name": "Tiere",
+"instance": "Vakron Sky Island"
+},
+"2320810": {
+"name": "Tiere",
+"instance": "Vakron Sky Island"
+},
+"2300582": {
+"name": "Vakron",
+"instance": "Vakron Sky Island"
+},
+"2300812": {
+"name": "Vakron",
+"instance": "Vakron Sky Island"
+},
+"2310812": {
+"name": "Vakron",
+"instance": "Vakron Sky Island"
+},
+"2320812": {
+"name": "Vakron",
+"instance": "Vakron Sky Island"
+},
+"2300409": {
+"name": "Lab Director Zylus",
+"instance": "Consumed Deus Research Base"
+},
+"2300555": {
+"name": "Lab Director Zylus",
+"instance": "Consumed Deus Research Base"
+},
+"2301749": {
+"name": "Lab Director Zylus",
+"instance": "Consumed Deus Research Base"
+},
+"2300410": {
+"name": "Overseer Gromkas",
+"instance": "Consumed Deus Research Base"
+},
+"2300556": {
+"name": "Overseer Gromkas",
+"instance": "Consumed Deus Research Base"
+},
+"2301750": {
+"name": "Overseer Gromkas",
+"instance": "Consumed Deus Research Base"
+},
+"2300407": {
+"name": "Prideful Atiel",
+"instance": "Consumed Deus Research Base"
+},
+"2300481": {
+"name": "Prideful Atiel",
+"instance": "Consumed Deus Research Base"
+},
+"2301748": {
+"name": "Prideful Atiel",
+"instance": "Consumed Deus Research Base"
+},
+"2300188": {
+"name": "Awakened Alturadon",
+"instance": "Azure Breath Island"
+},
+"2300200": {
+"name": "Awakened Alturadon",
+"instance": "Azure Breath Island"
+},
+"2300243": {
+"name": "Awakened Alturadon",
+"instance": "Azure Breath Island"
+},
+"2300190": {
+"name": "Expanding Xyrepe",
+"instance": "Azure Breath Island"
+},
+"2300230": {
+"name": "Expanding Xyrepe",
+"instance": "Azure Breath Island"
+},
+"2300245": {
+"name": "Expanding Xyrepe",
+"instance": "Azure Breath Island"
+},
+"2300189": {
+"name": "Wise Baumnute",
+"instance": "Azure Breath Island"
+},
+"2300219": {
+"name": "Wise Baumnute",
+"instance": "Azure Breath Island"
+},
+"2300244": {
+"name": "Wise Baumnute",
+"instance": "Azure Breath Island"
+},
+"2702177": {
+"name": "Leader Korin",
+"instance": "Cave of the Exiled Ones"
+},
+"2702359": {
+"name": "Eloen",
+"instance": "Chamber of the Dead"
+},
+"2702462": {
+"name": "Eloen",
+"instance": "Chamber of the Dead"
+},
+"2702475": {
+"name": "Eloen",
+"instance": "Chamber of the Dead"
+},
+"2702488": {
+"name": "Eloen",
+"instance": "Chamber of the Dead"
+},
+"2702501": {
+"name": "Eloen",
+"instance": "Chamber of the Dead"
+},
+"2702611": {
+"name": "Eloen",
+"instance": "Chamber of the Dead"
+},
+"2702623": {
+"name": "Eloen",
+"instance": "Chamber of the Dead"
+},
+"2301301": {
+"name": "Afflicted Bakarma",
+"instance": "Cradle of Nihility"
+},
+"2311301": {
+"name": "Afflicted Bakarma",
+"instance": "Cradle of Nihility"
+},
+"2321301": {
+"name": "Afflicted Bakarma",
+"instance": "Cradle of Nihility"
+},
+"2301302": {
+"name": "Multiverse Veltiras",
+"instance": "Cradle of Nihility"
+},
+"2311302": {
+"name": "Multiverse Veltiras",
+"instance": "Cradle of Nihility"
+},
+"2321302": {
+"name": "Multiverse Veltiras",
+"instance": "Cradle of Nihility"
+},
+"2301303": {
+"name": "Solemn Valkan",
+"instance": "Cradle of Nihility"
+},
+"2311303": {
+"name": "Solemn Valkan",
+"instance": "Cradle of Nihility"
+},
+"2321303": {
+"name": "Solemn Valkan",
+"instance": "Cradle of Nihility"
+},
+"2301603": {
+"name": "Basilus the False",
+"instance": "Citadel of the Fallen Daeva"
+},
+"2301703": {
+"name": "Basilus the False",
+"instance": "Citadel of the Fallen Daeva"
+},
+"2301723": {
+"name": "Basilus the False",
+"instance": "Citadel of the Fallen Daeva"
+},
+"2301602": {
+"name": "Forbidden Hexbeast Griosa",
+"instance": "Citadel of the Fallen Daeva"
+},
+"2301702": {
+"name": "Forbidden Hexbeast Griosa",
+"instance": "Citadel of the Fallen Daeva"
+},
+"2301722": {
+"name": "Forbidden Hexbeast Griosa",
+"instance": "Citadel of the Fallen Daeva"
+},
+"2301601": {
+"name": "Willful Turgen",
+"instance": "Citadel of the Fallen Daeva"
+},
+"2301701": {
+"name": "Willful Turgen",
+"instance": "Citadel of the Fallen Daeva"
+},
+"2301721": {
+"name": "Willful Turgen",
+"instance": "Citadel of the Fallen Daeva"
+},
+"2300154": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2300508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2310508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2320508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2321508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2322508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2323508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2324508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2325508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2326508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2327508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2328508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2329508": {
+"name": "Broodkeeper Nayatman",
+"instance": "Dying Dramata's Nest"
+},
+"2300155": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2300509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2310509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2320509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2321509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2322509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2323509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2324509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2325509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2326509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2327509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2328509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2329509": {
+"name": "Decaying Durvati",
+"instance": "Dying Dramata's Nest"
+},
+"2300502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2300515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2300517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2310502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2310515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2310517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2320502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2320515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2320517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2321502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2321515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2321517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2322502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2322515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2322517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2323502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2323515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2323517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2324502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2324515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2324517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2325502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2325515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2325517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2326502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2326515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2326517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2327502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2327515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2327517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2328502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2328515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2328517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2329502": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2329515": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2329517": {
+"name": "Decaying Durvati (Specimen)",
+"instance": "Dying Dramata's Nest"
+},
+"2300162": {
+"name": "Durvati's Poison Fluid",
+"instance": "Dying Dramata's Nest"
+},
+"2300519": {
+"name": "Durvati's Poison Fluid",
+"instance": "Dying Dramata's Nest"
+},
+"2310519": {
+"name": "Durvati's Poison Fluid",
+"instance": "Dying Dramata's Nest"
+},
+"2300153": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2300507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2310507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2320507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2321507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2322507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2323507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2324507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2325507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2326507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2327507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2328507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2329507": {
+"name": "Manager Nasium",
+"instance": "Dying Dramata's Nest"
+},
+"2702564": {
+"name": "Mutated Malgerre",
+"instance": "Defunct Creion Laboratory"
+},
+"2701892": {
+"name": "Claudia",
+"instance": "Depository of Fates"
+},
+"2701913": {
+"name": "Claudia",
+"instance": "Depository of Fates"
+},
+"2701930": {
+"name": "Claudia",
+"instance": "Depository of Fates"
+},
+"2701947": {
+"name": "Claudia",
+"instance": "Depository of Fates"
+},
+"2702298": {
+"name": "Claudia",
+"instance": "Depository of Fates"
+},
+"2702309": {
+"name": "Claudia",
+"instance": "Depository of Fates"
+},
+"2300601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2310601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2320601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2330601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2340601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2341601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2342601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2343601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2344601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2345601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2346601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2347601": {
+"name": "Atiel",
+"instance": "Deus Research Base"
+},
+"2300616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2310616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2320616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2330616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2340616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2341616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2342616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2343616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2344616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2345616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2346616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2347616": {
+"name": "Gelcos",
+"instance": "Deus Research Base"
+},
+"2300615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2310615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2320615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2330615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2340615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2341615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2342615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2343615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2344615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2345615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2346615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2347615": {
+"name": "Nazmun",
+"instance": "Deus Research Base"
+},
+"2300470": {
+"name": "Afflicted Bakarma",
+"instance": "Draupnir"
+},
+"2300471": {
+"name": "Transcendent Bakarma",
+"instance": "Draupnir"
+},
+"2310470": {
+"name": "Afflicted Bakarma",
+"instance": "Draupnir"
+},
+"2310471": {
+"name": "Transcendent Bakarma",
+"instance": "Draupnir"
+},
+"2320470": {
+"name": "Afflicted Bakarma",
+"instance": "Draupnir"
+},
+"2320471": {
+"name": "Transcendent Bakarma",
+"instance": "Draupnir"
+},
+"2330423": {
+"name": "Afflicted Bakarma",
+"instance": "Draupnir"
+},
+"2330424": {
+"name": "Transcendent Bakarma",
+"instance": "Draupnir"
+},
+"2300401": {
+"name": "Phantasmal Lakshmi",
+"instance": "Draupnir"
+},
+"2310401": {
+"name": "Phantasmal Lakshmi",
+"instance": "Draupnir"
+},
+"2320401": {
+"name": "Phantasmal Lakshmi",
+"instance": "Draupnir"
+},
+"2330401": {
+"name": "Phantasmal Lakshmi",
+"instance": "Draupnir"
+},
+"2300403": {
+"name": "Predator Saraswati",
+"instance": "Draupnir"
+},
+"2310403": {
+"name": "Predator Saraswati",
+"instance": "Draupnir"
+},
+"2320403": {
+"name": "Predator Saraswati",
+"instance": "Draupnir"
+},
+"2330403": {
+"name": "Predator Saraswati",
+"instance": "Draupnir"
+},
+"2301207": {
+"name": "Black Blood Blatt",
+"instance": "Corroded Decontamination Facility"
+},
+"2301209": {
+"name": "Devouring Klawfly",
+"instance": "Corroded Decontamination Facility"
+},
+"2301216": {
+"name": "Surveillance Device",
+"instance": "Corroded Decontamination Facility"
+},
+"2301208": {
+"name": "Terminator Bargott",
+"instance": "Corroded Decontamination Facility"
+},
+"2300474": {
+"name": "Dhakan",
+"instance": "Abyssal Horn Den"
+},
+"2300492": {
+"name": "Dhakan",
+"instance": "Abyssal Horn Den"
+},
+"2300528": {
+"name": "Dhakan",
+"instance": "Abyssal Horn Den"
+},
+"2300545": {
+"name": "Dhakan",
+"instance": "Abyssal Horn Den"
+},
+"2300475": {
+"name": "Gargaum",
+"instance": "Abyssal Horn Den"
+},
+"2300493": {
+"name": "Gargaum",
+"instance": "Abyssal Horn Den"
+},
+"2300529": {
+"name": "Gargaum",
+"instance": "Abyssal Horn Den"
+},
+"2300546": {
+"name": "Gargaum",
+"instance": "Abyssal Horn Den"
+},
+"2300473": {
+"name": "Kapu",
+"instance": "Abyssal Horn Den"
+},
+"2300491": {
+"name": "Kapu",
+"instance": "Abyssal Horn Den"
+},
+"2300527": {
+"name": "Kapu",
+"instance": "Abyssal Horn Den"
+},
+"2300544": {
+"name": "Kapu",
+"instance": "Abyssal Horn Den"
+},
+"2702241": {
+"name": "Revenant Tifus",
+"instance": "Fallen Haven"
+},
+"2702326": {
+"name": "Filthy Grollack",
+"instance": "Filthy Cave"
+},
+"2702461": {
+"name": "Karlix",
+"instance": "Forgotten Repository"
+},
+"2702648": {
+"name": "Karlix",
+"instance": "Forgotten Repository"
+},
+"2702659": {
+"name": "Karlix",
+"instance": "Forgotten Repository"
+},
+"2702670": {
+"name": "Karlix",
+"instance": "Forgotten Repository"
+},
+"2702681": {
+"name": "Karlix",
+"instance": "Forgotten Repository"
+},
+"2702692": {
+"name": "Karlix",
+"instance": "Forgotten Repository"
+},
+"2702703": {
+"name": "Karlix",
+"instance": "Forgotten Repository"
+},
+"2300312": {
+"name": "Black Smoke Murute",
+"instance": "Fire Temple"
+},
+"2310312": {
+"name": "Black Smoke Murute",
+"instance": "Fire Temple"
+},
+"2320312": {
+"name": "Black Smoke Murute",
+"instance": "Fire Temple"
+},
+"2330312": {
+"name": "Black Smoke Murute",
+"instance": "Fire Temple"
+},
+"2300371": {
+"name": "Kromede's Desire",
+"instance": "Fire Temple"
+},
+"2310371": {
+"name": "Kromede's Desire",
+"instance": "Fire Temple"
+},
+"2320371": {
+"name": "Kromede's Desire",
+"instance": "Fire Temple"
+},
+"2330371": {
+"name": "Kromede's Desire",
+"instance": "Fire Temple"
+},
+"2300311": {
+"name": "Red Spark Ignus",
+"instance": "Fire Temple"
+},
+"2310311": {
+"name": "Red Spark Ignus",
+"instance": "Fire Temple"
+},
+"2320311": {
+"name": "Red Spark Ignus",
+"instance": "Fire Temple"
+},
+"2330311": {
+"name": "Red Spark Ignus",
+"instance": "Fire Temple"
+},
+"2300310": {
+"name": "Silver Blade Rotan",
+"instance": "Fire Temple"
+},
+"2310310": {
+"name": "Silver Blade Rotan",
+"instance": "Fire Temple"
+},
+"2320310": {
+"name": "Silver Blade Rotan",
+"instance": "Fire Temple"
+},
+"2330310": {
+"name": "Silver Blade Rotan",
+"instance": "Fire Temple"
+},
+"2300104": {
+"name": "Enhanced Harcon",
+"instance": "Krao Cave"
+},
+"2310104": {
+"name": "Enhanced Harcon",
+"instance": "Krao Cave"
+},
+"2320104": {
+"name": "Enhanced Harcon",
+"instance": "Krao Cave"
+},
+"2330104": {
+"name": "Enhanced Harcon",
+"instance": "Krao Cave"
+},
+"2300108": {
+"name": "Neglected Gadioton",
+"instance": "Krao Cave"
+},
+"2310108": {
+"name": "Neglected Gadioton",
+"instance": "Krao Cave"
+},
+"2320108": {
+"name": "Neglected Gadioton",
+"instance": "Krao Cave"
+},
+"2330108": {
+"name": "Neglected Gadioton",
+"instance": "Krao Cave"
+},
+"2300171": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2300172": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2300173": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2300174": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2300178": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2310171": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2310172": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2310173": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2310174": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2310178": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2320171": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2320172": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2320173": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2320174": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2320178": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2330171": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave"
+},
+"2300436": {
+"name": "Askran",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300439": {
+"name": "Askran",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300442": {
+"name": "Askran",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300445": {
+"name": "Askran",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300437": {
+"name": "Incomplete Braunt",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300440": {
+"name": "Incomplete Braunt",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300443": {
+"name": "Incomplete Braunt",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300446": {
+"name": "Incomplete Braunt",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300438": {
+"name": "Mad Klominster",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300441": {
+"name": "Mad Klominster",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300444": {
+"name": "Mad Klominster",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300447": {
+"name": "Mad Klominster",
+"instance": "Noiran's Hidden Legacy"
+},
+"2300910": {
+"name": "Ferocious Horn Nuakum",
+"instance": "Ferocious Horn Den"
+},
+"2310910": {
+"name": "Ferocious Horn Nuakum",
+"instance": "Ferocious Horn Den"
+},
+"2320910": {
+"name": "Ferocious Horn Nuakum",
+"instance": "Ferocious Horn Den"
+},
+"2300909": {
+"name": "Necromancer Duanka",
+"instance": "Ferocious Horn Den"
+},
+"2310909": {
+"name": "Necromancer Duanka",
+"instance": "Ferocious Horn Den"
+},
+"2320909": {
+"name": "Necromancer Duanka",
+"instance": "Ferocious Horn Den"
+},
+"2300907": {
+"name": "Shining Mau Totem",
+"instance": "Ferocious Horn Den"
+},
+"2310907": {
+"name": "Shining Mau Totem",
+"instance": "Ferocious Horn Den"
+},
+"2320907": {
+"name": "Shining Mau Totem",
+"instance": "Ferocious Horn Den"
+},
+"2300908": {
+"name": "Watchdog Kwapo",
+"instance": "Ferocious Horn Den"
+},
+"2310908": {
+"name": "Watchdog Kwapo",
+"instance": "Ferocious Horn Den"
+},
+"2320908": {
+"name": "Watchdog Kwapo",
+"instance": "Ferocious Horn Den"
+},
+"2300261": {
+"name": "Kromede's Desolation",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300317": {
+"name": "Kromede's Desolation",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300336": {
+"name": "Kromede's Desolation",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300355": {
+"name": "Kromede's Desolation",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300258": {
+"name": "Ordeal of Love",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300276": {
+"name": "Ordeal of Love",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300333": {
+"name": "Ordeal of Love",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300352": {
+"name": "Ordeal of Love",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300397": {
+"name": "Ordeal of Love",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300398": {
+"name": "Ordeal of Love",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300399": {
+"name": "Ordeal of Love",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300400": {
+"name": "Ordeal of Love",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300260": {
+"name": "Robstino",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300300": {
+"name": "Robstino",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300335": {
+"name": "Robstino",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300354": {
+"name": "Robstino",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300259": {
+"name": "Rotar",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300299": {
+"name": "Rotar",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300334": {
+"name": "Rotar",
+"instance": "Mirror of Scarlet Desire"
+},
+"2300353": {
+"name": "Rotar",
+"instance": "Mirror of Scarlet Desire"
+},
+"2301055": {
+"name": "Blazing Guardian Sword",
+"instance": "Chalice of Muspel"
+},
+"2301067": {
+"name": "Blazing Guardian Sword",
+"instance": "Chalice of Muspel"
+},
+"2301085": {
+"name": "Blazing Guardian Sword",
+"instance": "Chalice of Muspel"
+},
+"2301097": {
+"name": "Blazing Guardian Sword",
+"instance": "Chalice of Muspel"
+},
+"2301059": {
+"name": "Iscariel",
+"instance": "Chalice of Muspel"
+},
+"2301089": {
+"name": "Iscariel",
+"instance": "Chalice of Muspel"
+},
+"2301060": {
+"name": "Kaldrix",
+"instance": "Chalice of Muspel"
+},
+"2301061": {
+"name": "Kaldrix",
+"instance": "Chalice of Muspel"
+},
+"2301090": {
+"name": "Kaldrix",
+"instance": "Chalice of Muspel"
+},
+"2301091": {
+"name": "Kaldrix",
+"instance": "Chalice of Muspel"
+},
+"2701753": {
+"name": "Divided Aponos",
+"instance": "Nightmare Altar"
+},
+"2701789": {
+"name": "Divided Aponos",
+"instance": "Nightmare Altar"
+},
+"2701807": {
+"name": "Divided Aponos",
+"instance": "Nightmare Altar"
+},
+"2701866": {
+"name": "Divided Aponos",
+"instance": "Nightmare Altar"
+},
+"2702396": {
+"name": "Divided Aponos",
+"instance": "Nightmare Altar"
+},
+"2702409": {
+"name": "Divided Aponos",
+"instance": "Nightmare Altar"
+},
+"2301401": {
+"name": "Glassvein",
+"instance": "Hall of Illusion"
+},
+"2311401": {
+"name": "Glassvein",
+"instance": "Hall of Illusion"
+},
+"2321401": {
+"name": "Glassvein",
+"instance": "Hall of Illusion"
+},
+"2301403": {
+"name": "Nathara",
+"instance": "Hall of Illusion"
+},
+"2311403": {
+"name": "Nathara",
+"instance": "Hall of Illusion"
+},
+"2321403": {
+"name": "Nathara",
+"instance": "Hall of Illusion"
+},
+"2301402": {
+"name": "Nazarak",
+"instance": "Hall of Illusion"
+},
+"2311402": {
+"name": "Nazarak",
+"instance": "Hall of Illusion"
+},
+"2321402": {
+"name": "Nazarak",
+"instance": "Hall of Illusion"
+},
+"2301007": {
+"name": "Abyssal Wings Ketu",
+"instance": "Abyssal Forge: Ludra"
+},
+"2301008": {
+"name": "Central Abyss Fusion Reactor",
+"instance": "Abyssal Forge: Ludra"
+},
+"2301014": {
+"name": "Eternal Ludra",
+"instance": "Abyssal Forge: Ludra"
+},
+"2301006": {
+"name": "Isolation Specialist Rahu",
+"instance": "Abyssal Forge: Ludra"
+},
+"2701774": {
+"name": "Featherstorm Duduri",
+"instance": "Sanctum of Loathing"
+},
+"2701829": {
+"name": "Featherstorm Duduri",
+"instance": "Sanctum of Loathing"
+},
+"2701841": {
+"name": "Featherstorm Duduri",
+"instance": "Sanctum of Loathing"
+},
+"2701853": {
+"name": "Featherstorm Duduri",
+"instance": "Sanctum of Loathing"
+},
+"2702372": {
+"name": "Featherstorm Duduri",
+"instance": "Sanctum of Loathing"
+},
+"2702384": {
+"name": "Featherstorm Duduri",
+"instance": "Sanctum of Loathing"
+},
+"2701788": {
+"name": "Watchful Raptor Dodori",
+"instance": "Sanctum of Loathing"
+},
+"2701830": {
+"name": "Watchful Raptor Dodori",
+"instance": "Sanctum of Loathing"
+},
+"2701842": {
+"name": "Watchful Raptor Dodori",
+"instance": "Sanctum of Loathing"
+},
+"2701854": {
+"name": "Watchful Raptor Dodori",
+"instance": "Sanctum of Loathing"
+},
+"2702373": {
+"name": "Watchful Raptor Dodori",
+"instance": "Sanctum of Loathing"
+},
+"2702385": {
+"name": "Watchful Raptor Dodori",
+"instance": "Sanctum of Loathing"
+},
+"2702076": {
+"name": "Arbellun",
+"instance": "Pure Spring"
+},
+"2702074": {
+"name": "Pure Water Spirit",
+"instance": "Pure Spring"
+},
+"2702075": {
+"name": "Pure Water Spirit",
+"instance": "Pure Spring"
+},
+"2702073": {
+"name": "Water Spirit",
+"instance": "Pure Spring"
+},
+"2702574": {
+"name": "Lamiphedon",
+"instance": "Cave of the Stranded"
+},
+"2702026": {
+"name": "Mau Boss Tshulaga",
+"instance": "Cave of the Stranded"
+},
+"2702024": {
+"name": "Mau Brawler",
+"instance": "Cave of the Stranded"
+},
+"2702023": {
+"name": "Mau Mender",
+"instance": "Cave of the Stranded"
+},
+"2702025": {
+"name": "Mau Sentry Soldier",
+"instance": "Cave of the Stranded"
+},
+"2300001": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2300016": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2300031": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2300046": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2300061": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2300076": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2300091": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2300117": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2300132": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2301502": {
+"name": "Deep Sea Pydeon",
+"instance": "Submerged Life Temple"
+},
+"2300002": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2300017": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2300032": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2300047": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2300062": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2300077": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2300092": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2300118": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2300133": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2301503": {
+"name": "Singing Ellyde",
+"instance": "Submerged Life Temple"
+},
+"2300000": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2300015": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2300030": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2300045": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2300060": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2300075": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2300090": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2300116": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2300131": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2301501": {
+"name": "Submerged Emon",
+"instance": "Submerged Life Temple"
+},
+"2701964": {
+"name": "Menoch",
+"instance": "Tyrant's Hideout"
+},
+"2701990": {
+"name": "Menoch",
+"instance": "Tyrant's Hideout"
+},
+"2702001": {
+"name": "Menoch",
+"instance": "Tyrant's Hideout"
+},
+"2702012": {
+"name": "Menoch",
+"instance": "Tyrant's Hideout"
+},
+"2702274": {
+"name": "Menoch",
+"instance": "Tyrant's Hideout"
+},
+"2702286": {
+"name": "Menoch",
+"instance": "Tyrant's Hideout"
+},
+"2300218": {
+"name": "Divine Auldor",
+"instance": "Urugugu Canyon"
+},
+"2310218": {
+"name": "Divine Auldor",
+"instance": "Urugugu Canyon"
+},
+"2320218": {
+"name": "Divine Auldor",
+"instance": "Urugugu Canyon"
+},
+"2330218": {
+"name": "Divine Auldor",
+"instance": "Urugugu Canyon"
+},
+"2300206": {
+"name": "Guardian Captain Raur",
+"instance": "Urugugu Canyon"
+},
+"2310206": {
+"name": "Guardian Captain Raur",
+"instance": "Urugugu Canyon"
+},
+"2320206": {
+"name": "Guardian Captain Raur",
+"instance": "Urugugu Canyon"
+},
+"2330206": {
+"name": "Guardian Captain Raur",
+"instance": "Urugugu Canyon"
+},
+"2300207": {
+"name": "Judge Urahum",
+"instance": "Urugugu Canyon"
+},
+"2310207": {
+"name": "Judge Urahum",
+"instance": "Urugugu Canyon"
+},
+"2320207": {
+"name": "Judge Urahum",
+"instance": "Urugugu Canyon"
+},
+"2330207": {
+"name": "Judge Urahum",
+"instance": "Urugugu Canyon"
+}
+}
+}
