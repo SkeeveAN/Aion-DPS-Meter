@@ -30,7 +30,7 @@ public sealed class CharacterWindow : Window
     {
         _directory = directory;
         Title = "Character";
-        Width = 1040;
+        Width = 1075;
         Height = 740;
         MinWidth = 820;
         MinHeight = 480;
@@ -93,6 +93,69 @@ public sealed class CharacterWindow : Window
 
     private TextBlock Heading(string text) => Text(text.ToUpperInvariant(), 11, FontWeights.Bold, Solid(Gold), new Thickness(0, 0, 0, 8));
 
+    /// <summary>Quality colours as the game shows them (quality 4 is "Unique", gold; 3 blue); the
+    /// numbers above 4 are an assumption in rising rarity.</summary>
+    private static Color GradeColor(int grade) => grade switch
+    {
+        <= 1 => Color.FromRgb(0x9A, 0xA7, 0xB2),
+        2 => Color.FromRgb(0x48, 0xB3, 0x6A),
+        3 => Color.FromRgb(0x4C, 0x8D, 0xFF),
+        4 => Color.FromRgb(0xF0, 0xB8, 0x40),
+        5 => Color.FromRgb(0xFF, 0x9F, 0x43),
+        6 => Color.FromRgb(0xFF, 0x6B, 0x5E),
+        _ => Color.FromRgb(0xB5, 0x7B, 0xFF),
+    };
+
+    private static string SlotAbbreviation(string? slot) => slot switch
+    {
+        "MainHand" => "MH",
+        "SubHand" => "OH",
+        "Helmet" => "HE",
+        "Shoulder" => "SH",
+        "Torso" => "TO",
+        "Pants" => "PA",
+        "Gloves" => "GL",
+        "Boots" => "BO",
+        "Necklace" => "NE",
+        "Earring" => "EA",
+        "Ring" => "RI",
+        "Bracelet" => "BR",
+        "Belt" => "BE",
+        "Cape" => "CA",
+        "Amulet" => "AM",
+        "Rune" => "RU",
+        { Length: >= 2 } other => other[..2].ToUpperInvariant(),
+        _ => "?",
+    };
+
+    /// <summary>A small tile standing in for the item's icon (the game's icons are not available):
+    /// coloured by quality, carrying the slot's abbreviation.</summary>
+    private UIElement ItemTile(Aion2ItemInfo? info)
+    {
+        Color color = info is null ? Color.FromRgb(0x71, 0x82, 0x8D) : GradeColor(info.Grade);
+        return new Border
+        {
+            Width = 24,
+            Height = 24,
+            CornerRadius = new CornerRadius(5),
+            BorderThickness = new Thickness(1.5),
+            BorderBrush = Solid(color),
+            Background = new SolidColorBrush(Color.FromArgb(0x38, color.R, color.G, color.B)),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Center,
+            ToolTip = info is null ? null : $"{info.Name} - quality {info.Grade}, tier {info.Tier}",
+            Child = new TextBlock
+            {
+                Text = SlotAbbreviation(info?.Slot),
+                FontSize = 9.5,
+                FontWeight = FontWeights.Bold,
+                Foreground = Solid(color),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            },
+        };
+    }
+
     private static Color HeatColor(double ratio) => ratio >= 0.95 ? Green : ratio >= 0.8 ? Blue : ratio >= 0.65 ? Gold : Red;
 
     // ---------------------------------------------------------------- the three columns
@@ -134,7 +197,7 @@ public sealed class CharacterWindow : Window
         var layout = new Grid { Margin = new Thickness(14) };
         layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(280) });
         layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(430) });
+        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(465) });
         layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
         layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = 220 });
 
@@ -318,7 +381,8 @@ public sealed class CharacterWindow : Window
         var stack = new StackPanel();
         stack.Children.Add(Heading($"Equipment · {gear.Count} slots"));
         var grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(78) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(74) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
@@ -327,7 +391,7 @@ public sealed class CharacterWindow : Window
         int row = 0;
         foreach (var entry in gear)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(28) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(32) });
             double ratio = entry.Info is null || maxLevel == 0 ? 0 : (double)entry.Info.ItemLevel / maxLevel;
             Color heat = HeatColor(ratio);
 
@@ -364,7 +428,7 @@ public sealed class CharacterWindow : Window
                 }
                 : new Border();
 
-            foreach ((UIElement element, int column) in new (UIElement, int)[] { (slot, 0), (name, 1), (fillHost, 2), (level, 3), (badge, 4) })
+            foreach ((UIElement element, int column) in new (UIElement, int)[] { (ItemTile(entry.Info), 0), (slot, 1), (name, 2), (fillHost, 3), (level, 4), (badge, 5) })
             {
                 Grid.SetRow(element, row);
                 Grid.SetColumn(element, column);
