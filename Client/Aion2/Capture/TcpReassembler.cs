@@ -23,7 +23,7 @@ public sealed class TcpReassembler
     public int Frames { get; private set; }
     public int Desyncs { get; private set; }
 
-    public IReadOnlyList<ReadOnlyMemory<byte>> Push(TcpSegment segment, FrameLayout layout)
+    public IReadOnlyList<ReadOnlyMemory<byte>> Push(TcpSegment segment, FrameLayout layout, IReadOnlySet<int>? syncOpcodes = null)
     {
         if (segment.Payload.Length == 0)
         {
@@ -37,7 +37,7 @@ public sealed class TcpReassembler
         }
 
         Append(stream, segment.Sequence, segment.Payload);
-        return CutFrames(stream, layout);
+        return CutFrames(stream, layout, syncOpcodes);
     }
 
     private void Append(StreamState stream, uint sequence, ReadOnlyMemory<byte> payload)
@@ -76,6 +76,7 @@ public sealed class TcpReassembler
             // half-frame sits in the buffer is unusable now.
             Gaps++;
             stream.Buffer.Clear();
+            stream.Synced = false;
             stream.NextSequence = stream.Pending.Keys.First();
             DrainPending(stream);
         }
@@ -104,9 +105,15 @@ public sealed class TcpReassembler
         }
     }
 
-    private List<ReadOnlyMemory<byte>> CutFrames(StreamState stream, FrameLayout layout)
+    private List<ReadOnlyMemory<byte>> CutFrames(StreamState stream, FrameLayout layout, IReadOnlySet<int>? syncOpcodes)
     {
         var frames = new List<ReadOnlyMemory<byte>>();
+        if (layout.IsVarint)
+        {
+            CutVarintFrames(stream, layout, frames, syncOpcodes);
+            return frames;
+        }
+
         while (stream.Buffer.Count >= layout.HeaderSize)
         {
             int declared = ReadLength(stream.Buffer, layout);
@@ -132,6 +139,170 @@ public sealed class TcpReassembler
         return frames;
     }
 
+    /// <summary>Varint framing: LEB128 length L, record = L + prefixBytes + bias bytes in total; the
+    /// emitted frame is the record without its prefix. An implausible length means we are not at a
+    /// record start (a capture that began mid-stream) - drop one byte and look again.</summary>
+    private void CutVarintFrames(StreamState stream, FrameLayout layout, List<ReadOnlyMemory<byte>> frames, IReadOnlySet<int>? syncOpcodes)
+    {
+        while (stream.Buffer.Count > 0)
+        {
+            // A capture that starts in the middle of a connection begins in the middle of a frame.
+            // One plausible-looking length is not proof of a frame start, and trusting it can make
+            // the decoder wait for kilobytes of real traffic that then vanish into a phantom frame.
+            // So while unsynced, the buffer is searched for the first offset where several COMPLETE
+            // frames in a row line up; everything before it is dropped, and candidates that do not
+            // fit are simply skipped rather than waited for.
+            if (!stream.Synced)
+            {
+                int offset = FindSyncOffset(stream.Buffer, layout, syncOpcodes);
+                if (offset < 0)
+                {
+                    // Nothing lines up yet. Keep only the tail (a real frame start can still be in
+                    // it) so a stream that never syncs cannot grow without bound.
+                    if (stream.Buffer.Count > SyncGiveUpBytes)
+                    {
+                        Desyncs++;
+                        stream.Buffer.RemoveRange(0, stream.Buffer.Count - SyncSearchWindow);
+                    }
+
+                    return;
+                }
+
+                if (offset > 0)
+                {
+                    Desyncs++;
+                    stream.Buffer.RemoveRange(0, offset);
+                }
+
+                stream.Synced = true;
+            }
+
+            long length = 0;
+            int prefix = 0;
+            bool complete = false;
+            while (prefix < 5 && prefix < stream.Buffer.Count)
+            {
+                byte b = stream.Buffer[prefix];
+                length |= (long)(b & 0x7f) << (7 * prefix);
+                prefix++;
+                if ((b & 0x80) == 0)
+                {
+                    complete = true;
+                    break;
+                }
+            }
+
+            if (!complete)
+            {
+                if (prefix >= 5)
+                {
+                    Desyncs++;
+                    stream.Synced = false;
+                    stream.Buffer.RemoveAt(0);
+                    continue;
+                }
+
+                return; // the length itself is still arriving
+            }
+
+            long total = length + prefix + layout.LengthBias;
+            int bodyMin = Math.Max(layout.OpcodeOffset + layout.OpcodeSize, 1);
+            if (total - prefix < bodyMin || total > layout.MaxFrameLength)
+            {
+                Desyncs++;
+                stream.Synced = false;
+                stream.Buffer.RemoveAt(0);
+                continue;
+            }
+
+            if (stream.Buffer.Count < total)
+            {
+                return;
+            }
+
+            frames.Add(stream.Buffer.GetRange(prefix, (int)total - prefix).ToArray());
+            stream.Buffer.RemoveRange(0, (int)total);
+            Frames++;
+        }
+    }
+
+    private const int SyncChainLength = 3;
+    private const int SyncSearchWindow = 4096;
+    private const int SyncGiveUpBytes = 8192;
+
+    /// <summary>First offset (within the search window) at which <see cref="SyncChainLength"/>
+    /// complete, plausible varint frames follow each other inside the buffer; -1 if none.</summary>
+    private static int FindSyncOffset(List<byte> buffer, FrameLayout layout, IReadOnlySet<int>? syncOpcodes)
+    {
+        int last = Math.Min(buffer.Count - 1, SyncSearchWindow);
+        for (int start = 0; start <= last; start++)
+        {
+            if (ChainFits(buffer, start, layout, syncOpcodes))
+            {
+                return start;
+            }
+        }
+
+        return -1;
+    }
+
+    private static bool ChainFits(List<byte> buffer, int start, FrameLayout layout, IReadOnlySet<int>? syncOpcodes)
+    {
+        int pos = start;
+        for (int n = 0; n < SyncChainLength; n++)
+        {
+            long length = 0;
+            int prefix = 0;
+            bool complete = false;
+            while (prefix < 5 && pos + prefix < buffer.Count)
+            {
+                byte b = buffer[pos + prefix];
+                length |= (long)(b & 0x7f) << (7 * prefix);
+                prefix++;
+                if ((b & 0x80) == 0)
+                {
+                    complete = true;
+                    break;
+                }
+            }
+
+            if (!complete)
+            {
+                return false;
+            }
+
+            long total = length + prefix + layout.LengthBias;
+            if (total - prefix < Math.Max(layout.OpcodeOffset + layout.OpcodeSize, 1) || total > layout.MaxFrameLength || pos + total > buffer.Count)
+            {
+                return false;
+            }
+
+            // The frame's opcode must be one seen in real traffic (when such a list exists).
+            if (syncOpcodes is { Count: > 0 })
+            {
+                int opcodeAt = pos + prefix + layout.OpcodeOffset;
+                int opcode = layout.OpcodeBigEndian
+                    ? buffer[opcodeAt] << 8 | buffer[opcodeAt + 1]
+                    : buffer[opcodeAt + 1] << 8 | buffer[opcodeAt];
+                if (!syncOpcodes.Contains(opcode))
+                {
+                    return false;
+                }
+            }
+
+            pos += (int)total;
+
+            // Frames that tile the buffer exactly - the usual case when the server sends one
+            // message - are as convincing as a chain of three, even for a single frame.
+            if (pos == buffer.Count)
+            {
+                return true;
+            }
+        }
+
+        return true;
+    }
+
     private static int ReadLength(List<byte> buffer, FrameLayout layout)
     {
         Span<byte> bytes = stackalloc byte[4];
@@ -151,6 +322,7 @@ public sealed class TcpReassembler
     private sealed class StreamState
     {
         public uint NextSequence;
+        public bool Synced;
         public readonly List<byte> Buffer = new();
         public readonly SortedDictionary<uint, ReadOnlyMemory<byte>> Pending = new();
         public int PendingBytes;

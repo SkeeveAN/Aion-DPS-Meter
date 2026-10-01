@@ -48,7 +48,10 @@ public sealed record ParticipantUpload(
     long DamageTaken = 0,
     // Per the user: the web frontend's "Buffs" column must show real reinforcements, not the
     // damage/heal skills it showed before - see ChatLog/BuffCastEvent.
-    IReadOnlyList<BuffUsageUpload>? Buffs = null);
+    IReadOnlyList<BuffUsageUpload>? Buffs = null,
+    // Aion 2 only: the guild the packet stream named next to this player. Null where unknown
+    // (classic Aion's Chat.log never states one).
+    string? Guild = null);
 
 /// <summary>One boss encounter, as sent to POST /api/uploads. The backend recognizes the same real
 /// fight across several independent uploads (one per group member) by boss + time window + roster

@@ -40,7 +40,11 @@ public static class SegmentRecording
 
     public static IEnumerable<TcpSegment> Read(string path)
     {
-        foreach (string line in File.ReadLines(path))
+        // Shared read/write: a recording that is still being written (the recorder keeps it open)
+        // can be replayed while it grows.
+        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var reader = new StreamReader(stream);
+        while (reader.ReadLine() is string line)
         {
             if (line.Length == 0)
             {

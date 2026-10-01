@@ -21,11 +21,14 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     private readonly Protocol.Aion2FrameDecoder _decoder;
     private readonly Aion2EntityDirectory _entities = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<DamageEvent> _pending = new();
+    private readonly string? _adapterId;
     private Capture.NpcapCaptureService? _capture;
     private SourceStatus _status = new(SourceState.Idle, "");
 
-    public Aion2PacketCombatSource(Protocol.Aion2Protocol protocol)
+    public Aion2PacketCombatSource(Protocol.Aion2Protocol protocol, string? adapterId = null, string? ownCharacterName = null)
     {
+        _adapterId = adapterId;
+        _entities.SetConfiguredLocalName(ownCharacterName);
         _protocol = protocol;
         _decoder = new Protocol.Aion2FrameDecoder(protocol, _entities);
     }
@@ -41,6 +44,13 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     public string? ServerFingerprint => _capture?.ServerEndpoint is string endpoint ? $"aion2:{endpoint}" : null;
 
     public event Action<string, string>? SkillUsed;
+
+    /// <summary>Raised once when the stream alone reveals the local player's name (see
+    /// <see cref="Aion2EntityDirectory.LearnedLocalName"/>), so the caller can remember it.</summary>
+    public event Action<string>? LocalNameLearned;
+    private string? _learnedReported;
+    private long _eventsDecoded;
+    private DateTime _lastStatusAt = DateTime.MinValue;
     public event Action<SourceStatus>? StatusChanged;
 
     // Part of the seam, but nothing in a packet stream maps onto them (no chat commands, loot,
@@ -67,7 +77,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             return;
         }
 
-        _capture = new Capture.NpcapCaptureService(_protocol.ServerPorts, OnPayload, OnCaptureStatus);
+        _capture = new Capture.NpcapCaptureService(_protocol.ServerPorts, OnPayload, OnCaptureStatus, _adapterId);
         _capture.Start();
     }
 
@@ -79,6 +89,14 @@ public sealed class Aion2PacketCombatSource : ICombatSource
 
     public CombatBatch Poll(bool paused)
     {
+        ReportLiveCounters();
+
+        if (_entities.LearnedLocalName is string learned && learned != _learnedReported)
+        {
+            _learnedReported = learned;
+            LocalNameLearned?.Invoke(learned);
+        }
+
         if (_pending.IsEmpty)
         {
             return CombatBatch.Empty;
@@ -96,17 +114,50 @@ public sealed class Aion2PacketCombatSource : ICombatSource
 
     public void Dispose() => Stop();
 
+    /// <summary>
+    /// A live one-line health report for the status bar: once the game server has been seen, how
+    /// much has arrived and how much of it decoded. "Capturing ... waiting" for minutes while frames
+    /// stay at 0 points at capture/alignment; frames growing with events at 0 points at the layout.
+    /// Throttled, since the status line repaints on every change.
+    /// </summary>
+    private void ReportLiveCounters()
+    {
+        if (_capture?.ServerEndpoint is not string endpoint || DateTime.UtcNow - _lastStatusAt < TimeSpan.FromSeconds(2))
+        {
+            return;
+        }
+
+        _lastStatusAt = DateTime.UtcNow;
+        long frames;
+        int desyncs;
+        lock (_reassembler)
+        {
+            frames = _reassembler.Frames;
+            desyncs = _reassembler.Desyncs;
+        }
+
+        Report(SourceState.Connected, $"Aion 2: {endpoint} - {frames:N0} frames, {_eventsDecoded:N0} events, {desyncs:N0} resyncs");
+    }
+
     /// <summary>Feeds one captured segment through reassembly and decoding - the live capture's
     /// callback, and what a recorded fixture is replayed through in the self-checks.</summary>
     public void Ingest(Capture.TcpSegment segment)
     {
+        // Only the server's stream carries combat; the client's small command packets are a
+        // different vocabulary and would only risk a false frame.
+        if (!segment.FromServer)
+        {
+            return;
+        }
+
         lock (_reassembler)
         {
-            foreach (ReadOnlyMemory<byte> frame in _reassembler.Push(segment, _protocol.FrameLayout))
+            foreach (ReadOnlyMemory<byte> frame in _reassembler.Push(segment, _protocol.FrameLayout, _protocol.SyncOpcodes))
             {
                 foreach (DamageEvent ev in _decoder.Decode(frame.Span, segment.Timestamp))
                 {
                     _pending.Enqueue(ev);
+                    _eventsDecoded++;
                 }
             }
 

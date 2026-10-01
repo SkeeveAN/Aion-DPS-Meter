@@ -18,6 +18,16 @@ public partial class SettingsWindow : Window
     /// class list, which server catalog is fetched and whether an install folder is even needed.</summary>
     private GameKind _game;
 
+    /// <summary>Game of the character being added/edited: whatever the picked server belongs to.
+    /// Deliberately independent of <see cref="_game"/> (the game the meter tracks right now) -
+    /// a user with characters in both games must be able to register either at any time.</summary>
+    private GameKind CharacterGame =>
+        (NewCharacterServerBox.SelectedItem as ComboBoxItem)?.Tag is AionDPS.Server.ServerCatalogEntry picked
+            ? GameKindExtensions.ParseToken(picked.Game)
+            : GameKind.Aion;
+
+    private GameKind _classBoxGame;
+
     /// <summary>See MeterSettings.GameDetectionMode - whether <see cref="_game"/> tracks the
     /// running client (Automatic, the default) or is this dialog's own deliberate pick (Manual).</summary>
     private GameDetectionMode _detectionMode;
@@ -98,6 +108,8 @@ public partial class SettingsWindow : Window
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
         ShowDefenseStatsBox.IsChecked = settings.ShowDefenseStats;
         RecordFightHistoryBox.IsChecked = settings.RecordFightHistory;
+        PopulateCaptureAdapters(settings.CaptureAdapterId);
+        Aion2CharacterNameBox.Text = settings.Aion2CharacterName ?? "";
 
         // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML -- see
         // LanguageBox's own remarks. Each item's Content is the language's OWN native name
@@ -201,7 +213,8 @@ public partial class SettingsWindow : Window
     {
         string? previous = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string;
         NewCharacterClassBox.Items.Clear();
-        foreach (string className in ClassCatalog.ClassesFor(_game))
+        _classBoxGame = CharacterGame;
+        foreach (string className in ClassCatalog.ClassesFor(_classBoxGame))
         {
             var panel = new StackPanel { Orientation = Orientation.Horizontal };
             if (ClassCatalog.HasIcon(className))
@@ -236,7 +249,7 @@ public partial class SettingsWindow : Window
             });
         }
 
-        if (previous is not null && ClassCatalog.IsKnownClass(_game, previous))
+        if (previous is not null && ClassCatalog.IsKnownClass(_classBoxGame, previous))
         {
             SelectByTag(NewCharacterClassBox, previous);
         }
@@ -281,12 +294,40 @@ public partial class SettingsWindow : Window
     /// <summary>Picking a server can change which classes are even offered yet (see
     /// ApplyRegionalClassAvailability) - re-applied every time, not just once, since the class
     /// box is otherwise untouched by a server change.</summary>
-    private void OnNewCharacterServerSelected(object sender, SelectionChangedEventArgs e) => ApplyRegionalClassAvailability();
+    private void OnNewCharacterServerSelected(object sender, SelectionChangedEventArgs e)
+    {
+        // The class roster differs per game, so picking a server of the other game swaps it.
+        if (CharacterGame != _classBoxGame)
+        {
+            RebuildClassBox();
+            return;
+        }
+
+        ApplyRegionalClassAvailability();
+    }
+
+    /// <summary>Automatic (the adapter Windows routes internet traffic through), all adapters, then
+    /// every live adapter with the recommended one starred - a gaming VPN shows up as its own entry.</summary>
+    private void PopulateCaptureAdapters(string? saved)
+    {
+        var adapters = AionDPS.Aion2.Capture.CaptureAdapters.List();
+        string auto = AionDPS.Aion2.Capture.CaptureAdapters.Recommended(adapters) is { } rec ? $"Automatic ({rec.Name}, {rec.Ipv4})" : "Automatic";
+        CaptureAdapterBox.Items.Add(new ComboBoxItem { Content = auto, Tag = "" });
+        CaptureAdapterBox.Items.Add(new ComboBoxItem { Content = "All adapters", Tag = AionDPS.Aion2.Capture.CaptureAdapters.AllAdapters });
+        foreach (var adapter in adapters)
+        {
+            CaptureAdapterBox.Items.Add(new ComboBoxItem { Content = adapter.Label, Tag = adapter.Id, ToolTip = adapter.Description });
+        }
+
+        CaptureAdapterBox.SelectedItem = CaptureAdapterBox.Items.Cast<ComboBoxItem>().FirstOrDefault(i => (i.Tag as string) == (saved ?? "")) ?? CaptureAdapterBox.Items[0];
+    }
 
     private void ApplyGameToInstallSection()
     {
-        bool aion2 = _game == GameKind.Aion2;
-        Aion2Hint.Visibility = aion2 ? Visibility.Visible : Visibility.Collapsed;
+        // Only the section of the selected game is shown at all: the classic one (server, Chat.log
+        // folder) means nothing for Aion 2, and the packet-capture one nothing for classic Aion.
+        ClassicSection.Visibility = _game == GameKind.Aion ? Visibility.Visible : Visibility.Collapsed;
+        Aion2Section.Visibility = _game == GameKind.Aion2 ? Visibility.Visible : Visibility.Collapsed;
         UpdateAionFolderStatus();
     }
 
@@ -320,21 +361,28 @@ public partial class SettingsWindow : Window
     /// </summary>
     private async Task LoadServerCatalogAsync()
     {
-        GameKind requested = _game;
-        var catalog = await AionDPS.Server.ServerCatalogClient.FetchAsync(requested);
-        if (requested != _game)
-        {
-            // The user switched games while this was in flight; the newer request wins.
-            return;
-        }
-
+        // The Aion Installation section is always the classic game's (Aion 2 has no install
+        // folder), whichever game the meter is tracking right now.
+        var catalogTask = AionDPS.Server.ServerCatalogClient.FetchAsync(GameKind.Aion);
+        var catalog = await catalogTask;
+        // Aion 2 characters are not registered by hand: the packet capture reads the local
+        // player's name and class itself, so the picker only offers classic Aion servers.
+        var characterCatalog = catalog;
         _serverCatalog = catalog;
-        NewCharacterServerBox.Items.Clear();
         AionInstallServerBox.Items.Clear();
         foreach (var entry in _serverCatalog)
         {
-            NewCharacterServerBox.Items.Add(new ComboBoxItem { Content = entry.ToString(), Tag = entry });
             AionInstallServerBox.Items.Add(new ComboBoxItem { Content = entry.ToString(), Tag = entry });
+        }
+
+        // The character picker lists every game's servers, filled once - a game switch above must
+        // not wipe a pick the user is in the middle of.
+        if (NewCharacterServerBox.Items.Count == 0)
+        {
+            foreach (var entry in characterCatalog)
+            {
+                NewCharacterServerBox.Items.Add(new ComboBoxItem { Content = entry.ToString(), Tag = entry });
+            }
         }
 
         // Pre-select whatever this install was already labeled as, now that the catalog it's
@@ -426,15 +474,17 @@ public partial class SettingsWindow : Window
         // Tag instead, since it's still needed as data even though it's no longer displayed.
         string className = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
         string faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
-        _characters.RemoveAll(c => c.Name == name); // re-adding an existing name replaces class+faction
+        // Re-adding the same character (name + game + server) replaces class+faction. The name
+        // alone is not an identity: the same name is reused across games and servers.
+        _characters.RemoveAll(c => c.Name == name && c.Game == GameKindExtensions.ParseToken(server.Game) && c.ServerDisplayName == server.Name);
         _characters.Add(new CharacterProfile
         {
             Name = name,
             ClassName = className,
-            Game = _game,
+            Game = GameKindExtensions.ParseToken(server.Game),
             Faction = faction,
             // Aion 2 has no config.ini to stamp from; its server is known once the capture sees it.
-            ServerFingerprint = _game == GameKind.Aion2 ? null : AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
+            ServerFingerprint = GameKindExtensions.ParseToken(server.Game) == GameKind.Aion2 ? null : AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
             ServerDisplayName = server.Name,
             ServerVersion = server.Version,
         });
@@ -454,6 +504,11 @@ public partial class SettingsWindow : Window
         }
 
         NewCharacterNameBox.Text = selected.Name;
+        // Server first: it decides the game, and with it which class roster SelectByTag can find.
+        NewCharacterServerBox.SelectedItem = NewCharacterServerBox.Items
+            .OfType<ComboBoxItem>()
+            .FirstOrDefault(item => item.Tag is AionDPS.Server.ServerCatalogEntry entry
+                && entry.Name == selected.ServerDisplayName && entry.Version == selected.ServerVersion);
         SelectByTag(NewCharacterClassBox, selected.ClassName);
         SelectByTag(NewCharacterFactionBox, selected.Faction);
 
@@ -461,10 +516,6 @@ public partial class SettingsWindow : Window
         // picker and has no name/version to match, this simply leaves nothing selected rather than
         // guessing - OnUpdateCharacterClicked already falls back to the character's existing value
         // in that case instead of wiping it out.
-        NewCharacterServerBox.SelectedItem = NewCharacterServerBox.Items
-            .OfType<ComboBoxItem>()
-            .FirstOrDefault(item => item.Tag is AionDPS.Server.ServerCatalogEntry entry
-                && entry.Name == selected.ServerDisplayName && entry.Version == selected.ServerVersion);
     }
 
     /// <summary>Used only for the Aion Installation section's own install-level display name, not
@@ -508,9 +559,10 @@ public partial class SettingsWindow : Window
 
         // A rename onto a name that already exists would leave two entries answering to it, and
         // everything downstream (active character, the faction anchors) keys on the name.
-        if (_characters.Any(c => c.Name == name) && _characters[index].Name != name)
+        string? targetServer = ((NewCharacterServerBox.SelectedItem as ComboBoxItem)?.Tag as AionDPS.Server.ServerCatalogEntry)?.Name ?? _characters[index].ServerDisplayName;
+        if (_characters.Where((c, i) => i != index).Any(c => c.Name == name && c.Game == CharacterGame && c.ServerDisplayName == targetServer))
         {
-            MessageBox.Show(this, $"A character named \"{name}\" is already registered.",
+            MessageBox.Show(this, $"A character named \"{name}\" is already registered on this server.",
                 "Update character", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
@@ -530,10 +582,10 @@ public partial class SettingsWindow : Window
         {
             Name = name,
             ClassName = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
-            Game = _game,
+            Game = CharacterGame,
             Faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
             ServerFingerprint = previous.ServerFingerprint
-                ?? (_game == GameKind.Aion2 ? null : AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder)),
+                ?? (CharacterGame == GameKind.Aion2 ? null : AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder)),
             ServerDisplayName = pickedServer?.Name ?? previous.ServerDisplayName,
             ServerVersion = pickedServer?.Version ?? previous.ServerVersion,
         };
@@ -614,13 +666,6 @@ public partial class SettingsWindow : Window
     /// </summary>
     private void UpdateAionFolderStatus()
     {
-        if (_game == GameKind.Aion2)
-        {
-            AionInstallFolderStatus.Text = "Aion 2 needs no install folder: combat is read from the game's network traffic (Npcap), not from a file.";
-            AionInstallFolderStatus.Foreground = new SolidColorBrush(Colors.Gray);
-            return;
-        }
-
         if (string.IsNullOrEmpty(_aionInstallFolder))
         {
             AionInstallFolderStatus.Text = "No folder selected yet.";
@@ -720,6 +765,8 @@ public partial class SettingsWindow : Window
         _settings.ShowDefenseStats = ShowDefenseStatsBox.IsChecked ?? false;
         _settings.RecordFightHistory = RecordFightHistoryBox.IsChecked ?? true;
         _settings.Game = _game;
+        _settings.Aion2CharacterName = string.IsNullOrWhiteSpace(Aion2CharacterNameBox.Text) ? null : Aion2CharacterNameBox.Text.Trim();
+        _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
         _settings.GameDetectionMode = _detectionMode;
         _settings.AionInstallFolder = _aionInstallFolder;
         _settings.ServerDisplayName = CurrentServerDisplayNameOrNull();

@@ -17,11 +17,13 @@ public sealed class NpcapCaptureService : IDisposable
     private readonly IReadOnlyList<int> _serverPorts;
     private readonly Action<TcpSegment> _onSegment;
     private readonly Action<SourceState, string> _onStatus;
+    private readonly string? _adapterId;
     private readonly List<ILiveDevice> _devices = new();
     private long _packets;
 
-    public NpcapCaptureService(IReadOnlyList<int> serverPorts, Action<TcpSegment> onSegment, Action<SourceState, string> onStatus)
+    public NpcapCaptureService(IReadOnlyList<int> serverPorts, Action<TcpSegment> onSegment, Action<SourceState, string> onStatus, string? adapterId = null)
     {
+        _adapterId = adapterId;
         _serverPorts = serverPorts;
         _onSegment = onSegment;
         _onStatus = onStatus;
@@ -47,8 +49,9 @@ public sealed class NpcapCaptureService : IDisposable
                 return;
             }
 
+            IReadOnlyList<ILiveDevice> selected = CaptureAdapters.Select(all.Cast<ILiveDevice>().ToList(), _adapterId, out string? selectionNote);
             int opened = 0;
-            foreach (ILiveDevice device in all)
+            foreach (ILiveDevice device in selected)
             {
                 // Loopback and disconnected adapters are harmless to include; a failing one is
                 // skipped rather than aborting the whole capture (VPN adapters do this).
@@ -73,7 +76,7 @@ public sealed class NpcapCaptureService : IDisposable
                 return;
             }
 
-            _onStatus(SourceState.Waiting, $"Capturing on {opened} adapter(s), filter \"{Filter}\" - waiting for game traffic.");
+            _onStatus(SourceState.Waiting, $"Capturing on {opened} adapter(s), filter \"{Filter}\" - waiting for game traffic." + (selectionNote is null ? "" : $" ({selectionNote})"));
         }
         catch (Exception ex) when (ex is DllNotFoundException or TypeInitializationException or PcapException)
         {

@@ -4,7 +4,13 @@ using System.Text.Json.Serialization;
 
 namespace AionDPS.Aion2.Protocol;
 
-/// <summary>How a game frame is delimited on the wire: a length prefix at a fixed offset.</summary>
+/// <summary>
+/// How a game frame is delimited on the wire. "fixed" (default): a length prefix of
+/// <see cref="LengthSize"/> bytes at <see cref="LengthOffset"/>. "varint": a LEB128 length at the
+/// start of the frame; the frame is <c>length + prefixBytes + LengthBias</c> bytes long in total and
+/// the decoder sees it WITHOUT the prefix (opcode at <see cref="OpcodeOffset"/> of the body).
+/// Aion 2 (verified against a real capture, 2026-09-30) is varint with bias -4.
+/// </summary>
 public sealed record FrameLayout(
     int LengthOffset,
     int LengthSize,
@@ -13,7 +19,13 @@ public sealed record FrameLayout(
     int HeaderSize,
     int OpcodeOffset,
     int OpcodeSize,
-    int MaxFrameLength);
+    int MaxFrameLength,
+    string LengthEncoding = "fixed",
+    int LengthBias = 0,
+    bool OpcodeBigEndian = false)
+{
+    public bool IsVarint => string.Equals(LengthEncoding, "varint", StringComparison.OrdinalIgnoreCase);
+}
 
 /// <summary>Where one value sits inside a frame. <see cref="Size"/> 1/2/4/8 for integers; strings
 /// are UTF-16LE with a 2-byte character count at <see cref="Offset"/> unless <see cref="Encoding"/> says otherwise.</summary>
@@ -27,6 +39,18 @@ public enum OpcodeFamily
     Heal,
     HpUpdate,
     Nickname,
+    /// <summary>Party roster frame: lists every member's name (no combat id).</summary>
+    Roster,
+    /// <summary>The local player's own character record: combat id, name, class, level, equipment.</summary>
+    Character,
+    /// <summary>The local player's full equipment at login: every slot with its item and enchant level.</summary>
+    Equipment,
+    /// <summary>The local player's skill list at login: skill id with total and base level.</summary>
+    Skills,
+    /// <summary>The local player's activated Daevanion nodes, per board.</summary>
+    Daevanion,
+    /// <summary>"Player seen" frame: skill and combat id, then <c>18 05</c>, name and guild.</summary>
+    Appearance,
     Session,
     Kill,
     Avoid,
@@ -56,6 +80,23 @@ public sealed class Aion2Protocol
     public bool IsCalibrated { get; private init; }
     public string GameVersion { get; private init; } = "";
     public IReadOnlyList<int> ServerPorts { get; private init; } = Array.Empty<int>();
+
+    /// <summary>"varint-v1" = the damage frame is parsed by <see cref="Aion2FrameDecoder"/>'s
+    /// built-in varint layout (target id varint, 2 flag bytes, actor id varint, skill id u32, ...);
+    /// anything else uses the fixed offsets in <c>fields.damage</c>.</summary>
+    public string DamageLayout { get; private init; } = "";
+
+    /// <summary>"varint-v1" = nickname frames are opcode | combat id (varint) | a few bytes | a
+    /// length-prefixed name, found by scanning (see Aion2FrameDecoder.DecodeVarintNickname).</summary>
+    public string NicknameLayout { get; private init; } = "";
+
+    /// <summary>Opcode of the "bundle" frame: a 4-byte little-endian uncompressed size followed by
+    /// an LZ4 block that holds further complete frames. Null = this protocol has no bundles.</summary>
+    public int? BundleOpcode { get; private init; }
+
+    /// <summary>Opcodes known to occur often; only used to recognise a real frame start when a
+    /// capture begins in the middle of a connection (see TcpReassembler). Empty = no check.</summary>
+    public IReadOnlySet<int> SyncOpcodes { get; private init; } = new HashSet<int>();
     public FrameLayout FrameLayout { get; private init; } = new(0, 2, true, true, 4, 2, 2, 65535);
 
     public static string DefaultPath => Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "protocol", "opcodes.json");
@@ -82,6 +123,10 @@ public sealed class Aion2Protocol
             IsCalibrated = doc.Calibrated,
             GameVersion = doc.GameVersion ?? "",
             ServerPorts = doc.ServerPorts ?? Array.Empty<int>(),
+            DamageLayout = doc.DamageLayout ?? "",
+            NicknameLayout = doc.NicknameLayout ?? "",
+            BundleOpcode = doc.BundleOpcode,
+            SyncOpcodes = new HashSet<int>(doc.SyncOpcodes ?? Array.Empty<int>()),
             FrameLayout = doc.Frame ?? new FrameLayout(0, 2, true, true, 4, 2, 2, 65535),
         };
 
@@ -121,6 +166,10 @@ public sealed class Aion2Protocol
         public bool Calibrated { get; set; }
         public string? GameVersion { get; set; }
         public int[]? ServerPorts { get; set; }
+        public string? DamageLayout { get; set; }
+        public string? NicknameLayout { get; set; }
+        public int? BundleOpcode { get; set; }
+        public int[]? SyncOpcodes { get; set; }
         public FrameLayout? Frame { get; set; }
         public Dictionary<string, int[]>? Opcodes { get; set; }
         public Dictionary<string, Dictionary<string, FieldSpec>>? Fields { get; set; }

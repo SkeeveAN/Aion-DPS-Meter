@@ -165,6 +165,16 @@ public sealed class MeterSettings
     /// <see cref="ActiveCharacterName"/> has to <see cref="AutoDetectActiveCharacter"/>.</summary>
     public GameKind Game { get; set; } = GameKind.Aion;
 
+    /// <summary>Network adapter the Aion 2 packet capture listens on (Aion2/Capture/CaptureAdapters):
+    /// null/empty = automatic (the adapter Windows routes internet traffic through), "all" = every
+    /// adapter, else a NetworkInterface.Id. Matters when a gaming VPN carries the game's traffic.</summary>
+    public string? CaptureAdapterId { get; set; }
+
+    /// <summary>The user's own Aion 2 character name. Aion 2 frames name every player but give no
+    /// hint which one is you, so the meter matches this name; it fills it in by itself as soon as
+    /// the stream reveals it (a party roster), and Settings lets it be typed for solo play.</summary>
+    public string? Aion2CharacterName { get; set; }
+
     /// <summary>Whether <see cref="Game"/> is kept in sync with the running client (Automatic, the
     /// default per the user - Aion and Aion 2 should be told apart clearly without having to
     /// remember to flip Settings' Game dropdown) or is a fixed pick Settings' dropdown controls

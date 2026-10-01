@@ -111,6 +111,26 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-live")
+        {
+            RunAion2LiveMode(args.Length > 1 ? int.Parse(args[1]) : 20);
+            return;
+        }
+
+        if (args.Length > 0 && args[0] == "aion2-replay")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-replay <recording.jsonl> [server-port] [own-character-name]");
+                Console.WriteLine("  Replays an aion2-record file through the same reassembly and decoder the live meter");
+                Console.WriteLine("  uses and prints damage/heal per actor and per skill. No game, no network, no window.");
+                return;
+            }
+
+            RunAion2ReplayMode(args[1], args.Length > 2 ? int.Parse(args[2]) : 13328, args.Length > 3 ? args[3] : null);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "upload")
         {
             if (args.Length < 2)
@@ -192,16 +212,131 @@ internal static class Program
             ? Aion2.Protocol.Aion2Protocol.Load().ServerPorts.ToList()
             : portList.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
 
+        // Calibration defaults to every adapter (the game might run through a VPN adapter);
+        // an explicit choice in Settings narrows it.
+        string adapterId = Ui.MeterSettings.Load().CaptureAdapterId is { Length: > 0 } chosen ? chosen : Aion2.Capture.CaptureAdapters.AllAdapters;
+        foreach (var adapter in Aion2.Capture.CaptureAdapters.List())
+        {
+            Console.WriteLine($"aion2-record: adapter {adapter.Label}{(adapter.Id == adapterId ? " <- selected" : "")}");
+        }
+
         using var writer = new Aion2.Capture.SegmentRecording.Writer(outPath);
         using var capture = new Aion2.Capture.NpcapCaptureService(
             ports,
             writer.Write,
-            (state, message) => Console.WriteLine($"aion2-record: [{state}] {message}"));
+            (state, message) => Console.WriteLine($"aion2-record: [{state}] {message}"),
+            adapterId);
 
         capture.Start();
         Console.WriteLine($"aion2-record: writing to {outPath} (filter \"{capture.Filter}\"). Press Enter to stop.");
         Console.ReadLine();
         Console.WriteLine($"aion2-record: {writer.Count} segment(s) from {capture.Packets} packet(s) written; server endpoint {capture.ServerEndpoint ?? "not seen"}.");
+    }
+
+    /// <summary>
+    /// Runs the meter's real live path - the same Aion2PacketCombatSource with the same Settings
+    /// (adapter, own character) - headless for a few seconds and prints what it sees: status text,
+    /// frames, events and the top players. The fastest way to tell "capture sees nothing" from
+    /// "decoder sees nothing" without a window.
+    /// </summary>
+    private static void RunAion2LiveMode(int seconds)
+    {
+        var settings = Ui.MeterSettings.Load();
+        var protocol = Aion2.Protocol.Aion2Protocol.Load();
+        using var source = new Aion2.Aion2PacketCombatSource(protocol, settings.CaptureAdapterId, settings.Aion2CharacterName);
+        source.StatusChanged += status => Console.WriteLine($"aion2-live: [{status.State}] {status.Message}");
+        Console.WriteLine($"aion2-live: adapter setting \"{settings.CaptureAdapterId ?? "(automatic)"}\", calibrated={protocol.IsCalibrated}, ports {string.Join(",", protocol.ServerPorts)}");
+        source.Start();
+        var events = new List<Combat.DamageEvent>();
+        DateTime end = DateTime.UtcNow.AddSeconds(seconds);
+        while (DateTime.UtcNow < end)
+        {
+            Thread.Sleep(1000);
+            events.AddRange(source.Poll(false).Damage);
+        }
+
+        Console.WriteLine($"aion2-live: {events.Count} damage/heal event(s) in {seconds}s");
+        foreach (var actor in events.Where(e => !e.IsHeal).GroupBy(e => e.SourceObjectId).OrderByDescending(g => g.Sum(e => e.Amount)).Take(6))
+        {
+            Console.WriteLine($"  {source.Entities.NameFor(actor.Key) ?? actor.Key.ToString(),-22} damage {actor.Sum(e => e.Amount),9:N0}  hits {actor.Count(),4}");
+        }
+    }
+
+    private static void RunAion2ReplayMode(string path, int serverPort, string? ownName)
+    {
+        var protocol = Aion2.Protocol.Aion2Protocol.Load();
+        using var source = new Aion2.Aion2PacketCombatSource(protocol);
+        (source.Entities as Aion2.Aion2EntityDirectory)?.SetConfiguredLocalName(ownName);
+        var events = new List<Combat.DamageEvent>();
+        int segments = 0;
+        foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
+        {
+            // The recording holds every TCP stream of the machine; only the game server's counts,
+            // and the direction is decided by the port (the recorder's own flag is a guess when it
+            // ran without a port filter).
+            bool fromServer = segment.Source.EndsWith(":" + serverPort, StringComparison.Ordinal);
+            if (!fromServer && !segment.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            segments++;
+            source.Ingest(segment with { FromServer = fromServer });
+            events.AddRange(source.Poll(false).Damage);
+        }
+
+        Console.WriteLine($"aion2-replay: {segments} segment(s) on port {serverPort}, {events.Count} damage/heal event(s), calibrated={protocol.IsCalibrated}");
+        if (events.Count == 0)
+        {
+            return;
+        }
+
+        TimeSpan span = events.Max(e => e.Timestamp) - events.Min(e => e.Timestamp);
+        Console.WriteLine($"aion2-replay: span {span:hh\\:mm\\:ss}");
+        foreach (var actor in events.Where(e => !e.IsHeal).GroupBy(e => e.SourceObjectId).OrderByDescending(g => g.Sum(e => e.Amount)).Take(12))
+        {
+            long total = actor.Sum(e => e.Amount);
+            int crits = actor.Count(e => e.IsCritical);
+            Console.WriteLine($"  {source.Entities.NameFor(actor.Key) ?? actor.Key.ToString(),-22} damage {total,9:N0}  hits {actor.Count(),5}  crit {100.0 * crits / actor.Count(),4:F0}%");
+            foreach (var skill in actor.GroupBy(e => e.Skill).OrderByDescending(g => g.Sum(e => e.Amount)).Take(3))
+            {
+                Console.WriteLine($"      {skill.Key,-26} {skill.Sum(e => e.Amount),9:N0} in {skill.Count(),4} hit(s), avg {skill.Average(e => e.Amount):F0}");
+            }
+        }
+
+        if (source.Entities is Aion2.Aion2EntityDirectory directory)
+        {
+            Console.WriteLine("aion2-replay: " + directory.Describe());
+        }
+
+        if ((source.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter is { } character)
+        {
+            Console.WriteLine($"aion2-replay: character {character.Name}, class code {character.ClassCode}, level {character.Level}, {character.Equipment.Count} equipped item(s)");
+            var directory2 = (Aion2.Aion2EntityDirectory)source.Entities;
+            foreach (var item in directory2.LocalEquipment)
+            {
+                var info = Aion2.Protocol.Aion2ItemCatalog.Find(item.ItemId);
+                Console.WriteLine($"    slot {item.SlotIndex,2}: {info?.Name ?? item.ItemId.ToString()}{(item.Enchant > 0 ? " +" + item.Enchant : "")} (item level {info?.ItemLevel}, grade {info?.Grade}, tier {info?.Tier})");
+            }
+
+            var skillNames = Aion2.Protocol.Aion2SkillNames.Load();
+            foreach (var board in directory2.LocalDaevanion)
+            {
+                var sum = Aion2.Protocol.Aion2DaevanionCatalog.Summarize(board.BoardId, board.NodeIds);
+                Console.WriteLine($"    daevanion {sum.Name}: {sum.ActiveNodes} nodes ({sum.KnownNodes} known) | skills {string.Join(", ", sum.SkillBonuses.Select(kv => skillNames.GetValueOrDefault(kv.Key, kv.Key.ToString()) + " +" + kv.Value))} | {string.Join(", ", sum.Stats.Select(kv => kv.Key + "+" + kv.Value))}");
+            }
+
+            Console.WriteLine($"    skills: {directory2.LocalSkills.Count}");
+            foreach (var skill in directory2.LocalSkills.Where(k => k.SkillId % 10000 == 0))
+            {
+                Console.WriteLine($"      {skillNames.GetValueOrDefault(skill.SkillId, skill.SkillId.ToString()),-28} level {skill.Level}{(skill.Level > skill.BaseLevel ? $" ({skill.BaseLevel}+{skill.Level - skill.BaseLevel})" : "")}");
+            }
+        }
+
+        int local = source.Entities.LocalPlayerId;
+        Console.WriteLine($"aion2-replay: local player id {(local >= 0 ? local.ToString() : "unknown")} = {(local >= 0 ? source.Entities.NameFor(local) : "-")}");
+        long heal = events.Where(e => e.IsHeal).Sum(e => e.Amount);
+        Console.WriteLine($"aion2-replay: self-heals {heal:N0} ({events.Count(e => e.IsHeal)} event(s))");
     }
 
     /// <summary>
