@@ -25,6 +25,13 @@ public static class ThemedChrome
         window.ResizeMode = ResizeMode.CanResizeWithGrip;
         window.Background = Brushes.Transparent;
 
+        // The dark scroll bar lives in MainWindow's resources; without it a secondary window
+        // shows the system's light one.
+        if (Application.Current.MainWindow?.Resources[typeof(System.Windows.Controls.Primitives.ScrollBar)] is Style scrollBar)
+        {
+            window.Resources[typeof(System.Windows.Controls.Primitives.ScrollBar)] = scrollBar;
+        }
+
         var icon = new Image { Width = 16, Height = 16, Margin = new Thickness(8, 0, 0, 0), HorizontalAlignment = HorizontalAlignment.Left };
         RenderOptions.SetBitmapScalingMode(icon, BitmapScalingMode.HighQuality);
         try

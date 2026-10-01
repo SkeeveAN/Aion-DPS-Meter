@@ -3364,31 +3364,23 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>
-    /// Flips the selected player between the two factions and pins that choice. Needed because the
-    /// log cannot always answer it: an arena opponent is frequently the SAME faction as you, and
-    /// trading blows with someone proves only that you are fighting them.
-    ///
-    /// <para>Written through SetFactionManually rather than Remember, so the resolver's own verdict
-    /// never quietly takes it back on the next refresh.</para>
-    /// </summary>
-    private void OnSwitchFactionClicked(object sender, RoutedEventArgs e)
+    /// <summary>Double-click on a player's row opens the same details as the context menu. Only a
+    /// click on a row counts - not the scroll bar or the empty area below the rows.</summary>
+    private void OnPlayersGridDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        if (PlayersGrid.SelectedItem is not PlayerRow row || row.Name.Length == 0)
+        DependencyObject? source = e.OriginalSource as DependencyObject;
+        while (source is not null and not DataGridRow)
         {
-            return;
+            source = source is Visual or System.Windows.Media.Media3D.Visual3D
+                ? System.Windows.Media.VisualTreeHelper.GetParent(source)
+                : LogicalTreeHelper.GetParent(source);
         }
 
-        // With nothing known yet, start from whichever faction is not the local player's -- the
-        // reason to reach for this menu is almost always an opponent.
-        string current = row.Faction;
-        string next = current == "Elyos" ? "Asmodian"
-            : current == "Asmodian" ? "Elyos"
-            : Opposite(OwnFaction()) is { Length: > 0 } opposite ? opposite : "Elyos";
-
-        _knownPlayers.SetFactionManually(row.Name, next);
-        _knownPlayers.SaveIfChanged();
-        row.Faction = next;
+        if (source is DataGridRow row)
+        {
+            PlayersGrid.SelectedItem = row.Item;
+            OnShowPlayerDetailsClicked(sender, e);
+        }
     }
 
     /// <summary>

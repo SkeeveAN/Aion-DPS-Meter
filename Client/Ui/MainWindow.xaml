@@ -1071,7 +1071,7 @@
                      rows extending past their real edge ("heller Hintergrund wirkt höher"). The
                      alternating RowBackground/AlternatingRowBackground colors already separate one
                      player's row from the next without it. -->
-                <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="OnPlayersGridDoubleClick"
                           Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}" AlternatingRowBackground="{DynamicResource Brush.Panel}"
                           BorderBrush="{DynamicResource Brush.Border}"
                           GridLinesVisibility="None" HeadersVisibility="None" CanUserAddRows="False">
@@ -1086,8 +1086,6 @@
                     <DataGrid.ContextMenu>
                         <ContextMenu Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}">
                             <MenuItem Header="Details anzeigen" Click="OnShowPlayerDetailsClicked"/>
-                            <Separator/>
-                            <MenuItem Header="Fraktion wechseln" Click="OnSwitchFactionClicked"/>
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                     <DataGrid.RowStyle>
