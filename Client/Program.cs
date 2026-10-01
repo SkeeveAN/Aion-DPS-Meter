@@ -103,7 +103,7 @@ internal static class Program
                 Console.WriteLine("  Records the raw TCP payloads exchanged with the Aion 2 game server (Npcap,");
                 Console.WriteLine("  passive) into a JSON-lines file for protocol calibration - see");
                 Console.WriteLine("  assets/aion2/protocol/opcodes.json. Without ports, every TCP stream is");
-                Console.WriteLine("  recorded; press Enter to stop.");
+                Console.WriteLine("  recorded; type stop + Enter to end.");
                 return;
             }
 
@@ -248,8 +248,33 @@ internal static class Program
             adapterId);
 
         capture.Start();
-        Console.WriteLine($"aion2-record: writing to {outPath} (filter \"{capture.Filter}\"). Press Enter to stop.");
-        Console.ReadLine();
+        Console.WriteLine($"aion2-record: writing to {outPath} (filter \"{capture.Filter}\").");
+        Console.WriteLine("aion2-record: to END the recording type  stop  and press Enter (closing this window also ends it).");
+        Console.WriteLine("aion2-record: a plain Enter - for example one meant for the game's chat - does NOT stop it.");
+
+        // A bare ReadLine() returned on any Enter and on end-of-input, which ended recordings by
+        // accident (one stopped 13 minutes before the run it was meant for). Now only the word "stop"
+        // ends it, and a closed input stream just keeps recording. A line every minute shows it lives.
+        using var stopRequested = new ManualResetEventSlim();
+        var reader = new Thread(() =>
+        {
+            while (Console.ReadLine() is { } line)
+            {
+                if (line.Trim().Equals("stop", StringComparison.OrdinalIgnoreCase))
+                {
+                    stopRequested.Set();
+                    return;
+                }
+
+                Console.WriteLine("aion2-record: still recording - type  stop  to end it.");
+            }
+        }) { IsBackground = true };
+        reader.Start();
+        while (!stopRequested.Wait(TimeSpan.FromSeconds(60)))
+        {
+            Console.WriteLine($"aion2-record: recording ... {writer.Count} segment(s) so far ({DateTime.Now:HH:mm:ss}).");
+        }
+
         Console.WriteLine($"aion2-record: {writer.Count} segment(s) from {capture.Packets} packet(s) written; server endpoint {capture.ServerEndpoint ?? "not seen"}.");
     }
 
