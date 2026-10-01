@@ -1,5 +1,6 @@
 using System.Windows;
 using AionDPS.Combat;
+using AionDPS.Game;
 
 namespace AionDPS.Ui;
 
@@ -19,10 +20,17 @@ public sealed record SkillRow(string Skill, int Hits, double CritRate, long Tota
 /// </summary>
 public partial class PlayerDetailsWindow : Window
 {
+    public bool ShowSkillIcons { get; }
+
     public PlayerDetailsWindow(string name, string className, string faction, bool isLocalPlayer,
         IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf)
     {
         InitializeComponent();
+        ThemedChrome.Apply(this);
+        // The icon table is classic Aion's, matched by skill name: for Aion 2 it can hand out the
+        // icon of a different skill that merely shares a name, so Aion 2 shows none until it has
+        // icons of its own.
+        ShowSkillIcons = MeterSettings.Load().Game != GameKind.Aion2;
         DataContext = new { ClassName = className, Faction = faction };
 
         HeaderText.Text = name;

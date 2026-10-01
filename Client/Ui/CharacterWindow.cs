@@ -38,6 +38,7 @@ public sealed class CharacterWindow : Window
         SetResourceReference(BackgroundProperty, "Brush.Window");
         SetResourceReference(ForegroundProperty, "Brush.Text");
         Content = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _host };
+        ThemedChrome.Apply(this);
 
         _directory.CharacterChanged += OnCharacterChanged;
         Closed += (_, _) => _directory.CharacterChanged -= OnCharacterChanged;

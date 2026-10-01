@@ -256,6 +256,11 @@ public sealed class Aion2FrameDecoder
 
         int skillId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
         p += 4;
+        if (Aion2SkillNames.IsNonDamageEffect(skillId))
+        {
+            return Array.Empty<DamageEvent>();
+        }
+
         bool critical = frame[p + 1] == 3;
 
         int marker = -1;

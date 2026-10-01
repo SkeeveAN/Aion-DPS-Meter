@@ -6,9 +6,18 @@
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" WindowStartupLocation="CenterOwner"
         FontSize="{DynamicResource FontSize.Base}">
     <Window.Resources>
+        <!-- Same dark header as the meter's own grids (the default one was bright white). -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Padding" Value="6,4"/>
+        </Style>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
         <local:SkillIconConverter x:Key="SkillIconConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <!-- One DMG/DPS/TIME/HITS-PER-SEC stat tile: a small muted label over a large bold value,
              boxed, so the headline numbers read at a glance instead of being buried in
              SummaryText's sentence - same idea as the stat cards in a certain other meter's
@@ -98,7 +107,8 @@
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="{Binding Skill, Converter={StaticResource SkillIconConverter}}"
-                                       Height="18" Width="18" Margin="0,0,6,0"/>
+                                       Height="18" Width="18" Margin="0,0,6,0"
+                                       Visibility="{Binding ShowSkillIcons, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                                 <TextBlock Text="{Binding Skill}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>

@@ -79,7 +79,7 @@ test("an Aion 2 upload carries guild and profile into the player's page data", (
   assert.equal(view.source, "self");
   assert.equal(view.level, 34);
   assert.equal(view.className, "Gladiator");
-  assert.equal(view.faction, "Asmodian");
+  assert.equal(view.faction, "Elyos");
   assert.equal(db.select().from(players).where(eq(players.name, "Aahz")).get()!.guild, "Akatsuki");
 });
 

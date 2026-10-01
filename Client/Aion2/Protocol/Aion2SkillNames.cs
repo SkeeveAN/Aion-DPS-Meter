@@ -45,6 +45,44 @@ public static class Aion2SkillNames
         return table;
     }
 
+    private static readonly string WatchlistPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "rdps_watchlist.json");
+    private static IReadOnlySet<int>? _buffBases;
+
+    /// <summary>True for ids that show up in damage frames but are not damage: consumable uses
+    /// (item ids 2,000,000-2,999,999, e.g. "Life Potion" with an amount of 1) and the passive/party
+    /// buffs listed in rdps_watchlist.json (e.g. "Experienced Counterstrike" with an amount of 7).</summary>
+    public static bool IsNonDamageEffect(int skillId)
+    {
+        if (skillId is >= 2_000_000 and < 3_000_000)
+        {
+            return true;
+        }
+
+        if (_buffBases is null)
+        {
+            var set = new HashSet<int>();
+            try
+            {
+                if (File.Exists(WatchlistPath))
+                {
+                    using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(WatchlistPath));
+                    foreach (JsonElement buff in doc.RootElement.GetProperty("buffs").EnumerateArray())
+                    {
+                        set.Add(buff.GetProperty("skillId").GetInt32() / 10000 * 10000);
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is IOException or JsonException or KeyNotFoundException or InvalidOperationException)
+            {
+                // No watchlist: only the consumable range is filtered.
+            }
+
+            _buffBases = set;
+        }
+
+        return _buffBases.Contains(skillId / 10000 * 10000);
+    }
+
     private static readonly string HealFamiliesPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "heal_skill_families.json");
     private static IReadOnlySet<int>? _healBases;
 
