@@ -124,6 +124,8 @@ export type ProfileView = {
     knownNodes: number;
     stats: Record<string, number>;
     skillBonuses: { id: number; name: string; value: number }[];
+    /** Known active nodes for the board map: [row, col, kind] (1-based; kind 0 start, 1 stat, 2 skill level). */
+    cells: [number, number, number][];
   }[];
 };
 
@@ -166,8 +168,12 @@ export function buildProfileView(playerId: number): ProfileView | null {
     const bonuses = new Map<number, number>();
     let active = 0;
     let knownNodes = 0;
+    const cells: [number, number, number][] = [];
     for (const id of b.nodes) {
       const node = daevanion!.nodes[String(id)];
+      if (node) {
+        cells.push([node[1], node[2], node[4] === "Start" ? 0 : node[4] === "SkillLevel" ? 2 : 1]);
+      }
       if (node?.[4] === "Start") {
         continue;
       }
@@ -190,6 +196,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
       knownNodes,
       stats,
       skillBonuses: [...bonuses].map(([id, value]) => ({ id, name: skillNames![String(id)] ?? String(id), value })),
+      cells,
     };
   });
 

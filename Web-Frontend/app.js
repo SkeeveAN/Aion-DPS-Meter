@@ -1580,107 +1580,160 @@ function statLabel(token) {
   return token.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^HP /, "HP ").replace(/^MP /, "MP ");
 }
 
-// The character block on a player's page (Aion 2): class/level/faction/legion, the equipped items
-// with enchant level, and - when the player's own client uploaded them - skill levels and the
-// Daevanion boards. Everything is resolved server-side from ids (see Backend/src/profile.ts).
-function renderCharacterProfile(profile, player) {
-  const parts = [el("h3", { textContent: t("profile.heading") })];
-  const meta = [];
-  if (profile.className) {
-    meta.push(
-      iconLabel(
-        classIcon(profile.className),
-        profile.level ? t("profile.classLevel", { className: profile.className, level: profile.level }) : profile.className,
-      ),
-    );
-  } else if (profile.level) {
-    meta.push(el("span", { textContent: `Level ${profile.level}` }));
-  }
-  if (profile.faction) {
-    meta.push(iconLabel(factionIcon(profile.faction), profile.faction));
-  }
-  if (player.guild) {
-    meta.push(el("span", { textContent: `${t("profile.guild")}: ${player.guild}` }));
-  }
-  if (meta.length > 0) {
-    parts.push(el("p", { className: "profile-meta" }, meta.flatMap((m, i) => (i === 0 ? [m] : [" · ", m]))));
-  }
-  const date = formatDate(new Date(`${profile.updatedAt.replace(" ", "T")}Z`));
-  parts.push(
-    el("p", {
-      className: "profile-source",
-      textContent: t(profile.source === "self" ? "profile.sourceSelf" : "profile.sourceSeen", { date }),
-    }),
-  );
+// The character block on a player's page (Aion 2), laid out like the client's character window:
+// profile card, weakest gear and the Daevanion maps on the left, the equipment table with item-level
+// bars in the middle, skills with level pips on the right. Everything is resolved server-side from
+// ids (see Backend/src/profile.ts); skills and Daevanion only exist when the player's own client
+// uploaded them.
+function itemHeat(ratio) {
+  return ratio >= 0.95 ? "good" : ratio >= 0.8 ? "ok" : ratio >= 0.65 ? "mid" : "low";
+}
 
-  if (profile.gear.length > 0) {
-    parts.push(el("h4", { textContent: t("profile.gear") }));
-    if (profile.averageItemLevel) {
-      parts.push(el("p", { className: "profile-meta", textContent: t("profile.avgItemLevel", { value: profile.averageItemLevel }) }));
+function profileNumber(value, label, accent) {
+  return el("div", { className: "pf-number" }, [
+    el("strong", { className: accent ? "accent" : "", textContent: String(value) }),
+    el("span", { textContent: label }),
+  ]);
+}
+
+function boardMap(cells) {
+  const grid = Array.from({ length: 15 * 15 }, () => "");
+  for (const [row, col, kind] of cells) {
+    if (row >= 1 && row <= 15 && col >= 1 && col <= 15) {
+      grid[(row - 1) * 15 + (col - 1)] = ["start", "stat", "skill"][kind];
     }
-    const rows = profile.gear.map((g) =>
-      el("tr", {}, [
-        el("td", { textContent: g.slotName || `#${g.slot}` }),
-        el("td", {}, [
-          g.name,
-          g.enchant > 0 ? el("span", { className: "enchant", textContent: ` +${g.enchant}` }) : null,
-        ].filter((x) => x != null)),
-        el("td", { textContent: g.itemLevel > 0 ? String(g.itemLevel) : "–" }),
-      ]),
-    );
-    parts.push(
-      el("table", { className: "profile-table" }, [
-        el("thead", {}, [
-          el("tr", {}, [
-            el("th", { textContent: t("profile.slot") }),
-            el("th", { textContent: t("profile.item") }),
-            el("th", { textContent: t("profile.itemLevel") }),
-          ]),
-        ]),
-        el("tbody", {}, rows),
-      ]),
-    );
   }
+  return el("div", { className: "pf-map" }, grid.map((kind) => el("i", { className: kind })));
+}
 
-  if (profile.skills.length > 0) {
-    const rows = profile.skills.map((s) =>
-      el("tr", {}, [
-        el("td", { textContent: s.name }),
-        el("td", { textContent: s.level > s.baseLevel ? `${s.level} (${s.baseLevel}+${s.level - s.baseLevel})` : String(s.level) }),
+function renderCharacterProfile(profile, player) {
+  const known = profile.gear.filter((g) => g.itemLevel > 0);
+  const maxLevel = known.reduce((m, g) => Math.max(m, g.itemLevel), 0);
+  const nodes = profile.daevanion.reduce((sum, b) => sum + b.activeNodes, 0);
+  const date = formatDate(new Date(`${profile.updatedAt.replace(" ", "T")}Z`));
+
+  // Left column: profile card.
+  const sub = [];
+  if (profile.className) {
+    sub.push(profile.level ? t("profile.classLevel", { className: profile.className, level: profile.level }) : profile.className);
+  } else if (profile.level) {
+    sub.push(`Level ${profile.level}`);
+  }
+  const card = el("div", { className: "pf-card" }, [
+    el("div", { className: "pf-head" }, [
+      profile.className ? el("div", { className: "pf-badge" }, [classIcon(profile.className)]) : null,
+      el("div", {}, [
+        el("div", { className: "pf-name", textContent: player.name }),
+        el("div", { className: "pf-sub", textContent: sub.join(" · ") }),
       ]),
-    );
-    parts.push(
-      el("details", { className: "profile-section" }, [
-        el("summary", { textContent: t("profile.skills", { count: profile.skills.length }) }),
-        el("table", { className: "profile-table" }, [
-          el("thead", {}, [el("tr", {}, [el("th", { textContent: t("profile.skill") }), el("th", { textContent: t("profile.skillLevel") })])]),
-          el("tbody", {}, rows),
-        ]),
+    ].filter((x) => x != null)),
+    profile.faction ? el("div", { className: "pf-sub" }, [iconLabel(factionIcon(profile.faction), profile.faction)]) : null,
+    player.guild ? el("div", { className: "pf-sub", textContent: `${t("profile.guild")}: ${player.guild}` }) : null,
+    el("div", { className: "pf-numbers" }, [
+      profileNumber(profile.averageItemLevel ?? "–", t("profile.avgShort"), true),
+      profileNumber(profile.skills.length, t("profile.skillsShort")),
+      profileNumber(nodes, t("profile.nodesShort")),
+    ]),
+  ].filter((x) => x != null));
+  const left = [card];
+
+  if (known.length > 0) {
+    const weakest = [...known].sort((a, b) => a.itemLevel - b.itemLevel).slice(0, 4);
+    left.push(
+      el("div", { className: "pf-card" }, [
+        el("h4", { textContent: t("profile.upgrade") }),
+        ...weakest.map((g) =>
+          el("div", { className: "pf-row" }, [
+            el("span", { textContent: g.name + (g.enchant > 0 ? ` +${g.enchant}` : "") }),
+            el("strong", { className: `heat-${itemHeat(g.itemLevel / maxLevel)}`, textContent: String(g.itemLevel) }),
+          ]),
+        ),
+        el("p", { className: "profile-source", textContent: t("profile.upgradeNote", { max: maxLevel }) }),
       ]),
     );
   }
 
   if (profile.daevanion.length > 0) {
-    const boards = profile.daevanion.map((b) => {
-      const stats = Object.entries(b.stats)
-        .sort((x, y) => y[1] - x[1])
-        .map(([token, value]) => `${statLabel(token)} +${value}`)
-        .join(", ");
-      const bonuses = b.skillBonuses.map((x) => `${x.name} +${x.value}`).join(", ");
-      const head =
-        `${b.name}: ${t("profile.boardNodes", { count: b.activeNodes })}` +
-        (b.knownNodes < b.activeNodes ? ` ${t("profile.boardKnown", { known: b.knownNodes })}` : "");
-      return el("li", {}, [
-        el("strong", { textContent: head }),
-        bonuses ? el("div", { className: "profile-meta", textContent: t("profile.skillBonuses", { list: bonuses }) }) : null,
-        stats ? el("div", { className: "profile-meta", textContent: stats }) : null,
-      ].filter((x) => x != null));
-    });
-    parts.push(el("h4", { textContent: t("profile.daevanion") }), el("ul", { className: "profile-boards" }, boards));
+    left.push(
+      el("div", { className: "pf-card" }, [
+        el("h4", { textContent: t("profile.daevanion") }),
+        ...profile.daevanion.map((b) => {
+          const bonuses = b.skillBonuses.map((x) => `${x.name} +${x.value}`).join(", ");
+          const stats = Object.entries(b.stats)
+            .sort((x, y) => y[1] - x[1])
+            .slice(0, 3)
+            .map(([token, value]) => `${statLabel(token)} +${value}`)
+            .join(", ");
+          return el("div", { className: "pf-board" }, [
+            boardMap(b.cells ?? []),
+            el("div", {}, [
+              el("strong", { textContent: `${b.name} · ${t("profile.boardNodes", { count: b.activeNodes })}` }),
+              bonuses ? el("div", { className: "pf-sub", textContent: bonuses }) : null,
+              stats ? el("div", { className: "pf-sub small", textContent: stats }) : null,
+            ].filter((x) => x != null)),
+          ]);
+        }),
+        el("p", { className: "profile-source", textContent: t("profile.boardMapNote") }),
+      ]),
+    );
   }
 
-  parts.push(el("p", { className: "profile-source", textContent: t("profile.note") }));
-  return el("section", { className: "profile" }, parts);
+  // Middle column: equipment table with item-level bars.
+  const middle = [];
+  if (profile.gear.length > 0) {
+    middle.push(
+      el("div", { className: "pf-card" }, [
+        el("h4", { textContent: `${t("profile.gear")} · ${profile.gear.length}` }),
+        ...profile.gear.map((g) => {
+          const ratio = g.itemLevel > 0 && maxLevel > 0 ? g.itemLevel / maxLevel : 0;
+          return el("div", { className: "pf-gear" }, [
+            el("span", { className: "slot", textContent: g.slotName || `#${g.slot}` }),
+            el("span", { className: "name", textContent: g.name }),
+            el("span", { className: "bar" }, [el("i", { className: `heat-${itemHeat(ratio)}`, style: `width:${Math.max(2, ratio * 100)}%` })]),
+            el("span", { className: "lvl", textContent: g.itemLevel > 0 ? String(g.itemLevel) : "–" }),
+            el("span", { className: "plus", textContent: g.enchant > 0 ? `+${g.enchant}` : "" }),
+          ]);
+        }),
+      ]),
+    );
+  }
+
+  // Right column: skills with level pips.
+  const right = [];
+  if (profile.skills.length > 0) {
+    right.push(
+      el("div", { className: "pf-card" }, [
+        el("h4", { textContent: t("profile.skills", { count: profile.skills.length }) }),
+        ...profile.skills.map((s) =>
+          el("div", { className: "pf-skill" }, [
+            el("span", { className: "name", textContent: s.name }),
+            el(
+              "span",
+              { className: "pips" },
+              Array.from({ length: 12 }, (_, i) => el("i", { className: i < s.baseLevel ? "base" : i < s.level ? "bonus" : "" })),
+            ),
+            el("span", { className: "lvl", textContent: String(s.level) }),
+          ]),
+        ),
+        el("div", { className: "profile-source" }, [
+          el("i", { className: "pf-key base" }),
+          ` ${t("profile.legendBase")}  `,
+          el("i", { className: "pf-key bonus" }),
+          ` ${t("profile.legendBonus")}`,
+        ]),
+      ]),
+    );
+  }
+
+  return el("section", { className: "profile" }, [
+    el("div", { className: "pf-grid" }, [
+      el("div", { className: "pf-col" }, left),
+      el("div", { className: "pf-col" }, middle),
+      el("div", { className: "pf-col" }, right),
+    ]),
+    el("p", { className: "profile-source", textContent: t(profile.source === "self" ? "profile.sourceSelf" : "profile.sourceSeen", { date }) }),
+    el("p", { className: "profile-source", textContent: t("profile.note") }),
+  ]);
 }
 
 async function renderPlayerProfile(playerId) {
