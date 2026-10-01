@@ -292,6 +292,28 @@ export const players = sqliteTable(
   }),
 );
 
+// What an Aion 2 client could read about a character from the game's traffic: level, class and
+// faction, the equipped items (with enchant level), and - only for the uploader's own character -
+// the full skill list and the Daevanion boards. One row per player, replaced by newer data; the
+// uploader's own record ("self") is never overwritten by something merely "seen" on another
+// player (see profile.ts). The JSON columns hold ids only; names and values are resolved from the
+// game data at read time, so a data fix never needs a migration.
+export const playerProfiles = sqliteTable("player_profiles", {
+  playerId: integer("player_id")
+    .primaryKey()
+    .references(() => players.id),
+  source: text("source", { enum: ["self", "seen"] }).notNull(),
+  updatedAt: text("updated_at")
+    .notNull()
+    .default(sql`(current_timestamp)`),
+  level: integer("level"),
+  classId: integer("class_id"),
+  faction: integer("faction"),
+  gearJson: text("gear_json").notNull().default("[]"),
+  skillsJson: text("skills_json").notNull().default("[]"),
+  daevanionJson: text("daevanion_json").notNull().default("[]"),
+});
+
 export const encounters = sqliteTable(
   "encounters",
   {

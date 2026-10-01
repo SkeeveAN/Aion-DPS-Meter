@@ -16,6 +16,7 @@ import type { ParticipantUpload, UploadPayload } from "../uploadSchema.js";
 import { UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { englishNameFor } from "../db/backfill.js";
 import { slugify, uniqueSlug } from "../seo/slug.js";
+import { upsertProfile } from "../profile.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -270,6 +271,9 @@ function insertParticipant(
   authoritative: boolean,
 ) {
   const playerId = upsertPlayer(participant.name, serverId, participant.guild);
+  if (participant.profile) {
+    upsertProfile(playerId, participant.profile);
+  }
   const inserted = db
     .insert(encounterParticipants)
     .values({
@@ -430,6 +434,9 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
 
     if (candidates.length === 1) {
       const playerId = upsertPlayer(participant.name, serverId, participant.guild);
+      if (participant.profile) {
+        upsertProfile(playerId, participant.profile);
+      }
       db.update(encounterParticipants)
         .set({ playerId })
         .where(eq(encounterParticipants.id, candidates[0].encounter_participants.id))

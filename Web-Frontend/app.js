@@ -1575,6 +1575,114 @@ async function renderParticipant(participantId) {
   app.replaceChildren(...sections);
 }
 
+// Daevanion stat tokens come from the game data as CamelCase ("CriticalResist"); shown spaced out.
+function statLabel(token) {
+  return token.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^HP /, "HP ").replace(/^MP /, "MP ");
+}
+
+// The character block on a player's page (Aion 2): class/level/faction/legion, the equipped items
+// with enchant level, and - when the player's own client uploaded them - skill levels and the
+// Daevanion boards. Everything is resolved server-side from ids (see Backend/src/profile.ts).
+function renderCharacterProfile(profile, player) {
+  const parts = [el("h3", { textContent: t("profile.heading") })];
+  const meta = [];
+  if (profile.className) {
+    meta.push(
+      iconLabel(
+        classIcon(profile.className),
+        profile.level ? t("profile.classLevel", { className: profile.className, level: profile.level }) : profile.className,
+      ),
+    );
+  } else if (profile.level) {
+    meta.push(el("span", { textContent: `Level ${profile.level}` }));
+  }
+  if (profile.faction) {
+    meta.push(iconLabel(factionIcon(profile.faction), profile.faction));
+  }
+  if (player.guild) {
+    meta.push(el("span", { textContent: `${t("profile.guild")}: ${player.guild}` }));
+  }
+  if (meta.length > 0) {
+    parts.push(el("p", { className: "profile-meta" }, meta.flatMap((m, i) => (i === 0 ? [m] : [" · ", m]))));
+  }
+  const date = formatDate(new Date(`${profile.updatedAt.replace(" ", "T")}Z`));
+  parts.push(
+    el("p", {
+      className: "profile-source",
+      textContent: t(profile.source === "self" ? "profile.sourceSelf" : "profile.sourceSeen", { date }),
+    }),
+  );
+
+  if (profile.gear.length > 0) {
+    parts.push(el("h4", { textContent: t("profile.gear") }));
+    if (profile.averageItemLevel) {
+      parts.push(el("p", { className: "profile-meta", textContent: t("profile.avgItemLevel", { value: profile.averageItemLevel }) }));
+    }
+    const rows = profile.gear.map((g) =>
+      el("tr", {}, [
+        el("td", { textContent: g.slotName || `#${g.slot}` }),
+        el("td", {}, [
+          g.name,
+          g.enchant > 0 ? el("span", { className: "enchant", textContent: ` +${g.enchant}` }) : null,
+        ].filter((x) => x != null)),
+        el("td", { textContent: g.itemLevel > 0 ? String(g.itemLevel) : "–" }),
+      ]),
+    );
+    parts.push(
+      el("table", { className: "profile-table" }, [
+        el("thead", {}, [
+          el("tr", {}, [
+            el("th", { textContent: t("profile.slot") }),
+            el("th", { textContent: t("profile.item") }),
+            el("th", { textContent: t("profile.itemLevel") }),
+          ]),
+        ]),
+        el("tbody", {}, rows),
+      ]),
+    );
+  }
+
+  if (profile.skills.length > 0) {
+    const rows = profile.skills.map((s) =>
+      el("tr", {}, [
+        el("td", { textContent: s.name }),
+        el("td", { textContent: s.level > s.baseLevel ? `${s.level} (${s.baseLevel}+${s.level - s.baseLevel})` : String(s.level) }),
+      ]),
+    );
+    parts.push(
+      el("details", { className: "profile-section" }, [
+        el("summary", { textContent: t("profile.skills", { count: profile.skills.length }) }),
+        el("table", { className: "profile-table" }, [
+          el("thead", {}, [el("tr", {}, [el("th", { textContent: t("profile.skill") }), el("th", { textContent: t("profile.skillLevel") })])]),
+          el("tbody", {}, rows),
+        ]),
+      ]),
+    );
+  }
+
+  if (profile.daevanion.length > 0) {
+    const boards = profile.daevanion.map((b) => {
+      const stats = Object.entries(b.stats)
+        .sort((x, y) => y[1] - x[1])
+        .map(([token, value]) => `${statLabel(token)} +${value}`)
+        .join(", ");
+      const bonuses = b.skillBonuses.map((x) => `${x.name} +${x.value}`).join(", ");
+      const head =
+        `${b.name}: ${t("profile.boardNodes", { count: b.activeNodes })}` +
+        (b.knownNodes < b.activeNodes ? ` ${t("profile.boardKnown", { known: b.knownNodes })}` : "");
+      return el("li", {}, [
+        el("strong", { textContent: head }),
+        bonuses ? el("div", { className: "profile-meta", textContent: t("profile.skillBonuses", { list: bonuses }) }) : null,
+        stats ? el("div", { className: "profile-meta", textContent: stats }) : null,
+      ].filter((x) => x != null));
+    });
+    parts.push(el("h4", { textContent: t("profile.daevanion") }), el("ul", { className: "profile-boards" }, boards));
+  }
+
+  parts.push(el("p", { className: "profile-source", textContent: t("profile.note") }));
+  return el("section", { className: "profile" }, parts);
+}
+
 async function renderPlayerProfile(playerId) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.playerProfile")]);
   showLoading(t("loading.playerProfile"));
@@ -1582,8 +1690,12 @@ async function renderPlayerProfile(playerId) {
   const data = await fetchJson(`/api/players/${encodeURIComponent(playerId)}`);
   setBreadcrumb([...gameCrumbs(), data.player.name]);
 
+  const profileBlock = data.profile ? renderCharacterProfile(data.profile, data.player) : null;
   if (data.history.length === 0) {
-    app.replaceChildren(el("p", { className: "empty", textContent: t("player.emptyNoFights") }));
+    app.replaceChildren(
+      ...(profileBlock ? [el("h2", { textContent: data.player.name + (data.player.serverName ? ` – ${data.player.serverName}` : "") }), profileBlock] : []),
+      el("p", { className: "empty", textContent: t("player.emptyNoFights") }),
+    );
     return;
   }
 
@@ -1601,6 +1713,7 @@ async function renderPlayerProfile(playerId) {
 
   app.replaceChildren(
     el("h2", { textContent: data.player.name + (data.player.serverName ? ` – ${data.player.serverName}` : "") }),
+    ...(profileBlock ? [profileBlock] : []),
     el("table", {}, [
       el("thead", {}, [
         el("tr", {}, [

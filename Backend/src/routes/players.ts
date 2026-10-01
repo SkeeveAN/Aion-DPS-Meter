@@ -5,6 +5,7 @@ import { bosses, encounterParticipants, encounters, instances, players, servers 
 import { normalizeName } from "../matching/roster.js";
 import { gameFromQuery } from "./instances.js";
 import type { Game } from "../constants.js";
+import { buildProfileView } from "../profile.js";
 
 /**
  * Each player's own single best fight (highest iDPS), ranked - the homepage's "top players"
@@ -162,6 +163,6 @@ export async function playerRoutes(app: FastifyInstance) {
       .orderBy(desc(encounters.startedAt))
       .all();
 
-    return reply.send({ player, history });
+    return reply.send({ player, history, profile: buildProfileView(playerId) });
   });
 }

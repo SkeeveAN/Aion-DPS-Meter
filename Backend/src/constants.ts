@@ -46,6 +46,20 @@ export const SERVER_EXCLUDED_CLASSES: Record<string, readonly string[]> = {
   "aion-2-north-america": ["Brawler"],
 };
 
+// Aion 2 class id (the numbering the game's own tables use: 1 = Gladiator ... 8 = Chanter), as the
+// client reads it from a character record. The id is the class code divided by 4 - see the client's
+// Aion2FrameDecoder.DecodeVarintNickname.
+export const AION2_CLASS_BY_ID: Readonly<Record<number, string>> = {
+  1: "Gladiator",
+  2: "Templar",
+  3: "Ranger",
+  4: "Assassin",
+  5: "Elementalist",
+  6: "Sorcerer",
+  7: "Cleric",
+  8: "Chanter",
+};
+
 export const AION2_CLASSES = [
   "Assassin",
   "Chanter",

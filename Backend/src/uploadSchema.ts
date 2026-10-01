@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { profileSchema } from "./profile.js";
 import { AION2_CLASS_ALIASES, AION2_CLASSES, GAMES } from "./constants.js";
 
 // Generous but real ceilings - these guard against garbage/abuse, not against
@@ -47,6 +48,8 @@ export const participantSchema = z.object({
     .max(40)
     .optional()
     .transform((value) => (value ? value : undefined)),
+  // Optional, Aion 2 only: what the client read about this character (see profile.ts).
+  profile: profileSchema.optional(),
   // Mirrors the client's `_chatLogParser.Names.NameFor(id) == "You"` check -
   // true for exactly one participant per upload, the uploader themselves.
   isSelf: z.boolean(),
@@ -105,6 +108,11 @@ export const uploadSchema = z
     // unvalidated here on purpose - private servers ship different class sets (see the client's
     // Server/ServerClassAvailability.cs), so there is no single right list to check against.
     if (payload.game !== "aion2") {
+      payload.participants.forEach((p, i) => {
+        if (p.profile) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["participants", i, "profile"], message: "character profiles are Aion 2 only" });
+        }
+      });
       return;
     }
     payload.participants.forEach((p, i) => {
