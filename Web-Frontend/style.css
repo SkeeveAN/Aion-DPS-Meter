@@ -2034,3 +2034,13 @@ strong[class^="heat-"] {
   font-weight: 600;
   margin: 0.6rem 0 0.3rem;
 }
+
+.site-disclaimer {
+  max-width: 900px;
+  margin: 12px auto 24px;
+  padding: 0 16px;
+  text-align: center;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  opacity: 0.6;
+}

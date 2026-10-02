@@ -299,7 +299,7 @@ async function renderHome() {
 // standalone builder appended once, centrally, by route() itself (see its own remarks) rather than
 // something every individual render function has to remember to add.
 function buildSiteFooter() {
-  return el("div", { className: "home-footer-cta" }, [
+  const cta = el("div", { className: "home-footer-cta" }, [
     el("div", { className: "home-footer-logo" }, [
       el("img", { src: "/logo.png", alt: "", className: "home-footer-emblem", loading: "lazy" }),
       el("img", { src: "/images/ui/aion-dps-wordmark.png", alt: "Aion DPS", className: "wordmark", loading: "lazy" }),
@@ -323,6 +323,7 @@ function buildSiteFooter() {
       ]),
     ]),
   ]);
+  return el("div", { className: "site-footer" }, [cta, el("p", { className: "site-disclaimer", textContent: t("footer.disclaimer") })]);
 }
 
 function buildTopPlayersSection(rows, game) {
