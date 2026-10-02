@@ -10,6 +10,7 @@ public static class Aion2Servers
     private static readonly Dictionary<int, string> Known = new()
     {
         [1304] = "Europe - Kaisinel", // the user's Elyos character Aahz, 2026-10-01
+        [1303] = "Europe - Vaizel", // told by the user (player Boulenbouche, 2026-10-03)
     };
 
     public static string NameOf(int serverId) => Known.GetValueOrDefault(serverId, $"Aion 2 server {serverId}");
