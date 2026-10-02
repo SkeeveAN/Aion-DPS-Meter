@@ -24,6 +24,16 @@ public sealed record Aion2CharacterInfo(int CombatId, string Name, int ClassCode
 /// frames reveal them. The local player is whichever id the session frame names. Names that never
 /// came with a game id (hand-entered characters) get synthetic negative ids so they can never
 /// collide with a real object id.</summary>
+/// <summary>What the directory has learned about the objects around: enough to carry a session across a
+/// client restart (the game keeps running, so its object ids stay valid; only the meter forgets who is
+/// who - the "appeared" frames of players already in view are not sent again).</summary>
+public sealed record Aion2DirectorySnapshot(
+    Dictionary<int, string> Names,
+    Dictionary<int, string> Classes,
+    Dictionary<int, string> Guilds,
+    Dictionary<int, int> BossNpcs,
+    int LocalPlayerId);
+
 public sealed class Aion2EntityDirectory : IEntityDirectory
 {
     private readonly Dictionary<int, string> _names = new();
@@ -301,6 +311,59 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             ? own.ClassCode % 4
             : SeenProfileOf(id)?.Faction;
         return bit == 2 ? "Elyos" : null;
+    }
+
+    public Aion2DirectorySnapshot Snapshot()
+    {
+        lock (_gate)
+        {
+            return new Aion2DirectorySnapshot(
+                new Dictionary<int, string>(_names),
+                _classVotes.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value.MaxBy(v => v.Value).Key),
+                new Dictionary<int, string>(_guilds),
+                new Dictionary<int, int>(_bossNpcs),
+                _explicitLocalId);
+        }
+    }
+
+    /// <summary>Takes over a snapshot from before a restart. Anything the live stream already knows wins;
+    /// restored classes count as strong evidence (they were voted on for the whole session).</summary>
+    public void RestoreFrom(Aion2DirectorySnapshot snapshot)
+    {
+        lock (_gate)
+        {
+            foreach ((int id, string name) in snapshot.Names)
+            {
+                if (!_names.ContainsKey(id) && !_ids.ContainsKey(name))
+                {
+                    _names[id] = name;
+                    _ids[name] = id;
+                }
+            }
+
+            foreach ((int id, string className) in snapshot.Classes)
+            {
+                if (!_classVotes.ContainsKey(id))
+                {
+                    _classVotes[id] = new Dictionary<string, int> { [className] = 50 };
+                }
+            }
+
+            foreach ((int id, string guild) in snapshot.Guilds)
+            {
+                _guilds.TryAdd(id, guild);
+            }
+
+            foreach ((int entityId, int npcId) in snapshot.BossNpcs)
+            {
+                _bossNpcs.TryAdd(entityId, npcId);
+            }
+
+            if (_explicitLocalId < 0 && snapshot.LocalPlayerId >= 0)
+            {
+                _explicitLocalId = snapshot.LocalPlayerId;
+            }
+        }
     }
 
     /// <summary>The ids of every player whose equipment has been seen so far.</summary>

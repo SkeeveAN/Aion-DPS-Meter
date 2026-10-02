@@ -780,5 +780,15 @@
     "pl": "Przesyłaj automatycznie profil mojej postaci po zalogowaniu (aby można mnie było znaleźć na stronie)",
     "tr": "Girişten sonra karakter profilimi otomatik yükle (sitede bulunabilmem için)",
     "zh": "登录后自动上传我的角色资料（以便在网站上被找到）"
+  },
+  "Main.MenuApp.RestartClient": {
+    "en": "Restart client (keeps the session)",
+    "de": "Client neu starten (Sitzung bleibt)",
+    "fr": "Redémarrer le client (garde la session)",
+    "es": "Reiniciar el cliente (conserva la sesión)",
+    "ru": "Перезапустить клиент (сессия сохранится)",
+    "pl": "Uruchom klienta ponownie (sesja zostaje)",
+    "tr": "İstemciyi yeniden başlat (oturum korunur)",
+    "zh": "重启客户端（保留当前会话）"
   }
 }

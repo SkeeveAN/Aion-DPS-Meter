@@ -227,6 +227,7 @@ public partial class MainWindow : Window
         StartCapture(settings);
         InitializeFightHistory(settings);
         RefreshCharacterSettings(settings);
+        TryRestoreRestartSnapshot();
     }
 
     /// <summary>Applies a previously saved size/position, if any -- see SaveWindowGeometry, its
@@ -1679,10 +1680,24 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Every object id the saved events/avoids/kills can reference, resolved to a real name
-        // now while _source's own registry (whichever combat source is live) can still answer it -
-        // a session file has no other way to carry identity, and LoadSessionIntoMeter needs every
-        // one of these to remap ids through a fresh FakeCombatSource on load.
+        Dictionary<int, string> names = CollectSessionNames();
+
+        try
+        {
+            SessionFile.Save(dialog.FileName, _aggregator.Events, _avoids, _kills, names);
+            ShowUploadStatus($"Session saved to {Path.GetFileName(dialog.FileName)}.");
+        }
+        catch (IOException ex)
+        {
+            MessageBox.Show(this, $"Could not save the session.\n\n{ex.Message}", "Save Session",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    /// <summary>Every object id the events/avoids/kills can reference, resolved to a real name now while the
+    /// live source can still answer it - a session file has no other way to carry identity.</summary>
+    private Dictionary<int, string> CollectSessionNames()
+    {
         var ids = new HashSet<int>();
         foreach (DamageEvent ev in _aggregator.Events)
         {
@@ -1705,18 +1720,88 @@ public partial class MainWindow : Window
             }
         }
 
-        Dictionary<int, string> names = ids.ToDictionary(id => id, ResolveDisplayName);
+        return ids.ToDictionary(id => id, ResolveDisplayName);
+    }
+
+    // ---- the session survives a restart of the client ---------------------------------------------
+    // Per the user: on a restart (the update's "restart now", or App > Restart client) the running session
+    // is written to a temp file and read back on the next start. Unlike a saved session file this goes into
+    // the LIVE meter (the capture keeps running), and it carries what the directory had learned, since the
+    // game does not announce players again who are already in view.
+
+    private static string RestartSnapshotPath => Path.Combine(Path.GetTempPath(), "AionDPS", "restart-session.aiondps");
+
+    /// <summary>A snapshot older than this is a leftover of some earlier run, not a restart.</summary>
+    private static readonly TimeSpan RestartSnapshotMaxAge = TimeSpan.FromMinutes(15);
+
+    private void SaveRestartSnapshot()
+    {
+        if (_historyMode || _aggregator.Events.Count == 0)
+        {
+            return;
+        }
 
         try
         {
-            SessionFile.Save(dialog.FileName, _aggregator.Events, _avoids, _kills, names);
-            ShowUploadStatus($"Session saved to {Path.GetFileName(dialog.FileName)}.");
+            Directory.CreateDirectory(Path.GetDirectoryName(RestartSnapshotPath)!);
+            SessionFile.Save(RestartSnapshotPath, _aggregator.Events, _avoids, _kills, CollectSessionNames(),
+                (_source?.Entities as Aion2EntityDirectory)?.Snapshot());
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            MessageBox.Show(this, $"Could not save the session.\n\n{ex.Message}", "Save Session",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            // A restart must never be blocked by a session that could not be kept.
         }
+    }
+
+    private void TryRestoreRestartSnapshot()
+    {
+        string path = RestartSnapshotPath;
+        if (Headless || !File.Exists(path))
+        {
+            return;
+        }
+
+        try
+        {
+            SessionFile.LoadedSession session = SessionFile.Load(path);
+            File.Delete(path);
+            if (DateTime.Now - session.SavedAt > RestartSnapshotMaxAge || session.Events.Count == 0)
+            {
+                return;
+            }
+
+            if (session.Directory is { } directory && _source?.Entities is Aion2EntityDirectory live)
+            {
+                live.RestoreFrom(directory);
+            }
+
+            _avoids.AddRange(session.Avoids);
+            _kills.AddRange(session.Kills);
+            _aggregator.IngestEvents(session.Events);
+            RefreshRows();
+            ShowUploadStatus($"Resumed {session.Events.Count:N0} event(s) from before the restart.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidDataException)
+        {
+            // Unreadable leftover: ignore it, the meter starts fresh.
+            try { File.Delete(path); } catch (IOException) { }
+        }
+    }
+
+    /// <summary>App &gt; Restart client: keeps the session, starts a fresh process, ends this one.</summary>
+    private void OnRestartClientClicked(object sender, RoutedEventArgs e)
+    {
+        AppMenu.IsSubmenuOpen = false;
+        SaveRestartSnapshot();
+        SaveWindowStateToSettings();
+        string? exe = Environment.ProcessPath;
+        if (exe is null)
+        {
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
+        Application.Current.Shutdown();
     }
 
     /// <summary>Replays a loaded session the same way EnterHistoryMode replays one stored fight -
@@ -1935,6 +2020,7 @@ public partial class MainWindow : Window
         // Window geometry and settings are saved in OnClosing, which ApplyAndRestart never reaches
         // because it ends the process itself -- so save first, then hand over.
         SaveWindowStateToSettings();
+        SaveRestartSnapshot();
 
         UpdateService.ApplyAndRestart(update);
     }

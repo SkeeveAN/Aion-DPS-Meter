@@ -35,14 +35,16 @@ public static class SessionFile
         List<EventDto> Events,
         List<AvoidDto> Avoids,
         List<KillDto> Kills,
-        Dictionary<string, string> Names);
+        Dictionary<string, string> Names,
+        Aion2.Aion2DirectorySnapshot? Directory = null);
 
     public static void Save(
         string path,
         IReadOnlyList<DamageEvent> events,
         IReadOnlyList<AvoidEvent> avoids,
         IReadOnlyList<KillEvent> kills,
-        IReadOnlyDictionary<int, string> names)
+        IReadOnlyDictionary<int, string> names,
+        Aion2.Aion2DirectorySnapshot? directory = null)
     {
         var payload = new Payload(
             1,
@@ -50,7 +52,8 @@ public static class SessionFile
             events.Select(e => new EventDto(e.Timestamp.Ticks, (int)e.Timestamp.Kind, e.SourceObjectId, e.TargetObjectId, e.Amount, e.IsHeal, e.Skill, e.IsCritical)).ToList(),
             avoids.Select(a => new AvoidDto(a.Timestamp.Ticks, (int)a.Timestamp.Kind, a.SourceObjectId, a.TargetObjectId, (int)a.Kind, a.Skill)).ToList(),
             kills.Select(k => new KillDto(k.Timestamp.Ticks, (int)k.Timestamp.Kind, k.KillerObjectId, k.VictimObjectId, k.VictimIsPlayer)).ToList(),
-            names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value));
+            names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
+            directory);
 
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         using FileStream output = File.Create(path);
@@ -63,7 +66,8 @@ public static class SessionFile
         List<AvoidEvent> Avoids,
         List<KillEvent> Kills,
         Dictionary<int, string> Names,
-        DateTime SavedAt);
+        DateTime SavedAt,
+        Aion2.Aion2DirectorySnapshot? Directory = null);
 
     public static LoadedSession Load(string path)
     {
@@ -83,6 +87,6 @@ public static class SessionFile
             .ToList();
         var names = payload.Names.ToDictionary(kv => int.Parse(kv.Key), kv => kv.Value);
 
-        return new LoadedSession(events, avoids, kills, names, payload.SavedAt);
+        return new LoadedSession(events, avoids, kills, names, payload.SavedAt, payload.Directory);
     }
 }

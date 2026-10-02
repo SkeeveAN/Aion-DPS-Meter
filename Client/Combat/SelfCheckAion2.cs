@@ -33,6 +33,7 @@ public static class SelfCheckAion2
         ok &= RunAion2LoginListsScenario();
         ok &= RunAion2CharacterStoreScenario();
         ok &= RunAion2SeenProfileScenario();
+        ok &= RunRestartSnapshotScenario();
         ok &= RunAion2BossSpawnScenario();
         ok &= RunClassCatalogScenario();
         ok &= RunSettingsMigrationScenario();
@@ -469,6 +470,46 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> entity 24155 is Ultimate Berk (NPC 2300171): {berk}");
         Console.WriteLine($"  -> an unknown entity is no boss: {mobIgnored}");
         return harcon && berk && mobIgnored;
+    }
+
+    private static bool RunRestartSnapshotScenario()
+    {
+        Console.WriteLine("[selftest] Session survives a client restart (snapshot file):");
+        string path = Path.Combine(Path.GetTempPath(), "aiondps-selftest-" + Guid.NewGuid().ToString("N") + History.SessionFile.Extension);
+        try
+        {
+            // The old process knew who is who ...
+            var before = new Aion2EntityDirectory();
+            before.Register(5875, "Aahz");
+            before.NoteClass(5875, "Gladiator");
+            before.RegisterNpc(30410, 2300104);
+            before.SetGuild(5875, "Akatsuki");
+            var events = new List<DamageEvent> { new(DateTime.Now, 5875, 30410, 1234, IsHeal: false, Skill: "Rending Blow") };
+            History.SessionFile.Save(path, events, new List<AvoidEvent>(), new List<KillEvent>(), new Dictionary<int, string> { [5875] = "Aahz" }, before.Snapshot());
+
+            // ... the new one starts empty and takes it over from the file.
+            var loaded = History.SessionFile.Load(path);
+            var after = new Aion2EntityDirectory();
+            after.RestoreFrom(loaded.Directory!);
+            bool eventsBack = loaded.Events.Count == 1 && loaded.Events[0].Amount == 1234;
+            bool named = after.NameFor(5875) == "Aahz" && after.ClassOf(5875) == "Gladiator" && after.GuildOf(5875) == "Akatsuki";
+            bool boss = after.NameFor(30410) == "Enhanced Harcon" && after.BossNpcIdOf(30410) == 2300104;
+
+            // What the live stream already knows wins over the snapshot.
+            var live = new Aion2EntityDirectory();
+            live.Register(5875, "Someone");
+            live.RestoreFrom(loaded.Directory!);
+            bool liveWins = live.NameFor(5875) == "Someone";
+            Console.WriteLine($"  -> events come back: {eventsBack}");
+            Console.WriteLine($"  -> names, classes and legion come back: {named}");
+            Console.WriteLine($"  -> a recognised boss keeps its name: {boss}");
+            Console.WriteLine($"  -> what the live stream already knows wins: {liveWins}");
+            return eventsBack && named && boss && liveWins;
+        }
+        finally
+        {
+            try { File.Delete(path); } catch (IOException) { }
+        }
     }
 
     private static bool RunAion2SeenProfileScenario()
