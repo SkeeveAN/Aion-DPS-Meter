@@ -23,9 +23,13 @@ public static class SkillBreakdown
             .GroupBy(e => e.Skill ?? "(auto attack)")
             .Select(g =>
             {
-                var amounts = g.Select(e => e.Amount).ToList();
-                int crits = g.Count(e => e.IsCritical);
-                return new SkillUsage(g.Key, amounts.Count, crits, amounts.Sum(), amounts.Min(), amounts.Max());
+                // Damage-over-time ticks add to the total but are not hits: hit count, crit rate
+                // and min/max describe the casts. A skill seen only through its ticks (cast before
+                // the meter started) still shows them, so its row is never empty.
+                var hits = g.Where(e => !e.IsTick).ToList();
+                var amounts = (hits.Count > 0 ? hits : g.ToList()).Select(e => e.Amount).ToList();
+                int crits = hits.Count(e => e.IsCritical);
+                return new SkillUsage(g.Key, amounts.Count, crits, g.Sum(e => e.Amount), amounts.Min(), amounts.Max());
             })
             .OrderByDescending(s => s.Total)
             .ToList();

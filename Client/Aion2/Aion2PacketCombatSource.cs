@@ -123,7 +123,11 @@ public sealed class Aion2PacketCombatSource : ICombatSource
         return paused ? CombatBatch.Empty : CombatBatch.DamageOnly(drained);
     }
 
-    public void Dispose() => Stop();
+    public void Dispose()
+    {
+        StopRecording();
+        Stop();
+    }
 
     /// <summary>
     /// A live one-line health report for the status bar: once the game server has been seen, how
@@ -154,8 +158,27 @@ public sealed class Aion2PacketCombatSource : ICombatSource
 
     /// <summary>Feeds one captured segment through reassembly and decoding - the live capture's
     /// callback, and what a recorded fixture is replayed through in the self-checks.</summary>
+    private Capture.SegmentRecording.Writer? _recording;
+
+    /// <summary>Writes every captured segment to a file (Settings' diagnostic recording) until
+    /// <see cref="StopRecording"/>; the same format as "aion2-record", replayable by the tools.</summary>
+    public void StartRecording(string path)
+    {
+        StopRecording();
+        _recording = new Capture.SegmentRecording.Writer(path);
+    }
+
+    public void StopRecording()
+    {
+        var recording = Interlocked.Exchange(ref _recording, null);
+        recording?.Dispose();
+    }
+
+    public bool IsRecording => _recording is not null;
+
     public void Ingest(Capture.TcpSegment segment)
     {
+        _recording?.Write(segment);
         // Only the server's stream carries combat; the client's small command packets are a
         // different vocabulary and would only risk a false frame.
         if (!segment.FromServer)
