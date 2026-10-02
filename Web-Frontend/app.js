@@ -92,12 +92,9 @@ const AION2_CLASS_ABBREVIATIONS = {
   Templar: "TPL",
 };
 
-// Per-class accent color + trinity role for the encounter page's meter bars (see meterRow below)
-// - covers every class of both games this table's author is confident about the trinity role of.
-// A pet ("?" className) gets its own PET_META; any OTHER unmapped className (a class this list
-// hasn't caught up with yet, e.g. one of icons/classes' Aethertech/Bard/Painter/Priest, none of
-// which have shown up in real uploads so far) gets UNKNOWN_CLASS_META instead of silently being
-// mislabeled a pet/companion - see classMeta and meterRow's role-badge check.
+// Per-class accent color + trinity role for the encounter page's meter bars (see meterRow below). A pet
+// ("?" className) gets its own PET_META; any OTHER unmapped className gets UNKNOWN_CLASS_META instead of
+// silently being mislabeled a pet/companion - see classMeta and meterRow's role-badge check.
 const CLASS_META = {
   Cleric: { color: "#ffd166", role: "healer" },
   Chanter: { color: "#06d6a0", role: "healer" },
@@ -107,13 +104,11 @@ const CLASS_META = {
   Assassin: { color: "#9b5de5", role: "dd" },
   Ranger: { color: "#80ed99", role: "dd" },
   Sorcerer: { color: "#4cc9f0", role: "dd" },
-  Spiritmaster: { color: "#f4a261", role: "dd" },
   Elementalist: { color: "#7c9eff", role: "dd" },
-  Gunner: { color: "#d4a373", role: "dd" },
 };
 const PET_META = { color: "#8a99a3", role: "companion" };
-// role: null - a real class we just don't have a confident trinity role for yet (see above),
-// never asserted in the UI (meterRow skips the role badge entirely when role is falsy).
+// role: null - a real class we just don't have a confident trinity role for yet, never asserted in the UI
+// (meterRow skips the role badge entirely when role is falsy).
 const UNKNOWN_CLASS_META = { color: "#9fb3c8", role: null };
 
 function classMeta(className) {
@@ -123,19 +118,13 @@ function classMeta(className) {
   return CLASS_META[className] ?? UNKNOWN_CLASS_META;
 }
 
+// Aion 2's nine classes have no icon files - a short text badge stands in.
 function classIcon(className) {
-  if (currentGame === "aion2") {
-    return el("span", { className: "class-badge", title: className, textContent: AION2_CLASS_ABBREVIATIONS[className] ?? className.slice(0, 3).toUpperCase() });
-  }
-  return icon(`/icons/classes/${encodeURIComponent(className)}.png`, "class-icon");
+  return el("span", { className: "class-badge", title: className, textContent: AION2_CLASS_ABBREVIATIONS[className] ?? className.slice(0, 3).toUpperCase() });
 }
 
 function factionIcon(faction) {
   return faction ? icon(`/icons/races/${encodeURIComponent(faction)}.png`, "faction-icon") : null;
-}
-
-function skillIcon(iconFile) {
-  return iconFile ? icon(`/icons/skills/${encodeURIComponent(iconFile)}`, "skill-icon") : null;
 }
 
 function iconLabel(iconEl, text) {
@@ -843,7 +832,7 @@ function buffsCell(buffs) {
   return el(
     "span",
     { className: "buffs-row" },
-    (buffs ?? []).map((b) => iconLabel(skillIcon(b.icon), String(b.casts))),
+    (buffs ?? []).map((b) => el("span", { className: "buff-count", title: b.skillName, textContent: `${b.skillName} ${b.casts}` })),
   );
 }
 
@@ -1319,7 +1308,7 @@ async function renderEncounter(encounterId) {
 function skillTable(skills) {
   const rows = skills.map((s) =>
     el("tr", {}, [
-      el("td", {}, [iconLabel(skillIcon(s.icon), s.skillName)]),
+      el("td", { textContent: s.skillName }),
       el("td", { textContent: formatNumber(s.hits) }),
       el("td", { textContent: formatNumber(s.critHits) }),
       el("td", { textContent: s.hits > 0 ? `${((s.critHits / s.hits) * 100).toFixed(1)}%` : "-" }),
