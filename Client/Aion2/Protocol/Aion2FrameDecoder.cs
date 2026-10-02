@@ -451,6 +451,9 @@ public sealed class Aion2FrameDecoder
                 continue;
             }
 
+            // The two bytes after the name (18 05 = 1304 on Europe - Kaisinel) are the character's server id:
+            // the same value sits before every Kaisinel member in the legion list, and Aion 2 characters of
+            // other servers show up in the same group with other values.
             int classCode = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 2)..]));
             int level = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 7)..]));
             if (level is < 1 or > 200)
@@ -470,7 +473,8 @@ public sealed class Aion2FrameDecoder
                 }
             }
 
-            _entities.SetLocalCharacter(new Aion2CharacterInfo((int)id, name, classCode, level, equipment, timestamp));
+            _entities.SetLocalCharacter(new Aion2CharacterInfo((int)id, name, classCode, level, equipment, timestamp,
+                ServerId: BinaryPrimitives.ReadUInt16LittleEndian(frame[after..])));
             return;
         }
     }

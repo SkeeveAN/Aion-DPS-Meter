@@ -575,7 +575,7 @@ internal static class Program
 
         if ((source.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter is { } character)
         {
-            Console.WriteLine($"aion2-replay: character {character.Name}, class code {character.ClassCode}, level {character.Level}, {character.Equipment.Count} equipped item(s)");
+            Console.WriteLine($"aion2-replay: character {character.Name}, class code {character.ClassCode}, level {character.Level}, {character.Equipment.Count} equipped item(s), server id {character.ServerId} = {Aion2.Protocol.Aion2Servers.NameOf(character.ServerId)}");
             var directory2 = (Aion2.Aion2EntityDirectory)source.Entities;
             foreach (var item in directory2.LocalEquipment)
             {

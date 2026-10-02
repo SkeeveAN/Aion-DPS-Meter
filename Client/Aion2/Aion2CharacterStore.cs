@@ -9,6 +9,7 @@ public sealed class Aion2SavedCharacter
     public string Name { get; set; } = "";
     public int ClassCode { get; set; }
     public int Level { get; set; }
+    public int ServerId { get; set; }
     public DateTime SavedAt { get; set; }
     public List<SavedItem> Equipment { get; set; } = new();
     public List<SavedSkill> Skills { get; set; } = new();

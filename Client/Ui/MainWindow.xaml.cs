@@ -2589,11 +2589,17 @@ public partial class MainWindow : Window
     private static string ServerSlug(string name) =>
         System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
 
-    /// <summary>The Aion 2 server of the uploader: the server of the registered Aion 2 character that
+    /// <summary>The Aion 2 server of the uploader: the server id in the game's own character record, else the server of the registered Aion 2 character that
     /// has the name the game sent for the own character, else Settings' server when it is an Aion 2
     /// one, else null.</summary>
     private string? Aion2ServerName(MeterSettings settings)
     {
+        // The game tells the server itself: the own character record carries its server id.
+        if ((_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter is { ServerId: > 0 } withServer)
+        {
+            return Aion2.Protocol.Aion2Servers.NameOf(withServer.ServerId);
+        }
+
         string? own = (_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter?.Name;
         string? registered = own is null
             ? null
@@ -2608,7 +2614,7 @@ public partial class MainWindow : Window
 
     private string ServerNotIdentified =>
         MeterSettings.Load().Game == GameKind.Aion2
-            ? "Your Aion 2 server is not set - upload refused rather than file your run under the wrong server. Settings > Characters: add your Aion 2 character with its server (for example Europe - Kaisinel)."
+            ? "The game has not told the meter your Aion 2 server yet - log in (or change map) with the meter running, then try again. Upload refused rather than file your run under the wrong server."
             : ServerNotIdentifiedMessage;
 
     private const string ServerNotIdentifiedMessage =

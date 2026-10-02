@@ -18,7 +18,7 @@ public sealed record Aion2DaevanionBoard(int BoardId, IReadOnlyList<int> NodeIds
 
 /// <summary>The local player's character record (opcode 0x3336), as of when the server last sent it
 /// - at login and on every zone change.</summary>
-public sealed record Aion2CharacterInfo(int CombatId, string Name, int ClassCode, int Level, IReadOnlyList<Aion2EquippedItem> Equipment, DateTime ReceivedAt, bool Restored = false);
+public sealed record Aion2CharacterInfo(int CombatId, string Name, int ClassCode, int Level, IReadOnlyList<Aion2EquippedItem> Equipment, DateTime ReceivedAt, bool Restored = false, int ServerId = 0);
 
 /// <summary>Aion 2 frames carry the game's own object ids, so this maps those to names as nickname
 /// frames reveal them. The local player is whichever id the session frame names. Names that never
@@ -135,7 +135,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             }
 
             var equipment = saved.Equipment.Select(i => new Aion2EquippedItem(i.Slot, i.ItemId, i.Enchant)).ToList();
-            _character = new Aion2CharacterInfo(-1, saved.Name, saved.ClassCode, saved.Level, equipment, saved.SavedAt, Restored: true);
+            _character = new Aion2CharacterInfo(-1, saved.Name, saved.ClassCode, saved.Level, equipment, saved.SavedAt, Restored: true, ServerId: saved.ServerId);
             _fullEquipment = equipment;
             _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel)).ToList();
             _daevanion = saved.Daevanion.Select(b => new Aion2DaevanionBoard(b.Board, b.Nodes)).ToList();
@@ -157,6 +157,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 Name = c.Name,
                 ClassCode = c.ClassCode,
                 Level = c.Level,
+                ServerId = c.ServerId,
                 SavedAt = DateTime.Now,
                 Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
                 Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel)).ToList(),
