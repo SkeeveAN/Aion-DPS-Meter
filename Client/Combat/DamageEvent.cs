@@ -13,6 +13,8 @@ namespace AionDPS.Combat;
 /// LOCAL player only: measured across four logs of one fight, an observer's client marks roughly
 /// half of another player's crits (8,8% against the 19,0% that player's own client recorded), so a
 /// crit rate shown for anyone else is a floor, not a rate.</param>
+/// <param name="IsTick">A damage-over-time tick rather than a hit: it adds to the damage, but not to
+/// the hit count or crit rate (the Aion 2 combat analyzer counts a DoT skill's casts as its hits).</param>
 public readonly record struct DamageEvent(
     DateTime Timestamp,
     int SourceObjectId,
@@ -20,4 +22,5 @@ public readonly record struct DamageEvent(
     long Amount,
     bool IsHeal,
     string? Skill = null,
-    bool IsCritical = false);
+    bool IsCritical = false,
+    bool IsTick = false);

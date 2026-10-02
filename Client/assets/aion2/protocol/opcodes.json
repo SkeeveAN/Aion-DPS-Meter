@@ -18,7 +18,7 @@
     "and the in-game combat log. Framing is a LEB128 varint length: a record is length+prefixBytes-4 bytes",
     "long, the decoder sees it without the prefix, opcode = first 2 bytes big-endian. Frames with opcode 0xFFFF are bundles (u32 LE size + LZ4 block of further frames); only the damage",
     "frame (0x0438) is decoded so far, by the built-in layout named in damageLayout (see",
-    "Aion2FrameDecoder.DecodeVarintDamage). Not yet decoded: nickname/session (local player and names),",
+    "Aion2FrameDecoder.DecodeVarintDamage). 2026-10-02: damage-over-time ticks (0x0538) by dotLayout (Aion2FrameDecoder.DecodeVarintDot), entity hit points (0x008d) by hpLayout (Aion2FrameDecoder.DecodeHp). Not yet decoded: nickname/session (local player and names),",
     "DoT, heal-on-others, kill, hp, zone - candidates are noted in the project memory.",
     "syncOpcodes: all 330 opcodes seen in the captures so far (including those that occur once, such as the login lists, so a connection that starts with the login block can still be synchronised), nested bundle contents included. Used only to find a frame boundary when a capture starts mid-connection; normal operation accepts any opcode."
   ],
@@ -29,6 +29,8 @@
   ],
   "damageLayout": "varint-v1",
   "nicknameLayout": "varint-v1",
+  "dotLayout": "varint-v1",
+  "hpLayout": "varint-v1",
   "bundleOpcode": 65535,
   "syncOpcodes": [
     54,
@@ -379,9 +381,13 @@
     "damage": [
       1080
     ],
-    "dot": [],
+    "dot": [
+      1336
+    ],
     "heal": [],
-    "hpUpdate": [],
+    "hpUpdate": [
+      141
+    ],
     "nickname": [
       17718
     ],

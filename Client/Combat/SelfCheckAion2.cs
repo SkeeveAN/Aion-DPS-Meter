@@ -27,6 +27,16 @@ public static class SelfCheckAion2
         ok &= RunAion2ProtocolScenario();
         ok &= RunAion2RealCaptureScenario();
         ok &= RunAion2BundleScenario();
+        ok &= RunAion2NoDamageFrameScenario();
+        ok &= RunAion2SummonOwnerScenario();
+        ok &= RunAion2NamedSummonScenario();
+        ok &= RunAion2GuildScenario();
+        ok &= RunAion2ShieldIsNoSummonScenario();
+        ok &= RunAion2TwoSorcerersScenario();
+        ok &= RunAion2DotTickScenario();
+        ok &= RunAion2HitPointsScenario();
+        ok &= RunHpCheckScenario();
+        ok &= RunAion2SoloLocalNameScenario();
         ok &= RunAion2NamesScenario();
         ok &= RunAion2MidStreamScenario();
         ok &= RunAion2CharacterScenario();
@@ -128,13 +138,15 @@ public static class SelfCheckAion2
     }
 
     /// <summary>A real bundle frame (opcode 0xFFFF, LZ4 block) from the same capture: twenty inner
-    /// frames of which ten are damage. Before bundles were unpacked those hits were silently
-    /// missing - roughly 40 % of all damage frames in a real session.</summary>
+    /// frames of which ten use the damage opcode and four are real hits (the other six are the
+    /// no-damage companion frames, see <see cref="RunAion2NoDamageFrameScenario"/>). Before bundles
+    /// were unpacked those hits were silently missing - roughly 40 % of all damage frames in a real
+    /// session.</summary>
     private static bool RunAion2BundleScenario()
     {
         Console.WriteLine("[selftest] Aion 2 bundle frame (LZ4) from a real capture:");
         const string bundleHex = "ffff08020000ff13200438b81c0400ec1b5e7d14011a02c3f8006c01000000c24e87080100200438f81b1d000150c40701001e1d0015003a0015c43a000c1b002700c51b004f200438ea53000212cd53001fea530007071b000c53001fe153000212b353001fe1530007071b00095300f100332a38f81b011335ade5cc0ae02e0001006065a020f4a0019e00f0090c5e7d1401004f576fc60aa7724600c021440d0e92f81b012e0090160538f81b09ec1b354a0120c00b2a0080332a38ea1b0113391f000f4d001415ea4d0010ea4d0010394d00118d77004f332a38e19a001c15e14d0010e14d00019a0011854d00b00e0036857120f4a0010000";
-        long[] expected = { 1031, 964, 1, 1, 973, 1, 1, 947, 1, 1 };
+        long[] expected = { 1031, 964, 973, 947 };
 
         // LZ4 sanity: a literal-only block round-trips, a bad back-reference is rejected.
         bool lz4Literal = Aion2Lz4.TryDecompress(new byte[] { 0x30, 1, 2, 3 }, 3, out byte[] lit) && lit.SequenceEqual(new byte[] { 1, 2, 3 });
@@ -165,6 +177,540 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> all {expected.Length} damage frames inside the bundle are decoded with their real amounts: {amounts}");
         Console.WriteLine($"  -> they belong to one actor: {oneActor}");
         return lz4Literal && lz4Rejects && bundleKnown && amounts && oneActor;
+    }
+
+    /// <summary>
+    /// Damage-opcode frames whose first flag byte lacks bit 0x04 carry no damage block - only a 1-4
+    /// "amount" that is really a counter. Real frames from a Krao Cave capture (2026-10-02, Ultimate
+    /// Berk, a Spiritmaster): each real hit is followed by one or two such frames, and counting them
+    /// doubled the hit counts (Combustion 68 instead of the 35 the in-game combat analyzer showed,
+    /// Elemental Fusion 8 instead of 4) and diluted every crit rate.
+    /// </summary>
+    private static bool RunAion2NoDamageFrameScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 damage-opcode frames without a damage block (real Krao Cave frames):");
+        (string Hex, long? Amount, bool Crit, string Skill)[] frames =
+        {
+            ("0438E1AD010600C522E0B7F80011020000028BD3276101000000A85ADA3E0100", 8026, false, "Elemental Fusion"),
+            ("0438C5220000C522E2B7F8000F0253D4276101000000A85A0100", null, false, "Elemental Fusion"),
+            ("0438C5220000C522E0B7F800110295D3276102000000A85A0200", null, false, "Elemental Fusion"),
+            ("0438A5C7012600C522102DF90036030000014B9A556101000000A85A8D1701A7020100", 2957, true, "Dimensional Control"),
+            ("0438E1AD010000C522102DF90014024C9A556101000000A85A0100", null, false, "Dimensional Control"),
+            ("0438A9A6010400C522E046F6009D038BAF336001000000A85AA50F0100", 1957, true, "Jointstrike: Curse"),
+            ("0438A9A6010000C522E046F6009D028DAF336001000000A85A0100", null, false, "Jointstrike: Curse"),
+            ("0438A9A6010000C52240C0F40072020D199B5F01000000A85A0100", null, false, "Combustion"),
+            ("043885AE010400D92440C0F40009020B199B5F010000009656E7040100", 615, false, "Combustion"),
+        };
+
+        var wire = new List<byte>();
+        foreach (var f in frames)
+        {
+            byte[] body = Convert.FromHexString(f.Hex);
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        source.Ingest(Segment(5000, wire.ToArray()));
+        CombatBatch batch = source.Poll(false);
+
+        var hits = frames.Where(f => f.Amount is not null).ToList();
+        bool onlyHits = batch.Damage.Count == hits.Count;
+        bool all = onlyHits;
+        for (int i = 0; onlyHits && i < hits.Count; i++)
+        {
+            DamageEvent ev = batch.Damage[i];
+            bool match = ev.Amount == hits[i].Amount && ev.IsCritical == hits[i].Crit && ev.Skill == hits[i].Skill && !ev.IsHeal;
+            Console.WriteLine($"  -> hit {i}: {ev.Skill} {ev.Amount}{(ev.IsCritical ? " crit" : "")} (expected {hits[i].Skill} {hits[i].Amount}): {match}");
+            all &= match;
+        }
+
+        Console.WriteLine($"  -> {frames.Length} frames, only the {hits.Count} with a damage block become hits ({batch.Damage.Count}): {onlyHits}");
+        return all;
+    }
+
+    /// <summary>
+    /// Summoned spirits get a new entity id at every summon; their spawn frame names the summoner.
+    /// Real frames from a Canyon Urugugu capture (2026-10-02, Divine Auldor) with three
+    /// Spiritmasters in the party: a Water Spirit of Destinyy (id 10894) and a Fire Spirit of the
+    /// local player (id 3279). Their hits must land on their summoners - the in-game combat analyzer
+    /// lists them under the player, and with this the local player's 320 hits / 48 % crit / per-skill
+    /// totals on Auldor match it exactly. A monster names itself as owner, which also clears a
+    /// summon whose id the server hands out again.
+    /// </summary>
+    private static bool RunAion2SummonOwnerScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 summoned spirits credited to their summoner (real Canyon Urugugu frames):");
+        const string waterSpiritSpawn = "4136A5AE011F1000C18E2C0000020028A04500788245008031440E86B1437AFC01DF28DF2819070000190700000000000000000000000000005892010064000000F04902000100000000000000A08601000000000090D00300010111010F329A09FFFFFFFFFFFFFFFF8075D52ABB0300008E5509022B5A9B45CADA7B4590C525440702068E2A000002CD00C4040000D0003D0100001E000000E31D030000";
+        const string fireSpiritSpawn = "4136B7DD011F1000B28E2C00400200E8E44500F06B4500806C443AAF7D4366B40198639863630B0000630B000000000000000000000000000060B2010064000000F04902000100000000000000A08601000000000000E20400010101110144AA9809FFFFFFFFFFFFFFFF8075D52ABB030000CF190E02FB71E7451296784571BE6044070206CF0C000002CD005A000000D000300100002D000000DD1D030000";
+        const string waterSpiritHit = "0438EC91010600A5AE01BB86010002020000024FA09800010000009E5A690100";
+        const string waterSpiritSpawnHeal = "0438A5AE010400A5AE01343F030101025CB04465010000009E5AB0DB060100";
+        const string fireSpiritCrit = "0438EC91012600B7DD01AE8601000503000002D99A980001000000C0528B0501410100";
+        // The same spawn frame with the owner field naming the entity itself: an ordinary monster.
+        string reusedAsMonster = waterSpiritSpawn.Replace("8075D52ABB0300008E55", "8075D52ABB030000A5AE01", StringComparison.Ordinal);
+
+        static byte[] Wire(params string[] hexes)
+        {
+            var wire = new List<byte>();
+            foreach (string hex in hexes)
+            {
+                byte[] body = Convert.FromHexString(hex);
+                int length = body.Length + 4;
+                while (length >= 0x80)
+                {
+                    wire.Add((byte)(length & 0x7f | 0x80));
+                    length >>= 7;
+                }
+
+                wire.Add((byte)length);
+                wire.AddRange(body);
+            }
+
+            return wire.ToArray();
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        byte[] first = Wire(waterSpiritSpawn, fireSpiritSpawn, waterSpiritHit, waterSpiritSpawnHeal, fireSpiritCrit);
+        source.Ingest(Segment(7000, first));
+        CombatBatch batch = source.Poll(false);
+
+        bool owners = dir.SummonOwnerOf(22309) == 10894 && dir.SummonOwnerOf(28343) == 3279;
+        bool waterToDestinyy = batch.Damage.Count == 2 && batch.Damage[0].SourceObjectId == 10894 && batch.Damage[0].Amount == 105 && !batch.Damage[0].IsHeal;
+        bool spawnHealDropped = batch.Damage.Count == 2 && !batch.Damage.Any(d => d.IsHeal);
+        bool fireToLocal = batch.Damage.Count == 2 && batch.Damage[1].SourceObjectId == 3279 && batch.Damage[1].Amount == 651 && batch.Damage[1].IsCritical;
+
+        source.Ingest(Segment(7000 + (uint)first.Length, Wire(reusedAsMonster, waterSpiritHit)));
+        CombatBatch after = source.Poll(false);
+        bool reuseCleared = dir.SummonOwnerOf(22309) is null && after.Damage.Count == 1 && after.Damage[0].SourceObjectId == 22309;
+
+        Console.WriteLine($"  -> spawn frames name the summoners (Destinyy 10894, local 3279): {owners}");
+        Console.WriteLine($"  -> the Water Spirit's 105 is credited to Destinyy: {waterToDestinyy}");
+        Console.WriteLine($"  -> the spirit's own spawn heal is no heal of its summoner's: {spawnHealDropped}");
+        Console.WriteLine($"  -> the Fire Spirit's 651 crit is credited to the local player: {fireToLocal}");
+        Console.WriteLine($"  -> the id respawning as a monster is no longer anybody's summon: {reuseCleared}");
+        return owners && waterToDestinyy && spawnHealDropped && fireToLocal && reuseCleared;
+    }
+
+    /// <summary>
+    /// Damage-over-time ticks (opcode 0x0538), real frames from the Krao Cave capture (2026-10-02,
+    /// Ultimate Berk). Without them the local player's Jointstrike: Curse read 9,367 (its direct
+    /// hits only) against the in-game analyzer's 21,547; its 23 ticks add exactly the missing
+    /// 12,180. Only ticks with a damage amount and a skill id, dealt to someone else, count.
+    /// </summary>
+    private static bool RunAion2DotTickScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 damage-over-time ticks (real Krao Cave frames):");
+        (string Hex, long? Amount, int Actor, int Target, string? Skill)[] frames =
+        {
+            ("0538D490020AC522108BAF3360A804E046F600", 552, 4421, 34900, "Jointstrike: Curse"),
+            ("0538D490020AD924248BAF3360C901E046F600", 201, 4697, 34900, "Jointstrike: Curse"),
+            ("0538C5220AD49002F402E71327076AE0771B00", 106, 34900, 4421, null),
+            // A player's tick on itself (flags 0x0B: damage, heal and skill fields) - not damage dealt.
+            ("0538833A0B833A91015FB2FC0BFF03AA01DDAF1E00", null, 0, 0, null),
+            // Heal-only (0x09) and no-amount (0x08) ticks.
+            ("0538D92409833A240BED006CBA02407D1401", null, 0, 0, null),
+            // A Chanter's Recuperation on a party member: the same 0x0a shape as a damage tick, but
+            // a heal - once counted as damage, it made the whole party read as enemies.
+            ("0538D9240A833A490BED006C4D407D1401", null, 0, 0, null),
+            // The same Recuperation as a direct hit on a member the meter has not seen cast yet.
+            ("0438D9240400833A407D140105020BED006C010000008256B4020100", null, 0, 0, null),
+            ("0538C52208C522EC0195D32761E2B7F800", null, 0, 0, null),
+        };
+
+        var wire = new List<byte>();
+        foreach (var f in frames)
+        {
+            byte[] body = Convert.FromHexString(f.Hex);
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        source.Ingest(Segment(6000, wire.ToArray()));
+        CombatBatch batch = source.Poll(false);
+
+        var ticks = frames.Where(f => f.Amount is not null).ToList();
+        bool recuperationIsHeal = batch.Damage.Count(e => e.IsHeal && !e.IsTick && e.Skill == "Recuperation" && e.Amount == 308) == 1;
+        batch = batch with { Damage = batch.Damage.Where(e => !e.IsHeal).ToList() };
+        bool onlyTicks = batch.Damage.Count == ticks.Count;
+        bool all = onlyTicks;
+        for (int i = 0; onlyTicks && i < ticks.Count; i++)
+        {
+            DamageEvent ev = batch.Damage[i];
+            bool match = ev.Amount == ticks[i].Amount && ev.SourceObjectId == ticks[i].Actor && ev.TargetObjectId == ticks[i].Target && !ev.IsHeal && ev.IsTick
+                && (ticks[i].Skill is null || ev.Skill == ticks[i].Skill);
+            Console.WriteLine($"  -> tick {i}: {ev.SourceObjectId} -> {ev.TargetObjectId} {ev.Skill} {ev.Amount} (expected {ticks[i].Actor} -> {ticks[i].Target} {ticks[i].Amount}): {match}");
+            all &= match;
+        }
+
+        // Jointstrike: Curse on Ultimate Berk as the in-game analyzer lists it: 6 hits, 21,547 damage
+        // (here: two casts and three ticks) - the ticks raise the total, not the hit count.
+        DateTime at = new(2026, 10, 2, 11, 52, 4);
+        var curse = new List<DamageEvent>
+        {
+            new(at, 4421, 34900, 1739, false, "Jointstrike: Curse", IsCritical: true),
+            new(at.AddSeconds(10), 4421, 34900, 1957, false, "Jointstrike: Curse"),
+            new(at.AddSeconds(1), 4421, 34900, 552, false, "Jointstrike: Curse", IsTick: true),
+            new(at.AddSeconds(2), 4421, 34900, 552, false, "Jointstrike: Curse", IsTick: true),
+            new(at.AddSeconds(11), 4421, 34900, 528, false, "Jointstrike: Curse", IsTick: true),
+        };
+        SkillUsage usage = SkillBreakdown.For(curse).Single();
+        bool ticksNotHits = usage.Hits == 2 && usage.CritHits == 1 && usage.Total == 1739 + 1957 + 552 + 552 + 528 && usage.Min == 1739 && usage.Max == 1957;
+
+        Console.WriteLine($"  -> {frames.Length} tick frames, only the {ticks.Count} damage ticks dealt to another entity count ({batch.Damage.Count}): {onlyTicks}");
+        Console.WriteLine($"  -> in the skill breakdown ticks add to the total but not to hits/crits/min/max: {ticksNotHits}");
+        Console.WriteLine($"  -> a Recuperation hit on a member not yet seen casting is a heal, not damage: {recuperationIsHeal}");
+
+        // Recuperation's own ticks, rebuilt from the values logged on the Krao Cave capture: announced 334 (0x09), then 83 per tick (0x0b) while
+        // the amount field counts down what is left - each tick is a heal of 83.
+        string[] hot =
+        {
+            "0538862D09833A240BED006CCE02407D1401",
+            "0538862D0B833A240BED006CFB0153407D1401",
+            "0538862D0B833A240BED006CA80153407D1401",
+        };
+        var hotWire = new List<byte>();
+        foreach (string hex in hot)
+        {
+            byte[] body = Convert.FromHexString(hex);
+            hotWire.Add((byte)(body.Length + 4));
+            hotWire.AddRange(body);
+        }
+
+        using var hotSource = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        hotSource.Ingest(Segment(8000, hotWire.ToArray()));
+        var hotEvents = hotSource.Poll(false).Damage;
+        bool hotTicks = hotEvents.Count == 2 && hotEvents.All(e => e.IsHeal && e.IsTick && e.Amount == 83 && e.Skill == "Recuperation");
+        Console.WriteLine($"  -> Recuperation's ticks are heals of 83 each, the announcement is no heal: {hotTicks}");
+        return all && ticksNotHits && recuperationIsHeal && hotTicks;
+    }
+
+    /// <summary>
+    /// The hit-point frame (0x008d), real frames from the solo Krao Cave run with a wipe (2026-10-02):
+    /// Ultimate Berk worn down to 98,804, back to 123,000 under the same entity id for the retry,
+    /// then hit again. Also a player's frame that mixes 4-byte stats with the 8-byte hit points, and
+    /// a stats-only frame that carries no hit points at all.
+    /// </summary>
+    private static bool RunAion2HitPointsScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 hit points and boss reset (real Krao Cave frames):");
+        DateTime t = new(2026, 10, 2, 12, 48, 45, DateTimeKind.Local);
+        (double Seconds, string Hex)[] frames =
+        {
+            (0.0, "008DCE8D0102010008DD010000000000"),   // Berk 122,120
+            (34.2, "008DCE8D01020100F481010000000000"),  // Berk 98,804 - the failed attempt ends
+            (34.8, "008DCE8D0102010078E0010000000000"),  // Berk 123,000 - reset for the retry
+            (56.8, "008DCE8D0102010093DD010000000000"),  // Berk 122,259
+            (57.0, "008DCF19030201900A000003D89E01000100BD24000000000000"), // player 3279: 9,405 among 4-byte stats
+            (57.1, "008DCF19030508CD0700000A60B201000BF04902000CA08601000D00E2040001075B1B000000000000"), // no current HP
+        };
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        uint seq = 4000;
+        foreach (var (seconds, hex) in frames)
+        {
+            byte[] body = Convert.FromHexString(hex);
+            byte[] record = new byte[body.Length + 1];
+            record[0] = (byte)(body.Length + 4);
+            body.CopyTo(record, 1);
+            source.Ingest(new TcpSegment(t.AddSeconds(seconds), "10.0.0.1:7777", "192.168.0.2:50000", seq, record, FromServer: true));
+            seq += (uint)record.Length;
+        }
+
+        const int Berk = 18126;
+        var berk = dir.HitPoints.SamplesAround(Berk, t, t.AddMinutes(1));
+        bool readings = berk.Select(s => s.Hp).SequenceEqual(new long[] { 122_120, 98_804, 123_000, 122_259 });
+        bool maximum = dir.HitPoints.HighestSeen(Berk) == 123_000;
+        bool oneReset = dir.HitPoints.ResetsOf(Berk) is [var reset] && reset == t.AddSeconds(34.8);
+        var player = dir.HitPoints.SamplesAround(3279, t, t.AddMinutes(1));
+        bool playerHp = player.Count == 1 && player[0].Hp == 9_405;
+
+        Console.WriteLine($"  -> Berk's readings 122,120 / 98,804 / 123,000 / 122,259: {readings}");
+        Console.WriteLine($"  -> highest seen = its full health, 123,000: {maximum}");
+        Console.WriteLine($"  -> exactly one reset, when it came back to full for the retry: {oneReset}");
+        Console.WriteLine($"  -> a player's hit points behind 4-byte stats (9,405), a stats-only frame adds nothing: {playerHp}");
+        return readings && maximum && oneReset && playerHp;
+    }
+
+    /// <summary>
+    /// The guard against wrong totals, on Ultimate Berk's real hit points from the solo Krao Cave
+    /// retry (2026-10-02): 122,259 -> 103,698 -> 0. Hits that add up to what it lost match; the same
+    /// hits counted twice, or a missing hit, are called out; and both attempts summed together (the
+    /// old merge) are flagged as more damage than the boss has hit points.
+    /// </summary>
+    private static bool RunHpCheckScenario()
+    {
+        Console.WriteLine("[selftest] HP check (counted damage against hit points lost, real Berk readings):");
+        const int Berk = 18126, You = 11707;
+        DateTime t = new(2026, 10, 2, 12, 49, 42, 518, DateTimeKind.Local);
+        var readings = new List<(DateTime, long)> { (t, 122_259), (t.AddSeconds(2.2), 103_698), (t.AddSeconds(15), 0) };
+        var hits = new List<DamageEvent>
+        {
+            new(t, You, Berk, 741, false),                  // already in the first reading
+            new(t.AddSeconds(1), You, Berk, 12_487, false),
+            new(t.AddSeconds(2.2), You, Berk, 6_074, false), // same packet as the second reading
+            new(t.AddSeconds(15), You, Berk, 108_000, false), // the killing blow, overkill included
+        };
+
+        HpCheckResult? match = HpCheck.Evaluate(readings, hits, 123_000);
+        HpCheckResult? doubled = HpCheck.Evaluate(readings, hits.Append(hits[1]).ToList(), 123_000);
+        HpCheckResult? missing = HpCheck.Evaluate(readings, hits.Where((_, i) => i != 1).ToList(), 123_000);
+        var merged = hits.Prepend(new DamageEvent(t.AddSeconds(-50), You, Berk, 24_196, false)).ToList();
+        HpCheckResult? overFull = HpCheck.Evaluate(readings, merged, 123_000);
+
+        bool matchOk = match is { Verdict: HpCheckVerdict.Match, Lost: 18_561, Counted: 18_561, Killed: true, OverFullHealth: false };
+        bool doubledOk = doubled is { Verdict: HpCheckVerdict.Excess };
+        bool missingOk = missing is { Verdict: HpCheckVerdict.Missing };
+        bool overFullOk = overFull is { OverFullHealth: true };
+        bool noReadings = HpCheck.Evaluate(new List<(DateTime, long)>(), hits, 0) is null;
+
+        // A shield phase (Transcendent Bakarma, 2026-10-02 23:09): no reading for 15 s, 976 HP
+        // lost while 252,502 damage was shown - the game counts it, the check sets it aside.
+        var phaseReadings = new List<(DateTime, long)> { (t, 1_000_000), (t.AddSeconds(1), 990_000), (t.AddSeconds(16), 989_024), (t.AddSeconds(17), 979_024) };
+        var phaseHits = new List<DamageEvent>
+        {
+            new(t, You, Berk, 500, false),
+            new(t.AddSeconds(0.5), You, Berk, 10_000, false),
+            new(t.AddSeconds(8), You, Berk, 252_502, false),
+            new(t.AddSeconds(17), You, Berk, 10_000, false),
+        };
+        bool phaseOk = HpCheck.Evaluate(phaseReadings, phaseHits, 1_000_000) is { Verdict: HpCheckVerdict.Match, Shielded: 252_502, OverFullHealth: false };
+
+        Console.WriteLine($"  -> 18,561 HP lost between two readings, 18,561 counted: match, kill seen: {matchOk}");
+        Console.WriteLine($"  -> a hit counted twice reads as too much: {doubledOk}; a missed hit as too little: {missingOk}");
+        Console.WriteLine($"  -> the failed attempt summed in: more damage than the boss's 123,000 HP: {overFullOk}");
+        Console.WriteLine($"  -> no hit-point readings, no verdict: {noReadings}");
+        Console.WriteLine($"  -> damage during a shield phase (hit points frozen) set aside: {phaseOk}");
+        return matchOk && doubledOk && missingOk && overFullOk && noReadings && phaseOk;
+    }
+
+    /// <summary>Solo, the local player is only ever inferred (no party roster, no frame naming it):
+    /// its row must carry the name from Settings rather than "Player #id".</summary>
+    private static bool RunAion2SoloLocalNameScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 solo: the local player shows the configured name:");
+        var dir = new Aion2EntityDirectory();
+        dir.SetConfiguredLocalName("Boulenbouche");
+        dir.NoteClass(6326, "Elementalist");
+        bool named = dir.InferLocalPlayer() == 6326 && dir.NameFor(6326) == "Boulenbouche" && dir.IsLocalPlayer(6326);
+        Console.WriteLine($"  -> the only unnamed caster, 6326, is shown as Boulenbouche: {named}");
+
+        // In the open world strangers around are unnamed casters too, and one hitting more than you
+        // made the guess fail. Detailed stats go to the local player alone: real frames from the solo
+        // Krao Cave capture (entity 11707), after a stranger (9999) out-casts it ten to one.
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var crowd = (Aion2EntityDirectory)source.Entities;
+        crowd.SetConfiguredLocalName("Boulenbouche");
+        crowd.NoteClass(11707, "Elementalist");
+        for (int i = 0; i < 10; i++)
+        {
+            crowd.NoteClass(9999, "Ranger");
+        }
+
+        bool strangerWasGuessed = crowd.InferLocalPlayer() == 9999;
+        var wire = new List<byte>();
+        foreach (string hex in new[] { "008DBB5B010103508B0100", "008DBB5B010101500B0000", "008DBB5B01010612DF0400",
+                     "008DBB5B010103508B0100", "008DBB5B010101500B0000", "008DBB5B01010612DF0400" })
+        {
+            byte[] body = Convert.FromHexString(hex);
+            wire.Add((byte)(body.Length + 4));
+            wire.AddRange(body);
+        }
+
+        source.Ingest(Segment(9500, wire.ToArray()));
+        bool statsDecide = crowd.InferLocalPlayer() == 11707 && crowd.NameFor(11707) == "Boulenbouche" && crowd.NameFor(9999) == "Player #9999";
+        Console.WriteLine($"  -> in a crowd the detailed-stats frames pick the local player over a busier stranger: {strangerWasGuessed && statsDecide}");
+        return named && strangerWasGuessed && statsDecide;
+    }
+
+    /// <summary>
+    /// A Cleric's Divine Aura (Canyon Urugugu capture, 2026-10-02): its spawn frame names itself as
+    /// owner but carries the Cleric's name, "Psefon", right after the type bytes. Its hits must be
+    /// Psefon's once Psefon's id is known - they used to make an extra "Player #id" row.
+    /// </summary>
+    private static bool RunAion2NamedSummonScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 summon announced by its owner's name (real Divine Aura frames):");
+        const string auraSpawn = "4136C3CD011F000106507365666F6EC0902C00400200B8D3450090624500005F44D235EC41FF1401C620C620620800006208000000000000000000000000000010D0010064000000F04902000100000000000000A08601000000000090D00300010101110181969800FFFFFFFFFFFFFFFF8075D52ABB030000C3CD01010200B8D3450090624500005F44070206FE10000002CD00A0000000D000360100001E00000000";
+        const string auraHit = "0438EC91010600C3CD0150B00501020200000193D3386601000000BC50C2070100";
+        var wire = new List<byte>();
+        foreach (string hex in new[] { auraSpawn, auraHit })
+        {
+            byte[] body = Convert.FromHexString(hex);
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        dir.Register(4350, "Psefon");
+        source.Ingest(Segment(9900, wire.ToArray()));
+        var hits = source.Poll(false).Damage;
+        bool credited = hits.Count == 1 && hits[0].SourceObjectId == 4350 && hits[0].Amount == 962 && dir.SummonOwnerOf(26307) == 4350;
+        Console.WriteLine($"  -> the Divine Aura's 962 is Psefon's: {credited}");
+        return credited;
+    }
+
+    /// <summary>
+    /// A Sorcerer's summon, and a monster that only looks like one (Draupnir capture, 2026-10-02,
+    /// party with one Sorcerer, MaRio = 15422). Phantasmal Lakshmi (39081) strikes MaRio's Steel
+    /// Barrier: a tick frame naming the monster with MaRio's Sorcerer effect. That made Lakshmi
+    /// "MaRio's summon" and her blows on the party his damage. The Bittercold Wind (25323) that MaRio
+    /// summons next, hitting Lakshmi with a Sorcerer skill, is his.
+    /// </summary>
+    private static bool RunAion2ShieldIsNoSummonScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 shield tick vs Sorcerer summon (real Draupnir frames):");
+        const string lakshmiSpawn = "4136A9B1020C2200014123000002B9331CC7DC0BA3C6005C28C600600142001701E0C65BE0C65B640000006400000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000603110181969800FFFFFFFFFFFFFFFF8075D52ABB030000A9B1020128B9331CC7DC0BA3C6005C28C6110284969800FFFFFFFFFFFFFFFF8075D52ABB030000A9B10201B9331CC7DC0BA3C6005C28C61103BC060000FFFFFFFFFFFFFFFF8075D52ABB030000A9B10205B9331CC7DC0BA3C6005C28C601002D0000000301EE020000EE020000B67153BE00";
+        const string barrierTick = "0538BE780AA9B102C4020B535C5AEA02C052E700";
+        const string windSpawn = "4136EBC5011F00004B8E2C004002B9331CC7DC0BA3C6005C28C648E9AE43C3F801B645B6457A0D00007A0D0000000000000000000000000000508B010064000000F04902000100000000000000A08601000000000000E20400010101110181969800FFFFFFFFFFFFFFFF8075D52ABB030000EBC5010102B9331CC7DC0BA3C6005C28C60702063E3C000002CD008C050000D000310100002D00000000";
+        const string windHit = "0438A9B1021400EBC5018227E9000302D36E135B01000000F2529105010100";
+        var wire = new List<byte>();
+        foreach (string hex in new[] { lakshmiSpawn, barrierTick, windSpawn, windHit })
+        {
+            byte[] body = Convert.FromHexString(hex);
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        dir.Register(15422, "MaRio");
+        dir.NoteClass(15422, "Sorcerer");
+        dir.NoteParty(new[] { "MaRio" }, new DateTime(2026, 9, 22, 20, 0, 0, DateTimeKind.Utc));
+        source.Ingest(Segment(9900, wire.ToArray()));
+        var hits = source.Poll(false).Damage;
+        bool lakshmiStaysMonster = dir.SummonOwnerOf(39081) is null && dir.IsKnownMonster(39081)
+            && !hits.Any(h => h.SourceObjectId == 15422 && h.TargetObjectId == 15422);
+        bool windIsMaRios = hits.Any(h => h.SourceObjectId == 15422 && h.TargetObjectId == 39081 && h.Skill == "Bittercold Wind")
+            && dir.SummonOwnerOf(25323) == 15422;
+        Console.WriteLine($"  -> Lakshmi stays a monster: {lakshmiStaysMonster}, Bittercold Wind is MaRio's: {windIsMaRios}");
+        return lakshmiStaysMonster && windIsMaRios;
+    }
+
+    /// <summary>
+    /// Two Sorcerers in one party (Draupnir capture, 2026-10-02 23:00): Lumy (15882) and Aurulio
+    /// (16061) both summon Bittercold Winds on the same monster (46522). Each cast is announced by a
+    /// no-damage frame just before the wind appears, and each wind strikes with its owner's variant
+    /// of the skill (Lumy 1528024x, Aurulio 1528003x). Frames in capture order.
+    /// </summary>
+    private static bool RunAion2TwoSorcerersScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 two Sorcerers' summons (real Draupnir frames):");
+        const string monsterSpawn = "4136BAEB020C22000341230000028B6CCCC64DE0044600C8D7C50098B24300FE01E0C65BE0C65B640000006400000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000603110181969800FFFFFFFFFFFFFFFF8075D52ABB030000BAEB0201288B6CCCC64DE0044600C8D7C5110284969800FFFFFFFFFFFFFFFF8075D52ABB030000BAEB02018B6CCCC64DE0044600C8D7C51103BC060000FFFFFFFFFFFFFFFF8075D52ABB030000BAEB02058B6CCCC64DE0044600C8D7C501002D0000000301EE020000EE0200000E7253C500";
+        const string lumyCast = "0438BAEB0200008A7C7028E9004B02D5CB135B020000008A640200";
+        const string lumyWindSpawn = "4136FC80011F0000D2902C004002B1E2BDC649CAFD4500B8D8C5D61EC340560401D24BD24B5A0E00005A0E0000000000000000000000000000E4B5010064000000F04902000100000000000000A086010000000000CE180500010101110181969800FFFFFFFFFFFFFFFF8075D52ABB030000FC80010102B1E2BDC649CAFD4500B8D8C50702060A3E000002CD001A090000D000330100002D00000000";
+        const string lumyWindHit = "0438BAEB021400FC80017328E9000203F7CC135B010000008A64C30C010100";
+        const string aurulioCast = "0438BAEB020000BD7D9E27E900CF02CD79135B020000009E550200";
+        const string aurulioWindSpawn = "4136E3A3021F00000A8F2C004002B1E2BDC649CAFD4500B8D8C5E7420543C35E01EF3FEF3FD00E0000D00E0000000000000000000000000000508B010064000000F04902000100000000000000A08601000000000000E20400010101110181969800FFFFFFFFFFFFFFFF8075D52ABB030000E3A3020102B1E2BDC649CAFD4500B8D8C5070206BD3E000002CD00AA000000D0003C0100002D00000000";
+        const string aurulioWindHit = "0438BAEB020400E3A302A127E9000203EF7A135B010000009E55DC070100";
+        var wire = new List<byte>();
+        foreach (string hex in new[] { monsterSpawn, lumyCast, lumyWindSpawn, lumyWindHit, aurulioCast, aurulioWindSpawn, aurulioWindHit })
+        {
+            byte[] body = Convert.FromHexString(hex);
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        dir.Register(15882, "Lumy");
+        dir.Register(16061, "Aurulio");
+        dir.NoteClass(15882, "Sorcerer");
+        dir.NoteClass(16061, "Sorcerer");
+        dir.NoteParty(new[] { "Lumy", "Aurulio" }, new DateTime(2026, 9, 22, 20, 0, 0, DateTimeKind.Utc));
+        source.Ingest(Segment(9900, wire.ToArray()));
+        var hits = source.Poll(false).Damage;
+        bool lumys = hits.Any(h => h.SourceObjectId == 15882 && h.Skill == "Bittercold Wind") && dir.SummonOwnerOf(16508) == 15882;
+        bool aurulios = hits.Any(h => h.SourceObjectId == 16061 && h.Skill == "Bittercold Wind") && dir.SummonOwnerOf(37347) == 16061;
+        Console.WriteLine($"  -> Lumy's wind is Lumy's: {lumys}, Aurulio's wind is Aurulio's: {aurulios}");
+        return lumys && aurulios;
+    }
+
+    /// <summary>
+    /// A player's guild on a server other than Kaisinel (Draupnir capture, 2026-10-02 22:35): the
+    /// nickname frame of Miliria (16372) carries her server id 1303 (17 05) and her guild
+    /// "Convèrgence" further on. The frame is its real prefix, cut after the guild name.
+    /// </summary>
+    private static bool RunAion2GuildScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 guild behind the server id (real Draupnir nickname frame, server 1303):");
+        const string nickname = "4536F47F0320A00107074D696C697269611E00000001028012869FD3C63950104700CB0947753F804366B601F142F1420A0C00000A0C00000000000000000000B0940100B094010000000000F049020001000000A0860100A086010084DE010000E2040001000000017FD3CC011705EA000000000017050C436F6E76C3A87267656E636501000200";
+        byte[] body = Convert.FromHexString(nickname);
+        var wire = new List<byte>();
+        int length = body.Length + 4;
+        while (length >= 0x80)
+        {
+            wire.Add((byte)(length & 0x7f | 0x80));
+            length >>= 7;
+        }
+
+        wire.Add((byte)length);
+        wire.AddRange(body);
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        source.Ingest(Segment(9900, wire.ToArray()));
+        source.Poll(false);
+        bool ok = dir.NameFor(16372) == "Miliria" && dir.GuildOf(16372) == "Convèrgence";
+        Console.WriteLine($"  -> Miliria of guild Convèrgence: {ok}");
+
+        // A player without a guild (Jungkook, 3999, Draupnir capture 23:00): no guild run in the frame, and the
+        // bytes near its end that look like "server id + name" ("odd") are no guild.
+        const string noGuild = "45369F1F0530A40107084A756E676B6F6F6B1100000001010892A84BE347FD81C3C7C01134467AE0B0438FFB181395443D8802C398BFCF4101B41ACD4E64090000640900000000000000000000B8B40100B8B4010048580000F049020001000000A0860100A08601000A1400005C120500017FD3CC01A96B220117050A1111E1FA2B08FFFFFFFFFFFFFFFF8075D52ABB0300009F1F04001E0CD147F387324700FEDA461116019C3308FFFFFFFFFFFFFFFF8075D52ABB0300009F1F031E0CD147F387324700FEDA46111D41A93608FFFFFFFFFFFFFFFF8075D52ABB0300009F1F031E0CD147F387324700FEDA46111E61153208FFFFFFFFFFFFFFFF8075D52ABB0300009F1F081E0CD147F387324700FEDA461121E12F3808FFFFFFFFFFFFFFFF8075D52ABB0300009F1F021E0CD147F387324700FEDA46112281B63908FFFFFFFFFFFFFFFF8075D52ABB0300009F1F021E0CD147F387324700FEDA46112321082F08FFFFFFFFFFFFFFFF8075D52ABB0300009F1F031E0CD147F387324700FEDA46113B81812D08FFFFFFFFFFFFFFFF8075D52ABB0300009F1F0C7D39DF47E2B03AC700504C46113CC18E3008FFFFFFFFFFFFFFFF8075D52ABB0300009F1F08B87D39DF47E2B03AC700504C46119704A1223508FFFFFFFFFFFFFFFF8075D52ABB0300009F1F07C2A4DE472F4E3BC700304C460FB7A793060A0100000000000000000000000000030000000000000000000000000EB688890C0A0200000000000000005758CA010003000000000000000000000000BB0E570F8B0C000300000000000000002860CA0100030000000000000000000000000E787B860C000400000000000000001D0ECA010003000000000000000000000000BB0E1802880C000500000000000000001E0ECA0100030000000000000000000000000EF8958C0C00060000000000000000098FCA010003000000000000000000000000BB0E9E1C8E0C000700000000000000000000000000030000000000000000000000000E82CA8F0C000800000000000000002B60CA010003000000000000000000000000BB0E785C7C12000900000000000000000000000000030000000000000000000000000E1EE37D12000A0000000000000000000000000003000000000000000000000000BB0E25317E12000B00000000000000000000000000030000000000000000000000000E00000000000C0000000000000000000000000000BB0E00000000000D00000000000000000000000000000E00000000000E00000000000000000000000000007B0E00000000000F00000000000000000000000000000E0801409403000000170504CD003C000000CE0048F4FFFFD00037010000270248F4FFFF2900000000000000DE020000DE020C80646456646456643072646E6464641664647864646464647488644C64646464646464648C9794947C64645A64649C31646D799465206F3B64656464345465657952746F64655B6F786465977952649C799F30276488486C00006464646664646464646451977F6464646457B96C7201010201010264646479736766FF0026FF4D00220D0D271A1A64FFFFFFFFFFFF0000FFFFFF591C1C650202020202023C28660000006F32549A825EC766300F0683006773493C64006E6E5B1C0A3D3C006E8484846E6F0066260D0D460000680A0808500000006F571F1F6E6F00006E7E7E7E6F6F006F0100002900006A3D30233D000066380B0DAC0079056EFFFFFF6E6F0065200C083D6C190C036F6464650D0E0E";
+        byte[] noGuildBody = Convert.FromHexString(noGuild);
+        var noGuildWire = new List<byte>();
+        int noGuildLength = noGuildBody.Length + 4;
+        while (noGuildLength >= 0x80)
+        {
+            noGuildWire.Add((byte)(noGuildLength & 0x7f | 0x80));
+            noGuildLength >>= 7;
+        }
+
+        noGuildWire.Add((byte)noGuildLength);
+        noGuildWire.AddRange(noGuildBody);
+        source.Ingest(Segment(9900 + (uint)wire.Count, noGuildWire.ToArray()));
+        source.Poll(false);
+        bool none = dir.NameFor(3999) == "Jungkook" && dir.GuildOf(3999) is null;
+        Console.WriteLine($"  -> Jungkook without a guild gets none: {none}");
+        return ok && none;
     }
 
     /// <summary>Name, guild and local-player frames from real captures: the "player seen" frame
@@ -224,12 +770,14 @@ public static class SelfCheckAion2
         var partyEntities = (Aion2EntityDirectory)party.Entities;
         bool othersNamed = partyEntities.NameFor(3562) == "Pencilgon" && partyEntities.NameFor(3640) == "Boahancook" && partyEntities.NameFor(3553) == "Caramelly";
         bool localFromRoster = partyEntities.LocalPlayerId == 1086 && partyEntities.NameFor(1086) == "Aahz";
-        bool learned = partyEntities.LearnedLocalName == "Aahz";
+        // Shown, but not saved as the own name: only the own character record is trusted for that
+        // (a leftover guess once saved a team mate's name once the roster was read on every server).
+        bool learned = partyEntities.LearnedLocalName is null;
 
         Console.WriteLine($"  -> player-seen frame names the id and its guild (Aahz / Akatsuki): {seenNamed}");
         Console.WriteLine($"  -> the configured character name marks the local player: {configuredLocal}");
         Console.WriteLine($"  -> nickname frames name the other members: {othersNamed}");
-        Console.WriteLine($"  -> the roster's leftover name is the local player's (Aahz), and is learned: {localFromRoster && learned}");
+        Console.WriteLine($"  -> the roster's leftover name is the local player's (Aahz), shown but not saved: {localFromRoster && learned}");
         return seenNamed && configuredLocal && othersNamed && localFromRoster && learned;
     }
 

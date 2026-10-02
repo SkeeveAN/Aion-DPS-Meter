@@ -18,6 +18,11 @@ public sealed class Aion2FrameDecoder
     private readonly List<KillEvent> _kills = new();
     private readonly List<AvoidEvent> _avoids = new();
 
+    // For telling apart the summons of two players of one class (see GuessSummonOwner): when each
+    // entity appeared, and when each player last cast each skill variant (skill id / 10).
+    private readonly Dictionary<int, DateTime> _spawnedAt = new();
+    private readonly Dictionary<(int Caster, int Variant), DateTime> _lastCasts = new();
+
     public Aion2FrameDecoder(Aion2Protocol protocol, Aion2EntityDirectory entities)
     {
         _protocol = protocol;
@@ -28,6 +33,9 @@ public sealed class Aion2FrameDecoder
 
     public int SkippedShortFrames { get; private set; }
     public int UnknownOpcodes { get; private set; }
+
+    /// <summary>Damage-opcode frames without a damage block (see <see cref="DecodeVarintDamage"/>).</summary>
+    public int NoDamageFrames { get; private set; }
 
     public int Bundles { get; private set; }
     public int BundleFailures { get; private set; }
@@ -56,6 +64,11 @@ public sealed class Aion2FrameDecoder
         {
             case OpcodeFamily.Damage when string.Equals(_protocol.DamageLayout, "varint-v1", StringComparison.Ordinal):
                 return DecodeVarintDamage(frame, timestamp);
+            case OpcodeFamily.HpUpdate when string.Equals(_protocol.HpLayout, "varint-v1", StringComparison.Ordinal):
+                DecodeHp(frame, timestamp);
+                return Array.Empty<DamageEvent>();
+            case OpcodeFamily.Dot when string.Equals(_protocol.DotLayout, "varint-v1", StringComparison.Ordinal):
+                return DecodeVarintDot(frame, timestamp);
             case OpcodeFamily.Damage:
             case OpcodeFamily.Dot:
             case OpcodeFamily.Heal:
@@ -64,7 +77,7 @@ public sealed class Aion2FrameDecoder
                 DecodeVarintNickname(frame);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.Roster:
-                DecodeRoster(frame);
+                DecodeRoster(frame, timestamp);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.Equipment:
                 DecodeEquipment(frame);
@@ -82,7 +95,7 @@ public sealed class Aion2FrameDecoder
                 DecodeAppearance(frame);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.NpcSpawn:
-                DecodeNpcSpawn(frame);
+                DecodeNpcSpawn(frame, timestamp);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.Nickname:
                 DecodeNickname(frame, fields, layout.LittleEndian);
@@ -246,7 +259,7 @@ public sealed class Aion2FrameDecoder
     /// little-endian uint32 (verified on a Krao Cave run: 2300104 = Enhanced Harcon). Only boss ids
     /// are kept - see <see cref="Aion2BossCatalog"/>.
     /// </summary>
-    private void DecodeNpcSpawn(ReadOnlySpan<byte> frame)
+    private void DecodeNpcSpawn(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;
         if (!TryReadVarint(frame, ref p, out long entityId) || frame.Length < p + 7)
@@ -254,10 +267,110 @@ public sealed class Aion2FrameDecoder
             return;
         }
 
+        _spawnedAt[unchecked((int)entityId)] = timestamp;
+
+        // Two type bytes, then a flag: 1 = the entity carries a name (a summon's owner, e.g. a
+        // Cleric's Divine Aura announced as "Psefon"), length-prefixed, before the NPC id.
+        string? ownerName = null;
+        if (frame[p + 2] == 1 && TryReadName(frame, p + 3, out string named, minLength: 2))
+        {
+            ownerName = named;
+            p += 1 + named.Length;
+            if (frame.Length < p + 7)
+            {
+                return;
+            }
+        }
+
         p += 3;
         int npcId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
+        _entities.NoteSpawned(unchecked((int)entityId));
         _entities.RegisterNpc(unchecked((int)entityId), npcId);
+        _entities.SetSummonOwnerName(unchecked((int)entityId), ownerName);
+
+        // Further on: eight FF bytes, eight more bytes, then the owner's id (varint). An ordinary
+        // monster names itself there; a summoned spirit names the player who summoned it (verified on
+        // three Krao Cave / Urugugu captures, 2026-10-02: all 161 spirits resolved to the
+        // Spiritmaster casting their "Summon:" skills, three Spiritmasters in one party kept apart).
+        // A Cleric's Divine Aura names itself here, and its owner by name instead (above).
+        int marker = frame[(p + 4)..].IndexOf(OwnerMarker);
+        int q = marker < 0 ? -1 : p + 4 + marker + OwnerMarker.Length + 8;
+        if (q > 0 && q < frame.Length && TryReadVarint(frame, ref q, out long owner) && owner > 0)
+        {
+            _entities.SetSummonOwner(unchecked((int)entityId), owner == entityId ? null : unchecked((int)owner));
+        }
     }
+
+    /// <summary>
+    /// A summon whose spawn names no owner, neither by id nor by name (a Sorcerer's Bittercold Wind):
+    /// an entity the server announced as a monster that casts a class's skills is somebody's
+    /// summon, and when exactly one member of the party plays that class, it is theirs. Remembered
+    /// once found. With two players of the class nothing is guessed.
+    /// <para>Only a direct hit on a monster counts. Damage-over-time frames name a class skill next
+    /// to a monster too: a Sorcerer's Steel Barrier absorbing a monster's blow reads "monster X,
+    /// effect Steel Barrier, on the Sorcerer" - which once made a boss's add (Phantasmal Lakshmi)
+    /// the party Sorcerer's summon, its blows on the party his damage (Draupnir capture,
+    /// 2026-10-02).</para>
+    /// <para>Two players of the class: the summon strikes with the variant of the skill its owner
+    /// cast (skill id / 10 - talents pick the variant), and its owner cast it just before it
+    /// appeared. On a Draupnir run with two Sorcerers (2026-10-02 23:00), all 23 Bittercold Winds
+    /// fit both: Lumy cast 15280240 and her winds hit with 15280242/3, Aurulio cast 15280030 and
+    /// his hit with 15280032/3, each cast ~50 ms before the spawn. The variant decides; with the
+    /// same talents, the cast closest before the spawn (within two seconds) does.</para>
+    /// </summary>
+    private int? GuessSummonOwner(int actor, int skillId, int target)
+    {
+        if (!_entities.IsSpawned(actor) || !_entities.IsKnownMonster(target) || Aion2SkillNames.ClassOf(skillId) is not string className)
+        {
+            return null;
+        }
+
+        var owners = _entities.PartyMemberIdsOfClass(className).Where(id => id != actor).ToList();
+        int? owner = owners.Count switch
+        {
+            0 => null,
+            1 => owners[0],
+            _ => OwnerByCast(actor, skillId / 10, owners),
+        };
+        if (owner is int found)
+        {
+            _entities.SetSummonOwner(actor, found);
+        }
+
+        return owner;
+    }
+
+    private int? OwnerByCast(int summon, int variant, List<int> owners)
+    {
+        var casters = owners.Where(id => _lastCasts.ContainsKey((id, variant))).ToList();
+        if (casters.Count == 1)
+        {
+            return casters[0];
+        }
+
+        if (casters.Count == 0 || !_spawnedAt.TryGetValue(summon, out DateTime spawned))
+        {
+            return null;
+        }
+
+        var justBefore = casters
+            .Select(id => (Id: id, Gap: spawned - _lastCasts[(id, variant)]))
+            .Where(c => c.Gap >= TimeSpan.Zero && c.Gap <= TimeSpan.FromSeconds(2))
+            .OrderBy(c => c.Gap)
+            .ToList();
+        return justBefore.Count > 0 ? justBefore[0].Id : null;
+    }
+
+    /// <summary>A player's cast of a class skill, remembered for <see cref="OwnerByCast"/>.</summary>
+    private void NoteCast(int actor, int skillId, DateTime timestamp)
+    {
+        if (!_entities.IsSpawned(actor) && Aion2SkillNames.ClassOf(skillId) is not null)
+        {
+            _lastCasts[(actor, skillId / 10)] = timestamp;
+        }
+    }
+
+    private static ReadOnlySpan<byte> OwnerMarker => new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
     private IEnumerable<DamageEvent> DecodeVarintDamage(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
@@ -268,7 +381,24 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        // Bit 0x04 of the first flag byte says the frame carries a damage block. Without it the frame
+        // is a skill's companion notice (amount 1-4, often aimed at the caster itself), sent next to
+        // nearly every real hit: verified on two Krao Cave captures (2026-10-02) against the in-game
+        // combat analyzer, whose per-skill hit counts match only once these are left out.
+        int flags = frame[p];
         p += 2;
+        if ((flags & 0x04) == 0)
+        {
+            // Still a cast: a summoning skill is announced this way, just before its summon spawns.
+            NoDamageFrames++;
+            if (TryReadVarint(frame, ref p, out long caster) && frame.Length >= p + 4)
+            {
+                NoteCast(unchecked((int)caster), unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..])), timestamp);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
         if (!TryReadVarint(frame, ref p, out long actor) || frame.Length < p + 6)
         {
             SkippedShortFrames++;
@@ -277,6 +407,7 @@ public sealed class Aion2FrameDecoder
 
         int skillId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
         p += 4;
+        NoteCast((int)actor, skillId, timestamp);
         if (Aion2SkillNames.IsNonDamageEffect(skillId))
         {
             return Array.Empty<DamageEvent>();
@@ -307,9 +438,12 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        // A summoned spirit's hits are its summoner's, as in the game's own combat analyzer. The heal
+        // test below still looks at the spirit itself: its spawn "heal" targets its own id.
+        int source = _entities.SummonOwnerOf((int)actor) ?? GuessSummonOwner((int)actor, skillId, (int)target) ?? (int)actor;
         if (Aion2SkillNames.ClassOf(skillId) is string className)
         {
-            _entities.NoteClass((int)actor, className);
+            _entities.NoteClass(source, className);
         }
 
         // No "skill used" notification for the window: its handler (Chat.log's way of finding the
@@ -318,10 +452,154 @@ public sealed class Aion2FrameDecoder
         // player's class from the skill ids themselves (see Aion2EntityDirectory.NoteClass).
         string skill = Aion2SkillNames.NameOf(skillId);
 
-        // A heal-family skill aimed at its caster (Blood Absorption) or at another known player is a
-        // heal; the same skill aimed at anything else (a mob) stays damage.
-        bool isHeal = Aion2SkillNames.IsHealFamily(skillId) && (target == actor || _entities.IsKnownPlayer((int)target));
-        return new[] { new DamageEvent(timestamp, (int)actor, (int)target, amount, isHeal, skill, critical && !isHeal) };
+        // A heal-family skill is a heal unless it lands on a monster (Blood Absorption drains one).
+        // "A monster" means one the server announced: a player is only known once seen casting, so a
+        // Chanter's Recuperation on a member who had not cast yet used to read as damage between two
+        // players - and one such hit made the resolver paint the whole party as enemies.
+        bool isHeal = Aion2SkillNames.IsHealFamily(skillId) && !_entities.IsKnownMonster((int)target);
+
+        // A heal on a summon is not healing the group: a Spiritmaster's spirit arrives with a heal of
+        // its full health on itself (~56,000 per summon - 4.07 M over one Krao Cave run once spirits
+        // are credited to their summoner), and topping up one's spirits is not party healing either.
+        if (isHeal && _entities.SummonOwnerOf((int)target) is not null)
+        {
+            return Array.Empty<DamageEvent>();
+        }
+
+        return new[] { new DamageEvent(timestamp, source, (int)target, amount, isHeal, skill, critical && !isHeal) };
+    }
+
+    /// <summary>
+    /// A damage- or heal-over-time tick, sent once a second per running effect: opcode | target
+    /// (varint) | flags (1) | actor (varint) | stack (varint) | effect id (u32) | amount (varint, if
+    /// flags &amp; 0x02) | heal (varint, if flags &amp; 0x01) | skill id (u32 LE, if flags &amp; 0x08).
+    /// Every one of a capture's 556 tick frames parses to its exact length this way.
+    /// <para>Damage (flags 0x0a): the amount is the tick's damage - the 23 ticks of the local player's
+    /// Jointstrike: Curse on Ultimate Berk sum to 12,180, exactly what the in-game combat analyzer
+    /// adds on top of the casts' direct hits (Krao Cave capture, 2026-10-02).</para>
+    /// <para>Heal (flags 0x0b): the heal field is the tick's heal and the amount what is still to
+    /// come - a Chanter's Recuperation announced 334 (flags 0x09, heal only), then ticked 83 four
+    /// times while the amount ran 251, 168, 85, 2. So 0x0b ticks of a class's heal-family skill, or
+    /// of any skill one player keeps on another, are heals of the heal field; potions and other
+    /// classless effects are not counted.</para>
+    /// </summary>
+    private IEnumerable<DamageEvent> DecodeVarintDot(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long target) || p >= frame.Length)
+        {
+            SkippedShortFrames++;
+            return Array.Empty<DamageEvent>();
+        }
+
+        int flags = frame[p++];
+        if ((flags & 0x02) == 0 || (flags & 0x08) == 0)
+        {
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (!TryReadVarint(frame, ref p, out long actor) || !TryReadVarint(frame, ref p, out _) || frame.Length < p + 4)
+        {
+            SkippedShortFrames++;
+            return Array.Empty<DamageEvent>();
+        }
+
+        p += 4;
+        long healed = 0;
+        if (!TryReadVarint(frame, ref p, out long amount) || (flags & 0x01) != 0 && !TryReadVarint(frame, ref p, out healed) || frame.Length != p + 4)
+        {
+            SkippedShortFrames++;
+            return Array.Empty<DamageEvent>();
+        }
+
+        int skillId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
+
+        // No summon guess here (see GuessSummonOwner): a tick's class skill can be the target's own
+        // shield, the actor the monster striking it.
+        int source = _entities.SummonOwnerOf((int)actor) ?? (int)actor;
+
+        // A heal over time arrives in the damage tick's shape. Counting one as damage once made a
+        // Chanter "hit" every party member once a second and painted the whole party as enemies, so
+        // a heal-family skill, or any tick a player keeps on another player, is never damage; PvP
+        // damage-over-time between players will need a capture of its own.
+        if (Aion2SkillNames.IsHealFamily(skillId) || _entities.IsKnownPlayer(source) && _entities.IsKnownPlayer((int)target))
+        {
+            bool countedHeal = (flags & 0x01) != 0 && healed > 0 && healed <= MaxPlausibleAmount
+                && Aion2SkillNames.ClassOf(skillId) is not null && _entities.SummonOwnerOf((int)target) is null;
+            return countedHeal
+                ? new[] { new DamageEvent(timestamp, source, (int)target, healed, IsHeal: true, Aion2SkillNames.NameOf(skillId), IsTick: true) }
+                : Array.Empty<DamageEvent>();
+        }
+
+        if (amount <= 0 || amount > MaxPlausibleAmount || target == actor)
+        {
+            return Array.Empty<DamageEvent>();
+        }
+
+        return new[] { new DamageEvent(timestamp, source, (int)target, amount, IsHeal: false, Aion2SkillNames.NameOf(skillId), IsTick: true) };
+    }
+
+    /// <summary>
+    /// An entity's changed stats: opcode | entity (varint) | format (1) | if format &amp; 1: count (1)
+    /// and that many kind (1) + u32 LE | if format &amp; 2: count (1) and that many kind (1) + i64 LE.
+    /// Kind 0 of the 8-byte group is the current hit points. Verified on four captures (2026-10-02):
+    /// all 4,492 frames parse to their exact length, and for every boss the hit points plus the
+    /// damage decoded against it stay constant to the point (Ultimate Berk 615,000 in a party and
+    /// 123,000 solo, Divine Auldor 1,125,000). The other kinds are not identified yet; 8-byte kind 7
+    /// equals a boss's full health once but not a player's, so it is not taken as the maximum.
+    /// </summary>
+    private void DecodeHp(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long entityId) || p >= frame.Length)
+        {
+            SkippedShortFrames++;
+            return;
+        }
+
+        int format = frame[p++];
+        if ((format & 1) != 0)
+        {
+            // Detailed stats only ever go to the player they belong to - the local player.
+            _entities.NoteDetailedStats(unchecked((int)entityId));
+            if (p >= frame.Length)
+            {
+                SkippedShortFrames++;
+                return;
+            }
+
+            p += 1 + frame[p] * 5;
+        }
+
+        long? current = null;
+        if ((format & 2) != 0)
+        {
+            if (p >= frame.Length)
+            {
+                SkippedShortFrames++;
+                return;
+            }
+
+            int count = frame[p++];
+            for (int i = 0; i < count && p + 9 <= frame.Length; i++, p += 9)
+            {
+                if (frame[p] == 0)
+                {
+                    current = BinaryPrimitives.ReadInt64LittleEndian(frame[(p + 1)..]);
+                }
+            }
+        }
+
+        if (p != frame.Length || (format & ~3) != 0)
+        {
+            SkippedShortFrames++;
+            return;
+        }
+
+        if (current is long hp && hp >= 0)
+        {
+            _entities.HitPoints.Note(unchecked((int)entityId), timestamp, hp);
+        }
     }
 
     private static bool TryReadVarint(ReadOnlySpan<byte> data, ref int position, out long value)
@@ -361,14 +639,24 @@ public sealed class Aion2FrameDecoder
                 _entities.Register((int)id, name);
                 ReadSeenProfile(frame, (int)id, k + 1 + name.Length);
 
-                // The rest of the frame repeats the guild name behind the same 18 05 marker the
-                // roster uses; remember it so the roster's leftover name is the player's, not it.
-                for (int i = k + 1 + name.Length; i + 4 < frame.Length; i++)
+                // A player in a guild: further on, the frame carries server id (u16: 17 05 = 1303,
+                // 18 05 = 1304 Kaisinel) | guild id (u32, non-zero) | 00 00 | the same server id |
+                // the guild's length-prefixed name. Seen for all ten guilds of 71 nickname frames
+                // (Krao Cave and Draupnir captures, 2026-10-02: HORDE, ElyosOrden, Insomnia,
+                // Convèrgence, Freljord, DarkLegion...); a player without a guild has no such run,
+                // and reading any "server id + name" pair there picked up garbage ("odd",
+                // "jd47ddddep"). Remembered so the roster's leftover name is the player's, not the
+                // guild's.
+                for (int i = k + 1 + name.Length; i + 11 < frame.Length; i++)
                 {
-                    if (frame[i] == 0x18 && frame[i + 1] == 0x05 && TryReadName(frame, i + 2, out string other) && other != name)
+                    int server = frame[i] | frame[i + 1] << 8;
+                    if (server is >= 1000 and <= 9999 && frame[i + 8] == frame[i] && frame[i + 9] == frame[i + 1]
+                        && (frame[i + 2] | frame[i + 3] | frame[i + 4] | frame[i + 5]) != 0 && frame[i + 6] == 0 && frame[i + 7] == 0
+                        && TryReadName(frame, i + 10, out string other, minLength: 2) && other != name)
                     {
                         _entities.NoteNonPlayerName(other);
                         _entities.SetGuild((int)id, other);
+                        break;
                     }
                 }
 
@@ -378,48 +666,33 @@ public sealed class Aion2FrameDecoder
     }
 
     /// <summary>
-    /// "Player seen" frame (verified against captures from the open world and a dungeon): opcode |
-    /// target id (varint) | skill id (u32) | the acting player's combat id (varint) | <c>18 05</c> |
-    /// length-prefixed name | optional length-prefixed guild. Every player who acts near you is
-    /// announced this way, which names everyone in the open world - including the local player,
-    /// who is the same kind of entry as anyone else.
+    /// "Player seen" frame: opcode | target id (varint) | skill id (u32) | the acting player's combat id
+    /// (varint) | server id (u16) | length-prefixed name | optional length-prefixed guild. Every player
+    /// who acts near you is announced this way. It used to be found by the server id 18 05 (1304,
+    /// Europe - Kaisinel) in front of the name, so players of every other server were never named by
+    /// it (seen: Aera of server 1303 on a Krao Cave capture, 2026-10-02); the fields are read in
+    /// order now, whatever the server.
     /// </summary>
     private void DecodeAppearance(ReadOnlySpan<byte> frame)
     {
-        for (int k = 3; k + 3 < frame.Length; k++)
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out _) || frame.Length < p + 4)
         {
-            if (frame[k] != 0x18 || frame[k + 1] != 0x05 || !TryReadName(frame, k + 2, out string name, minLength: 2))
-            {
-                continue;
-            }
-
-            // The combat id is the varint that ends right before the marker.
-            int end = k - 1;
-            if ((frame[end] & 0x80) != 0)
-            {
-                return;
-            }
-
-            int start = end;
-            while (start > 2 && (frame[start - 1] & 0x80) != 0 && end - start < 4)
-            {
-                start--;
-            }
-
-            long id = 0;
-            for (int i = start, shift = 0; i <= end; i++, shift += 7)
-            {
-                id |= (long)(frame[i] & 0x7f) << shift;
-            }
-
-            _entities.Register((int)id, name);
-            if (TryReadName(frame, k + 3 + name.Length, out string guild, minLength: 2) && guild != name)
-            {
-                _entities.SetGuild((int)id, guild);
-                _entities.NoteNonPlayerName(guild);
-            }
-
             return;
+        }
+
+        p += 4;
+        if (!TryReadVarint(frame, ref p, out long id) || id <= 0 || frame.Length < p + 3
+            || !TryReadName(frame, p + 2, out string name, minLength: 2))
+        {
+            return;
+        }
+
+        _entities.Register((int)id, name);
+        if (TryReadName(frame, p + 3 + name.Length, out string guild, minLength: 2) && guild != name)
+        {
+            _entities.SetGuild((int)id, guild);
+            _entities.NoteNonPlayerName(guild);
         }
     }
 
@@ -446,15 +719,21 @@ public sealed class Aion2FrameDecoder
             }
 
             int after = k + 1 + name.Length;
-            if (after + 11 > frame.Length || frame[after] != 0x18 || frame[after + 1] != 0x05 || frame[after + 6] != 1)
+            if (after + 11 > frame.Length || frame[after + 6] != 1)
             {
                 continue;
             }
 
-            // The two bytes after the name (18 05 = 1304 on Europe - Kaisinel) are the character's server id:
-            // the same value sits before every Kaisinel member in the legion list, and Aion 2 characters of
-            // other servers show up in the same group with other values.
+            // The two bytes after the name are the character's server id (18 05 = 1304, Europe -
+            // Kaisinel; 17 05 = 1303 for a character of another EU server). They used to be required to
+            // be 18 05, so the own record of anyone not on Kaisinel was never read; a plausible class
+            // code (4 * class + faction bit, see Aion2SkillNames.ClassFromCode) checks the match instead.
             int classCode = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 2)..]));
+            if (classCode % 4 is not (1 or 2) || classCode / 4 is < 1 or > 9)
+            {
+                continue;
+            }
+
             int level = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 7)..]));
             if (level is < 1 or > 200)
             {
@@ -639,24 +918,45 @@ public sealed class Aion2FrameDecoder
         }
     }
 
-    /// <summary>The party roster: every member's name follows a <c>18 05</c> marker as a
-    /// length-prefixed string. Carries no combat ids - it only tells which names belong to the party
-    /// (see <see cref="Aion2EntityDirectory.NoteRosterName"/>).</summary>
-    private void DecodeRoster(ReadOnlySpan<byte> frame)
+    /// <summary>
+    /// The party roster (0x0297, re-sent every few seconds while in a party; 0x0197 is a list of
+    /// other parties). Each member: server id (u16) | length-prefixed name | a small u32 (not the class
+    /// code of the other frames: 32 for a Cleric, 24 for an Elementalist) | level (u32). Found by that shape rather than by the server id 18 05 (Kaisinel) it used to require,
+    /// which missed every member of another server - verified on three captures (2026-10-02):
+    /// Psefon 30, Boulenbouche 45, Daidai 31, ScareNight, Destinyy 30, across servers 1303 and 2301.
+    /// The party list of 0x0297 also tells which players are in the local player's group.
+    /// </summary>
+    private void DecodeRoster(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
-        for (int i = 0; i + 4 < frame.Length; i++)
+        var members = new List<string>();
+        for (int i = 2; i + 1 < frame.Length; i++)
         {
-            if (frame[i] == 0x18 && frame[i + 1] == 0x05 && TryReadName(frame, i + 2, out string name))
+            if (!TryReadName(frame, i, out string name, minLength: 2))
             {
-                // A member entry continues with level(u32) and 0x1e(u32); that rules out the
-                // look-alike byte runs a random stretch of data can contain (seen: "Coh").
-                int after = i + 3 + name.Length;
-                if (after + 8 <= frame.Length && frame[after + 1] == 0 && frame[after + 2] == 0 && frame[after + 3] == 0
-                    && frame[after + 4] == 0x1e && frame[after + 5] == 0 && frame[after + 6] == 0 && frame[after + 7] == 0)
-                {
-                    _entities.NoteRosterName(name);
-                }
+                continue;
             }
+
+            int after = i + 1 + name.Length;
+            if (after + 8 > frame.Length || frame[after + 1] != 0 || frame[after + 2] != 0 || frame[after + 3] != 0
+                || frame[after + 5] != 0 || frame[after + 6] != 0 || frame[after + 7] != 0)
+            {
+                continue;
+            }
+
+            int level = frame[after + 4];
+            if (frame[after] == 0 || level is < 1 or > 60)
+            {
+                continue;
+            }
+
+            members.Add(name);
+            _entities.NoteRosterName(name);
+            i = after + 7;
+        }
+
+        if (frame[0] == 0x02 && frame[1] == 0x97 && members.Count > 0)
+        {
+            _entities.NoteParty(members, timestamp);
         }
     }
 

@@ -90,16 +90,18 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    /// <summary>The local player's name when the stream alone reveals it (the party roster's leftover
-    /// name, see <see cref="LocalRosterName"/>) - what the meter then remembers in Settings so the
-    /// next solo session needs no party to know it.</summary>
+    /// <summary>The local player's name as its own character record states it - what the meter then
+    /// remembers in Settings so the next session knows it from the start. It used to be the party
+    /// roster's leftover name (the one no visible player carries), which, once the roster was read on
+    /// every server, could be a team mate not named yet: that name was then saved as one's own and the
+    /// own row showed under a team mate's name.</summary>
     public string? LearnedLocalName
     {
         get
         {
             lock (_gate)
             {
-                return InferLocalPlayer() is not null ? LocalRosterName() : null;
+                return _character is { Restored: false } own && own.Name.Length > 0 ? own.Name : null;
             }
         }
     }
@@ -275,6 +277,111 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    /// <summary>Every entity's hit points as the server reports them, and when a monster was reset
+    /// to full health (a wipe and retry under the same entity id).</summary>
+    public Aion2HitPoints HitPoints { get; } = new();
+
+    // Every entity announced by the monster-appears frame: monsters and summons, never players.
+    private readonly HashSet<int> _spawned = new();
+
+    /// <summary>Notes that the server announced this entity as a monster (or a summon).</summary>
+    public void NoteSpawned(int entityId)
+    {
+        lock (_gate)
+        {
+            _spawned.Add(entityId);
+        }
+    }
+
+    /// <summary>True for an entity the server announced with the monster-appears frame (monsters
+    /// and summons, never players).</summary>
+    public bool IsSpawned(int entityId)
+    {
+        lock (_gate)
+        {
+            return _spawned.Contains(entityId);
+        }
+    }
+
+    /// <summary>The ids of the party members (see <see cref="PartyNames"/>) who play this class.</summary>
+    public IReadOnlyList<int> PartyMemberIdsOfClass(string className)
+    {
+        var party = PartyNames;
+        lock (_gate)
+        {
+            return party.Where(name => _ids.ContainsKey(name)).Select(name => _ids[name]).Distinct()
+                .Where(id => _classVotes.TryGetValue(id, out var votes) && votes.MaxBy(v => v.Value).Key == className)
+                .ToList();
+        }
+    }
+
+    /// <summary>True for an entity the server announced as a monster that is nobody's summon.</summary>
+    public bool IsKnownMonster(int entityId)
+    {
+        lock (_gate)
+        {
+            return _spawned.Contains(entityId) && !_summonOwners.ContainsKey(entityId) && !_summonOwnerNames.ContainsKey(entityId);
+        }
+    }
+
+    // Summoned entity id -> the player who summoned it (see Aion2FrameDecoder.DecodeNpcSpawn).
+    private readonly Dictionary<int, int> _summonOwners = new();
+
+    /// <summary>Records who summoned an entity, or (null) that it is nobody's summon - entity ids
+    /// are reused, so a later spawn under the same id clears an earlier owner.</summary>
+    public void SetSummonOwner(int entityId, int? ownerId)
+    {
+        lock (_gate)
+        {
+            if (ownerId is int owner)
+            {
+                _summonOwners[entityId] = owner;
+            }
+            else
+            {
+                _summonOwners.Remove(entityId);
+            }
+        }
+    }
+
+    /// <summary>The player who summoned this entity, or null when it is not a known summon.</summary>
+    // Summoned entity id -> its owner's name, for summons announced by name (see
+    // Aion2FrameDecoder.DecodeNpcSpawn); resolved through the name -> id map when asked.
+    private readonly Dictionary<int, string> _summonOwnerNames = new();
+
+    /// <summary>Records the name a spawned entity carries - a summon's owner (a Cleric's Divine
+    /// Aura carries "Psefon"); null clears it, the id being reused by something unnamed.</summary>
+    public void SetSummonOwnerName(int entityId, string? ownerName)
+    {
+        lock (_gate)
+        {
+            if (ownerName is null)
+            {
+                _summonOwnerNames.Remove(entityId);
+            }
+            else
+            {
+                _summonOwnerNames[entityId] = ownerName;
+            }
+        }
+    }
+
+    public int? SummonOwnerOf(int entityId)
+    {
+        lock (_gate)
+        {
+            if (_summonOwners.TryGetValue(entityId, out int owner))
+            {
+                return owner;
+            }
+
+            // Owner known by name: the player of that name, when it is a player and not the entity itself.
+            return _summonOwnerNames.TryGetValue(entityId, out string? name) && _ids.TryGetValue(name, out int byName) && byName != entityId
+                ? byName
+                : null;
+        }
+    }
+
     /// <summary>Every monster recognised as a boss so far: entity id and NPC id.</summary>
     public IReadOnlyList<(int EntityId, int NpcId)> KnownBosses()
     {
@@ -409,6 +516,41 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    // Party member name -> when a roster frame last listed it.
+    private readonly Dictionary<string, DateTime> _partySeen = new(StringComparer.Ordinal);
+    private DateTime _lastPartyFrame;
+
+    /// <summary>How long a member stays in the party after the last roster frame naming it: the
+    /// frames are re-sent every few seconds, but one frame does not always list everybody.</summary>
+    private static readonly TimeSpan PartyMemory = TimeSpan.FromSeconds(90);
+
+    /// <summary>Notes the members one party roster frame lists (the local player included).</summary>
+    public void NoteParty(IReadOnlyCollection<string> names, DateTime at)
+    {
+        lock (_gate)
+        {
+            foreach (string name in names)
+            {
+                _partySeen[name] = at;
+            }
+
+            _lastPartyFrame = at;
+        }
+    }
+
+    /// <summary>Names in the local player's party: listed by a roster frame within
+    /// <see cref="PartyMemory"/> of the latest one. Empty when no roster has arrived yet.</summary>
+    public IReadOnlySet<string> PartyNames
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _partySeen.Where(kv => _lastPartyFrame - kv.Value <= PartyMemory).Select(kv => kv.Key).ToHashSet(StringComparer.Ordinal);
+            }
+        }
+    }
+
     /// <summary>A name the roster shows that is not a party member - the guild name, which every
     /// member's nickname frame repeats after its own name.</summary>
     public void NoteNonPlayerName(string name)
@@ -419,15 +561,44 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    // Per entity: a decaying count of its detailed-stats frames (see NoteDetailedStats).
+    private readonly Dictionary<int, double> _detailedStats = new();
+
     /// <summary>
-    /// The local player, worked out from the stream: the object seen casting class skills that never
-    /// got a nickname frame. Only claimed when it is unambiguous - one such object, or one clearly
-    /// dominant by skill count - otherwise null and nobody is called "you".
+    /// The server sends an entity's detailed stats (the 4-byte group of the stats frame) to that
+    /// player alone: on four captures (2026-10-02) the local player received 651 to 1,477 of them,
+    /// any other entity 0 to 5. Older counts decay, so after a zone change hands the local player a
+    /// new id, the new one takes over within a few frames.
+    /// </summary>
+    public void NoteDetailedStats(int entityId)
+    {
+        lock (_gate)
+        {
+            foreach (int id in _detailedStats.Keys.ToList())
+            {
+                _detailedStats[id] *= 0.95;
+            }
+
+            _detailedStats[entityId] = _detailedStats.GetValueOrDefault(entityId) + 1;
+        }
+    }
+
+    /// <summary>
+    /// The local player, worked out from the stream: first the entity receiving the detailed-stats
+    /// frames (see <see cref="NoteDetailedStats"/>) - reliable in a crowd; else the object seen
+    /// casting class skills that never got a nickname frame. Only claimed when it is unambiguous - one
+    /// such object, or one clearly dominant - otherwise null and nobody is called "you".
     /// </summary>
     public int? InferLocalPlayer()
     {
         lock (_gate)
         {
+            var byStats = _detailedStats.OrderByDescending(kv => kv.Value).Take(2).ToList();
+            if (byStats.Count > 0 && byStats[0].Value >= 5 && (byStats.Count == 1 || byStats[0].Value >= 3 * byStats[1].Value))
+            {
+                return byStats[0].Key;
+            }
+
             var unnamed = _classVotes.Where(kv => !_names.ContainsKey(kv.Key))
                 .Select(kv => (Id: kv.Key, Votes: kv.Value.Values.Sum()))
                 .OrderByDescending(x => x.Votes)
@@ -479,9 +650,17 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 return boss.Name;
             }
 
+            // The local player is never announced to itself, so its id has no name of its own until
+            // the character record (login, zone change) arrives. Until then: the name set in
+            // Settings, else the character saved from the last login, else the party roster's
+            // leftover name - solo, only the first two exist, and "Player #id" used to stay.
             if (registered is null && InferLocalPlayer() == id)
             {
-                registered = LocalRosterName();
+                // The roster's leftover name is safe here: the local player is not named yet, so its
+                // own name is still among the leftovers, and a single leftover is it.
+                registered = _configuredLocalName
+                    ?? (_character is { Restored: true } saved && saved.Name.Length > 0 ? saved.Name : null)
+                    ?? LocalRosterName();
             }
         }
 
