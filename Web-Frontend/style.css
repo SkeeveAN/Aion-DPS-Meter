@@ -2044,3 +2044,31 @@ strong[class^="heat-"] {
   line-height: 1.4;
   opacity: 0.6;
 }
+
+/* Download page: its download buttons are blue, not gold - the same blue as .btn-blue, which the
+   rest of the site already uses. Scoped by the page's own hero so other pages keep the gold CTA. */
+.download-cta {
+  background: linear-gradient(to bottom, #72c1ff, #3196e8);
+  color: #08213d;
+  border-color: #176bb3;
+  box-shadow: 0 4px 18px rgba(49, 150, 232, 0.3);
+}
+
+.download-cta:hover {
+  background: linear-gradient(to bottom, #8fcdff, #4aa5ee);
+  box-shadow: 0 6px 24px rgba(49, 150, 232, 0.45);
+}
+
+.download-cta:active {
+  background: linear-gradient(to bottom, #3196e8, #2a86d2);
+}
+
+#app:has(.download-hero) .btn-orange {
+  --btn-color-top: #72c1ff;
+  --btn-color-bottom: #3196e8;
+  --btn-edge: #176bb3;
+  --btn-shadow: rgba(0, 55, 110, 0.4);
+  --btn-rim: rgba(173, 220, 255, 0.6);
+  --btn-glow: rgba(49, 150, 232, 0.55);
+  color: #08213d;
+}
