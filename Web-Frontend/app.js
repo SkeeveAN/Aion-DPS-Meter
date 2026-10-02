@@ -1796,7 +1796,7 @@ async function renderSearchResults(query) {
 
   // Scoped to the picked server when there is one; otherwise every server, with each hit labelled
   // (the API returns serverName per row exactly for that case).
-  const params = new URLSearchParams({ q: query });
+  const params = new URLSearchParams({ q: query, game: currentGame });
   if (currentServerPicked && currentServerId !== null) {
     params.set("serverId", currentServerId);
   }

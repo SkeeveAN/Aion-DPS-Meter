@@ -651,7 +651,11 @@ public partial class MainWindow : Window
             // The upload entries appear once the own character is known (see RefreshUploadAvailability).
             if (aion2Source.Entities is Aion2.Aion2EntityDirectory aion2Entities)
             {
-                aion2Entities.CharacterChanged += _ => Dispatcher.BeginInvoke(new Action(RefreshUploadAvailability));
+                aion2Entities.CharacterChanged += _ => Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    RefreshUploadAvailability();
+                    ScheduleOwnProfileUpload();
+                }));
             }
 
             _chatLogTimer.Start();
@@ -2694,7 +2698,83 @@ public partial class MainWindow : Window
         ShowUploadStatus(result.Success ? $"Uploaded {payload.Participants.Count} character(s)." : $"Upload failed: {result.Error}");
     }
 
-    private ProfilesUploadRequest? BuildProfilesUpload(string fingerprint, string? displayName)
+    // ---- the own Aion 2 profile goes online by itself -------------------------------------------
+    // Per the user: the player must be findable on the site as a profile, without any boss fight and
+    // without a click. The game sends the character record (equipment, skills, Daevanion) at login and
+    // at map changes, in a burst; once it has been quiet for a few seconds the own profile is uploaded -
+    // only the own one (other players' profiles still go with a boss upload or the manual upload), and
+    // only when it differs from what was last sent this session.
+
+    private System.Windows.Threading.DispatcherTimer? _profileUploadTimer;
+    private string? _lastProfileUploadHash;
+    private bool _profileUploadHintShown;
+
+    private void ScheduleOwnProfileUpload()
+    {
+        if (Headless)
+        {
+            return;
+        }
+
+        if (_profileUploadTimer is null)
+        {
+            _profileUploadTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
+            _profileUploadTimer.Tick += async (_, _) =>
+            {
+                _profileUploadTimer.Stop();
+                await UploadOwnProfileAsync();
+            };
+        }
+
+        _profileUploadTimer.Stop();
+        _profileUploadTimer.Start();
+    }
+
+    private async Task UploadOwnProfileAsync()
+    {
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory { LocalCharacter: { Restored: false } own } directory
+            || directory.LocalEquipment.Count == 0)
+        {
+            return;
+        }
+
+        if (ResolveServerIdentity() is not (string fingerprint, var displayName))
+        {
+            if (!_profileUploadHintShown)
+            {
+                _profileUploadHintShown = true;
+                ShowUploadStatus(ServerNotIdentified);
+            }
+
+            return;
+        }
+
+        ProfilesUploadRequest? payload = BuildProfilesUpload(fingerprint, displayName, ownOnly: true);
+        if (payload is null)
+        {
+            return;
+        }
+
+        string hash = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(
+            System.Text.Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(payload.Participants))));
+        if (hash == _lastProfileUploadHash)
+        {
+            return;
+        }
+
+        UploadResult result = await UploadClient.SendProfilesAsync(payload);
+        if (result.Success)
+        {
+            _lastProfileUploadHash = hash;
+            ShowUploadStatus($"Profile of {own.Name} uploaded ({displayName}).");
+        }
+        else
+        {
+            ShowUploadStatus($"Profile upload failed: {result.Error}");
+        }
+    }
+
+    private ProfilesUploadRequest? BuildProfilesUpload(string fingerprint, string? displayName, bool ownOnly = false)
     {
         if (_source?.Entities is not Aion2.Aion2EntityDirectory directory || directory.LocalCharacter is not { } local)
         {
@@ -2717,7 +2797,7 @@ public partial class MainWindow : Window
         }
 
         Add(local.CombatId, local.Name, localClass, true);
-        foreach (int id in directory.SeenProfileIds())
+        foreach (int id in ownOnly ? Array.Empty<int>() : directory.SeenProfileIds())
         {
             string? name = directory.NameFor(id);
             string? className = directory.ClassOf(id)

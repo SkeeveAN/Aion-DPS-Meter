@@ -212,3 +212,37 @@ test("players without a boss fight: POST /api/uploads/profiles stores profiles a
     await app.close();
   }
 });
+
+test("a player that only has a profile (no boss fight) is found by name search, per game", async () => {
+  const { buildServer } = await import("./server.js");
+  const app = await buildServer();
+  try {
+    const payload = {
+      clientVersion: "0.9.6",
+      game: "aion2",
+      serverFingerprint: "aion2:europe-kaisinel",
+      serverName: "Europe - Kaisinel",
+      participants: [{ name: "Aahzetta", className: "Gladiator", faction: "", guild: "Akatsuki", isSelf: true, profile: selfProfile }],
+    };
+    const up = await app.inject({ method: "POST", url: "/api/uploads/profiles", payload });
+    assert.equal(up.statusCode, 200, up.body);
+
+    const aion2 = (await app.inject({ url: "/api/players/search?q=aahzet&game=aion2" })).json();
+    assert.equal(aion2.length, 1);
+    assert.equal(aion2[0].name, "Aahzetta");
+    assert.equal(aion2[0].serverName, "Europe - Kaisinel");
+
+    const classic = (await app.inject({ url: "/api/players/search?q=aahzet&game=aion" })).json();
+    assert.equal(classic.length, 0);
+
+    const any = (await app.inject({ url: "/api/players/search?q=aahzet" })).json();
+    assert.equal(any.length, 1);
+
+    // and the player page answers with the profile although there is not a single fight
+    const page = (await app.inject({ url: `/api/players/${aion2[0].id}` })).json();
+    assert.equal(page.history.length, 0);
+    assert.equal(page.profile.className, "Gladiator");
+  } finally {
+    await app.close();
+  }
+});

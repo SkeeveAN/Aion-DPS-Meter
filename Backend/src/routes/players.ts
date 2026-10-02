@@ -1,4 +1,4 @@
-import { and, desc, eq, like, max } from "drizzle-orm";
+import { and, desc, eq, like, max, notLike } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
@@ -94,7 +94,7 @@ export async function playerRoutes(app: FastifyInstance) {
   // each row now carries its own serverId/serverName - a name search across servers legitimately
   // can turn up two unrelated people who happen to share a name, and the caller needs to be able
   // to tell them apart rather than silently picking one.
-  app.get<{ Querystring: { q?: string; serverId?: string } }>("/api/players/search", async (request, reply) => {
+  app.get<{ Querystring: { q?: string; serverId?: string; game?: string } }>("/api/players/search", async (request, reply) => {
     const query = (request.query.q ?? "").trim();
     if (query.length === 0) {
       return reply.send([]);
@@ -102,6 +102,12 @@ export async function playerRoutes(app: FastifyInstance) {
 
     const serverId = Number(request.query.serverId);
     const nameFilter = like(players.nameNormalized, `%${normalizeName(query)}%`);
+    // Players have no game column of their own; the server they belong to does, by its fingerprint:
+    // Aion 2 clients file everything under "aion2:<server>", classic Aion under "<ip>:<port>". Matches
+    // players found through a profile upload as much as through a boss fight.
+    const game = request.query.game === "aion2" ? "aion2" : request.query.game === "aion" ? "aion" : null;
+    const gameFilter = game === "aion2" ? like(servers.fingerprint, "aion2:%") : game === "aion" ? notLike(servers.fingerprint, "aion2:%") : undefined;
+    const scope = Number.isInteger(serverId) ? and(nameFilter, eq(players.serverId, serverId), gameFilter) : and(nameFilter, gameFilter);
 
     const rows = db
       .select({
@@ -114,7 +120,7 @@ export async function playerRoutes(app: FastifyInstance) {
       })
       .from(players)
       .leftJoin(servers, eq(players.serverId, servers.id))
-      .where(Number.isInteger(serverId) ? and(nameFilter, eq(players.serverId, serverId)) : nameFilter)
+      .where(scope)
       .limit(20)
       .all();
     return reply.send(rows);
