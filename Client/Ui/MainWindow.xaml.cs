@@ -1105,6 +1105,21 @@ public partial class MainWindow : Window
             return null;
         }
 
+        // A boss keeps its entity id across wipes and retries, so a whole-history upload would merge
+        // every attempt into one fight. The server's hit points tell them apart: each time the boss
+        // came back to full health starts a new attempt, and only the last one - the one that ended
+        // the fight - is uploaded (a Draupnir run with two wipes before the kill, 2026-10-03).
+        if (_selectedRunWindowStart is null
+            && (_source?.Entities as Aion2.Aion2EntityDirectory)?.HitPoints.ResetsOf(targetId) is { Count: > 0 } resets)
+        {
+            DateTime lastAttempt = resets[^1];
+            var lastAttemptHits = targetHits.Where(e => e.Timestamp >= lastAttempt).ToList();
+            if (lastAttemptHits.Count > 0)
+            {
+                targetHits = lastAttemptHits;
+            }
+        }
+
         // Kept separate from the UTC startedAt/endedAt below (those are for the outgoing payload's
         // own fields): heals never target the boss, so they can only be scoped to this encounter by
         // time window, and that window has to be compared against DamageEvent.Timestamp's own
