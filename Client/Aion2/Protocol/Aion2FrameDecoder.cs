@@ -639,15 +639,20 @@ public sealed class Aion2FrameDecoder
                 _entities.Register((int)id, name);
                 ReadSeenProfile(frame, (int)id, k + 1 + name.Length);
 
-                // Further on, the frame carries the player's server id (u16: 17 05 = 1303, 18 05 =
-                // 1304 Kaisinel) and the guild's length-prefixed name: the first such pair after the
-                // name is the guild (25 nickname frames of a Draupnir capture, 2026-10-02: HORDE,
-                // ElyosOrden, Insomnia, Convèrgence, all behind 1303). Remembered so the roster's
-                // leftover name is the player's, not the guild's.
-                for (int i = k + 1 + name.Length; i + 4 < frame.Length; i++)
+                // A player in a guild: further on, the frame carries server id (u16: 17 05 = 1303,
+                // 18 05 = 1304 Kaisinel) | guild id (u32, non-zero) | 00 00 | the same server id |
+                // the guild's length-prefixed name. Seen for all ten guilds of 71 nickname frames
+                // (Krao Cave and Draupnir captures, 2026-10-02: HORDE, ElyosOrden, Insomnia,
+                // Convèrgence, Freljord, DarkLegion...); a player without a guild has no such run,
+                // and reading any "server id + name" pair there picked up garbage ("odd",
+                // "jd47ddddep"). Remembered so the roster's leftover name is the player's, not the
+                // guild's.
+                for (int i = k + 1 + name.Length; i + 11 < frame.Length; i++)
                 {
                     int server = frame[i] | frame[i + 1] << 8;
-                    if (server is >= 1000 and <= 9999 && TryReadName(frame, i + 2, out string other) && other != name)
+                    if (server is >= 1000 and <= 9999 && frame[i + 8] == frame[i] && frame[i + 9] == frame[i + 1]
+                        && (frame[i + 2] | frame[i + 3] | frame[i + 4] | frame[i + 5]) != 0 && frame[i + 6] == 0 && frame[i + 7] == 0
+                        && TryReadName(frame, i + 10, out string other, minLength: 2) && other != name)
                     {
                         _entities.NoteNonPlayerName(other);
                         _entities.SetGuild((int)id, other);
