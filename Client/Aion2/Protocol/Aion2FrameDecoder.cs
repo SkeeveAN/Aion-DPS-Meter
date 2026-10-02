@@ -457,6 +457,15 @@ public sealed class Aion2FrameDecoder
         // Chanter's Recuperation on a member who had not cast yet used to read as damage between two
         // players - and one such hit made the resolver paint the whole party as enemies.
         bool isHeal = Aion2SkillNames.IsHealFamily(skillId) && !_entities.IsKnownMonster((int)target);
+
+        // A heal on a summon is not healing the group: a Spiritmaster's spirit arrives with a heal of
+        // its full health on itself (~56,000 per summon - 4.07 M over one Krao Cave run once spirits
+        // are credited to their summoner), and topping up one's spirits is not party healing either.
+        if (isHeal && _entities.SummonOwnerOf((int)target) is not null)
+        {
+            return Array.Empty<DamageEvent>();
+        }
+
         return new[] { new DamageEvent(timestamp, source, (int)target, amount, isHeal, skill, critical && !isHeal) };
     }
 
@@ -516,7 +525,7 @@ public sealed class Aion2FrameDecoder
         if (Aion2SkillNames.IsHealFamily(skillId) || _entities.IsKnownPlayer(source) && _entities.IsKnownPlayer((int)target))
         {
             bool countedHeal = (flags & 0x01) != 0 && healed > 0 && healed <= MaxPlausibleAmount
-                && Aion2SkillNames.ClassOf(skillId) is not null;
+                && Aion2SkillNames.ClassOf(skillId) is not null && _entities.SummonOwnerOf((int)target) is null;
             return countedHeal
                 ? new[] { new DamageEvent(timestamp, source, (int)target, healed, IsHeal: true, Aion2SkillNames.NameOf(skillId), IsTick: true) }
                 : Array.Empty<DamageEvent>();
@@ -630,21 +639,19 @@ public sealed class Aion2FrameDecoder
                 _entities.Register((int)id, name);
                 ReadSeenProfile(frame, (int)id, k + 1 + name.Length);
 
-                // The rest of the frame repeats the guild name behind the server id that precedes the
-                // player's own name (two bytes; 18 05 is Kaisinel, other servers have other values);
-                // remember it so the roster's leftover name is the player's, not it.
-                if (k - 2 < p)
-                {
-                    return;
-                }
-
-                byte server0 = frame[k - 2], server1 = frame[k - 1];
+                // Further on, the frame carries the player's server id (u16: 17 05 = 1303, 18 05 =
+                // 1304 Kaisinel) and the guild's length-prefixed name: the first such pair after the
+                // name is the guild (25 nickname frames of a Draupnir capture, 2026-10-02: HORDE,
+                // ElyosOrden, Insomnia, Convèrgence, all behind 1303). Remembered so the roster's
+                // leftover name is the player's, not the guild's.
                 for (int i = k + 1 + name.Length; i + 4 < frame.Length; i++)
                 {
-                    if (frame[i] == server0 && frame[i + 1] == server1 && TryReadName(frame, i + 2, out string other) && other != name)
+                    int server = frame[i] | frame[i + 1] << 8;
+                    if (server is >= 1000 and <= 9999 && TryReadName(frame, i + 2, out string other) && other != name)
                     {
                         _entities.NoteNonPlayerName(other);
                         _entities.SetGuild((int)id, other);
+                        break;
                     }
                 }
 

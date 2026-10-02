@@ -30,6 +30,7 @@ public static class SelfCheckAion2
         ok &= RunAion2NoDamageFrameScenario();
         ok &= RunAion2SummonOwnerScenario();
         ok &= RunAion2NamedSummonScenario();
+        ok &= RunAion2GuildScenario();
         ok &= RunAion2ShieldIsNoSummonScenario();
         ok &= RunAion2TwoSorcerersScenario();
         ok &= RunAion2DotTickScenario();
@@ -282,9 +283,9 @@ public static class SelfCheckAion2
         CombatBatch batch = source.Poll(false);
 
         bool owners = dir.SummonOwnerOf(22309) == 10894 && dir.SummonOwnerOf(28343) == 3279;
-        bool waterToDestinyy = batch.Damage.Count == 3 && batch.Damage[0].SourceObjectId == 10894 && batch.Damage[0].Amount == 105 && !batch.Damage[0].IsHeal;
-        bool spawnHealStays = batch.Damage.Count == 3 && batch.Damage[1].IsHeal && batch.Damage[1].TargetObjectId == 22309;
-        bool fireToLocal = batch.Damage.Count == 3 && batch.Damage[2].SourceObjectId == 3279 && batch.Damage[2].Amount == 651 && batch.Damage[2].IsCritical;
+        bool waterToDestinyy = batch.Damage.Count == 2 && batch.Damage[0].SourceObjectId == 10894 && batch.Damage[0].Amount == 105 && !batch.Damage[0].IsHeal;
+        bool spawnHealDropped = batch.Damage.Count == 2 && !batch.Damage.Any(d => d.IsHeal);
+        bool fireToLocal = batch.Damage.Count == 2 && batch.Damage[1].SourceObjectId == 3279 && batch.Damage[1].Amount == 651 && batch.Damage[1].IsCritical;
 
         source.Ingest(Segment(7000 + (uint)first.Length, Wire(reusedAsMonster, waterSpiritHit)));
         CombatBatch after = source.Poll(false);
@@ -292,10 +293,10 @@ public static class SelfCheckAion2
 
         Console.WriteLine($"  -> spawn frames name the summoners (Destinyy 10894, local 3279): {owners}");
         Console.WriteLine($"  -> the Water Spirit's 105 is credited to Destinyy: {waterToDestinyy}");
-        Console.WriteLine($"  -> the spirit's own spawn heal stays a heal on the spirit: {spawnHealStays}");
+        Console.WriteLine($"  -> the spirit's own spawn heal is no heal of its summoner's: {spawnHealDropped}");
         Console.WriteLine($"  -> the Fire Spirit's 651 crit is credited to the local player: {fireToLocal}");
         Console.WriteLine($"  -> the id respawning as a monster is no longer anybody's summon: {reuseCleared}");
-        return owners && waterToDestinyy && spawnHealStays && fireToLocal && reuseCleared;
+        return owners && waterToDestinyy && spawnHealDropped && fireToLocal && reuseCleared;
     }
 
     /// <summary>
@@ -661,6 +662,36 @@ public static class SelfCheckAion2
         bool aurulios = hits.Any(h => h.SourceObjectId == 16061 && h.Skill == "Bittercold Wind") && dir.SummonOwnerOf(37347) == 16061;
         Console.WriteLine($"  -> Lumy's wind is Lumy's: {lumys}, Aurulio's wind is Aurulio's: {aurulios}");
         return lumys && aurulios;
+    }
+
+    /// <summary>
+    /// A player's guild on a server other than Kaisinel (Draupnir capture, 2026-10-02 22:35): the
+    /// nickname frame of Miliria (16372) carries her server id 1303 (17 05) and her guild
+    /// "Convèrgence" further on. The frame is its real prefix, cut after the guild name.
+    /// </summary>
+    private static bool RunAion2GuildScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 guild behind the server id (real Draupnir nickname frame, server 1303):");
+        const string nickname = "4536F47F0320A00107074D696C697269611E00000001028012869FD3C63950104700CB0947753F804366B601F142F1420A0C00000A0C00000000000000000000B0940100B094010000000000F049020001000000A0860100A086010084DE010000E2040001000000017FD3CC011705EA000000000017050C436F6E76C3A87267656E636501000200";
+        byte[] body = Convert.FromHexString(nickname);
+        var wire = new List<byte>();
+        int length = body.Length + 4;
+        while (length >= 0x80)
+        {
+            wire.Add((byte)(length & 0x7f | 0x80));
+            length >>= 7;
+        }
+
+        wire.Add((byte)length);
+        wire.AddRange(body);
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        source.Ingest(Segment(9900, wire.ToArray()));
+        source.Poll(false);
+        bool ok = dir.NameFor(16372) == "Miliria" && dir.GuildOf(16372) == "Convèrgence";
+        Console.WriteLine($"  -> Miliria of guild Convèrgence: {ok}");
+        return ok;
     }
 
     /// <summary>Name, guild and local-player frames from real captures: the "player seen" frame
