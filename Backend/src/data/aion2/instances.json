@@ -4,7 +4,8 @@
     "sourceKind": "third-party-dataset",
     "derivedAt": "2026-09-22",
     "note": "Facts only (names as shown by the game client, NPC ids, roles, trigger/severity). Prose fields are ours and start empty; edit them here, then run content:sync.",
-    "localizedNames": "de/fr/es/ja/pt/ru names read from the game client's own text tables (L10NString.dat of the EU client, 2026-10-02); en and ko are kept from the original dataset. Names the client does not contain (content not in the EU client) have no translation."
+    "localizedNames": "de/fr/es/ja/pt/ru names read from the game client's own text tables (L10NString.dat of the EU client, 2026-10-02); en and ko are kept from the original dataset. Names the client does not contain (content not in the EU client) have no translation.",
+    "modes": "explore/conquest values read from the in-game Expedition window screenshots (EU client, 2026-10-02). NPC id prefix 230 = explore (seen in a Krao run); 231-233 are assumed conquest tiers, NOT yet confirmed."
   },
   "items": [
     {
@@ -22,7 +23,22 @@
         "ru": "Пещера крао"
       },
       "category": "expedition",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "modes": {
+        "explore": {
+          "minLevel": 20,
+          "itemLevel": 200,
+          "players": "1-5",
+          "weeklyTries": 6
+        },
+        "conquest": {
+          "stars": 1,
+          "minLevel": 45,
+          "itemLevel": 700,
+          "players": "1-5",
+          "weeklyTries": 10
+        }
+      }
     },
     {
       "key": "DDN",
@@ -56,7 +72,22 @@
         "ru": "Храм огня"
       },
       "category": "expedition",
-      "sortOrder": 3
+      "sortOrder": 3,
+      "modes": {
+        "explore": {
+          "minLevel": 35,
+          "itemLevel": 500,
+          "players": "1-5",
+          "weeklyTries": 6
+        },
+        "conquest": {
+          "stars": 3,
+          "minLevel": 45,
+          "itemLevel": 2100,
+          "players": "1-5",
+          "weeklyTries": 10
+        }
+      }
     },
     {
       "key": "Draupnir",
@@ -73,7 +104,22 @@
         "ru": "Драупнир"
       },
       "category": "expedition",
-      "sortOrder": 4
+      "sortOrder": 4,
+      "modes": {
+        "explore": {
+          "minLevel": 45,
+          "itemLevel": 700,
+          "players": "1-5",
+          "weeklyTries": 6
+        },
+        "conquest": {
+          "stars": 1,
+          "minLevel": 45,
+          "itemLevel": 700,
+          "players": "1-5",
+          "weeklyTries": 10
+        }
+      }
     },
     {
       "key": "Bakron",
@@ -90,7 +136,22 @@
         "ru": "Парящий остров Вакрона"
       },
       "category": "expedition",
-      "sortOrder": 5
+      "sortOrder": 5,
+      "modes": {
+        "explore": {
+          "minLevel": 45,
+          "itemLevel": 1400,
+          "players": "2-5",
+          "weeklyTries": 6
+        },
+        "conquest": {
+          "stars": 2,
+          "minLevel": 45,
+          "itemLevel": 1400,
+          "players": "2-5",
+          "weeklyTries": 10
+        }
+      }
     },
     {
       "key": "CradleNihility",
@@ -248,7 +309,22 @@
         "ru": "Ущелье ауругу"
       },
       "category": "expedition",
-      "sortOrder": 2
+      "sortOrder": 2,
+      "modes": {
+        "explore": {
+          "minLevel": 28,
+          "itemLevel": 300,
+          "players": "2-5",
+          "weeklyTries": 6
+        },
+        "conquest": {
+          "stars": 2,
+          "minLevel": 45,
+          "itemLevel": 1400,
+          "players": "2-5",
+          "weeklyTries": 10
+        }
+      }
     },
     {
       "key": "MauCave",
@@ -265,7 +341,22 @@
         "ru": "Логово Свирепого Рога"
       },
       "category": "expedition",
-      "sortOrder": 6
+      "sortOrder": 6,
+      "modes": {
+        "explore": {
+          "minLevel": 45,
+          "itemLevel": 2100,
+          "players": "1-5",
+          "weeklyTries": 6
+        },
+        "conquest": {
+          "stars": 3,
+          "minLevel": 45,
+          "itemLevel": 2100,
+          "players": "1-5",
+          "weeklyTries": 10
+        }
+      }
     },
     {
       "key": "BlueBreathIsle",
