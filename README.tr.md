@@ -87,3 +87,7 @@ Yalnızca Windows (WPF). `Tools/aion2-dat` oyunun metin tablolarını okur (seki
 
 Sayaç yalnızca oyunun ağ trafiğini pasif olarak gözlemler. Yine de yayıncılar üçüncü taraf araçlar için kendi kurallarını koyar
 — kullanmadan önce oyunun koşullarına göz atmakta fayda var.
+
+## Sorumluluk reddi ve lisans
+
+Aion 2 ve ilgili tüm adlar, metinler ve grafikler NCSOFT'un mülkiyetindedir. Bu proje NCSOFT ile bağlantılı değildir, NCSOFT tarafından desteklenmez veya onaylanmaz; oyun içeriği sahibine aittir. Kaynak kod [MIT Lisansı](LICENSE) ile yayımlanır — lisans yalnızca kodu kapsar, oyun içeriğini kapsamaz.

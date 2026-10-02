@@ -94,3 +94,7 @@ Windows only (WPF). `Tools/aion2-dat` reads the game's text tables (names in eig
 
 The meter only passively observes the game's own network traffic. Even so, publishers set their own
 rules about third-party tools — worth a look at the terms of the game before using it.
+
+## Disclaimer and license
+
+Aion 2 and all related names, texts and artwork are the property of NCSOFT. This project is not affiliated with, endorsed by or connected to NCSOFT; game content stays with its owner. The source code is released under the [MIT License](LICENSE) — the license covers the code only, not any game content.

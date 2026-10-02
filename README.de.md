@@ -95,3 +95,7 @@ Nur Windows (WPF). `Tools/aion2-dat` liest die Texttabellen des Spiels (Namen in
 
 Der Meter beobachtet nur passiv den Netzwerkverkehr des Spiels. Trotzdem legen Publisher eigene Regeln für
 Drittwerkzeuge fest — wirf vor der Nutzung einen Blick in die Bedingungen des Spiels.
+
+## Haftungsausschluss und Lizenz
+
+Aion 2 und alle zugehörigen Namen, Texte und Grafiken sind Eigentum von NCSOFT. Dieses Projekt steht in keiner Verbindung zu NCSOFT und wird weder von NCSOFT unterstützt noch gebilligt; Spielinhalte verbleiben bei ihrem Eigentümer. Der Quellcode steht unter der [MIT-Lizenz](LICENSE) — sie gilt nur für den Code, nicht für Spielinhalte.

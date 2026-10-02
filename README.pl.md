@@ -90,3 +90,7 @@ Tylko Windows (WPF). `Tools/aion2-dat` czyta tablice tekstów gry (nazwy w ośmi
 
 Licznik jedynie pasywnie obserwuje ruch sieciowy gry. Mimo to wydawcy ustalają własne zasady dotyczące narzędzi firm
 trzecich — przed użyciem warto zajrzeć do warunków gry.
+
+## Zastrzeżenie i licencja
+
+Aion 2 oraz wszystkie powiązane nazwy, teksty i grafiki są własnością NCSOFT. Projekt nie jest powiązany z NCSOFT ani przez nią wspierany czy zatwierdzony; zawartość gry pozostaje własnością jej właściciela. Kod źródłowy jest udostępniony na [licencji MIT](LICENSE) — licencja obejmuje wyłącznie kod, a nie zawartość gry.
