@@ -1790,21 +1790,29 @@ async function renderPlayerProfile(playerId) {
   );
 }
 
-async function renderSearchResults(query) {
+// The game a player belongs to, from the server they are filed under (Aion 2 uploads use "aion2:...").
+function playerGame(p) {
+  return String(p.serverFingerprint ?? "").startsWith("aion2:") ? "aion2" : "aion";
+}
+
+async function renderSearchResults(query, allGames = false) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.search", { query })]);
   showLoading(t("loading.search"));
 
   // Scoped to the picked server when there is one; otherwise every server, with each hit labelled
   // (the API returns serverName per row exactly for that case).
-  const params = new URLSearchParams({ q: query, game: currentGame });
-  if (currentServerPicked && currentServerId !== null) {
+  const params = new URLSearchParams({ q: query });
+  if (!allGames) {
+    params.set("game", currentGame);
+  }
+  if (!allGames && currentServerPicked && currentServerId !== null) {
     params.set("serverId", currentServerId);
   }
   const results = await fetchJson(`/api/players/search?${params}`);
   if (results.length === 1) {
     // replaceState, not pushState: Back from the profile must not land on a search that would just
     // redirect forward again.
-    navigate(gp(`/players/${results[0].id}`), { replace: true });
+    navigate(`/${playerGame(results[0])}/players/${results[0].id}`, { replace: true });
     return;
   }
   if (results.length === 0) {
@@ -1815,7 +1823,7 @@ async function renderSearchResults(query) {
   const list = el(
     "ul",
     { className: "plain" },
-    results.map((p) => el("li", {}, [link(p.serverName ? `${p.name} (${p.serverName})` : p.name, gp(`/players/${p.id}`))])),
+    results.map((p) => el("li", {}, [link(`${p.serverName ? `${p.name} (${p.serverName})` : p.name}${allGames ? ` - ${gameLabel(playerGame(p))}` : ""}`, `/${playerGame(p)}/players/${p.id}`)])),
   );
   app.replaceChildren(el("h2", { textContent: t("search.multipleResultsHeading") }), list);
 }
@@ -1900,7 +1908,7 @@ async function route() {
     } else if (section === "players" && param) {
       await renderPlayerProfile(param);
     } else if (section === "search" && params.get("q")) {
-      await renderSearchResults(params.get("q"));
+      await renderSearchResults(params.get("q"), params.get("all") === "1");
     } else {
       renderNotFound();
     }
@@ -1937,7 +1945,9 @@ document.getElementById("search-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const query = document.getElementById("search-input").value.trim();
   if (query) {
-    navigate(gp(`/search?q=${encodeURIComponent(query)}`));
+    // From the homepage (no game picked) the search covers both games; the results say which is which.
+    const fromHome = location.pathname === "/" || location.pathname === "";
+    navigate(gp(`/search?q=${encodeURIComponent(query)}${fromHome ? "&all=1" : ""}`));
   }
 });
 
