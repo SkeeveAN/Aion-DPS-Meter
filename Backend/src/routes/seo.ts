@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounters, instances } from "../db/schema.js";
 import { env } from "../env.js";
-import { GAMES, UNASSIGNED_INSTANCE_NAME } from "../constants.js";
+import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME } from "../constants.js";
 import { cached } from "../seo/cache.js";
 import { escapeHtml } from "../seo/html.js";
 
@@ -38,7 +38,7 @@ export async function seoRoutes(app: FastifyInstance) {
 function buildSitemap(): string {
   const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }];
 
-  for (const game of GAMES) {
+  for (const game of [DEFAULT_GAME]) {
     const instanceRows = db
       .select({ id: instances.id, slug: instances.slug })
       .from(instances)

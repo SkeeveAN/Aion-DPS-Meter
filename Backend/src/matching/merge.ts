@@ -14,7 +14,6 @@ import {
 import { normalizeName, jaccardSimilarity, withinRelativeTolerance } from "./roster.js";
 import type { ParticipantUpload, ProfilesUploadPayload, UploadPayload } from "../uploadSchema.js";
 import { UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
-import { englishNameFor } from "../db/backfill.js";
 import { slugify, uniqueSlug } from "../seo/slug.js";
 import { upsertProfile } from "../profile.js";
 
@@ -118,7 +117,7 @@ function resolveBossId(payload: UploadPayload): number {
   }
 
   const takenSlugs = new Set(gameBosses.map(({ boss }) => boss.slug).filter((s): s is string => s !== null));
-  const nameEn = payload.game === "aion" ? englishNameFor(npcName) : npcName;
+  const nameEn = npcName;
   const slug = uniqueSlug(slugify(nameEn ?? npcName) || "boss", (s) => takenSlugs.has(s));
   const insertedBoss = db
     .insert(bosses)

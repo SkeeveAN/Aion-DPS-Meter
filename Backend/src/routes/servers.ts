@@ -25,7 +25,7 @@ import { gameFromQuery } from "./instances.js";
  * server (Origin/EuroAion share one list, Riftshade's is wider), and that filter has to key off
  * something that exists before any upload does, which servers.id (possibly null here) cannot.
  *
- * `?game=` picks the game's servers; absent means classic Aion (see constants.ts).
+ * `?game=` is accepted for compatibility (only aion2 exists).
  */
 export async function serverRoutes(app: FastifyInstance) {
   app.get<{ Querystring: { game?: string } }>("/api/servers", async (request, reply) => {

@@ -3,13 +3,11 @@ import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { serverCatalog } from "../db/schema.js";
 import { gameFromQuery } from "./instances.js";
-import { REGION_EXCLUDED_CLASSES, SERVER_EXCLUDED_CLASSES } from "../constants.js";
+import { REGION_EXCLUDED_CLASSES } from "../constants.js";
 
 /** The curated name+version list the client's character registration UI picks from - see
  * schema.ts's serverCatalog remarks for why this is separate from the fingerprint-based
- * `servers` table. `?game=` narrows to one game; absent means classic Aion, which is all a client
- * from before the Aion 2 work knows how to handle (it would otherwise offer Aion 2 servers for a
- * Chat.log-based character). */
+ * `servers` table. `?game=` is accepted for compatibility (only aion2 exists). */
 export async function serverCatalogRoutes(app: FastifyInstance) {
   app.get<{ Querystring: { game?: string } }>("/api/server-catalog", async (request, reply) => {
     const game = gameFromQuery(request.query.game, reply);
@@ -33,6 +31,6 @@ export async function serverCatalogRoutes(app: FastifyInstance) {
       .all();
     // Which of the game's classes this server lacks (see constants.ts) - the client's class picker
     // hides them for characters registered on that server.
-    return reply.send(rows.map((r) => ({ ...r, excludedClasses: (r.region ? REGION_EXCLUDED_CLASSES[r.region] : undefined) ?? (r.slug ? SERVER_EXCLUDED_CLASSES[r.slug] : undefined) ?? [] })));
+    return reply.send(rows.map((r) => ({ ...r, excludedClasses: (r.region ? REGION_EXCLUDED_CLASSES[r.region] : undefined) ?? [] })));
   });
 }

@@ -204,36 +204,12 @@ header h1 a {
   white-space: nowrap;
 }
 
-.server-indicator {
-  color: var(--color-text-muted);
-  font-size: 13px;
-  white-space: nowrap;
-}
 
 /* Game switch in the header (Aion / Aion 2) - the first URL segment, see app.js route(). */
-.game-tabs {
-  display: flex;
-  gap: 4px;
-}
 
 /* Pill-shaped segmented toggle (aiondps_design_pack_v1 startseite mockup: filled orange "Aion",
    dark outline "Aion 2") rather than a plain bordered tab - fully rounded, active one filled. */
-.game-tabs a {
-  color: var(--color-text-muted);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 5px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-}
 
-.game-tabs a.active {
-  color: var(--color-primary-on);
-  font-weight: 700;
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-}
 
 /* Per-server tabs above a boss leaderboard - real links (?server=slug), see app.js serverTabs(). */
 .server-tabs {
@@ -363,10 +339,6 @@ header h1 a {
   box-shadow: var(--shadow-card), 0 0 0 1px var(--glow-primary), 0 0 24px var(--glow-primary);
 }
 
-.server-indicator a {
-  color: var(--color-primary);
-  margin-left: 6px;
-}
 
 /* Appearance controls (theme + language) - grouped on the right of the header via this one auto
    margin on the first of them; the others just need to not shrink. */

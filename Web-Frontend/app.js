@@ -4,14 +4,12 @@ import { initThemeSwitcher } from "./theme.js";
 
 const app = document.getElementById("app");
 const breadcrumb = document.getElementById("breadcrumb");
-const serverIndicator = document.getElementById("server-indicator");
-const gameTabs = document.getElementById("game-tabs");
 
-// Real path URLs (/aion/bosses/raksha-boilheart) - one address per page, so search engines and
-// Discord previews see distinct pages (the old #/... hash routes all looked like one URL to them).
-// The first path segment names the game; everything a page fetches is scoped to it.
-const GAMES = ["aion", "aion2"];
-const DEFAULT_GAME = "aion";
+// Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
+// Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
+// now; the segment stays so every shared link keeps working).
+const GAMES = ["aion2"];
+const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
 // Links shared before the URL change (#/bosses/12, #/download, …) still land where they used to:
@@ -27,8 +25,6 @@ let currentGame = DEFAULT_GAME;
     target = `/${DEFAULT_GAME}/instances`;
   } else if (section === "download") {
     target = "/download";
-  } else if (section === "servers") {
-    target = `/${DEFAULT_GAME}/servers`;
   } else if (["instances", "bosses", "players", "encounters", "participants"].includes(section) && param) {
     target = `/${DEFAULT_GAME}/${section}/${param}`;
   } else if (section === "search" && param) {
@@ -39,128 +35,12 @@ let currentGame = DEFAULT_GAME;
   }
 })();
 
-// Which server's data is being browsed - scopes leaderboards and player search, since two servers
-// can each have a player of the same name (per the user: their gear levels are nowhere near
-// comparable, so their runs must never share a leaderboard either). Remembered per game so picking
-// an Aion 2 server never hides the classic-Aion one. No server picked is fine now: instance lists
-// show everything, a leaderboard defaults to the busiest server for that boss and offers the others
-// as tabs, and player search spans every server (each hit says which one it is from).
-//
-// currentServerId can be null even after a server is picked - a server_catalog entry nobody has
-// ever uploaded from yet has no real `servers` row (see servers.ts's own remarks), so there's no
-// numeric id to store. currentServerCatalogId is the OTHER id (server_catalog.id) - always present
-// once picked, and what GET /api/instances filters on (which instances even exist differs by server).
-let currentServerId = null;
-let currentServerName = null;
-let currentServerCatalogId = null;
-let currentServerPicked = false;
-
-// A visitor can land on a specific run (via the homepage's cross-server "recent activity"/"top
-// players" lists) whose server differs from the one they'd picked before. Rather than showing that
-// run next to a server indicator/leaderboard-default that doesn't match it, applyServerOverride
-// below switches the in-memory server context to the run's own server for as long as the visitor
-// keeps browsing from there - never persisted to localStorage, and cleared again the moment route()
-// lands back on the homepage (browser Back or the header logo), so their real pick reappears there.
-let serverOverride = null;
-
-function applyServerOverride(id, name) {
-  if (id === null) {
-    return;
-  }
-  serverOverride = { id: String(id), name };
-  currentServerId = serverOverride.id;
-  currentServerName = serverOverride.name;
-  currentServerPicked = true;
-  updateServerIndicator();
-}
-
-(function migrateLegacyServerKeys() {
-  for (const key of ["serverId", "serverName", "serverCatalogId", "serverPicked"]) {
-    const value = localStorage.getItem(`dpsmeter.${key}`);
-    if (value !== null) {
-      localStorage.setItem(`dpsmeter.aion.${key}`, value);
-      localStorage.removeItem(`dpsmeter.${key}`);
-    }
-  }
-})();
-
-function storageKey(name) {
-  return `dpsmeter.${currentGame}.${name}`;
-}
-
-function loadServerState() {
-  currentServerId = localStorage.getItem(storageKey("serverId"));
-  currentServerName = localStorage.getItem(storageKey("serverName"));
-  currentServerCatalogId = localStorage.getItem(storageKey("serverCatalogId"));
-  currentServerPicked = localStorage.getItem(storageKey("serverPicked")) === "1" && currentServerCatalogId !== null;
-}
-
-function setCurrentServer(id, name, serverCatalogId) {
-  currentServerId = id === null ? null : String(id);
-  currentServerName = name;
-  currentServerCatalogId = serverCatalogId === null ? null : String(serverCatalogId);
-  currentServerPicked = true;
-  if (currentServerId === null) {
-    localStorage.removeItem(storageKey("serverId"));
-  } else {
-    localStorage.setItem(storageKey("serverId"), currentServerId);
-  }
-  if (currentServerCatalogId === null) {
-    localStorage.removeItem(storageKey("serverCatalogId"));
-  } else {
-    localStorage.setItem(storageKey("serverCatalogId"), currentServerCatalogId);
-  }
-  localStorage.setItem(storageKey("serverName"), name ?? "");
-  localStorage.setItem(storageKey("serverPicked"), "1");
-  updateServerIndicator();
-}
-
 function gp(path) {
   return `/${currentGame}${path}`;
 }
 
 function gameLabel(game) {
   return t(`game.${game}`);
-}
-
-function updateServerIndicator(isGameless = false) {
-  serverIndicator.replaceChildren();
-  // Aion 2 has official, same-standard servers whose groups span them: no server to pick, the
-  // rankings are combined and each player carries their server as a tag instead (see playerCell).
-  // The homepage combines both games too (see renderHome's Featured Instances) - showing one
-  // game's server pick there implied everything below was scoped to it (per the user, that read
-  // as "these are Aion 1 + this server's instances" for a section that's actually a mix of both
-  // games' own catalogs). Same reasoning covers download/privacy/terms/notfound - none of them are
-  // scoped to a game, so currentGame is just whatever the last /aion* page happened to leave behind.
-  if (currentGame === "aion2" || isGameless) {
-    return;
-  }
-  if (currentServerPicked) {
-    serverIndicator.append(
-      currentServerName || t("serverIndicator.number", { id: currentServerId }),
-      link(t("serverIndicator.switch"), gp("/servers")),
-    );
-  } else {
-    serverIndicator.append(link(t("serverIndicator.choose"), gp("/servers")));
-  }
-}
-
-// isGameless leaves neither tab marked active - the homepage isn't "really" on either game
-// (currentGame is only forced to DEFAULT_GAME there for its own CTA links), and highlighting one
-// implied its content (Featured Instances, stats) was scoped to that game alone when it actually
-// combines both. download/privacy/terms/notfound aren't scoped to a game either, and currentGame
-// there is just leftover from whatever /aion* page was visited last.
-function updateGameTabs(isGameless = false) {
-  gameTabs.replaceChildren(
-    ...GAMES.map((g) => {
-      const a = link(gameLabel(g), `/${g}/instances`);
-      if (!isGameless && g === currentGame) {
-        a.className = "active";
-        a.setAttribute("aria-current", "page");
-      }
-      return a;
-    }),
-  );
 }
 
 async function fetchJson(url) {
@@ -374,16 +254,11 @@ async function renderHome() {
   ]);
   const heroRow = el("div", { className: "home-hero-row" }, [hero]);
 
-  // Combined across both games - the homepage is the front door for either, so its one live-data
-  // bar reflects the whole community, not just whichever game happens to be currentGame here.
-  const [aionStats, aion2Stats] = await Promise.all([
-    fetchJson("/api/stats/summary?game=aion").catch(() => null),
-    fetchJson("/api/stats/summary?game=aion2").catch(() => null),
-  ]);
+  const aion2Stats = await fetchJson("/api/stats/summary?game=aion2").catch(() => null);
   const totals = {
-    encounterCount: (aionStats?.encounterCount ?? 0) + (aion2Stats?.encounterCount ?? 0),
-    parseCount: (aionStats?.parseCount ?? 0) + (aion2Stats?.parseCount ?? 0),
-    playerCount: (aionStats?.playerCount ?? 0) + (aion2Stats?.playerCount ?? 0),
+    encounterCount: aion2Stats?.encounterCount ?? 0,
+    parseCount: aion2Stats?.parseCount ?? 0,
+    playerCount: aion2Stats?.playerCount ?? 0,
   };
   const statsBar =
     totals.encounterCount + totals.parseCount + totals.playerCount > 0
@@ -394,28 +269,14 @@ async function renderHome() {
         ])
       : null;
 
-  // Aion 2's official servers are one comparable standard, so its ranking always runs combined;
-  // classic Aion's are never comparable (see Backend/src/routes/players.ts topPlayersOverall), so
-  // it only ever appears here once the visitor has actually picked one of its own servers. The two
-  // are never merged into one ranked list - unlike recent activity below, a DPS ranking across two
-  // unrelated games would misrepresent them as comparable.
-  let topPlayers = await fetchJson("/api/players/top?game=aion2&limit=5").catch(() => []);
-  let topPlayersGame = "aion2";
-  if (topPlayers.length === 0 && currentServerPicked && currentServerId !== null) {
-    topPlayersGame = "aion";
-    topPlayers = await fetchJson(`/api/players/top?game=aion&serverId=${currentServerId}&limit=5`).catch(() => []);
-  }
+  // Aion 2's official servers are one comparable standard, so the ranking runs combined across them.
+  const topPlayers = await fetchJson("/api/players/top?game=aion2&limit=5").catch(() => []);
+  const topPlayersGame = "aion2";
   const topPlayersSection = topPlayers.length > 0 ? buildTopPlayersSection(topPlayers, topPlayersGame) : null;
 
-  // Recent activity spans both games at once (just a timeline of what happened, not a ranking), so
-  // each row carries its own game tag.
-  const [aionActivity, aion2Activity] = await Promise.all([
-    fetchJson("/api/activity/recent?game=aion&limit=5").catch(() => []),
-    fetchJson("/api/activity/recent?game=aion2&limit=5").catch(() => []),
-  ]);
-  const recentActivity = [...aionActivity.map((r) => ({ ...r, game: "aion" })), ...aion2Activity.map((r) => ({ ...r, game: "aion2" }))]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 6);
+  const recentActivity = (await fetchJson("/api/activity/recent?game=aion2&limit=6").catch(() => []))
+    .map((r) => ({ ...r, game: "aion2" }))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   const recentActivitySectionEl = recentActivity.length > 0 ? buildRecentActivitySection(recentActivity) : null;
 
   // Leaderboard + recent activity side by side 50/50 (per the user, 2026-09-24). The homepage
@@ -496,9 +357,8 @@ function buildTopPlayersSection(rows, game) {
     ]),
     el("tbody", {}, tableRows),
   ]);
-  // Which scope this ranking covers, right next to the heading: Aion 2 is always combined across
-  // its servers, classic Aion is always exactly the visitor's picked server (see renderHome).
-  const scopeTag = game === "aion2" ? gameLabel(game) : currentServerName;
+  // Which scope this ranking covers, right next to the heading: combined across the servers.
+  const scopeTag = gameLabel(game);
   const head = el("div", { className: "home-section-head" }, [
     el("h2", { textContent: t("home.topPlayersHeading") }),
     ...(scopeTag ? [el("span", { className: "home-section-tag", textContent: scopeTag })] : []),
@@ -598,12 +458,11 @@ async function renderDownload() {
     featureCard(t("download.feature4Title"), t("download.feature4Text")),
   ]);
 
-  const step2Parts = t("download.step2").split("{code}");
   const stepsSection = el("div", {}, [
     el("h2", { textContent: t("download.installationHeading") }),
     el("ol", { className: "steps" }, [
       el("li", { textContent: t("download.step1") }),
-      el("li", {}, [step2Parts[0], el("code", { textContent: "Chat.log" }), step2Parts[1]]),
+      el("li", { textContent: t("download.step2") }),
       el("li", { textContent: t("download.step3") }),
       el("li", { textContent: t("download.step4") }),
       el("li", { textContent: t("download.step5") }),
@@ -645,41 +504,6 @@ function featureCard(title, text) {
 
 function formatBytes(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-async function renderServerPicker() {
-  setBreadcrumb([...gameCrumbs(), t("breadcrumb.servers")]);
-  showLoading(t("loading.servers"));
-
-  const servers = await fetchJson(`/api/servers?game=${currentGame}`);
-  if (servers.length === 0) {
-    app.replaceChildren(el("p", { className: "empty", textContent: t("servers.emptyNoServers") }));
-    return;
-  }
-
-  const list = el(
-    "ul",
-    { className: "plain" },
-    servers.map((s) => {
-      // s.id is null for a catalog server nobody has ever uploaded from yet (see servers.ts's own
-      // remarks) - still clickable: instances/bosses are never server-scoped to begin with (see
-      // instances.ts), so there's a real global list to browse even with no serverId at all. Only
-      // a per-server leaderboard/player search has nothing to show yet, which the "no data" hint
-      // still calls out.
-      const a = el("a", { href: gp("/instances"), textContent: s.name });
-      a.addEventListener("click", () => setCurrentServer(s.id, s.name, s.serverCatalogId));
-      const children = [a];
-      if (s.id === null) {
-        children.push(` (${t("servers.noDataYet")})`);
-      }
-      return el("li", {}, children);
-    }),
-  );
-  app.replaceChildren(
-    el("h2", { textContent: t("servers.title") }),
-    el("p", { className: "empty", textContent: t("servers.chooseHint") }),
-    list,
-  );
 }
 
 // Shared by the instance grid and the boss grid below - a "poster" tile is just a photo (optional),
@@ -739,13 +563,7 @@ async function renderInstances() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.instances")]);
   showLoading(t("loading.instances"));
 
-  // Per the user: which instances even exist differs by server (Origin/EuroAion share one list,
-  // Riftshade's is wider) - filtered once a server is picked, otherwise the game's full list.
-  const params = new URLSearchParams({ game: currentGame });
-  if (currentServerPicked && currentServerCatalogId !== null) {
-    params.set("serverCatalogId", currentServerCatalogId);
-  }
-  const instances = await fetchJson(`/api/instances?${params}`);
+  const instances = await fetchJson(`/api/instances?game=${currentGame}`);
   if (instances.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("instances.emptyNoInstances") }));
     return;
@@ -949,12 +767,8 @@ async function renderBosses(instanceSlug) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.bosses")]);
   showLoading(t("loading.bosses"));
 
-  // Same server-scope precedence as a boss leaderboard (see renderLeaderboard): never merged
-  // across classic-Aion servers, combined by default only for Aion 2.
+  // Combined across the servers, like a boss leaderboard (see renderLeaderboard).
   const statsQuery = new URLSearchParams({ game: currentGame });
-  if (currentGame !== "aion2" && currentServerPicked && currentServerId !== null) {
-    statsQuery.set("serverId", currentServerId);
-  }
 
   // The bosses endpoint doesn't carry the instance's own name (see Backend/src/routes/instances.ts)
   // - fetched separately (the instances list is tiny) rather than adding a field there just for
@@ -1137,16 +951,13 @@ async function renderLeaderboard(bossSlug, params) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.leaderboard")]);
   showLoading(t("loading.leaderboard"));
 
-  // Server precedence: an explicit ?server=/?serverId= in the address (a shared link or a tab
-  // click), else the server this visitor picked, else the API's own default (the busiest server
-  // for this boss). currentServerId is null for a catalog server with no uploads yet - omitted then.
+  // An explicit ?server=/?serverId= in the address (a shared link or a tab click) narrows the
+  // leaderboard to that server; otherwise it is combined across the servers.
   const query = new URLSearchParams({ game: currentGame });
   if (params.get("server")) {
     query.set("server", params.get("server"));
   } else if (params.get("serverId")) {
     query.set("serverId", params.get("serverId"));
-  } else if (currentGame !== "aion2" && currentServerPicked && currentServerId !== null) {
-    query.set("serverId", currentServerId);
   }
   const data = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/leaderboard?${query}`);
   const bossPath = gp(`/bosses/${data.boss.slug}`);
@@ -1462,16 +1273,10 @@ async function renderEncounter(encounterId) {
   showLoading(t("loading.encounter"));
 
   const data = await fetchJson(`/api/encounters/${encodeURIComponent(encounterId)}`);
-  // Classic Aion only - Aion 2's servers share one standard and are never individually picked (see
-  // updateServerIndicator).
-  if (currentGame === "aion") {
-    applyServerOverride(data.encounter.serverId, data.encounter.serverName);
-  }
   setBreadcrumb([...gameCrumbs(), link(translateGameName(data.encounter.bossName), gp(`/bosses/${data.encounter.bossId}`))]);
 
   const bossName = translateGameName(data.encounter.bossName);
   const pills = [
-    ...(currentGame === "aion" && data.encounter.serverName ? [el("span", { className: "instance-hero-pill", textContent: data.encounter.serverName })] : []),
     el("span", { className: "instance-hero-pill", textContent: formatDate(new Date(data.encounter.startedAt)) }),
     el("span", {
       className: "instance-hero-pill",
@@ -1790,29 +1595,17 @@ async function renderPlayerProfile(playerId) {
   );
 }
 
-// The game a player belongs to, from the server they are filed under (Aion 2 uploads use "aion2:...").
-function playerGame(p) {
-  return String(p.serverFingerprint ?? "").startsWith("aion2:") ? "aion2" : "aion";
-}
-
-async function renderSearchResults(query, allGames = false) {
+async function renderSearchResults(query) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.search", { query })]);
   showLoading(t("loading.search"));
 
-  // Scoped to the picked server when there is one; otherwise every server, with each hit labelled
-  // (the API returns serverName per row exactly for that case).
-  const params = new URLSearchParams({ q: query });
-  if (!allGames) {
-    params.set("game", currentGame);
-  }
-  if (!allGames && currentServerPicked && currentServerId !== null) {
-    params.set("serverId", currentServerId);
-  }
-  const results = await fetchJson(`/api/players/search?${params}`);
+  // Every server at once; each hit says which server it is from (two servers can each have a
+  // player of the same name).
+  const results = await fetchJson(`/api/players/search?${new URLSearchParams({ q: query })}`);
   if (results.length === 1) {
     // replaceState, not pushState: Back from the profile must not land on a search that would just
     // redirect forward again.
-    navigate(`/${playerGame(results[0])}/players/${results[0].id}`, { replace: true });
+    navigate(gp(`/players/${results[0].id}`), { replace: true });
     return;
   }
   if (results.length === 0) {
@@ -1823,7 +1616,7 @@ async function renderSearchResults(query, allGames = false) {
   const list = el(
     "ul",
     { className: "plain" },
-    results.map((p) => el("li", {}, [link(`${p.serverName ? `${p.name} (${p.serverName})` : p.name}${allGames ? ` - ${gameLabel(playerGame(p))}` : ""}`, `/${playerGame(p)}/players/${p.id}`)])),
+    results.map((p) => el("li", {}, [link(p.serverName ? `${p.name} (${p.serverName})` : p.name, gp(`/players/${p.id}`))])),
   );
   app.replaceChildren(el("h2", { textContent: t("search.multipleResultsHeading") }), list);
 }
@@ -1871,18 +1664,6 @@ async function route() {
   }
 
   const isHome = section === "home";
-  const isGameless = isHome || section === "download" || section === "privacy" || section === "terms" || section === "notfound";
-  if (isHome) {
-    serverOverride = null;
-  }
-  loadServerState();
-  if (serverOverride) {
-    currentServerId = serverOverride.id;
-    currentServerName = serverOverride.name;
-    currentServerPicked = true;
-  }
-  updateServerIndicator(isGameless);
-  updateGameTabs(isGameless);
 
   try {
     if (isHome) {
@@ -1893,8 +1674,6 @@ async function route() {
       await renderPrivacy();
     } else if (section === "terms") {
       await renderTerms();
-    } else if (section === "servers") {
-      await renderServerPicker();
     } else if (section === "instances" && !param) {
       await renderInstances();
     } else if (section === "instances") {
@@ -1908,7 +1687,7 @@ async function route() {
     } else if (section === "players" && param) {
       await renderPlayerProfile(param);
     } else if (section === "search" && params.get("q")) {
-      await renderSearchResults(params.get("q"), params.get("all") === "1");
+      await renderSearchResults(params.get("q"));
     } else {
       renderNotFound();
     }
@@ -1945,9 +1724,7 @@ document.getElementById("search-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const query = document.getElementById("search-input").value.trim();
   if (query) {
-    // From the homepage (no game picked) the search covers both games; the results say which is which.
-    const fromHome = location.pathname === "/" || location.pathname === "";
-    navigate(gp(`/search?q=${encodeURIComponent(query)}${fromHome ? "&all=1" : ""}`));
+    navigate(gp(`/search?q=${encodeURIComponent(query)}`));
   }
 });
 

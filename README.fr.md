@@ -2,156 +2,95 @@
 
 # Aion DPS Meter
 
-Site web avec classements de boss communautaires : **https://aiondps.com**
+Site web avec classements de boss communautaires et profils de personnages : **https://aiondps.com**
 
-Un compteur de DPS et de butin pour **AION 4.6 (OriginAion)** qui fonctionne à partir du fichier
-`Chat.log` du jeu — le support d'**Aion 2** est en préparation.
+Un compteur de dégâts/soins pour **Aion 2**. Il lit le trafic réseau du jeu sur votre machine grâce au pilote
+[Npcap](https://npcap.com) — passivement : il n'envoie jamais de paquet et ne touche ni le processus du jeu ni
+sa mémoire. Rien de votre partie ne quitte votre machine, sauf si vous l'envoyez (voir [Envois](#envois)) ;
+s'y ajoute la vérification des mises à jour, qui demande à GitHub si une version plus récente existe et peut
+être désactivée ; voir [Mises à jour](#mises-à-jour).
 
-Pour Aion classique, il lit un fichier texte que le client écrit de lui-même. Il ne capture aucun
-trafic réseau et ne lit ni n'écrit dans le processus du jeu. Rien de votre partie ne quitte votre
-machine : ni dégâts, ni butin, ni noms. La seule chose qu'il envoie est une vérification de mise à
-jour, qui demande à GitHub s'il existe une version plus récente et peut être désactivée ; voir
-[Mises à jour](#mises-à-jour).
-
-**Aion 2** n'écrit pas de `Chat.log`. Si vous passez le jeu à Aion 2 dans les paramètres, le
-compteur lit à la place le trafic réseau du jeu sur votre machine via le pilote
-[Npcap](https://npcap.com) — de façon passive : il n'envoie jamais de paquet et ne touche jamais
-au processus du jeu. Le suivi en direct démarre dès que le format des paquets a été calibré pour
-la version actuelle du jeu (voir `Client/assets/aion2/protocol/opcodes.json`) ; en attendant, le
-compteur l'indique dans sa barre de statut. Tout reste aussi local que pour Aion classique, sauf
-si vous choisissez d'envoyer un combat de boss aux classements de la communauté.
+> Aion classique (basé sur Chat.log) ne fait plus partie du compteur. La dernière version qui le prend en
+> charge reste sur la branche [`aion1-included`](../../tree/aion1-included).
 
 ## Installation
 
-1. Téléchargez `AionDpsMeter-win-Setup.exe` depuis la [dernière version](../../releases/latest) et
-   lancez-le. Il n'y a rien à valider : l'installation se fait dans votre profil utilisateur et le
-   compteur démarre. Aucun droit administrateur, aucun .NET requis.
-2. Ouvrez **Settings → App Settings** et choisissez votre **dossier d'installation d'Aion** — le
-   dossier racine, celui qui contient `bin64\game.dll`. La fenêtre indique immédiatement si elle a
-   trouvé une installation valide et si un `Chat.log` s'y trouve déjà.
-
-> **Vous venez de la 0.5.2 ou d'une version antérieure ?** Désinstallez d'abord l'ancienne
-> (Paramètres Windows → Applications → *Aion DPS Meter*), puis lancez le nouvel installeur. Ces
-> versions s'installaient dans `Program Files`, ce qui les empêchait de se mettre à jour
-> elles-mêmes. C'est une étape unique ; ensuite tout se fait tout seul.
-
-### Prérequis : le journal de chat du client doit être activé
-
-Aion n'écrit `Chat.log` que si l'option interne `g_chatlog` est activée. Cet interrupteur se
-trouve dans le client du jeu, pas dans cet outil — activez-le comme vous le feriez normalement
-(par exemple avec [ShugoConsole](https://github.com/grenadium/ShugoConsole)). **Aion DPS Meter ne
-touche jamais au processus du jeu pour cela** ; si le fichier n'est pas écrit, le compteur n'a
-rien à lire.
+1. Installez le pilote [Npcap](https://npcap.com) (le compteur en a besoin pour voir le trafic du jeu ; il ne
+   fait pas partie de l'installateur).
+2. Téléchargez `AionDpsMeter-win-Setup.exe` depuis la [dernière version](../../releases/latest) et lancez-le.
+   Il s'installe dans votre profil utilisateur et démarre le compteur — pas de droits administrateur, pas de .NET.
+3. Lancez le compteur, puis connectez-vous avec votre personnage. Le compteur lit votre personnage, équipement,
+   compétences et plateaux Daevanion directement dans le jeu ; le serveur est détecté automatiquement.
 
 ## Utilisation
 
-L'enregistrement démarre dès que le compteur tourne et qu'un dossier Aion valide est renseigné.
-
-**Votre historique de chat n'est jamais lu.** Au démarrage, le compteur se place à la fin
-*actuelle* du `Chat.log` et ne traite que les lignes écrites à partir de cet instant — comme un
-magnétophone qu'on vient d'allumer, pas comme un scanner d'archives. **La pause écarte** au lieu
-de différer : les lignes écrites pendant la pause sont définitivement ignorées, une reprise ne
-rejoue donc jamais un combat que vous avez volontairement laissé de côté. Vos conversations
-privées passées, le chat de légion et les chuchotements ne sont jamais consultés.
+L'enregistrement démarre dès que le compteur tourne. **La pause jette** au lieu de différer : les événements
+pendant une pause sont perdus, la reprise ne rejoue jamais un combat que vous avez laissé passer.
 
 ### Vues
 
-- **Dmg** — dégâts par joueur, avec total et DPS, icônes de classe et tri par colonne. Le filtre
-  **Mob/Boss** fait passer la colonne du DPS global au véritable **iDPS** par cible (dégâts sur
-  une cible divisés par la durée d'engagement commune du groupe avec elle).
-- **Loot** — ce qui est tombé et pour qui : personne, objet, quantité et rareté. Les reliques
-  comptent en plus dans les points d'Abysse de chaque personne.
+- **Dmg** — dégâts par joueur, avec total et DPS, icônes de classe et liste triable. Le filtre **Mob/Boss**
+  bascule la colonne entre DPS global et **iDPS** par cible. Les boss sont reconnus à partir des données du jeu
+  et affichés par leur nom. **Double-clic** sur un joueur pour le détail des compétences.
+- **Personnage** (icône de personne) — ouvre une fenêtre avec votre propre personnage : profil, équipement avec
+  niveaux d'objet et enchantement, compétences avec niveaux et plateaux Daevanion. Elle garde votre dernière
+  connexion et n'est donc jamais vide.
 
-### Hide UI (superposition)
+### Hide UI (overlay)
 
-Transforme la fenêtre en petites étiquettes traversables au clic, que vous pouvez laisser sur le
-jeu — une par joueur, avec nom, dégâts et DPS. Bascule avec **Ctrl+Alt+H**, depuis n'importe où,
-pour que ce ne soit jamais un aller sans retour.
+Transforme la fenêtre en petites pastilles traversables posées sur le jeu — une par joueur avec nom, dégâts et
+DPS. Bascule avec **Ctrl+Alt+H**, de n'importe où.
 
-### Copy
+### Copier
 
-**Copy** place dans le presse-papiers un classement d'une seule ligne, prêt pour le chat
-(`Nom 1.234.567 (890), …`). Dans la vue Loot, cela produit un résumé de butin pour le chat d'Aion,
-et **Copy All** donne un tableau Markdown pour Discord.
+**Copy** place un classement d'une ligne, prêt pour le chat, dans le presse-papiers (`Nom 1.234.567 (890), …`) ;
+**Copy All** donne un tableau Markdown pour Discord.
 
-### Commandes en jeu
+### Commandes de chat
 
-À taper comme des lignes de chat normales pour piloter le compteur sans quitter le jeu :
+`.ui` (overlay), `.pause` / `.resume`, `.dmg` (copier le classement) et `.cleardmg` (vider la session). Le
+gestionnaire ne les accepte que de votre propre personnage. Le chat d'Aion 2 n'est pas encore décodé, elles ne
+font donc rien pour l'instant.
 
-| Commande | Effet |
-|---|---|
-| `.ui` | basculer la superposition Hide UI |
-| `.pause` / `.resume` | arrêter / reprendre l'enregistrement |
-| `.dmg` | copier le classement des dégâts dans le presse-papiers |
-| `.cleardmg` | effacer la session en cours |
-| `.loot` | copier le résumé du butin dans le presse-papiers |
+## Envois
 
-Seuls les personnages enregistrés dans les paramètres peuvent les déclencher : un `.cleardmg`
-tapé par un inconnu dans un canal que vous ne lisez même pas ne peut donc pas effacer votre
-session.
+- **Les combats de boss** sont envoyés quand vous cliquez sur envoyer (bouton ou menu Session) : boss, joueurs
+  présents, dégâts, soins, dégâts subis et compétences. Seuls les boss annoncés par le jeu et connus du catalogue
+  sont acceptés.
+- **Votre propre profil de personnage** (nom, classe, niveau, équipement, compétences, Daevanion, légion, serveur)
+  est envoyé automatiquement quelques secondes après la connexion, pour que l'on vous trouve sur le site. Désactivable
+  dans les **Paramètres**.
+- Sans envoi, rien ne quitte votre machine.
 
 ## Mises à jour
 
-Le compteur se met à jour tout seul. Il interroge GitHub au démarrage puis toutes les cinq
-minutes, télécharge la nouvelle version en arrière-plan et la met en place au démarrage suivant.
-Aucun installeur à lancer, aucune invite UAC, rien à cliquer. C'est possible parce qu'il vit dans
-votre profil utilisateur et non dans `Program Files` : il a le droit de remplacer ses propres
-fichiers.
+Le compteur se met à jour tout seul. Il demande à GitHub une version plus récente au démarrage et toutes les cinq
+minutes, la télécharge en arrière-plan et l'installe au prochain démarrage — ni installateur ni UAC. Quand une mise à
+jour est prête, une ligne verte apparaît ; un clic propose de redémarrer tout de suite. **App → Check for updates**
+fait de même à la demande.
 
-Quand une mise à jour est prête, une ligne verte apparaît dans la barre d'état en bas ; un clic
-propose de redémarrer immédiatement. Refuser ne coûte rien : la version est déjà téléchargée et
-s'appliquera au prochain démarrage normal. Pas de fenêtre surgissante, volontairement : le
-programme est posé sur un jeu en cours, et un dialogue qui vole le focus en plein boss est pire
-qu'une mise à jour tardive.
-
-**App → Check for updates** fait la même chose à la demande et vous dit aussi quand vous êtes déjà
-à jour.
-
-La vérification lit une seule URL et n'envoie rien d'autre que la requête elle-même :
+La vérification lit une seule URL et n'envoie rien d'autre que la requête :
 
 ```
 https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
-Désactivable dans **Settings → App Settings → Updates**. L'entrée de menu continue de fonctionner :
-celle-là, c'est vous qui demandez, pas le programme qui décide.
-
-## Quelle est sa précision ?
-
-Validé contre trois fichiers `Chat.log` du *même* run de la Base d'approvisionnement de Sauro,
-enregistrés sur trois PC différents (dont un client allemand), avec les PV réels des boss comme
-référence. Les dégâts infligés à chaque boss tombent à **0,02 % – 2,8 %** de ses PV réels :
-
-| Boss | PV réels | Mesuré | Écart |
-|---|---|---|---|
-| Guard Captain Ahuradim | 1.736.993 | 1.737.299 | +0,02 % |
-| Derakanak the Reaver | 1.343.657 | 1.347.258 | +0,27 % |
-| Archmagus Sayahum | 1.377.644 | 1.370.734 | −0,50 % |
-| Commander Ranodim | 489.332 | 503.244 | +2,84 % |
-
-Le reste est le surplus du coup fatal, qu'aucun compteur basé sur les journaux ne peut voir. Le
-total d'un joueur est ressorti identique à l'unité près sur les trois machines.
-
-Deux écarts connus et sans gravité : les dégâts absorbés par le bouclier d'un boss sont tout de
-même journalisés (il paraît donc dépasser ses PV), et plusieurs monstres portant le même nom sont
-additionnés.
+Désactivable sous **Paramètres → Mises à jour** ; l'élément de menu fonctionne quand même.
 
 ## Compiler depuis les sources
 
 ```
 cd Client
 dotnet build
-dotnet run -- selftest                       # auto-tests du parseur et des calculs de DPS
-dotnet run -- chatlog <chemin-vers-Chat.log> # analyser un fichier et afficher le résumé
+dotnet run -- selftest                              # auto-tests (protocole, capture, décodage, ...)
+dotnet run -- aion2-record <out.jsonl>              # enregistrer le trafic du jeu (« stop » termine)
+dotnet run -- aion2-replay <fichier.jsonl>          # rejouer un enregistrement dans le vrai décodeur
+dotnet run -- aion2-upload-dryrun <fichier.jsonl>   # construire les envois d'un enregistrement, rien envoyer
 ```
 
-Windows uniquement (WPF). Les auto-tests rejouent des lignes textuelles issues de vrais journaux
-dans toutes les langues prises en charge : c'est le moyen le plus rapide de voir si une
-modification du parseur a cassé quelque chose.
+Windows uniquement (WPF). `Tools/aion2-dat` lit les tables de texte du jeu (noms en huit langues) ; voir son README.
 
-## À propos des règles du serveur
+## Remarque sur les règles des serveurs
 
-Pour Aion classique, cet outil ne lit qu'un fichier journal que le jeu produit lui-même ; pour
-Aion 2, il observe à la place, de façon passive, le trafic réseau du jeu. Dans tous les cas, les
-serveurs privés fixent leurs propres règles sur les outils tiers et les addons — un coup d'œil à
-celles d'OriginAion s'impose avant utilisation.
+Le compteur observe uniquement, passivement, le trafic réseau du jeu. Les éditeurs fixent néanmoins leurs propres
+règles sur les outils tiers — consultez les conditions du jeu avant de l'utiliser.

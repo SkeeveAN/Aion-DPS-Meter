@@ -770,5 +770,15 @@
     "pl": "Pokaż",
     "tr": "Göster",
     "zh": "显示"
+  },
+  "Settings.AutoUploadProfile": {
+    "en": "Upload my character profile automatically after login (so I can be found on the website)",
+    "de": "Mein Charakterprofil nach dem Login automatisch hochladen (damit man mich auf der Webseite findet)",
+    "fr": "Envoyer automatiquement mon profil de personnage après la connexion (pour que l'on me trouve sur le site)",
+    "es": "Subir mi perfil de personaje automáticamente tras iniciar sesión (para que me encuentren en el sitio web)",
+    "ru": "Автоматически загружать профиль моего персонажа после входа (чтобы меня можно было найти на сайте)",
+    "pl": "Przesyłaj automatycznie profil mojej postaci po zalogowaniu (aby można mnie było znaleźć na stronie)",
+    "tr": "Girişten sonra karakter profilimi otomatik yükle (sitede bulunabilmem için)",
+    "zh": "登录后自动上传我的角色资料（以便在网站上被找到）"
   }
 }

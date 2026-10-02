@@ -2,153 +2,91 @@
 
 # Aion DPS Meter
 
-Strona z rankingami bossów społeczności: **https://aiondps.com**
+Strona z rankingami bossów społeczności i profilami postaci: **https://aiondps.com**
 
-Miernik obrażeń i łupów dla **AION 4.6 (OriginAion)**, działający na podstawie własnego pliku
-`Chat.log` gry — wsparcie dla **Aion 2** jest w przygotowaniu.
+Licznik obrażeń/leczenia dla **Aion 2**. Czyta ruch sieciowy gry na twoim komputerze przez sterownik
+[Npcap](https://npcap.com) — pasywnie: nigdy nie wysyła pakietów i nie dotyka ani procesu gry, ani jego pamięci.
+Nic z twojej gry nie opuszcza komputera, dopóki sam tego nie prześlesz (zob. [Przesyłanie](#przesyłanie)); poza tym
+wysyłane jest sprawdzanie aktualizacji — zapytanie do GitHuba o nowszą wersję, które można wyłączyć; zob.
+[Aktualizacje](#aktualizacje).
 
-Dla klasycznego Aion program czyta plik tekstowy, który klient zapisuje sam z siebie. Nie
-przechwytuje ruchu sieciowego i nie czyta ani nie zapisuje niczego w procesie gry. Nic z Twojej
-rozgrywki nie opuszcza Twojego komputera — żadnych liczb obrażeń, żadnych łupów, żadnych nazw.
-Jedyną rzeczą, którą wysyła, jest sprawdzenie aktualizacji, które pyta GitHub, czy istnieje
-nowsza wersja, i które można wyłączyć; zobacz [Aktualizacje](#aktualizacje).
-
-**Aion 2** nie zapisuje `Chat.log`. Gdy przełączysz grę na Aion 2 w ustawieniach, miernik zamiast
-tego odczytuje ruch sieciowy gry na Twoim komputerze przez sterownik
-[Npcap](https://npcap.com) — pasywnie: nigdy nie wysyła pakietu i nigdy nie dotyka procesu gry.
-Śledzenie na żywo zaczyna działać, gdy tylko układ pakietów zostanie skalibrowany dla aktualnej
-wersji gry (zobacz `Client/assets/aion2/protocol/opcodes.json`); do tego czasu miernik informuje
-o tym w swoim pasku stanu. Wszystko pozostaje tak samo lokalne jak w klasycznym Aion, chyba że
-sam zdecydujesz się przesłać walkę z bossem do rankingów społeczności.
+> Klasyczny Aion (oparty na Chat.log) nie jest już częścią licznika. Ostatnia wersja, która go obsługuje, jest na
+> gałęzi [`aion1-included`](../../tree/aion1-included).
 
 ## Instalacja
 
-1. Pobierz `AionDpsMeter-win-Setup.exe` z [najnowszego wydania](../../releases/latest) i uruchom
-   go. Nie ma nic do klikania — instaluje się w profilu użytkownika i uruchamia miernik. Bez
-   uprawnień administratora, bez potrzeby .NET.
-2. Otwórz **Settings → App Settings** i wybierz **folder instalacji Aion** — folder główny,
-   zawierający `bin64\game.dll`. Okno od razu poinformuje, czy znalazło prawidłową instalację i
-   czy istnieje tam już plik `Chat.log`.
+1. Zainstaluj sterownik [Npcap](https://npcap.com) (licznik potrzebuje go, by widzieć ruch gry; nie wchodzi w skład
+   instalatora).
+2. Pobierz `AionDpsMeter-win-Setup.exe` z [najnowszego wydania](../../releases/latest) i uruchom. Instaluje się w
+   profilu użytkownika i uruchamia licznik — bez uprawnień administratora i bez .NET.
+3. Uruchom licznik, a potem zaloguj się swoją postacią. Licznik odczytuje postać, ekwipunek, umiejętności i plansze
+   Daevanion z samej gry; serwer jest wykrywany automatycznie.
 
-> **Aktualizujesz z wersji 0.5.2 lub starszej?** Najpierw odinstaluj starą wersję (Ustawienia
-> Windows → Aplikacje → *Aion DPS Meter*), potem uruchom nowy instalator. Te wersje instalowały
-> się w `Program Files`, przez co nigdy nie mogły się same aktualizować. To jednorazowy krok — od
-> teraz aktualizacje stosują się same.
+## Użycie
 
-### Wymóg: rejestrowanie czatu klienta musi być włączone
-
-Aion zapisuje `Chat.log` tylko wtedy, gdy wewnętrzna opcja klienta `g_chatlog` jest włączona.
-Ten przełącznik znajduje się w kliencie gry, nie w tym narzędziu — włącz go tak, jak zwykle
-(na przykład za pomocą [ShugoConsole](https://github.com/grenadium/ShugoConsole)). **Aion DPS
-Meter nigdy nie dotyka procesu gry w tym celu**; jeśli plik nie jest zapisywany, miernik nie ma
-czego czytać.
-
-## Obsługa
-
-Nagrywanie zaczyna się od razu, gdy miernik jest uruchomiony i ustawiony jest prawidłowy folder
-Aion.
-
-**Nigdy nie czyta Twojej historii czatu.** Po starcie przeskakuje na *aktualny* koniec pliku
-`Chat.log` i przetwarza tylko linie zapisane od tego momentu — jak magnetofon właśnie włączony,
-a nie skaner archiwum. **Pauza odrzuca**, a nie odkłada: linie zapisane podczas pauzy są pomijane
-na stałe, więc wznowienie nigdy nie odtwarza walki, w której świadomie nie uczestniczyłeś. Twoje
-dawne prywatne rozmowy, czat legionu i szepty nigdy nie są przeglądane.
+Nagrywanie zaczyna się, gdy tylko licznik działa. **Pauza odrzuca**, a nie odkłada: zdarzenia w czasie pauzy giną na
+zawsze, wznowienie nigdy nie odtwarza walki, którą ominąłeś.
 
 ### Widoki
 
-- **Dmg** — obrażenia na gracza, z sumą i DPS, ikonami klas i sortowalną listą. Filtr
-  **Mob/Boss** przełącza kolumnę między ogólnym DPS a prawdziwym, celowym **iDPS** (obrażenia
-  zadane jednemu celowi podzielone przez wspólny czas walki grupy z tym celem).
-- **Loot** — co komu wypadło: osoba, przedmiot, ilość i stopień rzadkości. Relikwie liczą się
-  też do Punktów Otchłani danej osoby.
+- **Dmg** — obrażenia na gracza z sumą i DPS, ikonami klas i sortowaną listą. Filtr **Mob/Boss** przełącza kolumnę
+  między ogólnym DPS a prawdziwym **iDPS** na cel. Bossowie są rozpoznawani z danych gry i pokazywani z nazwy.
+  **Podwójne kliknięcie** gracza pokazuje podział na umiejętności.
+- **Postać** (ikona osoby) — otwiera okno z twoją postacią: profil, ekwipunek z poziomami przedmiotów i
+  ulepszeniami, umiejętności z poziomami i plansze Daevanion. Zapamiętuje ostatnie logowanie, więc nigdy nie jest puste.
 
 ### Hide UI (nakładka)
 
-Zamienia okno w małe, przezroczyste dla kliknięć „chipy”, które można zostawić na wierzchu gry —
-jeden na gracza, pokazujący imię, obrażenia i DPS. Przełączane **Ctrl+Alt+H**, z dowolnego
-miejsca, więc nigdy nie jest to droga bez powrotu.
+Zamienia okno w małe, przeklikiwalne znaczniki nad grą — po jednym na gracza z nazwą, obrażeniami i DPS. Przełączanie
+**Ctrl+Alt+H**, z dowolnego miejsca.
 
-### Copy
+### Kopiowanie
 
-**Copy** umieszcza w schowku jednowierszowy, gotowy do czatu ranking
-(`Imię 1.234.567 (890), …`). W widoku Loot generuje zamiast tego podsumowanie łupów w formacie
-czatu Aion, a **Copy All** daje tabelę w formacie Markdown dla Discorda.
+**Copy** wkłada do schowka jednowierszowy ranking gotowy do czatu (`Nazwa 1.234.567 (890), …`); **Copy All** daje
+tabelę Markdown dla Discorda.
 
-### Polecenia w grze
+### Komendy czatu
 
-Wpisz je jako zwykłe linie czatu, aby sterować miernikiem bez opuszczania gry:
+`.ui` (nakładka), `.pause` / `.resume`, `.dmg` (skopiuj ranking) i `.cleardmg` (wyczyść sesję). Obsługa przyjmuje je
+tylko od twojej postaci. Czat Aion 2 nie jest jeszcze dekodowany, więc na razie nic nie robią.
 
-| Polecenie | Działanie |
-|---|---|
-| `.ui` | przełącz nakładkę Hide-UI |
-| `.pause` / `.resume` | zatrzymaj / wznów nagrywanie |
-| `.dmg` | skopiuj ranking obrażeń do schowka |
-| `.cleardmg` | wyczyść bieżącą sesję |
-| `.loot` | skopiuj podsumowanie łupów do schowka |
+## Przesyłanie
 
-Wywołać je mogą tylko postacie zarejestrowane w ustawieniach, więc `.cleardmg` wpisane przez
-obcą osobę na kanale, którego nawet nie czytasz, nie może wyczyścić Twojej sesji.
+- **Walki z bossami** są przesyłane po kliknięciu upload (przycisk lub menu Session): boss, uczestnicy, obrażenia,
+  leczenie, otrzymane obrażenia i umiejętności. Przyjmowani są tylko bossowie zapowiedziani przez grę i znani katalogowi.
+- **Profil twojej postaci** (nazwa, klasa, poziom, ekwipunek, umiejętności, Daevanion, legion, serwer) jest
+  przesyłany automatycznie kilka sekund po zalogowaniu, aby można cię było znaleźć na stronie. Wyłączysz to w
+  **Ustawieniach**.
+- Bez przesyłania nic nie opuszcza twojego komputera.
 
 ## Aktualizacje
 
-Miernik aktualizuje się sam. Przy starcie, a potem co pięć minut, pyta GitHub o nowszą wersję,
-pobiera ją w tle i podmienia przy następnym uruchomieniu. Bez instalatora, bez okna UAC, nic do
-klikania. Działa to, bo program mieszka w profilu użytkownika, a nie w `Program Files` — tam
-wolno mu podmieniać własne pliki.
+Licznik aktualizuje się sam. Przy starcie i co pięć minut pyta GitHub o nowszą wersję, pobiera ją w tle i stosuje przy
+następnym uruchomieniu — bez instalatora i UAC. Gdy aktualizacja jest gotowa, na dole pojawia się zielona linia;
+kliknięcie proponuje natychmiastowy restart. **App → Check for updates** robi to samo na żądanie.
 
-Gdy aktualizacja jest już pobrana, na dole w wierszu statusu pojawia się zielona linia; kliknięcie
-oferuje natychmiastowy restart. Odrzucenie nic nie kosztuje — wersja już tam jest i włączy się
-przy następnym normalnym starcie. Celowo brak wyskakującego okna: okno programu leży nad działającą
-grą, a dialog kradnący fokus w środku walki z bossem byłby gorszy niż spóźniona aktualizacja.
-
-**App → Check for updates** robi to samo na żądanie i informuje też, gdy masz już najnowszą wersję.
-
-Sprawdzenie odczytuje dokładnie jeden adres URL i nie wysyła nic poza samym zapytaniem:
+Sprawdzanie czyta jeden adres URL i nie wysyła niczego poza samym zapytaniem:
 
 ```
 https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
-Wyłączane w **Settings → App Settings → Updates**. Pozycja menu nadal działa — to Twoje własne
-zapytanie, nie decyzja programu.
-
-## Jak dokładny jest ten miernik?
-
-Zwalidowany względem trzech plików `Chat.log` z tego samego przebiegu Sauro Supply Base,
-zapisanych na trzech różnych komputerach (jeden z nich to klient niemiecki), z prawdziwymi
-punktami życia bossów jako punktem odniesienia. Obrażenia na bossa mieszczą się w zakresie
-**0,02% – 2,8%** od jego rzeczywistych HP:
-
-| Boss | Prawdziwe HP | Zmierzone | Odchylenie |
-|---|---|---|---|
-| Dowódca straży Ahuradim | 1 736 993 | 1 737 299 | +0,02% |
-| Mroczny pożeracz Derakanak | 1 343 657 | 1 347 258 | +0,27% |
-| Oficer inspekcyjny Sayahum | 1 377 644 | 1 370 734 | −0,50% |
-| Komendant zaopatrzenia Ranodim | 489 332 | 503 244 | +2,84% |
-
-Reszta to przesada przy ciosie dobijającym, której żaden miernik oparty na logu nie zobaczy.
-Całkowite obrażenia gracza zgadzały się co do jednostki na wszystkich trzech komputerach.
-
-Dwa znane, nieszkodliwe odchylenia: przy bossie, którego tarcza pochłania obrażenia, te obrażenia
-są mimo to logowane (przez co wychodzą powyżej jego HP), a kilka mobów o tej samej nazwie jest
-liczonych razem.
+Wyłączysz to w **Ustawienia → Aktualizacje**; pozycja menu działa mimo to.
 
 ## Budowanie ze źródeł
 
 ```
 cd Client
 dotnet build
-dotnet run -- selftest                    # testy wewnętrzne parsera i obliczeń DPS
-dotnet run -- chatlog <ścieżka-do-Chat.log> # sparsuj plik i wypisz podsumowanie
+dotnet run -- selftest                              # autotesty (protokół, przechwytywanie, dekodowanie, ...)
+dotnet run -- aion2-record <out.jsonl>              # nagraj ruch gry ("stop" kończy)
+dotnet run -- aion2-replay <plik.jsonl>             # odtwórz nagranie prawdziwym dekoderem
+dotnet run -- aion2-upload-dryrun <plik.jsonl>      # zbuduj przesyłki z nagrania, nic nie wysyłając
 ```
 
-Tylko Windows (WPF). Testy wewnętrzne przepuszczają dosłowne linie z prawdziwych logów we
-wszystkich obsługiwanych językach i są najszybszym sposobem sprawdzenia, czy zmiana w parserze
-czegoś nie zepsuła.
+Tylko Windows (WPF). `Tools/aion2-dat` czyta tablice tekstów gry (nazwy w ośmiu językach); zob. jego README.
 
-## Uwaga o zasadach serwera
+## Uwaga o regułach serwerów
 
-W klasycznym Aion to narzędzie czyta tylko plik dziennika, który sama gra tworzy; w Aion 2
-zamiast tego pasywnie obserwuje ruch sieciowy gry. Tak czy inaczej, prywatne serwery mają własne
-zasady dotyczące oprogramowania i dodatków firm trzecich — warto zajrzeć do zasad OriginAion
-przed użyciem.
+Licznik jedynie pasywnie obserwuje ruch sieciowy gry. Mimo to wydawcy ustalają własne zasady dotyczące narzędzi firm
+trzecich — przed użyciem warto zajrzeć do warunków gry.

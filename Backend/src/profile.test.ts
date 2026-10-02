@@ -213,7 +213,7 @@ test("players without a boss fight: POST /api/uploads/profiles stores profiles a
   }
 });
 
-test("a player that only has a profile (no boss fight) is found by name search, per game", async () => {
+test("a player that only has a profile (no boss fight) is found by name search", async () => {
   const { buildServer } = await import("./server.js");
   const app = await buildServer();
   try {
@@ -231,9 +231,6 @@ test("a player that only has a profile (no boss fight) is found by name search, 
     assert.equal(aion2.length, 1);
     assert.equal(aion2[0].name, "Aahzetta");
     assert.equal(aion2[0].serverName, "Europe - Kaisinel");
-
-    const classic = (await app.inject({ url: "/api/players/search?q=aahzet&game=aion" })).json();
-    assert.equal(classic.length, 0);
 
     const any = (await app.inject({ url: "/api/players/search?q=aahzet" })).json();
     assert.equal(any.length, 1);

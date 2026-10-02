@@ -1,18 +1,14 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "./client.js";
 import { instances } from "./schema.js";
-import { GAMES, UNASSIGNED_INSTANCE_NAME } from "../constants.js";
+import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME } from "../constants.js";
 
-// The exact instance/boss roster of this particular private server isn't
-// known here (see Backend/README.md) - seeding a guessed list would risk
-// silently misclassifying real uploads. What IS safe to seed is the bucket
-// every unrecognized boss name falls into on first upload (see
-// src/matching/merge.ts): a stable, well-known instance row for it avoids a
-// race where two concurrent uploads for the same new boss each try to create
-// their own "unassigned" instance. One bucket per game - an unknown Aion 2 boss
-// must never land next to unknown Aion bosses.
+// The instance/boss roster comes from src/data/aion2 (see content/syncAion2.ts). What is seeded
+// here is the bucket every unrecognized boss name falls into on first upload (see
+// src/matching/merge.ts): a stable, well-known instance row for it avoids a race where two
+// concurrent uploads for the same new boss each try to create their own "unassigned" instance.
 function seedUnassignedInstances() {
-  for (const game of GAMES) {
+  for (const game of [DEFAULT_GAME]) {
     const existing = db
       .select()
       .from(instances)

@@ -2,103 +2,72 @@
 
 # Aion DPS Meter
 
-Website with community boss leaderboards: **https://aiondps.com**
+Website with community boss leaderboards and character profiles: **https://aiondps.com**
 
-A DPS and loot meter for **AION 4.6 (OriginAion)** that works entirely from the game's own
-`Chat.log` file, with **Aion 2** support in preparation.
+A damage/heal meter for **Aion 2**. It reads the game's own network traffic on your machine through
+the [Npcap](https://npcap.com) driver — passively: it never sends a packet and never touches the
+game process or its memory. Nothing about your play leaves your machine unless you upload it (see
+[Uploads](#uploads)); the other thing it sends is an update check, which asks GitHub whether a newer
+release exists and can be switched off; see [Updates](#updates).
 
-For classic Aion it reads a text file the client writes on its own. It does not capture network
-traffic, and it does not read from or write to the game process. Nothing about your play leaves
-your machine — no damage numbers, no loot, no names. The one thing it sends is an update check,
-which asks GitHub whether a newer release exists and can be switched off; see [Updates](#updates).
-
-**Aion 2** writes no Chat.log. When you switch the game to Aion 2 in Settings, the meter instead
-reads the game's own network traffic on your machine through the [Npcap](https://npcap.com)
-driver — passively: it never sends a packet and never touches the game process. Live tracking
-starts once the packet layout has been calibrated for the current game version (see
-`Client/assets/aion2/protocol/opcodes.json`); until then the meter says so in its status line. Everything
-stays local exactly as for classic Aion, unless you choose to upload a boss fight to the community
-leaderboards.
+> Classic Aion (Chat.log based) is no longer part of the meter. The last version that supports it
+> is kept on the branch [`aion1-included`](../../tree/aion1-included).
 
 ## Install
 
-1. Download `AionDpsMeter-win-Setup.exe` from the [latest release](../../releases/latest) and run
-   it. There is nothing to click through — it installs into your user profile and starts the
-   meter. No administrator rights, no .NET needed.
-2. Open **Settings → App Settings** and pick your **Aion installation folder** — the root folder,
-   the one containing `bin64\game.dll`. The dialog tells you right away whether it found a valid
-   install and whether a `Chat.log` already exists there.
-
-> **Upgrading from 0.5.2 or older?** Uninstall the old version first (Windows Settings → Apps →
-> *Aion DPS Meter*), then run the new installer. Those versions installed into `Program Files`,
-> which is why they could never update themselves. This is a one-time step — from here on updates
-> apply on their own.
-
-### Prerequisite: the client's chat log must be on
-
-Aion only writes `Chat.log` when the client-internal `g_chatlog` option is enabled. That switch
-lives in the game client, not in this tool — enable it however you normally would (for example
-with [ShugoConsole](https://github.com/grenadium/ShugoConsole)). **Aion DPS Meter never touches
-the game process for this**; if the file is not being written, the meter has nothing to read.
+1. Install the [Npcap](https://npcap.com) driver (the meter needs it to see the game's traffic; it is
+   not part of the installer).
+2. Download `AionDpsMeter-win-Setup.exe` from the [latest release](../../releases/latest) and run it.
+   It installs into your user profile and starts the meter — no administrator rights, no .NET needed.
+3. Start the meter, then log in with your character. The meter reads your character, gear, skills and
+   Daevanion boards from the game itself; the server you play on is detected automatically.
 
 ## Using it
 
-Recording starts as soon as the meter is running and a valid Aion folder is set.
-
-**It never reads your chat history.** On start it jumps to the *current* end of `Chat.log` and only
-ever consumes lines written from that moment on — like a tape recorder switched on just now, not
-an archive scanner. **Pause discards** rather than defers: lines written while paused are skipped
-for good, so resuming never replays a fight you deliberately sat out. Your past private
-conversations, guild chat and whispers are never looked at.
+Recording starts as soon as the meter is running. **Pause discards** rather than defers: events
+during a pause are skipped for good, so resuming never replays a fight you sat out.
 
 ### Views
 
-- **Dmg** — damage per player, with total and DPS, class icons, and a sortable grid. The
-  **Mob/Boss** filter switches the column between overall DPS and true per-target **iDPS** (damage
-  to one target divided by the group's shared engagement time with it).
-- **Loot** — what dropped for whom: person, item, quantity and rarity grade. Relics also count
-  toward each person's Abyss Points.
+- **Dmg** — damage per player, with total and DPS, class icons and a sortable grid. The **Mob/Boss**
+  filter switches the column between overall DPS and true per-target **iDPS**. Bosses are recognised
+  from the game's own data and shown by name. **Double-click** a player for the skill breakdown.
+- **Character** (the person icon) — opens a window with your own character: profile, gear with item
+  levels and enchant, skills with levels, and the Daevanion boards. It keeps your last login, so it is
+  never empty.
 
 ### Hide UI (overlay)
 
-Turns the window into small click-through chips you can leave sitting on top of the game — one
-per player, showing name, damage and DPS. Toggle it with **Ctrl+Alt+H**, from anywhere, so it is
-never a one-way trip.
+Turns the window into small click-through chips you can leave sitting on top of the game — one per
+player, showing name, damage and DPS. Toggle it with **Ctrl+Alt+H**, from anywhere.
 
 ### Copy
 
-**Copy** puts a one-line, chat-ready ranking on the clipboard (`Name 1.234.567 (890), …`). In the
-Loot view it produces an Aion-chat loot summary instead, and **Copy All** gives you a Discord
-markdown table.
+**Copy** puts a one-line, chat-ready ranking on the clipboard (`Name 1.234.567 (890), …`); **Copy All**
+gives you a Discord markdown table.
 
-### In-game commands
+### Chat commands
 
-Type these as normal chat lines to drive the meter without leaving the game:
+`.ui` (overlay), `.pause` / `.resume`, `.dmg` (copy the ranking) and `.cleardmg` (clear the session).
+The handler only accepts them from your own character. Aion 2's chat is not decoded yet, so for now
+they do nothing.
 
-| Command | Effect |
-|---|---|
-| `.ui` | toggle the Hide-UI overlay |
-| `.pause` / `.resume` | stop / continue recording |
-| `.dmg` | copy the damage ranking to the clipboard |
-| `.cleardmg` | clear the current session |
-| `.loot` | copy the loot summary to the clipboard |
+## Uploads
 
-Only characters you registered in the settings can issue them, so a `.cleardmg` typed by a
-stranger in a channel you are not even reading cannot wipe your session.
+- **Boss fights** are uploaded when you click upload (toolbar button or Session menu): the boss, the
+  players who took part, damage, healing, damage taken and skills. Only bosses the game announced and
+  the catalog knows are accepted.
+- **Your own character profile** (name, class, level, gear, skills, Daevanion, legion, server) is
+  uploaded automatically a few seconds after you log in, so you can be found on the website. Switch it
+  off under **Settings**.
+- Without an upload nothing leaves your machine.
 
 ## Updates
 
-The meter updates itself. It asks GitHub for a newer release at startup and every five minutes
-while it runs, downloads it in the background, and swaps it in the next time you start the meter.
-No installer to run, no UAC prompt, nothing to click. That works because it lives in your user
-profile rather than in `Program Files`, so it is allowed to replace its own files.
-
-When an update is ready, a green line appears in the status row at the bottom, and clicking it
-offers to restart right away. Declining costs nothing — the version is already downloaded and
-applies on the next normal start. There is deliberately no popup: the window sits on top of a
-running game, and a dialog stealing focus mid-boss is worse than a late update.
-
-**App → Check for updates** does the same on demand and tells you when you are already current.
+The meter updates itself. It asks GitHub for a newer release at startup and every five minutes while
+it runs, downloads it in the background and swaps it in on the next start — no installer, no UAC
+prompt. When an update is ready a green line appears in the status row; clicking it offers to restart
+right away. **App → Check for updates** does the same on demand.
 
 The check reads one URL and sends nothing but the request itself:
 
@@ -106,42 +75,22 @@ The check reads one URL and sends nothing but the request itself:
 https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
-Turn it off under **Settings → App Settings → Updates**. The menu item keeps working when it is
-off — that one is you asking, not the program deciding.
-
-## How accurate is it?
-
-Validated against three `Chat.log` files of the *same* Sauro Supply Base run, recorded on three
-different PCs (one of them a German client), with the bosses' real HP as the reference. Damage
-dealt to each boss lands within **0,02 % – 2,8 %** of that boss's actual HP:
-
-| Boss | Real HP | Measured | Deviation |
-|---|---|---|---|
-| Guard Captain Ahuradim | 1.736.993 | 1.737.299 | +0,02 % |
-| Derakanak the Reaver | 1.343.657 | 1.347.258 | +0,27 % |
-| Archmagus Sayahum | 1.377.644 | 1.370.734 | −0,50 % |
-| Commander Ranodim | 489.332 | 503.244 | +2,84 % |
-
-The remainder is overkill on the killing blow, which no log-based meter can see. One player's
-total came out identical to the unit on all three machines.
-
-Two known, harmless outliers: a boss whose shield absorbs damage still has that damage logged
-(so it reads over its HP), and several mobs sharing one name are summed together.
+Turn it off under **Settings → Updates**; the menu item keeps working when it is off.
 
 ## Building from source
 
 ```
 cd Client
 dotnet build
-dotnet run -- selftest                    # parser and DPS-maths self-checks
-dotnet run -- chatlog <path-to-Chat.log>  # parse a file and print the summary
+dotnet run -- selftest                              # self-checks (protocol, capture, decoding, ...)
+dotnet run -- aion2-record <out.jsonl>              # record the game's traffic ("stop" ends it)
+dotnet run -- aion2-replay <file.jsonl>             # replay a recording through the real decoder
+dotnet run -- aion2-upload-dryrun <file.jsonl>      # build the uploads of a recording, send nothing
 ```
 
-Windows only (WPF). The self-check suite runs verbatim lines from real logs in every supported
-language and is the fastest way to see whether a parser change broke anything.
+Windows only (WPF). `Tools/aion2-dat` reads the game's text tables (names in eight languages); see its README.
 
 ## A note on server rules
 
-For classic Aion this tool only reads a log file the game itself produces; for Aion 2 it passively
-observes the game's own network traffic instead. Either way, private servers set their own rules
-about third-party tools and addons — worth a look at OriginAion's before using it.
+The meter only passively observes the game's own network traffic. Even so, publishers set their own
+rules about third-party tools — worth a look at the terms of the game before using it.

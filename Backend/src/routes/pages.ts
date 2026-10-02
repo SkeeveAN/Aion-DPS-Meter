@@ -73,15 +73,15 @@ export async function pageRoutes(app: FastifyInstance) {
       return handler(game, request, reply);
     };
 
-  app.get<GameParams>("/:game(^(?:aion|aion2)$)", withGame(async (game, _request, reply) => reply.redirect(`/${game}/instances`, 301)));
+  app.get<GameParams>("/:game(^aion2$)", withGame(async (game, _request, reply) => reply.redirect(`/${game}/instances`, 301)));
 
   app.get<GameParams>(
-    "/:game(^(?:aion|aion2)$)/instances",
+    "/:game(^aion2$)/instances",
     withGame((game, request, reply) => sendCached(request, reply, () => instancesPage(game))),
   );
 
   app.get<GameParams & { Params: { idOrSlug: string } }>(
-    "/:game(^(?:aion|aion2)$)/instances/:idOrSlug",
+    "/:game(^aion2$)/instances/:idOrSlug",
     withGame((game, request, reply) => {
       const { idOrSlug } = request.params as { idOrSlug: string };
       // Old numeric links (shared before slugs existed) move to the slug URL for good.
@@ -94,7 +94,7 @@ export async function pageRoutes(app: FastifyInstance) {
   );
 
   app.get<GameParams & { Params: { idOrSlug: string }; Querystring: { server?: string } }>(
-    "/:game(^(?:aion|aion2)$)/bosses/:idOrSlug",
+    "/:game(^aion2$)/bosses/:idOrSlug",
     withGame((game, request, reply) => {
       const { idOrSlug } = request.params as { idOrSlug: string };
       const query = request.query as { server?: string };
@@ -111,7 +111,7 @@ export async function pageRoutes(app: FastifyInstance) {
   );
 
   app.get<GameParams & { Params: { id: string } }>(
-    "/:game(^(?:aion|aion2)$)/players/:id",
+    "/:game(^aion2$)/players/:id",
     withGame((game, request, reply) => {
       const page = playerPage(game, (request.params as { id: string }).id);
       return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
@@ -120,16 +120,15 @@ export async function pageRoutes(app: FastifyInstance) {
 
   const appOnly = (kind: "servers" | "search" | "participant") =>
     withGame((game, request, reply) => send(reply, render(appOnlyPage(game, kind, request.url.split("?")[0]), requestPath(request))));
-  app.get<GameParams>("/:game(^(?:aion|aion2)$)/servers", appOnly("servers"));
-  app.get<GameParams>("/:game(^(?:aion|aion2)$)/search", appOnly("search"));
+  app.get<GameParams>("/:game(^aion2$)/search", appOnly("search"));
   // Real boss name + server in the link preview, per the user - a shared encounter link used to
   // show only the generic "Boss fight details" placeholder regardless of which fight it was.
   app.get<GameParams & { Params: { id: string } }>(
-    "/:game(^(?:aion|aion2)$)/encounters/:id",
+    "/:game(^aion2$)/encounters/:id",
     withGame((game, request, reply) => {
       const page = encounterPage(game, (request.params as { id: string }).id);
       return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
     }),
   );
-  app.get<GameParams & { Params: { id: string } }>("/:game(^(?:aion|aion2)$)/participants/:id", appOnly("participant"));
+  app.get<GameParams & { Params: { id: string } }>("/:game(^aion2$)/participants/:id", appOnly("participant"));
 }

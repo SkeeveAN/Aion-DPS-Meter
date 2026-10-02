@@ -1,7 +1,6 @@
 import { GAMES } from "./db/schema.js";
 
-// The bucket every unrecognized boss name falls into - see src/matching/merge.ts. One such row
-// exists per game (see instances.game).
+// The bucket every unrecognized boss name falls into - see src/matching/merge.ts.
 export const UNASSIGNED_INSTANCE_NAME = "Unbekannt / nicht zugeordnet";
 
 // The bucket every row created before server tracking existed is backfilled into (see the
@@ -14,14 +13,15 @@ export const UNASSIGNED_INSTANCE_NAME = "Unbekannt / nicht zugeordnet";
 // "IP:PORT"), so it can only ever match itself.
 export const UNKNOWN_SERVER_FINGERPRINT = "unattributed-pre-server-tracking";
 
-// Which game a server/instance belongs to (values live in schema.ts, see its remarks). Anything
-// that predates this distinction (old clients, old URLs) means "aion".
+// Which game a server/instance belongs to. The column and the `?game=` parameter stay (URLs and
+// stored rows keep working), but only Aion 2 is served: rows of the retired classic-Aion version
+// may still sit in the database (their `game` is "aion") and are simply never returned.
 export { GAMES, INSTANCE_CATEGORIES } from "./db/schema.js";
 export type Game = (typeof GAMES)[number];
-export const DEFAULT_GAME: Game = "aion";
+export const DEFAULT_GAME: Game = "aion2";
 
 export function isGame(value: unknown): value is Game {
-  return typeof value === "string" && (GAMES as readonly string[]).includes(value);
+  return value === "aion2";
 }
 
 // The 9th class (skill prefix 19) is "Brawler" in the client's own string table; some sources call it
@@ -40,11 +40,6 @@ export const REGION_EXCLUDED_CLASSES: Record<string, readonly string[]> = {
   "North America": ["Brawler"],
 };
 
-// Older clients looked the exclusions up by slug; kept for those rows.
-export const SERVER_EXCLUDED_CLASSES: Record<string, readonly string[]> = {
-  "aion-2-europe": ["Brawler"],
-  "aion-2-north-america": ["Brawler"],
-};
 
 // Aion 2 class id (the numbering the game's own tables use: 1 = Gladiator ... 8 = Chanter), as the
 // client reads it from a character record. The id is the class code divided by 4 - see the client's

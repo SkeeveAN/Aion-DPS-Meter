@@ -23,30 +23,27 @@ unter `/api/*`.
 pnpm install
 cp .env.example .env
 pnpm run db:migrate     # Migrationen + Slug-Backfill (src/db/backfill.ts)
-pnpm run db:seed        # "Unbekannt"-Bucket je Spiel
+pnpm run db:seed        # "Unbekannt"-Bucket
 pnpm run content:sync   # Aion-2-Referenzdaten aus src/data/aion2 in die DB
 pnpm run dev            # http://127.0.0.1:4000
 pnpm run test           # Matching- und Slug-Tests, node:test
 ```
 
-## Spiele: `aion` und `aion2`
+## Spiel: nur `aion2`
 
-Seit Migration 0024 tragen `server_catalog` und `instances` eine `game`-Spalte (`aion` = klassischer
-4.x-Client mit Chat.log-Meter, `aion2` = UE5-Client); `bosses`, `servers`, `players`, `encounters`
-erben das Spiel über Instanz bzw. Server. Alles, was die Kennung nicht kennt (Clients bis 0.7.x,
-alte URLs), meint `aion`. Konsequenzen:
+Der Meter ist reines Aion 2 (das klassische Aion mit Chat.log wurde entfernt; der letzte Stand mit ihm liegt
+auf dem Git-Branch `aion1-included`). Die `game`-Spalte in `server_catalog` und `instances` und der `?game=`-
+Parameter bleiben, damit gespeicherte Zeilen und alte URLs weiter funktionieren - bedient wird aber nur
+`aion2` (`src/constants.ts`: `isGame`, `DEFAULT_GAME`). Zeilen der alten Version (`game = 'aion'`) können noch
+in der Datenbank liegen und werden nie ausgeliefert. Konsequenzen:
 
-- Instanznamen sind nur noch **pro Spiel** eindeutig ("Fire Temple" gibt es in beiden), den
-  "Unbekannt"-Bucket gibt es einmal je Spiel, und `resolveBossId` (`src/matching/merge.ts`) matcht
-  Bossnamen nur innerhalb des Spiels des Uploads - ein Aion-2-Upload landet nie auf einem
-  klassischen Boss gleichen Namens.
-- Aion-2-Uploads können `bossNpcId` mitschicken; `boss_npc_ids` löst das eindeutig auf, weil sich
-  Aion-2-Bossnamen dungeonübergreifend wiederholen. Klassennamen werden für `aion2` gegen die neun
-  Klassen in `src/constants.ts` geprüft (für `aion` bewusst nicht - private Server haben verschiedene
-  Klassensets).
-- Jede API nimmt `?game=` (Default `aion`): `/api/instances`, `/api/instances/:idOrSlug/bosses`,
+- Aion-2-Uploads schicken `bossNpcId` mit; `boss_npc_ids` löst das eindeutig auf, weil sich Bossnamen
+  dungeonübergreifend wiederholen. Klassennamen werden gegen die neun Klassen in `src/constants.ts` geprüft.
+- Server sind `aion2:<slug>` (aus der Server-ID im Charakterpaket des Clients); Spieler werden nur in solchen
+  Servern gesucht.
+- Jede API nimmt optional `?game=aion2`: `/api/instances`, `/api/instances/:idOrSlug/bosses`,
   `/api/bosses/:idOrSlug/leaderboard`, `/api/bosses/:idOrSlug/mechanics`, `/api/servers`,
-  `/api/server-catalog`.
+  `/api/server-catalog`. Zusätzlich `POST /api/uploads/profiles` (nur Charakterprofile, ohne Kampf).
 
 ## URLs, Slugs und SEO
 
@@ -91,8 +88,8 @@ LTS-Node-Versionen wie 22) oder `make`/`gcc`/`python3` lokal installiert.
 
 ## Instanz-/Boss-Zuordnung
 
-Es gibt keine Instanz→Boss-Datenbank aus dem Client (`Client/Data/NpcDatabase.cs` kennt nur NPC-Namen,
-keine Zone/Instanz-Zuordnung). Ein unbekannter Bossname landet beim ersten Upload automatisch in
+Instanzen und Bosse kommen aus `src/data/aion2` (siehe oben); die Namen in acht Sprachen aus den Texttabellen des
+Spiels (`../Tools/aion2-dat`). Ein unbekannter Bossname landet beim ersten Upload automatisch in
 der Instanz "Unbekannt / nicht zugeordnet" (siehe `src/db/seed.ts`, `src/matching/merge.ts`). Um
 ihn einer echten Instanz zuzuordnen: in der `instances`-Tabelle die Zeile anlegen/finden und in
 `bosses.instance_id` auf deren `id` umbiegen, z.B.:
@@ -116,60 +113,6 @@ Eine passende Instanz-Zeile fehlt noch? Erst per
 nächste `db:migrate`-Lauf nach). Es gibt bewusst keine vorab geratene Instanzliste im Seed - die genaue Instanz-/Boss-Liste
 dieses konkreten Servers ist von hier aus nicht zuverlässig bekannt, eine falsche Zuordnung wäre
 schlimmer als eine leere.
-
-## Welcher Server zeigt welche Instanzen
-
-`instances`/`bosses` selbst bleiben unscoped (derselbe Kampf ist derselbe Kampf, egal welcher
-Server ihn austrägt), aber welche Instanzen ein Server überhaupt ANBIETET, ist es laut dem Nutzer
-nicht: Origin Aion und EuroAion (beide 4.6) teilen sich eine Liste, Aion Riftshade (4.8) hat eine
-breitere. Das steuert `server_catalog_instances` (reine Zuordnungstabelle, `GET /api/instances`
-filtert per `?serverCatalogId=`). Ein Server ohne Zeilen hier zeigt eine LEERE Instanzliste, nie
-eine geratene - gleiche "leer schlägt falsch"-Regel wie oben. Neue Zuordnung anlegen:
-
-```sql
-INSERT INTO server_catalog_instances (server_catalog_id, instance_id)
-SELECT sc.id, i.id FROM server_catalog sc, instances i
-WHERE sc.name = '<Servername>' AND i.name = '<Instanzname>';
-```
-
-## Trash-Mobs ausblenden
-
-Ein eindeutiger Trash-Mob wird automatisch schon beim Upload abgelehnt (siehe
-`src/npc/trashMobs.ts`, aufgerufen aus `src/routes/uploads.ts`, `400 trash_mob_rejected`): jeder
-Name, der im aioncodex-4x-Katalog (`src/data/npc_trash_mob_names.json`, abgeleitet aus des Clients
-eigener `Client/assets/npcs/npcs_en_4x.json`) AUSSCHLIESSLICH als Rang "Normal" auftaucht (z.B. "Kobold
-Peon"), landet erst gar nicht in der DB - der Client selbst filtert das schon vorher genauso (siehe
-`Client/Data/NpcDatabase.IsTrashMob`/`Client/Ui/MainWindow.BuildEncounterUpload`), diese Prüfung ist nur die
-Verteidigungslinie gegen einen älteren Client, der das noch nicht kennt.
-
-Neu erzeugen (wenn aioncodex nachzieht oder weitere NPCs dazukommen):
-
-```bash
-python3 -c "
-import json
-data = json.load(open('Client/assets/npcs/npcs_en_4x.json'))
-from collections import defaultdict
-name_ranks = defaultdict(set)
-for d in data:
-    name_ranks[d['name']].add(d['rank'])
-trash_only = sorted(n for n, r in name_ranks.items() if r == {'Normal'})
-json.dump(trash_only, open('Backend/src/data/npc_trash_mob_names.json', 'w'), ensure_ascii=False, separators=(',', ':'))
-"
-```
-
-Das deckt nur den eindeutigen Fall ab (ein Name, der IMMER Rang "Normal" ist - ein Name, der
-irgendwo auch als Elite/Heroic/Legendary auftaucht, z.B. "Boreas", wird absichtlich nie automatisch
-abgelehnt, um keinen echten Bosskampf fälschlich zu blockieren). Für alles, was diese automatische
-Prüfung nicht erfasst - ein Elite-Mob, den der Nutzer für eine bestimmte Instanz trotzdem als
-uninteressant einstuft, oder ein Name außerhalb des Katalogs (z.B. "Zauberer der Stahlrose" in Steel
-Rose Cargo, laut Nutzer nur ein regulärer Mob, nicht der Instanz-Endboss) - weiterhin die manuelle
-Markierung per SQL, Zeile und Encounters bleiben dabei erhalten (weiter per Direktlink
-`/api/bosses/:id/leaderboard` erreichbar), verschwinden aber aus `GET /api/instances/:id/bosses` und
-damit aus der normalen Bossliste:
-
-```sql
-UPDATE bosses SET is_trash_mob = 1 WHERE name = '<Bossname>';
-```
 
 ## Solo-Bosse (Top 10 pro Klasse statt Top 10 Gruppen)
 
@@ -197,9 +140,9 @@ WHERE name = '<Bossname>';
 
 ## Charakter-Umbenennungen (Spieler-Aliase pflegen)
 
-Aion kennt keine stabile Spieler-ID im Chat.log, nur den Namen - eine echte Umbenennung
+Der Client kennt Spieler nur über den Namen - eine echte Umbenennung
 ("Alhamdulilah" → "Hidan") erzeugt sonst für immer zwei getrennte `players`-Zeilen für dieselbe
-Person, ohne dass es je ein automatisches Signal dafür gäbe (das Chat.log kündigt eine Umbenennung
+Person, ohne dass es je ein automatisches Signal dafür gäbe (das Spiel kündigt eine Umbenennung
 nirgends an). `players.alias_names_normalized` ist deshalb, genau wie `bosses.npc_name_aliases`,
 rein manuell gepflegtes Wissen - nie geraten:
 
@@ -215,91 +158,6 @@ altes Chat.log darf den aktuellen Anzeigenamen nicht wieder zurückdrehen. Inner
 Uploads werden zwei Teilnehmer, die auf dieselbe `players`-Zeile auflösen (direkter Name-Treffer
 oder Alias), automatisch zu einem einzigen Eintrag zusammengeführt (Schaden/Heilung addiert,
 Skill-Listen gemerged) - siehe `mergeDuplicateParticipants` in `src/matching/merge.ts`.
-
-## Buff-Dauer (welche Buffs im "Buffs"-Feld erscheinen)
-
-Per Nutzeranfrage: das "Buffs"-Feld einer Encounter-Detailseite soll keine kurzen
-Kampf-Rotations-Buffs zeigen (z.B. Berserking I, 30s), sondern nur echte, länger stehende
-Verstärkungen (> 3 Minuten) - plus jeden Skill, der Göttliche Kraft/Divine Power kostet, unabhängig
-von dessen eigener Dauer (wie auf myaion.eu). Eine frühere Version dieser Regel hatte stattdessen
-eine wörtliche Namens-Ausnahme für einen Skill namens "Divine Power" - den es unter diesem exakten
-Namen nirgends in aioncodex' 4x-Katalog gibt; aufgefallen an "Daevic Fury I" (Gladiator), das nur
-30s hält, aber 2000 DP auf 30 Minuten Abklingzeit kostet und deshalb komplett unsichtbar blieb, bis
-diese Regel korrigiert wurde. Aion selbst nennt weder Dauer noch Ressourcenkosten im Chat.log - die
-Werte in `src/data/skill_durations.json`/`src/data/skill_dp_cost.json` (Kopien von
-`../Client/assets/skills/skill_durations.json`/`../Client/assets/skills/skill_dp_cost.json`) stammen aus dem
-Beschreibungstext jeder Skillseite auf aioncodex.com ("Increases ... for 30s."/"... for 1h." bzw.
-"Usage Cost: DP 2000"), einmalig für alle 974 bekannten Skills abgerufen, nicht geschätzt.
-
-Neu erzeugen (wenn aioncodex nachzieht oder weitere Skills dazukommen):
-
-```bash
-python3 - <<'PY'
-import json, re, time, urllib.request
-SRC = "Client/assets/skills/skills_multilang_4x.json"
-OUT = "Client/assets/skills/skill_durations.json"
-skills = json.load(open(SRC, encoding="utf-8"))
-ids = sorted({s["id"] for s in skills})
-UNIT_RE = r"(hours|hour|hrs|hr|h|minutes|minute|mins|min|m|seconds|second|secs|sec|s)"
-DUR_RE = re.compile(r"\bfor\s+(\d+)\s*" + UNIT_RE + r"\b", re.IGNORECASE)
-def to_seconds(n, unit):
-    unit = unit.lower()
-    return n * 3600 if unit.startswith("h") else n * 60 if (unit == "m" or unit.startswith("min")) else n
-results = {}
-for sid in ids:
-    html = urllib.request.urlopen(urllib.request.Request(
-        f"https://aioncodex.com/4x/skill/{sid}/", headers={"User-Agent": "Mozilla/5.0"}), timeout=10).read().decode("utf-8", "replace")
-    text = re.sub(r"\s+", " ", re.sub("<[^>]+>", " | ", html))
-    window = text[text.find("Cooldown:"):][:400]
-    m = DUR_RE.search(window)
-    results[str(sid)] = {
-        "durationSeconds": to_seconds(int(m.group(1)), m.group(2)) if m else None,
-        "permanent": "permanent" in window.lower(),
-    }
-    time.sleep(0.05)
-json.dump(results, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-PY
-cp Client/assets/skills/skill_durations.json Backend/src/data/skill_durations.json
-```
-
-Wichtig: aioncodex schreibt Dauern als Kurzformen (`30s`/`5m`/`1h`), nicht als volle Wörter - eine
-frühere Version dieser Regex kannte nur `s`/`min` und übersah dadurch reale Langzeit-Gruppenbuffs
-komplett (Word of Wind I mit `for 5m.` und Blessing of Health I mit `for 1h.` kamen beide ohne
-Dauer zurück, bis das aufgefallen ist). Immer stichprobenartig gegen bekannte lange Buffs prüfen,
-bevor die Datei übernommen wird.
-
-`skill_dp_cost.json` nach demselben Muster neu erzeugen (welche Skills Göttliche Kraft kosten):
-
-```bash
-python3 - <<'PY'
-import json, re, time, urllib.request
-SRC = "Client/assets/skills/skills_multilang_4x.json"
-OUT = "Client/assets/skills/skill_dp_cost.json"
-skills = json.load(open(SRC, encoding="utf-8"))
-ids = sorted({s["id"] for s in skills})
-COST_RE = re.compile(r"Usage Cost:\s*([A-Za-z]+)\s*([\d,]*)")
-dp_ids = []
-for sid in ids:
-    html = urllib.request.urlopen(urllib.request.Request(
-        f"https://aioncodex.com/4x/skill/{sid}/", headers={"User-Agent": "Mozilla/5.0"}), timeout=10).read().decode("utf-8", "replace")
-    m = COST_RE.search(html)
-    if m and m.group(1) == "DP":
-        dp_ids.append(sid)
-    time.sleep(0.05)
-json.dump(sorted(dp_ids), open(OUT, "w", encoding="utf-8"), indent=1)
-PY
-cp Client/assets/skills/skill_dp_cost.json Backend/src/data/skill_dp_cost.json
-```
-
-Grenzwert (`MIN_DURATION_SECONDS = 180`) und die DP-Kosten-Prüfung stehen in
-`src/skills/skillDurations.ts` (`loadDpCostSkillIds`) - beide id-basiert (über
-`skills_multilang_4x.json`'s `<name>`-Zuordnung), keine Namens-Ausnahmeliste und keine SQL nötig.
-
-Nebenbei behoben, als diese Datei entstand: 41 Skillnamen in `skills_multilang_4x.json` trugen noch
-rohe HTML-Entities (`Triniel&#39;s Dirk I` statt `Triniel's Dirk I`) - kam beim ursprünglichen
-Aufbau der Datei nie zur Auflösung, fiel aber erst hier auf, weil ausgerechnet mehrere DP-Skills
-einen Apostroph im Namen tragen und ohne die Korrektur nie gegen echten Chat.log-Text gematcht
-hätten. `html.unescape()` auf `name`/`de`/`fr` behebt es dauerhaft.
 
 ## Deployment (alfahosting)
 

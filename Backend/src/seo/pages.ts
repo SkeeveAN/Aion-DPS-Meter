@@ -1,7 +1,7 @@
 import { and, asc, eq, ne } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
-import { GAMES, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
+import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { findInstance, instanceColumns } from "../routes/instances.js";
 import { findBoss, mechanicsFor, selectServer, serversWithEncounters, topByClass, topGroups } from "../routes/bosses.js";
 import { formatInt, html, Raw } from "./html.js";
@@ -19,7 +19,7 @@ export interface Page {
   body: Raw;
 }
 
-const GAME_LABEL: Record<Game, string> = { aion: "Aion", aion2: "Aion 2" };
+const GAME_LABEL: Record<Game, string> = { aion: "Aion", aion2: "Aion 2" }; // "aion" only labels rows of the retired classic version
 const SITE = "Aion DPS";
 
 export function displayName(row: { name: string; nameEn: string | null }): string {
@@ -32,15 +32,15 @@ export function homePage(): Page {
     meta: {
       title: "Aion DPS Meter – Free Damage Meter & Boss Leaderboards",
       description:
-        "Free open-source DPS/HPS meter for Aion (Chat.log-based, Origin Aion/Aion Riftshade/EuroAion) and Aion 2 (passive network packet capture) with community boss leaderboards per server. Never reads game memory, never hooks the client.",
+        "Free open-source DPS/HPS meter for Aion 2 (passive network packet capture) with community boss leaderboards and character profiles. Never reads game memory, never hooks the client.",
       canonicalPath: "/",
       jsonLd: [softwareApplicationJsonLd()],
     },
     body: html`
       <h2>Aion DPS Meter</h2>
-      <p>Free, open-source damage and healing meter for Aion, plus community boss leaderboards per server.</p>
+      <p>Free, open-source damage and healing meter for Aion 2, plus community boss leaderboards and character profiles.</p>
       <ul class="plain">
-        ${GAMES.map((g) => html`<li><a href="/${g}/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
+        ${[DEFAULT_GAME].map((g) => html`<li><a href="/${g}/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
         <li><a href="/download">Download the Windows client</a></li>
       </ul>`,
   };
@@ -52,13 +52,13 @@ export function downloadPage(): Page {
     meta: {
       title: "Download Aion DPS Meter for Windows – Free Damage Meter",
       description:
-        "Free Aion and Aion 2 damage meter with live DPS/HPS per player, transparent click-through overlay and optional leaderboard upload. Aion via Chat.log, Aion 2 via passive packet capture. Windows installer, auto-updates.",
+        "Free Aion 2 damage meter with live DPS/HPS per player, transparent click-through overlay and optional leaderboard upload, via passive packet capture. Windows installer, auto-updates.",
       canonicalPath: "/download",
       jsonLd: [softwareApplicationJsonLd(), breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Download", path: "/download" }])],
     },
     body: html`
       <h2>Download Aion DPS Meter</h2>
-      <p>A damage/heal meter for Aion and Aion 2 - classic Aion by reading your client's own Chat.log, Aion 2 by passively capturing its network traffic. Neither reads game memory nor hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
+      <p>A damage/heal meter for Aion 2 that passively captures your own network traffic. It never reads game memory and never hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
       <p><a class="download-cta" href="https://github.com/SkeeveAN/Aion-DPS-Meter/releases">Latest release on GitHub</a></p>`,
   };
 }
@@ -72,13 +72,13 @@ export function privacyPage(): Page {
     meta: {
       title: "Privacy Policy – Aion DPS Meter",
       description:
-        "What Aion DPS Meter's client and website collect, and why: local Chat.log reading (Aion) or passive network capture (Aion 2), optional uploads, hashed IPs, no accounts, no tracking.",
+        "What Aion DPS Meter's client and website collect, and why: passive network capture, optional uploads, hashed IPs, no accounts, no tracking.",
       canonicalPath: "/privacy",
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Privacy Policy", path: "/privacy" }])],
     },
     body: html`
       <h2>Privacy Policy</h2>
-      <p>Aion DPS Meter is a free, open-source, hobby-run community project. The client reads your own local Chat.log for Aion, or passively observes your own network traffic for Aion 2, to compute stats locally; uploading a parse to the community leaderboards is optional. See the full policy on the site for details on what gets stored and your rights.</p>`,
+      <p>Aion DPS Meter is a free, open-source, hobby-run community project. The client passively observes your own network traffic to compute stats locally; uploading a parse to the community leaderboards is optional, and your own character profile is uploaded automatically after login unless you switch that off. See the full policy on the site for details on what gets stored and your rights.</p>`,
   };
 }
 

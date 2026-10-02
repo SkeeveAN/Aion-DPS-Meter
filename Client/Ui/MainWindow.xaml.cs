@@ -1421,7 +1421,7 @@ public partial class MainWindow : Window
 
     private void ScheduleOwnProfileUpload()
     {
-        if (Headless)
+        if (Headless || !MeterSettings.Load().AutoUploadProfile)
         {
             return;
         }

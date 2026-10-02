@@ -2,7 +2,6 @@ import { asc, desc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, encounterSkillUsage, instances, players, servers, uploads } from "../db/schema.js";
-import { resolveSkillIcon } from "../skills/skillIconResolver.js";
 import { topBuffsByParticipant } from "../skills/topBuffs.js";
 import { gameFromQuery } from "./instances.js";
 
@@ -124,7 +123,7 @@ export async function encounterRoutes(app: FastifyInstance) {
       .orderBy(desc(encounterParticipants.totalDamage))
       .all();
 
-    const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId), encounter.game);
+    const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId));
     const rosterWithBuffs = roster.map((r) => ({ ...r, topBuffs: topBuffs.get(r.participantId) ?? [] }));
 
     return reply.send({
@@ -195,13 +194,12 @@ export async function encounterRoutes(app: FastifyInstance) {
       .orderBy(asc(encounterSkillUsage.isHeal), desc(encounterSkillUsage.totalDamage))
       .all();
 
-    const withIcons = skills.map((s) => ({ ...s, icon: resolveSkillIcon(s.skillName, encounter?.game) }));
 
     return reply.send({
       participant,
       encounter,
-      damageSkills: withIcons.filter((s) => !s.isHeal),
-      healSkills: withIcons.filter((s) => s.isHeal),
+      damageSkills: skills.filter((s) => !s.isHeal),
+      healSkills: skills.filter((s) => s.isHeal),
     });
   });
 }

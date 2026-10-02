@@ -353,6 +353,8 @@
                         <TextBlock Text="{local:Loc Settings.CaptureAdapter}" VerticalAlignment="Center" Margin="4,0,6,0"/>
                         <ComboBox x:Name="CaptureAdapterBox" Width="320"/>
                     </StackPanel>
+                    <CheckBox x:Name="AutoUploadProfileBox" Content="{local:Loc Settings.AutoUploadProfile}" Margin="4,6,4,2"
+                              ToolTip="Uploads your own character (name, class, level, gear, skills, Daevanion, legion, server) a few seconds after you log in, so you can be found on aiondps.com. Nothing else is uploaded automatically."/>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding IsChecked, ElementName=NavUi, Converter={StaticResource BoolToVis}}">
@@ -429,7 +431,7 @@
                      being an invisible background behaviour. See MeterSettings.CheckForUpdates. -->
                 <StackPanel Visibility="{Binding IsChecked, ElementName=NavUpdates, Converter={StaticResource BoolToVis}}">
                     <CheckBox x:Name="CheckForUpdatesBox" Content="{local:Loc Settings.CheckForUpdates}"
-                              ToolTip="The only thing this program ever sends anywhere. Turn it off and nothing leaves your machine; 'Check for updates' in the App menu still works when you ask for it."/>
+                              ToolTip="Asks GitHub whether a newer version exists and sends nothing but the request itself. 'Check for updates' in the App menu still works when you ask for it."/>
                 </StackPanel>
 
             </Grid>

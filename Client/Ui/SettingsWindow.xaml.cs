@@ -35,6 +35,7 @@ public partial class SettingsWindow : Window
         }
 
         CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
+        AutoUploadProfileBox.IsChecked = settings.AutoUploadProfile;
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
@@ -129,6 +130,7 @@ public partial class SettingsWindow : Window
     private void OnSaveClicked(object sender, RoutedEventArgs e)
     {
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
+        _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? true;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
         _settings.Language = LocalizationManager.Instance.Language;

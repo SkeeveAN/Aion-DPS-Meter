@@ -106,7 +106,6 @@ export function topGroups(bossId: number, serverId: number | null, game: Game) {
   // single participant's own topBuffs already is.
   const buffsByParticipant = topBuffsByParticipant(
     groupsWithRoster.flatMap((g) => g.roster.map((p) => p.participantId)),
-    game,
   );
   return groupsWithRoster.map((g) => {
     const castsBySkill = new Map<string, TopBuff>();
@@ -153,7 +152,6 @@ export function topByClass(bossId: number, serverId: number | null, game: Game) 
   const capped = [...byClass.entries()].map(([className, list]) => [className, list.sort((a, b) => b.idps - a.idps).slice(0, TOP_N)] as const);
   const topBuffs = topBuffsByParticipant(
     capped.flatMap(([, list]) => list.map((p) => p.participantId)),
-    game,
   );
   for (const [className, list] of capped) {
     result[className] = list.map((p) => ({ ...p, topBuffs: topBuffs.get(p.participantId) ?? [] }));

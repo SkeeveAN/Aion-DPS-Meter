@@ -1,4 +1,4 @@
-import { and, desc, eq, like, max, notLike } from "drizzle-orm";
+import { and, desc, eq, like, max } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
@@ -80,11 +80,6 @@ export async function playerRoutes(app: FastifyInstance) {
       if (!Number.isInteger(serverId)) {
         return reply.status(400).send({ error: "invalid_server_id" });
       }
-    } else if (game === "aion") {
-      // No implicit "busiest server" default here (unlike a boss leaderboard) - this ranking spans
-      // every boss, and classic-Aion servers are never comparable, so there is no honest combined
-      // answer to fall back to. Empty beats wrong.
-      return reply.send([]);
     }
 
     return reply.send(topPlayersOverall(game, serverId, limit));
@@ -103,10 +98,10 @@ export async function playerRoutes(app: FastifyInstance) {
     const serverId = Number(request.query.serverId);
     const nameFilter = like(players.nameNormalized, `%${normalizeName(query)}%`);
     // Players have no game column of their own; the server they belong to does, by its fingerprint:
-    // Aion 2 clients file everything under "aion2:<server>", classic Aion under "<ip>:<port>". Matches
-    // players found through a profile upload as much as through a boss fight.
-    const game = request.query.game === "aion2" ? "aion2" : request.query.game === "aion" ? "aion" : null;
-    const gameFilter = game === "aion2" ? like(servers.fingerprint, "aion2:%") : game === "aion" ? notLike(servers.fingerprint, "aion2:%") : undefined;
+    // clients file everything under "aion2:<server>". Rows of the retired classic-Aion version
+    // ("<ip>:<port>") are never returned. Matches players found through a profile upload as much as
+    // through a boss fight.
+    const gameFilter = like(servers.fingerprint, "aion2:%");
     const scope = Number.isInteger(serverId) ? and(nameFilter, eq(players.serverId, serverId), gameFilter) : and(nameFilter, gameFilter);
 
     const rows = db

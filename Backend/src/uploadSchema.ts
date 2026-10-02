@@ -20,18 +20,6 @@ const buffUsageSchema = z.object({
   casts: z.number().int().positive().max(100_000),
 });
 
-// The client's own skill dataset (Client/assets/skills/skills_multilang_4x.json) tags these three classes
-// by their "modern" names, not the internal ones the client uses everywhere else - normalized
-// client-side since AionDPS v0.7.41 (see Data/SkillDatabase.cs's own remarks), but kept here too as
-// a server-side backstop for uploads from an older, not-yet-updated client (Velopack's rollout is
-// gradual, never instant - see Update/UpdateService.cs) and for the historical rows already stored
-// this way (see migration 0023).
-const MODERN_TO_INTERNAL_CLASS_NAME: Record<string, string> = {
-  Gunslinger: "Gunner",
-  Songweaver: "Bard",
-  Muse: "Painter",
-};
-
 export const participantSchema = z.object({
   name: z.string().trim().min(1).max(64),
   className: z
@@ -39,7 +27,7 @@ export const participantSchema = z.object({
     .trim()
     .min(1)
     .max(40)
-    .transform((name) => MODERN_TO_INTERNAL_CLASS_NAME[name] ?? AION2_CLASS_ALIASES[name] ?? name),
+    .transform((name) => AION2_CLASS_ALIASES[name] ?? name),
   faction: z.string().trim().max(20).default(""),
   // Optional: only Aion 2 clients know a player's guild. Empty counts as absent.
   guild: z
@@ -77,44 +65,27 @@ export const participantSchema = z.object({
 export const uploadSchema = z
   .object({
   clientVersion: z.string().max(40).default(""),
-  // Which game this fight is from (see constants.ts GAMES). Defaulted: every client up to 0.7.x
-  // predates the field and only ever captured classic Aion, so a missing value can only mean that.
-  game: z.enum(GAMES).default("aion"),
+  // Which game this fight is from - only Aion 2 is served (see constants.ts).
+  game: z.literal("aion2").default("aion2"),
   bossNpcName: z.string().trim().min(1).max(80),
-  // Aion 2 clients see the boss's numeric NPC id in the traffic they capture - unambiguous where
-  // the name alone is not (the same name recurs across dungeons there, see boss_npc_ids). Classic
-  // Aion's Chat.log has no such id, so it stays optional.
+  // The boss's numeric NPC id from the game's own traffic - unambiguous where the name alone is not
+  // (the same name recurs across dungeons, see boss_npc_ids). Optional for older clients.
   bossNpcId: z.number().int().positive().optional(),
   startedAt: z.string().min(1),
   endedAt: z.string().min(1),
   // 6-man groups up to 24-man alliance instances.
   participants: z.array(participantSchema).min(1).max(24),
-  // The client's bin64\config.ini [ServerAddr] IP:port (see the client's Server/ServerIdentity.cs)
-  // - required, not optional: without it there is no way to keep this upload's runs from being
-  // merged or leaderboarded against a different, incompatible server's (per the user, EuroAion's
-  // gear standard is nothing like this server's).
+  // The server the uploader plays on, "aion2:<server slug>" (derived from the server id in the
+  // game's own character record) - required: without it runs of different servers could not be
+  // told apart.
   serverFingerprint: z.string().trim().min(1).max(64),
-  // Label for the fingerprint above ("Origin Aion", "EuroAion") - optional in this schema (an
-  // older client might not send one), but NOT merely cosmetic: a real incident had two different
-  // operators' servers resolve to the same fingerprint, so this is what upsertServer (see
-  // matching/merge.ts) actually relies on to keep them apart. An upload with neither a distinct
-  // fingerprint nor a name is the one genuinely ambiguous case left, same as any other "can't tell
-  // them apart" situation elsewhere in this schema.
+  // Label for the fingerprint above ("Europe - Kaisinel"); upsertServer (see matching/merge.ts)
+  // matches on both, so two servers that shared a fingerprint stay apart.
   serverName: z.string().trim().max(60).optional(),
   })
   .superRefine((payload, ctx) => {
-    // Aion 2 has a fixed, small class roster; a classic-Aion class name on an Aion 2 upload is a
-    // client bug worth rejecting loudly rather than storing as a phantom class. Classic Aion stays
-    // unvalidated here on purpose - private servers ship different class sets (see the client's
-    // Server/ServerClassAvailability.cs), so there is no single right list to check against.
-    if (payload.game !== "aion2") {
-      payload.participants.forEach((p, i) => {
-        if (p.profile) {
-          ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["participants", i, "profile"], message: "character profiles are Aion 2 only" });
-        }
-      });
-      return;
-    }
+    // Aion 2 has a fixed, small class roster; a class outside it is a client bug worth rejecting
+    // loudly rather than storing as a phantom class.
     payload.participants.forEach((p, i) => {
       if (!(AION2_CLASSES as readonly string[]).includes(p.className)) {
         ctx.addIssue({

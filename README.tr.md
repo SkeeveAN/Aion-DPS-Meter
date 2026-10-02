@@ -2,152 +2,88 @@
 
 # Aion DPS Meter
 
-Topluluk boss sıralamalarının bulunduğu web sitesi: **https://aiondps.com**
+Topluluk boss sıralamaları ve karakter profilleri içeren web sitesi: **https://aiondps.com**
 
-**AION 4.6 (OriginAion)** için, oyunun kendi `Chat.log` dosyasından çalışan bir DPS ve ganimet
-ölçer — **Aion 2** desteği hazırlık aşamasındadır.
+**Aion 2** için bir hasar/iyileştirme sayacı. Oyunun ağ trafiğini bilgisayarınızda [Npcap](https://npcap.com)
+sürücüsü üzerinden okur — pasif olarak: hiçbir paket göndermez, oyun sürecine ya da belleğine dokunmaz. Siz yüklemedikçe
+oyununuzdan hiçbir şey bilgisayarınızdan çıkmaz (bkz. [Yüklemeler](#yüklemeler)); bunun yanında GitHub'a daha yeni bir
+sürüm olup olmadığını soran, kapatılabilen güncelleme denetimi gönderilir; bkz. [Güncellemeler](#güncellemeler).
 
-Klasik Aion için istemcinin kendiliğinden yazdığı bir metin dosyasını okur. Ağ trafiğini
-yakalamaz, oyun sürecinden okuma veya oyun sürecine yazma yapmaz. Oynayışınıza dair hiçbir şey
-bilgisayarınızdan çıkmaz — hasar sayıları yok, ganimet yok, isim yok. Gönderdiği tek şey,
-GitHub'a daha yeni bir sürüm olup olmadığını soran ve kapatılabilen güncelleme kontrolüdür; bkz.
-[Güncellemeler](#güncellemeler).
-
-**Aion 2**, `Chat.log` yazmaz. Ayarlarda oyunu Aion 2'ye çevirdiğinizde ölçer, bunun yerine
-bilgisayarınızdaki oyunun kendi ağ trafiğini [Npcap](https://npcap.com) sürücüsü üzerinden pasif
-olarak izler — pasif: asla bir paket göndermez ve oyun sürecine asla dokunmaz. Canlı takip, paket
-düzeni geçerli oyun sürümü için kalibre edildiğinde başlar (bkz.
-`Client/assets/aion2/protocol/opcodes.json`); o zamana kadar ölçer bunu durum çubuğunda belirtir.
-Bir boss savaşını topluluk sıralamalarına yüklemeyi seçmediğiniz sürece her şey klasik Aion'da
-olduğu kadar yerel kalır.
+> Klasik Aion (Chat.log tabanlı) artık sayacın parçası değil. Onu destekleyen son sürüm
+> [`aion1-included`](../../tree/aion1-included) dalında duruyor.
 
 ## Kurulum
 
-1. [En son sürümden](../../releases/latest) `AionDpsMeter-win-Setup.exe` dosyasını indirin ve
-   çalıştırın. Tıklanacak bir şey yok — kullanıcı profilinize kurulur ve ölçeri başlatır.
-   Yönetici hakları gerekmez, .NET gerekmez.
-2. **Settings → App Settings** açın ve **Aion kurulum klasörünü** seçin — `bin64\game.dll`
-   dosyasını içeren kök klasör. İletişim kutusu geçerli bir kurulum bulup bulmadığını ve orada
-   zaten bir `Chat.log` olup olmadığını hemen söyler.
-
-> **0.5.2 veya daha eskisinden mi güncelliyorsunuz?** Önce eski sürümü kaldırın (Windows Ayarları
-> → Uygulamalar → *Aion DPS Meter*), sonra yeni yükleyiciyi çalıştırın. O sürümler `Program
-> Files` altına kuruluyordu, bu yüzden kendilerini asla güncelleyemiyorlardı. Bu tek seferlik bir
-> adım — bundan sonra güncellemeler kendiliğinden uygulanır.
-
-### Önkoşul: istemcinin sohbet günlüğü açık olmalı
-
-Aion, `Chat.log` dosyasını yalnızca istemci içi `g_chatlog` seçeneği etkinken yazar. Bu anahtar bu
-araçta değil, oyun istemcisinde bulunur — normalde nasıl açıyorsanız öyle açın (örneğin
-[ShugoConsole](https://github.com/grenadium/ShugoConsole) ile). **Aion DPS Meter bunun için oyun
-sürecine asla dokunmaz**; dosya yazılmıyorsa, ölçerin okuyacak bir şeyi yoktur.
+1. [Npcap](https://npcap.com) sürücüsünü kurun (sayaç oyunun trafiğini görmek için ona ihtiyaç duyar; yükleyiciye dahil değildir).
+2. [Son sürümden](../../releases/latest) `AionDpsMeter-win-Setup.exe` dosyasını indirip çalıştırın. Kullanıcı profilinize
+   kurulur ve sayacı başlatır — yönetici hakkı ve .NET gerekmez.
+3. Sayacı başlatın, ardından karakterinizle giriş yapın. Sayaç karakterinizi, ekipmanınızı, becerilerinizi ve Daevanion
+   panolarınızı oyunun kendisinden okur; sunucu otomatik algılanır.
 
 ## Kullanım
 
-Ölçer çalışır durumda ve geçerli bir Aion klasörü ayarlanmış olduğu sürece kayıt hemen başlar.
-
-**Sohbet geçmişinizi asla okumaz.** Başlangıçta `Chat.log` dosyasının *o anki* sonuna atlar ve
-yalnızca o andan itibaren yazılan satırları işler — az önce açılmış bir teyp gibi, bir arşiv
-tarayıcısı gibi değil. **Duraklat, atar**, ertelemez: duraklatma sırasında yazılan satırlar
-kalıcı olarak atlanır, böylece devam ettirme bilerek dışarıda bıraktığınız bir savaşı asla yeniden
-oynatmaz. Geçmiş özel sohbetleriniz, lejyon sohbeti ve fısıltılar hiçbir zaman incelenmez.
+Kayıt, sayaç çalışır çalışmaz başlar. **Duraklatma erteler değil, atar**: duraklatma sırasındaki olaylar sonsuza dek
+kaybolur, devam etmek izlemediğiniz bir savaşı asla yeniden oynatmaz.
 
 ### Görünümler
 
-- **Dmg** — toplam ve DPS, sınıf simgeleri ve sıralanabilir liste ile oyuncu başına hasar.
-  **Mob/Boss** filtresi sütunu genel DPS ile gerçek hedef bazlı **iDPS** (bir hedefe verilen hasar
-  bölü grubun o hedefle paylaşılan mücadele süresi) arasında geçirir.
-- **Loot** — kime ne düştüğü: kişi, eşya, miktar ve nadirlik derecesi. Kalıntılar ayrıca ilgili
-  kişinin Uçurum Puanlarına da sayılır.
+- **Dmg** — oyuncu başına hasar, toplam ve DPS ile, sınıf simgeleri ve sıralanabilir liste. **Mob/Boss** filtresi sütunu genel
+  DPS ile hedef başına gerçek **iDPS** arasında değiştirir. Bosslar oyunun verisinden tanınır ve adıyla gösterilir.
+  Bir oyuncuya **çift tıklamak** beceri dökümünü açar.
+- **Karakter** (kişi simgesi) — kendi karakterinizin penceresini açar: profil, eşya seviyeli ve yükseltmeli ekipman,
+  seviyeli beceriler ve Daevanion panoları. Son girişinizi saklar, bu yüzden asla boş değildir.
 
-### Hide UI (kaplama)
+### Hide UI (yer paylaşımı)
 
-Pencereyi, oyunun üzerinde bırakılabilecek küçük, tıklamaya duyarsız parçalara dönüştürür — oyuncu
-başına bir tane, isim, hasar ve DPS gösterir. Her yerden **Ctrl+Alt+H** ile açılıp kapatılır, bu
-yüzden asla geri dönüşü olmayan bir yol değildir.
+Pencereyi oyunun üstünde duran, tıklamayı geçiren küçük etiketlere çevirir — oyuncu başına bir tane: ad, hasar ve DPS.
+**Ctrl+Alt+H** ile her yerden açılıp kapanır.
 
-### Copy
+### Kopyalama
 
-**Copy**, panoya tek satırlık, sohbete hazır bir sıralama koyar (`İsim 1.234.567 (890), …`). Loot
-görünümündeyken bunun yerine Aion sohbeti için bir ganimet özeti oluşturur; **Copy All** ise bir
-Discord Markdown tablosu verir.
+**Copy**, panoya tek satırlık, sohbete hazır bir sıralama koyar (`Ad 1.234.567 (890), …`); **Copy All** Discord için bir
+Markdown tablosu verir.
 
-### Oyun içi komutlar
+### Sohbet komutları
 
-Oyundan çıkmadan ölçeri yönetmek için bunları normal sohbet satırları gibi yazın:
+`.ui` (yer paylaşımı), `.pause` / `.resume`, `.dmg` (sıralamayı kopyala) ve `.cleardmg` (oturumu temizle). İşleyici bunları
+yalnızca kendi karakterinizden kabul eder. Aion 2'nin sohbeti henüz çözülmediği için şimdilik bir şey yapmazlar.
 
-| Komut | Etki |
-|---|---|
-| `.ui` | Hide-UI kaplamasını aç/kapat |
-| `.pause` / `.resume` | kaydı durdur / sürdür |
-| `.dmg` | hasar sıralamasını panoya kopyala |
-| `.cleardmg` | geçerli oturumu temizle |
-| `.loot` | ganimet özetini panoya kopyala |
+## Yüklemeler
 
-Bunları yalnızca ayarlarda kayıtlı karakterler tetikleyebilir, bu yüzden okumadığınız bir kanalda
-bir yabancının yazdığı `.cleardmg`, oturumunuzu silemez.
+- **Boss savaşları**, yükle'ye (düğme veya Session menüsü) tıkladığınızda yüklenir: boss, katılan oyuncular, hasar, iyileştirme,
+  alınan hasar ve beceriler. Yalnızca oyunun duyurduğu ve kataloğun tanıdığı bosslar kabul edilir.
+- **Kendi karakter profiliniz** (ad, sınıf, seviye, ekipman, beceriler, Daevanion, lejyon, sunucu) girişten birkaç saniye sonra
+  otomatik yüklenir, böylece sitede bulunabilirsiniz. **Ayarlar**'dan kapatılabilir.
+- Yükleme yapmadıkça hiçbir şey bilgisayarınızdan çıkmaz.
 
 ## Güncellemeler
 
-Ölçer kendini günceller. Başlangıçta ve ardından her beş dakikada bir GitHub'a daha yeni bir sürüm
-olup olmadığını sorar, arka planda indirir ve bir sonraki başlatmada devreye sokar. Yükleyici yok,
-UAC istemi yok, tıklanacak bir şey yok. Bu, programın `Program Files` yerine kullanıcı profilinde
-yaşaması sayesinde çalışır — orada kendi dosyalarını değiştirmesine izin verilir.
+Sayaç kendini günceller. Başlangıçta ve her beş dakikada bir GitHub'dan daha yeni bir sürüm sorar, arka planda indirir ve bir
+sonraki başlangıçta uygular — yükleyici ve UAC yok. Güncelleme hazır olunca altta yeşil bir satır belirir; tıklamak hemen
+yeniden başlatmayı önerir. **App → Check for updates** aynısını isteğe bağlı yapar.
 
-Bir güncelleme indirildiğinde, alttaki durum satırında yeşil bir satır belirir; üzerine tıklamak
-anında yeniden başlatmayı önerir. Reddetmenin bir bedeli yoktur — sürüm zaten oradadır ve bir
-sonraki normal başlatmada etkinleşir. Bilinçli olarak açılır pencere yok: pencere çalışan bir
-oyunun üzerinde durur ve boss savaşının ortasında odağı çalan bir iletişim kutusu, geç bir
-güncellemeden daha kötü olurdu.
-
-**App → Check for updates**, isteğe bağlı olarak aynısını yapar ve zaten güncel olduğunuzda da
-bunu söyler.
-
-Kontrol tam olarak bir URL okur ve isteğin kendisi dışında hiçbir şey göndermez:
+Denetim tek bir URL okur ve isteğin kendisi dışında hiçbir şey göndermez:
 
 ```
 https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
-**Settings → App Settings → Updates** altından kapatılabilir. Menü öğesi yine de çalışır — o sizin
-kendi isteğinizdir, programın kararı değil.
-
-## Bu ne kadar doğru?
-
-Aynı Sauro Supply Base koşusundan, üç farklı bilgisayarda kaydedilmiş (biri Almanca istemci) üç
-`Chat.log` dosyasına karşı, gerçek boss can puanları referans alınarak doğrulandı. Boss başına
-hasar, gerçek canının **%0,02 – %2,8** aralığında kalıyor:
-
-| Boss | Gerçek Can | Ölçülen | Sapma |
-|---|---|---|---|
-| Muhafız Komutanı Ahuradim | 1.736.993 | 1.737.299 | +%0,02 |
-| Karanlık Yutucu Derakanak | 1.343.657 | 1.347.258 | +%0,27 |
-| Denetim Subayı Sayahum | 1.377.644 | 1.370.734 | −%0,50 |
-| İkmal Komutanı Ranodim | 489.332 | 503.244 | +%2,84 |
-
-Geri kalanı, günlük tabanlı hiçbir ölçerin göremeyeceği, öldürücü darbedeki aşırı hasardır. Bir
-oyuncunun toplam hasarı, üç bilgisayarda da birim birim aynı çıktı.
-
-Bilinen, zararsız iki sapma daha var: kalkanı hasarı yutan bir bosta, bu hasar yine de
-günlüğe yazılır (bu yüzden toplam canını aşar), ve aynı isimli birden fazla canavar tek bir
-toplamda birleştirilir.
+**Ayarlar → Güncellemeler**'den kapatılabilir; menü öğesi yine de çalışır.
 
 ## Kaynaktan derleme
 
 ```
 cd Client
 dotnet build
-dotnet run -- selftest                    # ayrıştırıcı ve DPS hesaplaması için iç testler
-dotnet run -- chatlog <Chat.log-yolu>     # dosyayı ayrıştır ve özet yazdır
+dotnet run -- selftest                              # öz denetimler (protokol, yakalama, çözme, ...)
+dotnet run -- aion2-record <out.jsonl>              # oyunun trafiğini kaydet ("stop" bitirir)
+dotnet run -- aion2-replay <dosya.jsonl>            # kaydı gerçek çözücüden geçirerek oynat
+dotnet run -- aion2-upload-dryrun <dosya.jsonl>     # bir kaydın yüklemelerini oluştur, hiçbir şey gönderme
 ```
 
-Yalnızca Windows (WPF). İç testler, desteklenen tüm dillerde gerçek günlüklerden alınan
-birebir satırları çalıştırır ve bir ayrıştırıcı değişikliğinin bir şeyi bozup bozmadığını görmenin
-en hızlı yoludur.
+Yalnızca Windows (WPF). `Tools/aion2-dat` oyunun metin tablolarını okur (sekiz dilde adlar); README'sine bakın.
 
 ## Sunucu kuralları hakkında not
 
-Klasik Aion'da bu araç yalnızca oyunun kendisinin oluşturduğu bir günlük dosyasını okur; Aion
-2'de ise bunun yerine oyunun ağ trafiğini pasif olarak izler. Her iki durumda da özel sunucuların
-üçüncü taraf yazılım ve eklentilerle ilgili kendi kuralları vardır — kullanmadan önce
-OriginAion'ınkilere bir göz atmakta fayda var.
+Sayaç yalnızca oyunun ağ trafiğini pasif olarak gözlemler. Yine de yayıncılar üçüncü taraf araçlar için kendi kurallarını koyar
+— kullanmadan önce oyunun koşullarına göz atmakta fayda var.

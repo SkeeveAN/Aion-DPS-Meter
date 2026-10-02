@@ -6,7 +6,7 @@ import { DEFAULT_GAME, isGame, UNASSIGNED_INSTANCE_NAME, type Game } from "../co
 import { parseIdOrSlug } from "../seo/slug.js";
 import { selectServer, serversWithEncountersForBossIds, statsForBossIds } from "./bosses.js";
 
-/** `?game=` is optional everywhere - absent means classic Aion, the only game older callers know. */
+/** `?game=` is optional everywhere - absent means aion2, the only game served. */
 export function gameFromQuery(raw: string | undefined, reply: FastifyReply): Game | null {
   if (raw === undefined) {
     return DEFAULT_GAME;

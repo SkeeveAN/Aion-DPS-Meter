@@ -25,11 +25,11 @@ const { and, eq } = await import("drizzle-orm");
 function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {}) {
   return {
     clientVersion: "test",
-    game: "aion" as const,
-    bossNpcName: "Raksha Kochherz",
+    game: "aion2" as const,
+    bossNpcName: "Enhanced Harcon",
     startedAt: "2026-01-01T20:00:00.000Z",
     endedAt: "2026-01-01T20:03:12.000Z",
-    serverFingerprint: "70.0.0.150:10241",
+    serverFingerprint: "aion2:europe-kaisinel",
     participants: [
       {
         name: "Anna",
@@ -43,12 +43,12 @@ function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {
         damageTaken: 0,
         buffs: [],
         hps: 0,
-        skills: [{ skill: "Skyfall", hits: 100, critHits: 20, total: 800_000, min: 2000, max: 12_000 }],
+        skills: [{ skill: "Rending Blow", hits: 100, critHits: 20, total: 800_000, min: 2000, max: 12_000 }],
         healSkills: [],
       },
       {
         name: "Bob",
-        className: "Assassine",
+        className: "Assassin",
         faction: "Elyos",
         isSelf: false,
         totalDamage: 900_000,
@@ -58,7 +58,7 @@ function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {
         damageTaken: 0,
         buffs: [],
         hps: 0,
-        skills: [{ skill: "Stab", hits: 150, critHits: 10, total: 900_000, min: 1000, max: 9000 }],
+        skills: [{ skill: "Spinning Strike", hits: 150, critHits: 10, total: 900_000, min: 1000, max: 9000 }],
         healSkills: [],
       },
     ],
@@ -101,12 +101,12 @@ test("worst case: uploader's own name is wrong, gets corrected from a teammate's
           damageTaken: 0,
           buffs: [],
           hps: 0,
-          skills: [{ skill: "Skyfall", hits: 100, critHits: 9, total: 800_000, min: 2000, max: 12_000 }],
+          skills: [{ skill: "Rending Blow", hits: 100, critHits: 9, total: 800_000, min: 2000, max: 12_000 }],
           healSkills: [],
         },
         {
           name: "XxSlayerxX",
-          className: "Assassine",
+          className: "Assassin",
           faction: "Elyos",
           isSelf: true,
           totalDamage: 905_000,
@@ -116,7 +116,7 @@ test("worst case: uploader's own name is wrong, gets corrected from a teammate's
           damageTaken: 0,
           buffs: [],
           hps: 0,
-          skills: [{ skill: "Stab", hits: 150, critHits: 32, total: 905_000, min: 1000, max: 9000 }],
+          skills: [{ skill: "Spinning Strike", hits: 150, critHits: 32, total: 905_000, min: 1000, max: 9000 }],
           healSkills: [],
         },
       ],
@@ -157,7 +157,7 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
       participants: [
         {
           name: "Hidan",
-          className: "Assassine",
+          className: "Assassin",
           faction: "Elyos",
           isSelf: true,
           totalDamage: 800_000,
@@ -167,7 +167,7 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
           damageTaken: 0,
           buffs: [],
           hps: 0,
-          skills: [{ skill: "Skyfall", hits: 100, critHits: 20, total: 800_000, min: 2000, max: 12_000 }],
+          skills: [{ skill: "Rending Blow", hits: 100, critHits: 20, total: 800_000, min: 2000, max: 12_000 }],
           healSkills: [],
         },
       ],
@@ -180,7 +180,7 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
       participants: [
         {
           name: "Hidan",
-          className: "Assassine",
+          className: "Assassin",
           faction: "Elyos",
           isSelf: false,
           totalDamage: 800_000,
@@ -190,7 +190,7 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
           damageTaken: 0,
           buffs: [],
           hps: 0,
-          skills: [{ skill: "Skyfall", hits: 100, critHits: 9, total: 800_000, min: 2000, max: 12_000 }],
+          skills: [{ skill: "Rending Blow", hits: 100, critHits: 9, total: 800_000, min: 2000, max: 12_000 }],
           healSkills: [],
         },
         {
@@ -205,7 +205,7 @@ test("a solo upload with no visible teammates still merges with a later, fuller 
           damageTaken: 0,
           buffs: [],
           hps: 0,
-          skills: [{ skill: "Skyfall", hits: 90, critHits: 15, total: 700_000, min: 1500, max: 11_000 }],
+          skills: [{ skill: "Rending Blow", hits: 90, critHits: 15, total: 700_000, min: 1500, max: 11_000 }],
           healSkills: [],
         },
       ],
@@ -251,36 +251,6 @@ test("the same player name on two different servers is tracked as two separate p
   assert.ok(annaOnFirstServer, "Anna should exist on the first server");
   assert.ok(annaOnSecondServer, "Anna should exist on the second server");
   assert.notEqual(annaOnFirstServer!.id, annaOnSecondServer!.id, "the two Annas must be different player rows");
-});
-
-test("the same boss name in Aion and Aion 2 resolves to two different boss rows in their own game's bucket", () => {
-  const classic = processUpload(basePayload({ bossNpcName: "Kromede" }));
-  const aion2 = processUpload(
-    basePayload({
-      game: "aion2",
-      bossNpcName: "Kromede",
-      serverFingerprint: "aion2:10.0.0.1:7777",
-      serverName: "Aion 2 EU",
-      participants: basePayload().participants.map((p) => ({ ...p, className: "Gladiator" })),
-    }),
-  );
-  assert.equal(aion2.status, "created");
-
-  const bossOf = (encounterId: number) =>
-    db
-      .select({ bossId: bosses.id, slug: bosses.slug, game: instances.game, instanceName: instances.name })
-      .from(encounters)
-      .innerJoin(bosses, eq(encounters.bossId, bosses.id))
-      .innerJoin(instances, eq(bosses.instanceId, instances.id))
-      .where(eq(encounters.id, encounterId))
-      .get()!;
-  const classicBoss = bossOf(classic.encounterId);
-  const aion2Boss = bossOf(aion2.encounterId);
-  assert.notEqual(classicBoss.bossId, aion2Boss.bossId);
-  assert.equal(classicBoss.game, "aion");
-  assert.equal(aion2Boss.game, "aion2");
-  assert.equal(classicBoss.slug, "kromede");
-  assert.equal(aion2Boss.slug, "kromede", "slugs are per game, so both may be plain");
 });
 
 test("an Aion 2 upload with a known bossNpcId lands on that boss even when the name differs", () => {
