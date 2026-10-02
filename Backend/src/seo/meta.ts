@@ -86,6 +86,6 @@ export function softwareApplicationJsonLd(): object {
     url: env.BASE_URL + "/download",
     downloadUrl: "https://github.com/SkeeveAN/Aion-DPS-Meter/releases",
     description:
-      "Free open-source DPS/HPS meter for Aion and Aion 2. Reads Aion's own Chat.log, or Aion 2's network traffic passively, shows live damage and healing per player, and can upload boss fights to community leaderboards.",
+      "Free open-source DPS/HPS meter for Aion 2. Reads the game's network traffic passively, shows live damage and healing per player, and can upload boss fights to community leaderboards.",
   };
 }
