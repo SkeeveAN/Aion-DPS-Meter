@@ -9,7 +9,6 @@
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
-        <local:ItemGradeColorConverter x:Key="ItemGradeColorConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <!-- ShareBar (share-of-group bar under a row's Damage/DPS line, PlayerRow.SharePercent)
              now lives in Ui/Styles/Shared.xaml, merged into Application.Resources in Program.cs -
@@ -488,12 +487,6 @@
                                                 <TextBlock Text="{local:Loc Main.MenuApp.OpenSessionsFolder}" Foreground="#f2f5f7" VerticalAlignment="Center" FontSize="11.5"/>
                                             </StackPanel>
                                         </Button>
-                                        <Button Style="{StaticResource AppMenuRow}" Click="OnOpenLogsFolderClicked">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path Data="M1,3 L5,3 L6,4.5 L11,4.5 L11,10 L1,10 Z" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{local:Loc Main.MenuApp.OpenLogsFolder}" Foreground="#f2f5f7" VerticalAlignment="Center" FontSize="11.5"/>
-                                            </StackPanel>
-                                        </Button>
 
                                         <Border Height="1" Background="#21374a" Margin="4,6"/>
 
@@ -510,14 +503,6 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <Path Data="M4,3 L14,13 M14,3 L4,13" Stroke="#ff5a4f" StrokeThickness="1.8" Width="14" Height="10" Margin="0,0,8,0"/>
                                                 <TextBlock Text="{local:Loc Main.MenuApp.ClearCurrentView}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Button>
-                                        <!-- Chat.log neu laden: real action (OnReloadChatLogClicked). -->
-                                        <Button Style="{StaticResource AppMenuRow}" Click="OnReloadChatLogClicked"
-                                                ToolTip="Re-reads the entire Chat.log file and replaces the current session with it.">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Path Data="M2,6 L6,2 L6,5 L11,5 M11,6 L7,10 L7,7 L2,7" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{local:Loc Main.MenuApp.ReloadChatLog}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
                                         <!-- Kampfverlauf: real action (OnFightHistoryClicked). -->
@@ -713,8 +698,6 @@
                          entry buried among a dozen others. -->
                     <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuSettings.AppSettings}" Click="OnSettingsClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuSettings.PlayerDatabase}" Click="OnPlayerDatabaseClicked"
-                                  ToolTip="Everyone the meter has identified, with their class and faction - and where a wrongly derived faction can be corrected later."/>
                         <MenuItem x:Name="AlwaysOnTopMenuItem" Header="{local:Loc Main.MenuSettings.AlwaysOnTop}" IsCheckable="True" Click="OnAlwaysOnTopClicked"/>
                         <Separator/>
                         <MenuItem Header="{local:Loc Main.MenuSettings.ProfileSettings}" IsEnabled="False"/>
@@ -724,8 +707,6 @@
                         <MenuItem x:Name="DamageModeItem" Header="{local:Loc Main.ModeDamage}" IsCheckable="True" IsChecked="True" Click="OnModeClicked"/>
                         <MenuItem x:Name="HealModeItem" Header="{local:Loc Main.ModeHeal}" IsCheckable="True" Click="OnModeClicked"
                                   ToolTip="Not implemented: SM_ATTACK_STATUS (the heal-tick packet) carries no healer/attacker field in this build's layout, so heals can't be attributed to a player - see README."/>
-                        <MenuItem x:Name="RelicModeItem" Header="{local:Loc Main.ModeRelic}" IsCheckable="True" Click="OnModeClicked"
-                                  ToolTip="Not implemented: no relic/AP/GP packet source wired up yet."/>
                     </MenuItem>
                 </Menu>
 
@@ -796,26 +777,8 @@
                             <Path x:Name="PlayIcon" Data="M3,1 L3,15 L15,8 Z" Fill="{DynamicResource Brush.Text}" Visibility="Collapsed"/>
                         </Grid>
                     </Button>
-                    <!-- Empties Aion's Chat.log itself, which nothing else in the game or the
-                         meter ever does: the client only ever appends to it. Sits next to Clear
-                         because both are "throw data away", but they touch different things:
-                         Clear resets the view, this one rewrites a file on disk. -->
-                    <Button x:Name="EmptyChatLogButton" Style="{StaticResource ToolbarIconButton}" Click="OnEmptyChatLogClicked" Padding="6,4"
-                            ToolTip="Empty Aion's Chat.log on disk. The meter keeps running; only the file's history is discarded.">
-                        <Grid Width="18" Height="16">
-                            <Path Data="M4,1 L11,1 L14,4 L14,15 L4,15 Z M11,1 L11,4 L14,4"
-                                  Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.2" StrokeLineJoin="Round"/>
-                            <Path Data="M6,8 L12,13 M12,8 L6,13" Stroke="{DynamicResource Brush.DangerSoft}" StrokeThickness="1.4"
-                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                        </Grid>
-                    </Button>
-                    <!-- Per the user: a red X instead of the trash-can outline - same button
-                         either way (OnClearClicked/ClearActiveView clears whichever of Damage/Loot
-                         is the active view), so this one icon change covers both tabs. Red matches
-                         the same accent already used for the destructive X on EmptyChatLogButton
-                         above and the Player Database's own delete action. -->
                     <Button x:Name="ClearButton" Style="{StaticResource ToolbarIconButton}" Click="OnClearClicked" Padding="6,4"
-                            ToolTip="Clear the view you are looking at - damage or loot, not both (does not touch Chat.log itself).">
+                            ToolTip="Clear the damage list and start fresh.">
                         <Grid Width="18" Height="16">
                             <Path Data="M4,3 L14,13 M14,3 L4,13" Stroke="{DynamicResource Brush.Danger}" StrokeThickness="2"
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -868,19 +831,6 @@
                                 Background="{DynamicResource Brush.Accent}" Foreground="{DynamicResource Brush.Window}">
                             <Path Data="M3,16 L3,10 M8,16 L8,5 M13,16 L13,12" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                   StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="16" Height="16"/>
-                        </Button>
-                        <!-- Real now, per the user - "You have acquired [item:ID;...]." lines parsed
-                             by ChatLogParser.LootAcquired, item names resolved via Data/ItemDatabase
-                             (see assets/README.md for its aioncodex.com "/4x/" source). Gift-box
-                             glyph (box + ribbon + bow), per the user's pick among four alternatives
-                             shown for review - the old basket-like shape wasn't clearly readable as
-                             "loot". -->
-                        <Button x:Name="LootNavButton" Style="{StaticResource NavButton}" ToolTip="Loot Table" Click="OnShowLootView">
-                            <Path Data="M2,6.5 L14,6.5 L14,14 L2,14 Z M1.3,4.3 L14.7,4.3 L14.7,6.5 L1.3,6.5 Z M8,4.3 L8,14
-                                        M8,4.3 Q5,1 3.3,3 Q3,4.6 8,4.3 Z M8,4.3 Q11,1 12.7,3 Q13,4.6 8,4.3 Z"
-                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="1.5" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                                  Width="16" Height="16"/>
                         </Button>
                         <!-- Rebuilt per the user (the old single lopsided arc from (1,15) to
                              (15,12.5) via one control point at (8,8) read as pinched/asymmetric,
@@ -997,46 +947,10 @@
                     </ComboBox>
                 </StackPanel>
 
-                <!-- Bottom status row, per the user: connection/Chat.log status removed ("Die Infos
-                     im Footer können weg"), replaced with the personal stat row the ARM reference
-                     shows there instead (Exp/AP/GP/Kinah). All four are real now: confirmed by
-                     terminal_windows against real Chat.log lines that it narrates them as plain
-                     sentences just like damage/heal ("You have gained N Abyss/Glory Points.",
-                     "You have earned/spent N Kinah.", "You have gained N XP from <Mob>.") - see
-                     ChatLogParser.PersonalStatChanged. GP took longer to confirm only because the
-                     validation session hadn't produced any GP activity yet at the time it was
-                     checked - once the user recalled a specific quest reward, terminal_windows
-                     found "You have gained 100 Glory Points." right where expected. The old
-                     ServerStatusDot/Text and ChatLogStatusDot/Text (connection state) aren't shown
-                     anywhere else now - Chat.log validity is still visible in Settings'
-                     AionInstallFolderStatus if that needs checking. -->
-                <!-- Two rows, not one: the stats row alone already fills most of a narrow window,
-                     so any notice below (update available, Chat.log size warning, an upload
-                     result) used to get clipped instead of just wrapping - found by the user
-                     against a real screenshot where "Update 0.7.16" was cut off mid-text. Splitting
-                     the stats (always shown) from the notices (each collapsed until there's
-                     something to say) gives the notices their own row's full width instead of
-                     fighting the stats for what's left of one shared line. -->
+                <!-- Bottom notice row: update available, upload results and the capture status; each
+                     element is collapsed until there is something to say. -->
                 <StackPanel DockPanel.Dock="Bottom" Background="{DynamicResource Brush.Panel}">
                     <StackPanel Orientation="Horizontal" Height="22">
-                        <TextBlock Text="{local:Loc Main.StatExp}" Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="8,0,4,0"/>
-                        <TextBlock x:Name="ExpValueText" Text="-" Foreground="{DynamicResource Brush.TextSubtle}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{local:Loc Main.StatAp}" Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                        <TextBlock x:Name="ApValueText" Text="-" Foreground="{DynamicResource Brush.TextSubtle}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{local:Loc Main.StatGp}" Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                        <TextBlock x:Name="GpValueText" Text="-" Foreground="{DynamicResource Brush.TextSubtle}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{local:Loc Main.StatKinah}" Foreground="{DynamicResource Brush.TextMuted}" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                        <TextBlock x:Name="KinahValueText" Text="-" Foreground="{DynamicResource Brush.TextSubtle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Height="22">
-                        <!-- Only appears once Chat.log passes the threshold. In the status row
-                             rather than as a popup for the same reason as the update notice: this
-                             window sits on top of a running game, and nothing here is urgent
-                             enough to steal focus from a fight. -->
-                        <TextBlock x:Name="ChatLogSizeWarning" Visibility="Collapsed" VerticalAlignment="Center"
-                                   Margin="8,0,8,0" Foreground="{DynamicResource Brush.Warning}" FontWeight="Bold" Cursor="Hand"
-                                   MouseLeftButtonUp="OnEmptyChatLogClicked"
-                                   ToolTip="Aion never trims Chat.log by itself. Click to empty it."/>
 
                         <!-- Update notice. Deliberately a quiet line in the status row and NOT a
                              popup: the meter sits on top of a running game, and a modal dialog
@@ -1234,38 +1148,6 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <!-- Loot view, hidden by default (OnShowDamageView/OnShowLootView toggle which of
-                     the two grids is visible) - shows the WHOLE group's tracked acquisitions (see
-                     MainWindow.OnLootAcquired remarks), item names via Data/ItemDatabase. Only
-                     Godstones/Designs/Recipes plus Unique(Gold)+ grade items are tracked at all
-                     (see IsTrackedLoot) - per the user, not every single drop. -->
-                <DataGrid x:Name="LootGrid" AutoGenerateColumns="False" IsReadOnly="True" Visibility="Collapsed"
-                          Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}" AlternatingRowBackground="{DynamicResource Brush.Panel}"
-                          BorderBrush="{DynamicResource Brush.Border}" HorizontalGridLinesBrush="{DynamicResource Brush.Border}"
-                          GridLinesVisibility="Horizontal" HeadersVisibility="Column" CanUserAddRows="False">
-                    <DataGrid.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
-                    </DataGrid.Resources>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="{local:Loc Main.ColumnPerson}" Binding="{Binding Person}" Width="90"/>
-                        <!-- Colored by rarity grade, per the user ("mit Farbe") - same exact
-                             colors Aion itself uses (see ItemGradeColorConverter), not a generic
-                             text color. A grade-less row (id ItemDatabase has no entry for at all)
-                             renders muted rather than any rarity color, since it has none. -->
-                        <DataGridTemplateColumn Header="{local:Loc Main.ColumnItem}" Width="200">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding ItemName}" VerticalAlignment="Center"
-                                               Foreground="{Binding Grade, Converter={StaticResource ItemGradeColorConverter}}"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="{local:Loc Main.ColumnQty}" Binding="{Binding Quantity, StringFormat=N0}" Width="60"/>
-                    </DataGrid.Columns>
-                </DataGrid>
             </DockPanel>
 
             <!-- Update-ready confirmation, in-app and app-themed. WindowStyle="None" above means
@@ -1291,35 +1173,6 @@
                 </Border>
             </Border>
 
-            <!-- "Empty Chat.log?" confirmation, in-app and app-themed - per the user, same
-                 reasoning as UpdateRestartOverlay just above (a native MessageBox would carry the
-                 OS's own chrome, clashing with everything else this window draws itself). No/Yes
-                 order (not Windows' native Yes/No) matches UpdateRestartOverlay's own
-                 safe-option-left, destructive-option-right layout (Later/RestartNow) rather than
-                 the OS default. -->
-            <Border x:Name="EmptyChatLogConfirmOverlay" Visibility="Collapsed" Background="#AA000000">
-                <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
-                        BorderThickness="1" CornerRadius="4" Padding="20" MaxWidth="380"
-                        HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <Path Data="M8,1 L15,14 L1,14 Z M8,5.5 L8,9.3 M8,11.2 L8,11.5" Stroke="{DynamicResource Brush.Warning}"
-                                  StrokeThickness="1.3" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                                  Width="16" Height="15" Margin="0,0,8,0"/>
-                            <TextBlock Text="{local:Loc Main.EmptyChatLogConfirm.Title}" FontWeight="Bold" FontSize="14"
-                                       Foreground="{DynamicResource Brush.Text}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock x:Name="EmptyChatLogConfirmPathText" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource Brush.Text}" Margin="0,0,0,10"/>
-                        <TextBlock Text="{local:Loc Main.EmptyChatLogConfirm.Warning}" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource Brush.Danger}" Margin="0,0,0,16"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="{local:Loc Common.No}" Click="OnEmptyChatLogConfirmNoClicked" Margin="0,0,8,0" Padding="12,4"/>
-                            <Button Content="{local:Loc Common.Yes}" Click="OnEmptyChatLogConfirmYesClicked" Padding="12,4"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Border>
             </Grid>
         </Border>
 

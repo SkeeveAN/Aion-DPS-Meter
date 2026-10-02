@@ -1,35 +1,25 @@
 using System.IO;
 using System.Text.Json;
-using AionDPS.Game;
 
 namespace AionDPS.Data;
 
 /// <summary>
-/// The playable classes of each game, by the internal English names this app uses everywhere
-/// (icon files, ClassFilter tags, upload payloads, backend validation). Classic Aion's list is the
-/// full 4.x roster - which of them a given private server actually offers is
-/// Server/ServerClassAvailability's business. Aion 2 ships nine classes and, so far, no icon
-/// files of our own, so <see cref="HasIcon"/> tells the UI when to fall back to text. Which of
-/// the nine a given SERVER offers is Server/ServerClassAvailability's business (EU/NA launched
-/// without Brawler). <see cref="DisplayName"/> is the one place these get translated for the
-/// player - everywhere above stays the English wire format regardless of UI language.
+/// The nine playable Aion 2 classes by the internal English names this app uses everywhere (icon
+/// files, ClassFilter tags, upload payloads, backend validation). <see cref="HasIcon"/> tells the UI
+/// when a class has no icon file of its own and a text badge is shown instead.
+/// <see cref="DisplayName"/> is the one place these get translated for the player - everywhere
+/// else stays the English wire format regardless of UI language.
 /// </summary>
 public static class ClassCatalog
 {
-    private static readonly string[] AionClasses =
-    {
-        "Aethertech", "Assassin", "Bard", "Chanter", "Cleric", "Gladiator", "Gunner",
-        "Painter", "Ranger", "Sorcerer", "Spiritmaster", "Templar",
-    };
-
     private static readonly string[] Aion2Classes =
     {
         "Assassin", "Brawler", "Chanter", "Cleric", "Elementalist", "Gladiator", "Ranger", "Sorcerer", "Templar",
     };
 
-    public static IReadOnlyList<string> ClassesFor(GameKind game) => game == GameKind.Aion2 ? Aion2Classes : AionClasses;
+    public static IReadOnlyList<string> Classes => Aion2Classes;
 
-    public static bool IsKnownClass(GameKind game, string className) => ClassesFor(game).Contains(className, StringComparer.Ordinal);
+    public static bool IsKnownClass(string className) => Aion2Classes.Contains(className, StringComparer.Ordinal);
 
     /// <summary>Short badge text for a class without an icon ("ELE", "FTR") - same abbreviations the
     /// website uses (Web-Frontend/app.js AION2_CLASS_ABBREVIATIONS).</summary>

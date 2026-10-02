@@ -79,16 +79,6 @@
     "tr": "Oturum klasörünü aç",
     "zh": "打开会话文件夹"
   },
-  "Main.MenuApp.OpenLogsFolder": {
-    "en": "Open logs folder",
-    "de": "Protokollordner öffnen",
-    "fr": "Ouvrir le dossier des journaux",
-    "es": "Abrir carpeta de registros",
-    "ru": "Открыть папку журналов",
-    "pl": "Otwórz folder dzienników",
-    "tr": "Günlük klasörünü aç",
-    "zh": "打开日志文件夹"
-  },
   "Main.MenuApp.ResetConnection": {
     "en": "Reset connection",
     "de": "Verbindung zurücksetzen",
@@ -98,16 +88,6 @@
     "pl": "Zresetuj połączenie",
     "tr": "Bağlantıyı sıfırla",
     "zh": "重置连接"
-  },
-  "Main.MenuApp.ReloadChatLog": {
-    "en": "Reload from Chat.log",
-    "de": "Aus Chat.log neu laden",
-    "fr": "Recharger depuis Chat.log",
-    "es": "Recargar desde Chat.log",
-    "ru": "Перезагрузить из Chat.log",
-    "pl": "Wczytaj ponownie z Chat.log",
-    "tr": "Chat.log'dan yeniden yükle",
-    "zh": "从 Chat.log 重新加载"
   },
   "Main.MenuApp.FightHistory": {
     "en": "Fight History",
@@ -219,16 +199,6 @@
     "tr": "Oturum",
     "zh": "会话"
   },
-  "Main.MenuSession.None": {
-    "en": "No sessions recorded yet",
-    "de": "Noch keine Sitzungen aufgezeichnet",
-    "fr": "Aucune session enregistrée pour le moment",
-    "es": "Aún no se han grabado sesiones",
-    "ru": "Пока нет записанных сессий",
-    "pl": "Nie zapisano jeszcze żadnej sesji",
-    "tr": "Henüz kaydedilmiş oturum yok",
-    "zh": "尚无已记录的会话"
-  },
   "Main.MenuSession.UploadBoss": {
     "en": "Upload current boss",
     "de": "Aktuellen Boss hochladen",
@@ -249,16 +219,6 @@
     "tr": "Son koşuyu yükle (tüm patronlar)",
     "zh": "上传本次副本(全部首领)"
   },
-  "Main.UploadButton": {
-    "en": "Upload",
-    "de": "Hochladen",
-    "fr": "Télécharger",
-    "es": "Subir",
-    "ru": "Загрузить",
-    "pl": "Wyślij",
-    "tr": "Yükle",
-    "zh": "上传"
-  },
   "Main.MenuSettings": {
     "en": "Settings",
     "de": "Einstellungen",
@@ -278,16 +238,6 @@
     "pl": "Ustawienia aplikacji",
     "tr": "Uygulama ayarları",
     "zh": "应用设置"
-  },
-  "Main.MenuSettings.PlayerDatabase": {
-    "en": "Player Database",
-    "de": "Spielerdatenbank",
-    "fr": "Base de données des joueurs",
-    "es": "Base de datos de jugadores",
-    "ru": "База игроков",
-    "pl": "Baza graczy",
-    "tr": "Oyuncu Veritabanı",
-    "zh": "玩家数据库"
   },
   "Main.MenuSettings.AlwaysOnTop": {
     "en": "Always on top",
@@ -348,66 +298,6 @@
     "pl": "Leczenie",
     "tr": "İyileştirme",
     "zh": "治疗"
-  },
-  "Main.ModeRelic": {
-    "en": "Relic",
-    "de": "Relikt",
-    "fr": "Relique",
-    "es": "Reliquia",
-    "ru": "Реликвия",
-    "pl": "Relikwia",
-    "tr": "Kalıntı",
-    "zh": "圣物"
-  },
-  "Main.NavDmg": {
-    "en": "Dmg",
-    "de": "Sch.",
-    "fr": "Dgt",
-    "es": "Daño",
-    "ru": "Урн",
-    "pl": "Obr.",
-    "tr": "Hsr",
-    "zh": "伤害"
-  },
-  "Main.NavLoot": {
-    "en": "Loot",
-    "de": "Beut",
-    "fr": "But.",
-    "es": "Bot.",
-    "ru": "Доб.",
-    "pl": "Łupy",
-    "tr": "Gnm.",
-    "zh": "掉落"
-  },
-  "Main.NavRot": {
-    "en": "Rot",
-    "de": "Rot.",
-    "fr": "Rot.",
-    "es": "Rot.",
-    "ru": "Рот.",
-    "pl": "Rot.",
-    "tr": "Rot.",
-    "zh": "轮换"
-  },
-  "Main.NavChar": {
-    "en": "Char",
-    "de": "Char",
-    "fr": "Perso",
-    "es": "Pers",
-    "ru": "Перс",
-    "pl": "Post",
-    "tr": "Krk",
-    "zh": "角色"
-  },
-  "Main.NavInst": {
-    "en": "Inst",
-    "de": "Inst",
-    "fr": "Inst",
-    "es": "Inst",
-    "ru": "Инст",
-    "pl": "Inst",
-    "tr": "Zdn",
-    "zh": "副本"
   },
   "Main.FilterAllClasses": {
     "en": "All Classes",
@@ -519,76 +409,6 @@
     "tr": "Hasar / DPS",
     "zh": "伤害 / DPS"
   },
-  "Main.ColumnPerson": {
-    "en": "Person",
-    "de": "Person",
-    "fr": "Personne",
-    "es": "Persona",
-    "ru": "Игрок",
-    "pl": "Osoba",
-    "tr": "Kişi",
-    "zh": "玩家"
-  },
-  "Main.ColumnItem": {
-    "en": "Item",
-    "de": "Gegenstand",
-    "fr": "Objet",
-    "es": "Objeto",
-    "ru": "Предмет",
-    "pl": "Przedmiot",
-    "tr": "Eşya",
-    "zh": "物品"
-  },
-  "Main.ColumnQty": {
-    "en": "Qty",
-    "de": "Anz.",
-    "fr": "Qté",
-    "es": "Cant.",
-    "ru": "Кол-во",
-    "pl": "Ilość",
-    "tr": "Adet",
-    "zh": "数量"
-  },
-  "Main.StatExp": {
-    "en": "Exp:",
-    "de": "Erf.:",
-    "fr": "Exp :",
-    "es": "Exp:",
-    "ru": "Опыт:",
-    "pl": "Dośw.:",
-    "tr": "Tec.:",
-    "zh": "经验："
-  },
-  "Main.StatAp": {
-    "en": "AP:",
-    "de": "AP:",
-    "fr": "PA :",
-    "es": "PA:",
-    "ru": "ОБ:",
-    "pl": "PO:",
-    "tr": "AP:",
-    "zh": "深渊点："
-  },
-  "Main.StatGp": {
-    "en": "GP:",
-    "de": "RP:",
-    "fr": "PG :",
-    "es": "PG:",
-    "ru": "ОС:",
-    "pl": "PC:",
-    "tr": "GP:",
-    "zh": "荣誉点："
-  },
-  "Main.StatKinah": {
-    "en": "Kinah:",
-    "de": "Kinah:",
-    "fr": "Kinah :",
-    "es": "Kinah:",
-    "ru": "Кина:",
-    "pl": "Kinah:",
-    "tr": "Kinah:",
-    "zh": "金币："
-  },
   "Settings.WindowTitle": {
     "en": "User Settings",
     "de": "Benutzereinstellungen",
@@ -599,26 +419,6 @@
     "tr": "Kullanıcı ayarları",
     "zh": "用户设置"
   },
-  "Settings.Nav.Characters": {
-    "en": "Characters",
-    "de": "Charaktere",
-    "fr": "Personnages",
-    "es": "Personajes",
-    "ru": "Персонажи",
-    "pl": "Postacie",
-    "tr": "Karakterler",
-    "zh": "角色"
-  },
-  "Settings.Nav.Targets": {
-    "en": "Targets",
-    "de": "Ziele",
-    "fr": "Cibles",
-    "es": "Objetivos",
-    "ru": "Цели",
-    "pl": "Cele",
-    "tr": "Hedefler",
-    "zh": "目标"
-  },
   "Settings.Nav.Interface": {
     "en": "Interface",
     "de": "Oberfläche",
@@ -628,86 +428,6 @@
     "pl": "Interfejs",
     "tr": "Arayüz",
     "zh": "界面"
-  },
-  "Settings.TargetsList": {
-    "en": "Targets List (which ranks are shown at all)",
-    "de": "Zielliste (welche Ränge überhaupt angezeigt werden)",
-    "fr": "Liste des cibles (quels rangs sont affichés)",
-    "es": "Lista de objetivos (qué rangos se muestran)",
-    "ru": "Список целей (какие ранги вообще показывать)",
-    "pl": "Lista celów (które rangi są w ogóle pokazywane)",
-    "tr": "Hedef listesi (hangi rütbelerin gösterileceği)",
-    "zh": "目标列表（显示哪些等级）"
-  },
-  "Settings.ShowPlayers": {
-    "en": "Display players",
-    "de": "Spieler anzeigen",
-    "fr": "Afficher les joueurs",
-    "es": "Mostrar jugadores",
-    "ru": "Показывать игроков",
-    "pl": "Pokazuj graczy",
-    "tr": "Oyuncuları göster",
-    "zh": "显示玩家"
-  },
-  "Settings.ShowMinionNpcs": {
-    "en": "Display minion NPCs (servants, summons, energies)",
-    "de": "Diener-NPCs anzeigen (Diener, Beschwörungen, Energien)",
-    "fr": "Afficher les PNJ serviteurs (serviteurs, invocations, énergies)",
-    "es": "Mostrar PNJ sirvientes (sirvientes, invocaciones, energías)",
-    "ru": "Показывать NPC-слуг (слуги, призывы, сущности)",
-    "pl": "Pokazuj pomocnicze NPC (słudzy, przywołania, energie)",
-    "tr": "Yardımcı NPC'leri göster (uşaklar, çağırmalar, enerjiler)",
-    "zh": "显示仆从类NPC（仆从、召唤物、能量体）"
-  },
-  "Settings.ShowCommonNpcs": {
-    "en": "Display common NPCs",
-    "de": "Gewöhnliche NPCs anzeigen",
-    "fr": "Afficher les PNJ normaux",
-    "es": "Mostrar PNJ comunes",
-    "ru": "Показывать обычных NPC",
-    "pl": "Pokazuj zwykłe NPC",
-    "tr": "Sıradan NPC'leri göster",
-    "zh": "显示普通NPC"
-  },
-  "Settings.ShowEliteNpcs": {
-    "en": "Display elite NPCs",
-    "de": "Elite-NPCs anzeigen",
-    "fr": "Afficher les PNJ d'élite",
-    "es": "Mostrar PNJ de élite",
-    "ru": "Показывать элитных NPC",
-    "pl": "Pokazuj elitarne NPC",
-    "tr": "Elit NPC'leri göster",
-    "zh": "显示精英NPC"
-  },
-  "Settings.ShowHeroicNpcs": {
-    "en": "Display heroic NPCs",
-    "de": "Heroische NPCs anzeigen",
-    "fr": "Afficher les PNJ héroïques",
-    "es": "Mostrar PNJ heroicos",
-    "ru": "Показывать героических NPC",
-    "pl": "Pokazuj heroiczne NPC",
-    "tr": "Kahramanlık NPC'lerini göster",
-    "zh": "显示英雄级NPC"
-  },
-  "Settings.ShowLegendaryNpcs": {
-    "en": "Display legendary NPCs",
-    "de": "Legendäre NPCs anzeigen",
-    "fr": "Afficher les PNJ légendaires",
-    "es": "Mostrar PNJ legendarios",
-    "ru": "Показывать легендарных NPC",
-    "pl": "Pokazuj legendarne NPC",
-    "tr": "Efsanevi NPC'leri göster",
-    "zh": "显示传说级NPC"
-  },
-  "Settings.UserInterface": {
-    "en": "User Interface",
-    "de": "Benutzeroberfläche",
-    "fr": "Interface utilisateur",
-    "es": "Interfaz de usuario",
-    "ru": "Интерфейс",
-    "pl": "Interfejs użytkownika",
-    "tr": "Kullanıcı arayüzü",
-    "zh": "用户界面"
   },
   "Settings.Theme": {
     "en": "Theme:",
@@ -759,16 +479,6 @@
     "tr": "Hasar payı çubuklarını göster",
     "zh": "显示伤害占比条"
   },
-  "Settings.ShowRelicAp": {
-    "en": "Show Relic AP per player",
-    "de": "Relic-AP pro Spieler anzeigen",
-    "fr": "Afficher l'AP de relique par joueur",
-    "es": "Mostrar AP de reliquia por jugador",
-    "ru": "Показывать реликтовые AP по игрокам",
-    "pl": "Pokaż AP reliktu na gracza",
-    "tr": "Oyuncu başına Relic AP göster",
-    "zh": "显示每位玩家的圣物AP"
-  },
   "Settings.ShowDamageTaken": {
     "en": "Show damage taken per player",
     "de": "Erlittenen Schaden pro Spieler anzeigen",
@@ -778,16 +488,6 @@
     "pl": "Pokaż otrzymane obrażenia na gracza",
     "tr": "Oyuncu başına alınan hasarı göster",
     "zh": "显示每位玩家承受的伤害"
-  },
-  "Settings.ShowDefenseStats": {
-    "en": "Show avoided attacks (dodge/parry/block/resist) per player",
-    "de": "Abgewehrte Angriffe (Ausweichen/Parieren/Blocken/Widerstehen) pro Spieler anzeigen",
-    "fr": "Afficher les attaques évitées par joueur",
-    "es": "Mostrar ataques evitados por jugador",
-    "ru": "Показывать избегнутые атаки по игрокам",
-    "pl": "Pokaż unikniete ataki na gracza",
-    "tr": "Oyuncu başına savuşturulan saldırıları göster",
-    "zh": "显示每位玩家规避的攻击"
   },
   "Settings.RecordFightHistory": {
     "en": "Record fight history",
@@ -808,26 +508,6 @@
     "pl": "Ciemny",
     "tr": "Koyu",
     "zh": "深色"
-  },
-  "Settings.ThemeLight": {
-    "en": "Light",
-    "de": "Hell",
-    "fr": "Clair",
-    "es": "Claro",
-    "ru": "Светлая",
-    "pl": "Jasny",
-    "tr": "Açık",
-    "zh": "浅色"
-  },
-  "Settings.ThemeHighContrast": {
-    "en": "High contrast",
-    "de": "Hoher Kontrast",
-    "fr": "Contraste élevé",
-    "es": "Alto contraste",
-    "ru": "Высокий контраст",
-    "pl": "Wysoki kontrast",
-    "tr": "Yüksek kontrast",
-    "zh": "高对比度"
   },
   "Settings.SizeSmall": {
     "en": "Small",
@@ -880,34 +560,14 @@
     "zh": "在 GitHub 检查新版本（启动时及每 5 分钟一次）"
   },
   "Settings.AionInstallation": {
-    "en": "Aion Installation",
-    "de": "Aion-Installation",
-    "fr": "Installation d'Aion",
-    "es": "Instalación de Aion",
-    "ru": "Установка Aion",
-    "pl": "Instalacja Aion",
-    "tr": "Aion Kurulumu",
-    "zh": "永恒之塔安装"
-  },
-  "Settings.AutoDetectGame": {
-    "en": "Auto-detect which game is running (Aion / Aion 2)",
-    "de": "Automatisch erkennen, welches Spiel läuft (Aion / Aion 2)",
-    "fr": "Détecter automatiquement le jeu en cours (Aion / Aion 2)",
-    "es": "Detectar automáticamente qué juego se está ejecutando (Aion / Aion 2)",
-    "ru": "Определять автоматически, какая игра запущена (Aion / Aion 2)",
-    "pl": "Wykrywaj automatycznie, która gra jest uruchomiona (Aion / Aion 2)",
-    "tr": "Hangi oyunun çalıştığını otomatik algıla (Aion / Aion 2)",
-    "zh": "自动识别当前运行的游戏（永恒之塔 / 永恒之塔2）"
-  },
-  "Settings.Game": {
-    "en": "Game:",
-    "de": "Spiel:",
-    "fr": "Jeu :",
-    "es": "Juego:",
-    "ru": "Игра:",
-    "pl": "Gra:",
-    "tr": "Oyun:",
-    "zh": "游戏："
+    "en": "Capture",
+    "de": "Erfassung",
+    "fr": "Capture",
+    "es": "Captura",
+    "ru": "Захват",
+    "pl": "Przechwytywanie",
+    "tr": "Yakalama",
+    "zh": "抓包"
   },
   "Settings.Aion2Character": {
     "en": "My Aion 2 character:",
@@ -918,88 +578,8 @@
     "de": "Netzwerkadapter:"
   },
   "Settings.Aion2Hint": {
-    "en": "Aion 2 has no Chat.log. The meter reads the game's network traffic through the Npcap driver (passive, nothing is sent and the game process is never touched). Npcap must be installed from npcap.com; live tracking starts once the packet layout has been calibrated for the current game version.",
-    "de": "Aion 2 hat kein Chat.log. Der Meter liest den Netzwerkverkehr des Spiels über den Npcap-Treiber mit (passiv, es wird nichts gesendet und der Spielprozess nie angefasst). Npcap muss von npcap.com installiert sein; Live-Tracking startet, sobald das Paket-Layout für die aktuelle Spielversion kalibriert ist."
-  },
-  "Settings.FolderHint": {
-    "en": "Folder: select the Aion install ROOT (the folder containing Chat.log)",
-    "de": "Ordner: das AION-Installations-Stammverzeichnis wählen (der Ordner mit Chat.log)",
-    "fr": "Dossier : sélectionnez le dossier RACINE d'installation d'Aion (celui contenant Chat.log)",
-    "es": "Carpeta: seleccione la carpeta RAÍZ de instalación de Aion (la que contiene Chat.log)",
-    "ru": "Папка: выберите КОРНЕВУЮ папку установки Aion (папку с Chat.log)",
-    "pl": "Folder: wybierz GŁÓWNY folder instalacji Aion (folder zawierający Chat.log)",
-    "tr": "Klasör: Aion kurulum KÖK klasörünü seçin (Chat.log dosyasını içeren klasör)",
-    "zh": "文件夹：选择永恒之塔安装的根目录（包含 Chat.log 的文件夹）"
-  },
-  "Settings.SelectFolder": {
-    "en": "Select Folder...",
-    "de": "Ordner auswählen …",
-    "fr": "Sélectionner un dossier…",
-    "es": "Seleccionar carpeta…",
-    "ru": "Выбрать папку…",
-    "pl": "Wybierz folder…",
-    "tr": "Klasör Seç...",
-    "zh": "选择文件夹…"
-  },
-  "Settings.YourCharacters": {
-    "en": "Your Characters",
-    "de": "Deine Charaktere",
-    "fr": "Vos personnages",
-    "es": "Tus personajes",
-    "ru": "Ваши персонажи",
-    "pl": "Twoje postacie",
-    "tr": "Karakterleriniz",
-    "zh": "你的角色"
-  },
-  "Settings.ActiveCharacter": {
-    "en": "Active character:",
-    "de": "Aktiver Charakter:",
-    "fr": "Personnage actif :",
-    "es": "Personaje activo:",
-    "ru": "Активный персонаж:",
-    "pl": "Aktywna postać:",
-    "tr": "Etkin karakter:",
-    "zh": "当前角色："
-  },
-  "Settings.AutoDetectActiveCharacter": {
-    "en": "Auto-detect active character from skills used",
-    "de": "Aktiven Charakter automatisch anhand genutzter Skills erkennen",
-    "fr": "Détecter automatiquement le personnage actif d'après les compétences utilisées",
-    "es": "Detectar automáticamente el personaje activo según las habilidades usadas",
-    "ru": "Определять активного персонажа автоматически по используемым навыкам",
-    "pl": "Wykrywaj aktywną postać automatycznie na podstawie użytych umiejętności",
-    "tr": "Etkin karakteri kullanılan becerilerden otomatik algıla",
-    "zh": "根据使用的技能自动识别当前角色"
-  },
-  "Settings.Add": {
-    "en": "Add",
-    "de": "Hinzufügen",
-    "fr": "Ajouter",
-    "es": "Añadir",
-    "ru": "Добавить",
-    "pl": "Dodaj",
-    "tr": "Ekle",
-    "zh": "添加"
-  },
-  "Settings.Update": {
-    "en": "Update",
-    "de": "Aktualisieren",
-    "fr": "Mettre à jour",
-    "es": "Actualizar",
-    "ru": "Обновить",
-    "pl": "Aktualizuj",
-    "tr": "Güncelle",
-    "zh": "更新"
-  },
-  "Settings.Remove": {
-    "en": "Remove",
-    "de": "Entfernen",
-    "fr": "Supprimer",
-    "es": "Eliminar",
-    "ru": "Удалить",
-    "pl": "Usuń",
-    "tr": "Kaldır",
-    "zh": "移除"
+    "en": "The meter reads the game's network traffic through the Npcap driver (passive, nothing is sent and the game process is never touched). Npcap must be installed from npcap.com.",
+    "de": "Der Meter liest den Netzwerkverkehr des Spiels über den Npcap-Treiber (passiv, es wird nichts gesendet und der Spielprozess wird nie angefasst). Npcap muss von npcap.com installiert sein."
   },
   "Settings.Cancel": {
     "en": "Cancel",
@@ -1160,56 +740,6 @@
     "pl": "Wczytaj do licznika",
     "tr": "Sayaca yükle",
     "zh": "载入计量器"
-  },
-  "Common.Yes": {
-    "en": "Yes",
-    "de": "Ja",
-    "fr": "Oui",
-    "es": "Sí",
-    "ru": "Да",
-    "pl": "Tak",
-    "tr": "Evet",
-    "zh": "是"
-  },
-  "Common.No": {
-    "en": "No",
-    "de": "Nein",
-    "fr": "Non",
-    "es": "No",
-    "ru": "Нет",
-    "pl": "Nie",
-    "tr": "Hayır",
-    "zh": "否"
-  },
-  "Main.EmptyChatLogConfirm.Title": {
-    "en": "Empty Chat.log?",
-    "de": "Chat.log leeren?",
-    "fr": "Vider Chat.log ?",
-    "es": "¿Vaciar Chat.log?",
-    "ru": "Очистить Chat.log?",
-    "pl": "Wyczyścić Chat.log?",
-    "tr": "Chat.log boşaltılsın mı?",
-    "zh": "清空 Chat.log？"
-  },
-  "Main.EmptyChatLogConfirm.Warning": {
-    "en": "The file is emptied, not deleted, and the meter keeps recording. Everything Aion wrote into it so far is gone for good - including chat, not just combat lines.",
-    "de": "Die Datei wird geleert, nicht gelöscht, und der Meter zeichnet weiter auf. Alles, was Aion bisher hineingeschrieben hat, ist unwiderruflich weg - auch der Chat, nicht nur Kampfzeilen.",
-    "fr": "Le fichier est vidé, pas supprimé, et le compteur continue d'enregistrer. Tout ce qu'Aion y a écrit jusqu'ici est perdu définitivement - y compris le chat, pas seulement les lignes de combat.",
-    "es": "El archivo se vacía, no se elimina, y el medidor sigue grabando. Todo lo que Aion escribió en él hasta ahora se pierde para siempre, incluido el chat, no solo las líneas de combate.",
-    "ru": "Файл очищается, а не удаляется, и счётчик продолжает запись. Всё, что Aion успел туда записать, теряется безвозвратно - включая чат, а не только строки боя.",
-    "pl": "Plik zostaje wyczyszczony, a nie usunięty, a licznik nadal nagrywa. Wszystko, co Aion do tej pory tam zapisał, przepada bezpowrotnie - łącznie z czatem, nie tylko liniami walki.",
-    "tr": "Dosya siliniyor değil, boşaltılıyor ve sayaç kayda devam ediyor. Aion'un şimdiye kadar içine yazdığı her şey - sadece savaş satırları değil, sohbet de dahil - kalıcı olarak kayboluyor.",
-    "zh": "文件会被清空而非删除，计量器会继续记录。Aion 目前为止写入其中的一切都将永久消失 - 不仅是战斗记录，聊天内容也包括在内。"
-  },
-  "Main.EmptyChatLogConfirm.CurrentSize": {
-    "en": "currently",
-    "de": "aktuell",
-    "fr": "actuellement",
-    "es": "actualmente",
-    "ru": "сейчас",
-    "pl": "obecnie",
-    "tr": "şu anda",
-    "zh": "当前"
   },
   "Main.HistoryBanner": {
     "en": "Viewing stored fight: {0} ({1}) - click to return to the live session.",

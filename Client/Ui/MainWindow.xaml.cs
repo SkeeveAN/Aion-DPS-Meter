@@ -15,11 +15,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AionDPS.Aion2;
 using AionDPS.Aion2.Protocol;
-using AionDPS.ChatLog;
 using AionDPS.Combat;
 using AionDPS.Combat.Sources;
 using AionDPS.Data;
-using AionDPS.Game;
 using AionDPS.History;
 using AionDPS.Update;
 using AionDPS.Upload;
@@ -28,21 +26,14 @@ using VelopackUpdateInfo = Velopack.UpdateInfo;
 namespace AionDPS.Ui;
 
 /// <summary>
-/// The main meter window. Holds its own LiveAggregator, fed entirely from Aion's Chat.log via
-/// ChatLogTailer.
+/// The main meter window. Holds its own LiveAggregator, fed from the Aion 2 packet capture.
 /// </summary>
 public partial class MainWindow : Window
 {
     private readonly ObservableCollection<PlayerRow> _rows = new();
 
-    /// <summary>Everyone the meter has ever identified, with class and faction, so someone seen in
-    /// an earlier session is recognised the moment they appear again. See Ui/KnownPlayers.</summary>
-    private readonly KnownPlayers _knownPlayers = KnownPlayers.Load();
     private readonly Dictionary<int, PlayerRow> _rowsByObjectId = new();
     private readonly Dictionary<int, string> _targetNames = new();
-
-    private readonly ObservableCollection<LootRow> _lootRows = new();
-    private readonly Dictionary<(string Person, int ItemId), LootRow> _lootRowsByKey = new();
 
     /// <summary>
     /// Identity (name/class/level) per source object id, independent of PlayerRow. RefreshRows
@@ -114,57 +105,16 @@ public partial class MainWindow : Window
     /// some reason (defensive; every code path already tolerates a no-op filter in that case).</summary>
     private TextBox? _mobBossSearchBox;
 
-    /// <summary>
-    /// The user's own characters, from Settings -- see MeterSettings.Characters remarks for why
-    /// Chat.log itself can never supply the local player's real name. _activeCharacterName is
-    /// which of them "You" currently means; normally set automatically by
-    /// UpdateActiveCharacterFromSkill whenever a Chat.log line shows "You" using a skill unique to
-    /// one registered character's class, but see _autoDetectActiveCharacter below for when that's
-    /// turned off and it's only the Settings dialog's manual picker instead.
-    /// </summary>
-    private List<CharacterProfile> _characters = new();
-    private string? _activeCharacterName;
-
-    /// <summary>Mirrors MeterSettings.AutoDetectActiveCharacter -- see its remarks.
-    /// UpdateActiveCharacterFromSkill is a no-op while this is false, and _activeCharacterName
-    /// only changes via Settings.</summary>
-    private bool _autoDetectActiveCharacter = true;
-
     /// <summary>Mirror MeterSettings.ShowShareBars/ShowDamageTaken - cached here because
     /// RefreshRows runs every second and must not re-read the settings file each time.</summary>
     private bool _showShareBars = true;
     private bool _showDamageTaken;
-    private bool _showDefenseStats;
-    private bool _showRelicAp;
-
     /// <summary>Avoided attacks and kill announcements from the source, kept beside the
     /// aggregator's damage events (they are not DamageEvents - see Combat/Sources). Cleared with
     /// the damage data; scoped to the shown window at refresh time like everything else.</summary>
     private readonly List<AvoidEvent> _avoids = new();
     private readonly List<KillEvent> _kills = new();
 
-    /// <summary>Rolling baseline of ordinary (non-boss-looking) PVE kills' (total damage taken,
-    /// fight duration) - what <see cref="LooksLikeBoss"/> compares a target against to flag an
-    /// uncurated map/world boss for the Mob/Boss dropdown, per the user: a target that took much
-    /// more damage to bring down, or much longer to kill, than the mobs killed shortly before it
-    /// is a boss even with a name EndBossDatabase has never seen. Deliberately built from
-    /// DamageEvent/KillEvent alone (no rank, no name list) so it works identically for Chat.log
-    /// (Aion) and packet capture (Aion 2). This ONLY decides what's shown locally - what may ever
-    /// be UPLOADED stays EndBossDatabase's own, separate, stricter allowlist.
-    /// <see cref="_trashBaselineTargetIds"/> guards against folding the same completed kill into
-    /// this queue twice across repeated RefreshMobBossFilterItems calls.</summary>
-    private readonly Queue<(long Damage, double DurationSeconds)> _recentTrashKills = new();
-    private readonly HashSet<int> _trashBaselineTargetIds = new();
-    private const int BossBaselineWindow = 20;
-    private const int BossBaselineMinSamples = 3;
-    private const double BossDamageFactor = 5.0;
-    private const double BossDurationFactor = 4.0;
-
-    /// <summary>Absolute fallback for when there's no baseline to compare against at all (a fresh
-    /// Chat.log, or the meter started mid-fight) - per the user, "several minutes with several
-    /// players" is a boss on its own regardless of what's been killed around it, if anything.</summary>
-    private const double BossAbsoluteDurationSeconds = 180;
-    private const int BossAbsoluteMinParticipants = 2;
 
     // Local fight history (History/). The store is opened once and shared between the recorder
     // (files finished fights from the live event list) and the history window. _historyMode is
@@ -184,31 +134,13 @@ public partial class MainWindow : Window
     /// <summary>Set by the console test modes before they construct the window: nothing may open a dialog.</summary>
     internal static bool Headless { get; set; }
 
-    private GameKind _currentGame = GameKind.Aion;
     private string? _currentServerDisplayName;
 
-    // Where combat data comes from (see Combat/Sources/ICombatSource) - today always the Chat.log
-    // source; its Entities directory is what RefreshRows/RefreshMobBossFilterItems resolve names
+    // Where combat data comes from (see Combat/Sources/ICombatSource) - the Aion 2 packet source; its Entities directory is what RefreshRows/RefreshMobBossFilterItems resolve names
     // through for ids this window didn't assign itself. Null until Settings name an install folder.
     private ICombatSource? _source;
     private CharacterWindow? _characterWindow;
-    private string? _chatLogPath;
-    private readonly DispatcherTimer _chatLogTimer = new() { Interval = TimeSpan.FromSeconds(1) };
-
-    /// <summary>Counts chat-log ticks so the file-size check runs every 30 seconds rather than
-    /// every second (see OnChatLogTimerTick).</summary>
-    private int _chatLogSizeTickCounter;
-
-    /// <summary>Counts chat-log ticks so ApplyGameDetection runs every 10 seconds rather than every
-    /// second - a process-list scan each tick would be wasteful for something that only matters
-    /// once the played game actually changes. Same cadence as the analogous per-server detection
-    /// below, for the same reason.</summary>
-    private int _gameDetectionTickCounter;
-
-    /// <summary>Counts chat-log ticks so AutoDetectServerFromChatLogActivity runs every 10 seconds
-    /// rather than every second - a stat() per known server folder each tick would be wasteful for
-    /// something that only matters once someone has actually switched clients.</summary>
-    private int _serverAutoDetectTickCounter;
+    private readonly DispatcherTimer _pollTimer = new() { Interval = TimeSpan.FromSeconds(1) };
 
     /// <summary>Five minutes, per the user. GitHub's anonymous API allows 60 requests an hour per
     /// IP, so 12 is comfortably inside it even with a second client running alongside.</summary>
@@ -246,7 +178,6 @@ public partial class MainWindow : Window
         Title = AppVersion.Text.Length > 0 ? $"Aion DPS {AppVersion.Text}" : "Aion DPS";
 
         PlayersGrid.ItemsSource = _rows;
-        LootGrid.ItemsSource = _lootRows;
         OverlayContent.ItemsSource = _rows;
 
         // Per the user: the list must sort itself by damage, highest first, not just show rows in
@@ -259,16 +190,7 @@ public partial class MainWindow : Window
         playersView.IsLiveSorting = true;
         playersView.LiveSortingProperties.Add(nameof(PlayerRow.Damage));
 
-        // Same live-sorting reasoning as the players list above, applied to loot -- grouped by
-        // person first (now that the whole group is tracked, not just "You"), highest quantity
-        // first within each person.
-        var lootView = (ListCollectionView)CollectionViewSource.GetDefaultView(_lootRows);
-        lootView.SortDescriptions.Add(new SortDescription(nameof(LootRow.Person), ListSortDirection.Ascending));
-        lootView.SortDescriptions.Add(new SortDescription(nameof(LootRow.Quantity), ListSortDirection.Descending));
-        lootView.IsLiveSorting = true;
-        lootView.LiveSortingProperties.Add(nameof(LootRow.Quantity));
-
-        _chatLogTimer.Tick += OnChatLogTimerTick;
+        _pollTimer.Tick += OnPollTimerTick;
 
         // Startup check is announced (per the user: should behave exactly like clicking "Check for
         // updates" in the App menu, not stay silent) -- a launch is never mid-fight, so a message
@@ -302,57 +224,9 @@ public partial class MainWindow : Window
         AlwaysOnTopMenuItem.IsChecked = settings.AlwaysOnTopOnStartup;
 
         RestoreWindowGeometry(settings);
-        StartChatLogTailing(settings);
+        StartCapture(settings);
         InitializeFightHistory(settings);
         RefreshCharacterSettings(settings);
-
-        // Consumed (and cleared) exactly once here - see PendingResumeFrom's own remarks for why
-        // this is a narrow exception to ChatLogTailer's usual "never look into the past" rule,
-        // not a general one.
-        if (settings.PendingResumeFrom is DateTime resumeFrom)
-        {
-            settings.PendingResumeFrom = null;
-            settings.Save();
-            ResumeFromChatLogSince(resumeFrom);
-        }
-    }
-
-    /// <summary>Per the user: an update-triggered restart shouldn't silently drop the session that
-    /// had already accumulated in _aggregator/_avoids/_kills before the restart, nor whatever
-    /// Chat.log narrated during the few seconds the process was down for it - <paramref
-    /// name="sinceLocal"/> is OnUpdateRestartNowClicked's PendingResumeFrom, the earliest event
-    /// this session already had, not the restart moment itself, so this recovers both in one pass
-    /// (Chat.log itself isn't touched by an update, so everything since then is still right there
-    /// to re-parse). Reuses ChatLogCombatSource.ReloadFromDisk() - the exact same full re-parse
-    /// "Reload from Chat.log" already does, including its own fresh ChatLogTailer that seeks to the
-    /// CURRENT end of file afterward (see its own remarks), so live tailing continues normally the
-    /// instant this returns - just filtered down to events at/after <paramref name="sinceLocal"/>
-    /// instead of ingesting the whole file. A no-op if the Chat.log source couldn't even be created
-    /// (e.g. no Aion install folder configured) - StartChatLogTailing already reported why.</summary>
-    private void ResumeFromChatLogSince(DateTime sinceLocal)
-    {
-        if (_source is not ChatLogCombatSource chatSource)
-        {
-            return;
-        }
-
-        CombatBatch reloaded = chatSource.ReloadFromDisk();
-        var events = reloaded.Damage
-            .Where(ev => ev.Timestamp >= sinceLocal)
-            .Where(ev => !IsNamedCopyOfRegisteredCharacter(ev.SourceObjectId))
-            .Select(AttributePetDamageToOwner)
-            .ToList();
-        _avoids.AddRange(reloaded.Avoids.Where(a => a.Timestamp >= sinceLocal));
-        _kills.AddRange(reloaded.Kills.Where(k => k.Timestamp >= sinceLocal));
-
-        if (events.Count == 0)
-        {
-            return;
-        }
-
-        _aggregator.IngestEvents(events);
-        RefreshRows();
-        ShowUploadStatus($"Resumed {events.Count} event(s) from before the update restart.");
     }
 
     /// <summary>Applies a previously saved size/position, if any -- see SaveWindowGeometry, its
@@ -390,291 +264,45 @@ public partial class MainWindow : Window
         settings.WindowTop = bounds.Y;
     }
 
-    /// <summary>Re-reads Characters/ActiveCharacterName/AutoDetectActiveCharacter from Settings --
-    /// called once at startup and again after Settings is saved, alongside StartChatLogTailing.</summary>
+    /// <summary>Re-reads the display settings - called once at startup and again after Settings is saved.</summary>
     private void RefreshCharacterSettings(MeterSettings settings)
     {
         _showShareBars = settings.ShowShareBars;
         _showDamageTaken = settings.ShowDamageTaken;
-        _showDefenseStats = settings.ShowDefenseStats;
-        _showRelicAp = settings.ShowRelicAp;
-        _currentGame = settings.Game;
-        _currentServerDisplayName = settings.ServerDisplayName;
-        _characters = settings.Characters;
-        _activeCharacterName = settings.ActiveCharacterName;
-        _autoDetectActiveCharacter = settings.AutoDetectActiveCharacter;
-
-        ApplyActiveCharacterForCurrentServer(settings);
     }
 
     /// <summary>
-    /// Per the user: found from a real report where Settings had Aion Riftshade selected (and its
-    /// own Chat.log folder, see SettingsWindow's ServerInstallFolders remarks) while the meter kept
-    /// showing "Hidan" - a character actually registered on Origin Aion, left over as
-    /// ActiveCharacterName from a previous session on a different server entirely.
-    ///
-    /// Matches by ServerDisplayName (the explicit catalog pick, e.g. "Aion Riftshade" - see
-    /// SettingsWindow's AionInstallServerBox), NOT ServerFingerprint, even though this whole
-    /// mechanism was originally built around the fingerprint: a real settings file turned up
-    /// Hidan (Origin Aion) and Aahz (Aion Riftshade) sharing the exact same
-    /// "70.0.0.150:10241" fingerprint, so that first version found two matches and correctly
-    /// refused to guess between them - the wrong outcome here, not a bug in the "don't guess" rule
-    /// itself. ServerIdentity's own docstring calls the fingerprint "stable and unique per
-    /// private-server operator", which two DIFFERENT operators apparently do not have to honor
-    /// (e.g. both reachable through the same gateway IP:port). The catalog display name has no
-    /// such assumption to break: server_catalog.name is unique by construction, and it is exactly
-    /// what the user explicitly picked in the Aion Installation section - stronger than a
-    /// technical detail the game's own network layer does not actually guarantee.
-    ///
-    /// Deliberately NOT gated behind AutoDetectActiveCharacter (unlike
-    /// UpdateActiveCharacterFromSkill/OnPlayerLoggedIn) - which character belongs to which server
-    /// is a fact the user stated directly when registering it in Settings, not a heuristic guess
-    /// that toggle exists to suppress. Silently does nothing with zero or 2+ matches (e.g. two
-    /// registered characters on the same server), or if no server is selected at all - genuinely
-    /// ambiguous/unknown, same "leave it rather than guess" rule as the skill-based detection.
+    /// (Re)starts the Aion 2 packet capture with the given settings (adapter, own character name) -
+    /// called once at startup and again after Settings is saved.
     /// </summary>
-    private void ApplyActiveCharacterForCurrentServer(MeterSettings settings)
+    private void StartCapture(MeterSettings settings)
     {
-        if (settings.ServerDisplayName is not string serverName)
-        {
-            return;
-        }
-
-        var matches = _characters.Where(c => c.ServerDisplayName == serverName).ToList();
-        if (matches.Count != 1 || matches[0].Name == _activeCharacterName)
-        {
-            return;
-        }
-
-        bool switchedFromKnownCharacter = _activeCharacterName is not null;
-
-        _activeCharacterName = matches[0].Name;
-        settings.ActiveCharacterName = _activeCharacterName;
-        settings.Save();
-
-        if (switchedFromKnownCharacter)
-        {
-            // Same reasoning as OnPlayerLoggedIn's own switch handling: everything recorded so far
-            // belongs to whoever this session used to think "You" was, not the character this
-            // server just resolved to - carrying it forward would merge two different people's (or
-            // two different servers' worth of one person's) damage into one row.
-            ClearDamageData();
-            ClearLootData();
-        }
-
-        RefreshRows();
-    }
-
-    /// <summary>Detected class per real player name, from OTHER players' own skill usage (see
-    /// UpdateOtherPlayerClass) -- per the user ("es wurde keine Klasse der anderen Spieler
-    /// erkannt"), consulted by ApplyIdentity for any row that isn't "You". Session-scoped like
-    /// everything else here, not persisted -- a fresh detection per skill use is cheap enough not
-    /// to bother, and a class never actually changes mid-session anyway.</summary>
-    private readonly Dictionary<string, string> _detectedClassByName = new();
-
-    /// <summary>
-    /// Dispatches a skill-usage sighting to whichever of the two things it's useful for: "You"
-    /// updates which registered character is active (see UpdateActiveCharacterFromSkill), anyone
-    /// else updates that name's detected class for the grid's icon column (see
-    /// UpdateOtherPlayerClass). Both need the same skill-name -> class(es) lookup, done once here.
-    /// </summary>
-    private void OnSkillUsed(string actorName, string skillName)
-    {
-        // Matches skillName against whichever of the three client languages it's actually in (see
-        // SkillDatabase.FindByLocalizedName), exact match preferred over the rank-normalized
-        // fallback for the reasons documented there.
-        var skillInfo = SkillDatabase.FindByLocalizedName(skillName);
-        if (skillInfo is null || skillInfo.Class.Length == 0)
-        {
-            return;
-        }
-
-        // Some DB entries list more than one class for a shared skill (e.g. "Gladiator, Templar")
-        // -- found by terminal_windows, ~10% of real mentions even after the rank fix above.
-        var classNames = skillInfo.Class.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-        if (actorName == "You")
-        {
-            UpdateActiveCharacterFromSkill(classNames);
-        }
-        else
-        {
-            UpdateOtherPlayerClass(actorName, classNames);
-        }
-    }
-
-    /// <summary>
-    /// Auto-detects which registered character "You" currently is, by matching the just-used
-    /// skill's class(es) against the registered CharacterProfiles. Replaces the manual quick-
-    /// switch dropdown removed per the user's original request ("YOU + genutzte Skills sollte
-    /// ausreichen"). Silently does nothing if no registered character matches, or if two
-    /// characters share a class (ambiguous -- leaves whichever was already active rather than
-    /// guessing) -- or, per the user's later request, if AutoDetectActiveCharacter has been
-    /// turned off in Settings (two clients both fighting at once can otherwise flip this back and
-    /// forth between two registered characters with no way to pin it to the one actually meant to
-    /// be tracked).
-    /// </summary>
-    /// <summary>
-    /// Fires when Aion announces that a named character has logged in -- see
-    /// ChatLogParser.PlayerLoggedIn for why that alone means nothing. Only a REGISTERED character
-    /// of the user's own can trigger anything here; a real friend logging in is the common case for
-    /// this line and must never be read as a switch.
-    ///
-    /// <para>Found from a real Chat.log spanning several days on one shared installation: an
-    /// Assassin's and a Ranger's own damage, both narrated as "Ihr"/"You" because both were the
-    /// same person's characters played at different sittings, summed into one absurd total because
-    /// nothing ever told the meter the local identity had changed. This is the closest thing
-    /// Chat.log has to that signal -- there is no line that says "you switched characters"
-    /// directly, and the connection-status line only fires once per client launch, not per
-    /// character-select swap.</para>
-    ///
-    /// <para>Gated behind the same "Auto-detect active character" setting as the skill-based
-    /// detection, and for the same reason it exists: with two clients open at once, whichever one
-    /// happens to log a groupmate's login notification must not flip which of the two registered
-    /// characters this session believes it is.</para>
-    /// </summary>
-    private void OnPlayerLoggedIn(string name)
-    {
-        if (!_autoDetectActiveCharacter || !_characters.Any(c => c.Name == name))
-        {
-            return;
-        }
-
-        // The same character logging back in -- a relog, or simply the first login line of a
-        // fresh session -- is not a switch; there is nothing to separate it from.
-        if (name == _activeCharacterName)
-        {
-            return;
-        }
-
-        bool switchedFromKnownCharacter = _activeCharacterName is not null;
-
-        _activeCharacterName = name;
-        var settings = MeterSettings.Load();
-        settings.ActiveCharacterName = name;
-        settings.Save();
-
-        if (switchedFromKnownCharacter)
-        {
-            // Everything recorded so far belongs to whoever was just playing, not to the character
-            // that just logged in -- carrying it forward would keep merging two different people's
-            // (or, as found, one person's two different characters') damage into one row.
-            ClearDamageData();
-            ClearLootData();
-        }
-
-        RefreshRows();
-    }
-
-    private void UpdateActiveCharacterFromSkill(string[] classNames)
-    {
-        if (!_autoDetectActiveCharacter)
-        {
-            return;
-        }
-
-        // Split and match any of the skill's class(es); still bails if that leaves more than one
-        // registered character (genuinely ambiguous), same rule as before this was generalized.
-        var matches = _characters.Where(c => classNames.Contains(c.ClassName)).ToList();
-        if (matches.Count != 1 || matches[0].Name == _activeCharacterName)
-        {
-            return;
-        }
-
-        _activeCharacterName = matches[0].Name;
-
-        var settings = MeterSettings.Load();
-        settings.ActiveCharacterName = _activeCharacterName;
-        settings.Save();
-
-        RefreshRows();
-    }
-
-    /// <summary>
-    /// Records a real (non-"You") player's class from their own skill usage, per the user. Unlike
-    /// the "You" case, there's no registered-character list to disambiguate a shared skill against
-    /// (see UpdateActiveCharacterFromSkill) -- a skill mapping to more than one class is simply
-    /// left unresolved for someone else rather than guessed. A class, once detected, never
-    /// actually changes for a given character, so this only does anything on the first sighting
-    /// (or if it somehow saw a different class before, which would mean the earlier one was wrong
-    /// -- still safer to take the latest than to never correct it).
-    /// </summary>
-    private void UpdateOtherPlayerClass(string playerName, string[] classNames)
-    {
-        if (classNames.Length != 1)
-        {
-            return;
-        }
-
-        if (_detectedClassByName.TryGetValue(playerName, out string? existing) && existing == classNames[0])
-        {
-            return;
-        }
-
-        _detectedClassByName[playerName] = classNames[0];
-        RefreshRows();
-    }
-
-    /// <summary>
-    /// (Re)starts chat-log tailing from the given settings' AionInstallFolder, if it looks usable
-    /// -- called once at startup and again after Settings is saved with a possibly different
-    /// folder. Explicit rule from the user: recording must never look into the past, so a fresh
-    /// ChatLogTailer always seeks to the CURRENT end of Chat.log (see its own remarks) -- this is
-    /// true both on first startup and when the user points Settings at a different install after
-    /// the window is already open; neither case should replay history.
-    /// </summary>
-    private void StartChatLogTailing(MeterSettings settings)
-    {
-        _chatLogTimer.Stop();
+        _pollTimer.Stop();
         ReplaceSource(null);
 
-        // Aion 2 has no Chat.log, so there is nothing on disk to empty.
-        EmptyChatLogButton.Visibility = settings.Game == GameKind.Aion2 ? Visibility.Collapsed : Visibility.Visible;
-
-        if (settings.Game == GameKind.Aion2)
+        var source = new Aion2PacketCombatSource(Aion2Protocol.Load(), settings.CaptureAdapterId, settings.Aion2CharacterName, Aion2CharacterStore.DefaultPath);
+        // Remember the name the stream reveals, so the next (solo) session knows it without a party.
+        source.LocalNameLearned += learned =>
         {
-            // Aion 2 writes no Chat.log - its source captures the game's network traffic instead
-            // (see Aion2/). Same one-second poll drives it; there is no file to point at.
-            _chatLogPath = null;
-            var aion2Source = new Aion2PacketCombatSource(Aion2Protocol.Load(), settings.CaptureAdapterId, settings.Aion2CharacterName, Aion2CharacterStore.DefaultPath);
-            // Remember the name the stream reveals, so the next (solo) session knows it without a party.
-            aion2Source.LocalNameLearned += learned =>
+            var current = MeterSettings.Load();
+            if (string.IsNullOrWhiteSpace(current.Aion2CharacterName))
             {
-                var current = MeterSettings.Load();
-                if (string.IsNullOrWhiteSpace(current.Aion2CharacterName))
-                {
-                    current.Aion2CharacterName = learned;
-                    current.Save();
-                }
-            };
-            ReplaceSource(aion2Source);
-            // The upload entries appear once the own character is known (see RefreshUploadAvailability).
-            if (aion2Source.Entities is Aion2.Aion2EntityDirectory aion2Entities)
-            {
-                aion2Entities.CharacterChanged += _ => Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    RefreshUploadAvailability();
-                    ScheduleOwnProfileUpload();
-                }));
+                current.Aion2CharacterName = learned;
+                current.Save();
             }
-
-            _chatLogTimer.Start();
-            return;
-        }
-
-        string? folder = settings.AionInstallFolder;
-        _chatLogPath = string.IsNullOrEmpty(folder) ? null : Path.Combine(folder, "Chat.log");
-
-        if (_chatLogPath is null)
+        };
+        ReplaceSource(source);
+        // The upload entries appear once the own character is known (see RefreshUploadAvailability).
+        if (source.Entities is Aion2EntityDirectory entities)
         {
-            return;
+            entities.CharacterChanged += _ => Dispatcher.BeginInvoke(new Action(() =>
+            {
+                RefreshUploadAvailability();
+                ScheduleOwnProfileUpload();
+            }));
         }
 
-        // Chat.log may not exist yet on a client that has never had chat logging (g_chatlog)
-        // enabled -- the source keeps looking for it on every poll, so enabling logging later,
-        // while this window is already open, is picked up without a restart.
-        ReplaceSource(new ChatLogCombatSource(_chatLogPath));
-        _chatLogTimer.Start();
+        _pollTimer.Start();
     }
 
     /// <summary>Swaps the combat source. Handlers are subscribed once per source - the source
@@ -689,12 +317,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        source.SkillUsed += OnSkillUsed;
         source.CommandReceived += OnChatCommand;
-        source.PersonalStatChanged += OnPersonalStatChanged;
-        source.LootAcquired += OnLootAcquired;
-        source.PlayerLoggedIn += OnPlayerLoggedIn;
-        source.BuffCast += OnBuffCast;
         source.StatusChanged += OnSourceStatusChanged;
         source.Start();
     }
@@ -715,206 +338,6 @@ public partial class MainWindow : Window
         Dispatcher.BeginInvoke(new Action(() => ShowUploadStatus(status.Message)));
     }
 
-    /// <summary>Only a genuinely fresh write counts as "this client is the one being played right
-    /// now" - without this, right after a fresh install (neither client having run yet, or both
-    /// long idle) whichever Chat.log happens to have a marginally newer mtime would "win" forever,
-    /// for no real reason. 30 seconds - the same value BuffPrePullGrace already uses for "still
-    /// close enough to count as the same moment", not an exact reuse of that constant (a
-    /// pre-pull buff window and a client-switch window are different things), just a reasonable
-    /// default of the same size.</summary>
-    private static readonly TimeSpan RecentChatLogWriteWindow = TimeSpan.FromSeconds(30);
-
-    /// <summary>
-    /// Per the user: rather than requiring a manual switch in Settings every time play moves to a
-    /// different registered server's client, figure out which one is actually active right now
-    /// from which KNOWN Chat.log has the freshest new content - the same signal a person glancing
-    /// at file timestamps in Explorer would use. Runs every ~10 seconds (see
-    /// OnChatLogTimerTick), comparing every folder in MeterSettings.ServerInstallFolders (not just
-    /// the currently configured one) by their own Chat.log's LastWriteTimeUtc.
-    ///
-    /// Switches only when some OTHER known server's Chat.log was written to within
-    /// <see cref="RecentChatLogWriteWindow"/> while the CURRENTLY configured one was not - if both
-    /// are fresh (two clients genuinely running at once) or neither is, this does nothing rather
-    /// than flip-flop or guess between them. Reuses StartChatLogTailing/RefreshCharacterSettings,
-    /// the exact same path Settings' own Save button triggers - so this both starts tailing the
-    /// newly-active Chat.log AND (via ApplyActiveCharacterForCurrentServer) resolves the right
-    /// registered character for it in one go.
-    /// </summary>
-    /// <summary>
-    /// Per the user: Aion and Aion 2 should be told apart clearly, without having to remember to
-    /// flip Settings' Game dropdown by hand every time the played game changes - same "figure it
-    /// out from what's actually happening" idea AutoDetectServerFromChatLogActivity below already
-    /// applies to servers, this time for which GAME is even running (see Game/GameDetector.cs).
-    /// Runs every ~10 seconds, same cadence.
-    ///
-    /// A no-op under <see cref="GameDetectionMode.Manual"/> (see MeterSettings.GameDetectionMode -
-    /// Settings' dropdown then controls Game directly, same as before this existed), when neither
-    /// client's process is currently running (keeps whatever game was last active rather than
-    /// flapping to a default the moment both clients are closed), or when the detected game already
-    /// matches what's configured. Reuses StartChatLogTailing/RefreshCharacterSettings, the exact
-    /// same path Settings' own Save button triggers - so this both swaps the combat source AND (via
-    /// RefreshCharacterSettings/ApplyActiveCharacterForCurrentServer) resolves the right class list
-    /// and active character for the newly-detected game in one go.
-    /// </summary>
-    private void ApplyGameDetection()
-    {
-        var settings = MeterSettings.Load();
-        if (settings.GameDetectionMode != GameDetectionMode.Automatic)
-        {
-            return;
-        }
-
-        if (GameDetector.Detect() is not GameKind detected || detected == settings.Game)
-        {
-            return;
-        }
-
-        settings.Game = detected;
-        settings.Save();
-
-        ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
-        StartChatLogTailing(settings);
-        InitializeFightHistory(settings);
-        RefreshCharacterSettings(settings);
-        ApplyClassFilterAvailability();
-        RefreshRows();
-    }
-
-    private void AutoDetectServerFromChatLogActivity()
-    {
-        var settings = MeterSettings.Load();
-        if (settings.ServerInstallFolders.Count < 2)
-        {
-            return; // nothing to tell apart from the currently configured folder
-        }
-
-        DateTime utcNow = DateTime.UtcNow;
-
-        // Every REGISTERED server whose own Chat.log was written to just now. Built from all of
-        // them, not just "everything except the current one" - so two clients open at once (the
-        // current one AND another) is recognized as ambiguous too, not just two others racing.
-        var freshServers = settings.ServerInstallFolders
-            .Where(pair => LastChatLogWriteUtc(pair.Value) is DateTime writeUtc && utcNow - writeUtc <= RecentChatLogWriteWindow)
-            .ToList();
-
-        if (freshServers.Count != 1)
-        {
-            // Nobody currently playing on any registered server, or two/more at once - genuinely
-            // ambiguous either way, same "leave it rather than guess" rule as everywhere else this
-            // app resolves an active character.
-            return;
-        }
-
-        (string serverName, string folder) = freshServers[0];
-        if (string.Equals(folder, settings.AionInstallFolder, StringComparison.OrdinalIgnoreCase))
-        {
-            return; // already tailing the one that's actually active
-        }
-
-        settings.AionInstallFolder = folder;
-        settings.ServerDisplayName = serverName;
-        settings.Save();
-
-        StartChatLogTailing(settings);
-        RefreshCharacterSettings(settings);
-        ApplyClassFilterAvailability();
-    }
-
-    private static DateTime? LastChatLogWriteUtc(string? folder)
-    {
-        if (string.IsNullOrEmpty(folder))
-        {
-            return null;
-        }
-
-        string logPath = Path.Combine(folder, "Chat.log");
-        return File.Exists(logPath) ? File.GetLastWriteTimeUtc(logPath) : null;
-    }
-
-    // AP earned from looted relics, per person (see Data/RelicApDatabase for why Chat.log can
-    // never report this itself). Keyed by the same resolved person name the Loot list uses, so
-    // "You" is already mapped to the active character here -- that is what lets a relic picked up
-    // by anyone in the group land on their own row, not just the local player's.
-    private readonly Dictionary<string, long> _relicApByPerson = new();
-
-    // Running totals for the footer row -- see ChatLogParser.PersonalStatChanged remarks for why
-    // these are simple accumulators, not per-row PlayerRow fields like Damage (Exp/AP/GP/Kinah
-    // only ever apply to "You", there's no "other player's XP" to track). Session-scoped like
-    // damage totals: reset by ClearDamageData, not persisted across restarts.
-    private long _totalExp;
-    private long _totalAp;
-    private long _totalGp;
-    private long _totalKinah;
-
-    private void OnPersonalStatChanged(PersonalStatKind kind, long delta)
-    {
-        switch (kind)
-        {
-            case PersonalStatKind.Experience:
-                _totalExp += delta;
-                ExpValueText.Text = _totalExp.ToString("N0");
-                break;
-            case PersonalStatKind.AbyssPoints:
-                _totalAp += delta;
-                RefreshApDisplays(); // footer + the "You" row's second AP line, relics included
-                break;
-            case PersonalStatKind.GloryPoints:
-                _totalGp += delta;
-                GpValueText.Text = _totalGp.ToString("N0");
-                break;
-            case PersonalStatKind.Kinah:
-                _totalKinah += delta;
-                KinahValueText.Text = _totalKinah.ToString("N0");
-                break;
-        }
-    }
-
-    /// <summary>
-    /// Tracks the WHOLE group's loot, per the user -- not just "You". A loot line naming a
-    /// registered OTHER character (e.g. "Mitzuhiko has acquired [item:...].") is still dropped,
-    /// same perspective rule as damage (see IsNamedCopyOfRegisteredCharacter): it's that
-    /// character's own client narrating itself in third person, which is guaranteed to be a
-    /// duplicate of ITS OWN "You" line elsewhere in the merged log. Anyone else named in third
-    /// person -- a real, unregistered group member (or a pet like "Superclyde") -- is the OPPOSITE
-    /// case: there is no "their own You line" for us to receive at all (we don't run their
-    /// client), so third person is the correct, sole source for them, not a duplicate to discard.
-    /// </summary>
-    private void OnLootAcquired(LootEvent loot)
-    {
-        string? person = ResolveLootPerson(loot.Subject);
-        if (person is null)
-        {
-            return;
-        }
-
-        // Before the loot-list filter below, deliberately: relics are Rare grade, so IsTrackedLoot
-        // drops them from the Loot view as ordinary trash -- correct there, since the user asked
-        // not to list every drop, but their AP still has to count. Both facts are true at once.
-        if (RelicApDatabase.IsRelic(loot.ItemId))
-        {
-            _relicApByPerson.TryGetValue(person, out long relicAp);
-            _relicApByPerson[person] = relicAp + RelicApDatabase.ApFor(loot.ItemId, loot.Quantity);
-            RefreshApDisplays();
-        }
-
-        string itemName = ItemDatabase.DisplayName(loot.ItemId);
-        if (!IsTrackedLoot(loot.ItemId, itemName))
-        {
-            return;
-        }
-
-        var key = (person, loot.ItemId);
-        if (!_lootRowsByKey.TryGetValue(key, out var row))
-        {
-            row = new LootRow(person, loot.ItemId, itemName, ItemDatabase.GradeOf(loot.ItemId), loot.RawTag);
-            _lootRowsByKey[key] = row;
-            _lootRows.Add(row);
-        }
-
-        row.Quantity += loot.Quantity;
-        row.LastTag = loot.RawTag;
-    }
-
     // Per fight: which real buffs (not damage/heal skills) each RECIPIENT received, for the web
     // frontend's "Buffs" column (see BuildEncounterUpload) - a parallel side-channel list, same
     // shape/reasoning as _lootRows above, since a buff cast is neither a DamageEvent nor something
@@ -922,42 +345,6 @@ public partial class MainWindow : Window
     // a Cleric/Chanter's group-wide buff shows up on every party member it actually landed on, not
     // only on whoever cast it (see BuffCastEvent's own remarks).
     private readonly List<(DateTime Timestamp, int RecipientId, string Skill)> _buffCasts = new();
-
-    private void OnBuffCast(BuffCastEvent evt)
-    {
-        // Same ResolveLootPerson dedup this app already applies to loot lines: with more than one
-        // registered character's Chat.log feeding this app, a group buff's "X is in the boost..."
-        // line is independently narrated in every affected member's own log, so a recipient who is
-        // ANOTHER registered character is dropped here - their own log's copy of the same line is
-        // what attributes it to them, avoiding a double count.
-        string? recipient = ResolveLootPerson(evt.Recipient);
-        if (recipient is null)
-        {
-            return;
-        }
-
-        int recipientId = recipient == _activeCharacterName ? _source!.Entities.LocalPlayerId : _source!.Entities.GetOrAssignId(recipient);
-        _buffCasts.Add((evt.Timestamp, recipientId, evt.Skill));
-    }
-
-    /// <summary>Null return means "drop this line" (see OnLootAcquired remarks) -- everything
-    /// else is the real name to attribute the loot to, with "You" resolved to whichever character
-    /// is currently active (same convention as ResolveDisplayName/ApplyIdentity use for damage).</summary>
-    private string? ResolveLootPerson(string? subject)
-    {
-        if (subject is null)
-        {
-            return null;
-        }
-
-        if (subject == "You")
-        {
-            return string.IsNullOrEmpty(_activeCharacterName) ? "You" : _activeCharacterName;
-        }
-
-        bool isOtherRegisteredCharacter = subject != _activeCharacterName && _characters.Any(c => c.Name == subject);
-        return isOtherRegisteredCharacter ? null : subject;
-    }
 
     /// <summary>Individually named items the user wants tracked regardless of grade, beyond the
     /// Godstone/Design/Recipe prefix rule -- exact names, not a broader pattern: e.g. "Bundle" on
@@ -973,137 +360,22 @@ public partial class MainWindow : Window
         "Beritran Supply Box",
     };
 
-    /// <summary>
-    /// Per the user ("Bitte nicht jeden Loot berücksichtigen"): Godstones and crafting
-    /// Designs/Recipes are always worth tracking regardless of rarity (identified by name prefix
-    /// -- aioncodex's own naming convention, not a separate category field the source data
-    /// exposes: "Godstone: X", "[Event] Godstone: X", "Design: X", "Balic Design: X", "Recipe: X",
-    /// "Balic Recipe: X" all contain the matched substring), and so is anything in
-    /// AlwaysTrackedItemNames. Everything else (gear, manastones, ordinary trash) only counts from
-    /// Unique (Gold) grade up -- Common/Rare/Hero drops are exactly the "every single piece of
-    /// trash loot" the user asked to stop tracking. An unresolved grade (id not in ItemDatabase)
-    /// is tracked rather than dropped: silently hiding something we can't even name is worse than
-    /// showing "Item #ID" for a rare gap in the data.
-    /// </summary>
-    private bool IsTrackedLoot(int itemId, string itemName)
-    {
-        LootTier tier = CurrentLootTier();
-        // Per the user: Hyperion (Infinity Shard) hands out personal loot boxes to everyone, so
-        // there is no group-fairness question to track there at all - not even Godstones/Designs/
-        // Recipes, which is why this check runs before, not after, the "always tracked" list below.
-        if (tier == LootTier.Hyperion)
-        {
-            return false;
-        }
-
-        if (itemName.Contains("Godstone:") || itemName.Contains("Design:") || itemName.Contains("Recipe:")
-            || AlwaysTrackedItemNames.Contains(itemName))
-        {
-            return true;
-        }
-
-        ItemGrade? grade = ItemDatabase.GradeOf(itemId);
-
-        // Per the user: gold/epic jewelry (belt/ring/earring/necklace/helm) from a 65er instance
-        // doesn't count as loot (mythic jewelry still does); a 60er instance draws that same line
-        // one grade lower - only gold jewelry is excluded, epic still counts.
-        if (grade is ItemGrade knownGrade && IsJewelrySlot(itemName)
-            && ((tier == LootTier.SixtyFive && knownGrade is ItemGrade.Unique or ItemGrade.Epic)
-                || (tier == LootTier.Sixty && knownGrade == ItemGrade.Unique)))
-        {
-            return false;
-        }
-
-        return grade is not ItemGrade g || g >= ItemGrade.Unique;
-    }
-
     /// <summary>Slot categories the user calls "Schmuck" for the 65er/60er jewelry rule above -
     /// English substrings since ItemDatabase's names are all English (see its own remarks).</summary>
     private static readonly string[] JewelrySlotKeywords = { "Belt", "Ring", "Earring", "Necklace", "Helm", "Helmet" };
 
-    private static bool IsJewelrySlot(string itemName) =>
-        JewelrySlotKeywords.Any(k => itemName.Contains(k, StringComparison.OrdinalIgnoreCase));
-
     /// <summary>
-    /// Which loot-fairness tier currently applies. Zone-first: per the user, the rule has to cover
-    /// EVERY mob in the instance, not just a curated list of named bosses, which only the current
-    /// zone (ChatLogParser.CurrentZone, from the local client's own region-channel join line - see
-    /// InstanceTierDatabase's own remarks) can actually guarantee. Falls back to whichever curated
-    /// boss was most recently involved in a damage event (either side - a boss's own hits on the
-    /// group count exactly as much as the group's hits on it, same "latest timestamp wins"
-    /// approach as MostRecentlyFoughtTargetId) only for the brief window where CurrentZone is still
-    /// empty - a session that starts mid-zone learns it only on the next zone change.
-    /// </summary>
-    private LootTier CurrentLootTier()
-    {
-        LootTier zoneTier = InstanceTierDatabase.TierOfZone(_source?.CurrentZone ?? "");
-        if (zoneTier != LootTier.None)
-        {
-            return zoneTier;
-        }
-
-        LootTier tier = LootTier.None;
-        DateTime latest = DateTime.MinValue;
-        foreach (DamageEvent ev in _aggregator.Events)
-        {
-            if (ev.Timestamp <= latest)
-            {
-                continue;
-            }
-
-            LootTier evTier = InstanceTierDatabase.TierOf(ResolveDisplayName(ev.SourceObjectId));
-            if (evTier == LootTier.None)
-            {
-                evTier = InstanceTierDatabase.TierOf(ResolveDisplayName(ev.TargetObjectId));
-            }
-
-            if (evTier != LootTier.None)
-            {
-                latest = ev.Timestamp;
-                tier = evTier;
-            }
-        }
-
-        return tier;
-    }
-
-    /// <summary>
-    /// AionRainMeter-style in-game commands, per the user's request ("Bitte ingame Befehle
-    /// umsetzen") -- typing e.g. ".ui" into any in-game chat box reaches here via
-    /// ChatLogParser.CommandReceived. Only the commands actually wired below do anything; every
-    /// other word from the reference list (.exp/.gt/.codex/.rank/.item/.url/.google/.yt/.ping/
-    /// .iptrace/.report/.check/.timer/.tr/.timerreset/.timerkill/.switch/.alpha/.upload/.ss/.db/
-    /// .sort/.sortclear/.hit/.heal) either needs game data this build doesn't have (stats, items,
-    /// timers) or a decision on what it should even mean here, and is deliberately left alone
-    /// rather than silently doing nothing under a name that implies it works. ".ap" is now wired,
-    /// per the user, to the group's relic AP only -- see BuildRelicApText -- not to a general AP
-    /// stat dump, since redistributing relics fairly is the actual use case for typing it in Aion.
-    ///
-    /// speakerName is checked against the locally authorized character and anything else is
-    /// silently ignored, INCLUDING a null speaker (an unrecognized line shape) -- fail closed, not
-    /// open. Found necessary by terminal_windows running the original, speaker-blind version of
-    /// this regex against a real ~69k-line session: 6 real dot-commands from OTHER players turned
-    /// up in public LFG chat (".gear" x3, ".l", ".decompose", ".der"), proving a stranger typing
-    /// ".cleardmg" in a channel the user might not even be reading would otherwise have silently
-    /// wiped their whole session with no visible cause. None of today's four commands happened to
-    /// collide, but that was luck, not a guarantee the next one added won't. Live-tested with the
-    /// real "[charname:...]" line shape by terminal_windows: a stranger's command is dropped
-    /// (confirmed by damage still accumulating through an ignored ".pause"), the owner's own goes
-    /// through.
+    /// In-game chat commands (".ui", ".pause", ".resume", ".dmg", ".cleardmg"), per the user: typing
+    /// one into the game's chat reaches here through <see cref="ICombatSource.CommandReceived"/>.
+    /// Aion 2's chat frames are not decoded yet, so nothing raises it today - the handler is the
+    /// part that is ready. Commands are only honoured from the player's own character (the speaker
+    /// name must equal the name the game sent for it); anything else, including an unknown speaker,
+    /// is ignored - fail closed, because a stranger typing ".cleardmg" in a public channel must
+    /// never be able to wipe someone's session.
     /// </summary>
     private void OnChatCommand(string? speakerName, string command, string args)
     {
-        // _activeCharacterName is null until the skill-based auto-detect has seen a skill (see
-        // UpdateActiveCharacterFromSkill) -- with exactly one registered character there's no ambiguity about who
-        // "the user" is regardless, so that single name is trusted immediately at startup too.
-        // Registering a second character removes this fallback (falls back to strict
-        // _activeCharacterName again) rather than guessing which of several is speaking.
-        string? authorizedName = _activeCharacterName
-            ?? (_characters.Count == 1 ? _characters[0].Name : null);
-
-        // Authorizes by NAME, not identity -- relies on Aion character names being unique
-        // per-server (they are), not on any stronger proof this is really the same person. Noted
-        // by terminal_windows as a conscious, accepted assumption rather than a gap to fix.
+        string? authorizedName = (_source?.Entities as Aion2EntityDirectory)?.LocalCharacter?.Name;
         if (speakerName is null || authorizedName is null || !string.Equals(speakerName, authorizedName, StringComparison.Ordinal))
         {
             return;
@@ -1126,59 +398,20 @@ public partial class MainWindow : Window
             case "cleardmg":
                 ClearDamageData();
                 break;
-            case "clearloot":
-                ClearLootData();
-                break;
-            case "loot":
-                CopyTextToClipboardIfAny(BuildLootChatSummary(),
-                "No loot of Unique grade or better has dropped yet, and the chat summary only lists "
-                + "those. Use the Table button next to it for the full loot list.");
-                break;
-            case "ap":
-                CopyTextToClipboardIfAny(BuildRelicApText(),
-                "Nobody in the group has picked up a relic yet.");
-                break;
         }
     }
 
-    private void OnChatLogTimerTick(object? sender, EventArgs e)
+    private void OnPollTimerTick(object? sender, EventArgs e)
     {
-        // Once every 30 ticks, not every one: this is a stat() against a file the game is writing
-        // to, and the answer changes by kilobytes a second at most.
-        if (++_chatLogSizeTickCounter >= 30)
-        {
-            _chatLogSizeTickCounter = 0;
-            RefreshChatLogSizeWarning();
-        }
-
-        // Once every 10 ticks - see ApplyGameDetection's own remarks. Runs before the per-server
-        // detection below, which only makes sense once the played GAME is already settled.
-        if (++_gameDetectionTickCounter >= 10)
-        {
-            _gameDetectionTickCounter = 0;
-            ApplyGameDetection();
-        }
-
-        // Once every 10 ticks - see AutoDetectServerFromChatLogActivity's own remarks.
-        if (++_serverAutoDetectTickCounter >= 10)
-        {
-            _serverAutoDetectTickCounter = 0;
-            AutoDetectServerFromChatLogActivity();
-        }
-
         CombatBatch batch = _source?.Poll(_paused) ?? CombatBatch.Empty;
         _avoids.AddRange(batch.Avoids);
         _kills.AddRange(batch.Kills);
         IReadOnlyList<DamageEvent> events = batch.Damage;
         if (events.Count > 0 || batch.Avoids.Count > 0 || batch.Kills.Count > 0)
         {
-            var counted = events
-                .Where(ev => !IsNamedCopyOfRegisteredCharacter(ev.SourceObjectId))
-                .Select(AttributePetDamageToOwner)
-                .ToList();
-            if (counted.Count > 0)
+            if (events.Count > 0)
             {
-                _aggregator.IngestEvents(counted);
+                _aggregator.IngestEvents(events);
             }
 
             RefreshRows();
@@ -1245,12 +478,11 @@ public partial class MainWindow : Window
         IsPlayer: IsPlayerName,
         IsSelf: id => _source?.Entities.IsLocalPlayer(id) == true,
         IsEnemy: id => _rowsByObjectId.GetValueOrDefault(id)?.IsEnemy ?? false,
-        // Only dummies are filtered by name: the client has no trash-mob catalog of its own (the
-        // backend rejects known trash on upload), so short pulls are kept out by the recorder's
-        // minimum duration and the history's retention cap instead.
-        IsIgnoredTarget: TrainingDummyNames.IsTrainingDummy,
-        Game: _currentGame.ToToken(),
-        ServerName: _currentServerDisplayName);
+        // No target is filtered by name: short pulls are kept out by the recorder's minimum
+        // duration and the history's retention cap.
+        IsIgnoredTarget: _ => false,
+        Game: "aion2",
+        ServerName: Aion2ServerName());
 
     private void OnAppMenuClicked(object sender, RoutedEventArgs e)
     {
@@ -1303,10 +535,7 @@ public partial class MainWindow : Window
 
         foreach (FightParticipant participant in detail.Participants)
         {
-            if (participant.ClassName != "?" && participant.Name != "You")
-            {
-                _detectedClassByName[participant.Name] = participant.ClassName;
-            }
+            _playerIdentities[replay.Entities.GetOrAssignId(participant.Name)] = (participant.Name, participant.ClassName, 0);
         }
 
         _aggregator.IngestEvents(detail.Events.Select(ev => ev with
@@ -1333,130 +562,14 @@ public partial class MainWindow : Window
         _historyMode = false;
         HistoryBanner.Visibility = Visibility.Collapsed;
         ClearDamageData();
-        StartChatLogTailing(MeterSettings.Load());
+        StartCapture(MeterSettings.Load());
         RefreshRows();
     }
 
-    /// <summary>Per the user: a Spiritmaster's summoned pets, from Aion 4.6's four base elemental
-    /// spirits ("Bei Beschwörer muss das Pet unbedingt ihm zugerechnet werden") -- there is no
-    /// general way to detect "this name is a pet" (unlike NpcDatabase's real monster list, these
-    /// aren't a separate category in that data), so this is a short, explicitly user-confirmed
-    /// name list rather than a guess from anything broader (plain "contains Spirit" would also
-    /// catch hundreds of unrelated hostile mobs, e.g. "Ancient Fire Spirit").</summary>
-    private static readonly HashSet<string> SpiritmasterPetNames = new()
-    {
-        "Water Spirit", "Wind Spirit", "Storm Spirit", "Fire Spirit", "Earth Spirit",
-    };
-
-    /// <summary>
-    /// Rewrites a pet's damage/heal source to whichever character is currently active, before it
-    /// ever reaches the aggregator -- so every downstream calculation (Damage sum, DPS, the AP
-    /// second line, everything) treats it exactly like the summoner's own hit, with no separate
-    /// merge step needed anywhere else.
-    ///
-    /// Multiple Spiritmasters in the same group are genuinely ambiguous -- Chat.log never says
-    /// whose pet it is, "Water Spirit" reads identically regardless of which of them summoned it,
-    /// and there is no structural marker for it the way "[charname:...]" solved this for typed
-    /// chat commands. Not solvable from the log alone, so not attempted: only merges when exactly
-    /// ONE registered character is a Spiritmaster (per the user's own follow-up, "Das wird
-    /// bestimmt zu einem Problem wenn es mehrere SMs mit Pets gibt" / "Wenn es 2 SMs gibt bitte
-    /// Pet DMG extra anzeigen") -- with two or more, the event is left untouched instead of
-    /// guessed, so it shows up as its own "Water Spirit" row (see the players-only filter
-    /// exemption in RefreshRows) rather than being silently dropped or misattributed.
-    /// </summary>
-    private DamageEvent AttributePetDamageToOwner(DamageEvent ev)
-    {
-        string? sourceName = _source?.Entities.NameFor(ev.SourceObjectId);
-        if (sourceName is null || !SpiritmasterPetNames.Contains(sourceName))
-        {
-            return ev;
-        }
-
-        if (_characters.Count(c => c.ClassName == "Spiritmaster") != 1)
-        {
-            return ev;
-        }
-
-        // Found by terminal_windows: "Water Spirit"/"Fire Spirit" are ALSO real hostile monster
-        // names (they're in NpcDatabase too) -- without this check, a mob by that name hitting
-        // the player would get credited as the player's own damage, inflating their total with
-        // damage they received rather than dealt. A pet never attacks its own owner, so "this
-        // pet-named source hit ME" is, by construction, always the hostile mob instead -- no NPC
-        // lookup needed, just the hit's direction.
-        int youId = _source!.Entities.LocalPlayerId;
-        if (ev.TargetObjectId == youId)
-        {
-            return ev;
-        }
-
-        return ev with { SourceObjectId = youId };
-    }
-
-    /// <summary>
-    /// Drops damage/heal events whose SOURCE is any registered character's own name -- found
-    /// necessary by the user + terminal_windows running two Aion clients at once, both grouped,
-    /// both writing into the same shared Chat.log: each client narrates its OWN character's hits
-    /// as "You" and its GROUPMATE's hits by name in third person, so the same physical hit lands
-    /// in the merged file twice -- once as "You inflicted..." from that character's own client
-    /// (mapped here to whichever registered character is currently active), once as
-    /// "{Name} inflicted..." from the OTHER client. Counting both double-counts every hit.
-    ///
-    /// Deliberately does NOT exempt the currently active character's own name -- an earlier
-    /// version did (treating it as "not one of the others, so maybe a legitimate mention"), which
-    /// was the actual bug: found by terminal_windows testing the case that exemption was blind to
-    /// (the active character ALSO showing up by name), producing exactly this method's namesake
-    /// symptom, a split "Mitzuhiko" row with and without a class icon for the same person. The
-    /// exemption's premise was false -- a client never narrates its own character's actions in
-    /// third person, active or not (confirmed: "Katzugawa inflicted..." never once appeared while
-    /// Katzugawa was the OTHER character), so ANY named mention of ANY registered character is a
-    /// cross-client duplicate, full stop; there is no case where it's legitimately someone else
-    /// coincidentally sharing that name once it's registered as one of the user's own.
-    ///
-    /// This does NOT need to know which physical client wrote which line (confirmed impossible:
-    /// terminal_windows found zero client-identifying markers on any real combat/heal line across
-    /// a ~74k-line session). The perspective rule alone is enough.
-    ///
-    /// Deliberate scope: only filters by SOURCE (attacker/healer), not target -- being on the
-    /// receiving end of a hit isn't the duplicated-narration case this fixes. Also doesn't touch
-    /// the separate same-second-identical-text dedup in ChatLogParser (kept as-is, see its
-    /// remarks) -- that one's about literal duplicate broadcasts, not this cross-client
-    /// perspective issue, and a real simultaneous multi-hit by one character is not the same
-    /// failure mode as two clients both narrating the same hit.
-    /// </summary>
-    private bool IsNamedCopyOfRegisteredCharacter(int sourceObjectId)
-    {
-        // Aion 2 frames carry unique object ids, so there is no second client narrating the same
-        // hit. Applying the name rule there dropped every hit of a player who merely SHARES a name
-        // with a registered classic character (an Aion 2 "Aahz" vs. the classic one) - the meter
-        // then showed only what that player received, never what they dealt.
-        if (_source?.Entities is Aion2.Aion2EntityDirectory)
-        {
-            return false;
-        }
-
-        string? sourceName = _source?.Entities.NameFor(sourceObjectId);
-        return sourceName is not null && _characters.Any(c => c.Name == sourceName);
-    }
-
-    /// <summary>Falls back to the chat-log parser's own name registry for ids this window never
-    /// assigned an identity/target name for itself -- e.g. every id from live Chat.log tailing.
-    /// The (eventual) network path would keep using _playerIdentities/_targetNames first; this is
-    /// only reached when that has no entry. "You" specifically is remapped to whichever of the
-    /// user's own characters is currently active (see _activeCharacterName remarks) -- Chat.log
-    /// itself never contains a name to use instead.</summary>
-    private string ResolveDisplayName(int objectId)
-    {
-        string? raw = _source?.Entities.NameFor(objectId);
-        // Not for Aion 2: there the packet stream names the local player itself, and the active
-        // character is a classic-Aion one.
-        if (raw is not null && _source!.Entities.IsLocalPlayer(objectId) && !string.IsNullOrEmpty(_activeCharacterName)
-            && _source.Entities is not Aion2.Aion2EntityDirectory)
-        {
-            return _activeCharacterName;
-        }
-
-        return raw ?? $"0x{objectId:X8}";
-    }
+    /// <summary>The name the packet stream gave the object (player name, boss name from its NPC id,
+    /// or "Class #id" until a player's name arrives); its hex id when nothing is known.</summary>
+    private string ResolveDisplayName(int objectId) =>
+        _source?.Entities.NameFor(objectId) ?? $"0x{objectId:X8}";
 
     protected override void OnSourceInitialized(EventArgs e)
     {
@@ -1487,12 +600,11 @@ public partial class MainWindow : Window
         var settings = MeterSettings.Load();
         SaveWindowGeometry(settings);
         settings.Save();
-        _knownPlayers.SaveIfChanged();
     }
 
     protected override void OnClosed(EventArgs e)
     {
-        _chatLogTimer.Stop();
+        _pollTimer.Stop();
         _updateTimer.Stop();
         RecordFinishedFights(flushAll: true);
         _fightStore?.Dispose();
@@ -1535,53 +647,17 @@ public partial class MainWindow : Window
                     .ToList()
                 : RestrictToEngagedTargets(damageOnly.ToList());
 
-        var sides = ResolveSides();
-
-        // "Players only", always on per the user's request ("Players only ist IMMER vorhanden.") --
-        // no toggle anymore, mobs never show. Real Aion character names never contain a space,
-        // verified against a real session -- that covers ordinary multi-word mob names. It does
-        // NOT catch single-word named/rank bosses ("Ulsaruk" showed up as a top-damage "player"
-        // after a raid, per the user) -- NpcDatabase.IsKnownNpc catches those instead, checked
-        // against a real 4.x monster name list rather than guessed. Deliberately a display
-        // filter, not a data drop: _aggregator.Events itself is untouched. Spiritmaster pet names
-        // are explicitly exempted from BOTH the space check and the NpcDatabase check (some of
-        // them, e.g. "Fire Spirit"/"Earth Spirit", are also cataloged real monsters there) -- with
-        // exactly one registered Spiritmaster their damage never keeps its own source id at all
-        // (see AttributePetDamageToOwner), but with two or more it deliberately does, specifically
-        // so it can still show here as its own row instead of vanishing.
-        //
-        // A PURE healer -- someone who never once landed a hit on whichever target is currently
-        // selected -- has no event at all in `filtered` (damageOnly is heal-free by construction),
-        // so without healSourceIds below they'd never get a row here, and BuildEncounterUpload
-        // only ever iterates _rows -- a healer with zero damage on the boss would silently vanish
-        // from that boss's whole upload, not just show 0 damage. Found from a real report: Sardine
-        // (a Cleric) healed the group for the entire Ahuradim fight and still landed no hit on
-        // Ahuradim, so she was missing from the uploaded roster entirely. Re-adding "IsHeal"
-        // sources wholesale would resurrect the exact "Potion" ghost-row bug the comment above
-        // describes, since a stray heal-effect name is just as space-free and just as absent from
-        // NpcDatabase as a real player -- gating on sides.Own instead of IsPlayerName alone is what
-        // tells them apart: a real healer earns that classification from FactionResolver's ally
-        // graph (through a heal to some OTHER real teammate, not just the local player -- see
-        // FactionResolver's own remarks on why heals to/from "You" don't count there), while a
-        // one-off parsing artifact like "Potion" never appears on either end of a corroborating
-        // heal and stays Side.Unknown forever.
-        //
-        // Bounded to `filtered`'s own time span, not the whole session: an ally proven Side.Own
-        // from a heal HOURS away from the currently selected target (a different subgroup, a
-        // different pull entirely) is real, but not relevant to THIS boss - without the bound,
-        // every such ally re-appears in every single future upload at a permanent 0, which is
-        // exactly what happened on the first version of this fix (a 6-person Ahuradim roster
-        // ballooned to 14, most of them strangers to that specific pull, and the extra names threw
-        // off findCandidateEncounter's roster-similarity match on the backend badly enough that it
-        // filed the re-upload as a brand new encounter instead of merging into the existing one).
+        // A pure healer never hit the selected target, so `filtered` holds none of their events, yet
+        // they belong in the list (and in an upload's roster). Heals inside the shown window by
+        // players the meter has identified add them; bounded to that window so someone who healed
+        // an hour ago elsewhere does not come back at a permanent 0.
         (DateTime, DateTime)? filteredSpan = filtered.Count > 0
             ? (filtered.Min(ev => ev.Timestamp), filtered.Max(ev => ev.Timestamp))
             : null;
 
         var healSourceIds = filteredSpan is (DateTime spanStart, DateTime spanEnd)
             ? _aggregator.Events
-                .Where(ev => ev.IsHeal && ev.Timestamp >= spanStart && ev.Timestamp <= spanEnd
-                    && sides.GetValueOrDefault(ev.SourceObjectId) == Side.Own)
+                .Where(ev => ev.IsHeal && ev.Timestamp >= spanStart && ev.Timestamp <= spanEnd && IsPlayerName(ev.SourceObjectId))
                 .Select(ev => ev.SourceObjectId)
             : Enumerable.Empty<int>();
 
@@ -1600,17 +676,6 @@ public partial class MainWindow : Window
             .Where(ev => _pvpOnly || _selectedTargetId is not int selectedAttacker || ev.SourceObjectId == selectedAttacker)
             .GroupBy(ev => ev.TargetObjectId)
             .ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount));
-
-        // Defensive tally (avoided vs. landed incoming attacks) over the same window, and the PvP
-        // record when the grid is in PVP mode - both blank otherwise (see PlayerRow).
-        IReadOnlyDictionary<int, DefenseSummary> defenseById = _showDefenseStats && filteredSpan is (DateTime defStart, DateTime defEnd)
-            ? DefenseStats.ByDefender(
-                _avoids.Where(a => a.Timestamp >= defStart && a.Timestamp <= defEnd),
-                damageOnly.Where(ev => ev.Timestamp >= defStart && ev.Timestamp <= defEnd))
-            : new Dictionary<int, DefenseSummary>();
-        IReadOnlyDictionary<int, PvpSummary> pvpById = _pvpOnly
-            ? PvpStats.ByPlayer(_kills, damageOnly, IsPlayerName)
-            : new Dictionary<int, PvpSummary>();
 
         // ClassFilter, per the user: was purely decorative until other players' classes started
         // being detected at all (see ResolveClassName) -- now that a class can actually be known
@@ -1658,11 +723,8 @@ public partial class MainWindow : Window
             row.DamageTaken = damageTakenById.GetValueOrDefault(sourceId);
             row.ShowShareBar = _showShareBars;
             row.ShowDamageTaken = _showDamageTaken;
-            row.ShowRelicAp = _showRelicAp;
-            row.DefenseDisplay = defenseById.GetValueOrDefault(sourceId)?.Display ?? "";
-            row.PvpDisplay = pvpById.GetValueOrDefault(sourceId)?.Display ?? "";
 
-            ApplySide(row, sourceId, sides);
+            row.Faction = (_source?.Entities as Aion2.Aion2EntityDirectory)?.FactionOf(sourceId) ?? "";
         }
 
         // Rank and share are relative to what is on screen, so they are settled once every row's
@@ -1676,134 +738,13 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>
-    /// Works out, for this refresh, who is on which side. Recomputed rather than remembered: a
-    /// player only becomes classifiable once they heal someone or trade a hit, which can happen
-    /// several minutes into a fight, and a row created before that must pick the answer up when it
-    /// arrives.
-    /// </summary>
-    private IReadOnlyDictionary<int, Side> ResolveSides()
-    {
-        if (_source is null)
-        {
-            return new Dictionary<int, Side>();
-        }
+    /// <summary>A player is an object the meter has seen casting a class skill or whose "appeared"
+    /// frame it read; everything else is an NPC (shown by its hex id or boss name).</summary>
+    private bool IsPlayerName(int id) =>
+        _source?.Entities is Aion2.Aion2EntityDirectory entities && entities.IsKnownPlayer(id);
 
-        // Loot lines only ever name your own group, so everyone who looted is on your side --
-        // together with the characters registered in Settings, that is what tells the resolver
-        // which of the two separated sides is actually yours.
-        var anchors = new HashSet<string>(_characters.Select(c => c.Name), StringComparer.Ordinal);
-        foreach (LootRow loot in _lootRows)
-        {
-            anchors.Add(loot.Person);
-        }
-
-        return FactionResolver.Resolve(
-            _aggregator.Events,
-            id => _source.Entities.NameFor(id),
-            IsPlayerName,
-            _source.Entities.LocalPlayerId,
-            anchors);
-    }
-
-    /// <summary>Same test the grid's "players only" filter uses, so the resolver never tries to
-    /// put a mob on a side.</summary>
-    private bool IsPlayerName(int id)
-    {
-        // Aion 2 frames carry only ids: a player is an object seen casting a class skill (named
-        // "Class #id"), everything else is an NPC (shown by its hex id). The name heuristic below
-        // is for Chat.log names and would call "Gladiator #8681" a monster (it has a space) and
-        // "0x00020D78" a player (it has none).
-        if (_source?.Entities is Aion2.Aion2EntityDirectory aion2Entities)
-        {
-            return aion2Entities.IsKnownPlayer(id);
-        }
-
-        string name = ResolveDisplayName(id);
-        return SpiritmasterPetNames.Contains(name)
-            || (!name.Contains(' ') && !NpcDatabase.IsKnownNpc(name));
-    }
-
-    /// <summary>
-    /// Turns a resolved side into what the row shows. The faction NAME can only be filled in when
-    /// the user has told the meter their own -- Chat.log states nobody's faction, so with that
-    /// unanswered the meter still knows who the enemy is, it just cannot say which banner they
-    /// fight under. That is why IsEnemy is set regardless and Faction is left blank.
-    /// </summary>
-    private void ApplySide(PlayerRow row, int sourceId, IReadOnlyDictionary<int, Side> sides)
-    {
-        Side side = sides.GetValueOrDefault(sourceId, Side.Unknown);
-        row.IsEnemy = side == Side.Enemy;
-
-        // Aion 2 states every player's faction in the network data; the registered classic
-        // characters' faction (which the logic below derives from) says nothing about it.
-        if (_source?.Entities is Aion2.Aion2EntityDirectory aion2Directory)
-        {
-            row.Faction = aion2Directory.FactionOf(sourceId) ?? "";
-            return;
-        }
-
-        // The "?? fallback" this replaced was dead code: a registered active character whose
-        // Faction is empty returns "" rather than null, so the fallback never fired and NOBODY got
-        // an emblem -- exactly what the user saw after a Sauro run, since characters registered
-        // before the faction field existed carry an empty one. Skipping empties instead means one
-        // character with a faction set is enough to label the whole run.
-        // A hand-set faction is the user's answer and outranks anything derived from the log.
-        if (_knownPlayers.Find(row.Name) is { FactionIsManual: true, Faction.Length: > 0 } pinned)
-        {
-            row.Faction = pinned.Faction;
-            _knownPlayers.Remember(row.Name, row.ClassName, null);
-            return;
-        }
-
-        string own = OwnFaction();
-
-        // In an arena the opponent can be your OWN faction -- Discipline, Harmony, Chaos and Glory
-        // all mix them -- so fighting someone there says nothing about their banner. Their faction
-        // is left blank rather than derived, and since Remember ignores empty values, nothing wrong
-        // is written to the database either. A faction learned elsewhere, or set by hand, still
-        // shows: that is real knowledge, and hiding it would be its own kind of wrong.
-        bool derivable = side != Side.Unknown && !(side == Side.Enemy && (_source?.InArena ?? false));
-
-        row.Faction = own.Length == 0 || !derivable
-            ? ""
-            : side == Side.Own ? own : Opposite(own);
-
-        // Same rule as the class above: this session's evidence wins, memory fills the gaps. A
-        // faction cannot change, so a remembered one stays valid indefinitely -- unlike a class.
-        if (row.Faction.Length == 0 && _knownPlayers.Find(row.Name) is { Faction.Length: > 0 } seenBefore)
-        {
-            row.Faction = seenBefore.Faction;
-        }
-
-        // A faction is only ever WRITTEN when it was proven, never when it was merely inferred from
-        // fighting someone. Hostility is not evidence of a banner: an arena opponent is frequently
-        // your own faction, and the meter cannot reliably tell it is in an arena at all -- the zone
-        // line is announced once on entry, so a meter started mid-match never sees it.
-        //
-        // Deriving for the current session is still useful (a Dredgion enemy really is the other
-        // faction), so the row keeps showing it. It simply does not outlive the session, and a
-        // wrong guess in an arena cannot poison the database. Own side is a different matter: that
-        // is proven by heals, loot and group membership, so it is written.
-        bool provenFaction = side == Side.Own || _knownPlayers.Find(row.Name)?.FactionIsManual == true;
-        _knownPlayers.Remember(row.Name, row.ClassName, provenFaction ? row.Faction : null);
-    }
-
-    /// <summary>The local player's own faction, from the active character or any registered one
-    /// that has it set. Everyone else's is derived relative to this.</summary>
-    private string OwnFaction() =>
-        FirstFaction(_characters.Where(c => c.Name == _activeCharacterName)) ?? FirstFaction(_characters) ?? "";
-
-    private static string? FirstFaction(IEnumerable<CharacterProfile> characters) =>
-        characters.Select(c => c.Faction).FirstOrDefault(f => !string.IsNullOrEmpty(f));
-
-    private static string Opposite(string faction) =>
-        faction == "Elyos" ? "Asmodian" : faction == "Asmodian" ? "Elyos" : "";
-
-    /// <summary>Sets Name/ClassName/Level for one row from whichever identity source applies:
-    /// _playerIdentities first, else Chat.log's own name registry with "You" remapped to the
-    /// active character (see ResolveDisplayName) and its class resolved via ResolveClassName --
-    /// Chat.log never supplies a class as data, only skill usage to infer it from.</summary>
+    /// <summary>Sets Name/ClassName/Level for one row: from the stored identity when a past fight is
+    /// shown, else from the packet stream - the name and class the directory has learned for the id.</summary>
     private void ApplyIdentity(PlayerRow row, int sourceId)
     {
         if (_playerIdentities.TryGetValue(sourceId, out var identity))
@@ -1816,77 +757,19 @@ public partial class MainWindow : Window
 
         row.Name = ResolveDisplayName(sourceId);
         row.ClassName = ResolveClassName(sourceId);
-
-        // Fill from what an earlier session worked out. Only where this session has nothing: a
-        // class detected live is current evidence and outranks a remembered one, which could be
-        // from before the player rerolled or transferred.
-        if (row.ClassName is "?" or "" && _knownPlayers.Find(row.Name) is { ClassName.Length: > 0 } remembered)
-        {
-            row.ClassName = remembered.ClassName;
-        }
-
-        _relicApByPerson.TryGetValue(row.Name, out long rowRelicAp);
-        row.RelicAp = rowRelicAp;
     }
 
-    /// <summary>
-    /// The footer's "AP:" counter: the session's own AP counter (local player only -- Chat.log
-    /// reports AP gains for nobody else) plus relic AP, which exists for every person in the group
-    /// (see Data/RelicApDatabase). Null, not 0, when there is nothing to show. Not used for the
-    /// per-row line anymore -- see PlayerRow.RelicAp -- since that one is deliberately relics-only.
-    /// </summary>
-    private long? ApTotalFor(string personName, bool isLocalPlayer)
-    {
-        _relicApByPerson.TryGetValue(personName, out long relicAp);
-        long total = relicAp + (isLocalPlayer ? _totalAp : 0);
-        return isLocalPlayer || relicAp > 0 ? total : null;
-    }
+    /// <summary>The class an object has been seen casting a skill of (skill id prefix), keyed by the
+    /// object id - not by name, which changes once the real name is learned ("Gladiator #331" ->
+    /// "Aahz") and used to drop the class icon along with it. "?" while unknown.</summary>
+    private string ResolveClassName(int sourceId) =>
+        (_source?.Entities as Aion2EntityDirectory)?.ClassOf(sourceId) ?? "?";
 
-    /// <summary>Repaints both places AP appears -- the footer counter and the per-row "AP:" lines
-    /// -- after relic loot changed a total. Called from OnLootAcquired, which runs on the chat-log
-    /// timer just like damage updates do.</summary>
-    private void RefreshApDisplays()
-    {
-        ApValueText.Text = ApTotalFor(ResolveLootPerson("You") ?? "You", isLocalPlayer: true)?.ToString("N0") ?? "-";
-        RefreshRows();
-    }
-
-    /// <summary>"You" resolves via the active character's registered profile; anyone else via
-    /// UpdateOtherPlayerClass's detections. "?" (never null) for a class Chat.log hasn't revealed
-    /// yet -- shared by ApplyIdentity (row display) and RefreshRows (ClassFilter, see its
-    /// remarks), so both agree on exactly the same answer for the same id.</summary>
-    private string ResolveClassName(int sourceId)
-    {
-        // Aion 2: the class is whatever the player's own skills say (skill id prefix), keyed by the
-        // object id - not by name, which changes once the real name is learned ("Gladiator #331" ->
-        // "Aahz") and used to drop the class icon along with it.
-        if (_source?.Entities is Aion2.Aion2EntityDirectory aion2Entities)
-        {
-            return aion2Entities.ClassOf(sourceId) ?? "?";
-        }
-
-        if (_source?.Entities.IsLocalPlayer(sourceId) == true)
-        {
-            return _characters.FirstOrDefault(c => c.Name == _activeCharacterName)?.ClassName ?? "?";
-        }
-
-        return _detectedClassByName.TryGetValue(ResolveDisplayName(sourceId), out string? detectedClass) ? detectedClass : "?";
-    }
-
-    /// <summary>Adds any newly-seen DAMAGE targets to the dropdown (never removes -- only Clear
-    /// does that); "All" is the one entry with no Tag, everything else carries its target object
-    /// id. Heal targets excluded on purpose -- found against a real Chat.log session where a
-    /// healed party member ("Thai", from "... recovered ... HP because Inss used ...") showed up
-    /// as a selectable "Mob/Boss", which they plainly aren't (see LiveAggregator.Summarize's
-    /// remarks for the same underlying IsHeal-filter gap in a different consumer).
-    ///
-    /// A non-player target additionally has to EITHER be a curated real end boss (see
-    /// EndBossDatabase) OR look like one on its own numbers (see LooksLikeBoss) -- per the user, a
-    /// mini-boss/trash mob killed on the way to a real end boss must never appear in this dropdown
-    /// or its search at all, not just be excluded from upload later, while an uncurated map/world
-    /// boss (no curated name, so EndBossDatabase alone would hide it entirely) should still show
-    /// up once its own fight marks it as clearly tougher than what's been killed around it. A
-    /// player target (PVP) is never subject to either check - both only curate/detect PVE bosses.</summary>
+    /// <summary>Adds any newly-seen DAMAGE targets to the dropdown (never removes - only Clear does
+    /// that); "All" is the one entry with no Tag, everything else carries its target object id. Heal
+    /// targets are excluded on purpose (a healed party member is no "Mob/Boss"). A non-player target
+    /// only gets an entry when it is a boss - one whose NPC id the game announced and the boss catalog
+    /// knows (see <see cref="IsKnownBoss"/>); a player target (PVP) always does.</summary>
     private void RefreshMobBossFilterItems()
     {
         var knownIds = _mobBossEntries.Select(entry => entry.TargetId).ToHashSet();
@@ -1895,18 +778,13 @@ public partial class MainWindow : Window
         foreach (int targetId in _aggregator.Events.Where(ev => !ev.IsHeal).Select(ev => ev.TargetObjectId).Distinct())
         {
             bool isPlayerTarget = IsPlayerName(targetId);
-            if (!isPlayerTarget)
-            {
-                UpdateTrashBaseline(targetId);
-            }
-
             if (knownIds.Contains(targetId))
             {
                 continue;
             }
 
             string name = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
-            if (!isPlayerTarget && !IsKnownBoss(name, targetId) && !LooksLikeBoss(targetId))
+            if (!isPlayerTarget && !IsKnownBoss(name, targetId))
             {
                 continue;
             }
@@ -1920,95 +798,6 @@ public partial class MainWindow : Window
             ApplyMobBossSearchFilter();
             RefreshUploadAvailability();
         }
-    }
-
-    /// <summary>Folds ONE completed (killed), still-ordinary PVE target into
-    /// <see cref="_recentTrashKills"/> - guarded by <see cref="_trashBaselineTargetIds"/> so a
-    /// target already folded in is never counted twice across repeated calls, and by
-    /// <see cref="LooksLikeBoss"/> itself so a target that already reads as a boss never drags
-    /// the baseline up for the next one. Does nothing for a target that hasn't died yet (no
-    /// matching KillEvent) - its final damage/duration aren't known until it has.</summary>
-    private void UpdateTrashBaseline(int targetId)
-    {
-        if (_trashBaselineTargetIds.Contains(targetId) || LooksLikeBoss(targetId))
-        {
-            return;
-        }
-
-        var matchingKills = _kills.Where(k => !k.VictimIsPlayer && k.VictimObjectId == targetId).ToList();
-        if (matchingKills.Count == 0)
-        {
-            return;
-        }
-
-        KillEvent kill = matchingKills[^1];
-
-        var hits = _aggregator.Events.Where(ev => !ev.IsHeal && ev.TargetObjectId == targetId).OrderBy(ev => ev.Timestamp).ToList();
-        if (hits.Count == 0)
-        {
-            return;
-        }
-
-        _trashBaselineTargetIds.Add(targetId);
-        _recentTrashKills.Enqueue((hits.Sum(e => e.Amount), (kill.Timestamp - hits[0].Timestamp).TotalSeconds));
-        if (_recentTrashKills.Count > BossBaselineWindow)
-        {
-            _recentTrashKills.Dequeue();
-        }
-    }
-
-    /// <summary>Whether a PVE target's OWN fight - total damage taken so far, and how long it's
-    /// run so far - already stands out from <see cref="_recentTrashKills"/>, the recent ordinary
-    /// kills around it, OR already clears an absolute bar on its own. No name or rank data needed,
-    /// so this works identically for Chat.log (Aion) and packet capture (Aion 2); see
-    /// RefreshMobBossFilterItems's own remarks for why this exists alongside, not instead of,
-    /// EndBossDatabase. Median rather than mean for the relative check - one real boss or one
-    /// oddly-long AFK pull sitting in the baseline window must not drag the bar itself up.</summary>
-    private bool LooksLikeBoss(int targetId)
-    {
-        var hits = _aggregator.Events.Where(ev => !ev.IsHeal && ev.TargetObjectId == targetId).OrderBy(ev => ev.Timestamp).ToList();
-        if (hits.Count == 0)
-        {
-            return false;
-        }
-
-        long damage = hits.Sum(e => e.Amount);
-        double duration = (hits[^1].Timestamp - hits[0].Timestamp).TotalSeconds;
-
-        // Absolute fallback, per the user: Chat.log may have just been emptied or the meter only
-        // just started mid-fight, with nothing at all recorded yet to compare against - a fight
-        // that's already run several minutes with several players in it is a boss on its own
-        // merits regardless, so this is checked before (not only as a last resort after) the
-        // baseline-relative rule below, which needs history this session may not have yet.
-        if (duration >= BossAbsoluteDurationSeconds
-            && hits.Select(e => e.SourceObjectId).Distinct().Count(IsPlayerName) >= BossAbsoluteMinParticipants)
-        {
-            return true;
-        }
-
-        // Too early in the session to know what "ordinary" even looks like here yet.
-        if (_recentTrashKills.Count < BossBaselineMinSamples)
-        {
-            return false;
-        }
-
-        long medianDamage = Median(_recentTrashKills.Select(k => k.Damage));
-        double medianDuration = Median(_recentTrashKills.Select(k => k.DurationSeconds));
-
-        return (medianDamage > 0 && damage >= medianDamage * BossDamageFactor)
-            || (medianDuration > 0 && duration >= medianDuration * BossDurationFactor);
-    }
-
-    private static long Median(IEnumerable<long> values)
-    {
-        var sorted = values.OrderBy(v => v).ToList();
-        return sorted.Count == 0 ? 0 : sorted[sorted.Count / 2];
-    }
-
-    private static double Median(IEnumerable<double> values)
-    {
-        var sorted = values.OrderBy(v => v).ToList();
-        return sorted.Count == 0 ? 0 : sorted[sorted.Count / 2];
     }
 
     /// <summary>
@@ -2350,21 +1139,7 @@ public partial class MainWindow : Window
         DateTime endedAt = windowEnd.ToUniversalTime();
         string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
 
-        // Per the user: practice dummies are not real encounters and must never be uploaded, no
-        // matter how many people happen to share the target id - see TrainingDummyNames's own
-        // remarks (this is also what used to blow past the backend's 24-participant cap with a 400).
-        if (TrainingDummyNames.IsTrainingDummy(bossName))
-        {
-            return null;
-        }
-
-        // Per the user: only a real, curated end boss - one you could also target via the game's
-        // own Instance Info GUI - may ever be uploaded. A rank-based heuristic isn't enough (Elite,
-        // even Legendary-rank "mini-bosses" exist on the way to a real end boss in group instances,
-        // per the user), so this is an ALLOWLIST, not a blocklist - see EndBossDatabase's own
-        // remarks. Same gate already keeps a non-curated name out of the Mob/Boss dropdown/search
-        // entirely (see RefreshMobBossFilterItems), so reaching this line with an unknown bossName
-        // should only happen via the headless upload path's own direct target lookup.
+        // Only a boss the game announced and the catalog knows may be uploaded.
         if (!IsKnownBoss(bossName, targetId))
         {
             return null;
@@ -2383,7 +1158,7 @@ public partial class MainWindow : Window
             if (aion2Directory is not null
                 && (row.Name.StartsWith("Player #", StringComparison.Ordinal)
                     || row.Name.StartsWith("0x", StringComparison.Ordinal)
-                    || !ClassCatalog.IsKnownClass(GameKind.Aion2, row.ClassName)))
+                    || !ClassCatalog.IsKnownClass(row.ClassName)))
             {
                 continue;
             }
@@ -2428,10 +1203,10 @@ public partial class MainWindow : Window
             // targetHits is already scoped to exactly this fight (see the two BuildEncounterUpload
             // overloads above).
             double idps = DpsCalculator.TargetIDps(targetHits, targetId, row.ObjectId) ?? 0;
-            var skills = SkillBreakdown.For(hitsOnBoss, trustLoggedFlag: isSelf)
+            var skills = SkillBreakdown.For(hitsOnBoss)
                 .Select(s => new SkillUsageUpload(s.Skill, s.Hits, s.CritHits, s.Total, s.Min, s.Max))
                 .ToList();
-            var healSkills = SkillBreakdown.For(healsBySelf, trustLoggedFlag: isSelf, heals: true)
+            var healSkills = SkillBreakdown.For(healsBySelf, heals: true)
                 .Select(s => new SkillUsageUpload(s.Skill, s.Hits, s.CritHits, s.Total, s.Min, s.Max))
                 .ToList();
 
@@ -2509,47 +1284,18 @@ public partial class MainWindow : Window
 
         return new EncounterUploadRequest(
             AppVersion.Text, bossName, startedAt, endedAt, participants, serverFingerprint, serverName,
-            Game: MeterSettings.Load().Game.ToToken(),
+            Game: "aion2",
             BossNpcId: BossNpcIdOf(targetId));
     }
 
-    /// <summary>
-    /// The server this install connects to (see Server/ServerIdentity.cs), resolved fresh from
-    /// Settings on every upload rather than cached -- matches how every other setting in this class
-    /// is read (MeterSettings.Load() on demand, never held in a field), and means a folder the user
-    /// just corrected in Settings takes effect on the very next upload with no restart. Null when
-    /// the install folder is unset or its config.ini could not be read: uploading without a real
-    /// fingerprint is refused outright rather than falling back to some placeholder, since a wrong
-    /// guess here is exactly what would let two different servers' runs get merged.
-    /// </summary>
-    /// <summary>
-    /// Per the user: the Class dropdown shouldn't offer a class that cannot exist on whichever
-    /// server this install is pointed at (see ServerClassAvailability's own remarks on which
-    /// servers exclude which classes, and why). Called at startup and again whenever Settings is
-    /// saved (the install folder or the display name may have just changed). Hides rather than
-    /// removes each excluded entry - the dropdown's items are static XAML, not a
-    /// rebuilt-from-scratch collection like MobBossFilter's, so there is nothing to restore later
-    /// if the server identity ever changes back.
-    /// </summary>
+    /// <summary>Hides the Class dropdown's entries that are no Aion 2 class (the static XAML list is
+    /// wider than the game's roster); an unknown selection falls back to "All".</summary>
     private void ApplyClassFilterAvailability()
     {
-        MeterSettings settings = MeterSettings.Load();
-        string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
-        // Aion 2 has its own, smaller roster (see ClassCatalog); classic Aion's exclusions are
-        // per private server. Aion 2 classes without an entry in this static dropdown
-        // (Elementalist, Brawler) simply can't be filtered on until the XAML grows them.
-        IReadOnlySet<string> excluded = settings.Game == GameKind.Aion2
-            ? ClassFilter.Items.OfType<ComboBoxItem>()
-                .Select(item => item.Tag as string)
-                .Where(tag => tag is not null && !ClassCatalog.IsKnownClass(GameKind.Aion2, tag))
-                .Select(tag => tag!)
-                .ToHashSet()
-            : AionDPS.Server.ServerClassAvailability.ExcludedClassesFor(fingerprint, settings.ServerDisplayName);
-
         bool selectedClassHidden = false;
         foreach (ComboBoxItem item in ClassFilter.Items.OfType<ComboBoxItem>())
         {
-            bool hide = item.Tag is string className && excluded.Contains(className);
+            bool hide = item.Tag is string className && !ClassCatalog.IsKnownClass(className);
             item.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
             if (hide && ReferenceEquals(item, ClassFilter.SelectedItem))
             {
@@ -2563,74 +1309,32 @@ public partial class MainWindow : Window
         }
     }
 
-    private (string Fingerprint, string? DisplayName)? ResolveServerIdentity()
-    {
-        MeterSettings settings = MeterSettings.Load();
-        if (settings.Game == GameKind.Aion2)
-        {
-            // No config.ini to read for Aion 2, and the game server's IP is no server identity (it
-            // changed between two sessions of the same character): the server is the one the user
-            // registered the own character on, else the one chosen in Settings - but only a real
-            // Aion 2 server name counts, Settings may still hold a classic Aion server from before.
-            string? name = Aion2ServerName(settings);
-            return name is null ? null : ("aion2:" + ServerSlug(name), name);
-        }
-
-        string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(settings.AionInstallFolder);
-        return fingerprint is null ? null : (fingerprint, settings.ServerDisplayName);
-    }
-
-    private static readonly System.Text.RegularExpressions.Regex Aion2ServerNamePattern =
-        new(@"^(Europe|NA West|NA East|Asia|LATAM) - \S+", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
-
-    private static bool IsAion2ServerName(string? name) =>
-        !string.IsNullOrWhiteSpace(name) && Aion2ServerNamePattern.IsMatch(name);
+    /// <summary>
+    /// The Aion 2 server the uploader plays on, from the game itself: the own character's record
+    /// carries a server id (see <see cref="Aion2Servers"/>), which is a stable identity - unlike the
+    /// game server's IP, which changed between two sessions of the same character. Null until the
+    /// game has sent the record (log in or change map with the meter running).
+    /// </summary>
+    private (string Fingerprint, string? DisplayName)? ResolveServerIdentity() =>
+        Aion2ServerName() is string name ? ("aion2:" + ServerSlug(name), name) : null;
 
     private static string ServerSlug(string name) =>
         System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
 
-    /// <summary>The Aion 2 server of the uploader: the server id in the game's own character record, else the server of the registered Aion 2 character that
-    /// has the name the game sent for the own character, else Settings' server when it is an Aion 2
-    /// one, else null.</summary>
-    private string? Aion2ServerName(MeterSettings settings)
-    {
-        // The game tells the server itself: the own character record carries its server id.
-        if ((_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter is { ServerId: > 0 } withServer)
-        {
-            return Aion2.Protocol.Aion2Servers.NameOf(withServer.ServerId);
-        }
+    private string? Aion2ServerName() =>
+        (_source?.Entities as Aion2EntityDirectory)?.LocalCharacter is { ServerId: > 0 } own ? Aion2Servers.NameOf(own.ServerId) : null;
 
-        string? own = (_source?.Entities as Aion2.Aion2EntityDirectory)?.LocalCharacter?.Name;
-        string? registered = own is null
-            ? null
-            : _characters.FirstOrDefault(c => c.Game == GameKind.Aion2 && c.Name == own)?.ServerDisplayName;
-        if (IsAion2ServerName(registered))
-        {
-            return registered;
-        }
+    private const string ServerNotIdentified =
+        "The game has not told the meter your Aion 2 server yet - log in (or change map) with the meter running, then try again. Upload refused rather than file your run under the wrong server.";
 
-        return IsAion2ServerName(settings.ServerDisplayName) ? settings.ServerDisplayName : null;
-    }
-
-    private string ServerNotIdentified =>
-        MeterSettings.Load().Game == GameKind.Aion2
-            ? "The game has not told the meter your Aion 2 server yet - log in (or change map) with the meter running, then try again. Upload refused rather than file your run under the wrong server."
-            : ServerNotIdentifiedMessage;
-
-    private const string ServerNotIdentifiedMessage =
-        "Could not identify this server (bin64\\config.ini / bin32\\config.ini not found under the Aion install folder in Settings) - upload refused rather than risk mixing runs from different servers.";
-
-    /// <summary>Whether a target is a curated end boss: classic Aion by name (the allowlist in
-    /// EndBossDatabase), Aion 2 by the NPC id the game announced for it (Aion2BossCatalog) - its names
-    /// are not in the classic list.</summary>
+    /// <summary>Whether a target is a boss: its NPC id was announced by the game and is in the boss
+    /// catalog (<see cref="Aion2BossCatalog"/>).</summary>
     private bool IsKnownBoss(string name, int targetId) =>
-        _source?.Entities is Aion2.Aion2EntityDirectory directory
-            ? directory.BossNpcIdOf(targetId) is not null
-            : EndBossDatabase.IsKnownEndBoss(name);
+        (_source?.Entities as Aion2EntityDirectory)?.BossNpcIdOf(targetId) is not null;
 
-    /// <summary>The Aion 2 NPC id of the boss behind a target, for the upload; null for classic Aion.</summary>
+    /// <summary>The NPC id of the boss behind a target, for the upload.</summary>
     private int? BossNpcIdOf(int targetId) =>
-        (_source?.Entities as Aion2.Aion2EntityDirectory)?.BossNpcIdOf(targetId);
+        (_source?.Entities as Aion2EntityDirectory)?.BossNpcIdOf(targetId);
 
     /// <summary>The Mob/Boss filter target whose last hit is the most recent, i.e. whichever boss
     /// was just fought - used as the "Upload current boss" default when the filter is still on
@@ -3005,7 +1709,7 @@ public partial class MainWindow : Window
 
         try
         {
-            SessionFile.Save(dialog.FileName, _aggregator.Events, _avoids, _kills, names, _totalExp, _totalAp, _totalGp, _totalKinah);
+            SessionFile.Save(dialog.FileName, _aggregator.Events, _avoids, _kills, names);
             ShowUploadStatus($"Session saved to {Path.GetFileName(dialog.FileName)}.");
         }
         catch (IOException ex)
@@ -3046,23 +1750,6 @@ public partial class MainWindow : Window
 
         _aggregator.IngestEvents(events);
 
-        foreach (DamageEvent ev in events)
-        {
-            if (ev.Skill is string skill)
-            {
-                OnSkillUsed(ResolveDisplayName(ev.SourceObjectId), skill);
-            }
-        }
-
-        _totalExp = session.Exp;
-        _totalAp = session.Ap;
-        _totalGp = session.Gp;
-        _totalKinah = session.Kinah;
-        ExpValueText.Text = _totalExp.ToString("N0");
-        GpValueText.Text = _totalGp.ToString("N0");
-        KinahValueText.Text = _totalKinah.ToString("N0");
-        RefreshApDisplays();
-
         HistoryBanner.Text = string.Format(LocalizationManager.Instance["Main.SessionBanner"], session.SavedAt.ToString("g"));
         HistoryBanner.Visibility = Visibility.Visible;
         RefreshRows();
@@ -3076,19 +1763,6 @@ public partial class MainWindow : Window
         Process.Start(new ProcessStartInfo(SessionFile.DefaultDirectory) { UseShellExecute = true });
     }
 
-    private void OnOpenLogsFolderClicked(object sender, RoutedEventArgs e)
-    {
-        AppMenu.IsSubmenuOpen = false;
-        string? folder = _chatLogPath is not null ? Path.GetDirectoryName(_chatLogPath) : null;
-        if (folder is null || !Directory.Exists(folder))
-        {
-            ShowUploadStatus("No Chat.log folder is set yet - configure it in Settings first.");
-            return;
-        }
-
-        Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
-    }
-
     private void OnMinimizeToTrayClicked(object sender, RoutedEventArgs e)
     {
         AppMenu.IsSubmenuOpen = false;
@@ -3098,203 +1772,6 @@ public partial class MainWindow : Window
             LocalizationManager.Instance["Main.Tray.Show"],
             LocalizationManager.Instance["Main.MenuApp.Close"]);
         _trayIcon.MinimizeToTray();
-    }
-
-    /// <summary>
-    /// Explicit, user-triggered exception to ChatLogTailer's "never look into the past" rule (see
-    /// its own remarks) - recovers a run lost when the app itself restarts (a crash, or an
-    /// auto-update: neither is something the user chose mid-fight), since Chat.log on disk still
-    /// has it even though _aggregator's in-memory events do not survive the process exiting. Never
-    /// runs on its own; the live tailer's default EOF-seeking behavior is completely untouched,
-    /// this is only reachable by clicking the menu item for it.
-    ///
-    /// Replaces, not adds to, the current session (same ClearDamageData reset the toolbar Clear
-    /// button uses) - re-parsing the whole file with a brand new ChatLogParser rather than reusing
-    /// the live one avoids double-counting whatever little the live tailer already ingested since
-    /// this restart. A fresh ChatLogTailer then picks up from the file's new end, so ordinary live
-    /// tailing afterward never re-counts anything this just parsed.
-    /// </summary>
-    private void OnReloadChatLogClicked(object sender, RoutedEventArgs e)
-    {
-        AppMenu.IsSubmenuOpen = false;
-        if (_chatLogPath is null || !File.Exists(_chatLogPath))
-        {
-            ShowUploadStatus("No Chat.log found - set the Aion install folder in Settings first.");
-            return;
-        }
-
-        int counted = ReloadChatLogFromDisk();
-        ShowUploadStatus($"Reloaded {counted} event(s) from Chat.log.");
-    }
-
-    /// <summary>
-    /// The actual re-parse behind both OnReloadChatLogClicked and the headless CLI upload path
-    /// (RunHeadlessClusteredUploadAsync) - split out so the two share one code path instead of the
-    /// CLI mode risking a subtly different re-parse than the one already validated in the GUI.
-    /// Caller must have already checked _chatLogPath exists.
-    /// </summary>
-    private int ReloadChatLogFromDisk()
-    {
-        // Only the Chat.log source has a history on disk to re-read (SourceCapabilities.Reparse);
-        // the source itself keeps chat COMMANDS out of the replay - see its ReloadFromDisk remarks.
-        if (_source is not ChatLogCombatSource chatSource)
-        {
-            return 0;
-        }
-
-        ClearDamageData();
-        CombatBatch reloaded = chatSource.ReloadFromDisk();
-        IReadOnlyList<DamageEvent> events = reloaded.Damage;
-        _avoids.AddRange(reloaded.Avoids);
-        _kills.AddRange(reloaded.Kills);
-
-        // Same pet-attribution/named-copy filtering the live tick applies (OnChatLogTimerTick) -
-        // skipping it here would count a Spiritmaster's pet as its own row, or double-count a
-        // registered character seen under a placeholder name, only for reloaded history.
-        var counted = events
-            .Where(ev => !IsNamedCopyOfRegisteredCharacter(ev.SourceObjectId))
-            .Select(AttributePetDamageToOwner)
-            .ToList();
-        if (counted.Count > 0)
-        {
-            _aggregator.IngestEvents(counted);
-        }
-
-        RefreshRows();
-        return counted.Count;
-    }
-
-    /// <summary>
-    /// Headless entry point for the "upload" CLI mode (see Program.cs) - lets a real farm session
-    /// already sitting in Chat.log be extracted and uploaded straight from a shell, without the GUI
-    /// (and without a human re-clicking through "Reload from Chat.log" + "Upload last run" and
-    /// hitting the server's rate limit doing it, per the batch-upload 429 fixed in 0.7.19).
-    ///
-    /// Reuses ReloadChatLogFromDisk/RefreshRows/BuildEncounterUpload exactly as the GUI menu items
-    /// do, so class/faction/roster resolution is identical to what a live session would have
-    /// produced - the one thing genuinely new here is splitting a repeatedly-farmed boss back into
-    /// separate fights. ChatLogParser assigns object ids by NAME (see PlayerNameRegistry), so every
-    /// kill of "Raksha Boilheart" in one Chat.log shares the same target id; without this, one
-    /// upload would report a single fight spanning the entire farm session instead of N separate
-    /// ones. <paramref name="gapSeconds"/> is the silence threshold between two hits on the same
-    /// target id that means "this is a new fight, not a continuation" - real Raksha Boilheart kills
-    /// run ~2-2.5 minutes with no gap inside one, and 5 real farmed kills were reliably ~9-12
-    /// minutes apart, so 120s cleanly separates kills without ever splitting one kill in two.
-    ///
-    /// <paramref name="logPathOverride"/> lets this read a DIFFERENT Chat.log than the one
-    /// Settings resolved from the Aion install folder - e.g. another client's differently-named
-    /// log for a non-English language (see ChatLogTailer/ChatLogParser's own per-language pattern
-    /// sets), which the GUI's own file picker has no reason to ever point at.
-    /// </summary>
-    internal async Task<string> RunHeadlessClusteredUploadAsync(string bossNameContains, double gapSeconds, string? logPathOverride = null)
-    {
-        if (logPathOverride is not null)
-        {
-            _chatLogPath = logPathOverride;
-        }
-
-        if (_chatLogPath is null || !File.Exists(_chatLogPath))
-        {
-            return "No Chat.log found - set the Aion install folder in Settings first.";
-        }
-
-        if (_source is not ChatLogCombatSource current || current.ChatLogPath != _chatLogPath)
-        {
-            ReplaceSource(new ChatLogCombatSource(_chatLogPath));
-        }
-
-        ReloadChatLogFromDisk();
-
-        var matchingTargetIds = _mobBossEntries
-            .Where(entry => entry.Name.Contains(bossNameContains, StringComparison.OrdinalIgnoreCase))
-            .Select(entry => entry.TargetId)
-            .Distinct()
-            .ToList();
-
-        if (matchingTargetIds.Count == 0)
-        {
-            return $"No boss matching \"{bossNameContains}\" found in Chat.log.";
-        }
-
-        if (ResolveServerIdentity() is not (string fingerprint, var displayName))
-        {
-            return ServerNotIdentifiedMessage;
-        }
-
-        var report = new System.Text.StringBuilder();
-        int totalUploaded = 0;
-        int totalRuns = 0;
-        bool first = true;
-
-        foreach (int targetId in matchingTargetIds)
-        {
-            // Same reasoning as "Upload last run": _rows must reflect this target before
-            // BuildEncounterUpload reads them for Name/ClassName/Faction/IsEnemy. Full history,
-            // not a specific run - the per-cluster window below is passed explicitly to the
-            // 5-arg BuildEncounterUpload overload a few lines down, not read from this field.
-            _selectedTargetId = targetId;
-            _selectedRunWindowStart = null;
-            _selectedRunWindowEnd = null;
-            RefreshRows();
-
-            var hits = _aggregator.Events
-                .Where(ev => ev.TargetObjectId == targetId && !ev.IsHeal)
-                .OrderBy(ev => ev.Timestamp)
-                .ToList();
-
-            var clusters = new List<List<DamageEvent>>();
-            foreach (DamageEvent hit in hits)
-            {
-                if (clusters.Count > 0 && (hit.Timestamp - clusters[^1][^1].Timestamp).TotalSeconds <= gapSeconds)
-                {
-                    clusters[^1].Add(hit);
-                }
-                else
-                {
-                    clusters.Add(new List<DamageEvent> { hit });
-                }
-            }
-
-            string bossName = _targetNames.TryGetValue(targetId, out string? n) ? n : ResolveDisplayName(targetId);
-            report.AppendLine($"{bossName}: {clusters.Count} run(s) found in Chat.log.");
-            totalRuns += clusters.Count;
-
-            foreach (List<DamageEvent> cluster in clusters)
-            {
-                if (!first)
-                {
-                    // Same 100ms spacing as "Upload last run" - keeps a big batch comfortably under
-                    // the backend's rate limit instead of firing every request back-to-back.
-                    await Task.Delay(100);
-                }
-
-                first = false;
-
-                DateTime windowStart = cluster[0].Timestamp;
-                DateTime windowEnd = cluster[^1].Timestamp;
-                var payload = BuildEncounterUpload(targetId, fingerprint, displayName, cluster, windowStart, windowEnd);
-                if (payload is null)
-                {
-                    report.AppendLine($"  {windowStart:HH:mm:ss}-{windowEnd:HH:mm:ss}: nothing to upload (skipped).");
-                    continue;
-                }
-
-                UploadResult result = await UploadClient.SendAsync(payload);
-                if (result.Success)
-                {
-                    totalUploaded++;
-                    report.AppendLine(
-                        $"  {windowStart:HH:mm:ss}-{windowEnd:HH:mm:ss} ({payload.Participants.Count} participants): uploaded.");
-                }
-                else
-                {
-                    report.AppendLine($"  {windowStart:HH:mm:ss}-{windowEnd:HH:mm:ss}: FAILED - {result.Error}");
-                }
-            }
-        }
-
-        report.AppendLine($"Total: uploaded {totalUploaded} of {totalRuns} run(s).");
-        return report.ToString();
     }
 
     /// <summary>
@@ -3459,30 +1936,6 @@ public partial class MainWindow : Window
         // because it ends the process itself -- so save first, then hand over.
         SaveWindowStateToSettings();
 
-        // Per the user: an update-triggered restart must not just fill the few-second gap while
-        // the process was down - it must not drop the WHOLE session that had already accumulated
-        // before the restart either (everything in _aggregator/_avoids/_kills lives only in
-        // memory and does not survive the process exiting). Anchoring to this session's own
-        // earliest still-tracked event, not DateTime.Now, is what makes ResumeFromChatLogSince
-        // re-derive the whole thing from Chat.log on the other side, not just the gap - Chat.log
-        // itself still has those lines (it isn't touched by the update), so a full re-parse from
-        // that anchor recovers everything in one pass. Falls back to DateTime.Now only when
-        // nothing has been tracked yet this session (a fresh Clear right before the update hit),
-        // where there is no earlier state to lose in the first place.
-        // Enumerable.Min over a Nullable<DateTime> sequence ignores the nulls and returns null
-        // only when every source is empty -- exactly "earliest of whichever of these three has
-        // anything, or null if none do".
-        DateTime? earliestTracked = new DateTime?[]
-        {
-            _aggregator.Events.Count > 0 ? _aggregator.Events.Min(ev => ev.Timestamp) : null,
-            _avoids.Count > 0 ? _avoids.Min(a => a.Timestamp) : null,
-            _kills.Count > 0 ? _kills.Min(k => k.Timestamp) : null,
-        }.Min();
-
-        var settings = MeterSettings.Load();
-        settings.PendingResumeFrom = earliestTracked ?? DateTime.Now;
-        settings.Save();
-
         UpdateService.ApplyAndRestart(update);
     }
 
@@ -3490,102 +1943,6 @@ public partial class MainWindow : Window
     {
         UpdateRestartOverlay.Visibility = Visibility.Collapsed;
         _pendingRestartUpdate = null;
-    }
-
-    /// <summary>
-    /// Shows how big Chat.log has got, once it passes the threshold. Aion never rotates or trims
-    /// that file -- it only grows, for as long as the client is installed -- so nothing else will
-    /// ever tell the user about it.
-    /// </summary>
-    private void RefreshChatLogSizeWarning()
-    {
-        long size = _chatLogPath is null ? 0 : ChatLogMaintenance.SizeOf(_chatLogPath);
-        if (size < ChatLogMaintenance.WarnThresholdBytes)
-        {
-            ChatLogSizeWarning.Visibility = Visibility.Collapsed;
-            return;
-        }
-
-        ChatLogSizeWarning.Text = $"Chat.log {size / (1024.0 * 1024.0):F0} MB - click to empty";
-        ChatLogSizeWarning.Visibility = Visibility.Visible;
-    }
-
-    /// <summary>
-    /// Empties Chat.log after asking. Deliberately a confirmation and not a quiet action: this is
-    /// the only thing the meter does that writes outside its own settings, and what it discards is
-    /// the user's chat history, not the meter's data.
-    /// </summary>
-    private void OnEmptyChatLogClicked(object sender, RoutedEventArgs e)
-    {
-        if (_chatLogPath is null || !File.Exists(_chatLogPath))
-        {
-            MessageBox.Show(this, "No Chat.log found. Set your Aion folder under Settings first.",
-                "Empty Chat.log", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-        }
-
-        long size = ChatLogMaintenance.SizeOf(_chatLogPath);
-
-        // Refused, not merely discouraged. Truncating a file another process holds open does not
-        // reclaim anything: the client keeps its write offset, so its next line restores the file
-        // to its old length as NUL bytes first. Emptying a 50 MB log with Aion running would leave
-        // 50 MB of zeros behind -- the very thing the user is trying to get rid of. Measured, see
-        // SelfCheck.RunChatLogMaintenanceScenario.
-        if (ChatLogMaintenance.IsHeldByAnotherProcess(_chatLogPath))
-        {
-            MessageBox.Show(this,
-                "Aion has Chat.log open right now, so emptying it would not free anything.\n\n" +
-                "The client keeps writing at the position it already reached, so the file would " +
-                "immediately grow back to its current size as empty bytes. Close Aion first, then " +
-                "empty it - the meter can stay open.",
-                "Empty Chat.log", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-        }
-
-        // In-app confirmation (EmptyChatLogConfirmOverlay) instead of a blocking MessageBox, per
-        // the user - see the overlay's own remarks in MainWindow.xaml. Continues asynchronously
-        // in OnEmptyChatLogConfirmYesClicked instead of returning a result here.
-        EmptyChatLogConfirmPathText.Text = $"{_chatLogPath}\n{ChatLogSizeText(size)}";
-        EmptyChatLogConfirmOverlay.Visibility = Visibility.Visible;
-    }
-
-    private static string ChatLogSizeText(long size) =>
-        $"{LocalizationManager.Instance["Main.EmptyChatLogConfirm.CurrentSize"]} {size / (1024.0 * 1024.0):F0} MB";
-
-    private void OnEmptyChatLogConfirmNoClicked(object sender, RoutedEventArgs e)
-    {
-        EmptyChatLogConfirmOverlay.Visibility = Visibility.Collapsed;
-    }
-
-    private void OnEmptyChatLogConfirmYesClicked(object sender, RoutedEventArgs e)
-    {
-        EmptyChatLogConfirmOverlay.Visibility = Visibility.Collapsed;
-
-        if (_chatLogPath is null)
-        {
-            return;
-        }
-
-        switch (ChatLogMaintenance.Empty(_chatLogPath))
-        {
-            case EmptyResult.Emptied:
-                RefreshChatLogSizeWarning();
-                break;
-
-            case EmptyResult.NoPermission:
-                MessageBox.Show(this,
-                    "Windows would not let the meter write there.\n\n" +
-                    "That happens when Aion is installed under Program Files: the meter runs without " +
-                    "administrator rights on purpose, so it cannot modify files in a protected folder. " +
-                    "Empty the file by hand, or move the Aion install somewhere in your user profile.",
-                    "Empty Chat.log", MessageBoxButton.OK, MessageBoxImage.Warning);
-                break;
-
-            case EmptyResult.Failed:
-                MessageBox.Show(this, "Chat.log could not be emptied - something is holding it open exclusively.",
-                    "Empty Chat.log", MessageBoxButton.OK, MessageBoxImage.Warning);
-                break;
-        }
     }
 
     /// <summary>Double-click on a player's row opens the same details as the context menu. Only a
@@ -3605,19 +1962,6 @@ public partial class MainWindow : Window
             PlayersGrid.SelectedItem = row.Item;
             OnShowPlayerDetailsClicked(sender, e);
         }
-    }
-
-    /// <summary>
-    /// Opens the remembered-player list. Reachable from the menu rather than only from a row's
-    /// context menu, because the thing most likely to need fixing -- a faction derived wrongly in
-    /// an arena -- concerns someone who is no longer in the current session.
-    /// </summary>
-    private void OnPlayerDatabaseClicked(object sender, RoutedEventArgs e)
-    {
-        new PlayerDatabaseWindow(_knownPlayers, OwnFaction()) { Owner = this }.ShowDialog();
-
-        // A faction corrected in there has to reach the rows that are on screen right now.
-        RefreshRows();
     }
 
     private void OnShowPlayerDetailsClicked(object sender, RoutedEventArgs e)
@@ -3640,7 +1984,7 @@ public partial class MainWindow : Window
     private void OnClearClicked(object sender, RoutedEventArgs e)
     {
         AppMenu.IsSubmenuOpen = false;
-        ClearActiveView();
+        ClearDamageData();
     }
 
     /// <summary>Delegates to Combat/EngagedTargets, which is where the two failure modes this
@@ -3651,24 +1995,6 @@ public partial class MainWindow : Window
         return _source is null
             ? damageEvents
             : EngagedTargets.Filter(damageEvents, _source.Entities.LocalPlayerId);
-    }
-
-    /// <summary>Shared by the toolbar Clear button and the ".cleardmg" in-game command.</summary>
-    /// <summary>
-    /// Clears whichever view is showing, per the user: damage and loot are separate records of the
-    /// same session and are wanted separately -- clearing a botched pull should not throw away the
-    /// loot that already dropped, and vice versa.
-    /// </summary>
-    private void ClearActiveView()
-    {
-        if (LootGrid.Visibility == Visibility.Visible)
-        {
-            ClearLootData();
-        }
-        else
-        {
-            ClearDamageData();
-        }
     }
 
     private void ClearDamageData()
@@ -3684,37 +2010,14 @@ public partial class MainWindow : Window
         _rowsByObjectId.Clear();
         _targetNames.Clear();
         _playerIdentities.Clear();
-        _buffCasts.Clear();
         _selectedTargetId = null;
         _selectedRunWindowStart = null;
         _selectedRunWindowEnd = null;
         UpdateDpsColumnHeader();
 
-        // Personal stats belong to the damage side: they are the run's own counters (XP/AP/GP/Kinah
-        // earned while fighting), not a property of the loot table.
-        _totalExp = 0;
-        _totalAp = 0;
-        _totalGp = 0;
-        _totalKinah = 0;
-        ExpValueText.Text = "-";
-        ApValueText.Text = "-";
-        GpValueText.Text = "-";
-        KinahValueText.Text = "-";
-
         _mobBossEntries.Clear();
-        _recentTrashKills.Clear();
-        _trashBaselineTargetIds.Clear();
         ApplyMobBossSearchFilter();
         RefreshUploadAvailability();
-    }
-
-    private void ClearLootData()
-    {
-        _lootRows.Clear();
-        _lootRowsByKey.Clear();
-
-        // Relic AP is derived purely from looted relics, so it goes with the loot, not the damage.
-        _relicApByPerson.Clear();
     }
 
     // Copy/CopyAll are shared between the Damage and Loot views (see OnShowDamageView/
@@ -3726,31 +2029,10 @@ public partial class MainWindow : Window
     // outside the game (tab-separated here, Discord Markdown in the Loot view). The Damage view
     // used to hand BOTH buttons the same tab-separated table -- reported by the user, who
     // expected a postable string from the first one.
-    private void OnCopyClicked(object sender, RoutedEventArgs e)
-    {
-        if (LootGrid.Visibility == Visibility.Visible)
-        {
-            CopyTextToClipboardIfAny(BuildLootChatSummary(),
-                "No loot of Unique grade or better has dropped yet, and the chat summary only lists "
-                + "those. Use the Table button next to it for the full loot list.");
-        }
-        else
-        {
-            CopyChatLineChunk(BuildDmgChatLine(), "No damage has been recorded yet.");
-        }
-    }
+    private void OnCopyClicked(object sender, RoutedEventArgs e) =>
+        CopyChatLineChunk(BuildDmgChatLine(), "No damage has been recorded yet.");
 
-    private void OnCopyAllClicked(object sender, RoutedEventArgs e)
-    {
-        if (LootGrid.Visibility == Visibility.Visible)
-        {
-            CopyTextToClipboardIfAny(BuildLootDiscordTable(), "No loot has been recorded yet.");
-        }
-        else
-        {
-            CopyRowsToClipboard();
-        }
-    }
+    private void OnCopyAllClicked(object sender, RoutedEventArgs e) => CopyRowsToClipboard();
 
     /// <summary>
     /// The Damage view's "Table" payload: a fixed-width table in a code fence, ready to paste into
@@ -3968,34 +2250,6 @@ public partial class MainWindow : Window
 
     private static readonly NumberFormatInfo DotGroupedNumberFormat = new() { NumberGroupSeparator = "." };
 
-    /// <summary>
-    /// Fixed-width table in a code fence for Discord (CopyAll's payload while the Loot view is
-    /// active -- see OnCopyAllClicked), grouped by person then quantity descending. It used to be a
-    /// Markdown table, which Discord does not render at all: the pipes arrived literally and
-    /// nothing lined up. Grade is shown as its name
-    /// (Common/Rare/Hero/Unique/Legendary/Ultimate) rather than a color, since Discord doesn't
-    /// render Aion's in-chat rarity colors; "?" for an id ItemDatabase couldn't resolve.
-    /// </summary>
-    private string BuildLootDiscordTable()
-    {
-        var ranked = _lootRows.OrderBy(r => r.Person, StringComparer.Ordinal).ThenByDescending(r => r.Quantity).ToList();
-        if (ranked.Count == 0)
-        {
-            return "";
-        }
-
-        return AsciiTable.Render(
-            new[] { "Person", "Item", "Qty", "Grade" },
-            ranked.Select(r => (IReadOnlyList<string>)new[]
-            {
-                r.Person,
-                r.ItemName,
-                r.Quantity.ToString("N0", DotGroupedNumberFormat),
-                r.Grade is ItemGrade g ? g.ToString() : "?",
-            }).ToList(),
-            new[] { false, false, true, false });
-    }
-
     // aiontools.com's U+E000-U+E06F in-game chat icons (see memopad_icons.png, sent to the user
     // for reference) -- these three positions were picked by the user directly from that image
     // ("Orange: Reihe 2 - letztes Bild", "Gold: Reihe 3 Bild 2", "Lila: Reihe 3 Bild 7"). The
@@ -4023,60 +2277,7 @@ public partial class MainWindow : Window
     private const string EpicIcon = "\ue03e";     // orange
     private const string MythicIcon = "\ue033";   // purple
 
-    /// <summary>
-    /// The ".loot" in-game command's clipboard payload: per person, one repeated icon per
-    /// Legend(blue)/Unique(gold)/Epic(orange)/Mythic(purple) item quantity they're credited with
-    /// this session. Blue was added on the user's request -- the Veteran's Composite Manastone
-    /// Bundle that drops in Sauro is a Legend, and leaving it out meant the summary silently
-    /// skipped the one drop the group cares most about after the rare top-tier pieces. Godstones/
-    /// Designs/Recipes are tracked (see IsTrackedLoot) but deliberately don't contribute here --
-    /// this summary is specifically about rarity tier, not about those categories. Capped per
-    /// color per person so one freak stack can't produce an unpasteable wall of icons.
-    /// </summary>
-    private string BuildLootChatSummary()
-    {
-        var byPerson = _lootRows
-            .GroupBy(r => r.Person)
-            .Select(g => new
-            {
-                Person = g.Key,
-                Legend = g.Where(r => r.Grade == ItemGrade.Legend).Sum(r => r.Quantity),
-                Unique = g.Where(r => r.Grade == ItemGrade.Unique).Sum(r => r.Quantity),
-                Epic = g.Where(r => r.Grade == ItemGrade.Epic).Sum(r => r.Quantity),
-                Mythic = g.Where(r => r.Grade == ItemGrade.Mythic).Sum(r => r.Quantity),
-            })
-            .Where(p => p.Legend > 0 || p.Unique > 0 || p.Epic > 0 || p.Mythic > 0)
-            .OrderBy(p => p.Person, StringComparer.Ordinal);
-
-        // Ascending rarity, so the rarest sits at the end of each person's run of icons where it
-        // is easiest to spot when the line is scanned quickly in chat.
-        return string.Join("  ", byPerson.Select(p =>
-            $"{p.Person}: {RepeatIcon(LegendIcon, p.Legend)}{RepeatIcon(UniqueIcon, p.Unique)}"
-            + $"{RepeatIcon(EpicIcon, p.Epic)}{RepeatIcon(MythicIcon, p.Mythic)}"));
-    }
-
     private const int MaxIconsPerColor = 30;
-
-    private static string RepeatIcon(string icon, long count) =>
-        string.Concat(Enumerable.Repeat(icon, (int)Math.Min(count, MaxIconsPerColor)));
-
-    /// <summary>
-    /// The ".ap" in-game command's clipboard payload: per person, only what their held relics will
-    /// pay out once exchanged (see Data/RelicApDatabase) -- ranked highest first, same "Name AP"
-    /// shape as BuildDmgChatLine, joined by ", " for pasting straight into the Aion chat box.
-    /// Deliberately excludes the session's real AP total (Chat.log only reports that for the local
-    /// player anyway): this line exists so the group can see who's still holding relics and decide
-    /// who to route them to next, not to report anyone's overall AP progress.
-    /// </summary>
-    private string BuildRelicApText()
-    {
-        var parts = _relicApByPerson
-            .Where(kv => kv.Value > 0)
-            .OrderByDescending(kv => kv.Value)
-            .Select(kv => $"{kv.Key} {kv.Value.ToString("N0", DotGroupedNumberFormat)}");
-
-        return string.Join(", ", parts);
-    }
 
     private void OnPauseClicked(object sender, RoutedEventArgs e) => SetPaused(!_paused);
 
@@ -4116,7 +2317,7 @@ public partial class MainWindow : Window
             settings.Save();
             ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
             ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
-            StartChatLogTailing(settings); // possibly a new/changed AionInstallFolder
+            StartCapture(settings); // possibly a new/changed AionInstallFolder
             InitializeFightHistory(settings); // possibly toggled recording
             RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
             ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
@@ -4152,7 +2353,6 @@ public partial class MainWindow : Window
         var clicked = sender as MenuItem;
         DamageModeItem.IsChecked = true;
         HealModeItem.IsChecked = false;
-        RelicModeItem.IsChecked = false;
 
         if (clicked is not null && clicked != DamageModeItem)
         {
@@ -4210,8 +2410,7 @@ public partial class MainWindow : Window
     private void OnShowDamageView(object sender, RoutedEventArgs e)
     {
         PlayersGrid.Visibility = Visibility.Visible;
-        LootGrid.Visibility = Visibility.Collapsed;
-        SetActiveNavButton(DamageNavButton, LootNavButton);
+        SetActiveNavButton(DamageNavButton, CharacterNavButton);
         RefreshUploadAvailability();
     }
 
@@ -4221,7 +2420,6 @@ public partial class MainWindow : Window
     {
         if (_source?.Entities is not Aion2.Aion2EntityDirectory directory)
         {
-            MessageBox.Show(this, "The character window reads Aion 2's network data - it is empty for classic Aion.", "Character", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
@@ -4235,18 +2433,6 @@ public partial class MainWindow : Window
         _characterWindow.Closed += (_, _) => _characterWindow = null;
         _characterWindow.PlaceBeside(this);
         _characterWindow.Show();
-    }
-
-    private void OnShowLootView(object sender, RoutedEventArgs e)
-    {
-        PlayersGrid.Visibility = Visibility.Collapsed;
-        LootGrid.Visibility = Visibility.Visible;
-        SetActiveNavButton(LootNavButton, DamageNavButton);
-        // The Mob/Boss filter next to it has no meaning for loot, so neither does uploading "the
-        // currently filtered boss" - the Session menu's upload items stay reachable regardless.
-        // RefreshUploadAvailability already collapses UploadBossButton whenever PlayersGrid isn't
-        // the visible grid, which is exactly this case.
-        RefreshUploadAvailability();
     }
 
     /// <summary>Swaps which of the two nav-rail view buttons reads as "active" - an orange fill

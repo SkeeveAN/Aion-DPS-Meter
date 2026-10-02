@@ -1,50 +1,21 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using AionDPS.Data;
-using AionDPS.Game;
 
 namespace AionDPS.Ui;
 
 public partial class SettingsWindow : Window
 {
     private readonly MeterSettings _settings;
-    private string? _aionInstallFolder;
-    private readonly List<CharacterProfile> _characters;
-
-    /// <summary>The game this dialog is currently configuring (see MeterSettings.Game) - drives the
-    /// class list, which server catalog is fetched and whether an install folder is even needed.</summary>
-    private GameKind _game;
-
-    /// <summary>Game of the character being added/edited: whatever the picked server belongs to.
-    /// Deliberately independent of <see cref="_game"/> (the game the meter tracks right now) -
-    /// a user with characters in both games must be able to register either at any time.</summary>
-    private GameKind CharacterGame =>
-        (NewCharacterServerBox.SelectedItem as ComboBoxItem)?.Tag is AionDPS.Server.ServerCatalogEntry picked
-            ? GameKindExtensions.ParseToken(picked.Game)
-            : GameKind.Aion;
-
-    private GameKind _classBoxGame;
-
-    /// <summary>See MeterSettings.GameDetectionMode - whether <see cref="_game"/> tracks the
-    /// running client (Automatic, the default) or is this dialog's own deliberate pick (Manual).</summary>
-    private GameDetectionMode _detectionMode;
-
-    /// <summary>Loaded once, asynchronously, right after the window opens - see LoadServerCatalogAsync.
-    /// Empty until that finishes (or if the backend is unreachable), in which case
-    /// NewCharacterServerBox is simply empty rather than blocking the whole dialog on a network call.</summary>
-    private List<AionDPS.Server.ServerCatalogEntry> _serverCatalog = new();
 
     public SettingsWindow(MeterSettings settings)
     {
         InitializeComponent();
         _settings = settings;
 
-        // Same saved-size pattern as MainWindow's own RestoreWindowGeometry/SaveWindowGeometry -
-        // per the user, who resized this dialog (the Characters tab needs real room) and had it
-        // reset every time. Position stays CenterOwner (see the XAML), not restored here.
+        // Same saved-size pattern as MainWindow's own RestoreWindowGeometry/SaveWindowGeometry.
+        // Position stays CenterOwner (see the XAML), not restored here.
         if (settings.SettingsWindowWidth is double width && settings.SettingsWindowHeight is double height)
         {
             Width = width;
@@ -62,40 +33,7 @@ public partial class SettingsWindow : Window
         catch (Exception ex) when (ex is IOException or ArgumentException)
         {
         }
-        // Faction/server copied along with the rest -- leaving any of these out here silently
-        // wipes them on the next Save, since this copy is what gets written back.
-        _characters = settings.Characters
-            .Select(c => new CharacterProfile
-            {
-                Name = c.Name,
-                ClassName = c.ClassName,
-                Game = c.Game,
-                Faction = c.Faction,
-                ServerFingerprint = c.ServerFingerprint,
-                ServerDisplayName = c.ServerDisplayName,
-                ServerVersion = c.ServerVersion,
-            })
-            .ToList();
 
-        _game = settings.Game;
-        SelectComboItem(GameBox, _game.ToToken());
-        RebuildClassBox();
-        ApplyGameToInstallSection();
-
-        _detectionMode = settings.GameDetectionMode;
-        // Also fires OnAutoDetectGameChanged (see AutoDetectActiveCharacterBox's own remarks on
-        // why a property-value change already raises Checked/Unchecked) - that sets GameBox's
-        // initial IsEnabled and, if detection now disagrees with the saved pick, brings this
-        // dialog's class list/server catalog in line with what's actually running before the user
-        // sees anything.
-        AutoDetectGameBox.IsChecked = _detectionMode == GameDetectionMode.Automatic;
-
-        ShowPlayersBox.IsChecked = settings.ShowPlayers;
-        ShowMinionNpcsBox.IsChecked = settings.ShowMinionNpcs;
-        ShowCommonNpcsBox.IsChecked = settings.ShowCommonNpcs;
-        ShowEliteNpcsBox.IsChecked = settings.ShowEliteNpcs;
-        ShowHeroicNpcsBox.IsChecked = settings.ShowHeroicNpcs;
-        ShowLegendaryNpcsBox.IsChecked = settings.ShowLegendaryNpcs;
         CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
@@ -104,206 +42,20 @@ public partial class SettingsWindow : Window
         // OnStartWithWindowsChanged's own remarks.
         StartWithWindowsBox.IsChecked = StartupRegistration.IsEnabled();
         ShowShareBarsBox.IsChecked = settings.ShowShareBars;
-        ShowRelicApBox.IsChecked = settings.ShowRelicAp;
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
-        ShowDefenseStatsBox.IsChecked = settings.ShowDefenseStats;
         RecordFightHistoryBox.IsChecked = settings.RecordFightHistory;
         PopulateCaptureAdapters(settings.CaptureAdapterId);
         Aion2CharacterNameBox.Text = settings.Aion2CharacterName ?? "";
 
-        // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML -- see
-        // LanguageBox's own remarks. Each item's Content is the language's OWN native name
-        // (LocalizationManager.Instance changes what CONTENT="{local:Loc ...}" renders as
-        // elsewhere, but this ComboBox's own items are plain strings, not themselves localized --
-        // "Deutsch" should read as "Deutsch" regardless of which language is currently active, the
-        // same way a real language picker never translates its own entries).
+        // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML. Each item's
+        // Content is the language's OWN native name - a real language picker never translates its
+        // own entries.
         foreach (var (code, nativeName) in LocalizationManager.SupportedLanguages)
         {
             LanguageBox.Items.Add(new ComboBoxItem { Content = nativeName, Tag = code });
         }
 
         SelectComboItem(LanguageBox, LocalizationManager.Instance.Language);
-
-        _aionInstallFolder = settings.AionInstallFolder;
-        AionInstallFolderBox.Text = _aionInstallFolder ?? "(not set)";
-        UpdateAionFolderStatus();
-        UpdateServerFingerprint();
-        RefreshServerFolderList();
-
-        _ = LoadServerCatalogAsync();
-
-        RefreshCharacterLists();
-        if (settings.ActiveCharacterName is string activeName && _characters.Any(c => c.Name == activeName))
-        {
-            ActiveCharacterBox.SelectedItem = activeName;
-        }
-
-        // Setting IsChecked here also fires OnAutoDetectActiveCharacterChanged (ToggleButton
-        // raises Checked/Unchecked from a property-value change same as from a real click), which
-        // is what sets ActiveCharacterBox's initial IsEnabled -- no separate call needed for that.
-        AutoDetectActiveCharacterBox.IsChecked = settings.AutoDetectActiveCharacter;
-    }
-
-    /// <summary>Switching the game swaps everything that is game-specific: the class roster, the
-    /// server catalog (fetched per game so an Aion 2 server is never offered for a classic
-    /// character) and whether the install-folder section applies at all.</summary>
-    private void OnGameSelected(object sender, SelectionChangedEventArgs e)
-    {
-        if (GameBox.SelectedItem is not ComboBoxItem { Tag: string token } || !IsLoaded)
-        {
-            return;
-        }
-
-        GameKind picked = GameKindExtensions.ParseToken(token);
-        if (picked == _game)
-        {
-            return;
-        }
-
-        _game = picked;
-        RebuildClassBox();
-        ApplyGameToInstallSection();
-        _ = LoadServerCatalogAsync();
-    }
-
-    /// <summary>Same auto-vs-manual pattern as OnAutoDetectActiveCharacterChanged: checked disables
-    /// GameBox (MainWindow's own detection loop would just overwrite a manual pick anyway, see
-    /// MainWindow.ApplyGameDetection) and, if detection disagrees with what's currently configured,
-    /// immediately brings the class list/server catalog in line with what's actually running rather
-    /// than leaving this dialog stale until the background loop catches up; unchecked re-enables the
-    /// picker for a deliberate choice.</summary>
-    private void OnAutoDetectGameChanged(object sender, RoutedEventArgs e)
-    {
-        _detectionMode = AutoDetectGameBox.IsChecked == true ? GameDetectionMode.Automatic : GameDetectionMode.Manual;
-        GameBox.IsEnabled = _detectionMode == GameDetectionMode.Manual;
-        RefreshGameDetectionStatus();
-
-        if (_detectionMode == GameDetectionMode.Automatic && GameDetector.Detect() is GameKind detected && detected != _game)
-        {
-            _game = detected;
-            SelectComboItem(GameBox, _game.ToToken());
-            RebuildClassBox();
-            ApplyGameToInstallSection();
-            _ = LoadServerCatalogAsync();
-        }
-    }
-
-    /// <summary>Hardcoded English, same as AionInstallFolderStatus's own validation text further
-    /// down - this reflects a live process check (Game/GameDetector.cs), not a static label worth
-    /// routing through ui_strings.json.</summary>
-    private void RefreshGameDetectionStatus()
-    {
-        if (_detectionMode == GameDetectionMode.Manual)
-        {
-            GameDetectionStatus.Text = "";
-            return;
-        }
-
-        GameDetectionStatus.Text = GameDetector.Detect() is GameKind detected
-            ? $"Currently detected: {detected.DisplayName()}."
-            : "No client currently running - keeping the last detected game until one starts.";
-    }
-
-    /// <summary>Class picker built from ClassCatalog rather than static XAML, since the roster
-    /// differs per game. Icon + name where an icon file exists; Aion 2's classes have none yet and
-    /// show their name alone. Region-specific gaps (see OnNewCharacterServerSelected - per the
-    /// user, Aion 2 Europe/NA still lack Brawler while Korea/Taiwan already have it) hide rather
-    /// than remove an entry, same pattern as ApplyClassFilterAvailability on the main window.</summary>
-    private void RebuildClassBox()
-    {
-        string? previous = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string;
-        NewCharacterClassBox.Items.Clear();
-        _classBoxGame = CharacterGame;
-        foreach (string className in ClassCatalog.ClassesFor(_classBoxGame))
-        {
-            var panel = new StackPanel { Orientation = Orientation.Horizontal };
-            if (ClassCatalog.HasIcon(className))
-            {
-                panel.Children.Add(new Image
-                {
-                    Source = new BitmapImage(new Uri(Path.Combine(AppContext.BaseDirectory, "assets", "classes", "icons", className + ".png"))),
-                    Height = 20,
-                    Margin = new Thickness(0, 0, 6, 0),
-                });
-            }
-
-            // Text is the localized display name (ClassCatalog.DisplayName) - per the user, who
-            // wants the 8 UI languages honored here too; Tag stays the raw English name
-            // (RebuildClassBox's own callers - Add/Update/RefreshUploadAvailability etc. - all key
-            // off Tag). MaxWidth+TextTrimming is the safety net for the rare translation that
-            // doesn't fit NewCharacterClassBox's own width (see its remarks) - the ToolTip carries
-            // both names in full so nothing is actually lost, just not always shown untrimmed.
-            string displayName = ClassCatalog.DisplayName(className, LocalizationManager.Instance.Language);
-            panel.Children.Add(new TextBlock
-            {
-                Text = displayName,
-                VerticalAlignment = VerticalAlignment.Center,
-                MaxWidth = 80,
-                TextTrimming = TextTrimming.CharacterEllipsis,
-            });
-            NewCharacterClassBox.Items.Add(new ComboBoxItem
-            {
-                Content = panel,
-                Tag = className,
-                ToolTip = displayName == className ? className : $"{displayName} ({className})",
-            });
-        }
-
-        if (previous is not null && ClassCatalog.IsKnownClass(_classBoxGame, previous))
-        {
-            SelectByTag(NewCharacterClassBox, previous);
-        }
-        else if (NewCharacterClassBox.Items.Count > 0)
-        {
-            NewCharacterClassBox.SelectedIndex = 0;
-        }
-
-        ApplyRegionalClassAvailability();
-    }
-
-    /// <summary>
-    /// Hides whichever classes the currently picked server (NewCharacterServerBox) doesn't offer
-    /// yet - per the user, Aion 2 launched region-by-region with different rosters (Europe/NA:
-    /// the eight base classes; Korea/Taiwan: Brawler too). The backend is the source of truth
-    /// (ServerCatalogEntry.ExcludedClasses, see ServerCatalogClient); a backend predating that
-    /// field or no server picked yet leaves every class visible rather than guessing.
-    /// </summary>
-    private void ApplyRegionalClassAvailability()
-    {
-        IReadOnlySet<string> excluded = NewCharacterServerBox.SelectedItem is ComboBoxItem { Tag: AionDPS.Server.ServerCatalogEntry server }
-            ? (server.ExcludedClasses ?? Array.Empty<string>()).ToHashSet()
-            : new HashSet<string>();
-
-        bool selectedHidden = false;
-        foreach (ComboBoxItem item in NewCharacterClassBox.Items.OfType<ComboBoxItem>())
-        {
-            bool hide = item.Tag is string className && excluded.Contains(className);
-            item.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
-            if (hide && ReferenceEquals(item, NewCharacterClassBox.SelectedItem))
-            {
-                selectedHidden = true;
-            }
-        }
-
-        if (selectedHidden)
-        {
-            NewCharacterClassBox.SelectedItem = NewCharacterClassBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Visibility == Visibility.Visible);
-        }
-    }
-
-    /// <summary>Picking a server can change which classes are even offered yet (see
-    /// ApplyRegionalClassAvailability) - re-applied every time, not just once, since the class
-    /// box is otherwise untouched by a server change.</summary>
-    private void OnNewCharacterServerSelected(object sender, SelectionChangedEventArgs e)
-    {
-        // The class roster differs per game, so picking a server of the other game swaps it.
-        if (CharacterGame != _classBoxGame)
-        {
-            RebuildClassBox();
-            return;
-        }
-
-        ApplyRegionalClassAvailability();
     }
 
     /// <summary>Automatic (the adapter Windows routes internet traffic through), all adapters, then
@@ -320,374 +72,6 @@ public partial class SettingsWindow : Window
         }
 
         CaptureAdapterBox.SelectedItem = CaptureAdapterBox.Items.Cast<ComboBoxItem>().FirstOrDefault(i => (i.Tag as string) == (saved ?? "")) ?? CaptureAdapterBox.Items[0];
-    }
-
-    private void ApplyGameToInstallSection()
-    {
-        // Only the section of the selected game is shown at all: the classic one (server, Chat.log
-        // folder) means nothing for Aion 2, and the packet-capture one nothing for classic Aion.
-        ClassicSection.Visibility = _game == GameKind.Aion ? Visibility.Visible : Visibility.Collapsed;
-        Aion2Section.Visibility = _game == GameKind.Aion2 ? Visibility.Visible : Visibility.Collapsed;
-        UpdateAionFolderStatus();
-    }
-
-    private void OnAutoDetectActiveCharacterChanged(object sender, RoutedEventArgs e)
-    {
-        // While auto-detect is on, ActiveCharacterBox just displays whatever the last skill use
-        // picked -- disabled so a manual selection here doesn't look meaningful when it would be
-        // overwritten again the moment a skill is seen (see MeterSettings.AutoDetectActiveCharacter).
-        ActiveCharacterBox.IsEnabled = AutoDetectActiveCharacterBox.IsChecked != true;
-    }
-
-    private void RefreshCharacterLists()
-    {
-        // Bound to the CharacterProfile objects themselves now, not pre-formatted strings -- the
-        // ItemTemplate (icon + name, see XAML) needs Name/ClassName as separate bindings.
-        CharactersList.ItemsSource = _characters.ToList();
-
-        string? previouslySelected = ActiveCharacterBox.SelectedItem as string;
-        ActiveCharacterBox.ItemsSource = _characters.Select(c => c.Name).ToList();
-        if (previouslySelected is not null && _characters.Any(c => c.Name == previouslySelected))
-        {
-            ActiveCharacterBox.SelectedItem = previouslySelected;
-        }
-    }
-
-    /// <summary>
-    /// Fetched once when the window opens. On success, populates NewCharacterServerBox - done here
-    /// rather than blocking the constructor, since a slow/unreachable backend must not delay the
-    /// whole Settings dialog opening for a picker that only matters when actually adding a
-    /// character.
-    /// </summary>
-    private async Task LoadServerCatalogAsync()
-    {
-        // The Aion Installation section is always the classic game's (Aion 2 has no install
-        // folder), whichever game the meter is tracking right now.
-        var catalogTask = AionDPS.Server.ServerCatalogClient.FetchAsync(GameKind.Aion);
-        var catalog = await catalogTask;
-        // Aion 2 characters are not registered by hand: the packet capture reads the local
-        // player's name and class itself, so the picker only offers classic Aion servers.
-        var characterCatalog = catalog;
-        _serverCatalog = catalog;
-        AionInstallServerBox.Items.Clear();
-        foreach (var entry in _serverCatalog)
-        {
-            AionInstallServerBox.Items.Add(new ComboBoxItem { Content = entry.ToString(), Tag = entry });
-        }
-
-        // The character picker lists every game's servers, filled once - a game switch above must
-        // not wipe a pick the user is in the middle of.
-        if (NewCharacterServerBox.Items.Count == 0)
-        {
-            foreach (var entry in characterCatalog)
-            {
-                NewCharacterServerBox.Items.Add(new ComboBoxItem { Content = entry.ToString(), Tag = entry });
-            }
-        }
-
-        // Pre-select whatever this install was already labeled as, now that the catalog it's
-        // matched against has actually loaded - matches by Name only (not Name+Version, unlike
-        // OnCharacterSelected below): this box predates the version being tracked at all, so an
-        // install saved before that existed only has a name to go by.
-        if (_settings.ServerDisplayName is string existingName)
-        {
-            AionInstallServerBox.SelectedItem = AionInstallServerBox.Items
-                .OfType<ComboBoxItem>()
-                .FirstOrDefault(item => item.Tag is AionDPS.Server.ServerCatalogEntry entry && entry.Name == existingName);
-        }
-    }
-
-    /// <summary>
-    /// Per the user: different servers are different Aion installs with different Chat.log paths -
-    /// picking one here recalls its own folder from <see cref="MeterSettings.ServerInstallFolders"/>
-    /// if this dialog (in a previous session) ever saved one for it, instead of leaving whatever
-    /// folder happened to be selected before. Does nothing if this server has no remembered folder
-    /// yet - the current folder box is left as-is, same as opening Settings for the very first time,
-    /// and Save below will start remembering one for it from here on.
-    /// </summary>
-    private void OnAionServerSelected(object sender, SelectionChangedEventArgs e)
-    {
-        if (AionInstallServerBox.SelectedItem is not ComboBoxItem { Tag: AionDPS.Server.ServerCatalogEntry server })
-        {
-            return;
-        }
-
-        // Per the user: showing the PREVIOUSLY selected server's folder here would look like it
-        // belongs to the one just picked - genuinely no folder set yet for this server must show
-        // as no folder set, not silently keep whatever was on screen before.
-        if (_settings.ServerInstallFolders.TryGetValue(server.Name, out string? rememberedFolder)
-            && Directory.Exists(rememberedFolder))
-        {
-            _aionInstallFolder = rememberedFolder;
-            AionInstallFolderBox.Text = rememberedFolder;
-        }
-        else
-        {
-            _aionInstallFolder = null;
-            AionInstallFolderBox.Text = "(not set)";
-        }
-
-        UpdateAionFolderStatus();
-        UpdateServerFingerprint();
-    }
-
-    /// <summary>
-    /// Per the user: MeterSettings.ServerInstallFolders existed but nothing on screen ever showed
-    /// it, so there was no way to tell the feature was there at all short of testing it by
-    /// switching servers and watching the folder box change. Lists every remembered pairing
-    /// directly - reads _settings.ServerInstallFolders (already updated in memory, even before
-    /// Save is clicked - see OnSaveClicked) rather than re-loading from disk, so a pairing just set
-    /// this session shows up immediately. Called after anything that could change what should be
-    /// listed: initial load, the catalog finishing (so a remembered name can resolve to a
-    /// display string), picking a different folder, and picking a different server.
-    /// </summary>
-    private void RefreshServerFolderList()
-    {
-        var lines = _settings.ServerInstallFolders
-            .OrderBy(pair => pair.Key)
-            .Select(pair => $"{pair.Key}: {pair.Value}")
-            .ToList();
-
-        ServerFolderMappingsList.ItemsSource = lines;
-        ServerFolderMappingsEmptyText.Visibility = lines.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-    }
-
-    private void OnAddCharacterClicked(object sender, RoutedEventArgs e)
-    {
-        string name = NewCharacterNameBox.Text.Trim();
-        if (name.Length == 0)
-        {
-            return;
-        }
-
-        // Per the user: which server a character is on is now a required, explicit pick from the
-        // backend's curated list, not something silently stamped in the background - refusing the
-        // Add here (rather than falling back to "unknown") is what actually makes it required.
-        if (NewCharacterServerBox.SelectedItem is not ComboBoxItem { Tag: AionDPS.Server.ServerCatalogEntry server })
-        {
-            MessageBox.Show(this, "Please pick which server this character is on first.",
-                "Add character", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-
-        // Content is now the class icon <Image>, not text (see XAML) -- the class name lives in
-        // Tag instead, since it's still needed as data even though it's no longer displayed.
-        string className = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
-        string faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
-        // Re-adding the same character (name + game + server) replaces class+faction. The name
-        // alone is not an identity: the same name is reused across games and servers.
-        _characters.RemoveAll(c => c.Name == name && c.Game == GameKindExtensions.ParseToken(server.Game) && c.ServerDisplayName == server.Name);
-        _characters.Add(new CharacterProfile
-        {
-            Name = name,
-            ClassName = className,
-            Game = GameKindExtensions.ParseToken(server.Game),
-            Faction = faction,
-            // Aion 2 has no config.ini to stamp from; its server is known once the capture sees it.
-            ServerFingerprint = GameKindExtensions.ParseToken(server.Game) == GameKind.Aion2 ? null : AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder),
-            ServerDisplayName = server.Name,
-            ServerVersion = server.Version,
-        });
-        NewCharacterNameBox.Text = "";
-        RefreshCharacterLists();
-    }
-
-    /// <summary>
-    /// Picking a character loads it into the fields above, so Update has something to work from
-    /// and the current class/faction are visible rather than having to be remembered.
-    /// </summary>
-    private void OnCharacterSelected(object sender, SelectionChangedEventArgs e)
-    {
-        if (CharactersList.SelectedItem is not CharacterProfile selected)
-        {
-            return;
-        }
-
-        NewCharacterNameBox.Text = selected.Name;
-        // Server first: it decides the game, and with it which class roster SelectByTag can find.
-        NewCharacterServerBox.SelectedItem = NewCharacterServerBox.Items
-            .OfType<ComboBoxItem>()
-            .FirstOrDefault(item => item.Tag is AionDPS.Server.ServerCatalogEntry entry
-                && entry.Name == selected.ServerDisplayName && entry.Version == selected.ServerVersion);
-        SelectByTag(NewCharacterClassBox, selected.ClassName);
-        SelectByTag(NewCharacterFactionBox, selected.Faction);
-
-        // Best-effort: if the catalog hasn't finished loading yet, or this character predates the
-        // picker and has no name/version to match, this simply leaves nothing selected rather than
-        // guessing - OnUpdateCharacterClicked already falls back to the character's existing value
-        // in that case instead of wiping it out.
-    }
-
-    /// <summary>Used only for the Aion Installation section's own install-level display name, not
-    /// per-character (see OnAddCharacterClicked/OnUpdateCharacterClicked for those - they read a
-    /// pick from NewCharacterServerBox instead).</summary>
-    private string? CurrentServerDisplayNameOrNull() =>
-        (AionInstallServerBox.SelectedItem as ComboBoxItem)?.Tag is AionDPS.Server.ServerCatalogEntry server
-            ? server.Name
-            : null;
-
-    private static void SelectByTag(ComboBox box, string tag)
-    {
-        foreach (object item in box.Items)
-        {
-            if (item is ComboBoxItem entry && (entry.Tag as string) == tag)
-            {
-                box.SelectedItem = entry;
-                return;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Applies the fields to the SELECTED character rather than adding a new one -- which is what
-    /// makes renaming possible at all: Add keys on the name, so editing a name there would leave
-    /// the old entry behind and create a second one.
-    /// </summary>
-    private void OnUpdateCharacterClicked(object sender, RoutedEventArgs e)
-    {
-        int index = CharactersList.SelectedIndex;
-        if (index < 0 || index >= _characters.Count)
-        {
-            return;
-        }
-
-        string name = NewCharacterNameBox.Text.Trim();
-        if (name.Length == 0)
-        {
-            return;
-        }
-
-        // A rename onto a name that already exists would leave two entries answering to it, and
-        // everything downstream (active character, the faction anchors) keys on the name.
-        string? targetServer = ((NewCharacterServerBox.SelectedItem as ComboBoxItem)?.Tag as AionDPS.Server.ServerCatalogEntry)?.Name ?? _characters[index].ServerDisplayName;
-        if (_characters.Where((c, i) => i != index).Any(c => c.Name == name && c.Game == CharacterGame && c.ServerDisplayName == targetServer))
-        {
-            MessageBox.Show(this, $"A character named \"{name}\" is already registered on this server.",
-                "Update character", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-
-        string previousName = _characters[index].Name;
-        // The technical fingerprint keeps its existing value rather than always re-stamping from
-        // whatever is currently detected: blindly overwriting it here would misattribute an
-        // existing character to a different server the moment someone points the Aion Installation
-        // section above at a different install to register a second character. The catalog pick
-        // (name/version) DOES update if the user picked something in NewCharacterServerBox - see
-        // OnCharacterSelected, which pre-selects the character's current pick so editing something
-        // else (e.g. fixing a class) doesn't require re-picking the server too, but explicitly
-        // choosing a different one here is exactly how a wrong pick gets corrected.
-        CharacterProfile previous = _characters[index];
-        var pickedServer = (NewCharacterServerBox.SelectedItem as ComboBoxItem)?.Tag as AionDPS.Server.ServerCatalogEntry;
-        _characters[index] = new CharacterProfile
-        {
-            Name = name,
-            ClassName = (NewCharacterClassBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
-            Game = CharacterGame,
-            Faction = (NewCharacterFactionBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "",
-            ServerFingerprint = previous.ServerFingerprint
-                ?? (CharacterGame == GameKind.Aion2 ? null : AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder)),
-            ServerDisplayName = pickedServer?.Name ?? previous.ServerDisplayName,
-            ServerVersion = pickedServer?.Version ?? previous.ServerVersion,
-        };
-
-        // The active character is stored by name, so a rename has to carry it along or the
-        // selection silently falls back to "none".
-        if (_settings.ActiveCharacterName == previousName)
-        {
-            _settings.ActiveCharacterName = name;
-        }
-
-        RefreshCharacterLists();
-        ActiveCharacterBox.SelectedItem = name;
-
-        // RefreshCharacterLists rebinds the list, which drops the selection -- put it back so the
-        // row you just edited stays highlighted and can be edited again without re-picking it.
-        CharactersList.SelectedIndex = index;
-    }
-
-    private void OnRemoveCharacterClicked(object sender, RoutedEventArgs e)
-    {
-        int index = CharactersList.SelectedIndex;
-        if (index >= 0 && index < _characters.Count)
-        {
-            _characters.RemoveAt(index);
-            RefreshCharacterLists();
-        }
-    }
-
-    private void OnSelectAionFolderClicked(object sender, RoutedEventArgs e)
-    {
-        var dialog = new Microsoft.Win32.OpenFolderDialog
-        {
-            Title = "Select the Aion install folder (containing Chat.log)",
-        };
-        if (!string.IsNullOrEmpty(_aionInstallFolder) && Directory.Exists(_aionInstallFolder))
-        {
-            dialog.InitialDirectory = _aionInstallFolder;
-        }
-
-        if (dialog.ShowDialog(this) == true)
-        {
-            _aionInstallFolder = dialog.FolderName;
-            AionInstallFolderBox.Text = _aionInstallFolder;
-            UpdateAionFolderStatus();
-            UpdateServerFingerprint();
-
-            // Remembered immediately, not just at Save - per the user, the whole point was for
-            // this pairing to be VISIBLE, so "Remembered folders" below (RefreshServerFolderList)
-            // must show it the moment it's picked rather than only after clicking Save. OnSaveClicked
-            // does the same write again, which is fine - a dictionary entry set to the same value
-            // twice is a no-op.
-            if (CurrentServerDisplayNameOrNull() is string serverName)
-            {
-                _settings.ServerInstallFolders[serverName] = _aionInstallFolder;
-                RefreshServerFolderList();
-            }
-        }
-    }
-
-    /// <summary>See Server/ServerIdentity.cs for why this, and not Chat.log or the client's file
-    /// version, is what identifies the server.</summary>
-    private void UpdateServerFingerprint()
-    {
-        string? fingerprint = AionDPS.Server.ServerIdentity.DetectFingerprint(_aionInstallFolder);
-        ServerFingerprintText.Text = fingerprint
-            ?? "Not detected (bin64\\config.ini / bin32\\config.ini not found here).";
-    }
-
-    /// <summary>
-    /// Same idea as the AionRainMeter reference's red "Wrong path selected!" -- checks for
-    /// bin64\game.dll or AION.bin (the 64-/32-bit client executables, see README's crypto
-    /// investigation for how we know these paths) to confirm this is actually an Aion install
-    /// root, not just some folder the user clicked into. Chat.log itself is checked separately and
-    /// only as an informational note, not a hard failure: a fresh install with chatlog not yet
-    /// enabled (see the client's builder_dev_dialog "Basic Chatlog" toggle, README) would otherwise
-    /// look "wrong" even though the folder itself is correct.
-    /// </summary>
-    private void UpdateAionFolderStatus()
-    {
-        if (string.IsNullOrEmpty(_aionInstallFolder))
-        {
-            AionInstallFolderStatus.Text = "No folder selected yet.";
-            AionInstallFolderStatus.Foreground = new SolidColorBrush(Colors.Gray);
-            return;
-        }
-
-        bool looksLikeAionInstall = File.Exists(Path.Combine(_aionInstallFolder, "bin64", "game.dll"))
-            || File.Exists(Path.Combine(_aionInstallFolder, "AION.bin"));
-
-        if (!looksLikeAionInstall)
-        {
-            AionInstallFolderStatus.Text = "Wrong path selected! This doesn't look like an Aion install (no bin64\\game.dll or AION.bin found here).";
-            AionInstallFolderStatus.Foreground = new SolidColorBrush(Colors.OrangeRed);
-            return;
-        }
-
-        bool hasChatLog = File.Exists(Path.Combine(_aionInstallFolder, "Chat.log"));
-        AionInstallFolderStatus.Text = hasChatLog
-            ? "Aion install found, Chat.log present."
-            : "Aion install found, but no Chat.log here yet -- chat logging may still need to be enabled in-game.";
-        AionInstallFolderStatus.Foreground = new SolidColorBrush(hasChatLog ? Colors.LightGreen : Colors.Khaki);
     }
 
     /// <summary>Matches by Tag, not Content: Content is now a {local:Loc ...} binding (so it reads
@@ -720,10 +104,6 @@ public partial class SettingsWindow : Window
         if (LanguageBox.SelectedItem is ComboBoxItem { Tag: string code })
         {
             LocalizationManager.Instance.Language = code;
-            // Not covered by the {local:Loc ...} bindings LocalizationManager.Language already
-            // repaints - RebuildClassBox writes each item's Text as a plain string once, so
-            // switching language needs telling explicitly, same as ApplyGameToInstallSection.
-            RebuildClassBox();
         }
     }
 
@@ -748,39 +128,16 @@ public partial class SettingsWindow : Window
 
     private void OnSaveClicked(object sender, RoutedEventArgs e)
     {
-        _settings.ShowPlayers = ShowPlayersBox.IsChecked ?? false;
-        _settings.ShowMinionNpcs = ShowMinionNpcsBox.IsChecked ?? false;
-        _settings.ShowCommonNpcs = ShowCommonNpcsBox.IsChecked ?? false;
-        _settings.ShowEliteNpcs = ShowEliteNpcsBox.IsChecked ?? false;
-        _settings.ShowHeroicNpcs = ShowHeroicNpcsBox.IsChecked ?? false;
-        _settings.ShowLegendaryNpcs = ShowLegendaryNpcsBox.IsChecked ?? false;
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
         _settings.Language = LocalizationManager.Instance.Language;
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
-        _settings.ShowRelicAp = ShowRelicApBox.IsChecked ?? false;
         _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? false;
-        _settings.ShowDefenseStats = ShowDefenseStatsBox.IsChecked ?? false;
         _settings.RecordFightHistory = RecordFightHistoryBox.IsChecked ?? true;
-        _settings.Game = _game;
         _settings.Aion2CharacterName = string.IsNullOrWhiteSpace(Aion2CharacterNameBox.Text) ? null : Aion2CharacterNameBox.Text.Trim();
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
-        _settings.GameDetectionMode = _detectionMode;
-        _settings.AionInstallFolder = _aionInstallFolder;
-        _settings.ServerDisplayName = CurrentServerDisplayNameOrNull();
-
-        // Remembers this server's folder for next time (see OnAionServerSelected) - only when both
-        // are actually known, so picking a server without ever setting a folder (or vice versa)
-        // does not overwrite an already-remembered pairing with nothing.
-        if (_settings.ServerDisplayName is string serverName && !string.IsNullOrEmpty(_aionInstallFolder))
-        {
-            _settings.ServerInstallFolders[serverName] = _aionInstallFolder;
-        }
-        _settings.Characters = _characters;
-        _settings.ActiveCharacterName = ActiveCharacterBox.SelectedItem as string;
-        _settings.AutoDetectActiveCharacter = AutoDetectActiveCharacterBox.IsChecked ?? true;
 
         Saved?.Invoke();
         Close();

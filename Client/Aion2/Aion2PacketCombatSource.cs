@@ -1,4 +1,3 @@
-using AionDPS.ChatLog;
 using AionDPS.Combat;
 using AionDPS.Combat.Sources;
 
@@ -70,14 +69,9 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     private DateTime _lastStatusAt = DateTime.MinValue;
     public event Action<SourceStatus>? StatusChanged;
 
-    // Part of the seam, but nothing in a packet stream maps onto them (no chat commands, loot,
-    // personal stats or buff narration) - see Capabilities, which is how the UI knows.
+    // Aion 2's chat frames are not decoded yet (see ICombatSource.CommandReceived).
 #pragma warning disable CS0067
     public event Action<string?, string, string>? CommandReceived;
-    public event Action<PersonalStatKind, long>? PersonalStatChanged;
-    public event Action<string>? PlayerLoggedIn;
-    public event Action<LootEvent>? LootAcquired;
-    public event Action<BuffCastEvent>? BuffCast;
 #pragma warning restore CS0067
 
     public void Start()

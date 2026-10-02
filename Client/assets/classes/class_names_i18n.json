@@ -1,14 +1,4 @@
 {
-  "Aethertech": {
-    "en": "Aethertech",
-    "de": "Äthertech",
-    "fr": "Éthertech",
-    "es": "Piloto de Éter",
-    "ru": "Пилот",
-    "pl": "Pilot Eteru",
-    "tr": "Esir Pilotu",
-    "zh": "以太科技师"
-  },
   "Assassin": {
     "en": "Assassin",
     "de": "Assassine",
@@ -18,16 +8,6 @@
     "pl": "Assasyn",
     "tr": "Suikastçı",
     "zh": "刺客"
-  },
-  "Bard": {
-    "en": "Bard",
-    "de": "Barde",
-    "fr": "Barde",
-    "es": "Bardo",
-    "ru": "Бард",
-    "pl": "Bard",
-    "tr": "Ozan",
-    "zh": "吟游诗人"
   },
   "Brawler": {
     "en": "Brawler",
@@ -79,26 +59,6 @@
     "tr": "Gladyatör",
     "zh": "角斗士"
   },
-  "Gunner": {
-    "en": "Gunner",
-    "de": "Schütze",
-    "fr": "Pistolero",
-    "es": "Artillero",
-    "ru": "Снайпер",
-    "pl": "Strzelec",
-    "tr": "Nişancı",
-    "zh": "枪手"
-  },
-  "Painter": {
-    "en": "Painter",
-    "de": "Künstler",
-    "fr": "Artiste",
-    "es": "Pintor",
-    "ru": "Артист",
-    "pl": "Malarz",
-    "tr": "Ressam",
-    "zh": "画师"
-  },
   "Ranger": {
     "en": "Ranger",
     "de": "Jäger",
@@ -118,16 +78,6 @@
     "pl": "Czarodziej",
     "tr": "Büyücü",
     "zh": "魔法师"
-  },
-  "Spiritmaster": {
-    "en": "Spiritmaster",
-    "de": "Beschwörer",
-    "fr": "Spiritualiste",
-    "es": "Invocador",
-    "ru": "Волшебник",
-    "pl": "Mistrz Duchów",
-    "tr": "Ruh Ustası",
-    "zh": "灵术师"
   },
   "Templar": {
     "en": "Templar",

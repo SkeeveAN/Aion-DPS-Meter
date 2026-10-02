@@ -1,16 +1,14 @@
-using AionDPS.ChatLog;
-
 namespace AionDPS.Combat.Sources;
 
 /// <summary>
 /// A scriptable source for self-checks and demo data: whatever is queued with
 /// <see cref="Enqueue"/> comes back from the next <see cref="Poll"/>. Names are registered through
-/// the same <see cref="PlayerNameRegistry"/> the Chat.log path uses, so ids behave identically.
+/// a small name registry (ids are handed out per name).
 /// </summary>
 public sealed class FakeCombatSource : ICombatSource
 {
     private readonly Queue<CombatBatch> _pending = new();
-    private readonly PlayerNameRegistry _names = new();
+    private readonly NameRegistry _names = new();
     private readonly Directory _entities;
 
     public FakeCombatSource(string localPlayerName = "You", SourceCapabilities capabilities = SourceCapabilities.None)
@@ -33,10 +31,6 @@ public sealed class FakeCombatSource : ICombatSource
 
     public event Action<string, string>? SkillUsed;
     public event Action<string?, string, string>? CommandReceived;
-    public event Action<PersonalStatKind, long>? PersonalStatChanged;
-    public event Action<string>? PlayerLoggedIn;
-    public event Action<LootEvent>? LootAcquired;
-    public event Action<BuffCastEvent>? BuffCast;
     public event Action<SourceStatus>? StatusChanged;
 
     public int IdOf(string name) => _names.GetOrAssignId(name);
@@ -48,14 +42,6 @@ public sealed class FakeCombatSource : ICombatSource
     public void RaiseSkillUsed(string actor, string skill) => SkillUsed?.Invoke(actor, skill);
 
     public void RaiseCommand(string? sender, string command, string argument) => CommandReceived?.Invoke(sender, command, argument);
-
-    public void RaisePersonalStat(PersonalStatKind kind, long delta) => PersonalStatChanged?.Invoke(kind, delta);
-
-    public void RaisePlayerLoggedIn(string name) => PlayerLoggedIn?.Invoke(name);
-
-    public void RaiseLoot(LootEvent evt) => LootAcquired?.Invoke(evt);
-
-    public void RaiseBuffCast(BuffCastEvent evt) => BuffCast?.Invoke(evt);
 
     public void RaiseStatus(SourceState state, string message) => StatusChanged?.Invoke(new SourceStatus(state, message));
 
@@ -95,5 +81,27 @@ public sealed class FakeCombatSource : ICombatSource
         public int LocalPlayerId => _owner._names.GetOrAssignId(_owner.LocalPlayerName);
 
         public bool IsLocalPlayer(int id) => id == LocalPlayerId;
+    }
+
+    private sealed class NameRegistry
+    {
+        private readonly Dictionary<string, int> _ids = new();
+        private readonly Dictionary<int, string> _names = new();
+        private int _next = 1;
+
+        public int GetOrAssignId(string name)
+        {
+            if (_ids.TryGetValue(name, out int id))
+            {
+                return id;
+            }
+
+            id = _next++;
+            _ids[name] = id;
+            _names[id] = name;
+            return id;
+        }
+
+        public string? NameFor(int id) => _names.GetValueOrDefault(id);
     }
 }

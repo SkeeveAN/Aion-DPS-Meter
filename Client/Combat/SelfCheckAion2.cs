@@ -7,7 +7,6 @@ using AionDPS.Aion2.Capture;
 using AionDPS.Aion2.Protocol;
 using AionDPS.Combat.Sources;
 using AionDPS.Data;
-using AionDPS.Game;
 using AionDPS.Ui;
 
 namespace AionDPS.Combat;
@@ -42,71 +41,19 @@ public static class SelfCheckAion2
 
     private static bool RunCombatSourceSeamScenario()
     {
-        Console.WriteLine("[selftest] Combat-source seam (ChatLogCombatSource over a temp Chat.log, FakeCombatSource):");
-        string dir = Path.Combine(Path.GetTempPath(), "aiondps-selftest-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(dir);
-        string path = Path.Combine(dir, "Chat.log");
-        string[] history = { "2026.08.23 21:31:08 : Ulgorn Raider inflicted 1 damage on Training Dummy. " };
-        string[] live =
-        {
-            "2026.08.23 21:32:07 : You inflicted 1 damage on Training Dummy. ",
-            "2026.08.23 21:32:08 : You inflicted 2 damage on Training Dummy. ",
-        };
-        string[] whilePaused = { "2026.08.23 21:32:09 : You inflicted 3 damage on Training Dummy. " };
-
-        try
-        {
-            File.WriteAllLines(path, history, Encoding.Latin1);
-            using var source = new ChatLogCombatSource(path);
-            source.Start();
-
-            // Never the past: what was in the file before Start() is not delivered.
-            bool historySkipped = source.Poll(false).IsEmpty;
-
-            File.AppendAllLines(path, live, Encoding.Latin1);
-            CombatBatch batch = source.Poll(false);
-            var direct = new ChatLog.ChatLogParser().Parse(live);
-            bool sameCount = batch.Damage.Count == direct.Count && direct.Count == 2;
-            bool localPlayerIsYou = source.Entities.NameFor(source.Entities.LocalPlayerId) == "You"
-                && source.Entities.IsLocalPlayer(batch.Damage[0].SourceObjectId);
-            bool sameAmounts = batch.Damage.Select(e => e.Amount).SequenceEqual(direct.Select(e => e.Amount));
-
-            // Paused time is discarded, not deferred.
-            File.AppendAllLines(path, whilePaused, Encoding.Latin1);
-            bool pausedEmpty = source.Poll(true).IsEmpty;
-            bool notReplayed = source.Poll(false).IsEmpty;
-
-            // Reload reads everything, history included, and live tailing continues afterwards.
-            int reloaded = source.ReloadFromDisk().Damage.Count;
-            bool reloadedAll = reloaded == history.Length + live.Length + whilePaused.Length;
-            bool capabilities = source.Capabilities.HasFlag(SourceCapabilities.Reparse) && source.Capabilities.HasFlag(SourceCapabilities.Loot);
-
-            var fake = new FakeCombatSource();
-            int you = fake.Entities.LocalPlayerId;
-            fake.Enqueue(new DamageEvent(DateTime.UtcNow, you, fake.IdOf("Dummy"), 10, IsHeal: false));
-            bool fakePausedDiscards = fake.Poll(true).IsEmpty && fake.Poll(false).IsEmpty;
-            fake.Enqueue(new DamageEvent(DateTime.UtcNow, you, fake.IdOf("Dummy"), 10, IsHeal: false));
-            bool fakeDelivers = fake.Poll(false).Damage.Count == 1 && fake.Entities.IsLocalPlayer(you);
-
-            Console.WriteLine($"  -> lines from before Start() are never delivered: {historySkipped}");
-            Console.WriteLine($"  -> live poll matches a direct parse (count/amounts): {sameCount && sameAmounts}");
-            Console.WriteLine($"  -> \"You\" is the local player id: {localPlayerIsYou}");
-            Console.WriteLine($"  -> paused lines are discarded, not replayed: {pausedEmpty && notReplayed}");
-            Console.WriteLine($"  -> ReloadFromDisk returns the whole file ({reloaded}): {reloadedAll}");
-            Console.WriteLine($"  -> capabilities advertise Reparse+Loot: {capabilities}");
-            Console.WriteLine($"  -> FakeCombatSource honours pause and delivers queued batches: {fakePausedDiscards && fakeDelivers}");
-            return historySkipped && sameCount && sameAmounts && localPlayerIsYou && pausedEmpty && notReplayed && reloadedAll && capabilities && fakePausedDiscards && fakeDelivers;
-        }
-        finally
-        {
-            try
-            {
-                Directory.Delete(dir, recursive: true);
-            }
-            catch (IOException)
-            {
-            }
-        }
+        Console.WriteLine("[selftest] Combat-source seam (FakeCombatSource):");
+        var fake = new FakeCombatSource();
+        int you = fake.Entities.LocalPlayerId;
+        fake.Enqueue(new DamageEvent(DateTime.UtcNow, you, fake.IdOf("Dummy"), 10, IsHeal: false));
+        bool fakePausedDiscards = fake.Poll(true).IsEmpty && fake.Poll(false).IsEmpty;
+        fake.Enqueue(new DamageEvent(DateTime.UtcNow, you, fake.IdOf("Dummy"), 10, IsHeal: false));
+        bool fakeDelivers = fake.Poll(false).Damage.Count == 1 && fake.Entities.IsLocalPlayer(you);
+        string? command = null;
+        fake.CommandReceived += (_, c, _) => command = c;
+        fake.RaiseCommand("Aahz", "pause", "");
+        Console.WriteLine($"  -> FakeCombatSource honours pause and delivers queued batches: {fakePausedDiscards && fakeDelivers}");
+        Console.WriteLine($"  -> chat commands reach subscribers: {command == "pause"}");
+        return fakePausedDiscards && fakeDelivers && command == "pause";
     }
 
     private static readonly FrameLayout TestLayout = new(LengthOffset: 0, LengthSize: 2, LittleEndian: true, LengthIncludesHeader: true, HeaderSize: 4, OpcodeOffset: 2, OpcodeSize: 2, MaxFrameLength: 4096);
@@ -673,40 +620,25 @@ public static class SelfCheckAion2
 
     private static bool RunClassCatalogScenario()
     {
-        Console.WriteLine("[selftest] Class catalog per game:");
-        bool aion2Roster = ClassCatalog.ClassesFor(GameKind.Aion2).Count == 9 && ClassCatalog.IsKnownClass(GameKind.Aion2, "Elementalist") && !ClassCatalog.IsKnownClass(GameKind.Aion2, "Spiritmaster");
-        bool aionRoster = ClassCatalog.IsKnownClass(GameKind.Aion, "Spiritmaster") && !ClassCatalog.IsKnownClass(GameKind.Aion, "Brawler");
+        Console.WriteLine("[selftest] Class catalog:");
+        bool roster = ClassCatalog.Classes.Count == 9 && ClassCatalog.IsKnownClass("Elementalist") && !ClassCatalog.IsKnownClass("Spiritmaster");
         bool abbreviations = ClassCatalog.Abbreviation("Elementalist") == "ELE" && ClassCatalog.Abbreviation("Templar") == "TPL";
-        bool tokens = GameKind.Aion2.ToToken() == "aion2" && GameKindExtensions.ParseToken("aion2") == GameKind.Aion2 && GameKindExtensions.ParseToken(null) == GameKind.Aion;
-        Console.WriteLine($"  -> Aion 2 has nine classes incl. Elementalist, no Spiritmaster: {aion2Roster}");
-        Console.WriteLine($"  -> classic roster has Spiritmaster, no Brawler: {aionRoster}");
+        Console.WriteLine($"  -> nine classes incl. Elementalist, no Spiritmaster: {roster}");
         Console.WriteLine($"  -> badge abbreviations match the website's: {abbreviations}");
-        Console.WriteLine($"  -> game tokens round-trip: {tokens}");
-        return aion2Roster && aionRoster && abbreviations && tokens;
+        return roster && abbreviations;
     }
 
     private static bool RunSettingsMigrationScenario()
     {
-        Console.WriteLine("[selftest] Settings migration (game field):");
-        var legacy = JsonSerializer.Deserialize<MeterSettings>("""{"Theme":"Dark","Characters":[{"Name":"Old","ClassName":"Cleric"}]}""")!;
-        bool legacyIsAion = legacy.Game == GameKind.Aion && legacy.Characters[0].Game == GameKind.Aion;
-        bool legacyIsAutomatic = legacy.GameDetectionMode == GameDetectionMode.Automatic;
-
-        var aion2 = JsonSerializer.Deserialize<MeterSettings>("""{"Game":"aion2","Characters":[{"Name":"New","ClassName":"Templar","Game":"aion2"}]}""")!;
-        bool aion2Read = aion2.Game == GameKind.Aion2 && aion2.Characters[0].Game == GameKind.Aion2;
-
-        string written = JsonSerializer.Serialize(aion2);
-        bool writtenAsToken = written.Contains("\"Game\":\"aion2\"") && !written.Contains("\"Game\":1");
-
-        var manual = JsonSerializer.Deserialize<MeterSettings>("""{"GameDetectionMode":"manual"}""")!;
-        bool manualRead = manual.GameDetectionMode == GameDetectionMode.Manual;
-        bool manualWrittenAsToken = JsonSerializer.Serialize(manual).Contains("\"GameDetectionMode\":\"manual\"");
-
-        Console.WriteLine($"  -> settings without a game field mean classic Aion: {legacyIsAion}");
-        Console.WriteLine($"  -> settings without a detection-mode field default to Automatic: {legacyIsAutomatic}");
-        Console.WriteLine($"  -> \"aion2\" reads back as Aion2 for settings and characters: {aion2Read}");
-        Console.WriteLine($"  -> serialized as the backend's token, not a number: {writtenAsToken}");
-        Console.WriteLine($"  -> \"manual\" reads back and round-trips as a token, not a number: {manualRead && manualWrittenAsToken}");
-        return legacyIsAion && legacyIsAutomatic && aion2Read && writtenAsToken && manualRead && manualWrittenAsToken;
+        Console.WriteLine("[selftest] Settings written by earlier versions:");
+        // Files from the versions that also tracked classic Aion still carry fields this build no
+        // longer has; they must load (the unknown ones are ignored) and keep what is still used.
+        var old = JsonSerializer.Deserialize<MeterSettings>("""{"Theme":"Dark","Game":"aion","Characters":[{"Name":"Old","ClassName":"Cleric"}],"AionInstallFolder":"D:\\Aion","ShowShareBars":false,"Aion2CharacterName":"Aahz"}""")!;
+        bool loads = old.Theme == "Dark" && !old.ShowShareBars && old.Aion2CharacterName == "Aahz";
+        string written = JsonSerializer.Serialize(old);
+        bool noClassicFields = !written.Contains("AionInstallFolder") && !written.Contains("Characters");
+        Console.WriteLine($"  -> an old file loads and keeps the fields still in use: {loads}");
+        Console.WriteLine($"  -> classic Aion fields are dropped when saved again: {noClassicFields}");
+        return loads && noClassicFields;
     }
 }

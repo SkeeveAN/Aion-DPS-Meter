@@ -29,24 +29,20 @@ public static class SessionFile
 
     private sealed record KillDto(long T, int K, int? Killer, int Victim, bool VictimIsPlayer);
 
-    private sealed record PersonalStatsDto(long Exp, long Ap, long Gp, long Kinah);
-
     private sealed record Payload(
         int Version,
         DateTime SavedAt,
         List<EventDto> Events,
         List<AvoidDto> Avoids,
         List<KillDto> Kills,
-        Dictionary<string, string> Names,
-        PersonalStatsDto Stats);
+        Dictionary<string, string> Names);
 
     public static void Save(
         string path,
         IReadOnlyList<DamageEvent> events,
         IReadOnlyList<AvoidEvent> avoids,
         IReadOnlyList<KillEvent> kills,
-        IReadOnlyDictionary<int, string> names,
-        long exp, long ap, long gp, long kinah)
+        IReadOnlyDictionary<int, string> names)
     {
         var payload = new Payload(
             1,
@@ -54,8 +50,7 @@ public static class SessionFile
             events.Select(e => new EventDto(e.Timestamp.Ticks, (int)e.Timestamp.Kind, e.SourceObjectId, e.TargetObjectId, e.Amount, e.IsHeal, e.Skill, e.IsCritical)).ToList(),
             avoids.Select(a => new AvoidDto(a.Timestamp.Ticks, (int)a.Timestamp.Kind, a.SourceObjectId, a.TargetObjectId, (int)a.Kind, a.Skill)).ToList(),
             kills.Select(k => new KillDto(k.Timestamp.Ticks, (int)k.Timestamp.Kind, k.KillerObjectId, k.VictimObjectId, k.VictimIsPlayer)).ToList(),
-            names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
-            new PersonalStatsDto(exp, ap, gp, kinah));
+            names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value));
 
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         using FileStream output = File.Create(path);
@@ -68,7 +63,6 @@ public static class SessionFile
         List<AvoidEvent> Avoids,
         List<KillEvent> Kills,
         Dictionary<int, string> Names,
-        long Exp, long Ap, long Gp, long Kinah,
         DateTime SavedAt);
 
     public static LoadedSession Load(string path)
@@ -89,7 +83,6 @@ public static class SessionFile
             .ToList();
         var names = payload.Names.ToDictionary(kv => int.Parse(kv.Key), kv => kv.Value);
 
-        return new LoadedSession(events, avoids, kills, names,
-            payload.Stats.Exp, payload.Stats.Ap, payload.Stats.Gp, payload.Stats.Kinah, payload.SavedAt);
+        return new LoadedSession(events, avoids, kills, names, payload.SavedAt);
     }
 }

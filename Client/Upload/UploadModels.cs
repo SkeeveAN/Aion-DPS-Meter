@@ -91,7 +91,7 @@ public sealed record EncounterUploadRequest(
     // The backend's game token ("aion" | "aion2", see Backend/src/constants.ts). Boss names and
     // servers are only ever matched within one game there; a payload without it (older clients)
     // is treated as classic Aion.
-    string Game = "aion",
+    string Game = "aion2",
     // Aion 2 only: the game's numeric NPC id of the boss, which is unambiguous where the name is
     // not (the same boss name recurs across Aion 2 dungeons). Null on the Chat.log path, which
     // never sees an id.

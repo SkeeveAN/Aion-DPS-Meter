@@ -312,29 +312,6 @@
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
-                    <RadioButton x:Name="NavChars" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
-                        <StackPanel Orientation="Horizontal">
-                            <Grid Width="14" Height="14" Margin="0,0,7,0">
-                                <Ellipse Width="6" Height="6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
-                                         StrokeThickness="1.3" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                                <Path Data="M1,13 L1,11 Q7,7 13,11 L13,13 Z"
-                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3"/>
-                            </Grid>
-                            <TextBlock Text="{local:Loc Settings.Nav.Characters}" TextWrapping="Wrap" Width="84" FontSize="11.5"
-                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
-                        </StackPanel>
-                    </RadioButton>
-                    <RadioButton x:Name="NavTargets" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
-                        <StackPanel Orientation="Horizontal">
-                            <Grid Width="14" Height="14" Margin="0,0,7,0">
-                                <Ellipse Width="10" Height="10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.2"/>
-                                <Path Data="M7,0 L7,4 M7,10 L7,14 M0,7 L4,7 M10,7 L14,7"
-                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3"/>
-                            </Grid>
-                            <TextBlock Text="{local:Loc Settings.Nav.Targets}" TextWrapping="Wrap" Width="84" FontSize="11.5"
-                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
-                        </StackPanel>
-                    </RadioButton>
                     <RadioButton x:Name="NavUi" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
                         <StackPanel Orientation="Horizontal">
                             <Grid Width="14" Height="14" Margin="0,0,7,0">
@@ -364,252 +341,18 @@
         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
             <Grid Margin="10">
                 <StackPanel Visibility="{Binding IsChecked, ElementName=NavInstall, Converter={StaticResource BoolToVis}}">
-                        <!-- Server picked FIRST, folder second - per the user, this section's
-                             whole point was not visible before: each server remembers its OWN
-                             Chat.log folder (MeterSettings.ServerInstallFolders), so switching the
-                             server here is what actually switches the folder below, not something
-                             set independently of it. -->
-                        <!-- Which game this install is for (MeterSettings.Game) - decides the
-                             combat source (Chat.log tailer vs. Aion 2 packet capture), the class
-                             roster and which server catalog the pickers below offer. Same
-                             auto-vs-manual pattern as AutoDetectActiveCharacterBox further down:
-                             checked (the default, MeterSettings.GameDetectionMode) keeps this in
-                             sync with whichever client is actually running and disables the picker
-                             below since it would just be overwritten; unchecked freezes it at
-                             whatever's picked there. -->
-                        <CheckBox x:Name="AutoDetectGameBox" Content="{local:Loc Settings.AutoDetectGame}"
-                                  Margin="4,2,4,4" Checked="OnAutoDetectGameChanged" Unchecked="OnAutoDetectGameChanged"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
-                            <TextBlock Text="{local:Loc Settings.Game}" VerticalAlignment="Center" Margin="4,0,6,0"/>
-                            <ComboBox x:Name="GameBox" Width="220" SelectionChanged="OnGameSelected">
-                                <ComboBoxItem Content="Aion" Tag="aion"/>
-                                <ComboBoxItem Content="Aion 2" Tag="aion2"/>
-                            </ComboBox>
-                        </StackPanel>
-                        <TextBlock x:Name="GameDetectionStatus" TextWrapping="Wrap"
-                                   Margin="4,0,4,6" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"/>
-                        <Expander x:Name="ClassicSection" Margin="0,10,0,2" IsExpanded="True">
-                        <Expander.Header><TextBlock Text="Aion (Origin, Riftshade, EuroAion ...)" FontWeight="Bold"/></Expander.Header>
-                        <StackPanel>
-                        <TextBlock Text="Each server below remembers its own Chat.log folder - pick a server, then set (or confirm) its folder."
-                                   TextWrapping="Wrap" Margin="4,2" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="Server:" VerticalAlignment="Center" Margin="4,0,6,0"/>
-                            <!-- Same curated catalog as the "Add character" section's own server
-                                 picker below (populated in LoadServerCatalogAsync), not free text -
-                                 per the user, different servers are different Aion installs with
-                                 different Chat.log paths, so this pick is also the key into
-                                 MeterSettings.ServerInstallFolders (see OnAionServerSelected):
-                                 switching it recalls that server's own folder instead of leaving
-                                 whatever folder happened to be selected before. -->
-                            <ComboBox x:Name="AionInstallServerBox" Width="220"
-                                      SelectionChanged="OnAionServerSelected"
-                                      ToolTip="Which server this Aion install connects to - picking one loads its own saved folder below, if any."/>
-                        </StackPanel>
-
-                        <TextBlock Text="{local:Loc Settings.FolderHint}"
-                                   TextWrapping="Wrap" Margin="4,8,4,2"/>
-                        <!-- Stacked, not side-by-side, per the user: the sidebar layout leaves this
-                             column narrower than the old single-column dialog did, and a fixed-width
-                             TextBox plus a Button next to it no longer both fit - the Button was
-                             pushed past the window edge and stayed there even after a manual resize,
-                             since nothing here persists SettingsWindow's size across reopens. Stacking
-                             needs no extra width at all, at any window size. -->
-                        <TextBox x:Name="AionInstallFolderBox" IsReadOnly="True"
-                                 Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}" Margin="4,2"/>
-                        <Button Content="{local:Loc Settings.SelectFolder}" Click="OnSelectAionFolderClicked"
-                                HorizontalAlignment="Left" Margin="4,2"/>
-                        <TextBlock x:Name="AionInstallFolderStatus" Margin="4,2" TextWrapping="Wrap" FontStyle="Italic"/>
-
-                        <!-- Per the user: EuroAion runs on a completely different gear standard
-                             than this server, so community-backend runs must never be mixed
-                             between servers. Chat.log itself carries no server identity at all
-                             (checked and confirmed), so this reads bin64\config.ini's own
-                             [ServerAddr] IP:port instead (see Server/ServerIdentity.cs) - stable
-                             and unique per private-server operator. Read-only: it's a detected
-                             fact, not something to hand-edit into agreeing with a different
-                             server's config file. -->
-                        <TextBlock Text="Detected server (used to keep community-backend runs from mixing across servers):"
-                                   TextWrapping="Wrap" Margin="4,8,4,2"/>
-                        <TextBlock x:Name="ServerFingerprintText" Margin="4,2" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"/>
-
-                        <!-- Makes MeterSettings.ServerInstallFolders itself visible, not just its
-                             effect - per the user, the binding existed in code (added previous
-                             session) but nothing on screen ever showed it. One line per
-                             remembered server, refreshed in RefreshServerFolderList (constructor,
-                             LoadServerCatalogAsync, OnAionServerSelected and OnSelectAionFolderClicked
-                             all call it so this never goes stale while the dialog is open). -->
-                        <TextBlock Text="Remembered folders:" Margin="4,8,4,2" FontWeight="Bold"/>
-                        <ItemsControl x:Name="ServerFolderMappingsList" Margin="4,0,4,4">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}" Foreground="{DynamicResource Brush.TextMuted}" FontStyle="Italic" TextWrapping="Wrap"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <TextBlock x:Name="ServerFolderMappingsEmptyText" Text="(none yet - pick a server above, set its folder, then Save)"
-                                   Margin="4,0,4,4" FontStyle="Italic" Foreground="{DynamicResource Brush.TextMuted}"/>
-                        </StackPanel>
-                        </Expander>
-
-                        <Expander x:Name="Aion2Section" Margin="0,10,0,2" IsExpanded="True">
-                        <Expander.Header><TextBlock Text="Aion 2" FontWeight="Bold"/></Expander.Header>
-                        <StackPanel>
-                        <TextBlock x:Name="Aion2Hint" Text="{local:Loc Settings.Aion2Hint}" TextWrapping="Wrap"
-                                   Margin="4,0,4,6" Foreground="{DynamicResource Brush.WarningSoft}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
-                            <TextBlock Text="{local:Loc Settings.Aion2Character}" VerticalAlignment="Center" Margin="4,0,6,0"/>
-                            <TextBox x:Name="Aion2CharacterNameBox" Width="180" Height="28" Margin="4,2" VerticalContentAlignment="Center"
-                                     Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"
-                                     ToolTip="The name of your character in Aion 2 - the meter uses it to tell which player in the stream is you. Filled in automatically once the game reveals it."/>
-                        </StackPanel>
-                        <StackPanel x:Name="CaptureAdapterPanel" Orientation="Horizontal" Margin="0,2,0,6">
-                            <TextBlock Text="{local:Loc Settings.CaptureAdapter}" VerticalAlignment="Center" Margin="4,0,6,0"/>
-                            <ComboBox x:Name="CaptureAdapterBox" Width="320"/>
-                        </StackPanel>
-                        </StackPanel>
-                        </Expander>
+                    <TextBlock Text="{local:Loc Settings.Aion2Hint}" TextWrapping="Wrap"
+                               Margin="4,0,4,6" Foreground="{DynamicResource Brush.WarningSoft}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
+                        <TextBlock Text="{local:Loc Settings.Aion2Character}" VerticalAlignment="Center" Margin="4,0,6,0"/>
+                        <TextBox x:Name="Aion2CharacterNameBox" Width="180" Height="28" Margin="4,2" VerticalContentAlignment="Center"
+                                 Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"
+                                 ToolTip="The name of your character in Aion 2 - filled in automatically from the game's own data."/>
                     </StackPanel>
-
-                <!-- Chat.log never reveals the local player's own name - verified against a real
-                     session (see MeterSettings.Characters remarks): the active character is
-                     always written as the literal "You", and even login notifications only ever
-                     name OTHER people. There is no way to auto-detect this, so the user maintains
-                     the list by hand - exactly what they asked for ("mehrere Namen, damit du
-                     weisst welchen Namen du eintragen musst"). Class is stored alongside the name
-                     so the Players grid can finally show something other than "?" for the local
-                     player, which Chat.log can't supply either. -->
-                <StackPanel Visibility="{Binding IsChecked, ElementName=NavChars, Converter={StaticResource BoolToVis}}">
-                        <ListBox x:Name="CharactersList" Height="90" SelectionMode="Single"
-                                 SelectionChanged="OnCharacterSelected">
-                            <ListBox.Resources>
-                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
-                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
-                            </ListBox.Resources>
-                            <!-- Icon before the character's name, per the user's request - the
-                                 icon here identifies the CLASS, the text is the character's NAME.
-                                 NewCharacterClassBox below shows icon + class name too (picking a
-                                 class to register a new character needs the name legible, not just
-                                 the icon - found by terminal_windows after the icon-visibility fix
-                                 still left that dropdown unreadable for anyone who doesn't have all
-                                 13 class icons memorized). MainWindow's read-only ClassFilter stays
-                                 icon-only on purpose: filtering by your own class doesn't need the
-                                 name spelled out the way picking one to register does. -->
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
-                                               Height="20" Width="20" Margin="0,0,4,0" ToolTip="{Binding Faction}"/>
-                                        <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
-                                               Height="20" Width="20" Margin="0,0,6,0" ToolTip="{Binding ClassName}"/>
-                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        <!-- Per the user: which server a character is on has to be
-                                             visible in the list itself, not just inferred - blank
-                                             for a character predating server tracking, same
-                                             ApDisplay-style "empty string, not a placeholder" rule
-                                             as everywhere else this app shows an unknown value
-                                             (CharacterProfile.ServerLabel already includes the
-                                             surrounding " (...)", so no StringFormat is needed here). -->
-                                        <TextBlock Text="{Binding ServerLabel}"
-                                                   VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                        <!-- Three rows, per the user: name+class+faction all on one row (as it was
-                             right after splitting off the Add/Remove buttons below) still added up
-                             to well over 400px of fields+margins alone - wider than this dialog's
-                             entire 440px window, let alone the ~280px actually left next to the
-                             140px sidebar, so the row itself overflowed the same way the buttons
-                             once did. Faction now gets its own row instead of shrinking every field
-                             until the icon+text ComboBoxItems (e.g. "Asmodian") no longer fit. -->
-                        <Grid Margin="0,4,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <!-- VerticalAlignment/VerticalContentAlignment="Center" needed here,
-                                 found by the user: without them the box (and the text inside it)
-                                 sits at the TOP of the row instead of centered against its taller
-                                 siblings, since TextBox doesn't stretch/center itself against a
-                                 taller row the way the ComboBoxes' own templates already do. -->
-                            <TextBox x:Name="NewCharacterNameBox" Grid.Column="0" Height="28" Margin="4,2"
-                                     VerticalAlignment="Center" VerticalContentAlignment="Center"
-                                     Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                            <!-- Icon only, per the user - the name added nothing an Elyos/Asmodian player doesn't already
-                                 recognize from the icon alone. Before the class box, per the user. -->
-                            <ComboBox x:Name="NewCharacterFactionBox" Grid.Column="1" Width="64" Height="28" SelectedIndex="0" Margin="4,2">
-                                <ComboBoxItem Tag="Elyos" AutomationProperties.Name="Elyos" ToolTip="Elyos"><Image Source="pack://siteoforigin:,,,/assets/races/icons/Elyos.png" Height="16"/></ComboBoxItem>
-                                <ComboBoxItem Tag="Asmodian" AutomationProperties.Name="Asmodian" ToolTip="Asmodian"><Image Source="pack://siteoforigin:,,,/assets/races/icons/Asmodian.png" Height="16"/></ComboBoxItem>
-                            </ComboBox>
-                            <!-- Per the user: the class name (RebuildClassBox) is now localized
-                                 into all 8 UI languages (ClassCatalog.DisplayName, assets/classes/
-                                 class_names_i18n.json) rather than always showing the raw English
-                                 name, so no single fixed width fits the longest string in every
-                                 language without wasting space in the rest ("Tapınak Şövalyesi",
-                                 Turkish for Templar, is 17 characters; most languages' longest
-                                 entry is under 12). Sized for the common case; the item template's
-                                 own TextBlock.MaxWidth + TextTrimming handles the rare overflow
-                                 (mainly that one Turkish entry) instead, with the full name still
-                                 available via ToolTip. -->
-                            <ComboBox x:Name="NewCharacterClassBox" Grid.Column="2" Height="28" Margin="4,2">
-                                <!-- Items come from ClassCatalog.ClassesFor(game) - see RebuildClassBox. -->
-                            </ComboBox>
-                        </Grid>
-                        <!-- Per the user: which server a character is on is now a required, explicit
-                             pick from the backend's curated list (GET /api/server-catalog), not
-                             free text or a silent auto-stamp - own row, since Name/Class/Faction
-                             above already fill the dialog's width. Populated asynchronously by
-                             LoadServerCatalogAsync; empty (not broken) if the backend is briefly
-                             unreachable when the dialog opens. -->
-                        <StackPanel Orientation="Horizontal" Margin="4,4,0,0">
-                            <TextBlock Text="Server:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <ComboBox x:Name="NewCharacterServerBox" Width="200" SelectionChanged="OnNewCharacterServerSelected"
-                                      ToolTip="Which real server this character is on - required, since two different servers' characters/runs must never be confused with each other."/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="4,4,0,0">
-                            <Button Content="{local:Loc Settings.Add}" Click="OnAddCharacterClicked" Width="76" Margin="0,0,6,0"
-                                    ToolTip="Registers the name above as a new character."/>
-                            <Button Content="{local:Loc Settings.Update}" Click="OnUpdateCharacterClicked" Width="76" Margin="0,0,6,0"
-                                    ToolTip="Applies the fields above to the character selected in the list - including renaming it."/>
-                            <Button Content="{local:Loc Settings.Remove}" Click="OnRemoveCharacterClicked" Width="76" Margin="0"
-                                    ToolTip="Deletes the character selected in the list."/>
-                        </StackPanel>
-                        <!-- Per the user: running two Aion clients at once with two registered
-                             characters means skill-based auto-detection can get stuck on the wrong
-                             one (both may share a class, or both keep generating "You used skill"
-                             lines from their own client) with no way to tell it apart from here -
-                             see MeterSettings.AutoDetectActiveCharacter remarks. Unchecking this
-                             freezes ActiveCharacterName at whatever's picked below, changeable any
-                             time by coming back here (per the user, "später möchte ich mich vllt.
-                             umentscheiden"). -->
-                        <CheckBox x:Name="AutoDetectActiveCharacterBox" Content="{local:Loc Settings.AutoDetectActiveCharacter}"
-                                  Margin="4,8,4,0" Checked="OnAutoDetectActiveCharacterChanged" Unchecked="OnAutoDetectActiveCharacterChanged"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="{local:Loc Settings.ActiveCharacter}" VerticalAlignment="Center" Margin="4,0"/>
-                            <ComboBox x:Name="ActiveCharacterBox" Width="150"/>
-                        </StackPanel>
+                    <StackPanel x:Name="CaptureAdapterPanel" Orientation="Horizontal" Margin="0,2,0,6">
+                        <TextBlock Text="{local:Loc Settings.CaptureAdapter}" VerticalAlignment="Center" Margin="4,0,6,0"/>
+                        <ComboBox x:Name="CaptureAdapterBox" Width="320"/>
                     </StackPanel>
-
-                <!-- "Target (NPC) Bar" and "Players List" (Display DPS / Display Level) removed
-                     per the user: both were entirely inert (no code anywhere reads ShowDps,
-                     ShowLevel, or the three Target-Bar flags - matching MyAion's Target Bar
-                     concept, which was never wired to a data source here) and DPS/Level were
-                     never actually optional in practice (DPS always shows; Level lost its column
-                     entirely earlier this session). Backing properties removed from
-                     MeterSettings too - see git history if this section is ever revived once a
-                     real data source exists. This dialog still deliberately does NOT include
-                     MyAion's Loot Table, Kinah tracking, Auto-upload, or Donation Goal sections
-                     for the same reason: an inert checkbox that looks functional but does nothing
-                     is worse than no checkbox at all. -->
-                <StackPanel Visibility="{Binding IsChecked, ElementName=NavTargets, Converter={StaticResource BoolToVis}}">
-                        <CheckBox x:Name="ShowPlayersBox" Content="{local:Loc Settings.ShowPlayers}"/>
-                        <CheckBox x:Name="ShowMinionNpcsBox" Content="{local:Loc Settings.ShowMinionNpcs}"/>
-                        <CheckBox x:Name="ShowCommonNpcsBox" Content="{local:Loc Settings.ShowCommonNpcs}"/>
-                        <CheckBox x:Name="ShowEliteNpcsBox" Content="{local:Loc Settings.ShowEliteNpcs}"/>
-                        <CheckBox x:Name="ShowHeroicNpcsBox" Content="{local:Loc Settings.ShowHeroicNpcs}"/>
-                        <CheckBox x:Name="ShowLegendaryNpcsBox" Content="{local:Loc Settings.ShowLegendaryNpcs}"/>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding IsChecked, ElementName=NavUi, Converter={StaticResource BoolToVis}}">
@@ -677,9 +420,7 @@
                              second info line stays collapsed (see PlayerRow.HasSecondaryInfo) until
                              someone opts in here. -->
                         <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,4,0,0"/>
-                        <CheckBox x:Name="ShowRelicApBox" Content="{local:Loc Settings.ShowRelicAp}" Margin="0,3"/>
                         <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}" Margin="0,3"/>
-                        <CheckBox x:Name="ShowDefenseStatsBox" Content="{local:Loc Settings.ShowDefenseStats}" Margin="0,3"/>
                         <!-- Local only (History/FightStore, %AppData%) - nothing about it is uploaded. -->
                         <CheckBox x:Name="RecordFightHistoryBox" Content="{local:Loc Settings.RecordFightHistory}" Margin="0,4,0,0"/>
                 </StackPanel>

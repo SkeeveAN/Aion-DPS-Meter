@@ -1,5 +1,3 @@
-using AionDPS.ChatLog;
-
 namespace AionDPS.Combat.Sources;
 
 /// <summary>
@@ -34,16 +32,13 @@ public interface ICombatSource : IDisposable
     /// (<see cref="CommandReceived"/>) still fire so ".resume" can work.</summary>
     CombatBatch Poll(bool paused);
 
-    /// <summary>(actor name, skill) - "You" for the local player on the Chat.log source.</summary>
+    /// <summary>(actor name, skill)</summary>
     event Action<string, string>? SkillUsed;
 
-    /// <summary>(sender name or null, command, argument) from an in-game chat line.</summary>
+    /// <summary>(sender name or null, command, argument) from an in-game chat line - the ".pause" /
+    /// ".ui" style commands. Aion 2's chat is not decoded yet, so that source never raises it; the
+    /// handler in MainWindow is ready for the day it does.</summary>
     event Action<string?, string, string>? CommandReceived;
-
-    event Action<PersonalStatKind, long>? PersonalStatChanged;
-    event Action<string>? PlayerLoggedIn;
-    event Action<LootEvent>? LootAcquired;
-    event Action<BuffCastEvent>? BuffCast;
 
     /// <summary>Human-readable state of the input (waiting for the game, connected, protocol not
     /// calibrated, …) for the status bar. Fires on the polling thread.</summary>

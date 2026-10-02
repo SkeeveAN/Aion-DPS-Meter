@@ -12,23 +12,19 @@ public sealed record SkillUsage(string Skill, int Hits, int CritHits, long Total
 /// </summary>
 public static class SkillBreakdown
 {
-    /// <summary><paramref name="trustLoggedFlag"/> is for the local player, whose client flags its
-    /// own crits properly - see <see cref="CritEstimator"/>'s remarks for why that never holds for
-    /// anyone else. <paramref name="heals"/> selects which half of <paramref name="events"/> to
-    /// group -- false (the default) keeps every existing call site's damage-only behavior
-    /// unchanged; true does the same grouping over heals instead, for the upload payload's
-    /// separate HealSkills list.</summary>
-    public static List<SkillUsage> For(IReadOnlyList<DamageEvent> events, bool trustLoggedFlag, bool heals = false)
+    /// <summary>Groups the events by skill. Aion 2 flags every crit in the packet itself, so the crit
+    /// count is simply the flagged events. <paramref name="heals"/> selects which half of
+    /// <paramref name="events"/> to group: false (the default) damage, true heals.</summary>
+    public static List<SkillUsage> For(IReadOnlyList<DamageEvent> events, bool heals = false)
     {
         var relevant = events.Where(e => e.IsHeal == heals).ToList();
-        var isCrit = CritEstimator.Estimate(relevant, trustLoggedFlag);
 
         return relevant
             .GroupBy(e => e.Skill ?? "(auto attack)")
             .Select(g =>
             {
                 var amounts = g.Select(e => e.Amount).ToList();
-                int crits = g.Count(e => isCrit.GetValueOrDefault(e));
+                int crits = g.Count(e => e.IsCritical);
                 return new SkillUsage(g.Key, amounts.Count, crits, amounts.Sum(), amounts.Min(), amounts.Max());
             })
             .OrderByDescending(s => s.Total)
