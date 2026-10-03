@@ -16,6 +16,12 @@ namespace AionDPS.Ui;
 /// </summary>
 public static class ThemedChrome
 {
+    private static readonly Type[] SharedStyleTypes =
+    {
+        typeof(System.Windows.Controls.Primitives.ScrollBar), typeof(ToolTip), typeof(ComboBox), typeof(ComboBoxItem),
+        typeof(CheckBox), typeof(MenuItem), typeof(Separator), typeof(Button),
+    };
+
     public static void Apply(Window window)
     {
         UIElement? content = window.Content as UIElement;
@@ -25,11 +31,18 @@ public static class ThemedChrome
         window.ResizeMode = ResizeMode.CanResizeWithGrip;
         window.Background = Brushes.Transparent;
 
-        // The dark scroll bar lives in MainWindow's resources; without it a secondary window
-        // shows the system's light one.
-        if (Application.Current.MainWindow?.Resources[typeof(System.Windows.Controls.Primitives.ScrollBar)] is Style scrollBar)
+        // The dark control styles (scroll bar, tooltip, combo box, check box, menu, button) live in
+        // MainWindow's resources; without them a secondary window shows the system's light ones.
+        // A style the window defines itself wins.
+        if (Application.Current.MainWindow?.Resources is { } shared)
         {
-            window.Resources[typeof(System.Windows.Controls.Primitives.ScrollBar)] = scrollBar;
+            foreach (Type type in SharedStyleTypes)
+            {
+                if (!window.Resources.Contains(type) && shared[type] is Style style)
+                {
+                    window.Resources[type] = style;
+                }
+            }
         }
 
         var icon = new Image { Width = 16, Height = 16, Margin = new Thickness(8, 0, 0, 0), HorizontalAlignment = HorizontalAlignment.Left };
