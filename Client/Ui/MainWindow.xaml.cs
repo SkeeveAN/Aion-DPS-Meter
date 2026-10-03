@@ -132,6 +132,9 @@ public partial class MainWindow : Window
 
     // The deaths of the rows shown in taken mode.
     private readonly Dictionary<int, List<Death>> _deathsById = new();
+
+    // The span the taken rows cover, for a player's details in that mode.
+    private (DateTime Start, DateTime End)? _takenSpan;
     private bool _showDamageTaken;
     /// <summary>Avoided attacks and kill announcements from the source, kept beside the
     /// aggregator's damage events (they are not DamageEvents - see Combat/Sources). Cleared with
@@ -1085,6 +1088,7 @@ public partial class MainWindow : Window
         }
 
         _deathsById.Clear();
+        _takenSpan = span;
         foreach (int targetId in targetIds)
         {
             if (!_rowsByObjectId.TryGetValue(targetId, out var row))
@@ -2462,9 +2466,16 @@ public partial class MainWindow : Window
         string version = update.TargetFullRelease.Version.ToString();
 
         // Downloading the same update again on every timer tick would re-fetch it twelve times an
-        // hour for as long as the meter stays open.
-        if (_downloadedUpdate is not null)
+        // hour for as long as the meter stays open. A newer one than the version waiting replaces
+        // it: kept, the older one was what got installed, and the newest then took a second round
+        // (0.9.34 -> 0.9.35 -> 0.9.36 on the StacysView fork, with 0.9.36 already out).
+        if (_downloadedUpdate is { } staged && staged.TargetFullRelease.Version.CompareTo(update.TargetFullRelease.Version) >= 0)
         {
+            if (announceResult)
+            {
+                OfferRestart(staged, staged.TargetFullRelease.Version.ToString());
+            }
+
             return;
         }
 
@@ -2596,9 +2607,15 @@ public partial class MainWindow : Window
 
     private void ShowPlayerDetails(PlayerRow row)
     {
-        // The damage a player took has no skill breakdown of their own.
+        // Taken mode: what hit this player over the fight on screen, and how they died.
         if (_takenMode && !_pvpOnly)
         {
+            var hits = HostileHitsTaken(_takenSpan).Where(ev => ev.TargetObjectId == row.ObjectId).ToList();
+            new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, hits,
+                id => _source?.Entities.NameFor(id), deaths: _deathsById.GetValueOrDefault(row.ObjectId), taken: true)
+            {
+                Owner = this,
+            }.Show();
             return;
         }
 

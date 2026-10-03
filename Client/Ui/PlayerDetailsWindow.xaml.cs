@@ -86,8 +86,18 @@ public partial class PlayerDetailsWindow : Window
     }
 
     public PlayerDetailsWindow(string name, string className, string faction,
-        IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf, bool heals = false)
+        IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf, bool heals = false,
+        IReadOnlyList<Death>? deaths = null, bool taken = false)
     {
+        // Taken: the hits this player took, one row per attacker and attack ("Transcendent
+        // Bakarma : Attack"); an attacker with no name of its own is "Monster".
+        var loc = LocalizationManager.Instance;
+        if (taken)
+        {
+            string monster = loc["Details.Monster"];
+            events = events.Select(e => e with { Skill = $"{nameOf(e.SourceObjectId) ?? monster} : {e.Skill ?? "?"}", SkillId = 0 }).ToList();
+        }
+
         InitializeComponent();
         ThemedChrome.Apply(this);
         DataContext = new { ClassName = className, Faction = faction };
@@ -100,6 +110,11 @@ public partial class PlayerDetailsWindow : Window
         {
             AmountTileLabel.Text = LocalizationManager.Instance["Details.Tile.Heal"];
             RateTileLabel.Text = LocalizationManager.Instance["Details.Tile.Hps"];
+        }
+        else if (taken)
+        {
+            AmountTileLabel.Text = loc["Details.Tile.Taken"];
+            RateTileLabel.Text = loc["Details.Tile.Dtps"];
         }
 
         var breakdown = SkillBreakdown.For(events, heals).ToList();
@@ -130,7 +145,9 @@ public partial class PlayerDetailsWindow : Window
 
         int hits = rows.Sum(r => r.Hits);
         var targets = damage.Select(e => nameOf(e.TargetObjectId)).Where(n => n is not null).Distinct().Count();
-        SummaryText.Text = $"{className} · {rows.Count} abilities, {targets} targets";
+        SummaryText.Text = taken
+            ? $"{className} · ☠ {deaths?.Count ?? 0} · {string.Format(loc["Details.Attacks"], rows.Count)}"
+            : $"{className} · {rows.Count} abilities, {targets} targets";
 
         // Wall-clock, first hit to last hit -- same definition as DpsCalculator.AllDpsWallClock's
         // "ALL" view (that method itself isn't reusable here: it filters events by sourceObjectId,
@@ -153,5 +170,15 @@ public partial class PlayerDetailsWindow : Window
 
         CritNoteText.Text = "Crit rates are read straight from the game server's hit data, exact for every player.";
         CritNoteText.Visibility = heals ? Visibility.Collapsed : Visibility.Visible;
+
+        // Taken: the deaths in this fight, each with its killing blow, where the crit note was.
+        if (taken)
+        {
+            CritNoteText.Text = deaths is { Count: > 0 }
+                ? string.Join("\n", deaths.Select(d => "☠ " + d.At.ToLocalTime().ToString("HH:mm:ss") + "  " + (d.KillingBlow is DamageEvent blow
+                    ? string.Format(loc["Details.KilledBy"], nameOf(blow.SourceObjectId) ?? loc["Details.Monster"], blow.Skill ?? "?", blow.Amount.ToString("N0"))
+                    : loc["Details.Died"])))
+                : loc["Details.NoDeath"];
+        }
     }
 }
