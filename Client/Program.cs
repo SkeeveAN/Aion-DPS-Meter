@@ -146,6 +146,19 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-overlay")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS render-overlay <out.png>");
+                Console.WriteLine("  Draws the compact overlay panel with sample rows into a picture; no window is shown.");
+                return;
+            }
+
+            RunRenderOverlayMode(args[1]);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-upload-dryrun")
         {
             if (args.Length < 2)
@@ -334,6 +347,55 @@ internal static class Program
         {
             Console.WriteLine($"  {source.Entities.NameFor(actor.Key) ?? actor.Key.ToString(),-22} damage {actor.Sum(e => e.Amount),9:N0}  hits {actor.Count(),4}");
         }
+    }
+
+    /// <summary>Renders the compact overlay panel with a few sample rows to a PNG, never showing a window.</summary>
+    private static void RunRenderOverlayMode(string path)
+    {
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        var window = new Ui.MainWindow();
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
+        var type = typeof(Ui.MainWindow);
+        var rows = (System.Collections.ObjectModel.ObservableCollection<Ui.PlayerRow>)type.GetField("_rows", flags)!.GetValue(window)!;
+        (string Name, string Cls, long Dmg, double Dps)[] sample =
+        {
+            ("Keraut", "Templar", 916_700, 8300), ("Boulenbouche", "Elementalist", 790_800, 7100), ("Lumy", "Sorcerer", 757_700, 6800),
+            ("Aurulio", "Sorcerer", 434_200, 3900), ("Butterfinger", "Cleric", 232_800, 2100),
+        };
+        long total = sample.Sum(x => x.Dmg);
+        int rank = 0;
+        foreach (var x in sample)
+        {
+            rows.Add(new Ui.PlayerRow(++rank) { Name = x.Name, ClassName = x.Cls, Damage = x.Dmg, Dps = x.Dps, SharePercent = 100.0 * x.Dmg / total, FillPercent = 100.0 * x.Dmg / sample[0].Dmg });
+        }
+
+        window.OverlayTargetText.Text = "Transcendent Bakarma";
+        window.OverlayTimeText.Text = "1:51";
+        window.OverlayModeText.Text = "DMG";
+        window.CompactOverlayPanel.Visibility = System.Windows.Visibility.Visible;
+        var panel = window.CompactOverlayPanel;
+        panel.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+        panel.Arrange(new System.Windows.Rect(panel.DesiredSize));
+        panel.UpdateLayout();
+        int w = (int)Math.Ceiling(panel.DesiredSize.Width), h = (int)Math.Ceiling(panel.DesiredSize.Height);
+        var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x30, 0x40, 0x30)) };
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        backdrop.Measure(new System.Windows.Size(w, h));
+        backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
+        bitmap.Render(backdrop);
+        bitmap.Render(panel);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-overlay: wrote " + path);
+        Environment.Exit(0);
     }
 
     /// <summary>Renders the Settings window's content (a tab of it) to a PNG without showing a window:

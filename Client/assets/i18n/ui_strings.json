@@ -1191,26 +1191,6 @@
     "tr": "Son hasardan 10 saniye veya daha sonra bir savaş başlarsa sayaç sıfırdan başlar. Önceki savaş o zamana kadar görünür ve geçmişte saklanır. Bitmemiş bir boss savaşında asla.",
     "zh": "当战斗在最后一次伤害 10 秒或更久之后开始时，统计从零开始。上一场战斗在此之前保持显示并保存在战斗记录中。未结束的首领战中绝不重置。"
   },
-  "Settings.PartyOnly": {
-    "en": "Only my party",
-    "de": "Nur meine Gruppe",
-    "fr": "Uniquement mon groupe",
-    "es": "Solo mi grupo",
-    "ru": "Только моя группа",
-    "pl": "Tylko moja drużyna",
-    "tr": "Yalnızca grubum",
-    "zh": "仅我的队伍"
-  },
-  "Settings.PartyOnly.Tooltip": {
-    "en": "Shows only you and the members of your party - nobody else around.",
-    "de": "Zeigt nur dich und die Mitglieder deiner Gruppe - sonst niemanden.",
-    "fr": "N'affiche que toi et les membres de ton groupe - personne d'autre autour.",
-    "es": "Muestra solo a ti y a los miembros de tu grupo, a nadie más.",
-    "ru": "Показывает только вас и членов вашей группы - больше никого.",
-    "pl": "Pokazuje tylko ciebie i członków twojej drużyny - nikogo więcej.",
-    "tr": "Yalnızca seni ve grubunun üyelerini gösterir - başka kimseyi değil.",
-    "zh": "只显示你和你的队伍成员——不显示周围的其他人。"
-  },
   "Settings.AutoReset.Seconds": {
     "en": "s out of combat",
     "de": "s außerhalb des Kampfes",
@@ -1390,5 +1370,35 @@
     "pl": "o każdej porze",
     "tr": "her zaman",
     "zh": "随时"
+  },
+  "Main.Scope.All": {
+    "en": "All",
+    "de": "Alle",
+    "fr": "Tous",
+    "es": "Todos",
+    "ru": "Все",
+    "pl": "Wszyscy",
+    "tr": "Hepsi",
+    "zh": "全部"
+  },
+  "Main.Scope.Group": {
+    "en": "Group",
+    "de": "Gruppe",
+    "fr": "Groupe",
+    "es": "Grupo",
+    "ru": "Группа",
+    "pl": "Grupa",
+    "tr": "Grup",
+    "zh": "小队"
+  },
+  "Main.Scope.Corps": {
+    "en": "Corps",
+    "de": "Korps",
+    "fr": "Corps",
+    "es": "Cuerpo",
+    "ru": "Корпус",
+    "pl": "Korpus",
+    "tr": "Birlik",
+    "zh": "军团"
   }
 }

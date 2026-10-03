@@ -448,8 +448,6 @@
                         <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,3"/>
                         <CheckBox x:Name="ShowTimetableBox" Content="{local:Loc Settings.ShowTimetable}" Margin="0,3"/>
                         <CheckBox x:Name="ShowBossHpBox" Content="{local:Loc Settings.ShowBossHp}" Margin="0,3"/>
-                        <CheckBox x:Name="PartyOnlyBox" Content="{local:Loc Settings.PartyOnly}" Margin="0,3"
-                                  ToolTip="{local:Loc Settings.PartyOnly.Tooltip}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,3">
                             <CheckBox x:Name="AutoResetBox" Content="{local:Loc Settings.AutoReset}" VerticalAlignment="Center" Margin="0"
                                       ToolTip="{local:Loc Settings.AutoReset.Tooltip}"/>

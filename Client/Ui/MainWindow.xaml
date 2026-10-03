@@ -711,6 +711,10 @@
                         <MenuItem x:Name="DamageModeItem" Header="{local:Loc Main.ModeDamage}" IsCheckable="True" IsChecked="True" Click="OnModeClicked"/>
                         <MenuItem x:Name="HealModeItem" Header="{local:Loc Main.ModeHeal}" IsCheckable="True" Click="OnModeClicked"/>
                         <MenuItem x:Name="TakenModeItem" Header="{local:Loc Main.ModeTaken}" IsCheckable="True" Click="OnModeClicked"/>
+                        <Separator/>
+                        <MenuItem x:Name="ScopeAllItem" Header="{local:Loc Main.Scope.All}" IsCheckable="True" Click="OnScopeMenuClicked"/>
+                        <MenuItem x:Name="ScopeGroupItem" Header="{local:Loc Main.Scope.Group}" IsCheckable="True" IsChecked="True" Click="OnScopeMenuClicked"/>
+                        <MenuItem x:Name="ScopeCorpsItem" Header="{local:Loc Main.Scope.Corps}" IsCheckable="True" Click="OnScopeMenuClicked"/>
                     </MenuItem>
                 </Menu>
 
@@ -1198,7 +1202,7 @@
              over a bar scaled to the leader. Unlike the chips it takes clicks (drag the header, the
              corner grip scales it, a line opens the player's skills); the window is transparent
              around it. Filled by UpdateCompactOverlay. -->
-        <Border x:Name="CompactOverlayPanel" Visibility="Collapsed" Width="320" HorizontalAlignment="Left" VerticalAlignment="Top"
+        <Border x:Name="CompactOverlayPanel" Visibility="Collapsed" Width="390" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Background="{DynamicResource Brush.OverlayBg}" CornerRadius="6" Padding="6,5">
             <Border.LayoutTransform>
                 <ScaleTransform x:Name="CompactOverlayScale" ScaleX="1" ScaleY="1"/>
@@ -1267,8 +1271,20 @@
                     <Ellipse x:Name="OverlayStateDot" Width="7" Height="7" Fill="Gray" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <TextBlock x:Name="OverlayTimeText" DockPanel.Dock="Right" Foreground="{DynamicResource Brush.Accent}"
                                FontSize="11" VerticalAlignment="Center" Margin="6,0,0,0"/>
-                    <TextBlock x:Name="OverlayTargetText" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
+                    <TextBlock x:Name="OverlayTargetText" DockPanel.Dock="Left" MaxWidth="100" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
                                FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                    <!-- What the rows show: everybody / my group / my corps (two parties together). -->
+                    <StackPanel x:Name="OverlayScopeSwitch" Orientation="Horizontal" Margin="8,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <Border x:Name="OverlayScopeAll" Tag="All" Padding="5,1" CornerRadius="3,0,0,3" Cursor="Hand" MouseLeftButtonDown="OnOverlayScopeClicked">
+                            <TextBlock FontSize="9" FontWeight="Bold" Text="{local:Loc Main.Scope.All}"/>
+                        </Border>
+                        <Border x:Name="OverlayScopeGroup" Tag="Group" Padding="5,1" Margin="1,0,0,0" Cursor="Hand" MouseLeftButtonDown="OnOverlayScopeClicked">
+                            <TextBlock FontSize="9" FontWeight="Bold" Text="{local:Loc Main.Scope.Group}"/>
+                        </Border>
+                        <Border x:Name="OverlayScopeCorps" Tag="Corps" Padding="5,1" Margin="1,0,0,0" CornerRadius="0,3,3,0" Cursor="Hand" MouseLeftButtonDown="OnOverlayScopeClicked">
+                            <TextBlock FontSize="9" FontWeight="Bold" Text="{local:Loc Main.Scope.Corps}"/>
+                        </Border>
+                    </StackPanel>
                 </DockPanel>
                 <!-- The fought boss's health (Settings: show the boss's health), with the HP check's verdict. -->
                 <Grid x:Name="OverlayHpBlock" Height="16" Margin="0,0,0,5" Visibility="Collapsed">
