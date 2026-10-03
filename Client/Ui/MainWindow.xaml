@@ -994,7 +994,7 @@
                      rows extending past their real edge ("heller Hintergrund wirkt höher"). The
                      alternating RowBackground/AlternatingRowBackground colors already separate one
                      player's row from the next without it. -->
-                <DataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="OnPlayersGridDoubleClick"
+                <local:QuietDataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="OnPlayersGridDoubleClick"
                           Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}" AlternatingRowBackground="{DynamicResource Brush.Panel}"
                           BorderBrush="{DynamicResource Brush.Border}"
                           GridLinesVisibility="None" HeadersVisibility="None" CanUserAddRows="False">
@@ -1151,7 +1151,7 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
-                </DataGrid>
+                </local:QuietDataGrid>
 
             </DockPanel>
 
@@ -1193,7 +1193,7 @@
              "Name: Damage dmg (DPS)" text line, so switching modes doesn't also change what
              information is visible. It's the same content minus the window chrome (title bar,
              menu, toolbar, column headers, borders), not a different view. -->
-        <ItemsControl x:Name="OverlayContent" Visibility="Collapsed" Background="Transparent"
+        <local:QuietItemsControl x:Name="OverlayContent" Visibility="Collapsed" Background="Transparent"
                       HorizontalAlignment="Left" VerticalAlignment="Top">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -1246,6 +1246,6 @@
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        </local:QuietItemsControl>
     </Grid>
 </Window>
