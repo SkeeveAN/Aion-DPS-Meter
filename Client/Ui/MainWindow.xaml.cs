@@ -829,7 +829,7 @@ public partial class MainWindow : Window
                 ? ShownFightHits(damageOnly, targetId)
                 : RestrictToEngagedTargets(damageOnly.ToList());
 
-        _corpsIds = _scope == MeterScope.Corps ? ComputeCorps(filtered) : new HashSet<int>();
+        _corpsIds = _scope != MeterScope.All ? ComputeCorps(filtered) : new HashSet<int>();
 
         // A pure healer never hit the selected target, so `filtered` holds none of their events, yet
         // they belong in the list (and in an upload's roster). Heals inside the shown window by
@@ -972,7 +972,23 @@ public partial class MainWindow : Window
             return true;
         }
 
+        // No roster seen (the meter started after the group formed; the roster is sent once): the
+        // group is unknown, and "only me" would be wrong - until it is read, the group is whoever
+        // fights the same monsters.
+        bool groupKnown = RosterKnown(directory);
+        if (_scope == MeterScope.Group && !groupKnown)
+        {
+            return _corpsIds.Contains(sourceId);
+        }
+
         return IsGroupMember(sourceId, directory) || (_scope == MeterScope.Corps && _corpsIds.Contains(sourceId));
+    }
+
+    /// <summary>Whether a party roster naming anyone besides the local player has been read.</summary>
+    private bool RosterKnown(Aion2.Aion2EntityDirectory directory)
+    {
+        string? own = directory.LocalCharacter?.Name;
+        return directory.PartyNames.Any(n => n != own);
     }
 
     private bool IsGroupMember(int id, Aion2.Aion2EntityDirectory directory)

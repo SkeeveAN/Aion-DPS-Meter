@@ -23,6 +23,15 @@ public sealed class Aion2HitPoints
     private readonly Dictionary<int, Track> _tracks = new();
     private readonly object _gate = new();
 
+    /// <summary>The entities a hit-point reading exists for, and how many readings each has.</summary>
+    public IReadOnlyDictionary<int, int> ReadingCounts()
+    {
+        lock (_gate)
+        {
+            return _tracks.ToDictionary(kv => kv.Key, kv => kv.Value.Samples.Count);
+        }
+    }
+
     public void Note(int entityId, DateTime at, long hp)
     {
         lock (_gate)

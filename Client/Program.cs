@@ -677,6 +677,20 @@ internal static class Program
             }
         }
 
+        if (source.Entities is Aion2.Aion2EntityDirectory partyDirectory && Environment.GetEnvironmentVariable("AION2_PARTY") is { Length: > 0 })
+        {
+            // Who the meter thinks is in the party, and for which players the server reports hit points.
+            Console.WriteLine("party roster: " + string.Join(", ", partyDirectory.PartyNames));
+            foreach ((int id, int readings) in partyDirectory.HitPoints.ReadingCounts().OrderByDescending(kv => kv.Value))
+            {
+                if (partyDirectory.IsKnownPlayer(id))
+                {
+                    string pname = partyDirectory.NameFor(id) ?? id.ToString();
+                    Console.WriteLine($"  hp readings for player {pname,-18} id {id,6}: {readings,5}  inRoster={partyDirectory.PartyNames.Contains(pname)} local={partyDirectory.IsLocalPlayer(id)}");
+                }
+            }
+        }
+
         if (source.Entities is Aion2.Aion2EntityDirectory directory)
         {
             Console.WriteLine("aion2-replay: " + directory.Describe());
