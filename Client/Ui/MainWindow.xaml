@@ -969,6 +969,12 @@
                         <!-- Quiet result line for the two upload actions (Session menu + the Damage
                              view's Upload button) - same reasoning as UpdateNotice above: this window
                              sits on top of a running fight, so a result never pops a modal dialog. -->
+                        <!-- Guard against wrong totals (Aion 2): the selected target's damage held
+                             against the hit points the server says it lost - see UpdateHpCheck. -->
+                        <TextBlock x:Name="HpCheckText" Visibility="Collapsed" VerticalAlignment="Center"
+                                   Margin="8,0,8,0" Foreground="{DynamicResource Brush.TextMuted}"
+                                   ToolTip="{local:Loc Main.HpCheck.Tooltip}"/>
+
                         <TextBlock x:Name="UploadStatusText" Visibility="Collapsed" VerticalAlignment="Center"
                                    Margin="8,0,8,0" Foreground="{DynamicResource Brush.TextMuted}"/>
 

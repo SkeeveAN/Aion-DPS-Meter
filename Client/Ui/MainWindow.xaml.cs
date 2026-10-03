@@ -112,6 +112,13 @@ public partial class MainWindow : Window
     private bool _showShareBars = true;
     private bool _compactOverlay;
     private bool _showBossHp;
+    private bool _autoReset = true;
+    private bool _partyOnly = true;
+    private HpCheckResult? _lastHpCheck;
+
+    /// <summary>Silence after which the next damage starts a new fight (MeterSettings.AutoReset and
+    /// AutoResetSeconds).</summary>
+    private TimeSpan _autoResetIdle = TimeSpan.FromSeconds(10);
 
     /// <summary>What the rows show: damage dealt, healing done, or damage taken (with deaths) -
     /// the Mode menu, the compact overlay's badge or the mode hotkey go round the three.</summary>
@@ -289,6 +296,9 @@ public partial class MainWindow : Window
         _showShareBars = settings.ShowShareBars;
         _showDamageTaken = settings.ShowDamageTaken;
         _showBossHp = settings.ShowBossHp;
+        _autoReset = settings.AutoReset;
+        _autoResetIdle = TimeSpan.FromSeconds(Math.Clamp(settings.AutoResetSeconds, 1, 600));
+        _partyOnly = settings.PartyOnly;
         _compactOverlay = string.Equals(settings.OverlayStyle, "Compact", StringComparison.OrdinalIgnoreCase);
         SetCompactOverlayScale(settings.OverlayScale);
         // Both overlay looks paint their dark backgrounds with this brush (DynamicResource); the
@@ -465,6 +475,12 @@ public partial class MainWindow : Window
         _kills.AddRange(batch.Kills);
         NoteBossKills(batch.Kills);
         IReadOnlyList<DamageEvent> events = batch.Damage;
+        if (_autoReset && !_historyMode && (StartsNewFight(events) || StartsNewBossPull(events)))
+        {
+            // Files the finished fight in the history, then starts from zero.
+            ClearDamageData();
+        }
+
         if (events.Count > 0 || batch.Avoids.Count > 0 || batch.Kills.Count > 0)
         {
             if (events.Count > 0)
@@ -479,12 +495,87 @@ public partial class MainWindow : Window
             }
         }
 
+        // Once a second, an always-on-top meter goes back to the front: a borderless full-screen
+        // game can take the front of the topmost band when it gets the focus back.
+        if (Topmost && IsVisible)
+        {
+            NativeOverlay.KeepOnTop(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+        }
+
         // Every five seconds is plenty: a fight only counts as finished 120 s after its last hit.
         if (++_historyTickCounter >= 5)
         {
             _historyTickCounter = 0;
             RecordFinishedFights(flushAll: false);
         }
+    }
+
+    /// <summary>
+    /// Whether this batch's first damage comes <see cref="_autoResetIdle"/> or more after the last
+    /// damage on record - by the events' own times, so a replay behaves like the live game. Never
+    /// while a boss fight is unfinished (a boss seen hurt but alive): a phase where nobody can hit
+    /// it must not cut it in two. A wipe resets the boss to full health, which ends that fight.
+    /// </summary>
+    private bool StartsNewFight(IReadOnlyList<DamageEvent> batch)
+    {
+        DateTime? first = null;
+        foreach (DamageEvent ev in batch)
+        {
+            if (!ev.IsHeal && (first is null || ev.Timestamp < first))
+            {
+                first = ev.Timestamp;
+            }
+        }
+
+        if (first is not DateTime start)
+        {
+            return false;
+        }
+
+        IReadOnlyList<DamageEvent> recorded = _aggregator.Events;
+        DateTime? last = null;
+        for (int i = recorded.Count - 1; i >= 0; i--)
+        {
+            if (!recorded[i].IsHeal)
+            {
+                last = recorded[i].Timestamp;
+                break;
+            }
+        }
+
+        return last is DateTime end && start - end >= _autoResetIdle && !BossFightUnfinished();
+    }
+
+    /// <summary>
+    /// The first hit on a boss (or on a boss reset to full health by a wipe) starts the meter from
+    /// zero: the trash before it is filed in the history and the fight on screen is the pull. See
+    /// <see cref="BossFight.StartsNewPull"/>.
+    /// </summary>
+    private bool StartsNewBossPull(IReadOnlyList<DamageEvent> batch) =>
+        _source?.Entities is Aion2.Aion2EntityDirectory directory
+        && BossFight.StartsNewPull(batch, _aggregator.Events,
+            id => directory.BossNpcIdOf(id) is not null,
+            id => directory.HitPoints.ResetsOf(id) is { Count: > 0 } resets ? resets[^1] : null,
+            id => BossFightUnfinished(except: id));
+
+    private bool BossFightUnfinished(int? except = null)
+    {
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory directory)
+        {
+            return false;
+        }
+
+        foreach ((int entityId, _) in directory.KnownBosses())
+        {
+            if (entityId != except && directory.HitPoints.Latest(entityId) is { } hp && hp.Hp > 0
+                && hp.Hp < (directory.HitPoints.HighestSeen(entityId) ?? 0) * 0.99
+                && _aggregator.Events.Any(ev => !ev.IsHeal && ev.TargetObjectId == entityId))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void InitializeFightHistory(MeterSettings settings)
@@ -708,9 +799,7 @@ public partial class MainWindow : Window
         var filtered = _pvpOnly
             ? damageOnly.Where(ev => IsPlayerName(ev.TargetObjectId)).ToList()
             : _selectedTargetId is int targetId
-                ? damageOnly.Where(ev => ev.TargetObjectId == targetId
-                        && (_selectedRunWindowStart is not DateTime rs || (ev.Timestamp >= rs && ev.Timestamp <= _selectedRunWindowEnd)))
-                    .ToList()
+                ? ShownFightHits(damageOnly, targetId)
                 : RestrictToEngagedTargets(damageOnly.ToList());
 
         // A pure healer never hit the selected target, so `filtered` holds none of their events, yet
@@ -725,6 +814,7 @@ public partial class MainWindow : Window
         {
             RefreshHealRows(filteredSpan);
             RankRows();
+            UpdateHpCheck(OnSelectedTarget(filtered));
             UpdateCompactOverlay(filtered);
             return;
         }
@@ -733,6 +823,7 @@ public partial class MainWindow : Window
         {
             RefreshTakenRows(filteredSpan);
             RankRows();
+            UpdateHpCheck(OnSelectedTarget(filtered));
             UpdateCompactOverlay(filtered);
             return;
         }
@@ -768,6 +859,8 @@ public partial class MainWindow : Window
             sourceIds = sourceIds.Where(id => ResolveClassName(id) == classFilter).ToList();
         }
 
+        sourceIds = sourceIds.Where(IsShownAsPartyMember).ToList();
+
         foreach (int staleId in _rowsByObjectId.Keys.Except(sourceIds).ToList())
         {
             _rows.Remove(_rowsByObjectId[staleId]);
@@ -800,7 +893,7 @@ public partial class MainWindow : Window
             row.Dps = _pvpOnly
                 ? DpsCalculator.AllDpsWallClock(filtered, sourceId)
                 : _selectedTargetId is int t
-                    ? DpsCalculator.TargetIDps(filtered, t, sourceId)
+                    ? BossFight.Dps(filtered, t, sourceId)
                     : DpsCalculator.AllDpsWallClock(_aggregator.Events, sourceId);
             row.DamageTaken = damageTakenById.GetValueOrDefault(sourceId);
             row.Deaths = 0;
@@ -813,7 +906,85 @@ public partial class MainWindow : Window
         // Rank and share are relative to what is on screen, so they are settled once every row's
         // damage for this refresh is known - and by damage, not by the grid's current sort order.
         RankRows();
+        UpdateHpCheck(OnSelectedTarget(filtered));
         UpdateCompactOverlay(filtered);
+    }
+
+    /// <summary>
+    /// The hits shown for the selected target and run: for a boss, the boss and its adds over the
+    /// boss fight (see <see cref="BossFight.ShownHits"/>); for anything else, that target alone.
+    /// </summary>
+    private List<DamageEvent> ShownFightHits(IEnumerable<DamageEvent> damage, int targetId)
+    {
+        var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
+        return BossFight.ShownHits(damage, targetId, _selectedRunWindowStart, _selectedRunWindowEnd,
+            id => directory?.BossNpcIdOf(id) is not null,
+            id => directory?.IsKnownMonster(id) == true);
+    }
+
+    /// <summary>The shown hits that landed on the selected target itself (the boss without its
+    /// adds) - what its hit points are held against.</summary>
+    private IReadOnlyList<DamageEvent> OnSelectedTarget(IReadOnlyList<DamageEvent> shown) =>
+        _selectedTargetId is int id ? shown.Where(ev => ev.TargetObjectId == id).ToList() : shown;
+
+    /// <summary>
+    /// The "only my party" filter (Settings, on by default): the local player and the players the
+    /// party roster names, nobody else - no stranger around in the open world, named or not yet.
+    /// Before the first roster frame (a few seconds after joining) that is the local player alone.
+    /// PvP shows everyone: the opponents are the point there.
+    /// </summary>
+    private bool IsShownAsPartyMember(int sourceId)
+    {
+        if (!_partyOnly || _pvpOnly || _source?.Entities is not Aion2.Aion2EntityDirectory directory
+            || directory.IsLocalPlayer(sourceId) || directory.InferLocalPlayer() == sourceId)
+        {
+            return true;
+        }
+
+        string name = ResolveDisplayName(sourceId);
+        return directory.PartyNames.Contains(name) || name == directory.LocalCharacter?.Name;
+    }
+
+    /// <summary>
+    /// The status row's guard against wrong totals: for the selected target (one run of it), the
+    /// damage counted held against the hit points the server says it lost - see
+    /// <see cref="HpCheck"/>. Shown only where the source reports hit points (Aion 2) and a target
+    /// is selected; a mismatch is spelled out in the warning colour rather than left for the
+    /// numbers above it to be trusted.
+    /// </summary>
+    private void UpdateHpCheck(IReadOnlyList<DamageEvent> targetHits)
+    {
+        HpCheckResult? check = null;
+        if (!_pvpOnly && _selectedTargetId is int targetId && targetHits.Count > 0
+            && _source?.Entities is Aion2.Aion2EntityDirectory directory && !directory.IsKnownPlayer(targetId))
+        {
+            DateTime start = targetHits.Min(h => h.Timestamp);
+            DateTime end = targetHits.Max(h => h.Timestamp);
+            var readings = directory.HitPoints.SamplesAround(targetId, start, end).Select(s => (s.At, s.Hp)).ToList();
+            check = HpCheck.Evaluate(readings, targetHits, directory.HitPoints.HighestSeen(targetId) ?? 0);
+        }
+
+        _lastHpCheck = check;
+        if (check is null)
+        {
+            HpCheckText.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var loc = LocalizationManager.Instance;
+        string percent = check.Ratio.ToString("P1", CultureInfo.CurrentCulture);
+        bool warn = check.OverFullHealth || check.Verdict != HpCheckVerdict.Match;
+        HpCheckText.Text = check.OverFullHealth
+            ? string.Format(loc["Main.HpCheck.OverFull"], check.RunTotal.ToString("N0"), check.Highest.ToString("N0"))
+            : check.Verdict switch
+            {
+                HpCheckVerdict.Missing => string.Format(loc["Main.HpCheck.Missing"], percent, check.Lost.ToString("N0")),
+                HpCheckVerdict.Excess => string.Format(loc["Main.HpCheck.Excess"], percent, check.Lost.ToString("N0")),
+                _ => string.Format(loc["Main.HpCheck.Match"], percent, check.Lost.ToString("N0")),
+            };
+        HpCheckText.SetResourceReference(TextBlock.ForegroundProperty, warn ? "Brush.Warning" : "Brush.TextMuted");
+        HpCheckText.FontWeight = warn ? FontWeights.Bold : FontWeights.Normal;
+        HpCheckText.Visibility = Visibility.Visible;
     }
 
     private void RankRows()
@@ -850,6 +1021,8 @@ public partial class MainWindow : Window
         {
             sourceIds = sourceIds.Where(id => ResolveClassName(id) == classFilter).ToList();
         }
+
+        sourceIds = sourceIds.Where(IsShownAsPartyMember).ToList();
 
         foreach (int staleId in _rowsByObjectId.Keys.Except(sourceIds).ToList())
         {
@@ -902,6 +1075,8 @@ public partial class MainWindow : Window
         {
             targetIds = targetIds.Where(id => ResolveClassName(id) == classFilter).ToList();
         }
+
+        targetIds = targetIds.Where(IsShownAsPartyMember).ToList();
 
         foreach (int staleId in _rowsByObjectId.Keys.Except(targetIds).ToList())
         {

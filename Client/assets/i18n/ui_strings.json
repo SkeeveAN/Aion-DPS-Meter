@@ -1120,5 +1120,105 @@
     "pl": "Obrażenia / leczenie",
     "tr": "Hasar / iyileştirme",
     "zh": "伤害 / 治疗"
+  },
+  "Main.HpCheck.Match": {
+    "en": "HP check: {0} of the {1} HP lost counted ✓",
+    "de": "LP-Prüfung: {0} der {1} verlorenen LP gezählt ✓",
+    "fr": "Contrôle PV : {0} des {1} PV perdus comptés ✓",
+    "es": "Control de PV: {0} de los {1} PV perdidos contados ✓",
+    "ru": "Проверка ОЗ: учтено {0} из {1} потерянных ОЗ ✓",
+    "pl": "Kontrola PŻ: policzono {0} z {1} utraconych PŻ ✓",
+    "tr": "Can kontrolü: kaybedilen {1} canın {0} kadarı sayıldı ✓",
+    "zh": "生命值核对：已计入损失的 {1} 生命值中的 {0} ✓"
+  },
+  "Main.HpCheck.Missing": {
+    "en": "⚠ HP check: only {0} of the {1} HP lost counted - hits are missing",
+    "de": "⚠ LP-Prüfung: nur {0} der {1} verlorenen LP gezählt - Treffer fehlen",
+    "fr": "⚠ Contrôle PV : seulement {0} des {1} PV perdus comptés - des coups manquent",
+    "es": "⚠ Control de PV: solo {0} de los {1} PV perdidos contados - faltan golpes",
+    "ru": "⚠ Проверка ОЗ: учтено лишь {0} из {1} потерянных ОЗ - часть ударов пропущена",
+    "pl": "⚠ Kontrola PŻ: policzono tylko {0} z {1} utraconych PŻ - brakuje trafień",
+    "tr": "⚠ Can kontrolü: kaybedilen {1} canın yalnızca {0} kadarı sayıldı - eksik vuruşlar var",
+    "zh": "⚠ 生命值核对：损失的 {1} 生命值仅计入 {0} - 有攻击未统计"
+  },
+  "Main.HpCheck.Excess": {
+    "en": "⚠ HP check: {0} of the {1} HP lost counted - the totals are too high",
+    "de": "⚠ LP-Prüfung: {0} der {1} verlorenen LP gezählt - die Summen sind zu hoch",
+    "fr": "⚠ Contrôle PV : {0} des {1} PV perdus comptés - les totaux sont trop élevés",
+    "es": "⚠ Control de PV: {0} de los {1} PV perdidos contados - los totales son demasiado altos",
+    "ru": "⚠ Проверка ОЗ: учтено {0} от {1} потерянных ОЗ - итоги завышены",
+    "pl": "⚠ Kontrola PŻ: policzono {0} z {1} utraconych PŻ - sumy są za wysokie",
+    "tr": "⚠ Can kontrolü: kaybedilen {1} canın {0} kadarı sayıldı - toplamlar fazla yüksek",
+    "zh": "⚠ 生命值核对：损失的 {1} 生命值计入了 {0} - 总数偏高"
+  },
+  "Main.HpCheck.OverFull": {
+    "en": "⚠ HP check: {0} damage counted against a target with {1} HP - these totals are wrong",
+    "de": "⚠ LP-Prüfung: {0} Schaden gezählt gegen ein Ziel mit {1} LP - diese Summen sind falsch",
+    "fr": "⚠ Contrôle PV : {0} dégâts comptés sur une cible de {1} PV - ces totaux sont faux",
+    "es": "⚠ Control de PV: {0} de daño contado contra un objetivo de {1} PV - estos totales son erróneos",
+    "ru": "⚠ Проверка ОЗ: учтено {0} урона по цели с {1} ОЗ - эти итоги неверны",
+    "pl": "⚠ Kontrola PŻ: policzono {0} obrażeń przeciw celowi z {1} PŻ - te sumy są błędne",
+    "tr": "⚠ Can kontrolü: {1} canlı bir hedefe {0} hasar sayıldı - bu toplamlar yanlış",
+    "zh": "⚠ 生命值核对：对 {1} 生命值的目标计入了 {0} 伤害 - 这些总数有误"
+  },
+  "Main.HpCheck.Tooltip": {
+    "en": "The damage counted against this target, compared with the hit points the game server says it lost. A match means every hit was seen and none was counted twice.",
+    "de": "Der gegen dieses Ziel gezählte Schaden, verglichen mit den LP, die es laut Spielserver verloren hat. Stimmt es überein, wurde jeder Treffer erfasst und keiner doppelt gezählt.",
+    "fr": "Les dégâts comptés sur cette cible, comparés aux PV qu'elle a perdus selon le serveur du jeu. S'ils correspondent, chaque coup a été vu et aucun n'a été compté deux fois.",
+    "es": "El daño contado contra este objetivo, comparado con los PV que perdió según el servidor del juego. Si coinciden, se vio cada golpe y ninguno se contó dos veces.",
+    "ru": "Урон, учтённый по этой цели, в сравнении с ОЗ, которые она потеряла по данным игрового сервера. Совпадение означает, что каждый удар учтён и ни один не посчитан дважды.",
+    "pl": "Obrażenia policzone przeciw temu celowi w porównaniu z PŻ, które według serwera gry utracił. Zgodność oznacza, że każde trafienie zostało zauważone i żadne nie liczy się podwójnie.",
+    "tr": "Bu hedefe karşı sayılan hasar, oyun sunucusuna göre kaybettiği canla karşılaştırılır. Eşleşme, her vuruşun görüldüğü ve hiçbirinin iki kez sayılmadığı anlamına gelir.",
+    "zh": "对该目标统计的伤害与游戏服务器报告的其损失的生命值相比较。一致表示每次攻击都已记录且没有重复计算。"
+  },
+  "Settings.AutoReset": {
+    "en": "Reset after",
+    "de": "Zurücksetzen nach",
+    "fr": "Remise à zéro après",
+    "es": "Reiniciar tras",
+    "ru": "Сброс через",
+    "pl": "Reset po",
+    "tr": "Sıfırla:",
+    "zh": "脱战后重置："
+  },
+  "Settings.AutoReset.Tooltip": {
+    "en": "When a fight starts the set number of seconds or more after the last damage, the meter starts from zero. The previous fight stays on screen until then and is kept in the fight history. Never during an unfinished boss fight.",
+    "de": "Beginnt ein Kampf der eingestellten Zahl an Sekunden oder mehr nach dem letzten Schaden, beginnt das Meter bei null. Der vorige Kampf bleibt bis dahin sichtbar und wird im Kampfverlauf gespeichert. Nie während eines unbeendeten Bosskampfs.",
+    "fr": "Quand un combat commence le nombre de secondes choisi ou plus après les derniers dégâts, le meter repart de zéro. Le combat précédent reste affiché jusque-là et est gardé dans l'historique. Jamais pendant un combat de boss inachevé.",
+    "es": "Cuando un combate empieza los segundos elegidos o más después del último daño, el medidor vuelve a cero. El combate anterior se ve hasta entonces y queda en el historial. Nunca durante un combate de jefe sin terminar.",
+    "ru": "Если бой начинается через 10 секунд или позже после последнего урона, счётчик начинает с нуля. Предыдущий бой виден до этого момента и сохраняется в истории. Никогда во время незавершённого боя с боссом.",
+    "pl": "Gdy walka zaczyna się 10 sekund lub później po ostatnich obrażeniach, licznik zaczyna od zera. Poprzednia walka jest widoczna do tego czasu i zostaje w historii. Nigdy podczas niezakończonej walki z bossem.",
+    "tr": "Son hasardan 10 saniye veya daha sonra bir savaş başlarsa sayaç sıfırdan başlar. Önceki savaş o zamana kadar görünür ve geçmişte saklanır. Bitmemiş bir boss savaşında asla.",
+    "zh": "当战斗在最后一次伤害 10 秒或更久之后开始时，统计从零开始。上一场战斗在此之前保持显示并保存在战斗记录中。未结束的首领战中绝不重置。"
+  },
+  "Settings.PartyOnly": {
+    "en": "Only my party",
+    "de": "Nur meine Gruppe",
+    "fr": "Uniquement mon groupe",
+    "es": "Solo mi grupo",
+    "ru": "Только моя группа",
+    "pl": "Tylko moja drużyna",
+    "tr": "Yalnızca grubum",
+    "zh": "仅我的队伍"
+  },
+  "Settings.PartyOnly.Tooltip": {
+    "en": "Shows only you and the members of your party - nobody else around.",
+    "de": "Zeigt nur dich und die Mitglieder deiner Gruppe - sonst niemanden.",
+    "fr": "N'affiche que toi et les membres de ton groupe - personne d'autre autour.",
+    "es": "Muestra solo a ti y a los miembros de tu grupo, a nadie más.",
+    "ru": "Показывает только вас и членов вашей группы - больше никого.",
+    "pl": "Pokazuje tylko ciebie i członków twojej drużyny - nikogo więcej.",
+    "tr": "Yalnızca seni ve grubunun üyelerini gösterir - başka kimseyi değil.",
+    "zh": "只显示你和你的队伍成员——不显示周围的其他人。"
+  },
+  "Settings.AutoReset.Seconds": {
+    "en": "s out of combat",
+    "de": "s außerhalb des Kampfes",
+    "fr": "s hors combat",
+    "es": "s fuera de combate",
+    "ru": "с вне боя",
+    "pl": "s poza walką",
+    "tr": "sn savaş dışında",
+    "zh": "秒"
   }
 }

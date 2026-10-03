@@ -110,6 +110,18 @@ public sealed class MeterSettings
     /// <summary>The boss's health bar in the compact overlay (current / full, %, HP check mark).</summary>
     public bool ShowBossHp { get; set; }
 
+    /// <summary>Start from zero when a fight begins after <see cref="AutoResetSeconds"/> without any
+    /// damage, or when a boss is pulled: the meter shows the current fight, the previous one is kept
+    /// in the fight history.</summary>
+    public bool AutoReset { get; set; } = true;
+
+    /// <summary>Seconds without damage after which the next fight starts from zero (1 to 600).</summary>
+    public int AutoResetSeconds { get; set; } = 10;
+
+    /// <summary>Only the local player and the players on the party roster in the rows - no stranger
+    /// around in the open world.</summary>
+    public bool PartyOnly { get; set; } = true;
+
     /// <summary>Goes round damage, healing and damage taken (see MainWindow.NextMode).</summary>
     public string HotkeyMode { get; set; } = "Ctrl+Alt+M";
 

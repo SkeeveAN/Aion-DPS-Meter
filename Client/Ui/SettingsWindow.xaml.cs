@@ -45,6 +45,9 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyUploadBossBox, HotkeyBinding.Parse(settings.HotkeyUploadBoss).ToString());
         SetHotkeyBox(HotkeyModeBox, HotkeyBinding.Parse(settings.HotkeyMode).ToString());
         ShowBossHpBox.IsChecked = settings.ShowBossHp;
+        AutoResetBox.IsChecked = settings.AutoReset;
+        AutoResetSecondsBox.Text = Math.Clamp(settings.AutoResetSeconds, 1, 600).ToString();
+        PartyOnlyBox.IsChecked = settings.PartyOnly;
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         SelectComboItem(OverlayStyleBox, settings.OverlayStyle);
@@ -93,6 +96,9 @@ public partial class SettingsWindow : Window
     /// as "Dunkel"/"Ciemny"/... depending on the current GUI language), while Tag stays the fixed,
     /// language-independent value ("Dark") that MeterSettings actually stores -- see
     /// ThemeBox's/FontSizeBox's XAML.</summary>
+    private void OnDigitsOnly(object sender, System.Windows.Input.TextCompositionEventArgs e) =>
+        e.Handled = !e.Text.All(char.IsDigit);
+
     private static void SelectComboItem(ComboBox box, string tag)
     {
         foreach (var item in box.Items)
@@ -267,6 +273,9 @@ public partial class SettingsWindow : Window
         _settings.HotkeyUploadBoss = (string?)HotkeyUploadBossBox.Tag ?? "";
         _settings.HotkeyMode = (string?)HotkeyModeBox.Tag ?? "";
         _settings.ShowBossHp = ShowBossHpBox.IsChecked ?? false;
+        _settings.AutoReset = AutoResetBox.IsChecked ?? true;
+        _settings.AutoResetSeconds = int.TryParse(AutoResetSecondsBox.Text, out int seconds) ? Math.Clamp(seconds, 1, 600) : 10;
+        _settings.PartyOnly = PartyOnlyBox.IsChecked ?? true;
         _settings.AutoUploadBoss = AutoUploadBossBox.IsChecked ?? false;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;

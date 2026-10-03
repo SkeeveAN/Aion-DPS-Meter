@@ -22,6 +22,27 @@ internal sealed class NativeOverlay : IDisposable
     [DllImport("user32.dll")]
     private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
+    [DllImport("user32.dll")]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
+
+    private static readonly IntPtr HwndTopmost = new(-1);
+    private const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
+
+    /// <summary>
+    /// Puts an always-on-top window back at the front of the topmost band. A game in borderless
+    /// full screen can bring itself to the front of that band when it takes the focus back, and
+    /// the meter then sat behind it until switched off and on. No move, no resize, no activation:
+    /// the game keeps the keyboard. (An exclusive full-screen game shows no other window at all;
+    /// only its windowed or borderless mode lets an overlay through.)
+    /// </summary>
+    public static void KeepOnTop(IntPtr hwnd)
+    {
+        if (hwnd != IntPtr.Zero)
+        {
+            SetWindowPos(hwnd, HwndTopmost, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate);
+        }
+    }
+
     private const int WM_DWMSENDICONICTHUMBNAIL = 0x0323;
     private const int WM_DWMSENDICONICLIVEPREVIEWBITMAP = 0x0326;
     private const int DWMWA_FORCE_ICONIC_REPRESENTATION = 7;
