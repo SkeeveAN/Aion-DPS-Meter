@@ -22,7 +22,29 @@ internal sealed class NativeOverlay : IDisposable
     [DllImport("user32.dll")]
     private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
+    private const int WM_DWMSENDICONICTHUMBNAIL = 0x0323;
+    private const int WM_DWMSENDICONICLIVEPREVIEWBITMAP = 0x0326;
+    private const int DWMWA_FORCE_ICONIC_REPRESENTATION = 7;
+    private const int DWMWA_HAS_ICONIC_BITMAP = 10;
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetIconicThumbnail(IntPtr hwnd, IntPtr hbmp, uint flags);
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetIconicLivePreviewBitmap(IntPtr hwnd, IntPtr hbmp, IntPtr ptClient, uint flags);
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmInvalidateIconicBitmaps(IntPtr hwnd);
+
+    [DllImport("gdi32.dll")]
+    private static extern bool DeleteObject(IntPtr hObject);
+
     private readonly IntPtr _handle;
+    private HwndSource? _source;
+    private Func<int, int, System.Drawing.Bitmap?>? _renderPreview;
 
     /// <summary>Window must already be shown (have a native handle) before constructing this.</summary>
     public NativeOverlay(Window window)
@@ -34,6 +56,75 @@ internal sealed class NativeOverlay : IDisposable
         }
     }
 
+    /// <summary>
+    /// While the window is click-through and transparent (Hide UI) Windows has nothing to show for it
+    /// in Alt+Tab and the taskbar preview - an empty dark tile. With a renderer, the window instead
+    /// hands Windows its own picture (<c>DwmSetIconicThumbnail</c>) of what the overlay shows, drawn
+    /// on request at the size Windows asks for. Without one (null) the normal live preview returns.
+    /// </summary>
+    public void SetIconicPreview(Func<int, int, System.Drawing.Bitmap?>? render)
+    {
+        _renderPreview = render;
+        int on = render is null ? 0 : 1;
+        DwmSetWindowAttribute(_handle, DWMWA_FORCE_ICONIC_REPRESENTATION, ref on, sizeof(int));
+        DwmSetWindowAttribute(_handle, DWMWA_HAS_ICONIC_BITMAP, ref on, sizeof(int));
+        if (render is not null && _source is null)
+        {
+            _source = HwndSource.FromHwnd(_handle);
+            _source?.AddHook(WndProc);
+        }
+
+        if (render is not null)
+        {
+            DwmInvalidateIconicBitmaps(_handle);
+        }
+    }
+
+    /// <summary>Tells Windows the picture is out of date; it asks for a new one the next time it needs it.</summary>
+    public void InvalidatePreview()
+    {
+        if (_renderPreview is not null)
+        {
+            DwmInvalidateIconicBitmaps(_handle);
+        }
+    }
+
+    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (_renderPreview is null || (msg != WM_DWMSENDICONICTHUMBNAIL && msg != WM_DWMSENDICONICLIVEPREVIEWBITMAP))
+        {
+            return IntPtr.Zero;
+        }
+
+        // For the thumbnail the high word of lParam is the largest width, the low word the largest
+        // height Windows will show; the live preview is wanted at the window's own size.
+        int maxWidth = msg == WM_DWMSENDICONICTHUMBNAIL ? (int)(((long)lParam >> 16) & 0xFFFF) : 0;
+        int maxHeight = msg == WM_DWMSENDICONICTHUMBNAIL ? (int)((long)lParam & 0xFFFF) : 0;
+        using System.Drawing.Bitmap? bitmap = _renderPreview(maxWidth, maxHeight);
+        if (bitmap is not null)
+        {
+            IntPtr hbitmap = bitmap.GetHbitmap(System.Drawing.Color.Black);
+            try
+            {
+                if (msg == WM_DWMSENDICONICTHUMBNAIL)
+                {
+                    DwmSetIconicThumbnail(_handle, hbitmap, 0);
+                }
+                else
+                {
+                    DwmSetIconicLivePreviewBitmap(_handle, hbitmap, IntPtr.Zero, 0);
+                }
+            }
+            finally
+            {
+                DeleteObject(hbitmap);
+            }
+        }
+
+        handled = true;
+        return IntPtr.Zero;
+    }
+
     public void SetClickThrough(bool enabled)
     {
         int style = GetWindowLong(_handle, GWL_EXSTYLE);
@@ -43,5 +134,6 @@ internal sealed class NativeOverlay : IDisposable
 
     public void Dispose()
     {
+        _source?.RemoveHook(WndProc);
     }
 }

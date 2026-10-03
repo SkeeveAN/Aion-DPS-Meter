@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -410,8 +411,18 @@ public partial class MainWindow : Window
         }
     }
 
+    private DateTime _lastPreviewInvalidate = DateTime.MinValue;
+
     private void OnPollTimerTick(object? sender, EventArgs e)
     {
+        // The Alt+Tab picture of the overlay (see RenderOverlayPreview) is redrawn on request; saying
+        // it is stale every couple of seconds keeps it close to what the overlay shows.
+        if (_hideUiActive && DateTime.UtcNow - _lastPreviewInvalidate > TimeSpan.FromSeconds(2))
+        {
+            _lastPreviewInvalidate = DateTime.UtcNow;
+            _overlay?.InvalidatePreview();
+        }
+
         CombatBatch batch = _source?.Poll(_paused) ?? CombatBatch.Empty;
         _avoids.AddRange(batch.Avoids);
         _kills.AddRange(batch.Kills);
@@ -2611,12 +2622,50 @@ public partial class MainWindow : Window
     /// right now, not a normal window" framing. Both are restored to whatever they were before the
     /// moment Hide UI is toggled back off, rather than forced permanently.
     /// </summary>
+    /// <summary>The picture Windows shows for the transparent overlay in Alt+Tab and the taskbar: the
+    /// overlay's chips on the theme's window colour, scaled to fit the size asked for (0 = actual size).</summary>
+    private System.Drawing.Bitmap? RenderOverlayPreview(int maxWidth, int maxHeight)
+    {
+        try
+        {
+            int width = Math.Max((int)Math.Ceiling(ActualWidth), 1);
+            int height = Math.Max((int)Math.Ceiling(ActualHeight), 1);
+            double scale = maxWidth > 0 && maxHeight > 0 ? Math.Min(Math.Min((double)maxWidth / width, (double)maxHeight / height), 1.0) : 1.0;
+            int outWidth = Math.Max((int)(width * scale), 1);
+            int outHeight = Math.Max((int)(height * scale), 1);
+
+            var visual = new DrawingVisual();
+            using (DrawingContext dc = visual.RenderOpen())
+            {
+                dc.PushTransform(new ScaleTransform(scale, scale));
+                dc.DrawRectangle((Brush)FindResource("Brush.Window"), null, new Rect(0, 0, width, height));
+                dc.DrawRectangle(new VisualBrush(OverlayContent) { Stretch = Stretch.None, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top },
+                    null, new Rect(0, 0, width, height));
+            }
+
+            var target = new RenderTargetBitmap(outWidth, outHeight, 96, 96, PixelFormats.Pbgra32);
+            target.Render(visual);
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(target));
+            using var stream = new MemoryStream();
+            encoder.Save(stream);
+            stream.Position = 0;
+            using var decoded = new System.Drawing.Bitmap(stream);
+            return new System.Drawing.Bitmap(decoded);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException or ExternalException or ResourceReferenceKeyNotFoundException)
+        {
+            return null;
+        }
+    }
+
     private void SetHideUi()
     {
         _hideUiActive = !_hideUiActive;
         NormalContent.Visibility = _hideUiActive ? Visibility.Collapsed : Visibility.Visible;
         OverlayContent.Visibility = _hideUiActive ? Visibility.Visible : Visibility.Collapsed;
         _overlay?.SetClickThrough(_hideUiActive);
+        _overlay?.SetIconicPreview(_hideUiActive ? RenderOverlayPreview : null);
 
         // Per the user: the corner resize-grip glyph (from the window's own
         // ResizeMode="CanResizeWithGrip", not anything drawn by NormalContent) stayed visible even
