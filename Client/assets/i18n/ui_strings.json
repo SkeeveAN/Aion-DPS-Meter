@@ -1220,5 +1220,75 @@
     "pl": "s poza walką",
     "tr": "sn savaş dışında",
     "zh": "秒"
+  },
+  "Details.Tile.Taken": {
+    "en": "TAKEN",
+    "de": "ERLITTEN",
+    "fr": "REÇUS",
+    "es": "RECIBIDO",
+    "ru": "ПОЛУЧЕНО",
+    "pl": "OTRZYMANE",
+    "tr": "ALINAN",
+    "zh": "承受"
+  },
+  "Details.Tile.Dtps": {
+    "en": "DTPS",
+    "de": "DTPS",
+    "fr": "DTPS",
+    "es": "DTPS",
+    "ru": "DTPS",
+    "pl": "DTPS",
+    "tr": "DTPS",
+    "zh": "DTPS"
+  },
+  "Details.Attacks": {
+    "en": "{0} attacks",
+    "de": "{0} Angriffe",
+    "fr": "{0} attaques",
+    "es": "{0} ataques",
+    "ru": "атак: {0}",
+    "pl": "{0} ataków",
+    "tr": "{0} saldırı",
+    "zh": "{0} 种攻击"
+  },
+  "Details.Monster": {
+    "en": "Monster",
+    "de": "Monster",
+    "fr": "Monstre",
+    "es": "Monstruo",
+    "ru": "Монстр",
+    "pl": "Potwór",
+    "tr": "Canavar",
+    "zh": "怪物"
+  },
+  "Details.KilledBy": {
+    "en": "killed by {0} - {1} ({2})",
+    "de": "getötet von {0} - {1} ({2})",
+    "fr": "tué par {0} - {1} ({2})",
+    "es": "muerto por {0} - {1} ({2})",
+    "ru": "убит: {0} - {1} ({2})",
+    "pl": "zabity przez {0} - {1} ({2})",
+    "tr": "{0} öldürdü - {1} ({2})",
+    "zh": "被 {0} 击杀 - {1} ({2})"
+  },
+  "Details.Died": {
+    "en": "died",
+    "de": "gestorben",
+    "fr": "mort",
+    "es": "muerto",
+    "ru": "погиб",
+    "pl": "zginął",
+    "tr": "öldü",
+    "zh": "死亡"
+  },
+  "Details.NoDeath": {
+    "en": "No death in this fight.",
+    "de": "Kein Tod in diesem Kampf.",
+    "fr": "Aucune mort dans ce combat.",
+    "es": "Ninguna muerte en este combate.",
+    "ru": "В этом бою без смертей.",
+    "pl": "Brak śmierci w tej walce.",
+    "tr": "Bu savaşta ölüm yok.",
+    "zh": "本场战斗无人死亡。"
   }
 }
