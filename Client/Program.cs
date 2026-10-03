@@ -749,9 +749,11 @@ internal static class Program
                     DateTime attemptStart = resets.Count > 0 ? resets[^1] : DateTime.MinValue;
                     var attemptHits = events.Where(e => !e.IsHeal && e.TargetObjectId == entityId && e.Timestamp >= attemptStart).ToList();
                     var readings = bossDirectory.HitPoints.SamplesAround(entityId, attemptStart, DateTime.MaxValue).Select(r => (r.At, r.Hp)).ToList();
-                    var check = Combat.HpCheck.Evaluate(readings, attemptHits, full);
+                    var ownHeals = events.Where(e => e.IsHeal && e.SourceObjectId == entityId && e.TargetObjectId == entityId && e.Timestamp >= attemptStart);
+                    var check = Combat.HpCheck.Evaluate(readings, attemptHits.Concat(ownHeals).ToList(), full);
                     Console.WriteLine($"aion2-replay:   hit points: max {full:N0}, {resets.Count} reset(s), last attempt {attemptHits.Sum(e => e.Amount):N0} damage counted"
-                        + (check is null ? "" : $"; HP lost {check.Lost:N0}, counted {check.Counted:N0} ({check.Ratio:P1}), killed {check.Killed}, verdict {check.Verdict}"));
+                        + (check is null ? "" : $"; HP lost {check.Lost:N0}, counted {check.Counted:N0} ({check.Ratio:P1}), killed {check.Killed}, verdict {check.Verdict}"
+                            + (check.Healed > 0 ? $", healed itself {check.Healed:N0}" : "")));
                 }
             }
         }

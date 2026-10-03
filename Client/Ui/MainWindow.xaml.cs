@@ -1083,6 +1083,12 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>A target's heals on itself between two moments - a boss healing itself by the hits it
+    /// takes (see Aion2FrameDecoder.DecodeVarintDot), which the HP check has to know about.</summary>
+    private IEnumerable<DamageEvent> OwnHeals(int targetId, DateTime start, DateTime end) =>
+        _aggregator.Events.Where(ev => ev.IsHeal && ev.SourceObjectId == targetId && ev.TargetObjectId == targetId
+            && ev.Timestamp >= start && ev.Timestamp <= end);
+
     /// <summary>
     /// The status row's guard against wrong totals: for the selected target (one run of it), the
     /// damage counted held against the hit points the server says it lost - see
@@ -1099,7 +1105,7 @@ public partial class MainWindow : Window
             DateTime start = targetHits.Min(h => h.Timestamp);
             DateTime end = targetHits.Max(h => h.Timestamp);
             var readings = directory.HitPoints.SamplesAround(targetId, start, end).Select(s => (s.At, s.Hp)).ToList();
-            check = HpCheck.Evaluate(readings, targetHits, directory.HitPoints.HighestSeen(targetId) ?? 0);
+            check = HpCheck.Evaluate(readings, targetHits.Concat(OwnHeals(targetId, start, end)).ToList(), directory.HitPoints.HighestSeen(targetId) ?? 0);
         }
 
         _lastHpCheck = check;
@@ -3535,7 +3541,7 @@ public partial class MainWindow : Window
         double percent = 100.0 * hp / highest;
         OverlayHpBar.Value = percent;
         OverlayHpText.Text = $"{PlayerRow.Compact(hp)} / {PlayerRow.Compact(highest)} · {percent.ToString("0", CultureInfo.CurrentCulture)}%";
-        HpCheckResult? check = HpCheck.Evaluate(samples.Select(s => (s.At, s.Hp)).ToList(), onTarget, highest);
+        HpCheckResult? check = HpCheck.Evaluate(samples.Select(s => (s.At, s.Hp)).ToList(), onTarget.Concat(OwnHeals(targetId, start, end)).ToList(), highest);
         OverlayHpCheckText.Text = check is null ? ""
             : check.OverFullHealth || check.Verdict != HpCheckVerdict.Match ? "⚠ " + check.Ratio.ToString("P0", CultureInfo.CurrentCulture)
             : "✓";

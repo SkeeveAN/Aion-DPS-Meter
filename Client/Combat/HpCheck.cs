@@ -22,13 +22,13 @@ public enum HpCheckVerdict
 /// <param name="Shielded">Damage dealt while the target's hit points stood still (a boss's shield
 /// phase, see <see cref="HpCheck.FrozenGap"/>) - counted by the meter as by the game, left out of
 /// the comparison.</param>
-public sealed record HpCheckResult(long Lost, long Counted, bool Killed, long Highest, long RunTotal, long Overkill, HpCheckVerdict Verdict, long Shielded = 0)
+public sealed record HpCheckResult(long Lost, long Counted, bool Killed, long Highest, long RunTotal, long Overkill, HpCheckVerdict Verdict, long Shielded = 0, long Healed = 0)
 {
     public double Ratio => Lost > 0 ? (double)Counted / Lost : 0;
 
     /// <summary>The run's total, overkill aside, is more than the target could ever lose - the
     /// "1300 % of the boss" symptom, whatever its cause.</summary>
-    public bool OverFullHealth => Highest > 0 && RunTotal - Overkill - Shielded > Highest * (1 + HpCheck.Tolerance);
+    public bool OverFullHealth => Highest > 0 && RunTotal - Overkill - Shielded - Healed > Highest * (1 + HpCheck.Tolerance);
 }
 
 /// <summary>
@@ -80,10 +80,6 @@ public static class HpCheck
         (DateTime From, long Hp) first = alive[0];
         (DateTime To, long Hp) last = alive[^1];
         long lost = first.Hp - last.Hp;
-        if (lost <= 0)
-        {
-            return null;
-        }
 
         // Stretches with no reading for a while: the hit points stood still (FrozenGap). What was
         // dealt and lost across them is set aside on both sides.
@@ -99,6 +95,11 @@ public static class HpCheck
 
         bool InFrozen(DamageEvent h) => frozen.Any(f => h.Timestamp > f.From && h.Timestamp <= f.To);
         long shielded = runHits.Where(h => !h.IsHeal && InFrozen(h)).Sum(h => h.Amount);
+
+        // The heals in runHits are the target's own (a boss healing itself by what it takes, see
+        // Aion2FrameDecoder.DecodeVarintDot): the hits took that much too, and it came back.
+        long healed = runHits.Where(h => h.IsHeal && h.Timestamp > first.From && h.Timestamp <= last.To && !InFrozen(h)).Sum(h => h.Amount);
+        lost += healed;
         if (lost <= 0)
         {
             return null;
@@ -112,6 +113,6 @@ public static class HpCheck
 
         long runTotal = runHits.Where(h => !h.IsHeal).Sum(h => h.Amount);
         long overkill = killed ? Math.Max(0, runHits.Where(h => !h.IsHeal && h.Timestamp > last.To).Sum(h => h.Amount) - last.Hp) : 0;
-        return new HpCheckResult(lost, counted, killed, highest, runTotal, overkill, verdict, shielded);
+        return new HpCheckResult(lost, counted, killed, highest, runTotal, overkill, verdict, shielded, healed);
     }
 }

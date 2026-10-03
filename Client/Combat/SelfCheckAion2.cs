@@ -39,6 +39,7 @@ public static class SelfCheckAion2
         ok &= RunAion2DotTickScenario();
         ok &= RunAion2HitPointsScenario();
         ok &= RunHpCheckScenario();
+        ok &= RunAion2BossSelfHealScenario();
         ok &= RunAion2SoloLocalNameScenario();
         ok &= RunAion2NamesScenario();
         ok &= RunAion2MidStreamScenario();
@@ -864,6 +865,60 @@ public static class SelfCheckAion2
         bool allHis = aggregator.Events.Count == 2 && aggregator.Events.All(ev => ev.SourceObjectId == 24);
         Console.WriteLine($"  -> first hit on the spirit itself: {unknownAtFirst}; the next is Boulenbouche's: {his}; both his in the end: {allHis}");
         return unknownAtFirst && his && allHis;
+    }
+
+    /// <summary>
+    /// The boss that heals itself by what it takes (capture 2026-10-03 23:37, real frames in their
+    /// order): a Drill Dart tick (189), its hit points 665,980, the tick of its own effect 160466011
+    /// set off by the Ranger's Deadshot (122,788), the Deadshot itself (30,697), its hit points
+    /// 758,071, a Rooting Eye (838). The 122,788 is the boss healing itself, not the Ranger's
+    /// damage, and with it the HP check matches: 665,980 - 758,071 + 122,788 = 30,697 lost.
+    /// </summary>
+    private static bool RunAion2BossSelfHealScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 a boss healing itself by the hits it takes (real frames, 2026-10-03 23:37):");
+        string[] frames =
+        {
+            "0538A2BC020AB4360D5699BE53BD012464D600",
+            "008DA2BC020201007C290A0000000000",
+            "0538A2BC020AB436175B849009A4BF0783C7D500",
+            "0438A2BC023600B43683C7D500EE0280000118A1815301000000FA60E9EF0104FD17FD17FD17FD170100",
+            "008DA2BC0202010037910B0000000000",
+            "0438A2BC020600B436575FE100F002000001073E095801000000FA60C6060100",
+        };
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        var events = new List<DamageEvent>();
+        uint seq = 9900;
+        DateTime at = new(2026, 10, 3, 21, 37, 10, DateTimeKind.Utc);
+        foreach (string hex in frames)
+        {
+            byte[] body = Convert.FromHexString(hex);
+            var wire = new List<byte>();
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+            source.Ingest(Segment(seq, wire.ToArray()) with { Timestamp = at });
+            events.AddRange(source.Poll(false).Damage);
+            seq += (uint)wire.Count;
+            at = at.AddMilliseconds(50);
+        }
+
+        const int Boss = 40482, Ranger = 6964;
+        bool heal = events.Any(e => e.IsHeal && e.SourceObjectId == Boss && e.TargetObjectId == Boss && e.Amount == 122_788);
+        long rangerDamage = events.Where(e => !e.IsHeal && e.SourceObjectId == Ranger).Sum(e => e.Amount);
+        var readings = dir.HitPoints.SamplesAround(Boss, DateTime.MinValue, DateTime.MaxValue).Select(s => (s.At, s.Hp)).ToList();
+        HpCheckResult? check = HpCheck.Evaluate(readings, events.Where(e => e.TargetObjectId == Boss).ToList(), 869_128);
+        bool matches = check is { Verdict: HpCheckVerdict.Match, Lost: 30_697, Counted: 30_697, Healed: 122_788 };
+        Console.WriteLine($"  -> the 122,788 is the boss healing itself: {heal}; the Ranger's damage 189 + 30,697 + 838: {rangerDamage == 31_724}; HP check {check?.Ratio:P0}: {matches}");
+        return heal && rangerDamage == 31_724 && matches;
     }
 
     /// <summary>Name, guild and local-player frames from real captures: the "player seen" frame
