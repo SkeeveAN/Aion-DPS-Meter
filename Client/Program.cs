@@ -20,6 +20,44 @@ internal static class Program
     [DllImport("kernel32.dll")]
     private static extern bool AttachConsole(int dwProcessId);
 
+    /// <summary>
+    /// The meter window needs admin rights for the packet capture, and the manifest no longer
+    /// demands them (see app.manifest): a plain start re-launches itself through the "runas" verb -
+    /// the UAC prompt - and this instance ends. Only for a plain start: the command-line modes
+    /// (selftest, recording, replays) run as they were started, and Velopack's hook runs never get
+    /// here. Declining the prompt simply ends the meter, as the old manifest did.
+    /// </summary>
+    private static bool RelaunchElevatedIfNeeded(string[] args)
+    {
+        if (args.Length > 0)
+        {
+            return false;
+        }
+
+        using (var identity = System.Security.Principal.WindowsIdentity.GetCurrent())
+        {
+            if (new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator))
+            {
+                return false;
+            }
+        }
+
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!)
+            {
+                UseShellExecute = true,
+                Verb = "runas",
+            });
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            // UAC prompt declined: nothing to start.
+        }
+
+        return true;
+    }
+
     [STAThread] // required for WPF (Ui/MainWindow) -- Clipboard, drag-move etc. need the STA apartment.
     private static void Main(string[] args)
     {
@@ -51,6 +89,11 @@ internal static class Program
         // own shell icon cache (a stale bitmap cached against the unchanged .lnk file) or a
         // locally installed build old enough to predate that upstream fix, not a gap here.
         VelopackApp.Build().Run();
+
+        if (RelaunchElevatedIfNeeded(args))
+        {
+            return;
+        }
 
         if (args.Length > 0 && args[0] == "selftest")
         {
