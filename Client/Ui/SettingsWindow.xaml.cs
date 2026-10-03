@@ -132,10 +132,12 @@ public partial class SettingsWindow : Window
         }
     }
 
-    // "Assign" puts one hotkey field into capture mode: the next key combination pressed anywhere in
-    // this window becomes the hotkey and is shown in the field. Esc cancels. The field's Tag holds
-    // the stored text ("Ctrl+Alt+H"), its Text what is displayed (or the prompt while capturing).
+    // Clicking into a hotkey field puts it into capture mode: a small popup under the field asks for
+    // the combination, and the next one pressed becomes the hotkey and is shown in the field. Esc
+    // cancels, as does leaving the field. The field's Tag holds the stored text ("Ctrl+Alt+H").
     private TextBox? _capturingBox;
+    private System.Windows.Controls.Primitives.Popup? _hotkeyPopup;
+    private TextBlock? _hotkeyPopupText;
 
     private TextBox HotkeyBoxOf(object sender) => (TextBox)FindName((string)((FrameworkElement)sender).Tag);
 
@@ -145,8 +147,38 @@ public partial class SettingsWindow : Window
         box.Text = value;
     }
 
+    private void ShowHotkeyPopup(TextBox box, string message)
+    {
+        if (_hotkeyPopup is null)
+        {
+            _hotkeyPopupText = new TextBlock { Margin = new Thickness(10, 5, 10, 5) };
+            _hotkeyPopupText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+            var border = new Border { BorderThickness = new Thickness(1), Child = _hotkeyPopupText };
+            border.SetResourceReference(Border.BackgroundProperty, "Brush.TitleBar");
+            border.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
+            _hotkeyPopup = new System.Windows.Controls.Primitives.Popup
+            {
+                Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
+                StaysOpen = true,
+                AllowsTransparency = true,
+                Focusable = false,
+                IsHitTestVisible = false,
+                Child = border,
+            };
+        }
+
+        _hotkeyPopupText!.Text = message;
+        _hotkeyPopup.PlacementTarget = box;
+        _hotkeyPopup.IsOpen = true;
+    }
+
     private void StopCapture(bool restore)
     {
+        if (_hotkeyPopup is not null)
+        {
+            _hotkeyPopup.IsOpen = false;
+        }
+
         if (_capturingBox is { } box && restore)
         {
             box.Text = (string?)box.Tag ?? "";
@@ -155,12 +187,19 @@ public partial class SettingsWindow : Window
         _capturingBox = null;
     }
 
-    private void OnHotkeyAssignClicked(object sender, RoutedEventArgs e)
+    private void OnHotkeyBoxGotFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
         StopCapture(restore: true);
-        _capturingBox = HotkeyBoxOf(sender);
-        _capturingBox.Text = LocalizationManager.Instance["Settings.Hotkey.Press"];
-        Focus();
+        _capturingBox = (TextBox)sender;
+        ShowHotkeyPopup(_capturingBox, LocalizationManager.Instance["Settings.Hotkey.Press"]);
+    }
+
+    private void OnHotkeyBoxLostFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        if (ReferenceEquals(_capturingBox, sender))
+        {
+            StopCapture(restore: true);
+        }
     }
 
     private void OnHotkeyClearClicked(object sender, RoutedEventArgs e)
@@ -182,6 +221,7 @@ public partial class SettingsWindow : Window
         if (key == Key.Escape)
         {
             StopCapture(restore: true);
+            Focus();
             return;
         }
 
@@ -198,12 +238,13 @@ public partial class SettingsWindow : Window
         if (!(binding.Ctrl || binding.Alt || binding.Shift || binding.Win))
         {
             // A global hotkey without Ctrl, Alt, Shift or Win would swallow that key in every program.
-            box.Text = LocalizationManager.Instance["Settings.Hotkey.NeedsModifier"];
+            ShowHotkeyPopup(box, LocalizationManager.Instance["Settings.Hotkey.NeedsModifier"]);
             return;
         }
 
         SetHotkeyBox(box, binding.ToString());
-        _capturingBox = null;
+        StopCapture(restore: false);
+        Focus();
     }
 
     private void OnSaveClicked(object sender, RoutedEventArgs e)

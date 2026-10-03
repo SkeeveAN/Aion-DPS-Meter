@@ -802,14 +802,14 @@
     "zh": "快捷键"
   },
   "Settings.Hotkeys.Hint": {
-    "en": "Work everywhere, also while the game has the focus. Click \"Assign\", then press the combination you want (it needs Ctrl, Alt, Shift or Win). Esc cancels.",
-    "de": "Funktionieren überall, auch wenn das Spiel den Fokus hat. Auf „Zuweisen“ klicken und dann die gewünschte Kombination drücken (mit Strg, Alt, Umschalt oder Win). Esc bricht ab.",
-    "fr": "Fonctionnent partout, même quand le jeu a le focus. Cliquez sur « Assigner », puis appuyez sur la combinaison voulue (avec Ctrl, Alt, Maj ou Win). Échap annule.",
-    "es": "Funcionan en todas partes, también con el juego en primer plano. Pulsa «Asignar» y luego la combinación que quieras (con Ctrl, Alt, Mayús o Win). Esc cancela.",
-    "ru": "Работают везде, в том числе когда активна игра. Нажмите «Назначить», затем нужное сочетание (с Ctrl, Alt, Shift или Win). Esc — отмена.",
-    "pl": "Działają wszędzie, także gdy gra ma fokus. Kliknij „Przypisz”, a potem naciśnij wybraną kombinację (z Ctrl, Alt, Shift lub Win). Esc anuluje.",
-    "tr": "Oyun odaktayken bile her yerde çalışır. «Ata»ya tıklayın, ardından istediğiniz kombinasyona basın (Ctrl, Alt, Shift veya Win ile). Esc iptal eder.",
-    "zh": "在任何位置都有效，包括游戏处于焦点时。点击“分配”，然后按下想要的组合键（需包含 Ctrl、Alt、Shift 或 Win）。按 Esc 取消。"
+    "en": "Work everywhere, also while the game has the focus. Click a field, then press the combination you want (it needs Ctrl, Alt, Shift or Win). ✕ removes it.",
+    "de": "Funktionieren überall, auch wenn das Spiel den Fokus hat. Feld anklicken und die gewünschte Kombination drücken (mit Strg, Alt, Umschalt oder Win). ✕ entfernt sie.",
+    "fr": "Fonctionnent partout, même quand le jeu a le focus. Cliquez dans un champ, puis appuyez sur la combinaison voulue (avec Ctrl, Alt, Maj ou Win). ✕ la supprime.",
+    "es": "Funcionan en todas partes, también con el juego en primer plano. Haz clic en un campo y pulsa la combinación que quieras (con Ctrl, Alt, Mayús o Win). ✕ la quita.",
+    "ru": "Работают везде, в том числе когда активна игра. Щёлкните поле и нажмите нужное сочетание (с Ctrl, Alt, Shift или Win). ✕ удаляет.",
+    "pl": "Działają wszędzie, także gdy gra ma fokus. Kliknij pole i naciśnij wybraną kombinację (z Ctrl, Alt, Shift lub Win). ✕ usuwa.",
+    "tr": "Oyun odaktayken bile her yerde çalışır. Bir alana tıklayıp istediğiniz kombinasyona basın (Ctrl, Alt, Shift veya Win ile). ✕ kaldırır.",
+    "zh": "在任何位置都有效，包括游戏处于焦点时。点击输入框并按下想要的组合键（需包含 Ctrl、Alt、Shift 或 Win）。✕ 移除。"
   },
   "Settings.Hotkey.HideUi": {
     "en": "Overlay (hide window)",
@@ -851,25 +851,15 @@
     "tr": "Oturumu temizle",
     "zh": "清空本次记录"
   },
-  "Settings.Hotkey.Assign": {
-    "en": "Assign",
-    "de": "Zuweisen",
-    "fr": "Assigner",
-    "es": "Asignar",
-    "ru": "Назначить",
-    "pl": "Przypisz",
-    "tr": "Ata",
-    "zh": "分配"
-  },
   "Settings.Hotkey.Press": {
-    "en": "Press the combination …",
-    "de": "Kombination drücken …",
-    "fr": "Appuyez sur la combinaison …",
-    "es": "Pulsa la combinación …",
-    "ru": "Нажмите сочетание …",
-    "pl": "Naciśnij kombinację …",
-    "tr": "Kombinasyona basın …",
-    "zh": "请按下组合键 …"
+    "en": "Press the combination now – Esc cancels",
+    "de": "Jetzt die Kombination drücken – Esc bricht ab",
+    "fr": "Appuyez maintenant sur la combinaison – Échap annule",
+    "es": "Pulsa ahora la combinación – Esc cancela",
+    "ru": "Нажмите сочетание – Esc отменяет",
+    "pl": "Naciśnij teraz kombinację – Esc anuluje",
+    "tr": "Şimdi kombinasyona basın – Esc iptal eder",
+    "zh": "现在按下组合键 – Esc 取消"
   },
   "Settings.Hotkey.NeedsModifier": {
     "en": "Needs Ctrl, Alt, Shift or Win",

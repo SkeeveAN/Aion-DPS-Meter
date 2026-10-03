@@ -430,44 +430,35 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="190"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="150"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{local:Loc Settings.Hotkey.HideUi}" VerticalAlignment="Center" Margin="0,3,12,3"/>
-                            <TextBox x:Name="HotkeyHideUiBox" Grid.Row="0" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" Focusable="False"
+                            <TextBox x:Name="HotkeyHideUiBox" Grid.Row="0" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                      VerticalContentAlignment="Center" Background="{DynamicResource Brush.Panel}"
                                      Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                            <Button Grid.Row="0" Grid.Column="2" Tag="HotkeyHideUiBox" Click="OnHotkeyAssignClicked" Height="28" MinWidth="76" Margin="6,3,0,3" Padding="10,0"
-                                    Content="{local:Loc Settings.Hotkey.Assign}"/>
-                            <Button Grid.Row="0" Grid.Column="3" Tag="HotkeyHideUiBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="4,3,0,3"
+                            <Button Grid.Row="0" Grid.Column="2" Tag="HotkeyHideUiBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,3,0,3" Padding="0"
                                     Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="{local:Loc Settings.Hotkey.Pause}" VerticalAlignment="Center" Margin="0,3,12,3"/>
-                            <TextBox x:Name="HotkeyPauseBox" Grid.Row="1" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" Focusable="False"
+                            <TextBox x:Name="HotkeyPauseBox" Grid.Row="1" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                      VerticalContentAlignment="Center" Background="{DynamicResource Brush.Panel}"
                                      Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                            <Button Grid.Row="1" Grid.Column="2" Tag="HotkeyPauseBox" Click="OnHotkeyAssignClicked" Height="28" MinWidth="76" Margin="6,3,0,3" Padding="10,0"
-                                    Content="{local:Loc Settings.Hotkey.Assign}"/>
-                            <Button Grid.Row="1" Grid.Column="3" Tag="HotkeyPauseBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="4,3,0,3"
+                            <Button Grid.Row="1" Grid.Column="2" Tag="HotkeyPauseBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,3,0,3" Padding="0"
                                     Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="{local:Loc Settings.Hotkey.CopyDamage}" VerticalAlignment="Center" Margin="0,3,12,3"/>
-                            <TextBox x:Name="HotkeyCopyDamageBox" Grid.Row="2" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" Focusable="False"
+                            <TextBox x:Name="HotkeyCopyDamageBox" Grid.Row="2" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                      VerticalContentAlignment="Center" Background="{DynamicResource Brush.Panel}"
                                      Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                            <Button Grid.Row="2" Grid.Column="2" Tag="HotkeyCopyDamageBox" Click="OnHotkeyAssignClicked" Height="28" MinWidth="76" Margin="6,3,0,3" Padding="10,0"
-                                    Content="{local:Loc Settings.Hotkey.Assign}"/>
-                            <Button Grid.Row="2" Grid.Column="3" Tag="HotkeyCopyDamageBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="4,3,0,3"
+                            <Button Grid.Row="2" Grid.Column="2" Tag="HotkeyCopyDamageBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,3,0,3" Padding="0"
                                     Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="{local:Loc Settings.Hotkey.Clear}" VerticalAlignment="Center" Margin="0,3,12,3"/>
-                            <TextBox x:Name="HotkeyClearBox" Grid.Row="3" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" Focusable="False"
+                            <TextBox x:Name="HotkeyClearBox" Grid.Row="3" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                      VerticalContentAlignment="Center" Background="{DynamicResource Brush.Panel}"
                                      Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                            <Button Grid.Row="3" Grid.Column="2" Tag="HotkeyClearBox" Click="OnHotkeyAssignClicked" Height="28" MinWidth="76" Margin="6,3,0,3" Padding="10,0"
-                                    Content="{local:Loc Settings.Hotkey.Assign}"/>
-                            <Button Grid.Row="3" Grid.Column="3" Tag="HotkeyClearBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="4,3,0,3"
+                            <Button Grid.Row="3" Grid.Column="2" Tag="HotkeyClearBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,3,0,3" Padding="0"
                                     Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                         </Grid>
                 </StackPanel>
