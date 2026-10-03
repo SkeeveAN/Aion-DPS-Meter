@@ -329,12 +329,33 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     /// <summary>Records who summoned an entity, or (null) that it is nobody's summon - entity ids
     /// are reused, so a later spawn under the same id clears an earlier owner.</summary>
+    // Owners found since the last DrainResolvedOwners: hits the summon dealt before (credited to its
+    // own id while nobody knew whose it was) can be handed to its owner.
+    private readonly List<(int Summon, int Owner)> _resolvedOwners = new();
+
+    /// <summary>The summon owners found since the last call - for re-crediting the hits a summon
+    /// dealt before its owner was known (a meter started mid-fight, its first seconds).</summary>
+    public IReadOnlyList<(int Summon, int Owner)> DrainResolvedOwners()
+    {
+        lock (_gate)
+        {
+            var drained = _resolvedOwners.ToList();
+            _resolvedOwners.Clear();
+            return drained;
+        }
+    }
+
     public void SetSummonOwner(int entityId, int? ownerId)
     {
         lock (_gate)
         {
             if (ownerId is int owner)
             {
+                if ((!_summonOwners.TryGetValue(entityId, out int known) || known != owner) && _resolvedOwners.Count < 4096)
+                {
+                    _resolvedOwners.Add((entityId, owner));
+                }
+
                 _summonOwners[entityId] = owner;
             }
             else
@@ -552,6 +573,28 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// <summary>A player uses many skills; a spirit summoned before the meter started (owner
     /// unknown) a few: 16 against 3 on a Krao Cave capture replayed from mid-fight.</summary>
     private const int MinSkillsOfAPlayer = 4;
+
+    /// <summary>True when a name is registered for this id - a player, never a summon.</summary>
+    public bool HasName(int id)
+    {
+        lock (_gate)
+        {
+            return _names.ContainsKey(id);
+        }
+    }
+
+    /// <summary>The party's players of a class by id: the members a frame named, and the local
+    /// player when it plays that class (its own name may be known only from Settings).</summary>
+    public IReadOnlyList<int> PartyPlayerIdsOfClass(string className)
+    {
+        var ids = PartyMemberIdsOfClass(className).ToList();
+        if (InferLocalPlayer() is int local && !ids.Contains(local) && ClassOf(local) == className)
+        {
+            ids.Add(local);
+        }
+
+        return ids;
+    }
 
     /// <summary>True for a player whose name is known while the party is, and who is not in it - a
     /// stranger nearby in the open world.</summary>

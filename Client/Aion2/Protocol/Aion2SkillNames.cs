@@ -145,6 +145,19 @@ public static class Aion2SkillNames
     /// Templar 9/10, Ranger 13/14, Assassin 17/18, Spiritmaster 21/22, Sorcerer 25/26, Cleric 29/30,
     /// Chanter 33/34). Verified on four known characters; null for anything outside that pattern.
     /// </summary>
+    /// <summary>
+    /// True for a summon's own attack, which only a summoned entity casts: a Spiritmaster spirit's
+    /// "Fire Spirit: Leaping Slam" / "Ancient Spirit: Destruction" (the player's own casts are
+    /// "Summon: ..." or have no "Spirit:" in their name), a Cleric's Divine Aura, a Sorcerer's
+    /// Bittercold Wind.
+    /// </summary>
+    public static bool IsSummonAttack(int skillId)
+    {
+        string name = NameOf(skillId);
+        return name is "Divine Aura" or "Bittercold Wind"
+            || (name.Contains("Spirit:", StringComparison.Ordinal) && !name.StartsWith("Summon", StringComparison.Ordinal));
+    }
+
     public static string? ClassFromCode(int classCode)
     {
         int id = classCode / 4;
