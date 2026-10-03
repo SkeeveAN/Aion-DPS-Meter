@@ -113,7 +113,7 @@ public partial class MainWindow : Window
     private bool _compactOverlay;
     private bool _showBossHp;
     private TimetableWindow? _timetable;
-    private bool _autoReset = true;
+    private bool _autoReset;
     /// <summary>Whose rows are shown: everybody, the own group, or the corps (two groups together).</summary>
     private enum MeterScope { All, Group, Corps }
 
@@ -128,7 +128,7 @@ public partial class MainWindow : Window
     private readonly HashSet<string> _groupNames = new(StringComparer.Ordinal);
     private HpCheckResult? _lastHpCheck;
 
-    /// <summary>Silence after which the next damage starts a new fight (MeterSettings.AutoReset and
+    /// <summary>Silence after which the next damage starts a new fight (MeterSettings.AutoResetEnabled and
     /// AutoResetSeconds).</summary>
     private TimeSpan _autoResetIdle = TimeSpan.FromSeconds(10);
 
@@ -311,7 +311,7 @@ public partial class MainWindow : Window
         _showShareBars = settings.ShowShareBars;
         _showDamageTaken = settings.ShowDamageTaken;
         _showBossHp = settings.ShowBossHp;
-        _autoReset = settings.AutoReset;
+        _autoReset = settings.AutoResetEnabled;
         _autoResetIdle = TimeSpan.FromSeconds(Math.Clamp(settings.AutoResetSeconds, 1, 600));
         _scope = Enum.TryParse(settings.ViewScope, true, out MeterScope scope) ? scope : MeterScope.Group;
         UpdateScopeControls();

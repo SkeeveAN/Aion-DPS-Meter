@@ -47,7 +47,7 @@ public partial class SettingsWindow : Window
         ShowBossHpBox.IsChecked = settings.ShowBossHp;
         ShowTimetableBox.IsChecked = settings.ShowTimetable;
         SetHotkeyBox(HotkeyTimetableBox, HotkeyBinding.Parse(settings.HotkeyTimetable).ToString());
-        AutoResetBox.IsChecked = settings.AutoReset;
+        AutoResetBox.IsChecked = settings.AutoResetEnabled;
         AutoResetSecondsBox.Text = Math.Clamp(settings.AutoResetSeconds, 1, 600).ToString();
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
@@ -276,7 +276,7 @@ public partial class SettingsWindow : Window
         _settings.ShowBossHp = ShowBossHpBox.IsChecked ?? false;
         _settings.ShowTimetable = ShowTimetableBox.IsChecked ?? true;
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
-        _settings.AutoReset = AutoResetBox.IsChecked ?? true;
+        _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
         _settings.AutoResetSeconds = int.TryParse(AutoResetSecondsBox.Text, out int seconds) ? Math.Clamp(seconds, 1, 600) : 10;
         _settings.AutoUploadBoss = AutoUploadBossBox.IsChecked ?? false;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
