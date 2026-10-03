@@ -593,6 +593,11 @@ internal static class Program
             }
         }
 
+        foreach (var (serverId, names) in source.ServerIdsSeen.OrderBy(k => k.Key))
+        {
+            Console.WriteLine($"aion2-replay: server id {serverId} = {Aion2.Protocol.Aion2Servers.NameOf(serverId)}: {names.Count} sample name(s) {string.Join(", ", names.Take(6))}");
+        }
+
         Console.WriteLine($"aion2-replay: local player id {(local >= 0 ? local.ToString() : "unknown")} = {(local >= 0 ? source.Entities.NameFor(local) : "-")}");
         long heal = events.Where(e => e.IsHeal).Sum(e => e.Amount);
         Console.WriteLine($"aion2-replay: self-heals {heal:N0} ({events.Count(e => e.IsHeal)} event(s))");

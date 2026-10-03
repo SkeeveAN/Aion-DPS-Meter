@@ -18,6 +18,9 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     private readonly Protocol.Aion2Protocol _protocol;
     private readonly Capture.TcpReassembler _reassembler = new();
     private readonly Protocol.Aion2FrameDecoder _decoder;
+
+    /// <summary>The server ids seen next to player names, with sample names (diagnostic).</summary>
+    public IReadOnlyDictionary<int, SortedSet<string>> ServerIdsSeen => _decoder.ServerIdsSeen;
     private readonly Aion2EntityDirectory _entities = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<DamageEvent> _pending = new();
     private readonly string? _adapterId;

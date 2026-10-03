@@ -43,6 +43,23 @@ public sealed class Aion2FrameDecoder
     /// <summary>Damage-opcode frames without a damage block (see <see cref="DecodeVarintDamage"/>).</summary>
     public int NoDamageFrames { get; private set; }
 
+    /// <summary>Each server id seen in front of a player's name (appearance and party frames), with the
+    /// names it came with - for working out which id is which server. Diagnostic.</summary>
+    public Dictionary<int, SortedSet<string>> ServerIdsSeen { get; } = new();
+
+    private void NoteServerId(int serverId, string name)
+    {
+        if (!ServerIdsSeen.TryGetValue(serverId, out var names))
+        {
+            ServerIdsSeen[serverId] = names = new SortedSet<string>(StringComparer.Ordinal);
+        }
+
+        if (names.Count < 12)
+        {
+            names.Add(name);
+        }
+    }
+
     public int Bundles { get; private set; }
     public int BundleFailures { get; private set; }
 
@@ -707,6 +724,7 @@ public sealed class Aion2FrameDecoder
         }
 
         _entities.Register((int)id, name);
+        NoteServerId(frame[p] | frame[p + 1] << 8, name);
         if (TryReadName(frame, p + 3 + name.Length, out string guild, minLength: 2) && guild != name)
         {
             _entities.SetGuild((int)id, guild);
@@ -968,6 +986,11 @@ public sealed class Aion2FrameDecoder
             }
 
             members.Add(name);
+            if (i >= 2)
+            {
+                NoteServerId(frame[i - 2] | frame[i - 1] << 8, name);
+            }
+
             _entities.NoteRosterName(name);
             i = after + 7;
         }
