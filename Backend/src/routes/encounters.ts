@@ -1,7 +1,7 @@
 import { asc, desc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
-import { bosses, encounterParticipants, encounters, encounterSkillUsage, instances, players, servers, uploads } from "../db/schema.js";
+import { bosses, encounterParticipants, encounters, encounterSkillUsage, instances, playerProfiles, players, servers, uploads } from "../db/schema.js";
 import { topBuffsByParticipant } from "../skills/topBuffs.js";
 import { gameFromQuery } from "./instances.js";
 
@@ -104,6 +104,7 @@ export async function encounterRoutes(app: FastifyInstance) {
       .select({
         participantId: encounterParticipants.id,
         playerId: encounterParticipants.playerId,
+        hasProfile: playerProfiles.playerId,
         playerName: players.name,
         serverName: servers.displayName,
         className: encounterParticipants.className,
@@ -119,12 +120,14 @@ export async function encounterRoutes(app: FastifyInstance) {
       .from(encounterParticipants)
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
       .leftJoin(servers, eq(players.serverId, servers.id))
+      .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
       .where(eq(encounterParticipants.encounterId, encounterId))
       .orderBy(desc(encounterParticipants.totalDamage))
       .all();
 
     const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId));
-    const rosterWithBuffs = roster.map((r) => ({ ...r, topBuffs: topBuffs.get(r.participantId) ?? [] }));
+    // hasProfile: true when the player has a character profile page (see /api/players/:id).
+    const rosterWithBuffs = roster.map((r) => ({ ...r, hasProfile: r.hasProfile != null, topBuffs: topBuffs.get(r.participantId) ?? [] }));
 
     return reply.send({
       encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null },

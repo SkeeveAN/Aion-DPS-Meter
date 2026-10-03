@@ -804,14 +804,27 @@ async function renderBosses(instanceSlug) {
 // rather than the three separate ones the old accordion-based rosterTable used. Used for a single
 // person (an encounter's own roster, or one solo attempt) - see groupPlayersCell below for the
 // boss leaderboard's group rows, which need to show every member, not just one.
-function playerCell(faction, className, name, href, serverName) {
+// A small person icon behind a player's name that opens the character profile - only for players
+// who have one (the API says so with hasProfile).
+const ICON_PROFILE =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
+
+function profileIcon(player) {
+  if (!player || !player.hasProfile || !player.playerId) {
+    return null;
+  }
+
+  return el("a", { className: "profile-link", href: gp(`/players/${player.playerId}`), title: t("player.openProfile"), "aria-label": t("player.openProfile"), innerHTML: ICON_PROFILE });
+}
+
+function playerCell(faction, className, name, href, serverName, player) {
   // Aion 2 rankings mix servers (per the user: cross-server runs exist there), so the server rides
   // along as a tag; classic Aion's pages are always scoped to one server and need none.
   const tag = currentGame === "aion2" && serverName ? el("span", { className: "server-tag", textContent: serverName, title: serverName }) : null;
   return el(
     "span",
     { className: "icon-label" },
-    [factionIcon(faction), classIcon(className), href ? link(name, href) : name, tag].filter((x) => x != null),
+    [factionIcon(faction), classIcon(className), href ? link(name, href) : name, profileIcon(player), tag].filter((x) => x != null),
   );
 }
 
@@ -822,7 +835,7 @@ function groupPlayersCell(roster, encounterId) {
   return el(
     "span",
     { className: "group-players" },
-    (roster ?? []).map((p) => playerCell(p.faction, p.className, p.playerName, gp(`/encounters/${encounterId}`), p.serverName)),
+    (roster ?? []).map((p) => playerCell(p.faction, p.className, p.playerName, gp(`/encounters/${encounterId}`), p.serverName, p)),
   );
 }
 
@@ -990,7 +1003,7 @@ async function renderLeaderboard(bossSlug, params) {
           const rows = data.topByClass[className].map((p, i) =>
             rankedRow(
               i + 1,
-              playerCell(p.faction, className, p.playerName, gp(`/encounters/${p.encounterId}`), p.serverName),
+              playerCell(p.faction, className, p.playerName, gp(`/encounters/${p.encounterId}`), p.serverName, p),
               p.idps,
               p.totalDamage,
               p.totalHealing,
@@ -1115,6 +1128,29 @@ function roleLabel(role) {
 // the link (to that participant's own breakdown), not just the name, for a bigger click target
 // than the old roster table had. Bar fill width is relative to the CURRENT metric's top value
 // (recomputed by meterPanel on every toggle), never a fixed scale.
+// The meter row is one big link to the participant's fight page, so its profile icon cannot be a
+// nested anchor - it navigates on its own click instead.
+function meterProfileLink(p) {
+  if (!p.hasProfile || !p.playerId) {
+    return null;
+  }
+
+  const target = gp(`/players/${p.playerId}`);
+  const icon = el("span", { className: "profile-link", role: "link", tabindex: "0", title: t("player.openProfile"), "aria-label": t("player.openProfile"), innerHTML: ICON_PROFILE });
+  const open = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    navigate(target);
+  };
+  icon.addEventListener("click", open);
+  icon.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      open(event);
+    }
+  });
+  return icon;
+}
+
 function meterRow(rank, p, metric, max) {
   const meta = classMeta(p.className);
   const value = p[metric];
@@ -1131,6 +1167,7 @@ function meterRow(rank, p, metric, max) {
         el("span", { className: "meter-rank" + (rank === 1 ? " meter-rank-top" : ""), textContent: `${rank}` }),
         ...[factionIcon(p.faction), classIcon(p.className)].filter((x) => x != null),
         el("span", { className: "meter-name", textContent: p.playerName }),
+        meterProfileLink(p),
         serverTag,
         meta.role
           ? el("span", { className: "meter-role-badge", style: `color: ${meta.color}; background: ${hexToRgba(meta.color, 0.16)};`, textContent: roleLabel(meta.role) })

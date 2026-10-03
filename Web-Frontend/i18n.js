@@ -16,6 +16,7 @@ const SUPPORTED_CODES = LOCALES.map((l) => l.code);
 
 const TRANSLATIONS = {
   de: {
+    "player.openProfile": "Charakterprofil öffnen",
     "footer.disclaimer": "Aion 2 und alle zugehörigen Namen, Texte und Grafiken sind Eigentum von NCSOFT. Aion DPS steht in keiner Verbindung zu NCSOFT. Der Quellcode steht unter der MIT-Lizenz.",
     "nav.searchPlaceholder": "Spieler suchen, z. B. Hidan",
     "nav.searchButton": "Suchen",
@@ -256,6 +257,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "vor {count} T.",
   },
   en: {
+    "player.openProfile": "Open character profile",
     "footer.disclaimer": "Aion 2 and all related names, texts and artwork are the property of NCSOFT. Aion DPS is not affiliated with NCSOFT. The source code is released under the MIT License.",
     "nav.searchPlaceholder": "Search for a player, e.g. Hidan",
     "nav.searchButton": "Search",
@@ -496,6 +498,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count}d ago",
   },
   fr: {
+    "player.openProfile": "Ouvrir le profil du personnage",
     "footer.disclaimer": "Aion 2 ainsi que tous les noms, textes et illustrations associés sont la propriété de NCSOFT. Aion DPS n'est pas affilié à NCSOFT. Le code source est publié sous licence MIT.",
     "nav.searchPlaceholder": "Rechercher un joueur, p. ex. Hidan",
     "nav.searchButton": "Rechercher",
@@ -709,6 +712,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "il y a {count} j",
   },
   es: {
+    "player.openProfile": "Abrir el perfil del personaje",
     "footer.disclaimer": "Aion 2 y todos los nombres, textos y gráficos relacionados son propiedad de NCSOFT. Aion DPS no está afiliado a NCSOFT. El código fuente se publica bajo la licencia MIT.",
     "nav.searchPlaceholder": "Buscar un jugador, p. ej. Hidan",
     "nav.searchButton": "Buscar",
@@ -922,6 +926,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "hace {count} d",
   },
   ru: {
+    "player.openProfile": "Открыть профиль персонажа",
     "footer.disclaimer": "Aion 2 и все связанные названия, тексты и графика являются собственностью NCSOFT. Aion DPS не связан с NCSOFT. Исходный код распространяется по лицензии MIT.",
     "nav.searchPlaceholder": "Поиск игрока, напр. Hidan",
     "nav.searchButton": "Поиск",
@@ -1135,6 +1140,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count} дн. назад",
   },
   pl: {
+    "player.openProfile": "Otwórz profil postaci",
     "footer.disclaimer": "Aion 2 oraz wszystkie powiązane nazwy, teksty i grafiki są własnością NCSOFT. Aion DPS nie jest powiązany z NCSOFT. Kod źródłowy jest udostępniony na licencji MIT.",
     "nav.searchPlaceholder": "Szukaj gracza, np. Hidan",
     "nav.searchButton": "Szukaj",
@@ -1348,6 +1354,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count} dni temu",
   },
   tr: {
+    "player.openProfile": "Karakter profilini aç",
     "footer.disclaimer": "Aion 2 ve ilgili tüm adlar, metinler ve grafikler NCSOFT'un mülkiyetindedir. Aion DPS, NCSOFT ile bağlantılı değildir. Kaynak kod MIT Lisansı ile yayımlanır.",
     "nav.searchPlaceholder": "Bir oyuncu ara, örn. Hidan",
     "nav.searchButton": "Ara",
@@ -1561,6 +1568,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count} gün önce",
   },
   zh: {
+    "player.openProfile": "打开角色资料",
     "footer.disclaimer": "Aion 2 及所有相关名称、文本和美术资源均为 NCSOFT 的财产。Aion DPS 与 NCSOFT 无关联。源代码以 MIT 许可证发布。",
     "nav.searchPlaceholder": "搜索玩家，例如 Hidan",
     "nav.searchButton": "搜索",

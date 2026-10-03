@@ -1,7 +1,7 @@
 import { and, asc, count, desc, eq, inArray, max, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
-import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounters, instances, players, serverCatalog, servers } from "../db/schema.js";
+import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounters, instances, playerProfiles, players, serverCatalog, servers } from "../db/schema.js";
 import { topBuffsByParticipant, type TopBuff } from "../skills/topBuffs.js";
 import { parseIdOrSlug } from "../seo/slug.js";
 import { gameFromQuery } from "./instances.js";
@@ -76,6 +76,8 @@ export function topGroups(bossId: number, serverId: number | null, game: Game) {
     const roster = db
       .select({
         participantId: encounterParticipants.id,
+        playerId: encounterParticipants.playerId,
+        profileId: playerProfiles.playerId,
         playerName: players.name,
         serverName: servers.displayName,
         className: encounterParticipants.className,
@@ -87,9 +89,11 @@ export function topGroups(bossId: number, serverId: number | null, game: Game) {
       .from(encounterParticipants)
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
       .leftJoin(servers, eq(players.serverId, servers.id))
+      .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
       .where(eq(encounterParticipants.encounterId, group.encounterId))
       .orderBy(desc(encounterParticipants.totalDamage))
-      .all();
+      .all()
+      .map(({ profileId, ...member }) => ({ ...member, hasProfile: profileId != null }));
 
     return {
       ...group,
