@@ -37,10 +37,10 @@ public partial class SettingsWindow : Window
 
         CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
         AutoUploadProfileBox.IsChecked = settings.AutoUploadProfile;
-        HotkeyHideUiBox.Text = HotkeyBinding.Parse(settings.HotkeyHideUi).ToString();
-        HotkeyPauseBox.Text = HotkeyBinding.Parse(settings.HotkeyPause).ToString();
-        HotkeyCopyDamageBox.Text = HotkeyBinding.Parse(settings.HotkeyCopyDamage).ToString();
-        HotkeyClearBox.Text = HotkeyBinding.Parse(settings.HotkeyClear).ToString();
+        SetHotkeyBox(HotkeyHideUiBox, HotkeyBinding.Parse(settings.HotkeyHideUi).ToString());
+        SetHotkeyBox(HotkeyPauseBox, HotkeyBinding.Parse(settings.HotkeyPause).ToString());
+        SetHotkeyBox(HotkeyCopyDamageBox, HotkeyBinding.Parse(settings.HotkeyCopyDamage).ToString());
+        SetHotkeyBox(HotkeyClearBox, HotkeyBinding.Parse(settings.HotkeyClear).ToString());
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
@@ -132,24 +132,62 @@ public partial class SettingsWindow : Window
         }
     }
 
-    private void OnHotkeyBoxFocus(object sender, KeyboardFocusChangedEventArgs e) => ((TextBox)sender).SelectAll();
+    // "Assign" puts one hotkey field into capture mode: the next key combination pressed anywhere in
+    // this window becomes the hotkey and is shown in the field. Esc cancels. The field's Tag holds
+    // the stored text ("Ctrl+Alt+H"), its Text what is displayed (or the prompt while capturing).
+    private TextBox? _capturingBox;
 
-    /// <summary>Press the combination to set it; Delete or Backspace clears it. A key without Ctrl,
-    /// Alt, Shift or Win is refused: a global hotkey like that would swallow an ordinary key in every
-    /// program.</summary>
-    private void OnHotkeyBoxKeyDown(object sender, KeyEventArgs e)
+    private TextBox HotkeyBoxOf(object sender) => (TextBox)FindName((string)((FrameworkElement)sender).Tag);
+
+    private static void SetHotkeyBox(TextBox box, string value)
     {
-        e.Handled = true;
-        var box = (TextBox)sender;
-        Key key = e.Key == Key.System ? e.SystemKey : e.Key;
-        if (key is Key.Delete or Key.Back)
+        box.Tag = value;
+        box.Text = value;
+    }
+
+    private void StopCapture(bool restore)
+    {
+        if (_capturingBox is { } box && restore)
         {
-            box.Text = "";
+            box.Text = (string?)box.Tag ?? "";
+        }
+
+        _capturingBox = null;
+    }
+
+    private void OnHotkeyAssignClicked(object sender, RoutedEventArgs e)
+    {
+        StopCapture(restore: true);
+        _capturingBox = HotkeyBoxOf(sender);
+        _capturingBox.Text = LocalizationManager.Instance["Settings.Hotkey.Press"];
+        Focus();
+    }
+
+    private void OnHotkeyClearClicked(object sender, RoutedEventArgs e)
+    {
+        StopCapture(restore: true);
+        SetHotkeyBox(HotkeyBoxOf(sender), "");
+    }
+
+    protected override void OnPreviewKeyDown(KeyEventArgs e)
+    {
+        if (_capturingBox is not { } box)
+        {
+            base.OnPreviewKeyDown(e);
             return;
         }
 
+        e.Handled = true;
+        Key key = e.Key switch { Key.System => e.SystemKey, Key.ImeProcessed => e.ImeProcessedKey, _ => e.Key };
+        if (key == Key.Escape)
+        {
+            StopCapture(restore: true);
+            return;
+        }
+
+        // A bare modifier is only half a combination: keep waiting for the key itself.
         if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt or Key.LeftShift or Key.RightShift
-            or Key.LWin or Key.RWin or Key.Tab or Key.Escape or Key.None)
+            or Key.LWin or Key.RWin or Key.None or Key.DeadCharProcessed)
         {
             return;
         }
@@ -157,20 +195,25 @@ public partial class SettingsWindow : Window
         ModifierKeys mods = Keyboard.Modifiers;
         var binding = new HotkeyBinding(mods.HasFlag(ModifierKeys.Control), mods.HasFlag(ModifierKeys.Alt),
             mods.HasFlag(ModifierKeys.Shift), mods.HasFlag(ModifierKeys.Windows), key);
-        if (binding.Ctrl || binding.Alt || binding.Shift || binding.Win)
+        if (!(binding.Ctrl || binding.Alt || binding.Shift || binding.Win))
         {
-            box.Text = binding.ToString();
+            // A global hotkey without Ctrl, Alt, Shift or Win would swallow that key in every program.
+            box.Text = LocalizationManager.Instance["Settings.Hotkey.NeedsModifier"];
+            return;
         }
+
+        SetHotkeyBox(box, binding.ToString());
+        _capturingBox = null;
     }
 
     private void OnSaveClicked(object sender, RoutedEventArgs e)
     {
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? true;
-        _settings.HotkeyHideUi = HotkeyHideUiBox.Text;
-        _settings.HotkeyPause = HotkeyPauseBox.Text;
-        _settings.HotkeyCopyDamage = HotkeyCopyDamageBox.Text;
-        _settings.HotkeyClear = HotkeyClearBox.Text;
+        _settings.HotkeyHideUi = (string?)HotkeyHideUiBox.Tag ?? "";
+        _settings.HotkeyPause = (string?)HotkeyPauseBox.Tag ?? "";
+        _settings.HotkeyCopyDamage = (string?)HotkeyCopyDamageBox.Tag ?? "";
+        _settings.HotkeyClear = (string?)HotkeyClearBox.Tag ?? "";
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
         _settings.Language = LocalizationManager.Instance.Language;
