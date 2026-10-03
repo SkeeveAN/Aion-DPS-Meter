@@ -1194,7 +1194,7 @@
              information is visible. It's the same content minus the window chrome (title bar,
              menu, toolbar, column headers, borders), not a different view. -->
         <ItemsControl x:Name="OverlayContent" Visibility="Collapsed" Background="Transparent"
-                      HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                      HorizontalAlignment="Left" VerticalAlignment="Top">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Margin="2" Padding="6,3" CornerRadius="3">

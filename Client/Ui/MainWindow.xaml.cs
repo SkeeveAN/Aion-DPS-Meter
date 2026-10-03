@@ -172,6 +172,7 @@ public partial class MainWindow : Window
         _mobBossAllContentBinding = BindingOperations.GetBindingBase(_mobBossAllItem, ContentControl.ContentProperty);
         _mobBossAllTag = _mobBossAllItem.Tag;
         Loaded += OnWindowLoaded;
+        SizeChanged += (_, _) => UpdateOverlayWidth();
 
         // Version in the title, read back from the assembly rather than typed here a second time:
         // AionDPS.csproj's <Version> is the only place it is written. Needed because builds are
@@ -2661,8 +2662,15 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>In overlay mode the bars are three quarters of the window's width (the rest stays
+    /// transparent), set whenever the window is resized or the mode is switched on.</summary>
+    private const double OverlayWidthShare = 0.75;
+
+    private void UpdateOverlayWidth() => OverlayContent.Width = Math.Max(ActualWidth * OverlayWidthShare, 120);
+
     private void SetHideUi()
     {
+        UpdateOverlayWidth();
         _hideUiActive = !_hideUiActive;
         NormalContent.Visibility = _hideUiActive ? Visibility.Collapsed : Visibility.Visible;
         OverlayContent.Visibility = _hideUiActive ? Visibility.Visible : Visibility.Collapsed;
