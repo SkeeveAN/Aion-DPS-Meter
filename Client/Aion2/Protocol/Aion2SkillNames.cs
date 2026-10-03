@@ -151,6 +151,18 @@ public static class Aion2SkillNames
         return classCode % 4 is 1 or 2 && id is >= 1 and <= 8 ? ClassById[id - 1] : null;
     }
 
+    /// <summary>
+    /// The class in a party roster member's code: <c>4 * class id + 1..4</c> (Gladiator 5-8 ...
+    /// Chanter 33-36). Verified on 15 members of three Draupnir/Krao Cave rosters (2026-10-02)
+    /// against the classes their skills show: Gladiator 6, Templar 10, Elementalist 21/24,
+    /// Sorcerer 26/27/28, Cleric 30/32, Chanter 34.
+    /// </summary>
+    public static string? ClassFromRosterCode(int code)
+    {
+        int id = (code - 1) / 4;
+        return code >= 1 && id is >= 1 and <= 8 ? ClassById[id - 1] : null;
+    }
+
     private static readonly string LocalizedPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "skill_names_i18n.json");
     private static IReadOnlyDictionary<int, Dictionary<string, string>>? _localized;
 

@@ -364,23 +364,27 @@ public sealed class Aion2FrameDecoder
     /// cast (skill id / 10 - talents pick the variant), and its owner cast it just before it
     /// appeared. On a Draupnir run with two Sorcerers (2026-10-02 23:00), all 23 Bittercold Winds
     /// fit both: Lumy cast 15280240 and her winds hit with 15280242/3, Aurulio cast 15280030 and
-    /// his hit with 15280032/3, each cast ~50 ms before the spawn. The variant decides; with the
-    /// same talents, the cast closest before the spawn (within two seconds) does.</para>
+    /// his hit with 15280032/3, each cast ~50 ms before the spawn. The caster of that variant
+    /// closest before the spawn is the owner - by id, so it works before the players are named.</para>
     /// </summary>
     private int? GuessSummonOwner(int actor, int skillId, int target)
     {
-        if (!_entities.IsSpawned(actor) || !_entities.IsKnownMonster(target) || Aion2SkillNames.ClassOf(skillId) is not string className)
+        // The target is no player and no summon. Not IsKnownMonster: started mid-fight, the meter
+        // never saw the boss spawn.
+        if (!_entities.IsSpawned(actor) || _entities.IsKnownPlayer(target) || _entities.SummonOwnerOf(target) is not null
+            || Aion2SkillNames.ClassOf(skillId) is not string className)
         {
             return null;
         }
 
-        var owners = _entities.PartyMemberIdsOfClass(className).Where(id => id != actor).ToList();
-        int? owner = owners.Count switch
+        // The cast first: it names the summoner's id even before any frame named the player (the
+        // meter started inside a dungeon). Else the party's only player of the class.
+        int? owner = OwnerByCast(actor, skillId / 10);
+        if (owner is null && _entities.PartyMemberIdsOfClass(className).Where(id => id != actor).ToList() is { Count: 1 } only)
         {
-            0 => null,
-            1 => owners[0],
-            _ => OwnerByCast(actor, skillId / 10, owners),
-        };
+            owner = only[0];
+        }
+
         if (owner is int found)
         {
             _entities.SetSummonOwner(actor, found);
@@ -389,22 +393,19 @@ public sealed class Aion2FrameDecoder
         return owner;
     }
 
-    private int? OwnerByCast(int summon, int variant, List<int> owners)
+    /// <summary>The player who cast this variant of the summon's skill closest before it spawned
+    /// (within five seconds; a Sorcerer summons a wind every ten seconds or more).</summary>
+    private int? OwnerByCast(int summon, int variant)
     {
-        var casters = owners.Where(id => _lastCasts.ContainsKey((id, variant))).ToList();
-        if (casters.Count == 1)
-        {
-            return casters[0];
-        }
-
-        if (casters.Count == 0 || !_spawnedAt.TryGetValue(summon, out DateTime spawned))
+        if (!_spawnedAt.TryGetValue(summon, out DateTime spawned))
         {
             return null;
         }
 
-        var justBefore = casters
-            .Select(id => (Id: id, Gap: spawned - _lastCasts[(id, variant)]))
-            .Where(c => c.Gap >= TimeSpan.Zero && c.Gap <= TimeSpan.FromSeconds(2))
+        var justBefore = _lastCasts
+            .Where(kv => kv.Key.Variant == variant)
+            .Select(kv => (Id: kv.Key.Caster, Gap: spawned - kv.Value))
+            .Where(c => c.Gap >= TimeSpan.Zero && c.Gap <= TimeSpan.FromSeconds(5))
             .OrderBy(c => c.Gap)
             .ToList();
         return justBefore.Count > 0 ? justBefore[0].Id : null;
@@ -506,6 +507,11 @@ public sealed class Aion2FrameDecoder
         // Chanter's Recuperation on a member who had not cast yet used to read as damage between two
         // players - and one such hit made the resolver paint the whole party as enemies.
         bool isHeal = Aion2SkillNames.IsHealFamily(skillId) && !_entities.IsKnownMonster((int)target);
+        // Not IsKnownMonster: started mid-fight, the meter never saw the boss spawn.
+        if (!isHeal && _entities.IsKnownPlayer(source) && !_entities.IsKnownPlayer((int)target) && _entities.SummonOwnerOf((int)target) is null)
+        {
+            _entities.NoteMonsterHit(source, (int)target, skillId);
+        }
 
         // A heal on a summon is not healing the group: a Spiritmaster's spirit arrives with a heal of
         // its full health on itself (~56,000 per summon - 4.07 M over one Krao Cave run once spirits
@@ -1006,6 +1012,11 @@ public sealed class Aion2FrameDecoder
             }
 
             _entities.NoteRosterName(name);
+            if (frame[0] == 0x02 && frame[1] == 0x97 && Aion2SkillNames.ClassFromRosterCode(frame[after]) is string className)
+            {
+                _entities.NotePartyClass(name, className);
+            }
+
             i = after + 7;
         }
 

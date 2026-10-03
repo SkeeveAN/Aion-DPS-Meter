@@ -535,6 +535,104 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             }
 
             _lastPartyFrame = at;
+            MatchPartyMembersByClass();
+        }
+    }
+
+    // Party member name -> class, from the roster's class code.
+    private readonly Dictionary<string, string> _partyClasses = new(StringComparer.Ordinal);
+
+    // Monsters the local player or a named party member hit, and the unnamed players who hit one too.
+    private readonly HashSet<int> _partyTargets = new();
+    private readonly HashSet<int> _fightingAlongside = new();
+
+    // Unnamed players fighting alongside the party -> the skills (base ids) they were seen using.
+    private readonly Dictionary<int, HashSet<int>> _skillsSeen = new();
+
+    /// <summary>A player uses many skills; a spirit summoned before the meter started (owner
+    /// unknown) a few: 16 against 3 on a Krao Cave capture replayed from mid-fight.</summary>
+    private const int MinSkillsOfAPlayer = 4;
+
+    /// <summary>Notes a party member's class, as the roster gives it.</summary>
+    public void NotePartyClass(string name, string className)
+    {
+        lock (_gate)
+        {
+            _partyClasses[name] = className;
+        }
+    }
+
+    /// <summary>Notes a player's hit on a monster, for <see cref="MatchPartyMembersByClass"/>.</summary>
+    public void NoteMonsterHit(int playerId, int monsterId, int skillId)
+    {
+        lock (_gate)
+        {
+            bool partySide = _names.TryGetValue(playerId, out string? name)
+                ? CurrentPartyNames().Contains(name)
+                : IsLocalPlayer(playerId) || InferLocalPlayer() == playerId;
+            if (partySide)
+            {
+                if (_partyTargets.Count > 4096)
+                {
+                    _partyTargets.Clear();
+                }
+
+                _partyTargets.Add(monsterId);
+            }
+            else if (!_names.ContainsKey(playerId) && !_spawned.Contains(playerId) && _partyTargets.Contains(monsterId))
+            {
+                _fightingAlongside.Add(playerId);
+                if (!_skillsSeen.TryGetValue(playerId, out var skills))
+                {
+                    skills = new HashSet<int>();
+                    _skillsSeen[playerId] = skills;
+                }
+
+                if (skills.Add(skillId / 10000) && skills.Count == MinSkillsOfAPlayer)
+                {
+                    MatchPartyMembersByClass();
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// A player's name arrives only when they "appear" (zone entry, teleport): started inside a
+    /// dungeon, the meter knows the party from the roster - names and classes, no combat ids - while
+    /// the members fight as unnamed ids. When the party has exactly one member of a class still
+    /// without an id, and exactly one unnamed player of that class fights the party's monsters, they
+    /// are the same character. Summons do not count (an unclaimed Divine Aura or Bittercold Wind
+    /// casts its class's skills too). With two such members or two such players nothing is
+    /// guessed; the local player is left to its own rules. (Draupnir and Krao Cave captures
+    /// replayed from mid-fight, 2026-10-02.)
+    /// </summary>
+    private void MatchPartyMembersByClass()
+    {
+        var party = CurrentPartyNames();
+        int? local = _explicitLocalId >= 0 ? _explicitLocalId : InferLocalPlayer();
+        string? localName = _character?.Name ?? _configuredLocalName;
+        var unnamedMembers = party
+            .Where(n => !_ids.ContainsKey(n) && n != localName && _partyClasses.ContainsKey(n))
+            .GroupBy(n => _partyClasses[n])
+            .Where(g => g.Count() == 1)
+            .ToList();
+        foreach (var member in unnamedMembers)
+        {
+            // A spirit summoned before the meter started has no known owner and casts its class's
+            // skills too, but few different ones (MinSkillsOfAPlayer). Then one candidate, or one
+            // clearly ahead (three times the next one's casts), the same rule as InferLocalPlayer.
+            var candidates = _fightingAlongside
+                .Where(id => !_names.ContainsKey(id) && id != local && !_spawned.Contains(id)
+                    && _skillsSeen.TryGetValue(id, out var skills) && skills.Count >= MinSkillsOfAPlayer
+                    && _classVotes.TryGetValue(id, out var votes) && votes.MaxBy(v => v.Value).Key == member.Key)
+                .Select(id => (Id: id, Casts: _classVotes[id].Values.Sum()))
+                .OrderByDescending(c => c.Casts)
+                .ToList();
+            if (candidates.Count == 1 || (candidates.Count > 1 && candidates[0].Casts >= 3 * candidates[1].Casts))
+            {
+                Register(candidates[0].Id, member.First());
+                _fightingAlongside.Remove(candidates[0].Id);
+            }
         }
     }
 
@@ -546,10 +644,13 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         {
             lock (_gate)
             {
-                return _partySeen.Where(kv => _lastPartyFrame - kv.Value <= PartyMemory).Select(kv => kv.Key).ToHashSet(StringComparer.Ordinal);
+                return CurrentPartyNames();
             }
         }
     }
+
+    private HashSet<string> CurrentPartyNames() =>
+        _partySeen.Where(kv => _lastPartyFrame - kv.Value <= PartyMemory).Select(kv => kv.Key).ToHashSet(StringComparer.Ordinal);
 
     /// <summary>A name the roster shows that is not a party member - the guild name, which every
     /// member's nickname frame repeats after its own name.</summary>
