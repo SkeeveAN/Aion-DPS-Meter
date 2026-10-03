@@ -33,11 +33,14 @@ public static class SelfCheckAion2
         ok &= RunAion2GuildScenario();
         ok &= RunAion2PartyByClassScenario();
         ok &= RunAion2AccentAndLeftoverSummonScenario();
+        ok &= RunAion2SpiritBasicAttackScenario();
         ok &= RunAion2ShieldIsNoSummonScenario();
         ok &= RunAion2TwoSorcerersScenario();
         ok &= RunAion2DotTickScenario();
         ok &= RunAion2HitPointsScenario();
         ok &= RunHpCheckScenario();
+        ok &= RunAion2BossSelfHealScenario();
+        ok &= RunAion2DebuffHitsScenario();
         ok &= RunAion2SoloLocalNameScenario();
         ok &= RunAion2NamesScenario();
         ok &= RunAion2MidStreamScenario();
@@ -770,6 +773,9 @@ public static class SelfCheckAion2
         return notYet && named;
     }
 
+    // The party roster of the Canyon Urugugu run (2026-10-03): Azaëde, Boulenbouche, Kayzia, Knouo, Saydo.
+    private const string CanyonUruguguRoster = "0297723205001244C3A97061727420696D6DC3A9646961742E05CC2709000003038C030000001705FF0203051E01038C03000000170507417A61C3AB6465220000002D000000D60500001705D210048F1901000000000000320000000000000001011E02068E0300000017050C426F756C656E626F75636865150000002D000000780500001705D21004BEF900000000000000370000000000000001011E03E14E030000001705064B61797A69611E0000002D000000060700001705D21004A149010000000000003C0000000000000001011E04AC8603000000FD08054B6E6F756F100000002D000000AB05000001FD08D210040718010000000000004400000000000000010200050000000000000000000000000000000000000000000400000000000000000000000004";
+
     /// <summary>
     /// Canyon Urugugu, recording started mid-fight (2026-10-03): the real party roster lists Azaëde,
     /// a name of 6 characters and 7 bytes - counting characters dropped her from the party. And a
@@ -779,10 +785,9 @@ public static class SelfCheckAion2
     private static bool RunAion2AccentAndLeftoverSummonScenario()
     {
         Console.WriteLine("[selftest] Aion 2 accented party member and a summon from before the recording (real Canyon Urugugu frames):");
-        const string roster = "0297723205001244C3A97061727420696D6DC3A9646961742E05CC2709000003038C030000001705FF0203051E01038C03000000170507417A61C3AB6465220000002D000000D60500001705D210048F1901000000000000320000000000000001011E02068E0300000017050C426F756C656E626F75636865150000002D000000780500001705D21004BEF900000000000000370000000000000001011E03E14E030000001705064B61797A69611E0000002D000000060700001705D21004A149010000000000003C0000000000000001011E04AC8603000000FD08054B6E6F756F100000002D000000AB05000001FD08D210040718010000000000004400000000000000010200050000000000000000000000000000000000000000000400000000000000000000000004";
         const string auraHit = "0438CF990224008EEC0286B10501020293D3386601000000DA65A516029D029D020100";
         var wire = new List<byte>();
-        foreach (string hex in new[] { roster, auraHit })
+        foreach (string hex in new[] { CanyonUruguguRoster, auraHit })
         {
             byte[] body = Convert.FromHexString(hex);
             int length = body.Length + 4;
@@ -806,6 +811,150 @@ public static class SelfCheckAion2
         bool aura = hits.Count == 1 && hits[0].SourceObjectId == 250 && dir.SummonOwnerOf(46606) == 250;
         Console.WriteLine($"  -> Azaëde in the party: {azaede}; the Divine Aura's hit is Kayzia's: {aura}");
         return azaede && aura;
+    }
+
+    /// <summary>
+    /// Canyon Urugugu again (2026-10-03, recording started mid-fight): Boulenbouche's Ancient Spirit
+    /// (55023) hits Divine Auldor (36047) with its basic attack (100051), an id that names no class.
+    /// Its first hit comes before anyone is known and stays its own; once the roster names
+    /// Boulenbouche, the party's only Spiritmaster, the next one is his - and the first is handed
+    /// over to him (Reattribute). Before, the spirit stayed a "Player #55023" row for the whole run.
+    /// </summary>
+    private static bool RunAion2SpiritBasicAttackScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 a spirit's basic attack from before the recording (real Canyon Urugugu frames):");
+        const string spiritHit = "0438CF99020600EFAD03D3860100100204000279AA980001000000C66583080100";
+        static byte[] Wire(params string[] frames)
+        {
+            var wire = new List<byte>();
+            foreach (string hex in frames)
+            {
+                byte[] body = Convert.FromHexString(hex);
+                int length = body.Length + 4;
+                while (length >= 0x80)
+                {
+                    wire.Add((byte)(length & 0x7f | 0x80));
+                    length >>= 7;
+                }
+
+                wire.Add((byte)length);
+                wire.AddRange(body);
+            }
+
+            return wire.ToArray();
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        var aggregator = new LiveAggregator();
+        byte[] first = Wire(spiritHit);
+        source.Ingest(Segment(9900, first));
+        aggregator.IngestEvents(source.Poll(false).Damage);
+        bool unknownAtFirst = aggregator.Events.Count == 1 && aggregator.Events[0].SourceObjectId == 55023;
+
+        dir.Register(24, "Boulenbouche");
+        dir.NoteClass(24, "Spiritmaster");
+        source.Ingest(Segment(9900 + (uint)first.Length, Wire(CanyonUruguguRoster, spiritHit)));
+        var later = source.Poll(false).Damage;
+        foreach ((int summon, int owner) in dir.DrainResolvedOwners())
+        {
+            aggregator.Reattribute(summon, owner);
+        }
+
+        aggregator.IngestEvents(later);
+        bool his = later.Count == 1 && later[0].SourceObjectId == 24 && dir.SummonOwnerOf(55023) == 24;
+        bool allHis = aggregator.Events.Count == 2 && aggregator.Events.All(ev => ev.SourceObjectId == 24);
+        Console.WriteLine($"  -> first hit on the spirit itself: {unknownAtFirst}; the next is Boulenbouche's: {his}; both his in the end: {allHis}");
+        return unknownAtFirst && his && allHis;
+    }
+
+    /// <summary>
+    /// The boss that heals itself by what it takes (capture 2026-10-03 23:37, real frames in their
+    /// order): a Drill Dart tick (189), its hit points 665,980, the tick of its own effect 160466011
+    /// set off by the Ranger's Deadshot (122,788), the Deadshot itself (30,697), its hit points
+    /// 758,071, a Rooting Eye (838). The 122,788 is the boss healing itself, not the Ranger's
+    /// damage, and with it the HP check matches: 665,980 - 758,071 + 122,788 = 30,697 lost.
+    /// </summary>
+    private static bool RunAion2BossSelfHealScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 a boss healing itself by the hits it takes (real frames, 2026-10-03 23:37):");
+        string[] frames =
+        {
+            "0538A2BC020AB4360D5699BE53BD012464D600",
+            "008DA2BC020201007C290A0000000000",
+            "0538A2BC020AB436175B849009A4BF0783C7D500",
+            "0438A2BC023600B43683C7D500EE0280000118A1815301000000FA60E9EF0104FD17FD17FD17FD170100",
+            "008DA2BC0202010037910B0000000000",
+            "0438A2BC020600B436575FE100F002000001073E095801000000FA60C6060100",
+        };
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        var events = new List<DamageEvent>();
+        uint seq = 9900;
+        DateTime at = new(2026, 10, 3, 21, 37, 10, DateTimeKind.Utc);
+        foreach (string hex in frames)
+        {
+            byte[] body = Convert.FromHexString(hex);
+            var wire = new List<byte>();
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+            source.Ingest(Segment(seq, wire.ToArray()) with { Timestamp = at });
+            events.AddRange(source.Poll(false).Damage);
+            seq += (uint)wire.Count;
+            at = at.AddMilliseconds(50);
+        }
+
+        const int Boss = 40482, Ranger = 6964;
+        bool heal = events.Any(e => e.IsHeal && e.SourceObjectId == Boss && e.TargetObjectId == Boss && e.Amount == 122_788);
+        long rangerDamage = events.Where(e => !e.IsHeal && e.SourceObjectId == Ranger).Sum(e => e.Amount);
+        var readings = dir.HitPoints.SamplesAround(Boss, DateTime.MinValue, DateTime.MaxValue).Select(s => (s.At, s.Hp)).ToList();
+        HpCheckResult? check = HpCheck.Evaluate(readings, events.Where(e => e.TargetObjectId == Boss).ToList(), 869_128);
+        bool matches = check is { Verdict: HpCheckVerdict.Match, Lost: 30_697, Counted: 30_697, Healed: 122_788 };
+        Console.WriteLine($"  -> the 122,788 is the boss healing itself: {heal}; the Ranger's damage 189 + 30,697 + 838: {rangerDamage == 31_724}; HP check {check?.Ratio:P0}: {matches}");
+        return heal && rangerDamage == 31_724 && matches;
+    }
+
+    /// <summary>
+    /// Hits of skills the rDPS watchlist names as target debuffs are damage (real frames): a
+    /// Cleric's Chain of Torment on the boss (2026-10-04 00:16, a critical 21,818) and a Templar's
+    /// Taunt on the expedition boss (2026-10-02 11:36, 3,010). Both used to be dropped as buffs;
+    /// with them the HP check of each fight reads 100.0 %.
+    /// </summary>
+    private static bool RunAion2DebuffHitsScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 hits of target-debuff skills are damage (real frames):");
+        bool Decodes(string hex, int actor, int target, string skill, long amount)
+        {
+            using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+            byte[] body = Convert.FromHexString(hex);
+            var wire = new List<byte>();
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+            source.Ingest(Segment(9900, wire.ToArray()));
+            var hits = source.Poll(false).Damage;
+            return hits.Count == 1 && !hits[0].IsHeal && hits[0].SourceObjectId == actor && hits[0].TargetObjectId == target
+                && hits[0].Skill == skill && hits[0].Amount == amount;
+        }
+
+        bool chain = Decodes("04389D82021600F93EA07804014F038800018B1EBF6501000000DA65BAAA010100", 8057, 33053, "Chain of Torment", 21_818);
+        bool taunt = Decodes("0438C5CE011600A829C0EFB8006A038000010BA73D4801000000D859C2170100", 5288, 26437, "Taunt", 3_010);
+        Console.WriteLine($"  -> Chain of Torment 21,818 counted: {chain}; Taunt 3,010 counted: {taunt}");
+        return chain && taunt;
     }
 
     /// <summary>Name, guild and local-player frames from real captures: the "player seen" frame

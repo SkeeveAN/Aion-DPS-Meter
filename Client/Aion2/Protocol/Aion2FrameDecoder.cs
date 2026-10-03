@@ -432,12 +432,14 @@ public sealed class Aion2FrameDecoder
     /// its summon attack (a spirit's "Fire Spirit: Leaping Slam", a Cleric's "Divine Aura", a
     /// Sorcerer's "Bittercold Wind"), and when the party has exactly one player of that class, known
     /// by id, it is theirs (Canyon Urugugu, recording started mid-fight, 2026-10-03: two Divine Auras
-    /// and two spirits left as Player #id). A named entity is a player, never a summon.
+    /// and two spirits left as Player #id). A spirit's basic attack counts too, though its id names no
+    /// class (see <see cref="Aion2SkillNames.SummonAttackClass"/>): the Ancient Spirit cast nothing
+    /// else once its owner was known. A named entity is a player, never a summon.
     /// </summary>
     private int? LeftoverSummonOwner(int actor, int skillId)
     {
-        if (_entities.IsSpawned(actor) || _entities.HasName(actor) || !Aion2SkillNames.IsSummonAttack(skillId)
-            || Aion2SkillNames.ClassOf(skillId) is not string className)
+        if (_entities.IsSpawned(actor) || _entities.HasName(actor)
+            || Aion2SkillNames.SummonAttackClass(skillId) is not string className)
         {
             return null;
         }
@@ -569,6 +571,14 @@ public sealed class Aion2FrameDecoder
     /// times while the amount ran 251, 168, 85, 2. So 0x0b ticks of a class's heal-family skill, or
     /// of any skill one player keeps on another, are heals of the heal field; potions and other
     /// classless effects are not counted.</para>
+    /// <para>A player's own effects have ids of ten digits that start like the skill's (Drill Dart
+    /// 14050340 ticks as effect 1405000022); a monster's have nine (its skill id x 100 + 11). A tick
+    /// that pairs a monster's effect with a player's class skill is the monster's effect set off by
+    /// that hit, not the player's damage: the boss of 2026-10-03 23:25/23:37 cast 1604660 on itself
+    /// (effect 160466011), and from then on every hit of the Ranger came with such a tick of four
+    /// times the hit - Deadshot 30,697, tick 122,788, hit points 665,980 -> 758,071, up exactly
+    /// 122,788 - 30,697. Counted as damage, the Ranger dealt 1.4 M to a boss of 869 K (HP check
+    /// 163 %). It is the target healing itself, recorded as such (source = target).</para>
     /// </summary>
     private IEnumerable<DamageEvent> DecodeVarintDot(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
@@ -591,6 +601,7 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        uint effectId = BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]);
         p += 4;
         long healed = 0;
         if (!TryReadVarint(frame, ref p, out long amount) || (flags & 0x01) != 0 && !TryReadVarint(frame, ref p, out healed) || frame.Length != p + 4)
@@ -600,6 +611,16 @@ public sealed class Aion2FrameDecoder
         }
 
         int skillId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
+
+        // A monster's effect (nine digits) set off by a player's class skill: the target healing
+        // itself by the amount (see the remarks above), never the player's damage.
+        if (effectId < 1_000_000_000 && Aion2SkillNames.ClassOf(skillId) is not null)
+        {
+            int effectSkill = (int)(effectId / 100);
+            return amount > 0 && amount <= MaxPlausibleAmount
+                ? new[] { new DamageEvent(timestamp, (int)target, (int)target, amount, IsHeal: true, Aion2SkillNames.NameOf(effectSkill), IsTick: true, SkillId: effectSkill) }
+                : Array.Empty<DamageEvent>();
+        }
 
         // No summon guess here (see GuessSummonOwner): a tick's class skill can be the target's own
         // shield, the actor the monster striking it.

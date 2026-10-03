@@ -50,7 +50,11 @@ public static class Aion2SkillNames
 
     /// <summary>True for ids that show up in damage frames but are not damage: consumable uses
     /// (item ids 2,000,000-2,999,999, e.g. "Life Potion" with an amount of 1) and the passive/party
-    /// buffs listed in rdps_watchlist.json (e.g. "Experienced Counterstrike" with an amount of 7).</summary>
+    /// buffs listed in rdps_watchlist.json (e.g. "Experienced Counterstrike" with an amount of 7).
+    /// The list's target debuffs are left out: they are cast on the target and hit it, and their
+    /// hits are damage. A Cleric's Chain of Torment (21,818 and 4,316) and a Templar's Taunt (3,010)
+    /// are exactly what the HP check found missing on four boss captures (2026-10-02/04), each one
+    /// at 100.0 % once they are counted (98.8 / 99.5 / 99.5 / 99.6 % before).</summary>
     public static bool IsNonDamageEffect(int skillId)
     {
         if (skillId is >= 2_000_000 and < 3_000_000)
@@ -68,6 +72,11 @@ public static class Aion2SkillNames
                     using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(WatchlistPath));
                     foreach (JsonElement buff in doc.RootElement.GetProperty("buffs").EnumerateArray())
                     {
+                        if (buff.TryGetProperty("kind", out JsonElement kind) && kind.GetString() == "target_debuff")
+                        {
+                            continue;
+                        }
+
                         set.Add(buff.GetProperty("skillId").GetInt32() / 10000 * 10000);
                     }
                 }
@@ -152,6 +161,16 @@ public static class Aion2SkillNames
         return name is "Divine Aura" or "Bittercold Wind"
             || (name.Contains("Spirit:", StringComparison.Ordinal) && !name.StartsWith("Summon", StringComparison.Ordinal));
     }
+
+    /// <summary>
+    /// The class whose summon casts this attack, or null when it is no summon attack. A summon's
+    /// class skills carry the class in their id; a spirit's basic attack does not ("Fire Spirit:
+    /// Basic Attack" is 100011-100018, "Ancient Spirit: Basic Attack" 100051 and 100055), so there
+    /// the spirit in its name stands for the Spiritmaster.
+    /// </summary>
+    public static string? SummonAttackClass(int skillId) =>
+        !IsSummonAttack(skillId) ? null
+        : ClassOf(skillId) ?? (NameOf(skillId).Contains("Spirit:", StringComparison.Ordinal) ? "Spiritmaster" : null);
 
     /// <summary>
     /// The class in a character record's class code: <c>4 * class id + faction bit</c> (Gladiator 5/6,
