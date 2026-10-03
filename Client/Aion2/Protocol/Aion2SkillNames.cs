@@ -141,11 +141,6 @@ public static class Aion2SkillNames
     };
 
     /// <summary>
-    /// The class in a character record's class code: <c>4 * class id + faction bit</c> (Gladiator 5/6,
-    /// Templar 9/10, Ranger 13/14, Assassin 17/18, Spiritmaster 21/22, Sorcerer 25/26, Cleric 29/30,
-    /// Chanter 33/34). Verified on four known characters; null for anything outside that pattern.
-    /// </summary>
-    /// <summary>
     /// True for a summon's own attack, which only a summoned entity casts: a Spiritmaster spirit's
     /// "Fire Spirit: Leaping Slam" / "Ancient Spirit: Destruction" (the player's own casts are
     /// "Summon: ..." or have no "Spirit:" in their name), a Cleric's Divine Aura, a Sorcerer's
@@ -158,6 +153,11 @@ public static class Aion2SkillNames
             || (name.Contains("Spirit:", StringComparison.Ordinal) && !name.StartsWith("Summon", StringComparison.Ordinal));
     }
 
+    /// <summary>
+    /// The class in a character record's class code: <c>4 * class id + faction bit</c> (Gladiator 5/6,
+    /// Templar 9/10, Ranger 13/14, Assassin 17/18, Spiritmaster 21/22, Sorcerer 25/26, Cleric 29/30,
+    /// Chanter 33/34). Verified on four known characters; null for anything outside that pattern.
+    /// </summary>
     public static string? ClassFromCode(int classCode)
     {
         int id = classCode / 4;

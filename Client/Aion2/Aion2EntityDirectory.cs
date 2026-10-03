@@ -327,8 +327,6 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     // Summoned entity id -> the player who summoned it (see Aion2FrameDecoder.DecodeNpcSpawn).
     private readonly Dictionary<int, int> _summonOwners = new();
 
-    /// <summary>Records who summoned an entity, or (null) that it is nobody's summon - entity ids
-    /// are reused, so a later spawn under the same id clears an earlier owner.</summary>
     // Owners found since the last DrainResolvedOwners: hits the summon dealt before (credited to its
     // own id while nobody knew whose it was) can be handed to its owner.
     private readonly List<(int Summon, int Owner)> _resolvedOwners = new();
@@ -345,6 +343,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    /// <summary>Records who summoned an entity, or (null) that it is nobody's summon - entity ids
+    /// are reused, so a later spawn under the same id clears an earlier owner.</summary>
     public void SetSummonOwner(int entityId, int? ownerId)
     {
         lock (_gate)
