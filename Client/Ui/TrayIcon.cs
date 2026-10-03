@@ -4,52 +4,53 @@ using System.Windows.Forms;
 namespace AionDPS.Ui;
 
 /// <summary>
-/// "Minimize to system tray" (App menu) - hides the window and shows a tray icon with a small
-/// context menu (Show/Close) instead, since a hidden window otherwise has no way back at all.
-/// WPF has no tray-icon API of its own; NotifyIcon (System.Windows.Forms, enabled via
-/// UseWindowsForms in the .csproj purely for this) is the standard way every WPF app gets one.
-/// Constructed lazily (see MainWindow.OnMinimizeToTrayClicked) rather than at startup - no reason
-/// to touch Shell_NotifyIcon at all for a user who never uses this.
+/// The icon in the Windows notification area, shown for as long as the meter runs: a double click
+/// brings the window back, a right click opens a small menu (supplied by the caller). The window can
+/// also be put away into it ("Minimize to system tray" in the App menu), since a hidden window would
+/// otherwise have no way back. WPF has no tray-icon API of its own; NotifyIcon (System.Windows.Forms,
+/// enabled via UseWindowsForms in the .csproj purely for this) is the standard way every WPF app gets one.
 /// </summary>
 internal sealed class TrayIcon : IDisposable
 {
     private readonly NotifyIcon _icon;
     private readonly Window _window;
 
-    public TrayIcon(Window window, string iconPath, string tooltip, string showText, string closeText)
+    public TrayIcon(Window window, string iconPath, string tooltip, IEnumerable<(string? Text, Action? Action)> menuItems)
     {
         _window = window;
         _icon = new NotifyIcon
         {
             Icon = new System.Drawing.Icon(iconPath),
             Text = tooltip,
-            Visible = false,
+            Visible = true,
         };
         _icon.DoubleClick += (_, _) => Restore();
 
         var menu = new ContextMenuStrip();
-        menu.Items.Add(showText, null, (_, _) => Restore());
-        menu.Items.Add(new ToolStripSeparator());
-        // Closes the real window (fires OnClosing/OnClosed normally, same as the titlebar's own
-        // close button) rather than a bare Environment.Exit - a hidden window is still fully
-        // "open" as far as WPF is concerned, so Close() here works exactly like it would if the
-        // window were visible.
-        menu.Items.Add(closeText, null, (_, _) => _window.Close());
+        foreach (var (text, action) in menuItems)
+        {
+            if (text is null)
+            {
+                menu.Items.Add(new ToolStripSeparator());
+            }
+            else
+            {
+                menu.Items.Add(text, null, (_, _) => action?.Invoke());
+            }
+        }
+
         _icon.ContextMenuStrip = menu;
     }
 
-    public void MinimizeToTray()
-    {
-        _icon.Visible = true;
-        _window.Hide();
-    }
+    /// <summary>Puts the window away; the icon stays.</summary>
+    public void HideWindow() => _window.Hide();
 
-    private void Restore()
+    /// <summary>Brings the window back from the tray or the taskbar.</summary>
+    public void Restore()
     {
         _window.Show();
         _window.WindowState = WindowState.Normal;
         _window.Activate();
-        _icon.Visible = false;
     }
 
     public void Dispose()

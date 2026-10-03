@@ -762,14 +762,14 @@
     "zh": "正在查看载入的会话（{0}）- 点击返回当前实时会话。"
   },
   "Main.Tray.Show": {
-    "en": "Show",
-    "de": "Anzeigen",
-    "fr": "Afficher",
-    "es": "Mostrar",
-    "ru": "Показать",
-    "pl": "Pokaż",
-    "tr": "Göster",
-    "zh": "显示"
+    "en": "Show window",
+    "de": "Fenster anzeigen",
+    "fr": "Afficher la fenêtre",
+    "es": "Mostrar ventana",
+    "ru": "Показать окно",
+    "pl": "Pokaż okno",
+    "tr": "Pencereyi göster",
+    "zh": "显示窗口"
   },
   "Settings.AutoUploadProfile": {
     "en": "Upload my character profile automatically after login (so I can be found on the website)",
@@ -890,5 +890,25 @@
     "pl": "Usuń ten skrót",
     "tr": "Bu kısayolu kaldır",
     "zh": "移除此快捷键"
+  },
+  "Main.Tray.ToggleUi": {
+    "en": "Show / hide UI",
+    "de": "UI anzeigen / verstecken",
+    "fr": "Afficher / masquer l'interface",
+    "es": "Mostrar / ocultar la interfaz",
+    "ru": "Показать / скрыть интерфейс",
+    "pl": "Pokaż / ukryj interfejs",
+    "tr": "Arayüzü göster / gizle",
+    "zh": "显示 / 隐藏界面"
+  },
+  "Main.Tray.Exit": {
+    "en": "Exit",
+    "de": "Beenden",
+    "fr": "Quitter",
+    "es": "Salir",
+    "ru": "Выход",
+    "pl": "Zakończ",
+    "tr": "Çıkış",
+    "zh": "退出"
   }
 }

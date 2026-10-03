@@ -584,6 +584,7 @@ public partial class MainWindow : Window
     {
         base.OnSourceInitialized(e);
         _overlay = new NativeOverlay(this);
+        CreateTrayIcon();
         _hotkeys = new GlobalHotkeys(this);
         _hotkeys.Pressed += action => Dispatcher.Invoke(() => OnHotkeyPressed(action), System.Windows.Threading.DispatcherPriority.Input);
         ApplyHotkeys(MeterSettings.Load());
@@ -1874,15 +1875,40 @@ public partial class MainWindow : Window
         Process.Start(new ProcessStartInfo(SessionFile.DefaultDirectory) { UseShellExecute = true });
     }
 
+    /// <summary>The tray icon with its right-click menu; there for as long as the meter runs (not in
+    /// the headless test modes, which must not put anything on the user's screen).</summary>
+    private void CreateTrayIcon()
+    {
+        if (Headless)
+        {
+            return;
+        }
+
+        var loc = LocalizationManager.Instance;
+        try
+        {
+            _trayIcon = new TrayIcon(this,
+                Path.Combine(AppContext.BaseDirectory, "assets", "app", "aiondps.ico"),
+                "Aion DPS Meter " + AppVersion.Text,
+                new (string?, Action?)[]
+                {
+                    (loc["Main.Tray.Show"], () => _trayIcon?.Restore()),
+                    (loc["Main.Tray.ToggleUi"], SetHideUi),
+                    (loc["Main.MenuApp.CheckForUpdates"], () => _ = RunUpdateCheck(announceResult: true)),
+                    (null, null),
+                    (loc["Main.Tray.Exit"], Close),
+                });
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException)
+        {
+            // No icon file: the meter works without a tray icon.
+        }
+    }
+
     private void OnMinimizeToTrayClicked(object sender, RoutedEventArgs e)
     {
         AppMenu.IsSubmenuOpen = false;
-        _trayIcon ??= new TrayIcon(this,
-            Path.Combine(AppContext.BaseDirectory, "assets", "app", "aiondps.ico"),
-            "Aion DPS Meter",
-            LocalizationManager.Instance["Main.Tray.Show"],
-            LocalizationManager.Instance["Main.MenuApp.Close"]);
-        _trayIcon.MinimizeToTray();
+        _trayIcon?.HideWindow();
     }
 
     /// <summary>
