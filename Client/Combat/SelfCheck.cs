@@ -64,6 +64,15 @@ public static class SelfCheck
         var duel = new Schedule.ScheduledEvent("duel", "arena", "1v1", new Dictionary<string, string> { ["en"] = "Duel" }, Array.Empty<Schedule.EventWindow>(), Always: true);
         var (activeF, soonF) = Schedule.EventSchedule.Evaluate(new[] { duel, arena }, monday.AddHours(12), hour);
         ok &= activeF.Count == 2 && activeF[0].Event.Id == "arena" && activeF[1].IsAlways && soonF.Count == 0;
+        // A single dated occurrence (the Abyss raid read off the game's countdown): "soon" within the
+        // hour before, listed as nothing before that and nothing once it has begun.
+        var raid = new Schedule.ScheduledEvent("raid", "raid", null, new Dictionary<string, string> { ["en"] = "Raid" }, Array.Empty<Schedule.EventWindow>(),
+            Dates: new[] { new Schedule.EventDate(monday.AddHours(21), 0) });
+        var (_, soonG) = Schedule.EventSchedule.Evaluate(new[] { raid }, monday.AddHours(20).AddMinutes(10), hour);
+        var (_, soonH) = Schedule.EventSchedule.Evaluate(new[] { raid }, monday.AddHours(19).AddMinutes(30), hour);
+        var (activeI, soonI) = Schedule.EventSchedule.Evaluate(new[] { raid }, monday.AddHours(21).AddMinutes(1), hour);
+        ok &= soonG.Count == 1 && soonH.Count == 0 && activeI.Count == 0 && soonI.Count == 0
+            && Schedule.EventSchedule.NextAfter(raid, monday.AddHours(20))?.Start == monday.AddHours(21);
         // The shipped table has the Arena of Strategy.
         bool shipped = Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_strategy" && e.NameIn("de") == "Arena der Strategie")
             && Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_silence" && e.Always);

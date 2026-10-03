@@ -59,6 +59,21 @@
         "de": "Arena der Kooperation"
       },
       "windows": []
+    },
+    {
+      "id": "abyss_raid",
+      "kind": "raid",
+      "names": {
+        "en": "Abyss Raid",
+        "de": "Abyss-Raid"
+      },
+      "windows": [],
+      "dates": [
+        {
+          "at": "2026-10-03T21:00:00",
+          "minutes": 0
+        }
+      ]
     }
   ]
 }

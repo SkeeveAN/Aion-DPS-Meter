@@ -184,7 +184,8 @@ public sealed class TimetableWindow : Window
             AddSection(loc["Timetable.Soon"], Brushes.Orange);
             foreach (EventOccurrence o in soon)
             {
-                AddLine(Label(o, language), string.Format(loc["Timetable.StartsIn"], Span(o.Start - now)), $"{o.Start:HH:mm}-{o.End:HH:mm}");
+                AddLine(Label(o, language), string.Format(loc["Timetable.StartsIn"], Span(o.Start - now)),
+                    o.End > o.Start ? $"{o.Start:HH:mm}-{o.End:HH:mm}" : $"{o.Start:HH:mm}");
             }
         }
 

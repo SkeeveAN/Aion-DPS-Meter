@@ -8,9 +8,13 @@ namespace AionDPS.Schedule;
 /// start runs past midnight.</summary>
 public sealed record EventWindow(IReadOnlyList<int> Days, TimeSpan Start, TimeSpan End);
 
+/// <summary>A single dated occurrence (the next Abyss raid, read off the game's countdown) in local
+/// time. Without a known length (<see cref="Minutes"/> 0) it is only ever "starts in ...".</summary>
+public sealed record EventDate(DateTime At, int Minutes);
+
 /// <summary>A recurring game event (a battlefield's matchmaking times), named per language. An
 /// <see cref="Always"/> event can be queued for at any time (the 1 vs 1 arena) and has no windows.</summary>
-public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows, bool Always = false)
+public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows, bool Always = false, IReadOnlyList<EventDate>? Dates = null)
 {
     /// <summary>The name in a language (an ISO 639-1 code), else English, else the id.</summary>
     public string NameIn(string language) =>
@@ -59,11 +63,16 @@ public static class EventSchedule
                         TimeSpan.Parse(w.GetProperty("start").GetString()!, System.Globalization.CultureInfo.InvariantCulture),
                         TimeSpan.Parse(w.GetProperty("end").GetString()!, System.Globalization.CultureInfo.InvariantCulture)))
                     .ToList();
+                var dates = e.TryGetProperty("dates", out var dateList)
+                    ? dateList.EnumerateArray().Select(x => new EventDate(
+                        DateTime.Parse(x.GetProperty("at").GetString()!, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None),
+                        x.TryGetProperty("minutes", out var minutes) ? minutes.GetInt32() : 0)).ToList()
+                    : new List<EventDate>();
                 events.Add(new ScheduledEvent(
                     e.GetProperty("id").GetString()!,
                     e.TryGetProperty("kind", out var kind) ? kind.GetString() ?? "" : "",
                     e.TryGetProperty("players", out var players) ? players.GetString() : null,
-                    names, windows, e.TryGetProperty("always", out var always) && always.GetBoolean()));
+                    names, windows, e.TryGetProperty("always", out var always) && always.GetBoolean(), dates));
             }
 
             return events;
@@ -116,6 +125,11 @@ public static class EventSchedule
     /// started yesterday).</summary>
     private static IEnumerable<EventOccurrence> OccurrencesAround(ScheduledEvent scheduled, DateTime now, int daysBefore = 1, int daysAfter = 1)
     {
+        foreach (EventDate date in scheduled.Dates ?? Array.Empty<EventDate>())
+        {
+            yield return new EventOccurrence(scheduled, date.At, date.At.AddMinutes(date.Minutes));
+        }
+
         for (int offset = -daysBefore; offset <= daysAfter; offset++)
         {
             DateTime day = now.Date.AddDays(offset);
