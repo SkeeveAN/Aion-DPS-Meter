@@ -40,6 +40,7 @@ public static class SelfCheckAion2
         ok &= RunAion2HitPointsScenario();
         ok &= RunHpCheckScenario();
         ok &= RunAion2BossSelfHealScenario();
+        ok &= RunAion2DebuffHitsScenario();
         ok &= RunAion2SoloLocalNameScenario();
         ok &= RunAion2NamesScenario();
         ok &= RunAion2MidStreamScenario();
@@ -919,6 +920,41 @@ public static class SelfCheckAion2
         bool matches = check is { Verdict: HpCheckVerdict.Match, Lost: 30_697, Counted: 30_697, Healed: 122_788 };
         Console.WriteLine($"  -> the 122,788 is the boss healing itself: {heal}; the Ranger's damage 189 + 30,697 + 838: {rangerDamage == 31_724}; HP check {check?.Ratio:P0}: {matches}");
         return heal && rangerDamage == 31_724 && matches;
+    }
+
+    /// <summary>
+    /// Hits of skills the rDPS watchlist names as target debuffs are damage (real frames): a
+    /// Cleric's Chain of Torment on the boss (2026-10-04 00:16, a critical 21,818) and a Templar's
+    /// Taunt on the expedition boss (2026-10-02 11:36, 3,010). Both used to be dropped as buffs;
+    /// with them the HP check of each fight reads 100.0 %.
+    /// </summary>
+    private static bool RunAion2DebuffHitsScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 hits of target-debuff skills are damage (real frames):");
+        bool Decodes(string hex, int actor, int target, string skill, long amount)
+        {
+            using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+            byte[] body = Convert.FromHexString(hex);
+            var wire = new List<byte>();
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+            source.Ingest(Segment(9900, wire.ToArray()));
+            var hits = source.Poll(false).Damage;
+            return hits.Count == 1 && !hits[0].IsHeal && hits[0].SourceObjectId == actor && hits[0].TargetObjectId == target
+                && hits[0].Skill == skill && hits[0].Amount == amount;
+        }
+
+        bool chain = Decodes("04389D82021600F93EA07804014F038800018B1EBF6501000000DA65BAAA010100", 8057, 33053, "Chain of Torment", 21_818);
+        bool taunt = Decodes("0438C5CE011600A829C0EFB8006A038000010BA73D4801000000D859C2170100", 5288, 26437, "Taunt", 3_010);
+        Console.WriteLine($"  -> Chain of Torment 21,818 counted: {chain}; Taunt 3,010 counted: {taunt}");
+        return chain && taunt;
     }
 
     /// <summary>Name, guild and local-player frames from real captures: the "player seen" frame
