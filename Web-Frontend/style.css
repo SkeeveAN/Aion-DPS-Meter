@@ -2045,42 +2045,26 @@ strong[class^="heat-"] {
   opacity: 0.6;
 }
 
-/* Download page: its download buttons are blue, not gold - the same blue as .btn-blue, which the
-   rest of the site already uses. Scoped by the page's own hero so other pages keep the gold CTA. */
-.download-cta {
-  background: linear-gradient(to bottom, #72c1ff, #3196e8);
-  color: #08213d;
-  border-color: #176bb3;
-  box-shadow: 0 4px 18px rgba(49, 150, 232, 0.3);
-}
-
-.download-cta:hover {
-  background: linear-gradient(to bottom, #8fcdff, #4aa5ee);
-  box-shadow: 0 6px 24px rgba(49, 150, 232, 0.45);
-}
-
-.download-cta:active {
-  background: linear-gradient(to bottom, #3196e8, #2a86d2);
-}
-
+/* Download page: the header link and the footer button step back so the page's own gold download
+   button is the only thing that stands out. Both take the theme's surface colours, so dark and
+   light mode each get a quiet button close to their own background. Scoped by the page's hero. */
+body:has(.download-hero) .nav-download-link,
 #app:has(.download-hero) .btn-orange {
-  --btn-color-top: #72c1ff;
-  --btn-color-bottom: #3196e8;
-  --btn-edge: #176bb3;
-  --btn-shadow: rgba(0, 55, 110, 0.4);
-  --btn-rim: rgba(173, 220, 255, 0.6);
-  --btn-glow: rgba(49, 150, 232, 0.55);
-  color: #08213d;
+  --btn-color-top: color-mix(in srgb, var(--color-surface) 88%, var(--color-text));
+  --btn-color-bottom: var(--color-surface);
+  --btn-edge: var(--color-border);
+  --btn-shadow: transparent;
+  --btn-rim: transparent;
+  --btn-glow: transparent;
+  color: var(--color-text-muted);
+  background: linear-gradient(to bottom, var(--btn-color-top), var(--btn-color-bottom));
+  border-color: var(--color-border);
+  box-shadow: none;
+  text-shadow: none;
 }
 
-/* The header's download link on the download page: same blue as the buttons below it. */
-body:has(.download-hero) .nav-download-link {
-  color: #08213d;
-  background: linear-gradient(to bottom, #b8e0ff 0%, #5db2f5 45%, #2f86d4 100%);
-  border-color: #176bb3;
-  box-shadow:
-    0 2px 0 #176bb3,
-    0 5px 10px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 0 14px rgba(49, 150, 232, 0.45);
+body:has(.download-hero) .nav-download-link:hover,
+#app:has(.download-hero) .btn-orange:hover {
+  color: var(--color-text);
+  box-shadow: none;
 }
