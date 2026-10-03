@@ -151,6 +151,109 @@ public static class Aion2SkillNames
         return classCode % 4 is 1 or 2 && id is >= 1 and <= 8 ? ClassById[id - 1] : null;
     }
 
+    /// <summary>
+    /// The class in a party roster member's code: <c>4 * class id + 1..4</c> (Gladiator 5-8 ...
+    /// Chanter 33-36). Verified on 15 members of three Draupnir/Krao Cave rosters (2026-10-02)
+    /// against the classes their skills show: Gladiator 6, Templar 10, Elementalist 21/24,
+    /// Sorcerer 26/27/28, Cleric 30/32, Chanter 34.
+    /// </summary>
+    public static string? ClassFromRosterCode(int code)
+    {
+        int id = (code - 1) / 4;
+        return code >= 1 && id is >= 1 and <= 8 ? ClassById[id - 1] : null;
+    }
+
+    private static readonly string LocalizedPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "skill_names_i18n.json");
+    private static IReadOnlyDictionary<int, Dictionary<string, string>>? _localized;
+
+    /// <summary>The UI language (an ISO 639-1 code; the UI sets it) for <see cref="Display"/>. The
+    /// names in the events stay English (<see cref="NameOf"/>): they are uploaded and grouped by,
+    /// and "Vent glacial" from one player and "Bittercold Wind" from another would split a skill.</summary>
+    public static string Language { get; set; } = "en";
+
+    private static IReadOnlyDictionary<string, int>? _localizedIdsByName;
+
+    /// <summary>
+    /// The name to show for an English skill name (as <see cref="NameOf"/> gives it): the client's
+    /// own text in the UI language when it has the skill, else the English name.
+    /// </summary>
+    public static string Display(string? englishName)
+    {
+        if (englishName is null || Language == "en")
+        {
+            return englishName ?? "";
+        }
+
+        if (LocalizedIdsByName().TryGetValue(englishName, out int id)
+            && LoadLocalized().TryGetValue(id, out var names)
+            && names.TryGetValue(Language, out string? name) && !string.IsNullOrWhiteSpace(name))
+        {
+            return name;
+        }
+
+        return englishName;
+    }
+
+    // English name -> the lowest skill id under that name that has localized names.
+    private static IReadOnlyDictionary<string, int> LocalizedIdsByName()
+    {
+        if (_localizedIdsByName is { } cached)
+        {
+            return cached;
+        }
+
+        var localized = LoadLocalized();
+        var byName = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach ((int id, string name) in Load().OrderBy(kv => kv.Key))
+        {
+            if (localized.ContainsKey(id))
+            {
+                byName.TryAdd(name, id);
+            }
+        }
+
+        _localizedIdsByName = byName;
+        return byName;
+    }
+
+    /// <summary>
+    /// Skill id → name per game language, from assets/aion2/skills/skill_names_i18n.json
+    /// ({"15280000": {"fr": "Vent glacial", ...}}): the client's own text tables, read by the
+    /// upstream project's Tools/aion2-dat (SkeeveAN/Aion-DPS-Meter, MIT). 4,585 skills in en, de,
+    /// fr, es, ru, ja, ko and pt; a skill missing there keeps its English name.
+    /// </summary>
+    private static IReadOnlyDictionary<int, Dictionary<string, string>> LoadLocalized()
+    {
+        if (_localized is { } cached)
+        {
+            return cached;
+        }
+
+        var table = new Dictionary<int, Dictionary<string, string>>();
+        try
+        {
+            if (File.Exists(LocalizedPath))
+            {
+                var raw = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(LocalizedPath)) ?? new();
+                foreach ((string key, Dictionary<string, string> names) in raw)
+                {
+                    if (int.TryParse(key, out int id))
+                    {
+                        table[id] = names;
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or JsonException)
+        {
+            // No table: English names.
+        }
+
+        _localized = table;
+        return table;
+    }
+
+    /// <summary>The English name (the data model's; see <see cref="Display"/> for the UI).</summary>
     public static string NameOf(int skillId)
     {
         IReadOnlyDictionary<int, string> table = Load();

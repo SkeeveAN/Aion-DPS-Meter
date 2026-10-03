@@ -31,6 +31,7 @@ public static class SelfCheckAion2
         ok &= RunAion2SummonOwnerScenario();
         ok &= RunAion2NamedSummonScenario();
         ok &= RunAion2GuildScenario();
+        ok &= RunAion2PartyByClassScenario();
         ok &= RunAion2ShieldIsNoSummonScenario();
         ok &= RunAion2TwoSorcerersScenario();
         ok &= RunAion2DotTickScenario();
@@ -46,6 +47,7 @@ public static class SelfCheckAion2
         ok &= RunRestartSnapshotScenario();
         ok &= RunAion2BossSpawnScenario();
         ok &= RunClassCatalogScenario();
+        ok &= RunSkillNameLanguageScenario();
         ok &= RunSettingsMigrationScenario();
         ok &= RunHotkeyBindingScenario();
         return ok;
@@ -710,6 +712,63 @@ public static class SelfCheckAion2
         return ok && none;
     }
 
+    /// <summary>
+    /// The meter started inside a dungeon (Draupnir capture replayed from 23:08:20, 2026-10-02):
+    /// the real party roster names Butterfinger, Lumy, Aurulio, Keraut and Boulenbouche with their
+    /// class codes (32 Cleric, 26/27 Sorcerer, 10 Templar, 21 Elementalist). Keraut, Lumy and
+    /// Aurulio are named, the local player is Boulenbouche, and the Cleric 3415 fights the boss
+    /// unnamed: being the party's only Cleric without an id, it is Butterfinger. A Cleric that
+    /// used two skills only (a summon whose owner is unknown) does not count.
+    /// </summary>
+    private static bool RunAion2PartyByClassScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 party member named by class (real Draupnir roster):");
+        const string roster = "0297B86E030009466C7574736368696505DF2709000003F1AC030000000009FF0203051E01F1AC0300000000090C42757474657266696E676572200000002D000000F30200000009D61004D396000000000000000F0000000000000001011E024CBE030000001505044C756D791A0000002D000000EA0300001505D61004D8CC00000000000000470000000000000001011E03627003000000000907417572756C696F1B0000002D000000E20300000009D61004E3AF000000000000004B0000000000000001011E04D730040000001505064B65726175740A0000002D00000083030000071505D6100417B100000000000000200000000000000001011E05068E0300000017050C426F756C656E626F75636865150000002D000000910400001705D6100423D70000000000000034000000000000000101000A";
+        byte[] body = Convert.FromHexString(roster);
+        var wire = new List<byte>();
+        int length = body.Length + 4;
+        while (length >= 0x80)
+        {
+            wire.Add((byte)(length & 0x7f | 0x80));
+            length >>= 7;
+        }
+
+        wire.Add((byte)length);
+        wire.AddRange(body);
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        dir.SetConfiguredLocalName("Boulenbouche");
+        dir.Register(8485, "Keraut");
+        dir.Register(15882, "Lumy");
+        dir.Register(16061, "Aurulio");
+        foreach ((int id, string cls) in new[] { (8485, "Templar"), (15882, "Sorcerer"), (16061, "Sorcerer"), (2657, "Elementalist"), (3415, "Cleric"), (39712, "Cleric") })
+        {
+            dir.NoteClass(id, cls);
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            dir.NoteDetailedStats(2657);
+        }
+
+        source.Ingest(Segment(9900, wire.ToArray()));
+        source.Poll(false);
+        const int Boss = 21098;
+        dir.NoteMonsterHit(8485, Boss, 12060140);
+        dir.NoteMonsterHit(39712, Boss, 17150002);
+        dir.NoteMonsterHit(39712, Boss, 17150003);
+        bool notYet = dir.NameFor(3415) == "Player #3415";
+        foreach (int skill in new[] { 17730001, 17010000, 17020000, 17040000 })
+        {
+            dir.NoteMonsterHit(3415, Boss, skill);
+        }
+
+        bool named = dir.NameFor(3415) == "Butterfinger" && dir.NameFor(39712) == "Player #39712";
+        Console.WriteLine($"  -> unnamed until the Cleric is told from a summon: {notYet}; then Butterfinger, the summon left alone: {named}");
+        return notYet && named;
+    }
+
     /// <summary>Name, guild and local-player frames from real captures: the "player seen" frame
     /// (0x048d, your own entry from the 20:16 session) and the party roster + nickname frames (the
     /// 23:02 instance run; nickname frames are the real prefix of the frame, cut after the name).</summary>
@@ -1202,6 +1261,24 @@ public static class SelfCheckAion2
         BinaryPrimitives.WriteUInt16LittleEndian(bytes, (ushort)text.Length);
         chars.CopyTo(bytes, 2);
         return bytes;
+    }
+
+    /// <summary>Skill names stay English in the data (they are uploaded and grouped by) and show in
+    /// the UI language (the game's own French names), falling back to English.</summary>
+    private static bool RunSkillNameLanguageScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 skill names in the UI language:");
+        string before = Aion2SkillNames.Language;
+        Aion2SkillNames.Language = "fr";
+        string data = Aion2SkillNames.NameOf(15280000);
+        string wind = Aion2SkillNames.Display(data);
+        string barrier = Aion2SkillNames.Display(Aion2SkillNames.NameOf(15160000));
+        Aion2SkillNames.Language = "en";
+        string english = Aion2SkillNames.Display(data);
+        Aion2SkillNames.Language = before;
+        bool ok = data == "Bittercold Wind" && wind == "Vent glacial" && barrier == "Barrière d'acier" && english == "Bittercold Wind";
+        Console.WriteLine($"  -> data stays \"{data}\"; shown fr \"{wind}\", \"{barrier}\"; en \"{english}\": {ok}");
+        return ok;
     }
 
     private static bool RunClassCatalogScenario()

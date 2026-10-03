@@ -37,7 +37,7 @@ public partial class PlayerDetailsWindow : Window
         long total = breakdown.Sum(u => u.Total);
         var rows = breakdown
             .Select(u => new SkillRow(
-                u.Skill,
+                Aion2.Protocol.Aion2SkillNames.Display(u.Skill),
                 u.Hits,
                 100.0 * u.CritHits / u.Hits,
                 u.Total,
