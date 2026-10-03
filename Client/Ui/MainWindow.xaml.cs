@@ -754,11 +754,13 @@ public partial class MainWindow : Window
         // Rank and share are relative to what is on screen, so they are settled once every row's
         // damage for this refresh is known - and by damage, not by the grid's current sort order.
         long shownTotal = _rows.Sum(r => r.Damage);
+        long shownMax = _rows.Count > 0 ? _rows.Max(r => r.Damage) : 0;
         int rank = 0;
         foreach (PlayerRow row in _rows.OrderByDescending(r => r.Damage))
         {
             row.Rank = ++rank;
             row.SharePercent = shownTotal > 0 ? 100.0 * row.Damage / shownTotal : 0;
+            row.FillPercent = shownMax > 0 ? 100.0 * row.Damage / shownMax : 0;
         }
     }
 

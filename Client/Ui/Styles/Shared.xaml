@@ -23,4 +23,22 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- Coloured meter bar behind a player's row (PlayerRow.FillPercent / ClassBrush): as long as the
+         row's damage is of the biggest row shown, in the class colour - the website's meter bars. -->
+    <Style x:Key="RowFillBar" TargetType="ProgressBar">
+        <Setter Property="Minimum" Value="0"/>
+        <Setter Property="Maximum" Value="100"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Grid>
+                        <Border x:Name="PART_Track" Background="Transparent"/>
+                        <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}" CornerRadius="3"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

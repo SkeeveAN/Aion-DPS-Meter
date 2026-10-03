@@ -1086,9 +1086,12 @@
                                          (8, not 0) per the user, who wanted the same clearance on
                                          both sides instead of the row starting flush against the
                                          left edge. -->
+                                    <Grid>
+                                        <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding FillPercent, Mode=OneWay}"
+                                                     Foreground="{Binding ClassBrush}" Margin="0,1"
+                                                     Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                                     <Grid Margin="8,4,8,4">
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
@@ -1117,14 +1120,6 @@
                                                        VerticalAlignment="Bottom" Margin="6,0,4,0"/>
                                         </Grid>
 
-                                        <!-- Same ShareBar as before (Ui/Styles/Shared.xaml), now
-                                             spanning this whole merged column instead of just the old
-                                             124px Damage column - per the user, starts flush under the
-                                             faction icon (Margin.Left 0) rather than under the name. -->
-                                        <ProgressBar Grid.Row="1" Style="{StaticResource ShareBar}" Value="{Binding SharePercent, Mode=OneWay}"
-                                                     Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"
-                                                     Margin="0,2,0,1"/>
-
                                         <!-- Second line: relic AP (ApDisplay), damage received
                                              (TakenDisplay), avoided attacks (DefenseDisplay - real
                                              D/P/B/R values, never invented placeholders) and PVP stats
@@ -1140,7 +1135,7 @@
                                              here at all; collapsing the row (Auto height) rather
                                              than rendering four empty TextBlocks is what actually
                                              makes the row narrower by default, not just blank. -->
-                                        <StackPanel Grid.Row="2" Orientation="Horizontal"
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal"
                                                     Visibility="{Binding HasSecondaryInfo, Converter={StaticResource BoolToVis}}">
                                             <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
                                             <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Margin="6,0,0,0"
@@ -1150,6 +1145,7 @@
                                             <TextBlock Text="{Binding PvpDisplay}" Foreground="{DynamicResource Brush.Accent}" FontSize="11" Margin="6,0,0,0"
                                                        ToolTip="PVP: kills / deaths and the biggest hit landed on a player"/>
                                         </StackPanel>
+                                    </Grid>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -1214,6 +1210,10 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
+                        <Grid>
+                        <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding FillPercent, Mode=OneWay}"
+                                     Foreground="{Binding ClassBrush}"
+                                     Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                         <StackPanel>
                             <!-- Same layout as the normal window's row: the player on the left, damage and
                                  DPS pushed to the right edge - the chip spans the whole window width. -->
@@ -1235,8 +1235,6 @@
                                                FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                             </DockPanel>
-                            <ProgressBar Style="{StaticResource ShareBar}" Value="{Binding SharePercent, Mode=OneWay}"
-                                         Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"/>
                                 <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10" Margin="6,0,0,0"/>
@@ -1244,6 +1242,7 @@
                                 <TextBlock Text="{Binding PvpDisplay}" Foreground="{DynamicResource Brush.Accent}" FontSize="10" Margin="6,0,0,0"/>
                             </StackPanel>
                         </StackPanel>
+                        </Grid>
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

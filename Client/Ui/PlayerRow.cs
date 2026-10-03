@@ -40,7 +40,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string ClassName
     {
         get => _className;
-        set { _className = value; OnPropertyChanged(); }
+        set { _className = value; OnPropertyChanged(); OnPropertyChanged(nameof(ClassBrush)); }
     }
 
     public int Level
@@ -116,6 +116,19 @@ public sealed class PlayerRow : INotifyPropertyChanged
         get => _rank;
         set { _rank = value; OnPropertyChanged(); OnPropertyChanged(nameof(RankDisplay)); }
     }
+
+    /// <summary>This row's damage as a share of the biggest row shown, 0-100 - the length of the coloured
+    /// bar behind the row (the website's meter bars work the same way).</summary>
+    public double FillPercent
+    {
+        get => _fillPercent;
+        set { _fillPercent = value; OnPropertyChanged(); }
+    }
+
+    private double _fillPercent;
+
+    /// <summary>The class colour, translucent, for that bar. Same colours as the website's meter.</summary>
+    public System.Windows.Media.Brush ClassBrush => ClassBrushes.For(ClassName);
 
     public string RankDisplay => Rank > 0 ? Rank.ToString() : "";
 
