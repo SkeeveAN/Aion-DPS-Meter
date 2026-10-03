@@ -24,6 +24,27 @@ public sealed class LiveAggregator
     /// </summary>
     public void Clear() => _events.Clear();
 
+    /// <summary>
+    /// Credits a summon's earlier hits to its owner, once the owner is known: the class-skill hits
+    /// (a summon's attacks are its class's skills) <paramref name="summon"/> dealt. Other events
+    /// under that id - a monster that held it before - stay as they are.
+    /// </summary>
+    public int Reattribute(int summon, int owner)
+    {
+        int changed = 0;
+        for (int i = 0; i < _events.Count; i++)
+        {
+            DamageEvent ev = _events[i];
+            if (ev.SourceObjectId == summon && ev.SkillId != 0 && Aion2.Protocol.Aion2SkillNames.ClassOf(ev.SkillId) is not null)
+            {
+                _events[i] = ev with { SourceObjectId = owner };
+                changed++;
+            }
+        }
+
+        return changed;
+    }
+
     /// <summary>One-line-per-source leaderboard for the console dump: total damage and wall-clock
     /// "ALL" DPS since the first hit seen for that source (see DpsCalculator remarks on why this is
     /// the ambiguous, gap-inclusive variant rather than iDPS). <paramref name="nameResolver"/> lets

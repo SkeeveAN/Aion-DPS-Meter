@@ -324,7 +324,7 @@ public sealed class Aion2FrameDecoder
         if (frame[p + 2] == 1 && TryReadName(frame, p + 3, out string named, minLength: 2))
         {
             ownerName = named;
-            p += 1 + named.Length;
+            p += 1 + frame[p + 3]; // the length prefix counts bytes (ë is two), not characters
             if (frame.Length < p + 7)
             {
                 return;
@@ -426,6 +426,32 @@ public sealed class Aion2FrameDecoder
         }
     }
 
+    /// <summary>
+    /// A summon that appeared before the meter started has no spawn frame on record, so neither its
+    /// owner field nor its owner's name nor the cast before it is known. It still casts nothing but
+    /// its summon attack (a spirit's "Fire Spirit: Leaping Slam", a Cleric's "Divine Aura", a
+    /// Sorcerer's "Bittercold Wind"), and when the party has exactly one player of that class, known
+    /// by id, it is theirs (Canyon Urugugu, recording started mid-fight, 2026-10-03: two Divine Auras
+    /// and two spirits left as Player #id). A named entity is a player, never a summon.
+    /// </summary>
+    private int? LeftoverSummonOwner(int actor, int skillId)
+    {
+        if (_entities.IsSpawned(actor) || _entities.HasName(actor) || !Aion2SkillNames.IsSummonAttack(skillId)
+            || Aion2SkillNames.ClassOf(skillId) is not string className)
+        {
+            return null;
+        }
+
+        var owners = _entities.PartyPlayerIdsOfClass(className).Where(id => id != actor).ToList();
+        if (owners.Count != 1)
+        {
+            return null;
+        }
+
+        _entities.SetSummonOwner(actor, owners[0]);
+        return owners[0];
+    }
+
     private static ReadOnlySpan<byte> OwnerMarker => new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
     private IEnumerable<DamageEvent> DecodeVarintDamage(ReadOnlySpan<byte> frame, DateTime timestamp)
@@ -496,7 +522,8 @@ public sealed class Aion2FrameDecoder
 
         // A summoned spirit's hits are its summoner's, as in the game's own combat analyzer. The heal
         // test below still looks at the spirit itself: its spawn "heal" targets its own id.
-        int source = _entities.SummonOwnerOf((int)actor) ?? GuessSummonOwner((int)actor, skillId, (int)target) ?? (int)actor;
+        int source = _entities.SummonOwnerOf((int)actor) ?? GuessSummonOwner((int)actor, skillId, (int)target)
+            ?? LeftoverSummonOwner((int)actor, skillId) ?? (int)actor;
         if (Aion2SkillNames.ClassOf(skillId) is string className)
         {
             _entities.NoteClass(source, className);
@@ -697,7 +724,7 @@ public sealed class Aion2FrameDecoder
             if (TryReadName(frame, k, out string name))
             {
                 _entities.Register((int)id, name);
-                ReadSeenProfile(frame, (int)id, k + 1 + name.Length);
+                ReadSeenProfile(frame, (int)id, k + 1 + frame[k]);
 
                 // A player in a guild: further on, the frame carries server id (u16: 17 05 = 1303,
                 // 18 05 = 1304 Kaisinel) | guild id (u32, non-zero) | 00 00 | the same server id |
@@ -707,7 +734,7 @@ public sealed class Aion2FrameDecoder
                 // and reading any "server id + name" pair there picked up garbage ("odd",
                 // "jd47ddddep"). Remembered so the roster's leftover name is the player's, not the
                 // guild's.
-                for (int i = k + 1 + name.Length; i + 11 < frame.Length; i++)
+                for (int i = k + 1 + frame[k]; i + 11 < frame.Length; i++)
                 {
                     int server = frame[i] | frame[i + 1] << 8;
                     if (server is >= 1000 and <= 9999 && frame[i + 8] == frame[i] && frame[i + 9] == frame[i + 1]
@@ -750,7 +777,7 @@ public sealed class Aion2FrameDecoder
 
         _entities.Register((int)id, name);
         NoteServerId(frame[p] | frame[p + 1] << 8, name);
-        if (TryReadName(frame, p + 3 + name.Length, out string guild, minLength: 2) && guild != name)
+        if (TryReadName(frame, p + 3 + frame[p + 2], out string guild, minLength: 2) && guild != name)
         {
             _entities.SetGuild((int)id, guild);
             _entities.NoteNonPlayerName(guild);
@@ -779,7 +806,7 @@ public sealed class Aion2FrameDecoder
                 continue;
             }
 
-            int after = k + 1 + name.Length;
+            int after = k + 1 + frame[k];
             if (after + 11 > frame.Length || frame[after + 6] != 1)
             {
                 continue;
@@ -997,7 +1024,9 @@ public sealed class Aion2FrameDecoder
                 continue;
             }
 
-            int after = i + 1 + name.Length;
+            // The length prefix counts bytes: "Azaëde" is 6 characters and 7 bytes, and counting
+            // characters dropped every accented member from the party (Canyon Urugugu, 2026-10-03).
+            int after = i + 1 + frame[i];
             if (after + 8 > frame.Length || frame[after + 1] != 0 || frame[after + 2] != 0 || frame[after + 3] != 0
                 || frame[after + 5] != 0 || frame[after + 6] != 0 || frame[after + 7] != 0)
             {

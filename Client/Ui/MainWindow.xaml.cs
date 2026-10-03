@@ -475,6 +475,16 @@ public partial class MainWindow : Window
         _kills.AddRange(batch.Kills);
         NoteBossKills(batch.Kills);
         IReadOnlyList<DamageEvent> events = batch.Damage;
+
+        // Hits a summon dealt before its owner was known (the meter started mid-fight) go to the
+        // owner once found, instead of staying on a "Player #id" row.
+        if (_source?.Entities is Aion2.Aion2EntityDirectory resolvedIn)
+        {
+            foreach ((int summon, int owner) in resolvedIn.DrainResolvedOwners())
+            {
+                _aggregator.Reattribute(summon, owner);
+            }
+        }
         if (_autoReset && !_historyMode && (StartsNewFight(events) || StartsNewBossPull(events)))
         {
             // Files the finished fight in the history, then starts from zero.

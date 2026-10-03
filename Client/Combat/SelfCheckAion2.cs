@@ -32,6 +32,7 @@ public static class SelfCheckAion2
         ok &= RunAion2NamedSummonScenario();
         ok &= RunAion2GuildScenario();
         ok &= RunAion2PartyByClassScenario();
+        ok &= RunAion2AccentAndLeftoverSummonScenario();
         ok &= RunAion2ShieldIsNoSummonScenario();
         ok &= RunAion2TwoSorcerersScenario();
         ok &= RunAion2DotTickScenario();
@@ -767,6 +768,44 @@ public static class SelfCheckAion2
         bool named = dir.NameFor(3415) == "Butterfinger" && dir.NameFor(39712) == "Player #39712";
         Console.WriteLine($"  -> unnamed until the Cleric is told from a summon: {notYet}; then Butterfinger, the summon left alone: {named}");
         return notYet && named;
+    }
+
+    /// <summary>
+    /// Canyon Urugugu, recording started mid-fight (2026-10-03): the real party roster lists Azaëde,
+    /// a name of 6 characters and 7 bytes - counting characters dropped her from the party. And a
+    /// Divine Aura (46606) whose spawn was never seen hits Divine Auldor (36047): the party's only
+    /// Cleric, Kayzia (250), owns it.
+    /// </summary>
+    private static bool RunAion2AccentAndLeftoverSummonScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 accented party member and a summon from before the recording (real Canyon Urugugu frames):");
+        const string roster = "0297723205001244C3A97061727420696D6DC3A9646961742E05CC2709000003038C030000001705FF0203051E01038C03000000170507417A61C3AB6465220000002D000000D60500001705D210048F1901000000000000320000000000000001011E02068E0300000017050C426F756C656E626F75636865150000002D000000780500001705D21004BEF900000000000000370000000000000001011E03E14E030000001705064B61797A69611E0000002D000000060700001705D21004A149010000000000003C0000000000000001011E04AC8603000000FD08054B6E6F756F100000002D000000AB05000001FD08D210040718010000000000004400000000000000010200050000000000000000000000000000000000000000000400000000000000000000000004";
+        const string auraHit = "0438CF990224008EEC0286B10501020293D3386601000000DA65A516029D029D020100";
+        var wire = new List<byte>();
+        foreach (string hex in new[] { roster, auraHit })
+        {
+            byte[] body = Convert.FromHexString(hex);
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        dir.Register(250, "Kayzia");
+        dir.NoteClass(250, "Cleric");
+        source.Ingest(Segment(9900, wire.ToArray()));
+        var hits = source.Poll(false).Damage;
+        bool azaede = dir.PartyNames.Contains("Aza\u00EBde") && dir.PartyNames.Contains("Kayzia");
+        bool aura = hits.Count == 1 && hits[0].SourceObjectId == 250 && dir.SummonOwnerOf(46606) == 250;
+        Console.WriteLine($"  -> Azaëde in the party: {azaede}; the Divine Aura's hit is Kayzia's: {aura}");
+        return azaede && aura;
     }
 
     /// <summary>Name, guild and local-player frames from real captures: the "player seen" frame
