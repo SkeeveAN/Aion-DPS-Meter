@@ -25,6 +25,28 @@ internal sealed class NativeOverlay : IDisposable
     [DllImport("user32.dll")]
     private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+    /// <summary>True while Windows' own screenshot tool (Win+Shift+S) has the screen: raising the
+    /// meter above its dimmed overlay would put the meter in the way of the selection.</summary>
+    private static bool ScreenClippingActive()
+    {
+        try
+        {
+            GetWindowThreadProcessId(GetForegroundWindow(), out uint pid);
+            using var process = System.Diagnostics.Process.GetProcessById((int)pid);
+            return process.ProcessName is "ScreenClippingHost" or "SnippingTool" or "ScreenSketch";
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            return false;
+        }
+    }
+
     private static readonly IntPtr HwndTopmost = new(-1);
     private const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;
 
@@ -37,7 +59,7 @@ internal sealed class NativeOverlay : IDisposable
     /// </summary>
     public static void KeepOnTop(IntPtr hwnd)
     {
-        if (hwnd != IntPtr.Zero)
+        if (hwnd != IntPtr.Zero && !ScreenClippingActive())
         {
             SetWindowPos(hwnd, HwndTopmost, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate);
         }

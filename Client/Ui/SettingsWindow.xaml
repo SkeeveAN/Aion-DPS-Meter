@@ -443,10 +443,11 @@
                         <CheckBox x:Name="PartyOnlyBox" Content="{local:Loc Settings.PartyOnly}" Margin="0,3"
                                   ToolTip="{local:Loc Settings.PartyOnly.Tooltip}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,3">
-                            <CheckBox x:Name="AutoResetBox" Content="{local:Loc Settings.AutoReset}" VerticalAlignment="Center"
+                            <CheckBox x:Name="AutoResetBox" Content="{local:Loc Settings.AutoReset}" VerticalAlignment="Center" Margin="0"
                                       ToolTip="{local:Loc Settings.AutoReset.Tooltip}"/>
                             <TextBox x:Name="AutoResetSecondsBox" Width="44" Height="24" Margin="6,0,4,0" VerticalContentAlignment="Center"
                                      HorizontalContentAlignment="Right" MaxLength="3"
+                                     Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"
                                      IsEnabled="{Binding IsChecked, ElementName=AutoResetBox}" PreviewTextInput="OnDigitsOnly"/>
                             <TextBlock Text="{local:Loc Settings.AutoReset.Seconds}" VerticalAlignment="Center"/>
                         </StackPanel>
