@@ -121,6 +121,11 @@ public partial class MainWindow : Window
 
     // The players who fought the same monsters as the group, for the corps scope (see ComputeCorps).
     private HashSet<int> _corpsIds = new();
+
+    // Everyone the party roster named since the data was last cleared. Leaving the group (after the
+    // boss is dead, out of the instance) empties the roster, but the fight on screen is still that
+    // group's: the group scope has to keep showing them.
+    private readonly HashSet<string> _groupNames = new(StringComparer.Ordinal);
     private HpCheckResult? _lastHpCheck;
 
     /// <summary>Silence after which the next damage starts a new fight (MeterSettings.AutoReset and
@@ -829,6 +834,14 @@ public partial class MainWindow : Window
                 ? ShownFightHits(damageOnly, targetId)
                 : RestrictToEngagedTargets(damageOnly.ToList());
 
+        if (_source?.Entities is Aion2.Aion2EntityDirectory rosterDirectory)
+        {
+            foreach (string member in rosterDirectory.PartyNames)
+            {
+                _groupNames.Add(member);
+            }
+        }
+
         _corpsIds = _scope != MeterScope.All ? ComputeCorps(filtered) : new HashSet<int>();
 
         // A pure healer never hit the selected target, so `filtered` holds none of their events, yet
@@ -988,7 +1001,7 @@ public partial class MainWindow : Window
     private bool RosterKnown(Aion2.Aion2EntityDirectory directory)
     {
         string? own = directory.LocalCharacter?.Name;
-        return directory.PartyNames.Any(n => n != own);
+        return _groupNames.Any(n => n != own) || directory.PartyNames.Any(n => n != own);
     }
 
     private bool IsGroupMember(int id, Aion2.Aion2EntityDirectory directory)
@@ -999,7 +1012,7 @@ public partial class MainWindow : Window
         }
 
         string name = ResolveDisplayName(id);
-        return directory.PartyNames.Contains(name) || name == directory.LocalCharacter?.Name;
+        return _groupNames.Contains(name) || directory.PartyNames.Contains(name) || name == directory.LocalCharacter?.Name;
     }
 
     /// <summary>The players who hit a monster the group also hit (an approximation of the corps until
@@ -2773,6 +2786,7 @@ public partial class MainWindow : Window
         _fightRecorder?.Reset();
 
         _aggregator.Clear();
+        _groupNames.Clear();
         _avoids.Clear();
         _kills.Clear();
         _rows.Clear();
