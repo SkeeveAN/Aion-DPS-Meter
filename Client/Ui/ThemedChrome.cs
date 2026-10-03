@@ -12,7 +12,7 @@ namespace AionDPS.Ui;
 /// same dark title strip with the app icon, title and minimize/close as MainWindow and
 /// SettingsWindow, inside a bordered surface. Applied in code so windows built in code and windows
 /// built in XAML get the identical frame. Call before the window is first shown
-/// (AllowsTransparency cannot change afterwards).
+/// (WindowStyle and WindowChrome cannot change afterwards).
 /// </summary>
 public static class ThemedChrome
 {
@@ -27,9 +27,18 @@ public static class ThemedChrome
         UIElement? content = window.Content as UIElement;
         window.Content = null;
         window.WindowStyle = WindowStyle.None;
-        window.AllowsTransparency = true;
+        // Not AllowsTransparency: a layered window is missing from Windows' own screenshot tool
+        // (Win+Shift+S). WindowChrome without caption or glass frame drops the OS frame instead.
         window.ResizeMode = ResizeMode.CanResizeWithGrip;
-        window.Background = Brushes.Transparent;
+        window.SetResourceReference(Window.BackgroundProperty, "Brush.Window");
+        System.Windows.Shell.WindowChrome.SetWindowChrome(window, new System.Windows.Shell.WindowChrome
+        {
+            CaptionHeight = 0,
+            ResizeBorderThickness = new Thickness(6),
+            GlassFrameThickness = new Thickness(0),
+            CornerRadius = new CornerRadius(0),
+            UseAeroCaptionButtons = false,
+        });
 
         // The dark control styles (scroll bar, tooltip, combo box, check box, menu, button) live in
         // MainWindow's resources; without them a secondary window shows the system's light ones.

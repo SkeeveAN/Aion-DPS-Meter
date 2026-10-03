@@ -1362,14 +1362,14 @@
     "zh": "下一个：{0}，{1}"
   },
   "Settings.ShowTimetable": {
-    "en": "Show the timetable overlay (what is active now and what starts within 60 minutes)",
-    "de": "Zeitplan-Overlay anzeigen (was jetzt aktiv ist und in den nächsten 60 Minuten startet)",
-    "fr": "Afficher l'overlay des horaires (ce qui est en cours et ce qui commence dans 60 minutes)",
-    "es": "Mostrar el overlay de horarios (qué está activo y qué empieza en 60 minutos)",
-    "ru": "Показывать оверлей расписания (что идёт сейчас и что начнётся в течение 60 минут)",
-    "pl": "Pokaż nakładkę harmonogramu (co trwa teraz i co zaczyna się w ciągu 60 minut)",
-    "tr": "Zaman çizelgesi katmanını göster (şu an aktif olanlar ve 60 dakika içinde başlayanlar)",
-    "zh": "显示时间表悬浮窗（当前进行中和 60 分钟内开始的活动）"
+    "en": "Show the timetable overlay",
+    "de": "Zeitplan-Overlay anzeigen",
+    "fr": "Afficher l'overlay des horaires",
+    "es": "Mostrar el overlay de horarios",
+    "ru": "Показывать оверлей расписания",
+    "pl": "Pokaż nakładkę harmonogramu",
+    "tr": "Zaman çizelgesi katmanını göster",
+    "zh": "显示时间表悬浮窗"
   },
   "Settings.Hotkey.Timetable": {
     "en": "Timetable overlay",

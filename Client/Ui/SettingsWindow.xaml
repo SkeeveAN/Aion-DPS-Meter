@@ -3,9 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AionDPS.Ui"
         Title="{local:Loc Settings.WindowTitle}" Height="600" Width="440"
-        Background="Transparent" WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Brush.Window}" WindowStartupLocation="CenterOwner"
         FontSize="{DynamicResource FontSize.Base}"
-        WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip">
+        WindowStyle="None" ResizeMode="CanResizeWithGrip">
+    <!-- No AllowsTransparency: a layered (per-pixel transparent) window is missing from Windows'
+         own screenshot tool (Win+Shift+S freezes the screen without it, so the window cannot be
+         photographed). WindowChrome without a caption or glass frame removes the OS frame the way
+         AllowsTransparency did, and keeps the resize edge. -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
     <Window.Resources>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>

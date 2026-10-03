@@ -133,6 +133,19 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-settings")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS render-settings <out.png> [Interface|Capture|Updates]");
+                Console.WriteLine("  Draws the Settings window's content into a picture; no window is ever shown.");
+                return;
+            }
+
+            RunRenderSettingsMode(args[1], args.Length > 2 ? args[2] : "Interface");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-upload-dryrun")
         {
             if (args.Length < 2)
@@ -321,6 +334,38 @@ internal static class Program
         {
             Console.WriteLine($"  {source.Entities.NameFor(actor.Key) ?? actor.Key.ToString(),-22} damage {actor.Sum(e => e.Amount),9:N0}  hits {actor.Count(),4}");
         }
+    }
+
+    /// <summary>Renders the Settings window's content (a tab of it) to a PNG without showing a window:
+    /// the way to look at a layout change without opening anything on the player's screen.</summary>
+    private static void RunRenderSettingsMode(string path, string tab)
+    {
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        var window = new Ui.SettingsWindow(settings);
+        if (window.FindName("Nav" + (tab == "Interface" ? "Ui" : tab)) is System.Windows.Controls.RadioButton nav)
+        {
+            nav.IsChecked = true;
+        }
+
+        const double width = 520, height = 800;
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(width, height));
+        content.Arrange(new System.Windows.Rect(0, 0, width, height));
+        content.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)width, (int)height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-settings: wrote " + path);
+        Environment.Exit(0);
     }
 
     /// <summary>The real window logic with the real live capture, never shown: ticks once a second
