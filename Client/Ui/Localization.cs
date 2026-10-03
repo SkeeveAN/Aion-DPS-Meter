@@ -56,6 +56,7 @@ public sealed class LocalizationManager : INotifyPropertyChanged
     {
         Load();
         _language = DetectSystemLanguage();
+        Aion2.Protocol.Aion2SkillNames.Language = _language;
     }
 
     /// <summary>Changing this repaints every open window bound via <see cref="LocExtension"/> --
@@ -72,6 +73,7 @@ public sealed class LocalizationManager : INotifyPropertyChanged
             }
 
             _language = value;
+            Aion2.Protocol.Aion2SkillNames.Language = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Binding.IndexerName));
         }
     }

@@ -46,6 +46,7 @@ public static class SelfCheckAion2
         ok &= RunRestartSnapshotScenario();
         ok &= RunAion2BossSpawnScenario();
         ok &= RunClassCatalogScenario();
+        ok &= RunSkillNameLanguageScenario();
         ok &= RunSettingsMigrationScenario();
         ok &= RunHotkeyBindingScenario();
         return ok;
@@ -1202,6 +1203,23 @@ public static class SelfCheckAion2
         BinaryPrimitives.WriteUInt16LittleEndian(bytes, (ushort)text.Length);
         chars.CopyTo(bytes, 2);
         return bytes;
+    }
+
+    /// <summary>Skill names follow the UI language (the game's own French names), falling back to
+    /// the base skill and then to English.</summary>
+    private static bool RunSkillNameLanguageScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 skill names in the UI language:");
+        string before = Aion2SkillNames.Language;
+        Aion2SkillNames.Language = "fr";
+        string wind = Aion2SkillNames.NameOf(15280000);
+        string barrier = Aion2SkillNames.NameOf(15160000);
+        Aion2SkillNames.Language = "en";
+        string english = Aion2SkillNames.NameOf(15280000);
+        Aion2SkillNames.Language = before;
+        bool ok = wind == "Vent glacial" && barrier == "Barrière d'acier" && english == "Bittercold Wind";
+        Console.WriteLine($"  -> fr \"{wind}\", \"{barrier}\"; en \"{english}\": {ok}");
+        return ok;
     }
 
     private static bool RunClassCatalogScenario()

@@ -151,8 +151,64 @@ public static class Aion2SkillNames
         return classCode % 4 is 1 or 2 && id is >= 1 and <= 8 ? ClassById[id - 1] : null;
     }
 
+    private static readonly string LocalizedPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "skill_names_i18n.json");
+    private static IReadOnlyDictionary<int, Dictionary<string, string>>? _localized;
+
+    /// <summary>The language skill names come out in (an ISO 639-1 code; the UI sets it). Names
+    /// are taken when a hit is decoded, so a change applies to the hits that follow.</summary>
+    public static string Language { get; set; } = "en";
+
+    /// <summary>
+    /// Skill id → name per game language, from assets/aion2/skills/skill_names_i18n.json
+    /// ({"15280000": {"fr": "Vent glacial", ...}}): the client's own text tables, read by the
+    /// upstream project's Tools/aion2-dat (SkeeveAN/Aion-DPS-Meter, MIT). 4,585 skills in en, de,
+    /// fr, es, ru, ja, ko and pt; a skill missing there keeps its English name.
+    /// </summary>
+    private static IReadOnlyDictionary<int, Dictionary<string, string>> LoadLocalized()
+    {
+        if (_localized is { } cached)
+        {
+            return cached;
+        }
+
+        var table = new Dictionary<int, Dictionary<string, string>>();
+        try
+        {
+            if (File.Exists(LocalizedPath))
+            {
+                var raw = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(LocalizedPath)) ?? new();
+                foreach ((string key, Dictionary<string, string> names) in raw)
+                {
+                    if (int.TryParse(key, out int id))
+                    {
+                        table[id] = names;
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or JsonException)
+        {
+            // No table: English names.
+        }
+
+        _localized = table;
+        return table;
+    }
+
     public static string NameOf(int skillId)
     {
+        if (Language != "en")
+        {
+            var localized = LoadLocalized();
+            foreach (int id in new[] { skillId, skillId / 10000 * 10000 })
+            {
+                if (localized.TryGetValue(id, out var names) && names.TryGetValue(Language, out string? name) && !string.IsNullOrWhiteSpace(name))
+                {
+                    return name;
+                }
+            }
+        }
+
         IReadOnlyDictionary<int, string> table = Load();
         if (table.TryGetValue(skillId, out string? exact))
         {
