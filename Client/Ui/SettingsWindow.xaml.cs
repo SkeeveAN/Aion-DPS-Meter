@@ -127,7 +127,7 @@ public partial class SettingsWindow : Window
         catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
         {
             StartWithWindowsBox.IsChecked = !enable;
-            MessageBox.Show(this, $"Could not update the Windows startup setting.\n\n{ex.Message}",
+            ThemedMessageBox.Show(this, $"Could not update the Windows startup setting.\n\n{ex.Message}",
                 "Start with Windows", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }

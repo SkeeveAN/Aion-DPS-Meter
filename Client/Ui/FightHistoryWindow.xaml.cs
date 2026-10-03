@@ -17,6 +17,7 @@ public partial class FightHistoryWindow : Window
     public FightHistoryWindow(FightStore store)
     {
         InitializeComponent();
+        ThemedChrome.Apply(this);
         _store = store;
         Refresh();
     }

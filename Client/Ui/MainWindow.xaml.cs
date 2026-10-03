@@ -1675,7 +1675,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException or UnauthorizedAccessException)
         {
-            MessageBox.Show(this, $"Could not load this session file.\n\n{ex.Message}", "Load Session",
+            ThemedMessageBox.Show(this, $"Could not load this session file.\n\n{ex.Message}", "Load Session",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
@@ -1716,7 +1716,7 @@ public partial class MainWindow : Window
         }
         catch (IOException ex)
         {
-            MessageBox.Show(this, $"Could not save the session.\n\n{ex.Message}", "Save Session",
+            ThemedMessageBox.Show(this, $"Could not save the session.\n\n{ex.Message}", "Save Session",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
@@ -1936,7 +1936,7 @@ public partial class MainWindow : Window
         {
             if (announceResult)
             {
-                MessageBox.Show(this,
+                ThemedMessageBox.Show(this,
                     "This copy was not installed by the updater, so it cannot update itself.\n\n" +
                     "That is normal for a build run straight from source or unzipped by hand. " +
                     "Installed copies update themselves silently.\n\n" +
@@ -1956,7 +1956,7 @@ public partial class MainWindow : Window
         {
             if (announceResult)
             {
-                MessageBox.Show(this, $"Could not reach GitHub to check for updates.\n\n{ex.Message}",
+                ThemedMessageBox.Show(this, $"Could not reach GitHub to check for updates.\n\n{ex.Message}",
                     "Check for updates", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
@@ -1968,7 +1968,7 @@ public partial class MainWindow : Window
             UpdateNotice.Visibility = Visibility.Collapsed;
             if (announceResult)
             {
-                MessageBox.Show(this, $"You are running the latest version ({AppVersion.Text}).",
+                ThemedMessageBox.Show(this, $"You are running the latest version ({AppVersion.Text}).",
                     "Check for updates", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 
@@ -1996,7 +1996,7 @@ public partial class MainWindow : Window
             UpdateNotice.Visibility = Visibility.Collapsed;
             if (announceResult)
             {
-                MessageBox.Show(this, $"The update could not be downloaded.\n\n{ex.Message}",
+                ThemedMessageBox.Show(this, $"The update could not be downloaded.\n\n{ex.Message}",
                     "Check for updates", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
@@ -2209,7 +2209,7 @@ public partial class MainWindow : Window
             // exactly what it was told to -- the loot summary only counts Unique and above, so a
             // run without such a drop produces an empty string -- but silently doing nothing is
             // indistinguishable from a broken button. Say which, instead.
-            MessageBox.Show(this, whatWasEmpty, "Nothing to copy",
+            ThemedMessageBox.Show(this, whatWasEmpty, "Nothing to copy",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
@@ -2223,7 +2223,7 @@ public partial class MainWindow : Window
             // The clipboard is a single system-wide resource and any other process can hold it
             // open for a moment; SetText then throws instead of waiting. Unhandled, that took the
             // whole meter down mid-raid for something as minor as a failed copy.
-            MessageBox.Show(this, $"The clipboard was busy and the copy failed.\n\n{ex.Message}",
+            ThemedMessageBox.Show(this, $"The clipboard was busy and the copy failed.\n\n{ex.Message}",
                 "Copy", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
@@ -2248,7 +2248,7 @@ public partial class MainWindow : Window
     {
         if (chunks.Count == 0)
         {
-            MessageBox.Show(this, whatWasEmpty, "Nothing to copy",
+            ThemedMessageBox.Show(this, whatWasEmpty, "Nothing to copy",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
@@ -2266,7 +2266,7 @@ public partial class MainWindow : Window
         }
         catch (System.Runtime.InteropServices.COMException ex)
         {
-            MessageBox.Show(this, $"The clipboard was busy and the copy failed.\n\n{ex.Message}",
+            ThemedMessageBox.Show(this, $"The clipboard was busy and the copy failed.\n\n{ex.Message}",
                 "Copy", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
@@ -2494,7 +2494,7 @@ public partial class MainWindow : Window
 
         if (clicked is not null && clicked != DamageModeItem)
         {
-            MessageBox.Show(this, $"\"{clicked.Header}\" mode isn't implemented yet -- see its tooltip in the Mode menu for why.",
+            ThemedMessageBox.Show(this, $"\"{clicked.Header}\" mode isn't implemented yet -- see its tooltip in the Mode menu for why.",
                 "Not implemented", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
