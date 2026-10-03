@@ -1318,13 +1318,6 @@ th {
   border-radius: 3px;
 }
 
-/* Per the user: a small marker next to a boss leaderboard's group heading when loot_rules has
-   known drops documented for it - see renderLeaderboard's own remarks. */
-.loot-known-badge {
-  font-size: 0.85em;
-  cursor: help;
-}
-
 h3 .icon-label {
   gap: 8px;
 }
@@ -1510,28 +1503,6 @@ h3 .icon-label {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-}
-
-.loot-empty {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: var(--color-background);
-  border-radius: 8px;
-  color: var(--color-text-muted);
-  font-size: 13px;
-}
-
-.loot-empty-icon {
-  flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-}
-
-.loot-empty-icon svg {
-  width: 100%;
-  height: 100%;
 }
 
 /* Privacy Policy / Terms of Service (see app.js renderLegalPage) - plain readable prose, no card

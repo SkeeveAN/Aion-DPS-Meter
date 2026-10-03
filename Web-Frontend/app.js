@@ -1027,20 +1027,8 @@ async function renderLeaderboard(bossSlug, params) {
     ),
   );
 
-  // Per the user: a small marker next to the group table's own heading when this boss has known
-  // loot documented (bosses.lootRules - see lootPanel's own remarks) - loot is never tied to one
-  // specific encounter (it's deliberately not part of any upload), so this can only ever say
-  // "loot is known for this BOSS", not which of the rows below actually saw it drop.
-  const lootBadge =
-    data.boss.lootRules && data.boss.lootRules.length > 0
-      ? el("span", { className: "loot-known-badge", title: t("leaderboard.lootKnownTitle") }, ["💎"])
-      : null;
-
   const groupsSection = el("section", {}, [
-    el("h3", {}, [
-      t("leaderboard.topGroupsHeading", { n: data.topGroups.length }),
-      ...(lootBadge ? [" ", lootBadge] : []),
-    ]),
+    el("h3", {}, [t("leaderboard.topGroupsHeading", { n: data.topGroups.length })]),
     rankedTable(rows, false),
   ]);
 
@@ -1233,31 +1221,6 @@ function aggroPanel(roster) {
   ]);
 }
 
-// "bekannte Regeln" - curated reference text (see bosses.lootRules), never inferred from uploads:
-// loot is deliberately never part of an upload payload at all.
-function lootPanel(lootRules) {
-  const hasRules = lootRules && lootRules.length > 0;
-  const body = hasRules
-    ? el("table", {}, [
-        el("thead", {}, [el("tr", {}, [el("th", { textContent: t("table.item") }), el("th", { textContent: t("table.rule") })])]),
-        el("tbody", {}, lootRules.map((r) => el("tr", {}, [el("td", { textContent: r.item }), el("td", { textContent: r.rule })]))),
-      ])
-    : el("div", { className: "loot-empty" }, [
-        el("span", { className: "loot-empty-icon", innerHTML: ICON_LOOT_EMPTY }),
-        el("span", { textContent: t("encounter.lootEmpty") }),
-      ]);
-  return el("div", { className: "meter-panel" }, [
-    el("div", { className: "meter-panel-heading" }, [
-      el("span", { className: "meter-panel-title", textContent: t("encounter.lootPanelHeading") }),
-      el("span", { className: "meter-panel-subtitle", textContent: t("encounter.lootSubheading") }),
-    ]),
-    el("div", { style: "margin-top: 14px" }, [body]),
-  ]);
-}
-
-const ICON_LOOT_EMPTY =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7z"/><path d="M3 7l2-4h14l2 4"/><path d="M9 11h6"/></svg>';
-
 async function renderEncounter(encounterId) {
   setBreadcrumb([...gameCrumbs(), t("loading.encounter")]);
   showLoading(t("loading.encounter"));
@@ -1300,7 +1263,7 @@ async function renderEncounter(encounterId) {
 
   const grid = el("div", { className: "encounter-grid" }, [
     meterPanel(data.roster),
-    el("div", { className: "encounter-side-col" }, [aggroPanel(data.roster), lootPanel(data.encounter.lootRules)]),
+    el("div", { className: "encounter-side-col" }, [aggroPanel(data.roster)]),
   ]);
 
   app.replaceChildren(hero, statsRow, grid);
