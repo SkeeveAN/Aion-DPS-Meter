@@ -136,6 +136,18 @@ internal static class Program
             // and collide with this one. Building System.Windows.Application by hand keeps the
             // console entry points and the GUI in the same exe without fighting over program entry.
             var app = new System.Windows.Application();
+            // A screen reader, an overlay or a capture tool that reads the window through UI Automation
+            // can ask a list item for its name just after the row behind it was replaced; WPF's own
+            // ItemAutomationPeer.GetNameCore then throws a NullReferenceException from inside layout
+            // (seen with v0.10.5: the meter closed with "konnte nicht starten"). It only concerns what
+            // the accessibility tree reports, so it is skipped instead of ending the meter.
+            app.DispatcherUnhandledException += (_, e) =>
+            {
+                if (e.Exception is NullReferenceException && e.Exception.StackTrace?.Contains("AutomationPeer", StringComparison.Ordinal) == true)
+                {
+                    e.Handled = true;
+                }
+            };
             try
             {
                 // Before the first window exists: every window's brushes resolve through the
