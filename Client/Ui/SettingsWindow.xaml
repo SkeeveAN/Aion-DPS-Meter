@@ -421,10 +421,10 @@
                              (MeterSettings) - per the user, most rows have none of this on, so the
                              second info line stays collapsed (see PlayerRow.HasSecondaryInfo) until
                              someone opts in here. -->
-                        <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,4,0,0"/>
+                        <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,3"/>
                         <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}" Margin="0,3"/>
                         <!-- Local only (History/FightStore, %AppData%) - nothing about it is uploaded. -->
-                        <CheckBox x:Name="RecordFightHistoryBox" Content="{local:Loc Settings.RecordFightHistory}" Margin="0,4,0,0"/>
+                        <CheckBox x:Name="RecordFightHistoryBox" Content="{local:Loc Settings.RecordFightHistory}" Margin="0,3"/>
                         <TextBlock Text="{local:Loc Settings.Hotkeys}" FontWeight="SemiBold" Margin="0,14,0,2"/>
                         <TextBlock Text="{local:Loc Settings.Hotkeys.Hint}" TextWrapping="Wrap" Margin="0,0,0,4" Opacity="0.75"/>
                         <Grid>
