@@ -23,4 +23,5 @@ public readonly record struct DamageEvent(
     bool IsHeal,
     string? Skill = null,
     bool IsCritical = false,
-    bool IsTick = false);
+    bool IsTick = false,
+    int SkillId = 0);

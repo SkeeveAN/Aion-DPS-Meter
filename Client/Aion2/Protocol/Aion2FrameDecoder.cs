@@ -515,7 +515,7 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
-        return new[] { new DamageEvent(timestamp, source, (int)target, amount, isHeal, skill, critical && !isHeal) };
+        return new[] { new DamageEvent(timestamp, source, (int)target, amount, isHeal, skill, critical && !isHeal, SkillId: skillId) };
     }
 
     /// <summary>
@@ -576,7 +576,7 @@ public sealed class Aion2FrameDecoder
             bool countedHeal = (flags & 0x01) != 0 && healed > 0 && healed <= MaxPlausibleAmount
                 && Aion2SkillNames.ClassOf(skillId) is not null && _entities.SummonOwnerOf((int)target) is null;
             return countedHeal
-                ? new[] { new DamageEvent(timestamp, source, (int)target, healed, IsHeal: true, Aion2SkillNames.NameOf(skillId), IsTick: true) }
+                ? new[] { new DamageEvent(timestamp, source, (int)target, healed, IsHeal: true, Aion2SkillNames.NameOf(skillId), IsTick: true, SkillId: skillId) }
                 : Array.Empty<DamageEvent>();
         }
 
@@ -585,7 +585,7 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
-        return new[] { new DamageEvent(timestamp, source, (int)target, amount, IsHeal: false, Aion2SkillNames.NameOf(skillId), IsTick: true) };
+        return new[] { new DamageEvent(timestamp, source, (int)target, amount, IsHeal: false, Aion2SkillNames.NameOf(skillId), IsTick: true, SkillId: skillId) };
     }
 
     /// <summary>
