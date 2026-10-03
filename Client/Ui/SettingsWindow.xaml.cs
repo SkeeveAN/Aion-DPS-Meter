@@ -45,6 +45,11 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyUploadBossBox, HotkeyBinding.Parse(settings.HotkeyUploadBoss).ToString());
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
+        SelectComboItem(OverlayStyleBox, settings.OverlayStyle);
+        // The nearest of the offered steps (a hand-edited file may hold any number).
+        var nearest = OverlayOpacityBox.Items.OfType<ComboBoxItem>()
+            .OrderBy(i => Math.Abs(double.Parse((string)i.Tag, System.Globalization.CultureInfo.InvariantCulture) - settings.OverlayOpacity)).First();
+        OverlayOpacityBox.SelectedItem = nearest;
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
         // Reflects the REAL registry state, not the last value this dialog wrote - see
         // OnStartWithWindowsChanged's own remarks.
@@ -261,6 +266,8 @@ public partial class SettingsWindow : Window
         _settings.AutoUploadBoss = AutoUploadBossBox.IsChecked ?? false;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
+        _settings.OverlayStyle = (OverlayStyleBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.OverlayStyle;
+        _settings.OverlayOpacity = double.Parse((string)((ComboBoxItem)OverlayOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.Language = LocalizationManager.Instance.Language;
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;

@@ -381,6 +381,8 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{local:Loc Settings.Theme}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                             <ComboBox Grid.Row="0" Grid.Column="1" x:Name="ThemeBox" HorizontalAlignment="Left" Width="150">
@@ -400,6 +402,19 @@
                                  repaint right away instead of only after Save. -->
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="{local:Loc Settings.Language}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                             <ComboBox Grid.Row="2" Grid.Column="1" x:Name="LanguageBox" HorizontalAlignment="Left" Width="150" SelectionChanged="OnLanguageChanged"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{local:Loc Settings.OverlayStyle}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                            <ComboBox Grid.Row="3" Grid.Column="1" x:Name="OverlayStyleBox" HorizontalAlignment="Left" Width="150">
+                                <ComboBoxItem Content="{local:Loc Settings.OverlayStyle.Chips}" Tag="Chips"/>
+                                <ComboBoxItem Content="{local:Loc Settings.OverlayStyle.Compact}" Tag="Compact"/>
+                            </ComboBox>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="{local:Loc Settings.OverlayOpacity}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                            <ComboBox Grid.Row="4" Grid.Column="1" x:Name="OverlayOpacityBox" HorizontalAlignment="Left" Width="150">
+                                <ComboBoxItem Content="30 %" Tag="0.3"/>
+                                <ComboBoxItem Content="45 %" Tag="0.45"/>
+                                <ComboBoxItem Content="60 %" Tag="0.6"/>
+                                <ComboBoxItem Content="80 %" Tag="0.8"/>
+                                <ComboBoxItem Content="100 %" Tag="1"/>
+                            </ComboBox>
                         </Grid>
                         <!-- Same value as the View menu's "Always on top" toggle: see
                              MeterSettings.AlwaysOnTopOnStartup's remarks for why this is one

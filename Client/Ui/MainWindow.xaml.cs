@@ -110,6 +110,7 @@ public partial class MainWindow : Window
     /// <summary>Mirror MeterSettings.ShowShareBars/ShowDamageTaken - cached here because
     /// RefreshRows runs every second and must not re-read the settings file each time.</summary>
     private bool _showShareBars = true;
+    private bool _compactOverlay;
     private bool _showDamageTaken;
     /// <summary>Avoided attacks and kill announcements from the source, kept beside the
     /// aggregator's damage events (they are not DamageEvents - see Combat/Sources). Cleared with
@@ -180,6 +181,7 @@ public partial class MainWindow : Window
 
         PlayersGrid.ItemsSource = _rows;
         OverlayContent.ItemsSource = _rows;
+        CompactOverlayRows.ItemsSource = _rows;
 
         // Per the user: the list must sort itself by damage, highest first, not just show rows in
         // whatever order they were first discovered in. IsLiveSorting (not just SortDescriptions
@@ -260,8 +262,9 @@ public partial class MainWindow : Window
     private void SaveWindowGeometry(MeterSettings settings)
     {
         Rect bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
-        settings.WindowWidth = bounds.Width;
-        settings.WindowHeight = bounds.Height;
+        // Closed while the compact overlay is up: the window has the panel's size, not its own.
+        settings.WindowWidth = _sizeBeforeCompactOverlay?.Width ?? bounds.Width;
+        settings.WindowHeight = _sizeBeforeCompactOverlay?.Height ?? bounds.Height;
         settings.WindowLeft = bounds.X;
         settings.WindowTop = bounds.Y;
     }
@@ -271,6 +274,18 @@ public partial class MainWindow : Window
     {
         _showShareBars = settings.ShowShareBars;
         _showDamageTaken = settings.ShowDamageTaken;
+        _compactOverlay = string.Equals(settings.OverlayStyle, "Compact", StringComparison.OrdinalIgnoreCase);
+        SetCompactOverlayScale(settings.OverlayScale);
+        // Both overlay looks paint their dark backgrounds with this brush (DynamicResource); the
+        // theme's own is the same colour at 60 %.
+        double opacity = Math.Clamp(double.IsFinite(settings.OverlayOpacity) ? settings.OverlayOpacity : 0.6, 0.2, 1.0);
+        var overlayBrush = new SolidColorBrush(Color.FromArgb((byte)Math.Round(opacity * 255), 0, 0, 0));
+        overlayBrush.Freeze();
+        Resources["Brush.OverlayBg"] = overlayBrush;
+        if (_hideUiActive)
+        {
+            ApplyOverlayLook();
+        }
     }
 
     /// <summary>
@@ -439,6 +454,10 @@ public partial class MainWindow : Window
             }
 
             RefreshRows();
+            if (events.Count > 0 && _hideUiActive && _compactOverlay)
+            {
+                FollowNewestRun();
+            }
         }
 
         // Every five seconds is plenty: a fight only counts as finished 120 s after its last hit.
@@ -766,6 +785,8 @@ public partial class MainWindow : Window
             row.SharePercent = shownTotal > 0 ? 100.0 * row.Damage / shownTotal : 0;
             row.FillPercent = shownMax > 0 ? 100.0 * row.Damage / shownMax : 0;
         }
+
+        UpdateCompactOverlay(filtered);
     }
 
     /// <summary>A player is an object the meter has seen casting a class skill or whose "appeared"
@@ -2217,11 +2238,14 @@ public partial class MainWindow : Window
 
     private void OnShowPlayerDetailsClicked(object sender, RoutedEventArgs e)
     {
-        if (PlayersGrid.SelectedItem is not PlayerRow row)
+        if (PlayersGrid.SelectedItem is PlayerRow row)
         {
-            return;
+            ShowPlayerDetails(row);
         }
+    }
 
+    private void ShowPlayerDetails(PlayerRow row)
+    {
         var mine = _aggregator.Events.Where(ev => ev.SourceObjectId == row.ObjectId).ToList();
 
         new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, mine,
@@ -2739,7 +2763,7 @@ public partial class MainWindow : Window
             {
                 dc.PushTransform(new ScaleTransform(scale, scale));
                 dc.DrawRectangle((Brush)FindResource("Brush.Window"), null, new Rect(0, 0, width, height));
-                dc.DrawRectangle(new VisualBrush(OverlayContent) { Stretch = Stretch.None, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top },
+                dc.DrawRectangle(new VisualBrush(_compactOverlay ? CompactOverlayPanel : OverlayContent) { Stretch = Stretch.None, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top },
                     null, new Rect(0, 0, width, height));
             }
 
@@ -2770,8 +2794,13 @@ public partial class MainWindow : Window
         UpdateOverlayWidth();
         _hideUiActive = !_hideUiActive;
         NormalContent.Visibility = _hideUiActive ? Visibility.Collapsed : Visibility.Visible;
-        OverlayContent.Visibility = _hideUiActive ? Visibility.Visible : Visibility.Collapsed;
-        _overlay?.SetClickThrough(_hideUiActive);
+        ShowOverlayPanels();
+        if (_hideUiActive && _compactOverlay)
+        {
+            FollowNewestRun();
+            RefreshRows();
+        }
+
         _overlay?.SetIconicPreview(_hideUiActive ? RenderOverlayPreview : null);
 
         // Per the user: the corner resize-grip glyph (from the window's own
@@ -2786,12 +2815,210 @@ public partial class MainWindow : Window
         {
             _topmostBeforeHideUi = Topmost;
             Topmost = true;
-            ShowInTaskbar = false;
+            // The compact panel stays in the taskbar: its right-click "Close" and a click on it are
+            // ways to end the meter or bring it back besides the hotkey.
+            ShowInTaskbar = _compactOverlay;
         }
         else
         {
             Topmost = _topmostBeforeHideUi;
             ShowInTaskbar = true;
+        }
+
+        FitWindowToCompactOverlay(_hideUiActive && _compactOverlay);
+    }
+
+    /// <summary>Settings changed while Hide UI is up: switches to the look now chosen.</summary>
+    private void ApplyOverlayLook()
+    {
+        ShowOverlayPanels();
+        ShowInTaskbar = _compactOverlay;
+        FitWindowToCompactOverlay(_compactOverlay);
+        if (_compactOverlay)
+        {
+            FollowNewestRun();
+            RefreshRows();
+        }
+    }
+
+    /// <summary>Which Hide-UI look is up: one chip per player or the compact panel (Settings).</summary>
+    private void ShowOverlayPanels()
+    {
+        OverlayContent.Visibility = _hideUiActive && !_compactOverlay ? Visibility.Visible : Visibility.Collapsed;
+        CompactOverlayPanel.Visibility = _hideUiActive && _compactOverlay ? Visibility.Visible : Visibility.Collapsed;
+
+        // The chips let every click through to the game. The compact panel takes clicks (a player's
+        // skills, dragging it into place); the window is truly transparent around it, so the rest of
+        // the screen still reaches the game.
+        _overlay?.SetClickThrough(_hideUiActive && !_compactOverlay);
+    }
+
+    private const double MinOverlayScale = 0.7, MaxOverlayScale = 2.0;
+
+    private void SetCompactOverlayScale(double scale)
+    {
+        scale = Math.Clamp(double.IsFinite(scale) ? scale : 1.0, MinOverlayScale, MaxOverlayScale);
+        CompactOverlayScale.ScaleX = scale;
+        CompactOverlayScale.ScaleY = scale;
+    }
+
+    /// <summary>The compact overlay's corner grip: dragging right or down grows the whole panel.</summary>
+    private void OnCompactOverlayResize(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+    {
+        double scale = CompactOverlayScale.ScaleX;
+        SetCompactOverlayScale((CompactOverlayPanel.Width * scale + Math.Max(e.HorizontalChange, e.VerticalChange)) / CompactOverlayPanel.Width);
+    }
+
+    private void OnCompactOverlayResized(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+    {
+        var settings = MeterSettings.Load();
+        settings.OverlayScale = CompactOverlayScale.ScaleX;
+        settings.Save();
+    }
+
+    private void OnCompactOverlayDrag(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ButtonState == MouseButtonState.Pressed)
+        {
+            DragMove();
+        }
+    }
+
+    /// <summary>A click on a player's line in the compact overlay: that player's skill breakdown.</summary>
+    private void OnCompactOverlayRowClicked(object sender, MouseButtonEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is PlayerRow row)
+        {
+            ShowPlayerDetails(row);
+        }
+    }
+
+    private void OnOverlaySettingsClicked(object sender, MouseButtonEventArgs e)
+    {
+        OnSettingsClicked(sender, new RoutedEventArgs());
+        e.Handled = true;
+    }
+
+    private void OnOverlayCopyClicked(object sender, MouseButtonEventArgs e)
+    {
+        CopyRowsToClipboard();
+        e.Handled = true;
+    }
+
+    private void OnOverlayResetClicked(object sender, MouseButtonEventArgs e)
+    {
+        ClearDamageData();
+        RefreshRows();
+        e.Handled = true;
+    }
+
+    private void OnOverlayMinimizeClicked(object sender, MouseButtonEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+        e.Handled = true;
+    }
+
+    private void OnOverlayCloseClicked(object sender, MouseButtonEventArgs e)
+    {
+        Close();
+        e.Handled = true;
+    }
+
+    /// <summary>The compact overlay's header: the target shown (or "All targets"), how long the
+    /// fight has run, and whether the capture is running.</summary>
+    private void UpdateCompactOverlay(IReadOnlyList<DamageEvent> shownHits)
+    {
+        if (!_compactOverlay)
+        {
+            return;
+        }
+
+        OverlayTargetText.Text = _pvpOnly ? "PvP"
+            : _selectedTargetId is int targetId ? ResolveDisplayName(targetId)
+            : LocalizationManager.Instance["Main.FilterAllTargets"];
+        bool capturing = (_source as Aion2.Aion2PacketCombatSource)?.ServerFingerprint is not null;
+        OverlayStateDot.Fill = _paused ? Brushes.Orange : capturing ? Brushes.LimeGreen : Brushes.Gray;
+        OverlayTimeText.Text = shownHits.Count > 1
+            ? (shownHits.Max(h => h.Timestamp) - shownHits.Min(h => h.Timestamp)).ToString(@"m\:ss")
+            : "";
+    }
+
+    /// <summary>While the compact overlay is up, keeps it on the newest fight in the Mob/Boss list
+    /// (nobody can pick a target on it): the run whose latest hit is the most recent wins, a boss
+    /// staying on screen while its adds die around it.</summary>
+    private void FollowNewestRun()
+    {
+        if (_pvpOnly)
+        {
+            return;
+        }
+
+        ComboBoxItem? newest = null, newestBoss = null;
+        DateTime newestHit = DateTime.MinValue, newestBossHit = DateTime.MinValue;
+        var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
+        foreach (ComboBoxItem item in MobBossFilter.Items.OfType<ComboBoxItem>())
+        {
+            if (item.Tag is not MobBossTag tag)
+            {
+                continue;
+            }
+
+            DateTime last = DateTime.MinValue;
+            foreach (DamageEvent ev in _aggregator.Events)
+            {
+                if (!ev.IsHeal && ev.TargetObjectId == tag.TargetId && ev.Timestamp > last
+                    && (tag.WindowStart is not DateTime from || (ev.Timestamp >= from && ev.Timestamp <= tag.WindowEnd)))
+                {
+                    last = ev.Timestamp;
+                }
+            }
+
+            if (last > newestHit)
+            {
+                newestHit = last;
+                newest = item;
+            }
+
+            if (last > newestBossHit && directory?.BossNpcIdOf(tag.TargetId) is not null)
+            {
+                newestBossHit = last;
+                newestBoss = item;
+            }
+        }
+
+        if (newestBoss is not null && newestBossHit >= newestHit - TimeSpan.FromSeconds(RunClusterGapSeconds))
+        {
+            newest = newestBoss;
+        }
+
+        if (newest is not null && !ReferenceEquals(newest, MobBossFilter.SelectedItem))
+        {
+            MobBossFilter.SelectedItem = newest;
+        }
+    }
+
+    private (double Width, double Height, double MinWidth, double MinHeight)? _sizeBeforeCompactOverlay;
+
+    /// <summary>While the compact overlay is up the window takes exactly the panel's size, so the
+    /// panel can be scaled up past the normal window and nothing invisible sits over the game; the
+    /// normal size comes back with the full window.</summary>
+    private void FitWindowToCompactOverlay(bool fit)
+    {
+        if (fit && _sizeBeforeCompactOverlay is null)
+        {
+            _sizeBeforeCompactOverlay = (Width, Height, MinWidth, MinHeight);
+            MinWidth = 0;
+            MinHeight = 0;
+            SizeToContent = SizeToContent.WidthAndHeight;
+        }
+        else if (!fit && _sizeBeforeCompactOverlay is { } before)
+        {
+            SizeToContent = SizeToContent.Manual;
+            MinWidth = before.MinWidth;
+            MinHeight = before.MinHeight;
+            Width = before.Width;
+            Height = before.Height;
+            _sizeBeforeCompactOverlay = null;
         }
     }
 }

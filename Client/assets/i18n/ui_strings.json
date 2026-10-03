@@ -950,5 +950,115 @@
     "pl": "Przesyłaj walkę z bossem automatycznie po jego śmierci",
     "tr": "Boss öldükten sonra boss savaşını otomatik yükle",
     "zh": "首领死亡后自动上传战斗"
+  },
+  "Settings.OverlayStyle": {
+    "en": "Hide UI look",
+    "de": "Hide-UI-Ansicht",
+    "fr": "Aspect de Hide UI",
+    "es": "Aspecto de Hide UI",
+    "ru": "Вид режима Hide UI",
+    "pl": "Wygląd Hide UI",
+    "tr": "Hide UI görünümü",
+    "zh": "隐藏界面样式"
+  },
+  "Settings.OverlayStyle.Chips": {
+    "en": "Chips",
+    "de": "Chips",
+    "fr": "Pastilles",
+    "es": "Fichas",
+    "ru": "Плашки",
+    "pl": "Plakietki",
+    "tr": "Etiketler",
+    "zh": "标签"
+  },
+  "Settings.OverlayStyle.Compact": {
+    "en": "Compact panel",
+    "de": "Kompaktes Panel",
+    "fr": "Panneau compact",
+    "es": "Panel compacto",
+    "ru": "Компактная панель",
+    "pl": "Kompaktowy panel",
+    "tr": "Kompakt panel",
+    "zh": "紧凑面板"
+  },
+  "Settings.OverlayOpacity": {
+    "en": "Overlay opacity",
+    "de": "Overlay-Deckkraft",
+    "fr": "Opacité de l'overlay",
+    "es": "Opacidad del overlay",
+    "ru": "Непрозрачность оверлея",
+    "pl": "Krycie nakładki",
+    "tr": "Yer paylaşımı opaklığı",
+    "zh": "悬浮窗不透明度"
+  },
+  "Main.Overlay.Close": {
+    "en": "Close",
+    "de": "Schließen",
+    "fr": "Fermer",
+    "es": "Cerrar",
+    "ru": "Закрыть",
+    "pl": "Zamknij",
+    "tr": "Kapat",
+    "zh": "关闭"
+  },
+  "Main.Overlay.Minimize": {
+    "en": "Minimize",
+    "de": "Minimieren",
+    "fr": "Réduire",
+    "es": "Minimizar",
+    "ru": "Свернуть",
+    "pl": "Minimalizuj",
+    "tr": "Küçült",
+    "zh": "最小化"
+  },
+  "Main.Overlay.Reset": {
+    "en": "Clear session",
+    "de": "Sitzung leeren",
+    "fr": "Vider la session",
+    "es": "Vaciar la sesión",
+    "ru": "Очистить сессию",
+    "pl": "Wyczyść sesję",
+    "tr": "Oturumu temizle",
+    "zh": "清空会话"
+  },
+  "Main.Overlay.Copy": {
+    "en": "Copy damage ranking",
+    "de": "Schadens-Ranking kopieren",
+    "fr": "Copier le classement",
+    "es": "Copiar clasificación",
+    "ru": "Копировать рейтинг",
+    "pl": "Kopiuj ranking",
+    "tr": "Sıralamayı kopyala",
+    "zh": "复制伤害排名"
+  },
+  "Main.Overlay.Settings": {
+    "en": "Settings",
+    "de": "Einstellungen",
+    "fr": "Paramètres",
+    "es": "Ajustes",
+    "ru": "Настройки",
+    "pl": "Ustawienia",
+    "tr": "Ayarlar",
+    "zh": "设置"
+  },
+  "Main.Overlay.ColPlayer": {
+    "en": "Player",
+    "de": "Spieler",
+    "fr": "Joueur",
+    "es": "Jugador",
+    "ru": "Игрок",
+    "pl": "Gracz",
+    "tr": "Oyuncu",
+    "zh": "玩家"
+  },
+  "Main.Overlay.ColTotal": {
+    "en": "Total",
+    "de": "Gesamt",
+    "fr": "Total",
+    "es": "Total",
+    "ru": "Всего",
+    "pl": "Suma",
+    "tr": "Toplam",
+    "zh": "总计"
   }
 }

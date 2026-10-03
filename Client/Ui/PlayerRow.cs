@@ -69,7 +69,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public long Damage
     {
         get => _damage;
-        set { _damage = value; OnPropertyChanged(); }
+        set { _damage = value; OnPropertyChanged(); OnPropertyChanged(nameof(DamageCompact)); }
     }
 
     /// <summary>Null renders as "n/a" in the grid -- see DpsCalculator's remarks on why a single
@@ -77,8 +77,21 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public double? Dps
     {
         get => _dps;
-        set { _dps = value; OnPropertyChanged(); OnPropertyChanged(nameof(DpsDisplay)); }
+        set { _dps = value; OnPropertyChanged(); OnPropertyChanged(nameof(DpsDisplay)); OnPropertyChanged(nameof(DpsCompact)); }
     }
+
+    /// <summary>Damage and rate in thousands/millions, for the compact overlay's dense lines.</summary>
+    public string DamageCompact => Compact(Damage);
+
+    public string DpsCompact => Dps is double d ? Compact((long)Math.Round(d)) : "n/a";
+
+    /// <summary>"8,3K", "916,7K", "1,2M" - one decimal, in the user's number format.</summary>
+    public static string Compact(long value) => value switch
+    {
+        >= 1_000_000 => (value / 1_000_000.0).ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "M",
+        >= 1_000 => (value / 1_000.0).ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "K",
+        _ => value.ToString(System.Globalization.CultureInfo.CurrentCulture),
+    };
 
     public string DpsDisplay => Dps is double d ? d.ToString("F0") : "n/a";
 
@@ -137,8 +150,10 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public double SharePercent
     {
         get => _sharePercent;
-        set { _sharePercent = value; OnPropertyChanged(); }
+        set { _sharePercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShareDisplay)); }
     }
+
+    public string ShareDisplay => SharePercent.ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "%";
 
     /// <summary>Damage this player RECEIVED inside the shown window (from the selected target
     /// only when one is picked) - the tank/aggro question the dealt-damage columns cannot answer.</summary>

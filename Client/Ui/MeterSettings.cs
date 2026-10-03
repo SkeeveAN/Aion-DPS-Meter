@@ -96,6 +96,17 @@ public sealed class MeterSettings
     /// without a click, so the player opts in.</summary>
     public bool AutoUploadBoss { get; set; }
 
+    /// <summary>The look of Hide UI: "Chips" (a click-through chip per player) or "Compact" (one
+    /// transparent panel with a header, the fought boss and a dense line per player; it takes
+    /// clicks, so it can be dragged, scaled and a player opened).</summary>
+    public string OverlayStyle { get; set; } = "Chips";
+
+    /// <summary>How opaque the overlay's dark backgrounds are, 0.2 to 1 (both looks).</summary>
+    public double OverlayOpacity { get; set; } = 0.6;
+
+    /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
+    public double OverlayScale { get; set; } = 1.0;
+
 
     /// <summary>Network adapter the Aion 2 packet capture listens on (Aion2/Capture/CaptureAdapters):
     /// null/empty = automatic (the adapter Windows routes internet traffic through), "all" = every
