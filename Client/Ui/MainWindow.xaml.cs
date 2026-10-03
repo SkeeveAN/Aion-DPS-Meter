@@ -112,6 +112,7 @@ public partial class MainWindow : Window
     private bool _showShareBars = true;
     private bool _compactOverlay;
     private bool _showBossHp;
+    private TimetableWindow? _timetable;
     private bool _autoReset = true;
     private bool _partyOnly = true;
     private HpCheckResult? _lastHpCheck;
@@ -428,6 +429,9 @@ public partial class MainWindow : Window
             case HotkeyAction.ClearDamage:
                 ClearDamageData();
                 break;
+            case HotkeyAction.ToggleTimetable:
+                ToggleTimetable();
+                break;
             case HotkeyAction.NextMode:
                 NextMode();
                 break;
@@ -454,6 +458,7 @@ public partial class MainWindow : Window
             [HotkeyAction.ClearDamage] = HotkeyBinding.Parse(settings.HotkeyClear),
             [HotkeyAction.UploadBoss] = HotkeyBinding.Parse(settings.HotkeyUploadBoss),
             [HotkeyAction.NextMode] = HotkeyBinding.Parse(settings.HotkeyMode),
+            [HotkeyAction.ToggleTimetable] = HotkeyBinding.Parse(settings.HotkeyTimetable),
         });
         if (failed.Count > 0)
         {
@@ -745,6 +750,7 @@ public partial class MainWindow : Window
         _hotkeys = new GlobalHotkeys(this);
         _hotkeys.Pressed += action => Dispatcher.Invoke(() => OnHotkeyPressed(action), System.Windows.Threading.DispatcherPriority.Input);
         ApplyHotkeys(MeterSettings.Load());
+        ApplyTimetable(MeterSettings.Load());
     }
 
     /// <summary>
@@ -780,6 +786,7 @@ public partial class MainWindow : Window
         _source?.Dispose();
         _overlay?.Dispose();
         _hotkeys?.Dispose();
+        _timetable?.Close();
         _trayIcon?.Dispose();
         base.OnClosed(e);
     }
@@ -2972,6 +2979,7 @@ public partial class MainWindow : Window
             settings.Save();
             ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
             ApplyHotkeys(settings); // possibly changed keys
+            ApplyTimetable(settings);
             ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
             StartCapture(settings); // possibly a new/changed AionInstallFolder
             InitializeFightHistory(settings); // possibly toggled recording
@@ -3222,6 +3230,38 @@ public partial class MainWindow : Window
         }
 
         FitWindowToCompactOverlay(_hideUiActive && _compactOverlay);
+    }
+
+    /// <summary>Shows or hides the timetable overlay as Settings say (startup, after Settings, hotkey).</summary>
+    private void ApplyTimetable(MeterSettings settings)
+    {
+        if (Headless)
+        {
+            return;
+        }
+
+        if (!settings.ShowTimetable)
+        {
+            _timetable?.Hide();
+            return;
+        }
+
+        _timetable ??= new TimetableWindow();
+        _timetable.ApplyOpacity(settings.OverlayOpacity);
+        if (!_timetable.IsVisible)
+        {
+            _timetable.Show();
+        }
+
+        _timetable.Refresh();
+    }
+
+    private void ToggleTimetable()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowTimetable = !(_timetable?.IsVisible ?? false);
+        settings.Save();
+        ApplyTimetable(settings);
     }
 
     /// <summary>Settings changed while Hide UI is up: switches to the look now chosen.</summary>

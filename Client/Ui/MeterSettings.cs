@@ -125,6 +125,19 @@ public sealed class MeterSettings
     /// <summary>Goes round damage, healing and damage taken (see MainWindow.NextMode).</summary>
     public string HotkeyMode { get; set; } = "Ctrl+Alt+M";
 
+    /// <summary>Shows or hides the timetable overlay (see TimetableWindow).</summary>
+    public string HotkeyTimetable { get; set; } = "Ctrl+Alt+T";
+
+    /// <summary>The timetable overlay: what is active now and what starts within the hour. Its place
+    /// and scale are remembered (null left/top = a default corner).</summary>
+    public bool ShowTimetable { get; set; } = true;
+
+    public double? TimetableLeft { get; set; }
+
+    public double? TimetableTop { get; set; }
+
+    public double TimetableScale { get; set; } = 1.0;
+
 
     /// <summary>Network adapter the Aion 2 packet capture listens on (Aion2/Capture/CaptureAdapters):
     /// null/empty = automatic (the adapter Windows routes internet traffic through), "all" = every

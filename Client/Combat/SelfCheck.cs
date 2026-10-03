@@ -20,6 +20,7 @@ public static class SelfCheck
         bool ok = true;
         ok &= RunAppVersionScenario();
         ok &= RunEngagedTargetsScenario();
+        ok &= RunEventScheduleScenario();
         ok &= RunAsciiTableScenario();
         ok &= RunToolbarIconScenario();
         ok &= RunLiveAggregatorScenario();
@@ -27,6 +28,42 @@ public static class SelfCheck
         ok &= SelfCheckThemes.Run();
         ok &= SelfCheckHistory.Run();
         return ok;
+    }
+
+    /// <summary>The timetable: the Arena of Strategy (every day 11:00-14:00 and 19:00-21:00) is
+    /// "starting soon" half an hour before, "active" with the time left inside, nothing in between,
+    /// and a window past midnight still counts after midnight.</summary>
+    private static bool RunEventScheduleScenario()
+    {
+        Console.WriteLine("[selftest] Event timetable:");
+        var arena = new Schedule.ScheduledEvent("arena", "battlefield", "10v10", new Dictionary<string, string> { ["en"] = "Arena" },
+            new[]
+            {
+                new Schedule.EventWindow(new[] { 0, 1, 2, 3, 4, 5, 6 }, TimeSpan.FromHours(11), TimeSpan.FromHours(14)),
+                new Schedule.EventWindow(new[] { 0, 1, 2, 3, 4, 5, 6 }, TimeSpan.FromHours(19), TimeSpan.FromHours(21)),
+            });
+        var night = new Schedule.ScheduledEvent("night", "x", null, new Dictionary<string, string> { ["en"] = "Night" },
+            new[] { new Schedule.EventWindow(new[] { 1 }, TimeSpan.FromHours(23), TimeSpan.FromHours(1)) });
+        var monday = new DateTime(2026, 10, 5);
+        var hour = TimeSpan.FromMinutes(60);
+
+        var (activeA, soonA) = Schedule.EventSchedule.Evaluate(new[] { arena }, monday.AddHours(10).AddMinutes(30), hour);
+        var (activeB, soonB) = Schedule.EventSchedule.Evaluate(new[] { arena }, monday.AddHours(12), hour);
+        var (activeC, soonC) = Schedule.EventSchedule.Evaluate(new[] { arena }, monday.AddHours(15), hour);
+        var (activeD, soonD) = Schedule.EventSchedule.Evaluate(new[] { arena }, monday.AddHours(18).AddMinutes(1), hour);
+        var (activeE, _) = Schedule.EventSchedule.Evaluate(new[] { night }, monday.AddDays(1).AddMinutes(30), hour);
+        var next = Schedule.EventSchedule.NextAfter(arena, monday.AddHours(21).AddMinutes(30));
+
+        bool ok = activeA.Count == 0 && soonA.Count == 1 && soonA[0].Start == monday.AddHours(11)
+            && activeB.Count == 1 && activeB[0].End - monday.AddHours(12) == TimeSpan.FromHours(2) && soonB.Count == 0
+            && activeC.Count == 0 && soonC.Count == 0
+            && activeD.Count == 0 && soonD.Count == 1
+            && activeE.Count == 1
+            && next is not null && next.Start == monday.AddDays(1).AddHours(11);
+        // The shipped table has the Arena of Strategy.
+        bool shipped = Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_strategy" && e.NameIn("de") == "Arena der Strategie");
+        Console.WriteLine($"  -> soon 30 min before, active with time left, silent between, past midnight, next day: {ok}; shipped table: {shipped}");
+        return ok && shipped;
     }
 
     /// <summary>

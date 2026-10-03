@@ -14,6 +14,7 @@ public enum HotkeyAction
     ClearDamage,
     UploadBoss,
     NextMode,
+    ToggleTimetable,
 }
 
 /// <summary>A key plus modifiers, written "Ctrl+Alt+H" in the settings file.</summary>

@@ -1290,5 +1290,95 @@
     "pl": "Brak śmierci w tej walce.",
     "tr": "Bu savaşta ölüm yok.",
     "zh": "本场战斗无人死亡。"
+  },
+  "Timetable.Title": {
+    "en": "Timetable",
+    "de": "Zeitplan",
+    "fr": "Horaires",
+    "es": "Horario",
+    "ru": "Расписание",
+    "pl": "Harmonogram",
+    "tr": "Zaman çizelgesi",
+    "zh": "时间表"
+  },
+  "Timetable.Active": {
+    "en": "Active now",
+    "de": "Jetzt aktiv",
+    "fr": "En cours",
+    "es": "Activo ahora",
+    "ru": "Сейчас идёт",
+    "pl": "Trwa teraz",
+    "tr": "Şu an aktif",
+    "zh": "进行中"
+  },
+  "Timetable.Soon": {
+    "en": "Starts within 60 min",
+    "de": "Startet in den nächsten 60 Min.",
+    "fr": "Commence dans 60 min",
+    "es": "Empieza en 60 min",
+    "ru": "Начнётся в течение 60 мин",
+    "pl": "Zaczyna się w ciągu 60 min",
+    "tr": "60 dk içinde başlar",
+    "zh": "60 分钟内开始"
+  },
+  "Timetable.EndsIn": {
+    "en": "ends in {0}",
+    "de": "noch {0}",
+    "fr": "encore {0}",
+    "es": "quedan {0}",
+    "ru": "ещё {0}",
+    "pl": "jeszcze {0}",
+    "tr": "{0} kaldı",
+    "zh": "剩余 {0}"
+  },
+  "Timetable.StartsIn": {
+    "en": "in {0}",
+    "de": "in {0}",
+    "fr": "dans {0}",
+    "es": "en {0}",
+    "ru": "через {0}",
+    "pl": "za {0}",
+    "tr": "{0} sonra",
+    "zh": "{0} 后"
+  },
+  "Timetable.None": {
+    "en": "Nothing active and nothing starts within 60 minutes.",
+    "de": "Nichts aktiv und nichts in den nächsten 60 Minuten.",
+    "fr": "Rien en cours et rien dans les 60 minutes.",
+    "es": "Nada activo ni nada en los próximos 60 minutos.",
+    "ru": "Ничего не идёт и ничего не начнётся в течение 60 минут.",
+    "pl": "Nic nie trwa i nic nie zaczyna się w ciągu 60 minut.",
+    "tr": "Aktif bir şey yok, 60 dakika içinde de başlamıyor.",
+    "zh": "当前没有进行中的活动，60 分钟内也没有。"
+  },
+  "Timetable.Next": {
+    "en": "Next: {0} at {1}",
+    "de": "Als Nächstes: {0} um {1}",
+    "fr": "Prochain : {0} à {1}",
+    "es": "Siguiente: {0} a las {1}",
+    "ru": "Далее: {0} в {1}",
+    "pl": "Następne: {0} o {1}",
+    "tr": "Sıradaki: {0} - {1}",
+    "zh": "下一个：{0}，{1}"
+  },
+  "Settings.ShowTimetable": {
+    "en": "Show the timetable overlay (what is active now and what starts within 60 minutes)",
+    "de": "Zeitplan-Overlay anzeigen (was jetzt aktiv ist und in den nächsten 60 Minuten startet)",
+    "fr": "Afficher l'overlay des horaires (ce qui est en cours et ce qui commence dans 60 minutes)",
+    "es": "Mostrar el overlay de horarios (qué está activo y qué empieza en 60 minutos)",
+    "ru": "Показывать оверлей расписания (что идёт сейчас и что начнётся в течение 60 минут)",
+    "pl": "Pokaż nakładkę harmonogramu (co trwa teraz i co zaczyna się w ciągu 60 minut)",
+    "tr": "Zaman çizelgesi katmanını göster (şu an aktif olanlar ve 60 dakika içinde başlayanlar)",
+    "zh": "显示时间表悬浮窗（当前进行中和 60 分钟内开始的活动）"
+  },
+  "Settings.Hotkey.Timetable": {
+    "en": "Timetable overlay",
+    "de": "Zeitplan-Overlay",
+    "fr": "Overlay des horaires",
+    "es": "Overlay de horarios",
+    "ru": "Оверлей расписания",
+    "pl": "Nakładka harmonogramu",
+    "tr": "Zaman çizelgesi",
+    "zh": "时间表悬浮窗"
   }
 }
