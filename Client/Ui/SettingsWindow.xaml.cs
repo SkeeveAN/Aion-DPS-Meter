@@ -37,10 +37,12 @@ public partial class SettingsWindow : Window
 
         CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
         AutoUploadProfileBox.IsChecked = settings.AutoUploadProfile;
+        AutoUploadBossBox.IsChecked = settings.AutoUploadBoss;
         SetHotkeyBox(HotkeyHideUiBox, HotkeyBinding.Parse(settings.HotkeyHideUi).ToString());
         SetHotkeyBox(HotkeyPauseBox, HotkeyBinding.Parse(settings.HotkeyPause).ToString());
         SetHotkeyBox(HotkeyCopyDamageBox, HotkeyBinding.Parse(settings.HotkeyCopyDamage).ToString());
         SetHotkeyBox(HotkeyClearBox, HotkeyBinding.Parse(settings.HotkeyClear).ToString());
+        SetHotkeyBox(HotkeyUploadBossBox, HotkeyBinding.Parse(settings.HotkeyUploadBoss).ToString());
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
@@ -255,6 +257,8 @@ public partial class SettingsWindow : Window
         _settings.HotkeyPause = (string?)HotkeyPauseBox.Tag ?? "";
         _settings.HotkeyCopyDamage = (string?)HotkeyCopyDamageBox.Tag ?? "";
         _settings.HotkeyClear = (string?)HotkeyClearBox.Tag ?? "";
+        _settings.HotkeyUploadBoss = (string?)HotkeyUploadBossBox.Tag ?? "";
+        _settings.AutoUploadBoss = AutoUploadBossBox.IsChecked ?? false;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
         _settings.Language = LocalizationManager.Instance.Language;

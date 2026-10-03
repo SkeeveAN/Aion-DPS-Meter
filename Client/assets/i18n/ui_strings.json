@@ -930,5 +930,25 @@
     "pl": "HPS",
     "tr": "HPS",
     "zh": "HPS"
+  },
+  "Settings.Hotkey.UploadBoss": {
+    "en": "Upload boss damage",
+    "de": "Boss-Schaden hochladen",
+    "fr": "Envoyer les dégâts du boss",
+    "es": "Subir el daño del jefe",
+    "ru": "Загрузить урон по боссу",
+    "pl": "Prześlij obrażenia bossa",
+    "tr": "Boss hasarını yükle",
+    "zh": "上传首领伤害"
+  },
+  "Settings.AutoUploadBoss": {
+    "en": "Upload the boss fight automatically after the boss died",
+    "de": "Boss-Kampf nach dem Tod des Bosses automatisch hochladen",
+    "fr": "Envoyer automatiquement le combat de boss après la mort du boss",
+    "es": "Subir el combate contra el jefe automáticamente tras su muerte",
+    "ru": "Автоматически загружать бой с боссом после его смерти",
+    "pl": "Przesyłaj walkę z bossem automatycznie po jego śmierci",
+    "tr": "Boss öldükten sonra boss savaşını otomatik yükle",
+    "zh": "首领死亡后自动上传战斗"
   }
 }

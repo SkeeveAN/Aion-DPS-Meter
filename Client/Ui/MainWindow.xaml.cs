@@ -387,6 +387,9 @@ public partial class MainWindow : Window
             case HotkeyAction.ClearDamage:
                 ClearDamageData();
                 break;
+            case HotkeyAction.UploadBoss:
+                OnUploadCurrentBossClicked(this, new RoutedEventArgs());
+                break;
         }
     }
 
@@ -405,6 +408,7 @@ public partial class MainWindow : Window
             [HotkeyAction.TogglePause] = HotkeyBinding.Parse(settings.HotkeyPause),
             [HotkeyAction.CopyDamageRanking] = HotkeyBinding.Parse(settings.HotkeyCopyDamage),
             [HotkeyAction.ClearDamage] = HotkeyBinding.Parse(settings.HotkeyClear),
+            [HotkeyAction.UploadBoss] = HotkeyBinding.Parse(settings.HotkeyUploadBoss),
         });
         if (failed.Count > 0)
         {
@@ -427,6 +431,7 @@ public partial class MainWindow : Window
         CombatBatch batch = _source?.Poll(_paused) ?? CombatBatch.Empty;
         _avoids.AddRange(batch.Avoids);
         _kills.AddRange(batch.Kills);
+        NoteBossKills(batch.Kills);
         IReadOnlyList<DamageEvent> events = batch.Damage;
         if (events.Count > 0 || batch.Avoids.Count > 0 || batch.Kills.Count > 0)
         {
@@ -1480,6 +1485,103 @@ public partial class MainWindow : Window
 
         _profileUploadTimer.Stop();
         _profileUploadTimer.Start();
+    }
+
+    // ---- a boss fight goes online by itself (opt-in) --------------------------------------------
+    // A boss that died is uploaded a few seconds later, so the last hits and the kill frame have all
+    // arrived. Same payload as the Upload button; the server merges what the group's members send.
+
+    private readonly HashSet<int> _bossesToUpload = new();
+    private System.Windows.Threading.DispatcherTimer? _bossUploadTimer;
+
+    private void NoteBossKills(IReadOnlyList<KillEvent> kills)
+    {
+        if (kills.Count == 0 || Headless || _historyMode || !MeterSettings.Load().AutoUploadBoss)
+        {
+            return;
+        }
+
+        foreach (KillEvent kill in kills)
+        {
+            if (!kill.VictimIsPlayer && BossNpcIdOf(kill.VictimObjectId) is not null)
+            {
+                _bossesToUpload.Add(kill.VictimObjectId);
+            }
+        }
+
+        if (_bossesToUpload.Count == 0)
+        {
+            return;
+        }
+
+        if (_bossUploadTimer is null)
+        {
+            _bossUploadTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
+            _bossUploadTimer.Tick += async (_, _) =>
+            {
+                _bossUploadTimer.Stop();
+                await UploadKilledBossesAsync();
+            };
+        }
+
+        _bossUploadTimer.Stop();
+        _bossUploadTimer.Start();
+    }
+
+    private async Task UploadKilledBossesAsync()
+    {
+        var targetIds = _bossesToUpload.ToList();
+        _bossesToUpload.Clear();
+        if (ResolveServerIdentity() is not (string fingerprint, var displayName))
+        {
+            ShowUploadStatus(ServerNotIdentified);
+            return;
+        }
+
+        // The payload is built from the rows the grid shows for the selected boss (as in
+        // OnUploadLastRunClicked), so the selection is pointed at the dead boss for a moment and put
+        // back afterwards.
+        int? previousTarget = _selectedTargetId;
+        DateTime? previousRunWindowStart = _selectedRunWindowStart;
+        DateTime? previousRunWindowEnd = _selectedRunWindowEnd;
+        int uploaded = 0;
+        string? lastError = null;
+        foreach (int targetId in targetIds)
+        {
+            _selectedTargetId = targetId;
+            _selectedRunWindowStart = null;
+            _selectedRunWindowEnd = null;
+            RefreshRows();
+            var payload = BuildEncounterUpload(targetId, fingerprint, displayName);
+            if (payload is null)
+            {
+                continue;
+            }
+
+            UploadResult result = await UploadClient.SendAsync(payload);
+            if (result.Success)
+            {
+                uploaded++;
+            }
+            else
+            {
+                lastError = result.Error;
+            }
+        }
+
+        _selectedTargetId = previousTarget;
+        _selectedRunWindowStart = previousRunWindowStart;
+        _selectedRunWindowEnd = previousRunWindowEnd;
+        RefreshRows();
+
+        if (uploaded > 0)
+        {
+            ShowUploadStatus(uploaded == 1 ? "Boss fight uploaded." : $"{uploaded} boss fights uploaded.");
+        }
+        else if (lastError is not null)
+        {
+            ShowUploadStatus($"Upload failed: {lastError}");
+        }
     }
 
     private async Task UploadOwnProfileAsync()

@@ -354,7 +354,9 @@
                         <ComboBox x:Name="CaptureAdapterBox" Width="320"/>
                     </StackPanel>
                     <CheckBox x:Name="AutoUploadProfileBox" Content="{local:Loc Settings.AutoUploadProfile}" Margin="4,6,4,2"
-                              ToolTip="Uploads your own character (name, class, level, gear, skills, Daevanion, legion, server) a few seconds after you log in, so you can be found on aiondps.com. Nothing else is uploaded automatically."/>
+                              ToolTip="Uploads your own character (name, class, level, gear, skills, Daevanion, legion, server) a few seconds after you log in, so you can be found on aiondps.com. Nothing else is uploaded automatically unless you switch on the boss upload below."/>
+                    <CheckBox x:Name="AutoUploadBossBox" Content="{local:Loc Settings.AutoUploadBoss}" Margin="4,2,4,2"
+                              ToolTip="Uploads the fight to aiondps.com a few seconds after a boss died, the same as the Upload button. Off by default."/>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding IsChecked, ElementName=NavUi, Converter={StaticResource BoolToVis}}">
@@ -434,7 +436,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{local:Loc Settings.Hotkey.HideUi}" VerticalAlignment="Center" Margin="0,3,12,3"/>
                             <TextBox x:Name="HotkeyHideUiBox" Grid.Row="0" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
@@ -459,6 +461,12 @@
                                      VerticalContentAlignment="Center" Background="{DynamicResource Brush.Panel}"
                                      Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
                             <Button Grid.Row="3" Grid.Column="2" Tag="HotkeyClearBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,3,0,3" Padding="0"
+                                    Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="{local:Loc Settings.Hotkey.UploadBoss}" VerticalAlignment="Center" Margin="0,3,12,3"/>
+                            <TextBox x:Name="HotkeyUploadBossBox" Grid.Row="4" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                     VerticalContentAlignment="Center" Background="{DynamicResource Brush.Panel}"
+                                     Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
+                            <Button Grid.Row="4" Grid.Column="2" Tag="HotkeyUploadBossBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,3,0,3" Padding="0"
                                     Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                         </Grid>
                 </StackPanel>

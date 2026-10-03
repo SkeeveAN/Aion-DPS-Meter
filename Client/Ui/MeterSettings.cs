@@ -89,6 +89,14 @@ public sealed class MeterSettings
 
     public string HotkeyClear { get; set; } = "Ctrl+Alt+Shift+X";
 
+    /// <summary>Uploads the current boss, like the Upload button (see MainWindow.OnUploadCurrentBossClicked).</summary>
+    public string HotkeyUploadBoss { get; set; } = "Ctrl+Alt+U";
+
+    /// <summary>Whether a boss fight is uploaded by itself a few seconds after the boss died (see
+    /// MainWindow.ScheduleBossUpload). Off by default: unlike the own profile, it sends fight data
+    /// without a click, so the player opts in.</summary>
+    public bool AutoUploadBoss { get; set; }
+
 
     /// <summary>Network adapter the Aion 2 packet capture listens on (Aion2/Capture/CaptureAdapters):
     /// null/empty = automatic (the adapter Windows routes internet traffic through), "all" = every

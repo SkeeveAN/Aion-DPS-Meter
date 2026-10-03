@@ -12,6 +12,7 @@ public enum HotkeyAction
     TogglePause,
     CopyDamageRanking,
     ClearDamage,
+    UploadBoss,
 }
 
 /// <summary>A key plus modifiers, written "Ctrl+Alt+H" in the settings file.</summary>
