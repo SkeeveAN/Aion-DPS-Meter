@@ -185,9 +185,13 @@ internal static class Program
             return;
         }
 
-        List<int> ports = portList is null
-            ? Aion2.Protocol.Aion2Protocol.Load().ServerPorts.ToList()
-            : portList.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
+        // "net:193.202.112.0/24" records every TCP port of that network instead of the game's ports.
+        string? network = portList is not null && portList.StartsWith("net:", StringComparison.Ordinal) ? portList[4..] : null;
+        List<int> ports = network is not null
+            ? new List<int>()
+            : portList is null
+                ? Aion2.Protocol.Aion2Protocol.Load().ServerPorts.ToList()
+                : portList.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
 
         // Calibration defaults to every adapter (the game might run through a VPN adapter);
         // an explicit choice in Settings narrows it.
@@ -202,7 +206,7 @@ internal static class Program
             ports,
             writer.Write,
             (state, message) => Console.WriteLine($"aion2-record: [{state}] {message}"),
-            adapterId);
+            adapterId) { Network = network };
 
         capture.Start();
         Console.WriteLine($"aion2-record: writing to {outPath} (filter \"{capture.Filter}\").");

@@ -42,9 +42,16 @@ public sealed class NpcapCaptureService : IDisposable
 
     private int _callbackErrors;
 
-    public string Filter => _serverPorts.Count == 0
-        ? "tcp"
-        : "tcp and (" + string.Join(" or ", _serverPorts.Select(p => $"port {p}")) + ")";
+    /// <summary>Optional BPF network (for example <c>193.202.112.0/24</c>): everything TCP to or from it,
+    /// whatever the port. Used by the diagnostic recording to find traffic - chat, say - that runs on
+    /// another connection than the combat stream.</summary>
+    public string? Network { get; init; }
+
+    public string Filter => Network is { Length: > 0 }
+        ? $"tcp and net {Network}"
+        : _serverPorts.Count == 0
+            ? "tcp"
+            : "tcp and (" + string.Join(" or ", _serverPorts.Select(p => $"port {p}")) + ")";
 
     public void Start()
     {

@@ -23,6 +23,12 @@ public sealed class Aion2FrameDecoder
     private readonly Dictionary<int, DateTime> _spawnedAt = new();
     private readonly Dictionary<(int Caster, int Variant), DateTime> _lastCasts = new();
 
+    /// <summary>AION2_FIND=text: reports every decoded frame holding that text (UTF-8 or UTF-16), for
+    /// finding where something typed in the game - chat, say - shows up. Diagnostic only.</summary>
+    private static readonly byte[][] DebugNeedles = Environment.GetEnvironmentVariable("AION2_FIND") is { Length: > 0 } text
+        ? new[] { System.Text.Encoding.UTF8.GetBytes(text), System.Text.Encoding.Unicode.GetBytes(text) }
+        : Array.Empty<byte[]>();
+
     public Aion2FrameDecoder(Aion2Protocol protocol, Aion2EntityDirectory entities)
     {
         _protocol = protocol;
@@ -55,6 +61,18 @@ public sealed class Aion2FrameDecoder
         if (_protocol.BundleOpcode is int bundleOpcode && opcode == bundleOpcode && !nested)
         {
             return DecodeBundle(frame, timestamp);
+        }
+
+        if (DebugNeedles.Length > 0)
+        {
+            foreach (byte[] needle in DebugNeedles)
+            {
+                int at = frame.IndexOf(needle);
+                if (at >= 0)
+                {
+                    Console.WriteLine($"AION2_FIND {timestamp:HH:mm:ss.fff} opcode 0x{opcode:x4} len {frame.Length} at {at}: {Convert.ToHexString(frame[..Math.Min(frame.Length, 160)])}");
+                }
+            }
         }
 
         OpcodeFamily family = _protocol.FamilyOf(opcode);
