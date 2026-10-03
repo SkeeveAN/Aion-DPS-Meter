@@ -1060,5 +1060,65 @@
     "pl": "Suma",
     "tr": "Toplam",
     "zh": "总计"
+  },
+  "Main.ModeTaken": {
+    "en": "Damage taken",
+    "de": "Erlittener Schaden",
+    "fr": "Dégâts reçus",
+    "es": "Daño recibido",
+    "ru": "Полученный урон",
+    "pl": "Otrzymane obrażenia",
+    "tr": "Alınan hasar",
+    "zh": "承受伤害"
+  },
+  "Main.Overlay.ModeDamage": {
+    "en": "DMG",
+    "de": "SCHADEN",
+    "fr": "DÉGÂTS",
+    "es": "DAÑO",
+    "ru": "УРОН",
+    "pl": "OBRAŻENIA",
+    "tr": "HASAR",
+    "zh": "伤害"
+  },
+  "Main.Overlay.ModeHeal": {
+    "en": "HEAL",
+    "de": "HEILUNG",
+    "fr": "SOINS",
+    "es": "CURAS",
+    "ru": "ЛЕЧЕНИЕ",
+    "pl": "LECZENIE",
+    "tr": "İYİLEŞTİRME",
+    "zh": "治疗"
+  },
+  "Main.Overlay.ModeTaken": {
+    "en": "TAKEN",
+    "de": "ERLITTEN",
+    "fr": "REÇUS",
+    "es": "RECIBIDO",
+    "ru": "ПОЛУЧЕНО",
+    "pl": "OTRZYMANE",
+    "tr": "ALINAN",
+    "zh": "承受"
+  },
+  "Settings.ShowBossHp": {
+    "en": "Show the boss's health on the overlay",
+    "de": "Boss-Lebenspunkte im Overlay anzeigen",
+    "fr": "Afficher la vie du boss sur l'overlay",
+    "es": "Mostrar la vida del jefe en el overlay",
+    "ru": "Показывать здоровье босса в оверлее",
+    "pl": "Pokaż życie bossa na nakładce",
+    "tr": "Kaplamada boss canını göster",
+    "zh": "在悬浮窗显示首领生命值"
+  },
+  "Settings.Hotkey.Mode": {
+    "en": "Damage / healing",
+    "de": "Schaden / Heilung",
+    "fr": "Dégâts / soins",
+    "es": "Daño / curas",
+    "ru": "Урон / лечение",
+    "pl": "Obrażenia / leczenie",
+    "tr": "Hasar / iyileştirme",
+    "zh": "伤害 / 治疗"
   }
 }

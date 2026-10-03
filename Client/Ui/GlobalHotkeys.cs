@@ -13,6 +13,7 @@ public enum HotkeyAction
     CopyDamageRanking,
     ClearDamage,
     UploadBoss,
+    NextMode,
 }
 
 /// <summary>A key plus modifiers, written "Ctrl+Alt+H" in the settings file.</summary>

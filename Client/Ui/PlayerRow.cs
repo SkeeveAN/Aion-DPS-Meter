@@ -34,8 +34,20 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string Name
     {
         get => _name;
-        set { _name = value; OnPropertyChanged(); }
+        set { _name = value; OnPropertyChanged(); OnPropertyChanged(nameof(NameDisplay)); }
     }
+
+    private int _deaths;
+
+    /// <summary>Deaths in the fight shown, in the damage-taken mode (0 elsewhere).</summary>
+    public int Deaths
+    {
+        get => _deaths;
+        set { _deaths = value; OnPropertyChanged(); OnPropertyChanged(nameof(NameDisplay)); }
+    }
+
+    /// <summary>The name, followed by a skull and the count when the player died.</summary>
+    public string NameDisplay => Deaths > 0 ? $"{Name}  ☠{(Deaths > 1 ? Deaths.ToString() : "")}" : Name;
 
     public string ClassName
     {
@@ -83,14 +95,15 @@ public sealed class PlayerRow : INotifyPropertyChanged
     /// <summary>Damage and rate in thousands/millions, for the compact overlay's dense lines.</summary>
     public string DamageCompact => Compact(Damage);
 
-    public string DpsCompact => Dps is double d ? Compact((long)Math.Round(d)) : "n/a";
+    public string DpsCompact => Dps is double d ? Compact((long)Math.Round(d)) : "-";
 
-    /// <summary>"8,3K", "916,7K", "1,2M" - one decimal, in the user's number format.</summary>
-    public static string Compact(long value) => value switch
+    /// <summary>Short form for the compact overlay: 1.24B, 91.60M, 412.3K, 2.8K, 950.</summary>
+    public static string Compact(long value) => Math.Abs(value) switch
     {
-        >= 1_000_000 => (value / 1_000_000.0).ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "M",
-        >= 1_000 => (value / 1_000.0).ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "K",
-        _ => value.ToString(System.Globalization.CultureInfo.CurrentCulture),
+        >= 1_000_000_000 => (value / 1e9).ToString("0.00", System.Globalization.CultureInfo.CurrentCulture) + "B",
+        >= 1_000_000 => (value / 1e6).ToString("0.00", System.Globalization.CultureInfo.CurrentCulture) + "M",
+        >= 1_000 => (value / 1e3).ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "K",
+        _ => value.ToString("N0", System.Globalization.CultureInfo.CurrentCulture),
     };
 
     public string DpsDisplay => Dps is double d ? d.ToString("F0") : "n/a";

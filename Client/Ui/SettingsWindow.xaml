@@ -439,6 +439,7 @@
                              second info line stays collapsed (see PlayerRow.HasSecondaryInfo) until
                              someone opts in here. -->
                         <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}" Margin="0,3"/>
+                        <CheckBox x:Name="ShowBossHpBox" Content="{local:Loc Settings.ShowBossHp}" Margin="0,3"/>
                         <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}" Margin="0,3"/>
                         <!-- Local only (History/FightStore, %AppData%) - nothing about it is uploaded. -->
                         <CheckBox x:Name="RecordFightHistoryBox" Content="{local:Loc Settings.RecordFightHistory}" Margin="0,3"/>
@@ -451,7 +452,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{local:Loc Settings.Hotkey.HideUi}" VerticalAlignment="Center" Margin="0,3,12,3"/>
                             <TextBox x:Name="HotkeyHideUiBox" Grid.Row="0" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
@@ -482,6 +483,12 @@
                                      VerticalContentAlignment="Center" Background="{DynamicResource Brush.Panel}"
                                      Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
                             <Button Grid.Row="4" Grid.Column="2" Tag="HotkeyUploadBossBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,3,0,3" Padding="0"
+                                    Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="{local:Loc Settings.Hotkey.Mode}" VerticalAlignment="Center" Margin="0,3,12,3"/>
+                            <TextBox x:Name="HotkeyModeBox" Grid.Row="5" Grid.Column="1" Height="28" Margin="0,3" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                     VerticalContentAlignment="Center" Background="{DynamicResource Brush.Panel}"
+                                     Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
+                            <Button Grid.Row="5" Grid.Column="2" Tag="HotkeyModeBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,3,0,3" Padding="0"
                                     Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                         </Grid>
                 </StackPanel>

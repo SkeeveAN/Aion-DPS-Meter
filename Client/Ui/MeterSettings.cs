@@ -107,6 +107,12 @@ public sealed class MeterSettings
     /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
     public double OverlayScale { get; set; } = 1.0;
 
+    /// <summary>The boss's health bar in the compact overlay (current / full, %, HP check mark).</summary>
+    public bool ShowBossHp { get; set; }
+
+    /// <summary>Goes round damage, healing and damage taken (see MainWindow.NextMode).</summary>
+    public string HotkeyMode { get; set; } = "Ctrl+Alt+M";
+
 
     /// <summary>Network adapter the Aion 2 packet capture listens on (Aion2/Capture/CaptureAdapters):
     /// null/empty = automatic (the adapter Windows routes internet traffic through), "all" = every

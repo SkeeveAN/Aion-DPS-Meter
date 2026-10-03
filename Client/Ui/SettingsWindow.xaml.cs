@@ -43,6 +43,8 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyCopyDamageBox, HotkeyBinding.Parse(settings.HotkeyCopyDamage).ToString());
         SetHotkeyBox(HotkeyClearBox, HotkeyBinding.Parse(settings.HotkeyClear).ToString());
         SetHotkeyBox(HotkeyUploadBossBox, HotkeyBinding.Parse(settings.HotkeyUploadBoss).ToString());
+        SetHotkeyBox(HotkeyModeBox, HotkeyBinding.Parse(settings.HotkeyMode).ToString());
+        ShowBossHpBox.IsChecked = settings.ShowBossHp;
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         SelectComboItem(OverlayStyleBox, settings.OverlayStyle);
@@ -263,6 +265,8 @@ public partial class SettingsWindow : Window
         _settings.HotkeyCopyDamage = (string?)HotkeyCopyDamageBox.Tag ?? "";
         _settings.HotkeyClear = (string?)HotkeyClearBox.Tag ?? "";
         _settings.HotkeyUploadBoss = (string?)HotkeyUploadBossBox.Tag ?? "";
+        _settings.HotkeyMode = (string?)HotkeyModeBox.Tag ?? "";
+        _settings.ShowBossHp = ShowBossHpBox.IsChecked ?? false;
         _settings.AutoUploadBoss = AutoUploadBossBox.IsChecked ?? false;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
