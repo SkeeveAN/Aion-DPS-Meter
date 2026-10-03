@@ -18,7 +18,7 @@ internal static class ClassBrushes
         ["Assassin"] = "#9b5de5",
         ["Ranger"] = "#80ed99",
         ["Sorcerer"] = "#4cc9f0",
-        ["Elementalist"] = "#7c9eff",
+        ["Spiritmaster"] = "#7c9eff",
     };
 
     private const string Unknown = "#9fb3c8";

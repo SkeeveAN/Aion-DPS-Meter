@@ -504,7 +504,7 @@ public static class SelfCheckAion2
         Console.WriteLine("[selftest] Aion 2 solo: the local player shows the configured name:");
         var dir = new Aion2EntityDirectory();
         dir.SetConfiguredLocalName("Boulenbouche");
-        dir.NoteClass(6326, "Elementalist");
+        dir.NoteClass(6326, "Spiritmaster");
         bool named = dir.InferLocalPlayer() == 6326 && dir.NameFor(6326) == "Boulenbouche" && dir.IsLocalPlayer(6326);
         Console.WriteLine($"  -> the only unnamed caster, 6326, is shown as Boulenbouche: {named}");
 
@@ -514,7 +514,7 @@ public static class SelfCheckAion2
         using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
         var crowd = (Aion2EntityDirectory)source.Entities;
         crowd.SetConfiguredLocalName("Boulenbouche");
-        crowd.NoteClass(11707, "Elementalist");
+        crowd.NoteClass(11707, "Spiritmaster");
         for (int i = 0; i < 10; i++)
         {
             crowd.NoteClass(9999, "Ranger");
@@ -1207,9 +1207,9 @@ public static class SelfCheckAion2
     private static bool RunClassCatalogScenario()
     {
         Console.WriteLine("[selftest] Class catalog:");
-        bool roster = ClassCatalog.Classes.Count == 9 && ClassCatalog.IsKnownClass("Elementalist") && !ClassCatalog.IsKnownClass("Spiritmaster");
-        bool abbreviations = ClassCatalog.Abbreviation("Elementalist") == "ELE" && ClassCatalog.Abbreviation("Templar") == "TPL";
-        Console.WriteLine($"  -> nine classes incl. Elementalist, no Spiritmaster: {roster}");
+        bool roster = ClassCatalog.Classes.Count == 9 && ClassCatalog.IsKnownClass("Spiritmaster") && !ClassCatalog.IsKnownClass("Elementalist");
+        bool abbreviations = ClassCatalog.Abbreviation("Spiritmaster") == "SM" && ClassCatalog.Abbreviation("Templar") == "TPL";
+        Console.WriteLine($"  -> nine classes incl. Spiritmaster, the old name Elementalist is unknown: {roster}");
         Console.WriteLine($"  -> badge abbreviations match the website's: {abbreviations}");
         return roster && abbreviations;
     }

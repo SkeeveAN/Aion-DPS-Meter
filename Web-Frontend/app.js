@@ -84,7 +84,7 @@ const AION2_CLASS_ABBREVIATIONS = {
   Assassin: "ASN",
   Chanter: "CHA",
   Cleric: "CLR",
-  Elementalist: "ELE",
+  Spiritmaster: "SM",
   Brawler: "BRW",
   Gladiator: "GLA",
   Ranger: "RNG",
@@ -104,7 +104,7 @@ const CLASS_META = {
   Assassin: { color: "#9b5de5", role: "dd" },
   Ranger: { color: "#80ed99", role: "dd" },
   Sorcerer: { color: "#4cc9f0", role: "dd" },
-  Elementalist: { color: "#7c9eff", role: "dd" },
+  Spiritmaster: { color: "#7c9eff", role: "dd" },
 };
 const PET_META = { color: "#8a99a3", role: "companion" };
 // role: null - a real class we just don't have a confident trinity role for yet, never asserted in the UI

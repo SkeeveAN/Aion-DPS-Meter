@@ -14,21 +14,21 @@ public static class ClassCatalog
 {
     private static readonly string[] Aion2Classes =
     {
-        "Assassin", "Brawler", "Chanter", "Cleric", "Elementalist", "Gladiator", "Ranger", "Sorcerer", "Templar",
+        "Assassin", "Brawler", "Chanter", "Cleric", "Spiritmaster", "Gladiator", "Ranger", "Sorcerer", "Templar",
     };
 
     public static IReadOnlyList<string> Classes => Aion2Classes;
 
     public static bool IsKnownClass(string className) => Aion2Classes.Contains(className, StringComparer.Ordinal);
 
-    /// <summary>Short badge text for a class without an icon ("ELE", "FTR") - same abbreviations the
+    /// <summary>Short badge text for a class without an icon ("SM", "FTR") - same abbreviations the
     /// website uses (Web-Frontend/app.js AION2_CLASS_ABBREVIATIONS).</summary>
     public static string Abbreviation(string className) => className switch
     {
         "Assassin" => "ASN",
         "Chanter" => "CHA",
         "Cleric" => "CLR",
-        "Elementalist" => "ELE",
+        "Spiritmaster" => "SM",
         "Brawler" => "BRW",
         "Gladiator" => "GLA",
         "Ranger" => "RNG",

@@ -123,7 +123,7 @@ public static class Aion2SkillNames
 
     private static readonly string[] ClassByPrefix =
     {
-        "Gladiator", "Templar", "Assassin", "Ranger", "Sorcerer", "Elementalist", "Cleric", "Chanter", "Brawler",
+        "Gladiator", "Templar", "Assassin", "Ranger", "Sorcerer", "Spiritmaster", "Cleric", "Chanter", "Brawler",
     };
 
     /// <summary>The class a player skill belongs to: its first two digits (11 = Gladiator ... 19 =
@@ -137,12 +137,12 @@ public static class Aion2SkillNames
 
     private static readonly string[] ClassById =
     {
-        "Gladiator", "Templar", "Ranger", "Assassin", "Elementalist", "Sorcerer", "Cleric", "Chanter",
+        "Gladiator", "Templar", "Ranger", "Assassin", "Spiritmaster", "Sorcerer", "Cleric", "Chanter",
     };
 
     /// <summary>
     /// The class in a character record's class code: <c>4 * class id + faction bit</c> (Gladiator 5/6,
-    /// Templar 9/10, Ranger 13/14, Assassin 17/18, Elementalist 21/22, Sorcerer 25/26, Cleric 29/30,
+    /// Templar 9/10, Ranger 13/14, Assassin 17/18, Spiritmaster 21/22, Sorcerer 25/26, Cleric 29/30,
     /// Chanter 33/34). Verified on four known characters; null for anything outside that pattern.
     /// </summary>
     public static string? ClassFromCode(int classCode)

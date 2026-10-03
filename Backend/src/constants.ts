@@ -25,8 +25,9 @@ export function isGame(value: unknown): value is Game {
 }
 
 // The 9th class (skill prefix 19) is "Brawler" in the client's own string table; some sources call it
-// "Fighter" - accepted on upload and mapped here.
-export const AION2_CLASS_ALIASES: Record<string, string> = { Fighter: "Brawler" };
+// "Fighter" - accepted on upload and mapped here. "Elementalist" is what versions up to 0.10.8 called the
+// Spiritmaster (a name the game does not use).
+export const AION2_CLASS_ALIASES: Record<string, string> = { Fighter: "Brawler", Elementalist: "Spiritmaster" };
 
 // Which classes a server does NOT offer, by server_catalog region (Aion 2) - per the user, Europe
 // and North America launched with the eight base classes; Korea and Taiwan already have Brawler.
@@ -49,7 +50,7 @@ export const AION2_CLASS_BY_ID: Readonly<Record<number, string>> = {
   2: "Templar",
   3: "Ranger",
   4: "Assassin",
-  5: "Elementalist",
+  5: "Spiritmaster",
   6: "Sorcerer",
   7: "Cleric",
   8: "Chanter",
@@ -59,7 +60,7 @@ export const AION2_CLASSES = [
   "Assassin",
   "Chanter",
   "Cleric",
-  "Elementalist",
+  "Spiritmaster",
   "Brawler",
   "Gladiator",
   "Ranger",

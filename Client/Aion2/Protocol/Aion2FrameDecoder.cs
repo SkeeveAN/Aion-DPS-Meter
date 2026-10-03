@@ -971,7 +971,7 @@ public sealed class Aion2FrameDecoder
     /// <summary>
     /// The party roster (0x0297, re-sent every few seconds while in a party; 0x0197 is a list of
     /// other parties). Each member: server id (u16) | length-prefixed name | a small u32 (not the class
-    /// code of the other frames: 32 for a Cleric, 24 for an Elementalist) | level (u32). Found by that shape rather than by the server id 18 05 (Kaisinel) it used to require,
+    /// code of the other frames: 32 for a Cleric, 24 for an Spiritmaster) | level (u32). Found by that shape rather than by the server id 18 05 (Kaisinel) it used to require,
     /// which missed every member of another server - verified on three captures (2026-10-02):
     /// Psefon 30, Boulenbouche 45, Daidai 31, ScareNight, Destinyy 30, across servers 1303 and 2301.
     /// The party list of 0x0297 also tells which players are in the local player's group.

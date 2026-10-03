@@ -39,16 +39,6 @@
     "tr": "Rahip",
     "zh": "牧师"
   },
-  "Elementalist": {
-    "en": "Elementalist",
-    "de": "Elementarist",
-    "fr": "Élémentaliste",
-    "es": "Elementalista",
-    "ru": "Элементалист",
-    "pl": "Elementalista",
-    "tr": "Elementalist",
-    "zh": "元素使"
-  },
   "Gladiator": {
     "en": "Gladiator",
     "de": "Gladiator",
@@ -78,6 +68,16 @@
     "pl": "Czarodziej",
     "tr": "Büyücü",
     "zh": "魔法师"
+  },
+  "Spiritmaster": {
+    "en": "Spiritmaster",
+    "de": "Beschwörer",
+    "fr": "Spiritualiste",
+    "es": "Spiritmaster",
+    "ru": "Spiritmaster",
+    "pl": "Spiritmaster",
+    "tr": "Spiritmaster",
+    "zh": "Spiritmaster"
   },
   "Templar": {
     "en": "Templar",
