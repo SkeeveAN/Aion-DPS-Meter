@@ -2068,3 +2068,17 @@ body:has(.download-hero) .nav-download-link:hover,
   color: var(--color-text);
   box-shadow: none;
 }
+
+/* Footer button on the download page: flat, no gloss and no pressable bottom edge. */
+#app:has(.download-hero) .btn-orange::before,
+#app:has(.download-hero) .btn-orange::after {
+  display: none;
+}
+
+#app:has(.download-hero) .btn-orange,
+#app:has(.download-hero) .btn-orange:hover,
+#app:has(.download-hero) .btn-orange:active {
+  transform: none;
+  filter: none;
+  box-shadow: none;
+}
