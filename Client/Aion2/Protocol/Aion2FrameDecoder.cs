@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.IO;
 using System.Text;
 using AionDPS.Combat;
 using AionDPS.Combat.Sources;
@@ -25,6 +26,11 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>AION2_FIND=text: reports every decoded frame holding that text (UTF-8 or UTF-16), for
     /// finding where something typed in the game - chat, say - shows up. Diagnostic only.</summary>
+    /// <summary>AION2_FRAMES=file: every decoded frame (time;opcode;length;hex) for protocol analysis.</summary>
+    private static readonly StreamWriter? DebugFrameDump = Environment.GetEnvironmentVariable("AION2_FRAMES") is { Length: > 0 } framesPath
+        ? new StreamWriter(framesPath) { AutoFlush = false }
+        : null;
+
     private static readonly byte[][] DebugNeedles = Environment.GetEnvironmentVariable("AION2_FIND") is { Length: > 0 } text
         ? new[] { System.Text.Encoding.UTF8.GetBytes(text), System.Text.Encoding.Unicode.GetBytes(text) }
         : Array.Empty<byte[]>();
@@ -78,6 +84,14 @@ public sealed class Aion2FrameDecoder
         if (_protocol.BundleOpcode is int bundleOpcode && opcode == bundleOpcode && !nested)
         {
             return DecodeBundle(frame, timestamp);
+        }
+
+        if (DebugFrameDump is not null)
+        {
+            lock (DebugFrameDump)
+            {
+                DebugFrameDump.WriteLine($"{timestamp:HH:mm:ss.fff};0x{opcode:x4};{frame.Length};{Convert.ToHexString(frame)}");
+            }
         }
 
         if (DebugNeedles.Length > 0)
