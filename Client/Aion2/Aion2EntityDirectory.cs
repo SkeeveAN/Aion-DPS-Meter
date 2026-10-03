@@ -553,6 +553,22 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// unknown) a few: 16 against 3 on a Krao Cave capture replayed from mid-fight.</summary>
     private const int MinSkillsOfAPlayer = 4;
 
+    /// <summary>True for a player whose name is known while the party is, and who is not in it - a
+    /// stranger nearby in the open world.</summary>
+    public bool IsNamedOutsideParty(int id)
+    {
+        lock (_gate)
+        {
+            if (!_names.TryGetValue(id, out string? name))
+            {
+                return false;
+            }
+
+            var party = CurrentPartyNames();
+            return party.Count > 0 && !party.Contains(name);
+        }
+    }
+
     /// <summary>Notes a party member's class, as the roster gives it.</summary>
     public void NotePartyClass(string name, string className)
     {

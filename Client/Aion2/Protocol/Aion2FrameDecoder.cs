@@ -377,12 +377,17 @@ public sealed class Aion2FrameDecoder
             return null;
         }
 
-        // The cast first: it names the summoner's id even before any frame named the player (the
-        // meter started inside a dungeon). Else the party's only player of the class.
-        int? owner = OwnerByCast(actor, skillId / 10);
-        if (owner is null && _entities.PartyMemberIdsOfClass(className).Where(id => id != actor).ToList() is { Count: 1 } only)
+        // A party member of the class who cast this variant just before (within 5 s); else a caster
+        // within 2 s who may be a party member not named yet (the meter started inside a dungeon)
+        // but is not known to be outside the party (open world); else the party's only player of
+        // the class.
+        int variant = skillId / 10;
+        var party = _entities.PartyMemberIdsOfClass(className).Where(id => id != actor).ToList();
+        int? owner = OwnerByCast(actor, variant, TimeSpan.FromSeconds(5), id => party.Contains(id))
+            ?? OwnerByCast(actor, variant, TimeSpan.FromSeconds(2), id => !_entities.IsNamedOutsideParty(id));
+        if (owner is null && party.Count == 1)
         {
-            owner = only[0];
+            owner = party[0];
         }
 
         if (owner is int found)
@@ -393,9 +398,10 @@ public sealed class Aion2FrameDecoder
         return owner;
     }
 
-    /// <summary>The player who cast this variant of the summon's skill closest before it spawned
-    /// (within five seconds; a Sorcerer summons a wind every ten seconds or more).</summary>
-    private int? OwnerByCast(int summon, int variant)
+    /// <summary>The caster accepted by <paramref name="eligible"/> who cast this variant of the
+    /// summon's skill closest before it spawned, within <paramref name="window"/> (a Sorcerer
+    /// summons a wind every ten seconds or more).</summary>
+    private int? OwnerByCast(int summon, int variant, TimeSpan window, Func<int, bool> eligible)
     {
         if (!_spawnedAt.TryGetValue(summon, out DateTime spawned))
         {
@@ -403,9 +409,9 @@ public sealed class Aion2FrameDecoder
         }
 
         var justBefore = _lastCasts
-            .Where(kv => kv.Key.Variant == variant)
+            .Where(kv => kv.Key.Variant == variant && eligible(kv.Key.Caster))
             .Select(kv => (Id: kv.Key.Caster, Gap: spawned - kv.Value))
-            .Where(c => c.Gap >= TimeSpan.Zero && c.Gap <= TimeSpan.FromSeconds(5))
+            .Where(c => c.Gap >= TimeSpan.Zero && c.Gap <= window)
             .OrderBy(c => c.Gap)
             .ToList();
         return justBefore.Count > 0 ? justBefore[0].Id : null;

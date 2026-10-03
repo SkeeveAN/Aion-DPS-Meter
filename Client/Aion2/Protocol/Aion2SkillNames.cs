@@ -166,9 +166,55 @@ public static class Aion2SkillNames
     private static readonly string LocalizedPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "skill_names_i18n.json");
     private static IReadOnlyDictionary<int, Dictionary<string, string>>? _localized;
 
-    /// <summary>The language skill names come out in (an ISO 639-1 code; the UI sets it). Names
-    /// are taken when a hit is decoded, so a change applies to the hits that follow.</summary>
+    /// <summary>The UI language (an ISO 639-1 code; the UI sets it) for <see cref="Display"/>. The
+    /// names in the events stay English (<see cref="NameOf"/>): they are uploaded and grouped by,
+    /// and "Vent glacial" from one player and "Bittercold Wind" from another would split a skill.</summary>
     public static string Language { get; set; } = "en";
+
+    private static IReadOnlyDictionary<string, int>? _localizedIdsByName;
+
+    /// <summary>
+    /// The name to show for an English skill name (as <see cref="NameOf"/> gives it): the client's
+    /// own text in the UI language when it has the skill, else the English name.
+    /// </summary>
+    public static string Display(string? englishName)
+    {
+        if (englishName is null || Language == "en")
+        {
+            return englishName ?? "";
+        }
+
+        if (LocalizedIdsByName().TryGetValue(englishName, out int id)
+            && LoadLocalized().TryGetValue(id, out var names)
+            && names.TryGetValue(Language, out string? name) && !string.IsNullOrWhiteSpace(name))
+        {
+            return name;
+        }
+
+        return englishName;
+    }
+
+    // English name -> the lowest skill id under that name that has localized names.
+    private static IReadOnlyDictionary<string, int> LocalizedIdsByName()
+    {
+        if (_localizedIdsByName is { } cached)
+        {
+            return cached;
+        }
+
+        var localized = LoadLocalized();
+        var byName = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach ((int id, string name) in Load().OrderBy(kv => kv.Key))
+        {
+            if (localized.ContainsKey(id))
+            {
+                byName.TryAdd(name, id);
+            }
+        }
+
+        _localizedIdsByName = byName;
+        return byName;
+    }
 
     /// <summary>
     /// Skill id → name per game language, from assets/aion2/skills/skill_names_i18n.json
@@ -207,20 +253,9 @@ public static class Aion2SkillNames
         return table;
     }
 
+    /// <summary>The English name (the data model's; see <see cref="Display"/> for the UI).</summary>
     public static string NameOf(int skillId)
     {
-        if (Language != "en")
-        {
-            var localized = LoadLocalized();
-            foreach (int id in new[] { skillId, skillId / 10000 * 10000 })
-            {
-                if (localized.TryGetValue(id, out var names) && names.TryGetValue(Language, out string? name) && !string.IsNullOrWhiteSpace(name))
-                {
-                    return name;
-                }
-            }
-        }
-
         IReadOnlyDictionary<int, string> table = Load();
         if (table.TryGetValue(skillId, out string? exact))
         {
