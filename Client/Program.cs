@@ -493,6 +493,19 @@ internal static class Program
         }
 
         Console.WriteLine($"aion2-replay: {segments} segment(s) on port {serverPort}, {events.Count} damage/heal event(s), calibrated={protocol.IsCalibrated}");
+        // AION2_DUMP=<file>: every event as CSV (time, source id and name, target id, amount, heal, tick,
+        // crit, skill) for working out how a total could be reproduced from the recording.
+        if (Environment.GetEnvironmentVariable("AION2_DUMP") is { Length: > 0 } dumpPath)
+        {
+            using var dump = new StreamWriter(dumpPath);
+            dump.WriteLine("time;source;sourceName;target;amount;heal;tick;crit;skill");
+            foreach (var e in events)
+            {
+                dump.WriteLine(string.Join(';', e.Timestamp.ToString("O"), e.SourceObjectId, source.Entities.NameFor(e.SourceObjectId), e.TargetObjectId,
+                    e.Amount, e.IsHeal ? 1 : 0, e.IsTick ? 1 : 0, e.IsCritical ? 1 : 0, e.Skill));
+            }
+        }
+
         if (events.Count == 0)
         {
             return;
@@ -543,6 +556,19 @@ internal static class Program
         int local = source.Entities.LocalPlayerId;
         if (source.Entities is Aion2.Aion2EntityDirectory bossDirectory)
         {
+            if (Environment.GetEnvironmentVariable("AION2_DUMP") is { Length: > 0 } hpDumpPath)
+            {
+                using var hpDump = new StreamWriter(hpDumpPath + ".hp.csv");
+                hpDump.WriteLine("entity;time;hp");
+                foreach (var (bossEntity, _) in bossDirectory.KnownBosses())
+                {
+                    foreach (var sample in bossDirectory.HitPoints.SamplesAround(bossEntity, DateTime.MinValue, DateTime.MaxValue))
+                    {
+                        hpDump.WriteLine($"{bossEntity};{sample.At:O};{sample.Hp}");
+                    }
+                }
+            }
+
             foreach (var (entityId, npcId) in bossDirectory.KnownBosses())
             {
                 var info = Aion2.Protocol.Aion2BossCatalog.Find(npcId);
