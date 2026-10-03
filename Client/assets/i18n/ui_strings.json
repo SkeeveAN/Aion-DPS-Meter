@@ -900,5 +900,35 @@
     "pl": "Zakończ",
     "tr": "Çıkış",
     "zh": "退出"
+  },
+  "Details.SortTooltip": {
+    "en": "Click to sort (again to reverse)",
+    "de": "Klicken zum Sortieren (erneut zum Umkehren)",
+    "fr": "Cliquer pour trier (encore pour inverser)",
+    "es": "Clic para ordenar (otra vez para invertir)",
+    "ru": "Нажмите для сортировки (ещё раз — обратный порядок)",
+    "pl": "Kliknij, aby sortować (ponownie, aby odwrócić)",
+    "tr": "Sıralamak için tıkla (ters çevirmek için tekrar)",
+    "zh": "点击排序（再次点击反向）"
+  },
+  "Details.Tile.Heal": {
+    "en": "HEAL",
+    "de": "HEILUNG",
+    "fr": "SOINS",
+    "es": "CURACIÓN",
+    "ru": "ЛЕЧЕНИЕ",
+    "pl": "LECZENIE",
+    "tr": "İYİLEŞTİRME",
+    "zh": "治疗"
+  },
+  "Details.Tile.Hps": {
+    "en": "HPS",
+    "de": "HPS",
+    "fr": "SPS",
+    "es": "HPS",
+    "ru": "HPS",
+    "pl": "HPS",
+    "tr": "HPS",
+    "zh": "HPS"
   }
 }
