@@ -86,7 +86,7 @@ public partial class PlayerDetailsWindow : Window
     }
 
     public PlayerDetailsWindow(string name, string className, string faction, bool isLocalPlayer,
-        IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf, bool heals = false)
+        IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf, bool heals = false, bool exactCrits = false)
     {
         InitializeComponent();
         ThemedChrome.Apply(this);
@@ -98,8 +98,8 @@ public partial class PlayerDetailsWindow : Window
         var damage = events.Where(e => e.IsHeal == heals).ToList();
         if (heals)
         {
-            AmountTileLabel.Text = "HEAL";
-            RateTileLabel.Text = "HPS";
+            AmountTileLabel.Text = LocalizationManager.Instance["Details.Tile.Heal"];
+            RateTileLabel.Text = LocalizationManager.Instance["Details.Tile.Hps"];
         }
 
         // The local player's client flags its own crits properly; nobody else's does. Estimating
@@ -153,7 +153,17 @@ public partial class PlayerDetailsWindow : Window
         TimeTileText.Text = seconds is double s2 ? TimeSpan.FromSeconds(s2).ToString(@"mm\:ss") : "n/a";
         HitsPerSecTileText.Text = seconds is double s3 ? (hits / s3).ToString("F1") : "n/a";
 
-        CritNoteText.Text = "Crit rates are read straight from the game server's hit data, exact for every player.";
+        // Aion 2 flags every crit in the server's hit data; classic Aion's log only flags the local
+        // player's reliably, so other players' crits are estimated there.
+        CritNoteText.Text = exactCrits
+            ? "Crit rates are read straight from the game server's hit data, exact for every player."
+            : isLocalPlayer
+                ? "Crit rates are read straight from your own log, where Aion flags them reliably."
+                : "Crit rates are ESTIMATED from the damage spread: a crit lands for about 2,3x a normal hit. "
+                  + "Aion only flags crits reliably in the log of the player who scored them -- another client "
+                  + "records roughly half of them. Validated at 95,8% accuracy against a log where every crit "
+                  + "was flagged, with a tendency to overstate by around 3 percentage points. Abilities used "
+                  + "fewer than 6 times are left at 0%, since a handful of hits cannot show the two clusters.";
         CritNoteText.Visibility = heals ? Visibility.Collapsed : Visibility.Visible;
     }
 }

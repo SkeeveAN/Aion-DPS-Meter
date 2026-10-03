@@ -2127,7 +2127,7 @@ public partial class MainWindow : Window
         var mine = _aggregator.Events.Where(ev => ev.SourceObjectId == row.ObjectId).ToList();
 
         new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, isLocalPlayer, mine,
-            id => _source?.Entities.NameFor(id) ?? ResolveDisplayName(id))
+            id => _source?.Entities.NameFor(id) ?? ResolveDisplayName(id), exactCrits: _source is Aion2.Aion2PacketCombatSource)
         {
             Owner = this,
         }.Show();
