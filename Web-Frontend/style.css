@@ -2072,3 +2072,15 @@ strong[class^="heat-"] {
   --btn-glow: rgba(49, 150, 232, 0.55);
   color: #08213d;
 }
+
+/* The header's download link on the download page: same blue as the buttons below it. */
+body:has(.download-hero) .nav-download-link {
+  color: #08213d;
+  background: linear-gradient(to bottom, #b8e0ff 0%, #5db2f5 45%, #2f86d4 100%);
+  border-color: #176bb3;
+  box-shadow:
+    0 2px 0 #176bb3,
+    0 5px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 0 14px rgba(49, 150, 232, 0.45);
+}
