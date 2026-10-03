@@ -8,8 +8,9 @@ namespace AionDPS.Schedule;
 /// start runs past midnight.</summary>
 public sealed record EventWindow(IReadOnlyList<int> Days, TimeSpan Start, TimeSpan End);
 
-/// <summary>A recurring game event (a battlefield's matchmaking times), named per language.</summary>
-public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows)
+/// <summary>A recurring game event (a battlefield's matchmaking times), named per language. An
+/// <see cref="Always"/> event can be queued for at any time (the 1 vs 1 arena) and has no windows.</summary>
+public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows, bool Always = false)
 {
     /// <summary>The name in a language (an ISO 639-1 code), else English, else the id.</summary>
     public string NameIn(string language) =>
@@ -20,7 +21,9 @@ public sealed record ScheduledEvent(string Id, string Kind, string? Players, IRe
 /// (<see cref="Until"/> it starts).</summary>
 public sealed record EventOccurrence(ScheduledEvent Event, DateTime Start, DateTime End)
 {
-    public bool IsActiveAt(DateTime now) => Start <= now && now < End;
+    public bool IsAlways => Event.Always;
+
+    public bool IsActiveAt(DateTime now) => IsAlways || (Start <= now && now < End);
 }
 
 /// <summary>
@@ -60,7 +63,7 @@ public static class EventSchedule
                     e.GetProperty("id").GetString()!,
                     e.TryGetProperty("kind", out var kind) ? kind.GetString() ?? "" : "",
                     e.TryGetProperty("players", out var players) ? players.GetString() : null,
-                    names, windows));
+                    names, windows, e.TryGetProperty("always", out var always) && always.GetBoolean()));
             }
 
             return events;
@@ -83,6 +86,12 @@ public static class EventSchedule
         var soon = new List<EventOccurrence>();
         foreach (ScheduledEvent scheduled in events)
         {
+            if (scheduled.Always)
+            {
+                active.Add(new EventOccurrence(scheduled, now.Date, now.Date.AddDays(1)));
+                continue;
+            }
+
             foreach (EventOccurrence occurrence in OccurrencesAround(scheduled, now))
             {
                 if (occurrence.IsActiveAt(now))
@@ -96,12 +105,12 @@ public static class EventSchedule
             }
         }
 
-        return (active.OrderBy(o => o.End).ToList(), soon.OrderBy(o => o.Start).ToList());
+        return (active.OrderBy(o => o.IsAlways).ThenBy(o => o.End).ToList(), soon.OrderBy(o => o.Start).ToList());
     }
 
     /// <summary>The next occurrence of an event after <paramref name="now"/> (within a week), or null.</summary>
     public static EventOccurrence? NextAfter(ScheduledEvent scheduled, DateTime now) =>
-        OccurrencesAround(scheduled, now, daysBefore: 0, daysAfter: 7).Where(o => o.Start > now).OrderBy(o => o.Start).FirstOrDefault();
+        scheduled.Always ? null : OccurrencesAround(scheduled, now, daysBefore: 0, daysAfter: 7).Where(o => o.Start > now).OrderBy(o => o.Start).FirstOrDefault();
 
     /// <summary>Occurrences that start from the day before to the day after (a window past midnight
     /// started yesterday).</summary>

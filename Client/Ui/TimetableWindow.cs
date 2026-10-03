@@ -169,6 +169,12 @@ public sealed class TimetableWindow : Window
             AddSection(loc["Timetable.Active"], Brushes.LimeGreen);
             foreach (EventOccurrence o in active)
             {
+                if (o.IsAlways)
+                {
+                    AddLine(Label(o, language), loc["Timetable.Always"], "");
+                    continue;
+                }
+
                 AddLine(Label(o, language), string.Format(loc["Timetable.EndsIn"], Span(o.End - now)), $"{o.Start:HH:mm}-{o.End:HH:mm}");
             }
         }
@@ -182,9 +188,13 @@ public sealed class TimetableWindow : Window
             }
         }
 
-        if (active.Count == 0 && soon.Count == 0)
+        if (active.All(o => o.IsAlways) && soon.Count == 0)
         {
-            AddNote(loc["Timetable.None"]);
+            if (active.Count == 0)
+            {
+                AddNote(loc["Timetable.None"]);
+            }
+
             EventOccurrence? next = EventSchedule.Events
                 .Select(e => EventSchedule.NextAfter(e, now))
                 .Where(o => o is not null)
@@ -236,7 +246,7 @@ public sealed class TimetableWindow : Window
         nameText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
         var timeText = new TextBlock { Text = time, FontSize = 11, FontWeight = FontWeights.Bold, Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
         timeText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
-        var windowText = new TextBlock { Text = window, FontSize = 9, Margin = new Thickness(0, 1, 0, 0) };
+        var windowText = new TextBlock { Text = window, FontSize = 9, Margin = new Thickness(0, 1, 0, 0), Visibility = window.Length > 0 ? Visibility.Visible : Visibility.Collapsed };
         windowText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
         Grid.SetColumn(timeText, 1);
         Grid.SetRow(windowText, 1);

@@ -1380,5 +1380,15 @@
     "pl": "Nakładka harmonogramu",
     "tr": "Zaman çizelgesi",
     "zh": "时间表悬浮窗"
+  },
+  "Timetable.Always": {
+    "en": "any time",
+    "de": "jederzeit",
+    "fr": "à tout moment",
+    "es": "en cualquier momento",
+    "ru": "в любое время",
+    "pl": "o każdej porze",
+    "tr": "her zaman",
+    "zh": "随时"
   }
 }

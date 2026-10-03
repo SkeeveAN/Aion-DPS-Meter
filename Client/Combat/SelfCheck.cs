@@ -60,8 +60,13 @@ public static class SelfCheck
             && activeD.Count == 0 && soonD.Count == 1
             && activeE.Count == 1
             && next is not null && next.Start == monday.AddDays(1).AddHours(11);
+        // An "any time" event (the 1 vs 1 arena) is always listed as active and never as upcoming.
+        var duel = new Schedule.ScheduledEvent("duel", "arena", "1v1", new Dictionary<string, string> { ["en"] = "Duel" }, Array.Empty<Schedule.EventWindow>(), Always: true);
+        var (activeF, soonF) = Schedule.EventSchedule.Evaluate(new[] { duel, arena }, monday.AddHours(12), hour);
+        ok &= activeF.Count == 2 && activeF[0].Event.Id == "arena" && activeF[1].IsAlways && soonF.Count == 0;
         // The shipped table has the Arena of Strategy.
-        bool shipped = Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_strategy" && e.NameIn("de") == "Arena der Strategie");
+        bool shipped = Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_strategy" && e.NameIn("de") == "Arena der Strategie")
+            && Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_silence" && e.Always);
         Console.WriteLine($"  -> soon 30 min before, active with time left, silent between, past midnight, next day: {ok}; shipped table: {shipped}");
         return ok && shipped;
     }

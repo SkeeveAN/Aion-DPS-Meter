@@ -10,9 +10,55 @@
         "de": "Arena der Strategie"
       },
       "windows": [
-        { "days": [0, 1, 2, 3, 4, 5, 6], "start": "11:00", "end": "14:00" },
-        { "days": [0, 1, 2, 3, 4, 5, 6], "start": "19:00", "end": "21:00" }
+        {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "start": "11:00",
+          "end": "14:00"
+        },
+        {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "start": "19:00",
+          "end": "21:00"
+        }
       ]
+    },
+    {
+      "id": "arena_of_silence",
+      "kind": "arena",
+      "players": "1v1",
+      "always": true,
+      "names": {
+        "en": "Arena of Silence",
+        "de": "Arena der Stille"
+      },
+      "windows": []
+    },
+    {
+      "id": "arena_of_cooperation",
+      "kind": "arena",
+      "players": "5v5",
+      "always": true,
+      "names": {
+        "en": "Arena of Cooperation",
+        "de": "Arena der Kooperation"
+      },
+      "windows": []
     }
   ]
 }
