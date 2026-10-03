@@ -1198,7 +1198,7 @@
              information is visible. It's the same content minus the window chrome (title bar,
              menu, toolbar, column headers, borders), not a different view. -->
         <ItemsControl x:Name="OverlayContent" Visibility="Collapsed" Background="Transparent"
-                      HorizontalAlignment="Left" VerticalAlignment="Top">
+                      HorizontalAlignment="Stretch" VerticalAlignment="Top">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Margin="2" Padding="6,3" CornerRadius="3">
@@ -1215,20 +1215,26 @@
                             </Style>
                         </Border.Style>
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
-                                           VerticalAlignment="Center" Margin="0,0,4,0" MinWidth="10"/>
-                                <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
-                                       Height="16" Width="16" Margin="0,0,4,0"/>
-                                <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
-                                       Height="16" Width="16" Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
-                                           FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}"
-                                           FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
-                                           Margin="6,0,0,0" VerticalAlignment="Bottom"/>
-                            </StackPanel>
+                            <!-- Same layout as the normal window's row: the player on the left, damage and
+                                 DPS pushed to the right edge - the chip spans the whole window width. -->
+                            <DockPanel LastChildFill="True">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="8,0,0,0">
+                                    <TextBlock Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}"
+                                               FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
+                                               Margin="6,0,0,0" VerticalAlignment="Bottom"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
+                                               VerticalAlignment="Center" Margin="0,0,4,0" MinWidth="10"/>
+                                    <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
+                                           Height="16" Width="16" Margin="0,0,4,0"/>
+                                    <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
+                                           Height="16" Width="16" Margin="0,0,4,0"/>
+                                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
+                                               FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </DockPanel>
                             <ProgressBar Style="{StaticResource ShareBar}" Value="{Binding SharePercent, Mode=OneWay}"
                                          Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                             <StackPanel Orientation="Horizontal">
