@@ -13,7 +13,7 @@ namespace AionDPS.Combat;
 
 /// <summary>
 /// Self-checks for the combat-source seam and the Aion 2 machinery that can be verified without
-/// a running game: the Chat.log source must behave exactly like the parser it wraps, TCP
+/// a running game: TCP
 /// reassembly must survive reordering and retransmission, and the data-driven decoder must turn a
 /// synthetic protocol description into the right events. Run from SelfCheck.Run().
 /// </summary>

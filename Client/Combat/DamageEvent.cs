@@ -3,8 +3,7 @@ namespace AionDPS.Combat;
 /// <summary>
 /// One damage or heal instance, already decoded from whatever produced it. Deliberately
 /// source-agnostic: the DPS/iDPS math is built and verified against synthetic events, and this
-/// type is what let the meter switch from decoded packets to parsed Chat.log lines without the
-/// calculator or the aggregator changing at all.
+/// type is what keeps the calculator and the aggregator independent of the input.
 /// </summary>
 /// <param name="Skill">The ability used, when the line named one. Null for an auto-attack, and
 /// also for the several line shapes that carry a number but no skill. Optional so every existing

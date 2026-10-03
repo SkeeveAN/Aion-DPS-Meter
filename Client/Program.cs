@@ -339,7 +339,7 @@ internal static class Program
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         var type = typeof(Ui.MainWindow);
         Console.WriteLine("aion2-ui-live: window created, starting the live source...");
-        type.GetMethod("StartChatLogTailing", flags)!.Invoke(window, new object?[] { settings });
+        type.GetMethod("StartCapture", flags)!.Invoke(window, new object?[] { settings });
         Console.WriteLine("aion2-ui-live: source started");
         var tick = type.GetMethod("OnPollTimerTick", flags)!;
         var clear = type.GetMethod("ClearDamageData", flags)!;
@@ -460,19 +460,6 @@ internal static class Program
             int next = 0;
 
             string Describe() => $"{rows.Count} row(s)" + (rows.Count > 0 ? ": " + string.Join(", ", rows.Cast<Ui.PlayerRow>().Take(4).Select(r => $"{r.Name} {r.Damage:N0}")) : "");
-            void Play(int ticks)
-            {
-                for (int i = 0; i < ticks && next < segments.Count; i++)
-                {
-                    foreach (var segment in segments.Skip(next).Take(chunk))
-                    {
-                        source.Ingest(segment);
-                    }
-
-                    next += chunk;
-                    tick.Invoke(window, new object?[] { null, EventArgs.Empty });
-                }
-            }
 
             Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
             Console.WriteLine($"aion2-ui-test: {segments.Count} segments fed from a second thread (like the capture), the window ticks once per 500 ms");

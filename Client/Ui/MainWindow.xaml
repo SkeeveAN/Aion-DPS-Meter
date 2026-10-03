@@ -60,7 +60,7 @@
             <Setter Property="Height" Value="30"/>
             <Setter Property="Margin" Value="3"/>
         </Style>
-        <!-- Per the user: the Copy/CopyAll/Pause/EmptyChatLog/Clear/HideUi icon row (shared by the
+        <!-- Per the user: the Copy/CopyAll/Pause/Clear/HideUi icon row (shared by the
              Damage and Loot views) sat only one shade above the toolbar's own #26262e background
              (#2a2a33 idle), which barely separated the icon chips from their surroundings. A full
              template copy rather than a BasedOn override of just the Background setter: the
@@ -341,7 +341,7 @@
              lesson as Button/ComboBox/CheckBox before it - a Background/Foreground setter alone
              leaves whatever border/bevel chrome the default MenuItem template draws untouched;
              only replacing the template removes it. One template covers top-level headers (App,
-             Session, Settings, Mode), leaf items with no children (Close, Reload from Chat.log, ...), and
+             Session, Settings, Mode), leaf items with no children (Close, Check for updates, ...), and
              submenu entries - WPF's MenuItem is the same class for all three, distinguished only
              by its Role property, which the Popup.Placement trigger below accounts for. -->
         <Style TargetType="MenuItem">
@@ -451,7 +451,7 @@
                                             <!-- Load/Save Session: real actions now (SessionFile.cs) - a
                                                  portable snapshot of the whole current session (every
                                                  damage/avoid/kill event plus personal stats), independent
-                                                 of Chat.log. Deliberately separate from Fight History,
+                                                 of the live capture. Deliberately separate from Fight History,
                                                  which auto-records individual finished fights instead. -->
                                             <Button Style="{StaticResource AppMenuRow}" Click="OnLoadSessionClicked">
                                                 <TextBlock Text="{local:Loc Main.MenuApp.LoadSession}" Foreground="#f2f5f7" FontSize="11.5"/>
@@ -477,10 +477,7 @@
 
                                         <Border Height="1" Background="#21374a" Margin="4,6"/>
 
-                                        <!-- Ordner öffnen ×2 - real actions now: Sessions opens
-                                             SessionFile.DefaultDirectory, Logs opens whatever folder
-                                             Chat.log currently lives in (Settings' Aion install folder),
-                                             not tucked in a group since each is one line. -->
+                                        <!-- Ordner öffnen: Sessions opens SessionFile.DefaultDirectory. -->
                                         <Button Style="{StaticResource AppMenuRow}" Click="OnOpenSessionsFolderClicked">
                                             <StackPanel Orientation="Horizontal">
                                                 <Path Data="M1,3 L5,3 L6,4.5 L11,4.5 L11,10 L1,10 Z" Stroke="#9db3c2" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,8,0"/>
@@ -665,13 +662,11 @@
                      with Windows and Minimize to tray were placeholders for a while (explicit ask
                      needed first for the Windows-Run-key/tray-icon ones specifically) - given by
                      the user, and all four are real now (SessionFile.cs, StartupRegistration.cs,
-                     TrayIcon.cs). Reset Connection is still the one remaining placeholder - no
-                     live network connection exists to reset in a Chat.log-tailing meter, so it
-                     was left out of that same round rather than built for the sake of it. -->
+                     TrayIcon.cs). Reset Connection is still the one remaining placeholder row. -->
                 <Menu DockPanel.Dock="Top" Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}">
                     <!-- App-Menü A ("Flyout-Karte", vom User gebilligt): all 14 child MenuItems that
                          used to live here (Load/SaveSession, Export/ValidateSession, both folder
-                         items, ResetConnection, ClearCurrentView, ReloadChatLog, FightHistory,
+                         items, ResetConnection, ClearCurrentView, FightHistory,
                          CheckForUpdates, MinimizeToTray, Close)
                          moved into AppMenuFlyoutStyle's own hand-authored Popup content above -
                          same Click targets, same {local:Loc} keys (muted rows instead of
@@ -774,8 +769,7 @@
                     <!-- Pause/Resume: one button, two overlaid glyphs (pause bars / play triangle)
                          with only one Visible at a time - toggled in OnPauseClicked alongside the
                          ToolTip text, since the icon alone no longer carries the word "Resume".
-                         Paused Chat.log lines are read but discarded, never replayed on Resume -
-                         see ChatLogTailer's "never look into the past" rule for why. -->
+                         Paused combat data is discarded, never replayed on Resume. -->
                     <Button x:Name="PauseButton" Style="{StaticResource ToolbarIconButton}" Click="OnPauseClicked" Padding="6,4"
                             ToolTip="Pause recording.">
                         <Grid Width="18" Height="16">

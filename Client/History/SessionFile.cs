@@ -9,7 +9,7 @@ namespace AionDPS.History;
 /// <summary>
 /// "Save Session"/"Load Session" (App menu) - a standalone, portable snapshot of the CURRENT live
 /// session (every damage/avoid/kill event plus personal stat totals) as one file the user can
-/// keep or hand off, independent of Chat.log (which keeps growing/changing and isn't itself a
+/// keep or hand off, independent of the live capture (which keeps changing and isn't itself a
 /// stable "this is what I was looking at" artifact). Deliberately separate from FightStore/
 /// FightHistory: that's an automatic per-FIGHT archive the meter keeps for itself; this is a
 /// manual, whole-SESSION export the user explicitly asks for. Loot isn't included yet - a

@@ -61,7 +61,7 @@ public sealed class FightStore : IDisposable
 
     public long Insert(FightDetail detail)
     {
-        // A "Reload from Chat.log" re-parses fights the live recorder already filed; the same
+        // A replay can re-file fights the live recorder already stored; the same
         // target at the same second is the same fight, not a second one.
         using (SqliteCommand existing = _connection.CreateCommand())
         {

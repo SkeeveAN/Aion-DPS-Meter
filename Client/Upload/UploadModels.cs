@@ -14,7 +14,7 @@ public readonly record struct UploadResult(bool Success, string? Error)
 /// uploadSchema.ts zod schema expects (skill/hits/critHits/total/min/max).</summary>
 public sealed record SkillUsageUpload(string Skill, int Hits, int CritHits, long Total, long Min, long Max);
 
-/// <summary>One real reinforcement this participant RECEIVED (see ChatLog/BuffCastEvent) -
+/// <summary>One real reinforcement this participant RECEIVED -
 /// deliberately its own, narrower record rather than reusing SkillUsageUpload: a buff cast has no
 /// damage/crit/min/max to report, and forcing those fields to 0 would misrepresent them as measured
 /// zeros rather than "not applicable". <see cref="Casts"/> counts how many times this row was
@@ -24,8 +24,8 @@ public sealed record BuffUsageUpload(string Skill, int Casts);
 
 /// <summary>One player's contribution to an encounter. <see cref="IsSelf"/> mirrors the client's own
 /// "You" check (see MainWindow.ResolveDisplayName) - the backend trusts THIS row's crit rate for
-/// this player permanently once received, since Aion only flags crits reliably in the scorer's own
-/// log (see Combat/CritEstimator.cs). Per the user: AP/Kinah/EXP/loot are never part of this payload
+/// this player permanently once received, since the game only flags crits reliably on the scorer's own
+/// side (see Combat/CritEstimator.cs). Per the user: AP/Kinah/EXP/loot are never part of this payload
 /// -- only combat performance (damage AND heal) is - so there is deliberately no ApTotal field here
 /// anymore.</summary>
 public sealed record ParticipantUpload(
@@ -47,12 +47,11 @@ public sealed record ParticipantUpload(
     // existing dealt-damage total cannot answer.
     long DamageTaken = 0,
     // Per the user: the web frontend's "Buffs" column must show real reinforcements, not the
-    // damage/heal skills it showed before - see ChatLog/BuffCastEvent.
+    // damage/heal skills it showed before.
     IReadOnlyList<BuffUsageUpload>? Buffs = null,
-    // Aion 2 only: the guild the packet stream named next to this player. Null where unknown
-    // (classic Aion's Chat.log never states one).
+    // The guild the packet stream named next to this player. Null where unknown.
     string? Guild = null,
-    // Aion 2 only: the character profile (see ProfileUpload).
+    // The character profile (see ProfileUpload).
     ProfileUpload? Profile = null);
 
 /// <summary>An Aion 2 character as the client read it from the game's traffic (ids only; the website
@@ -90,11 +89,10 @@ public sealed record EncounterUploadRequest(
     string? ServerName,
     // The backend's game token ("aion" | "aion2", see Backend/src/constants.ts). Boss names and
     // servers are only ever matched within one game there; a payload without it (older clients)
-    // is treated as classic Aion.
+    // is treated as the legacy "aion" game.
     string Game = "aion2",
-    // Aion 2 only: the game's numeric NPC id of the boss, which is unambiguous where the name is
-    // not (the same boss name recurs across Aion 2 dungeons). Null on the Chat.log path, which
-    // never sees an id.
+    // The game's numeric NPC id of the boss, which is unambiguous where the name is not (the same
+    // boss name recurs across Aion 2 dungeons). Null when no id was seen.
     int? BossNpcId = null);
 
 /// <summary>Aion 2 players without a boss fight, as sent to POST /api/uploads/profiles: the

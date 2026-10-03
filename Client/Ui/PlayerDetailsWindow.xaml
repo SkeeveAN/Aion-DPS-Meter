@@ -85,10 +85,7 @@
             <TextBlock x:Name="SummaryText" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,8,0,0"/>
         </StackPanel>
 
-        <!-- Says plainly where the crit column's numbers come from. For anyone but the local player
-             they are estimated from the damage spread, because Aion only flags crits properly in
-             the log of the player who scored them. A column that quietly mixed measured and
-             estimated values would be worse than no column. -->
+        <!-- Says where the crit column's numbers come from: the game server flags every crit. -->
         <TextBlock x:Name="CritNoteText" DockPanel.Dock="Bottom" Foreground="{DynamicResource Brush.TextMuted}"
                    TextWrapping="Wrap" Margin="0,8,0,0" FontStyle="Italic"/>
 

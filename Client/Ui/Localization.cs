@@ -7,9 +7,9 @@ using System.Windows.Markup;
 namespace AionDPS.Ui;
 
 /// <summary>
-/// The GUI's own display language -- independent of whatever language Chat.log happens to be
-/// written in (see ChatLog/ChatLogParser's multi-language remarks): a German player can run an
-/// English game client, or vice versa, and the two settings have nothing to do with each other.
+/// The GUI's own display language -- independent of the game client's language: a German
+/// player can run an English game client, or vice versa, and the two settings have nothing to do
+/// with each other.
 /// Backed by assets/i18n/ui_strings.json, a flat "key -> {language code: text}" table covering the
 /// menu bar, buttons, group headers and tooltips. Class names are a separate table instead
 /// (AionDPS.Data.ClassCatalog.DisplayName, assets/classes/class_names_i18n.json) - see its own
@@ -24,9 +24,8 @@ namespace AionDPS.Ui;
 /// </summary>
 public sealed class LocalizationManager : INotifyPropertyChanged
 {
-    /// <summary>The eight languages this build actually has data for -- exactly the set
-    /// ChatLogParser also understands, and (mostly) the set OriginAion's own L10N folders cover;
-    /// see assets/README.md for the "ita"/"plk" folder-name swap that this list's codes already
+    /// <summary>The eight languages this build actually has data for -- the set the
+    /// game's own L10N folders (mostly) cover; see assets/README.md for the "ita"/"plk" folder-name swap that this list's codes already
     /// correct for. NativeName is what a speaker of that language would call it themselves, shown
     /// in the Settings picker so nobody has to already read the current language to find their own.
     /// Declared BEFORE Instance below deliberately: static field initializers run in declaration

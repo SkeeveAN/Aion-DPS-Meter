@@ -136,8 +136,6 @@ public partial class MainWindow : Window
     /// <summary>Set by the console test modes before they construct the window: nothing may open a dialog.</summary>
     internal static bool Headless { get; set; }
 
-    private string? _currentServerDisplayName;
-
     // Where combat data comes from (see Combat/Sources/ICombatSource) - the Aion 2 packet source; its Entities directory is what RefreshRows/RefreshMobBossFilterItems resolve names
     // through for ids this window didn't assign itself. Null until Settings name an install folder.
     private ICombatSource? _source;
@@ -176,7 +174,7 @@ public partial class MainWindow : Window
 
         // Version in the title, read back from the assembly rather than typed here a second time:
         // AionDPS.csproj's <Version> is the only place it is written. Needed because builds are
-        // handed around the group by hand -- a screenshot or a Chat.log recorded by someone else is
+        // handed around the group by hand -- a screenshot from someone else is
         // otherwise impossible to pin to a build, which already cost a round of guesswork once.
         Title = AppVersion.Text.Length > 0 ? $"Aion DPS {AppVersion.Text}" : "Aion DPS";
 
@@ -310,8 +308,8 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Swaps the combat source. Handlers are subscribed once per source - the source
-    /// itself forwards from whatever parser/capture it currently holds, so a "Reload from Chat.log"
-    /// swapping the parser underneath never needs this window to re-subscribe.</summary>
+    /// itself forwards from whatever capture it currently holds, so swapping
+    /// the capture underneath never needs this window to re-subscribe.</summary>
     private void ReplaceSource(ICombatSource? source)
     {
         _source?.Dispose();
@@ -346,7 +344,7 @@ public partial class MainWindow : Window
     // shape/reasoning as _lootRows above, since a buff cast is neither a DamageEvent nor something
     // LiveAggregator's damage/heal model has any use for. Keyed by recipient rather than caster so
     // a Cleric/Chanter's group-wide buff shows up on every party member it actually landed on, not
-    // only on whoever cast it (see BuffCastEvent's own remarks).
+    // only on whoever cast it.
     private readonly List<(DateTime Timestamp, int RecipientId, string Skill)> _buffCasts = new();
 
     /// <summary>Individually named items the user wants tracked regardless of grade, beyond the
@@ -656,8 +654,8 @@ public partial class MainWindow : Window
     {
         RefreshMobBossFilterItems();
 
-        // !IsHeal here is the fix for a real bug found by terminal_windows against an actual
-        // Chat.log session: without it, a pure healer ("Potion" -- a heal-effect name, not a
+        // !IsHeal here is the fix for a real bug found by terminal_windows against a real
+        // heal-bearing session: without it, a pure healer ("Potion" -- a heal-effect name, not a
         // player) showed up as a damage source with a nonsensical "dmg (n/a DPS)" row, because
         // TargetIDps/AllDpsWallClock already filter heals out for the rate but nothing filtered
         // this event set for the totals or the row list itself. Same underlying issue as
@@ -869,12 +867,12 @@ public partial class MainWindow : Window
     /// <summary>Gap between hits, in seconds, past which two hits on the same target count as
     /// separate runs rather than one continuous fight - same default the CLI's headless clustered
     /// upload already uses (see Program.cs), reused here so the dropdown's own split agrees with
-    /// what "AionDPS upload" would produce for the same Chat.log.</summary>
+    /// what "AionDPS upload" would produce for the same session.</summary>
     private const double RunClusterGapSeconds = 120;
 
     /// <summary>
     /// One or more (Tag, DisplayName, Damage) rows for a single Mob/Boss entry - per the user, a
-    /// boss farmed repeatedly in one Chat.log (their example: Raksang Boilheart, five kills in a
+    /// boss farmed repeatedly in one session (their example: Raksang Boilheart, five kills in a
     /// row) must appear as "Name #1".."Name #N" so each run stays individually selectable
     /// afterward, not just as one entry that silently combines every kill's numbers together. A
     /// target hit only once (the common case) still gets exactly one row, unnumbered and with a
@@ -1163,9 +1161,8 @@ public partial class MainWindow : Window
     /// <summary>
     /// Same payload construction, but with the target's hits and the time window supplied by the
     /// caller instead of always spanning that target id's ENTIRE history. Needed because
-    /// ChatLogParser assigns object ids by name (see PlayerNameRegistry), so a boss farmed multiple
-    /// times in one Chat.log keeps the same target id across every kill - a headless clustered
-    /// upload (see RunHeadlessClusteredUploadAsync) has to pass in one kill-cluster's hits/window at
+    /// a boss farmed multiple times in one session can keep the same target id across every
+    /// kill - a headless clustered upload (see RunHeadlessClusteredUploadAsync) has to pass in one kill-cluster's hits/window at
     /// a time so each real fight gets its own upload instead of one merged across the whole file.
     /// The 3-argument overload above is just this one, called with that target's full history.
     /// </summary>
@@ -1277,7 +1274,7 @@ public partial class MainWindow : Window
                     && e.Timestamp >= windowStart && e.Timestamp <= windowEnd)
                 .Sum(e => e.Amount);
 
-            // Real reinforcements this row RECEIVED during the fight (see ChatLog/BuffCastEvent) -
+            // Real reinforcements this row RECEIVED during the fight -
             // capped and ranked by count, same "top N" shape SkillBreakdown already uses for
             // damage/heal skills above, just counting applications instead of summing damage. Keyed
             // by recipient, not caster, so a Cleric/Chanter group buff shows up on every party
@@ -1290,7 +1287,7 @@ public partial class MainWindow : Window
             // all). Buffing right as you engage, a fraction of a second before your first hit
             // actually lands, is completely normal, so the strict windowStart the damage/heal
             // events above use is too tight specifically for buffs. Not unbounded, though: this
-            // target id persists across every future kill of the same boss in this Chat.log (see
+            // target id persists across every future kill of the same boss in this session (see
             // RunHeadlessClusteredUploadAsync's own remarks), so a buff from a genuinely separate,
             // much earlier kill must not bleed into this one - 30s is generous enough for any real
             // pre-pull buff sequence without reaching back that far.
@@ -1321,7 +1318,7 @@ public partial class MainWindow : Window
         // The backend requires exactly one isSelf participant per upload (see uploadSchema.ts) -
         // always true for a fight the local player took part in, but a target only a group member
         // hit (e.g. someone else's solo Training Dummy check) still gets tracked here since combat
-        // log lines for the whole group flow through the same Chat.log. Uploading it anyway would
+        // log lines for the whole group are tracked in the same session. Uploading it anyway would
         // just get rejected with a 400 every time - same "nothing to upload" signal as an empty
         // participants list.
         if (participants.Count == 0 || !participants.Any(p => p.IsSelf))
@@ -1707,7 +1704,7 @@ public partial class MainWindow : Window
         bool first = true;
         foreach (int targetId in targetIds)
         {
-            // A big "Reload from Chat.log" can surface dozens of distinct bosses/mobs at once -
+            // A big replay can surface dozens of distinct bosses/mobs at once -
             // found live when a real batch this size tripped the backend's own upload rate limit
             // (see Backend/src/server.ts). A small gap between requests keeps even a very large
             // batch comfortably under it instead of firing every request back-to-back.
@@ -1798,7 +1795,7 @@ public partial class MainWindow : Window
 
     /// <summary>Per the user: Load/Save Session are a portable, manual snapshot of the WHOLE
     /// current session (every damage/avoid/kill event, plus personal stat totals) - independent
-    /// of Chat.log, and deliberately separate from Fight History (FightStore), which auto-records
+    /// of the live capture, and deliberately separate from Fight History (FightStore), which auto-records
     /// individual finished fights on its own. Loot isn't included yet - see SessionFile's own
     /// remarks on why.</summary>
     private void OnSaveSessionClicked(object sender, RoutedEventArgs e)
@@ -1948,7 +1945,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Replays a loaded session the same way EnterHistoryMode replays one stored fight -
-    /// a FakeCombatSource so live Chat.log tailing doesn't interfere, object ids remapped through
+    /// a FakeCombatSource so the live capture doesn't interfere, object ids remapped through
     /// it by name so PlayerRow/aggregator identity works exactly like a live session's would.
     /// Restores avoids/kills too (EnterHistoryMode doesn't - FightStore's own single-fight replay
     /// never needed defense/PVP stats to survive a reload) and re-runs class detection from each
@@ -2225,11 +2222,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        bool isLocalPlayer = _source?.Entities.IsLocalPlayer(row.ObjectId) == true;
         var mine = _aggregator.Events.Where(ev => ev.SourceObjectId == row.ObjectId).ToList();
 
-        new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, isLocalPlayer, mine,
-            id => _source?.Entities.NameFor(id) ?? ResolveDisplayName(id), exactCrits: _source is Aion2.Aion2PacketCombatSource)
+        new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, mine,
+            id => _source?.Entities.NameFor(id) ?? ResolveDisplayName(id))
         {
             Owner = this,
         }.Show();
@@ -2398,8 +2394,7 @@ public partial class MainWindow : Window
     /// single comma-separated run (not one row per line) of "rank, name, total [dps]" tuples,
     /// e.g. "1, Mitzuhiko, 3.123.456 [3.145], 2, Mitzuhiki, 3.123.455 [3.144]", ranked by damage
     /// descending -- independent of whatever order/filter the grid itself is currently showing.
-    /// Both the damage total and the DPS figure use Aion's own "." thousands-grouping style (see
-    /// ChatLogParser's number-format remarks) for visual consistency with what the game itself
+    /// Both the damage total and the DPS figure use Aion's own "." thousands-grouping style for visual consistency with what the game itself
     /// would show, not because DPS is naturally an integer -- it's rounded to match.
     /// </summary>
     /// <summary>Aion's own chat box rejects a paste outright once the resulting line would be too
@@ -2615,9 +2610,6 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>The Aion 2 character profile to attach to a participant: the full own record for the
-    /// local player (also when it was restored from disk), what the "player appeared" frame showed
-    /// for everyone else; null when there is nothing to say (classic Aion, or no frame seen).</summary>
     /// <summary>The id to read a row's guild and profile under: the own character's row may carry an
     /// older object id than the one the game currently knows it by.</summary>
     private int ProfileIdOf(PlayerRow row) =>
@@ -2625,6 +2617,9 @@ public partial class MainWindow : Window
             ? own.CombatId
             : row.ObjectId;
 
+    /// <summary>The Aion 2 character profile to attach to a participant: the full own record for the
+    /// local player (also when it was restored from disk), what the "player appeared" frame showed
+    /// for everyone else; null when there is nothing to say (no frame seen).</summary>
     private ProfileUpload? BuildProfileUpload(int objectId)
     {
         if (_source?.Entities is not Aion2.Aion2EntityDirectory directory)

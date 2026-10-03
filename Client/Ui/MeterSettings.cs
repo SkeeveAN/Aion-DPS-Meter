@@ -35,9 +35,8 @@ public sealed class MeterSettings
 
     /// <summary>GUI display language, an ISO 639-1 code from LocalizationManager.SupportedLanguages
     /// (e.g. "de"), or "" on a fresh install to mean "use whatever LocalizationManager already
-    /// auto-detected from the OS at startup, and don't overwrite it here." Independent of Chat.log's
-    /// own language (see ChatLogParser's multi-language remarks and Localization.cs) -- this is
-    /// purely which language the meter's OWN menus/buttons/labels render in.</summary>
+    /// auto-detected from the OS at startup, and don't overwrite it here." Independent of the game client's
+    /// language (see Localization.cs) -- this is purely which language the meter's OWN menus/buttons/labels render in.</summary>
     public string Language { get; set; } = "";
 
     /// <summary>Whether the meter window starts pinned above every other window, including the game

@@ -9,7 +9,7 @@ namespace AionDPS.History;
 /// originally FightStore's own private nested type (one blob per row in its SQLite table), now
 /// shared with SessionFile's own file-based save/load (Main.MenuApp.SaveSession/LoadSession),
 /// which needs the exact same round-trip but to a standalone file instead of a database column.
-/// Ticks+Kind rather than ISO strings: the Chat.log timestamps are local, kind-unspecified values
+/// Ticks+Kind rather than ISO strings: the event timestamps are local, kind-unspecified values
 /// and must come back exactly so.</summary>
 public static class EventBlob
 {

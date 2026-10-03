@@ -3,8 +3,8 @@ namespace AionDPS.Combat.Sources;
 /// <summary>
 /// Where combat data comes from. The meter's math (LiveAggregator, DpsCalculator, FactionResolver,
 /// EngagedTargets) only ever sees <see cref="DamageEvent"/>s and integer object ids; this is the
-/// seam that lets MainWindow drive the same UI from Aion's Chat.log today and from an Aion 2
-/// packet capture later without knowing which one it is talking to. One instance per session:
+/// seam that lets MainWindow drive the same UI from the Aion 2 packet capture (or a replayed
+/// fight) without knowing which one it is talking to. One instance per session:
 /// constructed for a configured game/install, polled once a second from the UI thread, disposed
 /// when Settings change.
 /// </summary>
@@ -21,8 +21,8 @@ public interface ICombatSource : IDisposable
     /// <summary>Whether the local player is in an arena, where the opponent may share their faction.</summary>
     bool InArena { get; }
 
-    /// <summary>Begins watching. May be called before the underlying input exists (Chat.log not
-    /// yet written, game not yet running) - the source keeps trying on every <see cref="Poll"/>.</summary>
+    /// <summary>Begins watching. May be called before the underlying input exists (game not
+    /// yet running) - the source keeps trying on every <see cref="Poll"/>.</summary>
     void Start();
 
     void Stop();
@@ -46,7 +46,7 @@ public interface IEntityDirectory
 
     int GetOrAssignId(string name);
 
-    /// <summary>The local player's id - what Chat.log calls "You".</summary>
+    /// <summary>The local player's id - the character this client plays.</summary>
     int LocalPlayerId { get; }
 
     bool IsLocalPlayer(int id);
@@ -68,8 +68,6 @@ public enum SourceCapabilities
     /// <summary>Ids are the game's own object ids, not synthetic per-name ones - two same-named
     /// entities are told apart.</summary>
     ExactIds = 1 << 6,
-    /// <summary>The whole history can be re-read on request (Chat.log's "Reload from disk").</summary>
-    Reparse = 1 << 7,
 }
 
 public enum SourceState

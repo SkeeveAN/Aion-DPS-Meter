@@ -11,8 +11,8 @@ public sealed record FightSegment(int TargetId, DateTime Start, DateTime End, IR
 /// <summary>
 /// Splits a target's hits into separate fights by a silence gap - the same 120 s rule
 /// MainWindow's Mob/Boss dropdown ("Name #1".."#N") and the headless upload use, so what the
-/// history records as one fight is exactly what those show as one run. Chat.log assigns ids by
-/// name, so a boss farmed five times shares one target id; without this the history would hold
+/// history records as one fight is exactly what those show as one run. A boss farmed five times can share
+/// one target id; without this the history would hold
 /// one fight spanning the whole farm session.
 /// </summary>
 public static class FightSegmenter

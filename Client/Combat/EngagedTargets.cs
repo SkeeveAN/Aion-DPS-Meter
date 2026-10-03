@@ -3,7 +3,7 @@ namespace AionDPS.Combat;
 /// <summary>
 /// Drops damage belonging to a fight the local player's side was not part of.
 ///
-/// <para>Exists because two Aion clients can share one Chat.log, and the second one is not
+/// <para>Exists because a capture can see other groups' fights too, and the second group is not
 /// necessarily anywhere near the first. In a real Sauro Supply Base run it sat next to a training
 /// dummy in town, and the two strangers whacking that dummy -- 1.8M damage between them -- ranked
 /// 6th and 7th in a run they were never part of.</para>

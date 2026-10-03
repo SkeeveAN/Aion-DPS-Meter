@@ -502,8 +502,7 @@ public sealed class Aion2FrameDecoder
             _entities.NoteClass(source, className);
         }
 
-        // No "skill used" notification for the window: its handler (Chat.log's way of finding the
-        // active character and other players' classes) refreshes the row list, which must only
+        // No "skill used" notification for the window: its handler refreshes the row list, which must only
         // happen on the UI thread - and this runs on the capture thread. Aion 2 knows each
         // player's class from the skill ids themselves (see Aion2EntityDirectory.NoteClass).
         string skill = Aion2SkillNames.NameOf(skillId);

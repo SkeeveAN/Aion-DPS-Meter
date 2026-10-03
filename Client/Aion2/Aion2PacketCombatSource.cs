@@ -117,7 +117,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             drained.Add(ev);
         }
 
-        // Paused time is discarded, not deferred - same tape-recorder rule as the Chat.log source.
+        // Paused time is discarded, not deferred - tape-recorder rule.
         return paused ? CombatBatch.Empty : CombatBatch.DamageOnly(drained);
     }
 
