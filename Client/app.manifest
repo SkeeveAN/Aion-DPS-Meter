@@ -2,20 +2,16 @@
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
   <assemblyIdentity version="1.0.0.0" name="AionDPS.app"/>
 
-  <!-- requireAdministrator, per the user: back to needing elevation, this time for Aion 2's real
-       packet capture (Aion2/, via SharpPcap/Npcap - opening the Npcap driver handle needs admin
-       rights, unlike classic Aion's Chat.log reading, which never did). An earlier version of this
-       manifest was "asInvoker" for exactly that reason (classic Aion only), with Program.Main
-       re-launching itself through the "runas" verb earlier still, back when packet capture first
-       existed - both are gone now in favor of the OS just enforcing it here: Windows shows the UAC
-       prompt on every launch (double-click, shortcut, Velopack's own relaunch after an update) and
-       refuses to start at all without it, for both games now, not only when Aion 2 is selected.
-       Settings still live outside the install directory (MeterSettings.SettingsPath) regardless -
-       that was never about elevation, just about the per-user Velopack install layout. -->
+  <!-- asInvoker, with the meter raising itself (Program.RelaunchElevatedIfNeeded): the packet
+       capture needs admin rights to open the Npcap driver, but requireAdministrator here also made
+       Windows refuse every non-elevated start - including Velopack's install hook and first launch
+       right after setup ("installation partially succeeded", "the requested operation requires
+       elevation", 2026-10-02). Velopack's hook runs need no rights and now finish; an ordinary
+       start then asks for elevation through the usual UAC prompt. -->
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <requestedExecutionLevel level="requireAdministrator" uiAccess="false"/>
+        <requestedExecutionLevel level="asInvoker" uiAccess="false"/>
       </requestedPrivileges>
     </security>
   </trustInfo>
