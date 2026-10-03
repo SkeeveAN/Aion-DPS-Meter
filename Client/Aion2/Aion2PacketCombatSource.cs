@@ -72,11 +72,6 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     private DateTime _lastStatusAt = DateTime.MinValue;
     public event Action<SourceStatus>? StatusChanged;
 
-    // Aion 2's chat frames are not decoded yet (see ICombatSource.CommandReceived).
-#pragma warning disable CS0067
-    public event Action<string?, string, string>? CommandReceived;
-#pragma warning restore CS0067
-
     public void Start()
     {
         if (!_npcap.IsInstalled)

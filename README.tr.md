@@ -43,10 +43,9 @@ Pencereyi oyunun üstünde duran, tıklamayı geçiren küçük etiketlere çevi
 **Copy**, panoya tek satırlık, sohbete hazır bir sıralama koyar (`Ad 1.234.567 (890), …`); **Copy All** Discord için bir
 Markdown tablosu verir.
 
-### Sohbet komutları
+### Kısayol tuşları
 
-`.ui` (yer paylaşımı), `.pause` / `.resume`, `.dmg` (sıralamayı kopyala) ve `.cleardmg` (oturumu temizle). İşleyici bunları
-yalnızca kendi karakterinizden kabul eder. Aion 2'nin sohbeti henüz çözülmediği için şimdilik bir şey yapmazlar.
+Oyun odaktayken bile her yerde çalışır (**Ayarlar → Arayüz → Kısayol tuşları** bölümünden değiştirilir): **Ctrl+Alt+H** kaplama, **Ctrl+Alt+P** duraklat / devam, **Ctrl+Alt+D** sıralamayı kopyala, **Ctrl+Alt+Shift+X** oturumu temizle. Aion 2 sohbeti ağ trafiğinden okunamadığı için çalışamayan sohbet komutlarının yerini alırlar.
 
 ## Yüklemeler
 

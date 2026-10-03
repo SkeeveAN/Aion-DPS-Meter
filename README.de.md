@@ -47,11 +47,9 @@ Schaden und DPS. Umschalten mit **Strg+Alt+H**, von überall.
 **Copy** legt ein einzeiliges, chatfertiges Ranking in die Zwischenablage (`Name 1.234.567 (890), …`);
 **Copy All** liefert eine Discord-Markdown-Tabelle.
 
-### Chat-Befehle
+### Tastenkürzel
 
-`.ui` (Overlay), `.pause` / `.resume`, `.dmg` (Ranking kopieren) und `.cleardmg` (Sitzung leeren). Der
-Handler nimmt sie nur von deinem eigenen Charakter an. Der Chat von Aion 2 wird noch nicht dekodiert,
-deshalb bewirken sie derzeit nichts.
+Systemweit, auch wenn das Spiel den Fokus hat (ändern unter **Einstellungen → Oberfläche → Tastenkürzel**): **Strg+Alt+H** Overlay, **Strg+Alt+P** Pause / Fortsetzen, **Strg+Alt+D** Ranking kopieren, **Strg+Alt+Umschalt+X** Sitzung leeren. Sie ersetzen Chat-Befehle, die nicht funktionieren können, weil der Chat von Aion 2 im Netzwerkverkehr nicht lesbar ist.
 
 ## Uploads
 

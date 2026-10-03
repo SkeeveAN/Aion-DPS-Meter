@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace AionDPS.Ui;
@@ -36,6 +37,10 @@ public partial class SettingsWindow : Window
 
         CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
         AutoUploadProfileBox.IsChecked = settings.AutoUploadProfile;
+        HotkeyHideUiBox.Text = HotkeyBinding.Parse(settings.HotkeyHideUi).ToString();
+        HotkeyPauseBox.Text = HotkeyBinding.Parse(settings.HotkeyPause).ToString();
+        HotkeyCopyDamageBox.Text = HotkeyBinding.Parse(settings.HotkeyCopyDamage).ToString();
+        HotkeyClearBox.Text = HotkeyBinding.Parse(settings.HotkeyClear).ToString();
         SelectComboItem(ThemeBox, settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
@@ -127,10 +132,45 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private void OnHotkeyBoxFocus(object sender, KeyboardFocusChangedEventArgs e) => ((TextBox)sender).SelectAll();
+
+    /// <summary>Press the combination to set it; Delete or Backspace clears it. A key without Ctrl,
+    /// Alt, Shift or Win is refused: a global hotkey like that would swallow an ordinary key in every
+    /// program.</summary>
+    private void OnHotkeyBoxKeyDown(object sender, KeyEventArgs e)
+    {
+        e.Handled = true;
+        var box = (TextBox)sender;
+        Key key = e.Key == Key.System ? e.SystemKey : e.Key;
+        if (key is Key.Delete or Key.Back)
+        {
+            box.Text = "";
+            return;
+        }
+
+        if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt or Key.LeftShift or Key.RightShift
+            or Key.LWin or Key.RWin or Key.Tab or Key.Escape or Key.None)
+        {
+            return;
+        }
+
+        ModifierKeys mods = Keyboard.Modifiers;
+        var binding = new HotkeyBinding(mods.HasFlag(ModifierKeys.Control), mods.HasFlag(ModifierKeys.Alt),
+            mods.HasFlag(ModifierKeys.Shift), mods.HasFlag(ModifierKeys.Windows), key);
+        if (binding.Ctrl || binding.Alt || binding.Shift || binding.Win)
+        {
+            box.Text = binding.ToString();
+        }
+    }
+
     private void OnSaveClicked(object sender, RoutedEventArgs e)
     {
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? true;
+        _settings.HotkeyHideUi = HotkeyHideUiBox.Text;
+        _settings.HotkeyPause = HotkeyPauseBox.Text;
+        _settings.HotkeyCopyDamage = HotkeyCopyDamageBox.Text;
+        _settings.HotkeyClear = HotkeyClearBox.Text;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
         _settings.Language = LocalizationManager.Instance.Language;

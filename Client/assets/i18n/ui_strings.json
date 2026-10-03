@@ -790,5 +790,65 @@
     "pl": "Uruchom klienta ponownie (sesja zostaje)",
     "tr": "İstemciyi yeniden başlat (oturum korunur)",
     "zh": "重启客户端（保留当前会话）"
+  },
+  "Settings.Hotkeys": {
+    "en": "Hotkeys",
+    "de": "Tastenkürzel",
+    "fr": "Raccourcis clavier",
+    "es": "Atajos de teclado",
+    "ru": "Горячие клавиши",
+    "pl": "Skróty klawiszowe",
+    "tr": "Kısayol tuşları",
+    "zh": "快捷键"
+  },
+  "Settings.Hotkeys.Hint": {
+    "en": "Work everywhere, also while the game has the focus. Click a field and press the combination (it needs Ctrl, Alt, Shift or Win); Delete clears it.",
+    "de": "Funktionieren überall, auch wenn das Spiel den Fokus hat. Feld anklicken und die Kombination drücken (mit Strg, Alt, Umschalt oder Win); Entf löscht sie.",
+    "fr": "Fonctionnent partout, même quand le jeu a le focus. Cliquez dans un champ et appuyez sur la combinaison (avec Ctrl, Alt, Maj ou Win) ; Suppr l'efface.",
+    "es": "Funcionan en todas partes, también con el juego en primer plano. Haz clic en un campo y pulsa la combinación (con Ctrl, Alt, Mayús o Win); Supr la borra.",
+    "ru": "Работают везде, в том числе когда активна игра. Щёлкните поле и нажмите сочетание (с Ctrl, Alt, Shift или Win); Delete очищает.",
+    "pl": "Działają wszędzie, także gdy gra ma fokus. Kliknij pole i naciśnij kombinację (z Ctrl, Alt, Shift lub Win); Delete ją usuwa.",
+    "tr": "Oyun odaktayken bile her yerde çalışır. Bir alana tıklayıp kombinasyona basın (Ctrl, Alt, Shift veya Win ile); Delete siler.",
+    "zh": "在任何位置都有效，包括游戏处于焦点时。点击输入框并按下组合键（需包含 Ctrl、Alt、Shift 或 Win）；按 Delete 清除。"
+  },
+  "Settings.Hotkey.HideUi": {
+    "en": "Overlay (hide window)",
+    "de": "Overlay (Fenster ausblenden)",
+    "fr": "Overlay (masquer la fenêtre)",
+    "es": "Overlay (ocultar ventana)",
+    "ru": "Оверлей (скрыть окно)",
+    "pl": "Nakładka (ukryj okno)",
+    "tr": "Kaplama (pencereyi gizle)",
+    "zh": "悬浮层（隐藏窗口）"
+  },
+  "Settings.Hotkey.Pause": {
+    "en": "Pause / resume",
+    "de": "Pause / Fortsetzen",
+    "fr": "Pause / reprise",
+    "es": "Pausa / reanudar",
+    "ru": "Пауза / продолжить",
+    "pl": "Pauza / wznów",
+    "tr": "Duraklat / devam",
+    "zh": "暂停 / 继续"
+  },
+  "Settings.Hotkey.CopyDamage": {
+    "en": "Copy damage ranking",
+    "de": "Schadens-Ranking kopieren",
+    "fr": "Copier le classement",
+    "es": "Copiar clasificación",
+    "ru": "Копировать рейтинг",
+    "pl": "Kopiuj ranking",
+    "tr": "Sıralamayı kopyala",
+    "zh": "复制伤害排名"
+  },
+  "Settings.Hotkey.Clear": {
+    "en": "Clear session",
+    "de": "Sitzung leeren",
+    "fr": "Vider la session",
+    "es": "Vaciar sesión",
+    "ru": "Очистить сессию",
+    "pl": "Wyczyść sesję",
+    "tr": "Oturumu temizle",
+    "zh": "清空本次记录"
   }
 }

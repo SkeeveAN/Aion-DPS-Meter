@@ -28,17 +28,11 @@ public interface ICombatSource : IDisposable
     void Stop();
 
     /// <summary>Everything that happened since the previous call. Paused time is discarded, not
-    /// deferred: the returned batch is empty while paused, but control signals
-    /// (<see cref="CommandReceived"/>) still fire so ".resume" can work.</summary>
+    /// deferred: the returned batch is empty while paused.</summary>
     CombatBatch Poll(bool paused);
 
     /// <summary>(actor name, skill)</summary>
     event Action<string, string>? SkillUsed;
-
-    /// <summary>(sender name or null, command, argument) from an in-game chat line - the ".pause" /
-    /// ".ui" style commands. Aion 2's chat is not decoded yet, so that source never raises it; the
-    /// handler in MainWindow is ready for the day it does.</summary>
-    event Action<string?, string, string>? CommandReceived;
 
     /// <summary>Human-readable state of the input (waiting for the game, connected, protocol not
     /// calibrated, …) for the status bar. Fires on the polling thread.</summary>
@@ -65,7 +59,6 @@ public enum SourceCapabilities
 {
     None = 0,
     Loot = 1 << 0,
-    ChatCommands = 1 << 1,
     PersonalStats = 1 << 2,
     Buffs = 1 << 3,
     /// <summary>Dodge/parry/block/resist events (<see cref="AvoidEvent"/>).</summary>

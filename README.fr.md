@@ -46,11 +46,9 @@ DPS. Bascule avec **Ctrl+Alt+H**, de n'importe où.
 **Copy** place un classement d'une ligne, prêt pour le chat, dans le presse-papiers (`Nom 1.234.567 (890), …`) ;
 **Copy All** donne un tableau Markdown pour Discord.
 
-### Commandes de chat
+### Raccourcis clavier
 
-`.ui` (overlay), `.pause` / `.resume`, `.dmg` (copier le classement) et `.cleardmg` (vider la session). Le
-gestionnaire ne les accepte que de votre propre personnage. Le chat d'Aion 2 n'est pas encore décodé, elles ne
-font donc rien pour l'instant.
+Valables partout, même quand le jeu a le focus (à modifier dans **Paramètres → Interface → Raccourcis clavier**) : **Ctrl+Alt+H** overlay, **Ctrl+Alt+P** pause / reprise, **Ctrl+Alt+D** copier le classement, **Ctrl+Alt+Maj+X** vider la session. Ils remplacent les commandes de chat, qui ne peuvent pas fonctionner car le chat d'Aion 2 n'est pas lisible dans le trafic réseau.
 
 ## Envois
 

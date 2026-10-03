@@ -30,7 +30,6 @@ public sealed class FakeCombatSource : ICombatSource
     public bool InArena { get; set; }
 
     public event Action<string, string>? SkillUsed;
-    public event Action<string?, string, string>? CommandReceived;
     public event Action<SourceStatus>? StatusChanged;
 
     public int IdOf(string name) => _names.GetOrAssignId(name);
@@ -40,8 +39,6 @@ public sealed class FakeCombatSource : ICombatSource
     public void Enqueue(params DamageEvent[] damage) => _pending.Enqueue(CombatBatch.DamageOnly(damage));
 
     public void RaiseSkillUsed(string actor, string skill) => SkillUsed?.Invoke(actor, skill);
-
-    public void RaiseCommand(string? sender, string command, string argument) => CommandReceived?.Invoke(sender, command, argument);
 
     public void RaiseStatus(SourceState state, string message) => StatusChanged?.Invoke(new SourceStatus(state, message));
 

@@ -47,6 +47,7 @@ public static class SelfCheckAion2
         ok &= RunAion2BossSpawnScenario();
         ok &= RunClassCatalogScenario();
         ok &= RunSettingsMigrationScenario();
+        ok &= RunHotkeyBindingScenario();
         return ok;
     }
 
@@ -59,12 +60,8 @@ public static class SelfCheckAion2
         bool fakePausedDiscards = fake.Poll(true).IsEmpty && fake.Poll(false).IsEmpty;
         fake.Enqueue(new DamageEvent(DateTime.UtcNow, you, fake.IdOf("Dummy"), 10, IsHeal: false));
         bool fakeDelivers = fake.Poll(false).Damage.Count == 1 && fake.Entities.IsLocalPlayer(you);
-        string? command = null;
-        fake.CommandReceived += (_, c, _) => command = c;
-        fake.RaiseCommand("Aahz", "pause", "");
         Console.WriteLine($"  -> FakeCombatSource honours pause and delivers queued batches: {fakePausedDiscards && fakeDelivers}");
-        Console.WriteLine($"  -> chat commands reach subscribers: {command == "pause"}");
-        return fakePausedDiscards && fakeDelivers && command == "pause";
+        return fakePausedDiscards && fakeDelivers;
     }
 
     private static readonly FrameLayout TestLayout = new(LengthOffset: 0, LengthSize: 2, LittleEndian: true, LengthIncludesHeader: true, HeaderSize: 4, OpcodeOffset: 2, OpcodeSize: 2, MaxFrameLength: 4096);
@@ -1215,6 +1212,20 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> nine classes incl. Elementalist, no Spiritmaster: {roster}");
         Console.WriteLine($"  -> badge abbreviations match the website's: {abbreviations}");
         return roster && abbreviations;
+    }
+
+    private static bool RunHotkeyBindingScenario()
+    {
+        Console.WriteLine("[selftest] Global hotkey bindings:");
+        var defaults = new MeterSettings();
+        bool roundTrip = new[] { defaults.HotkeyHideUi, defaults.HotkeyPause, defaults.HotkeyCopyDamage, defaults.HotkeyClear }
+            .All(text => !Ui.HotkeyBinding.Parse(text).IsEmpty && Ui.HotkeyBinding.Parse(text).ToString() == text);
+        bool needsModifier = Ui.HotkeyBinding.Parse("H").IsEmpty && Ui.HotkeyBinding.Parse("Ctrl+").IsEmpty && Ui.HotkeyBinding.Parse("").IsEmpty;
+        bool parsesModifiers = Ui.HotkeyBinding.Parse("ctrl+shift+F9") is { Ctrl: true, Shift: true, Alt: false } b && b.Key == System.Windows.Input.Key.F9;
+        Console.WriteLine($"  -> the default bindings read back as written: {roundTrip}");
+        Console.WriteLine($"  -> a key without a modifier, or nothing, is no binding: {needsModifier}");
+        Console.WriteLine($"  -> modifiers and keys parse whatever the case: {parsesModifiers}");
+        return roundTrip && needsModifier && parsesModifiers;
     }
 
     private static bool RunSettingsMigrationScenario()

@@ -45,10 +45,9 @@ Zamienia okno w małe, przeklikiwalne znaczniki nad grą — po jednym na gracza
 **Copy** wkłada do schowka jednowierszowy ranking gotowy do czatu (`Nazwa 1.234.567 (890), …`); **Copy All** daje
 tabelę Markdown dla Discorda.
 
-### Komendy czatu
+### Skróty klawiszowe
 
-`.ui` (nakładka), `.pause` / `.resume`, `.dmg` (skopiuj ranking) i `.cleardmg` (wyczyść sesję). Obsługa przyjmuje je
-tylko od twojej postaci. Czat Aion 2 nie jest jeszcze dekodowany, więc na razie nic nie robią.
+Działają wszędzie, także gdy gra ma fokus (zmiana w **Ustawienia → Interfejs → Skróty klawiszowe**): **Ctrl+Alt+H** nakładka, **Ctrl+Alt+P** pauza / wznów, **Ctrl+Alt+D** kopiuj ranking, **Ctrl+Alt+Shift+X** wyczyść sesję. Zastępują komendy czatu, które nie mogą działać, bo czatu Aion 2 nie da się odczytać z ruchu sieciowego.
 
 ## Przesyłanie
 

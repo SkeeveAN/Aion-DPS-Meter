@@ -48,6 +48,7 @@ public partial class MainWindow : Window
 
     private readonly LiveAggregator _aggregator = new();
     private NativeOverlay? _overlay;
+    private GlobalHotkeys? _hotkeys;
     private bool _paused;
     private bool _hideUiActive;
     private bool _topmostBeforeHideUi;
@@ -318,7 +319,6 @@ public partial class MainWindow : Window
             return;
         }
 
-        source.CommandReceived += OnChatCommand;
         source.StatusChanged += OnSourceStatusChanged;
         source.Start();
     }
@@ -366,39 +366,47 @@ public partial class MainWindow : Window
     private static readonly string[] JewelrySlotKeywords = { "Belt", "Ring", "Earring", "Necklace", "Helm", "Helmet" };
 
     /// <summary>
-    /// In-game chat commands (".ui", ".pause", ".resume", ".dmg", ".cleardmg"), per the user: typing
-    /// one into the game's chat reaches here through <see cref="ICombatSource.CommandReceived"/>.
-    /// Aion 2's chat frames are not decoded yet, so nothing raises it today - the handler is the
-    /// part that is ready. Commands are only honoured from the player's own character (the speaker
-    /// name must equal the name the game sent for it); anything else, including an unknown speaker,
-    /// is ignored - fail closed, because a stranger typing ".cleardmg" in a public channel must
-    /// never be able to wipe someone's session.
+    /// What a global hotkey (see GlobalHotkeys) does. They replace the in-game chat commands, which
+    /// cannot work: Aion 2's chat is not readable from the network stream.
     /// </summary>
-    private void OnChatCommand(string? speakerName, string command, string args)
+    private void OnHotkeyPressed(HotkeyAction action)
     {
-        string? authorizedName = (_source?.Entities as Aion2EntityDirectory)?.LocalCharacter?.Name;
-        if (speakerName is null || authorizedName is null || !string.Equals(speakerName, authorizedName, StringComparison.Ordinal))
+        switch (action)
+        {
+            case HotkeyAction.ToggleHideUi:
+                SetHideUi();
+                break;
+            case HotkeyAction.TogglePause:
+                SetPaused(!_paused);
+                break;
+            case HotkeyAction.CopyDamageRanking:
+                CopyChatLineChunk(BuildDmgRankingText(), "No damage has been recorded yet.");
+                break;
+            case HotkeyAction.ClearDamage:
+                ClearDamageData();
+                break;
+        }
+    }
+
+    /// <summary>(Re-)registers the hotkeys from the settings; a combination another program already
+    /// owns is reported on the status line.</summary>
+    private void ApplyHotkeys(MeterSettings settings)
+    {
+        if (_hotkeys is null)
         {
             return;
         }
 
-        switch (command)
+        var failed = _hotkeys.Apply(new Dictionary<HotkeyAction, HotkeyBinding>
         {
-            case "ui":
-                SetHideUi();
-                break;
-            case "pause":
-                SetPaused(true);
-                break;
-            case "resume":
-                SetPaused(false);
-                break;
-            case "dmg":
-                CopyChatLineChunk(BuildDmgRankingText(), "No damage has been recorded yet.");
-                break;
-            case "cleardmg":
-                ClearDamageData();
-                break;
+            [HotkeyAction.ToggleHideUi] = HotkeyBinding.Parse(settings.HotkeyHideUi),
+            [HotkeyAction.TogglePause] = HotkeyBinding.Parse(settings.HotkeyPause),
+            [HotkeyAction.CopyDamageRanking] = HotkeyBinding.Parse(settings.HotkeyCopyDamage),
+            [HotkeyAction.ClearDamage] = HotkeyBinding.Parse(settings.HotkeyClear),
+        });
+        if (failed.Count > 0)
+        {
+            ShowUploadStatus("Hotkey already in use by another program: " + string.Join(", ", failed));
         }
     }
 
@@ -576,7 +584,9 @@ public partial class MainWindow : Window
     {
         base.OnSourceInitialized(e);
         _overlay = new NativeOverlay(this);
-        _overlay.HotkeyPressed += () => Dispatcher.Invoke(SetHideUi, System.Windows.Threading.DispatcherPriority.Input);
+        _hotkeys = new GlobalHotkeys(this);
+        _hotkeys.Pressed += action => Dispatcher.Invoke(() => OnHotkeyPressed(action), System.Windows.Threading.DispatcherPriority.Input);
+        ApplyHotkeys(MeterSettings.Load());
     }
 
     /// <summary>
@@ -611,6 +621,7 @@ public partial class MainWindow : Window
         _fightStore?.Dispose();
         _source?.Dispose();
         _overlay?.Dispose();
+        _hotkeys?.Dispose();
         _trayIcon?.Dispose();
         base.OnClosed(e);
     }
@@ -2382,8 +2393,7 @@ public partial class MainWindow : Window
 
     private void OnPauseClicked(object sender, RoutedEventArgs e) => SetPaused(!_paused);
 
-    /// <summary>Shared by the toolbar Pause/Resume button and the ".pause"/".resume" in-game
-    /// commands -- those set an explicit target state rather than toggling.</summary>
+    /// <summary>Shared by the toolbar Pause/Resume button and the pause hotkey.</summary>
     private void SetPaused(bool paused)
     {
         _paused = paused;
@@ -2417,6 +2427,7 @@ public partial class MainWindow : Window
         {
             settings.Save();
             ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
+            ApplyHotkeys(settings); // possibly changed keys
             ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
             StartCapture(settings); // possibly a new/changed AionInstallFolder
             InitializeFightHistory(settings); // possibly toggled recording

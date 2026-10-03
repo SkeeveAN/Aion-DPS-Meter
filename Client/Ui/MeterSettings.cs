@@ -79,6 +79,16 @@ public sealed class MeterSettings
     /// default; the manual upload button works either way.</summary>
     public bool AutoUploadProfile { get; set; } = true;
 
+    /// <summary>System-wide hotkeys (see GlobalHotkeys), written "Ctrl+Alt+H"; empty = off. They stand
+    /// in for the chat commands, which cannot work because Aion 2's chat is not readable.</summary>
+    public string HotkeyHideUi { get; set; } = "Ctrl+Alt+H";
+
+    public string HotkeyPause { get; set; } = "Ctrl+Alt+P";
+
+    public string HotkeyCopyDamage { get; set; } = "Ctrl+Alt+D";
+
+    public string HotkeyClear { get; set; } = "Ctrl+Alt+Shift+X";
+
 
     /// <summary>Network adapter the Aion 2 packet capture listens on (Aion2/Capture/CaptureAdapters):
     /// null/empty = automatic (the adapter Windows routes internet traffic through), "all" = every

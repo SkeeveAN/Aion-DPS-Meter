@@ -46,10 +46,9 @@ DPS. Se alterna con **Ctrl+Alt+H**, desde cualquier sitio.
 **Copy** pone en el portapapeles una clasificación de una línea lista para el chat (`Nombre 1.234.567 (890), …`);
 **Copy All** da una tabla Markdown para Discord.
 
-### Comandos de chat
+### Atajos de teclado
 
-`.ui` (overlay), `.pause` / `.resume`, `.dmg` (copiar la clasificación) y `.cleardmg` (vaciar la sesión). El
-gestor solo los acepta de tu propio personaje. El chat de Aion 2 aún no se decodifica, así que por ahora no hacen nada.
+Valen en todas partes, también con el juego en primer plano (se cambian en **Ajustes → Interfaz → Atajos de teclado**): **Ctrl+Alt+H** overlay, **Ctrl+Alt+P** pausa / reanudar, **Ctrl+Alt+D** copiar la clasificación, **Ctrl+Alt+Mayús+X** vaciar la sesión. Sustituyen a los comandos de chat, que no pueden funcionar porque el chat de Aion 2 no se puede leer en el tráfico de red.
 
 ## Subidas
 

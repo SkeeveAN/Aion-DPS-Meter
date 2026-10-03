@@ -46,11 +46,9 @@ player, showing name, damage and DPS. Toggle it with **Ctrl+Alt+H**, from anywhe
 **Copy** puts a one-line, chat-ready ranking on the clipboard (`Name 1.234.567 (890), …`); **Copy All**
 gives you a Discord markdown table.
 
-### Chat commands
+### Hotkeys
 
-`.ui` (overlay), `.pause` / `.resume`, `.dmg` (copy the ranking) and `.cleardmg` (clear the session).
-The handler only accepts them from your own character. Aion 2's chat is not decoded yet, so for now
-they do nothing.
+System-wide, also while the game has the focus (**Settings → Interface → Hotkeys** to change them): **Ctrl+Alt+H** overlay, **Ctrl+Alt+P** pause / resume, **Ctrl+Alt+D** copy the ranking, **Ctrl+Alt+Shift+X** clear the session. They replace chat commands, which cannot work because Aion 2's chat is not readable from the network stream.
 
 ## Uploads
 
