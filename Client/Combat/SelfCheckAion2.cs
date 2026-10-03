@@ -33,6 +33,7 @@ public static class SelfCheckAion2
         ok &= RunAion2GuildScenario();
         ok &= RunAion2PartyByClassScenario();
         ok &= RunAion2AccentAndLeftoverSummonScenario();
+        ok &= RunAion2SpiritBasicAttackScenario();
         ok &= RunAion2ShieldIsNoSummonScenario();
         ok &= RunAion2TwoSorcerersScenario();
         ok &= RunAion2DotTickScenario();
@@ -770,6 +771,9 @@ public static class SelfCheckAion2
         return notYet && named;
     }
 
+    // The party roster of the Canyon Urugugu run (2026-10-03): Azaëde, Boulenbouche, Kayzia, Knouo, Saydo.
+    private const string CanyonUruguguRoster = "0297723205001244C3A97061727420696D6DC3A9646961742E05CC2709000003038C030000001705FF0203051E01038C03000000170507417A61C3AB6465220000002D000000D60500001705D210048F1901000000000000320000000000000001011E02068E0300000017050C426F756C656E626F75636865150000002D000000780500001705D21004BEF900000000000000370000000000000001011E03E14E030000001705064B61797A69611E0000002D000000060700001705D21004A149010000000000003C0000000000000001011E04AC8603000000FD08054B6E6F756F100000002D000000AB05000001FD08D210040718010000000000004400000000000000010200050000000000000000000000000000000000000000000400000000000000000000000004";
+
     /// <summary>
     /// Canyon Urugugu, recording started mid-fight (2026-10-03): the real party roster lists Azaëde,
     /// a name of 6 characters and 7 bytes - counting characters dropped her from the party. And a
@@ -779,10 +783,9 @@ public static class SelfCheckAion2
     private static bool RunAion2AccentAndLeftoverSummonScenario()
     {
         Console.WriteLine("[selftest] Aion 2 accented party member and a summon from before the recording (real Canyon Urugugu frames):");
-        const string roster = "0297723205001244C3A97061727420696D6DC3A9646961742E05CC2709000003038C030000001705FF0203051E01038C03000000170507417A61C3AB6465220000002D000000D60500001705D210048F1901000000000000320000000000000001011E02068E0300000017050C426F756C656E626F75636865150000002D000000780500001705D21004BEF900000000000000370000000000000001011E03E14E030000001705064B61797A69611E0000002D000000060700001705D21004A149010000000000003C0000000000000001011E04AC8603000000FD08054B6E6F756F100000002D000000AB05000001FD08D210040718010000000000004400000000000000010200050000000000000000000000000000000000000000000400000000000000000000000004";
         const string auraHit = "0438CF990224008EEC0286B10501020293D3386601000000DA65A516029D029D020100";
         var wire = new List<byte>();
-        foreach (string hex in new[] { roster, auraHit })
+        foreach (string hex in new[] { CanyonUruguguRoster, auraHit })
         {
             byte[] body = Convert.FromHexString(hex);
             int length = body.Length + 4;
@@ -806,6 +809,61 @@ public static class SelfCheckAion2
         bool aura = hits.Count == 1 && hits[0].SourceObjectId == 250 && dir.SummonOwnerOf(46606) == 250;
         Console.WriteLine($"  -> Azaëde in the party: {azaede}; the Divine Aura's hit is Kayzia's: {aura}");
         return azaede && aura;
+    }
+
+    /// <summary>
+    /// Canyon Urugugu again (2026-10-03, recording started mid-fight): Boulenbouche's Ancient Spirit
+    /// (55023) hits Divine Auldor (36047) with its basic attack (100051), an id that names no class.
+    /// Its first hit comes before anyone is known and stays its own; once the roster names
+    /// Boulenbouche, the party's only Spiritmaster, the next one is his - and the first is handed
+    /// over to him (Reattribute). Before, the spirit stayed a "Player #55023" row for the whole run.
+    /// </summary>
+    private static bool RunAion2SpiritBasicAttackScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 a spirit's basic attack from before the recording (real Canyon Urugugu frames):");
+        const string spiritHit = "0438CF99020600EFAD03D3860100100204000279AA980001000000C66583080100";
+        static byte[] Wire(params string[] frames)
+        {
+            var wire = new List<byte>();
+            foreach (string hex in frames)
+            {
+                byte[] body = Convert.FromHexString(hex);
+                int length = body.Length + 4;
+                while (length >= 0x80)
+                {
+                    wire.Add((byte)(length & 0x7f | 0x80));
+                    length >>= 7;
+                }
+
+                wire.Add((byte)length);
+                wire.AddRange(body);
+            }
+
+            return wire.ToArray();
+        }
+
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        var aggregator = new LiveAggregator();
+        byte[] first = Wire(spiritHit);
+        source.Ingest(Segment(9900, first));
+        aggregator.IngestEvents(source.Poll(false).Damage);
+        bool unknownAtFirst = aggregator.Events.Count == 1 && aggregator.Events[0].SourceObjectId == 55023;
+
+        dir.Register(24, "Boulenbouche");
+        dir.NoteClass(24, "Spiritmaster");
+        source.Ingest(Segment(9900 + (uint)first.Length, Wire(CanyonUruguguRoster, spiritHit)));
+        var later = source.Poll(false).Damage;
+        foreach ((int summon, int owner) in dir.DrainResolvedOwners())
+        {
+            aggregator.Reattribute(summon, owner);
+        }
+
+        aggregator.IngestEvents(later);
+        bool his = later.Count == 1 && later[0].SourceObjectId == 24 && dir.SummonOwnerOf(55023) == 24;
+        bool allHis = aggregator.Events.Count == 2 && aggregator.Events.All(ev => ev.SourceObjectId == 24);
+        Console.WriteLine($"  -> first hit on the spirit itself: {unknownAtFirst}; the next is Boulenbouche's: {his}; both his in the end: {allHis}");
+        return unknownAtFirst && his && allHis;
     }
 
     /// <summary>Name, guild and local-player frames from real captures: the "player seen" frame

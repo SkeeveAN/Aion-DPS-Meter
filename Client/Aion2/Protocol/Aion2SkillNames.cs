@@ -154,6 +154,16 @@ public static class Aion2SkillNames
     }
 
     /// <summary>
+    /// The class whose summon casts this attack, or null when it is no summon attack. A summon's
+    /// class skills carry the class in their id; a spirit's basic attack does not ("Fire Spirit:
+    /// Basic Attack" is 100011-100018, "Ancient Spirit: Basic Attack" 100051 and 100055), so there
+    /// the spirit in its name stands for the Spiritmaster.
+    /// </summary>
+    public static string? SummonAttackClass(int skillId) =>
+        !IsSummonAttack(skillId) ? null
+        : ClassOf(skillId) ?? (NameOf(skillId).Contains("Spirit:", StringComparison.Ordinal) ? "Spiritmaster" : null);
+
+    /// <summary>
     /// The class in a character record's class code: <c>4 * class id + faction bit</c> (Gladiator 5/6,
     /// Templar 9/10, Ranger 13/14, Assassin 17/18, Spiritmaster 21/22, Sorcerer 25/26, Cleric 29/30,
     /// Chanter 33/34). Verified on four known characters; null for anything outside that pattern.

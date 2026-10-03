@@ -432,12 +432,14 @@ public sealed class Aion2FrameDecoder
     /// its summon attack (a spirit's "Fire Spirit: Leaping Slam", a Cleric's "Divine Aura", a
     /// Sorcerer's "Bittercold Wind"), and when the party has exactly one player of that class, known
     /// by id, it is theirs (Canyon Urugugu, recording started mid-fight, 2026-10-03: two Divine Auras
-    /// and two spirits left as Player #id). A named entity is a player, never a summon.
+    /// and two spirits left as Player #id). A spirit's basic attack counts too, though its id names no
+    /// class (see <see cref="Aion2SkillNames.SummonAttackClass"/>): the Ancient Spirit cast nothing
+    /// else once its owner was known. A named entity is a player, never a summon.
     /// </summary>
     private int? LeftoverSummonOwner(int actor, int skillId)
     {
-        if (_entities.IsSpawned(actor) || _entities.HasName(actor) || !Aion2SkillNames.IsSummonAttack(skillId)
-            || Aion2SkillNames.ClassOf(skillId) is not string className)
+        if (_entities.IsSpawned(actor) || _entities.HasName(actor)
+            || Aion2SkillNames.SummonAttackClass(skillId) is not string className)
         {
             return null;
         }
