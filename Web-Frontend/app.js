@@ -1387,8 +1387,10 @@ function localizedSkillName(skill) {
 // them. Icons are the game's own textures (images/aion2/icons); an id without one gets a tile with
 // the name's initials instead.
 const ICON_BASE = "/images/aion2/icons";
-const GRADE_COLOR = { 1: "#9aa3ad", 2: "#4aa3e8", 3: "#e8b03a", 4: "#e07a3a", 5: "#d94f6a", 7: "#2fd0c0" };
-const GRADE_NAME = { 1: "Common", 2: "Rare", 3: "Legend", 4: "Unique", 5: "Ultimate", 7: "Special" };
+// Rarity colours as the game paints them (the grade letters in its UI atlas): silver, green, blue, gold,
+// orange; the names are the client's own enum (Legend is the blue one, Unique the gold one).
+const GRADE_COLOR = { 1: "#aab2bd", 2: "#4cc46a", 3: "#3a9be8", 4: "#f0b030", 5: "#f07a20", 6: "#d94f4f", 7: "#2fd0c0" };
+const GRADE_NAME = { 1: "Common", 2: "Rare", 3: "Legend", 4: "Unique", 5: "Epic", 6: "Mythic", 7: "Special" };
 const GEAR_GROUPS = [
   ["armor", ["Helmet", "Shoulder", "Torso", "Gloves", "Pants", "Boots", "Cape", "Belt"]],
   ["accessories", ["Necklace", "Earring", "Ring", "Bracelet", "Amulet", "Brooch", "Pendant"]],
@@ -1445,7 +1447,7 @@ function gearTip(g) {
   return [
     el("div", { className: "pf-tip-head", style: `--ico-color:${color}` }, [
       el("div", { className: "pf-tip-title", textContent: g.name + (g.enchant > 0 ? ` +${g.enchant}` : "") }),
-      el("div", { className: "pf-tip-sub" }, [el("span", { style: `color:${color}`, textContent: GRADE_NAME[g.grade] ?? "" }), ` ${g.slotName ? t(`slot.${g.slotName}`) : ""}`]),
+      el("div", { className: "pf-tip-sub" }, [el("span", { style: `color:${color}`, textContent: `${GRADE_NAME[g.grade] ?? ""}${g.tier > 0 ? ` · ${t("profile.tier")} ${g.tier}` : ""}` }), ` ${g.slotName ? t(`slot.${g.slotName}`) : ""}`]),
       g.itemLevel > 0 ? el("div", { className: "pf-tip-il", textContent: `${t("profile.itemLevel")} ${g.itemLevel}` }) : null,
     ].filter((x) => x != null)),
   ];
@@ -1453,12 +1455,13 @@ function gearTip(g) {
 
 function gearSlot(g) {
   const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
-  const slot = el("div", { className: "pf-slot" }, [
+  const slot = el("div", { className: "pf-slot", style: `--ico-color:${color}` }, [
     iconTile("item", g.icon, g.name, { color, badge: g.enchant > 0 ? `+${g.enchant}` : "" }),
     el("div", {}, [
       el("div", { className: "pf-slot-name", textContent: g.name }),
       el("div", { className: "pf-slot-sub", textContent: `${g.slotName ? t(`slot.${g.slotName}`) : `#${g.slot}`}${g.itemLevel > 0 ? ` · ${t("profile.itemLevelShort")} ${g.itemLevel}` : ""}` }),
-    ]),
+      g.grade >= 4 && g.tier > 0 ? el("span", { className: "pf-tier", textContent: `${GRADE_NAME[g.grade] ?? ""} ${t("profile.tier")} ${g.tier}` }) : null,
+    ].filter((x) => x != null)),
   ]);
   attachTooltip(slot, () => gearTip(g));
   return slot;
