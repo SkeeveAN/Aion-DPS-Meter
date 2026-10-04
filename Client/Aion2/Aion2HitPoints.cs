@@ -17,6 +17,9 @@ public sealed class Aion2HitPoints
     /// it - small heals near full health are not a new attempt.</summary>
     private const double ResetFromBelow = 0.95;
 
+    /// <summary>A single rise by this share of the maximum is a new attempt even without a reading at full health.</summary>
+    private const double ResetRise = 0.10;
+
     /// <summary>Readings kept per entity; a long session drops its oldest half past this.</summary>
     private const int MaxSamplesPerEntity = 20_000;
 
@@ -42,7 +45,7 @@ public sealed class Aion2HitPoints
                 _tracks[entityId] = track;
             }
 
-            if (track.Samples.Count > 0 && hp >= track.HighestSeen && track.Samples[^1].Hp < track.HighestSeen * ResetFromBelow)
+            if (track.Samples.Count > 0 && IsReset(track, hp))
             {
                 track.Resets.Add(at);
             }
@@ -55,6 +58,23 @@ public sealed class Aion2HitPoints
 
             track.Samples.Add(new HpSample(at, hp));
         }
+    }
+
+    /// <summary>
+    /// A new attempt: back to full health from a worn-down state, or - when the reset frame itself
+    /// was never received (the player was dead or far away) and the next reading is already
+    /// damaged - a single rise of at least <see cref="ResetRise"/> of the maximum. A boss's own
+    /// healing stays far below that (Thamon's, 2026-10-04, was 2 %).
+    /// </summary>
+    private static bool IsReset(Track track, long hp)
+    {
+        long previous = track.Samples[^1].Hp;
+        if (hp >= track.HighestSeen && previous < track.HighestSeen * ResetFromBelow)
+        {
+            return true;
+        }
+
+        return hp - previous >= track.HighestSeen * ResetRise;
     }
 
     /// <summary>The highest value seen - the maximum once the entity has been seen at full health

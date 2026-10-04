@@ -78,6 +78,31 @@ function icon(src, className) {
   return img;
 }
 
+// Gladiator (tank or DD) and Chanter (DD or healer) switch roles in Aion 2, so the class alone does
+// not say which one a player played. From the encounter itself: a Chanter is a DD only when a Cleric
+// covers the healing AND his damage is well above his healing (CHANTER_DD_RATIO times); alone, he is
+// the healer; a Gladiator is the tank when no Templar is in the group (with several, the one
+// who took the most damage), otherwise a DD. Sets p.role on every roster entry.
+const CHANTER_DD_RATIO = 2;
+
+function assignRoles(roster) {
+  const real = roster.filter((p) => p.className !== "?");
+  const hasCleric = real.some((p) => p.className === "Cleric");
+  const hasTemplar = real.some((p) => p.className === "Templar");
+  const gladiators = real.filter((p) => p.className === "Gladiator");
+  const tankGladiator = hasTemplar || gladiators.length === 0 ? null : gladiators.reduce((a, b) => ((b.damageTaken ?? 0) > (a.damageTaken ?? 0) ? b : a));
+  for (const p of roster) {
+    const base = classMeta(p.className).role;
+    if (p.className === "Chanter") {
+      p.role = hasCleric && (p.totalDamage ?? 0) > (p.totalHealing ?? 0) * CHANTER_DD_RATIO ? "dd" : "healer";
+    } else if (p.className === "Gladiator") {
+      p.role = p === tankGladiator ? "tank" : "dd";
+    } else {
+      p.role = base;
+    }
+  }
+}
+
 // Aion 2's nine classes have no icon files yet - a short text badge stands in until we have our
 // own artwork (mirrors src/data/aion2/classes.json).
 const AION2_CLASS_ABBREVIATIONS = {
@@ -1213,8 +1238,8 @@ function meterRow(rank, p, metric, max) {
         el("span", { className: "meter-name", textContent: p.playerName }),
         meterProfileLink(p),
         serverTag,
-        meta.role
-          ? el("span", { className: "meter-role-badge", style: `color: ${meta.color}; background: ${hexToRgba(meta.color, 0.16)};`, textContent: roleLabel(meta.role) })
+        (p.role ?? meta.role)
+          ? el("span", { className: "meter-role-badge", style: `color: ${meta.color}; background: ${hexToRgba(meta.color, 0.16)};`, textContent: roleLabel(p.role ?? meta.role) })
           : null,
         el("span", { className: "meter-value", textContent: formatNumber(value) }),
       ].filter((x) => x != null)),
@@ -1226,6 +1251,7 @@ function meterRow(rank, p, metric, max) {
 // the user: easier to scan at a glance than a column of raw numbers), and folds the metric switch
 // into one panel instead of two separate always-visible tables.
 function meterPanel(roster) {
+  assignRoles(roster);
   let metric = "totalDamage";
   const petCount = roster.filter((p) => p.className === "?").length;
   const petsSuffix = petCount > 0 ? t("encounter.petsSuffix", { count: petCount }) : "";
