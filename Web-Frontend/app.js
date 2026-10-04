@@ -1375,185 +1375,207 @@ function statLabel(token) {
   return token.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^HP /, "HP ").replace(/^MP /, "MP ");
 }
 
-// The character block on a player's page (Aion 2), laid out like the client's character window:
-// profile card, weakest gear and the Daevanion maps on the left, the equipment table with item-level
-// bars in the middle, skills with level pips on the right. Everything is resolved server-side from
-// ids (see Backend/src/profile.ts); skills and Daevanion only exist when the player's own client
-// uploaded them.
 // Skill names come in the game client's languages (de, en, es, fr, ja, ko, pt, ru); the site's other
 // languages (pl, tr, zh) fall back to the English name.
 function localizedSkillName(skill) {
   return skill.names?.[getLocale()] ?? skill.name;
 }
 
-function itemHeat(ratio) {
-  return ratio >= 0.95 ? "good" : ratio >= 0.8 ? "ok" : ratio >= 0.65 ? "mid" : "low";
-}
+// ---- Player page (Aion 2): the character strip stays on top, the content below is split into tabs
+// (runs, equipment, skills, Daevanion boards). Everything is resolved server-side from ids (see
+// Backend/src/profile.ts); skills and Daevanion only exist when the player's own client uploaded
+// them. Icons are the game's own textures (images/aion2/icons); an id without one gets a tile with
+// the name's initials instead.
+const ICON_BASE = "/images/aion2/icons";
+const GRADE_COLOR = { 1: "#9aa3ad", 2: "#4aa3e8", 3: "#e8b03a", 4: "#e07a3a", 5: "#d94f6a", 7: "#2fd0c0" };
+const GRADE_NAME = { 1: "Common", 2: "Rare", 3: "Legend", 4: "Unique", 5: "Ultimate", 7: "Special" };
+const GEAR_GROUPS = [
+  ["armor", ["Helmet", "Shoulder", "Torso", "Gloves", "Pants", "Boots", "Cape", "Belt"]],
+  ["accessories", ["Necklace", "Earring", "Ring", "Bracelet", "Amulet", "Brooch", "Pendant"]],
+];
 
-function profileNumber(value, label, accent) {
-  return el("div", { className: "pf-number" }, [
-    el("strong", { className: accent ? "accent" : "", textContent: String(value) }),
-    el("span", { textContent: label }),
-  ]);
-}
-
-function boardMap(cells) {
-  const grid = Array.from({ length: 15 * 15 }, () => "");
-  for (const [row, col, kind] of cells) {
-    if (row >= 1 && row <= 15 && col >= 1 && col <= 15) {
-      grid[(row - 1) * 15 + (col - 1)] = ["start", "stat", "skill"][kind];
-    }
+// A square item/skill tile: the real icon when there is one, initials otherwise. `badge` is the
+// small number in the corner (enchant level, skill level).
+function iconTile(kind, icon, name, { color, badge, badgeClass } = {}) {
+  const tile = el("span", { className: "pf-ico", style: color ? `--ico-color:${color}` : "" });
+  if (icon) {
+    const img = el("img", { src: `${ICON_BASE}/${kind}/${icon}.webp`, alt: "", loading: "lazy", width: 128, height: 128 });
+    img.addEventListener("error", () => {
+      img.remove();
+      tile.classList.add("noimg");
+      tile.dataset.initials = name.slice(0, 2);
+    });
+    tile.append(img);
+  } else {
+    tile.classList.add("noimg");
+    tile.dataset.initials = name.slice(0, 2);
   }
-  return el("div", { className: "pf-map" }, grid.map((kind) => el("i", { className: kind })));
+  if (badge != null && badge !== "") {
+    tile.append(el("b", { className: `pf-badge-num ${badgeClass ?? ""}`, textContent: String(badge) }));
+  }
+  return tile;
 }
 
-function renderCharacterProfile(profile, player) {
-  const known = profile.gear.filter((g) => g.itemLevel > 0);
-  const maxLevel = known.reduce((m, g) => Math.max(m, g.itemLevel), 0);
-  const nodes = profile.daevanion.reduce((sum, b) => sum + b.activeNodes, 0);
-  const date = formatDate(new Date(`${profile.updatedAt.replace(" ", "T")}Z`));
-
-  // Left column: profile card.
-  const sub = [];
-  if (profile.className) {
-    sub.push(profile.level ? t("profile.classLevel", { className: profile.className, level: profile.level }) : profile.className);
-  } else if (profile.level) {
-    sub.push(`Level ${profile.level}`);
+// One tooltip for the whole page, shown next to the pointer over anything with a `tip` builder.
+function attachTooltip(target, build) {
+  let tip = document.querySelector(".pf-tip");
+  if (!tip) {
+    tip = el("div", { className: "pf-tip", hidden: true });
+    document.body.append(tip);
   }
-  const card = el("div", { className: "pf-card" }, [
-    el("div", { className: "pf-head" }, [
-      profile.className ? el("div", { className: "pf-badge" }, [classIcon(profile.className)]) : null,
-      el("div", {}, [
-        el("div", { className: "pf-name", textContent: player.name }),
-        el("div", { className: "pf-sub", textContent: sub.join(" · ") }),
-      ]),
+  const place = (e) => {
+    const w = tip.offsetWidth;
+    const h = tip.offsetHeight;
+    tip.style.left = `${Math.min(e.clientX + 16, window.innerWidth - w - 8)}px`;
+    tip.style.top = `${Math.max(8, Math.min(e.clientY + 12, window.innerHeight - h - 8))}px`;
+  };
+  target.addEventListener("mouseenter", (e) => {
+    tip.replaceChildren(...build());
+    tip.hidden = false;
+    place(e);
+  });
+  target.addEventListener("mousemove", place);
+  target.addEventListener("mouseleave", () => {
+    tip.hidden = true;
+  });
+}
+
+function gearTip(g) {
+  const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
+  return [
+    el("div", { className: "pf-tip-head", style: `--ico-color:${color}` }, [
+      el("div", { className: "pf-tip-title", textContent: g.name + (g.enchant > 0 ? ` +${g.enchant}` : "") }),
+      el("div", { className: "pf-tip-sub" }, [el("span", { style: `color:${color}`, textContent: GRADE_NAME[g.grade] ?? "" }), ` ${g.slotName ? t(`slot.${g.slotName}`) : ""}`]),
+      g.itemLevel > 0 ? el("div", { className: "pf-tip-il", textContent: `${t("profile.itemLevel")} ${g.itemLevel}` }) : null,
     ].filter((x) => x != null)),
-    profile.faction ? el("div", { className: "pf-sub" }, [iconLabel(factionIcon(profile.faction), profile.faction)]) : null,
-    player.guild ? el("div", { className: "pf-sub", textContent: `${t("profile.guild")}: ${player.guild}` }) : null,
-    el("div", { className: "pf-numbers" }, [
-      profileNumber(profile.averageItemLevel ?? "–", t("profile.avgShort"), true),
-      profileNumber(profile.skills.length, t("profile.skillsShort")),
-      profileNumber(nodes, t("profile.nodesShort")),
+  ];
+}
+
+function gearSlot(g) {
+  const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
+  const slot = el("div", { className: "pf-slot" }, [
+    iconTile("item", g.icon, g.name, { color, badge: g.enchant > 0 ? `+${g.enchant}` : "" }),
+    el("div", {}, [
+      el("div", { className: "pf-slot-name", textContent: g.name }),
+      el("div", { className: "pf-slot-sub", textContent: `${g.slotName ? t(`slot.${g.slotName}`) : `#${g.slot}`}${g.itemLevel > 0 ? ` · ${t("profile.itemLevelShort")} ${g.itemLevel}` : ""}` }),
     ]),
+  ]);
+  attachTooltip(slot, () => gearTip(g));
+  return slot;
+}
+
+function renderEquipmentTab(profile) {
+  const rank = (names, g) => {
+    const i = names.indexOf(g.slotName);
+    return i < 0 ? 99 : i;
+  };
+  const groups = { armor: [], accessories: [], other: [] };
+  for (const g of profile.gear) {
+    const home = GEAR_GROUPS.find(([, names]) => names.includes(g.slotName));
+    groups[home ? home[0] : "other"].push(g);
+  }
+  for (const [key, names] of GEAR_GROUPS) {
+    groups[key].sort((a, b) => rank(names, a) - rank(names, b) || a.slot - b.slot);
+  }
+  const col = (items) => el("div", { className: "pf-col" }, items.map(gearSlot));
+  return el("div", { className: "pf-doll" }, [
+    col(groups.armor),
+    el("div", { className: "pf-center" }, [
+      el("div", { className: "pf-center-badge" }, [profile.className ? classIcon(profile.className) : null].filter((x) => x != null)),
+      el("div", { className: "pf-center-num", textContent: String(profile.averageItemLevel ?? "–") }),
+      el("div", { className: "pf-sub", textContent: t("profile.avgShort") }),
+      el("div", { className: "pf-sub small", textContent: t("profile.hoverHint") }),
+    ]),
+    col(groups.accessories),
+    groups.other.length > 0 ? el("div", { className: "pf-weapons" }, groups.other.map(gearSlot)) : null,
   ].filter((x) => x != null));
-  const left = [card];
+}
 
-  if (known.length > 0) {
-    const weakest = [...known].sort((a, b) => a.itemLevel - b.itemLevel).slice(0, 4);
-    left.push(
-      el("div", { className: "pf-card" }, [
-        el("h4", { textContent: t("profile.upgrade") }),
-        ...weakest.map((g) =>
-          el("div", { className: "pf-row" }, [
-            el("span", { textContent: g.name + (g.enchant > 0 ? ` +${g.enchant}` : "") }),
-            el("strong", { className: `heat-${itemHeat(g.itemLevel / maxLevel)}`, textContent: String(g.itemLevel) }),
-          ]),
-        ),
-        el("p", { className: "profile-source", textContent: t("profile.upgradeNote", { max: maxLevel }) }),
-      ]),
-    );
-  }
-
-  if (profile.daevanion.length > 0) {
-    left.push(
-      el("div", { className: "pf-card" }, [
-        el("h4", { textContent: t("profile.daevanion") }),
-        ...profile.daevanion.map((b) => {
-          const bonuses = b.skillBonuses.map((x) => `${localizedSkillName(x)} +${x.value}`).join(", ");
-          const stats = Object.entries(b.stats)
-            .sort((x, y) => y[1] - x[1])
-            .slice(0, 3)
-            .map(([token, value]) => `${statLabel(token)} +${value}`)
-            .join(", ");
-          return el("div", { className: "pf-board" }, [
-            boardMap(b.cells ?? []),
-            el("div", {}, [
-              el("strong", { textContent: `${b.name} · ${t("profile.boardNodes", { count: b.activeNodes })}` }),
-              bonuses ? el("div", { className: "pf-sub", textContent: bonuses }) : null,
-              stats ? el("div", { className: "pf-sub small", textContent: stats }) : null,
-            ].filter((x) => x != null)),
+function renderSkillsTab(profile) {
+  const section = (title, list, cls) =>
+    el("div", { className: "pf-card" }, [
+      el("h4", {}, [el("span", { className: `pf-dot ${cls}` }), `${title} · ${list.length}`]),
+      el(
+        "div",
+        { className: "pf-skill-grid" },
+        list.map((s) => {
+          const name = localizedSkillName(s);
+          const tile = el("div", { className: "pf-skill" }, [
+            iconTile("skill", s.icon, name, { color: s.passive ? "#e8665a" : "#4aa3e8", badge: s.level, badgeClass: s.level > s.baseLevel ? "bonus" : "" }),
+            el("span", { className: "pf-skill-name", textContent: name }),
           ]);
-        }),
-        el("p", { className: "profile-source", textContent: t("profile.boardMapNote") }),
-      ]),
-    );
-  }
-
-  // Middle column: equipment table with item-level bars.
-  const middle = [];
-  if (profile.gear.length > 0) {
-    middle.push(
-      el("div", { className: "pf-card" }, [
-        el("h4", { textContent: `${t("profile.gear")} · ${profile.gear.length}` }),
-        ...profile.gear.map((g) => {
-          const ratio = g.itemLevel > 0 && maxLevel > 0 ? g.itemLevel / maxLevel : 0;
-          return el("div", { className: "pf-gear" }, [
-            el("span", { className: "slot", textContent: g.slotName || `#${g.slot}` }),
-            el("span", { className: "name", textContent: g.name }),
-            el("span", { className: "bar" }, [el("i", { className: `heat-${itemHeat(ratio)}`, style: `width:${Math.max(2, ratio * 100)}%` })]),
-            el("span", { className: "lvl", textContent: g.itemLevel > 0 ? String(g.itemLevel) : "–" }),
-            el("span", { className: "plus", textContent: g.enchant > 0 ? `+${g.enchant}` : "" }),
+          attachTooltip(tile, () => [
+            el("div", { className: "pf-tip-head" }, [
+              el("div", { className: "pf-tip-title", textContent: name }),
+              el("div", { className: "pf-tip-sub", textContent: `${t("profile.skillLevel")} ${s.level}${s.level > s.baseLevel ? ` (${s.baseLevel} + ${s.level - s.baseLevel})` : ""}` }),
+            ]),
           ]);
+          return tile;
         }),
-      ]),
-    );
-  }
-
-  // Right column: skills with level pips.
-  const right = [];
-  if (profile.skills.length > 0) {
-    right.push(
-      el("div", { className: "pf-card" }, [
-        el("h4", { textContent: t("profile.skills", { count: profile.skills.length }) }),
-        ...profile.skills.map((s) =>
-          el("div", { className: "pf-skill" }, [
-            el("span", { className: "name", textContent: localizedSkillName(s) }),
-            el(
-              "span",
-              { className: "pips" },
-              Array.from({ length: 12 }, (_, i) => el("i", { className: i < s.baseLevel ? "base" : i < s.level ? "bonus" : "" })),
-            ),
-            el("span", { className: "lvl", textContent: String(s.level) }),
-          ]),
-        ),
-        el("div", { className: "profile-source" }, [
-          el("i", { className: "pf-key base" }),
-          ` ${t("profile.legendBase")}  `,
-          el("i", { className: "pf-key bonus" }),
-          ` ${t("profile.legendBonus")}`,
-        ]),
-      ]),
-    );
-  }
-
-  return el("section", { className: "profile" }, [
-    el("div", { className: "pf-grid" }, [
-      el("div", { className: "pf-col" }, left),
-      el("div", { className: "pf-col" }, middle),
-      el("div", { className: "pf-col" }, right),
-    ]),
-    el("p", { className: "profile-source", textContent: t(profile.source === "self" ? "profile.sourceSelf" : "profile.sourceSeen", { date }) }),
-    el("p", { className: "profile-source", textContent: t("profile.note") }),
+      ),
+    ]);
+  return el("div", { className: "pf-skills" }, [
+    section(t("profile.skillsActive"), profile.skills.filter((s) => !s.passive), "active"),
+    section(t("profile.skillsPassive"), profile.skills.filter((s) => s.passive), "passive"),
+    el("p", { className: "profile-source" }, [el("i", { className: "pf-key bonus" }), ` ${t("profile.legendBonus")}`]),
   ]);
 }
 
-async function renderPlayerProfile(playerId) {
-  setBreadcrumb([...gameCrumbs(), t("breadcrumb.playerProfile")]);
-  showLoading(t("loading.playerProfile"));
-
-  const data = await fetchJson(`/api/players/${encodeURIComponent(playerId)}`);
-  setBreadcrumb([...gameCrumbs(), data.player.name]);
-
-  const profileBlock = data.profile ? renderCharacterProfile(data.profile, data.player) : null;
-  if (data.history.length === 0) {
-    app.replaceChildren(
-      ...(profileBlock ? [el("h2", { textContent: data.player.name + (data.player.serverName ? ` – ${data.player.serverName}` : "") }), profileBlock] : []),
-      el("p", { className: "empty", textContent: t("player.emptyNoFights") }),
-    );
-    return;
+function boardView(board, skillsById) {
+  const grid = Array.from({ length: 15 * 15 }, () => el("i", { className: "pf-cell empty" }));
+  for (const [row, col, kind, skillId, active] of board.cells) {
+    if (row < 1 || row > 15 || col < 1 || col > 15) {
+      continue;
+    }
+    const cell = el("i", { className: `pf-cell ${["start", "stat", "skill"][kind]}${active ? " on" : ""}` });
+    if (kind === 2) {
+      const skill = skillsById.get(skillId);
+      const name = skill ? localizedSkillName(skill) : String(skillId);
+      cell.append(iconTile("skill", skill?.icon ?? null, name, { color: skill?.passive ? "#3d9a35" : "#2f6fa8" }));
+      attachTooltip(cell, () => [el("div", { className: "pf-tip-head" }, [el("div", { className: "pf-tip-title", textContent: name }), el("div", { className: "pf-tip-sub", textContent: t("profile.legendSkill") })])]);
+    }
+    grid[(row - 1) * 15 + (col - 1)] = cell;
   }
+  return el("div", { className: "pf-board" }, grid);
+}
 
-  const rows = data.history.map((h) =>
+function renderBoardTab(profile) {
+  const skillsById = new Map(profile.skills.map((s) => [s.id, s]));
+  const holder = el("div", { className: "pf-board-wrap" });
+  const buttons = profile.daevanion.map((b, i) => {
+    const total = b.cells.filter((c) => c[2] !== 0).length;
+    return el("button", { type: "button", className: "pf-pill" }, [b.name, el("b", { textContent: ` ${b.activeNodes} / ${total || "?"}` })]);
+  });
+  const show = (i) => {
+    const b = profile.daevanion[i];
+    buttons.forEach((x, j) => x.setAttribute("aria-selected", String(i === j)));
+    const bonuses = b.skillBonuses.map((x) => `${localizedSkillName(x)} +${x.value}`).join(", ");
+    const stats = Object.entries(b.stats)
+      .sort((x, y) => y[1] - x[1])
+      .map(([token, value]) => `${statLabel(token)} +${value}`)
+      .join(", ");
+    holder.replaceChildren(
+      boardView(b, skillsById),
+      el("div", { className: "pf-legend" }, [
+        el("span", {}, [el("i", { className: "lg start" }), t("profile.legendStart")]),
+        el("span", {}, [el("i", { className: "lg skill" }), t("profile.legendSkill")]),
+        el("span", {}, [el("i", { className: "lg stat" }), t("profile.legendStat")]),
+        el("span", {}, [el("i", { className: "lg off" }), t("profile.legendLocked")]),
+      ]),
+      bonuses ? el("p", { className: "pf-sub", textContent: `${t("profile.skillBonuses", { list: bonuses })}` }) : null,
+      stats ? el("p", { className: "pf-sub small", textContent: stats }) : null,
+    );
+  };
+  buttons.forEach((x, i) => x.addEventListener("click", () => show(i)));
+  show(0);
+  return el("div", {}, [el("div", { className: "pf-pills" }, buttons), el("div", { className: "pf-card" }, [holder])]);
+}
+
+function renderRunsTab(history) {
+  if (history.length === 0) {
+    return el("p", { className: "empty", textContent: t("player.emptyNoFights") });
+  }
+  const rows = history.map((h) =>
     el("tr", {}, [
       el("td", { textContent: formatDate(new Date(h.startedAt)) }),
       el("td", {}, [link(translateGameName(h.bossName), gp(`/bosses/${h.bossId}`))]),
@@ -1564,25 +1586,92 @@ async function renderPlayerProfile(playerId) {
       el("td", {}, [link(t("table.details"), gp(`/participants/${h.participantId}`))]),
     ]),
   );
-
-  app.replaceChildren(
-    el("h2", { textContent: data.player.name + (data.player.serverName ? ` – ${data.player.serverName}` : "") }),
-    ...(profileBlock ? [profileBlock] : []),
-    el("table", {}, [
-      el("thead", {}, [
-        el("tr", {}, [
-          el("th", { textContent: t("table.date") }),
-          el("th", { textContent: t("table.boss") }),
-          el("th", { textContent: t("table.class") }),
-          el("th", { textContent: t("table.damage") }),
-          el("th", { textContent: t("table.idps") }),
-          el("th", { textContent: t("table.critPercent") }),
-          el("th", {}),
-        ]),
+  return el("table", {}, [
+    el("thead", {}, [
+      el("tr", {}, [
+        el("th", { textContent: t("table.date") }),
+        el("th", { textContent: t("table.boss") }),
+        el("th", { textContent: t("table.class") }),
+        el("th", { textContent: t("table.damage") }),
+        el("th", { textContent: t("table.idps") }),
+        el("th", { textContent: t("table.critPercent") }),
+        el("th", {}),
       ]),
-      el("tbody", {}, rows),
     ]),
+    el("tbody", {}, rows),
+  ]);
+}
+
+// The player strip: shown above every tab.
+function renderPlayerStrip(profile, player) {
+  const sub = [];
+  if (profile?.className) {
+    sub.push(profile.level ? t("profile.classLevel", { className: profile.className, level: profile.level }) : profile.className);
+  } else if (profile?.level) {
+    sub.push(`Level ${profile.level}`);
+  }
+  const nodes = profile ? profile.daevanion.reduce((sum, b) => sum + b.activeNodes, 0) : 0;
+  const numbers = profile
+    ? [
+        el("div", {}, [el("strong", { className: "accent", textContent: String(profile.averageItemLevel ?? "–") }), el("span", { textContent: t("profile.avgShort") })]),
+        profile.skills.length > 0 ? el("div", {}, [el("strong", { textContent: String(profile.skills.length) }), el("span", { textContent: t("profile.skillsShort") })]) : null,
+        nodes > 0 ? el("div", {}, [el("strong", { textContent: String(nodes) }), el("span", { textContent: t("profile.nodesShort") })]) : null,
+      ].filter((x) => x != null)
+    : [];
+  return el("div", { className: "pf-strip" }, [
+    profile?.className ? el("div", { className: "pf-badge" }, [classIcon(profile.className)]) : null,
+    el("div", {}, [el("div", { className: "pf-name", textContent: player.name }), el("div", { className: "pf-sub", textContent: sub.join(" · ") })]),
+    el("div", { className: "pf-meta" }, [
+      profile?.faction ? iconLabel(factionIcon(profile.faction), profile.faction) : null,
+      player.guild ? el("span", { textContent: `${t("profile.guild")}: ${player.guild}` }) : null,
+      player.serverName ? el("span", { textContent: player.serverName }) : null,
+    ].filter((x) => x != null)),
+    el("div", { className: "pf-numbers" }, numbers),
+  ].filter((x) => x != null));
+}
+
+async function renderPlayerProfile(playerId) {
+  setBreadcrumb([...gameCrumbs(), t("breadcrumb.playerProfile")]);
+  showLoading(t("loading.playerProfile"));
+
+  const data = await fetchJson(`/api/players/${encodeURIComponent(playerId)}`);
+  setBreadcrumb([...gameCrumbs(), data.player.name]);
+  document.querySelector(".pf-tip")?.remove();
+
+  const profile = data.profile;
+  const strip = renderPlayerStrip(profile, data.player);
+  const tabs = [["runs", t("profile.tabRuns"), data.history.length, () => renderRunsTab(data.history)]];
+  if (profile?.gear.length > 0) {
+    tabs.push(["equipment", t("profile.tabEquipment"), profile.gear.length, () => renderEquipmentTab(profile)]);
+  }
+  if (profile?.skills.length > 0) {
+    tabs.push(["skills", t("profile.tabSkills"), profile.skills.length, () => renderSkillsTab(profile)]);
+  }
+  if (profile?.daevanion.length > 0) {
+    tabs.push(["daevanion", t("profile.tabBoard"), profile.daevanion.reduce((s, b) => s + b.activeNodes, 0), () => renderBoardTab(profile)]);
+  }
+
+  const panel = el("div", { className: "pf-panel" });
+  const buttons = tabs.map(([id, label, count]) =>
+    el("button", { type: "button", role: "tab", textContent: label }, [el("small", { textContent: String(count) })]),
   );
+  const show = (index) => {
+    buttons.forEach((b, i) => b.setAttribute("aria-selected", String(i === index)));
+    panel.replaceChildren(tabs[index][3]());
+    history.replaceState(history.state, "", `${location.pathname}${location.search}#${tabs[index][0]}`);
+  };
+  buttons.forEach((b, i) => b.addEventListener("click", () => show(i)));
+  const wanted = tabs.findIndex(([id]) => id === location.hash.slice(1));
+
+  const source = profile
+    ? el("p", { className: "profile-source", textContent: t(profile.source === "self" ? "profile.sourceSelf" : "profile.sourceSeen", { date: formatDate(new Date(`${profile.updatedAt.replace(" ", "T")}Z`)) }) })
+    : null;
+  app.replaceChildren(
+    el("div", { className: "pf-hero" }, [strip, tabs.length > 1 ? el("div", { className: "pf-tabs", role: "tablist" }, buttons) : null].filter((x) => x != null)),
+    panel,
+    ...(source ? [source, el("p", { className: "profile-source", textContent: t("profile.note") })] : []),
+  );
+  show(wanted >= 0 ? wanted : 0);
 }
 
 async function renderSearchResults(query) {

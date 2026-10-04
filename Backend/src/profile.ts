@@ -109,6 +109,12 @@ let skillNames: Record<string, string> | null = null;
 // Player skills in every language of the game client (de, en, es, fr, ja, ko, pt, ru), by skill id.
 let skillNamesI18n: Record<string, Record<string, string>> | null = null;
 let daevanion: DaevanionData | null = null;
+// Icon file names (without extension) by item id / skill id, extracted from the game client; ids
+// without an entry (unreleased items, passives the client table gives no icon for) have none.
+let itemIcons: Record<string, string> | null = null;
+let skillIcons: Record<string, string> | null = null;
+let skillTypes: Record<string, string> | null = null; // "a" active, "p" passive
+let boardNodes: Map<number, { id: number; node: DaevanionData["nodes"][string] }[]> | null = null;
 
 export type ProfileView = {
   source: "self" | "seen";
@@ -116,9 +122,9 @@ export type ProfileView = {
   level: number | null;
   className: string | null;
   faction: "Elyos" | "Asmodian" | null;
-  gear: { slot: number; slotName: string; itemId: number; name: string; itemLevel: number; grade: number; tier: number; enchant: number }[];
+  gear: { slot: number; slotName: string; itemId: number; name: string; icon: string | null; itemLevel: number; grade: number; tier: number; enchant: number }[];
   averageItemLevel: number | null;
-  skills: { id: number; name: string; names?: Record<string, string>; level: number; baseLevel: number }[];
+  skills: { id: number; name: string; names?: Record<string, string>; icon: string | null; passive: boolean; level: number; baseLevel: number }[];
   daevanion: {
     board: number;
     name: string;
@@ -126,8 +132,8 @@ export type ProfileView = {
     knownNodes: number;
     stats: Record<string, number>;
     skillBonuses: { id: number; name: string; names?: Record<string, string>; value: number }[];
-    /** Known active nodes for the board map: [row, col, kind] (1-based; kind 0 start, 1 stat, 2 skill level). */
-    cells: [number, number, number][];
+    /** Every node of the board map: [row, col, kind, skillId, active] (1-based; kind 0 start, 1 stat, 2 skill level; skillId only for kind 2, else 0; active 1/0). */
+    cells: [number, number, number, number, number][];
   }[];
 };
 
@@ -141,6 +147,17 @@ export function buildProfileView(playerId: number): ProfileView | null {
   skillNames ??= loadJson<Record<string, string>>("skill_names.json", {});
   skillNamesI18n ??= loadJson<Record<string, Record<string, string>>>("skill_names_i18n.json", {});
   daevanion ??= loadJson<DaevanionData>("daevanion_nodes.json", { boards: {}, nodes: {} });
+  itemIcons ??= loadJson<Record<string, string>>("item_icons.json", {});
+  skillIcons ??= loadJson<Record<string, string>>("skill_icons.json", {});
+  skillTypes ??= loadJson<Record<string, string>>("skill_types.json", {});
+  if (!boardNodes) {
+    boardNodes = new Map();
+    for (const [id, node] of Object.entries(daevanion.nodes)) {
+      const list = boardNodes.get(node[0]) ?? [];
+      list.push({ id: Number(id), node });
+      boardNodes.set(node[0], list);
+    }
+  }
 
   const gear = (JSON.parse(row.gearJson) as { slot: number; itemId: number; enchant: number }[])
     .map((g) => {
@@ -150,6 +167,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
         slotName: info?.[1] ?? "",
         itemId: g.itemId,
         name: info?.[0] ?? `Item ${g.itemId}`,
+        icon: itemIcons![String(g.itemId)] ?? null,
         itemLevel: info?.[4] ?? 0,
         grade: info?.[2] ?? 0,
         tier: info?.[3] ?? 0,
@@ -163,7 +181,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
   // variants, which would repeat the same name.
   const skills = (JSON.parse(row.skillsJson) as { id: number; level: number; baseLevel: number }[])
     .filter((s) => s.id % 10000 === 0)
-    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), names: skillNamesI18n![String(s.id)], level: s.level, baseLevel: s.baseLevel }))
+    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), names: skillNamesI18n![String(s.id)], icon: skillIcons![String(s.id)] ?? null, passive: skillTypes![String(s.id)] === "p", level: s.level, baseLevel: s.baseLevel }))
     .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
 
   const boards = (JSON.parse(row.daevanionJson) as { board: number; nodes: number[] }[]).map((b) => {
@@ -171,12 +189,13 @@ export function buildProfileView(playerId: number): ProfileView | null {
     const bonuses = new Map<number, number>();
     let active = 0;
     let knownNodes = 0;
-    const cells: [number, number, number][] = [];
+    const cells: [number, number, number, number, number][] = [];
+    const activeIds = new Set(b.nodes);
+    for (const { id, node } of boardNodes!.get(b.board) ?? []) {
+      cells.push([node[1], node[2], node[4] === "Start" ? 0 : node[4] === "SkillLevel" ? 2 : 1, node[4] === "SkillLevel" ? Number(node[5]) : 0, activeIds.has(id) ? 1 : 0]);
+    }
     for (const id of b.nodes) {
       const node = daevanion!.nodes[String(id)];
-      if (node) {
-        cells.push([node[1], node[2], node[4] === "Start" ? 0 : node[4] === "SkillLevel" ? 2 : 1]);
-      }
       if (node?.[4] === "Start") {
         continue;
       }
