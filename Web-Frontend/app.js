@@ -1519,8 +1519,10 @@ function renderSkillsTab(profile) {
     ]);
   // Side by side: active | passive | stigma (the stigma block only exists once a profile carries
   // the flag; the game lets a player equip only four of them).
+  const hasBar = profile.skills.some((s) => s.equipped);
   const blocks = [
-    section(t("profile.skillsActive"), profile.skills.filter((s) => !s.passive && !s.stigma), "active"),
+    // With a skill bar in the profile only the equipped actives are listed, as in the game's skill window.
+    section(t("profile.skillsActive"), profile.skills.filter((s) => !s.passive && !s.stigma && (!hasBar || s.equipped)), "active"),
     // ids like 11000000 are the class's weapon-equip entry, not a skill the player trains
     section(t("profile.skillsPassive"), profile.skills.filter((s) => s.passive && s.id % 1000000 !== 0), "passive"),
     profile.skills.some((s) => s.stigma) ? section(t("profile.skillsStigma"), profile.skills.filter((s) => s.stigma), "stigma") : null,

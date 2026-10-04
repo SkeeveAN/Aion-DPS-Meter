@@ -36,6 +36,8 @@ export const profileSchema = z.object({
         baseLevel: z.number().int().min(0).max(60).default(0),
         // Stigmas of the uploader's own character (the skills the game lists with five variants).
         stigma: z.boolean().default(false),
+        // On the first macro page of the uploader's skill bar (what the game's skill window lists as equipped).
+        equipped: z.boolean().default(false),
       }),
     )
     .max(150)
@@ -127,7 +129,7 @@ export type ProfileView = {
   faction: "Elyos" | "Asmodian" | null;
   gear: { slot: number; slotName: string; itemId: number; name: string; icon: string | null; itemLevel: number; grade: number; tier: number; enchant: number }[];
   averageItemLevel: number | null;
-  skills: { id: number; name: string; names?: Record<string, string>; icon: string | null; passive: boolean; stigma: boolean; level: number; baseLevel: number }[];
+  skills: { id: number; name: string; names?: Record<string, string>; icon: string | null; passive: boolean; stigma: boolean; equipped: boolean; level: number; baseLevel: number }[];
   daevanion: {
     board: number;
     name: string;
@@ -186,9 +188,9 @@ export function buildProfileView(playerId: number): ProfileView | null {
 
   // Only the base entries (id ends in 0000): the list also carries each skill's specialisation
   // variants, which would repeat the same name.
-  const skills = (JSON.parse(row.skillsJson) as { id: number; level: number; baseLevel: number; stigma?: boolean }[])
+  const skills = (JSON.parse(row.skillsJson) as { id: number; level: number; baseLevel: number; stigma?: boolean; equipped?: boolean }[])
     .filter((s) => s.id % 10000 === 0)
-    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), names: skillNamesI18n![String(s.id)], icon: skillIcons![String(s.id)] ?? null, passive: skillTypes![String(s.id)] === "p", stigma: s.stigma === true, level: s.level, baseLevel: s.baseLevel }))
+    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), names: skillNamesI18n![String(s.id)], icon: skillIcons![String(s.id)] ?? null, passive: skillTypes![String(s.id)] === "p", stigma: s.stigma === true, equipped: s.equipped === true, level: s.level, baseLevel: s.baseLevel }))
     .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
 
   const boards = (JSON.parse(row.daevanionJson) as { board: number; nodes: number[] }[]).map((b) => {
