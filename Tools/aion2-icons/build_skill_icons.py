@@ -8,19 +8,39 @@ tex = {l.strip().rsplit('/', 1)[-1][:-7].lower(): l.strip().rsplit('/', 1)[-1][:
 icons = [(m.start(), m.group(1).decode()) for m in re.finditer(rb'Skill/(ICON_[A-Za-z0-9_]+)\x00', d)]
 strs = sorted((o, int(t.rsplit('_', 1)[1])) for o, t, e in ss if re.match(r'STR_SKILL_PC_[A-Z]+_\d+$', t))
 offs = [s[0] for s in strs]
-by_id = {}
+CODE = {11: 'GL', 12: 'TE', 13: 'AS', 14: 'RA', 15: 'SO', 16: 'EL', 17: 'CL', 18: 'CH', 19: 'CO'}
+# icons in the row's own span (its STR string to the next row's), of the skill's own class only
+cands = {}
 for off, ic in icons:
     i = bisect.bisect_right(offs, off) - 1
-    if i >= 0 and ic.lower() in tex:
-        by_id.setdefault(strs[i][1], tex[ic.lower()])
+    if i < 0 or off - strs[i][0] > 1200 or ic.lower() not in tex:
+        continue
+    sid = strs[i][1]
+    cands.setdefault(sid, []).append(tex[ic.lower()])
+sole = {}
+for sid, l in cands.items():
+    if len(set(l)) == 1:
+        sole.setdefault(l[0], set()).add(sid)
 names = json.load(open(names_path))
+old = {}
+try:
+    old = json.load(open(out))
+except Exception:
+    pass
 res = {}
 for k in names:
     sid = int(k)
     if sid % 10000:
         continue
-    # the base row first; else any variant row of the same skill
-    ic = by_id.get(sid) or next((by_id[v] for v in range(sid + 10, sid + 400, 10) if v in by_id), None)
+    pool = cands.get(sid) or next((cands[v] for v in range(sid + 10, sid + 400, 10) if v in cands), [])
+    uniq = list(dict.fromkeys(pool))
+    # the skill's own class set first; some skills use another class's art (Sword Aura Rampage: ICON_TE_SKILL_034)
+    own = [u for u in uniq if u.split('_')[1] == CODE.get(sid // 1000000)]
+    uniq = own or uniq
+    if len(uniq) > 1:   # two icons in one row: the other one belongs to a neighbouring skill
+        free = [u for u in uniq if not (sole.get(u, set()) - {sid})]
+        uniq = free or uniq
+    ic = uniq[0] if uniq else old.get(k)
     if ic:
         res[k] = ic
 json.dump(res, open(out, 'w'), separators=(',', ':'))
