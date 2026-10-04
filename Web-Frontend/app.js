@@ -1535,14 +1535,18 @@ function renderSkillsTab(profile) {
 // blue, legend = green, unique = orange); a node that is not unlocked uses the dark "disabled" variant.
 const NODE_ART = { 1: "common", 2: "rare", 3: "legend", 4: "unique" };
 
-function boardView(board, skillsById) {
+// The start node shows the class emblem; Spiritmaster is the client's "Elementalist". A class without its own
+// art (not extracted yet) falls back to the plain start tile.
+const START_ART = { gladiator: "start-gladiator", templar: "start-templar", ranger: "start-ranger", assassin: "start-assassin", spiritmaster: "start-elementalist", sorcerer: "start-sorcerer", cleric: "start-cleric", chanter: "start-chanter" };
+
+function boardView(board, skillsById, className) {
   const rows = board.cells.map((c) => c[0]);
   const cols = board.cells.map((c) => c[1]);
   const [r0, r1, c0, c1] = [Math.min(...rows), Math.max(...rows), Math.min(...cols), Math.max(...cols)];
   const width = c1 - c0 + 1;
   const grid = Array.from({ length: (r1 - r0 + 1) * width }, () => el("i", { className: "pf-cell empty" }));
   for (const [row, col, kind, ref, active, grade, value] of board.cells) {
-    const art = kind === 0 ? "start" : (NODE_ART[grade] ?? "common") + (active ? "" : "-off");
+    const art = kind === 0 ? (START_ART[String(className).toLowerCase()] ?? "start") : (NODE_ART[grade] ?? "common") + (active ? "" : "-off");
     const cell = el("i", { className: `pf-cell${active ? " on" : ""}` }, [el("img", { src: `/images/aion2/daevanion/${art}.webp`, alt: "", loading: "lazy" })]);
     attachTooltip(cell, () => {
       let title = t("profile.legendStart");
@@ -1578,7 +1582,7 @@ function renderBoardTab(profile) {
       .map(([token, value]) => `${statLabel(token)} +${value}`)
       .join(", ");
     holder.replaceChildren(
-      boardView(b, skillsById),
+      boardView(b, skillsById, profile.className),
       bonuses ? el("p", { className: "pf-sub", textContent: t("profile.skillBonuses", { list: bonuses }) }) : null,
       stats ? el("p", { className: "pf-sub small", textContent: stats }) : null,
     );
