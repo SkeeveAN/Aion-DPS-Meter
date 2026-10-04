@@ -2316,3 +2316,26 @@ body:has(.download-hero) .nav-download-link:hover,
   .lb-row { grid-template-columns: 36px 1fr 100px; }
   .lb-names, .lb-strip, .lb-totals { display: none; }
 }
+
+/* ---- Homepage: top players and recent runs as cards (class emblems, medals, run photos) ---- */
+.hp-list { display: grid; gap: 8px; }
+.hp-prow { display: grid; grid-template-columns: 30px 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; position: relative; overflow: hidden; padding: 8px 14px; border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--color-surface2) 45%, transparent); color: var(--color-text); text-decoration: none; }
+.hp-prow:hover, .hp-run:hover { border-color: var(--color-primary); }
+.hp-rank { font-size: 1.3rem; font-weight: 700; color: var(--medal, var(--color-text-muted)); text-align: center; }
+.hp-prow .lb-emblem { width: 40px; height: 40px; }
+.hp-who b { display: block; }
+.hp-who span { display: block; font-size: 0.78rem; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hp-score { text-align: right; }
+.hp-score b { display: block; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.hp-score span { font-size: 0.72rem; color: var(--color-text-muted); }
+.hp-fill { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--color-primary); opacity: 0.8; }
+.hp-run { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 12px; align-items: stretch; overflow: hidden; min-height: 58px; border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--color-surface2) 45%, transparent); color: var(--color-text); text-decoration: none; }
+.hp-thumb { position: relative; background-size: cover; background-position: center; background-color: var(--color-surface2); }
+.hp-thumb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 45%, color-mix(in srgb, var(--color-surface) 90%, transparent)); }
+.hp-run-mid { align-self: center; min-width: 0; padding: 6px 0; }
+.hp-run-mid b { display: block; line-height: 1.2; }
+.hp-run-sub { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 0.78rem; color: var(--color-text-muted); }
+.hp-run-sub .lb-emblem.sm { width: 18px; height: 18px; }
+.hp-run-score { align-self: center; padding-right: 14px; text-align: right; }
+.hp-run-score b { display: block; font-size: 1.15rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.hp-run-score span { font-size: 0.7rem; color: var(--color-text-muted); }

@@ -352,67 +352,51 @@ function buildSiteFooter() {
 }
 
 function buildTopPlayersSection(rows, game) {
-  const tableRows = rows.map((r) =>
-    el("tr", {}, [
-      el("td", {}, [playerCell(null, r.className, r.playerName, null, r.serverName)]),
-      // The specific run this score came from, not the boss's general leaderboard - that leaderboard
-      // defaults to the visitor's currently picked server (or the busiest one), which can easily be a
-      // different server than the one this row's run actually happened on.
-      el("td", {}, [link(displayName({ name: r.bossName, nameEn: r.bossNameEn }), `/${game}/encounters/${r.encounterId}`)]),
-      el("td", { textContent: formatNumber(r.idps) }),
+  const best = Math.max(...rows.map((r) => r.idps), 1);
+  const list = rows.map((r, i) =>
+    el("a", { className: "hp-prow", href: gp(`/encounters/${r.encounterId}`), style: i < 3 ? `--medal:${MEDAL_COLORS[i]}` : "" }, [
+      el("span", { className: "hp-rank", textContent: String(i + 1) }),
+      classEmblem(r.className, false),
+      el("span", { className: "hp-who" }, [
+        el("b", { textContent: r.playerName }),
+        el("span", { textContent: [displayName({ name: r.bossName, nameEn: r.bossNameEn }), r.serverName].filter(Boolean).join(" · ") }),
+      ]),
+      el("span", { className: "hp-score" }, [el("b", { textContent: formatNumber(r.idps) }), el("span", { textContent: t("leaderboard.idpsShort") })]),
+      el("i", { className: "hp-fill", style: `width:${(r.idps / best) * 100}%` }),
     ]),
   );
-  const table = el("table", { className: "ranked-table" }, [
-    el("thead", {}, [
-      el("tr", {}, [
-        el("th", { textContent: t("table.player") }),
-        el("th", { textContent: t("table.boss") }),
-        el("th", { textContent: t("table.idps") }),
-      ]),
-    ]),
-    el("tbody", {}, tableRows),
-  ]);
   // Which scope this ranking covers, right next to the heading: combined across the servers.
   const scopeTag = gameLabel(game);
   const head = el("div", { className: "home-section-head" }, [
     el("h2", { textContent: t("home.topPlayersHeading") }),
     ...(scopeTag ? [el("span", { className: "home-section-tag", textContent: scopeTag })] : []),
   ]);
-  return el("section", { className: "home-section-card" }, [head, table]);
+  return el("section", { className: "home-section-card" }, [head, el("div", { className: "hp-list" }, list)]);
 }
 
 function buildRecentActivitySection(rows) {
-  const table = el("table", { className: "activity-table" }, [
-    el("thead", {}, [
-      el("tr", {}, [
-        el("th", { textContent: t("table.player") }),
-        el("th", { textContent: t("table.boss") }),
-        el("th", { textContent: t("table.idps") }),
-        el("th", { textContent: t("table.date") }),
-      ]),
-    ]),
-    el(
-      "tbody",
-      {},
-      rows.map((r) =>
-        el("tr", { className: "activity-row" }, [
-          el("td", {}, [el("span", { className: "icon-label" }, [classIcon(r.topPlayerClassName), r.topPlayerName ?? t("table.player")])]),
-          // Same reasoning as buildTopPlayersSection: link the exact run, not the boss's general
-          // (currently-picked-server) leaderboard.
-          el("td", {}, [link(displayName({ name: r.bossName, nameEn: r.bossNameEn }), `/${r.game}/encounters/${r.encounterId}`)]),
-          el("td", { textContent: formatNumber(r.groupIDps) }),
-          el("td", { className: "activity-time", textContent: formatRelativeTime(r.createdAt) }),
+  const cards = rows.map((r) => {
+    const instanceName = displayName({ name: r.instanceName, nameEn: r.instanceNameEn });
+    const photo = INSTANCE_IMAGES[r.instanceNameEn] ?? INSTANCE_IMAGES[r.instanceName];
+    return el("a", { className: "hp-run", href: gp(`/encounters/${r.encounterId}`) }, [
+      el("span", { className: "hp-thumb", style: photo ? `background-image:url('${photo}')` : "" }),
+      el("span", { className: "hp-run-mid" }, [
+        el("b", { textContent: displayName({ name: r.bossName, nameEn: r.bossNameEn }) }),
+        el("span", { className: "hp-run-sub" }, [
+          `${instanceName} · ${formatDuration(r.durationSeconds)} · ${formatRelativeTime(r.createdAt)}`,
+          ...(r.topPlayerName ? [" · ", classEmblem(r.topPlayerClassName, true), r.topPlayerName] : []),
         ]),
-      ),
-    ),
-  ]);
+      ]),
+      el("span", { className: "hp-run-score" }, [el("b", { textContent: formatNumber(r.groupIDps) }), el("span", { textContent: t("leaderboard.groupIdps") })]),
+    ]);
+  });
   // Per the user: this heading sits flush RIGHT (mirroring Top players' flush-left one), with the
   // live marker directly beside it.
   const head = el("div", { className: "home-section-head home-section-head-right" }, [
     el("h2", { textContent: t("home.recentActivityHeading") }),
     el("span", { className: "home-section-tag" }, [el("span", { className: "home-live-dot" }), t("home.liveTag")]),
   ]);
-  return el("section", { className: "home-section-card" }, [head, table]);
+  return el("section", { className: "home-section-card" }, [head, el("div", { className: "hp-list" }, cards)]);
 }
 
 /**
