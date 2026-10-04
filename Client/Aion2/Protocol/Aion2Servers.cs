@@ -9,9 +9,12 @@ public static class Aion2Servers
 {
     private static readonly Dictionary<int, string> Known = new()
     {
-        // 1303 and 1304 were confirmed with real characters (Boulenbouche, Aahz); the rest of the two
-        // blocks of eight is the list the user supplied on 2026-10-03, matched to the ids seen next to
-        // player names in the recordings. The id says nothing about a character's faction here.
+        // The nine early-access servers per faction, in the order the official list gives them, one id
+        // each: Elyos 1301-1309, Asmodians 2301-2309. Confirmed with real characters: 1303/1304 (Aahz,
+        // Boulenbouche), and the server tags of the party window - Xooby [Tri] is 2303 (Triniel), zyxx
+        // [Ber] is 2308 (Beritra), which also showed that 2305-2308 had been listed in the wrong order
+        // (Marchutan is 2305, not 2308). 1309 (Hithanya) and 2309 (Nemon) follow from the same order.
+        // The id says nothing about a character's faction here.
         [1301] = "Europe - Siel",
         [1302] = "Europe - Nezekan",
         [1303] = "Europe - Vaizel",
@@ -20,14 +23,16 @@ public static class Aion2Servers
         [1306] = "Europe - Ariel",
         [1307] = "Europe - Fregion",
         [1308] = "Europe - Meslamtaeda",
+        [1309] = "Europe - Hithanya",
         [2301] = "Europe - Israphel",
         [2302] = "Europe - Zikel",
         [2303] = "Europe - Triniel",
         [2304] = "Europe - Lumiel",
-        [2305] = "Europe - Azphel",
-        [2306] = "Europe - Ereshkigal",
-        [2307] = "Europe - Beritra",
-        [2308] = "Europe - Marchutan",
+        [2305] = "Europe - Marchutan",
+        [2306] = "Europe - Azphel",
+        [2307] = "Europe - Ereshkigal",
+        [2308] = "Europe - Beritra",
+        [2309] = "Europe - Nemon",
     };
 
     public static string NameOf(int serverId) => Known.GetValueOrDefault(serverId, $"Aion 2 server {serverId}");
