@@ -975,11 +975,6 @@ async function renderLeaderboard(bossSlug, params) {
   const tabs = serverTabs(data, bossPath);
   const stats = fightStatsRow(data.stats);
   const sections = [hero, ...(stats ? [stats] : [])];
-  if (data.boss.hasMechanics) {
-    const mechanics = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/mechanics?game=${currentGame}`);
-    sections.push(...mechanicsSection(mechanics));
-    sections.push(el("h2", { textContent: t("leaderboard.heading") }));
-  }
   if (tabs) {
     sections.push(tabs);
   }
@@ -1046,37 +1041,6 @@ async function renderLeaderboard(bossSlug, params) {
   ]);
 
   app.replaceChildren(...sections, groupsSection);
-}
-
-// Wipe-mechanics reference (see Backend/src/db/schema.ts bossMechanics): trigger badge, severity,
-// what to do, optional detail. Facts (trigger, severity, ordering) come from game data; the prose
-// is ours and may still be empty for a row - shown as "in progress" rather than hidden, so the
-// mechanic itself is at least known to exist.
-function mechanicsSection(data) {
-  const row = (m) =>
-    el("tr", { className: `sev-${m.severity.replace("_", "-")}` }, [
-      el("td", {}, [el("span", { className: "trigger-badge", textContent: m.triggerType === "hp" && m.triggerPct != null ? t("mechanics.hp", { pct: m.triggerPct }) : t("mechanics.phase") }), m.triggerLabel ? ` ${m.triggerLabel}` : ""]),
-      el("td", {}, [el("span", { className: "severity-badge", textContent: t(`mechanics.severity.${m.severity}`) })]),
-      el("td", {}, [
-        m.action ? m.action : el("span", { className: "empty", textContent: t("mechanics.pending") }),
-        ...(m.detail ? [el("details", {}, [el("summary", { textContent: t("mechanics.detail") }), el("p", { textContent: m.detail })])] : []),
-      ]),
-    ]);
-  const table = (rows) =>
-    el("table", { className: "mechanics-table" }, [
-      el("thead", {}, [el("tr", {}, [el("th", { textContent: t("mechanics.trigger") }), el("th", { textContent: t("mechanics.severity") }), el("th", { textContent: t("mechanics.action") })])]),
-      el("tbody", {}, rows.map(row)),
-    ]);
-
-  const sections = [el("h2", { textContent: t("mechanics.heading") })];
-  if (data.instanceWide.length > 0) {
-    sections.push(el("h3", { textContent: t("mechanics.instanceWide") }), table(data.instanceWide));
-  }
-  if (data.mechanics.length > 0) {
-    sections.push(table(data.mechanics));
-  }
-  sections.push(el("p", { className: "derived-note", textContent: t("aion2.derivedNote") }));
-  return sections;
 }
 
 // m:ss - short enough to sit next to "Zeitpunkt"/"App Version" in a two-column meta table, unlike
