@@ -176,13 +176,18 @@ internal static class Program
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: AionDPS aion2-upload-dryrun <recording.jsonl> [server-name] [server-port]");
+                Console.WriteLine("Usage: AionDPS aion2-upload-dryrun <recording.jsonl> [server-name] [server-port] [--send Boss@HH:mm ...]");
                 Console.WriteLine("  Plays a recording through the meter's own window logic (no window is shown), then builds the");
-                Console.WriteLine("  upload for every boss it recognised and prints it. Nothing is sent.");
+                Console.WriteLine("  upload for every boss it recognised and prints it. Nothing is sent - unless --send names bosses");
+                Console.WriteLine("  by name and UTC start minute (Thamon@15:14): exactly those fights are uploaded, to catch up on");
+                Console.WriteLine("  runs that never went online.");
                 return;
             }
 
-            RunAion2UploadDryRun(args[1], args.Length > 2 ? args[2] : "Europe - Kaisinel", args.Length > 3 ? int.Parse(args[3]) : 13328);
+            int sendAt = Array.IndexOf(args, "--send");
+            string[] positional = sendAt >= 0 ? args[..sendAt] : args;
+            RunAion2UploadDryRun(args[1], positional.Length > 2 ? positional[2] : "Europe - Kaisinel", positional.Length > 3 ? int.Parse(positional[3]) : 13328,
+                sendAt >= 0 ? args[(sendAt + 1)..] : Array.Empty<string>());
             return;
         }
 
@@ -538,7 +543,7 @@ internal static class Program
         Environment.Exit(0);
     }
 
-    private static void RunAion2UploadDryRun(string path, string serverName, int serverPort)
+    private static void RunAion2UploadDryRun(string path, string serverName, int serverPort, string[] sendOnly)
     {
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
@@ -629,7 +634,29 @@ internal static class Program
             }
         }
 
-        Console.WriteLine($"aion2-upload-dryrun: {uploads} upload(s) would be sent. Nothing was sent.");
+        if (sendOnly.Length == 0)
+        {
+            Console.WriteLine($"aion2-upload-dryrun: {uploads} upload(s) would be sent. Nothing was sent.");
+            Environment.Exit(0);
+        }
+
+        int sent = 0;
+        foreach (string wanted in sendOnly)
+        {
+            string[] parts = wanted.Split('@');
+            var match = best.Values.FirstOrDefault(r => r.BossNpcName == parts[0] && parts.Length == 2 && r.StartedAt.ToString("HH:mm") == parts[1]);
+            if (match is null)
+            {
+                Console.WriteLine($"aion2-upload-dryrun: --send {wanted}: no such fight in this recording, skipped");
+                continue;
+            }
+
+            var result = Upload.UploadClient.SendAsync(match).GetAwaiter().GetResult();
+            Console.WriteLine($"aion2-upload-dryrun: --send {wanted}: {(result.Success ? "uploaded" : "FAILED " + result.Error)}");
+            sent += result.Success ? 1 : 0;
+        }
+
+        Console.WriteLine($"aion2-upload-dryrun: {sent} of {sendOnly.Length} requested upload(s) sent.");
         Environment.Exit(0);
     }
 

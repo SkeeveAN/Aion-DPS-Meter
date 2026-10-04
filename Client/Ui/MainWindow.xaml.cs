@@ -1896,26 +1896,55 @@ public partial class MainWindow : Window
     private int? BossNpcIdOf(int targetId) =>
         (_source?.Entities as Aion2EntityDirectory)?.BossNpcIdOf(targetId);
 
-    /// <summary>The Mob/Boss filter target whose last hit is the most recent, i.e. whichever boss
-    /// was just fought - used as the "Upload current boss" default when the filter is still on
-    /// "All" rather than forcing a manual pick first (see OnUploadCurrentBossClicked).</summary>
-    private int? MostRecentlyFoughtTargetId()
+    /// <summary>For each boss target, the time of the last hit it took that already went online by
+    /// the hotkey - so the next press sends only what is new (see <see cref="PendingBossTargets"/>).</summary>
+    private readonly Dictionary<int, DateTime> _bossUploadedUntil = new();
+
+    /// <summary>
+    /// The boss targets with hits the hotkey has not sent yet, oldest first. A boss counts as new
+    /// again when it took a hit after the last upload (a later attempt on the same entity). The
+    /// selected target is always included, sent again on purpose when the user picked it.
+    /// </summary>
+    private List<int> PendingBossTargets()
     {
         var knownIds = _mobBossEntries.Select(entry => entry.TargetId).ToHashSet();
-        return _aggregator.Events
-            .Where(ev => !ev.IsHeal && knownIds.Contains(ev.TargetObjectId))
-            .GroupBy(ev => ev.TargetObjectId)
-            .OrderByDescending(g => g.Max(ev => ev.Timestamp))
-            .Select(g => (int?)g.Key)
-            .FirstOrDefault();
+        var lastHit = new Dictionary<int, (DateTime First, DateTime Last)>();
+        foreach (DamageEvent ev in _aggregator.Events)
+        {
+            if (ev.IsHeal || !knownIds.Contains(ev.TargetObjectId))
+            {
+                continue;
+            }
+
+            lastHit[ev.TargetObjectId] = lastHit.TryGetValue(ev.TargetObjectId, out var seen)
+                ? (ev.Timestamp < seen.First ? ev.Timestamp : seen.First, ev.Timestamp > seen.Last ? ev.Timestamp : seen.Last)
+                : (ev.Timestamp, ev.Timestamp);
+        }
+
+        var pending = lastHit
+            .Where(kv => !_bossUploadedUntil.TryGetValue(kv.Key, out DateTime sent) || kv.Value.Last > sent)
+            .OrderBy(kv => kv.Value.First)
+            .Select(kv => kv.Key)
+            .ToList();
+        if (_selectedTargetId is int selected && knownIds.Contains(selected) && !pending.Contains(selected))
+        {
+            pending.Add(selected);
+        }
+
+        return pending;
     }
 
-    /// <summary>Uploads the boss the Mob/Boss filter is currently showing, or - per the user,
-    /// "current boss" should mean the one just fought, not force a manual filter pick first -
-    /// whichever boss most recently took damage, if the filter is still on "All".</summary>
+    /// <summary>
+    /// The upload hotkey / button: sends EVERY boss fight not sent yet, not just one. It used to send a
+    /// single boss - the one picked in the Mob/Boss filter or else the one hit last - so a fight
+    /// the filter was not pointing at (Thamon, the second boss of a Vakron Sky Island run, went missing
+    /// from three runs on 2026-10-04) simply never went online. The server merges what the group's
+    /// members send, so sending a fight twice is harmless; it is just not done without a new hit.
+    /// </summary>
     private async void OnUploadCurrentBossClicked(object sender, RoutedEventArgs e)
     {
-        if ((_selectedTargetId ?? MostRecentlyFoughtTargetId()) is not int targetId)
+        List<int> targetIds = PendingBossTargets();
+        if (targetIds.Count == 0)
         {
             // No boss fight, but Aion 2 still has characters worth uploading (per the user).
             if (_source?.Entities is Aion2.Aion2EntityDirectory)
@@ -1924,7 +1953,7 @@ public partial class MainWindow : Window
                 return;
             }
 
-            ShowUploadStatus("No boss fights recorded yet.");
+            ShowUploadStatus(_mobBossEntries.Count > 0 ? "Every boss fight is already uploaded." : "No boss fights recorded yet.");
             return;
         }
 
@@ -1934,16 +1963,65 @@ public partial class MainWindow : Window
             return;
         }
 
-        var payload = BuildEncounterUpload(targetId, fingerprint, displayName);
-        if (payload is null)
+        ShowUploadStatus(targetIds.Count == 1 ? "Uploading..." : $"Uploading {targetIds.Count} boss fights...");
+
+        // The payload is built from the rows the grid shows for the selected boss, so the selection
+        // is pointed at each boss in turn and put back afterwards (as in OnUploadLastRunClicked).
+        int? previousTarget = _selectedTargetId;
+        DateTime? previousRunWindowStart = _selectedRunWindowStart;
+        DateTime? previousRunWindowEnd = _selectedRunWindowEnd;
+        var uploadedNames = new List<string>();
+        string? lastError = null;
+        bool nothingRecorded = false;
+        bool first = true;
+        foreach (int targetId in targetIds)
         {
-            ShowUploadStatus("Nothing recorded for this boss yet.");
-            return;
+            if (!first)
+            {
+                await Task.Delay(100);
+            }
+
+            first = false;
+            _selectedTargetId = targetId;
+            _selectedRunWindowStart = null;
+            _selectedRunWindowEnd = null;
+            RefreshRows();
+            var payload = BuildEncounterUpload(targetId, fingerprint, displayName);
+            if (payload is null)
+            {
+                nothingRecorded = true;
+                continue;
+            }
+
+            UploadResult result = await UploadClient.SendAsync(payload);
+            if (result.Success)
+            {
+                uploadedNames.Add(payload.BossNpcName);
+                _bossUploadedUntil[targetId] = _aggregator.Events
+                    .Where(ev => !ev.IsHeal && ev.TargetObjectId == targetId)
+                    .Max(ev => ev.Timestamp);
+            }
+            else
+            {
+                lastError = result.Error;
+            }
         }
 
-        ShowUploadStatus("Uploading...");
-        UploadResult result = await UploadClient.SendAsync(payload);
-        ShowUploadStatus(result.Success ? "Uploaded." : $"Upload failed: {result.Error}");
+        _selectedTargetId = previousTarget;
+        _selectedRunWindowStart = previousRunWindowStart;
+        _selectedRunWindowEnd = previousRunWindowEnd;
+        RefreshRows();
+
+        if (uploadedNames.Count > 0)
+        {
+            ShowUploadStatus(uploadedNames.Count == 1
+                ? "Uploaded."
+                : $"Uploaded {uploadedNames.Count} boss fights: {string.Join(", ", uploadedNames)}.");
+        }
+        else
+        {
+            ShowUploadStatus(lastError is not null ? $"Upload failed: {lastError}" : nothingRecorded ? "Nothing recorded for this boss yet." : "Nothing to upload.");
+        }
     }
 
     /// <summary>Aion 2 without a boss fight: uploads the own character and every other player whose
@@ -2835,6 +2913,7 @@ public partial class MainWindow : Window
         UpdateDpsColumnHeader();
 
         _mobBossEntries.Clear();
+        _bossUploadedUntil.Clear();
         ApplyMobBossSearchFilter();
         RefreshUploadAvailability();
     }
