@@ -35,6 +35,39 @@ public static class Aion2CharacterStore
     public static string DefaultPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter", "aion2-character.json");
 
+    /// <summary>The character windows of other players, next to the own character file.</summary>
+    public static string InspectedPathFor(string characterPath) => Path.Combine(Path.GetDirectoryName(characterPath)!, "aion2-inspected.json");
+
+    /// <summary>Character windows opened in the last 30 days (at most 300), so a restart or an update does not
+    /// lose what was read before it was uploaded.</summary>
+    public static List<Aion2InspectedPlayer> LoadInspected(string path)
+    {
+        try
+        {
+            var list = File.Exists(path) ? JsonSerializer.Deserialize<List<Aion2InspectedPlayer>>(File.ReadAllText(path)) : null;
+            return (list ?? new()).Where(p => p.ReceivedAt > DateTime.Now.AddDays(-30)).ToList();
+        }
+        catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
+        {
+            return new();
+        }
+    }
+
+    public static void SaveInspected(string path, IReadOnlyList<Aion2InspectedPlayer> players)
+    {
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            string temp = path + ".tmp";
+            File.WriteAllText(temp, JsonSerializer.Serialize(players.OrderByDescending(p => p.ReceivedAt).Take(300).ToList(), Options));
+            File.Move(temp, path, overwrite: true);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // A convenience only.
+        }
+    }
+
     public static Aion2SavedCharacter? Load(string path)
     {
         try

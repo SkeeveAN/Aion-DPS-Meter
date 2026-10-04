@@ -304,6 +304,23 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         {
             _inspected[player.Name] = player;
         }
+
+        InspectedChanged?.Invoke();
+    }
+
+    /// <summary>Raised after a character window was remembered (the owner saves the list).</summary>
+    public event Action? InspectedChanged;
+
+    /// <summary>Takes over windows saved earlier; one the live stream already delivered is newer and wins.</summary>
+    public void RestoreInspected(IEnumerable<Aion2InspectedPlayer> players)
+    {
+        lock (_gate)
+        {
+            foreach (var player in players)
+            {
+                _inspected.TryAdd(player.Name, player);
+            }
+        }
     }
 
     public IReadOnlyList<Aion2InspectedPlayer> InspectedPlayers()

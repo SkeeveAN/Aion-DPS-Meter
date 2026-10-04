@@ -40,6 +40,10 @@ public sealed class Aion2PacketCombatSource : ICombatSource
                 _entities.RestoreFrom(saved);
             }
 
+            string inspectedPath = Aion2CharacterStore.InspectedPathFor(characterStorePath);
+            _entities.RestoreInspected(Aion2CharacterStore.LoadInspected(inspectedPath));
+            _entities.InspectedChanged += () => Aion2CharacterStore.SaveInspected(inspectedPath, _entities.InspectedPlayers());
+
             _entities.CharacterChanged += _ =>
             {
                 if (_entities.ToSaved() is { } snapshot)

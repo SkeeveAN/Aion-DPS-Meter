@@ -595,9 +595,33 @@ internal static class Program
             }
         }
 
+        var buildProfiles = type.GetMethod("BuildProfilesUpload", flags);
+        if (buildProfiles?.Invoke(window, new object?[] { fingerprint, serverName, false }) is Upload.ProfilesUploadRequest profilesRequest)
+        {
+            if (Environment.GetEnvironmentVariable("AION_DRYRUN_JSON") is { Length: > 0 } jsonPath)
+            {
+                File.WriteAllText(jsonPath, System.Text.Json.JsonSerializer.Serialize(profilesRequest, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+            }
+
+            Console.WriteLine($"aion2-upload-dryrun: the profile upload (no boss) would carry {profilesRequest.Participants.Count} player(s):");
+            foreach (var pp in profilesRequest.Participants)
+            {
+                Console.WriteLine($"  {pp.Name,-14} {pp.ClassName,-13} {pp.Profile.Source,-5} level {pp.Profile.Level?.ToString() ?? "-"} gear {pp.Profile.Gear.Count} (enchant sum {pp.Profile.Gear.Sum(g => g.Enchant)}) legion {pp.Guild ?? "-"}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("aion2-upload-dryrun: the profile upload (no boss) would be EMPTY (no own character / class in this recording)");
+        }
+
         if (source.Entities is Aion2.Aion2EntityDirectory directory)
         {
             var inspected = directory.InspectedPlayers();
+            string roundTrip = Path.Combine(Path.GetTempPath(), "aion2-inspected-roundtrip.json");
+            Aion2.Aion2CharacterStore.SaveInspected(roundTrip, inspected);
+            var reloaded = Aion2.Aion2CharacterStore.LoadInspected(roundTrip);
+            Console.WriteLine($"aion2-upload-dryrun: saved {inspected.Count} window(s), reloaded {reloaded.Count}, gear of the first {reloaded.FirstOrDefault()?.Gear.Count} item(s), enchant sum {reloaded.FirstOrDefault()?.Gear.Sum(g => g.Enchant)}");
+            File.Delete(roundTrip);
             Console.WriteLine($"aion2-upload-dryrun: {inspected.Count} character window(s) of other players read; {directory.LocalSkills.Count(s => s.Stigma)} own stigma(s) marked");
             foreach (var player in inspected)
             {

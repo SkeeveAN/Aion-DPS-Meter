@@ -3224,6 +3224,21 @@ public partial class MainWindow : Window
                 directory.LocalDaevanion.Select(b => new ProfileBoardUpload(b.BoardId, b.NodeIds.ToList())).ToList());
         }
 
+        // A character window the local player opened for this player: level and the full equipment with
+        // enchants, richer than the "appeared" frame below.
+        if (directory.NameFor(objectId) is string windowName
+            && directory.InspectedPlayers().FirstOrDefault(p => p.Name == windowName) is { } window)
+        {
+            return new ProfileUpload(
+                "seen",
+                window.Level,
+                window.ClassCode / 4,
+                window.ClassCode % 4,
+                window.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                Array.Empty<ProfileSkillUpload>(),
+                Array.Empty<ProfileBoardUpload>());
+        }
+
         if (directory.SeenProfileOf(objectId) is { } seen)
         {
             return new ProfileUpload(
