@@ -16,6 +16,7 @@ const SUPPORTED_CODES = LOCALES.map((l) => l.code);
 
 const TRANSLATIONS = {
   de: {
+    "profile.skillsStigma": "Stigma",
     "profile.levelShort": "St.",
     "profile.tier": "Stufe",
     "player.openProfile": "Charakterprofil öffnen",
@@ -290,6 +291,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "vor {count} T.",
   },
   en: {
+    "profile.skillsStigma": "Stigma",
     "profile.levelShort": "Lv.",
     "profile.tier": "Tier",
     "player.openProfile": "Open character profile",
@@ -564,6 +566,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count}d ago",
   },
   fr: {
+    "profile.skillsStigma": "Stigmates",
     "profile.levelShort": "Niv.",
     "profile.tier": "Palier",
     "profile.classLevel": "{className} · Niveau {level}",
@@ -823,6 +826,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "il y a {count} j",
   },
   es: {
+    "profile.skillsStigma": "Estigmas",
     "profile.levelShort": "Niv.",
     "profile.tier": "Rango",
     "profile.classLevel": "{className} · Nivel {level}",
@@ -1082,6 +1086,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "hace {count} d",
   },
   ru: {
+    "profile.skillsStigma": "Стигмы",
     "profile.levelShort": "Ур.",
     "profile.tier": "Ступень",
     "profile.classLevel": "{className} · Уровень {level}",
@@ -1341,6 +1346,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count} дн. назад",
   },
   pl: {
+    "profile.skillsStigma": "Stygmaty",
     "profile.levelShort": "Poz.",
     "profile.tier": "Stopień",
     "profile.classLevel": "{className} · Poziom {level}",
@@ -1600,6 +1606,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count} dni temu",
   },
   tr: {
+    "profile.skillsStigma": "Stigmalar",
     "profile.levelShort": "Sv.",
     "profile.tier": "Kademe",
     "profile.classLevel": "{className} · Seviye {level}",
@@ -1859,6 +1866,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count} gün önce",
   },
   zh: {
+    "profile.skillsStigma": "烙印",
     "profile.levelShort": "Lv.",
     "profile.tier": "阶",
     "profile.classLevel": "{className} · 等级 {level}",

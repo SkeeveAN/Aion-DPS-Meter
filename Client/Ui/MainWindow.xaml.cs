@@ -2164,13 +2164,43 @@ public partial class MainWindow : Window
         }
 
         Add(local.CombatId, local.Name, localClass, true);
+
+        // Character windows of other players the local player opened (see Aion2FrameDecoder.DecodeInspect):
+        // level and the full equipment with enchants, richer than what the "appeared" frame shows, so they
+        // win over the seen profile of the same name.
+        var inspectedNames = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var inspected in ownOnly ? Array.Empty<Aion2.Aion2InspectedPlayer>() : directory.InspectedPlayers())
+        {
+            string? inspectedClass = Aion2.Protocol.Aion2SkillNames.ClassFromCode(inspected.ClassCode);
+            if (inspectedClass is null || inspected.Name == local.Name)
+            {
+                continue;
+            }
+
+            inspectedNames.Add(inspected.Name);
+            participants.Add(new ProfileParticipantUpload(
+                inspected.Name,
+                inspectedClass,
+                "",
+                false,
+                inspected.Guild,
+                new ProfileUpload(
+                    "seen",
+                    inspected.Level,
+                    inspected.ClassCode / 4,
+                    inspected.ClassCode % 4,
+                    inspected.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                    Array.Empty<ProfileSkillUpload>(),
+                    Array.Empty<ProfileBoardUpload>())));
+        }
+
         foreach (int id in ownOnly ? Array.Empty<int>() : directory.SeenProfileIds())
         {
             string? name = directory.NameFor(id);
             string? className = directory.ClassOf(id)
                 ?? (directory.SeenProfileOf(id) is { ClassId: int classId } ? Aion2.Protocol.Aion2SkillNames.ClassFromCode(classId * 4 + 1) : null);
             // Anonymous "Player #id" entries have no name to attach a profile to.
-            if (id == local.CombatId || name is null || name.StartsWith("Player #") || className is null)
+            if (id == local.CombatId || name is null || name.StartsWith("Player #") || className is null || inspectedNames.Contains(name))
             {
                 continue;
             }
@@ -3190,7 +3220,7 @@ public partial class MainWindow : Window
                 known ? code / 4 : null,
                 known ? code % 4 : null,
                 directory.LocalEquipment.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
-                directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel)).ToList(),
+                directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel, s.Stigma)).ToList(),
                 directory.LocalDaevanion.Select(b => new ProfileBoardUpload(b.BoardId, b.NodeIds.ToList())).ToList());
         }
 

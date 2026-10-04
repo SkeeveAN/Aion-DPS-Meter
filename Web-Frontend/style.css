@@ -2050,12 +2050,19 @@ header .wordmark {
 /* Skills. */
 .pf-skills {
   display: grid;
+  grid-template-columns: repeat(var(--blocks, 2), minmax(0, 1fr));
   gap: 16px;
+  align-items: start;
 }
 .pf-skill-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-  gap: 14px 10px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px 8px;
+}
+@media (max-width: 1100px) {
+  .pf-skills {
+    grid-template-columns: 1fr;
+  }
 }
 .pf-skill {
   text-align: center;
@@ -2081,6 +2088,9 @@ header .wordmark {
 }
 .pf-dot.passive {
   background: #3fcf55;
+}
+.pf-dot.stigma {
+  background: #f0a030;
 }
 .pf-key {
   display: inline-block;
@@ -2123,7 +2133,7 @@ header .wordmark {
 }
 .pf-board {
   display: grid;
-  grid-template-columns: repeat(var(--cols, 11), 1fr);
+  grid-template-columns: repeat(var(--cols, 11), minmax(0, 1fr));
   gap: 6px;
   padding: 14px;
   background: color-mix(in srgb, var(--color-background) 70%, #000);
@@ -2134,6 +2144,7 @@ header .wordmark {
   position: relative;
   display: block;
   aspect-ratio: 1;
+  min-width: 0;
 }
 .pf-cell.empty {
   visibility: hidden;

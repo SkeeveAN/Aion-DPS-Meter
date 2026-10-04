@@ -68,7 +68,7 @@ public sealed record ProfileUpload(
 
 public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant);
 
-public sealed record ProfileSkillUpload(int Id, int Level, int BaseLevel);
+public sealed record ProfileSkillUpload(int Id, int Level, int BaseLevel, bool Stigma = false);
 
 public sealed record ProfileBoardUpload(int Board, IReadOnlyList<int> Nodes);
 

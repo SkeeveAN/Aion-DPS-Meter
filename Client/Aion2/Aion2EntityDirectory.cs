@@ -7,11 +7,15 @@ public sealed record Aion2EquippedItem(int SlotIndex, int ItemId, int Enchant = 
 
 /// <summary>One learned skill: total level (what the game shows) and the trained base level; the
 /// difference is a bonus from gear or other sources.</summary>
-public sealed record Aion2SkillEntry(int SkillId, int Level, int BaseLevel);
+public sealed record Aion2SkillEntry(int SkillId, int Level, int BaseLevel, bool Stigma = false);
 
 /// <summary>What the "player appeared" frame says about another player: class and faction (decoded
 /// from its class code) and the visible equipment (no enchant levels in that list).</summary>
 public sealed record Aion2SeenProfile(int? ClassId, int? Faction, IReadOnlyList<Aion2EquippedItem> Gear);
+
+/// <summary>Another player's character window as the server sent it (opcode 0x5036): no object id, only the
+/// name. <see cref="ClassCode"/> is <c>4 * class id + faction bit</c>; the gear carries enchant levels.</summary>
+public sealed record Aion2InspectedPlayer(string Name, int ClassCode, int Level, int CombatPower, string? Guild, IReadOnlyList<Aion2EquippedItem> Gear, DateTime ReceivedAt);
 
 /// <summary>The activated node ids of one Daevanion board (the start node included).</summary>
 public sealed record Aion2DaevanionBoard(int BoardId, IReadOnlyList<int> NodeIds);
@@ -149,7 +153,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             var equipment = saved.Equipment.Select(i => new Aion2EquippedItem(i.Slot, i.ItemId, i.Enchant)).ToList();
             _character = new Aion2CharacterInfo(-1, saved.Name, saved.ClassCode, saved.Level, equipment, saved.SavedAt, Restored: true, ServerId: saved.ServerId);
             _fullEquipment = equipment;
-            _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel)).ToList();
+            _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma)).ToList();
             _daevanion = saved.Daevanion.Select(b => new Aion2DaevanionBoard(b.Board, b.Nodes)).ToList();
         }
     }
@@ -172,7 +176,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 ServerId = c.ServerId,
                 SavedAt = DateTime.Now,
                 Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
-                Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel)).ToList(),
+                Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma)).ToList(),
                 Daevanion = (_daevanion ?? Array.Empty<Aion2DaevanionBoard>()).Select(b => new Aion2SavedCharacter.SavedBoard(b.BoardId, b.NodeIds.ToList())).ToList(),
             };
         }
@@ -242,10 +246,48 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
-            _skills = skills;
+            _skills = skills.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId) }).ToList();
         }
 
         NotifyCharacterChanged();
+    }
+
+    private readonly HashSet<int> _stigmas = new();
+
+    /// <summary>The skill ids the game lists as stigmas; marks them in the skill list whichever of the two
+    /// login frames arrives first.</summary>
+    public void SetLocalStigmas(IReadOnlySet<int> ids)
+    {
+        lock (_gate)
+        {
+            _stigmas.Clear();
+            _stigmas.UnionWith(ids);
+            if (_skills is not null)
+            {
+                _skills = _skills.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId) }).ToList();
+            }
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    private readonly Dictionary<string, Aion2InspectedPlayer> _inspected = new(StringComparer.Ordinal);
+
+    /// <summary>Remembers a character window of another player; a newer one for the same name replaces it.</summary>
+    public void SetInspected(Aion2InspectedPlayer player)
+    {
+        lock (_gate)
+        {
+            _inspected[player.Name] = player;
+        }
+    }
+
+    public IReadOnlyList<Aion2InspectedPlayer> InspectedPlayers()
+    {
+        lock (_gate)
+        {
+            return _inspected.Values.ToList();
+        }
     }
 
     private void NotifyCharacterChanged()

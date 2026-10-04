@@ -1517,10 +1517,16 @@ function renderSkillsTab(profile) {
         }),
       ),
     ]);
-  return el("div", { className: "pf-skills" }, [
-    section(t("profile.skillsActive"), profile.skills.filter((s) => !s.passive), "active"),
+  // Side by side: active | passive | stigma (the stigma block only exists once a profile carries
+  // the flag; the game lets a player equip only four of them).
+  const blocks = [
+    section(t("profile.skillsActive"), profile.skills.filter((s) => !s.passive && !s.stigma), "active"),
     // ids like 11000000 are the class's weapon-equip entry, not a skill the player trains
     section(t("profile.skillsPassive"), profile.skills.filter((s) => s.passive && s.id % 1000000 !== 0), "passive"),
+    profile.skills.some((s) => s.stigma) ? section(t("profile.skillsStigma"), profile.skills.filter((s) => s.stigma), "stigma") : null,
+  ].filter((x) => x != null);
+  return el("div", {}, [
+    el("div", { className: "pf-skills", style: `--blocks:${blocks.length}` }, blocks),
     el("p", { className: "profile-source" }, [el("i", { className: "pf-key bonus" }), ` ${t("profile.legendBonus")}`]),
   ]);
 }
