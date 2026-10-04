@@ -246,7 +246,11 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
-            _skills = skills.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId) }).ToList();
+            // The game re-sends the list on a zone change, and not every zone sends every skill (a stigma
+            // went missing after one): what an earlier list had and the new one lacks is kept, what the
+            // new one has wins.
+            var merged = (_skills ?? Array.Empty<Aion2SkillEntry>()).Where(old => skills.All(s => s.SkillId != old.SkillId)).Concat(skills);
+            _skills = merged.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId) }).ToList();
         }
 
         NotifyCharacterChanged();
@@ -256,11 +260,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     /// <summary>The skill ids the game lists as stigmas; marks them in the skill list whichever of the two
     /// login frames arrives first.</summary>
-    public void SetLocalStigmas(IReadOnlySet<int> ids)
+    public void SetLocalStigmas(IReadOnlySet<int> ids, IReadOnlySet<int> listed)
     {
         lock (_gate)
         {
-            _stigmas.Clear();
+            // A skill the new frame does not list at all keeps its earlier flag (see SetLocalSkills).
+            _stigmas.RemoveWhere(listed.Contains);
             _stigmas.UnionWith(ids);
             if (_skills is not null)
             {

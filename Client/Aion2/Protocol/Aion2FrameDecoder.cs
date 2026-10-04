@@ -1009,18 +1009,23 @@ public sealed class Aion2FrameDecoder
     {
         IReadOnlyDictionary<int, string> names = Aion2SkillNames.Load();
         var stigmas = new HashSet<int>();
+        var listed = new HashSet<int>();
         for (int p = 3; p + 5 < frame.Length; p++)
         {
             int id = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
-            if (id >= 1_000_000 && id % 10000 == 0 && frame[p + 4] == 5 && names.ContainsKey(id))
+            if (id >= 1_000_000 && id % 10000 == 0 && frame[p + 4] is 3 or 5 && names.ContainsKey(id))
             {
-                stigmas.Add(id);
+                listed.Add(id);
+                if (frame[p + 4] == 5)
+                {
+                    stigmas.Add(id);
+                }
             }
         }
 
-        if (stigmas.Count > 0)
+        if (listed.Count > 0)
         {
-            _entities.SetLocalStigmas(stigmas);
+            _entities.SetLocalStigmas(stigmas, listed);
         }
     }
 
