@@ -950,6 +950,95 @@ function bossHero(data) {
   return el("div", { className: "instance-hero" }, children);
 }
 
+// ---- Group leaderboard: top three as cards, the rest as compact rows; sortable in the browser ----
+const CLASS_EMBLEM = { Gladiator: "gladiator", Templar: "templar", Ranger: "ranger", Assassin: "assassin", Spiritmaster: "elementalist", Sorcerer: "sorcerer", Cleric: "cleric", Chanter: "chanter", Brawler: "fighter" };
+const GROUP_SORTS = {
+  idps: (a, b) => b.groupIDps - a.groupIDps,
+  damage: (a, b) => b.totalDamage - a.totalDamage,
+  time: (a, b) => a.durationSeconds - b.durationSeconds,
+};
+const MEDAL_COLORS = ["#f0b030", "#b9c2cc", "#d08a4a"];
+
+function classEmblem(className, small) {
+  const file = CLASS_EMBLEM[className];
+  return file
+    ? el("img", { className: `lb-emblem${small ? " sm" : ""}`, src: `/images/aion2/classes/${file}.webp`, alt: className, title: className, loading: "lazy" })
+    : classIcon(className);
+}
+
+function memberHref(p, encounterId) {
+  return p.hasProfile && p.playerId ? gp(`/players/${p.playerId}`) : gp(`/encounters/${encounterId}`);
+}
+
+function renderGroupBoard(groups) {
+  const holder = el("div", { className: "lb" });
+  let sortKey = "idps";
+
+  const draw = () => {
+    const list = [...groups].sort(GROUP_SORTS[sortKey]);
+    const seg = el(
+      "div",
+      { className: "lb-seg", role: "group" },
+      [["idps", "leaderboard.sortIdps"], ["damage", "leaderboard.sortDamage"], ["time", "leaderboard.sortFastest"]].map(([key, label]) => {
+        const b = el("button", { type: "button", textContent: t(label) });
+        b.setAttribute("aria-selected", String(key === sortKey));
+        b.addEventListener("click", () => {
+          sortKey = key;
+          draw();
+        });
+        return b;
+      }),
+    );
+
+    const card = (g, i) =>
+      el("article", { className: "lb-card", style: `--medal:${MEDAL_COLORS[i]}` }, [
+        el("div", { className: "lb-card-head" }, [
+          el("b", { className: "lb-rank", textContent: `#${i + 1}` }),
+          link(formatDate(new Date(g.startedAt)), gp(`/encounters/${g.encounterId}`)),
+          el("div", { className: "lb-big" }, [el("strong", { textContent: formatNumber(g.groupIDps) }), el("span", { textContent: t("leaderboard.groupIdps") })]),
+        ]),
+        el("div", { className: "lb-meta" }, [
+          el("span", {}, [`${t("leaderboard.time")} `, el("b", { textContent: formatDuration(g.durationSeconds) })]),
+          el("span", {}, [`${t("table.damage")} `, el("b", { textContent: formatNumber(g.totalDamage) })]),
+          el("span", {}, [`${t("leaderboard.healing")} `, el("b", { textContent: formatNumber(g.totalHealing) })]),
+        ]),
+        el(
+          "div",
+          { className: "lb-chips" },
+          (g.roster ?? []).map((p) =>
+            el("a", { className: "lb-chip", href: memberHref(p, g.encounterId), title: `${p.playerName} · ${p.className} · ${formatNumber(p.totalDamage)}` }, [
+              classEmblem(p.className, false),
+              el("span", { className: "lb-name", textContent: p.playerName }),
+            ]),
+          ),
+        ),
+      ]);
+
+    const row = (g, i) =>
+      el("div", { className: "lb-row" }, [
+        el("span", { className: "lb-rank-small", textContent: `#${i + 4}` }),
+        el("span", { className: "lb-strip" }, (g.roster ?? []).map((p) => classEmblem(p.className, true))),
+        el("span", { className: "lb-names" }, (g.roster ?? []).flatMap((p, k) => [k > 0 ? ", " : "", link(p.playerName, memberHref(p, g.encounterId))])),
+        el("span", { className: "lb-score" }, [
+          el("b", { textContent: formatNumber(g.groupIDps) }),
+          ` ${t("leaderboard.idpsShort")}`,
+          el("br"),
+          el("small", {}, [link(`${formatDuration(g.durationSeconds)} · ${new Date(g.startedAt).toLocaleString(undefined, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`, gp(`/encounters/${g.encounterId}`))]),
+        ]),
+        el("span", { className: "lb-totals" }, [`${formatNumber(g.totalDamage)} ${t("leaderboard.dmgShort")}`, el("br"), `${formatNumber(g.totalHealing)} ${t("leaderboard.healShort")}`]),
+      ]);
+
+    holder.replaceChildren(
+      el("div", { className: "lb-bar" }, [el("span", { className: "lb-bar-label", textContent: t("leaderboard.sortBy") }), seg]),
+      el("section", { className: "lb-podium" }, list.slice(0, 3).map(card)),
+      ...(list.length > 3 ? [el("section", { className: "lb-rest" }, list.slice(3).map(row))] : []),
+    );
+  };
+
+  draw();
+  return holder;
+}
+
 async function renderLeaderboard(bossSlug, params) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.leaderboard")]);
   showLoading(t("loading.leaderboard"));
@@ -1023,24 +1112,7 @@ async function renderLeaderboard(bossSlug, params) {
     return;
   }
 
-  const rows = data.topGroups.map((g, i) =>
-    rankedRow(
-      i + 1,
-      groupPlayersCell(g.roster, g.encounterId),
-      g.groupIDps,
-      g.totalDamage,
-      g.totalHealing,
-      g.groupBuffs,
-      false,
-    ),
-  );
-
-  const groupsSection = el("section", {}, [
-    el("h3", {}, [t("leaderboard.topGroupsHeading", { n: data.topGroups.length })]),
-    rankedTable(rows, false),
-  ]);
-
-  app.replaceChildren(...sections, groupsSection);
+  app.replaceChildren(...sections, el("h3", {}, [t("leaderboard.topGroupsHeading", { n: data.topGroups.length })]), renderGroupBoard(data.topGroups));
 }
 
 // m:ss - short enough to sit next to "Zeitpunkt"/"App Version" in a two-column meta table, unlike
