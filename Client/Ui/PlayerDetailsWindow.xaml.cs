@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using AionDPS.Combat;
 
 namespace AionDPS.Ui;
@@ -9,6 +10,13 @@ namespace AionDPS.Ui;
 /// SharePercent is this skill's share of the player's OWN total damage (0-100), not the raid's -
 /// it drives the ShareBar under the Total column, mirroring PlayerRow.SharePercent in
 /// MainWindow.</summary>
+/// <summary>One monster the player hit: their damage on it, their DPS over their time on it and
+/// their share of everything dealt to it (SharePercent, 0 when the fight's other damage is not known).</summary>
+public sealed record TargetRow(string Name, long Total, double Dps, double SharePercent)
+{
+    public string ShareDisplay => SharePercent > 0 ? SharePercent.ToString("F1", System.Globalization.CultureInfo.CurrentCulture) + "%" : "";
+}
+
 public sealed record SkillRow(string Skill, int Hits, double CritRate, long Total, long Min, long Max, long Average, double SharePercent,
     System.Windows.Media.ImageSource? Icon = null);
 
@@ -87,7 +95,7 @@ public partial class PlayerDetailsWindow : Window
 
     public PlayerDetailsWindow(string name, string className, string faction,
         IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf, bool heals = false,
-        IReadOnlyList<Death>? deaths = null, bool taken = false)
+        IReadOnlyList<Death>? deaths = null, bool taken = false, IReadOnlyList<DamageEvent>? fightEvents = null)
     {
         // Taken: the hits this player took, one row per attacker and attack ("Transcendent
         // Bakarma : Attack"); an attacker with no name of its own is "Monster".
@@ -144,6 +152,8 @@ public partial class PlayerDetailsWindow : Window
         }
 
         int hits = rows.Sum(r => r.Hits);
+        FillTargets(damage, nameOf, fightEvents, loc, taken || heals);
+        DrawCurve(damage);
         var targets = damage.Select(e => nameOf(e.TargetObjectId)).Where(n => n is not null).Distinct().Count();
         SummaryText.Text = taken
             ? $"{className} · ☠ {deaths?.Count ?? 0} · {string.Format(loc["Details.Attacks"], rows.Count)}"
@@ -167,6 +177,9 @@ public partial class PlayerDetailsWindow : Window
         DpsTileText.Text = seconds is double s ? (total / s).ToString("N0") : "n/a";
         TimeTileText.Text = seconds is double s2 ? TimeSpan.FromSeconds(s2).ToString(@"mm\:ss") : "n/a";
         HitsPerSecTileText.Text = seconds is double s3 ? (hits / s3).ToString("F1") : "n/a";
+        HitsTileText.Text = hits.ToString("N0");
+        int critHits = breakdown.Sum(u => u.CritHits);
+        CritTileText.Text = hits > 0 ? (100.0 * critHits / hits).ToString("F1") + "%" : "n/a";
 
         CritNoteText.Text = "Crit rates are read straight from the game server's hit data, exact for every player.";
         CritNoteText.Visibility = heals ? Visibility.Collapsed : Visibility.Visible;
@@ -180,5 +193,102 @@ public partial class PlayerDetailsWindow : Window
                     : loc["Details.Died"])))
                 : loc["Details.NoDeath"];
         }
+    }
+
+    /// <summary>The per-target table: one row per monster hit, a total row on top. Hidden in the
+    /// healing and taken views, where "target" means something else.</summary>
+    private void FillTargets(IReadOnlyList<DamageEvent> damage, Func<int, string?> nameOf, IReadOnlyList<DamageEvent>? fightEvents,
+        LocalizationManager loc, bool hide)
+    {
+        if (hide || damage.Count == 0)
+        {
+            TargetsGrid.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var rows = new List<TargetRow>();
+        foreach (var group in damage.GroupBy(e => e.TargetObjectId))
+        {
+            long total = group.Sum(e => e.Amount);
+            double seconds = (group.Max(e => e.Timestamp) - group.Min(e => e.Timestamp)).TotalSeconds;
+            long everyone = fightEvents?.Where(e => !e.IsHeal && e.TargetObjectId == group.Key).Sum(e => e.Amount) ?? 0;
+            rows.Add(new TargetRow(nameOf(group.Key) ?? loc["Details.Monster"], total, seconds > 0 ? total / seconds : 0,
+                everyone > 0 ? Math.Min(100.0, 100.0 * total / everyone) : 0));
+        }
+
+        rows = rows.OrderByDescending(r => r.Total).ToList();
+        long all = rows.Sum(r => r.Total);
+        double span = (damage.Max(e => e.Timestamp) - damage.Min(e => e.Timestamp)).TotalSeconds;
+        rows.Insert(0, new TargetRow(loc["Details.Col.All"], all, span > 0 ? all / span : 0, 0));
+        TargetsGrid.ItemsSource = rows;
+        TargetsGrid.Visibility = Visibility.Visible;
+    }
+
+    private double[] _curve = Array.Empty<double>();
+    private double _curveStep = 1;
+    private DateTime _curveStart;
+
+    /// <summary>The damage per second (per few seconds over a long span) from the first to the last
+    /// event: the data for the curve under the tables.</summary>
+    private void DrawCurve(IReadOnlyList<DamageEvent> events)
+    {
+        if (events.Count < 2)
+        {
+            CurvePanel.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        DateTime first = events.Min(e => e.Timestamp);
+        double span = (events.Max(e => e.Timestamp) - first).TotalSeconds;
+        if (span < 2)
+        {
+            CurvePanel.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        _curveStep = Math.Max(1, Math.Ceiling(span / 300));
+        var buckets = new double[(int)Math.Floor(span / _curveStep) + 1];
+        foreach (DamageEvent e in events)
+        {
+            buckets[(int)Math.Floor((e.Timestamp - first).TotalSeconds / _curveStep)] += e.Amount / _curveStep;
+        }
+
+        _curve = buckets;
+        _curveStart = first;
+        CurveTitle.Text = LocalizationManager.Instance["Details.Curve"];
+        CurveStartText.Text = "00:00";
+        CurveEndText.Text = TimeSpan.FromSeconds(span).ToString(span >= 3600 ? @"h\:mm\:ss" : @"mm\:ss");
+        CurveMaxText.Text = Combat_Compact((long)buckets.Max());
+        RedrawCurve();
+    }
+
+    private static string Combat_Compact(long value) => PlayerRow.Compact(value);
+
+    private void OnCurveSizeChanged(object sender, SizeChangedEventArgs e) => RedrawCurve();
+
+    private void RedrawCurve()
+    {
+        CurveCanvas.Children.Clear();
+        double width = CurveCanvas.ActualWidth, height = CurveCanvas.ActualHeight;
+        if (_curve.Length < 2 || width < 10 || height < 10)
+        {
+            return;
+        }
+
+        double max = Math.Max(_curve.Max(), 1);
+        double usable = height - 16;
+        var points = new PointCollection();
+        for (int i = 0; i < _curve.Length; i++)
+        {
+            points.Add(new Point(width * i / (_curve.Length - 1), height - 12 - usable * _curve[i] / max));
+        }
+
+        var area = new PointCollection(points) { new Point(width, height - 12), new Point(0, height - 12) };
+        var fill = new System.Windows.Shapes.Polygon { Points = area, Opacity = 0.18 };
+        fill.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Brush.Accent");
+        var line = new System.Windows.Shapes.Polyline { Points = points, StrokeThickness = 1.6, StrokeLineJoin = PenLineJoin.Round };
+        line.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.Accent");
+        CurveCanvas.Children.Add(fill);
+        CurveCanvas.Children.Add(line);
     }
 }

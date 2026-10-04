@@ -159,6 +159,19 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-details")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS render-details <out.png>");
+                Console.WriteLine("  Draws a player's details window with sample hits into a picture; no window is shown.");
+                return;
+            }
+
+            RunRenderDetailsMode(args[1]);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-upload-dryrun")
         {
             if (args.Length < 2)
@@ -347,6 +360,51 @@ internal static class Program
         {
             Console.WriteLine($"  {source.Entities.NameFor(actor.Key) ?? actor.Key.ToString(),-22} damage {actor.Sum(e => e.Amount),9:N0}  hits {actor.Count(),4}");
         }
+    }
+
+    /// <summary>Renders a player's details window with generated hits to a PNG, never showing a window.</summary>
+    private static void RunRenderDetailsMode(string path)
+    {
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var random = new Random(7);
+        var events = new List<Combat.DamageEvent>();
+        DateTime start = new(2026, 10, 4, 12, 0, 0, DateTimeKind.Local);
+        (string Skill, int Id, int Weight)[] skills = { ("Blaze", 11000000, 5), ("Hellfire", 11100000, 2), ("Cold Wave", 12000000, 9), ("Ice Chain", 13000000, 9), ("Bittercold Wind", 15280000, 20) };
+        for (int t = 0; t < 75; t++)
+        {
+            double burst = t is > 28 and < 36 ? 3.5 : 1.0;
+            for (int k = 0; k < (int)(2 * burst); k++)
+            {
+                var skill = skills[random.Next(skills.Length)];
+                int target = random.Next(5) == 0 ? 2 : 1;
+                events.Add(new Combat.DamageEvent(start.AddSeconds(t + random.NextDouble()), 5, target, random.Next(300, 3000) * (skill.Weight > 8 ? 1 : 3), false, skill.Skill, random.Next(5) == 0, SkillId: skill.Id));
+            }
+        }
+
+        var all = events.Concat(events.Select(e => e with { SourceObjectId = 6, Amount = e.Amount / 2 })).ToList();
+        var window = new Ui.PlayerDetailsWindow("Wakayashi", "Sorcerer", "", events, id => id == 1 ? "Training Scarecrow" : "Elite Guard", fightEvents: all);
+        const double width = 860, height = 680;
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(width, height));
+        content.Arrange(new System.Windows.Rect(0, 0, width, height));
+        content.UpdateLayout();
+        content.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)width, (int)height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-details: wrote " + path);
+        Environment.Exit(0);
     }
 
     /// <summary>Renders the compact overlay panel with a few sample rows to a PNG, never showing a window.</summary>

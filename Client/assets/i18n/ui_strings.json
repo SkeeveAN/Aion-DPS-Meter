@@ -1400,5 +1400,85 @@
     "pl": "Korpus",
     "tr": "Birlik",
     "zh": "军团"
+  },
+  "Details.Col.Target": {
+    "en": "Target",
+    "de": "Kampfziel",
+    "fr": "Cible",
+    "es": "Objetivo",
+    "ru": "Цель",
+    "pl": "Cel",
+    "tr": "Hedef",
+    "zh": "目标"
+  },
+  "Details.Col.Total": {
+    "en": "Total damage",
+    "de": "Gesamtschaden",
+    "fr": "Dégâts totaux",
+    "es": "Daño total",
+    "ru": "Весь урон",
+    "pl": "Łączne obrażenia",
+    "tr": "Toplam hasar",
+    "zh": "总伤害"
+  },
+  "Details.Col.Dps": {
+    "en": "DPS",
+    "de": "DPS",
+    "fr": "DPS",
+    "es": "DPS",
+    "ru": "DPS",
+    "pl": "DPS",
+    "tr": "DPS",
+    "zh": "DPS"
+  },
+  "Details.Col.Share": {
+    "en": "Share %",
+    "de": "Beitrag %",
+    "fr": "Part %",
+    "es": "Aporte %",
+    "ru": "Вклад %",
+    "pl": "Udział %",
+    "tr": "Pay %",
+    "zh": "占比 %"
+  },
+  "Details.Col.All": {
+    "en": "Total",
+    "de": "Gesamt",
+    "fr": "Total",
+    "es": "Total",
+    "ru": "Итого",
+    "pl": "Razem",
+    "tr": "Toplam",
+    "zh": "合计"
+  },
+  "Details.Tile.Hits": {
+    "en": "HITS",
+    "de": "TREFFER",
+    "fr": "COUPS",
+    "es": "GOLPES",
+    "ru": "УДАРЫ",
+    "pl": "TRAFIENIA",
+    "tr": "VURUŞ",
+    "zh": "命中"
+  },
+  "Details.Tile.Crit": {
+    "en": "CRIT",
+    "de": "KRIT",
+    "fr": "CRIT",
+    "es": "CRÍT",
+    "ru": "КРИТ",
+    "pl": "KRYT",
+    "tr": "KRİTİK",
+    "zh": "暴击"
+  },
+  "Details.Curve": {
+    "en": "Damage over time (per second)",
+    "de": "DPS-Kurve (Schaden pro Sekunde)",
+    "fr": "Courbe de DPS (dégâts par seconde)",
+    "es": "Curva de DPS (daño por segundo)",
+    "ru": "Кривая DPS (урон в секунду)",
+    "pl": "Krzywa DPS (obrażenia na sekundę)",
+    "tr": "DPS eğrisi (saniyede hasar)",
+    "zh": "DPS 曲线（每秒伤害）"
   }
 }

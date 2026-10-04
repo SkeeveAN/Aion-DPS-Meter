@@ -1,7 +1,7 @@
 <Window x:Class="AionDPS.Ui.PlayerDetailsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Character Details" Height="460" Width="720"
+        Title="Character Details" Height="680" Width="860"
         xmlns:local="clr-namespace:AionDPS.Ui"
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" WindowStartupLocation="CenterOwner"
         FontSize="{DynamicResource FontSize.Base}">
@@ -77,17 +77,59 @@
                 </Border>
                 <Border Style="{StaticResource StatTile}">
                     <StackPanel>
+                        <TextBlock Text="{local:Loc Details.Tile.Hits}" Style="{StaticResource StatTileLabel}"/>
+                        <TextBlock x:Name="HitsTileText" Style="{StaticResource StatTileValue}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatTile}">
+                    <StackPanel>
                         <TextBlock Text="HITS/S" Style="{StaticResource StatTileLabel}"/>
                         <TextBlock x:Name="HitsPerSecTileText" Style="{StaticResource StatTileValue}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatTile}">
+                    <StackPanel>
+                        <TextBlock Text="{local:Loc Details.Tile.Crit}" Style="{StaticResource StatTileLabel}"/>
+                        <TextBlock x:Name="CritTileText" Style="{StaticResource StatTileValue}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
             <TextBlock x:Name="SummaryText" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,8,0,0"/>
         </StackPanel>
 
+        <!-- The damage over time, per second (a coarser step for a long span): where the fight
+             peaked and where it went quiet. Drawn in code (DrawCurve). -->
+        <Border x:Name="CurvePanel" DockPanel.Dock="Bottom" Height="150" Margin="0,8,0,0" Background="{DynamicResource Brush.Panel}"
+                BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" CornerRadius="4" Padding="8,4">
+            <DockPanel>
+                <TextBlock x:Name="CurveTitle" DockPanel.Dock="Top" FontSize="11" Foreground="{DynamicResource Brush.TextMuted}"/>
+                <Grid>
+                    <Canvas x:Name="CurveCanvas" ClipToBounds="True" SizeChanged="OnCurveSizeChanged"/>
+                    <TextBlock x:Name="CurveMaxText" FontSize="10" Foreground="{DynamicResource Brush.TextSubtle}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <TextBlock x:Name="CurveStartText" FontSize="10" Foreground="{DynamicResource Brush.TextSubtle}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                    <TextBlock x:Name="CurveEndText" FontSize="10" Foreground="{DynamicResource Brush.TextSubtle}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                </Grid>
+            </DockPanel>
+        </Border>
+
         <!-- Says where the crit column's numbers come from: the game server flags every crit. -->
         <TextBlock x:Name="CritNoteText" DockPanel.Dock="Bottom" Foreground="{DynamicResource Brush.TextMuted}"
                    TextWrapping="Wrap" Margin="0,8,0,0" FontStyle="Italic"/>
+
+        <!-- Damage per target: one line per monster this player hit, with the player's share of all
+             damage on it, and a total line on top. -->
+        <DataGrid x:Name="TargetsGrid" DockPanel.Dock="Top" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="130" Margin="0,0,0,8"
+                  Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
+                  AlternatingRowBackground="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
+                  HorizontalGridLinesBrush="{DynamicResource Brush.Border}" GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column" CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{local:Loc Details.Col.Target}" Binding="{Binding Name}" Width="*" MinWidth="160"/>
+                <DataGridTextColumn Header="{local:Loc Details.Col.Total}" Binding="{Binding Total, StringFormat=N0}" Width="110"/>
+                <DataGridTextColumn Header="{local:Loc Details.Col.Dps}" Binding="{Binding Dps, StringFormat=N0}" Width="90"/>
+                <DataGridTextColumn Header="{local:Loc Details.Col.Share}" Binding="{Binding ShareDisplay}" Width="90"/>
+            </DataGrid.Columns>
+        </DataGrid>
 
         <DataGrid x:Name="SkillsGrid" AutoGenerateColumns="False" IsReadOnly="True"
                   Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
@@ -99,7 +141,7 @@
                      rank-suffixed, EN/DE/FR) skill name via SkillDatabase.FindByLocalizedName and
                      falls back to no image (Image just collapses to its blank space) for anything
                      the database doesn't recognise, rather than showing a broken-image glyph. -->
-                <DataGridTemplateColumn Header="Skill" Width="*" SortMemberPath="Skill">
+                <DataGridTemplateColumn Header="Skill" Width="*" MinWidth="200" SortMemberPath="Skill">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
