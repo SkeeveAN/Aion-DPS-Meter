@@ -16,6 +16,7 @@ const SUPPORTED_CODES = LOCALES.map((l) => l.code);
 
 const TRANSLATIONS = {
   de: {
+    "profile.levelShort": "St.",
     "profile.tier": "Stufe",
     "player.openProfile": "Charakterprofil öffnen",
     "footer.disclaimer": "Aion 2 und alle zugehörigen Namen, Texte und Grafiken sind Eigentum von NCSOFT. Aion DPS steht in keiner Verbindung zu NCSOFT. Der Quellcode steht unter der MIT-Lizenz.",
@@ -289,6 +290,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "vor {count} T.",
   },
   en: {
+    "profile.levelShort": "Lv.",
     "profile.tier": "Tier",
     "player.openProfile": "Open character profile",
     "footer.disclaimer": "Aion 2 and all related names, texts and artwork are the property of NCSOFT. Aion DPS is not affiliated with NCSOFT. The source code is released under the MIT License.",
@@ -562,6 +564,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count}d ago",
   },
   fr: {
+    "profile.levelShort": "Niv.",
     "profile.tier": "Palier",
     "profile.classLevel": "{className} · Niveau {level}",
     "profile.guild": "Légion",
@@ -820,6 +823,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "il y a {count} j",
   },
   es: {
+    "profile.levelShort": "Niv.",
     "profile.tier": "Rango",
     "profile.classLevel": "{className} · Nivel {level}",
     "profile.guild": "Legión",
@@ -1078,6 +1082,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "hace {count} d",
   },
   ru: {
+    "profile.levelShort": "Ур.",
     "profile.tier": "Ступень",
     "profile.classLevel": "{className} · Уровень {level}",
     "profile.guild": "Легион",
@@ -1336,6 +1341,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count} дн. назад",
   },
   pl: {
+    "profile.levelShort": "Poz.",
     "profile.tier": "Stopień",
     "profile.classLevel": "{className} · Poziom {level}",
     "profile.guild": "Legion",
@@ -1594,6 +1600,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count} dni temu",
   },
   tr: {
+    "profile.levelShort": "Sv.",
     "profile.tier": "Kademe",
     "profile.classLevel": "{className} · Seviye {level}",
     "profile.guild": "Lejyon",
@@ -1852,6 +1859,7 @@ const TRANSLATIONS = {
     "time.daysAgo": "{count} gün önce",
   },
   zh: {
+    "profile.levelShort": "Lv.",
     "profile.tier": "阶",
     "profile.classLevel": "{className} · 等级 {level}",
     "profile.guild": "军团",

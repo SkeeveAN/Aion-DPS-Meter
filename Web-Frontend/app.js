@@ -1504,7 +1504,7 @@ function renderSkillsTab(profile) {
         list.map((s) => {
           const name = localizedSkillName(s);
           const tile = el("div", { className: "pf-skill" }, [
-            iconTile("skill", s.icon, name, { color: s.passive ? "#e8665a" : "#4aa3e8", badge: s.level, badgeClass: s.level > s.baseLevel ? "bonus" : "" }),
+            iconTile("skill", s.icon, name, { color: s.passive ? "#3fcf55" : "#f0a030", badge: `${t("profile.levelShort")} ${s.level}`, badgeClass: s.level > s.baseLevel ? "bonus" : "" }),
             el("span", { className: "pf-skill-name", textContent: name }),
           ]);
           attachTooltip(tile, () => [
@@ -1519,33 +1519,47 @@ function renderSkillsTab(profile) {
     ]);
   return el("div", { className: "pf-skills" }, [
     section(t("profile.skillsActive"), profile.skills.filter((s) => !s.passive), "active"),
-    section(t("profile.skillsPassive"), profile.skills.filter((s) => s.passive), "passive"),
+    // ids like 11000000 are the class's weapon-equip entry, not a skill the player trains
+    section(t("profile.skillsPassive"), profile.skills.filter((s) => s.passive && s.id % 1000000 !== 0), "passive"),
     el("p", { className: "profile-source" }, [el("i", { className: "pf-key bonus" }), ` ${t("profile.legendBonus")}`]),
   ]);
 }
 
+// The board tiles are the game's own node art, picked by the node's rarity (common = grey rune, rare =
+// blue, legend = green, unique = orange); a node that is not unlocked uses the dark "disabled" variant.
+const NODE_ART = { 1: "common", 2: "rare", 3: "legend", 4: "unique" };
+
 function boardView(board, skillsById) {
-  const grid = Array.from({ length: 15 * 15 }, () => el("i", { className: "pf-cell empty" }));
-  for (const [row, col, kind, skillId, active] of board.cells) {
-    if (row < 1 || row > 15 || col < 1 || col > 15) {
-      continue;
-    }
-    const cell = el("i", { className: `pf-cell ${["start", "stat", "skill"][kind]}${active ? " on" : ""}` });
-    if (kind === 2) {
-      const skill = skillsById.get(skillId);
-      const name = skill ? localizedSkillName(skill) : String(skillId);
-      cell.append(iconTile("skill", skill?.icon ?? null, name, { color: skill?.passive ? "#3d9a35" : "#2f6fa8" }));
-      attachTooltip(cell, () => [el("div", { className: "pf-tip-head" }, [el("div", { className: "pf-tip-title", textContent: name }), el("div", { className: "pf-tip-sub", textContent: t("profile.legendSkill") })])]);
-    }
-    grid[(row - 1) * 15 + (col - 1)] = cell;
+  const rows = board.cells.map((c) => c[0]);
+  const cols = board.cells.map((c) => c[1]);
+  const [r0, r1, c0, c1] = [Math.min(...rows), Math.max(...rows), Math.min(...cols), Math.max(...cols)];
+  const width = c1 - c0 + 1;
+  const grid = Array.from({ length: (r1 - r0 + 1) * width }, () => el("i", { className: "pf-cell empty" }));
+  for (const [row, col, kind, ref, active, grade, value] of board.cells) {
+    const art = kind === 0 ? "start" : (NODE_ART[grade] ?? "common") + (active ? "" : "-off");
+    const cell = el("i", { className: `pf-cell${active ? " on" : ""}` }, [el("img", { src: `/images/aion2/daevanion/${art}.webp`, alt: "", loading: "lazy" })]);
+    attachTooltip(cell, () => {
+      let title = t("profile.legendStart");
+      let sub = "";
+      if (kind === 1) {
+        title = `${statLabel(ref)} +${value}`;
+        sub = t("profile.legendStat");
+      } else if (kind === 2) {
+        const skill = skillsById.get(ref);
+        title = skill ? localizedSkillName(skill) : String(ref);
+        sub = `${t("profile.legendSkill")} +${value}`;
+      }
+      return [el("div", { className: "pf-tip-head" }, [el("div", { className: "pf-tip-title", textContent: title }), sub ? el("div", { className: "pf-tip-sub", textContent: sub }) : null].filter((x) => x != null))];
+    });
+    grid[(row - r0) * width + (col - c0)] = cell;
   }
-  return el("div", { className: "pf-board" }, grid);
+  return el("div", { className: "pf-board", style: `--cols:${width}` }, grid);
 }
 
 function renderBoardTab(profile) {
   const skillsById = new Map(profile.skills.map((s) => [s.id, s]));
   const holder = el("div", { className: "pf-board-wrap" });
-  const buttons = profile.daevanion.map((b, i) => {
+  const buttons = profile.daevanion.map((b) => {
     const total = b.cells.filter((c) => c[2] !== 0).length;
     return el("button", { type: "button", className: "pf-pill" }, [b.name, el("b", { textContent: ` ${b.activeNodes} / ${total || "?"}` })]);
   });
@@ -1559,13 +1573,7 @@ function renderBoardTab(profile) {
       .join(", ");
     holder.replaceChildren(
       boardView(b, skillsById),
-      el("div", { className: "pf-legend" }, [
-        el("span", {}, [el("i", { className: "lg start" }), t("profile.legendStart")]),
-        el("span", {}, [el("i", { className: "lg skill" }), t("profile.legendSkill")]),
-        el("span", {}, [el("i", { className: "lg stat" }), t("profile.legendStat")]),
-        el("span", {}, [el("i", { className: "lg off" }), t("profile.legendLocked")]),
-      ]),
-      bonuses ? el("p", { className: "pf-sub", textContent: `${t("profile.skillBonuses", { list: bonuses })}` }) : null,
+      bonuses ? el("p", { className: "pf-sub", textContent: t("profile.skillBonuses", { list: bonuses }) }) : null,
       stats ? el("p", { className: "pf-sub small", textContent: stats }) : null,
     );
   };

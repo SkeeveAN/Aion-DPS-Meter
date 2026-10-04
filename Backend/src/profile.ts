@@ -90,6 +90,7 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
   }
 }
 
+const NODE_GRADE: Record<string, number> = { Common: 1, Rare: 2, Legend: 3, Unique: 4 };
 type ItemInfo = [string, string, number, number, number]; // name, slot, grade, tier, item level
 type DaevanionData = {
   boards: Record<string, [string, string]>;
@@ -132,8 +133,12 @@ export type ProfileView = {
     knownNodes: number;
     stats: Record<string, number>;
     skillBonuses: { id: number; name: string; names?: Record<string, string>; value: number }[];
-    /** Every node of the board map: [row, col, kind, skillId, active] (1-based; kind 0 start, 1 stat, 2 skill level; skillId only for kind 2, else 0; active 1/0). */
-    cells: [number, number, number, number, number][];
+    /**
+     * Every node of the board map: [row, col, kind, ref, active, grade, value] (1-based; kind 0 start,
+     * 1 stat, 2 skill level; ref is the stat token (kind 1) or skill id (kind 2); active 1/0; grade 1
+     * common, 2 rare, 3 legend, 4 unique; value is the stat amount or skill levels).
+     */
+    cells: [number, number, number, string | number, number, number, number][];
   }[];
 };
 
@@ -189,10 +194,11 @@ export function buildProfileView(playerId: number): ProfileView | null {
     const bonuses = new Map<number, number>();
     let active = 0;
     let knownNodes = 0;
-    const cells: [number, number, number, number, number][] = [];
+    const cells: [number, number, number, string | number, number, number, number][] = [];
     const activeIds = new Set(b.nodes);
     for (const { id, node } of boardNodes!.get(b.board) ?? []) {
-      cells.push([node[1], node[2], node[4] === "Start" ? 0 : node[4] === "SkillLevel" ? 2 : 1, node[4] === "SkillLevel" ? Number(node[5]) : 0, activeIds.has(id) ? 1 : 0]);
+      const kind = node[4] === "Start" ? 0 : node[4] === "SkillLevel" ? 2 : 1;
+      cells.push([node[1], node[2], kind, kind === 2 ? Number(node[5]) : kind === 1 ? node[5] : 0, activeIds.has(id) ? 1 : 0, NODE_GRADE[node[3]] ?? 0, node[6]]);
     }
     for (const id of b.nodes) {
       const node = daevanion!.nodes[String(id)];

@@ -65,7 +65,7 @@ const selfProfile = {
     { id: 11010340, level: 12, baseLevel: 10 }, // its variant - not listed twice
     { id: 11730000, level: 11, baseLevel: 10 },
   ],
-  daevanion: [{ board: 11, nodes: [110113, 110033, 110065, 999999999] }], // start, HP node, Rending Blow +1, unknown
+  daevanion: [{ board: 11, nodes: [110113, 110065, 110095, 999999999] }], // start, HP node, Rending Blow +1, unknown
 };
 
 function playerId(name: string): number {
@@ -102,6 +102,9 @@ test("the profile resolves item names, enchants, skill levels and Daevanion effe
   assert.equal(nezekan.knownNodes, 2);
   assert.equal(nezekan.stats.HPMax, 100);
   assert.deepEqual(nezekan.skillBonuses.map((b) => [b.name, b.value]), [["Rending Blow", 1]]);
+  // The map carries every node of the board (locked ones too), with the unlocked ones flagged.
+  assert.equal(nezekan.cells.length, 89); // 88 nodes + the start node
+  assert.equal(nezekan.cells.filter((c) => c[4] === 1).length, 3); // start + the two known nodes
 });
 
 test("a profile merely seen on another player never replaces the player's own, and empty ones are dropped", () => {

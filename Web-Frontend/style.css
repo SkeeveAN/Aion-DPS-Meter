@@ -2077,10 +2077,10 @@ header .wordmark {
   margin-right: 8px;
 }
 .pf-dot.active {
-  background: #4aa3e8;
+  background: #f0a030;
 }
 .pf-dot.passive {
-  background: #e8665a;
+  background: #3fcf55;
 }
 .pf-key {
   display: inline-block;
@@ -2118,13 +2118,13 @@ header .wordmark {
   margin-bottom: 1rem;
 }
 .pf-board-wrap {
-  max-width: 960px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 .pf-board {
   display: grid;
-  grid-template-columns: repeat(15, 1fr);
-  gap: 5px;
+  grid-template-columns: repeat(var(--cols, 11), 1fr);
+  gap: 6px;
   padding: 14px;
   background: color-mix(in srgb, var(--color-background) 70%, #000);
   border: 1px solid var(--color-border);
@@ -2134,68 +2134,21 @@ header .wordmark {
   position: relative;
   display: block;
   aspect-ratio: 1;
-  border-radius: 8px;
 }
 .pf-cell.empty {
   visibility: hidden;
 }
-.pf-cell.stat {
-  background: linear-gradient(145deg, #6e695c, #3f3d38);
-  border: 2px solid #8c8676;
-}
-.pf-cell.stat::after {
-  content: "";
-  position: absolute;
-  inset: 24%;
-  border-radius: 3px;
-  border: 2px solid #e7dfc4;
-  opacity: 0.55;
-}
-.pf-cell.start {
-  background: radial-gradient(circle, #e0762a, #6a2c08);
-  border: 3px solid #a9892a;
-}
-.pf-cell.skill .pf-ico {
-  position: absolute;
-  inset: 0;
-  aspect-ratio: auto;
-  border-width: 3px;
-}
-.pf-cell:not(.on):not(.empty) {
-  opacity: 0.3;
-  filter: grayscale(0.85);
+.pf-cell img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .pf-cell.on {
-  box-shadow: 0 0 10px color-mix(in srgb, var(--color-primary) 22%, transparent);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-primary) 30%, transparent));
 }
-.pf-legend {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  margin-top: 10px;
-}
-.pf-legend .lg {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  margin-right: 6px;
-  vertical-align: -1px;
-}
-.pf-legend .lg.start {
-  background: #a9892a;
-}
-.pf-legend .lg.skill {
-  background: #2f6fa8;
-}
-.pf-legend .lg.stat {
-  background: #6e695c;
-}
-.pf-legend .lg.off {
-  background: #555;
-  opacity: 0.5;
+.pf-cell:hover {
+  filter: brightness(1.25);
 }
 
 /* Tooltip (items, skills, board nodes). */
