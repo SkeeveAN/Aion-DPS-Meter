@@ -563,7 +563,9 @@ internal static class Program
         Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
         var entries = (System.Collections.IList)type.GetField("_mobBossEntries", flags)!.GetValue(window)!;
         var build = type.GetMethod("BuildEncounterUpload", flags, null, new[] { typeof(int), typeof(string), typeof(string) }, null)!;
-        string fingerprint = "aion2:" + serverName.ToLowerInvariant().Replace(' ', '-');
+        // The same slug the meter files real uploads under (MainWindow.ServerSlug): "Europe - Kaisinel" is
+        // aion2:europe-kaisinel. A plain space-to-dash replace gave "europe---kaisinel" and a second server row.
+        string fingerprint = "aion2:" + System.Text.RegularExpressions.Regex.Replace(serverName.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
 
         // The meter clears its rows at a later map change, and an upload is built from the rows - so
         // like a real user, build while playing (after every step) and keep the fullest result per boss.
