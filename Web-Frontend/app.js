@@ -265,7 +265,7 @@ async function renderHome() {
 
   const recentActivity = (await fetchJson("/api/activity/recent?game=aion2&limit=6").catch(() => []))
     .map((r) => ({ ...r, game: "aion2" }))
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    .sort((a, b) => parseServerTime(b.createdAt) - parseServerTime(a.createdAt));
   const recentActivitySectionEl = recentActivity.length > 0 ? buildRecentActivitySection(recentActivity) : null;
 
   // Leaderboard + recent activity side by side 50/50 (per the user, 2026-09-24). The homepage
@@ -1088,10 +1088,18 @@ function formatDuration(totalSeconds) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+// The database stamps its own columns (createdAt, updatedAt) as UTC "2026-10-04 15:35:14", without a zone: a
+// browser reads that as LOCAL time, which made a fresh run look two hours old in Germany. Everything the API
+// sends as a timestamp goes through this.
+function parseServerTime(value) {
+  const text = String(value);
+  return new Date(/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/.test(text) ? `${text.replace(" ", "T")}Z` : text);
+}
+
 // "vor 2h" style relative time for the homepage's recent-activity feed - real elapsed time from
 // the encounter's own createdAt, never a made-up freshness label.
 function formatRelativeTime(iso) {
-  const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  const minutes = Math.round((Date.now() - parseServerTime(iso).getTime()) / 60000);
   if (minutes < 1) {
     return t("time.justNow");
   }
@@ -1687,7 +1695,7 @@ async function renderPlayerProfile(playerId) {
   const wanted = tabs.findIndex(([id]) => id === location.hash.slice(1));
 
   const source = profile
-    ? el("p", { className: "profile-source", textContent: t(profile.source === "self" ? "profile.sourceSelf" : "profile.sourceSeen", { date: formatDate(new Date(`${profile.updatedAt.replace(" ", "T")}Z`)) }) })
+    ? el("p", { className: "profile-source", textContent: t(profile.source === "self" ? "profile.sourceSelf" : "profile.sourceSeen", { date: formatDate(parseServerTime(profile.updatedAt)) }) })
     : null;
   app.replaceChildren(
     el("div", { className: "pf-hero" }, [strip, tabs.length > 1 ? el("div", { className: "pf-tabs", role: "tablist" }, buttons) : null].filter((x) => x != null)),
