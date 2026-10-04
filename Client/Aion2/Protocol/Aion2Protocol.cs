@@ -52,6 +52,8 @@ public enum OpcodeFamily
     /// <summary>The local player's skills that have specialisation variants: the five-variant ones are the
     /// stigmas (login).</summary>
     Stigmas,
+    /// <summary>The local player's skill bar (the three macro pages) at login: which skills sit on it.</summary>
+    SkillBar,
     /// <summary>Another player's character window ("inspect"): name, class, level, combat power, legion and the
     /// full equipment with enchant levels. Sent when the local player opens that player's profile.</summary>
     Inspect,

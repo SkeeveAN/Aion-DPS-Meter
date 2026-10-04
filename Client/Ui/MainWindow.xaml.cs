@@ -3220,7 +3220,7 @@ public partial class MainWindow : Window
                 known ? code / 4 : null,
                 known ? code % 4 : null,
                 directory.LocalEquipment.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
-                directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel, s.Stigma)).ToList(),
+                directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
                 directory.LocalDaevanion.Select(b => new ProfileBoardUpload(b.BoardId, b.NodeIds.ToList())).ToList());
         }
 

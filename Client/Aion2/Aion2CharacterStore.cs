@@ -17,7 +17,7 @@ public sealed class Aion2SavedCharacter
 
     public sealed record SavedItem(int Slot, int ItemId, int Enchant);
 
-    public sealed record SavedSkill(int Id, int Level, int BaseLevel, bool Stigma = false);
+    public sealed record SavedSkill(int Id, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
 
     public sealed record SavedBoard(int Board, List<int> Nodes);
 }

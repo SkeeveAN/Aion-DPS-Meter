@@ -44,7 +44,7 @@
          runtime (see MainWindow's constructor) and the installer takes it from the git tag the release
          workflow was triggered by, so a build can always be identified from a screenshot. Keep in
          step with the release tag. -->
-    <Version>0.10.21</Version>
+    <Version>0.10.22</Version>
   </PropertyGroup>
 
   <!-- UseWindowsForms's own implicit-usings set adds a PROJECT-WIDE global "using

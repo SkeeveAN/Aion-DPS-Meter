@@ -140,6 +140,9 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.Stigmas:
                 DecodeStigmas(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.SkillBar:
+                DecodeSkillBar(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Inspect:
                 DecodeInspect(frame, timestamp);
                 return Array.Empty<DamageEvent>();
@@ -1026,6 +1029,57 @@ public sealed class Aion2FrameDecoder
         if (listed.Count > 0)
         {
             _entities.SetLocalStigmas(stigmas, listed);
+        }
+    }
+
+    /// <summary>
+    /// The skill bar (login): records of <c>03 | macro page (1-3) | slot | main skill id (u32) | 04 | the skill
+    /// ids that can sit in that slot</c> (u32 each; variants of a skill have the same first five digits).
+    /// The first macro page is what the skill window shows; its base skill ids are the equipped skills.
+    /// </summary>
+    private void DecodeSkillBar(ReadOnlySpan<byte> frame)
+    {
+        IReadOnlyDictionary<int, string> names = Aion2SkillNames.Load();
+        var equipped = new HashSet<int>();
+        for (int i = 2; i + 12 < frame.Length; i++)
+        {
+            if (frame[i] != 3 || frame[i + 1] != 1 || frame[i + 7] != 4)
+            {
+                continue;
+            }
+
+            int main = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(i + 3)..]));
+            if (main < 1_000_000 || !names.ContainsKey(main))
+            {
+                continue;
+            }
+
+            for (int j = i + 8; j + 4 <= frame.Length; j += 4)
+            {
+                int id = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[j..]));
+                if (id < 1_000_000 || !names.ContainsKey(id))
+                {
+                    break;
+                }
+
+                equipped.Add(id / 10000 * 10000);
+            }
+        }
+
+        if (equipped.Count > 0)
+        {
+            // The key bound to the class's break-free skill ("Defiance", one per class) is not in the bar
+            // frame; it is always on the bar (level 13 on the Space key in the checked character).
+            int classPrefix = equipped.First() / 1_000_000;
+            foreach ((int id, string name) in names)
+            {
+                if (name == "Defiance" && id % 10000 == 0 && id / 1_000_000 == classPrefix)
+                {
+                    equipped.Add(id);
+                }
+            }
+
+            _entities.SetLocalBar(equipped);
         }
     }
 

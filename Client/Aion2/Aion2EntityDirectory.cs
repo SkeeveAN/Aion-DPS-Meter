@@ -7,7 +7,7 @@ public sealed record Aion2EquippedItem(int SlotIndex, int ItemId, int Enchant = 
 
 /// <summary>One learned skill: total level (what the game shows) and the trained base level; the
 /// difference is a bonus from gear or other sources.</summary>
-public sealed record Aion2SkillEntry(int SkillId, int Level, int BaseLevel, bool Stigma = false);
+public sealed record Aion2SkillEntry(int SkillId, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
 
 /// <summary>What the "player appeared" frame says about another player: class and faction (decoded
 /// from its class code) and the visible equipment (no enchant levels in that list).</summary>
@@ -153,7 +153,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             var equipment = saved.Equipment.Select(i => new Aion2EquippedItem(i.Slot, i.ItemId, i.Enchant)).ToList();
             _character = new Aion2CharacterInfo(-1, saved.Name, saved.ClassCode, saved.Level, equipment, saved.SavedAt, Restored: true, ServerId: saved.ServerId);
             _fullEquipment = equipment;
-            _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma)).ToList();
+            _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList();
             _daevanion = saved.Daevanion.Select(b => new Aion2DaevanionBoard(b.Board, b.Nodes)).ToList();
         }
     }
@@ -176,7 +176,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 ServerId = c.ServerId,
                 SavedAt = DateTime.Now,
                 Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
-                Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma)).ToList(),
+                Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
                 Daevanion = (_daevanion ?? Array.Empty<Aion2DaevanionBoard>()).Select(b => new Aion2SavedCharacter.SavedBoard(b.BoardId, b.NodeIds.ToList())).ToList(),
             };
         }
@@ -250,7 +250,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             // went missing after one): what an earlier list had and the new one lacks is kept, what the
             // new one has wins.
             var merged = (_skills ?? Array.Empty<Aion2SkillEntry>()).Where(old => skills.All(s => s.SkillId != old.SkillId)).Concat(skills);
-            _skills = merged.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId) }).ToList();
+            _skills = merged.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId), Equipped = _bar.Contains(s.SkillId) }).ToList();
         }
 
         NotifyCharacterChanged();
@@ -270,6 +270,25 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             if (_skills is not null)
             {
                 _skills = _skills.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId) }).ToList();
+            }
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    private readonly HashSet<int> _bar = new();
+
+    /// <summary>The base skill ids on the first macro page of the skill bar (what the game's skill window
+    /// shows as equipped); replaces the previous bar, since the frame lists all of it.</summary>
+    public void SetLocalBar(IReadOnlySet<int> ids)
+    {
+        lock (_gate)
+        {
+            _bar.Clear();
+            _bar.UnionWith(ids);
+            if (_skills is not null)
+            {
+                _skills = _skills.Select(s => s with { Equipped = _bar.Contains(s.SkillId) }).ToList();
             }
         }
 
