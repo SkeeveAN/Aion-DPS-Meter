@@ -1932,7 +1932,8 @@ header .wordmark {
   aspect-ratio: 1;
   border-radius: 9px;
   border: 2px solid var(--ico-color);
-  background: var(--color-surface2);
+  /* The icon's transparent parts show the rarity colour, not the page blue. */
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--ico-color) 55%, #20170a), color-mix(in srgb, var(--ico-color) 22%, #0c0a08));
   overflow: hidden;
 }
 .pf-ico img {
