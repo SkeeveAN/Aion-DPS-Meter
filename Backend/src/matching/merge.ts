@@ -86,6 +86,22 @@ function bossesOfGame(game: Game) {
     .all();
 }
 
+/** Difficulty step encoded in a boss's NPC ids: the n-th id (ascending) of a Nightmare boss is level n. */
+export function modeFromNpcId(bossId: number, npcId: number): string {
+  const row = db
+    .select({ category: instances.category })
+    .from(bosses)
+    .innerJoin(instances, eq(bosses.instanceId, instances.id))
+    .where(eq(bosses.id, bossId))
+    .get();
+  if (row?.category !== "nightmare") {
+    return "";
+  }
+  const ids = db.select({ npcId: bossNpcIds.npcId }).from(bossNpcIds).where(eq(bossNpcIds.bossId, bossId)).all().map((r) => r.npcId).sort((a, b) => a - b);
+  const index = ids.indexOf(npcId);
+  return index < 0 ? "" : String(index + 1);
+}
+
 function resolveBossId(payload: UploadPayload): number {
   // Aion 2 clients know the NPC's numeric id, which is unambiguous where names are not (the same
   // boss name recurs across dungeons there) - so it wins whenever the boss is on file.
@@ -588,6 +604,11 @@ export function processUpload(payload: UploadPayload): ProcessResult {
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   payload = { ...payload, participants: mergeDuplicateParticipants(payload.participants, serverId) };
   const bossId = resolveBossId(payload);
+  // Nightmare bosses carry one NPC id per level (Pinopi 2980040 = level 1 ... 2980049 = level 10), so
+  // the level is read off the id when the client did not name it.
+  if (payload.mode === "" && payload.bossNpcId !== undefined) {
+    payload = { ...payload, mode: modeFromNpcId(bossId, payload.bossNpcId) };
+  }
   const candidateEncounterId = findCandidateEncounter(bossId, serverId, payload);
 
   if (candidateEncounterId) {

@@ -39,6 +39,8 @@ export interface Aion2Boss {
   npcIds: number[];
   level: number | null;
   internalName: string | null;
+  /** Names this boss was stored under before (e.g. the German placeholder), so a sync renames the row instead of adding a second one. */
+  legacyNames?: string[];
   /** True when the source dataset documents mechanics for this boss (i.e. it is a real encounter, not a named elite). */
   hasMechanics: boolean;
 }

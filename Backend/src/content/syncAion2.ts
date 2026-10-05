@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { bossMechanics, bossNpcIds, bosses, encounters, instances, uploads } from "../db/schema.js";
 import { loadAion2Content, type Aion2Mechanic } from "./aion2Content.js";
@@ -50,11 +50,11 @@ export function syncAion2Content(): { instances: number; bosses: number; npcIds:
     const existing = db
       .select({ id: bosses.id })
       .from(bosses)
-      .where(and(eq(bosses.instanceId, instanceId), eq(bosses.name, boss.name.en)))
+      .where(and(eq(bosses.instanceId, instanceId), inArray(bosses.name, [boss.name.en, ...(boss.legacyNames ?? [])])))
       .get();
     let bossId: number;
     if (existing) {
-      db.update(bosses).set({ nameEn: boss.name.en, slug: boss.slug }).where(eq(bosses.id, existing.id)).run();
+      db.update(bosses).set({ name: boss.name.en, nameEn: boss.name.en, slug: boss.slug }).where(eq(bosses.id, existing.id)).run();
       bossId = existing.id;
     } else {
       const inserted = db.insert(bosses).values({ instanceId, name: boss.name.en, nameEn: boss.name.en, slug: boss.slug, source: "derived", npcNameAliases: [] }).run();

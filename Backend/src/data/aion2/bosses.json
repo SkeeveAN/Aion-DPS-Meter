@@ -2736,93 +2736,205 @@
     {
       "key": "Albtraum:wurzelspeicher/torwaechter-pinopi",
       "instanceKey": "Albtraum:wurzelspeicher",
-      "slug": "torwaechter-pinopi",
+      "slug": "gatekeeper-pinopi",
       "name": {
-        "en": "Torwächter Pinopi",
-        "de": "Torwächter Pinopi"
+        "en": "Gatekeeper Pinopi",
+        "de": "Torwächter Pinopi",
+        "ko": "문지기 피노피",
+        "zh": "守門人皮諾彼"
       },
-      "npcIds": [],
+      "npcIds": [
+        2980040,
+        2980041,
+        2980042,
+        2980043,
+        2980044,
+        2980045,
+        2980046,
+        2980047,
+        2980048,
+        2980049
+      ],
       "level": 45,
-      "internalName": null,
-      "hasMechanics": false
+      "internalName": "NightMare_PinoBoss_01",
+      "hasMechanics": false,
+      "legacyNames": [
+        "Torwächter Pinopi"
+      ]
     },
     {
       "key": "Albtraum:verlies-von-dranactus/rasender-feruk",
       "instanceKey": "Albtraum:verlies-von-dranactus",
-      "slug": "rasender-feruk",
+      "slug": "furious-feruk",
       "name": {
-        "en": "Rasender Feruk",
-        "de": "Rasender Feruk"
+        "en": "Furious Feruk",
+        "de": "Rasender Feruk",
+        "ko": "광폭한 페르크",
+        "zh": "狂暴的佩爾克"
       },
-      "npcIds": [],
+      "npcIds": [
+        2980150,
+        2980151,
+        2980152,
+        2980153,
+        2980154,
+        2980155,
+        2980156,
+        2980157,
+        2980158,
+        2980159
+      ],
       "level": 45,
-      "internalName": null,
-      "hasMechanics": false
+      "internalName": "NightMare_Ferk_01",
+      "hasMechanics": false,
+      "legacyNames": [
+        "Rasender Feruk"
+      ]
     },
     {
       "key": "Albtraum:wurzel-des-heiligenbaums/fafnirs-giftblut",
       "instanceKey": "Albtraum:wurzel-des-heiligenbaums",
-      "slug": "fafnirs-giftblut",
+      "slug": "fafnirs-poison-blood",
       "name": {
-        "en": "Fafnirs Giftblut",
-        "de": "Fafnirs Giftblut"
+        "en": "Fafnir's Poison Blood",
+        "de": "Fafnirs Giftblut",
+        "ko": "파프니르의 독혈",
+        "zh": "法夫尼爾毒血"
       },
-      "npcIds": [],
+      "npcIds": [
+        2980240,
+        2980241,
+        2980242,
+        2980243,
+        2980244,
+        2980245,
+        2980246,
+        2980247,
+        2980248,
+        2980249
+      ],
       "level": 45,
-      "internalName": null,
-      "hasMechanics": false
+      "internalName": "NightMare_FafBlood_01B",
+      "hasMechanics": false,
+      "legacyNames": [
+        "Fafnirs Giftblut"
+      ]
     },
     {
       "key": "Albtraum:gruft/geist-giselle",
       "instanceKey": "Albtraum:gruft",
-      "slug": "geist-giselle",
+      "slug": "wraith-giselle",
       "name": {
-        "en": "Geist Giselle",
-        "de": "Geist Giselle"
+        "en": "Wraith Giselle",
+        "de": "Geist Giselle",
+        "ko": "망령 지젤",
+        "zh": "亡靈芝捷爾"
       },
-      "npcIds": [],
+      "npcIds": [
+        2980250,
+        2980251,
+        2980252,
+        2980253,
+        2980254,
+        2980255,
+        2980256,
+        2980257,
+        2980258,
+        2980259
+      ],
       "level": 45,
-      "internalName": null,
-      "hasMechanics": false
+      "internalName": "NightMare_Giselle_01",
+      "hasMechanics": false,
+      "legacyNames": [
+        "Geist Giselle"
+      ]
     },
     {
       "key": "Albtraum:untergrundfeste-der-zerstoerungsarchonen/festenhueter-notun",
       "instanceKey": "Albtraum:untergrundfeste-der-zerstoerungsarchonen",
-      "slug": "festenhueter-notun",
+      "slug": "fortress-guardian-notun",
       "name": {
-        "en": "Festenhüter Notun",
-        "de": "Festenhüter Notun"
+        "en": "Fortress Guardian Notun",
+        "de": "Festenhüter Notun",
+        "ko": "요새 수호자 노툰",
+        "zh": "要塞守護者諾頓"
       },
-      "npcIds": [],
-      "level": 45,
-      "internalName": null,
-      "hasMechanics": false
+      "npcIds": [
+        2980170,
+        2980171,
+        2980172,
+        2980173,
+        2980174,
+        2980175,
+        2980176,
+        2980177,
+        2980178,
+        2980179
+      ],
+      "level": 50,
+      "internalName": "NightMare_Nothun_01",
+      "hasMechanics": false,
+      "legacyNames": [
+        "Festenhüter Notun"
+      ]
     },
     {
       "key": "Albtraum:versteck-der-klingenlegion/mutierter-gerod",
       "instanceKey": "Albtraum:versteck-der-klingenlegion",
-      "slug": "mutierter-gerod",
+      "slug": "mutated-gerod",
       "name": {
-        "en": "Mutierter Gerod",
-        "de": "Mutierter Gerod"
+        "en": "Mutated Gerod",
+        "de": "Mutierter Gerod",
+        "ko": "변이된 게로드",
+        "zh": "變異的凱洛特"
       },
-      "npcIds": [],
-      "level": 45,
-      "internalName": null,
-      "hasMechanics": false
+      "npcIds": [
+        2980210,
+        2980211,
+        2980212,
+        2980213,
+        2980214,
+        2980215,
+        2980216,
+        2980217,
+        2980218,
+        2980219
+      ],
+      "level": 50,
+      "internalName": "NightMare_Gerod_01",
+      "hasMechanics": false,
+      "legacyNames": [
+        "Mutierter Gerod"
+      ]
     },
     {
       "key": "Albtraum:impetusium/zikels-schemen",
       "instanceKey": "Albtraum:impetusium",
-      "slug": "zikels-schemen",
+      "slug": "zikels-apparition",
       "name": {
-        "en": "Zikels Schemen",
-        "de": "Zikels Schemen"
+        "en": "Zikel's Apparition",
+        "de": "Zikels Schemen",
+        "ko": "지켈의 사념체",
+        "zh": "吉凱爾思念體"
       },
-      "npcIds": [],
-      "level": 45,
-      "internalName": null,
-      "hasMechanics": false
+      "npcIds": [
+        2980220,
+        2980221,
+        2980222,
+        2980223,
+        2980224,
+        2980225,
+        2980226,
+        2980227,
+        2980228,
+        2980229
+      ],
+      "level": 55,
+      "internalName": "NightMare_Zikel_01",
+      "hasMechanics": false,
+      "legacyNames": [
+        "Zikels Schemen"
+      ]
     }
   ]
 }

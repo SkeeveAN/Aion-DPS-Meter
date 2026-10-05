@@ -33,6 +33,13 @@ export const GAME_NAME_TRANSLATIONS = {
   "Draupnir (Conquest)": { en: "Draupnir (Conquest)", de: "Draupnir (Eroberung)", fr: "Draupnir (Conquête)", es: "Draupnir (Conquista)", ru: "Драупнир (Завоевание)" },
   "Vakron Sky Island (Conquest)": { en: "Vakron Sky Island (Conquest)", de: "Vakrons Luftinsel (Eroberung)", fr: "Île Céleste de Vakron (Conquête)", es: "Isla Aérea de Vakron (Conquista)", ru: "Парящий остров Вакрона (Завоевание)" },
   "Ferocious Horn Den (Conquest)": { en: "Ferocious Horn Den (Conquest)", de: "Grimmhornhöhle (Eroberung)", fr: "Grotte de la Corne Féroce (Conquête)", es: "Caverna del Cuerno Feroz (Conquista)", ru: "Логово Свирепого Рога (Завоевание)" },
+  "Gatekeeper Pinopi": { en: "Gatekeeper Pinopi", de: "Torwächter Pinopi" },
+  "Furious Feruk": { en: "Furious Feruk", de: "Rasender Feruk" },
+  "Fafnir's Poison Blood": { en: "Fafnir's Poison Blood", de: "Fafnirs Giftblut" },
+  "Wraith Giselle": { en: "Wraith Giselle", de: "Geist Giselle" },
+  "Fortress Guardian Notun": { en: "Fortress Guardian Notun", de: "Festenhüter Notun" },
+  "Mutated Gerod": { en: "Mutated Gerod", de: "Mutierter Gerod" },
+  "Zikel's Apparition": { en: "Zikel's Apparition", de: "Zikels Schemen" },
   "Chamber of the Dead": { en: "Chamber of the Dead", de: "Schlafstätte der Toten", fr: "Chambre du Mort", es: "Alcoba de los Muertos", ru: "Опочивальня мертвых" },
   "Citadel of the Fallen Daeva": { en: "Citadel of the Fallen Daeva", de: "Zitadelle der gefallenen Daeva", fr: "Citadelle du Daeva déchu", es: "Ciudadela del Daeva Caído", ru: "Цитадель павших даэвов" },
   "Abyssal Horn Den": { en: "Abyssal Horn Den", de: "Abyss-Hornhöhle", fr: "Antre de la Corne abyssale", es: "Guarida del Cuerno Abismal", ru: "Логово рога Бездны" },
@@ -163,13 +170,13 @@ export const INSTANCE_IMAGES = {
 
 // Per-boss art (Nightmare bosses so far, cut from the in-game boss list); a boss without an entry falls back to its instance's photo.
 export const BOSS_IMAGES = {
-  "Torwächter Pinopi": "/images/aion2/bosses/pinopi.jpg",
-  "Rasender Feruk": "/images/aion2/bosses/feruk.jpg",
-  "Fafnirs Giftblut": "/images/aion2/bosses/fafnirs-giftblut.jpg",
-  "Geist Giselle": "/images/aion2/bosses/geist-giselle.jpg",
-  "Festenhüter Notun": "/images/aion2/bosses/festenhueter-notun.jpg",
-  "Mutierter Gerod": "/images/aion2/bosses/mutierter-gerod.jpg",
-  "Zikels Schemen": "/images/aion2/bosses/zikels-schemen.jpg",
+  "Gatekeeper Pinopi": "/images/aion2/bosses/pinopi.jpg",
+  "Furious Feruk": "/images/aion2/bosses/feruk.jpg",
+  "Fafnir's Poison Blood": "/images/aion2/bosses/fafnirs-giftblut.jpg",
+  "Wraith Giselle": "/images/aion2/bosses/geist-giselle.jpg",
+  "Fortress Guardian Notun": "/images/aion2/bosses/festenhueter-notun.jpg",
+  "Mutated Gerod": "/images/aion2/bosses/mutierter-gerod.jpg",
+  "Zikel's Apparition": "/images/aion2/bosses/zikels-schemen.jpg",
 };
 
 // What the game's instance window shows next to an instance: players, item level and (Conquest) the star rating.

@@ -146,14 +146,6 @@
 "name": "Thamon",
 "instance": "Vakron Sky Island"
 },
-"2310811": {
-"name": "Thamon",
-"instance": "Vakron Sky Island"
-},
-"2320811": {
-"name": "Thamon",
-"instance": "Vakron Sky Island"
-},
 "2300580": {
 "name": "Tiere",
 "instance": "Vakron Sky Island"
@@ -162,27 +154,11 @@
 "name": "Tiere",
 "instance": "Vakron Sky Island"
 },
-"2310810": {
-"name": "Tiere",
-"instance": "Vakron Sky Island"
-},
-"2320810": {
-"name": "Tiere",
-"instance": "Vakron Sky Island"
-},
 "2300582": {
 "name": "Vakron",
 "instance": "Vakron Sky Island"
 },
 "2300812": {
-"name": "Vakron",
-"instance": "Vakron Sky Island"
-},
-"2310812": {
-"name": "Vakron",
-"instance": "Vakron Sky Island"
-},
-"2320812": {
 "name": "Vakron",
 "instance": "Vakron Sky Island"
 },
@@ -854,59 +830,11 @@
 "name": "Transcendent Bakarma",
 "instance": "Draupnir"
 },
-"2310470": {
-"name": "Afflicted Bakarma",
-"instance": "Draupnir"
-},
-"2310471": {
-"name": "Transcendent Bakarma",
-"instance": "Draupnir"
-},
-"2320470": {
-"name": "Afflicted Bakarma",
-"instance": "Draupnir"
-},
-"2320471": {
-"name": "Transcendent Bakarma",
-"instance": "Draupnir"
-},
-"2330423": {
-"name": "Afflicted Bakarma",
-"instance": "Draupnir"
-},
-"2330424": {
-"name": "Transcendent Bakarma",
-"instance": "Draupnir"
-},
 "2300401": {
 "name": "Phantasmal Lakshmi",
 "instance": "Draupnir"
 },
-"2310401": {
-"name": "Phantasmal Lakshmi",
-"instance": "Draupnir"
-},
-"2320401": {
-"name": "Phantasmal Lakshmi",
-"instance": "Draupnir"
-},
-"2330401": {
-"name": "Phantasmal Lakshmi",
-"instance": "Draupnir"
-},
 "2300403": {
-"name": "Predator Saraswati",
-"instance": "Draupnir"
-},
-"2310403": {
-"name": "Predator Saraswati",
-"instance": "Draupnir"
-},
-"2320403": {
-"name": "Predator Saraswati",
-"instance": "Draupnir"
-},
-"2330403": {
 "name": "Predator Saraswati",
 "instance": "Draupnir"
 },
@@ -1014,31 +942,7 @@
 "name": "Black Smoke Murute",
 "instance": "Fire Temple"
 },
-"2310312": {
-"name": "Black Smoke Murute",
-"instance": "Fire Temple"
-},
-"2320312": {
-"name": "Black Smoke Murute",
-"instance": "Fire Temple"
-},
-"2330312": {
-"name": "Black Smoke Murute",
-"instance": "Fire Temple"
-},
 "2300371": {
-"name": "Kromede's Desire",
-"instance": "Fire Temple"
-},
-"2310371": {
-"name": "Kromede's Desire",
-"instance": "Fire Temple"
-},
-"2320371": {
-"name": "Kromede's Desire",
-"instance": "Fire Temple"
-},
-"2330371": {
 "name": "Kromede's Desire",
 "instance": "Fire Temple"
 },
@@ -1046,31 +950,7 @@
 "name": "Red Spark Ignus",
 "instance": "Fire Temple"
 },
-"2310311": {
-"name": "Red Spark Ignus",
-"instance": "Fire Temple"
-},
-"2320311": {
-"name": "Red Spark Ignus",
-"instance": "Fire Temple"
-},
-"2330311": {
-"name": "Red Spark Ignus",
-"instance": "Fire Temple"
-},
 "2300310": {
-"name": "Silver Blade Rotan",
-"instance": "Fire Temple"
-},
-"2310310": {
-"name": "Silver Blade Rotan",
-"instance": "Fire Temple"
-},
-"2320310": {
-"name": "Silver Blade Rotan",
-"instance": "Fire Temple"
-},
-"2330310": {
 "name": "Silver Blade Rotan",
 "instance": "Fire Temple"
 },
@@ -1078,31 +958,7 @@
 "name": "Enhanced Harcon",
 "instance": "Krao Cave"
 },
-"2310104": {
-"name": "Enhanced Harcon",
-"instance": "Krao Cave"
-},
-"2320104": {
-"name": "Enhanced Harcon",
-"instance": "Krao Cave"
-},
-"2330104": {
-"name": "Enhanced Harcon",
-"instance": "Krao Cave"
-},
 "2300108": {
-"name": "Neglected Gadioton",
-"instance": "Krao Cave"
-},
-"2310108": {
-"name": "Neglected Gadioton",
-"instance": "Krao Cave"
-},
-"2320108": {
-"name": "Neglected Gadioton",
-"instance": "Krao Cave"
-},
-"2330108": {
 "name": "Neglected Gadioton",
 "instance": "Krao Cave"
 },
@@ -1123,50 +979,6 @@
 "instance": "Krao Cave"
 },
 "2300178": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2310171": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2310172": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2310173": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2310174": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2310178": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2320171": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2320172": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2320173": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2320174": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2320178": {
-"name": "Ultimate Berk",
-"instance": "Krao Cave"
-},
-"2330171": {
 "name": "Ultimate Berk",
 "instance": "Krao Cave"
 },
@@ -1222,23 +1034,7 @@
 "name": "Ferocious Horn Nuakum",
 "instance": "Ferocious Horn Den"
 },
-"2310910": {
-"name": "Ferocious Horn Nuakum",
-"instance": "Ferocious Horn Den"
-},
-"2320910": {
-"name": "Ferocious Horn Nuakum",
-"instance": "Ferocious Horn Den"
-},
 "2300909": {
-"name": "Necromancer Duanka",
-"instance": "Ferocious Horn Den"
-},
-"2310909": {
-"name": "Necromancer Duanka",
-"instance": "Ferocious Horn Den"
-},
-"2320909": {
 "name": "Necromancer Duanka",
 "instance": "Ferocious Horn Den"
 },
@@ -1246,23 +1042,7 @@
 "name": "Shining Mau Totem",
 "instance": "Ferocious Horn Den"
 },
-"2310907": {
-"name": "Shining Mau Totem",
-"instance": "Ferocious Horn Den"
-},
-"2320907": {
-"name": "Shining Mau Totem",
-"instance": "Ferocious Horn Den"
-},
 "2300908": {
-"name": "Watchdog Kwapo",
-"instance": "Ferocious Horn Den"
-},
-"2310908": {
-"name": "Watchdog Kwapo",
-"instance": "Ferocious Horn Den"
-},
-"2320908": {
 "name": "Watchdog Kwapo",
 "instance": "Ferocious Horn Den"
 },
@@ -1694,31 +1474,7 @@
 "name": "Divine Auldor",
 "instance": "Urugugu Canyon"
 },
-"2310218": {
-"name": "Divine Auldor",
-"instance": "Urugugu Canyon"
-},
-"2320218": {
-"name": "Divine Auldor",
-"instance": "Urugugu Canyon"
-},
-"2330218": {
-"name": "Divine Auldor",
-"instance": "Urugugu Canyon"
-},
 "2300206": {
-"name": "Guardian Captain Raur",
-"instance": "Urugugu Canyon"
-},
-"2310206": {
-"name": "Guardian Captain Raur",
-"instance": "Urugugu Canyon"
-},
-"2320206": {
-"name": "Guardian Captain Raur",
-"instance": "Urugugu Canyon"
-},
-"2330206": {
 "name": "Guardian Captain Raur",
 "instance": "Urugugu Canyon"
 },
@@ -1726,17 +1482,541 @@
 "name": "Judge Urahum",
 "instance": "Urugugu Canyon"
 },
+"2310104": {
+"name": "Enhanced Harcon",
+"instance": "Krao Cave (Conquest)"
+},
+"2320104": {
+"name": "Enhanced Harcon",
+"instance": "Krao Cave (Conquest)"
+},
+"2330104": {
+"name": "Enhanced Harcon",
+"instance": "Krao Cave (Conquest)"
+},
+"2310108": {
+"name": "Neglected Gadioton",
+"instance": "Krao Cave (Conquest)"
+},
+"2320108": {
+"name": "Neglected Gadioton",
+"instance": "Krao Cave (Conquest)"
+},
+"2330108": {
+"name": "Neglected Gadioton",
+"instance": "Krao Cave (Conquest)"
+},
+"2310171": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2310172": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2310173": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2310174": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2310178": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2320171": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2320172": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2320173": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2320174": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2320178": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2330171": {
+"name": "Ultimate Berk",
+"instance": "Krao Cave (Conquest)"
+},
+"2310218": {
+"name": "Divine Auldor",
+"instance": "Urugugu Canyon (Conquest)"
+},
+"2320218": {
+"name": "Divine Auldor",
+"instance": "Urugugu Canyon (Conquest)"
+},
+"2330218": {
+"name": "Divine Auldor",
+"instance": "Urugugu Canyon (Conquest)"
+},
+"2310206": {
+"name": "Guardian Captain Raur",
+"instance": "Urugugu Canyon (Conquest)"
+},
+"2320206": {
+"name": "Guardian Captain Raur",
+"instance": "Urugugu Canyon (Conquest)"
+},
+"2330206": {
+"name": "Guardian Captain Raur",
+"instance": "Urugugu Canyon (Conquest)"
+},
 "2310207": {
 "name": "Judge Urahum",
-"instance": "Urugugu Canyon"
+"instance": "Urugugu Canyon (Conquest)"
 },
 "2320207": {
 "name": "Judge Urahum",
-"instance": "Urugugu Canyon"
+"instance": "Urugugu Canyon (Conquest)"
 },
 "2330207": {
 "name": "Judge Urahum",
-"instance": "Urugugu Canyon"
+"instance": "Urugugu Canyon (Conquest)"
+},
+"2310312": {
+"name": "Black Smoke Murute",
+"instance": "Fire Temple (Conquest)"
+},
+"2320312": {
+"name": "Black Smoke Murute",
+"instance": "Fire Temple (Conquest)"
+},
+"2330312": {
+"name": "Black Smoke Murute",
+"instance": "Fire Temple (Conquest)"
+},
+"2310371": {
+"name": "Kromede's Desire",
+"instance": "Fire Temple (Conquest)"
+},
+"2320371": {
+"name": "Kromede's Desire",
+"instance": "Fire Temple (Conquest)"
+},
+"2330371": {
+"name": "Kromede's Desire",
+"instance": "Fire Temple (Conquest)"
+},
+"2310311": {
+"name": "Red Spark Ignus",
+"instance": "Fire Temple (Conquest)"
+},
+"2320311": {
+"name": "Red Spark Ignus",
+"instance": "Fire Temple (Conquest)"
+},
+"2330311": {
+"name": "Red Spark Ignus",
+"instance": "Fire Temple (Conquest)"
+},
+"2310310": {
+"name": "Silver Blade Rotan",
+"instance": "Fire Temple (Conquest)"
+},
+"2320310": {
+"name": "Silver Blade Rotan",
+"instance": "Fire Temple (Conquest)"
+},
+"2330310": {
+"name": "Silver Blade Rotan",
+"instance": "Fire Temple (Conquest)"
+},
+"2310470": {
+"name": "Afflicted Bakarma",
+"instance": "Draupnir (Conquest)"
+},
+"2310471": {
+"name": "Transcendent Bakarma",
+"instance": "Draupnir (Conquest)"
+},
+"2320470": {
+"name": "Afflicted Bakarma",
+"instance": "Draupnir (Conquest)"
+},
+"2320471": {
+"name": "Transcendent Bakarma",
+"instance": "Draupnir (Conquest)"
+},
+"2330423": {
+"name": "Afflicted Bakarma",
+"instance": "Draupnir (Conquest)"
+},
+"2330424": {
+"name": "Transcendent Bakarma",
+"instance": "Draupnir (Conquest)"
+},
+"2310401": {
+"name": "Phantasmal Lakshmi",
+"instance": "Draupnir (Conquest)"
+},
+"2320401": {
+"name": "Phantasmal Lakshmi",
+"instance": "Draupnir (Conquest)"
+},
+"2330401": {
+"name": "Phantasmal Lakshmi",
+"instance": "Draupnir (Conquest)"
+},
+"2310403": {
+"name": "Predator Saraswati",
+"instance": "Draupnir (Conquest)"
+},
+"2320403": {
+"name": "Predator Saraswati",
+"instance": "Draupnir (Conquest)"
+},
+"2330403": {
+"name": "Predator Saraswati",
+"instance": "Draupnir (Conquest)"
+},
+"2310811": {
+"name": "Thamon",
+"instance": "Vakron Sky Island (Conquest)"
+},
+"2320811": {
+"name": "Thamon",
+"instance": "Vakron Sky Island (Conquest)"
+},
+"2310810": {
+"name": "Tiere",
+"instance": "Vakron Sky Island (Conquest)"
+},
+"2320810": {
+"name": "Tiere",
+"instance": "Vakron Sky Island (Conquest)"
+},
+"2310812": {
+"name": "Vakron",
+"instance": "Vakron Sky Island (Conquest)"
+},
+"2320812": {
+"name": "Vakron",
+"instance": "Vakron Sky Island (Conquest)"
+},
+"2310910": {
+"name": "Ferocious Horn Nuakum",
+"instance": "Ferocious Horn Den (Conquest)"
+},
+"2320910": {
+"name": "Ferocious Horn Nuakum",
+"instance": "Ferocious Horn Den (Conquest)"
+},
+"2310909": {
+"name": "Necromancer Duanka",
+"instance": "Ferocious Horn Den (Conquest)"
+},
+"2320909": {
+"name": "Necromancer Duanka",
+"instance": "Ferocious Horn Den (Conquest)"
+},
+"2310907": {
+"name": "Shining Mau Totem",
+"instance": "Ferocious Horn Den (Conquest)"
+},
+"2320907": {
+"name": "Shining Mau Totem",
+"instance": "Ferocious Horn Den (Conquest)"
+},
+"2310908": {
+"name": "Watchdog Kwapo",
+"instance": "Ferocious Horn Den (Conquest)"
+},
+"2320908": {
+"name": "Watchdog Kwapo",
+"instance": "Ferocious Horn Den (Conquest)"
+},
+"2980040": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980041": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980042": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980043": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980044": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980045": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980046": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980047": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980048": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980049": {
+"name": "Gatekeeper Pinopi",
+"instance": "Wurzelspeicher"
+},
+"2980150": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980151": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980152": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980153": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980154": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980155": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980156": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980157": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980158": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980159": {
+"name": "Furious Feruk",
+"instance": "Verlies von Dranactus"
+},
+"2980240": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980241": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980242": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980243": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980244": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980245": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980246": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980247": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980248": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980249": {
+"name": "Fafnir's Poison Blood",
+"instance": "Wurzel des Heiligenbaums"
+},
+"2980250": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980251": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980252": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980253": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980254": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980255": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980256": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980257": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980258": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980259": {
+"name": "Wraith Giselle",
+"instance": "Gruft"
+},
+"2980170": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980171": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980172": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980173": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980174": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980175": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980176": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980177": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980178": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980179": {
+"name": "Fortress Guardian Notun",
+"instance": "Untergrundfeste der Zerstörungsarchonen"
+},
+"2980210": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980211": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980212": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980213": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980214": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980215": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980216": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980217": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980218": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980219": {
+"name": "Mutated Gerod",
+"instance": "Versteck der Klingenlegion"
+},
+"2980220": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
+},
+"2980221": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
+},
+"2980222": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
+},
+"2980223": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
+},
+"2980224": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
+},
+"2980225": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
+},
+"2980226": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
+},
+"2980227": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
+},
+"2980228": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
+},
+"2980229": {
+"name": "Zikel's Apparition",
+"instance": "Impetusium"
 }
 }
 }
