@@ -2,7 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { renderShell } from "../seo/shell.js";
 import { renderHead } from "../seo/meta.js";
 import { cached } from "../seo/cache.js";
-import { isGame, type Game } from "../constants.js";
+import { DEFAULT_GAME, type Game } from "../constants.js";
 import {
   appOnlyPage,
   bossPage,
@@ -58,7 +58,7 @@ export function sendNotFound(request: FastifyRequest, reply: FastifyReply): Fast
   return send(reply, render(notFoundPage(request.url.split("?")[0]), requestPath(request)));
 }
 
-type GameParams = { Params: { game: string } };
+type GameParams = Record<string, never>;
 
 export async function pageRoutes(app: FastifyInstance) {
   app.get("/", async (request, reply) => send(reply, render(homePage(), requestPath(request))));
@@ -67,15 +67,11 @@ export async function pageRoutes(app: FastifyInstance) {
   app.get("/terms", async (request, reply) => send(reply, render(termsPage(), requestPath(request))));
 
   // Every game-scoped page validates the game segment first; an unknown one is a 404, not aion.
+  // Only Aion 2 is served, so the game is a constant now rather than part of the address.
   const withGame =
     (handler: (game: Game, request: FastifyRequest, reply: FastifyReply) => FastifyReply | Promise<FastifyReply>) =>
-    async (request: FastifyRequest<GameParams>, reply: FastifyReply) => {
-      const { game } = request.params;
-      if (!isGame(game)) {
-        return sendNotFound(request, reply);
-      }
-      return handler(game, request, reply);
-    };
+    async (request: FastifyRequest, reply: FastifyReply) =>
+      handler(DEFAULT_GAME, request, reply);
 
   // The game segment used to be part of every address (/aion2/bosses/...). Only Aion 2 is served, so
   // the old links move to the same path without it for good.
