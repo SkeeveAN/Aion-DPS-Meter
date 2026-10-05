@@ -2339,3 +2339,60 @@ body:has(.download-hero) .nav-download-link:hover,
 .hp-run-score { align-self: center; padding-right: 14px; text-align: right; }
 .hp-run-score b { display: block; font-size: 1.15rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .hp-run-score span { font-size: 0.7rem; color: var(--color-text-muted); }
+
+/* ---- Participant page (one player in one fight): hero, key figures, ranked skill rows ---- */
+.pt-hero { display: flex; gap: 20px; align-items: center; padding: 22px; border-radius: 16px; border: 1px solid var(--color-border); background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 14%, var(--color-surface)), var(--color-surface) 60%); }
+.pt-emb { flex: none; width: 84px; height: 84px; border-radius: 50%; border: 3px solid var(--color-primary); background: #0b1218; display: grid; place-items: center; overflow: hidden; }
+.pt-emb img { width: 100%; height: 100%; object-fit: contain; }
+.pt-hero h2 { margin: 0; font-size: 30px; }
+.pt-sub { color: var(--color-text-muted); margin-top: 2px; }
+.pt-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.pt-tag { display: inline-flex; gap: 6px; align-items: center; padding: 3px 10px; border-radius: 99px; background: var(--color-surface2); border: 1px solid var(--color-border); font-size: 13px; }
+.pt-tag img { width: 16px; height: 16px; }
+.pt-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0 10px; }
+.pt-kpi { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 14px 16px; }
+.pt-kpi small { color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; }
+.pt-kpi b { display: block; font-size: 26px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.pt-kpi b.accent { color: var(--color-primary); }
+.pt-kpi b.heal { color: var(--color-success); }
+.pt-h { display: flex; align-items: center; gap: 10px; font-size: 18px; margin: 26px 0 12px; }
+.pt-h::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--color-primary); }
+.pt-h.heal::before { background: var(--color-success); }
+.pt-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); margin-bottom: 8px; }
+.pt-row:hover { border-color: var(--color-primary); }
+.pt-ico { width: 44px; height: 44px; border-radius: 9px; border: 1px solid var(--color-border); background: var(--color-surface2); display: grid; place-items: center; overflow: hidden; color: var(--color-text-muted); font-weight: 700; font-size: 13px; }
+.pt-ico img { width: 100%; height: 100%; display: block; }
+.pt-name { display: flex; justify-content: space-between; gap: 10px; font-weight: 600; }
+.pt-share, .pt-total { font-variant-numeric: tabular-nums; }
+.pt-bar { height: 8px; border-radius: 99px; background: var(--color-surface2); margin: 7px 0 5px; overflow: hidden; }
+.pt-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--color-primary), color-mix(in srgb, var(--color-primary) 55%, #ff6a3d)); }
+.pt-bar.heal i { background: linear-gradient(90deg, var(--color-success), color-mix(in srgb, var(--color-success) 60%, var(--color-info))); }
+.pt-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--color-text-muted); }
+.pt-total { font-size: 18px; font-weight: 700; text-align: right; }
+@media (max-width: 600px) { .pt-hero { flex-direction: column; align-items: flex-start; } .pt-row { grid-template-columns: 44px minmax(0, 1fr); } .pt-total { grid-column: 1 / -1; text-align: left; } }
+
+/* ---- Comparisons (runs / players) ---- */
+.cmp-cta { margin: 4px 0 18px; }
+.cmp-cta .btn { min-height: 38px; padding: 0 18px; font-size: 14px; }
+.cmp-actions { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 6px 0 14px; }
+.cmp-steps { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0 0 14px; }
+.cmp-steps li { padding: 4px 12px; border: 1px solid var(--color-border); border-radius: 999px; font-size: 13px; color: var(--color-text-muted); }
+.cmp-steps li.done { color: var(--color-text); }
+.cmp-steps li.active { color: var(--color-primary-on); background: var(--color-primary); border-color: var(--color-primary); }
+.cmp-pick-list { display: grid; gap: 8px; margin: 12px 0 24px; }
+.cmp-pick { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 2fr) auto; align-items: center; gap: 12px; padding: 10px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); color: var(--color-text); text-decoration: none; }
+.cmp-pick:hover { border-color: var(--color-primary); }
+.cmp-pick-main { font-weight: 600; }
+.cmp-pick-sub { color: var(--color-text-muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmp-pick-value { font-weight: 700; color: var(--color-primary); white-space: nowrap; }
+.cmp-table { width: 100%; margin: 8px 0 20px; }
+.cmp-table td, .cmp-table th { text-align: left; }
+.cmp-head { display: flex; flex-direction: column; gap: 2px; }
+.cmp-head a { font-size: 12px; font-weight: 400; }
+.cmp-win { color: var(--color-primary); font-weight: 700; }
+.cmp-delta { color: var(--color-text-muted); }
+.cmp-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+@media (max-width: 800px) {
+  .cmp-columns { grid-template-columns: minmax(0, 1fr); }
+  .cmp-pick { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}

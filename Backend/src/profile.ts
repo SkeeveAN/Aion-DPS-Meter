@@ -121,6 +121,24 @@ let skillIcons: Record<string, string> | null = null;
 let skillTypes: Record<string, string> | null = null; // "a" active, "p" passive
 let boardNodes: Map<number, { id: number; node: DaevanionData["nodes"][string] }[]> | null = null;
 
+// The match report only stores skill names, not ids, so a name is mapped back to the icon of the
+// first skill id carrying it that has one (rank variants share the base skill's icon).
+let skillIconsByName: Map<string, string> | null = null;
+export function skillIconByName(name: string): string | null {
+  if (!skillIconsByName) {
+    const names = loadJson<Record<string, string>>("skill_names.json", {});
+    const icons = loadJson<Record<string, string>>("skill_icons.json", {});
+    skillIconsByName = new Map();
+    for (const [id, icon] of Object.entries(icons)) {
+      const n = names[id];
+      if (n && !skillIconsByName.has(n)) {
+        skillIconsByName.set(n, icon);
+      }
+    }
+  }
+  return skillIconsByName.get(name) ?? null;
+}
+
 export type ProfileView = {
   source: "self" | "seen";
   updatedAt: string;

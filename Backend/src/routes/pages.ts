@@ -118,9 +118,11 @@ export async function pageRoutes(app: FastifyInstance) {
     }),
   );
 
-  const appOnly = (kind: "servers" | "search" | "participant") =>
+  const appOnly = (kind: "servers" | "search" | "participant" | "compare") =>
     withGame((game, request, reply) => send(reply, render(appOnlyPage(game, kind, request.url.split("?")[0]), requestPath(request))));
   app.get<GameParams>("/:game(^aion2$)/search", appOnly("search"));
+  app.get<GameParams>("/:game(^aion2$)/compare/runs", appOnly("compare"));
+  app.get<GameParams>("/:game(^aion2$)/compare/players", appOnly("compare"));
   // Real boss name + server in the link preview, per the user - a shared encounter link used to
   // show only the generic "Boss fight details" placeholder regardless of which fight it was.
   app.get<GameParams & { Params: { id: string } }>(

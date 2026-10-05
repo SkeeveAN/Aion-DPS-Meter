@@ -1357,7 +1357,7 @@ async function renderEncounter(encounterId) {
     el("div", { className: "encounter-side-col" }, [aggroPanel(data.roster)]),
   ]);
 
-  app.replaceChildren(hero, statsRow, grid);
+  app.replaceChildren(hero, statsRow, compareButton(t("compare.ctaRuns"), compareLink("/compare/runs", { a: data.encounter.id })), grid);
 }
 
 function skillTable(skills) {
@@ -1388,6 +1388,37 @@ function skillTable(skills) {
   ]);
 }
 
+// One skill as a ranked row: game icon (initials when the client has none), share bar relative to
+// the strongest skill, and the hit statistics underneath.
+function skillRow(s, total, top, heal) {
+  const hits = s.hits > 0 ? s.hits : 1;
+  const tile = el("span", { className: "pt-ico" });
+  if (s.icon) {
+    const img = el("img", { src: `/images/aion2/icons/skill/${s.icon}.webp`, alt: "", loading: "lazy", width: 128, height: 128 });
+    img.addEventListener("error", () => {
+      img.remove();
+      tile.textContent = s.skillName.slice(0, 2);
+    });
+    tile.append(img);
+  } else {
+    tile.textContent = s.skillName.slice(0, 2);
+  }
+  return el("div", { className: "pt-row" }, [
+    tile,
+    el("div", { className: "pt-main" }, [
+      el("div", { className: "pt-name" }, [el("span", { textContent: s.skillName }), el("span", { className: "pt-share", textContent: `${total > 0 ? ((s.totalDamage / total) * 100).toFixed(1) : "0.0"}%` })]),
+      el("div", { className: `pt-bar${heal ? " heal" : ""}` }, [el("i", { style: `width:${top > 0 ? (s.totalDamage / top) * 100 : 0}%` })]),
+      el("div", { className: "pt-meta" }, [
+        el("span", { textContent: `${t("skillTable.hits")} ${formatNumber(s.hits)}` }),
+        el("span", { textContent: `${t("skillTable.critPercent")} ${s.hits > 0 ? ((s.critHits / s.hits) * 100).toFixed(0) : 0}%` }),
+        el("span", { textContent: `${t("skillTable.avg")} ${formatNumber(s.totalDamage / hits)}` }),
+        el("span", { textContent: `${t("skillTable.max")} ${formatNumber(s.maxHit)}` }),
+      ]),
+    ]),
+    el("div", { className: "pt-total", textContent: formatNumber(s.totalDamage) }),
+  ]);
+}
+
 async function renderParticipant(participantId) {
   setBreadcrumb([...gameCrumbs(), t("loading.participant")]);
   showLoading(t("loading.participant"));
@@ -1400,25 +1431,45 @@ async function renderParticipant(participantId) {
   ]);
 
   const p = data.participant;
-  const statsTable = el("table", {}, [
-    el("tbody", {}, [
-      el("tr", {}, [el("td", { textContent: t("table.class") }), el("td", {}, [iconLabel(classIcon(p.className), p.className)])]),
-      ...(p.faction ? [el("tr", {}, [el("td", { textContent: t("participant.faction") }), el("td", {}, [iconLabel(factionIcon(p.faction), p.faction)])])] : []),
-      el("tr", {}, [el("td", { textContent: t("table.damage") }), el("td", { textContent: formatNumber(p.totalDamage) })]),
-      el("tr", {}, [el("td", { textContent: t("participant.dps") }), el("td", { textContent: formatNumber(p.dps) })]),
-      el("tr", {}, [el("td", { textContent: t("table.idps") }), el("td", { textContent: formatNumber(p.idps) })]),
-      el("tr", {}, [el("td", { textContent: t("participant.totalHealing") }), el("td", { textContent: formatNumber(p.totalHealing) })]),
-      el("tr", {}, [el("td", { textContent: t("participant.hps") }), el("td", { textContent: formatNumber(p.hps) })]),
-      el("tr", {}, [el("td", { textContent: t("participant.critRate") }), el("td", { textContent: `${p.critRatePercent.toFixed(1)}%` })]),
-    ]),
-  ]);
+  const e = data.encounter;
+  const minutes = Math.floor(e.durationSeconds / 60);
+  const seconds = String(Math.round(e.durationSeconds % 60)).padStart(2, "0");
+  const kpi = (label, value, cls) => el("div", { className: "pt-kpi" }, [el("small", { textContent: label }), el("b", { className: cls ?? "", textContent: value })]);
+  const tags = [el("span", { className: "pt-tag", textContent: p.className })];
+  if (p.faction) {
+    tags.push(el("span", { className: "pt-tag" }, [factionIcon(p.faction), p.faction]));
+  }
+  if (p.serverName) {
+    tags.push(el("span", { className: "pt-tag", textContent: p.serverName }));
+  }
 
-  const sections = [el("h2", { textContent: p.playerName }), statsTable];
+  const sections = [
+    el("div", { className: "pt-hero" }, [
+      el("span", { className: "pt-emb" }, [classEmblem(p.className, false)]),
+      el("div", {}, [
+        el("h2", { textContent: p.playerName }),
+        el("div", { className: "pt-sub", textContent: `${translateGameName(e.bossName)} · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}` }),
+        el("div", { className: "pt-tags" }, tags),
+      ]),
+    ]),
+    el("div", { className: "pt-kpis" }, [
+      kpi(t("participant.dps"), formatNumber(p.dps), "accent"),
+      kpi(t("table.damage"), formatNumber(p.totalDamage)),
+      kpi(t("participant.critRate"), `${p.critRatePercent.toFixed(1)}%`),
+      kpi(t("participant.hps"), formatNumber(p.hps), "heal"),
+      kpi(t("participant.totalHealing"), formatNumber(p.totalHealing)),
+    ]),
+  ];
+  const group = (heading, list, heal) => {
+    const total = list.reduce((sum, s) => sum + s.totalDamage, 0);
+    const top = list.reduce((m, s) => Math.max(m, s.totalDamage), 0);
+    sections.push(el("h3", { className: `pt-h${heal ? " heal" : ""}`, textContent: heading }), ...list.map((s) => skillRow(s, total, top, heal)));
+  };
   if (data.damageSkills.length > 0) {
-    sections.push(el("h3", { textContent: t("participant.damageSkillsHeading") }), skillTable(data.damageSkills));
+    group(t("participant.damageSkillsHeading"), data.damageSkills, false);
   }
   if (data.healSkills.length > 0) {
-    sections.push(el("h3", { textContent: t("participant.healSkillsHeading") }), skillTable(data.healSkills));
+    group(t("participant.healSkillsHeading"), data.healSkills, true);
   }
 
   app.replaceChildren(...sections);
@@ -1745,6 +1796,7 @@ async function renderPlayerProfile(playerId) {
     : null;
   app.replaceChildren(
     el("div", { className: "pf-hero" }, [strip, tabs.length > 1 ? el("div", { className: "pf-tabs", role: "tablist" }, buttons) : null].filter((x) => x != null)),
+    ...(data.history.length > 0 ? [compareButton(t("compare.ctaPlayers"), compareLink("/compare/players", { a: data.player.id }))] : []),
     panel,
     ...(source ? [source, el("p", { className: "profile-source", textContent: t("profile.note") })] : []),
   );
@@ -1775,6 +1827,272 @@ async function renderSearchResults(query) {
     results.map((p) => el("li", {}, [link(p.serverName ? `${p.name} (${p.serverName})` : p.name, gp(`/players/${p.id}`))])),
   );
   app.replaceChildren(el("h2", { textContent: t("search.multipleResultsHeading") }), list);
+}
+
+// ---- Comparisons: two runs of one boss side by side, and two players on one boss. Both are
+// step-by-step pickers driven by the query string (so every step is a shareable link): the page
+// shows the next missing choice until everything needed is in the URL, then the comparison.
+
+function formatDelta(a, b) {
+  if (!(b > 0)) {
+    return "–";
+  }
+  const pct = ((a - b) / b) * 100;
+  return `${pct > 0 ? "+" : ""}${pct.toFixed(1)} %`;
+}
+
+/** One metric row: both values, the better one highlighted, and A's difference relative to B. */
+function compareRow(label, a, b, format, higherIsBetter = true) {
+  const better = a === b ? 0 : (a > b) === higherIsBetter ? 1 : -1;
+  return el("tr", {}, [
+    el("td", { textContent: label }),
+    el("td", { className: better > 0 ? "cmp-win" : "", textContent: format(a) }),
+    el("td", { className: better < 0 ? "cmp-win" : "", textContent: format(b) }),
+    el("td", { className: "cmp-delta", textContent: formatDelta(a, b) }),
+  ]);
+}
+
+function compareTable(headA, headB, rows) {
+  return el("table", { className: "cmp-table" }, [
+    el("thead", {}, [el("tr", {}, [el("th", {}), el("th", {}, [headA]), el("th", {}, [headB]), el("th", { textContent: t("compare.difference") })])]),
+    el("tbody", {}, rows),
+  ]);
+}
+
+function compareSteps(labels, active) {
+  return el(
+    "ol",
+    { className: "cmp-steps" },
+    labels.map((label, i) => el("li", { className: i === active ? "active" : i < active ? "done" : "", textContent: label })),
+  );
+}
+
+function compareLink(path, params) {
+  return gp(`${path}?${new URLSearchParams(params)}`);
+}
+
+/** The compare-with-someone button shown on encounter and player pages. */
+function compareButton(text, href) {
+  return el("div", { className: "cmp-cta" }, [el("a", { className: "btn btn-blue", href, textContent: text })]);
+}
+
+function runCaption(encounter) {
+  return `${formatDate(new Date(encounter.startedAt))}${encounter.serverName ? ` · ${encounter.serverName}` : ""}`;
+}
+
+async function renderCompareRuns(params) {
+  const a = params.get("a");
+  const b = params.get("b");
+  setBreadcrumb([...gameCrumbs(), t("compare.runsTitle")]);
+  if (!a) {
+    renderNotFound();
+    return;
+  }
+  showLoading(t("compare.runsTitle"));
+
+  const first = await fetchJson(`/api/encounters/${encodeURIComponent(a)}`);
+  const bossName = translateGameName(first.encounter.bossName);
+
+  if (!b) {
+    const list = await fetchJson(`/api/bosses/${first.encounter.bossId}/runs?limit=60`);
+    const others = list.runs.filter((r) => String(r.encounterId) !== String(a));
+    const rows = others.map((r) =>
+      el("a", { className: "cmp-pick", href: compareLink("/compare/runs", { a, b: r.encounterId }) }, [
+        el("span", { className: "cmp-pick-main", textContent: formatDate(new Date(r.startedAt)) }),
+        el("span", { className: "cmp-pick-sub", textContent: [r.serverName, t("compare.playersCount", { count: r.playerCount }), r.topPlayerName].filter((x) => x).join(" · ") }),
+        el("span", { className: "cmp-pick-value", textContent: `${formatNumber(r.groupIDps)} ${t("leaderboard.idpsShort")} · ${formatDuration(r.durationSeconds)}` }),
+      ]),
+    );
+    app.replaceChildren(
+      el("h2", { textContent: t("compare.runsPickHeading", { boss: bossName }) }),
+      el("p", { className: "pf-sub", textContent: `${t("compare.runA")}: ${runCaption(first.encounter)} · ${formatNumber(first.encounter.groupIDps)} ${t("leaderboard.idpsShort")}` }),
+      rows.length > 0 ? el("div", { className: "cmp-pick-list" }, rows) : el("p", { className: "empty", textContent: t("compare.runsNone") }),
+    );
+    return;
+  }
+
+  const second = await fetchJson(`/api/encounters/${encodeURIComponent(b)}`);
+  const ea = first.encounter;
+  const eb = second.encounter;
+  const real = (roster) => roster.filter((p) => p.className !== "?");
+  const ra = real(first.roster);
+  const rb = real(second.roster);
+  const sum = (roster, key) => roster.reduce((acc, p) => acc + p[key], 0);
+
+  const heading = (label, encounter) =>
+    el("div", { className: "cmp-head" }, [
+      el("strong", { textContent: label }),
+      el("a", { href: gp(`/encounters/${encounter.id}`), textContent: runCaption(encounter) }),
+    ]);
+
+  const metrics = compareTable(heading(t("compare.runA"), ea), heading(t("compare.runB"), eb), [
+    compareRow(t("stats.groupIdps"), ea.groupIDps, eb.groupIDps, formatNumber),
+    compareRow(t("encounter.duration"), ea.durationSeconds, eb.durationSeconds, formatDuration, false),
+    compareRow(t("stats.totalDamage"), sum(ra, "totalDamage"), sum(rb, "totalDamage"), formatNumber),
+    compareRow(t("participant.totalHealing"), sum(ra, "totalHealing"), sum(rb, "totalHealing"), formatNumber),
+    compareRow(t("stats.participants"), ra.length, rb.length, (n) => String(n), false),
+  ]);
+
+  // Both rosters on ONE bar scale, so a bar means the same amount in either column.
+  const sortedA = [...ra].sort((x, y) => y.totalDamage - x.totalDamage);
+  const sortedB = [...rb].sort((x, y) => y.totalDamage - x.totalDamage);
+  const max = Math.max(...sortedA.map((p) => p.totalDamage), ...sortedB.map((p) => p.totalDamage), 1);
+  assignRoles(ra);
+  assignRoles(rb);
+  const column = (label, sorted) =>
+    el("div", { className: "meter-panel" }, [
+      el("div", { className: "meter-panel-heading" }, [el("span", { className: "meter-panel-title", textContent: label }), el("span", { className: "meter-panel-subtitle", textContent: t("table.damage") })]),
+      el("div", { className: "meter-list" }, sorted.map((p, i) => meterRow(i + 1, p, "totalDamage", max))),
+    ]);
+
+  const sameBoss = ea.bossId === eb.bossId;
+  app.replaceChildren(
+    el("h2", { textContent: `${t("compare.runsTitle")}: ${bossName}${sameBoss ? "" : ` / ${translateGameName(eb.bossName)}`}` }),
+    ...(sameBoss ? [] : [el("p", { className: "error", textContent: t("compare.differentBoss") })]),
+    el("div", { className: "cmp-actions" }, [
+      link(t("compare.changeRun"), compareLink("/compare/runs", { a })),
+      link(t("compare.swap"), compareLink("/compare/runs", { a: b, b: a })),
+    ]),
+    metrics,
+    el("div", { className: "cmp-columns" }, [column(t("compare.runA"), sortedA), column(t("compare.runB"), sortedB)]),
+  );
+}
+
+async function renderComparePlayers(params) {
+  const a = params.get("a");
+  const bossParam = params.get("boss");
+  const b = params.get("b");
+  setBreadcrumb([...gameCrumbs(), t("compare.playersTitle")]);
+  if (!a) {
+    renderNotFound();
+    return;
+  }
+  showLoading(t("compare.playersTitle"));
+
+  const steps = [t("compare.stepPlayer"), t("compare.stepBoss"), t("compare.stepOpponent")];
+
+  // Step 2: which boss (only those the first player has data for).
+  if (!bossParam) {
+    const [data, bossList] = await Promise.all([fetchJson(`/api/players/${encodeURIComponent(a)}`), fetchJson(`/api/players/${encodeURIComponent(a)}/bosses`)]);
+    const name = data.player.name;
+    const rows = bossList.map((r) =>
+      el("a", { className: "cmp-pick", href: compareLink("/compare/players", { a, boss: r.bossId }) }, [
+        el("span", { className: "cmp-pick-main", textContent: translateGameName(r.bossName) }),
+        el("span", { className: "cmp-pick-sub", textContent: `${translateGameName(r.instanceName)} · ${t("compare.runsCount", { count: r.runs })}` }),
+        el("span", { className: "cmp-pick-value", textContent: `${formatNumber(r.bestIdps)} ${t("leaderboard.idpsShort")}` }),
+      ]),
+    );
+    app.replaceChildren(
+      compareSteps(steps, 1),
+      el("h2", { textContent: t("compare.pickBoss", { name }) }),
+      rows.length > 0 ? el("div", { className: "cmp-pick-list" }, rows) : el("p", { className: "empty", textContent: t("compare.noBosses", { name }) }),
+    );
+    return;
+  }
+
+  // Step 3: which opponent (only players with data for that boss).
+  if (!b) {
+    const [data, candidates] = await Promise.all([
+      fetchJson(`/api/players/${encodeURIComponent(a)}`),
+      fetchJson(`/api/bosses/${encodeURIComponent(bossParam)}/players?exclude=${encodeURIComponent(a)}`),
+    ]);
+    const bossRow = (await fetchJson(`/api/players/${encodeURIComponent(a)}/bosses`)).find((r) => String(r.bossId) === String(bossParam));
+    const bossName = bossRow ? translateGameName(bossRow.bossName) : "";
+    const filterInput = el("input", { type: "search", className: "instance-search", placeholder: t("compare.filterPlayers") });
+    const list = el("div", { className: "cmp-pick-list" });
+    const draw = () => {
+      const needle = filterInput.value.trim().toLowerCase();
+      const shown = candidates.filter((c) => c.name.toLowerCase().includes(needle));
+      list.replaceChildren(
+        ...(shown.length > 0
+          ? shown.map((c) =>
+              el("a", { className: "cmp-pick", href: compareLink("/compare/players", { a, boss: bossParam, b: c.playerId }) }, [
+                el("span", { className: "cmp-pick-main" }, [iconLabel(c.className ? classIcon(c.className) : null, c.name)]),
+                el("span", { className: "cmp-pick-sub", textContent: [c.serverName, c.guild, t("compare.runsCount", { count: c.runs })].filter((x) => x).join(" · ") }),
+                el("span", { className: "cmp-pick-value", textContent: `${formatNumber(c.bestIdps)} ${t("leaderboard.idpsShort")}` }),
+              ]),
+            )
+          : [el("p", { className: "empty", textContent: candidates.length === 0 ? t("compare.noOpponents", { name: data.player.name }) : t("search.noResults", { query: filterInput.value }) })]),
+      );
+    };
+    filterInput.addEventListener("input", draw);
+    draw();
+    app.replaceChildren(
+      compareSteps(steps, 2),
+      el("h2", { textContent: t("compare.pickOpponent", { name: data.player.name, boss: bossName }) }),
+      ...(candidates.length > 0 ? [el("div", { className: "instances-toolbar" }, [filterInput])] : []),
+      list,
+    );
+    return;
+  }
+
+  // The comparison.
+  const data = await fetchJson(`/api/compare/players?${new URLSearchParams({ a, b, boss: bossParam })}`);
+  const bossName = translateGameName(data.boss.name);
+  setBreadcrumb([...gameCrumbs(), link(bossName, gp(`/bosses/${data.boss.id}`)), t("compare.playersTitle")]);
+
+  const head = (x) =>
+    el("div", { className: "cmp-head" }, [
+      el("strong", {}, [iconLabel(classIcon(x.best.className), x.player.name)]),
+      el("a", { href: gp(`/players/${x.player.id}`), textContent: [x.player.serverName, x.player.guild].filter((v) => v).join(" · ") || t("compare.openProfile") }),
+    ]);
+  const A = data.a;
+  const B = data.b;
+  const pct = (n) => `${n.toFixed(1)} %`;
+
+  const metrics = compareTable(head(A), head(B), [
+    compareRow(t("compare.bestIdps"), A.best.idps, B.best.idps, formatNumber),
+    compareRow(t("compare.avgIdps"), A.averages.idps, B.averages.idps, formatNumber),
+    compareRow(t("compare.bestDamage"), A.best.totalDamage, B.best.totalDamage, formatNumber),
+    compareRow(t("compare.avgDamage"), A.averages.totalDamage, B.averages.totalDamage, formatNumber),
+    compareRow(t("compare.avgCrit"), A.averages.critRatePercent, B.averages.critRatePercent, pct),
+    compareRow(t("compare.avgHps"), A.averages.hps, B.averages.hps, formatNumber),
+    compareRow(t("compare.runs"), A.runs, B.runs, (n) => String(n)),
+    compareRow(t("compare.bestRunDuration"), A.best.durationSeconds, B.best.durationSeconds, formatDuration, false),
+  ]);
+
+  // Skill split of each player's best run: share of that player's own damage, so a player with a
+  // higher total isn't automatically "ahead" in every row.
+  const skillMap = (x) => {
+    const total = x.skills.reduce((acc, s) => acc + s.totalDamage, 0);
+    return new Map(x.skills.map((s) => [s.skillName, { share: total > 0 ? (s.totalDamage / total) * 100 : 0, damage: s.totalDamage }]));
+  };
+  const skillsA = skillMap(A);
+  const skillsB = skillMap(B);
+  const names = [...new Set([...skillsA.keys(), ...skillsB.keys()])].sort(
+    (x, y) => (skillsB.get(y)?.damage ?? 0) + (skillsA.get(y)?.damage ?? 0) - ((skillsB.get(x)?.damage ?? 0) + (skillsA.get(x)?.damage ?? 0)),
+  );
+  const skillCell = (m, name) => {
+    const v = m.get(name);
+    return el("td", { textContent: v ? `${v.share.toFixed(1)} % · ${formatNumber(v.damage)}` : "–" });
+  };
+  const skills =
+    names.length > 0
+      ? el("div", {}, [
+          el("h3", { textContent: t("compare.skillsHeading") }),
+          el("table", { className: "cmp-table" }, [
+            el("thead", {}, [el("tr", {}, [el("th", { textContent: t("skillTable.skill") }), el("th", { textContent: A.player.name }), el("th", { textContent: B.player.name })])]),
+            el("tbody", {}, names.map((n) => el("tr", {}, [el("td", { textContent: n }), skillCell(skillsA, n), skillCell(skillsB, n)]))),
+          ]),
+        ])
+      : null;
+
+  app.replaceChildren(
+    compareSteps(steps, 3),
+    el("h2", { textContent: `${A.player.name} ${t("compare.vs")} ${B.player.name} – ${bossName}` }),
+    el("div", { className: "cmp-actions" }, [
+      link(t("compare.changeOpponent"), compareLink("/compare/players", { a, boss: bossParam })),
+      link(t("compare.changeBoss"), compareLink("/compare/players", { a })),
+      link(t("compare.swap"), compareLink("/compare/players", { a: b, boss: bossParam, b: a })),
+    ]),
+    metrics,
+    el("p", { className: "pf-sub", textContent: t("compare.bestRunNote") }),
+    ...(skills ? [skills] : []),
+    el("p", { className: "cmp-actions" }, [
+      link(`${A.player.name}: ${t("compare.bestRun")}`, gp(`/participants/${A.best.participantId}`)),
+      link(`${B.player.name}: ${t("compare.bestRun")}`, gp(`/participants/${B.best.participantId}`)),
+    ]),
+  );
 }
 
 function renderNotFound() {
@@ -1842,6 +2160,10 @@ async function route() {
       await renderParticipant(param);
     } else if (section === "players" && param) {
       await renderPlayerProfile(param);
+    } else if (section === "compare" && param === "runs") {
+      await renderCompareRuns(params);
+    } else if (section === "compare" && param === "players") {
+      await renderComparePlayers(params);
     } else if (section === "search" && params.get("q")) {
       await renderSearchResults(params.get("q"));
     } else {

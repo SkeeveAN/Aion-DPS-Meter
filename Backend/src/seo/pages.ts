@@ -340,12 +340,13 @@ export function encounterPage(game: Game, id: string): Page | null {
 }
 
 /** Pages that exist only as the interactive app (server picker, search, single encounters). */
-export function appOnlyPage(game: Game | null, kind: "servers" | "search" | "participant", path: string): Page {
+export function appOnlyPage(game: Game | null, kind: "servers" | "search" | "participant" | "compare", path: string): Page {
   const label = game ? GAME_LABEL[game] : SITE;
   const titles = {
     servers: `Choose a server – ${label} | ${SITE}`,
     search: `Player search – ${SITE}`,
     participant: `Player fight details – ${SITE}`,
+    compare: `Compare – ${SITE}`,
   };
   return {
     status: 200,

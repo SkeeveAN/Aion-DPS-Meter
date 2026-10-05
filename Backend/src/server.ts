@@ -10,6 +10,7 @@ import { instanceRoutes } from "./routes/instances.js";
 import { bossRoutes } from "./routes/bosses.js";
 import { encounterRoutes } from "./routes/encounters.js";
 import { playerRoutes } from "./routes/players.js";
+import { compareRoutes } from "./routes/compare.js";
 import { serverRoutes } from "./routes/servers.js";
 import { serverCatalogRoutes } from "./routes/serverCatalog.js";
 import { statsRoutes } from "./routes/stats.js";
@@ -40,6 +41,7 @@ export async function buildServer() {
   await app.register(bossRoutes);
   await app.register(encounterRoutes);
   await app.register(playerRoutes);
+  await app.register(compareRoutes);
   await app.register(serverRoutes);
   await app.register(serverCatalogRoutes);
   await app.register(statsRoutes);
