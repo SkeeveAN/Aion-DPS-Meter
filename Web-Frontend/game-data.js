@@ -124,12 +124,12 @@ export const GAME_NAME_TRANSLATIONS = {
 // survives the poster card's center-crop) and the reveal-article hero images of NCSoft's newsroom
 // (about.ncsoft.com), each checked against the article's own text before use.
 export const INSTANCE_IMAGES = {
-  "Krao Cave": "/images/aion2/instances/krao-cave.png",
-  Draupnir: "/images/aion2/instances/draupnir.png",
-  "Urugugu Canyon": "/images/aion2/instances/urugugu-canyon.png",
-  "Vakron Sky Island": "/images/aion2/instances/vakron-sky-island.png",
-  "Fire Temple": "/images/aion2/instances/fire-temple.png",
-  "Ferocious Horn Den": "/images/aion2/instances/ferocious-horn-den.png",
+  "Krao Cave": "/images/aion2/instances/krao-cave.jpg",
+  Draupnir: "/images/aion2/instances/draupnir.jpg",
+  "Urugugu Canyon": "/images/aion2/instances/urugugu-canyon.jpg",
+  "Vakron Sky Island": "/images/aion2/instances/vakron-sky-island.jpg",
+  "Fire Temple": "/images/aion2/instances/fire-temple.jpg",
+  "Ferocious Horn Den": "/images/aion2/instances/ferocious-horn-den.jpg",
   "Cradle of Nihility": "/images/aion2/instances/cradle-of-nihility.jpg",
   "Mirror of Scarlet Desire": "/images/aion2/instances/mirror-of-scarlet-desire.jpg",
   "Chalice of Muspel": "/images/aion2/instances/chalice-of-muspel.jpg",
