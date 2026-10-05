@@ -16,6 +16,7 @@ import type { ParticipantUpload, ProfilesUploadPayload, UploadPayload } from "..
 import { UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { slugify, uniqueSlug } from "../seo/slug.js";
 import { upsertProfile } from "../profile.js";
+import { ensurePlayerSlug } from "../seo/playerSlug.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -161,7 +162,9 @@ function upsertPlayer(name: string, serverId: number, guild?: string): number {
   }
 
   const inserted = db.insert(players).values({ name, nameNormalized, serverId, guild: guild ?? null }).run();
-  return Number(inserted.lastInsertRowid);
+  const playerId = Number(inserted.lastInsertRowid);
+  ensurePlayerSlug(playerId);
+  return playerId;
 }
 
 function findCandidateEncounter(bossId: number, serverId: number, payload: UploadPayload) {

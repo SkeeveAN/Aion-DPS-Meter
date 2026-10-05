@@ -6,4 +6,4 @@ migrate(db, { migrationsFolder: "./drizzle" });
 console.log("Migrations applied.");
 
 const filled = backfillSlugs();
-console.log(`Slugs backfilled: ${filled.serverCatalog} servers, ${filled.instances} instances, ${filled.bosses} bosses.`);
+console.log(`Slugs backfilled: ${filled.serverCatalog} servers, ${filled.instances} instances, ${filled.bosses} bosses, ${filled.players} players.`);

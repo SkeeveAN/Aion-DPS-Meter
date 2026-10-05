@@ -148,6 +148,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         id: encounterParticipants.id,
         encounterId: encounterParticipants.encounterId,
         playerId: encounterParticipants.playerId,
+        playerSlug: players.slug,
         playerName: players.name,
         serverName: servers.displayName,
         className: encounterParticipants.className,

@@ -259,6 +259,9 @@ export const players = sqliteTable(
     // by default and Aion names are otherwise unique per side.
     name: text("name").notNull(),
     nameNormalized: text("name_normalized").notNull(),
+    // URL segment ("aahz-kaisinel"): name plus server, since a name is only unique per server.
+    // Assigned once and then stable, even if the character is renamed (links must not rot).
+    slug: text("slug"),
     // The guild the player was last seen in, as the uploader's client reported it (Aion 2's
     // frames name a player's guild next to their name). Latest-seen wins, like `name`; null until
     // an upload carries one, and an upload WITHOUT one never clears it.
@@ -289,6 +292,7 @@ export const players = sqliteTable(
       table.serverId,
       table.nameNormalized,
     ),
+    slugIdx: uniqueIndex("players_slug_idx").on(table.slug),
   }),
 );
 

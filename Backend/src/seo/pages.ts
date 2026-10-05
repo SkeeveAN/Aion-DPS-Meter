@@ -4,6 +4,7 @@ import { bosses, encounterParticipants, encounters, instances, players, servers 
 import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { findInstance, instanceColumns } from "../routes/instances.js";
 import { findBoss, mechanicsFor, selectServer, serversWithEncounters, topByClass, topGroups } from "../routes/bosses.js";
+import { parseIdOrSlug } from "./slug.js";
 import { formatInt, html, Raw } from "./html.js";
 import { breadcrumbJsonLd, itemListJsonLd, softwareApplicationJsonLd, type PageMeta } from "./meta.js";
 
@@ -40,7 +41,7 @@ export function homePage(): Page {
       <h2>Aion DPS Meter</h2>
       <p>Free, open-source damage and healing meter for Aion 2, plus community boss leaderboards and character profiles.</p>
       <ul class="plain">
-        ${[DEFAULT_GAME].map((g) => html`<li><a href="/${g}/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
+        ${[DEFAULT_GAME].map((g) => html`<li><a href="/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
         <li><a href="/download">Download the Windows client</a></li>
       </ul>`,
   };
@@ -104,7 +105,7 @@ export function instancesPage(game: Game): Page {
     .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME)))
     .orderBy(asc(instances.sortOrder), asc(instances.name))
     .all();
-  const items = rows.map((r) => ({ name: displayName(r), path: `/${game}/instances/${r.slug}` }));
+  const items = rows.map((r) => ({ name: displayName(r), path: `/instances/${r.slug}` }));
   const label = GAME_LABEL[game];
   return {
     status: 200,
@@ -114,8 +115,8 @@ export function instancesPage(game: Game): Page {
         rows.length > 0
           ? `Browse ${rows.length} ${label} dungeons with boss DPS rankings: ${items.slice(0, 6).map((i) => i.name).join(", ")}${rows.length > 6 ? ", …" : ""}.`
           : `${label} dungeons and boss DPS rankings on ${SITE}.`,
-      canonicalPath: `/${game}/instances`,
-      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: `${label} instances`, path: `/${game}/instances` }]), itemListJsonLd(`${label} instances`, items)],
+      canonicalPath: `/instances`,
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: `${label} instances`, path: `/instances` }]), itemListJsonLd(`${label} instances`, items)],
     },
     body: html`
       <h2>${label} instances</h2>
@@ -136,7 +137,7 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
     .all();
   const name = displayName(instance);
   const label = GAME_LABEL[game];
-  const items = bossRows.map((b) => ({ name: displayName(b), path: `/${game}/bosses/${b.slug}` }));
+  const items = bossRows.map((b) => ({ name: displayName(b), path: `/bosses/${b.slug}` }));
   return {
     status: 200,
     meta: {
@@ -145,12 +146,12 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
         items.length > 0
           ? `${items.length} bosses in ${name} (${label}): ${items.slice(0, 8).map((i) => i.name).join(", ")}. Top group DPS per server.`
           : `${name} (${label}) – boss DPS leaderboards on ${SITE}.`,
-      canonicalPath: `/${game}/instances/${instance.slug}`,
+      canonicalPath: `/instances/${instance.slug}`,
       jsonLd: [
         breadcrumbJsonLd([
           { name: SITE, path: "/" },
-          { name: `${label} instances`, path: `/${game}/instances` },
-          { name, path: `/${game}/instances/${instance.slug}` },
+          { name: `${label} instances`, path: `/instances` },
+          { name, path: `/instances/${instance.slug}` },
         ]),
         itemListJsonLd(`${name} bosses`, items),
       ],
@@ -179,7 +180,7 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
   const scope: number | null | undefined = combined ? (serverList.length > 0 ? null : undefined) : server?.id;
   const scopeLabel = combined ? "all servers" : server?.name ?? "";
   const tag = (p: { playerName: string; serverName: string | null }) => (combined && p.serverName ? `${p.playerName} [${p.serverName}]` : p.playerName);
-  const basePath = `/${game}/bosses/${boss.slug}`;
+  const basePath = `/bosses/${boss.slug}`;
   const canonicalPath = query.server && server?.slug === query.server ? `${basePath}?server=${server.slug}` : basePath;
 
   let table: Raw;
@@ -239,8 +240,8 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
       jsonLd: [
         breadcrumbJsonLd([
           { name: SITE, path: "/" },
-          { name: `${label} instances`, path: `/${game}/instances` },
-          { name: instanceName, path: `/${game}/instances/${found.instanceSlug}` },
+          { name: `${label} instances`, path: `/instances` },
+          { name: instanceName, path: `/instances/${found.instanceSlug}` },
           { name, path: basePath },
         ]),
       ],
@@ -255,16 +256,16 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
   };
 }
 
-export function playerPage(game: Game, id: string): Page | null {
-  const playerId = Number(id);
-  if (!Number.isInteger(playerId)) {
+export function playerPage(game: Game, idOrSlug: string): Page | null {
+  const key = parseIdOrSlug(idOrSlug);
+  if (!key) {
     return null;
   }
   const player = db
-    .select({ id: players.id, name: players.name, serverName: servers.displayName })
+    .select({ id: players.id, slug: players.slug, name: players.name, serverName: servers.displayName })
     .from(players)
     .leftJoin(servers, eq(players.serverId, servers.id))
-    .where(eq(players.id, playerId))
+    .where("id" in key ? eq(players.id, key.id) : eq(players.slug, key.slug))
     .get();
   if (!player) {
     return null;
@@ -274,7 +275,7 @@ export function playerPage(game: Game, id: string): Page | null {
     meta: {
       title: `${player.name}${player.serverName ? ` (${player.serverName})` : ""} – ${SITE}`,
       description: `Boss fight history of ${player.name} on ${SITE}.`,
-      canonicalPath: `/${game}/players/${player.id}`,
+      canonicalPath: `/players/${player.slug ?? player.id}`,
       noindex: true,
     },
     body: html`<h2>${player.name}</h2><p>${player.serverName ?? ""}</p>`,
@@ -334,7 +335,7 @@ export function encounterPage(game: Game, id: string): Page | null {
 
   return {
     status: 200,
-    meta: { title, description, canonicalPath: `/${game}/encounters/${encounterId}`, noindex: true },
+    meta: { title, description, canonicalPath: `/encounters/${encounterId}`, noindex: true },
     body: html`<h2>${name}</h2><p>${server ?? ""}</p>`,
   };
 }

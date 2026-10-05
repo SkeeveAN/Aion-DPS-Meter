@@ -6,6 +6,7 @@ import { normalizeName } from "../matching/roster.js";
 import { gameFromQuery } from "./instances.js";
 import type { Game } from "../constants.js";
 import { buildProfileView } from "../profile.js";
+import { parseIdOrSlug } from "../seo/slug.js";
 
 /**
  * Each player's own single best fight (highest iDPS), ranked - the homepage's "top players"
@@ -107,6 +108,7 @@ export async function playerRoutes(app: FastifyInstance) {
     const rows = db
       .select({
         id: players.id,
+        slug: players.slug,
         name: players.name,
         guild: players.guild,
         serverId: players.serverId,
@@ -122,14 +124,15 @@ export async function playerRoutes(app: FastifyInstance) {
   });
 
   app.get<{ Params: { id: string } }>("/api/players/:id", async (request, reply) => {
-    const playerId = Number(request.params.id);
-    if (!Number.isInteger(playerId)) {
+    const key = parseIdOrSlug(request.params.id);
+    if (!key) {
       return reply.status(400).send({ error: "invalid_player_id" });
     }
 
     const player = db
       .select({
         id: players.id,
+        slug: players.slug,
         name: players.name,
         guild: players.guild,
         serverId: players.serverId,
@@ -138,11 +141,12 @@ export async function playerRoutes(app: FastifyInstance) {
       })
       .from(players)
       .leftJoin(servers, eq(players.serverId, servers.id))
-      .where(eq(players.id, playerId))
+      .where("id" in key ? eq(players.id, key.id) : eq(players.slug, key.slug))
       .get();
     if (!player) {
       return reply.status(404).send({ error: "player_not_found" });
     }
+    const playerId = player.id;
 
     const history = db
       .select({

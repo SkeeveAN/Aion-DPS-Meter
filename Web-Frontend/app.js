@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const GAMES = ["aion2"];
+const APP_SECTIONS = ["download", "privacy", "terms", "instances", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -22,21 +22,22 @@ let currentGame = DEFAULT_GAME;
   const [section, param] = match[1].split("/");
   let target = null;
   if (!section) {
-    target = `/${DEFAULT_GAME}/instances`;
+    target = "/instances";
   } else if (section === "download") {
     target = "/download";
   } else if (["instances", "bosses", "players", "encounters", "participants"].includes(section) && param) {
-    target = `/${DEFAULT_GAME}/${section}/${param}`;
+    target = `/${section}/${param}`;
   } else if (section === "search" && param) {
-    target = `/${DEFAULT_GAME}/search?q=${param}`;
+    target = `/search?q=${param}`;
   }
   if (target) {
     location.replace(target);
   }
 })();
 
+// The game is no longer part of the address; every page lives directly under /.
 function gp(path) {
-  return `/${currentGame}${path}`;
+  return path;
 }
 
 function gameLabel(game) {
@@ -263,7 +264,7 @@ async function renderHome() {
         // button's line box taller than .btn-blue's plain text in the first place.
         el("span", { textContent: t("home.downloadCta").replace(/^⬇\s*/, "") }),
       ]),
-      el("a", { className: "btn btn-blue", href: `/${DEFAULT_GAME}/instances` }, [el("span", { textContent: t("home.secondaryCta") })]),
+      el("a", { className: "btn btn-blue", href: "/instances" }, [el("span", { textContent: t("home.secondaryCta") })]),
     ]),
   ]);
   const heroRow = el("div", { className: "home-hero-row" }, [hero]);
@@ -823,7 +824,7 @@ function profileIcon(player) {
     return null;
   }
 
-  return el("a", { className: "profile-link", href: gp(`/players/${player.playerId}`), title: t("player.openProfile"), "aria-label": t("player.openProfile"), innerHTML: ICON_PROFILE });
+  return el("a", { className: "profile-link", href: gp(`/players/${player.playerSlug ?? player.playerId}`), title: t("player.openProfile"), "aria-label": t("player.openProfile"), innerHTML: ICON_PROFILE });
 }
 
 function playerCell(faction, className, name, href, serverName, player) {
@@ -1442,13 +1443,12 @@ async function renderParticipant(participantId) {
   if (p.serverName) {
     tags.push(el("span", { className: "pt-tag", textContent: p.serverName }));
   }
-  tags.push(el("a", { className: "pt-tag pt-profile", href: gp(`/players/${p.playerId}`), textContent: `${t("participant.openProfile")} →` }));
 
   const sections = [
     el("div", { className: "pt-hero" }, [
       el("span", { className: "pt-emb" }, [classEmblem(p.className, false)]),
       el("div", {}, [
-        el("h2", {}, [link(p.playerName, gp(`/players/${p.playerId}`))]),
+        el("h2", {}, [p.playerName, profileIcon({ hasProfile: true, playerId: p.playerId, playerSlug: p.playerSlug })]),
         el("div", { className: "pt-sub", textContent: `${translateGameName(e.bossName)} · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}` }),
         el("div", { className: "pt-tags" }, tags),
       ]),
@@ -1765,6 +1765,10 @@ async function renderPlayerProfile(playerId) {
 
   const data = await fetchJson(`/api/players/${encodeURIComponent(playerId)}`);
   setBreadcrumb([...gameCrumbs(), data.player.name]);
+  // Reached through an old numeric link: show the name address instead (no reload, no history entry).
+  if (data.player.slug && decodeURIComponent(location.pathname.split("/").pop()) !== data.player.slug) {
+    history.replaceState(history.state, "", `${gp(`/players/${data.player.slug}`)}${location.search}${location.hash}`);
+  }
   document.querySelector(".pf-tip")?.remove();
 
   const profile = data.profile;
@@ -1814,7 +1818,7 @@ async function renderSearchResults(query) {
   if (results.length === 1) {
     // replaceState, not pushState: Back from the profile must not land on a search that would just
     // redirect forward again.
-    navigate(gp(`/players/${results[0].id}`), { replace: true });
+    navigate(gp(`/players/${results[0].slug ?? results[0].id}`), { replace: true });
     return;
   }
   if (results.length === 0) {
@@ -1825,7 +1829,7 @@ async function renderSearchResults(query) {
   const list = el(
     "ul",
     { className: "plain" },
-    results.map((p) => el("li", {}, [link(p.serverName ? `${p.name} (${p.serverName})` : p.name, gp(`/players/${p.id}`))])),
+    results.map((p) => el("li", {}, [link(p.serverName ? `${p.name} (${p.serverName})` : p.name, gp(`/players/${p.slug ?? p.id}`))])),
   );
   app.replaceChildren(el("h2", { textContent: t("search.multipleResultsHeading") }), list);
 }
@@ -2114,7 +2118,7 @@ function navigate(path, { replace = false } = {}) {
 }
 
 function isAppPath(pathname) {
-  return pathname === "/" || pathname === "/download" || GAMES.some((g) => pathname === `/${g}` || pathname.startsWith(`/${g}/`));
+  return pathname === "/" || APP_SECTIONS.includes(pathname.split("/")[1]);
 }
 
 async function route() {
@@ -2133,10 +2137,16 @@ async function route() {
     section = "privacy";
   } else if (segments[0] === "terms") {
     section = "terms";
-  } else if (GAMES.includes(segments[0])) {
-    currentGame = segments[0];
-    section = segments[1] ?? "instances";
-    param = segments[2];
+  } else if (segments[0] === "aion2") {
+    // Old address with the game segment: same page without it.
+    location.replace(`/${segments.slice(1).join("/") || "instances"}${location.search}${location.hash}`);
+    return;
+  } else if (APP_SECTIONS.includes(segments[0])) {
+    section = segments[0];
+    param = segments[1];
+    if (section === "compare") {
+      param = segments[1];
+    }
   } else {
     section = "notfound";
   }

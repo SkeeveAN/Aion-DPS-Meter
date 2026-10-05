@@ -2398,5 +2398,4 @@ body:has(.download-hero) .nav-download-link:hover,
 }
 .pt-hero h2 a { color: inherit; text-decoration: none; }
 .pt-hero h2 a:hover { color: var(--color-primary); }
-.pt-profile { color: var(--color-primary); border-color: var(--color-primary); text-decoration: none; font-weight: 600; }
-.pt-profile:hover { background: var(--glow-primary); }
+.pt-hero h2 .profile-link { width: 22px; height: 22px; margin-left: 10px; }

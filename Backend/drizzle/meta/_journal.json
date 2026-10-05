@@ -204,6 +204,13 @@
       "when": 1790814645035,
       "tag": "0028_add_player_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "6",
+      "when": 1791190000000,
+      "tag": "0029_add_player_slug",
+      "breakpoints": true
     }
   ]
 }

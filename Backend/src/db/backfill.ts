@@ -1,6 +1,7 @@
 import { eq, isNull } from "drizzle-orm";
 import { db } from "./client.js";
-import { bosses, instances, serverCatalog } from "./schema.js";
+import { bosses, instances, players, serverCatalog } from "./schema.js";
+import { ensurePlayerSlug } from "../seo/playerSlug.js";
 import { GAME_NAME_TRANSLATIONS } from "../../../Web-Frontend/game-data.js";
 import { slugify, uniqueSlug } from "../seo/slug.js";
 import { UNASSIGNED_INSTANCE_NAME } from "../constants.js";
@@ -19,8 +20,8 @@ export function englishNameFor(name: string): string | null {
  * hand-written content migration inserts without a slug. Idempotent: rows with a slug are never
  * touched, so a slug stays stable even if the row is renamed later (URLs must not rot).
  */
-export function backfillSlugs(): { serverCatalog: number; instances: number; bosses: number } {
-  const counts = { serverCatalog: 0, instances: 0, bosses: 0 };
+export function backfillSlugs(): { serverCatalog: number; instances: number; bosses: number; players: number } {
+  const counts = { serverCatalog: 0, instances: 0, bosses: 0, players: 0 };
 
   const catalogTaken = new Set(
     db.select({ slug: serverCatalog.slug }).from(serverCatalog).all().map((r) => r.slug).filter((s): s is string => s !== null),
@@ -75,6 +76,11 @@ export function backfillSlugs(): { serverCatalog: number; instances: number; bos
     taken.add(slug);
     db.update(bosses).set({ slug, nameEn }).where(eq(bosses.id, row.id)).run();
     counts.bosses++;
+  }
+
+  for (const row of db.select({ id: players.id }).from(players).where(isNull(players.slug)).all()) {
+    ensurePlayerSlug(row.id);
+    counts.players++;
   }
 
   return counts;
