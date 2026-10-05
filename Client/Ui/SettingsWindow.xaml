@@ -566,6 +566,17 @@
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Hotkey.Timetable}"/>
                                 <CheckBox x:Name="ShowTimetableBox" Content="{local:Loc Settings.ShowTimetable}"/>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{local:Loc Settings.Timetable.Opacity}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <ComboBox Grid.Column="1" x:Name="TimetableOpacityBox" Margin="0,2" HorizontalAlignment="Stretch">
+                                        <ComboBoxItem Content="30 %" Tag="0.3"/>
+                                        <ComboBoxItem Content="45 %" Tag="0.45"/>
+                                        <ComboBoxItem Content="60 %" Tag="0.6"/>
+                                        <ComboBoxItem Content="80 %" Tag="0.8"/>
+                                        <ComboBoxItem Content="100 %" Tag="1"/>
+                                    </ComboBox>
+                                </Grid>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">

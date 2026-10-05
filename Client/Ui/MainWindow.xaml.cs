@@ -3496,7 +3496,7 @@ public partial class MainWindow : Window
         }
 
         _timetable ??= new TimetableWindow();
-        _timetable.ApplyOpacity(settings.OverlayOpacity);
+        _timetable.ApplyOpacity(settings.TimetableOpacity ?? settings.OverlayOpacity);
         if (!_timetable.IsVisible)
         {
             _timetable.Show();

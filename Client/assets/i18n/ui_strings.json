@@ -1540,5 +1540,15 @@
     "pl": "Przesyłanie",
     "tr": "Yükleme",
     "zh": "上传"
+  },
+  "Settings.Timetable.Opacity": {
+    "en": "Timetable opacity",
+    "de": "Zeitplan-Deckkraft",
+    "fr": "Opacité de l'overlay des horaires",
+    "es": "Opacidad del overlay de horarios",
+    "ru": "Непрозрачность оверлея расписания",
+    "pl": "Krycie nakładki harmonogramu",
+    "tr": "Zaman çizelgesi opaklığı",
+    "zh": "时间表不透明度"
   }
 }

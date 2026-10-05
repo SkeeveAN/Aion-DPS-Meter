@@ -104,6 +104,10 @@ public sealed class MeterSettings
     /// <summary>How opaque the overlay's dark backgrounds are, 0.2 to 1 (both looks).</summary>
     public double OverlayOpacity { get; set; } = 0.6;
 
+    /// <summary>How opaque the timetable overlay's background is, 0.2 to 1. Null (a settings file from before
+    /// this existed) follows <see cref="OverlayOpacity"/>, which is what the timetable used until then.</summary>
+    public double? TimetableOpacity { get; set; }
+
     /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
     public double OverlayScale { get; set; } = 1.0;
 

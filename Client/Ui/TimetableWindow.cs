@@ -36,7 +36,7 @@ public sealed class TimetableWindow : Window
         SizeToContent = SizeToContent.WidthAndHeight;
 
         var settings = MeterSettings.Load();
-        ApplyOpacity(settings.OverlayOpacity);
+        ApplyOpacity(settings.TimetableOpacity ?? settings.OverlayOpacity);
         SetScale(settings.TimetableScale);
 
         var header = new DockPanel { Margin = new Thickness(2, 0, 0, 4), Background = Brushes.Transparent, Cursor = Cursors.SizeAll };
