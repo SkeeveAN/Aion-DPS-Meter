@@ -1,3 +1,4 @@
+import { ownSkillRows, skillIconByName, skillNamesByName } from "../profile.js";
 import { and, asc, avg, count, desc, eq, max, ne } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
@@ -69,18 +70,26 @@ function playerOnBoss(playerId: number, bossId: number) {
     .orderBy(desc(encounterParticipants.idps), desc(encounters.startedAt))
     .get()!;
 
-  const skills = db
+  const rawSkills = db
     .select({
       skillName: encounterSkillUsage.skillName,
       hits: encounterSkillUsage.hits,
       critHits: encounterSkillUsage.critHits,
       totalDamage: encounterSkillUsage.totalDamage,
+      minHit: encounterSkillUsage.minHit,
       maxHit: encounterSkillUsage.maxHit,
+      isHeal: encounterSkillUsage.isHeal,
     })
     .from(encounterSkillUsage)
     .where(and(eq(encounterSkillUsage.participantId, best.participantId), eq(encounterSkillUsage.isHeal, false)))
     .orderBy(desc(encounterSkillUsage.totalDamage))
     .all();
+  // Own-class skills only (effects folded in), with the game's icon and every language's name.
+  const skills = ownSkillRows(best.className, rawSkills).map((s) => ({
+    ...s,
+    icon: skillIconByName(s.skillName, best.className),
+    names: skillNamesByName(s.skillName, best.className),
+  }));
 
   return {
     player,

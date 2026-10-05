@@ -2073,7 +2073,7 @@ async function renderComparePlayers(params) {
   // higher total isn't automatically "ahead" in every row.
   const skillMap = (x) => {
     const total = x.skills.reduce((acc, s) => acc + s.totalDamage, 0);
-    return new Map(x.skills.map((s) => [s.skillName, { share: total > 0 ? (s.totalDamage / total) * 100 : 0, damage: s.totalDamage }]));
+    return new Map(x.skills.map((s) => [s.skillName, { share: total > 0 ? (s.totalDamage / total) * 100 : 0, damage: s.totalDamage, icon: s.icon, names: s.names }]));
   };
   const skillsA = skillMap(A);
   const skillsB = skillMap(B);
@@ -2090,7 +2090,10 @@ async function renderComparePlayers(params) {
           el("h3", { textContent: t("compare.skillsHeading") }),
           el("table", { className: "cmp-table" }, [
             el("thead", {}, [el("tr", {}, [el("th", { textContent: t("skillTable.skill") }), el("th", { textContent: A.player.name }), el("th", { textContent: B.player.name })])]),
-            el("tbody", {}, names.map((n) => el("tr", {}, [el("td", { textContent: n }), skillCell(skillsA, n), skillCell(skillsB, n)]))),
+            el("tbody", {}, names.map((n) => {
+              const info = skillsA.get(n) ?? skillsB.get(n);
+              return el("tr", {}, [el("td", {}, [el("span", { className: "cmp-skill" }, [iconTile("skill", info.icon, n), info.names?.[getLocale()] ?? n])]), skillCell(skillsA, n), skillCell(skillsB, n)]);
+            })),
           ]),
         ])
       : null;

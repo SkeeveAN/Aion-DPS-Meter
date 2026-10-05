@@ -2402,3 +2402,5 @@ body:has(.download-hero) .nav-download-link:hover,
 .pt-hero h2 a:hover { color: var(--color-primary); }
 .pt-hero h2 .profile-link { width: 22px; height: 22px; margin-left: 10px; }
 .class-emblem { width: 24px; height: 24px; vertical-align: middle; flex: none; }
+.cmp-skill { display: inline-flex; align-items: center; gap: 10px; }
+.cmp-skill .pf-ico { width: 32px; height: 32px; flex: none; }
