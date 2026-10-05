@@ -1297,24 +1297,64 @@ function meterPanel(roster) {
 // itself (see uploadSchema.ts) - such an encounter just renders an all-zero list rather than
 // erroring.
 function aggroPanel(roster) {
-  const sorted = [...roster].sort((a, b) => b.damageTaken - a.damageTaken);
-  const max = Math.max(...sorted.map((p) => p.damageTaken), 1);
-  const rows = sorted.map((p) =>
-    el("a", { className: "meter-row meter-row-compact", href: gp(`/participants/${p.participantId}`) }, [
+  // Group shields (Chanter, Templar): damageAbsorbed is what the shields on a player soaked up, drawn
+  // as a hatched blue section behind the part that got through. Empty until the client reports it;
+  // without any absorbed damage the panel looks exactly as before.
+  const withShield = roster.some((p) => (p.damageAbsorbed ?? 0) > 0);
+  const totalOf = (p) => p.damageTaken + (p.damageAbsorbed ?? 0);
+  const sorted = [...roster].sort((a, b) => totalOf(b) - totalOf(a));
+  const max = Math.max(...sorted.map(totalOf), 1);
+  const rows = sorted.map((p) => {
+    const absorbed = p.damageAbsorbed ?? 0;
+    const label = absorbed > 0 ? t("encounter.absorbedLabel", { amount: formatNumber(absorbed), pct: Math.round((absorbed / totalOf(p)) * 100) }) : "";
+    return el("a", { className: "meter-row meter-row-compact", href: gp(`/participants/${p.participantId}`), title: label ? `${formatNumber(p.damageTaken)} · ${label}` : "" }, [
       el("div", { className: "meter-row-fill meter-row-fill-danger", style: `width: ${((p.damageTaken / max) * 100).toFixed(1)}%;` }),
+      absorbed > 0 ? el("div", { className: "meter-row-fill meter-row-fill-shield", style: `left: ${((p.damageTaken / max) * 100).toFixed(1)}%; width: ${((absorbed / max) * 100).toFixed(1)}%;` }) : null,
       el("div", { className: "meter-row-content" }, [
         el("span", { className: "meter-name", textContent: p.playerName }),
         el("span", { className: "meter-value", textContent: formatNumber(p.damageTaken) }),
       ]),
-    ]),
-  );
-  return el("div", { className: "meter-panel" }, [
-    el("div", { className: "meter-panel-heading" }, [
-      el("span", { className: "meter-panel-title", textContent: t("encounter.aggroHeading") }),
-      el("span", { className: "meter-panel-subtitle", textContent: t("encounter.aggroSubheading") }),
-    ]),
-    el("div", { className: "meter-list meter-list-compact", style: "margin-top: 14px" }, rows),
-  ]);
+    ].filter((x) => x != null));
+  });
+  const legend = withShield
+    ? el("div", { className: "shield-legend" }, [
+        el("span", {}, [el("i", { className: "sl-taken" }), t("encounter.legendTaken")]),
+        el("span", {}, [el("i", { className: "sl-shield" }), t("encounter.legendShield")]),
+      ])
+    : null;
+  const panels = [
+    el("div", { className: "meter-panel" }, [
+      el("div", { className: "meter-panel-heading" }, [
+        el("span", { className: "meter-panel-title", textContent: t("encounter.aggroHeading") }),
+        el("span", { className: "meter-panel-subtitle", textContent: t("encounter.aggroSubheading") }),
+      ]),
+      legend,
+      el("div", { className: "meter-list meter-list-compact", style: "margin-top: 14px" }, rows),
+    ].filter((x) => x != null)),
+  ];
+
+  // Who cast shields and on whom - only players who actually did; nothing at all when no one did.
+  const casters = roster.filter((p) => (p.shieldsGiven ?? []).some((g) => g.amount > 0));
+  if (casters.length > 0) {
+    panels.push(
+      el("div", { className: "meter-panel" }, [
+        el("div", { className: "meter-panel-heading" }, [
+          el("span", { className: "meter-panel-title", textContent: t("encounter.protectionHeading") }),
+          el("span", { className: "meter-panel-subtitle", textContent: t("encounter.protectionSub") }),
+        ]),
+        el("div", { className: "shield-cards" }, casters.map((p) => {
+          const given = [...p.shieldsGiven].sort((a, b) => b.amount - a.amount);
+          const sum = given.reduce((s, g) => s + g.amount, 0);
+          return el("div", { className: "shield-card" }, [
+            el("div", { className: "shield-card-head" }, [classIcon(p.className), el("b", { textContent: p.playerName })]),
+            el("div", { className: "shield-card-sum", textContent: formatNumber(sum) }),
+            el("ul", {}, given.map((g) => el("li", {}, [el("span", { textContent: g.playerName }), el("span", { textContent: formatNumber(g.amount) })]))),
+          ]);
+        })),
+      ]),
+    );
+  }
+  return el("div", {}, panels);
 }
 
 async function renderEncounter(encounterId) {

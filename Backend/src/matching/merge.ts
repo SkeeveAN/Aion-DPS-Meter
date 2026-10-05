@@ -289,6 +289,8 @@ function insertParticipant(
       totalHealing: participant.totalHealing,
       hps: participant.hps,
       damageTaken: participant.damageTaken,
+      damageAbsorbed: participant.damageAbsorbed,
+      shieldsGiven: participant.shieldsGiven,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
     })
@@ -317,6 +319,8 @@ function overwriteParticipant(participantId: number, participant: ParticipantUpl
       totalHealing: participant.totalHealing,
       hps: participant.hps,
       damageTaken: participant.damageTaken,
+      damageAbsorbed: participant.damageAbsorbed,
+      shieldsGiven: participant.shieldsGiven,
       critRatePercent: critRateOf(participant),
       isCritRateAuthoritative: authoritative,
     })
@@ -570,6 +574,8 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
       dps: Math.max(...group.map((p) => p.dps)),
       idps: Math.max(...group.map((p) => p.idps)),
       damageTaken: group.reduce((sum, p) => sum + p.damageTaken, 0),
+      damageAbsorbed: group.reduce((sum, p) => sum + p.damageAbsorbed, 0),
+      shieldsGiven: [...group.flatMap((p) => p.shieldsGiven).reduce((acc, g) => acc.set(g.playerName, (acc.get(g.playerName) ?? 0) + g.amount), new Map<string, number>())].map(([playerName, amount]) => ({ playerName, amount })),
       skills: group.reduce((acc, p) => mergeSkillLists(acc, p.skills), [] as ParticipantUpload["skills"]),
       healSkills: group.reduce((acc, p) => mergeSkillLists(acc, p.healSkills), [] as ParticipantUpload["healSkills"]),
       buffs: group.reduce((acc, p) => mergeSkillLists(acc, p.buffs), [] as ParticipantUpload["buffs"]),

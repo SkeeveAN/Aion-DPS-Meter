@@ -55,6 +55,10 @@ export const participantSchema = z.object({
   // successfully during the rollout window before everyone has auto-updated (see Update/
   // UpdateService.cs - the client is Velopack-managed, not instant), just without this number yet.
   damageTaken: z.number().int().min(0).max(2_000_000_000).default(0),
+  // Group shields: damage the shields on this player absorbed, and (for a Chanter/Templar) how much
+  // each shielded player got. Defaulted - clients do not report them yet.
+  damageAbsorbed: z.number().int().min(0).max(2_000_000_000).default(0),
+  shieldsGiven: z.array(z.object({ playerName: z.string().trim().min(1).max(40), amount: z.number().int().min(0).max(2_000_000_000) })).max(40).default([]),
   // Real reinforcements this row RECEIVED (see buffUsageSchema) - what the web frontend's "Buffs"
   // column actually shows now, not a damage/heal skill. A Cleric/Chanter group buff lands on every
   // recipient's own row, not only the caster's. Defaulted for the same rollout reason as

@@ -31,6 +31,8 @@ function participant(name: string, extra: Record<string, unknown> = {}) {
     totalHealing: 0,
     hps: 0,
     damageTaken: 0,
+    damageAbsorbed: 0,
+    shieldsGiven: [],
     buffs: [],
     skills: [{ skill: "Rending Blow", hits: 20, critHits: 3, total: 50_000, min: 1000, max: 4000 }],
     healSkills: [],

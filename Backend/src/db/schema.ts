@@ -377,6 +377,11 @@ export const encounterParticipants = sqliteTable(
     // chart (who ate the boss's hits, not who hit the boss - an aggro/tank question totalDamage
     // cannot answer). Defaults to 0 for rows from a client older than this column.
     damageTaken: integer("damage_taken").notNull().default(0),
+    // Group shields (Chanter, Templar): damage that shields placed on this participant soaked up
+    // (on top of damageTaken, which is what got through), and for the caster who got how much.
+    // Empty until a client reports them.
+    damageAbsorbed: integer("damage_absorbed").notNull().default(0),
+    shieldsGiven: text("shields_given", { mode: "json" }).$type<{ playerName: string; amount: number }[]>().notNull().default(sql`'[]'`),
     critRatePercent: real("crit_rate_percent").notNull(),
     // True once this participant's own upload (isSelf) supplied the crit rate -
     // Aion only flags crits reliably in the scorer's own log (see the client's

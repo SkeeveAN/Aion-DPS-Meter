@@ -2404,3 +2404,17 @@ body:has(.download-hero) .nav-download-link:hover,
 .class-emblem { width: 24px; height: 24px; vertical-align: middle; flex: none; }
 .cmp-skill { display: inline-flex; align-items: center; gap: 10px; }
 .cmp-skill .pf-ico { width: 32px; height: 32px; flex: none; }
+
+/* ---- Group shields: hatched blue section behind the damage that got through, and the caster cards ---- */
+.meter-row-fill-shield { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, var(--color-info) 0 6px, color-mix(in srgb, var(--color-info) 55%, #ffffff) 6px 9px); opacity: 0.75; }
+.shield-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 12.5px; color: var(--color-text-muted); }
+.shield-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
+.sl-taken { background: var(--color-danger); }
+.sl-shield { background: repeating-linear-gradient(135deg, var(--color-info) 0 3px, color-mix(in srgb, var(--color-info) 55%, #ffffff) 3px 5px); }
+.shield-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.shield-card { border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface2); padding: 12px 14px; }
+.shield-card-head { display: flex; align-items: center; gap: 10px; }
+.shield-card-sum { font-size: 24px; font-weight: 700; color: var(--color-info); font-variant-numeric: tabular-nums; margin: 6px 0; }
+.shield-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; }
+.shield-card li { display: flex; justify-content: space-between; gap: 10px; }
+.shield-card li span:first-child { color: var(--color-text-muted); }
