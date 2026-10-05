@@ -1795,6 +1795,36 @@ function renderSkillsTab(profile) {
   ]);
 }
 
+// Species knowledge (pet window): one card per species with its level and the analysed effects. Percent
+// stats arrive in hundredths (145 = 1.45 %) and are shown with one decimal, as the game does.
+function speciesValue(effect) {
+  if (!effect.percent) {
+    return formatNumber(effect.value);
+  }
+  const text = (effect.value / 100).toFixed(1);
+  const decimal = (1.1).toLocaleString(getLocale()).charAt(1);
+  return `${text.replace(".", decimal)} %`;
+}
+
+function renderSpeciesTab(profile) {
+  const locale = getLocale();
+  const cards = profile.species.map((k) => {
+    const maxed = k.progress === 0 && k.level >= 10;
+    const rows = k.effects.map((e) =>
+      el("li", {}, [
+        el("span", { className: "pf-sp-stat", textContent: (e.names?.[locale] ?? e.names?.en ?? e.name) }),
+        el("strong", { textContent: speciesValue(e) }),
+      ]),
+    );
+    return el("div", { className: "pf-card pf-species-card" }, [
+      el("h4", {}, [el("span", { textContent: k.names[locale] ?? k.names.en ?? k.key }), el("em", { textContent: t("profile.speciesLevel", { level: k.level }) })]),
+      el("div", { className: "pf-sp-sub", textContent: maxed ? t("profile.speciesMax") : `${t("profile.speciesProgress")}: ${formatNumber(k.progress)}` }),
+      el("ul", { className: "pf-sp-list" }, rows),
+    ]);
+  });
+  return el("div", {}, [el("div", { className: "pf-species" }, cards), el("p", { className: "profile-source", textContent: t("profile.speciesNote") })]);
+}
+
 // The board tiles are the game's own node art, picked by the node's rarity (common = grey rune, rare =
 // blue, legend = green, unique = orange); a node that is not unlocked uses the dark "disabled" variant.
 const NODE_ART = { 1: "common", 2: "rare", 3: "legend", 4: "unique" };
@@ -1938,6 +1968,9 @@ async function renderPlayerProfile(playerId) {
   }
   if (profile?.daevanion.length > 0) {
     tabs.push(["daevanion", t("profile.tabBoard"), profile.daevanion.reduce((s, b) => s + b.activeNodes, 0), () => renderBoardTab(profile)]);
+  }
+  if (profile?.species?.length > 0) {
+    tabs.push(["species", t("profile.tabSpecies"), profile.species.length, () => renderSpeciesTab(profile)]);
   }
 
   const panel = el("div", { className: "pf-panel" });

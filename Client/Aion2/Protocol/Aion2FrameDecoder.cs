@@ -134,6 +134,9 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.Daevanion:
                 DecodeDaevanion(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.Species:
+                DecodeSpecies(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Skills:
                 DecodeSkills(frame);
                 return Array.Empty<DamageEvent>();
@@ -966,6 +969,111 @@ public sealed class Aion2FrameDecoder
         {
             _entities.SetLocalDaevanion(boards);
         }
+    }
+
+    /// <summary>
+    /// The species knowledge (login, together with the pet list): five blocks with ids 2..6 (Cognia, Fera,
+    /// Natura, Varia, Specia) in a row, found by their header. A block is: id (u8) twice, level (u32),
+    /// progress (u64), page count (u8), then per page: page number (u8), slot count (u8) and that many
+    /// 12 byte effect slots (slot u8, kind u8, stat id u16, value u64; an empty slot is all zero).
+    /// The stream puts a stray byte of 0x2a or more in front of some page and slot numbers (seen as
+    /// aa, fb, bb, ab, 2a), which is skipped. Stat ids resolve to names on the website.
+    /// </summary>
+    private void DecodeSpecies(ReadOnlySpan<byte> frame)
+    {
+        for (int start = 2; start + 14 < frame.Length; start++)
+        {
+            if (frame[start] != 2 || frame[start + 1] != 2)
+            {
+                continue;
+            }
+
+            var found = new List<Aion2SpeciesKnowledge>();
+            int p = start;
+            for (int id = 2; id <= 6; id++)
+            {
+                if (id > 2 && p < frame.Length && frame[p] > 9)
+                {
+                    p++; // a stray byte between two blocks
+                }
+
+                if (!TryReadSpeciesBlock(frame, id, ref p, out Aion2SpeciesKnowledge? block))
+                {
+                    break;
+                }
+
+                found.Add(block!);
+            }
+
+            if (found.Count == 5)
+            {
+                _entities.SetLocalSpecies(found);
+                return;
+            }
+        }
+    }
+
+    private static bool TryReadSpeciesBlock(ReadOnlySpan<byte> frame, int id, ref int p, out Aion2SpeciesKnowledge? block)
+    {
+        block = null;
+        if (p + 15 > frame.Length || frame[p] != id || frame[p + 1] != id)
+        {
+            return false;
+        }
+
+        uint level = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 2)..]);
+        ulong progress = BinaryPrimitives.ReadUInt64LittleEndian(frame[(p + 6)..]);
+        int pages = frame[p + 14];
+        if (level is < 1 or > 99 || pages is < 1 or > 5)
+        {
+            return false;
+        }
+
+        p += 15;
+        var effects = new List<Aion2SpeciesEffect>();
+        for (int page = 1; page <= pages; page++)
+        {
+            if (p < frame.Length && frame[p] > 9)
+            {
+                p++;
+            }
+
+            if (p + 2 > frame.Length || frame[p] != page)
+            {
+                return false;
+            }
+
+            int slots = frame[p + 1];
+            p += 2;
+            if (slots > 32)
+            {
+                return false;
+            }
+
+            for (int slot = 0; slot < slots; slot++)
+            {
+                if (p < frame.Length && frame[p] != slot && frame[p] > 9)
+                {
+                    p++;
+                }
+
+                if (p + 12 > frame.Length || frame[p] != slot)
+                {
+                    return false;
+                }
+
+                int stat = BinaryPrimitives.ReadUInt16LittleEndian(frame[(p + 2)..]);
+                long value = unchecked((long)BinaryPrimitives.ReadUInt64LittleEndian(frame[(p + 4)..]));
+                p += 12;
+                if (stat != 0)
+                {
+                    effects.Add(new Aion2SpeciesEffect(page, slot, stat, value));
+                }
+            }
+        }
+
+        block = new Aion2SpeciesKnowledge(id, (int)level, unchecked((long)progress), effects);
+        return true;
     }
 
     /// <summary>

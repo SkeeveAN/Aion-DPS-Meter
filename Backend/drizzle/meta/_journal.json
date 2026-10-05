@@ -225,6 +225,13 @@
       "when": 1791210000000,
       "tag": "0031_add_instance_variant_and_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "6",
+      "when": 1791220000000,
+      "tag": "0032_add_species_knowledge",
+      "breakpoints": true
     }
   ]
 }

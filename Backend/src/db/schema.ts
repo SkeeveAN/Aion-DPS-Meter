@@ -321,6 +321,8 @@ export const playerProfiles = sqliteTable("player_profiles", {
   gearJson: text("gear_json").notNull().default("[]"),
   skillsJson: text("skills_json").notNull().default("[]"),
   daevanionJson: text("daevanion_json").notNull().default("[]"),
+  // Species knowledge (Cognia, Fera, Natura, Varia, Specia): level, progress and analysed effects; own character only.
+  speciesJson: text("species_json").notNull().default("[]"),
 });
 
 export const encounters = sqliteTable(

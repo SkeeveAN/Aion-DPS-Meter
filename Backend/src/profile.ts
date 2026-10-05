@@ -51,6 +51,28 @@ export const profileSchema = z.object({
     )
     .max(12)
     .default([]),
+  // The pet window's species knowledge (own character): id 2 Cognia, 3 Fera, 4 Natura, 5 Varia, 6 Specia.
+  species: z
+    .array(
+      z.object({
+        id: z.number().int().min(1).max(20),
+        level: z.number().int().min(0).max(99),
+        progress: z.number().int().min(0).max(1_000_000_000),
+        effects: z
+          .array(
+            z.object({
+              page: z.number().int().min(1).max(5),
+              slot: z.number().int().min(0).max(32),
+              stat: z.number().int().min(1).max(100_000),
+              value: z.number().int().min(-1_000_000_000).max(1_000_000_000),
+            }),
+          )
+          .max(100)
+          .default([]),
+      }),
+    )
+    .max(10)
+    .default([]),
 });
 
 export type ProfileUpload = z.infer<typeof profileSchema>;
@@ -63,7 +85,7 @@ export type ProfileUpload = z.infer<typeof profileSchema>;
 export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & Pick<ProfileUpload, "source">): void {
   // The upload route has already run profileSchema (which fills these defaults); callers that go
   // straight to the merge code may omit the lists.
-  const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], daevanion: input.daevanion ?? [] };
+  const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], daevanion: input.daevanion ?? [], species: input.species ?? [] };
   if (profile.source === "seen" && profile.gear.length === 0 && profile.classId === undefined && profile.level === undefined) {
     return;
   }
@@ -79,10 +101,11 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     classId: profile.classId ?? existing?.classId ?? null,
     faction: profile.faction ?? existing?.faction ?? null,
     gearJson: JSON.stringify(profile.gear),
-    // The skill list and the Daevanion boards only exist for "self"; a later upload from the same
+    // The skill list, the Daevanion boards and the species knowledge only exist for "self"; a later upload from the same
     // person that lacks them (their client started mid-session) must not wipe what was stored.
     skillsJson: profile.skills.length > 0 ? JSON.stringify(profile.skills) : (existing?.skillsJson ?? "[]"),
     daevanionJson: profile.daevanion.length > 0 ? JSON.stringify(profile.daevanion) : (existing?.daevanionJson ?? "[]"),
+    speciesJson: profile.species.length > 0 ? JSON.stringify(profile.species) : (existing?.speciesJson ?? "[]"),
   };
   if (existing) {
     db.update(playerProfiles)
@@ -119,6 +142,11 @@ let daevanion: DaevanionData | null = null;
 let itemIcons: Record<string, string> | null = null;
 let skillIcons: Record<string, string> | null = null;
 let skillTypes: Record<string, string> | null = null; // "a" active, "p" passive
+type SpeciesData = {
+  species: Record<string, { key: string; names: Record<string, string> }>;
+  stats: Record<string, { names: Record<string, string>; percent?: boolean }>;
+};
+let speciesData: SpeciesData | null = null;
 let boardNodes: Map<number, { id: number; node: DaevanionData["nodes"][string] }[]> | null = null;
 
 // The match report only stores skill names, not ids. A name is mapped back to ids to find the icon and
@@ -205,6 +233,15 @@ export function ownSkillRows<T extends ReportSkill>(className: string, rows: T[]
   return [...merged.values()].sort((x, y) => y.totalDamage - x.totalDamage);
 }
 
+export type SpeciesView = {
+  id: number;
+  key: string;
+  names: Record<string, string>;
+  level: number;
+  progress: number;
+  effects: { page: number; slot: number; stat: number; name: string; names?: Record<string, string>; value: number; percent: boolean }[];
+};
+
 export type ProfileView = {
   source: "self" | "seen";
   updatedAt: string;
@@ -228,6 +265,8 @@ export type ProfileView = {
      */
     cells: [number, number, number, string | number, number, number, number][];
   }[];
+  /** Species knowledge of the pet window; percent effects carry hundredths (145 = 1.45 %). */
+  species: SpeciesView[];
 };
 
 /** The stored profile of a player with every id resolved to a name; null when none was uploaded. */
@@ -243,6 +282,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
   itemIcons ??= loadJson<Record<string, string>>("item_icons.json", {});
   skillIcons ??= loadJson<Record<string, string>>("skill_icons.json", {});
   skillTypes ??= loadJson<Record<string, string>>("skill_types.json", {});
+  speciesData ??= loadJson<SpeciesData>("species_stats.json", { species: {}, stats: {} });
   if (!boardNodes) {
     boardNodes = new Map();
     for (const [id, node] of Object.entries(daevanion.nodes)) {
@@ -316,6 +356,25 @@ export function buildProfileView(playerId: number): ProfileView | null {
     };
   });
 
+  const species = (JSON.parse(row.speciesJson) as { id: number; level: number; progress: number; effects: { page: number; slot: number; stat: number; value: number }[] }[])
+    .map((k) => {
+      const info = speciesData!.species[String(k.id)];
+      return {
+        id: k.id,
+        key: info?.key ?? `species${k.id}`,
+        names: info?.names ?? {},
+        level: k.level,
+        progress: k.progress,
+        effects: k.effects
+          .map((e) => {
+            const stat = speciesData!.stats[String(e.stat)];
+            return { page: e.page, slot: e.slot, stat: e.stat, name: stat?.names.en ?? `Stat ${e.stat}`, names: stat?.names, value: e.value, percent: stat?.percent === true };
+          })
+          .sort((a, b) => a.page - b.page || a.slot - b.slot),
+      };
+    })
+    .sort((a, b) => a.id - b.id);
+
   return {
     source: row.source,
     updatedAt: row.updatedAt,
@@ -327,5 +386,6 @@ export function buildProfileView(playerId: number): ProfileView | null {
     averageItemLevel: known.length > 0 ? Math.round((known.reduce((s, g) => s + g.itemLevel, 0) / known.length) * 10) / 10 : null,
     skills,
     daevanion: boards,
+    species,
   };
 }

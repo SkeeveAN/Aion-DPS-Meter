@@ -49,6 +49,9 @@ public enum OpcodeFamily
     Skills,
     /// <summary>The local player's activated Daevanion nodes, per board.</summary>
     Daevanion,
+    /// <summary>The local player's species knowledge (Cognia, Fera, Natura, Varia, Specia) at login: level,
+    /// progress and the analysed effects of each.</summary>
+    Species,
     /// <summary>The local player's skills that have specialisation variants: the five-variant ones are the
     /// stigmas (login).</summary>
     Stigmas,

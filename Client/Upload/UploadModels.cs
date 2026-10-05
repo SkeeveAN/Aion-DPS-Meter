@@ -64,13 +64,19 @@ public sealed record ProfileUpload(
     int? Faction,
     IReadOnlyList<ProfileGearUpload> Gear,
     IReadOnlyList<ProfileSkillUpload> Skills,
-    IReadOnlyList<ProfileBoardUpload> Daevanion);
+    IReadOnlyList<ProfileBoardUpload> Daevanion,
+    // Species knowledge (own character only): level, progress and analysed effects of Cognia..Specia.
+    IReadOnlyList<ProfileSpeciesUpload>? Species = null);
 
 public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant);
 
 public sealed record ProfileSkillUpload(int Id, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
 
 public sealed record ProfileBoardUpload(int Board, IReadOnlyList<int> Nodes);
+
+public sealed record ProfileSpeciesUpload(int Id, int Level, long Progress, IReadOnlyList<ProfileSpeciesEffectUpload> Effects);
+
+public sealed record ProfileSpeciesEffectUpload(int Page, int Slot, int Stat, long Value);
 
 /// <summary>One boss encounter, as sent to POST /api/uploads. The backend recognizes the same real
 /// fight across several independent uploads (one per group member) by boss + time window + roster

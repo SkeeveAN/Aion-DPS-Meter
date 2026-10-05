@@ -20,6 +20,13 @@ public sealed record Aion2InspectedPlayer(string Name, int ClassCode, int Level,
 /// <summary>The activated node ids of one Daevanion board (the start node included).</summary>
 public sealed record Aion2DaevanionBoard(int BoardId, IReadOnlyList<int> NodeIds);
 
+/// <summary>One analysed effect of a species knowledge: the page (1..3), the slot on it, the game's stat id and
+/// the value (percent stats are in hundredths).</summary>
+public sealed record Aion2SpeciesEffect(int Page, int Slot, int StatId, long Value);
+
+/// <summary>One species knowledge of the pet window: id 2 Cognia, 3 Fera, 4 Natura, 5 Varia, 6 Specia.</summary>
+public sealed record Aion2SpeciesKnowledge(int SpeciesId, int Level, long Progress, IReadOnlyList<Aion2SpeciesEffect> Effects);
+
 /// <summary>The local player's character record (opcode 0x3336), as of when the server last sent it
 /// - at login and on every zone change.</summary>
 public sealed record Aion2CharacterInfo(int CombatId, string Name, int ClassCode, int Level, IReadOnlyList<Aion2EquippedItem> Equipment, DateTime ReceivedAt, bool Restored = false, int ServerId = 0);
@@ -155,6 +162,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _fullEquipment = equipment;
             _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList();
             _daevanion = saved.Daevanion.Select(b => new Aion2DaevanionBoard(b.Board, b.Nodes)).ToList();
+            _species = saved.Species.Select(k => new Aion2SpeciesKnowledge(k.Id, k.Level, k.Progress,
+                k.Effects.Select(e => new Aion2SpeciesEffect(e.Page, e.Slot, e.Stat, e.Value)).ToList())).ToList();
         }
     }
 
@@ -178,6 +187,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
                 Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
                 Daevanion = (_daevanion ?? Array.Empty<Aion2DaevanionBoard>()).Select(b => new Aion2SavedCharacter.SavedBoard(b.BoardId, b.NodeIds.ToList())).ToList(),
+                Species = (_species ?? Array.Empty<Aion2SpeciesKnowledge>()).Select(k => new Aion2SavedCharacter.SavedSpecies(k.SpeciesId, k.Level, k.Progress,
+                    k.Effects.Select(e => new Aion2SavedCharacter.SavedEffect(e.Page, e.Slot, e.StatId, e.Value)).ToList())).ToList(),
             };
         }
     }
@@ -230,6 +241,29 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 return _daevanion ?? Array.Empty<Aion2DaevanionBoard>();
             }
         }
+    }
+
+    private IReadOnlyList<Aion2SpeciesKnowledge>? _species;
+
+    public IReadOnlyList<Aion2SpeciesKnowledge> LocalSpecies
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _species ?? Array.Empty<Aion2SpeciesKnowledge>();
+            }
+        }
+    }
+
+    public void SetLocalSpecies(IReadOnlyList<Aion2SpeciesKnowledge> species)
+    {
+        lock (_gate)
+        {
+            _species = species;
+        }
+
+        NotifyCharacterChanged();
     }
 
     public void SetLocalDaevanion(IReadOnlyList<Aion2DaevanionBoard> boards)

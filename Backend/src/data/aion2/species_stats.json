@@ -1,0 +1,310 @@
+{
+ "species": {
+  "2": {
+   "key": "cognia",
+   "names": {
+    "de": "Cognia",
+    "en": "Cogni",
+    "es": "Cognis",
+    "fr": "Intellia",
+    "ru": "Разумный"
+   }
+  },
+  "3": {
+   "key": "fera",
+   "names": {
+    "de": "Fera",
+    "en": "Fera",
+    "es": "Feras",
+    "fr": "Bestia",
+    "ru": "Дикие"
+   }
+  },
+  "4": {
+   "key": "natura",
+   "names": {
+    "de": "Natura",
+    "en": "Natura",
+    "es": "Naturas",
+    "fr": "Natura",
+    "ru": "Природные"
+   }
+  },
+  "5": {
+   "key": "varia",
+   "names": {
+    "de": "Varia",
+    "en": "Varian",
+    "es": "Varians",
+    "fr": "Varius",
+    "ru": "Мутанты"
+   }
+  },
+  "6": {
+   "key": "specia",
+   "names": {
+    "de": "Specia",
+    "en": "Special",
+    "es": "Especiales",
+    "fr": "Spéciaux",
+    "ru": "Специальное"
+   }
+  }
+ },
+ "stats": {
+  "19": {
+   "names": {
+    "de": "Zusatzangriffskraft",
+    "en": "Attack Bonus",
+    "es": "Ataque Adicional",
+    "fr": "ATQ supplémentaire",
+    "ru": "Доп. АТК"
+   }
+  },
+  "44": {
+   "names": {
+    "de": "Krit.-Schadensverstärkung",
+    "en": "Critical Damage Boost",
+    "es": "Amplificación de Daño Crítico",
+    "fr": "Boost de DGT CRIT",
+    "ru": "Увелич. крит. урона"
+   },
+   "percent": true
+  },
+  "50": {
+   "names": {
+    "de": "Angriffskraft (Boss)",
+    "en": "Boss Attack",
+    "es": "Ataque de Jefe",
+    "fr": "ATQ contre les boss",
+    "ru": "АТК по боссу"
+   }
+  },
+  "52": {
+   "names": {
+    "de": "Zusatzverteidigung",
+    "en": "Defense Bonus",
+    "es": "Defensa Adicional",
+    "fr": "DÉF supplémentaire",
+    "ru": "Доп. ЗЩТ"
+   }
+  },
+  "57": {
+   "names": {
+    "de": "Verteidigung (PvE)",
+    "en": "PvE Defense",
+    "es": "Defensa JcE",
+    "fr": "DÉF JcE",
+    "ru": "ЗЩТ в PvE"
+   }
+  },
+  "98": {
+   "names": {
+    "de": "Angriffskraft (Rückseitig)",
+    "en": "Back Attack",
+    "es": "Ataque por la Espalda",
+    "fr": "ATQ dans le dos",
+    "ru": "АТК с тыла"
+   }
+  },
+  "104": {
+   "names": {
+    "de": "Zusatzpräzision",
+    "en": "Accuracy Bonus",
+    "es": "Precisión Adicional",
+    "fr": "Précision supplémentaire",
+    "ru": "Доп. меткость"
+   }
+  },
+  "110": {
+   "names": {
+    "de": "Präzision (PvE)",
+    "en": "PvE Accuracy",
+    "es": "Precisión JcE",
+    "fr": "Précision JcE",
+    "ru": "Меткость в PvE"
+   }
+  },
+  "128": {
+   "names": {
+    "de": "Kritischer Treffer",
+    "en": "Critical Hit",
+    "es": "Crítico",
+    "fr": "CRIT",
+    "ru": "Крит. удар"
+   }
+  },
+  "193": {
+   "names": {
+    "de": "LP",
+    "en": "HP",
+    "es": "Puntos de Vida",
+    "fr": "PV",
+    "ru": "ОЗ"
+   }
+  },
+  "199": {
+   "names": {
+    "de": "MP",
+    "en": "MP",
+    "es": "Puntos de Maná",
+    "fr": "PM",
+    "ru": "ОМ"
+   }
+  },
+  "255": {
+   "names": {
+    "de": "Block",
+    "en": "Block",
+    "es": "Bloqueo",
+    "fr": "Blocage",
+    "ru": "Блок"
+   }
+  },
+  "397": {
+   "names": {
+    "de": "Krit.-Treffer (Cognia)",
+    "en": "Cogni Critical Hit",
+    "es": "Crítico de Cognis",
+    "fr": "CRIT Intellia",
+    "ru": "Крит. удар по разумным"
+   }
+  },
+  "398": {
+   "names": {
+    "de": "Krit.-Widerstand (Cognia)",
+    "en": "Cogni Critical Hit Resist",
+    "es": "Resistencia Crítica de Cognis",
+    "fr": "RÉS CRIT Intellia",
+    "ru": "Сопротивление крит. удару от разумных"
+   }
+  },
+  "401": {
+   "names": {
+    "de": "Angriffskraft (Fera)",
+    "en": "Fera Attack",
+    "es": "Ataque de Feras",
+    "fr": "ATQ Bestia",
+    "ru": "АТК по диким"
+   }
+  },
+  "404": {
+   "names": {
+    "de": "Ausweichen (Fera)",
+    "en": "Fera Evasion",
+    "es": "Evasión de Feras",
+    "fr": "Esquive Bestia",
+    "ru": "УКЛ от диких"
+   }
+  },
+  "410": {
+   "names": {
+    "de": "Verteidigung (Natura)",
+    "en": "Natura Defense",
+    "es": "Defensa de Naturas",
+    "fr": "DÉF Natura",
+    "ru": "ЗЩТ от природных монстров"
+   }
+  },
+  "412": {
+   "names": {
+    "de": "Ausweichen (Natura)",
+    "en": "Natura Evasion",
+    "es": "Evasión de Naturas",
+    "fr": "Esquive Natura",
+    "ru": "УКЛ от природных монстров"
+   }
+  },
+  "414": {
+   "names": {
+    "de": "Krit.-Widerstand (Natura)",
+    "en": "Natura Critical Hit Resist",
+    "es": "Resistencia Crítica de Naturas",
+    "fr": "RÉS CRIT Natura",
+    "ru": "Сопротивление крит. удару от природных монстров"
+   }
+  },
+  "416": {
+   "names": {
+    "de": "Block (Natura)",
+    "en": "Natura Block",
+    "es": "Bloqueo de Naturas",
+    "fr": "Blocage Natura",
+    "ru": "Блок природных монстров"
+   }
+  },
+  "418": {
+   "names": {
+    "de": "Verteidigung (Varia)",
+    "en": "Varian Defense",
+    "es": "Defensa de Varians",
+    "fr": "DÉF Varius",
+    "ru": "ЗЩТ от мутантов"
+   }
+  },
+  "419": {
+   "names": {
+    "de": "Präzision (Varia)",
+    "en": "Varian Accuracy",
+    "es": "Precisión de Varians",
+    "fr": "Précision Varius",
+    "ru": "Меткость по мутантам"
+   }
+  },
+  "420": {
+   "names": {
+    "de": "Ausweichen (Varia)",
+    "en": "Varian Evasion",
+    "es": "Evasión de Varians",
+    "fr": "Esquive Varius",
+    "ru": "УКЛ от мутанта"
+   }
+  },
+  "424": {
+   "names": {
+    "de": "Block (Varia)",
+    "en": "Varian Block",
+    "es": "Bloqueo de Varians",
+    "fr": "Blocage Varius",
+    "ru": "Блок мутантов"
+   }
+  },
+  "445": {
+   "names": {
+    "de": "Eisenwall",
+    "en": "Endurance",
+    "es": "Tenacidad",
+    "fr": "Blindage",
+    "ru": "Непробиваемость"
+   },
+   "percent": true
+  },
+  "587": {
+   "names": {
+    "de": "Angriffskraft (Frontal)",
+    "en": "Front Attack",
+    "es": "Ataque Frontal",
+    "fr": "ATQ frontale",
+    "ru": "АТК спереди"
+   }
+  },
+  "591": {
+   "names": {
+    "de": "Kritischer Treffer (Frontal)",
+    "en": "Front Attack Critical Hit",
+    "es": "Ataque Crítico Frontal",
+    "fr": "CRIT frontal",
+    "ru": "Крит. удар спереди"
+   }
+  },
+  "592": {
+   "names": {
+    "de": "Widerstand (Kritischer Treffer Frontal)",
+    "en": "Front Attack Critical Hit Resist",
+    "es": "Resistencia Crítica frontal",
+    "fr": "RÉS CRIT frontal",
+    "ru": "Сопротивление крит. удару спереди"
+   }
+  }
+ }
+}

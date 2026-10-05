@@ -14,12 +14,17 @@ public sealed class Aion2SavedCharacter
     public List<SavedItem> Equipment { get; set; } = new();
     public List<SavedSkill> Skills { get; set; } = new();
     public List<SavedBoard> Daevanion { get; set; } = new();
+    public List<SavedSpecies> Species { get; set; } = new();
 
     public sealed record SavedItem(int Slot, int ItemId, int Enchant);
 
     public sealed record SavedSkill(int Id, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
 
     public sealed record SavedBoard(int Board, List<int> Nodes);
+
+    public sealed record SavedSpecies(int Id, int Level, long Progress, List<SavedEffect> Effects);
+
+    public sealed record SavedEffect(int Page, int Slot, int Stat, long Value);
 }
 
 /// <summary>

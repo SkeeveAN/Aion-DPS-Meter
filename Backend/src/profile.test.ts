@@ -69,6 +69,12 @@ const selfProfile = {
     { id: 11730000, level: 11, baseLevel: 10 },
   ],
   daevanion: [{ board: 11, nodes: [110113, 110065, 110095, 999999999] }], // start, HP node, Rending Blow +1, unknown
+  species: [
+    // Fera as the pet window showed it: level 7 (31800 / 40000), LP 43, Fera attack 5, PvE accuracy 27.
+    { id: 3, level: 7, progress: 31800, effects: [{ page: 1, slot: 1, stat: 401, value: 5 }, { page: 1, slot: 0, stat: 193, value: 43 }, { page: 1, slot: 2, stat: 110, value: 27 }] },
+    // Cognia is maxed; Endurance is a percent stat (145 = 1.45 %); 99999 is a stat the data does not know yet.
+    { id: 2, level: 10, progress: 0, effects: [{ page: 1, slot: 0, stat: 50, value: 14 }, { page: 1, slot: 6, stat: 445, value: 145 }, { page: 1, slot: 7, stat: 99999, value: 3 }] },
+  ],
 };
 
 function playerId(name: string): number {
@@ -108,6 +114,17 @@ test("the profile resolves item names, enchants, skill levels and Daevanion effe
   // The map carries every node of the board (locked ones too), with the unlocked ones flagged.
   assert.equal(nezekan.cells.length, 89); // 88 nodes + the start node
   assert.equal(nezekan.cells.filter((c) => c[4] === 1).length, 3); // start + the two known nodes
+});
+
+test("the profile carries the species knowledge with stat names in the game client's languages", () => {
+  const view = buildProfileView(playerId("Aahz"))!;
+  assert.deepEqual(view.species.map((k) => [k.key, k.level, k.progress]), [["cognia", 10, 0], ["fera", 7, 31800]]); // sorted by id
+  const fera = view.species[1];
+  assert.equal(fera.names.de, "Fera");
+  assert.deepEqual(fera.effects.map((e) => [e.slot, e.name, e.value]), [[0, "HP", 43], [1, "Fera Attack", 5], [2, "PvE Accuracy", 27]]); // sorted by slot
+  assert.equal(fera.effects[1].names?.de, "Angriffskraft (Fera)");
+  const cognia = view.species[0];
+  assert.deepEqual(cognia.effects.map((e) => [e.name, e.percent]), [["Boss Attack", false], ["Endurance", true], ["Stat 99999", false]]);
 });
 
 test("a profile merely seen on another player never replaces the player's own, and empty ones are dropped", () => {

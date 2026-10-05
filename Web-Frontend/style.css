@@ -2047,6 +2047,48 @@ header .wordmark {
   }
 }
 
+/* Species knowledge. */
+.pf-species {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.pf-species-card h4 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.pf-species-card h4 em {
+  font-style: normal;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text);
+  font-weight: 600;
+}
+.pf-sp-sub {
+  margin: 6px 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.pf-sp-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.pf-sp-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.875rem;
+}
+.pf-sp-stat {
+  color: var(--color-text-muted);
+}
+
 /* Skills. */
 .pf-skills {
   display: grid;
