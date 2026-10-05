@@ -836,7 +836,11 @@ public partial class MainWindow : Window
             ? damageOnly.Where(ev => IsPlayerName(ev.TargetObjectId)).ToList()
             : _selectedTargetId is int targetId
                 ? ShownFightHits(damageOnly, targetId)
-                : RestrictToEngagedTargets(damageOnly.ToList());
+                // The own-fight restriction belongs with the compact overlay's Group / Corps view; everywhere else the
+                // players around one count too, whatever they are fighting.
+                : ScopeActive && _scope != MeterScope.All
+                    ? RestrictToEngagedTargets(damageOnly.ToList())
+                    : damageOnly.ToList();
 
         if (_source?.Entities is Aion2.Aion2EntityDirectory rosterDirectory)
         {
