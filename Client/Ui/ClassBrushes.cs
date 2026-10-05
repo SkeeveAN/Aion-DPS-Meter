@@ -11,14 +11,14 @@ internal static class ClassBrushes
     private static readonly Dictionary<string, string> Colors = new(StringComparer.Ordinal)
     {
         ["Cleric"] = "#ffd166",
-        ["Chanter"] = "#06d6a0",
-        ["Templar"] = "#5b8fb9",
-        ["Gladiator"] = "#ef476f",
+        ["Chanter"] = "#ffd166",
+        ["Templar"] = "#3b82f6",
+        ["Gladiator"] = "#3b82f6",
         ["Brawler"] = "#e07a5f",
-        ["Assassin"] = "#9b5de5",
-        ["Ranger"] = "#80ed99",
-        ["Sorcerer"] = "#4cc9f0",
-        ["Spiritmaster"] = "#7c9eff",
+        ["Assassin"] = "#5fd38a",
+        ["Ranger"] = "#5fd38a",
+        ["Sorcerer"] = "#a66cf0",
+        ["Spiritmaster"] = "#a66cf0",
     };
 
     private const string Unknown = "#9fb3c8";

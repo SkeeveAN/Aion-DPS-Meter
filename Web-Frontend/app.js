@@ -123,14 +123,14 @@ const AION2_CLASS_ABBREVIATIONS = {
 // silently being mislabeled a pet/companion - see classMeta and meterRow's role-badge check.
 const CLASS_META = {
   Cleric: { color: "#ffd166", role: "healer" },
-  Chanter: { color: "#06d6a0", role: "healer" },
-  Templar: { color: "#5b8fb9", role: "tank" },
-  Gladiator: { color: "#ef476f", role: "dd" },
+  Chanter: { color: "#ffd166", role: "healer" },
+  Templar: { color: "#3b82f6", role: "tank" },
+  Gladiator: { color: "#3b82f6", role: "dd" },
   Brawler: { color: "#e07a5f", role: "dd" },
-  Assassin: { color: "#9b5de5", role: "dd" },
-  Ranger: { color: "#80ed99", role: "dd" },
-  Sorcerer: { color: "#4cc9f0", role: "dd" },
-  Spiritmaster: { color: "#7c9eff", role: "dd" },
+  Assassin: { color: "#5fd38a", role: "dd" },
+  Ranger: { color: "#5fd38a", role: "dd" },
+  Sorcerer: { color: "#a66cf0", role: "dd" },
+  Spiritmaster: { color: "#a66cf0", role: "dd" },
 };
 const PET_META = { color: "#8a99a3", role: "companion" };
 // role: null - a real class we just don't have a confident trinity role for yet, never asserted in the UI
