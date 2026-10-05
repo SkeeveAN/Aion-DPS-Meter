@@ -1,4 +1,4 @@
-import { and, asc, eq, ne } from "drizzle-orm";
+import { and, asc, desc, eq, ne } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
 import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
@@ -262,23 +262,60 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
     return null;
   }
   const player = db
-    .select({ id: players.id, slug: players.slug, name: players.name, serverName: servers.displayName })
+    .select({ id: players.id, slug: players.slug, name: players.name, guild: players.guild, serverName: servers.displayName, fingerprint: servers.fingerprint })
     .from(players)
     .leftJoin(servers, eq(players.serverId, servers.id))
     .where("id" in key ? eq(players.id, key.id) : eq(players.slug, key.slug))
     .get();
-  if (!player) {
+  // Only Aion 2 characters are served (clients file them under "aion2:<server>").
+  if (!player || !(player.fingerprint ?? "").startsWith("aion2:")) {
     return null;
   }
+
+  const runs = db
+    .select({
+      bossName: bosses.name,
+      bossNameEn: bosses.nameEn,
+      bossSlug: bosses.slug,
+      className: encounterParticipants.className,
+      idps: encounterParticipants.idps,
+      startedAt: encounters.startedAt,
+    })
+    .from(encounterParticipants)
+    .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
+    .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+    .where(and(eq(encounterParticipants.playerId, player.id), ne(encounterParticipants.className, "?")))
+    .orderBy(desc(encounters.startedAt))
+    .all();
+  const className = runs[0]?.className ?? null;
+  const best = runs.reduce((m, r) => Math.max(m, r.idps), 0);
+  const path = `/players/${player.slug ?? player.id}`;
+  const where = player.serverName ? ` (${player.serverName})` : "";
+  const facts = [className, player.guild ? `guild ${player.guild}` : null, player.serverName].filter((x): x is string => !!x);
+  const description =
+    runs.length > 0
+      ? `${player.name}${where}: ${className ?? "Aion 2 character"}, ${runs.length} recorded boss fight${runs.length === 1 ? "" : "s"}, best personal DPS ${formatInt(best)}. Skills, gear and run history on ${SITE}.`
+      : `Aion 2 character ${player.name}${where} on ${SITE}.`;
+  const recent = runs.slice(0, 10);
   return {
     status: 200,
     meta: {
-      title: `${player.name}${player.serverName ? ` (${player.serverName})` : ""} – ${SITE}`,
-      description: `Boss fight history of ${player.name} on ${SITE}.`,
-      canonicalPath: `/players/${player.slug ?? player.id}`,
-      noindex: true,
+      title: `${player.name}${where} – Aion 2 Character & Boss Runs – ${SITE}`,
+      description,
+      canonicalPath: path,
+      // A profile with no recorded fight has nothing a search result could show.
+      noindex: runs.length === 0,
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: player.name, path }])],
     },
-    body: html`<h2>${player.name}</h2><p>${player.serverName ?? ""}</p>`,
+    body: html`
+      <h2>${player.name}</h2>
+      <p>${facts.join(" · ")}</p>
+      ${runs.length > 0
+        ? html`<p>${runs.length} recorded boss fight${runs.length === 1 ? "" : "s"}, best personal DPS ${formatInt(best)}.</p>
+            <ul class="plain">
+              ${recent.map((r) => html`<li><a href="/bosses/${r.bossSlug}">${displayName({ name: r.bossName, nameEn: r.bossNameEn })}</a> – ${formatInt(r.idps)} DPS, ${r.startedAt.slice(0, 10)}</li>`)}
+            </ul>`
+        : html``}`,
   };
 }
 

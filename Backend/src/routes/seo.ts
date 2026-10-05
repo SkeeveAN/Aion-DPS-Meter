@@ -1,7 +1,7 @@
-import { and, eq, max, ne } from "drizzle-orm";
+import { and, eq, like, max, ne } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
-import { bosses, encounters, instances } from "../db/schema.js";
+import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
 import { env } from "../env.js";
 import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME } from "../constants.js";
 import { cached } from "../seo/cache.js";
@@ -9,9 +9,10 @@ import { escapeHtml } from "../seo/html.js";
 
 const SITEMAP_TTL_MS = 600_000;
 
-// Crawler plumbing. Player profiles, single encounters and search are deliberately absent from the
+// Crawler plumbing. Single encounters, comparisons and search are deliberately absent from the
 // sitemap and blocked in robots.txt: thousands of thin, near-duplicate pages would eat crawl budget
-// without ranking for anything, and players don't expect their character to be a Google result.
+// without ranking for anything. Player profiles are open to search engines (per the user) and listed
+// in the sitemap.
 export async function seoRoutes(app: FastifyInstance) {
   app.get("/robots.txt", async (_request, reply) => {
     reply.type("text/plain; charset=utf-8").header("Cache-Control", "public, max-age=3600");
@@ -19,10 +20,10 @@ export async function seoRoutes(app: FastifyInstance) {
       "User-agent: *",
       "Allow: /",
       "Disallow: /api/",
-      "Disallow: /*/search",
-      "Disallow: /*/players/",
-      "Disallow: /*/encounters/",
-      "Disallow: /*/participants/",
+      "Disallow: /search",
+      "Disallow: /compare/",
+      "Disallow: /encounters/",
+      "Disallow: /participants/",
       "",
       `Sitemap: ${env.BASE_URL}/sitemap.xml`,
       "",
@@ -76,6 +77,22 @@ function buildSitemap(): string {
       if (b.slug) {
         urls.push({ path: `/bosses/${b.slug}`, lastmod: b.lastFight ?? undefined });
       }
+    }
+  }
+
+  // Every Aion 2 character with at least one recorded fight; lastmod is its latest fight.
+  const playerRows = db
+    .select({ slug: players.slug, lastFight: max(encounters.startedAt) })
+    .from(players)
+    .innerJoin(servers, eq(players.serverId, servers.id))
+    .innerJoin(encounterParticipants, eq(encounterParticipants.playerId, players.id))
+    .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
+    .where(and(like(servers.fingerprint, "aion2:%"), ne(encounterParticipants.className, "?")))
+    .groupBy(players.id)
+    .all();
+  for (const p of playerRows) {
+    if (p.slug) {
+      urls.push({ path: `/players/${p.slug}`, lastmod: p.lastFight ?? undefined });
     }
   }
 
