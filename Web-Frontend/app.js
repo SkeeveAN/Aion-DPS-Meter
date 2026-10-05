@@ -122,15 +122,15 @@ const AION2_CLASS_ABBREVIATIONS = {
 // ("?" className) gets its own PET_META; any OTHER unmapped className gets UNKNOWN_CLASS_META instead of
 // silently being mislabeled a pet/companion - see classMeta and meterRow's role-badge check.
 const CLASS_META = {
-  Cleric: { color: "#ffd166", role: "healer" },
-  Chanter: { color: "#ffd166", role: "healer" },
-  Templar: { color: "#3b82f6", role: "tank" },
-  Gladiator: { color: "#3b82f6", role: "dd" },
+  Cleric: { color: "#ffe27a", role: "healer" },
+  Chanter: { color: "#e0a020", role: "healer" },
+  Templar: { color: "#2f5fd0", role: "tank" },
+  Gladiator: { color: "#5aa9ff", role: "dd" },
   Brawler: { color: "#e07a5f", role: "dd" },
-  Assassin: { color: "#5fd38a", role: "dd" },
-  Ranger: { color: "#5fd38a", role: "dd" },
-  Sorcerer: { color: "#a66cf0", role: "dd" },
-  Spiritmaster: { color: "#a66cf0", role: "dd" },
+  Assassin: { color: "#7ee08f", role: "dd" },
+  Ranger: { color: "#2f9e57", role: "dd" },
+  Sorcerer: { color: "#b98af5", role: "dd" },
+  Spiritmaster: { color: "#8a4fd8", role: "dd" },
 };
 const PET_META = { color: "#8a99a3", role: "companion" };
 // role: null - a real class we just don't have a confident trinity role for yet, never asserted in the UI
