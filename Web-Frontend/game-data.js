@@ -172,6 +172,26 @@ export const BOSS_IMAGES = {
   "Zikels Schemen": "/images/aion2/bosses/zikels-schemen.jpg",
 };
 
+// What the game's instance window shows next to an instance: players, item level and (Conquest) the star rating.
+// Read from in-game screenshots (EU client, 2026-10). A missing entry simply shows nothing.
+export const INSTANCE_FACTS = {
+  "Krao Cave": { players: "1-5", itemLevel: 200 },
+  "Urugugu Canyon": { players: "2-5", itemLevel: 300 },
+  "Fire Temple": { players: "1-5", itemLevel: 500 },
+  Draupnir: { players: "1-5", itemLevel: 700 },
+  "Vakron Sky Island": { players: "2-5", itemLevel: 1400 },
+  "Ferocious Horn Den": { players: "1-5", itemLevel: 2100 },
+  "Krao Cave (Conquest)": { players: "1-5", itemLevel: 700, stars: 1 },
+  "Urugugu Canyon (Conquest)": { players: "2-5", itemLevel: 1400, stars: 2 },
+  "Fire Temple (Conquest)": { players: "1-5", itemLevel: 2100, stars: 3 },
+  "Draupnir (Conquest)": { players: "1-5", itemLevel: 700, stars: 1 },
+  "Vakron Sky Island (Conquest)": { players: "2-5", itemLevel: 1400, stars: 2 },
+  "Ferocious Horn Den (Conquest)": { players: "1-5", itemLevel: 2100, stars: 3 },
+  "Shattered Arkanis": { players: "2-5", itemLevel: 1600 },
+  "Deus Research Base": { players: "2-5", itemLevel: 1600 },
+  "Sanctum of Loathing": { itemLevel: 1000 },
+};
+
 // Minimum character level to enter, by English instance name - the "Entry requirements" of the game's own
 // instance window (EU client list, 2026-10-02). Instances whose level is not known yet have no entry:
 // no suffix and no change to their sort position, never a guessed number.

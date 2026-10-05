@@ -2485,3 +2485,4 @@ body:has(.download-hero) .nav-download-link:hover,
 .mode-chip:hover { border-color: var(--color-primary); }
 .mode-chip.active { background: var(--color-primary); border-color: var(--color-primary); color: #1a1205; font-weight: 700; }
 .mode-chip.active small { color: #3a2a08; }
+.ip-stars { color: #ffd166; letter-spacing: 1px; }

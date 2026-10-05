@@ -1,5 +1,5 @@
 import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
-import { INSTANCE_IMAGES, BOSS_IMAGES, INSTANCE_MIN_LEVEL } from "./game-data.js";
+import { INSTANCE_IMAGES, BOSS_IMAGES, INSTANCE_MIN_LEVEL, INSTANCE_FACTS } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 
 const app = document.getElementById("app");
@@ -567,17 +567,30 @@ function baseInstanceName(i) {
 /** Card with photo, name and facts (level, players are only shown where the data has them). */
 function instanceFactCard(i, { chips = [], label } = {}) {
   const level = INSTANCE_MIN_LEVEL[i.name];
+  const facts = INSTANCE_FACTS[i.name] ?? {};
   const photo = INSTANCE_IMAGES[i.name];
-  const pills = level !== undefined ? [el("span", { className: "ip-pill", textContent: t("instances.levelFrom", { n: level }) })] : [];
-  const text = [el("b", { textContent: label ?? displayName(i) })];
+  const pills = [];
+  if (level !== undefined) {
+    pills.push(t("instances.levelFrom", { n: level }));
+  }
+  if (facts.players) {
+    pills.push(t("instances.playersRange", { n: facts.players.replace("-", "–") }));
+  }
+  if (facts.itemLevel) {
+    pills.push(t("instances.itemLevelPill", { n: formatNumber(facts.itemLevel) }));
+  }
+  const title = [document.createTextNode(label ?? displayName(i))];
+  if (facts.stars) {
+    title.push(el("span", { className: "ip-stars", textContent: ` ${"★".repeat(facts.stars)}`, title: `${facts.stars} / 3` }));
+  }
+  const text = [el("b", {}, title)];
   if (pills.length > 0) {
-    text.push(el("div", { className: "ip-meta" }, pills));
+    text.push(el("div", { className: "ip-meta" }, pills.map((p) => el("span", { className: "ip-pill", textContent: p }))));
   }
   if (chips.length > 0) {
     text.push(el("div", { className: "ip-chips" }, chips.map((c) => el("span", { className: "ip-chip", textContent: c }))));
   }
-  const card = el("a", { className: "ip-card", href: gp(`/instances/${i.slug}`) }, [photo ? icon(photo, "ip-photo") : null, el("div", { className: "ip-text" }, text)].filter((x) => x != null));
-  return card;
+  return el("a", { className: "ip-card", href: gp(`/instances/${i.slug}`) }, [photo ? icon(photo, "ip-photo") : null, el("div", { className: "ip-text" }, text)].filter((x) => x != null));
 }
 
 function modeLabel(mode) {
