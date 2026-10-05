@@ -137,7 +137,7 @@ internal static class Program
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: AionDPS render-settings <out.png> [Interface|Capture|Updates]");
+                Console.WriteLine("Usage: AionDPS render-settings <out.png> [Interface|Capture|Hotkeys|Timetable|Updates]");
                 Console.WriteLine("  Draws the Settings window's content into a picture; no window is ever shown.");
                 return;
             }
@@ -470,12 +470,12 @@ internal static class Program
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
         var window = new Ui.SettingsWindow(settings);
-        if (window.FindName("Nav" + (tab == "Interface" ? "Ui" : tab)) is System.Windows.Controls.RadioButton nav)
+        if (window.FindName("Nav" + (tab == "Interface" ? "Ui" : tab == "Capture" ? "Install" : tab)) is System.Windows.Controls.RadioButton nav)
         {
             nav.IsChecked = true;
         }
 
-        const double width = 520, height = 800;
+        const double width = 620, height = 740;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));

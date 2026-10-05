@@ -1480,5 +1480,65 @@
     "pl": "Krzywa DPS (obrażenia na sekundę)",
     "tr": "DPS eğrisi (saniyede hasar)",
     "zh": "DPS 曲线（每秒伤害）"
+  },
+  "Settings.Nav.Timetable": {
+    "en": "Timetable",
+    "de": "Zeitplan",
+    "fr": "Horaires",
+    "es": "Horarios",
+    "ru": "Расписание",
+    "pl": "Harmonogram",
+    "tr": "Zaman çizelgesi",
+    "zh": "时间表"
+  },
+  "Settings.Card.Display": {
+    "en": "Display",
+    "de": "Darstellung",
+    "fr": "Affichage",
+    "es": "Pantalla",
+    "ru": "Отображение",
+    "pl": "Wygląd",
+    "tr": "Görünüm",
+    "zh": "显示"
+  },
+  "Settings.Card.Overlay": {
+    "en": "Overlay",
+    "de": "Overlay",
+    "fr": "Overlay",
+    "es": "Overlay",
+    "ru": "Оверлей",
+    "pl": "Nakładka",
+    "tr": "Katman",
+    "zh": "悬浮窗"
+  },
+  "Settings.Card.Behavior": {
+    "en": "Behavior",
+    "de": "Verhalten",
+    "fr": "Comportement",
+    "es": "Comportamiento",
+    "ru": "Поведение",
+    "pl": "Zachowanie",
+    "tr": "Davranış",
+    "zh": "行为"
+  },
+  "Settings.Card.Capture": {
+    "en": "Capture",
+    "de": "Aufnahme",
+    "fr": "Capture",
+    "es": "Captura",
+    "ru": "Захват",
+    "pl": "Przechwytywanie",
+    "tr": "Yakalama",
+    "zh": "抓包"
+  },
+  "Settings.Card.Upload": {
+    "en": "Upload",
+    "de": "Upload",
+    "fr": "Envoi",
+    "es": "Subida",
+    "ru": "Загрузка",
+    "pl": "Przesyłanie",
+    "tr": "Yükleme",
+    "zh": "上传"
   }
 }
