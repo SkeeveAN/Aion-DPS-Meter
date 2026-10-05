@@ -711,7 +711,7 @@
         "ru": "Ущелье ауругу (Завоевание)"
       },
       "category": "expedition",
-      "sortOrder": 202,
+      "sortOrder": 203,
       "modes": {
         "conquest": {
           "stars": 2,
@@ -739,7 +739,7 @@
         "ru": "Храм огня (Завоевание)"
       },
       "category": "expedition",
-      "sortOrder": 203,
+      "sortOrder": 205,
       "modes": {
         "conquest": {
           "stars": 3,
@@ -767,7 +767,7 @@
         "ru": "Драупнир (Завоевание)"
       },
       "category": "expedition",
-      "sortOrder": 204,
+      "sortOrder": 202,
       "modes": {
         "conquest": {
           "stars": 1,
@@ -795,7 +795,7 @@
         "ru": "Парящий остров Вакрона (Завоевание)"
       },
       "category": "expedition",
-      "sortOrder": 205,
+      "sortOrder": 204,
       "modes": {
         "conquest": {
           "stars": 2,
