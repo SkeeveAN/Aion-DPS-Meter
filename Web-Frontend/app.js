@@ -1442,12 +1442,13 @@ async function renderParticipant(participantId) {
   if (p.serverName) {
     tags.push(el("span", { className: "pt-tag", textContent: p.serverName }));
   }
+  tags.push(el("a", { className: "pt-tag pt-profile", href: gp(`/players/${p.playerId}`), textContent: `${t("participant.openProfile")} →` }));
 
   const sections = [
     el("div", { className: "pt-hero" }, [
       el("span", { className: "pt-emb" }, [classEmblem(p.className, false)]),
       el("div", {}, [
-        el("h2", { textContent: p.playerName }),
+        el("h2", {}, [link(p.playerName, gp(`/players/${p.playerId}`))]),
         el("div", { className: "pt-sub", textContent: `${translateGameName(e.bossName)} · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}` }),
         el("div", { className: "pt-tags" }, tags),
       ]),
@@ -1838,6 +1839,9 @@ function formatDelta(a, b) {
     return "–";
   }
   const pct = ((a - b) / b) * 100;
+  if (Math.abs(pct) > 999) {
+    return pct > 0 ? "> +999 %" : "< -999 %";
+  }
   return `${pct > 0 ? "+" : ""}${pct.toFixed(1)} %`;
 }
 
