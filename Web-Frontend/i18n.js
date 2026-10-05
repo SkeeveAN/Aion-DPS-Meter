@@ -2207,13 +2207,23 @@ const TRANSLATIONS = {
   },
 };
 
-// Per the user: English is the default for every first-time visitor, not a browser-language
-// guess - a visitor from anywhere lands on the same language until they pick one themselves via
-// the switcher, which is what actually persists (dpsmeter.locale).
+// A stored choice (dpsmeter.locale, written by the switcher) wins; otherwise the first
+// supported language from the browser's preference list; otherwise English.
 function detectLocale() {
-  const stored = localStorage.getItem("dpsmeter.locale");
-  if (stored && SUPPORTED_CODES.includes(stored)) {
-    return stored;
+  try {
+    const stored = localStorage.getItem("dpsmeter.locale");
+    if (stored && SUPPORTED_CODES.includes(stored)) {
+      return stored;
+    }
+  } catch {
+    // storage blocked - fall through to the browser language
+  }
+  const preferred = navigator.languages?.length ? navigator.languages : [navigator.language];
+  for (const tag of preferred) {
+    const base = String(tag || "").toLowerCase().split("-")[0];
+    if (SUPPORTED_CODES.includes(base)) {
+      return base;
+    }
   }
   return "en";
 }
@@ -2229,7 +2239,11 @@ export function setLocale(code) {
     return;
   }
   currentLocale = code;
-  localStorage.setItem("dpsmeter.locale", code);
+  try {
+    localStorage.setItem("dpsmeter.locale", code);
+  } catch {
+    // storage blocked - the choice just won't survive the visit
+  }
   document.documentElement.lang = code;
 }
 
