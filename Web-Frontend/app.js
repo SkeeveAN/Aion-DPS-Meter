@@ -602,27 +602,18 @@ const CATEGORY_MODE_LIST = {
   transcendence: ["1", "2", "3", "4"],
 };
 
-function expeditionPane(list) {
-  const explore = list.filter((i) => i.variant !== "conquest");
-  const conquest = list.filter((i) => i.variant === "conquest");
-  const body = el("div", { className: "ip-grid" });
-  const buttons = [];
-  const show = (variant) => {
-    const items = variant === "conquest" ? conquest : explore;
-    body.replaceChildren(...items.map((i) => instanceFactCard(i, { label: displayName({ name: baseInstanceName(i), nameEn: baseInstanceName(i) }) })));
-    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === variant)));
-  };
+function expeditionPane(list, variant) {
+  const hard = variant === "hard";
+  const items = list.filter((i) => (hard ? i.variant === "conquest" : i.variant !== "conquest"));
   const seg = el("div", { className: "ip-seg", role: "group" }, [
-    ["explore", t("mode.explore"), t("mode.normalSub")],
-    ["conquest", t("mode.conquest"), t("mode.hardSub")],
-  ].map(([v, name, sub]) => {
-    const b = el("button", { type: "button", textContent: `${name} · ${sub}` });
-    b.dataset.v = v;
-    b.addEventListener("click", () => show(v));
-    buttons.push(b);
-    return b;
+    ["normal", "/instances/expedition", t("mode.explore"), t("mode.normalSub")],
+    ["hard", "/instances/expedition/hard", t("mode.conquest"), t("mode.hardSub")],
+  ].map(([v, href, name, sub]) => {
+    const a = el("a", { href: gp(href), textContent: `${name} · ${sub}` });
+    a.setAttribute("aria-pressed", String((v === "hard") === hard));
+    return a;
   }));
-  show("explore");
+  const body = el("div", { className: "ip-grid" }, items.map((i) => instanceFactCard(i, { label: displayName({ name: baseInstanceName(i), nameEn: baseInstanceName(i) }) })));
   return el("div", {}, [seg, body]);
 }
 
@@ -713,11 +704,12 @@ async function nightmarePane(list) {
   return el("div", { className: "ip-nightmare" }, [tree, detail]);
 }
 
-async function renderInstances() {
-  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.instances")]);
-  showLoading(t("loading.instances"));
-
-  const instances = await fetchJson(`/api/instances?game=${currentGame}`);
+async function renderInstances(categoryParam, variantParam) {
+  const instances = await (async () => {
+    setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.instances")]);
+    showLoading(t("loading.instances"));
+    return fetchJson(`/api/instances?game=${currentGame}`);
+  })();
   if (instances.length === 0) {
     app.replaceChildren(el("p", { className: "empty", textContent: t("instances.emptyNoInstances") }));
     return;
@@ -736,46 +728,35 @@ async function renderInstances() {
     const list = groups.get(category);
     return category === "expedition" ? list.filter((i) => i.variant !== "conquest").length : list.length;
   };
+  const current = categories.includes(categoryParam) ? categoryParam : categories[0];
 
-  const panel = el("div", { className: "ip-panel" });
-  const tabButtons = [];
-  async function show(category) {
-    tabButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.c === category)));
-    history.replaceState(history.state, "", `${location.pathname}${location.search}#${category}`);
-    const list = [...groups.get(category)].sort((a, b) => a.sortOrder - b.sortOrder);
-    let pane;
-    if (category === "expedition") {
-      pane = expeditionPane(list);
-    } else if (category === "nightmare") {
-      pane = await nightmarePane(list);
-    } else if (CATEGORY_MODE_LIST[category]) {
-      pane = modeCardsPane(list, category);
-    } else {
-      pane = el("div", { className: "ip-grid" }, list.map((i) => instanceFactCard(i)));
-    }
-    if (tabButtons.find((b) => b.getAttribute("aria-pressed") === "true")?.dataset.c === category) {
-      panel.replaceChildren(pane);
-    }
-  }
+  // Every category has its own address (/instances/nightmare ...), so it can be linked, shared and found.
   const tabs = el(
-    "div",
-    { className: "ip-tabs", role: "tablist" },
+    "nav",
+    { className: "ip-tabs", "aria-label": t("instances.heading") },
     categories.map((c) => {
-      const b = el("button", { type: "button", className: "ip-tab", role: "tab" }, [t(`category.${c}`), el("small", { textContent: String(countOf(c)) })]);
-      b.dataset.c = c;
-      b.addEventListener("click", () => show(c));
-      tabButtons.push(b);
+      const b = el("a", { className: "ip-tab", href: gp(`/instances/${c}`) }, [t(`category.${c}`), el("small", { textContent: String(countOf(c)) })]);
+      b.setAttribute("aria-pressed", String(c === current));
       return b;
     }),
   );
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), categoryParam ? link(t("breadcrumb.instances"), gp("/instances")) : t("breadcrumb.instances"), ...(categoryParam ? [t(`category.${current}`)] : [])]);
 
-  const wanted = location.hash.replace("#", "");
-  const first = categories.includes(wanted) ? wanted : categories[0];
-  app.replaceChildren(el("h2", { textContent: t("instances.heading") }), tabs, panel);
+  const list = [...groups.get(current)].sort((a, b) => a.sortOrder - b.sortOrder);
+  let pane;
+  if (current === "expedition") {
+    pane = expeditionPane(list, variantParam);
+  } else if (current === "nightmare") {
+    pane = await nightmarePane(list);
+  } else if (CATEGORY_MODE_LIST[current]) {
+    pane = modeCardsPane(list, current);
+  } else {
+    pane = el("div", { className: "ip-grid" }, list.map((i) => instanceFactCard(i)));
+  }
+  app.replaceChildren(el("h2", { textContent: t("instances.heading") }), tabs, el("div", { className: "ip-panel" }, [pane]));
   if (currentGame === "aion2") {
     app.append(el("p", { className: "derived-note", textContent: t("aion2.derivedNote") }));
   }
-  await show(first);
 }
 
 /** One compact KPI card (aiondps_design_pack_v1 section 8) - a big real number over a short label. */
@@ -2300,6 +2281,10 @@ function isAppPath(pathname) {
 }
 
 async function route() {
+  // Old links such as /instances#nightmare move to the real address of that category.
+  if (location.pathname.replace(/\/+$/, "") === "/instances" && INSTANCE_TAB_ORDER.includes(location.hash.replace("#", ""))) {
+    history.replaceState(null, "", `/instances/${location.hash.replace("#", "")}`);
+  }
   const path = location.pathname.replace(/\/+$/, "") || "/";
   const params = new URLSearchParams(location.search);
   const segments = path.split("/").filter(Boolean);
@@ -2340,8 +2325,8 @@ async function route() {
       await renderPrivacy();
     } else if (section === "terms") {
       await renderTerms();
-    } else if (section === "instances" && !param) {
-      await renderInstances();
+    } else if (section === "instances" && (!param || INSTANCE_TAB_ORDER.includes(param))) {
+      await renderInstances(param, segments[2]);
     } else if (section === "instances") {
       await renderBosses(param);
     } else if (section === "bosses" && param) {

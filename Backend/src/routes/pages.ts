@@ -6,8 +6,11 @@ import { DEFAULT_GAME, type Game } from "../constants.js";
 import {
   appOnlyPage,
   bossPage,
+  instanceCategoryPage,
   downloadPage,
+  comparePage,
   encounterPage,
+  participantPage,
   homePage,
   instancePage,
   instancesPage,
@@ -90,6 +93,11 @@ export async function pageRoutes(app: FastifyInstance) {
     "/instances/:idOrSlug",
     withGame((game, request, reply) => {
       const { idOrSlug } = request.params as { idOrSlug: string };
+      // A category of the overview has its own address (/instances/nightmare ...).
+      const categoryPage = instanceCategoryPage(game, idOrSlug, null);
+      if (categoryPage) {
+        return send(reply, render(categoryPage, requestPath(request)));
+      }
       // Old numeric links (shared before slugs existed) move to the slug URL for good.
       if (/^\d+$/.test(idOrSlug)) {
         const instance = findInstance(idOrSlug, game);
@@ -99,17 +107,29 @@ export async function pageRoutes(app: FastifyInstance) {
     }),
   );
 
-  app.get<GameParams & { Params: { idOrSlug: string }; Querystring: { server?: string } }>(
+  app.get<GameParams & { Params: { variant: string } }>(
+    "/instances/expedition/:variant",
+    withGame((game, request, reply) => {
+      const variant = (request.params as { variant: string }).variant;
+      const page = variant === "hard" || variant === "normal" ? instanceCategoryPage(game, "expedition", variant) : null;
+      if (variant === "normal") {
+        return reply.redirect("/instances/expedition", 301);
+      }
+      return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
+    }),
+  );
+
+  app.get<GameParams & { Params: { idOrSlug: string }; Querystring: { server?: string; mode?: string } }>(
     "/bosses/:idOrSlug",
     withGame((game, request, reply) => {
       const { idOrSlug } = request.params as { idOrSlug: string };
-      const query = request.query as { server?: string };
+      const query = request.query as { server?: string; mode?: string };
       if (/^\d+$/.test(idOrSlug)) {
         const found = findBoss(idOrSlug, game);
         if (!found?.boss.slug) {
           return sendNotFound(request, reply);
         }
-        const suffix = query.server ? `?server=${encodeURIComponent(query.server)}` : "";
+        const suffix = query.server ? `?server=${encodeURIComponent(query.server)}` : query.mode ? `?mode=${encodeURIComponent(query.mode)}` : "";
         return reply.redirect(`/bosses/${found.boss.slug}${suffix}`, 301);
       }
       return sendCached(request, reply, () => bossPage(game, idOrSlug, query));
@@ -134,8 +154,8 @@ export async function pageRoutes(app: FastifyInstance) {
   const appOnly = (kind: "servers" | "search" | "participant" | "compare") =>
     withGame((game, request, reply) => send(reply, render(appOnlyPage(game, kind, request.url.split("?")[0]), requestPath(request))));
   app.get<GameParams>("/search", appOnly("search"));
-  app.get<GameParams>("/compare/runs", appOnly("compare"));
-  app.get<GameParams>("/compare/players", appOnly("compare"));
+  app.get<GameParams>("/compare/runs", withGame((_game, request, reply) => send(reply, render(comparePage("runs", request.query as { a?: string; b?: string }, request.url.split("?")[0]), requestPath(request)))));
+  app.get<GameParams>("/compare/players", withGame((_game, request, reply) => send(reply, render(comparePage("players", request.query as { a?: string; b?: string; boss?: string }, request.url.split("?")[0]), requestPath(request)))));
   // Real boss name + server in the link preview, per the user - a shared encounter link used to
   // show only the generic "Boss fight details" placeholder regardless of which fight it was.
   app.get<GameParams & { Params: { id: string } }>(
@@ -145,5 +165,11 @@ export async function pageRoutes(app: FastifyInstance) {
       return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
     }),
   );
-  app.get<GameParams & { Params: { id: string } }>("/participants/:id", appOnly("participant"));
+  app.get<GameParams & { Params: { id: string } }>(
+    "/participants/:id",
+    withGame((game, request, reply) => {
+      const page = participantPage(game, (request.params as { id: string }).id);
+      return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
+    }),
+  );
 }

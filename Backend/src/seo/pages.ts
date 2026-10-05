@@ -1,12 +1,14 @@
-import { and, asc, desc, eq, ne } from "drizzle-orm";
+import { and, asc, count, desc, eq, ne } from "drizzle-orm";
 import { db } from "../db/client.js";
-import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
+import { bosses, encounterParticipants, encounterSkillUsage, encounters, instances, players, servers } from "../db/schema.js";
 import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { findInstance, instanceColumns } from "../routes/instances.js";
-import { findBoss, mechanicsFor, selectServer, serversWithEncounters, topByClass, topGroups } from "../routes/bosses.js";
+import { findBoss, mechanicsFor, modesFor, selectServer, serversWithEncounters, statsForBossIds, topByClass, topGroups } from "../routes/bosses.js";
+import { buildProfileView, ownSkillRows } from "../profile.js";
+import { INSTANCE_FACTS, INSTANCE_IMAGES, INSTANCE_MIN_LEVEL, BOSS_IMAGES } from "../../../Web-Frontend/game-data.js";
 import { parseIdOrSlug } from "./slug.js";
 import { formatInt, html, Raw } from "./html.js";
-import { breadcrumbJsonLd, itemListJsonLd, softwareApplicationJsonLd, type PageMeta } from "./meta.js";
+import { breadcrumbJsonLd, itemListJsonLd, profileJsonLd, softwareApplicationJsonLd, websiteJsonLd, type PageMeta } from "./meta.js";
 
 /**
  * Server-rendered page: <head> metadata plus a minimal content fragment (headline, one or two
@@ -23,6 +25,45 @@ export interface Page {
 const GAME_LABEL: Record<Game, string> = { aion: "Aion", aion2: "Aion 2" }; // "aion" only labels rows of the retired classic version
 const SITE = "Aion DPS";
 
+const CATEGORY_LABEL: Record<string, string> = {
+  expedition: "Expedition",
+  nightmare: "Nightmare",
+  ascension: "Ascension Rite",
+  transcendence: "Transcendence",
+  sanctuary: "Sanctuary",
+  hideout: "Hideout",
+  stronghold: "Stronghold",
+  awakening: "Awakening",
+};
+const CLASS_OG_FILE: Record<string, string> = { Gladiator: "gladiator", Templar: "templar", Ranger: "ranger", Assassin: "assassin", Spiritmaster: "elementalist", Sorcerer: "sorcerer", Cleric: "cleric", Chanter: "chanter", Brawler: "fighter" };
+
+/** Preview picture of a boss (its own portrait, else its instance's photo), if the site has one. */
+function bossImage(bossName: string | null | undefined, instanceName: string | null | undefined): string | undefined {
+  return (bossName ? BOSS_IMAGES[bossName] : undefined) ?? (instanceName ? INSTANCE_IMAGES[instanceName] : undefined);
+}
+
+function classImage(className: string | null | undefined): string | undefined {
+  const file = className ? CLASS_OG_FILE[className] : undefined;
+  return file ? `/og/classes/${file}.png` : undefined;
+}
+
+/** How a difficulty step reads in a title: Nightmare "Level 10", Ascension "Hard", Transcendence "Stage 2". */
+function modeLabelEn(category: string | null, mode: string): string {
+  if (/^\d+$/.test(mode)) {
+    return category === "nightmare" ? `Level ${mode}` : `Stage ${mode}`;
+  }
+  return mode.charAt(0).toUpperCase() + mode.slice(1);
+}
+
+function minutes(seconds: number): string {
+  return `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, "0")}`;
+}
+
+/** 1,479,654 -> "1.48M" - compact numbers for the short preview texts. */
+function compact(n: number): string {
+  return n >= 1_000_000 ? `${(n / 1_000_000).toFixed(2)}M` : n >= 10_000 ? `${(n / 1000).toFixed(1)}k` : formatInt(n);
+}
+
 export function displayName(row: { name: string; nameEn: string | null }): string {
   return row.nameEn ?? row.name;
 }
@@ -33,9 +74,9 @@ export function homePage(): Page {
     meta: {
       title: "Aion DPS Meter – Free Damage Meter & Boss Leaderboards",
       description:
-        "Free open-source DPS/HPS meter for Aion 2 (passive network packet capture) with community boss leaderboards and character profiles. Never reads game memory, never hooks the client.",
+        "Free open-source DPS/HPS meter for Aion 2 with community boss leaderboards per difficulty, boss mechanics guides and character profiles (gear, skills, stigmas). Passive packet capture: never reads game memory, never hooks the client.",
       canonicalPath: "/",
-      jsonLd: [softwareApplicationJsonLd()],
+      jsonLd: [websiteJsonLd(), softwareApplicationJsonLd()],
     },
     body: html`
       <h2>Aion DPS Meter</h2>
@@ -107,13 +148,21 @@ export function instancesPage(game: Game): Page {
     .all();
   const items = rows.map((r) => ({ name: displayName(r), path: `/instances/${r.slug}` }));
   const label = GAME_LABEL[game];
+  // "Expedition (6 dungeons, normal & hard), Nightmare (7 bosses), ..." - what the page really offers.
+  const byCategory = new Map<string, number>();
+  for (const r of rows) {
+    if (r.variant !== "conquest") {
+      byCategory.set(r.category ?? "other", (byCategory.get(r.category ?? "other") ?? 0) + 1);
+    }
+  }
+  const parts = [...byCategory].map(([c, n]) => `${CATEGORY_LABEL[c] ?? "Other"} (${n}${c === "expedition" ? ", Normal & Hard" : c === "nightmare" ? ", 10 levels each" : ""})`);
   return {
     status: 200,
     meta: {
-      title: `${label} Instances & Boss DPS Leaderboards – ${SITE}`,
+      title: `${label} Instances, Bosses & DPS Leaderboards – ${SITE}`,
       description:
         rows.length > 0
-          ? `Browse ${rows.length} ${label} dungeons with boss DPS rankings: ${items.slice(0, 6).map((i) => i.name).join(", ")}${rows.length > 6 ? ", …" : ""}.`
+          ? `All ${label} instances with boss DPS rankings per difficulty: ${parts.join(", ")}. Mechanics guides and top groups for every boss.`
           : `${label} dungeons and boss DPS rankings on ${SITE}.`,
       canonicalPath: `/instances`,
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: `${label} instances`, path: `/instances` }]), itemListJsonLd(`${label} instances`, items)],
@@ -121,6 +170,52 @@ export function instancesPage(game: Game): Page {
     body: html`
       <h2>${label} instances</h2>
       ${rows.length === 0 ? html`<p class="empty">No instances recorded yet.</p>` : html`<ul class="plain">${items.map((i) => html`<li><a href="${i.path}">${i.name}</a></li>`)}</ul>`}`,
+  };
+}
+
+export const INSTANCE_CATEGORY_SLUGS = ["expedition", "nightmare", "ascension", "transcendence"] as const;
+
+const CATEGORY_INTRO: Record<string, string> = {
+  expedition: "Expeditions in two difficulties: Exploration (normal) and Conquest (hard)",
+  nightmare: "Nightmare bosses, each with ten challenge levels that are ranked separately",
+  ascension: "Ascension Rite instances with four difficulties: Easy, Medium, Hard and Extreme",
+  transcendence: "Transcendence dungeons with four stages",
+};
+
+/** One category of the instance overview (/instances/nightmare, /instances/expedition/hard ...) - its own address so it can be found and shared. */
+export function instanceCategoryPage(game: Game, category: string, variant: "normal" | "hard" | null): Page | null {
+  if (!(INSTANCE_CATEGORY_SLUGS as readonly string[]).includes(category)) {
+    return null;
+  }
+  const label = GAME_LABEL[game];
+  const wanted = category === "expedition" ? (variant === "hard" ? "conquest" : "explore") : null;
+  const rows = db
+    .select(instanceColumns)
+    .from(instances)
+    .where(and(eq(instances.game, game), eq(instances.category, category as never), eq(instances.hidden, false)))
+    .orderBy(asc(instances.sortOrder))
+    .all()
+    .filter((r) => wanted === null || r.variant === wanted);
+  const items = rows.map((r) => ({ name: displayName(r), path: `/instances/${r.slug}` }));
+  const catLabel = CATEGORY_LABEL[category];
+  const modeText = wanted === "conquest" ? " – Hard Mode (Conquest)" : wanted === "explore" ? " – Normal Mode (Exploration)" : "";
+  const path = `/instances/${category}${variant === "hard" ? "/hard" : ""}`;
+  return {
+    status: 200,
+    meta: {
+      title: `${label} ${catLabel}${modeText} – Bosses & DPS Leaderboards | ${SITE}`,
+      description: `${CATEGORY_INTRO[category]}. ${items.length} ${items.length === 1 ? "entry" : "entries"}: ${items.slice(0, 7).map((i) => i.name).join(", ")}. Mechanics guides and community DPS rankings.`,
+      canonicalPath: path,
+      ogImage: rows[0] ? INSTANCE_IMAGES[rows[0].name] : undefined,
+      jsonLd: [
+        breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: `${label} instances`, path: "/instances" }, { name: catLabel, path }]),
+        itemListJsonLd(`${label} ${catLabel}`, items),
+      ],
+    },
+    body: html`
+      <h2>${label} ${catLabel}${modeText}</h2>
+      <p>${CATEGORY_INTRO[category]}.</p>
+      <ul class="plain">${items.map((i) => html`<li><a href="${i.path}">${i.name}</a></li>`)}</ul>`,
   };
 }
 
@@ -138,15 +233,29 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
   const name = displayName(instance);
   const label = GAME_LABEL[game];
   const items = bossRows.map((b) => ({ name: displayName(b), path: `/bosses/${b.slug}` }));
+  const category = CATEGORY_LABEL[instance.category ?? ""] ?? "";
+  const mode = instance.variant === "conquest" ? "Hard mode (Conquest)" : instance.variant === "explore" ? "Normal mode (Exploration)" : "";
+  const facts = INSTANCE_FACTS[instance.name] ?? {};
+  const level = INSTANCE_MIN_LEVEL[instance.name];
+  const factText = [
+    level !== undefined ? `from level ${level}` : "",
+    facts.players ? `${facts.players} players` : "",
+    facts.itemLevel ? `item level ${formatInt(facts.itemLevel)}` : "",
+    facts.stars ? `${"★".repeat(facts.stars)} difficulty` : "",
+  ].filter(Boolean);
+  const photo = INSTANCE_IMAGES[instance.name];
+  const kind = [category, mode].filter(Boolean).join(" · ");
   return {
     status: 200,
     meta: {
-      title: `${name} Bosses – DPS Leaderboard | ${SITE}`,
+      title: `${name}${instance.variant === "conquest" ? "" : mode ? " (Normal)" : ""} – ${label} ${category || "Instance"} Bosses & DPS Leaderboard | ${SITE}`,
       description:
         items.length > 0
-          ? `${items.length} bosses in ${name} (${label}): ${items.slice(0, 8).map((i) => i.name).join(", ")}. Top group DPS per server.`
+          ? `${name} (${label}${kind ? `, ${kind}` : ""}${factText.length > 0 ? `; ${factText.join(", ")}` : ""}): ${items.length} boss${items.length === 1 ? "" : "es"} – ${items.slice(0, 6).map((i) => i.name).join(", ")}. Mechanics guides and top group DPS.`
           : `${name} (${label}) – boss DPS leaderboards on ${SITE}.`,
       canonicalPath: `/instances/${instance.slug}`,
+      ogImage: photo,
+      ogImageAlt: photo ? `${name} – ${label}` : undefined,
       jsonLd: [
         breadcrumbJsonLd([
           { name: SITE, path: "/" },
@@ -158,12 +267,12 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
     },
     body: html`
       <h2>${name}</h2>
-      <p>${label} instance – bosses with community DPS leaderboards:</p>
+      <p>${label} ${kind || "instance"}${factText.length > 0 ? ` · ${factText.join(" · ")}` : ""} – bosses with community DPS leaderboards:</p>
       ${items.length === 0 ? html`<p class="empty">No boss fights uploaded for this instance yet.</p>` : html`<ul class="plain">${items.map((i) => html`<li><a href="${i.path}">${i.name}</a></li>`)}</ul>`}`,
   };
 }
 
-export function bossPage(game: Game, idOrSlug: string, query: { server?: string }): Page | null {
+export function bossPage(game: Game, idOrSlug: string, query: { server?: string; mode?: string }): Page | null {
   const found = findBoss(idOrSlug, game);
   if (!found || found.game !== game) {
     return null;
@@ -181,15 +290,24 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
   const scopeLabel = combined ? "all servers" : server?.name ?? "";
   const tag = (p: { playerName: string; serverName: string | null }) => (combined && p.serverName ? `${p.playerName} [${p.serverName}]` : p.playerName);
   const basePath = `/bosses/${boss.slug}`;
-  const canonicalPath = query.server && server?.slug === query.server ? `${basePath}?server=${server.slug}` : basePath;
+  // Difficulty steps (Nightmare level ...): each is ranked on its own and has its own address.
+  const modes = modesFor(boss.id, found.instanceCategory);
+  const requestedMode = modes.find((m) => m.mode === query.mode)?.mode;
+  const mode = modes.length === 0 ? null : requestedMode ?? [...modes].sort((a, b) => b.runs - a.runs)[0].mode;
+  const modeText = mode !== null ? modeLabelEn(found.instanceCategory, mode) : "";
+  const canonicalParams = [
+    query.server && server?.slug === query.server ? `server=${server.slug}` : "",
+    requestedMode ? `mode=${requestedMode}` : "",
+  ].filter(Boolean);
+  const canonicalPath = canonicalParams.length > 0 ? `${basePath}?${canonicalParams.join("&")}` : basePath;
 
   let table: Raw;
   let summary: string;
   if (scope === undefined) {
     table = html`<p class="empty">No fights uploaded for this boss yet.</p>`;
-    summary = `${name} (${instanceName}, ${label}) – community DPS leaderboard. No fights uploaded yet.`;
+    summary = `${name} (${instanceName}${modeText ? `, ${modeText}` : ""}, ${label}) – community DPS leaderboard. No fights uploaded yet.`;
   } else if (boss.isSolo) {
-    const byClass = topByClass(boss.id, scope, game);
+    const byClass = topByClass(boss.id, scope, game, mode);
     const classes = Object.keys(byClass).sort();
     table = html`<table><thead><tr><th>Class</th><th>Player</th><th>iDPS</th><th>Damage</th></tr></thead><tbody>
       ${classes.map((c) => html`<tr><td>${c}</td><td>${tag(byClass[c][0])}</td><td>${formatInt(byClass[c][0].idps)}</td><td>${formatInt(byClass[c][0].totalDamage)}</td></tr>`)}
@@ -199,14 +317,15 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
       .map((c) => `${c} ${formatInt(byClass[c][0].idps)}`)
       .join(", ")}.`;
   } else {
-    const groups = topGroups(boss.id, scope, game);
+    const groups = topGroups(boss.id, scope, game, mode);
+    const stats = statsForBossIds([boss.id], scope, mode);
     table = html`<table class="ranked-table"><thead><tr><th>#</th><th>Group</th><th>iDPS</th><th>Damage</th><th>Healing</th></tr></thead><tbody>
       ${groups.map((g, i) => html`<tr><td>${i + 1}</td><td>${g.roster.map(tag).join(", ")}</td><td>${formatInt(g.groupIDps)}</td><td>${formatInt(g.totalDamage)}</td><td>${formatInt(g.totalHealing)}</td></tr>`)}
     </tbody></table>`;
     const top = groups[0];
     summary = top
-      ? `Top ${groups.length} groups vs ${name} on ${scopeLabel}: best ${formatInt(top.groupIDps)} iDPS by ${top.roster.map(tag).join(", ")}.`
-      : `${name} (${instanceName}) – community DPS leaderboard on ${scopeLabel}.`;
+      ? `${name} (${instanceName}${modeText ? `, ${modeText}` : ""}): ${stats.runCount} community run${stats.runCount === 1 ? "" : "s"}, best group iDPS ${formatInt(top.groupIDps)} by ${top.roster.map(tag).join(", ")}${stats.avgDurationSeconds ? `, average kill time ${minutes(stats.avgDurationSeconds)}` : ""} (${scopeLabel}).`
+      : `${name} (${instanceName}${modeText ? `, ${modeText}` : ""}) – community DPS leaderboard on ${scopeLabel}.`;
   }
 
   // Aion 2 bosses double as mechanics guides - the guide is the part worth ranking for while no
@@ -224,12 +343,13 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
   const wipes = mechanics.filter((m) => m.severity !== "mechanic").length;
   const title =
     mechanics.length > 0
-      ? `${name} Mechanics Guide & DPS Leaderboard – ${instanceName} | ${SITE}`
-      : `${name} DPS Leaderboard – ${instanceName}${server ? ` (${server.name})` : ""} | ${SITE}`;
+      ? `${name} Mechanics Guide & DPS Leaderboard – ${instanceName}${modeText ? ` (${modeText})` : ""} | ${SITE}`
+      : `${name} DPS Leaderboard – ${instanceName}${modeText ? ` (${modeText})` : ""}${server ? ` (${server.name})` : ""} | ${SITE}`;
   const description =
     mechanics.length > 0
-      ? `How to beat ${name} in ${instanceName} (${label}): ${mechanics.length} mechanics, ${wipes} of them wipe-critical, plus the community DPS leaderboard.`
+      ? `How to beat ${name} in ${instanceName}${modeText ? ` (${modeText})` : ""} (${label}): ${mechanics.length} mechanics, ${wipes} of them wipe-critical. ${summary}`
       : summary;
+  const photo = bossImage(boss.name, found.instanceName);
 
   return {
     status: 200,
@@ -237,6 +357,8 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
       title,
       description,
       canonicalPath,
+      ogImage: photo,
+      ogImageAlt: photo ? `${name} – ${instanceName}` : undefined,
       jsonLd: [
         breadcrumbJsonLd([
           { name: SITE, path: "/" },
@@ -248,7 +370,8 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string 
     },
     body: html`
       <h2>${name}</h2>
-      <p>${instanceName} · ${label}${server ? html` · Leaderboard for <strong>${server.name}</strong>` : combined && scope === null ? html` · Leaderboard across all servers` : ""}</p>
+      <p>${instanceName} · ${label}${modeText ? ` · ${modeText}` : ""}${server ? html` · Leaderboard for <strong>${server.name}</strong>` : combined && scope === null ? html` · Leaderboard across all servers` : ""}</p>
+      ${modes.length > 0 ? html`<p>Difficulty: ${modes.map((m) => html`<a href="${basePath}?mode=${m.mode}">${modeLabelEn(found.instanceCategory, m.mode)}</a> `)}</p>` : ""}
       ${mechanicsBlock}
       ${mechanics.length > 0 ? html`<h3>Leaderboard</h3>` : ""}
       ${!combined && serverList.length > 1 ? html`<p>Servers: ${serverList.map((s) => html`<a href="${basePath}?server=${s.slug ?? ""}">${s.name}</a> `)}</p>` : ""}
@@ -277,39 +400,61 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
       bossName: bosses.name,
       bossNameEn: bosses.nameEn,
       bossSlug: bosses.slug,
+      instanceName: instances.name,
       className: encounterParticipants.className,
+      faction: encounterParticipants.faction,
       idps: encounterParticipants.idps,
       startedAt: encounters.startedAt,
     })
     .from(encounterParticipants)
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
     .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+    .innerJoin(instances, eq(bosses.instanceId, instances.id))
     .where(and(eq(encounterParticipants.playerId, player.id), ne(encounterParticipants.className, "?")))
     .orderBy(desc(encounters.startedAt))
     .all();
-  const className = runs[0]?.className ?? null;
-  const best = runs.reduce((m, r) => Math.max(m, r.idps), 0);
+  const profile = buildProfileView(player.id);
+  const className = profile?.className ?? runs[0]?.className ?? null;
+  const faction = profile?.faction ?? runs[0]?.faction ?? null;
+  const best = runs.reduce<(typeof runs)[number] | null>((m, r) => (m === null || r.idps > m.idps ? r : m), null);
   const path = `/players/${player.slug ?? player.id}`;
+  const serverShort = (player.serverName ?? "").split(" - ").pop() ?? "";
   const where = player.serverName ? ` (${player.serverName})` : "";
-  const facts = [className, player.guild ? `guild ${player.guild}` : null, player.serverName].filter((x): x is string => !!x);
-  const description =
+  const classLine = [profile?.level ? `Lv. ${profile.level}` : "", className ?? "", faction ? `(${faction})` : ""].filter(Boolean).join(" ");
+  const gearText = profile?.averageItemLevel ? `average item level ${profile.averageItemLevel}` : "";
+  const runText =
     runs.length > 0
-      ? `${player.name}${where}: ${className ?? "Aion 2 character"}, ${runs.length} recorded boss fight${runs.length === 1 ? "" : "s"}, best personal DPS ${formatInt(best)}. Skills, gear and run history on ${SITE}.`
-      : `Aion 2 character ${player.name}${where} on ${SITE}.`;
+      ? `${runs.length} recorded boss fight${runs.length === 1 ? "" : "s"}, best personal DPS ${formatInt(best?.idps ?? 0)}${best ? ` vs ${displayName({ name: best.bossName, nameEn: best.bossNameEn })}` : ""}`
+      : "";
+  const facts = [
+    classLine || "Aion 2 character",
+    serverShort ? `on ${serverShort}` : "",
+    player.guild ? `guild ${player.guild}` : "",
+    gearText,
+  ].filter(Boolean);
+  const description = `${player.name}: ${facts.join(", ")}${runText ? `. ${runText}` : ""}. Gear, skills, stigmas, Daevanion boards and run history on ${SITE}.`;
+  const image = classImage(className);
   const recent = runs.slice(0, 10);
   return {
     status: 200,
     meta: {
-      title: `${player.name}${where} – Aion 2 Character & Boss Runs – ${SITE}`,
+      title: `${player.name}${where} – ${classLine || "Aion 2 Character"} – Boss Runs & Gear | ${SITE}`,
       description,
       canonicalPath: path,
-      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: player.name, path }])],
+      ogType: "profile",
+      ogImage: image,
+      ogImageAlt: className ? `${className} emblem` : undefined,
+      twitterCard: image ? "summary" : "summary_large_image",
+      jsonLd: [
+        breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: player.name, path }]),
+        profileJsonLd({ name: player.name, path, description, image: image ?? "/og/default.png", guild: player.guild, server: player.serverName }),
+      ],
     },
     body: html`
       <h2>${player.name}</h2>
       <p>${facts.join(" · ")}</p>
       ${runs.length > 0
-        ? html`<p>${runs.length} recorded boss fight${runs.length === 1 ? "" : "s"}, best personal DPS ${formatInt(best)}.</p>
+        ? html`<p>${runText}.</p>
             <ul class="plain">
               ${recent.map((r) => html`<li><a href="/bosses/${r.bossSlug}">${displayName({ name: r.bossName, nameEn: r.bossNameEn })}</a> – ${formatInt(r.idps)} DPS, ${r.startedAt.slice(0, 10)}</li>`)}
             </ul>`
@@ -317,12 +462,9 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
   };
 }
 
-/** One boss fight's link preview - per the user, a shared encounter link showed nothing but a
- * generic "Boss fight details" title/description regardless of which boss or server it actually
- * was. Boss name and server come first in the title (asked for explicitly); participant count and
- * group iDPS round out the description when there's anything to show. Deliberately still
- * noindex - this is a link-preview/crawler fragment, not a page meant to rank in search, same as
- * appOnlyPage's other kinds. */
+/** One boss fight's link preview - boss, server, difficulty, group result and the top damage dealers,
+ * with the boss's picture. Deliberately noindex: it is a link-preview/crawler fragment (Discord, Slack),
+ * not a page meant to rank in search. */
 export function encounterPage(game: Game, id: string): Page | null {
   const encounterId = Number(id);
   if (!Number.isInteger(encounterId)) {
@@ -332,10 +474,15 @@ export function encounterPage(game: Game, id: string): Page | null {
   const row = db
     .select({
       id: encounters.id,
+      startedAt: encounters.startedAt,
+      mode: encounters.mode,
       durationSeconds: encounters.durationSeconds,
       groupIDps: encounters.groupIDps,
       bossName: bosses.name,
       bossNameEn: bosses.nameEn,
+      instanceName: instances.name,
+      instanceNameEn: instances.nameEn,
+      instanceCategory: instances.category,
       instanceGame: instances.game,
       serverName: servers.displayName,
     })
@@ -351,42 +498,181 @@ export function encounterPage(game: Game, id: string): Page | null {
 
   // Excludes pets/summons (Water Spirit, Coyote, ...) - Chat.log never narrates who owns someone
   // ELSE's pet, so the client uploads them as their own participant row with className "?" (a
-  // real player's class is always resolved by upload time). Per the user, who noticed a 13-player
-  // count that was actually 12 real players plus 2 elemental spirits.
-  const participantCount = db
-    .select({ id: encounterParticipants.id })
+  // real player's class is always resolved by upload time).
+  const roster = db
+    .select({ name: players.name, className: encounterParticipants.className, damage: encounterParticipants.totalDamage, healing: encounterParticipants.totalHealing })
     .from(encounterParticipants)
+    .innerJoin(players, eq(encounterParticipants.playerId, players.id))
     .where(and(eq(encounterParticipants.encounterId, encounterId), ne(encounterParticipants.className, "?")))
-    .all().length;
+    .orderBy(desc(encounterParticipants.totalDamage))
+    .all();
 
   const name = displayName({ name: row.bossName, nameEn: row.bossNameEn });
+  const instanceName = row.instanceNameEn ?? row.instanceName;
   const server = row.serverName;
-  const title = `${name}${server ? ` (${server})` : ""} – Boss Fight – ${SITE}`;
+  const modeText = row.mode ? ` · ${modeLabelEn(row.instanceCategory, row.mode)}` : "";
+  const title = `${name}${row.mode ? ` (${modeLabelEn(row.instanceCategory, row.mode)})` : ""}${server ? ` – ${server}` : ""} – Boss Fight – ${SITE}`;
+  const top = roster.slice(0, 3).map((p) => `${p.name} (${p.className}) ${compact(p.damage)}`);
   const stats = [
-    participantCount > 0 ? `${participantCount} player${participantCount === 1 ? "" : "s"}` : "",
+    roster.length > 0 ? `${roster.length} player${roster.length === 1 ? "" : "s"}` : "",
     row.groupIDps ? `${formatInt(row.groupIDps)} group iDPS` : "",
+    row.durationSeconds ? `cleared in ${minutes(row.durationSeconds)}` : "",
   ].filter(Boolean);
-  const description = `Boss fight against ${name}${server ? ` on ${server}` : ""}${stats.length > 0 ? `: ${stats.join(", ")}` : ""}. Aion DPS community leaderboards.`;
+  const description = `${name} (${instanceName}${modeText}) on ${server ?? "Aion 2"}: ${stats.join(", ")}.${top.length > 0 ? ` Top damage: ${top.join(", ")}.` : ""} ${row.startedAt.slice(0, 10)}`;
+  const photo = bossImage(row.bossName, row.instanceName);
 
   return {
     status: 200,
-    meta: { title, description, canonicalPath: `/encounters/${encounterId}`, noindex: true },
-    body: html`<h2>${name}</h2><p>${server ?? ""}</p>`,
+    meta: { title, description, canonicalPath: `/encounters/${encounterId}`, noindex: true, ogImage: photo, ogImageAlt: photo ? name : undefined },
+    body: html`<h2>${name}</h2><p>${server ?? ""}${modeText}</p>${roster.length > 0 ? html`<ul class="plain">${roster.map((p) => html`<li>${p.name} (${p.className}) – ${formatInt(p.damage)} damage</li>`)}</ul>` : ""}`,
   };
 }
 
-/** Pages that exist only as the interactive app (server picker, search, single encounters). */
+/** One player's skill breakdown in one fight: who, against what, how much, with which skills. */
+export function participantPage(game: Game, id: string): Page | null {
+  const participantId = Number(id);
+  if (!Number.isInteger(participantId)) {
+    return null;
+  }
+  const row = db
+    .select({
+      encounterId: encounters.id,
+      playerName: players.name,
+      playerSlug: players.slug,
+      serverName: servers.displayName,
+      className: encounterParticipants.className,
+      totalDamage: encounterParticipants.totalDamage,
+      dps: encounterParticipants.dps,
+      totalHealing: encounterParticipants.totalHealing,
+      crit: encounterParticipants.critRatePercent,
+      mode: encounters.mode,
+      durationSeconds: encounters.durationSeconds,
+      bossName: bosses.name,
+      bossNameEn: bosses.nameEn,
+      instanceName: instances.name,
+      instanceNameEn: instances.nameEn,
+      instanceCategory: instances.category,
+      instanceGame: instances.game,
+    })
+    .from(encounterParticipants)
+    .innerJoin(players, eq(encounterParticipants.playerId, players.id))
+    .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
+    .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+    .innerJoin(instances, eq(bosses.instanceId, instances.id))
+    .leftJoin(servers, eq(encounters.serverId, servers.id))
+    .where(eq(encounterParticipants.id, participantId))
+    .get();
+  if (!row || row.instanceGame !== game) {
+    return null;
+  }
+  const skills = db
+    .select({
+      skillName: encounterSkillUsage.skillName,
+      hits: encounterSkillUsage.hits,
+      critHits: encounterSkillUsage.critHits,
+      totalDamage: encounterSkillUsage.totalDamage,
+      minHit: encounterSkillUsage.minHit,
+      maxHit: encounterSkillUsage.maxHit,
+      isHeal: encounterSkillUsage.isHeal,
+    })
+    .from(encounterSkillUsage)
+    .where(and(eq(encounterSkillUsage.participantId, participantId), eq(encounterSkillUsage.isHeal, false)))
+    .all();
+  const own = ownSkillRows(row.className, skills);
+  const total = own.reduce((sum, sk) => sum + sk.totalDamage, 0);
+  const topSkills = own.slice(0, 3).map((sk) => `${sk.skillName} ${total > 0 ? Math.round((sk.totalDamage / total) * 100) : 0}%`);
+  const boss = displayName({ name: row.bossName, nameEn: row.bossNameEn });
+  const modeText = row.mode ? ` (${modeLabelEn(row.instanceCategory, row.mode)})` : "";
+  const description = `${row.playerName} (${row.className}) vs ${boss}${modeText}${row.serverName ? ` on ${row.serverName}` : ""}: ${formatInt(row.totalDamage)} damage, ${formatInt(row.dps)} DPS, ${row.crit.toFixed(1)}% crit${row.totalHealing > 0 ? `, ${formatInt(row.totalHealing)} healing` : ""}${row.durationSeconds ? `, ${minutes(row.durationSeconds)} fight` : ""}.${topSkills.length > 0 ? ` Top skills: ${topSkills.join(", ")}.` : ""}`;
+  const photo = bossImage(row.bossName, row.instanceName);
+  return {
+    status: 200,
+    meta: {
+      title: `${row.playerName} vs ${boss}${modeText} – Skill Breakdown – ${SITE}`,
+      description,
+      canonicalPath: `/participants/${participantId}`,
+      noindex: true,
+      ogImage: photo,
+      ogImageAlt: photo ? boss : undefined,
+    },
+    body: html`<h2>${row.playerName}</h2><p>${row.className} · ${boss}${modeText}</p><p>${formatInt(row.totalDamage)} damage · ${formatInt(row.dps)} DPS</p>`,
+  };
+}
+
+/** The comparison pages carry the compared names in the title/description so a shared link says what it compares. */
+export function comparePage(kind: "players" | "runs", query: { a?: string; b?: string; boss?: string }, path: string): Page {
+  const nameOfPlayer = (raw?: string) => {
+    const n = Number(raw);
+    return Number.isInteger(n) ? db.select({ name: players.name }).from(players).where(eq(players.id, n)).get()?.name : undefined;
+  };
+  const encounterOf = (raw?: string) => {
+    const n = Number(raw);
+    return Number.isInteger(n)
+      ? db
+          .select({ boss: bosses.name, bossEn: bosses.nameEn, server: servers.displayName, idps: encounters.groupIDps })
+          .from(encounters)
+          .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+          .leftJoin(servers, eq(encounters.serverId, servers.id))
+          .where(eq(encounters.id, n))
+          .get()
+      : undefined;
+  };
+  let title = `Compare – ${SITE}`;
+  let description = `Compare two Aion 2 players or two boss runs side by side on ${SITE}: best and average iDPS, damage, crit rate and the skill split.`;
+  if (kind === "players") {
+    const a = nameOfPlayer(query.a);
+    const b = nameOfPlayer(query.b);
+    const bossRow = query.boss ? findBoss(query.boss, DEFAULT_GAME) : null;
+    const boss = bossRow ? displayName(bossRow.boss) : "";
+    if (a && b) {
+      title = `${a} vs ${b}${boss ? ` – ${boss}` : ""} – Player Comparison – ${SITE}`;
+      description = `${a} and ${b}${boss ? ` against ${boss}` : ""}: best and average iDPS, total damage, crit rate, healing and the skill-by-skill damage split.`;
+    } else if (a) {
+      title = `Compare ${a} with another player – ${SITE}`;
+      description = `Pick an opponent for ${a}${boss ? ` on ${boss}` : ""} and compare iDPS, damage, crit rate and skills side by side.`;
+    } else {
+      title = `Player Comparison – ${SITE}`;
+    }
+  } else {
+    const a = encounterOf(query.a);
+    const b = encounterOf(query.b);
+    if (a && b) {
+      const boss = displayName({ name: a.boss, nameEn: a.bossEn });
+      title = `${boss} – Run Comparison – ${SITE}`;
+      description = `Two ${boss} runs side by side: ${formatInt(a.idps)} vs ${formatInt(b.idps)} group iDPS${a.server ? ` (${a.server})` : ""}, duration, damage and the roster of each run.`;
+    } else if (a) {
+      const boss = displayName({ name: a.boss, nameEn: a.bossEn });
+      title = `Compare this ${boss} run with another – ${SITE}`;
+      description = `Pick a second ${boss} run and compare group iDPS, duration, damage and rosters.`;
+    } else {
+      title = `Run Comparison – ${SITE}`;
+    }
+  }
+  return {
+    status: 200,
+    meta: { title, description, canonicalPath: path, noindex: true },
+    body: html`<h2>${title}</h2><p>${description}</p>`,
+  };
+}
+
+/** Pages that exist only as the interactive app (server picker, search). */
 export function appOnlyPage(game: Game | null, kind: "servers" | "search" | "participant" | "compare", path: string): Page {
   const label = game ? GAME_LABEL[game] : SITE;
   const titles = {
     servers: `Choose a server – ${label} | ${SITE}`,
-    search: `Player search – ${SITE}`,
+    search: `Search Aion 2 Players – Characters, Gear & Boss Runs | ${SITE}`,
     participant: `Player fight details – ${SITE}`,
     compare: `Compare – ${SITE}`,
   };
+  const descriptions = {
+    servers: `${SITE} – community boss DPS leaderboards for Aion 2.`,
+    search: `Find any Aion 2 character by name across all servers: class, level, item level, gear, skills, stigmas and every uploaded boss run.`,
+    participant: `${SITE} – community boss DPS leaderboards for Aion 2.`,
+    compare: `Compare two Aion 2 players or boss runs side by side on ${SITE}.`,
+  };
   return {
     status: 200,
-    meta: { title: titles[kind], description: `${SITE} – community boss DPS leaderboards for Aion.`, canonicalPath: path, noindex: true },
+    meta: { title: titles[kind], description: descriptions[kind], canonicalPath: path, noindex: true },
     body: html`<p class="empty">Loading…</p>`,
   };
 }

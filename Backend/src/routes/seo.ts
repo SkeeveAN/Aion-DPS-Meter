@@ -67,7 +67,7 @@ function buildSitemap(): string {
       }
     }
 
-    urls.push({ path: `/instances` });
+    urls.push({ path: `/instances` }, { path: `/instances/expedition` }, { path: `/instances/expedition/hard` }, { path: `/instances/nightmare` }, { path: `/instances/ascension` }, { path: `/instances/transcendence` });
     for (const i of instanceRows) {
       if (i.slug) {
         urls.push({ path: `/instances/${i.slug}`, lastmod: instanceLastmod.get(i.id) });
@@ -77,6 +77,21 @@ function buildSitemap(): string {
       if (b.slug) {
         urls.push({ path: `/bosses/${b.slug}`, lastmod: b.lastFight ?? undefined });
       }
+    }
+  }
+
+  // Boss pages of a difficulty step (Nightmare level ...) that already have fights.
+  const modeRows = db
+    .select({ slug: bosses.slug, mode: encounters.mode, lastFight: max(encounters.startedAt) })
+    .from(encounters)
+    .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+    .innerJoin(instances, eq(bosses.instanceId, instances.id))
+    .where(and(eq(instances.hidden, false), ne(encounters.mode, "")))
+    .groupBy(bosses.id, encounters.mode)
+    .all();
+  for (const r of modeRows) {
+    if (r.slug) {
+      urls.push({ path: `/bosses/${r.slug}?mode=${r.mode}`, lastmod: r.lastFight ?? undefined });
     }
   }
 

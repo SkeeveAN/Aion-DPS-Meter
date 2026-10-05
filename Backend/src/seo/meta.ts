@@ -12,8 +12,12 @@ export interface PageMeta {
   /** Path (with query if it matters) that is the canonical address of this page. */
   canonicalPath: string;
   noindex?: boolean;
+  /** Path of the preview image (Discord, Slack, X ...); the site-wide default when absent. */
   ogImage?: string;
-  ogType?: "website" | "article";
+  ogImageAlt?: string;
+  /** "summary" shows a small square image next to the text (class emblems), the default a wide banner. */
+  twitterCard?: "summary" | "summary_large_image";
+  ogType?: "website" | "article" | "profile";
   jsonLd?: object[];
 }
 
@@ -31,11 +35,14 @@ export function renderHead(meta: PageMeta): string {
     `<meta property="og:title" content="${escapeHtml(meta.title)}" />`,
     `<meta property="og:description" content="${escapeHtml(meta.description)}" />`,
     `<meta property="og:url" content="${escapeHtml(canonical)}" />`,
+    `<meta property="og:locale" content="en_US" />`,
     `<meta property="og:image" content="${escapeHtml(image)}" />`,
-    `<meta name="twitter:card" content="summary_large_image" />`,
+    meta.ogImageAlt ? `<meta property="og:image:alt" content="${escapeHtml(meta.ogImageAlt)}" />` : "",
+    `<meta name="twitter:card" content="${meta.twitterCard ?? "summary_large_image"}" />`,
     `<meta name="twitter:title" content="${escapeHtml(meta.title)}" />`,
     `<meta name="twitter:description" content="${escapeHtml(meta.description)}" />`,
     `<meta name="twitter:image" content="${escapeHtml(image)}" />`,
+    meta.ogImageAlt ? `<meta name="twitter:image:alt" content="${escapeHtml(meta.ogImageAlt)}" />` : "",
     ...(meta.jsonLd ?? []).map(jsonLdScript),
   ];
   return lines.filter((l) => l !== "").join("\n  ");
@@ -87,5 +94,32 @@ export function softwareApplicationJsonLd(): object {
     downloadUrl: "https://github.com/SkeeveAN/Aion-DPS-Meter/releases",
     description:
       "Free open-source DPS/HPS meter for Aion 2. Reads the game's network traffic passively, shows live damage and healing per player, and can upload boss fights to community leaderboards.",
+  };
+}
+
+export function websiteJsonLd(): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: env.BASE_URL + "/",
+    inLanguage: ["en", "de", "fr", "es", "ru", "pl", "tr", "zh"],
+    potentialAction: { "@type": "SearchAction", target: env.BASE_URL + "/search?q={search_term_string}", "query-input": "required name=search_term_string" },
+  };
+}
+
+export function profileJsonLd(profile: { name: string; path: string; description: string; image: string; guild?: string | null; server?: string | null }): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url: env.BASE_URL + profile.path,
+    mainEntity: {
+      "@type": "Person",
+      name: profile.name,
+      description: profile.description,
+      image: env.BASE_URL + profile.image,
+      ...(profile.guild ? { memberOf: { "@type": "Organization", name: profile.guild } } : {}),
+      ...(profile.server ? { homeLocation: { "@type": "Place", name: profile.server } } : {}),
+    },
   };
 }
