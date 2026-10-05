@@ -114,18 +114,6 @@ public partial class MainWindow : Window
     private bool _showBossHp;
     private TimetableWindow? _timetable;
     private bool _autoReset;
-    /// <summary>Whose rows are shown: everybody, the own group, or the corps (two groups together).</summary>
-    private enum MeterScope { All, Group, Corps }
-
-    private MeterScope _scope = MeterScope.Group;
-
-    // The players who fought the same monsters as the group, for the corps scope (see ComputeCorps).
-    private HashSet<int> _corpsIds = new();
-
-    // Everyone the party roster named since the data was last cleared. Leaving the group (after the
-    // boss is dead, out of the instance) empties the roster, but the fight on screen is still that
-    // group's: the group scope has to keep showing them.
-    private readonly HashSet<string> _groupNames = new(StringComparer.Ordinal);
     private HpCheckResult? _lastHpCheck;
 
     /// <summary>Silence after which the next damage starts a new fight (MeterSettings.AutoResetEnabled and
@@ -313,8 +301,6 @@ public partial class MainWindow : Window
         _showBossHp = settings.ShowBossHp;
         _autoReset = settings.AutoResetEnabled;
         _autoResetIdle = TimeSpan.FromSeconds(Math.Clamp(settings.AutoResetSeconds, 1, 600));
-        _scope = Enum.TryParse(settings.ViewScope, true, out MeterScope scope) ? scope : MeterScope.Group;
-        UpdateScopeControls();
         _compactOverlay = string.Equals(settings.OverlayStyle, "Compact", StringComparison.OrdinalIgnoreCase);
         SetCompactOverlayScale(settings.OverlayScale);
         // Both overlay looks paint their dark backgrounds with this brush (DynamicResource); the
@@ -834,16 +820,6 @@ public partial class MainWindow : Window
                 ? ShownFightHits(damageOnly, targetId)
                 : RestrictToEngagedTargets(damageOnly.ToList());
 
-        if (_source?.Entities is Aion2.Aion2EntityDirectory rosterDirectory)
-        {
-            foreach (string member in rosterDirectory.PartyNames)
-            {
-                _groupNames.Add(member);
-            }
-        }
-
-        _corpsIds = _scope != MeterScope.All ? ComputeCorps(filtered) : new HashSet<int>();
-
         // A pure healer never hit the selected target, so `filtered` holds none of their events, yet
         // they belong in the list (and in an upload's roster). Heals inside the shown window by
         // players the meter has identified add them; bounded to that window so someone who healed
@@ -900,8 +876,6 @@ public partial class MainWindow : Window
         {
             sourceIds = sourceIds.Where(id => ResolveClassName(id) == classFilter).ToList();
         }
-
-        sourceIds = sourceIds.Where(IsInScope).ToList();
 
         foreach (int staleId in _rowsByObjectId.Keys.Except(sourceIds).ToList())
         {
@@ -968,120 +942,6 @@ public partial class MainWindow : Window
     /// adds) - what its hit points are held against.</summary>
     private IReadOnlyList<DamageEvent> OnSelectedTarget(IReadOnlyList<DamageEvent> shown) =>
         _selectedTargetId is int id ? shown.Where(ev => ev.TargetObjectId == id).ToList() : shown;
-
-    /// <summary>
-    /// Whose rows the scope shows. Group: the local player and the players the party roster names,
-    /// nobody else - no stranger around in the open world, named or not yet; before the first
-    /// roster frame (a few seconds after joining) that is the local player alone. Corps: the group
-    /// and the players who fought the same monsters as it (two parties joined into a corps share
-    /// their fight; the roster only names one's own party). All: everybody. PvP shows everyone: the
-    /// opponents are the point there.
-    /// </summary>
-    private bool IsInScope(int sourceId)
-    {
-        if (_scope == MeterScope.All || _pvpOnly || _source?.Entities is not Aion2.Aion2EntityDirectory directory
-            || directory.IsLocalPlayer(sourceId) || directory.InferLocalPlayer() == sourceId)
-        {
-            return true;
-        }
-
-        // No roster seen (the meter started after the group formed; the roster is sent once): the
-        // group is unknown, and "only me" would be wrong - until it is read, the group is whoever
-        // fights the same monsters.
-        bool groupKnown = RosterKnown(directory);
-        if (_scope == MeterScope.Group && !groupKnown)
-        {
-            return _corpsIds.Contains(sourceId);
-        }
-
-        return IsGroupMember(sourceId, directory) || (_scope == MeterScope.Corps && _corpsIds.Contains(sourceId));
-    }
-
-    /// <summary>Whether a party roster naming anyone besides the local player has been read.</summary>
-    private bool RosterKnown(Aion2.Aion2EntityDirectory directory)
-    {
-        string? own = directory.LocalCharacter?.Name;
-        return _groupNames.Any(n => n != own) || directory.PartyNames.Any(n => n != own);
-    }
-
-    private bool IsGroupMember(int id, Aion2.Aion2EntityDirectory directory)
-    {
-        if (directory.IsLocalPlayer(id) || directory.InferLocalPlayer() == id)
-        {
-            return true;
-        }
-
-        string name = ResolveDisplayName(id);
-        return _groupNames.Contains(name) || directory.PartyNames.Contains(name) || name == directory.LocalCharacter?.Name;
-    }
-
-    /// <summary>The players who hit a monster the group also hit (an approximation of the corps until
-    /// its own roster is read from the network).</summary>
-    private HashSet<int> ComputeCorps(IReadOnlyList<DamageEvent> shown)
-    {
-        var corps = new HashSet<int>();
-        if (_source?.Entities is not Aion2.Aion2EntityDirectory directory)
-        {
-            return corps;
-        }
-
-        var groupTargets = shown.Where(ev => IsGroupMember(ev.SourceObjectId, directory)).Select(ev => ev.TargetObjectId).ToHashSet();
-        foreach (DamageEvent ev in shown)
-        {
-            if (groupTargets.Contains(ev.TargetObjectId) && IsPlayerName(ev.SourceObjectId))
-            {
-                corps.Add(ev.SourceObjectId);
-            }
-        }
-
-        return corps;
-    }
-
-    private void SetScope(MeterScope scope)
-    {
-        if (scope == _scope)
-        {
-            UpdateScopeControls();
-            return;
-        }
-
-        _scope = scope;
-        var settings = MeterSettings.Load();
-        settings.ViewScope = scope.ToString();
-        settings.Save();
-        UpdateScopeControls();
-        RefreshRows();
-    }
-
-    private void OnScopeMenuClicked(object sender, RoutedEventArgs e) =>
-        SetScope(sender == ScopeAllItem ? MeterScope.All : sender == ScopeCorpsItem ? MeterScope.Corps : MeterScope.Group);
-
-    private void OnOverlayScopeClicked(object sender, MouseButtonEventArgs e)
-    {
-        if (sender is FrameworkElement { Tag: string tag } && Enum.TryParse(tag, out MeterScope scope))
-        {
-            SetScope(scope);
-        }
-
-        e.Handled = true;
-    }
-
-    /// <summary>Marks the chosen scope in the Mode menu and on the overlay's three-way switch.</summary>
-    private void UpdateScopeControls()
-    {
-        ScopeAllItem.IsChecked = _scope == MeterScope.All;
-        ScopeGroupItem.IsChecked = _scope == MeterScope.Group;
-        ScopeCorpsItem.IsChecked = _scope == MeterScope.Corps;
-        foreach (Border segment in OverlayScopeSwitch.Children.OfType<Border>())
-        {
-            bool selected = segment.Tag as string == _scope.ToString();
-            segment.Background = selected ? new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF)) : new SolidColorBrush(Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
-            if (segment.Child is TextBlock text)
-            {
-                text.SetResourceReference(TextBlock.ForegroundProperty, selected ? "Brush.OverlayText" : "Brush.TextSubtle");
-            }
-        }
-    }
 
     /// <summary>A target's heals on itself between two moments - a boss healing itself by the hits it
     /// takes (see Aion2FrameDecoder.DecodeVarintDot), which the HP check has to know about.</summary>
@@ -1166,8 +1026,6 @@ public partial class MainWindow : Window
             sourceIds = sourceIds.Where(id => ResolveClassName(id) == classFilter).ToList();
         }
 
-        sourceIds = sourceIds.Where(IsInScope).ToList();
-
         foreach (int staleId in _rowsByObjectId.Keys.Except(sourceIds).ToList())
         {
             _rows.Remove(_rowsByObjectId[staleId]);
@@ -1220,7 +1078,6 @@ public partial class MainWindow : Window
             targetIds = targetIds.Where(id => ResolveClassName(id) == classFilter).ToList();
         }
 
-        targetIds = targetIds.Where(IsInScope).ToList();
 
         foreach (int staleId in _rowsByObjectId.Keys.Except(targetIds).ToList())
         {
@@ -2900,7 +2757,6 @@ public partial class MainWindow : Window
         _fightRecorder?.Reset();
 
         _aggregator.Clear();
-        _groupNames.Clear();
         _avoids.Clear();
         _kills.Clear();
         _rows.Clear();

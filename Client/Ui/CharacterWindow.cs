@@ -1,37 +1,54 @@
+using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using AionDPS.Aion2;
 using AionDPS.Aion2.Protocol;
 
 namespace AionDPS.Ui;
 
 /// <summary>
-/// The local player's Aion 2 character on one screen, opened beside the meter: profile (name,
-/// class, level, legion, key numbers), what is worth upgrading, the three Daevanion boards as small
-/// maps, the equipment as a table with item-level bars, and the skills with level pips. Three
-/// columns so nothing needs a click. Built in code (like the Character panel it replaces) from the
-/// data the game sends at login and zone changes - see <see cref="Aion2EntityDirectory"/> - and
+/// The local player's Aion 2 character, laid out like the player page on the website: a strip with the class
+/// emblem, name, level, legion and the key numbers, and below it tabs - equipment (the doll with the game's own
+/// item icons in their rarity colours and the enchant level), skills (icon grid: active, passive, stigma),
+/// the Daevanion boards (the game's node tiles) and the species knowledge of the pet window. Built in code
+/// from the data the game sends at login and zone changes - see <see cref="Aion2EntityDirectory"/> - and
 /// redrawn whenever a fresh record arrives.
 /// </summary>
 public sealed class CharacterWindow : Window
 {
     private static readonly Color Gold = Color.FromRgb(0xF0, 0xB8, 0x40);
-    private static readonly Color Blue = Color.FromRgb(0x4C, 0x8D, 0xFF);
-    private static readonly Color Green = Color.FromRgb(0x48, 0xB3, 0x6A);
-    private static readonly Color Orange = Color.FromRgb(0xFF, 0x9F, 0x43);
-    private static readonly Color Red = Color.FromRgb(0xFF, 0x8F, 0x78);
+
+    // Rarity colours as the website paints them (the grade letters of the game's UI atlas).
+    private static readonly Dictionary<int, Color> GradeColors = new()
+    {
+        [1] = Color.FromRgb(0xAA, 0xB2, 0xBD), [2] = Color.FromRgb(0x4C, 0xC4, 0x6A), [3] = Color.FromRgb(0x3A, 0x9B, 0xE8),
+        [4] = Color.FromRgb(0xF0, 0xB0, 0x30), [5] = Color.FromRgb(0xF0, 0x7A, 0x20), [6] = Color.FromRgb(0xD9, 0x4F, 0x4F),
+        [7] = Color.FromRgb(0x2F, 0xD0, 0xC0),
+    };
+
+    private static readonly string[] GradeNames = { "", "Common", "Rare", "Legend", "Unique", "Epic", "Mythic", "Special" };
+    private static readonly string[] ArmorSlots = { "Helmet", "Shoulder", "Torso", "Gloves", "Pants", "Boots", "Cape", "Belt" };
+    private static readonly string[] AccessorySlots = { "Necklace", "Earring", "Ring", "Bracelet", "Amulet", "Brooch", "Pendant" };
 
     private readonly Aion2EntityDirectory _directory;
     private readonly ContentControl _host = new();
+    private readonly Dictionary<string, BitmapImage?> _images = new();
+    private string _tab = "equipment";
+    private int _boardIndex;
+
+    private sealed record GearRow(Aion2EquippedItem Item, Aion2ItemInfo? Info);
 
     public CharacterWindow(Aion2EntityDirectory directory)
     {
         _directory = directory;
         Title = "Character";
-        Width = 1115;
-        Height = 740;
+        Width = 1180;
+        Height = 760;
         MinWidth = 820;
         MinHeight = 480;
         FontSize = 12.5;
@@ -91,6 +108,11 @@ public sealed class CharacterWindow : Window
 
     private static SolidColorBrush Solid(Color color) => new(color);
 
+    private static Color Blend(Color top, Color bottom, double amount) => Color.FromRgb(
+        (byte)(bottom.R + (top.R - bottom.R) * amount), (byte)(bottom.G + (top.G - bottom.G) * amount), (byte)(bottom.B + (top.B - bottom.B) * amount));
+
+    private Color PanelColor => Res("Brush.Panel") is SolidColorBrush panel ? panel.Color : Color.FromRgb(0x15, 0x25, 0x32);
+
     private TextBlock Text(string text, double size = 12.5, FontWeight? weight = null, Brush? brush = null, Thickness? margin = null, TextWrapping wrap = TextWrapping.NoWrap) => new()
     {
         Text = text,
@@ -107,80 +129,110 @@ public sealed class CharacterWindow : Window
         Background = Res("Brush.Panel"),
         BorderBrush = Res("Brush.Border"),
         BorderThickness = new Thickness(1),
-        CornerRadius = new CornerRadius(6),
-        Padding = padding ?? new Thickness(12),
+        CornerRadius = new CornerRadius(8),
+        Padding = padding ?? new Thickness(14),
         Margin = margin ?? new Thickness(0),
         Child = child,
     };
 
-    private TextBlock Heading(string text) => Text(text.ToUpperInvariant(), 11, FontWeights.Bold, Solid(Gold), new Thickness(0, 0, 0, 8));
+    private TextBlock Heading(string text) => Text(text.ToUpperInvariant(), 11, FontWeights.Bold, Res("Brush.TextMuted"), new Thickness(0, 0, 0, 10));
 
-    /// <summary>Quality colours as the game shows them (quality 4 is "Unique", gold; 3 blue); the
-    /// numbers above 4 are an assumption in rising rarity.</summary>
-    private static Color GradeColor(int grade) => grade switch
+    private BitmapImage? Picture(string? path)
     {
-        <= 1 => Color.FromRgb(0x9A, 0xA7, 0xB2),
-        2 => Color.FromRgb(0x48, 0xB3, 0x6A),
-        3 => Color.FromRgb(0x4C, 0x8D, 0xFF),
-        4 => Color.FromRgb(0xF0, 0xB8, 0x40),
-        5 => Color.FromRgb(0xFF, 0x9F, 0x43),
-        6 => Color.FromRgb(0xFF, 0x6B, 0x5E),
-        _ => Color.FromRgb(0xB5, 0x7B, 0xFF),
-    };
-
-    private static string SlotAbbreviation(string? slot) => slot switch
-    {
-        "MainHand" => "MH",
-        "SubHand" => "OH",
-        "Helmet" => "HE",
-        "Shoulder" => "SH",
-        "Torso" => "TO",
-        "Pants" => "PA",
-        "Gloves" => "GL",
-        "Boots" => "BO",
-        "Necklace" => "NE",
-        "Earring" => "EA",
-        "Ring" => "RI",
-        "Bracelet" => "BR",
-        "Belt" => "BE",
-        "Cape" => "CA",
-        "Amulet" => "AM",
-        "Rune" => "RU",
-        { Length: >= 2 } other => other[..2].ToUpperInvariant(),
-        _ => "?",
-    };
-
-    /// <summary>A small tile standing in for the item's icon (the game's icons are not available):
-    /// coloured by quality, carrying the slot's abbreviation.</summary>
-    private UIElement ItemTile(Aion2ItemInfo? info)
-    {
-        Color color = info is null ? Color.FromRgb(0x71, 0x82, 0x8D) : GradeColor(info.Grade);
-        return new Border
+        if (path is null)
         {
-            Width = 24,
-            Height = 24,
-            CornerRadius = new CornerRadius(5),
-            BorderThickness = new Thickness(1.5),
-            BorderBrush = Solid(color),
-            Background = new SolidColorBrush(Color.FromArgb(0x38, color.R, color.G, color.B)),
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Center,
-            ToolTip = info is null ? null : $"{info.Name} - quality {info.Grade}, tier {info.Tier}",
-            Child = new TextBlock
+            return null;
+        }
+
+        if (_images.TryGetValue(path, out BitmapImage? cached))
+        {
+            return cached;
+        }
+
+        BitmapImage? image = null;
+        try
+        {
+            image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.UriSource = new Uri(path, UriKind.Absolute);
+            image.EndInit();
+            image.Freeze();
+        }
+        catch (Exception ex) when (ex is IOException or NotSupportedException or UriFormatException or InvalidOperationException)
+        {
+            image = null;
+        }
+
+        _images[path] = image;
+        return image;
+    }
+
+    /// <summary>A square item / skill tile like the website's: the game's icon over a rarity-coloured backdrop,
+    /// the initials when there is no icon, and a small number in the corner (enchant, skill level).</summary>
+    private FrameworkElement IconTile(string? iconPath, string name, Color color, double size, string? badge = null, bool bonusBadge = false)
+    {
+        var backdrop = new RadialGradientBrush
+        {
+            GradientOrigin = new Point(0.3, 0.25),
+            Center = new Point(0.3, 0.25),
+            RadiusX = 1,
+            RadiusY = 1,
+        };
+        backdrop.GradientStops.Add(new GradientStop(Blend(color, Color.FromRgb(0x20, 0x17, 0x0A), 0.55), 0));
+        backdrop.GradientStops.Add(new GradientStop(Blend(color, Color.FromRgb(0x0C, 0x0A, 0x08), 0.22), 1));
+
+        var inner = new Grid();
+        if (Picture(iconPath) is { } image)
+        {
+            inner.Children.Add(new Image { Source = image, Stretch = Stretch.UniformToFill, SnapsToDevicePixels = true });
+        }
+        else
+        {
+            inner.Children.Add(new TextBlock
             {
-                Text = SlotAbbreviation(info?.Slot),
-                FontSize = 9.5,
+                Text = name.Length >= 2 ? name[..2] : name,
                 FontWeight = FontWeights.Bold,
-                Foreground = Solid(color),
+                Foreground = Res("Brush.TextMuted"),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-            },
+            });
+        }
+
+        if (!string.IsNullOrEmpty(badge))
+        {
+            inner.Children.Add(new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(0xB0, 0, 0, 0)),
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(3, 0, 3, 0),
+                Margin = new Thickness(0, 0, 2, 2),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Child = new TextBlock
+                {
+                    Text = badge,
+                    FontSize = 11,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = bonusBadge ? Solid(Color.FromRgb(0xFF, 0xD6, 0x6B)) : Brushes.White,
+                },
+            });
+        }
+
+        return new Border
+        {
+            Width = size,
+            Height = size,
+            CornerRadius = new CornerRadius(9),
+            BorderThickness = new Thickness(2),
+            BorderBrush = Solid(color),
+            Background = backdrop,
+            ClipToBounds = true,
+            Child = inner,
         };
     }
 
-    private static Color HeatColor(double ratio) => ratio >= 0.95 ? Green : ratio >= 0.8 ? Blue : ratio >= 0.65 ? Gold : Red;
-
-    // ---------------------------------------------------------------- the three columns
+    // ---------------------------------------------------------------- the page
 
     private void Render()
     {
@@ -200,52 +252,64 @@ public sealed class CharacterWindow : Window
         string className = _directory.ClassOf(character.CombatId) ?? Aion2SkillNames.ClassFromCode(character.ClassCode) ?? "?";
         string? guild = _directory.GuildOf(character.CombatId);
         var gear = _directory.LocalEquipment
-            .Select(e => (Item: e, Info: Aion2ItemCatalog.Find(e.ItemId)))
+            .Select(e => new GearRow(e, Aion2ItemCatalog.Find(e.ItemId)))
             .OrderBy(x => x.Item.SlotIndex)
             .ToList();
         var known = gear.Where(x => x.Info is not null).Select(x => x.Info!).ToList();
-        int maxLevel = known.Count > 0 ? known.Max(i => i.ItemLevel) : 0;
         double average = known.Count > 0 ? known.Average(i => i.ItemLevel) : 0;
-        var skillNames = Aion2SkillNames.Load();
         var skills = _directory.LocalSkills
             .Where(k => k.SkillId % 10000 == 0)
-            .OrderByDescending(k => k.Level)
-            .ThenBy(k => skillNames.GetValueOrDefault(k.SkillId, ""))
             .ToList();
-        int nodes = _directory.LocalDaevanion.Sum(b => Aion2DaevanionCatalog.Summarize(b.BoardId, b.NodeIds).ActiveNodes);
+        var boards = _directory.LocalDaevanion;
+        var species = _directory.LocalSpecies;
+        int nodes = boards.Sum(b => Aion2DaevanionCatalog.Summarize(b.BoardId, b.NodeIds).ActiveNodes);
 
         Title = $"{character.Name} - Character";
 
-        var layout = new Grid { Margin = new Thickness(14) };
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(320) });
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(465) });
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(14) });
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = 220 });
+        var tabs = new List<(string Id, string Label, int Count, Func<UIElement> Build)>();
+        if (gear.Count > 0)
+        {
+            tabs.Add(("equipment", "Equipment", gear.Count, () => BuildEquipment(gear, className, average)));
+        }
 
-        var left = new StackPanel();
-        left.Children.Add(BuildProfile(character, className, guild, average, skills.Count, nodes));
-        left.Children.Add(BuildWeakest(gear.Where(x => x.Info is not null).Select(x => (x.Item, Info: x.Info!)).ToList(), maxLevel));
-        left.Children.Add(BuildBoards());
-        Grid.SetColumn(left, 0);
+        if (skills.Count > 0)
+        {
+            tabs.Add(("skills", "Skills", skills.Count, () => BuildSkills(skills)));
+        }
 
-        UIElement middle = BuildGear(gear, maxLevel);
-        Grid.SetColumn(middle, 2);
-        UIElement right = BuildSkills(skills, skillNames);
-        Grid.SetColumn(right, 4);
+        if (boards.Count > 0)
+        {
+            tabs.Add(("board", "Daevanion Board", nodes, () => BuildBoards(boards, skills, className)));
+        }
 
-        layout.Children.Add(left);
-        layout.Children.Add(middle);
-        layout.Children.Add(right);
+        if (species.Count > 0)
+        {
+            tabs.Add(("species", "Species Knowledge", species.Count, () => BuildSpecies(species)));
+        }
 
-        var page = new StackPanel();
-        page.Children.Add(layout);
+        if (tabs.Count > 0 && tabs.All(t => t.Id != _tab))
+        {
+            _tab = tabs[0].Id;
+        }
+
+        var page = new StackPanel { Margin = new Thickness(16, 14, 16, 0) };
+        page.Children.Add(BuildStrip(character, className, guild, average, skills.Count, nodes));
+        if (tabs.Count > 0)
+        {
+            page.Children.Add(BuildTabBar(tabs.Select(t => (t.Id, t.Label, t.Count)).ToList()));
+            page.Children.Add(new Border { Margin = new Thickness(0, 14, 0, 0), Child = tabs.First(t => t.Id == _tab).Build() });
+        }
+        else
+        {
+            page.Children.Add(Text("Not sent yet - it comes with the login.", 12, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 14, 0, 0)));
+        }
+
         page.Children.Add(Text(
             (character.Restored
                 ? $"Saved from your last login ({character.ReceivedAt:yyyy-MM-dd HH:mm}); updated on every relog. "
                 : $"As sent by the game at login / zone change ({character.ReceivedAt:HH:mm:ss}). ")
-            + "Stones, rolled stats and stigmas are not decoded and not shown.",
-            11, brush: Res("Brush.TextMuted"), margin: new Thickness(16, 0, 16, 12), wrap: TextWrapping.Wrap));
+            + "Stones, rolled stats and stigma effects are not decoded and not shown.",
+            11, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 16, 0, 12), wrap: TextWrapping.Wrap));
         _host.Content = page;
         if (IsLoaded)
         {
@@ -253,269 +317,515 @@ public sealed class CharacterWindow : Window
         }
     }
 
-    private UIElement BuildProfile(Aion2CharacterInfo character, string className, string? guild, double average, int skillCount, int nodeCount)
+    private UIElement BuildStrip(Aion2CharacterInfo character, string className, string? guild, double average, int skillCount, int nodeCount)
     {
-        var stack = new StackPanel();
-        var head = new StackPanel { Orientation = Orientation.Horizontal };
-        var badge = new Border
+        var row = new Grid();
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        UIElement badge = EmblemBadge(className, 56, 12);
+        Grid.SetColumn(badge, 0);
+        row.Children.Add(badge);
+
+        var names = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
+        names.Children.Add(Text(character.Name, 22, FontWeights.Bold));
+        names.Children.Add(Text($"{className} · Level {character.Level}", 12.5, brush: Res("Brush.TextMuted")));
+        if (guild is not null)
         {
-            Width = 50,
-            Height = 50,
-            CornerRadius = new CornerRadius(9),
-            BorderBrush = Solid(Gold),
-            BorderThickness = new Thickness(2),
-            Background = Res("Brush.Control"),
-            Margin = new Thickness(0, 0, 12, 0),
-            Child = new TextBlock
+            names.Children.Add(Text($"Legion: {guild}", 12, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 2, 0, 0)));
+        }
+
+        Grid.SetColumn(names, 1);
+        row.Children.Add(names);
+
+        var numbers = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        numbers.Children.Add(Number(average.ToString("F1", CultureInfo.CurrentCulture), "Avg item level", Gold));
+        if (skillCount > 0)
+        {
+            numbers.Children.Add(Number(skillCount.ToString(), "Skills", null));
+        }
+
+        if (nodeCount > 0)
+        {
+            numbers.Children.Add(Number(nodeCount.ToString(), "Daevanion nodes", null));
+        }
+
+        Grid.SetColumn(numbers, 2);
+        row.Children.Add(numbers);
+        return Card(row, new Thickness(16, 14, 22, 14));
+    }
+
+    /// <summary>The class emblem in a gold-rimmed rounded square; the class's first letters when the emblem is missing.</summary>
+    private UIElement EmblemBadge(string className, double size, double corner)
+    {
+        UIElement content = Picture(Aion2Artwork.ClassEmblemPath(className)) is { } image
+            ? new Image { Source = image, Stretch = Stretch.Uniform, Margin = new Thickness(4) }
+            : new TextBlock
             {
                 Text = className.Length >= 2 ? className[..2].ToUpperInvariant() : "?",
                 FontWeight = FontWeights.ExtraBold,
-                FontSize = 18,
+                FontSize = size / 3,
                 Foreground = Solid(Gold),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-            },
-        };
-        var names = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        names.Children.Add(Text(character.Name, 21, FontWeights.Bold));
-        names.Children.Add(Text($"{className} · Level {character.Level}", 12.5, brush: Res("Brush.TextMuted")));
-        head.Children.Add(badge);
-        head.Children.Add(names);
-        stack.Children.Add(head);
-        if (guild is not null)
+            };
+        return new Border
         {
-            stack.Children.Add(Text($"Legion  {guild}", 12.5, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 10, 0, 0)));
-        }
-
-        var numbers = new UniformGrid { Columns = 3, Margin = new Thickness(0, 12, 0, 0) };
-        numbers.Children.Add(Number(average.ToString("F1"), "Avg item level", Gold));
-        numbers.Children.Add(Number(skillCount.ToString(), "Skills", null));
-        numbers.Children.Add(Number(nodeCount.ToString(), "Daevanion nodes", null));
-        stack.Children.Add(numbers);
-        return Card(stack, margin: new Thickness(0, 0, 0, 12));
+            Width = size,
+            Height = size,
+            CornerRadius = new CornerRadius(corner),
+            BorderBrush = Solid(Gold),
+            BorderThickness = new Thickness(2),
+            Background = Res("Brush.Control"),
+            Child = content,
+        };
     }
 
     private UIElement Number(string value, string label, Color? color)
     {
-        var s = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
-        s.Children.Add(new TextBlock { Text = value, FontSize = 18, FontWeight = FontWeights.Bold, Foreground = color is { } c ? Solid(c) : Res("Brush.Text"), HorizontalAlignment = HorizontalAlignment.Center });
-        s.Children.Add(new TextBlock { Text = label, FontSize = 10, Foreground = Res("Brush.TextMuted"), HorizontalAlignment = HorizontalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis });
+        var s = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, MinWidth = 96, Margin = new Thickness(8, 0, 0, 0) };
+        s.Children.Add(new TextBlock { Text = value, FontSize = 22, FontWeight = FontWeights.Bold, Foreground = color is { } c ? Solid(c) : Res("Brush.Text"), HorizontalAlignment = HorizontalAlignment.Center });
+        s.Children.Add(new TextBlock { Text = label, FontSize = 10.5, Foreground = Res("Brush.TextMuted"), HorizontalAlignment = HorizontalAlignment.Center });
         return s;
     }
 
-    private UIElement BuildWeakest(IReadOnlyList<(Aion2EquippedItem Item, Aion2ItemInfo Info)> gear, int maxLevel)
+    private UIElement BuildTabBar(IReadOnlyList<(string Id, string Label, int Count)> tabs)
     {
-        var stack = new StackPanel();
-        stack.Children.Add(Heading("Worth upgrading"));
-        foreach (var weak in gear.OrderBy(x => x.Info.ItemLevel).Take(4))
+        var bar = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 14, 0, 0) };
+        foreach ((string id, string label, int count) in tabs)
         {
-            var row = new Grid { Margin = new Thickness(0, 2, 0, 2) };
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            row.Children.Add(Text(weak.Info.Name + (weak.Item.Enchant > 0 ? $" +{weak.Item.Enchant}" : "")));
-            TextBlock level = Text(weak.Info.ItemLevel.ToString(), 12.5, FontWeights.Bold, Solid(HeatColor(maxLevel == 0 ? 1 : (double)weak.Info.ItemLevel / maxLevel)));
-            Grid.SetColumn(level, 1);
-            row.Children.Add(level);
-            stack.Children.Add(row);
-        }
-
-        if (maxLevel > 0)
-        {
-            stack.Children.Add(Text($"Measured against your best piece (item level {maxLevel}).", 11, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 6, 0, 0), wrap: TextWrapping.Wrap));
-        }
-
-        return Card(stack, new Thickness(14, 12, 14, 12), new Thickness(0, 0, 0, 12));
-    }
-
-    private UIElement BuildBoards()
-    {
-        var stack = new StackPanel();
-        stack.Children.Add(Heading("Daevanion"));
-        var skillNames = Aion2SkillNames.Load();
-        foreach (Aion2DaevanionBoard board in _directory.LocalDaevanion)
-        {
-            var summary = Aion2DaevanionCatalog.Summarize(board.BoardId, board.NodeIds);
-            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
-            row.Children.Add(BoardMap(board));
-
-            var text = new StackPanel { Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, MaxWidth = 160 };
-            text.Children.Add(Text($"{summary.Name} · {summary.ActiveNodes} nodes", 12, FontWeights.SemiBold));
-            string bonuses = string.Join(", ", summary.SkillBonuses.Select(kv => $"{skillNames.GetValueOrDefault(kv.Key, kv.Key.ToString())} +{kv.Value}"));
-            if (bonuses.Length > 0)
+            bool selected = id == _tab;
+            var content = new StackPanel { Orientation = Orientation.Horizontal };
+            content.Children.Add(Text(label, 13, selected ? FontWeights.SemiBold : FontWeights.Normal, selected ? Res("Brush.Text") : Res("Brush.TextMuted")));
+            content.Children.Add(Text(count.ToString(), 11, brush: Res("Brush.TextMuted"), margin: new Thickness(8, 2, 0, 0)));
+            string tabId = id;
+            var tab = new Border
             {
-                text.Children.Add(Text(bonuses, 11, brush: Res("Brush.TextMuted"), wrap: TextWrapping.Wrap));
-            }
-
-            string stats = string.Join(", ", summary.Stats.OrderByDescending(kv => kv.Value).Take(3).Select(kv => $"{kv.Key} +{kv.Value}"));
-            if (stats.Length > 0)
+                Padding = new Thickness(14, 8, 14, 7),
+                Margin = new Thickness(0, 0, 4, 0),
+                Cursor = Cursors.Hand,
+                BorderThickness = new Thickness(0, 0, 0, 2),
+                BorderBrush = selected ? Solid(Gold) : Brushes.Transparent,
+                Background = selected ? Res("Brush.Control") : Brushes.Transparent,
+                CornerRadius = new CornerRadius(6, 6, 0, 0),
+                Child = content,
+            };
+            tab.MouseLeftButtonUp += (_, _) =>
             {
-                text.Children.Add(Text(stats, 10.5, brush: Res("Brush.TextMuted"), wrap: TextWrapping.Wrap));
-            }
-
-            row.Children.Add(text);
-            stack.Children.Add(row);
-        }
-
-        if (_directory.LocalDaevanion.Count == 0)
-        {
-            stack.Children.Add(Text("Not sent yet - it comes with the login.", 11.5, brush: Res("Brush.TextMuted")));
-        }
-        else
-        {
-            stack.Children.Add(Text("The maps show the nodes the node table knows (about half of what is active).", 10.5, brush: Res("Brush.TextMuted"), wrap: TextWrapping.Wrap));
-        }
-
-        return Card(stack, new Thickness(14, 12, 14, 12));
-    }
-
-    /// <summary>A 15 x 15 map of one board: the start node gold, stat nodes blue, skill nodes orange.</summary>
-    private FrameworkElement BoardMap(Aion2DaevanionBoard board)
-    {
-        var cells = new Dictionary<(int Row, int Col), Color>();
-        foreach (int id in board.NodeIds)
-        {
-            if (Aion2DaevanionCatalog.Find(id) is { } node)
-            {
-                cells[(node.Row, node.Col)] = node.Type switch { "Start" => Gold, "SkillLevel" => Orange, _ => Blue };
-            }
-        }
-
-        var grid = new Grid { Width = 120, Height = 120, VerticalAlignment = VerticalAlignment.Top };
-        for (int i = 0; i < 15; i++)
-        {
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.ColumnDefinitions.Add(new ColumnDefinition());
-        }
-
-        for (int r = 1; r <= 15; r++)
-        {
-            for (int c = 1; c <= 15; c++)
-            {
-                Brush fill = cells.TryGetValue((r, c), out Color color) ? Solid(color) : Res("Brush.Control");
-                var cell = new Border { Background = fill, Margin = new Thickness(0.5), CornerRadius = new CornerRadius(1) };
-                Grid.SetRow(cell, r - 1);
-                Grid.SetColumn(cell, c - 1);
-                grid.Children.Add(cell);
-            }
-        }
-
-        return grid;
-    }
-
-    private UIElement BuildGear(IReadOnlyList<(Aion2EquippedItem Item, Aion2ItemInfo? Info)> gear, int maxLevel)
-    {
-        var stack = new StackPanel();
-        stack.Children.Add(Heading($"Equipment · {gear.Count} slots"));
-        var grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(74) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });
-
-        int row = 0;
-        foreach (var entry in gear)
-        {
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(32) });
-            double ratio = entry.Info is null || maxLevel == 0 ? 0 : (double)entry.Info.ItemLevel / maxLevel;
-            Color heat = HeatColor(ratio);
-
-            TextBlock slot = Text(entry.Info?.Slot is { Length: > 0 } s ? s : $"Slot {entry.Item.SlotIndex}", 11, brush: Res("Brush.TextMuted"));
-            TextBlock name = Text(entry.Info?.Name ?? $"Item {entry.Item.ItemId}");
-            name.VerticalAlignment = VerticalAlignment.Center;
-            slot.VerticalAlignment = VerticalAlignment.Center;
-            name.Margin = new Thickness(0, 0, 8, 0);
-
-            var track = new Border { Height = 8, CornerRadius = new CornerRadius(4), Background = Res("Brush.Control"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
-            var fill = new Border { Height = 8, CornerRadius = new CornerRadius(4), Background = Solid(heat), HorizontalAlignment = HorizontalAlignment.Left };
-            var fillHost = new Grid { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0), Height = 8 };
-            fillHost.Children.Add(track);
-            fillHost.Children.Add(new Grid
-            {
-                ColumnDefinitions = { new ColumnDefinition { Width = new GridLength(Math.Max(0.02, ratio), GridUnitType.Star) }, new ColumnDefinition { Width = new GridLength(Math.Max(0.0, 1 - ratio), GridUnitType.Star) } },
-                Children = { fill },
-            });
-            track.Margin = new Thickness(0);
-
-            TextBlock level = Text(entry.Info is null ? "?" : entry.Info.ItemLevel.ToString(), 12.5, FontWeights.Bold);
-            level.HorizontalAlignment = HorizontalAlignment.Right;
-            level.VerticalAlignment = VerticalAlignment.Center;
-
-            UIElement badge = entry.Item.Enchant > 0
-                ? new Border
+                if (_tab != tabId)
                 {
-                    Background = Solid(Gold),
-                    CornerRadius = new CornerRadius(8),
-                    Padding = new Thickness(5, 0, 5, 0),
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Child = new TextBlock { Text = $"+{entry.Item.Enchant}", FontSize = 10.5, FontWeight = FontWeights.Bold, Foreground = Solid(Color.FromRgb(0x1B, 0x14, 0x00)) },
+                    _tab = tabId;
+                    Render();
                 }
-                : new Border();
-
-            foreach ((UIElement element, int column) in new (UIElement, int)[] { (ItemTile(entry.Info), 0), (slot, 1), (name, 2), (fillHost, 3), (level, 4), (badge, 5) })
-            {
-                Grid.SetRow(element, row);
-                Grid.SetColumn(element, column);
-                grid.Children.Add(element);
-            }
-
-            row++;
+            };
+            bar.Children.Add(tab);
         }
 
-        stack.Children.Add(grid);
-        return Card(stack, new Thickness(14, 12, 14, 8));
+        return new Border { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = Res("Brush.Border"), Child = bar };
     }
 
-    private UIElement BuildSkills(IReadOnlyList<Aion2SkillEntry> skills, IReadOnlyDictionary<int, string> names)
+    // ---------------------------------------------------------------- equipment
+
+    private static Color GradeColor(int grade) => GradeColors.GetValueOrDefault(grade, GradeColors[1]);
+
+    private UIElement BuildEquipment(IReadOnlyList<GearRow> gear, string className, double average)
     {
-        var stack = new StackPanel();
-        stack.Children.Add(Heading($"Skills · {skills.Count}"));
-        foreach (Aion2SkillEntry skill in skills)
+        static int Rank(string[] order, GearRow g)
         {
-            var row = new Grid { Height = 25 };
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
+            int index = Array.IndexOf(order, g.Info?.Slot ?? "");
+            return index < 0 ? 99 : index;
+        }
 
-            TextBlock name = Text(names.GetValueOrDefault(skill.SkillId, skill.SkillId.ToString()));
-            name.VerticalAlignment = VerticalAlignment.Center;
-            name.Margin = new Thickness(0, 0, 8, 0);
+        var armor = gear.Where(g => ArmorSlots.Contains(g.Info?.Slot ?? "")).OrderBy(g => Rank(ArmorSlots, g)).ThenBy(g => g.Item.SlotIndex).ToList();
+        var accessories = gear.Where(g => AccessorySlots.Contains(g.Info?.Slot ?? "")).OrderBy(g => Rank(AccessorySlots, g)).ThenBy(g => g.Item.SlotIndex).ToList();
+        var other = gear.Except(armor).Except(accessories).ToList();
 
-            var pips = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-            for (int i = 0; i < 12; i++)
+        var doll = new Grid();
+        doll.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        doll.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(230) });
+        doll.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        UIElement left = SlotColumn(armor);
+        UIElement middle = BuildCenter(className, average);
+        UIElement right = SlotColumn(accessories);
+        Grid.SetColumn(left, 0);
+        Grid.SetColumn(middle, 1);
+        Grid.SetColumn(right, 2);
+        middle.SetValue(FrameworkElement.MarginProperty, new Thickness(22, 0, 22, 0));
+        doll.Children.Add(left);
+        doll.Children.Add(middle);
+        doll.Children.Add(right);
+
+        var page = new StackPanel();
+        page.Children.Add(doll);
+        if (other.Count > 0)
+        {
+            var wrap = new UniformGrid { Columns = 3, Margin = new Thickness(0, 12, 0, 0) };
+            foreach (GearRow g in other)
             {
-                Brush fill = i < skill.BaseLevel ? Solid(Gold) : i < skill.Level ? Solid(Blue) : Res("Brush.Control");
-                pips.Children.Add(new Border { Width = 6, Height = 10, CornerRadius = new CornerRadius(2), Margin = new Thickness(0, 0, 2, 0), Background = fill });
+                UIElement slot = GearSlot(g);
+                slot.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 10, 10));
+                wrap.Children.Add(slot);
             }
 
-            TextBlock level = Text(skill.Level.ToString(), 12.5, FontWeights.Bold);
-            level.HorizontalAlignment = HorizontalAlignment.Right;
-            level.VerticalAlignment = VerticalAlignment.Center;
-
-            Grid.SetColumn(pips, 1);
-            Grid.SetColumn(level, 2);
-            row.Children.Add(name);
-            row.Children.Add(pips);
-            row.Children.Add(level);
-            stack.Children.Add(row);
+            page.Children.Add(wrap);
         }
 
-        if (skills.Count == 0)
+        return page;
+    }
+
+    private UIElement SlotColumn(IReadOnlyList<GearRow> rows)
+    {
+        var column = new StackPanel();
+        foreach (GearRow g in rows)
         {
-            stack.Children.Add(Text("Not sent yet - it comes with the login.", 11.5, brush: Res("Brush.TextMuted")));
-        }
-        else
-        {
-            var legend = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 0) };
-            legend.Children.Add(new Border { Width = 8, Height = 8, CornerRadius = new CornerRadius(2), Background = Solid(Gold), Margin = new Thickness(0, 3, 4, 0) });
-            legend.Children.Add(Text("trained", 11, brush: Res("Brush.TextMuted")));
-            legend.Children.Add(new Border { Width = 8, Height = 8, CornerRadius = new CornerRadius(2), Background = Solid(Blue), Margin = new Thickness(12, 3, 4, 0) });
-            legend.Children.Add(Text("bonus (Daevanion, gear)", 11, brush: Res("Brush.TextMuted")));
-            stack.Children.Add(legend);
+            UIElement slot = GearSlot(g);
+            slot.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 0, 10));
+            column.Children.Add(slot);
         }
 
-        return Card(stack, new Thickness(14, 12, 14, 12));
+        return column;
+    }
+
+    private UIElement BuildCenter(string className, double average)
+    {
+        var stack = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
+        UIElement emblem = Picture(Aion2Artwork.ClassEmblemPath(className)) is { } image
+            ? new Image { Source = image, Stretch = Stretch.Uniform, Margin = new Thickness(10) }
+            : Text(className.Length >= 2 ? className[..2].ToUpperInvariant() : "?", 30, FontWeights.ExtraBold, Solid(Gold));
+        stack.Children.Add(new Border
+        {
+            Width = 110,
+            Height = 140,
+            CornerRadius = new CornerRadius(55, 55, 16, 16),
+            BorderBrush = Solid(Gold),
+            BorderThickness = new Thickness(2),
+            Background = Res("Brush.Control"),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Child = emblem is TextBlock tb ? Centered(tb) : emblem,
+        });
+        stack.Children.Add(Text(average > 0 ? average.ToString("F1", CultureInfo.CurrentCulture) : "-", 36, FontWeights.Bold, Solid(Gold), new Thickness(0, 12, 0, 0)));
+        stack.Children.Add(Text("Avg item level", 12, brush: Res("Brush.TextMuted")));
+        stack.Children.Add(Text("Hover an item for details", 10.5, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 4, 0, 0)));
+        return new Border
+        {
+            Padding = new Thickness(12, 22, 12, 22),
+            VerticalAlignment = VerticalAlignment.Top,
+            BorderBrush = Res("Brush.Border"),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(8),
+            Background = new RadialGradientBrush(Color.FromArgb(0x24, Gold.R, Gold.G, Gold.B), Colors.Transparent) { Center = new Point(0.5, 0.3), GradientOrigin = new Point(0.5, 0.3), RadiusX = 0.8, RadiusY = 0.7 },
+            Child = stack,
+        };
+    }
+
+    private static UIElement Centered(TextBlock text)
+    {
+        text.HorizontalAlignment = HorizontalAlignment.Center;
+        text.VerticalAlignment = VerticalAlignment.Center;
+        return text;
+    }
+
+    private UIElement GearSlot(GearRow g)
+    {
+        Aion2ItemInfo? info = g.Info;
+        Color color = GradeColor(info?.Grade ?? 1);
+        string name = info?.Name ?? $"Item {g.Item.ItemId}";
+
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        FrameworkElement icon = IconTile(Aion2Artwork.ItemIconPath(g.Item.ItemId), name, color, 56, g.Item.Enchant > 0 ? $"+{g.Item.Enchant}" : null);
+        Grid.SetColumn(icon, 0);
+        grid.Children.Add(icon);
+
+        var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0) };
+        text.Children.Add(Text(name, 13, FontWeights.SemiBold, wrap: TextWrapping.Wrap));
+        string slotName = info?.Slot is { Length: > 0 } s ? s : $"#{g.Item.SlotIndex}";
+        text.Children.Add(Text(info is { ItemLevel: > 0 } ? $"{slotName} · IL {info.ItemLevel}" : slotName, 11.5, brush: Res("Brush.TextMuted")));
+        if (info is { Grade: >= 4, Tier: > 0 })
+        {
+            text.Children.Add(new Border
+            {
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(0, 3, 0, 0),
+                Padding = new Thickness(7, 0, 7, 0),
+                CornerRadius = new CornerRadius(8),
+                BorderThickness = new Thickness(1),
+                BorderBrush = Solid(Color.FromArgb(0x99, color.R, color.G, color.B)),
+                Child = Text($"{GradeNames[Math.Clamp(info.Grade, 0, GradeNames.Length - 1)]} Tier {info.Tier}", 10.5, FontWeights.SemiBold, Solid(color)),
+            });
+        }
+
+        Grid.SetColumn(text, 1);
+        grid.Children.Add(text);
+
+        Color panel = PanelColor;
+        var background = new LinearGradientBrush(Blend(color, panel, 0.24), Blend(color, panel, 0.07), 0);
+        var slot = new Border
+        {
+            Padding = new Thickness(6, 6, 10, 6),
+            CornerRadius = new CornerRadius(10),
+            BorderThickness = new Thickness(1),
+            BorderBrush = Solid(Blend(color, ((SolidColorBrush)Res("Brush.Border")).Color, 0.65)),
+            Background = background,
+            Child = grid,
+        };
+        string tip = $"{name}{(g.Item.Enchant > 0 ? $" +{g.Item.Enchant}" : "")}";
+        if (info is not null)
+        {
+            tip += $"\n{GradeNames[Math.Clamp(info.Grade, 0, GradeNames.Length - 1)]}{(info.Tier > 0 ? $" · Tier {info.Tier}" : "")}  {info.Slot}";
+            if (info.ItemLevel > 0)
+            {
+                tip += $"\nItem level {info.ItemLevel}";
+            }
+        }
+
+        slot.ToolTip = tip;
+        return slot;
+    }
+
+    // ---------------------------------------------------------------- skills
+
+    private UIElement BuildSkills(IReadOnlyList<Aion2SkillEntry> skills)
+    {
+        bool hasBar = skills.Any(s => s.Equipped);
+        var active = skills.Where(s => !Aion2Artwork.IsPassive(s.SkillId) && !s.Stigma && (!hasBar || s.Equipped));
+        // Ids like 11000000 are the class's weapon-equip entry, not a skill the player trains.
+        var passive = skills.Where(s => Aion2Artwork.IsPassive(s.SkillId) && s.SkillId % 1000000 != 0);
+        var stigma = skills.Where(s => s.Stigma);
+
+        var blocks = new List<UIElement>
+        {
+            SkillBlock("Active", Color.FromRgb(0xF0, 0xA0, 0x30), active),
+            SkillBlock("Passive", Color.FromRgb(0x3F, 0xCF, 0x55), passive),
+        };
+        if (skills.Any(s => s.Stigma))
+        {
+            blocks.Add(SkillBlock("Stigma", Color.FromRgb(0xF0, 0xA0, 0x30), stigma));
+        }
+
+        var grid = new Grid();
+        for (int i = 0; i < blocks.Count; i++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            if (blocks[i] is FrameworkElement element)
+            {
+                element.Margin = new Thickness(i == 0 ? 0 : 8, 0, i == blocks.Count - 1 ? 0 : 8, 0);
+            }
+
+            Grid.SetColumn(blocks[i], i);
+            grid.Children.Add(blocks[i]);
+        }
+
+        var page = new StackPanel();
+        page.Children.Add(grid);
+        var legend = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0) };
+        legend.Children.Add(Text("Lv = skill level;", 11, brush: Res("Brush.TextMuted")));
+        legend.Children.Add(Text("  gold = includes a bonus (Daevanion, gear)", 11, brush: Solid(Color.FromRgb(0xFF, 0xD6, 0x6B))));
+        page.Children.Add(legend);
+        return page;
+    }
+
+    private UIElement SkillBlock(string title, Color color, IEnumerable<Aion2SkillEntry> skills)
+    {
+        var list = skills.OrderByDescending(s => s.Level).ThenBy(s => Aion2SkillNames.NameOf(s.SkillId), StringComparer.CurrentCultureIgnoreCase).ToList();
+        var stack = new StackPanel();
+        var heading = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 12) };
+        heading.Children.Add(new Border { Width = 10, Height = 10, CornerRadius = new CornerRadius(5), Background = Solid(color), Margin = new Thickness(0, 2, 8, 0) });
+        heading.Children.Add(Text($"{title.ToUpperInvariant()} · {list.Count}", 11, FontWeights.Bold, Res("Brush.TextMuted")));
+        stack.Children.Add(heading);
+
+        var tiles = new UniformGrid { Columns = 5 };
+        foreach (Aion2SkillEntry skill in list)
+        {
+            string name = Aion2SkillNames.Display(Aion2SkillNames.NameOf(skill.SkillId));
+            var tile = new StackPanel { Margin = new Thickness(2, 0, 2, 12), HorizontalAlignment = HorizontalAlignment.Center };
+            FrameworkElement icon = IconTile(Aion2SkillIcons.PathFor(skill.SkillId), name, color, 46, $"Lv {skill.Level}", skill.Level > skill.BaseLevel);
+            tile.Children.Add(icon);
+            tile.Children.Add(new TextBlock
+            {
+                Text = name,
+                FontSize = 10.5,
+                Foreground = Res("Brush.Text"),
+                TextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+                MaxWidth = 70,
+                MaxHeight = 28,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                Margin = new Thickness(0, 4, 0, 0),
+            });
+            tile.ToolTip = $"{name}\nSkill level {skill.Level}{(skill.Level > skill.BaseLevel ? $" ({skill.BaseLevel} + {skill.Level - skill.BaseLevel})" : "")}";
+            tiles.Children.Add(tile);
+        }
+
+        stack.Children.Add(tiles);
+        return Card(stack, new Thickness(14, 14, 14, 2));
+    }
+
+    // ---------------------------------------------------------------- Daevanion boards
+
+    private UIElement BuildBoards(IReadOnlyList<Aion2DaevanionBoard> boards, IReadOnlyList<Aion2SkillEntry> skills, string className)
+    {
+        _boardIndex = Math.Clamp(_boardIndex, 0, boards.Count - 1);
+        var page = new StackPanel();
+
+        var pills = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 12) };
+        for (int i = 0; i < boards.Count; i++)
+        {
+            var summary = Aion2DaevanionCatalog.Summarize(boards[i].BoardId, boards[i].NodeIds);
+            int total = Aion2DaevanionCatalog.NodesOfBoard(boards[i].BoardId).Count(n => n.Type != "Start");
+            bool selected = i == _boardIndex;
+            int index = i;
+            var content = new StackPanel { Orientation = Orientation.Horizontal };
+            content.Children.Add(Text(summary.Name, 12.5, selected ? FontWeights.SemiBold : FontWeights.Normal));
+            content.Children.Add(Text($"  {summary.ActiveNodes} / {(total > 0 ? total.ToString() : "?")}", 12, FontWeights.SemiBold, Solid(Gold)));
+            var pill = new Border
+            {
+                Padding = new Thickness(14, 6, 14, 6),
+                Margin = new Thickness(0, 0, 8, 0),
+                Cursor = Cursors.Hand,
+                CornerRadius = new CornerRadius(16),
+                BorderThickness = new Thickness(1),
+                BorderBrush = selected ? Solid(Gold) : Res("Brush.Border"),
+                Background = selected ? Res("Brush.Control") : Brushes.Transparent,
+                Child = content,
+            };
+            pill.MouseLeftButtonUp += (_, _) =>
+            {
+                _boardIndex = index;
+                Render();
+            };
+            pills.Children.Add(pill);
+        }
+
+        page.Children.Add(pills);
+
+        Aion2DaevanionBoard board = boards[_boardIndex];
+        var detail = new StackPanel();
+        detail.Children.Add(new Border { HorizontalAlignment = HorizontalAlignment.Center, Child = BoardMap(board, className) });
+
+        var sum = Aion2DaevanionCatalog.Summarize(board.BoardId, board.NodeIds);
+        string bonuses = string.Join(", ", sum.SkillBonuses.Select(kv => $"{Aion2SkillNames.Display(Aion2SkillNames.NameOf(kv.Key))} +{kv.Value}"));
+        if (bonuses.Length > 0)
+        {
+            detail.Children.Add(Text($"Skills: {bonuses}", 12, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 12, 0, 0), wrap: TextWrapping.Wrap));
+        }
+
+        string stats = string.Join(", ", sum.Stats.OrderByDescending(kv => kv.Value).Select(kv => $"{SpacedToken(kv.Key)} +{kv.Value}"));
+        if (stats.Length > 0)
+        {
+            detail.Children.Add(Text(stats, 11, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 4, 0, 0), wrap: TextWrapping.Wrap));
+        }
+
+        detail.Children.Add(Text("The maps show the nodes the node table knows (about half of what is active).", 10.5, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 10, 0, 0), wrap: TextWrapping.Wrap));
+        page.Children.Add(Card(detail, new Thickness(18)));
+        return page;
+    }
+
+    /// <summary>"CriticalResist" -> "Critical Resist".</summary>
+    private static string SpacedToken(string token) => System.Text.RegularExpressions.Regex.Replace(token, "([a-z])([A-Z])", "$1 $2");
+
+    /// <summary>One board as the game draws it: every node of the board map with the game's tile by rarity (common,
+    /// rare, legend, unique), the dark variant when it is not unlocked, and the class's start tile.</summary>
+    private FrameworkElement BoardMap(Aion2DaevanionBoard board, string className)
+    {
+        var nodes = Aion2DaevanionCatalog.NodesOfBoard(board.BoardId);
+        if (nodes.Count == 0)
+        {
+            return Text("No node table for this board.", 11.5, brush: Res("Brush.TextMuted"));
+        }
+
+        int r0 = nodes.Min(n => n.Row), r1 = nodes.Max(n => n.Row), c0 = nodes.Min(n => n.Col), c1 = nodes.Max(n => n.Col);
+        const double cell = 38;
+        var active = board.NodeIds.ToHashSet();
+        var grid = new Grid { Width = (c1 - c0 + 1) * cell, Height = (r1 - r0 + 1) * cell };
+        for (int r = r0; r <= r1; r++)
+        {
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(cell) });
+        }
+
+        for (int c = c0; c <= c1; c++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cell) });
+        }
+
+        foreach (Aion2DaevanionNode node in nodes)
+        {
+            bool on = active.Contains(node.Id) || node.Type == "Start";
+            string art = node.Type == "Start"
+                ? Aion2Artwork.BoardStartTile(className)
+                : node.Grade.ToLowerInvariant() switch { "rare" => "rare", "legend" => "legend", "unique" => "unique", _ => "common" } + (on ? "" : "-off");
+            FrameworkElement tile = Picture(Aion2Artwork.BoardTilePath(art)) is { } image
+                ? new Image { Source = image, Stretch = Stretch.Uniform, Margin = new Thickness(2) }
+                : new Border { Margin = new Thickness(4), CornerRadius = new CornerRadius(4), Background = on ? Solid(Gold) : Res("Brush.Control") };
+            tile.ToolTip = node.Type switch
+            {
+                "Start" => "Start",
+                "SkillLevel" => int.TryParse(node.Key, out int skillId) ? $"{Aion2SkillNames.Display(Aion2SkillNames.NameOf(skillId))} +{node.Value}" : $"Skill +{node.Value}",
+                _ => $"{SpacedToken(node.Key)} +{node.Value}",
+            } + (on ? "" : "  (locked)");
+            Grid.SetRow(tile, node.Row - r0);
+            Grid.SetColumn(tile, node.Col - c0);
+            grid.Children.Add(tile);
+        }
+
+        return new Border
+        {
+            Padding = new Thickness(12),
+            CornerRadius = new CornerRadius(12),
+            BorderBrush = Res("Brush.Border"),
+            BorderThickness = new Thickness(1),
+            Background = Solid(Blend(Colors.Black, ((SolidColorBrush)Res("Brush.Window")).Color, 0.3)),
+            Child = grid,
+        };
+    }
+
+    // ---------------------------------------------------------------- species knowledge
+
+    private UIElement BuildSpecies(IReadOnlyList<Aion2SpeciesKnowledge> species)
+    {
+        string language = LocalizationManager.Instance.Language;
+        var cards = new WrapPanel();
+        foreach (Aion2SpeciesKnowledge k in species.OrderBy(s => s.SpeciesId))
+        {
+            var stack = new StackPanel();
+            var head = new Grid();
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            head.Children.Add(Text(Aion2Artwork.SpeciesName(k.SpeciesId, language).ToUpperInvariant(), 11, FontWeights.Bold, Res("Brush.TextMuted")));
+            TextBlock level = Text($"Level {k.Level}", 12.5, FontWeights.SemiBold);
+            Grid.SetColumn(level, 1);
+            head.Children.Add(level);
+            stack.Children.Add(head);
+
+            bool maxed = k.Progress == 0 && k.Level >= 10;
+            stack.Children.Add(Text(maxed ? "Max." : $"Progress: {k.Progress:N0}", 11.5, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 6, 0, 8)));
+            foreach (Aion2SpeciesEffect effect in k.Effects.OrderBy(e => e.Page).ThenBy(e => e.Slot))
+            {
+                (string name, bool percent) = Aion2Artwork.SpeciesStat(effect.StatId, language);
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 0) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                TextBlock label = Text(name, 12.5, brush: Res("Brush.TextMuted"));
+                label.Margin = new Thickness(0, 0, 12, 0);
+                TextBlock value = Text(percent ? $"{(effect.Value / 100.0).ToString("F1", CultureInfo.CurrentCulture)} %" : effect.Value.ToString("N0"), 12.5, FontWeights.SemiBold);
+                Grid.SetColumn(value, 1);
+                row.Children.Add(label);
+                row.Children.Add(value);
+                stack.Children.Add(new Border { BorderThickness = new Thickness(0, 1, 0, 0), BorderBrush = Res("Brush.Border"), Padding = new Thickness(0, 6, 0, 6), Child = row });
+            }
+
+            Border card = Card(stack, new Thickness(14, 14, 14, 8), new Thickness(0, 0, 14, 14));
+            card.Width = 290;
+            cards.Children.Add(card);
+        }
+
+        var page = new StackPanel();
+        page.Children.Add(cards);
+        page.Children.Add(Text("As of the last login or zone change.", 11, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 2, 0, 0)));
+        return page;
     }
 }

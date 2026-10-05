@@ -99,6 +99,13 @@ public static class Aion2DaevanionCatalog
         return new BoardSummary(boardId, BoardName(boardId), active, known, stats, skills);
     }
 
+    /// <summary>Every node of one board (the unlocked ones and the rest), for drawing its map.</summary>
+    public static IReadOnlyList<Aion2DaevanionNode> NodesOfBoard(int boardId)
+    {
+        EnsureLoaded();
+        return _nodes!.Values.Where(n => n.Board == boardId).ToList();
+    }
+
     public static string BoardName(int boardId)
     {
         EnsureLoaded();
