@@ -67,3 +67,11 @@ export const AION2_CLASSES = [
   "Sorcerer",
   "Templar",
 ] as const;
+
+// Difficulty steps inside one boss, by instance category (the step is stored on the encounter as `mode`).
+// Expeditions have none: their normal / hard split is two separate instances (instances.variant).
+export const CATEGORY_MODES: Readonly<Record<string, readonly string[]>> = {
+  nightmare: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+  ascension: ["easy", "medium", "hard", "extreme"],
+  transcendence: ["1", "2", "3", "4"],
+};

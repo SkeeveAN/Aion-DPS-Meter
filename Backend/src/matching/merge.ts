@@ -177,7 +177,7 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
   const timeCandidates = db
     .select()
     .from(encounters)
-    .where(and(eq(encounters.serverId, serverId), eq(encounters.bossId, bossId)))
+    .where(and(eq(encounters.serverId, serverId), eq(encounters.bossId, bossId), eq(encounters.mode, payload.mode)))
     .all()
     .filter((e) => {
       const existingStartMs = Date.parse(e.startedAt);
@@ -481,6 +481,7 @@ function createEncounter(bossId: number, serverId: number, payload: UploadPayloa
       groupIDps: 0,
       rosterFingerprint: "",
       mergedUploadCount: 1,
+      mode: payload.mode,
     })
     .run();
   const encounterId = Number(inserted.lastInsertRowid);

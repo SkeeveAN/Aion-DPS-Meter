@@ -554,13 +554,150 @@ function byMinLevelDescending(a, b) {
   return bv - av;
 }
 
-// Per the user: search/category filtering must only ever act on instances actually returned by
-// the API (real name, real category) - never a fabricated difficulty/DPS field the design pack's
-// mockups show but the data model doesn't have yet.
-function instanceCard(i) {
-  const card = posterCard(gp(`/instances/${i.slug}`), INSTANCE_IMAGES[i.name], instanceCardLabel(i));
-  card.dataset.searchText = displayName(i).toLowerCase();
+// ---- Instances page: categories as tabs. Expeditions split into Exploration (normal) and Conquest
+// (hard) - separate instances with their own rankings; Nightmare is laid out like the in-game boss
+// tree; Ascension and Transcendence show their difficulty steps. Everything shown comes from the API;
+// nothing about a player's own progress is shown (the page is public).
+const INSTANCE_TAB_ORDER = ["expedition", "nightmare", "ascension", "transcendence"];
+
+function baseInstanceName(i) {
+  return i.name.replace(/ \(Conquest\)$/, "");
+}
+
+/** Card with photo, name and facts (level, players are only shown where the data has them). */
+function instanceFactCard(i, { chips = [], label } = {}) {
+  const level = INSTANCE_MIN_LEVEL[i.name];
+  const photo = INSTANCE_IMAGES[i.name];
+  const pills = level !== undefined ? [el("span", { className: "ip-pill", textContent: t("instances.levelFrom", { n: level }) })] : [];
+  const text = [el("b", { textContent: label ?? displayName(i) })];
+  if (pills.length > 0) {
+    text.push(el("div", { className: "ip-meta" }, pills));
+  }
+  if (chips.length > 0) {
+    text.push(el("div", { className: "ip-chips" }, chips.map((c) => el("span", { className: "ip-chip", textContent: c }))));
+  }
+  const card = el("a", { className: "ip-card", href: gp(`/instances/${i.slug}`) }, [photo ? icon(photo, "ip-photo") : null, el("div", { className: "ip-text" }, text)].filter((x) => x != null));
   return card;
+}
+
+function modeLabel(mode) {
+  return /^\d+$/.test(mode) ? t("mode.stage", { n: mode }) : t(`mode.${mode}`);
+}
+
+const CATEGORY_MODE_LIST = {
+  ascension: ["easy", "medium", "hard", "extreme"],
+  transcendence: ["1", "2", "3", "4"],
+};
+
+function expeditionPane(list) {
+  const explore = list.filter((i) => i.variant !== "conquest");
+  const conquest = list.filter((i) => i.variant === "conquest");
+  const body = el("div", { className: "ip-grid" });
+  const buttons = [];
+  const show = (variant) => {
+    const items = variant === "conquest" ? conquest : explore;
+    body.replaceChildren(...items.map((i) => instanceFactCard(i, { label: displayName({ name: baseInstanceName(i), nameEn: baseInstanceName(i) }) })));
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === variant)));
+  };
+  const seg = el("div", { className: "ip-seg", role: "group" }, [
+    ["explore", t("mode.explore"), t("mode.normalSub")],
+    ["conquest", t("mode.conquest"), t("mode.hardSub")],
+  ].map(([v, name, sub]) => {
+    const b = el("button", { type: "button", textContent: `${name} · ${sub}` });
+    b.dataset.v = v;
+    b.addEventListener("click", () => show(v));
+    buttons.push(b);
+    return b;
+  }));
+  show("explore");
+  return el("div", {}, [seg, body]);
+}
+
+function modeCardsPane(list, category) {
+  const chips = CATEGORY_MODE_LIST[category].map(modeLabel);
+  return el("div", { className: "ip-grid" }, list.map((i) => instanceFactCard(i, { chips })));
+}
+
+async function nightmarePane(list) {
+  const entries = await Promise.all(
+    list.map(async (instance) => {
+      const bosses = await fetchJson(`/api/instances/${encodeURIComponent(instance.slug)}/bosses?game=${currentGame}`).catch(() => []);
+      return { instance, boss: bosses[0] ?? null };
+    }),
+  );
+  const slots = ["a1", "a2", "b1", "b2", "n1", "n2", "z"];
+  const lines = (cls, paths) => {
+    const wrap = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    wrap.setAttribute("class", `ip-lines ${cls}`);
+    wrap.setAttribute("viewBox", "0 0 110 426");
+    wrap.setAttribute("preserveAspectRatio", "none");
+    wrap.innerHTML = `<g fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke">${paths.map((d) => `<path d="${d}" vector-effect="non-scaling-stroke"/>`).join("")}</g>`;
+    return wrap;
+  };
+
+  const detail = el("aside", { className: "ip-detail" });
+  const nodes = [];
+  let activeEntry = null;
+
+  async function selectLevel(entry, mode, chip, levelBox, statBox) {
+    levelBox.querySelectorAll(".ip-lvl").forEach((x) => x.classList.toggle("sel", x === chip));
+    statBox.textContent = "…";
+    try {
+      const d = await fetchJson(`/api/bosses/${encodeURIComponent(entry.boss.slug)}/leaderboard?game=${currentGame}&mode=${encodeURIComponent(mode)}`);
+      const s = d.stats;
+      const row = (label, value) => el("div", { className: "ip-row" }, [el("span", { textContent: label }), el("b", { textContent: value })]);
+      statBox.replaceChildren(
+        el("h4", { textContent: `${displayName(entry.boss)} · ${modeLabel(mode)}` }),
+        row(t("nm.runs"), formatNumber(s.runCount)),
+        row(t("nm.bestIdps"), s.bestIdps === null ? "–" : formatNumber(s.bestIdps)),
+        row(t("nm.avgTime"), s.avgDurationSeconds === null ? "–" : formatDuration(s.avgDurationSeconds)),
+        el("a", { className: "ip-open", href: gp(`/bosses/${entry.boss.slug}?mode=${encodeURIComponent(mode)}`), textContent: t("nm.openRanking") }),
+      );
+    } catch {
+      statBox.textContent = "";
+    }
+  }
+
+  function select(entry, node) {
+    activeEntry = entry;
+    nodes.forEach((n) => n.classList.toggle("active", n === node));
+    const levelBox = el("div", { className: "ip-lvls" });
+    const statBox = el("div", { className: "ip-stats" }, [el("p", { className: "ip-hint", textContent: t("nm.pickLevel") })]);
+    for (let n = 1; n <= 10; n++) {
+      const chip = el("button", { type: "button", className: "ip-lvl", textContent: String(n) });
+      chip.addEventListener("click", () => selectLevel(entry, String(n), chip, levelBox, statBox));
+      levelBox.append(chip);
+    }
+    detail.replaceChildren(
+      el("div", { className: "ip-loc", textContent: displayName(entry.instance) }),
+      el("h3", { textContent: entry.boss ? displayName(entry.boss) : "" }),
+      el("div", { className: "ip-challenge", textContent: t("nm.challenge") }),
+      levelBox,
+      statBox,
+    );
+  }
+
+  const treeChildren = [];
+  entries.forEach((entry, idx) => {
+    if (!entry.boss) {
+      return;
+    }
+    const photo = BOSS_IMAGES[entry.boss.name] ?? INSTANCE_IMAGES[entry.instance.name];
+    const node = el("button", { type: "button", className: `ip-node ${slots[idx] ?? ""}` }, [
+      el("span", { className: "ip-node-text" }, [el("small", { textContent: displayName(entry.instance) }), el("b", { textContent: displayName(entry.boss) })]),
+      el("span", { className: "ip-node-pt", style: photo ? `background-image:url(${photo})` : "" }),
+    ]);
+    node.addEventListener("click", () => select(entry, node));
+    nodes.push(node);
+    treeChildren.push(node);
+  });
+  treeChildren.splice(4, 0, lines("l1", ["M0 48H55V103H110M0 158H55V103", "M0 268H55V323H110M0 378H55V323"]));
+  treeChildren.push(lines("l2", ["M0 103H55V213H110M0 323H55V213"]));
+  const tree = el("div", { className: "ip-tree" }, treeChildren);
+  if (nodes.length > 0) {
+    select(entries.find((e) => e.boss), nodes[0]);
+  }
+  return el("div", { className: "ip-nightmare" }, [tree, detail]);
 }
 
 async function renderInstances() {
@@ -573,10 +710,6 @@ async function renderInstances() {
     return;
   }
 
-  // Aion 2 sorts its dungeons into kinds (expedition, transcendence, …) - one grid per kind, kept
-  // in the order the API returns them (its own sortOrder) so category headings don't jump around;
-  // only the instances WITHIN each grid are re-sorted, by level (see byMinLevelDescending above).
-  // Classic Aion has no categories, so it stays one flat grid, itself level-sorted the same way.
   const groups = new Map();
   for (const i of instances) {
     const key = i.category ?? "other";
@@ -585,86 +718,51 @@ async function renderInstances() {
     }
     groups.get(key).push(i);
   }
-  const grid = (list) =>
-    el("div", { className: "poster-grid" }, [...list].sort(byMinLevelDescending).map(instanceCard));
+  const categories = [...INSTANCE_TAB_ORDER.filter((c) => groups.has(c)), ...[...groups.keys()].filter((c) => !INSTANCE_TAB_ORDER.includes(c))];
+  const countOf = (category) => {
+    const list = groups.get(category);
+    return category === "expedition" ? list.filter((i) => i.variant !== "conquest").length : list.length;
+  };
 
-  const hasCategories = !(groups.size === 1 && groups.has("other"));
-  const groupSections = hasCategories
-    ? [...groups].map(([category, list]) => ({
-        category,
-        headingEl: el("h3", { className: "category-heading", textContent: t(`category.${category}`) }),
-        gridEl: grid(list),
-      }))
-    : [{ category: null, headingEl: null, gridEl: grid(instances) }];
-
-  // Live client-side filter, no reload/refetch - the whole list is already on the page (see
-  // groupSections above), this only toggles which cards/sections are visible.
-  function applyInstanceFilters(searchInput, categoryFilter) {
-    const query = searchInput.value.trim().toLowerCase();
-    const activeCategory = categoryFilter?.querySelector("button.active")?.dataset.category ?? "all";
-    for (const section of groupSections) {
-      const categoryMatches = activeCategory === "all" || section.category === activeCategory;
-      let visibleCount = 0;
-      for (const card of section.gridEl.children) {
-        const matches = categoryMatches && (!query || card.dataset.searchText.includes(query));
-        card.hidden = !matches;
-        if (matches) {
-          visibleCount++;
-        }
-      }
-      const sectionVisible = categoryMatches && visibleCount > 0;
-      section.gridEl.hidden = !sectionVisible;
-      if (section.headingEl) {
-        section.headingEl.hidden = !sectionVisible;
-      }
+  const panel = el("div", { className: "ip-panel" });
+  const tabButtons = [];
+  async function show(category) {
+    tabButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.c === category)));
+    history.replaceState(history.state, "", `${location.pathname}${location.search}#${category}`);
+    const list = [...groups.get(category)].sort((a, b) => a.sortOrder - b.sortOrder);
+    let pane;
+    if (category === "expedition") {
+      pane = expeditionPane(list);
+    } else if (category === "nightmare") {
+      pane = await nightmarePane(list);
+    } else if (CATEGORY_MODE_LIST[category]) {
+      pane = modeCardsPane(list, category);
+    } else {
+      pane = el("div", { className: "ip-grid" }, list.map((i) => instanceFactCard(i)));
+    }
+    if (tabButtons.find((b) => b.getAttribute("aria-pressed") === "true")?.dataset.c === category) {
+      panel.replaceChildren(pane);
     }
   }
+  const tabs = el(
+    "div",
+    { className: "ip-tabs", role: "tablist" },
+    categories.map((c) => {
+      const b = el("button", { type: "button", className: "ip-tab", role: "tab" }, [t(`category.${c}`), el("small", { textContent: String(countOf(c)) })]);
+      b.dataset.c = c;
+      b.addEventListener("click", () => show(c));
+      tabButtons.push(b);
+      return b;
+    }),
+  );
 
-  const searchInput = el("input", {
-    type: "text",
-    className: "instance-search",
-    placeholder: t("instances.searchPlaceholder"),
-    autocomplete: "off",
-  });
-  let categoryFilter = null;
-  if (hasCategories) {
-    const categoryButtons = [{ key: "all", label: t("category.all") }, ...[...groups.keys()].map((c) => ({ key: c, label: t(`category.${c}`) }))].map(
-      ({ key, label }, i) => {
-        const button = el("button", { type: "button", textContent: label, className: i === 0 ? "active" : "" });
-        button.dataset.category = key;
-        button.setAttribute("aria-pressed", String(i === 0));
-        button.addEventListener("click", () => {
-          for (const sibling of button.parentElement.children) {
-            sibling.classList.remove("active");
-            sibling.setAttribute("aria-pressed", "false");
-          }
-          button.classList.add("active");
-          button.setAttribute("aria-pressed", "true");
-          applyInstanceFilters(searchInput, categoryFilter);
-        });
-        return button;
-      },
-    );
-    categoryFilter = el("div", { className: "category-filter" }, categoryButtons);
-  }
-  searchInput.addEventListener("input", () => applyInstanceFilters(searchInput, categoryFilter));
-  const toolbarChildren = [searchInput];
-  if (categoryFilter) {
-    toolbarChildren.push(categoryFilter);
-  }
-  const toolbar = el("div", { className: "instances-toolbar" }, toolbarChildren);
-
-  const sections = [el("h2", { textContent: t("instances.heading") }), toolbar];
-  for (const section of groupSections) {
-    if (section.headingEl) {
-      sections.push(section.headingEl);
-    }
-    sections.push(section.gridEl);
-  }
+  const wanted = location.hash.replace("#", "");
+  const first = categories.includes(wanted) ? wanted : categories[0];
+  app.replaceChildren(el("h2", { textContent: t("instances.heading") }), tabs, panel);
   if (currentGame === "aion2") {
-    sections.push(el("p", { className: "derived-note", textContent: t("aion2.derivedNote") }));
+    app.append(el("p", { className: "derived-note", textContent: t("aion2.derivedNote") }));
   }
-  app.replaceChildren(...sections);
+  await show(first);
 }
 
 /** One compact KPI card (aiondps_design_pack_v1 section 8) - a big real number over a short label. */
@@ -946,7 +1044,8 @@ function bossHero(data) {
     // "top", not centered: a boss portrait is a tall character render (see posterCard's own
     // objectPosition remarks) - centering would crop the face out of frame.
     const img = el("img", { src: photo, alt: "", className: "instance-hero-photo", fetchPriority: "high" });
-    img.style.objectPosition = "top";
+    // The Nightmare boss banners are wide strips with the boss right of centre; other portraits are tall renders.
+    img.style.objectPosition = BOSS_IMAGES[boss.name] ? "64% center" : "top";
     children.unshift(img);
   }
   const instanceLink = el("a", {
@@ -1065,6 +1164,9 @@ async function renderLeaderboard(bossSlug, params) {
   } else if (params.get("serverId")) {
     query.set("serverId", params.get("serverId"));
   }
+  if (params.get("mode")) {
+    query.set("mode", params.get("mode"));
+  }
   const data = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/leaderboard?${query}`);
   const bossPath = gp(`/bosses/${data.boss.slug}`);
   const bossName = displayName(data.boss);
@@ -1075,9 +1177,19 @@ async function renderLeaderboard(bossSlug, params) {
   ]);
 
   const hero = bossHero(data);
+  // Difficulty steps (Nightmare level, Ascension difficulty, ...): each one is ranked on its own.
+  const modeChips = data.modes?.length
+    ? el("nav", { className: "mode-chips" }, [
+        el("span", { textContent: t("mode.heading") }),
+        ...data.modes.map((m) => {
+          const a = el("a", { className: `mode-chip${m.mode === data.selectedMode ? " active" : ""}`, href: `${bossPath}?mode=${encodeURIComponent(m.mode)}` }, [modeLabel(m.mode), el("small", { textContent: String(m.runs) })]);
+          return a;
+        }),
+      ])
+    : null;
   const tabs = serverTabs(data, bossPath);
   const stats = fightStatsRow(data.stats);
-  const sections = [hero, ...(stats ? [stats] : [])];
+  const sections = [hero, ...(modeChips ? [modeChips] : []), ...(stats ? [stats] : [])];
   if (tabs) {
     sections.push(tabs);
   }

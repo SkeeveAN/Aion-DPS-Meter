@@ -43,6 +43,7 @@ function participant(name: string, extra: Record<string, unknown> = {}) {
 function aion2Upload(participants: ReturnType<typeof participant>[]) {
   return {
     clientVersion: "test",
+    mode: "",
     game: "aion2" as const,
     bossNpcName: "Training Dummy",
     startedAt: "2026-10-01T01:00:00.000Z",

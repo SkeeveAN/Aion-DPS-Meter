@@ -43,7 +43,7 @@ function buildSitemap(): string {
     const instanceRows = db
       .select({ id: instances.id, slug: instances.slug })
       .from(instances)
-      .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME)))
+      .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.hidden, false)))
       .all();
     if (instanceRows.length === 0) {
       continue;
@@ -56,7 +56,7 @@ function buildSitemap(): string {
       .from(bosses)
       .leftJoin(encounters, eq(encounters.bossId, bosses.id))
       .innerJoin(instances, eq(bosses.instanceId, instances.id))
-      .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(bosses.isTrashMob, false)))
+      .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.hidden, false), eq(bosses.isTrashMob, false)))
       .groupBy(bosses.id)
       .all();
 

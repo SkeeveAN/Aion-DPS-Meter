@@ -72,6 +72,8 @@ export const uploadSchema = z
   // Which game this fight is from - only Aion 2 is served (see constants.ts).
   game: z.literal("aion2").default("aion2"),
   bossNpcName: z.string().trim().min(1).max(80),
+  // Difficulty step inside the boss (see constants.ts CATEGORY_MODES); empty when the client does not know it.
+  mode: z.string().trim().toLowerCase().regex(/^[a-z0-9]{0,10}$/).default(""),
   // The boss's numeric NPC id from the game's own traffic - unambiguous where the name alone is not
   // (the same name recurs across dungeons, see boss_npc_ids). Optional for older clients.
   bossNpcId: z.number().int().positive().optional(),

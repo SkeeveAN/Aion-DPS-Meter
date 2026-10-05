@@ -218,6 +218,13 @@
       "when": 1791200000000,
       "tag": "0030_add_shield_absorb",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "6",
+      "when": 1791210000000,
+      "tag": "0031_add_instance_variant_and_mode",
+      "breakpoints": true
     }
   ]
 }

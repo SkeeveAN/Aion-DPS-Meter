@@ -5,7 +5,7 @@ import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounters, i
 import { topBuffsByParticipant, type TopBuff } from "../skills/topBuffs.js";
 import { parseIdOrSlug } from "../seo/slug.js";
 import { gameFromQuery } from "./instances.js";
-import type { Game } from "../constants.js";
+import { CATEGORY_MODES, type Game } from "../constants.js";
 
 const TOP_N = 10;
 
@@ -22,6 +22,7 @@ export function findBoss(idOrSlug: string, game: Game) {
         instanceSlug: instances.slug,
         instanceName: instances.name,
         instanceNameEn: instances.nameEn,
+        instanceCategory: instances.category,
         game: instances.game,
       })
       .from(bosses)
@@ -54,7 +55,34 @@ export function serversWithEncounters(bossId: number) {
     .all();
 }
 
-export function topGroups(bossId: number, serverId: number | null, game: Game) {
+/** One boss, optionally narrowed to a server and to one difficulty step (null = every step). */
+function encounterScope(bossId: number, serverId: number | null, mode: string | null) {
+  return and(
+    eq(encounters.bossId, bossId),
+    serverId === null ? undefined : eq(encounters.serverId, serverId),
+    mode === null ? undefined : eq(encounters.mode, mode),
+  );
+}
+
+/** The difficulty steps a boss of this category has, with how many runs each one already has. */
+export function modesFor(bossId: number, category: string | null) {
+  const names = category ? (CATEGORY_MODES[category] ?? []) : [];
+  if (names.length === 0) {
+    return [];
+  }
+  const counts = new Map(
+    db
+      .select({ mode: encounters.mode, runs: count(encounters.id) })
+      .from(encounters)
+      .where(eq(encounters.bossId, bossId))
+      .groupBy(encounters.mode)
+      .all()
+      .map((r) => [r.mode, r.runs] as const),
+  );
+  return names.map((mode) => ({ mode, runs: counts.get(mode) ?? 0 }));
+}
+
+export function topGroups(bossId: number, serverId: number | null, game: Game, mode: string | null = null) {
   const groups = db
     .select({
       encounterId: encounters.id,
@@ -64,7 +92,7 @@ export function topGroups(bossId: number, serverId: number | null, game: Game) {
       mergedUploadCount: encounters.mergedUploadCount,
     })
     .from(encounters)
-    .where(serverId === null ? eq(encounters.bossId, bossId) : and(eq(encounters.bossId, bossId), eq(encounters.serverId, serverId)))
+    .where(encounterScope(bossId, serverId, mode))
     .orderBy(desc(encounters.groupIDps))
     .limit(TOP_N)
     .all();
@@ -125,7 +153,7 @@ export function topGroups(bossId: number, serverId: number | null, game: Game) {
 }
 
 /** "Top 10 per class" for a solo target - fetch once, group and cap in JS (a few thousand rows at most). */
-export function topByClass(bossId: number, serverId: number | null, game: Game) {
+export function topByClass(bossId: number, serverId: number | null, game: Game, mode: string | null = null) {
   const allParticipants = db
     .select({
       participantId: encounterParticipants.id,
@@ -142,7 +170,7 @@ export function topByClass(bossId: number, serverId: number | null, game: Game) 
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
     .innerJoin(players, eq(encounterParticipants.playerId, players.id))
     .leftJoin(servers, eq(players.serverId, servers.id))
-    .where(serverId === null ? eq(encounters.bossId, bossId) : and(eq(encounters.bossId, bossId), eq(encounters.serverId, serverId)))
+    .where(encounterScope(bossId, serverId, mode))
     .all();
 
   const byClass = new Map<string, typeof allParticipants>();
@@ -176,11 +204,15 @@ export type FightStats = {
  * only ever the picked one or (Aion 2) explicitly combined. Empty beats wrong - a boss/instance
  * with no encounters yet reports null stats, never a fabricated zero.
  */
-export function statsForBossIds(bossIds: number[], serverId: number | null): FightStats {
+export function statsForBossIds(bossIds: number[], serverId: number | null, mode: string | null = null): FightStats {
   if (bossIds.length === 0) {
     return { runCount: 0, bestIdps: null, avgDurationSeconds: null };
   }
-  const scope = serverId === null ? inArray(encounters.bossId, bossIds) : and(inArray(encounters.bossId, bossIds), eq(encounters.serverId, serverId));
+  const scope = and(
+    inArray(encounters.bossId, bossIds),
+    serverId === null ? undefined : eq(encounters.serverId, serverId),
+    mode === null ? undefined : eq(encounters.mode, mode),
+  );
   const row = db
     .select({
       runCount: count(encounters.id),
@@ -259,7 +291,7 @@ export function selectServer(
 }
 
 export async function bossRoutes(app: FastifyInstance) {
-  app.get<{ Params: { id: string }; Querystring: { serverId?: string; server?: string; game?: string } }>(
+  app.get<{ Params: { id: string }; Querystring: { serverId?: string; server?: string; game?: string; mode?: string } }>(
     "/api/bosses/:id/leaderboard",
     async (request, reply) => {
       const game = gameFromQuery(request.query.game, reply);
@@ -285,7 +317,16 @@ export async function bossRoutes(app: FastifyInstance) {
         isSolo: boss.isSolo,
         lootRules: boss.lootRules,
         hasMechanics: mechanicsFor(boss.id, boss.instanceId).mechanics.length > 0,
+        instanceCategory: found.instanceCategory,
       };
+      // Bosses with difficulty steps (Nightmare stages ...) rank each step on its own: the requested
+      // step, else the one with the most runs, else the first.
+      const modes = modesFor(boss.id, found.instanceCategory);
+      const requested = request.query.mode;
+      const mode =
+        modes.length === 0
+          ? null
+          : modes.find((m) => m.mode === requested)?.mode ?? [...modes].sort((a, b) => b.runs - a.runs)[0].mode;
       const serverList = serversWithEncounters(boss.id);
       // Aion 2 runs official, same-standard servers and its groups can span them, so its
       // ranking is one list across every server unless one is asked for explicitly. Classic
@@ -303,21 +344,23 @@ export async function bossRoutes(app: FastifyInstance) {
           servers: serverList,
           selectedServerId: null,
           combined: false,
+          modes,
+          selectedMode: mode,
           topGroups: [],
           topByClass: {},
-          stats: statsForBossIds([boss.id], null),
+          stats: statsForBossIds([boss.id], null, mode),
         });
       }
       const scope = combined ? null : selected!.id;
-      const stats = statsForBossIds([boss.id], scope);
+      const stats = statsForBossIds([boss.id], scope, mode);
 
       // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) rank
       // completely differently - one boss is never both, so only the query the page actually
       // needs runs. isSolo is manually curated (see README), same pattern as isTrashMob.
       if (boss.isSolo) {
-        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: [], topByClass: topByClass(boss.id, scope, found.game), stats });
+        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: [], topByClass: topByClass(boss.id, scope, found.game, mode), stats });
       }
-      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, topGroups: topGroups(boss.id, scope, found.game), topByClass: {}, stats });
+      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: topGroups(boss.id, scope, found.game, mode), topByClass: {}, stats });
     },
   );
 

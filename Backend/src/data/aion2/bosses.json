@@ -120,9 +120,7 @@
       },
       "npcIds": [
         2300581,
-        2300811,
-        2310811,
-        2320811
+        2300811
       ],
       "level": 86,
       "internalName": "M_PD_BakronIsland_T_01_Tamon_01_001",
@@ -145,9 +143,7 @@
       },
       "npcIds": [
         2300580,
-        2300810,
-        2310810,
-        2320810
+        2300810
       ],
       "level": 86,
       "internalName": "M_PD_BakronIsland_T_01_Tie_01_001",
@@ -170,9 +166,7 @@
       },
       "npcIds": [
         2300582,
-        2300812,
-        2310812,
-        2320812
+        2300812
       ],
       "level": 86,
       "internalName": "M_PD_T_01_EleKing_01_001",
@@ -846,13 +840,7 @@
       },
       "npcIds": [
         2300470,
-        2300471,
-        2310470,
-        2310471,
-        2320470,
-        2320471,
-        2330423,
-        2330424
+        2300471
       ],
       "level": 45,
       "internalName": "M_PD_Draupnir_Bakarma_01",
@@ -874,10 +862,7 @@
         "ru": "Лакшми видения"
       },
       "npcIds": [
-        2300401,
-        2310401,
-        2320401,
-        2330401
+        2300401
       ],
       "level": 45,
       "internalName": "M_PD_Draupnir_NagaElite_01",
@@ -899,10 +884,7 @@
         "ru": "Хищница Сарасвати"
       },
       "npcIds": [
-        2300403,
-        2310403,
-        2320403,
-        2330403
+        2300403
       ],
       "level": 45,
       "internalName": "M_PD_Draupnir_NagaElite_02",
@@ -924,10 +906,7 @@
         "ru": "Возвышенный Бакрам"
       },
       "npcIds": [
-        2300471,
-        2310471,
-        2320471,
-        2330424
+        2300471
       ],
       "level": 45,
       "internalName": "M_PD_Draupnir_Bakarma_02",
@@ -1184,10 +1163,7 @@
         "ru": "Мурт черного дыма"
       },
       "npcIds": [
-        2300312,
-        2310312,
-        2320312,
-        2330312
+        2300312
       ],
       "level": 63,
       "internalName": "M_PD_Fire_Temple_AshGuard_001",
@@ -1209,10 +1185,7 @@
         "ru": "Желание Кромед"
       },
       "npcIds": [
-        2300371,
-        2310371,
-        2320371,
-        2330371
+        2300371
       ],
       "level": 63,
       "internalName": "M_PD_Fire_Temple_Cromede_01_001",
@@ -1234,10 +1207,7 @@
         "ru": "Игнус красного языка пламени"
       },
       "npcIds": [
-        2300311,
-        2310311,
-        2320311,
-        2330311
+        2300311
       ],
       "level": 63,
       "internalName": "M_PD_Fire_Temple_FireGuard_001",
@@ -1259,10 +1229,7 @@
         "ru": "Серебряный рокан"
       },
       "npcIds": [
-        2300310,
-        2310310,
-        2320310,
-        2330310
+        2300310
       ],
       "level": 63,
       "internalName": "M_PD_Fire_Temple_Rotan_001",
@@ -1284,10 +1251,7 @@
         "ru": "Усиленный Харкон"
       },
       "npcIds": [
-        2300104,
-        2310104,
-        2320104,
-        2330104
+        2300104
       ],
       "level": 45,
       "internalName": "M_PD_Krao_KraoElite_03",
@@ -1309,10 +1273,7 @@
         "ru": "Брошенный Гадиотон"
       },
       "npcIds": [
-        2300108,
-        2310108,
-        2320108,
-        2330108
+        2300108
       ],
       "level": 45,
       "internalName": "M_PD_Krao_KraoElite_03_V01",
@@ -1338,18 +1299,7 @@
         2300172,
         2300173,
         2300174,
-        2300178,
-        2310171,
-        2310172,
-        2310173,
-        2310174,
-        2310178,
-        2320171,
-        2320172,
-        2320173,
-        2320174,
-        2320178,
-        2330171
+        2300178
       ],
       "level": 45,
       "internalName": "M_PD_Krao_Berc_P1_Type01",
@@ -1428,9 +1378,7 @@
         "ru": "Нуакум свирепого рога"
       },
       "npcIds": [
-        2300910,
-        2310910,
-        2320910
+        2300910
       ],
       "level": 63,
       "internalName": "M_PD_FierceHornCave_Ferk_01_V01",
@@ -1452,9 +1400,7 @@
         "ru": "Некромант Дванка"
       },
       "npcIds": [
-        2300909,
-        2310909,
-        2320909
+        2300909
       ],
       "level": 63,
       "internalName": "M_PD_FierceHornCave_Lycan_04_V01_001",
@@ -1476,9 +1422,7 @@
         "ru": "Блестящий тотем оборотней"
       },
       "npcIds": [
-        2300907,
-        2310907,
-        2320907
+        2300907
       ],
       "level": 63,
       "internalName": "M_PD_FierceHornCave_LycanTotem_01_001",
@@ -1500,9 +1444,7 @@
         "ru": "Сторожевой пес Кухапу"
       },
       "npcIds": [
-        2300908,
-        2310908,
-        2320908
+        2300908
       ],
       "level": 63,
       "internalName": "M_PD_FierceHornCave_KalnifElite_01_V02_001",
@@ -2233,10 +2175,7 @@
         "ru": "Священный Аулдор"
       },
       "npcIds": [
-        2300218,
-        2310218,
-        2320218,
-        2330218
+        2300218
       ],
       "level": 53,
       "internalName": "M_PD_UC_Owldor_01",
@@ -2258,10 +2197,7 @@
         "ru": "Капитан охраны Лаур"
       },
       "npcIds": [
-        2300206,
-        2310206,
-        2320206,
-        2330206
+        2300206
       ],
       "level": 53,
       "internalName": "M_PD_UC_SubBoss01",
@@ -2283,7 +2219,156 @@
         "ru": "Судья Урахум"
       },
       "npcIds": [
-        2300207,
+        2300207
+      ],
+      "level": 53,
+      "internalName": "M_PD_UC_SubBoss02",
+      "hasMechanics": true
+    },
+    {
+      "key": "Krao/enhanced-harcon:conquest",
+      "instanceKey": "Krao:conquest",
+      "slug": "enhanced-harcon-conquest",
+      "name": {
+        "en": "Enhanced Harcon",
+        "ko": "강화된 하르콘",
+        "zh": "強化的哈爾坤",
+        "de": "Verstärkter Harcon",
+        "es": "Harcon mejorado",
+        "fr": "Harcon amélioré",
+        "ja": "強化されたハルコン",
+        "pt": "Harcon Aprimorado",
+        "ru": "Усиленный Харкон"
+      },
+      "npcIds": [
+        2310104,
+        2320104,
+        2330104
+      ],
+      "level": 45,
+      "internalName": "M_PD_Krao_KraoElite_03",
+      "hasMechanics": false
+    },
+    {
+      "key": "Krao/neglected-gadioton:conquest",
+      "instanceKey": "Krao:conquest",
+      "slug": "neglected-gadioton-conquest",
+      "name": {
+        "en": "Neglected Gadioton",
+        "ko": "방치된 가디오톤",
+        "zh": "棄置的加迪爾頓",
+        "de": "Vergessener Gadioton",
+        "es": "Gadioton descuidado",
+        "fr": "Gadioton délaissé",
+        "ja": "放置されたガディオトン",
+        "pt": "Gadioton Abandonado",
+        "ru": "Брошенный Гадиотон"
+      },
+      "npcIds": [
+        2310108,
+        2320108,
+        2330108
+      ],
+      "level": 45,
+      "internalName": "M_PD_Krao_KraoElite_03_V01",
+      "hasMechanics": false
+    },
+    {
+      "key": "Krao/ultimate-berk:conquest",
+      "instanceKey": "Krao:conquest",
+      "slug": "ultimate-berk-conquest",
+      "name": {
+        "en": "Ultimate Berk",
+        "ko": "완성체 베르크",
+        "zh": "完成體貝爾克",
+        "de": "Vollendete Berk",
+        "es": "Berk definitivo",
+        "fr": "Berk accomplie",
+        "ja": "完成体ベルク",
+        "pt": "Berk em Forma Final",
+        "ru": "Завершенная форма Берка"
+      },
+      "npcIds": [
+        2310171,
+        2310172,
+        2310173,
+        2310174,
+        2310178,
+        2320171,
+        2320172,
+        2320173,
+        2320174,
+        2320178,
+        2330171
+      ],
+      "level": 45,
+      "internalName": "M_PD_Krao_Berc_P1_Type01",
+      "hasMechanics": true
+    },
+    {
+      "key": "UC/divine-auldor:conquest",
+      "instanceKey": "UC:conquest",
+      "slug": "divine-auldor-conquest",
+      "name": {
+        "en": "Divine Auldor",
+        "ko": "신성한 아울도르",
+        "zh": "神聖的奧多勒",
+        "de": "Heiliger Auldor",
+        "es": "Auldor sagrado",
+        "fr": "Auldor sacré",
+        "ja": "神聖なアウルドール",
+        "pt": "Auldor Divino",
+        "ru": "Священный Аулдор"
+      },
+      "npcIds": [
+        2310218,
+        2320218,
+        2330218
+      ],
+      "level": 53,
+      "internalName": "M_PD_UC_Owldor_01",
+      "hasMechanics": true
+    },
+    {
+      "key": "UC/guardian-captain-raur:conquest",
+      "instanceKey": "UC:conquest",
+      "slug": "guardian-captain-raur-conquest",
+      "name": {
+        "en": "Guardian Captain Raur",
+        "ko": "수호대장 라우르",
+        "zh": "守護隊長勞爾",
+        "de": "Hüterhauptmann Raur",
+        "es": "Capitán de la Guardia Raur",
+        "fr": "Raur le Capitaine de la garde",
+        "ja": "守護隊長ラウル",
+        "pt": "Capitão Guardião Raur",
+        "ru": "Капитан охраны Лаур"
+      },
+      "npcIds": [
+        2310206,
+        2320206,
+        2330206
+      ],
+      "level": 53,
+      "internalName": "M_PD_UC_SubBoss01",
+      "hasMechanics": true
+    },
+    {
+      "key": "UC/judge-urahum:conquest",
+      "instanceKey": "UC:conquest",
+      "slug": "judge-urahum-conquest",
+      "name": {
+        "en": "Judge Urahum",
+        "ko": "심판자 우라훔",
+        "zh": "審判者烏拉姆",
+        "de": "Richter Urahum",
+        "es": "Juez Urahum",
+        "fr": "Juge Urahum",
+        "ja": "審判者ウラフム",
+        "pt": "Juiz Urahum",
+        "ru": "Судья Урахум"
+      },
+      "npcIds": [
         2310207,
         2320207,
         2330207
@@ -2291,6 +2376,453 @@
       "level": 53,
       "internalName": "M_PD_UC_SubBoss02",
       "hasMechanics": true
+    },
+    {
+      "key": "FT/black-smoke-murute:conquest",
+      "instanceKey": "FT:conquest",
+      "slug": "black-smoke-murute-conquest",
+      "name": {
+        "en": "Black Smoke Murute",
+        "ko": "검은연기 무르트",
+        "zh": "黑煙穆勒特",
+        "de": "Schwarzrauch Murute",
+        "es": "Humo negro Murute",
+        "fr": "Murute de fumée noire",
+        "ja": "黒煙モルト",
+        "pt": "Murute da Fumaça Negra",
+        "ru": "Мурт черного дыма"
+      },
+      "npcIds": [
+        2310312,
+        2320312,
+        2330312
+      ],
+      "level": 63,
+      "internalName": "M_PD_Fire_Temple_AshGuard_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "FT/kromedes-desire:conquest",
+      "instanceKey": "FT:conquest",
+      "slug": "kromedes-desire-conquest",
+      "name": {
+        "en": "Kromede's Desire",
+        "ko": "크로메데의 욕망",
+        "zh": "克羅梅德欲望",
+        "de": "Kromedes Gier",
+        "es": "Ambición de Kromede",
+        "fr": "Désir de Kromede",
+        "ja": "クロメデの欲望",
+        "pt": "Desejo de Kromede",
+        "ru": "Желание Кромед"
+      },
+      "npcIds": [
+        2310371,
+        2320371,
+        2330371
+      ],
+      "level": 63,
+      "internalName": "M_PD_Fire_Temple_Cromede_01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "FT/red-spark-ignus:conquest",
+      "instanceKey": "FT:conquest",
+      "slug": "red-spark-ignus-conquest",
+      "name": {
+        "en": "Red Spark Ignus",
+        "ko": "붉은불꽃 이그누스",
+        "zh": "紅火花伊格努斯",
+        "de": "Rotflamme Ignus",
+        "es": "Fulgor rojo Ignus",
+        "fr": "Ignus de flamme rouge",
+        "ja": "赤い炎イグヌス",
+        "pt": "Ignus da Chama Vermelha",
+        "ru": "Игнус красного языка пламени"
+      },
+      "npcIds": [
+        2310311,
+        2320311,
+        2330311
+      ],
+      "level": 63,
+      "internalName": "M_PD_Fire_Temple_FireGuard_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "FT/silver-blade-rotan:conquest",
+      "instanceKey": "FT:conquest",
+      "slug": "silver-blade-rotan-conquest",
+      "name": {
+        "en": "Silver Blade Rotan",
+        "ko": "은빛칼날 로탄",
+        "zh": "銀刃羅坦",
+        "de": "Silberklinge Rotan",
+        "es": "Rotan de la cuchilla de plata",
+        "fr": "Rotan à la lame d'argent",
+        "ja": "銀色の刃ロータン",
+        "pt": "Rotan da Lâmina Prateada",
+        "ru": "Серебряный рокан"
+      },
+      "npcIds": [
+        2310310,
+        2320310,
+        2330310
+      ],
+      "level": 63,
+      "internalName": "M_PD_Fire_Temple_Rotan_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "Draupnir/afflicted-bakarma:conquest",
+      "instanceKey": "Draupnir:conquest",
+      "slug": "afflicted-bakarma-draupnir-conquest",
+      "name": {
+        "en": "Afflicted Bakarma",
+        "ko": "고뇌하는 바카르마",
+        "zh": "苦惱的巴卡爾摩",
+        "de": "Gequälter Bakarma",
+        "es": "Bakarma agonizante",
+        "fr": "Bakarma tourmenté",
+        "ja": "苦悩するヴォカルマ",
+        "pt": "Bakarma Agonizado",
+        "ru": "Мучающийся Бакрам"
+      },
+      "npcIds": [
+        2310470,
+        2310471,
+        2320470,
+        2320471,
+        2330423,
+        2330424
+      ],
+      "level": 45,
+      "internalName": "M_PD_Draupnir_Bakarma_01",
+      "hasMechanics": true
+    },
+    {
+      "key": "Draupnir/phantasmal-lakshmi:conquest",
+      "instanceKey": "Draupnir:conquest",
+      "slug": "phantasmal-lakshmi-conquest",
+      "name": {
+        "en": "Phantasmal Lakshmi",
+        "ko": "몽환의 라크슈미",
+        "zh": "夢幻拉克修米",
+        "de": "Phantom-Lakshmi",
+        "es": "Lakshmi de ensueño",
+        "fr": "Lakshmi onirique",
+        "ja": "夢幻のラクシュミ",
+        "pt": "Lakshmi Onírica",
+        "ru": "Лакшми видения"
+      },
+      "npcIds": [
+        2310401,
+        2320401,
+        2330401
+      ],
+      "level": 45,
+      "internalName": "M_PD_Draupnir_NagaElite_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "Draupnir/predator-saraswati:conquest",
+      "instanceKey": "Draupnir:conquest",
+      "slug": "predator-saraswati-conquest",
+      "name": {
+        "en": "Predator Saraswati",
+        "ko": "포식자 사라스와티",
+        "zh": "捕食者薩拉斯瓦提",
+        "de": "Verschlinger Saraswati",
+        "es": "Saraswati depredador",
+        "fr": "Saraswati le Prédateur",
+        "ja": "捕食者サラスワティ",
+        "pt": "Predador Saraswati",
+        "ru": "Хищница Сарасвати"
+      },
+      "npcIds": [
+        2310403,
+        2320403,
+        2330403
+      ],
+      "level": 45,
+      "internalName": "M_PD_Draupnir_NagaElite_02",
+      "hasMechanics": false
+    },
+    {
+      "key": "Draupnir/transcendent-bakarma:conquest",
+      "instanceKey": "Draupnir:conquest",
+      "slug": "transcendent-bakarma-conquest",
+      "name": {
+        "en": "Transcendent Bakarma",
+        "ko": "초월한 바카르마",
+        "zh": "超越的巴卡爾摩",
+        "de": "Transzendierter Bakarma",
+        "es": "Bakarma trascendido",
+        "fr": "Bakarma transcendé",
+        "ja": "超越したヴォカルマ",
+        "pt": "Bakarma Transcendido",
+        "ru": "Возвышенный Бакрам"
+      },
+      "npcIds": [
+        2310471,
+        2320471,
+        2330424
+      ],
+      "level": 45,
+      "internalName": "M_PD_Draupnir_Bakarma_02",
+      "hasMechanics": false
+    },
+    {
+      "key": "Bakron/thamon:conquest",
+      "instanceKey": "Bakron:conquest",
+      "slug": "thamon-conquest",
+      "name": {
+        "en": "Thamon",
+        "ko": "타몬",
+        "zh": "塔蒙",
+        "de": "Thamon",
+        "es": "Thamon",
+        "fr": "Thamon",
+        "ja": "タモン",
+        "pt": "Thamon",
+        "ru": "Тамон"
+      },
+      "npcIds": [
+        2310811,
+        2320811
+      ],
+      "level": 86,
+      "internalName": "M_PD_BakronIsland_T_01_Tamon_01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "Bakron/tiere:conquest",
+      "instanceKey": "Bakron:conquest",
+      "slug": "tiere-conquest",
+      "name": {
+        "en": "Tiere",
+        "ko": "티에",
+        "zh": "提耶",
+        "de": "Tière",
+        "es": "Tiere",
+        "fr": "Tiere",
+        "ja": "ティエ",
+        "pt": "Tiere",
+        "ru": "Тие"
+      },
+      "npcIds": [
+        2310810,
+        2320810
+      ],
+      "level": 86,
+      "internalName": "M_PD_BakronIsland_T_01_Tie_01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "Bakron/vakron:conquest",
+      "instanceKey": "Bakron:conquest",
+      "slug": "vakron-conquest",
+      "name": {
+        "en": "Vakron",
+        "ko": "바크론",
+        "zh": "巴克隆",
+        "de": "Vakron",
+        "es": "Vakron",
+        "fr": "Vakron",
+        "ja": "バクロン",
+        "pt": "Vakron",
+        "ru": "Вакрон"
+      },
+      "npcIds": [
+        2310812,
+        2320812
+      ],
+      "level": 86,
+      "internalName": "M_PD_T_01_EleKing_01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "MauCave/ferocious-horn-nuakum:conquest",
+      "instanceKey": "MauCave:conquest",
+      "slug": "ferocious-horn-nuakum-conquest",
+      "name": {
+        "en": "Ferocious Horn Nuakum",
+        "ko": "사나운 뿔 누아쿰",
+        "zh": "凶猛的角努亞庫",
+        "de": "Nuakum (Grimmhorn)",
+        "es": "Nuakum del Cuerno Feroz",
+        "fr": "Nuakum à cornes féroces",
+        "ja": "獰猛な角ヌアクム",
+        "pt": "Nuakum do Chifre Feroz",
+        "ru": "Нуакум свирепого рога"
+      },
+      "npcIds": [
+        2310910,
+        2320910
+      ],
+      "level": 63,
+      "internalName": "M_PD_FierceHornCave_Ferk_01_V01",
+      "hasMechanics": true
+    },
+    {
+      "key": "MauCave/necromancer-duanka:conquest",
+      "instanceKey": "MauCave:conquest",
+      "slug": "necromancer-duanka-conquest",
+      "name": {
+        "en": "Necromancer Duanka",
+        "ko": "강령술사 두안카",
+        "zh": "降靈術士杜安卡",
+        "de": "Nekromantin Duanka",
+        "es": "Duanka nigromante",
+        "fr": "Duanka nécromancienne",
+        "ja": "降霊術士ドゥアンカ",
+        "pt": "Necromante Duanka",
+        "ru": "Некромант Дванка"
+      },
+      "npcIds": [
+        2310909,
+        2320909
+      ],
+      "level": 63,
+      "internalName": "M_PD_FierceHornCave_Lycan_04_V01_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "MauCave/shining-mau-totem:conquest",
+      "instanceKey": "MauCave:conquest",
+      "slug": "shining-mau-totem-conquest",
+      "name": {
+        "en": "Shining Mau Totem",
+        "ko": "빛나는 라이칸 토템",
+        "zh": "閃耀的萊卡恩圖騰",
+        "de": "Strahlendes Totem (Mau)",
+        "es": "Tótem de Mau brillante",
+        "fr": "Totem Mau brillant",
+        "ja": "光るライカン トーテム",
+        "pt": "Totem Brilhante dos Licanos",
+        "ru": "Блестящий тотем оборотней"
+      },
+      "npcIds": [
+        2310907,
+        2320907
+      ],
+      "level": 63,
+      "internalName": "M_PD_FierceHornCave_LycanTotem_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "MauCave/watchdog-kwapo:conquest",
+      "instanceKey": "MauCave:conquest",
+      "slug": "watchdog-kwapo-conquest",
+      "name": {
+        "en": "Watchdog Kwapo",
+        "ko": "번견 쿠하푸",
+        "zh": "護衛犬庫哈普",
+        "de": "Wachhund Kwapo",
+        "es": "Perro guardián Kwapo",
+        "fr": "Kwapo le chien de garde",
+        "ja": "番犬クハプ",
+        "pt": "Cão de Ataque Kwapo",
+        "ru": "Сторожевой пес Кухапу"
+      },
+      "npcIds": [
+        2310908,
+        2320908
+      ],
+      "level": 63,
+      "internalName": "M_PD_FierceHornCave_KalnifElite_01_V02_001",
+      "hasMechanics": true
+    },
+    {
+      "key": "Albtraum:wurzelspeicher/torwaechter-pinopi",
+      "instanceKey": "Albtraum:wurzelspeicher",
+      "slug": "torwaechter-pinopi",
+      "name": {
+        "en": "Torwächter Pinopi",
+        "de": "Torwächter Pinopi"
+      },
+      "npcIds": [],
+      "level": 45,
+      "internalName": null,
+      "hasMechanics": false
+    },
+    {
+      "key": "Albtraum:verlies-von-dranactus/rasender-feruk",
+      "instanceKey": "Albtraum:verlies-von-dranactus",
+      "slug": "rasender-feruk",
+      "name": {
+        "en": "Rasender Feruk",
+        "de": "Rasender Feruk"
+      },
+      "npcIds": [],
+      "level": 45,
+      "internalName": null,
+      "hasMechanics": false
+    },
+    {
+      "key": "Albtraum:wurzel-des-heiligenbaums/fafnirs-giftblut",
+      "instanceKey": "Albtraum:wurzel-des-heiligenbaums",
+      "slug": "fafnirs-giftblut",
+      "name": {
+        "en": "Fafnirs Giftblut",
+        "de": "Fafnirs Giftblut"
+      },
+      "npcIds": [],
+      "level": 45,
+      "internalName": null,
+      "hasMechanics": false
+    },
+    {
+      "key": "Albtraum:gruft/geist-giselle",
+      "instanceKey": "Albtraum:gruft",
+      "slug": "geist-giselle",
+      "name": {
+        "en": "Geist Giselle",
+        "de": "Geist Giselle"
+      },
+      "npcIds": [],
+      "level": 45,
+      "internalName": null,
+      "hasMechanics": false
+    },
+    {
+      "key": "Albtraum:untergrundfeste-der-zerstoerungsarchonen/festenhueter-notun",
+      "instanceKey": "Albtraum:untergrundfeste-der-zerstoerungsarchonen",
+      "slug": "festenhueter-notun",
+      "name": {
+        "en": "Festenhüter Notun",
+        "de": "Festenhüter Notun"
+      },
+      "npcIds": [],
+      "level": 45,
+      "internalName": null,
+      "hasMechanics": false
+    },
+    {
+      "key": "Albtraum:versteck-der-klingenlegion/mutierter-gerod",
+      "instanceKey": "Albtraum:versteck-der-klingenlegion",
+      "slug": "mutierter-gerod",
+      "name": {
+        "en": "Mutierter Gerod",
+        "de": "Mutierter Gerod"
+      },
+      "npcIds": [],
+      "level": 45,
+      "internalName": null,
+      "hasMechanics": false
+    },
+    {
+      "key": "Albtraum:impetusium/zikels-schemen",
+      "instanceKey": "Albtraum:impetusium",
+      "slug": "zikels-schemen",
+      "name": {
+        "en": "Zikels Schemen",
+        "de": "Zikels Schemen"
+      },
+      "npcIds": [],
+      "level": 45,
+      "internalName": null,
+      "hasMechanics": false
     }
   ]
 }

@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../db/client.js";
-import { bossMechanics, bossNpcIds, bosses, instances } from "../db/schema.js";
+import { bossMechanics, bossNpcIds, bosses, encounters, instances, uploads } from "../db/schema.js";
 import { loadAion2Content, type Aion2Mechanic } from "./aion2Content.js";
 
 /**
@@ -21,7 +21,15 @@ export function syncAion2Content(): { instances: number; bosses: number; npcIds:
       .from(instances)
       .where(and(eq(instances.game, "aion2"), eq(instances.name, instance.name.en)))
       .get();
-    const values = { nameEn: instance.name.en, slug: instance.slug, category: instance.category, sortOrder: instance.sortOrder, source: "derived" as const };
+    const values = {
+      nameEn: instance.name.en,
+      slug: instance.slug,
+      category: instance.category,
+      sortOrder: instance.sortOrder,
+      hidden: instance.hidden === true,
+      variant: instance.variant ?? null,
+      source: "derived" as const,
+    };
     if (existing) {
       db.update(instances).set(values).where(eq(instances.id, existing.id)).run();
       instanceIdByKey.set(instance.key, existing.id);
@@ -61,7 +69,10 @@ export function syncAion2Content(): { instances: number; bosses: number; npcIds:
         db.insert(bossNpcIds).values({ bossId, npcId }).run();
         counts.npcIds++;
       } else if (owner.bossId !== bossId) {
-        console.warn(`npc ${npcId}: already belongs to boss ${owner.bossId}, not moved to ${bossId}`);
+        // The content files are authoritative: an id that moved to another boss (the expedition
+        // normal / hard split) follows it.
+        db.update(bossNpcIds).set({ bossId }).where(eq(bossNpcIds.npcId, npcId)).run();
+        counts.npcIds++;
       }
     }
   }
@@ -92,7 +103,56 @@ export function syncAion2Content(): { instances: number; bosses: number; npcIds:
     counts.mechanics++;
   }
 
+  reassignConquestEncounters();
   return counts;
+}
+
+/**
+ * Expedition normal and hard are separate bosses now. Fights uploaded before the split all sit on the
+ * normal boss; the NPC id the client reported (2300104 normal, 2310104 and up hard) tells which they
+ * were. Idempotent: a fight already on the hard twin, or one without an id, is left alone.
+ */
+export function reassignConquestEncounters(): number {
+  let moved = 0;
+  const rows = db
+    .select({ encounterId: uploads.matchedEncounterId, raw: uploads.rawPayloadJson })
+    .from(uploads)
+    .where(eq(uploads.status, "merged"))
+    .all();
+  const seen = new Set<number>();
+  for (const row of rows) {
+    if (row.encounterId === null || seen.has(row.encounterId)) {
+      continue;
+    }
+    let npcId: number | undefined;
+    try {
+      npcId = (JSON.parse(row.raw) as { bossNpcId?: number }).bossNpcId;
+    } catch {
+      continue;
+    }
+    if (npcId === undefined || npcId < 2300000 || npcId >= 2400000 || Math.floor(npcId / 10000) % 10 === 0) {
+      continue;
+    }
+    seen.add(row.encounterId);
+    const current = db
+      .select({ bossId: encounters.bossId, slug: bosses.slug, instanceId: bosses.instanceId })
+      .from(encounters)
+      .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+      .where(eq(encounters.id, row.encounterId))
+      .get();
+    if (!current?.slug || current.slug.endsWith("-conquest")) {
+      continue;
+    }
+    const twin = db.select({ id: bosses.id }).from(bosses).where(eq(bosses.slug, `${current.slug}-conquest`)).get();
+    if (twin) {
+      db.update(encounters).set({ bossId: twin.id }).where(eq(encounters.id, row.encounterId)).run();
+      moved++;
+    }
+  }
+  if (moved > 0) {
+    console.log(`Moved ${moved} hard-mode expedition fight(s) to their hard boss.`);
+  }
+  return moved;
 }
 
 function ownerOf(

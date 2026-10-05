@@ -2418,3 +2418,70 @@ body:has(.download-hero) .nav-download-link:hover,
 .shield-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; }
 .shield-card li { display: flex; justify-content: space-between; gap: 10px; }
 .shield-card li span:first-child { color: var(--color-text-muted); }
+
+/* ---- Instances page: category tabs, expedition normal/hard switch, Nightmare boss tree (laid out for 1920x1080) ---- */
+.ip-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 22px; }
+.ip-tab { font: inherit; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 99px; padding: 8px 18px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.ip-tab small { color: var(--color-text-muted); }
+.ip-tab:hover { border-color: var(--color-primary); }
+.ip-tab[aria-pressed="true"] { background: var(--color-primary); border-color: var(--color-primary); color: #1a1205; font-weight: 700; }
+.ip-tab[aria-pressed="true"] small { color: #3a2a08; }
+.ip-seg { display: inline-flex; border: 1px solid var(--color-border); border-radius: 99px; overflow: hidden; margin: 0 0 16px; }
+.ip-seg button { font: inherit; background: transparent; color: var(--color-text); border: 0; padding: 7px 18px; cursor: pointer; }
+.ip-seg button[aria-pressed="true"] { background: var(--color-surface2); font-weight: 700; color: var(--color-primary); }
+.ip-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 1100px) { .ip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .ip-grid { grid-template-columns: 1fr; } }
+.ip-card { position: relative; height: 260px; border-radius: var(--radius-card); overflow: hidden; border: 1px solid var(--color-border); background: #0d151c; display: block; color: #fff; text-decoration: none; box-shadow: var(--shadow-card); transition: border-color 0.15s ease, transform 0.15s ease; }
+.ip-card:hover { border-color: var(--color-primary); transform: translateY(-2px); }
+.ip-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease; }
+.ip-card:hover .ip-photo { transform: scale(1.05); }
+.ip-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(6, 10, 14, 0.92), rgba(6, 10, 14, 0) 62%); }
+.ip-text { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 1; }
+.ip-text b { display: block; font-size: 17px; }
+.ip-meta, .ip-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; font-size: 12px; }
+.ip-pill { background: rgba(255, 255, 255, 0.14); border-radius: 99px; padding: 1px 8px; color: #c9d6de; }
+.ip-chip { border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 6px; padding: 1px 8px; color: #fff; }
+.ip-nightmare { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 28px; align-items: start; }
+.ip-tree { display: grid; grid-template-columns: minmax(0, 1.15fr) 110px minmax(0, 1fr) 110px minmax(0, 1fr); grid-template-rows: repeat(4, 96px); gap: 14px 0; align-items: center; }
+.ip-node { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 170px; align-items: center; height: 84px; border: 1px solid var(--color-border); background: var(--color-surface); border-radius: 6px; overflow: hidden; cursor: pointer; color: var(--color-text); text-align: left; font: inherit; padding: 0; }
+.ip-node:hover { border-color: var(--color-primary); }
+.ip-node-text { padding: 0 14px; min-width: 0; }
+.ip-node small { display: block; color: var(--color-text-muted); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ip-node b { display: block; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ip-node-pt { height: 100%; background-size: auto 100%; background-repeat: no-repeat; background-position: 64% center; -webkit-mask-image: linear-gradient(90deg, transparent, #000 40%); mask-image: linear-gradient(90deg, transparent, #000 40%); }
+.ip-node.active { border-color: #9fd2ff; box-shadow: 0 0 0 2px rgba(159, 210, 255, 0.55), 0 0 22px rgba(120, 190, 255, 0.35); }
+.ip-node.a1 { grid-column: 1; grid-row: 1; } .ip-node.a2 { grid-column: 1; grid-row: 2; }
+.ip-node.b1 { grid-column: 1; grid-row: 3; } .ip-node.b2 { grid-column: 1; grid-row: 4; }
+.ip-node.n1 { grid-column: 3; grid-row: 1 / 3; } .ip-node.n2 { grid-column: 3; grid-row: 3 / 5; } .ip-node.z { grid-column: 5; grid-row: 2 / 4; }
+.ip-lines { grid-row: 1 / 5; width: 100%; height: 100%; color: var(--color-border); }
+.ip-lines.l1 { grid-column: 2; } .ip-lines.l2 { grid-column: 4; }
+.ip-detail { border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); padding: 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.ip-detail h3 { margin: 0; font-size: 22px; }
+.ip-loc { color: var(--color-text-muted); font-size: 13px; }
+.ip-challenge { color: var(--color-text-muted); font-size: 13px; }
+.ip-lvls { display: flex; gap: 6px; flex-wrap: wrap; }
+.ip-lvl { font: inherit; color: var(--color-text); background: transparent; width: 40px; height: 34px; border: 1px solid var(--color-border); border-radius: 6px; font-weight: 600; cursor: pointer; }
+.ip-lvl:hover { border-color: var(--color-primary); }
+.ip-lvl.sel { outline: 2px solid #9fd2ff; outline-offset: 1px; box-shadow: 0 0 14px rgba(120, 190, 255, 0.45); }
+.ip-stats { border-top: 1px solid var(--color-border); padding-top: 10px; display: grid; gap: 6px; font-size: 14px; }
+.ip-stats h4 { margin: 0; font-size: 15px; }
+.ip-hint { margin: 0; color: var(--color-text-muted); }
+.ip-row { display: flex; justify-content: space-between; gap: 10px; }
+.ip-row span { color: var(--color-text-muted); }
+.ip-open { margin-top: 4px; display: inline-block; text-align: center; border: 1px solid var(--color-primary); color: var(--color-primary); border-radius: 99px; padding: 6px 14px; text-decoration: none; font-size: 13px; }
+.ip-open:hover { background: var(--glow-primary); }
+@media (max-width: 1000px) {
+  .ip-nightmare { grid-template-columns: 1fr; }
+  .ip-tree { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 8px; }
+  .ip-tree > * { grid-column: 1 !important; grid-row: auto !important; }
+  .ip-lines { display: none; }
+}
+/* difficulty steps on a boss page */
+.mode-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+.mode-chips > span { color: var(--color-text-muted); font-size: 13px; }
+.mode-chip { border: 1px solid var(--color-border); border-radius: 99px; padding: 5px 14px; color: var(--color-text); text-decoration: none; font-size: 13px; }
+.mode-chip small { color: var(--color-text-muted); margin-left: 6px; }
+.mode-chip:hover { border-color: var(--color-primary); }
+.mode-chip.active { background: var(--color-primary); border-color: var(--color-primary); color: #1a1205; font-weight: 700; }
+.mode-chip.active small { color: #3a2a08; }

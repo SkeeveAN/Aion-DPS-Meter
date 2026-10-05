@@ -137,13 +137,40 @@ export const INSTANCE_IMAGES = {
   "Submerged Life Temple": "/images/aion2/instances/submerged-life-temple.jpg",
   "Citadel of the Fallen Daeva": "/images/aion2/instances/citadel-of-the-fallen-daeva.jpg",
   "Abyssal Horn Den": "/images/aion2/instances/abyssal-horn-den.jpg",
+  "Krao Cave (Conquest)": "/images/aion2/instances/krao-cave.jpg",
+  "Urugugu Canyon (Conquest)": "/images/aion2/instances/urugugu-canyon.jpg",
+  "Fire Temple (Conquest)": "/images/aion2/instances/fire-temple.jpg",
+  "Draupnir (Conquest)": "/images/aion2/instances/draupnir.jpg",
+  "Vakron Sky Island (Conquest)": "/images/aion2/instances/vakron-sky-island.jpg",
+  "Ferocious Horn Den (Conquest)": "/images/aion2/instances/ferocious-horn-den.jpg",
+  "Wurzelspeicher": "/images/aion2/bosses/pinopi.jpg",
+  "Verlies von Dranactus": "/images/aion2/bosses/feruk.jpg",
+  "Wurzel des Heiligenbaums": "/images/aion2/bosses/fafnirs-giftblut.jpg",
+  "Gruft": "/images/aion2/bosses/geist-giselle.jpg",
+  "Untergrundfeste der Zerstörungsarchonen": "/images/aion2/bosses/festenhueter-notun.jpg",
+  "Versteck der Klingenlegion": "/images/aion2/bosses/mutierter-gerod.jpg",
+  "Impetusium": "/images/aion2/bosses/zikels-schemen.jpg",
   "Shattered Arkanis": "/images/aion2/instances/shattered-arkanis.jpg",
   "Deus Research Base": "/images/aion2/instances/deus-research-base.jpg",
   "Sanctum of Loathing": "/images/aion2/instances/sanctum-of-loathing.jpg",
+  "Krao Cave (Conquest)": { en: "Krao Cave (Conquest)", de: "Kraohöhle (Eroberung)", fr: "Grotte de Krao (Conquête)", es: "Cueva de Krao (Conquista)", ru: "Пещера крао (Завоевание)" },
+  "Urugugu Canyon (Conquest)": { en: "Urugugu Canyon (Conquest)", de: "Uruguguschlucht (Eroberung)", fr: "Canyon Urugugu (Conquête)", es: "Cañón de Urugugu (Conquista)", ru: "Ущелье ауругу (Завоевание)" },
+  "Fire Temple (Conquest)": { en: "Fire Temple (Conquest)", de: "Feuertempel (Eroberung)", fr: "Temple Divin du Feu (Conquête)", es: "Templo de Fuego (Conquista)", ru: "Храм огня (Завоевание)" },
+  "Draupnir (Conquest)": { en: "Draupnir (Conquest)", de: "Draupnir (Eroberung)", fr: "Draupnir (Conquête)", es: "Draupnir (Conquista)", ru: "Драупнир (Завоевание)" },
+  "Vakron Sky Island (Conquest)": { en: "Vakron Sky Island (Conquest)", de: "Vakrons Luftinsel (Eroberung)", fr: "Île Céleste de Vakron (Conquête)", es: "Isla Aérea de Vakron (Conquista)", ru: "Парящий остров Вакрона (Завоевание)" },
+  "Ferocious Horn Den (Conquest)": { en: "Ferocious Horn Den (Conquest)", de: "Grimmhornhöhle (Eroberung)", fr: "Grotte de la Corne Féroce (Conquête)", es: "Caverna del Cuerno Feroz (Conquista)", ru: "Логово Свирепого Рога (Завоевание)" },
 };
 
-// Per-boss art (none yet); a boss without an entry falls back to its instance's photo.
-export const BOSS_IMAGES = {};
+// Per-boss art (Nightmare bosses so far, cut from the in-game boss list); a boss without an entry falls back to its instance's photo.
+export const BOSS_IMAGES = {
+  "Torwächter Pinopi": "/images/aion2/bosses/pinopi.jpg",
+  "Rasender Feruk": "/images/aion2/bosses/feruk.jpg",
+  "Fafnirs Giftblut": "/images/aion2/bosses/fafnirs-giftblut.jpg",
+  "Geist Giselle": "/images/aion2/bosses/geist-giselle.jpg",
+  "Festenhüter Notun": "/images/aion2/bosses/festenhueter-notun.jpg",
+  "Mutierter Gerod": "/images/aion2/bosses/mutierter-gerod.jpg",
+  "Zikels Schemen": "/images/aion2/bosses/zikels-schemen.jpg",
+};
 
 // Minimum character level to enter, by English instance name - the "Entry requirements" of the game's own
 // instance window (EU client list, 2026-10-02). Instances whose level is not known yet have no entry:
@@ -155,4 +182,17 @@ export const INSTANCE_MIN_LEVEL = {
   Draupnir: 45,
   "Ferocious Horn Den": 45,
   "Vakron Sky Island": 45,
+  "Krao Cave (Conquest)": 45,
+  "Urugugu Canyon (Conquest)": 45,
+  "Fire Temple (Conquest)": 45,
+  "Draupnir (Conquest)": 45,
+  "Vakron Sky Island (Conquest)": 45,
+  "Ferocious Horn Den (Conquest)": 45,
+  "Wurzelspeicher": 45,
+  "Verlies von Dranactus": 45,
+  "Wurzel des Heiligenbaums": 45,
+  "Gruft": 45,
+  "Untergrundfeste der Zerstörungsarchonen": 45,
+  "Versteck der Klingenlegion": 45,
+  "Impetusium": 45,
 };

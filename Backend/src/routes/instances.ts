@@ -25,6 +25,8 @@ export const instanceColumns = {
   slug: instances.slug,
   game: instances.game,
   category: instances.category,
+  variant: instances.variant,
+  hidden: instances.hidden,
   source: instances.source,
   sortOrder: instances.sortOrder,
 };
@@ -72,7 +74,7 @@ export async function instanceRoutes(app: FastifyInstance) {
         .map((r) => r.instanceId);
     }
 
-    const base = and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME));
+    const base = and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.hidden, false));
     const rows = db
       .select(instanceColumns)
       .from(instances)
@@ -166,7 +168,7 @@ export async function instanceRoutes(app: FastifyInstance) {
       .from(instances)
       .innerJoin(bosses, eq(bosses.instanceId, instances.id))
       .innerJoin(encounters, eq(encounters.bossId, bosses.id))
-      .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME)))
+      .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.hidden, false)))
       .groupBy(instances.id)
       .orderBy(desc(count(encounters.id)))
       .limit(limit)

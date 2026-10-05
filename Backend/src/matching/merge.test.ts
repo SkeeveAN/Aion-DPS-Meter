@@ -25,6 +25,7 @@ const { and, eq } = await import("drizzle-orm");
 function basePayload(overrides: Partial<Parameters<typeof processUpload>[0]> = {}) {
   return {
     clientVersion: "test",
+    mode: "",
     game: "aion2" as const,
     bossNpcName: "Enhanced Harcon",
     startedAt: "2026-01-01T20:00:00.000Z",

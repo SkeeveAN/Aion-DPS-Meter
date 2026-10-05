@@ -30,15 +30,10 @@
           "itemLevel": 200,
           "players": "1-5",
           "weeklyTries": 6
-        },
-        "conquest": {
-          "stars": 1,
-          "minLevel": 45,
-          "itemLevel": 700,
-          "players": "1-5",
-          "weeklyTries": 10
         }
-      }
+      },
+      "variant": "explore",
+      "hidden": false
     },
     {
       "key": "DDN",
@@ -55,7 +50,8 @@
         "ru": "Гнездо мертвой драматы"
       },
       "category": "expedition",
-      "sortOrder": 7
+      "sortOrder": 7,
+      "hidden": true
     },
     {
       "key": "FT",
@@ -79,15 +75,10 @@
           "itemLevel": 500,
           "players": "1-5",
           "weeklyTries": 6
-        },
-        "conquest": {
-          "stars": 3,
-          "minLevel": 45,
-          "itemLevel": 2100,
-          "players": "1-5",
-          "weeklyTries": 10
         }
-      }
+      },
+      "variant": "explore",
+      "hidden": false
     },
     {
       "key": "Draupnir",
@@ -111,15 +102,10 @@
           "itemLevel": 700,
           "players": "1-5",
           "weeklyTries": 6
-        },
-        "conquest": {
-          "stars": 1,
-          "minLevel": 45,
-          "itemLevel": 700,
-          "players": "1-5",
-          "weeklyTries": 10
         }
-      }
+      },
+      "variant": "explore",
+      "hidden": false
     },
     {
       "key": "Bakron",
@@ -143,15 +129,10 @@
           "itemLevel": 1400,
           "players": "2-5",
           "weeklyTries": 6
-        },
-        "conquest": {
-          "stars": 2,
-          "minLevel": 45,
-          "itemLevel": 1400,
-          "players": "2-5",
-          "weeklyTries": 10
         }
-      }
+      },
+      "variant": "explore",
+      "hidden": false
     },
     {
       "key": "CradleNihility",
@@ -168,7 +149,8 @@
         "pt": "Berço do Vazio"
       },
       "category": "expedition",
-      "sortOrder": 8
+      "sortOrder": 8,
+      "hidden": true
     },
     {
       "key": "SunkenTemple",
@@ -185,7 +167,8 @@
         "ru": "Затонувший храм жизни"
       },
       "category": "transcendence",
-      "sortOrder": 4
+      "sortOrder": 4,
+      "hidden": true
     },
     {
       "key": "Arkanis",
@@ -202,7 +185,8 @@
         "ru": "Расколотый Арканис"
       },
       "category": "transcendence",
-      "sortOrder": 5
+      "sortOrder": 5,
+      "hidden": false
     },
     {
       "key": "DeusCenter",
@@ -219,7 +203,8 @@
         "ru": "Исследовательская база Деус"
       },
       "category": "transcendence",
-      "sortOrder": 6
+      "sortOrder": 6,
+      "hidden": false
     },
     {
       "key": "ReforgedAbyss",
@@ -236,7 +221,8 @@
         "ru": "Закалка пропасти: Рудра"
       },
       "category": null,
-      "sortOrder": 109
+      "sortOrder": 109,
+      "hidden": true
     },
     {
       "key": "DraconicCrisis",
@@ -247,7 +233,8 @@
         "zh": "討伐戰 (龍族危機)"
       },
       "category": null,
-      "sortOrder": 110
+      "sortOrder": 110,
+      "hidden": true
     },
     {
       "key": "Nightmare",
@@ -258,7 +245,8 @@
         "zh": "噩夢"
       },
       "category": null,
-      "sortOrder": 111
+      "sortOrder": 111,
+      "hidden": true
     },
     {
       "key": "PhantomsHall",
@@ -275,7 +263,8 @@
         "pt": "Corredor da Ilusão"
       },
       "category": "expedition",
-      "sortOrder": 9
+      "sortOrder": 9,
+      "hidden": true
     },
     {
       "key": "ErosionPurifier",
@@ -292,7 +281,8 @@
         "ru": "Чистилище скверны"
       },
       "category": "sanctuary",
-      "sortOrder": 2
+      "sortOrder": 2,
+      "hidden": true
     },
     {
       "key": "UC",
@@ -316,15 +306,10 @@
           "itemLevel": 300,
           "players": "2-5",
           "weeklyTries": 6
-        },
-        "conquest": {
-          "stars": 2,
-          "minLevel": 45,
-          "itemLevel": 1400,
-          "players": "2-5",
-          "weeklyTries": 10
         }
-      }
+      },
+      "variant": "explore",
+      "hidden": false
     },
     {
       "key": "MauCave",
@@ -348,15 +333,10 @@
           "itemLevel": 2100,
           "players": "1-5",
           "weeklyTries": 6
-        },
-        "conquest": {
-          "stars": 3,
-          "minLevel": 45,
-          "itemLevel": 2100,
-          "players": "1-5",
-          "weeklyTries": 10
         }
-      }
+      },
+      "variant": "explore",
+      "hidden": false
     },
     {
       "key": "BlueBreathIsle",
@@ -373,7 +353,8 @@
         "ru": "Остров лазурного дыхания"
       },
       "category": "expedition",
-      "sortOrder": 10
+      "sortOrder": 10,
+      "hidden": true
     },
     {
       "key": "MusphelHolyGrail",
@@ -390,7 +371,8 @@
         "ru": "Чаша Мусфеля"
       },
       "category": "sanctuary",
-      "sortOrder": 3
+      "sortOrder": 3,
+      "hidden": true
     },
     {
       "key": "MirrorHeart",
@@ -407,7 +389,8 @@
         "ru": "Красное зеркало тяготения"
       },
       "category": "transcendence",
-      "sortOrder": 3
+      "sortOrder": 3,
+      "hidden": true
     },
     {
       "key": "NightmareAltar",
@@ -424,7 +407,8 @@
         "ru": "Алтарь кошмара"
       },
       "category": "awakening",
-      "sortOrder": 120
+      "sortOrder": 120,
+      "hidden": true
     },
     {
       "key": "TyrantsHideout",
@@ -441,7 +425,8 @@
         "ru": "Убежище тирана"
       },
       "category": "awakening",
-      "sortOrder": 121
+      "sortOrder": 121,
+      "hidden": true
     },
     {
       "key": "SanctumOfLoathing",
@@ -457,8 +442,9 @@
         "pt": "Sacrário do Ódio",
         "ru": "Святилище ненависти"
       },
-      "category": "awakening",
-      "sortOrder": 122
+      "category": "ascension",
+      "sortOrder": 122,
+      "hidden": false
     },
     {
       "key": "DepositoryOfFates",
@@ -475,7 +461,8 @@
         "ru": "Хранилище траекторий"
       },
       "category": "awakening",
-      "sortOrder": 123
+      "sortOrder": 123,
+      "hidden": true
     },
     {
       "key": "ForgottenRepository",
@@ -492,7 +479,8 @@
         "ru": "Забытый тайник"
       },
       "category": "awakening",
-      "sortOrder": 124
+      "sortOrder": 124,
+      "hidden": true
     },
     {
       "key": "ChamberOfTheDead",
@@ -509,7 +497,8 @@
         "ru": "Опочивальня мертвых"
       },
       "category": "awakening",
-      "sortOrder": 125
+      "sortOrder": 125,
+      "hidden": true
     },
     {
       "key": "DaevaCitadel",
@@ -526,7 +515,8 @@
         "ru": "Цитадель павших даэвов"
       },
       "category": "expedition",
-      "sortOrder": 11
+      "sortOrder": 11,
+      "hidden": true
     },
     {
       "key": "FafniteGully",
@@ -543,7 +533,8 @@
         "ru": "Логово рога Бездны"
       },
       "category": "transcendence",
-      "sortOrder": 2
+      "sortOrder": 2,
+      "hidden": true
     },
     {
       "key": "BlasphemyLab",
@@ -554,7 +545,8 @@
         "zh": "被蠶食的德烏斯研究基地"
       },
       "category": "expedition",
-      "sortOrder": 12
+      "sortOrder": 12,
+      "hidden": true
     },
     {
       "key": "LegacyNoiran",
@@ -565,7 +557,8 @@
         "zh": "諾伊蘭隱藏的遺產"
       },
       "category": "transcendence",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "hidden": true
     },
     {
       "key": "SealDark067",
@@ -582,7 +575,8 @@
         "ru": "Источник чистоты"
       },
       "category": "hideout",
-      "sortOrder": 130
+      "sortOrder": 130,
+      "hidden": true
     },
     {
       "key": "SealDark069",
@@ -599,7 +593,8 @@
         "ru": "Пещера заточенных"
       },
       "category": "hideout",
-      "sortOrder": 131
+      "sortOrder": 131,
+      "hidden": true
     },
     {
       "key": "DefunctCreionLaboratory",
@@ -616,7 +611,8 @@
         "ru": "Заброшенная лаборатория крейонов"
       },
       "category": "hideout",
-      "sortOrder": 132
+      "sortOrder": 132,
+      "hidden": true
     },
     {
       "key": "FallenHaven",
@@ -633,7 +629,8 @@
         "ru": "Павшее пристанище"
       },
       "category": "hideout",
-      "sortOrder": 133
+      "sortOrder": 133,
+      "hidden": true
     },
     {
       "key": "FilthyCave",
@@ -650,7 +647,8 @@
         "ru": "Грязная пещера"
       },
       "category": "hideout",
-      "sortOrder": 134
+      "sortOrder": 134,
+      "hidden": true
     },
     {
       "key": "CaveOfTheExiledOnes",
@@ -667,7 +665,253 @@
         "ru": "Пещера изгнанников"
       },
       "category": "hideout",
-      "sortOrder": 135
+      "sortOrder": 135,
+      "hidden": true
+    },
+    {
+      "key": "Krao:conquest",
+      "slug": "krao-cave-conquest",
+      "name": {
+        "en": "Krao Cave (Conquest)",
+        "ko": "크라오 동굴 (정복)",
+        "zh": "克拉奧洞窟 (征服)",
+        "de": "Kraohöhle (Eroberung)",
+        "fr": "Grotte de Krao (Conquête)",
+        "es": "Cueva de Krao (Conquista)",
+        "ja": "クラオ洞窟 (征服)",
+        "pt": "Caverna de Krao (Conquista)",
+        "ru": "Пещера крао (Завоевание)"
+      },
+      "category": "expedition",
+      "sortOrder": 201,
+      "modes": {
+        "conquest": {
+          "stars": 1,
+          "minLevel": 45,
+          "itemLevel": 700,
+          "players": "1-5",
+          "weeklyTries": 10
+        }
+      },
+      "variant": "conquest",
+      "hidden": false
+    },
+    {
+      "key": "UC:conquest",
+      "slug": "urugugu-canyon-conquest",
+      "name": {
+        "en": "Urugugu Canyon (Conquest)",
+        "ko": "우루구구 협곡 (정복)",
+        "zh": "烏努庫庫峽谷 (征服)",
+        "de": "Uruguguschlucht (Eroberung)",
+        "fr": "Canyon Urugugu (Conquête)",
+        "es": "Cañón de Urugugu (Conquista)",
+        "ja": "ウルググ峡谷 (征服)",
+        "pt": "Desfiladeiro de Urugugu (Conquista)",
+        "ru": "Ущелье ауругу (Завоевание)"
+      },
+      "category": "expedition",
+      "sortOrder": 202,
+      "modes": {
+        "conquest": {
+          "stars": 2,
+          "minLevel": 45,
+          "itemLevel": 1400,
+          "players": "2-5",
+          "weeklyTries": 10
+        }
+      },
+      "variant": "conquest",
+      "hidden": false
+    },
+    {
+      "key": "FT:conquest",
+      "slug": "fire-temple-conquest",
+      "name": {
+        "en": "Fire Temple (Conquest)",
+        "ko": "불의 신전 (정복)",
+        "zh": "火之神殿 (征服)",
+        "de": "Feuertempel (Eroberung)",
+        "fr": "Temple Divin du Feu (Conquête)",
+        "es": "Templo de Fuego (Conquista)",
+        "ja": "炎の神殿 (征服)",
+        "pt": "Templo Divino do Fogo (Conquista)",
+        "ru": "Храм огня (Завоевание)"
+      },
+      "category": "expedition",
+      "sortOrder": 203,
+      "modes": {
+        "conquest": {
+          "stars": 3,
+          "minLevel": 45,
+          "itemLevel": 2100,
+          "players": "1-5",
+          "weeklyTries": 10
+        }
+      },
+      "variant": "conquest",
+      "hidden": false
+    },
+    {
+      "key": "Draupnir:conquest",
+      "slug": "draupnir-conquest",
+      "name": {
+        "en": "Draupnir (Conquest)",
+        "ko": "드라웁니르 (정복)",
+        "zh": "德拉烏伯尼爾 (征服)",
+        "de": "Draupnir (Eroberung)",
+        "es": "Draupnir (Conquista)",
+        "fr": "Draupnir (Conquête)",
+        "ja": "ドラウプニル (征服)",
+        "pt": "Draupnir (Conquista)",
+        "ru": "Драупнир (Завоевание)"
+      },
+      "category": "expedition",
+      "sortOrder": 204,
+      "modes": {
+        "conquest": {
+          "stars": 1,
+          "minLevel": 45,
+          "itemLevel": 700,
+          "players": "1-5",
+          "weeklyTries": 10
+        }
+      },
+      "variant": "conquest",
+      "hidden": false
+    },
+    {
+      "key": "Bakron:conquest",
+      "slug": "vakron-sky-island-conquest",
+      "name": {
+        "en": "Vakron Sky Island (Conquest)",
+        "ko": "바크론의 공중섬 (정복)",
+        "zh": "巴克隆空中島 (征服)",
+        "de": "Vakrons Luftinsel (Eroberung)",
+        "fr": "Île Céleste de Vakron (Conquête)",
+        "es": "Isla Aérea de Vakron (Conquista)",
+        "ja": "バクロンの空中島 (征服)",
+        "pt": "Ilha Aérea de Vakron (Conquista)",
+        "ru": "Парящий остров Вакрона (Завоевание)"
+      },
+      "category": "expedition",
+      "sortOrder": 205,
+      "modes": {
+        "conquest": {
+          "stars": 2,
+          "minLevel": 45,
+          "itemLevel": 1400,
+          "players": "2-5",
+          "weeklyTries": 10
+        }
+      },
+      "variant": "conquest",
+      "hidden": false
+    },
+    {
+      "key": "MauCave:conquest",
+      "slug": "ferocious-horn-den-conquest",
+      "name": {
+        "en": "Ferocious Horn Den (Conquest)",
+        "ko": "사나운 뿔 암굴 (정복)",
+        "zh": "凶猛的角岩窟 (征服)",
+        "de": "Grimmhornhöhle (Eroberung)",
+        "fr": "Grotte de la Corne Féroce (Conquête)",
+        "es": "Caverna del Cuerno Feroz (Conquista)",
+        "ja": "獰猛な角岩窟 (征服)",
+        "pt": "Gruta do Chifre Feroz (Conquista)",
+        "ru": "Логово Свирепого Рога (Завоевание)"
+      },
+      "category": "expedition",
+      "sortOrder": 206,
+      "modes": {
+        "conquest": {
+          "stars": 3,
+          "minLevel": 45,
+          "itemLevel": 2100,
+          "players": "1-5",
+          "weeklyTries": 10
+        }
+      },
+      "variant": "conquest",
+      "hidden": false
+    },
+    {
+      "key": "Albtraum:wurzelspeicher",
+      "slug": "wurzelspeicher",
+      "name": {
+        "en": "Wurzelspeicher",
+        "de": "Wurzelspeicher"
+      },
+      "category": "nightmare",
+      "sortOrder": 300,
+      "hidden": false
+    },
+    {
+      "key": "Albtraum:verlies-von-dranactus",
+      "slug": "verlies-von-dranactus",
+      "name": {
+        "en": "Verlies von Dranactus",
+        "de": "Verlies von Dranactus"
+      },
+      "category": "nightmare",
+      "sortOrder": 301,
+      "hidden": false
+    },
+    {
+      "key": "Albtraum:wurzel-des-heiligenbaums",
+      "slug": "wurzel-des-heiligenbaums",
+      "name": {
+        "en": "Wurzel des Heiligenbaums",
+        "de": "Wurzel des Heiligenbaums"
+      },
+      "category": "nightmare",
+      "sortOrder": 302,
+      "hidden": false
+    },
+    {
+      "key": "Albtraum:gruft",
+      "slug": "gruft",
+      "name": {
+        "en": "Gruft",
+        "de": "Gruft"
+      },
+      "category": "nightmare",
+      "sortOrder": 303,
+      "hidden": false
+    },
+    {
+      "key": "Albtraum:untergrundfeste-der-zerstoerungsarchonen",
+      "slug": "untergrundfeste-der-zerstoerungsarchonen",
+      "name": {
+        "en": "Untergrundfeste der Zerstörungsarchonen",
+        "de": "Untergrundfeste der Zerstörungsarchonen"
+      },
+      "category": "nightmare",
+      "sortOrder": 304,
+      "hidden": false
+    },
+    {
+      "key": "Albtraum:versteck-der-klingenlegion",
+      "slug": "versteck-der-klingenlegion",
+      "name": {
+        "en": "Versteck der Klingenlegion",
+        "de": "Versteck der Klingenlegion"
+      },
+      "category": "nightmare",
+      "sortOrder": 305,
+      "hidden": false
+    },
+    {
+      "key": "Albtraum:impetusium",
+      "slug": "impetusium",
+      "name": {
+        "en": "Impetusium",
+        "de": "Impetusium"
+      },
+      "category": "nightmare",
+      "sortOrder": 306,
+      "hidden": false
     }
   ]
 }

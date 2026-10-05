@@ -102,7 +102,7 @@ export function instancesPage(game: Game): Page {
   const rows = db
     .select(instanceColumns)
     .from(instances)
-    .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME)))
+    .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.hidden, false)))
     .orderBy(asc(instances.sortOrder), asc(instances.name))
     .all();
   const items = rows.map((r) => ({ name: displayName(r), path: `/instances/${r.slug}` }));

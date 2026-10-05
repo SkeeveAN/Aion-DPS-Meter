@@ -13,7 +13,7 @@ import { sql } from "drizzle-orm";
 // "aion" is the classic client (4.x private servers, Chat.log-based meter); "aion2" the UE5 client
 // with entirely separate content, classes and capture path.
 export const GAMES = ["aion", "aion2"] as const;
-export const INSTANCE_CATEGORIES = ["expedition", "transcendence", "sanctuary", "hideout", "stronghold", "awakening"] as const;
+export const INSTANCE_CATEGORIES = ["expedition", "transcendence", "sanctuary", "hideout", "stronghold", "awakening", "nightmare", "ascension"] as const;
 
 // Where a content row's facts come from: "curated" = entered by hand from real uploads/client
 // strings (the historical default), "derived" = generated from a third-party dataset by
@@ -109,6 +109,11 @@ export const instances = sqliteTable(
     category: text("category", { enum: INSTANCE_CATEGORIES }),
     source: text("source", { enum: CONTENT_SOURCES }).notNull().default("curated"),
     sortOrder: integer("sort_order").notNull().default(0),
+    // Content the EU client does not offer (yet): kept, never deleted, but not listed.
+    hidden: integer("hidden", { mode: "boolean" }).notNull().default(false),
+    // Expedition difficulty: "explore" (normal) or "conquest" (hard) - two separate instances with
+    // their own bosses and rankings. Null for everything without such a split.
+    variant: text("variant", { enum: ["explore", "conquest"] }),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(current_timestamp)`),
@@ -339,6 +344,9 @@ export const encounters = sqliteTable(
     // pre-filter before the real roster-similarity check on a new upload.
     rosterFingerprint: text("roster_fingerprint").notNull(),
     mergedUploadCount: integer("merged_upload_count").notNull().default(1),
+    // Difficulty step inside one boss: Nightmare stage "1".."10", Ascension "easy".."extreme",
+    // Transcendence stage "1".."4". Empty for bosses without such steps. Each step is ranked on its own.
+    mode: text("mode").notNull().default(""),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(current_timestamp)`),

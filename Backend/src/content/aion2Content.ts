@@ -23,8 +23,12 @@ export interface Aion2Instance {
   key: string;
   slug: string;
   name: LocalizedText;
-  category: "expedition" | "transcendence" | "sanctuary" | "hideout" | "stronghold" | "awakening" | null;
+  category: "expedition" | "transcendence" | "sanctuary" | "hideout" | "stronghold" | "awakening" | "nightmare" | "ascension" | null;
   sortOrder: number;
+  /** Not offered by the EU client (yet): kept in the database, never listed. */
+  hidden?: boolean;
+  /** Expedition difficulty: explore = normal, conquest = hard. */
+  variant?: "explore" | "conquest";
 }
 
 export interface Aion2Boss {
