@@ -897,7 +897,10 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             // the character record (login, zone change) arrives. Until then: the name set in
             // Settings, else the character saved from the last login, else the party roster's
             // leftover name - solo, only the first two exist, and "Player #id" used to stay.
-            if (registered is null && InferLocalPlayer() == id)
+            // Not once the local player is known for certain (a session frame's id) or the name is
+            // already registered to another object: the inference then only picked the busiest
+            // unnamed caster, a team mate, who used to show up as a second row under one's own name.
+            if (registered is null && InferLocalPlayer() == id && !LocalPlayerKnownElsewhere(id))
             {
                 // The roster's leftover name is safe here: the local player is not named yet, so its
                 // own name is still among the leftovers, and a single leftover is it.
@@ -908,6 +911,19 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
 
         return registered ?? (ClassOf(id) is not null ? $"Player #{id}" : null);
+    }
+
+    // Called under _gate. True when something other than `id` is the local player: the explicit id
+    // names someone else, or the configured / saved character name already belongs to another object.
+    private bool LocalPlayerKnownElsewhere(int id)
+    {
+        if (_explicitLocalId >= 0)
+        {
+            return _explicitLocalId != id;
+        }
+
+        string? own = _configuredLocalName ?? (_character is { Restored: true } saved ? saved.Name : null);
+        return own is not null && _ids.TryGetValue(own, out int owner) && owner != id;
     }
 
     /// <summary>The class an object has most often been seen casting, or null.</summary>
