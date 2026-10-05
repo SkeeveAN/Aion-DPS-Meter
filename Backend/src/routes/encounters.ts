@@ -2,7 +2,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, encounterSkillUsage, instances, playerProfiles, players, servers, uploads } from "../db/schema.js";
-import { ownSkillRows, skillIconByName } from "../profile.js";
+import { ownSkillRows, skillIconByName, skillNamesByName } from "../profile.js";
 import { topBuffsByParticipant } from "../skills/topBuffs.js";
 import { gameFromQuery } from "./instances.js";
 
@@ -202,7 +202,7 @@ export async function encounterRoutes(app: FastifyInstance) {
 
     const aion2 = encounter?.game === "aion2";
     const withIcon = (list: typeof skills) =>
-      (aion2 ? ownSkillRows(participant.className, list) : list).map((s) => ({ ...s, icon: aion2 ? skillIconByName(s.skillName, participant.className) : null }));
+      (aion2 ? ownSkillRows(participant.className, list) : list).map((s) => ({ ...s, icon: aion2 ? skillIconByName(s.skillName, participant.className) : null, names: aion2 ? skillNamesByName(s.skillName, participant.className) : undefined }));
     return reply.send({
       participant,
       encounter,

@@ -80,14 +80,14 @@ function buildSitemap(): string {
     }
   }
 
-  // Every Aion 2 character with at least one recorded fight; lastmod is its latest fight.
+  // Every Aion 2 character; lastmod is its latest fight, if it has one.
   const playerRows = db
     .select({ slug: players.slug, lastFight: max(encounters.startedAt) })
     .from(players)
     .innerJoin(servers, eq(players.serverId, servers.id))
-    .innerJoin(encounterParticipants, eq(encounterParticipants.playerId, players.id))
-    .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
-    .where(and(like(servers.fingerprint, "aion2:%"), ne(encounterParticipants.className, "?")))
+    .leftJoin(encounterParticipants, and(eq(encounterParticipants.playerId, players.id), ne(encounterParticipants.className, "?")))
+    .leftJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
+    .where(like(servers.fingerprint, "aion2:%"))
     .groupBy(players.id)
     .all();
   for (const p of playerRows) {

@@ -303,8 +303,6 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
       title: `${player.name}${where} – Aion 2 Character & Boss Runs – ${SITE}`,
       description,
       canonicalPath: path,
-      // A profile with no recorded fight has nothing a search result could show.
-      noindex: runs.length === 0,
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: player.name, path }])],
     },
     body: html`

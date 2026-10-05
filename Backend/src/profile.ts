@@ -147,6 +147,21 @@ export function skillIconByName(name: string, className?: string): string | null
   return null;
 }
 
+/** The skill's name in every language the game client ships (de, en, es, fr, ja, ko, pt, ru), if known. */
+export function skillNamesByName(name: string, className?: string): Record<string, string> | undefined {
+  skillNamesI18n ??= loadJson<Record<string, Record<string, string>>>("skill_names_i18n.json", {});
+  const ids = skillIdsOf(name);
+  const own = className ? ids.filter((id) => classOfSkillId(id) === className) : [];
+  const ranks = own.filter((id) => id % 10 === 0);
+  for (const id of [...ranks, ...own, ...ids]) {
+    const names = skillNamesI18n[String(id)];
+    if (names) {
+      return names;
+    }
+  }
+  return undefined;
+}
+
 function skillIdsOf(name: string): number[] {
   if (!skillIdsByName) {
     skillIdsByName = new Map();

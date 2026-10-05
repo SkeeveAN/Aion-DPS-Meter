@@ -146,6 +146,10 @@ function classMeta(className) {
 
 // Aion 2's nine classes have no icon files - a short text badge stands in.
 function classIcon(className) {
+  const file = CLASS_EMBLEM[className];
+  if (file) {
+    return el("img", { className: "class-emblem", src: `/images/aion2/classes/badge/${file}.webp`, alt: className, title: className, width: 128, height: 128, loading: "lazy" });
+  }
   return el("span", { className: "class-badge", title: className, textContent: AION2_CLASS_ABBREVIATIONS[className] ?? className.slice(0, 3).toUpperCase() });
 }
 
@@ -1398,7 +1402,7 @@ function skillRow(s, total, top, heal) {
     const img = el("img", { src: `/images/aion2/icons/skill/${s.icon}.webp`, alt: "", loading: "lazy", width: 128, height: 128 });
     img.addEventListener("error", () => {
       img.remove();
-      tile.textContent = s.skillName.slice(0, 2);
+      tile.textContent = (s.names?.[getLocale()] ?? s.skillName).slice(0, 2);
     });
     tile.append(img);
   } else {
@@ -1407,7 +1411,7 @@ function skillRow(s, total, top, heal) {
   return el("div", { className: "pt-row" }, [
     tile,
     el("div", { className: "pt-main" }, [
-      el("div", { className: "pt-name" }, [el("span", { textContent: s.skillName }), el("span", { className: "pt-share", textContent: `${total > 0 ? ((s.totalDamage / total) * 100).toFixed(1) : "0.0"}%` })]),
+      el("div", { className: "pt-name" }, [el("span", { textContent: s.names?.[getLocale()] ?? s.skillName }), el("span", { className: "pt-share", textContent: `${total > 0 ? ((s.totalDamage / total) * 100).toFixed(1) : "0.0"}%` })]),
       el("div", { className: `pt-bar${heal ? " heal" : ""}` }, [el("i", { style: `width:${top > 0 ? (s.totalDamage / top) * 100 : 0}%` })]),
       el("div", { className: "pt-meta" }, [
         el("span", { textContent: `${t("skillTable.hits")} ${formatNumber(s.hits)}` }),
@@ -1461,6 +1465,12 @@ async function renderParticipant(participantId) {
       kpi(t("participant.totalHealing"), formatNumber(p.totalHealing)),
     ]),
   ];
+  sections.push(
+    el("div", { className: "cmp-cta pt-actions" }, [
+      el("a", { className: "cmp-btn", href: compareLink("/compare/players", { a: p.playerId, boss: e.bossId }), textContent: t("compare.ctaPlayers") }),
+      el("a", { className: "cmp-btn", href: compareLink("/compare/runs", { a: e.id }), textContent: t("compare.ctaRuns") }),
+    ]),
+  );
   const group = (heading, list, heal) => {
     const total = list.reduce((sum, s) => sum + s.totalDamage, 0);
     const top = list.reduce((m, s) => Math.max(m, s.totalDamage), 0);
@@ -1881,7 +1891,7 @@ function compareLink(path, params) {
 
 /** The compare-with-someone button shown on encounter and player pages. */
 function compareButton(text, href) {
-  return el("div", { className: "cmp-cta" }, [el("a", { className: "btn btn-blue", href, textContent: text })]);
+  return el("div", { className: "cmp-cta" }, [el("a", { className: "cmp-btn", href, textContent: text })]);
 }
 
 function runCaption(encounter) {
