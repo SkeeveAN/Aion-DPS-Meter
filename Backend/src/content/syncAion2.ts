@@ -19,9 +19,10 @@ export function syncAion2Content(): { instances: number; bosses: number; npcIds:
     const existing = db
       .select({ id: instances.id })
       .from(instances)
-      .where(and(eq(instances.game, "aion2"), eq(instances.name, instance.name.en)))
+      .where(and(eq(instances.game, "aion2"), inArray(instances.name, [instance.name.en, ...(instance.legacyNames ?? [])])))
       .get();
     const values = {
+      name: instance.name.en,
       nameEn: instance.name.en,
       slug: instance.slug,
       category: instance.category,
@@ -34,7 +35,7 @@ export function syncAion2Content(): { instances: number; bosses: number; npcIds:
       db.update(instances).set(values).where(eq(instances.id, existing.id)).run();
       instanceIdByKey.set(instance.key, existing.id);
     } else {
-      const inserted = db.insert(instances).values({ name: instance.name.en, game: "aion2", ...values }).run();
+      const inserted = db.insert(instances).values({ game: "aion2", ...values }).run();
       instanceIdByKey.set(instance.key, Number(inserted.lastInsertRowid));
     }
     counts.instances++;

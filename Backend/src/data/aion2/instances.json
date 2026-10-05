@@ -838,80 +838,122 @@
     },
     {
       "key": "Albtraum:wurzelspeicher",
-      "slug": "wurzelspeicher",
+      "slug": "root-cellar",
       "name": {
-        "en": "Wurzelspeicher",
-        "de": "Wurzelspeicher"
+        "en": "Root Cellar",
+        "de": "Wurzelspeicher",
+        "es": "Bodega de la Raíz",
+        "fr": "Réserve des Racines",
+        "ru": "Тайник корней"
       },
       "category": "nightmare",
       "sortOrder": 300,
-      "hidden": false
+      "hidden": false,
+      "legacyNames": [
+        "Wurzelspeicher"
+      ]
     },
     {
       "key": "Albtraum:verlies-von-dranactus",
-      "slug": "verlies-von-dranactus",
+      "slug": "dranactus-underkeep",
       "name": {
-        "en": "Verlies von Dranactus",
-        "de": "Verlies von Dranactus"
+        "en": "Dranactus Underkeep",
+        "de": "Verlies von Dranactus",
+        "es": "Prisión Subterránea de Dranactus",
+        "fr": "Prison Souterraine de Dranactus",
+        "ru": "Подземная тюрьма Дранактуса"
       },
       "category": "nightmare",
       "sortOrder": 301,
-      "hidden": false
+      "hidden": false,
+      "legacyNames": [
+        "Verlies von Dranactus"
+      ]
     },
     {
       "key": "Albtraum:wurzel-des-heiligenbaums",
-      "slug": "wurzel-des-heiligenbaums",
+      "slug": "root-of-the-sacred-tree",
       "name": {
-        "en": "Wurzel des Heiligenbaums",
-        "de": "Wurzel des Heiligenbaums"
+        "en": "Root of the Sacred Tree",
+        "de": "Wurzel des Heiligenbaums",
+        "es": "Raíces del Árbol Sagrado",
+        "fr": "Racines de l'Arbre Sacré",
+        "ru": "Корни священного дерева"
       },
       "category": "nightmare",
       "sortOrder": 302,
-      "hidden": false
+      "hidden": false,
+      "legacyNames": [
+        "Wurzel des Heiligenbaums"
+      ]
     },
     {
       "key": "Albtraum:gruft",
-      "slug": "gruft",
+      "slug": "crypt",
       "name": {
-        "en": "Gruft",
-        "de": "Gruft"
+        "en": "Crypt",
+        "de": "Gruft",
+        "es": "Cripta",
+        "fr": "Crypte",
+        "ru": "Подземный склеп"
       },
       "category": "nightmare",
       "sortOrder": 303,
-      "hidden": false
+      "hidden": false,
+      "legacyNames": [
+        "Gruft"
+      ]
     },
     {
       "key": "Albtraum:untergrundfeste-der-zerstoerungsarchonen",
-      "slug": "untergrundfeste-der-zerstoerungsarchonen",
+      "slug": "destruction-archon-underground-fortress",
       "name": {
-        "en": "Untergrundfeste der Zerstörungsarchonen",
-        "de": "Untergrundfeste der Zerstörungsarchonen"
+        "en": "Destruction Archon Underground Fortress",
+        "de": "Untergrundfeste der Zerstörungsarchonen",
+        "es": "Fortaleza Subterránea de Akan de Destrucción",
+        "fr": "Forteresse Souterraine de l'Archon de Destruction",
+        "ru": "Подземная крепость аканов разрушения"
       },
       "category": "nightmare",
       "sortOrder": 304,
-      "hidden": false
+      "hidden": false,
+      "legacyNames": [
+        "Untergrundfeste der Zerstörungsarchonen"
+      ]
     },
     {
       "key": "Albtraum:versteck-der-klingenlegion",
-      "slug": "versteck-der-klingenlegion",
+      "slug": "blades-hideout",
       "name": {
-        "en": "Versteck der Klingenlegion",
-        "de": "Versteck der Klingenlegion"
+        "en": "Blades Hideout",
+        "de": "Versteck der Klingenlegion",
+        "es": "Escondite de la Legión de la Cuchilla",
+        "fr": "Repaire du Clan des Lames",
+        "ru": "Убежище клинков"
       },
       "category": "nightmare",
       "sortOrder": 305,
-      "hidden": false
+      "hidden": false,
+      "legacyNames": [
+        "Versteck der Klingenlegion"
+      ]
     },
     {
       "key": "Albtraum:impetusium",
       "slug": "impetusium",
       "name": {
         "en": "Impetusium",
-        "de": "Impetusium"
+        "de": "Impetusium",
+        "es": "Impetusium",
+        "fr": "Impetusium",
+        "ru": "Имфетиус"
       },
       "category": "nightmare",
       "sortOrder": 306,
-      "hidden": false
+      "hidden": false,
+      "legacyNames": [
+        "Impetusium"
+      ]
     }
   ]
 }

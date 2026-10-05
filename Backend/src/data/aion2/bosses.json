@@ -2738,10 +2738,13 @@
       "instanceKey": "Albtraum:wurzelspeicher",
       "slug": "gatekeeper-pinopi",
       "name": {
+        "ko": "문지기 피노피",
+        "zh": "守門人皮諾彼",
         "en": "Gatekeeper Pinopi",
         "de": "Torwächter Pinopi",
-        "ko": "문지기 피노피",
-        "zh": "守門人皮諾彼"
+        "es": "Portero Pinopi",
+        "fr": "Pinopi le gardien des portes",
+        "ru": "Привратник пинопи"
       },
       "npcIds": [
         2980040,
@@ -2767,10 +2770,13 @@
       "instanceKey": "Albtraum:verlies-von-dranactus",
       "slug": "furious-feruk",
       "name": {
+        "ko": "광폭한 페르크",
+        "zh": "狂暴的佩爾克",
         "en": "Furious Feruk",
         "de": "Rasender Feruk",
-        "ko": "광폭한 페르크",
-        "zh": "狂暴的佩爾克"
+        "es": "Feruk frenético",
+        "fr": "Feruk furieux",
+        "ru": "Бешеный Ферк"
       },
       "npcIds": [
         2980150,
@@ -2796,10 +2802,13 @@
       "instanceKey": "Albtraum:wurzel-des-heiligenbaums",
       "slug": "fafnirs-poison-blood",
       "name": {
+        "ko": "파프니르의 독혈",
+        "zh": "法夫尼爾毒血",
         "en": "Fafnir's Poison Blood",
         "de": "Fafnirs Giftblut",
-        "ko": "파프니르의 독혈",
-        "zh": "法夫尼爾毒血"
+        "es": "Sangre venenosa de Fafnir",
+        "fr": "Sang toxique de Fafnir",
+        "ru": "Ядокров Фафнира"
       },
       "npcIds": [
         2980240,
@@ -2825,10 +2834,13 @@
       "instanceKey": "Albtraum:gruft",
       "slug": "wraith-giselle",
       "name": {
+        "ko": "망령 지젤",
+        "zh": "亡靈芝捷爾",
         "en": "Wraith Giselle",
         "de": "Geist Giselle",
-        "ko": "망령 지젤",
-        "zh": "亡靈芝捷爾"
+        "es": "Espectro Giselle",
+        "fr": "Giselle le spectre hostile",
+        "ru": "Призрак Жизели"
       },
       "npcIds": [
         2980250,
@@ -2854,10 +2866,13 @@
       "instanceKey": "Albtraum:untergrundfeste-der-zerstoerungsarchonen",
       "slug": "fortress-guardian-notun",
       "name": {
+        "ko": "요새 수호자 노툰",
+        "zh": "要塞守護者諾頓",
         "en": "Fortress Guardian Notun",
         "de": "Festenhüter Notun",
-        "ko": "요새 수호자 노툰",
-        "zh": "要塞守護者諾頓"
+        "es": "Protector de la fortaleza Notun",
+        "fr": "Notun le gardien de la Forteresse",
+        "ru": "Хранитель крепости Нотун"
       },
       "npcIds": [
         2980170,
@@ -2883,10 +2898,13 @@
       "instanceKey": "Albtraum:versteck-der-klingenlegion",
       "slug": "mutated-gerod",
       "name": {
+        "ko": "변이된 게로드",
+        "zh": "變異的凱洛特",
         "en": "Mutated Gerod",
         "de": "Mutierter Gerod",
-        "ko": "변이된 게로드",
-        "zh": "變異的凱洛特"
+        "es": "Gerod mutado",
+        "fr": "Gerod muté",
+        "ru": "Мутировавший Герод"
       },
       "npcIds": [
         2980210,
@@ -2912,10 +2930,13 @@
       "instanceKey": "Albtraum:impetusium",
       "slug": "zikels-apparition",
       "name": {
+        "ko": "지켈의 사념체",
+        "zh": "吉凱爾思念體",
         "en": "Zikel's Apparition",
         "de": "Zikels Schemen",
-        "ko": "지켈의 사념체",
-        "zh": "吉凱爾思念體"
+        "es": "Ectoplasma de Zikel",
+        "fr": "Apparition de Zikel",
+        "ru": "Фантом Джикела"
       },
       "npcIds": [
         2980220,

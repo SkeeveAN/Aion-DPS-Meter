@@ -25,6 +25,8 @@ export interface Aion2Instance {
   name: LocalizedText;
   category: "expedition" | "transcendence" | "sanctuary" | "hideout" | "stronghold" | "awakening" | "nightmare" | "ascension" | null;
   sortOrder: number;
+  /** Names this instance was stored under before, so a sync renames the row instead of adding a second one. */
+  legacyNames?: string[];
   /** Not offered by the EU client (yet): kept in the database, never listed. */
   hidden?: boolean;
   /** Expedition difficulty: explore = normal, conquest = hard. */
