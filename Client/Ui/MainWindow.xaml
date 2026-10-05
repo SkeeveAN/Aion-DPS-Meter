@@ -1269,6 +1269,18 @@
                                FontSize="11" VerticalAlignment="Center" Margin="6,0,0,0"/>
                     <TextBlock x:Name="OverlayTargetText" DockPanel.Dock="Left" MaxWidth="100" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
                                FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                    <!-- What the rows show: everybody / my group / my corps (two parties together). -->
+                    <StackPanel x:Name="OverlayScopeSwitch" Orientation="Horizontal" Margin="8,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <Border x:Name="OverlayScopeAll" Tag="All" Padding="5,1" CornerRadius="3,0,0,3" Cursor="Hand" MouseLeftButtonDown="OnOverlayScopeClicked">
+                            <TextBlock FontSize="9" FontWeight="Bold" Text="{local:Loc Main.Scope.All}"/>
+                        </Border>
+                        <Border x:Name="OverlayScopeGroup" Tag="Group" Padding="5,1" Margin="1,0,0,0" Cursor="Hand" MouseLeftButtonDown="OnOverlayScopeClicked">
+                            <TextBlock FontSize="9" FontWeight="Bold" Text="{local:Loc Main.Scope.Group}"/>
+                        </Border>
+                        <Border x:Name="OverlayScopeCorps" Tag="Corps" Padding="5,1" Margin="1,0,0,0" CornerRadius="0,3,3,0" Cursor="Hand" MouseLeftButtonDown="OnOverlayScopeClicked">
+                            <TextBlock FontSize="9" FontWeight="Bold" Text="{local:Loc Main.Scope.Corps}"/>
+                        </Border>
+                    </StackPanel>
                 </DockPanel>
                 <!-- The fought boss's health (Settings: show the boss's health), with the HP check's verdict. -->
                 <Grid x:Name="OverlayHpBlock" Height="16" Margin="0,0,0,5" Visibility="Collapsed">

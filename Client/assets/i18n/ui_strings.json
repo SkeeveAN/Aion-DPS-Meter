@@ -1371,6 +1371,36 @@
     "tr": "her zaman",
     "zh": "随时"
   },
+  "Main.Scope.All": {
+    "en": "All",
+    "de": "Alle",
+    "fr": "Tous",
+    "es": "Todos",
+    "ru": "Все",
+    "pl": "Wszyscy",
+    "tr": "Hepsi",
+    "zh": "全部"
+  },
+  "Main.Scope.Group": {
+    "en": "Group",
+    "de": "Gruppe",
+    "fr": "Groupe",
+    "es": "Grupo",
+    "ru": "Группа",
+    "pl": "Grupa",
+    "tr": "Grup",
+    "zh": "小队"
+  },
+  "Main.Scope.Corps": {
+    "en": "Corps",
+    "de": "Korps",
+    "fr": "Corps",
+    "es": "Cuerpo",
+    "ru": "Корпус",
+    "pl": "Korpus",
+    "tr": "Birlik",
+    "zh": "军团"
+  },
   "Details.Col.Target": {
     "en": "Target",
     "de": "Kampfziel",

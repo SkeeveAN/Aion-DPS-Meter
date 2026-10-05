@@ -124,6 +124,10 @@ public sealed class MeterSettings
     /// <summary>Seconds without damage after which the next fight starts from zero (1 to 600).</summary>
     public int AutoResetSeconds { get; set; } = 10;
 
+    /// <summary>Whose rows the meter shows: "All" (everybody around), "Group" (you and your party) or
+    /// "Corps" (your party and the one it is joined with). Switched in the overlay's header or the
+    /// Mode menu.</summary>
+    public string ViewScope { get; set; } = "Group";
 
     /// <summary>Goes round damage, healing and damage taken (see MainWindow.NextMode).</summary>
     public string HotkeyMode { get; set; } = "Ctrl+Alt+M";
