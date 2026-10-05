@@ -121,22 +121,73 @@ let skillIcons: Record<string, string> | null = null;
 let skillTypes: Record<string, string> | null = null; // "a" active, "p" passive
 let boardNodes: Map<number, { id: number; node: DaevanionData["nodes"][string] }[]> | null = null;
 
-// The match report only stores skill names, not ids, so a name is mapped back to the icon of the
-// first skill id carrying it that has one (rank variants share the base skill's icon).
-let skillIconsByName: Map<string, string> | null = null;
-export function skillIconByName(name: string): string | null {
-  if (!skillIconsByName) {
-    const names = loadJson<Record<string, string>>("skill_names.json", {});
-    const icons = loadJson<Record<string, string>>("skill_icons.json", {});
-    skillIconsByName = new Map();
-    for (const [id, icon] of Object.entries(icons)) {
-      const n = names[id];
-      if (n && !skillIconsByName.has(n)) {
-        skillIconsByName.set(n, icon);
-      }
+// The match report only stores skill names, not ids. A name is mapped back to ids to find the icon and
+// to tell a player's own skills from effects: the game names an effect of a skill separately
+// ("Predation" is an effect of Lifestealing Blade, id 11340027), and a few entries are not damage at all.
+const CLASS_BY_SKILL_PREFIX = ["Gladiator", "Templar", "Assassin", "Ranger", "Sorcerer", "Spiritmaster", "Cleric", "Chanter", "Brawler"];
+let skillIdsByName: Map<string, number[]> | null = null;
+
+function classOfSkillId(id: number): string | null {
+  const prefix = Math.floor(id / 1_000_000);
+  return id >= 10_000_000 && prefix >= 11 && prefix <= 19 ? CLASS_BY_SKILL_PREFIX[prefix - 11] : null;
+}
+
+export function skillIconByName(name: string, className?: string): string | null {
+  const ids = skillIdsOf(name);
+  const icons = skillIcons ?? loadJson<Record<string, string>>("skill_icons.json", {});
+  skillIcons = icons;
+  const own = className ? ids.filter((id) => classOfSkillId(id) === className) : [];
+  const ranks = own.filter((id) => id % 10 === 0);
+  const first = ranks.length > 0 ? ranks : own;
+  for (const id of own.length > 0 ? [...first.map((i) => Math.floor(i / 10000) * 10000), ...first] : ids) {
+    if (icons[String(id)]) {
+      return icons[String(id)];
     }
   }
-  return skillIconsByName.get(name) ?? null;
+  return null;
+}
+
+function skillIdsOf(name: string): number[] {
+  if (!skillIdsByName) {
+    skillIdsByName = new Map();
+    for (const [id, n] of Object.entries(loadJson<Record<string, string>>("skill_names.json", {}))) {
+      skillIdsByName.set(n, [...(skillIdsByName.get(n) ?? []), Number(id)]);
+    }
+  }
+  return skillIdsByName.get(name) ?? [];
+}
+
+type ReportSkill = { skillName: string; hits: number; critHits: number; totalDamage: number; minHit: number; maxHit: number; isHeal: boolean };
+
+/**
+ * A player's skill rows as the skill window would list them: the effect of a skill of the player's own
+ * class is added to that skill; a skill that only exists for another class and a "hit" of exactly 1
+ * damage per hit (a status marker, not damage) are left out.
+ */
+export function ownSkillRows<T extends ReportSkill>(className: string, rows: T[]): T[] {
+  const names = loadJson<Record<string, string>>("skill_names.json", {});
+  const merged = new Map<string, T>();
+  for (const row of rows) {
+    const ids = skillIdsOf(row.skillName);
+    const own = ids.filter((id) => classOfSkillId(id) === className);
+    if ((!row.isHeal && row.totalDamage <= row.hits) || (ids.length > 0 && own.length === 0 && ids.every((id) => classOfSkillId(id) !== null))) {
+      continue;
+    }
+    // A rank id ends in 0 (11340010); an id ending otherwise (11340027) is an effect of the skill in the same family.
+    const isEffectOnly = own.length > 0 && own.every((id) => id % 10 !== 0);
+    const parentName = isEffectOnly ? (names[String(Math.floor(Math.min(...own) / 10000) * 10000)] ?? row.skillName) : row.skillName;
+    const into = merged.get(parentName);
+    if (!into) {
+      merged.set(parentName, { ...row, skillName: parentName });
+    } else {
+      into.hits += row.hits;
+      into.critHits += row.critHits;
+      into.totalDamage += row.totalDamage;
+      into.minHit = Math.min(into.minHit, row.minHit);
+      into.maxHit = Math.max(into.maxHit, row.maxHit);
+    }
+  }
+  return [...merged.values()].sort((x, y) => y.totalDamage - x.totalDamage);
 }
 
 export type ProfileView = {
