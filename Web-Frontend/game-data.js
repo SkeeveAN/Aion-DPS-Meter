@@ -137,6 +137,9 @@ export const INSTANCE_IMAGES = {
   "Submerged Life Temple": "/images/aion2/instances/submerged-life-temple.jpg",
   "Citadel of the Fallen Daeva": "/images/aion2/instances/citadel-of-the-fallen-daeva.jpg",
   "Abyssal Horn Den": "/images/aion2/instances/abyssal-horn-den.jpg",
+  "Shattered Arkanis": "/images/aion2/instances/shattered-arkanis.jpg",
+  "Deus Research Base": "/images/aion2/instances/deus-research-base.jpg",
+  "Sanctum of Loathing": "/images/aion2/instances/sanctum-of-loathing.jpg",
 };
 
 // Per-boss art (none yet); a boss without an entry falls back to its instance's photo.
