@@ -27,6 +27,12 @@ export const GAME_NAME_TRANSLATIONS = {
   "Sanctum of Loathing": { en: "Sanctum of Loathing", de: "Sanktuarium des Hasses", fr: "Sanctuaire de la Haine", es: "Sagrario del Odio", ru: "Святилище ненависти" },
   "Depository of Fates": { en: "Depository of Fates", de: "Kammer der Laufbahn", fr: "Dépôt des Trajectoires", es: "Depósito de Trayectoria", ru: "Хранилище траекторий" },
   "Forgotten Repository": { en: "Forgotten Repository", de: "Vergessener Speicher", fr: "Entrepôt Oublié", es: "Repositorio Olvidado", ru: "Забытый тайник" },
+  "Krao Cave (Conquest)": { en: "Krao Cave (Conquest)", de: "Kraohöhle (Eroberung)", fr: "Grotte de Krao (Conquête)", es: "Cueva de Krao (Conquista)", ru: "Пещера крао (Завоевание)" },
+  "Urugugu Canyon (Conquest)": { en: "Urugugu Canyon (Conquest)", de: "Uruguguschlucht (Eroberung)", fr: "Canyon Urugugu (Conquête)", es: "Cañón de Urugugu (Conquista)", ru: "Ущелье ауругу (Завоевание)" },
+  "Fire Temple (Conquest)": { en: "Fire Temple (Conquest)", de: "Feuertempel (Eroberung)", fr: "Temple Divin du Feu (Conquête)", es: "Templo de Fuego (Conquista)", ru: "Храм огня (Завоевание)" },
+  "Draupnir (Conquest)": { en: "Draupnir (Conquest)", de: "Draupnir (Eroberung)", fr: "Draupnir (Conquête)", es: "Draupnir (Conquista)", ru: "Драупнир (Завоевание)" },
+  "Vakron Sky Island (Conquest)": { en: "Vakron Sky Island (Conquest)", de: "Vakrons Luftinsel (Eroberung)", fr: "Île Céleste de Vakron (Conquête)", es: "Isla Aérea de Vakron (Conquista)", ru: "Парящий остров Вакрона (Завоевание)" },
+  "Ferocious Horn Den (Conquest)": { en: "Ferocious Horn Den (Conquest)", de: "Grimmhornhöhle (Eroberung)", fr: "Grotte de la Corne Féroce (Conquête)", es: "Caverna del Cuerno Feroz (Conquista)", ru: "Логово Свирепого Рога (Завоевание)" },
   "Chamber of the Dead": { en: "Chamber of the Dead", de: "Schlafstätte der Toten", fr: "Chambre du Mort", es: "Alcoba de los Muertos", ru: "Опочивальня мертвых" },
   "Citadel of the Fallen Daeva": { en: "Citadel of the Fallen Daeva", de: "Zitadelle der gefallenen Daeva", fr: "Citadelle du Daeva déchu", es: "Ciudadela del Daeva Caído", ru: "Цитадель павших даэвов" },
   "Abyssal Horn Den": { en: "Abyssal Horn Den", de: "Abyss-Hornhöhle", fr: "Antre de la Corne abyssale", es: "Guarida del Cuerno Abismal", ru: "Логово рога Бездны" },
@@ -153,12 +159,6 @@ export const INSTANCE_IMAGES = {
   "Shattered Arkanis": "/images/aion2/instances/shattered-arkanis.jpg",
   "Deus Research Base": "/images/aion2/instances/deus-research-base.jpg",
   "Sanctum of Loathing": "/images/aion2/instances/sanctum-of-loathing.jpg",
-  "Krao Cave (Conquest)": { en: "Krao Cave (Conquest)", de: "Kraohöhle (Eroberung)", fr: "Grotte de Krao (Conquête)", es: "Cueva de Krao (Conquista)", ru: "Пещера крао (Завоевание)" },
-  "Urugugu Canyon (Conquest)": { en: "Urugugu Canyon (Conquest)", de: "Uruguguschlucht (Eroberung)", fr: "Canyon Urugugu (Conquête)", es: "Cañón de Urugugu (Conquista)", ru: "Ущелье ауругу (Завоевание)" },
-  "Fire Temple (Conquest)": { en: "Fire Temple (Conquest)", de: "Feuertempel (Eroberung)", fr: "Temple Divin du Feu (Conquête)", es: "Templo de Fuego (Conquista)", ru: "Храм огня (Завоевание)" },
-  "Draupnir (Conquest)": { en: "Draupnir (Conquest)", de: "Draupnir (Eroberung)", fr: "Draupnir (Conquête)", es: "Draupnir (Conquista)", ru: "Драупнир (Завоевание)" },
-  "Vakron Sky Island (Conquest)": { en: "Vakron Sky Island (Conquest)", de: "Vakrons Luftinsel (Eroberung)", fr: "Île Céleste de Vakron (Conquête)", es: "Isla Aérea de Vakron (Conquista)", ru: "Парящий остров Вакрона (Завоевание)" },
-  "Ferocious Horn Den (Conquest)": { en: "Ferocious Horn Den (Conquest)", de: "Grimmhornhöhle (Eroberung)", fr: "Grotte de la Corne Féroce (Conquête)", es: "Caverna del Cuerno Feroz (Conquista)", ru: "Логово Свирепого Рога (Завоевание)" },
 };
 
 // Per-boss art (Nightmare bosses so far, cut from the in-game boss list); a boss without an entry falls back to its instance's photo.
