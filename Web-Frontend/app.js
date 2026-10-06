@@ -261,13 +261,6 @@ async function renderHome() {
     el("p", { className: "home-hero-slogan", textContent: t("home.slogan") }),
     el("p", { className: "home-hero-tagline", textContent: t("home.tagline") }),
     el("div", { className: "home-hero-ctas button-row" }, [
-      el("a", { className: "btn btn-orange", href: "/download" }, [
-        el("span", { className: "btn-icon", textContent: "↓" }),
-        // The "⬇ " prefix baked into home.downloadCta (still used bare by the footer CTA below)
-        // moves into its own .btn-icon span here - keeping both in the string is what made this
-        // button's line box taller than .btn-blue's plain text in the first place.
-        el("span", { textContent: t("home.downloadCta").replace(/^⬇\s*/, "") }),
-      ]),
       el("a", { className: "btn btn-blue", href: "/instances" }, [el("span", { textContent: t("breadcrumb.instances") })]),
       el("a", { className: "btn btn-blue", href: "/worldbosses" }, [el("span", { textContent: t("category.worldboss") })]),
     ]),
