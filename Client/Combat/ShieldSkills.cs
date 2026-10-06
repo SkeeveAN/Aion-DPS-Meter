@@ -13,11 +13,28 @@ namespace AionDPS.Combat;
 /// </summary>
 public static class ShieldSkills
 {
+    // English names; the German ones are Schockaufhebung / Behütungsschild (personal) and Schutzformation /
+    // Hoheit der Blockade (a Chanter's group shields). Matched through the skill id, never the shown
+    // name, which follows the meter's language.
     private static readonly HashSet<string> Personal = new(StringComparer.Ordinal) { "Defiance", "Warding Shield" };
-    private static readonly HashSet<string> Group = new(StringComparer.Ordinal) { "Protection Circle" };
+    private static readonly HashSet<string> Group = new(StringComparer.Ordinal) { "Protection Circle", "Impeding Authority" };
 
-    public static bool IsShield(in DamageEvent e) => e.IsHeal && e.Skill is { } skill && (Personal.Contains(skill) || Group.Contains(skill));
+    private static string? EnglishName(in DamageEvent e)
+    {
+        if (e.SkillId != 0)
+        {
+            var table = Aion2.Protocol.Aion2SkillNames.Load();
+            if (table.TryGetValue(e.SkillId, out string? name) || table.TryGetValue(e.SkillId / 10000 * 10000, out name))
+            {
+                return name;
+            }
+        }
+
+        return e.Skill;
+    }
+
+    public static bool IsShield(in DamageEvent e) => e.IsHeal && EnglishName(e) is { } name && (Personal.Contains(name) || Group.Contains(name));
 
     /// <summary>A shield cast on others: the event's target is the caster, its source the one shielded.</summary>
-    public static bool IsGroupShield(in DamageEvent e) => e.IsHeal && e.Skill is { } skill && Group.Contains(skill);
+    public static bool IsGroupShield(in DamageEvent e) => e.IsHeal && EnglishName(e) is { } name && Group.Contains(name);
 }
