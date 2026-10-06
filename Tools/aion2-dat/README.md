@@ -33,3 +33,12 @@ the key whose en-US value equals our English name gives the translations at the 
 Skills are `SkillString_STR_SKILL_<CLASS>_<id>_skill_name` and match by id. Texts the client has no value for
 (`???`, content not in the EU client) are left out. Skill icons are textures in the IoStore containers
 (`.utoc/.ucas`) and are not read by this tool.
+
+## Data tables (`AION2/Content/Data/Table/*.dat`, added 2026-10-06)
+`dectable.py <key_manifest.dat> <table.dat> <out.bin>` decrypts them (seed = hash of the table name). Two containers:
+`i32 13` + header kind 1 (AES-ECB + LZ4, small tables) and header kind 2 + type 3 (AES-CTR style stream, big tables such as
+`NpcData`, `Item`, `Skill`: keystream block n = AES(key, `u64 nonce | u64 n`), nonce = first 8 bytes of blake3(key + "nonc"),
+as in CUE4Parse's `Aion2DatFileEncryption.DataTable.cs`). Rows are typed structs and need a `.usmap` to decode properly;
+without one, strings (UTF-16, XOR `25 00 a8 00 7e 00 91 00` per string) can be scanned. `NpcData` rows are
+`[i32 npcId][name FString][STR_ text key FString][subtitle key][MOB_ model]...` - the text key + `String_<key>_body` in
+`L10NString.dat` gives the names. `WorldMapFieldNamed` lists the named field bosses by internal NPC name.

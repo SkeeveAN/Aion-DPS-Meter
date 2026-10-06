@@ -6,6 +6,7 @@ import { env } from "../env.js";
 import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME } from "../constants.js";
 import { cached } from "../seo/cache.js";
 import { escapeHtml } from "../seo/html.js";
+import { encounterOgImage } from "../seo/ogEncounter.js";
 
 const SITEMAP_TTL_MS = 600_000;
 
@@ -28,6 +29,18 @@ export async function seoRoutes(app: FastifyInstance) {
       `Sitemap: ${env.BASE_URL}/sitemap.xml`,
       "",
     ].join("\n");
+  });
+
+  // Link-preview picture of one fight (og:image of /encounters/:id). ?lang= only changes the boss and
+  // instance names and the number format - the rest of the picture is icons and numbers.
+  app.get<{ Params: { file: string }; Querystring: { lang?: string } }>("/og/encounters/:file", async (request, reply) => {
+    const match = /^(\d+)\.png$/.exec(request.params.file);
+    const png = match ? encounterOgImage(DEFAULT_GAME, match[1], request.query.lang) : null;
+    if (!png) {
+      return reply.status(404).send({ error: "not_found" });
+    }
+    reply.type("image/png").header("Cache-Control", "public, max-age=3600");
+    return png;
   });
 
   app.get("/sitemap.xml", async (_request, reply) => {

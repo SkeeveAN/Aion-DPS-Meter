@@ -1192,7 +1192,8 @@ th {
    real level/boss-count as pills instead of a card title. */
 .instance-hero {
   position: relative;
-  height: 260px;
+  /* ~380 px at the 1872 px container width, scaling down on narrower screens so the photo keeps its shape */
+  height: clamp(220px, 20vw, 380px);
   border-radius: var(--radius-card);
   overflow: hidden;
   border: 1px solid var(--color-border);

@@ -18,6 +18,28 @@ export function cached(key: string, ttlMs: number, compute: () => string): strin
   return value;
 }
 
+// Rendered preview pictures (seo/ogEncounter.ts). Same rules; a miss that computes null is not remembered.
+const bufferEntries = new Map<string, { value: Buffer; expiresAt: number }>();
+const MAX_BUFFER_ENTRIES = 300;
+
+export function cachedBuffer(key: string, ttlMs: number, compute: () => Buffer | null): Buffer | null {
+  const hit = bufferEntries.get(key);
+  const now = Date.now();
+  if (hit && hit.expiresAt > now) {
+    return hit.value;
+  }
+  const value = compute();
+  if (!value) {
+    return null;
+  }
+  if (bufferEntries.size >= MAX_BUFFER_ENTRIES) {
+    bufferEntries.clear();
+  }
+  bufferEntries.set(key, { value, expiresAt: now + ttlMs });
+  return value;
+}
+
 export function clearPageCache(): void {
   entries.clear();
+  bufferEntries.clear();
 }

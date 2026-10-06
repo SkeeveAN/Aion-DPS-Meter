@@ -38,11 +38,11 @@ const CATEGORY_LABEL: Record<string, string> = {
 const CLASS_OG_FILE: Record<string, string> = { Gladiator: "gladiator", Templar: "templar", Ranger: "ranger", Assassin: "assassin", Spiritmaster: "elementalist", Sorcerer: "sorcerer", Cleric: "cleric", Chanter: "chanter", Brawler: "fighter" };
 
 /** Preview picture of a boss (its own portrait, else its instance's photo), if the site has one. */
-function bossImage(bossName: string | null | undefined, instanceName: string | null | undefined): string | undefined {
+export function bossImage(bossName: string | null | undefined, instanceName: string | null | undefined): string | undefined {
   return (bossName ? BOSS_IMAGES[bossName] : undefined) ?? (instanceName ? INSTANCE_IMAGES[instanceName] : undefined);
 }
 
-function classImage(className: string | null | undefined): string | undefined {
+export function classImage(className: string | null | undefined): string | undefined {
   const file = className ? CLASS_OG_FILE[className] : undefined;
   return file ? `/og/classes/${file}.png` : undefined;
 }
@@ -520,10 +520,20 @@ export function encounterPage(game: Game, id: string): Page | null {
   ].filter(Boolean);
   const description = `${name} (${instanceName}${modeText}) on ${server ?? "Aion 2"}: ${stats.join(", ")}.${top.length > 0 ? ` Top damage: ${top.join(", ")}.` : ""} ${row.startedAt.slice(0, 10)}`;
   const photo = bossImage(row.bossName, row.instanceName);
+  // With a roster the preview is the rendered fight table (seo/ogEncounter.ts), else just the boss photo.
+  const rendered = roster.length > 0 && game === DEFAULT_GAME;
 
   return {
     status: 200,
-    meta: { title, description, canonicalPath: `/encounters/${encounterId}`, noindex: true, ogImage: photo, ogImageAlt: photo ? name : undefined },
+    meta: {
+      title,
+      description,
+      canonicalPath: `/encounters/${encounterId}`,
+      noindex: true,
+      ogImage: rendered ? `/og/encounters/${encounterId}.png` : photo,
+      ogImageAlt: rendered ? `${name}: damage, healing and damage taken per player` : photo ? name : undefined,
+      ogImageSize: rendered ? { width: 1200, height: 630 } : undefined,
+    },
     body: html`<h2>${name}</h2><p>${server ?? ""}${modeText}</p>${roster.length > 0 ? html`<ul class="plain">${roster.map((p) => html`<li>${p.name} (${p.className}) – ${formatInt(p.damage)} damage</li>`)}</ul>` : ""}`,
   };
 }

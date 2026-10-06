@@ -1,5 +1,5 @@
 import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
-import { INSTANCE_IMAGES, BOSS_IMAGES, INSTANCE_MIN_LEVEL, INSTANCE_FACTS } from "./game-data.js";
+import { INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 
 const app = document.getElementById("app");
@@ -848,7 +848,9 @@ function instanceHero(instance, bossCount, stats) {
   if (photo) {
     // Eager + high priority, unlike icon()'s card photos below the fold (aiondps_design_pack_v1
     // section 16: "Hero-Bilder priorisieren").
-    children.unshift(el("img", { src: photo, alt: "", className: "instance-hero-photo", fetchPriority: "high" }));
+    const heroImg = el("img", { src: photo, alt: "", className: "instance-hero-photo", fetchPriority: "high" });
+    heroImg.style.objectPosition = INSTANCE_FOCUS[instance.name] ?? "50% 50%";
+    children.unshift(heroImg);
   }
   children.push(
     el("div", { className: "instance-hero-content" }, [
@@ -901,7 +903,7 @@ async function renderBosses(instanceSlug) {
   const grid = el(
     "div",
     { className: "poster-grid" },
-    sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}`), BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), "top")),
+    sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}`), BOSS_CARDS[b.name] ?? BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), BOSS_CARDS[b.name] ? "center" : BOSS_IMAGES[b.name] ? "64% center" : "top")),
   );
   app.replaceChildren(...hero, el("h2", { textContent: t("bosses.heading") }), grid);
 }
@@ -1039,12 +1041,14 @@ function bossHero(data) {
     // objectPosition remarks) - centering would crop the face out of frame.
     const img = el("img", { src: photo, alt: "", className: "instance-hero-photo", fetchPriority: "high" });
     // The Nightmare boss banners are wide strips with the boss right of centre; other portraits are tall renders.
-    img.style.objectPosition = BOSS_IMAGES[boss.name] ? "64% center" : "top";
+    img.style.objectPosition = BOSS_IMAGES[boss.name] ? "64% center" : (INSTANCE_FOCUS[boss.instanceName] ?? "50% 50%");
     children.unshift(img);
   }
+  // Nightmare bosses lead back to the category's boss tree, like the breadcrumb (see renderLeaderboard).
+  const isNightmare = boss.instanceCategory === "nightmare";
   const instanceLink = el("a", {
-    href: gp(`/instances/${boss.instanceSlug}`),
-    textContent: displayName({ name: boss.instanceName, nameEn: boss.instanceNameEn }),
+    href: isNightmare ? gp("/instances/nightmare") : gp(`/instances/${boss.instanceSlug}`),
+    textContent: isNightmare ? t("category.nightmare") : displayName({ name: boss.instanceName, nameEn: boss.instanceNameEn }),
     className: "instance-hero-subtitle",
   });
   children.push(
@@ -1164,11 +1168,13 @@ async function renderLeaderboard(bossSlug, params) {
   const data = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/leaderboard?${query}`);
   const bossPath = gp(`/bosses/${data.boss.slug}`);
   const bossName = displayName(data.boss);
-  setBreadcrumb([
-    ...gameCrumbs(),
-    link(displayName({ name: data.boss.instanceName, nameEn: data.boss.instanceNameEn }), gp(`/instances/${data.boss.instanceSlug}`)),
-    bossName,
-  ]);
+  // Nightmare bosses are reached through the category's boss tree, so the way back leads there
+  // (/instances/nightmare), not to the single "instance" (Root Cellar ...); every other category keeps the instance.
+  const instanceCrumb =
+    data.boss.instanceCategory === "nightmare"
+      ? link(t("category.nightmare"), gp("/instances/nightmare"))
+      : link(displayName({ name: data.boss.instanceName, nameEn: data.boss.instanceNameEn }), gp(`/instances/${data.boss.instanceSlug}`));
+  setBreadcrumb([...gameCrumbs(), instanceCrumb, bossName]);
 
   const hero = bossHero(data);
   // Difficulty steps (Nightmare level, Ascension difficulty, ...): each one is ranked on its own.

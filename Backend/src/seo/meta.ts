@@ -15,6 +15,8 @@ export interface PageMeta {
   /** Path of the preview image (Discord, Slack, X ...); the site-wide default when absent. */
   ogImage?: string;
   ogImageAlt?: string;
+  /** Pixel size of ogImage when known; lets Discord/Slack lay the card out before the image has loaded. */
+  ogImageSize?: { width: number; height: number };
   /** "summary" shows a small square image next to the text (class emblems), the default a wide banner. */
   twitterCard?: "summary" | "summary_large_image";
   ogType?: "website" | "article" | "profile";
@@ -37,6 +39,8 @@ export function renderHead(meta: PageMeta): string {
     `<meta property="og:url" content="${escapeHtml(canonical)}" />`,
     `<meta property="og:locale" content="en_US" />`,
     `<meta property="og:image" content="${escapeHtml(image)}" />`,
+    meta.ogImageSize ? `<meta property="og:image:width" content="${meta.ogImageSize.width}" />` : "",
+    meta.ogImageSize ? `<meta property="og:image:height" content="${meta.ogImageSize.height}" />` : "",
     meta.ogImageAlt ? `<meta property="og:image:alt" content="${escapeHtml(meta.ogImageAlt)}" />` : "",
     `<meta name="twitter:card" content="${meta.twitterCard ?? "summary_large_image"}" />`,
     `<meta name="twitter:title" content="${escapeHtml(meta.title)}" />`,

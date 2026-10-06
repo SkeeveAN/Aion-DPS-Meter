@@ -1,0 +1,1123 @@
+{
+  "_meta": {
+    "source": "derived",
+    "sourceKind": "game-client",
+    "derivedAt": "2026-10-06",
+    "note": "Facts only, read from the EU client: NPC ids (NpcData.dat), the named field boss list (WorldMapFieldNamed.dat) and the names in all 8 client languages (L10NString.dat). Client text wins over third-party names. Not wired into the DB/client catalog yet. Eltnen/Morheim (second tier) deliberately left out: not available in the EU yet.",
+    "groups": {
+      "verteron": "Verteron (Elyos field bosses)",
+      "altgard": "Altgard (Asmodian field bosses)",
+      "abyss": "Abyss (scheduled world bosses)"
+    },
+    "languages": [
+      "de",
+      "en",
+      "es",
+      "fr",
+      "ja",
+      "ko",
+      "pt",
+      "ru"
+    ]
+  },
+  "items": [
+    {
+      "group": "abyss",
+      "npcId": 2600068,
+      "internalName": "M_AR1_WSA_EleKing_01_V02_001",
+      "textKey": "STR_M_AR1_WSA_ELEKING_01_V02_001",
+      "model": "MOB_EleKing_01_V02",
+      "names": {
+        "de": "Geisterfürst Agro",
+        "en": "Argo, the Spirit King",
+        "es": "Rey Espíritu Agro",
+        "fr": "Agro le roi des esprits",
+        "ja": "精霊王アグロ",
+        "ko": "정령왕 아그로",
+        "pt": "Rei dos Espíritos Argo",
+        "ru": "Король духов Агро"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600089,
+      "internalName": "M_AR1_BeritraD_01_001",
+      "textKey": "STR_M_AR1_BERITRAD_01_001",
+      "model": "MOB_BeritraD_01",
+      "names": {
+        "de": "Aufseherin Kaira",
+        "en": "Watcher Kaira",
+        "es": "Velador Kaira",
+        "fr": "Kaira la veilleuse",
+        "ja": "監視者カイラ",
+        "ko": "감시자 카이라",
+        "pt": "Vigilante Kairah",
+        "ru": "Дозорщик Кайра"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600084,
+      "internalName": "M_AR1_RR_AbBoss_01_001",
+      "textKey": "STR_M_AR1_RR_ABBOSS_01_001",
+      "model": "MOB_AbBoss_01",
+      "names": {
+        "de": "Wächtergott Nahma",
+        "en": "Guardian Lord Nahma",
+        "es": "Gran Vigía Nahma",
+        "fr": "Nahma le seigneur gardien",
+        "ja": "守護神将ナフマ",
+        "ko": "수호신장 나흐마",
+        "pt": "Senhor Guardião Nahma",
+        "ru": "Лорд-хранитель Нахма"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600093,
+      "internalName": "M_AR1_RR_AbBoss_01_002",
+      "textKey": "STR_M_AR1_RR_ABBOSS_01_001",
+      "model": "MOB_AbBoss_01",
+      "names": {
+        "de": "Wächtergott Nahma",
+        "en": "Guardian Lord Nahma",
+        "es": "Gran Vigía Nahma",
+        "fr": "Nahma le seigneur gardien",
+        "ja": "守護神将ナフマ",
+        "ko": "수호신장 나흐마",
+        "pt": "Senhor Guardião Nahma",
+        "ru": "Лорд-хранитель Нахма"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600094,
+      "internalName": "M_AR1_RR_AbBoss_01_003",
+      "textKey": "STR_M_AR1_RR_ABBOSS_01_001",
+      "model": "MOB_AbBoss_01",
+      "names": {
+        "de": "Wächtergott Nahma",
+        "en": "Guardian Lord Nahma",
+        "es": "Gran Vigía Nahma",
+        "fr": "Nahma le seigneur gardien",
+        "ja": "守護神将ナフマ",
+        "ko": "수호신장 나흐마",
+        "pt": "Senhor Guardião Nahma",
+        "ru": "Лорд-хранитель Нахма"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600096,
+      "internalName": "M_AR1_Radvima_01_CV02_001",
+      "textKey": "STR_M_AR1_RADVIMA_01_CV02_001",
+      "model": "MOB_Radvima_01_CV02",
+      "names": {
+        "de": "Vollstrecker Tamasa",
+        "en": "Executor Tamasa",
+        "es": "Ejecutante Tamasa",
+        "fr": "Tamasa l'exécuteur",
+        "ja": "執行者タマサ",
+        "ko": "집행자 타마사",
+        "pt": "Executor Tamasa",
+        "ru": "Исполнитель Тамаса"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600097,
+      "internalName": "M_AR1_WSA_EleKing_01_V02_002",
+      "textKey": "STR_M_AR1_WSA_ELEKING_01_V02_002",
+      "model": "MOB_EleKing_01_V02",
+      "names": {
+        "de": "Vollstrecker Agro",
+        "en": "Executor Argo",
+        "es": "Ejecutante Agro",
+        "fr": "Agro exécuteur",
+        "ja": "執行者アグロ",
+        "ko": "집행자 아그로",
+        "pt": "Executor Argo",
+        "ru": "Исполнитель Агро"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600098,
+      "internalName": "M_AR1_BeritraD_01_002",
+      "textKey": "STR_M_AR1_BERITRAD_01_002",
+      "model": "MOB_BeritraD_01",
+      "names": {
+        "de": "Vollstreckerin Kaira",
+        "en": "Executor Kaira",
+        "es": "Ejecutante Kaira",
+        "fr": "Kaira exécutrice",
+        "ja": "執行者カイラ",
+        "ko": "집행자 카이라",
+        "pt": "Executor Kairah",
+        "ru": "Исполнитель Кайра"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600479,
+      "internalName": "M_AR3_AbBoss_01_002",
+      "textKey": "STR_M_AR3_ABBOSS_01_001",
+      "model": "MOB_AbBoss_01",
+      "names": {
+        "de": "Wütender Wächtergott Nahma",
+        "en": "Enraged Guardian Lord Nahma",
+        "es": "Gran Vigía Nahma iracundo",
+        "fr": "Nahma le seigneur gardien enragé",
+        "ja": "怒りの守護神将ナフマ",
+        "ko": "분노한 수호신장 나흐마",
+        "pt": "Senhor Guardião Nahma Furioso",
+        "ru": "Разъяренный лорд-хранитель Нахма"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600480,
+      "internalName": "M_AR3_AbBoss_01_003",
+      "textKey": "STR_M_AR3_ABBOSS_01_001",
+      "model": "MOB_AbBoss_01",
+      "names": {
+        "de": "Wütender Wächtergott Nahma",
+        "en": "Enraged Guardian Lord Nahma",
+        "es": "Gran Vigía Nahma iracundo",
+        "fr": "Nahma le seigneur gardien enragé",
+        "ja": "怒りの守護神将ナフマ",
+        "ko": "분노한 수호신장 나흐마",
+        "pt": "Senhor Guardião Nahma Furioso",
+        "ru": "Разъяренный лорд-хранитель Нахма"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600520,
+      "internalName": "M_AR3_Kashapa_01_CV02_001",
+      "textKey": "STR_M_AR3_KASHAPA_01_CV02_001",
+      "model": "MOB_Kashapa_01_CV02",
+      "names": {
+        "de": "Scharfrichter Dhramos",
+        "en": "Executioner Dramos",
+        "es": "Sayón Dramos",
+        "fr": "Dramos l'exécuteur",
+        "ja": "処刑官ドラモス",
+        "ko": "처형관 드라모스",
+        "pt": "Carrasco Dramos",
+        "ru": "Палач Драмос"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600521,
+      "internalName": "M_AR3_Evspirit_02_CV02_001",
+      "textKey": "STR_M_AR3_EVSPIRIT_02_CV02_001",
+      "model": "MOB_Evspirit_02_CV02",
+      "names": {
+        "de": "Verräter Ducal",
+        "en": "Turncoat Ducal",
+        "es": "Desleal Ducal",
+        "fr": "Ducal le traître",
+        "ja": "反逆者デュカル",
+        "ko": "반역자 듀칼",
+        "pt": "Traidor Ducal",
+        "ru": "Изменник Дюкаль"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "abyss",
+      "npcId": 2600522,
+      "internalName": "M_AR3_Nahid_01_CV02_001",
+      "textKey": "STR_M_AR3_NAHID_01_CV02_001",
+      "model": "MOB_Nahid_01_CV02",
+      "names": {
+        "de": "Verwüster Maraka",
+        "en": "Ravager Marakha",
+        "es": "Desintegrador Maraka",
+        "fr": "Maraka d'anéantissement",
+        "ja": "破滅者マラカ",
+        "ko": "파멸자 마라카",
+        "pt": "Destruidor Marakha",
+        "ru": "Уничтожитель Марака"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100003,
+      "internalName": "M_L1_CV_Keneir_Named_02",
+      "textKey": "STR_M_L1_CV_Keneir_Named_02",
+      "model": "MOB_Keneir_01_V03",
+      "names": {
+        "de": "Neikel des Ostens",
+        "en": "Neikel of the East",
+        "es": "Neikel del este",
+        "fr": "Neikel de l'est",
+        "ja": "東のネイケル",
+        "ko": "동쪽의 네이켈",
+        "pt": "Neikel do Leste",
+        "ru": "Нейкель востока"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100040,
+      "internalName": "M_L1_ER_SwampMan02_Named_01",
+      "textKey": "STR_M_L1_BigMan02_Named_01",
+      "model": "MOB_BigMan_01_V03",
+      "names": {
+        "de": "Verfaulter Kutar",
+        "en": "Rotten Kutar",
+        "es": "Kutar podrido",
+        "fr": "Kutar le Putréfié",
+        "ja": "腐ったクタル",
+        "ko": "썩은 쿠타르",
+        "pt": "Kutar Putrefato",
+        "ru": "Гнилой Кутар"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100050,
+      "internalName": "M_L1_CV_Keneir_Named_01",
+      "textKey": "STR_M_L1_CV_Keneir_Named_01",
+      "model": "MOB_Keneir_01_V02",
+      "names": {
+        "de": "Kernon des Westens",
+        "en": "Kernon of the West",
+        "es": "Kernon del oeste",
+        "fr": "Kernon de l'ouest",
+        "ja": "西のケルノン",
+        "ko": "서쪽의 케르논",
+        "pt": "Kernon do Oeste",
+        "ru": "Кернон запада"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100076,
+      "internalName": "M_L1_VF_KrallElite_Named_01",
+      "textKey": "STR_M_L1_VF_KrallElite_Named_01",
+      "model": "MOB_KrallElite_01_V01",
+      "names": {
+        "de": "Wahnstreiter Kusan",
+        "en": "Kusan the Mad Gladiator",
+        "es": "Gladiador frenético Kusan",
+        "fr": "Kusan le Berserker",
+        "ja": "狂闘士クサン",
+        "ko": "광투사 쿠산",
+        "pt": "Combatente Insano Kusan",
+        "ru": "Безумный берсерк Кусан"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100077,
+      "internalName": "M_L1_VF_KrallElite_Named_02",
+      "textKey": "STR_M_L1_VF_KrallElite_Named_02",
+      "model": "MOB_KrallElite_02_V01",
+      "names": {
+        "de": "Erzpriester Garshim",
+        "en": "Ritualist Garshim",
+        "es": "Ritualista Garshim",
+        "fr": "Garshim le Ritualiste",
+        "ja": "祭司長ガルシム",
+        "ko": "제사장 가르심",
+        "pt": "Sacerdote-Mor Garshim",
+        "ru": "Ритуалист Гаршим"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100079,
+      "internalName": "M_L1_VF_Neuth_01_Named_01",
+      "textKey": "STR_M_L1_VF_Neuth_01_Named_01",
+      "model": "MOB_Neuth_03",
+      "names": {
+        "de": "Leibgardist Teegant",
+        "en": "Bodyguard Teegant",
+        "es": "Guardia Teegant",
+        "fr": "Teegant le garde du corps",
+        "ja": "護衛兵ティガント",
+        "ko": "호위병 티간트",
+        "pt": "Soldado de Escolta Teegant",
+        "ru": "Стражник Тигант"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100141,
+      "internalName": "M_L1_BF_Coradon_Named_01",
+      "textKey": "STR_M_L1_BF_Coradon_Named_01",
+      "model": "MOB_Coradon_01_V03",
+      "names": {
+        "de": "Blühender Korin",
+        "en": "Blooming Korin",
+        "es": "Korin en flor",
+        "fr": "Korin en floraison",
+        "ja": "満開のコーリン",
+        "ko": "만개한 코린",
+        "pt": "Korin em Flor",
+        "ru": "Расцветший Корин"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100177,
+      "internalName": "M_L1_TF_Ursuss_Named_01",
+      "textKey": "STR_M_L1_TF_Ursuss_Named_01",
+      "model": "MOB_UrsussElite_01_V01",
+      "names": {
+        "de": "Wütende Saursus",
+        "en": "Furious Saursus",
+        "es": "Saursus iracundo",
+        "fr": "Saursus enragée",
+        "ja": "怒りのサルス",
+        "ko": "분노한 사루스",
+        "pt": "Saursus Furiosa",
+        "ru": "Разъяренная Сарус"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100178,
+      "internalName": "M_L1_TF_Kalnif_Named_01",
+      "textKey": "STR_M_L1_TF_Kalnif_Named_01",
+      "model": "MOB_KalnifElite_01_V01",
+      "names": {
+        "de": "Blutzahn Pnyn",
+        "en": "Bloodfang Pnyn",
+        "es": "Pnyn de colmillo sangriento",
+        "fr": "Pnyn aux crocs sanglants",
+        "ja": "血の牙プニン",
+        "ko": "피송곳니 프닌",
+        "pt": "Presa Sangrenta Pnyn",
+        "ru": "Кровоклык Фнин"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100582,
+      "internalName": "M_L1_AH_A_SuraMag_01",
+      "textKey": "STR_M_L1_AH_A_SuraMag_01",
+      "model": "MOB_SuraPriest_01_V04",
+      "names": {
+        "de": "Apostatin Layla",
+        "en": "Heretic Layla",
+        "es": "Apóstata Layla",
+        "fr": "Layla l'apostate",
+        "ja": "背教者レイーラ",
+        "ko": "배교자 레일라",
+        "pt": "Apóstata Layla",
+        "ru": "Отступница Лейла"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100617,
+      "internalName": "M_L1_AC_WaterEle_04_Named_01",
+      "textKey": "STR_M_L1_AC_WaterEle_04_Named_01",
+      "model": "MOB_NagaElite_05",
+      "names": {
+        "de": "Schwarztentakel Lawa",
+        "en": "Black Tentacle Lawa",
+        "es": "Lawa del tentáculo negro",
+        "fr": "Lawa aux tentacules noires",
+        "ja": "黒き触手ラワ",
+        "ko": "검은 촉수 라와",
+        "pt": "Lawa dos Tentáculos Negros",
+        "ru": "Черное щупальце Лава"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100661,
+      "internalName": "M_L1_RI_Kasia_01_Named_01",
+      "textKey": "STR_M_L1_RI_Kasia_01_Named_01",
+      "model": "MOB_Kasia_01",
+      "names": {
+        "de": "Traumtrug Kasia",
+        "en": "Phantasm Kasia",
+        "es": "Kasia de ensoñación",
+        "fr": "Kasia du rêve illusoire",
+        "ja": "幻夢のカシア",
+        "ko": "환몽의 카시아",
+        "pt": "Kasia do Sonho Ilusório",
+        "ru": "Касия фантазии"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100708,
+      "internalName": "M_L1_AH_B_SpiritKnt_Named",
+      "textKey": "STR_M_L1_AH_B_SpiritKnt_Named",
+      "model": "MOB_Undead_01",
+      "names": {
+        "de": "Zenturio Demiros",
+        "en": "Centurion Demiros",
+        "es": "Centurión Demiros",
+        "fr": "Centurion Demiros",
+        "ja": "百人隊長デミロス",
+        "ko": "백부장 데미로스",
+        "pt": "Centurião Demiros",
+        "ru": "Центурион Демирос"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100718,
+      "internalName": "M_L1_AH_C_Guardit_Named",
+      "textKey": "STR_M_L1_AH_C_Guardit_Named",
+      "model": "MOB_Guardit_03",
+      "names": {
+        "de": "Heiliger Ansas",
+        "en": "Divine Ansas",
+        "es": "Ansas divina",
+        "fr": "Ansas sacré",
+        "ja": "神聖なアンサス",
+        "ko": "신성한 안사스",
+        "pt": "Ansas Divino",
+        "ru": "Священный Ансас"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100876,
+      "internalName": "M_L1_DP_DrakanElite_03_Named",
+      "textKey": "STR_M_L1_DP_DrakanElite_03_Named",
+      "model": "MOB_DrakanElite_03_V01",
+      "names": {
+        "de": "Ernteaufseher Moshav",
+        "en": "Harvest Manager Moshav",
+        "es": "Administrador de cosecha Moshav",
+        "fr": "Moshav le superviseur de la récolte",
+        "ja": "収穫管理者モシャブ",
+        "ko": "수확관리자 모샤브",
+        "pt": "Gestor de Colheita Moshav",
+        "ru": "Управляющий сбором Мошав"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100877,
+      "internalName": "M_L1_DP_BeritraD_04_Named",
+      "textKey": "STR_M_L1_DP_BeritraD_04_Named",
+      "model": "MOB_BeritraD_04_V01",
+      "names": {
+        "de": "Überwachungswaffe K'nash",
+        "en": "Sentinel K'nash",
+        "es": "Celador K'nash",
+        "fr": "K'nash la sentinelle",
+        "ja": "監視兵器クナッシュ",
+        "ko": "감시병기 크나쉬",
+        "pt": "K’nash, Arma de Vigilância",
+        "ru": "Страж Кнаш"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100988,
+      "internalName": "M_L1_OV_A_OwlMagic_01_Named",
+      "textKey": "STR_M_L1_OV_A_OwlMagic_01_Named",
+      "model": "MOB_OwlMagic_01",
+      "names": {
+        "de": "Gelehrter Aulla",
+        "en": "Scholar Aulla",
+        "es": "Erudito Aulla",
+        "fr": "Aulla l'érudit",
+        "ja": "学者ラウーラ",
+        "ko": "학자 라울라",
+        "pt": "Erudito Aulla",
+        "ru": "Ученый Раулла"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100989,
+      "internalName": "M_L1_OV_A_OwlElite_01_Named",
+      "textKey": "STR_M_L1_OV_A_OwlElite_01_Named",
+      "model": "MOB_OwlElite_01_V01",
+      "names": {
+        "de": "Waldkrieger Aullamu",
+        "en": "Forest Warrior Aullamu",
+        "es": "Guerrero del bosque Aullamu",
+        "fr": "Aullamu le guerrier de la forêt",
+        "ja": "森の戦士ウラム",
+        "ko": "숲전사 우라무",
+        "pt": "Guerreiro da Floresta Aullamu",
+        "ru": "Лесной воин Ураму"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2100991,
+      "internalName": "M_L1_OV_C_OwlElite_01_CV01_Named",
+      "textKey": "STR_M_L1_OV_C_OwlElite_01_CV01_Named",
+      "model": "MOB_OwlElite_01_CV01",
+      "names": {
+        "de": "Verfolger Taulo",
+        "en": "Chaser Taulo",
+        "es": "Perseguidor Taulo",
+        "fr": "Taulo le traqueur",
+        "ja": "追撃者タウーロ",
+        "ko": "추격자 타울로",
+        "pt": "Perseguidor Taulo",
+        "ru": "Гонитель Тауло"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2101016,
+      "internalName": "M_L1_Nahid_C_BeritraB_01_002",
+      "textKey": "STR_M_L1_Nahid_C_BeritraB_01_002",
+      "model": "MOB_BeritraD_03_V01",
+      "names": {
+        "de": "Forscher Setram",
+        "en": "Researcher Setram",
+        "es": "Investigador Setram",
+        "fr": "Setram le chercheur",
+        "ja": "研究官セトラム",
+        "ko": "연구관 세트람",
+        "pt": "Pesquisador Setram",
+        "ru": "Исследователь Сетрам"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2101074,
+      "internalName": "M_FE_IoE_OdiumGartua_01_001",
+      "textKey": "STR_M_FE_IoE_OdiumGartua_01",
+      "model": "MOB_Gartua_01_V02",
+      "names": {
+        "de": "Ewiger Gartua",
+        "en": "Eternal Gartua",
+        "es": "Gartua de eternidad",
+        "fr": "Gartua de l'éternité",
+        "ja": "永遠のガルトゥア",
+        "ko": "영원의 가르투아",
+        "pt": "Gartua da Eternidade",
+        "ru": "Вечный Гартуа"
+      },
+      "subtitle": "Verteron Unique"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2101120,
+      "internalName": "M_L1_FieldBoss_Dragon_01_1",
+      "textKey": "STR_M_D1_FieldBoss_BeritraD_01_001",
+      "model": "MOB_BeritraD_01",
+      "names": {
+        "de": "Schweigender Dartan",
+        "en": "Silent Dartan",
+        "es": "Dartan del silencio",
+        "fr": "Dartan la Silencieuse",
+        "ja": "沈黙のタルタン",
+        "ko": "침묵의 타르탄",
+        "pt": "Dartan do Silêncio",
+        "ru": "Немая Тартан"
+      },
+      "subtitle": "Verteron Inspector"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2101122,
+      "internalName": "M_L1_FieldBoss_Kashapa_01_1",
+      "textKey": "STR_M_D1_FieldBoss_Kashapa_01",
+      "model": "MOB_Kashapa_01",
+      "names": {
+        "de": "Seelenherrscher Kashapa",
+        "en": "Soul Ruler Kashapa",
+        "es": "Gobernante de almas Kashapa",
+        "fr": "Kashapa le dominateur des âmes",
+        "ja": "魂の支配者カシャパ",
+        "ko": "영혼 지배자 카샤파",
+        "pt": "Dominador das Almas Kashapa",
+        "ru": "Властелин душ Кашапа"
+      },
+      "subtitle": "Verteron Inspector"
+    },
+    {
+      "group": "verteron",
+      "npcId": 2101131,
+      "internalName": "M_L1_FieldBoss_Ragta_01_1",
+      "textKey": "STR_M_D1_FieldBoss_Lagta_01",
+      "model": "MOB_Lagta_01",
+      "names": {
+        "de": "Legat Lagta",
+        "en": "High Commander Lagta",
+        "es": "Comandante de Lagta",
+        "fr": "Haut Commandant Lagta",
+        "ja": "軍団長ラグタ",
+        "ko": "군단장 라그타",
+        "pt": "Brigadeiro Lagta",
+        "ru": "Глава армии Рагт"
+      },
+      "subtitle": "Verteron Inspector"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400017,
+      "internalName": "M_D1_DC_DranaVar_EL_01",
+      "textKey": "STR_M_D1_DC_DranaVar_EL_01",
+      "model": "MOB_DranaVar_02_V01",
+      "names": {
+        "de": "Geschmolzener Danar",
+        "en": "Melted Danar",
+        "es": "Danar fundido",
+        "fr": "Danar le fondu",
+        "ja": "溶け落ちたダナール",
+        "ko": "녹아내린 다나르",
+        "pt": "Danar Derretido",
+        "ru": "Расплавленный Данар"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400074,
+      "internalName": "M_D1_UC_SuraWar_05_01",
+      "textKey": "STR_M_D1_UC_SuraWar_05_01",
+      "model": "MOB_SuraWar_05_V02",
+      "names": {
+        "de": "Dunkelkrieger Aed",
+        "en": "Black Warrior Aed",
+        "es": "Guerrero negro Aed",
+        "fr": "Aed le guerrier noir",
+        "ja": "黒き戦士アエド",
+        "ko": "검은 전사 아에드",
+        "pt": "Guerreiro Negro Aed",
+        "ru": "Черный воин Аэд"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400140,
+      "internalName": "M_D1_SW_DracoWar_01_V02_01",
+      "textKey": "STR_M_D1_SW_DracoWar_01_V02_01",
+      "model": "MOB_DracoWar_01_V03",
+      "names": {
+        "de": "Treuer Rajit",
+        "en": "Faithful Rajit",
+        "es": "Rajit leal",
+        "fr": "Rajit le fidèle",
+        "ja": "忠実なラジト",
+        "ko": "충실한 라지트",
+        "pt": "Rajit Fiel",
+        "ru": "Верный Ладжит"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400141,
+      "internalName": "M_D1_SW_Varg_03_01",
+      "textKey": "STR_M_D1_SW_Varg_03_01",
+      "model": "MOB_Varg_03_V01",
+      "names": {
+        "de": "Berserker Vargor",
+        "en": "Berserker Vargor",
+        "es": "Berserker Vargor",
+        "fr": "Vargor le Berserker",
+        "ja": "狂戦士バルグ",
+        "ko": "광전사 발그",
+        "pt": "Berserker Vargor",
+        "ru": "Берсерк Вальг"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400212,
+      "internalName": "M_D1_MF_UrsussElite_01_001",
+      "textKey": "STR_M_D1_MF_UrsussElite_01_001",
+      "model": "MOB_UrsussElite_01_CV01",
+      "names": {
+        "de": "Verschlinger Garsan",
+        "en": "Predator Garsan",
+        "es": "Garsan depredador",
+        "fr": "Garsan le Prédateur",
+        "ja": "捕食者ガルサン",
+        "ko": "포식자 가르산",
+        "pt": "Predador Garsan",
+        "ru": "Хищник Гарсан"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400223,
+      "internalName": "M_D1_MF_DranaVar_02_001",
+      "textKey": "STR_M_D1_MF_DranaVar_02",
+      "model": "MOB_AltKnife_04_V02",
+      "names": {
+        "de": "Blutkrieger Lannar",
+        "en": "Blood Warrior Lannar",
+        "es": "Guerrero sangriento Lannar",
+        "fr": "Lannar le guerrier de sang",
+        "ja": "血戦士ランナール",
+        "ko": "혈전사 란나르",
+        "pt": "Guerreiro Sanguinário Lannar",
+        "ru": "Воин крови Ланнар"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400274,
+      "internalName": "M_D1_SH_NornirVar_02_01",
+      "textKey": "STR_M_D1_SH_NornirVar_02_01",
+      "model": "MOB_NornirVar_02_V02",
+      "names": {
+        "de": "Täuscherin Trid",
+        "en": "Deceiver Trid",
+        "es": "Impostora Trid",
+        "fr": "Trid la Trompeuse",
+        "ja": "欺瞞者トリド",
+        "ko": "기만자 트리드",
+        "pt": "Trid Enganadora",
+        "ru": "Притворщица Трида"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400335,
+      "internalName": "M_D1_PF_Keneir_Elite_01_01",
+      "textKey": "STR_M_D1_PF_WaterEle_Elite_01_01",
+      "model": "MOB_Keneir_01_V02",
+      "names": {
+        "de": "Blauwelle Kelpina",
+        "en": "Blue Wave Kelpina",
+        "es": "Kelpina de onda azul",
+        "fr": "Kelpina la Vague bleue",
+        "ja": "青波ケルピーナ",
+        "ko": "푸른물결 켈피나",
+        "pt": "Kelpina da Onda Azul",
+        "ru": "Келпина лазурной волны"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400353,
+      "internalName": "M_D1_DR_SkurvWar_04_001",
+      "textKey": "STR_M_D1_DR_SkurvWar_04_001",
+      "model": "MOB_SkurvWar_04_V03",
+      "names": {
+        "de": "Hauptaufseher Nutah",
+        "en": "High Overseer Nutah",
+        "es": "Nutah supervisor jefe",
+        "fr": "Nutah le Chef superviseur",
+        "ja": "総監督官ヌタ",
+        "ko": "총감독관 누타",
+        "pt": "Supervisor Geral Nutah",
+        "ru": "Главный надзиратель Нута"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400358,
+      "internalName": "M_D1_DR_DrakanElite_03_001",
+      "textKey": "STR_M_D1_DR_DrakanElite_03_001",
+      "model": "MOB_DrakanElite_03_V01",
+      "names": {
+        "de": "Berater Resana",
+        "en": "Advisor Resana",
+        "es": "Consejero Resana",
+        "fr": "Resana le Conseiller",
+        "ja": "参謀官ルサナ",
+        "ko": "참모관 르사나",
+        "pt": "Assessor Resana",
+        "ru": "Советник Рсан"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400419,
+      "internalName": "M_D1_BR_FighterM_01_001",
+      "textKey": "STR_M_D1_BR_FighterM_01",
+      "model": "MOB_FighterM_01_V03",
+      "names": {
+        "de": "Sondereinsatzhauptmann Linx",
+        "en": "Special Operations Leader Linx",
+        "es": "Líder de operaciones especiales Linx",
+        "fr": "Linx le Chef des opérations spéciales",
+        "ja": "別動隊長リンクス",
+        "ko": "별동대장 링크스",
+        "pt": "Capitão de Operações Especiais Linx",
+        "ru": "Капитан спецотряда Линкс"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400424,
+      "internalName": "M_D1_BR_AltKnife_08_001",
+      "textKey": "STR_M_D1_BR_AltKnife_08_001",
+      "model": "MOB_AltKnife_06",
+      "names": {
+        "de": "Schänder Newbold",
+        "en": "Desecrator Newbold",
+        "es": "Profanador Newbold",
+        "fr": "Newbold le Profanateur",
+        "ja": "冒涜者ノブルード",
+        "ko": "모독자 노블루드",
+        "pt": "Profanador Newbold",
+        "ru": "Осквернитель Ноблуд"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400425,
+      "internalName": "M_D1_BR_DstrArchonE_01_001",
+      "textKey": "STR_M_D1_BR_DstrArchonE_01_001",
+      "model": "MOB_DstrArchonE_01",
+      "names": {
+        "de": "Schattenarchon Axios",
+        "en": "Specter Archon Axios",
+        "es": "Akan de ánimas perdidas Axios",
+        "fr": "Axios l'Archon des âmes égarées",
+        "ja": "亡魂のアルコン アクシオス",
+        "ko": "망혼의 아칸 악시오스",
+        "pt": "Arconte da Alma Perdida Axios",
+        "ru": "Акан потерянных душ Аксиос"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400474,
+      "internalName": "M_D1_FD_Shulack_05_01",
+      "textKey": "STR_M_D1_FD_Shulack_05_01",
+      "model": "MOB_AddShulack_05",
+      "names": {
+        "de": "Vergifteter Hadirun",
+        "en": "Addicted Hardirun",
+        "es": "Hardirun envenenado",
+        "fr": "Hardirun l'intoxiqué",
+        "ja": "中毒になったハディルン",
+        "ko": "중독된 하디룬",
+        "pt": "Hardirun Envenenado",
+        "ru": "Одурманенный Хадирун"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400504,
+      "internalName": "M_D1_WGC_AltKnife_04_01",
+      "textKey": "STR_M_D1_WGC_AltKnife_04_01",
+      "model": "MOB_AltKnife_07",
+      "names": {
+        "de": "Henker Barthien",
+        "en": "Executioner Barthien",
+        "es": "Barthien verdugo",
+        "fr": "Barthien le Bourreau",
+        "ja": "処刑者バルシエン",
+        "ko": "처형자 바르시엔",
+        "pt": "Carrasco Barthien",
+        "ru": "Эмиссар Варсиен"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400593,
+      "internalName": "M_D1_EGC_BeritraD_04_001",
+      "textKey": "STR_M_D1_EGC_BeritraD_04_001",
+      "model": "MOB_BeritraD_04_V01",
+      "names": {
+        "de": "Bataillonswaffe Guruta (Drakan)",
+        "en": "Drakan Battalion Weapon Guruta",
+        "es": "Drakan artillería de destacamento Guruta",
+        "fr": "Guruta l'arme de troupe Drakan",
+        "ja": "ドラカン部隊兵器グルタ",
+        "ko": "드라칸 부대병기 구루타",
+        "pt": "Arma de Guerra Drakan Guruta",
+        "ru": "Биооружие отряда драканов Гурута"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400607,
+      "internalName": "M_D1_BCV_KrallElite_01_01",
+      "textKey": "STR_M_D1_BCV_KrallElite_01_01",
+      "model": "MOB_Lycan_05",
+      "names": {
+        "de": "Veteran Shujakan",
+        "en": "Veteran Shujakan",
+        "es": "Veterano Shujakan",
+        "fr": "Shujakan le Vétéran",
+        "ja": "百戦老将シュザカン",
+        "ko": "백전노장 슈자칸",
+        "pt": "Veterano Shujakan",
+        "ru": "Ветеран Шужакан"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400608,
+      "internalName": "M_D1_BCV_KrallElite_02_01",
+      "textKey": "STR_M_D1_BCV_KrallElite_02_01",
+      "model": "MOB_Lycan_04",
+      "names": {
+        "de": "Visionärer Karuka",
+        "en": "Visionary Karuka",
+        "es": "Karuka visionario",
+        "fr": "Karuka le Visionnaire",
+        "ja": "秘伝のカルカ",
+        "ko": "비전의 카루카",
+        "pt": "Visionário Karuka",
+        "ru": "Визионер Карука"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400659,
+      "internalName": "M_D1_LF_Sarca_Elite_01_01",
+      "textKey": "STR_M_D1_LF_Sarca_Elite_01_01",
+      "model": "MOB_BeritraD_03_V01",
+      "names": {
+        "de": "Dunkelschatten Vishwada",
+        "en": "Dark Shadow Vishwada",
+        "es": "Vishwada de oscuridad",
+        "fr": "Vishwada le Ténébreux",
+        "ja": "黒闇のビシュベダ",
+        "ko": "흑암의 비슈베다",
+        "pt": "Vishwada da Escuridão",
+        "ru": "Вишвада темной тени"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400709,
+      "internalName": "M_D1_IS_DracoElite_01_001",
+      "textKey": "STR_M_D1_IS_DracoElite_01_001",
+      "model": "MOB_DracoElite_01_V01",
+      "names": {
+        "de": "Scharfer Shylak",
+        "en": "Sharp Shylak",
+        "es": "Shylak agudo",
+        "fr": "Shylak l'Acéré",
+        "ja": "鋭きシュラク",
+        "ko": "예리한 쉬라크",
+        "pt": "Shylak Afiado",
+        "ru": "Острый Шурак"
+      },
+      "subtitle": "Altgard Unique"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400800,
+      "internalName": "M_D1_IoI_OdiumGartua_01_001",
+      "textKey": "STR_M_FE_IoE_OdiumGartua_02",
+      "model": "MOB_Gartua_01_V02",
+      "names": {
+        "de": "Unsterblicher Gartua",
+        "en": "Immortal Gartua",
+        "es": "Gartua inmortal",
+        "fr": "Gartua de l'immortalité",
+        "ja": "不滅のガルトゥア",
+        "ko": "불멸의 가르투아",
+        "pt": "Gartua Imortal",
+        "ru": "Бессмертный Гартуа"
+      },
+      "subtitle": null
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400853,
+      "internalName": "M_D1_FieldBoss_Lagta_02",
+      "textKey": "STR_M_D1_FieldBoss_Lagta_01",
+      "model": "MOB_Lagta_01",
+      "names": {
+        "de": "Legat Lagta",
+        "en": "High Commander Lagta",
+        "es": "Comandante de Lagta",
+        "fr": "Haut Commandant Lagta",
+        "ja": "軍団長ラグタ",
+        "ko": "군단장 라그타",
+        "pt": "Brigadeiro Lagta",
+        "ru": "Глава армии Рагт"
+      },
+      "subtitle": "Altgard Overseer"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400854,
+      "internalName": "M_D1_FieldBoss_Kashapa_02",
+      "textKey": "STR_M_D1_FieldBoss_Kashapa_01",
+      "model": "MOB_Kashapa_01",
+      "names": {
+        "de": "Seelenherrscher Kashapa",
+        "en": "Soul Ruler Kashapa",
+        "es": "Gobernante de almas Kashapa",
+        "fr": "Kashapa le dominateur des âmes",
+        "ja": "魂の支配者カシャパ",
+        "ko": "영혼 지배자 카샤파",
+        "pt": "Dominador das Almas Kashapa",
+        "ru": "Властелин душ Кашапа"
+      },
+      "subtitle": "Altgard Overseer"
+    },
+    {
+      "group": "altgard",
+      "npcId": 2400855,
+      "internalName": "M_D1_FieldBoss_BeritraD_01_001",
+      "textKey": "STR_M_D1_FieldBoss_BeritraD_01_001",
+      "model": "MOB_BeritraD_01",
+      "names": {
+        "de": "Schweigender Dartan",
+        "en": "Silent Dartan",
+        "es": "Dartan del silencio",
+        "fr": "Dartan la Silencieuse",
+        "ja": "沈黙のタルタン",
+        "ko": "침묵의 타르탄",
+        "pt": "Dartan do Silêncio",
+        "ru": "Немая Тартан"
+      },
+      "subtitle": "Altgard Overseer"
+    }
+  ]
+}
