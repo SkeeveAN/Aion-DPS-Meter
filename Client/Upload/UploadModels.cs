@@ -52,7 +52,12 @@ public sealed record ParticipantUpload(
     // The guild the packet stream named next to this player. Null where unknown.
     string? Guild = null,
     // The character profile (see ProfileUpload).
-    ProfileUpload? Profile = null);
+    ProfileUpload? Profile = null,
+    // Shields this player gave, per recipient (the class that owns the shield skill, worked out from the
+    // group; nothing when it is ambiguous).
+    IReadOnlyList<ShieldGivenUpload>? ShieldsGiven = null);
+
+public sealed record ShieldGivenUpload(string PlayerName, long Amount);
 
 /// <summary>An Aion 2 character as the client read it from the game's traffic (ids only; the website
 /// resolves names). Source "self" is the uploader's own character - level, full equipment with

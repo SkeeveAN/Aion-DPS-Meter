@@ -1688,6 +1688,54 @@ public partial class MainWindow : Window
     /// </summary>
     private static readonly TimeSpan BuffPrePullGrace = TimeSpan.FromSeconds(30);
 
+    /// <summary>
+    /// Fills in who shielded whom. A shield arrives as an event on its recipient only, so the caster is
+    /// the one player of the group whose class owns the shield skill (Defiance is a Gladiator's, Warding
+    /// Shield a Templar's). With two of that class in the group it cannot be told, and nothing is credited.
+    /// </summary>
+    private List<ParticipantUpload> AttachShieldsGiven(List<ParticipantUpload> participants, DateTime windowStart, DateTime windowEnd)
+    {
+        var given = new Dictionary<string, Dictionary<string, long>>();
+        foreach (DamageEvent shield in _aggregator.Shields)
+        {
+            if (shield.Timestamp < windowStart || shield.Timestamp > windowEnd)
+            {
+                continue;
+            }
+
+            string? caster = null;
+            if (Aion2.Protocol.Aion2SkillNames.ClassOf(shield.SkillId) is string casterClass)
+            {
+                var candidates = participants.Where(p => p.ClassName == casterClass).ToList();
+                caster = candidates.Count == 1 ? candidates[0].Name : null;
+            }
+
+            string? recipient = _rows.FirstOrDefault(r => r.ObjectId == shield.TargetObjectId)?.Name;
+            if (caster is null || recipient is null || recipient.StartsWith("Player #", StringComparison.Ordinal) || recipient.StartsWith("0x", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (!given.TryGetValue(caster, out var perRecipient))
+            {
+                perRecipient = given[caster] = new Dictionary<string, long>();
+            }
+
+            perRecipient[recipient] = perRecipient.GetValueOrDefault(recipient) + shield.Amount;
+        }
+
+        if (given.Count == 0)
+        {
+            return participants;
+        }
+
+        return participants
+            .Select(p => given.TryGetValue(p.Name, out var perRecipient)
+                ? p with { ShieldsGiven = perRecipient.OrderByDescending(kv => kv.Value).Take(40).Select(kv => new ShieldGivenUpload(kv.Key, kv.Value)).ToList() }
+                : p)
+            .ToList();
+    }
+
     private EncounterUploadRequest? BuildEncounterUpload(
         int targetId, string serverFingerprint, string? serverName,
         IReadOnlyList<DamageEvent> targetHits, DateTime windowStart, DateTime windowEnd)
@@ -1826,6 +1874,8 @@ public partial class MainWindow : Window
                 aion2Directory?.GuildOf(ProfileIdOf(row)),
                 BuildProfileUpload(ProfileIdOf(row))));
         }
+
+        participants = AttachShieldsGiven(participants, windowStart, windowEnd);
 
         // Two rows of the own character (the object id changed during the run) would both be "self";
         // the backend wants exactly one, and merges same-named participants itself afterwards.

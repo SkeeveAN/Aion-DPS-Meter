@@ -8,6 +8,11 @@ namespace AionDPS.Combat;
 public sealed class LiveAggregator
 {
     private readonly List<DamageEvent> _events = new();
+    private readonly List<DamageEvent> _shields = new();
+
+    /// <summary>Shield events (see <see cref="ShieldSkills"/>), kept out of <see cref="Events"/> so they
+    /// are not counted as healing.</summary>
+    public IReadOnlyList<DamageEvent> Shields => _shields;
 
     public IReadOnlyList<DamageEvent> Events => _events;
 
@@ -17,8 +22,20 @@ public sealed class LiveAggregator
     /// anyone: with all targets shown it used to add 150,000 to one Assassin's total and 8,960 to a
     /// Sorcerer's, which the boss-only view and the website never showed. Self-heals stay.
     /// </summary>
-    public void IngestEvents(IEnumerable<DamageEvent> events) =>
-        _events.AddRange(events.Where(e => e.IsHeal || e.SourceObjectId != e.TargetObjectId));
+    public void IngestEvents(IEnumerable<DamageEvent> events)
+    {
+        foreach (DamageEvent e in events)
+        {
+            if (ShieldSkills.IsShield(e))
+            {
+                _shields.Add(e);
+            }
+            else if (e.IsHeal || e.SourceObjectId != e.TargetObjectId)
+            {
+                _events.Add(e);
+            }
+        }
+    }
 
     /// <summary>
     /// Discards all events for a fresh session. Previously missing on purpose-turned-oversight:
@@ -26,7 +43,11 @@ public sealed class LiveAggregator
     /// in place -- so DpsCalculator kept averaging in pre-clear damage into any "new" numbers
     /// instead of starting from zero, invisibly, since the row list looked empty right after.
     /// </summary>
-    public void Clear() => _events.Clear();
+    public void Clear()
+    {
+        _events.Clear();
+        _shields.Clear();
+    }
 
     /// <summary>
     /// Credits a summon's earlier hits to its owner, once the owner is known: the class-skill hits
