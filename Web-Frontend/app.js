@@ -563,6 +563,19 @@ const INSTANCE_TAB_ORDER = ["expedition", "nightmare", "ascension", "transcenden
 const isWorldBossArea = (instance) => instance?.category === "worldboss";
 const areaPath = (instance) => (isWorldBossArea(instance) ? `/worldbosses/${instance.slug}` : `/instances/${instance.slug}`);
 /** Root crumbs of an instance or world boss area: Home > Instances | Home > World Bosses. */
+/** Crumbs down to a boss: root crumbs › its instance (same as the boss page); `e` carries bossId + instance fields. */
+function bossCrumbs(e) {
+  const worldBoss = e.instanceCategory === "worldboss";
+  const tail = e.instanceSlug
+    ? [
+        e.instanceCategory === "nightmare"
+          ? link(t("category.nightmare"), gp("/instances/nightmare"))
+          : link(displayName({ name: e.instanceName, nameEn: e.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${e.instanceSlug}`)),
+      ]
+    : [];
+  return [...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), ...tail, link(translateGameName(e.bossName), gp(`/bosses/${e.bossId}`))];
+}
+
 function areaCrumbs(instance) {
   return isWorldBossArea(instance) ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs();
 }
@@ -1531,7 +1544,7 @@ async function renderEncounter(encounterId) {
   showLoading(t("loading.encounter"));
 
   const data = await fetchJson(`/api/encounters/${encodeURIComponent(encounterId)}`);
-  setBreadcrumb([...gameCrumbs(), link(translateGameName(data.encounter.bossName), gp(`/bosses/${data.encounter.bossId}`))]);
+  setBreadcrumb(bossCrumbs(data.encounter));
 
   const bossName = translateGameName(data.encounter.bossName);
   const pills = [
@@ -1638,11 +1651,7 @@ async function renderParticipant(participantId) {
   showLoading(t("loading.participant"));
 
   const data = await fetchJson(`/api/participants/${encodeURIComponent(participantId)}`);
-  setBreadcrumb([
-    ...gameCrumbs(),
-    link(translateGameName(data.encounter.bossName), gp(`/bosses/${data.encounter.bossId}`)),
-    data.participant.playerName,
-  ]);
+  setBreadcrumb([...bossCrumbs(data.encounter), data.participant.playerName]);
 
   const p = data.participant;
   const e = data.encounter;

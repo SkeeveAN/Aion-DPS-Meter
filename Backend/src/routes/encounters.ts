@@ -80,6 +80,10 @@ export async function encounterRoutes(app: FastifyInstance) {
         serverId: encounters.serverId,
         serverName: servers.displayName,
         game: instances.game,
+        instanceName: instances.name,
+        instanceNameEn: instances.nameEn,
+        instanceSlug: instances.slug,
+        instanceCategory: instances.category,
       })
       .from(encounters)
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))
@@ -180,6 +184,10 @@ export async function encounterRoutes(app: FastifyInstance) {
         startedAt: encounters.startedAt,
         durationSeconds: encounters.durationSeconds,
         game: instances.game,
+        instanceName: instances.name,
+        instanceNameEn: instances.nameEn,
+        instanceSlug: instances.slug,
+        instanceCategory: instances.category,
       })
       .from(encounters)
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))
