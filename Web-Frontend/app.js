@@ -435,17 +435,70 @@ function renderFeedback() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("feedback.title")]);
   document.title = `${t("feedback.title")} – ${SITE_TITLE}`;
 
-  const field = (labelKey, control, hintKey) =>
-    el("label", { className: "feedback-field" }, [
+  const field = (labelKey, control, hintKey, tag = "label") =>
+    el(tag, { className: "feedback-field" }, [
       el("span", { className: "feedback-label", textContent: t(labelKey) }),
       control,
       ...(hintKey ? [el("small", { textContent: t(hintKey) })] : []),
     ]);
-  const type = el("select", { name: "type" }, [
-    el("option", { value: "issue", textContent: t("feedback.typeIssue") }),
-    el("option", { value: "feature", textContent: t("feedback.typeFeature") }),
-    el("option", { value: "improvement", textContent: t("feedback.typeImprovement") }),
-  ]);
+  // A real <select> opens the OS's own popup, which ignores the theme (dark text on a grey sheet,
+  // highlight narrower than the list), so the type picker is a small listbox of its own.
+  const typeOptions = [
+    ["issue", t("feedback.typeIssue")],
+    ["feature", t("feedback.typeFeature")],
+    ["improvement", t("feedback.typeImprovement")],
+  ];
+  const type = { value: "issue" };
+  const typeButton = el("button", { type: "button", className: "dropdown-button" });
+  typeButton.setAttribute("aria-haspopup", "listbox");
+  typeButton.setAttribute("aria-expanded", "false");
+  const typeList = el("ul", { className: "dropdown-list", role: "listbox", hidden: true });
+  const typeItems = typeOptions.map(([value, label]) => {
+    const item = el("li", { role: "option", tabIndex: -1, textContent: label });
+    item.addEventListener("click", () => choose(value));
+    item.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        choose(value);
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        (item.nextElementSibling ?? typeList.firstElementChild).focus();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        (item.previousElementSibling ?? typeList.lastElementChild).focus();
+      }
+    });
+    typeList.appendChild(item);
+    return { value, item };
+  });
+  function setOpen(open) {
+    typeList.hidden = !open;
+    typeButton.setAttribute("aria-expanded", String(open));
+    if (open) {
+      typeItems.find((o) => o.value === type.value).item.focus();
+    }
+  }
+  function choose(value) {
+    type.value = value;
+    typeButton.textContent = typeOptions.find(([v]) => v === value)[1];
+    typeItems.forEach((o) => o.item.setAttribute("aria-selected", String(o.value === value)));
+    setOpen(false);
+    typeButton.focus();
+  }
+  typeButton.addEventListener("click", () => setOpen(typeList.hidden));
+  typeList.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setOpen(false);
+      typeButton.focus();
+    }
+  });
+  document.addEventListener("click", (event) => {
+    if (!typeList.hidden && !typeList.parentElement?.contains(event.target)) {
+      setOpen(false);
+    }
+  });
+  choose("issue");
+  const typeControl = el("div", { className: "dropdown" }, [typeButton, typeList]);
   const name = el("input", { type: "text", name: "name", maxLength: 80, required: true, autocomplete: "name" });
   const email = el("input", { type: "email", name: "email", maxLength: 200, autocomplete: "email" });
   const message = el("textarea", { name: "message", rows: 8, maxLength: 5000, required: true, minLength: 10 });
@@ -455,7 +508,7 @@ function renderFeedback() {
   const send = el("button", { type: "submit", className: "feedback-send", textContent: t("feedback.send") });
 
   const form = el("form", { className: "feedback-form" }, [
-    field("feedback.type", type),
+    field("feedback.type", typeControl, undefined, "div"),
     field("feedback.name", name),
     field("feedback.email", email, "feedback.emailHint"),
     field("feedback.message", message),

@@ -2562,9 +2562,22 @@ body:has(.download-hero) .nav-download-link:hover,
   font: inherit; color: inherit; background: transparent;
   border: 1px solid var(--color-border, rgba(128, 128, 128, 0.5)); border-radius: 4px; padding: 8px 10px;
 }
-.feedback-field select { appearance: none; cursor: pointer; padding-right: 34px;
-  background: var(--color-surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%2371828d' stroke-width='2'/></svg>") no-repeat right 12px center; }
-.feedback-field select option { background: var(--color-surface); color: var(--color-text); }
+.dropdown { position: relative; }
+.dropdown-button {
+  width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  border: 1px solid var(--color-border); border-radius: 4px; padding: 8px 34px 8px 10px;
+  background: var(--color-surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%2371828d' stroke-width='2'/></svg>") no-repeat right 12px center;
+}
+.dropdown-button:hover, .dropdown-button[aria-expanded="true"] { border-color: var(--color-primary); }
+.dropdown-list {
+  position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 20; margin: 0; padding: 4px; list-style: none;
+  background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.dropdown-list[hidden] { display: none; }
+.dropdown-list li { padding: 8px 10px; border-radius: 4px; cursor: pointer; color: var(--color-text); }
+.dropdown-list li:hover, .dropdown-list li:focus { background: var(--color-primary); color: var(--color-primary-on); outline: none; }
+.dropdown-list li[aria-selected="true"] { font-weight: 600; }
 .feedback-trap { position: absolute; left: -10000px; width: 1px; height: 1px; opacity: 0; }
 .feedback-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .feedback-send {
