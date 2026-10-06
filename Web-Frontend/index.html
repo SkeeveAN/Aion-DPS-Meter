@@ -9,14 +9,7 @@
        light/dark preference (must match theme.js's DEFAULT_THEME, or that module's later re-sync
        would itself cause the flash this script exists to avoid). Kept in sync afterwards by
        theme.js; see that module's own remarks. -->
-  <script>
-    (function () {
-      try {
-        var theme = localStorage.getItem("dpsmeter.theme") || "dark";
-        document.documentElement.setAttribute("data-theme", theme);
-      } catch (e) {}
-    })();
-  </script>
+  <script src="/theme-init.js"></script>
   <!--SEO:HEAD-->
   <title>Aion DPS Meter – Free Damage Meter & Boss Leaderboards</title>
   <meta name="description" content="Free open-source DPS/HPS meter for Aion 2 (passive network packet capture) with community boss leaderboards and character profiles. Never reads game memory, never hooks the client." />
