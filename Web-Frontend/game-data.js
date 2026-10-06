@@ -180,6 +180,10 @@ export const INSTANCE_IMAGES = {
   "Hall of Illusion": "/images/aion2/instances/hall-of-illusion.jpg",
   "Abyssal Forge: Ludra": "/images/aion2/instances/abyssal-forge-ludra.jpg",
   "Noiran's Hidden Legacy": "/images/aion2/instances/noiran-s-hidden-legacy.jpg",
+  // World boss areas: landscapes from the client (Agit paintings / Abyss background):
+  Verteron: "/images/aion2/instances/verteron.jpg",
+  Altgard: "/images/aion2/instances/altgard.jpg",
+  Abyss: "/images/aion2/instances/abyss.jpg",
 };
 
 // Vertical position (object-position y) of each instance photo in the wide hero banner (16:9 photo, ~1:5 window): puts the boss/subject into view. Default centred.
@@ -211,6 +215,9 @@ export const INSTANCE_FOCUS = {
   "Draupnir (Conquest)": "50% 41%",
   "Vakron Sky Island (Conquest)": "50% 55%",
   "Ferocious Horn Den (Conquest)": "50% 58%",
+  Verteron: "50% 50%",
+  Altgard: "50% 50%",
+  Abyss: "50% 50%",
 };
 
 // Boss cards (720x400) for the expedition / transcendence / ascension bosses: the client's boss portrait on a blurred copy of the instance photo. Conquest runs use the same names.
