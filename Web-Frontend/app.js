@@ -268,7 +268,7 @@ async function renderHome() {
         // button's line box taller than .btn-blue's plain text in the first place.
         el("span", { textContent: t("home.downloadCta").replace(/^⬇\s*/, "") }),
       ]),
-      el("a", { className: "btn btn-blue", href: "/instances" }, [el("span", { textContent: t("home.secondaryCta") })]),
+      el("a", { className: "btn btn-blue", href: "/instances" }, [el("span", { textContent: t("breadcrumb.instances") })]),
       el("a", { className: "btn btn-blue", href: "/worldbosses" }, [el("span", { textContent: t("category.worldboss") })]),
     ]),
   ]);
