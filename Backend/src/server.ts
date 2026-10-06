@@ -21,7 +21,12 @@ import { pageRoutes, sendNotFound } from "./routes/pages.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function buildServer() {
-  const app = Fastify({ logger: true });
+  const app = Fastify({
+    logger: true,
+    // Listens on 127.0.0.1 behind nginx only, which overwrites X-Forwarded-For with the real peer
+    // address; without this every visitor shows up as 127.0.0.1 and shares one rate-limit bucket.
+    trustProxy: true,
+  });
 
   await app.register(cors, { origin: env.CORS_ORIGIN });
   await app.register(rateLimit, {
