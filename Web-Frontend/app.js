@@ -381,7 +381,13 @@ function buildRecentActivitySection(rows) {
     return el("a", { className: "hp-run", href: gp(`/encounters/${r.encounterId}`) }, [
       el("span", { className: "hp-thumb", style: photo ? `background-image:url('${smallPhoto(photo)}')` : "" }),
       el("span", { className: "hp-run-mid" }, [
-        el("b", { textContent: displayName({ name: r.bossName, nameEn: r.bossNameEn }) }),
+        el("b", {}, [
+          displayName({ name: r.bossName, nameEn: r.bossNameEn }),
+          // A Nightmare run carries its difficulty step (1-10) in the mode.
+          ...(r.instanceCategory === "nightmare" && /^\d+$/.test(r.mode ?? "")
+            ? [el("span", { className: "hp-nm-pill", textContent: `${t("category.nightmare")} ${r.mode}` })]
+            : []),
+        ]),
         el("span", { className: "hp-run-sub" }, [
           `${instanceName} · ${formatDuration(r.durationSeconds)} · ${formatRelativeTime(r.createdAt)}`,
           ...(r.topPlayerName ? [" · ", classEmblem(r.topPlayerClassName, true), r.topPlayerName] : []),

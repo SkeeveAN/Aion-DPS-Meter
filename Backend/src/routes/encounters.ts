@@ -26,12 +26,14 @@ export async function encounterRoutes(app: FastifyInstance) {
         createdAt: encounters.createdAt,
         groupIDps: encounters.groupIDps,
         durationSeconds: encounters.durationSeconds,
+        mode: encounters.mode,
         bossName: bosses.name,
         bossNameEn: bosses.nameEn,
         bossSlug: bosses.slug,
         instanceName: instances.name,
         instanceNameEn: instances.nameEn,
         instanceSlug: instances.slug,
+        instanceCategory: instances.category,
       })
       .from(encounters)
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))

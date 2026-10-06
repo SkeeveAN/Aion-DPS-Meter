@@ -2593,3 +2593,14 @@ body:has(.download-hero) .nav-download-link:hover,
 .feedback-send:disabled { opacity: 0.6; cursor: default; }
 .feedback-status.error { color: #e5484d; }
 .feedback-status.ok { font-weight: 600; }
+
+/* Nightmare step pill on the start page's recent runs. */
+.hp-run-mid b { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hp-nm-pill {
+  display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 99px; white-space: nowrap;
+  font-size: 0.72rem; font-weight: 600; line-height: 1.5;
+  color: #7a3fd0; background: rgba(122, 63, 208, 0.12); border: 1px solid rgba(122, 63, 208, 0.45);
+}
+:root[data-theme="dark"] .hp-nm-pill, :root:not([data-theme="light"]) .hp-nm-pill {
+  color: #c9a2ff; background: rgba(176, 124, 255, 0.16); border-color: rgba(201, 162, 255, 0.45);
+}
