@@ -3516,11 +3516,24 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>In overlay mode the bars are three quarters of the window's width (the rest stays
-    /// transparent), set whenever the window is resized or the mode is switched on.</summary>
-    private const double OverlayWidthShare = 0.75;
+    /// <summary>In overlay mode the chips sit exactly where the player list sits in the normal window
+    /// (same left edge, top and width), so switching only drops the frame and nothing changes size.
+    /// Measured while the normal content is still visible; kept for the time it is hidden.</summary>
+    private double _overlayLeft, _overlayTop, _overlayRightInset;
 
-    private void UpdateOverlayWidth() => OverlayContent.Width = Math.Max(ActualWidth * OverlayWidthShare, 120);
+    private void UpdateOverlayWidth()
+    {
+        if (NormalContent.Visibility == Visibility.Visible && PlayersGrid.IsVisible && PlayersGrid.ActualWidth > 0)
+        {
+            Point origin = PlayersGrid.TranslatePoint(new Point(0, 0), this);
+            _overlayLeft = origin.X;
+            _overlayTop = origin.Y;
+            _overlayRightInset = Math.Max(0, ActualWidth - origin.X - PlayersGrid.ActualWidth);
+        }
+
+        OverlayContent.Margin = new Thickness(_overlayLeft, _overlayTop, 0, 0);
+        OverlayContent.Width = Math.Max(ActualWidth - _overlayLeft - _overlayRightInset, 120);
+    }
 
     private void SetHideUi()
     {
