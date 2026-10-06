@@ -142,7 +142,7 @@
       "positionSheet": null
     },
     {
-      "bossKey": "Draupnir/afflicted-bakarma",
+      "bossKey": "Draupnir/transcendent-bakarma",
       "key": "stagger-waves-1",
       "sortOrder": 0,
       "trigger": {
@@ -155,7 +155,7 @@
       "positionSheet": null
     },
     {
-      "bossKey": "Draupnir/afflicted-bakarma",
+      "bossKey": "Draupnir/transcendent-bakarma",
       "key": "jump-waves",
       "sortOrder": 1,
       "trigger": {
@@ -168,7 +168,7 @@
       "positionSheet": null
     },
     {
-      "bossKey": "Draupnir/afflicted-bakarma",
+      "bossKey": "Draupnir/transcendent-bakarma",
       "key": "stagger-waves-2",
       "sortOrder": 2,
       "trigger": {

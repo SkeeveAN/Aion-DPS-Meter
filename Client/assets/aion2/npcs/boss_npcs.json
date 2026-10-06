@@ -823,7 +823,7 @@
 "instance": "Deus Research Base"
 },
 "2300470": {
-"name": "Afflicted Bakarma",
+"name": "Transcendent Bakarma",
 "instance": "Draupnir"
 },
 "2300471": {
@@ -1635,7 +1635,7 @@
 "instance": "Fire Temple (Conquest)"
 },
 "2310470": {
-"name": "Afflicted Bakarma",
+"name": "Transcendent Bakarma",
 "instance": "Draupnir (Conquest)"
 },
 "2310471": {
@@ -1643,7 +1643,7 @@
 "instance": "Draupnir (Conquest)"
 },
 "2320470": {
-"name": "Afflicted Bakarma",
+"name": "Transcendent Bakarma",
 "instance": "Draupnir (Conquest)"
 },
 "2320471": {
@@ -1651,7 +1651,7 @@
 "instance": "Draupnir (Conquest)"
 },
 "2330423": {
-"name": "Afflicted Bakarma",
+"name": "Transcendent Bakarma",
 "instance": "Draupnir (Conquest)"
 },
 "2330424": {
@@ -2040,6 +2040,14 @@
 },
 "2600096": {
 "name": "Executor Tamasa",
+"instance": "Abyss"
+},
+"2600097": {
+"name": "Executor Argo",
+"instance": "Abyss"
+},
+"2600098": {
+"name": "Executor Kaira",
 "instance": "Abyss"
 },
 "2100003": {

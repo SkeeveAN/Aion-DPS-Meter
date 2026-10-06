@@ -284,6 +284,8 @@ export const BOSS_IMAGES = {
   "Drakan Battalion Weapon Guruta": "/images/aion2/bosses/mob-beritrad-04-v01.webp",
   "Eternal Gartua": "/images/aion2/bosses/mob-gartua-01-v02.webp",
   "Executioner Barthien": "/images/aion2/bosses/mob-altknife-07.webp",
+  "Executor Argo": "/images/aion2/bosses/mob-eleking-01-v02.webp",
+  "Executor Kaira": "/images/aion2/bosses/mob-beritrad-01.webp",
   "Executor Tamasa": "/images/aion2/bosses/mob-radvima-01-cv02.webp",
   "Faithful Rajit": "/images/aion2/bosses/mob-dracowar-01-v03.webp",
   "Forest Warrior Aullamu": "/images/aion2/bosses/mob-owlelite-01-v01.webp",

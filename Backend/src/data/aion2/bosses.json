@@ -824,28 +824,6 @@
       "hasMechanics": true
     },
     {
-      "key": "Draupnir/afflicted-bakarma",
-      "instanceKey": "Draupnir",
-      "slug": "afflicted-bakarma-draupnir",
-      "name": {
-        "en": "Afflicted Bakarma",
-        "ko": "고뇌하는 바카르마",
-        "zh": "苦惱的巴卡爾摩",
-        "de": "Gequälter Bakarma",
-        "es": "Bakarma agonizante",
-        "fr": "Bakarma tourmenté",
-        "ja": "苦悩するヴォカルマ",
-        "pt": "Bakarma Agonizado",
-        "ru": "Мучающийся Бакрам"
-      },
-      "npcIds": [
-        2300470
-      ],
-      "level": 45,
-      "internalName": "M_PD_Draupnir_Bakarma_01",
-      "hasMechanics": true
-    },
-    {
       "key": "Draupnir/phantasmal-lakshmi",
       "instanceKey": "Draupnir",
       "slug": "phantasmal-lakshmi",
@@ -905,6 +883,7 @@
         "ru": "Возвышенный Бакрам"
       },
       "npcIds": [
+        2300470,
         2300471
       ],
       "level": 45,
@@ -2473,30 +2452,6 @@
       "hasMechanics": true
     },
     {
-      "key": "Draupnir/afflicted-bakarma:conquest",
-      "instanceKey": "Draupnir:conquest",
-      "slug": "afflicted-bakarma-draupnir-conquest",
-      "name": {
-        "en": "Afflicted Bakarma",
-        "ko": "고뇌하는 바카르마",
-        "zh": "苦惱的巴卡爾摩",
-        "de": "Gequälter Bakarma",
-        "es": "Bakarma agonizante",
-        "fr": "Bakarma tourmenté",
-        "ja": "苦悩するヴォカルマ",
-        "pt": "Bakarma Agonizado",
-        "ru": "Мучающийся Бакрам"
-      },
-      "npcIds": [
-        2310470,
-        2320470,
-        2330423
-      ],
-      "level": 45,
-      "internalName": "M_PD_Draupnir_Bakarma_01",
-      "hasMechanics": true
-    },
-    {
       "key": "Draupnir/phantasmal-lakshmi:conquest",
       "instanceKey": "Draupnir:conquest",
       "slug": "phantasmal-lakshmi-conquest",
@@ -2560,8 +2515,11 @@
         "ru": "Возвышенный Бакрам"
       },
       "npcIds": [
+        2310470,
         2310471,
+        2320470,
         2320471,
+        2330423,
         2330424
       ],
       "level": 45,
@@ -3037,6 +2995,48 @@
       ],
       "level": null,
       "internalName": "M_AR1_Radvima_01_CV02_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAbyss/executor-argo",
+      "instanceKey": "WorldAbyss",
+      "slug": "executor-argo",
+      "name": {
+        "de": "Vollstrecker Agro",
+        "en": "Executor Argo",
+        "es": "Ejecutante Agro",
+        "fr": "Agro exécuteur",
+        "ja": "執行者アグロ",
+        "ko": "집행자 아그로",
+        "pt": "Executor Argo",
+        "ru": "Исполнитель Агро"
+      },
+      "npcIds": [
+        2600097
+      ],
+      "level": null,
+      "internalName": "M_AR1_WSA_EleKing_01_V02_002",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAbyss/executor-kaira",
+      "instanceKey": "WorldAbyss",
+      "slug": "executor-kaira",
+      "name": {
+        "de": "Vollstreckerin Kaira",
+        "en": "Executor Kaira",
+        "es": "Ejecutante Kaira",
+        "fr": "Kaira exécutrice",
+        "ja": "執行者カイラ",
+        "ko": "집행자 카이라",
+        "pt": "Executor Kairah",
+        "ru": "Исполнитель Кайра"
+      },
+      "npcIds": [
+        2600098
+      ],
+      "level": null,
+      "internalName": "M_AR1_BeritraD_01_002",
       "hasMechanics": false
     },
     {
