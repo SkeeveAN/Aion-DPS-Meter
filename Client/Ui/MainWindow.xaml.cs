@@ -2131,6 +2131,7 @@ public partial class MainWindow : Window
                 // such a boss was never uploaded by itself and had to be sent by hand.
                 if (quietLong)
                 {
+                    AutoUploadLog.Write($"boss {entityId}: no HP reading, quiet for {BossQuietBeforeUpload.TotalSeconds:0} s after a fight");
                     defeated.Add(entityId);
                     _bossActivity.Remove(entityId);
                 }
@@ -2208,9 +2209,14 @@ public partial class MainWindow : Window
             return;
         }
 
+        bool added = false;
         foreach (int entityId in bossEntityIds)
         {
-            _bossesToUpload.Add(entityId);
+            if (_bossesToUpload.Add(entityId))
+            {
+                added = true;
+                AutoUploadLog.Write($"boss {entityId} queued for the automatic upload");
+            }
         }
 
         if (_bossesToUpload.Count == 0)
@@ -2228,16 +2234,24 @@ public partial class MainWindow : Window
             };
         }
 
-        _bossUploadTimer.Stop();
-        _bossUploadTimer.Start();
+        // Restart the 4 s wait only when something new was queued. This runs on every poll tick;
+        // restarting it on each of them (while a boss was waiting) pushed the upload back forever,
+        // so the automatic upload fired only now and then.
+        if (added || !_bossUploadTimer.IsEnabled)
+        {
+            _bossUploadTimer.Stop();
+            _bossUploadTimer.Start();
+        }
     }
 
     private async Task UploadKilledBossesAsync()
     {
         var targetIds = _bossesToUpload.ToList();
         _bossesToUpload.Clear();
+        AutoUploadLog.Write($"automatic upload starts for {targetIds.Count} boss(es)");
         if (ResolveServerIdentity() is not (string fingerprint, var displayName))
         {
+            AutoUploadLog.Write("server not identified - nothing sent");
             ShowUploadStatus(ServerNotIdentified);
             return;
         }
@@ -2259,10 +2273,12 @@ public partial class MainWindow : Window
             var payload = BuildEncounterUpload(targetId, fingerprint, displayName);
             if (payload is null)
             {
+                AutoUploadLog.Write($"boss {targetId}: no payload (no hits, unknown boss or no own character)");
                 continue;
             }
 
             UploadResult result = await UploadClient.SendAsync(payload);
+            AutoUploadLog.Write($"boss {targetId} '{payload.BossNpcName}': {(result.Success ? "uploaded" : "failed: " + result.Error)}");
             if (result.Success)
             {
                 uploaded++;

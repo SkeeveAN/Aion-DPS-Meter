@@ -354,9 +354,9 @@ function buildSiteFooter() {
 function buildTopPlayersSection(rows, game) {
   const best = Math.max(...rows.map((r) => r.idps), 1);
   const list = rows.map((r, i) =>
-    el("a", { className: "hp-prow", href: gp(`/encounters/${r.encounterId}`), style: i < 3 ? `--medal:${MEDAL_COLORS[i]}` : "" }, [
+    el("a", { className: "hp-prow", href: gp(`/encounters/${r.encounterId}`), style: `--cc:${classMeta(r.className).color};${i < 3 ? `--medal:${MEDAL_COLORS[i]}` : ""}` }, [
       el("span", { className: "hp-rank", textContent: String(i + 1) }),
-      classEmblem(r.className, false),
+      classEmblem(r.className, false, true),
       el("span", { className: "hp-who" }, [
         el("b", { textContent: r.playerName }),
         el("span", { textContent: [displayName({ name: r.bossName, nameEn: r.bossNameEn }), r.serverName].filter(Boolean).join(" · ") }),

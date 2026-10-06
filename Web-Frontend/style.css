@@ -2379,7 +2379,10 @@ body:has(.download-hero) .nav-download-link:hover,
 /* ---- Homepage: top players and recent runs as cards (class emblems, medals, run photos) ---- */
 .hp-list { display: grid; gap: 8px; }
 .hp-prow { display: grid; grid-template-columns: 30px 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; position: relative; overflow: hidden; padding: 8px 14px; border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--color-surface2) 45%, transparent); color: var(--color-text); text-decoration: none; }
+.hp-prow { border-color: color-mix(in srgb, var(--cc) 30%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--cc) 20%, transparent), color-mix(in srgb, var(--cc) 6%, transparent)); }
+.hp-prow .hp-fill { background: var(--cc); }
 .hp-prow:hover, .hp-run:hover { border-color: var(--color-primary); }
+.hp-prow:hover { border-color: var(--cc); }
 .hp-rank { font-size: 1.3rem; font-weight: 700; color: var(--medal, var(--color-text-muted)); text-align: center; }
 .hp-prow .lb-emblem { width: 40px; height: 40px; }
 .hp-who b { display: block; }
