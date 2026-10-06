@@ -1688,11 +1688,13 @@ async function renderEncounter(encounterId) {
       textContent: `${t("encounter.appVersion")} ${data.encounter.appVersion ?? t("encounter.appVersionUnknown")}`,
     }),
   ];
-  const photo = BOSS_IMAGES[data.encounter.bossName] ?? null;
+  // Same picture as the boss page: the boss's own banner, else the instance photo.
+  const bossBanner = BOSS_IMAGES[data.encounter.bossName];
+  const photo = bossBanner ?? INSTANCE_IMAGES[data.encounter.instanceName] ?? null;
   const heroChildren = [el("div", { className: "instance-hero-scrim" })];
   if (photo) {
     const img = el("img", { src: photo, alt: "", className: "instance-hero-photo", fetchPriority: "high" });
-    img.style.objectPosition = "top";
+    img.style.objectPosition = bossBanner ? "64% center" : (INSTANCE_FOCUS[data.encounter.instanceName] ?? "50% 50%");
     heroChildren.unshift(img);
   }
   heroChildren.push(
@@ -1701,7 +1703,7 @@ async function renderEncounter(encounterId) {
       el("div", { className: "instance-hero-meta" }, pills),
     ]),
   );
-  const hero = el("div", { className: "instance-hero" }, heroChildren);
+  const hero = el("div", { className: bossBanner ? "instance-hero instance-hero--banner" : "instance-hero" }, heroChildren);
 
   const realPlayerCount = data.roster.filter((p) => p.className !== "?").length;
   const petCount = data.roster.length - realPlayerCount;
