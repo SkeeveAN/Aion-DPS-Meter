@@ -23,7 +23,7 @@ export interface Aion2Instance {
   key: string;
   slug: string;
   name: LocalizedText;
-  category: "expedition" | "transcendence" | "sanctuary" | "hideout" | "stronghold" | "awakening" | "nightmare" | "ascension" | null;
+  category: "expedition" | "transcendence" | "sanctuary" | "hideout" | "stronghold" | "awakening" | "nightmare" | "ascension" | "worldboss" | null;
   sortOrder: number;
   /** Names this instance was stored under before, so a sync renames the row instead of adding a second one. */
   legacyNames?: string[];

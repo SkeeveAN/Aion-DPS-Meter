@@ -13,7 +13,7 @@ import { sql } from "drizzle-orm";
 // "aion" is the classic client (4.x private servers, Chat.log-based meter); "aion2" the UE5 client
 // with entirely separate content, classes and capture path.
 export const GAMES = ["aion", "aion2"] as const;
-export const INSTANCE_CATEGORIES = ["expedition", "transcendence", "sanctuary", "hideout", "stronghold", "awakening", "nightmare", "ascension"] as const;
+export const INSTANCE_CATEGORIES = ["expedition", "transcendence", "sanctuary", "hideout", "stronghold", "awakening", "nightmare", "ascension", "worldboss"] as const;
 
 // Where a content row's facts come from: "curated" = entered by hand from real uploads/client
 // strings (the historical default), "derived" = generated from a third-party dataset by

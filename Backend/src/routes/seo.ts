@@ -80,7 +80,7 @@ function buildSitemap(): string {
       }
     }
 
-    urls.push({ path: `/instances` }, { path: `/instances/expedition` }, { path: `/instances/expedition/hard` }, { path: `/instances/nightmare` }, { path: `/instances/ascension` }, { path: `/instances/transcendence` });
+    urls.push({ path: `/instances` }, { path: `/instances/expedition` }, { path: `/instances/expedition/hard` }, { path: `/instances/nightmare` }, { path: `/instances/ascension` }, { path: `/instances/transcendence` }, { path: `/instances/worldboss` });
     for (const i of instanceRows) {
       if (i.slug) {
         urls.push({ path: `/instances/${i.slug}`, lastmod: instanceLastmod.get(i.id) });

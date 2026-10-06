@@ -2017,6 +2017,222 @@
 "2980229": {
 "name": "Zikel's Apparition",
 "instance": "Impetusium"
+},
+"2600068": {
+"name": "Argo, the Spirit King",
+"instance": "Abyss"
+},
+"2600089": {
+"name": "Watcher Kaira",
+"instance": "Abyss"
+},
+"2600084": {
+"name": "Guardian Lord Nahma",
+"instance": "Abyss"
+},
+"2600093": {
+"name": "Guardian Lord Nahma",
+"instance": "Abyss"
+},
+"2600094": {
+"name": "Guardian Lord Nahma",
+"instance": "Abyss"
+},
+"2600096": {
+"name": "Executor Tamasa",
+"instance": "Abyss"
+},
+"2100003": {
+"name": "Neikel of the East",
+"instance": "Verteron"
+},
+"2100040": {
+"name": "Rotten Kutar",
+"instance": "Verteron"
+},
+"2100050": {
+"name": "Kernon of the West",
+"instance": "Verteron"
+},
+"2100076": {
+"name": "Kusan the Mad Gladiator",
+"instance": "Verteron"
+},
+"2100077": {
+"name": "Ritualist Garshim",
+"instance": "Verteron"
+},
+"2100079": {
+"name": "Bodyguard Teegant",
+"instance": "Verteron"
+},
+"2100141": {
+"name": "Blooming Korin",
+"instance": "Verteron"
+},
+"2100177": {
+"name": "Furious Saursus",
+"instance": "Verteron"
+},
+"2100178": {
+"name": "Bloodfang Pnyn",
+"instance": "Verteron"
+},
+"2100582": {
+"name": "Heretic Layla",
+"instance": "Verteron"
+},
+"2100617": {
+"name": "Black Tentacle Lawa",
+"instance": "Verteron"
+},
+"2100661": {
+"name": "Phantasm Kasia",
+"instance": "Verteron"
+},
+"2100708": {
+"name": "Centurion Demiros",
+"instance": "Verteron"
+},
+"2100718": {
+"name": "Divine Ansas",
+"instance": "Verteron"
+},
+"2100876": {
+"name": "Harvest Manager Moshav",
+"instance": "Verteron"
+},
+"2100877": {
+"name": "Sentinel K'nash",
+"instance": "Verteron"
+},
+"2100988": {
+"name": "Scholar Aulla",
+"instance": "Verteron"
+},
+"2100989": {
+"name": "Forest Warrior Aullamu",
+"instance": "Verteron"
+},
+"2100991": {
+"name": "Chaser Taulo",
+"instance": "Verteron"
+},
+"2101016": {
+"name": "Researcher Setram",
+"instance": "Verteron"
+},
+"2101074": {
+"name": "Eternal Gartua",
+"instance": "Verteron"
+},
+"2101120": {
+"name": "Silent Dartan",
+"instance": "Verteron"
+},
+"2101122": {
+"name": "Soul Ruler Kashapa",
+"instance": "Verteron"
+},
+"2101131": {
+"name": "High Commander Lagta",
+"instance": "Verteron"
+},
+"2400017": {
+"name": "Melted Danar",
+"instance": "Altgard"
+},
+"2400074": {
+"name": "Black Warrior Aed",
+"instance": "Altgard"
+},
+"2400140": {
+"name": "Faithful Rajit",
+"instance": "Altgard"
+},
+"2400141": {
+"name": "Berserker Vargor",
+"instance": "Altgard"
+},
+"2400212": {
+"name": "Predator Garsan",
+"instance": "Altgard"
+},
+"2400223": {
+"name": "Blood Warrior Lannar",
+"instance": "Altgard"
+},
+"2400274": {
+"name": "Deceiver Trid",
+"instance": "Altgard"
+},
+"2400335": {
+"name": "Blue Wave Kelpina",
+"instance": "Altgard"
+},
+"2400353": {
+"name": "High Overseer Nutah",
+"instance": "Altgard"
+},
+"2400358": {
+"name": "Advisor Resana",
+"instance": "Altgard"
+},
+"2400419": {
+"name": "Special Operations Leader Linx",
+"instance": "Altgard"
+},
+"2400424": {
+"name": "Desecrator Newbold",
+"instance": "Altgard"
+},
+"2400425": {
+"name": "Specter Archon Axios",
+"instance": "Altgard"
+},
+"2400474": {
+"name": "Addicted Hardirun",
+"instance": "Altgard"
+},
+"2400504": {
+"name": "Executioner Barthien",
+"instance": "Altgard"
+},
+"2400593": {
+"name": "Drakan Battalion Weapon Guruta",
+"instance": "Altgard"
+},
+"2400607": {
+"name": "Veteran Shujakan",
+"instance": "Altgard"
+},
+"2400608": {
+"name": "Visionary Karuka",
+"instance": "Altgard"
+},
+"2400659": {
+"name": "Dark Shadow Vishwada",
+"instance": "Altgard"
+},
+"2400709": {
+"name": "Sharp Shylak",
+"instance": "Altgard"
+},
+"2400800": {
+"name": "Immortal Gartua",
+"instance": "Altgard"
+},
+"2400853": {
+"name": "High Commander Lagta",
+"instance": "Altgard"
+},
+"2400854": {
+"name": "Soul Ruler Kashapa",
+"instance": "Altgard"
+},
+"2400855": {
+"name": "Silent Dartan",
+"instance": "Altgard"
 }
 }
 }

@@ -2952,6 +2952,1100 @@
       "legacyNames": [
         "Zikels Schemen"
       ]
+    },
+    {
+      "key": "WorldAbyss/argo-the-spirit-king",
+      "instanceKey": "WorldAbyss",
+      "slug": "argo-the-spirit-king",
+      "name": {
+        "de": "Geisterfürst Agro",
+        "en": "Argo, the Spirit King",
+        "es": "Rey Espíritu Agro",
+        "fr": "Agro le roi des esprits",
+        "ja": "精霊王アグロ",
+        "ko": "정령왕 아그로",
+        "pt": "Rei dos Espíritos Argo",
+        "ru": "Король духов Агро"
+      },
+      "npcIds": [
+        2600068
+      ],
+      "level": null,
+      "internalName": "M_AR1_WSA_EleKing_01_V02_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAbyss/watcher-kaira",
+      "instanceKey": "WorldAbyss",
+      "slug": "watcher-kaira",
+      "name": {
+        "de": "Aufseherin Kaira",
+        "en": "Watcher Kaira",
+        "es": "Velador Kaira",
+        "fr": "Kaira la veilleuse",
+        "ja": "監視者カイラ",
+        "ko": "감시자 카이라",
+        "pt": "Vigilante Kairah",
+        "ru": "Дозорщик Кайра"
+      },
+      "npcIds": [
+        2600089
+      ],
+      "level": null,
+      "internalName": "M_AR1_BeritraD_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAbyss/guardian-lord-nahma",
+      "instanceKey": "WorldAbyss",
+      "slug": "guardian-lord-nahma",
+      "name": {
+        "de": "Wächtergott Nahma",
+        "en": "Guardian Lord Nahma",
+        "es": "Gran Vigía Nahma",
+        "fr": "Nahma le seigneur gardien",
+        "ja": "守護神将ナフマ",
+        "ko": "수호신장 나흐마",
+        "pt": "Senhor Guardião Nahma",
+        "ru": "Лорд-хранитель Нахма"
+      },
+      "npcIds": [
+        2600084,
+        2600093,
+        2600094
+      ],
+      "level": null,
+      "internalName": "M_AR1_RR_AbBoss_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAbyss/executor-tamasa",
+      "instanceKey": "WorldAbyss",
+      "slug": "executor-tamasa",
+      "name": {
+        "de": "Vollstrecker Tamasa",
+        "en": "Executor Tamasa",
+        "es": "Ejecutante Tamasa",
+        "fr": "Tamasa l'exécuteur",
+        "ja": "執行者タマサ",
+        "ko": "집행자 타마사",
+        "pt": "Executor Tamasa",
+        "ru": "Исполнитель Тамаса"
+      },
+      "npcIds": [
+        2600096
+      ],
+      "level": null,
+      "internalName": "M_AR1_Radvima_01_CV02_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/neikel-of-the-east",
+      "instanceKey": "WorldVerteron",
+      "slug": "neikel-of-the-east",
+      "name": {
+        "de": "Neikel des Ostens",
+        "en": "Neikel of the East",
+        "es": "Neikel del este",
+        "fr": "Neikel de l'est",
+        "ja": "東のネイケル",
+        "ko": "동쪽의 네이켈",
+        "pt": "Neikel do Leste",
+        "ru": "Нейкель востока"
+      },
+      "npcIds": [
+        2100003
+      ],
+      "level": 45,
+      "internalName": "M_L1_CV_Keneir_Named_02",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/rotten-kutar",
+      "instanceKey": "WorldVerteron",
+      "slug": "rotten-kutar",
+      "name": {
+        "de": "Verfaulter Kutar",
+        "en": "Rotten Kutar",
+        "es": "Kutar podrido",
+        "fr": "Kutar le Putréfié",
+        "ja": "腐ったクタル",
+        "ko": "썩은 쿠타르",
+        "pt": "Kutar Putrefato",
+        "ru": "Гнилой Кутар"
+      },
+      "npcIds": [
+        2100040
+      ],
+      "level": 45,
+      "internalName": "M_L1_ER_SwampMan02_Named_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/kernon-of-the-west",
+      "instanceKey": "WorldVerteron",
+      "slug": "kernon-of-the-west",
+      "name": {
+        "de": "Kernon des Westens",
+        "en": "Kernon of the West",
+        "es": "Kernon del oeste",
+        "fr": "Kernon de l'ouest",
+        "ja": "西のケルノン",
+        "ko": "서쪽의 케르논",
+        "pt": "Kernon do Oeste",
+        "ru": "Кернон запада"
+      },
+      "npcIds": [
+        2100050
+      ],
+      "level": 45,
+      "internalName": "M_L1_CV_Keneir_Named_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/kusan-the-mad-gladiator",
+      "instanceKey": "WorldVerteron",
+      "slug": "kusan-the-mad-gladiator",
+      "name": {
+        "de": "Wahnstreiter Kusan",
+        "en": "Kusan the Mad Gladiator",
+        "es": "Gladiador frenético Kusan",
+        "fr": "Kusan le Berserker",
+        "ja": "狂闘士クサン",
+        "ko": "광투사 쿠산",
+        "pt": "Combatente Insano Kusan",
+        "ru": "Безумный берсерк Кусан"
+      },
+      "npcIds": [
+        2100076
+      ],
+      "level": 45,
+      "internalName": "M_L1_VF_KrallElite_Named_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/ritualist-garshim",
+      "instanceKey": "WorldVerteron",
+      "slug": "ritualist-garshim",
+      "name": {
+        "de": "Erzpriester Garshim",
+        "en": "Ritualist Garshim",
+        "es": "Ritualista Garshim",
+        "fr": "Garshim le Ritualiste",
+        "ja": "祭司長ガルシム",
+        "ko": "제사장 가르심",
+        "pt": "Sacerdote-Mor Garshim",
+        "ru": "Ритуалист Гаршим"
+      },
+      "npcIds": [
+        2100077
+      ],
+      "level": 45,
+      "internalName": "M_L1_VF_KrallElite_Named_02",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/bodyguard-teegant",
+      "instanceKey": "WorldVerteron",
+      "slug": "bodyguard-teegant",
+      "name": {
+        "de": "Leibgardist Teegant",
+        "en": "Bodyguard Teegant",
+        "es": "Guardia Teegant",
+        "fr": "Teegant le garde du corps",
+        "ja": "護衛兵ティガント",
+        "ko": "호위병 티간트",
+        "pt": "Soldado de Escolta Teegant",
+        "ru": "Стражник Тигант"
+      },
+      "npcIds": [
+        2100079
+      ],
+      "level": 45,
+      "internalName": "M_L1_VF_Neuth_01_Named_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/blooming-korin",
+      "instanceKey": "WorldVerteron",
+      "slug": "blooming-korin",
+      "name": {
+        "de": "Blühender Korin",
+        "en": "Blooming Korin",
+        "es": "Korin en flor",
+        "fr": "Korin en floraison",
+        "ja": "満開のコーリン",
+        "ko": "만개한 코린",
+        "pt": "Korin em Flor",
+        "ru": "Расцветший Корин"
+      },
+      "npcIds": [
+        2100141
+      ],
+      "level": 45,
+      "internalName": "M_L1_BF_Coradon_Named_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/furious-saursus",
+      "instanceKey": "WorldVerteron",
+      "slug": "furious-saursus",
+      "name": {
+        "de": "Wütende Saursus",
+        "en": "Furious Saursus",
+        "es": "Saursus iracundo",
+        "fr": "Saursus enragée",
+        "ja": "怒りのサルス",
+        "ko": "분노한 사루스",
+        "pt": "Saursus Furiosa",
+        "ru": "Разъяренная Сарус"
+      },
+      "npcIds": [
+        2100177
+      ],
+      "level": 45,
+      "internalName": "M_L1_TF_Ursuss_Named_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/bloodfang-pnyn",
+      "instanceKey": "WorldVerteron",
+      "slug": "bloodfang-pnyn",
+      "name": {
+        "de": "Blutzahn Pnyn",
+        "en": "Bloodfang Pnyn",
+        "es": "Pnyn de colmillo sangriento",
+        "fr": "Pnyn aux crocs sanglants",
+        "ja": "血の牙プニン",
+        "ko": "피송곳니 프닌",
+        "pt": "Presa Sangrenta Pnyn",
+        "ru": "Кровоклык Фнин"
+      },
+      "npcIds": [
+        2100178
+      ],
+      "level": 45,
+      "internalName": "M_L1_TF_Kalnif_Named_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/heretic-layla",
+      "instanceKey": "WorldVerteron",
+      "slug": "heretic-layla",
+      "name": {
+        "de": "Apostatin Layla",
+        "en": "Heretic Layla",
+        "es": "Apóstata Layla",
+        "fr": "Layla l'apostate",
+        "ja": "背教者レイーラ",
+        "ko": "배교자 레일라",
+        "pt": "Apóstata Layla",
+        "ru": "Отступница Лейла"
+      },
+      "npcIds": [
+        2100582
+      ],
+      "level": 45,
+      "internalName": "M_L1_AH_A_SuraMag_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/black-tentacle-lawa",
+      "instanceKey": "WorldVerteron",
+      "slug": "black-tentacle-lawa",
+      "name": {
+        "de": "Schwarztentakel Lawa",
+        "en": "Black Tentacle Lawa",
+        "es": "Lawa del tentáculo negro",
+        "fr": "Lawa aux tentacules noires",
+        "ja": "黒き触手ラワ",
+        "ko": "검은 촉수 라와",
+        "pt": "Lawa dos Tentáculos Negros",
+        "ru": "Черное щупальце Лава"
+      },
+      "npcIds": [
+        2100617
+      ],
+      "level": 45,
+      "internalName": "M_L1_AC_WaterEle_04_Named_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/phantasm-kasia",
+      "instanceKey": "WorldVerteron",
+      "slug": "phantasm-kasia",
+      "name": {
+        "de": "Traumtrug Kasia",
+        "en": "Phantasm Kasia",
+        "es": "Kasia de ensoñación",
+        "fr": "Kasia du rêve illusoire",
+        "ja": "幻夢のカシア",
+        "ko": "환몽의 카시아",
+        "pt": "Kasia do Sonho Ilusório",
+        "ru": "Касия фантазии"
+      },
+      "npcIds": [
+        2100661
+      ],
+      "level": 45,
+      "internalName": "M_L1_RI_Kasia_01_Named_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/centurion-demiros",
+      "instanceKey": "WorldVerteron",
+      "slug": "centurion-demiros",
+      "name": {
+        "de": "Zenturio Demiros",
+        "en": "Centurion Demiros",
+        "es": "Centurión Demiros",
+        "fr": "Centurion Demiros",
+        "ja": "百人隊長デミロス",
+        "ko": "백부장 데미로스",
+        "pt": "Centurião Demiros",
+        "ru": "Центурион Демирос"
+      },
+      "npcIds": [
+        2100708
+      ],
+      "level": 45,
+      "internalName": "M_L1_AH_B_SpiritKnt_Named",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/divine-ansas",
+      "instanceKey": "WorldVerteron",
+      "slug": "divine-ansas",
+      "name": {
+        "de": "Heiliger Ansas",
+        "en": "Divine Ansas",
+        "es": "Ansas divina",
+        "fr": "Ansas sacré",
+        "ja": "神聖なアンサス",
+        "ko": "신성한 안사스",
+        "pt": "Ansas Divino",
+        "ru": "Священный Ансас"
+      },
+      "npcIds": [
+        2100718
+      ],
+      "level": 45,
+      "internalName": "M_L1_AH_C_Guardit_Named",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/harvest-manager-moshav",
+      "instanceKey": "WorldVerteron",
+      "slug": "harvest-manager-moshav",
+      "name": {
+        "de": "Ernteaufseher Moshav",
+        "en": "Harvest Manager Moshav",
+        "es": "Administrador de cosecha Moshav",
+        "fr": "Moshav le superviseur de la récolte",
+        "ja": "収穫管理者モシャブ",
+        "ko": "수확관리자 모샤브",
+        "pt": "Gestor de Colheita Moshav",
+        "ru": "Управляющий сбором Мошав"
+      },
+      "npcIds": [
+        2100876
+      ],
+      "level": 45,
+      "internalName": "M_L1_DP_DrakanElite_03_Named",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/sentinel-knash",
+      "instanceKey": "WorldVerteron",
+      "slug": "sentinel-knash",
+      "name": {
+        "de": "Überwachungswaffe K'nash",
+        "en": "Sentinel K'nash",
+        "es": "Celador K'nash",
+        "fr": "K'nash la sentinelle",
+        "ja": "監視兵器クナッシュ",
+        "ko": "감시병기 크나쉬",
+        "pt": "K’nash, Arma de Vigilância",
+        "ru": "Страж Кнаш"
+      },
+      "npcIds": [
+        2100877
+      ],
+      "level": 45,
+      "internalName": "M_L1_DP_BeritraD_04_Named",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/scholar-aulla",
+      "instanceKey": "WorldVerteron",
+      "slug": "scholar-aulla",
+      "name": {
+        "de": "Gelehrter Aulla",
+        "en": "Scholar Aulla",
+        "es": "Erudito Aulla",
+        "fr": "Aulla l'érudit",
+        "ja": "学者ラウーラ",
+        "ko": "학자 라울라",
+        "pt": "Erudito Aulla",
+        "ru": "Ученый Раулла"
+      },
+      "npcIds": [
+        2100988
+      ],
+      "level": 45,
+      "internalName": "M_L1_OV_A_OwlMagic_01_Named",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/forest-warrior-aullamu",
+      "instanceKey": "WorldVerteron",
+      "slug": "forest-warrior-aullamu",
+      "name": {
+        "de": "Waldkrieger Aullamu",
+        "en": "Forest Warrior Aullamu",
+        "es": "Guerrero del bosque Aullamu",
+        "fr": "Aullamu le guerrier de la forêt",
+        "ja": "森の戦士ウラム",
+        "ko": "숲전사 우라무",
+        "pt": "Guerreiro da Floresta Aullamu",
+        "ru": "Лесной воин Ураму"
+      },
+      "npcIds": [
+        2100989
+      ],
+      "level": 45,
+      "internalName": "M_L1_OV_A_OwlElite_01_Named",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/chaser-taulo",
+      "instanceKey": "WorldVerteron",
+      "slug": "chaser-taulo",
+      "name": {
+        "de": "Verfolger Taulo",
+        "en": "Chaser Taulo",
+        "es": "Perseguidor Taulo",
+        "fr": "Taulo le traqueur",
+        "ja": "追撃者タウーロ",
+        "ko": "추격자 타울로",
+        "pt": "Perseguidor Taulo",
+        "ru": "Гонитель Тауло"
+      },
+      "npcIds": [
+        2100991
+      ],
+      "level": 45,
+      "internalName": "M_L1_OV_C_OwlElite_01_CV01_Named",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/researcher-setram",
+      "instanceKey": "WorldVerteron",
+      "slug": "researcher-setram",
+      "name": {
+        "de": "Forscher Setram",
+        "en": "Researcher Setram",
+        "es": "Investigador Setram",
+        "fr": "Setram le chercheur",
+        "ja": "研究官セトラム",
+        "ko": "연구관 세트람",
+        "pt": "Pesquisador Setram",
+        "ru": "Исследователь Сетрам"
+      },
+      "npcIds": [
+        2101016
+      ],
+      "level": 45,
+      "internalName": "M_L1_Nahid_C_BeritraB_01_002",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/eternal-gartua",
+      "instanceKey": "WorldVerteron",
+      "slug": "eternal-gartua",
+      "name": {
+        "de": "Ewiger Gartua",
+        "en": "Eternal Gartua",
+        "es": "Gartua de eternidad",
+        "fr": "Gartua de l'éternité",
+        "ja": "永遠のガルトゥア",
+        "ko": "영원의 가르투아",
+        "pt": "Gartua da Eternidade",
+        "ru": "Вечный Гартуа"
+      },
+      "npcIds": [
+        2101074
+      ],
+      "level": 51,
+      "internalName": "M_FE_IoE_OdiumGartua_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/silent-dartan-verteron",
+      "instanceKey": "WorldVerteron",
+      "slug": "silent-dartan-verteron",
+      "name": {
+        "de": "Schweigender Dartan",
+        "en": "Silent Dartan",
+        "es": "Dartan del silencio",
+        "fr": "Dartan la Silencieuse",
+        "ja": "沈黙のタルタン",
+        "ko": "침묵의 타르탄",
+        "pt": "Dartan do Silêncio",
+        "ru": "Немая Тартан"
+      },
+      "npcIds": [
+        2101120
+      ],
+      "level": 48,
+      "internalName": "M_L1_FieldBoss_Dragon_01_1",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/soul-ruler-kashapa-verteron",
+      "instanceKey": "WorldVerteron",
+      "slug": "soul-ruler-kashapa-verteron",
+      "name": {
+        "de": "Seelenherrscher Kashapa",
+        "en": "Soul Ruler Kashapa",
+        "es": "Gobernante de almas Kashapa",
+        "fr": "Kashapa le dominateur des âmes",
+        "ja": "魂の支配者カシャパ",
+        "ko": "영혼 지배자 카샤파",
+        "pt": "Dominador das Almas Kashapa",
+        "ru": "Властелин душ Кашапа"
+      },
+      "npcIds": [
+        2101122
+      ],
+      "level": 48,
+      "internalName": "M_L1_FieldBoss_Kashapa_01_1",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldVerteron/high-commander-lagta-verteron",
+      "instanceKey": "WorldVerteron",
+      "slug": "high-commander-lagta-verteron",
+      "name": {
+        "de": "Legat Lagta",
+        "en": "High Commander Lagta",
+        "es": "Comandante de Lagta",
+        "fr": "Haut Commandant Lagta",
+        "ja": "軍団長ラグタ",
+        "ko": "군단장 라그타",
+        "pt": "Brigadeiro Lagta",
+        "ru": "Глава армии Рагт"
+      },
+      "npcIds": [
+        2101131
+      ],
+      "level": 48,
+      "internalName": "M_L1_FieldBoss_Ragta_01_1",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/melted-danar",
+      "instanceKey": "WorldAltgard",
+      "slug": "melted-danar",
+      "name": {
+        "de": "Geschmolzener Danar",
+        "en": "Melted Danar",
+        "es": "Danar fundido",
+        "fr": "Danar le fondu",
+        "ja": "溶け落ちたダナール",
+        "ko": "녹아내린 다나르",
+        "pt": "Danar Derretido",
+        "ru": "Расплавленный Данар"
+      },
+      "npcIds": [
+        2400017
+      ],
+      "level": 45,
+      "internalName": "M_D1_DC_DranaVar_EL_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/black-warrior-aed",
+      "instanceKey": "WorldAltgard",
+      "slug": "black-warrior-aed",
+      "name": {
+        "de": "Dunkelkrieger Aed",
+        "en": "Black Warrior Aed",
+        "es": "Guerrero negro Aed",
+        "fr": "Aed le guerrier noir",
+        "ja": "黒き戦士アエド",
+        "ko": "검은 전사 아에드",
+        "pt": "Guerreiro Negro Aed",
+        "ru": "Черный воин Аэд"
+      },
+      "npcIds": [
+        2400074
+      ],
+      "level": 45,
+      "internalName": "M_D1_UC_SuraWar_05_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/faithful-rajit",
+      "instanceKey": "WorldAltgard",
+      "slug": "faithful-rajit",
+      "name": {
+        "de": "Treuer Rajit",
+        "en": "Faithful Rajit",
+        "es": "Rajit leal",
+        "fr": "Rajit le fidèle",
+        "ja": "忠実なラジト",
+        "ko": "충실한 라지트",
+        "pt": "Rajit Fiel",
+        "ru": "Верный Ладжит"
+      },
+      "npcIds": [
+        2400140
+      ],
+      "level": 45,
+      "internalName": "M_D1_SW_DracoWar_01_V02_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/berserker-vargor",
+      "instanceKey": "WorldAltgard",
+      "slug": "berserker-vargor",
+      "name": {
+        "de": "Berserker Vargor",
+        "en": "Berserker Vargor",
+        "es": "Berserker Vargor",
+        "fr": "Vargor le Berserker",
+        "ja": "狂戦士バルグ",
+        "ko": "광전사 발그",
+        "pt": "Berserker Vargor",
+        "ru": "Берсерк Вальг"
+      },
+      "npcIds": [
+        2400141
+      ],
+      "level": 45,
+      "internalName": "M_D1_SW_Varg_03_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/predator-garsan",
+      "instanceKey": "WorldAltgard",
+      "slug": "predator-garsan",
+      "name": {
+        "de": "Verschlinger Garsan",
+        "en": "Predator Garsan",
+        "es": "Garsan depredador",
+        "fr": "Garsan le Prédateur",
+        "ja": "捕食者ガルサン",
+        "ko": "포식자 가르산",
+        "pt": "Predador Garsan",
+        "ru": "Хищник Гарсан"
+      },
+      "npcIds": [
+        2400212
+      ],
+      "level": 45,
+      "internalName": "M_D1_MF_UrsussElite_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/blood-warrior-lannar",
+      "instanceKey": "WorldAltgard",
+      "slug": "blood-warrior-lannar",
+      "name": {
+        "de": "Blutkrieger Lannar",
+        "en": "Blood Warrior Lannar",
+        "es": "Guerrero sangriento Lannar",
+        "fr": "Lannar le guerrier de sang",
+        "ja": "血戦士ランナール",
+        "ko": "혈전사 란나르",
+        "pt": "Guerreiro Sanguinário Lannar",
+        "ru": "Воин крови Ланнар"
+      },
+      "npcIds": [
+        2400223
+      ],
+      "level": 45,
+      "internalName": "M_D1_MF_DranaVar_02_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/deceiver-trid",
+      "instanceKey": "WorldAltgard",
+      "slug": "deceiver-trid",
+      "name": {
+        "de": "Täuscherin Trid",
+        "en": "Deceiver Trid",
+        "es": "Impostora Trid",
+        "fr": "Trid la Trompeuse",
+        "ja": "欺瞞者トリド",
+        "ko": "기만자 트리드",
+        "pt": "Trid Enganadora",
+        "ru": "Притворщица Трида"
+      },
+      "npcIds": [
+        2400274
+      ],
+      "level": 45,
+      "internalName": "M_D1_SH_NornirVar_02_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/blue-wave-kelpina",
+      "instanceKey": "WorldAltgard",
+      "slug": "blue-wave-kelpina",
+      "name": {
+        "de": "Blauwelle Kelpina",
+        "en": "Blue Wave Kelpina",
+        "es": "Kelpina de onda azul",
+        "fr": "Kelpina la Vague bleue",
+        "ja": "青波ケルピーナ",
+        "ko": "푸른물결 켈피나",
+        "pt": "Kelpina da Onda Azul",
+        "ru": "Келпина лазурной волны"
+      },
+      "npcIds": [
+        2400335
+      ],
+      "level": 45,
+      "internalName": "M_D1_PF_Keneir_Elite_01_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/high-overseer-nutah",
+      "instanceKey": "WorldAltgard",
+      "slug": "high-overseer-nutah",
+      "name": {
+        "de": "Hauptaufseher Nutah",
+        "en": "High Overseer Nutah",
+        "es": "Nutah supervisor jefe",
+        "fr": "Nutah le Chef superviseur",
+        "ja": "総監督官ヌタ",
+        "ko": "총감독관 누타",
+        "pt": "Supervisor Geral Nutah",
+        "ru": "Главный надзиратель Нута"
+      },
+      "npcIds": [
+        2400353
+      ],
+      "level": 45,
+      "internalName": "M_D1_DR_SkurvWar_04_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/advisor-resana",
+      "instanceKey": "WorldAltgard",
+      "slug": "advisor-resana",
+      "name": {
+        "de": "Berater Resana",
+        "en": "Advisor Resana",
+        "es": "Consejero Resana",
+        "fr": "Resana le Conseiller",
+        "ja": "参謀官ルサナ",
+        "ko": "참모관 르사나",
+        "pt": "Assessor Resana",
+        "ru": "Советник Рсан"
+      },
+      "npcIds": [
+        2400358
+      ],
+      "level": 45,
+      "internalName": "M_D1_DR_DrakanElite_03_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/special-operations-leader-linx",
+      "instanceKey": "WorldAltgard",
+      "slug": "special-operations-leader-linx",
+      "name": {
+        "de": "Sondereinsatzhauptmann Linx",
+        "en": "Special Operations Leader Linx",
+        "es": "Líder de operaciones especiales Linx",
+        "fr": "Linx le Chef des opérations spéciales",
+        "ja": "別動隊長リンクス",
+        "ko": "별동대장 링크스",
+        "pt": "Capitão de Operações Especiais Linx",
+        "ru": "Капитан спецотряда Линкс"
+      },
+      "npcIds": [
+        2400419
+      ],
+      "level": 45,
+      "internalName": "M_D1_BR_FighterM_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/desecrator-newbold",
+      "instanceKey": "WorldAltgard",
+      "slug": "desecrator-newbold",
+      "name": {
+        "de": "Schänder Newbold",
+        "en": "Desecrator Newbold",
+        "es": "Profanador Newbold",
+        "fr": "Newbold le Profanateur",
+        "ja": "冒涜者ノブルード",
+        "ko": "모독자 노블루드",
+        "pt": "Profanador Newbold",
+        "ru": "Осквернитель Ноблуд"
+      },
+      "npcIds": [
+        2400424
+      ],
+      "level": 45,
+      "internalName": "M_D1_BR_AltKnife_08_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/specter-archon-axios",
+      "instanceKey": "WorldAltgard",
+      "slug": "specter-archon-axios",
+      "name": {
+        "de": "Schattenarchon Axios",
+        "en": "Specter Archon Axios",
+        "es": "Akan de ánimas perdidas Axios",
+        "fr": "Axios l'Archon des âmes égarées",
+        "ja": "亡魂のアルコン アクシオス",
+        "ko": "망혼의 아칸 악시오스",
+        "pt": "Arconte da Alma Perdida Axios",
+        "ru": "Акан потерянных душ Аксиос"
+      },
+      "npcIds": [
+        2400425
+      ],
+      "level": 45,
+      "internalName": "M_D1_BR_DstrArchonE_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/addicted-hardirun",
+      "instanceKey": "WorldAltgard",
+      "slug": "addicted-hardirun",
+      "name": {
+        "de": "Vergifteter Hadirun",
+        "en": "Addicted Hardirun",
+        "es": "Hardirun envenenado",
+        "fr": "Hardirun l'intoxiqué",
+        "ja": "中毒になったハディルン",
+        "ko": "중독된 하디룬",
+        "pt": "Hardirun Envenenado",
+        "ru": "Одурманенный Хадирун"
+      },
+      "npcIds": [
+        2400474
+      ],
+      "level": 45,
+      "internalName": "M_D1_FD_Shulack_05_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/executioner-barthien",
+      "instanceKey": "WorldAltgard",
+      "slug": "executioner-barthien",
+      "name": {
+        "de": "Henker Barthien",
+        "en": "Executioner Barthien",
+        "es": "Barthien verdugo",
+        "fr": "Barthien le Bourreau",
+        "ja": "処刑者バルシエン",
+        "ko": "처형자 바르시엔",
+        "pt": "Carrasco Barthien",
+        "ru": "Эмиссар Варсиен"
+      },
+      "npcIds": [
+        2400504
+      ],
+      "level": 45,
+      "internalName": "M_D1_WGC_AltKnife_04_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/drakan-battalion-weapon-guruta",
+      "instanceKey": "WorldAltgard",
+      "slug": "drakan-battalion-weapon-guruta",
+      "name": {
+        "de": "Bataillonswaffe Guruta (Drakan)",
+        "en": "Drakan Battalion Weapon Guruta",
+        "es": "Drakan artillería de destacamento Guruta",
+        "fr": "Guruta l'arme de troupe Drakan",
+        "ja": "ドラカン部隊兵器グルタ",
+        "ko": "드라칸 부대병기 구루타",
+        "pt": "Arma de Guerra Drakan Guruta",
+        "ru": "Биооружие отряда драканов Гурута"
+      },
+      "npcIds": [
+        2400593
+      ],
+      "level": 45,
+      "internalName": "M_D1_EGC_BeritraD_04_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/veteran-shujakan",
+      "instanceKey": "WorldAltgard",
+      "slug": "veteran-shujakan",
+      "name": {
+        "de": "Veteran Shujakan",
+        "en": "Veteran Shujakan",
+        "es": "Veterano Shujakan",
+        "fr": "Shujakan le Vétéran",
+        "ja": "百戦老将シュザカン",
+        "ko": "백전노장 슈자칸",
+        "pt": "Veterano Shujakan",
+        "ru": "Ветеран Шужакан"
+      },
+      "npcIds": [
+        2400607
+      ],
+      "level": 45,
+      "internalName": "M_D1_BCV_KrallElite_01_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/visionary-karuka",
+      "instanceKey": "WorldAltgard",
+      "slug": "visionary-karuka",
+      "name": {
+        "de": "Visionärer Karuka",
+        "en": "Visionary Karuka",
+        "es": "Karuka visionario",
+        "fr": "Karuka le Visionnaire",
+        "ja": "秘伝のカルカ",
+        "ko": "비전의 카루카",
+        "pt": "Visionário Karuka",
+        "ru": "Визионер Карука"
+      },
+      "npcIds": [
+        2400608
+      ],
+      "level": 45,
+      "internalName": "M_D1_BCV_KrallElite_02_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/dark-shadow-vishwada",
+      "instanceKey": "WorldAltgard",
+      "slug": "dark-shadow-vishwada",
+      "name": {
+        "de": "Dunkelschatten Vishwada",
+        "en": "Dark Shadow Vishwada",
+        "es": "Vishwada de oscuridad",
+        "fr": "Vishwada le Ténébreux",
+        "ja": "黒闇のビシュベダ",
+        "ko": "흑암의 비슈베다",
+        "pt": "Vishwada da Escuridão",
+        "ru": "Вишвада темной тени"
+      },
+      "npcIds": [
+        2400659
+      ],
+      "level": 45,
+      "internalName": "M_D1_LF_Sarca_Elite_01_01",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/sharp-shylak",
+      "instanceKey": "WorldAltgard",
+      "slug": "sharp-shylak",
+      "name": {
+        "de": "Scharfer Shylak",
+        "en": "Sharp Shylak",
+        "es": "Shylak agudo",
+        "fr": "Shylak l'Acéré",
+        "ja": "鋭きシュラク",
+        "ko": "예리한 쉬라크",
+        "pt": "Shylak Afiado",
+        "ru": "Острый Шурак"
+      },
+      "npcIds": [
+        2400709
+      ],
+      "level": 45,
+      "internalName": "M_D1_IS_DracoElite_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/immortal-gartua",
+      "instanceKey": "WorldAltgard",
+      "slug": "immortal-gartua",
+      "name": {
+        "de": "Unsterblicher Gartua",
+        "en": "Immortal Gartua",
+        "es": "Gartua inmortal",
+        "fr": "Gartua de l'immortalité",
+        "ja": "不滅のガルトゥア",
+        "ko": "불멸의 가르투아",
+        "pt": "Gartua Imortal",
+        "ru": "Бессмертный Гартуа"
+      },
+      "npcIds": [
+        2400800
+      ],
+      "level": 51,
+      "internalName": "M_D1_IoI_OdiumGartua_01_001",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/high-commander-lagta-altgard",
+      "instanceKey": "WorldAltgard",
+      "slug": "high-commander-lagta-altgard",
+      "name": {
+        "de": "Legat Lagta",
+        "en": "High Commander Lagta",
+        "es": "Comandante de Lagta",
+        "fr": "Haut Commandant Lagta",
+        "ja": "軍団長ラグタ",
+        "ko": "군단장 라그타",
+        "pt": "Brigadeiro Lagta",
+        "ru": "Глава армии Рагт"
+      },
+      "npcIds": [
+        2400853
+      ],
+      "level": 48,
+      "internalName": "M_D1_FieldBoss_Lagta_02",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/soul-ruler-kashapa-altgard",
+      "instanceKey": "WorldAltgard",
+      "slug": "soul-ruler-kashapa-altgard",
+      "name": {
+        "de": "Seelenherrscher Kashapa",
+        "en": "Soul Ruler Kashapa",
+        "es": "Gobernante de almas Kashapa",
+        "fr": "Kashapa le dominateur des âmes",
+        "ja": "魂の支配者カシャパ",
+        "ko": "영혼 지배자 카샤파",
+        "pt": "Dominador das Almas Kashapa",
+        "ru": "Властелин душ Кашапа"
+      },
+      "npcIds": [
+        2400854
+      ],
+      "level": 48,
+      "internalName": "M_D1_FieldBoss_Kashapa_02",
+      "hasMechanics": false
+    },
+    {
+      "key": "WorldAltgard/silent-dartan-altgard",
+      "instanceKey": "WorldAltgard",
+      "slug": "silent-dartan-altgard",
+      "name": {
+        "de": "Schweigender Dartan",
+        "en": "Silent Dartan",
+        "es": "Dartan del silencio",
+        "fr": "Dartan la Silencieuse",
+        "ja": "沈黙のタルタン",
+        "ko": "침묵의 타르탄",
+        "pt": "Dartan do Silêncio",
+        "ru": "Немая Тартан"
+      },
+      "npcIds": [
+        2400855
+      ],
+      "level": 48,
+      "internalName": "M_D1_FieldBoss_BeritraD_01_001",
+      "hasMechanics": false
     }
   ]
 }

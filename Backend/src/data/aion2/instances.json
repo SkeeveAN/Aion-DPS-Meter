@@ -954,6 +954,57 @@
       "legacyNames": [
         "Impetusium"
       ]
+    },
+    {
+      "key": "WorldVerteron",
+      "slug": "verteron",
+      "name": {
+        "de": "Verteron",
+        "en": "Verteron",
+        "es": "Verteron",
+        "fr": "Verteron",
+        "ja": "ベルテロン",
+        "ko": "베르테론",
+        "pt": "Verteron",
+        "ru": "Бертрон"
+      },
+      "category": "worldboss",
+      "sortOrder": 307,
+      "hidden": false
+    },
+    {
+      "key": "WorldAltgard",
+      "slug": "altgard",
+      "name": {
+        "de": "Altgard",
+        "en": "Altgard",
+        "es": "Altgard",
+        "fr": "Altgard",
+        "ja": "アルトガルド",
+        "ko": "알트가르드",
+        "pt": "Altgard",
+        "ru": "Альтгард"
+      },
+      "category": "worldboss",
+      "sortOrder": 308,
+      "hidden": false
+    },
+    {
+      "key": "WorldAbyss",
+      "slug": "abyss",
+      "name": {
+        "de": "Abyss",
+        "en": "Abyss",
+        "es": "Abismo",
+        "fr": "Abysse",
+        "ja": "アビス",
+        "ko": "어비스",
+        "pt": "Abismo",
+        "ru": "Бездна"
+      },
+      "category": "worldboss",
+      "sortOrder": 309,
+      "hidden": false
     }
   ]
 }

@@ -563,7 +563,7 @@ function byMinLevelDescending(a, b) {
 // (hard) - separate instances with their own rankings; Nightmare is laid out like the in-game boss
 // tree; Ascension and Transcendence show their difficulty steps. Everything shown comes from the API;
 // nothing about a player's own progress is shown (the page is public).
-const INSTANCE_TAB_ORDER = ["expedition", "nightmare", "ascension", "transcendence"];
+const INSTANCE_TAB_ORDER = ["expedition", "nightmare", "ascension", "transcendence", "worldboss"];
 
 function baseInstanceName(i) {
   return i.name.replace(/ \(Conquest\)$/, "");

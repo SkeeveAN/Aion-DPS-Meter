@@ -34,6 +34,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   hideout: "Hideout",
   stronghold: "Stronghold",
   awakening: "Awakening",
+  worldboss: "World Bosses",
 };
 const CLASS_OG_FILE: Record<string, string> = { Gladiator: "gladiator", Templar: "templar", Ranger: "ranger", Assassin: "assassin", Spiritmaster: "elementalist", Sorcerer: "sorcerer", Cleric: "cleric", Chanter: "chanter", Brawler: "fighter" };
 
@@ -175,13 +176,14 @@ export function instancesPage(game: Game): Page {
   };
 }
 
-export const INSTANCE_CATEGORY_SLUGS = ["expedition", "nightmare", "ascension", "transcendence"] as const;
+export const INSTANCE_CATEGORY_SLUGS = ["expedition", "nightmare", "ascension", "transcendence", "worldboss"] as const;
 
 const CATEGORY_INTRO: Record<string, string> = {
   expedition: "Expeditions in two difficulties: Exploration (normal) and Conquest (hard)",
   nightmare: "Nightmare bosses, each with ten challenge levels that are ranked separately",
   ascension: "Ascension Rite instances with four difficulties: Easy, Medium, Hard and Extreme",
   transcendence: "Transcendence dungeons with four stages",
+  worldboss: "World bosses of Verteron, Altgard and the Abyss: field bosses that roam the open world, ranked like any other boss",
 };
 
 /** One category of the instance overview (/instances/nightmare, /instances/expedition/hard ...) - its own address so it can be found and shared. */
