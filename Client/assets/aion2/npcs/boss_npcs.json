@@ -140,27 +140,27 @@
 },
 "2300581": {
 "name": "Thamon",
-"instance": "Vakron Sky Island"
+"instance": "Vakron Sky Island (Conquest)"
 },
 "2300811": {
 "name": "Thamon",
-"instance": "Vakron Sky Island"
+"instance": "Vakron Sky Island (Conquest)"
 },
 "2300580": {
 "name": "Tiere",
-"instance": "Vakron Sky Island"
+"instance": "Vakron Sky Island (Conquest)"
 },
 "2300810": {
 "name": "Tiere",
-"instance": "Vakron Sky Island"
+"instance": "Vakron Sky Island (Conquest)"
 },
 "2300582": {
 "name": "Vakron",
-"instance": "Vakron Sky Island"
+"instance": "Vakron Sky Island (Conquest)"
 },
 "2300812": {
 "name": "Vakron",
-"instance": "Vakron Sky Island"
+"instance": "Vakron Sky Island (Conquest)"
 },
 "2300409": {
 "name": "Lab Director Zylus",
@@ -824,19 +824,19 @@
 },
 "2300470": {
 "name": "Transcendent Bakarma",
-"instance": "Draupnir"
+"instance": "Draupnir (Conquest)"
 },
 "2300471": {
 "name": "Transcendent Bakarma",
-"instance": "Draupnir"
+"instance": "Draupnir (Conquest)"
 },
 "2300401": {
 "name": "Phantasmal Lakshmi",
-"instance": "Draupnir"
+"instance": "Draupnir (Conquest)"
 },
 "2300403": {
 "name": "Predator Saraswati",
-"instance": "Draupnir"
+"instance": "Draupnir (Conquest)"
 },
 "2301207": {
 "name": "Black Blood Blatt",
@@ -940,47 +940,47 @@
 },
 "2300312": {
 "name": "Black Smoke Murute",
-"instance": "Fire Temple"
+"instance": "Fire Temple (Conquest)"
 },
 "2300371": {
 "name": "Kromede's Desire",
-"instance": "Fire Temple"
+"instance": "Fire Temple (Conquest)"
 },
 "2300311": {
 "name": "Red Spark Ignus",
-"instance": "Fire Temple"
+"instance": "Fire Temple (Conquest)"
 },
 "2300310": {
 "name": "Silver Blade Rotan",
-"instance": "Fire Temple"
+"instance": "Fire Temple (Conquest)"
 },
 "2300104": {
 "name": "Enhanced Harcon",
-"instance": "Krao Cave"
+"instance": "Krao Cave (Conquest)"
 },
 "2300108": {
 "name": "Neglected Gadioton",
-"instance": "Krao Cave"
+"instance": "Krao Cave (Conquest)"
 },
 "2300171": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave (Conquest)"
 },
 "2300172": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave (Conquest)"
 },
 "2300173": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave (Conquest)"
 },
 "2300174": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave (Conquest)"
 },
 "2300178": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave"
+"instance": "Krao Cave (Conquest)"
 },
 "2300436": {
 "name": "Askran",
@@ -1032,19 +1032,19 @@
 },
 "2300910": {
 "name": "Ferocious Horn Nuakum",
-"instance": "Ferocious Horn Den"
+"instance": "Ferocious Horn Den (Conquest)"
 },
 "2300909": {
 "name": "Necromancer Duanka",
-"instance": "Ferocious Horn Den"
+"instance": "Ferocious Horn Den (Conquest)"
 },
 "2300907": {
 "name": "Shining Mau Totem",
-"instance": "Ferocious Horn Den"
+"instance": "Ferocious Horn Den (Conquest)"
 },
 "2300908": {
 "name": "Watchdog Kwapo",
-"instance": "Ferocious Horn Den"
+"instance": "Ferocious Horn Den (Conquest)"
 },
 "2300261": {
 "name": "Kromede's Desolation",
@@ -1472,19 +1472,19 @@
 },
 "2300218": {
 "name": "Divine Auldor",
-"instance": "Urugugu Canyon"
+"instance": "Urugugu Canyon (Conquest)"
 },
 "2300206": {
 "name": "Guardian Captain Raur",
-"instance": "Urugugu Canyon"
+"instance": "Urugugu Canyon (Conquest)"
 },
 "2300207": {
 "name": "Judge Urahum",
-"instance": "Urugugu Canyon"
+"instance": "Urugugu Canyon (Conquest)"
 },
 "2310104": {
 "name": "Enhanced Harcon",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave"
 },
 "2320104": {
 "name": "Enhanced Harcon",
@@ -1496,7 +1496,7 @@
 },
 "2310108": {
 "name": "Neglected Gadioton",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave"
 },
 "2320108": {
 "name": "Neglected Gadioton",
@@ -1508,23 +1508,23 @@
 },
 "2310171": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave"
 },
 "2310172": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave"
 },
 "2310173": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave"
 },
 "2310174": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave"
 },
 "2310178": {
 "name": "Ultimate Berk",
-"instance": "Krao Cave (Conquest)"
+"instance": "Krao Cave"
 },
 "2320171": {
 "name": "Ultimate Berk",
@@ -1552,7 +1552,7 @@
 },
 "2310218": {
 "name": "Divine Auldor",
-"instance": "Urugugu Canyon (Conquest)"
+"instance": "Urugugu Canyon"
 },
 "2320218": {
 "name": "Divine Auldor",
@@ -1564,7 +1564,7 @@
 },
 "2310206": {
 "name": "Guardian Captain Raur",
-"instance": "Urugugu Canyon (Conquest)"
+"instance": "Urugugu Canyon"
 },
 "2320206": {
 "name": "Guardian Captain Raur",
@@ -1576,7 +1576,7 @@
 },
 "2310207": {
 "name": "Judge Urahum",
-"instance": "Urugugu Canyon (Conquest)"
+"instance": "Urugugu Canyon"
 },
 "2320207": {
 "name": "Judge Urahum",
@@ -1588,7 +1588,7 @@
 },
 "2310312": {
 "name": "Black Smoke Murute",
-"instance": "Fire Temple (Conquest)"
+"instance": "Fire Temple"
 },
 "2320312": {
 "name": "Black Smoke Murute",
@@ -1600,7 +1600,7 @@
 },
 "2310371": {
 "name": "Kromede's Desire",
-"instance": "Fire Temple (Conquest)"
+"instance": "Fire Temple"
 },
 "2320371": {
 "name": "Kromede's Desire",
@@ -1612,7 +1612,7 @@
 },
 "2310311": {
 "name": "Red Spark Ignus",
-"instance": "Fire Temple (Conquest)"
+"instance": "Fire Temple"
 },
 "2320311": {
 "name": "Red Spark Ignus",
@@ -1624,7 +1624,7 @@
 },
 "2310310": {
 "name": "Silver Blade Rotan",
-"instance": "Fire Temple (Conquest)"
+"instance": "Fire Temple"
 },
 "2320310": {
 "name": "Silver Blade Rotan",
@@ -1636,11 +1636,11 @@
 },
 "2310470": {
 "name": "Transcendent Bakarma",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir"
 },
 "2310471": {
 "name": "Transcendent Bakarma",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir"
 },
 "2320470": {
 "name": "Transcendent Bakarma",
@@ -1660,7 +1660,7 @@
 },
 "2310401": {
 "name": "Phantasmal Lakshmi",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir"
 },
 "2320401": {
 "name": "Phantasmal Lakshmi",
@@ -1672,7 +1672,7 @@
 },
 "2310403": {
 "name": "Predator Saraswati",
-"instance": "Draupnir (Conquest)"
+"instance": "Draupnir"
 },
 "2320403": {
 "name": "Predator Saraswati",
@@ -1684,7 +1684,7 @@
 },
 "2310811": {
 "name": "Thamon",
-"instance": "Vakron Sky Island (Conquest)"
+"instance": "Vakron Sky Island"
 },
 "2320811": {
 "name": "Thamon",
@@ -1692,7 +1692,7 @@
 },
 "2310810": {
 "name": "Tiere",
-"instance": "Vakron Sky Island (Conquest)"
+"instance": "Vakron Sky Island"
 },
 "2320810": {
 "name": "Tiere",
@@ -1700,7 +1700,7 @@
 },
 "2310812": {
 "name": "Vakron",
-"instance": "Vakron Sky Island (Conquest)"
+"instance": "Vakron Sky Island"
 },
 "2320812": {
 "name": "Vakron",
@@ -1708,7 +1708,7 @@
 },
 "2310910": {
 "name": "Ferocious Horn Nuakum",
-"instance": "Ferocious Horn Den (Conquest)"
+"instance": "Ferocious Horn Den"
 },
 "2320910": {
 "name": "Ferocious Horn Nuakum",
@@ -1716,7 +1716,7 @@
 },
 "2310909": {
 "name": "Necromancer Duanka",
-"instance": "Ferocious Horn Den (Conquest)"
+"instance": "Ferocious Horn Den"
 },
 "2320909": {
 "name": "Necromancer Duanka",
@@ -1724,7 +1724,7 @@
 },
 "2310907": {
 "name": "Shining Mau Totem",
-"instance": "Ferocious Horn Den (Conquest)"
+"instance": "Ferocious Horn Den"
 },
 "2320907": {
 "name": "Shining Mau Totem",
@@ -1732,7 +1732,7 @@
 },
 "2310908": {
 "name": "Watchdog Kwapo",
-"instance": "Ferocious Horn Den (Conquest)"
+"instance": "Ferocious Horn Den"
 },
 "2320908": {
 "name": "Watchdog Kwapo",

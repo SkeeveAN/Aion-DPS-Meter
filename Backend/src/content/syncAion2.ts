@@ -109,9 +109,11 @@ export function syncAion2Content(): { instances: number; bosses: number; npcIds:
 }
 
 /**
- * Expedition normal and hard are separate bosses now. Fights uploaded before the split all sit on the
- * normal boss; the NPC id the client reported (2300104 normal, 2310104 and up hard) tells which they
- * were. Idempotent: a fight already on the hard twin, or one without an id, is left alone.
+ * Expedition explore and conquest are separate bosses, told apart by the NPC id the client reported
+ * (block 231xxxx = explore, 230xxxx = conquest - checked on HP: the 230 block has 2-3x the boss HP;
+ * 232/233 are higher conquest stars). A fight uploaded before the ids were sorted out can sit on the
+ * wrong twin, so every merged fight is moved to whichever boss owns its NPC id. Idempotent: a fight
+ * already on the owner, or one without a known id, is left alone.
  */
 export function reassignConquestEncounters(): number {
   let moved = 0;
@@ -131,27 +133,26 @@ export function reassignConquestEncounters(): number {
     } catch {
       continue;
     }
-    if (npcId === undefined || npcId < 2300000 || npcId >= 2400000 || Math.floor(npcId / 10000) % 10 === 0) {
+    if (npcId === undefined || npcId < 2300000 || npcId >= 2400000) {
       continue;
     }
     seen.add(row.encounterId);
-    const current = db
-      .select({ bossId: encounters.bossId, slug: bosses.slug, instanceId: bosses.instanceId })
-      .from(encounters)
-      .innerJoin(bosses, eq(encounters.bossId, bosses.id))
-      .where(eq(encounters.id, row.encounterId))
-      .get();
-    if (!current?.slug || current.slug.endsWith("-conquest")) {
+    const owner = db.select({ bossId: bossNpcIds.bossId }).from(bossNpcIds).where(eq(bossNpcIds.npcId, npcId)).get();
+    const current = db.select({ bossId: encounters.bossId }).from(encounters).where(eq(encounters.id, row.encounterId)).get();
+    if (!owner || !current || owner.bossId === current.bossId) {
       continue;
     }
-    const twin = db.select({ id: bosses.id }).from(bosses).where(eq(bosses.slug, `${current.slug}-conquest`)).get();
-    if (twin) {
-      db.update(encounters).set({ bossId: twin.id }).where(eq(encounters.id, row.encounterId)).run();
-      moved++;
+    // Only between the explore / conquest twins of one boss (same name, other instance) - never
+    // across different bosses, where a name match is the safer evidence.
+    const [from, to] = [current.bossId, owner.bossId].map((id) => db.select({ name: bosses.name, instanceId: bosses.instanceId }).from(bosses).where(eq(bosses.id, id)).get());
+    if (!from || !to || from.name !== to.name) {
+      continue;
     }
+    db.update(encounters).set({ bossId: owner.bossId }).where(eq(encounters.id, row.encounterId)).run();
+    moved++;
   }
   if (moved > 0) {
-    console.log(`Moved ${moved} hard-mode expedition fight(s) to their hard boss.`);
+    console.log(`Moved ${moved} expedition fight(s) to the boss that owns their NPC id.`);
   }
   return moved;
 }
