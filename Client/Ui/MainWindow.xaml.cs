@@ -1689,29 +1689,29 @@ public partial class MainWindow : Window
     private static readonly TimeSpan BuffPrePullGrace = TimeSpan.FromSeconds(30);
 
     /// <summary>
-    /// Fills in who shielded whom. A shield arrives as an event on its recipient only, so the caster is
-    /// the one player of the group whose class owns the shield skill (Defiance is a Gladiator's, Warding
-    /// Shield a Templar's). With two of that class in the group it cannot be told, and nothing is credited.
+    /// Fills in who shielded whom from the group shields (see <see cref="ShieldSkills"/>): each event
+    /// names the shielded player as its source and the caster as its target. Personal shields are no
+    /// one's gift to anyone and are left out.
     /// </summary>
     private List<ParticipantUpload> AttachShieldsGiven(List<ParticipantUpload> participants, DateTime windowStart, DateTime windowEnd)
     {
+        string? NameOf(int objectId)
+        {
+            string? name = _rows.FirstOrDefault(r => r.ObjectId == objectId)?.Name;
+            return name is null || name.StartsWith("Player #", StringComparison.Ordinal) || name.StartsWith("0x", StringComparison.Ordinal) ? null : name;
+        }
+
         var given = new Dictionary<string, Dictionary<string, long>>();
         foreach (DamageEvent shield in _aggregator.Shields)
         {
-            if (shield.Timestamp < windowStart || shield.Timestamp > windowEnd)
+            if (!ShieldSkills.IsGroupShield(shield) || shield.Timestamp < windowStart || shield.Timestamp > windowEnd)
             {
                 continue;
             }
 
-            string? caster = null;
-            if (Aion2.Protocol.Aion2SkillNames.ClassOf(shield.SkillId) is string casterClass)
-            {
-                var candidates = participants.Where(p => p.ClassName == casterClass).ToList();
-                caster = candidates.Count == 1 ? candidates[0].Name : null;
-            }
-
-            string? recipient = _rows.FirstOrDefault(r => r.ObjectId == shield.TargetObjectId)?.Name;
-            if (caster is null || recipient is null || recipient.StartsWith("Player #", StringComparison.Ordinal) || recipient.StartsWith("0x", StringComparison.Ordinal))
+            string? caster = NameOf(shield.TargetObjectId);
+            string? recipient = NameOf(shield.SourceObjectId);
+            if (caster is null || recipient is null || !participants.Any(p => p.Name == caster))
             {
                 continue;
             }
