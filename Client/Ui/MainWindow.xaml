@@ -908,7 +908,7 @@
                          every entry but "All" (plain string Content) read back empty or as the
                          raw type name. Same gap would affect a screen reader, not just test
                          tooling - explicit Name fixes both with the same one-liner. -->
-                    <ComboBox x:Name="ClassFilter" SelectedIndex="0" Margin="6,0,0,0" SelectionChanged="OnClassFilterChanged">
+                    <ComboBox x:Name="ClassFilter" SelectedIndex="0" Margin="0" MinWidth="0" SelectionChanged="OnClassFilterChanged">
                         <ComboBoxItem Content="{local:Loc Main.FilterAllClasses}"/>
                         <ComboBoxItem Tag="Aethertech" AutomationProperties.Name="Aethertech"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Aethertech.png" Height="18" Margin="0,0,4,0"/><TextBlock Text="Aethertech" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
                         <ComboBoxItem Tag="Assassin" AutomationProperties.Name="Assassin"><StackPanel Orientation="Horizontal"><Image Source="pack://siteoforigin:,,,/assets/classes/icons/Assassin.png" Height="18" Margin="0,0,4,0"/><TextBlock Text="Assassin" VerticalAlignment="Center"/></StackPanel></ComboBoxItem>
@@ -942,7 +942,7 @@
                          across every target (the ambiguous wall-clock view - see DpsCalculator
                          remarks); picking one target switches DPS to true per-target iDPS. -->
                     <ComboBox x:Name="MobBossFilter" Style="{StaticResource SearchableComboBox}"
-                              SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="8,0,0,0"
+                              SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="8,0,0,0" MinWidth="0" MaxWidth="180"
                               ToolTip="Filter by target. 'All' sums damage across every target seen. Type in the dropdown to search.">
                         <ComboBoxItem Content="{local:Loc Main.FilterAllTargets}"/>
                     </ComboBox>
