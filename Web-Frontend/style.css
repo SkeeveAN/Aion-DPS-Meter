@@ -2350,6 +2350,12 @@ body:has(.download-hero) .nav-download-link:hover,
 .lb-chip .lb-emblem { width: 40px; height: 40px; }
 .lb-name { display: block; font-size: 0.72rem; line-height: 1.15; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-rest { display: grid; gap: 8px; }
+/* Whole block opens the run: the date link is stretched over the card/row, player links stay clickable above it. */
+.lb-row { position: relative; }
+.lb-open::after { content: ""; position: absolute; inset: 0; z-index: 0; }
+.lb-card:hover, .lb-row:hover { border-color: var(--color-primary); }
+.lb-card:has(.lb-open), .lb-row:has(.lb-open) { cursor: pointer; }
+.lb-chip, .lb-names a { position: relative; z-index: 1; }
 .lb-row { display: grid; grid-template-columns: 44px 150px minmax(0, 1fr) 190px 130px; gap: 14px; align-items: center; padding: 10px 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
 .lb-rank-small { font-size: 1.1rem; font-weight: 700; color: var(--color-text-muted); }
 .lb-strip { display: flex; gap: 4px; align-items: center; }

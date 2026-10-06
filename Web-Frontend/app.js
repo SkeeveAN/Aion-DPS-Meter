@@ -61,8 +61,8 @@ function el(tag, props = {}, children = []) {
   return node;
 }
 
-function link(text, href) {
-  return el("a", { href, textContent: text });
+function link(text, href, className) {
+  return el("a", { href, textContent: text, ...(className ? { className } : {}) });
 }
 
 // Icons are best-effort - a class/faction/skill name with no matching file (an unmapped class,
@@ -1161,7 +1161,7 @@ function renderGroupBoard(groups) {
       el("article", { className: "lb-card", style: `--medal:${MEDAL_COLORS[i]}` }, [
         el("div", { className: "lb-card-head" }, [
           el("b", { className: "lb-rank", textContent: `#${i + 1}` }),
-          link(formatDate(new Date(g.startedAt)), gp(`/encounters/${g.encounterId}`)),
+          link(formatDate(new Date(g.startedAt)), gp(`/encounters/${g.encounterId}`), "lb-open"),
           el("div", { className: "lb-big" }, [el("strong", { textContent: formatNumber(g.groupIDps) }), el("span", { textContent: t("leaderboard.groupIdps") })]),
         ]),
         el("div", { className: "lb-meta" }, [
@@ -1190,7 +1190,7 @@ function renderGroupBoard(groups) {
           el("b", { textContent: formatNumber(g.groupIDps) }),
           ` ${t("leaderboard.idpsShort")}`,
           el("br"),
-          el("small", {}, [link(`${formatDuration(g.durationSeconds)} · ${new Date(g.startedAt).toLocaleString(undefined, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`, gp(`/encounters/${g.encounterId}`))]),
+          el("small", {}, [link(`${formatDuration(g.durationSeconds)} · ${new Date(g.startedAt).toLocaleString(undefined, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`, gp(`/encounters/${g.encounterId}`), "lb-open")]),
         ]),
         el("span", { className: "lb-totals" }, [`${formatNumber(g.totalDamage)} ${t("leaderboard.dmgShort")}`, el("br"), `${formatNumber(g.totalHealing)} ${t("leaderboard.healShort")}`]),
       ]);
