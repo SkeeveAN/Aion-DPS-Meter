@@ -18,7 +18,7 @@ export async function uploadRoutes(app: FastifyInstance) {
   app.post("/api/uploads/profiles", async (request, reply) => {
     const parseResult = profilesUploadSchema.safeParse(request.body);
     if (!parseResult.success) {
-      app.log.warn({ details: parseResult.error.flatten() }, "profiles upload rejected: invalid payload");
+      app.log.warn({ details: parseResult.error.flatten(), issues: parseResult.error.issues.slice(0, 6).map((i) => `${i.path.join(".")}: ${i.message}`), clientVersion: (request.body as { clientVersion?: string } | null)?.clientVersion }, "profiles upload rejected: invalid payload");
       return reply.status(400).send({ error: "invalid_payload", details: parseResult.error.flatten() });
     }
     const payload = parseResult.data;
@@ -51,7 +51,7 @@ export async function uploadRoutes(app: FastifyInstance) {
   app.post("/api/uploads", async (request, reply) => {
     const parseResult = uploadSchema.safeParse(request.body);
     if (!parseResult.success) {
-      app.log.warn({ details: parseResult.error.flatten(), body: request.body }, "upload rejected: invalid payload");
+      app.log.warn({ details: parseResult.error.flatten(), issues: parseResult.error.issues.slice(0, 6).map((i) => `${i.path.join(".")}: ${i.message}`), body: request.body }, "upload rejected: invalid payload");
       return reply.status(400).send({ error: "invalid_payload", details: parseResult.error.flatten() });
     }
     const payload = parseResult.data;

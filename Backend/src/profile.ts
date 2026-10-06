@@ -21,12 +21,13 @@ export const profileSchema = z.object({
   gear: z
     .array(
       z.object({
-        slot: z.number().int().min(0).max(40),
+        slot: z.number().int().min(0).max(255),
         itemId: z.number().int().min(1).max(2_000_000_000),
         enchant: z.number().int().min(0).max(30).default(0),
       }),
     )
-    .max(24)
+    // 25 pieces seen on a real character (slots up to 29); the cap only fends off nonsense.
+    .max(64)
     .default([]),
   skills: z
     .array(
@@ -40,7 +41,7 @@ export const profileSchema = z.object({
         equipped: z.boolean().default(false),
       }),
     )
-    .max(150)
+    .max(400)
     .default([]),
   daevanion: z
     .array(

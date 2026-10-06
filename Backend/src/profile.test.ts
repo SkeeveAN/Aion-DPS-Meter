@@ -157,8 +157,11 @@ test("character profiles are accepted for Aion 2 only", () => {
   const classic = { ...aion2Upload([participant("Anna", { profile: selfProfile })]), game: "aion" as const, serverFingerprint: "70.0.0.150:10241" };
   assert.equal(uploadSchema.safeParse(classic).success, false);
   assert.equal(uploadSchema.safeParse(aion2Upload([participant("Aahz", { profile: selfProfile })])).success, true);
+  // 25 pieces were seen on a real character: that must pass.
+  const real = { ...selfProfile, gear: Array.from({ length: 25 }, (_, i) => ({ slot: i + 5, itemId: 1000 + i, enchant: 0 })) };
+  assert.equal(uploadSchema.safeParse(aion2Upload([participant("Aahz", { profile: real })])).success, true);
   // Bounds: a profile may not carry an absurd amount of data.
-  const huge = { ...selfProfile, gear: Array.from({ length: 30 }, (_, i) => ({ slot: i, itemId: 1000 + i, enchant: 0 })) };
+  const huge = { ...selfProfile, gear: Array.from({ length: 70 }, (_, i) => ({ slot: i, itemId: 1000 + i, enchant: 0 })) };
   assert.equal(uploadSchema.safeParse(aion2Upload([participant("Aahz", { profile: huge })])).success, false);
 });
 
