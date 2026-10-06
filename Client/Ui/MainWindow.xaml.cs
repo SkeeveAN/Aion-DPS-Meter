@@ -498,8 +498,9 @@ public partial class MainWindow : Window
         _avoids.AddRange(batch.Avoids);
         _kills.AddRange(batch.Kills);
         NoteBossKills(batch.Kills);
-        NoteDefeatedBosses();
         IReadOnlyList<DamageEvent> events = batch.Damage;
+        NoteBossActivity(events);
+        NoteDefeatedBosses();
 
         // Hits a summon dealt before its owner was known (the meter started mid-fight) go to the
         // owner once found, instead of staying on a "Player #id" row.
@@ -2117,16 +2118,36 @@ public partial class MainWindow : Window
         }
 
         var defeated = new List<int>();
+        DateTime now = DateTime.Now;
         foreach ((int entityId, _) in directory.KnownBosses())
         {
+            bool quietLong = _bossActivity.TryGetValue(entityId, out (DateTime First, DateTime Last) activity)
+                && now - activity.Last >= BossQuietBeforeUpload
+                && activity.Last - activity.First >= BossMinFightLength;
             if (directory.HitPoints.Latest(entityId) is not { } hp)
             {
+                // No hit-point reading ever came for this boss (some never send one): all that says
+                // it is over is that nobody has hit it for a while after a real fight. Without this
+                // such a boss was never uploaded by itself and had to be sent by hand.
+                if (quietLong)
+                {
+                    defeated.Add(entityId);
+                    _bossActivity.Remove(entityId);
+                }
+
                 continue;
             }
 
             if (hp.Hp > 0)
             {
                 _defeatNoted.Remove(entityId);
+                // The last reading before the kill can stop just short of 0 (the final frame is
+                // lost or never sent): within 0.5 % and quiet for a few seconds counts as dead.
+                if (hp.Hp <= (directory.HitPoints.HighestSeen(entityId) ?? 0) * 0.005
+                    && activity.Last != default && now - activity.Last >= TimeSpan.FromSeconds(5) && _defeatNoted.Add(entityId))
+                {
+                    defeated.Add(entityId);
+                }
             }
             else if (_defeatNoted.Add(entityId))
             {
@@ -2135,6 +2156,34 @@ public partial class MainWindow : Window
         }
 
         NoteBossesToUpload(defeated);
+    }
+
+    /// <summary>First and latest hit on each known boss in the current stretch of fighting.</summary>
+    private readonly Dictionary<int, (DateTime First, DateTime Last)> _bossActivity = new();
+
+    private static readonly TimeSpan BossQuietBeforeUpload = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan BossMinFightLength = TimeSpan.FromSeconds(10);
+
+    private void NoteBossActivity(IReadOnlyList<DamageEvent> events)
+    {
+        if (events.Count == 0 || _source?.Entities is not Aion2.Aion2EntityDirectory directory)
+        {
+            return;
+        }
+
+        foreach (DamageEvent e in events)
+        {
+            if (e.IsHeal || directory.BossNpcIdOf(e.TargetObjectId) is null)
+            {
+                continue;
+            }
+
+            _bossActivity[e.TargetObjectId] = _bossActivity.TryGetValue(e.TargetObjectId, out var a)
+                // A pause this long means a new stretch (second kill of the same boss entity).
+                && e.Timestamp - a.Last < BossQuietBeforeUpload + BossQuietBeforeUpload
+                ? (a.First, e.Timestamp > a.Last ? e.Timestamp : a.Last)
+                : (e.Timestamp, e.Timestamp);
+        }
     }
 
     /// <summary>
