@@ -106,7 +106,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
         _ => value.ToString("N0", System.Globalization.CultureInfo.CurrentCulture),
     };
 
-    public string DpsDisplay => Dps is double d ? d.ToString("F0") : "n/a";
+    public string DpsDisplay => Dps is double d ? d.ToString("N0", System.Globalization.CultureInfo.CurrentCulture) : "n/a";
 
     /// <summary>AP the relics currently in this player's bag will pay out once exchanged (see
     /// Data/RelicApDatabase) -- shown on its own, not folded into the session's real AP total,
@@ -222,6 +222,16 @@ public sealed class PlayerRow : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged([CallerMemberName] string? name = null) =>
+    /// <summary>The opt-in extras that still get a second line under the row (relic AP, avoided
+    /// attacks, PVP stats). Damage received has its own column, so it does not count here.</summary>
+    public bool HasExtraInfo => ApDisplay.Length > 0 || DefenseDisplay.Length > 0 || PvpDisplay.Length > 0;
+
+    private void OnPropertyChanged([CallerMemberName] string? name = null)
+    {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        if (name == nameof(HasSecondaryInfo))
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasExtraInfo)));
+        }
+    }
 }

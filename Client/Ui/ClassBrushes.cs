@@ -31,7 +31,7 @@ internal static class ClassBrushes
             if (!Cache.TryGetValue(key, out Brush? brush))
             {
                 var color = (Color)ColorConverter.ConvertFromString(key.Length > 0 ? Colors[key] : Unknown);
-                brush = new SolidColorBrush(Color.FromArgb(0x47, color.R, color.G, color.B)); // 28 % like the website
+                brush = new SolidColorBrush(Color.FromArgb(0x6B, color.R, color.G, color.B)); // 42 %: the bar fills the whole row now
                 brush.Freeze();
                 Cache[key] = brush;
             }

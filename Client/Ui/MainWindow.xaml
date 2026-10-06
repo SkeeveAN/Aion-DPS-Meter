@@ -995,7 +995,7 @@
                 <local:QuietDataGrid x:Name="PlayersGrid" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="OnPlayersGridDoubleClick"
                           Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}" AlternatingRowBackground="{DynamicResource Brush.Panel}"
                           BorderBrush="{DynamicResource Brush.Border}"
-                          GridLinesVisibility="None" HeadersVisibility="None" CanUserAddRows="False">
+                          GridLinesVisibility="None" HeadersVisibility="None" CanUserAddRows="False" Grid.IsSharedSizeScope="True">
                     <!-- Enemy rows get a dark red ground. A trigger rather than a converter so it
                          overrides RowBackground AND AlternatingRowBackground above: those are set
                          on the DataGrid itself and would otherwise win on every second row, which
@@ -1075,75 +1075,49 @@
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <!-- Margin.Right 8 (not just the DpsDisplay TextBlock's own
-                                         smaller margin below) - per the user, the numbers were
-                                         still flush against the window's right edge; padding the
-                                         whole row template here is what actually guarantees
-                                         clearance regardless of how the DataGridTemplateColumn's
-                                         own Auto/Star columns end up sized. Margin.Left matches it
-                                         (8, not 0) per the user, who wanted the same clearance on
-                                         both sides instead of the row starting flush against the
-                                         left edge. -->
-                                    <Grid>
+                                    <!-- One fixed-column row (rank, class icon, name, damage taken, DPS, damage):
+                                         the number columns share their width across all rows
+                                         (Grid.IsSharedSizeScope on the grid), so every figure sits in the
+                                         same column whatever its length, and a column that is empty
+                                         everywhere (damage taken switched off) takes no room. The class
+                                         colour bar fills the whole row height. Opt-in extras (relic AP,
+                                         avoided attacks, PVP) get a second line only when there are any. -->
+                                    <Grid MinHeight="32">
                                         <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding FillPercent, Mode=OneWay}"
-                                                     Foreground="{Binding ClassBrush}" Margin="0,1"
+                                                     Foreground="{Binding ClassBrush}"
                                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
-                                    <Grid Margin="8,4,8,4">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-
-                                        <Grid Grid.Row="0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <!-- Height/Width (20 race, 24 class) here are load-bearing, not decorative
-                                                 (unchanged reasoning from the old NameColumn): WPF
-                                                 reserves this fixed slot even when the converter
-                                                 returns null (unknown/"?" class or faction), which is
-                                                 the only reason every row's name still lines up at the
-                                                 same x regardless of whether it has an icon. -->
-                                            <Image Grid.Column="0" Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
-                                                   Height="20" Width="20" Margin="0,0,4,0" ToolTip="{Binding Faction}"/>
-                                            <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
-                                                   Height="24" Width="24" Margin="0,0,6,0" ToolTip="{Binding ClassName}"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding Name}" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                                            <TextBlock Grid.Column="3" Text="{Binding Damage, StringFormat=N0}" VerticalAlignment="Center" FontWeight="SemiBold" Margin="10,0,0,0"/>
-                                            <TextBlock Grid.Column="4" Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
-                                                       VerticalAlignment="Bottom" Margin="6,0,4,0"/>
-                                        </Grid>
-
-                                        <!-- Second line: relic AP (ApDisplay), damage received
-                                             (TakenDisplay), avoided attacks (DefenseDisplay - real
-                                             D/P/B/R values, never invented placeholders) and PVP stats
-                                             (PvpDisplay) - each blank when there is nothing to say. -->
-                                        <!-- Flush left (Margin.Left 0), matching the ShareBar right
-                                             above it - per the user, this line still had the OLD
-                                             margin (50, aligned under the name) from before the bar
-                                             itself moved to start under the faction icon instead. -->
-                                        <!-- Visibility bound to HasSecondaryInfo, not just left
-                                             blank - per the user, AP/Taken/Defense are all opt-in
-                                             settings now (default off) and PvpDisplay is empty
-                                             outside PVP mode, so most rows have nothing to show
-                                             here at all; collapsing the row (Auto height) rather
-                                             than rendering four empty TextBlocks is what actually
-                                             makes the row narrower by default, not just blank. -->
-                                        <StackPanel Grid.Row="1" Orientation="Horizontal"
-                                                    Visibility="{Binding HasSecondaryInfo, Converter={StaticResource BoolToVis}}">
-                                            <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
-                                            <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Margin="6,0,0,0"
-                                                       ToolTip="Damage this player received in the shown window"/>
-                                            <TextBlock Text="{Binding DefenseDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Margin="6,0,0,0"
-                                                       ToolTip="Avoided incoming attacks: D dodged, P parried, B blocked, R resisted (share of all incoming attacks)"/>
-                                            <TextBlock Text="{Binding PvpDisplay}" Foreground="{DynamicResource Brush.Accent}" FontSize="11" Margin="6,0,0,0"
-                                                       ToolTip="PVP: kills / deaths and the biggest hit landed on a player"/>
+                                        <StackPanel VerticalAlignment="Center" Margin="8,3,8,3">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="18"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Taken"/>
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Dps"/>
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Damage"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
+                                                       Height="24" Width="24" Margin="4,0,8,0" ToolTip="{Binding Faction}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding Name}" VerticalAlignment="Center" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"
+                                                           ToolTip="Damage this player received in the shown window"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextMuted}"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
+                                                <TextBlock Grid.Column="5" Text="{Binding Damage, StringFormat=N0}" FontWeight="SemiBold"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
+                                            </Grid>
+                                            <StackPanel Orientation="Horizontal" Margin="50,0,0,0"
+                                                        Visibility="{Binding HasExtraInfo, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"/>
+                                                <TextBlock Text="{Binding DefenseDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Margin="6,0,0,0"
+                                                           ToolTip="Avoided incoming attacks: D dodged, P parried, B blocked, R resisted (share of all incoming attacks)"/>
+                                                <TextBlock Text="{Binding PvpDisplay}" Foreground="{DynamicResource Brush.Accent}" FontSize="11" Margin="6,0,0,0"
+                                                           ToolTip="PVP: kills / deaths and the biggest hit landed on a player"/>
+                                            </StackPanel>
                                         </StackPanel>
-                                    </Grid>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -1359,7 +1333,7 @@
         </Border>
 
         <local:QuietItemsControl x:Name="OverlayContent" Visibility="Collapsed" Background="Transparent"
-                      HorizontalAlignment="Left" VerticalAlignment="Top">
+                      HorizontalAlignment="Left" VerticalAlignment="Top" Grid.IsSharedSizeScope="True">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Margin="2" Padding="6,3" CornerRadius="3">
@@ -1380,27 +1354,29 @@
                                      Foreground="{Binding ClassBrush}"
                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                         <StackPanel>
-                            <!-- Same layout as the normal window's row: the player on the left, damage and
-                                 DPS pushed to the right edge - the chip spans the whole window width. -->
-                            <DockPanel LastChildFill="True">
-                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="8,0,0,0">
-                                    <TextBlock Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}"
-                                               FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
-                                               Margin="6,0,0,0" VerticalAlignment="Bottom"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
-                                               VerticalAlignment="Center" Margin="0,0,4,0" MinWidth="10"/>
-                                    <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
-                                           Height="16" Width="16" Margin="0,0,4,0"/>
-                                    <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
-                                           Height="22" Width="22" Margin="0,0,4,0"/>
-                                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
-                                               FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" TextTrimming="CharacterEllipsis"/>
-                                </StackPanel>
-                            </DockPanel>
-                            <StackPanel Orientation="Horizontal">
+                            <!-- Same fixed columns as the window's row: rank, class icon, name, then DPS and
+                                 damage in columns shared by all chips. -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ChipDps"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ChipDamage"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
+                                       Height="22" Width="22" Margin="2,0,6,0"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Name}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
+                                           FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Grid.Column="3" Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="11"
+                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"/>
+                                <TextBlock Grid.Column="4" Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}"
+                                           FontWeight="Bold" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"/>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Margin="40,0,0,0"
+                                        Visibility="{Binding HasSecondaryInfo, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="{Binding ApDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"/>
                                 <TextBlock Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10" Margin="6,0,0,0"/>
                                 <TextBlock Text="{Binding DefenseDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10" Margin="6,0,0,0"/>

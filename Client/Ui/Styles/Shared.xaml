@@ -35,7 +35,7 @@
                 <ControlTemplate TargetType="ProgressBar">
                     <Grid>
                         <Border x:Name="PART_Track" Background="Transparent"/>
-                        <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}" CornerRadius="3"/>
+                        <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
