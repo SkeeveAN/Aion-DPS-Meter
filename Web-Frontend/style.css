@@ -2553,7 +2553,7 @@ body:has(.download-hero) .nav-download-link:hover,
   white-space: nowrap;
 }
 .nav-feedback-link:hover { border-color: var(--color-primary); color: var(--color-primary); }
-.feedback-page { max-width: 760px; }
+.feedback-page { max-width: 760px; margin: 0 auto; }
 .feedback-form { display: grid; gap: 14px; margin-top: 16px; }
 .feedback-field { display: grid; gap: 4px; }
 .feedback-label { font-size: 12px; font-weight: 600; opacity: 0.8; }
@@ -2562,7 +2562,9 @@ body:has(.download-hero) .nav-download-link:hover,
   font: inherit; color: inherit; background: transparent;
   border: 1px solid var(--color-border, rgba(128, 128, 128, 0.5)); border-radius: 4px; padding: 8px 10px;
 }
-.feedback-field select option { color: initial; }
+.feedback-field select { appearance: none; cursor: pointer; padding-right: 34px;
+  background: var(--color-surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%2371828d' stroke-width='2'/></svg>") no-repeat right 12px center; }
+.feedback-field select option { background: var(--color-surface); color: var(--color-text); }
 .feedback-trap { position: absolute; left: -10000px; width: 1px; height: 1px; opacity: 0; }
 .feedback-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .feedback-send {
