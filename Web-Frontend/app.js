@@ -1544,7 +1544,7 @@ async function renderEncounter(encounterId) {
   showLoading(t("loading.encounter"));
 
   const data = await fetchJson(`/api/encounters/${encodeURIComponent(encounterId)}`);
-  setBreadcrumb(bossCrumbs(data.encounter));
+  setBreadcrumb([...bossCrumbs(data.encounter), t("breadcrumb.run", { id: data.encounter.id })]);
 
   const bossName = translateGameName(data.encounter.bossName);
   const pills = [
