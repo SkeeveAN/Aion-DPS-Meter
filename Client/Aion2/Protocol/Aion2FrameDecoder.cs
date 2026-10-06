@@ -904,14 +904,16 @@ public sealed class Aion2FrameDecoder
                 continue;
             }
 
+            // Between the slot index and the entry's size byte (the first non-zero byte from 20 bytes
+            // on) the enchant level sits 14 bytes before that size byte. Some entries carry a flag
+            // byte earlier (a 01 after the item id, a 24 before the enchant), which a "first non-zero
+            // byte" search took for the enchant: Vakron Guard +10 read as +1, a second Clash Rune +4 as +0.
             int enchant = 0;
-            // The enchant sits 22-23 bytes after the slot index; the next non-zero byte of a plain
-            // item only starts at 36 (an unrelated value), so the window stops before that.
-            for (int k = p + 14; k < Math.Min(frame.Length, p + 14 + 24); k++)
+            for (int k = p + 14 + 20; k < Math.Min(frame.Length, p + 14 + 31); k++)
             {
                 if (frame[k] != 0)
                 {
-                    enchant = frame[k] <= 30 ? frame[k] : 0;
+                    enchant = frame[k - 14] <= 30 ? frame[k - 14] : 0;
                     break;
                 }
             }
