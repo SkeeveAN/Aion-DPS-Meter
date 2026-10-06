@@ -183,7 +183,11 @@ public sealed class Aion2PacketCombatSource : ICombatSource
         }
     }
 
-    private void OnPayload(Capture.TcpSegment segment) => Ingest(segment);
+    private void OnPayload(Capture.TcpSegment segment)
+    {
+        Feedback.CaptureRingBuffer.Add(segment); // for "attach recording" in the feedback window
+        Ingest(segment);
+    }
 
     private void OnCaptureStatus(SourceState state, string message) => Report(state, $"Aion 2: {message}");
 

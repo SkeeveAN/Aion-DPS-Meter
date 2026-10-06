@@ -127,6 +127,21 @@ export function privacyPage(): Page {
   };
 }
 
+export function feedbackPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "Report a problem or suggest an improvement – Aion DPS Meter",
+      description: "Report a bug, ask for a feature or suggest an improvement for Aion DPS Meter; your message becomes a GitHub issue.",
+      canonicalPath: "/feedback",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Feedback", path: "/feedback" }])],
+    },
+    body: html`
+      <h2>Problem / Improvement</h2>
+      <p>Report a bug, ask for a feature or suggest an improvement. Your message becomes a public issue on GitHub; your e-mail address is never published.</p>`,
+  };
+}
+
 export function termsPage(): Page {
   return {
     status: 200,

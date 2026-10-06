@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -215,6 +215,7 @@ function setupLanguageSwitcher() {
 function applyStaticTranslations() {
   document.getElementById("search-input").placeholder = t("nav.searchPlaceholder");
   document.getElementById("search-button").textContent = t("nav.searchButton");
+  document.getElementById("feedback-link").textContent = t("nav.feedback");
   document.getElementById("nav-toggle").setAttribute("aria-label", t("nav.menu"));
 }
 
@@ -427,6 +428,80 @@ function renderLegalPage(prefix, titleKey, introKey) {
   app.replaceChildren(
     el("div", { className: "legal-page" }, [el("h1", { textContent: t(titleKey) }), el("p", { className: "legal-intro", textContent: t(introKey) }), ...sections]),
   );
+}
+
+/** "Problem / Improvement" form: POSTs to /api/feedback, which opens a GitHub issue. */
+function renderFeedback() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("feedback.title")]);
+  document.title = `${t("feedback.title")} – ${SITE_TITLE}`;
+
+  const field = (labelKey, control, hintKey) =>
+    el("label", { className: "feedback-field" }, [
+      el("span", { className: "feedback-label", textContent: t(labelKey) }),
+      control,
+      ...(hintKey ? [el("small", { textContent: t(hintKey) })] : []),
+    ]);
+  const type = el("select", { name: "type" }, [
+    el("option", { value: "issue", textContent: t("feedback.typeIssue") }),
+    el("option", { value: "feature", textContent: t("feedback.typeFeature") }),
+    el("option", { value: "improvement", textContent: t("feedback.typeImprovement") }),
+  ]);
+  const name = el("input", { type: "text", name: "name", maxLength: 80, required: true, autocomplete: "name" });
+  const email = el("input", { type: "email", name: "email", maxLength: 200, autocomplete: "email" });
+  const message = el("textarea", { name: "message", rows: 8, maxLength: 5000, required: true, minLength: 10 });
+  // Honeypot: hidden from people, tempting to form-filling bots.
+  const trap = el("input", { type: "text", name: "website", tabIndex: -1, autocomplete: "off", className: "feedback-trap" });
+  const status = el("p", { className: "feedback-status", role: "status" });
+  const send = el("button", { type: "submit", className: "feedback-send", textContent: t("feedback.send") });
+
+  const form = el("form", { className: "feedback-form" }, [
+    field("feedback.type", type),
+    field("feedback.name", name),
+    field("feedback.email", email, "feedback.emailHint"),
+    field("feedback.message", message),
+    trap,
+    el("div", { className: "feedback-actions" }, [send, status]),
+  ]);
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    send.disabled = true;
+    status.className = "feedback-status";
+    status.textContent = t("feedback.sending");
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          type: type.value,
+          name: name.value.trim(),
+          email: email.value.trim(),
+          message: message.value.trim(),
+          source: "web",
+          lang: getLocale(),
+          website: trap.value,
+        }),
+      });
+      if (response.status === 400) {
+        status.className = "feedback-status error";
+        status.textContent = t("feedback.invalid");
+      } else if (!response.ok) {
+        throw new Error(String(response.status));
+      } else {
+        const result = await response.json();
+        form.replaceChildren(
+          el("p", { className: "feedback-status ok", textContent: t("feedback.sent") }),
+          ...(result.issueUrl ? [el("p", {}, [el("a", { href: result.issueUrl, target: "_blank", rel: "noopener", textContent: t("feedback.sentLink") })])] : []),
+        );
+        return;
+      }
+    } catch (err) {
+      status.className = "feedback-status error";
+      status.textContent = t("feedback.failed", { msg: err.message });
+    }
+    send.disabled = false;
+  });
+
+  app.replaceChildren(el("div", { className: "feedback-page" }, [el("h1", { textContent: t("feedback.title") }), el("p", { className: "legal-intro", textContent: t("feedback.intro") }), form]));
 }
 
 async function renderPrivacy() {
@@ -2401,6 +2476,8 @@ async function route() {
     section = "home";
   } else if (segments[0] === "download") {
     section = "download";
+  } else if (segments[0] === "feedback") {
+    section = "feedback";
   } else if (segments[0] === "privacy") {
     section = "privacy";
   } else if (segments[0] === "terms") {
@@ -2426,6 +2503,8 @@ async function route() {
       await renderHome();
     } else if (section === "download") {
       await renderDownload();
+    } else if (section === "feedback") {
+      renderFeedback();
     } else if (section === "privacy") {
       await renderPrivacy();
     } else if (section === "terms") {

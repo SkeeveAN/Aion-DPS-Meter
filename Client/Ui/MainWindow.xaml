@@ -703,6 +703,7 @@
                     <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuSettings.AppSettings}" Click="OnSettingsClicked"/>
                         <MenuItem x:Name="AlwaysOnTopMenuItem" Header="{local:Loc Main.MenuSettings.AlwaysOnTop}" IsCheckable="True" Click="OnAlwaysOnTopClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuSettings.Feedback}" Click="OnFeedbackClicked"/>
                         <Separator/>
                         <MenuItem Header="{local:Loc Main.MenuSettings.ProfileSettings}" IsEnabled="False"/>
                         <MenuItem Header="{local:Loc Main.MenuSettings.KeyBindings}" IsEnabled="False"/>

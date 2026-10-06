@@ -6,6 +6,7 @@ import rateLimit from "@fastify/rate-limit";
 import staticPlugin from "@fastify/static";
 import { env } from "./env.js";
 import { uploadRoutes } from "./routes/uploads.js";
+import { feedbackRoutes } from "./routes/feedback.js";
 import { instanceRoutes } from "./routes/instances.js";
 import { bossRoutes } from "./routes/bosses.js";
 import { encounterRoutes } from "./routes/encounters.js";
@@ -33,10 +34,11 @@ export async function buildServer() {
     timeWindow: "1 minute",
     // Only the upload endpoint needs protecting - the read-only leaderboard
     // routes are cheap, indexed lookups with no reason to throttle browsing.
-    allowList: (request) => !request.url.startsWith("/api/uploads"),
+    allowList: (request) => !request.url.startsWith("/api/uploads") && !request.url.startsWith("/api/feedback"),
   });
 
   await app.register(uploadRoutes);
+  await app.register(feedbackRoutes);
   await app.register(instanceRoutes);
   await app.register(bossRoutes);
   await app.register(encounterRoutes);

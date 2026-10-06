@@ -9,5 +9,10 @@ export const env = {
   CORS_ORIGIN: process.env.CORS_ORIGIN ?? "https://aiondps.com",
   // Public origin used for canonical URLs, sitemap and Open Graph tags - never derived from request
   // headers, so a misconfigured proxy can't make the site advertise the wrong host.
+  // Feedback forwarding (routes/feedback.ts). The token is a fine-grained PAT with Issues:write on
+  // the issues repo and Contents:write on the private data repo; without it the endpoint answers 503.
+  GITHUB_TOKEN: process.env.GITHUB_TOKEN ?? "",
+  GITHUB_ISSUES_REPO: process.env.GITHUB_ISSUES_REPO ?? "SkeeveAN/Aion-DPS-Meter",
+  GITHUB_DATA_REPO: process.env.GITHUB_DATA_REPO ?? "",
   BASE_URL: (process.env.BASE_URL ?? "https://aiondps.com").replace(/\/+$/, ""),
 };

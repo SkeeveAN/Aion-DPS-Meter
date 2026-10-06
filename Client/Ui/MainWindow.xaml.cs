@@ -3255,6 +3255,20 @@ public partial class MainWindow : Window
     /// existing window instead of opening a confusing second editor on the same settings file --
     /// see OnSettingsClicked. Cleared in the window's Closed handler.</summary>
     private SettingsWindow? _settingsWindow;
+    private FeedbackWindow? _feedbackWindow;
+
+    private void OnFeedbackClicked(object sender, RoutedEventArgs e)
+    {
+        if (_feedbackWindow is not null)
+        {
+            _feedbackWindow.Activate();
+            return;
+        }
+
+        _feedbackWindow = new FeedbackWindow(MeterSettings.Load()) { Owner = this };
+        _feedbackWindow.Closed += (_, _) => _feedbackWindow = null;
+        _feedbackWindow.Show();
+    }
 
     /// <summary>
     /// Non-modal per the user's request ("Settings bitte als 2. Fenster öffnen") -- Show(), not

@@ -13,6 +13,10 @@ public static class SegmentRecording
 {
     private sealed record Line(DateTime T, string From, string To, uint Seq, bool Server, string Data);
 
+    /// <summary>One segment as a JSON line (no trailing newline).</summary>
+    public static string Serialize(TcpSegment segment) =>
+        JsonSerializer.Serialize(new Line(segment.Timestamp, segment.Source, segment.Destination, segment.Sequence, segment.FromServer, Convert.ToBase64String(segment.Payload.Span)));
+
     public sealed class Writer : IDisposable
     {
         private readonly StreamWriter _out;

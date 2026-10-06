@@ -1550,5 +1550,195 @@
     "pl": "Krycie nakładki harmonogramu",
     "tr": "Zaman çizelgesi opaklığı",
     "zh": "时间表不透明度"
+  },
+  "Main.MenuSettings.Feedback": {
+    "en": "Report problem / suggestion…",
+    "de": "Problem / Verbesserung melden …",
+    "fr": "Signaler un problème / suggestion…",
+    "es": "Informar de un problema / sugerencia…",
+    "ru": "Сообщить о проблеме / предложить улучшение…",
+    "pl": "Zgłoś problem / propozycję…",
+    "tr": "Sorun / öneri bildir…",
+    "zh": "报告问题 / 提出建议…"
+  },
+  "Feedback.Title": {
+    "en": "Problem / Improvement",
+    "de": "Problem / Verbesserung",
+    "fr": "Problème / Amélioration",
+    "es": "Problema / Mejora",
+    "ru": "Проблема / Улучшение",
+    "pl": "Problem / Usprawnienie",
+    "tr": "Sorun / İyileştirme",
+    "zh": "问题 / 改进"
+  },
+  "Feedback.Intro": {
+    "en": "Your message becomes a public issue on GitHub. Your e-mail address and any recording are never published.",
+    "de": "Deine Nachricht wird als öffentliches Issue auf GitHub angelegt. Deine E-Mail-Adresse und ein Mitschnitt werden nie veröffentlicht.",
+    "fr": "Votre message devient un ticket public sur GitHub. Votre e-mail et l'enregistrement ne sont jamais publiés.",
+    "es": "Tu mensaje se convierte en un issue público en GitHub. Tu correo y la grabación nunca se publican.",
+    "ru": "Ваше сообщение станет публичным issue на GitHub. Адрес почты и запись никогда не публикуются.",
+    "pl": "Twoja wiadomość stanie się publicznym zgłoszeniem na GitHubie. Adres e-mail i nagranie nigdy nie są publikowane.",
+    "tr": "Mesajınız GitHub'da herkese açık bir issue olur. E-posta adresiniz ve kayıt asla yayımlanmaz.",
+    "zh": "您的留言将成为 GitHub 上的公开 issue。邮箱和录制内容绝不会公开。"
+  },
+  "Feedback.Type": {
+    "en": "Type",
+    "de": "Art",
+    "fr": "Type",
+    "es": "Tipo",
+    "ru": "Тип",
+    "pl": "Rodzaj",
+    "tr": "Tür",
+    "zh": "类型"
+  },
+  "Feedback.Type.Feature": {
+    "en": "Feature",
+    "de": "Feature",
+    "fr": "Fonctionnalité",
+    "es": "Función",
+    "ru": "Новая функция",
+    "pl": "Funkcja",
+    "tr": "Özellik",
+    "zh": "新功能"
+  },
+  "Feedback.Type.Issue": {
+    "en": "Issue",
+    "de": "Fehler",
+    "fr": "Problème",
+    "es": "Error",
+    "ru": "Ошибка",
+    "pl": "Błąd",
+    "tr": "Hata",
+    "zh": "错误"
+  },
+  "Feedback.Type.Improvement": {
+    "en": "Improvement",
+    "de": "Verbesserung",
+    "fr": "Amélioration",
+    "es": "Mejora",
+    "ru": "Улучшение",
+    "pl": "Usprawnienie",
+    "tr": "İyileştirme",
+    "zh": "改进"
+  },
+  "Feedback.Name": {
+    "en": "Name",
+    "de": "Name",
+    "fr": "Nom",
+    "es": "Nombre",
+    "ru": "Имя",
+    "pl": "Nazwa",
+    "tr": "Ad",
+    "zh": "名称"
+  },
+  "Feedback.Email": {
+    "en": "E-mail (optional)",
+    "de": "E-Mail (optional)",
+    "fr": "E-mail (facultatif)",
+    "es": "Correo (opcional)",
+    "ru": "E-mail (необязательно)",
+    "pl": "E-mail (opcjonalnie)",
+    "tr": "E-posta (isteğe bağlı)",
+    "zh": "邮箱（可选）"
+  },
+  "Feedback.EmailHint": {
+    "en": "Only used for questions about your report; stored privately.",
+    "de": "Nur für Rückfragen zu deiner Meldung; wird privat gespeichert.",
+    "fr": "Uniquement pour des questions sur votre signalement ; stocké en privé.",
+    "es": "Solo para preguntas sobre tu informe; se guarda en privado.",
+    "ru": "Только для уточняющих вопросов; хранится приватно.",
+    "pl": "Tylko do pytań dotyczących zgłoszenia; przechowywany prywatnie.",
+    "tr": "Yalnızca bildiriminizle ilgili sorular için; özel olarak saklanır.",
+    "zh": "仅用于就您的报告联系您；私密保存。"
+  },
+  "Feedback.Message": {
+    "en": "Message",
+    "de": "Nachricht",
+    "fr": "Message",
+    "es": "Mensaje",
+    "ru": "Сообщение",
+    "pl": "Wiadomość",
+    "tr": "Mesaj",
+    "zh": "留言"
+  },
+  "Feedback.IncludeRecording": {
+    "en": "Attach recording",
+    "de": "Mitschnitt mitsenden",
+    "fr": "Joindre l'enregistrement",
+    "es": "Adjuntar grabación",
+    "ru": "Приложить запись",
+    "pl": "Dołącz nagranie",
+    "tr": "Kaydı ekle",
+    "zh": "附带录制内容"
+  },
+  "Feedback.RecordingHint": {
+    "en": "The last {0} MB of game network traffic (may contain character names). It is encrypted on your PC before sending; only the developer can read it.",
+    "de": "Die letzten {0} MB Spiel-Netzwerkverkehr (kann Charakternamen enthalten). Wird vor dem Senden auf deinem PC verschlüsselt; nur der Entwickler kann ihn lesen.",
+    "fr": "Les {0} derniers Mo de trafic réseau du jeu (peut contenir des noms de personnages). Chiffré sur votre PC avant l'envoi ; seul le développeur peut le lire.",
+    "es": "Los últimos {0} MB de tráfico de red del juego (puede incluir nombres de personajes). Se cifra en tu PC antes de enviarse; solo el desarrollador puede leerlo.",
+    "ru": "Последние {0} МБ сетевого трафика игры (могут быть имена персонажей). Шифруется на вашем ПК перед отправкой; прочитать может только разработчик.",
+    "pl": "Ostatnie {0} MB ruchu sieciowego gry (mogą zawierać nazwy postaci). Szyfrowane na Twoim komputerze przed wysłaniem; odczyta je tylko deweloper.",
+    "tr": "Oyunun son {0} MB ağ trafiği (karakter adları içerebilir). Göndermeden önce bilgisayarınızda şifrelenir; yalnızca geliştirici okuyabilir.",
+    "zh": "游戏网络流量的最近 {0} MB（可能含角色名）。发送前在您的电脑上加密，只有开发者能读取。"
+  },
+  "Feedback.RecordingNone": {
+    "en": "No recording available yet (nothing captured so far).",
+    "de": "Noch kein Mitschnitt verfügbar (bisher wurde nichts aufgezeichnet).",
+    "fr": "Aucun enregistrement disponible (rien capturé pour l'instant).",
+    "es": "Aún no hay grabación (no se ha capturado nada).",
+    "ru": "Записи пока нет (ничего не перехвачено).",
+    "pl": "Brak nagrania (nic jeszcze nie przechwycono).",
+    "tr": "Henüz kayıt yok (hiçbir şey yakalanmadı).",
+    "zh": "暂无录制内容（尚未捕获任何数据）。"
+  },
+  "Feedback.Send": {
+    "en": "Send",
+    "de": "Senden",
+    "fr": "Envoyer",
+    "es": "Enviar",
+    "ru": "Отправить",
+    "pl": "Wyślij",
+    "tr": "Gönder",
+    "zh": "发送"
+  },
+  "Feedback.Sending": {
+    "en": "Sending…",
+    "de": "Wird gesendet …",
+    "fr": "Envoi…",
+    "es": "Enviando…",
+    "ru": "Отправка…",
+    "pl": "Wysyłanie…",
+    "tr": "Gönderiliyor…",
+    "zh": "发送中…"
+  },
+  "Feedback.Sent": {
+    "en": "Thank you! Your message was sent.",
+    "de": "Danke! Deine Nachricht wurde gesendet.",
+    "fr": "Merci ! Votre message a été envoyé.",
+    "es": "¡Gracias! Tu mensaje fue enviado.",
+    "ru": "Спасибо! Сообщение отправлено.",
+    "pl": "Dziękujemy! Wiadomość wysłano.",
+    "tr": "Teşekkürler! Mesajınız gönderildi.",
+    "zh": "谢谢！您的留言已发送。"
+  },
+  "Feedback.Failed": {
+    "en": "Sending failed: {0}",
+    "de": "Senden fehlgeschlagen: {0}",
+    "fr": "Échec de l'envoi : {0}",
+    "es": "Error al enviar: {0}",
+    "ru": "Не удалось отправить: {0}",
+    "pl": "Wysyłanie nie powiodło się: {0}",
+    "tr": "Gönderilemedi: {0}",
+    "zh": "发送失败：{0}"
+  },
+  "Feedback.Invalid": {
+    "en": "Please enter a name and a message (at least 10 characters); the e-mail address must be valid.",
+    "de": "Bitte Name und Nachricht (mind. 10 Zeichen) eingeben; die E-Mail-Adresse muss gültig sein.",
+    "fr": "Saisissez un nom et un message (10 caractères min.) ; l'e-mail doit être valide.",
+    "es": "Introduce un nombre y un mensaje (mín. 10 caracteres); el correo debe ser válido.",
+    "ru": "Укажите имя и сообщение (не менее 10 символов); адрес почты должен быть корректным.",
+    "pl": "Podaj nazwę i wiadomość (min. 10 znaków); adres e-mail musi być poprawny.",
+    "tr": "Ad ve mesaj girin (en az 10 karakter); e-posta geçerli olmalı.",
+    "zh": "请输入名称和留言（至少 10 个字符）；邮箱必须有效。"
   }
 }

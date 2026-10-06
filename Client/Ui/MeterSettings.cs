@@ -73,6 +73,11 @@ public sealed class MeterSettings
     /// is the user asking, not the program deciding.</summary>
     public bool CheckForUpdates { get; set; } = true;
 
+    /// <summary>Last name / e-mail typed into the feedback window, so a second report is not retyped.</summary>
+    public string FeedbackName { get; set; } = "";
+
+    public string FeedbackEmail { get; set; } = "";
+
     /// <summary>Whether the own character profile is uploaded by itself a few seconds after a login
     /// (see MainWindow.ScheduleOwnProfileUpload), so the player can be found on the website. On by
     /// default; the manual upload button works either way.</summary>
