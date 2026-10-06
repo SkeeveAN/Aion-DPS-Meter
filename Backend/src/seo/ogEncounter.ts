@@ -10,15 +10,17 @@ import { GAME_NAME_TRANSLATIONS, splitConquest } from "../../../Web-Frontend/gam
 import { cachedBuffer } from "./cache.js";
 import { bossImage, classImage } from "./pages.js";
 
-// Link-preview picture of one boss fight (Discord, Slack, X ...): boss art on the left, then per
-// player a damage, a healing and a damage-taken bar. Everything that needs words is kept out on
-// purpose - the rows are told apart by icons and colours, class by its emblem - so one image reads
-// the same for every viewer (a preview is fetched once per URL and shown to everybody, there is no
-// per-viewer language). Only the boss and instance names and the number format follow `lang`.
+// Link-preview picture of one boss fight (Discord, Slack, X ...). Discord shows it about 400 px
+// wide, a third of its real size, so it carries only what survives that: the boss, the group's
+// iDPS, and per player the class emblem, the name and the damage on a bar, all in large type
+// (nothing under ~36 px). Heal and damage-taken bars live on the fight's own page. Everything that
+// needs words is kept out on purpose, so one image reads the same for every viewer (a preview is
+// fetched once per URL and shown to everybody). Only the boss and instance names and the number
+// format follow `lang`.
 
 const WIDTH = 1200;
 const HEIGHT = 630;
-const MAX_ROWS = 6;
+const MAX_ROWS = 5;
 const CACHE_TTL_MS = 3_600_000;
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -48,6 +50,8 @@ const dataUris = new Map<string, string | null>();
 /** A frontend file as a data: URI (resvg resolves nothing else), read once per process. */
 function dataUri(webPath: string | undefined): string | null {
   if (!webPath) return null;
+  // resvg cannot decode WebP; the site's WebP pictures have JPEG copies under /og/art/ for this.
+  if (webPath.endsWith(".webp")) webPath = "/og/art" + webPath.replace(/^\/images\/aion2/, "").replace(/\.webp$/, ".jpg");
   if (dataUris.has(webPath)) return dataUris.get(webPath) ?? null;
   let uri: string | null = null;
   try {
@@ -91,7 +95,7 @@ const ICONS = {
 
 const icon = (inner: string, x: number, y: number, scale: number) => `<g transform="translate(${x} ${y}) scale(${scale})">${inner}</g>`;
 
-interface FightRow {
+export interface FightRow {
   name: string;
   className: string;
   damage: number;
@@ -102,7 +106,7 @@ interface FightRow {
   absorbed: number;
 }
 
-interface Fight {
+export interface Fight {
   boss: string;
   instance: string;
   art: string | undefined;
@@ -169,94 +173,61 @@ function loadFight(game: Game, id: number, lang: string): Fight | null {
   };
 }
 
-function buildSvg(fight: Fight, lang: string): string {
+export function buildSvg(fight: Fight, lang: string): string {
   const fmt = (n: number) => Math.round(n).toLocaleString(LOCALE_TAGS[lang]);
   const C = COLORS;
   const rows = fight.rows;
-  const maxOf = (pick: (r: FightRow) => number) => Math.max(...rows.map(pick), 1);
-  const maxDamage = maxOf((r) => r.damage);
-  const maxHeal = maxOf((r) => r.healing);
-  const maxTaken = maxOf((r) => r.taken + r.absorbed);
+  const maxDamage = Math.max(...rows.map((r) => r.damage), 1);
 
-  const bossSize = Math.min(32, 560 / Math.max(textWidth(fight.boss, 1), 1));
+  // Boss name: as large as fits next to the iDPS block on the right.
+  const bossSize = Math.min(64, 700 / Math.max(textWidth(fight.boss, 1), 1));
   const duration = `${Math.floor(fight.durationSeconds / 60)}:${String(Math.round(fight.durationSeconds % 60)).padStart(2, "0")}`;
 
   const art = dataUri(fight.art);
-  let svg = `<defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="9" height="9" fill="${C.shield}"/><rect width="3.5" height="9" fill="#9fcdff"/></pattern>
-<clipPath id="art"><rect x="30" y="108" width="202" height="512" rx="12"/></clipPath></defs>
-<rect width="${WIDTH}" height="${HEIGHT}" fill="${C.page}"/>
-${art ? `<image href="${art}" width="${WIDTH}" height="${HEIGHT}" preserveAspectRatio="xMidYMid slice" opacity=".35"/>` : ""}
-<rect width="${WIDTH}" height="${HEIGHT}" fill="${C.page}" opacity=".62"/>
-<text x="40" y="56" font-size="${bossSize.toFixed(1)}" font-weight="700" fill="${C.text}">${escapeXml(fight.boss)}</text>
-<text x="1160" y="58" font-size="28" font-weight="700" fill="${C.damage}" text-anchor="end">AION DPS</text>
-<text x="1160" y="88" font-size="17" fill="${C.muted}" text-anchor="end">aiondps.com</text>`;
+  let svg = `<rect width="${WIDTH}" height="${HEIGHT}" fill="${C.page}"/>
+${art ? `<image href="${art}" width="${WIDTH}" height="${HEIGHT}" preserveAspectRatio="xMidYMid slice" opacity=".4"/>` : ""}
+<rect width="${WIDTH}" height="${HEIGHT}" fill="${C.page}" opacity=".6"/>
+<text x="48" y="76" font-size="${bossSize.toFixed(1)}" font-weight="700" fill="${C.text}">${escapeXml(fight.boss)}</text>
+<text x="1152" y="62" font-size="40" font-weight="700" fill="${C.damage}" text-anchor="end">${escapeXml(fmt(fight.groupIDps))}/s</text>
+<text x="1152" y="104" font-size="26" fill="${C.muted}" text-anchor="end">AION DPS · aiondps.com</text>`;
 
-  // Header line: instance name, then player count, duration and group iDPS as icon + number.
-  let x = 40;
-  svg += `<text x="${x}" y="90" font-size="19" fill="${C.muted}">${escapeXml(fight.instance)}</text>`;
-  x += textWidth(fight.instance, 19) + 16;
-  const facts: [string, string, string][] = [
-    [ICONS.players(C.muted), String(fight.playerCount), C.muted],
-    [ICONS.clock(C.muted), duration, C.muted],
-    [ICONS.damage(C.damage), `${fmt(fight.groupIDps)}/s`, C.muted],
+  // Second line: instance, then player count and duration as icon + number.
+  let x = 48;
+  svg += `<text x="${x}" y="124" font-size="32" fill="${C.muted}">${escapeXml(fight.instance)}</text>`;
+  x += textWidth(fight.instance, 32) + 22;
+  const facts: [string, string][] = [
+    [ICONS.players(C.muted), String(fight.playerCount)],
+    [ICONS.clock(C.muted), duration],
   ];
-  for (const [glyph, text, color] of facts) {
-    svg += `<text x="${x}" y="90" font-size="19" fill="${C.muted}">·</text>`;
-    x += 14;
-    svg += icon(glyph, x, 73.5, 0.8);
-    x += 26;
-    svg += `<text x="${x}" y="90" font-size="19" fill="${color}">${escapeXml(text)}</text>`;
-    x += textWidth(text, 19) + 16;
+  for (const [glyph, text] of facts) {
+    svg += icon(glyph, x, 94, 1.3);
+    x += 40;
+    svg += `<text x="${x}" y="124" font-size="32" fill="${C.muted}">${escapeXml(text)}</text>`;
+    x += textWidth(text, 32) + 26;
   }
 
-  const gap = 8;
-  const rowH = Math.min(96, (512 - gap * (rows.length - 1)) / rows.length);
-  const pitch = Math.min(24, (rowH - 14) / 3);
-  const barH = Math.min(15, pitch - 9);
-  const barX = 512;
-  const barW = 368;
+  const top0 = 150;
+  const gap = 10;
+  const rowH = Math.min(86, (HEIGHT - top0 - 20 - gap * (rows.length - 1)) / rows.length);
+  const barX = 520;
+  const barW = 350;
+  const barH = Math.min(30, rowH - 30);
   rows.forEach((r, i) => {
-    const top = 108 + i * (rowH + gap);
-    const first = top + (rowH - 3 * pitch) / 2; // top of the first text line
+    const top = top0 + i * (rowH + gap);
+    const mid = top + rowH / 2;
+    svg += `<rect x="40" y="${top}" width="1120" height="${rowH}" rx="14" fill="${C.card}" opacity=".92"/>`;
     const emblem = dataUri(classImage(r.className));
-    const iconSize = Math.min(46, rowH - 22);
-    svg += `<rect x="248" y="${top}" width="922" height="${rowH}" rx="12" fill="${C.card}" opacity=".9"/>`;
-    if (emblem) svg += `<image href="${emblem}" x="262" y="${top + (rowH - iconSize) / 2}" width="${iconSize}" height="${iconSize}"/>`;
-    // Names get 150 px; long ones shrink instead of running into the icons.
-    const nameSize = Math.max(15, Math.min(24, 142 / (textWidth(r.name, 1) * 1.2)));
-    svg += `<text x="320" y="${top + rowH / 2 + nameSize / 3}" font-size="${nameSize.toFixed(1)}" font-weight="700" fill="${C.text}">${escapeXml(r.name)}</text>`;
-
-    const line = (n: number, glyph: string, value: number, max: number, color: string, label: string, labelColor: string, extra: string) => {
-      const y = first + n * pitch;
-      const mid = y + pitch / 2;
-      const bar = `<rect x="${barX}" y="${mid - barH / 2}" width="${barW}" height="${barH}" rx="${barH / 2}" fill="${C.track}"/>`;
-      const fill = value > 0 ? `<rect x="${barX}" y="${mid - barH / 2}" width="${Math.max(barH, (barW * value) / max)}" height="${barH}" rx="${barH / 2}" fill="${color}"/>` : "";
-      return `${icon(glyph, 474, mid - 9, 0.76)}${bar}${fill}<text x="1015" y="${mid + 7}" font-size="20" ${n === 0 ? 'font-weight="700"' : ""} fill="${labelColor}" text-anchor="end">${escapeXml(label)}</text>${extra}`;
-    };
-    const side = (n: number, text: string, color: string) => {
-      const mid = first + n * pitch + pitch / 2;
-      return `<text x="1155" y="${mid + 6}" font-size="15" fill="${color}" text-anchor="end">${escapeXml(text)}</text>`;
-    };
-
-    svg += line(0, ICONS.damage(C.damage), r.damage, maxDamage, C.damage, fmt(r.damage), C.text, side(0, `${fmt(r.dps)}/s`, C.muted));
-    svg += line(1, ICONS.heal(C.heal), r.healing, maxHeal, C.heal, fmt(r.healing), C.text, side(1, `${fmt(r.hps)}/s`, C.muted));
-    // Taken bar: the part that got through in red, what a shield soaked up as blue hatching behind it.
-    const tMid = first + 2 * pitch + pitch / 2;
-    const tTop = tMid - barH / 2;
-    let taken = line(2, ICONS.taken(C.taken), 0, 1, C.taken, fmt(r.taken), C.taken, r.absorbed > 0 ? side(2, `+${fmt(r.absorbed)}`, C.shield) : "");
-    if (r.taken > 0) taken += `<rect x="${barX}" y="${tTop}" width="${Math.max(barH, (barW * r.taken) / maxTaken)}" height="${barH}" rx="${barH / 2}" fill="${C.taken}"/>`;
-    if (r.absorbed > 0) taken += `<rect x="${barX + (barW * r.taken) / maxTaken}" y="${tTop}" width="${(barW * r.absorbed) / maxTaken}" height="${barH}" rx="${r.taken > 0 ? 0 : barH / 2}" fill="url(#hatch)"/>`;
-    svg += taken;
+    const iconSize = rowH - 20;
+    if (emblem) svg += `<image href="${emblem}" x="56" y="${top + 10}" width="${iconSize}" height="${iconSize}"/>`;
+    // Names get ~330 px; a long one shrinks (down to 28) instead of running into the bar.
+    const nameSize = Math.max(28, Math.min(40, 330 / Math.max(textWidth(r.name, 1), 1)));
+    svg += `<text x="${56 + iconSize + 18}" y="${mid + nameSize * 0.36}" font-size="${nameSize.toFixed(1)}" font-weight="700" fill="${C.text}">${escapeXml(r.name)}</text>`;
+    svg += `<rect x="${barX}" y="${mid - barH / 2}" width="${barW}" height="${barH}" rx="${barH / 2}" fill="${C.track}"/>`;
+    if (r.damage > 0) {
+      svg += `<rect x="${barX}" y="${mid - barH / 2}" width="${Math.max(barH, (barW * r.damage) / maxDamage)}" height="${barH}" rx="${barH / 2}" fill="${C.damage}"/>`;
+    }
+    svg += `<text x="1138" y="${mid + 14}" font-size="42" font-weight="700" fill="${C.text}" text-anchor="end">${escapeXml(fmt(r.damage))}</text>`;
   });
-
-  if (art) {
-    svg += `<image href="${art}" x="-40" y="108" width="460" height="512" preserveAspectRatio="xMidYMid slice" clip-path="url(#art)"/>`;
-  } else {
-    // No photo for this boss or instance: the site logo on a quiet panel instead of an empty frame.
-    const logo = dataUri("/logo.png");
-    svg += `<rect x="30" y="108" width="202" height="512" rx="12" fill="${C.card}" opacity=".9"/>${logo ? `<clipPath id="logo"><rect x="56" y="289" width="150" height="150" rx="30"/></clipPath><image href="${logo}" x="56" y="289" width="150" height="150" clip-path="url(#logo)"/>` : ""}`;
-  }
-  svg += `<rect x="30" y="108" width="202" height="512" rx="12" fill="none" stroke="#2a3544" stroke-width="2"/>`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" font-family="DejaVu Sans">${svg}</svg>`;
 }
