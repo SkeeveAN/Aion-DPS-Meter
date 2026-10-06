@@ -2101,7 +2101,7 @@ function renderRunsTab(history) {
   const rows = history.map((h) =>
     el("tr", {}, [
       el("td", { textContent: formatDate(new Date(h.startedAt)) }),
-      el("td", {}, [link(translateGameName(h.bossName), gp(`/bosses/${h.bossId}`))]),
+      el("td", {}, [link(translateGameName(h.bossName), gp(`/encounters/${h.encounterId}`))]),
       el("td", {}, [iconLabel(classIcon(h.className), h.className)]),
       el("td", { textContent: formatNumber(h.totalDamage) }),
       el("td", { textContent: formatNumber(h.idps) }),
