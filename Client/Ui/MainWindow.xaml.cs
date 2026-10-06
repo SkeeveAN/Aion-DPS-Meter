@@ -498,6 +498,7 @@ public partial class MainWindow : Window
         _avoids.AddRange(batch.Avoids);
         _kills.AddRange(batch.Kills);
         NoteBossKills(batch.Kills);
+        NoteDefeatedBosses();
         IReadOnlyList<DamageEvent> events = batch.Damage;
 
         // Hits a summon dealt before its owner was known (the meter started mid-fight) go to the
@@ -1930,10 +1931,11 @@ public partial class MainWindow : Window
 
         var pending = lastHit
             .Where(kv => !_bossUploadedUntil.TryGetValue(kv.Key, out DateTime sent) || kv.Value.Last > sent)
+            .Where(kv => BossFightFinished(kv.Key))
             .OrderBy(kv => kv.Value.First)
             .Select(kv => kv.Key)
             .ToList();
-        if (_selectedTargetId is int selected && knownIds.Contains(selected) && !pending.Contains(selected))
+        if (_selectedTargetId is int selected && knownIds.Contains(selected) && !pending.Contains(selected) && BossFightFinished(selected))
         {
             pending.Add(selected);
         }
@@ -1960,7 +1962,9 @@ public partial class MainWindow : Window
                 return;
             }
 
-            ShowUploadStatus(_mobBossEntries.Count > 0 ? "Every boss fight is already uploaded." : "No boss fights recorded yet.");
+            ShowUploadStatus(_mobBossEntries.Count == 0 ? "No boss fights recorded yet."
+                : _mobBossEntries.Any(entry => !BossFightFinished(entry.TargetId)) ? "Nothing to upload - the boss is still alive (a failed attempt is not uploaded)."
+                : "Every boss fight is already uploaded.");
             return;
         }
 
@@ -2094,17 +2098,70 @@ public partial class MainWindow : Window
 
     private void NoteBossKills(IReadOnlyList<KillEvent> kills)
     {
-        if (kills.Count == 0 || Headless || _historyMode || !MeterSettings.Load().AutoUploadBoss)
+        NoteBossesToUpload(kills.Where(kill => !kill.VictimIsPlayer && BossNpcIdOf(kill.VictimObjectId) is not null).Select(kill => kill.VictimObjectId));
+    }
+
+    /// <summary>Bosses already queued after a defeat; a boss that is back above zero (a new attempt) may be queued again.</summary>
+    private readonly HashSet<int> _defeatNoted = new();
+
+    /// <summary>
+    /// Aion 2 sends no kill frame, but the boss's hit points reach 0 when it dies (checked on a
+    /// Fire Temple run, 2026-10-05: every boss's last reading is 0). A boss at 0 is queued for the
+    /// automatic upload; one that wiped the group (back at full health) never is.
+    /// </summary>
+    private void NoteDefeatedBosses()
+    {
+        if (Headless || _historyMode || _source?.Entities is not Aion2.Aion2EntityDirectory directory)
         {
             return;
         }
 
-        foreach (KillEvent kill in kills)
+        var defeated = new List<int>();
+        foreach ((int entityId, _) in directory.KnownBosses())
         {
-            if (!kill.VictimIsPlayer && BossNpcIdOf(kill.VictimObjectId) is not null)
+            if (directory.HitPoints.Latest(entityId) is not { } hp)
             {
-                _bossesToUpload.Add(kill.VictimObjectId);
+                continue;
             }
+
+            if (hp.Hp > 0)
+            {
+                _defeatNoted.Remove(entityId);
+            }
+            else if (_defeatNoted.Add(entityId))
+            {
+                defeated.Add(entityId);
+            }
+        }
+
+        NoteBossesToUpload(defeated);
+    }
+
+    /// <summary>
+    /// Whether a boss fight can be uploaded: the boss is dead (hit points 0, or within 0.5 % of it when
+    /// the last frame was lost), or no hit-point reading exists to say otherwise. A boss that is still
+    /// alive is a failed attempt - the group wiped or left - and goes nowhere.
+    /// </summary>
+    private bool BossFightFinished(int targetId)
+    {
+        if ((_source?.Entities as Aion2EntityDirectory)?.HitPoints is not { } hitPoints || hitPoints.Latest(targetId) is not { } latest)
+        {
+            return true;
+        }
+
+        return latest.Hp <= (hitPoints.HighestSeen(targetId) ?? 0) * 0.005;
+    }
+
+    private void NoteBossesToUpload(IEnumerable<int> bossEntityIds)
+    {
+        if (Headless || _historyMode || !MeterSettings.Load().AutoUploadBoss)
+        {
+            return;
+        }
+
+        foreach (int entityId in bossEntityIds)
+        {
+            _bossesToUpload.Add(entityId);
         }
 
         if (_bossesToUpload.Count == 0)
