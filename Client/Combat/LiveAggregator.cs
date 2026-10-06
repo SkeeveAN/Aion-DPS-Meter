@@ -12,9 +12,13 @@ public sealed class LiveAggregator
     public IReadOnlyList<DamageEvent> Events => _events;
 
     /// <summary>
-    /// Feeds decoded DamageEvents in.
+    /// Feeds decoded DamageEvents in. Damage a player does to themselves (an Assassin's Infiltrate,
+    /// 30,000 per use, or a skill's health cost) is not damage dealt and not damage taken from
+    /// anyone: with all targets shown it used to add 150,000 to one Assassin's total and 8,960 to a
+    /// Sorcerer's, which the boss-only view and the website never showed. Self-heals stay.
     /// </summary>
-    public void IngestEvents(IEnumerable<DamageEvent> events) => _events.AddRange(events);
+    public void IngestEvents(IEnumerable<DamageEvent> events) =>
+        _events.AddRange(events.Where(e => e.IsHeal || e.SourceObjectId != e.TargetObjectId));
 
     /// <summary>
     /// Discards all events for a fresh session. Previously missing on purpose-turned-oversight:
