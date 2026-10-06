@@ -376,7 +376,7 @@ function buildTopPlayersSection(rows, game) {
 function buildRecentActivitySection(rows) {
   const cards = rows.map((r) => {
     const instanceName = displayName({ name: r.instanceName, nameEn: r.instanceNameEn });
-    const photo = INSTANCE_IMAGES[r.instanceNameEn] ?? INSTANCE_IMAGES[r.instanceName];
+    const photo = BOSS_CARDS[r.bossNameEn] ?? BOSS_CARDS[r.bossName] ?? BOSS_IMAGES[r.bossNameEn] ?? BOSS_IMAGES[r.bossName] ?? INSTANCE_IMAGES[r.instanceNameEn] ?? INSTANCE_IMAGES[r.instanceName];
     return el("a", { className: "hp-run", href: gp(`/encounters/${r.encounterId}`) }, [
       el("span", { className: "hp-thumb", style: photo ? `background-image:url('${photo}')` : "" }),
       el("span", { className: "hp-run-mid" }, [
