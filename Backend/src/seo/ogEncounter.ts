@@ -6,7 +6,7 @@ import { and, desc, eq, ne } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players } from "../db/schema.js";
 import type { Game } from "../constants.js";
-import { GAME_NAME_TRANSLATIONS } from "../../../Web-Frontend/game-data.js";
+import { GAME_NAME_TRANSLATIONS, splitConquest } from "../../../Web-Frontend/game-data.js";
 import { cachedBuffer } from "./cache.js";
 import { bossImage, classImage } from "./pages.js";
 
@@ -113,6 +113,8 @@ interface Fight {
 }
 
 function translated(name: string, lang: string): string {
+  const conquest = splitConquest(name);
+  if (conquest) return `${translated(conquest.base, lang)} ${conquest.stars}`;
   const entry = (GAME_NAME_TRANSLATIONS as Record<string, Record<string, string> | undefined>)[name];
   return entry?.[lang] ?? name;
 }

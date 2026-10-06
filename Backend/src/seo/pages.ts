@@ -5,7 +5,7 @@ import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.
 import { findInstance, instanceColumns } from "../routes/instances.js";
 import { findBoss, mechanicsFor, modesFor, selectServer, serversWithEncounters, statsForBossIds, topByClass, topGroups } from "../routes/bosses.js";
 import { buildProfileView, ownSkillRows } from "../profile.js";
-import { INSTANCE_FACTS, INSTANCE_IMAGES, INSTANCE_MIN_LEVEL, BOSS_IMAGES } from "../../../Web-Frontend/game-data.js";
+import { INSTANCE_FACTS, INSTANCE_IMAGES, INSTANCE_MIN_LEVEL, BOSS_IMAGES, splitConquest } from "../../../Web-Frontend/game-data.js";
 import { parseIdOrSlug } from "./slug.js";
 import { formatInt, html, Raw } from "./html.js";
 import { breadcrumbJsonLd, itemListJsonLd, profileJsonLd, softwareApplicationJsonLd, websiteJsonLd, type PageMeta } from "./meta.js";
@@ -65,7 +65,9 @@ function compact(n: number): string {
 }
 
 export function displayName(row: { name: string; nameEn: string | null }): string {
-  return row.nameEn ?? row.name;
+  const name = row.nameEn ?? row.name;
+  const conquest = splitConquest(name); // "Draupnir (Conquest)" is shown as "Draupnir ★"
+  return conquest ? `${conquest.base} ${conquest.stars}` : name;
 }
 
 export function homePage(): Page {
@@ -508,7 +510,7 @@ export function encounterPage(game: Game, id: string): Page | null {
     .all();
 
   const name = displayName({ name: row.bossName, nameEn: row.bossNameEn });
-  const instanceName = row.instanceNameEn ?? row.instanceName;
+  const instanceName = displayName({ name: row.instanceName, nameEn: row.instanceNameEn });
   const server = row.serverName;
   const modeText = row.mode ? ` · ${modeLabelEn(row.instanceCategory, row.mode)}` : "";
   const title = `${name}${row.mode ? ` (${modeLabelEn(row.instanceCategory, row.mode)})` : ""}${server ? ` – ${server}` : ""} – Boss Fight – ${SITE}`;

@@ -352,3 +352,10 @@ export const INSTANCE_MIN_LEVEL = {
   "Blades Hideout": 45,
   "Impetusium": 45,
 };
+
+/** "Draupnir (Conquest)" -> { base: "Draupnir", stars: "★" } (star rating from INSTANCE_FACTS); null for every other name. */
+export function splitConquest(name) {
+  const m = /^(.*) \(Conquest\)$/.exec(name ?? "");
+  const stars = m ? INSTANCE_FACTS[name]?.stars : undefined;
+  return m && stars ? { base: m[1], stars: "★".repeat(stars) } : null;
+}

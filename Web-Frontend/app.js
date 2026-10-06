@@ -1,5 +1,5 @@
 import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
-import { INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS } from "./game-data.js";
+import { INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 
 const app = document.getElementById("app");
@@ -533,6 +533,11 @@ function posterCard(href, photo, title, objectPosition) {
 
 /** Display name as the UI translation table knows it, else the English name the DB carries, else the raw name. */
 function displayName(row) {
+  // Conquest instances read "Draupnir ★" (their star rating), not "Draupnir (Conquest)".
+  const conquest = splitConquest(row.name);
+  if (conquest) {
+    return `${displayName({ name: conquest.base })} ${conquest.stars}`;
+  }
   const translated = translateGameName(row.name);
   return translated !== row.name ? translated : row.nameEn ?? row.name;
 }
@@ -579,7 +584,9 @@ function instanceFactCard(i, { chips = [], label } = {}) {
   if (facts.itemLevel) {
     pills.push(t("instances.itemLevelPill", { n: formatNumber(facts.itemLevel) }));
   }
-  const title = [document.createTextNode(label ?? displayName(i))];
+  // The card adds its own gold stars below, so a Conquest name is shown without the stars displayName() appends.
+  const plainName = splitConquest(i.name) ? displayName({ name: splitConquest(i.name).base }) : displayName(i);
+  const title = [document.createTextNode(label ?? plainName)];
   if (facts.stars) {
     title.push(el("span", { className: "ip-stars", textContent: ` ${"★".repeat(facts.stars)}`, title: `${facts.stars} / 3` }));
   }

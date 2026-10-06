@@ -839,8 +839,7 @@
         "ru": "Мучающийся Бакрам"
       },
       "npcIds": [
-        2300470,
-        2300471
+        2300470
       ],
       "level": 45,
       "internalName": "M_PD_Draupnir_Bakarma_01",
@@ -2490,11 +2489,8 @@
       },
       "npcIds": [
         2310470,
-        2310471,
         2320470,
-        2320471,
-        2330423,
-        2330424
+        2330423
       ],
       "level": 45,
       "internalName": "M_PD_Draupnir_Bakarma_01",
