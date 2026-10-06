@@ -1095,11 +1095,42 @@ const GROUP_SORTS = {
 };
 const MEDAL_COLORS = ["#f0b030", "#b9c2cc", "#d08a4a"];
 
-function classEmblem(className, small) {
+// Duotone filters (one per emblem): the silver/gold emblem keeps its shading, dark -> class colour -> light.
+// Added to the page once, on first use; an emblem opts in with `tint` and picks its filter via --tint.
+function ensureEmblemTints() {
+  if (document.getElementById("emblem-tints")) {
+    return;
+  }
+  const mixTo = (c, target, a) => c.map((v) => v + (target - v) * a);
+  const filters = Object.entries(CLASS_EMBLEM)
+    .map(([className, file]) => {
+      const hex = classMeta(className).color;
+      const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+      const dark = mixTo(c, 0, 0.62);
+      const light = mixTo(c, 1, 0.55);
+      const table = (ch) => `${dark[ch].toFixed(3)} ${c[ch].toFixed(3)} ${light[ch].toFixed(3)}`;
+      return `<filter id="emblem-tint-${file}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 1 0"/><feComponentTransfer><feFuncR type="table" tableValues="${table(0)}"/><feFuncG type="table" tableValues="${table(1)}"/><feFuncB type="table" tableValues="${table(2)}"/></feComponentTransfer></filter>`;
+    })
+    .join("");
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.id = "emblem-tints";
+  svg.setAttribute("width", "0");
+  svg.setAttribute("height", "0");
+  svg.setAttribute("aria-hidden", "true");
+  svg.style.position = "absolute";
+  svg.innerHTML = filters;
+  document.body.append(svg);
+}
+
+function classEmblem(className, small, tint) {
   const file = CLASS_EMBLEM[className];
-  return file
-    ? el("img", { className: `lb-emblem${small ? " sm" : ""}`, src: `/images/aion2/classes/${file}.webp`, alt: className, title: className, loading: "lazy" })
-    : classIcon(className);
+  if (!file) {
+    return classIcon(className);
+  }
+  if (tint) {
+    ensureEmblemTints();
+  }
+  return el("img", { className: `lb-emblem${small ? " sm" : ""}${tint ? " tinted" : ""}`, src: `/images/aion2/classes/${file}.webp`, alt: className, title: className, loading: "lazy", style: tint ? `--tint:url(#emblem-tint-${file})` : "" });
 }
 
 function memberHref(p, encounterId) {
@@ -1142,8 +1173,8 @@ function renderGroupBoard(groups) {
           "div",
           { className: "lb-chips" },
           (g.roster ?? []).map((p) =>
-            el("a", { className: "lb-chip", href: memberHref(p, g.encounterId), title: `${p.playerName} · ${p.className} · ${formatNumber(p.totalDamage)}` }, [
-              classEmblem(p.className, false),
+            el("a", { className: "lb-chip", href: memberHref(p, g.encounterId), style: `--cc:${classMeta(p.className).color}`, title: `${p.playerName} · ${p.className} · ${formatNumber(p.totalDamage)}` }, [
+              classEmblem(p.className, false, true),
               el("span", { className: "lb-name", textContent: p.playerName }),
             ]),
           ),
@@ -1153,7 +1184,7 @@ function renderGroupBoard(groups) {
     const row = (g, i) =>
       el("div", { className: "lb-row" }, [
         el("span", { className: "lb-rank-small", textContent: `#${i + 4}` }),
-        el("span", { className: "lb-strip" }, (g.roster ?? []).map((p) => classEmblem(p.className, true))),
+        el("span", { className: "lb-strip" }, (g.roster ?? []).map((p) => classEmblem(p.className, true, true))),
         el("span", { className: "lb-names" }, (g.roster ?? []).flatMap((p, k) => [k > 0 ? ", " : "", link(p.playerName, memberHref(p, g.encounterId))])),
         el("span", { className: "lb-score" }, [
           el("b", { textContent: formatNumber(g.groupIDps) }),

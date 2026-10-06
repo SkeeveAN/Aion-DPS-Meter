@@ -2344,8 +2344,9 @@ body:has(.download-hero) .nav-download-link:hover,
 .lb-meta { display: flex; gap: 14px; flex-wrap: wrap; margin: 10px 0 12px; font-size: 0.85rem; color: var(--color-text-muted); }
 .lb-meta b { color: var(--color-text); font-weight: 600; font-variant-numeric: tabular-nums; }
 .lb-chips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-.lb-chip { text-align: center; padding: 8px 4px 6px; border-radius: 10px; background: color-mix(in srgb, var(--color-surface2) 55%, transparent); border: 1px solid transparent; color: var(--color-text); text-decoration: none; }
-.lb-chip:hover { border-color: var(--color-primary); }
+.lb-chip { text-align: center; padding: 8px 4px 6px; border-radius: 10px; color: var(--color-text); text-decoration: none; border: 1px solid color-mix(in srgb, var(--cc) 30%, transparent); background: linear-gradient(180deg, color-mix(in srgb, var(--cc) 20%, transparent), color-mix(in srgb, var(--cc) 6%, transparent)); }
+.lb-chip:hover { border-color: var(--cc); }
+.lb-emblem.tinted { filter: var(--tint); }
 .lb-chip .lb-emblem { width: 40px; height: 40px; }
 .lb-name { display: block; font-size: 0.72rem; line-height: 1.15; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-rest { display: grid; gap: 8px; }
