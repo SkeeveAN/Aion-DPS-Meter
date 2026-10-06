@@ -526,6 +526,12 @@ th {
   background: url("/images/ui/hero-obelisk.webp") center 30% / cover no-repeat;
 }
 
+@media (max-width: 1400px) {
+  .home-hero-row::before {
+    background-image: url("/images/ui/hero-obelisk-1280.webp");
+  }
+}
+
 .home-hero-row::after {
   content: "";
   position: absolute;

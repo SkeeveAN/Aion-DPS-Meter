@@ -144,46 +144,46 @@ export const GAME_NAME_TRANSLATIONS = {
 // survives the poster card's center-crop) and the reveal-article hero images of NCSoft's newsroom
 // (about.ncsoft.com), each checked against the article's own text before use.
 export const INSTANCE_IMAGES = {
-  "Krao Cave": "/images/aion2/instances/krao-cave.jpg",
-  Draupnir: "/images/aion2/instances/draupnir.jpg",
-  "Urugugu Canyon": "/images/aion2/instances/urugugu-canyon.jpg",
-  "Vakron Sky Island": "/images/aion2/instances/vakron-sky-island.jpg",
-  "Fire Temple": "/images/aion2/instances/fire-temple.jpg",
-  "Ferocious Horn Den": "/images/aion2/instances/ferocious-horn-den.jpg",
-  "Cradle of Nihility": "/images/aion2/instances/cradle-of-nihility.jpg",
-  "Mirror of Scarlet Desire": "/images/aion2/instances/mirror-of-scarlet-desire.jpg",
-  "Chalice of Muspel": "/images/aion2/instances/chalice-of-muspel.jpg",
-  "Corroded Decontamination Facility": "/images/aion2/instances/corroded-decontamination-facility.jpg",
-  "Submerged Life Temple": "/images/aion2/instances/submerged-life-temple.jpg",
-  "Citadel of the Fallen Daeva": "/images/aion2/instances/citadel-of-the-fallen-daeva.jpg",
-  "Abyssal Horn Den": "/images/aion2/instances/abyssal-horn-den.jpg",
-  "Krao Cave (Conquest)": "/images/aion2/instances/krao-cave.jpg",
-  "Urugugu Canyon (Conquest)": "/images/aion2/instances/urugugu-canyon.jpg",
-  "Fire Temple (Conquest)": "/images/aion2/instances/fire-temple.jpg",
-  "Draupnir (Conquest)": "/images/aion2/instances/draupnir.jpg",
-  "Vakron Sky Island (Conquest)": "/images/aion2/instances/vakron-sky-island.jpg",
-  "Ferocious Horn Den (Conquest)": "/images/aion2/instances/ferocious-horn-den.jpg",
-  "Root Cellar": "/images/aion2/bosses/pinopi.jpg",
-  "Dranactus Underkeep": "/images/aion2/bosses/feruk.jpg",
-  "Root of the Sacred Tree": "/images/aion2/bosses/fafnirs-giftblut.jpg",
-  "Crypt": "/images/aion2/bosses/geist-giselle.jpg",
-  "Destruction Archon Underground Fortress": "/images/aion2/bosses/festenhueter-notun.jpg",
-  "Blades Hideout": "/images/aion2/bosses/mutierter-gerod.jpg",
-  "Impetusium": "/images/aion2/bosses/zikels-schemen.jpg",
-  "Shattered Arkanis": "/images/aion2/instances/shattered-arkanis.jpg",
-  "Deus Research Base": "/images/aion2/instances/deus-research-base.jpg",
-  "Sanctum of Loathing": "/images/aion2/instances/sanctum-of-loathing.jpg",
+  "Krao Cave": "/images/aion2/instances/krao-cave.webp",
+  Draupnir: "/images/aion2/instances/draupnir.webp",
+  "Urugugu Canyon": "/images/aion2/instances/urugugu-canyon.webp",
+  "Vakron Sky Island": "/images/aion2/instances/vakron-sky-island.webp",
+  "Fire Temple": "/images/aion2/instances/fire-temple.webp",
+  "Ferocious Horn Den": "/images/aion2/instances/ferocious-horn-den.webp",
+  "Cradle of Nihility": "/images/aion2/instances/cradle-of-nihility.webp",
+  "Mirror of Scarlet Desire": "/images/aion2/instances/mirror-of-scarlet-desire.webp",
+  "Chalice of Muspel": "/images/aion2/instances/chalice-of-muspel.webp",
+  "Corroded Decontamination Facility": "/images/aion2/instances/corroded-decontamination-facility.webp",
+  "Submerged Life Temple": "/images/aion2/instances/submerged-life-temple.webp",
+  "Citadel of the Fallen Daeva": "/images/aion2/instances/citadel-of-the-fallen-daeva.webp",
+  "Abyssal Horn Den": "/images/aion2/instances/abyssal-horn-den.webp",
+  "Krao Cave (Conquest)": "/images/aion2/instances/krao-cave.webp",
+  "Urugugu Canyon (Conquest)": "/images/aion2/instances/urugugu-canyon.webp",
+  "Fire Temple (Conquest)": "/images/aion2/instances/fire-temple.webp",
+  "Draupnir (Conquest)": "/images/aion2/instances/draupnir.webp",
+  "Vakron Sky Island (Conquest)": "/images/aion2/instances/vakron-sky-island.webp",
+  "Ferocious Horn Den (Conquest)": "/images/aion2/instances/ferocious-horn-den.webp",
+  "Root Cellar": "/images/aion2/bosses/pinopi.webp",
+  "Dranactus Underkeep": "/images/aion2/bosses/feruk.webp",
+  "Root of the Sacred Tree": "/images/aion2/bosses/fafnirs-giftblut.webp",
+  "Crypt": "/images/aion2/bosses/geist-giselle.webp",
+  "Destruction Archon Underground Fortress": "/images/aion2/bosses/festenhueter-notun.webp",
+  "Blades Hideout": "/images/aion2/bosses/mutierter-gerod.webp",
+  "Impetusium": "/images/aion2/bosses/zikels-schemen.webp",
+  "Shattered Arkanis": "/images/aion2/instances/shattered-arkanis.webp",
+  "Deus Research Base": "/images/aion2/instances/deus-research-base.webp",
+  "Sanctum of Loathing": "/images/aion2/instances/sanctum-of-loathing.webp",
   // Client backgrounds (UT_BG_*BG_*), un-squeezed from 1:1 to 16:9:
-  "Consumed Deus Research Base": "/images/aion2/instances/consumed-deus-research-base.jpg",
-  "Azure Breath Island": "/images/aion2/instances/azure-breath-island.jpg",
-  "Dying Dramata's Nest": "/images/aion2/instances/dying-dramata-s-nest.jpg",
-  "Hall of Illusion": "/images/aion2/instances/hall-of-illusion.jpg",
-  "Abyssal Forge: Ludra": "/images/aion2/instances/abyssal-forge-ludra.jpg",
-  "Noiran's Hidden Legacy": "/images/aion2/instances/noiran-s-hidden-legacy.jpg",
+  "Consumed Deus Research Base": "/images/aion2/instances/consumed-deus-research-base.webp",
+  "Azure Breath Island": "/images/aion2/instances/azure-breath-island.webp",
+  "Dying Dramata's Nest": "/images/aion2/instances/dying-dramata-s-nest.webp",
+  "Hall of Illusion": "/images/aion2/instances/hall-of-illusion.webp",
+  "Abyssal Forge: Ludra": "/images/aion2/instances/abyssal-forge-ludra.webp",
+  "Noiran's Hidden Legacy": "/images/aion2/instances/noiran-s-hidden-legacy.webp",
   // World boss areas: landscapes from the client (Agit paintings / Abyss background):
-  Verteron: "/images/aion2/instances/verteron.jpg",
-  Altgard: "/images/aion2/instances/altgard.jpg",
-  Abyss: "/images/aion2/instances/abyss.jpg",
+  Verteron: "/images/aion2/instances/verteron.webp",
+  Altgard: "/images/aion2/instances/altgard.webp",
+  Abyss: "/images/aion2/instances/abyss.webp",
 };
 
 // Vertical position (object-position y) of each instance photo in the wide hero banner (16:9 photo, ~1:5 window): puts the boss/subject into view. Default centred.
@@ -255,13 +255,13 @@ export const BOSS_CARDS = {
 
 // Per-boss art (Nightmare bosses so far, cut from the in-game boss list); a boss without an entry falls back to its instance's photo.
 export const BOSS_IMAGES = {
-  "Gatekeeper Pinopi": "/images/aion2/bosses/pinopi.jpg",
-  "Furious Feruk": "/images/aion2/bosses/feruk.jpg",
-  "Fafnir's Poison Blood": "/images/aion2/bosses/fafnirs-giftblut.jpg",
-  "Wraith Giselle": "/images/aion2/bosses/geist-giselle.jpg",
-  "Fortress Guardian Notun": "/images/aion2/bosses/festenhueter-notun.jpg",
-  "Mutated Gerod": "/images/aion2/bosses/mutierter-gerod.jpg",
-  "Zikel's Apparition": "/images/aion2/bosses/zikels-schemen.jpg",
+  "Gatekeeper Pinopi": "/images/aion2/bosses/pinopi.webp",
+  "Furious Feruk": "/images/aion2/bosses/feruk.webp",
+  "Fafnir's Poison Blood": "/images/aion2/bosses/fafnirs-giftblut.webp",
+  "Wraith Giselle": "/images/aion2/bosses/geist-giselle.webp",
+  "Fortress Guardian Notun": "/images/aion2/bosses/festenhueter-notun.webp",
+  "Mutated Gerod": "/images/aion2/bosses/mutierter-gerod.webp",
+  "Zikel's Apparition": "/images/aion2/bosses/zikels-schemen.webp",
 
   // World bosses (Verteron, Altgard, Abyss): the client's own Agit painting, whole figure on a blurred copy of itself (2400x340, boss centred at ~60% so the 64% object-position of cards and hero frames it).
   "Addicted Hardirun": "/images/aion2/bosses/mob-addshulack-05.webp",
@@ -367,4 +367,13 @@ export function splitConquest(name) {
   const m = /^(.*) \(Conquest\)$/.exec(name ?? "");
   const stars = m ? INSTANCE_FACTS[name]?.stars : undefined;
   return m && stars ? { base: m[1], stars: "★".repeat(stars) } : null;
+}
+
+// Cards and thumbnails use the 800 px copies (name-sm.webp) that sit next to the full-size instance and
+// boss-banner photos; the wide heroes keep the full file. Other images have no small copy and stay as is.
+const HAS_SMALL = /^\/images\/aion2\/(instances|bosses)\/(?!mob-)[^/]+\.webp$/;
+export function smallPhoto(url) {
+  return url && HAS_SMALL.test(url) && !url.endsWith("-sm.webp") && !url.includes("/cards/") && Object.values(INSTANCE_IMAGES).includes(url)
+    ? url.replace(/\.webp$/, "-sm.webp")
+    : url;
 }

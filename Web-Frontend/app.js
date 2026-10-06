@@ -1,5 +1,5 @@
 import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
-import { INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, splitConquest } from "./game-data.js";
+import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 
 const app = document.getElementById("app");
@@ -326,8 +326,8 @@ async function renderHome() {
 function buildSiteFooter() {
   const cta = el("div", { className: "home-footer-cta" }, [
     el("div", { className: "home-footer-logo" }, [
-      el("img", { src: "/logo.png", alt: "", className: "home-footer-emblem", loading: "lazy" }),
-      el("img", { src: "/images/ui/aion-dps-wordmark.png", alt: "Aion DPS", className: "wordmark", loading: "lazy" }),
+      el("img", { src: "/logo.webp", alt: "", className: "home-footer-emblem", loading: "lazy" }),
+      el("img", { src: "/images/ui/aion-dps-wordmark.webp", alt: "Aion DPS", className: "wordmark", loading: "lazy" }),
     ]),
     el("div", { className: "home-footer-center" }, [
       el("h2", { textContent: t("home.footerCtaHeading") }),
@@ -379,7 +379,7 @@ function buildRecentActivitySection(rows) {
     const instanceName = displayName({ name: r.instanceName, nameEn: r.instanceNameEn });
     const photo = BOSS_CARDS[r.bossNameEn] ?? BOSS_CARDS[r.bossName] ?? BOSS_IMAGES[r.bossNameEn] ?? BOSS_IMAGES[r.bossName] ?? INSTANCE_IMAGES[r.instanceNameEn] ?? INSTANCE_IMAGES[r.instanceName];
     return el("a", { className: "hp-run", href: gp(`/encounters/${r.encounterId}`) }, [
-      el("span", { className: "hp-thumb", style: photo ? `background-image:url('${photo}')` : "" }),
+      el("span", { className: "hp-thumb", style: photo ? `background-image:url('${smallPhoto(photo)}')` : "" }),
       el("span", { className: "hp-run-mid" }, [
         el("b", { textContent: displayName({ name: r.bossName, nameEn: r.bossNameEn }) }),
         el("span", { className: "hp-run-sub" }, [
@@ -570,7 +570,7 @@ async function renderDownload() {
   showLoading(t("loading.version"));
 
   const hero = el("div", { className: "download-hero" }, [
-    el("img", { src: "/logo.png", alt: "" }),
+    el("img", { src: "/logo.webp", alt: "" }),
     el("div", {}, [
       el("h2", { textContent: "Aion DPS" }),
       el("p", { textContent: t("download.heroDescription") }),
@@ -639,7 +639,7 @@ function formatBytes(bytes) {
 function posterCard(href, photo, title, objectPosition) {
   const children = [el("div", { className: "poster-scrim" })];
   if (photo) {
-    const img = icon(photo, "poster-photo");
+    const img = icon(smallPhoto(photo), "poster-photo");
     if (objectPosition) {
       img.style.objectPosition = objectPosition;
     }
@@ -740,7 +740,7 @@ function instanceFactCard(i, { chips = [], label } = {}) {
   if (chips.length > 0) {
     text.push(el("div", { className: "ip-chips" }, chips.map((c) => el("span", { className: "ip-chip", textContent: c }))));
   }
-  return el("a", { className: "ip-card", href: gp(areaPath(i)) }, [photo ? icon(photo, "ip-photo") : null, el("div", { className: "ip-text" }, text)].filter((x) => x != null));
+  return el("a", { className: "ip-card", href: gp(areaPath(i)) }, [photo ? icon(smallPhoto(photo), "ip-photo") : null, el("div", { className: "ip-text" }, text)].filter((x) => x != null));
 }
 
 function modeLabel(mode) {
@@ -839,7 +839,7 @@ async function nightmarePane(list) {
     const photo = BOSS_IMAGES[entry.boss.name] ?? INSTANCE_IMAGES[entry.instance.name];
     const node = el("button", { type: "button", className: `ip-node ${slots[idx] ?? ""}` }, [
       el("span", { className: "ip-node-text" }, [el("small", { textContent: displayName(entry.instance) }), el("b", { textContent: displayName(entry.boss) })]),
-      el("span", { className: "ip-node-pt", style: photo ? `background-image:url(${photo})` : "" }),
+      el("span", { className: "ip-node-pt", style: photo ? `background-image:url(${smallPhoto(photo)})` : "" }),
     ]);
     node.addEventListener("click", () => select(entry, node));
     nodes.push(node);

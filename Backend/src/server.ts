@@ -61,6 +61,13 @@ export async function buildServer() {
     root: path.join(__dirname, "..", "..", "Web-Frontend"),
     index: false,
     maxAge: "1h",
+    // Pictures change rarely and are only replaced under a new name: a week in the browser cache keeps
+    // repeat visits from fetching dozens of card photos and icons again.
+    setHeaders: (res, filePath) => {
+      if (/\/images\/|\/icons\//.test(filePath.replace(/\\/g, "/"))) {
+        res.setHeader("cache-control", "public, max-age=604800");
+      }
+    },
   });
 
   // A wrong address must answer 404 with a real page, never 200 with an empty app shell - crawlers
