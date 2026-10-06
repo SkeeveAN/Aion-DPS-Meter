@@ -54,7 +54,7 @@ function buildSitemap(): string {
 
   for (const game of [DEFAULT_GAME]) {
     const instanceRows = db
-      .select({ id: instances.id, slug: instances.slug })
+      .select({ id: instances.id, slug: instances.slug, category: instances.category })
       .from(instances)
       .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.hidden, false)))
       .all();
@@ -80,10 +80,10 @@ function buildSitemap(): string {
       }
     }
 
-    urls.push({ path: `/instances` }, { path: `/instances/expedition` }, { path: `/instances/expedition/hard` }, { path: `/instances/nightmare` }, { path: `/instances/ascension` }, { path: `/instances/transcendence` }, { path: `/instances/worldboss` });
+    urls.push({ path: `/instances` }, { path: `/instances/expedition` }, { path: `/instances/expedition/hard` }, { path: `/instances/nightmare` }, { path: `/instances/ascension` }, { path: `/instances/transcendence` } , { path: `/worldbosses` });
     for (const i of instanceRows) {
       if (i.slug) {
-        urls.push({ path: `/instances/${i.slug}`, lastmod: instanceLastmod.get(i.id) });
+        urls.push({ path: `${i.category === "worldboss" ? "/worldbosses" : "/instances"}/${i.slug}`, lastmod: instanceLastmod.get(i.id) });
       }
     }
     for (const b of bossRows) {

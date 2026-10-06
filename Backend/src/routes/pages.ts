@@ -14,6 +14,7 @@ import {
   homePage,
   instancePage,
   instancesPage,
+  worldBossesPage,
   notFoundPage,
   playerPage,
   privacyPage,
@@ -89,10 +90,35 @@ export async function pageRoutes(app: FastifyInstance) {
     withGame((game, request, reply) => sendCached(request, reply, () => instancesPage(game))),
   );
 
+  app.get<GameParams>(
+    "/worldbosses",
+    withGame((game, request, reply) => sendCached(request, reply, () => worldBossesPage(game))),
+  );
+
+  app.get<GameParams & { Params: { slug: string } }>(
+    "/worldbosses/:slug",
+    withGame((game, request, reply) => {
+      const slug = (request.params as { slug: string }).slug;
+      const found = findInstance(slug, game);
+      if (!found || found.category !== "worldboss") {
+        return sendNotFound(request, reply);
+      }
+      return sendCached(request, reply, () => instancePage(game, slug));
+    }),
+  );
+
   app.get<GameParams & { Params: { idOrSlug: string } }>(
     "/instances/:idOrSlug",
     withGame((game, request, reply) => {
       const { idOrSlug } = request.params as { idOrSlug: string };
+      // World bosses live under /worldbosses now (their old category address and the areas move there for good).
+      if (idOrSlug === "worldboss") {
+        return reply.redirect("/worldbosses", 301);
+      }
+      const asArea = /^\d+$/.test(idOrSlug) ? null : findInstance(idOrSlug, game);
+      if (asArea?.category === "worldboss" && asArea.slug) {
+        return reply.redirect(`/worldbosses/${asArea.slug}`, 301);
+      }
       // A category of the overview has its own address (/instances/nightmare ...).
       const categoryPage = instanceCategoryPage(game, idOrSlug, null);
       if (categoryPage) {

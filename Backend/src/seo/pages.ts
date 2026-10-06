@@ -148,7 +148,8 @@ export function instancesPage(game: Game): Page {
     .from(instances)
     .where(and(eq(instances.game, game), ne(instances.name, UNASSIGNED_INSTANCE_NAME), eq(instances.hidden, false)))
     .orderBy(asc(instances.sortOrder), asc(instances.name))
-    .all();
+    .all()
+    .filter((r) => r.category !== "worldboss"); // world bosses have their own area (/worldbosses)
   const items = rows.map((r) => ({ name: displayName(r), path: `/instances/${r.slug}` }));
   const label = GAME_LABEL[game];
   // "Expedition (6 dungeons, normal & hard), Nightmare (7 bosses), ..." - what the page really offers.
@@ -176,7 +177,7 @@ export function instancesPage(game: Game): Page {
   };
 }
 
-export const INSTANCE_CATEGORY_SLUGS = ["expedition", "nightmare", "ascension", "transcendence", "worldboss"] as const;
+export const INSTANCE_CATEGORY_SLUGS = ["expedition", "nightmare", "ascension", "transcendence"] as const;
 
 const CATEGORY_INTRO: Record<string, string> = {
   expedition: "Expeditions in two difficulties: Exploration (normal) and Conquest (hard)",
@@ -223,6 +224,29 @@ export function instanceCategoryPage(game: Game, category: string, variant: "nor
   };
 }
 
+/** The world boss overview (/worldbosses): Verteron, Altgard and the Abyss. */
+export function worldBossesPage(game: Game): Page {
+  const rows = db
+    .select(instanceColumns)
+    .from(instances)
+    .where(and(eq(instances.game, game), eq(instances.category, "worldboss"), eq(instances.hidden, false)))
+    .orderBy(asc(instances.sortOrder))
+    .all();
+  const items = rows.map((r) => ({ name: displayName(r), path: `/worldbosses/${r.slug}` }));
+  const label = GAME_LABEL[game];
+  return {
+    status: 200,
+    meta: {
+      title: `${label} World Bosses – DPS Leaderboards | ${SITE}`,
+      description: `${CATEGORY_INTRO.worldboss}. ${items.map((i) => i.name).join(", ")}.`,
+      canonicalPath: `/worldbosses`,
+      ogImage: rows[0] ? INSTANCE_IMAGES[rows[0].name] : undefined,
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: `${label} world bosses`, path: `/worldbosses` }]), itemListJsonLd(`${label} world bosses`, items)],
+    },
+    body: html`<h2>World Bosses</h2><p>${CATEGORY_INTRO.worldboss}.</p><ul class="plain">${items.map((i) => html`<li><a href="${i.path}">${i.name}</a></li>`)}</ul>`,
+  };
+}
+
 export function instancePage(game: Game, idOrSlug: string): Page | null {
   const instance = findInstance(idOrSlug, game);
   if (!instance || instance.name === UNASSIGNED_INSTANCE_NAME) {
@@ -249,22 +273,24 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
   ].filter(Boolean);
   const photo = INSTANCE_IMAGES[instance.name];
   const kind = [category, mode].filter(Boolean).join(" · ");
+  const worldBoss = instance.category === "worldboss";
+  const base = worldBoss ? "/worldbosses" : "/instances";
   return {
     status: 200,
     meta: {
-      title: `${name}${instance.variant === "conquest" ? "" : mode ? " (Normal)" : ""} – ${label} ${category || "Instance"} Bosses & DPS Leaderboard | ${SITE}`,
+      title: `${name}${instance.variant === "conquest" ? "" : mode ? " (Normal)" : ""} – ${label} ${worldBoss ? "World" : category || "Instance"} Bosses & DPS Leaderboard | ${SITE}`,
       description:
         items.length > 0
           ? `${name} (${label}${kind ? `, ${kind}` : ""}${factText.length > 0 ? `; ${factText.join(", ")}` : ""}): ${items.length} boss${items.length === 1 ? "" : "es"} – ${items.slice(0, 6).map((i) => i.name).join(", ")}. Mechanics guides and top group DPS.`
           : `${name} (${label}) – boss DPS leaderboards on ${SITE}.`,
-      canonicalPath: `/instances/${instance.slug}`,
+      canonicalPath: `${base}/${instance.slug}`,
       ogImage: photo,
       ogImageAlt: photo ? `${name} – ${label}` : undefined,
       jsonLd: [
         breadcrumbJsonLd([
           { name: SITE, path: "/" },
-          { name: `${label} instances`, path: `/instances` },
-          { name, path: `/instances/${instance.slug}` },
+          { name: worldBoss ? `${label} world bosses` : `${label} instances`, path: worldBoss ? `/worldbosses` : `/instances` },
+          { name, path: `${base}/${instance.slug}` },
         ]),
         itemListJsonLd(`${name} bosses`, items),
       ],
@@ -366,8 +392,8 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string;
       jsonLd: [
         breadcrumbJsonLd([
           { name: SITE, path: "/" },
-          { name: `${label} instances`, path: `/instances` },
-          { name: instanceName, path: `/instances/${found.instanceSlug}` },
+          found.instanceCategory === "worldboss" ? { name: `${label} world bosses`, path: `/worldbosses` } : { name: `${label} instances`, path: `/instances` },
+          { name: instanceName, path: `${found.instanceCategory === "worldboss" ? "/worldbosses" : "/instances"}/${found.instanceSlug}` },
           { name, path: basePath },
         ]),
       ],

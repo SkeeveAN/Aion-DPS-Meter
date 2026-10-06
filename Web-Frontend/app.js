@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "privacy", "terms", "instances", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -269,6 +269,7 @@ async function renderHome() {
         el("span", { textContent: t("home.downloadCta").replace(/^⬇\s*/, "") }),
       ]),
       el("a", { className: "btn btn-blue", href: "/instances" }, [el("span", { textContent: t("home.secondaryCta") })]),
+      el("a", { className: "btn btn-blue", href: "/worldbosses" }, [el("span", { textContent: t("category.worldboss") })]),
     ]),
   ]);
   const heroRow = el("div", { className: "home-hero-row" }, [hero]);
@@ -563,7 +564,15 @@ function byMinLevelDescending(a, b) {
 // (hard) - separate instances with their own rankings; Nightmare is laid out like the in-game boss
 // tree; Ascension and Transcendence show their difficulty steps. Everything shown comes from the API;
 // nothing about a player's own progress is shown (the page is public).
-const INSTANCE_TAB_ORDER = ["expedition", "nightmare", "ascension", "transcendence", "worldboss"];
+const INSTANCE_TAB_ORDER = ["expedition", "nightmare", "ascension", "transcendence"];
+
+// World bosses (Verteron, Altgard, Abyss) are their own area (/worldbosses), not an instance category.
+const isWorldBossArea = (instance) => instance?.category === "worldboss";
+const areaPath = (instance) => (isWorldBossArea(instance) ? `/worldbosses/${instance.slug}` : `/instances/${instance.slug}`);
+/** Root crumbs of an instance or world boss area: Home > Instances | Home > World Bosses. */
+function areaCrumbs(instance) {
+  return isWorldBossArea(instance) ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs();
+}
 
 function baseInstanceName(i) {
   return i.name.replace(/ \(Conquest\)$/, "");
@@ -597,7 +606,7 @@ function instanceFactCard(i, { chips = [], label } = {}) {
   if (chips.length > 0) {
     text.push(el("div", { className: "ip-chips" }, chips.map((c) => el("span", { className: "ip-chip", textContent: c }))));
   }
-  return el("a", { className: "ip-card", href: gp(`/instances/${i.slug}`) }, [photo ? icon(photo, "ip-photo") : null, el("div", { className: "ip-text" }, text)].filter((x) => x != null));
+  return el("a", { className: "ip-card", href: gp(areaPath(i)) }, [photo ? icon(photo, "ip-photo") : null, el("div", { className: "ip-text" }, text)].filter((x) => x != null));
 }
 
 function modeLabel(mode) {
@@ -723,7 +732,7 @@ async function renderInstances(categoryParam, variantParam) {
   }
 
   const groups = new Map();
-  for (const i of instances) {
+  for (const i of instances.filter((x) => !isWorldBossArea(x))) {
     const key = i.category ?? "other";
     if (!groups.has(key)) {
       groups.set(key, []);
@@ -745,7 +754,10 @@ async function renderInstances(categoryParam, variantParam) {
       const b = el("a", { className: "ip-tab", href: gp(`/instances/${c}`) }, [t(`category.${c}`), el("small", { textContent: String(countOf(c)) })]);
       b.setAttribute("aria-pressed", String(c === current));
       return b;
-    }),
+    }).concat(
+      // World bosses are a separate area, but belong next to the tabs so they are found from here.
+      instances.some(isWorldBossArea) ? [el("a", { className: "ip-tab", href: gp("/worldbosses") }, [t("category.worldboss"), el("small", { textContent: "↗" })])] : [],
+    ),
   );
   setBreadcrumb([link(t("breadcrumb.home"), "/"), categoryParam ? link(t("breadcrumb.instances"), gp("/instances")) : t("breadcrumb.instances"), ...(categoryParam ? [t(`category.${current}`)] : [])]);
 
@@ -868,6 +880,21 @@ function instanceHero(instance, bossCount, stats) {
   return el("div", { className: "instance-hero" }, children);
 }
 
+/** World bosses: the areas (Verteron, Altgard, Abyss) as cards; each opens its boss list like an instance does. */
+async function renderWorldBosses() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("category.worldboss")]);
+  showLoading(t("loading.instances"));
+  const areas = (await fetchJson(`/api/instances?game=${currentGame}`)).filter(isWorldBossArea).sort((a, b) => a.sortOrder - b.sortOrder);
+  if (areas.length === 0) {
+    app.replaceChildren(el("p", { className: "empty", textContent: t("instances.emptyNoInstances") }));
+    return;
+  }
+  app.replaceChildren(el("h2", { textContent: t("category.worldboss") }), el("div", { className: "ip-panel" }, [el("div", { className: "ip-grid" }, areas.map((i) => instanceFactCard(i)))]));
+  if (currentGame === "aion2") {
+    app.append(el("p", { className: "derived-note", textContent: t("aion2.derivedNote") }));
+  }
+}
+
 async function renderBosses(instanceSlug) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.bosses")]);
   showLoading(t("loading.bosses"));
@@ -887,7 +914,7 @@ async function renderBosses(instanceSlug) {
   ]);
   const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
   if (instance) {
-    setBreadcrumb([...gameCrumbs(), displayName(instance)]);
+    setBreadcrumb([...areaCrumbs(instance), displayName(instance)]);
   }
 
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
@@ -1054,7 +1081,7 @@ function bossHero(data) {
   // Nightmare bosses lead back to the category's boss tree, like the breadcrumb (see renderLeaderboard).
   const isNightmare = boss.instanceCategory === "nightmare";
   const instanceLink = el("a", {
-    href: isNightmare ? gp("/instances/nightmare") : gp(`/instances/${boss.instanceSlug}`),
+    href: isNightmare ? gp("/instances/nightmare") : gp(`${boss.instanceCategory === "worldboss" ? "/worldbosses" : "/instances"}/${boss.instanceSlug}`),
     textContent: isNightmare ? t("category.nightmare") : displayName({ name: boss.instanceName, nameEn: boss.instanceNameEn }),
     className: "instance-hero-subtitle",
   });
@@ -1177,11 +1204,12 @@ async function renderLeaderboard(bossSlug, params) {
   const bossName = displayName(data.boss);
   // Nightmare bosses are reached through the category's boss tree, so the way back leads there
   // (/instances/nightmare), not to the single "instance" (Root Cellar ...); every other category keeps the instance.
+  const worldBoss = data.boss.instanceCategory === "worldboss";
   const instanceCrumb =
     data.boss.instanceCategory === "nightmare"
       ? link(t("category.nightmare"), gp("/instances/nightmare"))
-      : link(displayName({ name: data.boss.instanceName, nameEn: data.boss.instanceNameEn }), gp(`/instances/${data.boss.instanceSlug}`));
-  setBreadcrumb([...gameCrumbs(), instanceCrumb, bossName]);
+      : link(displayName({ name: data.boss.instanceName, nameEn: data.boss.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${data.boss.instanceSlug}`));
+  setBreadcrumb([...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), instanceCrumb, bossName]);
 
   const hero = bossHero(data);
   // Difficulty steps (Nightmare level, Ascension difficulty, ...): each one is ranked on its own.
@@ -2371,6 +2399,10 @@ async function route() {
       await renderPrivacy();
     } else if (section === "terms") {
       await renderTerms();
+    } else if (section === "worldbosses" && !param) {
+      await renderWorldBosses();
+    } else if (section === "worldbosses") {
+      await renderBosses(param);
     } else if (section === "instances" && (!param || INSTANCE_TAB_ORDER.includes(param))) {
       await renderInstances(param, segments[2]);
     } else if (section === "instances") {
