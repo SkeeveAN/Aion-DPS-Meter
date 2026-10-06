@@ -754,10 +754,7 @@ async function renderInstances(categoryParam, variantParam) {
       const b = el("a", { className: "ip-tab", href: gp(`/instances/${c}`) }, [t(`category.${c}`), el("small", { textContent: String(countOf(c)) })]);
       b.setAttribute("aria-pressed", String(c === current));
       return b;
-    }).concat(
-      // World bosses are a separate area, but belong next to the tabs so they are found from here.
-      instances.some(isWorldBossArea) ? [el("a", { className: "ip-tab", href: gp("/worldbosses") }, [t("category.worldboss"), el("small", { textContent: "↗" })])] : [],
-    ),
+    }),
   );
   setBreadcrumb([link(t("breadcrumb.home"), "/"), categoryParam ? link(t("breadcrumb.instances"), gp("/instances")) : t("breadcrumb.instances"), ...(categoryParam ? [t(`category.${current}`)] : [])]);
 
