@@ -349,6 +349,9 @@ export const encounters = sqliteTable(
     // Difficulty step inside one boss: Nightmare stage "1".."10", Ascension "easy".."extreme",
     // Transcendence stage "1".."4". Empty for bosses without such steps. Each step is ranked on its own.
     mode: text("mode").notNull().default(""),
+    // The boss's highest hit-point reading as a client saw it (the game's own HP frame). Explore and
+    // conquest differ 2-3x in it, so it tells them apart where the NPC id cannot. Null = not reported.
+    bossMaxHp: integer("boss_max_hp"),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(current_timestamp)`),

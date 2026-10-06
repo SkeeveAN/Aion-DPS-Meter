@@ -99,7 +99,10 @@ public sealed record EncounterUploadRequest(
     string Game = "aion2",
     // The game's numeric NPC id of the boss, which is unambiguous where the name is not (the same
     // boss name recurs across Aion 2 dungeons). Null when no id was seen.
-    int? BossNpcId = null);
+    int? BossNpcId = null,
+    // The boss's highest hit-point reading from the game's HP frame (a lower bound when the meter
+    // joined mid-fight). Explore and conquest differ 2-3x in it, so the backend can tell them apart.
+    long? BossMaxHp = null);
 
 /// <summary>Aion 2 players without a boss fight, as sent to POST /api/uploads/profiles: the
 /// character profiles the client read off the network, with no encounter and no damage attached.

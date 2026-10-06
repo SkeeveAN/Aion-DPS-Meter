@@ -77,6 +77,9 @@ export const uploadSchema = z
   // The boss's numeric NPC id from the game's own traffic - unambiguous where the name alone is not
   // (the same name recurs across dungeons, see boss_npc_ids). Optional for older clients.
   bossNpcId: z.number().int().positive().optional(),
+  // The boss's highest hit-point reading the client saw (the game's HP frame); a lower bound when the
+  // meter joined mid-fight. Optional for older clients.
+  bossMaxHp: z.number().int().positive().max(100_000_000_000).optional(),
   startedAt: z.string().min(1),
   endedAt: z.string().min(1),
   // 6-man groups up to 24-man alliance instances.

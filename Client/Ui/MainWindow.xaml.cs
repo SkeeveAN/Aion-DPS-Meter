@@ -1847,7 +1847,8 @@ public partial class MainWindow : Window
         return new EncounterUploadRequest(
             AppVersion.Text, bossName, startedAt, endedAt, participants, serverFingerprint, serverName,
             Game: "aion2",
-            BossNpcId: BossNpcIdOf(targetId));
+            BossNpcId: BossNpcIdOf(targetId),
+            BossMaxHp: BossMaxHpOf(targetId));
     }
 
     /// <summary>Hides the Class dropdown's entries that are no Aion 2 class (the static XAML list is
@@ -1897,6 +1898,10 @@ public partial class MainWindow : Window
     /// <summary>The NPC id of the boss behind a target, for the upload.</summary>
     private int? BossNpcIdOf(int targetId) =>
         (_source?.Entities as Aion2EntityDirectory)?.BossNpcIdOf(targetId);
+
+    /// <summary>The highest hit-point reading the game sent for a boss, for the upload.</summary>
+    private long? BossMaxHpOf(int targetId) =>
+        (_source?.Entities as Aion2EntityDirectory)?.HitPoints.HighestSeen(targetId) is > 0 and long hp ? hp : null;
 
     /// <summary>For each boss target, the time of the last hit it took that already went online by
     /// the hotkey - so the next press sends only what is new (see <see cref="PendingBossTargets"/>).</summary>

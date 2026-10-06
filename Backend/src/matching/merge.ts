@@ -389,6 +389,10 @@ function recomputeEncounterTotals(encounterId: number, startedAtIso: string, end
 /** Merges a new upload's participants into an already-matched encounter, correcting a wrong self-name where possible. */
 function mergeIntoEncounter(encounterId: number, serverId: number, payload: UploadPayload) {
   const existing = db.select().from(encounters).where(eq(encounters.id, encounterId)).get()!;
+  if (payload.bossMaxHp !== undefined && payload.bossMaxHp > (existing.bossMaxHp ?? 0)) {
+    // Every client saw the same boss; the highest reading is the closest to its real maximum.
+    db.update(encounters).set({ bossMaxHp: payload.bossMaxHp }).where(eq(encounters.id, encounterId)).run();
+  }
   const existingParticipants = db
     .select()
     .from(encounterParticipants)
@@ -498,6 +502,7 @@ function createEncounter(bossId: number, serverId: number, payload: UploadPayloa
       rosterFingerprint: "",
       mergedUploadCount: 1,
       mode: payload.mode,
+      bossMaxHp: payload.bossMaxHp ?? null,
     })
     .run();
   const encounterId = Number(inserted.lastInsertRowid);
