@@ -928,7 +928,7 @@
                     <!-- Placeholder: a DISPLAY filter only, collection always keeps everyone's
                          damage regardless of this setting. Needs group/legion/race data we don't
                          decode yet. -->
-                    <ComboBox x:Name="SourceFilter" SelectedIndex="0" Margin="8,0,0,0"
+                    <ComboBox x:Name="SourceFilter" SelectedIndex="0" Margin="8,0,0,0" MinWidth="0"
                               ToolTip="Not wired up yet (display filter only).">
                         <ComboBoxItem Content="{local:Loc Main.FilterAllGroups}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterSelf}"/>
