@@ -348,7 +348,7 @@ internal static class Program
     {
         var settings = Ui.MeterSettings.Load();
         var protocol = Aion2.Protocol.Aion2Protocol.Load();
-        using var source = new Aion2.Aion2PacketCombatSource(protocol, settings.CaptureAdapterId, settings.Aion2CharacterName);
+        using var source = new Aion2.Aion2PacketCombatSource(protocol, settings.CaptureAdapterId);
         source.StatusChanged += status => Console.WriteLine($"aion2-live: [{status.State}] {status.Message}");
         Console.WriteLine($"aion2-live: adapter setting \"{settings.CaptureAdapterId ?? "(automatic)"}\", calibrated={protocol.IsCalibrated}, ports {string.Join(",", protocol.ServerPorts)}");
         source.Start();

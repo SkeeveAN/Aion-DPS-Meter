@@ -67,7 +67,6 @@ public partial class SettingsWindow : Window
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
         RecordFightHistoryBox.IsChecked = settings.RecordFightHistory;
         PopulateCaptureAdapters(settings.CaptureAdapterId);
-        Aion2CharacterNameBox.Text = settings.Aion2CharacterName ?? "";
 
         // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML. Each item's
         // Content is the language's OWN native name - a real language picker never translates its
@@ -292,7 +291,6 @@ public partial class SettingsWindow : Window
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
         _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? false;
         _settings.RecordFightHistory = RecordFightHistoryBox.IsChecked ?? true;
-        _settings.Aion2CharacterName = string.IsNullOrWhiteSpace(Aion2CharacterNameBox.Text) ? null : Aion2CharacterNameBox.Text.Trim();
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
 
         Saved?.Invoke();

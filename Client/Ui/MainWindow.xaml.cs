@@ -342,17 +342,7 @@ public partial class MainWindow : Window
         _pollTimer.Stop();
         ReplaceSource(null);
 
-        var source = new Aion2PacketCombatSource(Aion2Protocol.Load(), settings.CaptureAdapterId, settings.Aion2CharacterName, Aion2CharacterStore.DefaultPath);
-        // Remember the name the stream reveals, so the next (solo) session knows it without a party.
-        source.LocalNameLearned += learned =>
-        {
-            var current = MeterSettings.Load();
-            if (string.IsNullOrWhiteSpace(current.Aion2CharacterName))
-            {
-                current.Aion2CharacterName = learned;
-                current.Save();
-            }
-        };
+        var source = new Aion2PacketCombatSource(Aion2Protocol.Load(), settings.CaptureAdapterId, null, Aion2CharacterStore.DefaultPath);
         ReplaceSource(source);
         // The upload entries appear once the own character is known (see RefreshUploadAvailability).
         if (source.Entities is Aion2EntityDirectory entities)

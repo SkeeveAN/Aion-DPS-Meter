@@ -402,13 +402,6 @@
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.Capture}"/>
                             <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Aion2Hint}"/>
-                                <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{local:Loc Settings.Aion2Character}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="Aion2CharacterNameBox" Grid.Column="1" Height="28" Margin="0,2" VerticalContentAlignment="Center"
-                                             Background="{DynamicResource Brush.Control}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"
-                                             ToolTip="The name of your character in Aion 2 - filled in automatically from the game's own data."/>
-                                </Grid>
                                 <Grid x:Name="CaptureAdapterPanel" Margin="0,2">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
                                     <TextBlock Text="{local:Loc Settings.CaptureAdapter}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>

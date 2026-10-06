@@ -123,6 +123,19 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
+            // Another character logged in (a twink): the lists of the previous one must not leak into
+            // its profile, and the skill list is merged, so it would never go away by itself. Lists
+            // that arrived within moments before this record already belong to the new character.
+            if (_character is { } previous && previous.Name != info.Name && DateTime.UtcNow - _listsAt > TimeSpan.FromSeconds(3))
+            {
+                _skills = null;
+                _fullEquipment = null;
+                _daevanion = null;
+                _species = null;
+                _stigmas.Clear();
+                _bar.Clear();
+            }
+
             _character = info;
             _explicitLocalId = info.CombatId;
             _names[info.CombatId] = info.Name;
@@ -193,6 +206,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private DateTime _listsAt = DateTime.MinValue;
     private IReadOnlyList<Aion2EquippedItem>? _fullEquipment;
     private IReadOnlyList<Aion2SkillEntry>? _skills;
 
@@ -225,6 +239,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _fullEquipment = equipment;
+            _listsAt = DateTime.UtcNow;
         }
 
         NotifyCharacterChanged();
@@ -261,6 +276,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _species = species;
+            _listsAt = DateTime.UtcNow;
         }
 
         NotifyCharacterChanged();
@@ -271,6 +287,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _daevanion = boards;
+            _listsAt = DateTime.UtcNow;
         }
 
         NotifyCharacterChanged();
@@ -283,6 +300,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             // The game re-sends the list on a zone change, and not every zone sends every skill (a stigma
             // went missing after one): what an earlier list had and the new one lacks is kept, what the
             // new one has wins.
+            _listsAt = DateTime.UtcNow;
             var merged = (_skills ?? Array.Empty<Aion2SkillEntry>()).Where(old => skills.All(s => s.SkillId != old.SkillId)).Concat(skills);
             _skills = merged.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId), Equipped = _bar.Contains(s.SkillId) }).ToList();
         }
