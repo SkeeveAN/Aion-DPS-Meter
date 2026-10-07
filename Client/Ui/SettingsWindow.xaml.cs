@@ -61,6 +61,7 @@ public partial class SettingsWindow : Window
         TimetableOpacityBox.SelectedItem = TimetableOpacityBox.Items.OfType<ComboBoxItem>()
             .OrderBy(i => Math.Abs(double.Parse((string)i.Tag, System.Globalization.CultureInfo.InvariantCulture) - timetableOpacity)).First();
         TimetableLookaheadSlider.Value = Math.Clamp(settings.TimetableLookaheadMinutes, 5, 180);
+        ShowTimetableLookahead(); // the handler does not fire when the value equals the slider's default
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
         // Reflects the REAL registry state, not the last value this dialog wrote - see
         // OnStartWithWindowsChanged's own remarks.
@@ -223,9 +224,17 @@ public partial class SettingsWindow : Window
     }
 
     /// <summary>Shows the lookahead slider's value with the language's minute unit.</summary>
-    private void OnTimetableLookaheadChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    private void OnTimetableLookaheadChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowTimetableLookahead();
+
+    private void ShowTimetableLookahead()
     {
-        TimetableLookaheadValue.Text = string.Format(LocalizationManager.Instance["Settings.Timetable.LookaheadValue"], (int)e.NewValue);
+        // The slider raises ValueChanged while the XAML is still being read, before the value label exists.
+        if (TimetableLookaheadValue is null)
+        {
+            return;
+        }
+
+        TimetableLookaheadValue.Text = string.Format(LocalizationManager.Instance["Settings.Timetable.LookaheadValue"], (int)TimetableLookaheadSlider.Value);
     }
 
     private void OnHotkeyClearClicked(object sender, RoutedEventArgs e)
