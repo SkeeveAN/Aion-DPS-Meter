@@ -23,6 +23,15 @@
      "Website",
      "Backend"
     ]
+   },
+   {
+    "text": "Legion page: gear score (average item level) and combat power per member; the client sends the combat power of inspected players, stored in a new profile column",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
    }
   ]
  },
