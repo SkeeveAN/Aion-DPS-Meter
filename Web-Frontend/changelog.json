@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.11.4",
   "date": "2026-10-07",
   "items": [
    {
@@ -40,6 +40,12 @@
     "areas": [
      "Website",
      "Backend"
+    ]
+   },
+   {
+    "text": "the transparent Hide UI overlay stays in the taskbar again, in the player-chip look as well as the compact panel",
+    "areas": [
+     "Client"
     ]
    }
   ]
