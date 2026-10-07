@@ -28,6 +28,12 @@
      "Website",
      "Backend"
     ]
+   },
+   {
+    "text": "Ascension Rite bosses: the first four NPC ids are the difficulty steps (Easy, Medium, Hard, Extreme), read off the id like the Nightmare levels",
+    "areas": [
+     "Backend"
+    ]
    }
   ]
  },
