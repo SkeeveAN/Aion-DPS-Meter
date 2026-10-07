@@ -130,8 +130,8 @@ export function guildsPage(): Page {
     meta: {
       title: "Legions – Aion DPS Meter",
       description: "The legions of the Aion 2 players known to Aion DPS, per server, with the members we have seen.",
-      canonicalPath: "/guilds",
-      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/guilds" }])],
+      canonicalPath: "/legions",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/legions" }])],
     },
     body: html`
       <h2>Legions</h2>
@@ -145,14 +145,14 @@ export function guildPage(slug: string): Page | null {
     return null;
   }
   const { guild, members } = found;
-  const path = `/guilds/${guild.slug}`;
+  const path = `/legions/${guild.slug}`;
   return {
     status: 200,
     meta: {
       title: `${guild.name} (${guild.serverName}) – Legion members | ${SITE}`,
       description: `${members.length} known member${members.length === 1 ? "" : "s"} of the legion ${guild.name} on ${guild.serverName}: class, level and boss runs.`,
       canonicalPath: path,
-      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/guilds" }, { name: guild.name, path }])],
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/legions" }, { name: guild.name, path }])],
     },
     body: html`
       <h2>${guild.name}</h2>

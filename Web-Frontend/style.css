@@ -2750,3 +2750,18 @@ body:has(.download-hero) .nav-download-link:hover,
 .guild-table { border-collapse: collapse; width: 100%; max-width: 760px; }
 .guild-table th, .guild-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--color-border); }
 .guild-table th { color: var(--color-text-muted); font-size: 12px; }
+
+/* Legion list: one block per server. */
+.guild-groups {
+  display: grid;
+  gap: 28px;
+  margin-top: 16px;
+}
+.guild-group h3 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+.guild-group h3 small {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}

@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "changelog", "stats", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "changelog", "stats", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -341,7 +341,7 @@ function buildSiteFooter() {
     ]),
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
-        link(t("guild.listTitle"), "/guilds"),
+        link(t("guild.listTitle"), "/legions"),
         link("Statistics", "/stats"),
         link("Changelog", "/changelog"),
         link(t("legal.privacyTitle"), "/privacy"),
@@ -640,15 +640,28 @@ async function renderGuilds() {
   showLoading(t("loading.search"));
   const guilds = await fetchJson("/api/guilds");
   const filter = el("input", { type: "search", className: "guild-filter", placeholder: t("guild.filter"), autocomplete: "off" });
-  const list = el("div", { className: "guild-grid" });
+  const list = el("div", { className: "guild-groups" });
   const draw = () => {
     const q = filter.value.trim().toLowerCase();
     const shown = guilds.filter((g) => !q || g.name.toLowerCase().includes(q) || serverLabel(g.serverName).toLowerCase().includes(q));
-    list.replaceChildren(...shown.map((g) => el("a", { className: "guild-card", href: `/guilds/${g.slug}` }, [
-      el("strong", { textContent: g.name }),
-      el("span", { textContent: serverLabel(g.serverName) }),
-      el("small", { textContent: t("guild.members", { count: g.memberCount }) }),
-    ])));
+    // One block per server, the biggest legions first.
+    const byServer = new Map();
+    for (const g of shown) {
+      const label = serverLabel(g.serverName);
+      byServer.set(label, [...(byServer.get(label) ?? []), g]);
+    }
+    const groups = [...byServer].sort((x, y) => x[0].localeCompare(y[0])).map(([label, legions]) =>
+      el("section", { className: "guild-group" }, [
+        el("h3", {}, [label, el("small", { textContent: ` ${legions.length}` })]),
+        el("div", { className: "guild-grid" }, legions.sort((x, y) => y.memberCount - x.memberCount || x.name.localeCompare(y.name)).map((g) =>
+          el("a", { className: "guild-card", href: `/legions/${g.slug}` }, [
+            el("strong", { textContent: g.name }),
+            el("small", { textContent: t("guild.members", { count: g.memberCount }) }),
+          ]),
+        )),
+      ]),
+    );
+    list.replaceChildren(...groups);
     if (shown.length === 0) {
       list.replaceChildren(el("p", { className: "empty", textContent: t("guild.empty") }));
     }
@@ -659,7 +672,7 @@ async function renderGuilds() {
 }
 
 async function renderGuild(slug) {
-  setBreadcrumb([link(t("breadcrumb.home"), "/"), link(t("guild.listTitle"), "/guilds"), slug]);
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), link(t("guild.listTitle"), "/legions"), slug]);
   showLoading(t("loading.search"));
   let data;
   try {
@@ -669,7 +682,7 @@ async function renderGuild(slug) {
     return;
   }
   const { guild, members } = data;
-  setBreadcrumb([link(t("breadcrumb.home"), "/"), link(t("guild.listTitle"), "/guilds"), guild.name]);
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), link(t("guild.listTitle"), "/legions"), guild.name]);
   const rows = members.map((m) => el("tr", {}, [
     el("td", {}, [link(m.name, `/players/${m.slug ?? m.id}`)]),
     el("td", {}, [m.className ? iconLabel(classIcon(m.className), m.className) : ""]),
@@ -2385,7 +2398,7 @@ function renderPlayerStrip(profile, player) {
     el("div", {}, [el("div", { className: "pf-name", textContent: player.name }), el("div", { className: "pf-sub", textContent: sub.join(" · ") })]),
     el("div", { className: "pf-meta" }, [
       profile?.faction ? iconLabel(factionIcon(profile.faction), profile.faction) : null,
-      player.guild ? el("span", {}, [`${t("profile.guild")}: `, player.guildSlug ? link(player.guild, `/guilds/${player.guildSlug}`) : player.guild]) : null,
+      player.guild ? el("span", {}, [`${t("profile.guild")}: `, player.guildSlug ? link(player.guild, `/legions/${player.guildSlug}`) : player.guild]) : null,
       player.serverName ? el("span", { textContent: serverLabel(player.serverName) }) : null,
     ].filter((x) => x != null)),
     renderTitleChips(profile),
@@ -2782,7 +2795,7 @@ async function route() {
     section = "download";
   } else if (segments[0] === "changelog") {
     section = "changelog";
-  } else if (segments[0] === "guilds") {
+  } else if (segments[0] === "legions" || segments[0] === "guilds") {
     section = "guilds";
     param = segments[1];
   } else if (segments[0] === "p" && segments[1]) {
