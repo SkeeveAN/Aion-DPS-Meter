@@ -27,3 +27,4 @@ Backend/.env.*
 # Daily copies of the live database (Tools/db-sync/pull-db.sh) - never commit
 Backend/data/backups/
 Backend/data/pull-db.log
+Backend/data/grafana-*.json
