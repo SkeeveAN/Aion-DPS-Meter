@@ -221,6 +221,7 @@ export default {
   "mode.hard": "困難",
   "mode.extreme": "極限",
   "mode.stage": "第 {n} 階",
+  "mode.unknown": "階數未知",
   "mode.heading": "難度",
   "nm.challenge": "挑戰等級 – 每個等級有獨立排行榜",
   "nm.pickLevel": "選擇等級",

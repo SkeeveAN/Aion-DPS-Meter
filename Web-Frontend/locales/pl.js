@@ -221,6 +221,7 @@ export default {
   "mode.hard": "Trudny",
   "mode.extreme": "Ekstremalny",
   "mode.stage": "Poziom {n}",
+  "mode.unknown": "Nieznany poziom",
   "mode.heading": "Trudność",
   "nm.challenge": "Poziom wyzwania – każdy poziom ma własny ranking",
   "nm.pickLevel": "Wybierz poziom",

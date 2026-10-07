@@ -221,6 +221,7 @@ export default {
   "mode.hard": "Zor",
   "mode.extreme": "Aşırı",
   "mode.stage": "Seviye {n}",
+  "mode.unknown": "Bilinmeyen seviye",
   "mode.heading": "Zorluk",
   "nm.challenge": "Meydan okuma seviyesi – her seviyenin kendi sıralaması var",
   "nm.pickLevel": "Seviye seç",

@@ -939,6 +939,9 @@ function instanceFactCard(i, { chips = [], label } = {}) {
 }
 
 function modeLabel(mode) {
+  if (mode === "") {
+    return t("mode.unknown"); // runs whose difficulty step the client could not tell
+  }
   return /^\d+$/.test(mode) ? t("mode.stage", { n: mode }) : t(`mode.${mode}`);
 }
 
@@ -1575,7 +1578,7 @@ async function renderLeaderboard(bossSlug, params) {
     ? el("nav", { className: "mode-chips" }, [
         el("span", { textContent: t("mode.heading") }),
         ...data.modes.map((m) => {
-          const a = el("a", { className: `mode-chip${m.mode === data.selectedMode ? " active" : ""}`, href: `${bossPath}?mode=${encodeURIComponent(m.mode)}` }, [modeLabel(m.mode), el("small", { textContent: String(m.runs) })]);
+          const a = el("a", { className: `mode-chip${m.mode === data.selectedMode ? " active" : ""}`, href: `${bossPath}?mode=${encodeURIComponent(m.mode || "unknown")}` }, [modeLabel(m.mode), el("small", { textContent: String(m.runs) })]);
           return a;
         }),
       ])

@@ -221,6 +221,7 @@ export default {
   "mode.hard": "Сложный",
   "mode.extreme": "Экстремальный",
   "mode.stage": "Уровень {n}",
+  "mode.unknown": "Уровень неизвестен",
   "mode.heading": "Сложность",
   "nm.challenge": "Уровень испытания – у каждого уровня свой рейтинг",
   "nm.pickLevel": "Выберите уровень",

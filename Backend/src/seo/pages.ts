@@ -4,7 +4,7 @@ import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounterSkillUsage, encounters, instances, players, servers } from "../db/schema.js";
 import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { findInstance, instanceColumns } from "../routes/instances.js";
-import { findBoss, mechanicsFor, modesFor, selectServer, serversWithEncounters, statsForBossIds, topByClass, topGroups } from "../routes/bosses.js";
+import { findBoss, mechanicsFor, modesFor, selectServer, UNKNOWN_MODE, serversWithEncounters, statsForBossIds, topByClass, topGroups } from "../routes/bosses.js";
 import { buildProfileView, ownSkillRows } from "../profile.js";
 import { INSTANCE_FACTS, INSTANCE_IMAGES, INSTANCE_MIN_LEVEL, BOSS_IMAGES, splitConquest } from "../../../Web-Frontend/game-data.js";
 import { parseIdOrSlug } from "./slug.js";
@@ -51,6 +51,9 @@ export function classImage(className: string | null | undefined): string | undef
 
 /** How a difficulty step reads in a title: Nightmare "Level 10", Ascension "Hard", Transcendence "Stage 2". */
 function modeLabelEn(category: string | null, mode: string): string {
+  if (mode === "") {
+    return "Unknown stage";
+  }
   if (/^\d+$/.test(mode)) {
     return category === "nightmare" ? `Level ${mode}` : `Stage ${mode}`;
   }
@@ -425,12 +428,12 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string;
   const basePath = `/bosses/${boss.slug}`;
   // Difficulty steps (Nightmare level ...): each is ranked on its own and has its own address.
   const modes = modesFor(boss.id, found.instanceCategory);
-  const requestedMode = modes.find((m) => m.mode === query.mode)?.mode;
+  const requestedMode = modes.find((m) => m.mode === (query.mode === UNKNOWN_MODE ? "" : query.mode))?.mode;
   const mode = modes.length === 0 ? null : requestedMode ?? [...modes].sort((a, b) => b.runs - a.runs)[0].mode;
   const modeText = mode !== null ? modeLabelEn(found.instanceCategory, mode) : "";
   const canonicalParams = [
     query.server && server?.slug === query.server ? `server=${server.slug}` : "",
-    requestedMode ? `mode=${requestedMode}` : "",
+    requestedMode !== undefined ? `mode=${requestedMode || UNKNOWN_MODE}` : "",
   ].filter(Boolean);
   const canonicalPath = canonicalParams.length > 0 ? `${basePath}?${canonicalParams.join("&")}` : basePath;
 

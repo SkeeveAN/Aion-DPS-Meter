@@ -146,6 +146,7 @@ export default {
   "mode.hard": "Hard",
   "mode.extreme": "Extreme",
   "mode.stage": "Stage {n}",
+  "mode.unknown": "Unknown stage",
   "mode.heading": "Difficulty",
   "nm.challenge": "Challenge level – every level has its own ranking",
   "nm.pickLevel": "Pick a level",

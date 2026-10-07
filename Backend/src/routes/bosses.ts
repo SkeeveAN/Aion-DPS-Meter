@@ -79,8 +79,15 @@ export function modesFor(bossId: number, category: string | null) {
       .all()
       .map((r) => [r.mode, r.runs] as const),
   );
-  return names.map((mode) => ({ mode, runs: counts.get(mode) ?? 0 }));
+  const steps = names.map((mode) => ({ mode, runs: counts.get(mode) ?? 0 }));
+  // Runs whose step is not known (the client does not send it, and the NPC id does not name it for
+  // every category, e.g. Transcendence) would otherwise belong to no tab and be invisible.
+  const unknown = counts.get("") ?? 0;
+  return unknown > 0 ? [...steps, { mode: "", runs: unknown }] : steps;
 }
+
+/** The address spells the "no known step" tab as ?mode=unknown (an empty value reads as "not given"). */
+export const UNKNOWN_MODE = "unknown";
 
 export function topGroups(bossId: number, serverId: number | null, game: Game, mode: string | null = null) {
   const groups = db
@@ -322,7 +329,7 @@ export async function bossRoutes(app: FastifyInstance) {
       // Bosses with difficulty steps (Nightmare stages ...) rank each step on its own: the requested
       // step, else the one with the most runs, else the first.
       const modes = modesFor(boss.id, found.instanceCategory);
-      const requested = request.query.mode;
+      const requested = request.query.mode === UNKNOWN_MODE ? "" : request.query.mode;
       const mode =
         modes.length === 0
           ? null
