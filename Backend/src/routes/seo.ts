@@ -50,7 +50,7 @@ export async function seoRoutes(app: FastifyInstance) {
 }
 
 function buildSitemap(): string {
-  const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }];
+  const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }, { path: "/changelog" }];
 
   for (const game of [DEFAULT_GAME]) {
     const instanceRows = db

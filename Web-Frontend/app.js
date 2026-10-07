@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "changelog", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -338,6 +338,7 @@ function buildSiteFooter() {
     ]),
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
+        link("Changelog", "/changelog"),
         link(t("legal.privacyTitle"), "/privacy"),
         link(t("legal.termsTitle"), "/terms"),
       ]),
@@ -624,7 +625,42 @@ async function renderDownload() {
     downloadSection = el("p", { className: "error", textContent: t("download.versionLoadError", { msg: err.message }) });
   }
 
-  app.replaceChildren(hero, downloadSection, features, stepsSection, repoLink);
+  const changelogLink = el("p", { className: "download-meta" }, [link("What's new – changelog", "/changelog")]);
+  app.replaceChildren(hero, downloadSection, changelogLink, features, stepsSection, repoLink);
+}
+
+// Changelog - English only on purpose (not part of the i18n files). The data is
+// changelog.json, built from the release commits by Tools/changelog/gen.mjs; releases are
+// grouped by minor version (0.10.x) so the long list stays scannable.
+async function renderChangelog() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), "Changelog"]);
+  showLoading("Loading changelog…");
+  const releases = await fetchJson("/changelog.json");
+  const groups = new Map();
+  for (const r of releases) {
+    const minor = r.version.split(".").slice(0, 2).join(".");
+    if (!groups.has(minor)) {
+      groups.set(minor, []);
+    }
+    groups.get(minor).push(r);
+  }
+  const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  const sections = [...groups].map(([minor, list], i) => {
+    const first = list[list.length - 1];
+    const last = list[0];
+    return el("details", { className: "changelog-group", open: i === 0 }, [
+      el("summary", {}, [
+        el("strong", { textContent: `${minor}.x` }),
+        el("span", { className: "changelog-range", textContent: `${list.length} release${list.length === 1 ? "" : "s"} · ${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}` }),
+      ]),
+      el("ul", { className: "changelog-list" }, list.map((r) => el("li", {}, [
+        el("span", { className: "changelog-version", textContent: r.version }),
+        el("span", { className: "changelog-date", textContent: fmt(r.date) }),
+        el("span", { className: "changelog-text", textContent: r.text.charAt(0).toUpperCase() + r.text.slice(1) }),
+      ]))),
+    ]);
+  });
+  app.replaceChildren(el("h2", { textContent: "Changelog" }), el("p", { className: "download-meta" }, ["Player-visible changes of the Windows client, newest first. ", link("Download", "/download")]), ...sections);
 }
 
 function featureCard(title, text) {
@@ -2537,6 +2573,8 @@ async function route() {
     section = "home";
   } else if (segments[0] === "download") {
     section = "download";
+  } else if (segments[0] === "changelog") {
+    section = "changelog";
   } else if (segments[0] === "feedback") {
     section = "feedback";
   } else if (segments[0] === "privacy") {
@@ -2564,6 +2602,8 @@ async function route() {
       await renderHome();
     } else if (section === "download") {
       await renderDownload();
+    } else if (section === "changelog") {
+      await renderChangelog();
     } else if (section === "feedback") {
       renderFeedback();
     } else if (section === "privacy") {

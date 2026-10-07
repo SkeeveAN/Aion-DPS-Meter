@@ -8,6 +8,7 @@ import {
   bossPage,
   instanceCategoryPage,
   downloadPage,
+  changelogPage,
   feedbackPage,
   comparePage,
   encounterPage,
@@ -68,6 +69,7 @@ type GameParams = Record<string, never>;
 export async function pageRoutes(app: FastifyInstance) {
   app.get("/", async (request, reply) => send(reply, render(homePage(), requestPath(request))));
   app.get("/download", async (request, reply) => send(reply, render(downloadPage(), requestPath(request))));
+  app.get("/changelog", async (request, reply) => send(reply, render(changelogPage(), requestPath(request))));
   app.get("/feedback", async (request, reply) => send(reply, render(feedbackPage(), requestPath(request))));
   app.get("/privacy", async (request, reply) => send(reply, render(privacyPage(), requestPath(request))));
   app.get("/terms", async (request, reply) => send(reply, render(termsPage(), requestPath(request))));

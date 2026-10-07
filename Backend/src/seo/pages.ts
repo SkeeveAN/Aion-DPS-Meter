@@ -108,6 +108,21 @@ export function downloadPage(): Page {
   };
 }
 
+export function changelogPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "Changelog – Aion DPS Meter",
+      description: "What changed in each release of the Aion DPS Meter Windows client, newest first.",
+      canonicalPath: "/changelog",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Changelog", path: "/changelog" }])],
+    },
+    body: html`
+      <h2>Changelog</h2>
+      <p>What changed in each release of the Aion DPS Meter Windows client. <a href="/download">Download</a></p>`,
+  };
+}
+
 // Minimal English fallback fragment, like every other SSR page here - app.js's renderPrivacy/
 // renderTerms replace this with the full, localized version (Web-Frontend/i18n.js "legal.*" keys)
 // once the client hydrates.

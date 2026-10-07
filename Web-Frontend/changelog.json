@@ -1,0 +1,187 @@
+[
+ {
+  "version": "0.10.57",
+  "date": "2026-10-07",
+  "text": "the enchant level of an equipped item is read from its fixed place in the entry instead of the first non-zero byte, so Vakron Guard +10 (was +1), the second Clash Rune +4 (was +0) and other items with a flag byte are right"
+ },
+ {
+  "version": "0.10.56",
+  "date": "2026-10-07",
+  "text": "a character switch (twink) clears the previous character's skills, gear, Daevanion and species so they no longer end up in the other profile; the character name is detected automatically, the Settings field is gone"
+ },
+ {
+  "version": "0.10.55",
+  "date": "2026-10-07",
+  "text": "shield skills are recognised by skill id, so the German names (Schutzformation, Hoheit der Blockade, Schockaufhebung, Behütungsschild) work too; Impeding Authority counts as a group shield"
+ },
+ {
+  "version": "0.10.54",
+  "date": "2026-10-07",
+  "text": "group shield is Protection Circle (Chanter/Templar) with the caster as the event's target and the shielded player as its source; the upload credits it to the caster, personal shields (Defiance, Warding Shield) are only kept out of healing"
+ },
+ {
+  "version": "0.10.53",
+  "date": "2026-10-07",
+  "text": "shields (Defiance, Warding Shield) are no longer counted as the recipient's healing; the caster is worked out from the skill's class and the group's shields are uploaded as shieldsGiven (shown on the run page's protection panel)"
+ },
+ {
+  "version": "0.10.52",
+  "date": "2026-10-06",
+  "text": "the automatic boss upload no longer postpones itself forever (its 4 s wait was restarted on every poll tick while a boss was queued); a small auto-upload.log in the settings folder records what it decided"
+ },
+ {
+  "version": "0.10.51",
+  "date": "2026-10-06",
+  "text": "automatic boss upload also fires for bosses that never send a hit-point reading (20 s after the last hit of a fight of at least 10 s) and for a boss whose last reading stopped within 0.5 % of zero"
+ },
+ {
+  "version": "0.10.50",
+  "date": "2026-10-06",
+  "text": "damage a player does to themselves (Infiltrate, health costs) no longer counts as damage dealt or taken in the all-targets view"
+ },
+ {
+  "version": "0.10.49",
+  "date": "2026-10-06",
+  "text": "filter row starts flush left and every dropdown is only as wide as it needs to be"
+ },
+ {
+  "version": "0.10.48",
+  "date": "2026-10-06",
+  "text": "the group filter dropdown is as wide as its widest entry instead of the 110 px minimum"
+ },
+ {
+  "version": "0.10.47",
+  "date": "2026-10-06",
+  "text": "overlay chips show the damage taken in its own column right of the name, like the window, instead of under it"
+ },
+ {
+  "version": "0.10.46",
+  "date": "2026-10-06",
+  "text": "overlay mode keeps the player list's size - the chips sit where the list sits, full width, same row height and fonts, only the frame is dropped"
+ },
+ {
+  "version": "0.10.45",
+  "date": "2026-10-06",
+  "text": "uniform player rows - fixed columns (rank, class icon, name, damage taken, DPS, damage) with number columns shared across rows, the class-colour bar fills the whole row height, same layout in the chip overlay"
+ },
+ {
+  "version": "0.10.44",
+  "date": "2026-10-06",
+  "text": "Settings menu without the two disabled placeholder entries (Profile Settings, Key bindings)"
+ },
+ {
+  "version": "0.10.43",
+  "date": "2026-10-06",
+  "text": "feedback window (Settings menu) - report a problem or suggestion from the client as a GitHub issue, optionally with an encrypted capture recording"
+ },
+ {
+  "version": "0.10.42",
+  "date": "2026-10-06",
+  "text": "a failed boss attempt is never uploaded - a fight goes online only when the boss's hit points reached 0 (the hotkey skips a boss that is still alive, and the automatic upload now fires on the HP-0 defeat, since Aion 2 sends no kill frame)"
+ },
+ {
+  "version": "0.10.41",
+  "date": "2026-10-06",
+  "text": "the boss's hit points (from the game's HP frame) go along with every boss upload; the backend stores the highest reading per encounter (boss_max_hp) and returns it from the encounter API"
+ },
+ {
+  "version": "0.10.40",
+  "date": "2026-10-06",
+  "text": "expedition explore / conquest told apart correctly - NPC id block 231xxxx is explore, 230xxxx (and 232/233) conquest, checked on boss HP (the 230 block has 2-3x the HP); fights are re-filed by the boss that owns their NPC id"
+ },
+ {
+  "version": "0.10.39",
+  "date": "2026-10-06",
+  "text": "group leaderboard - class emblems are tinted in their class colour (duotone, keeps the shading); the top-3 player tiles get a soft class-coloured gradient and border"
+ },
+ {
+  "version": "0.10.38",
+  "date": "2026-10-06",
+  "text": "Abyss world bosses Executor Argo and Executor Kaira are recognised and listed (with pictures); Draupnir's Afflicted Bakarma is merged into Transcendent Bakarma"
+ },
+ {
+  "version": "0.10.37",
+  "date": "2026-10-06",
+  "text": "world bosses (Verteron, Altgard, Abyss; 52 bosses with their NPC ids) are recognised by the client and listed on the website as the new 'World Bosses' category, so fights can be uploaded"
+ },
+ {
+  "version": "0.10.36",
+  "date": "2026-10-06",
+  "text": "website - encounter link previews render a damage / healing / damage-taken picture (/og/encounters/<id>.png), instance backgrounds from the game client (un-squeezed, per-image focus), boss cards for expedition / transcendence / ascension bosses, Nightmare bosses lead back to Nightmare; world boss data (NPC ids, 8 client languages)"
+ },
+ {
+  "version": "0.10.35",
+  "date": "2026-10-05",
+  "text": "the own-fight restriction (only monsters the player fought) applies to the compact overlay's Group / Corps view only; everywhere else players fighting other monsters are listed too"
+ },
+ {
+  "version": "0.10.34",
+  "date": "2026-10-05",
+  "text": "the All / Group / Corps filter is back, but only for the compact transparent overlay; the normal window and the chip overlay list everybody again"
+ },
+ {
+  "version": "0.10.33",
+  "date": "2026-10-05",
+  "text": "the group / corps view filter is gone (everybody's damage is shown again); character window laid out like the website's player page (tabs, item and skill icons, Daevanion board tiles, species knowledge)"
+ },
+ {
+  "version": "0.10.32",
+  "date": "2026-10-05",
+  "text": "species knowledge (Cognia, Fera, Natura, Varia, Specia) read from the login frame and shown on the player profile"
+ },
+ {
+  "version": "0.10.31",
+  "date": "2026-10-05",
+  "text": "a team mate is no longer shown under one's own name (own-name fallback only while the local player is unknown)"
+ },
+ {
+  "version": "0.10.30",
+  "date": "2026-10-05",
+  "text": "Nightmare boss ids (level read off the id), own timetable opacity"
+ },
+ {
+  "version": "0.10.29",
+  "date": "2026-10-05",
+  "text": "settings window with cards, switches and own pages for hotkeys and timetable"
+ },
+ {
+  "version": "0.10.28",
+  "date": "2026-10-05",
+  "text": "meter row colours - class pairs share a hue family in a lighter and a deeper shade"
+ },
+ {
+  "version": "0.10.27",
+  "date": "2026-10-05",
+  "text": "class icons in the class colours (ring + tint, shared per class pair), Brawler icon added"
+ },
+ {
+  "version": "0.10.26",
+  "date": "2026-10-05",
+  "text": "Aion 2 server ids - Asmodian early-access order fixed, Hithanya and Nemon added"
+ },
+ {
+  "version": "0.10.25",
+  "date": "2026-10-04",
+  "text": "class icons are the Aion 2 emblems on a dark plate with a gold ring"
+ },
+ {
+  "version": "0.10.24",
+  "date": "2026-10-04",
+  "text": "the upload hotkey sends every boss fight not yet uploaded"
+ },
+ {
+  "version": "0.10.23",
+  "date": "2026-10-04",
+  "text": "character windows of other players survive a restart and go with boss uploads"
+ },
+ {
+  "version": "0.10.22",
+  "date": "2026-10-04",
+  "text": "the skill bar's equipped skills (with the break-free skill) are uploaded"
+ },
+ {
+  "version": "0.10.21",
+  "date": "2026-10-04",
+  "text": "skill list and stigmas are merged across the game's re-sends"
+ }
+]
