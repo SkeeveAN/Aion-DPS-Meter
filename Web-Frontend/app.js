@@ -204,8 +204,8 @@ function setupLanguageSwitcher() {
     ...LOCALES.map((l) => el("option", { value: l.code, textContent: `${l.flag} ${l.label}` })),
   );
   select.value = getLocale();
-  select.addEventListener("change", () => {
-    setLocale(select.value);
+  select.addEventListener("change", async () => {
+    await setLocale(select.value);
     applyStaticTranslations();
     initThemeSwitcher(t);
     route();
