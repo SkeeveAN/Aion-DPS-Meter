@@ -216,6 +216,9 @@ function applyStaticTranslations() {
   document.getElementById("search-input").placeholder = t("nav.searchPlaceholder");
   document.getElementById("search-button").textContent = t("nav.searchButton");
   document.getElementById("feedback-link").textContent = t("nav.feedback");
+  document.getElementById("nav-guilds").textContent = t("guild.listTitle");
+  // "Statistics" and "Changelog" are English only, as in the footer.
+  document.getElementById("nav-stats").textContent = "Statistics";
   document.getElementById("nav-toggle").setAttribute("aria-label", t("nav.menu"));
 }
 

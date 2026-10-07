@@ -2656,6 +2656,14 @@ body:has(.download-hero) .nav-download-link:hover,
   white-space: nowrap;
 }
 .nav-feedback-link:hover { border-color: var(--color-primary); color: var(--color-primary); }
+/* Plain text links in the header (Legions, Statistics) next to the feedback button. */
+.nav-text-link {
+  color: var(--color-text);
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav-text-link:hover { color: var(--color-primary); text-decoration: underline; }
 .feedback-page { max-width: 760px; margin: 0 auto; }
 .feedback-form { display: grid; gap: 14px; margin-top: 16px; }
 .feedback-field { display: grid; gap: 4px; }
