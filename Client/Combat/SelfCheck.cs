@@ -22,12 +22,23 @@ public static class SelfCheck
         ok &= RunEngagedTargetsScenario();
         ok &= RunEventScheduleScenario();
         ok &= RunAllInOneRowScenario();
+        ok &= RunSkillIconByNameScenario();
         ok &= RunAsciiTableScenario();
         ok &= RunToolbarIconScenario();
         ok &= RunLiveAggregatorScenario();
         ok &= SelfCheckAion2.Run();
         ok &= SelfCheckThemes.Run();
         ok &= SelfCheckHistory.Run();
+        return ok;
+    }
+
+    /// <summary>A fight read back from the history has skill names but no ids: a Gladiator's "Keen Strike" still finds its icon.</summary>
+    private static bool RunSkillIconByNameScenario()
+    {
+        string? keen = Aion2.Protocol.Aion2SkillIcons.PathForName("Keen Strike", "Gladiator");
+        string? unknown = Aion2.Protocol.Aion2SkillIcons.PathForName("No Such Skill", "Gladiator");
+        bool ok = keen is not null && Path.GetFileName(keen).StartsWith("ICON_GL_", StringComparison.Ordinal) && unknown is null;
+        Console.WriteLine($"[selftest] Skill icon by name: Keen Strike -> {(keen is null ? "none" : Path.GetFileName(keen))}, unknown -> none: {unknown is null}");
         return ok;
     }
 

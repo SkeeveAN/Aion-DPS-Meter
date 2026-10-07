@@ -27,6 +27,44 @@ public static class Aion2SkillIcons
         return File.Exists(path) ? path : null;
     }
 
+    private static IReadOnlyDictionary<(string? Class, string Name), string>? _byName;
+
+    /// <summary>
+    /// The icon of a skill known only by its English name, for fights stored without skill ids (the fight history
+    /// keeps the name only). A class's own skill wins over the same name elsewhere; null when the name has no icon.
+    /// </summary>
+    public static string? PathForName(string? englishName, string? className)
+    {
+        if (string.IsNullOrEmpty(englishName))
+        {
+            return null;
+        }
+
+        if (_byName is null)
+        {
+            var index = new Dictionary<(string?, string), string>();
+            var tokens = Tokens();
+            foreach ((int id, string name) in Aion2SkillNames.Load().OrderBy(p => p.Key))
+            {
+                if (id >= 10_000_000 && tokens.TryGetValue(id / 10000, out string? token))
+                {
+                    index.TryAdd((Aion2SkillNames.ClassOf(id), name), token);
+                    index.TryAdd((null, name), token);
+                }
+            }
+
+            _byName = index;
+        }
+
+        if ((_byName.TryGetValue((className, englishName), out string? found) || _byName.TryGetValue((null, englishName), out found))
+            && Path.Combine(Folder, found + ".png") is string path && File.Exists(path))
+        {
+            return path;
+        }
+
+        return null;
+    }
+
     private static IReadOnlyDictionary<int, string> Tokens()
     {
         if (_tokens is { } cached)

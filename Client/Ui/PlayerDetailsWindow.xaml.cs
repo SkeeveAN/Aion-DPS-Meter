@@ -69,9 +69,10 @@ public partial class PlayerDetailsWindow : Window
     }
     /// <summary>The skill's icon (see Aion2.Protocol.Aion2SkillIcons), decoded once at its small
     /// size; null when the skill has none.</summary>
-    private static System.Windows.Media.ImageSource? IconFor(int skillId)
+    private static System.Windows.Media.ImageSource? IconFor(int skillId, string? skillName, string? className)
     {
-        if (Aion2.Protocol.Aion2SkillIcons.PathFor(skillId) is not string path)
+        // A fight read back from the history carries no skill ids, only the names: the name finds the icon then.
+        if ((Aion2.Protocol.Aion2SkillIcons.PathFor(skillId) ?? Aion2.Protocol.Aion2SkillIcons.PathForName(skillName, className)) is not string path)
         {
             return null;
         }
@@ -137,7 +138,7 @@ public partial class PlayerDetailsWindow : Window
                 u.Max,
                 (long)Math.Round((double)u.Total / u.Hits),
                 total > 0 ? 100.0 * u.Total / total : 0,
-                IconFor(u.SkillId)))
+                IconFor(u.SkillId, u.Skill, className)))
             .ToList();
 
         SkillsGrid.ItemsSource = rows;
