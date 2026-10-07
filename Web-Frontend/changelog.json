@@ -1,5 +1,17 @@
 [
  {
+  "version": "0.12.1",
+  "date": "2026-10-07",
+  "items": [
+   {
+    "text": "Settings: opening Settings no longer fails with the new timetable slider",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.12.0",
   "date": "2026-10-07",
   "items": [
