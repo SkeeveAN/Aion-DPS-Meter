@@ -341,8 +341,6 @@ function buildSiteFooter() {
     ]),
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
-        link(t("guild.listTitle"), "/legions"),
-        link("Statistics", "/stats"),
         link("Changelog", "/changelog"),
         link(t("legal.privacyTitle"), "/privacy"),
         link(t("legal.termsTitle"), "/terms"),
