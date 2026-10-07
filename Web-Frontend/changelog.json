@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.13.0",
   "date": "2026-10-08",
   "items": [
    {
@@ -14,6 +14,12 @@
     "text": "Shattered Arkanis: fights with the 2330xxx boss ids are Transcendence stage 1 (confirmed by the player)",
     "areas": [
      "Backend"
+    ]
+   },
+   {
+    "text": "Mode menu: All in One (damage, healing and damage taken side by side) and All in One Compact (healing with a green cross and damage taken with a red shield as a second line under the name); the rate and damage taken figures in the window are easier to read",
+    "areas": [
+     "Client"
     ]
    }
   ]
