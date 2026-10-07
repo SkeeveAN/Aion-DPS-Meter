@@ -159,6 +159,19 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-character")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS render-character <out.png> [equipment|arcana|skills|board|species]");
+                Console.WriteLine("  Draws the saved character's profile window into a picture; no window is ever shown.");
+                return;
+            }
+
+            RunRenderCharacterMode(args[1], args.Length > 2 ? args[2] : "equipment");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-details")
         {
             if (args.Length < 2)
@@ -382,6 +395,48 @@ internal static class Program
     }
 
     /// <summary>Renders a player's details window with generated hits to a PNG, never showing a window.</summary>
+    private static void RunRenderCharacterMode(string path, string tab)
+    {
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        if (Aion2.Aion2CharacterStore.Load(Aion2.Aion2CharacterStore.DefaultPath) is not { } saved)
+        {
+            Console.WriteLine("render-character: no saved character");
+            Environment.Exit(1);
+            return;
+        }
+
+        var directory = new Aion2.Aion2EntityDirectory();
+        directory.RestoreFrom(saved);
+        var window = new Ui.CharacterWindow(directory);
+        window.ShowTab(tab);
+        const double width = 1180, height = 1000;
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(width, height));
+        content.Arrange(new System.Windows.Rect(0, 0, width, height));
+        content.UpdateLayout();
+        content.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)width, (int)height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        var backdrop = new System.Windows.Controls.Border { Width = width, Height = height, Background = (System.Windows.Media.Brush)app.FindResource("Brush.Window") };
+        backdrop.Measure(new System.Windows.Size(width, height));
+        backdrop.Arrange(new System.Windows.Rect(0, 0, width, height));
+        bitmap.Render(backdrop);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-character: wrote " + path);
+        Environment.Exit(0);
+    }
+
     private static void RunRenderDetailsMode(string path)
     {
         var app = new System.Windows.Application();

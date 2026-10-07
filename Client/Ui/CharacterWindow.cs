@@ -43,6 +43,13 @@ public sealed class CharacterWindow : Window
 
     private sealed record GearRow(Aion2EquippedItem Item, Aion2ItemInfo? Info);
 
+    /// <summary>Opens a tab by its id (equipment, arcana, skills, board, species) - for the picture render.</summary>
+    public void ShowTab(string id)
+    {
+        _tab = id;
+        Render();
+    }
+
     public CharacterWindow(Aion2EntityDirectory directory)
     {
         _directory = directory;
@@ -255,6 +262,9 @@ public sealed class CharacterWindow : Window
             .Select(e => new GearRow(e, Aion2ItemCatalog.Find(e.ItemId)))
             .OrderBy(x => x.Item.SlotIndex)
             .ToList();
+        // Like the website's profile: the five arcana have their own tab, the equipment tab holds the rest.
+        var arcana = gear.Where(x => x.Info?.Slot == "Arcana").OrderBy(x => x.Item.SlotIndex).ToList();
+        var equipmentRows = gear.Where(x => x.Info?.Slot != "Arcana").ToList();
         var known = gear.Where(x => x.Info is not null).Select(x => x.Info!).ToList();
         double average = known.Count > 0 ? known.Average(i => i.ItemLevel) : 0;
         var skills = _directory.LocalSkills
@@ -267,9 +277,14 @@ public sealed class CharacterWindow : Window
         Title = $"{character.Name} - Character";
 
         var tabs = new List<(string Id, string Label, int Count, Func<UIElement> Build)>();
-        if (gear.Count > 0)
+        if (equipmentRows.Count > 0)
         {
-            tabs.Add(("equipment", "Equipment", gear.Count, () => BuildEquipment(gear, className, average)));
+            tabs.Add(("equipment", "Equipment", equipmentRows.Count, () => BuildEquipment(equipmentRows, className, average)));
+        }
+
+        if (arcana.Count > 0)
+        {
+            tabs.Add(("arcana", "Arcana", arcana.Count, () => BuildArcana(arcana)));
         }
 
         if (skills.Count > 0)
@@ -284,7 +299,7 @@ public sealed class CharacterWindow : Window
 
         if (species.Count > 0)
         {
-            tabs.Add(("species", "Species Knowledge", species.Count, () => BuildSpecies(species)));
+            tabs.Add(("species", "Species Knowledge", species.Count, () => BuildSpecies(species, _directory.LocalPets)));
         }
 
         if (tabs.Count > 0 && tabs.All(t => t.Id != _tab))
@@ -331,9 +346,33 @@ public sealed class CharacterWindow : Window
         var names = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
         names.Children.Add(Text(character.Name, 22, FontWeights.Bold));
         names.Children.Add(Text($"{className} · Level {character.Level}", 12.5, brush: Res("Brush.TextMuted")));
+        // Faction, legion and server on one line, like the website's profile header.
+        var meta = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 0) };
+        // 2 in the class code's faction bit is Elyos (see Aion2EntityDirectory.FactionOf); the other value is not known to mean Asmodian.
+        string? faction = character.ClassCode % 4 == 2 ? "Elyos" : _directory.FactionOf(character.CombatId);
+        if (faction is not null)
+        {
+            if (Picture(Path.Combine(AppContext.BaseDirectory, "assets", "races", "icons", faction + ".png")) is { } flag)
+            {
+                meta.Children.Add(new Image { Source = flag, Width = 16, Height = 16, Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center });
+            }
+
+            meta.Children.Add(Text(faction, 12, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 0, 14, 0)));
+        }
+
         if (guild is not null)
         {
-            names.Children.Add(Text($"Legion: {guild}", 12, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 2, 0, 0)));
+            meta.Children.Add(Text($"Legion: {guild}", 12, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 0, 14, 0)));
+        }
+
+        if (character.ServerId > 0)
+        {
+            meta.Children.Add(Text(Aion2Servers.NameOf(character.ServerId), 12, brush: Res("Brush.TextMuted")));
+        }
+
+        if (meta.Children.Count > 0)
+        {
+            names.Children.Add(meta);
         }
 
         Grid.SetColumn(names, 1);
@@ -353,7 +392,50 @@ public sealed class CharacterWindow : Window
 
         Grid.SetColumn(numbers, 2);
         row.Children.Add(numbers);
-        return Card(row, new Thickness(16, 14, 22, 14));
+
+        // The worn titles as chips under the header, tinted by grade.
+        var content = new StackPanel();
+        content.Children.Add(row);
+        string language = LocalizationManager.Instance.Language;
+        var chips = new WrapPanel { Margin = new Thickness(0, 12, 0, 0) };
+        foreach (Aion2TitleSlot slot in _directory.LocalTitles.OrderBy(t => t.Slot))
+        {
+            if (Aion2Titles.Find(slot.TitleId, language) is { } title)
+            {
+                chips.Children.Add(TitleChip(title));
+            }
+        }
+
+        if (chips.Children.Count > 0)
+        {
+            content.Children.Add(chips);
+        }
+
+        return Card(content, new Thickness(16, 14, 22, 14));
+    }
+
+    /// <summary>A title as a rounded chip in its grade's colour (the website's colours).</summary>
+    private UIElement TitleChip(Aion2TitleInfo title)
+    {
+        Color color = title.Grade switch
+        {
+            "Rare" => Color.FromRgb(0x5B, 0xD3, 0x6B),
+            "Epic" => Color.FromRgb(0xB4, 0x8C, 0xFF),
+            "Legend" => Color.FromRgb(0x4A, 0xA8, 0xFF),
+            "Unique" => Color.FromRgb(0xFF, 0xC9, 0x4D),
+            "Special" => Color.FromRgb(0xFF, 0x5A, 0x4F),
+            _ => Color.FromRgb(0x9D, 0xB3, 0xC2),
+        };
+        return new Border
+        {
+            CornerRadius = new CornerRadius(14),
+            BorderThickness = new Thickness(1),
+            BorderBrush = Solid(color),
+            Background = Solid(Color.FromArgb(0x24, color.R, color.G, color.B)),
+            Padding = new Thickness(12, 3, 12, 3),
+            Margin = new Thickness(0, 0, 8, 6),
+            Child = Text(title.Name, 12.5, FontWeights.SemiBold, Solid(color)),
+        };
     }
 
     /// <summary>The class emblem in a gold-rimmed rounded square; the class's first letters when the emblem is missing.</summary>
@@ -473,6 +555,75 @@ public sealed class CharacterWindow : Window
         }
 
         return page;
+    }
+
+    /// <summary>The arcana slots as a grid of tiles, three to a row (the website lists them the same way).</summary>
+    private UIElement BuildArcana(IReadOnlyList<GearRow> arcana)
+    {
+        var wrap = new UniformGrid { Columns = 3 };
+        foreach (GearRow g in arcana)
+        {
+            UIElement slot = GearSlot(g);
+            slot.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 10, 10));
+            wrap.Children.Add(slot);
+        }
+
+        return wrap;
+    }
+
+    private static readonly Dictionary<string, string> PetGlyphs = new()
+    {
+        ["cognia"] = "M30,40 l6,-10 8,6 8,-6 6,10 -6,14 H36 z",
+        ["fera"] = "M44,28 l14,26 H30 z",
+        ["natura"] = "M32,44 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0 z",
+        ["varia"] = "M44,28 a16,16 0 1 0 0,32 a12,12 0 1 1 0,-24 z",
+        ["specia"] = "M44,26 l6,14 14,4 -14,4 -6,14 -6,-14 -14,-4 14,-4 z",
+    };
+
+    /// <summary>One species' pet circle: a disc with the species' glyph, one dot per effect place coloured by its quality
+    /// (dark while not unlocked), and the level underneath. The right side of the ring stays open, like the game's.</summary>
+    private UIElement PetCircle(Aion2Pet pet, string key)
+    {
+        var canvas = new Canvas { Width = 88, Height = 88 };
+        canvas.Children.Add(new System.Windows.Shapes.Ellipse
+        {
+            Width = 84, Height = 84, Fill = Res("Brush.Control"), Stroke = Res("Brush.Border"), StrokeThickness = 1,
+        });
+        Canvas.SetLeft(canvas.Children[0], 2);
+        Canvas.SetTop(canvas.Children[0], 2);
+        if (PetGlyphs.TryGetValue(key, out string? glyph))
+        {
+            canvas.Children.Add(new System.Windows.Shapes.Path { Data = Geometry.Parse(glyph), Fill = Res("Brush.TextMuted") });
+        }
+
+        Color[] quality =
+        {
+            Colors.Transparent, Color.FromRgb(0xD9, 0xDD, 0xE0), Color.FromRgb(0x5B, 0xD3, 0x6B),
+            Color.FromRgb(0x4A, 0xA8, 0xFF), Color.FromRgb(0xFF, 0xC9, 0x4D), Color.FromRgb(0xFF, 0x8A, 0x3D),
+        };
+        int places = Math.Max(9, pet.Kinds.Count);
+        for (int i = 0; i < places; i++)
+        {
+            int kind = i < pet.Kinds.Count ? pet.Kinds[i] : 0;
+            double angle = (double)i / 12 * Math.PI * 2 - Math.PI / 2 - 0.4;
+            var dot = new System.Windows.Shapes.Ellipse
+            {
+                Width = 8.4, Height = 8.4,
+                Fill = kind is >= 1 and <= 5 ? Solid(quality[kind]) : Res("Brush.Border"),
+            };
+            Canvas.SetLeft(dot, 44 - 34 * Math.Cos(angle) - 4.2);
+            Canvas.SetTop(dot, 44 + 34 * Math.Sin(angle) - 4.2);
+            canvas.Children.Add(dot);
+        }
+
+        var box = new Viewbox { Width = 96, Height = 96, Child = canvas };
+        var stack = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 0, 14, 10) };
+        stack.Children.Add(box);
+        stack.Children.Add(new TextBlock
+        {
+            Text = $"Level {pet.Level}", FontSize = 12, Foreground = Res("Brush.TextMuted"), HorizontalAlignment = HorizontalAlignment.Center,
+        });
+        return stack;
     }
 
     private UIElement SlotColumn(IReadOnlyList<GearRow> rows)
@@ -785,7 +936,7 @@ public sealed class CharacterWindow : Window
 
     // ---------------------------------------------------------------- species knowledge
 
-    private UIElement BuildSpecies(IReadOnlyList<Aion2SpeciesKnowledge> species)
+    private UIElement BuildSpecies(IReadOnlyList<Aion2SpeciesKnowledge> species, IReadOnlyList<Aion2Pet> pets)
     {
         string language = LocalizationManager.Instance.Language;
         var cards = new WrapPanel();
@@ -809,7 +960,17 @@ public sealed class CharacterWindow : Window
                 var row = new Grid { Margin = new Thickness(0, 0, 0, 0) };
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
                 row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                TextBlock label = Text(name, 12.5, brush: Res("Brush.TextMuted"));
+                // The effect names take the colour of their quality, as in the game's pet window and on the website.
+                Brush labelBrush = effect.Kind switch
+                {
+                    1 => Res("Brush.Text"),
+                    2 => Solid(Color.FromRgb(0x5B, 0xD3, 0x6B)),
+                    3 => Solid(Color.FromRgb(0x4A, 0xA8, 0xFF)),
+                    4 => Solid(Color.FromRgb(0xFF, 0xC9, 0x4D)),
+                    5 => Solid(Color.FromRgb(0xFF, 0x8A, 0x3D)),
+                    _ => Res("Brush.TextMuted"),
+                };
+                TextBlock label = Text(name, 12.5, brush: labelBrush);
                 label.Margin = new Thickness(0, 0, 12, 0);
                 TextBlock value = Text(percent ? $"{(effect.Value / 100.0).ToString("F1", CultureInfo.CurrentCulture)} %" : effect.Value.ToString("N0"), 12.5, FontWeights.SemiBold);
                 Grid.SetColumn(value, 1);
@@ -820,7 +981,17 @@ public sealed class CharacterWindow : Window
 
             Border card = Card(stack, new Thickness(14, 14, 14, 8), new Thickness(0, 0, 14, 14));
             card.Width = 290;
-            cards.Children.Add(card);
+
+            // The species' circle sits centred above its table, as on the website.
+            var column = new StackPanel();
+            Aion2Pet? pet = pets.FirstOrDefault(p => p.SpeciesId == k.SpeciesId);
+            if (pet is not null)
+            {
+                column.Children.Add(PetCircle(pet, Aion2Artwork.SpeciesName(pet.SpeciesId, "en").ToLowerInvariant()));
+            }
+
+            column.Children.Add(card);
+            cards.Children.Add(column);
         }
 
         var page = new StackPanel();
