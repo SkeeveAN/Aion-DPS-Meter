@@ -26,6 +26,14 @@
     "areas": [
      "Website"
     ]
+   },
+   {
+    "text": "Statistics page with the player, boss fight and download totals; the download button now counts its clicks",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ]
    }
   ]
  },

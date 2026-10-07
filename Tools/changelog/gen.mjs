@@ -7,7 +7,7 @@
 // Backend (Backend/) and Database (Backend/drizzle, Backend/src/db). No commit convention needed.
 // A "Release X.Y.Z: <text>" subject contributes its text; bare version bumps and merges nothing.
 import { execFileSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const out = fileURLToPath(new URL("../../Web-Frontend/changelog.json", import.meta.url));
@@ -30,6 +30,11 @@ const areasOf = (files) => {
   return ["Client", "Website", "Backend", "Database"].filter((a) => set.has(a));
 };
 
+// overrides.json: {"<commit hash prefix>": "<text shown instead>" | null (= leave the commit out)}.
+// For commits whose subject must not be shown as written (e.g. it names something that is not public).
+const overrides = JSON.parse(readFileSync(fileURLToPath(new URL("./overrides.json", import.meta.url)), "utf8"));
+const overrideFor = (hash) => Object.entries(overrides).find(([prefix]) => hash.startsWith(prefix));
+
 const SEP = "\u0001";
 const raw = git("log", "--reverse", "--name-only", `--format=${SEP}%H%x09%ad%x09%s`, "--date=short");
 const commits = raw.split(SEP).filter(Boolean).map((block) => {
@@ -48,7 +53,8 @@ for (const c of commits) {
   const v = touchesCsproj || current === null ? versionAt(c.hash) : current;
   const rel = /^Release (\d+\.\d+\.\d+)(?:: (.+))?$/.exec(c.subject);
   const noise = /^(Merge |Bump (the )?version|Version \d|Release workflow|Changelog)/.test(c.subject);
-  const text = rel ? rel[2] : noise ? null : c.subject.replace(/;? ?version \d+\.\d+\.\d+$/i, "");
+  const override = overrideFor(c.hash);
+  const text = override ? override[1] : rel ? rel[2] : noise ? null : c.subject.replace(/;? ?version \d+\.\d+\.\d+$/i, "");
   const areas = areasOf(c.files);
   if (text && areas.length && current !== null) {
     pending.push({ text, areas });
