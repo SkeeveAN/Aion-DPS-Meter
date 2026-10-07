@@ -83,6 +83,12 @@
      "Website",
      "Backend"
     ]
+   },
+   {
+    "text": "First-start wizard (language and the upload options, all off by default) for a fresh install or a lost settings file; new setting to also upload the profiles of other players (off by default); without it only the own character is sent",
+    "areas": [
+     "Client"
+    ]
    }
   ]
  },
