@@ -1,6 +1,7 @@
 import { statSync } from "node:fs";
 import { sqlite } from "../db/client.js";
 import { env } from "../env.js";
+import { splitConquest } from "../../../Web-Frontend/game-data.js";
 
 type Row = Record<string, number | string | null>;
 const all = (sql: string, ...params: unknown[]) => sqlite.prepare(sql).all(...params) as Row[];
@@ -67,8 +68,16 @@ export function privateStats() {
   } catch {
     // size is informational only
   }
+  // Every boss with at least one fight; conquest bosses carry their star rating ("Vakron ★★") like on the site.
+  const bossFights = all(
+    `select coalesce(b.name_en, b.name) name, coalesce(i.name_en, i.name) instance, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id order by n desc`,
+  ).map((r) => {
+    const conquest = splitConquest(String(r.instance));
+    return { boss: conquest ? `${r.name} ${conquest.stars}` : String(r.name), instance: conquest ? conquest.base : String(r.instance), count: num(r.n) };
+  });
   return {
     ...publicStats(),
+    bossFights,
     uploadsPerDay,
     activeUploaders: { d1: activeUploaders(1), d7: activeUploaders(7), d30: activeUploaders(30) },
     versions,
@@ -100,6 +109,7 @@ export function metricsText(): string {
   metric("aiondps_profiles", "Player profiles by source (self = own client, seen = seen in a group).", "gauge", [[{ source: "self" }, p.ownProfiles], [{ source: "seen" }, p.seenProfiles]]);
   metric("aiondps_encounters_total", "Boss fights stored.", "counter", [[null, p.encounters]]);
   metric("aiondps_uploads_total", "Uploads received, by status.", "counter", Object.entries(p.uploadStatus).map(([s, n]) => [{ status: s }, n]));
+  metric("aiondps_boss_fights", "Boss fights per boss (conquest bosses with their stars).", "gauge", p.bossFights.map((b) => [{ boss: b.boss, instance: b.instance }, b.count]));
   metric("aiondps_downloads_total", "Download button clicks through the website (bots excluded).", "counter", [[null, p.downloads.total]]);
   metric("aiondps_active_uploaders", "Distinct uploader hashes with an upload in the last N days.", "gauge", [[{ days: "1" }, p.activeUploaders.d1], [{ days: "7" }, p.activeUploaders.d7], [{ days: "30" }, p.activeUploaders.d30]]);
   metric("aiondps_client_version_uploads_30d", "Uploads of the last 30 days per client version.", "gauge", p.versions.map((v) => [{ version: v.version }, v.uploads]));
