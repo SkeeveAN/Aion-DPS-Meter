@@ -109,7 +109,7 @@ export function metricsText(): string {
   metric("aiondps_profiles", "Player profiles by source (self = own client, seen = seen in a group).", "gauge", [[{ source: "self" }, p.ownProfiles], [{ source: "seen" }, p.seenProfiles]]);
   metric("aiondps_encounters_total", "Boss fights stored.", "counter", [[null, p.encounters]]);
   metric("aiondps_uploads_total", "Uploads received, by status.", "counter", Object.entries(p.uploadStatus).map(([s, n]) => [{ status: s }, n]));
-  metric("aiondps_boss_fights", "Boss fights per boss (conquest bosses with their stars).", "gauge", p.bossFights.map((b) => [{ boss: b.boss, instance: b.instance }, b.count]));
+  metric("aiondps_boss_fights", "Boss fights per boss (conquest bosses with their stars).", "gauge", p.bossFights.map((b) => [{ boss: b.boss, dungeon: b.instance }, b.count]));
   metric("aiondps_downloads_total", "Download button clicks through the website (bots excluded).", "counter", [[null, p.downloads.total]]);
   metric("aiondps_active_uploaders", "Distinct uploader hashes with an upload in the last N days.", "gauge", [[{ days: "1" }, p.activeUploaders.d1], [{ days: "7" }, p.activeUploaders.d7], [{ days: "30" }, p.activeUploaders.d30]]);
   metric("aiondps_client_version_uploads_30d", "Uploads of the last 30 days per client version.", "gauge", p.versions.map((v) => [{ version: v.version }, v.uploads]));
