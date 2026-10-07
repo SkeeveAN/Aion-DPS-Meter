@@ -1,3 +1,4 @@
+import { canonicalServer } from "../content/aion2Servers.js";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
@@ -36,7 +37,8 @@ export interface ProcessResult {
  * two genuinely different private-server operators - matching on displayName too, not overwriting
  * a differently-named row's name, is what keeps them apart instead of one silently hijacking the
  * other's row (and, with it, every one of its already-uploaded players/encounters). */
-function upsertServer(fingerprint: string, displayName: string | undefined): number {
+function upsertServer(rawFingerprint: string, rawDisplayName: string | undefined): number {
+  const { fingerprint, displayName } = canonicalServer(rawFingerprint, rawDisplayName);
   if (displayName) {
     const exact = db
       .select()

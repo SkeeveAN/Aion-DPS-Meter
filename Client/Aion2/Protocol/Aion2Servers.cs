@@ -9,11 +9,11 @@ public static class Aion2Servers
 {
     private static readonly Dictionary<int, string> Known = new()
     {
-        // The nine early-access servers per faction, in the order the official list gives them, one id
-        // each: Elyos 1301-1309, Asmodians 2301-2309. Confirmed with real characters: 1303/1304 (Aahz,
-        // Boulenbouche), and the server tags of the party window - Xooby [Tri] is 2303 (Triniel), zyxx
-        // [Ber] is 2308 (Beritra), which also showed that 2305-2308 had been listed in the wrong order
-        // (Marchutan is 2305, not 2308). 1309 (Hithanya) and 2309 (Nemon) follow from the same order.
+        // The names are the game's own text (ServerName_<id>_desc in the client's L10NString, checked 2026-10-07).
+        // Elyos 1301-1322 and Asmodians 2301-2322 are the 22 servers per faction of the official list; the
+        // client text has more names per block (up to 60) that belong to no live server. Earlier confirmed
+        // with real characters: 1303/1304 (Aahz, Boulenbouche), Xooby [Tri] = 2303, zyxx [Ber] = 2308.
+        // The same ids are reused by the other regions (NA, Asia, ...): the id alone does not say the region.
         // The id says nothing about a character's faction here.
         [1301] = "Europe - Siel",
         [1302] = "Europe - Nezekan",
@@ -24,6 +24,19 @@ public static class Aion2Servers
         [1307] = "Europe - Fregion",
         [1308] = "Europe - Meslamtaeda",
         [1309] = "Europe - Hithanya",
+        [1310] = "Europe - Nania",
+        [1311] = "Europe - Tahavatha",
+        [1312] = "Europe - Luteros",
+        [1313] = "Europe - Phernos",
+        [1314] = "Europe - Daminu",
+        [1315] = "Europe - Kasaka",
+        [1316] = "Europe - Bakarma",
+        [1317] = "Europe - Tsenka",
+        [1318] = "Europe - Kochi",
+        [1319] = "Europe - Ishtar",
+        [1320] = "Europe - Tiamat",
+        [1321] = "Europe - Gauss",
+        [1322] = "Europe - Lamuatan",
         [2301] = "Europe - Israphel",
         [2302] = "Europe - Zikel",
         [2303] = "Europe - Triniel",
@@ -33,6 +46,19 @@ public static class Aion2Servers
         [2307] = "Europe - Ereshkigal",
         [2308] = "Europe - Beritra",
         [2309] = "Europe - Nemon",
+        [2310] = "Europe - Hadala",
+        [2311] = "Europe - Ludra",
+        [2312] = "Europe - Ulgorn",
+        [2313] = "Europe - Munin",
+        [2314] = "Europe - Odar",
+        [2315] = "Europe - Zemurru",
+        [2316] = "Europe - Kromede",
+        [2317] = "Europe - Quai",
+        [2318] = "Europe - Baba",
+        [2319] = "Europe - Fafnir",
+        [2320] = "Europe - Indnath",
+        [2321] = "Europe - Agnita",
+        [2322] = "Europe - Atiel",
     };
 
     public static string NameOf(int serverId) => Known.GetValueOrDefault(serverId, $"Aion 2 server {serverId}");
