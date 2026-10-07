@@ -121,4 +121,8 @@ jobs:
           }
           $files = Get-ChildItem releases -File | Where-Object { $_.Name -ne 'AionDpsMeter-win-Portable.zip' }
           gh release upload "${{ steps.tag.outputs.name }}" $files.FullName --clobber
+          # The release stays a prerelease while the files are still being uploaded; only when
+          # everything is attached does it become the normal "Latest" release (the fetch for
+          # delta packages and the client's updater both still look at prereleases as well).
+          gh release edit $tag --prerelease=false --latest
         shell: pwsh
