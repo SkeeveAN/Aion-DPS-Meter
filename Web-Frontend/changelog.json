@@ -1,5 +1,25 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-07",
+  "items": [
+   {
+    "text": "German: the group filter entry reads 'Alle Gruppen' instead of 'Alle Konstellationen'",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Server names follow the game's region digit (NA East, NA West, Europe, LATAM, Asia) and the website shows them in the reader's language as the game spells them",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.11.1",
   "date": "2026-10-07",
   "items": [
