@@ -15,6 +15,7 @@ public sealed class Aion2SavedCharacter
     public List<SavedSkill> Skills { get; set; } = new();
     public List<SavedBoard> Daevanion { get; set; } = new();
     public List<SavedSpecies> Species { get; set; } = new();
+    public List<SavedTitle> Titles { get; set; } = new();
 
     public sealed record SavedItem(int Slot, int ItemId, int Enchant);
 
@@ -24,7 +25,9 @@ public sealed class Aion2SavedCharacter
 
     public sealed record SavedSpecies(int Id, int Level, long Progress, List<SavedEffect> Effects);
 
-    public sealed record SavedEffect(int Page, int Slot, int Stat, long Value);
+    public sealed record SavedEffect(int Page, int Slot, int Stat, long Value, int Kind = 0);
+
+    public sealed record SavedTitle(int Slot, int TitleId);
 }
 
 /// <summary>

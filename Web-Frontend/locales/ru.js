@@ -370,7 +370,7 @@ export default {
   "guild.level": "Уровень",
   "guild.notFound": "Этот легион неизвестен.",
   "guild.gearScore": "Gear Score",
-  "guild.gearScoreHint": "Средний уровень предметов надетого снаряжения",
-  "guild.combatPower": "Боевая мощь",
-  "guild.combatPowerHint": "Как в окне персонажа игры; известна, только если кто-то из загружающих открыл его окно",
+  "guild.gearScoreHint": "Gear score из окна персонажа игры (рядом со значком шлема); известен, только если кто-то из загружающих открыл его окно",
+  "guild.avgItemLevel": "Ср. ур. предметов",
+  "guild.avgItemLevelHint": "Средний уровень предметов надетого снаряжения (считает Aion DPS)",
 };

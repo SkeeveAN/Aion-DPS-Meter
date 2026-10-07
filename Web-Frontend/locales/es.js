@@ -370,7 +370,7 @@ export default {
   "guild.level": "Nivel",
   "guild.notFound": "Esta legión no se conoce.",
   "guild.gearScore": "Gear Score",
-  "guild.gearScoreHint": "Nivel de objeto medio del equipo puesto",
-  "guild.combatPower": "Poder de combate",
-  "guild.combatPowerHint": "Como en la ventana del personaje; solo se conoce si un usuario abrió su ventana",
+  "guild.gearScoreHint": "El gear score de la ventana del personaje (junto al icono del casco); solo se conoce si un usuario abrió su ventana",
+  "guild.avgItemLevel": "Nivel de objeto medio",
+  "guild.avgItemLevelHint": "Nivel de objeto medio del equipo puesto (calculado por Aion DPS)",
 };

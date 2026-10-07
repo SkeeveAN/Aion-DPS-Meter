@@ -672,13 +672,13 @@ async function renderGuild(slug) {
     el("td", {}, [m.className ? iconLabel(classIcon(m.className), m.className) : ""]),
     el("td", { textContent: m.level ?? "" }),
     el("td", { textContent: m.gearScore ? formatNumber(m.gearScore) : "–" }),
-    el("td", { textContent: m.combatPower ? formatNumber(m.combatPower) : "–" }),
+    el("td", { textContent: m.avgItemLevel ? formatNumber(m.avgItemLevel) : "–" }),
   ]));
   app.replaceChildren(
     el("h2", { textContent: guild.name }),
     el("p", { className: "download-meta", textContent: `${serverLabel(guild.serverName)} · ${t("guild.members", { count: members.length })}` }),
     el("table", { className: "guild-table" }, [
-      el("thead", {}, [el("tr", {}, [el("th", { textContent: t("guild.player") }), el("th", { textContent: t("guild.class") }), el("th", { textContent: t("guild.level") }), el("th", { textContent: t("guild.gearScore"), title: t("guild.gearScoreHint") }), el("th", { textContent: t("guild.combatPower"), title: t("guild.combatPowerHint") })])]),
+      el("thead", {}, [el("tr", {}, [el("th", { textContent: t("guild.player") }), el("th", { textContent: t("guild.class") }), el("th", { textContent: t("guild.level") }), el("th", { textContent: t("guild.gearScore"), title: t("guild.gearScoreHint") }), el("th", { textContent: t("guild.avgItemLevel"), title: t("guild.avgItemLevelHint") })])]),
       el("tbody", {}, rows),
     ]),
   );

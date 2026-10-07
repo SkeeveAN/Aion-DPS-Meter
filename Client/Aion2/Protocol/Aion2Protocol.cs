@@ -52,12 +52,14 @@ public enum OpcodeFamily
     /// <summary>The local player's species knowledge (Cognia, Fera, Natura, Varia, Specia) at login: level,
     /// progress and the analysed effects of each.</summary>
     Species,
+    /// <summary>The titles the local player wears (slot 1..3 with the title id), sent at login and on a change.</summary>
+    Titles,
     /// <summary>The local player's skills that have specialisation variants: the five-variant ones are the
     /// stigmas (login).</summary>
     Stigmas,
     /// <summary>The local player's skill bar (the three macro pages) at login: which skills sit on it.</summary>
     SkillBar,
-    /// <summary>Another player's character window ("inspect"): name, class, level, combat power, legion and the
+    /// <summary>Another player's character window ("inspect"): name, class, level, gear score, legion and the
     /// full equipment with enchant levels. Sent when the local player opens that player's profile.</summary>
     Inspect,
     /// <summary>"Player seen" frame: skill and combat id, then <c>18 05</c>, name and guild.</summary>

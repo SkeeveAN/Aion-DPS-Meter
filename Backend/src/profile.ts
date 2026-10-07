@@ -18,8 +18,8 @@ export const profileSchema = z.object({
   level: z.number().int().min(1).max(200).optional(),
   classId: z.number().int().min(1).max(9).optional(),
   faction: z.number().int().min(1).max(2).optional(),
-  // The combat power the game shows in a character window (only when the uploader opened that window).
-  combatPower: z.number().int().min(1).max(100_000_000).optional(),
+  // The gear score ("Ausrüstungswert") the game shows in a character window (only when the uploader opened that window).
+  gearScore: z.number().int().min(1).max(100_000_000).optional(),
   gear: z
     .array(
       z.object({
@@ -103,7 +103,7 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     level: profile.level ?? existing?.level ?? null,
     classId: profile.classId ?? existing?.classId ?? null,
     faction: profile.faction ?? existing?.faction ?? null,
-    combatPower: profile.combatPower ?? existing?.combatPower ?? null,
+    gearScore: profile.gearScore ?? existing?.gearScore ?? null,
     gearJson: JSON.stringify(profile.gear),
     // The skill list, the Daevanion boards and the species knowledge only exist for "self"; a later upload from the same
     // person that lacks them (their client started mid-session) must not wipe what was stored.
@@ -273,8 +273,8 @@ export type ProfileView = {
   species: SpeciesView[];
 };
 
-/** Average item level of the worn pieces whose level is known (the "gear score" of the legion pages); null when none is. */
-export function gearScoreOf(gearJson: string): number | null {
+/** Average item level of the worn pieces whose level is known; null when none is. */
+export function averageItemLevelOf(gearJson: string): number | null {
   itemInfo ??= loadJson<Record<string, ItemInfo>>("item_info.json", {});
   const levels = (JSON.parse(gearJson) as { itemId: number }[]).map((g) => itemInfo![String(g.itemId)]?.[4] ?? 0).filter((l) => l > 0);
   return levels.length > 0 ? Math.round((levels.reduce((s, l) => s + l, 0) / levels.length) * 10) / 10 : null;

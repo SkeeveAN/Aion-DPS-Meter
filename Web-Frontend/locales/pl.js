@@ -370,7 +370,7 @@ export default {
   "guild.level": "Poziom",
   "guild.notFound": "Ten legion jest nieznany.",
   "guild.gearScore": "Gear Score",
-  "guild.gearScoreHint": "Średni poziom założonego ekwipunku",
-  "guild.combatPower": "Siła bojowa",
-  "guild.combatPowerHint": "Jak w oknie postaci w grze; znana tylko, jeśli uploader otworzył okno gracza",
+  "guild.gearScoreHint": "Gear score z okna postaci w grze (obok ikony hełmu); znany tylko, jeśli uploader otworzył okno gracza",
+  "guild.avgItemLevel": "Śr. poziom przedm.",
+  "guild.avgItemLevelHint": "Średni poziom założonego ekwipunku (liczony przez Aion DPS)",
 };

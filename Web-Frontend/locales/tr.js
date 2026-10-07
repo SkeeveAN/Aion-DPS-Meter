@@ -370,7 +370,7 @@ export default {
   "guild.level": "Seviye",
   "guild.notFound": "Bu lejyon bilinmiyor.",
   "guild.gearScore": "Gear Score",
-  "guild.gearScoreHint": "Takılı ekipmanın ortalama eşya seviyesi",
-  "guild.combatPower": "Savaş gücü",
-  "guild.combatPowerHint": "Oyunun karakter penceresindeki gibi; yalnızca bir yükleyici penceresini açtıysa bilinir",
+  "guild.gearScoreHint": "Oyunun karakter penceresindeki gear score (kask simgesinin yanı); yalnızca bir yükleyici penceresini açtıysa bilinir",
+  "guild.avgItemLevel": "Ort. eşya sev.",
+  "guild.avgItemLevelHint": "Takılı ekipmanın ortalama eşya seviyesi (Aion DPS hesaplar)",
 };

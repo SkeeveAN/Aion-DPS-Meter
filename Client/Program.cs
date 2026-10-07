@@ -632,7 +632,7 @@ internal static class Program
             Console.WriteLine($"aion2-upload-dryrun: {inspected.Count} character window(s) of other players read; {directory.LocalSkills.Count(s => s.Stigma)} own stigma(s) marked");
             foreach (var player in inspected)
             {
-                Console.WriteLine($"  {player.Name,-14} {Aion2.Protocol.Aion2SkillNames.ClassFromCode(player.ClassCode),-13} level {player.Level} power {player.CombatPower} legion {player.Guild ?? "-"}: {string.Join(", ", player.Gear.Select(g => $"{g.SlotIndex}:{g.ItemId}+{g.Enchant}"))}");
+                Console.WriteLine($"  {player.Name,-14} {Aion2.Protocol.Aion2SkillNames.ClassFromCode(player.ClassCode),-13} level {player.Level} gear score {player.GearScore} legion {player.Guild ?? "-"}: {string.Join(", ", player.Gear.Select(g => $"{g.SlotIndex}:{g.ItemId}+{g.Enchant}"))}");
             }
         }
 

@@ -385,7 +385,7 @@ export default {
   "guild.level": "Level",
   "guild.notFound": "Diese Legion ist nicht bekannt.",
   "guild.gearScore": "Gear Score",
-  "guild.gearScoreHint": "Durchschnittliches Itemlevel der getragenen Ausrüstung",
-  "guild.combatPower": "Kampfkraft",
-  "guild.combatPowerHint": "Wie im Charakterfenster des Spiels angezeigt; nur bekannt, wenn ein Uploader dessen Fenster geöffnet hat",
+  "guild.gearScoreHint": "Der Gear Score aus dem Charakterfenster des Spiels (neben dem Helm-Symbol); nur bekannt, wenn ein Uploader dessen Fenster geöffnet hat",
+  "guild.avgItemLevel": "Ø Itemlevel",
+  "guild.avgItemLevelHint": "Durchschnittliches Itemlevel der getragenen Ausrüstung (von Aion DPS berechnet)",
 };

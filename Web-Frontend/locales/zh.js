@@ -370,7 +370,7 @@ export default {
   "guild.level": "等级",
   "guild.notFound": "未知的军团。",
   "guild.gearScore": "装备评分",
-  "guild.gearScoreHint": "已穿戴装备的平均物品等级",
-  "guild.combatPower": "战斗力",
-  "guild.combatPowerHint": "与游戏角色窗口显示一致；仅当有上传者打开过其窗口时才已知",
+  "guild.gearScoreHint": "游戏角色窗口中的装备评分（头盔图标旁）；仅当有上传者打开过其窗口时才已知",
+  "guild.avgItemLevel": "平均物品等级",
+  "guild.avgItemLevelHint": "已穿戴装备的平均物品等级（由 Aion DPS 计算）",
 };

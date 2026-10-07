@@ -318,8 +318,8 @@ export const playerProfiles = sqliteTable("player_profiles", {
   level: integer("level"),
   classId: integer("class_id"),
   faction: integer("faction"),
-  // Combat power as the game's character window shows it; known only for players whose window an uploader opened.
-  combatPower: integer("combat_power"),
+  // Gear score ("Ausrüstungswert") as the game's character window shows it; known only for players whose window an uploader opened.
+  gearScore: integer("gear_score"),
   gearJson: text("gear_json").notNull().default("[]"),
   skillsJson: text("skills_json").notNull().default("[]"),
   daevanionJson: text("daevanion_json").notNull().default("[]"),

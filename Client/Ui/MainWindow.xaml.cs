@@ -2471,7 +2471,7 @@ public partial class MainWindow : Window
                     inspected.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
                     Array.Empty<ProfileSkillUpload>(),
                     Array.Empty<ProfileBoardUpload>(),
-                    CombatPower: inspected.CombatPower > 0 ? inspected.CombatPower : null)));
+                    GearScore: inspected.GearScore > 0 ? inspected.GearScore : null)));
         }
 
         foreach (int id in ownOnly ? Array.Empty<int>() : directory.SeenProfileIds())

@@ -15,14 +15,34 @@ public sealed record Aion2SeenProfile(int? ClassId, int? Faction, IReadOnlyList<
 
 /// <summary>Another player's character window as the server sent it (opcode 0x5036): no object id, only the
 /// name. <see cref="ClassCode"/> is <c>4 * class id + faction bit</c>; the gear carries enchant levels.</summary>
-public sealed record Aion2InspectedPlayer(string Name, int ClassCode, int Level, int CombatPower, string? Guild, IReadOnlyList<Aion2EquippedItem> Gear, DateTime ReceivedAt);
+public sealed record Aion2InspectedPlayer(
+    string Name,
+    int ClassCode,
+    int Level,
+    int GearScore,
+    string? Guild,
+    IReadOnlyList<Aion2EquippedItem> Gear,
+    DateTime ReceivedAt,
+    IReadOnlyList<Aion2TitleSlot>? Titles = null,
+    IReadOnlyList<Aion2Pet>? Pets = null,
+    IReadOnlyList<Aion2BoardCount>? BoardCounts = null);
+
+/// <summary>A worn title: the slot (1..3) and the game's title id (see Table/Title.dat).</summary>
+public sealed record Aion2TitleSlot(int Slot, int TitleId);
+
+/// <summary>One pet circle of the growth overview: the species (2 Cognia .. 6 Specia), its level and the quality of
+/// each effect slot (0 empty, 1 white, 2 green, 3 blue, 4 gold, 5 orange).</summary>
+public sealed record Aion2Pet(int SpeciesId, int Level, IReadOnlyList<int> Kinds);
+
+/// <summary>How many nodes of a Daevanion board another player has activated (the start node included).</summary>
+public sealed record Aion2BoardCount(int BoardId, int Count);
 
 /// <summary>The activated node ids of one Daevanion board (the start node included).</summary>
 public sealed record Aion2DaevanionBoard(int BoardId, IReadOnlyList<int> NodeIds);
 
 /// <summary>One analysed effect of a species knowledge: the page (1..3), the slot on it, the game's stat id and
 /// the value (percent stats are in hundredths).</summary>
-public sealed record Aion2SpeciesEffect(int Page, int Slot, int StatId, long Value);
+public sealed record Aion2SpeciesEffect(int Page, int Slot, int StatId, long Value, int Kind = 0);
 
 /// <summary>One species knowledge of the pet window: id 2 Cognia, 3 Fera, 4 Natura, 5 Varia, 6 Specia.</summary>
 public sealed record Aion2SpeciesKnowledge(int SpeciesId, int Level, long Progress, IReadOnlyList<Aion2SpeciesEffect> Effects);
@@ -132,6 +152,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _fullEquipment = null;
                 _daevanion = null;
                 _species = null;
+                _titles = null;
                 _stigmas.Clear();
                 _bar.Clear();
             }
@@ -176,7 +197,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList();
             _daevanion = saved.Daevanion.Select(b => new Aion2DaevanionBoard(b.Board, b.Nodes)).ToList();
             _species = saved.Species.Select(k => new Aion2SpeciesKnowledge(k.Id, k.Level, k.Progress,
-                k.Effects.Select(e => new Aion2SpeciesEffect(e.Page, e.Slot, e.Stat, e.Value)).ToList())).ToList();
+                k.Effects.Select(e => new Aion2SpeciesEffect(e.Page, e.Slot, e.Stat, e.Value, e.Kind)).ToList())).ToList();
+            _titles = saved.Titles.Select(t => new Aion2TitleSlot(t.Slot, t.TitleId)).ToList();
         }
     }
 
@@ -201,7 +223,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
                 Daevanion = (_daevanion ?? Array.Empty<Aion2DaevanionBoard>()).Select(b => new Aion2SavedCharacter.SavedBoard(b.BoardId, b.NodeIds.ToList())).ToList(),
                 Species = (_species ?? Array.Empty<Aion2SpeciesKnowledge>()).Select(k => new Aion2SavedCharacter.SavedSpecies(k.SpeciesId, k.Level, k.Progress,
-                    k.Effects.Select(e => new Aion2SavedCharacter.SavedEffect(e.Page, e.Slot, e.StatId, e.Value)).ToList())).ToList(),
+                    k.Effects.Select(e => new Aion2SavedCharacter.SavedEffect(e.Page, e.Slot, e.StatId, e.Value, e.Kind)).ToList())).ToList(),
+                Titles = (_titles ?? Array.Empty<Aion2TitleSlot>()).Select(t => new Aion2SavedCharacter.SavedTitle(t.Slot, t.TitleId)).ToList(),
             };
         }
     }
@@ -267,6 +290,45 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             lock (_gate)
             {
                 return _species ?? Array.Empty<Aion2SpeciesKnowledge>();
+            }
+        }
+    }
+
+    private IReadOnlyList<Aion2TitleSlot>? _titles;
+
+    /// <summary>The titles the local player wears (slot 1..3); empty before the game sent them.</summary>
+    public IReadOnlyList<Aion2TitleSlot> LocalTitles
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _titles ?? Array.Empty<Aion2TitleSlot>();
+            }
+        }
+    }
+
+    public void SetLocalTitles(IReadOnlyList<Aion2TitleSlot> titles)
+    {
+        lock (_gate)
+        {
+            _titles = titles;
+            _listsAt = DateTime.UtcNow;
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    /// <summary>The pet circles of the local player: one per species, the quality of every effect slot of page 1.</summary>
+    public IReadOnlyList<Aion2Pet> LocalPets
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return (_species ?? Array.Empty<Aion2SpeciesKnowledge>())
+                    .Select(k => new Aion2Pet(k.SpeciesId, k.Level, k.Effects.Where(e => e.Page == 1).OrderBy(e => e.Slot).Select(e => e.Kind).ToList()))
+                    .ToList();
             }
         }
     }

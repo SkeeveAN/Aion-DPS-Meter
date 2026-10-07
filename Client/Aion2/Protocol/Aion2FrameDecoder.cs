@@ -137,6 +137,9 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.Species:
                 DecodeSpecies(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.Titles:
+                DecodeTitles(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Skills:
                 DecodeSkills(frame);
                 return Array.Empty<DamageEvent>();
@@ -1064,12 +1067,13 @@ public sealed class Aion2FrameDecoder
                     return false;
                 }
 
+                int kind = frame[p + 1];
                 int stat = BinaryPrimitives.ReadUInt16LittleEndian(frame[(p + 2)..]);
                 long value = unchecked((long)BinaryPrimitives.ReadUInt64LittleEndian(frame[(p + 4)..]));
                 p += 12;
                 if (stat != 0)
                 {
-                    effects.Add(new Aion2SpeciesEffect(page, slot, stat, value));
+                    effects.Add(new Aion2SpeciesEffect(page, slot, stat, value, kind));
                 }
             }
         }
@@ -1206,9 +1210,9 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>
     /// Another player's character window, sent when the local player opens it (verified against one
-    /// window on screen: level 45, combat power 1,473, all 19 enchant levels): opcode | 00 00 07 | name length
+    /// window on screen: level 45, gear score 1,473, all 19 enchant levels): opcode | 00 00 07 | name length
     /// (u8) | name | class code (u32, 4 * class + faction bit) | 01 | faction | level (u32) | 4 zero bytes |
-    /// combat power (u32) | ... | server id (u16), legion name (length-prefixed) | ... then one block per worn
+    /// gear score (u32, the "Ausr\u00fcstungswert" beside the helmet icon) | ... | server id (u16), legion name (length-prefixed) | ... then one block per worn
     /// item: item id (u32), nine zero bytes, the enchant level - or, when the block carries a marker
     /// (0x9c / 0x1c), the marker and then the enchant level. The block does not say which slot it is, so the
     /// slot comes from the kind of item (two earrings, rings, bracelets and runes are numbered in the order
@@ -1229,7 +1233,7 @@ public sealed class Aion2FrameDecoder
 
         int classCode = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[after..]));
         int level = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 6)..]));
-        int power = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 14)..]));
+        int gearScore = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 14)..]));
         if (classCode % 4 is not (1 or 2) || classCode / 4 is < 1 or > 9 || level is < 1 or > 200)
         {
             return;
@@ -1278,7 +1282,161 @@ public sealed class Aion2FrameDecoder
 
         if (gear.Count > 0)
         {
-            _entities.SetInspected(new Aion2InspectedPlayer(name, classCode, level, power, guild, gear.OrderBy(g => g.SlotIndex).ToList(), timestamp));
+            TryReadGrowth(frame, out var boardCounts, out var titles, out var pets);
+            _entities.SetInspected(new Aion2InspectedPlayer(name, classCode, level, gearScore, guild, gear.OrderBy(g => g.SlotIndex).ToList(), timestamp, titles, pets, boardCounts));
+        }
+    }
+
+    /// <summary>
+    /// The growth overview part of an inspect frame, three blocks in a row near its end: the activated node count
+    /// of each Daevanion board (count byte, then per board <c>01 | board id (u32) | nodes (u8)</c>), the worn titles
+    /// (count byte, then per title <c>slot (u8) | title id (u32)</c>) and the pet circles (count byte, then per pet
+    /// <c>species id | level | 00 | level-1 pairs of (slot, quality) | the quality of the last slot</c>). Checked against
+    /// three windows on screen (titles, pet circle colours and the Daevanion percentages all matched). What is not found
+    /// stays null.
+    /// </summary>
+    private static bool TryReadGrowth(ReadOnlySpan<byte> frame, out IReadOnlyList<Aion2BoardCount>? boards, out IReadOnlyList<Aion2TitleSlot>? titles, out IReadOnlyList<Aion2Pet>? pets)
+    {
+        boards = null;
+        titles = null;
+        pets = null;
+        for (int start = 40; start + 40 < frame.Length; start++)
+        {
+            int count = frame[start];
+            if (count is < 1 or > 8 || start + 1 + count * 6 > frame.Length)
+            {
+                continue;
+            }
+
+            var counts = new List<Aion2BoardCount>();
+            bool ok = true;
+            for (int i = 0; i < count && ok; i++)
+            {
+                int at = start + 1 + i * 6;
+                uint board = BinaryPrimitives.ReadUInt32LittleEndian(frame[(at + 1)..]);
+                ok = frame[at] == 1 && board is >= 11 and <= 98 && frame[at + 5] is >= 1 and <= 250;
+                counts.Add(new Aion2BoardCount((int)board, frame[at + 5]));
+            }
+
+            int p = start + 1 + count * 6;
+            if (!ok || p >= frame.Length || frame[p] is < 1 or > 3)
+            {
+                continue;
+            }
+
+            int titleCount = frame[p++];
+            var worn = new List<Aion2TitleSlot>();
+            for (int i = 0; i < titleCount && ok; i++)
+            {
+                ok = p + 5 <= frame.Length && frame[p] is >= 1 and <= 3;
+                if (!ok)
+                {
+                    break;
+                }
+
+                uint id = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 1)..]);
+                ok = id is >= 1_000_000 and <= 99_999_999;
+                worn.Add(new Aion2TitleSlot(frame[p], (int)id));
+                p += 5;
+            }
+
+            if (!ok)
+            {
+                continue;
+            }
+
+            boards = counts;
+            titles = worn;
+            pets = ReadPets(frame, p);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static IReadOnlyList<Aion2Pet>? ReadPets(ReadOnlySpan<byte> frame, int p)
+    {
+        if (p >= frame.Length || frame[p] is < 1 or > 5)
+        {
+            return null;
+        }
+
+        int count = frame[p++];
+        var pets = new List<Aion2Pet>();
+        for (int i = 0; i < count; i++)
+        {
+            if (p + 3 > frame.Length || frame[p] is < 2 or > 6 || frame[p + 1] is < 2 or > 30 || frame[p + 2] != 0)
+            {
+                return pets.Count > 0 ? pets : null;
+            }
+
+            int species = frame[p];
+            int level = frame[p + 1];
+            p += 3;
+            var kinds = new int[level];
+            if (p + (level - 1) * 2 + 1 > frame.Length)
+            {
+                return pets.Count > 0 ? pets : null;
+            }
+
+            for (int s = 0; s < level - 1; s++)
+            {
+                int slot = frame[p] - 1;
+                if (slot < 0 || slot >= level)
+                {
+                    return pets.Count > 0 ? pets : null;
+                }
+
+                kinds[slot] = frame[p + 1];
+                p += 2;
+            }
+
+            // The last slot has no number, only its quality.
+            kinds[level - 1] = frame[p++];
+            pets.Add(new Aion2Pet(species, level, kinds));
+        }
+
+        return pets;
+    }
+
+    /// <summary>
+    /// The worn titles of the local player (login and whenever they change): a count byte (1..3) and per title the
+    /// slot (u8) and the title id (u32); the last such run in the frame wins.
+    /// </summary>
+    private void DecodeTitles(ReadOnlySpan<byte> frame)
+    {
+        List<Aion2TitleSlot>? best = null;
+        for (int p = 2; p + 6 <= frame.Length; p++)
+        {
+            int count = frame[p];
+            if (count is < 1 or > 3 || p + 1 + count * 5 > frame.Length)
+            {
+                continue;
+            }
+
+            var run = new List<Aion2TitleSlot>();
+            for (int i = 0; i < count; i++)
+            {
+                int at = p + 1 + i * 5;
+                uint id = BinaryPrimitives.ReadUInt32LittleEndian(frame[(at + 1)..]);
+                if (frame[at] is < 1 or > 3 || (i > 0 && frame[at] <= run![i - 1].Slot) || id is < 1_000_000 or > 99_999_999)
+                {
+                    run = null;
+                    break;
+                }
+
+                run.Add(new Aion2TitleSlot(frame[at], (int)id));
+            }
+
+            if (run is not null)
+            {
+                best = run;
+            }
+        }
+
+        if (best is not null)
+        {
+            _entities.SetLocalTitles(best);
         }
     }
 
