@@ -16,6 +16,13 @@
      "Website",
      "Backend"
     ]
+   },
+   {
+    "text": "Legions: a list of every legion per server and a page with its known members; the legion on a player profile links to it",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
    }
   ]
  },
