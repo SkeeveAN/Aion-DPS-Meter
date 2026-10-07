@@ -2190,7 +2190,7 @@ function speciesValue(effect) {
 }
 
 // The pet circles of the game's growth overview: one per species, a ring of dots coloured by the quality of each
-// effect slot (1 white, 2 green, 3 blue, 4 gold, 5 orange, 0 empty).
+// effect slot (1 white, 2 green, 3 blue, 4 gold, 5 orange, 0 empty). The game runs the ring counter-clockwise.
 const PET_GLYPHS = {
   cognia: '<path d="M30 40l6-10 8 6 8-6 6 10-6 14H36z"/>',
   fera: '<path d="M44 28l14 26H30z"/>',
@@ -2202,7 +2202,7 @@ const PET_GLYPHS = {
 function petCircle(pet) {
   const dots = pet.kinds.map((kind, i) => {
     const angle = (i / Math.max(12, pet.kinds.length)) * Math.PI * 2 - Math.PI / 2 - 0.4;
-    return `<circle class="pf-pet-dot q${kind}" cx="${(44 + 34 * Math.cos(angle)).toFixed(1)}" cy="${(44 + 34 * Math.sin(angle)).toFixed(1)}" r="4.2"/>`;
+    return `<circle class="pf-pet-dot q${kind}" cx="${(44 - 34 * Math.cos(angle)).toFixed(1)}" cy="${(44 + 34 * Math.sin(angle)).toFixed(1)}" r="4.2"/>`;
   });
   const holder = el("div", { className: "pf-pet" });
   // Built from numbers and fixed strings only (kinds are integers from the API, the glyph comes from the table above).
