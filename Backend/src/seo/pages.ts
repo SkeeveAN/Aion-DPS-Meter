@@ -96,7 +96,7 @@ export function homePage(): Page {
       <p>Install the Windows client, start Aion 2 and the meter picks up your fights automatically. Updates are installed by the client itself, and every release is documented in the changelog.</p>
       <ul class="plain">
         ${[DEFAULT_GAME].map((g) => html`<li><a href="/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
-        <li><a href="/guilds">Legions</a></li>
+        <li><a href="/legions">Legions</a></li>
         <li><a href="/download">Download the Windows client</a></li>
         <li><a href="/changelog">Changelog</a></li>
       </ul>`,
