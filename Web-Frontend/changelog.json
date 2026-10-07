@@ -1,5 +1,17 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-07",
+  "items": [
+   {
+    "text": "Pet circles run counter-clockwise like the game's",
+    "areas": [
+     "Website"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.11.2",
   "date": "2026-10-07",
   "items": [
