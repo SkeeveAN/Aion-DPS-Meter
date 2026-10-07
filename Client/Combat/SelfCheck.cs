@@ -74,7 +74,7 @@ public static class SelfCheck
         ok &= soonG.Count == 1 && soonH.Count == 0 && activeI.Count == 0 && soonI.Count == 0
             && Schedule.EventSchedule.NextAfter(raid, monday.AddHours(20))?.Start == monday.AddHours(21);
         // The shipped table has the Arena of Strategy.
-        bool shipped = Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_strategy" && e.NameIn("de") == "Arena der Strategie")
+        bool shipped = Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_strategy" && e.NameIn("de") == "Schlachtfeld")
             && Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_silence" && e.Always);
         Console.WriteLine($"  -> soon 30 min before, active with time left, silent between, past midnight, next day: {ok}; shipped table: {shipped}");
         return ok && shipped;
