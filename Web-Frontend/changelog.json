@@ -32,6 +32,15 @@
      "Backend",
      "Database"
     ]
+   },
+   {
+    "text": "Legion page: the game's gear score (as the character window shows it) next to our average item level; the client sends the gear score of inspected players",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
    }
   ]
  },
