@@ -75,7 +75,18 @@ public sealed record ProfileUpload(
     // The gear score ("Ausrüstungswert", the number beside the helmet icon in the game's character window); only
     // read for players whose window the uploader opened (see Aion2FrameDecoder.DecodeInspect). Null when unknown.
     // The combat power ("Kampfkraft", the big number with the crossed swords) is not read yet.
-    int? GearScore = null);
+    int? GearScore = null,
+    // The three worn titles (slot 1..3 and the game's title id), the pet circles (quality of each effect slot) and,
+    // for other players, how many nodes of each Daevanion board they have (the board list above is the uploader's own).
+    IReadOnlyList<ProfileTitleUpload>? Titles = null,
+    IReadOnlyList<ProfilePetUpload>? Pets = null,
+    IReadOnlyList<ProfileBoardCountUpload>? BoardCounts = null);
+
+public sealed record ProfileTitleUpload(int Slot, int TitleId);
+
+public sealed record ProfilePetUpload(int Species, int Level, IReadOnlyList<int> Kinds);
+
+public sealed record ProfileBoardCountUpload(int Board, int Count);
 
 public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant);
 

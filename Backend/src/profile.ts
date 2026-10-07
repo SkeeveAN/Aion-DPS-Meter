@@ -76,6 +76,27 @@ export const profileSchema = z.object({
     )
     .max(10)
     .default([]),
+  // The worn titles (slot 1..3 and the game's title id).
+  titles: z
+    .array(z.object({ slot: z.number().int().min(1).max(3), titleId: z.number().int().min(1).max(2_000_000_000) }))
+    .max(3)
+    .default([]),
+  // The pet circles: species 2 Cognia .. 6 Specia, its level and the quality of each effect slot (0 empty, 1 white .. 5 orange).
+  pets: z
+    .array(
+      z.object({
+        species: z.number().int().min(1).max(20),
+        level: z.number().int().min(0).max(99),
+        kinds: z.array(z.number().int().min(0).max(9)).max(32).default([]),
+      }),
+    )
+    .max(10)
+    .default([]),
+  // Another player's activated node count per Daevanion board (their node lists are not sent).
+  boardCounts: z
+    .array(z.object({ board: z.number().int().min(1).max(10_000), count: z.number().int().min(0).max(1000) }))
+    .max(12)
+    .default([]),
 });
 
 export type ProfileUpload = z.infer<typeof profileSchema>;
@@ -88,7 +109,7 @@ export type ProfileUpload = z.infer<typeof profileSchema>;
 export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & Pick<ProfileUpload, "source">): void {
   // The upload route has already run profileSchema (which fills these defaults); callers that go
   // straight to the merge code may omit the lists.
-  const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], daevanion: input.daevanion ?? [], species: input.species ?? [] };
+  const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], daevanion: input.daevanion ?? [], species: input.species ?? [], titles: input.titles ?? [], pets: input.pets ?? [], boardCounts: input.boardCounts ?? [] };
   if (profile.source === "seen" && profile.gear.length === 0 && profile.classId === undefined && profile.level === undefined) {
     return;
   }
@@ -110,6 +131,10 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     skillsJson: profile.skills.length > 0 ? JSON.stringify(profile.skills) : (existing?.skillsJson ?? "[]"),
     daevanionJson: profile.daevanion.length > 0 ? JSON.stringify(profile.daevanion) : (existing?.daevanionJson ?? "[]"),
     speciesJson: profile.species.length > 0 ? JSON.stringify(profile.species) : (existing?.speciesJson ?? "[]"),
+    // Titles, pets and board counts: an upload that lacks them (older client, a window without that part) keeps what is stored.
+    titlesJson: profile.titles.length > 0 ? JSON.stringify(profile.titles) : (existing?.titlesJson ?? "[]"),
+    petsJson: profile.pets.length > 0 ? JSON.stringify(profile.pets) : (existing?.petsJson ?? "[]"),
+    boardCountsJson: profile.boardCounts.length > 0 ? JSON.stringify(profile.boardCounts) : (existing?.boardCountsJson ?? "[]"),
   };
   if (existing) {
     db.update(playerProfiles)
@@ -151,6 +176,8 @@ type SpeciesData = {
   stats: Record<string, { names: Record<string, string>; percent?: boolean }>;
 };
 let speciesData: SpeciesData | null = null;
+// Title id -> names in every client language and the game's grade (Tools/aion2-dat/build_titles.py).
+let titleData: Record<string, { n: Record<string, string>; g: string | null }> | null = null;
 let boardNodes: Map<number, { id: number; node: DaevanionData["nodes"][string] }[]> | null = null;
 
 // The match report only stores skill names, not ids. A name is mapped back to ids to find the icon and
@@ -271,6 +298,12 @@ export type ProfileView = {
   }[];
   /** Species knowledge of the pet window; percent effects carry hundredths (145 = 1.45 %). */
   species: SpeciesView[];
+  /** The worn titles (slot 1..3); grade is the game's ETitleGrade (Common, Rare, Epic, Legend, Unique, Special). */
+  titles: { slot: number; titleId: number; name: string; names: Record<string, string>; grade: string | null }[];
+  /** One circle per species: the quality of each effect slot (0 empty, 1 white, 2 green, 3 blue, 4 gold, 5 orange). */
+  pets: { species: number; key: string; names: Record<string, string>; level: number; kinds: number[] }[];
+  /** Activated nodes per Daevanion board next to the board's size; for the own character from the node lists. */
+  boards: { board: number; name: string; count: number; total: number }[];
 };
 
 /** Average item level of the worn pieces whose level is known; null when none is. */
@@ -294,6 +327,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
   skillIcons ??= loadJson<Record<string, string>>("skill_icons.json", {});
   skillTypes ??= loadJson<Record<string, string>>("skill_types.json", {});
   speciesData ??= loadJson<SpeciesData>("species_stats.json", { species: {}, stats: {} });
+  titleData ??= loadJson("titles.json", {});
   if (!boardNodes) {
     boardNodes = new Map();
     for (const [id, node] of Object.entries(daevanion.nodes)) {
@@ -398,5 +432,33 @@ export function buildProfileView(playerId: number): ProfileView | null {
     skills,
     daevanion: boards,
     species,
+    titles: (JSON.parse(row.titlesJson) as { slot: number; titleId: number }[])
+      .map((t) => {
+        const info = titleData![String(t.titleId)];
+        return { slot: t.slot, titleId: t.titleId, name: info?.n.en ?? `Title ${t.titleId}`, names: info?.n ?? {}, grade: info?.g ?? null };
+      })
+      .sort((a, b) => a.slot - b.slot),
+    pets: (JSON.parse(row.petsJson) as { species: number; level: number; kinds: number[] }[])
+      .map((k) => {
+        const info = speciesData!.species[String(k.species)];
+        return { species: k.species, key: info?.key ?? `species${k.species}`, names: info?.names ?? {}, level: k.level, kinds: k.kinds };
+      })
+      .sort((a, b) => a.species - b.species),
+    boards: boardSummary(row.boardCountsJson, boards),
   };
+}
+
+/**
+ * Activated nodes per Daevanion board against the board's size (the start node is not counted, as on the board tab).
+ * The own character's node lists win; other players only have the count their window showed (start node included).
+ */
+function boardSummary(boardCountsJson: string, own: { board: number; name: string; activeNodes: number }[]): ProfileView["boards"] {
+  const totalOf = (board: number): number => (boardNodes!.get(board) ?? []).filter((n) => n.node[4] !== "Start").length;
+  const nameOf = (board: number): string => daevanion!.boards[String(board)]?.[0] ?? `Board ${board}`;
+  if (own.length > 0) {
+    return own.map((b) => ({ board: b.board, name: b.name, count: b.activeNodes, total: totalOf(b.board) }));
+  }
+  return (JSON.parse(boardCountsJson) as { board: number; count: number }[])
+    .map((b) => ({ board: b.board, name: nameOf(b.board), count: Math.max(0, b.count - 1), total: totalOf(b.board) }))
+    .sort((a, b) => a.board - b.board);
 }

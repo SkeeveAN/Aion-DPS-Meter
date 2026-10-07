@@ -2189,6 +2189,58 @@ function speciesValue(effect) {
   return `${text.replace(".", decimal)} %`;
 }
 
+// The pet circles of the game's growth overview: one per species, a ring of dots coloured by the quality of each
+// effect slot (1 white, 2 green, 3 blue, 4 gold, 5 orange, 0 empty).
+const PET_GLYPHS = {
+  cognia: '<path d="M30 40l6-10 8 6 8-6 6 10-6 14H36z"/>',
+  fera: '<path d="M44 28l14 26H30z"/>',
+  natura: '<circle cx="44" cy="44" r="12"/>',
+  varia: '<path d="M44 28a16 16 0 1 0 0 32 12 12 0 1 1 0-24z"/>',
+  specia: '<path d="M44 26l6 14 14 4-14 4-6 14-6-14-14-4 14-4z"/>',
+};
+
+function petCircle(pet) {
+  const dots = pet.kinds.map((kind, i) => {
+    const angle = (i / Math.max(12, pet.kinds.length)) * Math.PI * 2 - Math.PI / 2 - 0.4;
+    return `<circle class="pf-pet-dot q${kind}" cx="${(44 + 34 * Math.cos(angle)).toFixed(1)}" cy="${(44 + 34 * Math.sin(angle)).toFixed(1)}" r="4.2"/>`;
+  });
+  const holder = el("div", { className: "pf-pet" });
+  // Built from numbers and fixed strings only (kinds are integers from the API, the glyph comes from the table above).
+  holder.innerHTML = `<svg viewBox="0 0 88 88" aria-hidden="true"><circle class="pf-pet-disc" cx="44" cy="44" r="42"/><g class="pf-pet-glyph">${PET_GLYPHS[pet.key] ?? ""}</g>${dots.join("")}</svg>`;
+  const name = pet.names[getLocale()] ?? pet.names.en ?? pet.key;
+  holder.append(el("span", { textContent: t("profile.speciesLevel", { level: pet.level }) }));
+  holder.title = `${name} · ${t("profile.speciesLevel", { level: pet.level })}`;
+  return holder;
+}
+
+function renderPetCircles(profile) {
+  return profile.pets?.length > 0 ? el("div", { className: "pf-pets" }, profile.pets.map(petCircle)) : null;
+}
+
+// Another player's Daevanion boards: only the number of activated nodes is known, no map.
+function renderBoardSummary(profile) {
+  const rows = profile.boards.map((b) => {
+    const percent = b.total > 0 ? Math.round((b.count / b.total) * 100) : 0;
+    return el("div", { className: "pf-card pf-board-sum" }, [
+      el("h4", {}, [el("span", { textContent: b.name }), el("em", { textContent: `${b.count} / ${b.total || "?"} · ${percent} %` })]),
+      el("div", { className: "pf-bar" }, [el("i", { style: `width:${percent}%` })]),
+    ]);
+  });
+  return el("div", { className: "pf-species" }, rows);
+}
+
+function renderTitleChips(profile) {
+  if (!(profile?.titles?.length > 0)) {
+    return null;
+  }
+  const locale = getLocale();
+  return el(
+    "div",
+    { className: "pf-titles" },
+    profile.titles.map((x) => el("span", { className: `pf-title g-${x.grade ?? "Common"}`, textContent: x.names[locale] ?? x.name })),
+  );
+}
+
 function renderSpeciesTab(profile) {
   const locale = getLocale();
   const cards = profile.species.map((k) => {
@@ -2205,7 +2257,11 @@ function renderSpeciesTab(profile) {
       el("ul", { className: "pf-sp-list" }, rows),
     ]);
   });
-  return el("div", {}, [el("div", { className: "pf-species" }, cards), el("p", { className: "profile-source", textContent: t("profile.speciesNote") })]);
+  return el("div", {}, [
+    renderPetCircles(profile),
+    cards.length > 0 ? el("div", { className: "pf-species" }, cards) : null,
+    cards.length > 0 ? el("p", { className: "profile-source", textContent: t("profile.speciesNote") }) : null,
+  ].filter((x) => x != null));
 }
 
 // The board tiles are the game's own node art, picked by the node's rarity (common = grey rune, rare =
@@ -2248,7 +2304,8 @@ function renderBoardTab(profile) {
   const holder = el("div", { className: "pf-board-wrap" });
   const buttons = profile.daevanion.map((b) => {
     const total = b.cells.filter((c) => c[2] !== 0).length;
-    return el("button", { type: "button", className: "pf-pill" }, [b.name, el("b", { textContent: ` ${b.activeNodes} / ${total || "?"}` })]);
+    const percent = total > 0 ? ` · ${Math.round((b.activeNodes / total) * 100)} %` : "";
+    return el("button", { type: "button", className: "pf-pill" }, [b.name, el("b", { textContent: ` ${b.activeNodes} / ${total || "?"}${percent}` })]);
   });
   const show = (i) => {
     const b = profile.daevanion[i];
@@ -2324,6 +2381,7 @@ function renderPlayerStrip(profile, player) {
       player.guild ? el("span", {}, [`${t("profile.guild")}: `, player.guildSlug ? link(player.guild, `/guilds/${player.guildSlug}`) : player.guild]) : null,
       player.serverName ? el("span", { textContent: serverLabel(player.serverName) }) : null,
     ].filter((x) => x != null)),
+    renderTitleChips(profile),
     el("div", { className: "pf-numbers" }, numbers),
   ].filter((x) => x != null));
 }
@@ -2352,8 +2410,11 @@ async function renderPlayerProfile(playerId) {
   if (profile?.daevanion.length > 0) {
     tabs.push(["daevanion", t("profile.tabBoard"), profile.daevanion.reduce((s, b) => s + b.activeNodes, 0), () => renderBoardTab(profile)]);
   }
-  if (profile?.species?.length > 0) {
-    tabs.push(["species", t("profile.tabSpecies"), profile.species.length, () => renderSpeciesTab(profile)]);
+  if (!(profile?.daevanion.length > 0) && profile?.boards?.length > 0) {
+    tabs.push(["daevanion", t("profile.tabBoard"), profile.boards.reduce((s, b) => s + b.count, 0), () => renderBoardSummary(profile)]);
+  }
+  if (profile?.species?.length > 0 || profile?.pets?.length > 0) {
+    tabs.push(["species", t("profile.tabSpecies"), profile.species.length || profile.pets.length, () => renderSpeciesTab(profile)]);
   }
 
   const panel = el("div", { className: "pf-panel" });

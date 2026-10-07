@@ -325,6 +325,11 @@ export const playerProfiles = sqliteTable("player_profiles", {
   daevanionJson: text("daevanion_json").notNull().default("[]"),
   // Species knowledge (Cognia, Fera, Natura, Varia, Specia): level, progress and analysed effects; own character only.
   speciesJson: text("species_json").notNull().default("[]"),
+  // Worn titles ([{slot, titleId}]), pet circles ([{species, level, kinds}]) and the activated node count per Daevanion
+  // board of players whose window an uploader opened ([{board, count}]).
+  titlesJson: text("titles_json").notNull().default("[]"),
+  petsJson: text("pets_json").notNull().default("[]"),
+  boardCountsJson: text("board_counts_json").notNull().default("[]"),
 });
 
 export const encounters = sqliteTable(

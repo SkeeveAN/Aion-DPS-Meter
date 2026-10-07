@@ -153,6 +153,30 @@ test("a newer own upload replaces the old one but keeps skills and boards when i
   assert.equal(view.daevanion.length, 1);
 });
 
+test("titles, pet circles and board counts of a seen player are stored and resolved", () => {
+  processUpload(
+    aion2Upload([
+      participant("Aahz"),
+      participant("Window", {
+        profile: {
+          source: "seen",
+          classId: 1,
+          faction: 2,
+          gear: [{ slot: 1, itemId: 110150026, enchant: 0 }],
+          titles: [{ slot: 1, titleId: 12010050 }, { slot: 2, titleId: 12030003 }, { slot: 3, titleId: 12010061 }],
+          pets: [{ species: 3, level: 7, kinds: [3, 2, 4, 2, 1, 3, 3] }, { species: 2, level: 7, kinds: [3, 3, 3, 2, 1, 3, 3] }],
+          boardCounts: [{ board: 11, count: 63 }],
+        },
+      }),
+    ]),
+  );
+  const view = buildProfileView(playerId("Window"))!;
+  assert.deepEqual(view.titles.map((t) => [t.slot, t.names.de, t.grade]), [[1, "Fallen aktiviert", "Legend"], [2, "Heiliger Verterons", "Unique"], [3, "Durch die Hölle und zurück", "Unique"]]);
+  assert.deepEqual(view.pets.map((k) => [k.key, k.kinds.join("")]), [["cognia", "3332133"], ["fera", "3242133"]]);
+  assert.equal(view.boards[0].board, 11);
+  assert.equal(view.boards[0].count, 62); // the window counts the start node
+});
+
 test("character profiles are accepted for Aion 2 only", () => {
   const classic = { ...aion2Upload([participant("Anna", { profile: selfProfile })]), game: "aion" as const, serverFingerprint: "70.0.0.150:10241" };
   assert.equal(uploadSchema.safeParse(classic).success, false);

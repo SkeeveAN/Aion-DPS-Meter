@@ -1868,6 +1868,88 @@ header .wordmark {
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
+/* Worn titles in the player strip; the colour follows the title's grade. */
+.pf-titles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pf-title {
+  --grade: var(--color-text-muted);
+  padding: 4px 12px;
+  border: 1px solid var(--grade);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--grade) 14%, transparent);
+  color: var(--grade);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pf-title.g-Rare { --grade: var(--color-success); }
+.pf-title.g-Epic { --grade: #b48cff; }
+.pf-title.g-Legend { --grade: var(--color-info); }
+.pf-title.g-Unique { --grade: var(--color-warning); }
+.pf-title.g-Special { --grade: var(--color-danger); }
+
+/* Pet circles of the growth overview. */
+.pf-pets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-bottom: 18px;
+}
+.pf-pet {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.pf-pet svg {
+  width: 96px;
+  height: 96px;
+}
+.pf-pet-disc {
+  fill: var(--color-surface);
+  stroke: var(--color-border);
+}
+.pf-pet-glyph {
+  fill: var(--color-text-muted);
+}
+.pf-pet-dot {
+  fill: var(--color-border);
+}
+.pf-pet-dot.q1 { fill: #d9dde0; }
+.pf-pet-dot.q2 { fill: #5bd36b; }
+.pf-pet-dot.q3 { fill: #4aa8ff; }
+.pf-pet-dot.q4 { fill: #ffc94d; }
+.pf-pet-dot.q5 { fill: #ff8a3d; }
+
+/* Another player's Daevanion boards (counts only). */
+.pf-board-sum h4 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.pf-board-sum h4 em {
+  font-style: normal;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text);
+  font-weight: 600;
+}
+.pf-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+.pf-bar i {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+}
 @media (max-width: 720px) {
   .pf-numbers {
     margin-left: 0;

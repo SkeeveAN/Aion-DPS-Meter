@@ -1291,7 +1291,7 @@ public sealed class Aion2FrameDecoder
     /// The growth overview part of an inspect frame, three blocks in a row near its end: the activated node count
     /// of each Daevanion board (count byte, then per board <c>01 | board id (u32) | nodes (u8)</c>), the worn titles
     /// (count byte, then per title <c>slot (u8) | title id (u32)</c>) and the pet circles (count byte, then per pet
-    /// <c>species id | level | 00 | level-1 pairs of (slot, quality) | the quality of the last slot</c>). Checked against
+    /// <c>species id | level | 00 | level-1 pairs of (quality, slot number) | the quality of the last slot</c>). Checked against
     /// three windows on screen (titles, pet circle colours and the Daevanion percentages all matched). What is not found
     /// stays null.
     /// </summary>
@@ -1381,13 +1381,13 @@ public sealed class Aion2FrameDecoder
 
             for (int s = 0; s < level - 1; s++)
             {
-                int slot = frame[p] - 1;
+                int slot = frame[p + 1] - 1;
                 if (slot < 0 || slot >= level)
                 {
                     return pets.Count > 0 ? pets : null;
                 }
 
-                kinds[slot] = frame[p + 1];
+                kinds[slot] = frame[p];
                 p += 2;
             }
 

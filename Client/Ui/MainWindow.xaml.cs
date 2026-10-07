@@ -2471,7 +2471,10 @@ public partial class MainWindow : Window
                     inspected.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
                     Array.Empty<ProfileSkillUpload>(),
                     Array.Empty<ProfileBoardUpload>(),
-                    GearScore: inspected.GearScore > 0 ? inspected.GearScore : null)));
+                    GearScore: inspected.GearScore > 0 ? inspected.GearScore : null,
+                    Titles: inspected.Titles?.Select(t => new ProfileTitleUpload(t.Slot, t.TitleId)).ToList(),
+                    Pets: inspected.Pets?.Select(k => new ProfilePetUpload(k.SpeciesId, k.Level, k.Kinds)).ToList(),
+                    BoardCounts: inspected.BoardCounts?.Select(b => new ProfileBoardCountUpload(b.BoardId, b.Count)).ToList())));
         }
 
         foreach (int id in ownOnly ? Array.Empty<int>() : directory.SeenProfileIds())
@@ -3518,7 +3521,9 @@ public partial class MainWindow : Window
                 directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
                 directory.LocalDaevanion.Select(b => new ProfileBoardUpload(b.BoardId, b.NodeIds.ToList())).ToList(),
                 directory.LocalSpecies.Select(k => new ProfileSpeciesUpload(k.SpeciesId, k.Level, k.Progress,
-                    k.Effects.Select(e => new ProfileSpeciesEffectUpload(e.Page, e.Slot, e.StatId, e.Value)).ToList())).ToList());
+                    k.Effects.Select(e => new ProfileSpeciesEffectUpload(e.Page, e.Slot, e.StatId, e.Value)).ToList())).ToList(),
+                Titles: directory.LocalTitles.Select(t => new ProfileTitleUpload(t.Slot, t.TitleId)).ToList(),
+                Pets: directory.LocalPets.Select(k => new ProfilePetUpload(k.SpeciesId, k.Level, k.Kinds)).ToList());
         }
 
         // A character window the local player opened for this player: level and the full equipment with
@@ -3533,7 +3538,11 @@ public partial class MainWindow : Window
                 window.ClassCode % 4,
                 window.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
                 Array.Empty<ProfileSkillUpload>(),
-                Array.Empty<ProfileBoardUpload>());
+                Array.Empty<ProfileBoardUpload>(),
+                GearScore: window.GearScore > 0 ? window.GearScore : null,
+                Titles: window.Titles?.Select(t => new ProfileTitleUpload(t.Slot, t.TitleId)).ToList(),
+                Pets: window.Pets?.Select(k => new ProfilePetUpload(k.SpeciesId, k.Level, k.Kinds)).ToList(),
+                BoardCounts: window.BoardCounts?.Select(b => new ProfileBoardCountUpload(b.BoardId, b.Count)).ToList());
         }
 
         if (directory.SeenProfileOf(objectId) is { } seen)
