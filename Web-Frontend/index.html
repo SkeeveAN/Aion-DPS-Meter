@@ -36,6 +36,9 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
   <link rel="stylesheet" href="/style.css" />
   <link rel="modulepreload" href="/i18n.js" />
+  <!-- The hero picture is the largest element and only requested once app.js has drawn the page: ask for it right away. -->
+  <link rel="preload" as="image" href="/images/ui/hero-obelisk-1280.webp" media="(max-width: 1400px)" fetchpriority="high" />
+  <link rel="preload" as="image" href="/images/ui/hero-obelisk.webp" media="(min-width: 1401px)" fetchpriority="high" />
 </head>
 <body>
   <header>
