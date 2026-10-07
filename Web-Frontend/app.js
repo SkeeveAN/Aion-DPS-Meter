@@ -327,7 +327,7 @@ function buildSiteFooter() {
   const cta = el("div", { className: "home-footer-cta" }, [
     el("div", { className: "home-footer-logo" }, [
       el("img", { src: "/logo.webp", alt: "", className: "home-footer-emblem", loading: "lazy" }),
-      el("img", { src: "/images/ui/aion-dps-wordmark.webp", alt: "Aion DPS", className: "wordmark", loading: "lazy" }),
+      el("img", { src: "/images/ui/aion-dps-wordmark.webp", alt: "Aion DPS", className: "wordmark", width: 186, height: 96, loading: "lazy" }),
     ]),
     el("div", { className: "home-footer-center" }, [
       el("h2", { textContent: t("home.footerCtaHeading") }),
