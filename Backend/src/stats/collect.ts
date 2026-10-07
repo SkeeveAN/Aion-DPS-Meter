@@ -29,7 +29,7 @@ export function publicStats() {
   ).map((r) => ({ day: String(r.day), count: num(r.n) }));
   const classes = all("select class_name name, count(distinct player_id) n from encounter_participants group by class_name order by n desc limit 12").map((r) => ({ name: String(r.name), count: num(r.n) }));
   const servers = all(
-    `select coalesce(s.display_name, s.fingerprint) name, s.faction faction, count(*) n from players p join servers s on s.id = p.server_id group by p.server_id order by n desc limit 12`,
+    `select coalesce(s.display_name, s.fingerprint) name, (select c.faction from server_catalog c where c.name = s.display_name and c.game = 'aion2' limit 1) faction, count(*) n from players p join servers s on s.id = p.server_id group by p.server_id order by n desc limit 12`,
   ).map((r) => ({ name: String(r.name), faction: r.faction ? String(r.faction) : "", count: num(r.n) }));
   const topBosses = all(
     `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, e.mode mode, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id, e.mode order by n desc limit 10`,
