@@ -300,7 +300,21 @@ internal static class Program
             Console.WriteLine($"aion2-record: adapter {adapter.Label}{(adapter.Id == adapterId ? " <- selected" : "")}");
         }
 
-        using var writer = new Aion2.Capture.SegmentRecording.Writer(outPath);
+        Aion2.Capture.SegmentRecording.Writer writerOrNull;
+        try
+        {
+            writerOrNull = new Aion2.Capture.SegmentRecording.Writer(outPath);
+        }
+        catch (IOException ex)
+        {
+            // Usually a second recorder window (or one started in the same minute) already holds the file.
+            Console.WriteLine($"aion2-record: cannot open {outPath}: {ex.Message}");
+            Console.WriteLine("aion2-record: another recording is probably still running - end it first (type  stop  in its window) or wait a minute.");
+            Environment.Exit(1);
+            return;
+        }
+
+        using var writer = writerOrNull;
         using var capture = new Aion2.Capture.NpcapCaptureService(
             ports,
             writer.Write,
