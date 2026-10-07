@@ -653,11 +653,11 @@ async function renderChangelog() {
         el("strong", { textContent: `${minor}.x` }),
         el("span", { className: "changelog-range", textContent: `${list.length} release${list.length === 1 ? "" : "s"} · ${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}` }),
       ]),
-      el("ul", { className: "changelog-list" }, list.map((r) => el("li", {}, [
-        el("span", { className: "changelog-version", textContent: r.version }),
-        el("span", { className: "changelog-date", textContent: fmt(r.date) }),
-        el("span", { className: "changelog-text", textContent: r.text.charAt(0).toUpperCase() + r.text.slice(1) }),
-      ]))),
+      el("ul", { className: "changelog-list" }, list.flatMap((r) => r.items.map((text, n) => el("li", {}, [
+        el("span", { className: "changelog-version", textContent: n === 0 ? r.version : "" }),
+        el("span", { className: "changelog-date", textContent: n === 0 ? fmt(r.date) : "" }),
+        el("span", { className: "changelog-text", textContent: text.charAt(0).toUpperCase() + text.slice(1) }),
+      ])))),
     ]);
   });
   app.replaceChildren(el("h2", { textContent: "Changelog" }), el("p", { className: "download-meta" }, ["Player-visible changes of the Windows client, newest first. ", link("Download", "/download")]), ...sections);

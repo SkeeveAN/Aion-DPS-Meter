@@ -2,186 +2,604 @@
  {
   "version": "0.10.57",
   "date": "2026-10-07",
-  "text": "the enchant level of an equipped item is read from its fixed place in the entry instead of the first non-zero byte, so Vakron Guard +10 (was +1), the second Clash Rune +4 (was +0) and other items with a flag byte are right"
+  "items": [
+   "the enchant level of an equipped item is read from its fixed place in the entry instead of the first non-zero byte, so Vakron Guard +10 (was +1), the second Clash Rune +4 (was +0) and other items with a flag byte are right"
+  ]
  },
  {
   "version": "0.10.56",
   "date": "2026-10-07",
-  "text": "a character switch (twink) clears the previous character's skills, gear, Daevanion and species so they no longer end up in the other profile; the character name is detected automatically, the Settings field is gone"
+  "items": [
+   "a character switch (twink) clears the previous character's skills, gear, Daevanion and species so they no longer end up in the other profile; the character name is detected automatically, the Settings field is gone"
+  ]
  },
  {
   "version": "0.10.55",
   "date": "2026-10-07",
-  "text": "shield skills are recognised by skill id, so the German names (Schutzformation, Hoheit der Blockade, Schockaufhebung, Behütungsschild) work too; Impeding Authority counts as a group shield"
+  "items": [
+   "shield skills are recognised by skill id, so the German names (Schutzformation, Hoheit der Blockade, Schockaufhebung, Behütungsschild) work too; Impeding Authority counts as a group shield"
+  ]
  },
  {
   "version": "0.10.54",
   "date": "2026-10-07",
-  "text": "group shield is Protection Circle (Chanter/Templar) with the caster as the event's target and the shielded player as its source; the upload credits it to the caster, personal shields (Defiance, Warding Shield) are only kept out of healing"
+  "items": [
+   "group shield is Protection Circle (Chanter/Templar) with the caster as the event's target and the shielded player as its source; the upload credits it to the caster, personal shields (Defiance, Warding Shield) are only kept out of healing"
+  ]
  },
  {
   "version": "0.10.53",
   "date": "2026-10-07",
-  "text": "shields (Defiance, Warding Shield) are no longer counted as the recipient's healing; the caster is worked out from the skill's class and the group's shields are uploaded as shieldsGiven (shown on the run page's protection panel)"
+  "items": [
+   "shields (Defiance, Warding Shield) are no longer counted as the recipient's healing; the caster is worked out from the skill's class and the group's shields are uploaded as shieldsGiven (shown on the run page's protection panel)"
+  ]
  },
  {
   "version": "0.10.52",
   "date": "2026-10-06",
-  "text": "the automatic boss upload no longer postpones itself forever (its 4 s wait was restarted on every poll tick while a boss was queued); a small auto-upload.log in the settings folder records what it decided"
+  "items": [
+   "the automatic boss upload no longer postpones itself forever (its 4 s wait was restarted on every poll tick while a boss was queued); a small auto-upload.log in the settings folder records what it decided"
+  ]
  },
  {
   "version": "0.10.51",
   "date": "2026-10-06",
-  "text": "automatic boss upload also fires for bosses that never send a hit-point reading (20 s after the last hit of a fight of at least 10 s) and for a boss whose last reading stopped within 0.5 % of zero"
+  "items": [
+   "automatic boss upload also fires for bosses that never send a hit-point reading (20 s after the last hit of a fight of at least 10 s) and for a boss whose last reading stopped within 0.5 % of zero"
+  ]
  },
  {
   "version": "0.10.50",
   "date": "2026-10-06",
-  "text": "damage a player does to themselves (Infiltrate, health costs) no longer counts as damage dealt or taken in the all-targets view"
+  "items": [
+   "damage a player does to themselves (Infiltrate, health costs) no longer counts as damage dealt or taken in the all-targets view"
+  ]
  },
  {
   "version": "0.10.49",
   "date": "2026-10-06",
-  "text": "filter row starts flush left and every dropdown is only as wide as it needs to be"
+  "items": [
+   "filter row starts flush left and every dropdown is only as wide as it needs to be"
+  ]
  },
  {
   "version": "0.10.48",
   "date": "2026-10-06",
-  "text": "the group filter dropdown is as wide as its widest entry instead of the 110 px minimum"
+  "items": [
+   "the group filter dropdown is as wide as its widest entry instead of the 110 px minimum"
+  ]
  },
  {
   "version": "0.10.47",
   "date": "2026-10-06",
-  "text": "overlay chips show the damage taken in its own column right of the name, like the window, instead of under it"
+  "items": [
+   "overlay chips show the damage taken in its own column right of the name, like the window, instead of under it"
+  ]
  },
  {
   "version": "0.10.46",
   "date": "2026-10-06",
-  "text": "overlay mode keeps the player list's size - the chips sit where the list sits, full width, same row height and fonts, only the frame is dropped"
+  "items": [
+   "overlay mode keeps the player list's size - the chips sit where the list sits, full width, same row height and fonts, only the frame is dropped"
+  ]
  },
  {
   "version": "0.10.45",
   "date": "2026-10-06",
-  "text": "uniform player rows - fixed columns (rank, class icon, name, damage taken, DPS, damage) with number columns shared across rows, the class-colour bar fills the whole row height, same layout in the chip overlay"
+  "items": [
+   "uniform player rows - fixed columns (rank, class icon, name, damage taken, DPS, damage) with number columns shared across rows, the class-colour bar fills the whole row height, same layout in the chip overlay"
+  ]
  },
  {
   "version": "0.10.44",
   "date": "2026-10-06",
-  "text": "Settings menu without the two disabled placeholder entries (Profile Settings, Key bindings)"
+  "items": [
+   "Settings menu without the two disabled placeholder entries (Profile Settings, Key bindings)"
+  ]
  },
  {
   "version": "0.10.43",
   "date": "2026-10-06",
-  "text": "feedback window (Settings menu) - report a problem or suggestion from the client as a GitHub issue, optionally with an encrypted capture recording"
+  "items": [
+   "Feedback form: website button + client window; reports become GitHub issues, optional recording encrypted (RSA/AES-GCM) into a private repo",
+   "feedback window (Settings menu) - report a problem or suggestion from the client as a GitHub issue, optionally with an encrypted capture recording"
+  ]
  },
  {
   "version": "0.10.42",
   "date": "2026-10-06",
-  "text": "a failed boss attempt is never uploaded - a fight goes online only when the boss's hit points reached 0 (the hotkey skips a boss that is still alive, and the automatic upload now fires on the HP-0 defeat, since Aion 2 sends no kill frame)"
+  "items": [
+   "a failed boss attempt is never uploaded - a fight goes online only when the boss's hit points reached 0 (the hotkey skips a boss that is still alive, and the automatic upload now fires on the HP-0 defeat, since Aion 2 sends no kill frame)"
+  ]
  },
  {
   "version": "0.10.41",
   "date": "2026-10-06",
-  "text": "the boss's hit points (from the game's HP frame) go along with every boss upload; the backend stores the highest reading per encounter (boss_max_hp) and returns it from the encounter API"
+  "items": [
+   "the boss's hit points (from the game's HP frame) go along with every boss upload; the backend stores the highest reading per encounter (boss_max_hp) and returns it from the encounter API"
+  ]
  },
  {
   "version": "0.10.40",
   "date": "2026-10-06",
-  "text": "expedition explore / conquest told apart correctly - NPC id block 231xxxx is explore, 230xxxx (and 232/233) conquest, checked on boss HP (the 230 block has 2-3x the HP); fights are re-filed by the boss that owns their NPC id"
+  "items": [
+   "expedition explore / conquest told apart correctly - NPC id block 231xxxx is explore, 230xxxx (and 232/233) conquest, checked on boss HP (the 230 block has 2-3x the HP); fights are re-filed by the boss that owns their NPC id"
+  ]
  },
  {
   "version": "0.10.39",
   "date": "2026-10-06",
-  "text": "group leaderboard - class emblems are tinted in their class colour (duotone, keeps the shading); the top-3 player tiles get a soft class-coloured gradient and border"
+  "items": [
+   "group leaderboard - class emblems are tinted in their class colour (duotone, keeps the shading); the top-3 player tiles get a soft class-coloured gradient and border"
+  ]
  },
  {
   "version": "0.10.38",
   "date": "2026-10-06",
-  "text": "Abyss world bosses Executor Argo and Executor Kaira are recognised and listed (with pictures); Draupnir's Afflicted Bakarma is merged into Transcendent Bakarma"
+  "items": [
+   "Abyss world bosses Executor Argo and Executor Kaira are recognised and listed (with pictures); Draupnir's Afflicted Bakarma is merged into Transcendent Bakarma"
+  ]
  },
  {
   "version": "0.10.37",
   "date": "2026-10-06",
-  "text": "world bosses (Verteron, Altgard, Abyss; 52 bosses with their NPC ids) are recognised by the client and listed on the website as the new 'World Bosses' category, so fights can be uploaded"
+  "items": [
+   "world bosses (Verteron, Altgard, Abyss; 52 bosses with their NPC ids) are recognised by the client and listed on the website as the new 'World Bosses' category, so fights can be uploaded"
+  ]
  },
  {
   "version": "0.10.36",
   "date": "2026-10-06",
-  "text": "website - encounter link previews render a damage / healing / damage-taken picture (/og/encounters/<id>.png), instance backgrounds from the game client (un-squeezed, per-image focus), boss cards for expedition / transcendence / ascension bosses, Nightmare bosses lead back to Nightmare; world boss data (NPC ids, 8 client languages)"
+  "items": [
+   "website - encounter link previews render a damage / healing / damage-taken picture (/og/encounters/<id>.png), instance backgrounds from the game client (un-squeezed, per-image focus), boss cards for expedition / transcendence / ascension bosses, Nightmare bosses lead back to Nightmare; world boss data (NPC ids, 8 client languages)"
+  ]
  },
  {
   "version": "0.10.35",
   "date": "2026-10-05",
-  "text": "the own-fight restriction (only monsters the player fought) applies to the compact overlay's Group / Corps view only; everywhere else players fighting other monsters are listed too"
+  "items": [
+   "the own-fight restriction (only monsters the player fought) applies to the compact overlay's Group / Corps view only; everywhere else players fighting other monsters are listed too"
+  ]
  },
  {
   "version": "0.10.34",
   "date": "2026-10-05",
-  "text": "the All / Group / Corps filter is back, but only for the compact transparent overlay; the normal window and the chip overlay list everybody again"
+  "items": [
+   "the All / Group / Corps filter is back, but only for the compact transparent overlay; the normal window and the chip overlay list everybody again"
+  ]
  },
  {
   "version": "0.10.33",
   "date": "2026-10-05",
-  "text": "the group / corps view filter is gone (everybody's damage is shown again); character window laid out like the website's player page (tabs, item and skill icons, Daevanion board tiles, species knowledge)"
+  "items": [
+   "the group / corps view filter is gone (everybody's damage is shown again); character window laid out like the website's player page (tabs, item and skill icons, Daevanion board tiles, species knowledge)"
+  ]
  },
  {
   "version": "0.10.32",
   "date": "2026-10-05",
-  "text": "species knowledge (Cognia, Fera, Natura, Varia, Specia) read from the login frame and shown on the player profile"
+  "items": [
+   "species knowledge (Cognia, Fera, Natura, Varia, Specia) read from the login frame and shown on the player profile"
+  ]
  },
  {
   "version": "0.10.31",
   "date": "2026-10-05",
-  "text": "a team mate is no longer shown under one's own name (own-name fallback only while the local player is unknown)"
+  "items": [
+   "Nightmare places and bosses named in de/en/es/fr/ru from the EU client's text tables; instances renamed in place (English raw names, English slugs)",
+   "a team mate is no longer shown under one's own name (own-name fallback only while the local player is unknown)"
+  ]
  },
  {
   "version": "0.10.30",
   "date": "2026-10-05",
-  "text": "Nightmare boss ids (level read off the id), own timetable opacity"
+  "items": [
+   "Nightmare bosses: real NPC ids (ten per boss, one per level), English names, the level is read off the NPC id; client boss list regenerated",
+   "Timetable overlay: its own opacity setting in the Timetable page (30-100 %), falls back to the overlay opacity for old settings files",
+   "Nightmare boss ids (level read off the id), own timetable opacity"
+  ]
  },
  {
   "version": "0.10.29",
   "date": "2026-10-05",
-  "text": "settings window with cards, switches and own pages for hotkeys and timetable"
+  "items": [
+   "Settings window: cards (Display / Overlay / Behavior), switches instead of checkboxes, own pages for Hotkeys and Timetable, wider window; render-settings knows the new pages",
+   "settings window with cards, switches and own pages for hotkeys and timetable"
+  ]
  },
  {
   "version": "0.10.28",
   "date": "2026-10-05",
-  "text": "meter row colours - class pairs share a hue family in a lighter and a deeper shade"
+  "items": [
+   "Bar colours: class pairs share a hue family in a lighter and a deeper shade (Cleric/Chanter, Gladiator/Templar, Assassin/Ranger, Sorcerer/Spiritmaster); icons unchanged",
+   "meter row colours - class pairs share a hue family in a lighter and a deeper shade"
+  ]
  },
  {
   "version": "0.10.27",
   "date": "2026-10-05",
-  "text": "class icons in the class colours (ring + tint, shared per class pair), Brawler icon added"
+  "items": [
+   "Coloured class icons (ring + tint in the class colour) on the website and in the client, localized skill names on the participant page, subtle compare buttons incl. 'compare with another player' on the participant page, profiles without a fight indexable",
+   "Class colours shared by class pairs (Gladiator/Templar blue, Cleric/Chanter yellow, Assassin/Ranger green, Sorcerer/Spiritmaster purple), icons regenerated, Brawler icon added to the client",
+   "class icons in the class colours (ring + tint, shared per class pair), Brawler icon added"
+  ]
  },
  {
   "version": "0.10.26",
   "date": "2026-10-05",
-  "text": "Aion 2 server ids - Asmodian early-access order fixed, Hithanya and Nemon added"
+  "items": [
+   "Aion 2 server ids - Asmodian early-access order fixed, Hithanya and Nemon added"
+  ]
  },
  {
   "version": "0.10.25",
   "date": "2026-10-04",
-  "text": "class icons are the Aion 2 emblems on a dark plate with a gold ring"
+  "items": [
+   "class icons are the Aion 2 emblems on a dark plate with a gold ring"
+  ]
  },
  {
   "version": "0.10.24",
   "date": "2026-10-04",
-  "text": "the upload hotkey sends every boss fight not yet uploaded"
+  "items": [
+   "Boss reset: a rise of 10% of max HP starts a new attempt even without a full-health frame; roles derived from the roster (Gladiator tank without Templar, Chanter DD with Cleric and damage over twice the healing)",
+   "the upload hotkey sends every boss fight not yet uploaded"
+  ]
  },
  {
   "version": "0.10.23",
   "date": "2026-10-04",
-  "text": "character windows of other players survive a restart and go with boss uploads"
+  "items": [
+   "character windows of other players survive a restart and go with boss uploads"
+  ]
  },
  {
   "version": "0.10.22",
   "date": "2026-10-04",
-  "text": "the skill bar's equipped skills (with the break-free skill) are uploaded"
+  "items": [
+   "the skill bar's equipped skills (with the break-free skill) are uploaded"
+  ]
  },
  {
   "version": "0.10.21",
   "date": "2026-10-04",
-  "text": "skill list and stigmas are merged across the game's re-sends"
+  "items": [
+   "skill list and stigmas are merged across the game's re-sends"
+  ]
+ },
+ {
+  "version": "0.10.20",
+  "date": "2026-10-04",
+  "items": [
+   "Player details: DPS curve, hits and crit tiles, damage per target with the player's share; render-details mode",
+   "Other players' character windows and own stigmas are read and uploaded; skill blocks side by side; board colours fixed"
+  ]
+ },
+ {
+  "version": "0.10.19",
+  "date": "2026-10-04",
+  "items": [
+   "Aion 2: a spirit's basic attacks go to its owner when the meter started mid-fight",
+   "Aion 2: a boss healing itself by the hits it takes is no longer the player's damage",
+   "Aion 2: hits of target-debuff skills (Chain of Torment, Taunt) are damage",
+   "Auto reset is off by default (setting renamed to AutoResetEnabled, so the old saved 'on' is dropped)"
+  ]
+ },
+ {
+  "version": "0.10.18",
+  "date": "2026-10-03",
+  "items": [
+   "Group scope without a roster falls back to the players fighting alongside; aion2-replay can list the party and the hit-point readings (AION2_PARTY=1)",
+   "Group scope keeps the roster's members after the group is left (the fight on screen is still theirs)"
+  ]
+ },
+ {
+  "version": "0.10.17",
+  "date": "2026-10-03",
+  "items": [
+   "Scope switch All | Group | Corps in the compact overlay header and the Mode menu, replacing the 'only my party' setting; render-overlay and render-settings modes"
+  ]
+ },
+ {
+  "version": "0.10.16",
+  "date": "2026-10-03",
+  "items": [
+   "Settings and secondary windows without AllowsTransparency (Win+Shift+S could not capture them); render-settings mode; shorter timetable label"
+  ]
+ },
+ {
+  "version": "0.10.15",
+  "date": "2026-10-03",
+  "items": [
+   "Timetable overlay: what is active now and what starts within 60 minutes (Arena of Strategy first)",
+   "Timetable: any-time events, with the 1 vs 1 and 5 vs 5 arenas",
+   "Timetable: dated single occurrences, with the next Abyss raid (2026-10-03 21:00) read off the game's countdown"
+  ]
+ },
+ {
+  "version": "0.10.14",
+  "date": "2026-10-03",
+  "items": [
+   "Settings: auto-reset checkbox aligned and its seconds field in the theme; the keep-on-top raise leaves Win+Shift+S alone"
+  ]
+ },
+ {
+  "version": "0.10.12",
+  "date": "2026-10-03",
+  "items": [
+   "Aion 2: accented names; summons from before the meter started",
+   "Put the doc comments of SetSummonOwner and ClassFromCode back on their methods",
+   "Taken mode: a player's details show what hit them and how they died; a newer update replaces the downloaded one"
+  ]
+ },
+ {
+  "version": "0.10.11",
+  "date": "2026-10-03",
+  "items": [
+   "Install and start without elevation errors: asInvoker + the meter raising itself",
+   "Aion 2 skill names in the UI language",
+   "Aion 2: name party members when the meter starts mid-dungeon; summon owner by caster id",
+   "Skill icons: damage events carry the skill id; 375 icons and their lookup",
+   "Skill breakdown: icons, sort by any column, crit note for Aion 2",
+   "Review: English skill names in the data, party first for a summon's owner",
+   "Review: classic Aion keeps its crit note; header tooltip and heal tiles localized",
+   "Hotkey for Upload Boss DMG and an opt-in auto upload after a boss died",
+   "Remove the remaining classic Aion leftovers from the client",
+   "Hide UI can look like the compact transparent panel (header, boss, dense class-coloured lines), chosen in Settings next to the chips; overlay opacity setting for both",
+   "Compact overlay: damage / healing / damage taken switch (badge, Mode menu, hotkey) and the boss health bar",
+   "Boss fight with its adds, auto reset, only-my-party filter, HP check status row, overlay kept in front of borderless full screen"
+  ]
+ },
+ {
+  "version": "0.10.10",
+  "date": "2026-10-03",
+  "items": [
+   "Player list and overlay chips offer no UI Automation peers (the cause of the in-game crash)"
+  ]
+ },
+ {
+  "version": "0.10.9",
+  "date": "2026-10-03",
+  "items": [
+   "Class 'Elementalist' is the Spiritmaster (de: Beschwoerer) everywhere; old name still accepted on upload",
+   "Do not end the meter on the WPF UI Automation NullReferenceException (ItemAutomationPeer.GetNameCore)"
+  ]
+ },
+ {
+  "version": "0.10.8",
+  "date": "2026-10-03",
+  "items": [
+   "Overlay mode: the bars take three quarters of the window width"
+  ]
+ },
+ {
+  "version": "0.10.7",
+  "date": "2026-10-03",
+  "items": [
+   "Client: coloured class bars behind each row (as long as the damage is of the top player), in the window and the overlay, like the website"
+  ]
+ },
+ {
+  "version": "0.10.6",
+  "date": "2026-10-03",
+  "items": [
+   "Overlay mode: each player's bar spans the whole window width like in the normal view, damage and DPS on the right"
+  ]
+ },
+ {
+  "version": "0.10.5",
+  "date": "2026-10-03",
+  "items": [
+   "Decoder: AION2_FRAMES dumps every decoded frame for protocol analysis",
+   "Settings: the five checkboxes of the interface page use the same spacing",
+   "Settings hotkeys: shorter field, no Assign button, click into the field opens an inline popup to press the combination",
+   "Overlay mode: Alt+Tab and the taskbar show a rendered picture of the overlay instead of an empty tile"
+  ]
+ },
+ {
+  "version": "0.10.4",
+  "date": "2026-10-03",
+  "items": [
+   "Tray icon for as long as the meter runs, with a right-click menu: show window, show/hide UI, check for updates, exit",
+   "AionDPS design for every window: history window frame, own message box, dark tray menu",
+   "Secondary windows take the shared dark control styles (tooltip, combo box, check box, menu, button, scroll bar)"
+  ]
+ },
+ {
+  "version": "0.10.3",
+  "date": "2026-10-03",
+  "items": [
+   "aion2-replay: list the server ids seen next to player names",
+   "Aion 2 server ids 1301-1308 and 2301-2308 with their names",
+   "Replace the chat commands with global hotkeys (overlay, pause, copy ranking, clear), configurable in Settings",
+   "Settings: hotkeys are assigned with an Assign button, then the next key combination is shown and stored"
+  ]
+ },
+ {
+  "version": "0.10.2",
+  "date": "2026-10-03",
+  "items": [
+   "Server 1303 is Europe - Vaizel",
+   "Upload only the last attempt of a boss (boss HP reset marks a wipe and retry)",
+   "aion2-replay: print each boss's hit-point check",
+   "aion2-replay: AION2_DUMP writes events and boss hit points as CSV for analysis",
+   "aion2-record: optional net:<cidr> to record every TCP port of the game's network"
+  ]
+ },
+ {
+  "version": "0.10.1",
+  "date": "2026-10-03",
+  "items": [
+   "Aion 2: decoding fixes checked against the in-game combat analyzer (#1)"
+  ]
+ },
+ {
+  "version": "0.10.0",
+  "date": "2026-10-02",
+  "items": [
+   "Client: remove everything of classic Aion (Chat.log source and parser, loot, AP, relics, game detection, server catalog, characters, player database, classic data and icons)",
+   "Remove classic Aion from backend, website and docs; auto-upload switch for the own profile",
+   "Keep the running session across a client restart (update restart and App > Restart client)"
+  ]
+ },
+ {
+  "version": "0.9.6",
+  "date": "2026-10-02",
+  "items": [
+   "Own Aion 2 profile goes online by itself; name search is per game and finds profile-only players",
+   "Aion 2 server comes from the game's own character record (server id after the name)"
+  ]
+ },
+ {
+  "version": "0.9.5",
+  "date": "2026-10-02",
+  "items": [
+   "Own reader for AION 2 text tables; instance, boss and skill names in all game languages"
+  ]
+ },
+ {
+  "version": "0.9.4",
+  "date": "2026-10-02",
+  "items": [
+   "Only label the verified Elyos faction value; the other value also occurs in an Elyos legion",
+   "Recorder only ends on 'stop' (a stray Enter used to end recordings)",
+   "Recognise Aion 2 bosses from the monster-appears frame and let them be uploaded",
+   "Make an Aion 2 boss upload work end to end; add the EU instance/boss names"
+  ]
+ },
+ {
+  "version": "0.9.3",
+  "date": "2026-10-01",
+  "items": [
+   "Character window opens at the height its content needs; wider left column",
+   "Fix crash when the target dropdown is rebuilt (reused ComboBoxItem still had a logical parent)"
+  ]
+ },
+ {
+  "version": "0.9.2",
+  "date": "2026-10-01",
+  "items": [
+   "Double-click opens a player's details, dark scroll bar in secondary windows, drop the per-row faction switch",
+   "Say where the app runs and whether Update.exe is next to it when it cannot update itself"
+  ]
+ },
+ {
+  "version": "0.9.1",
+  "date": "2026-10-01",
+  "items": [
+   "Allow Aion 2 uploads without a boss fight: players' profiles only",
+   "Themed frame for the details and character windows, no Aion 2 skill icons by name, drop buff/consumable ids from damage, fix Elyos/Asmodian bit",
+   "Show the faction of Aion 2 players from the network data instead of the classic character's",
+   "Item tiles in the character window"
+  ]
+ },
+ {
+  "version": "0.9.0",
+  "date": "2026-10-01",
+  "items": [
+   "Add Aion 2 skill name/icon-token reference data",
+   "Calibrate the Aion 2 packet decoder against real captures",
+   "Keep the Aion 2 character across restarts and upload it as a profile",
+   "Add the Aion 2 character window and stop capture dying on a UI thread error"
+  ]
+ },
+ {
+  "version": "0.8.12",
+  "date": "2026-09-26",
+  "items": [
+   "Fix update-restart resume only catching the gap, not the whole session"
+  ]
+ },
+ {
+  "version": "0.8.11",
+  "date": "2026-09-26",
+  "items": [
+   "Right-align PVE/PVP toggle, opt-in secondary row info, new nav icons"
+  ]
+ },
+ {
+  "version": "0.8.10",
+  "date": "2026-09-26",
+  "items": [
+   "Fix heal-tick caster misattribution, resume Chat.log after update, App-menu cleanup"
+  ]
+ },
+ {
+  "version": "0.8.9",
+  "date": "2026-09-26",
+  "items": [
+   "Give Settings the same custom titlebar as MainWindow, persist its size"
+  ]
+ },
+ {
+  "version": "0.8.8",
+  "date": "2026-09-26",
+  "items": [
+   "Add Start with Windows, tray icon, session save/load; fix icon and row spacing"
+  ]
+ },
+ {
+  "version": "0.8.7",
+  "date": "2026-09-26",
+  "items": [
+   "Split \"All\" filter label per dropdown, fix Interface checkbox alignment"
+  ]
+ },
+ {
+  "version": "0.8.6",
+  "date": "2026-09-26",
+  "items": [
+   "Fix App menu, dropdown widths/translations, chat-line length, add boss heuristic"
+  ]
+ },
+ {
+  "version": "0.8.5",
+  "date": "2026-09-26",
+  "items": [
+   "Fix App menu not opening, Characters field overflow, Interface combobox rows"
+  ]
+ },
+ {
+  "version": "0.8.4",
+  "date": "2026-09-25",
+  "items": [
+   "Restructure the player row: icon-only nav rail, bar under the name"
+  ]
+ },
+ {
+  "version": "0.8.3",
+  "date": "2026-09-25",
+  "items": [
+   "Make the navy/orange brand look the default theme, fix Settings layout"
+  ]
+ },
+ {
+  "version": "0.8.2",
+  "date": "2026-09-25",
+  "items": [
+   "Announce updates on startup, require admin, trim the nav rail"
+  ]
+ },
+ {
+  "version": "0.8.1",
+  "date": "2026-09-25",
+  "items": [
+   "Redesign the App menu as a flyout card and Settings as a sidebar"
+  ]
+ },
+ {
+  "version": "0.8.0",
+  "date": "2026-09-25",
+  "items": [
+   "Replace the app icon and website favicon with user-supplied artwork",
+   "Redesign homepage to the navy/orange/blue cinematic look and add site footer"
+  ]
+ },
+ {
+  "version": "0.7.42",
+  "date": "2026-09-22",
+  "items": [
+   "Reorganize repo into Client / Backend / Web-Frontend"
+  ]
  }
 ]

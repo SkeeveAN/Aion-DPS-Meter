@@ -2611,7 +2611,8 @@ body:has(.download-hero) .nav-download-link:hover,
 .changelog-group > summary { cursor: pointer; padding: 12px 16px; display: flex; gap: 14px; align-items: baseline; }
 .changelog-range { color: var(--color-text-muted); font-size: 13px; }
 .changelog-list { list-style: none; margin: 0; padding: 0 16px 8px; }
-.changelog-list li { display: grid; grid-template-columns: 72px 104px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-top: 1px solid var(--color-border); }
+.changelog-list li { display: grid; grid-template-columns: 72px 104px minmax(0, 1fr); gap: 12px; padding: 6px 0; }
+.changelog-list li:has(.changelog-version:not(:empty)) { border-top: 1px solid var(--color-border); padding-top: 10px; }
 .changelog-version { font-weight: 700; color: var(--color-primary); }
 .changelog-date { color: var(--color-text-muted); font-size: 13px; }
 @media (max-width: 700px) { .changelog-list li { grid-template-columns: 64px minmax(0, 1fr); } .changelog-text { grid-column: 1 / -1; } }
