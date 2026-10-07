@@ -1,5 +1,23 @@
 [
  {
+  "version": "0.11.5",
+  "date": "2026-10-07",
+  "items": [
+   {
+    "text": "Footer: Legions and Statistics links removed (they are in the header now)",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "a twink's class skills no longer stay in the next character's skill list when the list arrives before the character record",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.11.4",
   "date": "2026-10-07",
   "items": [
