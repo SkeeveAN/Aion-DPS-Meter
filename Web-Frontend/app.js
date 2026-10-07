@@ -665,7 +665,11 @@ async function renderStats(secret) {
     bars(d.encountersPerDay, (r) => r.day, (r) => r.count, "Boss fights per day (last 30 days)"),
     bars(d.classes, (r) => r.name, (r) => r.count, "Players per class"),
     bars(d.servers, (r) => r.name, (r) => r.count, "Players per server"),
-    bars(d.topBosses, (r) => r.name, (r) => r.count, "Most fought bosses"),
+    bars(d.topBosses, (r) => {
+      // Conquest fights carry their star rating, so "Vakron ★★" and the plain "Vakron" are told apart.
+      const conquest = splitConquest(r.instance);
+      return conquest ? `${r.name} ${conquest.stars}` : r.name;
+    }, (r) => r.count, "Most fought bosses"),
   ];
   if (secret) {
     out.push(

@@ -23,8 +23,8 @@ export function publicStats() {
     `select coalesce(s.display_name, s.fingerprint) name, count(*) n from players p join servers s on s.id = p.server_id group by p.server_id order by n desc limit 12`,
   ).map((r) => ({ name: String(r.name), count: num(r.n) }));
   const topBosses = all(
-    `select b.name_en en, b.name name, count(*) n from encounters e join bosses b on b.id = e.boss_id where b.is_trash_mob = 0 group by e.boss_id order by n desc limit 10`,
-  ).map((r) => ({ name: String(r.en ?? r.name), count: num(r.n) }));
+    `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id order by n desc limit 10`,
+  ).map((r) => ({ name: String(r.en ?? r.name), instance: String(r.instance), count: num(r.n) }));
   return {
     players,
     ownProfiles: own,
