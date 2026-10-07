@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Statistics: the faction icon before each server name, and the difficulty step of the most fought bosses as stars",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.13.1",
   "date": "2026-10-08",
   "items": [
