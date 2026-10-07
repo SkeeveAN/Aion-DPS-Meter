@@ -88,7 +88,11 @@ function bossesOfGame(game: Game) {
     .all();
 }
 
-/** Difficulty step encoded in a boss's NPC ids: the n-th id (ascending) of a Nightmare boss is level n. */
+/**
+ * Difficulty step encoded in a boss's NPC ids: the n-th id (ascending) of a Nightmare boss is level n; the first four of
+ * an Ascension Rite boss are Easy, Medium, Hard and Extreme (a Divided Aponos fight with 2701789, the second id, was
+ * confirmed as the second step by the player). Further ids of an Ascension boss are not a step.
+ */
 export function modeFromNpcId(bossId: number, npcId: number): string {
   const row = db
     .select({ category: instances.category })
@@ -96,13 +100,21 @@ export function modeFromNpcId(bossId: number, npcId: number): string {
     .innerJoin(instances, eq(bosses.instanceId, instances.id))
     .where(eq(bosses.id, bossId))
     .get();
-  if (row?.category !== "nightmare") {
+  if (row?.category !== "nightmare" && row?.category !== "ascension") {
     return "";
   }
   const ids = db.select({ npcId: bossNpcIds.npcId }).from(bossNpcIds).where(eq(bossNpcIds.bossId, bossId)).all().map((r) => r.npcId).sort((a, b) => a - b);
   const index = ids.indexOf(npcId);
-  return index < 0 ? "" : String(index + 1);
+  if (index < 0) {
+    return "";
+  }
+  if (row.category === "ascension") {
+    return ASCENSION_STEPS[index] ?? "";
+  }
+  return String(index + 1);
 }
+
+const ASCENSION_STEPS = ["easy", "medium", "hard", "extreme"];
 
 function resolveBossId(payload: UploadPayload): number {
   // Aion 2 clients know the NPC's numeric id, which is unambiguous where names are not (the same
