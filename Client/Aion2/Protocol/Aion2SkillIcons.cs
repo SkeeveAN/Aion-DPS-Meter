@@ -80,9 +80,10 @@ public static class Aion2SkillIcons
                 var raw = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(TokensPath)) ?? new();
                 foreach ((string key, string token) in raw)
                 {
-                    if (int.TryParse(key, out int id) && !token.Contains('/'))
+                    // An item-skill (a Theostone) names its icon with the item folder in front: "Item/ETC/Icon_Item_...".
+                    if (int.TryParse(key, out int id))
                     {
-                        table[id] = token;
+                        table[id] = token.Contains('/') ? token[(token.LastIndexOf('/') + 1)..] : token;
                     }
                 }
             }

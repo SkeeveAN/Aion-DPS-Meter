@@ -153,7 +153,7 @@ public partial class PlayerDetailsWindow : Window
         }
 
         int hits = rows.Sum(r => r.Hits);
-        FillTargets(damage, nameOf, fightEvents, loc, taken || heals);
+        FillTargets(damage, nameOf, fightEvents, loc, taken, heals);
         DrawCurve(damage);
         var targets = damage.Select(e => nameOf(e.TargetObjectId)).Where(n => n is not null).Distinct().Count();
         SummaryText.Text = taken
@@ -197,10 +197,17 @@ public partial class PlayerDetailsWindow : Window
     }
 
     /// <summary>The per-target table: one row per monster hit, a total row on top. Hidden in the
-    /// healing and taken views, where "target" means something else.</summary>
+    /// taken view, where "target" means something else. In the healing view it lists the players healed.</summary>
     private void FillTargets(IReadOnlyList<DamageEvent> damage, Func<int, string?> nameOf, IReadOnlyList<DamageEvent>? fightEvents,
-        LocalizationManager loc, bool hide)
+        LocalizationManager loc, bool hide, bool heals)
     {
+        // The healing view lists the players the healer healed, with the healing they got from this healer.
+        if (heals)
+        {
+            TargetsGrid.Columns[1].Header = loc["Details.Tile.Heal"];
+            TargetsGrid.Columns[2].Header = loc["Details.Tile.Hps"];
+        }
+
         if (hide || damage.Count == 0)
         {
             TargetsGrid.Visibility = Visibility.Collapsed;
@@ -212,7 +219,7 @@ public partial class PlayerDetailsWindow : Window
         {
             long total = group.Sum(e => e.Amount);
             double seconds = (group.Max(e => e.Timestamp) - group.Min(e => e.Timestamp)).TotalSeconds;
-            long everyone = fightEvents?.Where(e => !e.IsHeal && e.TargetObjectId == group.Key).Sum(e => e.Amount) ?? 0;
+            long everyone = fightEvents?.Where(e => e.IsHeal == heals && e.TargetObjectId == group.Key).Sum(e => e.Amount) ?? 0;
             rows.Add(new TargetRow(nameOf(group.Key) ?? loc["Details.Monster"], total, seconds > 0 ? total / seconds : 0,
                 everyone > 0 ? Math.Min(100.0, 100.0 * total / everyone) : 0));
         }

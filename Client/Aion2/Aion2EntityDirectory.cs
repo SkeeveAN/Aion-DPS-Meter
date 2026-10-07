@@ -474,6 +474,26 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     private readonly Dictionary<int, Aion2SeenProfile> _seen = new();
 
+    // Entity id -> NPC id of every monster the game announced, for its name (see MonsterNameFor).
+    private readonly Dictionary<int, int> _npcIds = new();
+
+    /// <summary>The name of a monster from its NPC id (see <see cref="Protocol.Aion2Npcs"/>), in the app's language; null for a
+    /// player, a summon the game did not name, or an NPC the table does not list. Apart from <see cref="NameFor"/>, which
+    /// the player recognition relies on.</summary>
+    public string? MonsterNameFor(int entityId)
+    {
+        int npcId;
+        lock (_gate)
+        {
+            if (!_npcIds.TryGetValue(entityId, out npcId))
+            {
+                return null;
+            }
+        }
+
+        return Protocol.Aion2Npcs.NameOf(npcId, Protocol.Aion2SkillNames.Language);
+    }
+
     // Entity id -> NPC id, kept only for monsters that are bosses (see Aion2BossCatalog).
     private readonly Dictionary<int, int> _bossNpcs = new();
 
@@ -481,6 +501,11 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// when the game announces a monster; ids that are no boss are ignored.</summary>
     public void RegisterNpc(int entityId, int npcId)
     {
+        lock (_gate)
+        {
+            _npcIds[entityId] = npcId;
+        }
+
         if (Protocol.Aion2BossCatalog.Find(npcId) is null)
         {
             return;

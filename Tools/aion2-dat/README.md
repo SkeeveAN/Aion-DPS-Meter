@@ -42,3 +42,8 @@ as in CUE4Parse's `Aion2DatFileEncryption.DataTable.cs`). Rows are typed structs
 without one, strings (UTF-16, XOR `25 00 a8 00 7e 00 91 00` per string) can be scanned. `NpcData` rows are
 `[i32 npcId][name FString][STR_ text key FString][subtitle key][MOB_ model]...` - the text key + `String_<key>_body` in
 `L10NString.dat` gives the names. `WorldMapFieldNamed` lists the named field bosses by internal NPC name.
+
+## NPC names (2026-10-08)
+`build_npcs.py <NpcData.bin> <l10n dir> <out.json>` turns the decrypted `NpcData` table (`dectable.py`, from `pakchunk401000-Windows_0_P.pak`)
+into `{npcId: {en, de, fr, es, ru, pt, ja, ko}}` (12,589 monsters). The meter ships English, German, French, Spanish and
+Russian as `Client/assets/aion2/npcs/npc_names.json` and names a monster from the NPC id of its spawn frame.

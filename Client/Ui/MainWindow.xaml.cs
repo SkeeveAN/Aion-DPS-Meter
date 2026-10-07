@@ -778,7 +778,10 @@ public partial class MainWindow : Window
     /// <summary>The name the packet stream gave the object (player name, boss name from its NPC id,
     /// or "Class #id" until a player's name arrives); its hex id when nothing is known.</summary>
     private string ResolveDisplayName(int objectId) =>
-        _source?.Entities.NameFor(objectId) ?? $"0x{objectId:X8}";
+        _source?.Entities.NameFor(objectId) ?? MonsterName(objectId) ?? $"0x{objectId:X8}";
+
+    /// <summary>A monster's name from the NPC table, for the targets in the lists and the details windows.</summary>
+    private string? MonsterName(int objectId) => (_source?.Entities as Aion2.Aion2EntityDirectory)?.MonsterNameFor(objectId);
 
     protected override void OnSourceInitialized(EventArgs e)
     {
@@ -3105,7 +3108,7 @@ public partial class MainWindow : Window
         {
             var hits = HostileHitsTaken(_takenSpan).Where(ev => ev.TargetObjectId == row.ObjectId).ToList();
             new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, hits,
-                id => _source?.Entities.NameFor(id), deaths: _deathsById.GetValueOrDefault(row.ObjectId), taken: true)
+                id => _source?.Entities.NameFor(id) ?? MonsterName(id), deaths: _deathsById.GetValueOrDefault(row.ObjectId), taken: true)
             {
                 Owner = this,
             }.Show();
@@ -3115,7 +3118,7 @@ public partial class MainWindow : Window
         var mine = _aggregator.Events.Where(ev => ev.SourceObjectId == row.ObjectId).ToList();
 
         new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, mine,
-            id => _source?.Entities.NameFor(id) ?? ResolveDisplayName(id), heals: _healMode && !_pvpOnly, fightEvents: _aggregator.Events)
+            id => _source?.Entities.NameFor(id) ?? MonsterName(id) ?? ResolveDisplayName(id), heals: _healMode && !_pvpOnly, fightEvents: _aggregator.Events)
         {
             Owner = this,
         }.Show();

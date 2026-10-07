@@ -37,8 +37,11 @@ public static class SelfCheck
     {
         string? keen = Aion2.Protocol.Aion2SkillIcons.PathForName("Keen Strike", "Gladiator");
         string? unknown = Aion2.Protocol.Aion2SkillIcons.PathForName("No Such Skill", "Gladiator");
-        bool ok = keen is not null && Path.GetFileName(keen).StartsWith("ICON_GL_", StringComparison.Ordinal) && unknown is null;
-        Console.WriteLine($"[selftest] Skill icon by name: Keen Strike -> {(keen is null ? "none" : Path.GetFileName(keen))}, unknown -> none: {unknown is null}");
+        string? stone = Aion2.Protocol.Aion2SkillIcons.PathFor(30000241);
+        bool names = Aion2.Protocol.Aion2Npcs.NameOf(2300709, "de") == "Talisra der Leere" && Aion2.Protocol.Aion2Npcs.NameOf(2300709, "pl") == "Talisra of the Void";
+        bool ok = keen is not null && Path.GetFileName(keen).StartsWith("ICON_GL_", StringComparison.Ordinal) && unknown is null
+            && stone is not null && Path.GetFileName(stone).Contains("Godstone", StringComparison.Ordinal) && names;
+        Console.WriteLine($"[selftest] Skill icon by name: Keen Strike -> {(keen is null ? "none" : Path.GetFileName(keen))}, unknown -> none: {unknown is null}; Theostone icon: {stone is not null}; NPC names: {names}");
         return ok;
     }
 
