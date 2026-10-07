@@ -1,5 +1,61 @@
 [
  {
+  "version": "0.12.0",
+  "date": "2026-10-07",
+  "items": [
+   {
+    "text": "Profile: Arcana get their own tab (read from the inspect gear list, slots 25-29) instead of sitting among the equipment",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Player page breadcrumb: Home > Legion > player instead of Home > Instances > player",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Add apple-touch-icon",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Player page breadcrumb: just Home > player, the card is reachable from many places",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Home: default link texts and logo alt in the static HTML, /legions link",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Timetable: Battlefield, the arenas, Artifact Siege (Abyss), Shugo Festival, Beritra Air Raid and Spacetime Rift with their times, named as the game names them in all its languages",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "aion2-record: says so when the recording file is already in use instead of crashing",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Timetable: Settings slider for how many minutes ahead an event is shown (5-180); the overlay no longer flickers through the meter",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.11.5",
   "date": "2026-10-07",
   "items": [
