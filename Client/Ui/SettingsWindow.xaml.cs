@@ -38,6 +38,7 @@ public partial class SettingsWindow : Window
         CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
         AutoUploadProfileBox.IsChecked = settings.AutoUploadProfile;
         AutoUploadBossBox.IsChecked = settings.AutoUploadBoss;
+        UploadOtherProfilesBox.IsChecked = settings.UploadOtherPlayersProfiles;
         SetHotkeyBox(HotkeyHideUiBox, HotkeyBinding.Parse(settings.HotkeyHideUi).ToString());
         SetHotkeyBox(HotkeyPauseBox, HotkeyBinding.Parse(settings.HotkeyPause).ToString());
         SetHotkeyBox(HotkeyCopyDamageBox, HotkeyBinding.Parse(settings.HotkeyCopyDamage).ToString());
@@ -269,6 +270,7 @@ public partial class SettingsWindow : Window
     {
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? false;
+        _settings.UploadOtherPlayersProfiles = UploadOtherProfilesBox.IsChecked ?? false;
         _settings.HotkeyHideUi = (string?)HotkeyHideUiBox.Tag ?? "";
         _settings.HotkeyPause = (string?)HotkeyPauseBox.Tag ?? "";
         _settings.HotkeyCopyDamage = (string?)HotkeyCopyDamageBox.Tag ?? "";

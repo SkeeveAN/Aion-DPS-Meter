@@ -1,0 +1,53 @@
+<Window x:Class="AionDPS.Ui.WizardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:AionDPS.Ui"
+        Title="{local:Loc Wizard.Title}" Height="560" Width="660" MinWidth="560" MinHeight="480"
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
+        FontSize="{DynamicResource FontSize.Base}" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="Heading" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
+        <Style x:Key="Option" TargetType="CheckBox">
+            <Setter Property="Margin" Value="0,10,0,0"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="24,18,24,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <StackPanel x:Name="LanguagePage">
+                <TextBlock Style="{StaticResource Heading}" Text="{local:Loc Wizard.LanguageHeading}"/>
+                <ComboBox x:Name="LanguageBox" HorizontalAlignment="Left" MinWidth="220" SelectionChanged="OnLanguageChanged"/>
+                <TextBlock Style="{StaticResource Hint}" Text="{local:Loc Wizard.LanguageHint}"/>
+            </StackPanel>
+            <StackPanel x:Name="PrivacyPage" Visibility="Collapsed">
+                <TextBlock Style="{StaticResource Heading}" Text="{local:Loc Wizard.PrivacyHeading}"/>
+                <TextBlock TextWrapping="Wrap" Text="{local:Loc Wizard.PrivacyText}"/>
+                <CheckBox x:Name="BossBox" Style="{StaticResource Option}">
+                    <TextBlock TextWrapping="Wrap" Text="{local:Loc Wizard.OptBoss}"/>
+                </CheckBox>
+                <CheckBox x:Name="ProfileBox" Style="{StaticResource Option}">
+                    <TextBlock TextWrapping="Wrap" Text="{local:Loc Wizard.OptProfile}"/>
+                </CheckBox>
+                <CheckBox x:Name="OthersBox" Style="{StaticResource Option}">
+                    <TextBlock TextWrapping="Wrap" Text="{local:Loc Wizard.OptOthers}"/>
+                </CheckBox>
+            </StackPanel>
+        </Grid>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button x:Name="BackButton" Content="{local:Loc Wizard.Back}" Click="OnBackClicked" MinWidth="90" Visibility="Collapsed"/>
+            <Button x:Name="NextButton" Content="{local:Loc Wizard.Next}" Click="OnNextClicked" MinWidth="90" IsDefault="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

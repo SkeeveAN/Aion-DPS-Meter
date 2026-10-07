@@ -1740,5 +1740,125 @@
     "pl": "Podaj nazwę i wiadomość (min. 10 znaków); adres e-mail musi być poprawny.",
     "tr": "Ad ve mesaj girin (en az 10 karakter); e-posta geçerli olmalı.",
     "zh": "请输入名称和留言（至少 10 个字符）；邮箱必须有效。"
+  },
+  "Settings.UploadOtherProfiles": {
+    "en": "Also upload profiles of other players I see (name, class, level, gear, legion)",
+    "de": "Auch Profile anderer Spieler hochladen, die ich sehe (Name, Klasse, Level, Ausrüstung, Legion)",
+    "fr": "Envoyer aussi les profils des autres joueurs que je vois (nom, classe, niveau, équipement, légion)",
+    "es": "Subir también los perfiles de otros jugadores que veo (nombre, clase, nivel, equipo, legión)",
+    "ru": "Также загружать профили других игроков, которых я вижу (имя, класс, уровень, снаряжение, легион)",
+    "pl": "Przesyłaj także profile innych graczy, których widzę (nazwa, klasa, poziom, ekwipunek, legion)",
+    "tr": "Gördüğüm diğer oyuncuların profillerini de yükle (ad, sınıf, seviye, ekipman, lejyon)",
+    "zh": "同时上传我看到的其他玩家的资料（名称、职业、等级、装备、军团）"
+  },
+  "Wizard.Title": {
+    "en": "Welcome to Aion DPS",
+    "de": "Willkommen bei Aion DPS",
+    "fr": "Bienvenue dans Aion DPS",
+    "es": "Bienvenido a Aion DPS",
+    "ru": "Добро пожаловать в Aion DPS",
+    "pl": "Witaj w Aion DPS",
+    "tr": "Aion DPS'e hoş geldiniz",
+    "zh": "欢迎使用 Aion DPS"
+  },
+  "Wizard.LanguageHeading": {
+    "en": "Choose your language",
+    "de": "Sprache wählen",
+    "fr": "Choisissez votre langue",
+    "es": "Elige tu idioma",
+    "ru": "Выберите язык",
+    "pl": "Wybierz język",
+    "tr": "Dilinizi seçin",
+    "zh": "选择语言"
+  },
+  "Wizard.LanguageHint": {
+    "en": "This is the language of the meter's own menus and buttons. You can change it later under Settings.",
+    "de": "Das ist die Sprache der Menüs und Schaltflächen des Meters. Du kannst sie später unter Einstellungen ändern.",
+    "fr": "C'est la langue des menus et boutons du compteur. Vous pouvez la changer plus tard dans les paramètres.",
+    "es": "Es el idioma de los menús y botones del medidor. Puedes cambiarlo más tarde en los ajustes.",
+    "ru": "Это язык меню и кнопок самого измерителя. Позже его можно изменить в настройках.",
+    "pl": "To język menu i przycisków miernika. Możesz go później zmienić w ustawieniach.",
+    "tr": "Bu, sayacın kendi menü ve düğmelerinin dilidir. Daha sonra Ayarlar'dan değiştirebilirsiniz.",
+    "zh": "这是计量器自身菜单和按钮的语言，之后可在设置中更改。"
+  },
+  "Wizard.PrivacyHeading": {
+    "en": "Your data stays on your PC",
+    "de": "Deine Daten bleiben auf deinem PC",
+    "fr": "Vos données restent sur votre PC",
+    "es": "Tus datos se quedan en tu PC",
+    "ru": "Ваши данные остаются на вашем ПК",
+    "pl": "Twoje dane zostają na twoim komputerze",
+    "tr": "Verileriniz bilgisayarınızda kalır",
+    "zh": "您的数据保留在您的电脑上"
+  },
+  "Wizard.PrivacyText": {
+    "en": "For privacy reasons the following options are switched off. As long as you leave them off, no game data leaves your PC (the meter only asks GitHub for updates, which you can switch off in Settings). Do you want to turn any of them on? You can change every choice later under Settings > Upload.",
+    "de": "Aus Datenschutzgründen sind die folgenden Optionen ausgeschaltet. Solange du sie aus lässt, verlassen keine Spieldaten deinen PC (der Meter fragt nur bei GitHub nach Updates, das lässt sich in den Einstellungen abschalten). Möchtest du etwas davon aktivieren? Jede Entscheidung kannst du später unter Einstellungen > Upload ändern.",
+    "fr": "Pour des raisons de confidentialité, les options suivantes sont désactivées. Tant que vous les laissez ainsi, aucune donnée de jeu ne quitte votre PC (le compteur ne demande à GitHub que les mises à jour, désactivable dans les paramètres). Voulez-vous en activer certaines ? Vous pouvez tout modifier plus tard dans Paramètres > Envoi.",
+    "es": "Por privacidad, las siguientes opciones están desactivadas. Mientras las dejes así, ningún dato del juego sale de tu PC (el medidor solo consulta GitHub por actualizaciones, desactivable en los ajustes). ¿Quieres activar alguna? Puedes cambiarlo todo más tarde en Ajustes > Subida.",
+    "ru": "Из соображений конфиденциальности следующие параметры выключены. Пока они выключены, никакие игровые данные не покидают ваш ПК (измеритель лишь запрашивает у GitHub обновления; это можно отключить в настройках). Хотите включить что-то из этого? Любой выбор можно позже изменить в настройках > Загрузка.",
+    "pl": "Ze względu na prywatność poniższe opcje są wyłączone. Dopóki je zostawisz, żadne dane z gry nie opuszczą twojego komputera (miernik tylko pyta GitHub o aktualizacje, co można wyłączyć w ustawieniach). Chcesz włączyć któreś z nich? Każdy wybór możesz później zmienić w Ustawienia > Przesyłanie.",
+    "tr": "Gizlilik nedeniyle aşağıdaki seçenekler kapalıdır. Kapalı bıraktığınız sürece hiçbir oyun verisi bilgisayarınızdan çıkmaz (sayaç yalnızca GitHub'dan güncelleme sorar, bu Ayarlar'dan kapatılabilir). Bunlardan birini açmak ister misiniz? Her seçimi daha sonra Ayarlar > Yükleme bölümünden değiştirebilirsiniz.",
+    "zh": "出于隐私考虑，以下选项默认关闭。只要保持关闭，任何游戏数据都不会离开您的电脑（计量器只向 GitHub 查询更新，可在设置中关闭）。您想开启其中的某些选项吗？之后可随时在 设置 > 上传 中更改。"
+  },
+  "Wizard.OptBoss": {
+    "en": "Upload boss fights automatically a few seconds after a boss died (damage, healing and names of the players who took part)",
+    "de": "Boss-Kämpfe automatisch hochladen, wenige Sekunden nachdem ein Boss gestorben ist (Schaden, Heilung und Namen der beteiligten Spieler)",
+    "fr": "Envoyer automatiquement les combats de boss quelques secondes après la mort d'un boss (dégâts, soins et noms des joueurs présents)",
+    "es": "Subir automáticamente los combates contra jefes unos segundos después de que muera un jefe (daño, curación y nombres de los jugadores participantes)",
+    "ru": "Автоматически загружать бои с боссами через несколько секунд после смерти босса (урон, лечение и имена участников)",
+    "pl": "Automatycznie przesyłaj walki z bossami kilka sekund po jego śmierci (obrażenia, leczenie i nazwy uczestników)",
+    "tr": "Bir boss öldükten birkaç saniye sonra boss savaşlarını otomatik yükle (hasar, iyileştirme ve katılan oyuncuların adları)",
+    "zh": "首领死亡几秒后自动上传战斗（伤害、治疗和参战玩家名称）"
+  },
+  "Wizard.OptProfile": {
+    "en": "Upload my own character profile automatically after login (name, class, level, gear, skills, legion, server), so I can be found on aiondps.com",
+    "de": "Mein eigenes Charakterprofil nach dem Login automatisch hochladen (Name, Klasse, Level, Ausrüstung, Skills, Legion, Server), damit man mich auf aiondps.com findet",
+    "fr": "Envoyer automatiquement mon propre profil après la connexion (nom, classe, niveau, équipement, compétences, légion, serveur) pour qu'on me trouve sur aiondps.com",
+    "es": "Subir automáticamente mi propio perfil tras iniciar sesión (nombre, clase, nivel, equipo, habilidades, legión, servidor) para que me encuentren en aiondps.com",
+    "ru": "Автоматически загружать профиль моего персонажа после входа (имя, класс, уровень, снаряжение, умения, легион, сервер), чтобы меня можно было найти на aiondps.com",
+    "pl": "Automatycznie przesyłaj profil mojej postaci po zalogowaniu (nazwa, klasa, poziom, ekwipunek, umiejętności, legion, serwer), aby można mnie było znaleźć na aiondps.com",
+    "tr": "Girişten sonra kendi karakter profilimi otomatik yükle (ad, sınıf, seviye, ekipman, beceriler, lejyon, sunucu), aiondps.com'da bulunabilmem için",
+    "zh": "登录后自动上传我自己的角色资料（名称、职业、等级、装备、技能、军团、服务器），以便在 aiondps.com 被找到"
+  },
+  "Wizard.OptOthers": {
+    "en": "Also upload profiles of other players I see (name, class, level, gear, legion)",
+    "de": "Auch Profile anderer Spieler hochladen, die ich sehe (Name, Klasse, Level, Ausrüstung, Legion)",
+    "fr": "Envoyer aussi les profils des autres joueurs que je vois (nom, classe, niveau, équipement, légion)",
+    "es": "Subir también los perfiles de otros jugadores que veo (nombre, clase, nivel, equipo, legión)",
+    "ru": "Также загружать профили других игроков, которых я вижу (имя, класс, уровень, снаряжение, легион)",
+    "pl": "Przesyłaj także profile innych graczy, których widzę (nazwa, klasa, poziom, ekwipunek, legion)",
+    "tr": "Gördüğüm diğer oyuncuların profillerini de yükle (ad, sınıf, seviye, ekipman, lejyon)",
+    "zh": "同时上传我看到的其他玩家的资料（名称、职业、等级、装备、军团）"
+  },
+  "Wizard.Next": {
+    "en": "Next",
+    "de": "Weiter",
+    "fr": "Suivant",
+    "es": "Siguiente",
+    "ru": "Далее",
+    "pl": "Dalej",
+    "tr": "İleri",
+    "zh": "下一步"
+  },
+  "Wizard.Back": {
+    "en": "Back",
+    "de": "Zurück",
+    "fr": "Retour",
+    "es": "Atrás",
+    "ru": "Назад",
+    "pl": "Wstecz",
+    "tr": "Geri",
+    "zh": "上一步"
+  },
+  "Wizard.Finish": {
+    "en": "Finish",
+    "de": "Fertig",
+    "fr": "Terminer",
+    "es": "Finalizar",
+    "ru": "Готово",
+    "pl": "Zakończ",
+    "tr": "Bitir",
+    "zh": "完成"
   }
 }

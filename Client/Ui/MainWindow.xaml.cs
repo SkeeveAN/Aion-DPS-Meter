@@ -271,6 +271,13 @@ public partial class MainWindow : Window
         InitializeFightHistory(settings);
         RefreshCharacterSettings(settings);
         TryRestoreRestartSnapshot();
+
+        // A fresh install, or a lost or broken settings file: the wizard asks for the language and the
+        // upload options that are off by default (see WizardWindow). Never in the headless test modes.
+        if (!Headless && !settings.SetupCompleted)
+        {
+            Loaded += (_, _) => new WizardWindow(settings) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
+        }
     }
 
     /// <summary>Applies a previously saved size/position, if any -- see SaveWindowGeometry, its
@@ -1755,6 +1762,8 @@ public partial class MainWindow : Window
         // gives a new object id on a map change, and the old one stops being "local".
         var aion2Directory = _source?.Entities as Aion2.Aion2EntityDirectory;
         string? ownName = aion2Directory?.LocalCharacter?.Name;
+        // Profile and legion of the OTHER players only go along when the player agreed to it.
+        bool shareOthers = MeterSettings.Load().UploadOtherPlayersProfiles;
         foreach (PlayerRow row in _rows)
         {
             if (aion2Directory is not null
@@ -1861,8 +1870,8 @@ public partial class MainWindow : Window
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
                 totalDamage, idps, idps, totalHealing, hps, skills, healSkills, damageTaken, buffs,
-                aion2Directory?.GuildOf(ProfileIdOf(row)),
-                BuildProfileUpload(ProfileIdOf(row))));
+                shareOthers || isSelf ? aion2Directory?.GuildOf(ProfileIdOf(row)) : null,
+                shareOthers || isSelf ? BuildProfileUpload(ProfileIdOf(row)) : null));
         }
 
         participants = AttachShieldsGiven(participants, windowStart, windowEnd);
@@ -2405,6 +2414,8 @@ public partial class MainWindow : Window
             return null;
         }
 
+        // Other players' profiles only go online when the player agreed to it (Settings / first-start wizard).
+        ownOnly = ownOnly || !MeterSettings.Load().UploadOtherPlayersProfiles;
         var participants = new List<ProfileParticipantUpload>();
         void Add(int id, string name, string className, bool isSelf)
         {

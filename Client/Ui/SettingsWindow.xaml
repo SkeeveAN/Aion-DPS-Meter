@@ -414,6 +414,8 @@
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.Upload}"/>
                                 <CheckBox x:Name="AutoUploadProfileBox" Content="{local:Loc Settings.AutoUploadProfile}"
                                           ToolTip="Uploads your own character (name, class, level, gear, skills, Daevanion, legion, server) a few seconds after you log in, so you can be found on aiondps.com. Nothing else is uploaded automatically unless you switch on the boss upload below."/>
+                                <CheckBox x:Name="UploadOtherProfilesBox" Content="{local:Loc Settings.UploadOtherProfiles}"
+                                          ToolTip="Also sends the profiles of other players the meter has seen (name, class, level, gear, legion) with your own profile, the Upload button and boss uploads. Off by default: with it off only your own character is sent."/>
                                 <CheckBox x:Name="AutoUploadBossBox" Content="{local:Loc Settings.AutoUploadBoss}"
                                           ToolTip="Uploads the fight to aiondps.com a few seconds after a boss died, the same as the Upload button. Off by default."/>
                             </StackPanel>

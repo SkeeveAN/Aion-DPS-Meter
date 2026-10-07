@@ -102,6 +102,16 @@ public sealed class MeterSettings
     /// without a click, so the player opts in.</summary>
     public bool AutoUploadBoss { get; set; }
 
+    /// <summary>Whether the profiles of OTHER players the meter has seen (name, class, level, gear, legion)
+    /// go online with the own profile upload, the Upload button and a boss upload. Off by default: it is
+    /// data about people who did not agree to anything. With it off only the own character is sent.</summary>
+    public bool UploadOtherPlayersProfiles { get; set; }
+
+    /// <summary>False until the first-start wizard (WizardWindow) has been through: a fresh install, or a
+    /// settings file that was lost or broken. A settings file from before the wizard existed counts as
+    /// done (see Load), so nobody who already set the meter up is asked again.</summary>
+    public bool SetupCompleted { get; set; }
+
     /// <summary>The look of Hide UI: "Chips" (a click-through chip per player) or "Compact" (one
     /// transparent panel with a header, the fought boss and a dense line per player; it takes
     /// clicks, so it can be dragged, scaled and a player opened).</summary>
@@ -195,9 +205,20 @@ public sealed class MeterSettings
 
             if (File.Exists(path))
             {
-                var loaded = JsonSerializer.Deserialize<MeterSettings>(File.ReadAllText(path));
+                string text = File.ReadAllText(path);
+                var loaded = JsonSerializer.Deserialize<MeterSettings>(text);
                 if (loaded is not null)
                 {
+                    if (!loaded.SetupCompleted)
+                    {
+                        // A file without the field is an install from before the wizard: already set up.
+                        using var document = JsonDocument.Parse(text);
+                        if (!document.RootElement.TryGetProperty(nameof(SetupCompleted), out _))
+                        {
+                            loaded.SetupCompleted = true;
+                        }
+                    }
+
                     return loaded;
                 }
             }
