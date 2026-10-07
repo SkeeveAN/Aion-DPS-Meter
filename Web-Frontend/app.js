@@ -2216,10 +2216,6 @@ function petCircle(pet) {
   return holder;
 }
 
-function renderPetCircles(profile) {
-  return profile.pets?.length > 0 ? el("div", { className: "pf-pets" }, profile.pets.map(petCircle)) : null;
-}
-
 // Another player's Daevanion boards: only the number of activated nodes is known, no map.
 function renderBoardSummary(profile) {
   const rows = profile.boards.map((b) => {
@@ -2254,14 +2250,19 @@ function renderSpeciesTab(profile) {
         el("strong", { textContent: speciesValue(e) }),
       ]),
     );
-    return el("div", { className: "pf-card pf-species-card" }, [
+    const card = el("div", { className: "pf-card pf-species-card" }, [
       el("h4", {}, [el("span", { textContent: k.names[locale] ?? k.names.en ?? k.key }), el("em", { textContent: t("profile.speciesLevel", { level: k.level }) })]),
       el("div", { className: "pf-sp-sub", textContent: maxed ? t("profile.speciesMax") : `${t("profile.speciesProgress")}: ${formatNumber(k.progress)}` }),
       el("ul", { className: "pf-sp-list" }, rows),
     ]);
+    // The species' circle sits centred above its table.
+    const pet = profile.pets?.find((p) => p.species === k.id);
+    return el("div", { className: "pf-species-col" }, [pet ? petCircle(pet) : null, card].filter((x) => x != null));
   });
+  const shown = new Set(profile.species.map((k) => k.id));
+  const loose = (profile.pets ?? []).filter((p) => !shown.has(p.species));
   return el("div", {}, [
-    renderPetCircles(profile),
+    loose.length > 0 ? el("div", { className: "pf-pets" }, loose.map(petCircle)) : null,
     cards.length > 0 ? el("div", { className: "pf-species" }, cards) : null,
     cards.length > 0 ? el("p", { className: "profile-source", textContent: t("profile.speciesNote") }) : null,
   ].filter((x) => x != null));

@@ -2146,6 +2146,14 @@ header .wordmark {
   gap: 16px;
   align-items: start;
 }
+.pf-species-col {
+  display: grid;
+  gap: 10px;
+  justify-items: stretch;
+}
+.pf-species-col > .pf-pet {
+  justify-self: center;
+}
 .pf-species-card h4 {
   display: flex;
   justify-content: space-between;
