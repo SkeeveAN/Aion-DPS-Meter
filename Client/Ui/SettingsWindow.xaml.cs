@@ -60,7 +60,7 @@ public partial class SettingsWindow : Window
         double timetableOpacity = settings.TimetableOpacity ?? settings.OverlayOpacity;
         TimetableOpacityBox.SelectedItem = TimetableOpacityBox.Items.OfType<ComboBoxItem>()
             .OrderBy(i => Math.Abs(double.Parse((string)i.Tag, System.Globalization.CultureInfo.InvariantCulture) - timetableOpacity)).First();
-        TimetableLookaheadSlider.Value = Math.Clamp(settings.TimetableLookaheadMinutes, 5, 180);
+        TimetableLookaheadSlider.Value = Math.Clamp(settings.TimetableLookaheadMinutes, 0, 60);
         ShowTimetableLookahead(); // the handler does not fire when the value equals the slider's default
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
         // Reflects the REAL registry state, not the last value this dialog wrote - see

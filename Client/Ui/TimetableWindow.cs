@@ -127,8 +127,8 @@ public sealed class TimetableWindow : Window
         return template;
     }
 
-    /// <summary>How many minutes ahead an event is listed as "starts within ..." (Settings, 5 to 180).</summary>
-    public void ApplyLookahead(int minutes) => _lookahead = TimeSpan.FromMinutes(Math.Clamp(minutes, 5, 180));
+    /// <summary>How many minutes ahead an event is listed as "starts within ..." (Settings, 0 to 60; 0 lists nothing as "about to start").</summary>
+    public void ApplyLookahead(int minutes) => _lookahead = TimeSpan.FromMinutes(Math.Clamp(minutes, 0, 60));
 
     /// <summary>The overlay's dark background at the Settings' opacity (the same as the DPS overlay's).</summary>
     public void ApplyOpacity(double opacity)

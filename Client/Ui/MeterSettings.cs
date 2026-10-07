@@ -125,7 +125,7 @@ public sealed class MeterSettings
     /// this existed) follows <see cref="OverlayOpacity"/>, which is what the timetable used until then.</summary>
     public double? TimetableOpacity { get; set; }
 
-    /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 5 to 180.</summary>
+    /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 0 to 60 (0 = none).</summary>
     public int TimetableLookaheadMinutes { get; set; } = 60;
 
     /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
