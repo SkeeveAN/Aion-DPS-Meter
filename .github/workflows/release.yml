@@ -125,4 +125,9 @@ jobs:
           # everything is attached does it become the normal "Latest" release (the fetch for
           # delta packages and the client's updater both still look at prereleases as well).
           gh release edit $tag --prerelease=false --latest
+          # Only the newest 10 releases are kept (deltas need the recent ones; older ones just
+          # multiply the versions); older releases are deleted together with their tags.
+          $old = gh release list --limit 200 --json tagName,createdAt | ConvertFrom-Json |
+            Sort-Object createdAt -Descending | Select-Object -Skip 10
+          foreach ($r in $old) { gh release delete $r.tagName --cleanup-tag --yes }
         shell: pwsh
