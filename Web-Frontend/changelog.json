@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Boss page: runs whose difficulty step is unknown (e.g. Transcendence) get their own 'Stage unknown' tab instead of being hidden",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.12.2",
   "date": "2026-10-07",
   "items": [
