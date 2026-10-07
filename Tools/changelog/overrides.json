@@ -4,5 +4,7 @@
  "acb2ddf": null,
  "f60fd65": "Uploads carry the own server id and the game server address (IP:port); server names for every id of the game's own table (only block 13/23 counts as Europe, other blocks show as 'Name [id]')",
  "53e722b": "the first-start wizard is a single small window in the look of the Settings (language, privacy text and the three upload switches together)",
- "5d78f14": null
+ "5d78f14": null,
+ "be7bc19": null,
+ "3da7f8c": null
 }

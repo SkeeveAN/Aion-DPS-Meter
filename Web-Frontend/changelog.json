@@ -11,18 +11,6 @@
     ]
    },
    {
-    "text": "Statistics: read a server's faction from the server catalog",
-    "areas": [
-     "Backend"
-    ]
-   },
-   {
-    "text": "Statistics: faction of servers the catalog does not list, from the server name",
-    "areas": [
-     "Backend"
-    ]
-   },
-   {
     "text": "Player details: monsters are named from their NPC id (12,589 of them, in five languages), the healing view lists the players healed, and the Theostone skills have their icon",
     "areas": [
      "Client"
