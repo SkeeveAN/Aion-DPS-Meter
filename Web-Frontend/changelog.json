@@ -1,12 +1,20 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.11.3",
   "date": "2026-10-07",
   "items": [
    {
     "text": "Pet circles run counter-clockwise like the game's",
     "areas": [
      "Website"
+    ]
+   },
+   {
+    "text": "the pet circles always show nine places like the game's (the ones a species level has not unlocked stay dark) and the effect names in the species tables take the colour of their quality; the client sends the quality of each effect",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
     ]
    }
   ]
