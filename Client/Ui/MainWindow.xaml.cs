@@ -3710,9 +3710,9 @@ public partial class MainWindow : Window
         {
             _topmostBeforeHideUi = Topmost;
             Topmost = true;
-            // The compact panel stays in the taskbar: its right-click "Close" and a click on it are
+            // Stays in the taskbar in both looks: its right-click "Close" and a click on it are
             // ways to end the meter or bring it back besides the hotkey.
-            ShowInTaskbar = _compactOverlay;
+            ShowInTaskbar = true;
         }
         else
         {
@@ -3759,7 +3759,7 @@ public partial class MainWindow : Window
     private void ApplyOverlayLook()
     {
         ShowOverlayPanels();
-        ShowInTaskbar = _compactOverlay;
+        ShowInTaskbar = true;
         FitWindowToCompactOverlay(_compactOverlay);
         if (_compactOverlay)
         {
