@@ -78,16 +78,27 @@ export function homePage(): Page {
     meta: {
       title: "Aion DPS Meter – Free Damage Meter & Boss Leaderboards",
       description:
-        "Free open-source DPS/HPS meter for Aion 2 with community boss leaderboards per difficulty, boss mechanics guides and character profiles (gear, skills, stigmas). Passive packet capture: never reads game memory, never hooks the client.",
+        "Free open-source Aion 2 DPS/HPS meter with boss leaderboards, mechanics guides and character profiles. Passive packet capture, never reads game memory.",
       canonicalPath: "/",
       jsonLd: [websiteJsonLd(), softwareApplicationJsonLd()],
     },
     body: html`
       <h2>Aion DPS Meter</h2>
       <p>Free, open-source damage and healing meter for Aion 2, plus community boss leaderboards and character profiles.</p>
+      <h3>What it does</h3>
+      <p>Aion DPS Meter shows live damage per second and healing per second for every player in your party or raid while you play. It runs beside the game as its own window or as a transparent click-through overlay, and keeps a full log of each fight so you can review skill breakdowns and group composition afterwards.</p>
+      <p>The meter works by passive packet capture: it only reads the network traffic your own computer already receives. It never reads game memory, never injects code and never hooks the game client.</p>
+      <h3>Boss leaderboards and guides</h3>
+      <p>Players can optionally upload their encounters. The site turns them into community leaderboards for every instance, boss and difficulty step, from Expeditions and Nightmare levels to Ascension Rite and Transcendence stages. Each boss page also lists its mechanics, the fastest clears, the strongest groups and the best results per class, so you can compare your own run with what others achieve.</p>
+      <h3>Character profiles</h3>
+      <p>Every uploading character gets a public profile with gear, skills, stigmas and recent encounters. Legions have their own pages that list their members on each server. Uploads are off by default and you decide what is shared.</p>
+      <h3>Get started</h3>
+      <p>Install the Windows client, start Aion 2 and the meter picks up your fights automatically. Updates are installed by the client itself, and every release is documented in the changelog.</p>
       <ul class="plain">
         ${[DEFAULT_GAME].map((g) => html`<li><a href="/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
+        <li><a href="/guilds">Legions</a></li>
         <li><a href="/download">Download the Windows client</a></li>
+        <li><a href="/changelog">Changelog</a></li>
       </ul>`,
   };
 }

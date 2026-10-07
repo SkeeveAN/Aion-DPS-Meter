@@ -2132,7 +2132,7 @@ function renderEquipmentTab(profile) {
     return i < 0 ? 99 : i;
   };
   const groups = { armor: [], accessories: [], other: [] };
-  for (const g of profile.gear) {
+  for (const g of profile.gear.filter((x) => x.slotName !== "Arcana")) {
     const home = GEAR_GROUPS.find(([, names]) => names.includes(g.slotName));
     groups[home ? home[0] : "other"].push(g);
   }
@@ -2151,6 +2151,13 @@ function renderEquipmentTab(profile) {
     col(groups.accessories),
     groups.other.length > 0 ? el("div", { className: "pf-weapons" }, groups.other.map(gearSlot)) : null,
   ].filter((x) => x != null));
+}
+
+// The five arcana slots are ordinary items in the inspect gear list (slots 25-29); the number on the
+// tile is the arcana's level (+N).
+function renderArcanaTab(profile) {
+  const list = profile.gear.filter((g) => g.slotName === "Arcana").sort((a, b) => a.slot - b.slot);
+  return el("div", { className: "pf-arcana" }, list.map(gearSlot));
 }
 
 function renderSkillsTab(profile) {
@@ -2420,7 +2427,10 @@ async function renderPlayerProfile(playerId) {
   const strip = renderPlayerStrip(profile, data.player);
   const tabs = [["runs", t("profile.tabRuns"), data.history.length, () => renderRunsTab(data.history)]];
   if (profile?.gear.length > 0) {
-    tabs.push(["equipment", t("profile.tabEquipment"), profile.gear.length, () => renderEquipmentTab(profile)]);
+    tabs.push(["equipment", t("profile.tabEquipment"), profile.gear.filter((g) => g.slotName !== "Arcana").length, () => renderEquipmentTab(profile)]);
+  }
+  if (profile?.gear.some((g) => g.slotName === "Arcana")) {
+    tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);
   }
   if (profile?.skills.length > 0) {
     tabs.push(["skills", t("profile.tabSkills"), profile.skills.length, () => renderSkillsTab(profile)]);
