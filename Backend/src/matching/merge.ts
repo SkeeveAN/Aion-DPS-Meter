@@ -91,15 +91,19 @@ function bossesOfGame(game: Game) {
 /**
  * Difficulty step encoded in a boss's NPC ids: the n-th id (ascending) of a Nightmare boss is level n; the first four of
  * an Ascension Rite boss are Easy, Medium, Hard and Extreme (a Divided Aponos fight with 2701789, the second id, was
- * confirmed as the second step by the player). Further ids of an Ascension boss are not a step.
+ * confirmed as the second step by the player). Further ids of an Ascension boss are not a step. Transcendence has no
+ * rule common to its instances; only the steps a player confirmed are known (TRANSCENDENCE_STEPS).
  */
 export function modeFromNpcId(bossId: number, npcId: number): string {
   const row = db
-    .select({ category: instances.category })
+    .select({ category: instances.category, slug: instances.slug })
     .from(bosses)
     .innerJoin(instances, eq(bosses.instanceId, instances.id))
     .where(eq(bosses.id, bossId))
     .get();
+  if (row?.category === "transcendence") {
+    return TRANSCENDENCE_STEPS[row.slug ?? ""]?.[Math.floor(npcId / 1000)] ?? "";
+  }
   if (row?.category !== "nightmare" && row?.category !== "ascension") {
     return "";
   }
@@ -115,6 +119,15 @@ export function modeFromNpcId(bossId: number, npcId: number): string {
 }
 
 const ASCENSION_STEPS = ["easy", "medium", "hard", "extreme"];
+
+/**
+ * Transcendence step by instance and the first four digits of the boss's NPC ids (2330709 -> 2330). Only what a player
+ * confirmed: Shattered Arkanis stage 1 fights carry 2330xxx. The instances differ (Deus Research Base also has 2310 and
+ * 2320), so nothing is derived from a pattern; unknown ids leave the step empty ("Stage unknown" on the boss page).
+ */
+const TRANSCENDENCE_STEPS: Readonly<Record<string, Readonly<Record<number, string>>>> = {
+  "shattered-arkanis": { 2330: "1" },
+};
 
 function resolveBossId(payload: UploadPayload): number {
   // Aion 2 clients know the NPC's numeric id, which is unambiguous where names are not (the same
