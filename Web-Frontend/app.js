@@ -1229,7 +1229,7 @@ function bossHero(data) {
       el("div", { className: "instance-hero-meta" }, pills),
     ]),
   );
-  // The wide boss banners (2400x340) show whole at their own proportions instead of being zoomed into the taller photo hero.
+  // The wide boss banners (1920x272) show whole at their own proportions instead of being zoomed into the taller photo hero.
   return el("div", { className: BOSS_IMAGES[boss.name] ? "instance-hero instance-hero--banner" : "instance-hero" }, children);
 }
 

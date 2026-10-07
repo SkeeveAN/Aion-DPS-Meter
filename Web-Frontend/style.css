@@ -1208,8 +1208,8 @@ th {
   margin-bottom: 20px;
 }
 
-/* Wide boss banners (2400x340): their own proportions, no zoom into the taller hero. */
-.instance-hero--banner { height: auto; aspect-ratio: 2400 / 340; min-height: 150px; }
+/* Wide boss banners (1920x272): their own proportions, no zoom into the taller hero. */
+.instance-hero--banner { height: auto; aspect-ratio: 1920 / 272; min-height: 150px; }
 
 .instance-hero-photo {
   position: absolute;
