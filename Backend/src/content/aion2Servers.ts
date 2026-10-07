@@ -8,22 +8,32 @@ const ELYOS_13 = ["Siel", "Nezekan", "Vaizel", "Kaisinel", "Yustiel", "Ariel", "
 const ELYOS_10 = ["Siel", "Nezekan", "Vaizel", "Kaisinel", "Yustiel", "Ariel", "Fregion", "Meslamtaeda", "Hithanya", "Nania", "Tahavatha", "Luteros", "Phernos", "Daminu", "Kasaka", "Bakarma", "Tsenka", "Kochi", "Ishtar", "Tiamat", "Poeta", "Verteron", "Nathara", "Talisra", "Zumion", "Nahid", "Asahr", "Caelid", "Laveis", "Perion", "Dramata", "Reda", "Auldor", "Vakron", "Narun", "Gartua", "Chloris", "Ione", "Teina", "Dymones", "Bargott", "Atheron", "Ruthilis", "Siliator", "Idris", "Satia", "Estian", "Rahu", "Rhanman", "Hebran", "Urahum", "Lakshmi", "Thamon", "Tiere", "Duduri", "Derkos", "Dundu", "Holyaul"];
 const ASMO_23 = ["Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel", "Ereshkigal", "Beritra", "Nemon", "Hadala", "Ludra", "Ulgorn", "Munin", "Odar", "Zemurru", "Kromede", "Quai", "Baba", "Fafnir", "Indnath", "Agnita", "Atiel", "Tassin", "Heladrir", "Valdemar", "Lagta", "Gerod", "Urd", "Ecco", "Giselle", "Kashapa", "Stof", "Berk", "Nuakum", "Grisilla", "Santras", "Reuben", "Hugo", "Kraki", "Hystan", "Rathman", "Sigebert", "Nazmun", "Gelcos", "Paton", "Pelleir", "Elvida", "Ketu", "Pydeon", "Notun", "Murute", "Rotan", "Kwapo", "Duanka", "Brok", "Valter", "Purakhi", "Ignus", "Ishalgen", "Altgard"];
 const ASMO_20 = ["Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel", "Ereshkigal", "Beritra", "Nemon", "Hadala", "Ludra", "Ulgorn", "Munin", "Odar", "Zemurru", "Kromede", "Quai", "Baba", "Fafnir", "Indnath", "Ishalgen", "Altgard", "Agnita", "Atiel", "Valdemar", "Lagta", "Gerod", "Urd", "Ecco", "Giselle", "Kashapa", "Stof", "Berk", "Nuakum", "Grisilla", "Santras", "Reuben", "Hugo", "Kraki", "Hystan", "Rathman", "Sigebert", "Nazmun", "Gelcos", "Paton", "Pelleir", "Elvida", "Ketu", "Pydeon", "Notun", "Murute", "Rotan", "Kwapo", "Duanka", "Brok", "Valter", "Purakhi", "Ignus"];
-const EUROPE_SERVERS_PER_FACTION = 22;
+// The region is the digit after the faction digit: 1 NA East, 2 NA West, 3 Europe, 4 LATAM, 5 Asia
+// (aion2.run, matching the client's six id blocks; only Europe is confirmed with real characters so far -
+// the game server address every upload now carries is what will confirm the others). The first N servers
+// of a block are the live ones of that region; block 10 and the ids beyond are labelled "Name [id]".
+const REGIONS: Record<number, { name: string; perFaction: number }> = {
+  1: { name: "NA East", perFaction: 8 },
+  2: { name: "NA West", perFaction: 5 },
+  3: { name: "Europe", perFaction: 22 },
+  4: { name: "LATAM", perFaction: 6 },
+  5: { name: "Asia", perFaction: 8 },
+};
 
-function nameOf(serverId: number): string | null {
-  const block = Math.floor(serverId / 100);
+export function nameOf(serverId: number): string | null {
+  const faction = Math.floor(serverId / 1000);
+  const block = Math.floor(serverId / 100) % 10;
   const index = (serverId % 100) - 1;
-  const names =
-    block === 13 || (block >= 11 && block <= 15 && block !== 10) ? ELYOS_13
-    : block === 10 ? ELYOS_10
-    : block === 23 || (block >= 21 && block <= 25) ? ASMO_23
-    : block === 20 ? ASMO_20
-    : null;
-  const name = names?.[index];
-  if (!name) {
+  if ((faction !== 1 && faction !== 2) || index < 0) {
     return null;
   }
-  return (block === 13 || block === 23) && index < EUROPE_SERVERS_PER_FACTION ? `Europe - ${name}` : `${name} [${serverId}]`;
+  const names = faction === 1 ? (block === 0 ? ELYOS_10 : ELYOS_13) : block === 0 ? ASMO_20 : ASMO_23;
+  const name = names[index];
+  if (!name || block > 5) {
+    return null;
+  }
+  const region = REGIONS[block];
+  return region && index < region.perFaction ? `${region.name} - ${name}` : `${name} [${serverId}]`;
 }
 
 const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

@@ -1,5 +1,5 @@
 import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
-import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, splitConquest } from "./game-data.js";
+import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, SERVER_NAMES, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 
 const app = document.getElementById("app");
@@ -361,7 +361,7 @@ function buildTopPlayersSection(rows, game) {
       classEmblem(r.className, false, true),
       el("span", { className: "hp-who" }, [
         el("b", { textContent: r.playerName }),
-        el("span", { textContent: [displayName({ name: r.bossName, nameEn: r.bossNameEn }), r.serverName].filter(Boolean).join(" · ") }),
+        el("span", { textContent: [displayName({ name: r.bossName, nameEn: r.bossNameEn }), serverLabel(r.serverName)].filter(Boolean).join(" · ") }),
       ]),
       el("span", { className: "hp-score" }, [el("b", { textContent: formatNumber(r.idps) }), el("span", { textContent: t("leaderboard.idpsShort") })]),
       el("i", { className: "hp-fill", style: `width:${(r.idps / best) * 100}%` }),
@@ -768,6 +768,19 @@ function posterCard(href, photo, title, objectPosition) {
 }
 
 /** Display name as the UI translation table knows it, else the English name the DB carries, else the raw name. */
+/** A server label as stored ("Europe - Tsenka", "NA East - Siel", "Hogalum [1317]") with the server's name in the
+ * reader's language, as the game spells it (only a few names differ - see SERVER_NAMES). The region stays. */
+function serverLabel(label) {
+  if (!label) {
+    return label;
+  }
+  const cut = label.lastIndexOf(" - ");
+  const head = cut >= 0 ? label.slice(0, cut + 3) : "";
+  const m = /^(.+?)( \[\d+\])?$/.exec(label.slice(cut >= 0 ? cut + 3 : 0));
+  const name = m ? m[1] : label;
+  return head + (SERVER_NAMES[name]?.[getLocale()] ?? name) + (m?.[2] ?? "");
+}
+
 function displayName(row) {
   // Conquest instances read "Draupnir ★" (their star rating), not "Draupnir (Conquest)".
   const conquest = splitConquest(row.name);
@@ -1207,7 +1220,7 @@ function profileIcon(player) {
 function playerCell(faction, className, name, href, serverName, player) {
   // Aion 2 rankings mix servers (per the user: cross-server runs exist there), so the server rides
   // along as a tag; classic Aion's pages are always scoped to one server and need none.
-  const tag = currentGame === "aion2" && serverName ? el("span", { className: "server-tag", textContent: serverName, title: serverName }) : null;
+  const tag = currentGame === "aion2" && serverName ? el("span", { className: "server-tag", textContent: serverLabel(serverName), title: serverLabel(serverName) }) : null;
   return el(
     "span",
     { className: "icon-label" },
@@ -1638,7 +1651,7 @@ function meterRow(rank, p, metric, max) {
   const value = p[metric];
   const pct = max > 0 ? (value / max) * 100 : 0;
   const isPet = p.className === "?";
-  const serverTag = currentGame === "aion2" && p.serverName ? el("span", { className: "server-tag", textContent: p.serverName, title: p.serverName }) : null;
+  const serverTag = currentGame === "aion2" && p.serverName ? el("span", { className: "server-tag", textContent: serverLabel(p.serverName), title: serverLabel(p.serverName) }) : null;
 
   return el(
     "a",
@@ -1907,7 +1920,7 @@ async function renderParticipant(participantId) {
     tags.push(el("span", { className: "pt-tag" }, [factionIcon(p.faction), p.faction]));
   }
   if (p.serverName) {
-    tags.push(el("span", { className: "pt-tag", textContent: p.serverName }));
+    tags.push(el("span", { className: "pt-tag", textContent: serverLabel(p.serverName) }));
   }
 
   const sections = [
@@ -2255,7 +2268,7 @@ function renderPlayerStrip(profile, player) {
     el("div", { className: "pf-meta" }, [
       profile?.faction ? iconLabel(factionIcon(profile.faction), profile.faction) : null,
       player.guild ? el("span", { textContent: `${t("profile.guild")}: ${player.guild}` }) : null,
-      player.serverName ? el("span", { textContent: player.serverName }) : null,
+      player.serverName ? el("span", { textContent: serverLabel(player.serverName) }) : null,
     ].filter((x) => x != null)),
     el("div", { className: "pf-numbers" }, numbers),
   ].filter((x) => x != null));
@@ -2334,7 +2347,7 @@ async function renderSearchResults(query) {
   const list = el(
     "ul",
     { className: "plain" },
-    results.map((p) => el("li", {}, [link(p.serverName ? `${p.name} (${p.serverName})` : p.name, gp(`/players/${p.slug ?? p.id}`))])),
+    results.map((p) => el("li", {}, [link(p.serverName ? `${p.name} (${serverLabel(p.serverName)})` : p.name, gp(`/players/${p.slug ?? p.id}`))])),
   );
   app.replaceChildren(el("h2", { textContent: t("search.multipleResultsHeading") }), list);
 }
@@ -2390,7 +2403,7 @@ function compareButton(text, href) {
 }
 
 function runCaption(encounter) {
-  return `${formatDate(new Date(encounter.startedAt))}${encounter.serverName ? ` · ${encounter.serverName}` : ""}`;
+  return `${formatDate(new Date(encounter.startedAt))}${encounter.serverName ? ` · ${serverLabel(encounter.serverName)}` : ""}`;
 }
 
 async function renderCompareRuns(params) {
@@ -2412,7 +2425,7 @@ async function renderCompareRuns(params) {
     const rows = others.map((r) =>
       el("a", { className: "cmp-pick", href: compareLink("/compare/runs", { a, b: r.encounterId }) }, [
         el("span", { className: "cmp-pick-main", textContent: formatDate(new Date(r.startedAt)) }),
-        el("span", { className: "cmp-pick-sub", textContent: [r.serverName, t("compare.playersCount", { count: r.playerCount }), r.topPlayerName].filter((x) => x).join(" · ") }),
+        el("span", { className: "cmp-pick-sub", textContent: [serverLabel(r.serverName), t("compare.playersCount", { count: r.playerCount }), r.topPlayerName].filter((x) => x).join(" · ") }),
         el("span", { className: "cmp-pick-value", textContent: `${formatNumber(r.groupIDps)} ${t("leaderboard.idpsShort")} · ${formatDuration(r.durationSeconds)}` }),
       ]),
     );
@@ -2521,7 +2534,7 @@ async function renderComparePlayers(params) {
           ? shown.map((c) =>
               el("a", { className: "cmp-pick", href: compareLink("/compare/players", { a, boss: bossParam, b: c.playerId }) }, [
                 el("span", { className: "cmp-pick-main" }, [iconLabel(c.className ? classIcon(c.className) : null, c.name)]),
-                el("span", { className: "cmp-pick-sub", textContent: [c.serverName, c.guild, t("compare.runsCount", { count: c.runs })].filter((x) => x).join(" · ") }),
+                el("span", { className: "cmp-pick-sub", textContent: [serverLabel(c.serverName), c.guild, t("compare.runsCount", { count: c.runs })].filter((x) => x).join(" · ") }),
                 el("span", { className: "cmp-pick-value", textContent: `${formatNumber(c.bestIdps)} ${t("leaderboard.idpsShort")}` }),
               ]),
             )
@@ -2547,7 +2560,7 @@ async function renderComparePlayers(params) {
   const head = (x) =>
     el("div", { className: "cmp-head" }, [
       el("strong", {}, [iconLabel(classIcon(x.best.className), x.player.name)]),
-      el("a", { href: gp(`/players/${x.player.id}`), textContent: [x.player.serverName, x.player.guild].filter((v) => v).join(" · ") || t("compare.openProfile") }),
+      el("a", { href: gp(`/players/${x.player.id}`), textContent: [serverLabel(x.player.serverName), x.player.guild].filter((v) => v).join(" · ") || t("compare.openProfile") }),
     ]);
   const A = data.a;
   const B = data.b;

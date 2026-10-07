@@ -377,3 +377,149 @@ export function smallPhoto(url) {
     ? url.replace(/\.webp$/, "-sm.webp")
     : url;
 }
+
+// Server names as the game's own text spells them in each language it ships (ServerName_<id>_desc in the
+// client's L10NString, checked 2026-10-07). Only the names that differ from the English one are listed;
+// the database and the uploads always carry the English name, the site shows the reader's language.
+export const SERVER_NAMES = {
+  "Siel": {
+    "ru": "Сиэль"
+  },
+  "Nezekan": {
+    "ru": "Неджакан"
+  },
+  "Vaizel": {
+    "ru": "Байзел"
+  },
+  "Kaisinel": {
+    "ru": "Кайсинель"
+  },
+  "Yustiel": {
+    "ru": "Юстиэль"
+  },
+  "Ariel": {
+    "ru": "Ариэль"
+  },
+  "Fregion": {
+    "ru": "Фрегион"
+  },
+  "Meslamtaeda": {
+    "ru": "Мирастад"
+  },
+  "Hithanya": {
+    "ru": "Хитани"
+  },
+  "Nania": {
+    "ru": "Нания"
+  },
+  "Tahavatha": {
+    "fr": "Tahabata",
+    "ru": "Тахабата"
+  },
+  "Luteros": {
+    "ru": "Лутерс"
+  },
+  "Phernos": {
+    "ru": "Фернос"
+  },
+  "Daminu": {
+    "ru": "Дамину"
+  },
+  "Kasaka": {
+    "fr": "Kasika",
+    "ru": "Касака"
+  },
+  "Bakarma": {
+    "ru": "Бакрама"
+  },
+  "Tsenka": {
+    "de": "Hogalum",
+    "ru": "Ченгарун"
+  },
+  "Kochi": {
+    "de": "Kochilum",
+    "ru": "Кочирун"
+  },
+  "Ishtar": {
+    "ru": "Иштар"
+  },
+  "Tiamat": {
+    "ru": "Тиамат"
+  },
+  "Gauss": {
+    "ru": "Гаус"
+  },
+  "Lamuatan": {
+    "ru": "Рамуатана"
+  },
+  "Israphel": {
+    "ru": "Израфель"
+  },
+  "Zikel": {
+    "ru": "Джикел"
+  },
+  "Triniel": {
+    "ru": "Триниэль"
+  },
+  "Lumiel": {
+    "ru": "Румиэль"
+  },
+  "Marchutan": {
+    "ru": "Маркутан"
+  },
+  "Azphel": {
+    "ru": "Асфель"
+  },
+  "Ereshkigal": {
+    "ru": "Эрискаль"
+  },
+  "Beritra": {
+    "ru": "Бритра"
+  },
+  "Nemon": {
+    "ru": "Немон"
+  },
+  "Hadala": {
+    "ru": "Хадала"
+  },
+  "Ludra": {
+    "fr": "Eldra",
+    "ru": "Рудра"
+  },
+  "Ulgorn": {
+    "ru": "Ульгорн"
+  },
+  "Munin": {
+    "ru": "Мунин"
+  },
+  "Odar": {
+    "ru": "Одар"
+  },
+  "Zemurru": {
+    "de": "Zenqaka",
+    "ru": "Земурру"
+  },
+  "Kromede": {
+    "ru": "Кромед"
+  },
+  "Quai": {
+    "fr": "Nai",
+    "ru": "Квайринг"
+  },
+  "Baba": {
+    "de": "Babalum",
+    "ru": "Бабарунг"
+  },
+  "Fafnir": {
+    "ru": "Фафнир"
+  },
+  "Indnath": {
+    "ru": "Инднах"
+  },
+  "Agnita": {
+    "ru": "Агнита"
+  },
+  "Atiel": {
+    "ru": "Атиэль"
+  }
+};
