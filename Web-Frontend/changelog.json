@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.11.2",
   "date": "2026-10-07",
   "items": [
    {
@@ -35,6 +35,15 @@
    },
    {
     "text": "Legion page: the game's gear score (as the character window shows it) next to our average item level; the client sends the gear score of inspected players",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "worn titles, pet circles and Daevanion board progress are read from the game and shown on the player profile (titles in the header, pet circles above the species tables, board percentages); the client sends them for your own character and for the character windows of other players you open",
     "areas": [
      "Client",
      "Website",
