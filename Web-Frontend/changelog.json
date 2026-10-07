@@ -41,6 +41,24 @@
      "Website",
      "Backend"
     ]
+   },
+   {
+    "text": "Metrics: boss fights per boss, conquest bosses with their stars",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Metrics: the instance label of the boss fights is called dungeon (Prometheus overwrites a label named instance with the scrape address)",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Statistics: the per-day lists start with the newest day",
+    "areas": [
+     "Website"
+    ]
    }
   ]
  },
