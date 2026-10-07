@@ -108,8 +108,9 @@ public sealed class MeterSettings
     public bool UploadOtherPlayersProfiles { get; set; }
 
     /// <summary>False until the first-start wizard (WizardWindow) has been through: a fresh install, or a
-    /// settings file that was lost or broken. A settings file from before the wizard existed counts as
-    /// done (see Load), so nobody who already set the meter up is asked again.</summary>
+    /// settings file that was lost or broken. A settings file from before the wizard existed does not have
+    /// the field either, so every install sees the wizard once after updating to the version that brought it
+    /// (0.11.0) - on purpose, so everybody makes the privacy choices (all off by default) once.</summary>
     public bool SetupCompleted { get; set; }
 
     /// <summary>The look of Hide UI: "Chips" (a click-through chip per player) or "Compact" (one
@@ -209,16 +210,6 @@ public sealed class MeterSettings
                 var loaded = JsonSerializer.Deserialize<MeterSettings>(text);
                 if (loaded is not null)
                 {
-                    if (!loaded.SetupCompleted)
-                    {
-                        // A file without the field is an install from before the wizard: already set up.
-                        using var document = JsonDocument.Parse(text);
-                        if (!document.RootElement.TryGetProperty(nameof(SetupCompleted), out _))
-                        {
-                            loaded.SetupCompleted = true;
-                        }
-                    }
-
                     return loaded;
                 }
             }

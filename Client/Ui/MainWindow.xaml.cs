@@ -253,6 +253,17 @@ public partial class MainWindow : Window
 
         var settings = MeterSettings.Load();
 
+        // Until the wizard has been through (see below) nothing is uploaded: an install that updated from a
+        // version with the uploads switched on starts from "all off" too, so no upload runs before its
+        // owner has made the choice.
+        if (!Headless && !settings.SetupCompleted)
+        {
+            settings.AutoUploadProfile = false;
+            settings.AutoUploadBoss = false;
+            settings.UploadOtherPlayersProfiles = false;
+            settings.Save();
+        }
+
         // Empty means "a fresh install, or a settings file older than this feature" -- leave
         // LocalizationManager on whatever it already auto-detected from the OS at construction
         // time (see its DetectSystemLanguage remarks) rather than forcing English.
