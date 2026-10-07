@@ -406,9 +406,9 @@
         "pt": "Altar do Pesadelo",
         "ru": "Алтарь кошмара"
       },
-      "category": "awakening",
+      "category": "ascension",
       "sortOrder": 120,
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "TyrantsHideout",

@@ -644,7 +644,7 @@ async function renderGuilds() {
   const draw = () => {
     const q = filter.value.trim().toLowerCase();
     const shown = guilds.filter((g) => !q || g.name.toLowerCase().includes(q) || serverLabel(g.serverName).toLowerCase().includes(q));
-    // One block per server, the biggest legions first.
+    // One block per server, the legions sorted by name.
     const byServer = new Map();
     for (const g of shown) {
       const label = serverLabel(g.serverName);
@@ -653,7 +653,7 @@ async function renderGuilds() {
     const groups = [...byServer].sort((x, y) => x[0].localeCompare(y[0])).map(([label, legions]) =>
       el("section", { className: "guild-group" }, [
         el("h3", {}, [label, el("small", { textContent: ` ${legions.length}` })]),
-        el("div", { className: "guild-grid" }, legions.sort((x, y) => y.memberCount - x.memberCount || x.name.localeCompare(y.name)).map((g) =>
+        el("div", { className: "guild-grid" }, legions.sort((x, y) => x.name.localeCompare(y.name)).map((g) =>
           el("a", { className: "guild-card", href: `/legions/${g.slug}` }, [
             el("strong", { textContent: g.name }),
             el("small", { textContent: t("guild.members", { count: g.memberCount }) }),
