@@ -43,18 +43,6 @@
     ]
    },
    {
-    "text": "Metrics: boss fights per boss, conquest bosses with their stars",
-    "areas": [
-     "Backend"
-    ]
-   },
-   {
-    "text": "Metrics: the instance label of the boss fights is called dungeon (Prometheus overwrites a label named instance with the scrape address)",
-    "areas": [
-     "Backend"
-    ]
-   },
-   {
     "text": "Statistics: the per-day lists start with the newest day",
     "areas": [
      "Website"
@@ -68,7 +56,7 @@
     ]
    },
    {
-    "text": "Uploads carry the own server id and the game server address (IP:port); server names for every id of the game's own table (only block 13/23 counts as Europe, other blocks show as 'Name [id]'); private page lists the game servers seen",
+    "text": "Uploads carry the own server id and the game server address (IP:port); server names for every id of the game's own table (only block 13/23 counts as Europe, other blocks show as 'Name [id]')",
     "areas": [
      "Client",
      "Website",
