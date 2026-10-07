@@ -66,6 +66,23 @@
      "Client",
      "Backend"
     ]
+   },
+   {
+    "text": "Uploads carry the own server id and the game server address (IP:port); server names for every id of the game's own table (only block 13/23 counts as Europe, other blocks show as 'Name [id]'); private page lists the game servers seen",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "The own character profile is no longer uploaded automatically by default (opt-in in the settings); privacy and download texts in all languages and the READMEs say so",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ]
    }
   ]
  },
