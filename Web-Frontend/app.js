@@ -651,11 +651,13 @@ async function renderChangelog() {
     return el("details", { className: "changelog-group", open: i === 0 }, [
       el("summary", {}, [
         el("strong", { textContent: minor }),
-        el("span", { className: "changelog-range", textContent: `${list.length} release${list.length === 1 ? "" : "s"} · ${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}` }),
+        el("span", { className: "changelog-range", textContent: minor === "Unreleased"
+          ? `${list[0].items.length} change${list[0].items.length === 1 ? "" : "s"} since the last release`
+          : `${list.length} release${list.length === 1 ? "" : "s"} · ${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}` }),
       ]),
       el("ul", { className: "changelog-list" }, list.flatMap((r) => r.items.map((item, n) => el("li", {}, [
         el("span", { className: "changelog-version", textContent: n === 0 && r.version !== "Unreleased" ? r.version : "" }),
-        el("span", { className: "changelog-date", textContent: n === 0 ? fmt(r.date) : "" }),
+        el("span", { className: "changelog-date", textContent: n === 0 && r.version !== "Unreleased" ? fmt(r.date) : "" }),
         el("span", { className: "changelog-text" }, [
           ...item.areas.map((a) => el("span", { className: `changelog-tag changelog-tag--${a.toLowerCase()}`, textContent: a })),
           item.text.charAt(0).toUpperCase() + item.text.slice(1),
