@@ -1831,26 +1831,6 @@
     "tr": "Gördüğüm diğer oyuncuların profillerini de yükle (ad, sınıf, seviye, ekipman, lejyon)",
     "zh": "同时上传我看到的其他玩家的资料（名称、职业、等级、装备、军团）"
   },
-  "Wizard.Next": {
-    "en": "Next",
-    "de": "Weiter",
-    "fr": "Suivant",
-    "es": "Siguiente",
-    "ru": "Далее",
-    "pl": "Dalej",
-    "tr": "İleri",
-    "zh": "下一步"
-  },
-  "Wizard.Back": {
-    "en": "Back",
-    "de": "Zurück",
-    "fr": "Retour",
-    "es": "Atrás",
-    "ru": "Назад",
-    "pl": "Wstecz",
-    "tr": "Geri",
-    "zh": "上一步"
-  },
   "Wizard.Finish": {
     "en": "Finish",
     "de": "Fertig",

@@ -4,9 +4,9 @@ using System.Windows.Controls;
 namespace AionDPS.Ui;
 
 /// <summary>
-/// First-start wizard (a fresh install, or a settings file that was lost or broken - see
-/// <see cref="MeterSettings.SetupCompleted"/>): the language, then the upload options that are off by
-/// default for privacy reasons, each one for the player to switch on. Closing the window any other way
+/// First-start wizard (a fresh install, a settings file that was lost or broken, or an install from before
+/// the wizard existed - see <see cref="MeterSettings.SetupCompleted"/>), one small window: the language and
+/// the upload options that are off by default for privacy reasons, each one for the player to switch on. Closing the window any other way
 /// than Finish keeps everything off, and the wizard is not shown again; every choice can be changed
 /// later in Settings.
 /// </summary>
@@ -47,27 +47,7 @@ public partial class WizardWindow : Window
         }
     }
 
-    private void OnNextClicked(object sender, RoutedEventArgs e)
-    {
-        if (PrivacyPage.Visibility != Visibility.Visible)
-        {
-            LanguagePage.Visibility = Visibility.Collapsed;
-            PrivacyPage.Visibility = Visibility.Visible;
-            BackButton.Visibility = Visibility.Visible;
-            NextButton.Content = LocalizationManager.Instance["Wizard.Finish"];
-            return;
-        }
-
-        Close();
-    }
-
-    private void OnBackClicked(object sender, RoutedEventArgs e)
-    {
-        PrivacyPage.Visibility = Visibility.Collapsed;
-        LanguagePage.Visibility = Visibility.Visible;
-        BackButton.Visibility = Visibility.Collapsed;
-        NextButton.Content = LocalizationManager.Instance["Wizard.Next"];
-    }
+    private void OnFinishClicked(object sender, RoutedEventArgs e) => Close();
 
     /// <summary>Writes the choices. Runs once, however the window was closed.</summary>
     private void Finish()
