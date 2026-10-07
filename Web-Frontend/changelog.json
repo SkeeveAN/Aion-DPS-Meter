@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.11.0",
   "date": "2026-10-07",
   "items": [
    {
@@ -86,6 +86,12 @@
    },
    {
     "text": "First-start wizard (language and the upload options, all off by default) for a fresh install or a lost settings file; new setting to also upload the profiles of other players (off by default); without it only the own character is sent",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "first-start wizard that every install sees once after the update (language and the upload options, all off by default: boss upload, own profile, profiles of other players); until it is done nothing is uploaded; new setting to upload the profiles of other players; the server of an upload is named from the game's own table for every server id",
     "areas": [
      "Client"
     ]
