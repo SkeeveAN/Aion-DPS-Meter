@@ -1071,6 +1071,26 @@
     "tr": "Alınan hasar",
     "zh": "承受伤害"
   },
+  "Main.ModeAll": {
+    "en": "All in One",
+    "de": "All in One",
+    "fr": "Tout en un",
+    "es": "Todo en uno",
+    "ru": "Всё вместе",
+    "pl": "Wszystko w jednym",
+    "tr": "Hepsi Bir Arada",
+    "zh": "综合"
+  },
+  "Main.ModeAllCompact": {
+    "en": "All in One Compact",
+    "de": "All in One Compact",
+    "fr": "All in One Compact",
+    "es": "All in One Compact",
+    "ru": "All in One Compact",
+    "pl": "All in One Compact",
+    "tr": "All in One Compact",
+    "zh": "All in One Compact"
+  },
   "Main.Overlay.ModeDamage": {
     "en": "DMG",
     "de": "SCHADEN",
@@ -1099,6 +1119,56 @@
     "ru": "ПОЛУЧЕНО",
     "pl": "OTRZYMANE",
     "tr": "ALINAN",
+    "zh": "承受"
+  },
+  "Main.Overlay.ModeAll": {
+    "en": "ALL",
+    "de": "ALLE",
+    "fr": "TOUT",
+    "es": "TODO",
+    "ru": "ВСЕ",
+    "pl": "WSZYSTKO",
+    "tr": "HEPSİ",
+    "zh": "综合"
+  },
+  "Main.Overlay.ModeAllCompact": {
+    "en": "ALL+",
+    "de": "ALLE+",
+    "fr": "TOUT+",
+    "es": "TODO+",
+    "ru": "ВСЕ+",
+    "pl": "WSZYSTKO+",
+    "tr": "HEPSİ+",
+    "zh": "综合+"
+  },
+  "Main.Overlay.ColDamage": {
+    "en": "Damage",
+    "de": "Schaden",
+    "fr": "Dégâts",
+    "es": "Daño",
+    "ru": "Урон",
+    "pl": "Obraż.",
+    "tr": "Hasar",
+    "zh": "伤害"
+  },
+  "Main.Overlay.ColHeal": {
+    "en": "Heal",
+    "de": "Heilung",
+    "fr": "Soins",
+    "es": "Cura",
+    "ru": "Лечен.",
+    "pl": "Leczenie",
+    "tr": "İyileş.",
+    "zh": "治疗"
+  },
+  "Main.Overlay.ColTaken": {
+    "en": "Taken",
+    "de": "Erlitten",
+    "fr": "Reçus",
+    "es": "Recib.",
+    "ru": "Получ.",
+    "pl": "Otrzym.",
+    "tr": "Alınan",
     "zh": "承受"
   },
   "Settings.ShowBossHp": {

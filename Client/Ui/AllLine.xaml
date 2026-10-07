@@ -1,0 +1,24 @@
+<UserControl x:Class="AionDPS.Ui.AllLine"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- The second line of a row in the All in One Compact mode: a green cross with the healing, a red shield
+         with the damage taken. Collapsed (no height) in every other mode. DataContext is the PlayerRow. -->
+    <StackPanel Orientation="Horizontal">
+        <StackPanel.Style>
+            <Style TargetType="StackPanel">
+                <Setter Property="Visibility" Value="Collapsed"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding AllCompact}" Value="True">
+                        <Setter Property="Visibility" Value="Visible"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </StackPanel.Style>
+        <Path Data="M4.4,1 H7.6 V4.4 H11 V7.6 H7.6 V11 H4.4 V7.6 H1 V4.4 H4.4 Z" Fill="{DynamicResource Brush.Heal}"
+              Width="10" Height="10" Stretch="Uniform" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
+        <TextBlock Text="{Binding HealCompact}" Margin="4,0,10,0" VerticalAlignment="Center"/>
+        <Path Data="M6,0.8 L10.6,2.4 V5.7 C10.6,8.2 8.8,10.3 6,11.3 C3.2,10.3 1.4,8.2 1.4,5.7 V2.4 Z" Fill="#FF3B3B"
+              Width="10" Height="11" Stretch="Uniform" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
+        <TextBlock Text="{Binding TakenCompact}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

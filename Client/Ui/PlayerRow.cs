@@ -81,7 +81,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public long Damage
     {
         get => _damage;
-        set { _damage = value; OnPropertyChanged(); OnPropertyChanged(nameof(DamageCompact)); }
+        set { _damage = value; OnPropertyChanged(); OnPropertyChanged(nameof(DamageCompact)); OnPropertyChanged(nameof(RateOrDamageCompact)); OnPropertyChanged(nameof(TotalOrTakenCompact)); }
     }
 
     /// <summary>Null renders as "n/a" in the grid -- see DpsCalculator's remarks on why a single
@@ -89,7 +89,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public double? Dps
     {
         get => _dps;
-        set { _dps = value; OnPropertyChanged(); OnPropertyChanged(nameof(DpsDisplay)); OnPropertyChanged(nameof(DpsCompact)); }
+        set { _dps = value; OnPropertyChanged(); OnPropertyChanged(nameof(DpsDisplay)); OnPropertyChanged(nameof(DpsCompact)); OnPropertyChanged(nameof(RateOrHealDisplay)); OnPropertyChanged(nameof(RateOrDamageCompact)); }
     }
 
     /// <summary>Damage and rate in thousands/millions, for the compact overlay's dense lines.</summary>
@@ -163,7 +163,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public double SharePercent
     {
         get => _sharePercent;
-        set { _sharePercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShareDisplay)); }
+        set { _sharePercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShareDisplay)); OnPropertyChanged(nameof(ShareOrHealCompact)); }
     }
 
     public string ShareDisplay => SharePercent.ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "%";
@@ -173,10 +173,74 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public long DamageTaken
     {
         get => _damageTaken;
-        set { _damageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
+        set { _damageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); OnPropertyChanged(nameof(TotalOrTakenCompact)); OnPropertyChanged(nameof(TakenCompact)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
-    public string TakenDisplay => ShowDamageTaken && DamageTaken > 0 ? $"↓ {DamageTaken:N0}" : "";
+    public string TakenDisplay => !AllCompact && (ShowDamageTaken || AllMode) && DamageTaken > 0 ? $"↓ {DamageTaken:N0}" : "";
+
+    private bool _allCompact;
+
+    /// <summary>The All in One Compact mode is on: the usual Damage columns, plus a second line under the name with the
+    /// healing and the damage taken (see AllLine). The row carries <see cref="Healing"/> and <see cref="DamageTaken"/> like in All.</summary>
+    public bool AllCompact
+    {
+        get => _allCompact;
+        set
+        {
+            _allCompact = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(TakenDisplay));
+        }
+    }
+
+    public string HealCompact => Healing > 0 ? Compact(Healing) : "–";
+
+    public string TakenCompact => DamageTaken > 0 ? Compact(DamageTaken) : "–";
+
+    private bool _allMode;
+    private long _healing;
+
+    /// <summary>The All in One mode is on: the row then also carries <see cref="Healing"/> and the damage taken from
+    /// monsters in <see cref="DamageTaken"/>, and the columns that otherwise show the rate or the share show those.</summary>
+    public bool AllMode
+    {
+        get => _allMode;
+        set
+        {
+            _allMode = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(TakenDisplay));
+            OnPropertyChanged(nameof(RateOrHealDisplay));
+            OnPropertyChanged(nameof(RateOrDamageCompact));
+            OnPropertyChanged(nameof(ShareOrHealCompact));
+            OnPropertyChanged(nameof(TotalOrTakenCompact));
+            OnPropertyChanged(nameof(HasSecondaryInfo));
+        }
+    }
+
+    /// <summary>Healing done in the shown window, in All in One mode (0 elsewhere).</summary>
+    public long Healing
+    {
+        get => _healing;
+        set
+        {
+            _healing = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(RateOrHealDisplay));
+            OnPropertyChanged(nameof(ShareOrHealCompact));
+            OnPropertyChanged(nameof(HealCompact));
+        }
+    }
+
+    /// <summary>The window's and the chips' rate column: DPS, or the healing in All in One mode.</summary>
+    public string RateOrHealDisplay => AllMode ? (Healing > 0 ? $"+{Healing:N0}" : "–") : DpsDisplay;
+
+    /// <summary>The compact overlay's columns in All in One mode read Damage, Heal, Taken instead of DPS, share, total.</summary>
+    public string RateOrDamageCompact => AllMode ? DamageCompact : DpsCompact;
+
+    public string ShareOrHealCompact => AllMode ? (Healing > 0 ? Compact(Healing) : "–") : ShareDisplay;
+
+    public string TotalOrTakenCompact => AllMode ? (DamageTaken > 0 ? Compact(DamageTaken) : "–") : DamageCompact;
 
     /// <summary>Whether the second info line (AP/Taken/Defense/Pvp) has anything to show at all -
     /// per the user, that line should default to invisible (and its Auto row collapse to zero

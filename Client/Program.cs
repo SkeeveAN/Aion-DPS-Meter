@@ -150,12 +150,12 @@ internal static class Program
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: AionDPS render-overlay <out.png>");
-                Console.WriteLine("  Draws the compact overlay panel with sample rows into a picture; no window is shown.");
+                Console.WriteLine("Usage: AionDPS render-overlay <out.png> [compact|chips|window]");
+                Console.WriteLine("  Draws the compact overlay panel, the chips overlay or the normal window with sample rows into a picture; no window is shown.");
                 return;
             }
 
-            RunRenderOverlayMode(args[1]);
+            RunRenderOverlayMode(args[1], args.Length > 2 ? args[2] : "compact");
             return;
         }
 
@@ -427,12 +427,18 @@ internal static class Program
     }
 
     /// <summary>Renders the compact overlay panel with a few sample rows to a PNG, never showing a window.</summary>
-    private static void RunRenderOverlayMode(string path)
+    private static void RunRenderOverlayMode(string path, string kind)
     {
+        // "chips-all" etc.: the same look in the All in One mode.
+        bool allCompact = kind.EndsWith("-allc", StringComparison.Ordinal);
+        bool all = kind.EndsWith("-all", StringComparison.Ordinal) || allCompact;
+        kind = allCompact ? kind[..^5] : all ? kind[..^4] : kind;
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         var window = new Ui.MainWindow();
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
         var type = typeof(Ui.MainWindow);
@@ -446,16 +452,56 @@ internal static class Program
         int rank = 0;
         foreach (var x in sample)
         {
-            rows.Add(new Ui.PlayerRow(++rank) { Name = x.Name, ClassName = x.Cls, Damage = x.Dmg, Dps = x.Dps, SharePercent = 100.0 * x.Dmg / total, FillPercent = 100.0 * x.Dmg / sample[0].Dmg });
+            var row = new Ui.PlayerRow(++rank) { Name = x.Name, ClassName = x.Cls, Damage = x.Dmg, Dps = x.Dps, SharePercent = 100.0 * x.Dmg / total, FillPercent = 100.0 * x.Dmg / sample[0].Dmg };
+            if (all)
+            {
+                row.AllMode = !allCompact;
+                row.AllCompact = allCompact;
+                row.Healing = x.Cls == "Cleric" ? 384_500 : rank * 3_100;
+                row.DamageTaken = 100_000 / rank;
+            }
+
+            rows.Add(row);
         }
 
         window.OverlayTargetText.Text = "Transcendent Bakarma";
         window.OverlayTimeText.Text = "1:51";
-        window.OverlayModeText.Text = "DMG";
-        window.CompactOverlayPanel.Visibility = System.Windows.Visibility.Visible;
-        var panel = window.CompactOverlayPanel;
-        panel.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
-        panel.Arrange(new System.Windows.Rect(panel.DesiredSize));
+        window.OverlayModeText.Text = allCompact ? "ALL+" : all ? "ALL" : "DMG";
+        if (all && !allCompact)
+        {
+            window.OverlayRateHeader.Text = "Damage";
+            window.OverlayShareHeader.Text = "Heal";
+            window.OverlayTotalHeader.Text = "Taken";
+        }
+
+        System.Windows.FrameworkElement panel;
+        if (kind == "chips")
+        {
+            panel = window.OverlayContent;
+            panel.Visibility = System.Windows.Visibility.Visible;
+            panel.Width = 390;
+        }
+        else if (kind == "window")
+        {
+            // The normal window as it is without Hide UI: its whole content at a typical size.
+            window.OverlayTargetText.Text = "Transcendent Bakarma";
+            panel = (System.Windows.FrameworkElement)window.Content;
+            panel.Measure(new System.Windows.Size(520, 420));
+            panel.Arrange(new System.Windows.Rect(0, 0, 520, 420));
+            panel.UpdateLayout();
+        }
+        else
+        {
+            window.CompactOverlayPanel.Visibility = System.Windows.Visibility.Visible;
+            panel = window.CompactOverlayPanel;
+        }
+
+        if (kind != "window")
+        {
+            panel.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            panel.Arrange(new System.Windows.Rect(panel.DesiredSize));
+        }
+
         panel.UpdateLayout();
         int w = (int)Math.Ceiling(panel.DesiredSize.Width), h = (int)Math.Ceiling(panel.DesiredSize.Height);
         var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x30, 0x40, 0x30)) };

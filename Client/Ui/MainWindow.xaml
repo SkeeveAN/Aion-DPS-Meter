@@ -7,6 +7,28 @@
         ResizeMode="CanResizeWithGrip"
         FontSize="{DynamicResource FontSize.Base}">
     <Window.Resources>
+        <!-- All in One mode: the heal column reads green and the damage-taken column red, in the
+             window's rows (muted grey otherwise), the chips and the compact panel (subtle otherwise). -->
+        <!-- The secondary numbers (rate, damage taken) sit on the row's class colour: light text at 80 % reads
+             there, the muted grey did not. -->
+        <Style x:Key="AllHealMuted" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="Opacity" Value="0.8"/>
+            <Style.Triggers><DataTrigger Binding="{Binding AllMode}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Brush.Heal}"/><Setter Property="Opacity" Value="1"/></DataTrigger></Style.Triggers>
+        </Style>
+        <Style x:Key="AllTakenMuted" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="Opacity" Value="0.8"/>
+            <Style.Triggers><DataTrigger Binding="{Binding AllMode}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Brush.DangerSoft}"/><Setter Property="Opacity" Value="1"/></DataTrigger></Style.Triggers>
+        </Style>
+        <Style x:Key="AllHealSubtle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextSubtle}"/>
+            <Style.Triggers><DataTrigger Binding="{Binding AllMode}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Brush.Heal}"/></DataTrigger></Style.Triggers>
+        </Style>
+        <Style x:Key="AllTakenSubtle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextSubtle}"/>
+            <Style.Triggers><DataTrigger Binding="{Binding AllMode}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Brush.DangerSoft}"/></DataTrigger></Style.Triggers>
+        </Style>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
@@ -709,6 +731,8 @@
                         <MenuItem x:Name="DamageModeItem" Header="{local:Loc Main.ModeDamage}" IsCheckable="True" IsChecked="True" Click="OnModeClicked"/>
                         <MenuItem x:Name="HealModeItem" Header="{local:Loc Main.ModeHeal}" IsCheckable="True" Click="OnModeClicked"/>
                         <MenuItem x:Name="TakenModeItem" Header="{local:Loc Main.ModeTaken}" IsCheckable="True" Click="OnModeClicked"/>
+                        <MenuItem x:Name="AllModeItem" Header="{local:Loc Main.ModeAll}" IsCheckable="True" Click="OnModeClicked"/>
+                        <MenuItem x:Name="AllCompactModeItem" Header="{local:Loc Main.ModeAllCompact}" IsCheckable="True" Click="OnModeClicked"/>
                     </MenuItem>
                 </Menu>
 
@@ -1100,11 +1124,14 @@
                                                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                                 <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                                        Height="24" Width="24" Margin="4,0,8,0" ToolTip="{Binding Faction}"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding Name}" VerticalAlignment="Center" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Grid.Column="3" Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
+                                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                    <local:AllLine FontSize="10.5" TextElement.Foreground="{DynamicResource Brush.Text}" Opacity="0.85"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="3" Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenMuted}" FontSize="11"
                                                            VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"
                                                            ToolTip="Damage this player received in the shown window"/>
-                                                <TextBlock Grid.Column="4" Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextMuted}"
+                                                <TextBlock Grid.Column="4" Text="{Binding RateOrHealDisplay}" Style="{StaticResource AllHealMuted}"
                                                            VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
                                                 <TextBlock Grid.Column="5" Text="{Binding Damage, StringFormat=N0}" FontWeight="SemiBold"
                                                            VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
@@ -1274,13 +1301,13 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="1" Text="{local:Loc Main.Overlay.ColPlayer}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="9"/>
                     <TextBlock x:Name="OverlayRateHeader" Grid.Column="2" Text="DPS" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="9" Margin="6,0,0,0"/>
-                    <TextBlock Grid.Column="3" Text="%" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="9" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="4" Text="{local:Loc Main.Overlay.ColTotal}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="9" HorizontalAlignment="Right"/>
+                    <TextBlock x:Name="OverlayShareHeader" Grid.Column="3" Text="%" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="9" HorizontalAlignment="Right"/>
+                    <TextBlock x:Name="OverlayTotalHeader" Grid.Column="4" Text="{local:Loc Main.Overlay.ColTotal}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="9" HorizontalAlignment="Right"/>
                 </Grid>
                 <local:QuietItemsControl x:Name="CompactOverlayRows">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid Height="20" Margin="0,1" Background="Transparent" Cursor="Hand"
+                            <Grid MinHeight="20" Margin="0,1" Background="Transparent" Cursor="Hand"
                                   MouseLeftButtonUp="OnCompactOverlayRowClicked">
                                 <ProgressBar Template="{StaticResource ClassBar}" Minimum="0" Maximum="100"
                                              Value="{Binding FillPercent, Mode=OneWay}" Background="#26FFFFFF">
@@ -1305,13 +1332,16 @@
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.Column="0" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                            Height="20" Width="20" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding NameDisplay}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
-                                               FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding DpsCompact}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding NameDisplay}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
+                                                   FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                        <local:AllLine FontSize="9.5" TextElement.Foreground="{DynamicResource Brush.OverlayText}"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding RateOrDamageCompact}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="Bold"
                                                FontSize="11" VerticalAlignment="Center" Margin="6,0,0,0"/>
-                                    <TextBlock Grid.Column="3" Text="{Binding ShareDisplay}" Foreground="{DynamicResource Brush.TextSubtle}"
+                                    <TextBlock Grid.Column="3" Text="{Binding ShareOrHealCompact}" Style="{StaticResource AllHealSubtle}"
                                                FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="4" Text="{Binding DamageCompact}" Foreground="{DynamicResource Brush.TextSubtle}"
+                                    <TextBlock Grid.Column="4" Text="{Binding TotalOrTakenCompact}" Style="{StaticResource AllTakenSubtle}"
                                                FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                 </Grid>
                             </Grid>
@@ -1369,11 +1399,14 @@
                                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                 <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                        Height="24" Width="24" Margin="4,0,8,0"/>
-                                <TextBlock Grid.Column="2" Text="{Binding Name}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="SemiBold"
-                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Grid.Column="3" Text="{Binding TakenDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="11"
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Brush.OverlayText}" FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <local:AllLine FontSize="10" TextElement.Foreground="{DynamicResource Brush.OverlayText}"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="3" Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenSubtle}" FontSize="11"
                                            VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"/>
-                                <TextBlock Grid.Column="4" Text="{Binding DpsDisplay}" Foreground="{DynamicResource Brush.TextSubtle}"
+                                <TextBlock Grid.Column="4" Text="{Binding RateOrHealDisplay}" Style="{StaticResource AllHealSubtle}"
                                            VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
                                 <TextBlock Grid.Column="5" Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}"
                                            FontWeight="SemiBold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>

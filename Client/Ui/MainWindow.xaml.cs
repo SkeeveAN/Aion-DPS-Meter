@@ -138,13 +138,22 @@ public partial class MainWindow : Window
 
     /// <summary>What the rows show: damage dealt, healing done, or damage taken (with deaths) -
     /// the Mode menu, the compact overlay's badge or the mode hotkey go round the three.</summary>
-    private enum MeterMode { Damage, Heal, Taken }
+    private enum MeterMode { Damage, Heal, Taken, All, AllCompact }
 
     private MeterMode _mode;
 
     private bool _healMode => _mode == MeterMode.Heal;
 
     private bool _takenMode => _mode == MeterMode.Taken;
+
+    /// <summary>All in One: damage, healing and damage taken side by side on the damage rows.</summary>
+    private bool _allMode => _mode == MeterMode.All && !_pvpOnly;
+
+    /// <summary>All in One Compact: the damage rows with healing and damage taken as a second line.</summary>
+    private bool _allCompactMode => _mode == MeterMode.AllCompact && !_pvpOnly;
+
+    /// <summary>Either All in One mode: the rows then carry healing and the damage taken from monsters.</summary>
+    private bool _allData => _allMode || _allCompactMode;
 
     // The deaths of the rows shown in taken mode.
     private readonly Dictionary<int, List<Death>> _deathsById = new();
@@ -897,8 +906,18 @@ public partial class MainWindow : Window
                 .Select(ev => ev.SourceObjectId)
             : Enumerable.Empty<int>();
 
+        // All in One: healing done and damage taken from monsters per player, over the same span as the
+        // Heal and Taken modes use, so the three columns agree with those modes' totals.
+        Dictionary<int, long> healingById = _allData
+            ? HealsInSpan(filteredSpan).GroupBy(ev => ev.SourceObjectId).ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount))
+            : new Dictionary<int, long>();
+        Dictionary<int, long> hostileTakenById = _allData
+            ? HostileHitsTaken(filteredSpan).GroupBy(ev => ev.TargetObjectId).ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount))
+            : new Dictionary<int, long>();
+
         var sourceIds = filtered.Select(ev => ev.SourceObjectId).Distinct()
             .Union(healSourceIds)
+            .Union(hostileTakenById.Keys)
             .Where(IsPlayerName)
             .ToList();
 
@@ -958,7 +977,10 @@ public partial class MainWindow : Window
                 : _selectedTargetId is int t
                     ? BossFight.Dps(filtered, t, sourceId)
                     : DpsCalculator.AllDpsWallClock(_aggregator.Events, sourceId);
-            row.DamageTaken = damageTakenById.GetValueOrDefault(sourceId);
+            row.AllMode = _allMode;
+            row.AllCompact = _allCompactMode;
+            row.Healing = healingById.GetValueOrDefault(sourceId);
+            row.DamageTaken = _allData ? hostileTakenById.GetValueOrDefault(sourceId) : damageTakenById.GetValueOrDefault(sourceId);
             row.Deaths = 0;
             row.ShowShareBar = _showShareBars;
             row.ShowDamageTaken = _showDamageTaken;
@@ -1168,11 +1190,7 @@ public partial class MainWindow : Window
     private void RefreshHealRows((DateTime Start, DateTime End)? span)
     {
         var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
-        var heals = _aggregator.Events
-            .Where(ev => ev.IsHeal && IsPlayerName(ev.SourceObjectId)
-                && directory?.SummonOwnerOf(ev.TargetObjectId) is null
-                && (span is not (DateTime from, DateTime to) || (ev.Timestamp >= from && ev.Timestamp <= to)))
-            .ToList();
+        var heals = HealsInSpan(span);
         double? spanSeconds = span is (DateTime a, DateTime b) && b > a ? (b - a).TotalSeconds : null;
 
         var sourceIds = heals.Select(ev => ev.SourceObjectId).Distinct().ToList();
@@ -1204,11 +1222,25 @@ public partial class MainWindow : Window
             double seconds = spanSeconds ?? (mine.Max(ev => ev.Timestamp) - mine.Min(ev => ev.Timestamp)).TotalSeconds;
             row.Dps = seconds > 0 ? row.Damage / seconds : null;
             row.DamageTaken = 0;
+            row.AllMode = false;
+            row.AllCompact = false;
+            row.Healing = 0;
             row.Deaths = 0;
             row.ShowShareBar = _showShareBars;
             row.ShowDamageTaken = false;
             row.Faction = directory?.FactionOf(sourceId) ?? "";
         }
+    }
+
+    /// <summary>The heals by players inside a span, without those on summoned spirits (see <see cref="RefreshHealRows"/>).</summary>
+    private List<DamageEvent> HealsInSpan((DateTime Start, DateTime End)? span)
+    {
+        var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
+        return _aggregator.Events
+            .Where(ev => ev.IsHeal && IsPlayerName(ev.SourceObjectId)
+                && directory?.SummonOwnerOf(ev.TargetObjectId) is null
+                && (span is not (DateTime from, DateTime to) || (ev.Timestamp >= from && ev.Timestamp <= to)))
+            .ToList();
     }
 
     /// <summary>The hostile hits players took inside a span: from a monster, not from a player (a
@@ -1267,6 +1299,9 @@ public partial class MainWindow : Window
             _deathsById[targetId] = deaths;
             row.Deaths = deaths.Count;
             row.DamageTaken = 0;
+            row.AllMode = false;
+            row.AllCompact = false;
+            row.Healing = 0;
             row.ShowShareBar = _showShareBars;
             row.ShowDamageTaken = false;
             row.Faction = directory?.FactionOf(targetId) ?? "";
@@ -1615,6 +1650,7 @@ public partial class MainWindow : Window
     {
         DpsHeaderText.Text = _healMode && !_pvpOnly ? "Healing / HPS"
             : _takenMode && !_pvpOnly ? "Taken / DTPS"
+            : _allMode ? "Taken / Heal / Damage"
             : _pvpOnly ? "Damage / DPS (PvP)" : _selectedTargetId is int ? "Damage / iDPS" : "Damage / DPS";
     }
 
@@ -3467,7 +3503,7 @@ public partial class MainWindow : Window
 
     private void OnModeClicked(object sender, RoutedEventArgs e)
     {
-        SetMode(sender == HealModeItem ? MeterMode.Heal : sender == TakenModeItem ? MeterMode.Taken : MeterMode.Damage);
+        SetMode(sender == HealModeItem ? MeterMode.Heal : sender == TakenModeItem ? MeterMode.Taken : sender == AllModeItem ? MeterMode.All : sender == AllCompactModeItem ? MeterMode.AllCompact : MeterMode.Damage);
     }
 
     private void SetMode(MeterMode mode)
@@ -3476,15 +3512,19 @@ public partial class MainWindow : Window
         DamageModeItem.IsChecked = mode == MeterMode.Damage;
         HealModeItem.IsChecked = mode == MeterMode.Heal;
         TakenModeItem.IsChecked = mode == MeterMode.Taken;
+        AllModeItem.IsChecked = mode == MeterMode.All;
+        AllCompactModeItem.IsChecked = mode == MeterMode.AllCompact;
         UpdateDpsColumnHeader();
         RefreshRows();
     }
 
-    /// <summary>Damage, then heal, then taken, then damage again.</summary>
+    /// <summary>Damage, then heal, taken, all in one, all in one compact, then damage again.</summary>
     private void NextMode() => SetMode(_mode switch
     {
         MeterMode.Damage => MeterMode.Heal,
         MeterMode.Heal => MeterMode.Taken,
+        MeterMode.Taken => MeterMode.All,
+        MeterMode.All => MeterMode.AllCompact,
         _ => MeterMode.Damage,
     });
 
@@ -3869,8 +3909,10 @@ public partial class MainWindow : Window
             : _selectedTargetId is int targetId ? ResolveDisplayName(targetId)
             : LocalizationManager.Instance["Main.FilterAllTargets"];
         var strings = LocalizationManager.Instance;
-        OverlayModeText.Text = strings[_healMode ? "Main.Overlay.ModeHeal" : _takenMode ? "Main.Overlay.ModeTaken" : "Main.Overlay.ModeDamage"];
-        OverlayRateHeader.Text = _healMode ? "HPS" : _takenMode ? "DTPS" : "DPS";
+        OverlayModeText.Text = strings[_healMode ? "Main.Overlay.ModeHeal" : _takenMode ? "Main.Overlay.ModeTaken" : _allMode ? "Main.Overlay.ModeAll" : _allCompactMode ? "Main.Overlay.ModeAllCompact" : "Main.Overlay.ModeDamage"];
+        OverlayRateHeader.Text = _allMode ? strings["Main.Overlay.ColDamage"] : _healMode ? "HPS" : _takenMode ? "DTPS" : "DPS";
+        OverlayShareHeader.Text = _allMode ? strings["Main.Overlay.ColHeal"] : "%";
+        OverlayTotalHeader.Text = _allMode ? strings["Main.Overlay.ColTaken"] : strings["Main.Overlay.ColTotal"];
         bool capturing = (_source as Aion2.Aion2PacketCombatSource)?.ServerFingerprint is not null;
         OverlayStateDot.Fill = _paused ? Brushes.Orange : capturing ? Brushes.LimeGreen : Brushes.Gray;
         OverlayTimeText.Text = shownHits.Count > 1

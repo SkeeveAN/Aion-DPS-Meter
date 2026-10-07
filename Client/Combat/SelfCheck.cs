@@ -21,6 +21,7 @@ public static class SelfCheck
         ok &= RunAppVersionScenario();
         ok &= RunEngagedTargetsScenario();
         ok &= RunEventScheduleScenario();
+        ok &= RunAllInOneRowScenario();
         ok &= RunAsciiTableScenario();
         ok &= RunToolbarIconScenario();
         ok &= RunLiveAggregatorScenario();
@@ -28,6 +29,23 @@ public static class SelfCheck
         ok &= SelfCheckThemes.Run();
         ok &= SelfCheckHistory.Run();
         return ok;
+    }
+
+    /// <summary>The All in One modes' row figures: in All the rate column shows the healing and the damage taken is always
+    /// listed; in All Compact the columns stay those of Damage and the healing and damage taken go to the second line; in
+    /// Damage nothing changes.</summary>
+    private static bool RunAllInOneRowScenario()
+    {
+        Console.WriteLine("[selftest] All in One rows:");
+        var damage = new Ui.PlayerRow(1) { Damage = 916_700, Dps = 8_300, Healing = 12_300, DamageTaken = 98_400, ShowDamageTaken = false };
+        bool plain = damage.RateOrHealDisplay == damage.DpsDisplay && damage.TakenDisplay == "" && damage.TotalOrTakenCompact == damage.DamageCompact;
+        var all = new Ui.PlayerRow(2) { Damage = 916_700, Dps = 8_300, Healing = 12_300, DamageTaken = 98_400, ShowDamageTaken = false, AllMode = true };
+        bool inAll = all.RateOrHealDisplay.StartsWith('+') && all.TakenDisplay.Contains("98") && all.RateOrDamageCompact == all.DamageCompact
+            && all.ShareOrHealCompact == Ui.PlayerRow.Compact(12_300) && all.TotalOrTakenCompact == Ui.PlayerRow.Compact(98_400);
+        var compact = new Ui.PlayerRow(3) { Damage = 916_700, Dps = 8_300, Healing = 0, DamageTaken = 98_400, ShowDamageTaken = true, AllCompact = true };
+        bool inCompact = compact.TakenDisplay == "" && compact.RateOrHealDisplay == compact.DpsDisplay && compact.HealCompact == "–" && compact.TakenCompact == Ui.PlayerRow.Compact(98_400);
+        Console.WriteLine($"  Damage unchanged: {plain}; All shows heal and taken: {inAll}; All Compact keeps the Damage columns: {inCompact}");
+        return plain && inAll && inCompact;
     }
 
     /// <summary>The timetable: the Arena of Strategy (every day 11:00-14:00 and 19:00-21:00) is

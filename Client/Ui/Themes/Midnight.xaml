@@ -28,6 +28,7 @@
     <Color x:Key="Color.WarningSoft">#F0A848</Color>
     <Color x:Key="Color.Danger">#FF5C6A</Color>
     <Color x:Key="Color.DangerSoft">#F0A0B0</Color>
+    <Color x:Key="Color.Heal">#7FDDA6</Color>
     <SolidColorBrush x:Key="Brush.Window" Color="{StaticResource Color.Window}"/>
     <SolidColorBrush x:Key="Brush.TitleBar" Color="{StaticResource Color.TitleBar}"/>
     <SolidColorBrush x:Key="Brush.Panel" Color="{StaticResource Color.Panel}"/>
@@ -53,4 +54,5 @@
     <SolidColorBrush x:Key="Brush.WarningSoft" Color="{StaticResource Color.WarningSoft}"/>
     <SolidColorBrush x:Key="Brush.Danger" Color="{StaticResource Color.Danger}"/>
     <SolidColorBrush x:Key="Brush.DangerSoft" Color="{StaticResource Color.DangerSoft}"/>
+    <SolidColorBrush x:Key="Brush.Heal" Color="{StaticResource Color.Heal}"/>
 </ResourceDictionary>
