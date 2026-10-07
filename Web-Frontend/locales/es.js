@@ -369,4 +369,8 @@ export default {
   "guild.class": "Clase",
   "guild.level": "Nivel",
   "guild.notFound": "Esta legión no se conoce.",
+  "guild.gearScore": "Gear Score",
+  "guild.gearScoreHint": "Nivel de objeto medio del equipo puesto",
+  "guild.combatPower": "Poder de combate",
+  "guild.combatPowerHint": "Como en la ventana del personaje; solo se conoce si un usuario abrió su ventana",
 };

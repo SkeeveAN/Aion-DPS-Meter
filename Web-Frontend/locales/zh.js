@@ -369,4 +369,8 @@ export default {
   "guild.class": "职业",
   "guild.level": "等级",
   "guild.notFound": "未知的军团。",
+  "guild.gearScore": "装备评分",
+  "guild.gearScoreHint": "已穿戴装备的平均物品等级",
+  "guild.combatPower": "战斗力",
+  "guild.combatPowerHint": "与游戏角色窗口显示一致；仅当有上传者打开过其窗口时才已知",
 };

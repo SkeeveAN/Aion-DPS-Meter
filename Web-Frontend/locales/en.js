@@ -384,4 +384,8 @@ export default {
   "guild.class": "Class",
   "guild.level": "Level",
   "guild.notFound": "This legion is not known.",
+  "guild.gearScore": "Gear Score",
+  "guild.gearScoreHint": "Average item level of the worn gear",
+  "guild.combatPower": "Combat Power",
+  "guild.combatPowerHint": "As shown in the game's character window; only known for players whose window an uploader opened",
 };

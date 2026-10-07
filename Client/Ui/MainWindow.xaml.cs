@@ -2470,7 +2470,8 @@ public partial class MainWindow : Window
                     inspected.ClassCode % 4,
                     inspected.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
                     Array.Empty<ProfileSkillUpload>(),
-                    Array.Empty<ProfileBoardUpload>())));
+                    Array.Empty<ProfileBoardUpload>(),
+                    CombatPower: inspected.CombatPower > 0 ? inspected.CombatPower : null)));
         }
 
         foreach (int id in ownOnly ? Array.Empty<int>() : directory.SeenProfileIds())

@@ -71,7 +71,10 @@ public sealed record ProfileUpload(
     IReadOnlyList<ProfileSkillUpload> Skills,
     IReadOnlyList<ProfileBoardUpload> Daevanion,
     // Species knowledge (own character only): level, progress and analysed effects of Cognia..Specia.
-    IReadOnlyList<ProfileSpeciesUpload>? Species = null);
+    IReadOnlyList<ProfileSpeciesUpload>? Species = null,
+    // The combat power ("Kampfkraft") the game's character window shows; only read for players whose window the
+    // uploader opened (see Aion2FrameDecoder.DecodeInspect). Null when unknown.
+    int? CombatPower = null);
 
 public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant);
 

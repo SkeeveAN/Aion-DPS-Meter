@@ -369,4 +369,8 @@ export default {
   "guild.class": "Classe",
   "guild.level": "Niveau",
   "guild.notFound": "Cette légion est inconnue.",
+  "guild.gearScore": "Gear Score",
+  "guild.gearScoreHint": "Niveau d'objet moyen de l'équipement porté",
+  "guild.combatPower": "Puissance de combat",
+  "guild.combatPowerHint": "Comme dans la fenêtre du personnage ; connue seulement si un utilisateur a ouvert sa fenêtre",
 };

@@ -369,4 +369,8 @@ export default {
   "guild.class": "Класс",
   "guild.level": "Уровень",
   "guild.notFound": "Этот легион неизвестен.",
+  "guild.gearScore": "Gear Score",
+  "guild.gearScoreHint": "Средний уровень предметов надетого снаряжения",
+  "guild.combatPower": "Боевая мощь",
+  "guild.combatPowerHint": "Как в окне персонажа игры; известна, только если кто-то из загружающих открыл его окно",
 };

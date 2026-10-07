@@ -369,4 +369,8 @@ export default {
   "guild.class": "Klasa",
   "guild.level": "Poziom",
   "guild.notFound": "Ten legion jest nieznany.",
+  "guild.gearScore": "Gear Score",
+  "guild.gearScoreHint": "Średni poziom założonego ekwipunku",
+  "guild.combatPower": "Siła bojowa",
+  "guild.combatPowerHint": "Jak w oknie postaci w grze; znana tylko, jeśli uploader otworzył okno gracza",
 };

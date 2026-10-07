@@ -369,4 +369,8 @@ export default {
   "guild.class": "Sınıf",
   "guild.level": "Seviye",
   "guild.notFound": "Bu lejyon bilinmiyor.",
+  "guild.gearScore": "Gear Score",
+  "guild.gearScoreHint": "Takılı ekipmanın ortalama eşya seviyesi",
+  "guild.combatPower": "Savaş gücü",
+  "guild.combatPowerHint": "Oyunun karakter penceresindeki gibi; yalnızca bir yükleyici penceresini açtıysa bilinir",
 };

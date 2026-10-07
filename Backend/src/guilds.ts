@@ -3,6 +3,7 @@ import { and, eq, isNotNull, like, ne } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { playerProfiles, players, servers } from "./db/schema.js";
 import { AION2_CLASS_BY_ID } from "./constants.js";
+import { gearScoreOf } from "./profile.js";
 import { slugify, uniqueSlug } from "./seo/slug.js";
 
 /**
@@ -25,6 +26,8 @@ export interface GuildMember {
   className: string | null;
   level: number | null;
   faction: number | null;
+  gearScore: number | null;
+  combatPower: number | null;
 }
 
 /** Every legion with a stable slug "<legion>-<server>": a Latin name reads in the address, any other falls back to a short hash. */
@@ -75,6 +78,8 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       classId: playerProfiles.classId,
       level: playerProfiles.level,
       faction: playerProfiles.faction,
+      gearJson: playerProfiles.gearJson,
+      combatPower: playerProfiles.combatPower,
     })
     .from(players)
     .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
@@ -88,6 +93,8 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       className: r.classId ? (AION2_CLASS_BY_ID[r.classId] ?? null) : null,
       level: r.level,
       faction: r.faction,
+      gearScore: r.gearJson ? gearScoreOf(r.gearJson) : null,
+      combatPower: r.combatPower,
     }))
     .sort((a, b) => (b.level ?? 0) - (a.level ?? 0) || a.name.localeCompare(b.name));
   return { guild, members };
