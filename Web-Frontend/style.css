@@ -2616,3 +2616,8 @@ body:has(.download-hero) .nav-download-link:hover,
 .changelog-version { font-weight: 700; color: var(--color-primary); }
 .changelog-date { color: var(--color-text-muted); font-size: 13px; }
 @media (max-width: 700px) { .changelog-list li { grid-template-columns: 64px minmax(0, 1fr); } .changelog-text { grid-column: 1 / -1; } }
+.changelog-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; margin-right: 6px; border-radius: 999px; border: 1px solid currentColor; vertical-align: 1px; }
+.changelog-tag--client { color: var(--color-primary); }
+.changelog-tag--website { color: #4aa3df; }
+.changelog-tag--backend { color: #6cc070; }
+.changelog-tag--database { color: #b58be0; }

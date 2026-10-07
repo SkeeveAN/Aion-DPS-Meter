@@ -638,7 +638,7 @@ async function renderChangelog() {
   const releases = await fetchJson("/changelog.json");
   const groups = new Map();
   for (const r of releases) {
-    const minor = r.version.split(".").slice(0, 2).join(".");
+    const minor = r.version === "Unreleased" ? r.version : `${r.version.split(".").slice(0, 2).join(".")}.x`;
     if (!groups.has(minor)) {
       groups.set(minor, []);
     }
@@ -650,17 +650,20 @@ async function renderChangelog() {
     const last = list[0];
     return el("details", { className: "changelog-group", open: i === 0 }, [
       el("summary", {}, [
-        el("strong", { textContent: `${minor}.x` }),
+        el("strong", { textContent: minor }),
         el("span", { className: "changelog-range", textContent: `${list.length} release${list.length === 1 ? "" : "s"} · ${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}` }),
       ]),
-      el("ul", { className: "changelog-list" }, list.flatMap((r) => r.items.map((text, n) => el("li", {}, [
-        el("span", { className: "changelog-version", textContent: n === 0 ? r.version : "" }),
+      el("ul", { className: "changelog-list" }, list.flatMap((r) => r.items.map((item, n) => el("li", {}, [
+        el("span", { className: "changelog-version", textContent: n === 0 && r.version !== "Unreleased" ? r.version : "" }),
         el("span", { className: "changelog-date", textContent: n === 0 ? fmt(r.date) : "" }),
-        el("span", { className: "changelog-text", textContent: text.charAt(0).toUpperCase() + text.slice(1) }),
+        el("span", { className: "changelog-text" }, [
+          ...item.areas.map((a) => el("span", { className: `changelog-tag changelog-tag--${a.toLowerCase()}`, textContent: a })),
+          item.text.charAt(0).toUpperCase() + item.text.slice(1),
+        ]),
       ])))),
     ]);
   });
-  app.replaceChildren(el("h2", { textContent: "Changelog" }), el("p", { className: "download-meta" }, ["Player-visible changes of the Windows client, newest first. ", link("Download", "/download")]), ...sections);
+  app.replaceChildren(el("h2", { textContent: "Changelog" }), el("p", { className: "download-meta" }, ["What changed, newest first: the Windows client, the website, the backend and the database. ", link("Download", "/download")]), ...sections);
 }
 
 function featureCard(title, text) {
