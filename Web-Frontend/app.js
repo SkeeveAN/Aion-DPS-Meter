@@ -2416,11 +2416,7 @@ async function renderPlayerProfile(playerId) {
   showLoading(t("loading.playerProfile"));
 
   const data = await fetchJson(`/api/players/${encodeURIComponent(playerId)}`);
-  setBreadcrumb([
-    link(t("breadcrumb.home"), "/"),
-    ...(data.player.guild && data.player.guildSlug ? [link(data.player.guild, `/legions/${data.player.guildSlug}`)] : []),
-    data.player.name,
-  ]);
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), data.player.name]);
   // Reached through an old numeric link: show the name address instead (no reload, no history entry).
   if (data.player.slug && decodeURIComponent(location.pathname.split("/").pop()) !== data.player.slug) {
     history.replaceState(history.state, "", `${gp(`/players/${data.player.slug}`)}${location.search}${location.hash}`);
