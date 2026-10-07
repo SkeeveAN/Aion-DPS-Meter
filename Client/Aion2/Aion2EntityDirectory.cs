@@ -327,7 +327,17 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             lock (_gate)
             {
                 return (_species ?? Array.Empty<Aion2SpeciesKnowledge>())
-                    .Select(k => new Aion2Pet(k.SpeciesId, k.Level, k.Effects.Where(e => e.Page == 1).OrderBy(e => e.Slot).Select(e => e.Kind).ToList()))
+                    .Select(k =>
+                    {
+                        var page = k.Effects.Where(e => e.Page == 1).ToList();
+                        var kinds = new int[page.Count == 0 ? 0 : page.Max(e => e.Slot) + 1];
+                        foreach (var e in page)
+                        {
+                            kinds[e.Slot] = e.Kind;
+                        }
+
+                        return new Aion2Pet(k.SpeciesId, k.Level, kinds);
+                    })
                     .ToList();
             }
         }

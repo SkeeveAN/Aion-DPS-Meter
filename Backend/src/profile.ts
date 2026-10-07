@@ -68,6 +68,8 @@ export const profileSchema = z.object({
               slot: z.number().int().min(0).max(32),
               stat: z.number().int().min(1).max(100_000),
               value: z.number().int().min(-1_000_000_000).max(1_000_000_000),
+              // Quality of the slot (1 white, 2 green, 3 blue, 4 gold, 5 orange); 0 when the client did not send it.
+              kind: z.number().int().min(0).max(9).default(0),
             }),
           )
           .max(100)
@@ -270,7 +272,7 @@ export type SpeciesView = {
   names: Record<string, string>;
   level: number;
   progress: number;
-  effects: { page: number; slot: number; stat: number; name: string; names?: Record<string, string>; value: number; percent: boolean }[];
+  effects: { page: number; slot: number; stat: number; name: string; names?: Record<string, string>; value: number; percent: boolean; kind: number }[];
 };
 
 export type ProfileView = {
@@ -401,7 +403,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
     };
   });
 
-  const species = (JSON.parse(row.speciesJson) as { id: number; level: number; progress: number; effects: { page: number; slot: number; stat: number; value: number }[] }[])
+  const species = (JSON.parse(row.speciesJson) as { id: number; level: number; progress: number; effects: { page: number; slot: number; stat: number; value: number; kind?: number }[] }[])
     .map((k) => {
       const info = speciesData!.species[String(k.id)];
       return {
@@ -413,7 +415,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
         effects: k.effects
           .map((e) => {
             const stat = speciesData!.stats[String(e.stat)];
-            return { page: e.page, slot: e.slot, stat: e.stat, name: stat?.names.en ?? `Stat ${e.stat}`, names: stat?.names, value: e.value, percent: stat?.percent === true };
+            return { page: e.page, slot: e.slot, stat: e.stat, name: stat?.names.en ?? `Stat ${e.stat}`, names: stat?.names, value: e.value, percent: stat?.percent === true, kind: e.kind ?? 0 };
           })
           .sort((a, b) => a.page - b.page || a.slot - b.slot),
       };

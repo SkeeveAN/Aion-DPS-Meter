@@ -2180,6 +2180,12 @@ header .wordmark {
 .pf-sp-stat {
   color: var(--color-text-muted);
 }
+/* The effect names take the colour of their quality, as in the game's pet window. */
+.pf-sp-stat.q1 { color: var(--color-text); }
+.pf-sp-stat.q2 { color: #5bd36b; }
+.pf-sp-stat.q3 { color: #4aa8ff; }
+.pf-sp-stat.q4 { color: #ffc94d; }
+.pf-sp-stat.q5 { color: #ff8a3d; }
 
 /* Skills. */
 .pf-skills {

@@ -2200,8 +2200,11 @@ const PET_GLYPHS = {
 };
 
 function petCircle(pet) {
-  const dots = pet.kinds.map((kind, i) => {
-    const angle = (i / Math.max(12, pet.kinds.length)) * Math.PI * 2 - Math.PI / 2 - 0.4;
+  // Nine places (a species level 10 has nine effect slots); the ones a lower level has not unlocked stay dark. The right side
+  // of the game's ring is left open for its runes.
+  const dots = Array.from({ length: Math.max(9, pet.kinds.length) }, (_, i) => {
+    const kind = pet.kinds[i] ?? 0;
+    const angle = (i / 12) * Math.PI * 2 - Math.PI / 2 - 0.4;
     return `<circle class="pf-pet-dot q${kind}" cx="${(44 - 34 * Math.cos(angle)).toFixed(1)}" cy="${(44 + 34 * Math.sin(angle)).toFixed(1)}" r="4.2"/>`;
   });
   const holder = el("div", { className: "pf-pet" });
@@ -2247,7 +2250,7 @@ function renderSpeciesTab(profile) {
     const maxed = k.progress === 0 && k.level >= 10;
     const rows = k.effects.map((e) =>
       el("li", {}, [
-        el("span", { className: "pf-sp-stat", textContent: (e.names?.[locale] ?? e.names?.en ?? e.name) }),
+        el("span", { className: `pf-sp-stat q${e.kind ?? 0}`, textContent: (e.names?.[locale] ?? e.names?.en ?? e.name) }),
         el("strong", { textContent: speciesValue(e) }),
       ]),
     );

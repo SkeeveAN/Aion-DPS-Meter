@@ -3521,7 +3521,7 @@ public partial class MainWindow : Window
                 directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
                 directory.LocalDaevanion.Select(b => new ProfileBoardUpload(b.BoardId, b.NodeIds.ToList())).ToList(),
                 directory.LocalSpecies.Select(k => new ProfileSpeciesUpload(k.SpeciesId, k.Level, k.Progress,
-                    k.Effects.Select(e => new ProfileSpeciesEffectUpload(e.Page, e.Slot, e.StatId, e.Value)).ToList())).ToList(),
+                    k.Effects.Select(e => new ProfileSpeciesEffectUpload(e.Page, e.Slot, e.StatId, e.Value, e.Kind)).ToList())).ToList(),
                 Titles: directory.LocalTitles.Select(t => new ProfileTitleUpload(t.Slot, t.TitleId)).ToList(),
                 Pets: directory.LocalPets.Select(k => new ProfilePetUpload(k.SpeciesId, k.Level, k.Kinds)).ToList());
         }

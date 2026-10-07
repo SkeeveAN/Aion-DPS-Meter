@@ -96,7 +96,7 @@ public sealed record ProfileBoardUpload(int Board, IReadOnlyList<int> Nodes);
 
 public sealed record ProfileSpeciesUpload(int Id, int Level, long Progress, IReadOnlyList<ProfileSpeciesEffectUpload> Effects);
 
-public sealed record ProfileSpeciesEffectUpload(int Page, int Slot, int Stat, long Value);
+public sealed record ProfileSpeciesEffectUpload(int Page, int Slot, int Stat, long Value, int Kind = 0);
 
 /// <summary>One boss encounter, as sent to POST /api/uploads. The backend recognizes the same real
 /// fight across several independent uploads (one per group member) by boss + time window + roster
