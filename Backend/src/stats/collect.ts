@@ -8,6 +8,14 @@ const all = (sql: string, ...params: unknown[]) => sqlite.prepare(sql).all(...pa
 const one = (sql: string, ...params: unknown[]) => (sqlite.prepare(sql).get(...params) ?? {}) as Row;
 const num = (v: unknown) => Number(v ?? 0);
 
+const ASCENSION_STARS: Record<string, number> = { easy: 1, medium: 2, hard: 3, extreme: 4 };
+
+/** A boss's difficulty step as stars: Nightmare level and Transcendence stage 1-10 / 1-4, Ascension Easy to Extreme 1-4. "" when unknown. */
+function starsOf(mode: string): string {
+  const n = /^\d+$/.test(mode) ? Number(mode) : ASCENSION_STARS[mode] ?? 0;
+  return n > 0 && n <= 10 ? "★".repeat(n) : "";
+}
+
 /** Totals that are safe to show to everybody: counts only, nothing that identifies a person. */
 export function publicStats() {
   const players = num(one("select count(*) n from players").n);
@@ -21,11 +29,11 @@ export function publicStats() {
   ).map((r) => ({ day: String(r.day), count: num(r.n) }));
   const classes = all("select class_name name, count(distinct player_id) n from encounter_participants group by class_name order by n desc limit 12").map((r) => ({ name: String(r.name), count: num(r.n) }));
   const servers = all(
-    `select coalesce(s.display_name, s.fingerprint) name, count(*) n from players p join servers s on s.id = p.server_id group by p.server_id order by n desc limit 12`,
-  ).map((r) => ({ name: String(r.name), count: num(r.n) }));
+    `select coalesce(s.display_name, s.fingerprint) name, s.faction faction, count(*) n from players p join servers s on s.id = p.server_id group by p.server_id order by n desc limit 12`,
+  ).map((r) => ({ name: String(r.name), faction: r.faction ? String(r.faction) : "", count: num(r.n) }));
   const topBosses = all(
-    `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id order by n desc limit 10`,
-  ).map((r) => ({ name: String(r.en ?? r.name), instance: String(r.instance), count: num(r.n) }));
+    `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, e.mode mode, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id, e.mode order by n desc limit 10`,
+  ).map((r) => ({ name: String(r.en ?? r.name), instance: String(r.instance), stars: starsOf(String(r.mode ?? "")), count: num(r.n) }));
   return {
     players,
     ownProfiles: own,

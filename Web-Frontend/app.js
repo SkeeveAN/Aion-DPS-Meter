@@ -715,7 +715,7 @@ async function renderStats(secret) {
     return el("section", { className: "stat-block" }, [
       el("h3", { textContent: title }),
       rows.length === 0 ? el("p", { className: "empty", textContent: "No data yet." }) : el("div", { className: "stat-bars" }, rows.map((r) => el("div", { className: "stat-bar-row" }, [
-        el("span", { className: "stat-bar-label", textContent: labelOf(r) }),
+        el("span", { className: "stat-bar-label" }, [labelOf(r)]),
         el("span", { className: "stat-bar-track" }, [el("span", { className: "stat-bar-fill", style: `width:${(valueOf(r) / max) * 100}%` })]),
         el("span", { className: "stat-bar-value", textContent: nf(valueOf(r)) }),
       ]))),
@@ -732,11 +732,13 @@ async function renderStats(secret) {
     ]),
     bars([...d.encountersPerDay].reverse(), (r) => r.day, (r) => r.count, "Boss fights per day (last 30 days)"),
     bars(d.classes, (r) => r.name, (r) => r.count, "Players per class"),
-    bars(d.servers, (r) => r.name, (r) => r.count, "Players per server"),
+    // The server's faction icon sits before its name, as tall as the text.
+    bars(d.servers, (r) => iconLabel(factionIcon(r.faction), r.name), (r) => r.count, "Players per server"),
     bars(d.topBosses, (r) => {
-      // Conquest fights carry their star rating, so "Vakron ★★" and the plain "Vakron" are told apart.
+      // The difficulty step (Nightmare level, Transcendence stage, Ascension step) and a conquest fight's rating show as stars,
+      // so "Ruthilis of Pain ★" and "Ruthilis of Pain ★★★" are told apart.
       const conquest = splitConquest(r.instance);
-      return conquest ? `${r.name} ${conquest.stars}` : r.name;
+      return r.stars ? `${r.name} ${r.stars}` : conquest ? `${r.name} ${conquest.stars}` : r.name;
     }, (r) => r.count, "Most fought bosses"),
   ];
   if (secret) {

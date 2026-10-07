@@ -2736,6 +2736,8 @@ body:has(.download-hero) .nav-download-link:hover,
 .stat-bars { display: grid; gap: 6px; }
 .stat-bar-row { display: grid; grid-template-columns: minmax(120px, 280px) minmax(0, 1fr) 64px; gap: 12px; align-items: center; }
 .stat-bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The faction icon before a server name is as tall as the text. */
+.stat-bar-label .faction-icon { width: 1.15em; height: 1.15em; }
 .stat-bar-track { background: var(--color-surface2); border-radius: 6px; height: 14px; overflow: hidden; }
 .stat-bar-fill { display: block; height: 100%; background: var(--color-primary); border-radius: 6px; }
 .stat-bar-value { text-align: right; font-variant-numeric: tabular-nums; }
