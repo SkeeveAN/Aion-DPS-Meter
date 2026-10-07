@@ -424,9 +424,9 @@
         "pt": "Esconderijo do Tirano",
         "ru": "Убежище тирана"
       },
-      "category": "awakening",
+      "category": "ascension",
       "sortOrder": 121,
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "SanctumOfLoathing",
@@ -460,9 +460,9 @@
         "pt": "Depósito de Trajetórias",
         "ru": "Хранилище траекторий"
       },
-      "category": "awakening",
+      "category": "ascension",
       "sortOrder": 123,
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "ForgottenRepository",
@@ -478,9 +478,9 @@
         "pt": "Repositório Esquecido",
         "ru": "Забытый тайник"
       },
-      "category": "awakening",
+      "category": "ascension",
       "sortOrder": 124,
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "ChamberOfTheDead",
@@ -496,9 +496,9 @@
         "pt": "Dormitório dos Mortos",
         "ru": "Опочивальня мертвых"
       },
-      "category": "awakening",
+      "category": "ascension",
       "sortOrder": 125,
-      "hidden": true
+      "hidden": false
     },
     {
       "key": "DaevaCitadel",

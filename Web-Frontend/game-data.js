@@ -173,6 +173,12 @@ export const INSTANCE_IMAGES = {
   "Shattered Arkanis": "/images/aion2/instances/shattered-arkanis.webp",
   "Deus Research Base": "/images/aion2/instances/deus-research-base.webp",
   "Sanctum of Loathing": "/images/aion2/instances/sanctum-of-loathing.webp",
+  // Ascension Rite instances (the game's dungeon shots, un-squeezed to 16:9):
+  "Nightmare Altar": "/images/aion2/instances/nightmare-altar.webp",
+  "Tyrant's Hideout": "/images/aion2/instances/tyrants-hideout.webp",
+  "Depository of Fates": "/images/aion2/instances/depository-of-fates.webp",
+  "Forgotten Repository": "/images/aion2/instances/forgotten-repository.webp",
+  "Chamber of the Dead": "/images/aion2/instances/chamber-of-the-dead.webp",
   // Client backgrounds (UT_BG_*BG_*), un-squeezed from 1:1 to 16:9:
   "Consumed Deus Research Base": "/images/aion2/instances/consumed-deus-research-base.webp",
   "Azure Breath Island": "/images/aion2/instances/azure-breath-island.webp",
@@ -251,6 +257,11 @@ export const BOSS_CARDS = {
   "Talisra of the Void": "/images/aion2/bosses/cards/talisra-of-the-void.webp",
   "Featherstorm Duduri": "/images/aion2/bosses/cards/featherstorm-duduri.webp",
   "Watchful Raptor Dodori": "/images/aion2/bosses/cards/watchful-raptor-dodori.webp",
+  "Divided Aponos": "/images/aion2/bosses/cards/divided-aponos.webp",
+  "Menoch": "/images/aion2/bosses/cards/menoch.webp",
+  "Claudia": "/images/aion2/bosses/cards/claudia.webp",
+  "Karlix": "/images/aion2/bosses/cards/karlix.webp",
+  "Eloen": "/images/aion2/bosses/cards/eloen.webp",
 };
 
 // Per-boss art (Nightmare bosses so far, cut from the in-game boss list); a boss without an entry falls back to its instance's photo.
