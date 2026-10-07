@@ -1,3 +1,4 @@
+import { listGuilds } from "../guilds.js";
 import { and, eq, like, max, ne } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
@@ -51,7 +52,7 @@ export async function seoRoutes(app: FastifyInstance) {
 }
 
 function buildSitemap(): string {
-  const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }, { path: "/changelog" }, { path: "/stats" }];
+  const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }, { path: "/changelog" }, { path: "/stats" }, { path: "/guilds" }];
 
   for (const game of [DEFAULT_GAME]) {
     const instanceRows = db
@@ -123,6 +124,10 @@ function buildSitemap(): string {
     if (p.slug) {
       urls.push({ path: `/players/${p.slug}`, lastmod: p.lastFight ?? undefined });
     }
+  }
+
+  for (const g of listGuilds()) {
+    urls.push({ path: `/guilds/${g.slug}` });
   }
 
   return [

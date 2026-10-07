@@ -1,3 +1,4 @@
+import { findGuild } from "../guilds.js";
 import { and, asc, count, desc, eq, ne } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounterSkillUsage, encounters, instances, players, servers } from "../db/schema.js";
@@ -120,6 +121,43 @@ export function changelogPage(): Page {
     body: html`
       <h2>Changelog</h2>
       <p>What changed in each release of the Aion DPS Meter Windows client. <a href="/download">Download</a></p>`,
+  };
+}
+
+export function guildsPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "Legions – Aion DPS Meter",
+      description: "The legions of the Aion 2 players known to Aion DPS, per server, with the members we have seen.",
+      canonicalPath: "/guilds",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/guilds" }])],
+    },
+    body: html`
+      <h2>Legions</h2>
+      <p>The legions of the Aion 2 players known to Aion DPS, per server, with the members we have seen.</p>`,
+  };
+}
+
+export function guildPage(slug: string): Page | null {
+  const found = findGuild(slug);
+  if (!found) {
+    return null;
+  }
+  const { guild, members } = found;
+  const path = `/guilds/${guild.slug}`;
+  return {
+    status: 200,
+    meta: {
+      title: `${guild.name} (${guild.serverName}) – Legion members | ${SITE}`,
+      description: `${members.length} known member${members.length === 1 ? "" : "s"} of the legion ${guild.name} on ${guild.serverName}: class, level and boss runs.`,
+      canonicalPath: path,
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/guilds" }, { name: guild.name, path }])],
+    },
+    body: html`
+      <h2>${guild.name}</h2>
+      <p>${guild.serverName} · ${members.length} known member${members.length === 1 ? "" : "s"}</p>
+      <ul class="plain">${members.map((m) => html`<li><a href="/players/${m.slug ?? m.id}">${m.name}</a>${m.className ? html` · ${m.className}` : ""}</li>`)}</ul>`,
   };
 }
 

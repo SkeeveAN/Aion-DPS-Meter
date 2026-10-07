@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "changelog", "stats", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "changelog", "stats", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -338,6 +338,7 @@ function buildSiteFooter() {
     ]),
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
+        link(t("guild.listTitle"), "/guilds"),
         link("Statistics", "/stats"),
         link("Changelog", "/changelog"),
         link(t("legal.privacyTitle"), "/privacy"),
@@ -628,6 +629,57 @@ async function renderDownload() {
 
   const changelogLink = el("p", { className: "download-meta" }, [link("What's new – changelog", "/changelog")]);
   app.replaceChildren(hero, downloadSection, changelogLink, features, stepsSection, repoLink);
+}
+
+// Legions: every legion the uploads have shown, per server, and its known members.
+async function renderGuilds() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("guild.listTitle")]);
+  showLoading(t("loading.search"));
+  const guilds = await fetchJson("/api/guilds");
+  const filter = el("input", { type: "search", className: "guild-filter", placeholder: t("guild.filter"), autocomplete: "off" });
+  const list = el("div", { className: "guild-grid" });
+  const draw = () => {
+    const q = filter.value.trim().toLowerCase();
+    const shown = guilds.filter((g) => !q || g.name.toLowerCase().includes(q) || serverLabel(g.serverName).toLowerCase().includes(q));
+    list.replaceChildren(...shown.map((g) => el("a", { className: "guild-card", href: `/guilds/${g.slug}` }, [
+      el("strong", { textContent: g.name }),
+      el("span", { textContent: serverLabel(g.serverName) }),
+      el("small", { textContent: t("guild.members", { count: g.memberCount }) }),
+    ])));
+    if (shown.length === 0) {
+      list.replaceChildren(el("p", { className: "empty", textContent: t("guild.empty") }));
+    }
+  };
+  filter.addEventListener("input", draw);
+  draw();
+  app.replaceChildren(el("h2", { textContent: t("guild.listTitle") }), el("p", { className: "download-meta", textContent: t("guild.listIntro") }), filter, list);
+}
+
+async function renderGuild(slug) {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), link(t("guild.listTitle"), "/guilds"), slug]);
+  showLoading(t("loading.search"));
+  let data;
+  try {
+    data = await fetchJson(`/api/guilds/${encodeURIComponent(slug)}`);
+  } catch {
+    app.replaceChildren(el("p", { className: "empty", textContent: t("guild.notFound") }));
+    return;
+  }
+  const { guild, members } = data;
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), link(t("guild.listTitle"), "/guilds"), guild.name]);
+  const rows = members.map((m) => el("tr", {}, [
+    el("td", {}, [link(m.name, `/players/${m.slug ?? m.id}`)]),
+    el("td", {}, [m.className ? iconLabel(classIcon(m.className), m.className) : ""]),
+    el("td", { textContent: m.level ?? "" }),
+  ]));
+  app.replaceChildren(
+    el("h2", { textContent: guild.name }),
+    el("p", { className: "download-meta", textContent: `${serverLabel(guild.serverName)} · ${t("guild.members", { count: members.length })}` }),
+    el("table", { className: "guild-table" }, [
+      el("thead", {}, [el("tr", {}, [el("th", { textContent: t("guild.player") }), el("th", { textContent: t("guild.class") }), el("th", { textContent: t("guild.level") })])]),
+      el("tbody", {}, rows),
+    ]),
+  );
 }
 
 // Statistics - English only like the changelog. Without a secret it is the public page (totals
@@ -2267,7 +2319,7 @@ function renderPlayerStrip(profile, player) {
     el("div", {}, [el("div", { className: "pf-name", textContent: player.name }), el("div", { className: "pf-sub", textContent: sub.join(" · ") })]),
     el("div", { className: "pf-meta" }, [
       profile?.faction ? iconLabel(factionIcon(profile.faction), profile.faction) : null,
-      player.guild ? el("span", { textContent: `${t("profile.guild")}: ${player.guild}` }) : null,
+      player.guild ? el("span", {}, [`${t("profile.guild")}: `, player.guildSlug ? link(player.guild, `/guilds/${player.guildSlug}`) : player.guild]) : null,
       player.serverName ? el("span", { textContent: serverLabel(player.serverName) }) : null,
     ].filter((x) => x != null)),
     el("div", { className: "pf-numbers" }, numbers),
@@ -2660,6 +2712,9 @@ async function route() {
     section = "download";
   } else if (segments[0] === "changelog") {
     section = "changelog";
+  } else if (segments[0] === "guilds") {
+    section = "guilds";
+    param = segments[1];
   } else if (segments[0] === "p" && segments[1]) {
     section = "private-stats";
     param = segments[1];
@@ -2694,6 +2749,8 @@ async function route() {
       await renderChangelog();
     } else if (section === "stats") {
       await renderStats();
+    } else if (section === "guilds") {
+      await (param ? renderGuild(param) : renderGuilds());
     } else if (section === "private-stats") {
       await renderStats(param);
     } else if (section === "feedback") {

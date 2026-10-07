@@ -375,4 +375,13 @@ export default {
   "time.minutesAgo": "{count}m ago",
   "time.hoursAgo": "{count}h ago",
   "time.daysAgo": "{count}d ago",
+  "guild.listTitle": "Legions",
+  "guild.listIntro": "The legions of the players known to Aion DPS, per server. The members are the players we have seen with that legion - not necessarily everybody who is in it.",
+  "guild.filter": "Search legion or server",
+  "guild.empty": "No legions known yet.",
+  "guild.members": "{count} known members",
+  "guild.player": "Player",
+  "guild.class": "Class",
+  "guild.level": "Level",
+  "guild.notFound": "This legion is not known.",
 };

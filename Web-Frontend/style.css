@@ -2636,3 +2636,13 @@ body:has(.download-hero) .nav-download-link:hover,
 .stat-bar-fill { display: block; height: 100%; background: var(--color-primary); border-radius: 6px; }
 .stat-bar-value { text-align: right; font-variant-numeric: tabular-nums; }
 @media (max-width: 700px) { .stat-bar-row { grid-template-columns: minmax(90px, 40%) minmax(0, 1fr) 48px; } }
+
+/* Legions */
+.guild-filter { width: 100%; max-width: 420px; margin: 8px 0 16px; padding: 8px 10px; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); border-radius: 8px; font: inherit; }
+.guild-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.guild-card { display: grid; gap: 2px; padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); color: var(--color-text); text-decoration: none; }
+.guild-card:hover { border-color: var(--color-primary); }
+.guild-card span, .guild-card small { color: var(--color-text-muted); }
+.guild-table { border-collapse: collapse; width: 100%; max-width: 760px; }
+.guild-table th, .guild-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--color-border); }
+.guild-table th { color: var(--color-text-muted); font-size: 12px; }

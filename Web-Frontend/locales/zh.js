@@ -360,4 +360,13 @@ export default {
   "time.minutesAgo": "{count} 分钟前",
   "time.hoursAgo": "{count} 小时前",
   "time.daysAgo": "{count} 天前",
+  "guild.listTitle": "军团",
+  "guild.listIntro": "Aion DPS 所知玩家的军团（按服务器分类）。成员是我们见到属于该军团的玩家，不一定是全部成员。",
+  "guild.filter": "搜索军团或服务器",
+  "guild.empty": "暂无已知军团。",
+  "guild.members": "已知成员 {count} 人",
+  "guild.player": "玩家",
+  "guild.class": "职业",
+  "guild.level": "等级",
+  "guild.notFound": "未知的军团。",
 };

@@ -360,4 +360,13 @@ export default {
   "time.minutesAgo": "il y a {count} min",
   "time.hoursAgo": "il y a {count} h",
   "time.daysAgo": "il y a {count} j",
+  "guild.listTitle": "Légions",
+  "guild.listIntro": "Les légions des joueurs connus d'Aion DPS, par serveur. Les membres sont les joueurs vus avec cette légion - pas forcément tous ceux qui en font partie.",
+  "guild.filter": "Chercher une légion ou un serveur",
+  "guild.empty": "Aucune légion connue pour l'instant.",
+  "guild.members": "{count} membres connus",
+  "guild.player": "Joueur",
+  "guild.class": "Classe",
+  "guild.level": "Niveau",
+  "guild.notFound": "Cette légion est inconnue.",
 };

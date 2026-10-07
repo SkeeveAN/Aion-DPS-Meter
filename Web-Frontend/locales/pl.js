@@ -360,4 +360,13 @@ export default {
   "time.minutesAgo": "{count} min temu",
   "time.hoursAgo": "{count} godz. temu",
   "time.daysAgo": "{count} dni temu",
+  "guild.listTitle": "Legiony",
+  "guild.listIntro": "Legiony graczy znanych Aion DPS, według serwerów. Członkowie to gracze, których widzieliśmy w tym legionie - niekoniecznie wszyscy.",
+  "guild.filter": "Szukaj legionu lub serwera",
+  "guild.empty": "Brak znanych legionów.",
+  "guild.members": "Znani członkowie: {count}",
+  "guild.player": "Gracz",
+  "guild.class": "Klasa",
+  "guild.level": "Poziom",
+  "guild.notFound": "Ten legion jest nieznany.",
 };

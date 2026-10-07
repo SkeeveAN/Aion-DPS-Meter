@@ -360,4 +360,13 @@ export default {
   "time.minutesAgo": "{count} dk önce",
   "time.hoursAgo": "{count} sa önce",
   "time.daysAgo": "{count} gün önce",
+  "guild.listTitle": "Lejyonlar",
+  "guild.listIntro": "Aion DPS'in tanıdığı oyuncuların lejyonları, sunucuya göre. Üyeler, o lejyonla gördüğümüz oyunculardır - içindeki herkes olmayabilir.",
+  "guild.filter": "Lejyon veya sunucu ara",
+  "guild.empty": "Henüz bilinen lejyon yok.",
+  "guild.members": "{count} bilinen üye",
+  "guild.player": "Oyuncu",
+  "guild.class": "Sınıf",
+  "guild.level": "Seviye",
+  "guild.notFound": "Bu lejyon bilinmiyor.",
 };

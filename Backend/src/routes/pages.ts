@@ -11,6 +11,8 @@ import {
   downloadPage,
   changelogPage,
   statsPage,
+  guildsPage,
+  guildPage,
   privateStatsPage,
   feedbackPage,
   comparePage,
@@ -73,6 +75,8 @@ export async function pageRoutes(app: FastifyInstance) {
   app.get("/", async (request, reply) => send(reply, render(homePage(), requestPath(request))));
   app.get("/download", async (request, reply) => send(reply, render(downloadPage(), requestPath(request))));
   app.get("/changelog", async (request, reply) => send(reply, render(changelogPage(), requestPath(request))));
+  app.get("/guilds", async (request, reply) => send(reply, render(guildsPage(), requestPath(request))));
+  app.get<{ Params: { slug: string } }>("/guilds/:slug", async (request, reply) => sendCached(request, reply, () => guildPage(request.params.slug)));
   app.get("/stats", async (request, reply) => send(reply, render(statsPage(), requestPath(request))));
   // The secret address of the operator statistics: anything else under /p/ is an ordinary 404.
   app.get<{ Params: { secret: string } }>("/p/:secret", async (request, reply) => {

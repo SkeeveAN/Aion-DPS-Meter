@@ -1,3 +1,4 @@
+import { listGuilds } from "../guilds.js";
 import { and, desc, eq, like, max } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
@@ -168,6 +169,9 @@ export async function playerRoutes(app: FastifyInstance) {
       .orderBy(desc(encounters.startedAt))
       .all();
 
-    return reply.send({ player, history, profile: buildProfileView(playerId) });
+    const guildSlug = player.guild && player.serverId !== null
+      ? (listGuilds().find((g) => g.serverId === player.serverId && g.name === player.guild?.trim())?.slug ?? null)
+      : null;
+    return reply.send({ player: { ...player, guildSlug }, history, profile: buildProfileView(playerId) });
   });
 }

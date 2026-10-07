@@ -360,4 +360,13 @@ export default {
   "time.minutesAgo": "{count} мин. назад",
   "time.hoursAgo": "{count} ч. назад",
   "time.daysAgo": "{count} дн. назад",
+  "guild.listTitle": "Легионы",
+  "guild.listIntro": "Легионы игроков, известных Aion DPS, по серверам. Участники - это игроки, которых мы видели в этом легионе, не обязательно все его члены.",
+  "guild.filter": "Поиск легиона или сервера",
+  "guild.empty": "Легионов пока нет.",
+  "guild.members": "Известных участников: {count}",
+  "guild.player": "Игрок",
+  "guild.class": "Класс",
+  "guild.level": "Уровень",
+  "guild.notFound": "Этот легион неизвестен.",
 };

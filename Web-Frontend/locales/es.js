@@ -360,4 +360,13 @@ export default {
   "time.minutesAgo": "hace {count} min",
   "time.hoursAgo": "hace {count} h",
   "time.daysAgo": "hace {count} d",
+  "guild.listTitle": "Legiones",
+  "guild.listIntro": "Las legiones de los jugadores que Aion DPS conoce, por servidor. Los miembros son los jugadores que hemos visto con esa legión, no necesariamente todos los que están en ella.",
+  "guild.filter": "Buscar legión o servidor",
+  "guild.empty": "Aún no se conocen legiones.",
+  "guild.members": "{count} miembros conocidos",
+  "guild.player": "Jugador",
+  "guild.class": "Clase",
+  "guild.level": "Nivel",
+  "guild.notFound": "Esta legión no se conoce.",
 };
