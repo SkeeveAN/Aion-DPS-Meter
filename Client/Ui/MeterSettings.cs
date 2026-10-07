@@ -79,9 +79,10 @@ public sealed class MeterSettings
     public string FeedbackEmail { get; set; } = "";
 
     /// <summary>Whether the own character profile is uploaded by itself a few seconds after a login
-    /// (see MainWindow.ScheduleOwnProfileUpload), so the player can be found on the website. On by
-    /// default; the manual upload button works either way.</summary>
-    public bool AutoUploadProfile { get; set; } = true;
+    /// (see MainWindow.ScheduleOwnProfileUpload), so the player can be found on the website. Off by
+    /// default, like the boss upload: without an opt-in no game data leaves the PC. The manual upload
+    /// button works either way.</summary>
+    public bool AutoUploadProfile { get; set; }
 
     /// <summary>System-wide hotkeys (see GlobalHotkeys), written "Ctrl+Alt+H"; empty = off. They stand
     /// in for the chat commands, which cannot work because Aion 2's chat is not readable.</summary>

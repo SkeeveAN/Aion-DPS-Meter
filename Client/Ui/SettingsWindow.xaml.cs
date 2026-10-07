@@ -268,7 +268,7 @@ public partial class SettingsWindow : Window
     private void OnSaveClicked(object sender, RoutedEventArgs e)
     {
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
-        _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? true;
+        _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? false;
         _settings.HotkeyHideUi = (string?)HotkeyHideUiBox.Tag ?? "";
         _settings.HotkeyPause = (string?)HotkeyPauseBox.Tag ?? "";
         _settings.HotkeyCopyDamage = (string?)HotkeyCopyDamageBox.Tag ?? "";

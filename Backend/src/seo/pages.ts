@@ -162,7 +162,7 @@ export function privacyPage(): Page {
     },
     body: html`
       <h2>Privacy Policy</h2>
-      <p>Aion DPS Meter is a free, open-source, hobby-run community project. The client passively observes your own network traffic to compute stats locally; uploading a parse to the community leaderboards is optional, and your own character profile is uploaded automatically after login unless you switch that off. See the full policy on the site for details on what gets stored and your rights.</p>`,
+      <p>Aion DPS Meter is a free, open-source, hobby-run community project. The client passively observes your own network traffic to compute stats locally; uploading a parse to the community leaderboards is optional, and your own character profile is only uploaded automatically after login if you switch that on in the settings (off by default). See the full policy on the site for details on what gets stored and your rights.</p>`,
   };
 }
 

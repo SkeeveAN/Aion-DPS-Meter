@@ -53,9 +53,9 @@ Działają wszędzie, także gdy gra ma fokus (zmiana w **Ustawienia → Interfe
 
 - **Walki z bossami** są przesyłane po kliknięciu upload (przycisk lub menu Session): boss, uczestnicy, obrażenia,
   leczenie, otrzymane obrażenia i umiejętności. Przyjmowani są tylko bossowie zapowiedziani przez grę i znani katalogowi.
-- **Profil twojej postaci** (nazwa, klasa, poziom, ekwipunek, umiejętności, Daevanion, legion, serwer) jest
-  przesyłany automatycznie kilka sekund po zalogowaniu, aby można cię było znaleźć na stronie. Wyłączysz to w
-  **Ustawieniach**.
+- **Profil twojej postaci** (nazwa, klasa, poziom, ekwipunek, umiejętności, Daevanion, legion, serwer) może być
+  przesyłany automatycznie kilka sekund po zalogowaniu, aby można cię było znaleźć na stronie. Domyślnie jest to
+  **wyłączone**; włączysz to w **Ustawieniach**.
 - Bez przesyłania nic nie opuszcza twojego komputera.
 
 ## Aktualizacje

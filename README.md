@@ -55,9 +55,9 @@ System-wide, also while the game has the focus (**Settings → Interface → Hot
 - **Boss fights** are uploaded when you click upload (toolbar button or Session menu): the boss, the
   players who took part, damage, healing, damage taken and skills. Only bosses the game announced and
   the catalog knows are accepted.
-- **Your own character profile** (name, class, level, gear, skills, Daevanion, legion, server) is
-  uploaded automatically a few seconds after you log in, so you can be found on the website. Switch it
-  off under **Settings**.
+- **Your own character profile** (name, class, level, gear, skills, Daevanion, legion, server) can be
+  uploaded automatically a few seconds after you log in, so you can be found on the website. This is
+  **off by default**; switch it on under **Settings**.
 - Without an upload nothing leaves your machine.
 
 ## Updates

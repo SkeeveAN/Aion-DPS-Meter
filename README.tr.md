@@ -52,7 +52,7 @@ Oyun odaktayken bile her yerde çalışır (**Ayarlar → Arayüz → Kısayol t
 - **Boss savaşları**, yükle'ye (düğme veya Session menüsü) tıkladığınızda yüklenir: boss, katılan oyuncular, hasar, iyileştirme,
   alınan hasar ve beceriler. Yalnızca oyunun duyurduğu ve kataloğun tanıdığı bosslar kabul edilir.
 - **Kendi karakter profiliniz** (ad, sınıf, seviye, ekipman, beceriler, Daevanion, lejyon, sunucu) girişten birkaç saniye sonra
-  otomatik yüklenir, böylece sitede bulunabilirsiniz. **Ayarlar**'dan kapatılabilir.
+  otomatik yüklenebilir, böylece sitede bulunabilirsiniz. Varsayılan olarak **kapalıdır**; **Ayarlar**'dan açılır.
 - Yükleme yapmadıkça hiçbir şey bilgisayarınızdan çıkmaz.
 
 ## Güncellemeler

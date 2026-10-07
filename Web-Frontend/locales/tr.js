@@ -125,7 +125,7 @@ export default {
   "legal.privacySection1Body": "Bu Gizlilik Politikası, Aion DPS Meter masaüstü istemcisini ve aiondps.com web sitesini kapsar. Mümkün olduğunca az veri toplamaya çalışıyoruz ve burada açıklanan her şey yalnızca bu sitede gördüğünüz topluluk skor tablolarını çalıştırmak için kullanılır.",
   "legal.privacySection2Heading": "İstemci Varsayılan Olarak Çevrimdışı Çalışır",
   "legal.privacySection2Body":
-    "Windows istemcisi yalnızca kendi bilgisayarınızın ağ trafiğini pasif olarak gözlemler (asla başkasınınkini, asla ham halde bir yere göndermez) - hasar ve iyileştirme istatistikleriniz yerel olarak hesaplanır. Oyunun belleğini asla okumaz ve oyun sürecine bağlanmaz. Bilgisayarınızdan yalnızca sizin yüklediğiniz şey çıkar - tek istisna: karakter profiliniz (ad, sınıf, seviye, ekipman, beceriler, lejyon, sunucu) girişten sonra otomatik yüklenir; bu ayarlardan kapatılabilir.",
+    "Windows istemcisi yalnızca kendi bilgisayarınızın ağ trafiğini pasif olarak gözlemler (asla başkasınınkini, asla ham halde bir yere göndermez) - hasar ve iyileştirme istatistikleriniz yerel olarak hesaplanır. Oyunun belleğini asla okumaz ve oyun sürecine bağlanmaz. Bilgisayarınızdan yalnızca sizin yüklediğiniz şey çıkar. Ayarlardan açarsanız, karakter profiliniz (ad, sınıf, seviye, ekipman, beceriler, lejyon, sunucu) girişten sonra otomatik olarak da yüklenir; varsayılan olarak kapalıdır.",
   "legal.privacySection3Heading": "Bir Karşılaşmayı Yüklediğinizde Neler Alırız",
   "legal.privacySection3Body": "Bir boss savaşını yüklemek isteğe bağlıdır. Bunu kullanırsanız, istemcinizin bildirdiği karakter adını ve sınıfını, sunucunuzu (ör. \"Aion Riftshade\"), boss adını, hasar veya iyileştirme rakamlarınızı, karşılaşma süresini, bir zaman damgasını ve istemci sürümünüzü alırız. Bir yükleme doğrulamayı geçemezse, hata ayıklama için ham veriyi kısa süreliğine dahili olarak tutabiliriz; bu veri hiçbir zaman skor tablosunda yayımlanmaz.",
   "legal.privacySection4Heading": "Neden Topluyoruz ve Onayınız",
@@ -181,7 +181,7 @@ export default {
     "Tek tıklama, oyunun üzerinde durup onu engellemeyen, tıklamaların içinden geçtiği bir overlay moduna geçer.",
   "download.feature3Title": "Topluluk sıralamaları (isteğe bağlı)",
   "download.feature3Text":
-    "Boss savaşlarını yükleyip diğerleriyle karşılaştırabilirsiniz. Karakter profiliniz girişten sonra otomatik olarak yüklenir (ayarlardan kapatılabilir), böylece bu sitede bulunabilirsiniz.",
+    "Boss savaşlarını yükleyip diğerleriyle karşılaştırabilirsiniz. Ayarlardan açarsanız (varsayılan olarak kapalı), karakter profiliniz girişten sonra otomatik olarak yüklenir, böylece bu sitede bulunabilirsiniz.",
   "download.feature4Title": "Yerel kalır",
   "download.feature4Text":
     "Yükleme yapmadıkça bilgisayarınızdan hiçbir şey çıkmaz - sayaç yalnızca kendi istemcinizin zaten ürettiği ağ trafiğini pasif olarak gözlemler.",
@@ -192,7 +192,7 @@ export default {
   "download.step3":
     "Sayacı başlatın, ardından karakterinizle giriş yapın: sayaç karakterinizi, ekipmanınızı ve becerilerinizi oyunun kendisinden okur.",
   "download.step4":
-    "Karakterinizin sunucusu otomatik algılanır. Profiliniz girişten sonra yüklenir (ayarlardan kapatılabilir) - bu sitede böyle bulunursunuz.",
+    "Karakterinizin sunucusu otomatik algılanır. Ayarlardan profil yüklemeyi açarsanız (varsayılan olarak kapalı), profiliniz girişten sonra yüklenir - bu sitede böyle bulunursunuz.",
   "download.step5": "Bitti - bundan sonra yeni bir sürüm çıktığında ölçer kendini otomatik olarak günceller.",
   "download.repoLinkPrefix": "Kaynak kod, README ve değişiklik günlüğü: ",
   "download.downloadButton": "⬇ İndir ({tag})",

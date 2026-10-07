@@ -57,8 +57,8 @@ Systemweit, auch wenn das Spiel den Fokus hat (ändern unter **Einstellungen →
   Spieler, Schaden, Heilung, erlittener Schaden und Skills. Angenommen werden nur Bosse, die das Spiel
   angekündigt hat und der Katalog kennt.
 - **Dein eigenes Charakterprofil** (Name, Klasse, Level, Ausrüstung, Skills, Daevanion, Legion, Server)
-  wird wenige Sekunden nach dem Login automatisch hochgeladen, damit man dich auf der Webseite findet.
-  In den **Einstellungen** abschaltbar.
+  kann wenige Sekunden nach dem Login automatisch hochgeladen werden, damit man dich auf der Webseite findet.
+  Das ist **standardmäßig aus**; in den **Einstellungen** einschaltbar.
 - Ohne Upload verlässt nichts deinen Rechner.
 
 ## Updates

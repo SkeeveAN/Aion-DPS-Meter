@@ -56,8 +56,8 @@ Valables partout, même quand le jeu a le focus (à modifier dans **Paramètres 
   présents, dégâts, soins, dégâts subis et compétences. Seuls les boss annoncés par le jeu et connus du catalogue
   sont acceptés.
 - **Votre propre profil de personnage** (nom, classe, niveau, équipement, compétences, Daevanion, légion, serveur)
-  est envoyé automatiquement quelques secondes après la connexion, pour que l'on vous trouve sur le site. Désactivable
-  dans les **Paramètres**.
+  peut être envoyé automatiquement quelques secondes après la connexion, pour que l'on vous trouve sur le site. C'est
+  **désactivé par défaut** ; à activer dans les **Paramètres**.
 - Sans envoi, rien ne quitte votre machine.
 
 ## Mises à jour

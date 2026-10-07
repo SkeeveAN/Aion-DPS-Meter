@@ -125,7 +125,7 @@ export default {
   "legal.privacySection1Body": "Esta política de privacidad cubre el cliente de escritorio Aion DPS Meter y el sitio web aiondps.com. Intentamos recopilar la menor cantidad de datos posible, y todo lo descrito aquí se usa solo para mantener las clasificaciones comunitarias que ves en este sitio.",
   "legal.privacySection2Heading": "El cliente funciona sin conexión por defecto",
   "legal.privacySection2Body":
-    "El cliente de Windows observa de forma pasiva el tráfico de red de tu propio ordenador (nunca el de otros, nunca enviado en bruto a ningún sitio) - tus estadísticas de daño y curación se calculan localmente. Nunca lee la memoria del juego ni se engancha al proceso del juego. Solo sale de tu ordenador lo que tú mismo subes - con una excepción: tu propio perfil de personaje (nombre, clase, nivel, equipo, habilidades, legión, servidor) se sube automáticamente tras iniciar sesión; se puede desactivar en los ajustes.",
+    "El cliente de Windows observa de forma pasiva el tráfico de red de tu propio ordenador (nunca el de otros, nunca enviado en bruto a ningún sitio) - tus estadísticas de daño y curación se calculan localmente. Nunca lee la memoria del juego ni se engancha al proceso del juego. Solo sale de tu ordenador lo que tú mismo subes. Si lo activas en los ajustes, tu propio perfil de personaje (nombre, clase, nivel, equipo, habilidades, legión, servidor) también se sube automáticamente tras iniciar sesión; está desactivado por defecto.",
   "legal.privacySection3Heading": "Qué recibimos cuando subes un combate",
   "legal.privacySection3Body": "Subir un combate contra un jefe es opcional. Si lo haces, recibimos el nombre de personaje y la clase que reporta tu cliente, tu servidor (por ejemplo, \"Aion Riftshade\"), el nombre del jefe, tus estadísticas de daño o curación, la duración del combate, una marca de tiempo y la versión de tu cliente. Si una subida falla la validación, podemos conservar brevemente los datos en bruto como registro interno de depuración; nunca se publican en ninguna clasificación.",
   "legal.privacySection4Heading": "Por qué recopilamos estos datos, y tu consentimiento",
@@ -181,7 +181,7 @@ export default {
     "Un clic cambia a un modo overlay que deja pasar los clics y se sitúa sobre el juego sin estorbar.",
   "download.feature3Title": "Clasificaciones de la comunidad (opcional)",
   "download.feature3Text":
-    "Puedes subir combates contra jefes y compararte con otros. Tu propio perfil de personaje se sube automáticamente tras iniciar sesión (se puede desactivar en los ajustes) para que te encuentren en este sitio.",
+    "Puedes subir combates contra jefes y compararte con otros. Si lo activas en los ajustes (desactivado por defecto), tu propio perfil de personaje se sube automáticamente tras iniciar sesión para que te encuentren en este sitio.",
   "download.feature4Title": "Se queda en local",
   "download.feature4Text":
     "Sin una subida, nada sale de tu ordenador - el medidor solo observa de forma pasiva el tráfico de red que tu propio cliente ya genera.",
@@ -192,7 +192,7 @@ export default {
   "download.step3":
     "Inicia el medidor y luego entra con tu personaje: el medidor lee tu personaje, equipo y habilidades del propio juego.",
   "download.step4":
-    "El servidor de tu personaje se detecta automáticamente. Tu perfil se sube tras iniciar sesión (se puede desactivar en los ajustes) - así te encuentran en este sitio.",
+    "El servidor de tu personaje se detecta automáticamente. Si activas la subida del perfil en los ajustes (desactivada por defecto), tu perfil se sube tras iniciar sesión - así te encuentran en este sitio.",
   "download.step5": "Listo - a partir de ahí el medidor se actualiza solo, cada vez que sale una nueva versión.",
   "download.repoLinkPrefix": "Código fuente, README y registro de cambios: ",
   "download.downloadButton": "⬇ Descargar ({tag})",

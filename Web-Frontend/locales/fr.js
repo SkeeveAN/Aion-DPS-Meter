@@ -125,7 +125,7 @@ export default {
   "legal.privacySection1Body": "Cette politique de confidentialité couvre le client de bureau Aion DPS Meter et le site aiondps.com. Nous essayons de collecter le moins de données possible, et tout ce qui est décrit ici sert uniquement à faire fonctionner les classements communautaires visibles sur ce site.",
   "legal.privacySection2Heading": "Le client fonctionne hors ligne par défaut",
   "legal.privacySection2Body":
-    "Le client Windows observe passivement le trafic réseau de votre propre ordinateur (jamais celui d'autrui, jamais envoyé tel quel) - vos statistiques de dégâts et de soins sont calculées localement. Il ne lit jamais la mémoire du jeu et ne s'accroche pas au processus du jeu. Seul ce que vous envoyez vous-même quitte votre ordinateur - à une exception près : votre propre profil de personnage (nom, classe, niveau, équipement, compétences, légion, serveur) est envoyé automatiquement après la connexion ; cela peut être désactivé dans les paramètres.",
+    "Le client Windows observe passivement le trafic réseau de votre propre ordinateur (jamais celui d'autrui, jamais envoyé tel quel) - vos statistiques de dégâts et de soins sont calculées localement. Il ne lit jamais la mémoire du jeu et ne s'accroche pas au processus du jeu. Seul ce que vous envoyez vous-même quitte votre ordinateur. Si vous l'activez dans les paramètres, votre propre profil de personnage (nom, classe, niveau, équipement, compétences, légion, serveur) est aussi envoyé automatiquement après la connexion ; c'est désactivé par défaut.",
   "legal.privacySection3Heading": "Ce que nous recevons lors de l'envoi d'un combat",
   "legal.privacySection3Body": "L'envoi d'un combat de boss est facultatif. Si vous l'utilisez, nous recevons le nom et la classe du personnage signalés par votre client, votre serveur (par ex. \"Aion Riftshade\"), le nom du boss, vos statistiques de dégâts ou de soins, la durée du combat, un horodatage et la version de votre client. Si un envoi échoue à la validation, nous pouvons conserver brièvement les données brutes à des fins de débogage interne; elles ne sont jamais publiées dans un classement.",
   "legal.privacySection4Heading": "Pourquoi nous collectons ces données, et votre consentement",
@@ -181,7 +181,7 @@ export default {
     "Un clic bascule vers un mode overlay cliquable au travers, posé sur le jeu sans le gêner.",
   "download.feature3Title": "Classements communautaires (facultatif)",
   "download.feature3Text":
-    "Vous pouvez envoyer des combats de boss et vous comparer aux autres. Votre propre profil de personnage est envoyé automatiquement après la connexion (désactivable dans les paramètres) pour que l'on vous trouve sur ce site.",
+    "Vous pouvez envoyer des combats de boss et vous comparer aux autres. Si vous l'activez dans les paramètres (désactivé par défaut), votre propre profil de personnage est envoyé automatiquement après la connexion pour que l'on vous trouve sur ce site.",
   "download.feature4Title": "Reste local",
   "download.feature4Text":
     "Sans envoi, rien ne quitte votre ordinateur - le compteur observe seulement passivement le trafic réseau que votre propre client produit déjà.",
@@ -192,7 +192,7 @@ export default {
   "download.step3":
     "Lancez le compteur, puis connectez-vous avec votre personnage : le compteur lit votre personnage, votre équipement et vos compétences directement dans le jeu.",
   "download.step4":
-    "Le serveur de votre personnage est détecté automatiquement. Votre profil est envoyé après la connexion (désactivable dans les paramètres) - c'est ainsi que l'on vous trouve sur ce site.",
+    "Le serveur de votre personnage est détecté automatiquement. Si vous activez l'envoi du profil dans les paramètres (désactivé par défaut), votre profil est envoyé après la connexion - c'est ainsi que l'on vous trouve sur ce site.",
   "download.step5": "Terminé - le compteur se met ensuite à jour automatiquement, dès qu'une nouvelle version sort.",
   "download.repoLinkPrefix": "Code source, README et changelog : ",
   "download.downloadButton": "⬇ Télécharger ({tag})",

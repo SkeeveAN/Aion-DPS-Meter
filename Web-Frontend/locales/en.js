@@ -80,7 +80,7 @@ export default {
   "legal.privacySection1Body": "This Privacy Policy covers the Aion DPS Meter desktop client and the aiondps.com website. We try to collect as little data as possible, and everything described here is used only to run the community leaderboards you see on this site.",
   "legal.privacySection2Heading": "The Desktop Client Works Offline by Default",
   "legal.privacySection2Body":
-    "The Windows client passively observes your own computer's network traffic (never anyone else's, never sent anywhere raw) - your damage and healing statistics are calculated locally on your machine. It never reads the game's memory or hooks into the game process. Only what you upload yourself leaves your computer - with one exception: your own character profile (name, class, level, gear, skills, legion, server) is uploaded automatically after you log in; this can be switched off in the settings.",
+    "The Windows client passively observes your own computer's network traffic (never anyone else's, never sent anywhere raw) - your damage and healing statistics are calculated locally on your machine. It never reads the game's memory or hooks into the game process. Only what you upload yourself leaves your computer. If you switch it on in the settings, your own character profile (name, class, level, gear, skills, legion, server) is also uploaded automatically after you log in; this is off by default.",
   "legal.privacySection3Heading": "What We Collect When You Upload an Encounter",
   "legal.privacySection3Body": "Uploading a boss fight is optional. If you use it, we receive the character name and class reported by your client, your server (e.g. \"Aion Riftshade\"), the boss name, your damage or healing numbers, the encounter duration, a timestamp, and your client version. If an upload fails validation, we may briefly keep the raw data as an internal debugging log, which is never published on any leaderboard.",
   "legal.privacySection4Heading": "Why We Collect It, and Your Consent",
@@ -198,7 +198,7 @@ export default {
     "One click switches to a click-through overlay mode that sits on top of the game without getting in the way.",
   "download.feature3Title": "Community leaderboards (optional)",
   "download.feature3Text":
-    "You can upload boss fights and compare yourself with others. Your own character profile is uploaded automatically after you log in (can be switched off in the settings) so that you can be found on this site.",
+    "You can upload boss fights and compare yourself with others. If you switch it on in the settings, your own character profile is uploaded automatically after you log in (off by default) so that you can be found on this site.",
   "download.feature4Title": "Stays local",
   "download.feature4Text":
     "Without an upload, nothing leaves your computer - the meter only passively observes the network traffic that your own client already produces.",
@@ -209,7 +209,7 @@ export default {
   "download.step3":
     "Start the meter, then log in with your character: the meter reads your character, gear and skills from the game itself.",
   "download.step4":
-    "Your character's server is detected automatically. Your profile is uploaded after login (can be switched off in the settings) - that is how you become findable on this site.",
+    "Your character's server is detected automatically. If you switch on the profile upload in the settings (off by default), your profile is uploaded after login - that is how you become findable on this site.",
   "download.step5": "Done - the meter updates itself automatically after that, whenever a new version is released.",
   "download.repoLinkPrefix": "Source code, README and changelog: ",
   "download.downloadButton": "⬇ Download ({tag})",

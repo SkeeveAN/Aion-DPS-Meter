@@ -125,7 +125,7 @@ export default {
   "legal.privacySection1Body": "Niniejsza polityka prywatności obejmuje klienta desktopowego Aion DPS Meter oraz witrynę aiondps.com. Staramy się zbierać jak najmniej danych, a wszystko opisane tutaj służy wyłącznie do prowadzenia publicznych rankingów widocznych na tej stronie.",
   "legal.privacySection2Heading": "Klient domyślnie działa offline",
   "legal.privacySection2Body":
-    "Klient dla Windows pasywnie obserwuje ruch sieciowy twojego własnego komputera (nigdy cudzy i nigdy niewysyłany w surowej postaci) - statystyki obrażeń i leczenia są liczone lokalnie. Nigdy nie czyta pamięci gry ani nie podłącza się do procesu gry. Z komputera wychodzi tylko to, co sam prześlesz - z jednym wyjątkiem: profil twojej postaci (nazwa, klasa, poziom, ekwipunek, umiejętności, legion, serwer) jest przesyłany automatycznie po zalogowaniu; można to wyłączyć w ustawieniach.",
+    "Klient dla Windows pasywnie obserwuje ruch sieciowy twojego własnego komputera (nigdy cudzy i nigdy niewysyłany w surowej postaci) - statystyki obrażeń i leczenia są liczone lokalnie. Nigdy nie czyta pamięci gry ani nie podłącza się do procesu gry. Z komputera wychodzi tylko to, co sam prześlesz. Jeśli włączysz to w ustawieniach, profil twojej postaci (nazwa, klasa, poziom, ekwipunek, umiejętności, legion, serwer) jest również przesyłany automatycznie po zalogowaniu; domyślnie jest to wyłączone.",
   "legal.privacySection3Heading": "Co otrzymujemy przy wysyłce walki",
   "legal.privacySection3Body": "Wysłanie walki z bossem jest opcjonalne. Jeśli z niej skorzystasz, otrzymujemy zgłoszoną przez klienta nazwę postaci i klasę, twój serwer (np. \"Aion Riftshade\"), nazwę bossa, twoje statystyki obrażeń lub leczenia, czas trwania walki, znacznik czasu oraz wersję twojego klienta. Jeśli wysyłka nie przejdzie walidacji, możemy krótko przechować surowe dane jako wewnętrzny log do debugowania; nigdy nie trafiają one do rankingu.",
   "legal.privacySection4Heading": "Dlaczego to zbieramy i twoja zgoda",
@@ -181,7 +181,7 @@ export default {
     "Jedno kliknięcie przełącza w tryb przezroczystego overlayu, przez który można klikać, leżącego na grze bez przeszkadzania.",
   "download.feature3Title": "Rankingi społeczności (opcjonalnie)",
   "download.feature3Text":
-    "Walki z bossami możesz przesyłać i porównywać się z innymi. Profil twojej postaci jest przesyłany automatycznie po zalogowaniu (można to wyłączyć w ustawieniach), aby można cię było znaleźć na tej stronie.",
+    "Walki z bossami możesz przesyłać i porównywać się z innymi. Jeśli włączysz to w ustawieniach (domyślnie wyłączone), profil twojej postaci jest przesyłany automatycznie po zalogowaniu, aby można cię było znaleźć na tej stronie.",
   "download.feature4Title": "Pozostaje lokalnie",
   "download.feature4Text":
     "Bez przesyłania nic nie opuszcza twojego komputera - licznik jedynie pasywnie obserwuje ruch sieciowy, który twój klient i tak generuje.",
@@ -192,7 +192,7 @@ export default {
   "download.step3":
     "Uruchom licznik, a następnie zaloguj się swoją postacią: licznik odczytuje postać, ekwipunek i umiejętności z samej gry.",
   "download.step4":
-    "Serwer twojej postaci jest wykrywany automatycznie. Profil jest przesyłany po zalogowaniu (można to wyłączyć w ustawieniach) - dzięki temu można cię znaleźć na tej stronie.",
+    "Serwer twojej postaci jest wykrywany automatycznie. Jeśli włączysz przesyłanie profilu w ustawieniach (domyślnie wyłączone), profil jest przesyłany po zalogowaniu - dzięki temu można cię znaleźć na tej stronie.",
   "download.step5": "Gotowe - od tej pory miernik aktualizuje się sam, gdy tylko pojawi się nowa wersja.",
   "download.repoLinkPrefix": "Kod źródłowy, README i lista zmian: ",
   "download.downloadButton": "⬇ Pobierz ({tag})",

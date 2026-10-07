@@ -54,9 +54,9 @@ Valen en todas partes, también con el juego en primer plano (se cambian en **Aj
 
 - **Los combates contra jefes** se suben al pulsar subir (botón o menú Session): jefe, jugadores participantes, daño,
   curación, daño recibido y habilidades. Solo se aceptan jefes que el juego anunció y el catálogo conoce.
-- **Tu propio perfil de personaje** (nombre, clase, nivel, equipo, habilidades, Daevanion, legión, servidor) se sube
-  automáticamente unos segundos después de iniciar sesión, para que te encuentren en el sitio web. Se desactiva en
-  **Ajustes**.
+- **Tu propio perfil de personaje** (nombre, clase, nivel, equipo, habilidades, Daevanion, legión, servidor) puede
+  subirse automáticamente unos segundos después de iniciar sesión, para que te encuentren en el sitio web. Está
+  **desactivado por defecto**; se activa en **Ajustes**.
 - Sin subida, nada sale de tu equipo.
 
 ## Actualizaciones

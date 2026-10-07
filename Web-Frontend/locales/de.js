@@ -80,7 +80,7 @@ export default {
   "legal.privacySection1Body": "Diese Datenschutzerklärung gilt für den Aion DPS Meter Desktop-Client und die Website aiondps.com. Wir erfassen bewusst so wenig Daten wie möglich, und alles hier Beschriebene dient ausschließlich dem Betrieb der öffentlichen Bestenlisten auf dieser Seite.",
   "legal.privacySection2Heading": "Der Client funktioniert standardmäßig offline",
   "legal.privacySection2Body":
-    "Der Windows-Client beobachtet passiv den Netzwerkverkehr deines eigenen Rechners (nie den anderer, nie roh irgendwohin gesendet) - deine Schaden- und Heilungsstatistiken werden lokal auf deinem Rechner berechnet. Er liest nie den Speicher des Spiels und hängt sich nicht in den Spielprozess. Hochgeladen wird nur, was du selbst hochlädst - mit einer Ausnahme: dein eigenes Charakterprofil (Name, Klasse, Level, Ausrüstung, Skills, Legion, Server) wird nach dem Login automatisch hochgeladen; das lässt sich in den Einstellungen abschalten.",
+    "Der Windows-Client beobachtet passiv den Netzwerkverkehr deines eigenen Rechners (nie den anderer, nie roh irgendwohin gesendet) - deine Schaden- und Heilungsstatistiken werden lokal auf deinem Rechner berechnet. Er liest nie den Speicher des Spiels und hängt sich nicht in den Spielprozess. Hochgeladen wird nur, was du selbst hochlädst. Wenn du es in den Einstellungen einschaltest, wird auch dein eigenes Charakterprofil (Name, Klasse, Level, Ausrüstung, Skills, Legion, Server) nach dem Login automatisch hochgeladen; das ist standardmäßig aus.",
   "legal.privacySection3Heading": "Was wir beim Hochladen eines Kampfes erhalten",
   "legal.privacySection3Body": "Der Upload eines Bosskampfes ist optional. Dabei erhalten wir den vom Client gemeldeten Charakternamen, die Klasse, deinen Server (z. B. \"Aion Riftshade\"), den Bossnamen, deine Schadens- oder Heilwerte, die Kampfdauer, einen Zeitstempel und deine Client-Version. Scheitert ein Upload an der Prüfung, behalten wir die Rohdaten kurzzeitig intern zur Fehlersuche; sie erscheinen nie in einer Bestenliste.",
   "legal.privacySection4Heading": "Warum wir das erfassen, und deine Einwilligung",
@@ -198,7 +198,7 @@ export default {
     "Ein Klick blendet auf einen durchklickbaren Overlay-Modus um, der über dem Spiel liegt, ohne es zu stören.",
   "download.feature3Title": "Community-Ranglisten (optional)",
   "download.feature3Text":
-    "Boss-Kämpfe lädst du auf Wunsch hoch und vergleichst dich mit anderen. Dein eigenes Charakterprofil wird nach dem Login automatisch hochgeladen (in den Einstellungen abschaltbar), damit man dich auf dieser Seite findet.",
+    "Boss-Kämpfe lädst du auf Wunsch hoch und vergleichst dich mit anderen. Wenn du es in den Einstellungen einschaltest (standardmäßig aus), wird dein eigenes Charakterprofil nach dem Login automatisch hochgeladen, damit man dich auf dieser Seite findet.",
   "download.feature4Title": "Bleibt lokal",
   "download.feature4Text":
     "Ohne Upload verlässt nichts deinen Rechner - der Meter beobachtet nur passiv den Netzwerkverkehr, den dein eigener Client ohnehin erzeugt.",
@@ -209,7 +209,7 @@ export default {
   "download.step3":
     "Starte den Meter und logge dich dann mit deinem Charakter ein: Charakter, Ausrüstung und Skills liest der Meter aus dem Spiel selbst.",
   "download.step4":
-    "Der Server deines Charakters wird automatisch erkannt. Dein Profil wird nach dem Login hochgeladen (abschaltbar in den Einstellungen) - so wirst du auf dieser Seite gefunden.",
+    "Der Server deines Charakters wird automatisch erkannt. Schaltest du den Profil-Upload in den Einstellungen ein (standardmäßig aus), wird dein Profil nach dem Login hochgeladen - so wirst du auf dieser Seite gefunden.",
   "download.step5": "Fertig - der Meter aktualisiert sich danach selbstständig, sobald eine neue Version erscheint.",
   "download.repoLinkPrefix": "Quellcode, README und Changelog: ",
   "download.downloadButton": "⬇ Herunterladen ({tag})",
