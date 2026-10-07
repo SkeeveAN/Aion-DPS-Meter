@@ -58,6 +58,11 @@ export function privateStats() {
     "select date(downloaded_at) day, count(*) n, count(distinct ip_hash) u from downloads where is_bot = 0 and downloaded_at >= datetime('now','-30 days') group by day order by day",
   ).map((r) => ({ day: String(r.day), clicks: num(r.n), unique: num(r.u) }));
   const downloadsByTag = all("select tag, count(*) n from downloads where is_bot = 0 group by tag order by max(id) desc limit 8").map((r) => ({ tag: String(r.tag), count: num(r.n) }));
+  // Which game servers (IP:port) the clients captured from, with the server ids they reported there: the
+  // evidence for telling the regions apart.
+  const gameServers = all(
+    `select game_server addr, count(*) n, group_concat(distinct client_server_id) ids from uploads where game_server is not null group by game_server order by n desc limit 40`,
+  ).map((r) => ({ address: String(r.addr), uploads: num(r.n), serverIds: String(r.ids ?? "") }));
   const last = one("select max(received_at) a from uploads").a;
   const completeness = one(
     `select sum(gear_json <> '[]') gear, sum(skills_json <> '[]') skills, sum(daevanion_json <> '[]') daevanion, count(*) n from player_profiles where source = 'self'`,
@@ -78,6 +83,7 @@ export function privateStats() {
   return {
     ...publicStats(),
     bossFights,
+    gameServers,
     uploadsPerDay,
     activeUploaders: { d1: activeUploaders(1), d7: activeUploaders(7), d30: activeUploaders(30) },
     versions,

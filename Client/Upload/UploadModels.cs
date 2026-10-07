@@ -107,7 +107,12 @@ public sealed record EncounterUploadRequest(
     int? BossNpcId = null,
     // The boss's highest hit-point reading from the game's HP frame (a lower bound when the meter
     // joined mid-fight). Explore and conquest differ 2-3x in it, so the backend can tell them apart.
-    long? BossMaxHp = null);
+    long? BossMaxHp = null,
+    // The numeric server id of the own character record and the game server's address (IP:port) the
+    // meter captured from. The id is only unique within one region; the address is what tells the
+    // regions apart, so the backend keeps both.
+    int? ServerId = null,
+    string? GameServer = null);
 
 /// <summary>Aion 2 players without a boss fight, as sent to POST /api/uploads/profiles: the
 /// character profiles the client read off the network, with no encounter and no damage attached.
@@ -117,7 +122,9 @@ public sealed record ProfilesUploadRequest(
     string ServerFingerprint,
     string? ServerName,
     IReadOnlyList<ProfileParticipantUpload> Participants,
-    string Game = "aion2");
+    string Game = "aion2",
+    int? ServerId = null,
+    string? GameServer = null);
 
 public sealed record ProfileParticipantUpload(
     string Name,

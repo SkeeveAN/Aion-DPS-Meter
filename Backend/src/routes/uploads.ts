@@ -33,6 +33,8 @@ export async function uploadRoutes(app: FastifyInstance) {
       .values({
         clientVersion: payload.clientVersion,
         serverId: result.serverId,
+        clientServerId: payload.serverId,
+        gameServer: payload.gameServer,
         uploaderReportedName: payload.participants.find((p) => p.isSelf)!.name,
         ipHash: hashIp(request.ip),
         status: "merged",
@@ -81,6 +83,8 @@ export async function uploadRoutes(app: FastifyInstance) {
       .values({
         clientVersion: payload.clientVersion,
         serverId: result.serverId,
+        clientServerId: payload.serverId,
+        gameServer: payload.gameServer,
         uploaderReportedName,
         ipHash,
         matchedEncounterId: result.encounterId,

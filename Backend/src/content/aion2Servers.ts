@@ -1,63 +1,38 @@
 // Aion 2 server ids and their names, from the game's own text (ServerName_<id>_desc in the client's
-// L10NString, checked 2026-10-07). Elyos 1301-1322 and Asmodians 2301-2322 are the 22 servers per
-// faction of the European list. An upload from an older client files an unnamed server under
-// "aion2:aion-2-server-<id>"; canonicalServer() turns that into the proper name so the same server
-// never exists twice.
-const NAMES: Record<number, string> = {
-  1301: "Siel",
-  1302: "Nezekan",
-  1303: "Vaizel",
-  1304: "Kaisinel",
-  1305: "Yustiel",
-  1306: "Ariel",
-  1307: "Fregion",
-  1308: "Meslamtaeda",
-  1309: "Hithanya",
-  1310: "Nania",
-  1311: "Tahavatha",
-  1312: "Luteros",
-  1313: "Phernos",
-  1314: "Daminu",
-  1315: "Kasaka",
-  1316: "Bakarma",
-  1317: "Tsenka",
-  1318: "Kochi",
-  1319: "Ishtar",
-  1320: "Tiamat",
-  1321: "Gauss",
-  1322: "Lamuatan",
-  2301: "Israphel",
-  2302: "Zikel",
-  2303: "Triniel",
-  2304: "Lumiel",
-  2305: "Marchutan",
-  2306: "Azphel",
-  2307: "Ereshkigal",
-  2308: "Beritra",
-  2309: "Nemon",
-  2310: "Hadala",
-  2311: "Ludra",
-  2312: "Ulgorn",
-  2313: "Munin",
-  2314: "Odar",
-  2315: "Zemurru",
-  2316: "Kromede",
-  2317: "Quai",
-  2318: "Baba",
-  2319: "Fafnir",
-  2320: "Indnath",
-  2321: "Agnita",
-  2322: "Atiel",
-};
+// L10NString, checked 2026-10-07; same table as Client/Aion2/Protocol/Aion2Servers.cs). Block 13/23 is
+// Europe, its first 22 servers per faction are the European list; every other block has the right
+// name but an unknown region and is labelled "Name [id]". An upload from an older client files an
+// unnamed server under "aion2:aion-2-server-<id>"; canonicalServer() turns that into the proper name
+// so the same server never exists twice.
+const ELYOS_13 = ["Siel", "Nezekan", "Vaizel", "Kaisinel", "Yustiel", "Ariel", "Fregion", "Meslamtaeda", "Hithanya", "Nania", "Tahavatha", "Luteros", "Phernos", "Daminu", "Kasaka", "Bakarma", "Tsenka", "Kochi", "Ishtar", "Tiamat", "Gauss", "Lamuatan", "Nathara", "Talisra", "Zumion", "Nahid", "Asahr", "Caelid", "Laveis", "Perion", "Dramata", "Reda", "Auldor", "Vakron", "Narun", "Gartua", "Chloris", "Ione", "Teina", "Dymones", "Bargott", "Atheron", "Ruthilis", "Siliator", "Idris", "Satia", "Estian", "Rahu", "Rhanman", "Hebran", "Urahum", "Lakshmi", "Thamon", "Tiere", "Duduri", "Derkos", "Dundu", "Holyaul", "Poeta", "Verteron"];
+const ELYOS_10 = ["Siel", "Nezekan", "Vaizel", "Kaisinel", "Yustiel", "Ariel", "Fregion", "Meslamtaeda", "Hithanya", "Nania", "Tahavatha", "Luteros", "Phernos", "Daminu", "Kasaka", "Bakarma", "Tsenka", "Kochi", "Ishtar", "Tiamat", "Poeta", "Verteron", "Nathara", "Talisra", "Zumion", "Nahid", "Asahr", "Caelid", "Laveis", "Perion", "Dramata", "Reda", "Auldor", "Vakron", "Narun", "Gartua", "Chloris", "Ione", "Teina", "Dymones", "Bargott", "Atheron", "Ruthilis", "Siliator", "Idris", "Satia", "Estian", "Rahu", "Rhanman", "Hebran", "Urahum", "Lakshmi", "Thamon", "Tiere", "Duduri", "Derkos", "Dundu", "Holyaul"];
+const ASMO_23 = ["Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel", "Ereshkigal", "Beritra", "Nemon", "Hadala", "Ludra", "Ulgorn", "Munin", "Odar", "Zemurru", "Kromede", "Quai", "Baba", "Fafnir", "Indnath", "Agnita", "Atiel", "Tassin", "Heladrir", "Valdemar", "Lagta", "Gerod", "Urd", "Ecco", "Giselle", "Kashapa", "Stof", "Berk", "Nuakum", "Grisilla", "Santras", "Reuben", "Hugo", "Kraki", "Hystan", "Rathman", "Sigebert", "Nazmun", "Gelcos", "Paton", "Pelleir", "Elvida", "Ketu", "Pydeon", "Notun", "Murute", "Rotan", "Kwapo", "Duanka", "Brok", "Valter", "Purakhi", "Ignus", "Ishalgen", "Altgard"];
+const ASMO_20 = ["Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel", "Ereshkigal", "Beritra", "Nemon", "Hadala", "Ludra", "Ulgorn", "Munin", "Odar", "Zemurru", "Kromede", "Quai", "Baba", "Fafnir", "Indnath", "Ishalgen", "Altgard", "Agnita", "Atiel", "Valdemar", "Lagta", "Gerod", "Urd", "Ecco", "Giselle", "Kashapa", "Stof", "Berk", "Nuakum", "Grisilla", "Santras", "Reuben", "Hugo", "Kraki", "Hystan", "Rathman", "Sigebert", "Nazmun", "Gelcos", "Paton", "Pelleir", "Elvida", "Ketu", "Pydeon", "Notun", "Murute", "Rotan", "Kwapo", "Duanka", "Brok", "Valter", "Purakhi", "Ignus"];
+const EUROPE_SERVERS_PER_FACTION = 22;
+
+function nameOf(serverId: number): string | null {
+  const block = Math.floor(serverId / 100);
+  const index = (serverId % 100) - 1;
+  const names =
+    block === 13 || (block >= 11 && block <= 15 && block !== 10) ? ELYOS_13
+    : block === 10 ? ELYOS_10
+    : block === 23 || (block >= 21 && block <= 25) ? ASMO_23
+    : block === 20 ? ASMO_20
+    : null;
+  const name = names?.[index];
+  if (!name) {
+    return null;
+  }
+  return (block === 13 || block === 23) && index < EUROPE_SERVERS_PER_FACTION ? `Europe - ${name}` : `${name} [${serverId}]`;
+}
 
 const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export function canonicalServer(fingerprint: string, displayName: string | undefined): { fingerprint: string; displayName: string | undefined } {
   const match = /^aion2:aion-2-server-(\d+)$/.exec(fingerprint);
-  const name = match ? NAMES[Number(match[1])] : undefined;
-  if (!name) {
+  const label = match ? nameOf(Number(match[1])) : null;
+  if (!label) {
     return { fingerprint, displayName };
   }
-  const label = `Europe - ${name}`;
   return { fingerprint: `aion2:${slug(label)}`, displayName: label };
 }

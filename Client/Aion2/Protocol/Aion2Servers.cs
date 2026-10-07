@@ -2,64 +2,41 @@ namespace AionDPS.Aion2.Protocol;
 
 /// <summary>
 /// Aion 2 server ids as the game sends them (the two bytes after the own character's name) and the
-/// server each one is. Only ids that were confirmed with a real character are listed; any other id is
-/// still a perfectly good identity for filing uploads apart, it just has no name yet.
+/// server each one is. The names are the game's own text (ServerName_&lt;id&gt;_desc in the client's
+/// L10NString, checked 2026-10-07): ids 1001-1560 are Elyos, 2001-2560 Asmodians, six blocks each,
+/// with the same name at the same place in every block (the first block of each faction differs
+/// slightly). Only block 13/23 is confirmed to be Europe (real characters and party-window server
+/// tags: 1303/1304 Aahz and Boulenbouche, Xooby [Tri] = 2303, zyxx [Ber] = 2308); its first 22 servers
+/// are the European list. For every other id the name is right but the region is not known, so it
+/// is shown as "Name [id]" and never as "Europe". The same id can exist in several regions.
 /// </summary>
 public static class Aion2Servers
 {
-    private static readonly Dictionary<int, string> Known = new()
-    {
-        // The names are the game's own text (ServerName_<id>_desc in the client's L10NString, checked 2026-10-07).
-        // Elyos 1301-1322 and Asmodians 2301-2322 are the 22 servers per faction of the official list; the
-        // client text has more names per block (up to 60) that belong to no live server. Earlier confirmed
-        // with real characters: 1303/1304 (Aahz, Boulenbouche), Xooby [Tri] = 2303, zyxx [Ber] = 2308.
-        // The same ids are reused by the other regions (NA, Asia, ...): the id alone does not say the region.
-        // The id says nothing about a character's faction here.
-        [1301] = "Europe - Siel",
-        [1302] = "Europe - Nezekan",
-        [1303] = "Europe - Vaizel",
-        [1304] = "Europe - Kaisinel",
-        [1305] = "Europe - Yustiel",
-        [1306] = "Europe - Ariel",
-        [1307] = "Europe - Fregion",
-        [1308] = "Europe - Meslamtaeda",
-        [1309] = "Europe - Hithanya",
-        [1310] = "Europe - Nania",
-        [1311] = "Europe - Tahavatha",
-        [1312] = "Europe - Luteros",
-        [1313] = "Europe - Phernos",
-        [1314] = "Europe - Daminu",
-        [1315] = "Europe - Kasaka",
-        [1316] = "Europe - Bakarma",
-        [1317] = "Europe - Tsenka",
-        [1318] = "Europe - Kochi",
-        [1319] = "Europe - Ishtar",
-        [1320] = "Europe - Tiamat",
-        [1321] = "Europe - Gauss",
-        [1322] = "Europe - Lamuatan",
-        [2301] = "Europe - Israphel",
-        [2302] = "Europe - Zikel",
-        [2303] = "Europe - Triniel",
-        [2304] = "Europe - Lumiel",
-        [2305] = "Europe - Marchutan",
-        [2306] = "Europe - Azphel",
-        [2307] = "Europe - Ereshkigal",
-        [2308] = "Europe - Beritra",
-        [2309] = "Europe - Nemon",
-        [2310] = "Europe - Hadala",
-        [2311] = "Europe - Ludra",
-        [2312] = "Europe - Ulgorn",
-        [2313] = "Europe - Munin",
-        [2314] = "Europe - Odar",
-        [2315] = "Europe - Zemurru",
-        [2316] = "Europe - Kromede",
-        [2317] = "Europe - Quai",
-        [2318] = "Europe - Baba",
-        [2319] = "Europe - Fafnir",
-        [2320] = "Europe - Indnath",
-        [2321] = "Europe - Agnita",
-        [2322] = "Europe - Atiel",
-    };
+    private static readonly string[] Elyos13 = { "Siel", "Nezekan", "Vaizel", "Kaisinel", "Yustiel", "Ariel", "Fregion", "Meslamtaeda", "Hithanya", "Nania", "Tahavatha", "Luteros", "Phernos", "Daminu", "Kasaka", "Bakarma", "Tsenka", "Kochi", "Ishtar", "Tiamat", "Gauss", "Lamuatan", "Nathara", "Talisra", "Zumion", "Nahid", "Asahr", "Caelid", "Laveis", "Perion", "Dramata", "Reda", "Auldor", "Vakron", "Narun", "Gartua", "Chloris", "Ione", "Teina", "Dymones", "Bargott", "Atheron", "Ruthilis", "Siliator", "Idris", "Satia", "Estian", "Rahu", "Rhanman", "Hebran", "Urahum", "Lakshmi", "Thamon", "Tiere", "Duduri", "Derkos", "Dundu", "Holyaul", "Poeta", "Verteron" };
+    private static readonly string[] Elyos10 = { "Siel", "Nezekan", "Vaizel", "Kaisinel", "Yustiel", "Ariel", "Fregion", "Meslamtaeda", "Hithanya", "Nania", "Tahavatha", "Luteros", "Phernos", "Daminu", "Kasaka", "Bakarma", "Tsenka", "Kochi", "Ishtar", "Tiamat", "Poeta", "Verteron", "Nathara", "Talisra", "Zumion", "Nahid", "Asahr", "Caelid", "Laveis", "Perion", "Dramata", "Reda", "Auldor", "Vakron", "Narun", "Gartua", "Chloris", "Ione", "Teina", "Dymones", "Bargott", "Atheron", "Ruthilis", "Siliator", "Idris", "Satia", "Estian", "Rahu", "Rhanman", "Hebran", "Urahum", "Lakshmi", "Thamon", "Tiere", "Duduri", "Derkos", "Dundu", "Holyaul" };
+    private static readonly string[] Asmo23 = { "Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel", "Ereshkigal", "Beritra", "Nemon", "Hadala", "Ludra", "Ulgorn", "Munin", "Odar", "Zemurru", "Kromede", "Quai", "Baba", "Fafnir", "Indnath", "Agnita", "Atiel", "Tassin", "Heladrir", "Valdemar", "Lagta", "Gerod", "Urd", "Ecco", "Giselle", "Kashapa", "Stof", "Berk", "Nuakum", "Grisilla", "Santras", "Reuben", "Hugo", "Kraki", "Hystan", "Rathman", "Sigebert", "Nazmun", "Gelcos", "Paton", "Pelleir", "Elvida", "Ketu", "Pydeon", "Notun", "Murute", "Rotan", "Kwapo", "Duanka", "Brok", "Valter", "Purakhi", "Ignus", "Ishalgen", "Altgard" };
+    private static readonly string[] Asmo20 = { "Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel", "Ereshkigal", "Beritra", "Nemon", "Hadala", "Ludra", "Ulgorn", "Munin", "Odar", "Zemurru", "Kromede", "Quai", "Baba", "Fafnir", "Indnath", "Ishalgen", "Altgard", "Agnita", "Atiel", "Valdemar", "Lagta", "Gerod", "Urd", "Ecco", "Giselle", "Kashapa", "Stof", "Berk", "Nuakum", "Grisilla", "Santras", "Reuben", "Hugo", "Kraki", "Hystan", "Rathman", "Sigebert", "Nazmun", "Gelcos", "Paton", "Pelleir", "Elvida", "Ketu", "Pydeon", "Notun", "Murute", "Rotan", "Kwapo", "Duanka", "Brok", "Valter", "Purakhi", "Ignus" };
 
-    public static string NameOf(int serverId) => Known.GetValueOrDefault(serverId, $"Aion 2 server {serverId}");
+    private const int EuropeServersPerFaction = 22;
+
+    public static string NameOf(int serverId)
+    {
+        int block = serverId / 100;
+        int index = serverId % 100 - 1;
+        string[]? names = block switch
+        {
+            13 => Elyos13,
+            23 => Asmo23,
+            10 => Elyos10,
+            20 => Asmo20,
+            >= 11 and <= 15 => Elyos13,
+            >= 21 and <= 25 => Asmo23,
+            _ => null,
+        };
+        if (names is null || index < 0 || index >= names.Length)
+        {
+            return $"Aion 2 server {serverId}";
+        }
+        return (block is 13 or 23) && index < EuropeServersPerFaction ? $"Europe - {names[index]}" : $"{names[index]} [{serverId}]";
+    }
 }

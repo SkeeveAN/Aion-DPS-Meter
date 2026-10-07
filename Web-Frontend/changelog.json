@@ -59,6 +59,13 @@
     "areas": [
      "Website"
     ]
+   },
+   {
+    "text": "Aion 2 server names come from the game's own text for all 22 servers per faction (1301-1322 / 2301-2322); the backend turns an unnamed 'aion-2-server-<id>' upload into the named server, so it exists only once",
+    "areas": [
+     "Client",
+     "Backend"
+    ]
    }
   ]
  },

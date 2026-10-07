@@ -91,6 +91,10 @@ export const uploadSchema = z
   // Label for the fingerprint above ("Europe - Kaisinel"); upsertServer (see matching/merge.ts)
   // matches on both, so two servers that shared a fingerprint stay apart.
   serverName: z.string().trim().max(60).optional(),
+  // The own character's numeric server id and the game server's address (IP:port). A server id is reused
+  // by every region, the address is what tells them apart. Optional for older clients.
+  serverId: z.number().int().positive().max(99999).optional(),
+  gameServer: z.string().trim().max(64).optional(),
   })
   .superRefine((payload, ctx) => {
     // Aion 2 has a fixed, small class roster; a class outside it is a client bug worth rejecting
@@ -120,6 +124,8 @@ export const profilesUploadSchema = z
     game: z.literal("aion2"),
     serverFingerprint: z.string().trim().min(1).max(64),
     serverName: z.string().trim().max(60).optional(),
+    serverId: z.number().int().positive().max(99999).optional(),
+    gameServer: z.string().trim().max(64).optional(),
     participants: z
       .array(
         participantSchema

@@ -684,6 +684,7 @@ async function renderStats(secret) {
       bars(d.versions, (r) => `${r.version} · ${r.uploaders} uploader${r.uploaders === 1 ? "" : "s"}`, (r) => r.uploads, "Client versions in use (uploads, last 30 days)"),
       bars([...d.downloadsPerDay].reverse(), (r) => `${r.day} · ${r.unique} unique`, (r) => r.clicks, "Downloads per day"),
       bars(d.downloadsByTag, (r) => r.tag, (r) => r.count, `Downloads per version (${nf(d.botDownloads)} bot clicks not counted)`),
+      bars(d.gameServers, (r) => `${r.address} · ids ${r.serverIds || "?"}`, (r) => r.uploads, "Game servers the clients captured from (uploads)"),
       bars(d.newPlayersPerWeek, (r) => r.week, (r) => r.count, "New players per week"),
       bars(Object.entries(d.uploadStatus), (r) => r[0], (r) => r[1], "Uploads by status"),
       bars(

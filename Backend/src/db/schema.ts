@@ -470,6 +470,10 @@ export const uploads = sqliteTable(
     // validation or throws before a server row could be resolved leaves this null, which is fine:
     // it's an audit log entry, not something a leaderboard ever reads.
     serverId: integer("server_id").references(() => servers.id),
+    // What the client reported about the server: the numeric id of the own character record and the game
+    // server's address (IP:port). The id is reused by every region, the address tells them apart.
+    clientServerId: integer("client_server_id"),
+    gameServer: text("game_server"),
     uploaderReportedName: text("uploader_reported_name").notNull(),
     // Salted hash, never the raw IP - only used for rate-limit bookkeeping/abuse review.
     ipHash: text("ip_hash").notNull(),

@@ -1890,7 +1890,9 @@ public partial class MainWindow : Window
             AppVersion.Text, bossName, startedAt, endedAt, participants, serverFingerprint, serverName,
             Game: "aion2",
             BossNpcId: BossNpcIdOf(targetId),
-            BossMaxHp: BossMaxHpOf(targetId));
+            BossMaxHp: BossMaxHpOf(targetId),
+            ServerId: Aion2OwnServerId(),
+            GameServer: Aion2GameServerAddress());
     }
 
     /// <summary>Hides the Class dropdown's entries that are no Aion 2 class (the static XAML list is
@@ -1925,6 +1927,14 @@ public partial class MainWindow : Window
 
     private static string ServerSlug(string name) =>
         System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
+
+    private int? Aion2OwnServerId() =>
+        (_source?.Entities as Aion2EntityDirectory)?.LocalCharacter is { ServerId: > 0 } own ? own.ServerId : null;
+
+    /// <summary>IP:port of the game server the capture is attached to ("193.202.112.97:13328"), the only
+    /// thing that tells the regions apart - a server id is reused by every region.</summary>
+    private string? Aion2GameServerAddress() =>
+        (_source as Aion2.Aion2PacketCombatSource)?.ServerFingerprint is string f && f.StartsWith("aion2:") ? f["aion2:".Length..] : null;
 
     private string? Aion2ServerName() =>
         (_source?.Entities as Aion2EntityDirectory)?.LocalCharacter is { ServerId: > 0 } own ? Aion2Servers.NameOf(own.ServerId) : null;
@@ -2457,7 +2467,7 @@ public partial class MainWindow : Window
 
         return participants.Count == 0
             ? null
-            : new ProfilesUploadRequest(AppVersion.Text, fingerprint, displayName, participants.Take(60).ToList());
+            : new ProfilesUploadRequest(AppVersion.Text, fingerprint, displayName, participants.Take(60).ToList(), ServerId: Aion2OwnServerId(), GameServer: Aion2GameServerAddress());
     }
 
     /// <summary>
