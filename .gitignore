@@ -23,3 +23,7 @@ Backend/.env.*
 
 # Working notes from content derivation (third-party prose, never checked in)
 *.review.json
+
+# Daily copies of the live database (Tools/db-sync/pull-db.sh) - never commit
+Backend/data/backups/
+Backend/data/pull-db.log
