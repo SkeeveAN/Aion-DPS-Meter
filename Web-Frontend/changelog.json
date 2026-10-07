@@ -1,5 +1,23 @@
 [
  {
+  "version": "0.13.1",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Player details: skill icons also for fights read back from the history (found by skill name and class)",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Character profile like the website: Arcana in their own tab, faction, server and the worn titles in the header, the pet circles above the species tables, species effects coloured by quality",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.13.0",
   "date": "2026-10-08",
   "items": [
