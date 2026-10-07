@@ -14,6 +14,13 @@
     "areas": [
      "Website"
     ]
+   },
+   {
+    "text": "Legions live at /legions (the old /guilds links redirect); the legion list is grouped by server",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
    }
   ]
  },
