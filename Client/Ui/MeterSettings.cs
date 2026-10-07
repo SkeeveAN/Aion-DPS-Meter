@@ -125,6 +125,9 @@ public sealed class MeterSettings
     /// this existed) follows <see cref="OverlayOpacity"/>, which is what the timetable used until then.</summary>
     public double? TimetableOpacity { get; set; }
 
+    /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 5 to 180.</summary>
+    public int TimetableLookaheadMinutes { get; set; } = 60;
+
     /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
     public double OverlayScale { get; set; } = 1.0;
 
@@ -152,7 +155,7 @@ public sealed class MeterSettings
     /// <summary>Shows or hides the timetable overlay (see TimetableWindow).</summary>
     public string HotkeyTimetable { get; set; } = "Ctrl+Alt+T";
 
-    /// <summary>The timetable overlay: what is active now and what starts within the hour. Its place
+    /// <summary>The timetable overlay: what is active now and what starts within the lookahead (<see cref="TimetableLookaheadMinutes"/>). Its place
     /// and scale are remembered (null left/top = a default corner).</summary>
     public bool ShowTimetable { get; set; } = true;
 

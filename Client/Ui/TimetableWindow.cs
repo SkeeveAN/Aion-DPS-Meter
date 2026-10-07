@@ -15,7 +15,7 @@ namespace AionDPS.Ui;
 /// </summary>
 public sealed class TimetableWindow : Window
 {
-    private static readonly TimeSpan Lookahead = TimeSpan.FromMinutes(60);
+    private TimeSpan _lookahead = TimeSpan.FromMinutes(60);
     private const double PanelWidth = 260;
     private const double MinScale = 0.7, MaxScale = 2.0;
 
@@ -37,6 +37,7 @@ public sealed class TimetableWindow : Window
 
         var settings = MeterSettings.Load();
         ApplyOpacity(settings.TimetableOpacity ?? settings.OverlayOpacity);
+        ApplyLookahead(settings.TimetableLookaheadMinutes);
         SetScale(settings.TimetableScale);
 
         var header = new DockPanel { Margin = new Thickness(2, 0, 0, 4), Background = Brushes.Transparent, Cursor = Cursors.SizeAll };
@@ -126,6 +127,9 @@ public sealed class TimetableWindow : Window
         return template;
     }
 
+    /// <summary>How many minutes ahead an event is listed as "starts within ..." (Settings, 5 to 180).</summary>
+    public void ApplyLookahead(int minutes) => _lookahead = TimeSpan.FromMinutes(Math.Clamp(minutes, 5, 180));
+
     /// <summary>The overlay's dark background at the Settings' opacity (the same as the DPS overlay's).</summary>
     public void ApplyOpacity(double opacity)
     {
@@ -163,7 +167,7 @@ public sealed class TimetableWindow : Window
         }
 
         _body.Children.Clear();
-        var (active, soon) = EventSchedule.Evaluate(EventSchedule.Events, now, Lookahead);
+        var (active, soon) = EventSchedule.Evaluate(EventSchedule.Events, now, _lookahead);
         if (active.Count > 0)
         {
             AddSection(loc["Timetable.Active"], Brushes.LimeGreen);
@@ -181,7 +185,7 @@ public sealed class TimetableWindow : Window
 
         if (soon.Count > 0)
         {
-            AddSection(loc["Timetable.Soon"], Brushes.Orange);
+            AddSection(string.Format(loc["Timetable.Soon"], (int)_lookahead.TotalMinutes), Brushes.Orange);
             foreach (EventOccurrence o in soon)
             {
                 AddLine(Label(o, language), string.Format(loc["Timetable.StartsIn"], Span(o.Start - now)),
@@ -207,8 +211,17 @@ public sealed class TimetableWindow : Window
                 AddNote(string.Format(loc["Timetable.Next"], Label(next, language), when));
             }
         }
+    }
 
-        NativeOverlay.KeepOnTop(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+    /// <summary>Puts the overlay back at the front of the topmost band. The main window calls this right after
+    /// raising itself, once a second, so the two never take turns being in front (that made the timetable
+    /// flicker through the meter). Not done from <see cref="Refresh"/>: its timer is offset from the main one.</summary>
+    public void RaiseToFront()
+    {
+        if (IsVisible)
+        {
+            NativeOverlay.KeepOnTop(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+        }
     }
 
     private static string Label(EventOccurrence o, string language) =>

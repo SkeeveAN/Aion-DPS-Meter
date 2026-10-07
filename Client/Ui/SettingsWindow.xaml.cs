@@ -60,6 +60,7 @@ public partial class SettingsWindow : Window
         double timetableOpacity = settings.TimetableOpacity ?? settings.OverlayOpacity;
         TimetableOpacityBox.SelectedItem = TimetableOpacityBox.Items.OfType<ComboBoxItem>()
             .OrderBy(i => Math.Abs(double.Parse((string)i.Tag, System.Globalization.CultureInfo.InvariantCulture) - timetableOpacity)).First();
+        TimetableLookaheadSlider.Value = Math.Clamp(settings.TimetableLookaheadMinutes, 5, 180);
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
         // Reflects the REAL registry state, not the last value this dialog wrote - see
         // OnStartWithWindowsChanged's own remarks.
@@ -221,6 +222,12 @@ public partial class SettingsWindow : Window
         }
     }
 
+    /// <summary>Shows the lookahead slider's value with the language's minute unit.</summary>
+    private void OnTimetableLookaheadChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        TimetableLookaheadValue.Text = string.Format(LocalizationManager.Instance["Settings.Timetable.LookaheadValue"], (int)e.NewValue);
+    }
+
     private void OnHotkeyClearClicked(object sender, RoutedEventArgs e)
     {
         StopCapture(restore: true);
@@ -288,6 +295,7 @@ public partial class SettingsWindow : Window
         _settings.OverlayStyle = (OverlayStyleBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.OverlayStyle;
         _settings.OverlayOpacity = double.Parse((string)((ComboBoxItem)OverlayOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.TimetableOpacity = double.Parse((string)((ComboBoxItem)TimetableOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
+        _settings.TimetableLookaheadMinutes = (int)TimetableLookaheadSlider.Value;
         _settings.Language = LocalizationManager.Instance.Language;
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;

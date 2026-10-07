@@ -1292,14 +1292,14 @@
     "zh": "进行中"
   },
   "Timetable.Soon": {
-    "en": "Starts within 60 min",
-    "de": "Startet in den nächsten 60 Min.",
-    "fr": "Commence dans 60 min",
-    "es": "Empieza en 60 min",
-    "ru": "Начнётся в течение 60 мин",
-    "pl": "Zaczyna się w ciągu 60 min",
-    "tr": "60 dk içinde başlar",
-    "zh": "60 分钟内开始"
+    "en": "Starts within {0} min",
+    "de": "Startet in den nächsten {0} Min.",
+    "fr": "Commence dans {0} min",
+    "es": "Empieza en {0} min",
+    "ru": "Начнётся в течение {0} мин",
+    "pl": "Zaczyna się w ciągu {0} min",
+    "tr": "{0} dk içinde başlar",
+    "zh": "{0} 分钟内开始"
   },
   "Timetable.EndsIn": {
     "en": "ends in {0}",
@@ -1550,6 +1550,26 @@
     "pl": "Krycie nakładki harmonogramu",
     "tr": "Zaman çizelgesi opaklığı",
     "zh": "时间表不透明度"
+  },
+  "Settings.Timetable.Lookahead": {
+    "en": "Show event n minutes ahead:",
+    "de": "Zeige Event n Minuten vorher an:",
+    "fr": "Afficher l'événement n minutes avant :",
+    "es": "Mostrar evento n minutos antes:",
+    "ru": "Показывать событие за n минут:",
+    "pl": "Pokaż wydarzenie n minut wcześniej:",
+    "tr": "Etkinliği n dakika önce göster:",
+    "zh": "提前 n 分钟显示活动："
+  },
+  "Settings.Timetable.LookaheadValue": {
+    "en": "{0} min",
+    "de": "{0} Min.",
+    "fr": "{0} min",
+    "es": "{0} min",
+    "ru": "{0} мин",
+    "pl": "{0} min",
+    "tr": "{0} dk",
+    "zh": "{0} 分钟"
   },
   "Main.MenuSettings.Feedback": {
     "en": "Report problem / suggestion…",

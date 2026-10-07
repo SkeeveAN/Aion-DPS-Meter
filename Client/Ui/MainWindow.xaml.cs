@@ -546,6 +546,9 @@ public partial class MainWindow : Window
             NativeOverlay.KeepOnTop(new System.Windows.Interop.WindowInteropHelper(this).Handle);
         }
 
+        // The timetable overlay always sits above the meter: raised right after it, in the same tick.
+        _timetable?.RaiseToFront();
+
         // Every five seconds is plenty: a fight only counts as finished 120 s after its last hit.
         if (++_historyTickCounter >= 5)
         {
@@ -3739,6 +3742,7 @@ public partial class MainWindow : Window
 
         _timetable ??= new TimetableWindow();
         _timetable.ApplyOpacity(settings.TimetableOpacity ?? settings.OverlayOpacity);
+        _timetable.ApplyLookahead(settings.TimetableLookaheadMinutes);
         if (!_timetable.IsVisible)
         {
             _timetable.Show();
