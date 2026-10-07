@@ -1,5 +1,17 @@
 [
  {
+  "version": "0.12.2",
+  "date": "2026-10-07",
+  "items": [
+   {
+    "text": "Timetable: the lookahead slider goes from 0 to 60 minutes (0 = nothing is listed as about to start)",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.12.1",
   "date": "2026-10-07",
   "items": [
