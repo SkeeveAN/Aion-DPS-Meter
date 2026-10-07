@@ -373,7 +373,15 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             // went missing after one): what an earlier list had and the new one lacks is kept, what the
             // new one has wins.
             _listsAt = DateTime.UtcNow;
-            var merged = (_skills ?? Array.Empty<Aion2SkillEntry>()).Where(old => skills.All(s => s.SkillId != old.SkillId)).Concat(skills);
+            // A list can arrive before the new character's own record (and so before the twink reset
+            // above could run): the old character's class skills (id prefix 10-19) would then stay
+            // merged into the new one for good. The class the new list is mostly made of decides.
+            int? classPrefix = skills.Select(s => s.SkillId / 1_000_000).Where(k => k is >= 10 and < 20)
+                .GroupBy(k => k).OrderByDescending(g => g.Count()).Select(g => (int?)g.Key).FirstOrDefault();
+            var merged = (_skills ?? Array.Empty<Aion2SkillEntry>())
+                .Where(old => skills.All(s => s.SkillId != old.SkillId))
+                .Where(old => classPrefix is null || old.SkillId / 1_000_000 is < 10 or >= 20 || old.SkillId / 1_000_000 == classPrefix)
+                .Concat(skills);
             _skills = merged.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId), Equipped = _bar.Contains(s.SkillId) }).ToList();
         }
 
