@@ -28,3 +28,4 @@ Backend/.env.*
 Backend/data/backups/
 Backend/data/pull-db.log
 Backend/data/grafana-*.json
+Backend/data/ncsoft-official/
