@@ -1,22 +1,10 @@
 [
  {
-  "version": "Unreleased",
-  "date": "2026-10-07",
-  "items": [
-   {
-    "text": "the first-start wizard is a single small window in the look of the Settings (language, privacy text and the three upload switches together)",
-    "areas": [
-     "Client"
-    ]
-   }
-  ]
- },
- {
   "version": "0.11.1",
   "date": "2026-10-07",
   "items": [
    {
-    "text": "the first-start wizard is a single small window (language, privacy text and the three upload options together)",
+    "text": "the first-start wizard is a single small window in the look of the Settings (language, privacy text and the three upload switches together)",
     "areas": [
      "Client"
     ]
