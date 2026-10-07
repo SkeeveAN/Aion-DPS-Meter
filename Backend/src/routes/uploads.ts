@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import { profilesUploadSchema, uploadSchema } from "../uploadSchema.js";
 import { processProfilesUpload, processUpload } from "../matching/merge.js";
@@ -6,11 +5,7 @@ import { db } from "../db/client.js";
 import { uploads } from "../db/schema.js";
 import { clearPageCache } from "../seo/cache.js";
 
-const IP_HASH_SALT = process.env.IP_HASH_SALT ?? "dpsmeter-dev-salt";
-
-function hashIp(ip: string): string {
-  return createHash("sha256").update(IP_HASH_SALT).update(ip).digest("hex");
-}
+import { hashIp } from "../ipHash.js";
 
 export async function uploadRoutes(app: FastifyInstance) {
   // Aion 2 players without a boss fight (a client that read characters but killed nothing). The

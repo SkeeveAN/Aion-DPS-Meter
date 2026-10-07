@@ -15,6 +15,8 @@ import { compareRoutes } from "./routes/compare.js";
 import { serverRoutes } from "./routes/servers.js";
 import { serverCatalogRoutes } from "./routes/serverCatalog.js";
 import { statsRoutes } from "./routes/stats.js";
+import { siteStatsRoutes } from "./routes/siteStats.js";
+import { downloadRoutes } from "./routes/downloads.js";
 import { seoRoutes } from "./routes/seo.js";
 import { pageRoutes, sendNotFound } from "./routes/pages.js";
 
@@ -52,6 +54,8 @@ export async function buildServer() {
   await app.register(serverRoutes);
   await app.register(serverCatalogRoutes);
   await app.register(statsRoutes);
+  await app.register(siteStatsRoutes);
+  await app.register(downloadRoutes);
   await app.register(seoRoutes);
   await app.register(pageRoutes);
 

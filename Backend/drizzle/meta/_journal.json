@@ -239,6 +239,13 @@
       "when": 1791230000000,
       "tag": "0033_add_boss_max_hp",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "6",
+      "when": 1791356000000,
+      "tag": "0034_add_downloads",
+      "breakpoints": true
     }
   ]
 }

@@ -21,6 +21,7 @@ export async function seoRoutes(app: FastifyInstance) {
       "User-agent: *",
       "Allow: /",
       "Disallow: /api/",
+      "Disallow: /download/latest",
       "Disallow: /search",
       "Disallow: /compare/",
       "Disallow: /encounters/",
@@ -50,7 +51,7 @@ export async function seoRoutes(app: FastifyInstance) {
 }
 
 function buildSitemap(): string {
-  const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }, { path: "/changelog" }];
+  const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }, { path: "/changelog" }, { path: "/stats" }];
 
   for (const game of [DEFAULT_GAME]) {
     const instanceRows = db

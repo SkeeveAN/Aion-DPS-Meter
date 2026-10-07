@@ -104,7 +104,7 @@ export function downloadPage(): Page {
     body: html`
       <h2>Download Aion DPS Meter</h2>
       <p>A damage/heal meter for Aion 2 that passively captures your own network traffic. It never reads game memory and never hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
-      <p><a class="download-cta" href="https://github.com/SkeeveAN/Aion-DPS-Meter/releases">Latest release on GitHub</a></p>`,
+      <p><a class="download-cta" href="/download/latest">Download the latest release</a></p>`,
   };
 }
 
@@ -120,6 +120,30 @@ export function changelogPage(): Page {
     body: html`
       <h2>Changelog</h2>
       <p>What changed in each release of the Aion DPS Meter Windows client. <a href="/download">Download</a></p>`,
+  };
+}
+
+export function statsPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "Statistics – Aion DPS Meter",
+      description: "How many players, characters with full profiles, boss fights and downloads Aion DPS has - live numbers from the community leaderboards.",
+      canonicalPath: "/stats",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Statistics", path: "/stats" }])],
+    },
+    body: html`
+      <h2>Statistics</h2>
+      <p>Live numbers of the Aion DPS community leaderboards: players, full profiles, boss fights and downloads.</p>`,
+  };
+}
+
+/** The operator page behind the secret address: an empty app shell, never indexed, never cached. */
+export function privateStatsPage(path: string): Page {
+  return {
+    status: 200,
+    meta: { title: "Statistics", description: "Statistics", canonicalPath: path, noindex: true },
+    body: html`<h2>Statistics</h2>`,
   };
 }
 

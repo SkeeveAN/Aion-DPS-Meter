@@ -485,3 +485,21 @@ export const uploads = sqliteTable(
     matchedEncounterIdIdx: index("uploads_matched_encounter_id_idx").on(table.matchedEncounterId),
   }),
 );
+
+// One row per click on the site's download button (routes/downloads.ts). Downloads the client's own
+// updater makes from GitHub never pass through the site and are not counted here.
+export const downloads = sqliteTable(
+  "downloads",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    downloadedAt: text("downloaded_at")
+      .notNull()
+      .default(sql`(current_timestamp)`),
+    ipHash: text("ip_hash").notNull(),
+    tag: text("tag").notNull(),
+    isBot: integer("is_bot", { mode: "boolean" }).notNull().default(false),
+  },
+  (table) => ({
+    downloadedAtIdx: index("downloads_downloaded_at_idx").on(table.downloadedAt),
+  }),
+);

@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { renderShell } from "../seo/shell.js";
 import { renderHead } from "../seo/meta.js";
 import { cached } from "../seo/cache.js";
+import { env } from "../env.js";
 import { DEFAULT_GAME, type Game } from "../constants.js";
 import {
   appOnlyPage,
@@ -9,6 +10,8 @@ import {
   instanceCategoryPage,
   downloadPage,
   changelogPage,
+  statsPage,
+  privateStatsPage,
   feedbackPage,
   comparePage,
   encounterPage,
@@ -70,6 +73,14 @@ export async function pageRoutes(app: FastifyInstance) {
   app.get("/", async (request, reply) => send(reply, render(homePage(), requestPath(request))));
   app.get("/download", async (request, reply) => send(reply, render(downloadPage(), requestPath(request))));
   app.get("/changelog", async (request, reply) => send(reply, render(changelogPage(), requestPath(request))));
+  app.get("/stats", async (request, reply) => send(reply, render(statsPage(), requestPath(request))));
+  // The secret address of the operator statistics: anything else under /p/ is an ordinary 404.
+  app.get<{ Params: { secret: string } }>("/p/:secret", async (request, reply) => {
+    if (!env.STATS_SECRET || request.params.secret !== env.STATS_SECRET) {
+      return sendNotFound(request, reply);
+    }
+    return send(reply, render(privateStatsPage(requestPath(request)), requestPath(request))).header("X-Robots-Tag", "noindex, nofollow").header("Cache-Control", "no-store");
+  });
   app.get("/feedback", async (request, reply) => send(reply, render(feedbackPage(), requestPath(request))));
   app.get("/privacy", async (request, reply) => send(reply, render(privacyPage(), requestPath(request))));
   app.get("/terms", async (request, reply) => send(reply, render(termsPage(), requestPath(request))));

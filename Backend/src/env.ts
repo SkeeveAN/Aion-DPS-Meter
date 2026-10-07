@@ -14,5 +14,9 @@ export const env = {
   GITHUB_TOKEN: process.env.GITHUB_TOKEN ?? "",
   GITHUB_ISSUES_REPO: process.env.GITHUB_ISSUES_REPO ?? "SkeeveAN/Aion-DPS-Meter",
   GITHUB_DATA_REPO: process.env.GITHUB_DATA_REPO ?? "",
+  // Private statistics page lives at /p/<STATS_SECRET> and /metrics needs "Authorization: Bearer <METRICS_TOKEN>";
+  // both stay switched off (404) while empty.
+  STATS_SECRET: process.env.STATS_SECRET ?? "",
+  METRICS_TOKEN: process.env.METRICS_TOKEN ?? "",
   BASE_URL: (process.env.BASE_URL ?? "https://aiondps.com").replace(/\/+$/, ""),
 };

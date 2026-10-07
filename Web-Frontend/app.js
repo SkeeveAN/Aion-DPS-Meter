@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "changelog", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "changelog", "stats", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -338,6 +338,7 @@ function buildSiteFooter() {
     ]),
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
+        link("Statistics", "/stats"),
         link("Changelog", "/changelog"),
         link(t("legal.privacyTitle"), "/privacy"),
         link(t("legal.termsTitle"), "/terms"),
@@ -615,7 +616,7 @@ async function renderDownload() {
 
     if (latest && setupAsset) {
       downloadSection = el("div", {}, [
-        el("a", { className: "download-cta", href: setupAsset.browser_download_url, textContent: t("download.downloadButton", { tag: latest.tag_name }) }),
+        el("a", { className: "download-cta", href: "/download/latest", textContent: t("download.downloadButton", { tag: latest.tag_name }) }),
         el("p", { className: "download-meta", textContent: t("download.meta", { name: setupAsset.name, size: formatBytes(setupAsset.size) }) }),
       ]);
     } else {
@@ -627,6 +628,67 @@ async function renderDownload() {
 
   const changelogLink = el("p", { className: "download-meta" }, [link("What's new – changelog", "/changelog")]);
   app.replaceChildren(hero, downloadSection, changelogLink, features, stepsSection, repoLink);
+}
+
+// Statistics - English only like the changelog. Without a secret it is the public page (totals
+// only); with the secret from the private address it also shows the operator numbers.
+async function renderStats(secret) {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), "Statistics"]);
+  showLoading("Loading statistics…");
+  const d = await fetchJson(secret ? `/api/private-stats/${encodeURIComponent(secret)}` : "/api/stats/overview");
+  const nf = (n) => Number(n).toLocaleString("en-US");
+  const tile = (label, value, sub) => el("div", { className: "stat-tile" }, [
+    el("div", { className: "stat-value", textContent: nf(value) }),
+    el("div", { className: "stat-label", textContent: label }),
+    sub ? el("div", { className: "stat-sub", textContent: sub }) : null,
+  ].filter(Boolean));
+  const bars = (rows, labelOf, valueOf, title) => {
+    const max = Math.max(1, ...rows.map(valueOf));
+    return el("section", { className: "stat-block" }, [
+      el("h3", { textContent: title }),
+      rows.length === 0 ? el("p", { className: "empty", textContent: "No data yet." }) : el("div", { className: "stat-bars" }, rows.map((r) => el("div", { className: "stat-bar-row" }, [
+        el("span", { className: "stat-bar-label", textContent: labelOf(r) }),
+        el("span", { className: "stat-bar-track" }, [el("span", { className: "stat-bar-fill", style: `width:${(valueOf(r) / max) * 100}%` })]),
+        el("span", { className: "stat-bar-value", textContent: nf(valueOf(r)) }),
+      ]))),
+    ]);
+  };
+  const out = [
+    el("h2", { textContent: secret ? "Statistics (private)" : "Statistics" }),
+    el("div", { className: "stat-tiles" }, [
+      tile("Players known", d.players, "name + server, from uploads and group members"),
+      tile("With a full profile", d.ownProfiles, "own character, uploaded by the client itself"),
+      tile("Boss fights", d.encounters),
+      tile("Uploads", d.uploads),
+      tile("Downloads (website)", d.downloads.total, `${nf(d.downloads.last30)} in the last 30 days`),
+    ]),
+    bars(d.encountersPerDay, (r) => r.day, (r) => r.count, "Boss fights per day (last 30 days)"),
+    bars(d.classes, (r) => r.name, (r) => r.count, "Players per class"),
+    bars(d.servers, (r) => r.name, (r) => r.count, "Players per server"),
+    bars(d.topBosses, (r) => r.name, (r) => r.count, "Most fought bosses"),
+  ];
+  if (secret) {
+    out.push(
+      el("div", { className: "stat-tiles" }, [
+        tile("Active uploaders, 24 h", d.activeUploaders.d1),
+        tile("Active uploaders, 7 days", d.activeUploaders.d7),
+        tile("Active uploaders, 30 days", d.activeUploaders.d30),
+        tile("Last upload", 0, d.lastUpload ? `${d.lastUpload} UTC` : "never"),
+        tile("Database", Math.round(d.dbBytes / 1048576), "MB"),
+      ]),
+      bars(d.uploadsPerDay, (r) => `${r.day} · ${r.uploaders} uploader${r.uploaders === 1 ? "" : "s"}`, (r) => r.uploads, "Uploads per day"),
+      bars(d.versions, (r) => `${r.version} · ${r.uploaders} uploader${r.uploaders === 1 ? "" : "s"}`, (r) => r.uploads, "Client versions in use (uploads, last 30 days)"),
+      bars(d.downloadsPerDay, (r) => `${r.day} · ${r.unique} unique`, (r) => r.clicks, "Downloads per day"),
+      bars(d.downloadsByTag, (r) => r.tag, (r) => r.count, `Downloads per version (${nf(d.botDownloads)} bot clicks not counted)`),
+      bars(d.newPlayersPerWeek, (r) => r.week, (r) => r.count, "New players per week"),
+      bars(Object.entries(d.uploadStatus), (r) => r[0], (r) => r[1], "Uploads by status"),
+      bars(
+        [["gear", d.ownProfileCompleteness.gear], ["skills", d.ownProfileCompleteness.skills], ["daevanion", d.ownProfileCompleteness.daevanion]],
+        (r) => `${r[0]} (of ${d.ownProfileCompleteness.total} own profiles)`, (r) => r[1], "How complete the own profiles are",
+      ),
+    );
+  }
+  app.replaceChildren(...out);
 }
 
 // Changelog - English only on purpose (not part of the i18n files). The data is
@@ -2580,6 +2642,9 @@ async function route() {
     section = "download";
   } else if (segments[0] === "changelog") {
     section = "changelog";
+  } else if (segments[0] === "p" && segments[1]) {
+    section = "private-stats";
+    param = segments[1];
   } else if (segments[0] === "feedback") {
     section = "feedback";
   } else if (segments[0] === "privacy") {
@@ -2609,6 +2674,10 @@ async function route() {
       await renderDownload();
     } else if (section === "changelog") {
       await renderChangelog();
+    } else if (section === "stats") {
+      await renderStats();
+    } else if (section === "private-stats") {
+      await renderStats(param);
     } else if (section === "feedback") {
       renderFeedback();
     } else if (section === "privacy") {
