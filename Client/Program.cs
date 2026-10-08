@@ -909,6 +909,8 @@ internal static class Program
         if (source.Entities is Aion2.Aion2EntityDirectory idWatch)
         {
             idWatch.LocalIdChanged += (a, b) => Console.WriteLine($"aion2-replay: own combat id changed {a} -> {b}");
+            int moved = 0;
+            idWatch.IdentityMoved += (a, b) => { if (++moved <= 6) { Console.WriteLine($"aion2-replay: player {idWatch.NameFor(b)} announced under a new id {a} -> {b}"); } };
         }
 
         var events = new List<Combat.DamageEvent>();
@@ -936,6 +938,11 @@ internal static class Program
             segments++;
             source.Ingest(segment with { FromServer = fromServer });
             events.AddRange(source.Poll(false).Damage);
+        }
+
+        if (source.Entities is Aion2.Aion2EntityDirectory idEnd)
+        {
+            Console.WriteLine($"aion2-replay: {idEnd.IdentityMovesSeen} player(s) came back under a new combat id");
         }
 
         Console.WriteLine($"aion2-replay: {segments} segment(s) on port {serverPort}, {events.Count} damage/heal event(s), calibrated={protocol.IsCalibrated}");

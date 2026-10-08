@@ -795,6 +795,44 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private readonly Dictionary<string, int> _idOfIdentity = new(StringComparer.Ordinal);
+
+    /// <summary>A player is one name on one server (a character name is unique per server): when the game announces him under another
+    /// combat id (a map change gives everybody new ones), the old id is the same player and <see cref="IdentityMoved"/> says so.</summary>
+    public void NoteIdentity(int id, string name, int serverId)
+    {
+        if (serverId is < 1000 or > 9999 || name.Length < 2)
+        {
+            return;
+        }
+
+        int? moved = null;
+        lock (_gate)
+        {
+            string key = serverId + "|" + name;
+            if (_idOfIdentity.TryGetValue(key, out int previous) && previous != id)
+            {
+                moved = previous;
+            }
+
+            _idOfIdentity[key] = id;
+            if (moved is not null)
+            {
+                IdentityMovesSeen++;
+            }
+        }
+
+        if (moved is int old)
+        {
+            IdentityMoved?.Invoke(old, id);
+        }
+    }
+
+    public int IdentityMovesSeen { get; private set; }
+
+    /// <summary>A player known under one combat id was announced under another (same name, same server).</summary>
+    public event Action<int, int>? IdentityMoved;
+
     private readonly Dictionary<string, int> _serverOfName = new(StringComparer.Ordinal);
 
     /// <summary>A player's server id as the game announced it next to his name (appearance and party frames).</summary>

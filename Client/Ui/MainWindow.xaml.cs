@@ -387,6 +387,15 @@ public partial class MainWindow : Window
 
                 AutoUploadLog.Write($"own combat id changed {oldId} -> {newId}: {merged} event(s) merged into one row");
             }));
+            // Any other player: the same name on the same server under a new combat id is the same player.
+            entities.IdentityMoved += (oldId, newId) => Dispatcher.BeginInvoke(new Action(() =>
+            {
+                _aggregator.MergeIds(oldId, newId);
+                if (_selectedTargetId == oldId)
+                {
+                    _selectedTargetId = newId;
+                }
+            }));
             entities.CharacterChanged += _ => Dispatcher.BeginInvoke(new Action(() =>
             {
                 RefreshUploadAvailability();
