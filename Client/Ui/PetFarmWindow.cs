@@ -24,6 +24,7 @@ public sealed class PetFarmWindow : Window
     private readonly System.Windows.Controls.Primitives.Thumb _grip;
     private IReadOnlyList<(string Pet, string Level)> _current = Array.Empty<(string, string)>();
     private bool _locked = true;
+    private double _centerX;
 
     public PetFarmWindow()
     {
@@ -65,13 +66,16 @@ public sealed class PetFarmWindow : Window
             {
                 DragMove();
                 var s = MeterSettings.Load();
-                s.PetFarmLeft = Left;
+                _centerX = Left + ActualWidth / 2;
+                s.PetFarmLeft = _centerX; // the saved value is the window's middle: the text grows to both sides
                 s.PetFarmTop = Top;
                 s.Save();
             }
         };
         Content = _panel;
-        Left = settings.PetFarmLeft ?? SystemParameters.WorkArea.Width / 2 - 120;
+        _centerX = settings.PetFarmLeft ?? SystemParameters.WorkArea.Width / 2;
+        Left = _centerX - 60;
+        SizeChanged += (_, e) => Left = _centerX - e.NewSize.Width / 2; // keep the middle in place when the text changes
         Top = settings.PetFarmTop ?? 140;
         ApplyLocked(settings.PetFarmLocked);
     }
@@ -148,7 +152,7 @@ public sealed class PetFarmWindow : Window
         var rows = placeholder ? new[] { (LocalizationManager.Instance["PetFarm.Placeholder"], "") } : _current.ToArray();
         foreach ((string pet, string level) in rows)
         {
-            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1) };
+            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1), HorizontalAlignment = HorizontalAlignment.Center };
             var name = new TextBlock { Text = pet, FontWeight = FontWeights.Bold, FontSize = 13, VerticalAlignment = VerticalAlignment.Center };
             name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
             row.Children.Add(name);
