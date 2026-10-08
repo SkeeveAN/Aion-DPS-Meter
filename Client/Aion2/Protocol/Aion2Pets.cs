@@ -25,7 +25,7 @@ public static class Aion2Pets
     private sealed class Catalog
     {
         public Dictionary<int, Dictionary<string, string>> PetNames { get; } = new();
-        public Dictionary<int, int> PetOfNpc { get; } = new();
+        public Dictionary<int, int[]> PetsOfNpc { get; } = new();
         public Dictionary<int, int> PetOfSoul { get; } = new();
         /// <summary>Monster name (folded, any language) -> the pets of the monsters with that name.</summary>
         public Dictionary<string, HashSet<int>> PetsOfName { get; } = new();
@@ -37,7 +37,8 @@ public static class Aion2Pets
     public static string? PetName(int petId, string language) =>
         Data.PetNames.TryGetValue(petId, out var names) ? names.GetValueOrDefault(language) ?? names.GetValueOrDefault("en") : null;
 
-    public static int? PetOfNpc(int npcId) => Data.PetOfNpc.TryGetValue(npcId, out int pet) ? pet : null;
+    /// <summary>The pets whose soul this monster drops (usually one).</summary>
+    public static IReadOnlyList<int> PetsOfNpc(int npcId) => Data.PetsOfNpc.TryGetValue(npcId, out int[]? pets) ? pets : Array.Empty<int>();
 
     public static int? PetOfSoulItem(int itemId) => Data.PetOfSoul.TryGetValue(itemId, out int pet) ? pet : null;
 
@@ -87,7 +88,9 @@ public static class Aion2Pets
 
             foreach (var m in doc.RootElement.GetProperty("monsters").EnumerateObject())
             {
-                catalog.PetOfNpc[int.Parse(m.Name)] = m.Value.GetInt32();
+                catalog.PetsOfNpc[int.Parse(m.Name)] = m.Value.ValueKind == JsonValueKind.Array
+                    ? m.Value.EnumerateArray().Select(v => v.GetInt32()).ToArray()
+                    : new[] { m.Value.GetInt32() };
             }
 
             foreach (var s in doc.RootElement.GetProperty("souls").EnumerateObject())
@@ -95,7 +98,7 @@ public static class Aion2Pets
                 catalog.PetOfSoul[int.Parse(s.Name)] = s.Value.GetInt32();
             }
 
-            foreach ((int npcId, int petId) in catalog.PetOfNpc)
+            foreach ((int npcId, int[] petIds) in catalog.PetsOfNpc)
             {
                 foreach (string language in new[] { "en", "de", "fr", "es", "ru" })
                 {
@@ -116,7 +119,7 @@ public static class Aion2Pets
                         catalog.PetsOfName[folded] = set = new HashSet<int>();
                     }
 
-                    set.Add(petId);
+                    set.UnionWith(petIds);
                 }
             }
         }

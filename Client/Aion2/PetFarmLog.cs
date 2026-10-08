@@ -82,7 +82,7 @@ public static class PetFarmLog
         }
 
         string pet = Aion2Pets.PetName(petId, "en") ?? "?";
-        bool expected = recent.Any(d => Aion2Pets.PetOfNpc(d.NpcId) == petId);
+        bool expected = recent.Any(d => Aion2Pets.PetsOfNpc(d.NpcId).Contains(petId));
         string killed = recent.Count == 0
             ? "no monster died just before"
             : string.Join(", ", recent.Select(d => $"{Aion2Npcs.NameOf(d.NpcId, "en") ?? "?"} [{d.NpcId}]"));

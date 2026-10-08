@@ -1,6 +1,6 @@
 """Builds Client/assets/aion2/pets/pets.json: the pets of the pet window, their names, and which monsters belong to which pet.
 
-Usage:  python3 build_pets.py <VehicleList.bin> <NpcData.bin> <npc_names.json> <l10n dir> <out.json> [extra.json] [Item.bin]
+Usage:  python3 build_pets.py <VehicleList.bin> <NpcData.bin> <npc_names.json> <l10n dir> <out.json> [extra.json] [Item.bin] [NpcLoot.bin]
 
 VehicleList.bin and NpcData.bin are the decrypted tables (dectable.py, from pakchunk401000-Windows_0_P.pak), the l10n dir is the
 output of extract_l10n.py. A pet row is `[i32 petId][str_veh_<key>]...`; a monster row is `[i32 npcId]...[MOB_<model>]`. The game
@@ -76,11 +76,11 @@ def main():
                 model = next((t[4:] for _, t in row if t.startswith("MOB_")), None)
                 if model:
                     if model.lower() in wanted:
-                        monsters[npc_id] = wanted[model.lower()]
+                        monsters.setdefault(npc_id, set()).add(wanted[model.lower()])
                     break
             at = npcs.find(needle, at + 1)
     for npc_id, key in extra.get("npcs", {}).items():
-        monsters[npc_id] = by_key[key.lower()]
+        monsters.setdefault(npc_id, set()).add(by_key[key.lower()])
     # the soul items ("VehicleSoul_<key>_A_01_b", what a monster drops of a pet) by item id, from the Item table
     souls = {}
     if len(sys.argv) > 7:
@@ -88,8 +88,23 @@ def main():
         for offset, s in strings(items):
             if s.startswith("VehicleSoul_") and s.endswith("_A_01_b") and s[12:-7].lower() in by_key:
                 souls[str(struct.unpack_from("<I", items, offset - 4)[0])] = by_key[s[12:-7].lower()]
-    json.dump({"pets": out_pets, "monsters": monsters, "souls": souls}, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-    print(f"{len(out_pets)} pets, {len(monsters)} monsters of {len(set(monsters.values()))} pets, {len(souls)} souls")
+    # NpcLoot rows are [id][npc id][item id]: the monsters the client itself lists as dropping a pet soul
+    loot_routes = 0
+    if len(sys.argv) > 8 and souls:
+        loot = open(sys.argv[8], "rb").read()
+        for item_id, pet_id in souls.items():
+            needle = struct.pack("<I", int(item_id))
+            at = loot.find(needle)
+            while at != -1:
+                if at >= 4:
+                    npc_id = struct.unpack_from("<I", loot, at - 4)[0]
+                    if 1_000_000 <= npc_id <= 9_999_999 and pet_id not in monsters.get(str(npc_id), set()):
+                        monsters.setdefault(str(npc_id), set()).add(pet_id)
+                        loot_routes += 1
+                at = loot.find(needle, at + 1)
+    out_monsters = {k: (next(iter(v)) if len(v) == 1 else sorted(v)) for k, v in monsters.items()}
+    json.dump({"pets": out_pets, "monsters": out_monsters, "souls": souls}, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    print(f"{len(out_pets)} pets, {len(monsters)} monsters, {len(souls)} souls, {loot_routes} monster routes added from NpcLoot")
 
 
 if __name__ == "__main__":
