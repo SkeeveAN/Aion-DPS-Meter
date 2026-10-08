@@ -747,10 +747,45 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// meaning is unknown. From the own character's record or a seen appearance; null otherwise.</summary>
     public string? FactionOf(int id)
     {
+        // The server the player named (every player is announced with his server id): Elyos servers are 1xxx, Asmodian ones 2xxx -
+        // the faction of a player is the faction of his server (Elyos and Asmodians never share a server, only the worlds are matched).
+        if (ServerIdOf(id) is int server && server / 1000 is 1 or 2)
+        {
+            return server / 1000 == 1 ? "Elyos" : "Asmodian";
+        }
+
         int? bit = IsLocalPlayer(id) && LocalCharacter is { } own && own.ClassCode % 4 is 1 or 2
             ? own.ClassCode % 4
             : SeenProfileOf(id)?.Faction;
         return bit == 2 ? "Elyos" : null;
+    }
+
+    private readonly Dictionary<string, int> _serverOfName = new(StringComparer.Ordinal);
+
+    /// <summary>A player's server id as the game announced it next to his name (appearance and party frames).</summary>
+    public void NoteServerOfName(string name, int serverId)
+    {
+        if (serverId is >= 1000 and <= 9999)
+        {
+            lock (_gate)
+            {
+                _serverOfName[name] = serverId;
+            }
+        }
+    }
+
+    /// <summary>The server of a player: the own one from the character record, another one's from the frames that named him.</summary>
+    public int? ServerIdOf(int id)
+    {
+        lock (_gate)
+        {
+            if (IsLocalPlayer(id) && _character is { ServerId: > 0 } own)
+            {
+                return own.ServerId;
+            }
+
+            return _names.TryGetValue(id, out string? name) && _serverOfName.TryGetValue(name, out int server) ? server : null;
+        }
     }
 
     public Aion2DirectorySnapshot Snapshot()

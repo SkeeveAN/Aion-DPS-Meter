@@ -64,6 +64,8 @@ public sealed class Aion2FrameDecoder
         {
             names.Add(name);
         }
+
+        _entities.NoteServerOfName(name, serverId); // a player's faction follows from his server
     }
 
     public int Bundles { get; private set; }

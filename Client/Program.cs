@@ -955,6 +955,8 @@ internal static class Program
                 Console.WriteLine($"  {Aion2.Protocol.Aion2Pets.PetName(pet.PetId, "de") ?? "?",-30} level {pet.Level}  {pet.Progress}/{Aion2.Protocol.Aion2Pets.ProgressNeeded(pet.Level)}");
             }
 
+            var factions = petDirectory.Snapshot().Names.Keys.GroupBy(id => petDirectory.FactionOf(id) ?? "unknown").ToDictionary(g => g.Key, g => g.Count());
+            Console.WriteLine("aion2-replay: factions of the named players: " + string.Join(", ", factions.Select(kv => $"{kv.Key} {kv.Value}")));
             if (petDirectory.LocalTarget is { } target)
             {
                 var petsOfTarget = target.NpcId is int tn ? Aion2.Protocol.Aion2Pets.PetsOfNpc(tn) : Array.Empty<int>();
