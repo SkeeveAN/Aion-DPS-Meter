@@ -189,8 +189,8 @@ public sealed class MeterSettings
     /// <summary>The pets whose monsters the pet map shows (pet ids). Empty until the player picks some.</summary>
     public List<int> PetMapPets { get; set; } = new();
 
-    /// <summary>The kinds of collectibles the interactive map shows (Od, Herb, Food, Ore, Wood, Gemstone, Fragment); none until the player picks some.</summary>
-    public List<string> PetMapGather { get; set; } = new();
+    /// <summary>The collectibles the interactive map shows (by their English name, see the Sammeln page); none until the player picks some.</summary>
+    public List<string> PetMapGatherItems { get; set; } = new();
 
     /// <summary>Also read the name on the target plate from the screen when the game's own mark message has not been seen (off: only the packet is used, nothing is captured).</summary>
     public bool PetFarmScreenFallback { get; set; }

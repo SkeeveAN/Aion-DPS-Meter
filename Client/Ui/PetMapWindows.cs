@@ -225,6 +225,7 @@ public static class PetMapPalette
         "Ore" => "#C9CED6",
         "Wood" => "#B5835A",
         "Gemstone" => "#E08CFF",
+        "Cotton" => "#F3EBD3",
         "Fragment" => "#FF7B7B",
         _ => "#FFFFFF",
     });

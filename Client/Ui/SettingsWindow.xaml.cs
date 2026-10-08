@@ -328,7 +328,7 @@ public partial class SettingsWindow : Window
         _settings.PetMapRadius = (int)PetMapRadiusSlider.Value;
         _settings.PetMapOpacity = PetMapOpacitySlider.Value / 100.0;
         _settings.PetMapPets = _petPicked.OrderBy(i => i).ToList();
-        _settings.PetMapGather = _gatherPicked.OrderBy(k => k).ToList();
+        _settings.PetMapGatherItems = _gatherPicked.OrderBy(k => k).ToList();
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
         _settings.HotkeyPetMap = (string?)HotkeyPetMapBox.Tag ?? "";
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
@@ -400,8 +400,8 @@ public partial class SettingsWindow : Window
     private void InitPetMap(MeterSettings settings)
     {
         _petPicked = settings.PetMapPets.ToHashSet();
-        _gatherPicked = settings.PetMapGather.ToHashSet();
-        BuildGatherKinds();
+        _gatherPicked = settings.PetMapGatherItems.ToHashSet();
+        BuildGatherPage();
         // the levels of the own pets (login frame, kept in the character file): pets at the top level need no farming and are greyed out
         _petLevels = Aion2CharacterStore.Load(Aion2CharacterStore.DefaultPath)?.Pets.ToDictionary(p => p.Id, p => p.Level) ?? new();
         ShowPetMapBox.IsChecked = settings.ShowPetMap;
@@ -448,26 +448,53 @@ public partial class SettingsWindow : Window
 
     private HashSet<string> _gatherPicked = new();
 
-    /// <summary>One switch per kind of collectible (a diamond in the colour the map uses, and the name).</summary>
-    private void BuildGatherKinds()
+    /// <summary>The Sammeln page: one card per kind, a switch per collectible (the ones the world maps hold no place for are greyed out).</summary>
+    private void BuildGatherPage()
     {
-        GatherKinds.Children.Clear();
-        foreach (string kind in Aion2Gather.AvailableKinds())
+        GatherCards.Children.Clear();
+        var loc = LocalizationManager.Instance;
+        foreach (string kind in Aion2Gather.Kinds)
         {
-            var dot = new System.Windows.Shapes.Polygon
+            var items = Aion2Gather.Items().Where(i => i.Kind == kind).ToList();
+            if (items.Count == 0)
+            {
+                continue;
+            }
+
+            var title = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 6) };
+            title.Children.Add(new System.Windows.Shapes.Polygon
             {
                 Points = new PointCollection { new Point(6, 0), new Point(12, 7), new Point(6, 14), new Point(0, 7) },
                 Fill = new SolidColorBrush(PetMapPalette.OfGather(kind)), Stroke = Brushes.Black, StrokeThickness = 1,
                 Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center, Width = 12, Height = 14,
-            };
-            var label = new TextBlock { Text = LocalizationManager.Instance["Settings.PetMap.Gather." + kind], VerticalAlignment = VerticalAlignment.Center };
-            var content = new StackPanel { Orientation = Orientation.Horizontal };
-            content.Children.Add(dot);
-            content.Children.Add(label);
-            var box = new CheckBox { Content = content, IsChecked = _gatherPicked.Contains(kind), Margin = new Thickness(0, 3, 22, 3), Tag = kind };
-            box.Checked += (_, _) => _gatherPicked.Add(kind);
-            box.Unchecked += (_, _) => _gatherPicked.Remove(kind);
-            GatherKinds.Children.Add(box);
+            });
+            var heading = new TextBlock { Text = loc["Settings.PetMap.Gather." + kind] };
+            heading.SetResourceReference(FrameworkElement.StyleProperty, "CardTitle");
+            heading.Margin = new Thickness(0);
+            title.Children.Add(heading);
+
+            var wrap = new WrapPanel();
+            foreach (var item in items)
+            {
+                bool placed = item.Count > 0;
+                var box = new CheckBox
+                {
+                    Content = item.NameIn(loc.Language), IsChecked = _gatherPicked.Contains(item.Key), IsEnabled = placed,
+                    Margin = new Thickness(0, 3, 22, 3), Opacity = placed ? 1.0 : 0.45,
+                    ToolTip = placed ? string.Format(loc["Settings.Gather.Places"], item.Count) : loc["Settings.Gather.NoPlaces"],
+                };
+                string key = item.Key;
+                box.Checked += (_, _) => _gatherPicked.Add(key);
+                box.Unchecked += (_, _) => _gatherPicked.Remove(key);
+                wrap.Children.Add(box);
+            }
+
+            var stack = new StackPanel();
+            stack.Children.Add(title);
+            stack.Children.Add(wrap);
+            var card = new Border { Child = stack };
+            card.SetResourceReference(FrameworkElement.StyleProperty, "SettingsCard");
+            GatherCards.Children.Add(card);
         }
     }
 

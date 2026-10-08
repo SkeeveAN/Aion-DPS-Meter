@@ -91,7 +91,7 @@ public sealed class PetMapController : IDisposable
         var states = directory.LocalPetStates;
         var chosen = settings.PetMapPets.Where(id => !states.Any(s => s.PetId == id && s.Level >= Aion2Pets.TopLevel)).ToHashSet();
         var position = directory.BestPosition;
-        var gatherKinds = settings.PetMapGather.ToHashSet();
+        var gatherKinds = settings.PetMapGatherItems.ToHashSet();
         if (_current is null || position is null || (chosen.Count == 0 && gatherKinds.Count == 0) || PositionIsStale(directory, position.Value))
         {
             ShowEmpty(locked);

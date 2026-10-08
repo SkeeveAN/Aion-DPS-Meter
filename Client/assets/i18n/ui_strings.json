@@ -1551,6 +1551,56 @@
     "tr": "Empirean izleri",
     "zh": "天界痕迹"
   },
+  "Settings.Nav.Gather": {
+    "en": "Gathering",
+    "de": "Sammeln",
+    "fr": "Récolte",
+    "es": "Recolección",
+    "ru": "Сбор",
+    "pl": "Zbieranie",
+    "tr": "Toplama",
+    "zh": "采集"
+  },
+  "Settings.Gather.Hint": {
+    "en": "Everything that can be gathered, by kind. What you switch on appears on the interactive map as diamonds. Greyed-out entries have no fixed place on the world maps.",
+    "de": "Alles, was man sammeln kann, nach Art gruppiert. Was du einschaltest, erscheint als Raute auf der interaktiven Map. Ausgegraute Einträge haben keinen festen Ort auf den Weltkarten.",
+    "fr": "Tout ce qui peut être récolté, par type. Ce que vous activez apparaît en losanges sur la carte interactive. Les entrées grisées n'ont pas d'emplacement fixe sur les cartes du monde.",
+    "es": "Todo lo que se puede recolectar, por tipo. Lo que actives aparece como rombos en el mapa interactivo. Las entradas en gris no tienen lugar fijo en los mapas del mundo.",
+    "ru": "Всё, что можно собрать, по типам. Включённое появляется на интерактивной карте ромбами. Серые пункты не имеют постоянных мест на картах мира.",
+    "pl": "Wszystko, co można zebrać, według rodzaju. Włączone pojawia się jako romby na mapie interaktywnej. Wyszarzone pozycje nie mają stałych miejsc na mapach świata.",
+    "tr": "Toplanabilen her şey, türe göre. Açtıkların etkileşimli haritada eşkenar dörtgen olarak görünür. Gri girdilerin dünya haritalarında sabit yeri yoktur.",
+    "zh": "所有可采集的物品，按种类分组。开启的会以菱形显示在交互地图上。灰色项在世界地图上没有固定位置。"
+  },
+  "Settings.Gather.Places": {
+    "en": "{0} places on the world maps",
+    "de": "{0} Orte auf den Weltkarten",
+    "fr": "{0} emplacements sur les cartes",
+    "es": "{0} lugares en los mapas",
+    "ru": "{0} мест на картах мира",
+    "pl": "{0} miejsc na mapach",
+    "tr": "Dünya haritalarında {0} yer",
+    "zh": "世界地图上有 {0} 处"
+  },
+  "Settings.Gather.NoPlaces": {
+    "en": "No fixed place known on the world maps",
+    "de": "Kein fester Ort auf den Weltkarten bekannt",
+    "fr": "Aucun emplacement fixe connu sur les cartes",
+    "es": "Sin lugar fijo conocido en los mapas",
+    "ru": "Постоянных мест на картах нет",
+    "pl": "Brak stałych miejsc na mapach",
+    "tr": "Haritalarda sabit yer yok",
+    "zh": "世界地图上没有固定位置"
+  },
+  "Settings.PetMap.Gather.Cotton": {
+    "en": "Cotton",
+    "de": "Baumwolle",
+    "fr": "Coton",
+    "es": "Algodón",
+    "ru": "Хлопок",
+    "pl": "Bawełna",
+    "tr": "Pamuk",
+    "zh": "棉花"
+  },
   "Settings.Hotkeys.Group.Dps": {
     "en": "DPS meter",
     "de": "DPS-Meter",
