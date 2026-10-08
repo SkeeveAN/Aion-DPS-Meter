@@ -201,6 +201,14 @@ public sealed class MeterSettings
 
     public double PetListScale { get; set; } = 1.0;
 
+    /// <summary>Own width/height of the three overlays when the player pulled an edge (null: as large as the content), before the scale.</summary>
+    public double? PetMapWidth { get; set; }
+    public double? PetMapHeight { get; set; }
+    public double? PetListWidth { get; set; }
+    public double? PetListHeight { get; set; }
+    public double? PetFarmWidth { get; set; }
+    public double? PetFarmHeight { get; set; }
+
     public double? PetFarmLeft { get; set; }
 
     public double? PetFarmTop { get; set; }

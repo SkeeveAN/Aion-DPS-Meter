@@ -24,10 +24,12 @@ public abstract class MovableOverlay : Window
     private readonly Border _bodyHost = new();
     private readonly Func<(double? Left, double? Top, double Scale)> _load;
     private readonly Action<double, double, double> _save;
+    private readonly Action<double?, double?> _saveSize;
     private bool _locked = true;
     private readonly OverlayEdgeResize _edges;
 
-    protected MovableOverlay(string title, UIElement body, Func<(double? Left, double? Top, double Scale)> load, Action<double, double, double> save, double defaultLeft, double defaultTop)
+    protected MovableOverlay(string title, UIElement body, Func<(double? Left, double? Top, double Scale)> load, Action<double, double, double> save, double defaultLeft, double defaultTop,
+        Func<(double? Width, double? Height)> loadSize, Action<double?, double?> saveSize)
     {
         Title = title;
         WindowStyle = WindowStyle.None;
@@ -40,6 +42,7 @@ public abstract class MovableOverlay : Window
         SizeToContent = SizeToContent.WidthAndHeight;
         _load = load;
         _save = save;
+        _saveSize = saveSize;
 
         var saved = load();
         SetScale(saved.Scale);
@@ -50,10 +53,12 @@ public abstract class MovableOverlay : Window
         };
         AttachGripResize(_grip, SetScale, () => _scale.ScaleX);
         _grip.DragCompleted += (_, _) => SavePlace();
-        var stack = new StackPanel();
+        var stack = new DockPanel { LastChildFill = true }; // the grip stays visible however small the frame is pulled; the body is cut off
         _bodyHost.Child = body;
-        stack.Children.Add(_bodyHost);
+        _bodyHost.ClipToBounds = true;
+        DockPanel.SetDock(_grip, Dock.Bottom);
         stack.Children.Add(_grip);
+        stack.Children.Add(_bodyHost);
         _frame = new Border { Child = stack, LayoutTransform = _scale, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Padding = new Thickness(2), Background = Brushes.Transparent };
         _frame.MouseLeftButtonDown += (_, e) =>
         {
@@ -63,7 +68,10 @@ public abstract class MovableOverlay : Window
                 SavePlace();
             }
         };
-        _edges = new OverlayEdgeResize(this, SetScale, () => _scale.ScaleX, () => { }, SavePlace);
+        var size = loadSize();
+        if (size.Width is > 0) { _frame.Width = size.Width.Value; }
+        if (size.Height is > 0) { _frame.Height = size.Height.Value; }
+        _edges = new OverlayEdgeResize(this, _frame, () => _scale.ScaleX, () => { }, SavePlace);
         Content = _edges.Wrap(_frame);
         Left = saved.Left ?? defaultLeft;
         Top = saved.Top ?? defaultTop;
@@ -130,7 +138,11 @@ public abstract class MovableOverlay : Window
         _scale.ScaleY = scale;
     }
 
-    private void SavePlace() => _save(Left, Top, _scale.ScaleX);
+    private void SavePlace()
+    {
+        _save(Left, Top, _scale.ScaleX);
+        _saveSize(double.IsNaN(_frame.Width) ? null : _frame.Width, double.IsNaN(_frame.Height) ? null : _frame.Height);
+    }
 
     /// <summary>Locked: click-through, no outline, no grip. Unlocked: clickable and outlined, so it can be found, moved and scaled.</summary>
     public void ApplyLocked(bool locked)
@@ -205,7 +217,7 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly List<Ellipse> _dots = new();
     private readonly Polygon _me;
 
-    public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120)
+    public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120, LoadSize, SaveSize)
     {
         _me = new Polygon
         {
@@ -216,6 +228,20 @@ public sealed class PetMapWindow : MovableOverlay
         Canvas.SetTop(_me, ViewSize / 2);
         _canvas.Children.Add(_me);
         Body = _canvas;
+    }
+
+    private static (double?, double?) LoadSize()
+    {
+        var s = MeterSettings.Load();
+        return (s.PetMapWidth, s.PetMapHeight);
+    }
+
+    private static void SaveSize(double? width, double? height)
+    {
+        var s = MeterSettings.Load();
+        s.PetMapWidth = width;
+        s.PetMapHeight = height;
+        s.Save();
     }
 
     private static (double?, double?, double) Load()
@@ -406,7 +432,7 @@ public sealed class PetListWindow : MovableOverlay
     private readonly StackPanel _rows = new() { MinWidth = 250 };
     private string _shown = "";
 
-    public PetListWindow() : base("Aion DPS Pet List", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - 300, 580)
+    public PetListWindow() : base("Aion DPS Pet List", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - 300, 580, LoadSize, SaveSize)
     {
         var panel = new Border
         {
@@ -414,6 +440,20 @@ public sealed class PetListWindow : MovableOverlay
             BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 6, 10, 6), Child = _rows,
         };
         Body = panel;
+    }
+
+    private static (double?, double?) LoadSize()
+    {
+        var s = MeterSettings.Load();
+        return (s.PetListWidth, s.PetListHeight);
+    }
+
+    private static void SaveSize(double? width, double? height)
+    {
+        var s = MeterSettings.Load();
+        s.PetListWidth = width;
+        s.PetListHeight = height;
+        s.Save();
     }
 
     private static (double?, double?, double) Load()

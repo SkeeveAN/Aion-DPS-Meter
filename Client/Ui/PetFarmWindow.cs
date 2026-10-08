@@ -57,9 +57,10 @@ public sealed class PetFarmWindow : Window
             s.Save();
         };
 
-        var stack = new StackPanel();
-        stack.Children.Add(_lines);
+        var stack = new DockPanel { LastChildFill = true }; // the grip stays visible however small the frame is pulled; the lines are cut off
+        DockPanel.SetDock(_grip, Dock.Bottom);
         stack.Children.Add(_grip);
+        stack.Children.Add(new Border { Child = _lines, ClipToBounds = true });
         _panel = new Border { CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 5, 8, 5), Child = stack, LayoutTransform = _scale, BorderThickness = new Thickness(1) };
         _panel.SetResourceReference(Border.BackgroundProperty, "Brush.OverlayBg");
         _panel.MouseLeftButtonDown += (_, e) =>
@@ -74,12 +75,16 @@ public sealed class PetFarmWindow : Window
                 s.Save();
             }
         };
-        _edges = new OverlayEdgeResize(this, SetScale, () => _scale.ScaleX, () => _resizing = true, () =>
+        if (settings.PetFarmWidth is > 0) { _panel.Width = settings.PetFarmWidth.Value; }
+        if (settings.PetFarmHeight is > 0) { _panel.Height = settings.PetFarmHeight.Value; }
+        _edges = new OverlayEdgeResize(this, _panel, () => _scale.ScaleX, () => _resizing = true, () =>
         {
             _resizing = false;
             _centerX = Left + ActualWidth / 2;
             var s = MeterSettings.Load();
             s.PetFarmScale = _scale.ScaleX;
+            s.PetFarmWidth = double.IsNaN(_panel.Width) ? null : _panel.Width;
+            s.PetFarmHeight = double.IsNaN(_panel.Height) ? null : _panel.Height;
             s.PetFarmLeft = _centerX;
             s.PetFarmTop = Top;
             s.Save();

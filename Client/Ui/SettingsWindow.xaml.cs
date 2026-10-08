@@ -297,6 +297,12 @@ public partial class SettingsWindow : Window
         _settings.PetFarmLeft = onDisk.PetFarmLeft;
         _settings.PetFarmTop = onDisk.PetFarmTop;
         _settings.PetFarmScale = onDisk.PetFarmScale;
+        _settings.PetFarmWidth = onDisk.PetFarmWidth;
+        _settings.PetFarmHeight = onDisk.PetFarmHeight;
+        _settings.PetMapWidth = onDisk.PetMapWidth;
+        _settings.PetMapHeight = onDisk.PetMapHeight;
+        _settings.PetListWidth = onDisk.PetListWidth;
+        _settings.PetListHeight = onDisk.PetListHeight;
         _settings.PetMapLeft = onDisk.PetMapLeft;
         _settings.PetMapTop = onDisk.PetMapTop;
         _settings.PetMapScale = onDisk.PetMapScale;
