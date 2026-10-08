@@ -55,3 +55,11 @@ names in five languages (item text `STR_ITEM_VEHICLE_<KEY>_A_01_B`, "Pet: " pref
 item ids. A pet is named after the model of the monsters that drop its soul (`MOB_Cherubim_02` <- pet `Cherubim_02`); 59 of 63 souls seen in
 real captures matched that rule, the rest are in `extra_pets.json`. The pet list of the login frame (opcode 144) is
 `u32, varint n, n x (id, id, level 1-3), varint m, m x (id, progress)`; progress needed is 25 at level 1, 75 at level 2.
+
+## Spawn points (MapData.dat, 2026-10-08)
+`build_spawns.py <unpacked AION2/Content/Data/Map> <pets.json> <out.json>` reads the spawn points of the pet monsters out of every `MapData.dat`
+(745 maps) into `Client/assets/aion2/pets/spawns.json` (`{"maps": {map: {npcId: [[x,y,z],...]}}}`, 246 maps, 20,791 points, 190 of 195 soul pets).
+`MapData.dat` is *not* the table container: the whole file is XOR-ed with the 4 bytes `25 a8 7e 91`. Decoded, it is a list of spawn groups with
+text-named properties (`NpcIdList` as u64 ids, `Positions` = x,y,z as the upper five bytes of a little-endian double + 3 zero bytes) in the same
+world units as the position in the spawn frame 0x4136. Checked against 6,151 spawns from recordings: median distance to the nearest map point under
+a metre in the open-world maps. Main maps: `World/World_L/World_L_A` (Elyos), `World_D_A` (Asmodian), `Abyss_Reshanta_*`.
