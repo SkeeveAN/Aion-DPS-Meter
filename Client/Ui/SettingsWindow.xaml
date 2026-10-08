@@ -613,7 +613,7 @@
                                     </DockPanel>
                                     <Border Grid.Column="1" BorderThickness="1,0,0,0" BorderBrush="{DynamicResource Brush.Border}" Padding="10,0,0,0">
                                         <DockPanel>
-                                            <Grid DockPanel.Dock="Top" Margin="0,0,0,6">
+                                            <Grid DockPanel.Dock="Top" Margin="0,0,-10,6">
                                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                                 <TextBox x:Name="PetSearchBox" Height="26" VerticalContentAlignment="Center" TextChanged="OnPetSearchChanged"
                                                          Background="{DynamicResource Brush.Control}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
