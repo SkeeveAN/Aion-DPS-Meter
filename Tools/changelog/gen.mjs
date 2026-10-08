@@ -93,4 +93,11 @@ for (const date of [...new Set(before.map((b) => b.date))]) {
 const key = (v) => (v === "Unreleased" ? [1e9, 0, 0] : v === PRE ? [-1, 0, 0] : v.split(".").map(Number));
 releases.sort((a, b) => { const x = key(a.version), y = key(b.version); return y[0] - x[0] || y[1] - x[1] || y[2] - x[2] || (a.date < b.date ? 1 : -1); });
 writeFileSync(out, JSON.stringify(releases, null, 1) + "\n");
+// German texts live in Web-Frontend/changelog.de.json ({"<english text>": "<german text>"}); new entries
+// have to be added there, the page falls back to English for anything missing.
+const de = JSON.parse(readFileSync(fileURLToPath(new URL("../../Web-Frontend/changelog.de.json", import.meta.url)), "utf8"));
+const untranslated = [...new Set(releases.flatMap((r) => r.items.map((i) => i.text)))].filter((t) => !(t in de));
+if (untranslated.length) {
+  console.log(`${untranslated.length} entries without a German text:\n- ${untranslated.join("\n- ")}`);
+}
 console.log(`${releases.length} releases, ${releases.reduce((n, r) => n + r.items.length, 0)} entries -> ${out}`);

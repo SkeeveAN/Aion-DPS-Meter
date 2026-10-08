@@ -766,14 +766,48 @@ async function renderStats(secret) {
   app.replaceChildren(...out);
 }
 
-// Changelog - English only on purpose (not part of the i18n files). The data is
-// changelog.json, built from the release commits by Tools/changelog/gen.mjs; releases are
-// grouped by minor version (0.10.x) so the long list stays scannable.
+// Changelog - English, plus German when the site language is German (texts in changelog.de.json,
+// keyed by the English text; anything missing there stays English). The data is changelog.json,
+// built from the release commits by Tools/changelog/gen.mjs; releases are grouped by minor version
+// (0.10.x) so the long list stays scannable.
+const CHANGELOG_TEXT = {
+  en: {
+    loading: "Loading changelog…",
+    title: "Changelog",
+    intro: "What changed, newest first: the Windows client, the website, the backend and the database. ",
+    download: "Download",
+    unreleased: "Unreleased",
+    before: "Before 0.4.0",
+    changes: (n) => `${n} change${n === 1 ? "" : "s"} since the last release`,
+    releases: (n) => `${n} release${n === 1 ? "" : "s"}`,
+    days: (n) => `${n} day${n === 1 ? "" : "s"}`,
+    preNote: "start of the version numbers",
+    areas: { Client: "Client", Website: "Website", Backend: "Backend", Database: "Database" },
+  },
+  de: {
+    loading: "Änderungsprotokoll wird geladen…",
+    title: "Änderungsprotokoll",
+    intro: "Was sich geändert hat, neueste zuerst: der Windows-Client, die Website, das Backend und die Datenbank. ",
+    download: "Download",
+    unreleased: "Unveröffentlicht",
+    before: "Vor 0.4.0",
+    changes: (n) => `${n} Änderung${n === 1 ? "" : "en"} seit dem letzten Release`,
+    releases: (n) => `${n} Release${n === 1 ? "" : "s"}`,
+    days: (n) => `${n} Tag${n === 1 ? "" : "e"}`,
+    preNote: "Beginn der Versionsnummern",
+    areas: { Client: "Client", Website: "Website", Backend: "Backend", Database: "Datenbank" },
+  },
+};
 const PRE_VERSION = "Before 0.4.0";
 async function renderChangelog() {
-  setBreadcrumb([link(t("breadcrumb.home"), "/"), "Changelog"]);
-  showLoading("Loading changelog…");
-  const releases = await fetchJson("/changelog.json");
+  const lang = getLocale() === "de" ? "de" : "en";
+  const L = CHANGELOG_TEXT[lang];
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), L.title]);
+  showLoading(L.loading);
+  const [releases, german] = await Promise.all([
+    fetchJson("/changelog.json"),
+    lang === "de" ? fetchJson("/changelog.de.json").catch(() => ({})) : Promise.resolve({}),
+  ]);
   const groups = new Map();
   for (const r of releases) {
     const minor = r.version === "Unreleased" || r.version === PRE_VERSION ? r.version : `${r.version.split(".").slice(0, 2).join(".")}.x`;
@@ -782,31 +816,32 @@ async function renderChangelog() {
     }
     groups.get(minor).push(r);
   }
-  const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  const fmt = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(lang === "de" ? "de-DE" : "en-US", { year: "numeric", month: "short", day: "numeric" });
   const sections = [...groups].map(([minor, list], i) => {
     const first = list[list.length - 1];
     const last = list[0];
     const pre = minor === PRE_VERSION;
+    const span = `${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}`;
     return el("details", { className: "changelog-group", open: i === 0 }, [
       el("summary", {}, [
-        el("strong", { textContent: minor }),
+        el("strong", { textContent: pre ? L.before : minor === "Unreleased" ? L.unreleased : minor }),
         el("span", { className: "changelog-range", textContent: pre
-          ? `start of the version numbers · ${list.length} day${list.length === 1 ? "" : "s"} · ${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}`
+          ? `${L.preNote} · ${L.days(list.length)} · ${span}`
           : minor === "Unreleased"
-          ? `${list[0].items.length} change${list[0].items.length === 1 ? "" : "s"} since the last release`
-          : `${list.length} release${list.length === 1 ? "" : "s"} · ${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}` }),
+            ? L.changes(list[0].items.length)
+            : `${L.releases(list.length)} · ${span}` }),
       ]),
       el("ul", { className: "changelog-list" }, list.flatMap((r) => r.items.map((item, n) => el("li", {}, [
         el("span", { className: "changelog-version", textContent: n === 0 && r.version !== "Unreleased" && !pre ? r.version : "" }),
         el("span", { className: "changelog-date", textContent: n === 0 && r.version !== "Unreleased" ? fmt(r.date) : "" }),
         el("span", { className: "changelog-text" }, [
-          ...item.areas.map((a) => el("span", { className: `changelog-tag changelog-tag--${a.toLowerCase()}`, textContent: a })),
-          item.text.charAt(0).toUpperCase() + item.text.slice(1),
+          ...item.areas.map((a) => el("span", { className: `changelog-tag changelog-tag--${a.toLowerCase()}`, textContent: L.areas[a] ?? a })),
+          (german[item.text] ?? item.text).replace(/^./, (c) => c.toUpperCase()),
         ]),
       ])))),
     ]);
   });
-  app.replaceChildren(el("h2", { textContent: "Changelog" }), el("p", { className: "download-meta" }, ["What changed, newest first: the Windows client, the website, the backend and the database. ", link("Download", "/download")]), ...sections);
+  app.replaceChildren(el("h2", { textContent: L.title }), el("p", { className: "download-meta" }, [L.intro, link(L.download, "/download")]), ...sections);
 }
 
 function featureCard(title, text) {
