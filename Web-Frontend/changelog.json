@@ -1,5 +1,25 @@
 [
  {
+  "version": "0.16.0",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Eye (hide window): a notice says that the window turns transparent and how to bring it back with the hotkey set in the settings; with 'do not show again' and OK",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Interactive map (was: Pet map): it also shows the collectibles of the world maps (Od, herbs, food, ores, wood, gems, Empyrean traces) as coloured diamonds, each kind switchable in the settings",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.15.10",
   "date": "2026-10-08",
   "items": [
