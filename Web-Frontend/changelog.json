@@ -1,5 +1,25 @@
 [
  {
+  "version": "0.15.4",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Pet counter: after the last point of a level the next soul starts the next level (Level 1 25/25 -> Level 2 1/75)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Pet list: the length is the height of the frame (no setting any more); unlocked, it shows sample rows so the field's length can be judged",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.15.3",
   "date": "2026-10-08",
   "items": [
