@@ -13,7 +13,7 @@ public static class PetFarmLog
 {
     private static readonly object Gate = new();
     private static readonly List<(int EntityId, int NpcId, DateTime At)> Deaths = new();
-    private static (int ItemId, DateTime At) _lastSoul;
+    private static readonly Queue<uint> RecentSouls = new(); // the item instances counted lately: the same one announced again is not another soul
     private static readonly HashSet<string> LoggedNames = new();
     private static readonly TimeSpan SoulWindow = TimeSpan.FromSeconds(6);
 
@@ -63,7 +63,7 @@ public static class PetFarmLog
 
     /// <summary>The player got a pet soul (inventory change): logs it with the monsters that died shortly before.</summary>
     /// <returns>True when this is a new soul (not the same change announced twice).</returns>
-    public static bool NoteSoul(int itemId, int petId, int quantity, DateTime at)
+    public static bool NoteSoul(int itemId, int petId, int quantity, DateTime at, uint instance)
     {
         if (quantity <= 0)
         {
@@ -73,12 +73,17 @@ public static class PetFarmLog
         List<(int EntityId, int NpcId, DateTime At)> recent;
         lock (Gate)
         {
-            if (_lastSoul.ItemId == itemId && at - _lastSoul.At < TimeSpan.FromSeconds(2))
+            if (RecentSouls.Contains(instance))
             {
-                return false; // the same change announced twice
+                return false; // the same item announced again
             }
 
-            _lastSoul = (itemId, at);
+            RecentSouls.Enqueue(instance); // two souls dropped at once are two instances
+            while (RecentSouls.Count > 200)
+            {
+                RecentSouls.Dequeue();
+            }
+
             recent = Deaths.Where(d => at - d.At is { } age && age >= TimeSpan.Zero && age <= SoulWindow).ToList();
         }
 

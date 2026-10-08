@@ -354,6 +354,18 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
+            // the log tells how well the soul count matched what the game then reported (login, map change)
+            foreach ((int pet, int souls) in _soulsSinceList)
+            {
+                var before = _petStates?.FirstOrDefault(p => p.PetId == pet);
+                var counted = before is null ? null : WithSouls(before, souls);
+                var game = pets.FirstOrDefault(p => p.PetId == pet);
+                if (before is not null && counted is not null && game is not null)
+                {
+                    PetFarmLog.Write($"COUNT {Aion2Pets.PetName(pet, "en") ?? "?"} (pet {pet}): list before L{before.Level} {before.Progress}, + {souls} souls = L{counted.Level} {counted.Progress}; the game now says L{game.Level} {game.Progress}");
+                }
+            }
+
             _petStates = pets;
             _soulsSinceList.Clear();
             _listsAt = DateTime.UtcNow;
