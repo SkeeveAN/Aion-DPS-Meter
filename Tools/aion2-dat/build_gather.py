@@ -25,13 +25,11 @@ LANGS = {"en": "en-US", "de": "de-DE", "fr": "fr-FR", "es": "es-ES", "ru": "ru-R
 
 
 def kind_of(key, usage, gather_name):
-    """The kind of collectible: a gather source by what it gives (Od, Ore, Herb, Wood, Cotton, Gemstone, RareOre), the Od energy cubes, the
+    """The kind of collectible: a gather source by what it gives (Od, Ore, Herb, Food, Wood, Cotton, Gemstone, RareOre, Jewelry), the Od energy cubes, the
     fragments (the "traces" of a region) - or None for every other object."""
-    if usage == "EEnvObjectUsage::GatherSource":
-        m = re.match(r"Gather_Source_([A-Za-z]+)_", key)
-        if m:
-            return m.group(1)
-        return gather_name.split("_")[1] if gather_name else None
+    if usage == "EEnvObjectUsage::GatherSource" and gather_name:
+        parts = gather_name.split("_")
+        return parts[2] if parts[1] == "Source" and len(parts) > 2 else parts[1]
     if usage == "EEnvObjectUsage::OdEnergyCube":
         return "OdCube"
     if "_fragment_" in key:
@@ -98,8 +96,14 @@ def main():
                     total += 1
         if per:
             maps[name] = per
-    used = {k for per in maps.values() for k in per}
-    kinds = {k: {"kind": CATEGORY[gather[int(k)][1]], "names": names.get(k, {})} for k in sorted(used, key=int)}
+    count = {}
+    for per in maps.values():
+        for k, pts in per.items():
+            count[k] = count.get(k, 0) + len(pts)
+    # every collectible the client could offer, also those with no fixed place on a world map (count 0)
+    kinds = {str(i): {"kind": CATEGORY[kind], "names": names.get(str(i), {}), "count": count.get(str(i), 0)}
+             for i, (key, kind) in sorted(gather.items())
+             if kind in CATEGORY and names.get(str(i)) and (key.startswith("Gather_Source_") or count.get(str(i), 0) > 0 or kind == "Fragment")}
     json.dump({"objects": kinds, "maps": maps}, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
     print(f"{len(kinds)} gatherable objects, {len(maps)} maps, {total} placements -> {out_path} ({os.path.getsize(out_path) // 1024} KB)")
 
