@@ -125,7 +125,7 @@ public sealed class PetMapController : IDisposable
         if (++_ticks % 10 == 0 || _lastTarget != (tx, ty))
         {
             _lastTarget = (tx, ty);
-            _list.Render(Rows(petsHere, colors, tx, ty, states));
+            _list.Render(Rows(petsHere, colors, tx, ty, states).Take(Math.Clamp(settings.PetListLength, 3, 60)).ToList());
         }
 
         _list.ShowOverlay(true);

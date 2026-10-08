@@ -599,6 +599,13 @@
                                                 SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnPetMapSliderChanged"/>
                                         <TextBlock Grid.Column="2" x:Name="PetMapOpacityValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
                                     </Grid>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="*"/><ColumnDefinition Width="56"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{local:Loc Settings.PetMap.ListLength}" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" x:Name="PetListLengthSlider" Style="{StaticResource ThemedSlider}" Minimum="3" Maximum="60" TickFrequency="1" IsSnapToTickEnabled="True"
+                                                SmallChange="1" LargeChange="5" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnPetMapSliderChanged"/>
+                                        <TextBlock Grid.Column="2" x:Name="PetListLengthValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                    </Grid>
                                 </StackPanel>
                             </StackPanel>
                         </Border>

@@ -2123,6 +2123,16 @@
     "tr": "{1} petin {0} tanesi aktif",
     "zh": "{1} 只宠物中 {0} 只已启用"
   },
+  "Settings.PetMap.ListLength": {
+    "en": "List length",
+    "de": "Listenlänge",
+    "fr": "Longueur liste",
+    "es": "Largo lista",
+    "ru": "Длина списка",
+    "pl": "Długość listy",
+    "tr": "Liste uzun.",
+    "zh": "列表长度"
+  },
   "Settings.PetMap.RadiusValue": {
     "en": "{0} m",
     "de": "{0} m",

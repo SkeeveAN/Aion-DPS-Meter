@@ -177,6 +177,8 @@ public sealed class MeterSettings
     public bool ShowPetMap { get; set; }
 
     public int PetMapRadius { get; set; } = 150;
+    /// <summary>How many pets the pet list shows at most (the nearest ones; the rest is cut off).</summary>
+    public int PetListLength { get; set; } = 15;
 
     public double PetMapOpacity { get; set; } = 0.7;
 
