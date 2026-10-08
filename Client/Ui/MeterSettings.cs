@@ -155,6 +155,9 @@ public sealed class MeterSettings
     /// <summary>Shows or hides the timetable overlay (see TimetableWindow).</summary>
     public string HotkeyTimetable { get; set; } = "Ctrl+Alt+T";
 
+    /// <summary>Switches the pet map (with its list) on or off.</summary>
+    public string HotkeyPetMap { get; set; } = "Ctrl+Alt+K";
+
     /// <summary>The timetable overlay: what is active now and what starts within the lookahead (<see cref="TimetableLookaheadMinutes"/>). Its place
     /// and scale are remembered (null left/top = a default corner).</summary>
     public bool ShowTimetable { get; set; } = true;

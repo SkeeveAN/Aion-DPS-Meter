@@ -15,6 +15,7 @@ public enum HotkeyAction
     UploadBoss,
     NextMode,
     ToggleTimetable,
+    TogglePetMap,
 }
 
 /// <summary>A key plus modifiers, written "Ctrl+Alt+H" in the settings file.</summary>

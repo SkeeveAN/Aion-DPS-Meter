@@ -55,6 +55,7 @@ public partial class SettingsWindow : Window
         PetFarmLockedBox.IsChecked = settings.PetFarmLocked;
         InitPetMap(settings);
         SetHotkeyBox(HotkeyTimetableBox, HotkeyBinding.Parse(settings.HotkeyTimetable).ToString());
+        SetHotkeyBox(HotkeyPetMapBox, HotkeyBinding.Parse(settings.HotkeyPetMap).ToString());
         AutoResetBox.IsChecked = settings.AutoResetEnabled;
         AutoResetSecondsBox.Text = Math.Clamp(settings.AutoResetSeconds, 1, 600).ToString();
         SelectComboItem(ThemeBox, settings.Theme);
@@ -328,6 +329,7 @@ public partial class SettingsWindow : Window
         _settings.PetMapOpacity = PetMapOpacitySlider.Value / 100.0;
         _settings.PetMapPets = _petPicked.OrderBy(i => i).ToList();
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
+        _settings.HotkeyPetMap = (string?)HotkeyPetMapBox.Tag ?? "";
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
         _settings.AutoResetSeconds = int.TryParse(AutoResetSecondsBox.Text, out int seconds) ? Math.Clamp(seconds, 1, 600) : 10;
         _settings.AutoUploadBoss = AutoUploadBossBox.IsChecked ?? false;

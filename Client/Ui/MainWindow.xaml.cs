@@ -491,6 +491,9 @@ public partial class MainWindow : Window
             case HotkeyAction.ToggleTimetable:
                 ToggleTimetable();
                 break;
+            case HotkeyAction.TogglePetMap:
+                TogglePetMap();
+                break;
             case HotkeyAction.NextMode:
                 NextMode();
                 break;
@@ -518,6 +521,7 @@ public partial class MainWindow : Window
             [HotkeyAction.UploadBoss] = HotkeyBinding.Parse(settings.HotkeyUploadBoss),
             [HotkeyAction.NextMode] = HotkeyBinding.Parse(settings.HotkeyMode),
             [HotkeyAction.ToggleTimetable] = HotkeyBinding.Parse(settings.HotkeyTimetable),
+            [HotkeyAction.TogglePetMap] = HotkeyBinding.Parse(settings.HotkeyPetMap),
         });
         if (failed.Count > 0)
         {
@@ -3902,6 +3906,14 @@ public partial class MainWindow : Window
         _petFarm.ApplyOpacity(settings.OverlayOpacity);
         _petFarm.ApplyLocked(settings.PetFarmLocked);
         _petFarmController ??= new PetFarmController(_petFarm, () => _source?.Entities as Aion2EntityDirectory);
+    }
+
+    private void TogglePetMap()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowPetMap = !settings.ShowPetMap;
+        settings.Save();
+        ApplyPetFarm(settings);
     }
 
     private void ToggleTimetable()

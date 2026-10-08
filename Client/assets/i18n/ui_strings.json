@@ -1431,6 +1431,16 @@
     "tr": "Zaman çizelgesi",
     "zh": "时间表悬浮窗"
   },
+  "Settings.Hotkey.PetMap": {
+    "en": "Pet map on / off",
+    "de": "Pet-Karte an / aus",
+    "fr": "Carte des pets activée / désactivée",
+    "es": "Mapa de mascotas sí / no",
+    "ru": "Карта питомцев вкл / выкл",
+    "pl": "Mapa zwierzaków wł. / wył.",
+    "tr": "Evcil hayvan haritası açık / kapalı",
+    "zh": "宠物地图 开 / 关"
+  },
   "Timetable.Always": {
     "en": "any time",
     "de": "jederzeit",
