@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.15.6",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Pet counter: two souls dropped at once both count (a soul is told apart by its item instance, not by the time); the log compares the count with the game's pet list at every login and map change",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.15.5",
   "date": "2026-10-08",
   "items": [
