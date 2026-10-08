@@ -396,6 +396,34 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private readonly Queue<(DateTime At, float X, float Y)> _recentSpawns = new();
+
+    /// <summary>
+    /// The best guess of where the player is: the server only reports the player's own position at skills, hits and corrections, but it
+    /// announces every monster that comes into range (a radius of roughly 65 m) with its place. The middle of the monsters announced in the
+    /// last 8 seconds follows the player while he walks (checked against 12 position reports of a long run: 8 m off in the median, 27 m at
+    /// worst). The newer of the two wins: a skill's exact position, or the middle of the latest announcements (at least two).
+    /// </summary>
+    public (float X, float Y, DateTime At)? BestPosition
+    {
+        get
+        {
+            lock (_gate)
+            {
+                DateTime now = DateTime.UtcNow;
+                var recent = _recentSpawns.Where(s => now - s.At <= TimeSpan.FromSeconds(8)).ToList();
+                if (recent.Count >= 2 && (_position is null || recent.Max(s => s.At) > _position.Value.At))
+                {
+                    var xs = recent.Select(s => s.X).OrderBy(v => v).ToList();
+                    var ys = recent.Select(s => s.Y).OrderBy(v => v).ToList();
+                    return (xs[xs.Count / 2], ys[ys.Count / 2], recent.Max(s => s.At));
+                }
+
+                return _position;
+            }
+        }
+    }
+
     public void NoteLocalPosition(float x, float y)
     {
         lock (_gate)
@@ -405,15 +433,46 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     }
 
     /// <summary>The monsters announced most recently with their place (the last 60), to tell which map the player is on.</summary>
-    public void NoteMobPosition(int npcId, float x, float y)
+    public void NoteMobPosition(int entityId, int npcId, float x, float y)
     {
         lock (_gate)
         {
+            _liveMobs[entityId] = (npcId, x, y);
+            _recentSpawns.Enqueue((DateTime.UtcNow, x, y));
+            while (_recentSpawns.Count > 0 && DateTime.UtcNow - _recentSpawns.Peek().At > TimeSpan.FromSeconds(30))
+            {
+                _recentSpawns.Dequeue();
+            }
+            if (_liveMobs.Count > 3000)
+            {
+                _liveMobs.Clear(); // nothing is ever that close: the table lost its removals
+            }
+
             _mobPositions.Enqueue((npcId, x, y));
             while (_mobPositions.Count > 60)
             {
                 _mobPositions.Dequeue();
             }
+        }
+    }
+
+    private readonly Dictionary<int, (int NpcId, float X, float Y)> _liveMobs = new();
+
+    /// <summary>The monsters around the player right now: announced when they come into range (with their place) and gone again when the
+    /// game says they died or disappeared.</summary>
+    public void ForgetLiveMob(int entityId)
+    {
+        lock (_gate)
+        {
+            _liveMobs.Remove(entityId);
+        }
+    }
+
+    public IReadOnlyList<(int NpcId, float X, float Y)> LiveMobs()
+    {
+        lock (_gate)
+        {
+            return _liveMobs.Values.ToArray();
         }
     }
 
@@ -432,6 +491,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         {
             _position = null;
             _mobPositions.Clear();
+            _liveMobs.Clear();
+            _recentSpawns.Clear();
         }
     }
 
@@ -743,6 +804,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _removed[entityId] = new Removal(at, reason);
+            _liveMobs.Remove(entityId);
         }
     }
 

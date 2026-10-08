@@ -407,7 +407,7 @@ public sealed class Aion2FrameDecoder
             float my = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 10)..]);
             if (float.IsFinite(mx) && float.IsFinite(my) && Math.Abs(mx) < 1_000_000 && Math.Abs(my) < 1_000_000)
             {
-                _entities.NoteMobPosition(npcId, mx, my);
+                _entities.NoteMobPosition(unchecked((int)entityId), npcId, mx, my);
             }
         }
 
@@ -784,6 +784,7 @@ public sealed class Aion2FrameDecoder
             if (hp == 0)
             {
                 _entities.ClearLocalTarget(unchecked((int)entityId)); // a dead monster is no target any more
+                _entities.ForgetLiveMob(unchecked((int)entityId));
             }
 
             if (hp == 0 && _entities.NpcIdOf(unchecked((int)entityId)) is int died)

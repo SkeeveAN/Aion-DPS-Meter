@@ -89,7 +89,7 @@ public sealed class PetMapController : IDisposable
         // The chosen pets (those at the top level need no farming)
         var states = directory.LocalPetStates;
         var chosen = settings.PetMapPets.Where(id => !states.Any(s => s.PetId == id && s.Level >= Aion2Pets.TopLevel)).ToHashSet();
-        var position = directory.LocalPosition;
+        var position = directory.BestPosition;
         if (_current is null || position is null || chosen.Count == 0 || PositionIsStale(directory, position.Value))
         {
             ShowEmpty(locked);
@@ -119,13 +119,15 @@ public sealed class PetMapController : IDisposable
 
         var petsHere = _points.Select(p => p.PetId).Distinct().OrderBy(i => i).ToList();
         var colors = petsHere.Select((id, i) => (id, i)).ToDictionary(t => t.id, t => PetMapPalette.Of(t.i));
-        _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, colors);
+        var live = directory.LiveMobs()
+            .SelectMany(m => Aion2Pets.PetsOfNpc(m.NpcId).Where(chosen.Contains).Select(pet => (pet, m.X, m.Y))).ToList();
+        _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors);
         _map.ShowOverlay(true);
 
         if (++_ticks % 10 == 0 || _lastTarget != (tx, ty))
         {
             _lastTarget = (tx, ty);
-            _list.Render(Rows(petsHere, colors, tx, ty, states));
+            _list.Render(Rows(petsHere, colors, tx, ty, states, live));
         }
 
         _list.ShowOverlay(true);
@@ -144,7 +146,7 @@ public sealed class PetMapController : IDisposable
         return distances[distances.Count / 2] > 60000; // more than 600 m
     }
 
-    private IReadOnlyList<(Color, string, string, string)> Rows(List<int> pets, Dictionary<int, Color> colors, float x, float y, IReadOnlyList<Aion2PetState> states)
+    private IReadOnlyList<(Color, string, string, string)> Rows(List<int> pets, Dictionary<int, Color> colors, float x, float y, IReadOnlyList<Aion2PetState> states, List<(int PetId, float X, float Y)> live)
     {
         var loc = LocalizationManager.Instance;
         string language = loc.Language;
@@ -152,6 +154,13 @@ public sealed class PetMapController : IDisposable
         foreach (int pet in pets)
         {
             double nearest = _points.Where(p => p.PetId == pet).Select(p => Math.Sqrt((p.X - x) * (double)(p.X - x) + (p.Y - y) * (double)(p.Y - y))).DefaultIfEmpty(double.NaN).Min();
+            // a monster the game has announced around the player beats the general spawn points: its distance counts, the others show "~"
+            double nearestLive = live.Where(p => p.PetId == pet).Select(p => Math.Sqrt((p.X - x) * (double)(p.X - x) + (p.Y - y) * (double)(p.Y - y))).DefaultIfEmpty(double.NaN).Min();
+            bool isLive = !double.IsNaN(nearestLive);
+            if (isLive)
+            {
+                nearest = nearestLive;
+            }
             string level;
             if (states.Count == 0)
             {
@@ -166,7 +175,7 @@ public sealed class PetMapController : IDisposable
                 level = loc["PetFarm.New"];
             }
 
-            rows.Add((nearest, (colors[pet], Aion2Pets.PetName(pet, language) ?? $"#{pet}", level, double.IsNaN(nearest) ? "" : $"{nearest / 100:0} m")));
+            rows.Add((nearest, (colors[pet], Aion2Pets.PetName(pet, language) ?? $"#{pet}", level, double.IsNaN(nearest) ? "" : $"{(isLive ? "" : "~")}{nearest / 100:0} m")));
         }
 
         // nearest first; pets without a spawn point on this map (unknown distance) last

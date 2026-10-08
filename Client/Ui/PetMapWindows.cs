@@ -229,6 +229,7 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly List<string> _tileOrder = new();
     private readonly List<Image> _tileImages = new();
     private readonly List<Ellipse> _dots = new();
+    private readonly List<Ellipse> _liveDots = new();
     private readonly Polygon _me;
 
     public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120, LoadSize, SaveSize)
@@ -363,7 +364,7 @@ public sealed class PetMapWindow : MovableOverlay
     /// <paramref name="points"/> in their pets' colours (<paramref name="colors"/> by pet id).
     /// </summary>
     public void Render(Aion2MapInfo map, double worldX, double worldY, double radiusMetres, double opacity,
-        IReadOnlyList<(int PetId, float X, float Y)> points, IReadOnlyDictionary<int, Color> colors)
+        IReadOnlyList<(int PetId, float X, float Y)> points, IReadOnlyList<(int PetId, float X, float Y)> live, IReadOnlyDictionary<int, Color> colors)
     {
         double ppu = ViewSize / 2 / (radiusMetres * 100.0);       // view pixels per world unit
         double k = ppu / map.Scale;                                // view pixels per native map pixel
@@ -418,21 +419,50 @@ public sealed class PetMapWindow : MovableOverlay
 
             if (dot >= _dots.Count)
             {
-                var e = new Ellipse { Width = 11, Height = 11, Stroke = Brushes.White, StrokeThickness = 1.5, IsHitTestVisible = false };
+                var e = new Ellipse { Width = 9, Height = 9, Stroke = Brushes.White, StrokeThickness = 1.2, Opacity = 0.6, IsHitTestVisible = false };
                 _dots.Add(e);
                 _canvas.Children.Add(e);
             }
 
             var d = _dots[dot++];
             d.Fill = new SolidColorBrush(colors.GetValueOrDefault(pet, Colors.White));
-            Canvas.SetLeft(d, px - 5.5);
-            Canvas.SetTop(d, py - 5.5);
+            Canvas.SetLeft(d, px - 4.5);
+            Canvas.SetTop(d, py - 4.5);
             d.Visibility = Visibility.Visible;
         }
 
         for (int i = dot; i < _dots.Count; i++)
         {
             _dots[i].Visibility = Visibility.Collapsed;
+        }
+
+        // the monsters really around the player (announced by the game): large, bright, over the general spawn points
+        int liveDot = 0;
+        foreach ((int pet, float x, float y) in live)
+        {
+            double px = ViewSize / 2 + (x - worldX) * ppu, py = ViewSize / 2 + (y - worldY) * ppu;
+            if (px < 8 || py < 8 || px > ViewSize - 8 || py > ViewSize - 8)
+            {
+                continue;
+            }
+
+            if (liveDot >= _liveDots.Count)
+            {
+                var e = new Ellipse { Width = 17, Height = 17, Stroke = Brushes.White, StrokeThickness = 2.5, IsHitTestVisible = false, Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 5, ShadowDepth = 0, Color = Colors.Black, Opacity = 0.9 } };
+                _liveDots.Add(e);
+                _canvas.Children.Add(e);
+            }
+
+            var d = _liveDots[liveDot++];
+            d.Fill = new SolidColorBrush(colors.GetValueOrDefault(pet, Colors.White));
+            Canvas.SetLeft(d, px - 8.5);
+            Canvas.SetTop(d, py - 8.5);
+            d.Visibility = Visibility.Visible;
+        }
+
+        for (int i = liveDot; i < _liveDots.Count; i++)
+        {
+            _liveDots[i].Visibility = Visibility.Collapsed;
         }
 
         _canvas.Children.Remove(_me);
