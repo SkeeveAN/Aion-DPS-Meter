@@ -1082,8 +1082,22 @@
                                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Dps"/>
                                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Damage"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11"
-                                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <!-- the faction emblem replaces the rank number (the number only shows while the faction is unknown) -->
+                                                <Grid Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                    <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}" Width="15" Height="15" ToolTip="{Binding Faction}"/>
+                                                    <TextBlock Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextMuted}" FontSize="11" Visibility="Collapsed">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Faction}" Value="">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
                                                 <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                                        Height="24" Width="24" Margin="4,0,8,0" ToolTip="{Binding Faction}"/>
                                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
@@ -1357,8 +1371,21 @@
                                     <ColumnDefinition Width="Auto" SharedSizeGroup="ChipDps"/>
                                     <ColumnDefinition Width="Auto" SharedSizeGroup="ChipDamage"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10"
-                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <Grid Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}" Width="14" Height="14"/>
+                                    <TextBlock Text="{Binding RankDisplay}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="10">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Faction}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
                                 <Image Grid.Column="1" Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
                                        Height="24" Width="24" Margin="4,0,8,0"/>
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
