@@ -620,7 +620,7 @@
                                                 <Button Grid.Column="1" Content="{local:Loc Settings.PetMap.AllOn}" Click="OnPetAllOn" Margin="6,0,0,0" Padding="8,0" Height="26"/>
                                                 <Button Grid.Column="2" Content="{local:Loc Settings.PetMap.AllOff}" Click="OnPetAllOff" Margin="6,0,0,0" Padding="8,0" Height="26"/>
                                             </Grid>
-                                            <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="PetRows"/></ScrollViewer>
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,-10,0"><StackPanel x:Name="PetRows"/></ScrollViewer>
                                         </DockPanel>
                                     </Border>
                                 </Grid>

@@ -480,7 +480,7 @@ public partial class SettingsWindow : Window
         foreach ((int petId, string petName) in pets)
         {
             bool max = IsMax(petId);
-            var row = new Grid { Margin = new Thickness(0, 2, 8, 2), Opacity = max ? 0.45 : 1.0 };
+            var row = new Grid { Margin = new Thickness(0, 2, 18, 2), Opacity = max ? 0.45 : 1.0 };
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
