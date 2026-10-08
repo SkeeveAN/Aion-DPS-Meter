@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.15.8",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Settings: the pet map hotkey sits on the Pet-Karte page under the map switch",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.15.7",
   "date": "2026-10-08",
   "items": [
