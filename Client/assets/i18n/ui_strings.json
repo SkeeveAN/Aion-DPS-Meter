@@ -2060,5 +2060,11 @@
     "de": "Suchen …",
     "fr": "Rechercher …",
     "es": "Buscar …"
+  },
+  "Settings.PetMap.BadgeTip": {
+    "en": "{0} on · {1} pets · {2} at the top level (Max)",
+    "de": "{0} aktiv · {1} Pets · {2} auf Max",
+    "fr": "{0} actifs · {1} pets · {2} au niveau max.",
+    "es": "{0} activas · {1} mascotas · {2} al máximo"
   }
 }

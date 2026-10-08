@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using AionDPS.Aion2;
@@ -435,10 +436,20 @@ public partial class SettingsWindow : Window
             bool selected = species == _petSpecies;
             var name = new TextBlock { Text = species, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             name.SetResourceReference(TextBlock.ForegroundProperty, selected ? "Brush.Accent" : "Brush.Text");
+            // three numbers: pets on / pets in the species / pets at the top level (blue, "Max")
+            int maxCount = PetsOfSpecies(species).Count(p => IsMax(p.PetId));
+            var counts = new TextBlock { FontSize = 11 };
+            var onRun = new Run(on.ToString());
+            onRun.SetResourceReference(TextElement.ForegroundProperty, on > 0 ? "Brush.Accent" : "Brush.TextSubtle");
+            var allRun = new Run("/" + all);
+            allRun.SetResourceReference(TextElement.ForegroundProperty, "Brush.TextSubtle");
+            var maxRun = new Run("/" + maxCount) { Foreground = new SolidColorBrush(Color.FromRgb(0x4D, 0x9B, 0xFF)) };
+            counts.Inlines.Add(onRun);
+            counts.Inlines.Add(allRun);
+            counts.Inlines.Add(maxRun);
             var badge = new Border { CornerRadius = new CornerRadius(9), BorderThickness = new Thickness(1), Padding = new Thickness(7, 1, 7, 1), VerticalAlignment = VerticalAlignment.Center,
-                Child = new TextBlock { Text = $"{on}/{all}", FontSize = 11 } };
+                Child = counts, ToolTip = string.Format(LocalizationManager.Instance["Settings.PetMap.BadgeTip"], on, all, maxCount) };
             badge.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
-            ((TextBlock)badge.Child).SetResourceReference(TextBlock.ForegroundProperty, on > 0 ? "Brush.Accent" : "Brush.TextSubtle");
             var row = new DockPanel { LastChildFill = false };
             DockPanel.SetDock(badge, Dock.Right);
             row.Children.Add(badge);
