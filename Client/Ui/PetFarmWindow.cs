@@ -236,43 +236,67 @@ public sealed class PetFarmController : IDisposable
     private async Task<IReadOnlyList<(string Pet, string Level)>> ReadOnceAsync()
     {
         var none = Array.Empty<(string, string)>();
-        System.Drawing.Rectangle? area = GameWindow.ForegroundClientArea();
-        if (area is null)
+        if (GameWindow.ForegroundClientArea() is not { } area)
         {
-            return none;
-        }
-
-        string language = LocalizationManager.Instance.Language;
-        using var frame = new System.Drawing.Bitmap(area.Value.Width, area.Value.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        using (var g = System.Drawing.Graphics.FromImage(frame))
-        {
-            g.CopyFromScreen(area.Value.Location, System.Drawing.Point.Empty, area.Value.Size);
-        }
-
-        string? read = await _reader.ReadTargetNameAsync(frame, language);
-        if (read is null)
-        {
-            return none;
-        }
-
-        var match = PetFarmReader.Match(read);
-        if (match is null)
-        {
-            if (_unknownLogged++ < 300)
-            {
-                PetFarmLog.NoteUnknownName(read);
-            }
-
-            return none;
+            return none; // the game is not the window in front
         }
 
         var directory = _directory();
+        IReadOnlyCollection<int>? pets = null;
+
+        // 1. The game's own message when the player marks a monster (tab or click): the entity id leads to the NPC and the pet.
+        if (directory?.LocalTarget is { NpcId: int npcId, At: var at } && DateTime.UtcNow - at < TimeSpan.FromMinutes(2))
+        {
+            var ofNpc = Aion2Pets.PetsOfNpc(npcId);
+            if (ofNpc.Count == 0)
+            {
+                PetFarmLog.NoteUnknownMonster(npcId);
+                return none;
+            }
+
+            pets = ofNpc.ToArray();
+        }
+        else if (MeterSettings.Load().PetFarmScreenFallback)
+        {
+            // 2. Optional: read the name on the target plate from the screen (a picture of the game window, in memory only).
+            string language = LocalizationManager.Instance.Language;
+            using var frame = new System.Drawing.Bitmap(area.Width, area.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var g = System.Drawing.Graphics.FromImage(frame))
+            {
+                g.CopyFromScreen(area.Location, System.Drawing.Point.Empty, area.Size);
+            }
+
+            string? read = await _reader.ReadTargetNameAsync(frame, language);
+            if (read is null)
+            {
+                return none;
+            }
+
+            if (PetFarmReader.Match(read) is not { } match)
+            {
+                if (_unknownLogged++ < 300)
+                {
+                    PetFarmLog.NoteUnknownName(read);
+                }
+
+                return none;
+            }
+
+            pets = match.Pets;
+        }
+
+        if (pets is null)
+        {
+            return none;
+        }
+
         var states = directory?.LocalPetStates ?? Array.Empty<Aion2PetState>();
         var loc = LocalizationManager.Instance;
+        string lang = loc.Language;
         var result = new List<(string, string)>();
-        foreach (int petId in match.Value.Pets.OrderBy(p => p))
+        foreach (int petId in pets.OrderBy(p => p))
         {
-            string name = Aion2Pets.PetName(petId, language) ?? $"#{petId}";
+            string name = Aion2Pets.PetName(petId, lang) ?? $"#{petId}";
             string level;
             if (states.Count == 0)
             {

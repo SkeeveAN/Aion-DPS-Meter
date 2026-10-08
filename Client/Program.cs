@@ -955,6 +955,13 @@ internal static class Program
                 Console.WriteLine($"  {Aion2.Protocol.Aion2Pets.PetName(pet.PetId, "de") ?? "?",-30} level {pet.Level}  {pet.Progress}/{Aion2.Protocol.Aion2Pets.ProgressNeeded(pet.Level)}");
             }
 
+            if (petDirectory.LocalTarget is { } target)
+            {
+                var petsOfTarget = target.NpcId is int tn ? Aion2.Protocol.Aion2Pets.PetsOfNpc(tn) : Array.Empty<int>();
+                Console.WriteLine($"aion2-replay: last marked monster: entity {target.EntityId}, npc {target.NpcId} ({(target.NpcId is int n2 ? Aion2.Protocol.Aion2Npcs.NameOf(n2, "en") : "?")}) -> pet(s) " +
+                    string.Join(", ", petsOfTarget.Select(p => Aion2.Protocol.Aion2Pets.PetName(p, "de"))));
+            }
+
             if (File.Exists(petLog))
             {
                 Console.WriteLine("aion2-replay: pet farm log:");

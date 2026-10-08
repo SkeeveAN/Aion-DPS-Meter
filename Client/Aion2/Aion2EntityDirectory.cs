@@ -311,6 +311,39 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         NotifyCharacterChanged();
     }
 
+    private (int EntityId, DateTime At)? _target;
+
+    /// <summary>The monster the local player marked last (tab or click), with the time it was marked; null before any or after it died.</summary>
+    public (int EntityId, int? NpcId, DateTime At)? LocalTarget
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _target is { } t ? (t.EntityId, _npcIds.TryGetValue(t.EntityId, out int npc) ? npc : null, t.At) : null;
+            }
+        }
+    }
+
+    public void SetLocalTarget(int entityId)
+    {
+        lock (_gate)
+        {
+            _target = (entityId, DateTime.UtcNow);
+        }
+    }
+
+    public void ClearLocalTarget(int entityId)
+    {
+        lock (_gate)
+        {
+            if (_target is { } t && t.EntityId == entityId)
+            {
+                _target = null;
+            }
+        }
+    }
+
     /// <summary>The NPC id a monster was announced with, when its spawn frame was seen.</summary>
     public int? NpcIdOf(int entityId)
     {

@@ -89,6 +89,23 @@ public static class PetFarmLog
         Write($"{(expected ? "SOUL" : "SOUL UNEXPECTED")} {pet} (pet {petId}, item {itemId}) x{quantity} after: {killed}");
     }
 
+    private static readonly HashSet<int> LoggedNpcs = new();
+
+    /// <summary>A monster the player marked that leads to no pet: logged once per monster and session, so the log lists the monsters the table lacks.</summary>
+    public static void NoteUnknownMonster(int npcId)
+    {
+        bool first;
+        lock (Gate)
+        {
+            first = LoggedNpcs.Add(npcId);
+        }
+
+        if (first)
+        {
+            Write($"SEEN no pet for the marked monster '{Aion2Npcs.NameOf(npcId, "en") ?? "?"}' [{npcId}]");
+        }
+    }
+
     /// <summary>A name read from the screen that is no pet monster: logged once per name and session, so the log lists what the table lacks.</summary>
     public static void NoteUnknownName(string name)
     {

@@ -138,6 +138,9 @@ public sealed class Aion2FrameDecoder
                 DecodePetList(frame);
                 DecodeSpecies(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.TargetSelect:
+                DecodeTargetSelect(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.InventoryChange:
                 DecodeInventoryChange(frame, timestamp);
                 return Array.Empty<DamageEvent>();
@@ -726,6 +729,11 @@ public sealed class Aion2FrameDecoder
         if (current is long hp && hp >= 0)
         {
             _entities.HitPoints.Note(unchecked((int)entityId), timestamp, hp);
+            if (hp == 0)
+            {
+                _entities.ClearLocalTarget(unchecked((int)entityId)); // a dead monster is no target any more
+            }
+
             if (hp == 0 && _entities.NpcIdOf(unchecked((int)entityId)) is int died)
             {
                 PetFarmLog.NoteDeath(unchecked((int)entityId), died, timestamp); // the pet farm log pairs a soul with the monsters that died just before it
@@ -768,6 +776,16 @@ public sealed class Aion2FrameDecoder
         }
 
         _entities.SetLocalPetStates(levels.Select(l => new Aion2PetState(l.Id, l.Level, progress.GetValueOrDefault(l.Id))).ToList());
+    }
+
+    /// <summary>The local player marked a monster (see <see cref="OpcodeFamily.TargetSelect"/>): remembered as the current target.</summary>
+    private void DecodeTargetSelect(ReadOnlySpan<byte> frame)
+    {
+        int p = 2;
+        if (TryReadVarint(frame, ref p, out long entityId) && frame.Length - p <= 3)
+        {
+            _entities.SetLocalTarget(unchecked((int)entityId));
+        }
     }
 
     /// <summary>

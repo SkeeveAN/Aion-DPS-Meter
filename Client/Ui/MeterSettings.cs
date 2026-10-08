@@ -183,6 +183,9 @@ public sealed class MeterSettings
     /// <summary>The pets whose monsters the pet map shows (pet ids). Empty until the player picks some.</summary>
     public List<int> PetMapPets { get; set; } = new();
 
+    /// <summary>Also read the name on the target plate from the screen when the game's own mark message has not been seen (off: only the packet is used, nothing is captured).</summary>
+    public bool PetFarmScreenFallback { get; set; }
+
     public double? PetFarmLeft { get; set; }
 
     public double? PetFarmTop { get; set; }
