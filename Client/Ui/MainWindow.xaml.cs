@@ -367,8 +367,11 @@ public partial class MainWindow : Window
     /// (Re)starts the Aion 2 packet capture with the given settings (adapter, own character name) -
     /// called once at startup and again after Settings is saved.
     /// </summary>
+    private string? _captureAdapterInUse;
+
     private void StartCapture(MeterSettings settings)
     {
+        _captureAdapterInUse = settings.CaptureAdapterId;
         _pollTimer.Stop();
         ReplaceSource(null);
 
@@ -3547,7 +3550,10 @@ public partial class MainWindow : Window
             ApplyTimetable(settings);
             ApplyPetFarm(settings);
             ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
-            StartCapture(settings); // possibly a new/changed AionInstallFolder
+            if (settings.CaptureAdapterId != _captureAdapterInUse)
+            {
+                StartCapture(settings); // only a new network adapter needs a new capture: a restart forgets the map, the position and the pets of the running game
+            }
             InitializeFightHistory(settings); // possibly toggled recording
             RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
             ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
