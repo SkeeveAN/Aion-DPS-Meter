@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.15.9",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Pet progress and levels follow the game's own messages (progress gained, level reached, pet added), so the counter stays right through restarts and level-ups; replays no longer write into the real pet-farm.log",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.15.8",
   "date": "2026-10-08",
   "items": [
