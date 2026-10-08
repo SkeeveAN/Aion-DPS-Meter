@@ -145,42 +145,7 @@
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource Brush.TextSubtle}"/>
         </Style>
-        <!-- Same dark ScrollBar fix as MainWindow - this window's own ScrollViewer can show one
-             once the settings list grows past the window height. -->
-        <Style x:Key="DarkScrollThumb" TargetType="Thumb">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Thumb">
-                        <Border Background="{DynamicResource Brush.ScrollThumb}" CornerRadius="2"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="ScrollBar">
-            <Setter Property="Background" Value="{DynamicResource Brush.Window}"/>
-            <Setter Property="Width" Value="12"/>
-            <Setter Property="Height" Value="12"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ScrollBar">
-                        <Grid Background="{TemplateBinding Background}">
-                            <Track x:Name="PART_Track" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True">
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0"/>
-                                </Track.DecreaseRepeatButton>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0"/>
-                                </Track.IncreaseRepeatButton>
-                                <Track.Thumb>
-                                    <Thumb Style="{StaticResource DarkScrollThumb}" Margin="2"/>
-                                </Track.Thumb>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <!-- Same dark ComboBox fix as MainWindow (see its Window.Resources comment for why a
+                <!-- Same dark ComboBox fix as MainWindow (see its Window.Resources comment for why a
              Background/Foreground setter alone doesn't do it) - ThemeBox/FontSizeBox were
              rendering with WPF's default light-theme chrome and popup otherwise. -->
         <Style TargetType="ComboBoxItem">
@@ -611,10 +576,8 @@
                         <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetInfo.Title}"/>
-                                <CheckBox x:Name="ShowPetFarmBox" Content="{local:Loc Settings.PetInfo.Show}" ToolTip="{local:Loc Settings.PetFarm.HintTip}"/>
+                                <CheckBox x:Name="ShowPetFarmBox" Content="{local:Loc Settings.PetInfo.Show}"/>
                                 <CheckBox x:Name="PetFarmLockedBox" Content="{local:Loc Settings.PetFarm.Locked}" Margin="0,4,0,0"/>
-                                <TextBlock Text="{local:Loc Settings.PetFarm.Hint}" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,0"
-                                           Foreground="{DynamicResource Brush.TextSubtle}"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">

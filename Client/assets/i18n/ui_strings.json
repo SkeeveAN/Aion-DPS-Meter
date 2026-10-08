@@ -1943,12 +1943,6 @@
     "fr": "Afficher le niveau du pet du monstre ciblé",
     "es": "Mostrar el nivel de la mascota del monstruo objetivo"
   },
-  "Settings.PetFarm.Hint": {
-    "en": "Reads the monster's name from the game's target plate on screen; the picture stays in memory, nothing is saved or uploaded.",
-    "de": "Liest den Namen des Monsters von der Zielplakette auf dem Bildschirm; das Bild bleibt im Arbeitsspeicher, nichts wird gespeichert oder hochgeladen.",
-    "fr": "Lit le nom du monstre sur la plaque de cible à l'écran ; l'image reste en mémoire, rien n'est enregistré ni envoyé.",
-    "es": "Lee el nombre del monstruo en la placa de objetivo en pantalla; la imagen queda en memoria, no se guarda ni se envía."
-  },
   "PetFarm.Level": {
     "en": "Level {0}",
     "de": "Stufe {0}",
@@ -1974,10 +1968,10 @@
     "es": "nivel desconocido (inicia sesión con el meter en marcha)"
   },
   "Settings.PetFarm.Locked": {
-    "en": "Overlays locked (off: move and scale them – also applies to the map)",
-    "de": "Overlays gesperrt (aus: verschieben, vergrößern – gilt auch für die Karte)",
-    "fr": "Overlays verrouillés (désactivé : déplacer, agrandir – vaut aussi pour la carte)",
-    "es": "Overlays bloqueados (desactivado: mover, ampliar – también para el mapa)"
+    "en": "Overlay locked (off: move and scale it)",
+    "de": "Overlay gesperrt (aus: verschieben, vergrößern)",
+    "fr": "Overlay verrouillé (désactivé : déplacer, agrandir)",
+    "es": "Overlay bloqueado (desactivado: mover, ampliar)"
   },
   "PetFarm.Placeholder": {
     "en": "Pet farming overlay (drag to move)",
@@ -2066,9 +2060,5 @@
     "de": "Suchen …",
     "fr": "Rechercher …",
     "es": "Buscar …"
-  },
-  "Settings.PetFarm.HintTip": {
-    "en": "Stays invisible without a target or a pet. A log of unknown monsters and pet souls is kept in pet-farm.log next to the settings.",
-    "de": "Ohne Ziel oder ohne Pet bleibt es unsichtbar. Ein Protokoll unbekannter Monster und Pet-Seelen liegt in pet-farm.log neben den Einstellungen."
   }
 }

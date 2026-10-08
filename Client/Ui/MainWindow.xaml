@@ -209,45 +209,7 @@
             <Setter Property="BorderThickness" Value="0,0,1,1"/>
             <Setter Property="Padding" Value="6,4"/>
         </Style>
-        <!-- The other bright spot terminal_windows measured (#CDCDCD): WPF's default ScrollBar
-             chrome, which appears once the player list has more rows than fit. Minimal track +
-             thumb template, no visible arrow buttons (a deliberate simplification, not an
-             oversight - the invisible full-length RepeatButtons still make clicking the empty
-             track above/below the thumb page-scroll normally, they're just not drawn). -->
-        <Style x:Key="DarkScrollThumb" TargetType="Thumb">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Thumb">
-                        <Border Background="{DynamicResource Brush.ScrollThumb}" CornerRadius="2"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="ScrollBar">
-            <Setter Property="Background" Value="{DynamicResource Brush.Window}"/>
-            <Setter Property="Width" Value="12"/>
-            <Setter Property="Height" Value="12"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ScrollBar">
-                        <Grid Background="{TemplateBinding Background}">
-                            <Track x:Name="PART_Track" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True">
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0"/>
-                                </Track.DecreaseRepeatButton>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0"/>
-                                </Track.IncreaseRepeatButton>
-                                <Track.Thumb>
-                                    <Thumb Style="{StaticResource DarkScrollThumb}" Margin="2"/>
-                                </Track.Thumb>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="ComboBox">
+                <Style TargetType="ComboBox">
             <Setter Property="Margin" Value="4,2"/>
             <Setter Property="MinWidth" Value="110"/>
             <!-- Per the user: the closed box previously matched the surrounding toolbar/window
