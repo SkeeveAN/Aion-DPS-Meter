@@ -56,6 +56,8 @@ public enum OpcodeFamily
     InventoryChange,
     /// <summary>The local player marked a monster (tab or click): <c>opcode | entity id (varint) | 00 00</c>, followed by a second frame (0x3438) with the same id. Seen in recordings where the mark was moved between known monsters.</summary>
     TargetSelect,
+    /// <summary>A position frame of an entity (<c>opcode | entity id (varint) | 03 | x f32 | y f32 ...</c>, sent at skills, hits and corrections); only the local player's is kept for the pet map.</summary>
+    LocalPosition,
     /// <summary>The titles the local player wears (slot 1..3 with the title id), sent at login and on a change.</summary>
     Titles,
     /// <summary>The local player's skills that have specialisation variants: the five-variant ones are the

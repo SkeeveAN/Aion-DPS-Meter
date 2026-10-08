@@ -186,6 +186,19 @@ public sealed class MeterSettings
     /// <summary>Also read the name on the target plate from the screen when the game's own mark message has not been seen (off: only the packet is used, nothing is captured).</summary>
     public bool PetFarmScreenFallback { get; set; }
 
+    /// <summary>Place and size of the pet map window and of the pet list window (each on its own).</summary>
+    public double? PetMapLeft { get; set; }
+
+    public double? PetMapTop { get; set; }
+
+    public double PetMapScale { get; set; } = 1.0;
+
+    public double? PetListLeft { get; set; }
+
+    public double? PetListTop { get; set; }
+
+    public double PetListScale { get; set; } = 1.0;
+
     public double? PetFarmLeft { get; set; }
 
     public double? PetFarmTop { get; set; }

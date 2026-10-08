@@ -2150,5 +2150,25 @@
     "pl": "{0} wł. · {1} petów · {2} na maks.",
     "tr": "{0} açık · {1} pet · {2} maksimumda",
     "zh": "{0} 已启用 · {1} 只宠物 · {2} 满级"
+  },
+  "PetFarm.New": {
+    "en": "new",
+    "de": "neu",
+    "fr": "nouveau",
+    "es": "nuevo",
+    "ru": "новый",
+    "pl": "nowy",
+    "tr": "yeni",
+    "zh": "新"
+  },
+  "PetMap.Placeholder": {
+    "en": "Pet list (drag to move)",
+    "de": "Pet-Liste (zum Verschieben ziehen)",
+    "fr": "Liste des pets (glisser pour déplacer)",
+    "es": "Lista de mascotas (arrastra para mover)",
+    "ru": "Список питомцев (перетащите)",
+    "pl": "Lista petów (przeciągnij)",
+    "tr": "Pet listesi (taşımak için sürükle)",
+    "zh": "宠物列表（拖动移动）"
   }
 }

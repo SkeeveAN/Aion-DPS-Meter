@@ -230,6 +230,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-petmap")
+        {
+            RunRenderPetMapMode(args.Length > 1 ? args[1] : "petmap.png", args.Length > 2 ? args[2] : "verteron", args.Length > 4 ? double.Parse(args[3]) : -215789, args.Length > 4 ? double.Parse(args[4]) : 262953);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "petfarm-read")
         {
             if (args.Length < 2)
@@ -885,6 +891,48 @@ internal static class Program
         }
     }
 
+    private static void RunRenderPetMapMode(string path, string mapKey, double x, double y)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        var map = Aion2.Protocol.Aion2Maps.All.First(m => m.Key == mapKey);
+        var chosen = settings.PetMapPets.Count > 0 ? settings.PetMapPets.ToHashSet() : new HashSet<int> { 1170, 1162, 1171, 1219 };
+        var points = Aion2.Protocol.Aion2Maps.PointsOf(map, chosen);
+        var pets = points.Select(p => p.PetId).Distinct().OrderBy(i => i).ToList();
+        var colors = pets.Select((id, i) => (id, i)).ToDictionary(t => t.id, t => Ui.PetMapPalette.Of(t.i));
+        var window = new Ui.PetMapWindow();
+        window.Render(map, x, y, settings.PetMapRadius, settings.PetMapOpacity, points.ToList(), colors);
+        var list = new Ui.PetListWindow();
+        list.Render(pets.Select(id => (colors[id], Aion2.Protocol.Aion2Pets.PetName(id, "de") ?? "?", "Stufe 2 · 22/75", "104 m")).ToList());
+        var visual = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x36, 0x2c)) };
+        foreach (var overlay in new System.Windows.Window[] { window, list })
+        {
+            var content = (System.Windows.UIElement)overlay.Content;
+            overlay.Content = null;
+            visual.Children.Add(content);
+        }
+
+        visual.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+        visual.Arrange(new System.Windows.Rect(visual.DesiredSize));
+        visual.UpdateLayout();
+        int w = (int)Math.Ceiling(visual.DesiredSize.Width), h = (int)Math.Ceiling(visual.DesiredSize.Height);
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(visual);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine($"render-petmap: wrote {path} ({points.Count} points of {pets.Count} pets on {map.Title}); tiles shown {window.TilesShown}: {window.TileDebug}");
+        Environment.Exit(0);
+    }
+
     private static void RunPetFarmReadMode(string path, string language)
     {
         using var frame = new System.Drawing.Bitmap(path);
@@ -980,6 +1028,13 @@ internal static class Program
             Console.WriteLine($"aion2-replay: players that dealt damage or healed: {actors.Count}, faction known for {actors.Count(id => petDirectory.FactionOf(id) is not null)} ({actors.Count(id => petDirectory.FactionOf(id) == "Asmodian")} Asmodian)");
             Console.WriteLine($"aion2-replay: of {unknownNames.Count} unknown, {unknownNames.Count(kv => petDirectory.IsKnownPlayer(kv.Key))} are known players, {unknownNames.Count(kv => petDirectory.NpcIdOf(kv.Key) is not null)} are npcs");
             Console.WriteLine("aion2-replay: factions of the named players: " + string.Join(", ", factions.Select(kv => $"{kv.Key} {kv.Value}")));
+            var detected = Aion2.Protocol.Aion2Maps.Detect(petDirectory.RecentMobPositions());
+            Console.WriteLine($"aion2-replay: map detected from the last {petDirectory.RecentMobPositions().Count} monsters: {detected?.Title ?? "none"}; own position {(petDirectory.LocalPosition is { } lp ? $"({lp.X:0}, {lp.Y:0})" : "unknown")}");
+            foreach (var mob in petDirectory.RecentMobPositions().TakeLast(6))
+            {
+                Console.WriteLine($"aion2-replay:   recent monster {Aion2.Protocol.Aion2Npcs.NameOf(mob.NpcId, "en") ?? "?"} [{mob.NpcId}] at ({mob.X:0}, {mob.Y:0}), pets {string.Join("/", Aion2.Protocol.Aion2Pets.PetsOfNpc(mob.NpcId))}");
+            }
+
             if (petDirectory.LocalTarget is { } target)
             {
                 var petsOfTarget = target.NpcId is int tn ? Aion2.Protocol.Aion2Pets.PetsOfNpc(tn) : Array.Empty<int>();

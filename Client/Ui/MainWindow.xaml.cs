@@ -115,6 +115,7 @@ public partial class MainWindow : Window
     private TimetableWindow? _timetable;
     private PetFarmWindow? _petFarm;
     private PetFarmController? _petFarmController;
+    private PetMapController? _petMapController;
     private bool _autoReset;
     /// <summary>Whose rows are shown: everybody, the own group, or the corps (two groups together).</summary>
     private enum MeterScope { All, Group, Corps }
@@ -580,6 +581,7 @@ public partial class MainWindow : Window
         // The timetable overlay always sits above the meter: raised right after it, in the same tick.
         _timetable?.RaiseToFront();
         _petFarm?.RaiseToFront();
+        _petMapController?.RaiseToFront();
 
         // Every five seconds is plenty: a fight only counts as finished 120 s after its last hit.
         if (++_historyTickCounter >= 5)
@@ -854,6 +856,7 @@ public partial class MainWindow : Window
         _timetable?.Close();
         _petFarmController?.Dispose();
         _petFarm?.Close();
+        _petMapController?.Dispose();
         _trayIcon?.Dispose();
         base.OnClosed(e);
     }
@@ -3826,6 +3829,18 @@ public partial class MainWindow : Window
         if (Headless)
         {
             return;
+        }
+
+        // the pet map (with its list) has its own switch
+        if (settings.ShowPetMap)
+        {
+            _petMapController ??= new PetMapController(() => _source?.Entities as Aion2EntityDirectory);
+            _petMapController.ApplyLocked(settings.PetFarmLocked);
+        }
+        else if (_petMapController is not null)
+        {
+            _petMapController.Dispose();
+            _petMapController = null;
         }
 
         if (!settings.ShowPetFarm)

@@ -140,6 +140,9 @@ public sealed class Aion2FrameDecoder
                 DecodePetList(frame);
                 DecodeSpecies(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.LocalPosition:
+                DecodeLocalPosition(frame, timestamp);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.TargetSelect:
                 DecodeTargetSelect(frame);
                 return Array.Empty<DamageEvent>();
@@ -360,6 +363,16 @@ public sealed class Aion2FrameDecoder
         _entities.NoteSpawned(unchecked((int)entityId));
         _entities.RegisterNpc(unchecked((int)entityId), npcId);
         _entities.SetSummonOwnerName(unchecked((int)entityId), ownerName);
+        if (frame.Length >= p + 14)
+        {
+            // where the monster stands: the pet map recognises the map from the pet monsters around the player
+            float mx = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 6)..]);
+            float my = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 10)..]);
+            if (float.IsFinite(mx) && float.IsFinite(my) && Math.Abs(mx) < 1_000_000 && Math.Abs(my) < 1_000_000)
+            {
+                _entities.NoteMobPosition(npcId, mx, my);
+            }
+        }
 
         // Further on: eight FF bytes, eight more bytes, then the owner's id (varint). An ordinary
         // monster names itself there; a summoned spirit names the player who summoned it (verified on
@@ -778,6 +791,23 @@ public sealed class Aion2FrameDecoder
         }
 
         _entities.SetLocalPetStates(levels.Select(l => new Aion2PetState(l.Id, l.Level, progress.GetValueOrDefault(l.Id))).ToList());
+    }
+
+    /// <summary>The position of the local player (see <see cref="OpcodeFamily.LocalPosition"/>): the pet map follows it.</summary>
+    private void DecodeLocalPosition(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long entityId) || frame.Length < p + 9 || frame[p] != 3 || !_entities.IsLocalPlayer(unchecked((int)entityId)))
+        {
+            return;
+        }
+
+        float x = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 1)..]);
+        float y = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 5)..]);
+        if (float.IsFinite(x) && float.IsFinite(y) && Math.Abs(x) < 1_000_000 && Math.Abs(y) < 1_000_000)
+        {
+            _entities.NoteLocalPosition(x, y);
+        }
     }
 
     /// <summary>The local player marked a monster (see <see cref="OpcodeFamily.TargetSelect"/>): remembered as the current target.</summary>

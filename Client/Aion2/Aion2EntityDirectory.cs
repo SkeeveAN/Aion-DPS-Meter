@@ -176,6 +176,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
         if (renamedFrom is int oldId)
         {
+            ForgetPlace();
             LocalIdChanged?.Invoke(oldId, info.CombatId);
         }
 
@@ -325,6 +326,60 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
 
         NotifyCharacterChanged();
+    }
+
+    private (float X, float Y, DateTime At)? _position;
+    private readonly Queue<(int NpcId, float X, float Y)> _mobPositions = new();
+
+    /// <summary>The last known position of the local player (world units, 100 per metre) and when it was reported; null before any.</summary>
+    public (float X, float Y, DateTime At)? LocalPosition
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _position;
+            }
+        }
+    }
+
+    public void NoteLocalPosition(float x, float y)
+    {
+        lock (_gate)
+        {
+            _position = (x, y, DateTime.UtcNow);
+        }
+    }
+
+    /// <summary>The monsters announced most recently with their place (the last 60), to tell which map the player is on.</summary>
+    public void NoteMobPosition(int npcId, float x, float y)
+    {
+        lock (_gate)
+        {
+            _mobPositions.Enqueue((npcId, x, y));
+            while (_mobPositions.Count > 60)
+            {
+                _mobPositions.Dequeue();
+            }
+        }
+    }
+
+    public IReadOnlyList<(int NpcId, float X, float Y)> RecentMobPositions()
+    {
+        lock (_gate)
+        {
+            return _mobPositions.ToArray();
+        }
+    }
+
+    /// <summary>A new map: what was learnt about the old one no longer applies.</summary>
+    public void ForgetPlace()
+    {
+        lock (_gate)
+        {
+            _position = null;
+            _mobPositions.Clear();
+        }
     }
 
     private (int EntityId, DateTime At)? _target;

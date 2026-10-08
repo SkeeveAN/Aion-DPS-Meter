@@ -1,0 +1,34 @@
+{
+ "maps": {
+  "verteron": {
+   "title": "Verteron",
+   "table": "World/World_L/World_L_A",
+   "tile": 2048,
+   "grid": 8,
+   "scale": 0.019583509634873143,
+   "offsetX": 8070.937975984913,
+   "offsetY": 8307.450753846877,
+   "tiles": 26
+  },
+  "altgard": {
+   "title": "Altgard",
+   "table": "World/World_D/World_D_A",
+   "tile": 1024,
+   "grid": 8,
+   "scale": 0.0098227439264612,
+   "offsetX": 4137.781824319782,
+   "offsetY": 4062.9907075320293,
+   "tiles": 34
+  },
+  "abyss": {
+   "title": "Abyss",
+   "table": "Intersever/Abyss/Abyss_Reshanta_A",
+   "tile": 1024,
+   "grid": 4,
+   "scale": 0.009878286530741168,
+   "offsetX": 2047.1930445744983,
+   "offsetY": 2056.9061147139305,
+   "tiles": 4
+  }
+ }
+}
