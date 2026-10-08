@@ -1,5 +1,17 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Every participant shows the faction of their server (Elyos and Asmodians never share a server), also where the client did not send one",
+    "areas": [
+     "Backend"
+    ]
+   }
+  ]
+ },
+ {
   "version": "0.13.2",
   "date": "2026-10-08",
   "items": [
