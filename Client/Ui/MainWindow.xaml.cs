@@ -3736,10 +3736,10 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>In overlay mode the chips sit exactly where the player list sits in the normal window
-    /// (same left edge, top and width), so switching only drops the frame and nothing changes size.
-    /// Measured while the normal content is still visible; kept for the time it is hidden.</summary>
-    private double _overlayLeft, _overlayTop, _overlayRightInset;
+    /// <summary>In overlay mode the chips keep the player list's left edge and width, but move up to the
+    /// window's top edge, where the title bar ("Aion DPS" + version) was; switching drops the frame and
+    /// nothing changes size. Measured while the normal content is still visible; kept for the time it is hidden.</summary>
+    private double _overlayLeft, _overlayRightInset;
 
     private void UpdateOverlayWidth()
     {
@@ -3747,11 +3747,10 @@ public partial class MainWindow : Window
         {
             Point origin = PlayersGrid.TranslatePoint(new Point(0, 0), this);
             _overlayLeft = origin.X;
-            _overlayTop = origin.Y;
             _overlayRightInset = Math.Max(0, ActualWidth - origin.X - PlayersGrid.ActualWidth);
         }
 
-        OverlayContent.Margin = new Thickness(_overlayLeft, _overlayTop, 0, 0);
+        OverlayContent.Margin = new Thickness(_overlayLeft, 4, 0, 0);
         OverlayContent.Width = Math.Max(ActualWidth - _overlayLeft - _overlayRightInset, 120);
     }
 
