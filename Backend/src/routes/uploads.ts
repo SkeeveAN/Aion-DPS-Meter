@@ -6,6 +6,7 @@ import { uploads } from "../db/schema.js";
 import { clearPageCache } from "../seo/cache.js";
 
 import { hashIp } from "../ipHash.js";
+import { MIN_KILL_DAMAGE_SHARE } from "../constants.js";
 
 export async function uploadRoutes(app: FastifyInstance) {
   // Aion 2 players without a boss fight (a client that read characters but killed nothing). The
@@ -57,6 +58,16 @@ export async function uploadRoutes(app: FastifyInstance) {
     if (selfCount !== 1) {
       app.log.warn({ selfCount, bossNpcName: payload.bossNpcName }, "upload rejected: not exactly one self participant");
       return reply.status(400).send({ error: "exactly_one_self_participant_required" });
+    }
+
+    // A fight counts only when the group took the boss down: the damage dealt has to add up to (nearly)
+    // all of the boss's hit points. Otherwise two failed 50 % attempts - or an empty run - would pass
+    // as one kill. The client sends the boss's highest hit-point reading; without it nothing proves
+    // the fight was a whole one.
+    const groupDamage = payload.participants.reduce((sum, p) => sum + p.totalDamage, 0);
+    if (payload.bossMaxHp === undefined || groupDamage < payload.bossMaxHp * MIN_KILL_DAMAGE_SHARE) {
+      app.log.warn({ groupDamage, bossMaxHp: payload.bossMaxHp, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: damage does not cover the boss's hit points");
+      return reply.status(400).send({ error: "boss_not_killed", groupDamage, bossMaxHp: payload.bossMaxHp ?? null });
     }
 
     const uploaderReportedName = payload.participants.find((p) => p.isSelf)!.name;

@@ -173,6 +173,9 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.NpcSpawn:
                 DecodeNpcSpawn(frame, timestamp);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.NpcRemove:
+                DecodeNpcRemove(frame, timestamp);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Nickname:
                 DecodeNickname(frame, fields, layout.LittleEndian);
                 return Array.Empty<DamageEvent>();
@@ -335,6 +338,23 @@ public sealed class Aion2FrameDecoder
     /// little-endian uint32 (verified on a Krao Cave run: 2300104 = Enhanced Harcon). Only boss ids
     /// are kept - see <see cref="Aion2BossCatalog"/>.
     /// </summary>
+    /// <summary>
+    /// "A monster disappears": opcode | entity id (varint) | 00 | reason. Reason 3 follows a monster's
+    /// death (a few seconds after its hit points read 0), 7 a monster that vanished alive - the
+    /// instance was closed because the group took too long (Talisra, 2026-10-07: back to full health,
+    /// gone 65 s later). Only a boss entity's reason is of use (see Aion2EntityDirectory.RemovalOf).
+    /// </summary>
+    private void DecodeNpcRemove(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long entityId) || frame.Length != p + 2)
+        {
+            return;
+        }
+
+        _entities.NoteRemoved(unchecked((int)entityId), frame[^1], timestamp);
+    }
+
     private void DecodeNpcSpawn(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;

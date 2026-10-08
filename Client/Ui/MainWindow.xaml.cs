@@ -1748,6 +1748,15 @@ public partial class MainWindow : Window
             }
         }
 
+        // Only a whole fight is uploaded (the server rejects anything else as "boss_not_killed"): the
+        // boss must have been seen dying, and the damage dealt has to cover its hit points - else two
+        // failed attempts would pass as one kill. The hit-point frames are the only fight-end signal
+        // the protocol decodes so far.
+        if (_source?.Entities is Aion2EntityDirectory directory && !BossKilledWithFullDamage(directory, targetId, targetHits))
+        {
+            return null;
+        }
+
         // Kept separate from the UTC startedAt/endedAt below (those are for the outgoing payload's
         // own fields): heals never target the boss, so they can only be scoped to this encounter by
         // time window, and that window has to be compared against DamageEvent.Timestamp's own
@@ -2340,7 +2349,39 @@ public partial class MainWindow : Window
             return true;
         }
 
-        return latest.Hp <= (hitPoints.HighestSeen(targetId) ?? 0) * 0.005;
+        return BossDied(_source!.Entities as Aion2EntityDirectory, hitPoints, targetId, latest);
+    }
+
+    /// <summary>The boss died: its last hit-point reading is 0 (or within 0.5 % of it), or the server removed it
+    /// as dead (reason 3) - which covers a lost final reading. A boss that read 100 % again or vanished alive
+    /// (reason 7, the instance was closed) did not die.</summary>
+    private static bool BossDied(Aion2EntityDirectory? directory, Aion2HitPoints hitPoints, int targetId, HpSample latest)
+    {
+        if (latest.Hp <= (hitPoints.HighestSeen(targetId) ?? 0) * 0.005)
+        {
+            return true;
+        }
+
+        return directory?.RemovalOf(targetId) is { Reason: Aion2EntityDirectory.RemovedDead };
+    }
+
+    /// <summary>Same limit the server applies (constants.ts MIN_KILL_DAMAGE_SHARE).</summary>
+    private const double MinKillDamageShare = 0.9;
+
+    /// <summary>
+    /// Whether the boss was seen dying (see <see cref="BossDied"/>) and the
+    /// hits on it add up to at least <see cref="MinKillDamageShare"/> of its highest reading. No
+    /// reading at all counts as "not proven" - an empty run slipped through that way (Run 421).
+    /// </summary>
+    private static bool BossKilledWithFullDamage(Aion2EntityDirectory directory, int targetId, List<DamageEvent> targetHits)
+    {
+        Aion2HitPoints hitPoints = directory.HitPoints;
+        if (hitPoints.HighestSeen(targetId) is not (> 0 and long maxHp) || hitPoints.Latest(targetId) is not { } latest)
+        {
+            return false;
+        }
+
+        return BossDied(directory, hitPoints, targetId, latest) && targetHits.Sum(e => (double)e.Amount) >= maxHp * MinKillDamageShare;
     }
 
     private void NoteBossesToUpload(IEnumerable<int> bossEntityIds)

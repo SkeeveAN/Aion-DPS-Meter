@@ -74,6 +74,9 @@ public enum OpcodeFamily
     Kill,
     Avoid,
     NpcSpawn,
+    /// <summary>"A monster disappears": entity id (varint), a zero byte and a reason byte - 3 after the monster died,
+    /// 7 when it vanished alive (an aborted instance). Seen on the recordings of 2026-10-07.</summary>
+    NpcRemove,
     Zone,
 }
 

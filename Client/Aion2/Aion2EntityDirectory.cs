@@ -667,12 +667,38 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     // Every entity announced by the monster-appears frame: monsters and summons, never players.
     private readonly HashSet<int> _spawned = new();
 
-    /// <summary>Notes that the server announced this entity as a monster (or a summon).</summary>
+    /// <summary>Notes that the server announced this entity as a monster (or a summon). An entity id is
+    /// reused, so a new spawn wipes the removal of an earlier one.</summary>
     public void NoteSpawned(int entityId)
     {
         lock (_gate)
         {
             _spawned.Add(entityId);
+            _removed.Remove(entityId);
+        }
+    }
+
+    /// <summary>Why and when a monster disappeared; reason 3 = it died, 7 = it vanished alive.</summary>
+    public readonly record struct Removal(DateTime At, byte Reason);
+
+    public const byte RemovedDead = 3;
+
+    private readonly Dictionary<int, Removal> _removed = new();
+
+    public void NoteRemoved(int entityId, byte reason, DateTime at)
+    {
+        lock (_gate)
+        {
+            _removed[entityId] = new Removal(at, reason);
+        }
+    }
+
+    /// <summary>The removal of the monster's current spawn, or null while it is still there.</summary>
+    public Removal? RemovalOf(int entityId)
+    {
+        lock (_gate)
+        {
+            return _removed.TryGetValue(entityId, out Removal removal) ? removal : null;
         }
     }
 

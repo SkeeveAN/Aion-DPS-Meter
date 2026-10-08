@@ -75,3 +75,10 @@ export const CATEGORY_MODES: Readonly<Record<string, readonly string[]>> = {
   ascension: ["easy", "medium", "hard", "extreme"],
   transcendence: ["1", "2", "3", "4"],
 };
+
+/**
+ * How much of the boss's hit points the uploaded damage has to cover for a fight to count as a kill.
+ * Real kills in the data sit between 90 % and 110 % (overkill and the odd lost packet); nothing lies
+ * between 80 % and 90 %, while failed attempts stay far below.
+ */
+export const MIN_KILL_DAMAGE_SHARE = 0.9;
