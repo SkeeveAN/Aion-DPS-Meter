@@ -11,3 +11,7 @@ with `Tools/aion2-icons` Extract: `dump <out> "WorldMap/World_L_A/Res/World_L_A_
 - **Output:** `Karte_<Name>.png` (4096, transparent) and `<Name>_tiles/<col>_<row>.webp` (native resolution, alpha) next to the old pictures.
 - **World coordinates -> map:** not calibrated yet with the right tile layout (the first fit used the wrong layout); fit again with the spawn points
   in `Client/assets/aion2/pets/spawns.json` before the maps are used for positions.
+
+## Calibration (2026-10-08)
+`calibration.json`: Verteron (`World_L_A`) is fitted - image px = offset + scale x world coordinate, no flip or rotation (see the file). Altgard and
+Abyss still need two or three known places (position of the player from a recording + the same place in the map) before they can be fitted.

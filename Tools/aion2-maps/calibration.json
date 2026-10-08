@@ -1,0 +1,13 @@
+{
+ "Verteron": {
+  "world": "World/World_L/World_L_A",
+  "note": "image px = offset + scale * world coordinate (x -> right, y -> down), no flip or rotation; the composite is 2048 px wide for the 8x8 tiles, multiply by 8 for the native 16384 px map",
+  "scale_px_per_unit_2048": 0.002572795232529665,
+  "offset_x_2048": 1013.8990713284929,
+  "offset_y_2048": 1035.473591406205,
+  "scale_px_per_unit_native": 0.02058236186023732,
+  "offset_x_native": 8111.1925706279435,
+  "offset_y_native": 8283.78873124964,
+  "fit": "95.6 % of 5272 pet-monster spawn points on land; checked with three places of a recording: Insel der Ewigkeit, Zumionstaett, the purple forest west of Suedlicher Tolbaswald (accuracy about 100 m)"
+ }
+}
