@@ -611,6 +611,11 @@ internal static class Program
             nav.IsChecked = true;
         }
 
+        if (Environment.GetEnvironmentVariable("AIONDPS_LONGEST_PETS") is { Length: > 0 } longest && int.TryParse(longest, out int longestCount))
+        {
+            window.ShowLongestPetNames(longestCount); // layout check: the pets with the longest names in this language
+        }
+
         const double width = 620, height = 740;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));

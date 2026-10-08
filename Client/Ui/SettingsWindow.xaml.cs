@@ -480,12 +480,26 @@ public partial class SettingsWindow : Window
         PetTotalText.Text = string.Format(LocalizationManager.Instance["Settings.PetMap.Total"], total.On, total.All);
     }
 
+    private List<(int PetId, string Name)>? _petRowsTest;
+
+    /// <summary>For layout checks (render-settings): lists the pets with the longest names of every species instead of the chosen species.</summary>
+    internal void ShowLongestPetNames(int count)
+    {
+        _petRowsTest = Aion2Pets.Species.SelectMany(PetsOfSpecies).OrderByDescending(p => p.Name.Length).Take(count).ToList();
+        foreach (var (id, _) in _petRowsTest.Where((_, i) => i % 2 == 0))
+        {
+            _petPicked.Add(id);
+        }
+
+        BuildPetRows();
+    }
+
     private void BuildPetRows()
     {
         PetRows.Children.Clear();
         string filter = PetSearchBox.Text.Trim();
         // a search looks through every species, otherwise the chosen one is shown
-        var pets = (filter.Length > 0 ? Aion2Pets.Species.SelectMany(PetsOfSpecies) : PetsOfSpecies(_petSpecies))
+        var pets = (_petRowsTest ?? (filter.Length > 0 ? Aion2Pets.Species.SelectMany(PetsOfSpecies) : PetsOfSpecies(_petSpecies)))
             .Where(p => filter.Length == 0 || p.Name.Contains(filter, StringComparison.CurrentCultureIgnoreCase))
             .ToList();
         foreach ((int petId, string petName) in pets)
@@ -495,7 +509,7 @@ public partial class SettingsWindow : Window
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            var name = new TextBlock { Text = petName, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis, ToolTip = petName }; // the tooltip shows a name that is cut off
+            var name = new TextBlock { Text = petName, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 8, 0) }; // a long name wraps onto a second line instead of being cut off
             name.SetResourceReference(TextBlock.ForegroundProperty, !max && _petPicked.Contains(petId) ? "Brush.Text" : "Brush.TextSubtle");
             var maxText = new TextBlock { Text = max ? LocalizationManager.Instance["Settings.PetMap.Max"] : "", Margin = new Thickness(0, 0, 8, 0), FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
             maxText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
