@@ -1718,6 +1718,12 @@
   "date": "2026-10-03",
   "items": [
    {
+    "text": "Add MIT license",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
     "text": "Website footer: NCSOFT disclaimer and MIT note in all 8 languages",
     "areas": [
      "Website"
@@ -1880,6 +1886,12 @@
    },
    {
     "text": "Say where the app runs and whether Update.exe is next to it when it cannot update itself",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add a checked script for local Velopack update builds",
     "areas": [
      "Client"
     ]
@@ -2298,6 +2310,101 @@
   "date": "2026-09-25",
   "items": [
    {
+    "text": "Add game dimension, URL slugs and Aion 2 content tables to the backend",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Give aiondps.com real URLs and server-rendered SEO shells",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Add derived Aion 2 instances, bosses and mechanics content",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Add the combat-source seam and an Aion 2 packet-capture skeleton to the client",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Make the meter themeable and let the font-size setting take effect",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Show rank, damage share and damage taken per player",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Keep a local, searchable history of finished fights",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix static assets being swallowed by the game-scoped page routes",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Track avoided attacks and PvP kills from Chat.log",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Rank Aion 2 across servers and tag each player with their server",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Rename Aion 2's ninth class to Brawler and gate it by region",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Auto-detect Aion vs Aion 2 from the running client process",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add Aion 2 instance photos and show/sort by minimum level",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Reorganize repo into Client / Backend / Web-Frontend",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
     "text": "Replace the app icon and website favicon with user-supplied artwork",
     "areas": [
      "Client",
@@ -2316,6 +2423,1320 @@
     "text": "Style the homepage secondary CTA as a real button instead of a bare link",
     "areas": [
      "Website"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.42",
+  "date": "2026-09-15",
+  "items": [
+   {
+    "text": "Fix ServerClassAvailability checking fingerprint before displayName",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Normalize Gunslinger/Songweaver/Muse to Gunner/Bard/Painter server-side",
+    "areas": [
+     "Backend",
+     "Database"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.41",
+  "date": "2026-09-15",
+  "items": [
+   {
+    "text": "Rename internal namespace from AionSniffer to AionDPS",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.40",
+  "date": "2026-09-15",
+  "items": [
+   {
+    "text": "Rename the website to Aion DPS, matching the client",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Add images for Mantor/Vasharti/Tiamat/Beritrakt, fix Asachin's name",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Reuse Tiamat's Fortress photo for Tiamat's Hidden Space",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Curate Aion Riftshade's instance list, fix Tiamat instance photos",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Fix 0018's no-op DELETE for Aion Riftshade's instance curation",
+    "areas": [
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Add Makarna instance photo",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Confirm Aethertech/Bard/Gunner are available on Aion Riftshade",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix Origin Aion / Aion Riftshade server fingerprint collision",
+    "areas": [
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Recognize Brigade General Vasharti as Rentus-Basis/Lost Rentus Base's boss",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.39",
+  "date": "2026-09-14",
+  "items": [
+   {
+    "text": "Rename the exe, window title and Task Manager process to \"Aion DPS\"",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.38",
+  "date": "2026-09-14",
+  "items": [
+   {
+    "text": "Tolerate a leading \"?\" before a self-typed chat line's speaker name",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.37",
+  "date": "2026-09-14",
+  "items": [
+   {
+    "text": "Auto-detect the active server from Chat.log activity; stop showing stale folders",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.36",
+  "date": "2026-09-14",
+  "items": [
+   {
+    "text": "Match the active character by server name, not fingerprint",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.35",
+  "date": "2026-09-14",
+  "items": [
+   {
+    "text": "Make the per-server Chat.log folder binding visible in Settings",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.34",
+  "date": "2026-09-14",
+  "items": [
+   {
+    "text": "Resolve the active character from the current server, not just skills",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.33",
+  "date": "2026-09-14",
+  "items": [
+   {
+    "text": "Add aionriftshade.com (4.8) and its new instances/bosses",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Make a data-less catalog server clickable, rename Aion Riftshade",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Add Beshmundir Temple, Rentus Base and Dragon Lord's Refuge",
+    "areas": [
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Scope the instance list per server, not globally",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Add Tiamat's Fortress/Tahabata, fix the Belsagos instance's real name",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Add the remaining Riftshade instances from the user's own report",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Fix double-quoted string literals in migration 0016",
+    "areas": [
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Remember each server's own Chat.log folder in Settings",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.32",
+  "date": "2026-09-14",
+  "items": [
+   {
+    "text": "Hide the Buffs column on the website for now",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Parse real self-transformations (Slayer Form, Mau Form) as buffs too",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "List every server the client offers, not just ones already uploaded from",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Switch backend domain from dpsmeter.skeeve.tv to aiondps.com",
+    "areas": [
+     "Client",
+     "Backend"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.31",
+  "date": "2026-09-13",
+  "items": [
+   {
+    "text": "Add translations and an image for the new Stahlrose: Deck instance",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Parse the local player's own self-buffs, and dedupe multi-stat buff lines",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.30",
+  "date": "2026-09-12",
+  "items": [
+   {
+    "text": "Only allow curated real end bosses in the Mob/Boss dropdown/search/upload",
+    "areas": [
+     "Client",
+     "Backend"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.29",
+  "date": "2026-09-12",
+  "items": [
+   {
+    "text": "Attribute group buffs to their recipients, not just the caster",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.28",
+  "date": "2026-09-12",
+  "items": [
+   {
+    "text": "Always track Beritran Supply Box (Stahlmauerbastion), regardless of grade",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.27",
+  "date": "2026-09-11",
+  "items": [
+   {
+    "text": "Label Sauro's two bosses with their key count and show 1-key first",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Fix the boss-page breadcrumb dead end and add a known-loot marker",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Add a player-alias system so a character rename can't split one person across two rows",
+    "areas": [
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Split repeated boss kills into numbered runs, sort by damage, fix search-box focus loss, and hide classes a server doesn't have",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.26",
+  "date": "2026-09-11",
+  "items": [
+   {
+    "text": "Translate the remaining Sauro/Tahmes bosses and pre-stage further instances",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Never upload a Training Dummy as an encounter",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Give buffs a 30s pre-pull grace period before the fight's damage window",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Always show buffs that cost Divine Power, not a literal \"Divine Power\" skill",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Drop the pre-staged translations for Sauro bosses that turned out not to matter",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Stop the single-search-result redirect from trapping the Back button",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Give the instance list real client art instead of a plain text list",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Give the boss list poster tiles too, and add 2 more pre-staged instances",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Give bosses their own real portraits instead of reusing the instance photo",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Cap poster-card width so a lone leftover card doesn't stretch full-row",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Add Raksha Boilheart's real portrait, from the user directly",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Swap Sauro-Kriegsdepot's instance photo for the one the user sent",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Prefix the copied damage line with the selected boss, and stop pure healers from vanishing from a boss's own upload",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add a 65er/60er/Hyperion loot-fairness rule, keyed on the boss actually fought",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add Ophidan Bridge's final encounter to the 65er loot-fairness rule",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add frontend translations/images for the 4 new Danuar-family instances",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Add Danuar Sanctuary's instance name and its third boss, Ukahim",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Verify and complete instance-name translations across all languages",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Complete the remaining pl entries for Danuar Sanctuary and Ophidan Bridge",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Extend the 65er loot rule to Sauro's side-room trash mobs, not just Ahuradim/Sheba",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Make the loot-fairness rule zone-based, so it covers every mob, not just curated bosses",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.25",
+  "date": "2026-09-10",
+  "items": [
+   {
+    "text": "Replace the PVP DMG checkbox with a PVE/PVP segmented toggle, one row up",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.24",
+  "date": "2026-09-10",
+  "items": [
+   {
+    "text": "Add a \"PVP DMG\" option: damage against other players only",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.23",
+  "date": "2026-09-10",
+  "items": [
+   {
+    "text": "Drop the Buffs column from both leaderboard listings",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Filter the Buffs column to long-lasting reinforcements (>3min) plus Divine Power",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Add the verified Tahmes/Raksang instance name translation",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Add verified translations for the Sauro-Kriegsdepot instance and its bosses",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Fix real teammates flipping to enemy after friendly-fire AOE/DoT damage",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.22",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Track real buffs from Chat.log instead of showing damage/heal skills as \"Buffs\"",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.21",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Redesign boss/encounter pages: always-visible top 10 groups, group members table, damage distribution, loot rules",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Fix solo-boss per-class tables clipping in the narrow multi-column class grid",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Show every group member in a group row, and track damage taken FROM the boss",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.20",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Add a headless \"upload\" CLI mode that splits a repeatedly-farmed boss into separate runs",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.19",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Raise the upload rate limit from 30 to 120/min",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Pace \"Upload last run\", stop the search box losing focus per keystroke",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.18",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Always include a known group member in the roster, even at 0",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.17",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Split the footer into two rows so notices stop getting clipped",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.16",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Don't replay historical chat commands when reloading Chat.log",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.15",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Add \"Reload from Chat.log\" to recover a run lost to a restart",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.14",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Log the real reason an upload gets rejected with 400",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Skip uploading a fight the local player wasn't part of",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.13",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Fix uploaded totalDamage using the UI's filter-scoped row.Damage instead of the boss's own hits",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.12",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Redesign the web frontend around a centered, fixed-width layout, and add a download page",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Add full i18n (8 languages) and per-fight/per-player detail pages",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Show class/faction/skill icons, default to English, translate instance names",
+    "areas": [
+     "Website",
+     "Backend"
+    ]
+   },
+   {
+    "text": "Translate instance names into all 8 languages, add a places dataset",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Give the auto-attack skill row an icon too",
+    "areas": [
+     "Backend"
+    ]
+   },
+   {
+    "text": "Translate boss NPC names too, not just instance names",
+    "areas": [
+     "Website"
+    ]
+   },
+   {
+    "text": "Add a way to hide trash mobs from the boss list",
+    "areas": [
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Default \"Upload current boss\" to the boss just fought, surface real upload errors",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.11",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Hide the upload actions until there's a boss to upload, move the button into the icon row",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.10",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Mark 8 server-catalog entries inactive instead of deleting them",
+    "areas": [
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Lighten toolbar icons, distinguish the filter dropdowns, and make the Mob/Boss dropdown searchable",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.9",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Let a character's server be picked from a curated list, not just detected",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.8",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Show the running version in the visible title bar",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Identify which server a run belongs to, and upload heal alongside damage",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.7",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Add a community backend for cross-group leaderboards and player profiles",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Create the SQLite data directory on startup if it doesn't exist yet",
+    "areas": [
+     "Backend",
+     "Database"
+    ]
+   },
+   {
+    "text": "Replace the Clear button's trash-can icon with a red X",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.6",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Speak the client's own languages: skill names, Chat.log, and the GUI itself",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.5",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Auto-separate a character switch, using the game's own login notification",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.4",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Never write a faction that was only inferred from fighting someone",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.3",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Never derive a faction for an arena opponent",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.2",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Open the player database from the menu, and make it editable",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.1",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Let the last caster own a DoT, and derive ownership from ordinary hits",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Right-click a player: switch faction, or see their skill breakdown",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.7.0",
+  "date": "2026-09-09",
+  "items": [
+   {
+    "text": "Count damage-over-time ticks in English logs",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.10",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Keep incoming damage, so a 1v1 opponent shows up at all",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.9",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Mark the whole group, and remember everyone seen before",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.8",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Warn when Chat.log passes 50 MB, and let it be emptied",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.7",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Same two copy buttons in both views, and clear damage and loot separately",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.6",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Copy the Damage and Loot tables as fenced ASCII for Discord",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.5",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Fix two wrong loot glyphs, and add the blue tier",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.4",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Mark the group as our own side in PvE, and stop Copy failing silently",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.2",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Move the character buttons onto their own row, and allow editing an entry",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.1",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Show who is friend and who is foe, derived from the log itself",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.6.0",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Update in place: per-user install via Velopack, no installer to run",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.5.2",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Check GitHub for new releases at startup, every 5 minutes, and on demand",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.5.1",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Take item names and rarity tiers from Origin Codex",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.5.0",
+  "date": "2026-09-08",
+  "items": [
+   {
+    "text": "Remove the packet-capture path, and with it the UAC prompt",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "0.4.0",
+  "date": "2026-09-07",
+  "items": [
+   {
+    "text": "Initial AION network DMG meter calibration tool",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add SM_SYSTEM_MESSAGE decoding (AP/GP candidate) and document full feature scope",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add opcode candidates for boss detection and group roster resolution",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Implement DPS/iDPS calculation as protocol-independent, self-verifiable logic",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix AllDpsActiveOnly: return null instead of raw damage total when undefined",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Parse the full SM_ATTACK hit list, not just the first hit",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add self-check for the SM_ATTACK multi-hit parser (synthetic, no capture needed)",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Close the untested 28-byte shieldType branch, correct an inaccurate comment",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Wire up skill ID -> name resolution from the collected aioncodex.com data",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix invalid -- inside XML comment in csproj (breaks MSBuild's XML parser)",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Wire decoded SM_ATTACK packets into live DPS aggregation",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix the same raw-total-as-rate bug in AllDpsWallClock, now caught by asserting rendered output",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add WPF GUI scaffold (main window + settings + network settings)",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Stop permanently blacklisting a flow after one failed handshake check",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add Chat.log-based live tailing, loot tracking, and class/NPC detection",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add German/French/Spanish/Russian Chat.log parsing, fix encoding bug",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add g_chatlog memory-patch switch, porting ShugoConsole's technique",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add MSI packaging + CI workflow to attach it to GitHub releases",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix invalid -- inside XML comment in SettingsWindow.xaml",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix invalid -- inside XML comments in the new WiX project files",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Define PublishDir as a WiX preprocessor variable, not just an MSBuild property",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Drop the explicit Product.wxs Compile item, WixToolset.Sdk globs it already",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix MSI arch (x64) and version-string derivation",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Remove the g_chatlog memory patch",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Open the GUI when launched with no arguments",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Stop the broadcast dedup from discarding real damage",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Make Copy produce a postable chat line in the Damage view",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Count looted relics toward each character's AP",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Show the relic share of AP, and report totals in chatlog mode",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix German parsing against a real German client log",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Open the GUI whenever no argument is passed",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Request admin rights for the GUI, and give the app an icon",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Ask during setup whether to create a desktop shortcut",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Count hits that carry a rider effect, and stop mixing in a second client's fight",
+    "areas": [
+     "Client"
     ]
    }
   ]

@@ -13,11 +13,15 @@ import { fileURLToPath } from "node:url";
 const out = fileURLToPath(new URL("../../Web-Frontend/changelog.json", import.meta.url));
 const git = (...args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] });
 
+// Before the reorganisation (2026-09-22) the client sat in the repo root and the server and website
+// together in backend/ (public/ was the website); those paths map to the same areas.
 const AREAS = [
-  ["Database", /^Backend\/(drizzle|src\/db)\//],
-  ["Backend", /^Backend\//],
+  ["Database", /^(Backend|backend)\/(drizzle|src\/db)\//],
+  ["Website", /^backend\/public\/(?!icons\/|images\/)/],
+  ["Backend", /^(Backend|backend)\//],
   ["Website", /^Web-Frontend\//],
   ["Client", /^Client\//],
+  ["Client", /^(?!Tools\/|\.github\/|assets\/|[^/]*\.md$|\.gitignore$)/],
 ];
 const areasOf = (files) => {
   const set = new Set();
@@ -43,20 +47,30 @@ const commits = raw.split(SEP).filter(Boolean).map((block) => {
   return { hash, date, subject: s.join("\t"), files: files.filter(Boolean) };
 });
 
-const versionAt = (hash) => /<Version>([^<]+)<\/Version>/.exec((() => { try { return git("show", `${hash}:Client/AionDPS.csproj`); } catch { return ""; } })())?.[1] ?? null;
+// The project file moved over time: AionSniffer.csproj -> AionDPS.csproj -> Client/AionDPS.csproj.
+const CSPROJ = ["Client/AionDPS.csproj", "AionDPS.csproj", "AionSniffer.csproj"];
+const versionAt = (hash) => {
+  for (const f of CSPROJ) {
+    try {
+      const v = /<Version>([^<]+)<\/Version>/.exec(git("show", `${hash}:${f}`))?.[1];
+      if (v) return v;
+    } catch { /* not there at this commit */ }
+  }
+  return null;
+};
 
 const releases = [];
 let current = null;
 let pending = [];
 for (const c of commits) {
-  const touchesCsproj = c.files.includes("Client/AionDPS.csproj");
+  const touchesCsproj = c.files.some((f) => CSPROJ.includes(f));
   const v = touchesCsproj || current === null ? versionAt(c.hash) : current;
   const rel = /^Release (\d+\.\d+\.\d+)(?:: (.+))?$/.exec(c.subject);
   const noise = /^(Merge |Bump (the )?version|Version \d|Release workflow|Changelog)/.test(c.subject);
   const override = overrideFor(c.hash);
   const text = override ? override[1] : rel ? rel[2] : noise ? null : c.subject.replace(/;? ?version \d+\.\d+\.\d+$/i, "");
   const areas = areasOf(c.files);
-  if (text && areas.length && current !== null) {
+  if (text && areas.length) {
     pending.push({ text, areas });
   }
   if (v && v !== current) {
