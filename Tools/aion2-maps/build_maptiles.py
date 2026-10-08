@@ -5,6 +5,15 @@ OUT='/mnt/c/Users/ralf/Desktop/aion2/Maps'
 def dds(w,h,fc,data):
     hdr=struct.pack('<4sIIIIIII44sII4sIIIII',b'DDS ',124,0x81007,h,w,len(data),0,1,b'\0'*44,32,4,fc,0,0,0,0,0)
     return hdr+struct.pack('<IIIII',0x1000,0,0,0,0)+data
+def fix_edge(im):
+    # the last 8 columns of a tile are a bright strip in the client data (a vertical seam in the assembled map): repeat the column before them
+    w,h=im.size;n=8 if w>=2048 else 4
+    px=im.load()
+    jumps=sum(1 for y in range(0,h,8) if abs(sum(px[w-n,y])-sum(px[w-n-1,y]))>150 and abs(sum(px[w-n+1,y])-sum(px[w-n,y]))<60)
+    if jumps>0.4*(h/8):
+        strip=im.crop((w-n-1,0,w-n,h)).resize((n,h))
+        im.paste(strip,(w-n,0))
+    return im
 def load(p):
     d=open(p,'rb').read()
     i=d.rfind(b'PF_');j=d.find(b'\0',i);fmt=d[i:j].decode();w,h,_=struct.unpack('<iii',d[i-16:i-4])
@@ -16,7 +25,7 @@ def load(p):
         data=data[:int(dim*dim*bpp)];w=h=dim
     else:
         n=int(w*h*bpp);data=d[len(d)-n-12:len(d)-12]
-    return Image.open(io.BytesIO(dds(w,h,fc,data))).convert('RGB')
+    return fix_edge(Image.open(io.BytesIO(dds(w,h,fc,data))).convert('RGB'))
 def landmask(comp,W,vmin=150,hmin=128,minhalo=350,erode=0,band=0,sthr=68):
     hsv=comp.convert('HSV');H,S,V=hsv.split();h=H.load();s=S.load();v=V.load()
     m=Image.new('L',(W,W));mp=m.load()
