@@ -1,5 +1,31 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "New settings page Sammeln: every collectible of the game grouped by kind, a switch each (what is on shows on the interactive map); entries with no fixed place on the world maps are greyed out",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
+  "version": "0.17.0",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Interactive map: a chosen pet with nothing in view gets an arrow on the map edge, in its colour, towards its nearest spawn point; the pet map and timetable hotkeys also flip the switches in an open settings window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.16.0",
   "date": "2026-10-08",
   "items": [
