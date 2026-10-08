@@ -141,13 +141,27 @@ public abstract class MovableOverlay : Window
     private void SavePlace()
     {
         _save(Left, Top, _scale.ScaleX);
-        _saveSize(double.IsNaN(_frame.Width) ? null : _frame.Width, double.IsNaN(_frame.Height) ? null : _frame.Height);
+        double? height = !double.IsNaN(_frame.Height) ? _frame.Height : !double.IsInfinity(_frame.MaxHeight) ? _frame.MaxHeight : null;
+        _saveSize(double.IsNaN(_frame.Width) ? null : _frame.Width, height);
     }
 
     /// <summary>Locked: click-through, no outline, no grip. Unlocked: clickable and outlined, so it can be found, moved and scaled.</summary>
     public void ApplyLocked(bool locked)
     {
         _locked = locked;
+        // Unlocked, the frame has the height it was pulled to (the sample rows fill it); locked, that height is only the most it may take,
+        // so a short list ends at its last row without empty space below.
+        if (locked && !double.IsNaN(_frame.Height))
+        {
+            _frame.MaxHeight = _frame.Height;
+            _frame.Height = double.NaN;
+        }
+        else if (!locked && !double.IsInfinity(_frame.MaxHeight))
+        {
+            _frame.Height = _frame.MaxHeight;
+            _frame.MaxHeight = double.PositiveInfinity;
+        }
+
         _grip.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
         _edges.Show(!locked);
         _frame.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
