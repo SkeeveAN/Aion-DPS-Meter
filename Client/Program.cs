@@ -964,9 +964,8 @@ internal static class Program
         var events = new List<Combat.DamageEvent>();
         int segments = 0;
         string? petLog = null;
-        if (Environment.GetEnvironmentVariable("AION2_PETS") is { Length: > 0 })
         {
-            // Pet farming check: the soul lines go to a throw-away file, not to the real pet-farm.log.
+            // A replay never writes to the real pet-farm.log: its lines go to a throw-away file.
             petLog = Path.Combine(Path.GetTempPath(), "aion2-replay-pet-farm.log");
             File.Delete(petLog);
             Aion2.PetFarmLog.PathOverride = petLog;

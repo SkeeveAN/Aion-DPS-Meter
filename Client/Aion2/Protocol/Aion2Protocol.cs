@@ -52,6 +52,12 @@ public enum OpcodeFamily
     /// <summary>The local player's species knowledge (Cognia, Fera, Natura, Varia, Specia) at login: level,
     /// progress and the analysed effects of each.</summary>
     Species,
+    /// <summary>The game announces progress for pets of the local player: <c>opcode | n | n x (pet id u32, gained u32)</c>.</summary>
+    PetProgress,
+    /// <summary>A pet reached a new level: <c>opcode | 00 00 | pet id u32 | new level u32 | ...</c>.</summary>
+    PetLevel,
+    /// <summary>A pet was added to the collection: <c>opcode | 2 bytes | pet id u32 | level u32 | ...</c>.</summary>
+    PetAdded,
     /// <summary>An inventory change of the local player (item id and the new quantity); only pet souls are read.</summary>
     InventoryChange,
     /// <summary>The local player marked a monster (tab or click): <c>opcode | entity id (varint) | 00 00</c>, followed by a second frame (0x3438) with the same id. Seen in recordings where the mark was moved between known monsters.</summary>

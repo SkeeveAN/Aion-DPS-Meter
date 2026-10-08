@@ -156,7 +156,6 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _daevanion = null;
                 _species = null;
                 _petStates = null;
-                _soulsSinceList.Clear();
                 _titles = null;
                 _stigmas.Clear();
                 _bar.Clear();
@@ -306,68 +305,76 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     private IReadOnlyList<Aion2PetState>? _petStates;
 
-    /// <summary>Every pet the local player owns with its level and progress, from the login frame's pet list (empty until it arrived).</summary>
+    /// <summary>Every pet the local player owns with its level and progress: the pet list the game sends at login and map change, kept
+    /// up to date by the game's own messages (progress gained, level reached, pet added). Empty until the list arrived.</summary>
     public IReadOnlyList<Aion2PetState> LocalPetStates
     {
         get
         {
             lock (_gate)
             {
-                if (_petStates is null)
-                {
-                    return Array.Empty<Aion2PetState>();
-                }
-
-                return _soulsSinceList.Count == 0
-                    ? _petStates
-                    : _petStates.Select(p => _soulsSinceList.TryGetValue(p.PetId, out int n) ? WithSouls(p, n) : p).ToList();
+                return _petStates ?? Array.Empty<Aion2PetState>();
             }
         }
     }
 
-    /// <summary>Souls picked up since the game last sent the pet list (login, map change): the game only counts a soul once it is used in the
-    /// pet window, so the shown progress adds them; the next pet list starts the count again at 0.</summary>
-    private readonly Dictionary<int, int> _soulsSinceList = new();
-
-    /// <summary>The pet with n more souls: at the end of a level (25/25) the next soul starts the next one (Level 2, 1/75); the top level counts no more.</summary>
-    private static Aion2PetState WithSouls(Aion2PetState pet, int souls)
+    /// <summary>The game announced progress for a pet (a soul given: +1, two dropped at once: +2).</summary>
+    public void NotePetProgress(int petId, int gained)
     {
-        int level = pet.Level, progress = pet.Progress + souls;
-        while (level < Aion2Pets.TopLevel && progress > Aion2Pets.ProgressNeeded(level))
-        {
-            progress -= Aion2Pets.ProgressNeeded(level);
-            level++;
-        }
-
-        return level >= Aion2Pets.TopLevel ? pet with { Level = level, Progress = 0 } : pet with { Level = level, Progress = progress };
+        ChangePet(petId, p => p with { Progress = p.Progress + gained });
     }
 
-    public void NoteSoulReceived(int petId, int count)
+    /// <summary>A pet reached a new level (its progress starts again at 0).</summary>
+    public void NotePetLevel(int petId, int level)
+    {
+        ChangePet(petId, p => p with { Level = level, Progress = 0 });
+    }
+
+    /// <summary>A pet joined the collection.</summary>
+    public void NotePetAdded(int petId, int level)
     {
         lock (_gate)
         {
-            _soulsSinceList[petId] = _soulsSinceList.GetValueOrDefault(petId) + count;
+            if (_petStates is not null && _petStates.All(p => p.PetId != petId))
+            {
+                _petStates = _petStates.Append(new Aion2PetState(petId, level, 0)).ToList();
+            }
         }
+    }
+
+    private void ChangePet(int petId, Func<Aion2PetState, Aion2PetState> change)
+    {
+        lock (_gate)
+        {
+            if (_petStates is null || _petStates.All(p => p.PetId != petId))
+            {
+                return;
+            }
+
+            _petStates = _petStates.Select(p => p.PetId == petId ? change(p) : p).ToList();
+        }
+
+        NotifyCharacterChanged();
     }
 
     public void SetLocalPetStates(IReadOnlyList<Aion2PetState> pets)
     {
         lock (_gate)
         {
-            // the log tells how well the soul count matched what the game then reported (login, map change)
-            foreach ((int pet, int souls) in _soulsSinceList)
+            // the log tells where the kept-up-to-date state and the list of the game differ (login, map change)
+            if (_petStates is not null)
             {
-                var before = _petStates?.FirstOrDefault(p => p.PetId == pet);
-                var counted = before is null ? null : WithSouls(before, souls);
-                var game = pets.FirstOrDefault(p => p.PetId == pet);
-                if (before is not null && counted is not null && game is not null)
+                foreach (var game in pets)
                 {
-                    PetFarmLog.Write($"COUNT {Aion2Pets.PetName(pet, "en") ?? "?"} (pet {pet}): list before L{before.Level} {before.Progress}, + {souls} souls = L{counted.Level} {counted.Progress}; the game now says L{game.Level} {game.Progress}");
+                    var tracked = _petStates.FirstOrDefault(p => p.PetId == game.PetId);
+                    if (tracked is not null && tracked != game)
+                    {
+                        PetFarmLog.Write($"CHECK {Aion2Pets.PetName(game.PetId, "en") ?? "?"} (pet {game.PetId}): counted L{tracked.Level} {tracked.Progress}, the game's list says L{game.Level} {game.Progress}");
+                    }
                 }
             }
 
             _petStates = pets;
-            _soulsSinceList.Clear();
             _listsAt = DateTime.UtcNow;
         }
 

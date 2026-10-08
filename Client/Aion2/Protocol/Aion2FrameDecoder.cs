@@ -146,6 +146,23 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.TargetSelect:
                 DecodeTargetSelect(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.PetProgress:
+                DecodePetProgress(frame);
+                return Array.Empty<DamageEvent>();
+            case OpcodeFamily.PetLevel:
+                if (frame.Length >= 12)
+                {
+                    _entities.NotePetLevel(unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[4..])), unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[8..])));
+                }
+
+                return Array.Empty<DamageEvent>();
+            case OpcodeFamily.PetAdded:
+                if (frame.Length >= 12)
+                {
+                    _entities.NotePetAdded(unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[4..])), unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[8..])));
+                }
+
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.InventoryChange:
                 DecodeInventoryChange(frame, timestamp);
                 return Array.Empty<DamageEvent>();
@@ -854,9 +871,27 @@ public sealed class Aion2FrameDecoder
         int itemId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[13..]));
         if (Aion2Pets.PetOfSoulItem(itemId) is int pet)
         {
-            if (PetFarmLog.NoteSoul(itemId, pet, unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[17..])), timestamp, BinaryPrimitives.ReadUInt32LittleEndian(frame[5..])))
+            PetFarmLog.NoteSoul(itemId, pet, unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[17..])), timestamp, BinaryPrimitives.ReadUInt32LittleEndian(frame[5..]));
+        }
+    }
+
+    /// <summary>The game's own progress message for the local player's pets: <c>opcode | n | n x (pet id u32, gained u32)</c> (seen after every
+    /// soul: +1, or +2 when two dropped at once; checked against recordings of 5 level-ups).</summary>
+    private void DecodePetProgress(ReadOnlySpan<byte> frame)
+    {
+        if (frame.Length < 3)
+        {
+            return;
+        }
+
+        int count = frame[2];
+        for (int i = 0, p = 3; i < count && p + 8 <= frame.Length; i++, p += 8)
+        {
+            int pet = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
+            int gained = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 4)..]));
+            if (gained is > 0 and < 1000)
             {
-                _entities.NoteSoulReceived(pet, 1);
+                _entities.NotePetProgress(pet, gained);
             }
         }
     }
