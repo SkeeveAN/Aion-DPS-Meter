@@ -17,14 +17,14 @@ def load(p):
     else:
         n=int(w*h*bpp);data=d[len(d)-n-12:len(d)-12]
     return Image.open(io.BytesIO(dds(w,h,fc,data))).convert('RGB')
-def landmask(comp,W,vmin=150,hmin=128,minhalo=350,erode=0,band=0):
+def landmask(comp,W,vmin=150,hmin=128,minhalo=350,erode=0,band=0,sthr=68):
     hsv=comp.convert('HSV');H,S,V=hsv.split();h=H.load();s=S.load();v=V.load()
     m=Image.new('L',(W,W));mp=m.load()
     for y in range(W):
         for x in range(W):
             hh,ss,vv=h[x,y],s[x,y],v[x,y]
             halo=(128<=hh<=168 and ss<125)
-            if (ss>68 and not halo) or vv<125: mp[x,y]=255
+            if (ss>sthr and not halo) or vv<125: mp[x,y]=255
     m=m.filter(ImageFilter.MinFilter(5)).filter(ImageFilter.MaxFilter(5))       # thin lines, text, ornaments
     m=m.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.MinFilter(9))       # small gaps
     out=m.copy();ImageDraw.floodfill(out,(0,0),128,thresh=0);mp=m.load();op=out.load()
@@ -71,7 +71,7 @@ def landmask(comp,W,vmin=150,hmin=128,minhalo=350,erode=0,band=0):
                     for x,y in px: kp[x,y]=0
     if erode: keep=keep.filter(ImageFilter.MinFilter(2*erode+1))          # the thin blue-grey rim around the coast
     return keep
-def build(name,dirn,prefix,grid,vmin=150,hmin=128,minhalo=350,erode=0,band=0):
+def build(name,dirn,prefix,grid,vmin=150,hmin=128,minhalo=350,erode=0,band=0,sthr=68):
     first=load(f'{dirn}/{prefix}_00_00.uasset');T=first.size[0]
     W=2048;t=W//grid
     comp=Image.new('RGB',(W,W));tiles={}
@@ -79,7 +79,7 @@ def build(name,dirn,prefix,grid,vmin=150,hmin=128,minhalo=350,erode=0,band=0):
         for cc in range(grid):
             im=load(f'{dirn}/{prefix}_{rr:02d}_{cc:02d}.uasset');tiles[(rr,cc)]=im
             comp.paste(im.resize((t,t),Image.LANCZOS),(rr*t,cc*t))
-    mask=landmask(comp,W,vmin,hmin,minhalo,erode,band)
+    mask=landmask(comp,W,vmin,hmin,minhalo,erode,band,sthr)
     d=f'{OUT}/{name}_tiles';os.makedirs(d,exist_ok=True);kept=0
     for (rr,cc),im in tiles.items():
         x0,y0=rr*t,cc*t;mg=3
@@ -88,14 +88,19 @@ def build(name,dirn,prefix,grid,vmin=150,hmin=128,minhalo=350,erode=0,band=0):
         big=region.resize(((t+2*mg)*(T//t),(t+2*mg)*(T//t)),Image.BICUBIC)
         k=mg*(T//t);a=big.crop((k,k,k+T,k+T)).point(lambda x:255 if x>127 else 0).filter(ImageFilter.GaussianBlur(max(2,T/400)))
         if a.getbbox() is None: continue
-        rgba=im.convert('RGBA');rgba.putalpha(a);rgba.save(f'{d}/{rr}_{cc}.webp','WEBP',quality=88,method=4);kept+=1
+        rgba=im.convert('RGBA');rgba.putalpha(a);rgba.save(f'{d}/{rr}_{cc}.webp','WEBP',lossless=True,quality=100,method=4);kept+=1
     json.dump({'tile':T,'grid':grid,'x':'file RR = column, CC = row'},open(f'{d}/info.json','w'))
     ov=comp.resize((4096,4096),Image.LANCZOS) if False else None
-    full=comp.convert('RGBA');full.putalpha(mask.filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.GaussianBlur(1.5)));full=full.resize((4096,4096),Image.LANCZOS)
+    ov=min(8192,T*grid)                                   # Verteron 8192 (half of native), Altgard 8192, Abyss 4096 = native
+    big=Image.new('RGB',(ov,ov));to=ov//grid
+    for (rr,cc),im in tiles.items(): big.paste(im.resize((to,to),Image.LANCZOS) if im.size[0]!=to else im,(rr*to,cc*to))
+    a=mask.filter(ImageFilter.MaxFilter(3)).resize((ov,ov),Image.BICUBIC).point(lambda x:255 if x>127 else 0).filter(ImageFilter.GaussianBlur(max(1.5,ov/2800)))
+    full=big.convert('RGBA');full.putalpha(a)
     full.save(f'{OUT}/Karte_{name}.png')
+    full=full.resize((4096,4096),Image.LANCZOS)
     size=sum(os.path.getsize(f'{d}/{f}') for f in os.listdir(d))//1024//1024
     print(name,'tiles with land',kept,'of',grid*grid,'tile px',T,'->',size,'MB',flush=True)
     bg=Image.new('RGBA',(4096,4096),(30,40,44,255));bg.alpha_composite(full);bg=bg.convert('RGB');bg.thumbnail((1000,1000));bg.save(f'trans_{name}.jpg',quality=85)
 which=sys.argv[1:] or ['Verteron','Altgard','Abyss']
-cfg={'Verteron':('/mnt/d/tmp_aion2_work/maptiles2','World_L_A',8,95,100,350,1,28),'Altgard':('/mnt/d/tmp_aion2_work/maptiles3','World_D_A',8,95,100,350,1,28),'Abyss':('/mnt/d/tmp_aion2_work/maptiles3','Abyss_Reshanta_A',4,70,92,40,3)}
+cfg={'Verteron':('/mnt/d/tmp_aion2_work/maptiles2','World_L_A',8,95,100,350,1,28,40),'Altgard':('/mnt/d/tmp_aion2_work/maptiles3','World_D_A',8,95,100,350,1,28),'Abyss':('/mnt/d/tmp_aion2_work/maptiles3','Abyss_Reshanta_A',4,70,92,40,3)}
 for n in which: build(n,*cfg[n])
