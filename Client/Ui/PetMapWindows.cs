@@ -244,6 +244,7 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly List<Ellipse> _dots = new();
     private readonly List<Ellipse> _liveDots = new();
     private readonly List<Polygon> _gatherMarks = new();
+    private readonly List<Polygon> _edgeArrows = new();
     private readonly Polygon _me;
 
     public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120, LoadSize, SaveSize)
@@ -507,6 +508,62 @@ public sealed class PetMapWindow : MovableOverlay
         for (int i = liveDot; i < _liveDots.Count; i++)
         {
             _liveDots[i].Visibility = Visibility.Collapsed;
+        }
+
+        // a chosen pet with nothing in view: an arrow on the edge, in its colour, towards its nearest spawn point
+        int arrow = 0;
+        double half = ViewSize / 2, reach = half - 13;
+        foreach (var (pet, color) in colors)
+        {
+            double bestSq = double.MaxValue, bx = 0, by = 0;
+            bool visible = false;
+            foreach ((int id, float x, float y) in points.Concat(live))
+            {
+                if (id != pet)
+                {
+                    continue;
+                }
+
+                double dx = (x - worldX) * ppu, dy = (y - worldY) * ppu;
+                if (Math.Abs(dx) < half - 5 && Math.Abs(dy) < half - 5)
+                {
+                    visible = true;
+                    break;
+                }
+
+                double sq = dx * dx + dy * dy;
+                if (sq < bestSq)
+                {
+                    bestSq = sq;
+                    bx = dx;
+                    by = dy;
+                }
+            }
+
+            if (visible || bestSq == double.MaxValue)
+            {
+                continue;
+            }
+
+            double t = reach / Math.Max(Math.Abs(bx), Math.Abs(by)); // where the ray to the point meets the square
+            if (arrow >= _edgeArrows.Count)
+            {
+                var a = new Polygon { Points = new PointCollection { new Point(11, 0), new Point(-8, -8), new Point(-4, 0), new Point(-8, 8) }, Stroke = Brushes.White, StrokeThickness = 1.6, IsHitTestVisible = false, Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 4, ShadowDepth = 0, Color = Colors.Black, Opacity = 0.9 } };
+                _edgeArrows.Add(a);
+                _canvas.Children.Add(a);
+            }
+
+            var ar = _edgeArrows[arrow++];
+            ar.Fill = new SolidColorBrush(color);
+            ar.RenderTransform = new RotateTransform(Math.Atan2(by, bx) * 180 / Math.PI);
+            Canvas.SetLeft(ar, half + bx * t);
+            Canvas.SetTop(ar, half + by * t);
+            ar.Visibility = Visibility.Visible;
+        }
+
+        for (int i = arrow; i < _edgeArrows.Count; i++)
+        {
+            _edgeArrows[i].Visibility = Visibility.Collapsed;
         }
 
         _canvas.Children.Remove(_me);

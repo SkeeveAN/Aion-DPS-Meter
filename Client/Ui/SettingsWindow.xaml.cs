@@ -413,6 +413,13 @@ public partial class SettingsWindow : Window
         BuildPetRows();
     }
 
+    /// <summary>A hotkey flipped the pet map or the timetable while this window is open: the switches follow.</summary>
+    public void SyncOverlaySwitches(bool showPetMap, bool showTimetable)
+    {
+        ShowPetMapBox.IsChecked = showPetMap;
+        ShowTimetableBox.IsChecked = showTimetable;
+    }
+
     /// <summary>The map's sliders are read-only (greyed out) while the map is switched off; the pet list stays editable.</summary>
     private void OnPetMapShowChanged(object? sender, RoutedEventArgs? e)
     {

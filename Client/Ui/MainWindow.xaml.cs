@@ -3936,6 +3936,7 @@ public partial class MainWindow : Window
         settings.ShowPetMap = !settings.ShowPetMap;
         settings.Save();
         ApplyPetFarm(settings);
+        _settingsWindow?.SyncOverlaySwitches(settings.ShowPetMap, settings.ShowTimetable);
     }
 
     private void ToggleTimetable()
@@ -3944,6 +3945,7 @@ public partial class MainWindow : Window
         settings.ShowTimetable = !(_timetable?.IsVisible ?? false);
         settings.Save();
         ApplyTimetable(settings);
+        _settingsWindow?.SyncOverlaySwitches(settings.ShowPetMap, settings.ShowTimetable);
     }
 
     /// <summary>Settings changed while Hide UI is up: switches to the look now chosen.</summary>
