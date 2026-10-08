@@ -461,5 +461,8 @@
  "Uploads: only a killed boss counts - HP must read 0 (or the server removed it as dead) and the damage must cover 90 % of its HP": "Uploads: Nur ein getöteter Boss zählt – seine HP müssen 0 anzeigen (oder der Server hat ihn als tot entfernt) und der Schaden muss 90 % seiner HP abdecken",
  "Settings: Save applies the settings and keeps the window open": "Einstellungen: Speichern übernimmt die Einstellungen und lässt das Fenster offen",
  "Pet information: the text is centred and the window grows to both sides, so its middle can be found": "Pet-Information: Der Text steht zentriert und das Fenster wächst nach beiden Seiten, so lässt sich seine Mitte finden",
- "Pet list: sorted by distance, the nearest pet first": "Pet-Liste: nach Entfernung sortiert, das nächste Pet zuerst"
+ "Pet list: sorted by distance, the nearest pet first": "Pet-Liste: nach Entfernung sortiert, das nächste Pet zuerst",
+ "Pet overlays: scale from any edge (not only the corner) without jitter; the places are no longer overwritten when Settings is saved": "Pet-Fenster: Skalieren an jeder Kante (nicht nur an der Ecke) ohne Zappeln; die Positionen werden beim Speichern der Einstellungen nicht mehr überschrieben",
+ "Pet list: adjustable length in the settings, the farthest pets are cut off": "Pet-Liste: Länge in den Einstellungen wählbar, die am weitesten entfernten Pets werden abgeschnitten",
+ "Pet counter: every soul picked up counts the progress up by one until the game sends the pet list again (login, map change)": "Pet-Zähler: Jede eingesammelte Seele erhöht den Fortschritt um eins, bis das Spiel die Pet-Liste wieder sendet (Login, Kartenwechsel)"
 }

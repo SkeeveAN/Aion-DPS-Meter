@@ -1,5 +1,32 @@
 [
  {
+  "version": "0.15.2",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Pet overlays: scale from any edge (not only the corner) without jitter; the places are no longer overwritten when Settings is saved",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Pet list: adjustable length in the settings, the farthest pets are cut off",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Pet counter: every soul picked up counts the progress up by one until the game sends the pet list again (login, map change)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.15.1",
   "date": "2026-10-08",
   "items": [
