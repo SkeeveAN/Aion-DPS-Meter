@@ -69,6 +69,15 @@ export async function buildServer() {
     maxAge: "1h",
   });
 
+  // The site's own code and data (app.js, style.css, translations, changelog.json ...) must never be served
+  // stale: after a deploy an old cached app.js would not know the new pages. "no-cache" still lets the browser
+  // keep the file, it just asks first (ETag) and gets a tiny 304 when nothing changed.
+  app.addHook("onSend", async (request, reply) => {
+    if (reply.statusCode === 200 && /\.(js|css|json)$/.test(request.url.split("?")[0]) && !request.url.startsWith("/api/")) {
+      reply.header("cache-control", "no-cache");
+    }
+  });
+
   // Pictures change rarely and are only replaced under a new name: a week in the browser cache keeps repeat
   // visits from fetching dozens of card photos and icons again.
   app.addHook("onSend", async (request, reply) => {
