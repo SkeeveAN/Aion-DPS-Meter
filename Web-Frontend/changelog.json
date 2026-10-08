@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.15.7",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Hotkey for the pet map: switches the map and its list on or off (default Ctrl+Alt+K, changeable in the settings)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.15.6",
   "date": "2026-10-08",
   "items": [
