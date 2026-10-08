@@ -11,7 +11,8 @@ namespace AionDPS.Ui;
 public static class ThemedMessageBox
 {
     public static MessageBoxResult Show(Window? owner, string text, string caption,
-        MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None)
+        MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None,
+        string? checkboxLabel = null, Action<bool>? onCheckbox = null)
     {
         MessageBoxResult result = buttons switch
         {
@@ -90,6 +91,14 @@ public static class ThemedMessageBox
 
         var content = new StackPanel();
         content.Children.Add(body);
+        if (checkboxLabel is not null)
+        {
+            // e.g. "don't show this again": its state goes to onCheckbox when the box is closed
+            var check = new CheckBox { Content = checkboxLabel, Margin = new Thickness(20, 0, 20, 8) };
+            content.Children.Add(check);
+            window.Closed += (_, _) => onCheckbox?.Invoke(check.IsChecked == true);
+        }
+
         content.Children.Add(row);
         window.Content = content;
         ThemedChrome.Apply(window);

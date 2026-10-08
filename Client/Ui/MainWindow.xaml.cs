@@ -3743,7 +3743,29 @@ public partial class MainWindow : Window
 
     private void OnMinimizeClicked(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
-    private void OnHideUiClicked(object sender, RoutedEventArgs e) => SetHideUi();
+    private void OnHideUiClicked(object sender, RoutedEventArgs e)
+    {
+        var settings = MeterSettings.Load();
+        if (!_hideUiActive && !settings.HideUiHintDismissed)
+        {
+            // the window is about to become see-through and click-through: say how to get it back
+            var loc = LocalizationManager.Instance;
+            string key = HotkeyBinding.Parse(settings.HotkeyHideUi).ToString();
+            string text = string.IsNullOrWhiteSpace(settings.HotkeyHideUi) ? loc["Main.HideUiHint.NoHotkey"] : string.Format(loc["Main.HideUiHint"], key);
+            ThemedMessageBox.Show(this, text, loc["Main.HideUiHint.Title"], MessageBoxButton.OK, MessageBoxImage.Information,
+                loc["Main.HideUiHint.DontShow"], dismissed =>
+                {
+                    if (dismissed)
+                    {
+                        var s = MeterSettings.Load();
+                        s.HideUiHintDismissed = true;
+                        s.Save();
+                    }
+                });
+        }
+
+        SetHideUi();
+    }
 
     /// <summary>
     /// Found by the user, comparing against their Timetable project's overlay: click-through
