@@ -1,5 +1,40 @@
 [
  {
+  "version": "0.15.1",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Uploads: only a killed boss counts - HP must read 0 (or the server removed it as dead) and the damage must cover 90 % of its HP",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Settings: Save applies the settings and keeps the window open",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Pet information: the text is centred and the window grows to both sides, so its middle can be found",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Pet list: sorted by distance, the nearest pet first",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.15.0",
   "date": "2026-10-08",
   "items": [
