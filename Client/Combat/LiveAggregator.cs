@@ -72,6 +72,48 @@ public sealed class LiveAggregator
         return changed;
     }
 
+    /// <summary>
+    /// The player got a new combat id (a map change: the game announces the own character again under another id): everything the old id did
+    /// or received is credited to the new one, so the player is one row and not two.
+    /// </summary>
+    public int MergeIds(int from, int to)
+    {
+        if (from == to)
+        {
+            return 0;
+        }
+
+        int changed = 0;
+        for (int i = 0; i < _events.Count; i++)
+        {
+            DamageEvent ev = _events[i];
+            if (ev.SourceObjectId == from || ev.TargetObjectId == from)
+            {
+                _events[i] = ev with
+                {
+                    SourceObjectId = ev.SourceObjectId == from ? to : ev.SourceObjectId,
+                    TargetObjectId = ev.TargetObjectId == from ? to : ev.TargetObjectId,
+                };
+                changed++;
+            }
+        }
+
+        for (int i = 0; i < _shields.Count; i++)
+        {
+            var sh = _shields[i];
+            if (sh.SourceObjectId == from || sh.TargetObjectId == from)
+            {
+                _shields[i] = sh with
+                {
+                    SourceObjectId = sh.SourceObjectId == from ? to : sh.SourceObjectId,
+                    TargetObjectId = sh.TargetObjectId == from ? to : sh.TargetObjectId,
+                };
+            }
+        }
+
+        return changed;
+    }
+
     /// <summary>One-line-per-source leaderboard for the console dump: total damage and wall-clock
     /// "ALL" DPS since the first hit seen for that source (see DpsCalculator remarks on why this is
     /// the ambiguous, gap-inclusive variant rather than iDPS). <paramref name="nameResolver"/> lets

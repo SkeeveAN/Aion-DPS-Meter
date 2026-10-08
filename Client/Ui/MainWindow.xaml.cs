@@ -376,6 +376,17 @@ public partial class MainWindow : Window
         // The upload entries appear once the own character is known (see RefreshUploadAvailability).
         if (source.Entities is Aion2EntityDirectory entities)
         {
+            // A map change announces the own character again under another combat id: one player, one row.
+            entities.LocalIdChanged += (oldId, newId) => Dispatcher.BeginInvoke(new Action(() =>
+            {
+                int merged = _aggregator.MergeIds(oldId, newId);
+                if (_selectedTargetId == oldId)
+                {
+                    _selectedTargetId = newId;
+                }
+
+                AutoUploadLog.Write($"own combat id changed {oldId} -> {newId}: {merged} event(s) merged into one row");
+            }));
             entities.CharacterChanged += _ => Dispatcher.BeginInvoke(new Action(() =>
             {
                 RefreshUploadAvailability();

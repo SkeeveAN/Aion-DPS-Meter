@@ -906,6 +906,11 @@ internal static class Program
         var protocol = Aion2.Protocol.Aion2Protocol.Load();
         using var source = new Aion2.Aion2PacketCombatSource(protocol);
         (source.Entities as Aion2.Aion2EntityDirectory)?.SetConfiguredLocalName(ownName);
+        if (source.Entities is Aion2.Aion2EntityDirectory idWatch)
+        {
+            idWatch.LocalIdChanged += (a, b) => Console.WriteLine($"aion2-replay: own combat id changed {a} -> {b}");
+        }
+
         var events = new List<Combat.DamageEvent>();
         int segments = 0;
         string? petLog = null;

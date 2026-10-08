@@ -143,6 +143,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// the "appeared" frame), so it also settles who the local player is.</summary>
     public void SetLocalCharacter(Aion2CharacterInfo info)
     {
+        int? renamedFrom = null;
         lock (_gate)
         {
             // Another character logged in (a twink): the lists of the previous one must not leak into
@@ -160,14 +161,29 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _bar.Clear();
             }
 
+            int previousId = _explicitLocalId;
+            string? previousName = _character?.Name;
             _character = info;
             _explicitLocalId = info.CombatId;
+            if (previousId >= 0 && previousId != info.CombatId && previousName == info.Name)
+            {
+                renamedFrom = previousId;
+            }
+
             _names[info.CombatId] = info.Name;
             _ids[info.Name] = info.CombatId;
         }
 
+        if (renamedFrom is int oldId)
+        {
+            LocalIdChanged?.Invoke(oldId, info.CombatId);
+        }
+
         CharacterChanged?.Invoke(info);
     }
+
+    /// <summary>The own character was announced again under another combat id (a map change); the old id and the new one are the same player.</summary>
+    public event Action<int, int>? LocalIdChanged;
 
     public Aion2CharacterInfo? LocalCharacter
     {
