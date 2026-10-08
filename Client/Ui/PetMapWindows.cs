@@ -215,6 +215,19 @@ public static class PetMapPalette
     private static readonly string[] Hex = { "#4D9BFF", "#FF8A3D", "#5BD07A", "#E05BD0", "#FFE04D", "#4DDCE0", "#FF5A6E", "#B58BFF" };
 
     public static Color Of(int index) => (Color)ColorConverter.ConvertFromString(Hex[index % Hex.Length]);
+
+    /// <summary>The colour of a kind of collectible (shown as a diamond).</summary>
+    public static Color OfGather(string kind) => (Color)ColorConverter.ConvertFromString(kind switch
+    {
+        "Od" => "#7FE3FF",
+        "Herb" => "#3DDC84",
+        "Food" => "#FFC24D",
+        "Ore" => "#C9CED6",
+        "Wood" => "#B5835A",
+        "Gemstone" => "#E08CFF",
+        "Fragment" => "#FF7B7B",
+        _ => "#FFFFFF",
+    });
 }
 
 /// <summary>
@@ -230,6 +243,7 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly List<Image> _tileImages = new();
     private readonly List<Ellipse> _dots = new();
     private readonly List<Ellipse> _liveDots = new();
+    private readonly List<Polygon> _gatherMarks = new();
     private readonly Polygon _me;
 
     public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120, LoadSize, SaveSize)
@@ -364,7 +378,8 @@ public sealed class PetMapWindow : MovableOverlay
     /// <paramref name="points"/> in their pets' colours (<paramref name="colors"/> by pet id).
     /// </summary>
     public void Render(Aion2MapInfo map, double worldX, double worldY, double radiusMetres, double opacity,
-        IReadOnlyList<(int PetId, float X, float Y)> points, IReadOnlyList<(int PetId, float X, float Y)> live, IReadOnlyDictionary<int, Color> colors)
+        IReadOnlyList<(int PetId, float X, float Y)> points, IReadOnlyList<(int PetId, float X, float Y)> live, IReadOnlyDictionary<int, Color> colors,
+        IReadOnlyList<(string Kind, float X, float Y)>? gather = null)
     {
         double ppu = ViewSize / 2 / (radiusMetres * 100.0);       // view pixels per world unit
         double k = ppu / map.Scale;                                // view pixels per native map pixel
@@ -434,6 +449,35 @@ public sealed class PetMapWindow : MovableOverlay
         for (int i = dot; i < _dots.Count; i++)
         {
             _dots[i].Visibility = Visibility.Collapsed;
+        }
+
+        // collectibles: diamonds in the colour of their kind (the pets are round)
+        int mark = 0;
+        foreach ((string kind, float x, float y) in gather ?? Array.Empty<(string, float, float)>())
+        {
+            double px = ViewSize / 2 + (x - worldX) * ppu, py = ViewSize / 2 + (y - worldY) * ppu;
+            if (px < 6 || py < 6 || px > ViewSize - 6 || py > ViewSize - 6)
+            {
+                continue;
+            }
+
+            if (mark >= _gatherMarks.Count)
+            {
+                var g = new Polygon { Points = new PointCollection { new Point(0, -8), new Point(7, 0), new Point(0, 8), new Point(-7, 0) }, Stroke = Brushes.Black, StrokeThickness = 1.4, IsHitTestVisible = false };
+                _gatherMarks.Add(g);
+                _canvas.Children.Add(g);
+            }
+
+            var m = _gatherMarks[mark++];
+            m.Fill = new SolidColorBrush(PetMapPalette.OfGather(kind));
+            Canvas.SetLeft(m, px);
+            Canvas.SetTop(m, py);
+            m.Visibility = Visibility.Visible;
+        }
+
+        for (int i = mark; i < _gatherMarks.Count; i++)
+        {
+            _gatherMarks[i].Visibility = Visibility.Collapsed;
         }
 
         // the monsters really around the player (announced by the game): large, bright, over the general spawn points

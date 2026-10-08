@@ -907,7 +907,8 @@ internal static class Program
         var window = new Ui.PetMapWindow();
         // sample "live" monsters: every 7th spawn point within 120 m stands there right now
         var live = points.Where(p => Math.Abs(p.X - x) < 12000 && Math.Abs(p.Y - y) < 12000).Where((p, i) => i % 7 == 0).ToList();
-        window.Render(map, x, y, settings.PetMapRadius, settings.PetMapOpacity, points.ToList(), live, colors);
+        window.Render(map, x, y, settings.PetMapRadius, settings.PetMapOpacity, points.ToList(), live, colors,
+            Aion2.Protocol.Aion2Gather.PointsOf(map, Aion2.Protocol.Aion2Gather.AvailableKinds().ToHashSet()));
         var list = new Ui.PetListWindow();
         list.Render(pets.Select(id => (colors[id], Aion2.Protocol.Aion2Pets.PetName(id, "de") ?? "?", "Stufe 2 · 22/75", "104 m")).ToList());
         var visual = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x36, 0x2c)) };

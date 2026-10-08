@@ -22,6 +22,7 @@ public sealed class PetMapController : IDisposable
     private (float X, float Y)? _lastTarget;
     private List<(int PetId, float X, float Y)> _points = new();
     private string _pointsKey = "";
+    private List<(string Kind, float X, float Y)> _gather = new();
     private DateTime _lastDetect = DateTime.MinValue;
     private int _ticks;
     private MeterSettings _settings = MeterSettings.Load();
@@ -90,17 +91,19 @@ public sealed class PetMapController : IDisposable
         var states = directory.LocalPetStates;
         var chosen = settings.PetMapPets.Where(id => !states.Any(s => s.PetId == id && s.Level >= Aion2Pets.TopLevel)).ToHashSet();
         var position = directory.BestPosition;
-        if (_current is null || position is null || chosen.Count == 0 || PositionIsStale(directory, position.Value))
+        var gatherKinds = settings.PetMapGather.ToHashSet();
+        if (_current is null || position is null || (chosen.Count == 0 && gatherKinds.Count == 0) || PositionIsStale(directory, position.Value))
         {
             ShowEmpty(locked);
             return;
         }
 
-        string key = _current.Key + "|" + string.Join(",", chosen.OrderBy(i => i));
+        string key = _current.Key + "|" + string.Join(",", chosen.OrderBy(i => i)) + "|" + string.Join(",", gatherKinds.OrderBy(k => k));
         if (key != _pointsKey)
         {
             _pointsKey = key;
             _points = Aion2Maps.PointsOf(_current, chosen).ToList();
+            _gather = Aion2Gather.PointsOf(_current, gatherKinds).ToList();
         }
 
         // Glide to the reported position
@@ -121,7 +124,8 @@ public sealed class PetMapController : IDisposable
         var colors = petsHere.Select((id, i) => (id, i)).ToDictionary(t => t.id, t => PetMapPalette.Of(t.i));
         var live = directory.LiveMobs()
             .SelectMany(m => Aion2Pets.PetsOfNpc(m.NpcId).Where(chosen.Contains).Select(pet => (pet, m.X, m.Y))).ToList();
-        _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors);
+        _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors,
+            _gather);
         _map.ShowOverlay(true);
 
         if (++_ticks % 10 == 0 || _lastTarget != (tx, ty))
@@ -130,7 +134,7 @@ public sealed class PetMapController : IDisposable
             _list.Render(Rows(petsHere, colors, tx, ty, states, live));
         }
 
-        _list.ShowOverlay(true);
+        _list.ShowOverlay(petsHere.Count > 0 || !locked);
     }
 
     /// <summary>The reported position is old when the monsters announced around the player stand far from it (he was teleported, e.g. into a city).</summary>

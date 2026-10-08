@@ -1431,6 +1431,126 @@
     "tr": "Zaman çizelgesi",
     "zh": "时间表悬浮窗"
   },
+  "Main.HideUiHint.Title": {
+    "en": "Window will turn transparent",
+    "de": "Fenster wird transparent",
+    "fr": "La fenêtre devient transparente",
+    "es": "La ventana se volverá transparente",
+    "ru": "Окно станет прозрачным",
+    "pl": "Okno stanie się przezroczyste",
+    "tr": "Pencere şeffaf olacak",
+    "zh": "窗口将变为透明"
+  },
+  "Main.HideUiHint": {
+    "en": "The window now turns transparent and clicks pass through it to the game.\n\nPress {0} to show it again (the key can be changed in the settings).",
+    "de": "Das Fenster wird jetzt transparent, Klicks gehen hindurch ins Spiel.\n\nMit {0} schaltest du es wieder ein (die Taste lässt sich in den Einstellungen ändern).",
+    "fr": "La fenêtre devient transparente et les clics passent à travers, vers le jeu.\n\nAppuyez sur {0} pour la réafficher (la touche se change dans les paramètres).",
+    "es": "La ventana se vuelve transparente y los clics pasan al juego.\n\nPulsa {0} para mostrarla de nuevo (la tecla se cambia en los ajustes).",
+    "ru": "Окно станет прозрачным, клики пройдут сквозь него в игру.\n\nНажмите {0}, чтобы показать его снова (клавишу можно изменить в настройках).",
+    "pl": "Okno stanie się przezroczyste, a kliknięcia przejdą do gry.\n\nNaciśnij {0}, aby pokazać je ponownie (klawisz zmienisz w ustawieniach).",
+    "tr": "Pencere şeffaf olacak ve tıklamalar oyuna geçecek.\n\nTekrar göstermek için {0} tuşuna basın (tuş ayarlardan değiştirilebilir).",
+    "zh": "窗口将变为透明，点击会穿透到游戏。\n\n按 {0} 可再次显示（可在设置中更改按键）。"
+  },
+  "Main.HideUiHint.NoHotkey": {
+    "en": "The window now turns transparent and clicks pass through it to the game.\n\nNo key is set for showing it again: choose one in the settings (Hotkeys), or use the taskbar or tray icon.",
+    "de": "Das Fenster wird jetzt transparent, Klicks gehen hindurch ins Spiel.\n\nFür das Wiedereinschalten ist keine Taste gesetzt: Wähle eine in den Einstellungen (Tastenkürzel) oder nutze die Taskleiste bzw. das Tray-Symbol.",
+    "fr": "La fenêtre devient transparente et les clics passent vers le jeu.\n\nAucune touche n'est définie pour la réafficher : choisissez-en une dans les paramètres (Raccourcis) ou utilisez la barre des tâches ou l'icône de la zone de notification.",
+    "es": "La ventana se vuelve transparente y los clics pasan al juego.\n\nNo hay tecla para mostrarla de nuevo: elige una en los ajustes (Atajos) o usa la barra de tareas o el icono de la bandeja.",
+    "ru": "Окно станет прозрачным, клики пройдут в игру.\n\nКлавиша для возврата не задана: выберите её в настройках (Горячие клавиши) или используйте панель задач или значок в трее.",
+    "pl": "Okno stanie się przezroczyste, a kliknięcia przejdą do gry.\n\nNie ustawiono klawisza do ponownego pokazania: wybierz go w ustawieniach (Skróty) lub użyj paska zadań albo ikony w zasobniku.",
+    "tr": "Pencere şeffaf olacak, tıklamalar oyuna geçecek.\n\nTekrar göstermek için tuş atanmamış: ayarlardan (Kısayollar) seçin veya görev çubuğunu ya da tepsi simgesini kullanın.",
+    "zh": "窗口将变为透明，点击会穿透到游戏。\n\n尚未设置再次显示的按键：请在设置（快捷键）中选择，或使用任务栏或托盘图标。"
+  },
+  "Main.HideUiHint.DontShow": {
+    "en": "Do not show this again",
+    "de": "Nicht erneut anzeigen",
+    "fr": "Ne plus afficher",
+    "es": "No volver a mostrar",
+    "ru": "Больше не показывать",
+    "pl": "Nie pokazuj ponownie",
+    "tr": "Bir daha gösterme",
+    "zh": "不再显示"
+  },
+  "Settings.PetMap.Gather": {
+    "en": "Collectibles",
+    "de": "Sammelobjekte",
+    "fr": "Objets à récolter",
+    "es": "Recolectables",
+    "ru": "Собираемое",
+    "pl": "Zbieranie",
+    "tr": "Toplanabilirler",
+    "zh": "采集物"
+  },
+  "Settings.PetMap.Gather.Od": {
+    "en": "Od",
+    "de": "Od",
+    "fr": "Od",
+    "es": "Od",
+    "ru": "Од",
+    "pl": "Od",
+    "tr": "Od",
+    "zh": "奥德"
+  },
+  "Settings.PetMap.Gather.Herb": {
+    "en": "Herbs",
+    "de": "Kräuter",
+    "fr": "Herbes",
+    "es": "Hierbas",
+    "ru": "Травы",
+    "pl": "Zioła",
+    "tr": "Otlar",
+    "zh": "草药"
+  },
+  "Settings.PetMap.Gather.Food": {
+    "en": "Food plants",
+    "de": "Nahrung",
+    "fr": "Nourriture",
+    "es": "Comida",
+    "ru": "Еда",
+    "pl": "Jedzenie",
+    "tr": "Yiyecek",
+    "zh": "食材"
+  },
+  "Settings.PetMap.Gather.Ore": {
+    "en": "Ores",
+    "de": "Erze",
+    "fr": "Minerais",
+    "es": "Minerales",
+    "ru": "Руда",
+    "pl": "Rudy",
+    "tr": "Cevherler",
+    "zh": "矿石"
+  },
+  "Settings.PetMap.Gather.Wood": {
+    "en": "Wood",
+    "de": "Holz",
+    "fr": "Bois",
+    "es": "Madera",
+    "ru": "Дерево",
+    "pl": "Drewno",
+    "tr": "Odun",
+    "zh": "木材"
+  },
+  "Settings.PetMap.Gather.Gemstone": {
+    "en": "Gems",
+    "de": "Edelsteine",
+    "fr": "Gemmes",
+    "es": "Gemas",
+    "ru": "Самоцветы",
+    "pl": "Klejnoty",
+    "tr": "Mücevherler",
+    "zh": "宝石"
+  },
+  "Settings.PetMap.Gather.Fragment": {
+    "en": "Empyrean traces",
+    "de": "Spuren des Gebieters",
+    "fr": "Traces empyréennes",
+    "es": "Rastros del Empíreo",
+    "ru": "Следы Эмпирея",
+    "pl": "Ślady Empireum",
+    "tr": "Empirean izleri",
+    "zh": "天界痕迹"
+  },
   "Settings.Hotkeys.Group.Dps": {
     "en": "DPS meter",
     "de": "DPS-Meter",
@@ -1442,14 +1562,14 @@
     "zh": "DPS 统计"
   },
   "Settings.Hotkey.PetMap": {
-    "en": "Pet map on / off",
-    "de": "Pet-Karte an / aus",
-    "fr": "Carte des pets activée / désactivée",
-    "es": "Mapa de mascotas sí / no",
-    "ru": "Карта питомцев вкл / выкл",
-    "pl": "Mapa zwierzaków wł. / wył.",
-    "tr": "Evcil hayvan haritası açık / kapalı",
-    "zh": "宠物地图 开 / 关"
+    "en": "Interactive map on / off",
+    "de": "Interaktive Map an / aus",
+    "fr": "Carte interactive activée / désactivée",
+    "es": "Mapa interactivo sí / no",
+    "ru": "Интерактивная карта вкл / выкл",
+    "pl": "Mapa interaktywna wł. / wył.",
+    "tr": "Etkileşimli harita açık / kapalı",
+    "zh": "交互地图 开 / 关"
   },
   "Timetable.Always": {
     "en": "any time",
@@ -2024,14 +2144,14 @@
     "zh": "宠物悬浮窗（拖动移动）"
   },
   "Settings.Nav.PetMap": {
-    "en": "Pet map",
-    "de": "Pet-Karte",
-    "fr": "Carte des pets",
-    "es": "Mapa de mascotas",
-    "ru": "Карта питомцев",
-    "pl": "Mapa petów",
-    "tr": "Pet haritası",
-    "zh": "宠物地图"
+    "en": "Interactive map",
+    "de": "Interaktive Map",
+    "fr": "Carte interactive",
+    "es": "Mapa interactivo",
+    "ru": "Интерактивная карта",
+    "pl": "Mapa interaktywna",
+    "tr": "Etkileşimli harita",
+    "zh": "交互地图"
   },
   "Settings.PetInfo.Title": {
     "en": "Pet information",

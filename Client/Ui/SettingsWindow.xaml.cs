@@ -328,6 +328,7 @@ public partial class SettingsWindow : Window
         _settings.PetMapRadius = (int)PetMapRadiusSlider.Value;
         _settings.PetMapOpacity = PetMapOpacitySlider.Value / 100.0;
         _settings.PetMapPets = _petPicked.OrderBy(i => i).ToList();
+        _settings.PetMapGather = _gatherPicked.OrderBy(k => k).ToList();
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
         _settings.HotkeyPetMap = (string?)HotkeyPetMapBox.Tag ?? "";
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
@@ -399,6 +400,8 @@ public partial class SettingsWindow : Window
     private void InitPetMap(MeterSettings settings)
     {
         _petPicked = settings.PetMapPets.ToHashSet();
+        _gatherPicked = settings.PetMapGather.ToHashSet();
+        BuildGatherKinds();
         // the levels of the own pets (login frame, kept in the character file): pets at the top level need no farming and are greyed out
         _petLevels = Aion2CharacterStore.Load(Aion2CharacterStore.DefaultPath)?.Pets.ToDictionary(p => p.Id, p => p.Level) ?? new();
         ShowPetMapBox.IsChecked = settings.ShowPetMap;
@@ -434,6 +437,31 @@ public partial class SettingsWindow : Window
 
         PetMapRadiusValue.Text = string.Format(LocalizationManager.Instance["Settings.PetMap.RadiusValue"], (int)PetMapRadiusSlider.Value);
         PetMapOpacityValue.Text = $"{(int)PetMapOpacitySlider.Value} %";
+    }
+
+    private HashSet<string> _gatherPicked = new();
+
+    /// <summary>One switch per kind of collectible (a diamond in the colour the map uses, and the name).</summary>
+    private void BuildGatherKinds()
+    {
+        GatherKinds.Children.Clear();
+        foreach (string kind in Aion2Gather.AvailableKinds())
+        {
+            var dot = new System.Windows.Shapes.Polygon
+            {
+                Points = new PointCollection { new Point(6, 0), new Point(12, 7), new Point(6, 14), new Point(0, 7) },
+                Fill = new SolidColorBrush(PetMapPalette.OfGather(kind)), Stroke = Brushes.Black, StrokeThickness = 1,
+                Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center, Width = 12, Height = 14,
+            };
+            var label = new TextBlock { Text = LocalizationManager.Instance["Settings.PetMap.Gather." + kind], VerticalAlignment = VerticalAlignment.Center };
+            var content = new StackPanel { Orientation = Orientation.Horizontal };
+            content.Children.Add(dot);
+            content.Children.Add(label);
+            var box = new CheckBox { Content = content, IsChecked = _gatherPicked.Contains(kind), Margin = new Thickness(0, 3, 22, 3), Tag = kind };
+            box.Checked += (_, _) => _gatherPicked.Add(kind);
+            box.Unchecked += (_, _) => _gatherPicked.Remove(kind);
+            GatherKinds.Children.Add(box);
+        }
     }
 
     private IEnumerable<(int PetId, string Name)> PetsOfSpecies(string species) => Aion2Pets.MapPetsOf(species, LocalizationManager.Instance.Language);

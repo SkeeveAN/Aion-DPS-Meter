@@ -158,6 +158,9 @@ public sealed class MeterSettings
     /// <summary>Switches the pet map (with its list) on or off.</summary>
     public string HotkeyPetMap { get; set; } = "Ctrl+Alt+K";
 
+    /// <summary>The notice that appears when the eye (hide the window) is clicked was dismissed with "do not show again".</summary>
+    public bool HideUiHintDismissed { get; set; }
+
     /// <summary>The timetable overlay: what is active now and what starts within the lookahead (<see cref="TimetableLookaheadMinutes"/>). Its place
     /// and scale are remembered (null left/top = a default corner).</summary>
     public bool ShowTimetable { get; set; } = true;
@@ -185,6 +188,9 @@ public sealed class MeterSettings
 
     /// <summary>The pets whose monsters the pet map shows (pet ids). Empty until the player picks some.</summary>
     public List<int> PetMapPets { get; set; } = new();
+
+    /// <summary>The kinds of collectibles the interactive map shows (Od, Herb, Food, Ore, Wood, Gemstone, Fragment); none until the player picks some.</summary>
+    public List<string> PetMapGather { get; set; } = new();
 
     /// <summary>Also read the name on the target plate from the screen when the game's own mark message has not been seen (off: only the packet is used, nothing is captured).</summary>
     public bool PetFarmScreenFallback { get; set; }

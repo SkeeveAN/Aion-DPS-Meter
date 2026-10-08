@@ -618,6 +618,12 @@
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetMap.Gather}"/>
+                                <WrapPanel x:Name="GatherKinds"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetMap.Mobs}"/>
                                 <Grid Height="270">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="132"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>

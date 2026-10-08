@@ -63,3 +63,11 @@ real captures matched that rule, the rest are in `extra_pets.json`. The pet list
 text-named properties (`NpcIdList` as u64 ids, `Positions` = x,y,z as the upper five bytes of a little-endian double + 3 zero bytes) in the same
 world units as the position in the spawn frame 0x4136. Checked against 6,151 spawns from recordings: median distance to the nearest map point under
 a metre in the open-world maps. Main maps: `World/World_L/World_L_A` (Elyos), `World_D_A` (Asmodian), `Abyss_Reshanta_*`.
+
+## Collectibles (MapData.dat + EnvObjData, 2026-10-08)
+`build_gather.py <unpacked AION2/Content/Data/Map> <EnvObjData.bin> <l10n dir> <out.json>` writes `Client/assets/aion2/maps/gather.json` for the
+interactive map: the placements of gather sources and of the region "traces" on the three world maps. An `EnvObjData` row is `[i32 id][key]...`
+with the usage string `EEnvObjectUsage::GatherSource` followed by `Gather_<Type>_...` (Od, Herb, Food, Ore, RareOre, Wood, Cotton, Gemstone);
+the map files hold them as `EnvObjIdList` (u64 ids) followed by `Positions`, next to the spawn groups of `build_spawns.py`. Names come from the l10n
+key `EnvObjData_<key>_desc`. Only about 740 placements exist in the map files (Verteron: Od 57, Ore 19, Herbs 13, Food 27, Gems 10, Wood 7, 559
+"Empyrean traces"); Cotton, rare ores and the Od energy cubes have none there, so they are not offered.
