@@ -10,7 +10,8 @@ const ASMO_23 = ["Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel"
 const ASMO_20 = ["Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel", "Ereshkigal", "Beritra", "Nemon", "Hadala", "Ludra", "Ulgorn", "Munin", "Odar", "Zemurru", "Kromede", "Quai", "Baba", "Fafnir", "Indnath", "Ishalgen", "Altgard", "Agnita", "Atiel", "Valdemar", "Lagta", "Gerod", "Urd", "Ecco", "Giselle", "Kashapa", "Stof", "Berk", "Nuakum", "Grisilla", "Santras", "Reuben", "Hugo", "Kraki", "Hystan", "Rathman", "Sigebert", "Nazmun", "Gelcos", "Paton", "Pelleir", "Elvida", "Ketu", "Pydeon", "Notun", "Murute", "Rotan", "Kwapo", "Duanka", "Brok", "Valter", "Purakhi", "Ignus"];
 // The region is the digit after the faction digit: 1 NA East, 2 NA West, 3 Europe, 4 LATAM, 5 Asia
 // (the client's six id blocks; the live servers per region are the pairs of NCSOFT's launch notice "Server Matchmaking":
-// Europe 18, NA East 8, NA West 5, LATAM 6, Asia 5, Elyos n matched with Asmodian n). The first N servers
+// Europe 18, NA East 8, NA West 5, LATAM 6, Asia 5; the matching of an Elyos with an Asmodian server into one world changes from time
+// to time and is not used anywhere - a player's faction is that of his own server). The first N servers
 // of a block are the live ones of that region; block 10 and the ids beyond are labelled "Name [id]".
 const REGIONS: Record<number, { name: string; perFaction: number }> = {
   1: { name: "NA East", perFaction: 8 },

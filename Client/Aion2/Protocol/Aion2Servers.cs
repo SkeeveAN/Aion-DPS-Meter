@@ -7,7 +7,7 @@ namespace AionDPS.Aion2.Protocol;
 /// per language): ids 1001-1560 are Elyos, 2001-2560 Asmodians, six blocks each, with the same name at the
 /// same place in every block (the first block of each faction differs slightly). Only block 13/23 is
 /// confirmed to be Europe (real characters and party-window server tags: 1303/1304 Aahz and Boulenbouche,
-/// Xooby [Tri] = 2303, zyxx [Ber] = 2308); the live servers per region (the pairs) are those of NCSOFT's launch notice "Server Matchmaking" (see the Regions table).
+/// Xooby [Tri] = 2303, zyxx [Ber] = 2308); the live servers per region are those of NCSOFT's launch notice "Server Matchmaking" (see the Regions table). The matching of Elyos and Asmodian servers into one world (Kaisinel with Lumiel at launch) changes from time to time, so nothing here depends on it: a player's faction is the faction of his own server.
 /// </summary>
 public static class Aion2Servers
 {
@@ -28,24 +28,6 @@ public static class Aion2Servers
         [4] = ("LATAM", 6),
         [5] = ("Asia", 5),
     };
-
-    /// <summary>
-    /// The server of the other faction that is matched with this one (the launch "Server Matchmaking" notice lists the live servers as
-    /// pairs, Elyos n with Asmodian n of the same region: Kaisinel 1304 with Lumiel 2304). Null for a server that is not one of the live pairs.
-    /// The counts per region are the notice's: Europe 18 pairs, NA East 8, NA West 5, LATAM 6, Asia 5.
-    /// </summary>
-    public static int? MatchedWith(int serverId)
-    {
-        int faction = serverId / 1000;
-        int block = serverId / 100 % 10;
-        int index = serverId % 100 - 1;
-        if (faction is not (1 or 2) || index < 0 || !Regions.TryGetValue(block, out var region) || index >= region.PerFaction)
-        {
-            return null;
-        }
-
-        return faction == 1 ? serverId + 1000 : serverId - 1000;
-    }
 
     public static string NameOf(int serverId)
     {
