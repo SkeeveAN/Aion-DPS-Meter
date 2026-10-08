@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.14.1",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Pet farming overlay: Settings switch 'Overlay locked' - unlocked it can be clicked, dragged and scaled, locked it is click-through",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.14.0",
   "date": "2026-10-08",
   "items": [
