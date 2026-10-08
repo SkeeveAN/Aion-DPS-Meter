@@ -7,7 +7,15 @@
     "text": "Every participant shows the faction of their server (Elyos and Asmodians never share a server), also where the client did not send one",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Website: scripts, stylesheets and JSON are revalidated on every load instead of cached for an hour, so a deploy never leaves visitors on an old app.js",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-08"
    }
   ]
  },
@@ -20,13 +28,15 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-08"
    },
    {
     "text": "Player details: monsters are named from their NPC id (12,589 of them, in five languages), the healing view lists the players healed, and the Theostone skills have their icon",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-08"
    }
   ]
  },
@@ -38,13 +48,15 @@
     "text": "Player details: skill icons also for fights read back from the history (found by skill name and class)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-08"
    },
    {
     "text": "Character profile like the website: Arcana in their own tab, faction, server and the worn titles in the header, the pet circles above the species tables, species effects coloured by quality",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-08"
    }
   ]
  },
@@ -57,19 +69,22 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-08"
    },
    {
     "text": "Shattered Arkanis: fights with the 2330xxx boss ids are Transcendence stage 1 (confirmed by the player)",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-08"
    },
    {
     "text": "Mode menu: All in One (damage, healing and damage taken side by side) and All in One Compact (healing with a green cross and damage taken with a red shield as a second line under the name); the rate and damage taken figures in the window are easier to read",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-08"
    }
   ]
  },
@@ -81,7 +96,8 @@
     "text": "Timetable: the lookahead slider goes from 0 to 60 minutes (0 = nothing is listed as about to start)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -93,7 +109,8 @@
     "text": "Settings: opening Settings no longer fails with the new timetable slider",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -106,50 +123,58 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Player page breadcrumb: Home > Legion > player instead of Home > Instances > player",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Add apple-touch-icon",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Player page breadcrumb: just Home > player, the card is reachable from many places",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Home: default link texts and logo alt in the static HTML, /legions link",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Timetable: Battlefield, the arenas, Artifact Siege (Abyss), Shugo Festival, Beritra Air Raid and Spacetime Rift with their times, named as the game names them in all its languages",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "aion2-record: says so when the recording file is already in use instead of crashing",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Timetable: Settings slider for how many minutes ahead an event is shown (5-180); the overlay no longer flickers through the meter",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -161,13 +186,15 @@
     "text": "Footer: Legions and Statistics links removed (they are in the header now)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "a twink's class skills no longer stay in the next character's skill list when the list arrives before the character record",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -179,46 +206,53 @@
     "text": "Species tab: each pet circle sits centred above its own table",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Header: Legions and Statistics links next to the feedback button",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Legions live at /legions (the old /guilds links redirect); the legion list is grouped by server",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Nightmare Altar (Altar der Albträume) is an Ascension Rite instance and is listed; legions sorted by name within each server",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Ascension Rite bosses: the first four NPC ids are the difficulty steps (Easy, Medium, Hard, Extreme), read off the id like the Nightmare levels",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Ascension Rite: Tyrant's Hideout, Depository of Fates, Forgotten Repository and Chamber of the Dead are listed with their bosses; instance photos and boss cards for all of them (the game's dungeon shots and boss portraits)",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "the transparent Hide UI overlay stays in the taskbar again, in the player-chip look as well as the compact panel",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -230,7 +264,8 @@
     "text": "Pet circles run counter-clockwise like the game's",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "the pet circles always show nine places like the game's (the ones a species level has not unlocked stay dark) and the effect names in the species tables take the colour of their quality; the client sends the quality of each effect",
@@ -238,7 +273,8 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -250,7 +286,8 @@
     "text": "German: the group filter entry reads 'Alle Gruppen' instead of 'Alle Konstellationen'",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Server names follow the game's region digit (NA East, NA West, Europe, LATAM, Asia) and the website shows them in the reader's language as the game spells them",
@@ -258,14 +295,16 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Legions: a list of every legion per server and a page with its known members; the legion on a player profile links to it",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Legion page: gear score (average item level) and combat power per member; the client sends the combat power of inspected players, stored in a new profile column",
@@ -274,7 +313,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Legion page: the game's gear score (as the character window shows it) next to our average item level; the client sends the gear score of inspected players",
@@ -283,7 +323,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "worn titles, pet circles and Daevanion board progress are read from the game and shown on the player profile (titles in the header, pet circles above the species tables, board percentages); the client sends them for your own character and for the character windows of other players you open",
@@ -292,7 +333,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -304,7 +346,8 @@
     "text": "the first-start wizard is a single small window in the look of the Settings (language, privacy text and the three upload switches together)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -316,25 +359,29 @@
     "text": "Start page: preload the hero picture (LCP) and lighten the muted text colour on dark so the stat labels reach contrast 4.5:1",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Footer wordmark gets width/height so the image reserves its space",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Site strings are loaded per language (locales/<code>.js) instead of one 213 KB i18n.js with all eight; a visitor downloads his own language plus English as the fallback",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Boss banners are 1920 px wide instead of 2400 (the page never shows more than about 1860 px)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Statistics page with the player, boss fight and download totals; the download button now counts its clicks",
@@ -342,27 +389,31 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Statistics: conquest bosses show their star rating in the most-fought list",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Statistics: the per-day lists start with the newest day",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Aion 2 server names come from the game's own text for all 22 servers per faction (1301-1322 / 2301-2322); the backend turns an unnamed 'aion-2-server-<id>' upload into the named server, so it exists only once",
     "areas": [
      "Client",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "Uploads carry the own server id and the game server address (IP:port); server names for every id of the game's own table (only block 13/23 counts as Europe, other blocks show as 'Name [id]')",
@@ -371,7 +422,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "The own character profile is no longer uploaded automatically by default (opt-in in the settings); privacy and download texts in all languages and the READMEs say so",
@@ -379,19 +431,22 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "First-start wizard (language and the upload options, all off by default) for a fresh install or a lost settings file; new setting to also upload the profiles of other players (off by default); without it only the own character is sent",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    },
    {
     "text": "first-start wizard that every install sees once after the update (language and the upload options, all off by default: boss upload, own profile, profiles of other players); until it is done nothing is uploaded; new setting to upload the profiles of other players; the server of an upload is named from the game's own table for every server id",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -403,7 +458,8 @@
     "text": "the enchant level of an equipped item is read from its fixed place in the entry instead of the first non-zero byte, so Vakron Guard +10 (was +1), the second Clash Rune +4 (was +0) and other items with a flag byte are right",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -415,7 +471,8 @@
     "text": "a character switch (twink) clears the previous character's skills, gear, Daevanion and species so they no longer end up in the other profile; the character name is detected automatically, the Settings field is gone",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -427,7 +484,8 @@
     "text": "shield skills are recognised by skill id, so the German names (Schutzformation, Hoheit der Blockade, Schockaufhebung, Behütungsschild) work too; Impeding Authority counts as a group shield",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -439,7 +497,8 @@
     "text": "group shield is Protection Circle (Chanter/Templar) with the caster as the event's target and the shielded player as its source; the upload credits it to the caster, personal shields (Defiance, Warding Shield) are only kept out of healing",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -451,19 +510,22 @@
     "text": "Start page top players: no class-coloured row background, only tinted emblem and coloured bar",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Player page runs tab: the boss name opens the run, not the boss overview",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "shields (Defiance, Warding Shield) are no longer counted as the recipient's healing; the caster is worked out from the skill's class and the group's shields are uploaded as shieldsGiven (shown on the run page's protection panel)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-07"
    }
   ]
  },
@@ -476,7 +538,8 @@
     "areas": [
      "Client",
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -488,13 +551,15 @@
     "text": "Uploads: accept characters with 25+ equipment pieces, slots above 40 and more than 150 skills (about 40 % of profile uploads were rejected); log which field failed",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "automatic boss upload also fires for bosses that never send a hit-point reading (20 s after the last hit of a fight of at least 10 s) and for a boss whose last reading stopped within 0.5 % of zero",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -507,26 +572,30 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Link preview for fights: only damage per player in large type, readable at Discord's 400 px width; JPEG copies of the WebP art for the renderer",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Fight page: hero picture falls back to the instance photo like the boss page does",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "damage a player does to themselves (Infiltrate, health costs) no longer counts as damage dealt or taken in the all-targets view",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -538,7 +607,8 @@
     "text": "filter row starts flush left and every dropdown is only as wide as it needs to be",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -550,7 +620,8 @@
     "text": "the group filter dropdown is as wide as its widest entry instead of the 110 px minimum",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -563,19 +634,22 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Cache images and icons for a week (onSend hook; static's own maxAge won)",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "overlay chips show the damage taken in its own column right of the name, like the window, instead of under it",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -587,7 +661,8 @@
     "text": "overlay mode keeps the player list's size - the chips sit where the list sits, full width, same row height and fonts, only the frame is dropped",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -599,7 +674,8 @@
     "text": "uniform player rows - fixed columns (rank, class icon, name, damage taken, DPS, damage) with number columns shared across rows, the class-colour bar fills the whole row height, same layout in the chip overlay",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -611,19 +687,22 @@
     "text": "Feedback form: centered, dropdown readable in both themes",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Feedback form: themed type dropdown instead of the native select popup",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Settings menu without the two disabled placeholder entries (Profile Settings, Key bindings)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -636,13 +715,15 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Run page breadcrumb ends with 'Run <id>'",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Feedback form: website button + client window; reports become GitHub issues, optional recording encrypted (RSA/AES-GCM) into a private repo",
@@ -650,19 +731,22 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Trust the nginx proxy for the client IP (per-visitor rate limit and IP hash)",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "feedback window (Settings menu) - report a problem or suggestion from the client as a GitHub issue, optionally with an encrypted capture recording",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -674,19 +758,22 @@
     "text": "Leaderboard: whole podium card / row opens the run (stretched date link, player links stay clickable)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Start page: recent activity shows the boss picture (falls back to the instance photo)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "a failed boss attempt is never uploaded - a fight goes online only when the boss's hit points reached 0 (the hotkey skips a boss that is still alive, and the automatic upload now fires on the HP-0 defeat, since Aion 2 sends no kill frame)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -698,7 +785,8 @@
     "text": "Start page: theme bootstrap moved from an inline script into theme-init.js (prepares a strict Content-Security-Policy)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "the boss's hit points (from the game's HP frame) go along with every boss upload; the backend stores the highest reading per encounter (boss_max_hp) and returns it from the encounter API",
@@ -706,7 +794,8 @@
      "Client",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -719,7 +808,8 @@
     "areas": [
      "Client",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -732,7 +822,8 @@
     "areas": [
      "Client",
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -744,44 +835,51 @@
     "text": "World boss areas get landscape pictures from the game client (Verteron, Altgard, Abyss)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "World boss areas: Verteron, Altgard and Abyss pictures (wide format matching the tiles)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "World bosses are their own area (/worldbosses, /worldbosses/<area>) instead of an instance category: overview, boss lists, breadcrumbs, sitemap; old /instances addresses redirect",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Start page: the 'View data' button is called 'Instances'",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Instances page: no World Bosses link among the tabs (the start page has the button)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Boss page: wide boss banners keep their own proportions in the hero (no zoom)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Start page: no download button in the hero (the footer has it)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "Abyss world bosses Executor Argo and Executor Kaira are recognised and listed (with pictures); Draupnir's Afflicted Bakarma is merged into Transcendent Bakarma",
@@ -789,7 +887,8 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -802,7 +901,8 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    },
    {
     "text": "world bosses (Verteron, Altgard, Abyss; 52 bosses with their NPC ids) are recognised by the client and listed on the website as the new 'World Bosses' category, so fights can be uploaded",
@@ -811,7 +911,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -825,7 +926,8 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-06"
    }
   ]
  },
@@ -837,7 +939,8 @@
     "text": "the own-fight restriction (only monsters the player fought) applies to the compact overlay's Group / Corps view only; everywhere else players fighting other monsters are listed too",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -849,7 +952,8 @@
     "text": "the All / Group / Corps filter is back, but only for the compact transparent overlay; the normal window and the chip overlay list everybody again",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -861,7 +965,8 @@
     "text": "the group / corps view filter is gone (everybody's damage is shown again); character window laid out like the website's player page (tabs, item and skill icons, Daevanion board tiles, species knowledge)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -876,7 +981,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -890,20 +996,23 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "SEO: richer titles/descriptions per page (player profile with level/class/item level/guild/server/best run, boss with runs and stats per difficulty, instance with level/players/item level, encounter and participant previews, comparisons, search), preview images (boss/instance photos, class emblems), instance categories as real addresses (/instances/nightmare, /instances/expedition/hard), WebSite and ProfilePage JSON-LD",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "a team mate is no longer shown under one's own name (own-name fallback only while the local player is unknown)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -915,13 +1024,15 @@
     "text": "Instances page: stars for Conquest, players and item level on the cards",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Conquest instances in the game's own order (Krao, Draupnir, Urugugu, Vakron, Fire Temple, Grimmhorn)",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Nightmare bosses: real NPC ids (ten per boss, one per level), English names, the level is read off the NPC id; client boss list regenerated",
@@ -929,19 +1040,22 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Timetable overlay: its own opacity setting in the Timetable page (30-100 %), falls back to the overlay opacity for old settings files",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Nightmare boss ids (level read off the id), own timetable opacity",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -954,7 +1068,8 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Group shields: damage_absorbed / shields_given columns, upload fields, API and UI (hatched shield section in the damage-taken panel, Protection cards for casters) - empty until the client reports them; panel renamed to 'Damage taken' in all languages",
@@ -962,25 +1077,29 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Instance photos for Shattered Arkanis, Deus Research Base and Sanctum of Loathing; wide banners of the seven Nightmare bosses (not wired up yet)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Expedition instance photos: clean boss crops from the full-screen shots (no window UI), 1600x880",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Draupnir instance photo: the Draconute Task Captain",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Instances page as category tabs (Expedition normal/hard, Nightmare boss tree, Ascension, Transcendence); only the 16 EU instances listed, the rest hidden; expedition hard mode is its own instance; per-boss difficulty steps (Nightmare level, Ascension difficulty, Transcendence stage) ranked separately via encounters.mode",
@@ -988,25 +1107,29 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "game-data: conquest translations belong to the name table, not the image table",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Settings window: cards (Display / Overlay / Behavior), switches instead of checkboxes, own pages for Hotkeys and Timetable, wider window; render-settings knows the new pages",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "settings window with cards, switches and own pages for hotkeys and timetable",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -1019,13 +1142,15 @@
     "areas": [
      "Client",
      "Website"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "meter row colours - class pairs share a hue family in a lighter and a deeper shade",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -1037,20 +1162,23 @@
     "text": "Website: language follows the browser on first visit (stored choice wins, English fallback)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Participant page: new layout (hero, key figures, ranked skill rows) with skill icons resolved by name",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Participant page: link to the player's profile (name and button)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "URLs without the game segment (old /aion2/... links 301), player slugs (name-server) with 301 from numeric ids, profile icon after the name on the participant page",
@@ -1058,26 +1186,30 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Pages: the game is a constant now that it is no longer in the address",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Player profiles open for search engines: indexable, sitemap entries, richer server-rendered fragment, robots.txt fixed for the new paths",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Participant skills: only the player's own class - effects fold into their skill, other classes' skills and 1-damage status markers are left out; icons from the own class's ids",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Coloured class icons (ring + tint in the class colour) on the website and in the client, localized skill names on the participant page, subtle compare buttons incl. 'compare with another player' on the participant page, profiles without a fight indexable",
@@ -1085,20 +1217,23 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "Class colours shared by class pairs (Gladiator/Templar blue, Cleric/Chanter yellow, Assassin/Ranger green, Sorcerer/Spiritmaster purple), icons regenerated, Brawler icon added to the client",
     "areas": [
      "Client",
      "Website"
-    ]
+    ],
+    "date": "2026-10-05"
    },
    {
     "text": "class icons in the class colours (ring + tint, shared per class pair), Brawler icon added",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -1110,7 +1245,8 @@
     "text": "Aion 2 server ids - Asmodian early-access order fixed, Hithanya and Nemon added",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-05"
    }
   ]
  },
@@ -1122,7 +1258,8 @@
     "text": "class icons are the Aion 2 emblems on a dark plate with a gold ring",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    }
   ]
  },
@@ -1135,51 +1272,59 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Item icons: three staves take the icon of the tier the client has (T06 instead of T05/T04)",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Web: database timestamps without a zone are read as UTC (a fresh run looked two hours old in Germany)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Boss page: remove the \"Boss mechanics\" section",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Leaderboard: top three groups as cards with class emblems, the rest as compact rows, sortable",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Boss reset: a rise of 10% of max HP starts a new attempt even without a full-health frame; roles derived from the roster (Gladiator tank without Templar, Chanter DD with Cleric and damage over twice the healing)",
     "areas": [
      "Client",
      "Website"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Homepage: top players and recent runs as cards (class emblems, medal ranks, slim run cards with the dungeon photo)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "the upload hotkey sends every boss fight not yet uploaded",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    }
   ]
  },
@@ -1191,7 +1336,8 @@
     "text": "character windows of other players survive a restart and go with boss uploads",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    }
   ]
  },
@@ -1204,13 +1350,15 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "the skill bar's equipped skills (with the break-free skill) are uploaded",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    }
   ]
  },
@@ -1222,13 +1370,15 @@
     "text": "Daevanion board: real common tile and class start tile from the game screenshots",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "skill list and stigmas are merged across the game's re-sends",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    }
   ]
  },
@@ -1240,33 +1390,38 @@
     "text": "Player details: DPS curve, hits and crit tiles, damage per target with the player's share; render-details mode",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Player page: tabs (runs, equipment, skills, Daevanion boards) with the game's own item and skill icons",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Player page: gear cards tinted by rarity, item tier shown, rarity colours as the game paints them",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Player page: icon tiles take the rarity colour as background instead of the page blue",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Daevanion boards from the client's node table with the game's node art; passive skill icons; skill frames like the game",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Other players' character windows and own stigmas are read and uploaded; skill blocks side by side; board colours fixed",
@@ -1274,7 +1429,8 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-04"
    }
   ]
  },
@@ -1286,25 +1442,29 @@
     "text": "Aion 2: a spirit's basic attacks go to its owner when the meter started mid-fight",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Aion 2: a boss healing itself by the hits it takes is no longer the player's damage",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Aion 2: hits of target-debuff skills (Chain of Torment, Taunt) are damage",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    },
    {
     "text": "Auto reset is off by default (setting renamed to AutoResetEnabled, so the old saved 'on' is dropped)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-04"
    }
   ]
  },
@@ -1316,13 +1476,15 @@
     "text": "Group scope without a roster falls back to the players fighting alongside; aion2-replay can list the party and the hit-point readings (AION2_PARTY=1)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Group scope keeps the roster's members after the group is left (the fight on screen is still theirs)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1334,7 +1496,8 @@
     "text": "Scope switch All | Group | Corps in the compact overlay header and the Mode menu, replacing the 'only my party' setting; render-overlay and render-settings modes",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1346,7 +1509,8 @@
     "text": "Settings and secondary windows without AllowsTransparency (Win+Shift+S could not capture them); render-settings mode; shorter timetable label",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1358,19 +1522,22 @@
     "text": "Timetable overlay: what is active now and what starts within 60 minutes (Arena of Strategy first)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Timetable: any-time events, with the 1 vs 1 and 5 vs 5 arenas",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Timetable: dated single occurrences, with the next Abyss raid (2026-10-03 21:00) read off the game's countdown",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1382,7 +1549,8 @@
     "text": "Settings: auto-reset checkbox aligned and its seconds field in the theme; the keep-on-top raise leaves Win+Shift+S alone",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1394,19 +1562,22 @@
     "text": "Aion 2: accented names; summons from before the meter started",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Put the doc comments of SetSummonOwner and ClassFromCode back on their methods",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Taken mode: a player's details show what hit them and how they died; a newer update replaces the downloaded one",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1418,73 +1589,85 @@
     "text": "Install and start without elevation errors: asInvoker + the meter raising itself",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Aion 2 skill names in the UI language",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Aion 2: name party members when the meter starts mid-dungeon; summon owner by caster id",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Skill icons: damage events carry the skill id; 375 icons and their lookup",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Skill breakdown: icons, sort by any column, crit note for Aion 2",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Review: English skill names in the data, party first for a summon's owner",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Review: classic Aion keeps its crit note; header tooltip and heal tiles localized",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Hotkey for Upload Boss DMG and an opt-in auto upload after a boss died",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Remove the remaining classic Aion leftovers from the client",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Hide UI can look like the compact transparent panel (header, boss, dense class-coloured lines), chosen in Settings next to the chips; overlay opacity setting for both",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Compact overlay: damage / healing / damage taken switch (badge, Mode menu, hotkey) and the boss health bar",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Boss fight with its adds, auto reset, only-my-party filter, HP check status row, overlay kept in front of borderless full screen",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1496,7 +1679,8 @@
     "text": "Player list and overlay chips offer no UI Automation peers (the cause of the in-game crash)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1510,13 +1694,15 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Do not end the meter on the WPF UI Automation NullReferenceException (ItemAutomationPeer.GetNameCore)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1528,7 +1714,8 @@
     "text": "Overlay mode: the bars take three quarters of the window width",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1540,7 +1727,8 @@
     "text": "Client: coloured class bars behind each row (as long as the damage is of the top player), in the window and the overlay, like the website",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1552,7 +1740,8 @@
     "text": "Overlay mode: each player's bar spans the whole window width like in the normal view, damage and DPS on the right",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1564,38 +1753,44 @@
     "text": "Website: remove the loot area (encounter page, leaderboard badge, texts, styles); Aion 2 has no such loot rules",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Website: person icon behind a player's name opens the character profile (when one exists)",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Decoder: AION2_FRAMES dumps every decoded frame for protocol analysis",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Settings: the five checkboxes of the interface page use the same spacing",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Settings hotkeys: shorter field, no Assign button, click into the field opens an inline popup to press the combination",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Overlay mode: Alt+Tab and the taskbar show a rendered picture of the overlay instead of an empty tile",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1607,19 +1802,22 @@
     "text": "Tray icon for as long as the meter runs, with a right-click menu: show window, show/hide UI, check for updates, exit",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "AionDPS design for every window: history window frame, own message box, dark tray menu",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Secondary windows take the shared dark control styles (tooltip, combo box, check box, menu, button, scroll bar)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1631,25 +1829,29 @@
     "text": "aion2-replay: list the server ids seen next to player names",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Aion 2 server ids 1301-1308 and 2301-2308 with their names",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Replace the chat commands with global hotkeys (overlay, pause, copy ranking, clear), configurable in Settings",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Settings: hotkeys are assigned with an Assign button, then the next key combination is shown and stored",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1661,55 +1863,64 @@
     "text": "Server 1303 is Europe - Vaizel",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Upload only the last attempt of a boss (boss HP reset marks a wipe and retry)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Download page: blue download buttons instead of gold",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Download page: header download link blue too",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "aion2-replay: print each boss's hit-point check",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "aion2-replay: AION2_DUMP writes events and boss hit points as CSV for analysis",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Download page: gold main button again, header and footer buttons subdued to the theme surface",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "Download page: flat footer button",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-03"
    },
    {
     "text": "aion2-record: optional net:<cidr> to record every TCP port of the game's network",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1721,19 +1932,22 @@
     "text": "Add MIT license",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-02"
    },
    {
     "text": "Website footer: NCSOFT disclaimer and MIT note in all 8 languages",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-02"
    },
    {
     "text": "Aion 2: decoding fixes checked against the in-game combat analyzer (#1)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-03"
    }
   ]
  },
@@ -1745,13 +1959,15 @@
     "text": "Homepage search covers both games (it was limited to the default game, so Aion 2 players were never found there)",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-02"
    },
    {
     "text": "Client: remove everything of classic Aion (Chat.log source and parser, loot, AP, relics, game detection, server catalog, characters, player database, classic data and icons)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-02"
    },
    {
     "text": "Remove classic Aion from backend, website and docs; auto-upload switch for the own profile",
@@ -1760,32 +1976,37 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-02"
    },
    {
     "text": "Site meta texts: Aion 2 only",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-02"
    },
    {
     "text": "Keep the running session across a client restart (update restart and App > Restart client)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-02"
    },
    {
     "text": "Website data: Aion 2 only (classic names, instance and boss photos, class and skill icons removed); entry levels corrected from the game's own list",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-10-02"
    },
    {
     "text": "Instance data: explore and conquest modes (entry level, item level, stars) from the in-game Expedition window",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-10-02"
    }
   ]
  },
@@ -1799,13 +2020,15 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-02"
    },
    {
     "text": "Aion 2 server comes from the game's own character record (server id after the name)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-02"
    }
   ]
  },
@@ -1819,7 +2042,8 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-02"
    }
   ]
  },
@@ -1832,19 +2056,22 @@
     "areas": [
      "Client",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Recorder only ends on 'stop' (a stray Enter used to end recordings)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Recognise Aion 2 bosses from the monster-appears frame and let them be uploaded",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Make an Aion 2 boss upload work end to end; add the EU instance/boss names",
@@ -1852,7 +2079,8 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-02"
    }
   ]
  },
@@ -1864,13 +2092,15 @@
     "text": "Character window opens at the height its content needs; wider left column",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Fix crash when the target dropdown is rebuilt (reused ComboBoxItem still had a logical parent)",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    }
   ]
  },
@@ -1882,19 +2112,22 @@
     "text": "Double-click opens a player's details, dark scroll bar in secondary windows, drop the per-row faction switch",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Say where the app runs and whether Update.exe is next to it when it cannot update itself",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Add a checked script for local Velopack update builds",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    }
   ]
  },
@@ -1907,33 +2140,38 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Allow Aion 2 uploads without a boss fight: players' profiles only",
     "areas": [
      "Client",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Themed frame for the details and character windows, no Aion 2 skill icons by name, drop buff/consumable ids from damage, fix Elyos/Asmodian bit",
     "areas": [
      "Client",
      "Backend"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Show the faction of Aion 2 players from the network data instead of the classic character's",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Item tiles in the character window",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    }
   ]
  },
@@ -1945,153 +2183,178 @@
     "text": "Redesign the encounter page: hero banner, KPI row, meter bars",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-27"
    },
    {
     "text": "Scope the homepage's Featured Instances to the picked server",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-27"
    },
    {
     "text": "Don't highlight either game tab (or the server indicator) on the homepage",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-27"
    },
    {
     "text": "Remove the homepage's Featured Instances section",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-27"
    },
    {
     "text": "Homepage redesign: glass cards in the hero, wordmark logo, sun/moon theme switch",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-27"
    },
    {
     "text": "Bring the live homepage in line with the chosen prototype",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-27"
    },
    {
     "text": "Anchor the homepage stats card to the cards, not the hero bottom",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-27"
    },
    {
     "text": "Move the homepage stats card down 15px (user's chosen \"1c\")",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-27"
    },
    {
     "text": "Clarify Aion 2's passive network capture across READMEs, privacy page, i18n",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Give the homepage hero CTAs a fantasy-metal 3D finish",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Move the sitemap link out of the per-page SEO block",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Hide the game tab/server indicator on game-agnostic pages",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Fix homepage footer CTA staying dark in light mode",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Fix light-mode contrast in homepage stats card and header DPS button",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Make homepage stats card follow the theme instead of staying fixed-dark",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Swap light-mode surface color from white to blue-gray",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Darken stats card icons and muted labels in light mode",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Drop the rank number column from the homepage Top players table",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Remove the hero's quick-start pill row",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Add cache-buster to OG/Twitter image URL",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Add Aion 2 skill name/icon-token reference data",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Make skill icon resolution game-aware",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Fix OG image cache-buster: apply it where it actually takes effect",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-28"
    },
    {
     "text": "Add Aion 2 server regions with factions and a per-player guild",
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Calibrate the Aion 2 packet decoder against real captures",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Add Aion 2 character profiles: upload, API and the player page",
@@ -2099,19 +2362,22 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Keep the Aion 2 character across restarts and upload it as a profile",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    },
    {
     "text": "Add the Aion 2 character window and stop capture dying on a UI thread error",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-10-01"
    }
   ]
  },
@@ -2123,7 +2389,8 @@
     "text": "Fix update-restart resume only catching the gap, not the whole session",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-26"
    }
   ]
  },
@@ -2135,7 +2402,8 @@
     "text": "Right-align PVE/PVP toggle, opt-in secondary row info, new nav icons",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-26"
    }
   ]
  },
@@ -2148,27 +2416,31 @@
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-26"
    },
    {
     "text": "Dynamic encounter link previews, correct the Aion-2 packet-capture claim",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-26"
    },
    {
     "text": "Exclude pets from encounter participant counts, show server on the page",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-26"
    },
    {
     "text": "Fix heal-tick caster misattribution, resume Chat.log after update, App-menu cleanup",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-26"
    }
   ]
  },
@@ -2180,7 +2452,8 @@
     "text": "Give Settings the same custom titlebar as MainWindow, persist its size",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-26"
    }
   ]
  },
@@ -2192,7 +2465,8 @@
     "text": "Add Start with Windows, tray icon, session save/load; fix icon and row spacing",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-26"
    }
   ]
  },
@@ -2204,7 +2478,8 @@
     "text": "Split \"All\" filter label per dropdown, fix Interface checkbox alignment",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-26"
    }
   ]
  },
@@ -2216,7 +2491,8 @@
     "text": "Fix App menu, dropdown widths/translations, chat-line length, add boss heuristic",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-26"
    }
   ]
  },
@@ -2228,7 +2504,8 @@
     "text": "Fix App menu not opening, Characters field overflow, Interface combobox rows",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-26"
    }
   ]
  },
@@ -2240,7 +2517,8 @@
     "text": "Restructure the player row: icon-only nav rail, bar under the name",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-25"
    }
   ]
  },
@@ -2252,7 +2530,8 @@
     "text": "Make the navy/orange brand look the default theme, fix Settings layout",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-25"
    }
   ]
  },
@@ -2264,7 +2543,8 @@
     "text": "Announce updates on startup, require admin, trim the nav rail",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-25"
    }
   ]
  },
@@ -2276,32 +2556,37 @@
     "text": "Make the homepage secondary CTA a filled button matching the download CTA",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-25"
    },
    {
     "text": "Fix hero CTA row so both buttons match in height and center their text",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-25"
    },
    {
     "text": "Redesign hero CTA buttons with 3D arcade style",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-25"
    },
    {
     "text": "Link homepage runs directly, restyle footer CTA, enlarge social icons",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-25"
    },
    {
     "text": "Redesign the App menu as a flyout card and Settings as a sidebar",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-25"
    }
   ]
  },
@@ -2315,63 +2600,73 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Give aiondps.com real URLs and server-rendered SEO shells",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Add derived Aion 2 instances, bosses and mechanics content",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Add the combat-source seam and an Aion 2 packet-capture skeleton to the client",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Make the meter themeable and let the font-size setting take effect",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Show rank, damage share and damage taken per player",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Keep a local, searchable history of finished fights",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Fix static assets being swallowed by the game-scoped page routes",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Track avoided attacks and PvP kills from Chat.log",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Rank Aion 2 across servers and tag each player with their server",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Rename Aion 2's ninth class to Brawler and gate it by region",
@@ -2380,20 +2675,23 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Auto-detect Aion vs Aion 2 from the running client process",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Add Aion 2 instance photos and show/sort by minimum level",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Reorganize repo into Client / Backend / Web-Frontend",
@@ -2402,14 +2700,16 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-22"
    },
    {
     "text": "Replace the app icon and website favicon with user-supplied artwork",
     "areas": [
      "Client",
      "Website"
-    ]
+    ],
+    "date": "2026-09-24"
    },
    {
     "text": "Redesign homepage to the navy/orange/blue cinematic look and add site footer",
@@ -2417,13 +2717,15 @@
      "Client",
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-24"
    },
    {
     "text": "Style the homepage secondary CTA as a real button instead of a bare link",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-25"
    }
   ]
  },
@@ -2435,14 +2737,16 @@
     "text": "Fix ServerClassAvailability checking fingerprint before displayName",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-15"
    },
    {
     "text": "Normalize Gunslinger/Songweaver/Muse to Gunner/Bard/Painter server-side",
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-15"
    }
   ]
  },
@@ -2454,7 +2758,8 @@
     "text": "Rename internal namespace from AionSniffer to AionDPS",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-15"
    }
   ]
  },
@@ -2466,7 +2771,8 @@
     "text": "Rename the website to Aion DPS, matching the client",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Add images for Mantor/Vasharti/Tiamat/Beritrakt, fix Asachin's name",
@@ -2474,13 +2780,15 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Reuse Tiamat's Fortress photo for Tiamat's Hidden Space",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Curate Aion Riftshade's instance list, fix Tiamat instance photos",
@@ -2488,40 +2796,46 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-15"
    },
    {
     "text": "Fix 0018's no-op DELETE for Aion Riftshade's instance curation",
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-15"
    },
    {
     "text": "Add Makarna instance photo",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-15"
    },
    {
     "text": "Confirm Aethertech/Bard/Gunner are available on Aion Riftshade",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-15"
    },
    {
     "text": "Fix Origin Aion / Aion Riftshade server fingerprint collision",
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-15"
    },
    {
     "text": "Recognize Brigade General Vasharti as Rentus-Basis/Lost Rentus Base's boss",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-15"
    }
   ]
  },
@@ -2533,7 +2847,8 @@
     "text": "Rename the exe, window title and Task Manager process to \"Aion DPS\"",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-14"
    }
   ]
  },
@@ -2545,7 +2860,8 @@
     "text": "Tolerate a leading \"?\" before a self-typed chat line's speaker name",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-14"
    }
   ]
  },
@@ -2557,7 +2873,8 @@
     "text": "Auto-detect the active server from Chat.log activity; stop showing stale folders",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-14"
    }
   ]
  },
@@ -2569,7 +2886,8 @@
     "text": "Match the active character by server name, not fingerprint",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-14"
    }
   ]
  },
@@ -2581,7 +2899,8 @@
     "text": "Make the per-server Chat.log folder binding visible in Settings",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-14"
    }
   ]
  },
@@ -2593,7 +2912,8 @@
     "text": "Resolve the active character from the current server, not just skills",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-14"
    }
   ]
  },
@@ -2608,7 +2928,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Make a data-less catalog server clickable, rename Aion Riftshade",
@@ -2616,14 +2937,16 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Add Beshmundir Temple, Rentus Base and Dragon Lord's Refuge",
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Scope the instance list per server, not globally",
@@ -2631,7 +2954,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Add Tiamat's Fortress/Tahabata, fix the Belsagos instance's real name",
@@ -2640,7 +2964,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Add the remaining Riftshade instances from the user's own report",
@@ -2648,20 +2973,23 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Fix double-quoted string literals in migration 0016",
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-14"
    },
    {
     "text": "Remember each server's own Chat.log folder in Settings",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-14"
    }
   ]
  },
@@ -2673,27 +3001,31 @@
     "text": "Hide the Buffs column on the website for now",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-13"
    },
    {
     "text": "Parse real self-transformations (Slayer Form, Mau Form) as buffs too",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-13"
    },
    {
     "text": "List every server the client offers, not just ones already uploaded from",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-13"
    },
    {
     "text": "Switch backend domain from dpsmeter.skeeve.tv to aiondps.com",
     "areas": [
      "Client",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-14"
    }
   ]
  },
@@ -2705,13 +3037,15 @@
     "text": "Add translations and an image for the new Stahlrose: Deck instance",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-12"
    },
    {
     "text": "Parse the local player's own self-buffs, and dedupe multi-stat buff lines",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-13"
    }
   ]
  },
@@ -2724,7 +3058,8 @@
     "areas": [
      "Client",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-12"
    }
   ]
  },
@@ -2738,7 +3073,8 @@
      "Client",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-12"
    }
   ]
  },
@@ -2750,7 +3086,8 @@
     "text": "Always track Beritran Supply Box (Stahlmauerbastion), regardless of grade",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-12"
    }
   ]
  },
@@ -2762,27 +3099,31 @@
     "text": "Label Sauro's two bosses with their key count and show 1-key first",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Fix the boss-page breadcrumb dead end and add a known-loot marker",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Add a player-alias system so a character rename can't split one person across two rows",
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Split repeated boss kills into numbered runs, sort by damage, fix search-box focus loss, and hide classes a server doesn't have",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-11"
    }
   ]
  },
@@ -2794,131 +3135,152 @@
     "text": "Translate the remaining Sauro/Tahmes bosses and pre-stage further instances",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Never upload a Training Dummy as an encounter",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Give buffs a 30s pre-pull grace period before the fight's damage window",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Always show buffs that cost Divine Power, not a literal \"Divine Power\" skill",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Drop the pre-staged translations for Sauro bosses that turned out not to matter",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Stop the single-search-result redirect from trapping the Back button",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Give the instance list real client art instead of a plain text list",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Give the boss list poster tiles too, and add 2 more pre-staged instances",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Give bosses their own real portraits instead of reusing the instance photo",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Cap poster-card width so a lone leftover card doesn't stretch full-row",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Add Raksha Boilheart's real portrait, from the user directly",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Swap Sauro-Kriegsdepot's instance photo for the one the user sent",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Prefix the copied damage line with the selected boss, and stop pure healers from vanishing from a boss's own upload",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Add a 65er/60er/Hyperion loot-fairness rule, keyed on the boss actually fought",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Add Ophidan Bridge's final encounter to the 65er loot-fairness rule",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Add frontend translations/images for the 4 new Danuar-family instances",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Add Danuar Sanctuary's instance name and its third boss, Ukahim",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Verify and complete instance-name translations across all languages",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Complete the remaining pl entries for Danuar Sanctuary and Ophidan Bridge",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Extend the 65er loot rule to Sauro's side-room trash mobs, not just Ahuradim/Sheba",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-11"
    },
    {
     "text": "Make the loot-fairness rule zone-based, so it covers every mob, not just curated bosses",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-11"
    }
   ]
  },
@@ -2930,7 +3292,8 @@
     "text": "Replace the PVP DMG checkbox with a PVE/PVP segmented toggle, one row up",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-10"
    }
   ]
  },
@@ -2942,7 +3305,8 @@
     "text": "Add a \"PVP DMG\" option: damage against other players only",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-10"
    }
   ]
  },
@@ -2954,31 +3318,36 @@
     "text": "Drop the Buffs column from both leaderboard listings",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Filter the Buffs column to long-lasting reinforcements (>3min) plus Divine Power",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Add the verified Tahmes/Raksang instance name translation",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Add verified translations for the Sauro-Kriegsdepot instance and its bosses",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-10"
    },
    {
     "text": "Fix real teammates flipping to enemy after friendly-fire AOE/DoT damage",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-10"
    }
   ]
  },
@@ -2993,7 +3362,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3007,13 +3377,15 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Fix solo-boss per-class tables clipping in the narrow multi-column class grid",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Show every group member in a group row, and track damage taken FROM the boss",
@@ -3022,7 +3394,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3034,7 +3407,8 @@
     "text": "Add a headless \"upload\" CLI mode that splits a repeatedly-farmed boss into separate runs",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3046,13 +3420,15 @@
     "text": "Raise the upload rate limit from 30 to 120/min",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Pace \"Upload last run\", stop the search box losing focus per keystroke",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3064,7 +3440,8 @@
     "text": "Always include a known group member in the roster, even at 0",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3076,7 +3453,8 @@
     "text": "Split the footer into two rows so notices stop getting clipped",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3088,7 +3466,8 @@
     "text": "Don't replay historical chat commands when reloading Chat.log",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3100,7 +3479,8 @@
     "text": "Add \"Reload from Chat.log\" to recover a run lost to a restart",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3112,13 +3492,15 @@
     "text": "Log the real reason an upload gets rejected with 400",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Skip uploading a fight the local player wasn't part of",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3130,7 +3512,8 @@
     "text": "Fix uploaded totalDamage using the UI's filter-scoped row.Damage instead of the boss's own hits",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3142,52 +3525,60 @@
     "text": "Redesign the web frontend around a centered, fixed-width layout, and add a download page",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Add full i18n (8 languages) and per-fight/per-player detail pages",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Show class/faction/skill icons, default to English, translate instance names",
     "areas": [
      "Website",
      "Backend"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Translate instance names into all 8 languages, add a places dataset",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Give the auto-attack skill row an icon too",
     "areas": [
      "Backend"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Translate boss NPC names too, not just instance names",
     "areas": [
      "Website"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Add a way to hide trash mobs from the boss list",
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Default \"Upload current boss\" to the boss just fought, surface real upload errors",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3199,7 +3590,8 @@
     "text": "Hide the upload actions until there's a boss to upload, move the button into the icon row",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3212,13 +3604,15 @@
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Lighten toolbar icons, distinguish the filter dropdowns, and make the Mob/Boss dropdown searchable",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3232,7 +3626,8 @@
      "Client",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3244,7 +3639,8 @@
     "text": "Show the running version in the visible title bar",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Identify which server a run belongs to, and upload heal alongside damage",
@@ -3253,7 +3649,8 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3268,20 +3665,23 @@
      "Website",
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Create the SQLite data directory on startup if it doesn't exist yet",
     "areas": [
      "Backend",
      "Database"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Replace the Clear button's trash-can icon with a red X",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3293,7 +3693,8 @@
     "text": "Speak the client's own languages: skill names, Chat.log, and the GUI itself",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3305,7 +3706,8 @@
     "text": "Auto-separate a character switch, using the game's own login notification",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3317,7 +3719,8 @@
     "text": "Never write a faction that was only inferred from fighting someone",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3329,7 +3732,8 @@
     "text": "Never derive a faction for an arena opponent",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3341,7 +3745,8 @@
     "text": "Open the player database from the menu, and make it editable",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3353,13 +3758,15 @@
     "text": "Let the last caster own a DoT, and derive ownership from ordinary hits",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    },
    {
     "text": "Right-click a player: switch faction, or see their skill breakdown",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3371,7 +3778,8 @@
     "text": "Count damage-over-time ticks in English logs",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-09"
    }
   ]
  },
@@ -3383,7 +3791,8 @@
     "text": "Keep incoming damage, so a 1v1 opponent shows up at all",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3395,7 +3804,8 @@
     "text": "Mark the whole group, and remember everyone seen before",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3407,7 +3817,8 @@
     "text": "Warn when Chat.log passes 50 MB, and let it be emptied",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3419,7 +3830,8 @@
     "text": "Same two copy buttons in both views, and clear damage and loot separately",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3431,7 +3843,8 @@
     "text": "Copy the Damage and Loot tables as fenced ASCII for Discord",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3443,7 +3856,8 @@
     "text": "Fix two wrong loot glyphs, and add the blue tier",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3455,7 +3869,8 @@
     "text": "Mark the group as our own side in PvE, and stop Copy failing silently",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3467,7 +3882,8 @@
     "text": "Move the character buttons onto their own row, and allow editing an entry",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3479,7 +3895,8 @@
     "text": "Show who is friend and who is foe, derived from the log itself",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3491,7 +3908,8 @@
     "text": "Update in place: per-user install via Velopack, no installer to run",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3503,7 +3921,8 @@
     "text": "Check GitHub for new releases at startup, every 5 minutes, and on demand",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3515,7 +3934,8 @@
     "text": "Take item names and rarity tiers from Origin Codex",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
@@ -3527,13 +3947,159 @@
     "text": "Remove the packet-capture path, and with it the UAC prompt",
     "areas": [
      "Client"
-    ]
+    ],
+    "date": "2026-09-08"
    }
   ]
  },
  {
   "version": "0.4.0",
   "date": "2026-09-07",
+  "items": [
+   {
+    "text": "Count hits that carry a rider effect, and stop mixing in a second client's fight",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-09-07"
+   }
+  ]
+ },
+ {
+  "version": "Before 0.4.0",
+  "date": "2026-09-07",
+  "items": [
+   {
+    "text": "Remove the g_chatlog memory patch",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Open the GUI when launched with no arguments",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Stop the broadcast dedup from discarding real damage",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Make Copy produce a postable chat line in the Damage view",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Count looted relics toward each character's AP",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Show the relic share of AP, and report totals in chatlog mode",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix German parsing against a real German client log",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Open the GUI whenever no argument is passed",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Request admin rights for the GUI, and give the app an icon",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Ask during setup whether to create a desktop shortcut",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "Before 0.4.0",
+  "date": "2026-09-04",
+  "items": [
+   {
+    "text": "Add German/French/Spanish/Russian Chat.log parsing, fix encoding bug",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add g_chatlog memory-patch switch, porting ShugoConsole's technique",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Add MSI packaging + CI workflow to attach it to GitHub releases",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix invalid -- inside XML comment in SettingsWindow.xaml",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix invalid -- inside XML comments in the new WiX project files",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Define PublishDir as a WiX preprocessor variable, not just an MSBuild property",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Drop the explicit Product.wxs Compile item, WixToolset.Sdk globs it already",
+    "areas": [
+     "Client"
+    ]
+   },
+   {
+    "text": "Fix MSI arch (x64) and version-string derivation",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "Before 0.4.0",
+  "date": "2026-08-24",
+  "items": [
+   {
+    "text": "Add Chat.log-based live tailing, loot tracking, and class/NPC detection",
+    "areas": [
+     "Client"
+    ]
+   }
+  ]
+ },
+ {
+  "version": "Before 0.4.0",
+  "date": "2026-08-23",
   "items": [
    {
     "text": "Initial AION network DMG meter calibration tool",
@@ -3615,126 +4181,6 @@
    },
    {
     "text": "Stop permanently blacklisting a flow after one failed handshake check",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Add Chat.log-based live tailing, loot tracking, and class/NPC detection",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Add German/French/Spanish/Russian Chat.log parsing, fix encoding bug",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Add g_chatlog memory-patch switch, porting ShugoConsole's technique",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Add MSI packaging + CI workflow to attach it to GitHub releases",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Fix invalid -- inside XML comment in SettingsWindow.xaml",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Fix invalid -- inside XML comments in the new WiX project files",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Define PublishDir as a WiX preprocessor variable, not just an MSBuild property",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Drop the explicit Product.wxs Compile item, WixToolset.Sdk globs it already",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Fix MSI arch (x64) and version-string derivation",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Remove the g_chatlog memory patch",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Open the GUI when launched with no arguments",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Stop the broadcast dedup from discarding real damage",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Make Copy produce a postable chat line in the Damage view",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Count looted relics toward each character's AP",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Show the relic share of AP, and report totals in chatlog mode",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Fix German parsing against a real German client log",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Open the GUI whenever no argument is passed",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Request admin rights for the GUI, and give the app an icon",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Ask during setup whether to create a desktop shortcut",
-    "areas": [
-     "Client"
-    ]
-   },
-   {
-    "text": "Count hits that carry a rider effect, and stop mixing in a second client's fight",
     "areas": [
      "Client"
     ]

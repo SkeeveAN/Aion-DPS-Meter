@@ -769,13 +769,14 @@ async function renderStats(secret) {
 // Changelog - English only on purpose (not part of the i18n files). The data is
 // changelog.json, built from the release commits by Tools/changelog/gen.mjs; releases are
 // grouped by minor version (0.10.x) so the long list stays scannable.
+const PRE_VERSION = "Before 0.4.0";
 async function renderChangelog() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), "Changelog"]);
   showLoading("Loading changelog…");
   const releases = await fetchJson("/changelog.json");
   const groups = new Map();
   for (const r of releases) {
-    const minor = r.version === "Unreleased" ? r.version : `${r.version.split(".").slice(0, 2).join(".")}.x`;
+    const minor = r.version === "Unreleased" || r.version === PRE_VERSION ? r.version : `${r.version.split(".").slice(0, 2).join(".")}.x`;
     if (!groups.has(minor)) {
       groups.set(minor, []);
     }
@@ -785,15 +786,18 @@ async function renderChangelog() {
   const sections = [...groups].map(([minor, list], i) => {
     const first = list[list.length - 1];
     const last = list[0];
+    const pre = minor === PRE_VERSION;
     return el("details", { className: "changelog-group", open: i === 0 }, [
       el("summary", {}, [
         el("strong", { textContent: minor }),
-        el("span", { className: "changelog-range", textContent: minor === "Unreleased"
+        el("span", { className: "changelog-range", textContent: pre
+          ? `start of the version numbers · ${list.length} day${list.length === 1 ? "" : "s"} · ${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}`
+          : minor === "Unreleased"
           ? `${list[0].items.length} change${list[0].items.length === 1 ? "" : "s"} since the last release`
           : `${list.length} release${list.length === 1 ? "" : "s"} · ${fmt(first.date)}${first.date === last.date ? "" : ` – ${fmt(last.date)}`}` }),
       ]),
       el("ul", { className: "changelog-list" }, list.flatMap((r) => r.items.map((item, n) => el("li", {}, [
-        el("span", { className: "changelog-version", textContent: n === 0 && r.version !== "Unreleased" ? r.version : "" }),
+        el("span", { className: "changelog-version", textContent: n === 0 && r.version !== "Unreleased" && !pre ? r.version : "" }),
         el("span", { className: "changelog-date", textContent: n === 0 && r.version !== "Unreleased" ? fmt(r.date) : "" }),
         el("span", { className: "changelog-text" }, [
           ...item.areas.map((a) => el("span", { className: `changelog-tag changelog-tag--${a.toLowerCase()}`, textContent: a })),

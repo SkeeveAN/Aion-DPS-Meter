@@ -62,6 +62,7 @@ const versionAt = (hash) => {
 const releases = [];
 let current = null;
 let pending = [];
+const before = []; // commits from before the first <Version> existed
 for (const c of commits) {
   const touchesCsproj = c.files.some((f) => CSPROJ.includes(f));
   const v = touchesCsproj || current === null ? versionAt(c.hash) : current;
@@ -71,7 +72,7 @@ for (const c of commits) {
   const text = override ? override[1] : rel ? rel[2] : noise ? null : c.subject.replace(/;? ?version \d+\.\d+\.\d+$/i, "");
   const areas = areasOf(c.files);
   if (text && areas.length) {
-    pending.push({ text, areas });
+    (v ? pending : before).push({ text, areas, date: c.date });
   }
   if (v && v !== current) {
     current = v;
@@ -84,7 +85,12 @@ for (const c of commits) {
 if (pending.length) {
   releases.push({ version: "Unreleased", date: commits.at(-1).date, items: pending });
 }
-const key = (v) => (v === "Unreleased" ? [1e9, 0, 0] : v.split(".").map(Number));
-releases.sort((a, b) => { const x = key(a.version), y = key(b.version); return y[0] - x[0] || y[1] - x[1] || y[2] - x[2]; });
+// Before the first version number there are no releases: one pseudo release per day instead.
+const PRE = "Before 0.4.0";
+for (const date of [...new Set(before.map((b) => b.date))]) {
+  releases.push({ version: PRE, date, items: before.filter((b) => b.date === date).map(({ text, areas }) => ({ text, areas })) });
+}
+const key = (v) => (v === "Unreleased" ? [1e9, 0, 0] : v === PRE ? [-1, 0, 0] : v.split(".").map(Number));
+releases.sort((a, b) => { const x = key(a.version), y = key(b.version); return y[0] - x[0] || y[1] - x[1] || y[2] - x[2] || (a.date < b.date ? 1 : -1); });
 writeFileSync(out, JSON.stringify(releases, null, 1) + "\n");
 console.log(`${releases.length} releases, ${releases.reduce((n, r) => n + r.items.length, 0)} entries -> ${out}`);
