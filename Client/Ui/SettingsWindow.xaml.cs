@@ -325,12 +325,11 @@ public partial class SettingsWindow : Window
         _settings.RecordFightHistory = RecordFightHistoryBox.IsChecked ?? true;
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
 
-        Saved?.Invoke();
-        Close();
+        Saved?.Invoke(); // the window stays open: Save applies, the ✕ / Cancel button closes
     }
 
     /// <summary>
-    /// Fired on Save, right before Close() -- replaces the old ShowDialog()/DialogResult flow, per
+    /// Fired on Save (the window stays open) -- replaces the old ShowDialog()/DialogResult flow, per
     /// the user's request that Settings open as an independent second window instead of a modal
     /// blocking MainWindow (Show(), not ShowDialog(), from MainWindow.OnSettingsClicked). Setting
     /// DialogResult only works for a window actually shown via ShowDialog() -- doing it here would
