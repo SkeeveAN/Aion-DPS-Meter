@@ -586,6 +586,7 @@
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetFarm.Title}"/>
                                 <CheckBox x:Name="ShowPetFarmBox" Content="{local:Loc Settings.PetFarm.Show}"/>
+                                <CheckBox x:Name="PetFarmLockedBox" Content="{local:Loc Settings.PetFarm.Locked}" Margin="0,4,0,0"/>
                                 <TextBlock Text="{local:Loc Settings.PetFarm.Hint}" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,0"
                                            Foreground="{DynamicResource Brush.TextSubtle}"/>
                             </StackPanel>

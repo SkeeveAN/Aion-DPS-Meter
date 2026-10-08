@@ -48,6 +48,7 @@ public partial class SettingsWindow : Window
         ShowBossHpBox.IsChecked = settings.ShowBossHp;
         ShowTimetableBox.IsChecked = settings.ShowTimetable;
         ShowPetFarmBox.IsChecked = settings.ShowPetFarm;
+        PetFarmLockedBox.IsChecked = settings.PetFarmLocked;
         SetHotkeyBox(HotkeyTimetableBox, HotkeyBinding.Parse(settings.HotkeyTimetable).ToString());
         AutoResetBox.IsChecked = settings.AutoResetEnabled;
         AutoResetSecondsBox.Text = Math.Clamp(settings.AutoResetSeconds, 1, 600).ToString();
@@ -297,6 +298,7 @@ public partial class SettingsWindow : Window
         _settings.ShowBossHp = ShowBossHpBox.IsChecked ?? false;
         _settings.ShowTimetable = ShowTimetableBox.IsChecked ?? true;
         _settings.ShowPetFarm = ShowPetFarmBox.IsChecked ?? false;
+        _settings.PetFarmLocked = PetFarmLockedBox.IsChecked ?? true;
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
         _settings.AutoResetSeconds = int.TryParse(AutoResetSecondsBox.Text, out int seconds) ? Math.Clamp(seconds, 1, 600) : 10;

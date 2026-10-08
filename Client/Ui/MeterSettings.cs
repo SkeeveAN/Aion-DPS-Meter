@@ -168,6 +168,11 @@ public sealed class MeterSettings
     /// <summary>The pet farming overlay (see PetFarmWindow): reads the targeted monster's name from the screen and shows its pet's level. Off until switched on.</summary>
     public bool ShowPetFarm { get; set; }
 
+    /// <summary>Locked (default): the pet farming overlay is click-through. Unlocked: it can be clicked, moved and scaled.</summary>
+    public bool PetFarmLocked { get; set; } = true;
+
+    public double PetFarmScale { get; set; } = 1.0;
+
     public double? PetFarmLeft { get; set; }
 
     public double? PetFarmTop { get; set; }

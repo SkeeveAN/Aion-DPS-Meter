@@ -9,15 +9,21 @@ using AionDPS.Aion2.Protocol;
 namespace AionDPS.Ui;
 
 /// <summary>
-/// The pet farming overlay: a small panel that shows the level of the pet the targeted monster drops, and is completely invisible
-/// (hidden) when nothing is targeted or the monster has no pet. The target comes from the screen (<see cref="PetFarmReader"/> reads the
-/// name on the game's target plate); the level comes from the pet list of the login frame. Drag the panel to place it, the place is remembered.
+/// The pet farming overlay: a small panel that shows the level of the pet the targeted monster drops. Locked (the default) it is click-through
+/// and completely invisible (hidden) when nothing is targeted or the monster has no pet. Unlocked (Settings: "Overlay locked" off) it stays
+/// visible with an outline, takes clicks and can be dragged and scaled with the grip in its corner; place and size are remembered.
+/// The target comes from the screen (<see cref="PetFarmReader"/>), the level from the pet list of the login frame.
 /// </summary>
 public sealed class PetFarmWindow : Window
 {
+    private const double MinScale = 0.6, MaxScale = 3.0;
+
     private readonly StackPanel _lines = new();
+    private readonly ScaleTransform _scale = new(1, 1);
     private readonly Border _panel;
-    private string _shown = "";
+    private readonly System.Windows.Controls.Primitives.Thumb _grip;
+    private IReadOnlyList<(string Pet, string Level)> _current = Array.Empty<(string, string)>();
+    private bool _locked = true;
 
     public PetFarmWindow()
     {
@@ -33,11 +39,29 @@ public sealed class PetFarmWindow : Window
 
         var settings = MeterSettings.Load();
         ApplyOpacity(settings.OverlayOpacity);
-        _panel = new Border { CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 5, 8, 5), Child = _lines, Cursor = Cursors.SizeAll };
+        SetScale(settings.PetFarmScale);
+
+        _grip = new System.Windows.Controls.Primitives.Thumb
+        {
+            Width = 12, Height = 12, Cursor = Cursors.SizeNWSE, Margin = new Thickness(0, 4, 0, 0), HorizontalAlignment = HorizontalAlignment.Right,
+            Template = GripTemplate(),
+        };
+        _grip.DragDelta += (_, e) => SetScale(_scale.ScaleX * (1 + Math.Max(e.HorizontalChange, e.VerticalChange) / 160.0));
+        _grip.DragCompleted += (_, _) =>
+        {
+            var s = MeterSettings.Load();
+            s.PetFarmScale = _scale.ScaleX;
+            s.Save();
+        };
+
+        var stack = new StackPanel();
+        stack.Children.Add(_lines);
+        stack.Children.Add(_grip);
+        _panel = new Border { CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 5, 8, 5), Child = stack, LayoutTransform = _scale, BorderThickness = new Thickness(1) };
         _panel.SetResourceReference(Border.BackgroundProperty, "Brush.OverlayBg");
         _panel.MouseLeftButtonDown += (_, e) =>
         {
-            if (e.ButtonState == MouseButtonState.Pressed)
+            if (!_locked && e.ButtonState == MouseButtonState.Pressed)
             {
                 DragMove();
                 var s = MeterSettings.Load();
@@ -49,6 +73,28 @@ public sealed class PetFarmWindow : Window
         Content = _panel;
         Left = settings.PetFarmLeft ?? SystemParameters.WorkArea.Width / 2 - 120;
         Top = settings.PetFarmTop ?? 140;
+        ApplyLocked(settings.PetFarmLocked);
+    }
+
+    private static ControlTemplate GripTemplate()
+    {
+        var template = new ControlTemplate(typeof(System.Windows.Controls.Primitives.Thumb));
+        var grid = new FrameworkElementFactory(typeof(Grid));
+        grid.SetValue(Panel.BackgroundProperty, Brushes.Transparent);
+        var path = new FrameworkElementFactory(typeof(System.Windows.Shapes.Path));
+        path.SetValue(System.Windows.Shapes.Path.DataProperty, Geometry.Parse("M11,1 L1,11 M11,5 L5,11 M11,9 L9,11"));
+        path.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.TextSubtle");
+        path.SetValue(System.Windows.Shapes.Shape.StrokeThicknessProperty, 1.0);
+        grid.AppendChild(path);
+        template.VisualTree = grid;
+        return template;
+    }
+
+    private void SetScale(double scale)
+    {
+        scale = Math.Clamp(double.IsFinite(scale) ? scale : 1.0, MinScale, MaxScale);
+        _scale.ScaleX = scale;
+        _scale.ScaleY = scale;
     }
 
     public void ApplyOpacity(double opacity)
@@ -59,38 +105,78 @@ public sealed class PetFarmWindow : Window
         Resources["Brush.OverlayBg"] = brush;
     }
 
-    /// <summary>Shows the given lines (pet name, level text), or hides the window when there are none.</summary>
+    /// <summary>Locked: click-through, no outline, no grip, hidden without a pet. Unlocked: clickable, outlined, always visible so it can be placed.</summary>
+    public void ApplyLocked(bool locked)
+    {
+        _locked = locked;
+        _grip.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
+        _panel.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
+        _panel.SetResourceReference(Border.BorderBrushProperty, locked ? "Brush.OverlayBg" : "Brush.Accent");
+        var handle = new System.Windows.Interop.WindowInteropHelper(this).EnsureHandle();
+        if (handle != IntPtr.Zero)
+        {
+            using var native = new NativeOverlay(this);
+            native.SetClickThrough(locked);
+        }
+
+        Render();
+    }
+
+    /// <summary>Shows the given lines (pet name, level text); with none the window is hidden - unless it is unlocked, then it shows a hint so it can be moved.</summary>
     public void Show(IReadOnlyList<(string Pet, string Level)> lines)
     {
         string key = string.Join("\n", lines.Select(l => l.Pet + "|" + l.Level));
-        if (key == _shown)
+        if (key == string.Join("\n", _current.Select(l => l.Pet + "|" + l.Level)) && IsVisible == (lines.Count > 0 || !_locked))
         {
             return;
         }
 
-        _shown = key;
-        if (lines.Count == 0)
+        _current = lines;
+        Render();
+    }
+
+    private void Render()
+    {
+        bool placeholder = _current.Count == 0 && !_locked;
+        if (_current.Count == 0 && !placeholder)
         {
             Hide();
             return;
         }
 
         _lines.Children.Clear();
-        foreach ((string pet, string level) in lines)
+        var rows = placeholder ? new[] { (LocalizationManager.Instance["PetFarm.Placeholder"], "") } : _current.ToArray();
+        foreach ((string pet, string level) in rows)
         {
             var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1) };
             var name = new TextBlock { Text = pet, FontWeight = FontWeights.Bold, FontSize = 13, VerticalAlignment = VerticalAlignment.Center };
             name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
-            var detail = new TextBlock { Text = "· " + level, FontWeight = FontWeights.Bold, FontSize = 13, Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
-            detail.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
             row.Children.Add(name);
-            row.Children.Add(detail);
+            if (level.Length > 0)
+            {
+                var detail = new TextBlock { Text = "· " + level, FontWeight = FontWeights.Bold, FontSize = 13, Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+                detail.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+                row.Children.Add(detail);
+            }
+
             _lines.Children.Add(row);
         }
 
         if (!IsVisible)
         {
             Show();
+            ApplyLockedStyle();
+        }
+    }
+
+    // the click-through style is lost when WPF recreates the native window on a first Show
+    private void ApplyLockedStyle()
+    {
+        var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        if (handle != IntPtr.Zero)
+        {
+            using var native = new NativeOverlay(this);
+            native.SetClickThrough(_locked);
         }
     }
 

@@ -3819,6 +3819,7 @@ public partial class MainWindow : Window
 
         _petFarm ??= new PetFarmWindow();
         _petFarm.ApplyOpacity(settings.OverlayOpacity);
+        _petFarm.ApplyLocked(settings.PetFarmLocked);
         _petFarmController ??= new PetFarmController(_petFarm, () => _source?.Entities as Aion2EntityDirectory);
     }
 

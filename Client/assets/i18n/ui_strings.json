@@ -1944,8 +1944,8 @@
     "es": "Mostrar el nivel de la mascota del monstruo objetivo"
   },
   "Settings.PetFarm.Hint": {
-    "en": "Reads the monster's name from the game's target plate on screen (the picture stays in memory, nothing is saved or uploaded) and shows the level of the pet it drops. Stays invisible without a target or a pet. Drag the panel to move it. A log of unknown monsters and pet souls is kept in pet-farm.log next to the settings.",
-    "de": "Liest den Namen des Monsters von der Zielplakette des Spiels auf dem Bildschirm (das Bild bleibt im Arbeitsspeicher, nichts wird gespeichert oder hochgeladen) und zeigt das Level des Pets, das es fallen lässt. Ohne Ziel oder ohne Pet bleibt es unsichtbar. Das Feld lässt sich verschieben. Ein Protokoll unbekannter Monster und Pet-Seelen liegt in pet-farm.log neben den Einstellungen.",
+    "en": "Reads the monster's name from the game's target plate on screen (the picture stays in memory, nothing is saved or uploaded) and shows the level of the pet it drops. Stays invisible without a target or a pet. Unlock it to move and scale it. A log of unknown monsters and pet souls is kept in pet-farm.log next to the settings.",
+    "de": "Liest den Namen des Monsters von der Zielplakette des Spiels auf dem Bildschirm (das Bild bleibt im Arbeitsspeicher, nichts wird gespeichert oder hochgeladen) und zeigt das Level des Pets, das es fallen lässt. Ohne Ziel oder ohne Pet bleibt es unsichtbar. Mit ausgeschalteter Sperre lässt es sich verschieben und vergrößern. Ein Protokoll unbekannter Monster und Pet-Seelen liegt in pet-farm.log neben den Einstellungen.",
     "fr": "Lit le nom du monstre sur la plaque de cible du jeu à l'écran (l'image reste en mémoire, rien n'est enregistré ni envoyé) et affiche le niveau du pet qu'il lâche. Reste invisible sans cible ni pet.",
     "es": "Lee el nombre del monstruo en la placa de objetivo del juego en pantalla (la imagen queda en memoria, no se guarda ni se envía) y muestra el nivel de la mascota que suelta. Sin objetivo ni mascota permanece invisible."
   },
@@ -1972,5 +1972,17 @@
     "de": "Stufe unbekannt (mit laufendem Meter einloggen)",
     "fr": "niveau inconnu (connectez-vous avec le meter lancé)",
     "es": "nivel desconocido (inicia sesión con el meter en marcha)"
+  },
+  "Settings.PetFarm.Locked": {
+    "en": "Overlay locked (off: click, move and scale it)",
+    "de": "Overlay gesperrt (aus: anklicken, verschieben, vergrößern)",
+    "fr": "Overlay verrouillé (désactivé : cliquer, déplacer, agrandir)",
+    "es": "Overlay bloqueado (desactivado: clic, mover, ampliar)"
+  },
+  "PetFarm.Placeholder": {
+    "en": "Pet farming overlay (drag to move)",
+    "de": "Pet-Farming-Overlay (zum Verschieben ziehen)",
+    "fr": "Overlay de farm de pets (glisser pour déplacer)",
+    "es": "Overlay de farmeo (arrastra para mover)"
   }
 }
