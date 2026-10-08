@@ -125,7 +125,7 @@ public sealed class PetMapController : IDisposable
         if (++_ticks % 10 == 0 || _lastTarget != (tx, ty))
         {
             _lastTarget = (tx, ty);
-            _list.Render(Rows(petsHere, colors, tx, ty, states).Take(Math.Clamp(settings.PetListLength, 3, 60)).ToList());
+            _list.Render(Rows(petsHere, colors, tx, ty, states));
         }
 
         _list.ShowOverlay(true);
@@ -182,7 +182,16 @@ public sealed class PetMapController : IDisposable
         }
 
         // unlocked: show something to grab and place
-        _list.Render(new[] { (Colors.Gray, LocalizationManager.Instance["PetMap.Placeholder"], "", "") });
+        // sample rows so the length of the field can be judged while placing it (the real list fills as many as fit)
+        var loc = LocalizationManager.Instance;
+        var names = Aion2Pets.Species.SelectMany(sp => Aion2Pets.MapPetsOf(sp, loc.Language)).Select(p => p.Name).Take(60).ToList();
+        var sample = new List<(Color, string, string, string)> { (Colors.Gray, loc["PetMap.Placeholder"], "", "") };
+        for (int i = 0; i < names.Count; i++)
+        {
+            sample.Add((PetMapPalette.Of(i), names[i], string.Format(loc["PetFarm.Level"], 1 + i % 2) + $" · {3 + i % 20}/{(i % 2 == 0 ? 25 : 75)}", $"{(i + 1) * 23} m"));
+        }
+
+        _list.Render(sample);
         _list.ShowOverlay(true);
         _map.ShowOverlay(true);
     }

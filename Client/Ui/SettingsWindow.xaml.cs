@@ -326,7 +326,6 @@ public partial class SettingsWindow : Window
         _settings.ShowPetMap = ShowPetMapBox.IsChecked ?? false;
         _settings.PetMapRadius = (int)PetMapRadiusSlider.Value;
         _settings.PetMapOpacity = PetMapOpacitySlider.Value / 100.0;
-        _settings.PetListLength = (int)PetListLengthSlider.Value;
         _settings.PetMapPets = _petPicked.OrderBy(i => i).ToList();
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
@@ -403,7 +402,6 @@ public partial class SettingsWindow : Window
         ShowPetMapBox.IsChecked = settings.ShowPetMap;
         PetMapRadiusSlider.Value = Math.Clamp(settings.PetMapRadius, 50, 500);
         PetMapOpacitySlider.Value = Math.Clamp(settings.PetMapOpacity * 100, 20, 100);
-        PetListLengthSlider.Value = Math.Clamp(settings.PetListLength, 3, 60);
         ShowPetMapSliderValues();
         OnPetMapShowChanged(null!, null!);
         BuildPetSpecies();
@@ -427,14 +425,13 @@ public partial class SettingsWindow : Window
 
     private void ShowPetMapSliderValues()
     {
-        if (PetMapRadiusValue is null || PetMapOpacityValue is null || PetListLengthValue is null)
+        if (PetMapRadiusValue is null || PetMapOpacityValue is null)
         {
             return;
         }
 
         PetMapRadiusValue.Text = string.Format(LocalizationManager.Instance["Settings.PetMap.RadiusValue"], (int)PetMapRadiusSlider.Value);
         PetMapOpacityValue.Text = $"{(int)PetMapOpacitySlider.Value} %";
-        PetListLengthValue.Text = ((int)PetListLengthSlider.Value).ToString();
     }
 
     private IEnumerable<(int PetId, string Name)> PetsOfSpecies(string species) => Aion2Pets.MapPetsOf(species, LocalizationManager.Instance.Language);
