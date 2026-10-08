@@ -1,5 +1,68 @@
 [
  {
+  "version": "0.15.0",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "New settings page 'Pet-Karte': the pet information and the map with their switches, radius and opacity, and the pets grouped by species with a switch each (pets at the top level are greyed out with 'Max'); new scroll bars in the Windows layout throughout the app",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Pet information: the monster you mark (Tab) is read from the game's own message, so the pet level appears without reading the screen",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Server lists: Europe has 18 and Asia 5 live servers per faction (as in NCSOFT's launch notice)",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Every player is marked with his faction (Elyos or Asmodian): it is read from the game's own data, so Asmodians are recognised too",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Player rows: the faction emblem replaces the rank number",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "A player who is announced again under a new id (map change) stays one row in the list, with all his damage and healing",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Chips overlay: the player chips move up to the window's top edge, where the title bar was in window mode",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Pet map: the world map (Verteron, Altgard, the Abyss) around you with the spawn points of the pets you chose, each pet in its own colour, plus a separate list with level, progress and distance; map and list can be moved and scaled on their own (Settings: Pet-Karte, 'Overlay locked' off)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.14.1",
   "date": "2026-10-08",
   "items": [
