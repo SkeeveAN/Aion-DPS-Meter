@@ -754,10 +754,29 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             return server / 1000 == 1 ? "Elyos" : "Asmodian";
         }
 
+        lock (_gate)
+        {
+            if (_factionById.TryGetValue(id, out int announced))
+            {
+                return announced == 1 ? "Elyos" : "Asmodian";
+            }
+        }
+
         int? bit = IsLocalPlayer(id) && LocalCharacter is { } own && own.ClassCode % 4 is 1 or 2
             ? own.ClassCode % 4
             : SeenProfileOf(id)?.Faction;
         return bit == 2 ? "Elyos" : null;
+    }
+
+    private readonly Dictionary<int, int> _factionById = new();
+
+    /// <summary>The faction byte of the "player appeared" frame: 1 Elyos, 2 Asmodian.</summary>
+    public void NoteFaction(int id, int faction)
+    {
+        lock (_gate)
+        {
+            _factionById[id] = faction;
+        }
     }
 
     private readonly Dictionary<string, int> _serverOfName = new(StringComparer.Ordinal);

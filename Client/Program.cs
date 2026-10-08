@@ -956,6 +956,16 @@ internal static class Program
             }
 
             var factions = petDirectory.Snapshot().Names.Keys.GroupBy(id => petDirectory.FactionOf(id) ?? "unknown").ToDictionary(g => g.Key, g => g.Count());
+            var unknownNames = petDirectory.Snapshot().Names.Where(kv => petDirectory.FactionOf(kv.Key) is null).ToList();
+            Console.WriteLine("aion2-replay: unknown faction, sample: " + string.Join(" | ", unknownNames.Take(40).Select(kv => $"{kv.Value}{(petDirectory.IsKnownPlayer(kv.Key) ? "(P)" : "")}{(petDirectory.NpcIdOf(kv.Key) is not null ? "(npc)" : "")}")));
+            var bitByServerFaction = petDirectory.Snapshot().Names.Keys
+                .Where(id => petDirectory.ServerIdOf(id) is int sv && sv / 1000 is 1 or 2)
+                .GroupBy(id => (Server: petDirectory.ServerIdOf(id)!.Value / 1000, Bit: petDirectory.SeenProfileOf(id)?.Faction ?? -1))
+                .OrderBy(g => g.Key.Server).ThenBy(g => g.Key.Bit).Select(g => $"server {g.Key.Server}xxx bit {g.Key.Bit}: {g.Count()}");
+            Console.WriteLine("aion2-replay: faction bit of players with a known server: " + string.Join(" | ", bitByServerFaction));
+            var actors = events.Select(e => e.SourceObjectId).Distinct().Where(id => petDirectory.NpcIdOf(id) is null && petDirectory.NameFor(id) is not null).ToList();
+            Console.WriteLine($"aion2-replay: players that dealt damage or healed: {actors.Count}, faction known for {actors.Count(id => petDirectory.FactionOf(id) is not null)} ({actors.Count(id => petDirectory.FactionOf(id) == "Asmodian")} Asmodian)");
+            Console.WriteLine($"aion2-replay: of {unknownNames.Count} unknown, {unknownNames.Count(kv => petDirectory.IsKnownPlayer(kv.Key))} are known players, {unknownNames.Count(kv => petDirectory.NpcIdOf(kv.Key) is not null)} are npcs");
             Console.WriteLine("aion2-replay: factions of the named players: " + string.Join(", ", factions.Select(kv => $"{kv.Key} {kv.Value}")));
             if (petDirectory.LocalTarget is { } target)
             {

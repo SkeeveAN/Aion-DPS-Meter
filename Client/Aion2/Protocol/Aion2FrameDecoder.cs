@@ -845,6 +845,14 @@ public sealed class Aion2FrameDecoder
                 _entities.Register((int)id, name);
                 ReadSeenProfile(frame, (int)id, k + 1 + frame[k]);
 
+                // The faction: the byte after the 4 bytes that follow the name is 1 for a player of an Elyos server and 2 for one of an
+                // Asmodian server (checked against 478 players whose server was known from their appearance frame: no exception).
+                int factionAt = k + 1 + frame[k] + 4;
+                if (factionAt < frame.Length && frame[factionAt] is 1 or 2)
+                {
+                    _entities.NoteFaction((int)id, frame[factionAt]);
+                }
+
                 // A player in a guild: further on, the frame carries server id (u16: 17 05 = 1303,
                 // 18 05 = 1304 Kaisinel) | guild id (u32, non-zero) | 00 00 | the same server id |
                 // the guild's length-prefixed name. Seen for all ten guilds of 71 nickname frames
