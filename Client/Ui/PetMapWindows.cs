@@ -25,6 +25,7 @@ public abstract class MovableOverlay : Window
     private readonly Func<(double? Left, double? Top, double Scale)> _load;
     private readonly Action<double, double, double> _save;
     private bool _locked = true;
+    private readonly OverlayEdgeResize _edges;
 
     protected MovableOverlay(string title, UIElement body, Func<(double? Left, double? Top, double Scale)> load, Action<double, double, double> save, double defaultLeft, double defaultTop)
     {
@@ -47,7 +48,7 @@ public abstract class MovableOverlay : Window
             Width = 12, Height = 12, Cursor = Cursors.SizeNWSE, Margin = new Thickness(0, 2, 0, 0), HorizontalAlignment = HorizontalAlignment.Right,
             Template = GripTemplate(),
         };
-        _grip.DragDelta += (_, e) => SetScale(_scale.ScaleX * (1 + Math.Max(e.HorizontalChange, e.VerticalChange) / 180.0));
+        AttachGripResize(_grip, SetScale, () => _scale.ScaleX);
         _grip.DragCompleted += (_, _) => SavePlace();
         var stack = new StackPanel();
         _bodyHost.Child = body;
@@ -62,7 +63,8 @@ public abstract class MovableOverlay : Window
                 SavePlace();
             }
         };
-        Content = _frame;
+        _edges = new OverlayEdgeResize(this, SetScale, () => _scale.ScaleX, () => { }, SavePlace);
+        Content = _edges.Wrap(_frame);
         Left = saved.Left ?? defaultLeft;
         Top = saved.Top ?? defaultTop;
         ApplyLocked(true);
@@ -83,6 +85,28 @@ public abstract class MovableOverlay : Window
         {
             ApplyLocked(locked);
         }
+    }
+
+    /// <summary>Resize by the corner grip: the bottom right corner follows the mouse (measured in this window, whose top left stays put -
+    /// the change of the grip itself would move with the window and make the scaling jitter).</summary>
+    private void AttachGripResize(System.Windows.Controls.Primitives.Thumb grip, Action<double> setScale, Func<double> getScale)
+    {
+        double startScale = 1, startW = 1, startH = 1, offX = 0, offY = 0;
+        grip.DragStarted += (_, _) =>
+        {
+            var p = Mouse.GetPosition(this);
+            startScale = getScale();
+            startW = Math.Max(1, ActualWidth);
+            startH = Math.Max(1, ActualHeight);
+            offX = ActualWidth - p.X;
+            offY = ActualHeight - p.Y;
+        };
+        grip.DragDelta += (_, _) =>
+        {
+            var p = Mouse.GetPosition(this);
+            double ratio = ((p.X + offX) / startW + (p.Y + offY) / startH) / 2;
+            setScale(startScale * Math.Max(0.1, ratio));
+        };
     }
 
     private static ControlTemplate GripTemplate()
@@ -113,6 +137,7 @@ public abstract class MovableOverlay : Window
     {
         _locked = locked;
         _grip.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
+        _edges.Show(!locked);
         _frame.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
         _frame.BorderBrush = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42));
         _frame.Background = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromArgb(0x30, 0, 0, 0));

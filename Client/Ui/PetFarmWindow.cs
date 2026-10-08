@@ -25,6 +25,8 @@ public sealed class PetFarmWindow : Window
     private IReadOnlyList<(string Pet, string Level)> _current = Array.Empty<(string, string)>();
     private bool _locked = true;
     private double _centerX;
+    private bool _resizing;
+    private readonly OverlayEdgeResize _edges;
 
     public PetFarmWindow()
     {
@@ -47,7 +49,7 @@ public sealed class PetFarmWindow : Window
             Width = 12, Height = 12, Cursor = Cursors.SizeNWSE, Margin = new Thickness(0, 4, 0, 0), HorizontalAlignment = HorizontalAlignment.Right,
             Template = GripTemplate(),
         };
-        _grip.DragDelta += (_, e) => SetScale(_scale.ScaleX * (1 + Math.Max(e.HorizontalChange, e.VerticalChange) / 160.0));
+        AttachGripResize(_grip, SetScale, () => _scale.ScaleX);
         _grip.DragCompleted += (_, _) =>
         {
             var s = MeterSettings.Load();
@@ -72,12 +74,44 @@ public sealed class PetFarmWindow : Window
                 s.Save();
             }
         };
-        Content = _panel;
+        _edges = new OverlayEdgeResize(this, SetScale, () => _scale.ScaleX, () => _resizing = true, () =>
+        {
+            _resizing = false;
+            _centerX = Left + ActualWidth / 2;
+            var s = MeterSettings.Load();
+            s.PetFarmScale = _scale.ScaleX;
+            s.PetFarmLeft = _centerX;
+            s.PetFarmTop = Top;
+            s.Save();
+        });
+        Content = _edges.Wrap(_panel);
         _centerX = settings.PetFarmLeft ?? SystemParameters.WorkArea.Width / 2;
         Left = _centerX - 60;
-        SizeChanged += (_, e) => Left = _centerX - e.NewSize.Width / 2; // keep the middle in place when the text changes
+        SizeChanged += (_, e) => { if (!_resizing) { Left = _centerX - e.NewSize.Width / 2; } }; // keep the middle in place when the text changes
         Top = settings.PetFarmTop ?? 140;
         ApplyLocked(settings.PetFarmLocked);
+    }
+
+    /// <summary>Resize by the corner grip: the bottom right corner follows the mouse (measured in this window, whose top left stays put -
+    /// the change of the grip itself would move with the window and make the scaling jitter).</summary>
+    private void AttachGripResize(System.Windows.Controls.Primitives.Thumb grip, Action<double> setScale, Func<double> getScale)
+    {
+        double startScale = 1, startW = 1, startH = 1, offX = 0, offY = 0;
+        grip.DragStarted += (_, _) =>
+        {
+            var p = Mouse.GetPosition(this);
+            startScale = getScale();
+            startW = Math.Max(1, ActualWidth);
+            startH = Math.Max(1, ActualHeight);
+            offX = ActualWidth - p.X;
+            offY = ActualHeight - p.Y;
+        };
+        grip.DragDelta += (_, _) =>
+        {
+            var p = Mouse.GetPosition(this);
+            double ratio = ((p.X + offX) / startW + (p.Y + offY) / startH) / 2;
+            setScale(startScale * Math.Max(0.1, ratio));
+        };
     }
 
     private static ControlTemplate GripTemplate()
@@ -114,6 +148,7 @@ public sealed class PetFarmWindow : Window
     {
         _locked = locked;
         _grip.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
+        _edges.Show(!locked);
         _panel.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
         _panel.SetResourceReference(Border.BorderBrushProperty, locked ? "Brush.OverlayBg" : "Brush.Accent");
         var handle = new System.Windows.Interop.WindowInteropHelper(this).EnsureHandle();
