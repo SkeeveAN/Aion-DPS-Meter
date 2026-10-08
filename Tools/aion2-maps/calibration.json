@@ -9,5 +9,13 @@
   "offset_x_native": 8111.1925706279435,
   "offset_y_native": 8283.78873124964,
   "fit": "95.6 % of 5272 pet-monster spawn points on land; checked with three places of a recording: Insel der Ewigkeit, Zumionstaett, the purple forest west of Suedlicher Tolbaswald (accuracy about 100 m)"
+ },
+ "Altgard": {
+  "world": "World/World_D/World_D_A",
+  "note": "image px = offset + scale * world coordinate (x right, y down, no flip or rotation); fitted on the 1024 px overview of Karte_Altgard.png, the 8192 px map is 8x that",
+  "scale_px_per_unit_1024": 0.0013088774535296465,
+  "offset_x_1024": 519.1437128271697,
+  "offset_y_1024": 513.7754276797118,
+  "fit": "80 % of the pet-monster spawn points on land; three places from a recording with the map screenshots (Klarwald, Absturzstelle der Dredgion x2), arrow error about 6 px = 50 m; the Namenloser Friedhof screenshot could not be matched (the left of the map is covered by fog)"
  }
 }
