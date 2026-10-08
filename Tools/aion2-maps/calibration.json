@@ -17,5 +17,13 @@
   "offset_x_1024": 517.2227280399727,
   "offset_y_1024": 507.87383844150366,
   "fit": "least squares on four places of a recording matched with the map screenshots (Klarwald, Absturzstelle x2, Namenloser Friedhof); residual up to 6 px on the 1024 overview = about 50 m; 79 % of the pet-monster spawn points on land. The scale differs 5 % from Verteron's, so the error grows towards the far edges."
+ },
+ "Abyss": {
+  "world": "Intersever/Abyss/Abyss_Reshanta_A",
+  "note": "image px = offset + scale * world coordinate (x right, y down, no flip or rotation); fitted on the 1024 px overview of Karte_Abyss.png (the 4096 map is 4x that)",
+  "scale_px_per_unit_1024": 0.002469571632685292,
+  "offset_x_1024": 511.7982611436246,
+  "offset_y_1024": 514.2265286784826,
+  "fit": "97 % of the 990 pet-monster spawn points of Reshanta_A on land; three places of a recording (SW island 17:56, north island 17:58, NW island 18:04) with their map screenshots all on the right island. Only checked by eye on the islands, not by an independent arrow match: accuracy not measured (expect a few hundred metres)."
  }
 }
