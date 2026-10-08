@@ -844,7 +844,7 @@ public sealed class Aion2FrameDecoder
     /// An inventory change of the local player: <c>opcode | 01 00 00 | 8 bytes | item id u32 | quantity u32 ...</c> (also AP and Kinah, see
     /// the resources note). Only a pet soul is of interest: it goes to the pet farm log with the monsters that died right before it.
     /// </summary>
-    private static void DecodeInventoryChange(ReadOnlySpan<byte> frame, DateTime timestamp)
+    private void DecodeInventoryChange(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         if (frame.Length < 21)
         {
@@ -854,7 +854,10 @@ public sealed class Aion2FrameDecoder
         int itemId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[13..]));
         if (Aion2Pets.PetOfSoulItem(itemId) is int pet)
         {
-            PetFarmLog.NoteSoul(itemId, pet, unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[17..])), timestamp);
+            if (PetFarmLog.NoteSoul(itemId, pet, unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[17..])), timestamp))
+            {
+                _entities.NoteSoulReceived(pet, 1);
+            }
         }
     }
 

@@ -156,6 +156,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _daevanion = null;
                 _species = null;
                 _petStates = null;
+                _soulsSinceList.Clear();
                 _titles = null;
                 _stigmas.Clear();
                 _bar.Clear();
@@ -312,8 +313,29 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         {
             lock (_gate)
             {
-                return _petStates ?? Array.Empty<Aion2PetState>();
+                if (_petStates is null)
+                {
+                    return Array.Empty<Aion2PetState>();
+                }
+
+                return _soulsSinceList.Count == 0
+                    ? _petStates
+                    : _petStates.Select(p => _soulsSinceList.TryGetValue(p.PetId, out int n) && p.Level < Aion2Pets.TopLevel
+                        ? p with { Progress = Math.Min(p.Progress + n, Aion2Pets.ProgressNeeded(p.Level)) }
+                        : p).ToList();
             }
+        }
+    }
+
+    /// <summary>Souls picked up since the game last sent the pet list (login, map change): the game only counts a soul once it is used in the
+    /// pet window, so the shown progress adds them; the next pet list starts the count again at 0.</summary>
+    private readonly Dictionary<int, int> _soulsSinceList = new();
+
+    public void NoteSoulReceived(int petId, int count)
+    {
+        lock (_gate)
+        {
+            _soulsSinceList[petId] = _soulsSinceList.GetValueOrDefault(petId) + count;
         }
     }
 
@@ -322,6 +344,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _petStates = pets;
+            _soulsSinceList.Clear();
             _listsAt = DateTime.UtcNow;
         }
 

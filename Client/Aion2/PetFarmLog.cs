@@ -62,11 +62,12 @@ public static class PetFarmLog
     }
 
     /// <summary>The player got a pet soul (inventory change): logs it with the monsters that died shortly before.</summary>
-    public static void NoteSoul(int itemId, int petId, int quantity, DateTime at)
+    /// <returns>True when this is a new soul (not the same change announced twice).</returns>
+    public static bool NoteSoul(int itemId, int petId, int quantity, DateTime at)
     {
         if (quantity <= 0)
         {
-            return; // the bag slot emptied again, no soul received
+            return false; // the bag slot emptied again, no soul received
         }
 
         List<(int EntityId, int NpcId, DateTime At)> recent;
@@ -74,7 +75,7 @@ public static class PetFarmLog
         {
             if (_lastSoul.ItemId == itemId && at - _lastSoul.At < TimeSpan.FromSeconds(2))
             {
-                return; // the same change announced twice
+                return false; // the same change announced twice
             }
 
             _lastSoul = (itemId, at);
@@ -87,6 +88,7 @@ public static class PetFarmLog
             ? "no monster died just before"
             : string.Join(", ", recent.Select(d => $"{Aion2Npcs.NameOf(d.NpcId, "en") ?? "?"} [{d.NpcId}]"));
         Write($"{(expected ? "SOUL" : "SOUL UNEXPECTED")} {pet} (pet {petId}, item {itemId}) x{quantity} after: {killed}");
+        return true;
     }
 
     private static readonly HashSet<int> LoggedNpcs = new();
