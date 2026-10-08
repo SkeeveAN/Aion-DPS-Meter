@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.14.0",
   "date": "2026-10-08",
   "items": [
    {
@@ -14,6 +14,13 @@
     "text": "Website: scripts, stylesheets and JSON are revalidated on every load instead of cached for an hour, so a deploy never leaves visitors on an old app.js",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-08"
+   },
+   {
+    "text": "Pet farming overlay: the level of the pet the targeted monster drops, read from the target plate on screen (off by default); pet list and soul drops from the login and inventory frames; local pet-farm.log",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-08"
    }

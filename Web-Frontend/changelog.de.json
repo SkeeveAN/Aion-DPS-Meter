@@ -447,5 +447,6 @@
  "Wire decoded SM_ATTACK packets into live DPS aggregation": "Dekodierte SM_ATTACK-Pakete an die Live-DPS-Aggregation angebunden",
  "Fix the same raw-total-as-rate bug in AllDpsWallClock, now caught by asserting rendered output": "Denselben Fehler „Rohsumme als Rate“ in AllDpsWallClock behoben, jetzt durch Prüfung der gerenderten Ausgabe entdeckt",
  "Add WPF GUI scaffold (main window + settings + network settings)": "WPF-GUI-Gerüst hinzugefügt (Hauptfenster + Einstellungen + Netzwerkeinstellungen)",
- "Stop permanently blacklisting a flow after one failed handshake check": "Einen Flow nicht mehr dauerhaft auf die Sperrliste setzen nach einer einzigen fehlgeschlagenen Handshake-Prüfung"
+ "Stop permanently blacklisting a flow after one failed handshake check": "Einen Flow nicht mehr dauerhaft auf die Sperrliste setzen nach einer einzigen fehlgeschlagenen Handshake-Prüfung",
+ "Pet farming overlay: the level of the pet the targeted monster drops, read from the target plate on screen (off by default); pet list and soul drops from the login and inventory frames; local pet-farm.log": "Pet-Farming-Overlay: das Level des Pets, das das anvisierte Monster fallen lässt, gelesen von der Zielplakette auf dem Bildschirm (standardmäßig aus); Pet-Liste und Seelen-Drops aus Login- und Inventar-Frames; lokale pet-farm.log"
 }
