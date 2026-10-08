@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.15.3",
+  "date": "2026-10-08",
+  "items": [
+   {
+    "text": "Pet overlays: the edges change only the width or the height (the content is cut off), only the corner grip scales everything; the size is remembered",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-08"
+   }
+  ]
+ },
+ {
   "version": "0.15.2",
   "date": "2026-10-08",
   "items": [

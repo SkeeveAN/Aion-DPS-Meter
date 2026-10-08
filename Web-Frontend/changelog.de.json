@@ -464,5 +464,6 @@
  "Pet list: sorted by distance, the nearest pet first": "Pet-Liste: nach Entfernung sortiert, das nächste Pet zuerst",
  "Pet overlays: scale from any edge (not only the corner) without jitter; the places are no longer overwritten when Settings is saved": "Pet-Fenster: Skalieren an jeder Kante (nicht nur an der Ecke) ohne Zappeln; die Positionen werden beim Speichern der Einstellungen nicht mehr überschrieben",
  "Pet list: adjustable length in the settings, the farthest pets are cut off": "Pet-Liste: Länge in den Einstellungen wählbar, die am weitesten entfernten Pets werden abgeschnitten",
- "Pet counter: every soul picked up counts the progress up by one until the game sends the pet list again (login, map change)": "Pet-Zähler: Jede eingesammelte Seele erhöht den Fortschritt um eins, bis das Spiel die Pet-Liste wieder sendet (Login, Kartenwechsel)"
+ "Pet counter: every soul picked up counts the progress up by one until the game sends the pet list again (login, map change)": "Pet-Zähler: Jede eingesammelte Seele erhöht den Fortschritt um eins, bis das Spiel die Pet-Liste wieder sendet (Login, Kartenwechsel)",
+ "Pet overlays: the edges change only the width or the height (the content is cut off), only the corner grip scales everything; the size is remembered": "Pet-Fenster: Die Kanten ändern nur Breite oder Höhe (der Inhalt wird abgeschnitten), nur der Eck-Griff skaliert alles; die Größe wird gemerkt"
 }
