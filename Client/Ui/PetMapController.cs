@@ -148,7 +148,7 @@ public sealed class PetMapController : IDisposable
     {
         var loc = LocalizationManager.Instance;
         string language = loc.Language;
-        var rows = new List<(Color, string, string, string)>();
+        var rows = new List<(double Nearest, (Color, string, string, string) Row)>();
         foreach (int pet in pets)
         {
             double nearest = _points.Where(p => p.PetId == pet).Select(p => Math.Sqrt((p.X - x) * (double)(p.X - x) + (p.Y - y) * (double)(p.Y - y))).DefaultIfEmpty(double.NaN).Min();
@@ -166,10 +166,11 @@ public sealed class PetMapController : IDisposable
                 level = loc["PetFarm.New"];
             }
 
-            rows.Add((colors[pet], Aion2Pets.PetName(pet, language) ?? $"#{pet}", level, double.IsNaN(nearest) ? "" : $"{nearest / 100:0} m"));
+            rows.Add((nearest, (colors[pet], Aion2Pets.PetName(pet, language) ?? $"#{pet}", level, double.IsNaN(nearest) ? "" : $"{nearest / 100:0} m")));
         }
 
-        return rows;
+        // nearest first; pets without a spawn point on this map (unknown distance) last
+        return rows.OrderBy(r => double.IsNaN(r.Nearest) ? double.MaxValue : r.Nearest).Select(r => r.Row).ToList();
     }
 
     private void ShowEmpty(bool locked)
