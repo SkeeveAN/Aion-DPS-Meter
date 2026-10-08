@@ -495,7 +495,7 @@ public partial class SettingsWindow : Window
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            var name = new TextBlock { Text = petName, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+            var name = new TextBlock { Text = petName, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis, ToolTip = petName }; // the tooltip shows a name that is cut off
             name.SetResourceReference(TextBlock.ForegroundProperty, !max && _petPicked.Contains(petId) ? "Brush.Text" : "Brush.TextSubtle");
             var maxText = new TextBlock { Text = max ? LocalizationManager.Instance["Settings.PetMap.Max"] : "", Margin = new Thickness(0, 0, 8, 0), FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
             maxText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");

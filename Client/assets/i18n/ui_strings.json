@@ -1947,124 +1947,208 @@
     "en": "Level {0}",
     "de": "Stufe {0}",
     "fr": "Niveau {0}",
-    "es": "Nivel {0}"
+    "es": "Nivel {0}",
+    "ru": "Уровень {0}",
+    "pl": "Poziom {0}",
+    "tr": "Seviye {0}",
+    "zh": "等级 {0}"
   },
   "PetFarm.Max": {
     "en": "Level {0} (max)",
     "de": "Stufe {0} (max.)",
     "fr": "Niveau {0} (max.)",
-    "es": "Nivel {0} (máx.)"
+    "es": "Nivel {0} (máx.)",
+    "ru": "Уровень {0} (макс.)",
+    "pl": "Poziom {0} (maks.)",
+    "tr": "Seviye {0} (maks.)",
+    "zh": "等级 {0}（满级）"
   },
   "PetFarm.NotOwned": {
     "en": "not collected yet",
     "de": "noch nicht gesammelt",
     "fr": "pas encore obtenu",
-    "es": "aún no conseguida"
+    "es": "aún no conseguida",
+    "ru": "ещё не получен",
+    "pl": "jeszcze nie zdobyty",
+    "tr": "henüz alınmadı",
+    "zh": "尚未获得"
   },
   "PetFarm.Unknown": {
     "en": "level unknown (log in with the meter running)",
     "de": "Stufe unbekannt (mit laufendem Meter einloggen)",
     "fr": "niveau inconnu (connectez-vous avec le meter lancé)",
-    "es": "nivel desconocido (inicia sesión con el meter en marcha)"
+    "es": "nivel desconocido (inicia sesión con el meter en marcha)",
+    "ru": "уровень неизвестен (войдите в игру при запущенном метре)",
+    "pl": "poziom nieznany (zaloguj się z uruchomionym miernikiem)",
+    "tr": "seviye bilinmiyor (sayaç açıkken giriş yapın)",
+    "zh": "等级未知（请在计量器运行时登录）"
   },
   "Settings.PetFarm.Locked": {
     "en": "Overlay locked (off: move and scale it)",
     "de": "Overlay gesperrt (aus: verschieben, vergrößern)",
     "fr": "Overlay verrouillé (désactivé : déplacer, agrandir)",
-    "es": "Overlay bloqueado (desactivado: mover, ampliar)"
+    "es": "Overlay bloqueado (desactivado: mover, ampliar)",
+    "ru": "Оверлей закреплён (выкл.: перемещать, увеличивать)",
+    "pl": "Nakładka zablokowana (wył.: przesuwaj, powiększaj)",
+    "tr": "Katman kilitli (kapalı: taşı, büyüt)",
+    "zh": "悬浮窗已锁定（关闭：可移动、缩放）"
   },
   "PetFarm.Placeholder": {
     "en": "Pet farming overlay (drag to move)",
     "de": "Pet-Farming-Overlay (zum Verschieben ziehen)",
     "fr": "Overlay de farm de pets (glisser pour déplacer)",
-    "es": "Overlay de farmeo (arrastra para mover)"
+    "es": "Overlay de farmeo (arrastra para mover)",
+    "ru": "Оверлей питомцев (перетащите)",
+    "pl": "Nakładka petów (przeciągnij)",
+    "tr": "Pet katmanı (taşımak için sürükle)",
+    "zh": "宠物悬浮窗（拖动移动）"
   },
   "Settings.Nav.PetMap": {
     "en": "Pet map",
     "de": "Pet-Karte",
     "fr": "Carte des pets",
-    "es": "Mapa de mascotas"
+    "es": "Mapa de mascotas",
+    "ru": "Карта питомцев",
+    "pl": "Mapa petów",
+    "tr": "Pet haritası",
+    "zh": "宠物地图"
   },
   "Settings.PetInfo.Title": {
     "en": "Pet information",
     "de": "Pet-Information",
     "fr": "Information pet",
-    "es": "Información de mascota"
+    "es": "Información de mascota",
+    "ru": "Информация о питомце",
+    "pl": "Informacje o pecie",
+    "tr": "Pet bilgisi",
+    "zh": "宠物信息"
   },
   "Settings.PetInfo.Show": {
     "en": "Show the pet information at the monster",
     "de": "Pet-Information am Mob anzeigen",
     "fr": "Afficher l'information du pet sur le monstre",
-    "es": "Mostrar la información de mascota en el monstruo"
+    "es": "Mostrar la información de mascota en el monstruo",
+    "ru": "Показывать информацию о питомце у монстра",
+    "pl": "Pokaż informacje o pecie przy potworze",
+    "tr": "Canavarın yanında pet bilgisini göster",
+    "zh": "在怪物旁显示宠物信息"
   },
   "Settings.PetMap.Title": {
     "en": "Map",
     "de": "Karte",
     "fr": "Carte",
-    "es": "Mapa"
+    "es": "Mapa",
+    "ru": "Карта",
+    "pl": "Mapa",
+    "tr": "Harita",
+    "zh": "地图"
   },
   "Settings.PetMap.Show": {
     "en": "Show the map",
     "de": "Karte anzeigen",
     "fr": "Afficher la carte",
-    "es": "Mostrar el mapa"
+    "es": "Mostrar el mapa",
+    "ru": "Показывать карту",
+    "pl": "Pokaż mapę",
+    "tr": "Haritayı göster",
+    "zh": "显示地图"
   },
   "Settings.PetMap.Radius": {
     "en": "Radius",
     "de": "Radius",
     "fr": "Rayon",
-    "es": "Radio"
+    "es": "Radio",
+    "ru": "Радиус",
+    "pl": "Promień",
+    "tr": "Yarıçap",
+    "zh": "半径"
   },
   "Settings.PetMap.Opacity": {
     "en": "Opacity",
     "de": "Deckkraft",
     "fr": "Opacité",
-    "es": "Opacidad"
+    "es": "Opacidad",
+    "ru": "Прозрачность",
+    "pl": "Krycie",
+    "tr": "Opaklık",
+    "zh": "不透明度"
   },
   "Settings.PetMap.Mobs": {
     "en": "Shown pets",
     "de": "Angezeigte Pets",
     "fr": "Pets affichés",
-    "es": "Mascotas mostradas"
+    "es": "Mascotas mostradas",
+    "ru": "Показываемые питомцы",
+    "pl": "Wyświetlane pety",
+    "tr": "Gösterilen petler",
+    "zh": "显示的宠物"
   },
   "Settings.PetMap.AllOn": {
     "en": "All on",
     "de": "Alle an",
     "fr": "Tout activer",
-    "es": "Todas"
+    "es": "Todas",
+    "ru": "Все вкл.",
+    "pl": "Wszystkie",
+    "tr": "Tümü",
+    "zh": "全开"
   },
   "Settings.PetMap.AllOff": {
     "en": "All off",
     "de": "Alle aus",
     "fr": "Tout désactiver",
-    "es": "Ninguna"
+    "es": "Ninguna",
+    "ru": "Все выкл.",
+    "pl": "Żadne",
+    "tr": "Hiçbiri",
+    "zh": "全关"
   },
   "Settings.PetMap.Max": {
     "en": "Max",
     "de": "Max",
     "fr": "Max",
-    "es": "Máx"
+    "es": "Máx",
+    "ru": "Макс.",
+    "pl": "Maks.",
+    "tr": "Maks.",
+    "zh": "满级"
   },
   "Settings.PetMap.Total": {
     "en": "{0} of {1} pets active",
     "de": "{0} von {1} Pets aktiv",
     "fr": "{0} pets actifs sur {1}",
-    "es": "{0} de {1} mascotas activas"
+    "es": "{0} de {1} mascotas activas",
+    "ru": "Активно {0} из {1} питомцев",
+    "pl": "{0} z {1} petów aktywnych",
+    "tr": "{1} petin {0} tanesi aktif",
+    "zh": "{1} 只宠物中 {0} 只已启用"
   },
   "Settings.PetMap.RadiusValue": {
     "en": "{0} m",
-    "de": "{0} m"
+    "de": "{0} m",
+    "ru": "{0} м",
+    "pl": "{0} m",
+    "tr": "{0} m",
+    "zh": "{0} 米"
   },
   "Settings.PetMap.Search": {
     "en": "Search …",
     "de": "Suchen …",
     "fr": "Rechercher …",
-    "es": "Buscar …"
+    "es": "Buscar …",
+    "ru": "Поиск …",
+    "pl": "Szukaj …",
+    "tr": "Ara …",
+    "zh": "搜索 …"
   },
   "Settings.PetMap.BadgeTip": {
     "en": "{0} on · {1} pets · {2} at the top level (Max)",
     "de": "{0} aktiv · {1} Pets · {2} auf Max",
     "fr": "{0} actifs · {1} pets · {2} au niveau max.",
-    "es": "{0} activas · {1} mascotas · {2} al máximo"
+    "es": "{0} activas · {1} mascotas · {2} al máximo",
+    "ru": "{0} вкл. · {1} питомцев · {2} на максимуме",
+    "pl": "{0} wł. · {1} petów · {2} na maks.",
+    "tr": "{0} açık · {1} pet · {2} maksimumda",
+    "zh": "{0} 已启用 · {1} 只宠物 · {2} 满级"
   }
 }

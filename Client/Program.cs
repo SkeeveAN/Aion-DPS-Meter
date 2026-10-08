@@ -598,6 +598,11 @@ internal static class Program
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language; // so a layout can be checked in every language
+        }
+
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
         var window = new Ui.SettingsWindow(settings);
