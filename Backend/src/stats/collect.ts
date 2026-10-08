@@ -2,7 +2,7 @@ import { statSync } from "node:fs";
 import { sqlite } from "../db/client.js";
 import { env } from "../env.js";
 import { splitConquest } from "../../../Web-Frontend/game-data.js";
-import { factionOfServerName } from "./serverFactions.js";
+import { factionOfServerName } from "../factions.js";
 
 type Row = Record<string, number | string | null>;
 const all = (sql: string, ...params: unknown[]) => sqlite.prepare(sql).all(...params) as Row[];

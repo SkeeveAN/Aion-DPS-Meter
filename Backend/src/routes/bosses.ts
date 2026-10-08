@@ -1,4 +1,5 @@
 import { and, asc, count, desc, eq, inArray, max, or, sql } from "drizzle-orm";
+import { withServerFaction } from "../factions.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounters, instances, playerProfiles, players, serverCatalog, servers } from "../db/schema.js";
@@ -128,7 +129,7 @@ export function topGroups(bossId: number, serverId: number | null, game: Game, m
       .where(eq(encounterParticipants.encounterId, group.encounterId))
       .orderBy(desc(encounterParticipants.totalDamage))
       .all()
-      .map(({ profileId, ...member }) => ({ ...member, hasProfile: profileId != null }));
+      .map(({ profileId, ...member }) => ({ ...withServerFaction(member), hasProfile: profileId != null }));
 
     return {
       ...group,
@@ -178,7 +179,8 @@ export function topByClass(bossId: number, serverId: number | null, game: Game, 
     .innerJoin(players, eq(encounterParticipants.playerId, players.id))
     .leftJoin(servers, eq(players.serverId, servers.id))
     .where(encounterScope(bossId, serverId, mode))
-    .all();
+    .all()
+    .map(withServerFaction);
 
   const byClass = new Map<string, typeof allParticipants>();
   for (const p of allParticipants) {

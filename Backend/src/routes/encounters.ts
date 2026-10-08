@@ -1,4 +1,5 @@
 import { asc, desc, eq } from "drizzle-orm";
+import { withServerFaction } from "../factions.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, encounterSkillUsage, instances, playerProfiles, players, servers, uploads } from "../db/schema.js";
@@ -137,7 +138,7 @@ export async function encounterRoutes(app: FastifyInstance) {
 
     const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId));
     // hasProfile: true when the player has a character profile page (see /api/players/:id).
-    const rosterWithBuffs = roster.map((r) => ({ ...r, hasProfile: r.hasProfile != null, topBuffs: topBuffs.get(r.participantId) ?? [] }));
+    const rosterWithBuffs = roster.map((r) => ({ ...withServerFaction(r), hasProfile: r.hasProfile != null, topBuffs: topBuffs.get(r.participantId) ?? [] }));
 
     return reply.send({
       encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null },
@@ -152,7 +153,7 @@ export async function encounterRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: "invalid_participant_id" });
     }
 
-    const participant = db
+    const participantRow = db
       .select({
         id: encounterParticipants.id,
         encounterId: encounterParticipants.encounterId,
@@ -174,9 +175,10 @@ export async function encounterRoutes(app: FastifyInstance) {
       .leftJoin(servers, eq(players.serverId, servers.id))
       .where(eq(encounterParticipants.id, participantId))
       .get();
-    if (!participant) {
+    if (!participantRow) {
       return reply.status(404).send({ error: "participant_not_found" });
     }
+    const participant = withServerFaction(participantRow);
 
     const encounter = db
       .select({

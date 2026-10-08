@@ -1,4 +1,5 @@
 import { listGuilds } from "../guilds.js";
+import { factionOfServerName, withServerFaction } from "../factions.js";
 import { and, desc, eq, like, max } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
@@ -167,11 +168,18 @@ export async function playerRoutes(app: FastifyInstance) {
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))
       .where(eq(encounterParticipants.playerId, playerId))
       .orderBy(desc(encounters.startedAt))
-      .all();
+      .all()
+      .map((run) => withServerFaction({ ...run, serverName: player.serverName }));
 
     const guildSlug = player.guild && player.serverId !== null
       ? (listGuilds().find((g) => g.serverId === player.serverId && g.name === player.guild?.trim())?.slug ?? null)
       : null;
-    return reply.send({ player: { ...player, guildSlug }, history, profile: buildProfileView(playerId) });
+    // The server decides the faction (Elyos and Asmodians never share a server).
+    const profile = buildProfileView(playerId);
+    return reply.send({
+      player: { ...player, guildSlug },
+      history,
+      profile: profile ? { ...profile, faction: (factionOfServerName(player.serverName) || profile.faction) as typeof profile.faction } : profile,
+    });
   });
 }
