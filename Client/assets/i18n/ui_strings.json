@@ -1431,6 +1431,16 @@
     "tr": "Zaman çizelgesi",
     "zh": "时间表悬浮窗"
   },
+  "Settings.Hotkeys.Group.Dps": {
+    "en": "DPS meter",
+    "de": "DPS-Meter",
+    "fr": "DPS-Meter",
+    "es": "DPS-Meter",
+    "ru": "DPS-метр",
+    "pl": "DPS-Meter",
+    "tr": "DPS-Meter",
+    "zh": "DPS 统计"
+  },
   "Settings.Hotkey.PetMap": {
     "en": "Pet map on / off",
     "de": "Pet-Karte an / aus",
