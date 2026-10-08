@@ -9,7 +9,7 @@
          GUI with nothing else. -->
     <OutputType>WinExe</OutputType>
     <!-- -windows suffix needed for WPF (Ui/); Aion itself is Windows-only, so the tool always was. -->
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <!-- WPF has no tray-icon API of its own - System.Windows.Forms.NotifyIcon (TrayIcon.cs, backing
          "Minimize to system tray") is the standard way every WPF app gets one, hence this flag

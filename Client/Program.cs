@@ -230,6 +230,19 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "petfarm-read")
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Usage: AionDPS petfarm-read <screenshot.png> [language]");
+                Console.WriteLine("  Finds the red target plate in a picture, reads its name and says which pet it leads to. No window, nothing saved.");
+                return;
+            }
+
+            RunPetFarmReadMode(args[1], args.Length > 2 ? args[2] : "de");
+            return;
+        }
+
         if (args.Length == 0 || args[0] == "gui")
         {
             // No App.xaml on purpose: an ApplicationDefinition item would generate its own Main
@@ -858,6 +871,22 @@ internal static class Program
         }
     }
 
+    private static void RunPetFarmReadMode(string path, string language)
+    {
+        using var frame = new System.Drawing.Bitmap(path);
+        var bars = Ui.PetFarmReader.FindBars(frame);
+        Console.WriteLine($"petfarm-read: {frame.Width}x{frame.Height}, {bars.Count} red bar(s): " + string.Join(", ", bars.Take(5).Select(b => $"{b.X},{b.Y} {b.Width}x{b.Height}")));
+        var reader = new Ui.PetFarmReader();
+        string? name = reader.ReadTargetNameAsync(frame, language).GetAwaiter().GetResult();
+        Console.WriteLine($"petfarm-read: recognised '{name}'");
+        if (name is not null)
+        {
+            var match = Ui.PetFarmReader.Match(name);
+            Console.WriteLine(match is null ? "petfarm-read: no pet monster" : $"petfarm-read: monster '{match.Value.Name}' -> pet(s) " +
+                string.Join(", ", match.Value.Pets.Select(p => $"{Aion2.Protocol.Aion2Pets.PetName(p, language)} ({p})")));
+        }
+    }
+
     private static void RunAion2ReplayMode(string path, int serverPort, string? ownName)
     {
         var protocol = Aion2.Protocol.Aion2Protocol.Load();
@@ -865,6 +894,15 @@ internal static class Program
         (source.Entities as Aion2.Aion2EntityDirectory)?.SetConfiguredLocalName(ownName);
         var events = new List<Combat.DamageEvent>();
         int segments = 0;
+        string? petLog = null;
+        if (Environment.GetEnvironmentVariable("AION2_PETS") is { Length: > 0 })
+        {
+            // Pet farming check: the soul lines go to a throw-away file, not to the real pet-farm.log.
+            petLog = Path.Combine(Path.GetTempPath(), "aion2-replay-pet-farm.log");
+            File.Delete(petLog);
+            Aion2.PetFarmLog.PathOverride = petLog;
+        }
+
         foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
         {
             // The recording holds every TCP stream of the machine; only the game server's counts,
@@ -892,6 +930,25 @@ internal static class Program
             {
                 dump.WriteLine(string.Join(';', e.Timestamp.ToString("O"), e.SourceObjectId, source.Entities.NameFor(e.SourceObjectId), e.TargetObjectId,
                     e.Amount, e.IsHeal ? 1 : 0, e.IsTick ? 1 : 0, e.IsCritical ? 1 : 0, e.Skill));
+            }
+        }
+
+        if (petLog is not null && source.Entities is Aion2.Aion2EntityDirectory petDirectory)
+        {
+            var pets = petDirectory.LocalPetStates;
+            Console.WriteLine($"aion2-replay: {pets.Count} pet(s) in the pet list, {pets.Count(p => p.Level >= 3)} at the top level");
+            foreach (var pet in pets.Where(p => p.Level >= 2).OrderByDescending(p => p.Level).ThenByDescending(p => p.Progress).Take(12))
+            {
+                Console.WriteLine($"  {Aion2.Protocol.Aion2Pets.PetName(pet.PetId, "de") ?? "?",-30} level {pet.Level}  {pet.Progress}/{Aion2.Protocol.Aion2Pets.ProgressNeeded(pet.Level)}");
+            }
+
+            if (File.Exists(petLog))
+            {
+                Console.WriteLine("aion2-replay: pet farm log:");
+                foreach (string line in File.ReadLines(petLog).Take(40))
+                {
+                    Console.WriteLine("  " + line);
+                }
             }
         }
 

@@ -1,5 +1,7 @@
 using AionDPS.Combat.Sources;
 
+using AionDPS.Aion2.Protocol;
+
 namespace AionDPS.Aion2;
 
 /// <summary>One equipped item as the character record lists it: its position and its id.</summary>
@@ -152,6 +154,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _fullEquipment = null;
                 _daevanion = null;
                 _species = null;
+                _petStates = null;
                 _titles = null;
                 _stigmas.Clear();
                 _bar.Clear();
@@ -199,6 +202,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _species = saved.Species.Select(k => new Aion2SpeciesKnowledge(k.Id, k.Level, k.Progress,
                 k.Effects.Select(e => new Aion2SpeciesEffect(e.Page, e.Slot, e.Stat, e.Value, e.Kind)).ToList())).ToList();
             _titles = saved.Titles.Select(t => new Aion2TitleSlot(t.Slot, t.TitleId)).ToList();
+            _petStates = saved.Pets.Select(p => new Aion2PetState(p.Id, p.Level, p.Progress)).ToList();
         }
     }
 
@@ -225,6 +229,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 Species = (_species ?? Array.Empty<Aion2SpeciesKnowledge>()).Select(k => new Aion2SavedCharacter.SavedSpecies(k.SpeciesId, k.Level, k.Progress,
                     k.Effects.Select(e => new Aion2SavedCharacter.SavedEffect(e.Page, e.Slot, e.StatId, e.Value, e.Kind)).ToList())).ToList(),
                 Titles = (_titles ?? Array.Empty<Aion2TitleSlot>()).Select(t => new Aion2SavedCharacter.SavedTitle(t.Slot, t.TitleId)).ToList(),
+                Pets = (_petStates ?? Array.Empty<Aion2PetState>()).Select(p => new Aion2SavedCharacter.SavedPet(p.PetId, p.Level, p.Progress)).ToList(),
             };
         }
     }
@@ -278,6 +283,40 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             {
                 return _daevanion ?? Array.Empty<Aion2DaevanionBoard>();
             }
+        }
+    }
+
+    private IReadOnlyList<Aion2PetState>? _petStates;
+
+    /// <summary>Every pet the local player owns with its level and progress, from the login frame's pet list (empty until it arrived).</summary>
+    public IReadOnlyList<Aion2PetState> LocalPetStates
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _petStates ?? Array.Empty<Aion2PetState>();
+            }
+        }
+    }
+
+    public void SetLocalPetStates(IReadOnlyList<Aion2PetState> pets)
+    {
+        lock (_gate)
+        {
+            _petStates = pets;
+            _listsAt = DateTime.UtcNow;
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    /// <summary>The NPC id a monster was announced with, when its spawn frame was seen.</summary>
+    public int? NpcIdOf(int entityId)
+    {
+        lock (_gate)
+        {
+            return _npcIds.TryGetValue(entityId, out int npcId) ? npcId : null;
         }
     }
 

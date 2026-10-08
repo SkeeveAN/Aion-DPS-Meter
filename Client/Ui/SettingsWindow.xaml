@@ -584,6 +584,14 @@
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetFarm.Title}"/>
+                                <CheckBox x:Name="ShowPetFarmBox" Content="{local:Loc Settings.PetFarm.Show}"/>
+                                <TextBlock Text="{local:Loc Settings.PetFarm.Hint}" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,0"
+                                           Foreground="{DynamicResource Brush.TextSubtle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Hotkeys}"/>
                                 <Grid Margin="0,2">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>

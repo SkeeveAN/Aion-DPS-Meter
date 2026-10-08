@@ -16,6 +16,9 @@ public sealed class Aion2SavedCharacter
     public List<SavedBoard> Daevanion { get; set; } = new();
     public List<SavedSpecies> Species { get; set; } = new();
     public List<SavedTitle> Titles { get; set; } = new();
+    public List<SavedPet> Pets { get; set; } = new();
+
+    public sealed record SavedPet(int Id, int Level, int Progress);
 
     public sealed record SavedItem(int Slot, int ItemId, int Enchant);
 

@@ -47,3 +47,11 @@ without one, strings (UTF-16, XOR `25 00 a8 00 7e 00 91 00` per string) can be s
 `build_npcs.py <NpcData.bin> <l10n dir> <out.json>` turns the decrypted `NpcData` table (`dectable.py`, from `pakchunk401000-Windows_0_P.pak`)
 into `{npcId: {en, de, fr, es, ru, pt, ja, ko}}` (12,589 monsters). The meter ships English, German, French, Spanish and
 Russian as `Client/assets/aion2/npcs/npc_names.json` and names a monster from the NPC id of its spawn frame.
+
+## Pets (2026-10-08)
+`build_pets.py <VehicleList.bin> <NpcData.bin> <npc_names.json> <l10n dir> <out.json> [extra_pets.json] [Item.bin]` writes
+`Client/assets/aion2/pets/pets.json` for the pet farming overlay: the 207 pets (`VehicleList` row = `[i32 petId][str_veh_<key>]`) with their
+names in five languages (item text `STR_ITEM_VEHICLE_<KEY>_A_01_B`, "Pet: " prefix removed), the monsters that belong to each pet and the soul
+item ids. A pet is named after the model of the monsters that drop its soul (`MOB_Cherubim_02` <- pet `Cherubim_02`); 59 of 63 souls seen in
+real captures matched that rule, the rest are in `extra_pets.json`. The pet list of the login frame (opcode 144) is
+`u32, varint n, n x (id, id, level 1-3), varint m, m x (id, progress)`; progress needed is 25 at level 1, 75 at level 2.

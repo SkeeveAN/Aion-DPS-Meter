@@ -135,7 +135,11 @@ public sealed class Aion2FrameDecoder
                 DecodeDaevanion(frame);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.Species:
+                DecodePetList(frame);
                 DecodeSpecies(frame);
+                return Array.Empty<DamageEvent>();
+            case OpcodeFamily.InventoryChange:
+                DecodeInventoryChange(frame, timestamp);
                 return Array.Empty<DamageEvent>();
             case OpcodeFamily.Titles:
                 DecodeTitles(frame);
@@ -722,6 +726,65 @@ public sealed class Aion2FrameDecoder
         if (current is long hp && hp >= 0)
         {
             _entities.HitPoints.Note(unchecked((int)entityId), timestamp, hp);
+            if (hp == 0 && _entities.NpcIdOf(unchecked((int)entityId)) is int died)
+            {
+                PetFarmLog.NoteDeath(unchecked((int)entityId), died, timestamp); // the pet farm log pairs a soul with the monsters that died just before it
+            }
+        }
+    }
+
+    /// <summary>
+    /// The pet list of the login frame (the same frame as the species knowledge): <c>u32, varint n, n x (pet id u32, pet id u32,
+    /// level u32), varint m, m x (pet id u32, progress u32)</c>. The level is 1 to 3 (3 = top, no progress any more); the progress
+    /// is what the pet window shows as 32/75. Checked against the pet window (166 pets, "Schamane" level 2 at 32/75).
+    /// </summary>
+    private void DecodePetList(ReadOnlySpan<byte> frame)
+    {
+        int p = 6;
+        if (!TryReadVarint(frame, ref p, out long count) || count is < 1 or > 2000 || p + count * 12 > frame.Length)
+        {
+            return;
+        }
+
+        var levels = new List<(int Id, int Level)>();
+        for (long i = 0; i < count; i++, p += 12)
+        {
+            uint id = BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]);
+            if (id != BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 4)..]) || id is < 1000 or > 99999)
+            {
+                return; // not the pet list
+            }
+
+            levels.Add(((int)id, (int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 8)..])));
+        }
+
+        var progress = new Dictionary<int, int>();
+        if (TryReadVarint(frame, ref p, out long m) && m is >= 0 and <= 2000 && p + m * 8 <= frame.Length)
+        {
+            for (long i = 0; i < m; i++, p += 8)
+            {
+                progress[(int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..])] = (int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 4)..]);
+            }
+        }
+
+        _entities.SetLocalPetStates(levels.Select(l => new Aion2PetState(l.Id, l.Level, progress.GetValueOrDefault(l.Id))).ToList());
+    }
+
+    /// <summary>
+    /// An inventory change of the local player: <c>opcode | 01 00 00 | 8 bytes | item id u32 | quantity u32 ...</c> (also AP and Kinah, see
+    /// the resources note). Only a pet soul is of interest: it goes to the pet farm log with the monsters that died right before it.
+    /// </summary>
+    private static void DecodeInventoryChange(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        if (frame.Length < 21)
+        {
+            return;
+        }
+
+        int itemId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[13..]));
+        if (Aion2Pets.PetOfSoulItem(itemId) is int pet)
+        {
+            PetFarmLog.NoteSoul(itemId, pet, unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[17..])), timestamp);
         }
     }
 

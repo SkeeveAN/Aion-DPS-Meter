@@ -113,6 +113,8 @@ public partial class MainWindow : Window
     private bool _compactOverlay;
     private bool _showBossHp;
     private TimetableWindow? _timetable;
+    private PetFarmWindow? _petFarm;
+    private PetFarmController? _petFarmController;
     private bool _autoReset;
     /// <summary>Whose rows are shown: everybody, the own group, or the corps (two groups together).</summary>
     private enum MeterScope { All, Group, Corps }
@@ -557,6 +559,7 @@ public partial class MainWindow : Window
 
         // The timetable overlay always sits above the meter: raised right after it, in the same tick.
         _timetable?.RaiseToFront();
+        _petFarm?.RaiseToFront();
 
         // Every five seconds is plenty: a fight only counts as finished 120 s after its last hit.
         if (++_historyTickCounter >= 5)
@@ -792,6 +795,7 @@ public partial class MainWindow : Window
         _hotkeys.Pressed += action => Dispatcher.Invoke(() => OnHotkeyPressed(action), System.Windows.Threading.DispatcherPriority.Input);
         ApplyHotkeys(MeterSettings.Load());
         ApplyTimetable(MeterSettings.Load());
+        ApplyPetFarm(MeterSettings.Load());
     }
 
     /// <summary>
@@ -828,6 +832,8 @@ public partial class MainWindow : Window
         _overlay?.Dispose();
         _hotkeys?.Dispose();
         _timetable?.Close();
+        _petFarmController?.Dispose();
+        _petFarm?.Close();
         _trayIcon?.Dispose();
         base.OnClosed(e);
     }
@@ -3475,6 +3481,7 @@ public partial class MainWindow : Window
             ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
             ApplyHotkeys(settings); // possibly changed keys
             ApplyTimetable(settings);
+            ApplyPetFarm(settings);
             ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
             StartCapture(settings); // possibly a new/changed AionInstallFolder
             InitializeFightHistory(settings); // possibly toggled recording
@@ -3792,6 +3799,27 @@ public partial class MainWindow : Window
         }
 
         _timetable.Refresh();
+    }
+
+    /// <summary>Starts or stops the pet farming overlay as Settings say (see PetFarmWindow).</summary>
+    private void ApplyPetFarm(MeterSettings settings)
+    {
+        if (Headless)
+        {
+            return;
+        }
+
+        if (!settings.ShowPetFarm)
+        {
+            _petFarmController?.Dispose();
+            _petFarmController = null;
+            _petFarm?.Hide();
+            return;
+        }
+
+        _petFarm ??= new PetFarmWindow();
+        _petFarm.ApplyOpacity(settings.OverlayOpacity);
+        _petFarmController ??= new PetFarmController(_petFarm, () => _source?.Entities as Aion2EntityDirectory);
     }
 
     private void ToggleTimetable()

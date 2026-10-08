@@ -165,6 +165,13 @@ public sealed class MeterSettings
 
     public double TimetableScale { get; set; } = 1.0;
 
+    /// <summary>The pet farming overlay (see PetFarmWindow): reads the targeted monster's name from the screen and shows its pet's level. Off until switched on.</summary>
+    public bool ShowPetFarm { get; set; }
+
+    public double? PetFarmLeft { get; set; }
+
+    public double? PetFarmTop { get; set; }
+
 
     /// <summary>Network adapter the Aion 2 packet capture listens on (Aion2/Capture/CaptureAdapters):
     /// null/empty = automatic (the adapter Windows routes internet traffic through), "all" = every

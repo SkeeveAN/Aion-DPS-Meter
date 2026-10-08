@@ -52,6 +52,8 @@ public enum OpcodeFamily
     /// <summary>The local player's species knowledge (Cognia, Fera, Natura, Varia, Specia) at login: level,
     /// progress and the analysed effects of each.</summary>
     Species,
+    /// <summary>An inventory change of the local player (item id and the new quantity); only pet souls are read.</summary>
+    InventoryChange,
     /// <summary>The titles the local player wears (slot 1..3 with the title id), sent at login and on a change.</summary>
     Titles,
     /// <summary>The local player's skills that have specialisation variants: the five-variant ones are the
