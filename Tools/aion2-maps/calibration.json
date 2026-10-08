@@ -8,7 +8,8 @@
   "scale_px_per_unit_native": 0.019583509634873143,
   "offset_x_native": 8070.937975984913,
   "offset_y_native": 8307.450753846877,
-  "fit": "refitted 2026-10-08 evening on all 5272 pet-monster spawn points plus the south-west island (Insel der Ewigkeit) with extra weight: 96.9 % of all spawn points and 99.5 % of those on the island lie on land (the first fit had 61 % on the island, the Kerubian groups lay in the lagoon). The scale now agrees with Altgard's independent fit within 0.5 %. The two recorded places moved by about 55 m."
+  "fit": "refitted 2026-10-08 evening on all 5272 pet-monster spawn points plus the south-west island (Insel der Ewigkeit) with extra weight: 96.9 % of all spawn points and 99.5 % of those on the island lie on land (the first fit had 61 % on the island, the Kerubian groups lay in the lagoon). The scale now agrees with Altgard's independent fit within 0.5 %. The two recorded places moved by about 55 m.",
+  "check_2026_10_08_evening": "Independent check with the in-game M map (same zoom, only panned: 3.125 screen px per px of the 2048 composite): the player's recorded position on the Insel der Ewigkeit (-199264, 228307) lies on land in the fit, and the Kibelisk 'Wald der Verbannten' read from the same screenshot implies x = -60461, the player's recorded x in that forest was -60540 (difference under 1 m in x; y differs 170 m, the player stood south of the pin)."
  },
  "Altgard": {
   "world": "World/World_D/World_D_A",
