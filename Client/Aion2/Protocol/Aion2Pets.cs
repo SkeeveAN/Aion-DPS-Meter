@@ -22,8 +22,22 @@ public static class Aion2Pets
     private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "pets", "pets.json");
     private static Catalog? _catalog;
 
+    /// <summary>The species of a pet as the pet window groups them: Cognia (Intellect), Fera (Feral), Natura (Nature), Varia (Trans), Specia (Special).</summary>
+    public static string? SpeciesOf(int petId) => Data.PetSpecies.TryGetValue(petId, out string? s) ? s : null;
+
+    /// <summary>The species in the order of the pet window.</summary>
+    public static readonly string[] Species = { "Cognia", "Fera", "Natura", "Varia", "Specia" };
+
+    /// <summary>The pets of one species whose monsters have spawn points on a map (the ones the pet map can show), by name in a language.</summary>
+    public static IReadOnlyList<(int PetId, string Name)> MapPetsOf(string species, string language) =>
+        Data.PetSpecies.Where(kv => kv.Value == species && Data.PetsWithSpawns.Contains(kv.Key))
+            .Select(kv => (kv.Key, PetName(kv.Key, language) ?? $"#{kv.Key}"))
+            .OrderBy(p => p.Item2, StringComparer.CurrentCultureIgnoreCase).ToList();
+
     private sealed class Catalog
     {
+        public Dictionary<int, string> PetSpecies { get; } = new();
+        public HashSet<int> PetsWithSpawns { get; } = new();
         public Dictionary<int, Dictionary<string, string>> PetNames { get; } = new();
         public Dictionary<int, int[]> PetsOfNpc { get; } = new();
         public Dictionary<int, int> PetOfSoul { get; } = new();
@@ -84,6 +98,15 @@ public static class Aion2Pets
                 }
 
                 catalog.PetNames[int.Parse(pet.Name)] = names;
+                catalog.PetSpecies[int.Parse(pet.Name)] = pet.Value.TryGetProperty("category", out var c) ? c.GetString() switch
+                {
+                    "Intellect" => "Cognia",
+                    "Feral" => "Fera",
+                    "Nature" => "Natura",
+                    "Trans" => "Varia",
+                    "Special" => "Specia",
+                    _ => "",
+                } : "";
             }
 
             foreach (var m in doc.RootElement.GetProperty("monsters").EnumerateObject())
@@ -96,6 +119,23 @@ public static class Aion2Pets
             foreach (var s in doc.RootElement.GetProperty("souls").EnumerateObject())
             {
                 catalog.PetOfSoul[int.Parse(s.Name)] = s.Value.GetInt32();
+            }
+
+            // the pets that have at least one spawn point on a map (spawns.json: {"maps": {map: {npcId: [[x,y,z]...]}}})
+            string spawnsPath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "pets", "spawns.json");
+            if (File.Exists(spawnsPath))
+            {
+                using var spawns = JsonDocument.Parse(File.ReadAllText(spawnsPath));
+                foreach (var map in spawns.RootElement.GetProperty("maps").EnumerateObject())
+                {
+                    foreach (var npc in map.Value.EnumerateObject())
+                    {
+                        if (catalog.PetsOfNpc.TryGetValue(int.Parse(npc.Name), out int[]? pets))
+                        {
+                            catalog.PetsWithSpawns.UnionWith(pets);
+                        }
+                    }
+                }
             }
 
             foreach ((int npcId, int[] petIds) in catalog.PetsOfNpc)

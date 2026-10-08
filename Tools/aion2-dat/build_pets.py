@@ -43,9 +43,14 @@ def main():
     extra = json.load(open(sys.argv[6])) if len(sys.argv) > 6 else {}
     vehicles = open(vehicle_path, "rb").read()
     pets = {}
-    for offset, s in strings(vehicles):
+    categories = {}
+    table_strings = strings(vehicles)
+    for index, (offset, s) in enumerate(table_strings):
         if s.startswith("str_veh_"):
-            pets[struct.unpack_from("<I", vehicles, offset - 4)[0]] = s[len("str_veh_"):]
+            pet_id = struct.unpack_from("<I", vehicles, offset - 4)[0]
+            pets[pet_id] = s[len("str_veh_"):]
+            # the row names its species a few strings later: ECreatureType::Intellect / Feral / Nature / Trans / Special
+            categories[pet_id] = next((t.split("::")[1] for _, t in table_strings[index + 1:index + 8] if t.startswith("ECreatureType::")), "")
 
     l10n = {lang: json.load(open(f"{l10n_dir}/l10n_{code}.json", encoding="utf-8")) for lang, code in LANGS.items()}
     out_pets = {}
@@ -55,7 +60,7 @@ def main():
             text = table.get(f"String_STR_ITEM_VEHICLE_{key.upper()}_A_01_B_body")
             if text:
                 names[lang] = text.split(":", 1)[1].strip() if ":" in text else text
-        out_pets[str(pet_id)] = {"key": key, "names": names}
+        out_pets[str(pet_id)] = {"key": key, "category": categories.get(pet_id, ""), "names": names}
 
     npcs = open(npc_path, "rb").read()
     table = strings(npcs)

@@ -594,6 +594,9 @@ internal static class Program
     private static void RunRenderSettingsMode(string path, string tab)
     {
         var app = new System.Windows.Application();
+        // The shared styles (ThemedSlider ...) are merged by the GUI start; the Settings window needs them here too.
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         var settings = Ui.MeterSettings.Load();
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;

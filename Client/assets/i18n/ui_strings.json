@@ -1944,10 +1944,10 @@
     "es": "Mostrar el nivel de la mascota del monstruo objetivo"
   },
   "Settings.PetFarm.Hint": {
-    "en": "Reads the monster's name from the game's target plate on screen (the picture stays in memory, nothing is saved or uploaded) and shows the level of the pet it drops. Stays invisible without a target or a pet. Unlock it to move and scale it. A log of unknown monsters and pet souls is kept in pet-farm.log next to the settings.",
-    "de": "Liest den Namen des Monsters von der Zielplakette des Spiels auf dem Bildschirm (das Bild bleibt im Arbeitsspeicher, nichts wird gespeichert oder hochgeladen) und zeigt das Level des Pets, das es fallen lässt. Ohne Ziel oder ohne Pet bleibt es unsichtbar. Mit ausgeschalteter Sperre lässt es sich verschieben und vergrößern. Ein Protokoll unbekannter Monster und Pet-Seelen liegt in pet-farm.log neben den Einstellungen.",
-    "fr": "Lit le nom du monstre sur la plaque de cible du jeu à l'écran (l'image reste en mémoire, rien n'est enregistré ni envoyé) et affiche le niveau du pet qu'il lâche. Reste invisible sans cible ni pet.",
-    "es": "Lee el nombre del monstruo en la placa de objetivo del juego en pantalla (la imagen queda en memoria, no se guarda ni se envía) y muestra el nivel de la mascota que suelta. Sin objetivo ni mascota permanece invisible."
+    "en": "Reads the monster's name from the game's target plate on screen; the picture stays in memory, nothing is saved or uploaded.",
+    "de": "Liest den Namen des Monsters von der Zielplakette auf dem Bildschirm; das Bild bleibt im Arbeitsspeicher, nichts wird gespeichert oder hochgeladen.",
+    "fr": "Lit le nom du monstre sur la plaque de cible à l'écran ; l'image reste en mémoire, rien n'est enregistré ni envoyé.",
+    "es": "Lee el nombre del monstruo en la placa de objetivo en pantalla; la imagen queda en memoria, no se guarda ni se envía."
   },
   "PetFarm.Level": {
     "en": "Level {0}",
@@ -1974,15 +1974,101 @@
     "es": "nivel desconocido (inicia sesión con el meter en marcha)"
   },
   "Settings.PetFarm.Locked": {
-    "en": "Overlay locked (off: click, move and scale it)",
-    "de": "Overlay gesperrt (aus: anklicken, verschieben, vergrößern)",
-    "fr": "Overlay verrouillé (désactivé : cliquer, déplacer, agrandir)",
-    "es": "Overlay bloqueado (desactivado: clic, mover, ampliar)"
+    "en": "Overlays locked (off: move and scale them – also applies to the map)",
+    "de": "Overlays gesperrt (aus: verschieben, vergrößern – gilt auch für die Karte)",
+    "fr": "Overlays verrouillés (désactivé : déplacer, agrandir – vaut aussi pour la carte)",
+    "es": "Overlays bloqueados (desactivado: mover, ampliar – también para el mapa)"
   },
   "PetFarm.Placeholder": {
     "en": "Pet farming overlay (drag to move)",
     "de": "Pet-Farming-Overlay (zum Verschieben ziehen)",
     "fr": "Overlay de farm de pets (glisser pour déplacer)",
     "es": "Overlay de farmeo (arrastra para mover)"
+  },
+  "Settings.Nav.PetMap": {
+    "en": "Pet map",
+    "de": "Pet-Karte",
+    "fr": "Carte des pets",
+    "es": "Mapa de mascotas"
+  },
+  "Settings.PetInfo.Title": {
+    "en": "Pet information",
+    "de": "Pet-Information",
+    "fr": "Information pet",
+    "es": "Información de mascota"
+  },
+  "Settings.PetInfo.Show": {
+    "en": "Show the pet information at the monster",
+    "de": "Pet-Information am Mob anzeigen",
+    "fr": "Afficher l'information du pet sur le monstre",
+    "es": "Mostrar la información de mascota en el monstruo"
+  },
+  "Settings.PetMap.Title": {
+    "en": "Map",
+    "de": "Karte",
+    "fr": "Carte",
+    "es": "Mapa"
+  },
+  "Settings.PetMap.Show": {
+    "en": "Show the map",
+    "de": "Karte anzeigen",
+    "fr": "Afficher la carte",
+    "es": "Mostrar el mapa"
+  },
+  "Settings.PetMap.Radius": {
+    "en": "Radius",
+    "de": "Radius",
+    "fr": "Rayon",
+    "es": "Radio"
+  },
+  "Settings.PetMap.Opacity": {
+    "en": "Opacity",
+    "de": "Deckkraft",
+    "fr": "Opacité",
+    "es": "Opacidad"
+  },
+  "Settings.PetMap.Mobs": {
+    "en": "Shown pets",
+    "de": "Angezeigte Pets",
+    "fr": "Pets affichés",
+    "es": "Mascotas mostradas"
+  },
+  "Settings.PetMap.AllOn": {
+    "en": "All on",
+    "de": "Alle an",
+    "fr": "Tout activer",
+    "es": "Todas"
+  },
+  "Settings.PetMap.AllOff": {
+    "en": "All off",
+    "de": "Alle aus",
+    "fr": "Tout désactiver",
+    "es": "Ninguna"
+  },
+  "Settings.PetMap.Max": {
+    "en": "Max",
+    "de": "Max",
+    "fr": "Max",
+    "es": "Máx"
+  },
+  "Settings.PetMap.Total": {
+    "en": "{0} of {1} pets active",
+    "de": "{0} von {1} Pets aktiv",
+    "fr": "{0} pets actifs sur {1}",
+    "es": "{0} de {1} mascotas activas"
+  },
+  "Settings.PetMap.RadiusValue": {
+    "en": "{0} m",
+    "de": "{0} m"
+  },
+  "Settings.PetMap.Search": {
+    "en": "Search …",
+    "de": "Suchen …",
+    "fr": "Rechercher …",
+    "es": "Buscar …"
+  },
+  "Settings.PetFarm.HintTip": {
+    "en": "Stays invisible without a target or a pet. A log of unknown monsters and pet souls is kept in pet-farm.log next to the settings.",
+    "de": "Ohne Ziel oder ohne Pet bleibt es unsichtbar. Ein Protokoll unbekannter Monster und Pet-Seelen liegt in pet-farm.log neben den Einstellungen."
   }
 }

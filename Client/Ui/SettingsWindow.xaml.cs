@@ -2,7 +2,10 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using AionDPS.Aion2;
+using AionDPS.Aion2.Protocol;
 
 namespace AionDPS.Ui;
 
@@ -49,6 +52,7 @@ public partial class SettingsWindow : Window
         ShowTimetableBox.IsChecked = settings.ShowTimetable;
         ShowPetFarmBox.IsChecked = settings.ShowPetFarm;
         PetFarmLockedBox.IsChecked = settings.PetFarmLocked;
+        InitPetMap(settings);
         SetHotkeyBox(HotkeyTimetableBox, HotkeyBinding.Parse(settings.HotkeyTimetable).ToString());
         AutoResetBox.IsChecked = settings.AutoResetEnabled;
         AutoResetSecondsBox.Text = Math.Clamp(settings.AutoResetSeconds, 1, 600).ToString();
@@ -299,6 +303,10 @@ public partial class SettingsWindow : Window
         _settings.ShowTimetable = ShowTimetableBox.IsChecked ?? true;
         _settings.ShowPetFarm = ShowPetFarmBox.IsChecked ?? false;
         _settings.PetFarmLocked = PetFarmLockedBox.IsChecked ?? true;
+        _settings.ShowPetMap = ShowPetMapBox.IsChecked ?? false;
+        _settings.PetMapRadius = (int)PetMapRadiusSlider.Value;
+        _settings.PetMapOpacity = PetMapOpacitySlider.Value / 100.0;
+        _settings.PetMapPets = _petPicked.OrderBy(i => i).ToList();
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
         _settings.AutoResetSeconds = int.TryParse(AutoResetSecondsBox.Text, out int seconds) ? Math.Clamp(seconds, 1, 600) : 10;
@@ -360,5 +368,182 @@ public partial class SettingsWindow : Window
         onDisk.SettingsWindowHeight = bounds.Height;
         onDisk.Save();
         base.OnClosing(e);
+    }
+
+    // ---- Pet-Karte page: which pets the map shows (species list on the left, the pets of the chosen species with switches on the right) ----
+    private string _petSpecies = Aion2Pets.Species[0];
+    private HashSet<int> _petPicked = new();
+    private Dictionary<int, int> _petLevels = new();
+
+    private void InitPetMap(MeterSettings settings)
+    {
+        _petPicked = settings.PetMapPets.ToHashSet();
+        // the levels of the own pets (login frame, kept in the character file): pets at the top level need no farming and are greyed out
+        _petLevels = Aion2CharacterStore.Load(Aion2CharacterStore.DefaultPath)?.Pets.ToDictionary(p => p.Id, p => p.Level) ?? new();
+        ShowPetMapBox.IsChecked = settings.ShowPetMap;
+        PetMapRadiusSlider.Value = Math.Clamp(settings.PetMapRadius, 50, 500);
+        PetMapOpacitySlider.Value = Math.Clamp(settings.PetMapOpacity * 100, 20, 100);
+        ShowPetMapSliderValues();
+        OnPetMapShowChanged(null!, null!);
+        BuildPetSpecies();
+        BuildPetRows();
+    }
+
+    /// <summary>The map's sliders are read-only (greyed out) while the map is switched off; the pet list stays editable.</summary>
+    private void OnPetMapShowChanged(object? sender, RoutedEventArgs? e)
+    {
+        if (PetMapSliders is null)
+        {
+            return;
+        }
+
+        bool on = ShowPetMapBox.IsChecked == true;
+        PetMapSliders.IsEnabled = on;
+        PetMapSliders.Opacity = on ? 1.0 : 0.4;
+    }
+
+    private void OnPetMapSliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowPetMapSliderValues();
+
+    private void ShowPetMapSliderValues()
+    {
+        if (PetMapRadiusValue is null || PetMapOpacityValue is null)
+        {
+            return;
+        }
+
+        PetMapRadiusValue.Text = string.Format(LocalizationManager.Instance["Settings.PetMap.RadiusValue"], (int)PetMapRadiusSlider.Value);
+        PetMapOpacityValue.Text = $"{(int)PetMapOpacitySlider.Value} %";
+    }
+
+    private IEnumerable<(int PetId, string Name)> PetsOfSpecies(string species) => Aion2Pets.MapPetsOf(species, LocalizationManager.Instance.Language);
+
+    private bool IsMax(int petId) => _petLevels.TryGetValue(petId, out int level) && level >= Aion2Pets.TopLevel;
+
+    /// <summary>Counts the pets that are on: those at the top level do not count.</summary>
+    private (int On, int All) PetCounts(string? species)
+    {
+        var pets = (species is null ? Aion2Pets.Species.SelectMany(PetsOfSpecies) : PetsOfSpecies(species)).ToList();
+        return (pets.Count(p => _petPicked.Contains(p.PetId) && !IsMax(p.PetId)), pets.Count);
+    }
+
+    private void BuildPetSpecies()
+    {
+        PetSpeciesList.Children.Clear();
+        foreach (string species in Aion2Pets.Species.Where(sp => PetsOfSpecies(sp).Any()))
+        {
+            var (on, all) = PetCounts(species);
+            bool selected = species == _petSpecies;
+            var name = new TextBlock { Text = species, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
+            name.SetResourceReference(TextBlock.ForegroundProperty, selected ? "Brush.Accent" : "Brush.Text");
+            var badge = new Border { CornerRadius = new CornerRadius(9), BorderThickness = new Thickness(1), Padding = new Thickness(7, 1, 7, 1), VerticalAlignment = VerticalAlignment.Center,
+                Child = new TextBlock { Text = $"{on}/{all}", FontSize = 11 } };
+            badge.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+            ((TextBlock)badge.Child).SetResourceReference(TextBlock.ForegroundProperty, on > 0 ? "Brush.Accent" : "Brush.TextSubtle");
+            var row = new DockPanel { LastChildFill = false };
+            DockPanel.SetDock(badge, Dock.Right);
+            row.Children.Add(badge);
+            row.Children.Add(name);
+            var item = new Border { CornerRadius = new CornerRadius(5), Padding = new Thickness(8, 7, 8, 7), Margin = new Thickness(0, 0, 0, 3), Cursor = Cursors.Hand, Child = row,
+                BorderThickness = new Thickness(1), Background = Brushes.Transparent };
+            if (selected)
+            {
+                item.SetResourceReference(Border.BackgroundProperty, "Brush.Control");
+                item.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+            }
+            else
+            {
+                item.BorderBrush = Brushes.Transparent;
+            }
+
+            string chosen = species;
+            item.MouseLeftButtonDown += (_, _) =>
+            {
+                _petSpecies = chosen;
+                BuildPetSpecies();
+                BuildPetRows();
+            };
+            PetSpeciesList.Children.Add(item);
+        }
+
+        var total = PetCounts(null);
+        PetTotalText.Text = string.Format(LocalizationManager.Instance["Settings.PetMap.Total"], total.On, total.All);
+    }
+
+    private void BuildPetRows()
+    {
+        PetRows.Children.Clear();
+        string filter = PetSearchBox.Text.Trim();
+        // a search looks through every species, otherwise the chosen one is shown
+        var pets = (filter.Length > 0 ? Aion2Pets.Species.SelectMany(PetsOfSpecies) : PetsOfSpecies(_petSpecies))
+            .Where(p => filter.Length == 0 || p.Name.Contains(filter, StringComparison.CurrentCultureIgnoreCase))
+            .ToList();
+        foreach ((int petId, string petName) in pets)
+        {
+            bool max = IsMax(petId);
+            var row = new Grid { Margin = new Thickness(0, 2, 0, 2), Opacity = max ? 0.45 : 1.0 };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var name = new TextBlock { Text = petName, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
+            name.SetResourceReference(TextBlock.ForegroundProperty, !max && _petPicked.Contains(petId) ? "Brush.Text" : "Brush.TextSubtle");
+            var maxText = new TextBlock { Text = max ? LocalizationManager.Instance["Settings.PetMap.Max"] : "", Margin = new Thickness(0, 0, 8, 0), FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            maxText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+            var toggle = new CheckBox { IsChecked = !max && _petPicked.Contains(petId), IsEnabled = !max, VerticalAlignment = VerticalAlignment.Center };
+            int id = petId;
+            toggle.Click += (_, _) =>
+            {
+                if (toggle.IsChecked == true)
+                {
+                    _petPicked.Add(id);
+                }
+                else
+                {
+                    _petPicked.Remove(id);
+                }
+
+                name.SetResourceReference(TextBlock.ForegroundProperty, toggle.IsChecked == true ? "Brush.Text" : "Brush.TextSubtle");
+                BuildPetSpecies();
+            };
+            Grid.SetColumn(maxText, 1);
+            Grid.SetColumn(toggle, 2);
+            row.Children.Add(name);
+            row.Children.Add(maxText);
+            row.Children.Add(toggle);
+            PetRows.Children.Add(row);
+        }
+    }
+
+    private void OnPetSearchChanged(object sender, TextChangedEventArgs e)
+    {
+        if (PetRows is not null)
+        {
+            BuildPetRows();
+        }
+    }
+
+    private void OnPetAllOn(object sender, RoutedEventArgs e) => SetVisiblePets(true);
+
+    private void OnPetAllOff(object sender, RoutedEventArgs e) => SetVisiblePets(false);
+
+    /// <summary>"All on / all off" works on the pets in the list: the chosen species, or the search result. Pets at the top level are left alone.</summary>
+    private void SetVisiblePets(bool on)
+    {
+        string filter = PetSearchBox.Text.Trim();
+        var pets = (filter.Length > 0 ? Aion2Pets.Species.SelectMany(PetsOfSpecies) : PetsOfSpecies(_petSpecies))
+            .Where(p => filter.Length == 0 || p.Name.Contains(filter, StringComparison.CurrentCultureIgnoreCase));
+        foreach ((int petId, _) in pets.Where(p => !IsMax(p.PetId)))
+        {
+            if (on)
+            {
+                _petPicked.Add(petId);
+            }
+            else
+            {
+                _petPicked.Remove(petId);
+            }
+        }
+
+        BuildPetSpecies();
+        BuildPetRows();
     }
 }

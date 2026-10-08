@@ -44,7 +44,9 @@ public static class Aion2CharacterStore
     private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
 
     public static string DefaultPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter", "aion2-character.json");
+        Environment.GetEnvironmentVariable("AIONDPS_DATA_DIR") is { Length: > 0 } testDir // tests only: a throw-away data folder
+            ? testDir : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter"),
+        "aion2-character.json");
 
     /// <summary>The character windows of other players, next to the own character file.</summary>
     public static string InspectedPathFor(string characterPath) => Path.Combine(Path.GetDirectoryName(characterPath)!, "aion2-inspected.json");

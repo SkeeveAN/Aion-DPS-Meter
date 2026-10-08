@@ -173,6 +173,16 @@ public sealed class MeterSettings
 
     public double PetFarmScale { get; set; } = 1.0;
 
+    /// <summary>The pet map (see the Pet-Karte settings page): shown or not, how many metres around the player it covers, how opaque it is.</summary>
+    public bool ShowPetMap { get; set; }
+
+    public int PetMapRadius { get; set; } = 150;
+
+    public double PetMapOpacity { get; set; } = 0.7;
+
+    /// <summary>The pets whose monsters the pet map shows (pet ids). Empty until the player picks some.</summary>
+    public List<int> PetMapPets { get; set; } = new();
+
     public double? PetFarmLeft { get; set; }
 
     public double? PetFarmTop { get; set; }
@@ -203,8 +213,9 @@ public sealed class MeterSettings
     /// where an unprivileged process cannot write at all.)
     /// </summary>
     private static string SettingsPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "Aion DPS Meter", "meter-settings.json");
+        Environment.GetEnvironmentVariable("AIONDPS_DATA_DIR") is { Length: > 0 } testDir // tests only: a throw-away data folder
+            ? testDir : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter"),
+        "meter-settings.json");
 
     /// <summary>Where older, elevated builds kept the file. Read once, on first launch after the
     /// upgrade, so an existing Aion folder and character list survive the move instead of the
