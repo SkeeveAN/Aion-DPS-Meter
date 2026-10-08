@@ -320,9 +320,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
                 return _soulsSinceList.Count == 0
                     ? _petStates
-                    : _petStates.Select(p => _soulsSinceList.TryGetValue(p.PetId, out int n) && p.Level < Aion2Pets.TopLevel
-                        ? p with { Progress = Math.Min(p.Progress + n, Aion2Pets.ProgressNeeded(p.Level)) }
-                        : p).ToList();
+                    : _petStates.Select(p => _soulsSinceList.TryGetValue(p.PetId, out int n) ? WithSouls(p, n) : p).ToList();
             }
         }
     }
@@ -330,6 +328,19 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// <summary>Souls picked up since the game last sent the pet list (login, map change): the game only counts a soul once it is used in the
     /// pet window, so the shown progress adds them; the next pet list starts the count again at 0.</summary>
     private readonly Dictionary<int, int> _soulsSinceList = new();
+
+    /// <summary>The pet with n more souls: at the end of a level (25/25) the next soul starts the next one (Level 2, 1/75); the top level counts no more.</summary>
+    private static Aion2PetState WithSouls(Aion2PetState pet, int souls)
+    {
+        int level = pet.Level, progress = pet.Progress + souls;
+        while (level < Aion2Pets.TopLevel && progress > Aion2Pets.ProgressNeeded(level))
+        {
+            progress -= Aion2Pets.ProgressNeeded(level);
+            level++;
+        }
+
+        return level >= Aion2Pets.TopLevel ? pet with { Level = level, Progress = 0 } : pet with { Level = level, Progress = progress };
+    }
 
     public void NoteSoulReceived(int petId, int count)
     {
