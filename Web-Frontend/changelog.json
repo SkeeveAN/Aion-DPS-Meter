@@ -26,6 +26,14 @@
      "Website"
     ],
     "date": "2026-10-09"
+   },
+   {
+    "text": "Server status: the game server table no longer claims a world per address, which the uploads cannot tell",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-09"
    }
   ]
  },
