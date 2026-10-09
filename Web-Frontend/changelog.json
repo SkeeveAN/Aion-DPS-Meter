@@ -1,5 +1,20 @@
 [
  {
+  "version": "0.23.0",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "The client reads the stone slots (stat and tier) and the rolled stats of every worn item, for your own character and for players you inspect, and uploads them; the player page tooltips on the website show them",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.22.4",
   "date": "2026-10-09",
   "items": [
