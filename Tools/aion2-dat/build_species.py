@@ -24,9 +24,15 @@ STATS = {
     99: "BackAttackDefense", 408: "FeralBlock", 411: "NatureAccuracy", 413: "NatureCritical", 421: "TransCritical",
     # Not yet seen in a screenshot, but each species block runs atk, def, accuracy, evasion, crit, crit resist, -, block.
     403: "FeralAccuracy", 405: "FeralCritical", 409: "NatureDamage", 417: "TransDamage",
+    # Cognia block (2026-10-09, Sidy's screenshots): 393 attack, 395 accuracy, 396 evasion, 400 block; 588 = Verteidigung (Frontal).
+    393: "IntellectDamage", 395: "IntellectAccuracy", 396: "IntellectEvasion", 400: "IntellectBlock", 588: "FrontAttackDefense",
+    # Specia (Sidy's upload 2026-10-09 16:10 == the screenshot): 443 Wucht 0,2 %, 38 Krit.-Angriffskraft, 47 Krit.-Schadensresistenz 1,3 %.
+    443: "HardHit", 38: "CriticalAddDamage", 47: "DecreaseCriticalDamage",
+    # Matched against the client's VehicleCreatureOption table (value range per species/slot/grade; 55/55 known ids reproduce): unique candidates.
+    133: "CriticalResist", 284: "DefensePierce", 101: "BackAttackCriticalResist",
     587: "FrontAttackDamage", 591: "FrontAttackCritical", 592: "FrontAttackCriticalResist",
 }
-PERCENT = {44, 158, 445}
+PERCENT = {44, 47, 158, 443, 445}
 SPECIES = {2: ("cognia", "INTELLECT"), 3: ("fera", "FERA"), 4: ("natura", "NATURE"), 5: ("varia", "TRANS"), 6: ("specia", "SPECIAL")}
 LOCALES = {"de": "de-DE", "en": "en-US", "es": "es-ES", "fr": "fr-FR", "ru": "ru-RU"}
 
