@@ -513,5 +513,6 @@
   "Features page redesigned: a full-width scene with its own generated backdrop for every feature, the client windows tilted on one plane, a jump bar with icons, light and dark theme; footer logo no longer stretched": "Features-Seite neu gestaltet: für jede Funktion eine eigene Szene mit generiertem Hintergrund, die Client-Fenster auf einer gemeinsamen Ebene gekippt, Sprungleiste mit Symbolen, heller und dunkler Modus; Footer-Logo nicht mehr verzerrt",
   "Home page: slim Toolkit banner with links to Features, Instances and World Bosses, calmer download buttons, clean round emblem": "Startseite: schlankes Toolkit-Banner mit Links zu Funktionen, Instanzen und Weltbossen, ruhigere Download-Buttons, sauberes rundes Emblem",
   "Home page: Top players and Recent activity are the same height with equally tall rows": "Startseite: Top-Spieler und Letzte Aktivität sind gleich hoch, mit gleich großen Zeilen",
-  "Home page: banner and cards sit closer together, the stats pill straddles the seam": "Startseite: Banner und Karten rücken näher zusammen, die Statistik-Pille liegt je zur Hälfte auf beiden"
+  "Home page: banner and cards sit closer together, the stats pill straddles the seam": "Startseite: Banner und Karten rücken näher zusammen, die Statistik-Pille liegt je zur Hälfte auf beiden",
+  "Player page: item names follow the selected language (de, es, fr, ru)": "Spielerseite: Itemnamen folgen der gewählten Sprache (de, es, fr, ru)"
 }
