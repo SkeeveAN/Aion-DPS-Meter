@@ -1,5 +1,25 @@
 [
  {
+  "version": "0.22.0",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Overlay windows (pet map, pet list, pet farming, timetable, hotkey, world boss) no longer show up in Alt+Tab",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Own Overlay locked switch for the world boss overlay, the timetable and the pet counter (no longer tied to the pet map's lock)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.21.1",
   "date": "2026-10-09",
   "items": [
