@@ -1,5 +1,25 @@
 [
  {
+  "version": "0.19.6",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Message boxes in the look of the settings: text on a panel card, the orange switch for \"do not show this again\", the settings' buttons",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Website: Features page shows the new Gathering, Timetable and Hotkeys settings and mentions the faction filter and the notifications switch",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.19.5",
   "date": "2026-10-09",
   "items": [
