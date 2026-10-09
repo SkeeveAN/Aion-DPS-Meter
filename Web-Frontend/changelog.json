@@ -1,12 +1,19 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.19.0",
   "date": "2026-10-09",
   "items": [
    {
     "text": "Website: the download button starts the download at the first click (the app swallowed the link and only a reload downloaded)",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Timetable settings: every event kind with a switch for the overlay, a reminder sound (six short sounds) with volume and a test button, and one slider for the minutes before the event; the sounds play even when the overlay is hidden",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-09"
    }
