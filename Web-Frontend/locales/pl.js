@@ -57,7 +57,7 @@ export default {
   "profile.itemLevel": "Poziom przedmiotu",
   "profile.skillLevel": "Poziom",
   "profile.skillBonuses": "Umiejętności: {list}",
-  "profile.note": "Poziomy ulepszenia powyżej +N, kamienie, losowe statystyki i stygmaty nie są częścią danych.",
+  "profile.note": "Wartości kamieni i stygmaty nie są częścią danych.",
   "profile.avgShort": "Śr. poziom przedmiotów",
   "profile.skillsShort": "Umiejętności",
   "profile.nodesShort": "Węzły Daevanion",

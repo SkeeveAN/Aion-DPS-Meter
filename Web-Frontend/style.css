@@ -2243,6 +2243,29 @@ header .wordmark {
   margin-top: 6px;
   font-weight: 600;
 }
+.pf-tip-sec {
+  padding: 8px 14px 10px;
+  border-top: 1px solid #2c3036;
+}
+.pf-tip-sec-title {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9aa3ad;
+  margin-bottom: 4px;
+}
+.pf-tip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 1px 0;
+}
+.pf-tip-stone.q0,
+.pf-tip-stone.q1 { color: #d9dde0; }
+.pf-tip-stone.q2 { color: #5bd36b; }
+.pf-tip-stone.q3 { color: #4aa8ff; }
+.pf-tip-stone.q4 { color: #ffc94d; }
+.pf-tip-stone.empty { color: #6c747d; font-style: italic; }
 .profile-source {
   color: var(--color-text-muted);
   font-size: 0.8em;

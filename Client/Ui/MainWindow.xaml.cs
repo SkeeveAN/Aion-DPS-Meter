@@ -461,6 +461,11 @@ public partial class MainWindow : Window
     // only on whoever cast it.
     private readonly List<(DateTime Timestamp, int RecipientId, string Skill)> _buffCasts = new();
 
+    /// <summary>The gear entry of a profile upload, with the mana stones and rolled stats when they were read.</summary>
+    private static ProfileGearUpload GearUpload(Aion2.Aion2EquippedItem i) => new(i.SlotIndex, i.ItemId, i.Enchant,
+        i.Stones?.Select(k => new ProfileStoneUpload(k.StatId, k.Tier)).ToList(),
+        i.Stats?.Select(k => new ProfileStatUpload(k.StatId, k.Value)).ToList());
+
     /// <summary>Individually named items the user wants tracked regardless of grade, beyond the
     /// Godstone/Design/Recipe prefix rule -- exact names, not a broader pattern: e.g. "Bundle" on
     /// its own would also match 1.379 unrelated crafting-material items in ItemDatabase (Log
@@ -2615,7 +2620,7 @@ public partial class MainWindow : Window
                     inspected.Level,
                     inspected.ClassCode / 4,
                     inspected.ClassCode % 4,
-                    inspected.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                    inspected.Gear.Select(GearUpload).ToList(),
                     Array.Empty<ProfileSkillUpload>(),
                     Array.Empty<ProfileBoardUpload>(),
                     GearScore: inspected.GearScore > 0 ? inspected.GearScore : null,
@@ -3679,7 +3684,7 @@ public partial class MainWindow : Window
                 character.Level,
                 known ? code / 4 : null,
                 known ? code % 4 : null,
-                directory.LocalEquipment.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                directory.LocalEquipment.Select(GearUpload).ToList(),
                 directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
                 directory.LocalDaevanion.Select(b => new ProfileBoardUpload(b.BoardId, b.NodeIds.ToList())).ToList(),
                 directory.LocalSpecies.Select(k => new ProfileSpeciesUpload(k.SpeciesId, k.Level, k.Progress,
@@ -3698,7 +3703,7 @@ public partial class MainWindow : Window
                 window.Level,
                 window.ClassCode / 4,
                 window.ClassCode % 4,
-                window.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                window.Gear.Select(GearUpload).ToList(),
                 Array.Empty<ProfileSkillUpload>(),
                 Array.Empty<ProfileBoardUpload>(),
                 GearScore: window.GearScore > 0 ? window.GearScore : null,
@@ -3714,7 +3719,7 @@ public partial class MainWindow : Window
                 null,
                 seen.ClassId,
                 seen.Faction,
-                seen.Gear.Select(i => new ProfileGearUpload(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                seen.Gear.Select(GearUpload).ToList(),
                 Array.Empty<ProfileSkillUpload>(),
                 Array.Empty<ProfileBoardUpload>());
         }

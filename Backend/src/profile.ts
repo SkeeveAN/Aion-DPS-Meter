@@ -26,6 +26,11 @@ export const profileSchema = z.object({
         slot: z.number().int().min(0).max(255),
         itemId: z.number().int().min(1).max(2_000_000_000),
         enchant: z.number().int().min(0).max(30).default(0),
+        // The mana stone slots of the piece: the stat the stone gives (0 = empty slot) and its tier (1 white, 2 green, 3 blue).
+        // The amount a stone adds is not part of the game's data frame. Optional: older clients send neither field.
+        stones: z.array(z.object({ stat: z.number().int().min(0).max(100_000), tier: z.number().int().min(0).max(9) })).max(8).optional(),
+        // Stats rolled on the piece itself (stat id and value in the game's units; percent stats in hundredths).
+        stats: z.array(z.object({ stat: z.number().int().min(0).max(100_000), value: z.number().int().min(0).max(4_000_000_000) })).max(12).optional(),
       }),
     )
     // 25 pieces seen on a real character (slots up to 29); the cap only fends off nonsense.
@@ -180,6 +185,8 @@ type SpeciesData = {
   stats: Record<string, { names: Record<string, string>; percent?: boolean }>;
 };
 let speciesData: SpeciesData | null = null;
+// Stat id -> names (Tools/aion2-dat/build_item_stats.py) for the mana stones and rolled stats on equipment.
+let itemStats: Record<string, { names: Record<string, string>; percent?: boolean }> | null = null;
 // Title id -> names in every client language and the game's grade (Tools/aion2-dat/build_titles.py).
 let titleData: Record<string, { n: Record<string, string>; g: string | null }> | null = null;
 let boardNodes: Map<number, { id: number; node: DaevanionData["nodes"][string] }[]> | null = null;
@@ -283,7 +290,22 @@ export type ProfileView = {
   level: number | null;
   className: string | null;
   faction: "Elyos" | "Asmodian" | null;
-  gear: { slot: number; slotName: string; itemId: number; name: string; names?: Record<string, string>; icon: string | null; itemLevel: number; grade: number; tier: number; enchant: number }[];
+  gear: {
+    slot: number;
+    slotName: string;
+    itemId: number;
+    name: string;
+    names?: Record<string, string>;
+    icon: string | null;
+    itemLevel: number;
+    grade: number;
+    tier: number;
+    enchant: number;
+    /** Mana stone slots (stat 0 = empty); null when the uploader's client did not read them. The stone's amount is not known. */
+    stones: { stat: number; name: string; names?: Record<string, string>; tier: number }[] | null;
+    /** Stats rolled on the piece; percent values are in hundredths. Null when not read. */
+    stats: { stat: number; name: string; names?: Record<string, string>; value: number; percent: boolean }[] | null;
+  }[];
   averageItemLevel: number | null;
   skills: { id: number; name: string; names?: Record<string, string>; icon: string | null; passive: boolean; stigma: boolean; equipped: boolean; level: number; baseLevel: number }[];
   daevanion: {
@@ -342,7 +364,12 @@ export function buildProfileView(playerId: number): ProfileView | null {
     }
   }
 
-  const gear = (JSON.parse(row.gearJson) as { slot: number; itemId: number; enchant: number }[])
+  itemStats ??= loadJson("item_stats.json", {});
+  const statName = (stat: number) => {
+    const known = itemStats![String(stat)];
+    return { name: known?.names.en ?? `Stat ${stat}`, names: known?.names };
+  };
+  const gear = (JSON.parse(row.gearJson) as { slot: number; itemId: number; enchant: number; stones?: { stat: number; tier: number }[]; stats?: { stat: number; value: number }[] }[])
     .map((g) => {
       const info = itemInfo![String(g.itemId)];
       return {
@@ -356,6 +383,8 @@ export function buildProfileView(playerId: number): ProfileView | null {
         grade: info?.[2] ?? 0,
         tier: info?.[3] ?? 0,
         enchant: g.enchant,
+        stones: g.stones ? g.stones.map((k) => ({ stat: k.stat, ...(k.stat > 0 ? statName(k.stat) : { name: "" }), tier: k.tier })) : null,
+        stats: g.stats ? g.stats.map((k) => ({ stat: k.stat, ...statName(k.stat), value: k.value, percent: itemStats![String(k.stat)]?.percent === true })) : null,
       };
     })
     .sort((a, b) => a.slot - b.slot);

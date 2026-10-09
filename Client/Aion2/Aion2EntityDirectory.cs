@@ -4,8 +4,16 @@ using AionDPS.Aion2.Protocol;
 
 namespace AionDPS.Aion2;
 
-/// <summary>One equipped item as the character record lists it: its position and its id.</summary>
-public sealed record Aion2EquippedItem(int SlotIndex, int ItemId, int Enchant = 0);
+/// <summary>One equipped item as the character record lists it: its position and its id, the enchant level and,
+/// where the frame carries them, the mana stones set into it and the rolled stats of the piece (null = not read).</summary>
+public sealed record Aion2EquippedItem(int SlotIndex, int ItemId, int Enchant = 0, IReadOnlyList<Aion2Stone>? Stones = null, IReadOnlyList<Aion2RolledStat>? Stats = null);
+
+/// <summary>A mana stone slot of an item: the stat the stone gives (the game's stat id, 0 = empty slot) and its tier
+/// (1 white, 2 green, 3 blue; the amount the stone adds is not in the frame).</summary>
+public sealed record Aion2Stone(int StatId, int Tier);
+
+/// <summary>A stat that was rolled on the item itself (stat id and its value, in the game's own units).</summary>
+public sealed record Aion2RolledStat(int StatId, long Value);
 
 /// <summary>One learned skill: total level (what the game shows) and the trained base level; the
 /// difference is a bonus from gear or other sources.</summary>
@@ -211,7 +219,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 return; // fresh data already arrived
             }
 
-            var equipment = saved.Equipment.Select(i => new Aion2EquippedItem(i.Slot, i.ItemId, i.Enchant)).ToList();
+            var equipment = saved.Equipment.Select(i => new Aion2EquippedItem(i.Slot, i.ItemId, i.Enchant, i.Stones, i.Stats)).ToList();
             _character = new Aion2CharacterInfo(-1, saved.Name, saved.ClassCode, saved.Level, equipment, saved.SavedAt, Restored: true, ServerId: saved.ServerId);
             _fullEquipment = equipment;
             _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList();
@@ -240,7 +248,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 Level = c.Level,
                 ServerId = c.ServerId,
                 SavedAt = DateTime.Now,
-                Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant)).ToList(),
+                Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant, i.Stones, i.Stats)).ToList(),
                 Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
                 Daevanion = (_daevanion ?? Array.Empty<Aion2DaevanionBoard>()).Select(b => new Aion2SavedCharacter.SavedBoard(b.BoardId, b.NodeIds.ToList())).ToList(),
                 Species = (_species ?? Array.Empty<Aion2SpeciesKnowledge>()).Select(k => new Aion2SavedCharacter.SavedSpecies(k.SpeciesId, k.Level, k.Progress,

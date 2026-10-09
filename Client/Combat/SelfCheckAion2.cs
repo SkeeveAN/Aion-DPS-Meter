@@ -46,6 +46,7 @@ public static class SelfCheckAion2
         ok &= RunAion2MidStreamScenario();
         ok &= RunAion2CharacterScenario();
         ok &= RunAion2LoginListsScenario();
+        ok &= RunAion2ItemDetailsScenario();
         ok &= RunAion2SpeciesScenario();
         ok &= RunAion2CharacterStoreScenario();
         ok &= RunAion2SeenProfileScenario();
@@ -1159,6 +1160,64 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> belt +4, amulet +3, plain helm +0 (and nothing invented elsewhere): {equipment}");
         Console.WriteLine($"  -> {skills.Count} skills with total/base level (Rending Blow 12 = 10+2, Blood Absorption 11 = 10+1 ...): {skillLevels}");
         return equipment && skillLevels && daevanion;
+    }
+
+    /// <summary>The part of an equipment entry behind the enchant level, from real frames of 2026-10-09 and checked
+    /// against the in-game tooltips of that day: Aahz' own Aulamus' Earrings (login list; stones Block, Angriffskraft,
+    /// Zusatzausweichen, Verteidigung; rolled MP 96, MP regeneration 23, Angriffskraft 24, Ausweichen 24) and, in the
+    /// character window of another player, an Enraged Kromede Earring (stones Kritischer Treffer, Verteidigung,
+    /// Kritischer Treffer in white, MP; rolled LP 213, MP regeneration 27, Block 31) plus an Aulamus' Earring.</summary>
+    private static bool RunAion2ItemDetailsScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 mana stones and rolled stats of equipment entries:");
+        static byte[] Record(string hex)
+        {
+            byte[] body = Convert.FromHexString(hex);
+            var wire = new List<byte>();
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+            return wire.ToArray();
+        }
+
+        Aion2Protocol protocol = Aion2Protocol.Load();
+        using var source = new Aion2PacketCombatSource(protocol);
+        const string ownEarring = "24bc7d1201000000000000000b0b0000000000000000000000000a00000000000000000000000000580000000b04c17acd1fff0002c17acd1f3d0102c17acd1f740002c17acd1f330102353b03000000180501030000000000000000000000000004c70060000000c800170000003d011800000038011800000004c70000000000c800000000003d0100000000380100000000000000000001580e110000310000";
+        const string kromede = "25bc7d120000000000000000000a00000000000000000000000000670000000b04c17acd1f800002c17acd1f330102c17acd1f800001c17acd1fc70002ae2603000000180501030000000000000000000000000003c100d5000000c8001b000000ff001f000000000140d5b20001000000000add1bfb020039";
+        const string aulamusSeen = "24bc7d120000000000000000000a00000000000000000000000000570000000c04c37acd1f800002c37acd1f680002c37acd1f850002c37acd1fc10001ae2603000000180501030000000000000000000000000004c7005c0000002a01225c000085002f0000008000200000000000000000000bdd1bfb0200";
+        string name = Convert.ToHexString("Testspieler"u8.ToArray());
+        byte[] equipmentRecord = Record("1156" + ownEarring);
+        source.Ingest(Segment(500, equipmentRecord));
+        source.Ingest(Segment((uint)(500 + equipmentRecord.Length), Record("5036000007" + "0b" + name + "0600000001022d000000000000004c0900001805e80c30000000000000000000000000000000020000000000000000000000000000001a" + kromede + aulamusSeen)));
+        var entities = (Aion2EntityDirectory)source.Entities;
+
+        string Stones(Aion2EquippedItem? i) => string.Join(" ", i?.Stones?.Select(k => $"{k.StatId}/{k.Tier}") ?? Array.Empty<string>());
+        string Stats(Aion2EquippedItem? i) => string.Join(" ", i?.Stats?.Select(k => $"{k.StatId}={k.Value}") ?? Array.Empty<string>());
+
+        Aion2EquippedItem? own = entities.LocalEquipment.FirstOrDefault(i => i.SlotIndex == 11);
+        bool ownOk = own is { Enchant: 10 } && Stones(own) == "255/2 317/2 116/2 307/2" && Stats(own) == "199=96 200=23 317=24 312=24";
+        Aion2InspectedPlayer? seen = entities.InspectedPlayers().FirstOrDefault(p => p.Name == "Testspieler");
+        Aion2EquippedItem? krom = seen?.Gear.FirstOrDefault(i => i.SlotIndex == 11);
+        Aion2EquippedItem? aul = seen?.Gear.FirstOrDefault(i => i.SlotIndex == 12);
+        bool kromOk = krom is { Enchant: 10 } && Stones(krom) == "128/2 307/2 128/1 199/2" && Stats(krom) == "193=213 200=27 255=31";
+        bool aulOk = aul is { Enchant: 10 } && Stones(aul) == "128/2 104/2 133/2 193/1" && Stats(aul) == "199=92 298=23586 133=47 128=32";
+        Console.WriteLine($"  -> own Aulamus' Earrings: four stones (Block, Angriffskraft, Zusatzausweichen, Verteidigung), MP 96 / MP-Regeneration 23 / Angriffskraft 24 / Ausweichen 24: {ownOk}");
+        Console.WriteLine($"  -> inspected Kromede Earrings: stones Kritischer Treffer, Verteidigung, Kritischer Treffer (white), MP; LP 213, MP-Regeneration 27, Block 31: {kromOk}");
+        Console.WriteLine($"  -> inspected Aulamus' Earrings on slot 12 with its own stones and stats: {aulOk}");
+
+        // the file on disk: an entry saved by an older meter (no stones) still loads, a new one keeps them
+        var oldEntry = JsonSerializer.Deserialize<Aion2SavedCharacter.SavedItem>("""{"Slot":1,"ItemId":5,"Enchant":2}""");
+        var newEntry = JsonSerializer.Deserialize<Aion2SavedCharacter.SavedItem>(JsonSerializer.Serialize(new Aion2SavedCharacter.SavedItem(11, 310230052, 10, own?.Stones, own?.Stats)));
+        bool disk = oldEntry is { Enchant: 2, Stones: null, Stats: null } && newEntry is { Slot: 11 } && Stones(new Aion2EquippedItem(11, 1, 10, newEntry.Stones)) == "255/2 317/2 116/2 307/2"
+            && newEntry.Stats?.Count == 4 && newEntry.Stats[0] is { StatId: 199, Value: 96 };
+        Console.WriteLine($"  -> saved with the character file and read back (and an older entry without stones still loads): {disk}");
+        return ownOk && kromOk && aulOk && disk;
     }
 
     /// <summary>The species knowledge of the pet window, cut out of the real login frame 0x0090 of 2026-10-05

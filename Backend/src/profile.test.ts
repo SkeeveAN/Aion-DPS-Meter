@@ -60,6 +60,15 @@ const selfProfile = {
   faction: 2,
   gear: [
     { slot: 1, itemId: 110150026, enchant: 0 }, // Wind Breeze Greatsword
+    // Aulamus' Earrings as the in-game tooltip showed them (2026-10-09): stones Block, Angriffskraft, Zusatzausweichen, Verteidigung
+    // (the third one an empty slot here), rolled MP 96, MP-Regeneration 23, Angriffskraft 24, Ausweichen 24 and a stat the data does not know.
+    {
+      slot: 11,
+      itemId: 310230052,
+      enchant: 10,
+      stones: [{ stat: 255, tier: 2 }, { stat: 317, tier: 2 }, { stat: 0, tier: 0 }, { stat: 307, tier: 1 }],
+      stats: [{ stat: 199, value: 96 }, { stat: 200, value: 23 }, { stat: 317, value: 24 }, { stat: 312, value: 24 }, { stat: 99999, value: 5 }],
+    },
     { slot: 17, itemId: 215250001, enchant: 4 }, // Noble Belt +4
     { slot: 22, itemId: 311040001, enchant: 3 }, // Revelation Amulet +3
   ],
@@ -114,6 +123,20 @@ test("the profile resolves item names, enchants, skill levels and Daevanion effe
   // The map carries every node of the board (locked ones too), with the unlocked ones flagged.
   assert.equal(nezekan.cells.length, 89); // 88 nodes + the start node
   assert.equal(nezekan.cells.filter((c) => c[4] === 1).length, 3); // start + the two known nodes
+});
+
+test("the profile names the mana stones and rolled stats of a piece in the client's languages", () => {
+  const view = buildProfileView(playerId("Aahz"))!;
+  const earring = view.gear.find((g) => g.slot === 11)!;
+  assert.deepEqual(earring.stones?.map((k) => [k.stat, k.name, k.tier]), [[255, "Block", 2], [317, "Attack", 2], [0, "", 0], [307, "Defense", 1]]);
+  assert.equal(earring.stones?.[1].names?.de, "Angriffskraft");
+  assert.deepEqual(earring.stats?.map((k) => [k.name, k.value]), [["MP", 96], ["Natural MP Regen", 23], ["Attack", 24], ["Evasion", 24], ["Stat 99999", 5]]);
+  assert.equal(earring.stats?.[1].names?.de, "MP-Regeneration (Natürlich)");
+  // a piece an older client uploaded carries no stone data at all - not an empty list
+  const belt = view.gear.find((g) => g.name === "Noble Belt")!;
+  assert.deepEqual([belt.stones, belt.stats], [null, null]);
+  // anything that is not a stone/stat list is rejected rather than stored
+  assert.throws(() => profileSchema.parse({ source: "self", gear: [{ slot: 1, itemId: 5, enchant: 0, stones: [{ stat: -1, tier: 2 }] }] }));
 });
 
 test("the profile carries the species knowledge with stat names in the game client's languages", () => {

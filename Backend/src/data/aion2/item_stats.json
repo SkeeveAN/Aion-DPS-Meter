@@ -1,0 +1,185 @@
+{
+ "19": {
+  "names": {
+   "de": "Zusatzangriffskraft",
+   "en": "Attack Bonus",
+   "es": "Ataque Adicional",
+   "fr": "ATQ supplémentaire",
+   "ru": "Доп. АТК"
+  }
+ },
+ "38": {
+  "names": {
+   "de": "Krit.-Angriffskraft",
+   "en": "Critical Attack",
+   "es": "Ataque Crítico",
+   "fr": "ATQ CRIT",
+   "ru": "Крит. АТК"
+  }
+ },
+ "47": {
+  "names": {
+   "de": "Krit.-Schadensresistenz",
+   "en": "Critical Damage Tolerance",
+   "es": "Tolerancia a Daño Crítico",
+   "fr": "Tolérance aux DGT CRIT",
+   "ru": "Стойкость к крит. урону"
+  },
+  "percent": true
+ },
+ "52": {
+  "names": {
+   "de": "Zusatzverteidigung",
+   "en": "Defense Bonus",
+   "es": "Defensa Adicional",
+   "fr": "DÉF supplémentaire",
+   "ru": "Доп. ЗЩТ"
+  }
+ },
+ "98": {
+  "names": {
+   "de": "Angriffskraft (Rückseitig)",
+   "en": "Back Attack",
+   "es": "Ataque por la Espalda",
+   "fr": "ATQ dans le dos",
+   "ru": "АТК с тыла"
+  }
+ },
+ "99": {
+  "names": {
+   "de": "Verteidigung (Rückseitig)",
+   "en": "Back Defense",
+   "es": "Defensa por la Espalda",
+   "fr": "DÉF dans le dos",
+   "ru": "ЗЩТ с тыла"
+  }
+ },
+ "104": {
+  "names": {
+   "de": "Zusatzpräzision",
+   "en": "Accuracy Bonus",
+   "es": "Precisión Adicional",
+   "fr": "Précision supplémentaire",
+   "ru": "Доп. меткость"
+  }
+ },
+ "116": {
+  "names": {
+   "de": "Zusatzausweichen",
+   "en": "Evasion Bonus",
+   "es": "Evasión Adicional",
+   "fr": "Esquive supplémentaire",
+   "ru": "Доп. УКЛ"
+  }
+ },
+ "128": {
+  "names": {
+   "de": "Kritischer Treffer",
+   "en": "Critical Hit",
+   "es": "Crítico",
+   "fr": "CRIT",
+   "ru": "Крит. удар"
+  }
+ },
+ "133": {
+  "names": {
+   "de": "Krit.-Widerstand",
+   "en": "Critical Hit Resist",
+   "es": "Resistencia Crítica",
+   "fr": "RÉS aux CRIT",
+   "ru": "Сопротивление крит. удару"
+  }
+ },
+ "158": {
+  "names": {
+   "de": "Statuseffekt-Trefferchance",
+   "en": "Status Effect Chance",
+   "es": "Acierto de Efectos de Estado",
+   "fr": "Taux altération état",
+   "ru": "Попадание эффектами"
+  },
+  "percent": true
+ },
+ "193": {
+  "names": {
+   "de": "LP",
+   "en": "HP",
+   "es": "Puntos de Vida",
+   "fr": "PV",
+   "ru": "ОЗ"
+  }
+ },
+ "199": {
+  "names": {
+   "de": "MP",
+   "en": "MP",
+   "es": "Puntos de Maná",
+   "fr": "PM",
+   "ru": "ОМ"
+  }
+ },
+ "200": {
+  "names": {
+   "de": "MP-Regeneration (Natürlich)",
+   "en": "Natural MP Regen",
+   "es": "Recuperación Natural de Puntos de Maná",
+   "fr": "Régénération naturelle de PM",
+   "ru": "Естественное восстановление ОМ"
+  }
+ },
+ "255": {
+  "names": {
+   "de": "Block",
+   "en": "Block",
+   "es": "Bloqueo",
+   "fr": "Blocage",
+   "ru": "Блок"
+  }
+ },
+ "307": {
+  "names": {
+   "de": "Verteidigung",
+   "en": "Defense",
+   "es": "Defensa",
+   "fr": "DÉF",
+   "ru": "ЗЩТ"
+  }
+ },
+ "312": {
+  "names": {
+   "de": "Ausweichen",
+   "en": "Evasion",
+   "es": "Evasión",
+   "fr": "Esquive",
+   "ru": "УКЛ"
+  }
+ },
+ "317": {
+  "names": {
+   "de": "Angriffskraft",
+   "en": "Attack",
+   "es": "Ataque",
+   "fr": "ATQ",
+   "ru": "АТК"
+  }
+ },
+ "445": {
+  "names": {
+   "de": "Eisenwall",
+   "en": "Endurance",
+   "es": "Tenacidad",
+   "fr": "Blindage",
+   "ru": "Непробиваемость"
+  },
+  "percent": true
+ },
+ "588": {
+  "names": {
+   "de": "Verteidigung (Frontal)",
+   "en": "Front Defense",
+   "es": "Defensa Frontal",
+   "fr": "DÉF frontale",
+   "ru": "ЗЩТ спереди"
+  }
+ }
+}

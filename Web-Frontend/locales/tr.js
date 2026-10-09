@@ -57,7 +57,7 @@ export default {
   "profile.itemLevel": "Eşya seviyesi",
   "profile.skillLevel": "Seviye",
   "profile.skillBonuses": "Yetenekler: {list}",
-  "profile.note": "+N üzerindeki geliştirme seviyeleri, taşlar, rastgele özellikler ve stigmalar verilere dahil değildir.",
+  "profile.note": "Taşların değerleri ve stigmalar verilere dahil değildir.",
   "profile.avgShort": "Ort. eşya seviyesi",
   "profile.skillsShort": "Yetenekler",
   "profile.nodesShort": "Daevanion düğümleri",

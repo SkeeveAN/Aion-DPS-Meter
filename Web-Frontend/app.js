@@ -2304,7 +2304,35 @@ function gearTip(g) {
       el("div", { className: "pf-tip-sub" }, [el("span", { style: `color:${color}`, textContent: `${GRADE_NAME[g.grade] ?? ""}${g.tier > 0 ? ` · ${t("profile.tier")} ${g.tier}` : ""}` }), ` ${g.slotName ? t(`slot.${g.slotName}`) : ""}`]),
       g.itemLevel > 0 ? el("div", { className: "pf-tip-il", textContent: `${t("profile.itemLevel")} ${g.itemLevel}` }) : null,
     ].filter((x) => x != null)),
+    ...gearTipDetails(g),
   ];
+}
+
+// The rolled stats and mana stone slots of a piece (only when the uploader's client read them). A stone's own
+// amount is not part of the game's data, so a stone shows its stat, coloured by its tier (1 white, 2 green, 3 blue).
+function gearTipDetails(g) {
+  const locale = getLocale();
+  const statName = (x) => x.names?.[locale] ?? x.names?.en ?? x.name;
+  const sections = [];
+  if (g.stats?.length) {
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, [
+        el("div", { className: "pf-tip-sec-title", textContent: t("profile.rolledStats") }),
+        ...g.stats.map((x) => el("div", { className: "pf-tip-row" }, [el("span", { textContent: statName(x) }), el("strong", { textContent: speciesValue(x) })])),
+      ]),
+    );
+  }
+  if (g.stones?.length) {
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, [
+        el("div", { className: "pf-tip-sec-title", textContent: t("profile.stones") }),
+        ...g.stones.map((x) => (x.stat > 0
+          ? el("div", { className: `pf-tip-row pf-tip-stone q${x.tier}` }, [el("span", { textContent: statName(x) })])
+          : el("div", { className: "pf-tip-row pf-tip-stone empty" }, [el("span", { textContent: t("profile.stoneEmpty") })]))),
+      ]),
+    );
+  }
+  return sections;
 }
 
 function gearSlot(g) {

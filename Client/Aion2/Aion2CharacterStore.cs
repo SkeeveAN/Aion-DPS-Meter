@@ -20,7 +20,7 @@ public sealed class Aion2SavedCharacter
 
     public sealed record SavedPet(int Id, int Level, int Progress);
 
-    public sealed record SavedItem(int Slot, int ItemId, int Enchant);
+    public sealed record SavedItem(int Slot, int ItemId, int Enchant, IReadOnlyList<Aion2Stone>? Stones = null, IReadOnlyList<Aion2RolledStat>? Stats = null);
 
     public sealed record SavedSkill(int Id, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
 

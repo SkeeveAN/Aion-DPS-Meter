@@ -57,7 +57,7 @@ export default {
   "profile.itemLevel": "物品等级",
   "profile.skillLevel": "等级",
   "profile.skillBonuses": "技能：{list}",
-  "profile.note": "超过 +N 的强化等级、魔石、随机属性和烙印不属于数据。",
+  "profile.note": "魔石的数值和烙印不属于数据。",
   "profile.avgShort": "平均物品等级",
   "profile.skillsShort": "技能",
   "profile.nodesShort": "Daevanion 节点",

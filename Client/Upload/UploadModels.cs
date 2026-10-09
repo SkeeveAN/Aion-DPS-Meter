@@ -88,7 +88,13 @@ public sealed record ProfilePetUpload(int Species, int Level, IReadOnlyList<int>
 
 public sealed record ProfileBoardCountUpload(int Board, int Count);
 
-public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant);
+public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant, IReadOnlyList<ProfileStoneUpload>? Stones = null, IReadOnlyList<ProfileStatUpload>? Stats = null);
+
+/// <summary>A mana stone of an item: the stat id the stone gives (0 = empty slot) and its tier (1..4).</summary>
+public sealed record ProfileStoneUpload(int Stat, int Tier);
+
+/// <summary>A stat rolled on the item (stat id and value in the game's units).</summary>
+public sealed record ProfileStatUpload(int Stat, long Value);
 
 public sealed record ProfileSkillUpload(int Id, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
 
