@@ -2673,7 +2673,6 @@ body:has(.download-hero) .nav-download-link:hover,
    from the theme variables; text on the pictures stays light in both themes. Desktop positions are tuned for 1920px; below 1101px it is one column. */
 /* Features-Seite: Szenen im Seiten-Container (1872 px bei 1920), Farben der Seite über --color-*, Text auf Bildern bleibt hell in Dark UND Light */
 .fx-page{--fx-on:#f4f7fa;--fx-muted:#c3cdd6;--fx-accent:#ffba42}
-.fx-eyebrow{font-size:13px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--fx-accent);margin-bottom:12px}
 .fx-scene,.fx-hero{position:relative;overflow:hidden;isolation:isolate;border:1px solid var(--color-border);border-radius:var(--radius-card);margin-bottom:16px;color:var(--fx-on)}
 .fx-bg{position:absolute;inset:0;background:var(--bg) center/cover no-repeat;z-index:0}
 .fx-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,13,18,.9),rgba(9,13,18,.55) 50%,rgba(9,13,18,.3))}

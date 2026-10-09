@@ -587,17 +587,17 @@ async function renderTerms() {
 // Feature tour: one scene per feature - a generated backdrop, the text on one side and the real client windows (rendered from the client itself,
 // images/features/, see the client's render-* modes) on the other. [file, width, height] of each @2x picture; the shown height is set in style.css.
 const FEATURE_BLOCKS = [
-  { id: "meter", chapter: "record", images: [["meter", 1040, 840]] },
-  { id: "modes", chapter: "record", images: [["mode-all", 1040, 840], ["mode-all-compact", 1040, 840]] },
-  { id: "overlay", chapter: "record", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
-  { id: "details", chapter: "analyze", images: [["details", 1720, 1360]] },
-  { id: "character", chapter: "improve", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
-  { id: "map", chapter: "explore", images: [["map", 1448, 892], ["gathering", 1240, 1480]] },
-  { id: "timetable", chapter: "explore", images: [["timetable", 1240, 1480]] },
-  { id: "worldboss", chapter: "explore", images: [["worldboss", 1240, 1480]] },
-  { id: "hotkeys", chapter: "tools", images: [["hotkeys", 1240, 1480], ["settings", 1240, 1480]] },
+  { id: "meter", images: [["meter", 1040, 840]] },
+  { id: "modes", images: [["mode-all", 1040, 840], ["mode-all-compact", 1040, 840]] },
+  { id: "overlay", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
+  { id: "details", images: [["details", 1720, 1360]] },
+  { id: "character", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
+  { id: "map", images: [["map", 1448, 892], ["gathering", 1240, 1480]] },
+  { id: "timetable", images: [["timetable", 1240, 1480]] },
+  { id: "worldboss", images: [["worldboss", 1240, 1480]] },
+  { id: "hotkeys", images: [["hotkeys", 1240, 1480], ["settings", 1240, 1480]] },
 ];
-const FEATURE_VERSION = "20261009g";
+const FEATURE_VERSION = "20261009h";
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
@@ -626,7 +626,6 @@ const FEATURE_MORE_ICONS = [
 function featureText(block) {
   const [lead, ...rest] = t(`features.${block.id}.text`).split(/(?<=[。！？])|(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
   return el("div", { className: "fx-copy" }, [
-    el("div", { className: "fx-eyebrow", textContent: t(`features.chapter.${block.chapter}`) }),
     el("h2", { textContent: t(`features.${block.id}.title`) }),
     el("p", { className: "lead", textContent: lead }),
     rest.length ? el("ul", {}, rest.map((x) => el("li", { textContent: x }))) : null,
