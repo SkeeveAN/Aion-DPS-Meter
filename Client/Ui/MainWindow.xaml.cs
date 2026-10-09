@@ -464,7 +464,9 @@ public partial class MainWindow : Window
     /// <summary>The gear entry of a profile upload, with the mana stones and rolled stats when they were read.</summary>
     private static ProfileGearUpload GearUpload(Aion2.Aion2EquippedItem i) => new(i.SlotIndex, i.ItemId, i.Enchant,
         i.Stones?.Select(k => new ProfileStoneUpload(k.StatId, k.Tier)).ToList(),
-        i.Stats?.Select(k => new ProfileStatUpload(k.StatId, k.Value)).ToList());
+        i.Stats?.Select(k => new ProfileStatUpload(k.StatId, k.Value)).ToList(),
+        i.GodstoneId > 0 ? i.GodstoneId : null,
+        i.SkillBonuses?.Select(k => new ProfileSkillBonusUpload(k.SkillId, k.Level)).ToList());
 
     /// <summary>Individually named items the user wants tracked regardless of grade, beyond the
     /// Godstone/Design/Recipe prefix rule -- exact names, not a broader pattern: e.g. "Bundle" on

@@ -1192,7 +1192,7 @@ public static class SelfCheckAion2
         const string kromede = "25bc7d120000000000000000000a00000000000000000000000000670000000b04c17acd1f800002c17acd1f330102c17acd1f800001c17acd1fc70002ae2603000000180501030000000000000000000000000003c100d5000000c8001b000000ff001f000000000140d5b20001000000000add1bfb020039";
         const string aulamusSeen = "24bc7d120000000000000000000a00000000000000000000000000570000000c04c37acd1f800002c37acd1f680002c37acd1f850002c37acd1fc10001ae2603000000180501030000000000000000000000000004c7005c0000002a01225c000085002f0000008000200000000000000000000bdd1bfb0200";
         string name = Convert.ToHexString("Testspieler"u8.ToArray());
-        byte[] equipmentRecord = Record("1156" + ownEarring);
+        byte[] equipmentRecord = Record("1156" + ownEarring + "8273900601000000000000000b0100000000000000000000000010000000009001000000000000006200000000010401e9ab1f3d010101e9ab1f80000201e9ab1fc1000101e9ab1f680001353b0300000018050303c06930010000000000000000000205001a0000001a012c040000020500000000001a010000000002d070aa000160d0ab000102d070aa000060d0ab000000000001b360110000390000" + "2438db0601000000000000000b020000000000000000000000000a00000000000000000000000000590000000204d9c5ab1f840003d9c5ab1f850001d9c5ab1f3a0001d9c5ab1f7d0001353b0300000018050103c2693001000000000000000000031a01fa020000050011000000ff002a000000031a0100000000050000000000ff000000000001d0ffa7000101d0ffa70000000000013d4d120000210000");
         source.Ingest(Segment(500, equipmentRecord));
         source.Ingest(Segment((uint)(500 + equipmentRecord.Length), Record("5036000007" + "0b" + name + "0600000001022d000000000000004c0900001805e80c30000000000000000000000000000000020000000000000000000000000000001a" + kromede + aulamusSeen)));
         var entities = (Aion2EntityDirectory)source.Entities;
@@ -1214,10 +1214,20 @@ public static class SelfCheckAion2
         // the file on disk: an entry saved by an older meter (no stones) still loads, a new one keeps them
         var oldEntry = JsonSerializer.Deserialize<Aion2SavedCharacter.SavedItem>("""{"Slot":1,"ItemId":5,"Enchant":2}""");
         var newEntry = JsonSerializer.Deserialize<Aion2SavedCharacter.SavedItem>(JsonSerializer.Serialize(new Aion2SavedCharacter.SavedItem(11, 310230052, 10, own?.Stones, own?.Stats)));
+        Aion2EquippedItem? weapon = entities.LocalEquipment.FirstOrDefault(i => i.SlotIndex == 1);
+        Aion2EquippedItem? guard = entities.LocalEquipment.FirstOrDefault(i => i.SlotIndex == 2);
+        // Aahz' Aulamus' Greatsword: stones Angriffskraft, Kritischer Treffer (green), LP, Zusatzpräzision; rolled Präzision 26 and
+        // Kampftempo 10,68 %; Abwärtsschlag and Schockaufhebung +1; godstone 19950016 (Aulvicars Zauber). Vakron Guard: Rathmans Gier, Zerreißender Schlag +1.
+        bool weaponOk = Stones(weapon) == "317/1 128/2 193/1 104/1" && Stats(weapon) == "5=26 282=1068" && weapon!.GodstoneId == 19950016
+            && string.Join(" ", weapon.SkillBonuses!.Select(k => $"{k.SkillId}+{k.Level}")) == "11170000+1 11260000+1";
+        bool guardOk = Stats(guard) == "282=762 5=17 255=42" && guard!.GodstoneId == 19950018 && guard.SkillBonuses!.Count == 1 && guard.SkillBonuses[0] is { SkillId: 11010000, Level: 1 }
+            && ownOk && own!.GodstoneId == 0 && own.SkillBonuses!.Count == 0;
+        Console.WriteLine($"  -> greatsword with godstone Aulvicars Zauber, Praezision 26, Kampftempo 10,68 %, two skill bonuses: {weaponOk}");
+        Console.WriteLine($"  -> Vakron Guard with godstone Rathmans Gier and Zerreissender Schlag +1; pieces without them carry none: {guardOk}");
         bool disk = oldEntry is { Enchant: 2, Stones: null, Stats: null } && newEntry is { Slot: 11 } && Stones(new Aion2EquippedItem(11, 1, 10, newEntry.Stones)) == "255/2 317/2 116/2 307/2"
             && newEntry.Stats?.Count == 4 && newEntry.Stats[0] is { StatId: 199, Value: 96 };
         Console.WriteLine($"  -> saved with the character file and read back (and an older entry without stones still loads): {disk}");
-        return ownOk && kromOk && aulOk && disk;
+        return ownOk && kromOk && aulOk && disk && weaponOk && guardOk;
     }
 
     /// <summary>The species knowledge of the pet window, cut out of the real login frame 0x0090 of 2026-10-05

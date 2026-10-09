@@ -31,6 +31,9 @@ export const profileSchema = z.object({
         stones: z.array(z.object({ stat: z.number().int().min(0).max(100_000), tier: z.number().int().min(0).max(9) })).max(8).optional(),
         // Stats rolled on the piece itself (stat id and value in the game's units; percent stats in hundredths).
         stats: z.array(z.object({ stat: z.number().int().min(0).max(100_000), value: z.number().int().min(0).max(4_000_000_000) })).max(12).optional(),
+        // The godstone set into the piece (its item id) and the skill level bonuses the piece gives.
+        godstone: z.number().int().min(1).max(2_000_000_000).optional(),
+        skillBonuses: z.array(z.object({ skill: z.number().int().min(1).max(2_000_000_000), level: z.number().int().min(1).max(20) })).max(8).optional(),
       }),
     )
     // 25 pieces seen on a real character (slots up to 29); the cap only fends off nonsense.
@@ -186,7 +189,9 @@ type SpeciesData = {
 };
 let speciesData: SpeciesData | null = null;
 // Stat id -> names (Tools/aion2-dat/build_item_stats.py) for the mana stones and rolled stats on equipment.
-let itemStats: Record<string, { names: Record<string, string>; percent?: boolean }> | null = null;
+let itemStats: Record<string, { names: Record<string, string>; percent?: boolean; stone?: Record<string, number> }> | null = null;
+// Godstone item id -> names in the client languages (Tools/aion2-dat/build_item_stats.py).
+let godstones: Record<string, Record<string, string>> | null = null;
 // Title id -> names in every client language and the game's grade (Tools/aion2-dat/build_titles.py).
 let titleData: Record<string, { n: Record<string, string>; g: string | null }> | null = null;
 let boardNodes: Map<number, { id: number; node: DaevanionData["nodes"][string] }[]> | null = null;
@@ -301,10 +306,15 @@ export type ProfileView = {
     grade: number;
     tier: number;
     enchant: number;
-    /** Mana stone slots (stat 0 = empty); null when the uploader's client did not read them. The stone's amount is not known. */
-    stones: { stat: number; name: string; names?: Record<string, string>; tier: number }[] | null;
+    /** Mana stone slots (stat 0 = empty); null when the uploader's client did not read them. value is the amount the stone adds
+     *  where it was seen in a tooltip for that stat and tier, otherwise null (the frame does not carry it). */
+    stones: { stat: number; name: string; names?: Record<string, string>; tier: number; value: number | null }[] | null;
     /** Stats rolled on the piece; percent values are in hundredths. Null when not read. */
     stats: { stat: number; name: string; names?: Record<string, string>; value: number; percent: boolean }[] | null;
+    /** The godstone set into the piece (null = none or not read). */
+    godstone: { itemId: number; name: string; names?: Record<string, string> } | null;
+    /** Skill level bonuses of the piece ("Abwärtsschlag +1"). */
+    skillBonuses: { skill: number; name: string; names?: Record<string, string>; level: number }[] | null;
   }[];
   averageItemLevel: number | null;
   skills: { id: number; name: string; names?: Record<string, string>; icon: string | null; passive: boolean; stigma: boolean; equipped: boolean; level: number; baseLevel: number }[];
@@ -365,11 +375,12 @@ export function buildProfileView(playerId: number): ProfileView | null {
   }
 
   itemStats ??= loadJson("item_stats.json", {});
+  godstones ??= loadJson("godstones.json", {});
   const statName = (stat: number) => {
     const known = itemStats![String(stat)];
     return { name: known?.names.en ?? `Stat ${stat}`, names: known?.names };
   };
-  const gear = (JSON.parse(row.gearJson) as { slot: number; itemId: number; enchant: number; stones?: { stat: number; tier: number }[]; stats?: { stat: number; value: number }[] }[])
+  const gear = (JSON.parse(row.gearJson) as { slot: number; itemId: number; enchant: number; stones?: { stat: number; tier: number }[]; stats?: { stat: number; value: number }[]; godstone?: number; skillBonuses?: { skill: number; level: number }[] }[])
     .map((g) => {
       const info = itemInfo![String(g.itemId)];
       return {
@@ -383,8 +394,10 @@ export function buildProfileView(playerId: number): ProfileView | null {
         grade: info?.[2] ?? 0,
         tier: info?.[3] ?? 0,
         enchant: g.enchant,
-        stones: g.stones ? g.stones.map((k) => ({ stat: k.stat, ...(k.stat > 0 ? statName(k.stat) : { name: "" }), tier: k.tier })) : null,
+        stones: g.stones ? g.stones.map((k) => ({ stat: k.stat, ...(k.stat > 0 ? statName(k.stat) : { name: "" }), tier: k.tier, value: itemStats![String(k.stat)]?.stone?.[String(k.tier)] ?? null })) : null,
         stats: g.stats ? g.stats.map((k) => ({ stat: k.stat, ...statName(k.stat), value: k.value, percent: itemStats![String(k.stat)]?.percent === true })) : null,
+        godstone: g.godstone ? { itemId: g.godstone, name: godstones![String(g.godstone)]?.en ?? `Item ${g.godstone}`, names: godstones![String(g.godstone)] } : null,
+        skillBonuses: g.skillBonuses ? g.skillBonuses.map((k) => ({ skill: k.skill, name: skillNames![String(k.skill)] ?? String(k.skill), names: skillNamesI18n![String(k.skill)], level: k.level })) : null,
       };
     })
     .sort((a, b) => a.slot - b.slot);

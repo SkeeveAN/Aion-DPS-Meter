@@ -68,6 +68,8 @@ const selfProfile = {
       enchant: 10,
       stones: [{ stat: 255, tier: 2 }, { stat: 317, tier: 2 }, { stat: 0, tier: 0 }, { stat: 307, tier: 1 }],
       stats: [{ stat: 199, value: 96 }, { stat: 200, value: 23 }, { stat: 317, value: 24 }, { stat: 312, value: 24 }, { stat: 99999, value: 5 }],
+      godstone: 19950016,
+      skillBonuses: [{ skill: 11170000, level: 1 }],
     },
     { slot: 17, itemId: 215250001, enchant: 4 }, // Noble Belt +4
     { slot: 22, itemId: 311040001, enchant: 3 }, // Revelation Amulet +3
@@ -129,12 +131,16 @@ test("the profile names the mana stones and rolled stats of a piece in the clien
   const view = buildProfileView(playerId("Aahz"))!;
   const earring = view.gear.find((g) => g.slot === 11)!;
   assert.deepEqual(earring.stones?.map((k) => [k.stat, k.name, k.tier]), [[255, "Block", 2], [317, "Attack", 2], [0, "", 0], [307, "Defense", 1]]);
+  // amounts only where a tooltip showed them for that stat and tier: Block+10 green, nothing known for Attack or Defense
+  assert.deepEqual(earring.stones?.map((k) => k.value), [10, null, null, null]);
+  assert.equal(earring.godstone?.names?.de, "Götterstein: Aulvicars Zauber");
+  assert.deepEqual(earring.skillBonuses?.map((k) => [k.name, k.names?.de, k.level]), [["Overhead Slam", "Abwärtsschlag", 1]]);
   assert.equal(earring.stones?.[1].names?.de, "Angriffskraft");
   assert.deepEqual(earring.stats?.map((k) => [k.name, k.value]), [["MP", 96], ["Natural MP Regen", 23], ["Attack", 24], ["Evasion", 24], ["Stat 99999", 5]]);
   assert.equal(earring.stats?.[1].names?.de, "MP-Regeneration (Natürlich)");
   // a piece an older client uploaded carries no stone data at all - not an empty list
   const belt = view.gear.find((g) => g.name === "Noble Belt")!;
-  assert.deepEqual([belt.stones, belt.stats], [null, null]);
+  assert.deepEqual([belt.stones, belt.stats, belt.godstone, belt.skillBonuses], [null, null, null, null]);
   // anything that is not a stone/stat list is rejected rather than stored
   assert.throws(() => profileSchema.parse({ source: "self", gear: [{ slot: 1, itemId: 5, enchant: 0, stones: [{ stat: -1, tier: 2 }] }] }));
 });

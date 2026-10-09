@@ -2322,15 +2322,23 @@ function gearTipDetails(g) {
       ]),
     );
   }
+  if (g.skillBonuses?.length) {
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, g.skillBonuses.map((x) => el("div", { className: "pf-tip-row" }, [el("span", { textContent: x.names?.[locale] ?? x.name }), el("strong", { textContent: `+${x.level}` })]))),
+    );
+  }
   if (g.stones?.length) {
     sections.push(
       el("div", { className: "pf-tip-sec" }, [
         el("div", { className: "pf-tip-sec-title", textContent: t("profile.stones") }),
         ...g.stones.map((x) => (x.stat > 0
-          ? el("div", { className: `pf-tip-row pf-tip-stone q${x.tier}` }, [el("span", { textContent: statName(x) })])
+          ? el("div", { className: `pf-tip-row pf-tip-stone q${x.tier}` }, [el("span", { textContent: statName(x) }), x.value != null ? el("strong", { textContent: `+${x.value}` }) : null].filter((n) => n != null))
           : el("div", { className: "pf-tip-row pf-tip-stone empty" }, [el("span", { textContent: t("profile.stoneEmpty") })]))),
       ]),
     );
+  }
+  if (g.godstone) {
+    sections.push(el("div", { className: "pf-tip-sec" }, [el("div", { textContent: g.godstone.names?.[locale] ?? g.godstone.names?.en ?? g.godstone.name })]));
   }
   return sections;
 }

@@ -1,4 +1,23 @@
 {
+ "5": {
+  "names": {
+   "de": "Präzision",
+   "en": "Precision",
+   "es": "Precisión",
+   "fr": "Exactitude",
+   "ru": "Точность"
+  }
+ },
+ "282": {
+  "names": {
+   "de": "Kampftempo",
+   "en": "Combat Speed",
+   "es": "Velocidad de Hechizo",
+   "fr": "VIT de combat",
+   "ru": "СКР боя"
+  },
+  "percent": true
+ },
  "19": {
   "names": {
    "de": "Zusatzangriffskraft",
@@ -107,6 +126,9 @@
    "es": "Puntos de Vida",
    "fr": "PV",
    "ru": "ОЗ"
+  },
+  "stone": {
+   "1": 30
   }
  },
  "199": {
@@ -116,6 +138,10 @@
    "es": "Puntos de Maná",
    "fr": "PM",
    "ru": "ОМ"
+  },
+  "stone": {
+   "1": 15,
+   "2": 30
   }
  },
  "200": {
@@ -134,6 +160,10 @@
    "es": "Bloqueo",
    "fr": "Blocage",
    "ru": "Блок"
+  },
+  "stone": {
+   "1": 7,
+   "2": 10
   }
  },
  "307": {

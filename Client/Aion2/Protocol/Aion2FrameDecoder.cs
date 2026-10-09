@@ -1107,8 +1107,7 @@ public sealed class Aion2FrameDecoder
             // byte earlier (a 01 after the item id, a 24 before the enchant), which a "first non-zero
             // byte" search took for the enchant: Vakron Guard +10 read as +1, a second Clash Rune +4 as +0.
             int enchant = 0;
-            IReadOnlyList<Aion2Stone>? stones = null;
-            IReadOnlyList<Aion2RolledStat>? rolled = null;
+            Aion2ItemDetails? details = null;
             for (int k = p + 14 + 20; k < Math.Min(frame.Length, p + 14 + 31); k++)
             {
                 if (frame[k] != 0)
@@ -1116,14 +1115,14 @@ public sealed class Aion2FrameDecoder
                     enchant = frame[k - 14] <= 30 ? frame[k - 14] : 0;
                     if (slot < ArcanaSlotStart)
                     {
-                        TryReadItemDetails(frame, k, out stones, out rolled);
+                        TryReadItemDetails(frame, k, out details);
                     }
 
                     break;
                 }
             }
 
-            items.Add(new Aion2EquippedItem(slot, itemId, enchant, stones, rolled));
+            items.Add(ItemWith(slot, itemId, enchant, details));
         }
 
         if (items.Count > 0)
@@ -1135,6 +1134,30 @@ public sealed class Aion2FrameDecoder
     /// <summary>Slots from here on are the arcana pieces, whose entries are laid out differently (no stones).</summary>
     private const int ArcanaSlotStart = 30;
 
+    /// <summary>A list of stats in an equipment entry: count (u8), then per stat id (u16) and value (u32). Advances
+    /// <paramref name="at"/> past it; false when the count or the bounds do not fit.</summary>
+    private static bool TryReadStatList(ReadOnlySpan<byte> frame, ref int at, out List<Aion2RolledStat> stats)
+    {
+        stats = new List<Aion2RolledStat>();
+        if (at >= frame.Length || frame[at] > 8 || at + 1 + frame[at] * 6 > frame.Length)
+        {
+            return false;
+        }
+
+        int count = frame[at];
+        for (int i = 0; i < count; i++)
+        {
+            int o = at + 1 + i * 6;
+            stats.Add(new Aion2RolledStat(frame[o] | frame[o + 1] << 8, BinaryPrimitives.ReadUInt32LittleEndian(frame[(o + 2)..])));
+        }
+
+        at += 1 + count * 6;
+        return true;
+    }
+
+    private static Aion2EquippedItem ItemWith(int slot, int itemId, int enchant, Aion2ItemDetails? d) =>
+        d is null ? new Aion2EquippedItem(slot, itemId, enchant) : new Aion2EquippedItem(slot, itemId, enchant, d.Stones, d.Stats, d.GodstoneId, d.SkillBonuses);
+
     /// <summary>
     /// The part of an equipment entry behind the enchant level, shared by the login list and the inspect frame
     /// (checked against the in-game tooltips of two earrings: Aahz' own slot 11 and Eggsorzist's Kromede earring,
@@ -1144,14 +1167,15 @@ public sealed class Aion2FrameDecoder
     /// records (a 4 byte constant of the item, stat id u16, tier u8: 1 white, 2 green, 3 blue; stat 0 / tier 0 = empty
     /// slot), the owner block of 10 bytes (soul-binding character id u32, 00 00, server id u16, bound flag, 03), 13
     /// zero bytes and the rolled stats (count u8, then stat id u16 + value u32 each; MP 96, MP regen 23, attack 24 and
-    /// evasion 24 of the earring matched the tooltip exactly). The amount a stone adds ("Block+10") is NOT in the
+    /// evasion 24 of the earring matched the tooltip exactly). The first 4 of those 13 bytes are the godstone item id
+    /// (19950016 = "Aulvicars Zauber" on the weapon). Behind the stat lists come the skill bonuses ("Abwärtsschlag St. +1"):
+    /// id (u32) + levels (u8) per skill. The amount a stone adds ("Block+10") is NOT in the
     /// entry: the game takes it from its stone tables. Returns false (and null lists) when the block does not look
     /// like this, e.g. for entries of other kinds.
     /// </summary>
-    private static bool TryReadItemDetails(ReadOnlySpan<byte> frame, int sizePos, out IReadOnlyList<Aion2Stone>? stones, out IReadOnlyList<Aion2RolledStat>? rolled)
+    private static bool TryReadItemDetails(ReadOnlySpan<byte> frame, int sizePos, out Aion2ItemDetails? details)
     {
-        stones = null;
-        rolled = null;
+        details = null;
         if (sizePos + 8 > frame.Length || frame[sizePos + 1] != 0 || frame[sizePos + 2] != 0 || frame[sizePos + 3] != 0)
         {
             return false;
@@ -1184,21 +1208,30 @@ public sealed class Aion2FrameDecoder
                 list.Add(new Aion2Stone(frame[first + i * 7 + 4] | frame[first + i * 7 + 5] << 8, frame[first + i * 7 + 6]));
             }
 
-            stones = list;
+            // The 13 bytes behind the owner block start with the id of the godstone set into the piece (u32, 0 = none).
+            int godstone = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(end + 10)..]));
             int at = end + 10 + 13;
-            int statCount = at < frame.Length ? frame[at] : 99;
-            if (statCount <= 8 && at + 1 + statCount * 6 <= frame.Length)
+            IReadOnlyList<Aion2RolledStat>? rolled = null;
+            IReadOnlyList<Aion2SkillBonus>? bonuses = null;
+            if (TryReadStatList(frame, ref at, out var stats))
             {
-                var stats = new List<Aion2RolledStat>(statCount);
-                for (int i = 0; i < statCount; i++)
-                {
-                    int o = at + 1 + i * 6;
-                    stats.Add(new Aion2RolledStat(frame[o] | frame[o + 1] << 8, BinaryPrimitives.ReadUInt32LittleEndian(frame[(o + 2)..])));
-                }
-
                 rolled = stats;
+                // a second list with the same stat ids (all values 0 so far, not used), then the skill level bonuses:
+                // count (u8), per skill id (u32) + bonus levels (u8); a copy of the list with base levels follows
+                if (TryReadStatList(frame, ref at, out _) && at < frame.Length && frame[at] <= 8 && at + 1 + frame[at] * 5 <= frame.Length)
+                {
+                    var skills = new List<Aion2SkillBonus>(frame[at]);
+                    for (int i = 0; i < frame[at]; i++)
+                    {
+                        int o = at + 1 + i * 5;
+                        skills.Add(new Aion2SkillBonus(unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[o..])), frame[o + 4]));
+                    }
+
+                    bonuses = skills;
+                }
             }
 
+            details = new Aion2ItemDetails(list, rolled, godstone, bonuses);
             return true;
         }
 
@@ -1547,8 +1580,7 @@ public sealed class Aion2FrameDecoder
                 continue;
             }
 
-            IReadOnlyList<Aion2Stone>? stones = null;
-            IReadOnlyList<Aion2RolledStat>? rolled = null;
+            Aion2ItemDetails? details = null;
             if (info.Slot != "Arcana")
             {
                 int shift = frame[q + 13] is 0x9c or 0x1c ? 1 : 0;
@@ -1556,7 +1588,7 @@ public sealed class Aion2FrameDecoder
                 {
                     if (frame[k] != 0)
                     {
-                        TryReadItemDetails(frame, k, out stones, out rolled);
+                        TryReadItemDetails(frame, k, out details);
                         break;
                     }
                 }
@@ -1566,7 +1598,7 @@ public sealed class Aion2FrameDecoder
             int[]? slots = InspectSlots.GetValueOrDefault(info.Slot);
             int slot = slots is not null && n < slots.Length ? slots[n] : extra++;
             used[info.Slot] = n + 1;
-            gear.Add(new Aion2EquippedItem(slot, itemId, enchant, stones, rolled));
+            gear.Add(ItemWith(slot, itemId, enchant, details));
             q += 12;
         }
 

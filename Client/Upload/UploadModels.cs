@@ -88,7 +88,10 @@ public sealed record ProfilePetUpload(int Species, int Level, IReadOnlyList<int>
 
 public sealed record ProfileBoardCountUpload(int Board, int Count);
 
-public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant, IReadOnlyList<ProfileStoneUpload>? Stones = null, IReadOnlyList<ProfileStatUpload>? Stats = null);
+public sealed record ProfileGearUpload(int Slot, int ItemId, int Enchant, IReadOnlyList<ProfileStoneUpload>? Stones = null, IReadOnlyList<ProfileStatUpload>? Stats = null, int? Godstone = null, IReadOnlyList<ProfileSkillBonusUpload>? SkillBonuses = null);
+
+/// <summary>A skill level bonus on an item (skill id, bonus levels).</summary>
+public sealed record ProfileSkillBonusUpload(int Skill, int Level);
 
 /// <summary>A mana stone of an item: the stat id the stone gives (0 = empty slot) and its tier (1..4).</summary>
 public sealed record ProfileStoneUpload(int Stat, int Tier);
