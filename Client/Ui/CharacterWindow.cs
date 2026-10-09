@@ -177,6 +177,11 @@ public sealed class CharacterWindow : Window
 
     /// <summary>A square item / skill tile like the website's: the game's icon over a rarity-coloured backdrop,
     /// the initials when there is no icon, and a small number in the corner (enchant, skill level).</summary>
+    /// <summary>Enchant byte 16..20 is +15 with 1..5 Zenit ("Amplify") stages; anything else is the plain level.</summary>
+    private static int ZenitStage(int enchant) => enchant is > 15 and <= 20 ? enchant - 15 : 0;
+
+    private static string EnchantBadge(int enchant) => ZenitStage(enchant) > 0 ? $"+15 \u25C6{ZenitStage(enchant)}" : $"+{enchant}";
+
     private FrameworkElement IconTile(string? iconPath, string name, Color color, double size, string? badge = null, bool bonusBadge = false)
     {
         var backdrop = new RadialGradientBrush
@@ -688,7 +693,7 @@ public sealed class CharacterWindow : Window
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-        FrameworkElement icon = IconTile(Aion2Artwork.ItemIconPath(g.Item.ItemId), name, color, 56, g.Item.Enchant > 0 ? $"+{g.Item.Enchant}" : null);
+        FrameworkElement icon = IconTile(Aion2Artwork.ItemIconPath(g.Item.ItemId), name, color, 56, g.Item.Enchant > 0 ? EnchantBadge(g.Item.Enchant) : null);
         Grid.SetColumn(icon, 0);
         grid.Children.Add(icon);
 
@@ -724,7 +729,7 @@ public sealed class CharacterWindow : Window
             Background = background,
             Child = grid,
         };
-        string tip = $"{name}{(g.Item.Enchant > 0 ? $" +{g.Item.Enchant}" : "")}";
+        string tip = $"{name}{(g.Item.Enchant > 0 ? $" +{(ZenitStage(g.Item.Enchant) > 0 ? 15 : g.Item.Enchant)}" : "")}{(ZenitStage(g.Item.Enchant) > 0 ? $"\nAmplify stage {ZenitStage(g.Item.Enchant)}" : "")}";
         if (info is not null)
         {
             tip += $"\n{GradeNames[Math.Clamp(info.Grade, 0, GradeNames.Length - 1)]}{(info.Tier > 0 ? $" · Tier {info.Tier}" : "")}  {info.Slot}";

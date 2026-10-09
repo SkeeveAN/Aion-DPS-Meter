@@ -2312,7 +2312,7 @@ const GEAR_GROUPS = [
 
 // A square item/skill tile: the real icon when there is one, initials otherwise. `badge` is the
 // small number in the corner (enchant level, skill level).
-function iconTile(kind, icon, name, { color, badge, badgeClass } = {}) {
+function iconTile(kind, icon, name, { color, badge, badgeClass, zenit } = {}) {
   const tile = el("span", { className: "pf-ico", style: color ? `--ico-color:${color}` : "" });
   if (icon) {
     const img = el("img", { src: `${ICON_BASE}/${kind}/${icon}.webp`, alt: "", loading: "lazy", width: 128, height: 128 });
@@ -2328,6 +2328,9 @@ function iconTile(kind, icon, name, { color, badge, badgeClass } = {}) {
   }
   if (badge != null && badge !== "") {
     tile.append(el("b", { className: `pf-badge-num ${badgeClass ?? ""}`, textContent: String(badge) }));
+  }
+  if (zenit > 0) {
+    tile.append(el("b", { className: "pf-zenit", textContent: String(zenit) }));
   }
   return tile;
 }
@@ -2356,21 +2359,42 @@ function attachTooltip(target, build) {
   });
 }
 
+// Zenit: an enchant byte of 16..20 is +15 with 1..5 Zenit stages (the backend sends `zenit`); the plain level is capped at 15 then.
+function shownEnchant(g) {
+  return g.zenit > 0 ? 15 : g.enchant;
+}
+
 function gearTip(g) {
   const name = localizedSkillName(g);
   const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
   return [
     el("div", { className: "pf-tip-head", style: `--ico-color:${color}` }, [
-      el("div", { className: "pf-tip-title", textContent: name + (g.enchant > 0 ? ` +${g.enchant}` : "") }),
+      el("div", { className: "pf-tip-title", textContent: name + (g.enchant > 0 ? ` +${shownEnchant(g)}` : "") }),
       el("div", { className: "pf-tip-sub" }, [el("span", { style: `color:${color}`, textContent: `${GRADE_NAME[g.grade] ?? ""}${g.tier > 0 ? ` · ${t("profile.tier")} ${g.tier}` : ""}` }), ` ${g.slotName ? t(`slot.${g.slotName}`) : ""}`]),
       g.itemLevel > 0 ? el("div", { className: "pf-tip-il", textContent: `${t("profile.itemLevel")} ${g.itemLevel}` }) : null,
     ].filter((x) => x != null)),
+    ...zenitTip(g),
     ...gearTipDetails(g),
   ];
 }
 
 // The rolled stats and mana stone slots of a piece (only when the uploader's client read them). A stone's own
 // amount is not part of the game's data, so a stone shows its stat, coloured by its tier (1 white, 2 green, 3 blue).
+function zenitTip(g) {
+  if (!(g.zenit > 0)) {
+    return [];
+  }
+  const rows = [el("div", { className: "pf-tip-row" }, [el("span", { textContent: `${t("profile.zenit")} ${t("profile.tier")} ${g.zenit}` })])];
+  // the orange values of a weapon are derived from the stage (10 / 1 % per stage), see the backend
+  if (g.zenitBonus) {
+    rows.push(
+      el("div", { className: "pf-tip-row pf-tip-orange" }, [el("span", { textContent: t("profile.zenitAttack") }), el("strong", { textContent: String(g.zenitBonus.attack) })]),
+      el("div", { className: "pf-tip-row pf-tip-orange" }, [el("span", { textContent: t("profile.zenitBoost") }), el("strong", { textContent: `${g.zenitBonus.damageBoostPercent} %` })]),
+    );
+  }
+  return [el("div", { className: "pf-tip-sec" }, rows)];
+}
+
 function gearTipDetails(g) {
   const locale = getLocale();
   const statName = (x) => x.names?.[locale] ?? x.names?.en ?? x.name;
@@ -2408,7 +2432,7 @@ function gearSlot(g) {
   const name = localizedSkillName(g);
   const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
   const slot = el("div", { className: "pf-slot", style: `--ico-color:${color}` }, [
-    iconTile("item", g.icon, name, { color, badge: g.enchant > 0 ? `+${g.enchant}` : "" }),
+    iconTile("item", g.icon, name, { color, badge: g.enchant > 0 ? `+${shownEnchant(g)}` : "", zenit: g.zenit }),
     el("div", {}, [
       el("div", { className: "pf-slot-name", textContent: name }),
       el("div", { className: "pf-slot-sub", textContent: `${g.slotName ? t(`slot.${g.slotName}`) : `#${g.slot}`}${g.itemLevel > 0 ? ` · ${t("profile.itemLevelShort")} ${g.itemLevel}` : ""}` }),

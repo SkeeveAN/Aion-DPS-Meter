@@ -15,7 +15,7 @@ after(() => sqlite.close());
 
 const { processUpload } = await import("./matching/merge.js");
 const { players } = await import("./db/schema.js");
-const { buildProfileView, upsertProfile, profileSchema } = await import("./profile.js");
+const { buildProfileView, upsertProfile, profileSchema, zenitStage } = await import("./profile.js");
 const { uploadSchema } = await import("./uploadSchema.js");
 const { eq } = await import("drizzle-orm");
 
@@ -59,7 +59,7 @@ const selfProfile = {
   classId: 1,
   faction: 2,
   gear: [
-    { slot: 1, itemId: 110150026, enchant: 0 }, // Wind Breeze Greatsword
+    { slot: 1, itemId: 110150026, enchant: 16 }, // Wind Breeze Greatsword (a test value: +15 with one Zenit stage)
     // Aulamus' Earrings as the in-game tooltip showed them (2026-10-09): stones Block, Angriffskraft, Zusatzausweichen, Verteidigung
     // (the third one an empty slot here), rolled MP 96, MP-Regeneration 23, Angriffskraft 24, Ausweichen 24 and a stat the data does not know.
     {
@@ -138,6 +138,13 @@ test("the profile names the mana stones and rolled stats of a piece in the clien
   assert.equal(earring.stones?.[1].names?.de, "Angriffskraft");
   assert.deepEqual(earring.stats?.map((k) => [k.name, k.value]), [["MP", 96], ["Natural MP Regen", 23], ["Attack", 24], ["Evasion", 24], ["Stat 99999", 5]]);
   assert.equal(earring.stats?.[1].names?.de, "MP-Regeneration (Natürlich)");
+  // Zenit: the weapon's enchant byte 16 is +15 with one stage (derived orange values only for the main hand); 24 stays untouched
+  const upgraded = zenitStage(16);
+  assert.deepEqual([upgraded, zenitStage(15), zenitStage(20), zenitStage(21), zenitStage(24)], [1, 0, 5, 0, 0]);
+  const weapon = view.gear.find((g) => g.slot === 1)!;
+  assert.deepEqual([weapon.enchant, weapon.zenit, weapon.zenitBonus], [16, 1, { attack: 10, damageBoostPercent: 1 }]);
+  assert.equal(earring.zenit, 0);
+  assert.equal(earring.zenitBonus, null);
   // a piece an older client uploaded carries no stone data at all - not an empty list
   const belt = view.gear.find((g) => g.name === "Noble Belt")!;
   assert.deepEqual([belt.stones, belt.stats, belt.godstone, belt.skillBonuses], [null, null, null, null]);

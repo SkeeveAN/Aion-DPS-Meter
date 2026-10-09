@@ -305,7 +305,12 @@ export type ProfileView = {
     itemLevel: number;
     grade: number;
     tier: number;
+    /** The raw enchant byte of the piece (15 plus the Zenit stages above +15). */
     enchant: number;
+    /** Zenit stage 0..5 = enchant - 15 (the game shows +15 and up to five diamonds; seen 16/18/20 on real pieces); 0 for anything else, including implausible values above 20. */
+    zenit: number;
+    /** Orange extra values of a weapon from its Zenit stage - DERIVED, not read: the amplify window showed stage 1 -> 2 as Attack 10 -> 20 and Damage Boost 1 % -> 2 %, higher stages are extrapolated linearly. */
+    zenitBonus: { attack: number; damageBoostPercent: number } | null;
     /** Mana stone slots (stat 0 = empty); null when the uploader's client did not read them. value is the amount the stone adds
      *  where it was seen in a tooltip for that stat and tier, otherwise null (the frame does not carry it). */
     stones: { stat: number; name: string; names?: Record<string, string>; tier: number; value: number | null }[] | null;
@@ -341,6 +346,11 @@ export type ProfileView = {
   /** Activated nodes per Daevanion board next to the board's size; for the own character from the node lists. */
   boards: { board: number; name: string; count: number; total: number }[];
 };
+
+/** Zenit stage of an enchant byte: 1..5 for 16..20, else 0 (+15 is the plain enchant cap; above 20 is not plausible and is left as is). */
+export function zenitStage(enchant: number): number {
+  return enchant > 15 && enchant <= 20 ? enchant - 15 : 0;
+}
 
 /** Average item level of the worn pieces whose level is known; null when none is. */
 export function averageItemLevelOf(gearJson: string): number | null {
@@ -394,6 +404,8 @@ export function buildProfileView(playerId: number): ProfileView | null {
         grade: info?.[2] ?? 0,
         tier: info?.[3] ?? 0,
         enchant: g.enchant,
+        zenit: zenitStage(g.enchant),
+        zenitBonus: info?.[1] === "MainHand" && zenitStage(g.enchant) > 0 ? { attack: 10 * zenitStage(g.enchant), damageBoostPercent: zenitStage(g.enchant) } : null,
         stones: g.stones ? g.stones.map((k) => ({ stat: k.stat, ...(k.stat > 0 ? statName(k.stat) : { name: "" }), tier: k.tier, value: itemStats![String(k.stat)]?.stone?.[String(k.tier)] ?? null })) : null,
         stats: g.stats ? g.stats.map((k) => ({ stat: k.stat, ...statName(k.stat), value: k.value, percent: itemStats![String(k.stat)]?.percent === true })) : null,
         godstone: g.godstone ? { itemId: g.godstone, name: godstones![String(g.godstone)]?.en ?? `Item ${g.godstone}`, names: godstones![String(g.godstone)] } : null,

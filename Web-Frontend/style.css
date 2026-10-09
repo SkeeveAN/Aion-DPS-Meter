@@ -2908,3 +2908,30 @@ body:has(.download-hero) .nav-download-link:hover,
 .home-below-hero{margin-top:12px}
 .home-stats-card{position:absolute;left:0;right:0;top:-6px;transform:translateY(-50%);margin:0 auto;z-index:5}
 @media(max-width:720px){.home-stats-card{position:static;transform:none;margin:0 auto 16px}}
+
+/* Zenit stage of an item: a small diamond with the number in the icon's lower left corner. */
+.pf-zenit {
+  position: absolute;
+  left: 1px;
+  bottom: 1px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+  z-index: 0;
+}
+.pf-zenit::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: #2aa7c9;
+  border: 1px solid #0b2a33;
+  transform: rotate(45deg) scale(1.15);
+  z-index: -1;
+}
+.pf-tip-orange { color: #ff9a2e; }
