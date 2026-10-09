@@ -23,6 +23,23 @@
      "Website"
     ],
     "date": "2026-10-09"
+   },
+   {
+    "text": "Pet knowledge: twelve more stats show their real names instead of Stat numbers (attack and defense per species, back attack critical, evasion, seal stone damage and more)",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Backend: Europe has at least 20 and Asia at least 7 servers per faction (Tiamat 1320, Fregion 1507 seen live); the admin statistics list the servers by name instead of id",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-09"
    }
   ]
  },
