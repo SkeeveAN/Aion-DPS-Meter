@@ -1,5 +1,33 @@
 [
  {
+  "version": "0.21.1",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Species knowledge: names for nine more stat ids (back defense, fera block, natura accuracy/crit, varia crit and the pattern-derived siblings)",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "World boss settings: the note that the server sends the times only for the map you are on is the first sentence",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Website: the World Bosses feature says the server sends the times only for the map you are on, with a fresh picture of the page",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.21.0",
   "date": "2026-10-09",
   "items": [
