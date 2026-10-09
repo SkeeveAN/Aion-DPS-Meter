@@ -1,5 +1,25 @@
 [
  {
+  "version": "0.21.0",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "World boss page in the settings: every field boss by map with the time until it is back, taken from the game itself (nothing to open on the map), a switch, sound and volume for each boss, a movable world boss overlay and a sound when a boss is back; both switches are off by default",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Website: the World Bosses feature says the times arrive by themselves and shows the finished settings page",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.20.1",
   "date": "2026-10-09",
   "items": [

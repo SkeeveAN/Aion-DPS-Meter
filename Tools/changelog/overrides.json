@@ -25,5 +25,6 @@
  "4b50550": "Every player is marked with his faction (Elyos or Asmodian): it is read from the game's own data, so Asmodians are recognised too",
  "854cc4c": "Player rows: the faction emblem replaces the rank number",
  "2a3ee0a": "A player who is announced again under a new id (map change) stays one row in the list, with all his damage and healing",
- "d25e2e0": "Server list: Europe now counts at least 20 and Asia at least 7 servers per faction, so Tiamat and Fregion show with their region"
+ "d25e2e0": "Server list: Europe now counts at least 20 and Asia at least 7 servers per faction, so Tiamat and Fregion show with their region",
+ "184d1e5": "World boss page in the settings: every field boss by map with the time until it is back, taken from the game itself (nothing to open on the map), a switch, sound and volume for each boss, a movable world boss overlay and a sound when a boss is back; both switches are off by default"
 }
