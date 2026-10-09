@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.22.1",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Pet map: when the game has not reported the player's position (it does so only for some movements), the middle of the monsters around the player stands in, so the map no longer falls back to the question mark after untargeting",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.22.0",
   "date": "2026-10-09",
   "items": [
