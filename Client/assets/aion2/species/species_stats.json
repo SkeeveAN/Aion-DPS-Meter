@@ -52,6 +52,115 @@
   }
  },
  "stats": {
+  "31": {
+   "names": {
+    "de": "Max. Angriffskraft",
+    "en": "Max Attack",
+    "es": "Ataque Máximo",
+    "fr": "ATQ max",
+    "ru": "Макс. АТК"
+   }
+  },
+  "51": {
+   "names": {
+    "de": "Verteidigung (Boss)",
+    "en": "Boss Defense",
+    "es": "Defensa de Jefe",
+    "fr": "DÉF contre les boss",
+    "ru": "ЗЩТ от босса"
+   }
+  },
+  "56": {
+   "names": {
+    "de": "Angriffskraft (PvE)",
+    "en": "PvE Attack",
+    "es": "Ataque JcE",
+    "fr": "ATQ JcE",
+    "ru": "АТК в PvE"
+   }
+  },
+  "69": {
+   "names": {
+    "de": "Zusatzschaden (Siegelstein)",
+    "en": "Power Shard Damage Bonus",
+    "es": "Daño Adicional de Fragmento de Poder",
+    "fr": "DGT supplémentaires Éclat de pouvoir",
+    "ru": "Доп. урон от камней силы"
+   }
+  },
+  "100": {
+   "names": {
+    "de": "Krit.-Treffer (Rückseitig)",
+    "en": "Back Attack Critical Hit",
+    "es": "Ataque Crítico por la Espalda",
+    "fr": "CRIT dans le dos",
+    "ru": "Крит. удар с тыла"
+   }
+  },
+  "116": {
+   "names": {
+    "de": "Zusatzausweichen",
+    "en": "Evasion Bonus",
+    "es": "Evasión Adicional",
+    "fr": "Esquive supplémentaire",
+    "ru": "Доп. УКЛ"
+   }
+  },
+  "122": {
+   "names": {
+    "de": "Ausweichen (PvE)",
+    "en": "PvE Evasion",
+    "es": "Evasión JcE",
+    "fr": "Esquive JcE",
+    "ru": "УКЛ в PvE"
+   }
+  },
+  "158": {
+   "names": {
+    "de": "Statuseffekt-Trefferchance",
+    "en": "Status Effect Chance",
+    "es": "Acierto de Efectos de Estado",
+    "fr": "Taux altération état",
+    "ru": "Попадание эффектами"
+   },
+   "percent": true
+  },
+  "394": {
+   "names": {
+    "de": "Verteidigung (Cognia)",
+    "en": "Cogni Defense",
+    "es": "Defensa de Cognis",
+    "fr": "DÉF Intellia",
+    "ru": "ЗЩТ от разумных"
+   }
+  },
+  "402": {
+   "names": {
+    "de": "Verteidigung (Fera)",
+    "en": "Fera Defense",
+    "es": "Defensa de Feras",
+    "fr": "DÉF Bestia",
+    "ru": "ЗЩТ от диких"
+   }
+  },
+  "406": {
+   "names": {
+    "de": "Krit.-Widerstand (Fera)",
+    "en": "Fera Critical Hit Resist",
+    "es": "Resistencia Crítica de Feras",
+    "fr": "RÉS aux CRIT Bestia",
+    "ru": "Сопротивление крит. удару от диких"
+   }
+  },
+  "422": {
+   "names": {
+    "de": "Krit.-Widerstand (Varia)",
+    "en": "Varian Critical Hit Resist",
+    "es": "Resistencia Crítica de Varians",
+    "fr": "RÉS aux CRIT Varius",
+    "ru": "Сопротивление крит. удару от мутантов"
+   }
+  },
   "19": {
    "names": {
     "de": "Zusatzangriffskraft",
@@ -175,7 +284,7 @@
     "de": "Krit.-Widerstand (Cognia)",
     "en": "Cogni Critical Hit Resist",
     "es": "Resistencia Crítica de Cognis",
-    "fr": "RÉS CRIT Intellia",
+    "fr": "RÉS aux CRIT Intellia",
     "ru": "Сопротивление крит. удару от разумных"
    }
   },
@@ -220,7 +329,7 @@
     "de": "Krit.-Widerstand (Natura)",
     "en": "Natura Critical Hit Resist",
     "es": "Resistencia Crítica de Naturas",
-    "fr": "RÉS CRIT Natura",
+    "fr": "RÉS aux CRIT Natura",
     "ru": "Сопротивление крит. удару от природных монстров"
    }
   },
@@ -302,7 +411,7 @@
     "de": "Widerstand (Kritischer Treffer Frontal)",
     "en": "Front Attack Critical Hit Resist",
     "es": "Resistencia Crítica frontal",
-    "fr": "RÉS CRIT frontal",
+    "fr": "RÉS aux CRIT frontaux",
     "ru": "Сопротивление крит. удару спереди"
    }
   }

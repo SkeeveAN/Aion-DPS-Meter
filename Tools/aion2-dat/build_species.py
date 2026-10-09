@@ -13,6 +13,9 @@ import os
 import sys
 
 STATS = {
+    31: "WeaponDamage", 51: "BossNpcDefense", 56: "PvEAddDamage", 69: "SealStoneAddDamage", 100: "BackAttackCritical",
+    116: "Evasion", 122: "PvEEvasion", 158: "AbnormalAccuracy", 394: "IntellectDefense", 402: "FeralDefense",
+    406: "FeralCriticalResist", 422: "TransCriticalResist",
     19: "FixingDamage", 44: "AmplifyCriticalDamage", 50: "BossNpcAddDamage", 52: "Defense", 57: "PvEDamageDefense",
     98: "BackAttackDamage", 104: "Accuracy", 110: "PvEAccuracy", 128: "Critical", 193: "HPMax", 199: "MPMax", 255: "Block",
     397: "IntellectCritical", 398: "IntellectCriticalResist", 401: "FeralDamage", 404: "FeralEvasion",
@@ -20,7 +23,7 @@ STATS = {
     418: "TransDefense", 419: "TransAccuracy", 420: "TransEvasion", 424: "TransBlock", 445: "IronWall",
     587: "FrontAttackDamage", 591: "FrontAttackCritical", 592: "FrontAttackCriticalResist",
 }
-PERCENT = {44, 445}
+PERCENT = {44, 158, 445}
 SPECIES = {2: ("cognia", "INTELLECT"), 3: ("fera", "FERA"), 4: ("natura", "NATURE"), 5: ("varia", "TRANS"), 6: ("specia", "SPECIAL")}
 LOCALES = {"de": "de-DE", "en": "en-US", "es": "es-ES", "fr": "fr-FR", "ru": "ru-RU"}
 
