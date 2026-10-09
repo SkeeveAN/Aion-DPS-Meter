@@ -200,6 +200,7 @@ test("through the real routes: upload with a profile, then the player endpoint r
       ]),
       startedAt: "2026-10-01T03:00:00.000Z",
       endedAt: "2026-10-01T03:02:00.000Z",
+      bossMaxHp: 100_000, // uploads only count for a killed boss: the damage must cover its hit points
     };
     const upload = await app.inject({ method: "POST", url: "/api/uploads", payload });
     assert.equal(upload.statusCode, 200, upload.body);
