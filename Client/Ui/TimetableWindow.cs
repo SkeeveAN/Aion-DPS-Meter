@@ -22,6 +22,10 @@ public sealed class TimetableWindow : Window
     private readonly StackPanel _body = new();
     private readonly ScaleTransform _scale = new(1, 1);
     private readonly Border _panel;
+    private readonly DockPanel _header;
+    private readonly Border _close;
+    private readonly Thumb _grip;
+    private bool _locked = true;
     private readonly System.Windows.Threading.DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
 
     public TimetableWindow()
@@ -32,6 +36,7 @@ public sealed class TimetableWindow : Window
         Background = Brushes.Transparent;
         ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false;
+        AltTabHidden.Apply(this);
         Topmost = true;
         SizeToContent = SizeToContent.WidthAndHeight;
 
@@ -43,7 +48,7 @@ public sealed class TimetableWindow : Window
         var header = new DockPanel { Margin = new Thickness(2, 0, 0, 4), Background = Brushes.Transparent, Cursor = Cursors.SizeAll };
         header.MouseLeftButtonDown += (_, e) =>
         {
-            if (e.ButtonState == MouseButtonState.Pressed)
+            if (!_locked && e.ButtonState == MouseButtonState.Pressed)
             {
                 DragMove();
                 SavePosition();
@@ -69,6 +74,8 @@ public sealed class TimetableWindow : Window
         title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
         header.Children.Add(close);
         header.Children.Add(title);
+        _header = header;
+        _close = close;
 
         var grip = new Thumb
         {
@@ -83,6 +90,7 @@ public sealed class TimetableWindow : Window
             s.Save();
         };
 
+        _grip = grip;
         var stack = new StackPanel();
         stack.Children.Add(header);
         stack.Children.Add(_body);
@@ -94,6 +102,7 @@ public sealed class TimetableWindow : Window
         };
         _panel.SetResourceReference(Border.BackgroundProperty, "Brush.OverlayBg");
         Content = _panel;
+        ApplyLocked(settings.TimetableLocked);
 
         Left = settings.TimetableLeft ?? SystemParameters.WorkArea.Right - PanelWidth - 40;
         Top = settings.TimetableTop ?? 120;
@@ -111,6 +120,37 @@ public sealed class TimetableWindow : Window
             }
         };
         Closed += (_, _) => _timer.Stop();
+    }
+
+    /// <summary>Locked: click-through, no close button, no grip. Unlocked: clickable and outlined, so it can be found, moved and scaled.</summary>
+    public void ApplyLocked(bool locked)
+    {
+        _locked = locked;
+        _close.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
+        _grip.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
+        _header.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
+        _panel.BorderThickness = new Thickness(1);
+        _panel.BorderBrush = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42));
+        ApplyClickThrough();
+    }
+
+    /// <summary>Applies the lock only when it changed (the main window passes the settings on every refresh).</summary>
+    public void ApplyLockedIfChanged(bool locked)
+    {
+        if (locked != _locked)
+        {
+            ApplyLocked(locked);
+        }
+    }
+
+    private void ApplyClickThrough()
+    {
+        var handle = new System.Windows.Interop.WindowInteropHelper(this).EnsureHandle();
+        if (handle != IntPtr.Zero)
+        {
+            using var native = new NativeOverlay(this);
+            native.SetClickThrough(_locked);
+        }
     }
 
     private static ControlTemplate GripTemplate()

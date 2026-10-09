@@ -37,6 +37,7 @@ public abstract class MovableOverlay : Window
         Background = Brushes.Transparent;
         ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false;
+        AltTabHidden.Apply(this);
         ShowActivated = false; // the game keeps the keyboard
         Topmost = true;
         SizeToContent = SizeToContent.WidthAndHeight;
