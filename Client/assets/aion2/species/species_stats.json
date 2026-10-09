@@ -388,6 +388,87 @@
    },
    "percent": true
   },
+  "99": {
+   "names": {
+    "de": "Verteidigung (Rückseitig)",
+    "en": "Back Defense",
+    "es": "Defensa por la Espalda",
+    "fr": "DÉF dans le dos",
+    "ru": "ЗЩТ с тыла"
+   }
+  },
+  "408": {
+   "names": {
+    "de": "Block (Fera)",
+    "en": "Fera Block",
+    "es": "Bloqueo de Feras",
+    "fr": "Blocage Bestia",
+    "ru": "Блок диких"
+   }
+  },
+  "411": {
+   "names": {
+    "de": "Präzision (Natura)",
+    "en": "Natura Accuracy",
+    "es": "Precisión de Naturas",
+    "fr": "Précision Natura",
+    "ru": "Меткость по природным монстрам"
+   }
+  },
+  "413": {
+   "names": {
+    "de": "Krit.-Treffer (Natura)",
+    "en": "Natura Critical Hit",
+    "es": "Crítico de Naturas",
+    "fr": "CRIT Natura",
+    "ru": "Крит. удар по природным монстрам"
+   }
+  },
+  "421": {
+   "names": {
+    "de": "Krit.-Treffer (Varia)",
+    "en": "Varian Critical Hit",
+    "es": "Crítico de Varians",
+    "fr": "CRIT Varius",
+    "ru": "Крит. удар по мутантам"
+   }
+  },
+  "403": {
+   "names": {
+    "de": "Präzision (Fera)",
+    "en": "Fera Accuracy",
+    "es": "Precisión de Feras",
+    "fr": "Précision Bestia",
+    "ru": "Меткость по диким"
+   }
+  },
+  "405": {
+   "names": {
+    "de": "Krit.-Treffer (Fera)",
+    "en": "Fera Critical Hit",
+    "es": "Crítico de Feras",
+    "fr": "CRIT Bestia",
+    "ru": "Крит. удар по диким"
+   }
+  },
+  "409": {
+   "names": {
+    "de": "Angriffskraft (Natura)",
+    "en": "Natura Attack",
+    "es": "Ataque de Naturas",
+    "fr": "ATQ Natura",
+    "ru": "АТК по природных монстрам"
+   }
+  },
+  "417": {
+   "names": {
+    "de": "Angriffskraft (Varia)",
+    "en": "Varian Attack",
+    "es": "Ataque de Varians",
+    "fr": "ATQ Varius",
+    "ru": "АТК по мутантам"
+   }
+  },
   "587": {
    "names": {
     "de": "Angriffskraft (Frontal)",

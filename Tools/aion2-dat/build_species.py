@@ -21,6 +21,9 @@ STATS = {
     397: "IntellectCritical", 398: "IntellectCriticalResist", 401: "FeralDamage", 404: "FeralEvasion",
     410: "NatureDefense", 412: "NatureEvasion", 414: "NatureCriticalResist", 416: "NatureBlock",
     418: "TransDefense", 419: "TransAccuracy", 420: "TransEvasion", 424: "TransBlock", 445: "IronWall",
+    99: "BackAttackDefense", 408: "FeralBlock", 411: "NatureAccuracy", 413: "NatureCritical", 421: "TransCritical",
+    # Not yet seen in a screenshot, but each species block runs atk, def, accuracy, evasion, crit, crit resist, -, block.
+    403: "FeralAccuracy", 405: "FeralCritical", 409: "NatureDamage", 417: "TransDamage",
     587: "FrontAttackDamage", 591: "FrontAttackCritical", 592: "FrontAttackCriticalResist",
 }
 PERCENT = {44, 158, 445}
