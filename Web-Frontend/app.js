@@ -599,7 +599,7 @@ function renderFeatures() {
         el("p", { textContent: t(`features.${block.id}.text`) }),
       ]),
       el("div", { className: "feature-shots" }, block.images.map(([name, width, height]) =>
-        el("img", { src: `/images/features/${name}.webp?v=20261009c`, width, height, loading: index === 0 ? "eager" : "lazy", alt: t(`features.${block.id}.title`) }),
+        el("img", { src: `/images/features/${name}.webp?v=20261009d`, width, height, loading: index === 0 ? "eager" : "lazy", alt: t(`features.${block.id}.title`) }),
       )),
     ]),
   );
