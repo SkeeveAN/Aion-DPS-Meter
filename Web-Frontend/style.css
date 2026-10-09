@@ -2853,3 +2853,9 @@ body:has(.download-hero) .nav-download-link:hover,
 .nav-download-link{min-height:34px;padding:0 14px;border:1px solid rgba(255,225,160,.55);border-radius:6px;color:#2a1a04;text-shadow:none;
  background:linear-gradient(180deg,#e2b457 0%,#c4932f 100%);box-shadow:0 2px 8px -3px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,240,200,.45)}
 .nav-download-link:hover{filter:brightness(1.07)}
+
+/* Top players and Recent activity: both cards end at the same height and their five rows are exactly equally tall. */
+.home-content-grid{align-items:stretch}
+.home-content-col{height:100%}
+.home-content-col>.home-section-card{flex:1;display:flex;flex-direction:column}
+.home-content-col .hp-list{flex:1;grid-auto-rows:1fr}
