@@ -1,13 +1,12 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.24.1",
   "date": "2026-10-09",
   "items": [
    {
-    "text": "Species knowledge names for the last open effects (damage boost and tolerance, front and back attack boost and tolerance, status effect resist, endurance penetration)",
+    "text": "Species knowledge shows the real names of the last open effects (damage boost and tolerance, front and back attack boost and tolerance, status effect resist, endurance penetration)",
     "areas": [
-     "Client",
-     "Backend"
+     "Client"
     ],
     "date": "2026-10-09"
    }
