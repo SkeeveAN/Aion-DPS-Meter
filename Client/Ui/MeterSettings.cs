@@ -215,6 +215,15 @@ public sealed class MeterSettings
     /// <summary>Locked (default): the pet farming overlay is click-through. Unlocked: it can be clicked, moved and scaled.</summary>
     public bool PetFarmLocked { get; set; } = true;
 
+    /// <summary>Locked (default): the small pet counter of the targeted monster is click-through. Unlocked: it can be moved and scaled. Independent of the map's lock.</summary>
+    public bool PetInfoLocked { get; set; } = true;
+
+    /// <summary>Locked (default): the world boss overlay is click-through. Unlocked: it can be clicked, moved and scaled. Independent of the pet overlays' lock.</summary>
+    public bool BossOverlayLocked { get; set; } = true;
+
+    /// <summary>Locked (default): the timetable overlay is click-through (no header, no grip). Unlocked: it can be moved and scaled.</summary>
+    public bool TimetableLocked { get; set; } = true;
+
     public double PetFarmScale { get; set; } = 1.0;
 
     /// <summary>The pet map (see the Pet-Karte settings page): shown or not, how many metres around the player it covers, how opaque it is.</summary>

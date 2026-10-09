@@ -3961,9 +3961,11 @@ public partial class MainWindow : Window
         _timetable ??= new TimetableWindow();
         _timetable.ApplyOpacity(settings.TimetableOpacity ?? settings.OverlayOpacity);
         _timetable.ApplyLookahead(settings.TimetableLookaheadMinutes);
+        _timetable.ApplyLockedIfChanged(settings.TimetableLocked);
         if (!_timetable.IsVisible)
         {
             _timetable.Show();
+            _timetable.ApplyLocked(settings.TimetableLocked); // the click-through style is set again after the first show
         }
 
         _timetable.Refresh();
@@ -3999,7 +4001,7 @@ public partial class MainWindow : Window
 
         _petFarm ??= new PetFarmWindow();
         _petFarm.ApplyOpacity(settings.OverlayOpacity);
-        _petFarm.ApplyLocked(settings.PetFarmLocked);
+        _petFarm.ApplyLocked(settings.PetInfoLocked);
         _petFarmController ??= new PetFarmController(_petFarm, () => _source?.Entities as Aion2EntityDirectory);
     }
 

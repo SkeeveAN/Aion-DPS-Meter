@@ -189,7 +189,7 @@ public sealed class WorldBossController : IDisposable
             return;
         }
 
-        bool locked = settings.PetFarmLocked;
+        bool locked = settings.BossOverlayLocked;
         bool inGame = GameWindow.ForegroundClientArea() is not null;
         _overlay ??= new WorldBossOverlayWindow();
         _overlay.ApplyLockedIfChanged(locked);

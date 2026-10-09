@@ -95,7 +95,7 @@ public sealed class PetFarmWindow : Window
         Left = _centerX - 60;
         SizeChanged += (_, e) => { if (!_resizing) { Left = _centerX - e.NewSize.Width / 2; } }; // keep the middle in place when the text changes
         Top = settings.PetFarmTop ?? 140;
-        ApplyLocked(settings.PetFarmLocked);
+        ApplyLocked(settings.PetInfoLocked);
     }
 
     /// <summary>Resize by the corner grip: the bottom right corner follows the mouse (measured in this window, whose top left stays put -

@@ -54,6 +54,8 @@ public partial class SettingsWindow : Window
         ShowTimetableBox.IsChecked = settings.ShowTimetable;
         ShowPetFarmBox.IsChecked = settings.ShowPetFarm;
         PetFarmLockedBox.IsChecked = settings.PetFarmLocked;
+        PetInfoLockedBox.IsChecked = settings.PetInfoLocked;
+        TimetableLockedBox.IsChecked = settings.TimetableLocked;
         InitPetMap(settings);
         InitBossPage(settings);
         SetHotkeyBox(HotkeyTimetableBox, HotkeyBinding.Parse(settings.HotkeyTimetable).ToString());
@@ -480,6 +482,8 @@ public partial class SettingsWindow : Window
         _settings.ShowTimetable = ShowTimetableBox.IsChecked ?? true;
         _settings.ShowPetFarm = ShowPetFarmBox.IsChecked ?? false;
         _settings.PetFarmLocked = PetFarmLockedBox.IsChecked ?? true;
+        _settings.PetInfoLocked = PetInfoLockedBox.IsChecked ?? true;
+        _settings.TimetableLocked = TimetableLockedBox.IsChecked ?? true;
         _settings.ShowPetMap = ShowPetMapBox.IsChecked ?? false;
         _settings.PetMapRadius = (int)PetMapRadiusSlider.Value;
         _settings.PetMapOpacity = PetMapOpacitySlider.Value / 100.0;
@@ -500,6 +504,7 @@ public partial class SettingsWindow : Window
         _settings.TimetableLookaheadMinutes = (int)TimetableLookaheadSlider.Value;
         _settings.TimetableNotify = TimetableNotifyBox.IsChecked ?? false;
         _settings.ShowBossOverlay = ShowBossOverlayBox.IsChecked ?? false;
+        _settings.BossOverlayLocked = BossOverlayLockedBox.IsChecked ?? true;
         _settings.BossNotify = BossNotifyBox.IsChecked ?? false;
         _settings.BossAlerts = _bossAlerts.ToDictionary(kv => kv.Key, kv => kv.Value);
         _settings.TimetableSoundMinutes = (int)TimetableSoundSlider.Value;
@@ -567,6 +572,7 @@ public partial class SettingsWindow : Window
     {
         _bossAlerts = settings.BossAlerts.ToDictionary(kv => kv.Key, kv => new BossAlertSetting { Enabled = kv.Value.Enabled, Sound = kv.Value.Sound, Volume = kv.Value.Volume });
         ShowBossOverlayBox.IsChecked = settings.ShowBossOverlay;
+        BossOverlayLockedBox.IsChecked = settings.BossOverlayLocked;
         BossNotifyBox.IsChecked = settings.BossNotify;
         BuildBossPage();
         _bossTimer.Tick += (_, _) => RefreshBossTimes();

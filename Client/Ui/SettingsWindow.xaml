@@ -598,6 +598,7 @@
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Hotkey.Timetable}"/>
                                 <CheckBox x:Name="ShowTimetableBox" Content="{local:Loc Settings.ShowTimetable}"/>
+                                <CheckBox x:Name="TimetableLockedBox" Content="{local:Loc Settings.PetFarm.Locked}" Margin="0,4,0,0"/>
                                 <Grid Margin="0,2">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
                                     <TextBlock Text="{local:Loc Settings.Timetable.Opacity}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
@@ -665,6 +666,7 @@
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetInfo.Title}"/>
                                 <CheckBox x:Name="ShowPetFarmBox" Content="{local:Loc Settings.PetInfo.Show}"/>
+                                <CheckBox x:Name="PetInfoLockedBox" Content="{local:Loc Settings.PetFarm.Locked}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">
@@ -701,6 +703,7 @@
                         <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
                                 <CheckBox x:Name="ShowBossOverlayBox" Content="{local:Loc Settings.Boss.Overlay}"/>
+                                <CheckBox x:Name="BossOverlayLockedBox" Content="{local:Loc Settings.PetFarm.Locked}" Margin="0,4,0,0"/>
                                 <CheckBox x:Name="BossNotifyBox" Content="{local:Loc Settings.Boss.Notify}" Checked="OnBossNotifyChanged" Unchecked="OnBossNotifyChanged"/>
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Boss.Hint}" Margin="0,8,0,0"/>
                             </StackPanel>
