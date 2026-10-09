@@ -113,6 +113,9 @@ public partial class MainWindow : Window
     private bool _compactOverlay;
     private bool _showBossHp;
     private TimetableWindow? _timetable;
+    private HotkeyOverlayWindow? _hotkeyOverlay;
+    private readonly System.Windows.Threading.DispatcherTimer _gateTimer = new() { Interval = TimeSpan.FromMilliseconds(250) };
+    private bool _gameGateOpen = true;
     private TimetableReminder? _timetableReminder;
     private PetFarmWindow? _petFarm;
     private PetFarmController? _petFarmController;
@@ -588,6 +591,7 @@ public partial class MainWindow : Window
 
         // The timetable overlay always sits above the meter: raised right after it, in the same tick.
         _timetable?.RaiseToFront();
+        _hotkeyOverlay?.RaiseToFront();
         _petFarm?.RaiseToFront();
         _petMapController?.RaiseToFront();
 
@@ -827,6 +831,12 @@ public partial class MainWindow : Window
         ApplyTimetable(MeterSettings.Load());
         _timetableReminder ??= new TimetableReminder();
         ApplyPetFarm(MeterSettings.Load());
+        ApplyHotkeyOverlay(MeterSettings.Load());
+        if (!Headless)
+        {
+            _gateTimer.Tick += (_, _) => OnGateTick();
+            _gateTimer.Start();
+        }
     }
 
     /// <summary>
@@ -862,7 +872,9 @@ public partial class MainWindow : Window
         _source?.Dispose();
         _overlay?.Dispose();
         _hotkeys?.Dispose();
+        _gateTimer.Stop();
         _timetable?.Close();
+        _hotkeyOverlay?.Close();
         _timetableReminder?.Dispose();
         _petFarmController?.Dispose();
         _petFarm?.Close();
@@ -3556,6 +3568,7 @@ public partial class MainWindow : Window
             ApplyHotkeys(settings); // possibly changed keys
             ApplyTimetable(settings);
             ApplyPetFarm(settings);
+            ApplyHotkeyOverlay(settings);
             ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
             if (settings.CaptureAdapterId != _captureAdapterInUse)
             {
@@ -3874,6 +3887,56 @@ public partial class MainWindow : Window
         FitWindowToCompactOverlay(_hideUiActive && _compactOverlay);
     }
 
+    /// <summary>Builds the hotkey overlay from the settings (startup, after Settings); whether it is on screen right now is up to <see cref="OnGateTick"/>.</summary>
+    private void ApplyHotkeyOverlay(MeterSettings settings)
+    {
+        if (Headless)
+        {
+            return;
+        }
+
+        if (!settings.ShowHotkeyOverlay)
+        {
+            _hotkeyOverlay?.ShowOverlay(false);
+            return;
+        }
+
+        _hotkeyOverlay ??= new HotkeyOverlayWindow();
+        _hotkeyOverlay.ApplyLocked(settings.PetFarmLocked);
+        _hotkeyOverlay.Render(HotkeyOverlayWindow.RowsOf(settings));
+        OnGateTick();
+    }
+
+    private DateTime _gateSettingsAt = DateTime.MinValue;
+    private MeterSettings _gateSettings = new();
+
+    /// <summary>A few times a second: the hotkey overlay and the DPS overlay (Hide UI) are on screen only while the game is in front
+    /// (the hotkey overlay also while the overlays are unlocked, so it can be placed).</summary>
+    private void OnGateTick()
+    {
+        bool inGame = GameWindow.ForegroundIsGameOrSelf();
+        if (inGame != _gameGateOpen)
+        {
+            _gameGateOpen = inGame;
+            ShowOverlayPanels();
+        }
+
+        if (_hotkeyOverlay is null)
+        {
+            return;
+        }
+
+        if ((DateTime.UtcNow - _gateSettingsAt).TotalSeconds >= 1)
+        {
+            _gateSettingsAt = DateTime.UtcNow;
+            _gateSettings = MeterSettings.Load();
+        }
+
+        var s = _gateSettings;
+        _hotkeyOverlay.ApplyLockedIfChanged(s.PetFarmLocked);
+        _hotkeyOverlay.ShowOverlay(s.ShowHotkeyOverlay && (!s.PetFarmLocked || GameWindow.ForegroundClientArea() is not null));
+    }
+
     /// <summary>Shows or hides the timetable overlay as Settings say (startup, after Settings, hotkey).</summary>
     private void ApplyTimetable(MeterSettings settings)
     {
@@ -3968,8 +4031,9 @@ public partial class MainWindow : Window
     /// <summary>Which Hide-UI look is up: one chip per player or the compact panel (Settings).</summary>
     private void ShowOverlayPanels()
     {
-        OverlayContent.Visibility = _hideUiActive && !_compactOverlay ? Visibility.Visible : Visibility.Collapsed;
-        CompactOverlayPanel.Visibility = _hideUiActive && _compactOverlay ? Visibility.Visible : Visibility.Collapsed;
+        // outside the game (a browser in front, the desktop) the overlay is not drawn; its window stays, so the taskbar button still brings it back
+        OverlayContent.Visibility = _hideUiActive && !_compactOverlay && _gameGateOpen ? Visibility.Visible : Visibility.Collapsed;
+        CompactOverlayPanel.Visibility = _hideUiActive && _compactOverlay && _gameGateOpen ? Visibility.Visible : Visibility.Collapsed;
 
         // The chips let every click through to the game. The compact panel takes clicks (a player's
         // skills, dragging it into place); the window is truly transparent around it, so the rest of

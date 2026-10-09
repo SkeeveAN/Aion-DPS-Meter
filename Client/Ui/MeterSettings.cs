@@ -129,7 +129,7 @@ public sealed class MeterSettings
     public int TimetableLookaheadMinutes { get; set; } = 60;
 
     /// <summary>Master switch of the timetable reminder sounds: off = no event plays its sound (the choices below are kept).</summary>
-    public bool TimetableNotify { get; set; } = true;
+    public bool TimetableNotify { get; set; } = false;
 
     /// <summary>How many minutes before an event starts its sound plays, 0 to 60 (the same for every event).</summary>
     public int TimetableSoundMinutes { get; set; } = 5;
@@ -160,6 +160,18 @@ public sealed class MeterSettings
 
     /// <summary>Goes round all modes: damage, healing, damage taken, All in One, All in One Compact (see MainWindow.NextMode).</summary>
     public string HotkeyMode { get; set; } = "Ctrl+Alt+M";
+
+    /// <summary>The hotkey overlay (see HotkeyOverlayWindow): a movable, transparent list of the hotkeys. Off until switched on; the ids of the
+    /// hotkeys the player switched off in the list are kept in <see cref="HotkeyOverlayHidden"/> (everything shows by default).</summary>
+    public bool ShowHotkeyOverlay { get; set; }
+
+    public List<string> HotkeyOverlayHidden { get; set; } = new();
+
+    public double? HotkeyOverlayLeft { get; set; }
+    public double? HotkeyOverlayTop { get; set; }
+    public double HotkeyOverlayScale { get; set; } = 1.0;
+    public double? HotkeyOverlayWidth { get; set; }
+    public double? HotkeyOverlayHeight { get; set; }
 
     /// <summary>Shows or hides the timetable overlay (see TimetableWindow).</summary>
     public string HotkeyTimetable { get; set; } = "Ctrl+Alt+T";

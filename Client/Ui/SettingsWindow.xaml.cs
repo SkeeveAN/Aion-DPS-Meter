@@ -57,6 +57,11 @@ public partial class SettingsWindow : Window
         InitPetMap(settings);
         SetHotkeyBox(HotkeyTimetableBox, HotkeyBinding.Parse(settings.HotkeyTimetable).ToString());
         SetHotkeyBox(HotkeyPetMapBox, HotkeyBinding.Parse(settings.HotkeyPetMap).ToString());
+        ShowHotkeyOverlayBox.IsChecked = settings.ShowHotkeyOverlay;
+        foreach (var box in HotkeyOverlayRowBoxes())
+        {
+            box.IsChecked = !settings.HotkeyOverlayHidden.Contains((string)box.Tag);
+        }
         AutoResetBox.IsChecked = settings.AutoResetEnabled;
         AutoResetSecondsBox.Text = Math.Clamp(settings.AutoResetSeconds, 1, 600).ToString();
         SelectComboItem(ThemeBox, settings.Theme);
@@ -386,6 +391,10 @@ public partial class SettingsWindow : Window
         TimetableLookaheadValue.Text = string.Format(LocalizationManager.Instance["Settings.Timetable.LookaheadValue"], (int)TimetableLookaheadSlider.Value);
     }
 
+    /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
+    private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox };
+
     private void OnHotkeyClearClicked(object sender, RoutedEventArgs e)
     {
         StopCapture(restore: true);
@@ -472,6 +481,8 @@ public partial class SettingsWindow : Window
         _settings.PetMapGatherItems = _gatherPicked.OrderBy(k => k).ToList();
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
         _settings.HotkeyPetMap = (string?)HotkeyPetMapBox.Tag ?? "";
+        _settings.ShowHotkeyOverlay = ShowHotkeyOverlayBox.IsChecked ?? false;
+        _settings.HotkeyOverlayHidden = HotkeyOverlayRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
         _settings.AutoResetSeconds = int.TryParse(AutoResetSecondsBox.Text, out int seconds) ? Math.Clamp(seconds, 1, 600) : 10;
         _settings.AutoUploadBoss = AutoUploadBossBox.IsChecked ?? false;
@@ -481,7 +492,7 @@ public partial class SettingsWindow : Window
         _settings.OverlayOpacity = double.Parse((string)((ComboBoxItem)OverlayOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.TimetableOpacity = double.Parse((string)((ComboBoxItem)TimetableOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.TimetableLookaheadMinutes = (int)TimetableLookaheadSlider.Value;
-        _settings.TimetableNotify = TimetableNotifyBox.IsChecked ?? true;
+        _settings.TimetableNotify = TimetableNotifyBox.IsChecked ?? false;
         _settings.TimetableSoundMinutes = (int)TimetableSoundSlider.Value;
         _settings.TimetableEvents = _timetableEvents.ToDictionary(kv => kv.Key, kv => kv.Value);
         _settings.Language = LocalizationManager.Instance.Language;

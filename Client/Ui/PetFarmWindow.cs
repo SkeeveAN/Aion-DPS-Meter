@@ -386,6 +386,35 @@ internal static class GameWindow
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
     private static IntPtr _known;
+    private static IntPtr _lastChecked;
+    private static bool _lastWasGameOrSelf;
+
+    /// <summary>Whether the window in front is the game or one of the meter's own windows (its settings, its dialogs): the DPS overlay
+    /// shows only then, so it does not sit over a browser or the desktop.</summary>
+    public static bool ForegroundIsGameOrSelf()
+    {
+        IntPtr hwnd = GetForegroundWindow();
+        if (hwnd == IntPtr.Zero)
+        {
+            return false;
+        }
+
+        if (hwnd == _lastChecked)
+        {
+            return _lastWasGameOrSelf;
+        }
+
+        bool result = IsGame(hwnd);
+        if (!result)
+        {
+            GetWindowThreadProcessId(hwnd, out uint pid);
+            result = pid == (uint)Environment.ProcessId;
+        }
+
+        _lastChecked = hwnd;
+        _lastWasGameOrSelf = result;
+        return result;
+    }
 
     public static System.Drawing.Rectangle? ForegroundClientArea()
     {

@@ -475,67 +475,80 @@
                     <StackPanel Visibility="{Binding IsChecked, ElementName=NavHotkeys, Converter={StaticResource BoolToVis}}">
                         <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.HotkeyOverlay.Title}"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.HotkeyOverlay.Hint}"/>
+                                <CheckBox x:Name="ShowHotkeyOverlayBox" Content="{local:Loc Settings.HotkeyOverlay.Show}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Hotkeys.Group.Dps}"/>
                             <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Hotkeys.Hint}"/>
                                 <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{local:Loc Settings.Hotkey.HideUi}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyHideUiBox" Grid.Column="1" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvHideUiBox" Tag="HideUi" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.HideUi}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyHideUiBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="2" Tag="HotkeyHideUiBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                    <Button Grid.Column="3" Tag="HotkeyHideUiBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                                 <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{local:Loc Settings.Hotkey.Pause}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyPauseBox" Grid.Column="1" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvPauseBox" Tag="Pause" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.Pause}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyPauseBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="2" Tag="HotkeyPauseBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                    <Button Grid.Column="3" Tag="HotkeyPauseBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                                 <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{local:Loc Settings.Hotkey.CopyDamage}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyCopyDamageBox" Grid.Column="1" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvCopyDamageBox" Tag="CopyDamage" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.CopyDamage}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyCopyDamageBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="2" Tag="HotkeyCopyDamageBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                    <Button Grid.Column="3" Tag="HotkeyCopyDamageBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                                 <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{local:Loc Settings.Hotkey.Clear}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyClearBox" Grid.Column="1" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvClearBox" Tag="Clear" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.Clear}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyClearBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="2" Tag="HotkeyClearBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                    <Button Grid.Column="3" Tag="HotkeyClearBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                                 <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{local:Loc Settings.Hotkey.UploadBoss}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyUploadBossBox" Grid.Column="1" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvUploadBossBox" Tag="UploadBoss" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.UploadBoss}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyUploadBossBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="2" Tag="HotkeyUploadBossBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                    <Button Grid.Column="3" Tag="HotkeyUploadBossBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                                 <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
-                                        <TextBlock Text="{local:Loc Settings.Hotkey.Mode}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvModeBox" Tag="Mode" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                                        <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.Mode}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                         <Border Width="16" Height="16" CornerRadius="8" Margin="6,0,0,0" Background="#3B82F6" Cursor="Help"
                                                 VerticalAlignment="Center" ToolTipService.InitialShowDelay="100" ToolTipService.ShowDuration="30000"
                                                 ToolTip="{local:Loc Settings.Hotkey.Mode.Tip}">
                                             <TextBlock Text="?" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
                                     </StackPanel>
-                                    <TextBox x:Name="HotkeyModeBox" Grid.Column="1" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                    <TextBox x:Name="HotkeyModeBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="2" Tag="HotkeyModeBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                    <Button Grid.Column="3" Tag="HotkeyModeBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                             </StackPanel>
@@ -544,12 +557,13 @@
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Nav.Timetable}"/>
                                 <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{local:Loc Settings.Hotkey.Timetable}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyTimetableBox" Grid.Column="1" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvTimetableBox" Tag="Timetable" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.Timetable}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyTimetableBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="2" Tag="HotkeyTimetableBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                    <Button Grid.Column="3" Tag="HotkeyTimetableBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                             </StackPanel>
@@ -558,12 +572,13 @@
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Nav.PetMap}"/>
                                 <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{local:Loc Settings.Hotkey.PetMap}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyPetMapBox" Grid.Column="1" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvPetMapBox" Tag="PetMap" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.PetMap}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyPetMapBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="2" Tag="HotkeyPetMapBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                    <Button Grid.Column="3" Tag="HotkeyPetMapBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                             </StackPanel>

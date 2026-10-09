@@ -2540,5 +2540,55 @@
     "pl": "Powiadomienia",
     "tr": "Bildirimler",
     "zh": "通知"
+  },
+  "Settings.HotkeyOverlay.Title": {
+    "en": "Hotkey overlay",
+    "de": "Hotkey-Overlay",
+    "fr": "Surimpression des raccourcis",
+    "es": "Superposición de atajos",
+    "ru": "Оверлей горячих клавиш",
+    "pl": "Nakładka skrótów",
+    "tr": "Kısayol katmanı",
+    "zh": "快捷键浮层"
+  },
+  "Settings.HotkeyOverlay.Show": {
+    "en": "Show hotkey overlay",
+    "de": "Hotkey-Overlay anzeigen",
+    "fr": "Afficher la surimpression des raccourcis",
+    "es": "Mostrar superposición de atajos",
+    "ru": "Показывать оверлей горячих клавиш",
+    "pl": "Pokaż nakładkę skrótów",
+    "tr": "Kısayol katmanını göster",
+    "zh": "显示快捷键浮层"
+  },
+  "Settings.HotkeyOverlay.Hint": {
+    "en": "A transparent list of your hotkeys over the game. Move it while the overlays are unlocked; the switch in front of each hotkey below decides whether it is listed.",
+    "de": "Eine transparente Liste deiner Hotkeys über dem Spiel. Verschieben geht, solange die Overlays entsperrt sind; der Schalter vor jedem Hotkey unten bestimmt, ob er aufgelistet wird.",
+    "fr": "Une liste transparente de vos raccourcis par-dessus le jeu. Déplaçable tant que les surimpressions sont déverrouillées ; l'interrupteur devant chaque raccourci ci-dessous choisit s'il est listé.",
+    "es": "Una lista transparente de tus atajos sobre el juego. Se mueve mientras las superposiciones estén desbloqueadas; el interruptor delante de cada atajo decide si aparece.",
+    "ru": "Прозрачный список ваших горячих клавиш поверх игры. Его можно перемещать, пока оверлеи разблокированы; переключатель перед каждой клавишей решает, показывать ли её.",
+    "pl": "Przezroczysta lista Twoich skrótów nad grą. Można ją przesuwać, gdy nakładki są odblokowane; przełącznik przed każdym skrótem decyduje, czy jest na liście.",
+    "tr": "Oyunun üzerinde kısayollarınızın saydam listesi. Katmanlar kilitsizken taşınabilir; aşağıda her kısayolun önündeki anahtar listede görünüp görünmeyeceğini belirler.",
+    "zh": "在游戏上方显示的透明快捷键列表。浮层解锁时可移动;下方每个快捷键前的开关决定是否列出。"
+  },
+  "Settings.HotkeyOverlay.Row.Tip": {
+    "en": "Show this hotkey in the hotkey overlay",
+    "de": "Diesen Hotkey im Hotkey-Overlay anzeigen",
+    "fr": "Afficher ce raccourci dans la surimpression",
+    "es": "Mostrar este atajo en la superposición",
+    "ru": "Показывать эту клавишу в оверлее",
+    "pl": "Pokaż ten skrót w nakładce",
+    "tr": "Bu kısayolu katmanda göster",
+    "zh": "在浮层中显示此快捷键"
+  },
+  "HotkeyOverlay.Placeholder": {
+    "en": "No hotkeys selected",
+    "de": "Keine Hotkeys ausgewählt",
+    "fr": "Aucun raccourci choisi",
+    "es": "Ningún atajo elegido",
+    "ru": "Клавиши не выбраны",
+    "pl": "Nie wybrano skrótów",
+    "tr": "Kısayol seçilmedi",
+    "zh": "未选择快捷键"
   }
 }
