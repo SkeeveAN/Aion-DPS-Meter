@@ -570,6 +570,42 @@
     "ru": "Сопротивление крит. удару с тыла"
    }
   },
+  "41": {
+   "names": {
+    "de": "Krit.-Verteidigung",
+    "en": "Critical Damage Defense",
+    "es": "Defensa Crítica",
+    "fr": "DÉF CRIT",
+    "ru": "ЗЩТ от крит. удара"
+   }
+  },
+  "196": {
+   "names": {
+    "de": "LP +",
+    "en": "HP increase",
+    "es": "Aumento de Puntos de Vida",
+    "fr": "Augmentation des PV",
+    "ru": "Увеличение ОЗ"
+   }
+  },
+  "379": {
+   "names": {
+    "de": "Schadensverstärkung (PvE)",
+    "en": "PvE Damage Boost",
+    "es": "Amplificación de Daño de JcE",
+    "fr": "Boost de DGT JcE",
+    "ru": "Увеличение урона в PvE"
+   }
+  },
+  "380": {
+   "names": {
+    "de": "Schadensresistenz (PvE)",
+    "en": "PvE Damage Tolerance",
+    "es": "Tolerancia a Daño JcE",
+    "fr": "Tolérance aux DGT JcE",
+    "ru": "Стойкость к урону в PvE"
+   }
+  },
   "587": {
    "names": {
     "de": "Angriffskraft (Frontal)",

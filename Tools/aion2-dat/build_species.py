@@ -30,6 +30,8 @@ STATS = {
     443: "HardHit", 38: "CriticalAddDamage", 47: "DecreaseCriticalDamage",
     # Matched against the client's VehicleCreatureOption table (value range per species/slot/grade; 55/55 known ids reproduce): unique candidates.
     133: "CriticalResist", 284: "DefensePierce", 101: "BackAttackCriticalResist",
+    # By elimination (every other candidate already has an id): 41, 196. 379/380 = the PvE amplify/decrease pair (likely, not proven).
+    41: "CriticalDamageDefense", 196: "MaxHPRatio", 379: "PvEAmplifyDamage", 380: "PvEDecreaseDamage",
     587: "FrontAttackDamage", 591: "FrontAttackCritical", 592: "FrontAttackCriticalResist",
 }
 PERCENT = {44, 47, 158, 443, 445}
