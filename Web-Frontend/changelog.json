@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.24.2",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "The Cleric heal Light of Regeneration is counted as healing instead of damage, so Clerics no longer show their group heals as damage dealt",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.24.1",
   "date": "2026-10-09",
   "items": [
