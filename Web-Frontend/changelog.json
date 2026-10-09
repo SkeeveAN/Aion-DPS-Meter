@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Website: redesigned Features page with a hero, a card row that jumps to each feature and check lists",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.20.0",
   "date": "2026-10-09",
   "items": [
