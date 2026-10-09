@@ -28,6 +28,11 @@ public sealed class TimetableReminder : IDisposable
             _settingsAt = DateTime.UtcNow;
         }
 
+        if (!_settings.TimetableNotify)
+        {
+            return;
+        }
+
         TimeSpan lead = TimeSpan.FromMinutes(Math.Clamp(_settings.TimetableSoundMinutes, 0, 60));
         DateTime now = DateTime.Now;
         foreach (ScheduledEvent scheduled in EventSchedule.Events)

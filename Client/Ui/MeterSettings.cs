@@ -128,6 +128,9 @@ public sealed class MeterSettings
     /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 0 to 60 (0 = none).</summary>
     public int TimetableLookaheadMinutes { get; set; } = 60;
 
+    /// <summary>Master switch of the timetable reminder sounds: off = no event plays its sound (the choices below are kept).</summary>
+    public bool TimetableNotify { get; set; } = true;
+
     /// <summary>How many minutes before an event starts its sound plays, 0 to 60 (the same for every event).</summary>
     public int TimetableSoundMinutes { get; set; } = 5;
 

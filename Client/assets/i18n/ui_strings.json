@@ -1692,14 +1692,14 @@
     "zh": "测试声音和音量"
   },
   "Settings.Timetable.AlwaysTip": {
-    "en": "Can be joined at any time: no start, so no reminder",
-    "de": "Jederzeit möglich: kein Start, also keine Erinnerung",
-    "fr": "Possible à tout moment : pas de début, donc pas de rappel",
-    "es": "Disponible siempre: sin inicio, sin aviso",
-    "ru": "Доступно всегда: нет начала, нет напоминания",
-    "pl": "Zawsze dostępne: brak startu, więc brak przypomnienia",
-    "tr": "Her zaman katılınabilir: başlangıç yok, hatırlatma yok",
-    "zh": "随时可加入：没有开始时间，因此没有提醒"
+    "en": "Can be joined at any time",
+    "de": "Jederzeit möglich",
+    "fr": "Possible à tout moment",
+    "es": "Disponible siempre",
+    "ru": "Доступно всегда",
+    "pl": "Zawsze dostępne",
+    "tr": "Her zaman katılınabilir",
+    "zh": "随时可加入"
   },
   "Sound.chime": {
     "en": "Chime",
@@ -2530,5 +2530,15 @@
     "pl": "Twoja frakcja nie jest jeszcze znana (zaloguj się raz do gry). Do tego czasu widać przedmioty obu frakcji.",
     "tr": "Hizbin henüz bilinmiyor (oyuna bir kez giriş yap). O zamana kadar iki hizbin eşyaları listelenir.",
     "zh": "尚不知道你的阵营（请登录一次游戏）。在此之前会列出双方阵营的物品。"
+  },
+  "Settings.Timetable.Notify": {
+    "en": "Notifications",
+    "de": "Benachrichtigung",
+    "fr": "Notifications",
+    "es": "Notificaciones",
+    "ru": "Уведомления",
+    "pl": "Powiadomienia",
+    "tr": "Bildirimler",
+    "zh": "通知"
   }
 }

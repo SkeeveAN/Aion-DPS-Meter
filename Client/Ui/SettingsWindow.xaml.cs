@@ -238,6 +238,32 @@ public partial class SettingsWindow : Window
 
     private void OnTimetableSoundMinutesChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowTimetableSoundMinutes();
 
+    private readonly List<(ComboBox Sound, Slider Volume, Button Test, Func<bool> HasSound)> _soundControls = new();
+
+    /// <summary>The master switch is off: the minutes, the sound choices, the volumes and the play buttons are greyed out (the choices stay).</summary>
+    private void OnTimetableNotifyChanged(object? sender, RoutedEventArgs? e)
+    {
+        if (TimetableMinutesRow is null)
+        {
+            return;
+        }
+
+        bool on = TimetableNotifyBox.IsChecked == true;
+        TimetableMinutesRow.IsEnabled = on;
+        TimetableMinutesRow.Opacity = on ? 1.0 : 0.4;
+        foreach (var (sound, volume, test, hasSound) in _soundControls)
+        {
+            foreach (UIElement control in new UIElement[] { sound, volume })
+            {
+                control.IsEnabled = on;
+                control.Opacity = on ? 1.0 : 0.4;
+            }
+
+            test.IsEnabled = on && hasSound();
+            test.Opacity = test.IsEnabled ? 1.0 : 0.4;
+        }
+    }
+
     private void ShowTimetableSoundMinutes()
     {
         if (TimetableSoundValue is not null)
@@ -254,10 +280,12 @@ public partial class SettingsWindow : Window
     {
         TimetableSoundSlider.Value = Math.Clamp(settings.TimetableSoundMinutes, 0, 60);
         ShowTimetableSoundMinutes();
+        TimetableNotifyBox.IsChecked = settings.TimetableNotify;
         _timetableEvents = settings.TimetableEvents.ToDictionary(kv => kv.Key, kv => new TimetableEventSetting { Show = kv.Value.Show, Sound = kv.Value.Sound, Volume = kv.Value.Volume });
         var loc = LocalizationManager.Instance;
         TimetableEventRows.Children.Clear();
-        foreach (var scheduled in EventSchedule.Events)
+        _soundControls.Clear();
+        foreach (var scheduled in EventSchedule.Events.OrderBy(e => e.Always)) // events without a start (the arenas) go last
         {
             string id = scheduled.Id;
             if (!_timetableEvents.TryGetValue(id, out var state))
@@ -304,33 +332,45 @@ public partial class SettingsWindow : Window
             var test = new Button { Content = "▶", Width = 28, Height = 26, Padding = new Thickness(0), ToolTip = loc["Settings.Timetable.Test"] };
             Grid.SetColumn(test, 4);
 
-            sound.SelectionChanged += (_, _) => state.Sound = (sound.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
-            volume.ValueChanged += (_, _) => state.Volume = (int)volume.Value;
-            test.Click += (_, _) =>
+            // with "no sound" there is nothing to try: the play button is greyed out
+            void ShowTestState()
             {
-                string chosen = state.Sound.Length > 0 ? state.Sound : NotifySounds.All[0];
-                NotifySounds.Play(chosen, state.Volume);
-            };
-
-            if (scheduled.Always)
-            {
-                // no start time: nothing to remind of
-                foreach (UIElement soundControl in new UIElement[] { sound, volume, test })
-                {
-                    soundControl.IsEnabled = false;
-                    soundControl.Opacity = 0.4;
-                }
-
-                name.ToolTip = loc["Settings.Timetable.AlwaysTip"];
+                test.IsEnabled = state.Sound.Length > 0 && TimetableNotifyBox.IsChecked == true;
+                test.Opacity = test.IsEnabled ? 1.0 : 0.4;
             }
+
+            sound.SelectionChanged += (_, _) =>
+            {
+                state.Sound = (sound.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
+                ShowTestState();
+            };
+            volume.ValueChanged += (_, _) => state.Volume = (int)volume.Value;
+            test.Click += (_, _) => NotifySounds.Play(state.Sound, state.Volume);
+            ShowTestState();
 
             row.Children.Add(show);
             row.Children.Add(name);
-            row.Children.Add(sound);
-            row.Children.Add(volume);
-            row.Children.Add(test);
+            if (scheduled.Always)
+            {
+                // no start time: nothing to remind of, so no sound, volume or play button, just the reason
+                var why = new TextBlock { Text = loc["Settings.Timetable.AlwaysTip"], FontSize = 11, TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center };
+                why.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+                Grid.SetColumn(why, 2);
+                Grid.SetColumnSpan(why, 2); // the width of the sound and volume columns, the text wraps inside it
+                row.Children.Add(why);
+            }
+            else
+            {
+                row.Children.Add(sound);
+                row.Children.Add(volume);
+                row.Children.Add(test);
+                _soundControls.Add((sound, volume, test, () => state.Sound.Length > 0));
+            }
+
             TimetableEventRows.Children.Add(row);
         }
+
+        OnTimetableNotifyChanged(null, null);
     }
 
     private void OnTimetableLookaheadChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowTimetableLookahead();
@@ -441,6 +481,7 @@ public partial class SettingsWindow : Window
         _settings.OverlayOpacity = double.Parse((string)((ComboBoxItem)OverlayOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.TimetableOpacity = double.Parse((string)((ComboBoxItem)TimetableOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.TimetableLookaheadMinutes = (int)TimetableLookaheadSlider.Value;
+        _settings.TimetableNotify = TimetableNotifyBox.IsChecked ?? true;
         _settings.TimetableSoundMinutes = (int)TimetableSoundSlider.Value;
         _settings.TimetableEvents = _timetableEvents.ToDictionary(kv => kv.Key, kv => kv.Value);
         _settings.Language = LocalizationManager.Instance.Language;
