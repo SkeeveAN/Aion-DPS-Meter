@@ -18,5 +18,7 @@ export const env = {
   // both stay switched off (404) while empty.
   STATS_SECRET: process.env.STATS_SECRET ?? "",
   METRICS_TOKEN: process.env.METRICS_TOKEN ?? "",
+  // Login servers to probe on the status page, "host:port,host:port". No capture has shown their address yet, so empty by default.
+  LOGIN_SERVERS: process.env.LOGIN_SERVERS ?? "",
   BASE_URL: (process.env.BASE_URL ?? "https://aiondps.com").replace(/\/+$/, ""),
 };

@@ -215,6 +215,21 @@ export function statsPage(): Page {
   };
 }
 
+export function serverStatusPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "Server Status – Aion DPS Meter",
+      description: "Are the Aion 2 login and game servers reachable right now? Live checks every minute, uptime of the last 24 hours and the worlds on each game server address.",
+      canonicalPath: "/status",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Server Status", path: "/status" }])],
+    },
+    body: html`
+      <h2>Server Status</h2>
+      <p>Live reachability of the Aion 2 login servers and game servers, checked every minute.</p>`,
+  };
+}
+
 /** The operator page behind the secret address: an empty app shell, never indexed, never cached. */
 export function privateStatsPage(path: string): Page {
   return {

@@ -606,6 +606,78 @@
     "ru": "Стойкость к урону в PvE"
    }
   },
+  "28": {
+   "names": {
+    "de": "Schadensverstärkung",
+    "en": "Damage Boost",
+    "es": "Amplificación de Daño",
+    "fr": "Boost de DGT",
+    "ru": "Увелич. урона"
+   }
+  },
+  "70": {
+   "names": {
+    "de": "Schadensresistenz",
+    "en": "Damage Tolerance",
+    "es": "Tolerancia a Daño",
+    "fr": "Tolérance aux DGT",
+    "ru": "Стойкость к урону"
+   }
+  },
+  "159": {
+   "names": {
+    "de": "Widerstand (Statuseffekte)",
+    "en": "Status Effect Resist",
+    "es": "Resistencia a Efectos de Estado",
+    "fr": "RÉS aux altérations d'état",
+    "ru": "Сопротивление негат. эффектам"
+   }
+  },
+  "449": {
+   "names": {
+    "de": "Eisenwall-Penetration",
+    "en": "Endurance Penetration",
+    "es": "Penetración de Tenacidad",
+    "fr": "Perforation blindage",
+    "ru": "Пробитие Непробиваемости"
+   }
+  },
+  "589": {
+   "names": {
+    "de": "Schadensverstärkung (Frontal)",
+    "en": "Front Attack Damage Boost",
+    "es": "Amplificación de Daño Frontal",
+    "fr": "Boost de DGT frontaux",
+    "ru": "Увеличение урона от атаки спереди"
+   }
+  },
+  "590": {
+   "names": {
+    "de": "Schadensresistenz (Frontal)",
+    "en": "Front Attack Damage Tolerance",
+    "es": "Tolerancia a Daño Frontal",
+    "fr": "Tolérance aux DGT frontaux",
+    "ru": "Сопротивление урону спереди"
+   }
+  },
+  "102": {
+   "names": {
+    "de": "Schadensverstärkung (Rückseitig)",
+    "en": "Back Attack Damage Boost",
+    "es": "Amplificación de Daño por la Espalda",
+    "fr": "Boost de DGT dans le dos",
+    "ru": "Увеличение урона от атаки с тыла"
+   }
+  },
+  "103": {
+   "names": {
+    "de": "Schadensresistenz (Rückseitig)",
+    "en": "Back Attack Damage Tolerance",
+    "es": "Tolerancia a Daño por la Espalda",
+    "fr": "Tolérance aux DGT dans le dos",
+    "ru": "Стойкость к урону от атаки с тыла"
+   }
+  },
   "587": {
    "names": {
     "de": "Angriffskraft (Frontal)",

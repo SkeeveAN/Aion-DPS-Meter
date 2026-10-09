@@ -32,6 +32,10 @@ STATS = {
     133: "CriticalResist", 284: "DefensePierce", 101: "BackAttackCriticalResist",
     # By elimination (every other candidate already has an id): 41, 196. 379/380 = the PvE amplify/decrease pair (likely, not proven).
     41: "CriticalDamageDefense", 196: "MaxHPRatio", 379: "PvEAmplifyDamage", 380: "PvEDecreaseDamage",
+    # The EStat enum order (a2meter/Aion2Meter StatMapping.cs, from a .usmap) matches every id above with a step-wise offset (4, 5, 6, 8, 9, 10, 11);
+    # it gives the last open ones: 28, 70, 159, 449; 589/590 and 102/103 follow the Front/BackAttack families.
+    28: "AmplifyAllDamage", 70: "DecreaseDamage", 159: "AbnormalResistance", 449: "IgnoreIronWall",
+    589: "AmplifyFrontAttack", 590: "DecreaseFrontAttack", 102: "AmplifyBackAttack", 103: "DecreaseBackAttack",
     587: "FrontAttackDamage", 591: "FrontAttackCritical", 592: "FrontAttackCriticalResist",
 }
 PERCENT = {44, 47, 158, 443, 445}

@@ -74,6 +74,7 @@ function buildSitemap(): string {
     { path: "/features", lastmod: release },
     { path: "/changelog", lastmod: release },
     { path: "/stats", lastmod: lastFightAll },
+    { path: "/status" },
     { path: "/legions", lastmod: lastFightAll },
   ];
 

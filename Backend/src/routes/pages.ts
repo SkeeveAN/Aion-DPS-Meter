@@ -12,6 +12,7 @@ import {
   changelogPage,
   featuresPage,
   statsPage,
+  serverStatusPage,
   guildsPage,
   guildPage,
   privateStatsPage,
@@ -82,6 +83,7 @@ export async function pageRoutes(app: FastifyInstance) {
   // The pages were first published as /guilds; those links keep working.
   app.get("/guilds", async (_request, reply) => reply.redirect("/legions", 301));
   app.get<{ Params: { slug: string } }>("/guilds/:slug", async (request, reply) => reply.redirect(`/legions/${encodeURIComponent(request.params.slug)}`, 301));
+  app.get("/status", async (request, reply) => send(reply, render(serverStatusPage(), requestPath(request))));
   app.get("/stats", async (request, reply) => send(reply, render(statsPage(), requestPath(request))));
   // The secret address of the operator statistics: anything else under /p/ is an ordinary 404.
   app.get<{ Params: { secret: string } }>("/p/:secret", async (request, reply) => {
