@@ -33,7 +33,7 @@
     "date": "2026-10-09"
    },
    {
-    "text": "Backend: Europe has at least 20 and Asia at least 7 servers per faction (Tiamat 1320, Fregion 1507 seen live); the admin statistics list the servers by name instead of id",
+    "text": "Server list: Europe now counts at least 20 and Asia at least 7 servers per faction, so Tiamat and Fregion show with their region",
     "areas": [
      "Client",
      "Website",
