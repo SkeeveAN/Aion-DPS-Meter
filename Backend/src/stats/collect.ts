@@ -3,6 +3,7 @@ import { sqlite } from "../db/client.js";
 import { env } from "../env.js";
 import { splitConquest } from "../../../Web-Frontend/game-data.js";
 import { factionOfServerName } from "../factions.js";
+import { nameOf } from "../content/aion2Servers.js";
 
 type Row = Record<string, number | string | null>;
 const all = (sql: string, ...params: unknown[]) => sqlite.prepare(sql).all(...params) as Row[];
@@ -71,7 +72,8 @@ export function privateStats() {
   // evidence for telling the regions apart.
   const gameServers = all(
     `select game_server addr, count(*) n, group_concat(distinct client_server_id) ids from uploads where game_server is not null group by game_server order by n desc limit 40`,
-  ).map((r) => ({ address: String(r.addr), uploads: num(r.n), serverIds: String(r.ids ?? "") }));
+  ).map((r) => ({ address: String(r.addr), uploads: num(r.n), serverIds: String(r.ids ?? "") }))
+    .map((r) => ({ address: r.address, uploads: r.uploads, servers: r.serverIds.split(",").filter(Boolean).map((id) => nameOf(Number(id)) ?? `server ${id}`).join(", ") }));
   const last = one("select max(received_at) a from uploads").a;
   const completeness = one(
     `select sum(gear_json <> '[]') gear, sum(skills_json <> '[]') skills, sum(daevanion_json <> '[]') daevanion, count(*) n from player_profiles where source = 'self'`,

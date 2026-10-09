@@ -16,9 +16,9 @@ const ASMO_20 = ["Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel"
 const REGIONS: Record<number, { name: string; perFaction: number }> = {
   1: { name: "NA East", perFaction: 8 },
   2: { name: "NA West", perFaction: 5 },
-  3: { name: "Europe", perFaction: 18 },
+  3: { name: "Europe", perFaction: 20 },
   4: { name: "LATAM", perFaction: 6 },
-  5: { name: "Asia", perFaction: 5 },
+  5: { name: "Asia", perFaction: 7 },
 };
 
 export function nameOf(serverId: number): string | null {
