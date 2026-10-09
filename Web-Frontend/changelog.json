@@ -1,5 +1,27 @@
 [
  {
+  "version": "0.19.4",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Website: Features page with client pictures, Features link in the header, feedback button next to the theme switch, theme icons always toggle",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Hotkey settings: a help tooltip explains the next-mode key; character window: the Arcana tab moved to the end",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.19.3",
   "date": "2026-10-09",
   "items": [
