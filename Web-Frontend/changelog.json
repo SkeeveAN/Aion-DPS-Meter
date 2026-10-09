@@ -1,5 +1,20 @@
 [
  {
+  "version": "0.24.0",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "The client also reads the skill bonuses (e.g. Rift Strike +1) and the god stone of every worn item and the stone amounts that are known (Block, MP, HP), and uploads them; the player page tooltips show them",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.23.0",
   "date": "2026-10-09",
   "items": [
