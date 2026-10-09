@@ -589,27 +589,78 @@ const FEATURE_BLOCKS = [
   { id: "hotkeys", images: [["hotkeys", 620, 740]] },
 ];
 
+const SVG = (d) => `<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const FEATURE_CARDS = [
+  ["meter", SVG('<path d="M5 20V10M12 20V4M19 20v-7"/>')],
+  ["modes", SVG('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>')],
+  ["overlay", SVG('<path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5"/>')],
+  ["details", SVG('<path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/>')],
+  ["character", SVG('<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>')],
+  ["map", SVG('<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>')],
+  ["timetable", SVG('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>')],
+  ["hotkeys", SVG('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>')],
+];
+
+// Lead sentence big, the remaining sentences as a check list (no extra translations needed).
+function featureText(id) {
+  const [lead, ...rest] = t(`features.${id}.text`).split(/(?<=[。！？])|(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
+  return el("div", { className: "feature-text" }, [
+    el("div", { className: "features-eyebrow", textContent: t("features.highlight") }),
+    el("h2", { textContent: t(`features.${id}.title`) }),
+    el("p", { className: "feature-lead", textContent: lead }),
+    rest.length ? el("ul", { className: "feature-checks" }, rest.map((x) => el("li", { textContent: x }))) : null,
+  ].filter(Boolean));
+}
+
 function renderFeatures() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.features")]);
   document.title = `${t("features.title")} – ${SITE_TITLE}`;
   const blocks = FEATURE_BLOCKS.map((block, index) =>
-    el("section", { className: `feature-block${block.wide ? " wide" : ""}${block.pair ? " pair" : ""}${index % 2 ? " flip" : ""}` }, [
-      el("div", { className: "feature-text" }, [
-        el("h2", { textContent: t(`features.${block.id}.title`) }),
-        el("p", { textContent: t(`features.${block.id}.text`) }),
-      ]),
+    el("section", { id: `feature-${block.id}`, className: `feature-block${block.wide ? " wide" : ""}${block.pair ? " pair" : ""}${index % 2 ? " flip" : ""}` }, [
+      featureText(block.id),
       el("div", { className: "feature-shots" }, block.images.map(([name, width, height]) =>
         el("img", { src: `/images/features/${name}.webp?v=20261009d`, width, height, loading: index === 0 ? "eager" : "lazy", alt: t(`features.${block.id}.title`) }),
       )),
     ]),
   );
   const more = el("div", { className: "feature-grid" }, [1, 2, 3, 4, 5, 6].map((n) => featureCard(t(`features.more${n}.title`), t(`features.more${n}.text`))));
+  // Only one feature block is shown at a time; the cards above swap it.
+  const cards = el("nav", { className: "features-cards" }, FEATURE_CARDS.map(([id, icon]) => {
+    const card = el("button", { type: "button", className: "features-card" }, [
+      el("span", { className: "features-card-icon", innerHTML: icon }),
+      el("span", {}, [
+        el("strong", { textContent: t(`features.card.${id}.title`) }),
+        el("small", { textContent: t(`features.card.${id}.text`) }),
+      ]),
+    ]);
+    card.dataset.id = id;
+    return card;
+  }));
+  const select = (id) => {
+    blocks.forEach((b) => { b.hidden = b.id !== `feature-${id}`; });
+    cards.querySelectorAll(".features-card").forEach((c) => c.classList.toggle("active", c.dataset.id === id));
+  };
+  cards.addEventListener("click", (e) => {
+    const card = e.target.closest(".features-card");
+    if (card) select(card.dataset.id);
+  });
+  select(FEATURE_CARDS.some(([id]) => `#feature-${id}` === location.hash) ? location.hash.slice(9) : FEATURE_CARDS[0][0]);
   app.replaceChildren(
     el("div", { className: "features-page" }, [
-      el("h1", { textContent: t("features.title") }),
-      el("p", { className: "legal-intro", textContent: t("features.intro") }),
-      ...blocks,
-      el("h2", { textContent: t("features.more.heading") }),
+      el("header", { className: "features-hero" }, [
+        el("div", { className: "features-hero-text" }, [
+          el("div", { className: "features-eyebrow", textContent: t("features.hero.eyebrow") }),
+          el("h1", {}, [`${t("features.hero.title")} `, el("span", { textContent: t("features.hero.accent") })]),
+          el("p", { className: "features-tagline", textContent: t("features.hero.tagline") }),
+          el("p", { textContent: t("features.intro") }),
+        ]),
+        el("div", { className: "features-hero-shot" }, [
+          el("img", { src: "/images/features/mode-all.webp?v=20261009d", width: 520, height: 420, alt: t("features.meter.title") }),
+        ]),
+      ]),
+      cards,
+      el("div", { className: "features-stage" }, blocks),
+      el("h2", { className: "features-more-heading", textContent: t("features.more.heading") }),
       more,
     ]),
   );
@@ -2995,6 +3046,10 @@ document.addEventListener("click", (e) => {
     return;
   }
   e.preventDefault();
+  if (url.hash && url.pathname + url.search === location.pathname + location.search) {
+    document.getElementById(url.hash.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
   if (url.pathname + url.search !== location.pathname + location.search) {
     navigate(url.pathname + url.search);
   }
