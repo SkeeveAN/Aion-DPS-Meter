@@ -53,11 +53,17 @@ def main():
             categories[pet_id] = next((t.split("::")[1] for _, t in table_strings[index + 1:index + 8] if t.startswith("ECreatureType::")), "")
 
     l10n = {lang: json.load(open(f"{l10n_dir}/l10n_{code}.json", encoding="utf-8")) for lang, code in LANGS.items()}
+    folded = {lang: {k.upper(): v for k, v in table.items()} for lang, table in l10n.items()}
+    models = {k.lower(): v for k, v in extra.get("models", {}).items()}
+    alias = {v.lower(): k for k, v in extra.get("models", {}).items()}  # BeritraC_03 -> Beritra03 (the item is named after the other spelling)
     out_pets = {}
     for pet_id, key in sorted(pets.items()):
+        # the pet item "<key>_A_01_B_body", else the shop variant, else the pet's own string "str_veh_<key>"
+        spellings = [key] + ([alias[key.lower()]] if key.lower() in alias else [])
+        candidates = [f"String_STR_ITEM_{prefix}VEHICLE_{k}_A_01_B_body" for k in spellings for prefix in ("", "BM_")] + [f"String_str_veh_{key}_body"]
         names = {}
-        for lang, table in l10n.items():
-            text = table.get(f"String_STR_ITEM_VEHICLE_{key.upper()}_A_01_B_body")
+        for lang, table in folded.items():
+            text = next((table[c.upper()] for c in candidates if c.upper() in table), None)
             if text:
                 names[lang] = text.split(":", 1)[1].strip() if ":" in text else text
         out_pets[str(pet_id)] = {"key": key, "category": categories.get(pet_id, ""), "names": names}
@@ -66,7 +72,6 @@ def main():
     table = strings(npcs)
     offsets = [o for o, _ in table]
     by_key = {key.lower(): pet_id for pet_id, key in pets.items()}
-    models = {k.lower(): v for k, v in extra.get("models", {}).items()}
     # a pet may be reached by a differently spelled model (Beritra03 <- BeritraC_03)
     wanted = {models.get(key.lower(), key).lower(): pet_id for key, pet_id in ((k, by_key[k.lower()]) for k in pets.values())}
     # every monster the meter names: find its id in the table, the model is one of the next strings of that row
