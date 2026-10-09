@@ -167,7 +167,9 @@ public sealed class TimetableWindow : Window
         }
 
         _body.Children.Clear();
-        var (active, soon) = EventSchedule.Evaluate(EventSchedule.Events, now, _lookahead);
+        var shown = MeterSettings.Load().TimetableEvents;
+        var events = EventSchedule.Events.Where(e => !shown.TryGetValue(e.Id, out var s) || s.Show).ToList(); // the events switched off in the settings stay out
+        var (active, soon) = EventSchedule.Evaluate(events, now, _lookahead);
         if (active.Count > 0)
         {
             AddSection(loc["Timetable.Active"], Brushes.LimeGreen);
@@ -200,7 +202,7 @@ public sealed class TimetableWindow : Window
                 AddNote(loc["Timetable.None"]);
             }
 
-            EventOccurrence? next = EventSchedule.Events
+            EventOccurrence? next = events
                 .Select(e => EventSchedule.NextAfter(e, now))
                 .Where(o => o is not null)
                 .OrderBy(o => o!.Start)

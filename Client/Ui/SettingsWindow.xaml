@@ -594,6 +594,20 @@
                                 </Grid>
                             </StackPanel>
                         </Border>
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Timetable.Events}"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Timetable.Events.Hint}"/>
+                                <Grid Margin="0,2,0,8">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="56"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{local:Loc Settings.Timetable.SoundMinutes}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                    <Slider Grid.Column="1" x:Name="TimetableSoundSlider" Style="{StaticResource ThemedSlider}" Minimum="0" Maximum="60" TickFrequency="1" IsSnapToTickEnabled="True"
+                                            SmallChange="1" LargeChange="5" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnTimetableSoundMinutesChanged"/>
+                                    <TextBlock Grid.Column="2" x:Name="TimetableSoundValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                </Grid>
+                                <StackPanel x:Name="TimetableEventRows"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                     <StackPanel Visibility="{Binding IsChecked, ElementName=NavPetMap, Converter={StaticResource BoolToVis}}">
                         <Border Style="{StaticResource SettingsCard}">

@@ -128,6 +128,12 @@ public sealed class MeterSettings
     /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 0 to 60 (0 = none).</summary>
     public int TimetableLookaheadMinutes { get; set; } = 60;
 
+    /// <summary>How many minutes before an event starts its sound plays, 0 to 60 (the same for every event).</summary>
+    public int TimetableSoundMinutes { get; set; } = 5;
+
+    /// <summary>Per event id: shown in the timetable overlay or not, and the reminder sound (empty = none) with its volume. An event without an entry is shown, without sound.</summary>
+    public Dictionary<string, TimetableEventSetting> TimetableEvents { get; set; } = new();
+
     /// <summary>Scale of the compact overlay, 0.7 to 2, set by its corner grip.</summary>
     public double OverlayScale { get; set; } = 1.0;
 
@@ -286,4 +292,16 @@ public sealed class MeterSettings
         Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
         File.WriteAllText(SettingsPath, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
     }
+}
+
+/// <summary>What the player chose for one timetable event (see <see cref="MeterSettings.TimetableEvents"/>).</summary>
+public sealed class TimetableEventSetting
+{
+    public bool Show { get; set; } = true;
+
+    /// <summary>The id of the reminder sound (see <see cref="NotifySounds.All"/>); empty = no sound.</summary>
+    public string Sound { get; set; } = "";
+
+    /// <summary>0 to 100.</summary>
+    public int Volume { get; set; } = 70;
 }

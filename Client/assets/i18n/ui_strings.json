@@ -1601,6 +1601,146 @@
     "tr": "Pamuk",
     "zh": "棉花"
   },
+  "Settings.Timetable.Events": {
+    "en": "Events",
+    "de": "Events",
+    "fr": "Événements",
+    "es": "Eventos",
+    "ru": "События",
+    "pl": "Wydarzenia",
+    "tr": "Etkinlikler",
+    "zh": "活动"
+  },
+  "Settings.Timetable.Events.Hint": {
+    "en": "Switch on what the overlay shows. Choose a sound and volume to be reminded; the slider sets how many minutes before the event it plays.",
+    "de": "Schalte ein, was das Overlay anzeigt. Wähle Ton und Lautstärke für eine Erinnerung; der Regler legt fest, wie viele Minuten vor dem Event der Ton kommt.",
+    "fr": "Activez ce que l'overlay affiche. Choisissez un son et un volume pour un rappel ; le curseur règle combien de minutes avant l'événement il retentit.",
+    "es": "Activa lo que muestra el overlay. Elige sonido y volumen para un aviso; el control fija cuántos minutos antes del evento suena.",
+    "ru": "Включите то, что показывает оверлей. Выберите звук и громкость для напоминания; ползунок задаёт, за сколько минут до события он прозвучит.",
+    "pl": "Włącz to, co pokazuje nakładka. Wybierz dźwięk i głośność przypomnienia; suwak ustawia, ile minut przed wydarzeniem zabrzmi.",
+    "tr": "Kaplamanın göstereceklerini açın. Hatırlatma için ses ve ses düzeyi seçin; kaydırıcı sesin etkinlikten kaç dakika önce çalacağını belirler.",
+    "zh": "开启悬浮窗要显示的内容。选择提醒音和音量；滑块设定活动开始前多少分钟播放。"
+  },
+  "Settings.Timetable.SoundMinutes": {
+    "en": "Minutes before event",
+    "de": "Minuten vor Event",
+    "fr": "Minutes avant l'événement",
+    "es": "Minutos antes del evento",
+    "ru": "Минут до события",
+    "pl": "Minut przed wydarzeniem",
+    "tr": "Etkinlikten önce dakika",
+    "zh": "活动前分钟数"
+  },
+  "Settings.Timetable.ShowEvent": {
+    "en": "Show in the overlay",
+    "de": "Im Overlay anzeigen",
+    "fr": "Afficher dans l'overlay",
+    "es": "Mostrar en el overlay",
+    "ru": "Показывать в оверлее",
+    "pl": "Pokaż w nakładce",
+    "tr": "Kaplamada göster",
+    "zh": "在悬浮窗显示"
+  },
+  "Settings.Timetable.NoSound": {
+    "en": "No sound",
+    "de": "Kein Ton",
+    "fr": "Aucun son",
+    "es": "Sin sonido",
+    "ru": "Без звука",
+    "pl": "Bez dźwięku",
+    "tr": "Ses yok",
+    "zh": "无声音"
+  },
+  "Settings.Timetable.Volume": {
+    "en": "Volume",
+    "de": "Lautstärke",
+    "fr": "Volume",
+    "es": "Volumen",
+    "ru": "Громкость",
+    "pl": "Głośność",
+    "tr": "Ses düzeyi",
+    "zh": "音量"
+  },
+  "Settings.Timetable.Test": {
+    "en": "Test sound and volume",
+    "de": "Ton und Lautstärke testen",
+    "fr": "Tester le son et le volume",
+    "es": "Probar sonido y volumen",
+    "ru": "Проверить звук и громкость",
+    "pl": "Testuj dźwięk i głośność",
+    "tr": "Sesi ve düzeyi dene",
+    "zh": "测试声音和音量"
+  },
+  "Settings.Timetable.AlwaysTip": {
+    "en": "Can be joined at any time: no start, so no reminder",
+    "de": "Jederzeit möglich: kein Start, also keine Erinnerung",
+    "fr": "Possible à tout moment : pas de début, donc pas de rappel",
+    "es": "Disponible siempre: sin inicio, sin aviso",
+    "ru": "Доступно всегда: нет начала, нет напоминания",
+    "pl": "Zawsze dostępne: brak startu, więc brak przypomnienia",
+    "tr": "Her zaman katılınabilir: başlangıç yok, hatırlatma yok",
+    "zh": "随时可加入：没有开始时间，因此没有提醒"
+  },
+  "Sound.chime": {
+    "en": "Chime",
+    "de": "Glockenspiel",
+    "fr": "Carillon",
+    "es": "Carillón",
+    "ru": "Перезвон",
+    "pl": "Dzwonki",
+    "tr": "Çıngırak",
+    "zh": "风铃"
+  },
+  "Sound.bell": {
+    "en": "Bell",
+    "de": "Glocke",
+    "fr": "Cloche",
+    "es": "Campana",
+    "ru": "Колокол",
+    "pl": "Dzwon",
+    "tr": "Çan",
+    "zh": "铃声"
+  },
+  "Sound.ping": {
+    "en": "Ping",
+    "de": "Ping",
+    "fr": "Ping",
+    "es": "Ping",
+    "ru": "Пинг",
+    "pl": "Ping",
+    "tr": "Ping",
+    "zh": "叮"
+  },
+  "Sound.blip": {
+    "en": "Blip",
+    "de": "Doppelton",
+    "fr": "Bip",
+    "es": "Bip",
+    "ru": "Сигнал",
+    "pl": "Sygnał",
+    "tr": "Bip",
+    "zh": "滴滴"
+  },
+  "Sound.drop": {
+    "en": "Drop",
+    "de": "Tropfen",
+    "fr": "Goutte",
+    "es": "Gota",
+    "ru": "Капля",
+    "pl": "Kropla",
+    "tr": "Damla",
+    "zh": "水滴"
+  },
+  "Sound.horn": {
+    "en": "Horn",
+    "de": "Horn",
+    "fr": "Cor",
+    "es": "Cuerno",
+    "ru": "Рог",
+    "pl": "Róg",
+    "tr": "Boru",
+    "zh": "号角"
+  },
   "Settings.Hotkeys.Group.Dps": {
     "en": "DPS meter",
     "de": "DPS-Meter",

@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using AionDPS.Aion2;
 using AionDPS.Aion2.Protocol;
+using AionDPS.Schedule;
 
 namespace AionDPS.Ui;
 
@@ -69,6 +70,7 @@ public partial class SettingsWindow : Window
         TimetableOpacityBox.SelectedItem = TimetableOpacityBox.Items.OfType<ComboBoxItem>()
             .OrderBy(i => Math.Abs(double.Parse((string)i.Tag, System.Globalization.CultureInfo.InvariantCulture) - timetableOpacity)).First();
         TimetableLookaheadSlider.Value = Math.Clamp(settings.TimetableLookaheadMinutes, 0, 60);
+        InitTimetableEvents(settings);
         ShowTimetableLookahead(); // the handler does not fire when the value equals the slider's default
         AlwaysOnTopBox.IsChecked = settings.AlwaysOnTopOnStartup;
         // Reflects the REAL registry state, not the last value this dialog wrote - see
@@ -232,6 +234,105 @@ public partial class SettingsWindow : Window
     }
 
     /// <summary>Shows the lookahead slider's value with the language's minute unit.</summary>
+    private Dictionary<string, TimetableEventSetting> _timetableEvents = new();
+
+    private void OnTimetableSoundMinutesChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowTimetableSoundMinutes();
+
+    private void ShowTimetableSoundMinutes()
+    {
+        if (TimetableSoundValue is not null)
+        {
+            TimetableSoundValue.Text = string.Format(LocalizationManager.Instance["Settings.Timetable.LookaheadValue"], (int)TimetableSoundSlider.Value);
+        }
+    }
+
+    /// <summary>
+    /// The list of the timetable's events (one row per kind of event, not per time): a switch for the overlay, the name, the reminder sound with its
+    /// volume, and a button to try both. Events that can be joined at any time (the arenas) have no start, so no sound.
+    /// </summary>
+    private void InitTimetableEvents(MeterSettings settings)
+    {
+        TimetableSoundSlider.Value = Math.Clamp(settings.TimetableSoundMinutes, 0, 60);
+        ShowTimetableSoundMinutes();
+        _timetableEvents = settings.TimetableEvents.ToDictionary(kv => kv.Key, kv => new TimetableEventSetting { Show = kv.Value.Show, Sound = kv.Value.Sound, Volume = kv.Value.Volume });
+        var loc = LocalizationManager.Instance;
+        TimetableEventRows.Children.Clear();
+        foreach (var scheduled in EventSchedule.Events)
+        {
+            string id = scheduled.Id;
+            if (!_timetableEvents.TryGetValue(id, out var state))
+            {
+                _timetableEvents[id] = state = new TimetableEventSetting();
+            }
+
+            var row = new Grid { Margin = new Thickness(0, 3, 0, 3) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(112) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var show = new CheckBox { IsChecked = state.Show, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0), ToolTip = loc["Settings.Timetable.ShowEvent"] };
+            show.Checked += (_, _) => state.Show = true;
+            show.Unchecked += (_, _) => state.Show = false;
+            var name = new TextBlock { VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap, MinWidth = 110, Margin = new Thickness(0, 0, 8, 0) };
+            name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+            name.Inlines.Add(new Run(scheduled.NameIn(loc.Language)));
+            if (scheduled.Players is { Length: > 0 } players)
+            {
+                name.Inlines.Add(new LineBreak());
+                var count = new Run(players) { FontSize = 11 };
+                count.SetResourceReference(TextElement.ForegroundProperty, "Brush.TextMuted");
+                name.Inlines.Add(count);
+            }
+            Grid.SetColumn(name, 1);
+
+            var sound = new ComboBox { Margin = new Thickness(0, 0, 8, 0), Height = 26, VerticalContentAlignment = VerticalAlignment.Center };
+            sound.Items.Add(new ComboBoxItem { Content = loc["Settings.Timetable.NoSound"], Tag = "" });
+            foreach (string id2 in NotifySounds.All)
+            {
+                sound.Items.Add(new ComboBoxItem { Content = loc["Sound." + id2], Tag = id2 });
+            }
+
+            sound.SelectedItem = sound.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Tag == state.Sound) ?? sound.Items[0];
+            Grid.SetColumn(sound, 2);
+
+            var volume = new Slider { Minimum = 0, Maximum = 100, Value = Math.Clamp(state.Volume, 0, 100), TickFrequency = 5, IsSnapToTickEnabled = true, SmallChange = 5, LargeChange = 10, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0), ToolTip = loc["Settings.Timetable.Volume"] };
+            volume.SetResourceReference(FrameworkElement.StyleProperty, "ThemedSlider");
+            Grid.SetColumn(volume, 3);
+
+            var test = new Button { Content = "▶", Width = 28, Height = 26, Padding = new Thickness(0), ToolTip = loc["Settings.Timetable.Test"] };
+            Grid.SetColumn(test, 4);
+
+            sound.SelectionChanged += (_, _) => state.Sound = (sound.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
+            volume.ValueChanged += (_, _) => state.Volume = (int)volume.Value;
+            test.Click += (_, _) =>
+            {
+                string chosen = state.Sound.Length > 0 ? state.Sound : NotifySounds.All[0];
+                NotifySounds.Play(chosen, state.Volume);
+            };
+
+            if (scheduled.Always)
+            {
+                // no start time: nothing to remind of
+                foreach (UIElement soundControl in new UIElement[] { sound, volume, test })
+                {
+                    soundControl.IsEnabled = false;
+                    soundControl.Opacity = 0.4;
+                }
+
+                name.ToolTip = loc["Settings.Timetable.AlwaysTip"];
+            }
+
+            row.Children.Add(show);
+            row.Children.Add(name);
+            row.Children.Add(sound);
+            row.Children.Add(volume);
+            row.Children.Add(test);
+            TimetableEventRows.Children.Add(row);
+        }
+    }
+
     private void OnTimetableLookaheadChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowTimetableLookahead();
 
     private void ShowTimetableLookahead()
@@ -340,6 +441,8 @@ public partial class SettingsWindow : Window
         _settings.OverlayOpacity = double.Parse((string)((ComboBoxItem)OverlayOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.TimetableOpacity = double.Parse((string)((ComboBoxItem)TimetableOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.TimetableLookaheadMinutes = (int)TimetableLookaheadSlider.Value;
+        _settings.TimetableSoundMinutes = (int)TimetableSoundSlider.Value;
+        _settings.TimetableEvents = _timetableEvents.ToDictionary(kv => kv.Key, kv => kv.Value);
         _settings.Language = LocalizationManager.Instance.Language;
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;

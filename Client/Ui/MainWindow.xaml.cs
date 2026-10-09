@@ -113,6 +113,7 @@ public partial class MainWindow : Window
     private bool _compactOverlay;
     private bool _showBossHp;
     private TimetableWindow? _timetable;
+    private TimetableReminder? _timetableReminder;
     private PetFarmWindow? _petFarm;
     private PetFarmController? _petFarmController;
     private PetMapController? _petMapController;
@@ -824,6 +825,7 @@ public partial class MainWindow : Window
         _hotkeys.Pressed += action => Dispatcher.Invoke(() => OnHotkeyPressed(action), System.Windows.Threading.DispatcherPriority.Input);
         ApplyHotkeys(MeterSettings.Load());
         ApplyTimetable(MeterSettings.Load());
+        _timetableReminder ??= new TimetableReminder();
         ApplyPetFarm(MeterSettings.Load());
     }
 
@@ -861,6 +863,7 @@ public partial class MainWindow : Window
         _overlay?.Dispose();
         _hotkeys?.Dispose();
         _timetable?.Close();
+        _timetableReminder?.Dispose();
         _petFarmController?.Dispose();
         _petFarm?.Close();
         _petMapController?.Dispose();

@@ -117,6 +117,9 @@ public static class EventSchedule
         return (active.OrderBy(o => o.IsAlways).ThenBy(o => o.End).ToList(), soon.OrderBy(o => o.Start).ToList());
     }
 
+    /// <summary>The occurrences of an event around <paramref name="now"/> (from yesterday to tomorrow), for the sound reminders.</summary>
+    public static IEnumerable<EventOccurrence> Upcoming(ScheduledEvent scheduled, DateTime now) => OccurrencesAround(scheduled, now);
+
     /// <summary>The next occurrence of an event after <paramref name="now"/> (within a week), or null.</summary>
     public static EventOccurrence? NextAfter(ScheduledEvent scheduled, DateTime now) =>
         scheduled.Always ? null : OccurrencesAround(scheduled, now, daysBefore: 0, daysAfter: 7).Where(o => o.Start > now).OrderBy(o => o.Start).FirstOrDefault();
