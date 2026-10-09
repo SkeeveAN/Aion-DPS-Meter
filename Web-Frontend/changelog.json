@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Website: the download button starts the download at the first click (the app swallowed the link and only a reload downloaded)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.18.0",
   "date": "2026-10-08",
   "items": [
