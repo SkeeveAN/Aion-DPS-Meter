@@ -419,6 +419,16 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                     return (xs[xs.Count / 2], ys[ys.Count / 2], recent.Max(s => s.At));
                 }
 
+                // The game reports the player's own position only for some movements (not when a monster is targeted), so it can stay unknown
+                // for a long time (after a relog, or standing still). The monsters around him, announced and not yet gone again, still
+                // surround him (within the ~65 m range): their middle beats "unknown" and beats a report that is more than 15 s old.
+                if ((_position is null || now - _position.Value.At > TimeSpan.FromSeconds(15)) && _liveMobs.Count >= 3)
+                {
+                    var xs = _liveMobs.Values.Select(m => m.X).OrderBy(v => v).ToList();
+                    var ys = _liveMobs.Values.Select(m => m.Y).OrderBy(v => v).ToList();
+                    return (xs[xs.Count / 2], ys[ys.Count / 2], now);
+                }
+
                 return _position;
             }
         }
