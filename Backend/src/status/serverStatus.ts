@@ -1,7 +1,6 @@
 import { connect } from "node:net";
 import { sqlite } from "../db/client.js";
 import { env } from "../env.js";
-import { nameOf } from "../content/aion2Servers.js";
 
 export type Kind = "login" | "game";
 export type State = "up" | "down" | "unknown";
@@ -10,8 +9,6 @@ interface Endpoint {
   kind: Kind;
   host: string;
   port: number;
-  /** Worlds (server ids) seen on this address in uploads - game endpoints only. */
-  worlds: number[];
 }
 
 interface Sample {
@@ -29,7 +26,6 @@ export interface EndpointStatus {
   uptime24h: number | null;
   /** Newest 60 samples, oldest first: 1 = reachable, 0 = not. */
   recent: number[];
-  worlds: { id: number; name: string }[];
 }
 
 const PROBE_INTERVAL_MS = 60_000;
@@ -55,30 +51,25 @@ function loginEndpoints(): Endpoint[] {
     .filter(Boolean)
     .flatMap((s) => {
       const m = /^([A-Za-z0-9.-]{1,100}):(\d{1,5})$/.exec(s);
-      return m && Number(m[2]) > 0 && Number(m[2]) < 65536 ? [{ kind: "login" as const, host: m[1], port: Number(m[2]), worlds: [] }] : [];
+      return m && Number(m[2]) > 0 && Number(m[2]) < 65536 ? [{ kind: "login" as const, host: m[1], port: Number(m[2]) }] : [];
     });
 }
 
-/** Game server addresses the clients reported in the last 14 days, with the worlds seen on each. */
+/** Game server addresses the clients reported in the last 14 days. Which world sits behind an address is not known, so none is claimed. */
 function gameEndpoints(): Endpoint[] {
   const rows = sqlite
     .prepare(
-      `select game_server addr, group_concat(distinct client_server_id) ids from uploads
+      `select game_server addr from uploads
        where game_server is not null and received_at >= datetime('now', '-14 days') group by game_server order by count(*) desc limit 300`,
     )
-    .all() as { addr: string; ids: string | null }[];
+    .all() as { addr: string }[];
   const out: Endpoint[] = [];
   for (const r of rows) {
     const m = /^(\d{1,3}(?:\.\d{1,3}){3}):(\d{1,5})$/.exec(r.addr);
     if (!m || Number(m[2]) !== GAME_PORT || !GAME_RANGES.some((re) => re.test(m[1]))) {
       continue;
     }
-    out.push({
-      kind: "game",
-      host: m[1],
-      port: GAME_PORT,
-      worlds: (r.ids ?? "").split(",").map(Number).filter((n) => Number.isInteger(n) && n > 0).sort((a, b) => a - b),
-    });
+    out.push({ kind: "game", host: m[1], port: GAME_PORT });
   }
   return out.sort((a, b) => a.host.localeCompare(b.host, "en", { numeric: true })).slice(0, MAX_GAME_ENDPOINTS);
 }
@@ -143,7 +134,6 @@ export function statusSnapshot(): { checkedAt: string | null; intervalSeconds: n
       checkedAt: last ? new Date(last.at).toISOString() : null,
       uptime24h: day.length >= 5 ? Math.round((day.filter((s) => s.up).length / day.length) * 1000) / 10 : null,
       recent: samples.slice(-60).map((s) => (s.up ? 1 : 0)),
-      worlds: e.worlds.map((id) => ({ id, name: nameOf(id) ?? `Server ${id}` })),
     };
   });
   return {

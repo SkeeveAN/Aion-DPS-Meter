@@ -944,10 +944,9 @@ async function renderStatus() {
       el("td", { textContent: sv.uptime24h === null ? "–" : `${sv.uptime24h.toLocaleString(getLocale())} %` }),
       el("td", {}, [el("span", { className: "status-spark", title: t("status.recentTitle") }, sv.recent.map((v) => el("i", { className: v ? "up" : "down" })))]),
       el("td", { textContent: ago(sv.checkedAt) }),
-      ...(sv.kind === "game" ? [el("td", { className: "status-worlds", textContent: sv.worlds.map((w) => serverLabel(w.name)).join(", ") || "–" })] : []),
     ]);
     const table = (list, game) => el("div", { className: "table-scroll" }, [el("table", { className: "status-table" }, [
-      el("thead", {}, [el("tr", {}, [t("status.colStatus"), t("status.colAddress"), t("status.colResponse"), t("status.colUptime"), t("status.colRecent"), t("status.colChecked"), ...(game ? [t("status.colWorlds")] : [])].map((h) => el("th", { textContent: h })))]),
+      el("thead", {}, [el("tr", {}, [t("status.colStatus"), t("status.colAddress"), t("status.colResponse"), t("status.colUptime"), t("status.colRecent"), t("status.colChecked")].map((h) => el("th", { textContent: h })))]),
       el("tbody", {}, list.map(row)),
     ])]);
     const login = d.servers.filter((x) => x.kind === "login");

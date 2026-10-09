@@ -2668,7 +2668,6 @@ body:has(.download-hero) .nav-download-link:hover,
 .table-scroll { overflow-x: auto; }
 .status-table { width: 100%; border-collapse: collapse; }
 .status-table th, .status-table td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
-.status-table td.status-worlds { white-space: normal; color: var(--color-text-muted); }
 .status-addr { font-variant-numeric: tabular-nums; }
 .status-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--color-surface2); color: var(--color-text-muted); }
 .status-pill.up { background: color-mix(in srgb, var(--color-success) 22%, transparent); color: var(--color-success); }
