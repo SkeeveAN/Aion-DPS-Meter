@@ -1,5 +1,32 @@
 [
  {
+  "version": "0.20.0",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Interactive map: the list stays empty until something is picked, and the arrow stays centred when the map window is made smaller",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Pet list: the five pets that showed a number instead of a name now have one",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Hotkey overlay: a movable, transparent list of the hotkeys with a switch per hotkey; the DPS overlay is drawn only while the game is in front; timetable notifications are off by default",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.19.6",
   "date": "2026-10-09",
   "items": [
