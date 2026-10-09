@@ -1,8 +1,10 @@
-import { listGuilds } from "../guilds.js";
-import { and, eq, like, max, ne } from "drizzle-orm";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { and, eq, max, ne } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
-import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
+import { bosses, encounters, instances } from "../db/schema.js";
 import { env } from "../env.js";
 import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME } from "../constants.js";
 import { cached } from "../seo/cache.js";
@@ -10,6 +12,17 @@ import { escapeHtml } from "../seo/html.js";
 import { encounterOgImage } from "../seo/ogEncounter.js";
 
 const SITEMAP_TTL_MS = 600_000;
+const CHANGELOG_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "Web-Frontend", "changelog.json");
+
+// Date of the newest release; the client pages (features, download, changelog) change with it.
+function latestReleaseDate(): string | undefined {
+  try {
+    const entries = JSON.parse(readFileSync(CHANGELOG_FILE, "utf8")) as { date?: string }[];
+    return entries.map((e) => e.date ?? "").sort().pop() || undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 // Crawler plumbing. Single encounters, comparisons and search are deliberately absent from the
 // sitemap and blocked in robots.txt: thousands of thin, near-duplicate pages would eat crawl budget
@@ -52,7 +65,17 @@ export async function seoRoutes(app: FastifyInstance) {
 }
 
 function buildSitemap(): string {
-  const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }, { path: "/features" }, { path: "/changelog" }, { path: "/stats" }, { path: "/legions" }];
+  const release = latestReleaseDate();
+  const lastFightAll = db.select({ t: max(encounters.startedAt) }).from(encounters).get()?.t ?? undefined;
+  const newest = [release, lastFightAll?.slice(0, 10)].filter(Boolean).sort().pop();
+  const urls: { path: string; lastmod?: string }[] = [
+    { path: "/", lastmod: newest },
+    { path: "/download", lastmod: release },
+    { path: "/features", lastmod: release },
+    { path: "/changelog", lastmod: release },
+    { path: "/stats", lastmod: lastFightAll },
+    { path: "/legions", lastmod: lastFightAll },
+  ];
 
   for (const game of [DEFAULT_GAME]) {
     const instanceRows = db
@@ -82,53 +105,23 @@ function buildSitemap(): string {
       }
     }
 
-    urls.push({ path: `/instances` }, { path: `/instances/expedition` }, { path: `/instances/expedition/hard` }, { path: `/instances/nightmare` }, { path: `/instances/ascension` }, { path: `/instances/transcendence` } , { path: `/worldbosses` });
+    for (const p of ["/instances", "/instances/expedition", "/instances/expedition/hard", "/instances/nightmare", "/instances/ascension", "/instances/transcendence", "/worldbosses"]) {
+      urls.push({ path: p, lastmod: newest });
+    }
     for (const i of instanceRows) {
       if (i.slug) {
-        urls.push({ path: `${i.category === "worldboss" ? "/worldbosses" : "/instances"}/${i.slug}`, lastmod: instanceLastmod.get(i.id) });
+        urls.push({ path: `${i.category === "worldboss" ? "/worldbosses" : "/instances"}/${i.slug}`, lastmod: instanceLastmod.get(i.id) ?? release });
       }
     }
     for (const b of bossRows) {
       if (b.slug) {
-        urls.push({ path: `/bosses/${b.slug}`, lastmod: b.lastFight ?? undefined });
+        urls.push({ path: `/bosses/${b.slug}`, lastmod: b.lastFight ?? release });
       }
     }
   }
 
-  // Boss pages of a difficulty step (Nightmare level ...) that already have fights.
-  const modeRows = db
-    .select({ slug: bosses.slug, mode: encounters.mode, lastFight: max(encounters.startedAt) })
-    .from(encounters)
-    .innerJoin(bosses, eq(encounters.bossId, bosses.id))
-    .innerJoin(instances, eq(bosses.instanceId, instances.id))
-    .where(and(eq(instances.hidden, false), ne(encounters.mode, "")))
-    .groupBy(bosses.id, encounters.mode)
-    .all();
-  for (const r of modeRows) {
-    if (r.slug) {
-      urls.push({ path: `/bosses/${r.slug}?mode=${r.mode}`, lastmod: r.lastFight ?? undefined });
-    }
-  }
-
-  // Every Aion 2 character; lastmod is its latest fight, if it has one.
-  const playerRows = db
-    .select({ slug: players.slug, lastFight: max(encounters.startedAt) })
-    .from(players)
-    .innerJoin(servers, eq(players.serverId, servers.id))
-    .leftJoin(encounterParticipants, and(eq(encounterParticipants.playerId, players.id), ne(encounterParticipants.className, "?")))
-    .leftJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
-    .where(like(servers.fingerprint, "aion2:%"))
-    .groupBy(players.id)
-    .all();
-  for (const p of playerRows) {
-    if (p.slug) {
-      urls.push({ path: `/players/${p.slug}`, lastmod: p.lastFight ?? undefined });
-    }
-  }
-
-  for (const g of listGuilds()) {
-    urls.push({ path: `/legions/${g.slug}` });
-  }
+  // Player profiles, single legion pages and per-difficulty boss variants stay reachable and indexable
+  // but are not listed: thousands of thin, similar pages in the sitemap dilute the strong ones.
 
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',

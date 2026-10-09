@@ -187,13 +187,13 @@ header .logo {
   }
 }
 
-header h1 {
+header .site-title {
   font-size: 18px;
   margin: 0;
   flex-shrink: 0;
 }
 
-header h1 a {
+header .site-title a {
   color: inherit;
   text-decoration: none;
 }
@@ -1558,7 +1558,7 @@ header .logo {
   box-shadow: 0 0 14px rgba(255, 120, 40, 0.4);
 }
 
-header h1 {
+header .site-title {
   line-height: 0;
 }
 

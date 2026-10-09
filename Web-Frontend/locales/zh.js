@@ -395,7 +395,7 @@ export default {
   "features.hotkeys.title": "系统级快捷键与一键复制到聊天",
   "features.hotkeys.text": "游戏处于前台时也能暂停、清除、隐藏和复制——每个组合键都可自行更改。Copy 会把一行排名放入剪贴板，Copy All 则是 Discord 表格。",
   "features.hero.eyebrow": "功能",
-  "features.hero.title": "Aion DPS",
+  "features.hero.title": "Aion 2 DPS",
   "features.hero.accent": "Toolkit",
   "features.hero.tagline": "您的战斗，您的角色，您的世界 - 尽在一个工具。",
   "features.card.meter.title": "实时 DPS 与治疗",

@@ -395,7 +395,7 @@ export default {
   "features.hotkeys.title": "Skróty systemowe i kopiowanie gotowe na czat",
   "features.hotkeys.text": "Pauza, czyszczenie, ukrywanie i kopiowanie, gdy gra ma fokus - każdą kombinację można zmienić. Copy wkłada do schowka jednoliniowy ranking, Copy All tabelę dla Discorda.",
   "features.hero.eyebrow": "Funkcje",
-  "features.hero.title": "Aion DPS",
+  "features.hero.title": "Aion 2 DPS",
   "features.hero.accent": "Toolkit",
   "features.hero.tagline": "Twoje walki, Twoja postać, Twój świat - w jednym narzędziu.",
   "features.card.meter.title": "DPS i leczenie na żywo",

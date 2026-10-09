@@ -395,7 +395,7 @@ export default {
   "features.hotkeys.title": "Raccourcis globaux et copie prête pour le chat",
   "features.hotkeys.text": "Pause, réinitialisation, masquage et copie pendant que le jeu a le focus - chaque combinaison est modifiable. Copy place un classement d'une ligne dans le presse-papiers, Copy All un tableau Discord.",
   "features.hero.eyebrow": "Fonctionnalités",
-  "features.hero.title": "Aion DPS",
+  "features.hero.title": "Aion 2 DPS",
   "features.hero.accent": "Toolkit",
   "features.hero.tagline": "Vos combats, votre personnage, votre monde - dans un seul outil.",
   "features.card.meter.title": "DPS et soins en direct",

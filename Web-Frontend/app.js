@@ -262,7 +262,7 @@ async function renderHome() {
   // fold into inline pills below the CTAs instead.
   const hero = el("div", { className: "home-hero" }, [
     el("p", { className: "home-hero-eyebrow", textContent: t("home.eyebrow") }),
-    el("h1", { className: "home-hero-title", textContent: SITE_TITLE }),
+    el("h1", { className: "home-hero-title", textContent: "Aion 2 DPS Meter" }),
     el("p", { className: "home-hero-slogan", textContent: t("home.slogan") }),
     el("p", { className: "home-hero-tagline", textContent: t("home.tagline") }),
     el("div", { className: "home-hero-ctas button-row" }, [

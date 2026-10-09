@@ -408,7 +408,7 @@ export default {
   "features.hotkeys.title": "System-wide hotkeys and chat-ready copy",
   "features.hotkeys.text": "Pause, clear, hide and copy while the game has the focus - every combination is yours to change. Copy puts a one-line ranking on the clipboard, Copy All a Discord table.",
   "features.hero.eyebrow": "Features",
-  "features.hero.title": "Aion DPS",
+  "features.hero.title": "Aion 2 DPS",
   "features.hero.accent": "Toolkit",
   "features.hero.tagline": "Your fights, your character, your world - all in one tool.",
   "features.card.meter.title": "Live DPS & Healing",

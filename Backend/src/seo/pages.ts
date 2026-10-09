@@ -86,7 +86,7 @@ export function homePage(): Page {
       jsonLd: [websiteJsonLd(), softwareApplicationJsonLd()],
     },
     body: html`
-      <h2>Aion DPS Meter</h2>
+      <h1>Aion 2 DPS Meter</h1>
       <p>Free, open-source damage and healing meter for Aion 2, plus community boss leaderboards and character profiles.</p>
       <h3>What it does</h3>
       <p>Aion DPS Meter shows live damage per second and healing per second for every player in your party or raid while you play. It runs beside the game as its own window or as a transparent click-through overlay, and keeps a full log of each fight so you can review skill breakdowns and group composition afterwards.</p>
@@ -134,7 +134,7 @@ export function featuresPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Features", path: "/features" }])],
     },
     body: html`
-      <h2>Everything the Aion DPS Meter does</h2>
+      <h1>Aion 2 DPS Meter Toolkit – everything it does</h1>
       <p>A damage and heal meter for Aion 2 that only reads the network traffic your own computer already receives.</p>
       <ul class="plain">
         <li>Live damage and healing for everyone in your group, with DPS, iDPS per target and share bars</li>

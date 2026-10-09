@@ -408,7 +408,7 @@ export default {
   "features.hotkeys.title": "Systemweite Hotkeys und Chat-Kopie",
   "features.hotkeys.text": "Pausieren, Zurücksetzen, Ausblenden und Kopieren, während das Spiel den Fokus hat - jede Kombination ist änderbar. „Copy“ legt eine einzeilige Rangliste in die Zwischenablage, „Copy All“ eine Discord-Tabelle.",
   "features.hero.eyebrow": "Funktionen",
-  "features.hero.title": "Aion DPS",
+  "features.hero.title": "Aion 2 DPS",
   "features.hero.accent": "Toolkit",
   "features.hero.tagline": "Deine Kämpfe, dein Charakter, deine Welt - alles in einem Tool.",
   "features.card.meter.title": "Live-DPS & Heilung",
