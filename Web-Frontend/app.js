@@ -2825,7 +2825,15 @@ function navigate(path, { replace = false } = {}) {
   return route();
 }
 
+// /download/latest is not a page of the app but the server's redirect to the installer: a click on it must reach the server (the app would
+// swallow it, show the download page again and only a reload - which asks the server - started the download).
+const SERVER_PATHS = ["/download/latest"];
+
 function isAppPath(pathname) {
+  if (SERVER_PATHS.includes(pathname.replace(/\/+$/, ""))) {
+    return false;
+  }
+
   return pathname === "/" || APP_SECTIONS.includes(pathname.split("/")[1]);
 }
 
