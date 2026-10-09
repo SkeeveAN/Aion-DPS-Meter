@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.19.2",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Interactive map: Pets and Gathering as sub pages, Od as one source, no greyed-out gather entries; the list shows collectibles too and the map keeps the last known position (\"?\") while the position is unknown; the overlay lock switch moved to the map page",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.19.0",
   "date": "2026-10-09",
   "items": [
