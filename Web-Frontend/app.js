@@ -243,6 +243,9 @@ function setupNavToggle() {
   });
 }
 
+// Download arrow inside a circle: the icon alone says "download", so the buttons need no extra word for it.
+const DOWNLOAD_CIRCLE_SVG = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 7v9M8 12.5l4 4 4-4"/></svg>';
+
 const GITHUB_REPO = "SkeeveAN/Aion-DPS-Meter";
 
 /**
@@ -257,20 +260,25 @@ async function renderHome() {
   document.title = HOME_TITLE;
   showLoading(t("loading.instances"));
 
-  // Centered hero (aiondps_claude_design_pack prototype comparison, 2026-09-24, "index-3.html"):
-  // no side quick-start card competing with the hero text - those same three real destinations
-  // fold into inline pills below the CTAs instead.
-  const hero = el("div", { className: "home-hero" }, [
-    el("p", { className: "home-hero-eyebrow", textContent: t("home.eyebrow") }),
-    el("h1", { className: "home-hero-title", textContent: "Aion 2 DPS Meter" }),
-    el("p", { className: "home-hero-slogan", textContent: t("home.slogan") }),
-    el("p", { className: "home-hero-tagline", textContent: t("home.tagline") }),
-    el("div", { className: "home-hero-ctas button-row" }, [
-      el("a", { className: "btn btn-blue", href: "/instances" }, [el("span", { textContent: t("breadcrumb.instances") })]),
-      el("a", { className: "btn btn-blue", href: "/worldbosses" }, [el("span", { textContent: t("category.worldboss") })]),
+  // Slim banner = the Features hero (same look as the tour's scenes): it points at the three entry areas (Features, Instances, World Bosses)
+  // but stays small, so Top players and Recent activity below remain the main content.
+  const bannerWin = (name, h) =>
+    el("img", { className: "home-banner-win", src: `/images/features/${name}@2x.webp?v=${FEATURE_VERSION}`, alt: "", style: `--h:${h}px` });
+  const heroRow = el("section", { className: "home-banner" }, [
+    el("div", { className: "home-banner-bg" }),
+    el("div", { className: "home-banner-stage" }, [bannerWin("meter", 250), bannerWin("map-crop", 220)]),
+    el("div", { className: "home-banner-copy" }, [
+      el("p", { className: "home-banner-eyebrow", textContent: t("features.hero.eyebrow") }),
+      el("h1", {}, [`${t("features.hero.title")} `, el("span", { textContent: t("features.hero.accent") })]),
+      el("p", { className: "home-banner-tag", textContent: t("features.hero.tagline") }),
+      el("p", { className: "home-banner-intro", textContent: t("home.bannerIntro") }),
+    ]),
+    el("div", { className: "home-banner-ctas" }, [
+      el("a", { className: "btn btn-ghost btn-ghost-main", href: "/features" }, [el("span", { textContent: t("home.bannerFeatures") })]),
+      el("a", { className: "btn btn-ghost", href: "/instances" }, [el("span", { textContent: t("home.bannerInstances") })]),
+      el("a", { className: "btn btn-ghost", href: "/worldbosses" }, [el("span", { textContent: t("home.bannerWorldbosses") })]),
     ]),
   ]);
-  const heroRow = el("div", { className: "home-hero-row" }, [hero]);
 
   const aion2Stats = await fetchJson("/api/stats/summary?game=aion2").catch(() => null);
   const totals = {
@@ -292,7 +300,7 @@ async function renderHome() {
   const topPlayersGame = "aion2";
   const topPlayersSection = topPlayers.length > 0 ? buildTopPlayersSection(topPlayers, topPlayersGame) : null;
 
-  const recentActivity = (await fetchJson("/api/activity/recent?game=aion2&limit=6").catch(() => []))
+  const recentActivity = (await fetchJson("/api/activity/recent?game=aion2&limit=5").catch(() => []))
     .map((r) => ({ ...r, game: "aion2" }))
     .sort((a, b) => parseServerTime(b.createdAt) - parseServerTime(a.createdAt));
   const recentActivitySectionEl = recentActivity.length > 0 ? buildRecentActivitySection(recentActivity) : null;
@@ -330,14 +338,14 @@ async function renderHome() {
 function buildSiteFooter() {
   const cta = el("div", { className: "home-footer-cta" }, [
     el("div", { className: "home-footer-logo" }, [
-      el("img", { src: "/logo.webp", alt: "", className: "home-footer-emblem", loading: "lazy" }),
+      el("img", { src: "/images/ui/emblem.webp", alt: "", className: "home-footer-emblem", loading: "lazy" }),
       el("img", { src: "/images/ui/aion-dps-wordmark.webp", alt: "Aion DPS", className: "wordmark", width: 186, height: 96, loading: "lazy" }),
     ]),
     el("div", { className: "home-footer-center" }, [
       el("h2", { textContent: t("home.footerCtaHeading") }),
-      el("a", { className: "btn btn-orange", href: "/download" }, [
-        el("span", { className: "btn-icon", textContent: "↓" }),
-        el("span", { textContent: t("home.downloadCta").replace(/^⬇\s*/, "") }),
+      el("a", { className: "btn btn-gold", href: "/download" }, [
+        el("span", { className: "btn-icon btn-icon-circle", innerHTML: DOWNLOAD_CIRCLE_SVG, "aria-hidden": "true" }),
+        el("span", { textContent: "Aion DPS Meter" }),
       ]),
     ]),
     el("div", { className: "home-footer-links" }, [

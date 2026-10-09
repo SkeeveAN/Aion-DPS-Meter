@@ -501,93 +501,6 @@ th {
    position:relative + the z-index below. Hero text is hardcoded light-on-dark here (not the theme
    tokens) because the image is dark-scrimmed regardless of which base theme is active - same
    reasoning as instanceHero/bossHero's own photo treatment. */
-/* Centered hero (aiondps_claude_design_pack prototype comparison, 2026-09-24, "index-3.html") -
-   full-bleed photo, text centered, no side quick-start card. */
-.home-hero-row {
-  /* Cancels out main's own 16px top / 24px side padding so the hero photo runs flush against the
-     header and edge to edge (the chosen prototype has no side gutters on the hero). */
-  margin: -16px -24px 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 620px;
-  /* The big bottom padding pushes the title/CTAs up: the stats card and the top of both content
-     cards live INSIDE the artwork below them (see .home-stats-card / .home-content-grid), per the
-     user's chosen prototype ("Variante 2c", 2026-09-27). */
-  padding: 40px 24px 318px;
-  /* No margin-bottom (the prototype comparison page had none either) - the stats card's own
-     negative margin-top is what creates its overlap into the hero photo below; a margin here would
-     partly cancel it out via margin collapsing. */
-  overflow: hidden;
-  border: none;
-  /* No border-radius (the prototype comparison page had none either) - flush against the header
-     above, a rounded top corner there would look like a broken seam, not a clean card. */
-  border-radius: 0;
-}
-
-.home-hero-row::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("/images/ui/hero-obelisk.webp") center 30% / cover no-repeat;
-}
-
-@media (max-width: 1400px) {
-  .home-hero-row::before {
-    background-image: url("/images/ui/hero-obelisk-1280.webp");
-  }
-}
-
-.home-hero-row::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  /* Light touch, per the chosen prototype: the artwork stays clearly visible (only 55% dark at
-     the very bottom) so it keeps shining through the glass cards that overlap it. */
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(140, 120, 255, 0.28) 0%, transparent 50%),
-    linear-gradient(180deg, rgba(10, 20, 32, 0.3) 0%, rgba(10, 20, 32, 0.45) 55%, rgba(10, 20, 32, 0.55) 100%);
-}
-
-.home-hero-row > * {
-  position: relative;
-  z-index: 1;
-}
-
-.home-hero-eyebrow {
-  margin: 0 0 10px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: #ffba42;
-  text-transform: uppercase;
-}
-
-.home-hero-title {
-  margin: 0;
-  font-size: 46px;
-  color: #fff;
-}
-
-.home-hero-slogan {
-  margin: 6px 0 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.home-hero-tagline {
-  max-width: 560px;
-  margin: 14px auto 26px;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.home-hero-ctas {
-  margin-bottom: 18px;
-}
 
 /* 3D "arcade" hero CTAs (2026-09-25 redesign) - replaces the old flat .download-cta/.link-button
    pairing, which drifted a pixel out of vertical alignment because the arrow glyph baked into
@@ -714,11 +627,8 @@ th {
   /* Anchored 95px above the cards' top edge (its own ~76px height leaves a ~19px gap), measured
      from .home-below-hero rather than down from the hero, so the gap never depends on the card's
      rendered height - the user's chosen "1c" from a round of position prototypes. */
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -95px;
-  margin: 0 auto;
+  position: static;
+  margin: 0 auto 16px;
   /* Shrinks to its three items (a centered pill), not a 1300px-wide bar. */
   width: fit-content;
   max-width: 100%;
@@ -737,7 +647,7 @@ th {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 15px 40px;
+  padding: 10px 36px;
 }
 
 .home-stat-item:not(:last-child) {
@@ -809,13 +719,14 @@ th {
 .home-footer-emblem {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  box-shadow: 0 0 18px rgba(255, 120, 40, 0.4);
+  filter: drop-shadow(0 0 8px rgba(255, 120, 40, 0.45));
 }
 
 .home-footer-logo .wordmark {
   height: 48px;
-  width: auto;
+  width: 93px; /* 186:96 like the header lettering - fixed so no flex/grid can stretch it */
+  flex: none;
+  object-fit: contain;
 }
 
 .home-footer-center {
@@ -990,8 +901,9 @@ th {
 
 .download-cta {
   display: inline-block;
-  background: var(--color-primary);
-  color: var(--color-primary-on);
+  /* Same calm warm gold as the header/footer download buttons, not the brighter theme primary. */
+  background: linear-gradient(180deg, #e2b457 0%, #c4932f 100%);
+  color: #2a1a04;
   font-weight: 700;
   font-size: 16px;
   /* Fixed line-height so the "⬇" glyph (whose fallback font has taller metrics than the
@@ -1003,19 +915,19 @@ th {
   border-radius: 6px;
   text-decoration: none;
   margin: 4px 0 6px;
-  border: 1px solid color-mix(in srgb, var(--color-primary) 80%, white);
-  box-shadow: 0 4px 18px rgba(255, 154, 32, 0.2);
-  transition: background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+  border: 1px solid rgba(255, 225, 160, 0.55);
+  box-shadow: 0 4px 14px rgba(196, 147, 47, 0.18);
+  transition: filter 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
 
 .download-cta:hover {
-  background: color-mix(in srgb, var(--color-primary) 80%, white);
-  box-shadow: 0 6px 24px rgba(255, 154, 32, 0.32);
+  filter: brightness(1.07);
+  box-shadow: 0 6px 20px rgba(196, 147, 47, 0.28);
   transform: translateY(-1px);
 }
 
 .download-cta:active {
-  background: color-mix(in srgb, var(--color-primary) 90%, black);
+  filter: brightness(0.96);
   transform: translateY(0);
 }
 
@@ -1555,8 +1467,7 @@ h3 .icon-label {
 /* Wordmark: the AION DPS lettering generated in logo.png's own colors (cracked steel + lava),
    next to the unchanged emblem - same pair in the header and the footer. */
 header .logo {
-  border-radius: 50%;
-  box-shadow: 0 0 14px rgba(255, 120, 40, 0.4);
+  filter: drop-shadow(0 0 6px rgba(255, 120, 40, 0.45));
 }
 
 header .site-title {
@@ -1565,7 +1476,9 @@ header .site-title {
 
 header .wordmark {
   height: 34px;
-  width: auto;
+  width: 66px; /* 186:96, same ratio as the footer lettering */
+  flex: none;
+  object-fit: contain;
   display: block;
 }
 
@@ -1642,27 +1555,12 @@ header .wordmark {
     inset 0 -2px 0 rgba(0, 0, 0, 0.2);
 }
 
-/* Eyebrow with the two short rules either side. */
-.home-hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  letter-spacing: 0.14em;
-}
-
-.home-hero-eyebrow::before,
-.home-hero-eyebrow::after {
-  content: "";
-  width: 28px;
-  height: 1px;
-  background: currentColor;
-}
 
 /* Both content cards reach 190px up into the hero artwork (the stats card hangs 80px above their
    top edge, see .home-stats-card). Glass: the artwork keeps showing through the frosted surface. */
 .home-below-hero {
   position: relative;
-  margin-top: -190px;
+  margin-top: 16px;
 }
 
 .home-content-grid {
@@ -1726,18 +1624,8 @@ header .wordmark {
 
 /* Narrow screens: no room for the overlap choreography - hero, stats and cards just stack. */
 @media (max-width: 720px) {
-  .home-hero-row {
-    min-height: 420px;
-    padding-bottom: 40px;
-  }
-
-  .home-below-hero {
-    margin-top: 0;
-  }
-
   .home-stats-card {
-    position: static;
-    margin: -43px auto 20px;
+    margin: 0 auto 16px;
   }
 
   .theme-switcher {
@@ -2380,35 +2268,35 @@ header .wordmark {
    button is the only thing that stands out. Both take the theme's surface colours, so dark and
    light mode each get a quiet button close to their own background. Scoped by the page's hero. */
 body:has(.download-hero) .nav-download-link,
-#app:has(.download-hero) .btn-orange {
-  --btn-color-top: color-mix(in srgb, var(--color-surface) 88%, var(--color-text));
-  --btn-color-bottom: var(--color-surface);
-  --btn-edge: var(--color-border);
+#app:has(.download-hero) .btn-gold {
+  --btn-color-top: color-mix(in srgb, #c4932f 34%, var(--color-surface));
+  --btn-color-bottom: color-mix(in srgb, #c4932f 20%, var(--color-surface));
+  --btn-edge: transparent;
   --btn-shadow: transparent;
   --btn-rim: transparent;
   --btn-glow: transparent;
-  color: var(--color-text-muted);
+  color: color-mix(in srgb, #e2b457 82%, var(--color-text));
   background: linear-gradient(to bottom, var(--btn-color-top), var(--btn-color-bottom));
-  border-color: var(--color-border);
+  border-color: color-mix(in srgb, #c4932f 50%, transparent);
   box-shadow: none;
   text-shadow: none;
 }
 
 body:has(.download-hero) .nav-download-link:hover,
-#app:has(.download-hero) .btn-orange:hover {
-  color: var(--color-text);
+#app:has(.download-hero) .btn-gold:hover {
+  color: #f3d58c;
   box-shadow: none;
 }
 
 /* Footer button on the download page: flat, no gloss and no pressable bottom edge. */
-#app:has(.download-hero) .btn-orange::before,
-#app:has(.download-hero) .btn-orange::after {
+#app:has(.download-hero) .btn-gold::before,
+#app:has(.download-hero) .btn-gold::after {
   display: none;
 }
 
-#app:has(.download-hero) .btn-orange,
-#app:has(.download-hero) .btn-orange:hover,
-#app:has(.download-hero) .btn-orange:active {
+#app:has(.download-hero) .btn-gold,
+#app:has(.download-hero) .btn-gold:hover,
+#app:has(.download-hero) .btn-gold:active {
   transform: none;
   filter: none;
   box-shadow: none;
@@ -2928,3 +2816,40 @@ body:has(.download-hero) .nav-download-link:hover,
 @media(min-width:1700px){#feature-timetable .fx-win{translate:295px 0}}
 @media(min-width:1101px){#feature-hotkeys .fx-win:first-child{translate:75px 0}#feature-hotkeys .fx-win+.fx-win{translate:0 40px}}
 @media(min-width:1101px){#feature-character .fx-win:first-child{margin-right:50px}}
+
+/* Home banner: the Features hero (Toolkit headline, two buttons, tilted client windows) as a slim card above the live data -
+   it points at Features, Instances and World Bosses without taking the stage from Top players and Recent activity. */
+.home-banner{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr) 310px;gap:40px;align-items:center;padding:28px 48px;margin:0 0 16px;min-height:300px;border:1px solid var(--color-border);border-radius:var(--radius-card);color:#f4f7fa}
+.home-banner-bg{position:absolute;inset:0;z-index:-1;background:url(/images/ui/banner-bg.webp) center/cover no-repeat}
+.home-banner-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(270deg,rgba(9,13,18,.9),rgba(9,13,18,.6) 45%,rgba(9,13,18,.3))}
+.home-banner-copy{padding-left:110px}
+.home-banner-eyebrow{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#ffba42}
+.home-banner h1{margin:0 0 10px;font-size:38px;line-height:1.05;letter-spacing:-.02em;color:#f4f7fa}
+.home-banner h1 span{color:#ffba42}
+.home-banner-tag{margin:0 0 8px;font-size:18px;color:#f4f7fa}
+.home-banner-intro{margin:0;max-width:520px;font-size:14px;line-height:1.5;color:#c3cdd6}
+.home-banner-ctas{display:flex;flex-direction:column;gap:12px}.home-banner-ctas .btn{text-align:center;white-space:nowrap}
+.home-banner-stage{display:flex;justify-content:flex-start;align-items:center}
+.home-banner-win{display:block;height:var(--h);width:auto;max-width:100%;border:2px solid transparent;border-radius:10px;background:linear-gradient(135deg,#ffe2a0 0%,#ffba42 28%,#e8731c 62%,#7f3512 100%) border-box;transform:perspective(calc(var(--h) * 3.8)) rotateY(16deg);box-shadow:0 0 0 1px rgba(0,0,0,.55),0 30px 50px -20px rgba(0,0,0,.8),0 0 60px -8px rgba(255,186,66,.4)}
+.home-banner-win:first-child{position:relative;z-index:2}.home-banner-win+.home-banner-win{margin-left:-140px;margin-top:40px}
+@media(max-width:1100px){.home-banner{grid-template-columns:minmax(0,1fr);padding:24px 20px;gap:20px}.home-banner-copy{padding-left:0}.home-banner-stage{display:none}.home-banner-ctas{flex-direction:row;flex-wrap:wrap}}
+
+.btn-icon-circle{display:inline-flex}.btn-icon-circle svg{display:block}
+.nav-download-link{display:inline-flex;align-items:center;gap:6px}.nav-download-ico{flex:none}
+
+/* The download button (header + footer): one calm, solid warm gold that fits the navy theme - no ornaments, no animation. */
+.btn.btn-gold{min-height:50px;padding:0 28px;border:1px solid rgba(255,225,160,.55);border-radius:8px;font-size:14px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;color:#2a1a04;
+ background:linear-gradient(180deg,#e2b457 0%,#c4932f 100%);box-shadow:0 4px 12px -4px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,240,200,.45);text-shadow:none;transition:filter .15s,transform .12s,box-shadow .15s}
+.btn.btn-gold::before,.btn.btn-gold::after,.btn.btn-ghost::before,.btn.btn-ghost::after{display:none}
+.btn.btn-gold:hover{filter:brightness(1.07);transform:translateY(-1px);box-shadow:0 6px 16px -4px rgba(0,0,0,.6),0 0 14px rgba(226,180,87,.3),inset 0 1px 0 rgba(255,240,200,.5)}
+.btn.btn-gold:active{transform:translateY(1px);filter:brightness(.96)}
+/* Quiet dark-glass buttons for the banner's three areas: no loud colour, the banner art and the gold download stay the accent. */
+.btn.btn-ghost{min-height:48px;padding:0 24px;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;color:#e8eef5;
+ background:rgba(10,18,28,.85);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:none;text-shadow:none;transition:border-color .15s,background .15s,color .15s,transform .12s}
+.btn.btn-ghost-main{border-color:rgba(255,186,66,.6);color:#ffd98a}
+.btn.btn-ghost:hover{background:rgba(24,38,56,.92);border-color:rgba(255,186,66,.85);color:#fff;transform:translateY(-1px);filter:none;box-shadow:none}
+.btn.btn-ghost:active{transform:translateY(1px)}
+/* Header download: same calm gold as the footer button, just smaller. */
+.nav-download-link{min-height:34px;padding:0 14px;border:1px solid rgba(255,225,160,.55);border-radius:6px;color:#2a1a04;text-shadow:none;
+ background:linear-gradient(180deg,#e2b457 0%,#c4932f 100%);box-shadow:0 2px 8px -3px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,240,200,.45)}
+.nav-download-link:hover{filter:brightness(1.07)}
