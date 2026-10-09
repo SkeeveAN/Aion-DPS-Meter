@@ -494,5 +494,6 @@
  "Pet list: the five pets that showed a number instead of a name now have one": "Pet-Liste: Die fünf Pets, die eine Zahl statt eines Namens zeigten, haben jetzt einen Namen",
  "Hotkey overlay: a movable, transparent list of the hotkeys with a switch per hotkey; the DPS overlay is drawn only while the game is in front; timetable notifications are off by default": "Hotkey-Overlay: eine verschiebbare, transparente Liste der Hotkeys mit einem Schalter je Hotkey; das DPS-Overlay wird nur noch gezeichnet, solange das Spiel vorne ist; Zeitplan-Benachrichtigungen sind standardmäßig aus",
  "Website: redesigned Features page with a hero, a card row that jumps to each feature and check lists": "Website: überarbeitete Funktionen-Seite mit Kopfbereich, einer Kartenreihe, die zu jeder Funktion springt, und Häkchenlisten",
- "Website: the new Features page texts in French, Spanish, Russian, Polish, Turkish and Chinese": "Website: die neuen Texte der Funktionen-Seite auf Französisch, Spanisch, Russisch, Polnisch, Türkisch und Chinesisch"
+ "Website: the new Features page texts in French, Spanish, Russian, Polish, Turkish and Chinese": "Website: die neuen Texte der Funktionen-Seite auf Französisch, Spanisch, Russisch, Polnisch, Türkisch und Chinesisch",
+ "Website: Features page shows one feature at a time with direct links, a compact header and a new World Bosses section": "Website: Die Funktionen-Seite zeigt eine Funktion nach der anderen, mit Direktlinks, einem kompakteren Kopfbereich und einem neuen Abschnitt zu den World-Bossen"
 }
