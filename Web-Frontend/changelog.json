@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.22.3",
   "date": "2026-10-09",
   "items": [
    {
@@ -24,6 +24,13 @@
     "areas": [
      "Client",
      "Backend"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "Species knowledge shows the real names of eleven more effects (Cognia attack/accuracy/evasion/block, front defense, power, critical attack, critical damage resist, critical resist, penetration, back critical resist)",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-09"
    }
