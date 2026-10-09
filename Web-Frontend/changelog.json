@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.22.2",
   "date": "2026-10-09",
   "items": [
    {
@@ -43,6 +43,13 @@
     "text": "Features page: the numbered chapter labels (01 · Record …) above each scene are gone",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "The meter remembers the last used mode (damage, heal, taken, all, all compact) and starts with it again",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-09"
    }
