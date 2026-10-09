@@ -2622,14 +2622,14 @@
     "zh": "通知已开启"
   },
   "Settings.Boss.Hint": {
-    "en": "Switch a boss on to see it on the overlay and to hear its sound when it is back. The times come from the game by themselves for the map you are on; for the other maps they are known once you have been there.",
-    "de": "Schalte einen Boss ein, um ihn auf dem Overlay zu sehen und seinen Ton zu hören, wenn er wieder da ist. Die Zeiten kommen von selbst aus dem Spiel, und zwar für die Karte, auf der du bist; die anderen Karten sind bekannt, sobald du dort warst.",
-    "fr": "Activez un boss pour le voir sur l'overlay et entendre son son quand il revient. Les heures viennent du jeu d'elles-mêmes pour la carte où vous vous trouvez ; les autres cartes sont connues une fois que vous y êtes allé.",
-    "es": "Activa un jefe para verlo en el overlay y oír su sonido cuando vuelva. Las horas llegan solas del juego para el mapa en el que estás; los demás mapas se conocen cuando hayas estado allí.",
-    "ru": "Включите босса, чтобы видеть его на оверлее и слышать звук, когда он вернётся. Время приходит из игры само для карты, на которой вы находитесь; для остальных карт оно известно после того, как вы там побываете.",
-    "pl": "Włącz bossa, aby widzieć go na nakładce i słyszeć dźwięk, gdy wróci. Czasy przychodzą z gry same dla mapy, na której jesteś; dla pozostałych map są znane, gdy tam zajrzysz.",
-    "tr": "Bir patronu açın; kaplamada görünsün ve geri döndüğünde sesi çalsın. Süreler, bulunduğunuz harita için oyundan kendiliğinden gelir; diğer haritalar oraya gittiğinizde bilinir.",
-    "zh": "开启某个首领后，它会显示在悬浮窗上，并在刷新时播放提示音。你所在地图的时间会自动从游戏获得；其他地图在你去过之后就会知道。"
+    "en": "The server sends the times by itself, but only for the map you are on; the other maps show theirs once you have been there.\nSwitch a boss on to see it on the overlay and to hear its sound when it is back.",
+    "de": "Der Server schickt die Zeiten von selbst, aber nur für die Karte, auf der du bist; die anderen Karten zeigen ihre Zeiten, sobald du dort warst.\nSchalte einen Boss ein, um ihn auf dem Overlay zu sehen und seinen Ton zu hören, wenn er wieder da ist.",
+    "fr": "Le serveur envoie les heures de lui-même, mais seulement pour la carte où vous êtes ; les autres cartes montrent les leurs une fois que vous y êtes allé.\nActivez un boss pour le voir sur l'overlay et entendre son son quand il revient.",
+    "es": "El servidor envía las horas solo, pero únicamente para el mapa en el que estás; los demás mapas muestran las suyas cuando hayas estado allí.\nActiva un jefe para verlo en el overlay y oír su sonido cuando vuelva.",
+    "ru": "Сервер сам присылает время, но только для карты, на которой вы находитесь; остальные карты покажут своё, когда вы там побываете.\nВключите босса, чтобы видеть его на оверлее и слышать звук, когда он вернётся.",
+    "pl": "Serwer sam wysyła czasy, ale tylko dla mapy, na której jesteś; pozostałe mapy pokażą swoje, gdy tam zajrzysz.\nWłącz bossa, aby widzieć go na nakładce i słyszeć dźwięk, gdy wróci.",
+    "tr": "Sunucu süreleri kendiliğinden gönderir, ancak yalnızca bulunduğunuz harita için; diğer haritalar siz oraya gittikten sonra kendi sürelerini gösterir.\nBir patronu açın; kaplamada görünsün ve geri döndüğünde sesi çalsın.",
+    "zh": "服务器会自动发送时间，但只限你所在的地图；其他地图在你去过之后才会显示它们的时间。\n开启某个首领后，它会显示在悬浮窗上，并在刷新时播放提示音。"
   },
   "Settings.Boss.Count": {
     "en": "{0} of {1} on",
