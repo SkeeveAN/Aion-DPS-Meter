@@ -576,94 +576,121 @@ async function renderTerms() {
   renderLegalPage("terms", "legal.termsTitle", "legal.termsIntro");
 }
 
-// Feature tour: each block is a picture of the real client next to what it does. The pictures are
-// rendered from the client itself (images/features/, see the client's render-* modes).
+// Feature tour: one scene per feature - a generated backdrop, the text on one side and the real client windows (rendered from the client itself,
+// images/features/, see the client's render-* modes) on the other. [file, width, height] of each @2x picture; the shown height is set in style.css.
 const FEATURE_BLOCKS = [
-  { id: "meter", images: [["meter", 520, 420]] },
-  { id: "modes", images: [["mode-all", 520, 420], ["mode-all-compact", 520, 420]], wide: true, pair: true },
-  { id: "overlay", images: [["overlay", 390, 169], ["overlay-chips", 390, 165]], wide: true, pair: true },
-  { id: "details", images: [["details", 860, 680]] },
-  { id: "character", images: [["character-gear", 1180, 900], ["character-skills", 1180, 640], ["character-board", 1180, 1000]], wide: true },
-  { id: "map", images: [["map", 724, 446], ["gathering", 620, 740]], wide: true, pair: true },
-  { id: "timetable", images: [["timetable", 620, 740]] },
-  { id: "worldboss", images: [["worldboss", 620, 740]] },
-  { id: "hotkeys", images: [["hotkeys", 620, 740]] },
+  { id: "meter", chapter: "record", images: [["meter", 1040, 840]] },
+  { id: "modes", chapter: "record", images: [["mode-all", 1040, 840], ["mode-all-compact", 1040, 840]] },
+  { id: "overlay", chapter: "record", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
+  { id: "details", chapter: "analyze", images: [["details", 1720, 1360]] },
+  { id: "character", chapter: "improve", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
+  { id: "map", chapter: "explore", images: [["map", 1448, 892], ["gathering", 1240, 1480]] },
+  { id: "timetable", chapter: "explore", images: [["timetable", 1240, 1480]] },
+  { id: "worldboss", chapter: "explore", images: [["worldboss", 1240, 1480]] },
+  { id: "hotkeys", chapter: "tools", images: [["hotkeys", 1240, 1480], ["settings", 1240, 1480]] },
 ];
+const FEATURE_VERSION = "20261009g";
 
-const SVG = (d) => `<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
-  ["meter", SVG('<path d="M5 20V10M12 20V4M19 20v-7"/>')],
-  ["modes", SVG('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>')],
-  ["overlay", SVG('<path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5"/>')],
-  ["details", SVG('<path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/>')],
-  ["character", SVG('<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>')],
-  ["map", SVG('<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>')],
-  ["timetable", SVG('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>')],
-  ["worldboss", SVG('<path d="M12 3c-3 0-6 2.5-6 6v4l-2 4h5a3 3 0 0 0 6 0h5l-2-4V9c0-3.500-3-6-6-6z"/>')],
-  ["hotkeys", SVG('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>')],
+  ["meter", '<path d="M5 20V10M12 20V4M19 20v-7"/>'],
+  ["modes", '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'],
+  ["overlay", '<path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5"/>'],
+  ["details", '<path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/>'],
+  ["character", '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>'],
+  ["map", '<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>'],
+  ["timetable", '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>'],
+  ["worldboss", '<path d="M12 3c-3 0-6 2.5-6 6v4l-2 4h5a3 3 0 0 0 6 0h5l-2-4V9c0-3.500-3-6-6-6z"/>'],
+  ["hotkeys", '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'],
+];
+const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff" };
+// Icons of the six "And more" cards (shield, upload, clock, refresh, globe, code).
+const FEATURE_MORE_ICONS = [
+  '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/>',
+  '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  '<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/>',
+  '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  '<path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/>',
 ];
 
 // Lead sentence big, the remaining sentences as a check list (no extra translations needed).
-function featureText(id) {
-  const [lead, ...rest] = t(`features.${id}.text`).split(/(?<=[。！？])|(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
-  return el("div", { className: "feature-text" }, [
-    el("div", { className: "features-eyebrow", textContent: t("features.highlight") }),
-    el("h2", { textContent: t(`features.${id}.title`) }),
-    el("p", { className: "feature-lead", textContent: lead }),
-    rest.length ? el("ul", { className: "feature-checks" }, rest.map((x) => el("li", { textContent: x }))) : null,
+function featureText(block) {
+  const [lead, ...rest] = t(`features.${block.id}.text`).split(/(?<=[。！？])|(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
+  return el("div", { className: "fx-copy" }, [
+    el("div", { className: "fx-eyebrow", textContent: t(`features.chapter.${block.chapter}`) }),
+    el("h2", { textContent: t(`features.${block.id}.title`) }),
+    el("p", { className: "lead", textContent: lead }),
+    rest.length ? el("ul", {}, rest.map((x) => el("li", { textContent: x }))) : null,
   ].filter(Boolean));
 }
 
 function renderFeatures() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.features")]);
   document.title = `${t("features.title")} – ${SITE_TITLE}`;
-  const blocks = FEATURE_BLOCKS.map((block, index) =>
-    el("section", { id: `feature-${block.id}`, className: `feature-block${block.wide ? " wide" : ""}${block.pair ? " pair" : ""}${index % 2 ? " flip" : ""}` }, [
-      featureText(block.id),
-      el("div", { className: "feature-shots" }, block.images.map(([name, width, height]) =>
-        el("img", { src: `/images/features/${name}.webp?v=20261009f`, width, height, loading: index === 0 ? "eager" : "lazy", alt: t(`features.${block.id}.title`) }),
-      )),
+  const scenes = FEATURE_BLOCKS.map((block, index) =>
+    el("section", {
+      id: `feature-${block.id}`,
+      className: `fx-scene${index % 2 ? " flip" : ""}`,
+      style: `--bg:url(/images/features/scene-${block.id}.webp?v=${FEATURE_VERSION});--tint:${FEATURE_TINTS[block.id]}`,
+    }, [
+      el("div", { className: "fx-bg" }),
+      el("div", { className: "fx-inner" }, [
+        featureText(block),
+        el("div", { className: "fx-stage" }, block.images.map(([name, width, height], n) =>
+          el("img", {
+            className: "fx-win",
+            src: `/images/features/${name}@2x.webp?v=${FEATURE_VERSION}`,
+            width, height,
+            loading: index === 0 ? "eager" : "lazy",
+            alt: n === 0 ? t(`features.${block.id}.title`) : "",
+            // Shown height per role: the main window and the second one next to it (flat overlay pictures are smaller); style.css fine-tunes each scene.
+            style: `--h:${block.images.length === 1 ? 440 : n === 0 ? 400 : 300}px;--r:${(width / height).toFixed(4)};--w:${Math.round(((block.images.length === 1 ? 440 : n === 0 ? 400 : 300) * width) / height * 1.5)}px`,
+          }),
+        )),
+      ]),
     ]),
   );
-  const more = el("div", { className: "feature-grid" }, [1, 2, 3, 4, 5, 6].map((n) => featureCard(t(`features.more${n}.title`), t(`features.more${n}.text`))));
-  // Only one feature block is shown at a time; the cards above swap it.
-  const cards = el("nav", { className: "features-cards" }, FEATURE_CARDS.map(([id, icon]) => {
-    const card = el("button", { type: "button", className: "features-card" }, [
-      el("span", { className: "features-card-icon", innerHTML: icon }),
-      el("span", {}, [
-        el("strong", { textContent: t(`features.card.${id}.title`) }),
-        el("small", { textContent: t(`features.card.${id}.text`) }),
-      ]),
-    ]);
-    card.dataset.id = id;
-    return card;
+  // Jump bar: stays at the top while scrolling; the entry of the scene in view lights up (at the very end always the last one).
+  const jump = el("nav", { className: "fx-jump" }, FEATURE_CARDS.map(([id, icon]) => {
+    const a = el("a", { href: `#feature-${id}` }, [el("span", { className: "fx-ico", innerHTML: SVG(icon, 16) }), t(`features.card.${id}.title`)]);
+    a.dataset.id = id;
+    return a;
   }));
-  const select = (id) => {
-    blocks.forEach((b) => { b.hidden = b.id !== `feature-${id}`; });
-    cards.querySelectorAll(".features-card").forEach((c) => c.classList.toggle("active", c.dataset.id === id));
-    history.replaceState(history.state, "", `${location.pathname}${location.search}#feature-${id}`);
+  const links = [...jump.querySelectorAll("a")];
+  const spy = () => {
+    const line = window.innerHeight * 0.35;
+    let current = -1;
+    scenes.forEach((s, i) => { if (s.getBoundingClientRect().top <= line) current = i; });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) current = scenes.length - 1;
+    links.forEach((a, i) => a.classList.toggle("on", i === current));
   };
-  cards.addEventListener("click", (e) => {
-    const card = e.target.closest(".features-card");
-    if (card) select(card.dataset.id);
+  window.addEventListener("scroll", spy, { passive: true });
+  window.addEventListener("resize", spy);
+  jump.addEventListener("click", (e) => {
+    const a = e.target.closest("a");
+    if (!a) return;
+    e.preventDefault();
+    document.getElementById(`feature-${a.dataset.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    history.replaceState(history.state, "", `${location.pathname}${location.search}#feature-${a.dataset.id}`);
   });
-  select(FEATURE_CARDS.some(([id]) => `#feature-${id}` === location.hash) ? location.hash.slice(9) : FEATURE_CARDS[0][0]);
+  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6].map((n) =>
+    el("div", { className: "fx-more-card" }, [
+      el("span", { className: "fx-more-ico", innerHTML: SVG(FEATURE_MORE_ICONS[n - 1]) }),
+      el("div", {}, [el("h3", { textContent: t(`features.more${n}.title`) }), el("p", { textContent: t(`features.more${n}.text`) })]),
+    ]),
+  ));
   app.replaceChildren(
-    el("div", { className: "features-page" }, [
-      el("header", { className: "features-hero" }, [
-        el("div", { className: "features-hero-text" }, [
-          el("div", { className: "features-eyebrow", textContent: t("features.hero.eyebrow") }),
-          el("h1", {}, [`${t("features.hero.title")} `, el("span", { textContent: t("features.hero.accent") })]),
-          el("p", { className: "features-tagline", textContent: t("features.hero.tagline") }),
-          el("p", { textContent: t("features.intro") }),
-        ]),
-      ]),
-      cards,
-      el("div", { className: "features-stage" }, blocks),
-      el("h2", { className: "features-more-heading", textContent: t("features.more.heading") }),
-      more,
+    el("div", { className: "fx-page" }, [
+      // The page's one heading is for search engines and screen readers; the scenes below carry the visible headings.
+      el("h1", { className: "fx-sr", textContent: t("features.title") }),
+      jump,
+      ...scenes,
+      el("section", { className: "fx-more" }, [el("h2", { textContent: t("features.more.heading") }), more]),
     ]),
   );
+  spy();
+  if (location.hash.startsWith("#feature-")) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 }
 
 async function renderDownload() {
