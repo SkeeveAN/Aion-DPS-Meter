@@ -39,6 +39,10 @@ public sealed class MeterSettings
     /// language (see Localization.cs) -- this is purely which language the meter's OWN menus/buttons/labels render in.</summary>
     public string Language { get; set; } = "";
 
+    /// <summary>The meter mode last used (Damage, Heal, Taken, All, AllCompact), restored on the next
+    /// launch. Saved on every change, like the always-on-top toggle.</summary>
+    public string LastMode { get; set; } = "Damage";
+
     /// <summary>Whether the meter window starts pinned above every other window, including the game
     /// itself. Defaults to off -- per the user, existing behaviour (an ordinary window, until turned
     /// on from the View menu's "Always on top" toggle) should not change for anyone who never asked

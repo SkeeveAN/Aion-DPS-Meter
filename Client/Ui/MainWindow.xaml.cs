@@ -294,6 +294,12 @@ public partial class MainWindow : Window
         Topmost = settings.AlwaysOnTopOnStartup;
         AlwaysOnTopMenuItem.IsChecked = settings.AlwaysOnTopOnStartup;
 
+        // The mode last used (damage, heal, taken, all, all compact), see SetMode.
+        if (Enum.TryParse(settings.LastMode, out MeterMode savedMode) && savedMode != MeterMode.Damage)
+        {
+            SetMode(savedMode, save: false);
+        }
+
         RestoreWindowGeometry(settings);
         StartCapture(settings);
         InitializeFightHistory(settings);
@@ -3613,7 +3619,7 @@ public partial class MainWindow : Window
         SetMode(sender == HealModeItem ? MeterMode.Heal : sender == TakenModeItem ? MeterMode.Taken : sender == AllModeItem ? MeterMode.All : sender == AllCompactModeItem ? MeterMode.AllCompact : MeterMode.Damage);
     }
 
-    private void SetMode(MeterMode mode)
+    private void SetMode(MeterMode mode, bool save = true)
     {
         _mode = mode;
         DamageModeItem.IsChecked = mode == MeterMode.Damage;
@@ -3623,6 +3629,12 @@ public partial class MainWindow : Window
         AllCompactModeItem.IsChecked = mode == MeterMode.AllCompact;
         UpdateDpsColumnHeader();
         RefreshRows();
+        if (save && !Headless)
+        {
+            var settings = MeterSettings.Load();
+            settings.LastMode = mode.ToString();
+            settings.Save();
+        }
     }
 
     /// <summary>Damage, then heal, taken, all in one, all in one compact, then damage again.</summary>
