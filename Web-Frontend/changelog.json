@@ -1,5 +1,20 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Items above +15 show the Amplify stage (the game's 5 stars) as a small diamond next to +15, and weapons list its orange bonus values; in the client and on the player page",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.24.2",
   "date": "2026-10-09",
   "items": [
