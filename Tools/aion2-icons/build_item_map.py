@@ -22,6 +22,8 @@ def alias(name):
         candidates = [f'icon_equip_wp_{side}_{m[1]}_{m[2]}_{m[3]}' for side in 'lr']
     elif m := re.fullmatch(r'icon_gm_(\d+)_(t\d+)_(\w+)', n):
         candidates = [f'icon_equip_ar_{side}_{m[1]}_{m[2]}_{m[3]}' for side in 'lr']
+    elif m := re.fullmatch(r'icon_gm_([a-z]+_\d+)_(\w+)', n):  # named sets, e.g. Icon_GM_Idris_01_Torso
+        candidates = [f'icon_equip_ar_{side}_{m[1]}_{m[2]}' for side in 'lr']
     candidates.append(n.replace('equip_acc_', 'acc_'))
     return next((tex[c] for c in candidates if c in tex), None)
 
