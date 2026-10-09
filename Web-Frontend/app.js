@@ -621,7 +621,7 @@ function renderFeatures() {
     el("section", { id: `feature-${block.id}`, className: `feature-block${block.wide ? " wide" : ""}${block.pair ? " pair" : ""}${index % 2 ? " flip" : ""}` }, [
       featureText(block.id),
       el("div", { className: "feature-shots" }, block.images.map(([name, width, height]) =>
-        el("img", { src: `/images/features/${name}.webp?v=20261009e`, width, height, loading: index === 0 ? "eager" : "lazy", alt: t(`features.${block.id}.title`) }),
+        el("img", { src: `/images/features/${name}.webp?v=20261009f`, width, height, loading: index === 0 ? "eager" : "lazy", alt: t(`features.${block.id}.title`) }),
       )),
     ]),
   );

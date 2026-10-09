@@ -416,7 +416,7 @@ export default {
   "features.card.hotkeys.title": "Raccourcis",
   "features.card.hotkeys.text": "Pause, réinitialisation, masquage et copie pendant que le jeu a le focus.",
   "features.worldboss.title": "Les boss du monde sur votre overlay",
-  "features.worldboss.text": "Activez un boss pour le voir sur l'overlay et entendre son son dès qu'il apparaît. Les horaires viennent directement du jeu : le serveur les envoie de lui-même pour la carte où vous êtes, rien à ouvrir. Choisissez un son et un volume pour chaque boss, regroupés par région.",
+  "features.worldboss.text": "Activez un boss pour le voir sur l'overlay et entendre son son dès qu'il apparaît. Les horaires viennent directement du jeu : le serveur les envoie de lui-même, rien à ouvrir, mais seulement pour la carte où vous êtes ; les autres cartes montrent les leurs une fois que vous y êtes allé. Choisissez un son et un volume pour chaque boss, regroupés par région.",
   "features.card.worldboss.title": "Boss du monde",
   "features.card.worldboss.text": "Minuteurs d'apparition, overlay et alertes sonores pour les boss de terrain.",
   "features.more.heading": "Et aussi",

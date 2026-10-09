@@ -416,7 +416,7 @@ export default {
   "features.card.hotkeys.title": "Skróty",
   "features.card.hotkeys.text": "Pauza, czyszczenie, ukrywanie i kopiowanie, gdy gra ma fokus.",
   "features.worldboss.title": "Bossowie świata na Twojej nakładce",
-  "features.worldboss.text": "Włącz bossa, aby widzieć go na nakładce i usłyszeć dźwięk, gdy tylko się pojawi. Czasy pochodzą bezpośrednio z gry: serwer wysyła je sam dla mapy, na której jesteś, nic nie trzeba otwierać. Wybierz dźwięk i głośność dla każdego bossa, pogrupowanych według regionu.",
+  "features.worldboss.text": "Włącz bossa, aby widzieć go na nakładce i usłyszeć dźwięk, gdy tylko się pojawi. Czasy pochodzą bezpośrednio z gry: serwer wysyła je sam, nic nie trzeba otwierać, ale tylko dla mapy, na której jesteś; pozostałe mapy pokażą swoje, gdy tam zajrzysz. Wybierz dźwięk i głośność dla każdego bossa, pogrupowanych według regionu.",
   "features.card.worldboss.title": "Bossowie świata",
   "features.card.worldboss.text": "Liczniki pojawiania się, nakładka i alerty dźwiękowe dla bossów terenowych.",
   "features.more.heading": "A poza tym",
