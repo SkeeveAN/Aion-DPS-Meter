@@ -2859,3 +2859,9 @@ body:has(.download-hero) .nav-download-link:hover,
 .home-content-col{height:100%}
 .home-content-col>.home-section-card{flex:1;display:flex;flex-direction:column}
 .home-content-col .hp-list{flex:1;grid-auto-rows:1fr}
+
+/* Banner and the two cards sit close together; the stats pill straddles the seam, half over the banner and half over the cards. */
+.home-banner{margin-bottom:0}
+.home-below-hero{margin-top:12px}
+.home-stats-card{position:absolute;left:0;right:0;top:-6px;transform:translateY(-50%);margin:0 auto;z-index:5}
+@media(max-width:720px){.home-stats-card{position:static;transform:none;margin:0 auto 16px}}
