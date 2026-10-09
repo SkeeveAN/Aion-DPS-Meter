@@ -220,6 +220,7 @@ function applyStaticTranslations() {
   document.getElementById("nav-guilds").textContent = t("guild.listTitle");
   // "Statistics" and "Changelog" are English only, as in the footer.
   document.getElementById("nav-stats").textContent = "Statistics";
+  document.getElementById("nav-status").textContent = t("status.title");
   document.getElementById("nav-toggle").setAttribute("aria-label", t("nav.menu"));
 }
 
