@@ -429,7 +429,7 @@ export default {
   "features.card.hotkeys.title": "Hotkeys",
   "features.card.hotkeys.text": "Pausieren, Zurücksetzen, Ausblenden und Kopieren im Spiel.",
   "features.worldboss.title": "World-Bosse auf deinem Overlay",
-  "features.worldboss.text": "Schalte einen Boss ein, um ihn auf dem Overlay zu sehen und seinen Ton zu hören, sobald er da ist. Die Zeiten kommen direkt aus dem Spiel: Öffne einmal die Feldboss-Liste auf der Ingame-Karte, dann hält der Meter sie beim Spielen aktuell. Wähle Ton und Lautstärke für jeden Boss, gruppiert nach Region.",
+  "features.worldboss.text": "Schalte einen Boss ein, um ihn auf dem Overlay zu sehen und seinen Ton zu hören, sobald er da ist. Die Zeiten kommen direkt aus dem Spiel: Der Server schickt sie von selbst für die Karte, auf der du bist, du musst nichts öffnen. Wähle Ton und Lautstärke für jeden Boss, gruppiert nach Region.",
   "features.card.worldboss.title": "World-Bosse",
   "features.card.worldboss.text": "Spawn-Timer, Overlay und Tonsignal für Feldbosse.",
   "features.more.heading": "Und außerdem",

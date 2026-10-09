@@ -586,7 +586,7 @@ const FEATURE_BLOCKS = [
   { id: "character", images: [["character-gear", 1180, 900], ["character-skills", 1180, 640], ["character-board", 1180, 1000]], wide: true },
   { id: "map", images: [["map", 724, 446], ["gathering", 620, 740]], wide: true, pair: true },
   { id: "timetable", images: [["timetable", 620, 740]] },
-  { id: "worldboss", images: [["worldboss", 750, 888]] },
+  { id: "worldboss", images: [["worldboss", 620, 740]] },
   { id: "hotkeys", images: [["hotkeys", 620, 740]] },
 ];
 
@@ -621,7 +621,7 @@ function renderFeatures() {
     el("section", { id: `feature-${block.id}`, className: `feature-block${block.wide ? " wide" : ""}${block.pair ? " pair" : ""}${index % 2 ? " flip" : ""}` }, [
       featureText(block.id),
       el("div", { className: "feature-shots" }, block.images.map(([name, width, height]) =>
-        el("img", { src: `/images/features/${name}.webp?v=20261009d`, width, height, loading: index === 0 ? "eager" : "lazy", alt: t(`features.${block.id}.title`) }),
+        el("img", { src: `/images/features/${name}.webp?v=20261009e`, width, height, loading: index === 0 ? "eager" : "lazy", alt: t(`features.${block.id}.title`) }),
       )),
     ]),
   );

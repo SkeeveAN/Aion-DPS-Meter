@@ -429,7 +429,7 @@ export default {
   "features.card.hotkeys.title": "Hotkeys",
   "features.card.hotkeys.text": "Pause, clear, hide and copy while the game has focus.",
   "features.worldboss.title": "World bosses on your overlay",
-  "features.worldboss.text": "Switch on a boss to see it on the overlay and hear its sound the moment it is up. The times come straight from the game: open the field boss list on the in-game map once and the meter keeps them current while you play. Pick a sound and volume for every boss, grouped by region.",
+  "features.worldboss.text": "Switch on a boss to see it on the overlay and hear its sound the moment it is up. The times come straight from the game: the server sends them by itself for the map you are on, no need to open anything. Pick a sound and volume for every boss, grouped by region.",
   "features.card.worldboss.title": "World Bosses",
   "features.card.worldboss.text": "Spawn timers, overlay and sound alerts for field bosses.",
   "features.more.heading": "And more",

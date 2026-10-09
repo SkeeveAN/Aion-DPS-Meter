@@ -416,7 +416,7 @@ export default {
   "features.card.hotkeys.title": "Kısayollar",
   "features.card.hotkeys.text": "Oyun odaktayken duraklat, temizle, gizle ve kopyala.",
   "features.worldboss.title": "Dünya patronları kaplamanızda",
-  "features.worldboss.text": "Bir patronu açın; ortaya çıktığı anda kaplamada görün ve sesini duyun. Zamanlar doğrudan oyundan gelir: oyun içi haritada saha patronu listesini bir kez açın, sayaç oynarken onu güncel tutar. Her patron için bölgeye göre gruplanmış bir ses ve ses düzeyi seçin.",
+  "features.worldboss.text": "Bir patronu açın; ortaya çıktığı anda kaplamada görün ve sesini duyun. Zamanlar doğrudan oyundan gelir: sunucu bunları bulunduğunuz harita için kendiliğinden gönderir, hiçbir şey açmanız gerekmez. Her patron için bölgeye göre gruplanmış bir ses ve ses düzeyi seçin.",
   "features.card.worldboss.title": "Dünya Patronları",
   "features.card.worldboss.text": "Saha patronları için doğma zamanlayıcıları, kaplama ve sesli uyarılar.",
   "features.more.heading": "Ayrıca",

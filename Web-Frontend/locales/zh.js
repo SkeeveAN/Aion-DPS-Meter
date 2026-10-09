@@ -416,7 +416,7 @@ export default {
   "features.card.hotkeys.title": "快捷键",
   "features.card.hotkeys.text": "游戏处于焦点时暂停、清除、隐藏和复制。",
   "features.worldboss.title": "世界首领显示在您的悬浮窗上",
-  "features.worldboss.text": "开启某个首领后，即可在悬浮窗上看到它，并在它出现的瞬间听到提示音。时间直接来自游戏：在游戏地图中打开一次野外首领列表，统计器会在您游玩时保持更新。可为每个首领选择提示音和音量，并按区域分组。",
+  "features.worldboss.text": "开启某个首领后，即可在悬浮窗上看到它，并在它出现的瞬间听到提示音。时间直接来自游戏：服务器会自动发送您所在地图的时间，无需打开任何界面。可为每个首领选择提示音和音量，并按区域分组。",
   "features.card.worldboss.title": "世界首领",
   "features.card.worldboss.text": "野外首领的刷新计时、悬浮窗和声音提醒。",
   "features.more.heading": "此外",

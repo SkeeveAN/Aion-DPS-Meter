@@ -416,7 +416,7 @@ export default {
   "features.card.hotkeys.title": "Atajos",
   "features.card.hotkeys.text": "Pausa, borrado, ocultar y copiar mientras el juego tiene el foco.",
   "features.worldboss.title": "Jefes del mundo en tu overlay",
-  "features.worldboss.text": "Activa un jefe para verlo en el overlay y oír su sonido en cuanto aparezca. Los tiempos vienen directamente del juego: abre una vez la lista de jefes de campo en el mapa del juego y el medidor la mantiene actualizada mientras juegas. Elige un sonido y un volumen para cada jefe, agrupados por región.",
+  "features.worldboss.text": "Activa un jefe para verlo en el overlay y oír su sonido en cuanto aparezca. Los tiempos vienen directamente del juego: el servidor los envía solo para el mapa en el que estás, no hace falta abrir nada. Elige un sonido y un volumen para cada jefe, agrupados por región.",
   "features.card.worldboss.title": "Jefes del mundo",
   "features.card.worldboss.text": "Temporizadores de aparición, overlay y alertas sonoras para jefes de campo.",
   "features.more.heading": "Y además",
