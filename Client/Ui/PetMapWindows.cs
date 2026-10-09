@@ -80,6 +80,11 @@ public abstract class MovableOverlay : Window
 
     public bool IsLocked => _locked;
 
+    /// <summary>The size the body really has (in its own units, the frame's scaling excluded).</summary>
+    protected double BodyWidth => _bodyHost.ActualWidth;
+
+    protected double BodyHeight => _bodyHost.ActualHeight;
+
     /// <summary>The content of the overlay (set by the derived window once it has built it).</summary>
     protected UIElement? Body
     {
@@ -393,10 +398,13 @@ public sealed class PetMapWindow : MovableOverlay
         IReadOnlyList<(int PetId, float X, float Y)> points, IReadOnlyList<(int PetId, float X, float Y)> live, IReadOnlyDictionary<int, Color> colors,
         IReadOnlyList<(string Kind, float X, float Y)>? gather = null, bool positionKnown = true)
     {
+        // the visible part of the canvas (the frame may be pulled smaller than the view): the player stays in the middle of it
+        double vw = Math.Clamp(BodyWidth, 40, ViewSize), vh = Math.Clamp(BodyHeight, 40, ViewSize);
+        double cx = vw / 2, cy = vh / 2;
         double ppu = ViewSize / 2 / (radiusMetres * 100.0);       // view pixels per world unit
         double k = ppu / map.Scale;                                // view pixels per native map pixel
         var (nx, ny) = Aion2Maps.ToNative(map, worldX, worldY);
-        double halfNative = ViewSize / 2 / k;
+        double halfNative = ViewSize / 2 / k; // generous: the tiles beyond the visible part are clipped
         int c0 = Math.Max(0, (int)Math.Floor((nx - halfNative) / map.Tile)), c1 = Math.Min(map.Grid - 1, (int)Math.Floor((nx + halfNative) / map.Tile));
         int r0 = Math.Max(0, (int)Math.Floor((ny - halfNative) / map.Tile)), r1 = Math.Min(map.Grid - 1, (int)Math.Floor((ny + halfNative) / map.Tile));
 
@@ -424,8 +432,8 @@ public sealed class PetMapWindow : MovableOverlay
                 img.Opacity = opacity;
                 img.Width = map.Tile * k;
                 img.Height = map.Tile * k;
-                Canvas.SetLeft(img, ViewSize / 2 + (col * map.Tile - nx) * k);
-                Canvas.SetTop(img, ViewSize / 2 + (row * map.Tile - ny) * k);
+                Canvas.SetLeft(img, cx + (col * map.Tile - nx) * k);
+                Canvas.SetTop(img, cy + (row * map.Tile - ny) * k);
                 img.Visibility = Visibility.Visible;
             }
         }
@@ -438,8 +446,8 @@ public sealed class PetMapWindow : MovableOverlay
         int dot = 0;
         foreach ((int pet, float x, float y) in points)
         {
-            double px = ViewSize / 2 + (x - worldX) * ppu, py = ViewSize / 2 + (y - worldY) * ppu;
-            if (px < 5 || py < 5 || px > ViewSize - 5 || py > ViewSize - 5)
+            double px = cx + (x - worldX) * ppu, py = cy + (y - worldY) * ppu;
+            if (px < 5 || py < 5 || px > vw - 5 || py > vh - 5)
             {
                 continue;
             }
@@ -467,8 +475,8 @@ public sealed class PetMapWindow : MovableOverlay
         int mark = 0;
         foreach ((string kind, float x, float y) in gather ?? Array.Empty<(string, float, float)>())
         {
-            double px = ViewSize / 2 + (x - worldX) * ppu, py = ViewSize / 2 + (y - worldY) * ppu;
-            if (px < 6 || py < 6 || px > ViewSize - 6 || py > ViewSize - 6)
+            double px = cx + (x - worldX) * ppu, py = cy + (y - worldY) * ppu;
+            if (px < 6 || py < 6 || px > vw - 6 || py > vh - 6)
             {
                 continue;
             }
@@ -496,8 +504,8 @@ public sealed class PetMapWindow : MovableOverlay
         int liveDot = 0;
         foreach ((int pet, float x, float y) in live)
         {
-            double px = ViewSize / 2 + (x - worldX) * ppu, py = ViewSize / 2 + (y - worldY) * ppu;
-            if (px < 8 || py < 8 || px > ViewSize - 8 || py > ViewSize - 8)
+            double px = cx + (x - worldX) * ppu, py = cy + (y - worldY) * ppu;
+            if (px < 8 || py < 8 || px > vw - 8 || py > vh - 8)
             {
                 continue;
             }
@@ -523,7 +531,7 @@ public sealed class PetMapWindow : MovableOverlay
 
         // a chosen pet with nothing in view: an arrow on the edge, in its colour, towards its nearest spawn point
         int arrow = 0;
-        double half = ViewSize / 2, reach = half - 13;
+        double halfX = cx, halfY = cy, reachX = halfX - 13, reachY = halfY - 13;
         foreach (var (pet, color) in colors)
         {
             double bestSq = double.MaxValue, bx = 0, by = 0;
@@ -536,7 +544,7 @@ public sealed class PetMapWindow : MovableOverlay
                 }
 
                 double dx = (x - worldX) * ppu, dy = (y - worldY) * ppu;
-                if (Math.Abs(dx) < half - 5 && Math.Abs(dy) < half - 5)
+                if (Math.Abs(dx) < halfX - 5 && Math.Abs(dy) < halfY - 5)
                 {
                     visible = true;
                     break;
@@ -556,7 +564,7 @@ public sealed class PetMapWindow : MovableOverlay
                 continue;
             }
 
-            double t = reach / Math.Max(Math.Abs(bx), Math.Abs(by)); // where the ray to the point meets the square
+            double t = Math.Min(reachX / Math.Max(Math.Abs(bx), 1e-6), reachY / Math.Max(Math.Abs(by), 1e-6)); // where the ray to the point meets the square
             if (arrow >= _edgeArrows.Count)
             {
                 var a = new Polygon { Points = new PointCollection { new Point(11, 0), new Point(-8, -8), new Point(-4, 0), new Point(-8, 8) }, Stroke = Brushes.White, StrokeThickness = 1.6, IsHitTestVisible = false, Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 4, ShadowDepth = 0, Color = Colors.Black, Opacity = 0.9 } };
@@ -567,8 +575,8 @@ public sealed class PetMapWindow : MovableOverlay
             var ar = _edgeArrows[arrow++];
             ar.Fill = new SolidColorBrush(color);
             ar.RenderTransform = new RotateTransform(Math.Atan2(by, bx) * 180 / Math.PI);
-            Canvas.SetLeft(ar, half + bx * t);
-            Canvas.SetTop(ar, half + by * t);
+            Canvas.SetLeft(ar, halfX + bx * t);
+            Canvas.SetTop(ar, halfY + by * t);
             ar.Visibility = Visibility.Visible;
         }
 
@@ -577,6 +585,10 @@ public sealed class PetMapWindow : MovableOverlay
             _edgeArrows[i].Visibility = Visibility.Collapsed;
         }
 
+        Canvas.SetLeft(_me, cx);
+        Canvas.SetTop(_me, cy);
+        Canvas.SetLeft(_meUnknown, cx - 14);
+        Canvas.SetTop(_meUnknown, cy - 20);
         // the player on top; a "?" instead of the arrow when the position is not known (the view then shows the last one)
         _me.Visibility = positionKnown ? Visibility.Visible : Visibility.Collapsed;
         _meUnknown.Visibility = positionKnown ? Visibility.Collapsed : Visibility.Visible;
@@ -590,7 +602,7 @@ public sealed class PetMapWindow : MovableOverlay
 /// <summary>The list that belongs to the pet map: the chosen pets with their colour, name, level (or "new") and the distance to the nearest spawn point.</summary>
 public sealed class PetListWindow : MovableOverlay
 {
-    private readonly StackPanel _rows = new() { MinWidth = 250 };
+    private readonly StackPanel _rows = new() { MinWidth = 250, MinHeight = 60 };
     private string _shown = "";
 
     public PetListWindow() : base("Aion DPS Pet List", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - 300, 580, LoadSize, SaveSize)

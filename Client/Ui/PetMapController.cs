@@ -287,17 +287,8 @@ public sealed class PetMapController : IDisposable
             return;
         }
 
-        // unlocked: show something to grab and place
-        // sample rows so the length of the field can be judged while placing it (the real list fills as many as fit)
-        var loc = LocalizationManager.Instance;
-        var names = Aion2Pets.Species.SelectMany(sp => Aion2Pets.MapPetsOf(sp, loc.Language)).Select(p => p.Name).Take(60).ToList();
-        var sample = new List<(Color, string, string, string, bool)> { (Colors.Gray, loc["PetMap.Placeholder"], "", "", false) };
-        for (int i = 0; i < names.Count; i++)
-        {
-            sample.Add((PetMapPalette.Of(i), names[i], string.Format(loc["PetFarm.Level"], 1 + i % 2) + $" · {3 + i % 20}/{(i % 2 == 0 ? 25 : 75)}", $"{(i + 1) * 23} m", false));
-        }
-
-        _list.Render(sample);
+        // unlocked: only the empty frames, to grab and place
+        _list.Render(Array.Empty<(Color, string, string, string, bool)>());
         _list.ShowOverlay(true);
         _map.ShowOverlay(true);
     }
