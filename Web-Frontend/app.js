@@ -581,11 +581,12 @@ async function renderTerms() {
 const FEATURE_BLOCKS = [
   { id: "meter", images: [["meter", 520, 420]] },
   { id: "modes", images: [["mode-all", 520, 420], ["mode-all-compact", 520, 420]], wide: true, pair: true },
-  { id: "overlay", images: [["overlay", 390, 169], ["overlay-chips", 390, 165]] },
+  { id: "overlay", images: [["overlay", 390, 169], ["overlay-chips", 390, 165]], wide: true, pair: true },
   { id: "details", images: [["details", 860, 680]] },
   { id: "character", images: [["character-gear", 1180, 900], ["character-skills", 1180, 640], ["character-board", 1180, 1000]], wide: true },
-  { id: "map", images: [["map", 724, 446], ["gathering", 620, 740]] },
+  { id: "map", images: [["map", 724, 446], ["gathering", 620, 740]], wide: true, pair: true },
   { id: "timetable", images: [["timetable", 620, 740]] },
+  { id: "worldboss", images: [["worldboss", 750, 888]] },
   { id: "hotkeys", images: [["hotkeys", 620, 740]] },
 ];
 
@@ -598,6 +599,7 @@ const FEATURE_CARDS = [
   ["character", SVG('<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>')],
   ["map", SVG('<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>')],
   ["timetable", SVG('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>')],
+  ["worldboss", SVG('<path d="M12 3c-3 0-6 2.5-6 6v4l-2 4h5a3 3 0 0 0 6 0h5l-2-4V9c0-3.500-3-6-6-6z"/>')],
   ["hotkeys", SVG('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>')],
 ];
 
@@ -639,6 +641,7 @@ function renderFeatures() {
   const select = (id) => {
     blocks.forEach((b) => { b.hidden = b.id !== `feature-${id}`; });
     cards.querySelectorAll(".features-card").forEach((c) => c.classList.toggle("active", c.dataset.id === id));
+    history.replaceState(history.state, "", `${location.pathname}${location.search}#feature-${id}`);
   };
   cards.addEventListener("click", (e) => {
     const card = e.target.closest(".features-card");
@@ -653,9 +656,6 @@ function renderFeatures() {
           el("h1", {}, [`${t("features.hero.title")} `, el("span", { textContent: t("features.hero.accent") })]),
           el("p", { className: "features-tagline", textContent: t("features.hero.tagline") }),
           el("p", { textContent: t("features.intro") }),
-        ]),
-        el("div", { className: "features-hero-shot" }, [
-          el("img", { src: "/images/features/mode-all.webp?v=20261009d", width: 520, height: 420, alt: t("features.meter.title") }),
         ]),
       ]),
       cards,
