@@ -1,4 +1,5 @@
 {
+  "Search visibility: slimmer sitemap with lastmod for every page, real text headings (Aion 2 DPS Meter) instead of the logo as the only h1": "Sichtbarkeit in Suchmaschinen: schlankere Sitemap mit lastmod für jede Seite, echte Textüberschriften (Aion 2 DPS Meter) statt des Logos als einziger H1",
   "Every participant shows the faction of their server (Elyos and Asmodians never share a server), also where the client did not send one": "Jeder Teilnehmer zeigt die Fraktion seines Servers (Elyos und Asmodier teilen sich nie einen Server), auch dort, wo der Client keine gesendet hat",
   "Website: scripts, stylesheets and JSON are revalidated on every load instead of cached for an hour, so a deploy never leaves visitors on an old app.js": "Website: Skripte, Stylesheets und JSON werden bei jedem Laden neu geprüft statt eine Stunde zwischengespeichert, damit ein Deploy Besucher nie auf einer alten app.js zurücklässt",
   "Statistics: the faction icon before each server name, and the difficulty step of the most fought bosses as stars": "Statistik: das Fraktionssymbol vor jedem Servernamen und die Schwierigkeitsstufe der meistgekämpften Bosse als Sterne",

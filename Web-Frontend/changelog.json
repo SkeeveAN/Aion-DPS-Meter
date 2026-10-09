@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Search visibility: slimmer sitemap with lastmod for every page, real text headings (Aion 2 DPS Meter) instead of the logo as the only h1",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.22.1",
   "date": "2026-10-09",
   "items": [
