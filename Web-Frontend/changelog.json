@@ -11,6 +11,14 @@
      "Backend"
     ],
     "date": "2026-10-09"
+   },
+   {
+    "text": "Server status page: login (lobby) and game servers are checked separately, and the page is available in all eight languages",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-09"
    }
   ]
  },
