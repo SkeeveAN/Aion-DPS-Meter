@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.19.3",
+  "date": "2026-10-09",
+  "items": [
+   {
+    "text": "Gathering page: one line per kind with switchable pills, only the collectibles of the player's own faction (read from the saved character) on the page, the list and the map",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-09"
+   }
+  ]
+ },
+ {
   "version": "0.19.2",
   "date": "2026-10-09",
   "items": [
