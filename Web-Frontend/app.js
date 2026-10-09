@@ -2296,10 +2296,11 @@ function attachTooltip(target, build) {
 }
 
 function gearTip(g) {
+  const name = localizedSkillName(g);
   const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
   return [
     el("div", { className: "pf-tip-head", style: `--ico-color:${color}` }, [
-      el("div", { className: "pf-tip-title", textContent: g.name + (g.enchant > 0 ? ` +${g.enchant}` : "") }),
+      el("div", { className: "pf-tip-title", textContent: name + (g.enchant > 0 ? ` +${g.enchant}` : "") }),
       el("div", { className: "pf-tip-sub" }, [el("span", { style: `color:${color}`, textContent: `${GRADE_NAME[g.grade] ?? ""}${g.tier > 0 ? ` · ${t("profile.tier")} ${g.tier}` : ""}` }), ` ${g.slotName ? t(`slot.${g.slotName}`) : ""}`]),
       g.itemLevel > 0 ? el("div", { className: "pf-tip-il", textContent: `${t("profile.itemLevel")} ${g.itemLevel}` }) : null,
     ].filter((x) => x != null)),
@@ -2307,11 +2308,12 @@ function gearTip(g) {
 }
 
 function gearSlot(g) {
+  const name = localizedSkillName(g);
   const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
   const slot = el("div", { className: "pf-slot", style: `--ico-color:${color}` }, [
-    iconTile("item", g.icon, g.name, { color, badge: g.enchant > 0 ? `+${g.enchant}` : "" }),
+    iconTile("item", g.icon, name, { color, badge: g.enchant > 0 ? `+${g.enchant}` : "" }),
     el("div", {}, [
-      el("div", { className: "pf-slot-name", textContent: g.name }),
+      el("div", { className: "pf-slot-name", textContent: name }),
       el("div", { className: "pf-slot-sub", textContent: `${g.slotName ? t(`slot.${g.slotName}`) : `#${g.slot}`}${g.itemLevel > 0 ? ` · ${t("profile.itemLevelShort")} ${g.itemLevel}` : ""}` }),
       g.grade >= 4 && g.tier > 0 ? el("span", { className: "pf-tier", textContent: `${GRADE_NAME[g.grade] ?? ""} ${t("profile.tier")} ${g.tier}` }) : null,
     ].filter((x) => x != null)),

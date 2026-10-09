@@ -171,6 +171,8 @@ let daevanion: DaevanionData | null = null;
 // Icon file names (without extension) by item id / skill id, extracted from the game client; ids
 // without an entry (unreleased items, passives the client table gives no icon for) have none.
 let itemIcons: Record<string, string> | null = null;
+// English item name -> names in the client languages (Tools/aion2-dat, matched by the English text).
+let itemNamesI18n: Record<string, Record<string, string>> | null = null;
 let skillIcons: Record<string, string> | null = null;
 let skillTypes: Record<string, string> | null = null; // "a" active, "p" passive
 type SpeciesData = {
@@ -281,7 +283,7 @@ export type ProfileView = {
   level: number | null;
   className: string | null;
   faction: "Elyos" | "Asmodian" | null;
-  gear: { slot: number; slotName: string; itemId: number; name: string; icon: string | null; itemLevel: number; grade: number; tier: number; enchant: number }[];
+  gear: { slot: number; slotName: string; itemId: number; name: string; names?: Record<string, string>; icon: string | null; itemLevel: number; grade: number; tier: number; enchant: number }[];
   averageItemLevel: number | null;
   skills: { id: number; name: string; names?: Record<string, string>; icon: string | null; passive: boolean; stigma: boolean; equipped: boolean; level: number; baseLevel: number }[];
   daevanion: {
@@ -326,6 +328,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
   skillNamesI18n ??= loadJson<Record<string, Record<string, string>>>("skill_names_i18n.json", {});
   daevanion ??= loadJson<DaevanionData>("daevanion_nodes.json", { boards: {}, nodes: {} });
   itemIcons ??= loadJson<Record<string, string>>("item_icons.json", {});
+  itemNamesI18n ??= loadJson<Record<string, Record<string, string>>>("item_names_i18n.json", {});
   skillIcons ??= loadJson<Record<string, string>>("skill_icons.json", {});
   skillTypes ??= loadJson<Record<string, string>>("skill_types.json", {});
   speciesData ??= loadJson<SpeciesData>("species_stats.json", { species: {}, stats: {} });
@@ -347,6 +350,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
         slotName: info?.[1] ?? "",
         itemId: g.itemId,
         name: info?.[0] ?? `Item ${g.itemId}`,
+        names: info ? itemNamesI18n![info[0]] : undefined,
         icon: itemIcons![String(g.itemId)] ?? null,
         itemLevel: info?.[4] ?? 0,
         grade: info?.[2] ?? 0,
