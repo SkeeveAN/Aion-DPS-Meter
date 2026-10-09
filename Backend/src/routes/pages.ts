@@ -10,6 +10,7 @@ import {
   instanceCategoryPage,
   downloadPage,
   changelogPage,
+  featuresPage,
   statsPage,
   guildsPage,
   guildPage,
@@ -74,6 +75,7 @@ type GameParams = Record<string, never>;
 export async function pageRoutes(app: FastifyInstance) {
   app.get("/", async (request, reply) => send(reply, render(homePage(), requestPath(request))));
   app.get("/download", async (request, reply) => send(reply, render(downloadPage(), requestPath(request))));
+  app.get("/features", async (request, reply) => send(reply, render(featuresPage(), requestPath(request))));
   app.get("/changelog", async (request, reply) => send(reply, render(changelogPage(), requestPath(request))));
   app.get("/legions", async (request, reply) => send(reply, render(guildsPage(), requestPath(request))));
   app.get<{ Params: { slug: string } }>("/legions/:slug", async (request, reply) => sendCached(request, reply, () => guildPage(request.params.slug)));

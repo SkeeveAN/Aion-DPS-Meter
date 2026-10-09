@@ -52,7 +52,7 @@ export async function seoRoutes(app: FastifyInstance) {
 }
 
 function buildSitemap(): string {
-  const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }, { path: "/changelog" }, { path: "/stats" }, { path: "/legions" }];
+  const urls: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/download" }, { path: "/features" }, { path: "/changelog" }, { path: "/stats" }, { path: "/legions" }];
 
   for (const game of [DEFAULT_GAME]) {
     const instanceRows = db

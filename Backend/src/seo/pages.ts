@@ -123,6 +123,31 @@ export function downloadPage(): Page {
   };
 }
 
+export function featuresPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "Features – Aion DPS Meter",
+      description:
+        "What the Aion 2 damage meter offers: live DPS/HPS per player, a click-through overlay, skill breakdowns, character and Daevanion view, interactive map, event timetable and hotkeys.",
+      canonicalPath: "/features",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Features", path: "/features" }])],
+    },
+    body: html`
+      <h2>Everything the Aion DPS Meter does</h2>
+      <p>A damage and heal meter for Aion 2 that only reads the network traffic your own computer already receives.</p>
+      <ul class="plain">
+        <li>Live damage and healing for everyone in your group, with DPS, iDPS per target and share bars</li>
+        <li>A click-through overlay that sits on top of the game, toggled with a hotkey of your choice</li>
+        <li>Skill breakdown with exact crit rates and a DPS curve for every player</li>
+        <li>Your character: gear, arcana, skills and the Daevanion boards</li>
+        <li>Interactive map with pet spawns and gathering spots</li>
+        <li>Event timetable with sound reminders, system-wide hotkeys and chat-ready copy</li>
+      </ul>
+      <p><a class="download-cta" href="/download">Download the Windows client</a></p>`,
+  };
+}
+
 export function changelogPage(): Page {
   return {
     status: 200,

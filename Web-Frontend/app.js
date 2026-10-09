@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "changelog", "stats", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "features", "changelog", "stats", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -216,6 +216,7 @@ function applyStaticTranslations() {
   document.getElementById("search-input").placeholder = t("nav.searchPlaceholder");
   document.getElementById("search-button").textContent = t("nav.searchButton");
   document.getElementById("feedback-link").textContent = t("nav.feedback");
+  document.getElementById("nav-features").textContent = t("nav.features");
   document.getElementById("nav-guilds").textContent = t("guild.listTitle");
   // "Statistics" and "Changelog" are English only, as in the footer.
   document.getElementById("nav-stats").textContent = "Statistics";
@@ -573,6 +574,45 @@ async function renderPrivacy() {
 
 async function renderTerms() {
   renderLegalPage("terms", "legal.termsTitle", "legal.termsIntro");
+}
+
+// Feature tour: each block is a picture of the real client next to what it does. The pictures are
+// rendered from the client itself (images/features/, see the client's render-* modes).
+const FEATURE_BLOCKS = [
+  { id: "meter", images: [["meter", 520, 420]] },
+  { id: "modes", images: [["mode-all", 520, 420], ["mode-all-compact", 520, 420]], wide: true, pair: true },
+  { id: "overlay", images: [["overlay", 390, 169], ["overlay-chips", 390, 165]] },
+  { id: "details", images: [["details", 860, 680]] },
+  { id: "character", images: [["character-gear", 1180, 900], ["character-skills", 1180, 640], ["character-board", 1180, 1000]], wide: true },
+  { id: "map", images: [["map", 724, 446], ["gathering", 620, 740]] },
+  { id: "timetable", images: [["timetable", 620, 740]] },
+  { id: "hotkeys", images: [["hotkeys", 620, 740]] },
+];
+
+function renderFeatures() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.features")]);
+  document.title = `${t("features.title")} – ${SITE_TITLE}`;
+  const blocks = FEATURE_BLOCKS.map((block, index) =>
+    el("section", { className: `feature-block${block.wide ? " wide" : ""}${block.pair ? " pair" : ""}${index % 2 ? " flip" : ""}` }, [
+      el("div", { className: "feature-text" }, [
+        el("h2", { textContent: t(`features.${block.id}.title`) }),
+        el("p", { textContent: t(`features.${block.id}.text`) }),
+      ]),
+      el("div", { className: "feature-shots" }, block.images.map(([name, width, height]) =>
+        el("img", { src: `/images/features/${name}.webp?v=20261009c`, width, height, loading: index === 0 ? "eager" : "lazy", alt: t(`features.${block.id}.title`) }),
+      )),
+    ]),
+  );
+  const more = el("div", { className: "feature-grid" }, [1, 2, 3, 4, 5, 6].map((n) => featureCard(t(`features.more${n}.title`), t(`features.more${n}.text`))));
+  app.replaceChildren(
+    el("div", { className: "features-page" }, [
+      el("h1", { textContent: t("features.title") }),
+      el("p", { className: "legal-intro", textContent: t("features.intro") }),
+      ...blocks,
+      el("h2", { textContent: t("features.more.heading") }),
+      more,
+    ]),
+  );
 }
 
 async function renderDownload() {
@@ -2473,9 +2513,6 @@ async function renderPlayerProfile(playerId) {
   if (profile?.gear.length > 0) {
     tabs.push(["equipment", t("profile.tabEquipment"), profile.gear.filter((g) => g.slotName !== "Arcana").length, () => renderEquipmentTab(profile)]);
   }
-  if (profile?.gear.some((g) => g.slotName === "Arcana")) {
-    tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);
-  }
   if (profile?.skills.length > 0) {
     tabs.push(["skills", t("profile.tabSkills"), profile.skills.length, () => renderSkillsTab(profile)]);
   }
@@ -2487,6 +2524,9 @@ async function renderPlayerProfile(playerId) {
   }
   if (profile?.species?.length > 0 || profile?.pets?.length > 0) {
     tabs.push(["species", t("profile.tabSpecies"), profile.species.length || profile.pets.length, () => renderSpeciesTab(profile)]);
+  }
+  if (profile?.gear.some((g) => g.slotName === "Arcana")) {
+    tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);
   }
 
   const panel = el("div", { className: "pf-panel" });
@@ -2853,6 +2893,8 @@ async function route() {
     section = "home";
   } else if (segments[0] === "download") {
     section = "download";
+  } else if (segments[0] === "features") {
+    section = "features";
   } else if (segments[0] === "changelog") {
     section = "changelog";
   } else if (segments[0] === "legions" || segments[0] === "guilds") {
@@ -2888,6 +2930,8 @@ async function route() {
       await renderHome();
     } else if (section === "download") {
       await renderDownload();
+    } else if (section === "features") {
+      renderFeatures();
     } else if (section === "changelog") {
       await renderChangelog();
     } else if (section === "stats") {

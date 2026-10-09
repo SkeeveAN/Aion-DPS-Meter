@@ -50,8 +50,10 @@ export function initThemeSwitcher(t) {
     button.innerHTML = THEME_ICONS[th.id];
     button.setAttribute("aria-label", t(th.labelKey));
     button.title = t(th.labelKey);
+    // Either icon flips the theme: clicking the sun while light is already active still goes
+    // to dark (and the moon likewise), so repeated clicks on one icon just toggle back and forth.
     button.addEventListener("click", () => {
-      applyTheme(th.id);
+      applyTheme(currentTheme() === "dark" ? "light" : "dark");
       reflect();
     });
     return { id: th.id, button };

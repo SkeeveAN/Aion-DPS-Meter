@@ -418,6 +418,11 @@ internal static class Program
     {
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
+        }
+
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
@@ -460,6 +465,11 @@ internal static class Program
     {
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
+        }
+
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
@@ -480,7 +490,7 @@ internal static class Program
         }
 
         var all = events.Concat(events.Select(e => e with { SourceObjectId = 6, Amount = e.Amount / 2 })).ToList();
-        var window = new Ui.PlayerDetailsWindow("Wakayashi", "Sorcerer", "", events, id => id == 1 ? "Training Scarecrow" : "Elite Guard", fightEvents: all);
+        var window = new Ui.PlayerDetailsWindow("Ichigo", "Sorcerer", "", events, id => id == 1 ? "Training Scarecrow" : "Elite Guard", fightEvents: all);
         const double width = 860, height = 680;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));
@@ -519,8 +529,8 @@ internal static class Program
         var rows = (System.Collections.ObjectModel.ObservableCollection<Ui.PlayerRow>)type.GetField("_rows", flags)!.GetValue(window)!;
         (string Name, string Cls, long Dmg, double Dps)[] sample =
         {
-            ("Keraut", "Templar", 916_700, 8300), ("Boulenbouche", "Elementalist", 790_800, 7100), ("Lumy", "Sorcerer", 757_700, 6800),
-            ("Aurulio", "Sorcerer", 434_200, 3900), ("Butterfinger", "Cleric", 232_800, 2100),
+            ("Jinwoo", "Gladiator", 916_700, 8300), ("Goku", "Ranger", 790_800, 7100), ("Ichigo", "Sorcerer", 757_700, 6800),
+            ("Naruto", "Cleric", 434_200, 3900), ("Tsubasa", "Spiritmaster", 232_800, 2100),
         };
         long total = sample.Sum(x => x.Dmg);
         int rank = 0;
@@ -564,6 +574,14 @@ internal static class Program
             panel.Measure(new System.Windows.Size(520, 420));
             panel.Arrange(new System.Windows.Rect(0, 0, 520, 420));
             panel.UpdateLayout();
+            for (int pass = 0; pass < 3; pass++)
+            {
+                // the grid builds its rows and columns on the dispatcher; let it, then lay out again
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+                panel.Measure(new System.Windows.Size(520, 420));
+                panel.Arrange(new System.Windows.Rect(0, 0, 520, 420));
+                panel.UpdateLayout();
+            }
         }
         else
         {
@@ -578,7 +596,7 @@ internal static class Program
         }
 
         panel.UpdateLayout();
-        int w = (int)Math.Ceiling(panel.DesiredSize.Width), h = (int)Math.Ceiling(panel.DesiredSize.Height);
+        int w = kind == "window" ? 520 : (int)Math.Ceiling(panel.DesiredSize.Width), h = kind == "window" ? 420 : (int)Math.Ceiling(panel.DesiredSize.Height); // the window is drawn at the size it was arranged at
         var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x30, 0x40, 0x30)) };
         var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
         backdrop.Measure(new System.Windows.Size(w, h));
@@ -910,7 +928,7 @@ internal static class Program
         window.Render(map, x, y, settings.PetMapRadius, settings.PetMapOpacity, points.ToList(), live, colors,
             Aion2.Protocol.Aion2Gather.PointsOf(map, Aion2.Protocol.Aion2Gather.Items().Where(i => i.Count > 0).Select(i => i.Key).ToHashSet()));
         var list = new Ui.PetListWindow();
-        list.Render(pets.Select(id => (colors[id], Aion2.Protocol.Aion2Pets.PetName(id, "de") ?? "?", "Stufe 2 · 22/75", "104 m", false)).ToList());
+        list.Render(pets.Select(id => (colors[id], Aion2.Protocol.Aion2Pets.PetName(id, "en") ?? "?", "Level 2 · 22/75", "104 m", false)).ToList());
         var visual = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x36, 0x2c)) };
         foreach (var overlay in new System.Windows.Window[] { window, list })
         {
