@@ -128,6 +128,23 @@ public sealed class MeterSettings
     /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 0 to 60 (0 = none).</summary>
     public int TimetableLookaheadMinutes { get; set; } = 60;
 
+    /// <summary>The world boss overlay (see WorldBossOverlayWindow): the bosses switched on in the World boss settings with the time until they are there.
+    /// Off until switched on.</summary>
+    public bool ShowBossOverlay { get; set; }
+
+    /// <summary>Master switch of the world boss sounds: off = no boss plays its sound. Off until switched on.</summary>
+    public bool BossNotify { get; set; }
+
+    /// <summary>Per boss (NPC id as text): watched or not, and the sound with its volume that plays when it is back. A boss without an entry is not watched.</summary>
+    public Dictionary<string, BossAlertSetting> BossAlerts { get; set; } = new();
+
+    /// <summary>Place, scale and size of the world boss overlay.</summary>
+    public double? BossOverlayLeft { get; set; }
+    public double? BossOverlayTop { get; set; }
+    public double BossOverlayScale { get; set; } = 1.0;
+    public double? BossOverlayWidth { get; set; }
+    public double? BossOverlayHeight { get; set; }
+
     /// <summary>Master switch of the timetable reminder sounds: off = no event plays its sound (the choices below are kept).</summary>
     public bool TimetableNotify { get; set; } = false;
 
@@ -324,4 +341,17 @@ public sealed class TimetableEventSetting
 
     /// <summary>0 to 100.</summary>
     public int Volume { get; set; } = 70;
+}
+
+/// <summary>What the player chose for one world boss (see <see cref="MeterSettings.BossAlerts"/>).</summary>
+public sealed class BossAlertSetting
+{
+    /// <summary>The switch before the boss's name: the boss is on the overlay and plays its sound.</summary>
+    public bool Enabled { get; set; }
+
+    /// <summary>The id of the sound (see <see cref="NotifySounds.All"/>); empty = no sound.</summary>
+    public string Sound { get; set; } = "chime";
+
+    /// <summary>0 to 100.</summary>
+    public int Volume { get; set; } = 60;
 }

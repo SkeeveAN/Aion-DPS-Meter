@@ -1,0 +1,1213 @@
+{
+ "maps": [
+  {
+   "key": "World_L_A",
+   "id": 1010,
+   "names": {
+    "en": "Verteron",
+    "de": "Verteron",
+    "fr": "Verteron",
+    "es": "Verteron",
+    "ru": "Бертрон"
+   },
+   "bosses": [
+    {
+     "npc": 2100003,
+     "x": -57517,
+     "y": -85173,
+     "names": {
+      "en": "Neikel of the East",
+      "de": "Neikel des Ostens",
+      "fr": "Neikel de l'est",
+      "es": "Neikel del este",
+      "ru": "Нейкель востока"
+     }
+    },
+    {
+     "npc": 2100040,
+     "x": -27290,
+     "y": -80782,
+     "names": {
+      "en": "Rotten Kutar",
+      "de": "Verfaulter Kutar",
+      "fr": "Kutar le Putréfié",
+      "es": "Kutar podrido",
+      "ru": "Гнилой Кутар"
+     }
+    },
+    {
+     "npc": 2100050,
+     "x": -94204,
+     "y": -43535,
+     "names": {
+      "en": "Kernon of the West",
+      "de": "Kernon des Westens",
+      "fr": "Kernon de l'ouest",
+      "es": "Kernon del oeste",
+      "ru": "Кернон запада"
+     }
+    },
+    {
+     "npc": 2100076,
+     "x": -18107,
+     "y": -10451,
+     "names": {
+      "en": "Kusan the Mad Gladiator",
+      "de": "Wahnstreiter Kusan",
+      "fr": "Kusan le Berserker",
+      "es": "Gladiador frenético Kusan",
+      "ru": "Безумный берсерк Кусан"
+     }
+    },
+    {
+     "npc": 2100077,
+     "x": -27017,
+     "y": 19935,
+     "names": {
+      "en": "Ritualist Garshim",
+      "de": "Erzpriester Garshim",
+      "fr": "Garshim le Ritualiste",
+      "es": "Ritualista Garshim",
+      "ru": "Ритуалист Гаршим"
+     }
+    },
+    {
+     "npc": 2100079,
+     "x": 18601,
+     "y": -205,
+     "names": {
+      "en": "Bodyguard Teegant",
+      "de": "Leibgardist Teegant",
+      "fr": "Teegant le garde du corps",
+      "es": "Guardia Teegant",
+      "ru": "Стражник Тигант"
+     }
+    },
+    {
+     "npc": 2100141,
+     "x": -34622,
+     "y": -36461,
+     "names": {
+      "en": "Blooming Korin",
+      "de": "Blühender Korin",
+      "fr": "Korin en floraison",
+      "es": "Korin en flor",
+      "ru": "Расцветший Корин"
+     }
+    },
+    {
+     "npc": 2100177,
+     "x": -57863,
+     "y": 82629,
+     "names": {
+      "en": "Furious Saursus",
+      "de": "Wütende Saursus",
+      "fr": "Saursus enragée",
+      "es": "Saursus iracundo",
+      "ru": "Разъяренная Сарус"
+     }
+    },
+    {
+     "npc": 2100178,
+     "x": -58488,
+     "y": 55832,
+     "names": {
+      "en": "Bloodfang Pnyn",
+      "de": "Blutzahn Pnyn",
+      "fr": "Pnyn aux crocs sanglants",
+      "es": "Pnyn de colmillo sangriento",
+      "ru": "Кровоклык Фнин"
+     }
+    },
+    {
+     "npc": 2100582,
+     "x": 18723,
+     "y": 95025,
+     "names": {
+      "en": "Heretic Layla",
+      "de": "Apostatin Layla",
+      "fr": "Layla l'apostate",
+      "es": "Apóstata Layla",
+      "ru": "Отступница Лейла"
+     }
+    },
+    {
+     "npc": 2100617,
+     "x": 98412,
+     "y": 74390,
+     "names": {
+      "en": "Black Tentacle Lawa",
+      "de": "Schwarztentakel Lawa",
+      "fr": "Lawa aux tentacules noires",
+      "es": "Lawa del tentáculo negro",
+      "ru": "Черное щупальце Лава"
+     }
+    },
+    {
+     "npc": 2100661,
+     "x": 84130,
+     "y": 178452,
+     "names": {
+      "en": "Phantasm Kasia",
+      "de": "Traumtrug Kasia",
+      "fr": "Kasia du rêve illusoire",
+      "es": "Kasia de ensoñación",
+      "ru": "Касия фантазии"
+     }
+    },
+    {
+     "npc": 2100708,
+     "x": 124957,
+     "y": 11064,
+     "names": {
+      "en": "Centurion Demiros",
+      "de": "Zenturio Demiros",
+      "fr": "Centurion Demiros",
+      "es": "Centurión Demiros",
+      "ru": "Центурион Демирос"
+     }
+    },
+    {
+     "npc": 2100718,
+     "x": 143395,
+     "y": 35371,
+     "names": {
+      "en": "Divine Ansas",
+      "de": "Heiliger Ansas",
+      "fr": "Ansas sacré",
+      "es": "Ansas divina",
+      "ru": "Священный Ансас"
+     }
+    },
+    {
+     "npc": 2100876,
+     "x": 117274,
+     "y": -96444,
+     "names": {
+      "en": "Harvest Manager Moshav",
+      "de": "Ernteaufseher Moshav",
+      "fr": "Moshav le superviseur de la récolte",
+      "es": "Administrador de cosecha Moshav",
+      "ru": "Управляющий сбором Мошав"
+     }
+    },
+    {
+     "npc": 2100877,
+     "x": 130818,
+     "y": -78338,
+     "names": {
+      "en": "Sentinel K'nash",
+      "de": "Überwachungswaffe K'nash",
+      "fr": "K'nash la sentinelle",
+      "es": "Celador K'nash",
+      "ru": "Страж Кнаш"
+     }
+    },
+    {
+     "npc": 2100988,
+     "x": -46187,
+     "y": 99792,
+     "names": {
+      "en": "Scholar Aulla",
+      "de": "Gelehrter Aulla",
+      "fr": "Aulla l'érudit",
+      "es": "Erudito Aulla",
+      "ru": "Ученый Раулла"
+     }
+    },
+    {
+     "npc": 2100989,
+     "x": -25718,
+     "y": 132156,
+     "names": {
+      "en": "Forest Warrior Aullamu",
+      "de": "Waldkrieger Aullamu",
+      "fr": "Aullamu le guerrier de la forêt",
+      "es": "Guerrero del bosque Aullamu",
+      "ru": "Лесной воин Ураму"
+     }
+    },
+    {
+     "npc": 2100991,
+     "x": -63800,
+     "y": 118621,
+     "names": {
+      "en": "Chaser Taulo",
+      "de": "Verfolger Taulo",
+      "fr": "Taulo le traqueur",
+      "es": "Perseguidor Taulo",
+      "ru": "Гонитель Тауло"
+     }
+    },
+    {
+     "npc": 2101016,
+     "x": 159231,
+     "y": -130981,
+     "names": {
+      "en": "Researcher Setram",
+      "de": "Forscher Setram",
+      "fr": "Setram le chercheur",
+      "es": "Investigador Setram",
+      "ru": "Исследователь Сетрам"
+     }
+    },
+    {
+     "npc": 2101074,
+     "x": -219621,
+     "y": 243711,
+     "names": {
+      "en": "Eternal Gartua",
+      "de": "Ewiger Gartua",
+      "fr": "Gartua de l'éternité",
+      "es": "Gartua de eternidad",
+      "ru": "Вечный Гартуа"
+     }
+    },
+    {
+     "npc": 2101120,
+     "x": 14627,
+     "y": 141980,
+     "names": {
+      "en": "Silent Dartan",
+      "de": "Schweigender Dartan",
+      "fr": "Dartan la Silencieuse",
+      "es": "Dartan del silencio",
+      "ru": "Немая Тартан"
+     }
+    },
+    {
+     "npc": 2101122,
+     "x": 138089,
+     "y": 71986,
+     "names": {
+      "en": "Soul Ruler Kashapa",
+      "de": "Seelenherrscher Kashapa",
+      "fr": "Kashapa le dominateur des âmes",
+      "es": "Gobernante de almas Kashapa",
+      "ru": "Властелин душ Кашапа"
+     }
+    },
+    {
+     "npc": 2101131,
+     "x": 72491,
+     "y": -66806,
+     "names": {
+      "en": "High Commander Lagta",
+      "de": "Legat Lagta",
+      "fr": "Haut Commandant Lagta",
+      "es": "Comandante de Lagta",
+      "ru": "Глава армии Рагт"
+     }
+    }
+   ]
+  },
+  {
+   "key": "World_L_B",
+   "id": 0,
+   "names": {
+    "en": "Eltnen",
+    "de": "Eltnen",
+    "fr": "Eltnen",
+    "es": "Eltnen",
+    "ru": "Элтенен"
+   },
+   "bosses": [
+    {
+     "npc": 2101217,
+     "x": -95467,
+     "y": -116438,
+     "names": {
+      "en": "Agglomerated Verenom",
+      "de": "Agglomerierter Verenom",
+      "fr": "Vérénom aggloméré",
+      "es": "Verenom acumulado",
+      "ru": "Сросшийся Вереном"
+     }
+    },
+    {
+     "npc": 2101218,
+     "x": -93574,
+     "y": -158021,
+     "names": {
+      "en": "Old Boss Vigor",
+      "de": "Alter Boss Vigor",
+      "fr": "Ancien chef Vigor",
+      "es": "Antiguo Jefe Vigor",
+      "ru": "Древний босс Вигор"
+     }
+    },
+    {
+     "npc": 2101257,
+     "x": -106981,
+     "y": -69450,
+     "names": {
+      "en": "Severed Wings Zvein",
+      "de": "Zvein mit abgetrennten Flügeln",
+      "fr": "Zvein aux ailes sectionnées",
+      "es": "Zvein, Ala Cercenada",
+      "ru": "Звейн с оторванными крыльями"
+     }
+    },
+    {
+     "npc": 2101278,
+     "x": -5579,
+     "y": -99183,
+     "names": {
+      "en": "Gluttonous Egetis",
+      "de": "Fressgieriger Egetis",
+      "fr": "Egetis vorace",
+      "es": "Egetis, el Glotón",
+      "ru": "Обжорливый Эгетис"
+     }
+    },
+    {
+     "npc": 2101279,
+     "x": -12157,
+     "y": -74827,
+     "names": {
+      "en": "Superbia, Sacred Beast of Life",
+      "de": "Superbia, Heilige Bestie des Lebens",
+      "fr": "Superbia la bête sacrée de la vie",
+      "es": "Superbia, la Bestia Sagrada de la Vida",
+      "ru": "Супербия, священный зверь жизни"
+     }
+    },
+    {
+     "npc": 2101306,
+     "x": -75038,
+     "y": -7095,
+     "names": {
+      "en": "Rotten Root Meltlim",
+      "de": "Faulwurzel Meltlim",
+      "fr": "Racine pourrie de Meltlim",
+      "es": "Meltlim de las Raíces Podridas",
+      "ru": "Мелтрим Гнилой Корень"
+     }
+    },
+    {
+     "npc": 2101349,
+     "x": 48427,
+     "y": -19241,
+     "names": {
+      "en": "Rabid Nihogg",
+      "de": "Tollwütiger Nihogg",
+      "fr": "Nihogg furibond",
+      "es": "Nihogg rabioso",
+      "ru": "Бешеный Нихогг"
+     }
+    },
+    {
+     "npc": 2101350,
+     "x": 80568,
+     "y": -23411,
+     "names": {
+      "en": "First Test Subject K'tima",
+      "de": "Erstes Versuchssubjekt K'tima",
+      "fr": "K'tima premier cobaye",
+      "es": "Primer sujeto de prueba K'tima",
+      "ru": "Первый подопытный Ктима"
+     }
+    },
+    {
+     "npc": 2101415,
+     "x": -38554,
+     "y": -49965,
+     "names": {
+      "en": "Three-Horned Mino",
+      "de": "Drei-Horn Minolim",
+      "fr": "Mino à trois cornes",
+      "es": "Mino de tres cuernos",
+      "ru": "Трехрогий Миноринг"
+     }
+    },
+    {
+     "npc": 2101416,
+     "x": -14990,
+     "y": -9929,
+     "names": {
+      "en": "Lamphus of Agony",
+      "de": "Lamphus des Leids",
+      "fr": "Lamphus de l'agonie",
+      "es": "Lamphus del Tormento",
+      "ru": "Рампус агонии"
+     }
+    },
+    {
+     "npc": 2101600,
+     "x": 47722,
+     "y": -116523,
+     "names": {
+      "en": "Third Unit Captain Karkoti",
+      "de": "Kommandant der dritten Einheit Karkoti",
+      "fr": "Commandant Karkoti de la troisième unité",
+      "es": "Comandante de la Tercera Unidad Karkoti",
+      "ru": "Командир третьего отряда Каркоти"
+     }
+    },
+    {
+     "npc": 2101601,
+     "x": 67082,
+     "y": 6307,
+     "names": {
+      "en": "Deputy Commander Vivajra",
+      "de": "Legionsvogt Vivajra",
+      "fr": "Vice-commandant Vivajra",
+      "es": "Subcomandante Vivajra",
+      "ru": "Младший глава армии Виважра"
+     }
+    }
+   ]
+  },
+  {
+   "key": "World_D_A",
+   "id": 1110,
+   "names": {
+    "en": "Altgard",
+    "de": "Altgard",
+    "fr": "Altgard",
+    "es": "Altgard",
+    "ru": "Альтгард"
+   },
+   "bosses": [
+    {
+     "npc": 2400017,
+     "x": -79655,
+     "y": -74913,
+     "names": {
+      "en": "Melted Danar",
+      "de": "Geschmolzener Danar",
+      "fr": "Danar le fondu",
+      "es": "Danar fundido",
+      "ru": "Расплавленный Данар"
+     }
+    },
+    {
+     "npc": 2400074,
+     "x": -152945,
+     "y": -113071,
+     "names": {
+      "en": "Black Warrior Aed",
+      "de": "Dunkelkrieger Aed",
+      "fr": "Aed le guerrier noir",
+      "es": "Guerrero negro Aed",
+      "ru": "Черный воин Аэд"
+     }
+    },
+    {
+     "npc": 2400140,
+     "x": -170253,
+     "y": -17688,
+     "names": {
+      "en": "Faithful Rajit",
+      "de": "Treuer Rajit",
+      "fr": "Rajit le fidèle",
+      "es": "Rajit leal",
+      "ru": "Верный Ладжит"
+     }
+    },
+    {
+     "npc": 2400141,
+     "x": -179952,
+     "y": -4813,
+     "names": {
+      "en": "Berserker Vargor",
+      "de": "Berserker Vargor",
+      "fr": "Vargor le Berserker",
+      "es": "Berserker Vargor",
+      "ru": "Берсерк Вальг"
+     }
+    },
+    {
+     "npc": 2400212,
+     "x": -3697,
+     "y": 41042,
+     "names": {
+      "en": "Predator Garsan",
+      "de": "Verschlinger Garsan",
+      "fr": "Garsan le Prédateur",
+      "es": "Garsan depredador",
+      "ru": "Хищник Гарсан"
+     }
+    },
+    {
+     "npc": 2400223,
+     "x": -34000,
+     "y": 41050,
+     "names": {
+      "en": "Blood Warrior Lannar",
+      "de": "Blutkrieger Lannar",
+      "fr": "Lannar le guerrier de sang",
+      "es": "Guerrero sangriento Lannar",
+      "ru": "Воин крови Ланнар"
+     }
+    },
+    {
+     "npc": 2400274,
+     "x": 18965,
+     "y": -33343,
+     "names": {
+      "en": "Deceiver Trid",
+      "de": "Täuscherin Trid",
+      "fr": "Trid la Trompeuse",
+      "es": "Impostora Trid",
+      "ru": "Притворщица Трида"
+     }
+    },
+    {
+     "npc": 2400335,
+     "x": 22380,
+     "y": -70980,
+     "names": {
+      "en": "Blue Wave Kelpina",
+      "de": "Blauwelle Kelpina",
+      "fr": "Kelpina la Vague bleue",
+      "es": "Kelpina de onda azul",
+      "ru": "Келпина лазурной волны"
+     }
+    },
+    {
+     "npc": 2400353,
+     "x": 62629,
+     "y": -144426,
+     "names": {
+      "en": "High Overseer Nutah",
+      "de": "Hauptaufseher Nutah",
+      "fr": "Nutah le Chef superviseur",
+      "es": "Nutah supervisor jefe",
+      "ru": "Главный надзиратель Нута"
+     }
+    },
+    {
+     "npc": 2400358,
+     "x": 65036,
+     "y": -180552,
+     "names": {
+      "en": "Advisor Resana",
+      "de": "Berater Resana",
+      "fr": "Resana le Conseiller",
+      "es": "Consejero Resana",
+      "ru": "Советник Рсан"
+     }
+    },
+    {
+     "npc": 2400419,
+     "x": 142792,
+     "y": -111184,
+     "names": {
+      "en": "Special Operations Leader Linx",
+      "de": "Sondereinsatzhauptmann Linx",
+      "fr": "Linx le Chef des opérations spéciales",
+      "es": "Líder de operaciones especiales Linx",
+      "ru": "Капитан спецотряда Линкс"
+     }
+    },
+    {
+     "npc": 2400424,
+     "x": 198909,
+     "y": -117642,
+     "names": {
+      "en": "Desecrator Newbold",
+      "de": "Schänder Newbold",
+      "fr": "Newbold le Profanateur",
+      "es": "Profanador Newbold",
+      "ru": "Осквернитель Ноблуд"
+     }
+    },
+    {
+     "npc": 2400425,
+     "x": 164579,
+     "y": -63932,
+     "names": {
+      "en": "Specter Archon Axios",
+      "de": "Schattenarchon Axios",
+      "fr": "Axios l'Archon des âmes égarées",
+      "es": "Akan de ánimas perdidas Axios",
+      "ru": "Акан потерянных душ Аксиос"
+     }
+    },
+    {
+     "npc": 2400474,
+     "x": 126913,
+     "y": 32185,
+     "names": {
+      "en": "Addicted Hardirun",
+      "de": "Vergifteter Hadirun",
+      "fr": "Hardirun l'intoxiqué",
+      "es": "Hardirun envenenado",
+      "ru": "Одурманенный Хадирун"
+     }
+    },
+    {
+     "npc": 2400504,
+     "x": 123597,
+     "y": 96521,
+     "names": {
+      "en": "Executioner Barthien",
+      "de": "Henker Barthien",
+      "fr": "Barthien le Bourreau",
+      "es": "Barthien verdugo",
+      "ru": "Эмиссар Варсиен"
+     }
+    },
+    {
+     "npc": 2400593,
+     "x": 180791,
+     "y": 117339,
+     "names": {
+      "en": "Drakan Battalion Weapon Guruta",
+      "de": "Bataillonswaffe Guruta (Drakan)",
+      "fr": "Guruta l'arme de troupe Drakan",
+      "es": "Drakan artillería de destacamento Guruta",
+      "ru": "Биооружие отряда драканов Гурута"
+     }
+    },
+    {
+     "npc": 2400607,
+     "x": 108458,
+     "y": 161280,
+     "names": {
+      "en": "Veteran Shujakan",
+      "de": "Veteran Shujakan",
+      "fr": "Shujakan le Vétéran",
+      "es": "Veterano Shujakan",
+      "ru": "Ветеран Шужакан"
+     }
+    },
+    {
+     "npc": 2400608,
+     "x": 69841,
+     "y": 157163,
+     "names": {
+      "en": "Visionary Karuka",
+      "de": "Visionärer Karuka",
+      "fr": "Karuka le Visionnaire",
+      "es": "Karuka visionario",
+      "ru": "Визионер Карука"
+     }
+    },
+    {
+     "npc": 2400659,
+     "x": -5096,
+     "y": 157792,
+     "names": {
+      "en": "Dark Shadow Vishwada",
+      "de": "Dunkelschatten Vishwada",
+      "fr": "Vishwada le Ténébreux",
+      "es": "Vishwada de oscuridad",
+      "ru": "Вишвада темной тени"
+     }
+    },
+    {
+     "npc": 2400709,
+     "x": 148455,
+     "y": 177722,
+     "names": {
+      "en": "Sharp Shylak",
+      "de": "Scharfer Shylak",
+      "fr": "Shylak l'Acéré",
+      "es": "Shylak agudo",
+      "ru": "Острый Шурак"
+     }
+    },
+    {
+     "npc": 2400800,
+     "x": -199307,
+     "y": 227277,
+     "names": {
+      "en": "Immortal Gartua",
+      "de": "Unsterblicher Gartua",
+      "fr": "Gartua de l'immortalité",
+      "es": "Gartua inmortal",
+      "ru": "Бессмертный Гартуа"
+     }
+    },
+    {
+     "npc": 2400853,
+     "x": -24415,
+     "y": 156144,
+     "names": {
+      "en": "High Commander Lagta",
+      "de": "Legat Lagta",
+      "fr": "Haut Commandant Lagta",
+      "es": "Comandante de Lagta",
+      "ru": "Глава армии Рагт"
+     }
+    },
+    {
+     "npc": 2400854,
+     "x": 147735,
+     "y": 72495,
+     "names": {
+      "en": "Soul Ruler Kashapa",
+      "de": "Seelenherrscher Kashapa",
+      "fr": "Kashapa le dominateur des âmes",
+      "es": "Gobernante de almas Kashapa",
+      "ru": "Властелин душ Кашапа"
+     }
+    },
+    {
+     "npc": 2400855,
+     "x": 119635,
+     "y": -108526,
+     "names": {
+      "en": "Silent Dartan",
+      "de": "Schweigender Dartan",
+      "fr": "Dartan la Silencieuse",
+      "es": "Dartan del silencio",
+      "ru": "Немая Тартан"
+     }
+    }
+   ]
+  },
+  {
+   "key": "World_D_B",
+   "id": 0,
+   "names": {
+    "en": "Morheim",
+    "de": "Morheim",
+    "fr": "Morheim",
+    "es": "Morheim",
+    "ru": "Морхейм"
+   },
+   "bosses": [
+    {
+     "npc": 2406034,
+     "x": -63789,
+     "y": -179754,
+     "names": {
+      "en": "Edgewalker Pargon",
+      "de": "Grenzläufer Pargon",
+      "fr": "Pargon le vagabond des frontières",
+      "es": "Pargon, el Caminante del Filo",
+      "ru": "Странник пограничья Паргон"
+     }
+    },
+    {
+     "npc": 2406035,
+     "x": -107347,
+     "y": -172345,
+     "names": {
+      "en": "Predator Colossus Balakh",
+      "de": "Raubkoloss Balakh",
+      "fr": "Balakh le prédateur colossal",
+      "es": "Balakh, el Coloso Depredador",
+      "ru": "Хищный колосс Балах"
+     }
+    },
+    {
+     "npc": 2406071,
+     "x": -121738,
+     "y": -135097,
+     "names": {
+      "en": "Crimson Blizzard Renulf",
+      "de": "Blutsturm Renulf",
+      "fr": "Renulf la tempête pourpre",
+      "es": "Renulf de la Ventisca Carmesí",
+      "ru": "Багровая метель Ренульф"
+     }
+    },
+    {
+     "npc": 2406093,
+     "x": -128042,
+     "y": -95515,
+     "names": {
+      "en": "Frostarmor Harkhan",
+      "de": "Frostpanzer Harkhan",
+      "fr": "Harkhan Givre-armure",
+      "es": "Harkhan de la Armadura Helada",
+      "ru": "Харкхан в морозной броне"
+     }
+    },
+    {
+     "npc": 2406094,
+     "x": -167365,
+     "y": -106702,
+     "names": {
+      "en": "Azure Tear Glacia",
+      "de": "Azurträne Glacia",
+      "fr": "Glacia aux larmes azur",
+      "es": "Glacia de la Lágrima Azul",
+      "ru": "Лазурная слеза Гласия"
+     }
+    },
+    {
+     "npc": 2406129,
+     "x": -9854,
+     "y": -93971,
+     "names": {
+      "en": "Wings of Hellfire Fios",
+      "de": "Höllenflügel Fios",
+      "fr": "Fios aux ailes du feu infernal",
+      "es": "Fios de las Alas Infernales",
+      "ru": "Фиос с крыльями адского пламени"
+     }
+    },
+    {
+     "npc": 2406131,
+     "x": 31128,
+     "y": -71915,
+     "names": {
+      "en": "Lava Heart Batu",
+      "de": "Lavaherz Batu",
+      "fr": "Batu le cœur de la lave",
+      "es": "Batu del Corazón de Lava",
+      "ru": "Бату с лавовым сердцем"
+     }
+    },
+    {
+     "npc": 2406132,
+     "x": 18425,
+     "y": -95214,
+     "names": {
+      "en": "Elite Inquisitor Verant",
+      "de": "Elite-Inquisitor Verant",
+      "fr": "Verant l'inquisiteur d'élite",
+      "es": "Verant, el Inquisidor de Élite",
+      "ru": "Элитный инквизитор Верант"
+     }
+    },
+    {
+     "npc": 2406181,
+     "x": 35301,
+     "y": -35946,
+     "names": {
+      "en": "Mad Watcher Bulagan",
+      "de": "Irrwächter Bulagan",
+      "fr": "Bulagan le veilleur fou",
+      "es": "Bulagan, el Vigilante Enloquecido",
+      "ru": "Безумный дозорный Булаган"
+     }
+    },
+    {
+     "npc": 2406182,
+     "x": -24144,
+     "y": -11314,
+     "names": {
+      "en": "Vulcanarch Grymnir",
+      "de": "Vulkanarch Grymnir",
+      "fr": "Grymnir Volcandarche",
+      "es": "Vulcanarca Grymnir",
+      "ru": "Вулканарх Гримнир"
+     }
+    },
+    {
+     "npc": 2406990,
+     "x": -193415,
+     "y": -43855,
+     "names": {
+      "en": "Third Unit Captain Minasara",
+      "de": "Kommandant der dritten Einheit Minasara",
+      "fr": "Commandant Minasara de la troisième unité",
+      "es": "Comandante de la Tercera Unidad Minasara",
+      "ru": "Командир третьего отряда Минасара"
+     }
+    },
+    {
+     "npc": 2406991,
+     "x": -47039,
+     "y": -120972,
+     "names": {
+      "en": "Deputy Commander Sarvakha",
+      "de": "Legionsvogt Sarvakha",
+      "fr": "Vice-commandant Sarvakha",
+      "es": "Subcomandante Sarvakha",
+      "ru": "Младший глава армии Сарваха"
+     }
+    }
+   ]
+  },
+  {
+   "key": "Abyss_Reshanta_A",
+   "id": 0,
+   "names": {
+    "en": "Chaotic Lower Reshanta",
+    "de": "Chaotische Untere Ebene von Reshanta",
+    "fr": "Reshanta Inférieur du Chaos",
+    "es": "Reshanta Inferior del Caos",
+    "ru": "Нижний уровень Арэшурата хаоса"
+   },
+   "bosses": [
+    {
+     "npc": 2600068,
+     "x": 61218,
+     "y": 29738,
+     "names": {
+      "en": "Argo, the Spirit King",
+      "de": "Geisterfürst Agro",
+      "fr": "Agro le roi des esprits",
+      "es": "Rey Espíritu Agro",
+      "ru": "Король духов Агро"
+     }
+    },
+    {
+     "npc": 2600084,
+     "x": 3055,
+     "y": 2881,
+     "names": {
+      "en": "Guardian Lord Nahma",
+      "de": "Wächtergott Nahma",
+      "fr": "Nahma le seigneur gardien",
+      "es": "Gran Vigía Nahma",
+      "ru": "Лорд-хранитель Нахма"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       0,
+       5
+      ],
+      "at": "21:00",
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600089,
+     "x": 32625,
+     "y": -11726,
+     "names": {
+      "en": "Watcher Kaira",
+      "de": "Aufseherin Kaira",
+      "fr": "Kaira la veilleuse",
+      "es": "Velador Kaira",
+      "ru": "Дозорщик Кайра"
+     },
+     "fixed": {
+      "kind": "cycle",
+      "base": "01:00",
+      "everyMinutes": 180,
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600093,
+     "x": -13863,
+     "y": 35374,
+     "names": {
+      "en": "Guardian Lord Nahma",
+      "de": "Wächtergott Nahma",
+      "fr": "Nahma le seigneur gardien",
+      "es": "Gran Vigía Nahma",
+      "ru": "Лорд-хранитель Нахма"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       0,
+       5
+      ],
+      "at": "21:00",
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600094,
+     "x": 20235,
+     "y": -41189,
+     "names": {
+      "en": "Guardian Lord Nahma",
+      "de": "Wächtergott Nahma",
+      "fr": "Nahma le seigneur gardien",
+      "es": "Gran Vigía Nahma",
+      "ru": "Лорд-хранитель Нахма"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       0,
+       5
+      ],
+      "at": "21:00",
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600096,
+     "x": 3477,
+     "y": -3049,
+     "names": {
+      "en": "Executor Tamasa",
+      "de": "Vollstrecker Tamasa",
+      "fr": "Tamasa l'exécuteur",
+      "es": "Ejecutante Tamasa",
+      "ru": "Исполнитель Тамаса"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       1,
+       4,
+       6
+      ],
+      "at": "21:30",
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600097,
+     "x": 23900,
+     "y": 36440,
+     "names": {
+      "en": "Executor Argo",
+      "de": "Vollstrecker Agro",
+      "fr": "Agro exécuteur",
+      "es": "Ejecutante Agro",
+      "ru": "Исполнитель Агро"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       1,
+       4,
+       6
+      ],
+      "at": "21:30",
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600098,
+     "x": -17728,
+     "y": -30749,
+     "names": {
+      "en": "Executor Kaira",
+      "de": "Vollstreckerin Kaira",
+      "fr": "Kaira exécutrice",
+      "es": "Ejecutante Kaira",
+      "ru": "Исполнитель Кайра"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       1,
+       4,
+       6
+      ],
+      "at": "21:30",
+      "openMinutes": 20
+     }
+    }
+   ]
+  },
+  {
+   "key": "Abyss_Reshanta_C",
+   "id": 0,
+   "names": {
+    "en": "Chaotic Middle Reshanta",
+    "de": "Chaotische Mittlere Ebene von Reshanta",
+    "fr": "Reshanta Intermédiaire du Chaos",
+    "es": "Reshanta Intermedia del Caos",
+    "ru": "Средний уровень Арэшурата хаоса"
+   },
+   "bosses": [
+    {
+     "npc": 2600479,
+     "x": 16545,
+     "y": -47627,
+     "names": {
+      "en": "Enraged Guardian Lord Nahma",
+      "de": "Wütender Wächtergott Nahma",
+      "fr": "Nahma le seigneur gardien enragé",
+      "es": "Gran Vigía Nahma iracundo",
+      "ru": "Разъяренный лорд-хранитель Нахма"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       0,
+       5
+      ],
+      "at": "21:00",
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600480,
+     "x": -16581,
+     "y": 44157,
+     "names": {
+      "en": "Enraged Guardian Lord Nahma",
+      "de": "Wütender Wächtergott Nahma",
+      "fr": "Nahma le seigneur gardien enragé",
+      "es": "Gran Vigía Nahma iracundo",
+      "ru": "Разъяренный лорд-хранитель Нахма"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       0,
+       5
+      ],
+      "at": "21:00",
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600520,
+     "x": 2374,
+     "y": 1821,
+     "names": {
+      "en": "Executioner Dramos",
+      "de": "Scharfrichter Dhramos",
+      "fr": "Dramos l'exécuteur",
+      "es": "Sayón Dramos",
+      "ru": "Палач Драмос"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       1,
+       4,
+       6
+      ],
+      "at": "21:30",
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600521,
+     "x": -4535,
+     "y": 53621,
+     "names": {
+      "en": "Turncoat Ducal",
+      "de": "Verräter Ducal",
+      "fr": "Ducal le traître",
+      "es": "Desleal Ducal",
+      "ru": "Изменник Дюкаль"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       1,
+       4,
+       6
+      ],
+      "at": "21:30",
+      "openMinutes": 20
+     }
+    },
+    {
+     "npc": 2600522,
+     "x": 4180,
+     "y": -50454,
+     "names": {
+      "en": "Ravager Marakha",
+      "de": "Verwüster Maraka",
+      "fr": "Maraka d'anéantissement",
+      "es": "Desintegrador Maraka",
+      "ru": "Уничтожитель Марака"
+     },
+     "fixed": {
+      "kind": "weekly",
+      "days": [
+       1,
+       4,
+       6
+      ],
+      "at": "21:30",
+      "openMinutes": 20
+     }
+    }
+   ]
+  }
+ ]
+}

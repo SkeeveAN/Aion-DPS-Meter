@@ -55,6 +55,7 @@ public partial class SettingsWindow : Window
         ShowPetFarmBox.IsChecked = settings.ShowPetFarm;
         PetFarmLockedBox.IsChecked = settings.PetFarmLocked;
         InitPetMap(settings);
+        InitBossPage(settings);
         SetHotkeyBox(HotkeyTimetableBox, HotkeyBinding.Parse(settings.HotkeyTimetable).ToString());
         SetHotkeyBox(HotkeyPetMapBox, HotkeyBinding.Parse(settings.HotkeyPetMap).ToString());
         ShowHotkeyOverlayBox.IsChecked = settings.ShowHotkeyOverlay;
@@ -460,6 +461,11 @@ public partial class SettingsWindow : Window
         _settings.PetListLeft = onDisk.PetListLeft;
         _settings.PetListTop = onDisk.PetListTop;
         _settings.PetListScale = onDisk.PetListScale;
+        _settings.BossOverlayLeft = onDisk.BossOverlayLeft;
+        _settings.BossOverlayTop = onDisk.BossOverlayTop;
+        _settings.BossOverlayScale = onDisk.BossOverlayScale;
+        _settings.BossOverlayWidth = onDisk.BossOverlayWidth;
+        _settings.BossOverlayHeight = onDisk.BossOverlayHeight;
 
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? false;
@@ -493,6 +499,9 @@ public partial class SettingsWindow : Window
         _settings.TimetableOpacity = double.Parse((string)((ComboBoxItem)TimetableOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
         _settings.TimetableLookaheadMinutes = (int)TimetableLookaheadSlider.Value;
         _settings.TimetableNotify = TimetableNotifyBox.IsChecked ?? false;
+        _settings.ShowBossOverlay = ShowBossOverlayBox.IsChecked ?? false;
+        _settings.BossNotify = BossNotifyBox.IsChecked ?? false;
+        _settings.BossAlerts = _bossAlerts.ToDictionary(kv => kv.Key, kv => kv.Value);
         _settings.TimetableSoundMinutes = (int)TimetableSoundSlider.Value;
         _settings.TimetableEvents = _timetableEvents.ToDictionary(kv => kv.Key, kv => kv.Value);
         _settings.Language = LocalizationManager.Instance.Language;
@@ -545,6 +554,189 @@ public partial class SettingsWindow : Window
         onDisk.SettingsWindowHeight = bounds.Height;
         onDisk.Save();
         base.OnClosing(e);
+    }
+
+    // ---- World boss page: every field boss, grouped by map (a group folds in and out), with its time and what to play when it is back ----
+    private Dictionary<string, BossAlertSetting> _bossAlerts = new();
+    private readonly HashSet<string> _bossOpen = new();
+    private readonly List<(FieldBossMap Map, FieldBoss Boss, TextBlock Text)> _bossTexts = new();
+    private readonly List<(ComboBox Sound, Slider Volume, Button Test, Func<bool> HasSound)> _bossSoundControls = new();
+    private readonly System.Windows.Threading.DispatcherTimer _bossTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+
+    private void InitBossPage(MeterSettings settings)
+    {
+        _bossAlerts = settings.BossAlerts.ToDictionary(kv => kv.Key, kv => new BossAlertSetting { Enabled = kv.Value.Enabled, Sound = kv.Value.Sound, Volume = kv.Value.Volume });
+        ShowBossOverlayBox.IsChecked = settings.ShowBossOverlay;
+        BossNotifyBox.IsChecked = settings.BossNotify;
+        BuildBossPage();
+        _bossTimer.Tick += (_, _) => RefreshBossTimes();
+        _bossTimer.Start();
+        Closed += (_, _) => _bossTimer.Stop();
+        OnBossNotifyChanged(null, null);
+    }
+
+    /// <summary>The master switch is off: the sounds, volumes and play buttons are greyed out (the choices stay; the switch before a boss still works).</summary>
+    private void OnBossNotifyChanged(object? sender, RoutedEventArgs? e)
+    {
+        bool on = BossNotifyBox.IsChecked == true;
+        foreach (var (sound, volume, test, hasSound) in _bossSoundControls)
+        {
+            foreach (UIElement control in new UIElement[] { sound, volume })
+            {
+                control.IsEnabled = on;
+                control.Opacity = on ? 1.0 : 0.4;
+            }
+
+            test.IsEnabled = on && hasSound();
+            test.Opacity = test.IsEnabled ? 1.0 : 0.4;
+        }
+    }
+
+    private void RefreshBossTimes(bool force = false)
+    {
+        if (!force && !NavBoss.IsChecked.GetValueOrDefault())
+        {
+            return;
+        }
+
+        DateTime now = DateTime.Now;
+        foreach (var (_, boss, text) in _bossTexts)
+        {
+            var status = Aion2FieldBosses.StatusOf(boss, now);
+            text.Text = WorldBossText.Of(status, now);
+            bool there = status.Phase == BossPhase.Now;
+            text.SetResourceReference(TextBlock.ForegroundProperty, there ? "Brush.Heal" : "Brush.TextMuted");
+            text.FontWeight = there ? FontWeights.SemiBold : FontWeights.Normal;
+            text.ToolTip = status.SeenAt is { } seen ? string.Format(LocalizationManager.Instance["Boss.Seen"], seen.ToString("g")) : null;
+        }
+    }
+
+    private void BuildBossPage()
+    {
+        BossGroups.Children.Clear();
+        _bossTexts.Clear();
+        _bossSoundControls.Clear();
+        var loc = LocalizationManager.Instance;
+        string language = loc.Language;
+        DateTime now = DateTime.Now;
+        if (_bossOpen.Count == 0 && Aion2FieldBosses.Maps.Count > 0)
+        {
+            // the map the player was last seen on (the freshest list) starts open
+            var freshest = Aion2FieldBosses.Maps
+                .OrderByDescending(m => m.Bosses.Select(b => Aion2FieldBosses.StatusOf(b, now).SeenAt ?? DateTime.MinValue).DefaultIfEmpty(DateTime.MinValue).Max())
+                .First();
+            _bossOpen.Add(freshest.Key);
+        }
+
+        foreach (var map in Aion2FieldBosses.Maps)
+        {
+            var card = new Border { Padding = new Thickness(8, 2, 8, 2) };
+            card.SetResourceReference(FrameworkElement.StyleProperty, "SettingsCard");
+            var stack = new StackPanel();
+            var body = new StackPanel { Visibility = _bossOpen.Contains(map.Key) ? Visibility.Visible : Visibility.Collapsed };
+
+            var arrow = new TextBlock { Text = body.Visibility == Visibility.Visible ? "▾" : "▸", Width = 16, FontSize = 12, VerticalAlignment = VerticalAlignment.Center };
+            arrow.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+            var title = new TextBlock { Text = map.NameIn(language), FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap };
+            var count = new TextBlock { FontSize = 11, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0) };
+            count.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
+            var header = new DockPanel { Background = Brushes.Transparent, Cursor = Cursors.Hand, Margin = new Thickness(0, 6, 0, 6) };
+            DockPanel.SetDock(arrow, Dock.Left);
+            DockPanel.SetDock(count, Dock.Right);
+            header.Children.Add(arrow);
+            header.Children.Add(count);
+            header.Children.Add(title);
+            header.MouseLeftButtonUp += (_, _) =>
+            {
+                bool open = body.Visibility != Visibility.Visible;
+                body.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+                arrow.Text = open ? "▾" : "▸";
+                if (open) { _bossOpen.Add(map.Key); } else { _bossOpen.Remove(map.Key); }
+            };
+
+            void ShowCount() => count.Text = string.Format(loc["Settings.Boss.Count"], map.Bosses.Count(b => _bossAlerts.TryGetValue(b.Npc.ToString(), out var a) && a.Enabled), map.Bosses.Count);
+            foreach (var boss in map.Bosses)
+            {
+                body.Children.Add(BuildBossRow(map, boss, language, ShowCount));
+            }
+
+            ShowCount();
+            stack.Children.Add(header);
+            stack.Children.Add(body);
+            card.Child = stack;
+            BossGroups.Children.Add(card);
+        }
+
+        RefreshBossTimes(force: true);
+    }
+
+    private UIElement BuildBossRow(FieldBossMap map, FieldBoss boss, string language, Action showCount)
+    {
+        var loc = LocalizationManager.Instance;
+        string key = boss.Npc.ToString();
+        var alert = _bossAlerts.GetValueOrDefault(key) ?? new BossAlertSetting();
+        void Touch() => _bossAlerts[key] = alert;
+
+        var row = new Grid { Margin = new Thickness(0, 3, 0, 3) };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(48) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var on = new CheckBox { IsChecked = alert.Enabled, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) };
+        on.Checked += (_, _) => { alert.Enabled = true; Touch(); showCount(); };
+        on.Unchecked += (_, _) => { alert.Enabled = false; Touch(); showCount(); };
+
+        var name = new TextBlock { Text = Aion2FieldBosses.DisplayName(map, boss, language), TextWrapping = TextWrapping.Wrap, FontWeight = FontWeights.SemiBold };
+        name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+        var status = new TextBlock { FontSize = 10.5, TextWrapping = TextWrapping.Wrap };
+        var texts = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
+        texts.Children.Add(name);
+        texts.Children.Add(status);
+        Grid.SetColumn(texts, 1);
+        _bossTexts.Add((map, boss, status));
+
+        var sound = new ComboBox { Margin = new Thickness(0, 0, 8, 0), Height = 26, VerticalContentAlignment = VerticalAlignment.Center };
+        sound.Items.Add(new ComboBoxItem { Content = loc["Settings.Timetable.NoSound"], Tag = "" });
+        foreach (string id in NotifySounds.All)
+        {
+            sound.Items.Add(new ComboBoxItem { Content = loc["Sound." + id], Tag = id });
+        }
+
+        sound.SelectedItem = sound.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Tag == alert.Sound) ?? sound.Items[0];
+        Grid.SetColumn(sound, 2);
+
+        var volume = new Slider { Minimum = 0, Maximum = 100, Value = Math.Clamp(alert.Volume, 0, 100), TickFrequency = 5, IsSnapToTickEnabled = true, SmallChange = 5, LargeChange = 10, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0), ToolTip = loc["Settings.Timetable.Volume"] };
+        volume.SetResourceReference(FrameworkElement.StyleProperty, "ThemedSlider");
+        Grid.SetColumn(volume, 3);
+
+        var test = new Button { Content = "▶", Width = 28, Height = 26, Padding = new Thickness(0), ToolTip = loc["Settings.Timetable.Test"] };
+        Grid.SetColumn(test, 4);
+
+        void ShowTestState()
+        {
+            test.IsEnabled = alert.Sound.Length > 0 && BossNotifyBox.IsChecked == true;
+            test.Opacity = test.IsEnabled ? 1.0 : 0.4;
+        }
+
+        sound.SelectionChanged += (_, _) =>
+        {
+            alert.Sound = (sound.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
+            Touch();
+            ShowTestState();
+        };
+        volume.ValueChanged += (_, _) => { alert.Volume = (int)volume.Value; Touch(); };
+        test.Click += (_, _) => NotifySounds.Play(alert.Sound, alert.Volume);
+        ShowTestState();
+
+        row.Children.Add(on);
+        row.Children.Add(texts);
+        row.Children.Add(sound);
+        row.Children.Add(volume);
+        row.Children.Add(test);
+        _bossSoundControls.Add((sound, volume, test, () => alert.Sound.Length > 0));
+        return row;
     }
 
     // ---- Pet-Karte page: which pets the map shows (species list on the left, the pets of the chosen species with switches on the right) ----

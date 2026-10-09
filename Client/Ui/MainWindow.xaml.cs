@@ -114,6 +114,7 @@ public partial class MainWindow : Window
     private bool _showBossHp;
     private TimetableWindow? _timetable;
     private HotkeyOverlayWindow? _hotkeyOverlay;
+    private WorldBossController? _worldBoss;
     private readonly System.Windows.Threading.DispatcherTimer _gateTimer = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private bool _gameGateOpen = true;
     private TimetableReminder? _timetableReminder;
@@ -592,6 +593,7 @@ public partial class MainWindow : Window
         // The timetable overlay always sits above the meter: raised right after it, in the same tick.
         _timetable?.RaiseToFront();
         _hotkeyOverlay?.RaiseToFront();
+        _worldBoss?.RaiseToFront();
         _petFarm?.RaiseToFront();
         _petMapController?.RaiseToFront();
 
@@ -834,6 +836,9 @@ public partial class MainWindow : Window
         ApplyHotkeyOverlay(MeterSettings.Load());
         if (!Headless)
         {
+            // the world boss overlay and sounds: the lists the game sends are kept in a file, and the controller reads the settings every second
+            Aion2FieldBosses.EnablePersistence();
+            _worldBoss ??= new WorldBossController();
             _gateTimer.Tick += (_, _) => OnGateTick();
             _gateTimer.Start();
         }
@@ -875,6 +880,8 @@ public partial class MainWindow : Window
         _gateTimer.Stop();
         _timetable?.Close();
         _hotkeyOverlay?.Close();
+        _worldBoss?.Dispose();
+        Aion2FieldBosses.Flush();
         _timetableReminder?.Dispose();
         _petFarmController?.Dispose();
         _petFarm?.Close();

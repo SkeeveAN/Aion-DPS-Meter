@@ -41,6 +41,9 @@ public sealed class Aion2FrameDecoder
         _entities = entities;
     }
 
+    /// <summary>The opcode of the field boss list of a map (the in-game map, Exploration, Field monsters).</summary>
+    private const int FieldBossListOpcode = 0x0191;
+
     public string CurrentZone { get; private set; } = "";
 
     public int SkippedShortFrames { get; private set; }
@@ -106,6 +109,17 @@ public sealed class Aion2FrameDecoder
                     Console.WriteLine($"AION2_FIND {timestamp:HH:mm:ss.fff} opcode 0x{opcode:x4} len {frame.Length} at {at}: {Convert.ToHexString(frame[..Math.Min(frame.Length, 160)])}");
                 }
             }
+        }
+
+        if (opcode == FieldBossListOpcode)
+        {
+            // the field boss list of a map (see Aion2FieldBosses); other frames of this opcode do not read as such a list and are skipped
+            if (Aion2FieldBosses.TryParse(frame, out int bossMap, out List<Aion2FieldBosses.Slot> bossSlots))
+            {
+                Aion2FieldBosses.Update(bossMap, bossSlots);
+            }
+
+            return Array.Empty<DamageEvent>();
         }
 
         OpcodeFamily family = _protocol.FamilyOf(opcode);

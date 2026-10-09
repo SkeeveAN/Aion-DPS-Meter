@@ -2590,5 +2590,105 @@
     "pl": "Nie wybrano skrótów",
     "tr": "Kısayol seçilmedi",
     "zh": "未选择快捷键"
+  },
+  "Settings.Nav.Boss": {
+    "en": "World boss",
+    "de": "World-Boss",
+    "fr": "Boss du monde",
+    "es": "Jefe mundial",
+    "ru": "Мировой босс",
+    "pl": "Boss światowy",
+    "tr": "Dünya patronu",
+    "zh": "世界首领"
+  },
+  "Settings.Boss.Overlay": {
+    "en": "Show the overlay",
+    "de": "Overlay anzeigen",
+    "fr": "Afficher l'overlay",
+    "es": "Mostrar el overlay",
+    "ru": "Показывать оверлей",
+    "pl": "Pokaż nakładkę",
+    "tr": "Kaplamayı göster",
+    "zh": "显示悬浮窗"
+  },
+  "Settings.Boss.Notify": {
+    "en": "Notifications active",
+    "de": "Benachrichtigung aktiv",
+    "fr": "Notifications actives",
+    "es": "Avisos activados",
+    "ru": "Уведомления включены",
+    "pl": "Powiadomienia włączone",
+    "tr": "Bildirimler açık",
+    "zh": "通知已开启"
+  },
+  "Settings.Boss.Hint": {
+    "en": "Switch a boss on to see it on the overlay and to hear its sound when it is back. The times come from the game by themselves for the map you are on; for the other maps they are known once you have been there.",
+    "de": "Schalte einen Boss ein, um ihn auf dem Overlay zu sehen und seinen Ton zu hören, wenn er wieder da ist. Die Zeiten kommen von selbst aus dem Spiel, und zwar für die Karte, auf der du bist; die anderen Karten sind bekannt, sobald du dort warst.",
+    "fr": "Activez un boss pour le voir sur l'overlay et entendre son son quand il revient. Les heures viennent du jeu d'elles-mêmes pour la carte où vous vous trouvez ; les autres cartes sont connues une fois que vous y êtes allé.",
+    "es": "Activa un jefe para verlo en el overlay y oír su sonido cuando vuelva. Las horas llegan solas del juego para el mapa en el que estás; los demás mapas se conocen cuando hayas estado allí.",
+    "ru": "Включите босса, чтобы видеть его на оверлее и слышать звук, когда он вернётся. Время приходит из игры само для карты, на которой вы находитесь; для остальных карт оно известно после того, как вы там побываете.",
+    "pl": "Włącz bossa, aby widzieć go na nakładce i słyszeć dźwięk, gdy wróci. Czasy przychodzą z gry same dla mapy, na której jesteś; dla pozostałych map są znane, gdy tam zajrzysz.",
+    "tr": "Bir patronu açın; kaplamada görünsün ve geri döndüğünde sesi çalsın. Süreler, bulunduğunuz harita için oyundan kendiliğinden gelir; diğer haritalar oraya gittiğinizde bilinir.",
+    "zh": "开启某个首领后，它会显示在悬浮窗上，并在刷新时播放提示音。你所在地图的时间会自动从游戏获得；其他地图在你去过之后就会知道。"
+  },
+  "Settings.Boss.Count": {
+    "en": "{0} of {1} on",
+    "de": "{0} von {1} an",
+    "fr": "{0} sur {1} actifs",
+    "es": "{0} de {1} activos",
+    "ru": "{0} из {1} вкл.",
+    "pl": "{0} z {1} włączonych",
+    "tr": "{0} / {1} açık",
+    "zh": "{0}/{1} 已开启"
+  },
+  "Boss.Now": {
+    "en": "now",
+    "de": "jetzt",
+    "fr": "maintenant",
+    "es": "ahora",
+    "ru": "сейчас",
+    "pl": "teraz",
+    "tr": "şimdi",
+    "zh": "现在"
+  },
+  "Boss.In": {
+    "en": "in {0}",
+    "de": "in {0}",
+    "fr": "dans {0}",
+    "es": "en {0}",
+    "ru": "через {0}",
+    "pl": "za {0}",
+    "tr": "{0} sonra",
+    "zh": "{0}后"
+  },
+  "Boss.Unknown": {
+    "en": "Not known yet (visit this map)",
+    "de": "Noch unbekannt (diese Karte besuchen)",
+    "fr": "Pas encore connu (visitez cette carte)",
+    "es": "Aún desconocido (visita este mapa)",
+    "ru": "Пока неизвестно (посетите эту карту)",
+    "pl": "Jeszcze nieznane (odwiedź tę mapę)",
+    "tr": "Henüz bilinmiyor (bu haritayı ziyaret edin)",
+    "zh": "暂未知（请前往此地图）"
+  },
+  "Boss.OverlayEmpty": {
+    "en": "World boss: switch bosses on in the settings",
+    "de": "World-Boss: Bosse in den Einstellungen einschalten",
+    "fr": "Boss du monde : activez des boss dans les réglages",
+    "es": "Jefe mundial: activa jefes en los ajustes",
+    "ru": "Мировой босс: включите боссов в настройках",
+    "pl": "Boss światowy: włącz bossy w ustawieniach",
+    "tr": "Dünya patronu: ayarlarda patronları açın",
+    "zh": "世界首领：请在设置中开启首领"
+  },
+  "Boss.Seen": {
+    "en": "Last list from the game: {0}",
+    "de": "Letzte Liste aus dem Spiel: {0}",
+    "fr": "Dernière liste du jeu : {0}",
+    "es": "Última lista del juego: {0}",
+    "ru": "Последний список из игры: {0}",
+    "pl": "Ostatnia lista z gry: {0}",
+    "tr": "Oyundan son liste: {0}",
+    "zh": "游戏最后一次列表：{0}"
   }
 }

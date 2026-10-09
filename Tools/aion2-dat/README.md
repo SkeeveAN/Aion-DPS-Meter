@@ -71,3 +71,18 @@ with the usage string `EEnvObjectUsage::GatherSource` followed by `Gather_<Type>
 the map files hold them as `EnvObjIdList` (u64 ids) followed by `Positions`, next to the spawn groups of `build_spawns.py`. Names come from the l10n
 key `EnvObjData_<key>_desc`. Only about 740 placements exist in the map files (Verteron: Od 57, Ore 19, Herbs 13, Food 27, Gems 10, Wood 7, 559
 "Empyrean traces"); Cotton, rare ores and the Od energy cubes have none there, so they are not offered.
+
+## Field bosses and their timers (2026-10-09)
+`build_field_bosses.py <NpcData.bin> <WorldMapFieldNamed.bin> <npc_names.json> <l10n dir> <unpacked AION2/Content/Data/Map> <out.json>` writes
+`Client/assets/aion2/bosses/field_bosses.json`: the 85 named field bosses by map (Verteron, Eltnen, Altgard, Morheim, Chaotic Lower and Middle
+Reshanta) in the order of their NPC ids, with their names (English, German, French, Spanish, Russian - the client has no more), their spawn point
+and, for the Abyss bosses that come at a fixed time, that time (`PeriodSpawn`: Watcher Kaira every 180 minutes from 01:00; Nahma on Sunday and
+Friday at 21:00; the named Abyss bosses on Monday, Thursday and Saturday at 21:30 - the days are from aion2.dev, the table keeps them in a column
+this tool does not read; times are read as local time like the timetable's).
+The server sends the list of the map the player is on as opcode `01 91` by itself, every 3 s and at once when a boss changes (a two-hour recording
+without the in-game list ever being opened shows all 24 bosses of Verteron dying and coming back as it happened): `00 00 | map u32 | count u8 | count x { alive u8, place varint
+(map x 100 + n), [alive: x y z f32], [one extra byte on some places], time i64 ms UTC }`. The time is when the living boss appeared or when the dead
+one comes back (checked against the in-game list: Garshim 12:59:58, Lagta 22:07:12). Place n is the n-th boss of the map by NPC id (checked: the
+living bosses of Verteron stand exactly on the spawn points of the NPC ids in that order). Map numbers seen: 1010 Verteron, 1110 Altgard; the
+client learns the others from the positions of living bosses (`Aion2FieldBosses.LearnMap`). The layout was first documented by the open source
+project cyberbadger6969/aion2-dps-meter (GPL-3.0); the reader here is written from the format and checked against our own recordings.

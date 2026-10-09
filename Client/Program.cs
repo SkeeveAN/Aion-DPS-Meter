@@ -133,6 +133,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-bossoverlay")
+        {
+            RunRenderBossOverlayMode(args.Length > 1 ? args[1] : "bossoverlay.png", args.Length > 2 ? int.Parse(args[2]) : 0);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-messagebox")
         {
             RunRenderMessageBoxMode(args.Length > 1 ? args[1] : "messagebox.png");
@@ -622,6 +628,55 @@ internal static class Program
 
     /// <summary>Renders the Settings window's content (a tab of it) to a PNG without showing a window:
     /// the way to look at a layout change without opening anything on the player's screen.</summary>
+    /// <summary>Draws the world boss overlay with the bosses of the saved lists into a picture; no window is ever shown.</summary>
+    private static void RunRenderBossOverlayMode(string path, int mapIndex)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        Aion2.Aion2FieldBosses.EnablePersistence();
+        var now = DateTime.Now;
+        string language = Ui.LocalizationManager.Instance.Language;
+        var rows = new List<(string, string, bool)>();
+        var shown = Aion2.Aion2FieldBosses.Maps[mapIndex];
+        foreach (var boss in shown.Bosses.Take(8))
+        {
+            var status = Aion2.Aion2FieldBosses.StatusOf(boss, now);
+            rows.Add((Aion2.Aion2FieldBosses.DisplayName(shown, boss, language), Ui.WorldBossText.Of(status, now), status.Phase == Aion2.BossPhase.Now));
+        }
+
+        var window = new Ui.WorldBossOverlayWindow();
+        window.Render(rows.OrderBy(r => r.Item3 ? 0 : 1).ToList());
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(600, 600));
+        int w = (int)Math.Ceiling(content.DesiredSize.Width), h = (int)Math.Ceiling(content.DesiredSize.Height);
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x36, 0x2c)), Child = null };
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        backdrop.Measure(new System.Windows.Size(w, h));
+        backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
+        bitmap.Render(backdrop);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-bossoverlay: wrote " + path);
+        Environment.Exit(0);
+    }
+
     /// <summary>Draws the "window will turn transparent" message box into a picture; no window is ever shown.</summary>
     private static void RunRenderMessageBoxMode(string path)
     {
@@ -682,6 +737,7 @@ internal static class Program
 
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
+        Aion2.Aion2FieldBosses.EnablePersistence(); // read-only here: the page shows the last lists the game sent
         var window = new Ui.SettingsWindow(settings);
         if (window.FindName("Nav" + (tab == "Interface" ? "Ui" : tab == "Capture" ? "Install" : tab)) is System.Windows.Controls.RadioButton nav)
         {
@@ -1066,6 +1122,17 @@ internal static class Program
         }
 
         Console.WriteLine($"aion2-replay: {segments} segment(s) on port {serverPort}, {events.Count} damage/heal event(s), calibrated={protocol.IsCalibrated}");
+        foreach (var bossMap in Aion2.Aion2FieldBosses.Maps.Where(m => m.Id != 0))
+        {
+            var now = DateTime.Now;
+            var lines = bossMap.Bosses.Select(b => (Boss: b, Status: Aion2.Aion2FieldBosses.StatusOf(b, now))).Where(x => x.Status.Phase != Aion2.BossPhase.Unknown).ToList();
+            Console.WriteLine($"aion2-replay: field bosses of {bossMap.NameIn("en")} (list {bossMap.Id}): {lines.Count} of {bossMap.Bosses.Count} with a state");
+            foreach (var (boss, status) in lines)
+            {
+                Console.WriteLine($"  {boss.NameIn("en"),-34} {status.Phase,-8} {(status.At is { } at ? at.ToString("yyyy-MM-dd HH:mm:ss") : "")}");
+            }
+        }
+
         // AION2_DUMP=<file>: every event as CSV (time, source id and name, target id, amount, heal, tick,
         // crit, skill) for working out how a total could be reproduced from the recording.
         if (Environment.GetEnvironmentVariable("AION2_DUMP") is { Length: > 0 } dumpPath)
