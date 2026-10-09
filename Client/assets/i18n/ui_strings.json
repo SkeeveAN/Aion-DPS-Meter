@@ -1572,14 +1572,14 @@
     "zh": "采集"
   },
   "Settings.Gather.Hint": {
-    "en": "Everything that can be gathered, by kind. What you switch on appears on the interactive map as diamonds. Greyed-out entries have no fixed place on the world maps.",
-    "de": "Alles, was man sammeln kann, nach Art gruppiert. Was du einschaltest, erscheint als Raute auf der interaktiven Map. Ausgegraute Einträge haben keinen festen Ort auf den Weltkarten.",
-    "fr": "Tout ce qui peut être récolté, par type. Ce que vous activez apparaît en losanges sur la carte interactive. Les entrées grisées n'ont pas d'emplacement fixe sur les cartes du monde.",
-    "es": "Todo lo que se puede recolectar, por tipo. Lo que actives aparece como rombos en el mapa interactivo. Las entradas en gris no tienen lugar fijo en los mapas del mundo.",
-    "ru": "Всё, что можно собрать, по типам. Включённое появляется на интерактивной карте ромбами. Серые пункты не имеют постоянных мест на картах мира.",
-    "pl": "Wszystko, co można zebrać, według rodzaju. Włączone pojawia się jako romby na mapie interaktywnej. Wyszarzone pozycje nie mają stałych miejsc na mapach świata.",
-    "tr": "Toplanabilen her şey, türe göre. Açtıkların etkileşimli haritada eşkenar dörtgen olarak görünür. Gri girdilerin dünya haritalarında sabit yeri yoktur.",
-    "zh": "所有可采集的物品，按种类分组。开启的会以菱形显示在交互地图上。灰色项在世界地图上没有固定位置。"
+    "en": "Everything your faction can gather, by kind. What you switch on appears on the interactive map as diamonds.",
+    "de": "Alles, was deine Fraktion sammeln kann, nach Art gruppiert. Was du einschaltest, erscheint als Raute auf der interaktiven Map.",
+    "fr": "Tout ce que votre faction peut récolter, par type. Ce que vous activez apparaît en losanges sur la carte interactive.",
+    "es": "Todo lo que tu facción puede recolectar, por tipo. Lo que actives aparece como rombos en el mapa interactivo.",
+    "ru": "Всё, что может собирать ваша фракция, по типам. Включённое появляется на интерактивной карте ромбами.",
+    "pl": "Wszystko, co może zebrać twoja frakcja, według rodzaju. Włączone pojawia się jako romby na mapie interaktywnej.",
+    "tr": "Hizbinin toplayabildiği her şey, türe göre. Açtıkların etkileşimli haritada eşkenar dörtgen olarak görünür.",
+    "zh": "你的阵营可采集的所有物品，按种类分组。开启的会以菱形显示在交互地图上。"
   },
   "Settings.Gather.Places": {
     "en": "{0} places on the world maps",
@@ -2510,5 +2510,15 @@
     "pl": "Lista petów (przeciągnij)",
     "tr": "Pet listesi (taşımak için sürükle)",
     "zh": "宠物列表（拖动移动）"
+  },
+  "Settings.Gather.FactionUnknown": {
+    "en": "Your faction is not known yet (log in to the game once). Until then the collectibles of both factions are listed.",
+    "de": "Deine Fraktion ist noch nicht bekannt (einmal im Spiel einloggen). Bis dahin werden die Sammelgegenstände beider Fraktionen angezeigt.",
+    "fr": "Votre faction n'est pas encore connue (connectez-vous une fois au jeu). D'ici là, les objets des deux factions sont listés.",
+    "es": "Tu facción aún no se conoce (inicia sesión una vez en el juego). Hasta entonces se muestran los objetos de ambas facciones.",
+    "ru": "Ваша фракция пока неизвестна (один раз войдите в игру). До этого показаны предметы обеих фракций.",
+    "pl": "Twoja frakcja nie jest jeszcze znana (zaloguj się raz do gry). Do tego czasu widać przedmioty obu frakcji.",
+    "tr": "Hizbin henüz bilinmiyor (oyuna bir kez giriş yap). O zamana kadar iki hizbin eşyaları listelenir.",
+    "zh": "尚不知道你的阵营（请登录一次游戏）。在此之前会列出双方阵营的物品。"
   }
 }

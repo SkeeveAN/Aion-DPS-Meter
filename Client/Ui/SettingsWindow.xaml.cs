@@ -551,54 +551,99 @@ public partial class SettingsWindow : Window
 
     private HashSet<string> _gatherPicked = new();
 
-    /// <summary>The Sammeln page: one card per kind, a switch per collectible (the ones the world maps hold no place for are left out until they get one).</summary>
+    /// <summary>
+    /// The Sammeln page: one line per kind (its name and "all / none" on the left), the collectibles as switchable pills on the right. Only what the
+    /// player's own faction can use is listed, and only what the world maps hold a place for.
+    /// </summary>
     private void BuildGatherPage()
     {
         GatherCards.Children.Clear();
         var loc = LocalizationManager.Instance;
+        string? faction = Aion2Gather.OwnFaction();
+        GatherFactionNote.Text = faction is null ? loc["Settings.Gather.FactionUnknown"] : "";
+        GatherFactionNote.Visibility = faction is null ? Visibility.Visible : Visibility.Collapsed;
+        var card = new Border { Padding = new Thickness(12, 4, 12, 4) };
+        card.SetResourceReference(FrameworkElement.StyleProperty, "SettingsCard");
+        var lines = new StackPanel();
         foreach (string kind in Aion2Gather.Kinds)
         {
-            var items = Aion2Gather.Items().Where(i => i.Kind == kind && i.Count > 0).ToList();
+            var items = Aion2Gather.Items().Where(i => i.Kind == kind && i.Count > 0 && i.IsFor(faction)).ToList();
             if (items.Count == 0)
             {
                 continue;
             }
 
-            var title = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 6) };
+            var line = new Grid { Margin = new Thickness(0, 8, 0, 8) };
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(118) });
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var title = new StackPanel { Orientation = Orientation.Horizontal };
             title.Children.Add(new System.Windows.Shapes.Polygon
             {
                 Points = new PointCollection { new Point(6, 0), new Point(12, 7), new Point(6, 14), new Point(0, 7) },
                 Fill = new SolidColorBrush(PetMapPalette.OfGather(kind)), Stroke = Brushes.Black, StrokeThickness = 1,
-                Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center, Width = 12, Height = 14,
+                Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center, Width = 12, Height = 14,
             });
-            var heading = new TextBlock { Text = loc["Settings.PetMap.Gather." + kind] };
-            heading.SetResourceReference(FrameworkElement.StyleProperty, "CardTitle");
-            heading.Margin = new Thickness(0);
+            var heading = new TextBlock { Text = loc["Settings.PetMap.Gather." + kind], FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, MaxWidth = 92 };
             title.Children.Add(heading);
+            var count = new TextBlock { FontSize = 11, Margin = new Thickness(0, 0, 0, 0) };
+            count.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
+            var all = new Button { Padding = new Thickness(0), Margin = new Thickness(0, 3, 0, 0), HorizontalAlignment = HorizontalAlignment.Left, FontSize = 11, Cursor = Cursors.Hand };
+            all.SetResourceReference(FrameworkElement.StyleProperty, "GatherLink");
+            var left = new StackPanel();
+            left.Children.Add(title);
+            left.Children.Add(count);
+            left.Children.Add(all);
 
             var wrap = new WrapPanel();
-            foreach (var item in items)
+            Grid.SetColumn(wrap, 1);
+            var pills = new List<(System.Windows.Controls.Primitives.ToggleButton Pill, string Key)>();
+            void Refresh()
             {
-                bool placed = item.Count > 0;
-                var box = new CheckBox
-                {
-                    Content = item.NameIn(loc.Language), IsChecked = _gatherPicked.Contains(item.Key), IsEnabled = placed,
-                    Margin = new Thickness(0, 3, 22, 3), Opacity = placed ? 1.0 : 0.45,
-                    ToolTip = placed ? string.Format(loc["Settings.Gather.Places"], item.Count) : loc["Settings.Gather.NoPlaces"],
-                };
-                string key = item.Key;
-                box.Checked += (_, _) => _gatherPicked.Add(key);
-                box.Unchecked += (_, _) => _gatherPicked.Remove(key);
-                wrap.Children.Add(box);
+                int on = pills.Count(p => _gatherPicked.Contains(p.Key));
+                count.Text = $"{on} / {pills.Count}";
+                all.Content = on < pills.Count ? loc["Settings.PetMap.AllOn"] : loc["Settings.PetMap.AllOff"];
             }
 
-            var stack = new StackPanel();
-            stack.Children.Add(title);
-            stack.Children.Add(wrap);
-            var card = new Border { Child = stack };
-            card.SetResourceReference(FrameworkElement.StyleProperty, "SettingsCard");
-            GatherCards.Children.Add(card);
+            foreach (var item in items)
+            {
+                string key = item.Key;
+                var pill = new System.Windows.Controls.Primitives.ToggleButton
+                {
+                    Content = item.NameIn(loc.Language), IsChecked = _gatherPicked.Contains(key),
+                    ToolTip = string.Format(loc["Settings.Gather.Places"], faction == "Elyos" ? item.Elyos : faction == "Asmodian" ? item.Asmodian : item.Count),
+                };
+                pill.SetResourceReference(FrameworkElement.StyleProperty, "GatherPill");
+                pill.Checked += (_, _) => { _gatherPicked.Add(key); Refresh(); };
+                pill.Unchecked += (_, _) => { _gatherPicked.Remove(key); Refresh(); };
+                pills.Add((pill, key));
+                wrap.Children.Add(pill);
+            }
+
+            all.Click += (_, _) =>
+            {
+                bool turnOn = pills.Any(p => !_gatherPicked.Contains(p.Key));
+                foreach (var (pill, _) in pills)
+                {
+                    pill.IsChecked = turnOn; // fires Checked/Unchecked, which keeps the set and the counter
+                }
+            };
+            Refresh();
+
+            line.Children.Add(left);
+            line.Children.Add(wrap);
+            if (lines.Children.Count > 0)
+            {
+                var rule = new Border { Height = 1, BorderThickness = new Thickness(0, 1, 0, 0) };
+                rule.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+                lines.Children.Add(rule);
+            }
+
+            lines.Children.Add(line);
         }
+
+        card.Child = lines;
+        GatherCards.Children.Add(card);
     }
 
     private IEnumerable<(int PetId, string Name)> PetsOfSpecies(string species) => Aion2Pets.MapPetsOf(species, LocalizationManager.Instance.Language);

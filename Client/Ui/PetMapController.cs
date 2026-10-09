@@ -27,6 +27,7 @@ public sealed class PetMapController : IDisposable
     private int _ticks;
     private MeterSettings _settings = MeterSettings.Load();
     private DateTime _settingsAt = DateTime.UtcNow;
+    private string? _faction = Aion2Gather.OwnFaction();
 
     public PetMapController(Func<Aion2EntityDirectory?> directory)
     {
@@ -59,6 +60,7 @@ public sealed class PetMapController : IDisposable
         if ((DateTime.UtcNow - _settingsAt).TotalSeconds >= 1)
         {
             _settings = MeterSettings.Load(); // the settings file is read once a second, not every tick
+            _faction = Aion2Gather.OwnFaction();
             _settingsAt = DateTime.UtcNow;
         }
 
@@ -91,7 +93,8 @@ public sealed class PetMapController : IDisposable
         // The chosen pets (those at the top level need no farming)
         var states = directory?.LocalPetStates ?? Array.Empty<Aion2PetState>();
         var chosen = settings.PetMapPets.Where(id => !states.Any(s => s.PetId == id && s.Level >= Aion2Pets.TopLevel)).ToHashSet();
-        var gatherKinds = settings.PetMapGatherItems.ToHashSet();
+        // only what the player's own faction can use (an earlier pick of the other side's plants no longer counts)
+        var gatherKinds = Aion2Gather.Items().Where(i => settings.PetMapGatherItems.Contains(i.Key) && i.IsFor(_faction)).Select(i => i.Key).ToHashSet();
         if (chosen.Count == 0 && gatherKinds.Count == 0)
         {
             ShowEmpty(locked);

@@ -1,12 +1,21 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Aion2;
 
 namespace AionDPS.Aion2.Protocol;
 
 /// <summary>One collectible the player can pick: its kind, its name (the key is the English one), and how many fixed places the world maps hold for it.</summary>
-public sealed record Aion2GatherItem(string Kind, string Key, IReadOnlyDictionary<string, string> Names, int Count)
+public sealed record Aion2GatherItem(string Kind, string Key, IReadOnlyDictionary<string, string> Names, int Count, int Elyos = 0, int Asmodian = 0)
 {
     public string NameIn(string language) => Names.GetValueOrDefault(language) ?? Key;
+
+    /// <summary>False for what grows only in the other faction's land (every side has its own herbs and cooking plants); what both sides have, or neither map holds, stays.</summary>
+    public bool IsFor(string? faction) => faction switch
+    {
+        "Elyos" => !(Elyos == 0 && Asmodian > 0),
+        "Asmodian" => !(Asmodian == 0 && Elyos > 0),
+        _ => true,
+    };
 }
 
 /// <summary>
@@ -18,6 +27,20 @@ public static class Aion2Gather
 {
     /// <summary>The kinds in the order the settings list them.</summary>
     public static readonly string[] Kinds = { "Od", "Herb", "Food", "Ore", "Wood", "Cotton", "Gemstone", "Fragment" };
+
+    private const string ElyosMap = "World/World_L/World_L_A", AsmodianMap = "World/World_D/World_D_A";
+
+    /// <summary>The player's own faction ("Elyos" / "Asmodian") from the saved character (the faction of its server), null while it is not known.</summary>
+    public static string? OwnFaction()
+    {
+        var own = Aion2CharacterStore.Load(Aion2CharacterStore.DefaultPath);
+        if (own is null)
+        {
+            return null;
+        }
+
+        return (own.ServerId / 1000) switch { 1 => "Elyos", 2 => "Asmodian", _ => own.ClassCode % 4 == 2 ? "Elyos" : null };
+    }
 
     private static List<Aion2GatherItem>? _items;
     private static Dictionary<string, Dictionary<string, List<float[]>>>? _maps;   // map table -> item key -> x,y pairs
@@ -116,7 +139,8 @@ public static class Aion2Gather
         }
 
         _maps = maps;
-        _items = items.Select(kv => new Aion2GatherItem(kv.Key.Kind, kv.Key.Key, kv.Value.Names, kv.Value.Count))
+        int Side(string map, string key) => maps.TryGetValue(map, out var per) && per.TryGetValue(key, out var pts) ? pts.Count : 0;
+        _items = items.Select(kv => new Aion2GatherItem(kv.Key.Kind, kv.Key.Key, kv.Value.Names, kv.Value.Count, Side(ElyosMap, kv.Key.Key), Side(AsmodianMap, kv.Key.Key)))
             .OrderBy(i => Array.IndexOf(Kinds, i.Kind)).ThenByDescending(i => i.Count > 0).ThenBy(i => i.Key, StringComparer.OrdinalIgnoreCase).ToList();
     }
 }
