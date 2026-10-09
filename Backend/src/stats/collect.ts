@@ -1,4 +1,4 @@
-import { statSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { sqlite } from "../db/client.js";
 import { env } from "../env.js";
 import { splitConquest } from "../../../Web-Frontend/game-data.js";
@@ -9,6 +9,62 @@ type Row = Record<string, number | string | null>;
 const all = (sql: string, ...params: unknown[]) => sqlite.prepare(sql).all(...params) as Row[];
 const one = (sql: string, ...params: unknown[]) => (sqlite.prepare(sql).get(...params) ?? {}) as Row;
 const num = (v: unknown) => Number(v ?? 0);
+
+/** When each client version was released (Web-Frontend/releases.json, written by Tools/changelog/gen.mjs from the git tags). */
+function releaseTimes(): { version: string; at: number }[] {
+  try {
+    const raw = JSON.parse(readFileSync(new URL("../../../Web-Frontend/releases.json", import.meta.url), "utf8")) as Record<string, string>;
+    return Object.entries(raw).map(([version, iso]) => ({ version, at: Date.parse(iso) })).filter((r) => Number.isFinite(r.at)).sort((a, b) => a.at - b.at);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Client versions seen in the uploads of the last 30 days, each upload judged against the newest release at the moment it
+ * arrived: "current" (that very version), "outdated" (an older release was still in use) or "unknown" (a version that was
+ * never released at that time, e.g. a local build). Version numbers are no order (0.9.57 came after 0.15.x), only the
+ * release times are.
+ */
+function versionUsage() {
+  const releases = releaseTimes();
+  const when = new Map(releases.map((r) => [r.version, r.at]));
+  type Agg = { uploads: number; users: Set<string>; current: number; outdated: number; unknown: number; last: string };
+  const byVersion = new Map<string, Agg>();
+  const total = { current: 0, outdated: 0, unknown: 0 };
+  const rows = all("select client_version v, received_at t, ip_hash h from uploads where received_at >= datetime('now','-30 days')");
+  for (const r of rows) {
+    const version = String(r.v || "?");
+    const t = Date.parse(`${String(r.t).replace(" ", "T")}Z`);
+    let latest: string | null = null;
+    for (const rel of releases) {
+      if (rel.at <= t) latest = rel.version;
+      else break;
+    }
+    const released = when.get(version);
+    const kind = released === undefined || released > t ? "unknown" : version === latest ? "current" : "outdated";
+    const a = byVersion.get(version) ?? { uploads: 0, users: new Set<string>(), current: 0, outdated: 0, unknown: 0, last: "" };
+    a.uploads++;
+    a.users.add(String(r.h));
+    a[kind]++;
+    total[kind]++;
+    if (String(r.t) > a.last) a.last = String(r.t);
+    byVersion.set(version, a);
+  }
+  const versions = [...byVersion.entries()]
+    .map(([version, a]) => ({
+      version,
+      released: when.has(version) ? new Date(when.get(version)!).toISOString() : null,
+      uploads: a.uploads,
+      uploaders: a.users.size,
+      current: a.current,
+      outdated: a.outdated,
+      unknown: a.unknown,
+      lastUpload: a.last,
+    }))
+    .sort((x, y) => (y.released ? Date.parse(y.released) : 0) - (x.released ? Date.parse(x.released) : 0) || y.uploads - x.uploads);
+  return { versions, total };
+}
 
 const ASCENSION_STARS: Record<string, number> = { easy: 1, medium: 2, hard: 3, extreme: 4 };
 
@@ -56,10 +112,7 @@ export function privateStats() {
     "select date(received_at) day, count(*) n, count(distinct ip_hash) u from uploads where received_at >= datetime('now','-30 days') group by day order by day",
   ).map((r) => ({ day: String(r.day), uploads: num(r.n), uploaders: num(r.u) }));
   const activeUploaders = (days: number) => num(one("select count(distinct ip_hash) n from uploads where received_at >= datetime('now', ?)", `-${days} days`).n);
-  const versions = all(
-    `select client_version v, count(*) n, count(distinct ip_hash) u, max(received_at) last from uploads
-     where received_at >= datetime('now','-30 days') group by client_version order by last desc`,
-  ).map((r) => ({ version: String(r.v || "?"), uploads: num(r.n), uploaders: num(r.u), lastUpload: String(r.last) }));
+  const { versions, total: versionTotals } = versionUsage();
   const status = Object.fromEntries(all("select status s, count(*) n from uploads group by status").map((r) => [String(r.s), num(r.n)]));
   const newPlayersPerWeek = all(
     "select strftime('%Y-W%W', first_seen_at) week, count(*) n from players group by week order by week desc limit 8",
@@ -98,6 +151,7 @@ export function privateStats() {
     uploadsPerDay,
     activeUploaders: { d1: activeUploaders(1), d7: activeUploaders(7), d30: activeUploaders(30) },
     versions,
+    versionTotals,
     uploadStatus: status,
     newPlayersPerWeek,
     downloadsPerDay,
@@ -130,6 +184,7 @@ export function metricsText(): string {
   metric("aiondps_downloads_total", "Download button clicks through the website (bots excluded).", "counter", [[null, p.downloads.total]]);
   metric("aiondps_active_uploaders", "Distinct uploader hashes with an upload in the last N days.", "gauge", [[{ days: "1" }, p.activeUploaders.d1], [{ days: "7" }, p.activeUploaders.d7], [{ days: "30" }, p.activeUploaders.d30]]);
   metric("aiondps_client_version_uploads_30d", "Uploads of the last 30 days per client version.", "gauge", p.versions.map((v) => [{ version: v.version }, v.uploads]));
+  metric("aiondps_client_uploads_by_freshness_30d", "Uploads of the last 30 days by whether the client was the newest release at that moment.", "gauge", Object.entries(p.versionTotals).map(([kind, n]) => [{ kind }, n]));
   metric("aiondps_last_upload_timestamp_seconds", "Time of the newest upload.", "gauge", [[null, p.lastUpload ? Math.floor(Date.parse(p.lastUpload.replace(" ", "T") + "Z") / 1000) : 0]]);
   metric("aiondps_database_size_bytes", "Size of the SQLite file.", "gauge", [[null, p.dbBytes]]);
   return out.join("\n") + "\n";

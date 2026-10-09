@@ -2817,6 +2817,14 @@ body:has(.download-hero) .nav-download-link:hover,
 @media(min-width:1101px){#feature-hotkeys .fx-win:first-child{translate:75px 0}#feature-hotkeys .fx-win+.fx-win{translate:0 40px}}
 @media(min-width:1101px){#feature-character .fx-win:first-child{margin-right:50px}}
 
+/* Statistics: client versions, bar split by how fresh the client was at the time of the upload */
+.version-track { display: flex; background: transparent; justify-self: start; min-width: 6px; }
+.version-seg { display: block; height: 100%; }
+.version-seg.current, .version-key.current { background: var(--color-success); }
+.version-seg.outdated, .version-key.outdated { background: var(--color-warning); }
+.version-seg.unknown, .version-key.unknown { background: var(--color-info); }
+.version-key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: baseline; }
+
 /* Home banner: the Features hero (Toolkit headline, two buttons, tilted client windows) as a slim card above the live data -
    it points at Features, Instances and World Bosses without taking the stage from Top players and Recent activity. */
 .home-banner{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr) 310px;gap:40px;align-items:center;padding:28px 48px;margin:0 0 16px;min-height:300px;border:1px solid var(--color-border);border-radius:var(--radius-card);color:#f4f7fa}

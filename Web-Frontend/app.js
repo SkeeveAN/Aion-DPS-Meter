@@ -847,6 +847,31 @@ async function renderStats(secret) {
       ]))),
     ]);
   };
+  // Client versions: every bar is split by whether the upload came from the newest release at that moment ("current"),
+  // from an older one ("outdated") or from a build that was never released ("unknown"). Release times, not version
+  // numbers, decide - the numbers are not in release order.
+  const versionBars = (data) => {
+    const rows = data.versions;
+    const max = Math.max(1, ...rows.map((r) => r.uploads));
+    const t = data.versionTotals;
+    const all = Math.max(1, t.current + t.outdated + t.unknown);
+    const pct = (n) => `${Math.round((n / all) * 100)} %`;
+    const day = (iso) => (iso ? iso.slice(0, 10) : "not released");
+    return el("section", { className: "stat-block" }, [
+      el("h3", { textContent: "Client versions in use (uploads, last 30 days)" }),
+      el("p", { className: "stat-sub", textContent: `Newest release at the time of the upload: ${nf(t.current)} uploads (${pct(t.current)}). Older release still in use: ${nf(t.outdated)} (${pct(t.outdated)}).${t.unknown ? ` Not a released version: ${nf(t.unknown)}.` : ""}` }),
+      rows.length === 0 ? el("p", { className: "empty", textContent: "No data yet." }) : el("div", { className: "stat-bars" }, rows.map((r) => el("div", { className: "stat-bar-row" }, [
+        el("span", { className: "stat-bar-label", title: `${r.version}, released ${day(r.released)}` }, [`${r.version} · ${day(r.released)} · ${r.uploaders} uploader${r.uploaders === 1 ? "" : "s"}`]),
+        el("span", { className: "stat-bar-track version-track", style: `width:${(r.uploads / max) * 100}%` }, [
+          r.current ? el("span", { className: "version-seg current", style: `flex:${r.current}`, title: `${r.current} with the newest release` }) : null,
+          r.outdated ? el("span", { className: "version-seg outdated", style: `flex:${r.outdated}`, title: `${r.outdated} with an older release` }) : null,
+          r.unknown ? el("span", { className: "version-seg unknown", style: `flex:${r.unknown}`, title: `${r.unknown} not a released version` }) : null,
+        ].filter(Boolean)),
+        el("span", { className: "stat-bar-value", textContent: nf(r.uploads) }),
+      ]))),
+      el("p", { className: "stat-sub" }, [el("span", { className: "version-key current" }), " newest release at the time   ", el("span", { className: "version-key outdated" }), " older release   ", el("span", { className: "version-key unknown" }), " not released"]),
+    ]);
+  };
   const out = [
     el("h2", { textContent: secret ? "Statistics (private)" : "Statistics" }),
     el("div", { className: "stat-tiles" }, [
@@ -877,7 +902,7 @@ async function renderStats(secret) {
         tile("Database", Math.round(d.dbBytes / 1048576), "MB"),
       ]),
       bars([...d.uploadsPerDay].reverse(), (r) => `${r.day} · ${r.uploaders} uploader${r.uploaders === 1 ? "" : "s"}`, (r) => r.uploads, "Uploads per day"),
-      bars(d.versions, (r) => `${r.version} · ${r.uploaders} uploader${r.uploaders === 1 ? "" : "s"}`, (r) => r.uploads, "Client versions in use (uploads, last 30 days)"),
+      versionBars(d),
       bars([...d.downloadsPerDay].reverse(), (r) => `${r.day} · ${r.unique} unique`, (r) => r.clicks, "Downloads per day"),
       bars(d.downloadsByTag, (r) => r.tag, (r) => r.count, `Downloads per version (${nf(d.botDownloads)} bot clicks not counted)`),
       bars(d.gameServers, (r) => `${r.address} · ${r.servers || "?"}`, (r) => r.uploads, "Game servers the clients captured from (uploads)"),

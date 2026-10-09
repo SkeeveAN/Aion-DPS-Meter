@@ -40,11 +40,11 @@ const overrides = JSON.parse(readFileSync(fileURLToPath(new URL("./overrides.jso
 const overrideFor = (hash) => Object.entries(overrides).find(([prefix]) => hash.startsWith(prefix));
 
 const SEP = "\u0001";
-const raw = git("log", "--reverse", "--name-only", `--format=${SEP}%H%x09%ad%x09%s`, "--date=short");
+const raw = git("log", "--reverse", "--name-only", `--format=${SEP}%H%x09%ad%x09%cI%x09%s`, "--date=short");
 const commits = raw.split(SEP).filter(Boolean).map((block) => {
   const [head, ...files] = block.split("\n");
-  const [hash, date, ...s] = head.split("\t");
-  return { hash, date, subject: s.join("\t"), files: files.filter(Boolean) };
+  const [hash, date, iso, ...s] = head.split("\t");
+  return { hash, date, iso, subject: s.join("\t"), files: files.filter(Boolean) };
 });
 
 // The project file moved over time: AionSniffer.csproj -> AionDPS.csproj -> Client/AionDPS.csproj.
@@ -60,6 +60,7 @@ const versionAt = (hash) => {
 };
 
 const releases = [];
+const releasedAt = {}; // version -> exact time of its release commit (the website's statistics compare uploads against it)
 let current = null;
 let pending = [];
 const before = []; // commits from before the first <Version> existed
@@ -76,6 +77,7 @@ for (const c of commits) {
   }
   if (v && v !== current) {
     current = v;
+    releasedAt[v] ??= c.iso;
     if (pending.length) {
       releases.push({ version: v, date: c.date, items: pending });
     }
@@ -93,6 +95,13 @@ for (const date of [...new Set(before.map((b) => b.date))]) {
 const key = (v) => (v === "Unreleased" ? [1e9, 0, 0] : v === PRE ? [-1, 0, 0] : v.split(".").map(Number));
 releases.sort((a, b) => { const x = key(a.version), y = key(b.version); return y[0] - x[0] || y[1] - x[1] || y[2] - x[2] || (a.date < b.date ? 1 : -1); });
 writeFileSync(out, JSON.stringify(releases, null, 1) + "\n");
+// The tags are the real release moments. Version numbers are not in release order (0.9.55 was followed by 0.10.48,
+// and 0.9.56 / 0.9.57 came out much later), so the statistics compare uploads by time, never by number.
+for (const line of git("for-each-ref", "--format=%(refname:short)\t%(creatordate:iso-strict)", "refs/tags").split("\n").filter(Boolean)) {
+  const [tag, iso] = line.split("\t");
+  if (/^v\d+\.\d+\.\d+$/.test(tag)) releasedAt[tag.slice(1)] = iso;
+}
+writeFileSync(fileURLToPath(new URL("../../Web-Frontend/releases.json", import.meta.url)), JSON.stringify(releasedAt, null, 1) + "\n");
 // German texts live in Web-Frontend/changelog.de.json ({"<english text>": "<german text>"}); new entries
 // have to be added there, the page falls back to English for anything missing.
 const de = JSON.parse(readFileSync(fileURLToPath(new URL("../../Web-Frontend/changelog.de.json", import.meta.url)), "utf8"));
