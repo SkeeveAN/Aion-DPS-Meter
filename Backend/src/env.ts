@@ -18,7 +18,8 @@ export const env = {
   // both stay switched off (404) while empty.
   STATS_SECRET: process.env.STATS_SECRET ?? "",
   METRICS_TOKEN: process.env.METRICS_TOKEN ?? "",
-  // Login servers to probe on the status page, "host:port,host:port". No capture has shown their address yet, so empty by default.
-  LOGIN_SERVERS: process.env.LOGIN_SERVERS ?? "",
+  // Login servers to probe on the status page, "host:port,host:port". Found 2026-10-09 by watching the game's own connections: the client talks to 193.202.112.93:13700 (the lobby: login, server list)
+  // right before it connects to the world server on port 13328.
+  LOGIN_SERVERS: process.env.LOGIN_SERVERS ?? "193.202.112.93:13700",
   BASE_URL: (process.env.BASE_URL ?? "https://aiondps.com").replace(/\/+$/, ""),
 };

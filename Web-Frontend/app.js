@@ -351,7 +351,7 @@ function buildSiteFooter() {
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
         link("Changelog", "/changelog"),
-        link("Server status", "/status"),
+        link(t("status.title"), "/status"),
         link(t("legal.privacyTitle"), "/privacy"),
         link(t("legal.termsTitle"), "/terms"),
       ]),
@@ -917,52 +917,52 @@ async function renderStats(secret) {
   app.replaceChildren(...out);
 }
 
-// Server status - English only like the statistics. Login servers and game servers are checked from the
+// Server status, in the site language. Login servers and game servers are checked from the
 // website's server by a plain TCP connect every minute (GET /api/server-status); the page refreshes itself.
 let statusTimer = null;
 async function renderStatus() {
-  setBreadcrumb([link(t("breadcrumb.home"), "/"), "Server status"]);
-  showLoading("Checking the servers…");
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("status.title")]);
+  showLoading(t("status.loading"));
   if (statusTimer) {
     clearInterval(statusTimer);
   }
   const draw = async () => {
     const d = await fetchJson("/api/server-status");
-    const label = { up: "Online", down: "Not reachable", unknown: "Unknown" };
+    const label = { up: t("status.up"), down: t("status.down"), unknown: t("status.unknown") };
     const ago = (iso) => {
       if (!iso) {
-        return "not checked yet";
+        return t("status.notChecked");
       }
       const sec = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
-      return sec < 90 ? `${sec} s ago` : `${Math.round(sec / 60)} min ago`;
+      return sec < 90 ? t("status.secAgo", { n: sec }) : t("status.minAgo", { n: Math.round(sec / 60) });
     };
     const row = (sv) => el("tr", {}, [
       el("td", {}, [el("span", { className: `status-pill ${sv.state}`, textContent: label[sv.state] })]),
       el("td", { className: "status-addr", textContent: sv.address }),
       el("td", { textContent: sv.latencyMs === null ? "–" : `${sv.latencyMs} ms` }),
-      el("td", { textContent: sv.uptime24h === null ? "–" : `${sv.uptime24h.toLocaleString("en-US")} %` }),
-      el("td", {}, [el("span", { className: "status-spark", title: "Last 60 checks" }, sv.recent.map((v) => el("i", { className: v ? "up" : "down" })))]),
+      el("td", { textContent: sv.uptime24h === null ? "–" : `${sv.uptime24h.toLocaleString(getLocale())} %` }),
+      el("td", {}, [el("span", { className: "status-spark", title: t("status.recentTitle") }, sv.recent.map((v) => el("i", { className: v ? "up" : "down" })))]),
       el("td", { textContent: ago(sv.checkedAt) }),
-      ...(sv.kind === "game" ? [el("td", { className: "status-worlds", textContent: sv.worlds.map((w) => w.name).join(", ") || "–" })] : []),
+      ...(sv.kind === "game" ? [el("td", { className: "status-worlds", textContent: sv.worlds.map((w) => serverLabel(w.name)).join(", ") || "–" })] : []),
     ]);
     const table = (list, game) => el("div", { className: "table-scroll" }, [el("table", { className: "status-table" }, [
-      el("thead", {}, [el("tr", {}, ["Status", "Address", "Response", "Uptime 24 h", "Last 60 checks", "Checked", ...(game ? ["Worlds seen on this address"] : [])].map((h) => el("th", { textContent: h })))]),
+      el("thead", {}, [el("tr", {}, [t("status.colStatus"), t("status.colAddress"), t("status.colResponse"), t("status.colUptime"), t("status.colRecent"), t("status.colChecked"), ...(game ? [t("status.colWorlds")] : [])].map((h) => el("th", { textContent: h })))]),
       el("tbody", {}, list.map(row)),
     ])]);
     const login = d.servers.filter((x) => x.kind === "login");
     const game = d.servers.filter((x) => x.kind === "game");
-    const count = (list) => `${list.filter((x) => x.state === "up").length} of ${list.length} online`;
+    const count = (list) => t("status.count", { up: list.filter((x) => x.state === "up").length, total: list.length });
     app.replaceChildren(
-      el("h2", { textContent: "Server status" }),
-      el("p", { className: "stat-sub", textContent: `Every address is checked once a minute with a plain connection attempt, from our own server. "Online" means the server accepts connections; it does not say how full it is or that logging in works. Last round: ${ago(d.checkedAt)}.` }),
+      el("h2", { textContent: t("status.title") }),
+      el("p", { className: "stat-sub", textContent: t("status.intro", { ago: ago(d.checkedAt) }) }),
       el("section", { className: "stat-block" }, [
-        el("h3", { textContent: login.length ? `Login servers · ${count(login)}` : "Login servers" }),
-        login.length ? table(login, false) : el("p", { className: "empty", textContent: "The login server addresses are not known yet, so they cannot be checked. They will appear here as soon as they are found." }),
+        el("h3", { textContent: login.length ? `${t("status.login")} · ${count(login)}` : t("status.login") }),
+        login.length ? table(login, false) : el("p", { className: "empty", textContent: t("status.loginUnknown") }),
       ]),
       el("section", { className: "stat-block" }, [
-        el("h3", { textContent: game.length ? `Game servers · ${count(game)}` : "Game servers" }),
-        el("p", { className: "stat-sub", textContent: "These are the addresses players' clients actually connected to in the last 14 days. One address can serve several worlds, and one world is reached through several addresses." }),
-        game.length ? table(game, true) : el("p", { className: "empty", textContent: "No game server address has been reported yet." }),
+        el("h3", { textContent: game.length ? `${t("status.game")} · ${count(game)}` : t("status.game") }),
+        el("p", { className: "stat-sub", textContent: t("status.gameNote") }),
+        game.length ? table(game, true) : el("p", { className: "empty", textContent: t("status.gameNone") }),
       ]),
     );
   };
