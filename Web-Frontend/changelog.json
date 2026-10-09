@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.20.1",
   "date": "2026-10-09",
   "items": [
    {
@@ -38,6 +38,13 @@
      "Client",
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-09"
+   },
+   {
+    "text": "The pet knowledge window in your own profile shows the real stat names (attack and defense per species, back attack critical, evasion, seal stone damage and more) instead of Stat numbers",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-09"
    }
