@@ -133,6 +133,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-messagebox")
+        {
+            RunRenderMessageBoxMode(args.Length > 1 ? args[1] : "messagebox.png");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-settings")
         {
             if (args.Length < 2)
@@ -616,6 +622,52 @@ internal static class Program
 
     /// <summary>Renders the Settings window's content (a tab of it) to a PNG without showing a window:
     /// the way to look at a layout change without opening anything on the player's screen.</summary>
+    /// <summary>Draws the "window will turn transparent" message box into a picture; no window is ever shown.</summary>
+    private static void RunRenderMessageBoxMode(string path)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        var loc = Ui.LocalizationManager.Instance;
+        var window = Ui.ThemedMessageBox.Build(null, string.Format(loc["Main.HideUiHint"], "Ctrl+Alt+H"), loc["Main.HideUiHint.Title"], System.Windows.MessageBoxButton.OK,
+            System.Windows.MessageBoxImage.Information, loc["Main.HideUiHint.DontShow"], null, out _);
+        // in the running meter the box takes its button/combo styles from the main window; here there is none, so they come from the settings window (same look)
+        var styled = new Ui.SettingsWindow(settings);
+        foreach (var type in new[] { typeof(System.Windows.Controls.Button) })
+        {
+            if (styled.Resources[type] is System.Windows.Style style)
+            {
+                window.Resources[type] = style;
+            }
+        }
+
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(560, double.PositiveInfinity));
+        int w = Math.Max(340, (int)Math.Ceiling(content.DesiredSize.Width)), h = (int)Math.Ceiling(content.DesiredSize.Height);
+        content.Measure(new System.Windows.Size(w, h));
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-messagebox: wrote " + path);
+        Environment.Exit(0);
+    }
+
     private static void RunRenderSettingsMode(string path, string tab)
     {
         var app = new System.Windows.Application();
