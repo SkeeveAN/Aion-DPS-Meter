@@ -551,14 +551,14 @@ public partial class SettingsWindow : Window
 
     private HashSet<string> _gatherPicked = new();
 
-    /// <summary>The Sammeln page: one card per kind, a switch per collectible (the ones the world maps hold no place for are greyed out).</summary>
+    /// <summary>The Sammeln page: one card per kind, a switch per collectible (the ones the world maps hold no place for are left out until they get one).</summary>
     private void BuildGatherPage()
     {
         GatherCards.Children.Clear();
         var loc = LocalizationManager.Instance;
         foreach (string kind in Aion2Gather.Kinds)
         {
-            var items = Aion2Gather.Items().Where(i => i.Kind == kind).ToList();
+            var items = Aion2Gather.Items().Where(i => i.Kind == kind && i.Count > 0).ToList();
             if (items.Count == 0)
             {
                 continue;

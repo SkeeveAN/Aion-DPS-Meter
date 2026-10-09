@@ -247,6 +247,7 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly List<Polygon> _gatherMarks = new();
     private readonly List<Polygon> _edgeArrows = new();
     private readonly Polygon _me;
+    private readonly TextBlock _meUnknown;
 
     public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120, LoadSize, SaveSize)
     {
@@ -258,6 +259,15 @@ public sealed class PetMapWindow : MovableOverlay
         Canvas.SetLeft(_me, ViewSize / 2);
         Canvas.SetTop(_me, ViewSize / 2);
         _canvas.Children.Add(_me);
+        _meUnknown = new TextBlock
+        {
+            Text = "?", Width = 28, TextAlignment = TextAlignment.Center, FontSize = 26, FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42)),
+            IsHitTestVisible = false, Visibility = Visibility.Collapsed,
+            Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 4, ShadowDepth = 0, Color = Colors.Black, Opacity = 1 },
+        };
+        Canvas.SetLeft(_meUnknown, ViewSize / 2 - 14);
+        Canvas.SetTop(_meUnknown, ViewSize / 2 - 20);
+        _canvas.Children.Add(_meUnknown);
         Body = _canvas;
     }
 
@@ -381,7 +391,7 @@ public sealed class PetMapWindow : MovableOverlay
     /// </summary>
     public void Render(Aion2MapInfo map, double worldX, double worldY, double radiusMetres, double opacity,
         IReadOnlyList<(int PetId, float X, float Y)> points, IReadOnlyList<(int PetId, float X, float Y)> live, IReadOnlyDictionary<int, Color> colors,
-        IReadOnlyList<(string Kind, float X, float Y)>? gather = null)
+        IReadOnlyList<(string Kind, float X, float Y)>? gather = null, bool positionKnown = true)
     {
         double ppu = ViewSize / 2 / (radiusMetres * 100.0);       // view pixels per world unit
         double k = ppu / map.Scale;                                // view pixels per native map pixel
@@ -567,8 +577,13 @@ public sealed class PetMapWindow : MovableOverlay
             _edgeArrows[i].Visibility = Visibility.Collapsed;
         }
 
+        // the player on top; a "?" instead of the arrow when the position is not known (the view then shows the last one)
+        _me.Visibility = positionKnown ? Visibility.Visible : Visibility.Collapsed;
+        _meUnknown.Visibility = positionKnown ? Visibility.Collapsed : Visibility.Visible;
         _canvas.Children.Remove(_me);
-        _canvas.Children.Add(_me); // the player on top
+        _canvas.Children.Add(_me);
+        _canvas.Children.Remove(_meUnknown);
+        _canvas.Children.Add(_meUnknown);
     }
 }
 
@@ -618,9 +633,9 @@ public sealed class PetListWindow : MovableOverlay
     }
 
     /// <summary>Rows: colour, name, level text, distance text (empty when unknown).</summary>
-    public void Render(IReadOnlyList<(Color Color, string Name, string Level, string Distance)> rows)
+    public void Render(IReadOnlyList<(Color Color, string Name, string Level, string Distance, bool Diamond)> rows)
     {
-        string key = string.Join("\n", rows.Select(r => $"{r.Color}|{r.Name}|{r.Level}|{r.Distance}"));
+        string key = string.Join("\n", rows.Select(r => $"{r.Color}|{r.Name}|{r.Level}|{r.Distance}|{r.Diamond}"));
         if (key == _shown)
         {
             return;
@@ -628,14 +643,16 @@ public sealed class PetListWindow : MovableOverlay
 
         _shown = key;
         _rows.Children.Clear();
-        foreach (var (color, name, level, distance) in rows)
+        foreach (var (color, name, level, distance, diamond) in rows)
         {
             var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            var dot = new Ellipse { Width = 12, Height = 12, Fill = new SolidColorBrush(color), Stroke = Brushes.White, StrokeThickness = 1.5, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+            Shape dot = diamond
+                ? new Polygon { Points = new PointCollection { new Point(6, 0), new Point(12, 6), new Point(6, 12), new Point(0, 6) }, Fill = new SolidColorBrush(color), Stroke = Brushes.Black, StrokeThickness = 1.2, Width = 12, Height = 12, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center }
+                : new Ellipse { Width = 12, Height = 12, Fill = new SolidColorBrush(color), Stroke = Brushes.White, StrokeThickness = 1.5, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
             var n = new TextBlock { Text = name, FontWeight = FontWeights.Bold, FontSize = 12.5, Foreground = Brushes.White, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 14, 0) };
             var l = new TextBlock { Text = level, FontSize = 11.5, Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0xD2, 0x7A)), VerticalAlignment = VerticalAlignment.Center };
             var d = new TextBlock { Text = distance, FontSize = 11.5, Foreground = new SolidColorBrush(Color.FromRgb(0x9D, 0xB3, 0xC2)), VerticalAlignment = VerticalAlignment.Center, MinWidth = 52, TextAlignment = TextAlignment.Right };

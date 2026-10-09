@@ -910,7 +910,7 @@ internal static class Program
         window.Render(map, x, y, settings.PetMapRadius, settings.PetMapOpacity, points.ToList(), live, colors,
             Aion2.Protocol.Aion2Gather.PointsOf(map, Aion2.Protocol.Aion2Gather.Items().Where(i => i.Count > 0).Select(i => i.Key).ToHashSet()));
         var list = new Ui.PetListWindow();
-        list.Render(pets.Select(id => (colors[id], Aion2.Protocol.Aion2Pets.PetName(id, "de") ?? "?", "Stufe 2 · 22/75", "104 m")).ToList());
+        list.Render(pets.Select(id => (colors[id], Aion2.Protocol.Aion2Pets.PetName(id, "de") ?? "?", "Stufe 2 · 22/75", "104 m", false)).ToList());
         var visual = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x36, 0x2c)) };
         foreach (var overlay in new System.Windows.Window[] { window, list })
         {

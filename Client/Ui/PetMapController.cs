@@ -67,15 +67,16 @@ public sealed class PetMapController : IDisposable
         _map.ApplyLockedIfChanged(locked);
         _list.ApplyLockedIfChanged(locked);
         bool inGame = GameWindow.ForegroundClientArea() is not null;
-        var directory = _directory();
-        if (directory is null || (!inGame && locked))
+        if (!inGame && locked)
         {
             Hide();
             return;
         }
 
+        var directory = _directory();
+
         // Which map? (once a second; the previous one stays when no pet monster is in sight)
-        if ((DateTime.UtcNow - _lastDetect).TotalSeconds >= 1)
+        if (directory is not null && (DateTime.UtcNow - _lastDetect).TotalSeconds >= 1)
         {
             _lastDetect = DateTime.UtcNow;
             var found = Aion2Maps.Detect(directory.RecentMobPositions());
@@ -88,27 +89,56 @@ public sealed class PetMapController : IDisposable
         }
 
         // The chosen pets (those at the top level need no farming)
-        var states = directory.LocalPetStates;
+        var states = directory?.LocalPetStates ?? Array.Empty<Aion2PetState>();
         var chosen = settings.PetMapPets.Where(id => !states.Any(s => s.PetId == id && s.Level >= Aion2Pets.TopLevel)).ToHashSet();
-        var position = directory.BestPosition;
         var gatherKinds = settings.PetMapGatherItems.ToHashSet();
-        if (_current is null || position is null || (chosen.Count == 0 && gatherKinds.Count == 0) || PositionIsStale(directory, position.Value))
+        if (chosen.Count == 0 && gatherKinds.Count == 0)
         {
             ShowEmpty(locked);
             return;
         }
 
-        string key = _current.Key + "|" + string.Join(",", chosen.OrderBy(i => i)) + "|" + string.Join(",", gatherKinds.OrderBy(k => k));
+        // Where is the player? Unknown (game closed, nothing received yet, teleported): the last known place stays on the map, marked with a "?"
+        var position = directory?.BestPosition;
+        bool known = directory is not null && position is not null && _current is not null && !PositionIsStale(directory, position.Value);
+        float tx, ty;
+        if (known)
+        {
+            tx = position!.Value.X;
+            ty = position.Value.Y;
+            RememberPosition(tx, ty);
+        }
+        else
+        {
+            if (_current is null && settings.PetMapLastMap is { } lastMap)
+            {
+                _current = Aion2Maps.All.FirstOrDefault(m => m.Key == lastMap);
+                _pointsKey = "";
+            }
+
+            if (_lastKnown is null && settings.PetMapLastX is { } lx && settings.PetMapLastY is { } ly)
+            {
+                _lastKnown = ((float)lx, (float)ly);
+            }
+
+            (tx, ty) = _lastKnown ?? (0f, 0f);
+            if (_lastKnown is null)
+            {
+                _current = null;
+            }
+        }
+
+        string key = (_current?.Key ?? "-") + "|" + string.Join(",", chosen.OrderBy(i => i)) + "|" + string.Join(",", gatherKinds.OrderBy(k => k));
         if (key != _pointsKey)
         {
             _pointsKey = key;
-            _points = Aion2Maps.PointsOf(_current, chosen).ToList();
-            _gather = Aion2Gather.PointsOf(_current, gatherKinds).ToList();
+            _points = _current is null ? new() : Aion2Maps.PointsOf(_current, chosen).ToList();
+            _gatherNamed = _current is null ? new() : Aion2Gather.NamedPointsOf(_current, gatherKinds).ToList();
+            _gather = _gatherNamed.Select(g => (g.Item.Kind, g.X, g.Y)).ToList();
         }
 
         // Glide to the reported position
-        float tx = position.Value.X, ty = position.Value.Y;
-        if (!_haveView || Math.Abs(_x - tx) + Math.Abs(_y - ty) > 8000)
+        if (!_haveView || !known || Math.Abs(_x - tx) + Math.Abs(_y - ty) > 8000)
         {
             _x = tx;
             _y = ty;
@@ -120,21 +150,57 @@ public sealed class PetMapController : IDisposable
             _y += (ty - _y) * 0.22;
         }
 
-        var petsHere = _points.Select(p => p.PetId).Distinct().OrderBy(i => i).ToList();
+        // without a known map the list names everything chosen (no distances); with one, only what stands on it
+        var petsHere = _current is null ? chosen.OrderBy(i => i).ToList() : _points.Select(p => p.PetId).Distinct().OrderBy(i => i).ToList();
         var colors = petsHere.Select((id, i) => (id, i)).ToDictionary(t => t.id, t => PetMapPalette.Of(t.i));
-        var live = directory.LiveMobs()
-            .SelectMany(m => Aion2Pets.PetsOfNpc(m.NpcId).Where(chosen.Contains).Select(pet => (pet, m.X, m.Y))).ToList();
-        _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors,
-            _gather);
-        _map.ShowOverlay(true);
-
-        if (++_ticks % 10 == 0 || _lastTarget != (tx, ty))
+        var live = known
+            ? directory!.LiveMobs().SelectMany(m => Aion2Pets.PetsOfNpc(m.NpcId).Where(chosen.Contains).Select(pet => (pet, m.X, m.Y))).ToList()
+            : new List<(int PetId, float X, float Y)>();
+        if (_current is not null)
         {
-            _lastTarget = (tx, ty);
-            _list.Render(Rows(petsHere, colors, tx, ty, states, live));
+            _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors, _gather, known);
+            _map.ShowOverlay(true);
+        }
+        else
+        {
+            _map.ShowOverlay(!locked);
         }
 
-        _list.ShowOverlay(petsHere.Count > 0 || !locked);
+        if (++_ticks % 10 == 0 || _lastTarget != (tx, ty) || _lastKnownFlag != known)
+        {
+            _lastTarget = (tx, ty);
+            _lastKnownFlag = known;
+            _list.Render(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds));
+        }
+
+        _list.ShowOverlay(true);
+    }
+
+    private (float X, float Y)? _lastKnown;
+    private bool _lastKnownFlag;
+    private List<(Aion2GatherItem Item, float X, float Y)> _gatherNamed = new();
+    private DateTime _savedAt = DateTime.MinValue;
+
+    /// <summary>Keeps the last known place (in memory at once, in the settings file every few seconds) for the times the position is not known.</summary>
+    private void RememberPosition(float x, float y)
+    {
+        _lastKnown = (x, y);
+        if (_current is null || (DateTime.UtcNow - _savedAt).TotalSeconds < 10)
+        {
+            return;
+        }
+
+        _savedAt = DateTime.UtcNow;
+        var onDisk = MeterSettings.Load();
+        if (onDisk.PetMapLastMap == _current.Key && onDisk.PetMapLastX is { } ox && onDisk.PetMapLastY is { } oy && Math.Abs(ox - x) + Math.Abs(oy - y) < 500)
+        {
+            return;
+        }
+
+        onDisk.PetMapLastMap = _current.Key;
+        onDisk.PetMapLastX = x;
+        onDisk.PetMapLastY = y;
+        onDisk.Save();
     }
 
     /// <summary>The reported position is old when the monsters announced around the player stand far from it (he was teleported, e.g. into a city).</summary>
@@ -150,16 +216,34 @@ public sealed class PetMapController : IDisposable
         return distances[distances.Count / 2] > 60000; // more than 600 m
     }
 
-    private IReadOnlyList<(Color, string, string, string)> Rows(List<int> pets, Dictionary<int, Color> colors, float x, float y, IReadOnlyList<Aion2PetState> states, List<(int PetId, float X, float Y)> live)
+    private IReadOnlyList<(Color, string, string, string, bool)> Rows(List<int> pets, Dictionary<int, Color> colors, float x, float y, IReadOnlyList<Aion2PetState> states,
+        List<(int PetId, float X, float Y)> live, bool known, ISet<string> gatherKeys)
     {
         var loc = LocalizationManager.Instance;
         string language = loc.Language;
-        var rows = new List<(double Nearest, (Color, string, string, string) Row)>();
+        double Dist(float px, float py) => Math.Sqrt((px - x) * (double)(px - x) + (py - y) * (double)(py - y));
+        var gatherRows = new List<(double Nearest, (Color, string, string, string, bool) Row)>();
+        var petRows = new List<(double Nearest, (Color, string, string, string, bool) Row)>();
+
+        // collectibles: the chosen ones that stand on this map (all of them while the map is unknown)
+        var items = Aion2Gather.Items().Where(i => gatherKeys.Contains(i.Key)).ToList();
+        foreach (var item in items)
+        {
+            var mine = _gatherNamed.Where(g => g.Item.Key == item.Key).ToList();
+            if (mine.Count == 0 && _current is not null)
+            {
+                continue;
+            }
+
+            double nearest = known && mine.Count > 0 ? mine.Min(g => Dist(g.X, g.Y)) : double.NaN;
+            gatherRows.Add((nearest, (PetMapPalette.OfGather(item.Kind), item.NameIn(language), "", known && !double.IsNaN(nearest) ? $"~{nearest / 100:0} m" : "", true)));
+        }
+
         foreach (int pet in pets)
         {
-            double nearest = _points.Where(p => p.PetId == pet).Select(p => Math.Sqrt((p.X - x) * (double)(p.X - x) + (p.Y - y) * (double)(p.Y - y))).DefaultIfEmpty(double.NaN).Min();
+            double nearest = known ? _points.Where(p => p.PetId == pet).Select(p => Dist(p.X, p.Y)).DefaultIfEmpty(double.NaN).Min() : double.NaN;
             // a monster the game has announced around the player beats the general spawn points: its distance counts, the others show "~"
-            double nearestLive = live.Where(p => p.PetId == pet).Select(p => Math.Sqrt((p.X - x) * (double)(p.X - x) + (p.Y - y) * (double)(p.Y - y))).DefaultIfEmpty(double.NaN).Min();
+            double nearestLive = live.Where(p => p.PetId == pet).Select(p => Dist(p.X, p.Y)).DefaultIfEmpty(double.NaN).Min();
             bool isLive = !double.IsNaN(nearestLive);
             if (isLive)
             {
@@ -179,11 +263,17 @@ public sealed class PetMapController : IDisposable
                 level = loc["PetFarm.New"];
             }
 
-            rows.Add((nearest, (colors[pet], Aion2Pets.PetName(pet, language) ?? $"#{pet}", level, double.IsNaN(nearest) ? "" : $"{(isLive ? "" : "~")}{nearest / 100:0} m")));
+            petRows.Add((nearest, (colors.GetValueOrDefault(pet, Colors.White), Aion2Pets.PetName(pet, language) ?? $"#{pet}", level, double.IsNaN(nearest) ? "" : $"{(isLive ? "" : "~")}{nearest / 100:0} m", false)));
         }
 
-        // nearest first; pets without a spawn point on this map (unknown distance) last
-        return rows.OrderBy(r => double.IsNaN(r.Nearest) ? double.MaxValue : r.Nearest).Select(r => r.Row).ToList();
+        if (!known)
+        {
+            // position unknown: the collectibles on top, the pets below, no distances
+            return gatherRows.Concat(petRows).Select(r => r.Row).ToList();
+        }
+
+        // nearest first; entries without a place on this map (unknown distance) last
+        return gatherRows.Concat(petRows).OrderBy(r => double.IsNaN(r.Nearest) ? double.MaxValue : r.Nearest).Select(r => r.Row).ToList();
     }
 
     private void ShowEmpty(bool locked)
@@ -198,10 +288,10 @@ public sealed class PetMapController : IDisposable
         // sample rows so the length of the field can be judged while placing it (the real list fills as many as fit)
         var loc = LocalizationManager.Instance;
         var names = Aion2Pets.Species.SelectMany(sp => Aion2Pets.MapPetsOf(sp, loc.Language)).Select(p => p.Name).Take(60).ToList();
-        var sample = new List<(Color, string, string, string)> { (Colors.Gray, loc["PetMap.Placeholder"], "", "") };
+        var sample = new List<(Color, string, string, string, bool)> { (Colors.Gray, loc["PetMap.Placeholder"], "", "", false) };
         for (int i = 0; i < names.Count; i++)
         {
-            sample.Add((PetMapPalette.Of(i), names[i], string.Format(loc["PetFarm.Level"], 1 + i % 2) + $" · {3 + i % 20}/{(i % 2 == 0 ? 25 : 75)}", $"{(i + 1) * 23} m"));
+            sample.Add((PetMapPalette.Of(i), names[i], string.Format(loc["PetFarm.Level"], 1 + i % 2) + $" · {3 + i % 20}/{(i % 2 == 0 ? 25 : 75)}", $"{(i + 1) * 23} m", false));
         }
 
         _list.Render(sample);

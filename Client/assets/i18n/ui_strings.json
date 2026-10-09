@@ -1551,6 +1551,16 @@
     "tr": "Empirean izleri",
     "zh": "天界痕迹"
   },
+  "Settings.Nav.Pets": {
+    "en": "Pets",
+    "de": "Pets",
+    "fr": "Pets",
+    "es": "Mascotas",
+    "ru": "Питомцы",
+    "pl": "Pety",
+    "tr": "Petler",
+    "zh": "宠物"
+  },
   "Settings.Nav.Gather": {
     "en": "Gathering",
     "de": "Sammeln",

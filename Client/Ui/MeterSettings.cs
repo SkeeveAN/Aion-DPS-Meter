@@ -198,6 +198,11 @@ public sealed class MeterSettings
     /// <summary>The collectibles the interactive map shows (by their English name, see the Sammeln page); none until the player picks some.</summary>
     public List<string> PetMapGatherItems { get; set; } = new();
 
+    /// <summary>The map and the position the pet map knew last (kept so it can show them while the position is unknown, e.g. with the game closed).</summary>
+    public string? PetMapLastMap { get; set; }
+    public double? PetMapLastX { get; set; }
+    public double? PetMapLastY { get; set; }
+
     /// <summary>Also read the name on the target plate from the screen when the game's own mark message has not been seen (off: only the packet is used, nothing is captured).</summary>
     public bool PetFarmScreenFallback { get; set; }
 

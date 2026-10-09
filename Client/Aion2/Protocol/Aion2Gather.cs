@@ -30,10 +30,14 @@ public static class Aion2Gather
     }
 
     /// <summary>The places of the chosen items (by key) on a map, each with its kind.</summary>
-    public static IReadOnlyList<(string Kind, float X, float Y)> PointsOf(Aion2MapInfo map, ISet<string> keys)
+    public static IReadOnlyList<(string Kind, float X, float Y)> PointsOf(Aion2MapInfo map, ISet<string> keys) =>
+        NamedPointsOf(map, keys).Select(p => (p.Item.Kind, p.X, p.Y)).ToList();
+
+    /// <summary>The places of the chosen items (by key) on a map, each with its item (for the list next to the map).</summary>
+    public static IReadOnlyList<(Aion2GatherItem Item, float X, float Y)> NamedPointsOf(Aion2MapInfo map, ISet<string> keys)
     {
         Load();
-        var result = new List<(string, float, float)>();
+        var result = new List<(Aion2GatherItem, float, float)>();
         if (keys.Count == 0 || !_maps!.TryGetValue(map.Table, out var perItem))
         {
             return result;
@@ -43,7 +47,7 @@ public static class Aion2Gather
         {
             if (perItem.TryGetValue(item.Key, out var points))
             {
-                result.AddRange(points.Select(p => (item.Kind, p[0], p[1])));
+                result.AddRange(points.Select(p => (item, p[0], p[1])));
             }
         }
 
@@ -66,10 +70,18 @@ public static class Aion2Gather
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(path));
                 var keyOf = new Dictionary<string, (string Kind, string Key)>();
+                Dictionary<string, string>? odNames = null;
                 foreach (var o in doc.RootElement.GetProperty("objects").EnumerateObject())
                 {
                     string kind = o.Value.GetProperty("kind").GetString() ?? "";
                     var names = o.Value.GetProperty("names").EnumerateObject().ToDictionary(n => n.Name, n => n.Value.GetString() ?? "");
+                    // an Od deposit is one source: its four levels and the special variants (splendent, mysterious) all count as plain Od
+                    if (kind == "Od")
+                    {
+                        odNames ??= names;
+                        names = odNames;
+                    }
+
                     string key = names.GetValueOrDefault("en") ?? o.Name;
                     keyOf[o.Name] = (kind, key);
                     int count = o.Value.GetProperty("count").GetInt32();
