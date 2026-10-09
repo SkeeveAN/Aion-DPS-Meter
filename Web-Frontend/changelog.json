@@ -10,6 +10,13 @@
      "Backend"
     ],
     "date": "2026-10-09"
+   },
+   {
+    "text": "Features page redesigned: a full-width scene with its own generated backdrop for every feature, the client windows tilted on one plane, a jump bar with icons, light and dark theme; footer logo no longer stretched",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-09"
    }
   ]
  },
