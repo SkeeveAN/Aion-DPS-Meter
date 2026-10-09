@@ -1182,14 +1182,24 @@
     "zh": "在悬浮窗显示首领生命值"
   },
   "Settings.Hotkey.Mode": {
-    "en": "Damage / healing",
-    "de": "Schaden / Heilung",
-    "fr": "Dégâts / soins",
-    "es": "Daño / curas",
-    "ru": "Урон / лечение",
-    "pl": "Obrażenia / leczenie",
-    "tr": "Hasar / iyileştirme",
-    "zh": "伤害 / 治疗"
+    "en": "Next mode",
+    "de": "Nächster Modus",
+    "fr": "Mode suivant",
+    "es": "Siguiente modo",
+    "ru": "Следующий режим",
+    "pl": "Następny tryb",
+    "tr": "Sonraki mod",
+    "zh": "下一个模式"
+  },
+  "Settings.Hotkey.Mode.Tip": {
+    "en": "Each press switches to the next display mode: Damage, Healing, Damage taken, All in One, All in One Compact, then back to Damage.",
+    "de": "Jeder Druck wechselt zum nächsten Anzeigemodus: Schaden, Heilung, Erlittener Schaden, Alles in einem, Alles in einem kompakt, danach wieder Schaden.",
+    "fr": "Chaque appui passe au mode d'affichage suivant : Dégâts, Soins, Dégâts subis, Tout en un, Tout en un compact, puis retour à Dégâts.",
+    "es": "Cada pulsación cambia al siguiente modo: Daño, Curas, Daño recibido, Todo en uno, Todo en uno compacto y vuelta a Daño.",
+    "ru": "Каждое нажатие переключает на следующий режим: Урон, Лечение, Полученный урон, Всё в одном, Всё в одном (компактно), затем снова Урон.",
+    "pl": "Każde naciśnięcie przełącza na następny tryb: Obrażenia, Leczenie, Otrzymane obrażenia, Wszystko w jednym, Wszystko w jednym (kompaktowo), potem znów Obrażenia.",
+    "tr": "Her basışta sıradaki görünüme geçilir: Hasar, İyileştirme, Alınan hasar, Hepsi bir arada, Hepsi bir arada (kompakt), ardından tekrar Hasar.",
+    "zh": "每按一次切换到下一个显示模式：伤害、治疗、承受伤害、全合一、全合一（紧凑），然后回到伤害。"
   },
   "Main.HpCheck.Match": {
     "en": "HP check: {0} of the {1} HP lost counted ✓",

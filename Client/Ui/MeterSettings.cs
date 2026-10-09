@@ -155,7 +155,7 @@ public sealed class MeterSettings
     /// Mode menu.</summary>
     public string ViewScope { get; set; } = "Group";
 
-    /// <summary>Goes round damage, healing and damage taken (see MainWindow.NextMode).</summary>
+    /// <summary>Goes round all modes: damage, healing, damage taken, All in One, All in One Compact (see MainWindow.NextMode).</summary>
     public string HotkeyMode { get; set; } = "Ctrl+Alt+M";
 
     /// <summary>Shows or hides the timetable overlay (see TimetableWindow).</summary>

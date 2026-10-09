@@ -282,11 +282,6 @@ public sealed class CharacterWindow : Window
             tabs.Add(("equipment", "Equipment", equipmentRows.Count, () => BuildEquipment(equipmentRows, className, average)));
         }
 
-        if (arcana.Count > 0)
-        {
-            tabs.Add(("arcana", "Arcana", arcana.Count, () => BuildArcana(arcana)));
-        }
-
         if (skills.Count > 0)
         {
             tabs.Add(("skills", "Skills", skills.Count, () => BuildSkills(skills)));
@@ -300,6 +295,11 @@ public sealed class CharacterWindow : Window
         if (species.Count > 0)
         {
             tabs.Add(("species", "Species Knowledge", species.Count, () => BuildSpecies(species, _directory.LocalPets)));
+        }
+
+        if (arcana.Count > 0)
+        {
+            tabs.Add(("arcana", "Arcana", arcana.Count, () => BuildArcana(arcana)));
         }
 
         if (tabs.Count > 0 && tabs.All(t => t.Id != _tab))
