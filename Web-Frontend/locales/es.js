@@ -425,7 +425,7 @@ export default {
   "features.character.title": "Todo tu personaje de un vistazo",
   "features.character.text": "El medidor lee tu personaje del propio juego y muestra el equipo con nivel de objeto y encantamiento, arcanos, todas las habilidades con su nivel y los tableros Daevanion completos - y conserva tu último inicio de sesión, así que nunca está vacío.",
   "features.map.title": "Mapa interactivo con mascotas y puntos de recolección",
-  "features.map.text": "Un mapa en overlay muestra tu posición, los puntos de aparición de las mascotas que buscas y los lugares de recolección que activaste - hierbas, minerales, madera, gemas y más - sin salir del juego a una web. Solo se muestra lo que tu facción puede usar, y la última posición conocida se queda en el mapa con el juego cerrado.",
+  "features.map.text": "Un mapa en overlay muestra tu posición, los puntos de aparición de las mascotas que buscas y los lugares de recolección que activaste - hierbas, minerales, madera, gemas y más - sin salir del juego a una web. Solo se muestra lo que tu facción puede usar, y la última posición conocida se queda en el mapa con el juego cerrado. Los ajustes de mascotas también listan cada región de Verteron, Altgard y el Abismo con las mascotas que viven allí y el nivel de tus propias mascotas.",
   "features.timetable.title": "Calendario de eventos con avisos",
   "features.timetable.text": "Un overlay lista los próximos eventos como el Campo de batalla, los asedios del Abismo o la Grieta espaciotemporal. Elige un sonido y un volumen por evento y recibe un aviso unos minutos antes de que empiece. Un solo interruptor activa o desactiva todos los avisos.",
   "features.hotkeys.title": "Atajos globales y copia lista para el chat",

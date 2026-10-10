@@ -52,6 +52,48 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <!-- Pet page: the two tabs of "Shown pets" (Type / Region): text with an orange underline on the chosen one -->
+        <Style x:Key="PetTab" TargetType="ToggleButton">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bd" BorderThickness="0,0,0,2" BorderBrush="Transparent" Padding="14,6" Margin="0,0,4,-1" Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#ffba42"/>
+                                <Setter Property="Foreground" Value="#ffba42"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PetSplitter" TargetType="GridSplitter">
+            <Setter Property="Cursor" Value="SizeWE"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridSplitter">
+                        <Border Background="Transparent">
+                            <Rectangle x:Name="Line" Width="1" Fill="{DynamicResource Brush.Border}" HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Line" Property="Fill" Value="#ffba42"/>
+                                <Setter TargetName="Line" Property="Width" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <!-- Sammeln page: a collectible is a pill that lights up orange when it is on; "all / none" is a plain underlined link -->
         <Style x:Key="GatherPill" TargetType="ToggleButton">
             <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
@@ -672,7 +714,13 @@
                         <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetMap.Mobs}"/>
-                                <Grid Height="270">
+                                <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource Brush.Border}" Margin="0,0,0,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ToggleButton x:Name="PetTabType" Style="{StaticResource PetTab}" Content="{local:Loc Settings.PetTab.Type}" IsChecked="True" Click="OnPetTabClick"/>
+                                        <ToggleButton x:Name="PetTabRegion" Style="{StaticResource PetTab}" Content="{local:Loc Settings.PetTab.Region}" Click="OnPetTabClick"/>
+                                    </StackPanel>
+                                </Border>
+                                <Grid x:Name="PetTypePanel" Height="270">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="132"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                     <DockPanel Margin="0,0,10,0">
                                         <TextBlock DockPanel.Dock="Bottom" x:Name="PetTotalText" TextWrapping="Wrap" FontSize="11" Margin="0,8,0,0" Foreground="{DynamicResource Brush.TextSubtle}"/>
@@ -690,6 +738,25 @@
                                             <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,-10,0"><StackPanel x:Name="PetRows"/></ScrollViewer>
                                         </DockPanel>
                                     </Border>
+                                </Grid>
+                                <Grid x:Name="PetRegionPanel" Height="270" Visibility="Collapsed">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition x:Name="PetRegionLeftColumn" Width="185" MinWidth="120"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*" MinWidth="190"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="PetRegionTree" Margin="0,0,6,0"/></ScrollViewer>
+                                    <GridSplitter Grid.Column="1" Style="{StaticResource PetSplitter}" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ToolTip="{local:Loc Settings.PetRegion.Splitter}"/>
+                                    <DockPanel Grid.Column="2" Margin="4,0,0,0">
+                                        <TextBox DockPanel.Dock="Top" x:Name="PetRegionSearchBox" Height="26" VerticalContentAlignment="Center" TextChanged="OnPetRegionSearchChanged" Margin="0,0,0,6"
+                                                 Background="{DynamicResource Brush.Control}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
+                                        <Grid DockPanel.Dock="Top" Margin="0,0,18,4">
+                                            <TextBlock Text="{local:Loc Settings.PetRegion.Name}" FontSize="11" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                                            <TextBlock Text="{local:Loc Settings.PetRegion.YourLevel}" FontSize="11" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                                        </Grid>
+                                        <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource Brush.Border}" Margin="0,0,0,4"/>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="PetRegionRows"/></ScrollViewer>
+                                    </DockPanel>
                                 </Grid>
                             </StackPanel>
                         </Border>

@@ -469,7 +469,7 @@ export default {
   "features.character.title": "Dein ganzer Charakter auf einen Blick",
   "features.character.text": "Der Meter liest deinen Charakter aus dem Spiel und zeigt Ausrüstung mit Gegenstandsstufe und Verzauberung, Arkana, alle Skills mit Stufen und die kompletten Daevanion-Bretter - und behält deinen letzten Login, ist also nie leer.",
   "features.map.title": "Interaktive Karte mit Pets und Sammelpunkten",
-  "features.map.text": "Ein Karten-Overlay zeigt deine Position, die Spawnpunkte der gesuchten Pets und die Sammelorte, die du eingeschaltet hast - Kräuter, Erze, Holz, Edelsteine und mehr - ohne Alt-Tab auf eine Webseite. Es werden nur Dinge deiner eigenen Fraktion angezeigt, und die zuletzt bekannte Position bleibt bei geschlossenem Spiel auf der Karte.",
+  "features.map.text": "Ein Karten-Overlay zeigt deine Position, die Spawnpunkte der gesuchten Pets und die Sammelorte, die du eingeschaltet hast - Kräuter, Erze, Holz, Edelsteine und mehr - ohne Alt-Tab auf eine Webseite. Es werden nur Dinge deiner eigenen Fraktion angezeigt, und die zuletzt bekannte Position bleibt bei geschlossenem Spiel auf der Karte. Die Pet-Einstellungen listen außerdem jede Region von Verteron, Altgard und dem Abyss mit den dort lebenden Pets und deinem eigenen Pet-Level.",
   "features.timetable.title": "Event-Zeitplan mit Erinnerung",
   "features.timetable.text": "Ein Overlay listet die nächsten Events wie Schlachtfeld, Abyss-Belagerungen oder den Raumzeit-Riss. Pro Event wählst du Ton und Lautstärke und wirst ein paar Minuten vor dem Start erinnert. Ein Schalter schaltet alle Erinnerungen an oder aus.",
   "features.hotkeys.title": "Systemweite Hotkeys und Chat-Kopie",

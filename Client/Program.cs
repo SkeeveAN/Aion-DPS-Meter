@@ -750,6 +750,11 @@ internal static class Program
             window.ShowLongestPetNames(longestCount); // layout check: the pets with the longest names in this language
         }
 
+        if (Environment.GetEnvironmentVariable("AIONDPS_PET_REGION") is { Length: > 0 })
+        {
+            window.ShowPetRegionTab(); // layout check: the Region tab of the pet page
+        }
+
         const double width = 620, height = 740;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));

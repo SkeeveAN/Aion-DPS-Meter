@@ -488,6 +488,7 @@ public partial class SettingsWindow : Window
         _settings.PetMapRadius = (int)PetMapRadiusSlider.Value;
         _settings.PetMapOpacity = PetMapOpacitySlider.Value / 100.0;
         _settings.PetMapPets = _petPicked.OrderBy(i => i).ToList();
+        _settings.PetRegionListWidth = PetRegionLeftColumn.Width.Value;
         _settings.PetMapGatherItems = _gatherPicked.OrderBy(k => k).ToList();
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
         _settings.HotkeyPetMap = (string?)HotkeyPetMapBox.Tag ?? "";
@@ -749,6 +750,7 @@ public partial class SettingsWindow : Window
     private string _petSpecies = Aion2Pets.Species[0];
     private HashSet<int> _petPicked = new();
     private Dictionary<int, int> _petLevels = new();
+    private Dictionary<int, int> _petProgress = new();
 
     private void InitPetMap(MeterSettings settings)
     {
@@ -756,7 +758,10 @@ public partial class SettingsWindow : Window
         _gatherPicked = settings.PetMapGatherItems.ToHashSet();
         BuildGatherPage();
         // the levels of the own pets (login frame, kept in the character file): pets at the top level need no farming and are greyed out
-        _petLevels = Aion2CharacterStore.Load(Aion2CharacterStore.DefaultPath)?.Pets.ToDictionary(p => p.Id, p => p.Level) ?? new();
+        var savedPets = Aion2CharacterStore.Load(Aion2CharacterStore.DefaultPath)?.Pets ?? new();
+        _petLevels = savedPets.ToDictionary(p => p.Id, p => p.Level);
+        _petProgress = savedPets.ToDictionary(p => p.Id, p => p.Progress);
+        PetRegionLeftColumn.Width = new GridLength(Math.Clamp(settings.PetRegionListWidth, 120, 600));
         ShowPetMapBox.IsChecked = settings.ShowPetMap;
         PetMapRadiusSlider.Value = Math.Clamp(settings.PetMapRadius, 50, 500);
         PetMapOpacitySlider.Value = Math.Clamp(settings.PetMapOpacity * 100, 20, 100);
@@ -764,6 +769,8 @@ public partial class SettingsWindow : Window
         OnPetMapShowChanged(null!, null!);
         BuildPetSpecies();
         BuildPetRows();
+        BuildPetRegionTree();
+        BuildPetRegionRows();
     }
 
     /// <summary>A hotkey flipped the pet map or the timetable while this window is open: the switches follow.</summary>
@@ -1051,4 +1058,152 @@ public partial class SettingsWindow : Window
         BuildPetSpecies();
         BuildPetRows();
     }
+
+    // ---- Region tab of "Shown pets": information only (which pets live where, and how far the player's own pets are); nothing is switched here ----
+    private string? _petRegionKey;
+    private readonly HashSet<string> _petRegionClosed = new();
+
+    private void OnPetTabClick(object sender, RoutedEventArgs e)
+    {
+        bool region = sender == PetTabRegion;
+        PetTabType.IsChecked = !region;
+        PetTabRegion.IsChecked = region;
+        PetTypePanel.Visibility = region ? Visibility.Collapsed : Visibility.Visible;
+        PetRegionPanel.Visibility = region ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>For layout checks (render-settings): opens the Region tab.</summary>
+    internal void ShowPetRegionTab() => OnPetTabClick(PetTabRegion, new RoutedEventArgs());
+
+    private static string RegionGroupName(string id) => LocalizationManager.Instance["Settings.PetRegion.Group." + id];
+
+    private void BuildPetRegionTree()
+    {
+        PetRegionTree.Children.Clear();
+        var loc = LocalizationManager.Instance;
+        var groups = Aion2PetRegions.Groups;
+        _petRegionKey ??= groups.SelectMany(g => g.Regions).FirstOrDefault()?.Key;
+        foreach (var group in groups)
+        {
+            bool closed = _petRegionClosed.Contains(group.Id);
+            var arrow = new TextBlock { Text = closed ? "\u25B8" : "\u25BE", FontSize = 10, Width = 14, VerticalAlignment = VerticalAlignment.Center };
+            arrow.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
+            var title = new TextBlock { Text = RegionGroupName(group.Id), FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
+            title.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+            var head = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(2, 7, 0, 5), Cursor = Cursors.Hand, Background = Brushes.Transparent };
+            head.Children.Add(arrow);
+            head.Children.Add(title);
+            string groupId = group.Id;
+            head.MouseLeftButtonDown += (_, _) =>
+            {
+                if (!_petRegionClosed.Remove(groupId))
+                {
+                    _petRegionClosed.Add(groupId);
+                }
+
+                BuildPetRegionTree();
+            };
+            PetRegionTree.Children.Add(head);
+            if (closed)
+            {
+                continue;
+            }
+
+            foreach (var region in group.Regions)
+            {
+                bool selected = region.Key == _petRegionKey;
+                int maxCount = region.Pets.Count(IsMax);
+                var name = new TextBlock { Text = region.NameIn(loc.Language), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, FontWeight = selected ? FontWeights.SemiBold : FontWeights.Normal };
+                name.SetResourceReference(TextBlock.ForegroundProperty, selected ? "Brush.Accent" : "Brush.Text");
+                // pets in the region / of them at the top level (blue), the same two numbers as the badges of the Type tab
+                var counts = new TextBlock { FontSize = 11 };
+                var all = new Run(region.Pets.Count.ToString());
+                all.SetResourceReference(TextElement.ForegroundProperty, "Brush.TextSubtle");
+                var max = new Run("/" + maxCount) { Foreground = new SolidColorBrush(Color.FromRgb(0x4D, 0x9B, 0xFF)) };
+                counts.Inlines.Add(all);
+                counts.Inlines.Add(max);
+                var badge = new Border { CornerRadius = new CornerRadius(9), BorderThickness = new Thickness(1), Padding = new Thickness(7, 1, 7, 1), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 0, 0),
+                    Child = counts, ToolTip = string.Format(loc["Settings.PetRegion.BadgeTip"], region.Pets.Count, maxCount) };
+                badge.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+                var row = new DockPanel { LastChildFill = true };
+                DockPanel.SetDock(badge, Dock.Right);
+                row.Children.Add(badge);
+                row.Children.Add(name);
+                var item = new Border { CornerRadius = new CornerRadius(5), Padding = new Thickness(8, 6, 8, 6), Margin = new Thickness(14, 0, 0, 2), Cursor = Cursors.Hand, Child = row,
+                    BorderThickness = new Thickness(1), Background = Brushes.Transparent, BorderBrush = Brushes.Transparent };
+                if (selected)
+                {
+                    item.SetResourceReference(Border.BackgroundProperty, "Brush.Control");
+                    item.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+                }
+
+                string key = region.Key;
+                item.MouseLeftButtonDown += (_, _) =>
+                {
+                    _petRegionKey = key;
+                    PetRegionSearchBox.Text = "";
+                    BuildPetRegionTree();
+                    BuildPetRegionRows();
+                };
+                PetRegionTree.Children.Add(item);
+            }
+        }
+    }
+
+    /// <summary>"Level 2 (26 / 75)", "Level 3 (max)", or a dash for a pet the player does not have.</summary>
+    private string PetLevelText(int petId)
+    {
+        var loc = LocalizationManager.Instance;
+        if (!_petLevels.TryGetValue(petId, out int level))
+        {
+            return "\u2013";
+        }
+
+        return level >= Aion2Pets.TopLevel
+            ? string.Format(loc["Settings.PetRegion.LevelMax"], level)
+            : string.Format(loc["Settings.PetRegion.Level"], level, _petProgress.GetValueOrDefault(petId), Aion2Pets.ProgressNeeded(level));
+    }
+
+    private void BuildPetRegionRows()
+    {
+        if (PetRegionRows is null)
+        {
+            return;
+        }
+
+        PetRegionRows.Children.Clear();
+        var loc = LocalizationManager.Instance;
+        string filter = PetRegionSearchBox.Text.Trim();
+        // a search looks through every region, otherwise the chosen one is shown
+        var regions = Aion2PetRegions.Groups.SelectMany(g => g.Regions);
+        var ids = (filter.Length > 0 ? regions : regions.Where(r => r.Key == _petRegionKey)).SelectMany(r => r.Pets).Distinct();
+        var pets = ids.Select(id => (Id: id, Name: Aion2Pets.PetName(id, loc.Language) ?? $"#{id}"))
+            .Where(p => filter.Length == 0 || p.Name.Contains(filter, StringComparison.CurrentCultureIgnoreCase))
+            .OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase);
+        foreach (var (id, petName) in pets)
+        {
+            bool max = IsMax(id);
+            var row = new Grid { Margin = new Thickness(0, 2, 18, 2) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var name = new TextBlock { Text = petName, TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
+            name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+            var level = new TextBlock { Text = PetLevelText(id), VerticalAlignment = VerticalAlignment.Center };
+            if (max)
+            {
+                level.Foreground = new SolidColorBrush(Color.FromRgb(0x4D, 0x9B, 0xFF));
+            }
+            else
+            {
+                level.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
+            }
+
+            Grid.SetColumn(level, 1);
+            row.Children.Add(name);
+            row.Children.Add(level);
+            PetRegionRows.Children.Add(row);
+        }
+    }
+
+    private void OnPetRegionSearchChanged(object sender, TextChangedEventArgs e) => BuildPetRegionRows();
 }

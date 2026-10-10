@@ -240,6 +240,9 @@ public sealed class MeterSettings
     /// <summary>The pets whose monsters the pet map shows (pet ids). Empty until the player picks some.</summary>
     public List<int> PetMapPets { get; set; } = new();
 
+    /// <summary>Width of the region list on the Region tab of the pet settings (the player drags the splitter).</summary>
+    public double PetRegionListWidth { get; set; } = 185;
+
     /// <summary>The collectibles the interactive map shows (by their English name, see the Sammeln page); none until the player picks some.</summary>
     public List<string> PetMapGatherItems { get; set; } = new();
 

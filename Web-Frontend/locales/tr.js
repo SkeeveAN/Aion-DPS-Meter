@@ -420,7 +420,7 @@ export default {
   "features.character.title": "Tüm karakteriniz bir bakışta",
   "features.character.text": "Ölçer karakterinizi oyunun kendisinden okur ve eşyaları eşya seviyesi ve büyüyle, arkanaları, seviyeleriyle tüm yetenekleri ve eksiksiz Daevanion tahtalarını gösterir - ayrıca son girişinizi saklar, bu yüzden asla boş olmaz.",
   "features.map.title": "Evcil hayvanlar ve toplama noktalarıyla etkileşimli harita",
-  "features.map.text": "Harita kaplaması konumunuzu, aradığınız evcil hayvanların doğma noktalarını ve açtığınız toplama yerlerini - otlar, madenler, odun, mücevherler ve daha fazlası - bir web sitesine geçmeden gösterir. Yalnızca kendi hizbinizin kullanabildikleri listelenir; oyun kapalıyken son bilinen konum haritada kalır.",
+  "features.map.text": "Harita kaplaması konumunuzu, aradığınız evcil hayvanların doğma noktalarını ve açtığınız toplama yerlerini - otlar, madenler, odun, mücevherler ve daha fazlası - bir web sitesine geçmeden gösterir. Yalnızca kendi hizbinizin kullanabildikleri listelenir; oyun kapalıyken son bilinen konum haritada kalır. Pet ayarları ayrıca Verteron, Altgard ve Uçurum'un her bölgesini, orada yaşayan petleri ve kendi petlerinin seviyesini listeler.",
   "features.timetable.title": "Hatırlatmalı etkinlik takvimi",
   "features.timetable.text": "Bir kaplama; Savaş Alanı, Uçurum kuşatmaları veya Uzayzaman Yarığı gibi sıradaki etkinlikleri listeler. Etkinlik başına ses ve ses düzeyi seçin, başlamadan birkaç dakika önce hatırlatma alın. Tek bir düğme tüm hatırlatmaları açar veya kapatır.",
   "features.hotkeys.title": "Sistem genelinde kısayollar ve sohbete hazır kopyalama",

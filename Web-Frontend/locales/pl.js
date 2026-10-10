@@ -420,7 +420,7 @@ export default {
   "features.character.title": "Cała Twoja postać na jednym ekranie",
   "features.character.text": "Miernik odczytuje Twoją postać z samej gry i pokazuje ekwipunek z poziomem przedmiotu i ulepszeniem, arkana, wszystkie umiejętności z poziomami i pełne plansze Daevanion - oraz zapamiętuje ostatnie logowanie, więc nigdy nie jest pusty.",
   "features.map.title": "Interaktywna mapa z chowańcami i punktami zbierania",
-  "features.map.text": "Nakładka z mapą pokazuje Twoją pozycję, punkty pojawiania się szukanych chowańców i włączone miejsca zbierania - zioła, rudy, drewno, klejnoty i więcej - bez przełączania się na stronę. Pokazywane jest tylko to, czego może używać Twoja frakcja, a ostatnia znana pozycja zostaje na mapie przy zamkniętej grze.",
+  "features.map.text": "Nakładka z mapą pokazuje Twoją pozycję, punkty pojawiania się szukanych chowańców i włączone miejsca zbierania - zioła, rudy, drewno, klejnoty i więcej - bez przełączania się na stronę. Pokazywane jest tylko to, czego może używać Twoja frakcja, a ostatnia znana pozycja zostaje na mapie przy zamkniętej grze. Ustawienia petów wymieniają też każdy region Verteronu, Altgardu i Otchłani wraz z żyjącymi tam petami oraz poziomem Twoich petów.",
   "features.timetable.title": "Harmonogram wydarzeń z przypomnieniami",
   "features.timetable.text": "Nakładka wymienia najbliższe wydarzenia, jak Pole Bitwy, oblężenia Otchłani czy Szczelina Czasoprzestrzenna. Wybierz dźwięk i głośność dla każdego wydarzenia i otrzymaj przypomnienie kilka minut przed startem. Jeden przełącznik włącza lub wyłącza wszystkie przypomnienia.",
   "features.hotkeys.title": "Skróty systemowe i kopiowanie gotowe na czat",
