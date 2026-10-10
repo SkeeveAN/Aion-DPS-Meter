@@ -211,6 +211,40 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "The class bits of a character profile are called class bits, not faction: the website no longer derives a faction from them, and the client stops using them as one",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "Class names show in the reader's language as the game client spells them, on the website and in the meter; the meter's class table is corrected against the client's own texts (German, Spanish and Russian had seven wrong names)",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "Legion list redesigned: servers in a sidebar with collapsible regions, the larger legions as cards with their class mix and average item level, the small ones as a list, all in alphabetical order",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "Arcana pieces show their card icon on the website's profile tab (40 of 172: Grail, Parchment, Compass, Bell and Mirror in all four grades; the rest are not in the client's item table yet)",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
