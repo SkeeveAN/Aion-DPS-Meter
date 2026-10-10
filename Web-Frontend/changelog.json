@@ -255,6 +255,15 @@
      "Database"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Portraits: a player's official character picture, cut free of its black background, shows in the profile header and on the Character tab; fetched once per profile that is opened, for the own character and for others",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
