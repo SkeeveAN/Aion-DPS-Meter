@@ -3288,3 +3288,21 @@ body:has(.download-hero) .nav-download-link:hover,
   display: inline-flex;
   align-items: center;
 }
+
+/* Name column of the player strip: name, class and the faction/legion/server line one below the other. */
+.pf-id {
+  display: grid;
+  gap: 2px;
+  max-width: 280px;
+}
+.pf-id .pf-meta {
+  gap: 0 14px;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+.pf-strip {
+  gap: 14px 18px;
+}
+.pf-numbers {
+  flex-shrink: 0;
+}

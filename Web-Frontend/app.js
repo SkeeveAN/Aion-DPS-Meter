@@ -2942,12 +2942,16 @@ function renderPlayerStrip(profile, player, character) {
     : [];
   return el("div", { className: "pf-strip" }, [
     stripEmblem(profile, player),
-    el("div", {}, [el("div", { className: "pf-name", textContent: player.name }), el("div", { className: "pf-sub", textContent: sub.join(" · ") })]),
-    el("div", { className: "pf-meta" }, [
-      profile?.faction ? iconLabel(factionIcon(profile.faction), profile.faction) : null,
-      player.guild ? el("span", {}, [`${t("profile.guild")}: `, player.guildSlug ? link(player.guild, `/legions/${player.guildSlug}`) : player.guild]) : null,
-      player.serverName ? el("span", { textContent: serverLabel(player.serverName) }) : null,
-    ].filter((x) => x != null)),
+    // Name, class and the faction/legion/server line stay together in one column, so the badges and the numbers fit in one row.
+    el("div", { className: "pf-id" }, [
+      el("div", { className: "pf-name", textContent: player.name }),
+      el("div", { className: "pf-sub", textContent: sub.join(" · ") }),
+      el("div", { className: "pf-meta" }, [
+        profile?.faction ? iconLabel(factionIcon(profile.faction), profile.faction) : null,
+        player.guild ? el("span", {}, [`${t("profile.guild")}: `, player.guildSlug ? link(player.guild, `/legions/${player.guildSlug}`) : player.guild]) : null,
+        player.serverName ? el("span", { textContent: serverLabel(player.serverName) }) : null,
+      ].filter((x) => x != null)),
+    ]),
     renderTitleChips(profile),
     renderLookChips(character),
     el("div", { className: "pf-numbers" }, numbers),

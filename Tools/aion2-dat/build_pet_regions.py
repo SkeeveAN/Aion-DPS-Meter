@@ -88,6 +88,8 @@ def area(p):
     return abs(sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(p, p[1:] + p[:1]))) / 2
 
 
+EVENTS = "_events"  # pets that only spawn in the event and quest phases of the maps
+EVENT_NAMES = {"en": "Events", "de": "Events", "fr": "Événements", "es": "Eventos", "ru": "События"}
 OTHER = "_other"  # pets that spawn outside every named area; the client names it
 
 
@@ -121,6 +123,7 @@ def main():
     groups = []
     for gid, maps in MAPS.items():
         found = collections.defaultdict(set)
+        layer_pets = set()
         for map_name in maps:
             poly = polygons(os.path.join(map_dir, map_name, "MapData.dat"))
             # on the open world maps a box 20 times the size of the next volume is a catch-all that covers the whole map (Verteron: "Destroyed Abyss Gate", Altgard: "Amunta's Hideout"), not a region; the Abyss maps are one named zone each (Black Fragments), which stays
@@ -131,7 +134,13 @@ def main():
                 print(map_name, "catch-all volume left out:", ", ".join(sorted(catch_all)))
             tiers = [[(k, area(poly[sn]), poly[sn]) for k in ks for sn in str2sub.get(k, ()) if sn in poly] for ks in (rank1, rank2, others)]
             for key, npcs in spawns.items():
-                if key != map_name:  # the InstanceLayer spawns are event and quest phases of the same map, not where a pet lives
+                if key.startswith(map_name + "/InstanceLayer"):
+                    # event and quest phases of the same map: not where a pet lives, but the only place of some pets
+                    for npc in npcs:
+                        ids = monsters.get(npc)
+                        layer_pets.update((ids if isinstance(ids, list) else [ids]) if ids else ())
+                    continue
+                if key != map_name:
                     continue
                 for npc, points in npcs.items():
                     ids = monsters.get(npc)
@@ -151,6 +160,9 @@ def main():
             elif ids and names(key):
                 regions.append({"key": key, "names": names(key), "pets": ids})
         regions.sort(key=lambda r: r["names"]["en"].casefold())
+        only_events = sorted(i for i in layer_pets if i in known and not any(i in r["pets"] for r in regions) and not (other and i in other["pets"]))
+        if only_events:
+            regions.append({"key": EVENTS, "names": EVENT_NAMES, "pets": only_events})
         if other:
             regions.append(other)
         groups.append({"id": gid, "regions": regions})
