@@ -1,4 +1,5 @@
 import { canonicalServer, nameOf } from "../content/aion2Servers.js";
+import { factionOfServerName } from "../factions.js";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
@@ -190,6 +191,15 @@ function rehomePlayers(participants: { name: string; guild?: string; serverId?: 
   }
 }
 
+/** The faction an upload reports for a participant: his own, else that of the server he announced himself with (1xxx Elyos, 2xxx Asmodian). */
+function factionOfParticipant(participant: { faction?: string; serverId?: number }): string {
+  if (participant.faction) {
+    return participant.faction;
+  }
+  const label = participant.serverId !== undefined ? nameOf(participant.serverId) : null;
+  return label ? factionOfServerName(label) : "";
+}
+
 function upsertPlayer(name: string, serverId: number, guild?: string, faction?: string): number {
   const nameNormalized = normalizeName(name);
   const existing = db
@@ -335,7 +345,7 @@ function insertParticipant(
   participant: ParticipantUpload,
   authoritative: boolean,
 ) {
-  const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, participant.faction);
+  const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant));
   if (participant.profile) {
     upsertProfile(playerId, participant.profile);
   }
@@ -506,7 +516,7 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
     );
 
     if (candidates.length === 1) {
-      const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, participant.faction);
+      const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant));
       if (participant.profile) {
         upsertProfile(playerId, participant.profile);
       }
@@ -682,7 +692,7 @@ export function processProfilesUpload(payload: ProfilesUploadPayload): { serverI
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   rehomePlayers(payload.participants, serverId);
   for (const participant of payload.participants) {
-    const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, participant.faction);
+    const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant));
     upsertProfile(playerId, participant.profile);
   }
   return { serverId, players: payload.participants.length };

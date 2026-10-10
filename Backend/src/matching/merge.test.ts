@@ -454,3 +454,9 @@ test("a player keeps the faction a fight or a profile upload reported, and a lat
   upload([member("Kaempferin", "Elyos")], false, "Europe - Kaisinel", "aion2:europe-kaisinel");
   assert.equal(factionOf("Kaempferin"), "Elyos", "a fight stores it too");
 });
+
+test("a participant without a faction gets that of the server he announced himself with", () => {
+  upload([member("Ohnefraktion", "", { serverId: 2308 })], true, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  const f = (sqlite.prepare("select faction f from players where name_normalized = 'ohnefraktion'").get() as { f: string }).f;
+  assert.equal(f, "Asmodian", "2308 is an Asmodian server");
+});
