@@ -99,7 +99,8 @@ export async function playerRoutes(app: FastifyInstance) {
     }
 
     const serverId = Number(request.query.serverId);
-    const nameFilter = like(players.nameNormalized, `%${normalizeName(query)}%`);
+    // Exact match only (case-insensitive): no wildcards, no partial names, so "%" lists nobody.
+    const nameFilter = eq(players.nameNormalized, normalizeName(query));
     // Players have no game column of their own; the server they belong to does, by its fingerprint:
     // clients file everything under "aion2:<server>". Rows of the retired classic-Aion version
     // ("<ip>:<port>") are never returned. Matches players found through a profile upload as much as

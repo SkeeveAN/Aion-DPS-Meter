@@ -768,7 +768,7 @@ async function renderGuilds() {
   const list = el("div", { className: "guild-groups" });
   const draw = () => {
     const q = filter.value.trim().toLowerCase();
-    const shown = guilds.filter((g) => !q || g.name.toLowerCase().includes(q) || serverLabel(g.serverName).toLowerCase().includes(q));
+    const shown = guilds.filter((g) => !q || g.name.toLowerCase() === q || serverLabel(g.serverName).toLowerCase() === q);
     // One block per server, the legions sorted by name.
     const byServer = new Map();
     for (const g of shown) {
@@ -2988,7 +2988,7 @@ async function renderComparePlayers(params) {
     const list = el("div", { className: "cmp-pick-list" });
     const draw = () => {
       const needle = filterInput.value.trim().toLowerCase();
-      const shown = candidates.filter((c) => c.name.toLowerCase().includes(needle));
+      const shown = candidates.filter((c) => !needle || c.name.toLowerCase() === needle);
       list.replaceChildren(
         ...(shown.length > 0
           ? shown.map((c) =>

@@ -314,13 +314,18 @@ test("a player that only has a profile (no boss fight) is found by name search",
     const up = await app.inject({ method: "POST", url: "/api/uploads/profiles", payload });
     assert.equal(up.statusCode, 200, up.body);
 
-    const aion2 = (await app.inject({ url: "/api/players/search?q=aahzet&game=aion2" })).json();
+    const aion2 = (await app.inject({ url: "/api/players/search?q=AAHZETTA&game=aion2" })).json();
     assert.equal(aion2.length, 1);
     assert.equal(aion2[0].name, "Aahzetta");
     assert.equal(aion2[0].serverName, "Europe - Kaisinel");
 
-    const any = (await app.inject({ url: "/api/players/search?q=aahzet" })).json();
+    const any = (await app.inject({ url: "/api/players/search?q=aahzetta" })).json();
     assert.equal(any.length, 1);
+
+    // exact name only: no partial names, no wildcards
+    for (const q of ["aahzet", "%", "aahz%", "_"]) {
+      assert.equal((await app.inject({ url: `/api/players/search?q=${encodeURIComponent(q)}` })).json().length, 0, q);
+    }
 
     // and the player page answers with the profile although there is not a single fight
     const page = (await app.inject({ url: `/api/players/${aion2[0].id}` })).json();
