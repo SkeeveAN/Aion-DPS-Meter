@@ -132,6 +132,13 @@
      "Client"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Player page: the skill count in the header and tab is the number of skills the tab lists (active on the bar + passive + stigma), not every skill the client sent",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
