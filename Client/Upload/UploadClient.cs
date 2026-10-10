@@ -12,7 +12,7 @@ namespace AionDPS.Upload;
 /// </summary>
 public static class UploadClient
 {
-    private const string ApiBaseUrl = "https://aiondps.com";
+    internal const string ApiBaseUrl = "https://aiondps.com";
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(15) };
 

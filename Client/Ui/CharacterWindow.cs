@@ -39,12 +39,14 @@ public sealed class CharacterWindow : Window
     private readonly Aion2EntityDirectory _directory;
     private readonly ContentControl _host = new();
     private readonly Dictionary<string, BitmapImage?> _images = new();
-    private string _tab = "equipment";
+    private string _tab = "character";
+    private BitmapImage? _portrait;
+    private string? _portraitAskedFor;
     private int _boardIndex;
 
     private sealed record GearRow(Aion2EquippedItem Item, Aion2ItemInfo? Info);
 
-    /// <summary>Opens a tab by its id (equipment, arcana, skills, board, species) - for the picture render.</summary>
+    /// <summary>Opens a tab by its id (character, equipment, arcana, skills, board, species) - for the picture render.</summary>
     public void ShowTab(string id)
     {
         _tab = id;
@@ -283,6 +285,13 @@ public sealed class CharacterWindow : Window
         Title = $"{character.Name} - Character";
 
         var tabs = new List<(string Id, string Label, int Count, Func<UIElement> Build)>();
+        // The attributes arrive with the stat frame; until it was seen there is no tab.
+        if (_directory.LocalAttributes is { } attributes)
+        {
+            tabs.Add(("character", Loc("Character.Tab"), MainAttributes.Length + Lords.Length, () => BuildCharacter(attributes)));
+            StartPortraitLoad(character);
+        }
+
         if (equipmentRows.Count > 0)
         {
             tabs.Add(("equipment", "Equipment", equipmentRows.Count, () => BuildEquipment(equipmentRows, className, average)));
@@ -399,7 +408,8 @@ public sealed class CharacterWindow : Window
         Grid.SetColumn(numbers, 2);
         row.Children.Add(numbers);
 
-        // The worn titles as chips under the header, tinted by grade.
+        // The worn titles as chips under the header, tinted by grade; behind them, after a thin divider,
+        // the wings, the wing skin and the summoned pet.
         var content = new StackPanel();
         content.Children.Add(row);
         string language = LocalizationManager.Instance.Language;
@@ -408,7 +418,40 @@ public sealed class CharacterWindow : Window
         {
             if (Aion2Titles.Find(slot.TitleId, language) is { } title)
             {
-                chips.Children.Add(TitleChip(title));
+                chips.Children.Add(Chip(title.Name, GradeChipColor(title.Grade)));
+            }
+        }
+
+        var looks = new List<UIElement>();
+        if (_directory.LocalWing is { } wing)
+        {
+            if (Aion2Wings.Find(wing.WingId, language) is { } wingInfo)
+            {
+                looks.Add(Chip(wingInfo.Name, GradeChipColor(wingInfo.Grade), wingInfo.IconPath));
+            }
+
+            if (wing.SkinId > 0 && Aion2Wings.Find(wing.SkinId, language) is { } skinInfo)
+            {
+                looks.Add(Chip(skinInfo.Name, GradeChipColor(skinInfo.Grade), skinInfo.IconPath, badge: Loc("Character.Skin")));
+            }
+        }
+
+        if (_directory.LocalActivePet is > 0 and int petId && Aion2Pets.PetName(petId, language) is { } petName)
+        {
+            int? petLevel = _directory.LocalPetStates.Where(p => p.PetId == petId).Select(p => (int?)p.Level).FirstOrDefault();
+            looks.Add(Chip(petName, GradeChipColor("Common"), Aion2Pets.PetIconPath(petId), level: petLevel));
+        }
+
+        if (looks.Count > 0)
+        {
+            if (chips.Children.Count > 0)
+            {
+                chips.Children.Add(new Border { Width = 1, Height = 24, Margin = new Thickness(2, 4, 10, 10), Background = Res("Brush.Border") });
+            }
+
+            foreach (UIElement look in looks)
+            {
+                chips.Children.Add(look);
             }
         }
 
@@ -420,27 +463,61 @@ public sealed class CharacterWindow : Window
         return Card(content, new Thickness(16, 14, 22, 14));
     }
 
-    /// <summary>A title as a rounded chip in its grade's colour (the website's colours).</summary>
-    private UIElement TitleChip(Aion2TitleInfo title)
+    private static string Loc(string key) => LocalizationManager.Instance[key];
+
+    /// <summary>The website's chip colours by grade (titles and wings alike).</summary>
+    private static Color GradeChipColor(string grade) => grade switch
     {
-        Color color = title.Grade switch
+        "Rare" => Color.FromRgb(0x5B, 0xD3, 0x6B),
+        "Epic" => Color.FromRgb(0xB4, 0x8C, 0xFF),
+        "Legend" => Color.FromRgb(0x4A, 0xA8, 0xFF),
+        "Unique" => Color.FromRgb(0xFF, 0xC9, 0x4D),
+        "Special" => Color.FromRgb(0xFF, 0x5A, 0x4F),
+        _ => Color.FromRgb(0x9D, 0xB3, 0xC2),
+    };
+
+    private const double ChipHeight = 32;
+
+    /// <summary>A rounded chip of fixed height in a grade's colour: optional icon, the name, an optional small
+    /// marker ("Skin") and an optional "Lv N". Titles, wings and the pet share it so they line up.</summary>
+    private UIElement Chip(string text, Color color, string? iconPath = null, string? badge = null, int? level = null)
+    {
+        var inner = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        if (Picture(iconPath) is { } icon)
         {
-            "Rare" => Color.FromRgb(0x5B, 0xD3, 0x6B),
-            "Epic" => Color.FromRgb(0xB4, 0x8C, 0xFF),
-            "Legend" => Color.FromRgb(0x4A, 0xA8, 0xFF),
-            "Unique" => Color.FromRgb(0xFF, 0xC9, 0x4D),
-            "Special" => Color.FromRgb(0xFF, 0x5A, 0x4F),
-            _ => Color.FromRgb(0x9D, 0xB3, 0xC2),
-        };
+            inner.Children.Add(new Image { Source = icon, Width = 24, Height = 24, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center });
+        }
+
+        inner.Children.Add(new TextBlock { Text = text, FontSize = 12.5, FontWeight = FontWeights.SemiBold, Foreground = Solid(color), VerticalAlignment = VerticalAlignment.Center });
+        if (!string.IsNullOrEmpty(badge))
+        {
+            inner.Children.Add(new Border
+            {
+                BorderBrush = Solid(color),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(6, 0, 6, 0),
+                Margin = new Thickness(8, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                Child = new TextBlock { Text = badge, FontSize = 10.5, Foreground = Solid(color) },
+            });
+        }
+
+        if (level is { } lv)
+        {
+            inner.Children.Add(Text($"Lv {lv}", 11.5, brush: Res("Brush.TextMuted"), margin: new Thickness(8, 0, 0, 0)));
+        }
+
         return new Border
         {
-            CornerRadius = new CornerRadius(14),
+            Height = ChipHeight,
+            CornerRadius = new CornerRadius(ChipHeight / 2),
             BorderThickness = new Thickness(1),
             BorderBrush = Solid(color),
             Background = Solid(Color.FromArgb(0x24, color.R, color.G, color.B)),
-            Padding = new Thickness(12, 3, 12, 3),
+            Padding = new Thickness(12, 0, 12, 0),
             Margin = new Thickness(0, 0, 8, 6),
-            Child = Text(title.Name, 12.5, FontWeights.SemiBold, Solid(color)),
+            Child = inner,
         };
     }
 
@@ -511,6 +588,265 @@ public sealed class CharacterWindow : Window
         }
 
         return new Border { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = Res("Brush.Border"), Child = bar };
+    }
+
+    // ---------------------------------------------------------------- character (attributes)
+
+    // Stat-frame ids (Aion2Attributes): the six main attributes in the order of the website's hexagon (Might on top,
+    // clockwise) and the ten Lord values in the order of its ring (Justice on top, clockwise).
+    private static readonly (string Key, int Id)[] MainAttributes =
+    {
+        ("str", 1), ("dex", 2), ("agi", 5), ("wis", 6), ("int", 3), ("con", 4),
+    };
+
+    private static readonly (string Key, int Id)[] Lords =
+    {
+        ("justice", 7), ("destruction", 13), ("death", 14), ("wisdom", 15), ("destiny", 16),
+        ("space", 17), ("time", 11), ("life", 10), ("illusion", 9), ("freedom", 8),
+    };
+
+    private const double RingSize = 440;
+
+    /// <summary>The round symbol of an attribute or Lord on a dark disc (assets/aion2/stats).</summary>
+    private UIElement AttrIcon(string key, bool lord, double size)
+    {
+        string file = (lord ? "lords_" : "") + (key == "con" ? "constitution" : key) + ".png";
+        var disc = new RadialGradientBrush(Color.FromRgb(0x2B, 0x47, 0x62), Color.FromRgb(0x11, 0x1F, 0x2D));
+        var grid = new Grid { Width = size, Height = size };
+        grid.Children.Add(new System.Windows.Shapes.Ellipse { Fill = disc, Stroke = Res("Brush.Border"), StrokeThickness = 1 });
+        if (Picture(Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "stats", file)) is { } image)
+        {
+            grid.Children.Add(new Image { Source = image, Stretch = Stretch.Uniform, Margin = new Thickness(size * 0.12) });
+        }
+
+        return grid;
+    }
+
+    private UIElement BuildCharacter(IReadOnlyDictionary<int, int> values)
+    {
+        int Value(int id) => values.GetValueOrDefault(id);
+
+        var page = new Grid();
+        page.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = 280 });
+        page.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        page.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = 260 });
+
+        // Left: the portrait (when the server has it and the profile upload is on), then the main attributes as bars.
+        int top = Math.Max(1, MainAttributes.Max(a => Value(a.Id)));
+        var left = new StackPanel();
+        if (_portrait is not null)
+        {
+            left.Children.Add(new Image { Source = _portrait, Height = 300, Stretch = Stretch.Uniform, Margin = new Thickness(0, 0, 0, 8), HorizontalAlignment = HorizontalAlignment.Center });
+        }
+
+        left.Children.Add(Heading(Loc("Character.AttrMain")));
+        foreach ((string key, int id) in MainAttributes)
+        {
+            int value = Value(id);
+            var row = new Grid { Margin = new Thickness(0, 7, 0, 7), Opacity = value == 0 ? 0.55 : 1 };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(92) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+            UIElement icon = AttrIcon(key, false, 24);
+            row.Children.Add(icon);
+            TextBlock name = Text(Loc("Character.Attr." + key));
+            name.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetColumn(name, 1);
+            row.Children.Add(name);
+
+            var bar = new Grid { Height = 8, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 8, 0) };
+            bar.Children.Add(new Border { CornerRadius = new CornerRadius(4), Background = Res("Brush.Border") });
+            bar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Math.Max(value, 0), GridUnitType.Star) });
+            bar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Math.Max(top - value, 0.0001), GridUnitType.Star) });
+            if (value > 0)
+            {
+                bar.Children.Add(new Border { CornerRadius = new CornerRadius(4), Background = Res("Brush.Accent") });
+            }
+
+            Grid.SetColumn(bar, 2);
+            row.Children.Add(bar);
+            TextBlock number = Text(value.ToString(CultureInfo.CurrentCulture), 13, FontWeights.Bold);
+            number.HorizontalAlignment = HorizontalAlignment.Right;
+            number.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetColumn(number, 3);
+            row.Children.Add(number);
+            left.Children.Add(row);
+        }
+
+        Border leftCard = Card(left, new Thickness(16, 14, 16, 8));
+        leftCard.VerticalAlignment = VerticalAlignment.Top;
+        Grid.SetColumn(leftCard, 0);
+        page.Children.Add(leftCard);
+
+        // Middle: the Lord ring.
+        var middle = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
+        middle.Children.Add(Heading(Loc("Character.AttrLords")));
+        middle.Children.Add(BuildRing(Value));
+        Border middleCard = Card(middle, new Thickness(14, 14, 14, 10), new Thickness(12, 0, 12, 0));
+        middleCard.VerticalAlignment = VerticalAlignment.Top;
+        Grid.SetColumn(middleCard, 1);
+        page.Children.Add(middleCard);
+
+        // Right: the Lord list.
+        var list = new StackPanel();
+        list.Children.Add(Heading(Loc("Character.AttrLords")));
+        for (int i = 0; i < Lords.Length; i++)
+        {
+            (string key, int id) = Lords[i];
+            var row = new Grid { Margin = new Thickness(0, 0, 0, 0) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            UIElement icon = AttrIcon(key, true, 28);
+            ((FrameworkElement)icon).HorizontalAlignment = HorizontalAlignment.Left;
+            row.Children.Add(icon);
+            var names = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+            names.Children.Add(Text(Loc("Character.Attr." + key)));
+            names.Children.Add(Text(Loc("Character.Lord." + key), 10.5, brush: Res("Brush.TextMuted")));
+            Grid.SetColumn(names, 1);
+            row.Children.Add(names);
+            TextBlock number = Text(Value(id).ToString(CultureInfo.CurrentCulture), 14, FontWeights.Bold);
+            number.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetColumn(number, 2);
+            row.Children.Add(number);
+            list.Children.Add(new Border
+            {
+                Padding = new Thickness(0, 5, 0, 5),
+                BorderThickness = new Thickness(0, 0, 0, i == Lords.Length - 1 ? 0 : 1),
+                BorderBrush = Res("Brush.Border"),
+                Child = row,
+            });
+        }
+
+        Border listCard = Card(list, new Thickness(16, 14, 16, 8));
+        listCard.VerticalAlignment = VerticalAlignment.Top;
+        Grid.SetColumn(listCard, 2);
+        page.Children.Add(listCard);
+        return page;
+    }
+
+    /// <summary>The ring like the website's: ten Lords on a circle (clockwise from the top, the value at the lower
+    /// right of the symbol), the six main attributes as a hexagon inside it (Might on top). Positioned on a canvas
+    /// from the website's proportions (Lord radius 238 and hexagon radius 108 of 600).</summary>
+    private UIElement BuildRing(Func<int, int> value)
+    {
+        const double Scale = RingSize / 600;
+        double centre = RingSize / 2;
+        var canvas = new Canvas { Width = RingSize, Height = RingSize };
+        canvas.Children.Add(new System.Windows.Shapes.Ellipse
+        {
+            Width = 2 * 238 * Scale, Height = 2 * 238 * Scale, Stroke = Res("Brush.Border"), StrokeThickness = 2,
+        });
+        Canvas.SetLeft(canvas.Children[0], centre - 238 * Scale);
+        Canvas.SetTop(canvas.Children[0], centre - 238 * Scale);
+        var inner = new System.Windows.Shapes.Ellipse
+        {
+            Width = 2 * 165 * Scale, Height = 2 * 165 * Scale, Stroke = Res("Brush.Border"), StrokeThickness = 1,
+            StrokeDashArray = new DoubleCollection { 3, 5 },
+        };
+        Canvas.SetLeft(inner, centre - 165 * Scale);
+        Canvas.SetTop(inner, centre - 165 * Scale);
+        canvas.Children.Add(inner);
+
+        void Place(UIElement node, double width, double height, int index, int count, double radius)
+        {
+            double angle = -Math.PI / 2 + index * 2 * Math.PI / count;
+            Canvas.SetLeft(node, centre + Math.Cos(angle) * radius * Scale - width / 2);
+            Canvas.SetTop(node, centre + Math.Sin(angle) * radius * Scale - height / 2);
+            canvas.Children.Add(node);
+        }
+
+        const double LordIcon = 46;
+        for (int i = 0; i < Lords.Length; i++)
+        {
+            (string key, int id) = Lords[i];
+            var stack = new Grid { Width = 74, Height = 66, ToolTip = $"{Loc("Character.Attr." + key)} [{Loc("Character.Lord." + key)}]" };
+            stack.RowDefinitions.Add(new RowDefinition { Height = new GridLength(LordIcon + 3) });
+            stack.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            var icon = new Grid { Width = LordIcon, Height = LordIcon, VerticalAlignment = VerticalAlignment.Top };
+            icon.Children.Add(AttrIcon(key, true, LordIcon));
+            icon.Children.Add(new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(0xC0, 0x0B, 0x16, 0x20)),
+                CornerRadius = new CornerRadius(7),
+                Padding = new Thickness(4, 0, 4, 0),
+                Margin = new Thickness(0, 0, -12, -4),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Child = new TextBlock { Text = value(id).ToString(CultureInfo.CurrentCulture), FontSize = 13, FontWeight = FontWeights.Bold, Foreground = Brushes.White },
+            });
+            stack.Children.Add(icon);
+            TextBlock label = Text(Loc("Character.Attr." + key), 10.5, brush: Res("Brush.TextMuted"));
+            label.HorizontalAlignment = HorizontalAlignment.Center;
+            Grid.SetRow(label, 1);
+            stack.Children.Add(label);
+            Place(stack, 74, 66, i, Lords.Length, 238);
+        }
+
+        for (int i = 0; i < MainAttributes.Length; i++)
+        {
+            (string key, int id) = MainAttributes[i];
+            var stack = new StackPanel { Width = 66, ToolTip = Loc("Character.Attr." + key) };
+            UIElement icon = AttrIcon(key, false, 26);
+            ((FrameworkElement)icon).HorizontalAlignment = HorizontalAlignment.Center;
+            stack.Children.Add(icon);
+            TextBlock label = Text(Loc("Character.Attr." + key), 10.5);
+            label.HorizontalAlignment = HorizontalAlignment.Center;
+            stack.Children.Add(label);
+            TextBlock number = Text(value(id).ToString(CultureInfo.CurrentCulture), 15, FontWeights.Bold, Res("Brush.Accent"));
+            number.HorizontalAlignment = HorizontalAlignment.Center;
+            stack.Children.Add(number);
+            Place(stack, 66, 60, i, MainAttributes.Length, 108);
+        }
+
+        return canvas;
+    }
+
+    /// <summary>Fetches the portrait once per character and session - only when the profile upload is switched on
+    /// (the player is only on the server then), never in the headless picture modes. Errors leave the tab without it.</summary>
+    private void StartPortraitLoad(Aion2CharacterInfo character)
+    {
+        if (MainWindow.Headless || character.ServerId <= 0 || string.IsNullOrEmpty(character.Name))
+        {
+            return;
+        }
+
+        string key = character.ServerId + "/" + character.Name;
+        if (_portraitAskedFor == key || !MeterSettings.Load().AutoUploadProfile)
+        {
+            return;
+        }
+
+        _portraitAskedFor = key;
+        string fingerprint = "aion2:" + System.Text.RegularExpressions.Regex.Replace(Aion2Servers.NameOf(character.ServerId).ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
+        _ = Task.Run(async () =>
+        {
+            string? file = await Upload.PortraitClient.GetAsync(character.Name, fingerprint);
+            if (file is null)
+            {
+                return;
+            }
+
+            try
+            {
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.UriSource = new Uri(file, UriKind.Absolute);
+                image.EndInit();
+                image.Freeze();
+                await Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    _portrait = image;
+                    Render();
+                }));
+            }
+            catch (Exception ex) when (ex is IOException or NotSupportedException or InvalidOperationException or TaskCanceledException)
+            {
+                // no portrait
+            }
+        });
     }
 
     // ---------------------------------------------------------------- equipment

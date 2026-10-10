@@ -39,6 +39,7 @@ public static class Aion2Pets
         public Dictionary<int, string> PetSpecies { get; } = new();
         public HashSet<int> PetsWithSpawns { get; } = new();
         public Dictionary<int, Dictionary<string, string>> PetNames { get; } = new();
+        public Dictionary<int, string> PetKeys { get; } = new();
         public Dictionary<int, int[]> PetsOfNpc { get; } = new();
         public Dictionary<int, int> PetOfSoul { get; } = new();
         /// <summary>Monster name (folded, any language) -> the pets of the monsters with that name.</summary>
@@ -50,6 +51,18 @@ public static class Aion2Pets
     /// <summary>The pet's name in a language, else English.</summary>
     public static string? PetName(int petId, string language) =>
         Data.PetNames.TryGetValue(petId, out var names) ? names.GetValueOrDefault(language) ?? names.GetValueOrDefault("en") : null;
+
+    /// <summary>The pet's picture (assets/aion2/pets/icons/<key>.png, 64 px); null when none was extracted for it.</summary>
+    public static string? PetIconPath(int petId)
+    {
+        if (!Data.PetKeys.TryGetValue(petId, out string? key))
+        {
+            return null;
+        }
+
+        string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "pets", "icons", key + ".png");
+        return File.Exists(path) ? path : null;
+    }
 
     /// <summary>The pets whose soul this monster drops (usually one).</summary>
     public static IReadOnlyList<int> PetsOfNpc(int npcId) => Data.PetsOfNpc.TryGetValue(npcId, out int[]? pets) ? pets : Array.Empty<int>();
@@ -98,6 +111,11 @@ public static class Aion2Pets
                 }
 
                 catalog.PetNames[int.Parse(pet.Name)] = names;
+                if (pet.Value.TryGetProperty("key", out var key) && key.GetString() is { Length: > 0 } keyText)
+                {
+                    catalog.PetKeys[int.Parse(pet.Name)] = keyText;
+                }
+
                 catalog.PetSpecies[int.Parse(pet.Name)] = pet.Value.TryGetProperty("category", out var c) ? c.GetString() switch
                 {
                     "Intellect" => "Cognia",

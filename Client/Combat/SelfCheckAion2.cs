@@ -1198,7 +1198,20 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> stats frame: ids 1..17 only, missing Intelligence = 0: {attributes}");
         Console.WriteLine($"  -> pet list header = active pet 1124, level 3: {pet}");
         Console.WriteLine($"  -> all three survive a restart: {restored}");
-        return aahz && chumley && garbage && attributes && pet && restored;
+
+        // Names, grade and icon of Aahz's wing and skin (assets/aion2/wings) and the pet's picture
+        var wingInfo = Aion2Wings.Find(30500200, "en");
+        var wingDe = Aion2Wings.Find(30500200, "de");
+        var skinInfo = Aion2Wings.Find(30400400, "en");
+        var skinDe = Aion2Wings.Find(30400400, "de");
+        bool lookups = wingInfo is { Name: "Ancient Aullaeu Wings", Grade: "Unique", IconPath: not null }
+            && wingInfo.IconPath.EndsWith("Icon_WingE_002.png", StringComparison.Ordinal)
+            && wingDe?.Name == "Fl\u00fcgel des uralten Aulaus"
+            && skinInfo?.Name == "Blue Wave Wings" && skinDe?.Name == "Blauwellenfl\u00fcgel"
+            && Aion2Wings.Find(1, "en") is null
+            && Aion2Pets.PetIconPath(1124) is not null;
+        Console.WriteLine($"  -> wing/skin lookup (names en/de, grade, icon) and pet picture: {lookups}");
+        return aahz && chumley && garbage && attributes && pet && restored && lookups;
     }
 
     /// <summary>The two login lists from the 2026-10-01 relog: equipment (three real item entries -

@@ -175,7 +175,7 @@ internal static class Program
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: AionDPS render-character <out.png> [equipment|arcana|skills|board|species]");
+                Console.WriteLine("Usage: AionDPS render-character <out.png> [character|equipment|arcana|skills|board|species]");
                 Console.WriteLine("  Draws the saved character's profile window into a picture; no window is ever shown.");
                 return;
             }
