@@ -34,6 +34,20 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "The character window counts Daevanion points instead of nodes: a node is worth its colour (white 1, green 2, blue 3, gold 4), per board and in the total",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "The pet regions list the islands: the Island of Eternity (Verteron) and the Island of Immortality (Altgard), plus the Ruby Island and the Spirit Island, get their own regions instead of hiding under the Kraka Footpath, Moslan Forest and the camps",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
