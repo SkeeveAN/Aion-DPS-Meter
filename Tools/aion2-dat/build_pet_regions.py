@@ -17,6 +17,8 @@ import re
 import struct
 import sys
 
+from build_spawns import parse as spawn_groups
+
 XOR = bytes([0x25, 0x00, 0xA8, 0x00, 0x7E, 0x00, 0x91, 0x00])
 LANGS = {"en": "en-US", "de": "de-DE", "fr": "fr-FR", "es": "es-ES", "ru": "ru-RU"}
 MAPS = {
@@ -88,6 +90,28 @@ def area(p):
     return abs(sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(p, p[1:] + p[:1]))) / 2
 
 
+# The island zones have no usable area volumes of their own: Eternity Island's spawns sit inside the "Kraka Footpath" volume, the Immortality and
+# Spirit islands' inside other big boxes. The spawn groups are named after their island, so those spawn points are assigned by that tag instead.
+ISLANDS = {
+    "World/World_L/World_L_A": {"IoE": "STR_IslandOfEternity_Subzone4", "IoC": "STR_IslandofCrimson_Subzone"},
+    "World/World_D/World_D_A": {"IoI": "STR_Subzone_IslandofImmortality", "IOS": "STR_IslandOfSpirit_Subzone"},
+}
+
+
+def island_points(map_dir, map_name):
+    """{(npc id, x, y): region key} of the spawn points whose group is tagged with an island (`M_FE_IoE_...`, `M_D1_IoI_...`)."""
+    tags = ISLANDS.get(map_name)
+    out = {}
+    if not tags:
+        return out
+    for name, ids, pos in spawn_groups(os.path.join(map_dir, map_name, "MapData.dat")):
+        tag = next((t for t in tags if re.search(rf"_{t}_", name)), None)
+        if tag:
+            for npc in ids:
+                out[(str(npc), round(pos[0]), round(pos[1]))] = tags[tag]
+    return out
+
+
 EVENTS = "_events"  # pets that only spawn in the event and quest phases of the maps
 EVENT_NAMES = {"en": "Events", "de": "Events", "fr": "Événements", "es": "Eventos", "ru": "События"}
 OTHER = "_other"  # pets that spawn outside every named area; the client names it
@@ -133,6 +157,7 @@ def main():
             if catch_all:
                 print(map_name, "catch-all volume left out:", ", ".join(sorted(catch_all)))
             tiers = [[(k, area(poly[sn]), poly[sn]) for k in ks for sn in str2sub.get(k, ()) if sn in poly] for ks in (rank1, rank2, others)]
+            islands = island_points(map_dir, map_name)
             for key, npcs in spawns.items():
                 if key.startswith(map_name + "/InstanceLayer"):
                     # event and quest phases of the same map: not where a pet lives, but the only place of some pets
@@ -145,6 +170,10 @@ def main():
                 for npc, points in npcs.items():
                     ids = monsters.get(npc)
                     for x, y, _ in points if ids else ():
+                        island = islands.get((npc, x, y))
+                        if island:
+                            found[island].update(ids if isinstance(ids, list) else [ids])
+                            continue
                         for tier in tiers:
                             hit = [(a, k) for k, a, p in tier if inside(x, y, p)]
                             if hit:
