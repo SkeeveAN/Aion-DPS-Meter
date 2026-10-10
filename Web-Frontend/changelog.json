@@ -79,6 +79,13 @@
      "Website"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "An upload may carry up to 200 participants: a world boss has the whole map on it (106 and 108 on Kashapa and Dartan)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
