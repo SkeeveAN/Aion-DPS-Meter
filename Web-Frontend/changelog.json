@@ -17,6 +17,15 @@
      "Database"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Every upload checks its players against NC's public character search in the background: the real server and the faction of players only seen in a group are applied when exactly one character fits (faction, class, level and the verified members of the legion narrow the candidates; several fitting characters are left alone and tried again later), and a sweep works through the players seen before",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
