@@ -245,6 +245,16 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Profile: a Character tab with the main attributes and the ten lord values, and the wings, wing skin and active pet next to the titles; the client reads them for the own character (needs the next client version to fill them)",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
