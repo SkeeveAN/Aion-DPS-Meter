@@ -23,6 +23,14 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Profile portrait: the bottom fade starts lower (90% instead of 78%), so more of the armour stays visible",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
