@@ -116,6 +116,15 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Website and client speak Portuguese (Brazil), Japanese, Korean and Traditional Chinese, with game names from the AION 2 client",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },

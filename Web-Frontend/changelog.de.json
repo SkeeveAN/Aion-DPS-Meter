@@ -535,5 +535,6 @@
   "An upload may carry up to 200 participants: a world boss has the whole map on it (106 and 108 on Kashapa and Dartan)": "Ein Upload darf bis zu 200 Teilnehmer enthalten: Bei einem World-Boss ist die ganze Karte dabei (106 und 108 bei Kashapa und Dartan)",
   "World bosses need the 90 % hit-point share again, like every other boss; the upload log names why a boss is not uploaded": "World-Bosse brauchen wieder den 90-%-Anteil der Lebenspunkte wie jeder andere Boss; das Upload-Log nennt den Grund, warum ein Boss nicht hochgeladen wird",
   "An upload carries up to 300 participants for a world boss and at most 20 for an instance boss": "Ein Upload enthält bei einem World-Boss bis zu 300 Teilnehmer, bei einem Instanz-Boss höchstens 20",
-  "Search needs the exact name: player, legion and opponent lookups no longer match partial names or wildcards": "Die Suche verlangt den genauen Namen: Spieler-, Legions- und Gegnersuche finden keine Teilnamen oder Platzhalter mehr"
+  "Search needs the exact name: player, legion and opponent lookups no longer match partial names or wildcards": "Die Suche verlangt den genauen Namen: Spieler-, Legions- und Gegnersuche finden keine Teilnamen oder Platzhalter mehr",
+  "Website and client speak Portuguese (Brazil), Japanese, Korean and Traditional Chinese, with game names from the AION 2 client": "Website und Client sprechen jetzt Portugiesisch (Brasilien), Japanisch, Koreanisch und Traditionelles Chinesisch, mit Spielnamen aus dem AION-2-Client"
 }
