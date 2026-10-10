@@ -2954,9 +2954,11 @@ function renderPlayerStrip(profile, player, character) {
   ].filter((x) => x != null));
 }
 
-async function renderPlayerProfile(playerId) {
-  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.playerProfile")]);
-  showLoading(t("loading.playerProfile"));
+async function renderPlayerProfile(playerId, attempt = 0) {
+  if (attempt === 0) {
+    setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.playerProfile")]);
+    showLoading(t("loading.playerProfile"));
+  }
 
   const data = await fetchJson(`/api/players/${encodeURIComponent(playerId)}`);
   setBreadcrumb([link(t("breadcrumb.home"), "/"), data.player.name]);
@@ -2997,10 +2999,14 @@ async function renderPlayerProfile(playerId) {
   const buttons = tabs.map(([id, label, count]) =>
     el("button", { type: "button", role: "tab", textContent: label }, [el("small", { textContent: String(count) })]),
   );
-  const show = (index) => {
+  // Only a tab the reader picked goes into the address: the tab shown by default must stay free to change when
+  // the character data arrives later and the Character tab becomes the first one.
+  const show = (index, picked = true) => {
     buttons.forEach((b, i) => b.setAttribute("aria-selected", String(i === index)));
     panel.replaceChildren(tabs[index][3]());
-    history.replaceState(history.state, "", `${location.pathname}${location.search}#${tabs[index][0]}`);
+    if (picked) {
+      history.replaceState(history.state, "", `${location.pathname}${location.search}#${tabs[index][0]}`);
+    }
   };
   buttons.forEach((b, i) => b.addEventListener("click", () => show(i)));
   const wanted = tabs.findIndex(([id]) => id === location.hash.slice(1));
@@ -3014,7 +3020,18 @@ async function renderPlayerProfile(playerId) {
     panel,
     ...(source ? [source, el("p", { className: "profile-source", textContent: t("profile.note") })] : []),
   );
-  show(wanted >= 0 ? wanted : 0);
+  show(wanted >= 0 ? wanted : 0, wanted >= 0);
+
+  // The server fetches the portrait and the character data from NC in the background the first time a profile is
+  // opened: look again a few times (still on this page) instead of making the reader reload.
+  if ((!data.player.portraitUrl || !character?.attributes) && attempt < 3) {
+    const path = location.pathname;
+    setTimeout(() => {
+      if (location.pathname === path) {
+        renderPlayerProfile(playerId, attempt + 1).catch(() => {});
+      }
+    }, [6000, 10000, 15000][attempt]);
+  }
 }
 
 async function renderSearchResults(query) {
