@@ -989,6 +989,14 @@ public partial class MainWindow : Window
             ? HostileHitsTaken(filteredSpan).GroupBy(ev => ev.TargetObjectId).ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount))
             : new Dictionary<int, long>();
 
+        // All in One: what the group shields absorbed from monsters, beside the damage taken (blue part of it).
+        Dictionary<int, long> absorbedById = _allData
+            ? _aggregator.Shields
+                .Where(ev => ShieldSkills.IsAbsorb(ev) && IsPlayerName(ev.TargetObjectId) && !IsPlayerName(ev.SourceObjectId)
+                    && (filteredSpan is not (DateTime from, DateTime to) || (ev.Timestamp >= from && ev.Timestamp <= to)))
+                .GroupBy(ev => ev.TargetObjectId).ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount))
+            : new Dictionary<int, long>();
+
         var sourceIds = filtered.Select(ev => ev.SourceObjectId).Distinct()
             .Union(healSourceIds)
             .Union(hostileTakenById.Keys)
@@ -1054,6 +1062,7 @@ public partial class MainWindow : Window
             row.AllMode = _allMode;
             row.AllCompact = _allCompactMode;
             row.Healing = healingById.GetValueOrDefault(sourceId);
+            row.Absorbed = absorbedById.GetValueOrDefault(sourceId);
             row.DamageTaken = _allData ? hostileTakenById.GetValueOrDefault(sourceId) : damageTakenById.GetValueOrDefault(sourceId);
             row.Deaths = 0;
             row.ShowShareBar = _showShareBars;
@@ -1245,13 +1254,16 @@ public partial class MainWindow : Window
     private void RankRows()
     {
         long shownTotal = _rows.Sum(r => r.Damage);
-        long shownMax = _rows.Count > 0 ? _rows.Max(r => r.Damage) : 0;
+        // In Taken mode the bar is drawn to the damage that got through, behind it a blue one to the absorbed
+        // damage on top; both scale to the biggest of the two together.
+        long shownMax = _rows.Count > 0 ? _rows.Max(r => r.Damage + (_takenMode ? r.Absorbed : 0)) : 0;
         int rank = 0;
         foreach (PlayerRow row in _rows.OrderByDescending(r => r.Damage))
         {
             row.Rank = ++rank;
             row.SharePercent = shownTotal > 0 ? 100.0 * row.Damage / shownTotal : 0;
             row.FillPercent = shownMax > 0 ? 100.0 * row.Damage / shownMax : 0;
+            row.AbsorbedFillPercent = _takenMode && shownMax > 0 && row.Absorbed > 0 ? 100.0 * (row.Damage + row.Absorbed) / shownMax : 0;
         }
     }
 
@@ -1296,6 +1308,7 @@ public partial class MainWindow : Window
             double seconds = spanSeconds ?? (mine.Max(ev => ev.Timestamp) - mine.Min(ev => ev.Timestamp)).TotalSeconds;
             row.Dps = seconds > 0 ? row.Damage / seconds : null;
             row.DamageTaken = 0;
+            row.Absorbed = 0;
             row.AllMode = false;
             row.AllCompact = false;
             row.Healing = 0;
@@ -1333,6 +1346,11 @@ public partial class MainWindow : Window
     {
         var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
         var hits = HostileHitsTaken(span);
+        // What the group shields absorbed from monsters in that span (see ShieldSkills.IsAbsorb).
+        var absorbs = _aggregator.Shields
+            .Where(ev => ShieldSkills.IsAbsorb(ev) && IsPlayerName(ev.TargetObjectId) && !IsPlayerName(ev.SourceObjectId)
+                && (span is not (DateTime from, DateTime to) || (ev.Timestamp >= from && ev.Timestamp <= to)))
+            .ToList();
         double? spanSeconds = span is (DateTime a, DateTime b) && b > a ? (b - a).TotalSeconds : null;
 
         var targetIds = hits.Select(ev => ev.TargetObjectId).Distinct().ToList();
@@ -1363,6 +1381,7 @@ public partial class MainWindow : Window
             ApplyIdentity(row, targetId);
             var mine = hits.Where(ev => ev.TargetObjectId == targetId).ToList();
             row.Damage = mine.Sum(ev => ev.Amount);
+            row.Absorbed = absorbs.Where(ev => ev.TargetObjectId == targetId).Sum(ev => ev.Amount);
             double seconds = spanSeconds ?? (mine.Max(ev => ev.Timestamp) - mine.Min(ev => ev.Timestamp)).TotalSeconds;
             row.Dps = seconds > 0 ? row.Damage / seconds : null;
 
@@ -1373,6 +1392,7 @@ public partial class MainWindow : Window
             _deathsById[targetId] = deaths;
             row.Deaths = deaths.Count;
             row.DamageTaken = 0;
+            row.Absorbed = 0;
             row.AllMode = false;
             row.AllCompact = false;
             row.Healing = 0;
@@ -1820,51 +1840,29 @@ public partial class MainWindow : Window
     private static readonly TimeSpan BuffPrePullGrace = TimeSpan.FromSeconds(30);
 
     /// <summary>
-    /// Fills in who shielded whom from the group shields (see <see cref="ShieldSkills"/>): each event
-    /// names the shielded player as its source and the caster as its target. Personal shields are no
-    /// one's gift to anyone and are left out.
+    /// Fills in the damage the group shields absorbed per player (see <see cref="ShieldSkills"/>), over the same
+    /// window and from the same attacker as <c>DamageTaken</c>, so the website can draw the taken-damage bar
+    /// part red (got through) and part blue (absorbed). The shield names no caster, so nobody is credited with it.
     /// </summary>
-    private List<ParticipantUpload> AttachShieldsGiven(List<ParticipantUpload> participants, DateTime windowStart, DateTime windowEnd)
+    private List<ParticipantUpload> AttachAbsorbed(List<ParticipantUpload> participants, int attackerId, DateTime windowStart, DateTime windowEnd)
     {
-        string? NameOf(int objectId)
-        {
-            string? name = _rows.FirstOrDefault(r => r.ObjectId == objectId)?.Name;
-            return name is null || name.StartsWith("Player #", StringComparison.Ordinal) || name.StartsWith("0x", StringComparison.Ordinal) ? null : name;
-        }
-
-        var given = new Dictionary<string, Dictionary<string, long>>();
+        var byObject = _rows.GroupBy(r => r.ObjectId).ToDictionary(g => g.Key, g => g.First().Name);
+        var absorbed = new Dictionary<string, long>();
         foreach (DamageEvent shield in _aggregator.Shields)
         {
-            if (!ShieldSkills.IsGroupShield(shield) || shield.Timestamp < windowStart || shield.Timestamp > windowEnd)
+            if (!ShieldSkills.IsAbsorb(shield) || shield.SourceObjectId != attackerId
+                || shield.Timestamp < windowStart || shield.Timestamp > windowEnd
+                || !byObject.TryGetValue(shield.TargetObjectId, out string? name))
             {
                 continue;
             }
 
-            string? caster = NameOf(shield.TargetObjectId);
-            string? recipient = NameOf(shield.SourceObjectId);
-            if (caster is null || recipient is null || !participants.Any(p => p.Name == caster))
-            {
-                continue;
-            }
-
-            if (!given.TryGetValue(caster, out var perRecipient))
-            {
-                perRecipient = given[caster] = new Dictionary<string, long>();
-            }
-
-            perRecipient[recipient] = perRecipient.GetValueOrDefault(recipient) + shield.Amount;
+            absorbed[name] = absorbed.GetValueOrDefault(name) + shield.Amount;
         }
 
-        if (given.Count == 0)
-        {
-            return participants;
-        }
-
-        return participants
-            .Select(p => given.TryGetValue(p.Name, out var perRecipient)
-                ? p with { ShieldsGiven = perRecipient.OrderByDescending(kv => kv.Value).Take(40).Select(kv => new ShieldGivenUpload(kv.Key, kv.Value)).ToList() }
-                : p)
-            .ToList();
+        return absorbed.Count == 0
+            ? participants
+            : participants.Select(p => absorbed.TryGetValue(p.Name, out long amount) ? p with { DamageAbsorbed = amount } : p).ToList();
     }
 
     private EncounterUploadRequest? BuildEncounterUpload(
@@ -2009,7 +2007,7 @@ public partial class MainWindow : Window
                 ServerId: aion2Directory?.ServerIdOf(ProfileIdOf(row))));
         }
 
-        participants = AttachShieldsGiven(participants, windowStart, windowEnd);
+        participants = AttachAbsorbed(participants, targetId, windowStart, windowEnd);
 
         // Two rows of the own character (the object id changed during the run) would both be "self";
         // the backend wants exactly one, and merges same-named participants itself afterwards.

@@ -556,6 +556,7 @@ internal static class Program
                 row.AllCompact = allCompact;
                 row.Healing = x.Cls == "Cleric" ? 384_500 : rank * 3_100;
                 row.DamageTaken = 100_000 / rank;
+                row.Absorbed = rank switch { 1 => 41_800, 3 => 12_400, 4 => 18_900, _ => 0 }; // a group shield on three of them
             }
 
             rows.Add(row);

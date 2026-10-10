@@ -1069,6 +1069,9 @@
                                          colour bar fills the whole row height. Opt-in extras (relic AP,
                                          avoided attacks, PVP) get a second line only when there are any. -->
                                     <Grid MinHeight="32">
+                                        <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding AbsorbedFillPercent, Mode=OneWay}"
+                                                     Foreground="#993AA0FF"
+                                                     Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                                         <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding FillPercent, Mode=OneWay}"
                                                      Foreground="{Binding ClassBrush}"
                                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
@@ -1104,9 +1107,15 @@
                                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
                                                     <local:AllLine FontSize="10.5" TextElement.Foreground="{DynamicResource Brush.Text}" Opacity="0.85"/>
                                                 </StackPanel>
-                                                <TextBlock Grid.Column="3" Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenMuted}" FontSize="11"
-                                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"
-                                                           ToolTip="Damage this player received in the shown window"/>
+                                                <Grid Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0" ToolTip="Damage this player received in the shown window">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="TakenRed"/>
+                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="TakenBlue"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenMuted}" FontSize="11" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding AbsorbedDisplay}" Foreground="#3AA0FF" FontSize="11" Margin="8,0,0,0" HorizontalAlignment="Right"
+                                                               ToolTip="Damage the group shield absorbed on this player"/>
+                                                </Grid>
                                                 <TextBlock Grid.Column="4" Text="{Binding RateOrHealDisplay}" Style="{StaticResource AllHealMuted}"
                                                            VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
                                                 <TextBlock Grid.Column="5" Text="{Binding Damage, StringFormat=N0}" FontWeight="SemiBold"
@@ -1280,7 +1289,7 @@
                     <TextBlock x:Name="OverlayShareHeader" Grid.Column="3" Text="%" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="9" HorizontalAlignment="Right"/>
                     <TextBlock x:Name="OverlayTotalHeader" Grid.Column="4" Text="{local:Loc Main.Overlay.ColTotal}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="9" HorizontalAlignment="Right"/>
                 </Grid>
-                <local:QuietItemsControl x:Name="CompactOverlayRows">
+                <local:QuietItemsControl x:Name="CompactOverlayRows" Grid.IsSharedSizeScope="True">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid MinHeight="20" Margin="0,1" Background="Transparent" Cursor="Hand"
@@ -1356,6 +1365,9 @@
                             </Style>
                         </Border.Style>
                         <Grid>
+                        <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding AbsorbedFillPercent, Mode=OneWay}"
+                                     Foreground="#993AA0FF"
+                                     Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
                         <ProgressBar Style="{StaticResource RowFillBar}" Value="{Binding FillPercent, Mode=OneWay}"
                                      Foreground="{Binding ClassBrush}"
                                      Visibility="{Binding ShowShareBar, Converter={StaticResource BoolToVis}}"/>
@@ -1393,8 +1405,15 @@
                                                TextTrimming="CharacterEllipsis"/>
                                     <local:AllLine FontSize="10" TextElement.Foreground="{DynamicResource Brush.OverlayText}"/>
                                 </StackPanel>
-                                <TextBlock Grid.Column="3" Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenSubtle}" FontSize="11"
-                                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"/>
+                                <Grid Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ChipTakenRed"/>
+                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ChipTakenBlue"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding TakenDisplay}" Style="{StaticResource AllTakenSubtle}" FontSize="11" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding AbsorbedDisplay}" Foreground="#3AA0FF" FontSize="11" Margin="8,0,0,0" HorizontalAlignment="Right"
+                                                               ToolTip="Damage the group shield absorbed on this player"/>
+                                                </Grid>
                                 <TextBlock Grid.Column="4" Text="{Binding RateOrHealDisplay}" Style="{StaticResource AllHealSubtle}"
                                            VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0"/>
                                 <TextBlock Grid.Column="5" Text="{Binding Damage, StringFormat=N0}" Foreground="{DynamicResource Brush.OverlayText}"

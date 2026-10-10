@@ -153,6 +153,33 @@ public sealed class PlayerRow : INotifyPropertyChanged
 
     private double _fillPercent;
 
+    /// <summary>Taken mode: damage the group shields absorbed on this player, drawn as the blue part of the bar
+    /// behind the part that got through (<see cref="Damage"/>). 0 in every other mode.</summary>
+    public long Absorbed
+    {
+        get => _absorbed;
+        set { _absorbed = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasAbsorbed)); OnPropertyChanged(nameof(AbsorbedDisplay)); OnPropertyChanged(nameof(AbsorbedCompact)); }
+    }
+
+    /// <summary>All in One modes: the shield absorbed something on this player, shown in blue beside the damage taken.</summary>
+    public bool HasAbsorbed => Absorbed > 0 && (AllMode || AllCompact);
+
+    public string AbsorbedDisplay => HasAbsorbed ? $"+{Absorbed:N0}" : "";
+
+    public string AbsorbedCompact => Absorbed > 0 ? Compact(Absorbed) : "";
+
+    private long _absorbed;
+
+    /// <summary>Length of the blue bar: the damage that got through plus the absorbed damage, as a share of the
+    /// biggest such total shown, 0-100. 0 when nothing was absorbed, so no blue bar shows.</summary>
+    public double AbsorbedFillPercent
+    {
+        get => _absorbedFillPercent;
+        set { _absorbedFillPercent = value; OnPropertyChanged(); }
+    }
+
+    private double _absorbedFillPercent;
+
     /// <summary>The class colour, translucent, for that bar. Same colours as the website's meter.</summary>
     public System.Windows.Media.Brush ClassBrush => ClassBrushes.For(ClassName);
 
@@ -190,6 +217,8 @@ public sealed class PlayerRow : INotifyPropertyChanged
             _allCompact = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(TakenDisplay));
+            OnPropertyChanged(nameof(HasAbsorbed));
+            OnPropertyChanged(nameof(AbsorbedDisplay));
         }
     }
 
@@ -210,6 +239,8 @@ public sealed class PlayerRow : INotifyPropertyChanged
             _allMode = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(TakenDisplay));
+            OnPropertyChanged(nameof(HasAbsorbed));
+            OnPropertyChanged(nameof(AbsorbedDisplay));
             OnPropertyChanged(nameof(RateOrHealDisplay));
             OnPropertyChanged(nameof(RateOrDamageCompact));
             OnPropertyChanged(nameof(ShareOrHealCompact));

@@ -53,11 +53,12 @@ public sealed record ParticipantUpload(
     string? Guild = null,
     // The character profile (see ProfileUpload).
     ProfileUpload? Profile = null,
-    // Shields this player gave, per recipient (the class that owns the shield skill, worked out from the
-    // group; nothing when it is ambiguous).
+    // Not sent any more: the group shields name no caster (see ShieldSkills).
     IReadOnlyList<ShieldGivenUpload>? ShieldsGiven = null,
     // The numeric id of the server this player announced himself with (his own, not the uploader's: a matched world mixes servers).
-    int? ServerId = null);
+    int? ServerId = null,
+    // Damage the group shields on this player absorbed from the boss, over the same window as DamageTaken.
+    long DamageAbsorbed = 0);
 
 public sealed record ShieldGivenUpload(string PlayerName, long Amount);
 
