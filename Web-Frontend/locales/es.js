@@ -91,7 +91,7 @@ export default {
   "profile.note": "Las cantidades de las piedras y los estigmas no forman parte de los datos.",
   "profile.avgShort": "Nivel de objeto medio",
   "profile.skillsShort": "Habilidades",
-  "profile.nodesShort": "Nodos Daevanion",
+  "profile.nodesShort": "Puntos de Daevanion",
   "profile.legendBonus": "bono (Daevanion, equipo)",
   "profile.tabRuns": "Runs",
   "profile.tabEquipment": "Equipo",

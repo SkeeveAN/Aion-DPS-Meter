@@ -298,7 +298,7 @@ export default {
   "profile.note": "마석 수치와 스티그마는 데이터에 포함되어 있지 않습니다.",
   "profile.avgShort": "평균 아이템 레벨",
   "profile.skillsShort": "스킬",
-  "profile.nodesShort": "데바니온 노드",
+  "profile.nodesShort": "데바니온 포인트",
   "profile.upgrade": "강화할 가치 있음",
   "profile.upgradeNote": "가장 좋은 장비(아이템 레벨 {max}) 기준으로 측정했습니다.",
   "profile.boardMapNote": "지도에는 노드 표에 등록된 노드만 표시됩니다 (활성 노드의 약 절반).",

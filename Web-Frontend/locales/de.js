@@ -298,7 +298,7 @@ export default {
   "profile.note": "Die Beträge der Steine und Stigmen sind nicht Teil der Daten.",
   "profile.avgShort": "Ø Itemlevel",
   "profile.skillsShort": "Skills",
-  "profile.nodesShort": "Daevanion-Knoten",
+  "profile.nodesShort": "Daevanion-Punkte",
   "profile.upgrade": "Verbesserungsbedarf",
   "profile.upgradeNote": "Gemessen am besten Teil (Itemlevel {max}).",
   "profile.boardMapNote": "Die Karten zeigen die Knoten, die der Knotentabelle bekannt sind (etwa die Hälfte der aktiven).",

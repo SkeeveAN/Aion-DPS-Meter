@@ -2847,9 +2847,9 @@ function renderBoardTab(profile) {
   const skillsById = new Map(profile.skills.map((s) => [s.id, s]));
   const holder = el("div", { className: "pf-board-wrap" });
   const buttons = profile.daevanion.map((b) => {
-    const total = b.cells.filter((c) => c[2] !== 0).length;
-    const percent = total > 0 ? ` · ${Math.round((b.activeNodes / total) * 100)} %` : "";
-    return el("button", { type: "button", className: "pf-pill" }, [b.name, el("b", { textContent: ` ${b.activeNodes} / ${total || "?"}${percent}` })]);
+    const total = b.totalPoints;
+    const percent = total > 0 ? ` · ${Math.round((b.activePoints / total) * 100)} %` : "";
+    return el("button", { type: "button", className: "pf-pill" }, [b.name, el("b", { textContent: ` ${b.activePoints} / ${total || "?"}${percent}` })]);
   });
   const show = (i) => {
     const b = profile.daevanion[i];
@@ -2933,7 +2933,7 @@ function renderPlayerStrip(profile, player, character) {
   } else if (profile?.level) {
     sub.push(`Level ${profile.level}`);
   }
-  const nodes = profile ? profile.daevanion.reduce((sum, b) => sum + b.activeNodes, 0) : 0;
+  const nodes = profile ? profile.daevanion.reduce((sum, b) => sum + b.activePoints, 0) : 0;
   const numbers = profile
     ? [
         el("div", {}, [el("strong", { className: "accent", textContent: String(profile.averageItemLevel ?? "–") }), el("span", { textContent: t("profile.avgShort") })]),
@@ -2985,7 +2985,7 @@ async function renderPlayerProfile(playerId, attempt = 0) {
     tabs.push(["skills", t("profile.tabSkills"), visibleSkillCount(profile), () => renderSkillsTab(profile)]);
   }
   if (profile?.daevanion.length > 0) {
-    tabs.push(["daevanion", t("profile.tabBoard"), profile.daevanion.reduce((s, b) => s + b.activeNodes, 0), () => renderBoardTab(profile)]);
+    tabs.push(["daevanion", t("profile.tabBoard"), profile.daevanion.reduce((s, b) => s + b.activePoints, 0), () => renderBoardTab(profile)]);
   }
   if (!(profile?.daevanion.length > 0) && profile?.boards?.length > 0) {
     tabs.push(["daevanion", t("profile.tabBoard"), profile.boards.reduce((s, b) => s + b.count, 0), () => renderBoardSummary(profile)]);

@@ -86,7 +86,7 @@ export default {
   "profile.note": "Taşların değerleri ve stigmalar verilere dahil değildir.",
   "profile.avgShort": "Ort. eşya seviyesi",
   "profile.skillsShort": "Yetenekler",
-  "profile.nodesShort": "Daevanion düğümleri",
+  "profile.nodesShort": "Daevanion puanları",
   "profile.legendBonus": "bonus (Daevanion, ekipman)",
   "profile.tabRuns": "Koşular",
   "profile.tabEquipment": "Ekipman",

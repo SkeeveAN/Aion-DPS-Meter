@@ -298,7 +298,7 @@ export default {
   "profile.note": "Stone amounts and stigmas are not part of the data.",
   "profile.avgShort": "Avg item level",
   "profile.skillsShort": "Skills",
-  "profile.nodesShort": "Daevanion nodes",
+  "profile.nodesShort": "Daevanion points",
   "profile.upgrade": "Worth upgrading",
   "profile.upgradeNote": "Measured against the best piece (item level {max}).",
   "profile.boardMapNote": "The maps show the nodes the node table knows (about half of those active).",

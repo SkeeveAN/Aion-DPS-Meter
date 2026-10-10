@@ -298,7 +298,7 @@ export default {
   "profile.note": "Quantidades de pedras e estigmas não fazem parte dos dados.",
   "profile.avgShort": "Nível de item médio",
   "profile.skillsShort": "Habilidades",
-  "profile.nodesShort": "Nós de Daevanion",
+  "profile.nodesShort": "Pontos de Daevanion",
   "profile.upgrade": "Vale melhorar",
   "profile.upgradeNote": "Medido em relação à melhor peça (nível de item {max}).",
   "profile.boardMapNote": "Os mapas mostram os nós que a tabela de nós conhece (cerca de metade dos ativos).",

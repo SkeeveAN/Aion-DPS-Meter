@@ -86,7 +86,7 @@ export default {
   "profile.note": "Wartości kamieni i stygmaty nie są częścią danych.",
   "profile.avgShort": "Śr. poziom przedmiotów",
   "profile.skillsShort": "Umiejętności",
-  "profile.nodesShort": "Węzły Daevanion",
+  "profile.nodesShort": "Punkty Daevanion",
   "profile.legendBonus": "bonus (Daevanion, ekwipunek)",
   "profile.tabRuns": "Przejścia",
   "profile.tabEquipment": "Ekwipunek",

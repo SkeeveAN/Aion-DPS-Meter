@@ -298,7 +298,7 @@ export default {
   "profile.note": "魔石の数量とスティグマはデータに含まれていません。",
   "profile.avgShort": "平均アイテムレベル",
   "profile.skillsShort": "スキル",
-  "profile.nodesShort": "ディーヴァニオン ノード",
+  "profile.nodesShort": "ディーヴァニオン ポイント",
   "profile.upgrade": "強化の価値あり",
   "profile.upgradeNote": "最も良い装備（アイテムレベル {max}）を基準に算出。",
   "profile.boardMapNote": "マップには、ノード表で判明しているノードが表示されます（有効なノードの約半数）。",

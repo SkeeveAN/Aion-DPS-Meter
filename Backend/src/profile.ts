@@ -354,6 +354,9 @@ export type ProfileView = {
     name: string;
     activeNodes: number;
     knownNodes: number;
+    /** Points spent / available on the board: a node is worth its grade (white 1, green 2, blue 3, gold 4); the start node is free. */
+    activePoints: number;
+    totalPoints: number;
     stats: Record<string, number>;
     skillBonuses: { id: number; name: string; names?: Record<string, string>; value: number }[];
     /**
@@ -369,7 +372,7 @@ export type ProfileView = {
   titles: { slot: number; titleId: number; name: string; names: Record<string, string>; grade: string | null }[];
   /** One circle per species: the quality of each effect slot (0 empty, 1 white, 2 green, 3 blue, 4 gold, 5 orange). */
   pets: { species: number; key: string; names: Record<string, string>; level: number; kinds: number[] }[];
-  /** Activated nodes per Daevanion board next to the board's size; for the own character from the node lists. */
+  /** Daevanion board progress: points (node grades) for the own character from the node lists; other players only have a node count. */
   boards: { board: number; name: string; count: number; total: number }[];
   /**
    * Main attributes and lord values of the own character, grouped and in the game's display order (main: Might, Agility,
@@ -515,9 +518,14 @@ export function buildProfileView(playerId: number): ProfileView | null {
     const bonuses = new Map<number, number>();
     let active = 0;
     let knownNodes = 0;
+    let activePoints = 0;
+    let totalPoints = 0;
     const cells: [number, number, number, string | number, number, number, number][] = [];
     const activeIds = new Set(b.nodes);
     for (const { id, node } of boardNodes!.get(b.board) ?? []) {
+      if (node[4] !== "Start") {
+        totalPoints += NODE_GRADE[node[3]] ?? 1;
+      }
       const kind = node[4] === "Start" ? 0 : node[4] === "SkillLevel" ? 2 : 1;
       cells.push([node[1], node[2], kind, kind === 2 ? Number(node[5]) : kind === 1 ? node[5] : 0, activeIds.has(id) ? 1 : 0, NODE_GRADE[node[3]] ?? 0, node[6]]);
     }
@@ -531,6 +539,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
         continue;
       }
       knownNodes++;
+      activePoints += NODE_GRADE[node[3]] ?? 1;
       if (node[4] === "SkillLevel") {
         const skillId = Number(node[5]);
         bonuses.set(skillId, (bonuses.get(skillId) ?? 0) + node[6]);
@@ -543,6 +552,8 @@ export function buildProfileView(playerId: number): ProfileView | null {
       name: daevanion!.boards[String(b.board)]?.[0] ?? `Board ${b.board}`,
       activeNodes: active,
       knownNodes,
+      activePoints,
+      totalPoints,
       stats,
       skillBonuses: [...bonuses].map(([id, value]) => ({ id, name: skillNames![String(id)] ?? String(id), names: skillNamesI18n![String(id)], value })),
       cells,
@@ -629,11 +640,11 @@ function activePetOf(id: number | null, level: number | null): ProfileView["acti
  * Activated nodes per Daevanion board against the board's size (the start node is not counted, as on the board tab).
  * The own character's node lists win; other players only have the count their window showed (start node included).
  */
-function boardSummary(boardCountsJson: string, own: { board: number; name: string; activeNodes: number }[]): ProfileView["boards"] {
+function boardSummary(boardCountsJson: string, own: { board: number; name: string; activePoints: number; totalPoints: number }[]): ProfileView["boards"] {
   const totalOf = (board: number): number => (boardNodes!.get(board) ?? []).filter((n) => n.node[4] !== "Start").length;
   const nameOf = (board: number): string => daevanion!.boards[String(board)]?.[0] ?? `Board ${board}`;
   if (own.length > 0) {
-    return own.map((b) => ({ board: b.board, name: b.name, count: b.activeNodes, total: totalOf(b.board) }));
+    return own.map((b) => ({ board: b.board, name: b.name, count: b.activePoints, total: b.totalPoints }));
   }
   return (JSON.parse(boardCountsJson) as { board: number; count: number }[])
     .map((b) => ({ board: b.board, name: nameOf(b.board), count: Math.max(0, b.count - 1), total: totalOf(b.board) }))

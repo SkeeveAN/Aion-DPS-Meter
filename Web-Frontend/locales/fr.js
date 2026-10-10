@@ -91,7 +91,7 @@ export default {
   "profile.note": "Les valeurs des pierres et les stigmas ne font pas partie des données.",
   "profile.avgShort": "Niv. d'objet moy.",
   "profile.skillsShort": "Compétences",
-  "profile.nodesShort": "Nœuds Daevanion",
+  "profile.nodesShort": "Points Daevanion",
   "profile.legendBonus": "bonus (Daevanion, équipement)",
   "profile.tabRuns": "Runs",
   "profile.tabEquipment": "Équipement",

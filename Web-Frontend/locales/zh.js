@@ -86,7 +86,7 @@ export default {
   "profile.note": "魔石的数值和烙印不属于数据。",
   "profile.avgShort": "平均物品等级",
   "profile.skillsShort": "技能",
-  "profile.nodesShort": "Daevanion 节点",
+  "profile.nodesShort": "Daevanion 点数",
   "profile.legendBonus": "加成（Daevanion、装备）",
   "profile.tabRuns": "战绩",
   "profile.tabEquipment": "装备",

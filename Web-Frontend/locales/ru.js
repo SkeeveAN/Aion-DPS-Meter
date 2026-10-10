@@ -91,7 +91,7 @@ export default {
   "profile.note": "Величины камней и стигмы в данные не входят.",
   "profile.avgShort": "Ср. уровень предметов",
   "profile.skillsShort": "Умения",
-  "profile.nodesShort": "Узлы Daevanion",
+  "profile.nodesShort": "Очки Daevanion",
   "profile.legendBonus": "бонус (Daevanion, экипировка)",
   "profile.tabRuns": "Забеги",
   "profile.tabEquipment": "Экипировка",

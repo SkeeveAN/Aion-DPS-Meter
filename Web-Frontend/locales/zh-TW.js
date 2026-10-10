@@ -298,7 +298,7 @@ export default {
   "profile.note": "魔石數值與刻印不在資料範圍內。",
   "profile.avgShort": "平均裝備等級",
   "profile.skillsShort": "技能",
-  "profile.nodesShort": "Daevanion 節點",
+  "profile.nodesShort": "Daevanion 點數",
   "profile.upgrade": "值得升級",
   "profile.upgradeNote": "以最佳部位為基準（裝備等級 {max}）。",
   "profile.boardMapNote": "地圖僅顯示節點表已知的節點（約為已啟用節點的一半）。",
