@@ -528,5 +528,6 @@
   "Server status page: login (lobby) and game servers are checked separately, and the page is available in all eight languages": "Server-Status-Seite: Login-Server (Lobby) und Spielserver werden getrennt geprüft, und die Seite gibt es in allen acht Sprachen",
   "Server status is linked in the website's top navigation": "Der Serverstatus ist in der oberen Navigation der Webseite verlinkt",
   "Server status: the game server table no longer claims a world per address, which the uploads cannot tell": "Serverstatus: Die Spielserver-Tabelle ordnet einer Adresse keine Welt mehr zu, da sich das aus den Uploads nicht ableiten lässt",
-  "Europe lists 21 servers per faction: Gauss and Agnita are live": "Europa führt 21 Server je Fraktion: Gauss und Agnita sind live"
+  "Europe lists 21 servers per faction: Gauss and Agnita are live": "Europa führt 21 Server je Fraktion: Gauss und Agnita sind live",
+  "A participant keeps the faction the client sent: the stored server is the uploader's, and matched worlds mix both factions": "Ein Teilnehmer behält die vom Client gesendete Fraktion: Der gespeicherte Server ist der des Hochladenden, und gepaarte Welten mischen beide Fraktionen"
 }
