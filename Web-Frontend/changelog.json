@@ -197,6 +197,20 @@
      "Website"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Players per server: the faction field of a profile is no faction, so it is not used any more - only the faction a fight reported counts",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "A player an old client filed under the uploader's server moves to the server a newer upload names for him when his faction contradicts the old server, his legion matches, or two or more players seen with him before are recognised in the same upload",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },

@@ -546,5 +546,7 @@
   "Players per server lists every server, not only the twelve biggest": "Spieler pro Server listet jeden Server auf, nicht nur die zwölf größten",
   "Players per server has no cap: every server is listed": "Spieler pro Server hat keine Obergrenze mehr: jeder Server wird aufgeführt",
   "Players per server moves to the bottom of the statistics page": "Spieler pro Server steht jetzt ganz unten auf der Statistik-Seite",
-  "Players per server sits at the end of the statistics overview": "Spieler pro Server steht am Ende der Statistik-Übersicht"
+  "Players per server sits at the end of the statistics overview": "Spieler pro Server steht am Ende der Statistik-Übersicht",
+  "Players per server: the faction field of a profile is no faction, so it is not used any more - only the faction a fight reported counts": "Spieler pro Server: Das Fraktionsfeld eines Profils ist keine Fraktion und wird nicht mehr verwendet – es zählt nur noch die Fraktion, die ein Kampf gemeldet hat",
+  "A player an old client filed under the uploader's server moves to the server a newer upload names for him when his faction contradicts the old server, his legion matches, or two or more players seen with him before are recognised in the same upload": "Ein Spieler, den ein alter Client unter dem Server des Uploaders abgelegt hat, wechselt auf den Server, den ein neuerer Upload für ihn nennt, wenn seine Fraktion dem alten Server widerspricht, seine Legion übereinstimmt oder mindestens zwei zuvor mit ihm gesehene Spieler im selben Upload wiedererkannt werden"
 }
