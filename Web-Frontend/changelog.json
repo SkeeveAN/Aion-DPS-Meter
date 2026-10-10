@@ -9,6 +9,13 @@
      "Website"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "A profile whose portrait and character data are still being fetched looks again by itself a few times instead of needing a reload",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
