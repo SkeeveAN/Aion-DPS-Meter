@@ -174,12 +174,12 @@ export async function playerRoutes(app: FastifyInstance) {
     const guildSlug = player.guild && player.serverId !== null
       ? (listGuilds().find((g) => g.serverId === player.serverId && g.name === player.guild?.trim())?.slug ?? null)
       : null;
-    // The server decides the faction (Elyos and Asmodians never share a server).
+    // The faction the client sent wins; the server (the uploader's, matched worlds mix factions) is only the fallback.
     const profile = buildProfileView(playerId);
     return reply.send({
       player: { ...player, guildSlug },
       history,
-      profile: profile ? { ...profile, faction: (factionOfServerName(player.serverName) || profile.faction) as typeof profile.faction } : profile,
+      profile: profile ? { ...profile, faction: (profile.faction || factionOfServerName(player.serverName)) as typeof profile.faction } : profile,
     });
   });
 }

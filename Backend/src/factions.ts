@@ -8,7 +8,8 @@ export function factionOfServerName(displayName: string | null | undefined): str
   return ELYOS.has(name) ? "Elyos" : ASMODIAN.has(name) ? "Asmodian" : "";
 }
 
-/** A row naming a server gets the faction of that server; a row of an unknown server keeps the faction it has (or ""). */
+/** A row keeps the faction the client sent (it knows each player's own server); only a row without one gets the faction of its server.
+ *  The stored server is the uploader's for everybody, and matched worlds (Kaisinel <-> Lumiel) mix both factions, so it can't override. */
 export function withServerFaction<T extends { serverName?: string | null; faction?: string | null }>(row: T): T & { faction: string } {
-  return { ...row, faction: factionOfServerName(row.serverName) || row.faction || "" };
+  return { ...row, faction: row.faction || factionOfServerName(row.serverName) || "" };
 }

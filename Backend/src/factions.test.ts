@@ -9,9 +9,9 @@ test("a server decides the faction", () => {
   assert.equal(factionOfServerName(null), "");
 });
 
-test("a row of a known server takes the server's faction, an unknown server keeps the stored one", () => {
+test("a row keeps the faction the client sent, only a row without one takes the server's", () => {
   assert.equal(withServerFaction({ serverName: "Europe - Tiamat", faction: "" }).faction, "Elyos");
-  assert.equal(withServerFaction({ serverName: "Europe - Tiamat", faction: "Asmodian" }).faction, "Elyos");
+  assert.equal(withServerFaction({ serverName: "Europe - Kaisinel", faction: "Asmodian" }).faction, "Asmodian");
   assert.equal(withServerFaction({ serverName: "Somewhere", faction: "Asmodian" }).faction, "Asmodian");
   assert.equal(withServerFaction({ serverName: null }).faction, "");
 });
