@@ -12,7 +12,7 @@
     "db:seed": "tsx src/db/seed.ts",
     "content:derive": "tsx scripts/derive-aion2-content.ts",
     "content:sync": "tsx src/content/syncAion2.ts",
-    "test": "node --import tsx --test src/matching/merge.test.ts src/seo/slug.test.ts src/profile.test.ts src/factions.test.ts src/portrait.test.ts src/portraitService.test.ts"
+    "test": "node --import tsx --test src/matching/merge.test.ts src/seo/slug.test.ts src/profile.test.ts src/factions.test.ts src/portrait.test.ts src/portraitService.test.ts src/ncCharacter.test.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.0",

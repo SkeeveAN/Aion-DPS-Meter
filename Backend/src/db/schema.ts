@@ -537,3 +537,26 @@ export const playerPortraits = sqliteTable("player_portraits", {
   fetchedAt: integer("fetched_at").notNull(),
   nextTryAt: integer("next_try_at").notNull(),
 });
+
+// Character data from NC's official character page (see ncCharacter.ts / portraitService.ts): main attributes and lord values,
+// wing, wing skin, active pet with level. One row per player that was tried. Separate from player_portraits because it
+// refreshes faster (the values change quicker than the looks) and keeps the character id so a refresh needs no new search.
+export const playerNcCharacter = sqliteTable("player_nc_character", {
+  playerId: integer("player_id")
+    .primaryKey()
+    .references(() => players.id, { onDelete: "cascade" }),
+  // NC's url-decoded character id (base64url) and server id of the character found.
+  characterId: text("character_id"),
+  ncServerId: integer("nc_server_id"),
+  // Same ids as player_profiles.attributes_json ("1" STR .. "17" Space); '{}' until a fetch succeeded.
+  attributesJson: text("attributes_json").notNull().default("{}"),
+  wingId: integer("wing_id"),
+  wingSkinId: integer("wing_skin_id"),
+  activePet: integer("active_pet"),
+  activePetLevel: integer("active_pet_level"),
+  // 'ok' data fetched, 'none' no unambiguous character found at NC, 'error' network/answer problem. Old data stays on show on a later failure.
+  status: text("status").notNull(),
+  // Time of the last successful fetch (of the first attempt while there is no data yet).
+  fetchedAt: integer("fetched_at").notNull(),
+  nextTryAt: integer("next_try_at").notNull(),
+});

@@ -14,8 +14,8 @@ migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta
 after(() => sqlite.close());
 
 const { processUpload } = await import("./matching/merge.js");
-const { players, playerProfiles } = await import("./db/schema.js");
-const { buildProfileView, upsertProfile, profileSchema, zenitStage } = await import("./profile.js");
+const { players, playerProfiles, playerNcCharacter } = await import("./db/schema.js");
+const { buildProfileView, buildCharacterView, mergeCharacter, upsertProfile, profileSchema, zenitStage } = await import("./profile.js");
 const { uploadSchema } = await import("./uploadSchema.js");
 const { eq } = await import("drizzle-orm");
 
@@ -383,4 +383,50 @@ test("migration 0040 adds the character columns with empty defaults", () => {
   const by = Object.fromEntries(columns.map((c) => [c.name, c]));
   assert.equal(by.attributes_json.dflt_value, "'{}'");
   assert.ok(by.wing_id && by.wing_skin_id && by.active_pet);
+});
+
+const clientRow = (extra: Record<string, unknown> = {}) => ({
+  source: "self" as const, updatedAt: "2026-10-01 10:00:00", attributesJson: JSON.stringify({ 1: 99, 7: 1 }),
+  wingId: 30500100, wingSkinId: null, activePet: 1001, activePetLevel: 9, ...extra,
+});
+const ncRow = (extra: Record<string, unknown> = {}) => ({
+  fetchedAt: Date.UTC(2026, 9, 10), attributesJson: JSON.stringify({ 1: 10, 7: 50 }),
+  wingId: 30500200, wingSkinId: 30400400, activePet: 1124, activePetLevel: 3, ...extra,
+});
+
+test("merge: the client's own data wins, NC fills what the client lacks", () => {
+  const merged = mergeCharacter(clientRow(), ncRow());
+  assert.equal(merged.characterSource, "client");
+  assert.equal(merged.characterFetchedAt, "2026-10-01 10:00:00");
+  assert.equal(merged.attributes?.main[0].value, 99, "STR from the client");
+  assert.equal(merged.wing?.id, 30500100);
+  assert.equal(merged.wingSkin?.id, 30400400, "no skin from the client: NC's");
+  assert.equal(merged.activePet?.id, 1001);
+  assert.equal(merged.activePet?.level, 9, "the pet's level comes with the pet");
+});
+
+test("merge: without client attributes NC is the source; a 'seen' profile does not count; nothing gives nulls", () => {
+  const onlyNc = mergeCharacter(clientRow({ attributesJson: "{}", wingId: null, activePet: null, activePetLevel: null }), ncRow());
+  assert.equal(onlyNc.characterSource, "nc");
+  assert.equal(onlyNc.characterFetchedAt, "2026-10-10T00:00:00.000Z");
+  assert.equal(onlyNc.attributes?.main[0].value, 10);
+  assert.deepEqual([onlyNc.wing?.id, onlyNc.activePet?.id, onlyNc.activePet?.level], [30500200, 1124, 3]);
+  assert.equal(mergeCharacter(clientRow({ source: "seen" }), ncRow()).characterSource, "nc");
+  assert.equal(mergeCharacter(null, ncRow()).characterSource, "nc");
+  const empty = mergeCharacter(null, ncRow({ attributesJson: "{}", wingId: null, wingSkinId: null, activePet: null }));
+  assert.deepEqual([empty.attributes, empty.wing, empty.wingSkin, empty.activePet, empty.characterSource, empty.characterFetchedAt], [null, null, null, null, null, null]);
+  assert.equal(mergeCharacter(null, null).characterSource, null);
+});
+
+test("a player without any profile still gets NC's character data; profile view carries the merged fields", () => {
+  const id = playerId("Aahz");
+  assert.equal(buildCharacterView(id).characterSource, null);
+  db.insert(playerNcCharacter).values({ playerId: id, characterId: "AbCd1234=", ncServerId: 1304, attributesJson: JSON.stringify({ 1: 10 }), activePet: 1124, activePetLevel: 3, status: "ok", fetchedAt: 1000, nextTryAt: 2000 }).run();
+  const view = buildProfileView(id)!;
+  assert.equal(view.characterSource, "nc");
+  assert.equal(view.activePet?.level, 3);
+  const noProfile = playerId("Nobody");
+  assert.equal(buildProfileView(noProfile), null);
+  db.insert(playerNcCharacter).values({ playerId: noProfile, attributesJson: JSON.stringify({ 2: 7 }), status: "ok", fetchedAt: 1000, nextTryAt: 2000 }).run();
+  assert.equal(buildCharacterView(noProfile).attributes?.main.find((a) => a.key === "dex")?.value, 7);
 });

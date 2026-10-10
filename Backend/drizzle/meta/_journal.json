@@ -295,6 +295,13 @@
       "when": 1791642000000,
       "tag": "0041_add_player_portraits",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "6",
+      "when": 1791643000000,
+      "tag": "0042_add_player_nc_character",
+      "breakpoints": true
     }
   ]
 }

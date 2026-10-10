@@ -3073,6 +3073,10 @@ body:has(.download-hero) .nav-download-link:hover,
   gap: 16px;
   align-items: start;
 }
+.pf-char-source {
+  grid-column: 1 / -1;
+  margin: 0;
+}
 .pf-char-main {
   padding-top: 0;
   overflow: hidden;

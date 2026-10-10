@@ -7,7 +7,7 @@ import { bosses, encounterParticipants, encounters, instances, players, servers 
 import { normalizeName } from "../matching/roster.js";
 import { gameFromQuery } from "./instances.js";
 import type { Game } from "../constants.js";
-import { buildProfileView, factionFromFights } from "../profile.js";
+import { buildCharacterView, buildProfileView, factionFromFights } from "../profile.js";
 import { europeServerOf } from "../content/aion2Servers.js";
 import { portraitFile, portraitUrlFor } from "../portraitService.js";
 import { readFile } from "node:fs/promises";
@@ -187,8 +187,12 @@ export async function playerRoutes(app: FastifyInstance) {
     const portraitUrl = home
       ? portraitUrlFor({ playerId, name: player.name, faction: faction ?? home.faction, ownServerId: !faction || faction === home.faction ? home.id : null })
       : null;
+    // Character window data from the player's own client and/or NC's official page (fetched in the background together with the
+    // portrait). Also there for players without any profile; the profile carries the same fields when it exists.
+    const character = buildCharacterView(playerId);
     return reply.send({
       player: { ...player, guildSlug, portraitUrl },
+      character,
       history,
       profile: profile ? { ...profile, faction: (profile.faction || factionOfServerName(player.serverName)) as typeof profile.faction, portraitUrl } : profile,
     });

@@ -3,7 +3,7 @@ import { desc, and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { db } from "./db/client.js";
-import { encounterParticipants, playerProfiles } from "./db/schema.js";
+import { encounterParticipants, playerNcCharacter, playerProfiles } from "./db/schema.js";
 
 /**
  * Character profile of an Aion 2 player, as an uploading client read it from the game's traffic.
@@ -382,6 +382,10 @@ export type ProfileView = {
   wingSkin: { id: number; name: string; names: Record<string, string>; icon: string | null } | null;
   /** Active pet by species id; `icon` is a file name under images/aion2/icons/pet (may not exist for every pet). */
   activePet: { id: number; name: string; names: Record<string, string>; icon: string | null; level: number | null } | null;
+  /** Where `attributes` come from: the player's own client or NC's official character page (null without attributes). The wing and pet fields are merged per field the same way. */
+  characterSource: "client" | "nc" | null;
+  /** When that data was read: the client's profile update, or the last successful fetch from NC (ISO time). */
+  characterFetchedAt: string | null;
   /** Cut-out official portrait (set by the player route, not by buildProfileView; null while there is none). */
   portraitUrl: string | null;
 };
@@ -403,6 +407,42 @@ export function averageItemLevelOf(gearJson: string): number | null {
   itemInfo ??= loadJson<Record<string, ItemInfo>>("item_info.json", {});
   const levels = (JSON.parse(gearJson) as { itemId: number }[]).map((g) => itemInfo![String(g.itemId)]?.[4] ?? 0).filter((l) => l > 0);
   return levels.length > 0 ? Math.round((levels.reduce((s, l) => s + l, 0) / levels.length) * 10) / 10 : null;
+}
+
+export type CharacterView = Pick<ProfileView, "attributes" | "wing" | "wingSkin" | "activePet" | "characterSource" | "characterFetchedAt">;
+
+type ClientCharacter = { attributesJson: string; wingId: number | null; wingSkinId: number | null; activePet: number | null; activePetLevel: number | null };
+
+/**
+ * Character window data of a player from both sources. What the player's own client uploaded (profile source "self") wins
+ * per field; whatever it lacks is filled from NC's official character page. Pure, for tests.
+ */
+export function mergeCharacter(
+  client: (ClientCharacter & { source: "self" | "seen"; updatedAt: string }) | null | undefined,
+  nc: (ClientCharacter & { fetchedAt: number }) | null | undefined,
+): CharacterView {
+  wingData ??= loadJson("wings.json", {});
+  petInfo ??= loadJson("pets.json", {});
+  const own = client?.source === "self" ? client : null;
+  const clientAttributes = own && Object.keys(JSON.parse(own.attributesJson) as object).length > 0 ? own.attributesJson : null;
+  const ncAttributes = nc && Object.keys(JSON.parse(nc.attributesJson) as object).length > 0 ? nc.attributesJson : null;
+  // The pet and its level belong together: the client's pet wins with its own level.
+  const pet = own?.activePet ? own : nc?.activePet ? nc : null;
+  return {
+    attributes: attributesOf(clientAttributes ?? ncAttributes ?? "{}"),
+    wing: wingOf(own?.wingId || nc?.wingId || null),
+    wingSkin: wingOf(own?.wingSkinId || nc?.wingSkinId || null),
+    activePet: pet ? activePetOf(pet.activePet, pet.activePetLevel) : null,
+    characterSource: clientAttributes ? "client" : ncAttributes ? "nc" : null,
+    characterFetchedAt: clientAttributes ? (own as { updatedAt: string }).updatedAt : ncAttributes ? new Date((nc as { fetchedAt: number }).fetchedAt).toISOString() : null,
+  };
+}
+
+/** Character data of a player (also those without any uploaded profile, only NC's data); all null when there is none. */
+export function buildCharacterView(playerId: number): CharacterView {
+  const client = db.select().from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get();
+  const nc = db.select().from(playerNcCharacter).where(eq(playerNcCharacter.playerId, playerId)).get();
+  return mergeCharacter(client, nc);
 }
 
 /** The stored profile of a player with every id resolved to a name; null when none was uploaded. */
@@ -553,10 +593,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
       })
       .sort((a, b) => a.species - b.species),
     boards: boardSummary(row.boardCountsJson, boards),
-    attributes: attributesOf(row.attributesJson),
-    wing: wingOf(row.wingId),
-    wingSkin: wingOf(row.wingSkinId),
-    activePet: activePetOf(row.activePet, row.activePetLevel),
+    ...buildCharacterView(playerId),
     portraitUrl: null,
   };
 }

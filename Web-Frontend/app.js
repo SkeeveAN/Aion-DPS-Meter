@@ -2709,7 +2709,7 @@ function renderLookChips(profile) {
   return chips.length > 0 ? el("div", { className: "pf-looks" }, [el("span", { className: "pf-vsep" }), ...chips]) : null;
 }
 
-// Character tab (own character only): main attributes, the ring of lord values around the six main attributes, the lord list.
+// Character tab (from the player's own client or NC's official character page): main attributes, the ring of lord values around the six main attributes, the lord list.
 const ATTR_ICON = "/images/aion2/stats";
 function attrIcon(key, lord) {
   return el("img", { className: "pf-attr-ico", src: `${ATTR_ICON}/${lord ? "lords_" : ""}${key === "con" ? "constitution" : key}.webp`, alt: "", width: 48, height: 48, loading: "lazy" });
@@ -2720,11 +2720,10 @@ function renderCharacterTab(profile) {
   const top = Math.max(1, ...main.map((a) => a.value));
   const attrName = (a) => t(`attr.${a.key}`);
   const lordName = (a) => `${attrName(a)} [${t(`lord.${a.key}`)}]`;
-  const only = () => el("span", { className: "pf-only", textContent: t("profile.attrOwnOnly") });
 
   const bars = el("div", { className: "pf-card pf-char-main" }, [
     profile.portraitUrl ? el("div", { className: "pf-portrait" }, [portraitImg(profile.portraitUrl)]) : null,
-    el("h4", {}, [el("span", { textContent: t("profile.attrMain") }), only()]),
+    el("h4", {}, [el("span", { textContent: t("profile.attrMain") })]),
     ...main.map((a) =>
       el("div", { className: `pf-stat${a.value === 0 ? " zero" : ""}` }, [
         attrIcon(a.key, false),
@@ -2769,9 +2768,15 @@ function renderCharacterTab(profile) {
   ]);
   return el("div", { className: "pf-char" }, [
     bars,
-    el("div", { className: "pf-card pf-char-ring" }, [el("h4", {}, [el("span", { textContent: t("profile.attrLords") }), only()]), ring]),
+    el("div", { className: "pf-card pf-char-ring" }, [el("h4", {}, [el("span", { textContent: t("profile.attrLords") })]), ring]),
     list,
-  ]);
+    profile.characterSource
+      ? el("p", {
+          className: "profile-source pf-char-source",
+          textContent: t(profile.characterSource === "nc" ? "profile.charSourceNc" : "profile.charSourceClient", { date: formatDate(parseServerTime(profile.characterFetchedAt)) }),
+        })
+      : null,
+  ].filter((x) => x != null));
 }
 
 function renderSpeciesTab(profile) {
@@ -2920,7 +2925,7 @@ function stripEmblem(profile, player) {
 }
 
 // The player strip: shown above every tab.
-function renderPlayerStrip(profile, player) {
+function renderPlayerStrip(profile, player, character) {
   const sub = [];
   if (profile?.className) {
     sub.push(profile.level ? t("profile.classLevel", { className: profile.className, level: profile.level }) : profile.className);
@@ -2944,7 +2949,7 @@ function renderPlayerStrip(profile, player) {
       player.serverName ? el("span", { textContent: serverLabel(player.serverName) }) : null,
     ].filter((x) => x != null)),
     renderTitleChips(profile),
-    renderLookChips(profile),
+    renderLookChips(character),
     el("div", { className: "pf-numbers" }, numbers),
   ].filter((x) => x != null));
 }
@@ -2962,7 +2967,9 @@ async function renderPlayerProfile(playerId) {
   document.querySelector(".pf-tip")?.remove();
 
   const profile = data.profile;
-  const strip = renderPlayerStrip(profile, data.player);
+  // Attributes, wing and pet from the player's client and/or NC; also there when the player has no profile at all.
+  const character = data.character ?? profile;
+  const strip = renderPlayerStrip(profile, data.player, character);
   const tabs = [["runs", t("profile.tabRuns"), data.history.length, () => renderRunsTab(data.history)]];
   if (profile?.gear.length > 0) {
     tabs.push(["equipment", t("profile.tabEquipment"), profile.gear.filter((g) => g.slotName !== "Arcana").length, () => renderEquipmentTab(profile)]);
@@ -2979,8 +2986,8 @@ async function renderPlayerProfile(playerId) {
   if (profile?.species?.length > 0 || profile?.pets?.length > 0) {
     tabs.push(["species", t("profile.tabSpecies"), profile.species.length || profile.pets.length, () => renderSpeciesTab(profile)]);
   }
-  if (profile?.attributes) {
-    tabs.push(["character", t("profile.tabCharacter"), profile.attributes.main.length + profile.attributes.lords.length, () => renderCharacterTab(profile)]);
+  if (character?.attributes) {
+    tabs.push(["character", t("profile.tabCharacter"), character.attributes.main.length + character.attributes.lords.length, () => renderCharacterTab({ ...character, portraitUrl: data.player.portraitUrl })]);
   }
   if (profile?.gear.some((g) => g.slotName === "Arcana")) {
     tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);
