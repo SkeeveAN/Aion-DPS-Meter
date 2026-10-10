@@ -736,6 +736,11 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language; // so a layout can be checked in every language
         }
 
+        if (int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_PET_RARE_MAX"), out int rareMax))
+        {
+            settings.PetRareMax = rareMax; // layout check only (nothing is saved here)
+        }
+
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
         Aion2.Aion2FieldBosses.EnablePersistence(); // read-only here: the page shows the last lists the game sent
@@ -755,7 +760,13 @@ internal static class Program
             window.ShowPetRegionTab(); // layout check: the Region tab of the pet page
         }
 
-        const double width = 620, height = 740;
+        string? rare = Environment.GetEnvironmentVariable("AIONDPS_PET_RARE");
+        if (!string.IsNullOrEmpty(rare))
+        {
+            window.ShowPetRareTab(rare == "1" ? null : rare); // layout check: the Rare tab (the value is the key of the line to select, e.g. "verteron.2100079")
+        }
+
+        double width = 620, height = string.IsNullOrEmpty(rare) ? 740 : 1000;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));

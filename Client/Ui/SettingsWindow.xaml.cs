@@ -149,6 +149,7 @@ public partial class SettingsWindow : Window
         if (LanguageBox.SelectedItem is ComboBoxItem { Tag: string code })
         {
             LocalizationManager.Instance.Language = code;
+            RefreshPetRareForLanguage();
         }
     }
 
@@ -489,6 +490,8 @@ public partial class SettingsWindow : Window
         _settings.PetMapOpacity = PetMapOpacitySlider.Value / 100.0;
         _settings.PetMapPets = _petPicked.OrderBy(i => i).ToList();
         _settings.PetRegionListWidth = PetRegionLeftColumn.Width.Value;
+        _settings.PetRareMax = (int)PetRareMaxSlider.Value;
+        _settings.PetRareInstanceMin = (int)PetRareInstanceSlider.Value;
         _settings.PetMapGatherItems = _gatherPicked.OrderBy(k => k).ToList();
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
         _settings.HotkeyPetMap = (string?)HotkeyPetMapBox.Tag ?? "";
@@ -771,6 +774,7 @@ public partial class SettingsWindow : Window
         BuildPetRows();
         BuildPetRegionTree();
         BuildPetRegionRows();
+        InitPetRare(settings);
     }
 
     /// <summary>A hotkey flipped the pet map or the timetable while this window is open: the switches follow.</summary>
@@ -1065,17 +1069,43 @@ public partial class SettingsWindow : Window
 
     private void OnPetTabClick(object sender, RoutedEventArgs e)
     {
-        bool region = sender == PetTabRegion;
-        PetTabType.IsChecked = !region;
+        bool region = sender == PetTabRegion, rare = sender == PetTabRare;
+        PetTabType.IsChecked = !region && !rare;
         PetTabRegion.IsChecked = region;
-        PetTypePanel.Visibility = region ? Visibility.Collapsed : Visibility.Visible;
+        PetTabRare.IsChecked = rare;
+        PetTypePanel.Visibility = region || rare ? Visibility.Collapsed : Visibility.Visible;
         PetRegionPanel.Visibility = region ? Visibility.Visible : Visibility.Collapsed;
+        PetRarePanel.Visibility = rare ? Visibility.Visible : Visibility.Collapsed;
+        if (rare)
+        {
+            ShowPetRare();
+        }
     }
 
     /// <summary>For layout checks (render-settings): opens the Region tab.</summary>
     internal void ShowPetRegionTab() => OnPetTabClick(PetTabRegion, new RoutedEventArgs());
 
+    /// <summary>For layout checks (render-settings): opens the Rare tab, with the first line whose key starts with <paramref name="pick"/> chosen.</summary>
+    internal void ShowPetRareTab(string? pick = null)
+    {
+        OnPetTabClick(PetTabRare, new RoutedEventArgs());
+        PickPetRare(pick);
+    }
+
     private static string RegionGroupName(string id) => LocalizationManager.Instance["Settings.PetRegion.Group." + id];
+
+    /// <summary>Alphabetical order of the region names by the rules of the interface language (ä, é or ё sort differently per language).</summary>
+    private static StringComparer RegionNameComparer(string language)
+    {
+        try
+        {
+            return StringComparer.Create(System.Globalization.CultureInfo.GetCultureInfo(language), ignoreCase: true);
+        }
+        catch (System.Globalization.CultureNotFoundException)
+        {
+            return StringComparer.CurrentCultureIgnoreCase;
+        }
+    }
 
     private void BuildPetRegionTree()
     {
@@ -1109,7 +1139,7 @@ public partial class SettingsWindow : Window
                 continue;
             }
 
-            foreach (var region in group.Regions)
+            foreach (var region in group.Regions.OrderBy(r => r.NameIn(loc.Language), RegionNameComparer(loc.Language)))
             {
                 bool selected = region.Key == _petRegionKey;
                 int maxCount = region.Pets.Count(IsMax);

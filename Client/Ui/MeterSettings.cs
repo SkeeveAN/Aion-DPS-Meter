@@ -243,6 +243,12 @@ public sealed class MeterSettings
     /// <summary>Width of the region list on the Region tab of the pet settings (the player drags the splitter).</summary>
     public double PetRegionListWidth { get; set; } = 185;
 
+    /// <summary>Rare tab of the pet settings: a pet with at most this many spawn points on a map (all its mobs there together) counts as rare on that map.</summary>
+    public int PetRareMax { get; set; } = 20;
+
+    /// <summary>Rare tab: from this many spawn points in instances a pet is plentiful there and is not listed on the maps, only under Instances.</summary>
+    public int PetRareInstanceMin { get; set; } = 40;
+
     /// <summary>The collectibles the interactive map shows (by their English name, see the Sammeln page); none until the player picks some.</summary>
     public List<string> PetMapGatherItems { get; set; } = new();
 

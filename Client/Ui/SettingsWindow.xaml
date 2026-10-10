@@ -718,6 +718,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <ToggleButton x:Name="PetTabType" Style="{StaticResource PetTab}" Content="{local:Loc Settings.PetTab.Type}" IsChecked="True" Click="OnPetTabClick"/>
                                         <ToggleButton x:Name="PetTabRegion" Style="{StaticResource PetTab}" Content="{local:Loc Settings.PetTab.Region}" Click="OnPetTabClick"/>
+                                        <ToggleButton x:Name="PetTabRare" Style="{StaticResource PetTab}" Content="{local:Loc Settings.PetTab.Rare}" Click="OnPetTabClick"/>
                                     </StackPanel>
                                 </Border>
                                 <Grid x:Name="PetTypePanel" Height="270">
@@ -757,6 +758,36 @@
                                         <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource Brush.Border}" Margin="0,0,0,4"/>
                                         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="PetRegionRows"/></ScrollViewer>
                                     </DockPanel>
+                                </Grid>
+                                <Grid x:Name="PetRarePanel" Visibility="Collapsed">
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock x:Name="PetRareMaxText" TextWrapping="Wrap" FontSize="11" MinHeight="44" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                                            <Slider x:Name="PetRareMaxSlider" Style="{StaticResource ThemedSlider}" Minimum="1" Maximum="60" TickFrequency="1" IsSnapToTickEnabled="True"
+                                                    SmallChange="1" LargeChange="5" Margin="0,2" ValueChanged="OnPetRareSliderChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock x:Name="PetRareInstanceText" TextWrapping="Wrap" FontSize="11" MinHeight="44" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                                            <Slider x:Name="PetRareInstanceSlider" Style="{StaticResource ThemedSlider}" Minimum="1" Maximum="200" TickFrequency="1" IsSnapToTickEnabled="True"
+                                                    SmallChange="1" LargeChange="10" Margin="0,2" ValueChanged="OnPetRareSliderChanged"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid Grid.Row="1" Height="372">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition x:Name="PetRareLeftColumn" Width="185" MinWidth="120"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*" MinWidth="190"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="PetRareTree" Margin="0,0,6,0"/></ScrollViewer>
+                                        <GridSplitter Grid.Column="1" Style="{StaticResource PetSplitter}" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ToolTip="{local:Loc Settings.PetRegion.Splitter}"/>
+                                        <DockPanel Grid.Column="2" Margin="4,0,0,0">
+                                            <TextBlock DockPanel.Dock="Bottom" x:Name="PetRareHint" TextWrapping="Wrap" FontSize="11" Margin="0,6,0,0" Foreground="{DynamicResource Brush.TextSubtle}"/>
+                                            <TextBlock DockPanel.Dock="Top" x:Name="PetRareInfo" TextWrapping="Wrap" Height="64" Margin="0,0,0,6" Foreground="{DynamicResource Brush.Text}"/>
+                                            <ContentControl x:Name="PetRareView"/>
+                                        </DockPanel>
+                                    </Grid>
                                 </Grid>
                             </StackPanel>
                         </Border>

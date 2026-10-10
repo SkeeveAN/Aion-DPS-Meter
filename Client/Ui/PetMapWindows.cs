@@ -319,37 +319,7 @@ public sealed class PetMapWindow : MovableOverlay
             return cached;
         }
 
-        BitmapSource? bitmap = null;
-        try
-        {
-            string folder = Aion2Maps.TileFolder(map);
-            string jpg = System.IO.Path.Combine(folder, $"{col}_{row}.jpg");
-            string mask = System.IO.Path.Combine(folder, $"{col}_{row}_a.png");
-            if (File.Exists(jpg) && File.Exists(mask))
-            {
-                int decode = Math.Min(map.Tile, 1536);
-                var color = new BitmapImage();
-                color.BeginInit();
-                color.UriSource = new Uri(jpg);
-                color.DecodePixelWidth = decode;
-                color.CacheOption = BitmapCacheOption.OnLoad;
-                color.EndInit();
-                color.Freeze();
-                var alphaSource = new BitmapImage();
-                alphaSource.BeginInit();
-                alphaSource.UriSource = new Uri(mask);
-                alphaSource.DecodePixelWidth = decode;
-                alphaSource.CacheOption = BitmapCacheOption.OnLoad;
-                alphaSource.EndInit();
-                alphaSource.Freeze();
-                bitmap = Combine(color, alphaSource);
-            }
-        }
-        catch (Exception ex) when (ex is IOException or NotSupportedException or InvalidOperationException or UriFormatException)
-        {
-            bitmap = null;
-        }
-
+        BitmapSource? bitmap = MapTiles.Load(map, col, row, Math.Min(map.Tile, 1536));
         _tiles[key] = bitmap;
         _tileOrder.Add(key);
         while (_tileOrder.Count > 8)
@@ -359,36 +329,6 @@ public sealed class PetMapWindow : MovableOverlay
         }
 
         return bitmap;
-    }
-
-    /// <summary>The colour picture with the mask as its alpha (the mask is stored at half size and stretched to the colour picture).</summary>
-    private static BitmapSource Combine(BitmapSource color, BitmapSource mask)
-    {
-        var c = new FormatConvertedBitmap(color, PixelFormats.Bgra32, null, 0);
-        var m = new FormatConvertedBitmap(mask, PixelFormats.Gray8, null, 0);
-        int w = c.PixelWidth, h = c.PixelHeight;
-        byte[] pixels = new byte[w * h * 4];
-        c.CopyPixels(pixels, w * 4, 0);
-        byte[] alpha = new byte[m.PixelWidth * m.PixelHeight];
-        m.CopyPixels(alpha, m.PixelWidth, 0);
-        for (int y = 0; y < h; y++)
-        {
-            int my = Math.Min(m.PixelHeight - 1, y * m.PixelHeight / h);
-            for (int x = 0; x < w; x++)
-            {
-                int mx = Math.Min(m.PixelWidth - 1, x * m.PixelWidth / w);
-                int i = (y * w + x) * 4;
-                byte a = alpha[my * m.PixelWidth + mx];
-                pixels[i] = (byte)(pixels[i] * a / 255); // premultiplied alpha
-                pixels[i + 1] = (byte)(pixels[i + 1] * a / 255);
-                pixels[i + 2] = (byte)(pixels[i + 2] * a / 255);
-                pixels[i + 3] = a;
-            }
-        }
-
-        var result = BitmapSource.Create(w, h, 96, 96, PixelFormats.Pbgra32, null, pixels, w * 4);
-        result.Freeze();
-        return result;
     }
 
     /// <summary>

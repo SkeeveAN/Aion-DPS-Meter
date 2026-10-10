@@ -41,12 +41,16 @@ public static class Aion2Pets
         public Dictionary<int, Dictionary<string, string>> PetNames { get; } = new();
         public Dictionary<int, string> PetKeys { get; } = new();
         public Dictionary<int, int[]> PetsOfNpc { get; } = new();
+        public Dictionary<int, List<int>> NpcsOfPet { get; } = new();
         public Dictionary<int, int> PetOfSoul { get; } = new();
         /// <summary>Monster name (folded, any language) -> the pets of the monsters with that name.</summary>
         public Dictionary<string, HashSet<int>> PetsOfName { get; } = new();
     }
 
     private static Catalog Data => _catalog ??= Load();
+
+    /// <summary>Every pet of the pet window (pet ids).</summary>
+    public static IReadOnlyCollection<int> AllPetIds => Data.PetNames.Keys;
 
     /// <summary>The pet's name in a language, else English.</summary>
     public static string? PetName(int petId, string language) =>
@@ -66,6 +70,9 @@ public static class Aion2Pets
 
     /// <summary>The pets whose soul this monster drops (usually one).</summary>
     public static IReadOnlyList<int> PetsOfNpc(int npcId) => Data.PetsOfNpc.TryGetValue(npcId, out int[]? pets) ? pets : Array.Empty<int>();
+
+    /// <summary>The monsters (NPC ids) that drop this pet's soul, spawn point or not.</summary>
+    public static IReadOnlyList<int> NpcsOfPet(int petId) => Data.NpcsOfPet.TryGetValue(petId, out var npcs) ? npcs : Array.Empty<int>();
 
     public static int? PetOfSoulItem(int itemId) => Data.PetOfSoul.TryGetValue(itemId, out int pet) ? pet : null;
 
@@ -132,6 +139,19 @@ public static class Aion2Pets
                 catalog.PetsOfNpc[int.Parse(m.Name)] = m.Value.ValueKind == JsonValueKind.Array
                     ? m.Value.EnumerateArray().Select(v => v.GetInt32()).ToArray()
                     : new[] { m.Value.GetInt32() };
+            }
+
+            foreach ((int npc, int[] pets) in catalog.PetsOfNpc)
+            {
+                foreach (int pet in pets)
+                {
+                    if (!catalog.NpcsOfPet.TryGetValue(pet, out var list))
+                    {
+                        catalog.NpcsOfPet[pet] = list = new List<int>();
+                    }
+
+                    list.Add(npc);
+                }
             }
 
             foreach (var s in doc.RootElement.GetProperty("souls").EnumerateObject())

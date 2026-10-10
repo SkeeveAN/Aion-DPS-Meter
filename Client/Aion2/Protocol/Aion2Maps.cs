@@ -20,6 +20,9 @@ public static class Aion2Maps
 
     public static IReadOnlyList<Aion2MapInfo> All => _maps ??= LoadMaps();
 
+    /// <summary>The spawn points of the pet monsters of every map file: {map table: {npc id: x, y, x, y ...}} (instances and event phases included).</summary>
+    internal static IReadOnlyDictionary<string, Dictionary<int, float[]>> SpawnTables => Spawns();
+
     public static string TileFolder(Aion2MapInfo map) => Path.Combine(Folder, "maps", map.Key);
 
     public static (double X, double Y) ToNative(Aion2MapInfo map, double worldX, double worldY) =>

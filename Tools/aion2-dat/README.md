@@ -86,3 +86,11 @@ one comes back (checked against the in-game list: Garshim 12:59:58, Lagta 22:07:
 living bosses of Verteron stand exactly on the spawn points of the NPC ids in that order). Map numbers seen: 1010 Verteron, 1110 Altgard; the
 client learns the others from the positions of living bosses (`Aion2FieldBosses.LearnMap`). The layout was first documented by the open source
 project cyberbadger6969/aion2-dps-meter (GPL-3.0); the reader here is written from the format and checked against our own recordings.
+
+## Rare tab of the pet settings (2026-10-10)
+`build_kibelisks.py <EnvObjData.bin> <unpacked Map dir> <l10n dir> <out.json>` writes `Client/assets/aion2/maps/kibelisks.json`: the Kibelisks (teleport artifacts, one per
+named place; `EnvObjData` keys containing `TeleportArtifact`, named by `EnvObjData_<key>_desc`) of Verteron (60), Altgard (61) and the Abyss (2) with their world position
+and name in eight languages. Player-built Kisks have no fixed place and are not in the map files.
+`build_pet_instances.py <spawns.json> <backend instances.json> <l10n dir> <out.json>` writes `Client/assets/aion2/pets/instances.json`: a name (eight languages) for every map
+file other than the three world maps on which pet monsters spawn (`String_STR_Map_<map name>_body`, else the backend's instance table, else none).
+`Aion2PetRare` counts the pets' spawn points per map and instance from `spawns.json`; the world bosses among the pet mobs (`Aion2FieldBosses`) are listed on their own.
