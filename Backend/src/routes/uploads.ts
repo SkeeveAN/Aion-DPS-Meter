@@ -5,6 +5,7 @@ import { db } from "../db/client.js";
 import { bossNpcIds, bosses, instances, uploads } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import { clearPageCache } from "../seo/cache.js";
+import { clientPolicy, requireCurrentClient } from "../clientPolicy.js";
 
 import { hashIp } from "../ipHash.js";
 import { MAX_INSTANCE_PARTICIPANTS, MIN_KILL_DAMAGE_SHARE } from "../constants.js";
@@ -12,7 +13,10 @@ import { MAX_INSTANCE_PARTICIPANTS, MIN_KILL_DAMAGE_SHARE } from "../constants.j
 export async function uploadRoutes(app: FastifyInstance) {
   // Aion 2 players without a boss fight (a client that read characters but killed nothing). The
   // path stays under /api/uploads on purpose: the rate limiter in server.ts keys on that prefix.
-  app.post("/api/uploads/profiles", async (request, reply) => {
+  // What the client asks at start-up: which version may upload (see clientPolicy.ts).
+  app.get<{ Querystring: { version?: string } }>("/api/client-policy", async (request) => clientPolicy(Date.now(), request.query.version));
+
+  app.post("/api/uploads/profiles", { preHandler: requireCurrentClient }, async (request, reply) => {
     const parseResult = profilesUploadSchema.safeParse(request.body);
     if (!parseResult.success) {
       app.log.warn({ details: parseResult.error.flatten(), issues: parseResult.error.issues.slice(0, 6).map((i) => `${i.path.join(".")}: ${i.message}`), clientVersion: (request.body as { clientVersion?: string } | null)?.clientVersion }, "profiles upload rejected: invalid payload");
@@ -47,7 +51,7 @@ export async function uploadRoutes(app: FastifyInstance) {
     return reply.send({ status: "profiles", ...result });
   });
 
-  app.post("/api/uploads", async (request, reply) => {
+  app.post("/api/uploads", { preHandler: requireCurrentClient }, async (request, reply) => {
     const parseResult = uploadSchema.safeParse(request.body);
     if (!parseResult.success) {
       app.log.warn({ details: parseResult.error.flatten(), issues: parseResult.error.issues.slice(0, 6).map((i) => `${i.path.join(".")}: ${i.message}`), body: request.body }, "upload rejected: invalid payload");
