@@ -891,6 +891,11 @@ async function renderStats(secret) {
       return r.stars ? `${r.name} ${r.stars}` : conquest ? `${r.name} ${conquest.stars}` : r.name;
     }, (r) => r.count, "Most fought bosses"),
   ];
+  // Last block of the public part (on the private page the private blocks follow): it lists every server, so it is the longest one.
+  out.push(
+    // The server's faction icon sits before its name, as tall as the text.
+    bars(d.servers, (r) => iconLabel(factionIcon(r.faction), r.unknown ? `${regionLabel(r.name)} - ${t("stats.unknownServer")}` : serverLabel(r.name)), (r) => r.count, "Players per server"),
+  );
   if (secret) {
     out.push(
       el("div", { className: "stat-tiles" }, [
@@ -913,11 +918,6 @@ async function renderStats(secret) {
       ),
     );
   }
-  // Last on the public and on the private page: it lists every server, so it is the longest block.
-  out.push(
-    // The server's faction icon sits before its name, as tall as the text.
-    bars(d.servers, (r) => iconLabel(factionIcon(r.faction), r.unknown ? `${regionLabel(r.name)} - ${t("stats.unknownServer")}` : serverLabel(r.name)), (r) => r.count, "Players per server"),
-  );
   app.replaceChildren(...out);
 }
 
