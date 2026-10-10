@@ -2,7 +2,8 @@ import type { FastifyInstance } from "fastify";
 import { profilesUploadSchema, uploadSchema } from "../uploadSchema.js";
 import { processProfilesUpload, processUpload } from "../matching/merge.js";
 import { db } from "../db/client.js";
-import { uploads } from "../db/schema.js";
+import { bossNpcIds, bosses, instances, uploads } from "../db/schema.js";
+import { eq } from "drizzle-orm";
 import { clearPageCache } from "../seo/cache.js";
 
 import { hashIp } from "../ipHash.js";
@@ -65,7 +66,18 @@ export async function uploadRoutes(app: FastifyInstance) {
     // as one kill. The client sends the boss's highest hit-point reading; without it nothing proves
     // the fight was a whole one.
     const groupDamage = payload.participants.reduce((sum, p) => sum + p.totalDamage, 0);
-    if (payload.bossMaxHp === undefined || groupDamage < payload.bossMaxHp * MIN_KILL_DAMAGE_SHARE) {
+    // A world boss is the exception: over a hundred players fight it and a client receives only a sliver of
+    // their hits, so the damage never adds up to its hit points. The client vouches for the kill there.
+    const worldBoss =
+      payload.bossNpcId !== undefined &&
+      db
+        .select({ category: instances.category })
+        .from(bossNpcIds)
+        .innerJoin(bosses, eq(bosses.id, bossNpcIds.bossId))
+        .innerJoin(instances, eq(instances.id, bosses.instanceId))
+        .where(eq(bossNpcIds.npcId, payload.bossNpcId))
+        .get()?.category === "worldboss";
+    if (!worldBoss && (payload.bossMaxHp === undefined || groupDamage < payload.bossMaxHp * MIN_KILL_DAMAGE_SHARE)) {
       app.log.warn({ groupDamage, bossMaxHp: payload.bossMaxHp, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: damage does not cover the boss's hit points");
       return reply.status(400).send({ error: "boss_not_killed", groupDamage, bossMaxHp: payload.bossMaxHp ?? null });
     }

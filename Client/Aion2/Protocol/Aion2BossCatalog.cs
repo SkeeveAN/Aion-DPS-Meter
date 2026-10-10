@@ -18,6 +18,9 @@ public static class Aion2BossCatalog
 
     public static BossInfo? Find(int npcId) => Load().GetValueOrDefault(npcId);
 
+    /// <summary>A field or Abyss world boss: its NPC id is 210xxxx (Verteron), 240xxxx (Altgard) or 260xxxx (Abyss); the instance bosses are 23xxxxx.</summary>
+    public static bool IsWorldBoss(int npcId) => npcId / 10000 is 210 or 240 or 260;
+
     private static IReadOnlyDictionary<int, BossInfo> Load()
     {
         if (_cache is { } cached)

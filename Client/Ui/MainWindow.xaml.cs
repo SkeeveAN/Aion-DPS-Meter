@@ -1794,8 +1794,9 @@ public partial class MainWindow : Window
         // boss must have been seen dying, and the damage dealt has to cover its hit points - else two
         // failed attempts would pass as one kill. The hit-point frames are the only fight-end signal
         // the protocol decodes so far.
-        if (_source?.Entities is Aion2EntityDirectory directory && !BossKilledWithFullDamage(directory, targetId, targetHits))
+        if (_source?.Entities is Aion2EntityDirectory directory && BossNotKilledReason(directory, targetId, targetHits) is { } notKilled)
         {
+            AutoUploadLog.Write($"boss {targetId}: not uploaded - {notKilled}");
             return null;
         }
 
@@ -2412,19 +2413,33 @@ public partial class MainWindow : Window
     private const double MinKillDamageShare = 0.9;
 
     /// <summary>
-    /// Whether the boss was seen dying (see <see cref="BossDied"/>) and the
-    /// hits on it add up to at least <see cref="MinKillDamageShare"/> of its highest reading. No
-    /// reading at all counts as "not proven" - an empty run slipped through that way (Run 421).
+    /// Why the fight does not count as a kill, or null when it does: the boss must have been seen dying
+    /// (see <see cref="BossDied"/>) and the hits on it must add up to at least <see cref="MinKillDamageShare"/>
+    /// of its highest reading. No reading at all counts as "not proven" - an empty run slipped through
+    /// that way (Run 421). A world boss is exempt from the damage share: over a hundred players fight it and
+    /// the client only receives a sliver of their hits (Kashapa and Dartan, 2026-10-10: ~4 million seen of
+    /// 276 million hit points), so only its death counts there.
     /// </summary>
-    private static bool BossKilledWithFullDamage(Aion2EntityDirectory directory, int targetId, List<DamageEvent> targetHits)
+    private static string? BossNotKilledReason(Aion2EntityDirectory directory, int targetId, List<DamageEvent> targetHits)
     {
         Aion2HitPoints hitPoints = directory.HitPoints;
         if (hitPoints.HighestSeen(targetId) is not (> 0 and long maxHp) || hitPoints.Latest(targetId) is not { } latest)
         {
-            return false;
+            return "no hit-point reading of the boss";
         }
 
-        return BossDied(directory, hitPoints, targetId, latest) && targetHits.Sum(e => (double)e.Amount) >= maxHp * MinKillDamageShare;
+        if (!BossDied(directory, hitPoints, targetId, latest))
+        {
+            return $"the boss was not seen dying (last reading {latest.Hp} of {maxHp})";
+        }
+
+        if (directory.BossNpcIdOf(targetId) is int npcId && Aion2BossCatalog.IsWorldBoss(npcId))
+        {
+            return null;
+        }
+
+        double damage = targetHits.Sum(e => (double)e.Amount);
+        return damage >= maxHp * MinKillDamageShare ? null : $"damage {damage:N0} covers less than {MinKillDamageShare:P0} of the boss's {maxHp:N0} hit points";
     }
 
     private void NoteBossesToUpload(IEnumerable<int> bossEntityIds)
