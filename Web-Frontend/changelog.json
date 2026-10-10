@@ -16,6 +16,13 @@
      "Website"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Titles, wings and pet in the profile header have the same height",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
