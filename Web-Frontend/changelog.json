@@ -64,6 +64,14 @@
      "Website"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "World bosses upload on their death alone: the client only receives a sliver of the damage of 100+ players, so the 90 % damage share no longer applies to them",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
