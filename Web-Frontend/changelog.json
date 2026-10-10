@@ -154,6 +154,14 @@
      "Client"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Players per server: a player whose faction doesn't match his stored server counts as \"unknown server\" of that region, and server regions are translated in all languages",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
