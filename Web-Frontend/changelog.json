@@ -9,6 +9,14 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Legions have a row of their own (name and server) that players link to: legions of the same name on different servers stay apart, a legion that moves keeps its link, and moves done by script are picked up at the next deploy",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
