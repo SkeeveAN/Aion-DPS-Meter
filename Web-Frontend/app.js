@@ -2987,7 +2987,7 @@ async function renderPlayerProfile(playerId) {
     tabs.push(["species", t("profile.tabSpecies"), profile.species.length || profile.pets.length, () => renderSpeciesTab(profile)]);
   }
   if (character?.attributes) {
-    tabs.push(["character", t("profile.tabCharacter"), character.attributes.main.length + character.attributes.lords.length, () => renderCharacterTab({ ...character, portraitUrl: data.player.portraitUrl })]);
+    tabs.unshift(["character", t("profile.tabCharacter"), character.attributes.main.length + character.attributes.lords.length, () => renderCharacterTab({ ...character, portraitUrl: data.player.portraitUrl })]);
   }
   if (profile?.gear.some((g) => g.slotName === "Arcana")) {
     tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);
