@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.28.2",
+  "date": "2026-10-10",
+  "items": [
+   {
+    "text": "Pet regions list only the pets that live on the map itself, not the ones of its event and quest phases, so a region such as Kraka Footpath no longer lists pets that are only there during an event",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-10"
+   }
+  ]
+ },
+ {
   "version": "0.28.1",
   "date": "2026-10-10",
   "items": [
