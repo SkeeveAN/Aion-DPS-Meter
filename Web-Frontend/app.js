@@ -2686,7 +2686,7 @@ function renderTitleChips(profile) {
 function renderLookChips(profile) {
   const locale = getLocale();
   const chip = (item, base, { badge, level } = {}) => {
-    const holder = el("span", { className: "pf-chip" });
+    const holder = el("span", { className: `pf-chip${item.grade ? ` g-${item.grade}` : ""}` });
     if (item.icon) {
       const img = el("img", { src: `${ICON_BASE}/${base}/${item.icon}.webp`, alt: "", width: 30, height: 30, loading: "lazy" });
       img.addEventListener("error", () => img.remove());

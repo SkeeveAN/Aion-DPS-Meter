@@ -378,8 +378,8 @@ export type ProfileView = {
    */
   attributes: { main: { id: number; key: string; value: number }[]; lords: { id: number; key: string; value: number }[] } | null;
   /** Worn wing / wing skin (item ids resolved through wings.json; unknown ids read "Wings <id>" without an icon) and the active pet. */
-  wing: { id: number; name: string; names: Record<string, string>; icon: string | null } | null;
-  wingSkin: { id: number; name: string; names: Record<string, string>; icon: string | null } | null;
+  wing: { id: number; name: string; names: Record<string, string>; icon: string | null; grade: string | null } | null;
+  wingSkin: { id: number; name: string; names: Record<string, string>; icon: string | null; grade: string | null } | null;
   /** Active pet by species id; `icon` is a file name under images/aion2/icons/pet (may not exist for every pet). */
   activePet: { id: number; name: string; names: Record<string, string>; icon: string | null; level: number | null } | null;
   /** Where `attributes` come from: the player's own client or NC's official character page (null without attributes). The wing and pet fields are merged per field the same way. */
@@ -393,8 +393,8 @@ export type ProfileView = {
 // Attribute ids of the character window, in display order.
 const MAIN_ATTRIBUTES: [number, string][] = [[1, "str"], [2, "dex"], [5, "agi"], [6, "wis"], [3, "int"], [4, "con"]];
 const LORD_ATTRIBUTES: [number, string][] = [[7, "justice"], [13, "destruction"], [14, "death"], [15, "wisdom"], [16, "destiny"], [17, "space"], [11, "time"], [10, "life"], [9, "illusion"], [8, "freedom"]];
-// wings.json (Recherche): item id -> { names, icon }; petInfo: species id -> { k: key, n: names }.
-let wingData: Record<string, { names?: Record<string, string>; icon?: string }> | null = null;
+// wings.json (Recherche): item id -> { names, icon, grade (client table: Common/Rare/Epic/Legend/Unique/Special) }; petInfo: species id -> { k: key, n: names }.
+let wingData: Record<string, { names?: Record<string, string>; icon?: string; grade?: string | null }> | null = null;
 let petInfo: Record<string, { k: string; n: Record<string, string> }> | null = null;
 
 /** Zenit stage of an enchant byte: 1..5 for 16..20, else 0 (+15 is the plain enchant cap; above 20 is not plausible and is left as is). */
@@ -613,7 +613,7 @@ function wingOf(id: number | null): ProfileView["wing"] {
   }
   const info = wingData![String(id)];
   const names = info?.names ?? {};
-  return { id, name: names.en ?? `Wings ${id}`, names, icon: info?.icon ?? null };
+  return { id, name: names.en ?? `Wings ${id}`, names, icon: info?.icon ?? null, grade: info?.grade ?? null };
 }
 
 function activePetOf(id: number | null, level: number | null): ProfileView["activePet"] {

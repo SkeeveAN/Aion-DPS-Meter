@@ -3046,6 +3046,18 @@ body:has(.download-hero) .nav-download-link:hover,
   font-size: 0.85rem;
   white-space: nowrap;
 }
+/* Rarity of wings and wing skins, same colours as the titles (Common stays neutral). */
+.pf-chip.g-Rare { --grade: var(--color-success); }
+.pf-chip.g-Epic { --grade: #b48cff; }
+.pf-chip.g-Legend { --grade: var(--color-info); }
+.pf-chip.g-Unique { --grade: var(--color-warning); }
+.pf-chip.g-Special { --grade: var(--color-danger); }
+.pf-chip[class*="g-"]:not(.g-Common) {
+  border-color: var(--grade);
+  background: color-mix(in srgb, var(--grade) 14%, transparent);
+  color: var(--grade);
+  font-weight: 600;
+}
 .pf-chip img {
   width: 30px;
   height: 30px;
@@ -3305,4 +3317,30 @@ body:has(.download-hero) .nav-download-link:hover,
 }
 .pf-numbers {
   flex-shrink: 0;
+}
+
+/* A little tighter, so titles, wings, pet and the numbers fit in one row at 1920 px even with long names. */
+.pf-strip {
+  gap: 14px 14px;
+}
+.pf-strip .pf-titles {
+  gap: 6px;
+}
+.pf-strip .pf-title {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+.pf-strip .pf-looks {
+  gap: 7px;
+}
+.pf-strip .pf-chip {
+  gap: 7px;
+  padding: 4px 10px 4px 4px;
+  font-size: 0.8rem;
+}
+.pf-strip .pf-chip:not(:has(img)) {
+  padding-left: 10px;
+}
+.pf-numbers {
+  gap: 20px;
 }

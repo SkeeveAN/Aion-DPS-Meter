@@ -14,6 +14,8 @@ for i, (o, t) in enumerate(s):
         names = {c: T[c][s[i + 1][1]] for c in T if s[i + 1][1] in T[c]}
         icon = next((x[1] for x in s[i + 2:i + 8] if x[1].startswith("Icon_")), None)
         if "en" in names:
-            out[str(struct.unpack_from("<I", d, o - 4)[0])] = {"names": names, "icon": icon}
+            # rarity: first EItemGrade::<Grade> string of the row (Common/Rare/Epic/Legend/Unique/Special), before the next wing's name string
+            grade = next((x[1].split("::", 1)[1] for x in s[i + 2:i + 8] if x[1].startswith("EItemGrade::")), None)
+            out[str(struct.unpack_from("<I", d, o - 4)[0])] = {"names": names, "icon": icon, "grade": grade}
 json.dump(out, open(sys.argv[3], "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
 print(len(out), "wings")

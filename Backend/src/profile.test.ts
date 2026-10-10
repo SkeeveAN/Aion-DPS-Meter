@@ -358,6 +358,8 @@ test("the character window (attributes, wing, wing skin, active pet) is stored, 
   assert.equal(view.attributes!.lords[0].value, 50);
   assert.equal(view.wing!.id, 30500200);
   assert.equal(view.wingSkin!.id, 30400400);
+  assert.equal(view.wing!.grade, "Unique", "rarity comes from the client table");
+  assert.equal(view.wingSkin!.grade, "Unique");
   assert.equal(view.activePet!.name, "Zaif");
   assert.equal(view.activePet!.icon, "Zaif_01");
   assert.equal(view.portraitUrl, null);
