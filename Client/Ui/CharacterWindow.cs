@@ -280,7 +280,7 @@ public sealed class CharacterWindow : Window
             .ToList();
         var boards = _directory.LocalDaevanion;
         var species = _directory.LocalSpecies;
-        int nodes = boards.Sum(b => Aion2DaevanionCatalog.Summarize(b.BoardId, b.NodeIds).ActiveNodes);
+        int nodes = boards.Sum(b => Aion2DaevanionCatalog.Summarize(b.BoardId, b.NodeIds).ActivePoints);
 
         Title = $"{character.Name} - Character";
 
@@ -402,7 +402,7 @@ public sealed class CharacterWindow : Window
 
         if (nodeCount > 0)
         {
-            numbers.Children.Add(Number(nodeCount.ToString(), "Daevanion nodes", null));
+            numbers.Children.Add(Number(nodeCount.ToString(), "Daevanion points", null));
         }
 
         Grid.SetColumn(numbers, 2);
@@ -1169,12 +1169,12 @@ public sealed class CharacterWindow : Window
         for (int i = 0; i < boards.Count; i++)
         {
             var summary = Aion2DaevanionCatalog.Summarize(boards[i].BoardId, boards[i].NodeIds);
-            int total = Aion2DaevanionCatalog.NodesOfBoard(boards[i].BoardId).Count(n => n.Type != "Start");
+            int total = Aion2DaevanionCatalog.TotalPoints(boards[i].BoardId);
             bool selected = i == _boardIndex;
             int index = i;
             var content = new StackPanel { Orientation = Orientation.Horizontal };
             content.Children.Add(Text(summary.Name, 12.5, selected ? FontWeights.SemiBold : FontWeights.Normal));
-            content.Children.Add(Text($"  {summary.ActiveNodes} / {(total > 0 ? total.ToString() : "?")}", 12, FontWeights.SemiBold, Solid(Gold)));
+            content.Children.Add(Text($"  {summary.ActivePoints} / {(total > 0 ? total.ToString() : "?")}", 12, FontWeights.SemiBold, Solid(Gold)));
             var pill = new Border
             {
                 Padding = new Thickness(14, 6, 14, 6),

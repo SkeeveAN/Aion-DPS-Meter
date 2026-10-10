@@ -59,11 +59,17 @@ public static class Aion2DaevanionCatalog
         return _nodes!.GetValueOrDefault(nodeId);
     }
 
+    /// <summary>Points a node is worth: its colour (Common/white 1, Rare/green 2, Legend/blue 3, Unique/gold 4).</summary>
+    public static int PointsOf(Aion2DaevanionNode node) => node.Grade switch { "Rare" => 2, "Legend" => 3, "Unique" => 4, _ => 1 };
+
+    /// <summary>All points a board offers (the start node is free).</summary>
+    public static int TotalPoints(int boardId) => NodesOfBoard(boardId).Where(n => n.Type != "Start").Sum(PointsOf);
+
     /// <summary>What one board's activated nodes add up to: stat totals by token, and skill-level
     /// bonuses by skill id. <c>ActiveNodes</c> counts every activated node except the start node;
     /// <c>KnownNodes</c> is how many of them the node table describes - the table lacks some real
     /// nodes, so the totals are a lower bound.</summary>
-    public sealed record BoardSummary(int BoardId, string Name, int ActiveNodes, int KnownNodes, IReadOnlyDictionary<string, int> Stats, IReadOnlyDictionary<int, int> SkillBonuses);
+    public sealed record BoardSummary(int BoardId, string Name, int ActiveNodes, int KnownNodes, IReadOnlyDictionary<string, int> Stats, IReadOnlyDictionary<int, int> SkillBonuses, int ActivePoints);
 
     public static BoardSummary Summarize(int boardId, IEnumerable<int> activeNodeIds)
     {
@@ -71,6 +77,7 @@ public static class Aion2DaevanionCatalog
         var skills = new Dictionary<int, int>();
         int active = 0;
         int known = 0;
+        int points = 0;
         foreach (int id in activeNodeIds)
         {
             Aion2DaevanionNode? node = Find(id);
@@ -86,6 +93,7 @@ public static class Aion2DaevanionCatalog
             }
 
             known++;
+            points += PointsOf(node);
             if (node.Type == "SkillLevel" && int.TryParse(node.Key, out int skillId))
             {
                 skills[skillId] = skills.GetValueOrDefault(skillId) + node.Value;
@@ -96,7 +104,7 @@ public static class Aion2DaevanionCatalog
             }
         }
 
-        return new BoardSummary(boardId, BoardName(boardId), active, known, stats, skills);
+        return new BoardSummary(boardId, BoardName(boardId), active, known, stats, skills, points);
     }
 
     /// <summary>Every node of one board (the unlocked ones and the rest), for drawing its map.</summary>
