@@ -24,9 +24,9 @@ public static class Aion2Servers
     {
         [1] = ("NA East", 8),
         [2] = ("NA West", 5),
-        [3] = ("Europe", 21),
+        [3] = ("Europe", 23),
         [4] = ("LATAM", 6),
-        [5] = ("Asia", 7),
+        [5] = ("Asia", 10),
     };
 
     public static string NameOf(int serverId)
