@@ -1,5 +1,20 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-10",
+  "items": [
+   {
+    "text": "Character tab for every player: main attributes, lord values, wings, wing skin and active pet come from the official character page when the player's own client has not sent them; the client's data wins when it has",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-10"
+   }
+  ]
+ },
+ {
   "version": "0.28.0",
   "date": "2026-10-10",
   "items": [
