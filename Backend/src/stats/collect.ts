@@ -110,7 +110,7 @@ export function publicStats() {
     row.count += num(r.n);
     serverCounts.set(key, row);
   }
-  const servers = [...serverCounts.values()].sort((x, y) => y.count - x.count).slice(0, 12);
+  const servers = [...serverCounts.values()].sort((x, y) => y.count - x.count).slice(0, 60);
   const topBosses = all(
     `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, e.mode mode, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id, e.mode order by n desc limit 10`,
   ).map((r) => ({ name: String(r.en ?? r.name), instance: String(r.instance), stars: starsOf(String(r.mode ?? "")), count: num(r.n) }));
