@@ -22,13 +22,6 @@
      "Client"
     ],
     "date": "2026-10-10"
-   },
-   {
-    "text": "The pet settings get a Rare tab: the pet mobs with few spawn points, listed by map (Verteron, Altgard, Abyss), then by instance, world boss and the pets with no known place, with zoomed map cut-outs, red pins and the nearest Kibelisk (teleport artifact) named; two sliders set what counts as rare and as plentiful in instances",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-10-10"
    }
   ]
  },
@@ -36,13 +29,6 @@
   "version": "0.30.1",
   "date": "2026-10-10",
   "items": [
-   {
-    "text": "The transparent modes show the update status too: a badge on the player chips and in the compact panel says that an update is downloading or ready to restart, and that an old version cannot upload",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-10-10"
-   },
    {
     "text": "The transparent modes show the update status too: a badge on the player chips and in the compact panel says that an update is downloading or ready to restart, and that an old version cannot upload",
     "areas": [
@@ -292,13 +278,7 @@
     "text": "Each participant is filed under the server he announced himself with, not the uploader's",
     "areas": [
      "Client",
-     "Backend"
-    ],
-    "date": "2026-10-10"
-   },
-   {
-    "text": "Each participant is filed under the server he announced himself with, not the uploader's",
-    "areas": [
+     "Backend",
      "Website"
     ],
     "date": "2026-10-10"
@@ -307,13 +287,7 @@
     "text": "World bosses upload on their death alone: the client only receives a sliver of the damage of 100+ players, so the 90 % damage share no longer applies to them",
     "areas": [
      "Client",
-     "Backend"
-    ],
-    "date": "2026-10-10"
-   },
-   {
-    "text": "World bosses upload on their death alone: the client only receives a sliver of the damage of 100+ players, so the 90 % damage share no longer applies to them",
-    "areas": [
+     "Backend",
      "Website"
     ],
     "date": "2026-10-10"
@@ -329,13 +303,7 @@
     "text": "World bosses need the 90 % hit-point share again, like every other boss; the upload log names why a boss is not uploaded",
     "areas": [
      "Client",
-     "Backend"
-    ],
-    "date": "2026-10-10"
-   },
-   {
-    "text": "World bosses need the 90 % hit-point share again, like every other boss; the upload log names why a boss is not uploaded",
-    "areas": [
+     "Backend",
      "Website"
     ],
     "date": "2026-10-10"

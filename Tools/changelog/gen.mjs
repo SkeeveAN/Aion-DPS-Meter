@@ -92,6 +92,16 @@ const PRE = "Before 0.4.0";
 for (const date of [...new Set(before.map((b) => b.date))]) {
   releases.push({ version: PRE, date, items: before.filter((b) => b.date === date).map(({ text, areas }) => ({ text, areas })) });
 }
+// A feature commit and the "Release X.Y.Z: <same text>" commit that follows it say the same: one entry (the first, with the areas of both).
+for (const r of releases) {
+  const seen = new Map();
+  for (const item of r.items) {
+    const first = seen.get(item.text);
+    if (first) first.areas = [...new Set([...first.areas, ...item.areas])];
+    else seen.set(item.text, item);
+  }
+  r.items = [...seen.values()];
+}
 const key = (v) => (v === "Unreleased" ? [1e9, 0, 0] : v === PRE ? [-1, 0, 0] : v.split(".").map(Number));
 releases.sort((a, b) => { const x = key(a.version), y = key(b.version); return y[0] - x[0] || y[1] - x[1] || y[2] - x[2] || (a.date < b.date ? 1 : -1); });
 writeFileSync(out, JSON.stringify(releases, null, 1) + "\n");
