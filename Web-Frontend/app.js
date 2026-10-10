@@ -2712,7 +2712,7 @@ function renderLookChips(profile) {
 // Character tab (own character only): main attributes, the ring of lord values around the six main attributes, the lord list.
 const ATTR_ICON = "/images/aion2/stats";
 function attrIcon(key, lord) {
-  return el("img", { className: "pf-attr-ico", src: `${ATTR_ICON}/${lord ? "lords_" : ""}${key}.webp`, alt: "", width: 48, height: 48, loading: "lazy" });
+  return el("img", { className: "pf-attr-ico", src: `${ATTR_ICON}/${lord ? "lords_" : ""}${key === "con" ? "constitution" : key}.webp`, alt: "", width: 48, height: 48, loading: "lazy" });
 }
 
 function renderCharacterTab(profile) {
