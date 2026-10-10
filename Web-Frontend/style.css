@@ -3279,3 +3279,12 @@ body:has(.download-hero) .nav-download-link:hover,
     grid-template-columns: 26px 80px 1fr 32px;
   }
 }
+
+/* Titles, wings and pet in the profile header: one height for all of them. */
+.pf-strip .pf-title,
+.pf-strip .pf-chip {
+  box-sizing: border-box;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
