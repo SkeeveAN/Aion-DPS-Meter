@@ -27,6 +27,76 @@ public static class UploadClient
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
+    /// <summary>Set once the community server has said this client is too old to upload (HTTP 426, or the start-up check): from then on no
+    /// upload is even tried, until the meter has been updated and restarted. Holds the version the server asks for.</summary>
+    public static string? RequiredVersion { get; private set; }
+
+    /// <summary>True while uploads are switched off because the client is outdated.</summary>
+    public static bool IsBlocked => RequiredVersion is not null;
+
+    /// <summary>Raised once when the client turns out to be outdated (with the version it should be). Not raised on the UI thread.</summary>
+    public static event Action<string>? ClientOutdated;
+
+    private static void Block(string requiredVersion)
+    {
+        bool first = RequiredVersion is null;
+        RequiredVersion = string.IsNullOrWhiteSpace(requiredVersion) ? "?" : requiredVersion;
+        if (first)
+        {
+            ClientOutdated?.Invoke(RequiredVersion);
+        }
+    }
+
+    private static UploadResult BlockedResult() =>
+        UploadResult.Failed("Old client version, please update (" + RequiredVersion + "). No uploads are possible until you do.");
+
+    /// <summary>The server's answer to an upload: 426 Upgrade Required switches the uploads off. Returns the failure to report.</summary>
+    private static async Task<UploadResult> FailureOf(HttpResponseMessage response)
+    {
+        string body = await response.Content.ReadAsStringAsync();
+        if ((int)response.StatusCode == 426)
+        {
+            string required = "?";
+            try
+            {
+                using JsonDocument doc = JsonDocument.Parse(body);
+                if (doc.RootElement.TryGetProperty("requiredVersion", out JsonElement v) && v.ValueKind == JsonValueKind.String)
+                {
+                    required = v.GetString() ?? "?";
+                }
+            }
+            catch (JsonException)
+            {
+                // an answer we cannot read still means "update"
+            }
+
+            Block(required);
+            return BlockedResult();
+        }
+
+        return UploadResult.Failed($"{(int)response.StatusCode} {response.ReasonPhrase}: {Truncate(body, 200)}");
+    }
+
+    /// <summary>Asks the community server right at start-up whether this version may upload, so a client that is too old learns it at once
+    /// and not with its first fight. A server that cannot be reached changes nothing (the upload itself is checked as well).</summary>
+    public static async Task CheckPolicyAsync(string version)
+    {
+        try
+        {
+            using HttpClient quick = new() { Timeout = TimeSpan.FromSeconds(8) };
+            using JsonDocument doc = JsonDocument.Parse(await quick.GetStringAsync($"{ApiBaseUrl}/api/client-policy?version={Uri.EscapeDataString(version)}"));
+            if (doc.RootElement.TryGetProperty("allowed", out JsonElement allowed) && allowed.ValueKind == JsonValueKind.False)
+            {
+                string required = doc.RootElement.TryGetProperty("requiredVersion", out JsonElement r) && r.ValueKind == JsonValueKind.String ? r.GetString() ?? "?" : "?";
+                Block(required);
+            }
+        }
+        catch (Exception)
+        {
+            // offline or an older server: nothing to decide here
+        }
+    }
+
     /// <summary>Posts one encounter. Never throws - on any network/server failure a failed upload
     /// must not interrupt whatever the user is doing with a running boss fight. <see cref="UploadResult.Error"/>
     /// carries the actual reason (an HTTP status/body, or the exception message) so the UI can show
@@ -34,6 +104,11 @@ public static class UploadClient
     /// payload - per the user, not knowing whether/why an upload failed was itself the problem.</summary>
     public static async Task<UploadResult> SendAsync(EncounterUploadRequest payload)
     {
+        if (IsBlocked)
+        {
+            return BlockedResult();
+        }
+
         try
         {
             using HttpResponseMessage response =
@@ -43,8 +118,7 @@ public static class UploadClient
                 return UploadResult.Ok;
             }
 
-            string body = await response.Content.ReadAsStringAsync();
-            return UploadResult.Failed($"{(int)response.StatusCode} {response.ReasonPhrase}: {Truncate(body, 200)}");
+            return await FailureOf(response);
         }
         catch (Exception ex)
         {
@@ -56,6 +130,11 @@ public static class UploadClient
     /// never-throws contract as <see cref="SendAsync"/>.</summary>
     public static async Task<UploadResult> SendProfilesAsync(ProfilesUploadRequest payload)
     {
+        if (IsBlocked)
+        {
+            return BlockedResult();
+        }
+
         try
         {
             using HttpResponseMessage response =
@@ -65,8 +144,7 @@ public static class UploadClient
                 return UploadResult.Ok;
             }
 
-            string body = await response.Content.ReadAsStringAsync();
-            return UploadResult.Failed($"{(int)response.StatusCode} {response.ReasonPhrase}: {Truncate(body, 200)}");
+            return await FailureOf(response);
         }
         catch (Exception ex)
         {

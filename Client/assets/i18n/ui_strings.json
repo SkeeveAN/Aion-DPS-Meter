@@ -4352,5 +4352,61 @@
     "pt": "Vaizel",
     "ja": "Vaizel",
     "ko": "Vaizel"
+  },
+  "Upload.ClientOutdatedStatus": {
+    "en": "Old client version – please update. No uploads are possible until you do.",
+    "de": "Alte Client-Version – bitte aktualisieren. Solange sind keine Uploads möglich.",
+    "fr": "Ancienne version du client – veuillez mettre à jour. Aucun envoi n'est possible tant que ce n'est pas fait.",
+    "es": "Versión antigua del cliente – actualiza, por favor. Hasta entonces no se pueden enviar datos.",
+    "ru": "Устаревшая версия клиента – обновите её. Пока этого не сделано, отправка данных невозможна.",
+    "pl": "Stara wersja klienta – zaktualizuj ją. Do tego czasu wysyłanie danych jest niemożliwe.",
+    "tr": "Eski istemci sürümü – lütfen güncelleyin. Güncelleme yapılana kadar yükleme yapılamaz.",
+    "zh": "客户端版本过旧，请更新。更新之前无法上传。",
+    "zh-TW": "用戶端版本過舊，請更新。更新之前無法上傳。",
+    "pt": "Versão antiga do cliente – atualize, por favor. Enquanto isso, não é possível enviar dados.",
+    "ja": "クライアントのバージョンが古いです。更新してください。更新するまでアップロードはできません。",
+    "ko": "클라이언트 버전이 오래되었습니다. 업데이트해 주세요. 업데이트할 때까지 업로드할 수 없습니다."
+  },
+  "Upload.ClientOutdatedTitle": {
+    "en": "Update required",
+    "de": "Update erforderlich",
+    "fr": "Mise à jour requise",
+    "es": "Actualización necesaria",
+    "ru": "Требуется обновление",
+    "pl": "Wymagana aktualizacja",
+    "tr": "Güncelleme gerekli",
+    "zh": "需要更新",
+    "zh-TW": "需要更新",
+    "pt": "Atualização necessária",
+    "ja": "更新が必要です",
+    "ko": "업데이트 필요"
+  },
+  "Upload.ClientOutdatedBody": {
+    "en": "You have an old client version ({0}). Please update to {1}. No uploads are possible until you do.\n\nThe update is downloading now; restart the meter to finish it.",
+    "de": "Du hast eine alte Client-Version ({0}). Bitte aktualisiere auf {1}. Solange sind keine Uploads möglich.\n\nDas Update wird jetzt geladen; starte den Meter neu, um es abzuschließen.",
+    "fr": "Vous utilisez une ancienne version du client ({0}). Veuillez passer à la version {1}. Aucun envoi n'est possible tant que ce n'est pas fait.\n\nLa mise à jour se télécharge ; redémarrez le meter pour la terminer.",
+    "es": "Tienes una versión antigua del cliente ({0}). Actualiza a la {1}. Hasta entonces no se pueden enviar datos.\n\nLa actualización se está descargando; reinicia el medidor para terminarla.",
+    "ru": "У вас устаревшая версия клиента ({0}). Обновитесь до {1}. Пока этого не сделано, отправка данных невозможна.\n\nОбновление загружается; перезапустите счётчик, чтобы завершить его.",
+    "pl": "Masz starą wersję klienta ({0}). Zaktualizuj do {1}. Do tego czasu wysyłanie danych jest niemożliwe.\n\nAktualizacja jest pobierana; uruchom miernik ponownie, aby ją dokończyć.",
+    "tr": "Eski bir istemci sürümünüz var ({0}). Lütfen {1} sürümüne güncelleyin. Güncelleme yapılana kadar yükleme yapılamaz.\n\nGüncelleme indiriliyor; tamamlamak için sayacı yeniden başlatın.",
+    "zh": "您使用的是旧版客户端（{0}）。请更新到 {1}。更新之前无法上传。\n\n更新正在下载；请重启计量器以完成更新。",
+    "zh-TW": "您使用的是舊版用戶端（{0}）。請更新到 {1}。更新之前無法上傳。\n\n更新正在下載；請重新啟動計量器以完成更新。",
+    "pt": "Você está com uma versão antiga do cliente ({0}). Atualize para a {1}. Enquanto isso, não é possível enviar dados.\n\nA atualização está sendo baixada; reinicie o medidor para concluí-la.",
+    "ja": "古いクライアントバージョン（{0}）をお使いです。{1} に更新してください。更新するまでアップロードはできません。\n\n更新をダウンロード中です。メーターを再起動して完了してください。",
+    "ko": "오래된 클라이언트 버전({0})을 사용 중입니다. {1}(으)로 업데이트해 주세요. 업데이트할 때까지 업로드할 수 없습니다.\n\n업데이트를 내려받는 중입니다. 미터를 다시 시작하여 완료하세요."
+  },
+  "Upload.ClientOutdatedBodyManual": {
+    "en": "You have an old client version ({0}). Please update to {1} (menu: Check for updates, or download it from aiondps.com). No uploads are possible until you do.",
+    "de": "Du hast eine alte Client-Version ({0}). Bitte aktualisiere auf {1} (Menü: Nach Updates suchen, oder lade sie von aiondps.com). Solange sind keine Uploads möglich.",
+    "fr": "Vous utilisez une ancienne version du client ({0}). Veuillez passer à la version {1} (menu : Rechercher des mises à jour, ou téléchargez-la sur aiondps.com). Aucun envoi n'est possible tant que ce n'est pas fait.",
+    "es": "Tienes una versión antigua del cliente ({0}). Actualiza a la {1} (menú: Buscar actualizaciones, o descárgala en aiondps.com). Hasta entonces no se pueden enviar datos.",
+    "ru": "У вас устаревшая версия клиента ({0}). Обновитесь до {1} (меню: Проверить обновления, либо скачайте её на aiondps.com). Пока этого не сделано, отправка данных невозможна.",
+    "pl": "Masz starą wersję klienta ({0}). Zaktualizuj do {1} (menu: Sprawdź aktualizacje lub pobierz ją z aiondps.com). Do tego czasu wysyłanie danych jest niemożliwe.",
+    "tr": "Eski bir istemci sürümünüz var ({0}). Lütfen {1} sürümüne güncelleyin (menü: Güncellemeleri denetle ya da aiondps.com'dan indirin). Güncelleme yapılana kadar yükleme yapılamaz.",
+    "zh": "您使用的是旧版客户端（{0}）。请更新到 {1}（菜单：检查更新，或从 aiondps.com 下载）。更新之前无法上传。",
+    "zh-TW": "您使用的是舊版用戶端（{0}）。請更新到 {1}（選單：檢查更新，或從 aiondps.com 下載）。更新之前無法上傳。",
+    "pt": "Você está com uma versão antiga do cliente ({0}). Atualize para a {1} (menu: Procurar atualizações, ou baixe em aiondps.com). Enquanto isso, não é possível enviar dados.",
+    "ja": "古いクライアントバージョン（{0}）をお使いです。{1} に更新してください（メニュー：更新を確認、または aiondps.com からダウンロード）。更新するまでアップロードはできません。",
+    "ko": "오래된 클라이언트 버전({0})을 사용 중입니다. {1}(으)로 업데이트해 주세요(메뉴: 업데이트 확인, 또는 aiondps.com에서 다운로드). 업데이트할 때까지 업로드할 수 없습니다."
   }
 }

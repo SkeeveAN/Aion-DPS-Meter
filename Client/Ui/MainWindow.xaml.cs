@@ -265,7 +265,20 @@ public partial class MainWindow : Window
         {
             _updateTimer.Tick += (_, _) => _ = RunUpdateCheck(announceResult: false);
             _updateTimer.Start();
-            _ = RunUpdateCheck(announceResult: true);
+            // The meter talks to GitHub only while "check for updates" is on in the settings.
+            var startupSettings = MeterSettings.Load();
+            if (startupSettings.CheckForUpdates)
+            {
+                _ = RunUpdateCheck(announceResult: true);
+            }
+
+            // Only the current version may upload (the server refuses an old one). A meter that uploads by itself asks the community server at
+            // once, so an old client learns it now and not with its first fight; one that only uploads on a click learns it from that upload.
+            UploadClient.ClientOutdated += required => Dispatcher.BeginInvoke(new Action(() => OnClientOutdated(required)));
+            if (startupSettings.AutoUploadProfile || startupSettings.AutoUploadBoss)
+            {
+                _ = UploadClient.CheckPolicyAsync(AppVersion.Text);
+            }
         }
 
         var settings = MeterSettings.Load();
@@ -3047,7 +3060,45 @@ public partial class MainWindow : Window
     /// asked for that silently does nothing is indistinguishable from "you are up to date", which
     /// is the one answer it must not fake.
     /// </summary>
+    /// <summary>The server will not take uploads from this version: say so once, in the status row and in a message. With "check for
+    /// updates" on, the update is fetched now; with it off the meter does not talk to GitHub, and the message says how to update by hand.</summary>
+    private void OnClientOutdated(string requiredVersion)
+    {
+        var loc = LocalizationManager.Instance;
+        ShowUploadStatus(loc["Upload.ClientOutdatedStatus"]);
+        bool automatic = MeterSettings.Load().CheckForUpdates;
+        if (automatic)
+        {
+            _ = RunUpdateCheck(announceResult: false);
+        }
+
+        ThemedMessageBox.Show(this, string.Format(loc[automatic ? "Upload.ClientOutdatedBody" : "Upload.ClientOutdatedBodyManual"], AppVersion.Text, requiredVersion),
+            loc["Upload.ClientOutdatedTitle"], MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+
+    private bool _updateCheckRunning;
+
+    /// <summary>One check at a time: the start-up check, the timer, the menu and a refused upload all come here, and two downloads of the same
+    /// update at once would only fight over Velopack's staging folder. A call that arrives while one is running is dropped; the running one does the work.</summary>
     private async Task RunUpdateCheck(bool announceResult)
+    {
+        if (_updateCheckRunning)
+        {
+            return;
+        }
+
+        _updateCheckRunning = true;
+        try
+        {
+            await RunUpdateCheckCore(announceResult);
+        }
+        finally
+        {
+            _updateCheckRunning = false;
+        }
+    }
+
+    private async Task RunUpdateCheckCore(bool announceResult)
     {
         // The automatic checks respect the setting; the menu item ignores it, since clicking it IS
         // the consent that setting stands in for.
