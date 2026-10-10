@@ -2614,7 +2614,7 @@ public partial class MainWindow : Window
         {
             if (BuildProfileUpload(id) is { } profile)
             {
-                participants.Add(new ProfileParticipantUpload(name, className, "", isSelf, directory.GuildOf(id), profile, directory.ServerIdOf(id)));
+                participants.Add(new ProfileParticipantUpload(name, className, directory.FactionOf(id) ?? "", isSelf, directory.GuildOf(id), profile, directory.ServerIdOf(id)));
             }
         }
 
@@ -2642,7 +2642,7 @@ public partial class MainWindow : Window
             participants.Add(new ProfileParticipantUpload(
                 inspected.Name,
                 inspectedClass,
-                "",
+                directory.FactionOfName(inspected.Name) ?? "",
                 false,
                 inspected.Guild,
                 new ProfileUpload(

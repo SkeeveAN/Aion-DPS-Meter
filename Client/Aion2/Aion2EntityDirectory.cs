@@ -1115,6 +1115,24 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         return null;
     }
 
+    /// <summary>The faction of a player known by name only (a character window has no combat id): through the server he was
+    /// named with, else through the combat id the game announced him under.</summary>
+    public string? FactionOfName(string name)
+    {
+        int? id;
+        lock (_gate)
+        {
+            if (_serverOfName.TryGetValue(name, out int server) && server / 1000 is 1 or 2)
+            {
+                return server / 1000 == 1 ? "Elyos" : "Asmodian";
+            }
+
+            id = _names.FirstOrDefault(kv => string.Equals(kv.Value, name, StringComparison.Ordinal)).Key is int found && found != 0 ? found : null;
+        }
+
+        return id is int known ? FactionOf(known) : null;
+    }
+
     private readonly Dictionary<int, int> _factionById = new();
 
     /// <summary>The faction byte of the "player appeared" frame: 1 Elyos, 2 Asmodian.</summary>
