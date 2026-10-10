@@ -131,7 +131,7 @@ def main():
                 print(map_name, "catch-all volume left out:", ", ".join(sorted(catch_all)))
             tiers = [[(k, area(poly[sn]), poly[sn]) for k in ks for sn in str2sub.get(k, ()) if sn in poly] for ks in (rank1, rank2, others)]
             for key, npcs in spawns.items():
-                if key != map_name and not key.startswith(map_name + "/InstanceLayer"):
+                if key != map_name:  # the InstanceLayer spawns are event and quest phases of the same map, not where a pet lives
                     continue
                 for npc, points in npcs.items():
                     ids = monsters.get(npc)
