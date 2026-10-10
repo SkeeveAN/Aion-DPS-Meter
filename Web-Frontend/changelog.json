@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-10",
+  "items": [
+   {
+    "text": "The Character tab comes first on a profile and is the one shown when the page opens",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-10"
+   }
+  ]
+ },
+ {
   "version": "0.28.2",
   "date": "2026-10-10",
   "items": [
