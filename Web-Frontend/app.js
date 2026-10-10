@@ -884,8 +884,6 @@ async function renderStats(secret) {
     ]),
     bars([...d.encountersPerDay].reverse(), (r) => r.day, (r) => r.count, "Boss fights per day (last 30 days)"),
     bars(d.classes, (r) => r.name, (r) => r.count, "Players per class"),
-    // The server's faction icon sits before its name, as tall as the text.
-    bars(d.servers, (r) => iconLabel(factionIcon(r.faction), r.unknown ? `${regionLabel(r.name)} - ${t("stats.unknownServer")}` : serverLabel(r.name)), (r) => r.count, "Players per server"),
     bars(d.topBosses, (r) => {
       // The difficulty step (Nightmare level, Transcendence stage, Ascension step) and a conquest fight's rating show as stars,
       // so "Ruthilis of Pain ★" and "Ruthilis of Pain ★★★" are told apart.
@@ -915,6 +913,11 @@ async function renderStats(secret) {
       ),
     );
   }
+  // Last on the public and on the private page: it lists every server, so it is the longest block.
+  out.push(
+    // The server's faction icon sits before its name, as tall as the text.
+    bars(d.servers, (r) => iconLabel(factionIcon(r.faction), r.unknown ? `${regionLabel(r.name)} - ${t("stats.unknownServer")}` : serverLabel(r.name)), (r) => r.count, "Players per server"),
+  );
   app.replaceChildren(...out);
 }
 
