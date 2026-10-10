@@ -14,7 +14,7 @@ type FetchFn = typeof fetch;
 
 export const PORTRAIT_DIR = path.resolve(process.env.PORTRAIT_DIR ?? "./data/portraits");
 
-const SEARCH_URL = "https://api-search.plaync.com/aion2global/search/v2/character";
+export const SEARCH_URL = "https://api-search.plaync.com/aion2global/search/v2/character";
 const IMAGE_URL = "https://profileimg.plaync.com/game_profile_images/aion2global/images";
 const BROWSER_HEADERS = {
   "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
@@ -26,7 +26,7 @@ const EQUIPMENT_URL = "https://aion2.plaync.com/api/character/equipment";
 // The character pages are slower than the search (one complete run once ended with an error after ~9.6 s at 10 s).
 const TIMEOUT_MS = 15_000;
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
-const MAX_SEARCH_BYTES = 256 * 1024;
+export const MAX_SEARCH_BYTES = 256 * 1024;
 const MAX_CHARACTER_BYTES = 256 * 1024;
 
 export const HOUR = 3_600_000;
@@ -62,7 +62,7 @@ async function readLimited(res: Response, limit: number): Promise<Buffer> {
 }
 
 /** GET with timeout; redirects are followed by hand and only to NC hosts. */
-async function getNc(fetchFn: FetchFn, start: URL, limit: number): Promise<{ res: Response; body: Buffer }> {
+export async function getNc(fetchFn: FetchFn, start: URL, limit: number): Promise<{ res: Response; body: Buffer }> {
   let url = start;
   for (let hop = 0; hop < 4; hop++) {
     if (!hostAllowed(url)) {
@@ -324,7 +324,8 @@ export class PortraitQueue {
   }
 }
 
-const ncFetch = pacedFetch(fetch, 2000);
+/** The one rate limit towards NC, shared by everything that asks it (portraits, character data, the player match). */
+export const ncFetch = pacedFetch(fetch, 2000);
 
 /**
  * Does what is due for a player (portrait and/or character data), writes the file and records both statuses.

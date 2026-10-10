@@ -135,6 +135,9 @@ export function privateStats() {
   const activeUploaders = (days: number) => num(one("select count(distinct ip_hash) n from uploads where received_at >= datetime('now', ?)", `-${days} days`).n);
   const { versions, total: versionTotals } = versionUsage();
   const status = Object.fromEntries(all("select status s, count(*) n from uploads group by status").map((r) => [String(r.s), num(r.n)]));
+  // How far the automatic check of the players against NC's character search is (see ncMatch.ts); "unchecked" players have no result yet.
+  const ncMatch: Record<string, number> = Object.fromEntries(all("select status s, count(*) n from player_nc_match group by status").map((r) => [String(r.s), num(r.n)]));
+  ncMatch.unchecked = Math.max(0, num(one("select count(*) n from players").n) - Object.values(ncMatch).reduce((x, y) => x + y, 0));
   const newPlayersPerWeek = all(
     "select strftime('%Y-W%W', first_seen_at) week, count(*) n from players group by week order by week desc limit 8",
   ).map((r) => ({ week: String(r.week), count: num(r.n) }));
@@ -174,6 +177,7 @@ export function privateStats() {
     versions,
     versionTotals,
     uploadStatus: status,
+    ncMatch,
     newPlayersPerWeek,
     downloadsPerDay,
     downloadsByTag,

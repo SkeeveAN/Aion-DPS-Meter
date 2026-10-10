@@ -21,6 +21,7 @@ import { upsertProfile } from "../profile.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
 import { rehomeKnownPlayers } from "./rehome.js";
 import { linkPlayerGuild } from "../guilds.js";
+import { checkPlayers, noteClientServer } from "../ncMatch.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -180,6 +181,34 @@ function serverOfParticipant(participant: { serverId?: number }, uploaderServerI
     return uploaderServerId;
   }
   return upsertServer(`aion2:aion-2-server-${participant.serverId}`, undefined);
+}
+
+/**
+ * After an upload: a player whose own client named his server is verified by that; every other player of the upload is checked against
+ * NC's character search in the background (see ncMatch.ts). Never blocks the upload.
+ */
+function checkUploadedPlayers(participants: { name: string; serverId?: number }[], uploaderServerId: number) {
+  try {
+    const ids: number[] = [];
+    for (const p of participants) {
+      const row = db
+        .select({ id: players.id })
+        .from(players)
+        .where(and(eq(players.serverId, serverOfParticipant(p, uploaderServerId)), eq(players.nameNormalized, normalizeName(p.name))))
+        .get();
+      if (!row) {
+        continue;
+      }
+      if (p.serverId !== undefined && nameOf(p.serverId) !== null) {
+        noteClientServer(row.id, p.serverId);
+      } else {
+        ids.push(row.id);
+      }
+    }
+    checkPlayers(ids);
+  } catch {
+    // the check is an extra; the upload is already stored
+  }
 }
 
 /** Players an old client filed under the uploader's server that this upload now names with their own: see rehome.ts. */
@@ -686,10 +715,12 @@ export function processUpload(payload: UploadPayload): ProcessResult {
 
   if (candidateEncounterId) {
     mergeIntoEncounter(candidateEncounterId, serverId, payload);
+    checkUploadedPlayers(payload.participants, serverId);
     return { status: "merged", encounterId: candidateEncounterId, serverId };
   }
 
   const encounterId = createEncounter(bossId, serverId, payload);
+  checkUploadedPlayers(payload.participants, serverId);
   return { status: "created", encounterId, serverId };
 }
 
@@ -705,5 +736,6 @@ export function processProfilesUpload(payload: ProfilesUploadPayload): { serverI
     const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant));
     upsertProfile(playerId, participant.profile);
   }
+  checkUploadedPlayers(payload.participants, serverId);
   return { serverId, players: payload.participants.length };
 }

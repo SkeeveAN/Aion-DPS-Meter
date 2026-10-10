@@ -316,6 +316,13 @@
       "when": 1791670000000,
       "tag": "0044_add_guilds",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "6",
+      "when": 1791680000000,
+      "tag": "0045_add_player_nc_match",
+      "breakpoints": true
     }
   ]
 }

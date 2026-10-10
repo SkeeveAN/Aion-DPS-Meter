@@ -994,6 +994,7 @@ async function renderStats(secret) {
       bars(d.gameServers, (r) => `${r.address} · ${r.servers || "?"}`, (r) => r.uploads, "Game servers the clients captured from (uploads)"),
       bars(d.newPlayersPerWeek, (r) => r.week, (r) => r.count, "New players per week"),
       bars(Object.entries(d.uploadStatus), (r) => r[0], (r) => r[1], "Uploads by status"),
+      bars(Object.entries(d.ncMatch ?? {}), (r) => r[0], (r) => r[1], "Players checked against NC's character search"),
       bars(
         [["gear", d.ownProfileCompleteness.gear], ["skills", d.ownProfileCompleteness.skills], ["daevanion", d.ownProfileCompleteness.daevanion]],
         (r) => `${r[0]} (of ${d.ownProfileCompleteness.total} own profiles)`, (r) => r[1], "How complete the own profiles are",

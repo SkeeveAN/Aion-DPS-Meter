@@ -582,3 +582,20 @@ export const playerNcCharacter = sqliteTable("player_nc_character", {
   fetchedAt: integer("fetched_at").notNull(),
   nextTryAt: integer("next_try_at").notNull(),
 });
+
+// The result of checking a player against NC's public character search (see ncMatch.ts): 'verified' one character matched (its server and
+// race are applied to the player), 'client' the player's own client named his server, 'ambiguous' several characters fit, 'none' nothing fits,
+// 'conflict' the match contradicts what is stored, 'error' network or answer problem.
+export const playerNcMatch = sqliteTable("player_nc_match", {
+  playerId: integer("player_id")
+    .primaryKey()
+    .references(() => players.id, { onDelete: "cascade" }),
+  status: text("status").notNull(),
+  ncServerId: integer("nc_server_id"),
+  ncRace: integer("nc_race"),
+  // What settled an ambiguous name: 'name' (nothing else needed) or 'legion' (the verified members of his legion).
+  via: text("via"),
+  candidates: integer("candidates").notNull().default(0),
+  checkedAt: integer("checked_at").notNull(),
+  nextTryAt: integer("next_try_at").notNull(),
+});
