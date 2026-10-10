@@ -2016,7 +2016,7 @@ public partial class MainWindow : Window
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
                 totalDamage, idps, idps, totalHealing, hps, skills, healSkills, damageTaken, buffs,
-                shareOthers || isSelf ? aion2Directory?.GuildOf(ProfileIdOf(row)) : null,
+                shareOthers || isSelf ? aion2Directory?.GuildOf(ProfileIdOf(row), row.Name) : null,
                 shareOthers || isSelf ? BuildProfileUpload(ProfileIdOf(row)) : null,
                 ServerId: aion2Directory?.ServerIdOf(ProfileIdOf(row))));
         }
@@ -2627,7 +2627,7 @@ public partial class MainWindow : Window
         {
             if (BuildProfileUpload(id) is { } profile)
             {
-                participants.Add(new ProfileParticipantUpload(name, className, directory.FactionOf(id) ?? "", isSelf, directory.GuildOf(id), profile, directory.ServerIdOf(id)));
+                participants.Add(new ProfileParticipantUpload(name, className, directory.FactionOf(id) ?? "", isSelf, directory.GuildOf(id, name), profile, directory.ServerIdOf(id)));
             }
         }
 

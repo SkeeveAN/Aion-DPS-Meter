@@ -1248,7 +1248,11 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
             foreach ((int id, string guild) in snapshot.Guilds)
             {
-                _guilds.TryAdd(id, guild);
+                // Only for the player the snapshot knew under that id; an id reused since belongs to somebody else.
+                if (snapshot.Names.TryGetValue(id, out string? savedName) && _names.GetValueOrDefault(id) == savedName)
+                {
+                    _guilds.TryAdd(id, guild);
+                }
             }
 
             foreach ((int entityId, int npcId) in snapshot.BossNpcs)
@@ -1285,6 +1289,15 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _guilds[id] = guild;
+        }
+    }
+
+    /// <summary>The legion of a named player: only when the id is known under that very name, so a legion left over from another player of the same id is never reported.</summary>
+    public string? GuildOf(int id, string name)
+    {
+        lock (_gate)
+        {
+            return _names.GetValueOrDefault(id) == name ? _guilds.GetValueOrDefault(id) : null;
         }
     }
 
@@ -1663,6 +1676,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
+            // An id that now belongs to another player must not keep the legion of the one before (ids are handed out again).
+            if (_names.TryGetValue(id, out string? before) && before != name)
+            {
+                _guilds.Remove(id);
+            }
+
             _names[id] = name;
             _ids[name] = id;
         }
