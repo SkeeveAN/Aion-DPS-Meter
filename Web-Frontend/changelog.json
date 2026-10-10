@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.28.0",
   "date": "2026-10-10",
   "items": [
    {
@@ -262,6 +262,13 @@
      "Website",
      "Backend",
      "Database"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "The pet settings get a Region tab next to Type: Verteron, Altgard and the Abyss with their named regions (Tolbas Forest, Ellun River Meadow, ...) and the pets that live in each, with your own pet level and how far it is, a count of pets and of those at the top level, and a list width you can drag",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-10"
    }
