@@ -7,7 +7,10 @@ import { bosses, encounterParticipants, encounters, instances, players, servers 
 import { normalizeName } from "../matching/roster.js";
 import { gameFromQuery } from "./instances.js";
 import type { Game } from "../constants.js";
-import { buildProfileView } from "../profile.js";
+import { buildProfileView, factionFromFights } from "../profile.js";
+import { europeServerOf } from "../content/aion2Servers.js";
+import { portraitFile, portraitUrlFor } from "../portraitService.js";
+import { readFile } from "node:fs/promises";
 import { parseIdOrSlug } from "../seo/slug.js";
 
 /**
@@ -177,10 +180,31 @@ export async function playerRoutes(app: FastifyInstance) {
       : null;
     // The faction the client sent wins; the server (the uploader's, matched worlds mix factions) is only the fallback.
     const profile = buildProfileView(playerId);
+    const faction = (profile?.faction || factionFromFights(playerId) || factionOfServerName(player.serverName) || null) as "Elyos" | "Asmodian" | null;
+    // Official portrait (all players on European servers; fetched in the background, null until it is there). The stored server is
+    // the uploader's, so it only stands for the player's own server when it has his faction.
+    const home = europeServerOf(player.serverName);
+    const portraitUrl = home
+      ? portraitUrlFor({ playerId, name: player.name, faction: faction ?? home.faction, ownServerId: !faction || faction === home.faction ? home.id : null })
+      : null;
     return reply.send({
-      player: { ...player, guildSlug },
+      player: { ...player, guildSlug, portraitUrl },
       history,
-      profile: profile ? { ...profile, faction: (profile.faction || factionOfServerName(player.serverName)) as typeof profile.faction } : profile,
+      profile: profile ? { ...profile, faction: (profile.faction || factionOfServerName(player.serverName)) as typeof profile.faction, portraitUrl } : profile,
     });
+  });
+
+  // The cut-out portrait file; 404 while there is none. The page asks with ?v=<fetched_at>, so a day of caching is safe.
+  app.get<{ Params: { id: string } }>("/api/players/:id/portrait", async (request, reply) => {
+    const id = Number(request.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return reply.status(404).send({ error: "no_portrait" });
+    }
+    try {
+      const png = await readFile(portraitFile(id));
+      return reply.type("image/png").header("Cache-Control", "public, max-age=86400").send(png);
+    } catch {
+      return reply.status(404).send({ error: "no_portrait" });
+    }
   });
 }

@@ -288,6 +288,13 @@
       "when": 1791641000000,
       "tag": "0040_add_profile_character",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "6",
+      "when": 1791642000000,
+      "tag": "0041_add_player_portraits",
+      "breakpoints": true
     }
   ]
 }

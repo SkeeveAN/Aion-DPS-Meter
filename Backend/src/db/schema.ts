@@ -522,3 +522,18 @@ export const downloads = sqliteTable(
     downloadedAtIdx: index("downloads_downloaded_at_idx").on(table.downloadedAt),
   }),
 );
+
+// Cut-out character portrait from NC's public profile image (see portraitService.ts): the status of the last
+// attempt per player; the picture itself is the file data/portraits/<player_id>.png. A player without a row has not been tried yet.
+export const playerPortraits = sqliteTable("player_portraits", {
+  playerId: integer("player_id")
+    .primaryKey()
+    .references(() => players.id, { onDelete: "cascade" }),
+  // NC's own ids of the character found (null while status is not 'ok').
+  charKey: text("char_key"),
+  ncServerId: integer("nc_server_id"),
+  // 'ok' picture exists, 'none' no unambiguous character found at NC, 'error' network or image problem.
+  status: text("status").notNull(),
+  fetchedAt: integer("fetched_at").notNull(),
+  nextTryAt: integer("next_try_at").notNull(),
+});

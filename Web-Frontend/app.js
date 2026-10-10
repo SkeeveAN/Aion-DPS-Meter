@@ -2723,7 +2723,7 @@ function renderCharacterTab(profile) {
   const only = () => el("span", { className: "pf-only", textContent: t("profile.attrOwnOnly") });
 
   const bars = el("div", { className: "pf-card pf-char-main" }, [
-    profile.portraitUrl ? el("div", { className: "pf-portrait" }, [el("img", { src: profile.portraitUrl, alt: "" })]) : null,
+    profile.portraitUrl ? el("div", { className: "pf-portrait" }, [portraitImg(profile.portraitUrl)]) : null,
     el("h4", {}, [el("span", { textContent: t("profile.attrMain") }), only()]),
     ...main.map((a) =>
       el("div", { className: `pf-stat${a.value === 0 ? " zero" : ""}` }, [
@@ -2895,6 +2895,30 @@ function renderRunsTab(history) {
   ]);
 }
 
+// Official character portrait (cut out on the server, any player on a European server once it has been fetched); hides itself
+// when the picture does not load, so a missing file never leaves a broken image.
+function portraitImg(url) {
+  const img = el("img", { src: url, alt: "", loading: "lazy", decoding: "async" });
+  img.addEventListener("error", () => {
+    const holder = img.closest(".pf-avatar, .pf-portrait");
+    holder?.closest(".pf-char-main")?.classList.remove("has-portrait");
+    holder?.classList.add("failed");
+    img.remove();
+  });
+  return img;
+}
+
+// Left end of the player strip: the round portrait with the class symbol as a small badge on its corner; without a portrait
+// (not fetched yet, nothing found, no European server) the class symbol alone as before.
+function stripEmblem(profile, player) {
+  const badge = profile?.className ? el("div", { className: "pf-badge" }, [classIcon(profile.className)]) : null;
+  if (!player.portraitUrl) {
+    return badge;
+  }
+  const avatar = el("div", { className: "pf-avatar" }, [el("div", { className: "pf-avatar-pic" }, [portraitImg(player.portraitUrl)]), badge]);
+  return avatar;
+}
+
 // The player strip: shown above every tab.
 function renderPlayerStrip(profile, player) {
   const sub = [];
@@ -2912,7 +2936,7 @@ function renderPlayerStrip(profile, player) {
       ].filter((x) => x != null)
     : [];
   return el("div", { className: "pf-strip" }, [
-    profile?.className ? el("div", { className: "pf-badge" }, [classIcon(profile.className)]) : null,
+    stripEmblem(profile, player),
     el("div", {}, [el("div", { className: "pf-name", textContent: player.name }), el("div", { className: "pf-sub", textContent: sub.join(" · ") })]),
     el("div", { className: "pf-meta" }, [
       profile?.faction ? iconLabel(factionIcon(profile.faction), profile.faction) : null,

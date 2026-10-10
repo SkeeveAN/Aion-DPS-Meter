@@ -12,7 +12,7 @@
     "db:seed": "tsx src/db/seed.ts",
     "content:derive": "tsx scripts/derive-aion2-content.ts",
     "content:sync": "tsx src/content/syncAion2.ts",
-    "test": "node --import tsx --test src/matching/merge.test.ts src/seo/slug.test.ts src/profile.test.ts src/factions.test.ts"
+    "test": "node --import tsx --test src/matching/merge.test.ts src/seo/slug.test.ts src/profile.test.ts src/factions.test.ts src/portrait.test.ts src/portraitService.test.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.0",
@@ -23,6 +23,7 @@
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.4",
     "fastify": "^5.1.0",
+    "jpeg-js": "0.4.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {

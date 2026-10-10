@@ -29,3 +29,6 @@ Backend/data/backups/
 Backend/data/pull-db.log
 Backend/data/grafana-*.json
 Backend/data/ncsoft-official/
+
+# Cut-out character portraits fetched from NC (regenerable cache)
+Backend/data/portraits/

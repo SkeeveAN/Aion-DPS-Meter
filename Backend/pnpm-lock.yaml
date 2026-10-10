@@ -32,6 +32,9 @@ importers:
       fastify:
         specifier: ^5.1.0
         version: 5.12.3
+      jpeg-js:
+        specifier: 0.4.4
+        version: 0.4.4
       zod:
         specifier: ^3.23.8
         version: 3.25.76
@@ -876,6 +879,9 @@ packages:
     resolution: {integrity: sha512-ykkVRwrYvFm1nb2AJfKKYPr0emF6IiXDYUaFx4Zn9ZuIH7MrzEZ3sD5RlqGXNRpHtvUHJyOnCEFxOlNDtGo7wg==}
     engines: {node: 20 || >=22}
 
+  jpeg-js@0.4.4:
+    resolution: {integrity: sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==}
+
   json-schema-ref-resolver@3.0.0:
     resolution: {integrity: sha512-hOrZIVL5jyYFjzk7+y7n5JDzGlU8rfWDuYyHwGa2WA8/pcmMHezp2xsVwxrebD/Q9t8Nc5DboieySDpCp4WG4A==}
 
@@ -1653,6 +1659,8 @@ snapshots:
   jackspeak@4.2.3:
     dependencies:
       '@isaacs/cliui': 9.0.0
+
+  jpeg-js@0.4.4: {}
 
   json-schema-ref-resolver@3.0.0:
     dependencies:

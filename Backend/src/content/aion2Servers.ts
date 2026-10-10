@@ -47,3 +47,20 @@ export function canonicalServer(fingerprint: string, displayName: string | undef
   }
   return { fingerprint: `aion2:${slug(label)}`, displayName: label };
 }
+
+/**
+ * NC's id of a European server by its display name ("Europe - Kaisinel" -> 1304, "Europe - Lumiel" -> 2304) and the faction
+ * of that server; null for other regions or unknown names.
+ */
+export function europeServerOf(displayName: string | null | undefined): { id: number; faction: "Elyos" | "Asmodian" } | null {
+  const name = /^Europe - (.+)$/.exec((displayName ?? "").trim())?.[1];
+  if (!name) {
+    return null;
+  }
+  const elyos = ELYOS_13.indexOf(name);
+  if (elyos >= 0 && elyos < REGIONS[3].perFaction) {
+    return { id: 1301 + elyos, faction: "Elyos" };
+  }
+  const asmo = ASMO_23.indexOf(name);
+  return asmo >= 0 && asmo < REGIONS[3].perFaction ? { id: 2301 + asmo, faction: "Asmodian" } : null;
+}

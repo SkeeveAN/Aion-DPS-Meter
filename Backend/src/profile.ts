@@ -305,7 +305,7 @@ export type SpeciesView = {
   effects: { page: number; slot: number; stat: number; name: string; names?: Record<string, string>; value: number; percent: boolean; kind: number }[];
 };
 
-function factionFromFights(playerId: number): "Elyos" | "Asmodian" | null {
+export function factionFromFights(playerId: number): "Elyos" | "Asmodian" | null {
   const row = db
     .select({ faction: encounterParticipants.faction })
     .from(encounterParticipants)
@@ -382,7 +382,7 @@ export type ProfileView = {
   wingSkin: { id: number; name: string; names: Record<string, string>; icon: string | null } | null;
   /** Active pet by species id; `icon` is a file name under images/aion2/icons/pet (may not exist for every pet). */
   activePet: { id: number; name: string; names: Record<string, string>; icon: string | null; level: number | null } | null;
-  /** Reserved for a later cut-out character portrait; always null for now. */
+  /** Cut-out official portrait (set by the player route, not by buildProfileView; null while there is none). */
   portraitUrl: string | null;
 };
 
