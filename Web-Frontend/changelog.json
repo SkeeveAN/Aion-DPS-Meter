@@ -162,6 +162,13 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Players per server: a player's faction also comes from his profile, so most players seen in groups are no longer counted as Elyos of their server",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
