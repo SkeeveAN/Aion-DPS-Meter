@@ -545,5 +545,6 @@
   "Players per server: a player's faction also comes from his profile, so most players seen in groups are no longer counted as Elyos of their server": "Spieler pro Server: Die Fraktion eines Spielers stammt auch aus seinem Profil, sodass die meisten in Gruppen gesehenen Spieler nicht mehr als Elyos ihres Servers gezählt werden",
   "Players per server lists every server, not only the twelve biggest": "Spieler pro Server listet jeden Server auf, nicht nur die zwölf größten",
   "Players per server has no cap: every server is listed": "Spieler pro Server hat keine Obergrenze mehr: jeder Server wird aufgeführt",
-  "Players per server moves to the bottom of the statistics page": "Spieler pro Server steht jetzt ganz unten auf der Statistik-Seite"
+  "Players per server moves to the bottom of the statistics page": "Spieler pro Server steht jetzt ganz unten auf der Statistik-Seite",
+  "Players per server sits at the end of the statistics overview": "Spieler pro Server steht am Ende der Statistik-Übersicht"
 }
