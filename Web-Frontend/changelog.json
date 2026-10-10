@@ -26,6 +26,14 @@
      "Database"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Daevanion boards count points instead of nodes: a node is worth its colour (white 1, green 2, blue 3, gold 4), so the numbers per board show the points spent against all points the board offers",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
