@@ -561,5 +561,6 @@
   "Pet regions list only the pets that live on the map itself, not the ones of its event and quest phases, so a region such as Kraka Footpath no longer lists pets that are only there during an event": "Pet-Regionen führen nur noch die Pets auf, die auf der Karte selbst leben, nicht die ihrer Event- und Quest-Phasen; eine Region wie der Kraka-Fußweg listet so keine Pets mehr, die nur während eines Events dort sind",
   "The Character tab comes first on a profile and is the one shown when the page opens": "Der Tab „Charakter“ steht im Profil ganz vorn und ist der, der beim Öffnen der Seite erscheint",
   "A profile whose portrait and character data are still being fetched looks again by itself a few times instead of needing a reload": "Ein Profil, dessen Portrait und Charakterdaten noch geholt werden, schaut von selbst ein paar Mal nach, statt neu geladen werden zu müssen",
-  "Titles, wings and pet in the profile header have the same height": "Titel, Flügel und Pet im Profilkopf sind gleich hoch"
+  "Titles, wings and pet in the profile header have the same height": "Titel, Flügel und Pet im Profilkopf sind gleich hoch",
+  "Pet regions: pets that only appear in the event and quest phases of Verteron and Altgard are listed under their own region, Events, at the end of each list": "Pet-Regionen: Pets, die nur in den Event- und Quest-Phasen von Verteron und Altgard vorkommen, stehen unter einer eigenen Region Events am Ende jeder Liste"
 }

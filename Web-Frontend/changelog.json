@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.28.3",
   "date": "2026-10-10",
   "items": [
    {
@@ -21,6 +21,13 @@
     "text": "Titles, wings and pet in the profile header have the same height",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "Pet regions: pets that only appear in the event and quest phases of Verteron and Altgard are listed under their own region, Events, at the end of each list",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-10"
    }
