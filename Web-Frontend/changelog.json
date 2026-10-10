@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.28.1",
   "date": "2026-10-10",
   "items": [
    {
@@ -9,6 +9,13 @@
      "Website",
      "Backend",
      "Database"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "Pet regions: Verteron's and Altgard's whole-map catch-all areas (Destroyed Abyss Gate, Amunta's Hideout) no longer swallow the pets of the open fields; they now sit in the smaller regions they really spawn in",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-10"
    }
