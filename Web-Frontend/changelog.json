@@ -9,6 +9,13 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Portraits: background limit 5 instead of 10, so black coats and dark hair stay too",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
