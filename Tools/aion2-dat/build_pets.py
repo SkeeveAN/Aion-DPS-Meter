@@ -14,7 +14,7 @@ import struct
 import sys
 
 KEY = bytes([0x25, 0, 0xA8, 0, 0x7E, 0, 0x91, 0])
-LANGS = {"en": "en-US", "de": "de-DE", "fr": "fr-FR", "es": "es-ES", "ru": "ru-RU"}
+LANGS = {"en": "en-US", "de": "de-DE", "fr": "fr-FR", "es": "es-ES", "ru": "ru-RU", "pt": "pt-BR", "ja": "ja-JP", "ko": "ko-KR"}
 
 
 def strings(b):

@@ -28,7 +28,7 @@ PERCENT = {47, 158, 282, 445}
 # What a mana stone adds, by stat id and tier (1 white, 2 green, 3 blue): only combinations seen in an in-game tooltip, nothing
 # extrapolated (Block+7 / MP+15 white shoulders, Block+10 / MP+30 green earring and bracelet, LP+30 white greatsword).
 STONE_VALUES = {255: {1: 7, 2: 10}, 199: {1: 15, 2: 30}, 193: {1: 30}}
-LOCALES = {"de": "de-DE", "en": "en-US", "es": "es-ES", "fr": "fr-FR", "ru": "ru-RU"}
+LOCALES = {"de": "de-DE", "en": "en-US", "es": "es-ES", "fr": "fr-FR", "ru": "ru-RU", "pt": "pt-BR", "ja": "ja-JP", "ko": "ko-KR"}
 
 src, out = sys.argv[1], sys.argv[2]
 tables = {code: json.load(open(os.path.join(src, f"l10n_{loc}.json"), encoding="utf-8")) for code, loc in LOCALES.items()}

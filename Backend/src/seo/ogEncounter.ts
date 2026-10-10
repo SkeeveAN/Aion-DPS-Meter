@@ -28,7 +28,7 @@ const FRONTEND_ROOT = path.join(here, "..", "..", "..", "Web-Frontend");
 const FONT_FILES = ["DejaVuSans.ttf", "DejaVuSans-Bold.ttf"].map((f) => path.join(here, "..", "..", "assets", "fonts", f));
 
 /** Number formats per site language (same tags as Web-Frontend/i18n.js). */
-const LOCALE_TAGS: Record<string, string> = { de: "de-DE", en: "en-US", fr: "fr-FR", es: "es-ES", ru: "ru-RU", pl: "pl-PL", tr: "tr-TR", zh: "zh-CN" };
+const LOCALE_TAGS: Record<string, string> = { de: "de-DE", en: "en-US", fr: "fr-FR", es: "es-ES", ru: "ru-RU", pl: "pl-PL", tr: "tr-TR", zh: "zh-CN", "zh-TW": "zh-TW", pt: "pt-BR", ja: "ja-JP", ko: "ko-KR" };
 
 export function ogLang(value: unknown): string {
   return typeof value === "string" && value in LOCALE_TAGS ? value : "en";

@@ -107,7 +107,7 @@ export function websiteJsonLd(): object {
     "@type": "WebSite",
     name: SITE_NAME,
     url: env.BASE_URL + "/",
-    inLanguage: ["en", "de", "fr", "es", "ru", "pl", "tr", "zh"],
+    inLanguage: ["en", "de", "fr", "es", "ru", "pl", "tr", "zh", "zh-TW", "pt", "ja", "ko"],
     potentialAction: { "@type": "SearchAction", target: env.BASE_URL + "/search?q={search_term_string}", "query-input": "required name=search_term_string" },
   };
 }

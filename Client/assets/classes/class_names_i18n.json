@@ -7,7 +7,11 @@
     "ru": "Убийца",
     "pl": "Assasyn",
     "tr": "Suikastçı",
-    "zh": "刺客"
+    "zh": "刺客",
+    "zh-TW": "殺星",
+    "pt": "Assassino",
+    "ja": "アサシン",
+    "ko": "살성"
   },
   "Brawler": {
     "en": "Brawler",
@@ -17,7 +21,11 @@
     "ru": "Боец",
     "pl": "Awanturnik",
     "tr": "Kavgacı",
-    "zh": "格斗家"
+    "zh": "格斗家",
+    "zh-TW": "格鬥家",
+    "pt": "Lutador",
+    "ja": "ファイター",
+    "ko": "권성"
   },
   "Chanter": {
     "en": "Chanter",
@@ -27,7 +35,11 @@
     "ru": "Заклинатель",
     "pl": "Kantor",
     "tr": "Duacı",
-    "zh": "圣咏者"
+    "zh": "圣咏者",
+    "zh-TW": "護法星",
+    "pt": "Encantador",
+    "ja": "チャンター",
+    "ko": "호법성"
   },
   "Cleric": {
     "en": "Cleric",
@@ -37,7 +49,11 @@
     "ru": "Целитель",
     "pl": "Kleryk",
     "tr": "Rahip",
-    "zh": "牧师"
+    "zh": "牧师",
+    "zh-TW": "治癒星",
+    "pt": "Clérigo",
+    "ja": "クレリック",
+    "ko": "치유성"
   },
   "Gladiator": {
     "en": "Gladiator",
@@ -47,7 +63,11 @@
     "ru": "Гладиатор",
     "pl": "Gladiator",
     "tr": "Gladyatör",
-    "zh": "角斗士"
+    "zh": "角斗士",
+    "zh-TW": "劍星",
+    "pt": "Gladiador",
+    "ja": "グラディエーター",
+    "ko": "검성"
   },
   "Ranger": {
     "en": "Ranger",
@@ -57,7 +77,11 @@
     "ru": "Стрелок",
     "pl": "Łowca",
     "tr": "Okçu",
-    "zh": "弓箭手"
+    "zh": "弓箭手",
+    "zh-TW": "弓星",
+    "pt": "Arqueiro",
+    "ja": "レンジャー",
+    "ko": "궁성"
   },
   "Sorcerer": {
     "en": "Sorcerer",
@@ -67,7 +91,11 @@
     "ru": "Чародей",
     "pl": "Czarodziej",
     "tr": "Büyücü",
-    "zh": "魔法师"
+    "zh": "魔法师",
+    "zh-TW": "魔道星",
+    "pt": "Mago",
+    "ja": "ソーサラー",
+    "ko": "마도성"
   },
   "Spiritmaster": {
     "en": "Spiritmaster",
@@ -77,7 +105,11 @@
     "ru": "Spiritmaster",
     "pl": "Spiritmaster",
     "tr": "Spiritmaster",
-    "zh": "Spiritmaster"
+    "zh": "Spiritmaster",
+    "zh-TW": "精靈星",
+    "pt": "Espiritualista",
+    "ja": "スピリットマスター",
+    "ko": "정령성"
   },
   "Templar": {
     "en": "Templar",
@@ -87,6 +119,10 @@
     "ru": "Страж",
     "pl": "Templariusz",
     "tr": "Tapınak Şövalyesi",
-    "zh": "圣骑士"
+    "zh": "圣骑士",
+    "zh-TW": "守護星",
+    "pt": "Templário",
+    "ja": "テンプラー",
+    "ko": "수호성"
   }
 }

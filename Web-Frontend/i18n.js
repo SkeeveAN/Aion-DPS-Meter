@@ -10,6 +10,10 @@ export const LOCALES = [
   { code: "pl", flag: "🇵🇱", label: "Polski", intl: "pl-PL" },
   { code: "tr", flag: "🇹🇷", label: "Türkçe", intl: "tr-TR" },
   { code: "zh", flag: "🇨🇳", label: "中文", intl: "zh-CN" },
+  { code: "zh-TW", flag: "🇹🇼", label: "繁體中文", intl: "zh-TW" },
+  { code: "pt", flag: "🇧🇷", label: "Português (Brasil)", intl: "pt-BR" },
+  { code: "ja", flag: "🇯🇵", label: "日本語", intl: "ja-JP" },
+  { code: "ko", flag: "🇰🇷", label: "한국어", intl: "ko-KR" },
 ];
 
 const SUPPORTED_CODES = LOCALES.map((l) => l.code);
@@ -36,7 +40,11 @@ function detectLocale() {
   }
   const preferred = navigator.languages?.length ? navigator.languages : [navigator.language];
   for (const tag of preferred) {
-    const base = String(tag || "").toLowerCase().split("-")[0];
+    const lower = String(tag || "").toLowerCase();
+    if (lower === "zh-tw" || lower === "zh-hk" || lower === "zh-mo" || lower.startsWith("zh-hant")) {
+      return "zh-TW";
+    }
+    const base = lower.split("-")[0];
     if (SUPPORTED_CODES.includes(base)) {
       return base;
     }

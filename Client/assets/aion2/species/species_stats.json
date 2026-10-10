@@ -7,7 +7,10 @@
     "en": "Cogni",
     "es": "Cognis",
     "fr": "Intellia",
-    "ru": "Разумный"
+    "ru": "Разумный",
+    "pt": "Intelectual",
+    "ja": "知性",
+    "ko": "지성"
    }
   },
   "3": {
@@ -17,7 +20,10 @@
     "en": "Fera",
     "es": "Feras",
     "fr": "Bestia",
-    "ru": "Дикие"
+    "ru": "Дикие",
+    "pt": "Feral",
+    "ja": "野性",
+    "ko": "야성"
    }
   },
   "4": {
@@ -27,7 +33,10 @@
     "en": "Natura",
     "es": "Naturas",
     "fr": "Natura",
-    "ru": "Природные"
+    "ru": "Природные",
+    "pt": "Natural",
+    "ja": "自然",
+    "ko": "자연"
    }
   },
   "5": {
@@ -37,7 +46,10 @@
     "en": "Varian",
     "es": "Varians",
     "fr": "Varius",
-    "ru": "Мутанты"
+    "ru": "Мутанты",
+    "pt": "Variante",
+    "ja": "変形",
+    "ko": "변형"
    }
   },
   "6": {
@@ -47,7 +59,10 @@
     "en": "Special",
     "es": "Especiales",
     "fr": "Spéciaux",
-    "ru": "Специальное"
+    "ru": "Специальное",
+    "pt": "Especial",
+    "ja": "特殊",
+    "ko": "특수"
    }
   }
  },
@@ -58,7 +73,10 @@
     "en": "Max Attack",
     "es": "Ataque Máximo",
     "fr": "ATQ max",
-    "ru": "Макс. АТК"
+    "ru": "Макс. АТК",
+    "pt": "Ataque Máx.",
+    "ja": "最大攻撃力",
+    "ko": "최대 공격력"
    }
   },
   "51": {
@@ -67,7 +85,10 @@
     "en": "Boss Defense",
     "es": "Defensa de Jefe",
     "fr": "DÉF contre les boss",
-    "ru": "ЗЩТ от босса"
+    "ru": "ЗЩТ от босса",
+    "pt": "Defesa contra Chefe",
+    "ja": "ボス防御力",
+    "ko": "보스 방어력"
    }
   },
   "56": {
@@ -76,7 +97,10 @@
     "en": "PvE Attack",
     "es": "Ataque JcE",
     "fr": "ATQ JcE",
-    "ru": "АТК в PvE"
+    "ru": "АТК в PvE",
+    "pt": "Ataque em JvA",
+    "ja": "PvE攻撃力",
+    "ko": "PVE 공격력"
    }
   },
   "69": {
@@ -85,7 +109,10 @@
     "en": "Power Shard Damage Bonus",
     "es": "Daño Adicional de Fragmento de Poder",
     "fr": "DGT supplémentaires Éclat de pouvoir",
-    "ru": "Доп. урон от камней силы"
+    "ru": "Доп. урон от камней силы",
+    "pt": "Dano Adicional do Fragmento de Poder",
+    "ja": "封魂石追加ダメージ",
+    "ko": "봉혼석 추가 피해"
    }
   },
   "100": {
@@ -94,7 +121,10 @@
     "en": "Back Attack Critical Hit",
     "es": "Ataque Crítico por la Espalda",
     "fr": "CRIT dans le dos",
-    "ru": "Крит. удар с тыла"
+    "ru": "Крит. удар с тыла",
+    "pt": "Acerto Crítico pela Retaguarda",
+    "ja": "後方クリティカル",
+    "ko": "후방 치명타"
    }
   },
   "116": {
@@ -103,7 +133,10 @@
     "en": "Evasion Bonus",
     "es": "Evasión Adicional",
     "fr": "Esquive supplémentaire",
-    "ru": "Доп. УКЛ"
+    "ru": "Доп. УКЛ",
+    "pt": "Evasão Adicional",
+    "ja": "追加回避",
+    "ko": "추가 회피"
    }
   },
   "122": {
@@ -112,7 +145,10 @@
     "en": "PvE Evasion",
     "es": "Evasión JcE",
     "fr": "Esquive JcE",
-    "ru": "УКЛ в PvE"
+    "ru": "УКЛ в PvE",
+    "pt": "Evasão em JvA",
+    "ja": "PvE回避",
+    "ko": "PVE 회피"
    }
   },
   "158": {
@@ -121,7 +157,10 @@
     "en": "Status Effect Chance",
     "es": "Acierto de Efectos de Estado",
     "fr": "Taux altération état",
-    "ru": "Попадание эффектами"
+    "ru": "Попадание эффектами",
+    "pt": "Acerto de Alteração de Estado",
+    "ja": "状態異常的中",
+    "ko": "상태이상 적중"
    },
    "percent": true
   },
@@ -131,7 +170,10 @@
     "en": "Cogni Defense",
     "es": "Defensa de Cognis",
     "fr": "DÉF Intellia",
-    "ru": "ЗЩТ от разумных"
+    "ru": "ЗЩТ от разумных",
+    "pt": "Defesa contra Intelectuais",
+    "ja": "知性族防御力",
+    "ko": "지성족 방어력"
    }
   },
   "402": {
@@ -140,7 +182,10 @@
     "en": "Fera Defense",
     "es": "Defensa de Feras",
     "fr": "DÉF Bestia",
-    "ru": "ЗЩТ от диких"
+    "ru": "ЗЩТ от диких",
+    "pt": "Defesa contra Ferais",
+    "ja": "野性族防御力",
+    "ko": "야성족 방어력"
    }
   },
   "406": {
@@ -149,7 +194,10 @@
     "en": "Fera Critical Hit Resist",
     "es": "Resistencia Crítica de Feras",
     "fr": "RÉS aux CRIT Bestia",
-    "ru": "Сопротивление крит. удару от диких"
+    "ru": "Сопротивление крит. удару от диких",
+    "pt": "Resistência a Acerto Crítico contra Ferais",
+    "ja": "野性族クリティカル抵抗",
+    "ko": "야성족 치명타 저항"
    }
   },
   "422": {
@@ -158,7 +206,10 @@
     "en": "Varian Critical Hit Resist",
     "es": "Resistencia Crítica de Varians",
     "fr": "RÉS aux CRIT Varius",
-    "ru": "Сопротивление крит. удару от мутантов"
+    "ru": "Сопротивление крит. удару от мутантов",
+    "pt": "Resistência a Acerto Crítico contra Variantes",
+    "ja": "変形族クリティカル抵抗",
+    "ko": "변형족 치명타 저항"
    }
   },
   "19": {
@@ -167,7 +218,10 @@
     "en": "Attack Bonus",
     "es": "Ataque Adicional",
     "fr": "ATQ supplémentaire",
-    "ru": "Доп. АТК"
+    "ru": "Доп. АТК",
+    "pt": "Ataque Adicional",
+    "ja": "追加攻撃力",
+    "ko": "추가 공격력"
    }
   },
   "44": {
@@ -176,7 +230,10 @@
     "en": "Critical Damage Boost",
     "es": "Amplificación de Daño Crítico",
     "fr": "Boost de DGT CRIT",
-    "ru": "Увелич. крит. урона"
+    "ru": "Увелич. крит. урона",
+    "pt": "Amplificação de Dano Crítico",
+    "ja": "クリティカル ダメージ増幅",
+    "ko": "치명타 피해 증폭"
    },
    "percent": true
   },
@@ -186,7 +243,10 @@
     "en": "Boss Attack",
     "es": "Ataque de Jefe",
     "fr": "ATQ contre les boss",
-    "ru": "АТК по боссу"
+    "ru": "АТК по боссу",
+    "pt": "Ataque contra Chefe",
+    "ja": "ボス攻撃力",
+    "ko": "보스 공격력"
    }
   },
   "52": {
@@ -195,7 +255,10 @@
     "en": "Defense Bonus",
     "es": "Defensa Adicional",
     "fr": "DÉF supplémentaire",
-    "ru": "Доп. ЗЩТ"
+    "ru": "Доп. ЗЩТ",
+    "pt": "Defesa Adicional",
+    "ja": "追加防御力",
+    "ko": "추가 방어력"
    }
   },
   "57": {
@@ -204,7 +267,10 @@
     "en": "PvE Defense",
     "es": "Defensa JcE",
     "fr": "DÉF JcE",
-    "ru": "ЗЩТ в PvE"
+    "ru": "ЗЩТ в PvE",
+    "pt": "Defesa em JvA",
+    "ja": "PvE防御力",
+    "ko": "PVE 방어력"
    }
   },
   "98": {
@@ -213,7 +279,10 @@
     "en": "Back Attack",
     "es": "Ataque por la Espalda",
     "fr": "ATQ dans le dos",
-    "ru": "АТК с тыла"
+    "ru": "АТК с тыла",
+    "pt": "Ataque pela Retaguarda",
+    "ja": "後方攻撃力",
+    "ko": "후방 공격력"
    }
   },
   "104": {
@@ -222,7 +291,10 @@
     "en": "Accuracy Bonus",
     "es": "Precisión Adicional",
     "fr": "Précision supplémentaire",
-    "ru": "Доп. меткость"
+    "ru": "Доп. меткость",
+    "pt": "Precisão Adicional",
+    "ja": "追加命中",
+    "ko": "추가 명중"
    }
   },
   "110": {
@@ -231,7 +303,10 @@
     "en": "PvE Accuracy",
     "es": "Precisión JcE",
     "fr": "Précision JcE",
-    "ru": "Меткость в PvE"
+    "ru": "Меткость в PvE",
+    "pt": "Precisão em JvA",
+    "ja": "PvE命中",
+    "ko": "PVE 명중"
    }
   },
   "128": {
@@ -240,7 +315,10 @@
     "en": "Critical Hit",
     "es": "Crítico",
     "fr": "CRIT",
-    "ru": "Крит. удар"
+    "ru": "Крит. удар",
+    "pt": "Acerto Crítico",
+    "ja": "クリティカル",
+    "ko": "치명타"
    }
   },
   "193": {
@@ -249,7 +327,10 @@
     "en": "HP",
     "es": "Puntos de Vida",
     "fr": "PV",
-    "ru": "ОЗ"
+    "ru": "ОЗ",
+    "pt": "PV",
+    "ja": "HP",
+    "ko": "생명력"
    }
   },
   "199": {
@@ -258,7 +339,10 @@
     "en": "MP",
     "es": "Puntos de Maná",
     "fr": "PM",
-    "ru": "ОМ"
+    "ru": "ОМ",
+    "pt": "PM",
+    "ja": "MP",
+    "ko": "정신력"
    }
   },
   "255": {
@@ -267,7 +351,10 @@
     "en": "Block",
     "es": "Bloqueo",
     "fr": "Blocage",
-    "ru": "Блок"
+    "ru": "Блок",
+    "pt": "Bloqueio",
+    "ja": "ガード",
+    "ko": "막기"
    }
   },
   "397": {
@@ -276,7 +363,10 @@
     "en": "Cogni Critical Hit",
     "es": "Crítico de Cognis",
     "fr": "CRIT Intellia",
-    "ru": "Крит. удар по разумным"
+    "ru": "Крит. удар по разумным",
+    "pt": "Acerto Crítico contra Intelectuais",
+    "ja": "知性族クリティカル",
+    "ko": "지성족 치명타"
    }
   },
   "398": {
@@ -285,7 +375,10 @@
     "en": "Cogni Critical Hit Resist",
     "es": "Resistencia Crítica de Cognis",
     "fr": "RÉS aux CRIT Intellia",
-    "ru": "Сопротивление крит. удару от разумных"
+    "ru": "Сопротивление крит. удару от разумных",
+    "pt": "Resistência a Acerto Crítico contra Intelectuais",
+    "ja": "知性族クリティカル抵抗",
+    "ko": "지성족 치명타 저항"
    }
   },
   "401": {
@@ -294,7 +387,10 @@
     "en": "Fera Attack",
     "es": "Ataque de Feras",
     "fr": "ATQ Bestia",
-    "ru": "АТК по диким"
+    "ru": "АТК по диким",
+    "pt": "Ataque contra Ferais",
+    "ja": "野性族攻撃力",
+    "ko": "야성족 공격력"
    }
   },
   "404": {
@@ -303,7 +399,10 @@
     "en": "Fera Evasion",
     "es": "Evasión de Feras",
     "fr": "Esquive Bestia",
-    "ru": "УКЛ от диких"
+    "ru": "УКЛ от диких",
+    "pt": "Evasão contra Ferais",
+    "ja": "野性族回避",
+    "ko": "야성족 회피"
    }
   },
   "410": {
@@ -312,7 +411,10 @@
     "en": "Natura Defense",
     "es": "Defensa de Naturas",
     "fr": "DÉF Natura",
-    "ru": "ЗЩТ от природных монстров"
+    "ru": "ЗЩТ от природных монстров",
+    "pt": "Defesa contra Naturais",
+    "ja": "自然族防御力",
+    "ko": "자연족 방어력"
    }
   },
   "412": {
@@ -321,7 +423,10 @@
     "en": "Natura Evasion",
     "es": "Evasión de Naturas",
     "fr": "Esquive Natura",
-    "ru": "УКЛ от природных монстров"
+    "ru": "УКЛ от природных монстров",
+    "pt": "Evasão contra Naturais",
+    "ja": "自然族回避",
+    "ko": "자연족 회피"
    }
   },
   "414": {
@@ -330,7 +435,10 @@
     "en": "Natura Critical Hit Resist",
     "es": "Resistencia Crítica de Naturas",
     "fr": "RÉS aux CRIT Natura",
-    "ru": "Сопротивление крит. удару от природных монстров"
+    "ru": "Сопротивление крит. удару от природных монстров",
+    "pt": "Resistência a Acerto Crítico contra Naturais",
+    "ja": "自然族クリティカル抵抗",
+    "ko": "자연족 치명타 저항"
    }
   },
   "416": {
@@ -339,7 +447,10 @@
     "en": "Natura Block",
     "es": "Bloqueo de Naturas",
     "fr": "Blocage Natura",
-    "ru": "Блок природных монстров"
+    "ru": "Блок природных монстров",
+    "pt": "Bloqueio contra Naturais",
+    "ja": "自然族ガード",
+    "ko": "자연족 막기"
    }
   },
   "418": {
@@ -348,7 +459,10 @@
     "en": "Varian Defense",
     "es": "Defensa de Varians",
     "fr": "DÉF Varius",
-    "ru": "ЗЩТ от мутантов"
+    "ru": "ЗЩТ от мутантов",
+    "pt": "Defesa contra Variantes",
+    "ja": "変形族防御力",
+    "ko": "변형족 방어력"
    }
   },
   "419": {
@@ -357,7 +471,10 @@
     "en": "Varian Accuracy",
     "es": "Precisión de Varians",
     "fr": "Précision Varius",
-    "ru": "Меткость по мутантам"
+    "ru": "Меткость по мутантам",
+    "pt": "Precisão contra Variantes",
+    "ja": "変形族命中",
+    "ko": "변형족 명중"
    }
   },
   "420": {
@@ -366,7 +483,10 @@
     "en": "Varian Evasion",
     "es": "Evasión de Varians",
     "fr": "Esquive Varius",
-    "ru": "УКЛ от мутанта"
+    "ru": "УКЛ от мутанта",
+    "pt": "Evasão contra Variantes",
+    "ja": "変形族回避",
+    "ko": "변형족 회피"
    }
   },
   "424": {
@@ -375,7 +495,10 @@
     "en": "Varian Block",
     "es": "Bloqueo de Varians",
     "fr": "Blocage Varius",
-    "ru": "Блок мутантов"
+    "ru": "Блок мутантов",
+    "pt": "Bloqueio contra Variantes",
+    "ja": "変形族ガード",
+    "ko": "변형족 막기"
    }
   },
   "445": {
@@ -384,7 +507,10 @@
     "en": "Endurance",
     "es": "Tenacidad",
     "fr": "Blindage",
-    "ru": "Непробиваемость"
+    "ru": "Непробиваемость",
+    "pt": "Solidez",
+    "ja": "鉄壁",
+    "ko": "철벽"
    },
    "percent": true
   },
@@ -394,7 +520,10 @@
     "en": "Back Defense",
     "es": "Defensa por la Espalda",
     "fr": "DÉF dans le dos",
-    "ru": "ЗЩТ с тыла"
+    "ru": "ЗЩТ с тыла",
+    "pt": "Defesa da Retaguarda",
+    "ja": "後方防御力",
+    "ko": "후방 방어력"
    }
   },
   "408": {
@@ -403,7 +532,10 @@
     "en": "Fera Block",
     "es": "Bloqueo de Feras",
     "fr": "Blocage Bestia",
-    "ru": "Блок диких"
+    "ru": "Блок диких",
+    "pt": "Bloqueio contra Ferais",
+    "ja": "野性族ガード",
+    "ko": "야성족 막기"
    }
   },
   "411": {
@@ -412,7 +544,10 @@
     "en": "Natura Accuracy",
     "es": "Precisión de Naturas",
     "fr": "Précision Natura",
-    "ru": "Меткость по природным монстрам"
+    "ru": "Меткость по природным монстрам",
+    "pt": "Precisão contra Naturais",
+    "ja": "自然族命中",
+    "ko": "자연족 명중"
    }
   },
   "413": {
@@ -421,7 +556,10 @@
     "en": "Natura Critical Hit",
     "es": "Crítico de Naturas",
     "fr": "CRIT Natura",
-    "ru": "Крит. удар по природным монстрам"
+    "ru": "Крит. удар по природным монстрам",
+    "pt": "Acerto Crítico contra Naturais",
+    "ja": "自然族クリティカル",
+    "ko": "자연족 치명타"
    }
   },
   "421": {
@@ -430,7 +568,10 @@
     "en": "Varian Critical Hit",
     "es": "Crítico de Varians",
     "fr": "CRIT Varius",
-    "ru": "Крит. удар по мутантам"
+    "ru": "Крит. удар по мутантам",
+    "pt": "Acerto Crítico contra Variantes",
+    "ja": "変形族クリティカル",
+    "ko": "변형족 치명타"
    }
   },
   "403": {
@@ -439,7 +580,10 @@
     "en": "Fera Accuracy",
     "es": "Precisión de Feras",
     "fr": "Précision Bestia",
-    "ru": "Меткость по диким"
+    "ru": "Меткость по диким",
+    "pt": "Precisão contra Ferais",
+    "ja": "野性族命中",
+    "ko": "야성족 명중"
    }
   },
   "405": {
@@ -448,7 +592,10 @@
     "en": "Fera Critical Hit",
     "es": "Crítico de Feras",
     "fr": "CRIT Bestia",
-    "ru": "Крит. удар по диким"
+    "ru": "Крит. удар по диким",
+    "pt": "Acerto Crítico contra Ferais",
+    "ja": "野性族クリティカル",
+    "ko": "야성족 치명타"
    }
   },
   "409": {
@@ -457,7 +604,10 @@
     "en": "Natura Attack",
     "es": "Ataque de Naturas",
     "fr": "ATQ Natura",
-    "ru": "АТК по природных монстрам"
+    "ru": "АТК по природных монстрам",
+    "pt": "Ataque contra Naturais",
+    "ja": "自然族攻撃力",
+    "ko": "자연족 공격력"
    }
   },
   "417": {
@@ -466,7 +616,10 @@
     "en": "Varian Attack",
     "es": "Ataque de Varians",
     "fr": "ATQ Varius",
-    "ru": "АТК по мутантам"
+    "ru": "АТК по мутантам",
+    "pt": "Ataque contra Variantes",
+    "ja": "変形族攻撃力",
+    "ko": "변형족 공격력"
    }
   },
   "393": {
@@ -475,7 +628,10 @@
     "en": "Cogni Attack",
     "es": "Ataque de Cognis",
     "fr": "ATQ Intellia",
-    "ru": "АТК по разумным"
+    "ru": "АТК по разумным",
+    "pt": "Ataque contra Intelectuais",
+    "ja": "知性族攻撃力",
+    "ko": "지성족 공격력"
    }
   },
   "395": {
@@ -484,7 +640,10 @@
     "en": "Cogni Accuracy",
     "es": "Precisión de Cognis",
     "fr": "Précision Intellia",
-    "ru": "Меткость по разумным"
+    "ru": "Меткость по разумным",
+    "pt": "Precisão contra Intelectuais",
+    "ja": "知性族命中",
+    "ko": "지성족 명중"
    }
   },
   "396": {
@@ -493,7 +652,10 @@
     "en": "Cogni Evasion",
     "es": "Evasión de Cognis",
     "fr": "Esquive Intellia",
-    "ru": "УКЛ от разумных"
+    "ru": "УКЛ от разумных",
+    "pt": "Evasão contra Intelectuais",
+    "ja": "知性族回避",
+    "ko": "지성족 회피"
    }
   },
   "400": {
@@ -502,7 +664,10 @@
     "en": "Cogni Block",
     "es": "Bloqueo de Cognis",
     "fr": "Blocage Intellia",
-    "ru": "Блок разумных"
+    "ru": "Блок разумных",
+    "pt": "Bloqueio contra Intelectuais",
+    "ja": "知性族ガード",
+    "ko": "지성족 막기"
    }
   },
   "588": {
@@ -511,7 +676,10 @@
     "en": "Front Defense",
     "es": "Defensa Frontal",
     "fr": "DÉF frontale",
-    "ru": "ЗЩТ спереди"
+    "ru": "ЗЩТ спереди",
+    "pt": "Defesa Frontal",
+    "ja": "前方防御力",
+    "ko": "전방 방어력"
    }
   },
   "443": {
@@ -520,7 +688,10 @@
     "en": "Double Chance",
     "es": "Golpe",
     "fr": "Coup puissant",
-    "ru": "Мощный удар"
+    "ru": "Мощный удар",
+    "pt": "Golpe Potente",
+    "ja": "強打",
+    "ko": "강타"
    },
    "percent": true
   },
@@ -530,7 +701,10 @@
     "en": "Critical Attack",
     "es": "Ataque Crítico",
     "fr": "ATQ CRIT",
-    "ru": "Крит. АТК"
+    "ru": "Крит. АТК",
+    "pt": "Ataque Crítico",
+    "ja": "クリティカル攻撃力",
+    "ko": "치명타 공격력"
    }
   },
   "47": {
@@ -539,7 +713,10 @@
     "en": "Critical Damage Tolerance",
     "es": "Tolerancia a Daño Crítico",
     "fr": "Tolérance aux DGT CRIT",
-    "ru": "Стойкость к крит. урону"
+    "ru": "Стойкость к крит. урону",
+    "pt": "Tolerância a Dano Crítico",
+    "ja": "クリティカル ダメージ耐性",
+    "ko": "치명타 피해 내성"
    },
    "percent": true
   },
@@ -549,7 +726,10 @@
     "en": "Critical Hit Resist",
     "es": "Resistencia Crítica",
     "fr": "RÉS aux CRIT",
-    "ru": "Сопротивление крит. удару"
+    "ru": "Сопротивление крит. удару",
+    "pt": "Resistência a Acerto Crítico",
+    "ja": "クリティカル抵抗",
+    "ko": "치명타 저항"
    }
   },
   "284": {
@@ -558,7 +738,10 @@
     "en": "Penetration",
     "es": "Penetración",
     "fr": "Perforation",
-    "ru": "Пробитие"
+    "ru": "Пробитие",
+    "pt": "Penetração",
+    "ja": "貫通",
+    "ko": "관통"
    }
   },
   "101": {
@@ -567,7 +750,10 @@
     "en": "Back Attack Critical Hit Resist",
     "es": "Resistencia a Ataque Crítico por la Espalda",
     "fr": "RÉS aux CRIT dans le dos",
-    "ru": "Сопротивление крит. удару с тыла"
+    "ru": "Сопротивление крит. удару с тыла",
+    "pt": "Resistência a Acerto Crítico pela Retaguarda",
+    "ja": "後方クリティカル抵抗",
+    "ko": "후방 치명타 저항"
    }
   },
   "41": {
@@ -576,7 +762,10 @@
     "en": "Critical Damage Defense",
     "es": "Defensa Crítica",
     "fr": "DÉF CRIT",
-    "ru": "ЗЩТ от крит. удара"
+    "ru": "ЗЩТ от крит. удара",
+    "pt": "Defesa de Acerto Crítico",
+    "ja": "クリティカル防御力",
+    "ko": "치명타 방어력"
    }
   },
   "196": {
@@ -585,7 +774,10 @@
     "en": "HP increase",
     "es": "Aumento de Puntos de Vida",
     "fr": "Augmentation des PV",
-    "ru": "Увеличение ОЗ"
+    "ru": "Увеличение ОЗ",
+    "pt": "Aumento de PV",
+    "ja": "HP増加",
+    "ko": "생명력 증가"
    }
   },
   "379": {
@@ -594,7 +786,10 @@
     "en": "PvE Damage Boost",
     "es": "Amplificación de Daño de JcE",
     "fr": "Boost de DGT JcE",
-    "ru": "Увеличение урона в PvE"
+    "ru": "Увеличение урона в PvE",
+    "pt": "Amplificação de Dano em JvA",
+    "ja": "PvEダメージ増幅",
+    "ko": "PVE 피해 증폭"
    }
   },
   "380": {
@@ -603,7 +798,10 @@
     "en": "PvE Damage Tolerance",
     "es": "Tolerancia a Daño JcE",
     "fr": "Tolérance aux DGT JcE",
-    "ru": "Стойкость к урону в PvE"
+    "ru": "Стойкость к урону в PvE",
+    "pt": "Tolerância a Dano em JvA",
+    "ja": "PvEダメージ耐性",
+    "ko": "PVE 피해 내성"
    }
   },
   "28": {
@@ -612,7 +810,10 @@
     "en": "Damage Boost",
     "es": "Amplificación de Daño",
     "fr": "Boost de DGT",
-    "ru": "Увелич. урона"
+    "ru": "Увелич. урона",
+    "pt": "Amplificação de Dano",
+    "ja": "ダメージ増幅",
+    "ko": "피해 증폭"
    }
   },
   "70": {
@@ -621,7 +822,10 @@
     "en": "Damage Tolerance",
     "es": "Tolerancia a Daño",
     "fr": "Tolérance aux DGT",
-    "ru": "Стойкость к урону"
+    "ru": "Стойкость к урону",
+    "pt": "Tolerância a Dano",
+    "ja": "ダメージ耐性",
+    "ko": "피해 내성"
    }
   },
   "159": {
@@ -630,7 +834,10 @@
     "en": "Status Effect Resist",
     "es": "Resistencia a Efectos de Estado",
     "fr": "RÉS aux altérations d'état",
-    "ru": "Сопротивление негат. эффектам"
+    "ru": "Сопротивление негат. эффектам",
+    "pt": "Resistência a Alteração de Estado",
+    "ja": "状態異常抵抗",
+    "ko": "상태이상 저항"
    }
   },
   "449": {
@@ -639,7 +846,10 @@
     "en": "Endurance Penetration",
     "es": "Penetración de Tenacidad",
     "fr": "Perforation blindage",
-    "ru": "Пробитие Непробиваемости"
+    "ru": "Пробитие Непробиваемости",
+    "pt": "Penetração de Solidez",
+    "ja": "鉄壁貫通",
+    "ko": "철벽 관통"
    }
   },
   "589": {
@@ -648,7 +858,10 @@
     "en": "Front Attack Damage Boost",
     "es": "Amplificación de Daño Frontal",
     "fr": "Boost de DGT frontaux",
-    "ru": "Увеличение урона от атаки спереди"
+    "ru": "Увеличение урона от атаки спереди",
+    "pt": "Amplificação de Dano de Ataque Frontal",
+    "ja": "前方ダメージ増幅",
+    "ko": "전방 피해 증폭"
    }
   },
   "590": {
@@ -657,7 +870,10 @@
     "en": "Front Attack Damage Tolerance",
     "es": "Tolerancia a Daño Frontal",
     "fr": "Tolérance aux DGT frontaux",
-    "ru": "Сопротивление урону спереди"
+    "ru": "Сопротивление урону спереди",
+    "pt": "Tolerância a Dano de Ataque Frontal",
+    "ja": "前方ダメージ耐性",
+    "ko": "전방 피해 내성"
    }
   },
   "102": {
@@ -666,7 +882,10 @@
     "en": "Back Attack Damage Boost",
     "es": "Amplificación de Daño por la Espalda",
     "fr": "Boost de DGT dans le dos",
-    "ru": "Увеличение урона от атаки с тыла"
+    "ru": "Увеличение урона от атаки с тыла",
+    "pt": "Amplificação de Dano da Retaguarda",
+    "ja": "後方ダメージ増幅",
+    "ko": "후방 피해 증폭"
    }
   },
   "103": {
@@ -675,7 +894,10 @@
     "en": "Back Attack Damage Tolerance",
     "es": "Tolerancia a Daño por la Espalda",
     "fr": "Tolérance aux DGT dans le dos",
-    "ru": "Стойкость к урону от атаки с тыла"
+    "ru": "Стойкость к урону от атаки с тыла",
+    "pt": "Tolerância a Dano pela Retaguarda",
+    "ja": "後方ダメージ耐性",
+    "ko": "후방 피해 내성"
    }
   },
   "587": {
@@ -684,7 +906,10 @@
     "en": "Front Attack",
     "es": "Ataque Frontal",
     "fr": "ATQ frontale",
-    "ru": "АТК спереди"
+    "ru": "АТК спереди",
+    "pt": "Ataque Frontal",
+    "ja": "前方攻撃力",
+    "ko": "전방 공격력"
    }
   },
   "591": {
@@ -693,7 +918,10 @@
     "en": "Front Attack Critical Hit",
     "es": "Ataque Crítico Frontal",
     "fr": "CRIT frontal",
-    "ru": "Крит. удар спереди"
+    "ru": "Крит. удар спереди",
+    "pt": "Acerto Crítico Frontal",
+    "ja": "前方クリティカル",
+    "ko": "전방 치명타"
    }
   },
   "592": {
@@ -702,7 +930,10 @@
     "en": "Front Attack Critical Hit Resist",
     "es": "Resistencia Crítica frontal",
     "fr": "RÉS aux CRIT frontaux",
-    "ru": "Сопротивление крит. удару спереди"
+    "ru": "Сопротивление крит. удару спереди",
+    "pt": "Resistência a Acerto Crítico Frontal",
+    "ja": "前方クリティカル抵抗",
+    "ko": "전방 치명타 저항"
    }
   }
  }

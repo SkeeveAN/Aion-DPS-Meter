@@ -5,7 +5,10 @@
    "en": "Precision",
    "es": "Precisión",
    "fr": "Exactitude",
-   "ru": "Точность"
+   "ru": "Точность",
+   "pt": "Exatidão",
+   "ja": "正確",
+   "ko": "정확"
   }
  },
  "282": {
@@ -14,7 +17,10 @@
    "en": "Combat Speed",
    "es": "Velocidad de Hechizo",
    "fr": "VIT de combat",
-   "ru": "СКР боя"
+   "ru": "СКР боя",
+   "pt": "Velocidade de Combate",
+   "ja": "戦闘速度",
+   "ko": "전투 속도"
   },
   "percent": true
  },
@@ -24,7 +30,10 @@
    "en": "Attack Bonus",
    "es": "Ataque Adicional",
    "fr": "ATQ supplémentaire",
-   "ru": "Доп. АТК"
+   "ru": "Доп. АТК",
+   "pt": "Ataque Adicional",
+   "ja": "追加攻撃力",
+   "ko": "추가 공격력"
   }
  },
  "38": {
@@ -33,7 +42,10 @@
    "en": "Critical Attack",
    "es": "Ataque Crítico",
    "fr": "ATQ CRIT",
-   "ru": "Крит. АТК"
+   "ru": "Крит. АТК",
+   "pt": "Ataque Crítico",
+   "ja": "クリティカル攻撃力",
+   "ko": "치명타 공격력"
   }
  },
  "47": {
@@ -42,7 +54,10 @@
    "en": "Critical Damage Tolerance",
    "es": "Tolerancia a Daño Crítico",
    "fr": "Tolérance aux DGT CRIT",
-   "ru": "Стойкость к крит. урону"
+   "ru": "Стойкость к крит. урону",
+   "pt": "Tolerância a Dano Crítico",
+   "ja": "クリティカル ダメージ耐性",
+   "ko": "치명타 피해 내성"
   },
   "percent": true
  },
@@ -52,7 +67,10 @@
    "en": "Defense Bonus",
    "es": "Defensa Adicional",
    "fr": "DÉF supplémentaire",
-   "ru": "Доп. ЗЩТ"
+   "ru": "Доп. ЗЩТ",
+   "pt": "Defesa Adicional",
+   "ja": "追加防御力",
+   "ko": "추가 방어력"
   }
  },
  "98": {
@@ -61,7 +79,10 @@
    "en": "Back Attack",
    "es": "Ataque por la Espalda",
    "fr": "ATQ dans le dos",
-   "ru": "АТК с тыла"
+   "ru": "АТК с тыла",
+   "pt": "Ataque pela Retaguarda",
+   "ja": "後方攻撃力",
+   "ko": "후방 공격력"
   }
  },
  "99": {
@@ -70,7 +91,10 @@
    "en": "Back Defense",
    "es": "Defensa por la Espalda",
    "fr": "DÉF dans le dos",
-   "ru": "ЗЩТ с тыла"
+   "ru": "ЗЩТ с тыла",
+   "pt": "Defesa da Retaguarda",
+   "ja": "後方防御力",
+   "ko": "후방 방어력"
   }
  },
  "104": {
@@ -79,7 +103,10 @@
    "en": "Accuracy Bonus",
    "es": "Precisión Adicional",
    "fr": "Précision supplémentaire",
-   "ru": "Доп. меткость"
+   "ru": "Доп. меткость",
+   "pt": "Precisão Adicional",
+   "ja": "追加命中",
+   "ko": "추가 명중"
   }
  },
  "116": {
@@ -88,7 +115,10 @@
    "en": "Evasion Bonus",
    "es": "Evasión Adicional",
    "fr": "Esquive supplémentaire",
-   "ru": "Доп. УКЛ"
+   "ru": "Доп. УКЛ",
+   "pt": "Evasão Adicional",
+   "ja": "追加回避",
+   "ko": "추가 회피"
   }
  },
  "128": {
@@ -97,7 +127,10 @@
    "en": "Critical Hit",
    "es": "Crítico",
    "fr": "CRIT",
-   "ru": "Крит. удар"
+   "ru": "Крит. удар",
+   "pt": "Acerto Crítico",
+   "ja": "クリティカル",
+   "ko": "치명타"
   }
  },
  "133": {
@@ -106,7 +139,10 @@
    "en": "Critical Hit Resist",
    "es": "Resistencia Crítica",
    "fr": "RÉS aux CRIT",
-   "ru": "Сопротивление крит. удару"
+   "ru": "Сопротивление крит. удару",
+   "pt": "Resistência a Acerto Crítico",
+   "ja": "クリティカル抵抗",
+   "ko": "치명타 저항"
   }
  },
  "158": {
@@ -115,7 +151,10 @@
    "en": "Status Effect Chance",
    "es": "Acierto de Efectos de Estado",
    "fr": "Taux altération état",
-   "ru": "Попадание эффектами"
+   "ru": "Попадание эффектами",
+   "pt": "Acerto de Alteração de Estado",
+   "ja": "状態異常的中",
+   "ko": "상태이상 적중"
   },
   "percent": true
  },
@@ -125,7 +164,10 @@
    "en": "HP",
    "es": "Puntos de Vida",
    "fr": "PV",
-   "ru": "ОЗ"
+   "ru": "ОЗ",
+   "pt": "PV",
+   "ja": "HP",
+   "ko": "생명력"
   },
   "stone": {
    "1": 30
@@ -137,7 +179,10 @@
    "en": "MP",
    "es": "Puntos de Maná",
    "fr": "PM",
-   "ru": "ОМ"
+   "ru": "ОМ",
+   "pt": "PM",
+   "ja": "MP",
+   "ko": "정신력"
   },
   "stone": {
    "1": 15,
@@ -150,7 +195,10 @@
    "en": "Natural MP Regen",
    "es": "Recuperación Natural de Puntos de Maná",
    "fr": "Régénération naturelle de PM",
-   "ru": "Естественное восстановление ОМ"
+   "ru": "Естественное восстановление ОМ",
+   "pt": "Recuperação Natural de PM",
+   "ja": "MP自然回復",
+   "ko": "정신력 자연 회복"
   }
  },
  "255": {
@@ -159,7 +207,10 @@
    "en": "Block",
    "es": "Bloqueo",
    "fr": "Blocage",
-   "ru": "Блок"
+   "ru": "Блок",
+   "pt": "Bloqueio",
+   "ja": "ガード",
+   "ko": "막기"
   },
   "stone": {
    "1": 7,
@@ -172,7 +223,10 @@
    "en": "Defense",
    "es": "Defensa",
    "fr": "DÉF",
-   "ru": "ЗЩТ"
+   "ru": "ЗЩТ",
+   "pt": "Defesa",
+   "ja": "防御力",
+   "ko": "방어력"
   }
  },
  "312": {
@@ -181,7 +235,10 @@
    "en": "Evasion",
    "es": "Evasión",
    "fr": "Esquive",
-   "ru": "УКЛ"
+   "ru": "УКЛ",
+   "pt": "Evasão",
+   "ja": "回避",
+   "ko": "회피"
   }
  },
  "317": {
@@ -190,7 +247,10 @@
    "en": "Attack",
    "es": "Ataque",
    "fr": "ATQ",
-   "ru": "АТК"
+   "ru": "АТК",
+   "pt": "Ataque",
+   "ja": "攻撃力",
+   "ko": "공격력"
   }
  },
  "445": {
@@ -199,7 +259,10 @@
    "en": "Endurance",
    "es": "Tenacidad",
    "fr": "Blindage",
-   "ru": "Непробиваемость"
+   "ru": "Непробиваемость",
+   "pt": "Solidez",
+   "ja": "鉄壁",
+   "ko": "철벽"
   },
   "percent": true
  },
@@ -209,7 +272,10 @@
    "en": "Front Defense",
    "es": "Defensa Frontal",
    "fr": "DÉF frontale",
-   "ru": "ЗЩТ спереди"
+   "ru": "ЗЩТ спереди",
+   "pt": "Defesa Frontal",
+   "ja": "前方防御力",
+   "ko": "전방 방어력"
   }
  }
 }

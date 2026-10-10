@@ -24,7 +24,7 @@ namespace AionDPS.Ui;
 /// </summary>
 public sealed class LocalizationManager : INotifyPropertyChanged
 {
-    /// <summary>The eight languages this build actually has data for -- the set the
+    /// <summary>The twelve languages this build actually has data for -- the set the
     /// game's own L10N folders (mostly) cover; see assets/README.md for the "ita"/"plk" folder-name swap that this list's codes already
     /// correct for. NativeName is what a speaker of that language would call it themselves, shown
     /// in the Settings picker so nobody has to already read the current language to find their own.
@@ -44,6 +44,10 @@ public sealed class LocalizationManager : INotifyPropertyChanged
         ("pl", "Polski"),
         ("tr", "Türkçe"),
         ("zh", "中文"),
+        ("zh-TW", "繁體中文"),
+        ("pt", "Português (Brasil)"),
+        ("ja", "日本語"),
+        ("ko", "한국어"),
     };
 
     public static LocalizationManager Instance { get; } = new();
@@ -93,7 +97,15 @@ public sealed class LocalizationManager : INotifyPropertyChanged
     /// explicit prior choice) has a chance to override it -- see MainWindow's startup wiring.</summary>
     private static string DetectSystemLanguage()
     {
-        string ui = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+        var culture = System.Globalization.CultureInfo.CurrentUICulture;
+        if (culture.Name.StartsWith("zh-TW", StringComparison.OrdinalIgnoreCase)
+            || culture.Name.StartsWith("zh-HK", StringComparison.OrdinalIgnoreCase)
+            || culture.Name.StartsWith("zh-Hant", StringComparison.OrdinalIgnoreCase))
+        {
+            return "zh-TW";
+        }
+
+        string ui = culture.TwoLetterISOLanguageName;
         return SupportedLanguages.Any(l => l.Code == ui) ? ui : "en";
     }
 

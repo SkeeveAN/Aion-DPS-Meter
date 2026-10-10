@@ -40,7 +40,7 @@ STATS = {
 }
 PERCENT = {44, 47, 158, 443, 445}
 SPECIES = {2: ("cognia", "INTELLECT"), 3: ("fera", "FERA"), 4: ("natura", "NATURE"), 5: ("varia", "TRANS"), 6: ("specia", "SPECIAL")}
-LOCALES = {"de": "de-DE", "en": "en-US", "es": "es-ES", "fr": "fr-FR", "ru": "ru-RU"}
+LOCALES = {"de": "de-DE", "en": "en-US", "es": "es-ES", "fr": "fr-FR", "ru": "ru-RU", "pt": "pt-BR", "ja": "ja-JP", "ko": "ko-KR"}
 
 src, out = sys.argv[1], sys.argv[2]
 tables = {code: json.load(open(os.path.join(src, f"l10n_{loc}.json"), encoding="utf-8")) for code, loc in LOCALES.items()}

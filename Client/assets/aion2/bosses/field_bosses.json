@@ -8,7 +8,10 @@
     "de": "Verteron",
     "fr": "Verteron",
     "es": "Verteron",
-    "ru": "Бертрон"
+    "ru": "Бертрон",
+    "pt": "Verteron",
+    "ja": "ベルテロン",
+    "ko": "베르테론"
    },
    "bosses": [
     {
@@ -20,7 +23,10 @@
       "de": "Neikel des Ostens",
       "fr": "Neikel de l'est",
       "es": "Neikel del este",
-      "ru": "Нейкель востока"
+      "ru": "Нейкель востока",
+      "pt": "Neikel do Leste",
+      "ja": "東のネイケル",
+      "ko": "동쪽의 네이켈"
      }
     },
     {
@@ -32,7 +38,10 @@
       "de": "Verfaulter Kutar",
       "fr": "Kutar le Putréfié",
       "es": "Kutar podrido",
-      "ru": "Гнилой Кутар"
+      "ru": "Гнилой Кутар",
+      "pt": "Kutar Putrefato",
+      "ja": "腐ったクタル",
+      "ko": "썩은 쿠타르"
      }
     },
     {
@@ -44,7 +53,10 @@
       "de": "Kernon des Westens",
       "fr": "Kernon de l'ouest",
       "es": "Kernon del oeste",
-      "ru": "Кернон запада"
+      "ru": "Кернон запада",
+      "pt": "Kernon do Oeste",
+      "ja": "西のケルノン",
+      "ko": "서쪽의 케르논"
      }
     },
     {
@@ -56,7 +68,10 @@
       "de": "Wahnstreiter Kusan",
       "fr": "Kusan le Berserker",
       "es": "Gladiador frenético Kusan",
-      "ru": "Безумный берсерк Кусан"
+      "ru": "Безумный берсерк Кусан",
+      "pt": "Combatente Insano Kusan",
+      "ja": "狂闘士クサン",
+      "ko": "광투사 쿠산"
      }
     },
     {
@@ -68,7 +83,10 @@
       "de": "Erzpriester Garshim",
       "fr": "Garshim le Ritualiste",
       "es": "Ritualista Garshim",
-      "ru": "Ритуалист Гаршим"
+      "ru": "Ритуалист Гаршим",
+      "pt": "Sacerdote-Mor Garshim",
+      "ja": "祭司長ガルシム",
+      "ko": "제사장 가르심"
      }
     },
     {
@@ -80,7 +98,10 @@
       "de": "Leibgardist Teegant",
       "fr": "Teegant le garde du corps",
       "es": "Guardia Teegant",
-      "ru": "Стражник Тигант"
+      "ru": "Стражник Тигант",
+      "pt": "Soldado de Escolta Teegant",
+      "ja": "護衛兵ティガント",
+      "ko": "호위병 티간트"
      }
     },
     {
@@ -92,7 +113,10 @@
       "de": "Blühender Korin",
       "fr": "Korin en floraison",
       "es": "Korin en flor",
-      "ru": "Расцветший Корин"
+      "ru": "Расцветший Корин",
+      "pt": "Korin em Flor",
+      "ja": "満開のコーリン",
+      "ko": "만개한 코린"
      }
     },
     {
@@ -104,7 +128,10 @@
       "de": "Wütende Saursus",
       "fr": "Saursus enragée",
       "es": "Saursus iracundo",
-      "ru": "Разъяренная Сарус"
+      "ru": "Разъяренная Сарус",
+      "pt": "Saursus Furiosa",
+      "ja": "怒りのサルス",
+      "ko": "분노한 사루스"
      }
     },
     {
@@ -116,7 +143,10 @@
       "de": "Blutzahn Pnyn",
       "fr": "Pnyn aux crocs sanglants",
       "es": "Pnyn de colmillo sangriento",
-      "ru": "Кровоклык Фнин"
+      "ru": "Кровоклык Фнин",
+      "pt": "Presa Sangrenta Pnyn",
+      "ja": "血の牙プニン",
+      "ko": "피송곳니 프닌"
      }
     },
     {
@@ -128,7 +158,10 @@
       "de": "Apostatin Layla",
       "fr": "Layla l'apostate",
       "es": "Apóstata Layla",
-      "ru": "Отступница Лейла"
+      "ru": "Отступница Лейла",
+      "pt": "Apóstata Layla",
+      "ja": "背教者レイーラ",
+      "ko": "배교자 레일라"
      }
     },
     {
@@ -140,7 +173,10 @@
       "de": "Schwarztentakel Lawa",
       "fr": "Lawa aux tentacules noires",
       "es": "Lawa del tentáculo negro",
-      "ru": "Черное щупальце Лава"
+      "ru": "Черное щупальце Лава",
+      "pt": "Lawa dos Tentáculos Negros",
+      "ja": "黒き触手ラワ",
+      "ko": "검은 촉수 라와"
      }
     },
     {
@@ -152,7 +188,10 @@
       "de": "Traumtrug Kasia",
       "fr": "Kasia du rêve illusoire",
       "es": "Kasia de ensoñación",
-      "ru": "Касия фантазии"
+      "ru": "Касия фантазии",
+      "pt": "Kasia do Sonho Ilusório",
+      "ja": "幻夢のカシア",
+      "ko": "환몽의 카시아"
      }
     },
     {
@@ -164,7 +203,10 @@
       "de": "Zenturio Demiros",
       "fr": "Centurion Demiros",
       "es": "Centurión Demiros",
-      "ru": "Центурион Демирос"
+      "ru": "Центурион Демирос",
+      "pt": "Centurião Demiros",
+      "ja": "百人隊長デミロス",
+      "ko": "백부장 데미로스"
      }
     },
     {
@@ -176,7 +218,10 @@
       "de": "Heiliger Ansas",
       "fr": "Ansas sacré",
       "es": "Ansas divina",
-      "ru": "Священный Ансас"
+      "ru": "Священный Ансас",
+      "pt": "Ansas Divino",
+      "ja": "神聖なアンサス",
+      "ko": "신성한 안사스"
      }
     },
     {
@@ -188,7 +233,10 @@
       "de": "Ernteaufseher Moshav",
       "fr": "Moshav le superviseur de la récolte",
       "es": "Administrador de cosecha Moshav",
-      "ru": "Управляющий сбором Мошав"
+      "ru": "Управляющий сбором Мошав",
+      "pt": "Gestor de Colheita Moshav",
+      "ja": "収穫管理者モシャブ",
+      "ko": "수확관리자 모샤브"
      }
     },
     {
@@ -200,7 +248,10 @@
       "de": "Überwachungswaffe K'nash",
       "fr": "K'nash la sentinelle",
       "es": "Celador K'nash",
-      "ru": "Страж Кнаш"
+      "ru": "Страж Кнаш",
+      "pt": "K’nash, Arma de Vigilância",
+      "ja": "監視兵器クナッシュ",
+      "ko": "감시병기 크나쉬"
      }
     },
     {
@@ -212,7 +263,10 @@
       "de": "Gelehrter Aulla",
       "fr": "Aulla l'érudit",
       "es": "Erudito Aulla",
-      "ru": "Ученый Раулла"
+      "ru": "Ученый Раулла",
+      "pt": "Erudito Aulla",
+      "ja": "学者ラウーラ",
+      "ko": "학자 라울라"
      }
     },
     {
@@ -224,7 +278,10 @@
       "de": "Waldkrieger Aullamu",
       "fr": "Aullamu le guerrier de la forêt",
       "es": "Guerrero del bosque Aullamu",
-      "ru": "Лесной воин Ураму"
+      "ru": "Лесной воин Ураму",
+      "pt": "Guerreiro da Floresta Aullamu",
+      "ja": "森の戦士ウラム",
+      "ko": "숲전사 우라무"
      }
     },
     {
@@ -236,7 +293,10 @@
       "de": "Verfolger Taulo",
       "fr": "Taulo le traqueur",
       "es": "Perseguidor Taulo",
-      "ru": "Гонитель Тауло"
+      "ru": "Гонитель Тауло",
+      "pt": "Perseguidor Taulo",
+      "ja": "追撃者タウーロ",
+      "ko": "추격자 타울로"
      }
     },
     {
@@ -248,7 +308,10 @@
       "de": "Forscher Setram",
       "fr": "Setram le chercheur",
       "es": "Investigador Setram",
-      "ru": "Исследователь Сетрам"
+      "ru": "Исследователь Сетрам",
+      "pt": "Pesquisador Setram",
+      "ja": "研究官セトラム",
+      "ko": "연구관 세트람"
      }
     },
     {
@@ -260,7 +323,10 @@
       "de": "Ewiger Gartua",
       "fr": "Gartua de l'éternité",
       "es": "Gartua de eternidad",
-      "ru": "Вечный Гартуа"
+      "ru": "Вечный Гартуа",
+      "pt": "Gartua da Eternidade",
+      "ja": "永遠のガルトゥア",
+      "ko": "영원의 가르투아"
      }
     },
     {
@@ -272,7 +338,10 @@
       "de": "Schweigender Dartan",
       "fr": "Dartan la Silencieuse",
       "es": "Dartan del silencio",
-      "ru": "Немая Тартан"
+      "ru": "Немая Тартан",
+      "pt": "Dartan do Silêncio",
+      "ja": "沈黙のタルタン",
+      "ko": "침묵의 타르탄"
      }
     },
     {
@@ -284,7 +353,10 @@
       "de": "Seelenherrscher Kashapa",
       "fr": "Kashapa le dominateur des âmes",
       "es": "Gobernante de almas Kashapa",
-      "ru": "Властелин душ Кашапа"
+      "ru": "Властелин душ Кашапа",
+      "pt": "Dominador das Almas Kashapa",
+      "ja": "魂の支配者カシャパ",
+      "ko": "영혼 지배자 카샤파"
      }
     },
     {
@@ -296,7 +368,10 @@
       "de": "Legat Lagta",
       "fr": "Haut Commandant Lagta",
       "es": "Comandante de Lagta",
-      "ru": "Глава армии Рагт"
+      "ru": "Глава армии Рагт",
+      "pt": "Brigadeiro Lagta",
+      "ja": "軍団長ラグタ",
+      "ko": "군단장 라그타"
      }
     }
    ]
@@ -309,7 +384,10 @@
     "de": "Eltnen",
     "fr": "Eltnen",
     "es": "Eltnen",
-    "ru": "Элтенен"
+    "ru": "Элтенен",
+    "pt": "Eltnen",
+    "ja": "エルテネン",
+    "ko": "엘테넨"
    },
    "bosses": [
     {
@@ -321,7 +399,10 @@
       "de": "Agglomerierter Verenom",
       "fr": "Vérénom aggloméré",
       "es": "Verenom acumulado",
-      "ru": "Сросшийся Вереном"
+      "ru": "Сросшийся Вереном",
+      "pt": "Verenom Aglomerado",
+      "ja": "凝集したベレノム",
+      "ko": "응집된 베레놈"
      }
     },
     {
@@ -333,7 +414,10 @@
       "de": "Alter Boss Vigor",
       "fr": "Ancien chef Vigor",
       "es": "Antiguo Jefe Vigor",
-      "ru": "Древний босс Вигор"
+      "ru": "Древний босс Вигор",
+      "pt": "Vigor, Antigo Chefe",
+      "ja": "元リーダー ヴィガー",
+      "ko": "옛 두목 비고르"
      }
     },
     {
@@ -345,7 +429,10 @@
       "de": "Zvein mit abgetrennten Flügeln",
       "fr": "Zvein aux ailes sectionnées",
       "es": "Zvein, Ala Cercenada",
-      "ru": "Звейн с оторванными крыльями"
+      "ru": "Звейн с оторванными крыльями",
+      "pt": "Zvein das Asas Cortadas",
+      "ja": "折れた翼のツヴァイン",
+      "ko": "꺾인 날개 츠바인"
      }
     },
     {
@@ -357,7 +444,10 @@
       "de": "Fressgieriger Egetis",
       "fr": "Egetis vorace",
       "es": "Egetis, el Glotón",
-      "ru": "Обжорливый Эгетис"
+      "ru": "Обжорливый Эгетис",
+      "pt": "Iguetis da Ganância",
+      "ja": "貪欲のイゲティス",
+      "ko": "탐욕의 이게티스"
      }
     },
     {
@@ -369,7 +459,10 @@
       "de": "Superbia, Heilige Bestie des Lebens",
       "fr": "Superbia la bête sacrée de la vie",
       "es": "Superbia, la Bestia Sagrada de la Vida",
-      "ru": "Супербия, священный зверь жизни"
+      "ru": "Супербия, священный зверь жизни",
+      "pt": "Superbia, Fera Sagrada da Vida",
+      "ja": "生命の神獣スペルビア",
+      "ko": "생명의 신수 수페르비아"
      }
     },
     {
@@ -381,7 +474,10 @@
       "de": "Faulwurzel Meltlim",
       "fr": "Racine pourrie de Meltlim",
       "es": "Meltlim de las Raíces Podridas",
-      "ru": "Мелтрим Гнилой Корень"
+      "ru": "Мелтрим Гнилой Корень",
+      "pt": "Meltim da Raiz Podre",
+      "ja": "腐根のメルトリム",
+      "ko": "썩은 뿌리 멜트림"
      }
     },
     {
@@ -393,7 +489,10 @@
       "de": "Tollwütiger Nihogg",
       "fr": "Nihogg furibond",
       "es": "Nihogg rabioso",
-      "ru": "Бешеный Нихогг"
+      "ru": "Бешеный Нихогг",
+      "pt": "Nihogg Cego",
+      "ja": "盲目的なニホグ",
+      "ko": "맹목적인 니호그"
      }
     },
     {
@@ -405,7 +504,10 @@
       "de": "Erstes Versuchssubjekt K'tima",
       "fr": "K'tima premier cobaye",
       "es": "Primer sujeto de prueba K'tima",
-      "ru": "Первый подопытный Ктима"
+      "ru": "Первый подопытный Ктима",
+      "pt": "K'tima, Primeira Cobaia",
+      "ja": "最初の実験体クティマ",
+      "ko": "최초의 실험체 크티마"
      }
     },
     {
@@ -417,7 +519,10 @@
       "de": "Drei-Horn Minolim",
       "fr": "Mino à trois cornes",
       "es": "Mino de tres cuernos",
-      "ru": "Трехрогий Миноринг"
+      "ru": "Трехрогий Миноринг",
+      "pt": "Mino Três Chifres",
+      "ja": "三本角マイノ",
+      "ko": "세 개의 뿔 마이노"
      }
     },
     {
@@ -429,7 +534,10 @@
       "de": "Lamphus des Leids",
       "fr": "Lamphus de l'agonie",
       "es": "Lamphus del Tormento",
-      "ru": "Рампус агонии"
+      "ru": "Рампус агонии",
+      "pt": "Lamphus da Agonia",
+      "ja": "苦痛のランプス",
+      "ko": "고통의 람푸스"
      }
     },
     {
@@ -441,7 +549,10 @@
       "de": "Kommandant der dritten Einheit Karkoti",
       "fr": "Commandant Karkoti de la troisième unité",
       "es": "Comandante de la Tercera Unidad Karkoti",
-      "ru": "Командир третьего отряда Каркоти"
+      "ru": "Командир третьего отряда Каркоти",
+      "pt": "Karkoti, Subcomandante da Terceira Unidade",
+      "ja": "第三部隊長カルコティ",
+      "ko": "3부대장 카르코티"
      }
     },
     {
@@ -453,7 +564,10 @@
       "de": "Legionsvogt Vivajra",
       "fr": "Vice-commandant Vivajra",
       "es": "Subcomandante Vivajra",
-      "ru": "Младший глава армии Виважра"
+      "ru": "Младший глава армии Виважра",
+      "pt": "Subcomandante Vivajra",
+      "ja": "副軍団長ビバツラ",
+      "ko": "부군단장 비바츠라"
      }
     }
    ]
@@ -466,7 +580,10 @@
     "de": "Altgard",
     "fr": "Altgard",
     "es": "Altgard",
-    "ru": "Альтгард"
+    "ru": "Альтгард",
+    "pt": "Altgard",
+    "ja": "アルトガルド",
+    "ko": "알트가르드"
    },
    "bosses": [
     {
@@ -478,7 +595,10 @@
       "de": "Geschmolzener Danar",
       "fr": "Danar le fondu",
       "es": "Danar fundido",
-      "ru": "Расплавленный Данар"
+      "ru": "Расплавленный Данар",
+      "pt": "Danar Derretido",
+      "ja": "溶け落ちたダナール",
+      "ko": "녹아내린 다나르"
      }
     },
     {
@@ -490,7 +610,10 @@
       "de": "Dunkelkrieger Aed",
       "fr": "Aed le guerrier noir",
       "es": "Guerrero negro Aed",
-      "ru": "Черный воин Аэд"
+      "ru": "Черный воин Аэд",
+      "pt": "Guerreiro Negro Aed",
+      "ja": "黒き戦士アエド",
+      "ko": "검은 전사 아에드"
      }
     },
     {
@@ -502,7 +625,10 @@
       "de": "Treuer Rajit",
       "fr": "Rajit le fidèle",
       "es": "Rajit leal",
-      "ru": "Верный Ладжит"
+      "ru": "Верный Ладжит",
+      "pt": "Rajit Fiel",
+      "ja": "忠実なラジト",
+      "ko": "충실한 라지트"
      }
     },
     {
@@ -514,7 +640,10 @@
       "de": "Berserker Vargor",
       "fr": "Vargor le Berserker",
       "es": "Berserker Vargor",
-      "ru": "Берсерк Вальг"
+      "ru": "Берсерк Вальг",
+      "pt": "Berserker Vargor",
+      "ja": "狂戦士バルグ",
+      "ko": "광전사 발그"
      }
     },
     {
@@ -526,7 +655,10 @@
       "de": "Verschlinger Garsan",
       "fr": "Garsan le Prédateur",
       "es": "Garsan depredador",
-      "ru": "Хищник Гарсан"
+      "ru": "Хищник Гарсан",
+      "pt": "Predador Garsan",
+      "ja": "捕食者ガルサン",
+      "ko": "포식자 가르산"
      }
     },
     {
@@ -538,7 +670,10 @@
       "de": "Blutkrieger Lannar",
       "fr": "Lannar le guerrier de sang",
       "es": "Guerrero sangriento Lannar",
-      "ru": "Воин крови Ланнар"
+      "ru": "Воин крови Ланнар",
+      "pt": "Guerreiro Sanguinário Lannar",
+      "ja": "血戦士ランナール",
+      "ko": "혈전사 란나르"
      }
     },
     {
@@ -550,7 +685,10 @@
       "de": "Täuscherin Trid",
       "fr": "Trid la Trompeuse",
       "es": "Impostora Trid",
-      "ru": "Притворщица Трида"
+      "ru": "Притворщица Трида",
+      "pt": "Trid Enganadora",
+      "ja": "欺瞞者トリド",
+      "ko": "기만자 트리드"
      }
     },
     {
@@ -562,7 +700,10 @@
       "de": "Blauwelle Kelpina",
       "fr": "Kelpina la Vague bleue",
       "es": "Kelpina de onda azul",
-      "ru": "Келпина лазурной волны"
+      "ru": "Келпина лазурной волны",
+      "pt": "Kelpina da Onda Azul",
+      "ja": "青波ケルピーナ",
+      "ko": "푸른물결 켈피나"
      }
     },
     {
@@ -574,7 +715,10 @@
       "de": "Hauptaufseher Nutah",
       "fr": "Nutah le Chef superviseur",
       "es": "Nutah supervisor jefe",
-      "ru": "Главный надзиратель Нута"
+      "ru": "Главный надзиратель Нута",
+      "pt": "Supervisor Geral Nutah",
+      "ja": "総監督官ヌタ",
+      "ko": "총감독관 누타"
      }
     },
     {
@@ -586,7 +730,10 @@
       "de": "Berater Resana",
       "fr": "Resana le Conseiller",
       "es": "Consejero Resana",
-      "ru": "Советник Рсан"
+      "ru": "Советник Рсан",
+      "pt": "Assessor Resana",
+      "ja": "参謀官ルサナ",
+      "ko": "참모관 르사나"
      }
     },
     {
@@ -598,7 +745,10 @@
       "de": "Sondereinsatzhauptmann Linx",
       "fr": "Linx le Chef des opérations spéciales",
       "es": "Líder de operaciones especiales Linx",
-      "ru": "Капитан спецотряда Линкс"
+      "ru": "Капитан спецотряда Линкс",
+      "pt": "Capitão de Operações Especiais Linx",
+      "ja": "別動隊長リンクス",
+      "ko": "별동대장 링크스"
      }
     },
     {
@@ -610,7 +760,10 @@
       "de": "Schänder Newbold",
       "fr": "Newbold le Profanateur",
       "es": "Profanador Newbold",
-      "ru": "Осквернитель Ноблуд"
+      "ru": "Осквернитель Ноблуд",
+      "pt": "Profanador Newbold",
+      "ja": "冒涜者ノブルード",
+      "ko": "모독자 노블루드"
      }
     },
     {
@@ -622,7 +775,10 @@
       "de": "Schattenarchon Axios",
       "fr": "Axios l'Archon des âmes égarées",
       "es": "Akan de ánimas perdidas Axios",
-      "ru": "Акан потерянных душ Аксиос"
+      "ru": "Акан потерянных душ Аксиос",
+      "pt": "Arconte da Alma Perdida Axios",
+      "ja": "亡魂のアルコン アクシオス",
+      "ko": "망혼의 아칸 악시오스"
      }
     },
     {
@@ -634,7 +790,10 @@
       "de": "Vergifteter Hadirun",
       "fr": "Hardirun l'intoxiqué",
       "es": "Hardirun envenenado",
-      "ru": "Одурманенный Хадирун"
+      "ru": "Одурманенный Хадирун",
+      "pt": "Hardirun Envenenado",
+      "ja": "中毒になったハディルン",
+      "ko": "중독된 하디룬"
      }
     },
     {
@@ -646,7 +805,10 @@
       "de": "Henker Barthien",
       "fr": "Barthien le Bourreau",
       "es": "Barthien verdugo",
-      "ru": "Эмиссар Варсиен"
+      "ru": "Эмиссар Варсиен",
+      "pt": "Carrasco Barthien",
+      "ja": "処刑者バルシエン",
+      "ko": "처형자 바르시엔"
      }
     },
     {
@@ -658,7 +820,10 @@
       "de": "Bataillonswaffe Guruta (Drakan)",
       "fr": "Guruta l'arme de troupe Drakan",
       "es": "Drakan artillería de destacamento Guruta",
-      "ru": "Биооружие отряда драканов Гурута"
+      "ru": "Биооружие отряда драканов Гурута",
+      "pt": "Arma de Guerra Drakan Guruta",
+      "ja": "ドラカン部隊兵器グルタ",
+      "ko": "드라칸 부대병기 구루타"
      }
     },
     {
@@ -670,7 +835,10 @@
       "de": "Veteran Shujakan",
       "fr": "Shujakan le Vétéran",
       "es": "Veterano Shujakan",
-      "ru": "Ветеран Шужакан"
+      "ru": "Ветеран Шужакан",
+      "pt": "Veterano Shujakan",
+      "ja": "百戦老将シュザカン",
+      "ko": "백전노장 슈자칸"
      }
     },
     {
@@ -682,7 +850,10 @@
       "de": "Visionärer Karuka",
       "fr": "Karuka le Visionnaire",
       "es": "Karuka visionario",
-      "ru": "Визионер Карука"
+      "ru": "Визионер Карука",
+      "pt": "Visionário Karuka",
+      "ja": "秘伝のカルカ",
+      "ko": "비전의 카루카"
      }
     },
     {
@@ -694,7 +865,10 @@
       "de": "Dunkelschatten Vishwada",
       "fr": "Vishwada le Ténébreux",
       "es": "Vishwada de oscuridad",
-      "ru": "Вишвада темной тени"
+      "ru": "Вишвада темной тени",
+      "pt": "Vishwada da Escuridão",
+      "ja": "黒闇のビシュベダ",
+      "ko": "흑암의 비슈베다"
      }
     },
     {
@@ -706,7 +880,10 @@
       "de": "Scharfer Shylak",
       "fr": "Shylak l'Acéré",
       "es": "Shylak agudo",
-      "ru": "Острый Шурак"
+      "ru": "Острый Шурак",
+      "pt": "Shylak Afiado",
+      "ja": "鋭きシュラク",
+      "ko": "예리한 쉬라크"
      }
     },
     {
@@ -718,7 +895,10 @@
       "de": "Unsterblicher Gartua",
       "fr": "Gartua de l'immortalité",
       "es": "Gartua inmortal",
-      "ru": "Бессмертный Гартуа"
+      "ru": "Бессмертный Гартуа",
+      "pt": "Gartua Imortal",
+      "ja": "不滅のガルトゥア",
+      "ko": "불멸의 가르투아"
      }
     },
     {
@@ -730,7 +910,10 @@
       "de": "Legat Lagta",
       "fr": "Haut Commandant Lagta",
       "es": "Comandante de Lagta",
-      "ru": "Глава армии Рагт"
+      "ru": "Глава армии Рагт",
+      "pt": "Brigadeiro Lagta",
+      "ja": "軍団長ラグタ",
+      "ko": "군단장 라그타"
      }
     },
     {
@@ -742,7 +925,10 @@
       "de": "Seelenherrscher Kashapa",
       "fr": "Kashapa le dominateur des âmes",
       "es": "Gobernante de almas Kashapa",
-      "ru": "Властелин душ Кашапа"
+      "ru": "Властелин душ Кашапа",
+      "pt": "Dominador das Almas Kashapa",
+      "ja": "魂の支配者カシャパ",
+      "ko": "영혼 지배자 카샤파"
      }
     },
     {
@@ -754,7 +940,10 @@
       "de": "Schweigender Dartan",
       "fr": "Dartan la Silencieuse",
       "es": "Dartan del silencio",
-      "ru": "Немая Тартан"
+      "ru": "Немая Тартан",
+      "pt": "Dartan do Silêncio",
+      "ja": "沈黙のタルタン",
+      "ko": "침묵의 타르탄"
      }
     }
    ]
@@ -767,7 +956,10 @@
     "de": "Morheim",
     "fr": "Morheim",
     "es": "Morheim",
-    "ru": "Морхейм"
+    "ru": "Морхейм",
+    "pt": "Morheim",
+    "ja": "モルヘイム",
+    "ko": "모르헤임"
    },
    "bosses": [
     {
@@ -779,7 +971,10 @@
       "de": "Grenzläufer Pargon",
       "fr": "Pargon le vagabond des frontières",
       "es": "Pargon, el Caminante del Filo",
-      "ru": "Странник пограничья Паргон"
+      "ru": "Странник пограничья Паргон",
+      "pt": "Pargon, Andarilho das Fronteiras",
+      "ja": "境界の放浪者パルゴン",
+      "ko": "경계의 방랑자 파르곤"
      }
     },
     {
@@ -791,7 +986,10 @@
       "de": "Raubkoloss Balakh",
       "fr": "Balakh le prédateur colossal",
       "es": "Balakh, el Coloso Depredador",
-      "ru": "Хищный колосс Балах"
+      "ru": "Хищный колосс Балах",
+      "pt": "Balakh, Fera Colossal Predadora",
+      "ja": "捕食の巨獣ヴァラーク",
+      "ko": "포식의 거수 발라크"
      }
     },
     {
@@ -803,7 +1001,10 @@
       "de": "Blutsturm Renulf",
       "fr": "Renulf la tempête pourpre",
       "es": "Renulf de la Ventisca Carmesí",
-      "ru": "Багровая метель Ренульф"
+      "ru": "Багровая метель Ренульф",
+      "pt": "Renulf, Nevasca Carmesim",
+      "ja": "血染めの吹雪レヌルフ",
+      "ko": "핏빛 눈보라 레눌프"
      }
     },
     {
@@ -815,7 +1016,10 @@
       "de": "Frostpanzer Harkhan",
       "fr": "Harkhan Givre-armure",
       "es": "Harkhan de la Armadura Helada",
-      "ru": "Харкхан в морозной броне"
+      "ru": "Харкхан в морозной броне",
+      "pt": "Harkhan da Armadura Gélida",
+      "ja": "霜の鎧ハルカン",
+      "ko": "서리갑옷 하르칸"
      }
     },
     {
@@ -827,7 +1031,10 @@
       "de": "Azurträne Glacia",
       "fr": "Glacia aux larmes azur",
       "es": "Glacia de la Lágrima Azul",
-      "ru": "Лазурная слеза Гласия"
+      "ru": "Лазурная слеза Гласия",
+      "pt": "Glacia das Nuvens Azuis",
+      "ja": "青い涙グレイシア",
+      "ko": "푸른 눈물 글레이시아"
      }
     },
     {
@@ -839,7 +1046,10 @@
       "de": "Höllenflügel Fios",
       "fr": "Fios aux ailes du feu infernal",
       "es": "Fios de las Alas Infernales",
-      "ru": "Фиос с крыльями адского пламени"
+      "ru": "Фиос с крыльями адского пламени",
+      "pt": "Fioh das Asas da Flama Infernal",
+      "ja": "業火の翼ピオス",
+      "ko": "업화의 날개 피오스"
      }
     },
     {
@@ -851,7 +1061,10 @@
       "de": "Lavaherz Batu",
       "fr": "Batu le cœur de la lave",
       "es": "Batu del Corazón de Lava",
-      "ru": "Бату с лавовым сердцем"
+      "ru": "Бату с лавовым сердцем",
+      "pt": "Batu do Coração de Lava",
+      "ja": "溶岩心臓バトゥ",
+      "ko": "용암심장 바투"
      }
     },
     {
@@ -863,7 +1076,10 @@
       "de": "Elite-Inquisitor Verant",
       "fr": "Verant l'inquisiteur d'élite",
       "es": "Verant, el Inquisidor de Élite",
-      "ru": "Элитный инквизитор Верант"
+      "ru": "Элитный инквизитор Верант",
+      "pt": "Verant Inquisidor de Elite",
+      "ja": "精鋭尋問官ブラント",
+      "ko": "정예 심문관 브란트"
      }
     },
     {
@@ -875,7 +1091,10 @@
       "de": "Irrwächter Bulagan",
       "fr": "Bulagan le veilleur fou",
       "es": "Bulagan, el Vigilante Enloquecido",
-      "ru": "Безумный дозорный Булаган"
+      "ru": "Безумный дозорный Булаган",
+      "pt": "Vigia Louco Bulagan",
+      "ja": "狂った番人ブラガン",
+      "ko": "미쳐버린 파수꾼 불라간"
      }
     },
     {
@@ -887,7 +1106,10 @@
       "de": "Vulkanarch Grymnir",
       "fr": "Grymnir Volcandarche",
       "es": "Vulcanarca Grymnir",
-      "ru": "Вулканарх Гримнир"
+      "ru": "Вулканарх Гримнир",
+      "pt": "Vulcanarch Grymnir",
+      "ja": "火山の君主グリムニル",
+      "ko": "화산 군주 그림니르"
      }
     },
     {
@@ -899,7 +1121,10 @@
       "de": "Kommandant der dritten Einheit Minasara",
       "fr": "Commandant Minasara de la troisième unité",
       "es": "Comandante de la Tercera Unidad Minasara",
-      "ru": "Командир третьего отряда Минасара"
+      "ru": "Командир третьего отряда Минасара",
+      "pt": "Minasara, Comandante da Terceira Unidade",
+      "ja": "第三部隊長ミナサラ",
+      "ko": "3부대장 미나사라"
      }
     },
     {
@@ -911,7 +1136,10 @@
       "de": "Legionsvogt Sarvakha",
       "fr": "Vice-commandant Sarvakha",
       "es": "Subcomandante Sarvakha",
-      "ru": "Младший глава армии Сарваха"
+      "ru": "Младший глава армии Сарваха",
+      "pt": "Subcomandante Sarvakha",
+      "ja": "副軍団長サルバカ",
+      "ko": "부군단장 사르바카"
      }
     }
    ]
@@ -924,7 +1152,10 @@
     "de": "Chaotische Untere Ebene von Reshanta",
     "fr": "Reshanta Inférieur du Chaos",
     "es": "Reshanta Inferior del Caos",
-    "ru": "Нижний уровень Арэшурата хаоса"
+    "ru": "Нижний уровень Арэшурата хаоса",
+    "pt": "Piso Inferior de Reshanta do Caos",
+    "ja": "混沌のエレシュランタ下層",
+    "ko": "혼돈의 에레슈란타 하층"
    },
    "bosses": [
     {
@@ -936,7 +1167,10 @@
       "de": "Geisterfürst Agro",
       "fr": "Agro le roi des esprits",
       "es": "Rey Espíritu Agro",
-      "ru": "Король духов Агро"
+      "ru": "Король духов Агро",
+      "pt": "Rei dos Espíritos Argo",
+      "ja": "精霊王アグロ",
+      "ko": "정령왕 아그로"
      }
     },
     {
@@ -948,7 +1182,10 @@
       "de": "Wächtergott Nahma",
       "fr": "Nahma le seigneur gardien",
       "es": "Gran Vigía Nahma",
-      "ru": "Лорд-хранитель Нахма"
+      "ru": "Лорд-хранитель Нахма",
+      "pt": "Senhor Guardião Nahma",
+      "ja": "守護神将ナフマ",
+      "ko": "수호신장 나흐마"
      },
      "fixed": {
       "kind": "weekly",
@@ -969,7 +1206,10 @@
       "de": "Aufseherin Kaira",
       "fr": "Kaira la veilleuse",
       "es": "Velador Kaira",
-      "ru": "Дозорщик Кайра"
+      "ru": "Дозорщик Кайра",
+      "pt": "Vigilante Kairah",
+      "ja": "監視者カイラ",
+      "ko": "감시자 카이라"
      },
      "fixed": {
       "kind": "cycle",
@@ -987,7 +1227,10 @@
       "de": "Wächtergott Nahma",
       "fr": "Nahma le seigneur gardien",
       "es": "Gran Vigía Nahma",
-      "ru": "Лорд-хранитель Нахма"
+      "ru": "Лорд-хранитель Нахма",
+      "pt": "Senhor Guardião Nahma",
+      "ja": "守護神将ナフマ",
+      "ko": "수호신장 나흐마"
      },
      "fixed": {
       "kind": "weekly",
@@ -1008,7 +1251,10 @@
       "de": "Wächtergott Nahma",
       "fr": "Nahma le seigneur gardien",
       "es": "Gran Vigía Nahma",
-      "ru": "Лорд-хранитель Нахма"
+      "ru": "Лорд-хранитель Нахма",
+      "pt": "Senhor Guardião Nahma",
+      "ja": "守護神将ナフマ",
+      "ko": "수호신장 나흐마"
      },
      "fixed": {
       "kind": "weekly",
@@ -1029,7 +1275,10 @@
       "de": "Vollstrecker Tamasa",
       "fr": "Tamasa l'exécuteur",
       "es": "Ejecutante Tamasa",
-      "ru": "Исполнитель Тамаса"
+      "ru": "Исполнитель Тамаса",
+      "pt": "Executor Tamasa",
+      "ja": "執行者タマサ",
+      "ko": "집행자 타마사"
      },
      "fixed": {
       "kind": "weekly",
@@ -1051,7 +1300,10 @@
       "de": "Vollstrecker Agro",
       "fr": "Agro exécuteur",
       "es": "Ejecutante Agro",
-      "ru": "Исполнитель Агро"
+      "ru": "Исполнитель Агро",
+      "pt": "Executor Argo",
+      "ja": "執行者アグロ",
+      "ko": "집행자 아그로"
      },
      "fixed": {
       "kind": "weekly",
@@ -1073,7 +1325,10 @@
       "de": "Vollstreckerin Kaira",
       "fr": "Kaira exécutrice",
       "es": "Ejecutante Kaira",
-      "ru": "Исполнитель Кайра"
+      "ru": "Исполнитель Кайра",
+      "pt": "Executor Kairah",
+      "ja": "執行者カイラ",
+      "ko": "집행자 카이라"
      },
      "fixed": {
       "kind": "weekly",
@@ -1096,7 +1351,10 @@
     "de": "Chaotische Mittlere Ebene von Reshanta",
     "fr": "Reshanta Intermédiaire du Chaos",
     "es": "Reshanta Intermedia del Caos",
-    "ru": "Средний уровень Арэшурата хаоса"
+    "ru": "Средний уровень Арэшурата хаоса",
+    "pt": "Piso Intermediário de Reshanta do Caos",
+    "ja": "混沌のエレシュランタ中層",
+    "ko": "혼돈의 에레슈란타 중층"
    },
    "bosses": [
     {
@@ -1108,7 +1366,10 @@
       "de": "Wütender Wächtergott Nahma",
       "fr": "Nahma le seigneur gardien enragé",
       "es": "Gran Vigía Nahma iracundo",
-      "ru": "Разъяренный лорд-хранитель Нахма"
+      "ru": "Разъяренный лорд-хранитель Нахма",
+      "pt": "Senhor Guardião Nahma Furioso",
+      "ja": "怒りの守護神将ナフマ",
+      "ko": "분노한 수호신장 나흐마"
      },
      "fixed": {
       "kind": "weekly",
@@ -1129,7 +1390,10 @@
       "de": "Wütender Wächtergott Nahma",
       "fr": "Nahma le seigneur gardien enragé",
       "es": "Gran Vigía Nahma iracundo",
-      "ru": "Разъяренный лорд-хранитель Нахма"
+      "ru": "Разъяренный лорд-хранитель Нахма",
+      "pt": "Senhor Guardião Nahma Furioso",
+      "ja": "怒りの守護神将ナフマ",
+      "ko": "분노한 수호신장 나흐마"
      },
      "fixed": {
       "kind": "weekly",
@@ -1150,7 +1414,10 @@
       "de": "Scharfrichter Dhramos",
       "fr": "Dramos l'exécuteur",
       "es": "Sayón Dramos",
-      "ru": "Палач Драмос"
+      "ru": "Палач Драмос",
+      "pt": "Carrasco Dramos",
+      "ja": "処刑官ドラモス",
+      "ko": "처형관 드라모스"
      },
      "fixed": {
       "kind": "weekly",
@@ -1172,7 +1439,10 @@
       "de": "Verräter Ducal",
       "fr": "Ducal le traître",
       "es": "Desleal Ducal",
-      "ru": "Изменник Дюкаль"
+      "ru": "Изменник Дюкаль",
+      "pt": "Traidor Ducal",
+      "ja": "反逆者デュカル",
+      "ko": "반역자 듀칼"
      },
      "fixed": {
       "kind": "weekly",
@@ -1194,7 +1464,10 @@
       "de": "Verwüster Maraka",
       "fr": "Maraka d'anéantissement",
       "es": "Desintegrador Maraka",
-      "ru": "Уничтожитель Марака"
+      "ru": "Уничтожитель Марака",
+      "pt": "Destruidor Marakha",
+      "ja": "破滅者マラカ",
+      "ko": "파멸자 마라카"
      },
      "fixed": {
       "kind": "weekly",

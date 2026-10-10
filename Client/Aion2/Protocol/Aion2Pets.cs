@@ -140,7 +140,7 @@ public static class Aion2Pets
 
             foreach ((int npcId, int[] petIds) in catalog.PetsOfNpc)
             {
-                foreach (string language in new[] { "en", "de", "fr", "es", "ru" })
+                foreach (string language in new[] { "en", "de", "fr", "es", "ru", "pt", "ja", "ko" })
                 {
                     string? name = Aion2Npcs.NameOf(npcId, language);
                     if (name is null)

@@ -2290,7 +2290,7 @@ function statLabel(token) {
 }
 
 // Skill names come in the game client's languages (de, en, es, fr, ja, ko, pt, ru); the site's other
-// languages (pl, tr, zh) fall back to the English name.
+// languages (pl, tr, zh, zh-TW) fall back to the English name.
 function localizedSkillName(skill) {
   return skill.names?.[getLocale()] ?? skill.name;
 }

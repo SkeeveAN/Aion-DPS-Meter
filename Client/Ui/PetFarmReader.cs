@@ -207,7 +207,7 @@ public sealed class PetFarmReader
             return _engine;
         }
 
-        string tag = language switch { "de" => "de-DE", "fr" => "fr-FR", "es" => "es-ES", "ru" => "ru-RU", _ => "en-US" };
+        string tag = language switch { "de" => "de-DE", "fr" => "fr-FR", "es" => "es-ES", "ru" => "ru-RU", "pt" => "pt-BR", "ja" => "ja-JP", "ko" => "ko-KR", _ => "en-US" };
         _engine = OcrEngine.TryCreateFromLanguage(new Language(tag)) ?? OcrEngine.TryCreateFromUserProfileLanguages();
         _engineLanguage = language;
         return _engine;

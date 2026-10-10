@@ -21,7 +21,7 @@ import build_spawns as bs
 CATEGORY = {"Od": "Od", "Herb": "Herb", "Food": "Food", "Ore": "Ore", "RareOre": "Ore", "Wood": "Wood", "Cotton": "Cotton",
             "Gemstone": "Gemstone", "Jewelry": "Gemstone", "Fragment": "Fragment"}
 WORLD_MAPS = ("World/World_L/World_L_A", "World/World_D/World_D_A", "Intersever/Abyss/Abyss_Reshanta_A")
-LANGS = {"en": "en-US", "de": "de-DE", "fr": "fr-FR", "es": "es-ES", "ru": "ru-RU"}
+LANGS = {"en": "en-US", "de": "de-DE", "fr": "fr-FR", "es": "es-ES", "ru": "ru-RU", "pt": "pt-BR", "ja": "ja-JP", "ko": "ko-KR"}
 
 
 def kind_of(key, usage, gather_name):

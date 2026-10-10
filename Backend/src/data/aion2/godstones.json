@@ -4,118 +4,169 @@
   "en": "Theostone: Kaisinel's Vestige",
   "es": "Piedra sagrada: Fracción de Kaisinel",
   "fr": "Pierre sacrée : Bribe de Kaisinel",
-  "ru": "Священный камень: Реликт Кайсинеля"
+  "ru": "Священный камень: Реликт Кайсинеля",
+  "pt": "Pedra Divina: Vestígio de Kaisinel",
+  "ja": "神石：カイジネルの片鱗",
+  "ko": "신석: 카이시넬의 편린"
  },
  "19950003": {
   "de": "Götterstein: Perions Tragödie",
   "en": "Theostone: Perion's Tragedy",
   "es": "Piedra sagrada: Tragedia de Perion",
   "fr": "Pierre sacrée : Tragédie de Perion",
-  "ru": "Священный камень: Трагедия Фериона"
+  "ru": "Священный камень: Трагедия Фериона",
+  "pt": "Pedra Divina: Tragédia de Perion",
+  "ja": "神石：フェリオンの悲劇",
+  "ko": "신석: 페리온의 비극"
  },
  "19950004": {
   "de": "Götterstein: Heladrirs Ketten",
   "en": "Theostone: Heladrir's Chains",
   "es": "Piedra sagrada: Cadena de Heladrir",
   "fr": "Pierre sacrée : Chaînes de Heladrir",
-  "ru": "Священный камень: Цепи Хеладрира"
+  "ru": "Священный камень: Цепи Хеладрира",
+  "pt": "Pedra Divina: Corrente de Heladrir",
+  "ja": "神石：ヒルラドルの鎖",
+  "ko": "신석: 힐라드르의 사슬"
  },
  "19950005": {
   "de": "Götterstein: Aulaks Gebrüll",
   "en": "Theostone: Aulak's Roar",
   "es": "Piedra sagrada: Rugido de Aulak",
   "fr": "Pierre sacrée : Rugissement d'Aulak",
-  "ru": "Священный камень: Рев Улака"
+  "ru": "Священный камень: Рев Улака",
+  "pt": "Pedra Divina: Rugido de Aulak",
+  "ja": "神石：ウラクの咆哮",
+  "ko": "신석: 울라크의 포효"
  },
  "19950006": {
   "de": "Götterstein: Nuas Heimtücke",
   "en": "Theostone: Nua's Scheme",
   "es": "Piedra sagrada: Plan malvado de Nua",
   "fr": "Pierre sacrée : Machination de Nua",
-  "ru": "Священный камень: Козни Нуа"
+  "ru": "Священный камень: Козни Нуа",
+  "pt": "Pedra Divina: Plano Maligno de Nuah",
+  "ja": "神石：ヌーアの悪計",
+  "ko": "신석: 누아의 흉계"
  },
  "19950007": {
   "de": "Götterstein: Redas Beharrlichkeit",
   "en": "Theostone: Reda's Tenacity",
   "es": "Piedra sagrada: Tenacidad de Reda",
   "fr": "Pierre sacrée : Ténacité de Reda",
-  "ru": "Священный камень: Упорство Леды"
+  "ru": "Священный камень: Упорство Леды",
+  "pt": "Pedra Divina: Persistência de Reda",
+  "ja": "神石：レダの執拗さ",
+  "ko": "신석: 레다의 집요함"
  },
  "19950008": {
   "de": "Götterstein: Notuns Geschick",
   "en": "Theostone: Notun's Craft",
   "es": "Piedra sagrada: Pericia de Notun",
   "fr": "Pierre sacrée : Finesse de Notun",
-  "ru": "Священный камень: Искусность Нотуна"
+  "ru": "Священный камень: Искусность Нотуна",
+  "pt": "Pedra Divina: Artifício de Notun",
+  "ja": "神石：ノトゥンの偽経",
+  "ko": "신석: 노툰의 기교"
  },
  "19950009": {
   "de": "Götterstein: Santras' Geheimnis",
   "en": "Theostone: Santras's Secret",
   "es": "Piedra sagrada: Secreto de Santras",
   "fr": "Pierre sacrée : Secret de Santras",
-  "ru": "Священный камень: Тайна Сантраса"
+  "ru": "Священный камень: Тайна Сантраса",
+  "pt": "Pedra Divina: Segredo de Santras",
+  "ja": "神石：サントラスの秘密",
+  "ko": "신석: 산트라스의 비밀"
  },
  "19950010": {
   "de": "Götterstein: Feruks Instinkt",
   "en": "Theostone: Feruk's Instinct",
   "es": "Piedra sagrada: Instinto de Feruk",
   "fr": "Pierre sacrée : Instinct de Feruk",
-  "ru": "Священный камень: Инстинкт Ферка"
+  "ru": "Священный камень: Инстинкт Ферка",
+  "pt": "Pedra Divina: Instinto de Feruk",
+  "ja": "神石：フェルクの本能",
+  "ko": "신석: 페르크의 본능"
  },
  "19950011": {
   "de": "Götterstein: Zikels Splitter",
   "en": "Theostone: Zikel's Vestige",
   "es": "Piedra sagrada: Fracción de Zikel",
   "fr": "Pierre sacrée : Bribe de Zikel",
-  "ru": "Священный камень: Реликт Джикела"
+  "ru": "Священный камень: Реликт Джикела",
+  "pt": "Pedra Divina: Vestígio de Zikel",
+  "ja": "神石：ジケルの片鱗",
+  "ko": "신석: 지켈의 편린"
  },
  "19950012": {
   "de": "Götterstein: Tassins Befehl",
   "en": "Theostone: Tassin's Command",
   "es": "Piedra sagrada: Orden de Tassin",
   "fr": "Pierre sacrée : Ordre de Tasin",
-  "ru": "Священный камень: Приказ Тасина"
+  "ru": "Священный камень: Приказ Тасина",
+  "pt": "Pedra Divina: Comando de Tassin",
+  "ja": "神石：タシンの命令",
+  "ko": "신석: 타신의 명령"
  },
  "19950013": {
   "de": "Götterstein: Ulgorns Wille",
   "en": "Theostone: Ulgorn's Will",
   "es": "Piedra sagrada: Voluntad de Ulgorn",
   "fr": "Pierre sacrée : Volonté d'Ulgorn",
-  "ru": "Священный камень: Воля Ульгорна"
+  "ru": "Священный камень: Воля Ульгорна",
+  "pt": "Pedra Divina: Vontade de Ulgorn",
+  "ja": "神石：ウルゴルンの意志",
+  "ko": "신석: 울고른의 의지"
  },
  "19950014": {
   "de": "Götterstein: Aultross' Gelübde",
   "en": "Theostone: Aultross's Promise",
   "es": "Piedra sagrada: Promesa de Aultross",
   "fr": "Pierre sacrée : Promesse d'Aultross",
-  "ru": "Священный камень: Обещание Аултроса"
+  "ru": "Священный камень: Обещание Аултроса",
+  "pt": "Pedra Divina: Promessa de Aultross",
+  "ja": "神石：アウルトロスの約束",
+  "ko": "신석: 아울트로스의 약속"
  },
  "19950015": {
   "de": "Götterstein: Bargotts Glut",
   "en": "Theostone: Bargott's Ember",
   "es": "Piedra sagrada: Brasa de Bargott",
   "fr": "Pierre sacrée : Braise de Bargott",
-  "ru": "Священный камень: Искра Багота"
+  "ru": "Священный камень: Искра Багота",
+  "pt": "Pedra Divina: Brasa de Bargott",
+  "ja": "神石：バゴットの火種",
+  "ko": "신석: 바고트의 불씨"
  },
  "19950016": {
   "de": "Götterstein: Aulvicars Zauber",
   "en": "Theostone: Aulvicar's Sorcery",
   "es": "Piedra sagrada: Hechicería de Aulvicar",
   "fr": "Pierre sacrée : Sortilège d'Aulvicar",
-  "ru": "Священный камень: Колдовство Аулафри"
+  "ru": "Священный камень: Колдовство Аулафри",
+  "pt": "Pedra Divina: Feitiço de Aulvicar",
+  "ja": "神石：アウルラプリーの呪術",
+  "ko": "신석: 아울라프리의 주술"
  },
  "19950017": {
   "de": "Götterstein: Gartuas Stärke",
   "en": "Theostone: Gartua's Strength",
   "es": "Piedra sagrada: Fuerza de Gartua",
   "fr": "Pierre sacrée : Force de Gartua",
-  "ru": "Священный камень: Сила Гартуа"
+  "ru": "Священный камень: Сила Гартуа",
+  "pt": "Pedra Divina: Força de Gartua",
+  "ja": "神石：ガルトゥアの力",
+  "ko": "신석: 가르투아의 힘"
  },
  "19950018": {
   "de": "Götterstein: Rathmans Gier",
   "en": "Theostone: Rathman's Greed",
   "es": "Piedra sagrada: Codicia de Rathman",
   "fr": "Pierre sacrée : Avidité de Rathman",
-  "ru": "Священный камень: Алчность Ратмана"
+  "ru": "Священный камень: Алчность Ратмана",
+  "pt": "Pedra Divina: Ganância de Rathman",
+  "ja": "神石：ラトマンの欲",
+  "ko": "신석: 라트만의 욕심"
  }
 }
