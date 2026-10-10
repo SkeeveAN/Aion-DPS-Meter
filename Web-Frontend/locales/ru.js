@@ -1,5 +1,14 @@
 // ru strings of the site, loaded on demand by i18n.js.
 export default {
+  "class.Gladiator": "Гладиатор",
+  "class.Templar": "Страж",
+  "class.Assassin": "Убийца",
+  "class.Ranger": "Стрелок",
+  "class.Sorcerer": "Волшебник",
+  "class.Spiritmaster": "Заклинатель",
+  "class.Cleric": "Целитель",
+  "class.Chanter": "Чародей",
+  "class.Brawler": "Боец",
   "region.Europe": "Европа",
   "region.Asia": "Азия",
   "region.NA East": "Северная Америка (восток)",

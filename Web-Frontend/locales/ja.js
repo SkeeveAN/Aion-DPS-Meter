@@ -1,5 +1,14 @@
 // ja strings of the site, loaded on demand by i18n.js.
 export default {
+  "class.Gladiator": "グラディエーター",
+  "class.Templar": "テンプラー",
+  "class.Assassin": "アサシン",
+  "class.Ranger": "レンジャー",
+  "class.Sorcerer": "ソーサラー",
+  "class.Spiritmaster": "スピリットマスター",
+  "class.Cleric": "クレリック",
+  "class.Chanter": "チャンター",
+  "class.Brawler": "ファイター",
   "region.Europe": "ヨーロッパ",
   "region.Asia": "アジア",
   "region.NA East": "北米東部",

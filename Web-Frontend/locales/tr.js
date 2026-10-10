@@ -1,5 +1,14 @@
 // tr strings of the site, loaded on demand by i18n.js.
 export default {
+  "class.Gladiator": "Gladyatör",
+  "class.Templar": "Tapınak Şövalyesi",
+  "class.Assassin": "Suikastçı",
+  "class.Ranger": "Okçu",
+  "class.Sorcerer": "Büyücü",
+  "class.Spiritmaster": "Spiritmaster",
+  "class.Cleric": "Rahip",
+  "class.Chanter": "Duacı",
+  "class.Brawler": "Kavgacı",
   "region.Europe": "Avrupa",
   "region.Asia": "Asya",
   "region.NA East": "Kuzey Amerika Doğu",

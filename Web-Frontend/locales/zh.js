@@ -1,5 +1,14 @@
 // zh strings of the site, loaded on demand by i18n.js.
 export default {
+  "class.Gladiator": "角斗士",
+  "class.Templar": "圣骑士",
+  "class.Assassin": "刺客",
+  "class.Ranger": "弓箭手",
+  "class.Sorcerer": "魔法师",
+  "class.Spiritmaster": "Spiritmaster",
+  "class.Cleric": "牧师",
+  "class.Chanter": "圣咏者",
+  "class.Brawler": "格斗家",
   "region.Europe": "欧洲",
   "region.Asia": "亚洲",
   "region.NA East": "北美东部",

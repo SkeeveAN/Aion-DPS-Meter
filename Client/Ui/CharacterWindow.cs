@@ -1,3 +1,4 @@
+using AionDPS.Data;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -350,7 +351,7 @@ public sealed class CharacterWindow : Window
 
         var names = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
         names.Children.Add(Text(character.Name, 22, FontWeights.Bold));
-        names.Children.Add(Text($"{className} · Level {character.Level}", 12.5, brush: Res("Brush.TextMuted")));
+        names.Children.Add(Text($"{ClassCatalog.DisplayName(className, LocalizationManager.Instance.Language)} · Level {character.Level}", 12.5, brush: Res("Brush.TextMuted")));
         // Faction, legion and server on one line, like the website's profile header.
         var meta = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 0) };
         // 2 in the class code's faction bit is Elyos (see Aion2EntityDirectory.FactionOf); the other value is not known to mean Asmodian.

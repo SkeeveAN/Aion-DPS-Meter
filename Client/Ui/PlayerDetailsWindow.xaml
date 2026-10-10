@@ -17,6 +17,7 @@
             <Setter Property="ToolTip" Value="{local:Loc Details.SortTooltip}"/>
         </Style>
         <local:ClassIconConverter x:Key="ClassIconConverter"/>
+        <local:ClassNameConverter x:Key="ClassNameConverter"/>
         <local:RaceIconConverter x:Key="RaceIconConverter"/>
         <!-- One DMG/DPS/TIME/HITS-PER-SEC stat tile: a small muted label over a large bold value,
              boxed, so the headline numbers read at a glance instead of being buried in
@@ -48,7 +49,7 @@
                 <Image Source="{Binding Faction, Converter={StaticResource RaceIconConverter}}"
                        Height="22" Width="22" Margin="0,0,4,0" ToolTip="{Binding Faction}"/>
                 <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}"
-                       Height="22" Width="22" Margin="0,0,8,0" ToolTip="{Binding ClassName}"/>
+                       Height="22" Width="22" Margin="0,0,8,0" ToolTip="{Binding ClassName, Converter={StaticResource ClassNameConverter}}"/>
                 <TextBlock x:Name="HeaderText" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
             </StackPanel>
             <!-- DMG/DPS/TIME/HITS-PER-SEC: the four numbers a reader looks for first, pulled out of

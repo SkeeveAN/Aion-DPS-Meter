@@ -1,5 +1,14 @@
 // de strings of the site, loaded on demand by i18n.js.
 export default {
+  "class.Gladiator": "Gladiator",
+  "class.Templar": "Templer",
+  "class.Assassin": "Assassine",
+  "class.Ranger": "Waldläufer",
+  "class.Sorcerer": "Magier",
+  "class.Spiritmaster": "Beschwörer",
+  "class.Cleric": "Kleriker",
+  "class.Chanter": "Kantor",
+  "class.Brawler": "Raufbold",
   "region.Europe": "Europa",
   "region.Asia": "Asien",
   "region.NA East": "Nordamerika Ost",

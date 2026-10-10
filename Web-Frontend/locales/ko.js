@@ -1,5 +1,14 @@
 // ko strings of the site, loaded on demand by i18n.js.
 export default {
+  "class.Gladiator": "검성",
+  "class.Templar": "수호성",
+  "class.Assassin": "살성",
+  "class.Ranger": "궁성",
+  "class.Sorcerer": "마도성",
+  "class.Spiritmaster": "정령성",
+  "class.Cleric": "치유성",
+  "class.Chanter": "호법성",
+  "class.Brawler": "권성",
   "region.Europe": "유럽",
   "region.Asia": "아시아",
   "region.NA East": "북미 동부",

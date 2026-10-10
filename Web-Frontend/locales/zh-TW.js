@@ -1,5 +1,14 @@
 // zh-TW strings of the site, loaded on demand by i18n.js.
 export default {
+  "class.Gladiator": "劍星",
+  "class.Templar": "守護星",
+  "class.Assassin": "殺星",
+  "class.Ranger": "弓星",
+  "class.Sorcerer": "魔道星",
+  "class.Spiritmaster": "精靈星",
+  "class.Cleric": "治癒星",
+  "class.Chanter": "護法星",
+  "class.Brawler": "格鬥家",
   "region.Europe": "歐洲",
   "region.Asia": "亞洲",
   "region.NA East": "北美東部",

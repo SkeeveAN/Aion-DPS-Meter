@@ -6,6 +6,7 @@
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
         FontSize="{DynamicResource FontSize.Base}">
     <Window.Resources>
+        <local:ClassNameConverter x:Key="ClassNameConverter"/>
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
             <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
@@ -78,7 +79,7 @@
         <DataGrid x:Name="ParticipantsGrid" Grid.Row="3">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{local:Loc Main.ColumnName}" Binding="{Binding Name}" Width="*"/>
-                <DataGridTextColumn Header="{local:Loc History.ColumnClass}" Binding="{Binding ClassName}" Width="100"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnClass}" Binding="{Binding ClassName, Converter={StaticResource ClassNameConverter}}" Width="100"/>
                 <DataGridTextColumn Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage, StringFormat=N0}" Width="110"/>
                 <DataGridTextColumn Header="DPS" Binding="{Binding DpsDisplay}" Width="70"/>
                 <DataGridTextColumn Header="{local:Loc History.ColumnHealing}" Binding="{Binding Healing, StringFormat=N0}" Width="100"/>

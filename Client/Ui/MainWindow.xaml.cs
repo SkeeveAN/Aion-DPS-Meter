@@ -1649,6 +1649,7 @@ public partial class MainWindow : Window
     private void OnWindowLoaded(object sender, RoutedEventArgs e)
     {
         ApplyClassFilterAvailability();
+        LocalizationManager.Instance.PropertyChanged += (_, _) => LocalizeClassFilter();
 
         // See AppIconImage's own XAML remarks: a plain pack://siteoforigin Source silently
         // rendered nothing for this specific .ico, so it's decoded via GDI instead - the same
@@ -2039,8 +2040,28 @@ public partial class MainWindow : Window
 
     /// <summary>Hides the Class dropdown's entries that are no Aion 2 class (the static XAML list is
     /// wider than the game's roster); an unknown selection falls back to "All".</summary>
+    /// <summary>The class names in the class filter, in the UI language as the game client spells them.</summary>
+    private void LocalizeClassFilter()
+    {
+        string language = LocalizationManager.Instance.Language;
+        foreach (ComboBoxItem item in ClassFilter.Items.OfType<ComboBoxItem>())
+        {
+            if (item.Tag is string className && item.Content is StackPanel { Children: { Count: > 0 } children })
+            {
+                string shown = ClassCatalog.DisplayName(className, language);
+                if (children.OfType<TextBlock>().FirstOrDefault() is { } text)
+                {
+                    text.Text = shown;
+                }
+
+                System.Windows.Automation.AutomationProperties.SetName(item, shown);
+            }
+        }
+    }
+
     private void ApplyClassFilterAvailability()
     {
+        LocalizeClassFilter();
         bool selectedClassHidden = false;
         foreach (ComboBoxItem item in ClassFilter.Items.OfType<ComboBoxItem>())
         {

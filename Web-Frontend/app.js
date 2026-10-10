@@ -144,13 +144,21 @@ function classMeta(className) {
   return CLASS_META[className] ?? UNKNOWN_CLASS_META;
 }
 
+// A class's name in the reader's language, as the game client spells it (class.<English name> in locales/); the English name
+// stays the key everywhere else (icons, colors, uploads).
+function classLabel(className) {
+  const key = `class.${className}`;
+  const text = t(key);
+  return text === key ? className : text;
+}
+
 // Aion 2's nine classes have no icon files - a short text badge stands in.
 function classIcon(className) {
   const file = CLASS_EMBLEM[className];
   if (file) {
-    return el("img", { className: "class-emblem", src: `/images/aion2/classes/badge/${file}.webp`, alt: className, title: className, width: 128, height: 128, loading: "lazy" });
+    return el("img", { className: "class-emblem", src: `/images/aion2/classes/badge/${file}.webp`, alt: classLabel(className), title: classLabel(className), width: 128, height: 128, loading: "lazy" });
   }
-  return el("span", { className: "class-badge", title: className, textContent: AION2_CLASS_ABBREVIATIONS[className] ?? className.slice(0, 3).toUpperCase() });
+  return el("span", { className: "class-badge", title: classLabel(className), textContent: AION2_CLASS_ABBREVIATIONS[className] ?? className.slice(0, 3).toUpperCase() });
 }
 
 function factionIcon(faction) {
@@ -810,7 +818,7 @@ async function renderGuild(slug) {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), link(t("guild.listTitle"), "/legions"), guild.name]);
   const rows = members.map((m) => el("tr", {}, [
     el("td", {}, [link(m.name, `/players/${m.slug ?? m.id}`)]),
-    el("td", {}, [m.className ? iconLabel(classIcon(m.className), m.className) : ""]),
+    el("td", {}, [m.className ? iconLabel(classIcon(m.className), classLabel(m.className)) : ""]),
     el("td", { textContent: m.level ?? "" }),
     el("td", { textContent: m.gearScore ? formatNumber(m.gearScore) : "–" }),
     el("td", { textContent: m.avgItemLevel ? formatNumber(m.avgItemLevel) : "–" }),
@@ -883,7 +891,7 @@ async function renderStats(secret) {
       tile("Downloads (website)", d.downloads.total, `${nf(d.downloads.last30)} in the last 30 days`),
     ]),
     bars([...d.encountersPerDay].reverse(), (r) => r.day, (r) => r.count, "Boss fights per day (last 30 days)"),
-    bars(d.classes, (r) => r.name, (r) => r.count, "Players per class"),
+    bars(d.classes, (r) => classLabel(r.name), (r) => r.count, "Players per class"),
     bars(d.topBosses, (r) => {
       // The difficulty step (Nightmare level, Transcendence stage, Ascension step) and a conquest fight's rating show as stars,
       // so "Ruthilis of Pain ★" and "Ruthilis of Pain ★★★" are told apart.
@@ -1728,7 +1736,7 @@ function classEmblem(className, small, tint) {
   if (tint) {
     ensureEmblemTints();
   }
-  return el("img", { className: `lb-emblem${small ? " sm" : ""}${tint ? " tinted" : ""}`, src: `/images/aion2/classes/${file}.webp`, alt: className, title: className, loading: "lazy", style: tint ? `--tint:url(#emblem-tint-${file})` : "" });
+  return el("img", { className: `lb-emblem${small ? " sm" : ""}${tint ? " tinted" : ""}`, src: `/images/aion2/classes/${file}.webp`, alt: classLabel(className), title: classLabel(className), loading: "lazy", style: tint ? `--tint:url(#emblem-tint-${file})` : "" });
 }
 
 function memberHref(p, encounterId) {
@@ -1877,7 +1885,7 @@ async function renderLeaderboard(bossSlug, params) {
             ),
           );
           return el("div", { className: "class-block" }, [
-            el("h3", {}, [iconLabel(classIcon(className), className)]),
+            el("h3", {}, [iconLabel(classIcon(className), classLabel(className))]),
             rankedTable(rows, false),
           ]);
         }),
