@@ -86,14 +86,13 @@ export function publicStats() {
     "select date(created_at) day, count(*) n from encounters where created_at >= datetime('now','-30 days') group by day order by day",
   ).map((r) => ({ day: String(r.day), count: num(r.n) }));
   const classes = all("select class_name name, count(distinct player_id) n from encounter_participants group by class_name order by n desc limit 12").map((r) => ({ name: String(r.name), count: num(r.n) }));
-  // A player's faction is the one the client reported for him (in a fight, else in his profile); old uploads filed everybody under the uploader's server, so a player whose
+  // A player's faction is the one the client reported for him (in a fight; the profile's faction field is no faction - Elyos characters carry 1 and 2 there); old uploads filed everybody under the uploader's server, so a player whose
   // faction doesn't match that server's can't really be there: he is counted as "unknown server" of that region, never under the wrong server.
   const serverRows = all(
     `select name, faction, sfaction, count(*) n from (
        select coalesce(s.display_name, s.fingerprint) name,
          (select c.faction from server_catalog c where c.name = s.display_name and c.game = 'aion2' limit 1) sfaction,
-         coalesce(nullif((select ep.faction from encounter_participants ep where ep.player_id = p.id and ep.faction <> '' order by ep.id desc limit 1), ''),
-                  (select case pp.faction when 1 then 'Elyos' when 2 then 'Asmodian' end from player_profiles pp where pp.player_id = p.id), '') faction
+         coalesce(nullif((select ep.faction from encounter_participants ep where ep.player_id = p.id and ep.faction <> '' order by ep.id desc limit 1), ''), '') faction
        from players p join servers s on s.id = p.server_id
      ) group by name, faction, sfaction`,
   );
