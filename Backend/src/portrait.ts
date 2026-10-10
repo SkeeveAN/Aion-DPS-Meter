@@ -7,8 +7,8 @@ import jpeg from "jpeg-js";
 
 export type Rgba = { width: number; height: number; data: Uint8Array };
 
-/** Pixels darker than this (max of R, G, B) count as background when they connect to the border. NC's background is pure black (about 2); dark clothing and hair reach 20-40, so the limit must stay close to the background. */
-export const BACKGROUND_MAX = 10;
+/** Pixels darker than this (max of R, G, B) count as background when they connect to the border. NC's background is pure black (about 2); black coats and dark hair are only a few levels above it, so the limit must stay close to the background. */
+export const BACKGROUND_MAX = 5;
 
 /**
  * Flood fill from all four image borders over pixels with max(R,G,B) < BACKGROUND_MAX (4-neighbourhood) and make them
