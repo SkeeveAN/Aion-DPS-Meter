@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.30.0",
   "date": "2026-10-10",
   "items": [
    {
@@ -44,6 +44,27 @@
    },
    {
     "text": "The pet regions list the islands: the Island of Eternity (Verteron) and the Island of Immortality (Altgard), plus the Ruby Island and the Spirit Island, get their own regions instead of hiding under the Kraka Footpath, Moslan Forest and the camps",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "Only the current client may upload: the server answers an outdated client with 426 and a message (the newest release by release time is required, a grace period can be set), and tells the client at start-up which version may upload",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "The meter stops uploading when the server says it is outdated and shows \"Old client version, please update\" at once (a meter that uploads by itself asks at start-up), fetches the update when \"check for updates\" is on, and talks to GitHub at start-up only while that setting is on",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "Only the current version of the meter can upload: an old one is told so at start-up and after a refused upload and stops trying until it is updated (it fetches the update when \"check for updates\" is on, and talks to GitHub at start-up only then); the character window counts Daevanion points per board and in total; the pet regions list the islands",
     "areas": [
      "Client"
     ],
