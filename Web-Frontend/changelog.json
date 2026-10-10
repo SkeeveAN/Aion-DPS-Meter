@@ -176,6 +176,13 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Players per server has no cap: every server is listed",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
