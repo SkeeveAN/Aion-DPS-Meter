@@ -1,5 +1,6 @@
 import { sqlite } from "../db/client.js";
 import { factionOfServerName } from "../factions.js";
+import { linkPlayerGuild } from "../guilds.js";
 import { normalizeName } from "./roster.js";
 
 /**
@@ -95,6 +96,7 @@ export function rehomeKnownPlayers(members: { name: string; guild?: string; targ
       return;
     }
     sqlite.prepare("update players set server_id = ? where id = ?").run(m.target, candidate.id);
+    linkPlayerGuild(candidate.id);
     settled.set(m.norm, candidate.id);
     pending.delete(m.norm);
     moved.push(m.name);

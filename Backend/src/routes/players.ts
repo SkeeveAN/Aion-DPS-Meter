@@ -177,7 +177,7 @@ export async function playerRoutes(app: FastifyInstance) {
       .map((run) => withServerFaction({ ...run, serverName: player.serverName }));
 
     const guildSlug = player.guild && player.serverId !== null
-      ? (listGuilds().find((g) => g.serverId === player.serverId && g.name === player.guild?.trim())?.slug ?? null)
+      ? (listGuilds().find((g) => g.serverId === player.serverId && g.name.toLowerCase() === player.guild?.trim().toLowerCase())?.slug ?? null)
       : null;
     // The faction the client sent wins; the server (the uploader's, matched worlds mix factions) is only the fallback.
     const profile = buildProfileView(playerId);

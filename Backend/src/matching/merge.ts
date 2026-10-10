@@ -20,6 +20,7 @@ import { slugify, uniqueSlug } from "../seo/slug.js";
 import { upsertProfile } from "../profile.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
 import { rehomeKnownPlayers } from "./rehome.js";
+import { linkPlayerGuild } from "../guilds.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -212,6 +213,9 @@ function upsertPlayer(name: string, serverId: number, guild?: string, faction?: 
       .set({ name, lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}), ...(faction ? { faction } : {}) })
       .where(eq(players.id, existing.id))
       .run();
+    if (guild) {
+      linkPlayerGuild(existing.id);
+    }
     return existing.id;
   }
 
@@ -231,12 +235,18 @@ function upsertPlayer(name: string, serverId: number, guild?: string, faction?: 
       .set({ lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}), ...(faction ? { faction } : {}) })
       .where(eq(players.id, aliasMatch.id))
       .run();
+    if (guild) {
+      linkPlayerGuild(aliasMatch.id);
+    }
     return aliasMatch.id;
   }
 
   const inserted = db.insert(players).values({ name, nameNormalized, serverId, guild: guild ?? null, faction: faction ?? "" }).run();
   const playerId = Number(inserted.lastInsertRowid);
   ensurePlayerSlug(playerId);
+  if (guild) {
+    linkPlayerGuild(playerId);
+  }
   return playerId;
 }
 

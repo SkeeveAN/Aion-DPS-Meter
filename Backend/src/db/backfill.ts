@@ -2,6 +2,7 @@ import { eq, isNull } from "drizzle-orm";
 import { db } from "./client.js";
 import { bosses, instances, players, serverCatalog } from "./schema.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
+import { assignGuildSlugs, syncGuilds } from "../guilds.js";
 import { GAME_NAME_TRANSLATIONS } from "../../../Web-Frontend/game-data.js";
 import { slugify, uniqueSlug } from "../seo/slug.js";
 import { UNASSIGNED_INSTANCE_NAME } from "../constants.js";
@@ -20,8 +21,11 @@ export function englishNameFor(name: string): string | null {
  * hand-written content migration inserts without a slug. Idempotent: rows with a slug are never
  * touched, so a slug stays stable even if the row is renamed later (URLs must not rot).
  */
-export function backfillSlugs(): { serverCatalog: number; instances: number; bosses: number; players: number } {
-  const counts = { serverCatalog: 0, instances: 0, bosses: 0, players: 0 };
+export function backfillSlugs(): { serverCatalog: number; instances: number; bosses: number; players: number; guilds: number } {
+  const counts = { serverCatalog: 0, instances: 0, bosses: 0, players: 0, guilds: 0 };
+  // Legions: players moved outside the upload path (a script, a correction) get their legion row again, then every legion its link.
+  syncGuilds();
+  counts.guilds = assignGuildSlugs();
 
   const catalogTaken = new Set(
     db.select({ slug: serverCatalog.slug }).from(serverCatalog).all().map((r) => r.slug).filter((s): s is string => s !== null),

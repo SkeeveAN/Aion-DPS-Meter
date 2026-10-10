@@ -250,6 +250,24 @@ export const bossMechanics = sqliteTable(
   }),
 );
 
+// A legion: a name on one server (the game's legions belong to a server). players.guild keeps the name a player was seen with,
+// players.guild_id the legion row it belongs to; the slug is assigned once and then kept, so a link never rots when members move.
+export const guilds = sqliteTable(
+  "guilds",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    nameNormalized: text("name_normalized").notNull(),
+    serverId: integer("server_id").notNull().references(() => servers.id),
+    slug: text("slug"),
+    createdAt: text("created_at").notNull().default(sql`(current_timestamp)`),
+  },
+  (table) => ({
+    serverNameIdx: uniqueIndex("guilds_server_id_name_normalized_idx").on(table.serverId, table.nameNormalized),
+    slugIdx: uniqueIndex("guilds_slug_idx").on(table.slug),
+  }),
+);
+
 export const players = sqliteTable(
   "players",
   {
@@ -261,6 +279,7 @@ export const players = sqliteTable(
     serverId: integer("server_id").references(() => servers.id),
     // "Elyos" | "Asmodian" | "": the faction a fight or a profile upload reported for him (the latest non-empty one).
     faction: text("faction").notNull().default(""),
+    guildId: integer("guild_id").references(() => guilds.id),
     // Display name, latest-seen casing. Uniqueness/lookup goes through
     // nameNormalized below since SQLite text columns compare case-sensitively
     // by default and Aion names are otherwise unique per side.
@@ -300,6 +319,7 @@ export const players = sqliteTable(
       table.nameNormalized,
     ),
     slugIdx: uniqueIndex("players_slug_idx").on(table.slug),
+    guildIdIdx: index("players_guild_id_idx").on(table.guildId),
   }),
 );
 
