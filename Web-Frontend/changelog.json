@@ -1,7 +1,7 @@
 [
  {
   "version": "Unreleased",
-  "date": "2026-10-09",
+  "date": "2026-10-10",
   "items": [
    {
     "text": "Items above +15 show the Amplify stage (the game's 5 stars) as a small diamond next to +15, and weapons list its orange bonus values; in the client and on the player page",
@@ -34,6 +34,14 @@
      "Backend"
     ],
     "date": "2026-10-09"
+   },
+   {
+    "text": "Europe lists 21 servers per faction: Gauss and Agnita are live",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
