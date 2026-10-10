@@ -1,5 +1,12 @@
 // ru strings of the site, loaded on demand by i18n.js.
 export default {
+  "region.Europe": "Европа",
+  "region.Asia": "Азия",
+  "region.NA East": "Северная Америка (восток)",
+  "region.NA West": "Северная Америка (запад)",
+  "region.North America": "Северная Америка",
+  "region.LATAM": "Латинская Америка",
+  "stats.unknownServer": "сервер неизвестен",
   "compare.ctaRuns": "Сравнить с другим забегом",
   "compare.ctaPlayers": "Сравнить с другим игроком",
   "compare.runsTitle": "Сравнение забегов",

@@ -885,7 +885,7 @@ async function renderStats(secret) {
     bars([...d.encountersPerDay].reverse(), (r) => r.day, (r) => r.count, "Boss fights per day (last 30 days)"),
     bars(d.classes, (r) => r.name, (r) => r.count, "Players per class"),
     // The server's faction icon sits before its name, as tall as the text.
-    bars(d.servers, (r) => iconLabel(factionIcon(r.faction), r.name), (r) => r.count, "Players per server"),
+    bars(d.servers, (r) => iconLabel(factionIcon(r.faction), r.unknown ? `${regionLabel(r.name)} - ${t("stats.unknownServer")}` : serverLabel(r.name)), (r) => r.count, "Players per server"),
     bars(d.topBosses, (r) => {
       // The difficulty step (Nightmare level, Transcendence stage, Ascension step) and a conquest fight's rating show as stars,
       // so "Ruthilis of Pain ★" and "Ruthilis of Pain ★★★" are told apart.
@@ -1089,13 +1089,17 @@ function posterCard(href, photo, title, objectPosition) {
 
 /** Display name as the UI translation table knows it, else the English name the DB carries, else the raw name. */
 /** A server label as stored ("Europe - Tsenka", "NA East - Siel", "Hogalum [1317]") with the server's name in the
- * reader's language, as the game spells it (only a few names differ - see SERVER_NAMES). The region stays. */
+ * reader's language, as the game spells it (only a few names differ - see SERVER_NAMES). The region is translated too. */
+function regionLabel(region) {
+  return ["Europe", "Asia", "North America", "NA East", "NA West", "LATAM"].includes(region) ? t(`region.${region}`) : region;
+}
+
 function serverLabel(label) {
   if (!label) {
     return label;
   }
   const cut = label.lastIndexOf(" - ");
-  const head = cut >= 0 ? label.slice(0, cut + 3) : "";
+  const head = cut >= 0 ? regionLabel(label.slice(0, cut)) + " - " : "";
   const m = /^(.+?)( \[\d+\])?$/.exec(label.slice(cut >= 0 ? cut + 3 : 0));
   const name = m ? m[1] : label;
   return head + (SERVER_NAMES[name]?.[getLocale()] ?? name) + (m?.[2] ?? "");

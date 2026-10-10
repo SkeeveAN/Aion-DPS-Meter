@@ -1,5 +1,12 @@
 // ja strings of the site, loaded on demand by i18n.js.
 export default {
+  "region.Europe": "ヨーロッパ",
+  "region.Asia": "アジア",
+  "region.NA East": "北米東部",
+  "region.NA West": "北米西部",
+  "region.North America": "北米",
+  "region.LATAM": "ラテンアメリカ",
+  "stats.unknownServer": "サーバー不明",
   "compare.ctaRuns": "別のランと比較",
   "compare.ctaPlayers": "別のプレイヤーと比較",
   "compare.runsTitle": "ランの比較",

@@ -1,5 +1,12 @@
 // zh strings of the site, loaded on demand by i18n.js.
 export default {
+  "region.Europe": "欧洲",
+  "region.Asia": "亚洲",
+  "region.NA East": "北美东部",
+  "region.NA West": "北美西部",
+  "region.North America": "北美",
+  "region.LATAM": "拉丁美洲",
+  "stats.unknownServer": "服务器未知",
   "compare.ctaRuns": "与其他战斗对比",
   "compare.ctaPlayers": "与其他玩家对比",
   "compare.runsTitle": "战斗对比",

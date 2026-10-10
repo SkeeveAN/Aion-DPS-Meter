@@ -1,5 +1,12 @@
 // tr strings of the site, loaded on demand by i18n.js.
 export default {
+  "region.Europe": "Avrupa",
+  "region.Asia": "Asya",
+  "region.NA East": "Kuzey Amerika Doğu",
+  "region.NA West": "Kuzey Amerika Batı",
+  "region.North America": "Kuzey Amerika",
+  "region.LATAM": "Latin Amerika",
+  "stats.unknownServer": "sunucu bilinmiyor",
   "compare.ctaRuns": "Başka bir run ile karşılaştır",
   "compare.ctaPlayers": "Başka bir oyuncuyla karşılaştır",
   "compare.runsTitle": "Run karşılaştırması",

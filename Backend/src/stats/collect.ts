@@ -86,9 +86,30 @@ export function publicStats() {
     "select date(created_at) day, count(*) n from encounters where created_at >= datetime('now','-30 days') group by day order by day",
   ).map((r) => ({ day: String(r.day), count: num(r.n) }));
   const classes = all("select class_name name, count(distinct player_id) n from encounter_participants group by class_name order by n desc limit 12").map((r) => ({ name: String(r.name), count: num(r.n) }));
-  const servers = all(
-    `select coalesce(s.display_name, s.fingerprint) name, (select c.faction from server_catalog c where c.name = s.display_name and c.game = 'aion2' limit 1) faction, count(*) n from players p join servers s on s.id = p.server_id group by p.server_id order by n desc limit 12`,
-  ).map((r) => ({ name: String(r.name), faction: r.faction ? String(r.faction) : factionOfServerName(String(r.name)), count: num(r.n) }));
+  // A player's faction is the one the client reported for him; old uploads filed everybody under the uploader's server, so a player whose
+  // faction doesn't match that server's can't really be there: he is counted as "unknown server" of that region, never under the wrong server.
+  const serverRows = all(
+    `select name, faction, sfaction, count(*) n from (
+       select coalesce(s.display_name, s.fingerprint) name,
+         (select c.faction from server_catalog c where c.name = s.display_name and c.game = 'aion2' limit 1) sfaction,
+         coalesce(nullif((select ep.faction from encounter_participants ep where ep.player_id = p.id and ep.faction <> '' order by ep.id desc limit 1), ''), '') faction
+       from players p join servers s on s.id = p.server_id
+     ) group by name, faction, sfaction`,
+  );
+  const serverCounts = new Map<string, { name: string; faction: string; count: number; unknown?: boolean }>();
+  for (const r of serverRows) {
+    const name = String(r.name);
+    const serverFaction = (r.sfaction ? String(r.sfaction) : factionOfServerName(name)) || String(r.faction ?? "");
+    const faction = String(r.faction || serverFaction);
+    const unknown = faction !== serverFaction;
+    // An unknown server keeps only its region ("Europe"); the website writes the words in the visitor's language.
+    const shown = unknown ? name.split(" - ")[0] : name;
+    const key = `${shown}|${faction}|${unknown}`;
+    const row = serverCounts.get(key) ?? { name: shown, faction, count: 0, ...(unknown ? { unknown } : {}) };
+    row.count += num(r.n);
+    serverCounts.set(key, row);
+  }
+  const servers = [...serverCounts.values()].sort((x, y) => y.count - x.count).slice(0, 12);
   const topBosses = all(
     `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, e.mode mode, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id, e.mode order by n desc limit 10`,
   ).map((r) => ({ name: String(r.en ?? r.name), instance: String(r.instance), stars: starsOf(String(r.mode ?? "")), count: num(r.n) }));

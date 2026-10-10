@@ -1,5 +1,12 @@
 // fr strings of the site, loaded on demand by i18n.js.
 export default {
+  "region.Europe": "Europe",
+  "region.Asia": "Asie",
+  "region.NA East": "Amérique du Nord Est",
+  "region.NA West": "Amérique du Nord Ouest",
+  "region.North America": "Amérique du Nord",
+  "region.LATAM": "Amérique latine",
+  "stats.unknownServer": "serveur inconnu",
   "compare.ctaRuns": "Comparer avec un autre run",
   "compare.ctaPlayers": "Comparer avec un autre joueur",
   "compare.runsTitle": "Comparaison de runs",

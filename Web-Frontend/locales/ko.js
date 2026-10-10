@@ -1,5 +1,12 @@
 // ko strings of the site, loaded on demand by i18n.js.
 export default {
+  "region.Europe": "유럽",
+  "region.Asia": "아시아",
+  "region.NA East": "북미 동부",
+  "region.NA West": "북미 서부",
+  "region.North America": "북미",
+  "region.LATAM": "중남미",
+  "stats.unknownServer": "서버 알 수 없음",
   "compare.ctaRuns": "다른 런과 비교",
   "compare.ctaPlayers": "다른 플레이어와 비교",
   "compare.runsTitle": "런 비교",
