@@ -147,6 +147,13 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Group shields (Protection Circle, Impeding Authority) show as damage absorbed: a blue part of the damage taken on the website, in the Taken bars and beside the red figures in All in One, instead of a shield the hit player supposedly gave",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
