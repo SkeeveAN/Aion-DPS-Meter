@@ -24,7 +24,7 @@ public static class Aion2Servers
     {
         [1] = ("NA East", 8),
         [2] = ("NA West", 5),
-        [3] = ("Europe", 20),
+        [3] = ("Europe", 21),
         [4] = ("LATAM", 6),
         [5] = ("Asia", 7),
     };
