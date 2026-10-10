@@ -1,5 +1,15 @@
 // ja strings of the site, loaded on demand by i18n.js.
 export default {
+  "guild.allServers": "すべてのサーバー",
+  "guild.servers": "サーバー",
+  "guild.regionStats": "{servers} サーバー · {legions} 軍団",
+  "guild.regionOther": "その他",
+  "guild.bigHeading": "メンバー3人以上の軍団 · {server}",
+  "guild.bigCount": "{count} 軍団（五十音・ABC順）",
+  "guild.smallHeading": "小さな軍団",
+  "guild.smallCount": "メンバー1〜2人の {count} 軍団（五十音・ABC順）",
+  "guild.noBig": "大きな軍団はありません。",
+  "guild.noClasses": "クラス不明",
   "class.Gladiator": "グラディエーター",
   "class.Templar": "テンプラー",
   "class.Assassin": "アサシン",

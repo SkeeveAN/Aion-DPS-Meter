@@ -1,5 +1,15 @@
 // ko strings of the site, loaded on demand by i18n.js.
 export default {
+  "guild.allServers": "모든 서버",
+  "guild.servers": "서버",
+  "guild.regionStats": "서버 {servers}개 · 군단 {legions}개",
+  "guild.regionOther": "기타",
+  "guild.bigHeading": "멤버 3명 이상 군단 · {server}",
+  "guild.bigCount": "군단 {count}개, 가나다순",
+  "guild.smallHeading": "소규모 군단",
+  "guild.smallCount": "멤버 1–2명 군단 {count}개, 가나다순",
+  "guild.noBig": "더 큰 군단이 없습니다.",
+  "guild.noClasses": "클래스 알 수 없음",
   "class.Gladiator": "검성",
   "class.Templar": "수호성",
   "class.Assassin": "살성",

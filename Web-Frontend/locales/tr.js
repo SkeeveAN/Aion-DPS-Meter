@@ -1,5 +1,15 @@
 // tr strings of the site, loaded on demand by i18n.js.
 export default {
+  "guild.allServers": "Tüm sunucular",
+  "guild.servers": "Sunucular",
+  "guild.regionStats": "{servers} sunucu · {legions} lejyon",
+  "guild.regionOther": "Diğer",
+  "guild.bigHeading": "3 ve üzeri üyeli lejyonlar · {server}",
+  "guild.bigCount": "{count} lejyon, A–Z",
+  "guild.smallHeading": "Küçük lejyonlar",
+  "guild.smallCount": "1–2 üyeli {count} lejyon, A–Z",
+  "guild.noBig": "Daha büyük lejyon yok.",
+  "guild.noClasses": "Sınıflar bilinmiyor",
   "class.Gladiator": "Gladyatör",
   "class.Templar": "Tapınak Şövalyesi",
   "class.Assassin": "Suikastçı",

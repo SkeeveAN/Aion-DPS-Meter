@@ -2677,28 +2677,54 @@ body:has(.download-hero) .nav-download-link:hover,
 .status-spark i.down { background: var(--color-danger); }
 
 /* Legions */
-.guild-filter { width: 100%; max-width: 420px; margin: 8px 0 16px; padding: 8px 10px; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); border-radius: 8px; font: inherit; }
-.guild-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-.guild-card { display: grid; gap: 2px; padding: 12px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); color: var(--color-text); text-decoration: none; }
-.guild-card:hover { border-color: var(--color-primary); }
-.guild-card span, .guild-card small { color: var(--color-text-muted); }
+.guild-filter { width: min(100%, 520px); padding: 9px 12px; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); border-radius: 8px; font: inherit; }
 .guild-table { border-collapse: collapse; width: 100%; max-width: 760px; }
 .guild-table th, .guild-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--color-border); }
 .guild-table th { color: var(--color-text-muted); font-size: 12px; }
 
-/* Legion list: one block per server. */
-.guild-groups {
-  display: grid;
-  gap: 28px;
-  margin-top: 16px;
-}
-.guild-group h3 {
-  margin: 0 0 12px;
-  font-size: 1.1rem;
-}
-.guild-group h3 small {
-  color: var(--color-text-muted);
-  font-weight: 400;
+/* Legion list: servers in a collapsible sidebar, the larger legions as cards, the small ones as a list. */
+.faction-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; background: var(--color-text-muted); }
+.faction-dot.elyos { background: #6fb7ff; }
+.faction-dot.asmodian { background: #ff9b6a; }
+.guild-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 40px; align-items: start; margin-top: 24px; }
+.guild-servers { display: grid; gap: 4px; position: sticky; top: 12px; }
+.guild-server { display: grid; grid-template-columns: 12px 1fr auto; gap: 10px; align-items: center; text-align: left; padding: 10px 12px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--color-text); font: inherit; cursor: pointer; }
+.guild-server:hover { background: var(--color-surface); }
+.guild-server[aria-pressed="true"] { background: var(--color-surface); border-color: var(--color-primary); }
+.guild-server small, .guild-region small { color: var(--color-text-muted); }
+.guild-region { display: grid; grid-template-columns: 14px 1fr auto; gap: 10px; align-items: center; width: 100%; text-align: left; margin-top: 10px; padding: 10px 12px; border: 0; border-bottom: 1px solid var(--color-border); background: transparent; color: var(--color-text); font: inherit; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.guild-region small { font-weight: 400; letter-spacing: 0; text-transform: none; }
+.guild-region .chev { width: 8px; height: 8px; border-right: 2px solid var(--color-text-muted); border-bottom: 2px solid var(--color-text-muted); transform: rotate(45deg); transition: transform .15s; margin-left: 2px; }
+.guild-region[aria-expanded="false"] .chev { transform: rotate(-45deg); }
+.guild-group-body { display: grid; gap: 4px; padding-top: 4px; }
+.guild-group-body[hidden] { display: none; }
+.guild-main { display: grid; gap: 4px; align-content: start; min-width: 0; }
+.guild-sec { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 36px 0 10px; }
+.guild-main .guild-filter + .guild-sec { margin-top: 28px; }
+.guild-sec h3 { margin: 0; font-size: 1.3rem; }
+.guild-sec span { color: var(--color-text-muted); }
+.guild-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--color-text-muted); font-size: .9rem; padding-bottom: 14px; }
+.guild-legend span { display: inline-flex; gap: 6px; align-items: center; }
+.guild-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.guild-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; }
+.guild-card { display: grid; gap: 12px; align-content: start; padding: 16px 18px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); color: var(--color-text); text-decoration: none; }
+.guild-card:hover { border-color: var(--color-primary); }
+.guild-card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.guild-card-top strong { font-size: 1.35rem; overflow-wrap: anywhere; }
+.guild-card-top span { color: var(--color-text-muted); font-size: .85rem; white-space: nowrap; }
+.guild-chip { display: inline-flex; gap: 6px; align-items: center; justify-self: start; font-size: .8rem; color: var(--color-text-muted); border: 1px solid var(--color-border); border-radius: 999px; padding: 1px 9px 1px 8px; }
+.guild-mix { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--color-surface2); }
+.guild-mix i { display: block; height: 100%; }
+.guild-nomix { color: var(--color-text-muted); font-size: .85rem; }
+.guild-card-foot { display: flex; justify-content: space-between; align-items: baseline; color: var(--color-text-muted); font-size: .85rem; }
+.guild-card-foot b { color: var(--color-text); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.guild-small { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 28px; }
+.guild-small a { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--color-border); color: var(--color-text); text-decoration: none; }
+.guild-small a:hover { color: var(--color-primary); }
+.guild-small small { color: var(--color-text-muted); }
+@media (max-width: 900px) {
+  .guild-layout { grid-template-columns: 1fr; gap: 24px; }
+  .guild-servers { position: static; }
 }
 
 .pf-arcana { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }

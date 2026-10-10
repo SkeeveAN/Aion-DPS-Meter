@@ -4,6 +4,7 @@ import { db } from "./db/client.js";
 import { playerProfiles, players, servers } from "./db/schema.js";
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { averageItemLevelOf } from "./profile.js";
+import { factionOfServerName } from "./factions.js";
 import { slugify, uniqueSlug } from "./seo/slug.js";
 
 /**
@@ -17,6 +18,11 @@ export interface GuildInfo {
   serverId: number;
   serverName: string;
   memberCount: number;
+  /** The faction of the legion's server ("" when the server is unknown). */
+  faction: string;
+  /** Only with listGuilds({ stats: true }): the members' classes (English names) and the average of their average item levels. */
+  classes?: Record<string, number>;
+  avgItemLevel?: number | null;
 }
 
 export interface GuildMember {
@@ -32,23 +38,34 @@ export interface GuildMember {
 }
 
 /** Every legion with a stable slug "<legion>-<server>": a Latin name reads in the address, any other falls back to a short hash. */
-export function listGuilds(): GuildInfo[] {
+export function listGuilds(options: { stats?: boolean } = {}): GuildInfo[] {
   const rows = db
-    .select({ guild: players.guild, serverId: players.serverId, serverName: servers.displayName })
+    .select({ guild: players.guild, serverId: players.serverId, serverName: servers.displayName, classId: playerProfiles.classId, gearJson: playerProfiles.gearJson })
     .from(players)
     .innerJoin(servers, eq(players.serverId, servers.id))
+    .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
     .where(and(isNotNull(players.guild), ne(players.guild, ""), like(servers.fingerprint, "aion2:%")))
     .all();
 
-  const counts = new Map<string, { name: string; serverId: number; serverName: string; count: number }>();
+  const counts = new Map<string, { name: string; serverId: number; serverName: string; count: number; classes: Record<string, number>; levels: number[] }>();
   for (const r of rows) {
     const guild = (r.guild ?? "").trim();
     if (!guild || r.serverId === null) {
       continue;
     }
     const key = `${r.serverId}\u0000${guild}`;
-    const entry = counts.get(key) ?? { name: guild, serverId: r.serverId, serverName: r.serverName ?? "", count: 0 };
+    const entry = counts.get(key) ?? { name: guild, serverId: r.serverId, serverName: r.serverName ?? "", count: 0, classes: {}, levels: [] };
     entry.count += 1;
+    if (options.stats) {
+      const cls = r.classId ? AION2_CLASS_BY_ID[r.classId] : undefined;
+      if (cls) {
+        entry.classes[cls] = (entry.classes[cls] ?? 0) + 1;
+      }
+      const level = r.gearJson ? averageItemLevelOf(r.gearJson) : null;
+      if (level) {
+        entry.levels.push(level);
+      }
+    }
     counts.set(key, entry);
   }
 
@@ -62,7 +79,12 @@ export function listGuilds(): GuildInfo[] {
       : `legion-${createHash("sha1").update(`${g.serverId}:${g.name}`).digest("hex").slice(0, 8)}-${server}`;
     const slug = uniqueSlug(base, (s) => taken.has(s));
     taken.add(slug);
-    return { slug, name: g.name, serverId: g.serverId, serverName: g.serverName, memberCount: g.count };
+    const info: GuildInfo = { slug, name: g.name, serverId: g.serverId, serverName: g.serverName, memberCount: g.count, faction: factionOfServerName(g.serverName) };
+    if (options.stats) {
+      info.classes = g.classes;
+      info.avgItemLevel = g.levels.length > 0 ? Math.round(g.levels.reduce((a, b) => a + b, 0) / g.levels.length) : null;
+    }
+    return info;
   });
 }
 

@@ -54,7 +54,14 @@ async function fetchJson(url) {
 
 function el(tag, props = {}, children = []) {
   const node = document.createElement(tag);
-  Object.assign(node, props);
+  for (const [key, value] of Object.entries(props)) {
+    // ARIA attributes have no DOM property to assign to.
+    if (key.startsWith("aria-") || key === "role") {
+      node.setAttribute(key, String(value));
+    } else {
+      node[key] = value;
+    }
+  }
   for (const child of children) {
     node.append(child);
   }
@@ -767,41 +774,108 @@ async function renderDownload() {
   app.replaceChildren(hero, downloadSection, changelogLink, features, stepsSection, repoLink);
 }
 
-// Legions: every legion the uploads have shown, per server, and its known members.
+// Legions: every legion the uploads have shown. A sidebar of regions (collapsible) and servers, the larger legions as cards with
+// their class mix, the small ones as a quiet list; everything in alphabetical order.
+const guildUi = { q: "", server: "", closed: new Set() };
+const GUILD_CLASSES = ["Gladiator", "Templar", "Assassin", "Ranger", "Sorcerer", "Spiritmaster", "Cleric", "Chanter"];
+
+function guildRegionOf(g) {
+  const cut = g.serverName.indexOf(" - ");
+  return cut >= 0 ? g.serverName.slice(0, cut) : "";
+}
+function guildServerOf(g) {
+  const cut = g.serverName.indexOf(" - ");
+  return serverLabel(cut >= 0 ? g.serverName.slice(cut + 3) : g.serverName);
+}
+const factionDot = (faction) => el("span", { className: `faction-dot${faction === "Elyos" ? " elyos" : faction === "Asmodian" ? " asmodian" : ""}` });
+
+function guildMixBar(g) {
+  const total = GUILD_CLASSES.reduce((sum, c) => sum + (g.classes?.[c] ?? 0), 0);
+  if (!total) {
+    return el("span", { className: "guild-nomix", textContent: t("guild.noClasses") });
+  }
+  const title = GUILD_CLASSES.filter((c) => g.classes[c]).map((c) => `${classLabel(c)} ${g.classes[c]}`).join(" · ");
+  return el("div", { className: "guild-mix", title, role: "img", "aria-label": title },
+    GUILD_CLASSES.filter((c) => g.classes[c]).map((c) => el("i", { style: `width:${(g.classes[c] / total) * 100}%;background:${classMeta(c).color}` })));
+}
+
 async function renderGuilds() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("guild.listTitle")]);
   showLoading(t("loading.search"));
   const guilds = await fetchJson("/api/guilds");
-  const filter = el("input", { type: "search", className: "guild-filter", placeholder: t("guild.filter"), autocomplete: "off" });
-  const list = el("div", { className: "guild-groups" });
-  const draw = () => {
-    const q = filter.value.trim().toLowerCase();
-    const shown = guilds.filter((g) => !q || g.name.toLowerCase() === q || serverLabel(g.serverName).toLowerCase() === q);
-    // One block per server, the legions sorted by name.
-    const byServer = new Map();
-    for (const g of shown) {
-      const label = serverLabel(g.serverName);
-      byServer.set(label, [...(byServer.get(label) ?? []), g]);
+  const byName = (x, y) => x.name.localeCompare(y.name, getLocale(), { sensitivity: "base", numeric: true });
+  const filter = el("input", { type: "search", className: "guild-filter", placeholder: t("guild.filter"), autocomplete: "off", value: guildUi.q, "aria-label": t("guild.filter") });
+  const side = el("nav", { className: "guild-servers", "aria-label": t("guild.servers") });
+  const main = el("div", { className: "guild-main" });
+
+  const serverKey = (g) => g.serverName;
+  const drawSide = () => {
+    const regions = new Map();
+    for (const g of guilds) {
+      const region = guildRegionOf(g);
+      const servers = regions.get(region) ?? new Map();
+      const entry = servers.get(serverKey(g)) ?? { key: serverKey(g), label: guildServerOf(g), faction: g.faction, count: 0 };
+      entry.count += 1;
+      servers.set(entry.key, entry);
+      regions.set(region, servers);
     }
-    const groups = [...byServer].sort((x, y) => x[0].localeCompare(y[0])).map(([label, legions]) =>
-      el("section", { className: "guild-group" }, [
-        el("h3", {}, [label, el("small", { textContent: ` ${legions.length}` })]),
-        el("div", { className: "guild-grid" }, legions.sort((x, y) => x.name.localeCompare(y.name)).map((g) =>
-          el("a", { className: "guild-card", href: `/legions/${g.slug}` }, [
-            el("strong", { textContent: g.name }),
-            el("small", { textContent: t("guild.members", { count: g.memberCount }) }),
-          ]),
-        )),
-      ]),
-    );
-    list.replaceChildren(...groups);
-    if (shown.length === 0) {
-      list.replaceChildren(el("p", { className: "empty", textContent: t("guild.empty") }));
+    const pick = (key, label, count, faction) => el("button", { type: "button", className: "guild-server", "aria-pressed": String(guildUi.server === key),
+      onclick: () => { guildUi.server = key; drawSide(); drawMain(); } }, [factionDot(faction), el("span", { textContent: label }), el("small", { textContent: String(count) })]);
+    const nodes = [pick("", t("guild.allServers"), guilds.length, "")];
+    for (const [region, servers] of [...regions].sort((x, y) => (x[0] === "" ? 1 : y[0] === "" ? -1 : x[0].localeCompare(y[0])))) {
+      const list = [...servers.values()].sort((x, y) => y.count - x.count || x.label.localeCompare(y.label, getLocale()));
+      const open = !guildUi.closed.has(region);
+      const group = el("div", { className: "guild-group-body", id: `guild-region-${region || "other"}`.replace(/\s+/g, "-"), hidden: !open }, list.map((sv) => pick(sv.key, sv.label, sv.count, sv.faction)));
+      nodes.push(
+        el("button", { type: "button", className: "guild-region", "aria-expanded": String(open), "aria-controls": group.id,
+          onclick: () => { if (guildUi.closed.has(region)) guildUi.closed.delete(region); else guildUi.closed.add(region); drawSide(); } }, [
+          el("span", { className: "chev" }),
+          el("span", { textContent: region ? regionLabel(region) : t("guild.regionOther") }),
+          el("small", { textContent: t("guild.regionStats", { servers: list.length, legions: list.reduce((sum, sv) => sum + sv.count, 0) }) }),
+        ]),
+        group,
+      );
     }
+    side.replaceChildren(...nodes);
   };
-  filter.addEventListener("input", draw);
-  draw();
-  app.replaceChildren(el("h2", { textContent: t("guild.listTitle") }), el("p", { className: "download-meta", textContent: t("guild.listIntro") }), filter, list);
+
+  const card = (g) => el("a", { className: "guild-card", href: `/legions/${g.slug}` }, [
+    el("div", { className: "guild-card-top" }, [el("strong", { textContent: g.name }), el("span", { textContent: t("guild.members", { count: g.memberCount }) })]),
+    el("span", { className: "guild-chip" }, [factionDot(g.faction), guildServerOf(g)]),
+    guildMixBar(g),
+    el("div", { className: "guild-card-foot" }, [el("span", { textContent: t("guild.avgItemLevel") }), el("b", { textContent: g.avgItemLevel ? formatNumber(g.avgItemLevel) : "–" })]),
+  ]);
+
+  const drawMain = () => {
+    const q = guildUi.q.trim().toLowerCase();
+    const shown = guilds.filter((g) => (!q || g.name.toLowerCase().includes(q) || serverLabel(g.serverName).toLowerCase().includes(q)) && (!guildUi.server || g.serverName === guildUi.server)).sort(byName);
+    const big = shown.filter((g) => g.memberCount >= 3);
+    const small = shown.filter((g) => g.memberCount < 3);
+    const scope = guildUi.server ? serverLabel(guildUi.server) : t("guild.allServers");
+    const legend = el("div", { className: "guild-legend" }, GUILD_CLASSES.map((c) => el("span", {}, [el("i", { style: `background:${classMeta(c).color}` }), classLabel(c)])));
+    if (shown.length === 0) {
+      main.replaceChildren(filter, el("p", { className: "empty", textContent: t("guild.empty") }));
+      return;
+    }
+    main.replaceChildren(
+      filter,
+      el("div", { className: "guild-sec" }, [el("h3", { textContent: t("guild.bigHeading", { server: scope }) }), el("span", { textContent: t("guild.bigCount", { count: big.length }) })]),
+      legend,
+      big.length ? el("div", { className: "guild-cards" }, big.map(card)) : el("p", { className: "empty", textContent: t("guild.noBig") }),
+      el("div", { className: "guild-sec" }, [el("h3", { textContent: t("guild.smallHeading") }), el("span", { textContent: t("guild.smallCount", { count: small.length }) })]),
+      el("div", { className: "guild-small" }, small.map((g) => el("a", { href: `/legions/${g.slug}` }, [el("span", { textContent: g.name }), el("small", { textContent: `${g.memberCount} · ${guildServerOf(g)}` })]))),
+    );
+  };
+  filter.addEventListener("input", () => {
+    guildUi.q = filter.value;
+    const at = filter.selectionStart;
+    drawMain();
+    filter.focus();
+    filter.setSelectionRange(at, at);
+  });
+  drawSide();
+  drawMain();
+  app.replaceChildren(el("h2", { textContent: t("guild.listTitle") }), el("div", { className: "guild-layout" }, [side, main]));
 }
 
 async function renderGuild(slug) {

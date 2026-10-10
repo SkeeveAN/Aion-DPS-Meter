@@ -1,5 +1,15 @@
 // zh strings of the site, loaded on demand by i18n.js.
 export default {
+  "guild.allServers": "所有服务器",
+  "guild.servers": "服务器",
+  "guild.regionStats": "{servers} 个服务器 · {legions} 个军团",
+  "guild.regionOther": "其他",
+  "guild.bigHeading": "3 名以上成员的军团 · {server}",
+  "guild.bigCount": "{count} 个军团，按字母排序",
+  "guild.smallHeading": "小型军团",
+  "guild.smallCount": "{count} 个 1–2 名成员的军团，按字母排序",
+  "guild.noBig": "没有更大的军团。",
+  "guild.noClasses": "职业未知",
   "class.Gladiator": "角斗士",
   "class.Templar": "圣骑士",
   "class.Assassin": "刺客",

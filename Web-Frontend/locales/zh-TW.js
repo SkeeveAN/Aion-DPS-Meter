@@ -1,5 +1,15 @@
 // zh-TW strings of the site, loaded on demand by i18n.js.
 export default {
+  "guild.allServers": "所有伺服器",
+  "guild.servers": "伺服器",
+  "guild.regionStats": "{servers} 個伺服器 · {legions} 個軍團",
+  "guild.regionOther": "其他",
+  "guild.bigHeading": "3 名以上成員的軍團 · {server}",
+  "guild.bigCount": "{count} 個軍團，依字母排序",
+  "guild.smallHeading": "小型軍團",
+  "guild.smallCount": "{count} 個 1–2 名成員的軍團，依字母排序",
+  "guild.noBig": "沒有更大的軍團。",
+  "guild.noClasses": "職業未知",
   "class.Gladiator": "劍星",
   "class.Templar": "守護星",
   "class.Assassin": "殺星",

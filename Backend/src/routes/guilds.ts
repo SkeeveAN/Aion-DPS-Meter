@@ -3,7 +3,7 @@ import { findGuild, listGuilds } from "../guilds.js";
 
 export async function guildRoutes(app: FastifyInstance) {
   app.get("/api/guilds", async (_request, reply) => {
-    const guilds = listGuilds().sort((a, b) => b.memberCount - a.memberCount || a.name.localeCompare(b.name));
+    const guilds = listGuilds({ stats: true }).sort((a, b) => b.memberCount - a.memberCount || a.name.localeCompare(b.name));
     return reply.header("Cache-Control", "public, max-age=300").send(guilds);
   });
 

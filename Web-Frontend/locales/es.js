@@ -1,5 +1,15 @@
 // es strings of the site, loaded on demand by i18n.js.
 export default {
+  "guild.allServers": "Todos los servidores",
+  "guild.servers": "Servidores",
+  "guild.regionStats": "{servers} servidores · {legions} legiones",
+  "guild.regionOther": "Otros",
+  "guild.bigHeading": "Legiones con 3 o más miembros · {server}",
+  "guild.bigCount": "{count} legiones, A–Z",
+  "guild.smallHeading": "Legiones pequeñas",
+  "guild.smallCount": "{count} con 1 o 2 miembros, A–Z",
+  "guild.noBig": "Ninguna legión mayor.",
+  "guild.noClasses": "Clases desconocidas",
   "class.Gladiator": "Gladiador",
   "class.Templar": "Templario",
   "class.Assassin": "Asesino",

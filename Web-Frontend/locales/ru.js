@@ -1,5 +1,15 @@
 // ru strings of the site, loaded on demand by i18n.js.
 export default {
+  "guild.allServers": "Все серверы",
+  "guild.servers": "Серверы",
+  "guild.regionStats": "Серверов: {servers} · легионов: {legions}",
+  "guild.regionOther": "Прочие",
+  "guild.bigHeading": "Легионы от 3 участников · {server}",
+  "guild.bigCount": "Легионов: {count}, А–Я",
+  "guild.smallHeading": "Малые легионы",
+  "guild.smallCount": "{count} с 1–2 участниками, А–Я",
+  "guild.noBig": "Крупных легионов нет.",
+  "guild.noClasses": "Классы неизвестны",
   "class.Gladiator": "Гладиатор",
   "class.Templar": "Страж",
   "class.Assassin": "Убийца",

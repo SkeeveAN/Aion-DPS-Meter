@@ -1,5 +1,15 @@
 // en strings of the site, loaded on demand by i18n.js.
 export default {
+  "guild.allServers": "All servers",
+  "guild.servers": "Servers",
+  "guild.regionStats": "{servers} servers · {legions} legions",
+  "guild.regionOther": "Other",
+  "guild.bigHeading": "Legions with 3+ members · {server}",
+  "guild.bigCount": "{count} legions, A–Z",
+  "guild.smallHeading": "Small legions",
+  "guild.smallCount": "{count} with 1–2 members, A–Z",
+  "guild.noBig": "No larger legion.",
+  "guild.noClasses": "Classes not known",
   "class.Gladiator": "Gladiator",
   "class.Templar": "Templar",
   "class.Assassin": "Assassin",
