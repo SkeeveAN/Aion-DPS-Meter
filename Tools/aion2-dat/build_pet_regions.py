@@ -88,6 +88,9 @@ def area(p):
     return abs(sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(p, p[1:] + p[:1]))) / 2
 
 
+OTHER = "_other"  # pets that spawn outside every named area; the client names it
+
+
 def main():
     sub_path, ui_path, map_dir, l10n_dir, pets_path, spawns_path, out_path = sys.argv[1:8]
     rows, cur = [], None
@@ -120,6 +123,12 @@ def main():
         found = collections.defaultdict(set)
         for map_name in maps:
             poly = polygons(os.path.join(map_dir, map_name, "MapData.dat"))
+            # on the open world maps a box 20 times the size of the next volume is a catch-all that covers the whole map (Verteron: "Destroyed Abyss Gate", Altgard: "Amunta's Hideout"), not a region; the Abyss maps are one named zone each (Black Fragments), which stays
+            sizes = sorted(area(p) for p in poly.values())
+            catch_all = {n for n, p in poly.items() if map_name.startswith("World/") and len(sizes) > 1 and area(p) > 20 * sizes[-2]}
+            poly = {n: p for n, p in poly.items() if n not in catch_all}
+            if catch_all:
+                print(map_name, "catch-all volume left out:", ", ".join(sorted(catch_all)))
             tiers = [[(k, area(poly[sn]), poly[sn]) for k in ks for sn in str2sub.get(k, ()) if sn in poly] for ks in (rank1, rank2, others)]
             for key, npcs in spawns.items():
                 if key != map_name and not key.startswith(map_name + "/InstanceLayer"):
@@ -132,12 +141,18 @@ def main():
                             if hit:
                                 found[min(hit)[1]].update(ids if isinstance(ids, list) else [ids])
                                 break
-        regions = []
+                        else:
+                            found[OTHER].update(ids if isinstance(ids, list) else [ids])  # in no named area at all
+        regions, other = [], None
         for key, ids in found.items():
             ids = sorted(i for i in ids if i in known)
-            if ids and names(key):
+            if ids and key == OTHER:
+                other = {"key": OTHER, "names": {}, "pets": ids}
+            elif ids and names(key):
                 regions.append({"key": key, "names": names(key), "pets": ids})
         regions.sort(key=lambda r: r["names"]["en"].casefold())
+        if other:
+            regions.append(other)
         groups.append({"id": gid, "regions": regions})
         print(gid, len(regions), "regions")
     json.dump({"groups": groups}, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
