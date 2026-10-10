@@ -18,7 +18,7 @@ migrate(db, { migrationsFolder });
 // Finalize every prepared statement before Node tears the environment down (see db/client.ts).
 after(() => sqlite.close());
 
-const { processUpload } = await import("./merge.js");
+const { processUpload, processProfilesUpload } = await import("./merge.js");
 const { bossNpcIds, bosses, encounterParticipants, encounterSkillUsage, encounters, instances, players } = await import("../db/schema.js");
 const { and, eq } = await import("drizzle-orm");
 
@@ -431,4 +431,26 @@ test("one mate is not enough for the group rule", () => {
   upload([member("Dirk", "Elyos", { guild: "Zweier", serverId: 1305 }), member("Edda", "Elyos", { serverId: 1305 })], true, "Europe - Kaisinel", "aion2:europe-kaisinel");
   assert.equal(rowCount("dirk"), 1, "Dirk moved by his legion");
   assert.equal(rowCount("edda"), 2, "Edda has only one mate: not identified");
+});
+
+test("a player keeps the faction a fight or a profile upload reported, and a later upload without one does not erase it", () => {
+  const profileUpload = (faction: string) =>
+    processProfilesUpload({
+      clientVersion: "test",
+      game: "aion2" as const,
+      serverFingerprint: "aion2:europe-kaisinel",
+      serverName: "Europe - Kaisinel",
+      participants: [{ name: "Gruppenfreund", className: "Cleric", faction, isSelf: false, profile: { source: "seen" as const, classId: 7, gear: [] } }],
+    } as unknown as Parameters<typeof processProfilesUpload>[0]);
+  const factionOf = (name: string) => (sqlite.prepare("select faction f from players where name_normalized = ?").get(name.toLowerCase()) as { f: string }).f;
+
+  profileUpload("");
+  assert.equal(factionOf("Gruppenfreund"), "", "an old client sends none");
+  profileUpload("Asmodian");
+  assert.equal(factionOf("Gruppenfreund"), "Asmodian", "a profile upload from a client that knows it stores it");
+  profileUpload("");
+  assert.equal(factionOf("Gruppenfreund"), "Asmodian", "an upload without a faction leaves it");
+
+  upload([member("Kaempferin", "Elyos")], false, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  assert.equal(factionOf("Kaempferin"), "Elyos", "a fight stores it too");
 });

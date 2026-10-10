@@ -190,7 +190,7 @@ function rehomePlayers(participants: { name: string; guild?: string; serverId?: 
   }
 }
 
-function upsertPlayer(name: string, serverId: number, guild?: string): number {
+function upsertPlayer(name: string, serverId: number, guild?: string, faction?: string): number {
   const nameNormalized = normalizeName(name);
   const existing = db
     .select()
@@ -199,7 +199,7 @@ function upsertPlayer(name: string, serverId: number, guild?: string): number {
     .get();
   if (existing) {
     db.update(players)
-      .set({ name, lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}) })
+      .set({ name, lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}), ...(faction ? { faction } : {}) })
       .where(eq(players.id, existing.id))
       .run();
     return existing.id;
@@ -218,13 +218,13 @@ function upsertPlayer(name: string, serverId: number, guild?: string): number {
     .find((p) => p.aliasNamesNormalized.includes(nameNormalized));
   if (aliasMatch) {
     db.update(players)
-      .set({ lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}) })
+      .set({ lastSeenAt: sql`(current_timestamp)`, ...(guild ? { guild } : {}), ...(faction ? { faction } : {}) })
       .where(eq(players.id, aliasMatch.id))
       .run();
     return aliasMatch.id;
   }
 
-  const inserted = db.insert(players).values({ name, nameNormalized, serverId, guild: guild ?? null }).run();
+  const inserted = db.insert(players).values({ name, nameNormalized, serverId, guild: guild ?? null, faction: faction ?? "" }).run();
   const playerId = Number(inserted.lastInsertRowid);
   ensurePlayerSlug(playerId);
   return playerId;
@@ -335,7 +335,7 @@ function insertParticipant(
   participant: ParticipantUpload,
   authoritative: boolean,
 ) {
-  const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild);
+  const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, participant.faction);
   if (participant.profile) {
     upsertProfile(playerId, participant.profile);
   }
@@ -506,7 +506,7 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
     );
 
     if (candidates.length === 1) {
-      const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild);
+      const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, participant.faction);
       if (participant.profile) {
         upsertProfile(playerId, participant.profile);
       }
@@ -682,7 +682,7 @@ export function processProfilesUpload(payload: ProfilesUploadPayload): { serverI
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   rehomePlayers(payload.participants, serverId);
   for (const participant of payload.participants) {
-    const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild);
+    const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, participant.faction);
     upsertProfile(playerId, participant.profile);
   }
   return { serverId, players: payload.participants.length };

@@ -39,6 +39,10 @@ const serverName = (serverId: number) =>
 
 /** The faction a stored player is known to have: from a fight only - the faction field of a profile is no faction (Elyos characters carry 1 and 2 there). */
 function factionOfPlayer(playerId: number): string {
+  const own = sqlite.prepare("select faction f from players where id = ?").get(playerId) as { f: string } | undefined;
+  if (own?.f) {
+    return own.f;
+  }
   const fight = sqlite
     .prepare("select faction f from encounter_participants where player_id = ? and faction <> '' order by id desc limit 1")
     .get(playerId) as { f: string } | undefined;

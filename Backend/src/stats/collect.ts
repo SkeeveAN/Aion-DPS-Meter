@@ -92,7 +92,7 @@ export function publicStats() {
     `select name, faction, sfaction, count(*) n from (
        select coalesce(s.display_name, s.fingerprint) name,
          (select c.faction from server_catalog c where c.name = s.display_name and c.game = 'aion2' limit 1) sfaction,
-         coalesce(nullif((select ep.faction from encounter_participants ep where ep.player_id = p.id and ep.faction <> '' order by ep.id desc limit 1), ''), '') faction
+         coalesce(nullif(p.faction, ''), nullif((select ep.faction from encounter_participants ep where ep.player_id = p.id and ep.faction <> '' order by ep.id desc limit 1), ''), '') faction
        from players p join servers s on s.id = p.server_id
      ) group by name, faction, sfaction`,
   );

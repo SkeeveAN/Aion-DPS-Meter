@@ -259,6 +259,8 @@ export const players = sqliteTable(
     // reference in one step); the migration backfills every existing row immediately after adding
     // it, and every code path from here on always supplies one - see matching/merge.ts upsertPlayer.
     serverId: integer("server_id").references(() => servers.id),
+    // "Elyos" | "Asmodian" | "": the faction a fight or a profile upload reported for him (the latest non-empty one).
+    faction: text("faction").notNull().default(""),
     // Display name, latest-seen casing. Uniqueness/lookup goes through
     // nameNormalized below since SQLite text columns compare case-sensitively
     // by default and Aion names are otherwise unique per side.

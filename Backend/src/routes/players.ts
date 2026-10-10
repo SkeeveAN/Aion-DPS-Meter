@@ -141,6 +141,7 @@ export async function playerRoutes(app: FastifyInstance) {
         slug: players.slug,
         name: players.name,
         guild: players.guild,
+        faction: players.faction,
         serverId: players.serverId,
         serverName: servers.displayName,
         serverFingerprint: servers.fingerprint,
@@ -180,7 +181,7 @@ export async function playerRoutes(app: FastifyInstance) {
       : null;
     // The faction the client sent wins; the server (the uploader's, matched worlds mix factions) is only the fallback.
     const profile = buildProfileView(playerId);
-    const faction = (profile?.faction || factionFromFights(playerId) || factionOfServerName(player.serverName) || null) as "Elyos" | "Asmodian" | null;
+    const faction = (player.faction || profile?.faction || factionFromFights(playerId) || factionOfServerName(player.serverName) || null) as "Elyos" | "Asmodian" | null;
     // Official portrait (all players on European servers; fetched in the background, null until it is there). The stored server is
     // the uploader's, so it only stands for the player's own server when it has his faction.
     const home = europeServerOf(player.serverName);
