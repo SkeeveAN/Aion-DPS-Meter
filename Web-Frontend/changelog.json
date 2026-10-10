@@ -10,6 +10,21 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "A player keeps his faction: stored on the player from fights and profile uploads (migration fills it from the latest fight), so players only seen in a group have one too; the stats, the player page and the re-homing use it",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-10"
+   },
+   {
+    "text": "The meter sends the faction of the players in its profile uploads (it always sent an empty one), for players seen in a group and for opened character windows",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
