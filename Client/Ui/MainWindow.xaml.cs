@@ -2004,7 +2004,8 @@ public partial class MainWindow : Window
                 row.Name, row.ClassName, row.Faction, isSelf,
                 totalDamage, idps, idps, totalHealing, hps, skills, healSkills, damageTaken, buffs,
                 shareOthers || isSelf ? aion2Directory?.GuildOf(ProfileIdOf(row)) : null,
-                shareOthers || isSelf ? BuildProfileUpload(ProfileIdOf(row)) : null));
+                shareOthers || isSelf ? BuildProfileUpload(ProfileIdOf(row)) : null,
+                ServerId: aion2Directory?.ServerIdOf(ProfileIdOf(row))));
         }
 
         participants = AttachShieldsGiven(participants, windowStart, windowEnd);
@@ -2586,7 +2587,7 @@ public partial class MainWindow : Window
         {
             if (BuildProfileUpload(id) is { } profile)
             {
-                participants.Add(new ProfileParticipantUpload(name, className, "", isSelf, directory.GuildOf(id), profile));
+                participants.Add(new ProfileParticipantUpload(name, className, "", isSelf, directory.GuildOf(id), profile, directory.ServerIdOf(id)));
             }
         }
 

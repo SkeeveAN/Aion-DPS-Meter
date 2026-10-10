@@ -55,7 +55,9 @@ public sealed record ParticipantUpload(
     ProfileUpload? Profile = null,
     // Shields this player gave, per recipient (the class that owns the shield skill, worked out from the
     // group; nothing when it is ambiguous).
-    IReadOnlyList<ShieldGivenUpload>? ShieldsGiven = null);
+    IReadOnlyList<ShieldGivenUpload>? ShieldsGiven = null,
+    // The numeric id of the server this player announced himself with (his own, not the uploader's: a matched world mixes servers).
+    int? ServerId = null);
 
 public sealed record ShieldGivenUpload(string PlayerName, long Amount);
 
@@ -156,4 +158,5 @@ public sealed record ProfileParticipantUpload(
     string Faction,
     bool IsSelf,
     string? Guild,
-    ProfileUpload Profile);
+    ProfileUpload Profile,
+    int? ServerId = null);

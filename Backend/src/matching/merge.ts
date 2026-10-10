@@ -1,4 +1,4 @@
-import { canonicalServer } from "../content/aion2Servers.js";
+import { canonicalServer, nameOf } from "../content/aion2Servers.js";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
@@ -170,6 +170,15 @@ function resolveBossId(payload: UploadPayload): number {
   return Number(insertedBoss.lastInsertRowid);
 }
 
+/** The server a participant belongs to: the one he announced himself with when the client sent it (a matched world holds players of
+ * several servers), else the uploader's. */
+function serverOfParticipant(participant: { serverId?: number }, uploaderServerId: number): number {
+  if (participant.serverId === undefined || nameOf(participant.serverId) === null) {
+    return uploaderServerId;
+  }
+  return upsertServer(`aion2:aion-2-server-${participant.serverId}`, undefined);
+}
+
 function upsertPlayer(name: string, serverId: number, guild?: string): number {
   const nameNormalized = normalizeName(name);
   const existing = db
@@ -315,7 +324,7 @@ function insertParticipant(
   participant: ParticipantUpload,
   authoritative: boolean,
 ) {
-  const playerId = upsertPlayer(participant.name, serverId, participant.guild);
+  const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild);
   if (participant.profile) {
     upsertProfile(playerId, participant.profile);
   }
@@ -486,7 +495,7 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
     );
 
     if (candidates.length === 1) {
-      const playerId = upsertPlayer(participant.name, serverId, participant.guild);
+      const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild);
       if (participant.profile) {
         upsertProfile(playerId, participant.profile);
       }
@@ -660,7 +669,7 @@ export function processUpload(payload: UploadPayload): ProcessResult {
 export function processProfilesUpload(payload: ProfilesUploadPayload): { serverId: number; players: number } {
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   for (const participant of payload.participants) {
-    const playerId = upsertPlayer(participant.name, serverId, participant.guild);
+    const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild);
     upsertProfile(playerId, participant.profile);
   }
   return { serverId, players: payload.participants.length };

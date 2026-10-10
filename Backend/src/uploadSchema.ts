@@ -29,6 +29,9 @@ export const participantSchema = z.object({
     .max(40)
     .transform((name) => AION2_CLASS_ALIASES[name] ?? name),
   faction: z.string().trim().max(20).default(""),
+  // The numeric server id this player announced himself with (his OWN server: a matched world mixes Elyos and Asmodian
+  // servers, so it is not the uploader's). Optional for older clients, which put everybody on the uploader's server.
+  serverId: z.number().int().min(1000).max(99999).optional(),
   // Optional: only Aion 2 clients know a player's guild. Empty counts as absent.
   guild: z
     .string()
@@ -129,7 +132,7 @@ export const profilesUploadSchema = z
     participants: z
       .array(
         participantSchema
-          .pick({ name: true, className: true, faction: true, guild: true, isSelf: true })
+          .pick({ name: true, className: true, faction: true, serverId: true, guild: true, isSelf: true })
           .extend({ profile: profileSchema }),
       )
       .min(1)
