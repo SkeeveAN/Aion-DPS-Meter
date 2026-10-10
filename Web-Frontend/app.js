@@ -2477,6 +2477,23 @@ function renderArcanaTab(profile) {
   return el("div", { className: "pf-arcana" }, list.map(gearSlot));
 }
 
+// The three lists the skills tab shows; the tab counts and the header count use the same lists.
+function visibleSkills(profile) {
+  const hasBar = profile.skills.some((s) => s.equipped);
+  return {
+    // With a skill bar in the profile only the equipped actives are listed, as in the game's skill window.
+    active: profile.skills.filter((s) => !s.passive && !s.stigma && (!hasBar || s.equipped)),
+    // ids like 11000000 are the class's weapon-equip entry, not a skill the player trains
+    passive: profile.skills.filter((s) => s.passive && s.id % 1000000 !== 0),
+    stigma: profile.skills.filter((s) => s.stigma),
+  };
+}
+
+function visibleSkillCount(profile) {
+  const v = visibleSkills(profile);
+  return v.active.length + v.passive.length + v.stigma.length;
+}
+
 function renderSkillsTab(profile) {
   const section = (title, list, cls) =>
     el("div", { className: "pf-card" }, [
@@ -2502,13 +2519,11 @@ function renderSkillsTab(profile) {
     ]);
   // Side by side: active | passive | stigma (the stigma block only exists once a profile carries
   // the flag; the game lets a player equip only four of them).
-  const hasBar = profile.skills.some((s) => s.equipped);
+  const v = visibleSkills(profile);
   const blocks = [
-    // With a skill bar in the profile only the equipped actives are listed, as in the game's skill window.
-    section(t("profile.skillsActive"), profile.skills.filter((s) => !s.passive && !s.stigma && (!hasBar || s.equipped)), "active"),
-    // ids like 11000000 are the class's weapon-equip entry, not a skill the player trains
-    section(t("profile.skillsPassive"), profile.skills.filter((s) => s.passive && s.id % 1000000 !== 0), "passive"),
-    profile.skills.some((s) => s.stigma) ? section(t("profile.skillsStigma"), profile.skills.filter((s) => s.stigma), "stigma") : null,
+    section(t("profile.skillsActive"), v.active, "active"),
+    section(t("profile.skillsPassive"), v.passive, "passive"),
+    v.stigma.length > 0 ? section(t("profile.skillsStigma"), v.stigma, "stigma") : null,
   ].filter((x) => x != null);
   return el("div", {}, [
     el("div", { className: "pf-skills", style: `--blocks:${blocks.length}` }, blocks),
@@ -2711,7 +2726,7 @@ function renderPlayerStrip(profile, player) {
   const numbers = profile
     ? [
         el("div", {}, [el("strong", { className: "accent", textContent: String(profile.averageItemLevel ?? "–") }), el("span", { textContent: t("profile.avgShort") })]),
-        profile.skills.length > 0 ? el("div", {}, [el("strong", { textContent: String(profile.skills.length) }), el("span", { textContent: t("profile.skillsShort") })]) : null,
+        visibleSkillCount(profile) > 0 ? el("div", {}, [el("strong", { textContent: String(visibleSkillCount(profile)) }), el("span", { textContent: t("profile.skillsShort") })]) : null,
         nodes > 0 ? el("div", {}, [el("strong", { textContent: String(nodes) }), el("span", { textContent: t("profile.nodesShort") })]) : null,
       ].filter((x) => x != null)
     : [];
@@ -2746,8 +2761,8 @@ async function renderPlayerProfile(playerId) {
   if (profile?.gear.length > 0) {
     tabs.push(["equipment", t("profile.tabEquipment"), profile.gear.filter((g) => g.slotName !== "Arcana").length, () => renderEquipmentTab(profile)]);
   }
-  if (profile?.skills.length > 0) {
-    tabs.push(["skills", t("profile.tabSkills"), profile.skills.length, () => renderSkillsTab(profile)]);
+  if (profile && visibleSkillCount(profile) > 0) {
+    tabs.push(["skills", t("profile.tabSkills"), visibleSkillCount(profile), () => renderSkillsTab(profile)]);
   }
   if (profile?.daevanion.length > 0) {
     tabs.push(["daevanion", t("profile.tabBoard"), profile.daevanion.reduce((s, b) => s + b.activeNodes, 0), () => renderBoardTab(profile)]);
