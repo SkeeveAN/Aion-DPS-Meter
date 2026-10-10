@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
-import { eq } from "drizzle-orm";
+import { desc, and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { db } from "./db/client.js";
-import { playerProfiles } from "./db/schema.js";
+import { encounterParticipants, playerProfiles } from "./db/schema.js";
 
 /**
  * Character profile of an Aion 2 player, as an uploading client read it from the game's traffic.
@@ -17,6 +17,8 @@ export const profileSchema = z.object({
   source: z.enum(["self", "seen"]),
   level: z.number().int().min(1).max(200).optional(),
   classId: z.number().int().min(1).max(9).optional(),
+  // The low two bits of the class code (4 * class id + bits). Not a faction. Clients up to 0.27 sent them as "faction".
+  classBits: z.number().int().min(1).max(2).optional(),
   faction: z.number().int().min(1).max(2).optional(),
   // The gear score ("Ausrüstungswert") the game shows in a character window (only when the uploader opened that window).
   gearScore: z.number().int().min(1).max(100_000_000).optional(),
@@ -133,7 +135,7 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     source: profile.source,
     level: profile.level ?? existing?.level ?? null,
     classId: profile.classId ?? existing?.classId ?? null,
-    faction: profile.faction ?? existing?.faction ?? null,
+    classBits: profile.classBits ?? profile.faction ?? existing?.classBits ?? null,
     gearScore: profile.gearScore ?? existing?.gearScore ?? null,
     gearJson: JSON.stringify(profile.gear),
     // The skill list, the Daevanion boards and the species knowledge only exist for "self"; a later upload from the same
@@ -288,6 +290,16 @@ export type SpeciesView = {
   progress: number;
   effects: { page: number; slot: number; stat: number; name: string; names?: Record<string, string>; value: number; percent: boolean; kind: number }[];
 };
+
+function factionFromFights(playerId: number): "Elyos" | "Asmodian" | null {
+  const row = db
+    .select({ faction: encounterParticipants.faction })
+    .from(encounterParticipants)
+    .where(and(eq(encounterParticipants.playerId, playerId), ne(encounterParticipants.faction, "")))
+    .orderBy(desc(encounterParticipants.id))
+    .get();
+  return row?.faction === "Elyos" || row?.faction === "Asmodian" ? row.faction : null;
+}
 
 export type ProfileView = {
   source: "self" | "seen";
@@ -485,8 +497,8 @@ export function buildProfileView(playerId: number): ProfileView | null {
     updatedAt: row.updatedAt,
     level: row.level,
     className: row.classId ? (AION2_CLASS_BY_ID[row.classId] ?? null) : null,
-    // Only 2 (Elyos) is verified; 1 also occurs inside an Elyos legion, so its meaning is unknown.
-    faction: row.faction === 2 ? "Elyos" : null,
+    // The faction a fight reported for him; the class bits of the profile are no faction.
+    faction: factionFromFights(playerId),
     gear,
     averageItemLevel: known.length > 0 ? Math.round((known.reduce((s, g) => s + g.itemLevel, 0) / known.length) * 10) / 10 : null,
     skills,

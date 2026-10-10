@@ -1437,11 +1437,11 @@ public static class SelfCheckAion2
         Aion2SeenProfile? seen = entities.SeenProfileOf(8060);
         string? name = entities.NameFor(8060);
         bool named = name == "Iccarus";
-        bool classFaction = seen is { ClassId: 8, Faction: 1 };
+        bool classFaction = seen is { ClassId: 8, ClassBits: 1 };
         var gear = seen?.Gear.Select(g => Aion2ItemCatalog.Find(g.ItemId)?.Name).ToList() ?? new List<string?>();
         bool items = gear.Count == 11 && gear[0] == "Drifter Staff" && gear[1] == "Judicator Helm" && gear[10] == "Judicator Earrings";
         Console.WriteLine($"  -> player named Iccarus: {named}");
-        Console.WriteLine($"  -> class id 8 and faction bit 1 read from the class code: {classFaction}");
+        Console.WriteLine($"  -> class id 8 and class bits 1 read from the class code: {classFaction}");
         Console.WriteLine($"  -> eleven visible items (Drifter Staff ... Judicator Earrings): {items}");
         return named && classFaction && items;
     }

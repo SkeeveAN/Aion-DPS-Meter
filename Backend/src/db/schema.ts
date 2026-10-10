@@ -317,7 +317,8 @@ export const playerProfiles = sqliteTable("player_profiles", {
     .default(sql`(current_timestamp)`),
   level: integer("level"),
   classId: integer("class_id"),
-  faction: integer("faction"),
+  // The low two bits of the class code the client read (4 * class id + bits). NOT a faction: Elyos characters carry 1 and 2.
+  classBits: integer("class_bits"),
   // Gear score ("Ausrüstungswert") as the game's character window shows it; known only for players whose window an uploader opened.
   gearScore: integer("gear_score"),
   gearJson: text("gear_json").notNull().default("[]"),

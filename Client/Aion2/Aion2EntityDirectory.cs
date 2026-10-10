@@ -25,12 +25,13 @@ public sealed record Aion2RolledStat(int StatId, long Value);
 /// difference is a bonus from gear or other sources.</summary>
 public sealed record Aion2SkillEntry(int SkillId, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
 
-/// <summary>What the "player appeared" frame says about another player: class and faction (decoded
-/// from its class code) and the visible equipment (no enchant levels in that list).</summary>
-public sealed record Aion2SeenProfile(int? ClassId, int? Faction, IReadOnlyList<Aion2EquippedItem> Gear);
+/// <summary>What the "player appeared" frame says about another player: class and the class bits (decoded
+/// from its class code; the low two bits are NOT a faction - Elyos characters carry 1 and 2) and the visible
+/// equipment (no enchant levels in that list).</summary>
+public sealed record Aion2SeenProfile(int? ClassId, int? ClassBits, IReadOnlyList<Aion2EquippedItem> Gear);
 
 /// <summary>Another player's character window as the server sent it (opcode 0x5036): no object id, only the
-/// name. <see cref="ClassCode"/> is <c>4 * class id + faction bit</c>; the gear carries enchant levels.</summary>
+/// name. <see cref="ClassCode"/> is <c>4 * class id + class bits</c> (no faction); the gear carries enchant levels.</summary>
 public sealed record Aion2InspectedPlayer(
     string Name,
     int ClassCode,
@@ -977,10 +978,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    /// <summary>"Elyos" as the network states it: the low bits of the class code are 2 for Elyos
-    /// (checked against two Elyos characters and the Elyos legion Akatsuki's member list). The other
-    /// value seen (1) also occurs inside that Elyos legion, so it is NOT shown as Asmodian - its
-    /// meaning is unknown. From the own character's record or a seen appearance; null otherwise.</summary>
+    /// <summary>The faction of a player: that of his server, else the faction byte of his "player appeared" frame; null otherwise.
+    /// The low bits of the class code are NOT a faction (Elyos characters carry 1 and 2 there) and are not used.</summary>
     public string? FactionOf(int id)
     {
         // The server the player named (every player is announced with his server id): Elyos servers are 1xxx, Asmodian ones 2xxx -
@@ -998,10 +997,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             }
         }
 
-        int? bit = IsLocalPlayer(id) && LocalCharacter is { } own && own.ClassCode % 4 is 1 or 2
-            ? own.ClassCode % 4
-            : SeenProfileOf(id)?.Faction;
-        return bit == 2 ? "Elyos" : null;
+        return null;
     }
 
     private readonly Dictionary<int, int> _factionById = new();

@@ -1777,7 +1777,7 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>
     /// What a "player appeared" frame says about the player after the name: a class code
-    /// (<c>4 * class id + faction bit</c>, see <see cref="Aion2SkillNames.ClassFromCode"/>) and the
+    /// (<c>4 * class id + class bits</c> (the bits are no faction), see <see cref="Aion2SkillNames.ClassFromCode"/>) and the
     /// visible equipment, entries of item id (u32), <c>00</c>, slot index (1-12), <c>00</c>.
     /// </summary>
     private void ReadSeenProfile(ReadOnlySpan<byte> frame, int id, int afterName)
@@ -1789,7 +1789,7 @@ public sealed class Aion2FrameDecoder
 
         int code = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[afterName..]));
         int? classId = code % 4 is 1 or 2 && code / 4 is >= 1 and <= 8 ? code / 4 : null;
-        int? faction = classId is null ? null : code % 4;
+        int? classBits = classId is null ? null : code % 4;
 
         var gear = new List<Aion2EquippedItem>();
         var slots = new HashSet<int>();
@@ -1805,7 +1805,7 @@ public sealed class Aion2FrameDecoder
 
         if (classId is not null || gear.Count > 0)
         {
-            _entities.SetSeenProfile(id, new Aion2SeenProfile(classId, faction, gear.OrderBy(g => g.SlotIndex).ToList()));
+            _entities.SetSeenProfile(id, new Aion2SeenProfile(classId, classBits, gear.OrderBy(g => g.SlotIndex).ToList()));
         }
     }
 

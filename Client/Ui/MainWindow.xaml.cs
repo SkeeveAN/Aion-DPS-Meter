@@ -3727,7 +3727,7 @@ public partial class MainWindow : Window
                 "seen",
                 null,
                 seen.ClassId,
-                seen.Faction,
+                seen.ClassBits,
                 seen.Gear.Select(GearUpload).ToList(),
                 Array.Empty<ProfileSkillUpload>(),
                 Array.Empty<ProfileBoardUpload>());

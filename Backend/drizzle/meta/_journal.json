@@ -274,6 +274,13 @@
       "when": 1791367000000,
       "tag": "0038_add_profile_growth",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "6",
+      "when": 1791640000000,
+      "tag": "0039_rename_profile_faction_to_class_bits",
+      "breakpoints": true
     }
   ]
 }

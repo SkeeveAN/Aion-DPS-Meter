@@ -25,7 +25,6 @@ export interface GuildMember {
   name: string;
   className: string | null;
   level: number | null;
-  faction: number | null;
   /** The game's own gear score; only known for players whose character window an uploader opened. */
   gearScore: number | null;
   /** Our own average item level of the worn gear. */
@@ -79,7 +78,6 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       name: players.name,
       classId: playerProfiles.classId,
       level: playerProfiles.level,
-      faction: playerProfiles.faction,
       gearJson: playerProfiles.gearJson,
       gearScore: playerProfiles.gearScore,
     })
@@ -94,7 +92,6 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       name: r.name,
       className: r.classId ? (AION2_CLASS_BY_ID[r.classId] ?? null) : null,
       level: r.level,
-      faction: r.faction,
       gearScore: r.gearScore,
       avgItemLevel: r.gearJson ? averageItemLevelOf(r.gearJson) : null,
     }))

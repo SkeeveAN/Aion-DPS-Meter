@@ -69,7 +69,8 @@ public sealed record ProfileUpload(
     string Source,
     int? Level,
     int? ClassId,
-    int? Faction,
+    // The low two bits of the class code (4 * class id + bits). Not a faction. Sent as "faction" by clients up to 0.27.
+    int? ClassBits,
     IReadOnlyList<ProfileGearUpload> Gear,
     IReadOnlyList<ProfileSkillUpload> Skills,
     IReadOnlyList<ProfileBoardUpload> Daevanion,

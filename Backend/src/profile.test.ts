@@ -14,7 +14,7 @@ migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta
 after(() => sqlite.close());
 
 const { processUpload } = await import("./matching/merge.js");
-const { players } = await import("./db/schema.js");
+const { players, playerProfiles } = await import("./db/schema.js");
 const { buildProfileView, upsertProfile, profileSchema, zenitStage } = await import("./profile.js");
 const { uploadSchema } = await import("./uploadSchema.js");
 const { eq } = await import("drizzle-orm");
@@ -57,7 +57,7 @@ const selfProfile = {
   source: "self" as const,
   level: 34,
   classId: 1,
-  faction: 2,
+  classBits: 2,
   gear: [
     { slot: 1, itemId: 110150026, enchant: 16 }, // Wind Breeze Greatsword (a test value: +15 with one Zenit stage)
     // Aulamus' Earrings as the in-game tooltip showed them (2026-10-09): stones Block, Angriffskraft, Zusatzausweichen, Verteidigung
@@ -93,7 +93,7 @@ function playerId(name: string): number {
 }
 
 test("an Aion 2 upload carries guild and profile into the player's page data", () => {
-  processUpload(aion2Upload([participant("Aahz", { guild: "Akatsuki", profile: selfProfile })]));
+  processUpload(aion2Upload([participant("Aahz", { guild: "Akatsuki", faction: "Elyos", profile: selfProfile })]));
   const view = buildProfileView(playerId("Aahz"));
   assert.ok(view);
   assert.equal(view.source, "self");
@@ -165,11 +165,11 @@ test("the profile carries the species knowledge with stat names in the game clie
 
 test("a profile merely seen on another player never replaces the player's own, and empty ones are dropped", () => {
   const id = playerId("Aahz");
-  upsertProfile(id, { source: "seen", classId: 4, faction: 1, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }], skills: [], daevanion: [] });
+  upsertProfile(id, { source: "seen", classId: 4, classBits: 1, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }], skills: [], daevanion: [] });
   assert.equal(buildProfileView(id)!.source, "self");
   assert.equal(buildProfileView(id)!.level, 34);
 
-  processUpload(aion2Upload([participant("Aahz"), participant("Stranger", { profile: { source: "seen", classId: 8, faction: 2, gear: [{ slot: 3, itemId: 210340023, enchant: 0 }] } })]));
+  processUpload(aion2Upload([participant("Aahz"), participant("Stranger", { profile: { source: "seen", classId: 8, classBits: 2, gear: [{ slot: 3, itemId: 210340023, enchant: 0 }] } })]));
   const stranger = buildProfileView(playerId("Stranger"))!;
   assert.equal(stranger.source, "seen");
   assert.equal(stranger.className, "Chanter");
@@ -181,7 +181,7 @@ test("a profile merely seen on another player never replaces the player's own, a
 
 test("a newer own upload replaces the old one but keeps skills and boards when it carries none", () => {
   const id = playerId("Aahz");
-  upsertProfile(id, profileSchema.parse({ source: "self", level: 35, classId: 1, faction: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] }));
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 35, classId: 1, classBits: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] }));
   const view = buildProfileView(id)!;
   assert.equal(view.level, 35);
   assert.equal(view.gear.length, 1);
@@ -197,7 +197,7 @@ test("titles, pet circles and board counts of a seen player are stored and resol
         profile: {
           source: "seen",
           classId: 1,
-          faction: 2,
+          classBits: 2,
           gear: [{ slot: 1, itemId: 110150026, enchant: 0 }],
           titles: [{ slot: 1, titleId: 12010050 }, { slot: 2, titleId: 12030003 }, { slot: 3, titleId: 12010061 }],
           pets: [{ species: 3, level: 7, kinds: [3, 2, 4, 2, 1, 3, 3] }, { species: 2, level: 7, kinds: [3, 3, 3, 2, 1, 3, 3] }],
@@ -232,7 +232,7 @@ test("through the real routes: upload with a profile, then the player endpoint r
     const payload = {
       ...aion2Upload([
         participant("Routey", { guild: "Akatsuki", isSelf: true, profile: selfProfile }),
-        participant("Seen", { isSelf: false, profile: { source: "seen", classId: 7, faction: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] } }),
+        participant("Seen", { isSelf: false, profile: { source: "seen", classId: 7, classBits: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] } }),
       ]),
       startedAt: "2026-10-01T03:00:00.000Z",
       endedAt: "2026-10-01T03:02:00.000Z",
@@ -279,7 +279,7 @@ test("players without a boss fight: POST /api/uploads/profiles stores profiles a
       serverFingerprint: "aion2:test:13328",
       participants: [
         { name: "Solo", className: "Gladiator", faction: "", guild: "Akatsuki", isSelf: true, profile: selfProfile },
-        { name: "Passerby", className: "Cleric", faction: "", isSelf: false, profile: { source: "seen", classId: 7, faction: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] } },
+        { name: "Passerby", className: "Cleric", faction: "", isSelf: false, profile: { source: "seen", classId: 7, classBits: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] } },
       ],
     };
     const ok = await app.inject({ method: "POST", url: "/api/uploads/profiles", payload });
@@ -334,4 +334,13 @@ test("a player that only has a profile (no boss fight) is found by name search",
   } finally {
     await app.close();
   }
+});
+
+test("the class bits of a profile are no faction, and clients up to 0.27 still send them as \"faction\"", () => {
+  const legacy = profileSchema.parse({ source: "seen", classId: 4, faction: 2, gear: [] });
+  assert.equal(legacy.faction, 2);
+  processUpload(aion2Upload([participant("Bitsy", { profile: { source: "seen", classId: 4, faction: 2, gear: [] } })]));
+  const id = playerId("Bitsy");
+  assert.equal(db.select().from(playerProfiles).where(eq(playerProfiles.playerId, id)).get()!.classBits, 2);
+  assert.equal(buildProfileView(id)!.faction, null, "bits 2 on a profile without a fight faction says nothing about the faction");
 });
