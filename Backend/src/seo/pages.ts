@@ -595,6 +595,7 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
   const best = runs.reduce<(typeof runs)[number] | null>((m, r) => (m === null || r.idps > m.idps ? r : m), null);
   const path = `/players/${player.slug ?? player.id}`;
   const serverShort = (player.serverName ?? "").split(" - ").pop() ?? "";
+  const where = player.serverName ? ` (${player.serverName})` : "";
   const classLine = [profile?.level ? `Lv. ${profile.level}` : "", className ?? "", faction ? `(${faction})` : ""].filter(Boolean).join(" ");
   const gearText = profile?.averageItemLevel ? `average item level ${profile.averageItemLevel}` : "";
   const runText =
@@ -613,13 +614,13 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
   return {
     status: 200,
     meta: {
-      title: `${player.name} – ${classLine || "Aion 2 Character"} | ${SITE}`,
+      title: `${player.name}${where} – ${classLine || "Aion 2 Character"} – Boss Runs & Gear | ${SITE}`,
       description,
       canonicalPath: path,
       ogType: "profile",
-      ogImage: `/og/players/${player.slug ?? player.id}.png`,
-      ogImageAlt: `${player.name}${className ? `, ${className}` : ""} on ${SITE}`,
-      twitterCard: "summary_large_image",
+      ogImage: image,
+      ogImageAlt: className ? `${className} emblem` : undefined,
+      twitterCard: image ? "summary" : "summary_large_image",
       jsonLd: [
         breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: player.name, path }]),
         profileJsonLd({ name: player.name, path, description, image: image ?? "/og/default.png", guild: player.guild, server: player.serverName }),

@@ -10,7 +10,6 @@ import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME } from "../constants.js";
 import { cached } from "../seo/cache.js";
 import { escapeHtml } from "../seo/html.js";
 import { encounterOgImage } from "../seo/ogEncounter.js";
-import { playerOgImage } from "../seo/ogPlayer.js";
 
 const SITEMAP_TTL_MS = 600_000;
 const CHANGELOG_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "Web-Frontend", "changelog.json");
@@ -52,17 +51,6 @@ export async function seoRoutes(app: FastifyInstance) {
   app.get<{ Params: { file: string }; Querystring: { lang?: string } }>("/og/encounters/:file", async (request, reply) => {
     const match = /^(\d+)\.png$/.exec(request.params.file);
     const png = match ? encounterOgImage(DEFAULT_GAME, match[1], request.query.lang) : null;
-    if (!png) {
-      return reply.status(404).send({ error: "not_found" });
-    }
-    reply.type("image/png").header("Cache-Control", "public, max-age=3600");
-    return png;
-  });
-
-  // Link-preview picture of one player profile (og:image of /players/:idOrSlug).
-  app.get<{ Params: { file: string } }>("/og/players/:file", async (request, reply) => {
-    const match = /^([a-z0-9-]+)\.png$/.exec(request.params.file);
-    const png = match ? playerOgImage(match[1]) : null;
     if (!png) {
       return reply.status(404).send({ error: "not_found" });
     }
