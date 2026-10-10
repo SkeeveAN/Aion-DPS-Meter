@@ -101,6 +101,13 @@
      "Website"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "An upload carries up to 300 participants for a world boss and at most 20 for an instance boss",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
