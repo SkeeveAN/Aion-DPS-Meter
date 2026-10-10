@@ -98,6 +98,7 @@ export default {
   "profile.tabSkills": "Compétences",
   "profile.tabBoard": "Plateau Daevanion",
   "profile.tabSpecies": "Perception d'espèce",
+  "profile.tabCharacter": "Personnage",
   "profile.speciesLevel": "Niv. {level}",
   "profile.speciesMax": "Max.",
   "profile.speciesProgress": "Progression",

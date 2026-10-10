@@ -93,6 +93,7 @@ export default {
   "profile.tabSkills": "Yetenekler",
   "profile.tabBoard": "Daevanion Tahtası",
   "profile.tabSpecies": "Tür Bilgisi",
+  "profile.tabCharacter": "Karakter",
   "profile.speciesLevel": "Seviye {level}",
   "profile.speciesMax": "Maks.",
   "profile.speciesProgress": "İlerleme",

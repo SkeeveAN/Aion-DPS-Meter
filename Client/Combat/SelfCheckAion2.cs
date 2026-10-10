@@ -46,6 +46,7 @@ public static class SelfCheckAion2
         ok &= RunAion2MidStreamScenario();
         ok &= RunAion2CharacterScenario();
         ok &= RunAion2LoginListsScenario();
+        ok &= RunAion2OwnProfileExtrasScenario();
         ok &= RunAion2ItemDetailsScenario();
         ok &= RunAion2SpeciesScenario();
         ok &= RunAion2CharacterStoreScenario();
@@ -1109,6 +1110,95 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> eleven items, first Wind Breeze Greatsword, last Facade Earrings: {gear}");
         Console.WriteLine($"  -> the record makes id 331 the local player, named Aahz: {local}");
         return header && gear && local;
+    }
+
+    /// <summary>Attributes (0x4936), wing + skin (own 0x3336 record) and the summoned pet (0x0090) of the own character, in the layouts
+    /// seen for Aahz in the recording of 2026-10-10 (synthetic frames: only the verified parts are real).</summary>
+    private static bool RunAion2OwnProfileExtrasScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 own attributes, wing and active pet:");
+        static byte[] Wire(byte[] body)
+        {
+            var wire = new List<byte>();
+            int length = body.Length + 4;
+            while (length >= 0x80)
+            {
+                wire.Add((byte)(length & 0x7f | 0x80));
+                length >>= 7;
+            }
+
+            wire.Add((byte)length);
+            wire.AddRange(body);
+            return wire.ToArray();
+        }
+
+        static byte[] U32(uint v) => BitConverter.GetBytes(v);
+        string character = "3336cb025fa1c12837044161687a18050600000001210000000000000000000000b6ec460f8ac1900600010000000000000000000000000003000000000000000000000000990eb788890c000200000000000000000000000000030000000000000000000000000e570f8b0c00030000000000000000000000000003000000000000000000000000dd0e777b860c000400000000000000000000000000030000000000000000000000000e1702880c00050000000000000000000000000003000000000000000000000000dd0efe958c0c000600000000000000000000000000030000000000000000000000000e961c8e0c00070000000000000000000000000003000000000000000000000000dd0e36a38f0c000800000000000000000000000000030000000000000000000000000e7e5c7c1200090000000000000000000000000003000000000000000000000000dd0e2e0a7e12000a00000000000000000000000000030000000000000000000000000e2c0a7e12000b0000000000000000000000000003000000000000000000000000dd0e";
+        byte[] Record(uint wing, uint? skin, bool extra) => Convert.FromHexString(character)
+            .Concat(new byte[] { 0, 0, 0, 0 })
+            .Concat(Convert.FromHexString("a0860100a0860100")).Concat(U32(0x30d40)).Concat(U32(0x30d40))
+            .Concat(extra ? new byte[] { 1, 0, 0, 0, 1 } : new byte[] { 1 })
+            .Concat(U32(wing)).Concat(skin is uint k ? U32(k) : Array.Empty<byte>()).Concat(U32(13050017)).ToArray();
+
+        // Aahz: wing 30500200 + skin 30400400
+        using var a = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        byte[] first = Wire(Record(30500200, 30400400, false));
+        a.Ingest(Segment(500, first));
+        var da = (Aion2EntityDirectory)a.Entities;
+        bool aahz = da.LocalWing is { WingId: 30500200, SkinId: 30400400 };
+
+        // Chumley: no skin, the title follows the wing directly; and the "01 00 00 00 01" variant
+        using var b = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        b.Ingest(Segment(500, Wire(Record(30200600, null, true))));
+        bool chumley = ((Aion2EntityDirectory)b.Entities).LocalWing is { WingId: 30200600, SkinId: 0 };
+
+        // Layout mismatch: nothing instead of garbage
+        using var c = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        c.Ingest(Segment(500, Wire(Record(0x70000000, null, false))));
+        bool garbage = ((Aion2EntityDirectory)c.Entities).LocalWing is null;
+
+        // Stats frame: Aahz's table (id 3 missing = 0), plus an id outside 1..17 that must be dropped
+        var stats = new List<byte> { 0x49, 0x36, 0, 0, 16 };
+        foreach (var (id, value) in new[] { (1, 10), (2, 19), (4, 23), (5, 67), (6, 8), (7, 50), (8, 51), (9, 27), (10, 21), (11, 53), (13, 6), (14, 38), (15, 17), (16, 32), (17, 38), (132, 45) })
+        {
+            stats.AddRange(BitConverter.GetBytes((ushort)id));
+            stats.AddRange(BitConverter.GetBytes(value));
+        }
+
+        stats.AddRange(new byte[8]);
+        byte[] statsWire = Wire(stats.ToArray());
+        a.Ingest(Segment((uint)(500 + first.Length), statsWire));
+        var attrs = da.LocalAttributes;
+        bool attributes = attrs is not null && attrs.Count == 17 && attrs[1] == 10 && attrs[3] == 0 && attrs[5] == 67 && attrs[12] == 0 && attrs[17] == 38 && !attrs.ContainsKey(132);
+
+        // Pet list: header = summoned pet 1124, entry (1124, 1124, level 3)
+        var pets = new List<byte> { 0x00, 0x90 };
+        pets.AddRange(U32(1124));
+        pets.Add(1);
+        pets.AddRange(U32(1124));
+        pets.AddRange(U32(1124));
+        pets.AddRange(U32(3));
+        pets.Add(0);
+        a.Ingest(Segment((uint)(500 + first.Length + statsWire.Length), Wire(pets.ToArray())));
+        bool pet = da.LocalActivePet == 1124 && da.LocalPetStates.Any(p => p.PetId == 1124 && p.Level == 3);
+
+        // Persisted per character and restored
+        var saved = da.ToSaved();
+        var next = new Aion2EntityDirectory();
+        if (saved is not null)
+        {
+            next.RestoreFrom(saved);
+        }
+
+        bool restored = next.LocalWing is { WingId: 30500200, SkinId: 30400400 } && next.LocalActivePet == 1124 && next.LocalAttributes is { } r && r[5] == 67;
+
+        Console.WriteLine($"  -> Aahz: wing 30500200, skin 30400400: {aahz}");
+        Console.WriteLine($"  -> Chumley: wing 30200600 without skin (both record variants): {chumley}");
+        Console.WriteLine($"  -> an implausible wing id yields nothing: {garbage}");
+        Console.WriteLine($"  -> stats frame: ids 1..17 only, missing Intelligence = 0: {attributes}");
+        Console.WriteLine($"  -> pet list header = active pet 1124, level 3: {pet}");
+        Console.WriteLine($"  -> all three survive a restart: {restored}");
+        return aahz && chumley && garbage && attributes && pet && restored;
     }
 
     /// <summary>The two login lists from the 2026-10-01 relog: equipment (three real item entries -

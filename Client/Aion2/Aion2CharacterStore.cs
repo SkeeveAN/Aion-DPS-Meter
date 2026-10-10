@@ -17,6 +17,11 @@ public sealed class Aion2SavedCharacter
     public List<SavedSpecies> Species { get; set; } = new();
     public List<SavedTitle> Titles { get; set; } = new();
     public List<SavedPet> Pets { get; set; } = new();
+    // Base attributes / Lord values (id 1..17), wing + skin and the summoned pet; null = never seen.
+    public Dictionary<int, int>? Attributes { get; set; }
+    public int? WingId { get; set; }
+    public int? WingSkinId { get; set; }
+    public int? ActivePet { get; set; }
 
     public sealed record SavedPet(int Id, int Level, int Progress);
 

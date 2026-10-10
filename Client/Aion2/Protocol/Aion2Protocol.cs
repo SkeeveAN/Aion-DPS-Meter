@@ -66,6 +66,8 @@ public enum OpcodeFamily
     LocalPosition,
     /// <summary>The titles the local player wears (slot 1..3 with the title id), sent at login and on a change.</summary>
     Titles,
+    /// <summary>The local player's base attributes and Lord values: <c>opcode | 00 00 | varint n | n x (u16 id, i32 value) | 8 bytes</c> (0x4936).</summary>
+    Attributes,
     /// <summary>The local player's skills that have specialisation variants: the five-variant ones are the
     /// stigmas (login).</summary>
     Stigmas,

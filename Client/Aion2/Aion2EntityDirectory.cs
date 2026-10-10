@@ -44,6 +44,19 @@ public sealed record Aion2InspectedPlayer(
     IReadOnlyList<Aion2Pet>? Pets = null,
     IReadOnlyList<Aion2BoardCount>? BoardCounts = null);
 
+/// <summary>The wing item id (30xxxxxx) and the wing skin id (304xxxxx, 0 = no skin) of the local player.</summary>
+public sealed record Aion2Wing(int WingId, int SkinId);
+
+/// <summary>Constants of the stat frame (opcode 0x4936 = 18742, own character only). Verified 2026-10-10 on Aahz: the
+/// ids 1..6 are the base attributes (1 Might, 2 Agility, 3 Intelligence, 4 Vitality, 5 Precision, 6 Willpower;
+/// Intelligence is not sent while 0) and 7..17 the Lord values (7 Justice, 8 Freedom, 9 Illusion, 10 Life, 11 Time,
+/// 12 always 0, 13 Destruction, 14 Death, 15 Wisdom, 16 Destiny, 17 Space); all matched the website's character page.</summary>
+public static class Aion2Attributes
+{
+    public const int FirstId = 1;
+    public const int LastId = 17;
+}
+
 /// <summary>A worn title: the slot (1..3) and the game's title id (see Table/Title.dat).</summary>
 public sealed record Aion2TitleSlot(int Slot, int TitleId);
 
@@ -172,6 +185,9 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _species = null;
                 _petStates = null;
                 _titles = null;
+                _attributes = null;
+                _wing = null;
+                _activePet = null;
                 _stigmas.Clear();
                 _bar.Clear();
             }
@@ -234,6 +250,9 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _species = saved.Species.Select(k => new Aion2SpeciesKnowledge(k.Id, k.Level, k.Progress,
                 k.Effects.Select(e => new Aion2SpeciesEffect(e.Page, e.Slot, e.Stat, e.Value, e.Kind)).ToList())).ToList();
             _titles = saved.Titles.Select(t => new Aion2TitleSlot(t.Slot, t.TitleId)).ToList();
+            _attributes = saved.Attributes is { Count: > 0 } ? new Dictionary<int, int>(saved.Attributes) : null;
+            _wing = saved.WingId is int savedWing ? new Aion2Wing(savedWing, saved.WingSkinId ?? 0) : null;
+            _activePet = saved.ActivePet;
             _petStates = saved.Pets.Select(p => new Aion2PetState(p.Id, p.Level, p.Progress)).ToList();
         }
     }
@@ -261,6 +280,10 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 Species = (_species ?? Array.Empty<Aion2SpeciesKnowledge>()).Select(k => new Aion2SavedCharacter.SavedSpecies(k.SpeciesId, k.Level, k.Progress,
                     k.Effects.Select(e => new Aion2SavedCharacter.SavedEffect(e.Page, e.Slot, e.StatId, e.Value, e.Kind)).ToList())).ToList(),
                 Titles = (_titles ?? Array.Empty<Aion2TitleSlot>()).Select(t => new Aion2SavedCharacter.SavedTitle(t.Slot, t.TitleId)).ToList(),
+                Attributes = _attributes is null ? null : new Dictionary<int, int>(_attributes),
+                WingId = _wing?.WingId,
+                WingSkinId = _wing?.SkinId,
+                ActivePet = _activePet,
                 Pets = (_petStates ?? Array.Empty<Aion2PetState>()).Select(p => new Aion2SavedCharacter.SavedPet(p.PetId, p.Level, p.Progress)).ToList(),
             };
         }
@@ -599,6 +622,98 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
 
         NotifyCharacterChanged();
+    }
+
+    private Dictionary<int, int>? _attributes;
+    private Aion2Wing? _wing;
+    private int? _activePet;
+
+    /// <summary>The base attributes (ids 1..6) and Lord values (7..17) of the local player, as the stat frame
+    /// (<see cref="OpcodeFamily.Attributes"/>) last reported them; null before it arrived.</summary>
+    public IReadOnlyDictionary<int, int>? LocalAttributes
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _attributes is null ? null : new Dictionary<int, int>(_attributes);
+            }
+        }
+    }
+
+    /// <summary>Merges the ids of a stat frame into the known table (a frame lists only the non-zero values, so a
+    /// first frame starts from zeros for every id of <see cref="Aion2Attributes.FirstId"/>..<see cref="Aion2Attributes.LastId"/>).</summary>
+    public void SetLocalAttributes(IReadOnlyDictionary<int, int> values)
+    {
+        lock (_gate)
+        {
+            if (_attributes is null)
+            {
+                _attributes = new Dictionary<int, int>();
+                for (int id = Aion2Attributes.FirstId; id <= Aion2Attributes.LastId; id++)
+                {
+                    _attributes[id] = 0;
+                }
+            }
+
+            foreach (var pair in values)
+            {
+                _attributes[pair.Key] = pair.Value;
+            }
+
+            _listsAt = DateTime.UtcNow;
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    /// <summary>The wing and wing skin of the local player; null when the login record did not carry them.</summary>
+    public Aion2Wing? LocalWing
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _wing;
+            }
+        }
+    }
+
+    public void SetLocalWing(Aion2Wing wing)
+    {
+        lock (_gate)
+        {
+            _wing = wing;
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    /// <summary>The species id of the pet the local player has summoned (0 = none); null before the pet list arrived.</summary>
+    public int? LocalActivePet
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _activePet;
+            }
+        }
+    }
+
+    public void SetLocalActivePet(int petSpecies)
+    {
+        bool changed;
+        lock (_gate)
+        {
+            changed = _activePet != petSpecies;
+            _activePet = petSpecies;
+        }
+
+        if (changed)
+        {
+            NotifyCharacterChanged();
+        }
     }
 
     /// <summary>The pet circles of the local player: one per species, the quality of every effect slot of page 1.</summary>

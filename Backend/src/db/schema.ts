@@ -331,6 +331,13 @@ export const playerProfiles = sqliteTable("player_profiles", {
   titlesJson: text("titles_json").notNull().default("[]"),
   petsJson: text("pets_json").notNull().default("[]"),
   boardCountsJson: text("board_counts_json").notNull().default("[]"),
+  // Character window of the uploader's own character: attribute id -> value (main attributes 1..6, lords 7..17), the worn
+  // wing and wing skin (item ids) and the active pet (species id). Null/empty when the client did not send them.
+  attributesJson: text("attributes_json").notNull().default("{}"),
+  wingId: integer("wing_id"),
+  wingSkinId: integer("wing_skin_id"),
+  activePet: integer("active_pet"),
+  activePetLevel: integer("active_pet_level"),
 });
 
 export const encounters = sqliteTable(

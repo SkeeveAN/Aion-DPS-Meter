@@ -309,6 +309,7 @@ export default {
   "profile.tabSkills": "Habilidades",
   "profile.tabBoard": "Tabuleiro de Daevanion",
   "profile.tabSpecies": "Compreensão do Tipo",
+  "profile.tabCharacter": "Personagem",
   "profile.speciesLevel": "Nível {level}",
   "profile.speciesMax": "Máx.",
   "profile.speciesProgress": "Progresso",

@@ -2682,6 +2682,98 @@ function renderTitleChips(profile) {
   );
 }
 
+// Wing, wing skin and active pet of the own character (character window), behind the titles, set off by a thin divider.
+function renderLookChips(profile) {
+  const locale = getLocale();
+  const chip = (item, base, { badge, level } = {}) => {
+    const holder = el("span", { className: "pf-chip" });
+    if (item.icon) {
+      const img = el("img", { src: `${ICON_BASE}/${base}/${item.icon}.webp`, alt: "", width: 30, height: 30, loading: "lazy" });
+      img.addEventListener("error", () => img.remove());
+      holder.append(img);
+    }
+    holder.append(el("span", { textContent: item.names?.[locale] ?? item.name }));
+    if (badge) {
+      holder.append(el("span", { className: "pf-pill", textContent: badge }));
+    }
+    if (level != null) {
+      holder.append(el("span", { className: "pf-chip-lvl", textContent: `Lv ${level}` }));
+    }
+    return holder;
+  };
+  const chips = [
+    profile?.wing ? chip(profile.wing, "item") : null,
+    profile?.wingSkin ? chip(profile.wingSkin, "item", { badge: t("profile.wingSkin") }) : null,
+    profile?.activePet ? chip(profile.activePet, "pet", { level: profile.activePet.level }) : null,
+  ].filter((x) => x != null);
+  return chips.length > 0 ? el("div", { className: "pf-looks" }, [el("span", { className: "pf-vsep" }), ...chips]) : null;
+}
+
+// Character tab (own character only): main attributes, the ring of lord values around the six main attributes, the lord list.
+const ATTR_ICON = "/images/aion2/stats";
+function attrIcon(key, lord) {
+  return el("img", { className: "pf-attr-ico", src: `${ATTR_ICON}/${lord ? "lords_" : ""}${key}.webp`, alt: "", width: 48, height: 48, loading: "lazy" });
+}
+
+function renderCharacterTab(profile) {
+  const { main, lords } = profile.attributes;
+  const top = Math.max(1, ...main.map((a) => a.value));
+  const attrName = (a) => t(`attr.${a.key}`);
+  const lordName = (a) => `${attrName(a)} [${t(`lord.${a.key}`)}]`;
+  const only = () => el("span", { className: "pf-only", textContent: t("profile.attrOwnOnly") });
+
+  const bars = el("div", { className: "pf-card pf-char-main" }, [
+    profile.portraitUrl ? el("div", { className: "pf-portrait" }, [el("img", { src: profile.portraitUrl, alt: "" })]) : null,
+    el("h4", {}, [el("span", { textContent: t("profile.attrMain") }), only()]),
+    ...main.map((a) =>
+      el("div", { className: `pf-stat${a.value === 0 ? " zero" : ""}` }, [
+        attrIcon(a.key, false),
+        el("span", { textContent: attrName(a) }),
+        el("i", {}, [el("b", { style: `width:${Math.round((a.value / top) * 100)}%` })]),
+        el("em", { textContent: String(a.value) }),
+      ]),
+    ),
+  ].filter((x) => x != null));
+  if (profile.portraitUrl) {
+    bars.classList.add("has-portrait");
+  }
+
+  // Ring positions are percentages of the ring box (600 x 600 design size): 10 lords on r=238 clockwise from the top, the six
+  // main attributes as a hexagon on r=108, Might on top.
+  const pos = (index, count, radius) => {
+    const angle = (index / count) * Math.PI * 2;
+    return `left:${(50 + (Math.sin(angle) * radius) / 6).toFixed(2)}%;top:${(50 - (Math.cos(angle) * radius) / 6).toFixed(2)}%`;
+  };
+  const ring = el("div", { className: "pf-ring" }, [
+    // Two guide circles: fixed SVG shapes, no data in them.
+    el("div", { className: "pf-ring-guides", innerHTML: '<svg viewBox="0 0 600 600" aria-hidden="true"><circle cx="300" cy="300" r="238" class="pf-ring-c1"/><circle cx="300" cy="300" r="165" class="pf-ring-c2"/></svg>' }),
+    ...lords.map((a, i) =>
+      el("div", { className: "pf-lord-node", style: pos(i, lords.length, 238), title: lordName(a) }, [
+        el("div", { className: "pf-lord-ib" }, [attrIcon(a.key, true), el("strong", { textContent: String(a.value) })]),
+        el("span", { textContent: attrName(a) }),
+      ]),
+    ),
+    ...main.map((a, i) =>
+      el("div", { className: "pf-hex-node", style: pos(i, main.length, 108), title: attrName(a) }, [attrIcon(a.key, false), el("span", { textContent: attrName(a) }), el("strong", { textContent: String(a.value) })]),
+    ),
+  ]);
+
+  const list = el("div", { className: "pf-card pf-lord-list" }, [
+    el("h4", {}, [el("span", { textContent: t("profile.attrLords") })]),
+    ...lords.map((a) =>
+      el("div", { className: "pf-lord-row" }, [
+        el("span", { className: "pf-lord-name" }, [attrIcon(a.key, true), el("span", {}, [el("span", { textContent: attrName(a) }), el("small", { textContent: t(`lord.${a.key}`) })])]),
+        el("strong", { textContent: String(a.value) }),
+      ]),
+    ),
+  ]);
+  return el("div", { className: "pf-char" }, [
+    bars,
+    el("div", { className: "pf-card pf-char-ring" }, [el("h4", {}, [el("span", { textContent: t("profile.attrLords") }), only()]), ring]),
+    list,
+  ]);
+}
+
 function renderSpeciesTab(profile) {
   const locale = getLocale();
   const cards = profile.species.map((k) => {
@@ -2828,6 +2920,7 @@ function renderPlayerStrip(profile, player) {
       player.serverName ? el("span", { textContent: serverLabel(player.serverName) }) : null,
     ].filter((x) => x != null)),
     renderTitleChips(profile),
+    renderLookChips(profile),
     el("div", { className: "pf-numbers" }, numbers),
   ].filter((x) => x != null));
 }
@@ -2861,6 +2954,9 @@ async function renderPlayerProfile(playerId) {
   }
   if (profile?.species?.length > 0 || profile?.pets?.length > 0) {
     tabs.push(["species", t("profile.tabSpecies"), profile.species.length || profile.pets.length, () => renderSpeciesTab(profile)]);
+  }
+  if (profile?.attributes) {
+    tabs.push(["character", t("profile.tabCharacter"), profile.attributes.main.length + profile.attributes.lords.length, () => renderCharacterTab(profile)]);
   }
   if (profile?.gear.some((g) => g.slotName === "Arcana")) {
     tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);

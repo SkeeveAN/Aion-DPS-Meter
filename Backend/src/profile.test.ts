@@ -344,3 +344,43 @@ test("the class bits of a profile are no faction, and clients up to 0.27 still s
   assert.equal(db.select().from(playerProfiles).where(eq(playerProfiles.playerId, id)).get()!.classBits, 2);
   assert.equal(buildProfileView(id)!.faction, null, "bits 2 on a profile without a fight faction says nothing about the faction");
 });
+
+test("the character window (attributes, wing, wing skin, active pet) is stored, resolved, and never wiped by an upload without it", () => {
+  const attributes = { "1": 10, "2": 19, "4": 23, "5": 67, "6": 8, "7": 50, "8": 51, "9": 27, "10": 21, "11": 53, "13": 6, "14": 38, "15": 17, "16": 32, "17": 38 };
+  const full = { source: "self", classId: 4, level: 45, gear: [], attributes, wingId: 30500200, wingSkinId: 30400400, activePet: 1124 };
+  assert.equal(profileSchema.safeParse(full).success, true);
+  assert.equal(profileSchema.safeParse({ source: "self", attributes: { abc: 1 } }).success, false);
+  processUpload(aion2Upload([participant("Wingy", { profile: full })]));
+  const id = playerId("Wingy");
+  const view = buildProfileView(id)!;
+  assert.deepEqual(view.attributes!.main.map((a) => [a.key, a.value]), [["str", 10], ["dex", 19], ["agi", 67], ["wis", 8], ["int", 0], ["con", 23]]);
+  assert.deepEqual(view.attributes!.lords.map((a) => a.key), ["justice", "destruction", "death", "wisdom", "destiny", "space", "time", "life", "illusion", "freedom"]);
+  assert.equal(view.attributes!.lords[0].value, 50);
+  assert.equal(view.wing!.id, 30500200);
+  assert.equal(view.wingSkin!.id, 30400400);
+  assert.equal(view.activePet!.name, "Zaif");
+  assert.equal(view.activePet!.icon, "Zaif_01");
+  assert.equal(view.portraitUrl, null);
+
+  // An older client's upload of the same character carries none of it: everything stays.
+  upsertProfile(id, { source: "self", classId: 4, level: 46 });
+  const after = buildProfileView(id)!;
+  assert.equal(after.level, 46);
+  assert.equal(after.attributes!.lords[0].value, 50);
+  assert.equal(after.wing!.id, 30500200);
+  assert.equal(after.activePet!.id, 1124);
+
+  // Strangers show none of it.
+  processUpload(aion2Upload([participant("Stranger", { profile: { source: "seen", classId: 4, level: 40, gear: [{ slot: 5, itemId: 1000, enchant: 0 }] } })]));
+  const stranger = buildProfileView(playerId("Stranger"))!;
+  assert.equal(stranger.attributes, null);
+  assert.equal(stranger.wing, null);
+  assert.equal(stranger.activePet, null);
+});
+
+test("migration 0040 adds the character columns with empty defaults", () => {
+  const columns = sqlite.prepare("PRAGMA table_info(player_profiles)").all() as { name: string; notnull: number; dflt_value: string | null }[];
+  const by = Object.fromEntries(columns.map((c) => [c.name, c]));
+  assert.equal(by.attributes_json.dflt_value, "'{}'");
+  assert.ok(by.wing_id && by.wing_skin_id && by.active_pet);
+});

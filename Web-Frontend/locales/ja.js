@@ -309,6 +309,7 @@ export default {
   "profile.tabSkills": "スキル",
   "profile.tabBoard": "ディーヴァニオン ボード",
   "profile.tabSpecies": "種族理解度",
+  "profile.tabCharacter": "キャラクター",
   "profile.speciesLevel": "レベル {level}",
   "profile.speciesMax": "MAX",
   "profile.speciesProgress": "進行度",

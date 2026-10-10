@@ -84,7 +84,14 @@ public sealed record ProfileUpload(
     // for other players, how many nodes of each Daevanion board they have (the board list above is the uploader's own).
     IReadOnlyList<ProfileTitleUpload>? Titles = null,
     IReadOnlyList<ProfilePetUpload>? Pets = null,
-    IReadOnlyList<ProfileBoardCountUpload>? BoardCounts = null);
+    IReadOnlyList<ProfileBoardCountUpload>? BoardCounts = null,
+    // Own character only: base attributes + Lord values (id 1..17 -> value), wing and wing skin item ids, the summoned pet's species id (0 = none).
+    IReadOnlyDictionary<int, int>? Attributes = null,
+    int? WingId = null,
+    int? WingSkinId = null,
+    int? ActivePet = null,
+    // Level (1..3) of the summoned pet from the pet list; null when no pet is summoned or the list does not contain it.
+    int? ActivePetLevel = null);
 
 public sealed record ProfileTitleUpload(int Slot, int TitleId);
 

@@ -109,6 +109,13 @@ export const profileSchema = z.object({
     .array(z.object({ board: z.number().int().min(1).max(10_000), count: z.number().int().min(0).max(1000) }))
     .max(12)
     .default([]),
+  // Own character only (optional, older clients omit them): attribute id ("1".."17") -> value, the worn wing and wing skin
+  // (item ids; 0 = none) and the active pet's species id (0 = none).
+  attributes: z.record(z.string().regex(/^\d{1,3}$/), z.number().int().min(-1_000_000).max(1_000_000)).optional(),
+  wingId: z.number().int().min(0).max(2_000_000_000).optional(),
+  wingSkinId: z.number().int().min(0).max(2_000_000_000).optional(),
+  activePet: z.number().int().min(0).max(2_000_000_000).optional(),
+  activePetLevel: z.number().int().min(0).max(1000).optional(),
 });
 
 export type ProfileUpload = z.infer<typeof profileSchema>;
@@ -147,6 +154,13 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     titlesJson: profile.titles.length > 0 ? JSON.stringify(profile.titles) : (existing?.titlesJson ?? "[]"),
     petsJson: profile.pets.length > 0 ? JSON.stringify(profile.pets) : (existing?.petsJson ?? "[]"),
     boardCountsJson: profile.boardCounts.length > 0 ? JSON.stringify(profile.boardCounts) : (existing?.boardCountsJson ?? "[]"),
+    // Character window (own character): an upload without attributes, wing or pet (older client, window not read) keeps what is stored.
+    attributesJson: profile.attributes && Object.keys(profile.attributes).length > 0 ? JSON.stringify(profile.attributes) : (existing?.attributesJson ?? "{}"),
+    wingId: profile.wingId ? profile.wingId : (existing?.wingId ?? null),
+    wingSkinId: profile.wingSkinId ? profile.wingSkinId : (existing?.wingSkinId ?? null),
+    activePet: profile.activePet ? profile.activePet : (existing?.activePet ?? null),
+    // The level belongs to the pet it was read for: a new pet without a level does not inherit the old pet's.
+    activePetLevel: profile.activePetLevel ? profile.activePetLevel : (!profile.activePet || profile.activePet === existing?.activePet ? (existing?.activePetLevel ?? null) : null),
   };
   if (existing) {
     db.update(playerProfiles)
@@ -357,7 +371,27 @@ export type ProfileView = {
   pets: { species: number; key: string; names: Record<string, string>; level: number; kinds: number[] }[];
   /** Activated nodes per Daevanion board next to the board's size; for the own character from the node lists. */
   boards: { board: number; name: string; count: number; total: number }[];
+  /**
+   * Main attributes and lord values of the own character, grouped and in the game's display order (main: Might, Agility,
+   * Precision, Will, Intelligence, Constitution; lords: Justice .. Freedom, clockwise from the top); null for strangers / old uploads.
+   * `key` is a stable English id for the website's translations; every entry is present (0 when the client sent none).
+   */
+  attributes: { main: { id: number; key: string; value: number }[]; lords: { id: number; key: string; value: number }[] } | null;
+  /** Worn wing / wing skin (item ids resolved through wings.json; unknown ids read "Wings <id>" without an icon) and the active pet. */
+  wing: { id: number; name: string; names: Record<string, string>; icon: string | null } | null;
+  wingSkin: { id: number; name: string; names: Record<string, string>; icon: string | null } | null;
+  /** Active pet by species id; `icon` is a file name under images/aion2/icons/pet (may not exist for every pet). */
+  activePet: { id: number; name: string; names: Record<string, string>; icon: string | null; level: number | null } | null;
+  /** Reserved for a later cut-out character portrait; always null for now. */
+  portraitUrl: string | null;
 };
+
+// Attribute ids of the character window, in display order.
+const MAIN_ATTRIBUTES: [number, string][] = [[1, "str"], [2, "dex"], [5, "agi"], [6, "wis"], [3, "int"], [4, "con"]];
+const LORD_ATTRIBUTES: [number, string][] = [[7, "justice"], [13, "destruction"], [14, "death"], [15, "wisdom"], [16, "destiny"], [17, "space"], [11, "time"], [10, "life"], [9, "illusion"], [8, "freedom"]];
+// wings.json (Recherche): item id -> { names, icon }; petInfo: species id -> { k: key, n: names }.
+let wingData: Record<string, { names?: Record<string, string>; icon?: string }> | null = null;
+let petInfo: Record<string, { k: string; n: Record<string, string> }> | null = null;
 
 /** Zenit stage of an enchant byte: 1..5 for 16..20, else 0 (+15 is the plain enchant cap; above 20 is not plausible and is left as is). */
 export function zenitStage(enchant: number): number {
@@ -387,6 +421,8 @@ export function buildProfileView(playerId: number): ProfileView | null {
   skillTypes ??= loadJson<Record<string, string>>("skill_types.json", {});
   speciesData ??= loadJson<SpeciesData>("species_stats.json", { species: {}, stats: {} });
   titleData ??= loadJson("titles.json", {});
+  wingData ??= loadJson("wings.json", {});
+  petInfo ??= loadJson("pets.json", {});
   if (!boardNodes) {
     boardNodes = new Map();
     for (const [id, node] of Object.entries(daevanion.nodes)) {
@@ -517,7 +553,39 @@ export function buildProfileView(playerId: number): ProfileView | null {
       })
       .sort((a, b) => a.species - b.species),
     boards: boardSummary(row.boardCountsJson, boards),
+    attributes: attributesOf(row.attributesJson),
+    wing: wingOf(row.wingId),
+    wingSkin: wingOf(row.wingSkinId),
+    activePet: activePetOf(row.activePet, row.activePetLevel),
+    portraitUrl: null,
   };
+}
+
+function attributesOf(json: string): ProfileView["attributes"] {
+  const values = JSON.parse(json) as Record<string, number>;
+  if (Object.keys(values).length === 0) {
+    return null;
+  }
+  const pick = (list: [number, string][]) => list.map(([id, key]) => ({ id, key, value: values[String(id)] ?? 0 }));
+  return { main: pick(MAIN_ATTRIBUTES), lords: pick(LORD_ATTRIBUTES) };
+}
+
+function wingOf(id: number | null): ProfileView["wing"] {
+  if (!id) {
+    return null;
+  }
+  const info = wingData![String(id)];
+  const names = info?.names ?? {};
+  return { id, name: names.en ?? `Wings ${id}`, names, icon: info?.icon ?? null };
+}
+
+function activePetOf(id: number | null, level: number | null): ProfileView["activePet"] {
+  if (!id) {
+    return null;
+  }
+  const info = petInfo![String(id)];
+  const names = info?.n ?? {};
+  return { id, name: names.en ?? `Pet ${id}`, names, icon: info ? info.k : null, level };
 }
 
 /**

@@ -98,6 +98,7 @@ export default {
   "profile.tabSkills": "Умения",
   "profile.tabBoard": "Доска Daevanion",
   "profile.tabSpecies": "Знание о видах",
+  "profile.tabCharacter": "Персонаж",
   "profile.speciesLevel": "Ур. {level}",
   "profile.speciesMax": "Макс.",
   "profile.speciesProgress": "Прогресс",

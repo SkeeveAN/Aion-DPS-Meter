@@ -183,6 +183,9 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.Titles:
                 DecodeTitles(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.Attributes:
+                DecodeAttributes(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Skills:
                 DecodeSkills(frame);
                 return Array.Empty<DamageEvent>();
@@ -842,6 +845,14 @@ public sealed class Aion2FrameDecoder
             }
         }
 
+        // The u32 right behind the opcode is the summoned pet (0 = none); 1124 for Aahz's Zaif, 1204 / 1042 / 0 for his other
+        // characters (recording 2026-10-10_12-26). Only taken from a frame that really is the pet list.
+        uint active = BinaryPrimitives.ReadUInt32LittleEndian(frame[2..]);
+        if (active == 0 || active is >= 1000 and <= 99999)
+        {
+            _entities.SetLocalActivePet((int)active);
+        }
+
         _entities.SetLocalPetStates(levels.Select(l => new Aion2PetState(l.Id, l.Level, progress.GetValueOrDefault(l.Id))).ToList());
     }
 
@@ -1073,7 +1084,89 @@ public sealed class Aion2FrameDecoder
 
             _entities.SetLocalCharacter(new Aion2CharacterInfo((int)id, name, classCode, level, equipment, timestamp,
                 ServerId: BinaryPrimitives.ReadUInt16LittleEndian(frame[after..])));
+            if (TryReadWing(frame) is { } wing)
+            {
+                _entities.SetLocalWing(wing);
+            }
+
             return;
+        }
+    }
+
+    /// <summary>The constant block in the own character record that precedes the wing: <c>a0 86 01 00 a0 86 01 00</c>
+    /// (100000 twice), then two u32, then <c>01</c> or <c>01 00 00 00 01</c>, then the wing (u32), the optional wing
+    /// skin (u32, 304xxxxx) and the title id.</summary>
+    private static readonly byte[] WingAnchor = { 0xa0, 0x86, 0x01, 0x00, 0xa0, 0x86, 0x01, 0x00 };
+
+    /// <summary>
+    /// Reads the wing and its skin from the own character record (0x3336), anchored on <see cref="WingAnchor"/>. Checked
+    /// 2026-10-10 against Aahz (wing 30500200, skin 30400400), Chumley (30200600, no skin) and the older recordings
+    /// (30101200 with and without skin). Anything that does not fit the layout - a wing outside 30000000..30599999 or
+    /// inside the skin range 304xxxxx - yields null, never a guess.
+    /// </summary>
+    private static Aion2Wing? TryReadWing(ReadOnlySpan<byte> frame)
+    {
+        int anchor = frame.IndexOf(WingAnchor);
+        if (anchor < 0)
+        {
+            return null;
+        }
+
+        int q = anchor + 16;
+        int wingAt;
+        if (q + 5 <= frame.Length && frame[q] == 1 && frame[q + 1] == 0 && frame[q + 2] == 0 && frame[q + 3] == 0 && frame[q + 4] == 1)
+        {
+            wingAt = q + 5;
+        }
+        else if (q < frame.Length && frame[q] == 1)
+        {
+            wingAt = q + 1;
+        }
+        else
+        {
+            return null;
+        }
+
+        if (wingAt + 4 > frame.Length)
+        {
+            return null;
+        }
+
+        uint wing = BinaryPrimitives.ReadUInt32LittleEndian(frame[wingAt..]);
+        if (wing is < 30_000_000 or > 30_599_999 || wing is >= 30_400_000 and <= 30_499_999)
+        {
+            return null;
+        }
+
+        uint skin = wingAt + 8 <= frame.Length ? BinaryPrimitives.ReadUInt32LittleEndian(frame[(wingAt + 4)..]) : 0;
+        return new Aion2Wing((int)wing, skin is >= 30_400_000 and <= 30_499_999 ? (int)skin : 0);
+    }
+
+    /// <summary>
+    /// The stat frame of the local player: <c>opcode | 00 00 | varint n | n x (u16 id, i32 value) | 8 bytes</c>. Only the base
+    /// attributes and Lord values (ids 1..17, see <see cref="Aion2Attributes"/>) are kept. Checked 2026-10-10 on Aahz.
+    /// </summary>
+    private void DecodeAttributes(ReadOnlySpan<byte> frame)
+    {
+        int p = 4;
+        if (frame.Length < 6 || !TryReadVarint(frame, ref p, out long count) || count is < 1 or > 1000 || p + count * 6 > frame.Length)
+        {
+            return;
+        }
+
+        var values = new Dictionary<int, int>();
+        for (long i = 0; i < count; i++, p += 6)
+        {
+            int id = BinaryPrimitives.ReadUInt16LittleEndian(frame[p..]);
+            if (id is >= Aion2Attributes.FirstId and <= Aion2Attributes.LastId)
+            {
+                values[id] = BinaryPrimitives.ReadInt32LittleEndian(frame[(p + 2)..]);
+            }
+        }
+
+        if (values.Count > 0)
+        {
+            _entities.SetLocalAttributes(values);
         }
     }
 

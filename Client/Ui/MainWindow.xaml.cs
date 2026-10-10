@@ -3720,7 +3720,14 @@ public partial class MainWindow : Window
                 directory.LocalSpecies.Select(k => new ProfileSpeciesUpload(k.SpeciesId, k.Level, k.Progress,
                     k.Effects.Select(e => new ProfileSpeciesEffectUpload(e.Page, e.Slot, e.StatId, e.Value, e.Kind)).ToList())).ToList(),
                 Titles: directory.LocalTitles.Select(t => new ProfileTitleUpload(t.Slot, t.TitleId)).ToList(),
-                Pets: directory.LocalPets.Select(k => new ProfilePetUpload(k.SpeciesId, k.Level, k.Kinds)).ToList());
+                Pets: directory.LocalPets.Select(k => new ProfilePetUpload(k.SpeciesId, k.Level, k.Kinds)).ToList(),
+                Attributes: directory.LocalAttributes,
+                WingId: directory.LocalWing?.WingId,
+                WingSkinId: directory.LocalWing is { SkinId: > 0 } wing ? wing.SkinId : null,
+                ActivePet: directory.LocalActivePet,
+                ActivePetLevel: directory.LocalActivePet is > 0 and int activePet
+                    ? directory.LocalPetStates.Where(p => p.PetId == activePet).Select(p => (int?)p.Level).FirstOrDefault()
+                    : null);
         }
 
         // A character window the local player opened for this player: level and the full equipment with

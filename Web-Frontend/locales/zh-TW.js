@@ -309,6 +309,7 @@ export default {
   "profile.tabSkills": "技能",
   "profile.tabBoard": "Daevanion 面板",
   "profile.tabSpecies": "種族洞察",
+  "profile.tabCharacter": "角色",
   "profile.speciesLevel": "等級 {level}",
   "profile.speciesMax": "已滿級",
   "profile.speciesProgress": "進度",

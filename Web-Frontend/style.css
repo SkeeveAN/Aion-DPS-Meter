@@ -2960,3 +2960,264 @@ body:has(.download-hero) .nav-download-link:hover,
   z-index: -1;
 }
 .pf-tip-orange { color: #ff9a2e; }
+
+/* ---- Player page: wing / skin / pet chips in the strip and the "Character" tab (own character only) ---- */
+/* The stat symbols are light grey line art: they sit on a dark disc in both themes. */
+:root,
+:root[data-theme="dark"] {
+  --attr-disc: #1e3347;
+  --attr-disc-hi: #3a5a74;
+  --attr-disc-lo: #1b3144;
+}
+:root[data-theme="light"] {
+  --attr-disc: #2b4559;
+  --attr-disc-hi: #3f6079;
+  --attr-disc-lo: #26404f;
+}
+.pf-looks {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pf-vsep {
+  width: 1px;
+  height: 34px;
+  background: var(--color-border);
+}
+.pf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.pf-chip img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--attr-disc);
+}
+.pf-chip:not(:has(img)) {
+  padding-left: 12px;
+}
+.pf-pill {
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+.pf-chip-lvl {
+  color: var(--color-text-muted);
+}
+
+.pf-char {
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr) minmax(0, 520px);
+  gap: 16px;
+  align-items: start;
+}
+.pf-char-main {
+  padding-top: 0;
+  overflow: hidden;
+}
+.pf-char-main:not(.has-portrait) {
+  padding-top: 16px;
+}
+.pf-only {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border: 1px solid var(--color-warning);
+  border-radius: 999px;
+  color: var(--color-warning);
+  font-size: 0.7rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.pf-attr-ico {
+  display: block;
+  border-radius: 50%;
+  background: var(--attr-disc);
+  object-fit: contain;
+  box-sizing: border-box;
+  filter: brightness(2.2) contrast(1.15) drop-shadow(0 0 3px rgba(160, 200, 255, 0.35));
+}
+.pf-stat {
+  display: grid;
+  grid-template-columns: 26px 110px 1fr 38px;
+  gap: 10px;
+  align-items: center;
+  margin: 7px 0;
+}
+.pf-stat .pf-attr-ico {
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+}
+.pf-stat i {
+  display: block;
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+.pf-stat i b {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+  background: var(--color-primary);
+}
+.pf-stat em {
+  font-style: normal;
+  font-weight: 700;
+  text-align: right;
+}
+.pf-stat.zero {
+  opacity: 0.55;
+}
+.pf-portrait {
+  height: 340px;
+  margin: 0 -16px 6px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  background: radial-gradient(ellipse at 50% 70%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 65%);
+}
+.pf-portrait img {
+  height: 100%;
+  width: auto;
+  -webkit-mask-image: linear-gradient(#000 78%, transparent);
+  mask-image: linear-gradient(#000 78%, transparent);
+}
+
+/* Lord ring: the box scales with the card (600 px at most), everything inside is positioned in percent. */
+.pf-ring {
+  position: relative;
+  width: min(600px, 100%);
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+.pf-ring-guides svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.pf-ring-c1 {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 2;
+}
+.pf-ring-c2 {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+.pf-lord-node,
+.pf-hex-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.pf-lord-node {
+  width: 16%;
+  font-size: clamp(9px, 1.9cqw, 11px);
+}
+.pf-lord-ib {
+  position: relative;
+  width: 66%;
+  aspect-ratio: 1;
+  margin: 0 auto 4px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: radial-gradient(circle, var(--attr-disc-hi) 0%, var(--attr-disc-lo) 72%);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+}
+.pf-lord-ib .pf-attr-ico {
+  width: 78%;
+  height: 78%;
+  background: none;
+}
+.pf-lord-ib strong {
+  position: absolute;
+  right: -12%;
+  bottom: -6%;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: #fff;
+  -webkit-text-stroke: 3px #0b1620;
+  paint-order: stroke fill;
+}
+.pf-hex-node {
+  width: 16%;
+  font-size: 0.8rem;
+  color: var(--color-text);
+}
+.pf-hex-node .pf-attr-ico {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto 2px;
+  padding: 2px;
+}
+.pf-hex-node strong {
+  display: block;
+  font-size: 1.35rem;
+  color: var(--color-primary);
+}
+.pf-char-ring {
+  container-type: inline-size;
+}
+.pf-lord-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.pf-lord-row:last-child {
+  border-bottom: 0;
+}
+.pf-lord-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pf-lord-name .pf-attr-ico {
+  width: 34px;
+  height: 34px;
+  padding: 3px;
+}
+.pf-lord-name small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+}
+@media (max-width: 1500px) {
+  .pf-char {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .pf-char-ring {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+}
+@media (max-width: 800px) {
+  .pf-char {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pf-stat {
+    grid-template-columns: 26px 80px 1fr 32px;
+  }
+}

@@ -309,6 +309,7 @@ export default {
   "profile.tabSkills": "스킬",
   "profile.tabBoard": "데바니온 보드",
   "profile.tabSpecies": "종족 이해도",
+  "profile.tabCharacter": "캐릭터",
   "profile.speciesLevel": "레벨 {level}",
   "profile.speciesMax": "최대",
   "profile.speciesProgress": "진행도",

@@ -93,6 +93,7 @@ export default {
   "profile.tabSkills": "Umiejętności",
   "profile.tabBoard": "Tablica Daevanion",
   "profile.tabSpecies": "Wiedza o gatunkach",
+  "profile.tabCharacter": "Postać",
   "profile.speciesLevel": "Poz. {level}",
   "profile.speciesMax": "Maks.",
   "profile.speciesProgress": "Postęp",
