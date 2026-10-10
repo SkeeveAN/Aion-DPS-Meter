@@ -31,6 +31,14 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "Player link previews: a wide card per profile (portrait on the obelisk artwork, name, class, guild, best DPS and item level) instead of the small class emblem, and a shorter page title",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },

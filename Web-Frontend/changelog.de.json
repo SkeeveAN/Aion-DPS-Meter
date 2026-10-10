@@ -582,5 +582,6 @@
   "Portraits: the cut-out only removes near-black (limit 10 instead of 34), so dark clothing and hair are no longer cut away": "Porträts: Der Freisteller entfernt nur noch fast reines Schwarz (Grenze 10 statt 34), dunkle Kleidung und Haare werden nicht mehr mit weggeschnitten",
   "Portraits: background limit 5 instead of 10, so black coats and dark hair stay too": "Porträts: Hintergrund-Grenze 5 statt 10, damit auch schwarze Mäntel und dunkle Haare erhalten bleiben",
   "Portraits: background limit 3 (NC's black is exactly 2), so the whole body stays visible": "Porträts: Hintergrund-Grenze 3 (NCs Schwarz ist genau 2), damit der ganze Körper sichtbar bleibt",
-  "Profile portrait: the bottom fade starts lower (90% instead of 78%), so more of the armour stays visible": "Profil-Porträt: Das Ausblenden am unteren Rand beginnt tiefer (90 % statt 78 %), damit mehr von der Rüstung sichtbar bleibt"
+  "Profile portrait: the bottom fade starts lower (90% instead of 78%), so more of the armour stays visible": "Profil-Porträt: Das Ausblenden am unteren Rand beginnt tiefer (90 % statt 78 %), damit mehr von der Rüstung sichtbar bleibt",
+  "Player link previews: a wide card per profile (portrait on the obelisk artwork, name, class, guild, best DPS and item level) instead of the small class emblem, and a shorter page title": "Link-Vorschau für Spieler: eine breite Karte pro Profil (Porträt vor dem Obelisk-Hintergrund, Name, Klasse, Legion, Bestwert-DPS und Gegenstandsstufe) statt des kleinen Klassen-Emblems, dazu ein kürzerer Seitentitel"
 }
