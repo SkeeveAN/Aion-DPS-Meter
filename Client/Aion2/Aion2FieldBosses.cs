@@ -443,6 +443,13 @@ public static class Aion2FieldBosses
             States.TryGetValue(boss.Npc, out state);
         }
 
+        // A boss with a fixed time (the Abyss) follows its schedule, not the last list the player happened to open on that map.
+        if (boss.Rule is { } fixedRule && FixedWindow(fixedRule, now) is { } fixedWindow)
+        {
+            DateTime? fixedSeen = state is null ? null : DateTimeOffset.FromUnixTimeMilliseconds(state.SeenMs).LocalDateTime;
+            return fixedWindow.Start <= now ? new BossStatus(BossPhase.Now, fixedWindow.Start, fixedSeen) : new BossStatus(BossPhase.Fixed, fixedWindow.Start, fixedSeen);
+        }
+
         if (state is not null)
         {
             DateTime seen = DateTimeOffset.FromUnixTimeMilliseconds(state.SeenMs).LocalDateTime;
@@ -456,11 +463,6 @@ public static class Aion2FieldBosses
                 DateTime back = DateTimeOffset.FromUnixTimeMilliseconds(state.TimeMs).LocalDateTime;
                 return back > now ? new BossStatus(BossPhase.Respawn, back, seen) : new BossStatus(BossPhase.Now, back, seen);
             }
-        }
-
-        if (boss.Rule is { } rule && FixedWindow(rule, now) is { } window)
-        {
-            return window.Start <= now ? new BossStatus(BossPhase.Now, window.Start, null) : new BossStatus(BossPhase.Fixed, window.Start, null);
         }
 
         return new BossStatus(BossPhase.Unknown, null, state is null ? null : DateTimeOffset.FromUnixTimeMilliseconds(state.SeenMs).LocalDateTime);
