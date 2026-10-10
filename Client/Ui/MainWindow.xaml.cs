@@ -2416,9 +2416,7 @@ public partial class MainWindow : Window
     /// Why the fight does not count as a kill, or null when it does: the boss must have been seen dying
     /// (see <see cref="BossDied"/>) and the hits on it must add up to at least <see cref="MinKillDamageShare"/>
     /// of its highest reading. No reading at all counts as "not proven" - an empty run slipped through
-    /// that way (Run 421). A world boss is exempt from the damage share: over a hundred players fight it and
-    /// the client only receives a sliver of their hits (Kashapa and Dartan, 2026-10-10: ~4 million seen of
-    /// 276 million hit points), so only its death counts there.
+    /// that way (Run 421).
     /// </summary>
     private static string? BossNotKilledReason(Aion2EntityDirectory directory, int targetId, List<DamageEvent> targetHits)
     {
@@ -2431,11 +2429,6 @@ public partial class MainWindow : Window
         if (!BossDied(directory, hitPoints, targetId, latest))
         {
             return $"the boss was not seen dying (last reading {latest.Hp} of {maxHp})";
-        }
-
-        if (directory.BossNpcIdOf(targetId) is int npcId && Aion2BossCatalog.IsWorldBoss(npcId))
-        {
-            return null;
         }
 
         double damage = targetHits.Sum(e => (double)e.Amount);

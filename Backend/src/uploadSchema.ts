@@ -85,8 +85,8 @@ export const uploadSchema = z
   bossMaxHp: z.number().int().positive().max(100_000_000_000).optional(),
   startedAt: z.string().min(1),
   endedAt: z.string().min(1),
-  // 6-man groups up to 24-man alliance instances; a world boss (Kashapa, Dartan: 106 and 108) has the whole map on it.
-  participants: z.array(participantSchema).min(1).max(200),
+  // 6-man groups up to 24-man alliance instances.
+  participants: z.array(participantSchema).min(1).max(24),
   // The server the uploader plays on, "aion2:<server slug>" (derived from the server id in the
   // game's own character record) - required: without it runs of different servers could not be
   // told apart.
