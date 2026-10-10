@@ -18,6 +18,7 @@ import { UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { slugify, uniqueSlug } from "../seo/slug.js";
 import { upsertProfile } from "../profile.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
+import { rehomeKnownPlayers } from "./rehome.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -177,6 +178,16 @@ function serverOfParticipant(participant: { serverId?: number }, uploaderServerI
     return uploaderServerId;
   }
   return upsertServer(`aion2:aion-2-server-${participant.serverId}`, undefined);
+}
+
+/** Players an old client filed under the uploader's server that this upload now names with their own: see rehome.ts. */
+function rehomePlayers(participants: { name: string; guild?: string; serverId?: number }[], uploaderServerId: number) {
+  const named = participants
+    .filter((p) => p.serverId !== undefined && nameOf(p.serverId) !== null)
+    .map((p) => ({ name: p.name, guild: p.guild, target: serverOfParticipant(p, uploaderServerId) }));
+  if (named.length > 0) {
+    rehomeKnownPlayers(named, uploaderServerId);
+  }
 }
 
 function upsertPlayer(name: string, serverId: number, guild?: string): number {
@@ -643,6 +654,7 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
 
 export function processUpload(payload: UploadPayload): ProcessResult {
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
+  rehomePlayers(payload.participants, serverId);
   payload = { ...payload, participants: mergeDuplicateParticipants(payload.participants, serverId) };
   const bossId = resolveBossId(payload);
   // Nightmare bosses carry one NPC id per level (Pinopi 2980040 = level 1 ... 2980049 = level 10), so
@@ -668,6 +680,7 @@ export function processUpload(payload: UploadPayload): ProcessResult {
  */
 export function processProfilesUpload(payload: ProfilesUploadPayload): { serverId: number; players: number } {
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
+  rehomePlayers(payload.participants, serverId);
   for (const participant of payload.participants) {
     const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild);
     upsertProfile(playerId, participant.profile);

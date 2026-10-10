@@ -347,3 +347,88 @@ test("a pure healer with zero boss damage still gets an encounter row - not just
   assert.equal(skillRow.skillName, "Healing Light V");
   assert.equal(skillRow.isHeal, true);
 });
+
+// --- players an old client filed under the uploader's server move to the server a newer upload names (rehome.ts) ---
+
+function member(name: string, faction: string, extra: { guild?: string; serverId?: number } = {}) {
+  const base = basePayload().participants[1];
+  return { ...base, name, faction, isSelf: false, ...extra };
+}
+
+let fightNo = 0;
+function upload(participants: ReturnType<typeof member>[], withServers: boolean, serverName = "Europe - Rehome", uploaderFingerprint = "aion2:europe-rehome") {
+  fightNo++;
+  const start = new Date(Date.UTC(2026, 2, 1, 10, fightNo * 10)).toISOString();
+  return processUpload(
+    basePayload({
+      serverFingerprint: uploaderFingerprint,
+      serverName,
+      startedAt: start,
+      endedAt: new Date(Date.parse(start) + 120_000).toISOString(),
+      participants: participants.map((p) => (withServers ? p : { ...p, serverId: undefined })),
+    }),
+  );
+}
+
+const rowCount = (name: string) => (sqlite.prepare("select count(*) n from players where name_normalized = ?").get(name.toLowerCase()) as { n: number }).n;
+
+test("an Asmodian filed under an Elyos server moves to the server he names now - same row, no second one", () => {
+  // Europe - Kaisinel is an Elyos server: Mira (Asmodian) cannot really be there.
+  upload([member("Mira", "Asmodian")], false, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  const before = sqlite.prepare("select id from players where name_normalized = 'mira'").get() as { id: number };
+  upload([member("Mira", "Asmodian", { serverId: 2308 })], true, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  const after = sqlite.prepare("select p.id id, s.display_name d from players p join servers s on s.id = p.server_id where p.name_normalized = 'mira'").all() as { id: number; d: string }[];
+  assert.equal(after.length, 1, "no second Mira");
+  assert.equal(after[0].id, before.id);
+  assert.equal(after[0].d, "Europe - Beritra");
+});
+
+test("the same legion on both sides moves an Elyos to the server he names", () => {
+  upload([member("Odin", "Elyos", { guild: "Nordwind" })], false, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  upload([member("Odin", "Elyos", { guild: "Nordwind", serverId: 1305 })], true, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  assert.equal(rowCount("odin"), 1);
+  const d = (sqlite.prepare("select s.display_name d from players p join servers s on s.id = p.server_id where p.name_normalized = 'odin'").get() as { d: string }).d;
+  assert.equal(d, "Europe - Yustiel");
+});
+
+test("an Elyos without a legion match stays where he was - a namesake of another server must not take the row", () => {
+  upload([member("Thora", "Elyos")], false, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  upload([member("Thora", "Elyos", { serverId: 1305 })], true, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  assert.equal(rowCount("thora"), 2, "a second row for the other server, the old one untouched");
+  const old = sqlite.prepare("select s.display_name d from players p join servers s on s.id = p.server_id where p.name_normalized = 'thora' order by p.id limit 1").get() as { d: string };
+  assert.equal(old.d, "Europe - Kaisinel");
+});
+
+test("a different legion never moves a row", () => {
+  upload([member("Freya", "Elyos", { guild: "Alpha" })], false, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  upload([member("Freya", "Elyos", { guild: "Beta", serverId: 1305 })], true, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  assert.equal(rowCount("freya"), 2);
+});
+
+test("three players seen together twice before are recognised through each other, even when the new upload names no legion", () => {
+  const crew = ["Anke", "Bernd", "Cora"];
+  // Two earlier fights from an old client, the legion known.
+  upload(crew.map((n) => member(n, "Elyos", { guild: "Eisenfaust" })), false, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  upload(crew.map((n) => member(n, "Elyos", { guild: "Eisenfaust" })), false, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  // Anke and Bernd are named with a legion (rule 2); Cora comes without one and is identified by them (rule 3).
+  upload(
+    [member("Anke", "Elyos", { guild: "Eisenfaust", serverId: 1305 }), member("Bernd", "Elyos", { guild: "Eisenfaust", serverId: 1305 }), member("Cora", "Elyos", { serverId: 1305 })],
+    true,
+    "Europe - Kaisinel",
+    "aion2:europe-kaisinel",
+  );
+  for (const n of crew) {
+    assert.equal(rowCount(n), 1, `${n} keeps his single row`);
+    const d = (sqlite.prepare("select s.display_name d from players p join servers s on s.id = p.server_id where p.name_normalized = ?").get(n.toLowerCase()) as { d: string }).d;
+    assert.equal(d, "Europe - Yustiel", n);
+  }
+});
+
+test("one mate is not enough for the group rule", () => {
+  const crew = ["Dirk", "Edda"];
+  upload(crew.map((n) => member(n, "Elyos", { guild: "Zweier" })), false, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  upload(crew.map((n) => member(n, "Elyos", { guild: "Zweier" })), false, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  upload([member("Dirk", "Elyos", { guild: "Zweier", serverId: 1305 }), member("Edda", "Elyos", { serverId: 1305 })], true, "Europe - Kaisinel", "aion2:europe-kaisinel");
+  assert.equal(rowCount("dirk"), 1, "Dirk moved by his legion");
+  assert.equal(rowCount("edda"), 2, "Edda has only one mate: not identified");
+});
