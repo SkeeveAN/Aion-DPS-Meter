@@ -4408,5 +4408,61 @@
     "pt": "Você está com uma versão antiga do cliente ({0}). Atualize para a {1} (menu: Procurar atualizações, ou baixe em aiondps.com). Enquanto isso, não é possível enviar dados.",
     "ja": "古いクライアントバージョン（{0}）をお使いです。{1} に更新してください（メニュー：更新を確認、または aiondps.com からダウンロード）。更新するまでアップロードはできません。",
     "ko": "오래된 클라이언트 버전({0})을 사용 중입니다. {1}(으)로 업데이트해 주세요(메뉴: 업데이트 확인, 또는 aiondps.com에서 다운로드). 업데이트할 때까지 업로드할 수 없습니다."
+  },
+  "Overlay.UpdateDownloading": {
+    "en": "Update {0} is downloading",
+    "de": "Update {0} wird geladen",
+    "fr": "La mise à jour {0} se télécharge",
+    "es": "Descargando la actualización {0}",
+    "ru": "Загружается обновление {0}",
+    "pl": "Pobieranie aktualizacji {0}",
+    "tr": "Güncelleme {0} indiriliyor",
+    "zh": "正在下载更新 {0}",
+    "zh-TW": "正在下載更新 {0}",
+    "pt": "Baixando a atualização {0}",
+    "ja": "更新 {0} をダウンロード中",
+    "ko": "업데이트 {0} 내려받는 중"
+  },
+  "Overlay.UpdateReady": {
+    "en": "Update {0} ready – click to restart",
+    "de": "Update {0} bereit – klicken zum Neustart",
+    "fr": "Mise à jour {0} prête – cliquez pour redémarrer",
+    "es": "Actualización {0} lista – haz clic para reiniciar",
+    "ru": "Обновление {0} готово – нажмите для перезапуска",
+    "pl": "Aktualizacja {0} gotowa – kliknij, aby uruchomić ponownie",
+    "tr": "Güncelleme {0} hazır – yeniden başlatmak için tıklayın",
+    "zh": "更新 {0} 已就绪——点击重启",
+    "zh-TW": "更新 {0} 已就緒——點擊重新啟動",
+    "pt": "Atualização {0} pronta – clique para reiniciar",
+    "ja": "更新 {0} の準備ができました – クリックで再起動",
+    "ko": "업데이트 {0} 준비 완료 – 클릭하여 다시 시작"
+  },
+  "Overlay.OutdatedBadge": {
+    "en": "Old version – no uploads, please update",
+    "de": "Alte Version – keine Uploads, bitte aktualisieren",
+    "fr": "Ancienne version – aucun envoi, veuillez mettre à jour",
+    "es": "Versión antigua – sin envíos, actualiza",
+    "ru": "Старая версия – отправка отключена, обновите",
+    "pl": "Stara wersja – brak wysyłania, zaktualizuj",
+    "tr": "Eski sürüm – yükleme yok, lütfen güncelleyin",
+    "zh": "版本过旧——无法上传，请更新",
+    "zh-TW": "版本過舊——無法上傳，請更新",
+    "pt": "Versão antiga – sem envios, atualize",
+    "ja": "古いバージョン – アップロード不可、更新してください",
+    "ko": "오래된 버전 – 업로드 불가, 업데이트하세요"
+  },
+  "Overlay.OutdatedBadgeShort": {
+    "en": "Update!",
+    "de": "Update!",
+    "fr": "Màj !",
+    "es": "¡Actualiza!",
+    "ru": "Обновить!",
+    "pl": "Aktualizuj!",
+    "tr": "Güncelle!",
+    "zh": "请更新",
+    "zh-TW": "請更新",
+    "pt": "Atualize!",
+    "ja": "更新!",
+    "ko": "업데이트!"
   }
 }

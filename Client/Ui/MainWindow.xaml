@@ -1247,6 +1247,11 @@
                         <TextBlock x:Name="OverlayModeText" Foreground="{DynamicResource Brush.OverlayText}" FontSize="10"
                                    FontWeight="Bold" VerticalAlignment="Center"/>
                     </Border>
+                    <!-- An update is on its way / waiting, or this version may no longer upload (see SetUpdateStatus); a click does what the status row's notice does. -->
+                    <Border x:Name="CompactUpdateBadge" DockPanel.Dock="Right" Visibility="Collapsed" CornerRadius="3" Padding="5,0" Margin="6,0,0,0"
+                            Cursor="Hand" MouseLeftButtonDown="OnUpdateNoticeClicked">
+                        <TextBlock x:Name="CompactUpdateBadgeText" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Foreground="#FF101820"/>
+                    </Border>
                     <!-- Green: capturing; orange: paused; grey: waiting for the game. -->
                     <Ellipse x:Name="OverlayStateDot" Width="7" Height="7" Fill="Gray" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <TextBlock x:Name="OverlayTimeText" DockPanel.Dock="Right" Foreground="{DynamicResource Brush.Accent}"
@@ -1431,5 +1436,11 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </local:QuietItemsControl>
+
+        <!-- The same hint for the player chips: the window is click-through there, so it only shows. -->
+        <Border x:Name="OverlayUpdateBadge" Visibility="Collapsed" IsHitTestVisible="False" HorizontalAlignment="Right" VerticalAlignment="Top"
+                CornerRadius="3" Padding="8,3" Margin="0,0,4,0">
+            <TextBlock x:Name="OverlayUpdateBadgeText" FontSize="12" FontWeight="Bold" Foreground="#FF101820"/>
+        </Border>
     </Grid>
 </Window>

@@ -3066,6 +3066,8 @@ public partial class MainWindow : Window
     {
         var loc = LocalizationManager.Instance;
         ShowUploadStatus(loc["Upload.ClientOutdatedStatus"]);
+        _clientOutdated = true;
+        RefreshUpdateBadge();
         bool automatic = MeterSettings.Load().CheckForUpdates;
         if (automatic)
         {
@@ -3141,6 +3143,7 @@ public partial class MainWindow : Window
         if (update is null)
         {
             UpdateNotice.Visibility = Visibility.Collapsed;
+            SetUpdateStatus(null, null);
             if (announceResult)
             {
                 ThemedMessageBox.Show(this, $"You are running the latest version ({AppVersion.Text}).",
@@ -3168,6 +3171,7 @@ public partial class MainWindow : Window
 
         UpdateNotice.Text = $"Downloading {version}...";
         UpdateNotice.Visibility = Visibility.Visible;
+        SetUpdateStatus(string.Format(LocalizationManager.Instance["Overlay.UpdateDownloading"], version), "↓ " + version);
 
         try
         {
@@ -3176,6 +3180,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             UpdateNotice.Visibility = Visibility.Collapsed;
+            SetUpdateStatus(null, null);
             if (announceResult)
             {
                 ThemedMessageBox.Show(this, $"The update could not be downloaded.\n\n{ex.Message}",
@@ -3187,6 +3192,7 @@ public partial class MainWindow : Window
 
         _downloadedUpdate = update;
         UpdateNotice.Text = $"Update {version} ready - click to restart";
+        SetUpdateStatus(string.Format(LocalizationManager.Instance["Overlay.UpdateReady"], version), "↑ " + version);
 
         if (announceResult)
         {
@@ -4153,6 +4159,37 @@ public partial class MainWindow : Window
         // skills, dragging it into place); the window is truly transparent around it, so the rest of
         // the screen still reaches the game.
         _overlay?.SetClickThrough(_hideUiActive && !_compactOverlay);
+        RefreshUpdateBadge();
+    }
+
+    // --- The update hint in the transparent (Hide UI) modes: the status row with its notice is hidden there. ---
+    private string? _updateBadgeFull;
+    private string? _updateBadgeShort;
+    private bool _clientOutdated;
+
+    /// <summary>Remembers what the update check says (null = nothing to show) and puts it on the overlays.</summary>
+    private void SetUpdateStatus(string? fullText, string? shortText)
+    {
+        _updateBadgeFull = fullText;
+        _updateBadgeShort = shortText;
+        RefreshUpdateBadge();
+    }
+
+    private void RefreshUpdateBadge()
+    {
+        var loc = LocalizationManager.Instance;
+        // An outdated client outranks everything: it cannot upload at all until it is updated.
+        string? full = _clientOutdated ? loc["Overlay.OutdatedBadge"] : _updateBadgeFull;
+        string? small = _clientOutdated ? loc["Overlay.OutdatedBadgeShort"] : _updateBadgeShort;
+        bool show = full is not null && _hideUiActive && _gameGateOpen;
+        var brush = (Brush)FindResource(_clientOutdated ? "Brush.Warning" : "Brush.Accent");
+        OverlayUpdateBadge.Visibility = show && !_compactOverlay ? Visibility.Visible : Visibility.Collapsed;
+        CompactUpdateBadge.Visibility = show && _compactOverlay ? Visibility.Visible : Visibility.Collapsed;
+        OverlayUpdateBadge.Background = brush;
+        CompactUpdateBadge.Background = brush;
+        OverlayUpdateBadgeText.Text = full ?? "";
+        CompactUpdateBadgeText.Text = small ?? "";
+        CompactUpdateBadge.ToolTip = full;
     }
 
     private const double MinOverlayScale = 0.7, MaxOverlayScale = 2.0;
