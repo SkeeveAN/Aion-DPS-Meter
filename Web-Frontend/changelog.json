@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-10",
+  "items": [
+   {
+    "text": "Profile header: name, class and the faction/legion/server line in one column so titles, wings, pet and the numbers fit in one row; wing chips are tinted by the wing's rarity as the titles are",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-10"
+   }
+  ]
+ },
+ {
   "version": "0.28.3",
   "date": "2026-10-10",
   "items": [
