@@ -125,6 +125,13 @@
      "Backend"
     ],
     "date": "2026-10-10"
+   },
+   {
+    "text": "A boss with a fixed time (the Abyss) follows its schedule in the field boss list, not the last list the player opened on that map",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-10"
    }
   ]
  },
