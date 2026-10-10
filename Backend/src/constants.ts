@@ -82,3 +82,6 @@ export const CATEGORY_MODES: Readonly<Record<string, readonly string[]>> = {
  * between 80 % and 90 %, while failed attempts stay far below.
  */
 export const MIN_KILL_DAMAGE_SHARE = 0.9;
+
+/** Most people on an instance boss (an alliance of 20); a world boss may carry up to the schema's 300. */
+export const MAX_INSTANCE_PARTICIPANTS = 20;

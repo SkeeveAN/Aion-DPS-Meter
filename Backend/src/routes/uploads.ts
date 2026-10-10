@@ -2,11 +2,12 @@ import type { FastifyInstance } from "fastify";
 import { profilesUploadSchema, uploadSchema } from "../uploadSchema.js";
 import { processProfilesUpload, processUpload } from "../matching/merge.js";
 import { db } from "../db/client.js";
-import { uploads } from "../db/schema.js";
+import { bossNpcIds, bosses, instances, uploads } from "../db/schema.js";
+import { eq } from "drizzle-orm";
 import { clearPageCache } from "../seo/cache.js";
 
 import { hashIp } from "../ipHash.js";
-import { MIN_KILL_DAMAGE_SHARE } from "../constants.js";
+import { MAX_INSTANCE_PARTICIPANTS, MIN_KILL_DAMAGE_SHARE } from "../constants.js";
 
 export async function uploadRoutes(app: FastifyInstance) {
   // Aion 2 players without a boss fight (a client that read characters but killed nothing). The
@@ -58,6 +59,22 @@ export async function uploadRoutes(app: FastifyInstance) {
     if (selfCount !== 1) {
       app.log.warn({ selfCount, bossNpcName: payload.bossNpcName }, "upload rejected: not exactly one self participant");
       return reply.status(400).send({ error: "exactly_one_self_participant_required" });
+    }
+
+    // An instance holds at most an alliance; only a world boss has more people on it.
+    const worldBoss =
+      payload.bossNpcId !== undefined &&
+      db
+        .select({ category: instances.category })
+        .from(bossNpcIds)
+        .innerJoin(bosses, eq(bosses.id, bossNpcIds.bossId))
+        .innerJoin(instances, eq(instances.id, bosses.instanceId))
+        .where(eq(bossNpcIds.npcId, payload.bossNpcId))
+        .get()?.category === "worldboss";
+    const people = new Set(payload.participants.map((p) => p.name)).size;
+    if (!worldBoss && people > MAX_INSTANCE_PARTICIPANTS) {
+      app.log.warn({ people, bossNpcName: payload.bossNpcName }, "upload rejected: too many participants for an instance boss");
+      return reply.status(400).send({ error: "too_many_participants", people, max: MAX_INSTANCE_PARTICIPANTS });
     }
 
     // A fight counts only when the group took the boss down: the damage dealt has to add up to (nearly)
