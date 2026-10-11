@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.39.0",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "A wipe on a boss now gets its own entry in the Mob/Boss list: every attempt is shown separately, and an attempt after which the boss went back to full health is marked with a skull",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.38.6",
   "date": "2026-10-11",
   "items": [
