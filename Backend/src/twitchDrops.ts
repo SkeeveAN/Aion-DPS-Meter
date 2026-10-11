@@ -316,6 +316,19 @@ export async function twitchDropsView(): Promise<TwitchDropsView> {
   return { checkedAt: checkedAt ? new Date(checkedAt).toISOString() : null, claimBy, campaigns: mergeCampaigns(all), live: await liveDrops() };
 }
 
+/** What the meter's Twitch icon needs: is a campaign running, and when did the newest started one begin (epoch seconds; a new campaign makes it grow, which lights the "New" badge). */
+export function statusOf(campaigns: DropCampaign[], now: number): { running: boolean; latest: number | null; endsAt: string | null } {
+  const started = campaigns.filter((c) => c.startAt !== null && Date.parse(c.startAt) <= now);
+  const live = started.filter((c) => c.endAt !== null && Date.parse(c.endAt) > now);
+  const latest = started.length ? Math.max(...started.map((c) => Math.floor(Date.parse(c.startAt!) / 1000))) : null;
+  const endsAt = live.length ? live.map((c) => c.endAt!).sort().pop()! : null;
+  return { running: live.length > 0, latest, endsAt };
+}
+
+export function twitchDropsStatus(now = Date.now()) {
+  return statusOf(mergeCampaigns([...notices.values()]), now);
+}
+
 /** Off under tests and with NC_MATCH_OFF=1 (like the other NC jobs). Starts after the announcement store has had its first refresh. */
 export function startTwitchDrops(intervalMs = 30 * 60_000): void {
   load();

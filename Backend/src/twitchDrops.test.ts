@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { mergeCampaigns, parseDropsNotice } from "./twitchDrops.js";
+import { mergeCampaigns, parseDropsNotice, statusOf } from "./twitchDrops.js";
 
 const fixture = (name: string) => (JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8")) as { article: { content: { content: string } } }).article.content.content;
 
@@ -50,4 +50,20 @@ test("the reminder repeats two tables: merged, the version with clock times wins
   assert.deepEqual(merged.map((c) => `${c.name}${c.part ? ` ${c.part}` : ""}`), ["Advanced Access Rewards", "War For Atreia 1", "Global Launch Rewards", "War For Atreia 2", "War For Atreia 3"]);
   assert.equal(merged[0].startAt, "2026-09-30T13:00:00.000Z");
   assert.equal(merged[0].dateOnly, false);
+});
+
+test("status for the meter icon: running while one is live, the latest start grows with a new campaign, nothing running after the end", () => {
+  const notices = [
+    ["nc-twitch-drops-global.json", "2026-09-30T15:00:00.000Z"],
+    ["nc-twitch-drops-war-for-atreia.json", "2026-10-02T19:00:00.000Z"],
+  ].map(([file, postedAt], i) => ({ postedAt, campaigns: parseDropsNotice(fixture(file), `n${i}`, postedAt).campaigns }));
+  const merged = mergeCampaigns(notices);
+  const during = statusOf(merged, Date.parse("2026-10-11T18:00:00Z"));
+  assert.equal(during.running, true);
+  assert.equal(during.latest, Date.parse("2026-10-07T17:00:00Z") / 1000); // "War For Atreia" part 2 is the newest started one
+  assert.equal(during.endsAt, "2026-10-17T06:59:00.000Z");
+  // part 3 starts on 12 Oct (Pacific time): the latest start moves on, which is what makes the badge light up again
+  assert.equal(statusOf(merged, Date.parse("2026-10-12T08:00:00Z")).latest, Date.parse("2026-10-12T07:00:00Z") / 1000);
+  assert.deepEqual(statusOf(merged, Date.parse("2026-10-20T00:00:00Z")).running, false);
+  assert.deepEqual(statusOf([], Date.now()), { running: false, latest: null, endsAt: null });
 });
