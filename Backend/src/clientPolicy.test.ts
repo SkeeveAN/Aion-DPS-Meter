@@ -63,10 +63,12 @@ const app = Fastify();
 await app.register(uploadRoutes);
 await app.ready();
 const latest = loadReleases().at(-1)!.version;
+// The oldest release is far out of its grace period whatever day the test runs (a fixed number like 0.9.57 is only outdated until its successor is 72 hours old).
+const outdatedVersion = loadReleases()[0].version;
 
 test("an outdated client gets 426 with the message first, on both upload routes, before the payload is judged", async () => {
   for (const url of ["/api/uploads", "/api/uploads/profiles"]) {
-    const res = await app.inject({ method: "POST", url, payload: { clientVersion: "0.9.57", garbage: true } });
+    const res = await app.inject({ method: "POST", url, payload: { clientVersion: outdatedVersion, garbage: true } });
     assert.equal(res.statusCode, 426, url);
     assert.ok(res.body.startsWith(`{"message":"${OUTDATED_MESSAGE.slice(0, 30)}`), "the message leads the body");
     const body = res.json() as { error: string; requiredVersion: string };
@@ -94,7 +96,7 @@ test("the policy endpoint tells the client what to be", async () => {
 });
 
 test("the policy endpoint judges the version the client names", async () => {
-  const outdated = (await app.inject({ method: "GET", url: "/api/client-policy?version=0.9.57" })).json() as { allowed: boolean };
+  const outdated = (await app.inject({ method: "GET", url: `/api/client-policy?version=${outdatedVersion}` })).json() as { allowed: boolean };
   assert.equal(outdated.allowed, false);
   const current = (await app.inject({ method: "GET", url: `/api/client-policy?version=${latest}` })).json() as { allowed: boolean };
   assert.equal(current.allowed, true);
@@ -103,7 +105,7 @@ test("the policy endpoint judges the version the client names", async () => {
 test("the rule can be switched off", async () => {
   process.env.CLIENT_UPDATE_ENFORCE = "off";
   try {
-    const res = await app.inject({ method: "POST", url: "/api/uploads", payload: { clientVersion: "0.9.57" } });
+    const res = await app.inject({ method: "POST", url: "/api/uploads", payload: { clientVersion: outdatedVersion } });
     assert.equal(res.statusCode, 400, "not 426");
   } finally {
     process.env.CLIENT_UPDATE_ENFORCE = "on";
