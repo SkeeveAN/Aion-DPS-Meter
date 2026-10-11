@@ -5,8 +5,9 @@ import { AION2_CLASS_BY_ID } from "./constants.js";
 import { canonicalServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
 import { normalizeName } from "./matching/roster.js";
-import { decodeCharacterId, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
+import { PortraitQueue, decodeCharacterId, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
 import { playerPortraits, playerNcCharacter } from "./db/schema.js";
+import { EVENT_STALE_AFTER, PRIORITY, type Priority } from "./refreshPolicy.js";
 
 /**
  * Checks players against NC's public character search, so that the server and the faction of every player we have seen are the real ones.
@@ -511,14 +512,14 @@ export function enrichKeyOf(playerId: number): PlayerKey | null {
   return { playerId, name: row.name, faction, ownServerId: row.ncServerId };
 }
 
-/** Puts a confirmed player into the portrait queue, which fetches his portrait and character data (the Character tab). Never throws. */
-export function enrichPlayer(playerId: number): boolean {
-  if (process.env.PORTRAITS_OFF === "1" || !matchEnabled()) {
+/** Puts a confirmed player into the portrait queue (ahead of the background sweep: a new player is wanted at once), which fetches his portrait and character data (the Character tab). Never throws. */
+export function enrichPlayer(playerId: number, queue: PortraitQueue = portraitQueue, priority: Priority = PRIORITY.upload): boolean {
+  if (process.env.PORTRAITS_OFF === "1" || (!matchEnabled() && queue === portraitQueue)) {
     return false;
   }
   try {
     const key = enrichKeyOf(playerId);
-    return key ? portraitQueue.enqueue(key) : false;
+    return key ? queue.enqueue(key, { priority }) : false;
   } catch {
     return false;
   }
@@ -551,7 +552,7 @@ export function startEnrichSweep(intervalMs = 5 * 60_000, batch = 150): void {
   const sweep = () => {
     try {
       for (const id of enrichDue(batch)) {
-        if (!enrichPlayer(id) && portraitQueue.length >= 150) {
+        if (!enrichPlayer(id, portraitQueue, PRIORITY.background) && portraitQueue.length >= 150) {
           break;
         }
       }
@@ -561,4 +562,33 @@ export function startEnrichSweep(intervalMs = 5 * 60_000, batch = 150): void {
   };
   setTimeout(sweep, 120_000).unref();
   setInterval(sweep, intervalMs).unref();
+}
+
+/**
+ * After an upload: the confirmed players it names are looked at again when the last look is older than twelve hours (an upload shows he is
+ * playing now), or when a client reports a higher level than NC's page had (he has levelled up). Players without data yet are fetched as
+ * well. Jobs go ahead of the background sweep; the look itself is cheap (see processPlayer). Never throws.
+ */
+export function refreshAfterUpload(entries: { id: number; level?: number }[], queue: PortraitQueue = portraitQueue, now = Date.now()): number {
+  if (process.env.PORTRAITS_OFF === "1" || (!matchEnabled() && queue === portraitQueue)) {
+    return 0;
+  }
+  let queued = 0;
+  for (const { id, level } of entries) {
+    try {
+      const key = enrichKeyOf(id);
+      if (!key) {
+        continue;
+      }
+      const row = db.select({ fetchedAt: playerNcCharacter.fetchedAt, status: playerNcCharacter.status, ncLevel: playerNcCharacter.ncLevel }).from(playerNcCharacter).where(eq(playerNcCharacter.playerId, id)).get();
+      const levelledUp = row?.ncLevel != null && level !== undefined && level > row.ncLevel;
+      const stale = !row || row.status !== "ok" || now - row.fetchedAt > EVENT_STALE_AFTER.upload;
+      if ((stale || levelledUp) && queue.enqueue(key, { priority: PRIORITY.upload, force: true })) {
+        queued++;
+      }
+    } catch {
+      // the next upload tries again
+    }
+  }
+  return queued;
 }

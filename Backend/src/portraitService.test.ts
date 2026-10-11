@@ -178,7 +178,7 @@ test("europeServerOf maps names to NC ids", () => {
 const ncInfo = { stat: { statList: [{ type: "STR", value: 10 }, { type: "Justice", value: 50 }, { type: "ItemLevel", value: 2146 }] } };
 const ncEquipment = { petwing: { pet: { id: 1124, level: 3 }, wing: { id: 30500200 }, wingSkin: { id: 30400400 } } };
 /** A fake NC: search hit, character pages, portrait image; records every request URL. */
-function fakeNc(opts: { list?: unknown[]; failPage?: string; badInfo?: boolean } = {}) {
+function fakeNc(opts: { list?: unknown[]; failPage?: string; badInfo?: boolean; info?: object } = {}) {
   const urls: URL[] = [];
   const jpg = jpeg.encode({ width: 64, height: 64, data: Buffer.alloc(64 * 64 * 4, 255) }, 90).data;
   const fn = (async (url: URL) => {
@@ -190,7 +190,7 @@ function fakeNc(opts: { list?: unknown[]; failPage?: string; badInfo?: boolean }
       if (opts.failPage && url.pathname.endsWith(opts.failPage)) {
         return new Response("no", { status: 500 });
       }
-      return new Response(JSON.stringify(url.pathname.endsWith("/info") ? (opts.badInfo ? {} : ncInfo) : ncEquipment), { status: 200 });
+      return new Response(JSON.stringify(url.pathname.endsWith("/info") ? (opts.badInfo ? {} : (opts.info ?? ncInfo)) : ncEquipment), { status: 200 });
     }
     return new Response(new Uint8Array(jpg), { status: 200, headers: { "content-type": "image/jpeg" } });
   }) as unknown as typeof fetch;
@@ -256,40 +256,65 @@ test("pacedFetch keeps the pause between all requests", async () => {
   assert.deepEqual(starts, [1000, 3000, 5000, 10000]);
 });
 
-test("processPlayer: stores the data, keeps it on later errors, refreshes after 3 days, retries errors after an hour", async () => {
+test("processPlayer: stores the data, looks cheaply at later visits, fetches fully on a change, keeps data on errors", async () => {
   const server = db.insert(servers).values({ fingerprint: "aion2:europe-kaisinel-nc", displayName: "Europe - Kaisinel" }).returning().get();
   const player = db.insert(players).values({ name: "Aahz", nameNormalized: "aahz-nc", serverId: server.id }).returning().get();
   const pk = { playerId: player.id, name: "Aahz", faction: "Elyos" as const, ownServerId: 1304 };
   const row = () => db.select().from(playerNcCharacter).where(eq(playerNcCharacter.playerId, player.id)).get()!;
+  const t0 = Date.now();
+  // seen a minute ago: an active player, looked at daily
+  db.update(players).set({ lastSeenAt: new Date(t0 - 60_000).toISOString() }).where(eq(players.id, player.id)).run();
 
   const first = fakeNc();
-  await processPlayer(pk, first.fn, 1_000_000);
+  await processPlayer(pk, first.fn, t0);
   assert.equal(row().status, "ok");
   assert.deepEqual(JSON.parse(row().attributesJson), { 1: 10, 7: 50 });
   assert.deepEqual([row().wingId, row().wingSkinId, row().activePet, row().activePetLevel], [30500200, 30400400, 1124, 3]);
   assert.equal(row().characterId, "AbCd1234=");
-  assert.equal(row().nextTryAt, 1_000_000 + 3 * DAY);
+  assert.equal(row().nextTryAt, t0 + DAY, "an active player is looked at again after a day");
+  assert.ok(row().probeJson && row().fullAt === t0);
   assert.equal(CHARACTER_RETRY_AFTER.error, HOUR);
 
   const idle = fakeNc();
-  await processPlayer(pk, idle.fn, 1_000_000 + DAY);
+  await processPlayer(pk, idle.fn, t0 + 12 * HOUR);
   assert.equal(idle.urls.length, 0, "everything fresh: no request");
 
-  // The portrait (7 days) is still fresh, the character data (3 days) is due: no search, no image, only the two pages.
-  const refresh = fakeNc({ failPage: "/equipment" });
-  await processPlayer(pk, refresh.fn, 1_000_000 + 3 * DAY + 1);
-  assert.deepEqual(refresh.urls.map((u) => u.pathname), ["/api/character/info", "/api/character/equipment"]);
+  // Due, and nothing changed: one request (the info page), the picture and the rest stay, the wait doubles.
+  const look = fakeNc();
+  await processPlayer(pk, look.fn, t0 + DAY + 1);
+  assert.deepEqual(look.urls.map((u) => u.pathname), ["/api/character/info"]);
+  assert.equal(row().unchangedCount, 1);
+  // seen more than a day ago: the base is three days, doubled once
+  assert.equal(row().nextTryAt, t0 + DAY + 1 + 6 * DAY);
+  assert.equal(row().fullAt, t0, "the complete fetch is still the first one");
+
+  // A forced job (an upload or a profile view) looks now, even though the data is fresh.
+  const forced = fakeNc();
+  await processPlayer(pk, forced.fn, t0 + DAY + 2, { force: true });
+  assert.deepEqual(forced.urls.map((u) => u.pathname), ["/api/character/info"]);
+  assert.equal(row().unchangedCount, 2);
+
+  // Something changed (a higher item level): the look finds it and the complete fetch follows; the wait starts over.
+  const changed = fakeNc({ info: { stat: { statList: [{ type: "STR", value: 10 }, { type: "Justice", value: 50 }, { type: "ItemLevel", value: 2200 }] } } });
+  await processPlayer(pk, changed.fn, t0 + 4 * DAY, { force: true });
+  assert.deepEqual(changed.urls.map((u) => u.pathname), ["/api/character/info", "/api/character/info", "/api/character/equipment"]);
+  assert.equal(row().itemLevel, 2200);
+  assert.equal(row().unchangedCount, 0);
+  assert.equal(row().nextTryAt, t0 + 4 * DAY + 3 * DAY, "not seen for four days: three days");
+
+  // A failure keeps the old data and waits an hour.
+  const failing = fakeNc({ failPage: "/equipment", info: { stat: { statList: [{ type: "STR", value: 11 }] } } });
+  await processPlayer(pk, failing.fn, t0 + 6 * DAY, { force: true });
   assert.equal(row().status, "error");
-  assert.deepEqual(JSON.parse(row().attributesJson), { 1: 10, 7: 50 }, "old data stays");
-  assert.equal(row().fetchedAt, 1_000_000, "time of the last good data");
-  assert.equal(row().nextTryAt, 1_000_000 + 3 * DAY + 1 + HOUR);
+  assert.equal(row().itemLevel, 2200, "old data stays");
+  assert.equal(row().fetchedAt, t0 + 4 * DAY, "time of the last good data");
+  assert.equal(row().nextTryAt, t0 + 6 * DAY + HOUR);
 
   const stillWaiting = fakeNc();
-  await processPlayer(pk, stillWaiting.fn, 1_000_000 + 3 * DAY + 1 + HOUR - 1);
+  await processPlayer(pk, stillWaiting.fn, t0 + 6 * DAY + HOUR - 1);
   assert.equal(stillWaiting.urls.length, 0);
-  await processPlayer(pk, fakeNc().fn, 1_000_000 + 3 * DAY + 2 + HOUR);
+  await processPlayer(pk, fakeNc().fn, t0 + 6 * DAY + 2 + HOUR);
   assert.equal(row().status, "ok");
-  assert.equal(row().fetchedAt, 1_000_000 + 3 * DAY + 2 + HOUR);
 });
 
 test("processPlayer: no hit stores 'none' with a 2 day wait and no data", async () => {
@@ -298,4 +323,36 @@ test("processPlayer: no hit stores 'none' with a 2 day wait and no data", async 
   await processPlayer({ playerId: player.id, name: "Ghost", faction: "Elyos", ownServerId: 1304 }, fakeNc({ list: [] }).fn, 5000);
   const r = db.select().from(playerNcCharacter).where(eq(playerNcCharacter.playerId, player.id)).get()!;
   assert.deepEqual([r.status, r.attributesJson, r.nextTryAt], ["none", "{}", 5000 + 2 * DAY]);
+});
+
+test("queue: a profile somebody looks at goes first, then an upload's player, then the sweep; a waiting job only moves up", async () => {
+  const order: number[] = [];
+  const forced: boolean[] = [];
+  const q = new PortraitQueue(async (k, job) => { order.push(k.playerId); forced.push(job.force); }, { minGapMs: 0, maxLength: 10, now: () => 0, sleep: async () => {} });
+  const k = (playerId: number) => ({ playerId, name: "n", faction: null, ownServerId: null });
+  q.enqueue(k(1)); // starts at once: the queue is idle
+  q.enqueue(k(2), { priority: 0 });
+  q.enqueue(k(3), { priority: 1 });
+  q.enqueue(k(4), { priority: 2, force: true });
+  assert.equal(q.enqueue(k(2), { priority: 2 }), false, "already waiting: it only moves up");
+  await new Promise((r) => setTimeout(r, 20));
+  assert.deepEqual(order, [1, 2, 4, 3], "2 moved up to the view priority, in order of arrival");
+  assert.deepEqual(forced, [false, false, true, false]);
+});
+
+test("queue: the hourly budget holds the sweep back and lets the profile somebody looks at through", async () => {
+  const done: number[] = [];
+  const sleeps: number[] = [];
+  let open = false;
+  const q = new PortraitQueue(async (k) => { done.push(k.playerId); }, {
+    minGapMs: 0, maxLength: 10, now: () => 0,
+    sleep: async (ms) => { sleeps.push(ms); if (ms === 60_000) open = true; },
+    allow: (priority) => open || priority >= 2,
+  });
+  const k = (playerId: number) => ({ playerId, name: "n", faction: null, ownServerId: null });
+  q.enqueue(k(1), { priority: 0 });
+  q.enqueue(k(2), { priority: 2 });
+  await new Promise((r) => setTimeout(r, 30));
+  assert.deepEqual(done, [2, 1], "the viewed profile first, the sweep after the budget came back");
+  assert.ok(sleeps.includes(60_000), "the queue waited a minute");
 });

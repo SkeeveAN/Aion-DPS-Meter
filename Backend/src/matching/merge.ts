@@ -21,7 +21,7 @@ import { upsertProfile } from "../profile.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
 import { rehomeKnownPlayers } from "./rehome.js";
 import { linkPlayerGuild } from "../guilds.js";
-import { checkPlayers, noteClientServer } from "../ncMatch.js";
+import { checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -188,9 +188,10 @@ function serverOfParticipant(participant: { serverId?: number }, uploaderServerI
  * After an upload: a player whose own client named his server is verified by that; every other player of the upload is checked against
  * NC's character search in the background (see ncMatch.ts). Never blocks the upload.
  */
-function checkUploadedPlayers(participants: { name: string; serverId?: number }[], uploaderServerId: number) {
+function checkUploadedPlayers(participants: { name: string; serverId?: number; profile?: { level?: number } }[], uploaderServerId: number) {
   try {
     const ids: number[] = [];
+    const named: { id: number; level?: number }[] = [];
     for (const p of participants) {
       const row = db
         .select({ id: players.id })
@@ -200,6 +201,7 @@ function checkUploadedPlayers(participants: { name: string; serverId?: number }[
       if (!row) {
         continue;
       }
+      named.push({ id: row.id, level: p.profile?.level });
       if (p.serverId !== undefined && nameOf(p.serverId) !== null) {
         noteClientServer(row.id, p.serverId);
       } else {
@@ -207,6 +209,7 @@ function checkUploadedPlayers(participants: { name: string; serverId?: number }[
       }
     }
     checkPlayers(ids);
+    refreshAfterUpload(named);
   } catch {
     // the check is an extra; the upload is already stored
   }

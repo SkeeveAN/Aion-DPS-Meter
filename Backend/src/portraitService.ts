@@ -2,9 +2,10 @@ import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "./db/client.js";
-import { playerNcCharacter, playerNcMatch, playerPortraits } from "./db/schema.js";
-import { mapDaevanionBoard, mapNcCharacter, openBoardIds, type NcCharacterData } from "./ncCharacter.js";
+import { playerNcCharacter, playerNcMatch, playerPortraits, playerProfiles, players } from "./db/schema.js";
+import { mapDaevanionBoard, mapNcCharacter, openBoardIds, signatureOf, type NcCharacterData } from "./ncCharacter.js";
 import { upsertNcProfile } from "./profile.js";
+import { EVENT_STALE_AFTER, PRIORITY, characterInterval, parseSeen, portraitInterval, type Priority } from "./refreshPolicy.js";
 import { portraitFromJpeg } from "./portrait.js";
 
 // Official character portrait and character data (attributes, wing, pet) of a player from NC's public character search, profile image
@@ -193,6 +194,16 @@ export async function fetchCharacterProfile(fetchFn: FetchFn, known: KnownCharac
   return { name: stripTags(p.characterName), guild: typeof p.regionName === "string" ? stripTags(p.regionName) : "", level: Number(p.characterLevel) || 0 };
 }
 
+/** What one info request tells: the cheap look at a character (see signatureOf), and the name NC holds for him now. */
+export async function fetchCharacterLook(fetchFn: FetchFn, known: KnownCharacter, region = "eu"): Promise<{ data: NcCharacterData | null; name: string | null }> {
+  const info = await getNcJson(fetchFn, characterPageUrl(INFO_URL, known, region));
+  const name = (info as { profile?: { characterName?: unknown } } | null)?.profile?.characterName;
+  return { data: mapNcCharacter(info, null), name: typeof name === "string" && name !== "" ? stripTags(name) : null };
+}
+
+/** A complete fetch is forced at least this often, whatever the cheap looks say (a swapped piece of equal value does not change the combat power). */
+export const FULL_FETCH_AFTER = 30 * DAY;
+
 /** The character data of one character: info + equipment + one request per Daevanion board with activated nodes. Throws on network/HTTP problems; null when the answer is unusable. */
 export async function fetchCharacterData(fetchFn: FetchFn, known: KnownCharacter): Promise<NcCharacterData | null> {
   const info = await getNcJson(fetchFn, characterPageUrl(INFO_URL, known));
@@ -292,19 +303,26 @@ export function pacedFetch(
   }) as FetchFn;
 }
 
-/** Serial work queue: one job at a time, a pause between jobs, bounded, no duplicates. Time is injectable for tests. */
+type Job = { key: PlayerKey; priority: Priority; force: boolean };
+
+/**
+ * Work queue: one job at a time, a pause between jobs, bounded, no duplicates. Jobs are taken by priority (a profile somebody looks at, then a
+ * player an upload named, then the background sweep), in order of arrival within one priority. `allow` tells whether the hourly budget towards NC
+ * leaves room for a job of that priority; when it does not, the queue waits a minute. Time is injectable for tests.
+ */
 export class PortraitQueue {
-  private readonly waiting = new Map<number, PlayerKey>();
+  private readonly waiting = new Map<number, Job>();
   private running = false;
   private current: number | null = null;
   private lastStart = 0;
   constructor(
-    private readonly work: (key: PlayerKey) => Promise<void>,
-    private readonly opts: { minGapMs: number; maxLength: number; now: () => number; sleep: (ms: number) => Promise<void> } = {
+    private readonly work: (key: PlayerKey, job: { force: boolean }) => Promise<void>,
+    private readonly opts: { minGapMs: number; maxLength: number; now: () => number; sleep: (ms: number) => Promise<void>; allow?: (priority: Priority) => boolean } = {
       minGapMs: 2000,
       maxLength: 200,
       now: Date.now,
       sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+      allow: (priority) => withinBudget(priority),
     },
   ) {}
 
@@ -312,14 +330,31 @@ export class PortraitQueue {
     return this.waiting.size;
   }
 
-  /** false when the player is already queued or the queue is full. */
-  enqueue(key: PlayerKey): boolean {
-    if (this.current === key.playerId || this.waiting.has(key.playerId) || this.waiting.size + (this.current === null ? 0 : 1) >= this.opts.maxLength) {
+  /** false when the player is already queued (his job only moves up if this one is more urgent) or the queue is full. */
+  enqueue(key: PlayerKey, how: { priority?: Priority; force?: boolean } = {}): boolean {
+    const priority = how.priority ?? PRIORITY.background;
+    const queued = this.waiting.get(key.playerId);
+    if (queued) {
+      queued.priority = Math.max(queued.priority, priority) as Priority;
+      queued.force ||= how.force === true;
       return false;
     }
-    this.waiting.set(key.playerId, key);
+    if (this.current === key.playerId || this.waiting.size + (this.current === null ? 0 : 1) >= this.opts.maxLength) {
+      return false;
+    }
+    this.waiting.set(key.playerId, { key, priority, force: how.force === true });
     void this.drain();
     return true;
+  }
+
+  private next(): [number, Job] {
+    let best: [number, Job] | null = null;
+    for (const entry of this.waiting) {
+      if (best === null || entry[1].priority > best[1].priority) {
+        best = entry;
+      }
+    }
+    return best!;
   }
 
   private async drain(): Promise<void> {
@@ -333,12 +368,17 @@ export class PortraitQueue {
         if (wait > 0) {
           await this.opts.sleep(wait);
         }
-        const [id, key] = this.waiting.entries().next().value as [number, PlayerKey];
+        const [id, job] = this.next();
+        if (this.opts.allow && !this.opts.allow(job.priority)) {
+          // The hourly budget is used up for this priority (and so for every lower one): look again in a minute.
+          await this.opts.sleep(60_000);
+          continue;
+        }
         this.waiting.delete(id);
         this.current = id;
         this.lastStart = this.opts.now();
         try {
-          await this.work(key);
+          await this.work(job.key, { force: job.force });
         } catch {
           // the worker records its own failures; one bad job must not stop the queue
         }
@@ -351,24 +391,69 @@ export class PortraitQueue {
 }
 
 /** The one rate limit towards NC, shared by everything that asks it (portraits, character data, the player match). */
-export const ncFetch = pacedFetch(fetch, 2000);
+const paced = pacedFetch(fetch, 2000);
+const requestTimes: number[] = [];
+/** Requests towards NC in the last hour (all of them: portraits, character data, the player match). */
+export function requestsLastHour(now = Date.now()): number {
+  while (requestTimes.length > 0 && requestTimes[0] <= now - HOUR) {
+    requestTimes.shift();
+  }
+  return requestTimes.length;
+}
+/** Hourly budget by priority: the background sweep gives way first, so profiles somebody looks at are still served when the budget is nearly used (NC_BUDGET_PER_HOUR, default 1000 for the sweep). */
+export function withinBudget(priority: Priority, now = Date.now()): boolean {
+  const base = Math.max(1, Number(process.env.NC_BUDGET_PER_HOUR ?? 1000) || 1000);
+  const limit = priority >= PRIORITY.view ? Math.round(base * 1.5) : priority >= PRIORITY.upload ? Math.round(base * 1.3) : base;
+  return requestsLastHour(now) < limit;
+}
+export const ncFetch = ((input: Parameters<FetchFn>[0], init?: Parameters<FetchFn>[1]) => {
+  requestTimes.push(Date.now());
+  return paced(input, init);
+}) as FetchFn;
 
 /**
  * Does what is due for a player (portrait and/or character data), writes the file and records both statuses.
  * Fetch and clock are injectable for tests.
  */
-export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, now = Date.now()): Promise<void> {
+export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, now = Date.now(), job: { force?: boolean } = {}): Promise<void> {
   const portraitBefore = db.select().from(playerPortraits).where(eq(playerPortraits.playerId, key.playerId)).get();
   const characterBefore = db.select().from(playerNcCharacter).where(eq(playerNcCharacter.playerId, key.playerId)).get();
-  const needs = { portrait: !isFresh(portraitBefore, now), character: !isFresh(characterBefore, now) };
+  // A forced job (an upload named the player, somebody looks at his profile) looks at the character data now; the picture keeps its own times.
+  const needs = { portrait: !isFresh(portraitBefore, now), character: job.force === true || !isFresh(characterBefore, now) };
   if (!needs.portrait && !needs.character) {
     return;
   }
+  const lastSeen = parseSeen(db.select({ seen: players.lastSeenAt }).from(players).where(eq(players.id, key.playerId)).get()?.seen);
+  const ownClient = db.select({ source: playerProfiles.source }).from(playerProfiles).where(eq(playerProfiles.playerId, key.playerId)).get()?.source === "self";
   // The id pair the character check stored is as good as an earlier fetch's: no search needed for the character data.
   const matched = db.select({ characterId: playerNcMatch.ncCharacterId, serverId: playerNcMatch.ncServerId }).from(playerNcMatch).where(eq(playerNcMatch.playerId, key.playerId)).get();
   const known = characterBefore?.characterId && characterBefore.ncServerId
     ? { characterId: characterBefore.characterId, serverId: characterBefore.ncServerId }
     : matched?.characterId && matched.serverId ? { characterId: matched.characterId, serverId: matched.serverId } : null;
+
+  // The cheap look first: one request (the info answer). When it finds what the last complete fetch found, nothing else is fetched.
+  if (needs.character && known && characterBefore?.status === "ok" && characterBefore.probeJson && characterBefore.fullAt !== null && now - characterBefore.fullAt < FULL_FETCH_AFTER) {
+    try {
+      const look = await fetchCharacterLook(fetchFn, known);
+      if (look.name && look.name !== key.name) {
+        // He has been renamed: the match check looks him up by id and renames the row.
+        db.update(playerNcMatch).set({ nextTryAt: 0 }).where(eq(playerNcMatch.playerId, key.playerId)).run();
+      }
+      if (look.data && signatureOf(look.data) === characterBefore.probeJson) {
+        const unchanged = characterBefore.unchangedCount + 1;
+        db.update(playerNcCharacter)
+          .set({ fetchedAt: now, unchangedCount: unchanged, nextTryAt: now + characterInterval(lastSeen, unchanged, now, ownClient) })
+          .where(eq(playerNcCharacter.playerId, key.playerId))
+          .run();
+        needs.character = false;
+      }
+    } catch {
+      // the complete fetch below reports the problem
+    }
+    if (!needs.portrait && !needs.character) {
+      return;
+    }
+  }
   const outcome = await fetchPlayer(fetchFn, key, needs, known);
 
   const p = outcome.portrait;
@@ -387,7 +472,7 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           ncServerId: p.character?.serverId ?? null,
           status: p.status,
           fetchedAt: now,
-          nextTryAt: now + RETRY_AFTER[p.status],
+          nextTryAt: now + (p.status === "ok" ? portraitInterval(lastSeen, now) : RETRY_AFTER[p.status]),
         };
     db.insert(playerPortraits).values({ playerId: key.playerId, ...values }).onConflictDoUpdate({ target: playerPortraits.playerId, set: values }).run();
   }
@@ -408,9 +493,13 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           itemLevel: c.data.itemLevel,
           ncGuild: c.data.guild || null,
           ncLevel: c.data.level,
+          probeJson: signatureOf(c.data),
+          // A complete fetch that finds what the last one found counts as a look without news; a change starts over with the short wait.
+          unchangedCount: characterBefore?.probeJson === signatureOf(c.data) ? characterBefore.unchangedCount + 1 : 0,
+          fullAt: now,
           status: "ok",
           fetchedAt: now,
-          nextTryAt: now + CHARACTER_RETRY_AFTER.ok,
+          nextTryAt: now + characterInterval(lastSeen, characterBefore?.probeJson === signatureOf(c.data) ? characterBefore.unchangedCount + 1 : 0, now, ownClient),
         }
       : {
           characterId: c.known?.characterId ?? characterBefore?.characterId ?? null,
@@ -424,6 +513,9 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           itemLevel: characterBefore?.itemLevel ?? null,
           ncGuild: characterBefore?.ncGuild ?? null,
           ncLevel: characterBefore?.ncLevel ?? null,
+          probeJson: characterBefore?.probeJson ?? null,
+          unchangedCount: characterBefore?.unchangedCount ?? 0,
+          fullAt: characterBefore?.fullAt ?? null,
           status: c.status,
           fetchedAt: characterBefore?.fetchedAt ?? now,
           nextTryAt: now + CHARACTER_RETRY_AFTER[c.status],
@@ -439,7 +531,7 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
   }
 }
 
-export const portraitQueue = new PortraitQueue((key) => processPlayer(key));
+export const portraitQueue = new PortraitQueue((key, job) => processPlayer(key, ncFetch, Date.now(), job));
 
 /**
  * The portrait URL for a player page, or null while there is no picture. Queues a fetch when the portrait or the character data
@@ -448,8 +540,12 @@ export const portraitQueue = new PortraitQueue((key) => processPlayer(key));
 export function portraitUrlFor(key: PlayerKey, now = Date.now(), queue: PortraitQueue = portraitQueue): string | null {
   const row = db.select().from(playerPortraits).where(eq(playerPortraits.playerId, key.playerId)).get();
   const characterRow = db.select().from(playerNcCharacter).where(eq(playerNcCharacter.playerId, key.playerId)).get();
-  if ((!isFresh(row, now) || !isFresh(characterRow, now)) && process.env.PORTRAITS_OFF !== "1") {
-    queue.enqueue(key);
+  if (process.env.PORTRAITS_OFF !== "1") {
+    // Somebody looks at this profile: it goes to the front, and when the last look is older than six hours the character data is looked at again now.
+    const looked = characterRow?.status === "ok" && now - characterRow.fetchedAt > EVENT_STALE_AFTER.view;
+    if (!isFresh(row, now) || !isFresh(characterRow, now) || looked) {
+      queue.enqueue(key, { priority: PRIORITY.view, force: looked });
+    }
   }
   return row?.status === "ok" ? `/api/players/${key.playerId}/portrait?v=${row.fetchedAt}` : null;
 }

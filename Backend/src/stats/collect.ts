@@ -4,6 +4,8 @@ import { env } from "../env.js";
 import { splitConquest } from "../../../Web-Frontend/game-data.js";
 import { factionOfServerName } from "../factions.js";
 import { nameOf } from "../content/aion2Servers.js";
+import { lastReport } from "../ncReference.js";
+import { requestsLastHour } from "../portraitService.js";
 
 type Row = Record<string, number | string | null>;
 const all = (sql: string, ...params: unknown[]) => sqlite.prepare(sql).all(...params) as Row[];
@@ -202,6 +204,11 @@ export function metricsText(): string {
     }
   };
   metric("aiondps_players", "Distinct players known (name + server).", "gauge", [[null, p.players]]);
+  metric("aiondps_nc_reference_problems", "Differences between our server/class tables and NC's official lists at the last daily check (see ncReference.ts); -1 = not checked yet.", "gauge", [
+    [{ kind: "servers" }, lastReport ? lastReport.serverProblems.length : -1],
+    [{ kind: "classes" }, lastReport ? lastReport.classProblems.length : -1],
+  ]);
+  metric("aiondps_nc_requests_last_hour", "Requests towards NC's character pages in the last hour (the hourly budget is NC_BUDGET_PER_HOUR, default 1000 for the background sweep).", "gauge", [[null, requestsLastHour()]]);
   metric("aiondps_profiles", "Player profiles by source (self = own client, seen = seen in a group).", "gauge", [[{ source: "self" }, p.ownProfiles], [{ source: "seen" }, p.seenProfiles]]);
   metric("aiondps_encounters_total", "Boss fights stored.", "counter", [[null, p.encounters]]);
   metric("aiondps_uploads_total", "Uploads received, by status.", "counter", Object.entries(p.uploadStatus).map(([s, n]) => [{ status: s }, n]));

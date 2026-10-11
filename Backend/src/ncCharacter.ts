@@ -154,3 +154,11 @@ export function mapDaevanionBoard(boardId: number, detail: unknown): { board: nu
   }
   return { board: boardId, nodes: start ? [start, ...nodes] : nodes };
 }
+
+/**
+ * What a cheap look (the info answer alone) can tell: if this is the same as at the last complete fetch, gear and skills almost certainly
+ * are too (a change of gear changes the combat power). Compared as text.
+ */
+export function signatureOf(d: Pick<NcCharacterData, "attributes" | "combatPower" | "itemLevel" | "guild" | "level" | "titleId" | "boardCounts">): string {
+  return JSON.stringify([d.combatPower, d.itemLevel, d.level, d.guild, d.titleId, Object.entries(d.attributes).sort(), d.boardCounts]);
+}

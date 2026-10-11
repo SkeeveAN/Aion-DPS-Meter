@@ -293,3 +293,22 @@ test("candidates in the same legion, or a player without a legion, stay ambiguou
   assert.equal(await processMatch(same, answer("Gleichlegion"), 1_000_000), "ambiguous");
   assert.equal(await processMatch(nolegion, answer("Ohnelegion"), 1_000_000), "ambiguous");
 });
+
+test("an upload sends the confirmed players it names to the front of the queue when their last look is old, a level above NC's page, or missing", () => {
+  const { refreshAfterUpload, enrichKeyOf } = ncMatchModule;
+  const queued: { id: number; priority: number; force: boolean }[] = [];
+  const fakeQueue = { enqueue: (key: { playerId: number }, how: { priority: number; force: boolean }) => { queued.push({ id: key.playerId, ...how }); return true; } } as unknown as Parameters<typeof refreshAfterUpload>[1];
+  const fresh = confirmed("Frisch", "idUp1");
+  const old = confirmed("Alt", "idUp2");
+  const levelled = confirmed("Aufgestiegen", "idUp3");
+  const unknown = player("Unbestaetigt", kaisinel);
+  assert.ok(enrichKeyOf(fresh));
+  const now = 10 * 24 * 3_600_000;
+  const row = (id: number, fetchedAt: number, level: number) => sqlite.prepare("insert into player_nc_character (player_id, status, fetched_at, next_try_at, nc_level) values (?, 'ok', ?, ?, ?)").run(id, fetchedAt, now + 1e9, level);
+  row(fresh, now - 3_600_000, 45);
+  row(old, now - 13 * 3_600_000, 45);
+  row(levelled, now - 3_600_000, 44);
+  assert.equal(refreshAfterUpload([{ id: fresh }, { id: old }, { id: levelled, level: 45 }, { id: unknown }], fakeQueue, now), 2);
+  assert.deepEqual(queued, [{ id: old, priority: 1, force: true }, { id: levelled, priority: 1, force: true }]);
+  assert.equal(refreshAfterUpload([{ id: fresh, level: 45 }], fakeQueue, now), 0, "a look an hour ago and the same level: nothing to do");
+});

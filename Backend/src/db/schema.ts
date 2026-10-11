@@ -582,6 +582,11 @@ export const playerNcCharacter = sqliteTable("player_nc_character", {
   itemLevel: integer("item_level"),
   ncGuild: text("nc_guild"),
   ncLevel: integer("nc_level"),
+  // What the last look found, as a signature (see ncCharacter.signatureOf): when one look finds the same, nothing is fetched. How many looks in a row
+  // found nothing new (the wait doubles), and when the last complete fetch (gear, skills, boards) was.
+  probeJson: text("probe_json"),
+  unchangedCount: integer("unchanged_count").notNull().default(0),
+  fullAt: integer("full_at"),
   // 'ok' data fetched, 'none' no unambiguous character found at NC, 'error' network/answer problem. Old data stays on show on a later failure.
   status: text("status").notNull(),
   // Time of the last successful fetch (of the first attempt while there is no data yet).
