@@ -1,12 +1,33 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.32.0",
   "date": "2026-10-11",
   "items": [
    {
     "text": "Players whose own client named their server are now also checked against NC's character search, last in line: NC confirms them on that server but never moves them, and a failed check keeps them as client players",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "Pet overlays and Region tab: no more freezes while the meter is in front, Events no longer mixes the maps",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "Pet regions: no more phantom spawns from tamed companion NPCs, Armadon has no field source, Fossa listed in Southern Tolbas Forest",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "The pets the Black Cloud shop offers now show up in the pet overlay list as soon as you open a shop tab: with the tab (Special or Pet), the price and what you have of them (missing, level and progress), the missing ones first",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-11"
    }
