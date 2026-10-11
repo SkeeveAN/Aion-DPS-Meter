@@ -607,8 +607,11 @@ public sealed class Aion2FrameDecoder
             }
         }
 
-        int q = marker + 6;
-        if (marker < 0 || q >= frame.Length || !TryReadVarint(frame, ref q, out long amount) || amount <= 0 || amount > MaxPlausibleAmount)
+        // The amount follows the marker and one more varint (a hit-kind field). Mostly that field is two
+        // bytes long, but with larger values (battlefield frames: A0 9C 01, 94 A0 01) it is three, and
+        // a fixed "marker + 6" then read the field's last byte as the damage: every hit read as 1.
+        int q = marker + 4;
+        if (marker < 0 || !TryReadVarint(frame, ref q, out _) || q >= frame.Length || !TryReadVarint(frame, ref q, out long amount) || amount <= 0 || amount > MaxPlausibleAmount)
         {
             SkippedShortFrames++;
             return Array.Empty<DamageEvent>();
