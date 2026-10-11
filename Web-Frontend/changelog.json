@@ -1,12 +1,26 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.35.0",
   "date": "2026-10-11",
   "items": [
    {
     "text": "Player profile header: calmer layout with the faction logo in front of the name, the class only as a tooltip on the badge, and three numbers (item level, gear power, combat power) without skills and Daevanion points",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "Map edge arrows: separate switches for pets and gatherables",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "The edge arrows of the interactive map can now be switched off separately for pets (Pets page) and gatherables (Gathering page), each with its own hotkey (Ctrl+Alt+E and Ctrl+Alt+G, rebindable); gatherables out of view now get edge arrows too",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-11"
    }
