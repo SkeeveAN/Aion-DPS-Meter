@@ -1216,48 +1216,164 @@ async function renderPatchnotes() {
 // (twitch-drops-items.json, in the eight client languages); an item the table does not know yet is shown with NC's English name.
 const TWITCH_DROPS_TEXT = {
   en: {
-    loading: "Loading Twitch Drops…",
-    title: "Twitch Drops",
+    loading: "Loading Twitch Drops…", title: "Twitch Drops",
     intro: "Watch AION 2 streams on Twitch that have Drops enabled and earn in-game rewards. The campaigns are run by NC; the rewards arrive at the NC account your Twitch account is linked to.",
     live: "Running now", upcoming: "Upcoming", ended: "Ended",
     endsIn: (d, h) => `Ends in ${d} d ${h} h`, startsIn: (d, h) => `Starts in ${d} d ${h} h`,
     period: "Runs", days: "Days (Pacific time)", dateTbd: "Start and end date follow", part: (n) => `Part ${n}`,
-    hours: (m) => (m < 60 ? `${m} min` : `${m / 60} h`), total: (m) => `${m / 60} h in total`,
-    liveNow: (s, v) => `${s} stream${s === 1 ? "" : "s"} with Drops live right now · ${v.toLocaleString("en-US")} viewers`,
-    liveNone: "No stream with Drops is live right now.",
+    min: "min", hour: "h", total: (h) => `${h} h in total`,
+    liveNow: (s, v) => `Live right now with Drops: ${s} streams · ${v} viewers`, liveNone: "No stream with Drops is live right now.",
     claimBy: "Claim your rewards in the Drops Inventory by",
     howTitle: "How it works",
-    how: [
-      "Link your Twitch account to your NC account (My Page > Manage Login on the NC website).",
-      "Watch a live stream in the AION 2 category with the “Drops Enabled” tag. Progress counts on every participating channel, but only one stream at a time.",
-      "Open your Drops Inventory on Twitch and claim each reward when it is ready. A missed claim stays possible until the claim deadline.",
-    ],
+    how: ["Link your Twitch account to your NC account (My Page > Manage Login on the NC website).", "Watch a live stream in the AION 2 category with the “Drops Enabled” tag. Progress counts on every participating channel, but only one stream at a time.", "Open your Drops Inventory on Twitch and claim each reward when it is ready. A missed claim stays possible until the claim deadline."],
     globalOnly: "Rewards are for AION 2 Global server players; the Korea and Taiwan servers are not eligible. If a claimed reward does not arrive, contact NC Support.",
     watchLink: "AION 2 on Twitch", inventoryLink: "Drops Inventory", linkAccount: "Link accounts",
-    pastTitle: "Earlier campaigns", source: "Source: NC announcement", empty: "No campaigns found yet.",
+    pastTitle: "Earlier campaigns", empty: "No campaigns found yet.",
     footer: "The campaigns are read from NC's announcements, the live channels from Twitch. Last checked:",
   },
   de: {
-    loading: "Twitch Drops werden geladen…",
-    title: "Twitch Drops",
+    loading: "Twitch Drops werden geladen…", title: "Twitch Drops",
     intro: "Schau AION-2-Streams auf Twitch mit aktivierten Drops und verdiene Belohnungen im Spiel. Die Kampagnen veranstaltet NC; die Belohnungen kommen auf dem NC-Account an, mit dem dein Twitch-Account verknüpft ist.",
     live: "Läuft gerade", upcoming: "Kommt bald", ended: "Beendet",
     endsIn: (d, h) => `Endet in ${d} T ${h} Std.`, startsIn: (d, h) => `Startet in ${d} T ${h} Std.`,
     period: "Zeitraum", days: "Tage (Pazifikzeit)", dateTbd: "Start und Ende folgen", part: (n) => `Teil ${n}`,
-    hours: (m) => (m < 60 ? `${m} Min.` : `${m / 60} Std.`), total: (m) => `${m / 60} Std. insgesamt`,
-    liveNow: (s, v) => `${s} Stream${s === 1 ? "" : "s"} mit Drops gerade live · ${v.toLocaleString("de-DE")} Zuschauer`,
-    liveNone: "Gerade ist kein Stream mit Drops live.",
+    min: "Min.", hour: "Std.", total: (h) => `${h} Std. insgesamt`,
+    liveNow: (s, v) => `Gerade live mit Drops: ${s} Streams · ${v} Zuschauer`, liveNone: "Gerade ist kein Stream mit Drops live.",
     claimBy: "Belohnungen im Drops-Inventar einlösen bis",
     howTitle: "So funktioniert es",
-    how: [
-      "Verknüpfe deinen Twitch-Account mit deinem NC-Account (Meine Seite > Login verwalten auf der NC-Webseite).",
-      "Schau einen Live-Stream in der Kategorie AION 2 mit dem Tag „Drops aktiviert“. Der Fortschritt zählt auf jedem teilnehmenden Kanal, aber immer nur in einem Stream gleichzeitig.",
-      "Öffne dein Drops-Inventar auf Twitch und löse jede Belohnung ein, sobald sie bereit ist. Ein verpasstes Einlösen geht bis zur Einlösefrist noch.",
-    ],
+    how: ["Verknüpfe deinen Twitch-Account mit deinem NC-Account (Meine Seite > Login verwalten auf der NC-Webseite).", "Schau einen Live-Stream in der Kategorie AION 2 mit dem Tag „Drops aktiviert“. Der Fortschritt zählt auf jedem teilnehmenden Kanal, aber immer nur in einem Stream gleichzeitig.", "Öffne dein Drops-Inventar auf Twitch und löse jede Belohnung ein, sobald sie bereit ist. Ein verpasstes Einlösen geht bis zur Einlösefrist noch."],
     globalOnly: "Die Belohnungen gibt es nur für Spieler des AION-2-Global-Servers; die Server in Korea und Taiwan sind ausgeschlossen. Kommt ein eingelöster Drop nicht an, wende dich an den NC-Support.",
     watchLink: "AION 2 auf Twitch", inventoryLink: "Drops-Inventar", linkAccount: "Accounts verknüpfen",
-    pastTitle: "Frühere Kampagnen", source: "Quelle: NC-Ankündigung", empty: "Noch keine Kampagnen gefunden.",
+    pastTitle: "Frühere Kampagnen", empty: "Noch keine Kampagnen gefunden.",
     footer: "Die Kampagnen werden aus den Ankündigungen von NC gelesen, die Live-Kanäle von Twitch. Zuletzt geprüft:",
+  },
+  fr: {
+    loading: "Chargement des Twitch Drops…", title: "Twitch Drops",
+    intro: "Regardez des streams AION 2 sur Twitch avec les Drops activés et gagnez des récompenses en jeu. Les campagnes sont organisées par NC ; les récompenses arrivent sur le compte NC lié à votre compte Twitch.",
+    live: "En cours", upcoming: "À venir", ended: "Terminée",
+    endsIn: (d, h) => `Se termine dans ${d} j ${h} h`, startsIn: (d, h) => `Commence dans ${d} j ${h} h`,
+    period: "Période", days: "Jours (heure du Pacifique)", dateTbd: "Dates de début et de fin à venir", part: (n) => `Partie ${n}`,
+    min: "min", hour: "h", total: (h) => `${h} h au total`,
+    liveNow: (s, v) => `En direct avec Drops : ${s} streams · ${v} spectateurs`, liveNone: "Aucun stream avec Drops n'est en direct pour le moment.",
+    claimBy: "Récupérez vos récompenses dans l'inventaire des Drops avant le",
+    howTitle: "Comment ça marche",
+    how: ["Liez votre compte Twitch à votre compte NC (My Page > Manage Login sur le site de NC).", "Regardez un stream en direct dans la catégorie AION 2 avec le tag « Drops activés ». La progression compte sur chaque chaîne participante, mais dans un seul stream à la fois.", "Ouvrez votre inventaire des Drops sur Twitch et récupérez chaque récompense dès qu'elle est prête. Une récompense manquée reste récupérable jusqu'à la date limite."],
+    globalOnly: "Les récompenses sont réservées aux joueurs du serveur Global d'AION 2 ; les serveurs de Corée et de Taïwan ne sont pas concernés. Si une récompense récupérée n'arrive pas, contactez le support NC.",
+    watchLink: "AION 2 sur Twitch", inventoryLink: "Inventaire des Drops", linkAccount: "Lier les comptes",
+    pastTitle: "Campagnes précédentes", empty: "Aucune campagne trouvée pour le moment.",
+    footer: "Les campagnes sont lues dans les annonces de NC, les chaînes en direct sur Twitch. Dernière vérification :",
+  },
+  es: {
+    loading: "Cargando Twitch Drops…", title: "Twitch Drops",
+    intro: "Mira streams de AION 2 en Twitch con los Drops activados y consigue recompensas en el juego. Las campañas las organiza NC; las recompensas llegan a la cuenta de NC vinculada a tu cuenta de Twitch.",
+    live: "En curso", upcoming: "Próximamente", ended: "Finalizada",
+    endsIn: (d, h) => `Termina en ${d} d ${h} h`, startsIn: (d, h) => `Empieza en ${d} d ${h} h`,
+    period: "Periodo", days: "Días (hora del Pacífico)", dateTbd: "Las fechas de inicio y fin se anunciarán", part: (n) => `Parte ${n}`,
+    min: "min", hour: "h", total: (h) => `${h} h en total`,
+    liveNow: (s, v) => `En directo con Drops: ${s} streams · ${v} espectadores`, liveNone: "Ahora mismo no hay ningún stream con Drops en directo.",
+    claimBy: "Reclama tus recompensas en el inventario de Drops antes del",
+    howTitle: "Cómo funciona",
+    how: ["Vincula tu cuenta de Twitch con tu cuenta de NC (My Page > Manage Login en la web de NC).", "Mira un stream en directo de la categoría AION 2 con la etiqueta «Drops activados». El progreso cuenta en cada canal participante, pero solo en un stream a la vez.", "Abre tu inventario de Drops en Twitch y reclama cada recompensa cuando esté lista. Una recompensa no reclamada se puede reclamar hasta la fecha límite."],
+    globalOnly: "Las recompensas son para jugadores del servidor Global de AION 2; los servidores de Corea y Taiwán quedan excluidos. Si una recompensa reclamada no llega, contacta con el soporte de NC.",
+    watchLink: "AION 2 en Twitch", inventoryLink: "Inventario de Drops", linkAccount: "Vincular cuentas",
+    pastTitle: "Campañas anteriores", empty: "Todavía no se han encontrado campañas.",
+    footer: "Las campañas se leen de los anuncios de NC y los canales en directo, de Twitch. Última comprobación:",
+  },
+  pt: {
+    loading: "Carregando Twitch Drops…", title: "Twitch Drops",
+    intro: "Assista a streams de AION 2 na Twitch com Drops ativados e ganhe recompensas no jogo. As campanhas são da NC; as recompensas chegam à conta NC vinculada à sua conta Twitch.",
+    live: "Em andamento", upcoming: "Em breve", ended: "Encerrada",
+    endsIn: (d, h) => `Termina em ${d} d ${h} h`, startsIn: (d, h) => `Começa em ${d} d ${h} h`,
+    period: "Período", days: "Dias (horário do Pacífico)", dateTbd: "Datas de início e término serão divulgadas", part: (n) => `Parte ${n}`,
+    min: "min", hour: "h", total: (h) => `${h} h no total`,
+    liveNow: (s, v) => `Ao vivo com Drops: ${s} streams · ${v} espectadores`, liveNone: "Nenhum stream com Drops está ao vivo agora.",
+    claimBy: "Resgate suas recompensas no inventário de Drops até",
+    howTitle: "Como funciona",
+    how: ["Vincule sua conta Twitch à sua conta NC (My Page > Manage Login no site da NC).", "Assista a um stream ao vivo na categoria AION 2 com a tag “Drops ativados”. O progresso conta em todos os canais participantes, mas em um stream por vez.", "Abra seu inventário de Drops na Twitch e resgate cada recompensa quando estiver pronta. Uma recompensa não resgatada pode ser resgatada até o prazo final."],
+    globalOnly: "As recompensas são para jogadores do servidor Global de AION 2; os servidores da Coreia e de Taiwan não são elegíveis. Se uma recompensa resgatada não chegar, entre em contato com o suporte da NC.",
+    watchLink: "AION 2 na Twitch", inventoryLink: "Inventário de Drops", linkAccount: "Vincular contas",
+    pastTitle: "Campanhas anteriores", empty: "Nenhuma campanha encontrada ainda.",
+    footer: "As campanhas são lidas dos anúncios da NC e os canais ao vivo, da Twitch. Última verificação:",
+  },
+  ru: {
+    loading: "Загрузка Twitch Drops…", title: "Twitch Drops",
+    intro: "Смотрите стримы AION 2 на Twitch с включёнными дропсами и получайте награды в игре. Кампании проводит NC; награды приходят на аккаунт NC, привязанный к вашему аккаунту Twitch.",
+    live: "Идёт сейчас", upcoming: "Скоро", ended: "Завершена",
+    endsIn: (d, h) => `Закончится через ${d} д ${h} ч`, startsIn: (d, h) => `Начнётся через ${d} д ${h} ч`,
+    period: "Период", days: "Дни (тихоокеанское время)", dateTbd: "Даты начала и окончания будут объявлены", part: (n) => `Часть ${n}`,
+    min: "мин", hour: "ч", total: (h) => `${h} ч всего`,
+    liveNow: (s, v) => `Сейчас в эфире с дропсами: ${s} стримов · ${v} зрителей`, liveNone: "Сейчас нет стримов с дропсами.",
+    claimBy: "Получите награды в инвентаре дропсов до",
+    howTitle: "Как это работает",
+    how: ["Привяжите аккаунт Twitch к аккаунту NC (My Page > Manage Login на сайте NC).", "Смотрите стрим в категории AION 2 с тегом «Дропсы включены». Прогресс засчитывается на любом участвующем канале, но только в одном стриме одновременно.", "Откройте инвентарь дропсов на Twitch и получите каждую награду, когда она будет готова. Пропущенную награду можно получить до конца срока."],
+    globalOnly: "Награды доступны игрокам глобального сервера AION 2; серверы Кореи и Тайваня не участвуют. Если полученная награда не пришла, обратитесь в поддержку NC.",
+    watchLink: "AION 2 на Twitch", inventoryLink: "Инвентарь дропсов", linkAccount: "Привязать аккаунты",
+    pastTitle: "Прошлые кампании", empty: "Кампании пока не найдены.",
+    footer: "Кампании берутся из объявлений NC, прямые эфиры — с Twitch. Последняя проверка:",
+  },
+  ja: {
+    loading: "Twitchドロップを読み込み中…", title: "Twitchドロップ",
+    intro: "ドロップ有効のAION 2の配信をTwitchで視聴して、ゲーム内報酬を獲得しましょう。キャンペーンはNCが実施し、報酬はTwitchアカウントと連携したNCアカウントに届きます。",
+    live: "開催中", upcoming: "近日開催", ended: "終了",
+    endsIn: (d, h) => `終了まで${d}日${h}時間`, startsIn: (d, h) => `開始まで${d}日${h}時間`,
+    period: "期間", days: "日付（太平洋時間）", dateTbd: "開始日・終了日は後日発表", part: (n) => `第${n}部`,
+    min: "分", hour: "時間", total: (h) => `合計${h}時間`,
+    liveNow: (s, v) => `ドロップ付きで配信中: ${s}配信 · 視聴者${v}人`, liveNone: "現在ドロップ付きの配信はありません。",
+    claimBy: "ドロップのインベントリで報酬を受け取る期限:",
+    howTitle: "受け取り方",
+    how: ["TwitchアカウントをNCアカウントと連携します（NC公式サイトの My Page > Manage Login）。", "「ドロップ有効」タグ付きのAION 2カテゴリの配信を視聴します。進行状況は対象のどのチャンネルでも加算されますが、同時に視聴できるのは1配信のみです。", "Twitchのドロップのインベントリを開き、準備ができた報酬を受け取ります。受け取り忘れも受け取り期限までは受け取れます。"],
+    globalOnly: "報酬はAION 2グローバルサーバーのプレイヤー向けです。韓国・台湾サーバーは対象外です。受け取った報酬が届かない場合はNCサポートにお問い合わせください。",
+    watchLink: "TwitchでAION 2", inventoryLink: "ドロップのインベントリ", linkAccount: "アカウント連携",
+    pastTitle: "過去のキャンペーン", empty: "キャンペーンはまだ見つかっていません。",
+    footer: "キャンペーンはNCのお知らせから、配信中のチャンネルはTwitchから取得しています。最終確認:",
+  },
+  ko: {
+    loading: "트위치 드롭 불러오는 중…", title: "트위치 드롭",
+    intro: "드롭이 활성화된 AION 2 방송을 트위치에서 시청하고 게임 내 보상을 받으세요. 캠페인은 NC가 진행하며, 보상은 트위치 계정과 연동된 NC 계정으로 지급됩니다.",
+    live: "진행 중", upcoming: "예정", ended: "종료",
+    endsIn: (d, h) => `종료까지 ${d}일 ${h}시간`, startsIn: (d, h) => `시작까지 ${d}일 ${h}시간`,
+    period: "기간", days: "날짜 (태평양 시간)", dateTbd: "시작일과 종료일은 추후 공지", part: (n) => `${n}부`,
+    min: "분", hour: "시간", total: (h) => `총 ${h}시간`,
+    liveNow: (s, v) => `드롭 방송 중: ${s}개 방송 · 시청자 ${v}명`, liveNone: "현재 드롭이 있는 방송이 없습니다.",
+    claimBy: "드롭 인벤토리에서 보상을 받을 수 있는 기한:",
+    howTitle: "이용 방법",
+    how: ["트위치 계정을 NC 계정과 연동하세요 (NC 웹사이트의 My Page > Manage Login).", "“드롭 활성화” 태그가 있는 AION 2 카테고리 방송을 시청하세요. 진행도는 참여 채널 어디서나 쌓이지만 동시에 한 방송만 인정됩니다.", "트위치 드롭 인벤토리를 열어 준비된 보상을 받으세요. 놓친 보상도 수령 기한까지는 받을 수 있습니다."],
+    globalOnly: "보상은 AION 2 글로벌 서버 플레이어 대상이며, 한국·대만 서버는 해당되지 않습니다. 받은 보상이 도착하지 않으면 NC 고객지원에 문의하세요.",
+    watchLink: "트위치에서 AION 2", inventoryLink: "드롭 인벤토리", linkAccount: "계정 연동",
+    pastTitle: "지난 캠페인", empty: "아직 캠페인을 찾지 못했습니다.",
+    footer: "캠페인은 NC 공지에서, 방송 중인 채널은 트위치에서 가져옵니다. 마지막 확인:",
+  },
+  zh: {
+    loading: "正在加载 Twitch 掉落…", title: "Twitch 掉落",
+    intro: "在 Twitch 观看已开启掉落的 AION 2 直播，即可获得游戏内奖励。活动由 NC 举办，奖励会发放到与你的 Twitch 账号绑定的 NC 账号。",
+    live: "进行中", upcoming: "即将开始", ended: "已结束",
+    endsIn: (d, h) => `还剩 ${d} 天 ${h} 小时结束`, startsIn: (d, h) => `${d} 天 ${h} 小时后开始`,
+    period: "时间", days: "日期（太平洋时间）", dateTbd: "开始和结束日期待公布", part: (n) => `第 ${n} 部分`,
+    min: "分钟", hour: "小时", total: (h) => `共 ${h} 小时`,
+    liveNow: (s, v) => `当前有掉落的直播：${s} 个 · ${v} 位观众`, liveNone: "目前没有开启掉落的直播。",
+    claimBy: "请在掉落库存中领取奖励，截止时间：",
+    howTitle: "领取方法",
+    how: ["将 Twitch 账号与 NC 账号绑定（NC 官网 My Page > Manage Login）。", "观看 AION 2 分类中带有“已开启掉落”标签的直播。进度在任何参与的频道都会累计，但同一时间只能计入一个直播。", "在 Twitch 打开掉落库存，奖励就绪后领取。错过的奖励在领取截止前仍可领取。"],
+    globalOnly: "奖励仅限 AION 2 国际服玩家；韩国和台湾服务器不在范围内。如领取的奖励未到账，请联系 NC 客服。",
+    watchLink: "Twitch 上的 AION 2", inventoryLink: "掉落库存", linkAccount: "绑定账号",
+    pastTitle: "往期活动", empty: "暂未找到活动。",
+    footer: "活动内容来自 NC 公告，直播频道来自 Twitch。上次检查：",
+  },
+  "zh-TW": {
+    loading: "正在載入 Twitch 掉落…", title: "Twitch 掉落",
+    intro: "在 Twitch 觀看已開啟掉落的 AION 2 直播，即可獲得遊戲內獎勵。活動由 NC 舉辦，獎勵會發放到與你的 Twitch 帳號綁定的 NC 帳號。",
+    live: "進行中", upcoming: "即將開始", ended: "已結束",
+    endsIn: (d, h) => `還剩 ${d} 天 ${h} 小時結束`, startsIn: (d, h) => `${d} 天 ${h} 小時後開始`,
+    period: "時間", days: "日期（太平洋時間）", dateTbd: "開始與結束日期待公布", part: (n) => `第 ${n} 部分`,
+    min: "分鐘", hour: "小時", total: (h) => `共 ${h} 小時`,
+    liveNow: (s, v) => `目前有掉落的直播：${s} 個 · ${v} 位觀眾`, liveNone: "目前沒有開啟掉落的直播。",
+    claimBy: "請在掉落庫存中領取獎勵，截止時間：",
+    howTitle: "領取方式",
+    how: ["將 Twitch 帳號與 NC 帳號綁定（NC 官網 My Page > Manage Login）。", "觀看 AION 2 分類中帶有「已開啟掉落」標籤的直播。進度在任何參與的頻道都會累計，但同一時間只能計入一個直播。", "在 Twitch 開啟掉落庫存，獎勵就緒後領取。錯過的獎勵在領取截止前仍可領取。"],
+    globalOnly: "獎勵僅限 AION 2 國際服玩家；韓國與台灣伺服器不在範圍內。若領取的獎勵未到帳，請聯絡 NC 客服。",
+    watchLink: "Twitch 上的 AION 2", inventoryLink: "掉落庫存", linkAccount: "綁定帳號",
+    pastTitle: "過往活動", empty: "尚未找到活動。",
+    footer: "活動內容來自 NC 公告，直播頻道來自 Twitch。上次檢查：",
   },
 };
 const DROP_ITEM_LOCALES = ["en", "de", "es", "fr", "ja", "ko", "pt", "ru"];
@@ -1270,9 +1386,11 @@ function dropReward(items, reward) {
   return { name: reward.qty > 1 ? `${name} ×${reward.qty.toLocaleString(code === "de" ? "de-DE" : "en-US")}` : name, icon: entry?.icon ?? null };
 }
 async function renderTwitchDrops() {
-  const de = getLocale() === "de";
-  const L = TWITCH_DROPS_TEXT[de ? "de" : "en"];
-  const loc = de ? "de-DE" : "en-GB";
+  const code = getLocale();
+  const L = TWITCH_DROPS_TEXT[code] ?? TWITCH_DROPS_TEXT.en;
+  const loc = LOCALES.find((x) => x.code === code)?.intl ?? "en-US";
+  const num = (n) => n.toLocaleString(loc);
+  const hours = (m) => (m < 60 ? `${m} ${L.min}` : `${m / 60} ${L.hour}`);
   setBreadcrumb([link(t("breadcrumb.home"), "/"), L.title]);
   showLoading(L.loading);
   const [data, items] = await Promise.all([fetchJson("/api/twitch-drops"), fetchJson("/twitch-drops-items.json")]);
@@ -1295,7 +1413,7 @@ async function renderTwitchDrops() {
           el("p", { className: "td-period", textContent: period }),
           ...(state === "live" && c.endAt ? [el("p", { className: "td-countdown", textContent: L.endsIn(...left(c.endAt)) })] : []),
           ...(state === "upcoming" && c.startAt ? [el("p", { className: "td-countdown", textContent: L.startsIn(...left(c.startAt)) })] : []),
-          el("p", { className: "stat-sub", textContent: L.total(last.minutes) }),
+          el("p", { className: "stat-sub", textContent: L.total(last.minutes / 60) }),
         ]),
       ]),
       el("ul", { className: "td-drops" }, c.rewards.map((r) => {
@@ -1303,7 +1421,7 @@ async function renderTwitchDrops() {
         return el("li", { className: "td-drop" }, [
           icon ? el("img", { className: "td-drop-icon", src: `/${icon}`, alt: "", width: 64, height: 64, loading: "lazy" }) : el("span", { className: "td-drop-icon td-drop-icon--blank", "aria-hidden": "true" }),
           el("span", { className: "td-drop-name", textContent: name }),
-          el("span", { className: "td-drop-time", textContent: L.hours(r.minutes) }),
+          el("span", { className: "td-drop-time", textContent: hours(r.minutes) }),
         ]);
       })),
     ]);
@@ -1314,9 +1432,9 @@ async function renderTwitchDrops() {
   const past = sorted.filter(([, s]) => s === "ended").reverse();
   const liveBlock = data.live
     ? el("section", { className: "td-live" }, [
-        el("p", { className: "td-live-head", textContent: data.live.streams ? L.liveNow(data.live.streams, data.live.viewers) : L.liveNone }),
+        el("p", { className: "td-live-head", textContent: data.live.streams ? L.liveNow(num(data.live.streams), num(data.live.viewers)) : L.liveNone }),
         ...(data.live.channels.length ? [el("ul", { className: "td-live-list" }, data.live.channels.map((ch) =>
-          el("li", {}, [el("a", { href: `https://www.twitch.tv/${encodeURIComponent(ch.login)}`, target: "_blank", rel: "noopener", textContent: ch.name }), el("span", { className: "stat-sub", textContent: ` ${ch.viewers.toLocaleString(loc)}` })])))] : []),
+          el("li", {}, [el("a", { href: `https://www.twitch.tv/${encodeURIComponent(ch.login)}`, target: "_blank", rel: "noopener", textContent: ch.name }), el("span", { className: "stat-sub", textContent: ` ${num(ch.viewers)}` })])))] : []),
       ])
     : null;
 

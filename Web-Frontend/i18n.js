@@ -7,8 +7,6 @@ export const LOCALES = [
   { code: "fr", flag: "🇫🇷", label: "Français", intl: "fr-FR" },
   { code: "es", flag: "🇪🇸", label: "Español", intl: "es-ES" },
   { code: "ru", flag: "🇷🇺", label: "Русский", intl: "ru-RU" },
-  { code: "pl", flag: "🇵🇱", label: "Polski", intl: "pl-PL" },
-  { code: "tr", flag: "🇹🇷", label: "Türkçe", intl: "tr-TR" },
   { code: "zh", flag: "🇨🇳", label: "中文", intl: "zh-CN" },
   { code: "zh-TW", flag: "🇹🇼", label: "繁體中文", intl: "zh-TW" },
   { code: "pt", flag: "🇧🇷", label: "Português (Brasil)", intl: "pt-BR" },
