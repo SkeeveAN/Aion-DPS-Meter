@@ -1,5 +1,25 @@
 [
  {
+  "version": "0.40.2",
+  "date": "2026-10-12",
+  "items": [
+   {
+    "text": "Features page: the settings picture of the network section is shifted on every screen size",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-12"
+   },
+   {
+    "text": "The target dropdown (All Targets) sits on its own row across the full window width, so the whole name of a boss can be read",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-12"
+   }
+  ]
+ },
+ {
   "version": "0.40.1",
   "date": "2026-10-12",
   "items": [
