@@ -16,6 +16,14 @@
      "Backend"
     ],
     "date": "2026-10-11"
+   },
+   {
+    "text": "Player profiles keep themselves fresh without asking NC for everybody: a cheap one-request look decides whether anything is fetched, the wait follows how active the player is and doubles while nothing changes, uploads and opened profiles go to the front of the queue, and an hourly request budget protects NC; and a daily check compares our server and class tables with NC's official lists",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-11"
    }
   ]
  },
