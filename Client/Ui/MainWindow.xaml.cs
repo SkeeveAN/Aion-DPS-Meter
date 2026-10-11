@@ -1570,20 +1570,42 @@ public partial class MainWindow : Window
             yield break;
         }
 
+        // A wipe and retry keeps the boss's entity id and can come within the gap below, so the
+        // moments the server put the boss back to full health cut the hits as well. A run that
+        // ended in such a reset is a wipe and carries a skull.
+        IReadOnlyList<DateTime> resets = (_source?.Entities as Aion2.Aion2EntityDirectory)?.HitPoints.ResetsOf(targetId)
+            ?? Array.Empty<DateTime>();
         var clusters = new List<List<DamageEvent>>();
+        var wiped = new List<bool>();
         foreach (DamageEvent hit in hits)
         {
-            if (clusters.Count > 0 && (hit.Timestamp - clusters[^1][^1].Timestamp).TotalSeconds <= RunClusterGapSeconds)
+            if (clusters.Count > 0)
             {
+                DateTime previous = clusters[^1][^1].Timestamp;
+                bool reset = resets.Any(at => at > previous && at <= hit.Timestamp);
+                if (reset || (hit.Timestamp - previous).TotalSeconds > RunClusterGapSeconds)
+                {
+                    wiped[^1] = reset;
+                    clusters.Add(new List<DamageEvent> { hit });
+                    wiped.Add(false);
+                    continue;
+                }
+
                 clusters[^1].Add(hit);
             }
             else
             {
                 clusters.Add(new List<DamageEvent> { hit });
+                wiped.Add(false);
             }
         }
 
-        if (clusters.Count == 1)
+        // The last run is a wipe too when the boss went back to full health after its final hit,
+        // even if nobody pulled it again.
+        DateTime lastHit = clusters[^1][^1].Timestamp;
+        wiped[^1] = resets.Any(at => at > lastHit);
+
+        if (clusters.Count == 1 && !wiped[0])
         {
             yield return (new MobBossTag(targetId, null, null), name, clusters[0].Sum(e => e.Amount));
             yield break;
@@ -1593,7 +1615,7 @@ public partial class MainWindow : Window
         {
             List<DamageEvent> cluster = clusters[i];
             var tag = new MobBossTag(targetId, cluster[0].Timestamp, cluster[^1].Timestamp);
-            yield return (tag, $"{name} #{i + 1}", cluster.Sum(e => e.Amount));
+            yield return (tag, $"{name} #{i + 1}{(wiped[i] ? " \U0001F480" : "")}", cluster.Sum(e => e.Amount));
         }
     }
 
