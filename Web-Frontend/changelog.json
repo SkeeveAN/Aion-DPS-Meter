@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.38.4",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "Changing a worn title in the game is now noticed by the meter (the game sends a change as its own small packet which was ignored, so the profile kept the titles from the login), and the upload carries the new title",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.38.3",
   "date": "2026-10-11",
   "items": [
