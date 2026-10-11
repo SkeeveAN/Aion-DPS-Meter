@@ -139,6 +139,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-network")
+        {
+            RunRenderNetworkMode(args.Length > 1 ? args[1] : "network.png", args.Length > 2 ? int.Parse(args[2]) : 2);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-messagebox")
         {
             RunRenderMessageBoxMode(args.Length > 1 ? args[1] : "messagebox.png");
@@ -684,6 +690,49 @@ internal static class Program
         Environment.Exit(0);
     }
 
+    /// <summary>Draws the network overlay with sample measurements into a picture (scale 2 = twice the pixels); no window is ever shown.</summary>
+    private static void RunRenderNetworkMode(string path, int scale)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        var sample = new Aion2.Capture.NetworkSnapshot(true, "87.232.75.220:13328", TimeSpan.FromSeconds(642), 1, 7, 16, 6, 49, 4.2, 8.6, 0.2, 26, 31, 0, 0, TimeSpan.FromSeconds(0.4), 0, 0);
+        var window = new Ui.NetworkOverlayWindow();
+        window.Render(Ui.NetworkOverlayRows.Of(sample, Array.Empty<string>()));
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(600, 600));
+        int w = (int)Math.Ceiling(content.DesiredSize.Width), h = (int)Math.Ceiling(content.DesiredSize.Height);
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        var backdrop = new System.Windows.Controls.Border
+        {
+            Width = w, Height = h,
+            Background = new System.Windows.Media.LinearGradientBrush(System.Windows.Media.Color.FromRgb(0x3a, 0x4a, 0x52), System.Windows.Media.Color.FromRgb(0x1c, 0x26, 0x2e), 60),
+        };
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w * scale, h * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
+        backdrop.Measure(new System.Windows.Size(w, h));
+        backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
+        bitmap.Render(backdrop);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-network: wrote " + path);
+        Environment.Exit(0);
+    }
+
     /// <summary>Draws the "window will turn transparent" message box into a picture; no window is ever shown.</summary>
     private static void RunRenderMessageBoxMode(string path)
     {
@@ -773,11 +822,17 @@ internal static class Program
         }
 
         double width = 620, height = string.IsNullOrEmpty(rare) && tab != "Hotkeys" ? 740 : 1000;
+        if (int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_HEIGHT"), out int customHeight))
+        {
+            height = Math.Clamp(customHeight, 200, 1400);
+        }
+
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));
         content.UpdateLayout();
-        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)width, (int)height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        int scale = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_SCALE"), out int sc) ? Math.Clamp(sc, 1, 4) : 1;
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)width * scale, (int)height * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
         bitmap.Render(content);
         var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
         encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
