@@ -107,9 +107,12 @@ releases.sort((a, b) => { const x = key(a.version), y = key(b.version); return y
 writeFileSync(out, JSON.stringify(releases, null, 1) + "\n");
 // The tags are the real release moments. Version numbers are not in release order (0.9.55 was followed by 0.10.48,
 // and 0.9.56 / 0.9.57 came out much later), so the statistics compare uploads by time, never by number.
+// Only tags of THIS project's history count: a fetch from a fork's remote brings that fork's tags along (v0.9.7 .. v0.9.64 came from a
+// contributor's fork), and the update obligation would then take the fork's newest tag for the current release and lock the real client out.
+const own = new Set(git("tag", "--merged", "HEAD").split("\n").filter(Boolean));
 for (const line of git("for-each-ref", "--format=%(refname:short)\t%(creatordate:iso-strict)", "refs/tags").split("\n").filter(Boolean)) {
   const [tag, iso] = line.split("\t");
-  if (/^v\d+\.\d+\.\d+$/.test(tag)) releasedAt[tag.slice(1)] = iso;
+  if (/^v\d+\.\d+\.\d+$/.test(tag) && own.has(tag)) releasedAt[tag.slice(1)] = iso;
 }
 writeFileSync(fileURLToPath(new URL("../../Web-Frontend/releases.json", import.meta.url)), JSON.stringify(releasedAt, null, 1) + "\n");
 // German texts live in Web-Frontend/changelog.de.json ({"<english text>": "<german text>"}); new entries
