@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.38.1",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "The Twitch Drops icon and the \"New\" markers of the announcements and Twitch icons now show right after the meter starts; before, the first check after the start failed without a message and the icons only appeared with the next check half an hour later",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.38.0",
   "date": "2026-10-11",
   "items": [
