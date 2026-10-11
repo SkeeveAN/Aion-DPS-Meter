@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.38.0",
   "date": "2026-10-11",
   "items": [
    {
@@ -30,6 +30,20 @@
     "text": "Profile mark: the tooltip texts are translated into every website language",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "A wrong legion or Daevanion boards from another character are no longer taken over: boards of another class than the profile's are dropped, and for a player verified with NC's page, the legion NC names beats the client's report",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "Settings has a new Debug card: when on, the game traffic is also written to a file on your PC (named after the character, a new file when another character logs in, deleted after 2 days) that you can send to the developer by hand; the meter no longer uploads Daevanion, legion or other lists of an earlier session's character (a twink) for the character you are playing now",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-11"
    }
