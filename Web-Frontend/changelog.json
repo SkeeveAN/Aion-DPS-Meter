@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "Encounter pages showed the error \"profileMarkAttrs is not defined\" instead of the meter; the profile marks behind the player names work again",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.38.2",
   "date": "2026-10-11",
   "items": [
