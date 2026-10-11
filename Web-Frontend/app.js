@@ -2026,11 +2026,6 @@ async function renderBosses(instanceSlug) {
 const ICON_PROFILE =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
 
-function profileIcon(player) {
-  if (!player || !player.hasProfile || !player.playerId) {
-    return null;
-  }
-
 function profileTitle(player) {
   if (!player.profileKind) {
     return t("player.openProfile");
@@ -2044,6 +2039,11 @@ function profileMarkAttrs(player) {
   const kind = player.profileKind ? ` pf-${player.profileKind}` : "";
   return { className: `profile-link${kind}`, title, "aria-label": title, innerHTML: ICON_PROFILE + (player.profileNc ? '<i class="pf-nc"></i>' : "") };
 }
+
+function profileIcon(player) {
+  if (!player || !player.hasProfile || !player.playerId) {
+    return null;
+  }
 
   return el("a", { ...profileMarkAttrs(player), href: gp(`/players/${player.playerSlug ?? player.playerId}`) });
 }
