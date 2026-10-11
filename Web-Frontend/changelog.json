@@ -1,12 +1,19 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.31.2",
   "date": "2026-10-11",
   "items": [
    {
     "text": "Update obligation relaxed: an older client may keep uploading for 72 hours after its successor came out (was: blocked at once)",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "The \"client is too old\" warning is calmer: no pop-up any more (status line and badge only), and it is taken back by itself when the server allows the version after all",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-11"
    }
