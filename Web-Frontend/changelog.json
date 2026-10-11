@@ -24,6 +24,14 @@
      "Database"
     ],
     "date": "2026-10-11"
+   },
+   {
+    "text": "A character never changes class: an upload that shows another class than NC's page sends the player to the match check at once, and a confirmed id whose class does not fit what the game shows is dropped together with its NC data (portrait, character data, profile), or the match moves to the namesake of the right class",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-11"
    }
   ]
  },
