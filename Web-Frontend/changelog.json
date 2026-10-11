@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.32.1",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "The Black Cloud shop pets leave the pet overlay list five minutes after the last shop tab you opened (was ten)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.32.0",
   "date": "2026-10-11",
   "items": [
