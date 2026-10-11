@@ -5,7 +5,7 @@ Usage: build_pet_regions.py <Subzone.bin> <WorldMapUIRegion.bin> <unpacked AION2
 (the two tables decrypted with dectable.py, the map folder and l10n as for build_spawns.py / extract_l10n.py)
 
 How it works (2026-10-10): every MapData.dat holds the area volumes as text-named `Points` (Vector2D, x and y as the upper five bytes of a
-little-endian double, 16 bytes per point) followed by the volume's name `<Name>_Subzone`. `Subzone.dat` pairs that name with a text key
+little-endian double, 16 bytes per point) preceded by the volume's name `<Name>_Subzone`. `Subzone.dat` pairs that name with a text key
 `STR_Subzone_<Name>`; `WorldMapUIRegion.dat` lists the keys the world map shows as regions (`Region_Rank1`; `Region_Rank2` are the small
 places: camps, outposts). A spawn point belongs to the smallest Rank1 area around it, else the smallest Rank2 area, else the smallest
 named area at all. The region's name is `String_<key>_body` in every language.
@@ -72,9 +72,10 @@ def polygons(path):
                 p += 16
             if len(pts) > len(best):
                 best, end = pts, p
-        name = re.search(rb"([A-Za-z0-9_]*[Ss]ubzone[A-Za-z0-9_]*)\x00", d[end:end + 400])
-        if name and len(best) >= 3:
-            out[name.group(1).decode()] = best
+        # the volume's name stands BEFORE its Points (name twice, then `Points`); the name after the points is the next volume's
+        names = re.findall(rb"([A-Za-z0-9_]*[Ss]ubzone[A-Za-z0-9_]*)\x00", d[max(0, m.start() - 160):m.start()])
+        if names and len(best) >= 3:
+            out[names[-1].decode()] = best
     return out
 
 
@@ -115,7 +116,11 @@ def island_points(map_dir, map_name):
 EVENTS = "_events"  # pets that only spawn in the event and quest phases of the maps
 EVENT_NAMES = {"en": "Events", "de": "Events", "fr": "Événements", "es": "Eventos", "ru": "События"}
 # pets the client lists in a region although the game data has no spawn point there (patrolling monsters): region key -> pet ids
-EXTRA = {"STR_Subzone_TolbasForest_Southern": [1004]}  # Patrouillierende Fossa (St. 25)
+EXTRA = {
+    "STR_Subzone_TolbasForest_Southern": [1004, 1123],  # Patrouillierende Fossa (St. 25); Junges-Hornursus (St. 25)
+    "STR_Subzone_TolbasForest_NightlyDewCave": [1123],  # Junges-Hornursus (St. 25), Abendtauhöhle
+    "STR_Subzone_KrakaFootPath": [1123],  # Ursusjunges (Hügel) (St. 39)
+}  # the three Young Ursus places are what the pet's own "Fundorte" page in the client lists; the NPCs have no spawn point in the map data
 OTHER = "_other"  # pets that spawn outside every named area; the client names it
 
 
@@ -184,8 +189,8 @@ def main():
                         else:
                             found[OTHER].update(ids if isinstance(ids, list) else [ids])  # in no named area at all
         regions, other = [], None
-        for key, extra_ids in EXTRA.items():
-            if key in found:
+        if gid == "verteron":
+            for key, extra_ids in EXTRA.items():
                 found[key].update(extra_ids)
         for key, ids in found.items():
             ids = sorted(i for i in ids if i in known)
