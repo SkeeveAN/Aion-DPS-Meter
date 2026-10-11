@@ -248,6 +248,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-petlist-shop")
+        {
+            RunRenderPetListShopMode(args.Length > 1 ? args[1] : "petlist-shop.png");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "petfarm-read")
         {
             if (args.Length < 2)
@@ -1076,6 +1082,44 @@ internal static class Program
         }
 
         Console.WriteLine($"render-petmap: wrote {path} ({points.Count} points of {pets.Count} pets on {map.Title}); tiles shown {window.TilesShown}: {window.TileDebug}");
+        Environment.Exit(0);
+    }
+
+    /// <summary>The pet list with the pets of an open Black Cloud shop (sample data of the recording 2026-10-11_12-34), drawn into a picture; no window is shown.</summary>
+    private static void RunRenderPetListShopMode(string path)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        // (pet id, tab, price) of the special and pet tabs; (pet id, level, progress) as the login frame reported them
+        var offers = new (int, int, long)[] { (1041, 0, 70000), (1161, 0, 80000), (1128, 0, 90000), (1108, 0, 80000), (1118, 0, 70000), (1190, 1, 80000), (1123, 1, 90000), (1096, 1, 70000), (1174, 1, 90000), (1154, 1, 90000), (1160, 1, 70000), (1060, 1, 50000), (1115, 1, 90000), (1102, 1, 70000), (1141, 1, 90000) }
+            .Select(o => new Aion2.Protocol.Aion2ShopPet(o.Item1, o.Item2, o.Item3)).ToList();
+        var states = new (int, int, int)[] { (1128, 1, 6), (1108, 1, 18), (1118, 2, 17), (1190, 1, 0), (1123, 1, 20), (1096, 1, 5), (1174, 1, 16), (1160, 1, 0), (1060, 2, 27), (1141, 2, 12) }
+            .Select(s => new Aion2.Protocol.Aion2PetState(s.Item1, s.Item2, s.Item3)).ToList();
+        var rows = Ui.PetMapController.ShopRowsOf(offers, states).ToList();
+        rows.Add((System.Windows.Media.Color.FromRgb(0xE6, 0x78, 0x50), "Sylphe", "Level 1 · 4/25", "38 m", false));
+        var list = new Ui.PetListWindow();
+        list.Render(rows);
+        var content = (System.Windows.UIElement)list.Content;
+        list.Content = null;
+        var visual = new System.Windows.Controls.Border { Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x36, 0x2c)), Padding = new System.Windows.Thickness(12), Child = content };
+        visual.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+        visual.Arrange(new System.Windows.Rect(visual.DesiredSize));
+        visual.UpdateLayout();
+        int w = (int)Math.Ceiling(visual.DesiredSize.Width), h = (int)Math.Ceiling(visual.DesiredSize.Height);
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(visual);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine($"render-petlist-shop: wrote {path}");
         Environment.Exit(0);
     }
 

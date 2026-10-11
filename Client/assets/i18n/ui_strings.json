@@ -4772,5 +4772,47 @@
     "pt": "Kibelisk mais próximo",
     "ja": "最寄りのキベリスク",
     "ko": "가장 가까운 키벨리스크"
+  },
+  "PetShop.Missing": {
+    "en": "not owned",
+    "de": "fehlt noch",
+    "fr": "manquant",
+    "es": "te falta",
+    "ru": "нет",
+    "pl": "brak",
+    "tr": "yok",
+    "zh": "未拥有",
+    "zh-TW": "未擁有",
+    "pt": "falta",
+    "ja": "未所持",
+    "ko": "미보유"
+  },
+  "PetShop.TabSpecial": {
+    "en": "Shop: Special",
+    "de": "Shop: Spezial",
+    "fr": "Boutique : Spécial",
+    "es": "Tienda: Especial",
+    "ru": "Магазин: Особое",
+    "pl": "Sklep: Specjalne",
+    "tr": "Mağaza: Özel",
+    "zh": "商店：特殊",
+    "zh-TW": "商店：特殊",
+    "pt": "Loja: Especial",
+    "ja": "ショップ：スペシャル",
+    "ko": "상점: 스페셜"
+  },
+  "PetShop.TabPet": {
+    "en": "Shop: Pets",
+    "de": "Shop: Pet",
+    "fr": "Boutique : Familiers",
+    "es": "Tienda: Mascotas",
+    "ru": "Магазин: Питомцы",
+    "pl": "Sklep: Zwierzaki",
+    "tr": "Mağaza: Evcil",
+    "zh": "商店：宠物",
+    "zh-TW": "商店：寵物",
+    "pt": "Loja: Pets",
+    "ja": "ショップ：ペット",
+    "ko": "상점: 펫"
   }
 }

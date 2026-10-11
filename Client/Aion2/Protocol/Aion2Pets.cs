@@ -7,6 +7,9 @@ namespace AionDPS.Aion2.Protocol;
 /// <summary>One pet of the local player as the login frame lists it: its level (1 to 3) and, below the top level, the progress towards the next.</summary>
 public sealed record Aion2PetState(int PetId, int Level, int Progress);
 
+/// <summary>A pet the Black Cloud shop offers: on which tab (0 special, 1 pet), at what price (after the discount).</summary>
+public sealed record Aion2ShopPet(int PetId, int Tab, long Price);
+
 /// <summary>
 /// The pets of the pet window and which monsters belong to them (assets/aion2/pets/pets.json, built by Tools/aion2-dat/build_pets.py
 /// from the client's own tables): a pet is named after the model of the monsters that drop its soul, so the monster the game shows
@@ -43,6 +46,7 @@ public static class Aion2Pets
         public Dictionary<int, int[]> PetsOfNpc { get; } = new();
         public Dictionary<int, List<int>> NpcsOfPet { get; } = new();
         public Dictionary<int, int> PetOfSoul { get; } = new();
+        public Dictionary<int, int> PetOfShopItem { get; } = new();
         /// <summary>Monster name (folded, any language) -> the pets of the monsters with that name.</summary>
         public Dictionary<string, HashSet<int>> PetsOfName { get; } = new();
     }
@@ -73,6 +77,9 @@ public static class Aion2Pets
 
     /// <summary>The monsters (NPC ids) that drop this pet's soul, spawn point or not.</summary>
     public static IReadOnlyList<int> NpcsOfPet(int petId) => Data.NpcsOfPet.TryGetValue(petId, out var npcs) ? npcs : Array.Empty<int>();
+
+    /// <summary>The pet a pet item of the Black Cloud shop stands for (item id from the shop frame 0x9156); null for any other item.</summary>
+    public static int? PetOfShopItem(int itemId) => Data.PetOfShopItem.TryGetValue(itemId, out int pet) ? pet : null;
 
     public static int? PetOfSoulItem(int itemId) => Data.PetOfSoul.TryGetValue(itemId, out int pet) ? pet : null;
 
@@ -157,6 +164,14 @@ public static class Aion2Pets
             foreach (var s in doc.RootElement.GetProperty("souls").EnumerateObject())
             {
                 catalog.PetOfSoul[int.Parse(s.Name)] = s.Value.GetInt32();
+            }
+
+            if (doc.RootElement.TryGetProperty("shop", out var shop))
+            {
+                foreach (var s in shop.EnumerateObject())
+                {
+                    catalog.PetOfShopItem[int.Parse(s.Name)] = s.Value.GetInt32();
+                }
             }
 
             // the pets that have at least one spawn point on a map (spawns.json: {"maps": {map: {npcId: [[x,y,z]...]}}})

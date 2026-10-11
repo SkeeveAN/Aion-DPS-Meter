@@ -99,9 +99,19 @@ public sealed class PetMapController : IDisposable
         var chosen = settings.PetMapPets.Where(id => !maxPets.Contains(id)).ToHashSet();
         // only what the player's own faction can use (an earlier pick of the other side's plants no longer counts)
         var gatherKinds = Aion2Gather.Items().Where(i => settings.PetMapGatherItems.Contains(i.Key) && i.IsFor(_faction)).Select(i => i.Key).ToHashSet();
+        var shopRows = ShopRows(directory, states);
         if (chosen.Count == 0 && gatherKinds.Count == 0)
         {
-            ShowEmpty(locked);
+            if (shopRows.Count == 0)
+            {
+                ShowEmpty(locked);
+                return;
+            }
+
+            // only the pets of the open shop to show: the list without a map
+            _list.Render(shopRows.Take(_list.RowCapacity).ToList());
+            _list.ShowOverlay(true);
+            _map.ShowOverlay(!locked);
             return;
         }
 
@@ -177,10 +187,52 @@ public sealed class PetMapController : IDisposable
         {
             _lastTarget = (tx, ty);
             _lastKnownFlag = known;
-            _list.Render(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds).Take(_list.RowCapacity).ToList()); // only what fits in the frame (plus a reserve)
+            _list.Render(shopRows.Concat(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds)).Take(_list.RowCapacity).ToList()); // only what fits in the frame (plus a reserve)
         }
 
         _list.ShowOverlay(true);
+    }
+
+    /// <summary>
+    /// The pets the Black Cloud shop offers on the tabs the player has opened, with what he has of them: the ones he lacks first, then by level.
+    /// The right column names the tab and the price. Without the game's pet list (the meter started after the login) the pets saved at the last login stand in.
+    /// </summary>
+    private static IReadOnlyList<(Color, string, string, string, bool)> ShopRows(Aion2EntityDirectory? directory, IReadOnlyList<Aion2PetState> states) =>
+        directory?.ShopPets is { Count: > 0 } offers ? ShopRowsOf(offers, states) : Array.Empty<(Color, string, string, string, bool)>();
+
+    public static IReadOnlyList<(Color, string, string, string, bool)> ShopRowsOf(IReadOnlyList<Aion2ShopPet> offers, IReadOnlyList<Aion2PetState> states)
+    {
+        var loc = LocalizationManager.Instance;
+        var owned = states.Count > 0
+            ? states.ToDictionary(p => p.PetId)
+            : (Aion2CharacterStore.Load(Aion2CharacterStore.DefaultPath)?.Pets ?? new()).ToDictionary(p => p.Id, p => new Aion2PetState(p.Id, p.Level, p.Progress));
+        var rows = new List<(int Rank, int Level, (Color, string, string, string, bool) Row)>();
+        foreach (var offer in offers)
+        {
+            owned.TryGetValue(offer.PetId, out var state);
+            string status;
+            Color color;
+            if (state is null)
+            {
+                status = loc["PetShop.Missing"];
+                color = Color.FromRgb(0xFF, 0x5A, 0x4F);
+            }
+            else if (state.Level >= Aion2Pets.TopLevel)
+            {
+                status = loc["PetFarm.Max"];
+                color = Color.FromRgb(0x4C, 0xC8, 0x78);
+            }
+            else
+            {
+                status = string.Format(loc["PetFarm.Level"], state.Level) + $" · {state.Progress}/{Aion2Pets.ProgressNeeded(state.Level)}";
+                color = Color.FromRgb(0x9D, 0xB3, 0xC2);
+            }
+
+            string tab = loc[offer.Tab == 0 ? "PetShop.TabSpecial" : "PetShop.TabPet"];
+            rows.Add((state is null ? 0 : 1, state?.Level ?? 0, (color, Aion2Pets.PetName(offer.PetId, loc.Language) ?? $"#{offer.PetId}", status, $"{tab} · {offer.Price:N0}", true)));
+        }
+
+        return rows.OrderBy(r => r.Rank).ThenBy(r => r.Level).Select(r => r.Row).ToList();
     }
 
     private static HashSet<int> SavedMaxPets() =>

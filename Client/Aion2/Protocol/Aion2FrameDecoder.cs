@@ -43,6 +43,7 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>The opcode of the field boss list of a map (the in-game map, Exploration, Field monsters).</summary>
     private const int FieldBossListOpcode = 0x0191;
+    private const int ShopOpcode = 0x9156;
 
     public string CurrentZone { get; private set; } = "";
 
@@ -119,6 +120,12 @@ public sealed class Aion2FrameDecoder
                 Aion2FieldBosses.Update(bossMap, bossSlots);
             }
 
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == ShopOpcode)
+        {
+            DecodeShop(frame);
             return Array.Empty<DamageEvent>();
         }
 
@@ -854,6 +861,43 @@ public sealed class Aion2FrameDecoder
         }
 
         _entities.SetLocalPetStates(levels.Select(l => new Aion2PetState(l.Id, l.Level, progress.GetValueOrDefault(l.Id))).ToList());
+    }
+
+    /// <summary>
+    /// A tab of the Black Cloud shop (sent when the player opens the shop or switches the tab): <c>opcode | tab u8 | ... | offers</c>, an offer is
+    /// <c>offer id u32, item id u32, quantity u64 (1), discount class u8, 0x5d, price before u64, price after u64</c>. Tab 0x65 = special, 0x68 = pets,
+    /// 0x67 = skins (the tab bytes seen in one recording; the contents of each tab agree). The offers are found by their shape; only pet items count.
+    /// </summary>
+    private void DecodeShop(ReadOnlySpan<byte> frame)
+    {
+        if (frame.Length < 40)
+        {
+            return;
+        }
+
+        int tab = frame[2] switch { 0x65 => 0, 0x68 => 1, 0x67 => 2, _ => -1 };
+        var pets = new List<Aion2ShopPet>();
+        int offers = 0;
+        for (int i = 3; i + 31 <= frame.Length; i++)
+        {
+            if (BinaryPrimitives.ReadUInt64LittleEndian(frame[(i + 4)..]) != 1 || frame[i + 13] != 0x5D)
+            {
+                continue;
+            }
+
+            offers++;
+            if (Aion2Pets.PetOfShopItem(unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[i..]))) is int pet && pets.All(p => p.PetId != pet))
+            {
+                pets.Add(new Aion2ShopPet(pet, tab, unchecked((long)BinaryPrimitives.ReadUInt64LittleEndian(frame[(i + 22)..]))));
+            }
+
+            i += 30;
+        }
+
+        if (offers >= 1 && tab >= 0)
+        {
+            _entities.NoteShopTab(tab, pets);
+        }
     }
 
     /// <summary>The position of the local player (see <see cref="OpcodeFamily.LocalPosition"/>): the pet map follows it.</summary>

@@ -395,6 +395,31 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         NotifyCharacterChanged();
     }
 
+    private readonly Dictionary<int, (DateTime At, IReadOnlyList<Aion2ShopPet> Pets)> _shopPets = new();
+
+    /// <summary>The pets the Black Cloud shop offers, from the tabs the player opened (the shop sends a tab when it is opened), newest tab first by
+    /// tab; each tab is dropped ten minutes after its frame (the shop renews its offers every hour, a closed shop sends nothing).</summary>
+    public IReadOnlyList<Aion2ShopPet> ShopPets
+    {
+        get
+        {
+            lock (_gate)
+            {
+                var cutoff = DateTime.UtcNow - TimeSpan.FromMinutes(10);
+                return _shopPets.Where(kv => kv.Value.At >= cutoff).OrderBy(kv => kv.Key).SelectMany(kv => kv.Value.Pets).ToList();
+            }
+        }
+    }
+
+    /// <summary>A shop tab arrived: replaces what the same tab offered before (an empty list, e.g. the skin tab, clears it).</summary>
+    public void NoteShopTab(int tab, IReadOnlyList<Aion2ShopPet> pets)
+    {
+        lock (_gate)
+        {
+            _shopPets[tab] = (DateTime.UtcNow, pets);
+        }
+    }
+
     public void SetLocalPetStates(IReadOnlyList<Aion2PetState> pets)
     {
         lock (_gate)
