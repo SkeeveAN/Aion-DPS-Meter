@@ -43,6 +43,10 @@ public sealed class MeterSettings
     /// the "New" badge shows while the server knows a newer one. 0 = never, which the first check fills in silently.</summary>
     public long AnnouncementsSeen { get; set; }
 
+    /// <summary>Start time (epoch seconds) of the newest Twitch Drops campaign seen when the Twitch icon was last clicked;
+    /// the "New" badge shows while a newer campaign is running. 0 = never, which counts as new (campaigns are time limited).</summary>
+    public long TwitchDropsSeen { get; set; }
+
     /// <summary>The meter mode last used (Damage, Heal, Taken, All, AllCompact), restored on the next
     /// launch. Saved on every change, like the always-on-top toggle.</summary>
     public string LastMode { get; set; } = "Damage";

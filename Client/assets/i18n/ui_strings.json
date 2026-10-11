@@ -4982,5 +4982,29 @@
     "pt": "Novo",
     "ja": "新着",
     "ko": "새 글"
+  },
+  "Main.TwitchDrops.Tooltip": {
+    "en": "Twitch Drops are running (opens aiondps.com)",
+    "de": "Twitch Drops laufen gerade (öffnet aiondps.com)",
+    "fr": "Twitch Drops en cours (ouvre aiondps.com)",
+    "es": "Twitch Drops en curso (abre aiondps.com)",
+    "ru": "Идут Twitch Drops (откроет aiondps.com)",
+    "zh": "Twitch 掉落进行中（打开 aiondps.com）",
+    "zh-TW": "Twitch 掉落進行中（開啟 aiondps.com）",
+    "pt": "Twitch Drops em andamento (abre aiondps.com)",
+    "ja": "Twitchドロップ開催中（aiondps.com を開きます）",
+    "ko": "트위치 드롭 진행 중 (aiondps.com 열기)"
+  },
+  "Main.TwitchDrops.New": {
+    "en": "New",
+    "de": "Neu",
+    "fr": "Nouveau",
+    "es": "Nuevo",
+    "ru": "Новое",
+    "zh": "新",
+    "zh-TW": "新",
+    "pt": "Novo",
+    "ja": "新着",
+    "ko": "신규"
   }
 }

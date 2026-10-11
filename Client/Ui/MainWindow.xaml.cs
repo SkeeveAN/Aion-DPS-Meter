@@ -271,9 +271,10 @@ public partial class MainWindow : Window
         {
             _updateTimer.Tick += (_, _) => _ = RunUpdateCheck(announceResult: false);
             _updateTimer.Start();
-            _announcementsTimer.Tick += (_, _) => _ = RefreshAnnouncementsBadge();
+            _announcementsTimer.Tick += (_, _) => { _ = RefreshAnnouncementsBadge(); _ = RefreshTwitchDropsBadge(); };
             _announcementsTimer.Start();
             _ = RefreshAnnouncementsBadge();
+            _ = RefreshTwitchDropsBadge();
             // The meter talks to GitHub only while "check for updates" is on in the settings.
             var startupSettings = MeterSettings.Load();
             if (startupSettings.CheckForUpdates)
@@ -3153,6 +3154,43 @@ public partial class MainWindow : Window
         }
 
         AnnouncementsNewBadge.Visibility = Announcements.AnnouncementsClient.IsNew(latest, settings.AnnouncementsSeen) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>The newest campaign start the server named last; the click on the Twitch icon stores it as "seen".</summary>
+    private long _latestTwitchDrops;
+
+    /// <summary>Shows the Twitch icon while a Twitch Drops campaign runs, with "New" while its start is newer than the one seen at the last click.</summary>
+    private async Task RefreshTwitchDropsBadge()
+    {
+        var status = await Announcements.TwitchDropsClient.GetStatusAsync();
+        if (status is null)
+        {
+            return;
+        }
+
+        _latestTwitchDrops = status.Value.Latest;
+        TwitchDropsButton.Visibility = status.Value.Running ? Visibility.Visible : Visibility.Collapsed;
+        TwitchDropsNewBadge.Visibility = Announcements.TwitchDropsClient.IsNew(status.Value.Running, status.Value.Latest, MeterSettings.Load().TwitchDropsSeen) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnTwitchDropsClicked(object sender, RoutedEventArgs e)
+    {
+        if (_latestTwitchDrops > 0)
+        {
+            var settings = MeterSettings.Load();
+            settings.TwitchDropsSeen = _latestTwitchDrops;
+            settings.Save();
+        }
+
+        TwitchDropsNewBadge.Visibility = Visibility.Collapsed;
+        try
+        {
+            Process.Start(new ProcessStartInfo(Announcements.TwitchDropsClient.PageUrl) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            // no browser to open: nothing else to do
+        }
     }
 
     private void OnAnnouncementsClicked(object sender, RoutedEventArgs e)

@@ -849,6 +849,19 @@
                              click-through overlay sitting behind the game or cluttering the taskbar
                              would defeat the point); the button itself becomes unreachable once the
                              window is click-through, which is why Ctrl+Alt+H exists to bring it back. -->
+                        <!-- Twitch Drops: shown only while a campaign runs (RefreshTwitchDropsBadge), left of the announcements icon; "New" while the newest
+                             campaign is one not seen at the last click. Opens the page on aiondps.com. -->
+                        <Button x:Name="TwitchDropsButton" Style="{StaticResource ToolbarIconButton}" Click="OnTwitchDropsClicked" Padding="6,4" Margin="4"
+                                Visibility="Collapsed" ToolTip="{local:Loc Main.TwitchDrops.Tooltip}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="F1 M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"
+                                      Fill="#A970FF" Width="15" Height="15" Stretch="Uniform"/>
+                                <Border x:Name="TwitchDropsNewBadge" Visibility="Collapsed" Margin="5,0,0,0" Padding="6,1" CornerRadius="8"
+                                        Background="#FFD24A" VerticalAlignment="Center">
+                                    <TextBlock Text="{local:Loc Main.TwitchDrops.New}" FontSize="11" FontWeight="ExtraBold" Foreground="#1A1200"/>
+                                </Border>
+                            </StackPanel>
+                        </Button>
                         <!-- AION 2 announcements: only a link to the page on aiondps.com; "New" shows beside the icon while there is
                              an announcement newer than the one seen at the last click (OnAnnouncementsClicked / RefreshAnnouncementsBadge). -->
                         <Button x:Name="AnnouncementsButton" Style="{StaticResource ToolbarIconButton}" Click="OnAnnouncementsClicked" Padding="6,4" Margin="4"
@@ -857,9 +870,9 @@
                                 <Path Data="M3,9 L3,15 L7,15 L14,20 L14,4 L7,9 Z M17,8 C18.5,9.5 18.5,14.5 17,16 M19.5,5.5 C22.5,8.5 22.5,15.5 19.5,18.5"
                                       Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                                       Width="18" Height="15" Stretch="Uniform"/>
-                                <Border x:Name="AnnouncementsNewBadge" Visibility="Collapsed" Margin="5,0,0,0" Padding="5,0" CornerRadius="7"
-                                        Background="{DynamicResource Brush.Danger}" VerticalAlignment="Center">
-                                    <TextBlock Text="{local:Loc Main.Announcements.New}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                <Border x:Name="AnnouncementsNewBadge" Visibility="Collapsed" Margin="5,0,0,0" Padding="6,1" CornerRadius="8"
+                                        Background="#FFD24A" VerticalAlignment="Center">
+                                    <TextBlock Text="{local:Loc Main.Announcements.New}" FontSize="11" FontWeight="ExtraBold" Foreground="#1A1200"/>
                                 </Border>
                             </StackPanel>
                         </Button>
