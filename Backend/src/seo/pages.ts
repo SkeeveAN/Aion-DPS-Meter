@@ -129,7 +129,7 @@ export function featuresPage(): Page {
     meta: {
       title: "Features – Aion DPS Meter",
       description:
-        "What the Aion 2 damage meter offers: live DPS/HPS per player, a click-through overlay, skill breakdowns, character and Daevanion view, interactive map, event timetable and hotkeys.",
+        "What the Aion 2 damage meter offers: live DPS/HPS per player, a click-through overlay, skill breakdowns, character and Daevanion view, interactive map, event timetable, hotkeys, the official announcements and Twitch Drops campaigns.",
       canonicalPath: "/features",
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Features", path: "/features" }])],
     },
@@ -143,6 +143,8 @@ export function featuresPage(): Page {
         <li>Your character: gear, arcana, skills and the Daevanion boards</li>
         <li>Interactive map with pet spawns and gathering spots</li>
         <li>Event timetable with sound reminders, system-wide hotkeys and chat-ready copy</li>
+        <li>A button in the main window for the official AION 2 announcements, with kinds and filters, one click from the meter</li>
+        <li>A Twitch button while a Drops campaign is running: rewards, watch times and the streams with Drops enabled right now</li>
       </ul>
       <p><a class="download-cta" href="/download">Download the Windows client</a></p>`,
   };

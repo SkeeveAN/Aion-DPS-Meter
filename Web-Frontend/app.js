@@ -631,8 +631,11 @@ const FEATURE_BLOCKS = [
   { id: "timetable", images: [["timetable", 1240, 1480]] },
   { id: "worldboss", images: [["worldboss", 1240, 1480]] },
   { id: "hotkeys", images: [["hotkeys", 1240, 1480], ["settings", 1240, 1480]] },
+  // the second picture of these two is the head of the client window with the two buttons that lead here (no frame, fading out at the bottom)
+  { id: "announcements", images: [["announcements", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
+  { id: "twitchdrops", images: [["twitchdrops", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
 ];
-const FEATURE_VERSION = "20261009h";
+const FEATURE_VERSION = "20261011c";
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
@@ -645,8 +648,10 @@ const FEATURE_CARDS = [
   ["timetable", '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>'],
   ["worldboss", '<path d="M12 3c-3 0-6 2.5-6 6v4l-2 4h5a3 3 0 0 0 6 0h5l-2-4V9c0-3.500-3-6-6-6z"/>'],
   ["hotkeys", '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'],
+  ["announcements", '<path d="M3 11v3a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/>'],
+  ["twitchdrops", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'],
 ];
-const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff" };
+const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff" };
 // Icons of the six "And more" cards (shield, upload, clock, refresh, globe, code).
 const FEATURE_MORE_ICONS = [
   '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
@@ -679,15 +684,15 @@ function renderFeatures() {
       el("div", { className: "fx-bg" }),
       el("div", { className: "fx-inner" }, [
         featureText(block),
-        el("div", { className: "fx-stage" }, block.images.map(([name, width, height], n) =>
+        el("div", { className: "fx-stage" }, block.images.map(([name, width, height, opt], n) =>
           el("img", {
-            className: "fx-win",
+            className: `fx-win${opt?.head ? " fx-head" : ""}`,
             src: `/images/features/${name}@2x.webp?v=${FEATURE_VERSION}`,
             width, height,
             loading: index === 0 ? "eager" : "lazy",
             alt: n === 0 ? t(`features.${block.id}.title`) : "",
             // Shown height per role: the main window and the second one next to it (flat overlay pictures are smaller); style.css fine-tunes each scene.
-            style: `--h:${block.images.length === 1 ? 440 : n === 0 ? 400 : 300}px;--r:${(width / height).toFixed(4)};--w:${Math.round(((block.images.length === 1 ? 440 : n === 0 ? 400 : 300) * width) / height * 1.5)}px`,
+            style: `--h:${opt?.h ?? (block.images.length === 1 ? 440 : n === 0 ? 400 : 300)}px;--r:${(width / height).toFixed(4)};--w:${Math.round(((opt?.h ?? (block.images.length === 1 ? 440 : n === 0 ? 400 : 300)) * width) / height * 1.5)}px`,
           }),
         )),
       ]),

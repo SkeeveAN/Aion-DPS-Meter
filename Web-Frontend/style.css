@@ -2976,6 +2976,16 @@ body:has(.download-hero) .nav-download-link:hover,
 
 @media(min-width:1700px){#feature-hotkeys .fx-stage{translate:0 0}#feature-timetable .fx-win{translate:50px 0}#feature-worldboss .fx-stage{margin-left:0}#feature-modes .fx-stage{margin-left:24px}#feature-details .fx-stage{margin-left:24px}}
 @media(min-width:1101px) and (max-width:1699px){.fx-stage{zoom:.78}.fx-scene .fx-inner{gap:24px}#feature-map .fx-stage{margin-right:0}}
+/* Ankündigungen: das Fenster sitzt links mit etwas Rand statt am Szenenrand */
+@media(min-width:1101px){#feature-announcements .fx-stage{margin-left:56px}#feature-twitchdrops .fx-stage{justify-content:flex-end;margin-right:48px}}
+/* Fensterkopf des Clients: ohne Rahmen, vor dem Webseiten-Fenster an dessen oberer Ecke, nach unten ausgeblendet */
+.fx-head{border:0;border-radius:0;background:none;box-shadow:none;filter:drop-shadow(0 12px 16px rgba(0,0,0,.55)) drop-shadow(0 0 24px color-mix(in srgb,var(--tint) 35%,transparent));position:relative;z-index:2}
+@media(max-width:1100px){.fx-head{display:none}}
+@media(min-width:1101px){
+ #feature-announcements .fx-head,#feature-twitchdrops .fx-head{align-self:flex-start;margin-top:0;top:353px}
+ #feature-announcements .fx-head{margin-left:-250px}
+ #feature-twitchdrops .fx-head{order:-1;margin-left:0;margin-right:-250px}
+}
 @media(min-width:1101px) and (max-width:1399px){.fx-stage{zoom:.62}}
 @media(min-width:1101px){#feature-details .fx-stage,#feature-modes .fx-stage{margin-left:44px}}
 @media(min-width:1101px){#feature-character .fx-win:first-child{translate:100px 0}}
