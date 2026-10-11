@@ -5142,5 +5142,9 @@
   "Network.Load.Value": {
     "en": "queue {0} · dropped {1}",
     "de": "Warteschlange {0} · verworfen {1}"
+  },
+  "Network.Connection.Switches": {
+    "en": "{0} server change(s)",
+    "de": "{0} Serverwechsel"
   }
 }

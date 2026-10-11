@@ -5,7 +5,8 @@ public sealed record NetworkSnapshot(
     bool Connected,
     string? Server,
     TimeSpan? Uptime,
-    int Connections,
+    int Switches,
+    int Reconnects,
     double? PingMs,
     double? PingAverageMs,
     double? PingMinMs,
@@ -40,7 +41,9 @@ public static class NetworkStats
     private static readonly List<(DateTime At, double Ms)> Pings = new();
 
     private static Connection? _connection;
-    private static int _connections;
+    private static int _switches;
+    private static int _reconnects;
+    private static DateTime _sessionSince;
     private static DateTime _lastData = DateTime.MinValue;
 
     /// <summary>Where the capture reports how far behind its worker is and what it had to throw away.</summary>
@@ -75,7 +78,9 @@ public static class NetworkStats
             Array.Clear(Buckets);
             Pings.Clear();
             _connection = null;
-            _connections = 0;
+            _switches = 0;
+            _reconnects = 0;
+            _sessionSince = DateTime.MinValue;
             _lastData = DateTime.MinValue;
         }
     }
@@ -97,13 +102,26 @@ public static class NetworkStats
                     return; // an acknowledgement of a connection that is not the game's
                 }
 
+                string server = segment.FromServer ? segment.Source : segment.Destination;
+                if (_connection is null || segment.Timestamp - _lastData > TimeSpan.FromSeconds(30))
+                {
+                    _sessionSince = segment.Timestamp; // the first connection, or one after a long silence: a new session
+                }
+                else if (_connection.Server == server)
+                {
+                    _reconnects++; // the same server again: the connection was lost and made anew
+                }
+                else
+                {
+                    _switches++; // another server (a zone, an instance): normal
+                }
+
                 c = _connection = new Connection
                 {
-                    Server = segment.FromServer ? segment.Source : segment.Destination,
+                    Server = server,
                     Client = segment.FromServer ? segment.Destination : segment.Source,
                     Since = segment.Timestamp,
                 };
-                _connections++;
                 Pings.Clear();
             }
 
@@ -262,7 +280,7 @@ public static class NetworkStats
 
             Connection? c = _connection;
             TimeSpan? since = _lastData == DateTime.MinValue ? null : now - _lastData;
-            return new NetworkSnapshot(c is not null, c?.Server, c is null ? null : now - c.Since, _connections,
+            return new NetworkSnapshot(c is not null, c?.Server, c is null ? null : now - _sessionSince, _switches, _reconnects,
                 current, average, min, max, jitter, down, up, peak, segments, retrans, gaps, since, queued, dropped);
         }
     }

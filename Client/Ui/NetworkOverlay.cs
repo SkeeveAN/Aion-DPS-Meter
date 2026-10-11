@@ -74,12 +74,17 @@ public static class NetworkOverlayRows
             string text = stalled
                 ? string.Format(loc["Network.Connection.Stalled"], (int)s.SinceLastData!.Value.TotalSeconds)
                 : string.Format(loc["Network.Connection.Online"], WorldBossText.Duration(s.Uptime ?? TimeSpan.Zero));
-            if (s.Connections > 1)
+            if (s.Switches > 0)
             {
-                text += " · " + string.Format(loc["Network.Connection.Reconnects"], s.Connections - 1);
+                text += " · " + string.Format(loc["Network.Connection.Switches"], s.Switches);
             }
 
-            rows.Add((Label("connection"), text, stalled ? Bad : s.Connections > 1 ? Warn : Good));
+            if (s.Reconnects > 0)
+            {
+                text += " · " + string.Format(loc["Network.Connection.Reconnects"], s.Reconnects);
+            }
+
+            rows.Add((Label("connection"), text, stalled ? Bad : s.Reconnects > 0 ? Warn : Good));
         }
 
         if (Shown("load"))

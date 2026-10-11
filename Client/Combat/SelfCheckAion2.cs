@@ -1570,12 +1570,19 @@ public static class SelfCheckAion2
         NetworkSnapshot snap = NetworkStats.Snapshot();
         bool ping = snap.PingMinMs is { } min && Math.Abs(min - 40) < 0.5 && snap.PingMaxMs is { } max && Math.Abs(max - 60) < 0.5 && snap.PingAverageMs is { } avg && Math.Abs(avg - 50) < 0.5;
         bool loss = snap.Retransmissions == 2 && snap.Gaps == 1;
-        bool connection = snap.Connected && snap.Server == server && snap.Connections == 1;
+        bool connection = snap.Connected && snap.Server == server && snap.Switches == 0 && snap.Reconnects == 0;
         Console.WriteLine($"  -> ping min/avg/max 40/50/60 ms from the acknowledgements: {ping}");
         Console.WriteLine($"  -> retransmissions (client and server) and gap counted: {loss}");
         Console.WriteLine($"  -> game connection recognised: {connection}");
+
+        // another server a moment later is a switch (an instance), the same server again a reconnect
+        NetworkStats.Note(new TcpSegment(t0.AddSeconds(2.5), "10.0.0.9:13328", "192.168.0.2:50001", 1, new byte[10], true, 0));
+        NetworkStats.Note(new TcpSegment(t0.AddSeconds(2.6), "10.0.0.9:13328", "192.168.0.2:50002", 1, new byte[10], true, 0));
+        NetworkSnapshot after = NetworkStats.Snapshot();
+        bool switches = after.Switches == 1 && after.Reconnects == 1;
+        Console.WriteLine($"  -> another server counts as a switch, the same server again as a reconnect: {switches}");
         NetworkStats.Reset();
-        return ping && loss && connection;
+        return ping && loss && connection && switches;
     }
 
     private static bool RunTcpReassemblerScenario()
