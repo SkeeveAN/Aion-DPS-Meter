@@ -52,6 +52,14 @@
      "Database"
     ],
     "date": "2026-10-11"
+   },
+   {
+    "text": "Renamed characters are found again: a player NC confirmed is re-checked by his character id, and when NC names him differently he is renamed in place (slug and history kept, the old name becomes an alias); a new name already used by another row of the server is flagged and left alone",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-11"
    }
   ]
  },
