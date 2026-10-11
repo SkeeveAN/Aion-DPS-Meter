@@ -114,6 +114,10 @@ public sealed class MeterSettings
     /// without a click, so the player opts in.</summary>
     public bool AutoUploadBoss { get; set; }
 
+    /// <summary>Whether the game-server traffic is also written to a file on this PC (see DebugRecording), so it can be sent
+    /// to the developer by hand. Off by default; nothing is sent by the program.</summary>
+    public bool DebugRecording { get; set; }
+
     /// <summary>Whether the profiles of OTHER players the meter has seen (name, class, level, gear, legion)
     /// go online with the own profile upload, the Upload button and a boss upload. Off by default: it is
     /// data about people who did not agree to anything. With it off only the own character is sent.</summary>

@@ -52,6 +52,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
                 }
             };
         }
+        _entities.CharacterChanged += info => Capture.DebugRecording.NoteCharacter(info.Name);
         _protocol = protocol;
         _decoder = new Protocol.Aion2FrameDecoder(protocol, _entities);
     }
@@ -186,6 +187,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     private void OnPayload(Capture.TcpSegment segment)
     {
         Feedback.CaptureRingBuffer.Add(segment); // for "attach recording" in the feedback window
+        Capture.DebugRecording.Add(segment); // only while Settings > Debug recording is on
         Ingest(segment);
     }
 

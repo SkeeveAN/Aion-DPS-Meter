@@ -407,6 +407,7 @@ public partial class MainWindow : Window
     private void StartCapture(MeterSettings settings)
     {
         _captureAdapterInUse = settings.CaptureAdapterId;
+        Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
         _pollTimer.Stop();
         ReplaceSource(null);
 
@@ -3782,6 +3783,7 @@ public partial class MainWindow : Window
         _settingsWindow.Saved += () =>
         {
             settings.Save();
+            Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
             ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
             ApplyHotkeys(settings); // possibly changed keys
             ApplyTimetable(settings);
@@ -3875,8 +3877,17 @@ public partial class MainWindow : Window
             return null;
         }
 
-        if (directory.IsLocalPlayer(objectId) && directory.LocalCharacter is { } character)
+        if (directory.IsLocalPlayer(objectId))
         {
+            // Only a record the game sent in this session, for this very name. What was read back from the file of an
+            // earlier session (maybe another character's) goes nowhere until the game sends the real one.
+            if (directory.LocalCharacter is not { Restored: false } live
+                || !string.Equals(live.Name, directory.NameFor(objectId), StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            Aion2CharacterInfo character = live;
             int code = character.ClassCode;
             bool known = code % 4 is 1 or 2 && code / 4 is >= 1 and <= 8;
             return new ProfileUpload(

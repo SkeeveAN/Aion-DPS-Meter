@@ -383,6 +383,15 @@
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
+                    <RadioButton x:Name="NavBoss" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Width="14" Height="14" Margin="0,0,7,0">
+                                <Path Data="M2,6 Q2,1 7,1 Q12,1 12,6 L12,9 L9.5,9 L9.5,11 L8,11 L8,9 L6,9 L6,11 L4.5,11 L4.5,9 L2,9 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.2"/>
+                            </Grid>
+                            <TextBlock Text="{local:Loc Settings.Nav.Boss}" TextWrapping="Wrap" Width="98" FontSize="12"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                        </StackPanel>
+                    </RadioButton>
                     <RadioButton x:Name="NavPetMap" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
                         <StackPanel Orientation="Horizontal">
                             <Grid Width="14" Height="14" Margin="0,0,7,0">
@@ -402,15 +411,6 @@
                     <RadioButton x:Name="NavGather" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}" Margin="22,0,0,2">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{local:Loc Settings.Nav.Gather}" TextWrapping="Wrap" Width="82" FontSize="12"
-                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
-                        </StackPanel>
-                    </RadioButton>
-                    <RadioButton x:Name="NavBoss" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
-                        <StackPanel Orientation="Horizontal">
-                            <Grid Width="14" Height="14" Margin="0,0,7,0">
-                                <Path Data="M2,6 Q2,1 7,1 Q12,1 12,6 L12,9 L9.5,9 L9.5,11 L8,11 L8,9 L6,9 L6,11 L4.5,11 L4.5,9 L2,9 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.2"/>
-                            </Grid>
-                            <TextBlock Text="{local:Loc Settings.Nav.Boss}" TextWrapping="Wrap" Width="98" FontSize="12"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
@@ -447,6 +447,14 @@
                                           ToolTip="Also sends the profiles of other players the meter has seen (name, class, level, gear, legion) with your own profile, the Upload button and boss uploads. Off by default: with it off only your own character is sent."/>
                                 <CheckBox x:Name="AutoUploadBossBox" Content="{local:Loc Settings.AutoUploadBoss}"
                                           ToolTip="Uploads the fight to aiondps.com a few seconds after a boss died, the same as the Upload button. Off by default."/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.Debug}"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.DebugHint}"/>
+                                <CheckBox x:Name="DebugRecordingBox" Content="{local:Loc Settings.DebugRecording}"/>
+                                <Button Content="{local:Loc Settings.DebugOpenFolder}" Click="OnOpenDebugFolderClicked" HorizontalAlignment="Left" Margin="0,6,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -617,6 +625,16 @@
                                     <Button Grid.Column="3" Tag="HotkeyTimetableBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvWorldBossBox" Tag="WorldBoss" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.WorldBoss}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyWorldBossBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                             VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
+                                             Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
+                                    <Button Grid.Column="3" Tag="HotkeyWorldBossBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                            Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
+                                </Grid>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">
@@ -630,6 +648,26 @@
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
                                     <Button Grid.Column="3" Tag="HotkeyPetMapBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                            Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
+                                </Grid>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvPetArrowsBox" Tag="PetArrows" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.PetArrows}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyPetArrowsBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                             VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
+                                             Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
+                                    <Button Grid.Column="3" Tag="HotkeyPetArrowsBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                            Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
+                                </Grid>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvGatherArrowsBox" Tag="GatherArrows" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.GatherArrows}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyGatherArrowsBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                             VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
+                                             Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
+                                    <Button Grid.Column="3" Tag="HotkeyGatherArrowsBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                             </StackPanel>
@@ -655,36 +693,6 @@
                                              VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
                                              Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
                                     <Button Grid.Column="3" Tag="HotkeyAllOverlaysBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
-                                            Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
-                                </Grid>
-                                <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <CheckBox x:Name="OvWorldBossBox" Tag="WorldBoss" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
-                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.WorldBoss}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyWorldBossBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
-                                             VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
-                                             Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="3" Tag="HotkeyWorldBossBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
-                                            Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
-                                </Grid>
-                                <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <CheckBox x:Name="OvPetArrowsBox" Tag="PetArrows" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
-                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.PetArrows}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyPetArrowsBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
-                                             VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
-                                             Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="3" Tag="HotkeyPetArrowsBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
-                                            Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
-                                </Grid>
-                                <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <CheckBox x:Name="OvGatherArrowsBox" Tag="GatherArrows" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
-                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.GatherArrows}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                    <TextBox x:Name="HotkeyGatherArrowsBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
-                                             VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
-                                             Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
-                                    <Button Grid.Column="3" Tag="HotkeyGatherArrowsBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
                             </StackPanel>

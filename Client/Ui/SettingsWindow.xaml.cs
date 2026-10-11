@@ -43,6 +43,7 @@ public partial class SettingsWindow : Window
         CheckForUpdatesBox.IsChecked = settings.CheckForUpdates;
         AutoUploadProfileBox.IsChecked = settings.AutoUploadProfile;
         AutoUploadBossBox.IsChecked = settings.AutoUploadBoss;
+        DebugRecordingBox.IsChecked = settings.DebugRecording;
         UploadOtherProfilesBox.IsChecked = settings.UploadOtherPlayersProfiles;
         SetHotkeyBox(HotkeyHideUiBox, HotkeyBinding.Parse(settings.HotkeyHideUi).ToString());
         SetHotkeyBox(HotkeyPauseBox, HotkeyBinding.Parse(settings.HotkeyPause).ToString());
@@ -404,6 +405,13 @@ public partial class SettingsWindow : Window
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
         new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvPetArrowsBox, OvGatherArrowsBox };
 
+    private void OnOpenDebugFolderClicked(object sender, RoutedEventArgs e)
+    {
+        string dir = Aion2.Capture.DebugRecording.FolderPath;
+        Directory.CreateDirectory(dir);
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(dir) { UseShellExecute = true });
+    }
+
     private void OnHotkeyClearClicked(object sender, RoutedEventArgs e)
     {
         StopCapture(restore: true);
@@ -512,6 +520,7 @@ public partial class SettingsWindow : Window
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
         _settings.AutoResetSeconds = int.TryParse(AutoResetSecondsBox.Text, out int seconds) ? Math.Clamp(seconds, 1, 600) : 10;
         _settings.AutoUploadBoss = AutoUploadBossBox.IsChecked ?? false;
+        _settings.DebugRecording = DebugRecordingBox.IsChecked ?? false;
         _settings.Theme = (ThemeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.Theme;
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
         _settings.OverlayStyle = (OverlayStyleBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.OverlayStyle;

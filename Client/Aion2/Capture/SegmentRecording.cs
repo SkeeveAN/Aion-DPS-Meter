@@ -22,9 +22,9 @@ public static class SegmentRecording
         private readonly StreamWriter _out;
         private readonly object _gate = new();
 
-        public Writer(string path)
+        public Writer(string path, bool append = false)
         {
-            _out = new StreamWriter(path, append: false) { AutoFlush = true };
+            _out = new StreamWriter(path, append) { AutoFlush = true };
         }
 
         public int Count { get; private set; }

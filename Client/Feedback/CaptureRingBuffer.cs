@@ -42,6 +42,15 @@ public static class CaptureRingBuffer
         get { lock (Gate) { return _bytes; } }
     }
 
+    /// <summary>The segments kept that were captured at or after <paramref name="from"/>, oldest first.</summary>
+    public static TcpSegment[] Since(DateTime from)
+    {
+        lock (Gate)
+        {
+            return Segments.Select(s => s.Segment).Where(s => s.Timestamp >= from).ToArray();
+        }
+    }
+
     /// <summary>The buffer as JSON lines, the same format as <c>aion2-record</c> writes.</summary>
     public static byte[] SnapshotJsonLines()
     {

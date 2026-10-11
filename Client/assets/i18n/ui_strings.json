@@ -5006,5 +5006,61 @@
     "pt": "Novo",
     "ja": "新着",
     "ko": "신규"
+  },
+  "Settings.Card.Debug": {
+    "en": "Debug",
+    "de": "Debug",
+    "fr": "Débogage",
+    "es": "Depuración",
+    "ru": "Отладка",
+    "pl": "Debugowanie",
+    "tr": "Hata ayıklama",
+    "zh": "调试",
+    "zh-TW": "除錯",
+    "pt": "Depuração",
+    "ja": "デバッグ",
+    "ko": "디버그"
+  },
+  "Settings.DebugHint": {
+    "en": "Writes everything the meter reads from the Aion 2 game connection to a file on this PC, so you can send it to the developer when something is wrong. The program never sends it by itself. The file can contain character names and game data; files are deleted after 2 days.",
+    "de": "Schreibt alles, was der Meter aus der Aion-2-Spielverbindung liest, in eine Datei auf diesem PC, damit du sie dem Entwickler schicken kannst, wenn etwas nicht stimmt. Das Programm sendet sie nie selbst. Die Datei kann Charakternamen und Spieldaten enthalten; Dateien werden nach 2 Tagen gelöscht.",
+    "fr": "Écrit tout ce que le compteur lit sur la connexion de jeu d'Aion 2 dans un fichier sur ce PC, pour que vous puissiez l'envoyer au développeur en cas de problème. Le programme ne l'envoie jamais de lui-même. Le fichier peut contenir des noms de personnages et des données de jeu ; les fichiers sont supprimés après 2 jours.",
+    "es": "Guarda todo lo que el medidor lee de la conexión del juego de Aion 2 en un archivo de este PC, para que puedas enviarlo al desarrollador si algo falla. El programa nunca lo envía por sí solo. El archivo puede contener nombres de personajes y datos del juego; los archivos se borran a los 2 días.",
+    "ru": "Записывает всё, что измеритель читает из игрового соединения Aion 2, в файл на этом компьютере, чтобы вы могли отправить его разработчику, если что-то не так. Программа никогда не отправляет его сама. В файле могут быть имена персонажей и игровые данные; файлы удаляются через 2 дня.",
+    "pl": "Zapisuje wszystko, co miernik odczytuje z połączenia gry Aion 2, do pliku na tym komputerze, abyś mógł wysłać go twórcy, gdy coś jest nie tak. Program nigdy nie wysyła go sam. Plik może zawierać nazwy postaci i dane gry; pliki są usuwane po 2 dniach.",
+    "tr": "Ölçerin Aion 2 oyun bağlantısından okuduğu her şeyi bu bilgisayardaki bir dosyaya yazar; bir sorun olduğunda geliştiriciye gönderebilirsin. Program dosyayı asla kendisi göndermez. Dosya karakter adları ve oyun verileri içerebilir; dosyalar 2 gün sonra silinir.",
+    "zh": "把计量器从 Aion 2 游戏连接中读取的全部内容写入本机上的文件，出现问题时可以发送给开发者。程序绝不会自行发送。文件可能包含角色名称和游戏数据；文件在 2 天后删除。",
+    "zh-TW": "把計量器從 Aion 2 遊戲連線讀取的全部內容寫入本機上的檔案，出現問題時可以傳送給開發者。程式絕不會自行傳送。檔案可能包含角色名稱和遊戲資料；檔案會在 2 天後刪除。",
+    "pt": "Grava tudo o que o medidor lê da conexão do jogo Aion 2 em um arquivo neste PC, para você poder enviá-lo ao desenvolvedor quando algo estiver errado. O programa nunca o envia sozinho. O arquivo pode conter nomes de personagens e dados do jogo; os arquivos são apagados após 2 dias.",
+    "ja": "メーターが Aion 2 のゲーム接続から読み取るすべての内容をこの PC 上のファイルに書き込みます。問題が起きたときに開発者へ送れます。プログラムが自動で送信することはありません。ファイルにはキャラクター名やゲームデータが含まれる場合があります。ファイルは 2 日後に削除されます。",
+    "ko": "미터가 Aion 2 게임 연결에서 읽는 모든 내용을 이 PC의 파일로 저장합니다. 문제가 생기면 개발자에게 보낼 수 있습니다. 프로그램이 스스로 전송하지는 않습니다. 파일에는 캐릭터 이름과 게임 데이터가 들어 있을 수 있으며, 파일은 2일 후 삭제됩니다."
+  },
+  "Settings.DebugRecording": {
+    "en": "Create debug data to send to the developer",
+    "de": "Debug-Daten erzeugen, um sie dem Entwickler zu schicken",
+    "fr": "Créer des données de débogage à envoyer au développeur",
+    "es": "Crear datos de depuración para enviar al desarrollador",
+    "ru": "Создавать отладочные данные для отправки разработчику",
+    "pl": "Twórz dane debugowania do wysłania twórcy",
+    "tr": "Geliştiriciye göndermek için hata ayıklama verisi oluştur",
+    "zh": "生成调试数据以发送给开发者",
+    "zh-TW": "產生除錯資料以傳送給開發者",
+    "pt": "Criar dados de depuração para enviar ao desenvolvedor",
+    "ja": "開発者に送るデバッグデータを作成する",
+    "ko": "개발자에게 보낼 디버그 데이터 생성"
+  },
+  "Settings.DebugOpenFolder": {
+    "en": "Open the folder",
+    "de": "Ordner öffnen",
+    "fr": "Ouvrir le dossier",
+    "es": "Abrir la carpeta",
+    "ru": "Открыть папку",
+    "pl": "Otwórz folder",
+    "tr": "Klasörü aç",
+    "zh": "打开文件夹",
+    "zh-TW": "開啟資料夾",
+    "pt": "Abrir a pasta",
+    "ja": "フォルダーを開く",
+    "ko": "폴더 열기"
   }
 }

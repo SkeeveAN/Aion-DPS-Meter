@@ -192,6 +192,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _bar.Clear();
             }
 
+            DropRestoredListsOfOthers(info.Name);
+
             int previousId = _explicitLocalId;
             string? previousName = _character?.Name;
             _character = info;
@@ -254,8 +256,40 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _wing = saved.WingId is int savedWing ? new Aion2Wing(savedWing, saved.WingSkinId ?? 0) : null;
             _activePet = saved.ActivePet;
             _petStates = saved.Pets.Select(p => new Aion2PetState(p.Id, p.Level, p.Progress)).ToList();
+            _restoredOwner = saved.Name;
+            _restoredLists = (_skills, _fullEquipment, _daevanion, _species, _titles, _petStates, _attributes, _wing, _activePet);
         }
     }
+
+    // The lists RestoreFrom took from the file belong to the character that was saved. A live list the game sends later is a new
+    // object; one still standing as restored when ANOTHER character logs in is that character's leftover and must go.
+    private string? _restoredOwner;
+
+    /// <summary>Called under _gate when the game names the character: lists that are still the restored ones and belong to
+    /// another character are dropped, whatever the timing of the live lists.</summary>
+    private void DropRestoredListsOfOthers(string liveName)
+    {
+        string? owner = _restoredOwner;
+        _restoredOwner = null;
+        if (owner is null || owner == liveName || _restoredLists is not { } was)
+        {
+            _restoredLists = null;
+            return;
+        }
+
+        _restoredLists = null;
+        if (ReferenceEquals(_skills, was.Skills)) { _skills = null; }
+        if (ReferenceEquals(_fullEquipment, was.Equipment)) { _fullEquipment = null; }
+        if (ReferenceEquals(_daevanion, was.Daevanion)) { _daevanion = null; }
+        if (ReferenceEquals(_species, was.Species)) { _species = null; }
+        if (ReferenceEquals(_titles, was.Titles)) { _titles = null; }
+        if (ReferenceEquals(_petStates, was.PetStates)) { _petStates = null; }
+        if (ReferenceEquals(_attributes, was.Attributes)) { _attributes = null; }
+        if (Equals(_wing, was.Wing)) { _wing = null; }
+        if (_activePet == was.ActivePet) { _activePet = null; }
+    }
+
+    private (object? Skills, object? Equipment, object? Daevanion, object? Species, object? Titles, object? PetStates, object? Attributes, Aion2Wing? Wing, int? ActivePet)? _restoredLists;
 
     /// <summary>The local player's data as it should be kept on disk, or null before any is known.</summary>
     public Aion2SavedCharacter? ToSaved()
