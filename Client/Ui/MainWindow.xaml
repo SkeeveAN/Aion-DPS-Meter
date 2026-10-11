@@ -277,7 +277,7 @@
                                           ClickMode="Press">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
-                                        <Border Background="{TemplateBinding Background}"
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="4"
                                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
                                             <Path Data="M0,0 L4,4 L8,0 Z" Fill="{DynamicResource Brush.TextSubtle}" Margin="0,0,8,0"
                                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
@@ -958,7 +958,7 @@
                          across every target (the ambiguous wall-clock view - see DpsCalculator
                          remarks); picking one target switches DPS to true per-target iDPS. -->
                     <ComboBox x:Name="MobBossFilter" Style="{StaticResource SearchableComboBox}"
-                              SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="0,4,0,0" MinWidth="0" HorizontalAlignment="Stretch"
+                              SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="0,4,0,2" MinWidth="0" Height="26" HorizontalAlignment="Stretch"
                               ToolTip="Filter by target. 'All' sums damage across every target seen. Type in the dropdown to search.">
                         <ComboBoxItem Content="{local:Loc Main.FilterAllTargets}"/>
                     </ComboBox>
