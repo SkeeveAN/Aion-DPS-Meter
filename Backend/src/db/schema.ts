@@ -582,6 +582,8 @@ export const playerNcCharacter = sqliteTable("player_nc_character", {
   itemLevel: integer("item_level"),
   ncGuild: text("nc_guild"),
   ncLevel: integer("nc_level"),
+  // Our class id of the character ((pcId - 1) / 4); a class that never changes, so another one in an upload means another character.
+  ncClassId: integer("nc_class_id"),
   // What the last look found, as a signature (see ncCharacter.signatureOf): when one look finds the same, nothing is fetched. How many looks in a row
   // found nothing new (the wait doubles), and when the last complete fetch (gear, skills, boards) was.
   probeJson: text("probe_json"),

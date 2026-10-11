@@ -298,6 +298,7 @@ test("an upload sends the confirmed players it names to the front of the queue w
   const { refreshAfterUpload, enrichKeyOf } = ncMatchModule;
   const queued: { id: number; priority: number; force: boolean }[] = [];
   const fakeQueue = { enqueue: (key: { playerId: number }, how: { priority: number; force: boolean }) => { queued.push({ id: key.playerId, ...how }); return true; } } as unknown as Parameters<typeof refreshAfterUpload>[1];
+  const noMatches = { enqueue: () => 0 } as unknown as Parameters<typeof refreshAfterUpload>[2];
   const fresh = confirmed("Frisch", "idUp1");
   const old = confirmed("Alt", "idUp2");
   const levelled = confirmed("Aufgestiegen", "idUp3");
@@ -308,7 +309,46 @@ test("an upload sends the confirmed players it names to the front of the queue w
   row(fresh, now - 3_600_000, 45);
   row(old, now - 13 * 3_600_000, 45);
   row(levelled, now - 3_600_000, 44);
-  assert.equal(refreshAfterUpload([{ id: fresh }, { id: old }, { id: levelled, level: 45 }, { id: unknown }], fakeQueue, now), 2);
+  assert.equal(refreshAfterUpload([{ id: fresh }, { id: old }, { id: levelled, level: 45 }, { id: unknown }], fakeQueue, noMatches, now), 2);
   assert.deepEqual(queued, [{ id: old, priority: 1, force: true }, { id: levelled, priority: 1, force: true }]);
-  assert.equal(refreshAfterUpload([{ id: fresh, level: 45 }], fakeQueue, now), 0, "a look an hour ago and the same level: nothing to do");
+  assert.equal(refreshAfterUpload([{ id: fresh, level: 45 }], fakeQueue, noMatches, now), 0, "a look an hour ago and the same level: nothing to do");
+});
+
+test("an upload that shows another class than NC's page sends the player to the match check, nothing else", () => {
+  const { refreshAfterUpload } = ncMatchModule;
+  const id = confirmed("Klassenwechsel", "idCls0");
+  sqlite.prepare("insert into player_nc_character (player_id, status, fetched_at, next_try_at, nc_class_id) values (?, 'ok', ?, ?, 1)").run(id, 1, 1e12);
+  const checked: number[][] = [];
+  const queued: number[] = [];
+  const matches = { enqueue: (ids: number[]) => { checked.push(ids); return ids.length; } } as unknown as Parameters<typeof refreshAfterUpload>[2];
+  const portraits = { enqueue: (k: { playerId: number }) => { queued.push(k.playerId); return true; } } as unknown as Parameters<typeof refreshAfterUpload>[1];
+  assert.equal(refreshAfterUpload([{ id, classId: 1 }], portraits, matches, 2e12), 1, "the same class: only the old look is refreshed");
+  assert.deepEqual(checked, []);
+  refreshAfterUpload([{ id, classId: 4 }], portraits, matches, 2e12);
+  assert.deepEqual(checked, [[id]]);
+  assert.deepEqual(queued, [id], "only the first call queued a fetch");
+});
+
+test("a confirmed id whose class does not fit what the game shows is not him: with no other candidate his NC data goes, with a namesake of the right class the match moves to that one", async () => {
+  const idOnly = confirmed("Falsche", "idKlasse1");
+  sqlite.prepare("insert into player_profiles (player_id, source, class_id) values (?, 'seen', 4)").run(idOnly);
+  sqlite.prepare("insert into player_nc_character (player_id, status, fetched_at, next_try_at) values (?, 'ok', 1, 1)").run(idOnly);
+  const answer = (candidates: object[]) => (async (input: unknown) => {
+    const url = String(input);
+    if (url.includes("/character/info")) {
+      return new Response(JSON.stringify({ profile: { characterName: "x", regionName: "L", characterLevel: 50, pcId: 6 } }), { status: 200 }); // pcId 6 = class 1, a Gladiator
+    }
+    return new Response(JSON.stringify({ list: candidates, pagination: { endPage: 1 } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  // The search lists the same id only: it is disproved, nothing is left.
+  assert.equal(await processMatch(idOnly, answer([raw({ name: "Falsche", serverId: 1304, characterId: "idKlasse1", pcId: 6 })]), 2_000_000), "none");
+  assert.equal((sqlite.prepare("select count(*) c from player_nc_character where player_id = ?").get(idOnly) as { c: number }).c, 0, "his NC data is gone");
+
+  const idTwo = confirmed("Wechsler", "idKlasse2");
+  sqlite.prepare("insert into player_profiles (player_id, source, class_id) values (?, 'seen', 4)").run(idTwo);
+  sqlite.prepare("insert into player_nc_character (player_id, status, fetched_at, next_try_at) values (?, 'ok', 1, 1)").run(idTwo);
+  const status = await processMatch(idTwo, answer([raw({ name: "Wechsler", serverId: 1304, characterId: "idKlasse2", pcId: 6 }), raw({ name: "Wechsler", serverId: 1305, characterId: "idKlasse3", pcId: 14 })]), 2_000_000);
+  assert.equal(status, "verified");
+  assert.equal((sqlite.prepare("select nc_character_id c from player_nc_match where player_id = ?").get(idTwo) as { c: string }).c, "idKlasse3");
+  assert.equal((sqlite.prepare("select count(*) c from player_nc_character where player_id = ?").get(idTwo) as { c: number }).c, 0, "the old character's data is gone");
 });

@@ -188,10 +188,10 @@ function serverOfParticipant(participant: { serverId?: number }, uploaderServerI
  * After an upload: a player whose own client named his server is verified by that; every other player of the upload is checked against
  * NC's character search in the background (see ncMatch.ts). Never blocks the upload.
  */
-function checkUploadedPlayers(participants: { name: string; serverId?: number; profile?: { level?: number } }[], uploaderServerId: number) {
+function checkUploadedPlayers(participants: { name: string; serverId?: number; profile?: { level?: number; classId?: number } }[], uploaderServerId: number) {
   try {
     const ids: number[] = [];
-    const named: { id: number; level?: number }[] = [];
+    const named: { id: number; level?: number; classId?: number }[] = [];
     for (const p of participants) {
       const row = db
         .select({ id: players.id })
@@ -201,7 +201,7 @@ function checkUploadedPlayers(participants: { name: string; serverId?: number; p
       if (!row) {
         continue;
       }
-      named.push({ id: row.id, level: p.profile?.level });
+      named.push({ id: row.id, level: p.profile?.level, classId: p.profile?.classId });
       if (p.serverId !== undefined && nameOf(p.serverId) !== null) {
         noteClientServer(row.id, p.serverId);
       } else {

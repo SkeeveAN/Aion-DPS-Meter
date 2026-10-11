@@ -5,7 +5,7 @@ import { AION2_CLASS_BY_ID } from "./constants.js";
 import { canonicalServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
 import { normalizeName } from "./matching/roster.js";
-import { PortraitQueue, decodeCharacterId, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
+import { PortraitQueue, decodeCharacterId, dropNcData, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
 import { playerPortraits, playerNcCharacter } from "./db/schema.js";
 import { EVENT_STALE_AFTER, PRIORITY, type Priority } from "./refreshPolicy.js";
 
@@ -315,10 +315,18 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   const before = db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
   const clientServer = before?.status === "client" ? before.ncServerId : null;
   // A player NC confirmed before is asked for by his character id: a rename changes the name, never the id, and a search by the old name would lose him.
+  // `suspect`: what we hold about him is in doubt (the id is gone, or the class does not fit what the game shows); if he is not confirmed again as the same character, his NC data goes.
+  let suspect = false;
+  let disproved: string | null = null;
   if (before?.status === "verified" && before.ncCharacterId && before.ncServerId) {
     try {
       const current = await fetchCharacterProfile(fetchFn, { characterId: before.ncCharacterId, serverId: before.ncServerId }, shard);
-      if (current) {
+      const shown = subjectOf(player).className;
+      if (current && shown && current.classId !== null && AION2_CLASS_BY_ID[current.classId] !== shown) {
+        // A character never changes class: the game shows another class than NC's page has for this id, so this id is not him.
+        suspect = true;
+        disproved = before.ncCharacterId;
+      } else if (current) {
         const via = applyName(player, current.name, before.ncServerId) ?? before.via;
         record(playerId, "verified", { ncServerId: before.ncServerId, ncRace: before.ncRace, ncCharacterId: before.ncCharacterId, via, candidates: before.candidates }, now);
         return "verified";
@@ -327,7 +335,8 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
       record(playerId, "error", { ncServerId: before.ncServerId, ncRace: before.ncRace, ncCharacterId: before.ncCharacterId, via: before.via, candidates: before.candidates, nextTryAt: now + MATCH_RETRY_AFTER.error }, now);
       return "error";
     }
-    // NC does not know that id any more (character deleted or merged away): fall back to the name search below.
+    // NC does not know that id any more (character deleted or merged away), or it is not him: fall back to the name search below.
+    suspect = true;
   }
   const subject = subjectOf(player);
   const race = subject.faction === "Elyos" ? 1 : subject.faction === "Asmodian" ? 2 : undefined;
@@ -337,6 +346,9 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
     hits = await searchHits(fetchFn, player.name, shard, { race, serverId: clientServer ?? undefined });
     if (clientServer !== null) {
       hits = hits.filter((h) => h.serverId === clientServer);
+    }
+    if (disproved) {
+      hits = hits.filter((h) => decodeCharacterId(h.characterId) !== disproved);
     }
     decision = decide(hits, subject);
     if (decision.status === "ambiguous" && decision.remaining) {
@@ -355,9 +367,16 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
       record(playerId, "conflict", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, candidates: decision.candidates }, now);
       return "conflict";
     }
-    record(playerId, "verified", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, ncCharacterId: decodeCharacterId(decision.hit.characterId), via: decision.via, candidates: decision.candidates }, now);
+    const found = decodeCharacterId(decision.hit.characterId);
+    if (suspect && found !== before?.ncCharacterId) {
+      dropNcData(playerId); // another character: the data of the old one must not stay
+    }
+    record(playerId, "verified", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, ncCharacterId: found, via: decision.via, candidates: decision.candidates }, now);
     enrichPlayer(playerId);
     return "verified";
+  }
+  if (suspect) {
+    dropNcData(playerId);
   }
   if (clientServer !== null) {
     // NC does not know him (yet) or cannot tell: his client's word still counts, ask again later.
@@ -566,21 +585,26 @@ export function startEnrichSweep(intervalMs = 5 * 60_000, batch = 150): void {
 
 /**
  * After an upload: the confirmed players it names are looked at again when the last look is older than twelve hours (an upload shows he is
- * playing now), or when a client reports a higher level than NC's page had (he has levelled up). Players without data yet are fetched as
+ * playing now), or when a client reports a higher level than NC's page had (he has levelled up). A class that differs from NC's page sends the player to the match check at once: the name no longer stands for the same character. Players without data yet are fetched as
  * well. Jobs go ahead of the background sweep; the look itself is cheap (see processPlayer). Never throws.
  */
-export function refreshAfterUpload(entries: { id: number; level?: number }[], queue: PortraitQueue = portraitQueue, now = Date.now()): number {
+export function refreshAfterUpload(entries: { id: number; level?: number; classId?: number }[], queue: PortraitQueue = portraitQueue, matches: MatchQueue = matchQueue, now = Date.now()): number {
   if (process.env.PORTRAITS_OFF === "1" || (!matchEnabled() && queue === portraitQueue)) {
     return 0;
   }
   let queued = 0;
-  for (const { id, level } of entries) {
+  for (const { id, level, classId } of entries) {
     try {
       const key = enrichKeyOf(id);
       if (!key) {
         continue;
       }
-      const row = db.select({ fetchedAt: playerNcCharacter.fetchedAt, status: playerNcCharacter.status, ncLevel: playerNcCharacter.ncLevel }).from(playerNcCharacter).where(eq(playerNcCharacter.playerId, id)).get();
+      const row = db.select({ fetchedAt: playerNcCharacter.fetchedAt, status: playerNcCharacter.status, ncLevel: playerNcCharacter.ncLevel, ncClassId: playerNcCharacter.ncClassId }).from(playerNcCharacter).where(eq(playerNcCharacter.playerId, id)).get();
+      if (row?.ncClassId != null && classId !== undefined && classId !== row.ncClassId) {
+        // A character never changes class: the name now stands for another character, or the match was wrong. Check the match again, now.
+        matches.enqueue([id]);
+        continue;
+      }
       const levelledUp = row?.ncLevel != null && level !== undefined && level > row.ncLevel;
       const stale = !row || row.status !== "ok" || now - row.fetchedAt > EVENT_STALE_AFTER.upload;
       if ((stale || levelledUp) && queue.enqueue(key, { priority: PRIORITY.upload, force: true })) {

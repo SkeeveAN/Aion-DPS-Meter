@@ -1,4 +1,4 @@
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { mkdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "./db/client.js";
@@ -182,7 +182,13 @@ function characterPageUrl(base: string, known: KnownCharacter, region = "eu"): U
   return url;
 }
 
-export type NcProfile = { name: string; guild: string; level: number };
+export type NcProfile = { name: string; guild: string; level: number; classId: number | null };
+
+/** Our class id of NC's pcId ((pcId - 1) / 4), null when it is no usable number. */
+export function classIdOfPc(pcId: unknown): number | null {
+  const n = Number(pcId);
+  return Number.isInteger(n) && n >= 1 ? Math.floor((n - 1) / 4) : null;
+}
 
 /** The name, legion and level NC holds for a character id right now (one request); null when NC has no such character or the answer is unusable. Throws on network/HTTP problems. */
 export async function fetchCharacterProfile(fetchFn: FetchFn, known: KnownCharacter, region = "eu"): Promise<NcProfile | null> {
@@ -191,7 +197,7 @@ export async function fetchCharacterProfile(fetchFn: FetchFn, known: KnownCharac
   if (!p || typeof p.characterName !== "string" || p.characterName === "") {
     return null;
   }
-  return { name: stripTags(p.characterName), guild: typeof p.regionName === "string" ? stripTags(p.regionName) : "", level: Number(p.characterLevel) || 0 };
+  return { name: stripTags(p.characterName), guild: typeof p.regionName === "string" ? stripTags(p.regionName) : "", level: Number(p.characterLevel) || 0, classId: classIdOfPc(p.pcId) };
 }
 
 /** What one info request tells: the cheap look at a character (see signatureOf), and the name NC holds for him now. */
@@ -493,6 +499,7 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           itemLevel: c.data.itemLevel,
           ncGuild: c.data.guild || null,
           ncLevel: c.data.level,
+          ncClassId: c.data.classId,
           probeJson: signatureOf(c.data),
           // A complete fetch that finds what the last one found counts as a look without news; a change starts over with the short wait.
           unchangedCount: characterBefore?.probeJson === signatureOf(c.data) ? characterBefore.unchangedCount + 1 : 0,
@@ -513,6 +520,7 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           itemLevel: characterBefore?.itemLevel ?? null,
           ncGuild: characterBefore?.ncGuild ?? null,
           ncLevel: characterBefore?.ncLevel ?? null,
+          ncClassId: characterBefore?.ncClassId ?? null,
           probeJson: characterBefore?.probeJson ?? null,
           unchangedCount: characterBefore?.unchangedCount ?? 0,
           fullAt: characterBefore?.fullAt ?? null,
@@ -548,4 +556,12 @@ export function portraitUrlFor(key: PlayerKey, now = Date.now(), queue: Portrait
     }
   }
   return row?.status === "ok" ? `/api/players/${key.playerId}/portrait?v=${row.fetchedAt}` : null;
+}
+
+/** Forgets everything NC-derived about a player: his data, his picture and a profile built from NC's page. For a name that turned out to stand for another character. */
+export function dropNcData(playerId: number): void {
+  db.delete(playerNcCharacter).where(eq(playerNcCharacter.playerId, playerId)).run();
+  db.delete(playerPortraits).where(eq(playerPortraits.playerId, playerId)).run();
+  db.delete(playerProfiles).where(and(eq(playerProfiles.playerId, playerId), eq(playerProfiles.source, "nc"))).run();
+  rmSync(portraitFile(playerId), { force: true });
 }
