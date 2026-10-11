@@ -9,6 +9,14 @@
      "Website"
     ],
     "date": "2026-10-11"
+   },
+   {
+    "text": "Profile mark behind player names: a round gold mark for profiles the player uploaded himself, blue for profiles seen on another player's client, a green dot when NC's character page added data, and none without a profile; in the encounter meters, the group lists, the player page and the legion member lists",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-11"
    }
   ]
  },
