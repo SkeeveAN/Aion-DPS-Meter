@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.37.0",
   "date": "2026-10-11",
   "items": [
    {
@@ -24,6 +24,13 @@
     "areas": [
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "A Twitch icon appears left of the announcements icon in the main window while an AION 2 Twitch Drops campaign is running, opens the Twitch Drops page on aiondps.com, and shows \"New\" (in every client language) while the newest campaign is one not seen at the last click; the \"New\" labels are now yellow with dark text so they are easier to read",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-11"
    }
