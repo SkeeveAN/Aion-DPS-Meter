@@ -1,8 +1,11 @@
 """Writes Client/assets/aion2/pets/regions.json: the named regions of the three world maps (Verteron, Altgard, Abyss) and the pets that
 have a spawn point in each, for the "Region" tab of the pet settings.
 
-Usage: build_pet_regions.py <Subzone.bin> <WorldMapUIRegion.bin> <unpacked AION2/Content/Data/Map> <l10n dir> <pets.json> <spawns.json> <out.json>
-(the two tables decrypted with dectable.py, the map folder and l10n as for build_spawns.py / extract_l10n.py)
+Usage: build_pet_regions.py <Subzone.bin> <WorldMapUIRegion.bin> <unpacked AION2/Content/Data/Map> <l10n dir> <pets.json> <spawns.json> <out.json> [soul_places.json]
+(the two tables decrypted with dectable.py, the map folder and l10n as for build_spawns.py / extract_l10n.py; soul_places.json from build_soul_routes.py)
+
+With soul_places.json every pet whose soul has places in the client's own "Fundorte" list (ItemGetRoute) is set to exactly those places (2026-10-11);
+only the pets without any (chests, shop, quests) keep the regions derived from their spawn points below.
 
 How it works (2026-10-10): every MapData.dat holds the area volumes as text-named `Points` (Vector2D, x and y as the upper five bytes of a
 little-endian double, 16 bytes per point) preceded by the volume's name `<Name>_Subzone`. `Subzone.dat` pairs that name with a text key
@@ -126,6 +129,9 @@ OTHER = "_other"  # pets that spawn outside every named area; the client names i
 
 def main():
     sub_path, ui_path, map_dir, l10n_dir, pets_path, spawns_path, out_path = sys.argv[1:8]
+    places = json.load(open(sys.argv[8])) if len(sys.argv) > 8 else {}  # {pet id: [[map id, zone id, STR key, npc id]]}
+    map_group = {1010: "verteron", 1110: "altgard", 20: "abyss"}
+    unnamed = set()
     rows, cur = [], None
     for t in strings(open(ui_path, "rb").read())[1:]:
         if t.startswith("STR_") and not t.endswith("_Desc"):
@@ -192,6 +198,19 @@ def main():
         if gid == "verteron":
             for key, extra_ids in EXTRA.items():
                 found[key].update(extra_ids)
+        # the client's own places win for every pet that has some
+        for pet in map(int, places):
+            for ids in found.values():
+                ids.discard(pet)
+            layer_pets.discard(pet)
+        for pet, entries in places.items():
+            for map_id, zone_id, key, npc in entries:
+                if map_group.get(map_id) != gid:
+                    continue
+                if key and names(key):
+                    found[key].add(int(pet))
+                else:
+                    unnamed.add((gid, zone_id, key))
         for key, ids in found.items():
             ids = sorted(i for i in ids if i in known)
             if ids and key == OTHER:
@@ -206,6 +225,8 @@ def main():
             regions.append(other)
         groups.append({"id": gid, "regions": regions})
         print(gid, len(regions), "regions")
+    if unnamed:
+        print("client places without a text, left out:", sorted(unnamed))
     json.dump({"groups": groups}, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
 
 
