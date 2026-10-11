@@ -291,8 +291,9 @@
                                               Margin="6,3,20,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                             <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
                                    Focusable="False" PopupAnimation="Slide">
+                                <!-- The list is wider than the closed box (which stays narrow next to the other dropdowns), so a whole boss name can be read. -->
                                 <Border Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
-                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                        MinWidth="300">
                                     <DockPanel>
                                         <TextBox x:Name="PART_SearchBox" DockPanel.Dock="Top"
                                                  Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
@@ -909,8 +910,7 @@
                      dropdown's own ToolTip plus, for ClassFilter now, the visible class name inside
                      it, carries enough meaning without a preceding "Class:"/"Source:"/"Mob/Boss:"
                      text label. -->
-                <StackPanel DockPanel.Dock="Top" Orientation="Vertical" Background="{DynamicResource Brush.Window}">
-                  <StackPanel Orientation="Horizontal">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="{DynamicResource Brush.Window}">
                     <!-- Icon + class name, per the user ("das Dropdown darf die Namen enthalten") -
                          previously icon-only; ClassIconConverter/pack://siteoforigin remarks that
                          used to sit here now live on NewCharacterClassBox in SettingsWindow.xaml,
@@ -952,13 +952,11 @@
                         <ComboBoxItem Content="Elyos"/>
                         <ComboBoxItem Content="Asmodian"/>
                     </ComboBox>
-                  </StackPanel>
-                    <!-- On its own row, the width of the window: a boss name does not fit next to the other two dropdowns.
-                         Lists targets actually seen this session. "All" sums each source's damage
+                    <!-- Lists targets actually seen this session. "All" sums each source's damage
                          across every target (the ambiguous wall-clock view - see DpsCalculator
                          remarks); picking one target switches DPS to true per-target iDPS. -->
                     <ComboBox x:Name="MobBossFilter" Style="{StaticResource SearchableComboBox}"
-                              SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="0,4,0,2" MinWidth="0" Height="26" HorizontalAlignment="Stretch"
+                              SelectedIndex="0" SelectionChanged="OnMobBossFilterChanged" Margin="8,0,0,0" MinWidth="0" MaxWidth="180"
                               ToolTip="Filter by target. 'All' sums damage across every target seen. Type in the dropdown to search.">
                         <ComboBoxItem Content="{local:Loc Main.FilterAllTargets}"/>
                     </ComboBox>
