@@ -595,7 +595,7 @@ export const playerNcMatch = sqliteTable("player_nc_match", {
   ncRace: integer("nc_race"),
   // NC's id of the character the check matched (url-decoded base64url): with the server id it names the character for good, across renames.
   ncCharacterId: text("nc_character_id"),
-  // What settled an ambiguous name: 'name' (nothing else needed) or 'legion' (the verified members of his legion).
+  // What settled an ambiguous name: 'name' (nothing else needed) or 'legion' (the verified members of his legion); later 'renamed' (NC named him differently by his character id, the row was renamed) or 'rename-conflict' (the new name already belongs to another row of that server: nothing merged).
   via: text("via"),
   candidates: integer("candidates").notNull().default(0),
   checkedAt: integer("checked_at").notNull(),

@@ -170,13 +170,25 @@ async function getNcJson(fetchFn: FetchFn, url: URL): Promise<unknown> {
   return JSON.parse(body.toString("utf8"));
 }
 
-function characterPageUrl(base: string, known: KnownCharacter): URL {
+function characterPageUrl(base: string, known: KnownCharacter, region = "eu"): URL {
   const url = new URL(base);
-  url.searchParams.set("region", "eu");
+  url.searchParams.set("region", region);
   url.searchParams.set("lang", "en-US");
   url.searchParams.set("characterId", known.characterId);
   url.searchParams.set("serverId", String(known.serverId));
   return url;
+}
+
+export type NcProfile = { name: string; guild: string; level: number };
+
+/** The name, legion and level NC holds for a character id right now (one request); null when NC has no such character or the answer is unusable. Throws on network/HTTP problems. */
+export async function fetchCharacterProfile(fetchFn: FetchFn, known: KnownCharacter, region = "eu"): Promise<NcProfile | null> {
+  const info = (await getNcJson(fetchFn, characterPageUrl(INFO_URL, known, region))) as { profile?: Record<string, unknown> } | null;
+  const p = info?.profile;
+  if (!p || typeof p.characterName !== "string" || p.characterName === "") {
+    return null;
+  }
+  return { name: stripTags(p.characterName), guild: typeof p.regionName === "string" ? stripTags(p.regionName) : "", level: Number(p.characterLevel) || 0 };
 }
 
 /** The character data of one character: info + equipment (two requests). Throws on network/HTTP problems; null when the answer is unusable. */

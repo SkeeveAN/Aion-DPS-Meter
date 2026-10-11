@@ -208,3 +208,56 @@ test("the id NC gives the matched character is kept (decoded) with the match", a
   const row = sqlite.prepare("select nc_character_id c from player_nc_match where player_id = ?").get(id) as { c: string | null };
   assert.equal(row.c, "abc_-xyz=");
 });
+
+// A confirmed player is asked for by his id: NC answers the character info with his current name.
+const infoAnswer = (name: string | null, seen: string[] = []) =>
+  (async (input: unknown) => {
+    seen.push(String(input));
+    return new Response(JSON.stringify({ profile: { characterName: name, regionName: "Legion", characterLevel: 50 } }), { status: 200, headers: { "content-type": "application/json" } });
+  }) as unknown as typeof fetch;
+const confirmed = (name: string, characterId: string) => {
+  const id = player(name, kaisinel, { faction: "Elyos" });
+  sqlite.prepare("insert into player_nc_match (player_id, status, nc_server_id, nc_race, nc_character_id, candidates, checked_at, next_try_at) values (?, 'verified', 1304, 1, ?, 1, 1, 1)").run(id, characterId);
+  return id;
+};
+const nameOf = (id: number) => sqlite.prepare("select name, name_normalized n, alias_names_normalized a, slug from players where id = ?").get(id) as { name: string; n: string; a: string; slug: string };
+
+test("a confirmed player is looked up by his character id and renamed in place when NC names him differently", async () => {
+  const id = confirmed("Altname", "idRename1");
+  const before = nameOf(id);
+  const seen: string[] = [];
+  assert.equal(await processMatch(id, infoAnswer("Neuname", seen), 2_000_000), "verified");
+  assert.match(seen[0], /characterId=idRename1/);
+  assert.equal(seen.length, 1, "no search by the old name");
+  const after = nameOf(id);
+  assert.equal(after.name, "Neuname");
+  assert.equal(after.n, "neuname");
+  assert.deepEqual(JSON.parse(after.a), ["altname"], "the old name stays findable");
+  assert.equal(after.slug, before.slug, "links must not rot");
+  assert.equal(matchRow(id)?.via, "renamed");
+});
+
+test("a new name that another player of the server already carries is left for a human, nothing is merged", async () => {
+  const id = confirmed("Vorher", "idRename2");
+  const other = player("Nachher", kaisinel);
+  assert.equal(await processMatch(id, infoAnswer("Nachher"), 2_000_000), "verified");
+  assert.equal(nameOf(id).name, "Vorher");
+  assert.equal(nameOf(other).name, "Nachher");
+  assert.equal(matchRow(id)?.via, "rename-conflict");
+});
+
+test("an unchanged name only fixes the spelling, and an id NC no longer knows falls back to the name search", async () => {
+  const id = confirmed("gleich", "idRename3");
+  assert.equal(await processMatch(id, infoAnswer("Gleich"), 2_000_000), "verified");
+  assert.equal(nameOf(id).name, "Gleich");
+  const gone = confirmed("Verschwunden", "idRename4");
+  const seen: string[] = [];
+  const answer = (async (input: unknown) => {
+    seen.push(String(input));
+    return String(input).includes("/character/info")
+      ? new Response(JSON.stringify({ profile: { characterName: null } }), { status: 200 })
+      : new Response(JSON.stringify({ list: [], pagination: { endPage: 1 } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  assert.equal(await processMatch(gone, answer, 2_000_000), "none");
+  assert.equal(seen.length, 2);
+});

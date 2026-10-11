@@ -4,7 +4,8 @@ import { encounterParticipants, playerNcMatch, playerProfiles, players, servers 
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { canonicalServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
-import { decodeCharacterId, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
+import { normalizeName } from "./matching/roster.js";
+import { decodeCharacterId, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
 import { playerPortraits, playerNcCharacter } from "./db/schema.js";
 
 /**
@@ -213,6 +214,31 @@ function record(playerId: number, status: MatchStatus, extra: { ncServerId?: num
   db.insert(playerNcMatch).values({ playerId, ...values }).onConflictDoUpdate({ target: playerNcMatch.playerId, set: values }).run();
 }
 
+/**
+ * NC's current name of a confirmed character. The same name (case aside from the stored spelling) changes nothing but the spelling.
+ * A new name renames the player in place - slug and history stay, the old name becomes an alias so old uploads still find him - unless
+ * another player of that server already carries the new name (his new fights were filed under a second row): then nothing is merged
+ * and 'rename-conflict' is returned, for a human. Returns the marker for `via`, or null.
+ */
+function applyName(player: PlayerRow, ncName: string, serverId: number): string | null {
+  if (ncName === player.name) {
+    return null;
+  }
+  const target = normalizeName(ncName);
+  if (target === player.nameNormalized) {
+    db.update(players).set({ name: ncName }).where(eq(players.id, player.id)).run();
+    return null;
+  }
+  const taken = db.select({ id: players.id }).from(players).where(and(eq(players.serverId, serverRowOf(serverId)), eq(players.nameNormalized, target), ne(players.id, player.id))).get();
+  if (taken) {
+    return "rename-conflict";
+  }
+  const row = db.select({ aliases: players.aliasNamesNormalized }).from(players).where(eq(players.id, player.id)).get();
+  const aliases = [...new Set([...(row?.aliases ?? []), player.nameNormalized])];
+  db.update(players).set({ name: ncName, nameNormalized: target, aliasNamesNormalized: aliases }).where(eq(players.id, player.id)).run();
+  return "renamed";
+}
+
 /** Applies the one matching character to the player: his real server, his faction. Returns false (nothing changed) when it contradicts what we hold. */
 function applyHit(player: PlayerRow, hit: Hit): "applied" | "conflict" {
   const faction = hit.race === 1 ? "Elyos" : "Asmodian";
@@ -251,6 +277,21 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   // A player whose own client named his server stays there: NC only confirms or enriches, it never moves him.
   const before = db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
   const clientServer = before?.status === "client" ? before.ncServerId : null;
+  // A player NC confirmed before is asked for by his character id: a rename changes the name, never the id, and a search by the old name would lose him.
+  if (before?.status === "verified" && before.ncCharacterId && before.ncServerId) {
+    try {
+      const current = await fetchCharacterProfile(fetchFn, { characterId: before.ncCharacterId, serverId: before.ncServerId }, shard);
+      if (current) {
+        const via = applyName(player, current.name, before.ncServerId) ?? before.via;
+        record(playerId, "verified", { ncServerId: before.ncServerId, ncRace: before.ncRace, ncCharacterId: before.ncCharacterId, via, candidates: before.candidates }, now);
+        return "verified";
+      }
+    } catch {
+      record(playerId, "error", { ncServerId: before.ncServerId, ncRace: before.ncRace, ncCharacterId: before.ncCharacterId, via: before.via, candidates: before.candidates, nextTryAt: now + MATCH_RETRY_AFTER.error }, now);
+      return "error";
+    }
+    // NC does not know that id any more (character deleted or merged away): fall back to the name search below.
+  }
   let hits: Hit[];
   try {
     hits = await searchHits(fetchFn, player.name, shard);
