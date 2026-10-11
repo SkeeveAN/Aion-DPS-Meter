@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "Update obligation relaxed: an older client may keep uploading for 72 hours after its successor came out (was: blocked at once)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.31.1",
   "date": "2026-10-10",
   "items": [
