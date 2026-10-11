@@ -544,6 +544,12 @@ public partial class MainWindow : Window
         }
     }
 
+            case HotkeyAction.TogglePetArrows:
+                TogglePetArrows();
+                break;
+            case HotkeyAction.ToggleGatherArrows:
+                ToggleGatherArrows();
+                break;
     /// <summary>(Re-)registers the hotkeys from the settings; a combination another program already
     /// owns is reported on the status line.</summary>
     private void ApplyHotkeys(MeterSettings settings)
@@ -575,6 +581,8 @@ public partial class MainWindow : Window
 
     private DateTime _lastPreviewInvalidate = DateTime.MinValue;
 
+            [HotkeyAction.TogglePetArrows] = HotkeyBinding.Parse(settings.HotkeyPetArrows),
+            [HotkeyAction.ToggleGatherArrows] = HotkeyBinding.Parse(settings.HotkeyGatherArrows),
     private void OnPollTimerTick(object? sender, EventArgs e)
     {
         // The Alt+Tab picture of the overlay (see RenderOverlayPreview) is redrawn on request; saying
@@ -4210,6 +4218,23 @@ public partial class MainWindow : Window
         }
 
         RefreshRows();
+    /// <summary>The map controller reads the settings every second, so the switch is all it takes.</summary>
+    private void TogglePetArrows()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowPetArrows = !settings.ShowPetArrows;
+        settings.Save();
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
+    private void ToggleGatherArrows()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowGatherArrows = !settings.ShowGatherArrows;
+        settings.Save();
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
     }
 
     /// <summary>Which Hide-UI look is up: one chip per player or the compact panel (Settings).</summary>

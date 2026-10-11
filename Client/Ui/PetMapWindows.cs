@@ -347,7 +347,7 @@ public sealed class PetMapWindow : MovableOverlay
     /// </summary>
     public void Render(Aion2MapInfo map, double worldX, double worldY, double radiusMetres, double opacity,
         IReadOnlyList<(int PetId, float X, float Y)> points, IReadOnlyList<(int PetId, float X, float Y)> live, IReadOnlyDictionary<int, Color> colors,
-        IReadOnlyList<(string Kind, float X, float Y)>? gather = null, bool positionKnown = true)
+        IReadOnlyList<(string Kind, float X, float Y)>? gather = null, bool positionKnown = true, bool petArrows = true, bool gatherArrows = true)
     {
         // the visible part of the canvas (the frame may be pulled smaller than the view): the player stays in the middle of it
         double vw = Math.Clamp(BodyWidth, 40, ViewSize), vh = Math.Clamp(BodyHeight, 40, ViewSize);
@@ -487,7 +487,7 @@ public sealed class PetMapWindow : MovableOverlay
         var seen = new Dictionary<int, (bool Visible, double BestSq, double Bx, double By)>();
         void Consider(int id, float x, float y)
         {
-            if (!colors.ContainsKey(id))
+            if (!petArrows || !colors.ContainsKey(id))
             {
                 return;
             }
@@ -530,19 +530,8 @@ public sealed class PetMapWindow : MovableOverlay
             Consider(id, x, y);
         }
 
-        foreach (var (pet, color) in colors)
+        void PlaceArrow(Color color, double bx, double by)
         {
-            if (!seen.TryGetValue(pet, out var st))
-            {
-                continue;
-            }
-
-            double bestSq = st.BestSq, bx = st.Bx, by = st.By;
-            if (st.Visible || bestSq == double.MaxValue)
-            {
-                continue;
-            }
-
             double t = Math.Min(reachX / Math.Max(Math.Abs(bx), 1e-6), reachY / Math.Max(Math.Abs(by), 1e-6)); // where the ray to the point meets the square
             if (arrow >= _edgeArrows.Count)
             {
@@ -557,6 +546,61 @@ public sealed class PetMapWindow : MovableOverlay
             Canvas.SetLeft(ar, halfX + bx * t);
             Canvas.SetTop(ar, halfY + by * t);
             ar.Visibility = Visibility.Visible;
+        }
+
+        foreach (var (pet, color) in colors)
+        {
+            if (!seen.TryGetValue(pet, out var st))
+            {
+                continue;
+            }
+
+            double bestSq = st.BestSq, bx = st.Bx, by = st.By;
+            if (st.Visible || bestSq == double.MaxValue)
+            {
+                continue;
+            }
+
+            PlaceArrow(color, bx, by);
+        }
+
+        // gatherables: one arrow per kind with none in view, towards its nearest point
+        if (gatherArrows && gather is not null)
+        {
+            var kinds = new Dictionary<string, (bool Visible, double BestSq, double Bx, double By)>();
+            foreach ((string kind, float x, float y) in gather)
+            {
+                kinds.TryGetValue(kind, out var st);
+                if (st == default)
+                {
+                    st = (false, double.MaxValue, 0, 0);
+                }
+
+                if (st.Visible)
+                {
+                    continue;
+                }
+
+                double dx = (x - worldX) * ppu, dy = (y - worldY) * ppu;
+                if (Math.Abs(dx) < halfX - 5 && Math.Abs(dy) < halfY - 5)
+                {
+                    st.Visible = true;
+                }
+                else if (dx * dx + dy * dy < st.BestSq)
+                {
+                    st = (false, dx * dx + dy * dy, dx, dy);
+                }
+
+                kinds[kind] = st;
+            }
+
+            foreach (var (kind, st) in kinds)
+            {
+                if (!st.Visible && st.BestSq != double.MaxValue)
+                {
+                    PlaceArrow(PetMapPalette.OfGather(kind), st.Bx, st.By);
+                }
+            }
         }
 
         for (int i = arrow; i < _edgeArrows.Count; i++)

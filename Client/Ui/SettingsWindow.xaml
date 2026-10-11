@@ -667,6 +667,26 @@
                                     <Button Grid.Column="3" Tag="HotkeyWorldBossBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
                                             Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
                                 </Grid>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvPetArrowsBox" Tag="PetArrows" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.PetArrows}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyPetArrowsBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                             VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
+                                             Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
+                                    <Button Grid.Column="3" Tag="HotkeyPetArrowsBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                            Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
+                                </Grid>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvGatherArrowsBox" Tag="GatherArrows" Margin="0,0,8,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Grid.Column="1" Text="{local:Loc Settings.Hotkey.GatherArrows}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyGatherArrowsBox" Grid.Column="2" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                             VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
+                                             Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
+                                    <Button Grid.Column="3" Tag="HotkeyGatherArrowsBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                            Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
+                                </Grid>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -744,6 +764,7 @@
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.PetInfo.Title}"/>
                                 <CheckBox x:Name="ShowPetFarmBox" Content="{local:Loc Settings.PetInfo.Show}"/>
                                 <CheckBox x:Name="PetInfoLockedBox" Content="{local:Loc Settings.PetFarm.Locked}" Margin="0,4,0,0"/>
+                                <CheckBox x:Name="ShowPetArrowsBox" Content="{local:Loc Settings.Pet.Arrows}" ToolTip="{local:Loc Settings.Pet.Arrows.Tip}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">
@@ -828,6 +849,9 @@
                         </Border>
                     </StackPanel>
                     <StackPanel Visibility="{Binding IsChecked, ElementName=NavGather, Converter={StaticResource BoolToVis}}">
+                        <Border Style="{StaticResource SettingsCard}">
+                            <CheckBox x:Name="ShowGatherArrowsBox" Content="{local:Loc Settings.Gather.Arrows}" ToolTip="{local:Loc Settings.Gather.Arrows.Tip}"/>
+                        </Border>
                         <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Gather.Hint}" Margin="2,0,0,10"/>
                         <TextBlock x:Name="GatherFactionNote" Style="{StaticResource CardHint}" Margin="2,0,0,10" Visibility="Collapsed"/>
                         <StackPanel x:Name="GatherCards"/>

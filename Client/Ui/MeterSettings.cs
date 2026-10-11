@@ -209,6 +209,12 @@ public sealed class MeterSettings
     /// <summary>The notice that appears when the eye (hide the window) is clicked was dismissed with "do not show again".</summary>
     public bool HideUiHintDismissed { get; set; }
 
+    /// <summary>The arrows on the edge of the interactive map pointing at pets / gatherables that are out of view (one switch each); on by default.</summary>
+    public bool ShowPetArrows { get; set; } = true;
+    public bool ShowGatherArrows { get; set; } = true;
+    /// <summary>Pet arrows / gather arrows on / off.</summary>
+    public string HotkeyPetArrows { get; set; } = "Ctrl+Alt+E";
+    public string HotkeyGatherArrows { get; set; } = "Ctrl+Alt+G";
     /// <summary>The timetable overlay: what is active now and what starts within the lookahead (<see cref="TimetableLookaheadMinutes"/>). Its place
     /// and scale are remembered (null left/top = a default corner).</summary>
     public bool ShowTimetable { get; set; } = true;

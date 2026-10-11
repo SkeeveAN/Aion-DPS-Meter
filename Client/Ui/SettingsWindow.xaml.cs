@@ -63,6 +63,8 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyHotkeyOverlayBox, HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay).ToString());
         SetHotkeyBox(HotkeyAllOverlaysBox, HotkeyBinding.Parse(settings.HotkeyAllOverlays).ToString());
         SetHotkeyBox(HotkeyWorldBossBox, HotkeyBinding.Parse(settings.HotkeyWorldBoss).ToString());
+        SetHotkeyBox(HotkeyPetArrowsBox, HotkeyBinding.Parse(settings.HotkeyPetArrows).ToString());
+        SetHotkeyBox(HotkeyGatherArrowsBox, HotkeyBinding.Parse(settings.HotkeyGatherArrows).ToString());
         ShowHotkeyOverlayBox.IsChecked = settings.ShowHotkeyOverlay;
         foreach (var box in HotkeyOverlayRowBoxes())
         {
@@ -400,7 +402,7 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
-        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox };
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvPetArrowsBox, OvGatherArrowsBox };
 
     private void OnHotkeyClearClicked(object sender, RoutedEventArgs e)
     {
@@ -501,6 +503,10 @@ public partial class SettingsWindow : Window
         _settings.HotkeyHotkeyOverlay = (string?)HotkeyHotkeyOverlayBox.Tag ?? "";
         _settings.HotkeyAllOverlays = (string?)HotkeyAllOverlaysBox.Tag ?? "";
         _settings.HotkeyWorldBoss = (string?)HotkeyWorldBossBox.Tag ?? "";
+        _settings.HotkeyPetArrows = (string?)HotkeyPetArrowsBox.Tag ?? "";
+        _settings.HotkeyGatherArrows = (string?)HotkeyGatherArrowsBox.Tag ?? "";
+        _settings.ShowPetArrows = ShowPetArrowsBox.IsChecked ?? true;
+        _settings.ShowGatherArrows = ShowGatherArrowsBox.IsChecked ?? true;
         _settings.ShowHotkeyOverlay = ShowHotkeyOverlayBox.IsChecked ?? false;
         _settings.HotkeyOverlayHidden = HotkeyOverlayRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
@@ -772,6 +778,8 @@ public partial class SettingsWindow : Window
         _petProgress = savedPets.ToDictionary(p => p.Id, p => p.Progress);
         PetRegionLeftColumn.Width = new GridLength(Math.Clamp(settings.PetRegionListWidth, 120, 600));
         ShowPetMapBox.IsChecked = settings.ShowPetMap;
+        ShowPetArrowsBox.IsChecked = settings.ShowPetArrows;
+        ShowGatherArrowsBox.IsChecked = settings.ShowGatherArrows;
         PetMapRadiusSlider.Value = Math.Clamp(settings.PetMapRadius, 50, 500);
         PetMapOpacitySlider.Value = Math.Clamp(settings.PetMapOpacity * 100, 20, 100);
         ShowPetMapSliderValues();
@@ -791,6 +799,8 @@ public partial class SettingsWindow : Window
         ShowHotkeyOverlayBox.IsChecked = s.ShowHotkeyOverlay;
         ShowPetFarmBox.IsChecked = s.ShowPetFarm;
         ShowBossOverlayBox.IsChecked = s.ShowBossOverlay;
+        ShowPetArrowsBox.IsChecked = s.ShowPetArrows;
+        ShowGatherArrowsBox.IsChecked = s.ShowGatherArrows;
     }
 
     /// <summary>The map's sliders are read-only (greyed out) while the map is switched off; the pet list stays editable.</summary>

@@ -175,7 +175,7 @@ public sealed class PetMapController : IDisposable
             : new List<(int PetId, float X, float Y)>();
         if (_current is not null)
         {
-            _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors, _gather, known);
+            _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows);
             _map.ShowOverlay(true);
         }
         else

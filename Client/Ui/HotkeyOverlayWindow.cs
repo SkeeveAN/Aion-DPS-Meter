@@ -68,6 +68,8 @@ public sealed class HotkeyOverlayWindow : MovableOverlay
             ("HotkeyOverlay", "Settings.Hotkey.HotkeyOverlay", s.HotkeyHotkeyOverlay),
             ("AllOverlays", "Settings.Hotkey.AllOverlays", s.HotkeyAllOverlays),
             ("WorldBoss", "Settings.Hotkey.WorldBoss", s.HotkeyWorldBoss),
+            ("PetArrows", "Settings.Hotkey.PetArrows", s.HotkeyPetArrows),
+            ("GatherArrows", "Settings.Hotkey.GatherArrows", s.HotkeyGatherArrows),
         };
         return all.Where(h => !s.HotkeyOverlayHidden.Contains(h.Id))
             .Select(h => (Name: loc[h.NameKey], Keys: HotkeyBinding.Parse(h.Keys).ToString()))
