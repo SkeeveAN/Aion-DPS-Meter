@@ -2571,26 +2571,42 @@ function iconTile(kind, icon, name, { color, badge, badgeClass, zenit } = {}) {
   return tile;
 }
 
-// One tooltip for the whole page, shown next to the pointer over anything with a `tip` builder.
-function attachTooltip(target, build) {
+// One tooltip for the whole page, shown next to the pointer over anything with a `tip` builder. `enhance` (optional) is asked for
+// something fuller while the pointer stays: a promise of the nodes to show instead (or null to keep the first ones).
+function attachTooltip(target, build, enhance) {
   let tip = document.querySelector(".pf-tip");
   if (!tip) {
     tip = el("div", { className: "pf-tip", hidden: true });
     document.body.append(tip);
   }
+  let last = null;
+  let over = false;
   const place = (e) => {
+    last = e;
     const w = tip.offsetWidth;
     const h = tip.offsetHeight;
     tip.style.left = `${Math.min(e.clientX + 16, window.innerWidth - w - 8)}px`;
     tip.style.top = `${Math.max(8, Math.min(e.clientY + 12, window.innerHeight - h - 8))}px`;
   };
   target.addEventListener("mouseenter", (e) => {
+    over = true;
+    tip.classList.remove("pf-tip-wide");
     tip.replaceChildren(...build());
     tip.hidden = false;
     place(e);
+    enhance?.().then((nodes) => {
+      if (over && nodes) {
+        tip.classList.add("pf-tip-wide");
+        tip.replaceChildren(...nodes);
+        if (last) {
+          place(last);
+        }
+      }
+    });
   });
   target.addEventListener("mousemove", place);
   target.addEventListener("mouseleave", () => {
+    over = false;
     tip.hidden = true;
   });
 }
@@ -2664,6 +2680,103 @@ function gearTipDetails(g) {
   return sections;
 }
 
+// The piece as NC's own item page shows it (base stats with the enchant bonus, soul bind, rolled stats with their range, stone values,
+// the god stone's text, where it drops), asked for from the server when the pointer rests on a piece. Only players NC knows have it;
+// for everybody else (and while the server's NC budget is used up) the tooltip stays as the player's own client reported it.
+let gearPlayerId = null;
+const ncTipCache = new Map();
+const STONE_Q = { Common: 1, Rare: 2, Legend: 3, Unique: 4 };
+
+function ncGearTip(g) {
+  if (gearPlayerId == null) {
+    return Promise.resolve(null);
+  }
+  const key = `${gearPlayerId}:${g.slot}:${getLocale()}`;
+  let hit = ncTipCache.get(key);
+  if (!hit) {
+    hit = fetch(`/api/players/${gearPlayerId}/items/${g.slot}?lang=${encodeURIComponent(getLocale())}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .catch(() => null);
+    ncTipCache.set(key, hit);
+    // a miss (busy, no data) is asked again after a minute, a hit stays
+    hit.then((tip) => {
+      if (!tip) {
+        setTimeout(() => ncTipCache.delete(key), 60_000);
+      }
+    });
+  }
+  return hit.then((tip) => (tip ? ncTipNodes(g, tip) : null));
+}
+
+function ncTipNodes(g, n) {
+  const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
+  const row = (label, value, cls, extra) => el("div", { className: `pf-tip-row${cls ? ` ${cls}` : ""}` }, [el("span", { textContent: label }), value != null ? el("strong", {}, [value, extra ?? ""]) : null].filter((x) => x != null));
+  const range = (s) => (s.min && s.max && s.min !== s.max ? el("span", { className: "pf-tip-range", textContent: ` (${s.min}–${s.max}${parseFloat(s.value) >= parseFloat(s.max) ? `, ${t("profile.maxRoll")}` : ""})` }) : "");
+  const sections = [];
+  const level = n.level ?? g.itemLevel;
+  sections.push(
+    el("div", { className: "pf-tip-head", style: `--ico-color:${color}` }, [
+      el("div", { className: "pf-tip-title", textContent: n.name + (g.enchant > 0 ? ` +${shownEnchant(g)}` : "") }),
+      el("div", { className: "pf-tip-sub" }, [el("span", { style: `color:${color}`, textContent: n.gradeName || (GRADE_NAME[g.grade] ?? "") }), ` · ${[n.categoryName, g.slotName ? t(`slot.${g.slotName}`) : null].filter((x) => x).join(" · ")}`]),
+      level > 0 ? el("div", { className: "pf-tip-il", textContent: `${t("profile.itemLevel")} ${level}${n.levelBonus != null ? ` (+${n.levelBonus})` : ""}` }) : null,
+    ].filter((x) => x != null)),
+  );
+  if (n.mainStats.length > 0) {
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, n.mainStats.map((s) => row(s.name, s.min ? `${s.min}–${s.value}` : s.value, null, s.bonus ? el("span", { className: "pf-tip-orange", textContent: ` (+${s.bonus})` }) : ""))),
+    );
+  }
+  sections.push(...zenitTip(g));
+  if (n.soulBind != null) {
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, [
+        el("div", { className: "pf-tip-row" }, [el("span", { className: "pf-tip-soul", textContent: t("profile.soulBind") }), el("strong", { className: "pf-tip-gold", textContent: `${n.soulBind.toFixed(1)} %` })]),
+        el("div", { className: "pf-tip-bar" }, [el("i", { style: `width:${n.soulBind}%` })]),
+      ]),
+    );
+  }
+  if (n.rolled.length > 0 || n.skills.length > 0) {
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, [
+        n.rolled.length > 0 ? el("div", { className: "pf-tip-sec-title", textContent: t("profile.rolledStats") }) : null,
+        ...n.rolled.map((s) => row(s.name, s.value, null, range(s))),
+        ...n.skills.map((s) => row(s.name, `${t("profile.levelAbbr")} +${s.level}`, "pf-tip-skill")),
+      ].filter((x) => x != null)),
+    );
+  }
+  if (n.stones.length > 0) {
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, [
+        el("div", { className: "pf-tip-sec-title", textContent: t("profile.stones") }),
+        ...n.stones.map((s) => row(s.name, s.value, `pf-tip-stone q${STONE_Q[s.grade] ?? 1}`)),
+      ]),
+    );
+  }
+  for (const god of n.godStones) {
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, [
+        el("div", { className: `pf-tip-stone q${STONE_Q[god.grade] ?? 2}`, style: "font-weight:700", textContent: god.name }),
+        el("div", { className: "pf-tip-desc", textContent: god.desc }),
+      ]),
+    );
+  }
+  const foot = [];
+  if (n.sources.length > 0) {
+    foot.push(el("div", { className: "pf-tip-src" }, [el("span", { textContent: t("profile.source") }), el("span", { textContent: n.sources.join(" · ") })]));
+  }
+  if (n.equipLevel) {
+    foot.push(el("div", { className: "pf-tip-src" }, [el("span", { textContent: t("profile.equipLevel") }), el("span", { textContent: String(n.equipLevel) })]));
+  }
+  const tags = [...n.classNames, n.tradable === false ? t("profile.notTradable") : null].filter((x) => x);
+  if (tags.length > 0) {
+    foot.push(el("div", { className: "pf-tip-tags" }, tags.map((x) => el("span", { className: "pf-tip-tag", textContent: x }))));
+  }
+  if (foot.length > 0) {
+    sections.push(el("div", { className: "pf-tip-sec" }, foot));
+  }
+  return sections;
+}
+
 function gearSlot(g) {
   const name = localizedSkillName(g);
   const color = GRADE_COLOR[g.grade] ?? GRADE_COLOR[1];
@@ -2675,7 +2788,7 @@ function gearSlot(g) {
       g.grade >= 4 && g.tier > 0 ? el("span", { className: "pf-tier", textContent: `${GRADE_NAME[g.grade] ?? ""} ${t("profile.tier")} ${g.tier}` }) : null,
     ].filter((x) => x != null)),
   ]);
-  attachTooltip(slot, () => gearTip(g));
+  attachTooltip(slot, () => gearTip(g), () => ncGearTip(g));
   return slot;
 }
 
@@ -3113,6 +3226,7 @@ async function renderPlayerProfile(playerId, attempt = 0) {
     history.replaceState(history.state, "", `${gp(`/players/${data.player.slug}`)}${location.search}${location.hash}`);
   }
   document.querySelector(".pf-tip")?.remove();
+  gearPlayerId = data.player.id;
 
   const profile = data.profile;
   // Attributes, wing and pet from the player's client and/or NC; also there when the player has no profile at all.

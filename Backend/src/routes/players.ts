@@ -10,6 +10,7 @@ import type { Game } from "../constants.js";
 import { buildCharacterView, buildProfileView, factionFromFights } from "../profile.js";
 import { europeServerOf } from "../content/aion2Servers.js";
 import { portraitFile, portraitUrlFor } from "../portraitService.js";
+import { itemTipOf, ncLangOf } from "../ncItems.js";
 import { readFile } from "node:fs/promises";
 import { parseIdOrSlug } from "../seo/slug.js";
 
@@ -197,6 +198,21 @@ export async function playerRoutes(app: FastifyInstance) {
       history,
       profile: profile ? { ...profile, faction: (profile.faction || factionOfServerName(player.serverName)) as typeof profile.faction, portraitUrl } : profile,
     });
+  });
+
+  // The tooltip data of one worn piece from NC's own item pages (base stats with the enchant bonus, stone values, god stone text, where
+  // it drops), in the reader's language. Asked for on hover only; 404 when NC has nothing, 503 while the hourly NC budget is used up.
+  app.get<{ Params: { id: string; slot: string }; Querystring: { lang?: string } }>("/api/players/:id/items/:slot", async (request, reply) => {
+    const id = Number(request.params.id);
+    const slot = Number(request.params.slot);
+    if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(slot) || slot <= 0 || slot > 100) {
+      return reply.status(404).send({ error: "no_item" });
+    }
+    const outcome = await itemTipOf(id, slot, ncLangOf(request.query.lang));
+    if (outcome.status === "ok") {
+      return reply.header("Cache-Control", "public, max-age=3600").send(outcome.tip);
+    }
+    return outcome.status === "busy" ? reply.status(503).header("Retry-After", "60").send({ error: "busy" }) : reply.status(404).send({ error: "no_item" });
   });
 
   // The cut-out portrait file; 404 while there is none. The page asks with ?v=<fetched_at>, so a day of caching is safe.
