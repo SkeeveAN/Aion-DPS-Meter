@@ -3506,6 +3506,7 @@ async function renderPlayerProfile(playerId, attempt = 0) {
     tabs.push(["arcana", t("slot.Arcana"), profile.gear.filter((g) => g.slotName === "Arcana").length, () => renderArcanaTab(profile)]);
   }
 
+  const scrollY = window.scrollY;
   const panel = el("div", { className: "pf-panel" });
   const buttons = tabs.map(([id, label, count]) =>
     el("button", { type: "button", role: "tab", textContent: label }, [el("small", { textContent: String(count) })]),
@@ -3532,6 +3533,12 @@ async function renderPlayerProfile(playerId, attempt = 0) {
     ...(source ? [source, el("p", { className: "profile-source", textContent: t("profile.note") })] : []),
   );
   show(wanted >= 0 ? wanted : 0, wanted >= 0);
+  if (attempt > 0) {
+    // A look-again pass rebuilds the page outside route(), which is what normally appends the footer;
+    // and the reader must stay where they were scrolled to.
+    app.appendChild(buildSiteFooter());
+    window.scrollTo(0, scrollY);
+  }
 
   // The server fetches the portrait and the character data from NC in the background the first time a profile is
   // opened: look again a few times (still on this page) instead of making the reader reload.
