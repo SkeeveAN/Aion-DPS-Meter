@@ -60,6 +60,22 @@
      "Database"
     ],
     "date": "2026-10-11"
+   },
+   {
+    "text": "Pet regions: every pet whose soul the client's own Fundorte list names places for (ItemGetRoute) now shows exactly those places; new build_soul_routes.py reads them",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "Every confirmed player now gets a full profile from NC's official character page: gear with enchants, skills, Daevanion board progress, level, class, title, combat power and item level; and an ambiguous name is settled by the legion NC names for each candidate",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-11"
    }
   ]
  },
