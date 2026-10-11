@@ -1870,11 +1870,14 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>
     /// The worn titles of the local player (login and whenever they change): a count byte (1..3) and per title the
-    /// slot (u8) and the title id (u32); the last such run in the frame wins.
+    /// slot (u8) and the title id (u32). The frame starts with the list of every title the player owns and ends with the
+    /// worn ones, so the run that ends exactly at the end of the frame wins; a run found earlier in the owned list is
+    /// only a fallback (a title id starting with 02 makes <c>01 | 02 | id</c> look like a run).
     /// </summary>
     private void DecodeTitles(ReadOnlySpan<byte> frame)
     {
         List<Aion2TitleSlot>? best = null;
+        bool bestAtEnd = false;
         for (int p = 2; p + 6 <= frame.Length; p++)
         {
             int count = frame[p];
@@ -1899,7 +1902,12 @@ public sealed class Aion2FrameDecoder
 
             if (run is not null)
             {
-                best = run;
+                bool atEnd = p + 1 + count * 5 == frame.Length;
+                if (atEnd || !bestAtEnd)
+                {
+                    best = run;
+                    bestAtEnd = atEnd;
+                }
             }
         }
 
