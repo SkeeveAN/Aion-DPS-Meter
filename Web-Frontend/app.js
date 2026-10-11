@@ -2917,7 +2917,7 @@ function portraitImg(url) {
 // Left end of the player strip: the round portrait with the class symbol as a small badge on its corner; without a portrait
 // (not fetched yet, nothing found, no European server) the class symbol alone as before.
 function stripEmblem(profile, player) {
-  const badge = profile?.className ? el("div", { className: "pf-badge" }, [classIcon(profile.className)]) : null;
+  const badge = profile?.className ? el("div", { className: "pf-badge", title: classLabel(profile.className) }, [classIcon(profile.className)]) : null;
   if (!player.portraitUrl) {
     return badge;
   }
@@ -2927,34 +2927,23 @@ function stripEmblem(profile, player) {
 
 // The player strip: shown above every tab.
 function renderPlayerStrip(profile, player, character) {
-  const sub = [];
-  if (profile?.className) {
-    sub.push(profile.level ? t("profile.classLevel", { className: profile.className, level: profile.level }) : profile.className);
-  } else if (profile?.level) {
-    sub.push(`Level ${profile.level}`);
-  }
-  const nodes = profile ? profile.daevanion.reduce((sum, b) => sum + b.activePoints, 0) : 0;
-  // Combat power and the website's item level come from NC's official character page (the player's own client does not send them).
-  const ncNumbers = [
-    character?.combatPower ? el("div", {}, [el("strong", { className: "accent", textContent: formatNumber(character.combatPower) }), el("span", { textContent: t("profile.combatPowerShort") })]) : null,
-    character?.itemLevel ? el("div", {}, [el("strong", { textContent: formatNumber(character.itemLevel) }), el("span", { textContent: t("profile.ncItemLevelShort") })]) : null,
+  // The class is only shown as the badge on the portrait (tooltip carries its name), so the line under the name is just the level.
+  const sub = profile?.level ? [`${t("guild.level")} ${profile.level}`] : [];
+  // Item level (own client), gear power and combat power come last; the gear power and combat power are from NC's official character page
+  // (the player's own client does not send them). The big number on the right is the combat power.
+  const stat = (value, label, accent = false) => el("div", {}, [el("strong", { className: accent ? "accent" : "", textContent: formatNumber(value) }), el("span", { textContent: label })]);
+  const numbers = [
+    profile?.averageItemLevel ? stat(profile.averageItemLevel, t("profile.avgShort")) : null,
+    character?.itemLevel ? stat(character.itemLevel, t("profile.gearPowerShort")) : null,
+    character?.combatPower ? stat(character.combatPower, t("profile.combatPowerShort"), true) : null,
   ].filter((x) => x != null);
-  const numbers = profile
-    ? [
-        ...ncNumbers,
-        el("div", {}, [el("strong", { className: "accent", textContent: String(profile.averageItemLevel ?? "–") }), el("span", { textContent: t("profile.avgShort") })]),
-        visibleSkillCount(profile) > 0 ? el("div", {}, [el("strong", { textContent: String(visibleSkillCount(profile)) }), el("span", { textContent: t("profile.skillsShort") })]) : null,
-        nodes > 0 ? el("div", {}, [el("strong", { textContent: String(nodes) }), el("span", { textContent: t("profile.nodesShort") })]) : null,
-      ].filter((x) => x != null)
-    : ncNumbers;
   return el("div", { className: "pf-strip" }, [
     stripEmblem(profile, player),
     // Name, class and the faction/legion/server line stay together in one column, so the badges and the numbers fit in one row.
     el("div", { className: "pf-id" }, [
-      el("div", { className: "pf-name", textContent: player.name }),
-      el("div", { className: "pf-sub", textContent: sub.join(" · ") }),
+      el("div", { className: "pf-name" }, [profile?.faction ? factionIcon(profile.faction) : null, player.name].filter((x) => x != null)),
+      sub.length > 0 ? el("div", { className: "pf-sub", textContent: sub.join(" · ") }) : null,
       el("div", { className: "pf-meta" }, [
-        profile?.faction ? iconLabel(factionIcon(profile.faction), profile.faction) : null,
         player.guild ? el("span", {}, [`${t("profile.guild")}: `, player.guildSlug ? link(player.guild, `/legions/${player.guildSlug}`) : player.guild]) : null,
         player.serverName ? el("span", { textContent: serverLabel(player.serverName) }) : null,
       ].filter((x) => x != null)),
