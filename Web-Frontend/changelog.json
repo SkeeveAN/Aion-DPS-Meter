@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.36.0",
   "date": "2026-10-11",
   "items": [
    {
@@ -8,6 +8,13 @@
     "areas": [
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "A small megaphone icon in the main window opens the new AION 2 announcements page on aiondps.com, and shows \"New\" (in every client language) while there is an announcement newer than the one seen at the last click",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-11"
    }
