@@ -638,7 +638,7 @@ const FEATURE_BLOCKS = [
   { id: "twitchdrops", images: [["twitchdrops", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
 ];
 const FEATURE_FLIPPED = new Set(["modes", "details", "network", "map", "worldboss", "announcements"]);
-const FEATURE_VERSION = "20261012b";
+const FEATURE_VERSION = "20261012c";
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
