@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.38.2",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "In battlefields the damage of most hits was shown as 1 (the damage field of those packets is a byte longer), so the meter and the upload showed only a few hundred damage instead of tens of thousands; every hit is now counted with its real damage",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.38.1",
   "date": "2026-10-11",
   "items": [
