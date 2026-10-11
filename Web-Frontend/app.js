@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "features", "changelog", "stats", "status", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "features", "changelog", "stats", "status", "announcements", "patchnotes", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -227,6 +227,22 @@ function setupLanguageSwitcher() {
   });
 }
 
+// The tab of the current page gets .active (the footer-less main navigation in index.html).
+const NAV_PAGES = { "nav-features": "/features", "nav-guilds": "/legions", "nav-stats": "/stats", "nav-status": "/status", "nav-announcements": "/announcements", "nav-patchnotes": "/patchnotes" };
+function markActiveNav() {
+  const path = location.pathname.replace(/\/+$/, "") || "/";
+  for (const [id, base] of Object.entries(NAV_PAGES)) {
+    const link = document.getElementById(id);
+    const on = path === base || path.startsWith(`${base}/`);
+    link?.classList.toggle("active", on);
+    if (on) {
+      link?.setAttribute("aria-current", "page");
+    } else {
+      link?.removeAttribute("aria-current");
+    }
+  }
+}
+
 function applyStaticTranslations() {
   document.getElementById("search-input").placeholder = t("nav.searchPlaceholder");
   document.getElementById("search-button").textContent = t("nav.searchButton");
@@ -236,6 +252,8 @@ function applyStaticTranslations() {
   // "Statistics" and "Changelog" are English only, as in the footer.
   document.getElementById("nav-stats").textContent = "Statistics";
   document.getElementById("nav-status").textContent = t("status.title");
+  document.getElementById("nav-announcements").textContent = t("ann.title");
+  document.getElementById("nav-patchnotes").textContent = t("pn.title");
   document.getElementById("nav-toggle").setAttribute("aria-label", t("nav.menu"));
 }
 
@@ -367,7 +385,6 @@ function buildSiteFooter() {
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
         link("Changelog", "/changelog"),
-        link(t("status.title"), "/status"),
         link(t("legal.privacyTitle"), "/privacy"),
         link(t("legal.termsTitle"), "/terms"),
       ]),
@@ -1061,6 +1078,135 @@ async function renderStatus() {
     }
     draw().catch(() => undefined);
   }, 30_000);
+}
+
+// AION 2 announcements: NCSoft's official notices in the site language (English where NC has no board in it), each with a colored label for its kind
+// and a green one once the title says completed / resolved. The list comes from GET /api/announcements; patchnotes are not part of it.
+const ANN_CATEGORIES = ["maintenance", "outage", "newServers", "serverTransfer", "compensation", "account", "twitchDrops", "knownIssues", "other"];
+async function renderAnnouncements() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("ann.title")]);
+  showLoading(t("ann.loading"));
+  const d = await fetchJson(`/api/announcements?lang=${encodeURIComponent(getLocale())}`);
+  const labelOf = (category) => t(`ann.cat.${ANN_CATEGORIES.includes(category) ? category : "other"}`);
+  const intl = getLocale() === "pt" ? "pt-BR" : getLocale();
+  const dayOf = (iso) => new Date(iso).toLocaleDateString("sv-SE"); // local calendar day, sortable
+  const dayTitle = new Intl.DateTimeFormat(intl, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const card = (x) => el("article", { className: `ann-item cat-${ANN_CATEGORIES.includes(x.category) ? x.category : "other"}` }, [
+    el("div", { className: "ann-head" }, [
+      el("span", { className: "ann-label", textContent: labelOf(x.category) }),
+      ...(x.status === "done" ? [el("span", { className: "ann-label done", textContent: t("ann.done") })] : []),
+      el("time", { className: "ann-date", dateTime: x.postedAt, textContent: new Date(x.postedAt).toLocaleTimeString(intl, { hour: "2-digit", minute: "2-digit" }) }),
+    ]),
+    el("h3", { className: "ann-title" }, [el("a", { href: x.url, target: "_blank", rel: "noopener", textContent: x.title })]),
+    ...(x.summary ? [el("p", { className: "ann-summary", textContent: x.summary })] : []),
+    el("a", { className: "ann-more", href: x.url, target: "_blank", rel: "noopener", textContent: t("ann.read") }),
+  ]);
+  // One heading per calendar day (the list is newest first), the day's notices in a grid below it.
+  const days = [];
+  for (const x of d.items) {
+    const key = dayOf(x.postedAt);
+    if (!days.length || days[days.length - 1].key !== key) {
+      days.push({ key, date: new Date(x.postedAt), list: [] });
+    }
+    days[days.length - 1].list.push(x);
+  }
+  // The visitor picks the kinds to show (one checkbox per kind, remembered in this browser); the days without a visible notice disappear.
+  const STORE_KEY = "dpsmeter.annHidden";
+  let hidden = new Set();
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORE_KEY) ?? "[]");
+    hidden = new Set(Array.isArray(stored) ? stored.filter((c) => ANN_CATEGORIES.includes(c)) : []);
+  } catch {
+    // storage blocked or damaged - everything shown
+  }
+  const catOf = (x) => (ANN_CATEGORIES.includes(x.category) ? x.category : "other");
+  const counts = new Map();
+  for (const x of d.items) {
+    counts.set(catOf(x), (counts.get(catOf(x)) ?? 0) + 1);
+  }
+  const present = ANN_CATEGORIES.filter((c) => counts.has(c));
+  const daysBox = el("div", { className: "ann-days" });
+  const paint = () => {
+    const sections = days
+      .map((day) => ({ day, list: day.list.filter((x) => !hidden.has(catOf(x))) }))
+      .filter((g) => g.list.length > 0)
+      .map((g) => el("section", { className: "ann-day" }, [
+        el("h3", { className: "ann-day-title", textContent: dayTitle.format(g.day.date) }),
+        el("div", { className: "ann-list" }, g.list.map(card)),
+      ]));
+    daysBox.replaceChildren(...(sections.length ? sections : [el("p", { className: "empty", textContent: t(d.items.length ? "ann.filterEmpty" : "ann.empty") })]));
+  };
+  const save = () => {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify([...hidden]));
+    } catch {
+      // the choice just does not survive the visit
+    }
+  };
+  const boxes = present.map((c) => {
+    const input = el("input", { type: "checkbox", checked: !hidden.has(c), onchange: () => {
+      if (input.checked) {
+        hidden.delete(c);
+      } else {
+        hidden.add(c);
+      }
+      save();
+      paint();
+    } });
+    return { c, input, node: el("label", { className: `ann-filter cat-${c}` }, [input, el("span", { textContent: `${labelOf(c)} (${counts.get(c)})` })]) };
+  });
+  const setAll = (on) => {
+    hidden = on ? new Set() : new Set(present);
+    boxes.forEach((b) => { b.input.checked = on; });
+    save();
+    paint();
+  };
+  const filterBar = el("div", { className: "ann-filters", role: "group", "aria-label": t("ann.filter") }, [
+    ...boxes.map((b) => b.node),
+    el("button", { type: "button", className: "ann-filter-all", textContent: t("ann.filterAll"), onclick: () => setAll(true) }),
+    el("button", { type: "button", className: "ann-filter-all", textContent: t("ann.filterNone"), onclick: () => setAll(false) }),
+  ]);
+  paint();
+  app.replaceChildren(
+    el("h2", { textContent: t("ann.title") }),
+    el("p", { className: "stat-sub", textContent: t("ann.intro") }),
+    ...(d.lang !== getLocale() ? [el("p", { className: "stat-sub", textContent: t("ann.fallback") })] : []),
+    ...(d.items.length ? [filterBar] : []),
+    daysBox,
+  );
+}
+
+// AION 2 patch notes: the only place with NC's full text (GET /api/patchnotes answers a small tree of paragraphs, bold/italic text, lists and https links,
+// built here with createElement - NC's markup never reaches the page). The newest note is open, older ones fold; every note links to NC's own page.
+const PN_TAGS = { p: "p", strong: "strong", em: "em", u: "u", ul: "ul", ol: "ol", li: "li", br: "br", h: "h4", a: "a" };
+function patchnoteNodes(nodes) {
+  return nodes.map((n) => {
+    if (typeof n === "string") {
+      return document.createTextNode(n);
+    }
+    const tag = PN_TAGS[n.tag] ?? "span";
+    const props = n.tag === "a" && typeof n.href === "string" && n.href.startsWith("https://") ? { href: n.href, target: "_blank", rel: "noopener" } : {};
+    return el(tag, props, tag === "br" ? [] : patchnoteNodes(n.children ?? []));
+  });
+}
+async function renderPatchnotes() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("pn.title")]);
+  showLoading(t("pn.loading"));
+  const d = await fetchJson(`/api/patchnotes?lang=${encodeURIComponent(getLocale())}`);
+  const notes = d.items.map((x, i) => el("details", { className: "pn-item", open: i === 0 }, [
+    el("summary", {}, [
+      el("span", { className: "pn-title", textContent: x.title }),
+      el("time", { className: "ann-date", dateTime: x.postedAt, textContent: formatDate(new Date(x.postedAt)) }),
+    ]),
+    el("div", { className: "pn-body" }, patchnoteNodes(x.body)),
+    el("a", { className: "ann-more", href: x.url, target: "_blank", rel: "noopener", textContent: t("pn.read") }),
+  ]));
+  app.replaceChildren(
+    el("h2", { textContent: t("pn.title") }),
+    el("p", { className: "stat-sub", textContent: t("pn.intro") }),
+    ...(d.lang !== getLocale() ? [el("p", { className: "stat-sub", textContent: t("ann.fallback") })] : []),
+    notes.length ? el("div", { className: "ann-list" }, notes) : el("p", { className: "empty", textContent: t("pn.empty") }),
+  );
 }
 
 // Changelog - English, plus German when the site language is German (texts in changelog.de.json,
@@ -3359,6 +3505,7 @@ function isAppPath(pathname) {
 }
 
 async function route() {
+  markActiveNav();
   // Old links such as /instances#nightmare move to the real address of that category.
   if (location.pathname.replace(/\/+$/, "") === "/instances" && INSTANCE_TAB_ORDER.includes(location.hash.replace("#", ""))) {
     history.replaceState(null, "", `/instances/${location.hash.replace("#", "")}`);
@@ -3419,6 +3566,10 @@ async function route() {
       await renderStats();
     } else if (section === "status") {
       await renderStatus();
+    } else if (section === "announcements") {
+      await renderAnnouncements();
+    } else if (section === "patchnotes") {
+      await renderPatchnotes();
     } else if (section === "guilds") {
       await (param ? renderGuild(param) : renderGuilds());
     } else if (section === "private-stats") {

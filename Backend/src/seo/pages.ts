@@ -230,6 +230,36 @@ export function serverStatusPage(): Page {
   };
 }
 
+export function announcementsPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "AION 2 Announcements – Aion DPS Meter",
+      description: "The official AION 2 announcements in one place: maintenance, outages, new servers, server transfers, compensation and account notices, in your language and with colored labels.",
+      canonicalPath: "/announcements",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "AION 2 Announcements", path: "/announcements" }])],
+    },
+    body: html`
+      <h2>AION 2 Announcements</h2>
+      <p>The official AION 2 announcements: maintenance, outages, new servers, server transfers, compensation and account notices.</p>`,
+  };
+}
+
+export function patchnotesPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "AION 2 Patch Notes – Aion DPS Meter",
+      description: "The official AION 2 patch notes in full text, in your language: improvements, drop rates, merchants and fixes, newest first.",
+      canonicalPath: "/patchnotes",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "AION 2 Patch Notes", path: "/patchnotes" }])],
+    },
+    body: html`
+      <h2>AION 2 Patch Notes</h2>
+      <p>The official AION 2 patch notes in full text: improvements, drop rates, merchants and fixes.</p>`,
+  };
+}
+
 /** The operator page behind the secret address: an empty app shell, never indexed, never cached. */
 export function privateStatsPage(path: string): Page {
   return {

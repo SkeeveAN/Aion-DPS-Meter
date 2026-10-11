@@ -17,6 +17,8 @@ import { serverCatalogRoutes } from "./routes/serverCatalog.js";
 import { statsRoutes } from "./routes/stats.js";
 import { siteStatsRoutes } from "./routes/siteStats.js";
 import { serverStatusRoutes } from "./routes/serverStatus.js";
+import { announcementRoutes } from "./routes/announcements.js";
+import { patchnoteRoutes } from "./routes/patchnotes.js";
 import { downloadRoutes } from "./routes/downloads.js";
 import { guildRoutes } from "./routes/guilds.js";
 import { seoRoutes } from "./routes/seo.js";
@@ -58,6 +60,8 @@ export async function buildServer() {
   await app.register(statsRoutes);
   await app.register(siteStatsRoutes);
   await app.register(serverStatusRoutes);
+  await app.register(announcementRoutes);
+  await app.register(patchnoteRoutes);
   await app.register(downloadRoutes);
   await app.register(guildRoutes);
   await app.register(seoRoutes);

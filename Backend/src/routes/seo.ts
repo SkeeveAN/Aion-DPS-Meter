@@ -87,6 +87,8 @@ function buildSitemap(): string {
     { path: "/changelog", lastmod: release },
     { path: "/stats", lastmod: lastFightAll },
     { path: "/status" },
+    { path: "/announcements" },
+    { path: "/patchnotes" },
     { path: "/legions", lastmod: lastFightAll },
   ];
 

@@ -32,3 +32,6 @@ Backend/data/ncsoft-official/
 
 # Cut-out character portraits fetched from NC (regenerable cache)
 Backend/data/portraits/
+Backend/data/announcements.json*
+Backend/data/patchnotes.json*
+Web-Frontend/proto/

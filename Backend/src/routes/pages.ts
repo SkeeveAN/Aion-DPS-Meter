@@ -13,6 +13,8 @@ import {
   featuresPage,
   statsPage,
   serverStatusPage,
+  announcementsPage,
+  patchnotesPage,
   guildsPage,
   guildPage,
   privateStatsPage,
@@ -84,6 +86,8 @@ export async function pageRoutes(app: FastifyInstance) {
   app.get("/guilds", async (_request, reply) => reply.redirect("/legions", 301));
   app.get<{ Params: { slug: string } }>("/guilds/:slug", async (request, reply) => reply.redirect(`/legions/${encodeURIComponent(request.params.slug)}`, 301));
   app.get("/status", async (request, reply) => send(reply, render(serverStatusPage(), requestPath(request))));
+  app.get("/announcements", async (request, reply) => send(reply, render(announcementsPage(), requestPath(request))));
+  app.get("/patchnotes", async (request, reply) => send(reply, render(patchnotesPage(), requestPath(request))));
   app.get("/stats", async (request, reply) => send(reply, render(statsPage(), requestPath(request))));
   // The secret address of the operator statistics: anything else under /p/ is an ordinary 404.
   app.get<{ Params: { secret: string } }>("/p/:secret", async (request, reply) => {
