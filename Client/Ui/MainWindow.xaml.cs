@@ -535,6 +535,12 @@ public partial class MainWindow : Window
             case HotkeyAction.ToggleWorldBossOverlay:
                 ToggleWorldBossOverlay();
                 break;
+            case HotkeyAction.TogglePetArrows:
+                TogglePetArrows();
+                break;
+            case HotkeyAction.ToggleGatherArrows:
+                ToggleGatherArrows();
+                break;
             case HotkeyAction.NextMode:
                 NextMode();
                 break;
@@ -544,12 +550,6 @@ public partial class MainWindow : Window
         }
     }
 
-            case HotkeyAction.TogglePetArrows:
-                TogglePetArrows();
-                break;
-            case HotkeyAction.ToggleGatherArrows:
-                ToggleGatherArrows();
-                break;
     /// <summary>(Re-)registers the hotkeys from the settings; a combination another program already
     /// owns is reported on the status line.</summary>
     private void ApplyHotkeys(MeterSettings settings)
@@ -572,6 +572,8 @@ public partial class MainWindow : Window
             [HotkeyAction.ToggleHotkeyOverlay] = HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay),
             [HotkeyAction.ToggleAllOverlays] = HotkeyBinding.Parse(settings.HotkeyAllOverlays),
             [HotkeyAction.ToggleWorldBossOverlay] = HotkeyBinding.Parse(settings.HotkeyWorldBoss),
+            [HotkeyAction.TogglePetArrows] = HotkeyBinding.Parse(settings.HotkeyPetArrows),
+            [HotkeyAction.ToggleGatherArrows] = HotkeyBinding.Parse(settings.HotkeyGatherArrows),
         });
         if (failed.Count > 0)
         {
@@ -581,8 +583,6 @@ public partial class MainWindow : Window
 
     private DateTime _lastPreviewInvalidate = DateTime.MinValue;
 
-            [HotkeyAction.TogglePetArrows] = HotkeyBinding.Parse(settings.HotkeyPetArrows),
-            [HotkeyAction.ToggleGatherArrows] = HotkeyBinding.Parse(settings.HotkeyGatherArrows),
     private void OnPollTimerTick(object? sender, EventArgs e)
     {
         // The Alt+Tab picture of the overlay (see RenderOverlayPreview) is redrawn on request; saying
@@ -4169,6 +4169,23 @@ public partial class MainWindow : Window
         _settingsWindow?.SyncOverlaySwitches(settings);
     }
 
+    /// <summary>The map controller reads the settings every second, so the switch is all it takes.</summary>
+    private void TogglePetArrows()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowPetArrows = !settings.ShowPetArrows;
+        settings.Save();
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
+    private void ToggleGatherArrows()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowGatherArrows = !settings.ShowGatherArrows;
+        settings.Save();
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
     /// <summary>The world boss controller reads the settings every second, so the switch is all it takes.</summary>
     private void ToggleWorldBossOverlay()
     {
@@ -4218,23 +4235,6 @@ public partial class MainWindow : Window
         }
 
         RefreshRows();
-    /// <summary>The map controller reads the settings every second, so the switch is all it takes.</summary>
-    private void TogglePetArrows()
-    {
-        var settings = MeterSettings.Load();
-        settings.ShowPetArrows = !settings.ShowPetArrows;
-        settings.Save();
-        _settingsWindow?.SyncOverlaySwitches(settings);
-    }
-
-    private void ToggleGatherArrows()
-    {
-        var settings = MeterSettings.Load();
-        settings.ShowGatherArrows = !settings.ShowGatherArrows;
-        settings.Save();
-        _settingsWindow?.SyncOverlaySwitches(settings);
-    }
-
     }
 
     /// <summary>Which Hide-UI look is up: one chip per player or the compact panel (Settings).</summary>
