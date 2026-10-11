@@ -535,6 +535,60 @@ internal static class Program
     }
 
     /// <summary>Renders the compact overlay panel with a few sample rows to a PNG, never showing a window.</summary>
+    /// <summary>The open list of the target dropdown drawn under its closed box (a real popup would be a window of its own, and none is shown here).</summary>
+    private static void DrawOpenTargetList(Ui.MainWindow window, System.Windows.FrameworkElement panel, System.Windows.Media.Imaging.RenderTargetBitmap bitmap)
+    {
+        var combo = window.MobBossFilter;
+        foreach (string name in new[] { "Talisra of the Void", "Siliator of Deceit", "Ruthilis of Pain", "Transcendent Bakarma, Keeper of the Lost Gate" })
+        {
+            combo.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = name });
+        }
+
+        combo.ApplyTemplate();
+        System.Windows.Controls.Primitives.Popup? popup = null;
+        var queue = new Queue<System.Windows.DependencyObject>();
+        queue.Enqueue(combo);
+        while (queue.Count > 0 && popup is null)
+        {
+            var node = queue.Dequeue();
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(node); i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(node, i);
+                if (child is System.Windows.Controls.Primitives.Popup found)
+                {
+                    popup = found;
+                    break;
+                }
+
+                queue.Enqueue(child);
+            }
+        }
+
+        if (popup?.Child is not System.Windows.FrameworkElement list)
+        {
+            Console.WriteLine("render-overlay: the dropdown has no popup to draw");
+            return;
+        }
+
+        for (int pass = 0; pass < 4; pass++)
+        {
+            list.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            list.Arrange(new System.Windows.Rect(list.DesiredSize));
+            list.UpdateLayout();
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+        }
+
+        var at = combo.TranslatePoint(new System.Windows.Point(0, combo.ActualHeight), panel);
+        var visual = new System.Windows.Media.DrawingVisual();
+        using (var dc = visual.RenderOpen())
+        {
+            dc.DrawRectangle(new System.Windows.Media.VisualBrush(list), null, new System.Windows.Rect(at.X, at.Y, list.ActualWidth, list.ActualHeight));
+        }
+
+        bitmap.Render(visual);
+        Console.WriteLine($"render-overlay: the open list is {list.ActualWidth:0} px wide, the closed box {combo.ActualWidth:0} px");
+    }
+
     private static void RunRenderOverlayMode(string path, string kind)
     {
         // "chips-all" etc.: the same look in the All in One mode.
@@ -591,7 +645,7 @@ internal static class Program
             panel.Visibility = System.Windows.Visibility.Visible;
             panel.Width = 390;
         }
-        else if (kind == "window")
+        else if (kind is "window" or "window-open")
         {
             // The normal window as it is without Hide UI: its whole content at a typical size.
             window.OverlayTargetText.Text = "Transcendent Bakarma";
@@ -614,20 +668,25 @@ internal static class Program
             panel = window.CompactOverlayPanel;
         }
 
-        if (kind != "window")
+        if (kind is not ("window" or "window-open"))
         {
             panel.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
             panel.Arrange(new System.Windows.Rect(panel.DesiredSize));
         }
 
         panel.UpdateLayout();
-        int w = kind == "window" ? 520 : (int)Math.Ceiling(panel.DesiredSize.Width), h = kind == "window" ? 420 : (int)Math.Ceiling(panel.DesiredSize.Height); // the window is drawn at the size it was arranged at
+        int w = kind is "window" or "window-open" ? 520 : (int)Math.Ceiling(panel.DesiredSize.Width), h = kind is "window" or "window-open" ? 420 : (int)Math.Ceiling(panel.DesiredSize.Height); // the window is drawn at the size it was arranged at
         var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x30, 0x40, 0x30)) };
         var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
         backdrop.Measure(new System.Windows.Size(w, h));
         backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
         bitmap.Render(backdrop);
         bitmap.Render(panel);
+        if (kind == "window-open")
+        {
+            DrawOpenTargetList(window, panel, bitmap);
+        }
+
         var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
         encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
         using (var file = File.Create(path))
