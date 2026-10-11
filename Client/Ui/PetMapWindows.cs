@@ -81,6 +81,16 @@ public abstract class MovableOverlay : Window
 
     public bool IsLocked => _locked;
 
+    /// <summary>The height the frame may take in its own units (the scaling excluded): the height it was pulled to; without one, the screen's.</summary>
+    protected double HeightLimit
+    {
+        get
+        {
+            double h = !double.IsNaN(_frame.Height) ? _frame.Height : !double.IsInfinity(_frame.MaxHeight) ? _frame.MaxHeight : SystemParameters.WorkArea.Height;
+            return h / Math.Max(_scale.ScaleY, 0.1);
+        }
+    }
+
     /// <summary>The size the body really has (in its own units, the frame's scaling excluded).</summary>
     protected double BodyWidth => _bodyHost.ActualWidth;
 
@@ -473,34 +483,62 @@ public sealed class PetMapWindow : MovableOverlay
         // a chosen pet with nothing in view: an arrow on the edge, in its colour, towards its nearest spawn point
         int arrow = 0;
         double halfX = cx, halfY = cy, reachX = halfX - 13, reachY = halfY - 13;
-        foreach (var (pet, color) in colors)
+        // one pass over all points (not one pass per pet): per pet whether one is in view, and the nearest one out of view
+        var seen = new Dictionary<int, (bool Visible, double BestSq, double Bx, double By)>();
+        void Consider(int id, float x, float y)
         {
-            double bestSq = double.MaxValue, bx = 0, by = 0;
-            bool visible = false;
-            foreach ((int id, float x, float y) in points.Concat(live))
+            if (!colors.ContainsKey(id))
             {
-                if (id != pet)
-                {
-                    continue;
-                }
+                return;
+            }
 
-                double dx = (x - worldX) * ppu, dy = (y - worldY) * ppu;
-                if (Math.Abs(dx) < halfX - 5 && Math.Abs(dy) < halfY - 5)
-                {
-                    visible = true;
-                    break;
-                }
+            if (!seen.TryGetValue(id, out var st))
+            {
+                st = (false, double.MaxValue, 0, 0);
+            }
+            else if (st.Visible)
+            {
+                return; // one in view is enough: no arrow for this pet
+            }
 
+            double dx = (x - worldX) * ppu, dy = (y - worldY) * ppu;
+            if (Math.Abs(dx) < halfX - 5 && Math.Abs(dy) < halfY - 5)
+            {
+                st.Visible = true;
+            }
+            else
+            {
                 double sq = dx * dx + dy * dy;
-                if (sq < bestSq)
+                if (sq < st.BestSq)
                 {
-                    bestSq = sq;
-                    bx = dx;
-                    by = dy;
+                    st.BestSq = sq;
+                    st.Bx = dx;
+                    st.By = dy;
                 }
             }
 
-            if (visible || bestSq == double.MaxValue)
+            seen[id] = st;
+        }
+
+        foreach (var (id, x, y) in points)
+        {
+            Consider(id, x, y);
+        }
+
+        foreach (var (id, x, y) in live)
+        {
+            Consider(id, x, y);
+        }
+
+        foreach (var (pet, color) in colors)
+        {
+            if (!seen.TryGetValue(pet, out var st))
+            {
+                continue;
+            }
+
+            double bestSq = st.BestSq, bx = st.Bx, by = st.By;
+            if (st.Visible || bestSq == double.MaxValue)
             {
                 continue;
             }
@@ -545,6 +583,9 @@ public sealed class PetListWindow : MovableOverlay
 {
     private readonly StackPanel _rows = new() { MinWidth = 250, MinHeight = 60 };
     private string _shown = "";
+
+    /// <summary>How many rows the player can see at most (a row is about 19 units high), plus a reserve: more are not worth building.</summary>
+    public int RowCapacity => (int)Math.Ceiling(HeightLimit / 19.0) + 10;
 
     public PetListWindow() : base("Aion DPS Pet List", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - 300, 580, LoadSize, SaveSize)
     {

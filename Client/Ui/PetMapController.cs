@@ -28,6 +28,7 @@ public sealed class PetMapController : IDisposable
     private MeterSettings _settings = MeterSettings.Load();
     private DateTime _settingsAt = DateTime.UtcNow;
     private string? _faction = Aion2Gather.OwnFaction();
+    private HashSet<int> _savedMax = SavedMaxPets();
 
     public PetMapController(Func<Aion2EntityDirectory?> directory)
     {
@@ -61,6 +62,7 @@ public sealed class PetMapController : IDisposable
         {
             _settings = MeterSettings.Load(); // the settings file is read once a second, not every tick
             _faction = Aion2Gather.OwnFaction();
+            _savedMax = SavedMaxPets();
             _settingsAt = DateTime.UtcNow;
         }
 
@@ -92,7 +94,9 @@ public sealed class PetMapController : IDisposable
 
         // The chosen pets (those at the top level need no farming)
         var states = directory?.LocalPetStates ?? Array.Empty<Aion2PetState>();
-        var chosen = settings.PetMapPets.Where(id => !states.Any(s => s.PetId == id && s.Level >= Aion2Pets.TopLevel)).ToHashSet();
+        // before the game's pet list has arrived (the meter started after the login) the levels saved at the last login stand in
+        var maxPets = states.Count > 0 ? states.Where(s => s.Level >= Aion2Pets.TopLevel).Select(s => s.PetId).ToHashSet() : _savedMax;
+        var chosen = settings.PetMapPets.Where(id => !maxPets.Contains(id)).ToHashSet();
         // only what the player's own faction can use (an earlier pick of the other side's plants no longer counts)
         var gatherKinds = Aion2Gather.Items().Where(i => settings.PetMapGatherItems.Contains(i.Key) && i.IsFor(_faction)).Select(i => i.Key).ToHashSet();
         if (chosen.Count == 0 && gatherKinds.Count == 0)
@@ -173,11 +177,14 @@ public sealed class PetMapController : IDisposable
         {
             _lastTarget = (tx, ty);
             _lastKnownFlag = known;
-            _list.Render(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds));
+            _list.Render(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds).Take(_list.RowCapacity).ToList()); // only what fits in the frame (plus a reserve)
         }
 
         _list.ShowOverlay(true);
     }
+
+    private static HashSet<int> SavedMaxPets() =>
+        (Aion2CharacterStore.Load(Aion2CharacterStore.DefaultPath)?.Pets ?? new()).Where(p => p.Level >= Aion2Pets.TopLevel).Select(p => p.Id).ToHashSet();
 
     private (float X, float Y)? _lastKnown;
     private bool _lastKnownFlag;
@@ -242,11 +249,35 @@ public sealed class PetMapController : IDisposable
             gatherRows.Add((nearest, (PetMapPalette.OfGather(item.Kind), item.NameIn(language), "", known && !double.IsNaN(nearest) ? $"~{nearest / 100:0} m" : "", true)));
         }
 
+        // nearest point per pet in one pass over all points (not one pass per pet: the lists hold thousands of spawn points)
+        var nearestPoint = new Dictionary<int, double>();
+        var nearestLiveOf = new Dictionary<int, double>();
+        if (known)
+        {
+            foreach (var (id, px, py) in _points)
+            {
+                double d = Dist(px, py);
+                if (!nearestPoint.TryGetValue(id, out double best) || d < best)
+                {
+                    nearestPoint[id] = d;
+                }
+            }
+        }
+
+        foreach (var (id, px, py) in live)
+        {
+            double d = Dist(px, py);
+            if (!nearestLiveOf.TryGetValue(id, out double best) || d < best)
+            {
+                nearestLiveOf[id] = d;
+            }
+        }
+
         foreach (int pet in pets)
         {
-            double nearest = known ? _points.Where(p => p.PetId == pet).Select(p => Dist(p.X, p.Y)).DefaultIfEmpty(double.NaN).Min() : double.NaN;
+            double nearest = known ? nearestPoint.GetValueOrDefault(pet, double.NaN) : double.NaN;
             // a monster the game has announced around the player beats the general spawn points: its distance counts, the others show "~"
-            double nearestLive = live.Where(p => p.PetId == pet).Select(p => Dist(p.X, p.Y)).DefaultIfEmpty(double.NaN).Min();
+            double nearestLive = nearestLiveOf.GetValueOrDefault(pet, double.NaN);
             bool isLive = !double.IsNaN(nearestLive);
             if (isLive)
             {

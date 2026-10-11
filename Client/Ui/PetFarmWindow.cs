@@ -434,6 +434,9 @@ internal static class GameWindow
         return new System.Drawing.Rectangle(origin.X, origin.Y, client.Right, client.Bottom);
     }
 
+    private static IntPtr _notGame;
+    private static long _notGameAt;
+
     private static bool IsGame(IntPtr hwnd)
     {
         if (hwnd == _known)
@@ -441,9 +444,24 @@ internal static class GameWindow
             return true;
         }
 
+        // The overlays ask every 50 ms. While another window (the meter itself, a browser) is in front, looking up the process each time
+        // is expensive and starves the UI thread, so a "not the game" answer is remembered for a few seconds.
+        long now = Environment.TickCount64;
+        if (hwnd == _notGame && now - _notGameAt < 5000)
+        {
+            return false;
+        }
+
         try
         {
             GetWindowThreadProcessId(hwnd, out uint pid);
+            if (pid == (uint)Environment.ProcessId)
+            {
+                _notGame = hwnd;
+                _notGameAt = now;
+                return false;
+            }
+
             using var process = System.Diagnostics.Process.GetProcessById((int)pid);
             if (process.ProcessName.Equals("AION2", StringComparison.OrdinalIgnoreCase))
             {
@@ -455,6 +473,8 @@ internal static class GameWindow
         {
         }
 
+        _notGame = hwnd;
+        _notGameAt = now;
         return false;
     }
 }

@@ -491,7 +491,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             {
                 _recentSpawns.Dequeue();
             }
-            if (_liveMobs.Count > 3000)
+            if (_liveMobs.Count > 1000)
             {
                 _liveMobs.Clear(); // nothing is ever that close: the table lost its removals
             }

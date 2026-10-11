@@ -1112,7 +1112,8 @@ public partial class SettingsWindow : Window
         PetRegionTree.Children.Clear();
         var loc = LocalizationManager.Instance;
         var groups = Aion2PetRegions.Groups;
-        _petRegionKey ??= groups.SelectMany(g => g.Regions).FirstOrDefault()?.Key;
+        // a region is told apart by its group too: "Events" (and the unnamed rest) exist once per map, with the same key
+        _petRegionKey ??= groups.Where(g => g.Regions.Count > 0).Select(g => g.Id + "/" + g.Regions[0].Key).FirstOrDefault();
         foreach (var group in groups)
         {
             bool closed = _petRegionClosed.Contains(group.Id);
@@ -1141,7 +1142,7 @@ public partial class SettingsWindow : Window
 
             foreach (var region in group.Regions.OrderBy(r => r.NameIn(loc.Language), RegionNameComparer(loc.Language)))
             {
-                bool selected = region.Key == _petRegionKey;
+                bool selected = group.Id + "/" + region.Key == _petRegionKey;
                 int maxCount = region.Pets.Count(IsMax);
                 var name = new TextBlock { Text = region.NameIn(loc.Language), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, FontWeight = selected ? FontWeights.SemiBold : FontWeights.Normal };
                 name.SetResourceReference(TextBlock.ForegroundProperty, selected ? "Brush.Accent" : "Brush.Text");
@@ -1167,7 +1168,7 @@ public partial class SettingsWindow : Window
                     item.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
                 }
 
-                string key = region.Key;
+                string key = group.Id + "/" + region.Key;
                 item.MouseLeftButtonDown += (_, _) =>
                 {
                     _petRegionKey = key;
@@ -1205,8 +1206,8 @@ public partial class SettingsWindow : Window
         var loc = LocalizationManager.Instance;
         string filter = PetRegionSearchBox.Text.Trim();
         // a search looks through every region, otherwise the chosen one is shown
-        var regions = Aion2PetRegions.Groups.SelectMany(g => g.Regions);
-        var ids = (filter.Length > 0 ? regions : regions.Where(r => r.Key == _petRegionKey)).SelectMany(r => r.Pets).Distinct();
+        var regions = Aion2PetRegions.Groups.SelectMany(g => g.Regions.Select(r => (Key: g.Id + "/" + r.Key, Region: r)));
+        var ids = (filter.Length > 0 ? regions : regions.Where(r => r.Key == _petRegionKey)).SelectMany(r => r.Region.Pets).Distinct();
         var pets = ids.Select(id => (Id: id, Name: Aion2Pets.PetName(id, loc.Language) ?? $"#{id}"))
             .Where(p => filter.Length == 0 || p.Name.Contains(filter, StringComparison.CurrentCultureIgnoreCase))
             .OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase);
