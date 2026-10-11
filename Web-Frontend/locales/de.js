@@ -297,6 +297,8 @@ export default {
   "profile.skillBonuses": "Skills: {list}",
   "profile.note": "Die Beträge der Steine und Stigmen sind nicht Teil der Daten.",
   "profile.avgShort": "Ø Itemlevel",
+  "profile.combatPowerShort": "Kampfkraft",
+  "profile.ncItemLevelShort": "Itemlevel (Webseite)",
   "profile.skillsShort": "Skills",
   "profile.nodesShort": "Daevanion-Punkte",
   "profile.upgrade": "Verbesserungsbedarf",

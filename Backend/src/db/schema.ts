@@ -333,7 +333,8 @@ export const playerProfiles = sqliteTable("player_profiles", {
   playerId: integer("player_id")
     .primaryKey()
     .references(() => players.id),
-  source: text("source", { enum: ["self", "seen"] }).notNull(),
+  // "nc": built from NC's official character page, the lowest rank: a "seen" profile with as many pieces or more and every "self" one replaces it.
+  source: text("source", { enum: ["self", "seen", "nc"] }).notNull(),
   updatedAt: text("updated_at")
     .notNull()
     .default(sql`(current_timestamp)`),
@@ -576,6 +577,11 @@ export const playerNcCharacter = sqliteTable("player_nc_character", {
   wingSkinId: integer("wing_skin_id"),
   activePet: integer("active_pet"),
   activePetLevel: integer("active_pet_level"),
+  // The character's combat power and the website's item level (not the in-game gear score), the legion NC files him under, his level.
+  combatPower: integer("combat_power"),
+  itemLevel: integer("item_level"),
+  ncGuild: text("nc_guild"),
+  ncLevel: integer("nc_level"),
   // 'ok' data fetched, 'none' no unambiguous character found at NC, 'error' network/answer problem. Old data stays on show on a later failure.
   status: text("status").notNull(),
   // Time of the last successful fetch (of the first attempt while there is no data yet).
@@ -595,7 +601,7 @@ export const playerNcMatch = sqliteTable("player_nc_match", {
   ncRace: integer("nc_race"),
   // NC's id of the character the check matched (url-decoded base64url): with the server id it names the character for good, across renames.
   ncCharacterId: text("nc_character_id"),
-  // What settled an ambiguous name: 'name' (nothing else needed) or 'legion' (the verified members of his legion); later 'renamed' (NC named him differently by his character id, the row was renamed) or 'rename-conflict' (the new name already belongs to another row of that server: nothing merged).
+  // What settled an ambiguous name: 'name' (nothing else needed) 'legion' (the verified members of his legion) or 'legion-name' (only one of the candidates is in a legion of the name the game reported); later 'renamed' (NC named him differently by his character id, the row was renamed) or 'rename-conflict' (the new name already belongs to another row of that server: nothing merged).
   via: text("via"),
   candidates: integer("candidates").notNull().default(0),
   checkedAt: integer("checked_at").notNull(),

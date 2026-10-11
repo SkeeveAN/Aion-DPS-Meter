@@ -297,6 +297,8 @@ export default {
   "profile.skillBonuses": "Skills: {list}",
   "profile.note": "Stone amounts and stigmas are not part of the data.",
   "profile.avgShort": "Avg item level",
+  "profile.combatPowerShort": "Combat power",
+  "profile.ncItemLevelShort": "Item level (website)",
   "profile.skillsShort": "Skills",
   "profile.nodesShort": "Daevanion points",
   "profile.upgrade": "Worth upgrading",

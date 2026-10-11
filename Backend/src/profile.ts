@@ -4,6 +4,7 @@ import { z } from "zod";
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { db } from "./db/client.js";
 import { encounterParticipants, playerNcCharacter, playerProfiles } from "./db/schema.js";
+import type { NcCharacterData } from "./ncCharacter.js";
 
 /**
  * Character profile of an Aion 2 player, as an uploading client read it from the game's traffic.
@@ -133,10 +134,16 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     return;
   }
 
-  const existing = db.select().from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get();
-  if (existing?.source === "self" && profile.source === "seen") {
+  const row = db.select().from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get();
+  if (row?.source === "self" && profile.source === "seen") {
     return;
   }
+  // A profile built from NC's page has the whole equipment: a "seen" one replaces it only with as many pieces or more.
+  if (row?.source === "nc" && profile.source === "seen" && profile.gear.length < (JSON.parse(row.gearJson) as unknown[]).length) {
+    return;
+  }
+  // Nothing of an NC profile is carried over into a profile from the game: its lists are NC's, not what the client read.
+  const existing = row?.source === "nc" ? undefined : row;
 
   const values = {
     source: profile.source,
@@ -162,7 +169,7 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     // The level belongs to the pet it was read for: a new pet without a level does not inherit the old pet's.
     activePetLevel: profile.activePetLevel ? profile.activePetLevel : (!profile.activePet || profile.activePet === existing?.activePet ? (existing?.activePetLevel ?? null) : null),
   };
-  if (existing) {
+  if (row) {
     db.update(playerProfiles)
       .set({ ...values, updatedAt: new Date().toISOString().slice(0, 19).replace("T", " ") })
       .where(eq(playerProfiles.playerId, playerId))
@@ -316,7 +323,7 @@ export function factionFromFights(playerId: number): "Elyos" | "Asmodian" | null
 }
 
 export type ProfileView = {
-  source: "self" | "seen";
+  source: "self" | "seen" | "nc";
   updatedAt: string;
   level: number | null;
   className: string | null;
@@ -412,7 +419,10 @@ export function averageItemLevelOf(gearJson: string): number | null {
   return levels.length > 0 ? Math.round((levels.reduce((s, l) => s + l, 0) / levels.length) * 10) / 10 : null;
 }
 
-export type CharacterView = Pick<ProfileView, "attributes" | "wing" | "wingSkin" | "activePet" | "characterSource" | "characterFetchedAt">;
+/** What NC's official character page adds to a character: combat power, the website's item level and the legion it files him under. */
+export type NcExtras = { combatPower: number | null; itemLevel: number | null; ncGuild: string | null };
+
+export type CharacterView = Pick<ProfileView, "attributes" | "wing" | "wingSkin" | "activePet" | "characterSource" | "characterFetchedAt"> & NcExtras;
 
 type ClientCharacter = { attributesJson: string; wingId: number | null; wingSkinId: number | null; activePet: number | null; activePetLevel: number | null };
 
@@ -421,8 +431,8 @@ type ClientCharacter = { attributesJson: string; wingId: number | null; wingSkin
  * per field; whatever it lacks is filled from NC's official character page. Pure, for tests.
  */
 export function mergeCharacter(
-  client: (ClientCharacter & { source: "self" | "seen"; updatedAt: string }) | null | undefined,
-  nc: (ClientCharacter & { fetchedAt: number }) | null | undefined,
+  client: (ClientCharacter & { source: "self" | "seen" | "nc"; updatedAt: string }) | null | undefined,
+  nc: (ClientCharacter & Partial<NcExtras> & { fetchedAt: number }) | null | undefined,
 ): CharacterView {
   wingData ??= loadJson("wings.json", {});
   petInfo ??= loadJson("pets.json", {});
@@ -437,6 +447,9 @@ export function mergeCharacter(
     wingSkin: wingOf(own?.wingSkinId || nc?.wingSkinId || null),
     activePet: pet ? activePetOf(pet.activePet, pet.activePetLevel) : null,
     characterSource: clientAttributes ? "client" : ncAttributes ? "nc" : null,
+    combatPower: nc?.combatPower ?? null,
+    itemLevel: nc?.itemLevel ?? null,
+    ncGuild: nc?.ncGuild || null,
     characterFetchedAt: clientAttributes ? (own as { updatedAt: string }).updatedAt : ncAttributes ? new Date((nc as { fetchedAt: number }).fetchedAt).toISOString() : null,
   };
 }
@@ -649,4 +662,44 @@ function boardSummary(boardCountsJson: string, own: { board: number; name: strin
   return (JSON.parse(boardCountsJson) as { board: number; count: number }[])
     .map((b) => ({ board: b.board, name: nameOf(b.board), count: Math.max(0, b.count - 1), total: totalOf(b.board) }))
     .sort((a, b) => a.board - b.board);
+}
+
+/**
+ * Stores what NC's official character page says (gear, skills, Daevanion board counts, level, class, title) as the player's profile, so the
+ * profile page shows it like any other. The lowest rank: a "self" profile is never touched, and a "seen" one stays unless NC lists more
+ * pieces. Never carries anything over from the old row, so the profile is exactly NC's view.
+ */
+export function upsertNcProfile(playerId: number, data: Pick<NcCharacterData, "gear" | "skills" | "boardCounts" | "level" | "classId" | "titleId">): void {
+  if (data.gear.length === 0 && data.classId === null) {
+    return;
+  }
+  const row = db.select().from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get();
+  if (row && row.source !== "nc" && (row.source === "self" || (JSON.parse(row.gearJson) as unknown[]).length >= data.gear.length)) {
+    return;
+  }
+  const values = {
+    source: "nc" as const,
+    level: data.level,
+    classId: data.classId,
+    // The in-game gear score and class bits stay with a replaced "seen" row: they are what the game said, NC has no such number.
+    classBits: row?.classBits ?? null,
+    gearScore: row?.gearScore ?? null,
+    gearJson: JSON.stringify(data.gear),
+    skillsJson: JSON.stringify(data.skills),
+    daevanionJson: "[]",
+    speciesJson: "[]",
+    titlesJson: JSON.stringify(data.titleId ? [{ slot: 1, titleId: data.titleId }] : []),
+    petsJson: "[]",
+    boardCountsJson: JSON.stringify(data.boardCounts),
+    attributesJson: "{}",
+    wingId: null,
+    wingSkinId: null,
+    activePet: null,
+    activePetLevel: null,
+  };
+  if (row) {
+    db.update(playerProfiles).set({ ...values, updatedAt: new Date().toISOString().slice(0, 19).replace("T", " ") }).where(eq(playerProfiles.playerId, playerId)).run();
+  } else {
+    db.insert(playerProfiles).values({ playerId, ...values }).run();
+  }
 }

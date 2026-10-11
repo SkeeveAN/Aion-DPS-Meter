@@ -261,3 +261,35 @@ test("an unchanged name only fixes the spelling, and an id NC no longer knows fa
   assert.equal(await processMatch(gone, answer, 2_000_000), "none");
   assert.equal(seen.length, 2);
 });
+
+test("an ambiguous name is settled by the legion NC's character page names for each candidate", async () => {
+  const id = player("Zwilling", kaisinel, { guild: "Nocturne" });
+  const seen: string[] = [];
+  const answer = (async (input: unknown) => {
+    const url = String(input);
+    seen.push(url);
+    if (url.includes("/character/info")) {
+      const guild = url.includes("charA") ? "Andere" : "nocturne";
+      return new Response(JSON.stringify({ profile: { characterName: "Zwilling", regionName: guild, characterLevel: 50 } }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ list: [raw({ name: "Zwilling", serverId: 1304, characterId: "charAxyz" }), raw({ name: "Zwilling", serverId: 1305, characterId: "charBxyz" })], pagination: { endPage: 1 } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  assert.equal(await processMatch(id, answer, 1_000_000), "verified");
+  assert.equal(matchRow(id)?.via, "legion-name");
+  assert.equal(serverOf(id).d, "Europe - Yustiel", "1305 is Yustiel, where the legion matches");
+  assert.ok(seen.some((u) => u.includes("charAxyz")) && seen.some((u) => u.includes("charBxyz")), "every candidate was asked");
+});
+
+test("candidates in the same legion, or a player without a legion, stay ambiguous", async () => {
+  const same = player("Gleichlegion", kaisinel, { guild: "Nocturne" });
+  const nolegion = player("Ohnelegion", kaisinel);
+  const answer = (name: string) => (async (input: unknown) => {
+    const url = String(input);
+    if (url.includes("/character/info")) {
+      return new Response(JSON.stringify({ profile: { characterName: name, regionName: "Nocturne", characterLevel: 50 } }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ list: [raw({ name, serverId: 1304, characterId: "idOne1" }), raw({ name, serverId: 1305, characterId: "idTwo2" })], pagination: { endPage: 1 } }), { status: 200 });
+  }) as unknown as typeof fetch;
+  assert.equal(await processMatch(same, answer("Gleichlegion"), 1_000_000), "ambiguous");
+  assert.equal(await processMatch(nolegion, answer("Ohnelegion"), 1_000_000), "ambiguous");
+});

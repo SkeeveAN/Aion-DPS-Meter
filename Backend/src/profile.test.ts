@@ -15,7 +15,7 @@ after(() => sqlite.close());
 
 const { processUpload } = await import("./matching/merge.js");
 const { players, playerProfiles, playerNcCharacter } = await import("./db/schema.js");
-const { buildProfileView, buildCharacterView, mergeCharacter, upsertProfile, profileSchema, zenitStage } = await import("./profile.js");
+const { buildProfileView, buildCharacterView, mergeCharacter, upsertProfile, upsertNcProfile, profileSchema, zenitStage } = await import("./profile.js");
 const { uploadSchema } = await import("./uploadSchema.js");
 const { eq } = await import("drizzle-orm");
 
@@ -431,4 +431,34 @@ test("a player without any profile still gets NC's character data; profile view 
   assert.equal(buildProfileView(noProfile), null);
   db.insert(playerNcCharacter).values({ playerId: noProfile, attributesJson: JSON.stringify({ 2: 7 }), status: "ok", fetchedAt: 1000, nextTryAt: 2000 }).run();
   assert.equal(buildCharacterView(noProfile).attributes?.main.find((a) => a.key === "dex")?.value, 7);
+});
+
+test("a profile from NC's page is the lowest rank: it never replaces a self profile, a seen one only with more pieces, and the game's lists replace it", () => {
+  const ncData = (n: number) => ({
+    level: 45,
+    classId: 1,
+    titleId: null,
+    gear: Array.from({ length: n }, (_, i) => ({ slot: i + 1, itemId: 110130050 + i, enchant: 3 })),
+    skills: [{ id: 11020000, level: 14, baseLevel: 14, stigma: false, equipped: true }],
+    boardCounts: [{ board: 11, count: 63 }],
+  });
+  const self = playerId("Aahz");
+  upsertNcProfile(self, ncData(25));
+  assert.equal(buildProfileView(self)!.source, "self", "own profile is untouched");
+
+  processUpload(aion2Upload([participant("Aahz"), participant("NcSeen", { profile: { source: "seen", classId: 8, classBits: 2, gear: [{ slot: 3, itemId: 210340023, enchant: 0 }, { slot: 4, itemId: 210340024, enchant: 0 }] } })]));
+  const seen = playerId("NcSeen");
+  upsertNcProfile(seen, ncData(1));
+  assert.equal(buildProfileView(seen)!.source, "seen", "NC lists fewer pieces than the game showed");
+  upsertNcProfile(seen, ncData(10));
+  assert.equal(buildProfileView(seen)!.source, "nc");
+  assert.equal(buildProfileView(seen)!.gear.length, 10);
+  assert.equal(buildProfileView(seen)!.level, 45);
+
+  upsertProfile(seen, { source: "seen", classId: 8, gear: [{ slot: 3, itemId: 210340023, enchant: 0 }] });
+  assert.equal(buildProfileView(seen)!.source, "nc", "a seen profile with fewer pieces than NC's does not replace it");
+  upsertProfile(seen, { source: "seen", classId: 8, gear: Array.from({ length: 12 }, (_, i) => ({ slot: i + 1, itemId: 210340000 + i, enchant: 0 })) });
+  const after = buildProfileView(seen)!;
+  assert.equal(after.source, "seen");
+  assert.equal(after.skills.length, 0, "nothing of NC's skill list is carried into a game profile");
 });

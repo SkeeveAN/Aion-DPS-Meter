@@ -77,9 +77,11 @@ export type Subject = {
   level: number | null;
   /** The server his legion is on, when two or more verified members of it agree; empty otherwise. */
   legionServers: number[];
+  /** His legion's name as the game reported it, "" when none. */
+  guild?: string;
 };
 
-export type Decision = { status: "verified" | "ambiguous" | "none"; hit: Hit | null; via: "name" | "legion" | null; candidates: number };
+export type Decision = { status: "verified" | "ambiguous" | "none"; hit: Hit | null; via: "name" | "legion" | "legion-name" | null; candidates: number; /** The characters still in question when ambiguous. */ remaining?: Hit[] };
 
 const RACE_OF = { Elyos: 1, Asmodian: 2 } as const;
 
@@ -120,16 +122,49 @@ export function decide(hits: Hit[], s: Subject): Decision {
       return { status: "verified", hit: there[0], via: "legion", candidates: c.length };
     }
   }
-  return { status: "ambiguous", hit: null, via: null, candidates: c.length };
+  return { status: "ambiguous", hit: null, via: null, candidates: c.length, remaining: c };
 }
 
-/** Every character of that name NC lists in a region (at most three pages of 40; the search is a prefix/substring search, so exact names are picked later). */
-export async function searchHits(fetchFn: FetchFn, name: string, shard: string): Promise<Hit[]> {
+/** Most candidates asked for their legion (one request each): above that the name is too common to settle this way. */
+const MAX_LEGION_CANDIDATES = 8;
+
+/**
+ * Settles an ambiguous name by legion: NC's character page names each candidate's legion, the game told us his. Exactly one candidate in a
+ * legion of that name (and not below his level) is him; none or several leave it open. Network problems throw.
+ */
+export async function decideByLegion(fetchFn: FetchFn, remaining: Hit[], subject: Subject, shard: string): Promise<Hit | null> {
+  const wanted = (subject.guild ?? "").trim().toLowerCase();
+  if (!wanted || remaining.length === 0 || remaining.length > MAX_LEGION_CANDIDATES) {
+    return null;
+  }
+  const fits: Hit[] = [];
+  for (const h of remaining) {
+    const characterId = decodeCharacterId(h.characterId);
+    if (!characterId) {
+      continue;
+    }
+    const profile = await fetchCharacterProfile(fetchFn, { characterId, serverId: h.serverId }, shard);
+    if (profile && profile.guild.trim().toLowerCase() === wanted && (!subject.level || profile.level >= subject.level)) {
+      fits.push(h);
+    }
+  }
+  return fits.length === 1 ? fits[0] : null;
+}
+
+/** Every character of that name NC lists in a region, optionally of one race or on one server (at most three pages of 40; the search is a prefix/substring search, so exact names are picked later). */
+export async function searchHits(fetchFn: FetchFn, name: string, shard: string, filter: { race?: 1 | 2; serverId?: number } = {}): Promise<Hit[]> {
   const all: Hit[] = [];
   for (let page = 1; page <= 3; page++) {
     const url = new URL(SEARCH_URL);
     url.searchParams.set("keyword", name);
     url.searchParams.set("region", shard);
+    // NC filters on its side (a common name is a substring of many others: "Pixie" has 136 hits, 77 of them Elyos).
+    if (filter.race) {
+      url.searchParams.set("race", String(filter.race));
+    }
+    if (filter.serverId) {
+      url.searchParams.set("serverId", String(filter.serverId));
+    }
     url.searchParams.set("localeInfo", "en-US");
     url.searchParams.set("page", String(page));
     url.searchParams.set("size", "40");
@@ -143,11 +178,11 @@ export async function searchHits(fetchFn: FetchFn, name: string, shard: string):
   return all;
 }
 
-type PlayerRow = { id: number; name: string; nameNormalized: string; serverId: number | null; serverName: string | null; faction: string; guildId: number | null };
+type PlayerRow = { id: number; name: string; nameNormalized: string; serverId: number | null; serverName: string | null; faction: string; guildId: number | null; guild: string | null };
 
 function loadPlayer(playerId: number): PlayerRow | undefined {
   return db
-    .select({ id: players.id, name: players.name, nameNormalized: players.nameNormalized, serverId: players.serverId, serverName: servers.displayName, faction: players.faction, guildId: players.guildId })
+    .select({ id: players.id, name: players.name, nameNormalized: players.nameNormalized, serverId: players.serverId, serverName: servers.displayName, faction: players.faction, guildId: players.guildId, guild: players.guild })
     .from(players)
     .leftJoin(servers, eq(players.serverId, servers.id))
     .where(eq(players.id, playerId))
@@ -187,6 +222,7 @@ function subjectOf(player: PlayerRow): Subject {
     classFromFight: !!fight,
     level: profile?.level ?? null,
     legionServers: legionServersOf(player),
+    guild: player.guild ?? "",
   };
 }
 
@@ -292,17 +328,26 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
     }
     // NC does not know that id any more (character deleted or merged away): fall back to the name search below.
   }
+  const subject = subjectOf(player);
+  const race = subject.faction === "Elyos" ? 1 : subject.faction === "Asmodian" ? 2 : undefined;
   let hits: Hit[];
+  let decision: Decision;
   try {
-    hits = await searchHits(fetchFn, player.name, shard);
+    hits = await searchHits(fetchFn, player.name, shard, { race, serverId: clientServer ?? undefined });
+    if (clientServer !== null) {
+      hits = hits.filter((h) => h.serverId === clientServer);
+    }
+    decision = decide(hits, subject);
+    if (decision.status === "ambiguous" && decision.remaining) {
+      const byLegion = await decideByLegion(fetchFn, decision.remaining, subject, shard);
+      if (byLegion) {
+        decision = { status: "verified", hit: byLegion, via: "legion-name", candidates: decision.candidates };
+      }
+    }
   } catch {
     record(playerId, "error", clientServer === null ? {} : { ncServerId: clientServer, nextTryAt: now + MATCH_RETRY_AFTER.error }, now);
     return "error";
   }
-  if (clientServer !== null) {
-    hits = hits.filter((h) => h.serverId === clientServer);
-  }
-  const decision = decide(hits, subjectOf(player));
   if (decision.status === "verified" && decision.hit) {
     const outcome = applyHit(player, decision.hit);
     if (outcome === "conflict") {

@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { playerNcCharacter, playerNcMatch, playerPortraits } from "./db/schema.js";
 import { mapNcCharacter, type NcCharacterData } from "./ncCharacter.js";
+import { upsertNcProfile } from "./profile.js";
 import { portraitFromJpeg } from "./portrait.js";
 
 // Official character portrait and character data (attributes, wing, pet) of a player from NC's public character search, profile image
@@ -390,6 +391,10 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           wingSkinId: c.data.wingSkinId,
           activePet: c.data.activePet,
           activePetLevel: c.data.activePetLevel,
+          combatPower: c.data.combatPower,
+          itemLevel: c.data.itemLevel,
+          ncGuild: c.data.guild || null,
+          ncLevel: c.data.level,
           status: "ok",
           fetchedAt: now,
           nextTryAt: now + CHARACTER_RETRY_AFTER.ok,
@@ -402,11 +407,18 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           wingSkinId: characterBefore?.wingSkinId ?? null,
           activePet: characterBefore?.activePet ?? null,
           activePetLevel: characterBefore?.activePetLevel ?? null,
+          combatPower: characterBefore?.combatPower ?? null,
+          itemLevel: characterBefore?.itemLevel ?? null,
+          ncGuild: characterBefore?.ncGuild ?? null,
+          ncLevel: characterBefore?.ncLevel ?? null,
           status: c.status,
           fetchedAt: characterBefore?.fetchedAt ?? now,
           nextTryAt: now + CHARACTER_RETRY_AFTER[c.status],
         };
     db.insert(playerNcCharacter).values({ playerId: key.playerId, ...values }).onConflictDoUpdate({ target: playerNcCharacter.playerId, set: values }).run();
+    if (c.status === "ok" && c.data) {
+      upsertNcProfile(key.playerId, c.data);
+    }
     // A character found by the fetch's own search names the confirmed player's id as well (the check may predate the id column).
     if (c.status === "ok" && c.known) {
       db.update(playerNcMatch).set({ ncCharacterId: c.known.characterId }).where(and(eq(playerNcMatch.playerId, key.playerId), eq(playerNcMatch.status, "verified"), eq(playerNcMatch.ncServerId, c.known.serverId), isNull(playerNcMatch.ncCharacterId))).run();

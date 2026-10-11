@@ -2934,13 +2934,19 @@ function renderPlayerStrip(profile, player, character) {
     sub.push(`Level ${profile.level}`);
   }
   const nodes = profile ? profile.daevanion.reduce((sum, b) => sum + b.activePoints, 0) : 0;
+  // Combat power and the website's item level come from NC's official character page (the player's own client does not send them).
+  const ncNumbers = [
+    character?.combatPower ? el("div", {}, [el("strong", { className: "accent", textContent: formatNumber(character.combatPower) }), el("span", { textContent: t("profile.combatPowerShort") })]) : null,
+    character?.itemLevel ? el("div", {}, [el("strong", { textContent: formatNumber(character.itemLevel) }), el("span", { textContent: t("profile.ncItemLevelShort") })]) : null,
+  ].filter((x) => x != null);
   const numbers = profile
     ? [
+        ...ncNumbers,
         el("div", {}, [el("strong", { className: "accent", textContent: String(profile.averageItemLevel ?? "–") }), el("span", { textContent: t("profile.avgShort") })]),
         visibleSkillCount(profile) > 0 ? el("div", {}, [el("strong", { textContent: String(visibleSkillCount(profile)) }), el("span", { textContent: t("profile.skillsShort") })]) : null,
         nodes > 0 ? el("div", {}, [el("strong", { textContent: String(nodes) }), el("span", { textContent: t("profile.nodesShort") })]) : null,
       ].filter((x) => x != null)
-    : [];
+    : ncNumbers;
   return el("div", { className: "pf-strip" }, [
     stripEmblem(profile, player),
     // Name, class and the faction/legion/server line stay together in one column, so the badges and the numbers fit in one row.
@@ -3017,7 +3023,7 @@ async function renderPlayerProfile(playerId, attempt = 0) {
   const wanted = tabs.findIndex(([id]) => id === location.hash.slice(1));
 
   const source = profile
-    ? el("p", { className: "profile-source", textContent: t(profile.source === "self" ? "profile.sourceSelf" : "profile.sourceSeen", { date: formatDate(parseServerTime(profile.updatedAt)) }) })
+    ? el("p", { className: "profile-source", textContent: t(profile.source === "self" ? "profile.sourceSelf" : profile.source === "nc" ? "profile.charSourceNc" : "profile.sourceSeen", { date: formatDate(parseServerTime(profile.updatedAt)) }) })
     : null;
   app.replaceChildren(
     el("div", { className: "pf-hero" }, [strip, tabs.length > 1 ? el("div", { className: "pf-tabs", role: "tablist" }, buttons) : null].filter((x) => x != null)),

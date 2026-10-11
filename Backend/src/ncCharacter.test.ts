@@ -15,14 +15,28 @@ const aahzInfo = {
 };
 const aahzEquipment = { petwing: { pet: { id: 1124, level: 3, name: "x", icon: "y" }, wing: { id: 30500200, name: "w", enchantLevel: 5 }, wingSkin: { id: 30400400, name: "s" } } };
 
-test("Aahz example maps onto the profile attribute ids; ItemLevel is not taken", () => {
-  assert.deepEqual(mapNcCharacter(aahzInfo, aahzEquipment), {
-    attributes: { 1: 10, 2: 19, 3: 0, 4: 23, 5: 67, 6: 8, 7: 50, 8: 51, 9: 27, 10: 21, 11: 53, 13: 6, 14: 38, 15: 17, 16: 32, 17: 38 },
-    wingId: 30500200,
-    wingSkinId: 30400400,
-    activePet: 1124,
-    activePetLevel: 3,
-  });
+test("Aahz example maps onto the profile attribute ids; ItemLevel is kept apart from the attributes", () => {
+  const out = mapNcCharacter(aahzInfo, aahzEquipment);
+  assert.deepEqual(out?.attributes, { 1: 10, 2: 19, 3: 0, 4: 23, 5: 67, 6: 8, 7: 50, 8: 51, 9: 27, 10: 21, 11: 53, 13: 6, 14: 38, 15: 17, 16: 32, 17: 38 });
+  assert.deepEqual([out?.wingId, out?.wingSkinId, out?.activePet, out?.activePetLevel], [30500200, 30400400, 1124, 3]);
+  assert.equal(out?.itemLevel, 2146);
+});
+
+test("profile, gear, skills and Daevanion boards of a real answer", () => {
+  const info = {
+    ...aahzInfo,
+    profile: { characterLevel: 45, combatPower: 109480, pcId: 6, regionName: "Akatsuki", titleId: 13050017 },
+    daevanion: { boardList: [{ id: 11, openNodeCount: 63 }, { id: 12, openNodeCount: 0 }, { id: 13, openNodeCount: 59 }] },
+  };
+  const equipment = {
+    equipment: { equipmentList: [{ id: 110130050, slotPos: 1, enchantLevel: 15, exceedLevel: 2 }, { id: 215230001, slotPos: 17, enchantLevel: 9, exceedLevel: 0 }, { id: "x", slotPos: 3 }] },
+    skill: { skillList: [{ id: 11020000, skillLevel: 14, equip: 1, acquired: 1, category: "Active" }, { id: 11340000, skillLevel: 10, equip: 1, acquired: 1, category: "Dp" }, { id: 11130000, skillLevel: 0, equip: 0, acquired: 0, category: "Dp" }] },
+  };
+  const out = mapNcCharacter(info, equipment);
+  assert.deepEqual([out?.level, out?.combatPower, out?.classId, out?.guild, out?.titleId], [45, 109480, 1, "Akatsuki", 13050017]);
+  assert.deepEqual(out?.gear, [{ slot: 1, itemId: 110130050, enchant: 17 }, { slot: 17, itemId: 215230001, enchant: 9 }], "the exceed steps count into the game's enchant number; a piece without a usable id is dropped");
+  assert.deepEqual(out?.skills, [{ id: 11020000, level: 14, baseLevel: 14, stigma: false, equipped: true }, { id: 11340000, level: 10, baseLevel: 10, stigma: true, equipped: true }], "only acquired skills");
+  assert.deepEqual(out?.boardCounts, [{ board: 11, count: 63 }, { board: 13, count: 59 }]);
 });
 
 test("missing wing, skin or pet give null fields; unusable info gives null", () => {
