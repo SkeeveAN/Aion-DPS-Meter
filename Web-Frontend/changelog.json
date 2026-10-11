@@ -37,6 +37,21 @@
      "Backend"
     ],
     "date": "2026-10-11"
+   },
+   {
+    "text": "Pet regions: the five tamed NPCs the client lists as soul sources (Tamed Karnif, Tamed Beast, Tamed Tayga) are back in the Region tab",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "NC's character id is now kept with every confirmed player (with the server it names the character for good, across renames); the character data fetch uses it and skips the search when only the data is due",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-11"
    }
   ]
  },
