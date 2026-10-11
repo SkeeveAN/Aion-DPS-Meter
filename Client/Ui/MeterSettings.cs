@@ -148,6 +148,20 @@ public sealed class MeterSettings
     /// Off until switched on.</summary>
     public bool ShowBossOverlay { get; set; }
 
+    /// <summary>The network overlay (see NetworkOverlayWindow): ping, traffic and connection quality of the game connection. Off until switched on;
+    /// the ids of the lines switched off in the Network analysis settings are kept in <see cref="NetworkOverlayHidden"/> (everything shows by default).</summary>
+    public bool ShowNetworkOverlay { get; set; }
+
+    public bool NetworkOverlayLocked { get; set; } = true;
+
+    public List<string> NetworkOverlayHidden { get; set; } = new();
+
+    public double? NetworkOverlayLeft { get; set; }
+    public double? NetworkOverlayTop { get; set; }
+    public double NetworkOverlayScale { get; set; } = 1.0;
+    public double? NetworkOverlayWidth { get; set; }
+    public double? NetworkOverlayHeight { get; set; }
+
     /// <summary>Master switch of the world boss sounds: off = no boss plays its sound. Off until switched on.</summary>
     public bool BossNotify { get; set; }
 
@@ -217,6 +231,8 @@ public sealed class MeterSettings
     public string HotkeyAllOverlays { get; set; } = "Ctrl+Alt+A";
     /// <summary>World boss overlay on / off.</summary>
     public string HotkeyWorldBoss { get; set; } = "Ctrl+Alt+B";
+    /// <summary>Network overlay on / off.</summary>
+    public string HotkeyNetwork { get; set; } = "Ctrl+Alt+N";
     /// <summary>The arrows on the edge of the interactive map pointing at pets / gatherables that are out of view (one switch each); on by default.</summary>
     public bool ShowPetArrows { get; set; } = true;
     public bool ShowGatherArrows { get; set; } = true;

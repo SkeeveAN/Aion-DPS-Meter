@@ -435,7 +435,7 @@ export default {
   "features.meter.title": "即時統計所有人的傷害與治療",
   "features.meter.text": "隊伍或團隊中的每位玩家都會顯示名稱、總傷害、DPS 與佔比條。陣營與職業以圖示顯示。透過小怪／首領篩選，可在整體 DPS 與依目標計算的真實 iDPS 之間切換；首領由遊戲自身資料辨識並以名稱顯示。可依職業、隊伍或目標篩選。",
   "features.overlay.title": "可點擊穿透的遊戲浮動層",
-  "features.overlay.text": "隱藏介面會把視窗變成覆蓋在 Aion 2 上方的小標籤，完全不會攔截任何點擊——可選擇標籤或精簡面板。All in One 模式還會為每位玩家加上治療與承受傷害。可用您自選的快速鍵隨時切換（預設：Ctrl+Alt+H）。",
+  "features.overlay.text": "隱藏介面會把視窗變成覆蓋在 Aion 2 上方的小標籤，完全不會攔截任何點擊——可選擇標籤或精簡面板。All in One 模式還會為每位玩家加上治療與承受傷害。可用您自選的快速鍵隨時切換（預設：Ctrl+Alt+H）。網路浮動層會顯示您與遊戲伺服器連線的延遲、抖動、流量與封包遺失（Ctrl+Alt+N）。",
   "features.details.title": "每位玩家的技能明細",
   "features.details.text": "雙擊玩家即可檢視每個技能的命中數、暴擊率、總計、最小值、最大值與平均值，並依目標細分，另附整場戰鬥的 DPS 曲線。暴擊率直接讀取自伺服器的命中資料，因此是精確的。",
   "features.character.title": "一眼看清您的整個角色",

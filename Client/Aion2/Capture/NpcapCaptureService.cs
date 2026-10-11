@@ -21,6 +21,15 @@ public sealed class NpcapCaptureService : IDisposable
     private readonly List<ILiveDevice> _devices = new();
     private long _packets;
 
+    // The capture threads only parse and enqueue; decoding, the ring buffer and the debug file run on
+    // one worker. Before this, all of that ran inside the Npcap callback, so a burst (a world boss)
+    // overflowed the driver's buffer and packets were lost.
+    private const int MaxQueued = 400_000;
+    private const int KernelBufferBytes = 32 * 1024 * 1024;
+    private readonly System.Collections.Concurrent.BlockingCollection<TcpSegment> _queue = new(MaxQueued);
+    private Thread? _worker;
+    private long _dropped;
+
     public NpcapCaptureService(IReadOnlyList<int> serverPorts, Action<TcpSegment> onSegment, Action<SourceState, string> onStatus, string? adapterId = null)
     {
         _adapterId = adapterId;
@@ -39,6 +48,9 @@ public sealed class NpcapCaptureService : IDisposable
     public int CallbackErrors => Volatile.Read(ref _callbackErrors);
 
     public string? LastCallbackError { get; private set; }
+
+    /// <summary>Segments thrown away because the worker fell more than <see cref="MaxQueued"/> behind.</summary>
+    public long Dropped => Interlocked.Read(ref _dropped);
 
     private int _callbackErrors;
 
@@ -66,13 +78,16 @@ public sealed class NpcapCaptureService : IDisposable
 
             IReadOnlyList<ILiveDevice> selected = CaptureAdapters.Select(all.Cast<ILiveDevice>().ToList(), _adapterId, out string? selectionNote);
             int opened = 0;
+            NetworkStats.Reset();
+            NetworkStats.QueueProbe = () => (_queue.Count, Dropped);
+            _worker ??= StartWorker();
             foreach (ILiveDevice device in selected)
             {
                 // Loopback and disconnected adapters are harmless to include; a failing one is
                 // skipped rather than aborting the whole capture (VPN adapters do this).
                 try
                 {
-                    device.Open(new DeviceConfiguration { ReadTimeout = 250, Mode = DeviceModes.None });
+                    device.Open(new DeviceConfiguration { ReadTimeout = 250, Mode = DeviceModes.None, KernelBufferSize = KernelBufferBytes });
                     device.Filter = Filter;
                     device.OnPacketArrival += OnPacketArrival;
                     device.StartCapture();
@@ -114,7 +129,14 @@ public sealed class NpcapCaptureService : IDisposable
 
         TcpPacket? tcp = packet.Extract<TcpPacket>();
         IPPacket? ip = packet.Extract<IPPacket>();
-        if (tcp is null || ip is null || tcp.PayloadData is not { Length: > 0 } payload)
+        if (tcp is null || ip is null)
+        {
+            return;
+        }
+
+        // A bare acknowledgement has no payload; it only feeds the ping estimate (NetworkStats).
+        byte[] payload = tcp.PayloadData ?? Array.Empty<byte>();
+        if (payload.Length == 0 && !tcp.Acknowledgment)
         {
             return;
         }
@@ -122,23 +144,58 @@ public sealed class NpcapCaptureService : IDisposable
         bool fromServer = _serverPorts.Count == 0 ? tcp.SourcePort < tcp.DestinationPort : _serverPorts.Contains(tcp.SourcePort);
         string source = $"{ip.SourceAddress}:{tcp.SourcePort}";
         string destination = $"{ip.DestinationAddress}:{tcp.DestinationPort}";
-        if (fromServer && ServerEndpoint is null)
+        if (fromServer && payload.Length > 0 && ServerEndpoint is null)
         {
             ServerEndpoint = source;
             _onStatus(SourceState.Connected, $"Game traffic from {source}.");
         }
 
-        Interlocked.Increment(ref _packets);
+        if (payload.Length > 0)
+        {
+            Interlocked.Increment(ref _packets);
+        }
+
         try
         {
-            _onSegment(new TcpSegment(raw.Timeval.Date.ToLocalTime(), source, destination, tcp.SequenceNumber, payload, fromServer));
+            if (!_queue.TryAdd(new TcpSegment(raw.Timeval.Date.ToLocalTime(), source, destination, tcp.SequenceNumber, payload, fromServer, tcp.AcknowledgmentNumber)))
+            {
+                Interlocked.Increment(ref _dropped);
+            }
         }
-        catch (Exception ex)
+        catch (InvalidOperationException)
         {
-            // Never let a handler's exception end the capture thread.
-            Interlocked.Increment(ref _callbackErrors);
-            LastCallbackError = $"{ex.GetType().Name}: {ex.Message}";
+            // Queue already completed: the capture is being stopped.
         }
+    }
+
+    private Thread StartWorker()
+    {
+        var thread = new Thread(() =>
+        {
+            foreach (TcpSegment segment in _queue.GetConsumingEnumerable())
+            {
+                try
+                {
+                    NetworkStats.Note(segment);
+                    if (segment.Payload.Length > 0)
+                    {
+                        _onSegment(segment);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Never let a handler's exception end the worker.
+                    Interlocked.Increment(ref _callbackErrors);
+                    LastCallbackError = $"{ex.GetType().Name}: {ex.Message}";
+                }
+            }
+        })
+        {
+            IsBackground = true,
+            Name = "Aion2 segment worker",
+        };
+        thread.Start();
+        return thread;
     }
 
     public void Dispose()
@@ -157,5 +214,7 @@ public sealed class NpcapCaptureService : IDisposable
         }
 
         _devices.Clear();
+        NetworkStats.QueueProbe = null;
+        _queue.CompleteAdding();
     }
 }

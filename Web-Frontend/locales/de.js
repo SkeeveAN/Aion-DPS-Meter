@@ -473,7 +473,7 @@ export default {
   "features.meter.title": "Schaden und Heilung live für alle",
   "features.meter.text": "Jeder Spieler deiner Gruppe oder deines Raids mit Name, Gesamtschaden, DPS und Anteilsbalken. Dazu Fraktion und Klasse als Symbol. Der Mob/Boss-Filter wechselt zwischen Gesamt-DPS und echter iDPS pro Ziel; Bosse werden aus den Spieldaten erkannt und mit Namen angezeigt. Filter nach Klasse, Gruppe oder Ziel.",
   "features.overlay.title": "Ein durchklickbares Overlay im Spiel",
-  "features.overlay.text": "„Hide UI“ macht das Fenster zu kleinen Chips, die über Aion 2 liegen und keinen Klick abfangen - wahlweise als Chips oder kompaktes Panel. Der All-in-One-Modus zeigt zusätzlich Heilung und erlittenen Schaden pro Spieler. Überall mit dem von dir gewählten Hotkey umschaltbar (Standard: Strg+Alt+H).",
+  "features.overlay.text": "„Hide UI“ macht das Fenster zu kleinen Chips, die über Aion 2 liegen und keinen Klick abfangen - wahlweise als Chips oder kompaktes Panel. Der All-in-One-Modus zeigt zusätzlich Heilung und erlittenen Schaden pro Spieler. Überall mit dem von dir gewählten Hotkey umschaltbar (Standard: Strg+Alt+H). Ein Netzwerk-Overlay zeigt Ping, Jitter, Datenverkehr und Paketverlust deiner Verbindung zum Spielserver (Strg+Alt+N).",
   "features.details.title": "Skill-Aufschlüsselung für jeden Spieler",
   "features.details.text": "Doppelklick auf einen Spieler zeigt jeden Skill mit Treffern, Krit-Rate, Summe, Min, Max und Schnitt, getrennt nach Ziel, dazu eine DPS-Kurve über den ganzen Kampf. Die Krit-Raten stammen direkt aus den Trefferdaten des Servers und sind exakt.",
   "features.character.title": "Dein ganzer Charakter auf einen Blick",

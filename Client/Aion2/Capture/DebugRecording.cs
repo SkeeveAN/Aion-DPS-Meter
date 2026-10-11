@@ -27,6 +27,7 @@ public static class DebugRecording
     private static string? _path;
     private static long _bytes;
     private static string? _name; // the character the game named last
+    private static long _lastFlushTick;
 
     public static string FolderPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter", "Debug");
@@ -113,6 +114,13 @@ public static class DebugRecording
                 }
 
                 Write(segment);
+
+                // One write per segment was too slow for a burst; flush about once a second instead.
+                if (Environment.TickCount64 - _lastFlushTick > 1000)
+                {
+                    _lastFlushTick = Environment.TickCount64;
+                    _writer!.Flush();
+                }
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
@@ -153,7 +161,7 @@ public static class DebugRecording
         Prune();
 
         _path = PathFor(_name);
-        _writer = new SegmentRecording.Writer(_path);
+        _writer = new SegmentRecording.Writer(_path, autoFlush: false);
         _bytes = 0;
         foreach (TcpSegment segment in seed ?? Array.Empty<TcpSegment>())
         {
@@ -198,7 +206,7 @@ public static class DebugRecording
 
         File.Move(old, target);
         _path = target;
-        _writer = new SegmentRecording.Writer(target, append: true);
+        _writer = new SegmentRecording.Writer(target, append: true, autoFlush: false);
         _bytes = bytes;
     }
 

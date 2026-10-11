@@ -152,6 +152,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
 
         int errors = _capture.CallbackErrors;
         Report(SourceState.Connected, $"Aion 2: {endpoint} - {frames:N0} frames, {_eventsDecoded:N0} events, {desyncs:N0} resyncs"
+            + (_capture.Dropped > 0 ? $", {_capture.Dropped:N0} dropped" : "")
             + (errors > 0 ? $", {errors:N0} errors ({_capture.LastCallbackError})" : ""));
     }
 

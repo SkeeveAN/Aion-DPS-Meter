@@ -435,7 +435,7 @@ export default {
   "features.meter.title": "Dano e cura ao vivo para todos",
   "features.meter.text": "Todos os jogadores do seu grupo ou raide com nome, dano total, DPS e barra de parcela. Raça e classe aparecem como ícones. Alterne entre o DPS geral e o iDPS real por alvo com o filtro Mob/Chefe; os chefes são reconhecidos a partir dos dados do próprio jogo e exibidos pelo nome. Filtre por classe, grupo ou alvo.",
   "features.overlay.title": "Um overlay que deixa os cliques passarem",
-  "features.overlay.text": "Ocultar UI transforma a janela em pequenas fichas que ficam sobre o Aion 2 sem interceptar nenhum clique - escolha fichas ou um painel compacto. O modo Tudo em Um adiciona cura e dano recebido por jogador. Alterne de qualquer lugar com o atalho da sua escolha (padrão: Ctrl+Alt+H).",
+  "features.overlay.text": "Ocultar UI transforma a janela em pequenas fichas que ficam sobre o Aion 2 sem interceptar nenhum clique - escolha fichas ou um painel compacto. O modo Tudo em Um adiciona cura e dano recebido por jogador. Alterne de qualquer lugar com o atalho da sua escolha (padrão: Ctrl+Alt+H). Um overlay de rede mostra o ping, o jitter, o tráfego e a perda de pacotes da sua ligação ao servidor do jogo (Ctrl+Alt+N).",
   "features.details.title": "Detalhamento de habilidades de cada jogador",
   "features.details.text": "Dê um clique duplo em um jogador para ver cada habilidade com golpes, taxa de crítico, total, mín., máx. e média, separados por alvo, além de uma curva de DPS durante toda a luta. As taxas de crítico são lidas diretamente dos dados de golpes do servidor, portanto são exatas.",
   "features.character.title": "Todo o seu personagem num relance",

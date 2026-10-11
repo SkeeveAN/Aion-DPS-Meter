@@ -5062,5 +5062,85 @@
     "pt": "Abrir a pasta",
     "ja": "フォルダーを開く",
     "ko": "폴더 열기"
+  },
+  "Settings.Nav.Network": {
+    "en": "Network analysis",
+    "de": "Netzwerk-Analyse"
+  },
+  "Settings.Network.Overlay": {
+    "en": "Show the overlay",
+    "de": "Overlay anzeigen"
+  },
+  "Settings.Network.Hint": {
+    "en": "Measures the connection to the game server from the traffic the meter already sees; nothing is sent. Ping is an estimate (time until the server acknowledges what the game sent), so it reads a little above a plain ping. Unlock the overlay to move and scale it; with it locked it only shows while the game is in front.",
+    "de": "Misst die Verbindung zum Spielserver aus dem Datenverkehr, den der Meter ohnehin sieht; es wird nichts gesendet. Der Ping ist eine Schätzung (Zeit, bis der Server das Gesendete bestätigt) und liegt daher etwas über einem normalen Ping. Zum Verschieben und Vergrößern das Overlay entsperren; gesperrt erscheint es nur, solange das Spiel vorne ist."
+  },
+  "Settings.Network.Rows": {
+    "en": "Lines in the overlay",
+    "de": "Zeilen im Overlay"
+  },
+  "Settings.Hotkey.Network": {
+    "en": "Network overlay on / off",
+    "de": "Netzwerk-Overlay an / aus"
+  },
+  "Network.Row.server": {
+    "en": "Server",
+    "de": "Server"
+  },
+  "Network.Row.ping": {
+    "en": "Ping",
+    "de": "Ping"
+  },
+  "Network.Row.jitter": {
+    "en": "Jitter",
+    "de": "Jitter"
+  },
+  "Network.Row.traffic": {
+    "en": "Traffic",
+    "de": "Datenverkehr"
+  },
+  "Network.Row.loss": {
+    "en": "Packet loss (last minute)",
+    "de": "Paketverlust (letzte Minute)"
+  },
+  "Network.Row.connection": {
+    "en": "Connection",
+    "de": "Verbindung"
+  },
+  "Network.Row.load": {
+    "en": "Meter load",
+    "de": "Meter-Auslastung"
+  },
+  "Network.Waiting": {
+    "en": "Waiting for game traffic …",
+    "de": "Warte auf Spielverkehr …"
+  },
+  "Network.Ping.Detail": {
+    "en": "avg {0} · min {1} · max {2}",
+    "de": "Ø {0} · min {1} · max {2}"
+  },
+  "Network.Traffic.Peak": {
+    "en": "peak ↓ {0}",
+    "de": "Spitze ↓ {0}"
+  },
+  "Network.Loss.Value": {
+    "en": "{0} retransmitted · {1} gaps",
+    "de": "{0} wiederholt · {1} Lücken"
+  },
+  "Network.Connection.Online": {
+    "en": "online {0}",
+    "de": "online {0}"
+  },
+  "Network.Connection.Stalled": {
+    "en": "no data for {0} s",
+    "de": "keine Daten seit {0} s"
+  },
+  "Network.Connection.Reconnects": {
+    "en": "{0} reconnect(s)",
+    "de": "{0} Neuverbindung(en)"
+  },
+  "Network.Load.Value": {
+    "en": "queue {0} · dropped {1}",
+    "de": "Warteschlange {0} · verworfen {1}"
   }
 }

@@ -473,7 +473,7 @@ export default {
   "features.meter.title": "Live damage and healing for everyone",
   "features.meter.text": "Every player in your group or raid with name, total damage, DPS and share bar. Faction and class are shown as icons. Switch between overall DPS and true per-target iDPS with the Mob/Boss filter; bosses are recognised from the game's own data and shown by name. Filter by class, group or target.",
   "features.overlay.title": "A click-through overlay for the game",
-  "features.overlay.text": "Hide UI turns the window into small chips that sit on top of Aion 2 without taking a single click - choose chips or a compact panel. The All in One mode adds healing and damage taken per player. Toggle it from anywhere with the hotkey of your choice (default: Ctrl+Alt+H).",
+  "features.overlay.text": "Hide UI turns the window into small chips that sit on top of Aion 2 without taking a single click - choose chips or a compact panel. The All in One mode adds healing and damage taken per player. Toggle it from anywhere with the hotkey of your choice (default: Ctrl+Alt+H). A network overlay shows ping, jitter, traffic and packet loss of your connection to the game server (Ctrl+Alt+N).",
   "features.details.title": "Skill breakdown for every player",
   "features.details.text": "Double-click a player to see every skill with hits, crit rate, total, min, max and average, split by target, plus a DPS curve over the whole fight. Crit rates are read straight from the server's hit data, so they are exact.",
   "features.character.title": "Your whole character at a glance",

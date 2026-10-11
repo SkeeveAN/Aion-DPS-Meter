@@ -22,9 +22,9 @@ public static class SegmentRecording
         private readonly StreamWriter _out;
         private readonly object _gate = new();
 
-        public Writer(string path, bool append = false)
+        public Writer(string path, bool append = false, bool autoFlush = true)
         {
-            _out = new StreamWriter(path, append) { AutoFlush = true };
+            _out = new StreamWriter(path, append) { AutoFlush = autoFlush };
         }
 
         public int Count { get; private set; }
@@ -36,6 +36,14 @@ public static class SegmentRecording
             {
                 _out.WriteLine(json);
                 Count++;
+            }
+        }
+
+        public void Flush()
+        {
+            lock (_gate)
+            {
+                _out.Flush();
             }
         }
 

@@ -68,6 +68,7 @@ public sealed class HotkeyOverlayWindow : MovableOverlay
             ("HotkeyOverlay", "Settings.Hotkey.HotkeyOverlay", s.HotkeyHotkeyOverlay),
             ("AllOverlays", "Settings.Hotkey.AllOverlays", s.HotkeyAllOverlays),
             ("WorldBoss", "Settings.Hotkey.WorldBoss", s.HotkeyWorldBoss),
+            ("Network", "Settings.Hotkey.Network", s.HotkeyNetwork),
             ("PetArrows", "Settings.Hotkey.PetArrows", s.HotkeyPetArrows),
             ("GatherArrows", "Settings.Hotkey.GatherArrows", s.HotkeyGatherArrows),
         };

@@ -24,6 +24,7 @@ public static class SelfCheckAion2
         bool ok = true;
         ok &= RunCombatSourceSeamScenario();
         ok &= RunTcpReassemblerScenario();
+        ok &= RunNetworkStatsScenario();
         ok &= RunAion2ProtocolScenario();
         ok &= RunAion2RealCaptureScenario();
         ok &= RunAion2BundleScenario();
@@ -1547,6 +1548,34 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> class id 8 and class bits 1 read from the class code: {classFaction}");
         Console.WriteLine($"  -> eleven visible items (Drifter Staff ... Judicator Earrings): {items}");
         return named && classFaction && items;
+    }
+
+    private static bool RunNetworkStatsScenario()
+    {
+        Console.WriteLine("[selftest] Network analysis (ping from acknowledgements, retransmissions, gaps):");
+        NetworkStats.Reset();
+        DateTime t0 = DateTime.Now.AddSeconds(-3);
+        const string server = "10.0.0.1:13328", client = "192.168.0.2:50000";
+        TcpSegment Up(DateTime at, uint seq, int length) => new(at, client, server, seq, new byte[length], false);
+        TcpSegment Down(DateTime at, uint seq, int length, uint ack) => new(at, server, client, seq, new byte[length], true, ack);
+
+        NetworkStats.Note(Up(t0, 5000, 100));
+        NetworkStats.Note(Down(t0.AddMilliseconds(40), 9000, 0, 5100)); // a bare acknowledgement: 40 ms
+        NetworkStats.Note(Up(t0.AddSeconds(1), 5100, 50));
+        NetworkStats.Note(Down(t0.AddSeconds(1).AddMilliseconds(60), 9000, 200, 5150)); // data carrying the acknowledgement: 60 ms
+        NetworkStats.Note(Up(t0.AddSeconds(1.5), 5100, 50)); // the client repeats a segment: no sample, one retransmission
+        NetworkStats.Note(Down(t0.AddSeconds(2), 9000, 200, 5150)); // the server repeats one
+        NetworkStats.Note(Down(t0.AddSeconds(2.1), 9300, 100, 5150)); // 9200 was expected: a gap
+
+        NetworkSnapshot snap = NetworkStats.Snapshot();
+        bool ping = snap.PingMinMs is { } min && Math.Abs(min - 40) < 0.5 && snap.PingMaxMs is { } max && Math.Abs(max - 60) < 0.5 && snap.PingAverageMs is { } avg && Math.Abs(avg - 50) < 0.5;
+        bool loss = snap.Retransmissions == 2 && snap.Gaps == 1;
+        bool connection = snap.Connected && snap.Server == server && snap.Connections == 1;
+        Console.WriteLine($"  -> ping min/avg/max 40/50/60 ms from the acknowledgements: {ping}");
+        Console.WriteLine($"  -> retransmissions (client and server) and gap counted: {loss}");
+        Console.WriteLine($"  -> game connection recognised: {connection}");
+        NetworkStats.Reset();
+        return ping && loss && connection;
     }
 
     private static bool RunTcpReassemblerScenario()

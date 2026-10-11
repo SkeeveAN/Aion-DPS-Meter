@@ -9,7 +9,8 @@ public sealed record TcpSegment(
     string Destination,
     uint Sequence,
     ReadOnlyMemory<byte> Payload,
-    bool FromServer)
+    bool FromServer,
+    uint Ack = 0)
 {
     /// <summary>Stream identity: one direction of one connection.</summary>
     public string StreamKey => $"{Source}>{Destination}";

@@ -64,6 +64,13 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyHotkeyOverlayBox, HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay).ToString());
         SetHotkeyBox(HotkeyAllOverlaysBox, HotkeyBinding.Parse(settings.HotkeyAllOverlays).ToString());
         SetHotkeyBox(HotkeyWorldBossBox, HotkeyBinding.Parse(settings.HotkeyWorldBoss).ToString());
+        SetHotkeyBox(HotkeyNetworkBox, HotkeyBinding.Parse(settings.HotkeyNetwork).ToString());
+        ShowNetworkOverlayBox.IsChecked = settings.ShowNetworkOverlay;
+        NetworkOverlayLockedBox.IsChecked = settings.NetworkOverlayLocked;
+        foreach (var box in NetworkRowBoxes())
+        {
+            box.IsChecked = !settings.NetworkOverlayHidden.Contains((string)box.Tag);
+        }
         SetHotkeyBox(HotkeyPetArrowsBox, HotkeyBinding.Parse(settings.HotkeyPetArrows).ToString());
         SetHotkeyBox(HotkeyGatherArrowsBox, HotkeyBinding.Parse(settings.HotkeyGatherArrows).ToString());
         ShowHotkeyOverlayBox.IsChecked = settings.ShowHotkeyOverlay;
@@ -403,7 +410,11 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
-        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvPetArrowsBox, OvGatherArrowsBox };
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvPetArrowsBox, OvGatherArrowsBox };
+
+    /// <summary>The switches of the lines the network overlay shows (Tag = the line's id).</summary>
+    private IEnumerable<CheckBox> NetworkRowBoxes() =>
+        new[] { NetRowServerBox, NetRowPingBox, NetRowJitterBox, NetRowTrafficBox, NetRowLossBox, NetRowConnectionBox, NetRowLoadBox };
 
     private void OnOpenDebugFolderClicked(object sender, RoutedEventArgs e)
     {
@@ -482,6 +493,11 @@ public partial class SettingsWindow : Window
         _settings.BossOverlayScale = onDisk.BossOverlayScale;
         _settings.BossOverlayWidth = onDisk.BossOverlayWidth;
         _settings.BossOverlayHeight = onDisk.BossOverlayHeight;
+        _settings.NetworkOverlayLeft = onDisk.NetworkOverlayLeft;
+        _settings.NetworkOverlayTop = onDisk.NetworkOverlayTop;
+        _settings.NetworkOverlayScale = onDisk.NetworkOverlayScale;
+        _settings.NetworkOverlayWidth = onDisk.NetworkOverlayWidth;
+        _settings.NetworkOverlayHeight = onDisk.NetworkOverlayHeight;
 
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? false;
@@ -511,6 +527,10 @@ public partial class SettingsWindow : Window
         _settings.HotkeyHotkeyOverlay = (string?)HotkeyHotkeyOverlayBox.Tag ?? "";
         _settings.HotkeyAllOverlays = (string?)HotkeyAllOverlaysBox.Tag ?? "";
         _settings.HotkeyWorldBoss = (string?)HotkeyWorldBossBox.Tag ?? "";
+        _settings.HotkeyNetwork = (string?)HotkeyNetworkBox.Tag ?? "";
+        _settings.ShowNetworkOverlay = ShowNetworkOverlayBox.IsChecked ?? false;
+        _settings.NetworkOverlayLocked = NetworkOverlayLockedBox.IsChecked ?? true;
+        _settings.NetworkOverlayHidden = NetworkRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
         _settings.HotkeyPetArrows = (string?)HotkeyPetArrowsBox.Tag ?? "";
         _settings.HotkeyGatherArrows = (string?)HotkeyGatherArrowsBox.Tag ?? "";
         _settings.ShowPetArrows = ShowPetArrowsBox.IsChecked ?? true;
@@ -808,6 +828,7 @@ public partial class SettingsWindow : Window
         ShowHotkeyOverlayBox.IsChecked = s.ShowHotkeyOverlay;
         ShowPetFarmBox.IsChecked = s.ShowPetFarm;
         ShowBossOverlayBox.IsChecked = s.ShowBossOverlay;
+        ShowNetworkOverlayBox.IsChecked = s.ShowNetworkOverlay;
         ShowPetArrowsBox.IsChecked = s.ShowPetArrows;
         ShowGatherArrowsBox.IsChecked = s.ShowGatherArrows;
     }

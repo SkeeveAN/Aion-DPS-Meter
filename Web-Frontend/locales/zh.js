@@ -416,7 +416,7 @@ export default {
   "features.modes.title": "五种视图，一键切换",
   "features.modes.text": "Mode 菜单——或你为它设置的快捷键（默认：Ctrl+Alt+M），或点击悬浮窗中的模式标签——可在五种视图之间切换整个统计器。伤害按伤害和 DPS 排名，治疗按治疗量，承受伤害按每位玩家承受的伤害。两种 All in One 视图把所有数据合并成一个列表，无需切换：All in One 并排显示承受伤害、治疗和总伤害（左图），All in One Compact 保留常见的 DPS 与总计列，并在名称下方用小号第二行显示治疗和承受伤害（右图）。悬浮窗将当前视图显示为 DMG、HEAL、TAKEN、ALL 或 ALL+。",
   "features.overlay.title": "可点击穿透的悬浮窗",
-  "features.overlay.text": "Hide UI 会把窗口变成悬浮在 Aion 2 之上的小标签，不会拦截任何点击——可选标签样式或紧凑面板。All in One 模式还会为每位玩家显示治疗和承受伤害。可用你选择的快捷键随时切换（默认：Ctrl+Alt+H）。",
+  "features.overlay.text": "Hide UI 会把窗口变成悬浮在 Aion 2 之上的小标签，不会拦截任何点击——可选标签样式或紧凑面板。All in One 模式还会为每位玩家显示治疗和承受伤害。可用你选择的快捷键随时切换（默认：Ctrl+Alt+H）。网络悬浮窗会显示你与游戏服务器连接的延迟、抖动、流量和丢包情况（Ctrl+Alt+N）。",
   "features.details.title": "每位玩家的技能明细",
   "features.details.text": "双击玩家即可查看每个技能的命中数、暴击率、总计、最小、最大和平均值，并按目标拆分，另附整场战斗的 DPS 曲线。暴击率直接读取自服务器的命中数据，因此是精确的。",
   "features.character.title": "一眼看清你的整个角色",
