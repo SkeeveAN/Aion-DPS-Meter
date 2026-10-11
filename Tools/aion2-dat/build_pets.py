@@ -129,10 +129,14 @@ def main():
                         monsters.setdefault(str(npc_id), set()).add(pet_id)
                         loot_routes += 1
                 at = loot.find(needle, at + 1)
-    # "Tamed <pet>" NPCs are friendly companions of quests and garrisons (one stands in the Dawn Legion Recovery Room): not farmable, so no spawn
+    # "Tamed <pet>" NPCs are friendly companions of quests and garrisons (one stands in the Dawn Legion Recovery Room): not farmable, so no spawn.
+    # Except the five the client's own "Fundorte" page (ItemGetRoute) lists under the soul's Monsterbeute: they do drop it (NPC id -> pet id).
+    TAMED_SOURCES = {2400414: 1004, 2100802: 1097, 2100805: 1097, 2400611: 1106, 2400503: 1203}  # Fossa, Karnif x2, Tayga, Tamed Karnif
     names = json.load(open(npc_names_path))
     for npc_id in [k for k in monsters if str((names.get(k) or {}).get("en", "")).startswith("Tamed ")]:
         del monsters[npc_id]
+    for npc_id, pet_id in TAMED_SOURCES.items():
+        monsters.setdefault(str(npc_id), set()).add(pet_id)
     # pets without a place in the world: the client lists only quest rewards and chests for them, the models of their look-alike monsters (Red Shell Mole) are not their source
     no_field = {by_key["mole_01"]}  # Armadon
     for npc_id in list(monsters):
