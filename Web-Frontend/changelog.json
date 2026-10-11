@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.32.2",
   "date": "2026-10-11",
   "items": [
    {
@@ -25,23 +25,9 @@
     "date": "2026-10-11"
    },
    {
-    "text": "Pet regions: each region polygon was named after the next volume in the map file (name stands before its points), so Western and Southern Artamia Highland and many camps were swapped; Young Ursus added to its three client-listed places",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-10-11"
-   },
-   {
     "text": "Deus Research Base: fights with the 2320xxx boss ids are Transcendence stage 1",
     "areas": [
      "Backend"
-    ],
-    "date": "2026-10-11"
-   },
-   {
-    "text": "Pet regions: the five tamed NPCs the client lists as soul sources (Tamed Karnif, Tamed Beast, Tamed Tayga) are back in the Region tab",
-    "areas": [
-     "Client"
     ],
     "date": "2026-10-11"
    },
@@ -62,18 +48,18 @@
     "date": "2026-10-11"
    },
    {
-    "text": "Pet regions: every pet whose soul the client's own Fundorte list names places for (ItemGetRoute) now shows exactly those places; new build_soul_routes.py reads them",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-10-11"
-   },
-   {
     "text": "Every confirmed player now gets a full profile from NC's official character page: gear with enchants, skills, Daevanion board progress, level, class, title, combat power and item level; and an ambiguous name is settled by the legion NC names for each candidate",
     "areas": [
      "Website",
      "Backend",
      "Database"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "Pet regions now match the game: every pet lists the places the AION 2 client names for its soul (Western and Southern Artamia Highland, camps and rests were mixed up before), tamed Karnif, Fossa and Tayga are back, Young Ursus and Armadon are placed",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-11"
    }
