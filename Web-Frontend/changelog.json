@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.38.5",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "Players whose first worn title has an id starting with 02 (e.g. Failed Entrepreneur) were uploaded with one wrong title instead of their three, because a false match in the list of owned titles overwrote the real ones at the end of the packet",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.38.4",
   "date": "2026-10-11",
   "items": [
