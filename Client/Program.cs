@@ -772,7 +772,7 @@ internal static class Program
             window.ShowPetRareTab(rare == "1" ? null : rare); // layout check: the Rare tab (the value is the key of the line to select, e.g. "verteron.2100079")
         }
 
-        double width = 620, height = string.IsNullOrEmpty(rare) ? 740 : 1000;
+        double width = 620, height = string.IsNullOrEmpty(rare) && tab != "Hotkeys" ? 740 : 1000;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));

@@ -2487,6 +2487,48 @@
     "ja": "DPS メーター",
     "ko": "DPS 미터"
   },
+  "Settings.Hotkey.HotkeyOverlay": {
+    "en": "Hotkey overlay on / off",
+    "de": "Hotkey-Overlay an / aus",
+    "fr": "Overlay des raccourcis activé / désactivé",
+    "es": "Overlay de atajos sí / no",
+    "ru": "Оверлей горячих клавиш вкл / выкл",
+    "pl": "Nakładka skrótów wł. / wył.",
+    "tr": "Kısayol katmanı açık / kapalı",
+    "zh": "快捷键悬浮窗 开 / 关",
+    "zh-TW": "快捷鍵浮動層 開 / 關",
+    "pt": "Overlay de atalhos ligado / desligado",
+    "ja": "ホットキーオーバーレイ オン / オフ",
+    "ko": "단축키 오버레이 켜기 / 끄기"
+  },
+  "Settings.Hotkey.AllOverlays": {
+    "en": "All overlays on / off",
+    "de": "Alle Overlays an / aus",
+    "fr": "Tous les overlays activés / désactivés",
+    "es": "Todos los overlays sí / no",
+    "ru": "Все оверлеи вкл / выкл",
+    "pl": "Wszystkie nakładki wł. / wył.",
+    "tr": "Tüm katmanlar açık / kapalı",
+    "zh": "所有悬浮窗 开 / 关",
+    "zh-TW": "所有浮動層 開 / 關",
+    "pt": "Todos os overlays ligados / desligados",
+    "ja": "すべてのオーバーレイ オン / オフ",
+    "ko": "모든 오버레이 켜기 / 끄기"
+  },
+  "Settings.Hotkeys.Group.Overlays": {
+    "en": "Overlays",
+    "de": "Overlays",
+    "fr": "Overlays",
+    "es": "Overlays",
+    "ru": "Оверлеи",
+    "pl": "Nakładki",
+    "tr": "Katmanlar",
+    "zh": "悬浮窗",
+    "zh-TW": "浮動層",
+    "pt": "Overlays",
+    "ja": "オーバーレイ",
+    "ko": "오버레이"
+  },
   "Settings.Hotkey.PetMap": {
     "en": "Interactive map on / off",
     "de": "Interaktive Map an / aus",

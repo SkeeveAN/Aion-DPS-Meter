@@ -16,6 +16,8 @@ public enum HotkeyAction
     NextMode,
     ToggleTimetable,
     TogglePetMap,
+    ToggleHotkeyOverlay,
+    ToggleAllOverlays,
 }
 
 /// <summary>A key plus modifiers, written "Ctrl+Alt+H" in the settings file.</summary>

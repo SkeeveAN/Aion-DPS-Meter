@@ -526,6 +526,12 @@ public partial class MainWindow : Window
             case HotkeyAction.TogglePetMap:
                 TogglePetMap();
                 break;
+            case HotkeyAction.ToggleHotkeyOverlay:
+                ToggleHotkeyOverlay();
+                break;
+            case HotkeyAction.ToggleAllOverlays:
+                ToggleAllOverlays();
+                break;
             case HotkeyAction.NextMode:
                 NextMode();
                 break;
@@ -554,6 +560,8 @@ public partial class MainWindow : Window
             [HotkeyAction.NextMode] = HotkeyBinding.Parse(settings.HotkeyMode),
             [HotkeyAction.ToggleTimetable] = HotkeyBinding.Parse(settings.HotkeyTimetable),
             [HotkeyAction.TogglePetMap] = HotkeyBinding.Parse(settings.HotkeyPetMap),
+            [HotkeyAction.ToggleHotkeyOverlay] = HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay),
+            [HotkeyAction.ToggleAllOverlays] = HotkeyBinding.Parse(settings.HotkeyAllOverlays),
         });
         if (failed.Count > 0)
         {
@@ -4128,7 +4136,7 @@ public partial class MainWindow : Window
         settings.ShowPetMap = !settings.ShowPetMap;
         settings.Save();
         ApplyPetFarm(settings);
-        _settingsWindow?.SyncOverlaySwitches(settings.ShowPetMap, settings.ShowTimetable);
+        _settingsWindow?.SyncOverlaySwitches(settings);
     }
 
     private void ToggleTimetable()
@@ -4137,7 +4145,44 @@ public partial class MainWindow : Window
         settings.ShowTimetable = !(_timetable?.IsVisible ?? false);
         settings.Save();
         ApplyTimetable(settings);
-        _settingsWindow?.SyncOverlaySwitches(settings.ShowPetMap, settings.ShowTimetable);
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
+    private void ToggleHotkeyOverlay()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowHotkeyOverlay = !settings.ShowHotkeyOverlay;
+        settings.Save();
+        ApplyHotkeyOverlay(settings);
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
+    /// <summary>Which overlays the "all overlays" hotkey switched off, so the next press brings back exactly those.</summary>
+    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm)? _overlaysSwitchedOff;
+
+    /// <summary>One press switches every overlay that is on off (hotkey list, timetable, interactive map, pet info); the next brings the same ones back.
+    /// The DPS overlay is not among them - it is the Hide UI mode with its own hotkey.</summary>
+    private void ToggleAllOverlays()
+    {
+        var settings = MeterSettings.Load();
+        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm;
+        if (anyOn)
+        {
+            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm);
+            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = false;
+        }
+        else
+        {
+            var back = _overlaysSwitchedOff ?? (true, true, true, false);
+            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm) = back;
+            _overlaysSwitchedOff = null;
+        }
+
+        settings.Save();
+        ApplyHotkeyOverlay(settings);
+        ApplyTimetable(settings);
+        ApplyPetFarm(settings);
+        _settingsWindow?.SyncOverlaySwitches(settings);
     }
 
     /// <summary>Settings changed while Hide UI is up: switches to the look now chosen.</summary>

@@ -60,6 +60,8 @@ public partial class SettingsWindow : Window
         InitBossPage(settings);
         SetHotkeyBox(HotkeyTimetableBox, HotkeyBinding.Parse(settings.HotkeyTimetable).ToString());
         SetHotkeyBox(HotkeyPetMapBox, HotkeyBinding.Parse(settings.HotkeyPetMap).ToString());
+        SetHotkeyBox(HotkeyHotkeyOverlayBox, HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay).ToString());
+        SetHotkeyBox(HotkeyAllOverlaysBox, HotkeyBinding.Parse(settings.HotkeyAllOverlays).ToString());
         ShowHotkeyOverlayBox.IsChecked = settings.ShowHotkeyOverlay;
         foreach (var box in HotkeyOverlayRowBoxes())
         {
@@ -397,7 +399,7 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
-        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox };
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox };
 
     private void OnHotkeyClearClicked(object sender, RoutedEventArgs e)
     {
@@ -495,6 +497,8 @@ public partial class SettingsWindow : Window
         _settings.PetMapGatherItems = _gatherPicked.OrderBy(k => k).ToList();
         _settings.HotkeyTimetable = (string?)HotkeyTimetableBox.Tag ?? "";
         _settings.HotkeyPetMap = (string?)HotkeyPetMapBox.Tag ?? "";
+        _settings.HotkeyHotkeyOverlay = (string?)HotkeyHotkeyOverlayBox.Tag ?? "";
+        _settings.HotkeyAllOverlays = (string?)HotkeyAllOverlaysBox.Tag ?? "";
         _settings.ShowHotkeyOverlay = ShowHotkeyOverlayBox.IsChecked ?? false;
         _settings.HotkeyOverlayHidden = HotkeyOverlayRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
@@ -778,10 +782,12 @@ public partial class SettingsWindow : Window
     }
 
     /// <summary>A hotkey flipped the pet map or the timetable while this window is open: the switches follow.</summary>
-    public void SyncOverlaySwitches(bool showPetMap, bool showTimetable)
+    public void SyncOverlaySwitches(MeterSettings s)
     {
-        ShowPetMapBox.IsChecked = showPetMap;
-        ShowTimetableBox.IsChecked = showTimetable;
+        ShowPetMapBox.IsChecked = s.ShowPetMap;
+        ShowTimetableBox.IsChecked = s.ShowTimetable;
+        ShowHotkeyOverlayBox.IsChecked = s.ShowHotkeyOverlay;
+        ShowPetFarmBox.IsChecked = s.ShowPetFarm;
     }
 
     /// <summary>The map's sliders are read-only (greyed out) while the map is switched off; the pet list stays editable.</summary>

@@ -199,6 +199,10 @@ public sealed class MeterSettings
 
     /// <summary>Switches the pet map (with its list) on or off.</summary>
     public string HotkeyPetMap { get; set; } = "Ctrl+Alt+K";
+    /// <summary>Hotkey overlay on / off.</summary>
+    public string HotkeyHotkeyOverlay { get; set; } = "Ctrl+Alt+O";
+    /// <summary>All overlays (hotkey list, timetable, interactive map, pet info) off, and the same ones back on.</summary>
+    public string HotkeyAllOverlays { get; set; } = "Ctrl+Alt+A";
 
     /// <summary>The notice that appears when the eye (hide the window) is clicked was dismissed with "do not show again".</summary>
     public bool HideUiHintDismissed { get; set; }

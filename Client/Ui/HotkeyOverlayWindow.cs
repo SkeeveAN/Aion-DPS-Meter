@@ -65,6 +65,8 @@ public sealed class HotkeyOverlayWindow : MovableOverlay
             ("Mode", "Settings.Hotkey.Mode", s.HotkeyMode),
             ("Timetable", "Settings.Hotkey.Timetable", s.HotkeyTimetable),
             ("PetMap", "Settings.Hotkey.PetMap", s.HotkeyPetMap),
+            ("HotkeyOverlay", "Settings.Hotkey.HotkeyOverlay", s.HotkeyHotkeyOverlay),
+            ("AllOverlays", "Settings.Hotkey.AllOverlays", s.HotkeyAllOverlays),
         };
         return all.Where(h => !s.HotkeyOverlayHidden.Contains(h.Id))
             .Select(h => (Name: loc[h.NameKey], Keys: HotkeyBinding.Parse(h.Keys).ToString()))
