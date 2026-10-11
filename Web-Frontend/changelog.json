@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.40.4",
+  "date": "2026-10-12",
+  "items": [
+   {
+    "text": "The target dropdown is back next to All Groups at its old width, and its open list is wider so the whole name of a boss can be read",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-12"
+   }
+  ]
+ },
+ {
   "version": "0.40.3",
   "date": "2026-10-12",
   "items": [
