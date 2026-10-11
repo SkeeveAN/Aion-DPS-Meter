@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "Players whose own client named their server are now also checked against NC's character search, last in line: NC confirms them on that server but never moves them, and a failed check keeps them as client players",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.31.2",
   "date": "2026-10-11",
   "items": [
