@@ -4954,5 +4954,33 @@
     "pt": "Loja: Pets",
     "ja": "ショップ：ペット",
     "ko": "상점: 펫"
+  },
+  "Main.Announcements.Tooltip": {
+    "en": "AION 2 announcements (opens aiondps.com)",
+    "de": "AION 2 Ankündigungen (öffnet aiondps.com)",
+    "fr": "Annonces AION 2 (ouvre aiondps.com)",
+    "es": "Anuncios de AION 2 (abre aiondps.com)",
+    "ru": "Объявления AION 2 (откроет aiondps.com)",
+    "pl": "Ogłoszenia AION 2 (otwiera aiondps.com)",
+    "tr": "AION 2 duyuruları (aiondps.com'u açar)",
+    "zh": "AION 2 公告（打开 aiondps.com）",
+    "zh-TW": "AION 2 公告（開啟 aiondps.com）",
+    "pt": "Anúncios de AION 2 (abre aiondps.com)",
+    "ja": "AION 2 お知らせ（aiondps.com を開きます）",
+    "ko": "AION 2 공지사항 (aiondps.com 열기)"
+  },
+  "Main.Announcements.New": {
+    "en": "New",
+    "de": "Neu",
+    "fr": "Nouveau",
+    "es": "Nuevo",
+    "ru": "Новое",
+    "pl": "Nowe",
+    "tr": "Yeni",
+    "zh": "新",
+    "zh-TW": "新",
+    "pt": "Novo",
+    "ja": "新着",
+    "ko": "새 글"
   }
 }

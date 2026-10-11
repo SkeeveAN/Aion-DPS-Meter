@@ -204,6 +204,12 @@ public partial class MainWindow : Window
     /// IP, so 12 is comfortably inside it even with a second client running alongside.</summary>
     private readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromMinutes(5) };
 
+    /// <summary>Asks aiondps.com every half hour for the newest announcement (a single number) to decide whether the "New" badge shows.</summary>
+    private readonly DispatcherTimer _announcementsTimer = new() { Interval = TimeSpan.FromMinutes(30) };
+
+    /// <summary>The posting time of the newest announcement the server named last; the click on the icon stores it as "seen".</summary>
+    private long? _latestAnnouncement;
+
     /// <summary>The update already downloaded and staged, so a repeating check does not fetch the
     /// same one twelve times an hour -- and so clicking the notice knows what to restart into.
     /// Aliased because Velopack's UpdateInfo would otherwise collide with nothing in particular,
@@ -265,6 +271,9 @@ public partial class MainWindow : Window
         {
             _updateTimer.Tick += (_, _) => _ = RunUpdateCheck(announceResult: false);
             _updateTimer.Start();
+            _announcementsTimer.Tick += (_, _) => _ = RefreshAnnouncementsBadge();
+            _announcementsTimer.Start();
+            _ = RefreshAnnouncementsBadge();
             // The meter talks to GitHub only while "check for updates" is on in the settings.
             var startupSettings = MeterSettings.Load();
             if (startupSettings.CheckForUpdates)
@@ -3123,6 +3132,46 @@ public partial class MainWindow : Window
         finally
         {
             _updateCheckRunning = false;
+        }
+    }
+
+    private async Task RefreshAnnouncementsBadge()
+    {
+        long? latest = await Announcements.AnnouncementsClient.GetLatestAsync();
+        if (latest is null)
+        {
+            return;
+        }
+
+        _latestAnnouncement = latest;
+        var settings = MeterSettings.Load();
+        if (settings.AnnouncementsSeen == 0)
+        {
+            // A fresh install (or the first run with this feature) starts from "everything seen": the badge means "something new since you last looked".
+            settings.AnnouncementsSeen = latest.Value;
+            settings.Save();
+        }
+
+        AnnouncementsNewBadge.Visibility = Announcements.AnnouncementsClient.IsNew(latest, settings.AnnouncementsSeen) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnAnnouncementsClicked(object sender, RoutedEventArgs e)
+    {
+        if (_latestAnnouncement is long latest)
+        {
+            var settings = MeterSettings.Load();
+            settings.AnnouncementsSeen = latest;
+            settings.Save();
+        }
+
+        AnnouncementsNewBadge.Visibility = Visibility.Collapsed;
+        try
+        {
+            Process.Start(new ProcessStartInfo(Announcements.AnnouncementsClient.PageUrl) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            // no browser to open: nothing else to do
         }
     }
 

@@ -39,6 +39,10 @@ public sealed class MeterSettings
     /// language (see Localization.cs) -- this is purely which language the meter's OWN menus/buttons/labels render in.</summary>
     public string Language { get; set; } = "";
 
+    /// <summary>Posting time (epoch seconds) of the newest AION 2 announcement seen when the announcements icon was last clicked;
+    /// the "New" badge shows while the server knows a newer one. 0 = never, which the first check fills in silently.</summary>
+    public long AnnouncementsSeen { get; set; }
+
     /// <summary>The meter mode last used (Damage, Heal, Taken, All, AllCompact), restored on the next
     /// launch. Saved on every change, like the always-on-top toggle.</summary>
     public string LastMode { get; set; } = "Damage";
@@ -205,16 +209,16 @@ public sealed class MeterSettings
     public string HotkeyAllOverlays { get; set; } = "Ctrl+Alt+A";
     /// <summary>World boss overlay on / off.</summary>
     public string HotkeyWorldBoss { get; set; } = "Ctrl+Alt+B";
-
-    /// <summary>The notice that appears when the eye (hide the window) is clicked was dismissed with "do not show again".</summary>
-    public bool HideUiHintDismissed { get; set; }
-
     /// <summary>The arrows on the edge of the interactive map pointing at pets / gatherables that are out of view (one switch each); on by default.</summary>
     public bool ShowPetArrows { get; set; } = true;
     public bool ShowGatherArrows { get; set; } = true;
     /// <summary>Pet arrows / gather arrows on / off.</summary>
     public string HotkeyPetArrows { get; set; } = "Ctrl+Alt+E";
     public string HotkeyGatherArrows { get; set; } = "Ctrl+Alt+G";
+
+    /// <summary>The notice that appears when the eye (hide the window) is clicked was dismissed with "do not show again".</summary>
+    public bool HideUiHintDismissed { get; set; }
+
     /// <summary>The timetable overlay: what is active now and what starts within the lookahead (<see cref="TimetableLookaheadMinutes"/>). Its place
     /// and scale are remembered (null left/top = a default corner).</summary>
     public bool ShowTimetable { get; set; } = true;

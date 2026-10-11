@@ -849,6 +849,20 @@
                              click-through overlay sitting behind the game or cluttering the taskbar
                              would defeat the point); the button itself becomes unreachable once the
                              window is click-through, which is why Ctrl+Alt+H exists to bring it back. -->
+                        <!-- AION 2 announcements: only a link to the page on aiondps.com; "New" shows beside the icon while there is
+                             an announcement newer than the one seen at the last click (OnAnnouncementsClicked / RefreshAnnouncementsBadge). -->
+                        <Button x:Name="AnnouncementsButton" Style="{StaticResource ToolbarIconButton}" Click="OnAnnouncementsClicked" Padding="6,4" Margin="4"
+                                ToolTip="{local:Loc Main.Announcements.Tooltip}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M3,9 L3,15 L7,15 L14,20 L14,4 L7,9 Z M17,8 C18.5,9.5 18.5,14.5 17,16 M19.5,5.5 C22.5,8.5 22.5,15.5 19.5,18.5"
+                                      Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                      Width="18" Height="15" Stretch="Uniform"/>
+                                <Border x:Name="AnnouncementsNewBadge" Visibility="Collapsed" Margin="5,0,0,0" Padding="5,0" CornerRadius="7"
+                                        Background="{DynamicResource Brush.Danger}" VerticalAlignment="Center">
+                                    <TextBlock Text="{local:Loc Main.Announcements.New}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                </Border>
+                            </StackPanel>
+                        </Button>
                         <Button x:Name="HideUiButton" Style="{StaticResource ToolbarIconButton}" Click="OnHideUiClicked" Padding="6,4" Margin="4"
                                 ToolTip="Overlay mode: transparent, click-through, shows a small DPS chip per player. Ctrl+Alt+H brings the UI back.">
                             <Path Data="M1,12 C1,12 4.5,5 12,5 19.5,5 23,12 23,12 23,12 19.5,19 12,19 4.5,19 1,12 1,12 Z
