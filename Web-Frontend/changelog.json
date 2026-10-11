@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "The equipment tooltip on the player page now shows each worn piece as NC's own item page does: base stats with the enchant bonus, soul bind rate, rolled stats with their possible range, mana stone values by rarity, the full god stone text, where the piece drops, the level requirement, and the item level with the \"(+n)\" the game adds; the data is fetched when the pointer rests on a piece and cached",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.36.0",
   "date": "2026-10-11",
   "items": [
