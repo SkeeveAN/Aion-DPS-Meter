@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.40.0",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "New network analysis overlay shows ping, jitter, traffic, packet loss and connection quality of the game connection (own settings page, lock, hotkey Ctrl+Alt+N, part of all overlays on/off); the capture no longer loses packets during a world boss because decoding and the debug file run off the capture thread",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.39.0",
   "date": "2026-10-11",
   "items": [
