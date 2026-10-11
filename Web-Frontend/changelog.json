@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "Player profile header: calmer layout with the faction logo in front of the name, the class only as a tooltip on the badge, and three numbers (item level, gear power, combat power) without skills and Daevanion points",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.34.0",
   "date": "2026-10-11",
   "items": [
