@@ -139,10 +139,20 @@ test("the verified members of a legion settle a name that has several characters
   assert.equal(serverOf(member).d, "Europe - Yustiel", "1305 is Yustiel");
 });
 
-test("a player whose own client named his server is never asked", () => {
+test("a player whose own client named his server is checked by NC too, but never moved and never demoted", async () => {
   const id = player("Selbst", kaisinel);
   noteClientServer(id, 1304, 1_000_000);
-  assert.deepEqual(dueOf([id], 1_000_000 + 30 * 24 * 3_600_000), []);
+  assert.deepEqual(dueOf([id], 1_000_000), [id], "due at once");
+  noteClientServer(id, 1304, 1_000_500);
+  assert.equal((sqlite.prepare("select checked_at c from player_nc_match where player_id = ?").get(id) as { c: number }).c, 1_000_000, "a later upload does not reset the row");
+  // NC lists a namesake on another server only: his client's word stays
+  assert.equal(await processMatch(id, ncAnswer([raw({ name: "Selbst", serverId: 1305 })]), 2_000_000), "client");
+  assert.equal(matchRow(id)?.status, "client");
+  assert.equal(matchRow(id)?.s, 1304);
+  assert.deepEqual(dueOf([id], 2_000_000 + 29 * 24 * 3_600_000), []);
+  // NC knows him on that server: verified
+  assert.equal(await processMatch(id, ncAnswer([raw({ name: "Selbst", serverId: 1305 }), raw({ name: "Selbst", serverId: 1304 })]), 3_000_000), "verified");
+  assert.equal(matchRow(id)?.status, "verified");
 });
 
 test("a profile's class helps to pick, and a level lower than his own is no match", async () => {

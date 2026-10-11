@@ -23,8 +23,8 @@ type FetchFn = typeof fetch;
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
-/** When to ask again, by outcome. A verified player is looked at again now and then (a transfer or a rename); an unclear one when newer uploads may know more. */
-export const MATCH_RETRY_AFTER = { verified: 30 * DAY, client: 365 * DAY, ambiguous: 3 * DAY, none: 2 * DAY, conflict: 7 * DAY, error: 1 * HOUR } as const;
+/** When to ask again, by outcome ('client': after NC could not confirm him either; a fresh client player is due at once, but last in line). A verified player is looked at again now and then (a transfer or a rename); an unclear one when newer uploads may know more. */
+export const MATCH_RETRY_AFTER = { verified: 30 * DAY, client: 30 * DAY, ambiguous: 3 * DAY, none: 2 * DAY, conflict: 7 * DAY, error: 1 * HOUR } as const;
 export type MatchStatus = keyof typeof MATCH_RETRY_AFTER;
 
 const SHARDS: Record<string, string> = { Europe: "eu", Asia: "as", "NA East": "nae", "NA West": "naw", LATAM: "la" };
@@ -198,7 +198,7 @@ function serverRowOf(ncServerId: number): number {
   return Number(db.insert(servers).values({ fingerprint, displayName }).run().lastInsertRowid);
 }
 
-function record(playerId: number, status: MatchStatus, extra: { ncServerId?: number | null; ncRace?: number | null; via?: string | null; candidates?: number }, now: number) {
+function record(playerId: number, status: MatchStatus, extra: { ncServerId?: number | null; ncRace?: number | null; via?: string | null; candidates?: number; nextTryAt?: number }, now: number) {
   const values = {
     status,
     ncServerId: extra.ncServerId ?? null,
@@ -206,7 +206,7 @@ function record(playerId: number, status: MatchStatus, extra: { ncServerId?: num
     via: extra.via ?? null,
     candidates: extra.candidates ?? 0,
     checkedAt: now,
-    nextTryAt: now + MATCH_RETRY_AFTER[status],
+    nextTryAt: extra.nextTryAt ?? now + MATCH_RETRY_AFTER[status],
   };
   db.insert(playerNcMatch).values({ playerId, ...values }).onConflictDoUpdate({ target: playerNcMatch.playerId, set: values }).run();
 }
@@ -246,12 +246,18 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   if (!player || !shard) {
     return null;
   }
+  // A player whose own client named his server stays there: NC only confirms or enriches, it never moves him.
+  const before = db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
+  const clientServer = before?.status === "client" ? before.ncServerId : null;
   let hits: Hit[];
   try {
     hits = await searchHits(fetchFn, player.name, shard);
   } catch {
-    record(playerId, "error", {}, now);
+    record(playerId, "error", clientServer === null ? {} : { ncServerId: clientServer, nextTryAt: now + MATCH_RETRY_AFTER.error }, now);
     return "error";
+  }
+  if (clientServer !== null) {
+    hits = hits.filter((h) => h.serverId === clientServer);
   }
   const decision = decide(hits, subjectOf(player));
   if (decision.status === "verified" && decision.hit) {
@@ -263,17 +269,22 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
     record(playerId, "verified", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, via: decision.via, candidates: decision.candidates }, now);
     return "verified";
   }
+  if (clientServer !== null) {
+    // NC does not know him (yet) or cannot tell: his client's word still counts, ask again later.
+    record(playerId, "client", { ncServerId: clientServer, candidates: decision.candidates }, now);
+    return "client";
+  }
   record(playerId, decision.status, { candidates: decision.candidates }, now);
   return decision.status;
 }
 
-/** A server the player's own client named: as good as a match, nothing to ask NC. */
+/** A server the player's own client named: as good as a match, but NC is still asked later (low priority, see duePlayers) to confirm him and fill in his character. */
 export function noteClientServer(playerId: number, ncServerId: number, now = Date.now()): void {
   const before = db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
-  if (before?.status === "verified" && before.ncServerId === ncServerId) {
+  if ((before?.status === "verified" || before?.status === "client") && before.ncServerId === ncServerId) {
     return;
   }
-  record(playerId, "client", { ncServerId }, now);
+  record(playerId, "client", { ncServerId, nextTryAt: now }, now);
 }
 
 /** Of these players, the ones with no fresh result and a region NC can search. */
@@ -366,7 +377,7 @@ export function checkPlayers(ids: number[], queue: MatchQueue = matchQueue, now 
   }
 }
 
-/** The players that were never checked or whose result ran out, newest first. */
+/** The players that were never checked or whose result ran out, newest first; players their own client named come last. */
 export function duePlayers(limit: number, now = Date.now()): number[] {
   const rows = db
     .select({ id: players.id, serverName: servers.displayName, nextTryAt: playerNcMatch.nextTryAt })
@@ -374,7 +385,7 @@ export function duePlayers(limit: number, now = Date.now()): number[] {
     .innerJoin(servers, eq(players.serverId, servers.id))
     .leftJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
     .where(sql`${servers.fingerprint} like 'aion2:%' and (${playerNcMatch.nextTryAt} is null or ${playerNcMatch.nextTryAt} <= ${now})`)
-    .orderBy(sql`${playerNcMatch.nextTryAt} is not null`, sql`${players.lastSeenAt} desc`)
+    .orderBy(sql`${playerNcMatch.status} = 'client'`, sql`${playerNcMatch.nextTryAt} is not null`, sql`${players.lastSeenAt} desc`)
     .all();
   return rows.filter((r) => shardOf(r.serverName) !== null).slice(0, limit).map((r) => r.id);
 }
