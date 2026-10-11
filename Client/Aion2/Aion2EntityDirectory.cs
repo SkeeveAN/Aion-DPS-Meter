@@ -676,7 +676,17 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
-            _titles = titles;
+            // A frame with all three slots is the full set (login); a shorter one is taken as a change of just those
+            // slots, so the titles it does not mention stay.
+            if (titles.Count < 3 && _titles is { Count: > 0 })
+            {
+                _titles = _titles.Where(t => titles.All(n => n.Slot != t.Slot)).Concat(titles).OrderBy(t => t.Slot).ToList();
+            }
+            else
+            {
+                _titles = titles;
+            }
+
             _listsAt = DateTime.UtcNow;
         }
 
