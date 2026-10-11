@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.38.6",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "The timetable showed the Abyss raid (Artifact Siege) every third day, so it listed one on Sunday although the raid runs on Monday, Thursday and Saturday at 21:00; the dates now follow that weekly pattern",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.38.5",
   "date": "2026-10-11",
   "items": [
