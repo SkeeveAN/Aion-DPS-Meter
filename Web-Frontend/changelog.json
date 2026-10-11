@@ -1,5 +1,25 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "Overlay: update badge only when the client is outdated, not for every available update",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "Character data now fills itself: every player NC confirms is put into the portrait queue at once, and a background sweep fetches portrait and character data for all confirmed European players that lack them, so the Character tab no longer waits for someone to open the profile",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.32.1",
   "date": "2026-10-11",
   "items": [
