@@ -4,7 +4,8 @@ import { encounterParticipants, playerNcMatch, playerProfiles, players, servers 
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { canonicalServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
-import { MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch } from "./portraitService.js";
+import { MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
+import { playerPortraits, playerNcCharacter } from "./db/schema.js";
 
 /**
  * Checks players against NC's public character search, so that the server and the faction of every player we have seen are the real ones.
@@ -267,6 +268,7 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
       return "conflict";
     }
     record(playerId, "verified", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, via: decision.via, candidates: decision.candidates }, now);
+    enrichPlayer(playerId);
     return "verified";
   }
   if (clientServer !== null) {
@@ -403,5 +405,73 @@ export function startMatchSweep(intervalMs = 15 * 60_000, batch = 60): void {
     }
   };
   setTimeout(sweep, 60_000).unref();
+  setInterval(sweep, intervalMs).unref();
+}
+
+/** What the portrait/character fetch needs for a player NC has confirmed: his real server and race are known, so the search cannot pick a namesake. Null for players NC did not confirm or outside Europe (the character pages are searched there). */
+export function enrichKeyOf(playerId: number): PlayerKey | null {
+  const row = db
+    .select({ name: players.name, serverName: servers.displayName, status: playerNcMatch.status, ncServerId: playerNcMatch.ncServerId, ncRace: playerNcMatch.ncRace, faction: players.faction })
+    .from(players)
+    .innerJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
+    .leftJoin(servers, eq(players.serverId, servers.id))
+    .where(eq(players.id, playerId))
+    .get();
+  if (!row || row.status !== "verified" || row.ncServerId === null || shardOf(row.serverName) !== "eu") {
+    return null;
+  }
+  const faction = row.ncRace === 1 ? "Elyos" : row.ncRace === 2 ? "Asmodian" : row.faction === "Elyos" || row.faction === "Asmodian" ? row.faction : null;
+  return { playerId, name: row.name, faction, ownServerId: row.ncServerId };
+}
+
+/** Puts a confirmed player into the portrait queue, which fetches his portrait and character data (the Character tab). Never throws. */
+export function enrichPlayer(playerId: number): boolean {
+  if (process.env.PORTRAITS_OFF === "1" || !matchEnabled()) {
+    return false;
+  }
+  try {
+    const key = enrichKeyOf(playerId);
+    return key ? portraitQueue.enqueue(key) : false;
+  } catch {
+    return false;
+  }
+}
+
+/** Confirmed players whose portrait or character data is missing or has run out, newest first (the Character tab is filled without anybody opening the profile). */
+export function enrichDue(limit: number, now = Date.now()): number[] {
+  return db
+    .select({ id: players.id })
+    .from(players)
+    .innerJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
+    .innerJoin(servers, eq(players.serverId, servers.id))
+    .leftJoin(playerPortraits, eq(playerPortraits.playerId, players.id))
+    .leftJoin(playerNcCharacter, eq(playerNcCharacter.playerId, players.id))
+    .where(
+      sql`${playerNcMatch.status} = 'verified' and ${servers.displayName} like 'Europe - %'
+        and (${playerPortraits.nextTryAt} is null or ${playerPortraits.nextTryAt} <= ${now} or ${playerNcCharacter.nextTryAt} is null or ${playerNcCharacter.nextTryAt} <= ${now})`,
+    )
+    .orderBy(sql`${players.lastSeenAt} desc`)
+    .limit(limit)
+    .all()
+    .map((r) => r.id);
+}
+
+/** Background sweep: fills the queue up to its limit with confirmed players that lack portrait or character data. The first rounds fill everyone in one go, later ones only the new and the expired. */
+export function startEnrichSweep(intervalMs = 5 * 60_000, batch = 150): void {
+  if (!matchEnabled() || process.env.PORTRAITS_OFF === "1") {
+    return;
+  }
+  const sweep = () => {
+    try {
+      for (const id of enrichDue(batch)) {
+        if (!enrichPlayer(id) && portraitQueue.length >= 150) {
+          break;
+        }
+      }
+    } catch {
+      // try again at the next round
+    }
+  };
+  setTimeout(sweep, 120_000).unref();
   setInterval(sweep, intervalMs).unref();
 }

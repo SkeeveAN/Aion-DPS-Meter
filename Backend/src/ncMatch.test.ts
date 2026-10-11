@@ -12,6 +12,7 @@ const { db, sqlite } = await import("./db/client.js");
 migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "drizzle") });
 after(() => sqlite.close());
 
+const ncMatchModule = await import("./ncMatch.js");
 const { decide, parseHits, processMatch, noteClientServer, dueOf, MatchQueue, shardOf, MATCH_RETRY_AFTER } = await import("./ncMatch.js");
 const { players, servers, playerProfiles } = await import("./db/schema.js");
 const { linkPlayerGuild } = await import("./guilds.js");
@@ -185,4 +186,18 @@ test("a player without a legion or region we can search is not due", () => {
   const id = player("Fremd", unknown);
   assert.deepEqual(dueOf([id]), []);
   assert.deepEqual(db.select().from(players).where(eq(players.id, id)).all().length, 1);
+});
+
+test("a confirmed player gets a fetch key with his real server and race, an unconfirmed one does not; the sweep lists those without data", () => {
+  const { enrichKeyOf, enrichDue } = ncMatchModule;
+  const id = player("Bestaetigt", kaisinel);
+  assert.equal(enrichKeyOf(id), null, "not checked yet");
+  noteClientServer(id, 1304, 1_000_000);
+  assert.equal(enrichKeyOf(id), null, "his own client's word alone is not enough, NC must confirm him");
+  sqlite.prepare("update player_nc_match set status = 'verified', nc_race = 2 where player_id = ?").run(id);
+  assert.deepEqual(enrichKeyOf(id), { playerId: id, name: "Bestaetigt", faction: "Asmodian", ownServerId: 1304 });
+  assert.ok(enrichDue(1000).includes(id), "no portrait and no character data yet");
+  sqlite.prepare("insert into player_portraits (player_id, status, fetched_at, next_try_at) values (?, 'ok', 1, ?)").run(id, Date.now() + 1e9);
+  sqlite.prepare("insert into player_nc_character (player_id, status, fetched_at, next_try_at) values (?, 'ok', 1, ?)").run(id, Date.now() + 1e9);
+  assert.ok(!enrichDue(1000).includes(id), "fresh data, nothing to do");
 });
