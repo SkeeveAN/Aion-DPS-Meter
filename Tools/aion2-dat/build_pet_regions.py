@@ -114,6 +114,8 @@ def island_points(map_dir, map_name):
 
 EVENTS = "_events"  # pets that only spawn in the event and quest phases of the maps
 EVENT_NAMES = {"en": "Events", "de": "Events", "fr": "Événements", "es": "Eventos", "ru": "События"}
+# pets the client lists in a region although the game data has no spawn point there (patrolling monsters): region key -> pet ids
+EXTRA = {"STR_Subzone_TolbasForest_Southern": [1004]}  # Patrouillierende Fossa (St. 25)
 OTHER = "_other"  # pets that spawn outside every named area; the client names it
 
 
@@ -182,6 +184,9 @@ def main():
                         else:
                             found[OTHER].update(ids if isinstance(ids, list) else [ids])  # in no named area at all
         regions, other = [], None
+        for key, extra_ids in EXTRA.items():
+            if key in found:
+                found[key].update(extra_ids)
         for key, ids in found.items():
             ids = sorted(i for i in ids if i in known)
             if ids and key == OTHER:

@@ -38,6 +38,21 @@ def strings(b):
     return out
 
 
+def shop_items(vehicles, vehicle_strings, items, item_strings):
+    """The pet items the Black Cloud shop sells: item id -> pet id. A pet row of VehicleList names its own item ("Vehicle_<model>_A_01_b",
+    a few strings after the pet's key; the model spelling differs from the pet key now and then: ForestAr01_V01 for ForestArc_01_V01)."""
+    item_id = {s.lower(): struct.unpack_from("<I", items, offset - 4)[0] for offset, s in item_strings if s.startswith("Vehicle_") and s.endswith("_A_01_b")}
+    out = {}
+    for index, (offset, s) in enumerate(vehicle_strings):
+        if not s.startswith("str_veh_"):
+            continue
+        pet_id = struct.unpack_from("<I", vehicles, offset - 4)[0]
+        item = next((t for _, t in vehicle_strings[index + 1:index + 8] if t.startswith("Vehicle_") and t.endswith("_A_01_b")), None)
+        if item and item.lower() in item_id:
+            out[str(item_id[item.lower()])] = pet_id
+    return out
+
+
 def main():
     vehicle_path, npc_path, npc_names_path, l10n_dir, out_path = sys.argv[1:6]
     extra = json.load(open(sys.argv[6])) if len(sys.argv) > 6 else {}
@@ -93,8 +108,10 @@ def main():
         monsters.setdefault(npc_id, set()).add(by_key[key.lower()])
     # the soul items ("VehicleSoul_<key>_A_01_b", what a monster drops of a pet) by item id, from the Item table
     souls = {}
+    shop = {}
     if len(sys.argv) > 7:
         items = open(sys.argv[7], "rb").read()
+        shop = shop_items(vehicles, table_strings, items, strings(items))
         for offset, s in strings(items):
             if s.startswith("VehicleSoul_") and s.endswith("_A_01_b") and s[12:-7].lower() in by_key:
                 souls[str(struct.unpack_from("<I", items, offset - 4)[0])] = by_key[s[12:-7].lower()]
@@ -112,8 +129,18 @@ def main():
                         monsters.setdefault(str(npc_id), set()).add(pet_id)
                         loot_routes += 1
                 at = loot.find(needle, at + 1)
+    # "Tamed <pet>" NPCs are friendly companions of quests and garrisons (one stands in the Dawn Legion Recovery Room): not farmable, so no spawn
+    names = json.load(open(npc_names_path))
+    for npc_id in [k for k in monsters if str((names.get(k) or {}).get("en", "")).startswith("Tamed ")]:
+        del monsters[npc_id]
+    # pets without a place in the world: the client lists only quest rewards and chests for them, the models of their look-alike monsters (Red Shell Mole) are not their source
+    no_field = {by_key["mole_01"]}  # Armadon
+    for npc_id in list(monsters):
+        monsters[npc_id] -= no_field
+        if not monsters[npc_id]:
+            del monsters[npc_id]
     out_monsters = {k: (next(iter(v)) if len(v) == 1 else sorted(v)) for k, v in monsters.items()}
-    json.dump({"pets": out_pets, "monsters": out_monsters, "souls": souls}, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    json.dump({"pets": out_pets, "monsters": out_monsters, "souls": souls, "shop": shop}, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
     print(f"{len(out_pets)} pets, {len(monsters)} monsters, {len(souls)} souls, {loot_routes} monster routes added from NpcLoot")
 
 
