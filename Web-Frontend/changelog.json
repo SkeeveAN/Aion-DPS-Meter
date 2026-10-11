@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "Player profile: the page that looks again for the portrait and character data no longer loses the footer or jumps to the top",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.37.0",
   "date": "2026-10-11",
   "items": [
