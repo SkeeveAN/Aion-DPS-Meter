@@ -4,13 +4,6 @@
   "date": "2026-10-11",
   "items": [
    {
-    "text": "Fix map arrow hotkey handlers placed in the wrong spot in MainWindow",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-10-11"
-   },
-   {
     "text": "New AION 2 announcements page with NCSoft's official notices in six languages (colored label per kind, kind filter, days as dividers) and a patch notes page with the full text; the main navigation is redone as tabs with the current page highlighted",
     "areas": [
      "Website",
