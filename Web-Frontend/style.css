@@ -3564,3 +3564,6 @@ body:has(.download-hero) .nav-download-link:hover,
 #nav-twitch-drops.active, #nav-twitch-drops[aria-current] { color: #d2bcff; background: color-mix(in srgb, #9146ff 22%, transparent); border-color: color-mix(in srgb, #9146ff 60%, transparent); }
 :root[data-theme="light"] #nav-twitch-drops { color: #6a2fd0; }
 :root[data-theme="light"] #nav-twitch-drops.active, :root[data-theme="light"] #nav-twitch-drops[aria-current] { color: #4f1fa8; background: color-mix(in srgb, #9146ff 16%, transparent); border-color: color-mix(in srgb, #9146ff 55%, transparent); }
+
+/* network scene: the settings window behind the overlay sits a little further right */
+@media(min-width:1101px){#feature-network .fx-win:first-child{translate:100px 0}}
