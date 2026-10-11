@@ -5,8 +5,8 @@ import type { FastifyReply, FastifyRequest } from "fastify";
  * Update obligation: only the current client may upload.
  *
  * "Current" is decided by release TIME, not by the number (the version numbers are no order: 0.9.57 came after 0.15.x). The newest release is
- * always allowed. An older release is allowed only for the grace period after its successor came out (CLIENT_UPDATE_GRACE_HOURS, default 0:
- * the moment a newer release is known, the older ones are blocked). A version the server does not know and that is numerically above the
+ * always allowed. An older release is allowed only for the grace period after its successor came out (CLIENT_UPDATE_GRACE_HOURS, default 72:
+ * an older client keeps uploading for three days after its successor came out). A version the server does not know and that is numerically above the
  * newest release is a release the server has not heard of yet and is allowed; every other unknown version (a fork, an old line, a dev build)
  * is blocked.
  *
@@ -47,7 +47,7 @@ export function compareVersions(a: [number, number, number], b: [number, number,
 
 /** On by default; CLIENT_UPDATE_ENFORCE=off switches it off. Under `node --test` it is off unless a test sets CLIENT_UPDATE_ENFORCE=on itself. */
 export const enforcementOn = () => (process.env.CLIENT_UPDATE_ENFORCE ?? (process.env.NODE_TEST_CONTEXT ? "off" : "on")).toLowerCase() !== "off";
-const graceMs = () => Math.max(0, Number(process.env.CLIENT_UPDATE_GRACE_HOURS ?? 0) || 0) * 3_600_000;
+const graceMs = () => Math.max(0, Number(process.env.CLIENT_UPDATE_GRACE_HOURS ?? 72) || 0) * 3_600_000;
 
 export type Verdict = { allowed: true } | { allowed: false; requiredVersion: string };
 
