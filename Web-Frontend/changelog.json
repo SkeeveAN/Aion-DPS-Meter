@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.33.0",
   "date": "2026-10-11",
   "items": [
    {
@@ -30,6 +30,13 @@
     "areas": [
      "Backend",
      "Database"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "Two new hotkeys: Ctrl+Alt+O switches the hotkey overlay on and off, Ctrl+Alt+A switches all overlays (hotkey list, timetable, interactive map, pet info) off and brings the same ones back with the next press; both are listed in the settings under Hotkeys and can be rebound",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-11"
    }
