@@ -4184,9 +4184,11 @@ public partial class MainWindow : Window
     private void RefreshUpdateBadge()
     {
         var loc = LocalizationManager.Instance;
-        // An outdated client outranks everything: it cannot upload at all until it is updated.
-        string? full = _clientOutdated ? loc["Overlay.OutdatedBadge"] : _updateBadgeFull;
-        string? small = _clientOutdated ? loc["Overlay.OutdatedBadgeShort"] : _updateBadgeShort;
+        // Only an outdated client (it cannot upload until it is updated) is worth a badge on the
+        // transparent overlay; a merely available update stays quiet there while the client is
+        // still new enough, the status row and the restart prompt carry it.
+        string? full = _clientOutdated ? loc["Overlay.OutdatedBadge"] : null;
+        string? small = _clientOutdated ? loc["Overlay.OutdatedBadgeShort"] : null;
         bool show = full is not null && _hideUiActive && _gameGateOpen;
         var brush = (Brush)FindResource(_clientOutdated ? "Brush.Warning" : "Brush.Accent");
         OverlayUpdateBadge.Visibility = show && !_compactOverlay ? Visibility.Visible : Visibility.Collapsed;
