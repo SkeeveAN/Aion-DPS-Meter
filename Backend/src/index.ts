@@ -5,6 +5,7 @@ import { startEnrichSweep, startMatchSweep } from "./ncMatch.js";
 import { startReferenceCheck } from "./ncReference.js";
 import { startAnnouncements } from "./announcements.js";
 import { startPatchnotes } from "./patchnotes.js";
+import { startTwitchDrops } from "./twitchDrops.js";
 
 async function main() {
   const app = await buildServer();
@@ -15,6 +16,7 @@ async function main() {
   startReferenceCheck();
   startAnnouncements();
   startPatchnotes();
+  startTwitchDrops();
 }
 
 main().catch((err) => {

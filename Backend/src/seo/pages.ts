@@ -260,6 +260,21 @@ export function patchnotesPage(): Page {
   };
 }
 
+export function twitchDropsPage(): Page {
+  return {
+    status: 200,
+    meta: {
+      title: "AION 2 Twitch Drops – Aion DPS Meter",
+      description: "AION 2 Twitch Drops: the running campaign with every reward and its watch time, how to link your accounts and claim, and the earlier campaigns.",
+      canonicalPath: "/twitch-drops",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "AION 2 Twitch Drops", path: "/twitch-drops" }])],
+    },
+    body: html`
+      <h2>AION 2 Twitch Drops</h2>
+      <p>Watch AION 2 streams on Twitch with Drops enabled and earn in-game rewards. This page lists the running campaign with every reward and its watch time, how to link your NC and Twitch accounts, and the earlier campaigns.</p>`,
+  };
+}
+
 /** The operator page behind the secret address: an empty app shell, never indexed, never cached. */
 export function privateStatsPage(path: string): Page {
   return {

@@ -10,6 +10,7 @@ import {
   instanceCategoryPage,
   downloadPage,
   changelogPage,
+  twitchDropsPage,
   featuresPage,
   statsPage,
   serverStatusPage,
@@ -80,6 +81,7 @@ export async function pageRoutes(app: FastifyInstance) {
   app.get("/download", async (request, reply) => send(reply, render(downloadPage(), requestPath(request))));
   app.get("/features", async (request, reply) => send(reply, render(featuresPage(), requestPath(request))));
   app.get("/changelog", async (request, reply) => send(reply, render(changelogPage(), requestPath(request))));
+  app.get("/twitch-drops", async (request, reply) => send(reply, render(twitchDropsPage(), requestPath(request))));
   app.get("/legions", async (request, reply) => send(reply, render(guildsPage(), requestPath(request))));
   app.get<{ Params: { slug: string } }>("/legions/:slug", async (request, reply) => sendCached(request, reply, () => guildPage(request.params.slug)));
   // The pages were first published as /guilds; those links keep working.

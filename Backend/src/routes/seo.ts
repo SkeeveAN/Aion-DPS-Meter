@@ -85,6 +85,7 @@ function buildSitemap(): string {
     { path: "/download", lastmod: release },
     { path: "/features", lastmod: release },
     { path: "/changelog", lastmod: release },
+    { path: "/twitch-drops", lastmod: release },
     { path: "/stats", lastmod: lastFightAll },
     { path: "/status" },
     { path: "/announcements" },

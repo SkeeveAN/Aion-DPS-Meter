@@ -3485,3 +3485,39 @@ body:has(.download-hero) .nav-download-link:hover,
 .pf-tip-src span:first-child { flex: none; }
 .pf-tip-tags { margin-top: 6px; }
 .pf-tip-tag { display: inline-block; margin-right: 4px; padding: 0 5px; border: 1px solid #3b4047; border-radius: 3px; font-size: 0.68rem; color: #9aa3ad; }
+
+/* Twitch Drops page */
+.td-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 26px; }
+.td-link { --twitch: #9146ff; color: var(--color-text); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; padding: 8px 16px; border: 1px solid color-mix(in srgb, var(--twitch) 55%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--twitch) 10%, transparent); transition: background .15s, color .15s, border-color .15s; }
+.td-link:hover { background: color-mix(in srgb, var(--twitch) 24%, transparent); border-color: var(--twitch); color: var(--color-text); }
+.td-link--primary { background: color-mix(in srgb, var(--twitch) 32%, transparent); border-color: color-mix(in srgb, var(--twitch) 80%, transparent); color: #eadfff; }
+.td-link--primary:hover { background: color-mix(in srgb, var(--twitch) 46%, transparent); border-color: #b48aff; color: #fff; }
+.td-campaign { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 16px 20px; margin: 0 0 16px; }
+.td-campaign--live { border-color: var(--color-accent, var(--color-border)); }
+.td-head { display: flex; gap: 18px; align-items: center; margin-bottom: 12px; }
+.td-head h3 { margin: 0 0 4px; }
+.td-head p { margin: 2px 0; }
+.td-banner { width: 96px; height: 96px; object-fit: contain; flex: none; border-radius: 8px; }
+.td-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; vertical-align: middle; border: 1px solid var(--color-border); }
+.td-badge--live { background: #1f7a3d; border-color: #1f7a3d; color: #fff; }
+.td-badge--upcoming { background: #8a6d1a; border-color: #8a6d1a; color: #fff; }
+.td-badge--ended { opacity: 0.7; }
+.td-countdown { font-weight: 600; }
+.td-drops { list-style: none; margin: 0 0 10px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.td-drop { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 10px 8px; border: 1px solid var(--color-border); border-radius: 8px; }
+.td-drop-icon { width: 64px; height: 64px; object-fit: contain; }
+.td-drop-name { font-size: 0.9rem; }
+.td-drop-time { font-size: 0.8rem; opacity: 0.75; }
+.td-how ol { padding-left: 22px; }
+.td-how li { margin: 0 0 6px; }
+@media (max-width: 720px) { .td-head { flex-direction: column; align-items: flex-start; } .td-drops { grid-template-columns: repeat(2, 1fr); } }
+.td-drop-icon--blank { display: inline-block; border-radius: 8px; background: var(--color-surface2); }
+.td-live { margin: 0 0 14px; }
+.td-live-head { font-weight: 600; margin: 0 0 6px; }
+.td-live-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+/* Twitch Drops in the menu: Twitch purple */
+#nav-twitch-drops { color: #b794ff; }
+#nav-twitch-drops:hover { background: color-mix(in srgb, #9146ff 18%, transparent); }
+#nav-twitch-drops.active, #nav-twitch-drops[aria-current] { color: #d2bcff; background: color-mix(in srgb, #9146ff 22%, transparent); border-color: color-mix(in srgb, #9146ff 60%, transparent); }
+:root[data-theme="light"] #nav-twitch-drops { color: #6a2fd0; }
+:root[data-theme="light"] #nav-twitch-drops.active, :root[data-theme="light"] #nav-twitch-drops[aria-current] { color: #4f1fa8; background: color-mix(in srgb, #9146ff 16%, transparent); border-color: color-mix(in srgb, #9146ff 55%, transparent); }

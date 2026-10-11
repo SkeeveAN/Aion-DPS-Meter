@@ -8,7 +8,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "features", "changelog", "stats", "status", "announcements", "patchnotes", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "features", "changelog", "twitch-drops", "stats", "status", "announcements", "patchnotes", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -228,7 +228,7 @@ function setupLanguageSwitcher() {
 }
 
 // The tab of the current page gets .active (the footer-less main navigation in index.html).
-const NAV_PAGES = { "nav-features": "/features", "nav-guilds": "/legions", "nav-stats": "/stats", "nav-status": "/status", "nav-announcements": "/announcements", "nav-patchnotes": "/patchnotes" };
+const NAV_PAGES = { "nav-features": "/features", "nav-guilds": "/legions", "nav-stats": "/stats", "nav-twitch-drops": "/twitch-drops", "nav-status": "/status", "nav-announcements": "/announcements", "nav-patchnotes": "/patchnotes" };
 function markActiveNav() {
   const path = location.pathname.replace(/\/+$/, "") || "/";
   for (const [id, base] of Object.entries(NAV_PAGES)) {
@@ -251,6 +251,7 @@ function applyStaticTranslations() {
   document.getElementById("nav-guilds").textContent = t("guild.listTitle");
   // "Statistics" and "Changelog" are English only, as in the footer.
   document.getElementById("nav-stats").textContent = "Statistics";
+  document.getElementById("nav-twitch-drops").textContent = "Twitch Drops";
   document.getElementById("nav-status").textContent = t("status.title");
   document.getElementById("nav-announcements").textContent = t("ann.title");
   document.getElementById("nav-patchnotes").textContent = t("pn.title");
@@ -1206,6 +1207,138 @@ async function renderPatchnotes() {
     el("p", { className: "stat-sub", textContent: t("pn.intro") }),
     ...(d.lang !== getLocale() ? [el("p", { className: "stat-sub", textContent: t("ann.fallback") })] : []),
     notes.length ? el("div", { className: "ann-list" }, notes) : el("p", { className: "empty", textContent: t("pn.empty") }),
+  );
+}
+
+// Twitch Drops - English, plus German when the site language is German, like the changelog. Twitch has no public list of drop
+// campaigns, so the backend reads them from NC's announcements (tables of watch time, reward and quantity) and adds the channels
+// that are live with Drops right now from Twitch's public streams list. Reward names come from the game client's texts
+// (twitch-drops-items.json, in the eight client languages); an item the table does not know yet is shown with NC's English name.
+const TWITCH_DROPS_TEXT = {
+  en: {
+    loading: "Loading Twitch Drops…",
+    title: "Twitch Drops",
+    intro: "Watch AION 2 streams on Twitch that have Drops enabled and earn in-game rewards. The campaigns are run by NC; the rewards arrive at the NC account your Twitch account is linked to.",
+    live: "Running now", upcoming: "Upcoming", ended: "Ended",
+    endsIn: (d, h) => `Ends in ${d} d ${h} h`, startsIn: (d, h) => `Starts in ${d} d ${h} h`,
+    period: "Runs", days: "Days (Pacific time)", dateTbd: "Start and end date follow", part: (n) => `Part ${n}`,
+    hours: (m) => (m < 60 ? `${m} min` : `${m / 60} h`), total: (m) => `${m / 60} h in total`,
+    liveNow: (s, v) => `${s} stream${s === 1 ? "" : "s"} with Drops live right now · ${v.toLocaleString("en-US")} viewers`,
+    liveNone: "No stream with Drops is live right now.",
+    claimBy: "Claim your rewards in the Drops Inventory by",
+    howTitle: "How it works",
+    how: [
+      "Link your Twitch account to your NC account (My Page > Manage Login on the NC website).",
+      "Watch a live stream in the AION 2 category with the “Drops Enabled” tag. Progress counts on every participating channel, but only one stream at a time.",
+      "Open your Drops Inventory on Twitch and claim each reward when it is ready. A missed claim stays possible until the claim deadline.",
+    ],
+    globalOnly: "Rewards are for AION 2 Global server players; the Korea and Taiwan servers are not eligible. If a claimed reward does not arrive, contact NC Support.",
+    watchLink: "AION 2 on Twitch", inventoryLink: "Drops Inventory", linkAccount: "Link accounts",
+    pastTitle: "Earlier campaigns", source: "Source: NC announcement", empty: "No campaigns found yet.",
+    footer: "The campaigns are read from NC's announcements, the live channels from Twitch. Last checked:",
+  },
+  de: {
+    loading: "Twitch Drops werden geladen…",
+    title: "Twitch Drops",
+    intro: "Schau AION-2-Streams auf Twitch mit aktivierten Drops und verdiene Belohnungen im Spiel. Die Kampagnen veranstaltet NC; die Belohnungen kommen auf dem NC-Account an, mit dem dein Twitch-Account verknüpft ist.",
+    live: "Läuft gerade", upcoming: "Kommt bald", ended: "Beendet",
+    endsIn: (d, h) => `Endet in ${d} T ${h} Std.`, startsIn: (d, h) => `Startet in ${d} T ${h} Std.`,
+    period: "Zeitraum", days: "Tage (Pazifikzeit)", dateTbd: "Start und Ende folgen", part: (n) => `Teil ${n}`,
+    hours: (m) => (m < 60 ? `${m} Min.` : `${m / 60} Std.`), total: (m) => `${m / 60} Std. insgesamt`,
+    liveNow: (s, v) => `${s} Stream${s === 1 ? "" : "s"} mit Drops gerade live · ${v.toLocaleString("de-DE")} Zuschauer`,
+    liveNone: "Gerade ist kein Stream mit Drops live.",
+    claimBy: "Belohnungen im Drops-Inventar einlösen bis",
+    howTitle: "So funktioniert es",
+    how: [
+      "Verknüpfe deinen Twitch-Account mit deinem NC-Account (Meine Seite > Login verwalten auf der NC-Webseite).",
+      "Schau einen Live-Stream in der Kategorie AION 2 mit dem Tag „Drops aktiviert“. Der Fortschritt zählt auf jedem teilnehmenden Kanal, aber immer nur in einem Stream gleichzeitig.",
+      "Öffne dein Drops-Inventar auf Twitch und löse jede Belohnung ein, sobald sie bereit ist. Ein verpasstes Einlösen geht bis zur Einlösefrist noch.",
+    ],
+    globalOnly: "Die Belohnungen gibt es nur für Spieler des AION-2-Global-Servers; die Server in Korea und Taiwan sind ausgeschlossen. Kommt ein eingelöster Drop nicht an, wende dich an den NC-Support.",
+    watchLink: "AION 2 auf Twitch", inventoryLink: "Drops-Inventar", linkAccount: "Accounts verknüpfen",
+    pastTitle: "Frühere Kampagnen", source: "Quelle: NC-Ankündigung", empty: "Noch keine Kampagnen gefunden.",
+    footer: "Die Kampagnen werden aus den Ankündigungen von NC gelesen, die Live-Kanäle von Twitch. Zuletzt geprüft:",
+  },
+};
+const DROP_ITEM_LOCALES = ["en", "de", "es", "fr", "ja", "ko", "pt", "ru"];
+// "Skin Chest x10 (Bound)" -> "skin chest x10", "Cyber Glasses (Skin: Eyewear) (Bound)" -> "cyber glasses": the key of twitch-drops-items.json
+const dropKey = (name) => name.replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+function dropReward(items, reward) {
+  const entry = items[dropKey(reward.name)];
+  const code = getLocale();
+  const name = entry?.names?.[DROP_ITEM_LOCALES.includes(code) ? code : "en"] ?? entry?.names?.en ?? reward.name.replace(/\s*\(Bound\)\s*$/i, "");
+  return { name: reward.qty > 1 ? `${name} ×${reward.qty.toLocaleString(code === "de" ? "de-DE" : "en-US")}` : name, icon: entry?.icon ?? null };
+}
+async function renderTwitchDrops() {
+  const de = getLocale() === "de";
+  const L = TWITCH_DROPS_TEXT[de ? "de" : "en"];
+  const loc = de ? "de-DE" : "en-GB";
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), L.title]);
+  showLoading(L.loading);
+  const [data, items] = await Promise.all([fetchJson("/api/twitch-drops"), fetchJson("/twitch-drops-items.json")]);
+  const now = Date.now();
+  const stateOf = (c) => (!c.startAt ? "upcoming" : Date.parse(c.startAt) > now ? "upcoming" : c.endAt && Date.parse(c.endAt) > now ? "live" : c.endAt ? "ended" : "live");
+  const fmt = (iso) => new Intl.DateTimeFormat(loc, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
+  const fmtDay = (iso) => new Intl.DateTimeFormat(loc, { dateStyle: "medium", timeZone: "America/Los_Angeles" }).format(new Date(iso));
+  const left = (iso) => { const ms = Math.max(0, Date.parse(iso) - now); return [Math.floor(ms / 86400000), Math.floor((ms % 86400000) / 3600000)]; };
+
+  const campaignCard = (c, state) => {
+    const last = c.rewards[c.rewards.length - 1];
+    let period = L.dateTbd;
+    if (c.startAt && c.endAt) {
+      period = c.dateOnly ? `${L.days}: ${fmtDay(c.startAt)} – ${fmtDay(new Date(Date.parse(c.endAt) - 60000))}` : `${L.period}: ${fmt(c.startAt)} – ${fmt(c.endAt)}`;
+    }
+    return el("article", { className: `td-campaign td-campaign--${state}` }, [
+      el("header", { className: "td-head" }, [
+        el("div", {}, [
+          el("h3", {}, [c.name, c.part ? ` · ${L.part(c.part)}` : "", " ", el("span", { className: `td-badge td-badge--${state}`, textContent: L[state] })]),
+          el("p", { className: "td-period", textContent: period }),
+          ...(state === "live" && c.endAt ? [el("p", { className: "td-countdown", textContent: L.endsIn(...left(c.endAt)) })] : []),
+          ...(state === "upcoming" && c.startAt ? [el("p", { className: "td-countdown", textContent: L.startsIn(...left(c.startAt)) })] : []),
+          el("p", { className: "stat-sub", textContent: L.total(last.minutes) }),
+        ]),
+      ]),
+      el("ul", { className: "td-drops" }, c.rewards.map((r) => {
+        const { name, icon } = dropReward(items, r);
+        return el("li", { className: "td-drop" }, [
+          icon ? el("img", { className: "td-drop-icon", src: `/${icon}`, alt: "", width: 64, height: 64, loading: "lazy" }) : el("span", { className: "td-drop-icon td-drop-icon--blank", "aria-hidden": "true" }),
+          el("span", { className: "td-drop-name", textContent: name }),
+          el("span", { className: "td-drop-time", textContent: L.hours(r.minutes) }),
+        ]);
+      })),
+    ]);
+  };
+
+  const sorted = data.campaigns.map((c) => [c, stateOf(c)]);
+  const current = sorted.filter(([, s]) => s !== "ended");
+  const past = sorted.filter(([, s]) => s === "ended").reverse();
+  const liveBlock = data.live
+    ? el("section", { className: "td-live" }, [
+        el("p", { className: "td-live-head", textContent: data.live.streams ? L.liveNow(data.live.streams, data.live.viewers) : L.liveNone }),
+        ...(data.live.channels.length ? [el("ul", { className: "td-live-list" }, data.live.channels.map((ch) =>
+          el("li", {}, [el("a", { href: `https://www.twitch.tv/${encodeURIComponent(ch.login)}`, target: "_blank", rel: "noopener", textContent: ch.name }), el("span", { className: "stat-sub", textContent: ` ${ch.viewers.toLocaleString(loc)}` })])))] : []),
+      ])
+    : null;
+
+  app.replaceChildren(
+    el("h2", { textContent: L.title }),
+    el("p", { className: "stat-sub", textContent: L.intro }),
+    el("p", { className: "td-links" }, [
+      el("a", { className: "td-link td-link--primary", href: "https://www.twitch.tv/directory/category/aion-2", target: "_blank", rel: "noopener", textContent: `${L.watchLink} ↗` }),
+      el("a", { className: "td-link", href: "https://www.twitch.tv/drops/inventory", target: "_blank", rel: "noopener", textContent: `${L.inventoryLink} ↗` }),
+      el("a", { className: "td-link", href: "https://id.plaync.com/account/connect/twitch?appGroupCode=aion2global", target: "_blank", rel: "noopener", textContent: `${L.linkAccount} ↗` }),
+    ]),
+    ...(liveBlock ? [liveBlock] : []),
+    ...(data.claimBy ? [el("p", { className: "stat-sub", textContent: `${L.claimBy} ${fmt(data.claimBy)}.` })] : []),
+    ...(sorted.length === 0 ? [el("p", { className: "empty", textContent: L.empty })] : []),
+    ...current.map(([c, s]) => campaignCard(c, s)),
+    el("section", { className: "td-how" }, [
+      el("h3", { textContent: L.howTitle }),
+      el("ol", {}, L.how.map((x) => el("li", { textContent: x }))),
+      el("p", { className: "stat-sub", textContent: L.globalOnly }),
+    ]),
+    ...(past.length ? [el("h3", { textContent: L.pastTitle }), ...past.map(([c, s]) => campaignCard(c, s))] : []),
+    el("p", { className: "stat-sub", textContent: `${L.footer} ${data.checkedAt ? fmt(data.checkedAt) : "–"}` }),
   );
 }
 
@@ -3639,6 +3772,8 @@ async function route() {
     section = "features";
   } else if (segments[0] === "changelog") {
     section = "changelog";
+  } else if (segments[0] === "twitch-drops") {
+    section = "twitch-drops";
   } else if (segments[0] === "legions" || segments[0] === "guilds") {
     section = "guilds";
     param = segments[1];
@@ -3676,6 +3811,8 @@ async function route() {
       renderFeatures();
     } else if (section === "changelog") {
       await renderChangelog();
+    } else if (section === "twitch-drops") {
+      await renderTwitchDrops();
     } else if (section === "stats") {
       await renderStats();
     } else if (section === "status") {

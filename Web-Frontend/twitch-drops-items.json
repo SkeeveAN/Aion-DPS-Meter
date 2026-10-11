@@ -1,0 +1,201 @@
+{
+ "customization voucher": {
+  "names": {
+   "en": "Customization Voucher",
+   "de": "Dekorationsticket",
+   "es": "Tique de decoración",
+   "fr": "Ticket de personnalisation",
+   "ja": "デザイン利用券",
+   "ko": "꾸미기 이용권",
+   "pt": "Bilhete de Personalização",
+   "ru": "Ваучер украшения"
+  },
+  "icon": "images/twitch-drops/customization-voucher.png"
+ },
+ "appearance change voucher": {
+  "names": {
+   "en": "Appearance Change Voucher",
+   "de": "Ticket: Aussehenswechsel",
+   "es": "Tique de cambio de apariencia",
+   "fr": "Ticket de changement d'apparence",
+   "ja": "キャラクター外見変更券",
+   "ko": "외형 변경권",
+   "pt": "Bilhete de Troca de Visual",
+   "ru": "Смена внешности"
+  },
+  "icon": "images/twitch-drops/appearance-change-x1.png"
+ },
+ "soul codex": {
+  "names": {
+   "en": "Soul Codex",
+   "de": "Buch der Seele",
+   "es": "Códice de alma",
+   "fr": "Livre des âmes",
+   "ja": "魂の書",
+   "ko": "영혼의 서",
+   "pt": "Códice da Alma",
+   "ru": "Книга души"
+  },
+  "icon": "images/twitch-drops/soul-codex.png"
+ },
+ "soul codex: reset": {
+  "names": {
+   "en": "Soul Codex: Reset",
+   "de": "Buch der Seele: Zurücksetzung",
+   "es": "Códice de alma: restablecimiento",
+   "fr": "Livre des âmes : Réinitialisation",
+   "ja": "魂の書：初期化",
+   "ko": "영혼의 서: 초기화",
+   "pt": "Códice da Alma: Redefinição",
+   "ru": "Книга души: сброс"
+  },
+  "icon": "images/twitch-drops/soul-codex-reset-x2.png"
+ },
+ "resurrection spiritstone": {
+  "names": {
+   "en": "Resurrection Spiritstone",
+   "de": "Geiststein der Wiederbelebung",
+   "es": "Piedra espiritual de resurrección",
+   "fr": "Pierre d'esprit de résurrection",
+   "ja": "復活の精霊石",
+   "ko": "부활의 정령석",
+   "pt": "Pedra Espiritual da Ressurreição",
+   "ru": "Камень духа воскрешения"
+  },
+  "icon": "images/twitch-drops/resurrection-spiritstone.png"
+ },
+ "mysterious pet chest": {
+  "names": {
+   "en": "Mysterious Pet Chest",
+   "de": "Mystische Pet-Truhe",
+   "es": "Cofre de mascota misterioso",
+   "fr": "Coffre mystérieux de familier",
+   "ja": "神秘的なペット箱",
+   "ko": "신비한 펫 상자",
+   "pt": "Baú de Mascote Misterioso",
+   "ru": "Таинственный сундук питомцев"
+  },
+  "icon": "images/twitch-drops/mysterious-pet-chest-x10.png"
+ },
+ "skin chest x10": {
+  "names": {
+   "en": "Skin Chest (10 times)",
+   "de": "Skin-Truhe (10x)",
+   "es": "Cofre de apariencia (10 usos)",
+   "fr": "Coffre d'apparence (x10)",
+   "ja": "外形箱(10回)",
+   "ko": "외형 상자 (10회)",
+   "pt": "Baú de Visual (10x)",
+   "ru": "Сундук обликов (10 раз)"
+  },
+  "icon": "images/twitch-drops/skin-chest-10-skins-x1.png"
+ },
+ "pet: two": {
+  "names": {
+   "en": "Pet: Two",
+   "de": "Pet: Two",
+   "es": "Mascota: Dos",
+   "fr": "Familier : Deux",
+   "ja": "ペット：2",
+   "ko": "펫: 2",
+   "pt": "Mascote: Two",
+   "ru": "Питомец: ту"
+  },
+  "icon": "images/twitch-drops/pet-two-x1.png"
+ },
+ "odyle energy": {
+  "names": {
+   "en": "Odyle Energy",
+   "de": "Odenergie",
+   "es": "Energía de Od",
+   "fr": "Énergie Od",
+   "ja": "オード エネルギー",
+   "ko": "오드 에너지",
+   "pt": "Energia de Od",
+   "ru": "Эфирная энергия"
+  },
+  "icon": "images/twitch-drops/odyle-energy.png"
+ },
+ "enhancement stone": {
+  "names": {
+   "en": "Enhance Stone",
+   "de": "Verstärkungsstein",
+   "es": "Piedra de mejora",
+   "fr": "Pierre d'amélioration",
+   "ja": "強化石",
+   "ko": "강화석",
+   "pt": "Pedra de Aprimoramento",
+   "ru": "Камни усиления"
+  },
+  "icon": "images/twitch-drops/enhance-stone.png"
+ },
+ "cyber glasses": {
+  "names": {
+   "en": "Cyber Glasses (Eyewear)",
+   "de": "Cyberbrille (Augen)",
+   "es": "Gafas cibernéticas (ojos)",
+   "fr": "Lunettes cyber (Yeux)",
+   "ja": "サイバー グラス(目)",
+   "ko": "사이버 글라스 (눈)",
+   "pt": "Óculos Cibernéticos (Olhos)",
+   "ru": "Киберочки (глаза)"
+  },
+  "icon": "images/twitch-drops/cyber-glasses.png"
+ },
+ "white headset": {
+  "names": {
+   "en": "White Headset (Helm)",
+   "de": "Weißer Kopfhörer (Helm)",
+   "es": "Auriculares blancos (yelmo)",
+   "fr": "Casque blanc (Casque)",
+   "ja": "ホワイト ヘッドセット(ヘルム)",
+   "ko": "화이트 헤드셋 (투구)",
+   "pt": "Fone de Ouvido Branco (Elmo)",
+   "ru": "Белая гарнитура (шлем)"
+  },
+  "icon": "images/twitch-drops/white-headset.png"
+ },
+ "head bow": {
+  "names": {
+   "en": "Head Bow (Helm)",
+   "de": "Haarschleife (Helm)",
+   "es": "Diadema con lazo (yelmo)",
+   "fr": "Serre-tête à nœud (Casque)",
+   "ja": "リボン頭(ヘルム)",
+   "ko": "리본 머리 (투구)",
+   "pt": "Tiara de Laço (Elmo)",
+   "ru": "Ободок с бантом (шлем)"
+  },
+  "icon": "images/twitch-drops/head-bow-x1.png"
+ },
+ "adorable young elim": {
+  "names": {
+   "en": "Adorable Young Elim (Shoulder)",
+   "de": "Niedliches Elimjunges (Schulter)",
+   "es": "Elim joven adorable (hombro)",
+   "fr": "Jeune Élim mignon (Épaule)",
+   "ja": "かわいい幼いエリム(肩)",
+   "ko": "귀여운 어린 엘림 (어깨)",
+   "pt": "Elim Jovem Fofo (Ombro)",
+   "ru": "Милый древень (плечо)"
+  },
+  "icon": "images/twitch-drops/adorable-young-elim-x1.png"
+ },
+ "leather crop fit": {
+  "names": {
+   "en": "Leather Crop Fit",
+   "de": "Bauchfreies Leder-Set",
+   "es": "Conjunto crop de cuero",
+   "fr": "Ensemble crop en cuir",
+   "ja": "レザークロップ セットアップ",
+   "ko": "레더 크롭 셋업",
+   "pt": "Cropped Coordenado de Couro",
+   "ru": "Кожаный костюм с кроп-топом"
+  },
+  "icon": null
+ },
+ "kina bundle 500,000": {
+  "names": {},
+  "icon": "images/twitch-drops/kina-bundle-500-000.png"
+ }
+}

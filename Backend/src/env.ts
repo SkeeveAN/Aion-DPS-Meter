@@ -21,5 +21,8 @@ export const env = {
   // Login servers to probe on the status page, "host:port,host:port". Found 2026-10-09 by watching the game's own connections: the client talks to 193.202.112.93:13700 (the lobby: login, server list)
   // right before it connects to the world server on port 13328.
   LOGIN_SERVERS: process.env.LOGIN_SERVERS ?? "193.202.112.93:13700",
+  // Twitch app (dev.twitch.tv/console, "Confidential"): only used for the public streams list of /twitch-drops; without both the live part stays empty.
+  TWITCH_CLIENT_ID: process.env.TWITCH_CLIENT_ID ?? "",
+  TWITCH_CLIENT_SECRET: process.env.TWITCH_CLIENT_SECRET ?? "",
   BASE_URL: (process.env.BASE_URL ?? "https://aiondps.com").replace(/\/+$/, ""),
 };

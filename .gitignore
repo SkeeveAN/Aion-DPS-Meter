@@ -34,4 +34,5 @@ Backend/data/ncsoft-official/
 Backend/data/portraits/
 Backend/data/announcements.json*
 Backend/data/patchnotes.json*
+Backend/data/twitch-drops.json*
 Web-Frontend/proto/
