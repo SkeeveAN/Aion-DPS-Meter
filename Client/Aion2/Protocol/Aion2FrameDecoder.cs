@@ -190,6 +190,13 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.Titles:
                 DecodeTitles(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.TitleChange:
+                if (frame.Length == 7 && frame[2] is >= 1 and <= 3)
+                {
+                    _entities.SetLocalTitles([new Aion2TitleSlot(frame[2], (int)BinaryPrimitives.ReadUInt32LittleEndian(frame[3..]))]);
+                }
+
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Attributes:
                 DecodeAttributes(frame);
                 return Array.Empty<DamageEvent>();
