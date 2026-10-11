@@ -126,11 +126,11 @@ const ASCENSION_STEPS = ["easy", "medium", "hard", "extreme"];
 
 /**
  * Transcendence step by instance and the first four digits of the boss's NPC ids (2330709 -> 2330). Only what a player
- * confirmed: Shattered Arkanis stage 1 fights carry 2330xxx. The instances differ (Deus Research Base also has 2310 and
+ * confirmed: Shattered Arkanis stage 1 fights carry 2330xxx (11.07 M HP), stage 2 fights 2350xxx (13.69 M HP). The instances differ (Deus Research Base also has 2310 and
  * 2320), so nothing is derived from a pattern; unknown ids leave the step empty ("Stage unknown" on the boss page).
  */
 const TRANSCENDENCE_STEPS: Readonly<Record<string, Readonly<Record<number, string>>>> = {
-  "shattered-arkanis": { 2330: "1" },
+  "shattered-arkanis": { 2330: "1", 2350: "2" },
 };
 
 function resolveBossId(payload: UploadPayload): number {
