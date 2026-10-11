@@ -37,6 +37,35 @@ public static class UploadClient
     /// <summary>Raised once when the client turns out to be outdated (with the version it should be). Not raised on the UI thread.</summary>
     public static event Action<string>? ClientOutdated;
 
+    /// <summary>Raised when a block turns out to be gone (the server allows this version after all), so the UI can take its warning back.</summary>
+    public static event Action? ClientAllowed;
+
+    private static DateTime _lastRecheck = DateTime.MinValue;
+
+    private static void Unblock()
+    {
+        if (RequiredVersion is not null)
+        {
+            RequiredVersion = null;
+            ClientAllowed?.Invoke();
+        }
+    }
+
+    /// <summary>While blocked, asks the server again now and then (at most every 30 minutes), so a block that no longer applies is lifted
+    /// without a restart.</summary>
+    private static async Task RecheckIfDueAsync()
+    {
+        if (DateTime.UtcNow - _lastRecheck < TimeSpan.FromMinutes(30) || string.IsNullOrEmpty(_checkedVersion))
+        {
+            return;
+        }
+
+        _lastRecheck = DateTime.UtcNow;
+        await CheckPolicyAsync(_checkedVersion);
+    }
+
+    private static string? _checkedVersion;
+
     private static void Block(string requiredVersion)
     {
         bool first = RequiredVersion is null;
@@ -81,6 +110,7 @@ public static class UploadClient
     /// and not with its first fight. A server that cannot be reached changes nothing (the upload itself is checked as well).</summary>
     public static async Task CheckPolicyAsync(string version)
     {
+        _checkedVersion = version;
         try
         {
             using HttpClient quick = new() { Timeout = TimeSpan.FromSeconds(8) };
@@ -89,6 +119,10 @@ public static class UploadClient
             {
                 string required = doc.RootElement.TryGetProperty("requiredVersion", out JsonElement r) && r.ValueKind == JsonValueKind.String ? r.GetString() ?? "?" : "?";
                 Block(required);
+            }
+            else if (doc.RootElement.TryGetProperty("allowed", out JsonElement ok) && ok.ValueKind == JsonValueKind.True)
+            {
+                Unblock();
             }
         }
         catch (Exception)
@@ -104,6 +138,11 @@ public static class UploadClient
     /// payload - per the user, not knowing whether/why an upload failed was itself the problem.</summary>
     public static async Task<UploadResult> SendAsync(EncounterUploadRequest payload)
     {
+        if (IsBlocked)
+        {
+            await RecheckIfDueAsync();
+        }
+
         if (IsBlocked)
         {
             return BlockedResult();

@@ -275,6 +275,7 @@ public partial class MainWindow : Window
             // Only the current version may upload (the server refuses an old one). A meter that uploads by itself asks the community server at
             // once, so an old client learns it now and not with its first fight; one that only uploads on a click learns it from that upload.
             UploadClient.ClientOutdated += required => Dispatcher.BeginInvoke(new Action(() => OnClientOutdated(required)));
+            UploadClient.ClientAllowed += () => Dispatcher.BeginInvoke(new Action(OnClientAllowed));
             if (startupSettings.AutoUploadProfile || startupSettings.AutoUploadBoss)
             {
                 _ = UploadClient.CheckPolicyAsync(AppVersion.Text);
@@ -3060,8 +3061,8 @@ public partial class MainWindow : Window
     /// asked for that silently does nothing is indistinguishable from "you are up to date", which
     /// is the one answer it must not fake.
     /// </summary>
-    /// <summary>The server will not take uploads from this version: say so once, in the status row and in a message. With "check for
-    /// updates" on, the update is fetched now; with it off the meter does not talk to GitHub, and the message says how to update by hand.</summary>
+    /// <summary>The server will not take uploads from this version: say so once, in the status row and the badge (no pop-up: it came at the worst moments). With "check for
+    /// updates" on, the update is fetched now; with it off the meter does not talk to GitHub.</summary>
     private void OnClientOutdated(string requiredVersion)
     {
         var loc = LocalizationManager.Instance;
@@ -3073,9 +3074,14 @@ public partial class MainWindow : Window
         {
             _ = RunUpdateCheck(announceResult: false);
         }
+    }
 
-        ThemedMessageBox.Show(this, string.Format(loc[automatic ? "Upload.ClientOutdatedBody" : "Upload.ClientOutdatedBodyManual"], AppVersion.Text, requiredVersion),
-            loc["Upload.ClientOutdatedTitle"], MessageBoxButton.OK, MessageBoxImage.Warning);
+    /// <summary>The server allows this version after all: take the warning back.</summary>
+    private void OnClientAllowed()
+    {
+        _clientOutdated = false;
+        UploadStatusText.Visibility = Visibility.Collapsed;
+        RefreshUpdateBadge();
     }
 
     private bool _updateCheckRunning;
