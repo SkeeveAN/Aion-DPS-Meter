@@ -20,7 +20,7 @@ import { slugify, uniqueSlug } from "../seo/slug.js";
 import { upsertProfile } from "../profile.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
 import { rehomeKnownPlayers } from "./rehome.js";
-import { linkPlayerGuild } from "../guilds.js";
+import { linkPlayerGuild, reconcileGuildWithNc } from "../guilds.js";
 import { checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
@@ -248,6 +248,7 @@ function upsertPlayer(name: string, serverId: number, guild?: string, faction?: 
       .run();
     if (guild) {
       linkPlayerGuild(existing.id);
+      reconcileGuildWithNc(existing.id);
     }
     return existing.id;
   }
@@ -270,6 +271,7 @@ function upsertPlayer(name: string, serverId: number, guild?: string, faction?: 
       .run();
     if (guild) {
       linkPlayerGuild(aliasMatch.id);
+      reconcileGuildWithNc(aliasMatch.id);
     }
     return aliasMatch.id;
   }

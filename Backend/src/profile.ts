@@ -130,6 +130,13 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
   // The upload route has already run profileSchema (which fills these defaults); callers that go
   // straight to the merge code may omit the lists.
   const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], daevanion: input.daevanion ?? [], species: input.species ?? [], titles: input.titles ?? [], pets: input.pets ?? [], boardCounts: input.boardCounts ?? [] };
+  // A client that carries a leftover of another character (a twink played before) sends boards of the wrong class: a board's
+  // id starts with its class (41 = Assassin's first board). Boards of any other class than the profile's are dropped.
+  const boardClass = profile.classId ?? (db.select({ classId: playerProfiles.classId }).from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get()?.classId ?? undefined);
+  if (boardClass !== undefined) {
+    profile.daevanion = profile.daevanion.filter((b) => Math.floor(b.board / 10) === boardClass);
+    profile.boardCounts = profile.boardCounts.filter((b) => Math.floor(b.board / 10) === boardClass);
+  }
   if (profile.source === "seen" && profile.gear.length === 0 && profile.classId === undefined && profile.level === undefined) {
     return;
   }

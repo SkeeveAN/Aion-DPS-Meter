@@ -463,3 +463,15 @@ test("a profile from NC's page is the lowest rank: it never replaces a self prof
   assert.equal(after.source, "seen");
   assert.equal(after.skills.length, 0, "nothing of NC's skill list is carried into a game profile");
 });
+
+test("boards of another class than the profile's are dropped: a twink's leftover never lands on the character", () => {
+  const id = playerId("Aahz"); // a Gladiator (class 1): its boards are 11-18
+  upsertProfile(id, profileSchema.parse({
+    source: "self", level: 36, classId: 1, classBits: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }],
+    daevanion: [{ board: 11, nodes: [110113, 110033] }, { board: 61, nodes: [610101] }, { board: 62, nodes: [620101] }],
+    boardCounts: [{ board: 11, count: 2 }, { board: 61, count: 46 }],
+  }));
+  const row = db.select().from(playerProfiles).where(eq(playerProfiles.playerId, id)).get()!;
+  assert.deepEqual((JSON.parse(row.daevanionJson) as { board: number }[]).map((b) => b.board), [11]);
+  assert.deepEqual((JSON.parse(row.boardCountsJson) as { board: number }[]).map((b) => b.board), [11]);
+});

@@ -12,7 +12,8 @@ const { db, sqlite } = await import("./db/client.js");
 migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "drizzle") });
 after(() => sqlite.close());
 
-const { assignGuildSlugs, findGuild, linkPlayerGuild, listGuilds, syncGuilds } = await import("./guilds.js");
+const guildsModule = await import("./guilds.js");
+const { assignGuildSlugs, findGuild, linkPlayerGuild, listGuilds, syncGuilds } = guildsModule;
 const { players, servers } = await import("./db/schema.js");
 const { eq } = await import("drizzle-orm");
 
@@ -93,4 +94,29 @@ test("a legion whose name has letters beyond ASCII keeps its row when the migrat
   const rows = sqlite.prepare("select id from guilds where name = 'NØVA'").all();
   assert.equal(rows.length, 1, "no second legion row");
   assert.equal(legions().find((g) => g.name === "NØVA")!.memberCount, 1);
+});
+
+test("NC's legion beats a client's report for a verified player, and a legion NC does not name is left alone", () => {
+  const { reconcileGuildWithNc } = guildsModule;
+  const id = player("Pencil", kaisinel, "Akatsuki");
+  sqlite.prepare("insert into player_nc_character (player_id, status, nc_guild, fetched_at, next_try_at) values (?, 'ok', 'Akatsuki', 1, 2)").run(id);
+  sqlite.prepare("insert into player_nc_match (player_id, status, candidates, checked_at, next_try_at) values (?, 'verified', 1, 1, 2)").run(id);
+  // a wrong report of the client (a twink's legion)
+  db.update(players).set({ guild: "Bink" }).where(eq(players.id, id)).run();
+  linkPlayerGuild(id);
+  assert.equal(reconcileGuildWithNc(id), true);
+  assert.equal((sqlite.prepare("select guild g from players where id = ?").get(id) as { g: string }).g, "Akatsuki");
+  assert.equal(findGuild("akatsuki-europe-kaisinel")!.members.some((m) => m.name === "Pencil"), true);
+  assert.equal(reconcileGuildWithNc(id), false, "nothing to do when they agree");
+
+  // NC shows no legion (just joined one): the client's word stands
+  sqlite.prepare("update player_nc_character set nc_guild = '' where player_id = ?").run(id);
+  db.update(players).set({ guild: "Neulegion" }).where(eq(players.id, id)).run();
+  assert.equal(reconcileGuildWithNc(id), false);
+  assert.equal((sqlite.prepare("select guild g from players where id = ?").get(id) as { g: string }).g, "Neulegion");
+
+  // not verified: no override
+  sqlite.prepare("update player_nc_character set nc_guild = 'Akatsuki' where player_id = ?").run(id);
+  sqlite.prepare("update player_nc_match set status = 'ambiguous' where player_id = ?").run(id);
+  assert.equal(reconcileGuildWithNc(id), false);
 });

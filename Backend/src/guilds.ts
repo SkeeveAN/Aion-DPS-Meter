@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { and, asc, eq, isNull, like, sql } from "drizzle-orm";
 import { db } from "./db/client.js";
-import { guilds, playerNcCharacter, playerProfiles, players, servers } from "./db/schema.js";
+import { guilds, playerNcCharacter, playerNcMatch, playerProfiles, players, servers } from "./db/schema.js";
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { profileBadge, type ProfileBadge } from "./profileBadge.js";
 import { averageItemLevelOf } from "./profile.js";
@@ -87,6 +87,29 @@ export function linkPlayerGuild(playerId: number): boolean {
     }
   }
   db.update(players).set({ guildId: ensureGuild(name, p.serverId) }).where(eq(players.id, playerId)).run();
+  return true;
+}
+
+/**
+ * The legion NC's own character page names beats what a client reported: clients now and then name a wrong legion for the own
+ * character (data of another character, an id that was handed out again), NC's page cannot. Only for a player the check verified
+ * with that page's character, and only when NC names a legion at all (a player NC shows without one may just have joined: the
+ * client's word stands). Sets the legion name and the link. Returns true when it changed.
+ */
+export function reconcileGuildWithNc(playerId: number): boolean {
+  const row = db
+    .select({ guild: players.guild, ncGuild: playerNcCharacter.ncGuild, characterStatus: playerNcCharacter.status, matchStatus: playerNcMatch.status })
+    .from(players)
+    .innerJoin(playerNcCharacter, eq(playerNcCharacter.playerId, players.id))
+    .innerJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
+    .where(eq(players.id, playerId))
+    .get();
+  const nc = (row?.ncGuild ?? "").trim();
+  if (!row || row.characterStatus !== "ok" || row.matchStatus !== "verified" || !nc || normalizeGuild(nc) === normalizeGuild(row.guild ?? "")) {
+    return false;
+  }
+  db.update(players).set({ guild: nc }).where(eq(players.id, playerId)).run();
+  linkPlayerGuild(playerId);
   return true;
 }
 

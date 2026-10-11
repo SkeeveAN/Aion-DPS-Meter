@@ -5,6 +5,7 @@ import { db } from "./db/client.js";
 import { playerNcCharacter, playerNcMatch, playerPortraits, playerProfiles, players } from "./db/schema.js";
 import { mapDaevanionBoard, mapNcCharacter, openBoardIds, signatureOf, type NcCharacterData } from "./ncCharacter.js";
 import { upsertNcProfile } from "./profile.js";
+import { reconcileGuildWithNc } from "./guilds.js";
 import { EVENT_STALE_AFTER, PRIORITY, characterInterval, parseSeen, portraitInterval, type Priority } from "./refreshPolicy.js";
 import { portraitFromJpeg } from "./portrait.js";
 
@@ -531,6 +532,10 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
     db.insert(playerNcCharacter).values({ playerId: key.playerId, ...values }).onConflictDoUpdate({ target: playerNcCharacter.playerId, set: values }).run();
     if (c.status === "ok" && c.data) {
       upsertNcProfile(key.playerId, c.data);
+    }
+    // NC's legion is the better word (see reconcileGuildWithNc); also moves a player who really changed legion.
+    if (c.status === "ok") {
+      reconcileGuildWithNc(key.playerId);
     }
     // A character found by the fetch's own search names the confirmed player's id as well (the check may predate the id column).
     if (c.status === "ok" && c.known) {
