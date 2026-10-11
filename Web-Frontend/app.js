@@ -627,6 +627,8 @@ const FEATURE_BLOCKS = [
   { id: "overlay", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
   { id: "details", images: [["details", 1720, 1360]] },
   { id: "character", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
+  // the sides of the scenes are tuned one by one in style.css, so they are fixed here and not alternated by position
+  { id: "network", images: [["network", 1240, 1080, { h: 400 }], ["network-overlay", 770, 414, { h: 200 }]] },
   { id: "map", images: [["map", 1448, 892], ["gathering", 1240, 1480]] },
   { id: "timetable", images: [["timetable", 1240, 1480]] },
   { id: "worldboss", images: [["worldboss", 1240, 1480]] },
@@ -634,9 +636,9 @@ const FEATURE_BLOCKS = [
   // the second picture of these two is the head of the client window with the two buttons that lead here (no frame, fading out at the bottom)
   { id: "announcements", images: [["announcements", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
   { id: "twitchdrops", images: [["twitchdrops", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
-  { id: "network", images: [["network", 1240, 1080, { h: 400 }], ["network-overlay", 770, 414, { h: 200 }]] },
 ];
-const FEATURE_VERSION = "20261012a";
+const FEATURE_FLIPPED = new Set(["modes", "details", "network", "map", "worldboss", "announcements"]);
+const FEATURE_VERSION = "20261012b";
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
@@ -645,13 +647,13 @@ const FEATURE_CARDS = [
   ["overlay", '<path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5"/>'],
   ["details", '<path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/>'],
   ["character", '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>'],
+  ["network", '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M12 19.5h.01"/>'],
   ["map", '<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>'],
   ["timetable", '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>'],
   ["worldboss", '<path d="M12 3c-3 0-6 2.5-6 6v4l-2 4h5a3 3 0 0 0 6 0h5l-2-4V9c0-3.500-3-6-6-6z"/>'],
   ["hotkeys", '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'],
   ["announcements", '<path d="M3 11v3a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/>'],
   ["twitchdrops", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'],
-  ["network", '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M12 19.5h.01"/>'],
 ];
 const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff" };
 // Icons of the six "And more" cards (shield, upload, clock, refresh, globe, code).
@@ -680,7 +682,7 @@ function renderFeatures() {
   const scenes = FEATURE_BLOCKS.map((block, index) =>
     el("section", {
       id: `feature-${block.id}`,
-      className: `fx-scene${index % 2 ? " flip" : ""}`,
+      className: `fx-scene${FEATURE_FLIPPED.has(block.id) ? " flip" : ""}`,
       style: `--bg:url(/images/features/scene-${block.id}.webp?v=${FEATURE_VERSION});--tint:${FEATURE_TINTS[block.id]}`,
     }, [
       el("div", { className: "fx-bg" }),
