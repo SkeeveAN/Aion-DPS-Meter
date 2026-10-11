@@ -593,6 +593,8 @@ export const playerNcMatch = sqliteTable("player_nc_match", {
   status: text("status").notNull(),
   ncServerId: integer("nc_server_id"),
   ncRace: integer("nc_race"),
+  // NC's id of the character the check matched (url-decoded base64url): with the server id it names the character for good, across renames.
+  ncCharacterId: text("nc_character_id"),
   // What settled an ambiguous name: 'name' (nothing else needed) or 'legion' (the verified members of his legion).
   via: text("via"),
   candidates: integer("candidates").notNull().default(0),

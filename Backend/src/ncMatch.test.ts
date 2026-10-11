@@ -83,7 +83,7 @@ function ncAnswer(list: object[], seen: string[] = []) {
     return new Response(JSON.stringify({ list, pagination: { page: 1, size: 40, total: list.length, endPage: 1 } }), { status: 200, headers: { "content-type": "application/json" } });
   }) as unknown as typeof fetch;
 }
-const raw = (o: { name: string; race?: number; serverId: number; level?: number; pcId?: number }) => ({ race: 1, level: 45, pcId: 6, ...o });
+const raw = (o: { name: string; race?: number; serverId: number; level?: number; pcId?: number; characterId?: string }) => ({ race: 1, level: 45, pcId: 6, ...o });
 
 test("a single matching character moves the player to his real server and gives him his faction", async () => {
   const id = player("Wanderer", kaisinel);
@@ -200,4 +200,11 @@ test("a confirmed player gets a fetch key with his real server and race, an unco
   sqlite.prepare("insert into player_portraits (player_id, status, fetched_at, next_try_at) values (?, 'ok', 1, ?)").run(id, Date.now() + 1e9);
   sqlite.prepare("insert into player_nc_character (player_id, status, fetched_at, next_try_at) values (?, 'ok', 1, ?)").run(id, Date.now() + 1e9);
   assert.ok(!enrichDue(1000).includes(id), "fresh data, nothing to do");
+});
+
+test("the id NC gives the matched character is kept (decoded) with the match", async () => {
+  const id = player("Idhaber", kaisinel);
+  assert.equal(await processMatch(id, ncAnswer([raw({ name: "Idhaber", serverId: 1304, characterId: "abc_-xyz%3D" })]), 1_000_000), "verified");
+  const row = sqlite.prepare("select nc_character_id c from player_nc_match where player_id = ?").get(id) as { c: string | null };
+  assert.equal(row.c, "abc_-xyz=");
 });

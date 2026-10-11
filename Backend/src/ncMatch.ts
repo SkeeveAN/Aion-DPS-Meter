@@ -4,7 +4,7 @@ import { encounterParticipants, playerNcMatch, playerProfiles, players, servers 
 import { AION2_CLASS_BY_ID } from "./constants.js";
 import { canonicalServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
-import { MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
+import { decodeCharacterId, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
 import { playerPortraits, playerNcCharacter } from "./db/schema.js";
 
 /**
@@ -199,11 +199,12 @@ function serverRowOf(ncServerId: number): number {
   return Number(db.insert(servers).values({ fingerprint, displayName }).run().lastInsertRowid);
 }
 
-function record(playerId: number, status: MatchStatus, extra: { ncServerId?: number | null; ncRace?: number | null; via?: string | null; candidates?: number; nextTryAt?: number }, now: number) {
+function record(playerId: number, status: MatchStatus, extra: { ncServerId?: number | null; ncRace?: number | null; ncCharacterId?: string | null; via?: string | null; candidates?: number; nextTryAt?: number }, now: number) {
   const values = {
     status,
     ncServerId: extra.ncServerId ?? null,
     ncRace: extra.ncRace ?? null,
+    ncCharacterId: extra.ncCharacterId ?? null,
     via: extra.via ?? null,
     candidates: extra.candidates ?? 0,
     checkedAt: now,
@@ -267,7 +268,7 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
       record(playerId, "conflict", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, candidates: decision.candidates }, now);
       return "conflict";
     }
-    record(playerId, "verified", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, via: decision.via, candidates: decision.candidates }, now);
+    record(playerId, "verified", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, ncCharacterId: decodeCharacterId(decision.hit.characterId), via: decision.via, candidates: decision.candidates }, now);
     enrichPlayer(playerId);
     return "verified";
   }

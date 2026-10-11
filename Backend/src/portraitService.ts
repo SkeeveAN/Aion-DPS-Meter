@@ -1,8 +1,8 @@
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "./db/client.js";
-import { playerNcCharacter, playerPortraits } from "./db/schema.js";
+import { playerNcCharacter, playerNcMatch, playerPortraits } from "./db/schema.js";
 import { mapNcCharacter, type NcCharacterData } from "./ncCharacter.js";
 import { portraitFromJpeg } from "./portrait.js";
 
@@ -338,7 +338,11 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
   if (!needs.portrait && !needs.character) {
     return;
   }
-  const known = characterBefore?.characterId && characterBefore.ncServerId ? { characterId: characterBefore.characterId, serverId: characterBefore.ncServerId } : null;
+  // The id pair the character check stored is as good as an earlier fetch's: no search needed for the character data.
+  const matched = db.select({ characterId: playerNcMatch.ncCharacterId, serverId: playerNcMatch.ncServerId }).from(playerNcMatch).where(eq(playerNcMatch.playerId, key.playerId)).get();
+  const known = characterBefore?.characterId && characterBefore.ncServerId
+    ? { characterId: characterBefore.characterId, serverId: characterBefore.ncServerId }
+    : matched?.characterId && matched.serverId ? { characterId: matched.characterId, serverId: matched.serverId } : null;
   const outcome = await fetchPlayer(fetchFn, key, needs, known);
 
   const p = outcome.portrait;
@@ -391,6 +395,10 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
           nextTryAt: now + CHARACTER_RETRY_AFTER[c.status],
         };
     db.insert(playerNcCharacter).values({ playerId: key.playerId, ...values }).onConflictDoUpdate({ target: playerNcCharacter.playerId, set: values }).run();
+    // A character found by the fetch's own search names the confirmed player's id as well (the check may predate the id column).
+    if (c.status === "ok" && c.known) {
+      db.update(playerNcMatch).set({ ncCharacterId: c.known.characterId }).where(and(eq(playerNcMatch.playerId, key.playerId), eq(playerNcMatch.status, "verified"), eq(playerNcMatch.ncServerId, c.known.serverId), isNull(playerNcMatch.ncCharacterId))).run();
+    }
   }
 }
 

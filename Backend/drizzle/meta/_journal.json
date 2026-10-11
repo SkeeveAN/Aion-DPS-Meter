@@ -323,6 +323,13 @@
       "when": 1791680000000,
       "tag": "0045_add_player_nc_match",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "6",
+      "when": 1791720000000,
+      "tag": "0046_add_nc_character_id",
+      "breakpoints": true
     }
   ]
 }
