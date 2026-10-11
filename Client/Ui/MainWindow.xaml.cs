@@ -3145,16 +3145,21 @@ public partial class MainWindow : Window
             return;
         }
 
-        _latestAnnouncement = latest;
-        var settings = MeterSettings.Load();
-        if (settings.AnnouncementsSeen == 0)
+        // The first call comes from the constructor, before app.Run: there is no UI synchronization context yet, so the code after the await
+        // runs on a pool thread and must not touch the window itself. The dispatcher takes the update and does it once the window runs.
+        await Dispatcher.InvokeAsync(() =>
         {
-            // A fresh install (or the first run with this feature) starts from "everything seen": the badge means "something new since you last looked".
-            settings.AnnouncementsSeen = latest.Value;
-            settings.Save();
-        }
+            _latestAnnouncement = latest;
+            var settings = MeterSettings.Load();
+            if (settings.AnnouncementsSeen == 0)
+            {
+                // A fresh install (or the first run with this feature) starts from "everything seen": the badge means "something new since you last looked".
+                settings.AnnouncementsSeen = latest.Value;
+                settings.Save();
+            }
 
-        AnnouncementsNewBadge.Visibility = Announcements.AnnouncementsClient.IsNew(latest, settings.AnnouncementsSeen) ? Visibility.Visible : Visibility.Collapsed;
+            AnnouncementsNewBadge.Visibility = Announcements.AnnouncementsClient.IsNew(latest, settings.AnnouncementsSeen) ? Visibility.Visible : Visibility.Collapsed;
+        });
     }
 
     /// <summary>The newest campaign start the server named last; the click on the Twitch icon stores it as "seen".</summary>
@@ -3169,9 +3174,14 @@ public partial class MainWindow : Window
             return;
         }
 
-        _latestTwitchDrops = status.Value.Latest;
-        TwitchDropsButton.Visibility = status.Value.Running ? Visibility.Visible : Visibility.Collapsed;
-        TwitchDropsNewBadge.Visibility = Announcements.TwitchDropsClient.IsNew(status.Value.Running, status.Value.Latest, MeterSettings.Load().TwitchDropsSeen) ? Visibility.Visible : Visibility.Collapsed;
+        // Same as in RefreshAnnouncementsBadge: the first call is made before app.Run, so the window is only touched on its dispatcher.
+        var (running, latest) = status.Value;
+        await Dispatcher.InvokeAsync(() =>
+        {
+            _latestTwitchDrops = latest;
+            TwitchDropsButton.Visibility = running ? Visibility.Visible : Visibility.Collapsed;
+            TwitchDropsNewBadge.Visibility = Announcements.TwitchDropsClient.IsNew(running, latest, MeterSettings.Load().TwitchDropsSeen) ? Visibility.Visible : Visibility.Collapsed;
+        });
     }
 
     private void OnTwitchDropsClicked(object sender, RoutedEventArgs e)
