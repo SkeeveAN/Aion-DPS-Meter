@@ -17,6 +17,14 @@
      "Backend"
     ],
     "date": "2026-10-11"
+   },
+   {
+    "text": "Features page: two new scenes for the announcements and Twitch Drops buttons of the client window, each with the real top of the meter window (the buttons marked New) in front of a picture of the page it opens; texts in all ten languages of the site",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-11"
    }
   ]
  },
