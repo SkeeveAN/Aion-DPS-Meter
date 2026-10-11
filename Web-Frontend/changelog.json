@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.40.1",
   "date": "2026-10-12",
   "items": [
    {
@@ -23,6 +23,20 @@
     "text": "The network section on the Features page has its own background picture",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-12"
+   },
+   {
+    "text": "The settings picture in the network section of the Features page sits further to the right",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-12"
+   },
+   {
+    "text": "The network overlay counted every entry into an instance or other zone as a reconnect; a change to another server is now a neutral server change, only the same server connecting again counts as a reconnect, and the online time keeps running across server changes",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-12"
    }

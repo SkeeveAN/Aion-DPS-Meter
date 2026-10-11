@@ -634,5 +634,6 @@
   "New network analysis overlay shows ping, jitter, traffic, packet loss and connection quality of the game connection (own settings page, lock, hotkey Ctrl+Alt+N, part of all overlays on/off); the capture no longer loses packets during a world boss because decoding and the debug file run off the capture thread": "Neues Netzwerk-Analyse-Overlay zeigt Ping, Jitter, Datenverkehr, Paketverlust und Verbindungsqualität zum Spielserver (eigene Einstellungsseite, Sperre, Hotkey Strg+Alt+N, Teil von „Alle Overlays an/aus“); bei einem Weltboss gehen keine Pakete mehr verloren, weil Dekodierung und Debug-Datei nicht mehr auf dem Capture-Thread laufen",
   "The Features page has its own section for the network overlay, with pictures of the overlay and its settings": "Die Features-Seite hat einen eigenen Abschnitt zum Netzwerk-Overlay, mit Bildern des Overlays und seiner Einstellungen",
   "On the Features page the network overlay now comes before the interactive map": "Auf der Features-Seite steht das Netzwerk-Overlay jetzt vor der interaktiven Karte",
-  "The network section on the Features page has its own background picture": "Der Netzwerk-Abschnitt auf der Features-Seite hat ein eigenes Hintergrundbild"
+  "The network section on the Features page has its own background picture": "Der Netzwerk-Abschnitt auf der Features-Seite hat ein eigenes Hintergrundbild",
+  "The settings picture in the network section of the Features page sits further to the right": "Das Einstellungsbild im Netzwerk-Abschnitt der Features-Seite sitzt weiter rechts"
 }
