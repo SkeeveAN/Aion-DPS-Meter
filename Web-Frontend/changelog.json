@@ -1,5 +1,20 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-12",
+  "items": [
+   {
+    "text": "The Features page has its own section for the network overlay, with pictures of the overlay and its settings",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-12"
+   }
+  ]
+ },
+ {
   "version": "0.40.0",
   "date": "2026-10-11",
   "items": [
