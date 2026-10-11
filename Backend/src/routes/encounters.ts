@@ -2,7 +2,8 @@ import { asc, desc, eq } from "drizzle-orm";
 import { withServerFaction } from "../factions.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
-import { bosses, encounterParticipants, encounters, encounterSkillUsage, instances, playerProfiles, players, servers, uploads } from "../db/schema.js";
+import { bosses, encounterParticipants, encounters, encounterSkillUsage, instances, playerNcCharacter, playerProfiles, players, servers, uploads } from "../db/schema.js";
+import { profileBadge } from "../profileBadge.js";
 import { ownSkillRows, skillIconByName, skillNamesByName } from "../profile.js";
 import { topBuffsByParticipant } from "../skills/topBuffs.js";
 import { gameFromQuery } from "./instances.js";
@@ -114,6 +115,9 @@ export async function encounterRoutes(app: FastifyInstance) {
         participantId: encounterParticipants.id,
         playerId: encounterParticipants.playerId,
         hasProfile: playerProfiles.playerId,
+        profileSource: playerProfiles.source,
+        ncCharacterId: playerNcCharacter.characterId,
+        ncAttributes: playerNcCharacter.attributesJson,
         playerName: players.name,
         serverName: servers.displayName,
         className: encounterParticipants.className,
@@ -132,13 +136,14 @@ export async function encounterRoutes(app: FastifyInstance) {
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
       .leftJoin(servers, eq(players.serverId, servers.id))
       .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
+      .leftJoin(playerNcCharacter, eq(playerNcCharacter.playerId, players.id))
       .where(eq(encounterParticipants.encounterId, encounterId))
       .orderBy(desc(encounterParticipants.totalDamage))
       .all();
 
     const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId));
     // hasProfile: true when the player has a character profile page (see /api/players/:id).
-    const rosterWithBuffs = roster.map((r) => ({ ...withServerFaction(r), hasProfile: r.hasProfile != null, topBuffs: topBuffs.get(r.participantId) ?? [] }));
+    const rosterWithBuffs = roster.map(({ profileSource, ncCharacterId, ncAttributes, ...r }) => ({ ...withServerFaction(r), hasProfile: r.hasProfile != null, ...profileBadge(profileSource, ncCharacterId, ncAttributes), topBuffs: topBuffs.get(r.participantId) ?? [] }));
 
     return reply.send({
       encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null },
@@ -169,16 +174,22 @@ export async function encounterRoutes(app: FastifyInstance) {
         totalHealing: encounterParticipants.totalHealing,
         hps: encounterParticipants.hps,
         critRatePercent: encounterParticipants.critRatePercent,
+        profileSource: playerProfiles.source,
+        ncCharacterId: playerNcCharacter.characterId,
+        ncAttributes: playerNcCharacter.attributesJson,
       })
       .from(encounterParticipants)
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
       .leftJoin(servers, eq(players.serverId, servers.id))
+      .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
+      .leftJoin(playerNcCharacter, eq(playerNcCharacter.playerId, players.id))
       .where(eq(encounterParticipants.id, participantId))
       .get();
     if (!participantRow) {
       return reply.status(404).send({ error: "participant_not_found" });
     }
-    const participant = withServerFaction(participantRow);
+    const { profileSource, ncCharacterId, ncAttributes, ...participantFields } = participantRow;
+    const participant = { ...withServerFaction(participantFields), ...profileBadge(profileSource, ncCharacterId, ncAttributes) };
 
     const encounter = db
       .select({

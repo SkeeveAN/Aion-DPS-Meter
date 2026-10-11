@@ -2375,26 +2375,58 @@ body:has(.download-hero) .nav-download-link:hover,
   box-shadow: none;
 }
 
-/* Person icon behind a player's name: opens that player's character profile. */
+/* Profile mark behind a player's name: opens that player's character profile. A round plate with a coloured rim so it
+   reads on every class-coloured bar: gold and filled = uploaded by the player himself, blue = seen on another player's
+   client; the green dot in the corner = NC's official character page added data. No profile, no mark. */
 .profile-link {
-  display: inline-flex;
-  align-items: center;
-  width: 15px;
-  height: 15px;
+  --pf-plate: #12171c;
+  --pf-own: #f2b52e;
+  --pf-seen: #3fb6e8;
+  --pf-nc: #4cdc8a;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
   margin-left: 6px;
+  border-radius: 50%;
+  background: var(--pf-plate);
+  box-shadow: 0 0 0 2px var(--pf-plate);
   color: var(--color-text-muted);
+  border: 1.5px solid currentColor;
   vertical-align: middle;
   cursor: pointer;
+  flex: none;
 }
 
+:root[data-theme="light"] .profile-link { --pf-plate: #ffffff; --pf-own: #c98a00; --pf-seen: #1a8fc4; --pf-nc: #1fae66; }
+
+.profile-link.pf-self { color: var(--pf-own); }
+.profile-link.pf-self svg { fill: currentColor; }
+.profile-link.pf-seen { color: var(--pf-seen); }
+
 .profile-link svg {
-  width: 100%;
-  height: 100%;
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.2;
+}
+
+.profile-link .pf-nc {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  box-sizing: content-box;
+  width: 7px;
+  height: 7px;
+  border: 2px solid var(--pf-plate);
+  border-radius: 50%;
+  background: var(--pf-nc);
 }
 
 .profile-link:hover,
 .profile-link:focus-visible {
-  color: var(--color-primary);
+  filter: brightness(1.25);
 }
 
 /* ---- Group leaderboard: podium cards + compact rows ---- */
@@ -2527,7 +2559,8 @@ body:has(.download-hero) .nav-download-link:hover,
 }
 .pt-hero h2 a { color: inherit; text-decoration: none; }
 .pt-hero h2 a:hover { color: var(--color-primary); }
-.pt-hero h2 .profile-link { width: 22px; height: 22px; margin-left: 10px; }
+.pt-hero h2 .profile-link { width: 26px; height: 26px; margin-left: 10px; }
+.pt-hero h2 .profile-link svg { width: 15px; height: 15px; }
 .class-emblem { width: 24px; height: 24px; vertical-align: middle; flex: none; }
 .cmp-skill { display: inline-flex; align-items: center; gap: 10px; }
 .cmp-skill .pf-ico { width: 32px; height: 32px; flex: none; }

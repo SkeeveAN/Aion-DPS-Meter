@@ -909,7 +909,7 @@ async function renderGuild(slug) {
   const { guild, members } = data;
   setBreadcrumb([link(t("breadcrumb.home"), "/"), link(t("guild.listTitle"), "/legions"), guild.name]);
   const rows = members.map((m) => el("tr", {}, [
-    el("td", {}, [link(m.name, `/players/${m.slug ?? m.id}`)]),
+    el("td", {}, [link(m.name, `/players/${m.slug ?? m.id}`), profileIcon({ ...m, hasProfile: m.profileKind != null, playerId: m.id, playerSlug: m.slug })]),
     el("td", {}, [m.className ? iconLabel(classIcon(m.className), classLabel(m.className)) : ""]),
     el("td", { textContent: m.level ?? "" }),
     el("td", { textContent: m.gearScore ? formatNumber(m.gearScore) : "–" }),
@@ -2014,8 +2014,10 @@ async function renderBosses(instanceSlug) {
 // rather than the three separate ones the old accordion-based rosterTable used. Used for a single
 // person (an encounter's own roster, or one solo attempt) - see groupPlayersCell below for the
 // boss leaderboard's group rows, which need to show every member, not just one.
-// A small person icon behind a player's name that opens the character profile - only for players
-// who have one (the API says so with hasProfile).
+// A small round mark behind a player's name that opens the character profile - only for players
+// who have one (the API says so with hasProfile). profileKind says whose upload the profile is
+// ("self" = the player's own, "seen" = taken from another player's client) and profileNc whether
+// NC's official character page added data; see .profile-link in style.css.
 const ICON_PROFILE =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
 
@@ -2024,7 +2026,21 @@ function profileIcon(player) {
     return null;
   }
 
-  return el("a", { className: "profile-link", href: gp(`/players/${player.playerSlug ?? player.playerId}`), title: t("player.openProfile"), "aria-label": t("player.openProfile"), innerHTML: ICON_PROFILE });
+function profileTitle(player) {
+  if (!player.profileKind) {
+    return t("player.openProfile");
+  }
+  const origin = t(player.profileKind === "self" ? "player.profileSelf" : "player.profileSeen");
+  return player.profileNc ? `${t("player.openProfile")} · ${origin} · ${t("player.profileNc")}` : `${t("player.openProfile")} · ${origin}`;
+}
+
+function profileMarkAttrs(player) {
+  const title = profileTitle(player);
+  const kind = player.profileKind ? ` pf-${player.profileKind}` : "";
+  return { className: `profile-link${kind}`, title, "aria-label": title, innerHTML: ICON_PROFILE + (player.profileNc ? '<i class="pf-nc"></i>' : "") };
+}
+
+  return el("a", { ...profileMarkAttrs(player), href: gp(`/players/${player.playerSlug ?? player.playerId}`) });
 }
 
 function playerCell(faction, className, name, href, serverName, player) {
@@ -2441,7 +2457,7 @@ function meterProfileLink(p) {
   }
 
   const target = gp(`/players/${p.playerId}`);
-  const icon = el("span", { className: "profile-link", role: "link", tabindex: "0", title: t("player.openProfile"), "aria-label": t("player.openProfile"), innerHTML: ICON_PROFILE });
+  const icon = el("span", { ...profileMarkAttrs(p), role: "link", tabindex: "0" });
   const open = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -2737,7 +2753,7 @@ async function renderParticipant(participantId) {
     el("div", { className: "pt-hero" }, [
       el("span", { className: "pt-emb" }, [classEmblem(p.className, false)]),
       el("div", {}, [
-        el("h2", {}, [p.playerName, profileIcon({ hasProfile: true, playerId: p.playerId, playerSlug: p.playerSlug })]),
+        el("h2", {}, [p.playerName, profileIcon({ hasProfile: true, playerId: p.playerId, playerSlug: p.playerSlug, profileKind: p.profileKind, profileNc: p.profileNc })]),
         el("div", { className: "pt-sub", textContent: `${translateGameName(e.bossName)} · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}` }),
         el("div", { className: "pt-tags" }, tags),
       ]),

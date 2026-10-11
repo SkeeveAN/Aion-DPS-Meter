@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
 import { and, asc, eq, isNull, like, sql } from "drizzle-orm";
 import { db } from "./db/client.js";
-import { guilds, playerProfiles, players, servers } from "./db/schema.js";
+import { guilds, playerNcCharacter, playerProfiles, players, servers } from "./db/schema.js";
 import { AION2_CLASS_BY_ID } from "./constants.js";
+import { profileBadge, type ProfileBadge } from "./profileBadge.js";
 import { averageItemLevelOf } from "./profile.js";
 import { factionOfServerName } from "./factions.js";
 import { slugify, uniqueSlug } from "./seo/slug.js";
@@ -25,7 +26,7 @@ export interface GuildInfo {
   avgItemLevel?: number | null;
 }
 
-export interface GuildMember {
+export interface GuildMember extends ProfileBadge {
   id: number;
   slug: string | null;
   name: string;
@@ -208,9 +209,13 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       level: playerProfiles.level,
       gearJson: playerProfiles.gearJson,
       gearScore: playerProfiles.gearScore,
+      profileSource: playerProfiles.source,
+      ncCharacterId: playerNcCharacter.characterId,
+      ncAttributes: playerNcCharacter.attributesJson,
     })
     .from(players)
     .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
+    .leftJoin(playerNcCharacter, eq(playerNcCharacter.playerId, players.id))
     .innerJoin(guilds, eq(players.guildId, guilds.id))
     .where(and(eq(guilds.serverId, guild.serverId), eq(guilds.nameNormalized, normalizeGuild(guild.name))))
     .all();
@@ -223,6 +228,7 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       level: r.level,
       gearScore: r.gearScore,
       avgItemLevel: r.gearJson ? averageItemLevelOf(r.gearJson) : null,
+      ...profileBadge(r.profileSource, r.ncCharacterId, r.ncAttributes),
     }))
     .sort((a, b) => (b.level ?? 0) - (a.level ?? 0) || a.name.localeCompare(b.name));
   return { guild, members };
