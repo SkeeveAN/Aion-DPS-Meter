@@ -3,7 +3,7 @@ import path from "node:path";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { playerNcCharacter, playerNcMatch, playerPortraits } from "./db/schema.js";
-import { mapNcCharacter, type NcCharacterData } from "./ncCharacter.js";
+import { mapDaevanionBoard, mapNcCharacter, openBoardIds, type NcCharacterData } from "./ncCharacter.js";
 import { upsertNcProfile } from "./profile.js";
 import { portraitFromJpeg } from "./portrait.js";
 
@@ -24,11 +24,12 @@ const BROWSER_HEADERS = {
 };
 const INFO_URL = "https://aion2.plaync.com/api/character/info";
 const EQUIPMENT_URL = "https://aion2.plaync.com/api/character/equipment";
+const DAEVANION_URL = "https://aion2.plaync.com/api/character/daevanion/detail";
 // The character pages are slower than the search (one complete run once ended with an error after ~9.6 s at 10 s).
 const TIMEOUT_MS = 15_000;
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 export const MAX_SEARCH_BYTES = 256 * 1024;
-const MAX_CHARACTER_BYTES = 256 * 1024;
+const MAX_CHARACTER_BYTES = 512 * 1024;
 
 export const HOUR = 3_600_000;
 export const DAY = 24 * HOUR;
@@ -192,11 +193,23 @@ export async function fetchCharacterProfile(fetchFn: FetchFn, known: KnownCharac
   return { name: stripTags(p.characterName), guild: typeof p.regionName === "string" ? stripTags(p.regionName) : "", level: Number(p.characterLevel) || 0 };
 }
 
-/** The character data of one character: info + equipment (two requests). Throws on network/HTTP problems; null when the answer is unusable. */
+/** The character data of one character: info + equipment + one request per Daevanion board with activated nodes. Throws on network/HTTP problems; null when the answer is unusable. */
 export async function fetchCharacterData(fetchFn: FetchFn, known: KnownCharacter): Promise<NcCharacterData | null> {
   const info = await getNcJson(fetchFn, characterPageUrl(INFO_URL, known));
   const equipment = await getNcJson(fetchFn, characterPageUrl(EQUIPMENT_URL, known));
-  return mapNcCharacter(info, equipment);
+  const data = mapNcCharacter(info, equipment);
+  if (data) {
+    // One request per board that has activated nodes: the profile page draws the boards from them like those of the player's own client.
+    for (const boardId of openBoardIds(info)) {
+      const url = characterPageUrl(DAEVANION_URL, known);
+      url.searchParams.set("boardId", String(boardId));
+      const board = mapDaevanionBoard(boardId, await getNcJson(fetchFn, url));
+      if (board) {
+        data.daevanion.push(board);
+      }
+    }
+  }
+  return data;
 }
 
 export type CharacterOutcome = { status: PortraitStatus; data: NcCharacterData | null };

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mapNcCharacter } from "./ncCharacter.js";
+import { mapDaevanionBoard, mapNcCharacter, openBoardIds } from "./ncCharacter.js";
 
 const stat = (type: string, value: unknown) => ({ name: type, type, value, statSecondList: [] });
 const aahzInfo = {
@@ -51,4 +51,21 @@ test("missing wing, skin or pet give null fields; unusable info gives null", () 
 test("untrusted values are dropped: unknown types, non-numbers, negatives, huge, null", () => {
   const out = mapNcCharacter({ stat: { statList: [stat("STR", "12"), stat("DEX", "abc"), stat("INT", -1), stat("CON", 1e9), stat("AGI", null), stat("Evil", 5), stat("__proto__", 1), null, stat("WIS", 1.5)] } }, {});
   assert.deepEqual(out?.attributes, { 1: 12 });
+});
+
+test("a Daevanion board: the open nodes plus the start node, in our own id space", () => {
+  const detail = {
+    nodeList: [
+      { boardId: 11, nodeId: 110113, type: "Start", open: 0 },
+      { boardId: 11, nodeId: 110033, type: "Stat", open: 1 },
+      { boardId: 11, nodeId: 110034, type: "Stat", open: 0 },
+      { boardId: 11, nodeId: 110035, type: "SkillLevel", open: 1 },
+      { boardId: 12, nodeId: 120001, type: "Stat", open: 1 },
+      { boardId: 11, nodeId: "x", type: "Stat", open: 1 },
+    ],
+  };
+  assert.deepEqual(mapDaevanionBoard(11, detail), { board: 11, nodes: [110113, 110033, 110035] });
+  assert.equal(mapDaevanionBoard(11, { nodeList: [{ boardId: 11, nodeId: 110113, type: "Start", open: 0 }] }), null, "nothing open");
+  assert.equal(mapDaevanionBoard(11, "x"), null);
+  assert.deepEqual(openBoardIds({ daevanion: { boardList: [{ id: 11, open: 1, openNodeCount: 63 }, { id: 12, open: 1, openNodeCount: 0 }, { id: 13, open: 0, openNodeCount: 5 }] } }), [11]);
 });

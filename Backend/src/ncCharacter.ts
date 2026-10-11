@@ -25,6 +25,8 @@ export type NcCharacterData = {
   skills: NcSkill[];
   /** Activated node count per Daevanion board. */
   boardCounts: { board: number; count: number }[];
+  /** The activated nodes of every board that has any (filled by the separate board requests; empty until then). */
+  daevanion: { board: number; nodes: number[] }[];
   wingId: number | null;
   wingSkinId: number | null;
   activePet: number | null;
@@ -111,9 +113,44 @@ export function mapNcCharacter(info: unknown, equipment: unknown): NcCharacterDa
     gear,
     skills,
     boardCounts,
+    daevanion: [],
     wingId: positiveInt(asObject(petwing?.wing)?.id, 2_000_000_000),
     wingSkinId: positiveInt(asObject(petwing?.wingSkin)?.id, 2_000_000_000),
     activePet,
     activePetLevel: activePet ? positiveInt(pet?.level, 1000) : null,
   };
+}
+
+/** The board ids of an info answer that have activated nodes (the ones worth a board request), at most 12. */
+export function openBoardIds(info: unknown): number[] {
+  return asArray(asObject(asObject(info)?.daevanion)?.boardList)
+    .filter((b) => Number(b.open) === 1 && (nonNegativeInt(b.openNodeCount, 1000) ?? 0) > 0)
+    .map((b) => positiveInt(b.id, 10_000))
+    .filter((id): id is number => id !== null)
+    .slice(0, 12);
+}
+
+/**
+ * The activated node ids of one board from /api/character/daevanion/detail, in the same id space as our own Daevanion data. NC lists the
+ * start node as closed while the game counts it as the first activated one, so it is added whenever any other node is open. Null when the
+ * answer is unusable or nothing is open.
+ */
+export function mapDaevanionBoard(boardId: number, detail: unknown): { board: number; nodes: number[] } | null {
+  const nodes: number[] = [];
+  let start: number | null = null;
+  for (const n of asArray(asObject(detail)?.nodeList)) {
+    const id = positiveInt(n.nodeId, 2_000_000_000);
+    if (!id || Number(n.boardId) !== boardId) {
+      continue;
+    }
+    if (n.type === "Start") {
+      start = id;
+    } else if (Number(n.open) === 1 && nodes.length < 400) {
+      nodes.push(id);
+    }
+  }
+  if (nodes.length === 0) {
+    return null;
+  }
+  return { board: boardId, nodes: start ? [start, ...nodes] : nodes };
 }

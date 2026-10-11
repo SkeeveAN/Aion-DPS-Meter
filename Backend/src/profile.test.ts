@@ -441,6 +441,7 @@ test("a profile from NC's page is the lowest rank: it never replaces a self prof
     gear: Array.from({ length: n }, (_, i) => ({ slot: i + 1, itemId: 110130050 + i, enchant: 3 })),
     skills: [{ id: 11020000, level: 14, baseLevel: 14, stigma: false, equipped: true }],
     boardCounts: [{ board: 11, count: 63 }],
+    daevanion: [{ board: 11, nodes: [110113, 110033] }],
   });
   const self = playerId("Aahz");
   upsertNcProfile(self, ncData(25));

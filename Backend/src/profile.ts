@@ -669,7 +669,7 @@ function boardSummary(boardCountsJson: string, own: { board: number; name: strin
  * profile page shows it like any other. The lowest rank: a "self" profile is never touched, and a "seen" one stays unless NC lists more
  * pieces. Never carries anything over from the old row, so the profile is exactly NC's view.
  */
-export function upsertNcProfile(playerId: number, data: Pick<NcCharacterData, "gear" | "skills" | "boardCounts" | "level" | "classId" | "titleId">): void {
+export function upsertNcProfile(playerId: number, data: Pick<NcCharacterData, "gear" | "skills" | "boardCounts" | "daevanion" | "level" | "classId" | "titleId">): void {
   if (data.gear.length === 0 && data.classId === null) {
     return;
   }
@@ -686,7 +686,7 @@ export function upsertNcProfile(playerId: number, data: Pick<NcCharacterData, "g
     gearScore: row?.gearScore ?? null,
     gearJson: JSON.stringify(data.gear),
     skillsJson: JSON.stringify(data.skills),
-    daevanionJson: "[]",
+    daevanionJson: JSON.stringify(data.daevanion),
     speciesJson: "[]",
     titlesJson: JSON.stringify(data.titleId ? [{ slot: 1, titleId: data.titleId }] : []),
     petsJson: "[]",
