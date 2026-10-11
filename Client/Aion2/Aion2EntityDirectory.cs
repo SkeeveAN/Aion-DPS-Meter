@@ -398,14 +398,14 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     private readonly Dictionary<int, (DateTime At, IReadOnlyList<Aion2ShopPet> Pets)> _shopPets = new();
 
     /// <summary>The pets the Black Cloud shop offers, from the tabs the player opened (the shop sends a tab when it is opened), newest tab first by
-    /// tab; each tab is dropped ten minutes after its frame (the shop renews its offers every hour, a closed shop sends nothing).</summary>
+    /// tab; each tab is dropped five minutes after its frame (the shop renews its offers every hour, a closed shop sends nothing).</summary>
     public IReadOnlyList<Aion2ShopPet> ShopPets
     {
         get
         {
             lock (_gate)
             {
-                var cutoff = DateTime.UtcNow - TimeSpan.FromMinutes(10);
+                var cutoff = DateTime.UtcNow - TimeSpan.FromMinutes(5);
                 return _shopPets.Where(kv => kv.Value.At >= cutoff).OrderBy(kv => kv.Key).SelectMany(kv => kv.Value.Pets).ToList();
             }
         }
