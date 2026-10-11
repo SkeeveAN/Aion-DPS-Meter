@@ -2,28 +2,32 @@ import { deflateSync } from "node:zlib";
 import jpeg from "jpeg-js";
 
 // Cut-out of the official character portrait: NC delivers a 512x512 JPEG on a black background; the website wants
-// the figure alone, so the black that is connected to the image border becomes transparent. Pure JS (jpeg-js + zlib),
+// the figure alone, so the black that is connected to the image border (and the JPEG noise next to it) becomes transparent. Pure JS (jpeg-js + zlib),
 // no native module: the production server has no compiler, no Pillow, no ImageMagick.
 
 export type Rgba = { width: number; height: number; data: Uint8Array };
 
-/** Pixels darker than this (max of R, G, B) count as background when they connect to the border. NC's background is pure black (exactly 2); black coats and dark hair are only a few levels above it, so the limit must stay close to the background. */
+/** Pixels darker than this (max of R, G, B) that connect to the border are certainly background. NC's background is pure black (exactly 2); black coats and dark hair are only a few levels above it, so this limit must stay close to the background. */
 export const BACKGROUND_MAX = 3;
+/** NC's JPEG leaves blocky near-black noise (values up to ~25) around the figure. Within this many pixels of the certain background, pixels below GROW_MAX fade out instead of staying as dark blocks. */
+export const GROW_RADIUS = 12;
+export const GROW_MAX = 30;
 
 /**
- * Flood fill from all four image borders over pixels with max(R,G,B) < BACKGROUND_MAX (4-neighbourhood) and make them
- * transparent; then the alpha mask is eroded by one pixel (MinFilter 3) and softened (Gaussian, sigma 1.2) so the edge
- * carries no black fringe. Dark detail inside the figure is not connected to the border and stays opaque.
- * Works in place on `image` and returns it.
+ * Flood fill from all four image borders over pixels with max(R,G,B) < threshold (4-neighbourhood): that is the certain background.
+ * From there the background grows by GROW_RADIUS pixels through pixels below GROW_MAX, and inside the grown area the alpha follows the
+ * brightness (fully transparent at the threshold, opaque from GROW_MAX), so the JPEG noise around hair and shoulders fades away without a
+ * hard blocky edge. A black coat further from the background than the radius, or dark detail inside the figure, is not touched. The alpha
+ * is softened slightly (Gaussian). Works in place on `image` and returns it.
  */
-export function cutOutBackground(image: Rgba, threshold = BACKGROUND_MAX, sigma = 1.2): Rgba {
+export function cutOutBackground(image: Rgba, threshold = BACKGROUND_MAX, sigma = 1): Rgba {
   const { width: w, height: h, data } = image;
+  const level = (p: number) => Math.max(data[p * 4], data[p * 4 + 1], data[p * 4 + 2]);
   const bg = new Uint8Array(w * h);
   const stack: number[] = [];
-  const dark = (p: number) => Math.max(data[p * 4], data[p * 4 + 1], data[p * 4 + 2]) < threshold;
   const push = (x: number, y: number) => {
     const p = y * w + x;
-    if (!bg[p] && dark(p)) {
+    if (!bg[p] && level(p) < threshold) {
       bg[p] = 1;
       stack.push(p);
     }
@@ -46,27 +50,34 @@ export function cutOutBackground(image: Rgba, threshold = BACKGROUND_MAX, sigma 
     if (y < h - 1) push(x, y + 1);
   }
 
-  // Alpha mask 0..255, eroded by one pixel (3x3 minimum; outside the image does not count).
-  let alpha: Float32Array = new Float32Array(w * h);
-  for (let p = 0; p < w * h; p++) alpha[p] = bg[p] ? 0 : 255;
-  const eroded = new Float32Array(w * h);
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      let m = 255;
-      for (let dy = -1; dy <= 1 && m > 0; dy++) {
+  // Grow the background ring by ring through the dark pixels next to it.
+  const region = new Uint8Array(bg);
+  let front: number[] = [];
+  for (let p = 0; p < w * h; p++) if (bg[p]) front.push(p);
+  for (let ring = 0; ring < GROW_RADIUS && front.length > 0; ring++) {
+    const next: number[] = [];
+    for (const p of front) {
+      const x = p % w;
+      const y = (p - x) / w;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const xx = x + dx;
         const yy = y + dy;
-        if (yy < 0 || yy >= h) continue;
-        for (let dx = -1; dx <= 1; dx++) {
-          const xx = x + dx;
-          if (xx < 0 || xx >= w) continue;
-          const a = alpha[yy * w + xx];
-          if (a < m) m = a;
+        if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+        const q = yy * w + xx;
+        if (!region[q] && level(q) < GROW_MAX) {
+          region[q] = 1;
+          next.push(q);
         }
       }
-      eroded[y * w + x] = m;
     }
+    front = next;
   }
-  alpha = gaussianBlur(eroded, w, h, sigma);
+
+  let alpha: Float32Array = new Float32Array(w * h);
+  for (let p = 0; p < w * h; p++) {
+    alpha[p] = region[p] ? Math.max(0, Math.min(255, ((level(p) - threshold) / (GROW_MAX - threshold)) * 255)) : 255;
+  }
+  alpha = gaussianBlur(alpha, w, h, sigma);
   for (let p = 0; p < w * h; p++) data[p * 4 + 3] = Math.max(0, Math.min(255, Math.round(alpha[p])));
   return image;
 }

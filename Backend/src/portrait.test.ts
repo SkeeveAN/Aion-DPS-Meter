@@ -33,10 +33,10 @@ test("black detail inside the figure is not connected to the border and stays op
   assert.ok(alphaAt(img, 31, 31) > 200, `alpha ${alphaAt(img, 31, 31)}`);
 });
 
-test("the edge is eroded and softened", () => {
+test("the edge is softened", () => {
   const img = cutOutBackground(synthetic());
-  // x = 16 is the first figure pixel; erosion by one pixel plus the blur make it partly transparent.
-  const edge = alphaAt(img, 16, 32);
+  // x = 16 is the first figure pixel; the blur makes it partly transparent.
+  const edge = alphaAt(img, 15, 32);
   assert.ok(edge > 0 && edge < 255, `edge alpha ${edge}`);
 });
 
@@ -57,4 +57,14 @@ test("PNG encoder and JPEG path produce a valid PNG with alpha", () => {
   const out = portraitFromJpeg(jpg);
   assert.equal(out.readUInt32BE(16), 64);
   assert.throws(() => portraitFromJpeg(Buffer.from("not a jpeg")));
+});
+
+test("JPEG noise right next to the background fades out, a black coat further in stays", () => {
+  const img = synthetic();
+  const put = (x: number, y: number, v: number) => img.data.set([v, v, v, 255], (y * 64 + x) * 4);
+  for (let y = 20; y < 30; y++) for (let x = 12; x < 16; x++) put(x, y, 12); // noise block hugging the figure, 4 px from the background
+  for (let y = 40; y < 46; y++) for (let x = 20; x < 44; x++) put(x, y, 14); // black coat inside the figure, far from the background
+  cutOutBackground(img);
+  assert.ok(alphaAt(img, 13, 24) < 90, `noise alpha ${alphaAt(img, 13, 24)}`);
+  assert.ok(alphaAt(img, 30, 43) > 240, `coat alpha ${alphaAt(img, 30, 43)}`);
 });
