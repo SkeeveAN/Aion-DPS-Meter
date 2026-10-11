@@ -532,6 +532,9 @@ public partial class MainWindow : Window
             case HotkeyAction.ToggleAllOverlays:
                 ToggleAllOverlays();
                 break;
+            case HotkeyAction.ToggleWorldBossOverlay:
+                ToggleWorldBossOverlay();
+                break;
             case HotkeyAction.NextMode:
                 NextMode();
                 break;
@@ -562,6 +565,7 @@ public partial class MainWindow : Window
             [HotkeyAction.TogglePetMap] = HotkeyBinding.Parse(settings.HotkeyPetMap),
             [HotkeyAction.ToggleHotkeyOverlay] = HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay),
             [HotkeyAction.ToggleAllOverlays] = HotkeyBinding.Parse(settings.HotkeyAllOverlays),
+            [HotkeyAction.ToggleWorldBossOverlay] = HotkeyBinding.Parse(settings.HotkeyWorldBoss),
         });
         if (failed.Count > 0)
         {
@@ -4157,24 +4161,33 @@ public partial class MainWindow : Window
         _settingsWindow?.SyncOverlaySwitches(settings);
     }
 
+    /// <summary>The world boss controller reads the settings every second, so the switch is all it takes.</summary>
+    private void ToggleWorldBossOverlay()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowBossOverlay = !settings.ShowBossOverlay;
+        settings.Save();
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
     /// <summary>Which overlays the "all overlays" hotkey switched off, so the next press brings back exactly those.</summary>
-    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm)? _overlaysSwitchedOff;
+    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm, bool WorldBoss)? _overlaysSwitchedOff;
 
     /// <summary>One press switches every overlay that is on off (hotkey list, timetable, interactive map, pet info); the next brings the same ones back.
     /// The DPS overlay is not among them - it is the Hide UI mode with its own hotkey.</summary>
     private void ToggleAllOverlays()
     {
         var settings = MeterSettings.Load();
-        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm;
+        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm || settings.ShowBossOverlay;
         if (anyOn)
         {
-            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm);
-            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = false;
+            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay);
+            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = settings.ShowBossOverlay = false;
         }
         else
         {
-            var back = _overlaysSwitchedOff ?? (true, true, true, false);
-            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm) = back;
+            var back = _overlaysSwitchedOff ?? (true, true, true, false, true);
+            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay) = back;
             _overlaysSwitchedOff = null;
         }
 

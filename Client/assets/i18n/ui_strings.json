@@ -2529,6 +2529,20 @@
     "ja": "オーバーレイ",
     "ko": "오버레이"
   },
+  "Settings.Hotkey.WorldBoss": {
+    "en": "World boss overlay on / off",
+    "de": "Weltboss-Overlay an / aus",
+    "fr": "Overlay des boss mondiaux activé / désactivé",
+    "es": "Overlay de jefes mundiales sí / no",
+    "ru": "Оверлей мировых боссов вкл / выкл",
+    "pl": "Nakładka bossów światowych wł. / wył.",
+    "tr": "Dünya patronu katmanı açık / kapalı",
+    "zh": "世界首领悬浮窗 开 / 关",
+    "zh-TW": "世界首領浮動層 開 / 關",
+    "pt": "Overlay de chefes mundiais ligado / desligado",
+    "ja": "ワールドボスオーバーレイ オン / オフ",
+    "ko": "월드 보스 오버레이 켜기 / 끄기"
+  },
   "Settings.Hotkey.PetMap": {
     "en": "Interactive map on / off",
     "de": "Interaktive Map an / aus",

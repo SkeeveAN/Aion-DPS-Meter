@@ -62,6 +62,7 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyPetMapBox, HotkeyBinding.Parse(settings.HotkeyPetMap).ToString());
         SetHotkeyBox(HotkeyHotkeyOverlayBox, HotkeyBinding.Parse(settings.HotkeyHotkeyOverlay).ToString());
         SetHotkeyBox(HotkeyAllOverlaysBox, HotkeyBinding.Parse(settings.HotkeyAllOverlays).ToString());
+        SetHotkeyBox(HotkeyWorldBossBox, HotkeyBinding.Parse(settings.HotkeyWorldBoss).ToString());
         ShowHotkeyOverlayBox.IsChecked = settings.ShowHotkeyOverlay;
         foreach (var box in HotkeyOverlayRowBoxes())
         {
@@ -399,7 +400,7 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
-        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox };
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox };
 
     private void OnHotkeyClearClicked(object sender, RoutedEventArgs e)
     {
@@ -499,6 +500,7 @@ public partial class SettingsWindow : Window
         _settings.HotkeyPetMap = (string?)HotkeyPetMapBox.Tag ?? "";
         _settings.HotkeyHotkeyOverlay = (string?)HotkeyHotkeyOverlayBox.Tag ?? "";
         _settings.HotkeyAllOverlays = (string?)HotkeyAllOverlaysBox.Tag ?? "";
+        _settings.HotkeyWorldBoss = (string?)HotkeyWorldBossBox.Tag ?? "";
         _settings.ShowHotkeyOverlay = ShowHotkeyOverlayBox.IsChecked ?? false;
         _settings.HotkeyOverlayHidden = HotkeyOverlayRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
@@ -788,6 +790,7 @@ public partial class SettingsWindow : Window
         ShowTimetableBox.IsChecked = s.ShowTimetable;
         ShowHotkeyOverlayBox.IsChecked = s.ShowHotkeyOverlay;
         ShowPetFarmBox.IsChecked = s.ShowPetFarm;
+        ShowBossOverlayBox.IsChecked = s.ShowBossOverlay;
     }
 
     /// <summary>The map's sliders are read-only (greyed out) while the map is switched off; the pet list stays editable.</summary>
