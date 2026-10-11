@@ -1,12 +1,19 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.38.3",
   "date": "2026-10-11",
   "items": [
    {
     "text": "Encounter pages showed the error \"profileMarkAttrs is not defined\" instead of the meter; the profile marks behind the player names work again",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-11"
+   },
+   {
+    "text": "A player's worn titles were reduced to the one just changed, so a profile could show a single title instead of all three; a title change now only replaces its own slot and the others stay",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-11"
    }
