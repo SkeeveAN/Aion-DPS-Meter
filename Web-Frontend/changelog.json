@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-11",
+  "items": [
+   {
+    "text": "Daevanion boards of every confirmed player are built from NC's board data, the same way as the boards of your own character",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-11"
+   }
+  ]
+ },
+ {
   "version": "0.32.2",
   "date": "2026-10-11",
   "items": [
