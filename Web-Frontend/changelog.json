@@ -17,6 +17,14 @@
      "Backend"
     ],
     "date": "2026-10-12"
+   },
+   {
+    "text": "Stage picker on the instance page of Transcendence, Ascension and Nightmare dungeons, and the breadcrumbs of boss and run pages show the stage as stars",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-12"
    }
   ]
  },
