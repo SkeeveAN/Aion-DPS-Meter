@@ -15,7 +15,8 @@ import { EVENT_STALE_AFTER, PRIORITY, type Priority } from "./refreshPolicy.js";
  * Old clients filed every player of an upload under the uploader's server, and most players are only seen in a group: nothing in the upload
  * says where they play. NC's search knows: it lists every character of that name with its server, race, class and level. A name alone is
  * not enough (the same name exists on many servers), so the candidates are narrowed by what we know about the player - faction, class,
- * level, and the verified members of his legion (a legion belongs to one server). Only ONE remaining character is applied; with
+ * level, the verified members of his legion (a legion belongs to one server), his legion's name and, last, his gear score (the item level NC shows for
+ * each candidate). Only ONE remaining character is applied; with
  * several nothing is guessed and the check is repeated later, when newer uploads know more.
  *
  * Be polite: one request at a time through the shared paced fetch (portraitService.ncFetch), a bounded queue, results are remembered and
