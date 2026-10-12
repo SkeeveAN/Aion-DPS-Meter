@@ -63,7 +63,7 @@ public sealed class PetMapController : IDisposable
 
     /// <summary>
     /// The Hidden Cube sound works like a parking sensor: while a cube is in range the sound repeats, the faster the closer the player stands to the nearest one
-    /// (about every 2 s from 60 m away down to 0.15 s within 3 m; 100 world units are a metre). Without a known own position it beeps at a slow, steady pace.
+    /// (about every 2 s from 60 m away down to 0.15 s within 3 m; 100 world units are a metre). Without a current own position it stays silent.
     /// </summary>
     private void AnnounceCubes(MeterSettings settings)
     {
@@ -79,12 +79,14 @@ public sealed class PetMapController : IDisposable
             return;
         }
 
-        double interval = 2.0;
-        if (directory!.BestPosition is { } me && DateTime.UtcNow - me.At < TimeSpan.FromSeconds(5))
+        // without a current own position the distance is unknown: silence
+        if (directory!.BestPosition is not { } me || DateTime.UtcNow - me.At >= TimeSpan.FromSeconds(5))
         {
-            double meters = cubes.Min(c => Math.Sqrt((c.X - me.X) * (c.X - me.X) + (c.Y - me.Y) * (c.Y - me.Y))) / 100.0;
-            interval = Math.Clamp(0.15 + (meters - 3) / 57.0 * 1.85, 0.15, 2.0);
+            return;
         }
+
+        double meters = cubes.Min(c => Math.Sqrt((c.X - me.X) * (c.X - me.X) + (c.Y - me.Y) * (c.Y - me.Y))) / 100.0;
+        double interval = Math.Clamp(0.15 + (meters - 3) / 57.0 * 1.85, 0.15, 2.0);
 
         if ((DateTime.UtcNow - _lastCubeBeep).TotalSeconds >= interval)
         {
