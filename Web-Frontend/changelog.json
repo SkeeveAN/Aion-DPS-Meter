@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "Twitch Drops page: the Leather Crop Fit reward now shows its picture",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.41.5",
   "date": "2026-10-12",
   "items": [
