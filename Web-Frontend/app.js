@@ -2701,6 +2701,10 @@ async function renderEncounter(encounterId) {
       textContent: `${t("encounter.appVersion")} ${data.encounter.appVersion ?? t("encounter.appVersionUnknown")}`,
     }),
   ];
+  // The difficulty step in words next to the stars in the title (seven stars are hard to count).
+  if (data.encounter.mode) {
+    pills.unshift(el("span", { className: "instance-hero-pill", textContent: data.encounter.instanceCategory === "nightmare" ? `${t("category.nightmare")} ${data.encounter.mode}` : modeLabel(data.encounter.mode) }));
+  }
   // Same picture as the boss page: the boss's own banner, else the instance photo.
   const bossBanner = BOSS_IMAGES[data.encounter.bossName];
   const photo = bossBanner ?? INSTANCE_IMAGES[data.encounter.instanceName] ?? null;
