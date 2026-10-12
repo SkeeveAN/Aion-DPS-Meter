@@ -47,6 +47,13 @@
      "Website"
     ],
     "date": "2026-10-12"
+   },
+   {
+    "text": "Link preview pictures of a boss fight show the difficulty step (Stage 2, Level 7, Hard) in gold behind the boss name",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-12"
    }
   ]
  },
