@@ -264,6 +264,9 @@ public sealed class PetMapWindow : MovableOverlay
     private readonly List<Polygon> _gatherMarks = new();
     private readonly List<Polygon> _edgeArrows = new();
     private readonly Polygon _me;
+
+    /// <summary>The way the player's arrow points, in degrees clockwise from straight up (the direction he moves in).</summary>
+    public double MeHeading { get; set; }
     private readonly TextBlock _meUnknown;
 
     public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120, LoadSize, SaveSize)
@@ -611,6 +614,7 @@ public sealed class PetMapWindow : MovableOverlay
 
         Canvas.SetLeft(_me, cx);
         Canvas.SetTop(_me, cy);
+        _me.RenderTransform = new RotateTransform(MeHeading);
         Canvas.SetLeft(_meUnknown, cx - 14);
         Canvas.SetTop(_meUnknown, cy - 20);
         // the player on top; a "?" instead of the arrow when the position is not known (the view then shows the last one)

@@ -42,6 +42,14 @@ public static class Aion2Gather
         return (own.ServerId / 1000) switch { 1 => "Elyos", 2 => "Asmodian", _ => own.ClassCode % 4 == 2 ? "Elyos" : null };
     }
 
+    /// <summary>The collectible (its kind and item key) an env object id of the data stream stands for, null for any other object.</summary>
+    public static (string Kind, string Key)? Lookup(long envId)
+    {
+        Load();
+        return _keyById!.TryGetValue(envId, out var found) ? found : null;
+    }
+
+    private static Dictionary<long, (string Kind, string Key)>? _keyById;
     private static List<Aion2GatherItem>? _items;
     private static Dictionary<string, Dictionary<string, List<float[]>>>? _maps;   // map table -> item key -> x,y pairs
 
@@ -86,6 +94,7 @@ public static class Aion2Gather
 
         var items = new Dictionary<(string Kind, string Key), (Dictionary<string, string> Names, int Count)>();
         var maps = new Dictionary<string, Dictionary<string, List<float[]>>>();
+        var keyById = new Dictionary<long, (string Kind, string Key)>();
         try
         {
             string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "maps", "gather.json");
@@ -107,6 +116,11 @@ public static class Aion2Gather
 
                     string key = names.GetValueOrDefault("en") ?? o.Name;
                     keyOf[o.Name] = (kind, key);
+                    if (long.TryParse(o.Name, out long envId))
+                    {
+                        keyById[envId] = (kind, key);
+                    }
+
                     int count = o.Value.GetProperty("count").GetInt32();
                     items[(kind, key)] = items.TryGetValue((kind, key), out var have) ? (have.Names, have.Count + count) : (names, count);
                 }
@@ -139,6 +153,7 @@ public static class Aion2Gather
         }
 
         _maps = maps;
+        _keyById = keyById;
         int Side(string map, string key) => maps.TryGetValue(map, out var per) && per.TryGetValue(key, out var pts) ? pts.Count : 0;
         _items = items.Select(kv => new Aion2GatherItem(kv.Key.Kind, kv.Key.Key, kv.Value.Names, kv.Value.Count, Side(ElyosMap, kv.Key.Key), Side(AsmodianMap, kv.Key.Key)))
             .OrderBy(i => Array.IndexOf(Kinds, i.Kind)).ThenByDescending(i => i.Count > 0).ThenBy(i => i.Key, StringComparer.OrdinalIgnoreCase).ToList();

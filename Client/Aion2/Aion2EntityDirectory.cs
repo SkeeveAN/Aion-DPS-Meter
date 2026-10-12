@@ -509,7 +509,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             {
                 DateTime now = DateTime.UtcNow;
                 var recent = _recentSpawns.Where(s => now - s.At <= TimeSpan.FromSeconds(8)).ToList();
-                if (recent.Count >= 2 && (_position is null || recent.Max(s => s.At) > _position.Value.At))
+                // an exact report stays the position for 6 s: the monsters' middle is only a guess and flips the view back and forth when it competes with it
+                if (recent.Count >= 2 && (_position is null || now - _position.Value.At > TimeSpan.FromSeconds(6)) && (_position is null || recent.Max(s => s.At) > _position.Value.At))
                 {
                     var xs = recent.Select(s => s.X).OrderBy(v => v).ToList();
                     var ys = recent.Select(s => s.Y).OrderBy(v => v).ToList();
@@ -583,38 +584,46 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    private readonly Dictionary<int, (float X, float Y, DateTime At)> _cubes = new();
+    private readonly Dictionary<int, (string Kind, string Key, float X, float Y, DateTime At)> _env = new();
 
-    /// <summary>A Hidden Cube was announced by the game (env object spawn frame).</summary>
-    public void NoteCube(int entityId, float x, float y)
+    /// <summary>A collectible or Hidden Cube was announced by the game (env object spawn frame: it is in range and there).</summary>
+    public void NoteEnv(int entityId, string kind, string key, float x, float y)
     {
         lock (_gate)
         {
-            _cubes[entityId] = (x, y, DateTime.UtcNow);
-        }
-    }
-
-    public void ForgetCube(int entityId)
-    {
-        lock (_gate)
-        {
-            _cubes.Remove(entityId);
-        }
-    }
-
-    /// <summary>The Hidden Cubes in range right now (one that was never reported gone is dropped after 15 minutes).</summary>
-    public IReadOnlyList<(float X, float Y)> LiveCubes()
-    {
-        lock (_gate)
-        {
-            foreach (int stale in _cubes.Where(c => DateTime.UtcNow - c.Value.At > TimeSpan.FromMinutes(15)).Select(c => c.Key).ToList())
+            _env[entityId] = (kind, key, x, y, DateTime.UtcNow);
+            if (_env.Count > 3000)
             {
-                _cubes.Remove(stale);
+                _env.Clear(); // nothing is ever that close: the table lost its removals
+            }
+        }
+    }
+
+    /// <summary>The object is gone (gathered, opened, or out of range).</summary>
+    public void ForgetEnv(int entityId)
+    {
+        lock (_gate)
+        {
+            _env.Remove(entityId);
+        }
+    }
+
+    /// <summary>The collectibles in range right now (one that was never reported gone is dropped after 15 minutes).</summary>
+    public IReadOnlyList<(string Kind, string Key, float X, float Y)> LiveEnv()
+    {
+        lock (_gate)
+        {
+            foreach (int stale in _env.Where(c => DateTime.UtcNow - c.Value.At > TimeSpan.FromMinutes(15)).Select(c => c.Key).ToList())
+            {
+                _env.Remove(stale);
             }
 
-            return _cubes.Values.Select(c => (c.X, c.Y)).ToArray();
+            return _env.Values.Select(c => (c.Kind, c.Key, c.X, c.Y)).ToArray();
         }
     }
+
+    /// <summary>The Hidden Cubes in range right now.</summary>
+    public IReadOnlyList<(float X, float Y)> LiveCubes() => LiveEnv().Where(e => e.Kind == "Cube").Select(e => (e.X, e.Y)).ToArray();
 
     public IReadOnlyList<(int NpcId, float X, float Y)> RecentMobPositions()
     {
@@ -630,7 +639,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _position = null;
-            _cubes.Clear();
+            _env.Clear();
             _mobPositions.Clear();
             _liveMobs.Clear();
             _recentSpawns.Clear();

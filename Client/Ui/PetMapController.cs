@@ -59,6 +59,63 @@ public sealed class PetMapController : IDisposable
     /// <summary>The pseudo pet id under which the live Hidden Cubes travel with the live monsters.</summary>
     private const int CubePet = -1;
 
+    private (float X, float Y)? _steady;
+    private DateTime _steadyAt;
+
+    /// <summary>
+    /// The position the map follows. An exact report of the game is taken as it is; the guess from the monsters around is only a pull towards the
+    /// estimate - slow (about a second) and at most 15 m/s - so a wrong or flipping guess cannot throw the view across the map. A jump of more than
+    /// 300 m (a teleport, a new map) is taken at once.
+    /// </summary>
+    private (float X, float Y) Steady(Aion2EntityDirectory directory, (float X, float Y, DateTime At) p)
+    {
+        DateTime now = DateTime.UtcNow;
+        double dt = Math.Clamp((now - _steadyAt).TotalSeconds, 0, 1);
+        _steadyAt = now;
+        bool exact = directory.LocalPosition is { } lp && now - lp.At < TimeSpan.FromSeconds(6) && lp.X == p.X && lp.Y == p.Y;
+        if (_steady is not { } cur)
+        {
+            return (_steady = (p.X, p.Y)).Value;
+        }
+
+        double dx = p.X - cur.X, dy = p.Y - cur.Y, dist = Math.Sqrt(dx * dx + dy * dy);
+        if (exact || dist > 30000)
+        {
+            return (_steady = (p.X, p.Y)).Value;
+        }
+
+        double step = Math.Min(dist, Math.Min(dist * (1 - Math.Pow(0.94, dt * 20)), 1500 * dt));
+        if (dist > 0)
+        {
+            _steady = ((float)(cur.X + dx / dist * step), (float)(cur.Y + dy / dist * step));
+        }
+
+        return _steady.Value;
+    }
+
+    private (float X, float Y)? _headingFrom;
+    private double _heading;
+
+    /// <summary>
+    /// The game sends no facing, so the arrow points the way the player moves: from the point where he last stood to where he is now, once he has gone
+    /// far enough (the reported position jitters by a few metres) - 8 m; standing still keeps the last direction.
+    /// </summary>
+    private void FollowHeading(float x, float y)
+    {
+        if (_headingFrom is not { } from)
+        {
+            _headingFrom = (x, y);
+            return;
+        }
+
+        double dx = x - from.X, dy = y - from.Y;
+        if (dx * dx + dy * dy >= 800.0 * 800.0)
+        {
+            _heading = Math.Atan2(dy, dx) * 180 / Math.PI + 90; // the arrow points up at 0 degrees; the map's y runs down the screen
+            _headingFrom = (x, y);
+        }
+    }
+
     private DateTime _lastCubeBeep = DateTime.MinValue;
 
     /// <summary>
@@ -161,9 +218,9 @@ public sealed class PetMapController : IDisposable
         float tx, ty;
         if (known)
         {
-            tx = position!.Value.X;
-            ty = position.Value.Y;
+            (tx, ty) = Steady(directory!, position!.Value);
             RememberPosition(tx, ty);
+            FollowHeading(tx, ty);
         }
         else
         {
@@ -190,9 +247,10 @@ public sealed class PetMapController : IDisposable
         {
             _pointsKey = key;
             _points = _current is null ? new() : Aion2Maps.PointsOf(_current, chosen).ToList();
-            _gatherNamed = _current is null ? new() : Aion2Gather.NamedPointsOf(_current, gatherKinds).ToList();
-            _gather = _gatherNamed.Select(g => (g.Item.Kind, g.X, g.Y)).ToList();
+            _gatherStatic = _current is null ? new() : Aion2Gather.NamedPointsOf(_current, gatherKinds).Where(g => g.Item.Kind != "Cube").ToList();
         }
+
+        ShowLiveGather(gatherKinds, known, tx, ty);
 
         // Glide to the reported position
         if (!_haveView || !known || Math.Abs(_x - tx) + Math.Abs(_y - ty) > 8000)
@@ -220,6 +278,7 @@ public sealed class PetMapController : IDisposable
             colors[CubePet] = PetMapPalette.OfGather("Cube");
         }
 
+        _map.MeHeading = _heading;
         if (_current is not null)
         {
             _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows);
@@ -288,6 +347,43 @@ public sealed class PetMapController : IDisposable
     private (float X, float Y)? _lastKnown;
     private bool _lastKnownFlag;
     private List<(Aion2GatherItem Item, float X, float Y)> _gatherNamed = new();
+    private List<(Aion2GatherItem Item, float X, float Y)> _gatherStatic = new();
+
+    /// <summary>How close to the player a fixed place must be for the game's announcements to be complete: nothing announced there means nothing there (gathered, not grown yet).</summary>
+    private const double AnnounceRange = 4000;
+
+    /// <summary>
+    /// What the map shows of the collectibles: the fixed places of the map files, except those in the player's range where the game announces nothing
+    /// (gathered or not there yet), plus what the game announces - which also covers the places the map files do not hold (Od, the Hidden Cubes).
+    /// </summary>
+    private void ShowLiveGather(ISet<string> keys, bool known, float px, float py)
+    {
+        var live = known && _current is not null ? (_directory()?.LiveEnv().Where(e => keys.Contains(e.Key)).ToList()) : null;
+        var items = Aion2Gather.Items().Where(i => keys.Contains(i.Key)).ToDictionary(i => i.Key);
+        var shown = new List<(Aion2GatherItem Item, float X, float Y)>();
+        foreach (var point in _gatherStatic)
+        {
+            bool inRange = known && Math.Abs(point.X - px) < AnnounceRange && Math.Abs(point.Y - py) < AnnounceRange
+                && (point.X - px) * (double)(point.X - px) + (point.Y - py) * (double)(point.Y - py) < AnnounceRange * AnnounceRange;
+            if (inRange && live is not null && !live.Any(e => e.Key == point.Item.Key && Math.Abs(e.X - point.X) < 300 && Math.Abs(e.Y - point.Y) < 300))
+            {
+                continue;
+            }
+
+            shown.Add(point);
+        }
+
+        foreach (var e in live ?? new())
+        {
+            if (items.TryGetValue(e.Key, out var item) && !shown.Any(s => s.Item.Key == e.Key && Math.Abs(s.X - e.X) < 300 && Math.Abs(s.Y - e.Y) < 300))
+            {
+                shown.Add((item, e.X, e.Y));
+            }
+        }
+
+        _gatherNamed = shown;
+        _gather = shown.Select(g => (g.Item.Kind, g.X, g.Y)).ToList();
+    }
     private DateTime _savedAt = DateTime.MinValue;
 
     /// <summary>Keeps the last known place (in memory at once, in the settings file every few seconds) for the times the position is not known.</summary>

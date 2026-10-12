@@ -412,7 +412,8 @@ public sealed class Aion2FrameDecoder
         }
 
         long envId = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 2)..]);
-        if (!IsHiddenCube(envId))
+        (string Kind, string Key)? what = IsHiddenCube(envId) ? ("Cube", "Hidden Cube") : Aion2Gather.Lookup(envId);
+        if (what is null)
         {
             return;
         }
@@ -421,7 +422,7 @@ public sealed class Aion2FrameDecoder
         float y = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 10)..]);
         if (float.IsFinite(x) && float.IsFinite(y) && Math.Abs(x) < 1_000_000 && Math.Abs(y) < 1_000_000)
         {
-            _entities.NoteCube(unchecked((int)entityId), x, y);
+            _entities.NoteEnv(unchecked((int)entityId), what.Value.Kind, what.Value.Key, x, y);
         }
     }
 
@@ -430,7 +431,7 @@ public sealed class Aion2FrameDecoder
         int p = 2;
         if (TryReadVarint(frame, ref p, out long entityId))
         {
-            _entities.ForgetCube(unchecked((int)entityId));
+            _entities.ForgetEnv(unchecked((int)entityId));
         }
     }
 
