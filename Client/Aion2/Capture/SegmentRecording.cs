@@ -24,7 +24,7 @@ public static class SegmentRecording
 
         public Writer(string path, bool append = false, bool autoFlush = true)
         {
-            _out = new StreamWriter(path, append) { AutoFlush = autoFlush };
+            _out = new StreamWriter(path, append, new System.Text.UTF8Encoding(false), 64 * 1024) { AutoFlush = autoFlush };
         }
 
         public int Count { get; private set; }

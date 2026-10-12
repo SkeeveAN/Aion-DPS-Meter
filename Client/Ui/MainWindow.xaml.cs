@@ -983,8 +983,9 @@ public partial class MainWindow : Window
         // mob selection means nothing once mobs are out of the picture entirely).
         // A specific numbered run (both _selectedRunWindow* set - see MobBossTag's own remarks)
         // narrows further to that one run's own time span, not the target's whole history.
+        Dictionary<int, bool> targetIsPlayer = new(); // the directory lookup takes a lock; once per target, not per hit
         var filtered = _pvpOnly
-            ? damageOnly.Where(ev => IsPlayerName(ev.TargetObjectId)).ToList()
+            ? damageOnly.Where(ev => targetIsPlayer.TryGetValue(ev.TargetObjectId, out bool known) ? known : targetIsPlayer[ev.TargetObjectId] = IsPlayerName(ev.TargetObjectId)).ToList()
             : _selectedTargetId is int targetId
                 ? ShownFightHits(damageOnly, targetId)
                 // The own-fight restriction belongs with the compact overlay's Group / Corps view; everywhere else the
@@ -1086,6 +1087,35 @@ public partial class MainWindow : Window
             _rowsByObjectId.Remove(staleId);
         }
 
+        // One pass over the events instead of one per player: in a raid (24 players, hundreds of thousands of
+        // hits) the per-player rescans, one of them sorting, froze the meter once a second.
+        Dictionary<int, long> damageById = new();
+        foreach (DamageEvent hit in filtered)
+        {
+            damageById[hit.SourceObjectId] = damageById.GetValueOrDefault(hit.SourceObjectId) + hit.Amount;
+        }
+
+        Dictionary<int, List<DamageEvent>>? allBySource = null;
+        if (!_pvpOnly && _selectedTargetId is null)
+        {
+            allBySource = new();
+            foreach (DamageEvent hit in _aggregator.Events)
+            {
+                if (!allBySource.TryGetValue(hit.SourceObjectId, out var list))
+                {
+                    allBySource[hit.SourceObjectId] = list = new List<DamageEvent>();
+                }
+
+                list.Add(hit);
+            }
+        }
+
+        Dictionary<int, List<DamageEvent>>? pvpBySource = null;
+        if (_pvpOnly)
+        {
+            pvpBySource = filtered.GroupBy(ev => ev.SourceObjectId).ToDictionary(g => g.Key, g => g.ToList());
+        }
+
         foreach (int sourceId in sourceIds)
         {
             if (!_rowsByObjectId.TryGetValue(sourceId, out var row))
@@ -1100,7 +1130,7 @@ public partial class MainWindow : Window
             // must update an already-existing row immediately, not just rows created after the fact.
             ApplyIdentity(row, sourceId);
 
-            row.Damage = filtered.Where(ev => ev.SourceObjectId == sourceId).Sum(ev => ev.Amount);
+            row.Damage = damageById.GetValueOrDefault(sourceId);
             // PVP mode's rate must come from the SAME PVP-only event set row.Damage above was
             // just summed from, not the unfiltered full history - same reasoning as the
             // Mob/Boss-filtered iDPS case below (see BuildEncounterUpload's own remarks on the
@@ -1110,10 +1140,10 @@ public partial class MainWindow : Window
             // one-source-of-truth reasoning the PVP branch above already follows (see
             // BuildEncounterUpload's own remarks on the totalDamage/idps bug this once caused).
             row.Dps = _pvpOnly
-                ? DpsCalculator.AllDpsWallClock(filtered, sourceId)
+                ? DpsCalculator.AllDpsWallClock(pvpBySource!.GetValueOrDefault(sourceId) ?? new List<DamageEvent>(), sourceId)
                 : _selectedTargetId is int t
                     ? BossFight.Dps(filtered, t, sourceId)
-                    : DpsCalculator.AllDpsWallClock(_aggregator.Events, sourceId);
+                    : DpsCalculator.AllDpsWallClock(allBySource!.GetValueOrDefault(sourceId) ?? new List<DamageEvent>(), sourceId);
             row.AllMode = _allMode;
             row.AllCompact = _allCompactMode;
             row.Healing = healingById.GetValueOrDefault(sourceId);

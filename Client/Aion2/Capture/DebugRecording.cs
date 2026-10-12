@@ -29,6 +29,13 @@ public static class DebugRecording
     private static string? _name; // the character the game named last
     private static long _lastFlushTick;
 
+    // Serialising and writing run on their own thread: before, every segment was written on the capture's
+    // worker, so a raid's traffic made the worker fall behind and the queue ate memory. When the writer cannot
+    // keep up the debug file loses segments; the meter does not.
+    private const int MaxPending = 20_000;
+    private static readonly System.Collections.Concurrent.BlockingCollection<TcpSegment> Pending = new(MaxPending);
+    private static Thread? _thread;
+
     public static string FolderPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter", "Debug");
 
@@ -103,6 +110,40 @@ public static class DebugRecording
             return;
         }
 
+        if (_thread is null)
+        {
+            lock (Gate)
+            {
+                _thread ??= StartThread();
+            }
+        }
+
+        Pending.TryAdd(segment);
+    }
+
+    private static Thread StartThread()
+    {
+        var thread = new Thread(() =>
+        {
+            foreach (TcpSegment segment in Pending.GetConsumingEnumerable())
+            {
+                if (_enabled)
+                {
+                    Record(segment);
+                }
+            }
+        })
+        {
+            IsBackground = true,
+            Name = "Debug recording writer",
+            Priority = ThreadPriority.BelowNormal,
+        };
+        thread.Start();
+        return thread;
+    }
+
+    private static void Record(TcpSegment segment)
+    {
         lock (Gate)
         {
             try
