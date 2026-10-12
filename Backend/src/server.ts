@@ -22,6 +22,7 @@ import { patchnoteRoutes } from "./routes/patchnotes.js";
 import { twitchDropsRoutes } from "./routes/twitchDrops.js";
 import { downloadRoutes } from "./routes/downloads.js";
 import { guildRoutes } from "./routes/guilds.js";
+import { devFeatureLayoutRoutes } from "./routes/devFeatureLayout.js";
 import { seoRoutes } from "./routes/seo.js";
 import { pageRoutes, sendNotFound } from "./routes/pages.js";
 
@@ -66,6 +67,7 @@ export async function buildServer() {
   await app.register(twitchDropsRoutes);
   await app.register(downloadRoutes);
   await app.register(guildRoutes);
+  await app.register(devFeatureLayoutRoutes);
   await app.register(seoRoutes);
   await app.register(pageRoutes);
 

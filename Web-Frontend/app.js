@@ -637,8 +637,10 @@ const FEATURE_BLOCKS = [
   { id: "announcements", images: [["announcements", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
   { id: "twitchdrops", images: [["twitchdrops", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
 ];
-const FEATURE_FLIPPED = new Set(["modes", "details", "network", "map", "worldboss", "announcements"]);
-const FEATURE_VERSION = "20261012e";
+// pictures offered in the designer as alternative backgrounds of a scene (images/features/alt/); the choice is saved as "bg" in feature-layout.json
+const FEATURE_BG_ALTERNATIVES = { announcements: ["announcements-1", "announcements-2", "announcements-3"], twitchdrops: ["twitchdrops-1", "twitchdrops-2", "twitchdrops-3"] };
+const FEATURE_FLIPPED = new Set(["modes", "details", "network", "timetable", "hotkeys", "twitchdrops"]);
+const FEATURE_VERSION = "20261012o";
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
@@ -685,7 +687,7 @@ function renderFeatures() {
       className: `fx-scene${FEATURE_FLIPPED.has(block.id) ? " flip" : ""}`,
       style: `--bg:url(/images/features/scene-${block.id}.webp?v=${FEATURE_VERSION});--tint:${FEATURE_TINTS[block.id]}`,
     }, [
-      el("div", { className: "fx-bg" }),
+      el("div", { className: "fx-bg", style: `background:url(/images/features/scene-${block.id}.webp?v=${FEATURE_VERSION}) center / cover no-repeat` }),
       el("div", { className: "fx-inner" }, [
         featureText(block),
         el("div", { className: "fx-stage" }, block.images.map(([name, width, height, opt], n) =>
@@ -742,6 +744,34 @@ function renderFeatures() {
   );
   spy();
   if (location.hash.startsWith("#feature-")) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  // Layout designer (localhost only): /features?design drags the texts and pictures and saves them to feature-layout.json
+  applyFeatureLayout(scenes).then(() => {
+    if (/[?&]design\b/.test(location.search) && ["127.0.0.1", "localhost"].includes(location.hostname)) import("/feature-designer.js").then((m) => m.startDesigner(scenes));
+  });
+}
+
+// feature-layout.json holds the hand-placed offsets (px at 1920 width) of each scene's text ("copy") and pictures ("win0", "win1"), written by the designer.
+function setFeatureOffset(node, pos) {
+  node.style.setProperty("--dx", `${pos?.[0] ?? 0}px`);
+  node.style.setProperty("--dy", `${pos?.[1] ?? 0}px`);
+}
+async function applyFeatureLayout(scenes) {
+  let layout = {};
+  try {
+    const res = await fetch("/feature-layout.json", { cache: "no-store" });
+    if (res.ok) layout = await res.json();
+  } catch { /* no saved layout yet */ }
+  window.fxLayout = layout;
+  window.fxBgAlternatives = FEATURE_BG_ALTERNATIVES;
+  window.fxVersion = FEATURE_VERSION;
+  for (const scene of scenes) {
+    const saved = layout[scene.id.replace("feature-", "")];
+    if (!saved) continue;
+    if (saved.bg && FEATURE_BG_ALTERNATIVES[scene.id.replace("feature-", "")]?.includes(saved.bg)) scene.querySelector(".fx-bg").style.background = `url(/images/features/alt/${saved.bg}.webp?v=${FEATURE_VERSION}) center / cover no-repeat`;
+    const copy = scene.querySelector(".fx-copy");
+    if (copy && saved.copy) setFeatureOffset(copy, saved.copy);
+    scene.querySelectorAll(".fx-win").forEach((win, n) => { if (saved[`win${n}`]) setFeatureOffset(win, saved[`win${n}`]); });
+  }
 }
 
 async function renderDownload() {

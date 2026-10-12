@@ -2885,7 +2885,7 @@ body:has(.download-hero) .nav-download-link:hover,
 /* Features-Seite: Szenen im Seiten-Container (1872 px bei 1920), Farben der Seite über --color-*, Text auf Bildern bleibt hell in Dark UND Light */
 .fx-page{--fx-on:#f4f7fa;--fx-muted:#c3cdd6;--fx-accent:#ffba42}
 .fx-scene,.fx-hero{position:relative;overflow:hidden;isolation:isolate;border:1px solid var(--color-border);border-radius:var(--radius-card);margin-bottom:16px;color:var(--fx-on)}
-.fx-bg{position:absolute;inset:0;background:var(--bg) center/cover no-repeat;z-index:0}
+.fx-bg{position:absolute;inset:0;background-image:var(--bg);background-position:center !important;background-size:cover !important;background-repeat:no-repeat !important;z-index:0}
 .fx-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,13,18,.9),rgba(9,13,18,.55) 50%,rgba(9,13,18,.3))}
 .fx-scene.flip .fx-bg::after{background:linear-gradient(270deg,rgba(9,13,18,.9),rgba(9,13,18,.55) 50%,rgba(9,13,18,.3))}
 .fx-inner{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:48px;align-items:center;padding:48px 48px}
@@ -3012,12 +3012,12 @@ body:has(.download-hero) .nav-download-link:hover,
 @media(min-width:1101px){#feature-overlay .fx-stage{flex-direction:column;align-items:flex-end}#feature-overlay .fx-win+.fx-win{margin-left:0;margin-top:-45px}}
 @media(min-width:1700px){#feature-overlay .fx-win:first-child{translate:270px 0}#feature-overlay .fx-win+.fx-win{translate:330px 0}}
 @media(min-width:1700px) and (max-width:1849px){#feature-overlay .fx-win:first-child{translate:190px 0}#feature-overlay .fx-win+.fx-win{translate:250px 0}}
-@media(min-width:1101px){#feature-overlay .fx-win:first-child,#feature-overlay .fx-win+.fx-win{translate:0 0 !important}#feature-overlay .fx-stage{padding-right:20px}#feature-overlay .fx-win:first-child{margin-right:90px}#feature-overlay .fx-win+.fx-win{margin-right:0}}
+@media(min-width:1101px){#feature-overlay .fx-win:first-child,#feature-overlay .fx-win+.fx-win{}#feature-overlay .fx-stage{padding-right:20px}#feature-overlay .fx-win:first-child{margin-right:90px}#feature-overlay .fx-win+.fx-win{margin-right:0}}
 @media(min-width:1101px){#feature-character .fx-stage{flex-direction:column;align-items:flex-end;padding-right:20px;justify-content:center}
- #feature-character .fx-win:first-child,#feature-character .fx-win+.fx-win{translate:0 0 !important}
+
  #feature-character .fx-win:first-child{margin-right:110px}
  #feature-character .fx-win+.fx-win{margin:-70px 0 0 0}}
-#feature-worldboss .fx-win{--a:21deg}
+#feature-worldboss .fx-win{--a:-21deg}
 /* schmale Zweitfenster wirken bei gleichem Winkel flacher: leicht stärker kippen, damit beide gleich geneigt aussehen */
 .fx-scene .fx-win+.fx-win{--a:-23deg}.fx-scene.flip .fx-win+.fx-win{--a:23deg}
 @media(min-width:1700px){#feature-map .fx-win+.fx-win{translate:-325px 0}}
@@ -3031,7 +3031,7 @@ body:has(.download-hero) .nav-download-link:hover,
 .fx-win{transform:none !important}
 .fx-stage{transform:perspective(2400px) rotateY(var(--sa,-16deg))}
 .fx-scene.flip .fx-stage{--sa:16deg}
-#feature-worldboss .fx-stage{--sa:21deg}
+#feature-worldboss .fx-stage{--sa:-21deg}
 @media(max-width:1100px){.fx-stage{transform:perspective(1400px) rotateY(calc(var(--sa,-16deg) * .6))}}
 @media(min-width:1700px){#feature-timetable .fx-win{translate:295px 0}}
 @media(min-width:1101px){#feature-hotkeys .fx-win:first-child{translate:75px 0}#feature-hotkeys .fx-win+.fx-win{translate:0 40px}}
@@ -3566,4 +3566,18 @@ body:has(.download-hero) .nav-download-link:hover,
 :root[data-theme="light"] #nav-twitch-drops.active, :root[data-theme="light"] #nav-twitch-drops[aria-current] { color: #4f1fa8; background: color-mix(in srgb, #9146ff 16%, transparent); border-color: color-mix(in srgb, #9146ff 55%, transparent); }
 
 /* network scene: the settings window behind the overlay sits a little further right (on every screen size) */
-#feature-network .fx-win:first-child{translate:100px 0}
+/* hotkeys scene is on the left now (the network scene before it shifted the alternation): stage to the left edge */
+@media(min-width:1101px){#feature-hotkeys .fx-stage{justify-content:flex-start;margin-left:24px}#feature-hotkeys .fx-win:first-child{translate:0 0}}
+/* network scene: same distance to the left edge as the details scene, the overlay picture lies in front of the settings window */
+@media(min-width:1101px){#feature-network .fx-stage{margin-left:44px}}
+#feature-network .fx-win+.fx-win{position:relative;z-index:2}
+/* all scenes: text and pictures sit the same distance from the frame (100px at 1920, less on narrower windows); the designer's offsets (feature-layout.json) move from there */
+@media(min-width:1101px){
+ .fx-scene .fx-inner{padding-inline:clamp(48px,5.2083vw,100px)}
+ .fx-scene .fx-stage{margin:0 !important;justify-content:flex-end;padding:0 !important}
+ .fx-scene.flip .fx-stage{justify-content:flex-start}
+ .fx-scene .fx-copy{min-width:0;max-width:100%}
+ .fx-scene .fx-win,.fx-scene .fx-copy{translate:var(--dx,0px) var(--dy,0px) !important}
+ #feature-overlay .fx-win{margin-right:0 !important}
+}
+@media(min-width:1101px){#feature-details .fx-copy{margin-right:0 !important}}
