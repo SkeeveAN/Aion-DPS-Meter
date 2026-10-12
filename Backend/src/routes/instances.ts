@@ -2,7 +2,7 @@ import { ne, eq, and, asc, count, desc, inArray } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounters, instances, serverCatalogInstances } from "../db/schema.js";
-import { DEFAULT_GAME, isGame, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
+import { CATEGORY_MODES, DEFAULT_GAME, isGame, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { parseIdOrSlug } from "../seo/slug.js";
 import { selectServer, serversWithEncountersForBossIds, statsForBossIds } from "./bosses.js";
 
@@ -108,7 +108,7 @@ export async function instanceRoutes(app: FastifyInstance) {
   // pills and, later, an instance-level "Statistiken" tab. Server scoping mirrors a boss
   // leaderboard exactly (see bosses.ts selectServer/statsForBossIds): never merged across
   // classic-Aion servers, combined by default only for Aion 2.
-  app.get<{ Params: { id: string }; Querystring: { game?: string; serverId?: string; server?: string } }>(
+  app.get<{ Params: { id: string }; Querystring: { game?: string; serverId?: string; server?: string; mode?: string } }>(
     "/api/instances/:id/stats",
     async (request, reply) => {
       const game = gameFromQuery(request.query.game, reply);
@@ -147,8 +147,24 @@ export async function instanceRoutes(app: FastifyInstance) {
         });
       }
       const scope = combined ? null : selected!.id;
-      const stats = statsForBossIds(bossIds, scope);
-      return reply.send({ instanceId: instance.id, servers: serverList, selectedServerId: scope, combined, ...stats });
+      // Difficulty steps of this instance's category (Transcendence stage, Ascension step, ...) with their run counts, and the
+      // chosen one narrowing the figures; an unknown or missing step means every step together.
+      const stepNames = CATEGORY_MODES[instance.category ?? ""] ?? [];
+      const stepRuns = new Map(
+        bossIds.length === 0
+          ? []
+          : db
+              .select({ mode: encounters.mode, runs: count(encounters.id) })
+              .from(encounters)
+              .where(inArray(encounters.bossId, bossIds))
+              .groupBy(encounters.mode)
+              .all()
+              .map((r) => [r.mode, r.runs] as const),
+      );
+      const modes = stepNames.length === 0 ? [] : stepNames.map((mode) => ({ mode, runs: stepRuns.get(mode) ?? 0 }));
+      const selectedMode = stepNames.includes(request.query.mode ?? "") ? request.query.mode! : null;
+      const stats = statsForBossIds(bossIds, scope, selectedMode);
+      return reply.send({ instanceId: instance.id, servers: serverList, selectedServerId: scope, combined, modes, selectedMode, ...stats });
     },
   );
 

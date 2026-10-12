@@ -193,6 +193,7 @@ export default {
   "mode.stage": "Stufe {n}",
   "mode.unknown": "Stufe unbekannt",
   "mode.heading": "Schwierigkeit",
+  "mode.all": "Alle",
   "nm.challenge": "Herausforderungsstufe – jede Stufe hat ihre eigene Rangliste",
   "nm.pickLevel": "Stufe wählen",
   "nm.runs": "Läufe",

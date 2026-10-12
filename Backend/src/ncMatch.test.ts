@@ -352,3 +352,43 @@ test("a confirmed id whose class does not fit what the game shows is not him: wi
   assert.equal((sqlite.prepare("select nc_character_id c from player_nc_match where player_id = ?").get(idTwo) as { c: string }).c, "idKlasse3");
   assert.equal((sqlite.prepare("select count(*) c from player_nc_character where player_id = ?").get(idTwo) as { c: number }).c, 0, "the old character's data is gone");
 });
+
+// --- gear score: the last tie-breaker when name, class, level and legion leave several characters ---
+function gearAnswer(name: string, levels: Record<string, number | null>) {
+  return (async (input: unknown) => {
+    const url = String(input);
+    if (url.includes("/character/info")) {
+      const key = Object.keys(levels).find((k) => url.includes(k)) as string;
+      const stats = [{ name: "STR", type: "STR", value: 10, statSecondList: [] }, ...(levels[key] === null ? [] : [{ name: "ItemLevel", type: "ItemLevel", value: levels[key], statSecondList: [] }])];
+      return new Response(JSON.stringify({ profile: { characterName: name, regionName: "", characterLevel: 45 }, stat: { statList: stats } }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ list: Object.keys(levels).map((k, i) => raw({ name, serverId: 1304 + i, characterId: k })), pagination: { endPage: 1 } }), { status: 200 });
+  }) as unknown as typeof fetch;
+}
+const profileOf = (id: number, gearScore: number | null, source: "seen" | "nc" = "seen") =>
+  db.insert(playerProfiles).values({ playerId: id, source, updatedAt: "2026-10-12 00:00:00", gearScore }).run();
+
+test("the gear score the game showed picks the one candidate whose item level fits", async () => {
+  const id = player("Gearzwilling", kaisinel);
+  profileOf(id, 1500);
+  assert.equal(await processMatch(id, gearAnswer("Gearzwilling", { charAaaa1: 1520, charBbbb2: 2300 }), 1_000_000), "verified");
+  assert.equal(matchRow(id)?.via, "gear");
+  assert.equal(matchRow(id)?.s, 1304);
+});
+
+test("gear stays open when two candidates fit, one is in the grey zone, one has no item level, or the gear score is missing or came from NC", async () => {
+  const both = player("Gearbeide", kaisinel);
+  profileOf(both, 1500);
+  assert.equal(await processMatch(both, gearAnswer("Gearbeide", { charAaaa1: 1510, charBbbb2: 1530 }), 1_000_000), "ambiguous");
+  const grey = player("Geargrau", kaisinel);
+  profileOf(grey, 1500);
+  assert.equal(await processMatch(grey, gearAnswer("Geargrau", { charAaaa1: 1520, charBbbb2: 1380 }), 1_000_000), "ambiguous", "1380 is -8 %: too close to rule out");
+  const blank = player("Gearleer", kaisinel);
+  profileOf(blank, 1500);
+  assert.equal(await processMatch(blank, gearAnswer("Gearleer", { charAaaa1: 1520, charBbbb2: null }), 1_000_000), "ambiguous");
+  const none = player("Gearohne", kaisinel);
+  assert.equal(await processMatch(none, gearAnswer("Gearohne", { charAaaa1: 1520, charBbbb2: 2300 }), 1_000_000), "ambiguous");
+  const fromNc = player("Gearnc", kaisinel);
+  profileOf(fromNc, 1500, "nc");
+  assert.equal(await processMatch(fromNc, gearAnswer("Gearnc", { charAaaa1: 1520, charBbbb2: 2300 }), 1_000_000), "ambiguous", "NC's own number proves nothing about NC's characters");
+});

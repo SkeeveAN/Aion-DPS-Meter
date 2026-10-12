@@ -77,6 +77,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         groupIDps: encounters.groupIDps,
         mergedUploadCount: encounters.mergedUploadCount,
         bossMaxHp: encounters.bossMaxHp,
+        mode: encounters.mode,
         // Which server this run actually happened on - so a page reached from a cross-server list
         // (homepage "recent activity"/"top players") can bring the visitor's server context back in
         // sync with the run they clicked, instead of leaving it pointed at whichever server they'd
@@ -198,6 +199,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         bossName: bosses.name,
         startedAt: encounters.startedAt,
         durationSeconds: encounters.durationSeconds,
+        mode: encounters.mode,
         game: instances.game,
         instanceName: instances.name,
         instanceNameEn: instances.nameEn,

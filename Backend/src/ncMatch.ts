@@ -5,7 +5,7 @@ import { AION2_CLASS_BY_ID } from "./constants.js";
 import { canonicalServer } from "./content/aion2Servers.js";
 import { linkPlayerGuild } from "./guilds.js";
 import { normalizeName } from "./matching/roster.js";
-import { PortraitQueue, decodeCharacterId, dropNcData, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
+import { PortraitQueue, decodeCharacterId, dropNcData, fetchCharacterLook, fetchCharacterProfile, MAX_SEARCH_BYTES, SEARCH_URL, getNc, ncFetch, portraitQueue, type PlayerKey } from "./portraitService.js";
 import { playerPortraits, playerNcCharacter } from "./db/schema.js";
 import { EVENT_STALE_AFTER, PRIORITY, type Priority } from "./refreshPolicy.js";
 
@@ -80,9 +80,11 @@ export type Subject = {
   legionServers: number[];
   /** His legion's name as the game reported it, "" when none. */
   guild?: string;
+  /** His gear score as the game showed it (a client's inspect, never NC's own number); null when unknown. */
+  gearScore?: number | null;
 };
 
-export type Decision = { status: "verified" | "ambiguous" | "none"; hit: Hit | null; via: "name" | "legion" | "legion-name" | null; candidates: number; /** The characters still in question when ambiguous. */ remaining?: Hit[] };
+export type Decision = { status: "verified" | "ambiguous" | "none"; hit: Hit | null; via: "name" | "legion" | "legion-name" | "gear" | null; candidates: number; /** The characters still in question when ambiguous. */ remaining?: Hit[] };
 
 const RACE_OF = { Elyos: 1, Asmodian: 2 } as const;
 
@@ -152,6 +154,41 @@ export async function decideByLegion(fetchFn: FetchFn, remaining: Hit[], subject
   return fits.length === 1 ? fits[0] : null;
 }
 
+/** A candidate whose item level is this close to the gear score the game showed (from -3 % to +12 %: gear only grows, and the game's number may be days old) can be him. */
+const GEAR_NEAR = { min: 0.97, max: 1.12 };
+/** A candidate this far off (below -10 % or above +30 %) cannot be him; anything in between is too close to call. */
+const GEAR_FAR = { min: 0.9, max: 1.3 };
+
+/**
+ * Settles an ambiguous name by gear: the game showed his gear score, NC's character page names the item level of each candidate (the same number,
+ * one look each). Exactly one candidate near it while every other one is clearly off is him; a candidate without an item level, or one in the grey
+ * zone in between, leaves it open. Network problems throw.
+ */
+export async function decideByGear(fetchFn: FetchFn, remaining: Hit[], subject: Subject, shard: string): Promise<Hit | null> {
+  const ours = subject.gearScore ?? 0;
+  if (ours <= 0 || remaining.length === 0 || remaining.length > MAX_LEGION_CANDIDATES) {
+    return null;
+  }
+  const near: Hit[] = [];
+  for (const h of remaining) {
+    const characterId = decodeCharacterId(h.characterId);
+    if (!characterId) {
+      return null;
+    }
+    const itemLevel = (await fetchCharacterLook(fetchFn, { characterId, serverId: h.serverId }, shard)).data?.itemLevel ?? null;
+    if (!itemLevel) {
+      return null;
+    }
+    const ratio = itemLevel / ours;
+    if (ratio >= GEAR_NEAR.min && ratio <= GEAR_NEAR.max) {
+      near.push(h);
+    } else if (ratio >= GEAR_FAR.min && ratio <= GEAR_FAR.max) {
+      return null;
+    }
+  }
+  return near.length === 1 ? near[0] : null;
+}
+
 /** Every character of that name NC lists in a region, optionally of one race or on one server (at most three pages of 40; the search is a prefix/substring search, so exact names are picked later). */
 export async function searchHits(fetchFn: FetchFn, name: string, shard: string, filter: { race?: 1 | 2; serverId?: number } = {}): Promise<Hit[]> {
   const all: Hit[] = [];
@@ -214,7 +251,7 @@ function subjectOf(player: PlayerRow): Subject {
     .where(and(eq(encounterParticipants.playerId, player.id), ne(encounterParticipants.className, ""), ne(encounterParticipants.className, "?")))
     .orderBy(sql`${encounterParticipants.id} desc`)
     .get();
-  const profile = db.select({ classId: playerProfiles.classId, level: playerProfiles.level }).from(playerProfiles).where(eq(playerProfiles.playerId, player.id)).get();
+  const profile = db.select({ classId: playerProfiles.classId, level: playerProfiles.level, gearScore: playerProfiles.gearScore, source: playerProfiles.source }).from(playerProfiles).where(eq(playerProfiles.playerId, player.id)).get();
   const profileClass = profile?.classId ? AION2_CLASS_BY_ID[profile.classId] : undefined;
   return {
     name: player.name,
@@ -224,6 +261,8 @@ function subjectOf(player: PlayerRow): Subject {
     level: profile?.level ?? null,
     legionServers: legionServersOf(player),
     guild: player.guild ?? "",
+    // A profile that came from NC holds NC's own number: no independent proof for picking among NC's characters.
+    gearScore: profile && profile.source !== "nc" ? profile.gearScore : null,
   };
 }
 
@@ -355,6 +394,11 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
       const byLegion = await decideByLegion(fetchFn, decision.remaining, subject, shard);
       if (byLegion) {
         decision = { status: "verified", hit: byLegion, via: "legion-name", candidates: decision.candidates };
+      } else {
+        const byGear = await decideByGear(fetchFn, decision.remaining, subject, shard);
+        if (byGear) {
+          decision = { status: "verified", hit: byGear, via: "gear", candidates: decision.candidates };
+        }
       }
     }
   } catch {

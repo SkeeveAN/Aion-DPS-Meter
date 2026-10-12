@@ -1674,7 +1674,7 @@ function bossCrumbs(e) {
           : link(displayName({ name: e.instanceName, nameEn: e.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${e.instanceSlug}`)),
       ]
     : [];
-  return [...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), ...tail, link(translateGameName(e.bossName), gp(`/bosses/${e.bossId}`))];
+  return [...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), ...tail, link([translateGameName(e.bossName), modeStars(e.mode)].filter(Boolean).join(" "), gp(`/bosses/${e.bossId}${e.mode ? `?mode=${encodeURIComponent(e.mode)}` : ""}`))];
 }
 
 function areaCrumbs(instance) {
@@ -1714,6 +1714,12 @@ function instanceFactCard(i, { chips = [], label } = {}) {
     text.push(el("div", { className: "ip-chips" }, chips.map((c) => el("span", { className: "ip-chip", textContent: c }))));
   }
   return el("a", { className: "ip-card", href: gp(areaPath(i)) }, [photo ? icon(smallPhoto(photo), "ip-photo") : null, el("div", { className: "ip-text" }, text)].filter((x) => x != null));
+}
+
+/** A difficulty step as gold stars (Nightmare level / Transcendence stage 1-10, Ascension easy-extreme 1-4); "" for none or unknown. */
+function modeStars(mode) {
+  const n = /^\d+$/.test(mode ?? "") ? Number(mode) : { easy: 1, medium: 2, hard: 3, extreme: 4 }[mode] ?? 0;
+  return n > 0 && n <= 10 ? "★".repeat(n) : "";
 }
 
 function modeLabel(mode) {
@@ -2002,12 +2008,15 @@ async function renderWorldBosses() {
   }
 }
 
-async function renderBosses(instanceSlug) {
+async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.bosses")]);
   showLoading(t("loading.bosses"));
 
   // Combined across the servers, like a boss leaderboard (see renderLeaderboard).
   const statsQuery = new URLSearchParams({ game: currentGame });
+  if (params.get("mode")) {
+    statsQuery.set("mode", params.get("mode"));
+  }
 
   // The bosses endpoint doesn't carry the instance's own name (see Backend/src/routes/instances.ts)
   // - fetched separately (the instances list is tiny) rather than adding a field there just for
@@ -2025,6 +2034,19 @@ async function renderBosses(instanceSlug) {
   }
 
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
+  // Difficulty steps of Transcendence / Ascension / Nightmare instances: the chosen one narrows the figures above and
+  // the boss cards open that step's ranking.
+  const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
+  const modeQuery = stats.selectedMode ? `?mode=${encodeURIComponent(stats.selectedMode)}` : "";
+  if (stats.modes?.length) {
+    hero.push(
+      el("nav", { className: "mode-chips" }, [
+        el("span", { textContent: t("mode.heading") }),
+        el("a", { className: `mode-chip${stats.selectedMode ? "" : " active"}`, href: instancePath, textContent: t("mode.all") }),
+        ...stats.modes.map((m) => el("a", { className: `mode-chip${m.mode === stats.selectedMode ? " active" : ""}`, href: `${instancePath}?mode=${encodeURIComponent(m.mode)}` }, [modeLabel(m.mode), el("small", { textContent: String(m.runs) })])),
+      ]),
+    );
+  }
   if (bosses.length === 0) {
     app.replaceChildren(...hero, el("p", { className: "empty", textContent: t("bosses.emptyNoBosses") }));
     return;
@@ -2044,7 +2066,7 @@ async function renderBosses(instanceSlug) {
   const grid = el(
     "div",
     { className: "poster-grid" },
-    sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}`), BOSS_CARDS[b.name] ?? BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), BOSS_CARDS[b.name] ? "center" : BOSS_IMAGES[b.name] ? "64% center" : "top")),
+    sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}${modeQuery}`), BOSS_CARDS[b.name] ?? BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), BOSS_CARDS[b.name] ? "center" : BOSS_IMAGES[b.name] ? "64% center" : "top")),
   );
   app.replaceChildren(...hero, el("h2", { textContent: t("bosses.heading") }), grid);
 }
@@ -2364,7 +2386,7 @@ async function renderLeaderboard(bossSlug, params) {
     data.boss.instanceCategory === "nightmare"
       ? link(t("category.nightmare"), gp("/instances/nightmare"))
       : link(displayName({ name: data.boss.instanceName, nameEn: data.boss.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${data.boss.instanceSlug}`));
-  setBreadcrumb([...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), instanceCrumb, bossName]);
+  setBreadcrumb([...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), instanceCrumb, [bossName, modeStars(data.selectedMode)].filter(Boolean).join(" ")]);
 
   const hero = bossHero(data);
   // Difficulty steps (Nightmare level, Ascension difficulty, ...): each one is ranked on its own.
@@ -4014,11 +4036,11 @@ async function route() {
     } else if (section === "worldbosses" && !param) {
       await renderWorldBosses();
     } else if (section === "worldbosses") {
-      await renderBosses(param);
+      await renderBosses(param, params);
     } else if (section === "instances" && (!param || INSTANCE_TAB_ORDER.includes(param))) {
       await renderInstances(param, segments[2]);
     } else if (section === "instances") {
-      await renderBosses(param);
+      await renderBosses(param, params);
     } else if (section === "bosses" && param) {
       await renderLeaderboard(param, params);
     } else if (section === "encounters" && param) {
