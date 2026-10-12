@@ -32,6 +32,7 @@ namespace AionDPS.Ui;
 public partial class MainWindow : Window
 {
     private readonly ObservableCollection<PlayerRow> _rows = new();
+    private ListCollectionView? _playersView;
 
     private readonly Dictionary<int, PlayerRow> _rowsByObjectId = new();
     private readonly Dictionary<int, string> _targetNames = new();
@@ -253,6 +254,7 @@ public partial class MainWindow : Window
         // SortDescriptions only sorts once, at binding time; without live sorting the row order
         // would freeze after the initial snapshot and never reflect who's actually ahead now.
         var playersView = (ListCollectionView)CollectionViewSource.GetDefaultView(_rows);
+        _playersView = playersView;
         playersView.SortDescriptions.Add(new SortDescription(nameof(PlayerRow.Damage), ListSortDirection.Descending));
         playersView.IsLiveSorting = true;
         playersView.LiveSortingProperties.Add(nameof(PlayerRow.Damage));
@@ -1306,6 +1308,9 @@ public partial class MainWindow : Window
 
     private void RankRows()
     {
+        // Live sorting alone left the list in the previous mode's order after a switch (PVE -> PVP kept the
+        // PVE ranking); re-sorting explicitly here covers every mode, since each refresh ends in RankRows.
+        _playersView?.Refresh();
         long shownTotal = _rows.Sum(r => r.Damage);
         // In Taken mode the bar is drawn to the damage that got through, behind it a blue one to the absorbed
         // damage on top; both scale to the biggest of the two together.
