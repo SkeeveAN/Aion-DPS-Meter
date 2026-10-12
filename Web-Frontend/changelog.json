@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.41.2",
+  "date": "2026-10-12",
+  "items": [
+   {
+    "text": "The interactive map sits about 80 m closer to the game's own map in Verteron, the arrow points the way you move, collectibles disappear when the game no longer announces them, Hidden Cubes show only when one is near, and the position no longer jumps back and forth",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-12"
+   }
+  ]
+ },
+ {
   "version": "0.41.1",
   "date": "2026-10-12",
   "items": [
