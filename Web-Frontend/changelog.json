@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.41.5",
+  "date": "2026-10-12",
+  "items": [
+   {
+    "text": "A thousand fights at once no longer overload the meter: the list keeps running totals and takes in only new hits instead of recounting the whole history every second, the player lookup no longer sorts everybody for every row, and the fight history sorts hits into targets in one pass",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-12"
+   }
+  ]
+ },
+ {
   "version": "0.41.4",
   "date": "2026-10-12",
   "items": [
