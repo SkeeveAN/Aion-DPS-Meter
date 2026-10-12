@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-12",
+  "items": [
+   {
+    "text": "Features page: pictures and texts alternate sides again, every picture and text keeps the same distance to the frame, new backgrounds for the network, announcements and Twitch Drops sections",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-12"
+   }
+  ]
+ },
+ {
   "version": "0.40.4",
   "date": "2026-10-12",
   "items": [
@@ -29,13 +43,6 @@
   "version": "0.40.2",
   "date": "2026-10-12",
   "items": [
-   {
-    "text": "Features page: the settings picture of the network section is shifted on every screen size",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-12"
-   },
    {
     "text": "The target dropdown (All Targets) sits on its own row across the full window width, so the whole name of a boss can be read",
     "areas": [
@@ -67,13 +74,6 @@
    },
    {
     "text": "The network section on the Features page has its own background picture",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-12"
-   },
-   {
-    "text": "The settings picture in the network section of the Features page sits further to the right",
     "areas": [
      "Website"
     ],
