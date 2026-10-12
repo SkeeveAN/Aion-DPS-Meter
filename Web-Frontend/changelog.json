@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.41.3",
+  "date": "2026-10-12",
+  "items": [
+   {
+    "text": "Switching to PvP sorts the list by PvP damage instead of keeping the PvE order",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-12"
+   }
+  ]
+ },
+ {
   "version": "0.41.2",
   "date": "2026-10-12",
   "items": [
