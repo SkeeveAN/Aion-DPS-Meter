@@ -131,8 +131,9 @@ const ASCENSION_STEPS = ["easy", "medium", "hard", "extreme"];
  * 2320), so nothing is derived from a pattern; unknown ids leave the step empty ("Stage unknown" on the boss page).
  */
 const TRANSCENDENCE_STEPS: Readonly<Record<string, Readonly<Record<number, string>>>> = {
-  "shattered-arkanis": { 2330: "1", 2350: "2" },
-  "deus-research-base": { 2320: "1", 2340: "2" },
+  // Stages 3 and 4 (2370 / 2390, 2360 / 2380) continue the +20 per stage seen so far; not yet confirmed by a fight.
+  "shattered-arkanis": { 2330: "1", 2350: "2", 2370: "3", 2390: "4" },
+  "deus-research-base": { 2320: "1", 2340: "2", 2360: "3", 2380: "4" },
 };
 
 function resolveBossId(payload: UploadPayload): number {

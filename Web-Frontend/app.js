@@ -407,7 +407,7 @@ function buildTopPlayersSection(rows, game) {
       classEmblem(r.className, false, true),
       el("span", { className: "hp-who" }, [
         el("b", { textContent: r.playerName }),
-        el("span", { textContent: [displayName({ name: r.bossName, nameEn: r.bossNameEn }), serverLabel(r.serverName)].filter(Boolean).join(" · ") }),
+        el("span", { textContent: [withStars(displayName({ name: r.bossName, nameEn: r.bossNameEn }), r.mode), serverLabel(r.serverName)].filter(Boolean).join(" · ") }),
       ]),
       el("span", { className: "hp-score" }, [el("b", { textContent: formatNumber(r.idps) }), el("span", { textContent: t("leaderboard.idpsShort") })]),
       el("i", { className: "hp-fill", style: `width:${(r.idps / best) * 100}%` }),
@@ -430,7 +430,7 @@ function buildRecentActivitySection(rows) {
       el("span", { className: "hp-thumb", style: photo ? `background-image:url('${smallPhoto(photo)}')` : "" }),
       el("span", { className: "hp-run-mid" }, [
         el("b", {}, [
-          displayName({ name: r.bossName, nameEn: r.bossNameEn }),
+          withStars(displayName({ name: r.bossName, nameEn: r.bossNameEn }), r.mode),
           // A Nightmare run carries its difficulty step (1-10) in the mode.
           ...(r.instanceCategory === "nightmare" && /^\d+$/.test(r.mode ?? "")
             ? [el("span", { className: "hp-nm-pill", textContent: `${t("category.nightmare")} ${r.mode}` })]
@@ -1722,6 +1722,11 @@ function modeStars(mode) {
   return n > 0 && n <= 10 ? "★".repeat(n) : "";
 }
 
+/** A boss name followed by its difficulty step as stars ("Nazmun ★★"). */
+function withStars(name, mode) {
+  return [name, modeStars(mode)].filter(Boolean).join(" ");
+}
+
 function modeLabel(mode) {
   if (mode === "") {
     return t("mode.unknown"); // runs whose difficulty step the client could not tell
@@ -2707,7 +2712,7 @@ async function renderEncounter(encounterId) {
   }
   heroChildren.push(
     el("div", { className: "instance-hero-content" }, [
-      el("h1", { className: "instance-hero-title", textContent: bossName }),
+      el("h1", { className: "instance-hero-title", textContent: withStars(bossName, data.encounter.mode) }),
       el("div", { className: "instance-hero-meta" }, pills),
     ]),
   );
@@ -2815,7 +2820,7 @@ async function renderParticipant(participantId) {
       el("span", { className: "pt-emb" }, [classEmblem(p.className, false)]),
       el("div", {}, [
         el("h2", {}, [p.playerName, profileIcon({ hasProfile: true, playerId: p.playerId, playerSlug: p.playerSlug, profileKind: p.profileKind, profileNc: p.profileNc })]),
-        el("div", { className: "pt-sub", textContent: `${translateGameName(e.bossName)} · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}` }),
+        el("div", { className: "pt-sub", textContent: `${withStars(translateGameName(e.bossName), e.mode)} · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}` }),
         el("div", { className: "pt-tags" }, tags),
       ]),
     ]),
@@ -3464,7 +3469,7 @@ function renderRunsTab(history) {
   const rows = history.map((h) =>
     el("tr", {}, [
       el("td", { textContent: formatDate(new Date(h.startedAt)) }),
-      el("td", {}, [link(translateGameName(h.bossName), gp(`/encounters/${h.encounterId}`))]),
+      el("td", {}, [link(withStars(translateGameName(h.bossName), h.mode), gp(`/encounters/${h.encounterId}`))]),
       el("td", {}, [iconLabel(classIcon(h.className), h.className)]),
       el("td", { textContent: formatNumber(h.totalDamage) }),
       el("td", { textContent: formatNumber(h.idps) }),
