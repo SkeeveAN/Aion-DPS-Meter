@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.41.4",
+  "date": "2026-10-12",
+  "items": [
+   {
+    "text": "Big raids no longer bring the PC to a halt: the list is worked out in one pass instead of once per player, and the debug recording writes on its own thread and gives up segments instead of slowing the meter",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-12"
+   }
+  ]
+ },
+ {
   "version": "0.41.3",
   "date": "2026-10-12",
   "items": [
