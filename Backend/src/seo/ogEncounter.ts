@@ -108,12 +108,23 @@ export interface FightRow {
 
 export interface Fight {
   boss: string;
+  /** The boss's difficulty step in words ("Stage 2"), "" when it has none. */
+  step: string;
   instance: string;
   art: string | undefined;
   durationSeconds: number;
   groupIDps: number;
   playerCount: number;
   rows: FightRow[];
+}
+
+/** The difficulty step as the preview words it: Nightmare "Level 7" / "Stufe 7", Transcendence "Stage 2" / "Stufe 2", Ascension "Hard" / "Schwer". */
+function stepLabel(category: string | null, mode: string, lang: string): string {
+  if (mode === "") return "";
+  const de = lang === "de";
+  if (/^\d+$/.test(mode)) return `${de ? "Stufe" : category === "nightmare" ? "Level" : "Stage"} ${mode}`;
+  const names: Record<string, [string, string]> = { easy: ["Easy", "Leicht"], medium: ["Medium", "Mittel"], hard: ["Hard", "Schwer"], extreme: ["Extreme", "Extrem"] };
+  return names[mode]?.[de ? 1 : 0] ?? "";
 }
 
 function translated(name: string, lang: string): string {
@@ -132,6 +143,8 @@ function loadFight(game: Game, id: number, lang: string): Fight | null {
       bossNameEn: bosses.nameEn,
       instanceName: instances.name,
       instanceNameEn: instances.nameEn,
+      instanceCategory: instances.category,
+      mode: encounters.mode,
       instanceGame: instances.game,
     })
     .from(encounters)
@@ -164,6 +177,7 @@ function loadFight(game: Game, id: number, lang: string): Fight | null {
   const instanceEn = row.instanceNameEn ?? row.instanceName;
   return {
     boss: translated(bossEn, lang),
+    step: stepLabel(row.instanceCategory, row.mode, lang),
     instance: translated(instanceEn, lang),
     art: bossImage(row.bossName, row.instanceName) ?? bossImage(bossEn, instanceEn),
     durationSeconds: row.durationSeconds,
@@ -180,7 +194,12 @@ export function buildSvg(fight: Fight, lang: string): string {
   const maxDamage = Math.max(...rows.map((r) => r.damage), 1);
 
   // Boss name: as large as fits next to the iDPS block on the right.
-  const bossSize = Math.min(64, 700 / Math.max(textWidth(fight.boss, 1), 1));
+  // The step ("Stage 2") sits behind the name at 55 % of its size and shares its width budget.
+  const stepRatio = 0.55;
+  // textWidth() is made for regular weight; the bold title is about 15 % wider.
+  const bold = 1.15;
+  const budget = 700 / Math.max(textWidth(fight.boss, bold) + (fight.step ? 0.4 + textWidth(fight.step, stepRatio * bold) : 0), 1);
+  const bossSize = Math.min(64, budget);
   const duration = `${Math.floor(fight.durationSeconds / 60)}:${String(Math.round(fight.durationSeconds % 60)).padStart(2, "0")}`;
 
   const art = dataUri(fight.art);
@@ -188,6 +207,7 @@ export function buildSvg(fight: Fight, lang: string): string {
 ${art ? `<image href="${art}" width="${WIDTH}" height="${HEIGHT}" preserveAspectRatio="xMidYMid slice" opacity=".4"/>` : ""}
 <rect width="${WIDTH}" height="${HEIGHT}" fill="${C.page}" opacity=".6"/>
 <text x="48" y="76" font-size="${bossSize.toFixed(1)}" font-weight="700" fill="${C.text}">${escapeXml(fight.boss)}</text>
+${fight.step ? `<text x="${(48 + textWidth(fight.boss, bossSize * bold) + bossSize * 0.4).toFixed(1)}" y="76" font-size="${(bossSize * stepRatio).toFixed(1)}" font-weight="700" fill="${C.damage}">${escapeXml(fight.step)}</text>` : ""}
 <text x="1152" y="62" font-size="40" font-weight="700" fill="${C.damage}" text-anchor="end">${escapeXml(fmt(fight.groupIDps))}/s</text>
 <text x="1152" y="104" font-size="26" fill="${C.muted}" text-anchor="end">AION DPS · aiondps.com</text>`;
 
