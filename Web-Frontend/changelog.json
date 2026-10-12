@@ -10,6 +10,13 @@
      "Backend"
     ],
     "date": "2026-10-12"
+   },
+   {
+    "text": "Deus Research Base: fights with the 2340xxx boss ids are Transcendence stage 2, so their stage is no longer missing on the boss page",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-12"
    }
   ]
  },
