@@ -119,6 +119,13 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-stress")
+        {
+            // aion2-stress [duel|raid] [stages, comma separated]: made-up game traffic through the real decoder and window logic
+            StressTest.Run(args);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-ui-test")
         {
             if (args.Length < 2)

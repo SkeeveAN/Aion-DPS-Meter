@@ -16,6 +16,11 @@ public sealed class LiveAggregator
 
     public IReadOnlyList<DamageEvent> Events => _events;
 
+    /// <summary>Counts every change to events already in <see cref="Events"/> (Clear, a summon credited to its owner, two ids
+    /// merged). Appending does not change it: a reader that keeps running totals (<see cref="DamageIndex"/>) can take in
+    /// the new events alone while this stays the same, and must start over when it moves.</summary>
+    public int Version { get; private set; }
+
     /// <summary>
     /// Feeds decoded DamageEvents in. Damage a player does to themselves (an Assassin's Infiltrate,
     /// 30,000 per use, or a skill's health cost) is not damage dealt and not damage taken from
@@ -47,6 +52,7 @@ public sealed class LiveAggregator
     {
         _events.Clear();
         _shields.Clear();
+        Version++;
     }
 
     /// <summary>
@@ -67,6 +73,11 @@ public sealed class LiveAggregator
                 _events[i] = ev with { SourceObjectId = owner };
                 changed++;
             }
+        }
+
+        if (changed > 0)
+        {
+            Version++;
         }
 
         return changed;
@@ -96,6 +107,11 @@ public sealed class LiveAggregator
                 };
                 changed++;
             }
+        }
+
+        if (changed > 0)
+        {
+            Version++;
         }
 
         for (int i = 0; i < _shields.Count; i++)

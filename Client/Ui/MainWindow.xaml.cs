@@ -34,6 +34,17 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<PlayerRow> _rows = new();
     private ListCollectionView? _playersView;
 
+    /// <summary>Running totals over the events (see DamageIndex); the refresh takes in what is new instead of rescanning.</summary>
+    private readonly DamageIndex _index = new();
+
+    /// <summary>The stress test sets this to compare the totals of the index with those of a full rescan.</summary>
+    internal bool ForceFullRefresh { get; set; }
+
+    /// <summary>The index answers the usual views: damage (PvE or PvP) of everybody, without a picked target, scope or
+    /// All in One. The rest (a target's fight, Heal and Taken modes, the compact overlay's Group/Corps) still rescan.</summary>
+    private bool CanUseIndex => !ForceFullRefresh && _selectedTargetId is null && !(ScopeActive && _scope != MeterScope.All)
+        && !_allData && !(_healMode && !_pvpOnly) && !(_takenMode && !_pvpOnly);
+
     private readonly Dictionary<int, PlayerRow> _rowsByObjectId = new();
     private readonly Dictionary<int, string> _targetNames = new();
 
@@ -968,7 +979,14 @@ public partial class MainWindow : Window
     /// </summary>
     private void RefreshRows()
     {
-        RefreshMobBossFilterItems();
+        bool fast = CanUseIndex;
+        if (fast)
+        {
+            _index.Update(_aggregator, IsPlayerName);
+            fast = !_pvpOnly || _index.TimeOrdered;
+        }
+
+        RefreshMobBossFilterItems(fast);
 
         // !IsHeal here is the fix for a real bug found by terminal_windows against a real
         // heal-bearing session: without it, a pure healer ("Potion" -- a heal-effect name, not a
@@ -984,7 +1002,7 @@ public partial class MainWindow : Window
         // A specific numbered run (both _selectedRunWindow* set - see MobBossTag's own remarks)
         // narrows further to that one run's own time span, not the target's whole history.
         Dictionary<int, bool> targetIsPlayer = new(); // the directory lookup takes a lock; once per target, not per hit
-        var filtered = _pvpOnly
+        List<DamageEvent> filtered = fast ? new List<DamageEvent>() : _pvpOnly
             ? damageOnly.Where(ev => targetIsPlayer.TryGetValue(ev.TargetObjectId, out bool known) ? known : targetIsPlayer[ev.TargetObjectId] = IsPlayerName(ev.TargetObjectId)).ToList()
             : _selectedTargetId is int targetId
                 ? ShownFightHits(damageOnly, targetId)
@@ -1008,8 +1026,12 @@ public partial class MainWindow : Window
         // they belong in the list (and in an upload's roster). Heals inside the shown window by
         // players the meter has identified add them; bounded to that window so someone who healed
         // an hour ago elsewhere does not come back at a permanent 0.
-        (DateTime, DateTime)? filteredSpan = filtered.Count > 0
-            ? (filtered.Min(ev => ev.Timestamp), filtered.Max(ev => ev.Timestamp))
+        long shownCount = fast ? (_pvpOnly ? _index.PvpCount : _index.DamageCount) : filtered.Count;
+        (DateTime, DateTime)? filteredSpan = shownCount == 0 ? null
+            : fast ? (_pvpOnly ? (_index.PvpFirst, _index.PvpLast) : (_index.DamageFirst, _index.DamageLast))
+            : (filtered.Min(ev => ev.Timestamp), filtered.Max(ev => ev.Timestamp));
+        (int, DateTime, DateTime)? shownSummary = fast && filteredSpan is (DateTime summaryFrom, DateTime summaryTo)
+            ? ((int)Math.Min(shownCount, int.MaxValue), summaryFrom, summaryTo)
             : null;
 
         if (_healMode && !_pvpOnly)
@@ -1031,7 +1053,7 @@ public partial class MainWindow : Window
         }
 
         var healSourceIds = filteredSpan is (DateTime spanStart, DateTime spanEnd)
-            ? _aggregator.Events
+            ? (fast ? _index.Heals : _aggregator.Events)
                 .Where(ev => ev.IsHeal && ev.Timestamp >= spanStart && ev.Timestamp <= spanEnd && IsPlayerName(ev.SourceObjectId))
                 .Select(ev => ev.SourceObjectId)
             : Enumerable.Empty<int>();
@@ -1053,7 +1075,7 @@ public partial class MainWindow : Window
                 .GroupBy(ev => ev.TargetObjectId).ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount))
             : new Dictionary<int, long>();
 
-        var sourceIds = filtered.Select(ev => ev.SourceObjectId).Distinct()
+        var sourceIds = (fast ? (_pvpOnly ? _index.PvpBySource.Keys : _index.BySource.Keys) : filtered.Select(ev => ev.SourceObjectId).Distinct())
             .Union(healSourceIds)
             .Union(hostileTakenById.Keys)
             .Where(IsPlayerName)
@@ -1063,12 +1085,18 @@ public partial class MainWindow : Window
         // shown window - from the selected target only when one is picked, so the figure answers
         // "how much did this boss put on whom", the same scope BuildEncounterUpload's damageTaken
         // uses for the website's distribution chart.
-        var damageTakenById = (filteredSpan is (DateTime takenStart, DateTime takenEnd)
+        IEnumerable<DamageEvent> takenWindow = fast ? Enumerable.Empty<DamageEvent>()
+            : filteredSpan is (DateTime takenStart, DateTime takenEnd)
                 ? damageOnly.Where(ev => ev.Timestamp >= takenStart && ev.Timestamp <= takenEnd)
-                : Enumerable.Empty<DamageEvent>())
+                : Enumerable.Empty<DamageEvent>();
+        Dictionary<int, long> damageTakenById = takenWindow
             .Where(ev => _pvpOnly || _selectedTargetId is not int selectedAttacker || ev.SourceObjectId == selectedAttacker)
             .GroupBy(ev => ev.TargetObjectId)
             .ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount));
+        long TakenOf(int id) => !fast ? damageTakenById.GetValueOrDefault(id)
+            : filteredSpan is not (DateTime from, DateTime to) ? 0
+            : _pvpOnly ? _index.TakenBetween(id, from, to)
+            : _index.TakenByTarget.GetValueOrDefault(id);
 
         // ClassFilter, per the user: was purely decorative until other players' classes started
         // being detected at all (see ResolveClassName) -- now that a class can actually be known
@@ -1096,7 +1124,7 @@ public partial class MainWindow : Window
         }
 
         Dictionary<int, List<DamageEvent>>? allBySource = null;
-        if (!_pvpOnly && _selectedTargetId is null)
+        if (!fast && !_pvpOnly && _selectedTargetId is null)
         {
             allBySource = new();
             foreach (DamageEvent hit in _aggregator.Events)
@@ -1111,26 +1139,35 @@ public partial class MainWindow : Window
         }
 
         Dictionary<int, List<DamageEvent>>? pvpBySource = null;
-        if (_pvpOnly)
+        if (!fast && _pvpOnly)
         {
             pvpBySource = filtered.GroupBy(ev => ev.SourceObjectId).ToDictionary(g => g.Key, g => g.ToList());
         }
 
+        // Rows are added before the values are set: the sorted view cannot be held back while the list itself changes.
         foreach (int sourceId in sourceIds)
         {
-            if (!_rowsByObjectId.TryGetValue(sourceId, out var row))
+            if (!_rowsByObjectId.ContainsKey(sourceId))
             {
-                row = new PlayerRow(sourceId);
-                _rowsByObjectId[sourceId] = row;
-                _rows.Add(row);
+                var added = new PlayerRow(sourceId);
+                _rowsByObjectId[sourceId] = added;
+                _rows.Add(added);
             }
+        }
+
+        // Every row's damage changes in one go; with live sorting on, each change moved the row on its own (2000 rows
+        // meant 2000 moves in a list of 2000, every second). Held back, the list is sorted once, when this block ends.
+        using (_playersView?.DeferRefresh())
+        foreach (int sourceId in sourceIds)
+        {
+            PlayerRow row = _rowsByObjectId[sourceId];
 
             // Applied every refresh, not just at creation: an active-character switch detected by
             // UpdateActiveCharacterFromSkill (or a newly detected class from UpdateOtherPlayerClass)
             // must update an already-existing row immediately, not just rows created after the fact.
             ApplyIdentity(row, sourceId);
 
-            row.Damage = damageById.GetValueOrDefault(sourceId);
+            row.Damage = fast ? (_pvpOnly ? _index.PvpBySource : _index.BySource).GetValueOrDefault(sourceId)?.Sum ?? 0 : damageById.GetValueOrDefault(sourceId);
             // PVP mode's rate must come from the SAME PVP-only event set row.Damage above was
             // just summed from, not the unfiltered full history - same reasoning as the
             // Mob/Boss-filtered iDPS case below (see BuildEncounterUpload's own remarks on the
@@ -1139,7 +1176,8 @@ public partial class MainWindow : Window
             // numbered run's iDPS must come from that same run's own window, the same
             // one-source-of-truth reasoning the PVP branch above already follows (see
             // BuildEncounterUpload's own remarks on the totalDamage/idps bug this once caused).
-            row.Dps = _pvpOnly
+            row.Dps = fast ? (_pvpOnly ? _index.PvpBySource : _index.BySource).GetValueOrDefault(sourceId)?.Rate
+                : _pvpOnly
                 ? DpsCalculator.AllDpsWallClock(pvpBySource!.GetValueOrDefault(sourceId) ?? new List<DamageEvent>(), sourceId)
                 : _selectedTargetId is int t
                     ? BossFight.Dps(filtered, t, sourceId)
@@ -1148,7 +1186,7 @@ public partial class MainWindow : Window
             row.AllCompact = _allCompactMode;
             row.Healing = healingById.GetValueOrDefault(sourceId);
             row.Absorbed = absorbedById.GetValueOrDefault(sourceId);
-            row.DamageTaken = _allData ? hostileTakenById.GetValueOrDefault(sourceId) : damageTakenById.GetValueOrDefault(sourceId);
+            row.DamageTaken = _allData ? hostileTakenById.GetValueOrDefault(sourceId) : TakenOf(sourceId);
             row.Deaths = 0;
             row.ShowShareBar = _showShareBars;
             row.ShowDamageTaken = _showDamageTaken;
@@ -1160,7 +1198,7 @@ public partial class MainWindow : Window
         // damage for this refresh is known - and by damage, not by the grid's current sort order.
         RankRows();
         UpdateHpCheck(OnSelectedTarget(filtered));
-        UpdateCompactOverlay(filtered);
+        UpdateCompactOverlay(filtered, shownSummary);
     }
 
     /// <summary>
@@ -1339,7 +1377,7 @@ public partial class MainWindow : Window
     private void RankRows()
     {
         // Live sorting alone left the list in the previous mode's order after a switch (PVE -> PVP kept the
-        // PVE ranking); re-sorting explicitly here covers every mode, since each refresh ends in RankRows.
+        // PVE ranking); sorting explicitly here covers every mode, since each refresh ends in RankRows.
         _playersView?.Refresh();
         long shownTotal = _rows.Sum(r => r.Damage);
         // In Taken mode the bar is drawn to the damage that got through, behind it a blue one to the absorbed
@@ -1523,12 +1561,14 @@ public partial class MainWindow : Window
     /// targets are excluded on purpose (a healed party member is no "Mob/Boss"). A non-player target
     /// only gets an entry when it is a boss - one whose NPC id the game announced and the boss catalog
     /// knows (see <see cref="IsKnownBoss"/>); a player target (PVP) always does.</summary>
-    private void RefreshMobBossFilterItems()
+    private void RefreshMobBossFilterItems(bool indexed = false)
     {
         var knownIds = _mobBossEntries.Select(entry => entry.TargetId).ToHashSet();
         bool added = false;
 
-        foreach (int targetId in _aggregator.Events.Where(ev => !ev.IsHeal).Select(ev => ev.TargetObjectId).Distinct())
+        // The index has the distinct targets already; the scan is for the views that did not feed it.
+        IEnumerable<int> targets = indexed ? _index.Targets.ToList() : _aggregator.Events.Where(ev => !ev.IsHeal).Select(ev => ev.TargetObjectId).Distinct();
+        foreach (int targetId in targets)
         {
             bool isPlayerTarget = IsPlayerName(targetId);
             if (knownIds.Contains(targetId))
@@ -4538,7 +4578,7 @@ public partial class MainWindow : Window
 
     /// <summary>The compact overlay's header: the target shown (or "All targets"), how long the
     /// fight has run, and whether the capture is running.</summary>
-    private void UpdateCompactOverlay(IReadOnlyList<DamageEvent> shownHits)
+    private void UpdateCompactOverlay(IReadOnlyList<DamageEvent> shownHits, (int Count, DateTime First, DateTime Last)? summary = null)
     {
         if (!_compactOverlay)
         {
@@ -4555,8 +4595,8 @@ public partial class MainWindow : Window
         OverlayTotalHeader.Text = _allMode ? strings["Main.Overlay.ColTaken"] : strings["Main.Overlay.ColTotal"];
         bool capturing = (_source as Aion2.Aion2PacketCombatSource)?.ServerFingerprint is not null;
         OverlayStateDot.Fill = _paused ? Brushes.Orange : capturing ? Brushes.LimeGreen : Brushes.Gray;
-        OverlayTimeText.Text = shownHits.Count > 1
-            ? (shownHits.Max(h => h.Timestamp) - shownHits.Min(h => h.Timestamp)).ToString(@"m\:ss")
+        OverlayTimeText.Text = summary is { Count: > 1 } sum ? (sum.Last - sum.First).ToString(@"m\:ss")
+            : summary is null && shownHits.Count > 1 ? (shownHits.Max(h => h.Timestamp) - shownHits.Min(h => h.Timestamp)).ToString(@"m\:ss")
             : "";
         UpdateOverlayBossHp(shownHits);
     }

@@ -1647,22 +1647,63 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
-            var byStats = _detailedStats.OrderByDescending(kv => kv.Value).Take(2).ToList();
-            if (byStats.Count > 0 && byStats[0].Value >= 5 && (byStats.Count == 1 || byStats[0].Value >= 3 * byStats[1].Value))
+            // Two passes without sorting or allocating: this runs for every row of the list on every refresh, and
+            // sorting all known players each time grew with the square of their number. The picks are the ones the
+            // sorted lists gave (the first of equals comes first).
+            double bestStat = double.NegativeInfinity, secondStat = double.NegativeInfinity;
+            int bestStatId = 0;
+            foreach (KeyValuePair<int, double> stat in _detailedStats)
             {
-                return byStats[0].Key;
+                if (stat.Value > bestStat)
+                {
+                    secondStat = bestStat;
+                    bestStat = stat.Value;
+                    bestStatId = stat.Key;
+                }
+                else if (stat.Value > secondStat)
+                {
+                    secondStat = stat.Value;
+                }
             }
 
-            var unnamed = _classVotes.Where(kv => !_names.ContainsKey(kv.Key))
-                .Select(kv => (Id: kv.Key, Votes: kv.Value.Values.Sum()))
-                .OrderByDescending(x => x.Votes)
-                .ToList();
-            if (unnamed.Count == 0 || (unnamed.Count > 1 && unnamed[0].Votes < 3 * unnamed[1].Votes))
+            if (_detailedStats.Count > 0 && bestStat >= 5 && (_detailedStats.Count == 1 || bestStat >= 3 * secondStat))
+            {
+                return bestStatId;
+            }
+
+            int unnamed = 0, bestId = 0, bestVotes = int.MinValue, secondVotes = int.MinValue;
+            foreach (KeyValuePair<int, Dictionary<string, int>> entry in _classVotes)
+            {
+                if (_names.ContainsKey(entry.Key))
+                {
+                    continue;
+                }
+
+                int votes = 0;
+                foreach (int count in entry.Value.Values)
+                {
+                    votes += count;
+                }
+
+                unnamed++;
+                if (votes > bestVotes)
+                {
+                    secondVotes = bestVotes;
+                    bestVotes = votes;
+                    bestId = entry.Key;
+                }
+                else if (votes > secondVotes)
+                {
+                    secondVotes = votes;
+                }
+            }
+
+            if (unnamed == 0 || (unnamed > 1 && bestVotes < 3 * secondVotes))
             {
                 return null;
             }
 
-            return unnamed[0].Id;
+            return bestId;
         }
     }
 

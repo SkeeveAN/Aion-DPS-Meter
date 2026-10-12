@@ -44,9 +44,12 @@ public sealed class FightRecorder
     public int Tick(IReadOnlyList<DamageEvent> events, DateTime now, FightContext context, bool flushAll = false)
     {
         int written = 0;
-        var targetIds = events.Where(ev => !ev.IsHeal).Select(ev => ev.TargetObjectId).Distinct().ToList();
-        foreach (int targetId in targetIds)
+        // One pass sorts the hits into their targets; segmenting each target out of the whole list again
+        // was one pass per target, and a raid has hundreds of them.
+        var hitsByTarget = events.Where(ev => !ev.IsHeal).GroupBy(ev => ev.TargetObjectId).ToList();
+        foreach (var targetHits in hitsByTarget)
         {
+            int targetId = targetHits.Key;
             if (context.IsPlayer(targetId))
             {
                 continue;
@@ -58,7 +61,7 @@ public sealed class FightRecorder
                 continue;
             }
 
-            foreach (FightSegment segment in FightSegmenter.Segment(events, targetId, IdleGap.TotalSeconds))
+            foreach (FightSegment segment in FightSegmenter.Segment(targetHits, targetId, IdleGap.TotalSeconds))
             {
                 bool ended = flushAll || now - segment.End > IdleGap;
                 if (!ended || segment.Duration < MinDuration || _recorded.Contains((targetId, segment.Start)))
