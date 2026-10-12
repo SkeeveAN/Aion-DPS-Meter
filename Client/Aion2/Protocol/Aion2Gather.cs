@@ -26,7 +26,7 @@ public sealed record Aion2GatherItem(string Kind, string Key, IReadOnlyDictionar
 public static class Aion2Gather
 {
     /// <summary>The kinds in the order the settings list them.</summary>
-    public static readonly string[] Kinds = { "Od", "Herb", "Food", "Ore", "Wood", "Cotton", "Gemstone", "Fragment" };
+    public static readonly string[] Kinds = { "Od", "Herb", "Food", "Ore", "Wood", "Cotton", "Gemstone", "Fragment", "Cube" };
 
     private const string ElyosMap = "World/World_L/World_L_A", AsmodianMap = "World/World_D/World_D_A";
 

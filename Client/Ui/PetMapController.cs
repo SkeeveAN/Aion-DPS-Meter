@@ -56,6 +56,43 @@ public sealed class PetMapController : IDisposable
         _list.Close();
     }
 
+    /// <summary>The pseudo pet id under which the live Hidden Cubes travel with the live monsters.</summary>
+    private const int CubePet = -1;
+
+    private DateTime _lastCubeBeep = DateTime.MinValue;
+
+    /// <summary>
+    /// The Hidden Cube sound works like a parking sensor: while a cube is in range the sound repeats, the faster the closer the player stands to the nearest one
+    /// (about every 2 s from 60 m away down to 0.15 s within 3 m; 100 world units are a metre). Without a known own position it beeps at a slow, steady pace.
+    /// </summary>
+    private void AnnounceCubes(MeterSettings settings)
+    {
+        if (!settings.CubeSoundEnabled)
+        {
+            return;
+        }
+
+        var directory = _directory();
+        var cubes = directory?.LiveCubes() ?? Array.Empty<(float X, float Y)>();
+        if (cubes.Count == 0)
+        {
+            return;
+        }
+
+        double interval = 2.0;
+        if (directory!.BestPosition is { } me && DateTime.UtcNow - me.At < TimeSpan.FromSeconds(5))
+        {
+            double meters = cubes.Min(c => Math.Sqrt((c.X - me.X) * (c.X - me.X) + (c.Y - me.Y) * (c.Y - me.Y))) / 100.0;
+            interval = Math.Clamp(0.15 + (meters - 3) / 57.0 * 1.85, 0.15, 2.0);
+        }
+
+        if ((DateTime.UtcNow - _lastCubeBeep).TotalSeconds >= interval)
+        {
+            _lastCubeBeep = DateTime.UtcNow;
+            NotifySounds.Play(settings.CubeSound, settings.CubeSoundVolume);
+        }
+    }
+
     private void Tick()
     {
         if ((DateTime.UtcNow - _settingsAt).TotalSeconds >= 1)
@@ -67,6 +104,7 @@ public sealed class PetMapController : IDisposable
         }
 
         var settings = _settings;
+        AnnounceCubes(settings);
         bool locked = settings.PetFarmLocked;
         _map.ApplyLockedIfChanged(locked);
         _list.ApplyLockedIfChanged(locked);
@@ -173,6 +211,13 @@ public sealed class PetMapController : IDisposable
         var live = known
             ? directory!.LiveMobs().SelectMany(m => Aion2Pets.PetsOfNpc(m.NpcId).Where(chosen.Contains).Select(pet => (pet, m.X, m.Y))).ToList()
             : new List<(int PetId, float X, float Y)>();
+        // the Hidden Cubes in range (the game announces them only when the player is near): large gold dots like the live monsters, when the map shows cubes
+        if (gatherKinds.Contains("Hidden Cube") && known)
+        {
+            live.AddRange(directory!.LiveCubes().Select(c => (CubePet, c.X, c.Y)));
+            colors[CubePet] = PetMapPalette.OfGather("Cube");
+        }
+
         if (_current is not null)
         {
             _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows);

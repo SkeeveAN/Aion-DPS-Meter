@@ -224,6 +224,12 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.NpcRemove:
                 DecodeNpcRemove(frame, timestamp);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.EnvSpawn:
+                DecodeEnvSpawn(frame);
+                return Array.Empty<DamageEvent>();
+            case OpcodeFamily.EnvRemove:
+                DecodeEnvRemove(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Nickname:
                 DecodeNickname(frame, fields, layout.LittleEndian);
                 return Array.Empty<DamageEvent>();
@@ -392,6 +398,42 @@ public sealed class Aion2FrameDecoder
     /// instance was closed because the group took too long (Talisra, 2026-10-07: back to full health,
     /// gone 65 s later). Only a boss entity's reason is of use (see Aion2EntityDirectory.RemovalOf).
     /// </summary>
+    /// <summary>The env object ids the client names "Hidden Cube" (Tools/aion2-dat/build_hidden_cubes.py): Verteron 1200036-41, 1200667, Altgard 1301199/1301200, the Abyss ones and the field-event cubes.</summary>
+    private static bool IsHiddenCube(long envId) =>
+        envId is >= 1200036 and <= 1200041 or 1200667 or 1200707 or >= 1201502 and <= 1201505 or >= 1300081 and <= 1300083 or 1300754
+            or 1301199 or 1301200 or >= 1301242 and <= 1301245 or 1100056 or 1100094;
+
+    private void DecodeEnvSpawn(ReadOnlySpan<byte> frame)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long entityId) || frame.Length < p + 18)
+        {
+            return;
+        }
+
+        long envId = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 2)..]);
+        if (!IsHiddenCube(envId))
+        {
+            return;
+        }
+
+        float x = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 6)..]);
+        float y = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 10)..]);
+        if (float.IsFinite(x) && float.IsFinite(y) && Math.Abs(x) < 1_000_000 && Math.Abs(y) < 1_000_000)
+        {
+            _entities.NoteCube(unchecked((int)entityId), x, y);
+        }
+    }
+
+    private void DecodeEnvRemove(ReadOnlySpan<byte> frame)
+    {
+        int p = 2;
+        if (TryReadVarint(frame, ref p, out long entityId))
+        {
+            _entities.ForgetCube(unchecked((int)entityId));
+        }
+    }
+
     private void DecodeNpcRemove(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;

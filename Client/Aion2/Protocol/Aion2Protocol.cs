@@ -87,6 +87,11 @@ public enum OpcodeFamily
     /// <summary>"A monster disappears": entity id (varint), a zero byte and a reason byte - 3 after the monster died,
     /// 7 when it vanished alive (an aborted instance). Seen on the recordings of 2026-10-07.</summary>
     NpcRemove,
+    /// <summary>"An environment object appears" (gather sources, chests, the Hidden Cube): entity id (varint), a type byte, 00, the env object id (u32) and the
+    /// place as three floats x, y, z. Seen on the recordings of 2026-10-05 to 11 (34 Hidden Cube sightings, all on a candidate place of MapData.dat).</summary>
+    EnvSpawn,
+    /// <summary>"An environment object disappears": entity id (varint), 04 03 00.</summary>
+    EnvRemove,
     Zone,
 }
 

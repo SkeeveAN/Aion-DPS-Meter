@@ -236,6 +236,10 @@ public sealed class MeterSettings
     /// <summary>The arrows on the edge of the interactive map pointing at pets / gatherables that are out of view (one switch each); on by default.</summary>
     public bool ShowPetArrows { get; set; } = true;
     public bool ShowGatherArrows { get; set; } = true;
+    /// <summary>A sound when a Hidden Cube appears in range (the game announces it only when the player is near): switch, sound id (see <see cref="NotifySounds.All"/>), volume 0 to 100. Off until switched on.</summary>
+    public bool CubeSoundEnabled { get; set; }
+    public string CubeSound { get; set; } = "ping";
+    public int CubeSoundVolume { get; set; } = 70;
     /// <summary>Pet arrows / gather arrows on / off.</summary>
     public string HotkeyPetArrows { get; set; } = "Ctrl+Alt+E";
     public string HotkeyGatherArrows { get; set; } = "Ctrl+Alt+G";

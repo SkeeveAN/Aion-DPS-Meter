@@ -104,6 +104,16 @@ def main():
     kinds = {str(i): {"kind": CATEGORY[kind], "names": names.get(str(i), {}), "count": count.get(str(i), 0)}
              for i, (key, kind) in sorted(gather.items())
              if kind in CATEGORY and names.get(str(i)) and (key.startswith("Gather_Source_") or count.get(str(i), 0) > 0 or kind == "Fragment")}
+    # the Hidden Cubes: one object "Cube" whose places are the candidate spawn points of all cube groups (see build_hidden_cubes.py)
+    import build_hidden_cubes as hc
+    cube_names, cube_maps = hc.build(root, table, {lang: json.load(open(os.path.join(l10n_dir, f"l10n_{code}.json"), encoding="utf-8")) for lang, code in LANGS.items()})
+    cube_total = 0
+    for map_key, rows in cube_maps.items():
+        table_name = hc.WORLD[map_key]
+        pts = list(dict.fromkeys(tuple(pt) for row in rows for pt in row["points"]))
+        maps.setdefault(table_name, {})["cube"] = [list(pt) for pt in pts]
+        cube_total += len(pts)
+    kinds["cube"] = {"kind": "Cube", "names": cube_names, "count": cube_total}
     json.dump({"objects": kinds, "maps": maps}, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
     print(f"{len(kinds)} gatherable objects, {len(maps)} maps, {total} placements -> {out_path} ({os.path.getsize(out_path) // 1024} KB)")
 

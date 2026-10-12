@@ -394,6 +394,8 @@
     "avoid": [],
     "npcSpawn": [16694],
     "npcRemove": [16950],
+    "envSpawn": [13366],
+    "envRemove": [13622],
     "zone": [],
     "roster": [
       663,

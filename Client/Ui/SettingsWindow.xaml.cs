@@ -535,6 +535,9 @@ public partial class SettingsWindow : Window
         _settings.HotkeyGatherArrows = (string?)HotkeyGatherArrowsBox.Tag ?? "";
         _settings.ShowPetArrows = ShowPetArrowsBox.IsChecked ?? true;
         _settings.ShowGatherArrows = ShowGatherArrowsBox.IsChecked ?? true;
+        _settings.CubeSoundEnabled = CubeSoundBox.IsChecked ?? false;
+        _settings.CubeSound = (CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping";
+        _settings.CubeSoundVolume = (int)CubeVolumeSlider.Value;
         _settings.ShowHotkeyOverlay = ShowHotkeyOverlayBox.IsChecked ?? false;
         _settings.HotkeyOverlayHidden = HotkeyOverlayRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
         _settings.AutoResetEnabled = AutoResetBox.IsChecked ?? false;
@@ -809,6 +812,7 @@ public partial class SettingsWindow : Window
         ShowPetMapBox.IsChecked = settings.ShowPetMap;
         ShowPetArrowsBox.IsChecked = settings.ShowPetArrows;
         ShowGatherArrowsBox.IsChecked = settings.ShowGatherArrows;
+        LoadCubeSound(settings);
         PetMapRadiusSlider.Value = Math.Clamp(settings.PetMapRadius, 50, 500);
         PetMapOpacitySlider.Value = Math.Clamp(settings.PetMapOpacity * 100, 20, 100);
         ShowPetMapSliderValues();
@@ -860,6 +864,26 @@ public partial class SettingsWindow : Window
     }
 
     private HashSet<string> _gatherPicked = new();
+
+    /// <summary>The sound for a Hidden Cube that comes into range: switch, sound, volume and a test button.</summary>
+    private void LoadCubeSound(MeterSettings settings)
+    {
+        var loc = LocalizationManager.Instance;
+        CubeSoundBox.IsChecked = settings.CubeSoundEnabled;
+        CubeSoundCombo.Items.Clear();
+        foreach (string id in NotifySounds.All)
+        {
+            CubeSoundCombo.Items.Add(new ComboBoxItem { Content = loc["Sound." + id], Tag = id });
+        }
+
+        CubeSoundCombo.SelectedItem = CubeSoundCombo.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Tag == settings.CubeSound) ?? CubeSoundCombo.Items[0];
+        CubeVolumeSlider.Value = Math.Clamp(settings.CubeSoundVolume, 0, 100);
+        CubeSoundTest.Click -= TestCubeSound;
+        CubeSoundTest.Click += TestCubeSound;
+    }
+
+    private void TestCubeSound(object sender, RoutedEventArgs e) =>
+        NotifySounds.Play((CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping", (int)CubeVolumeSlider.Value);
 
     /// <summary>
     /// The Sammeln page: one line per kind (its name and "all / none" on the left), the collectibles as switchable pills on the right. Only what the

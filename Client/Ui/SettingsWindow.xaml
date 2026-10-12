@@ -898,6 +898,21 @@
                         <Border Style="{StaticResource SettingsCard}">
                             <CheckBox x:Name="ShowGatherArrowsBox" Content="{local:Loc Settings.Gather.Arrows}" ToolTip="{local:Loc Settings.Gather.Arrows.Tip}"/>
                         </Border>
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <CheckBox x:Name="CubeSoundBox" Content="{local:Loc Settings.Gather.CubeSound}" ToolTip="{local:Loc Settings.Gather.CubeSound.Tip}"/>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="170"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="CubeSoundCombo" Grid.Column="0" Margin="0,0,10,0"/>
+                                    <Slider x:Name="CubeVolumeSlider" Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" VerticalAlignment="Center" Margin="0,0,8,0" Style="{DynamicResource ThemedSlider}"/>
+                                    <Button x:Name="CubeSoundTest" Grid.Column="2" Content="▶" Width="28" Height="26" Padding="0"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
                         <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Gather.Hint}" Margin="2,0,0,10"/>
                         <TextBlock x:Name="GatherFactionNote" Style="{StaticResource CardHint}" Margin="2,0,0,10" Visibility="Collapsed"/>
                         <StackPanel x:Name="GatherCards"/>

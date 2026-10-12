@@ -2179,6 +2179,48 @@
     "ja": "宝石",
     "ko": "보석"
   },
+  "Settings.PetMap.Gather.Cube": {
+    "en": "Hidden Cubes",
+    "de": "Versteckte Kuben",
+    "fr": "Cubes cachés",
+    "es": "Cubos ocultos",
+    "ru": "Скрытые кубы",
+    "pl": "Ukryte sześciany",
+    "tr": "Gizli Küpler",
+    "zh": "隐藏方块",
+    "zh-TW": "隱藏方塊",
+    "pt": "Cubos Ocultos",
+    "ja": "ヒドゥン キューブ",
+    "ko": "히든 큐브"
+  },
+  "Settings.Gather.CubeSound": {
+    "en": "Proximity sound for a Hidden Cube nearby",
+    "de": "Annäherungston bei einem Versteckten Kubus in der Nähe",
+    "fr": "Jouer un son quand un cube caché apparaît à proximité",
+    "es": "Reproducir un sonido cuando aparezca un cubo oculto cerca",
+    "ru": "Подавать сигнал, когда рядом появляется скрытый куб",
+    "pl": "Odtwórz dźwięk, gdy w pobliżu pojawi się ukryty sześcian",
+    "tr": "Yakında bir Gizli Küp belirdiğinde ses çal",
+    "zh": "附近出现隐藏方块时播放提示音",
+    "zh-TW": "附近出現隱藏方塊時播放提示音",
+    "pt": "Tocar um som quando um Cubo Oculto aparecer por perto",
+    "ja": "近くにヒドゥン キューブが現れたら音を鳴らす",
+    "ko": "근처에 히든 큐브가 나타나면 소리 재생"
+  },
+  "Settings.Gather.CubeSound.Tip": {
+    "en": "The game announces a cube only when you are close, so the sound starts only then and beeps faster the closer you get. Mark Hidden Cubes below to see them on the map.",
+    "de": "Das Spiel meldet einen Kubus nur, wenn du nah dran bist - der Ton setzt also erst dann ein und wird schneller, je näher du kommst. Wähle unten „Versteckte Kuben“, um sie auf der Karte zu sehen.",
+    "fr": "Le jeu n'annonce un cube que lorsque vous êtes proche.",
+    "es": "El juego solo anuncia un cubo cuando estás cerca.",
+    "ru": "Игра сообщает о кубе, только когда вы рядом.",
+    "pl": "Gra zgłasza sześcian tylko wtedy, gdy jesteś blisko.",
+    "tr": "Oyun bir küpü yalnızca yakındayken bildirir.",
+    "zh": "只有在你靠近时游戏才会通知方块。",
+    "zh-TW": "只有在你靠近時遊戲才會通知方塊。",
+    "pt": "O jogo só anuncia um cubo quando você está perto.",
+    "ja": "キューブは近くにいるときだけゲームから通知されます。",
+    "ko": "큐브는 가까이 있을 때만 게임이 알려 줍니다."
+  },
   "Settings.PetMap.Gather.Fragment": {
     "en": "Empyrean traces",
     "de": "Spuren des Gebieters",

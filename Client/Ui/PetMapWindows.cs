@@ -243,6 +243,7 @@ public static class PetMapPalette
         "Gemstone" => "#E08CFF",
         "Cotton" => "#F3EBD3",
         "Fragment" => "#FF7B7B",
+        "Cube" => "#FFD84D",
         _ => "#FFFFFF",
     });
 }

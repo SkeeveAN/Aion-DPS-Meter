@@ -583,6 +583,39 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private readonly Dictionary<int, (float X, float Y, DateTime At)> _cubes = new();
+
+    /// <summary>A Hidden Cube was announced by the game (env object spawn frame).</summary>
+    public void NoteCube(int entityId, float x, float y)
+    {
+        lock (_gate)
+        {
+            _cubes[entityId] = (x, y, DateTime.UtcNow);
+        }
+    }
+
+    public void ForgetCube(int entityId)
+    {
+        lock (_gate)
+        {
+            _cubes.Remove(entityId);
+        }
+    }
+
+    /// <summary>The Hidden Cubes in range right now (one that was never reported gone is dropped after 15 minutes).</summary>
+    public IReadOnlyList<(float X, float Y)> LiveCubes()
+    {
+        lock (_gate)
+        {
+            foreach (int stale in _cubes.Where(c => DateTime.UtcNow - c.Value.At > TimeSpan.FromMinutes(15)).Select(c => c.Key).ToList())
+            {
+                _cubes.Remove(stale);
+            }
+
+            return _cubes.Values.Select(c => (c.X, c.Y)).ToArray();
+        }
+    }
+
     public IReadOnlyList<(int NpcId, float X, float Y)> RecentMobPositions()
     {
         lock (_gate)
@@ -597,6 +630,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _position = null;
+            _cubes.Clear();
             _mobPositions.Clear();
             _liveMobs.Clear();
             _recentSpawns.Clear();
