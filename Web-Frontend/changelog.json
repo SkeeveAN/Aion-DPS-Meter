@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.41.0",
   "date": "2026-10-12",
   "items": [
    {
@@ -52,6 +52,20 @@
     "text": "Link preview pictures of a boss fight show the difficulty step (Stage 2, Level 7, Hard) in gold behind the boss name",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-12"
+   },
+   {
+    "text": "Hidden Cubes on the interactive map: all spawn places of Verteron and Altgard, live cubes in range as gold dots, and an optional proximity sound that beeps faster the closer you get",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-12"
+   },
+   {
+    "text": "Hidden Cubes on the map with a proximity sound",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-12"
    }
