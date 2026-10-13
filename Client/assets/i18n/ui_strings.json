@@ -5476,5 +5476,77 @@
     "ja": "背面・正面・パーフェクト・ダブル・多段は、スキルの命中のうちそのように当たった割合で、命中データから読み取っています（データがない場合は「–」）。「背面」と「正面」は命中データの方向バイトから読み取っており、まだゲーム内で確認していません。",
     "ko": "후방·전방·완벽·더블·다단은 스킬 적중 중 그렇게 적중한 비율이며 적중 데이터에서 읽습니다(데이터가 없으면 \"–\"). \"후방\"과 \"전방\"은 적중 데이터의 방향 바이트에서 읽으며 아직 게임에서 확인하지 않았습니다.",
     "zh-TW": "背擊、正面、完美、雙重和多段表示該技能的命中中以此方式命中的比例，資料來自命中資訊（沒有資訊時顯示「–」）。「背擊」和「正面」來自命中資訊中的方向位元組，尚未在遊戲中核實。"
+  },
+  "Replay.Button": {
+    "en": "Replay (early test)",
+    "de": "Replay (früher Test)",
+    "fr": "Replay (test préliminaire)",
+    "es": "Repetición (prueba temprana)",
+    "ru": "Повтор (ранний тест)",
+    "zh": "回放（早期测试）",
+    "pt": "Replay (teste inicial)",
+    "ja": "リプレイ（先行テスト）",
+    "ko": "리플레이(초기 테스트)",
+    "zh-TW": "重播（早期測試）"
+  },
+  "Replay.Title": {
+    "en": "Replay",
+    "de": "Replay",
+    "fr": "Replay",
+    "es": "Repetición",
+    "ru": "Повтор",
+    "zh": "回放",
+    "pt": "Replay",
+    "ja": "リプレイ",
+    "ko": "리플레이",
+    "zh-TW": "重播"
+  },
+  "Replay.Names": {
+    "en": "Names",
+    "de": "Namen",
+    "fr": "Noms",
+    "es": "Nombres",
+    "ru": "Имена",
+    "zh": "名称",
+    "pt": "Nomes",
+    "ja": "名前",
+    "ko": "이름",
+    "zh-TW": "名稱"
+  },
+  "Replay.Fit": {
+    "en": "Fit",
+    "de": "Einpassen",
+    "fr": "Ajuster",
+    "es": "Ajustar",
+    "ru": "Вписать",
+    "zh": "适应",
+    "pt": "Ajustar",
+    "ja": "全体表示",
+    "ko": "맞춤",
+    "zh-TW": "符合視窗"
+  },
+  "Replay.Staggered": {
+    "en": "staggered",
+    "de": "aus dem Gleichgewicht",
+    "fr": "déstabilisé",
+    "es": "aturdido",
+    "ru": "оглушён",
+    "zh": "硬直中",
+    "pt": "atordoado",
+    "ja": "スタッガー中",
+    "ko": "스태거 상태",
+    "zh-TW": "硬直中"
+  },
+  "Replay.Early": {
+    "en": "Early test: the places are the game's own readings (it sends them with movements and skills, not on a regular beat); the size of an area is learnt from who it hit, dashed = still a guess.",
+    "de": "Früher Test: Die Orte sind die Messwerte des Spiels (es sendet sie bei Bewegungen und Skills, nicht in festem Takt); die Größe einer Fläche wird aus den Getroffenen gelernt, gestrichelt = noch geschätzt.",
+    "fr": "Test préliminaire : les positions sont les relevés du jeu (envoyés lors des déplacements et des compétences, pas à intervalle régulier) ; la taille d'une zone est apprise d'après les personnes touchées, en pointillés = encore estimée.",
+    "es": "Prueba temprana: las posiciones son las lecturas del propio juego (las envía con los movimientos y las habilidades, no a intervalos fijos); el tamaño de un área se aprende de a quién golpea, a trazos = aún una estimación.",
+    "ru": "Ранний тест: положения - это показания самой игры (она шлёт их при движениях и умениях, а не с равным интервалом); размер области определяется по тем, кого она задела, пунктир = пока оценка.",
+    "zh": "早期测试：位置来自游戏自身的读数（随移动和技能发送，而非固定间隔）；范围大小根据被命中的玩家学习得出，虚线 = 仍为估计。",
+    "pt": "Teste inicial: as posições são as leituras do próprio jogo (enviadas com movimentos e habilidades, não em intervalos fixos); o tamanho de uma área é aprendido de quem ela atinge, tracejado = ainda uma estimativa.",
+    "ja": "先行テスト：位置はゲーム自身の読み取り値です（移動やスキルに合わせて送られ、一定間隔ではありません）。範囲の大きさは当たった相手から学習し、破線はまだ推定です。",
+    "ko": "초기 테스트: 위치는 게임 자체의 측정값입니다(이동과 스킬에 맞춰 전송되며 일정한 간격이 아닙니다). 범위의 크기는 맞은 대상에서 학습하며 점선은 아직 추정입니다.",
+    "zh-TW": "早期測試：位置來自遊戲本身的讀數（隨移動和技能傳送，而非固定間隔）；範圍大小依據被命中的玩家學習而得，虛線 = 仍為估計。"
   }
 }

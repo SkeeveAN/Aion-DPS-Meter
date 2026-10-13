@@ -1,6 +1,6 @@
 # Replay-Karte: Bosskampf von oben abspielen
 
-Branch: `feature/fight-replay-map` · Stand: Plan, noch nichts umgesetzt
+Branch: `feature/fight-replay-map` · Stand: Kern umgesetzt (frühe Version, siehe „Umsetzungsstand“ am Ende)
 
 ## Ziel
 
@@ -66,3 +66,21 @@ Braucht Daten, die im Branch `feature/combat-overlay-cast-target` (Phase 0 und 1
 - **Debug-Aufnahmen des Clients:** `%APPDATA%\Aion DPS Meter\Debug\aion2-<Datum>-<Charakter>.jsonl` (22 Dateien, 540 MB, 11./12.10.). Gleiches Format: ein JSON pro TCP-Segment `{"T","From","To","Seq","Server","Data":base64}`, Server-Port 13328.
 - **Gespeicherte Kämpfe:** `%APPDATA%\Aion DPS Meter\fights.db` (`events_gz`).
 - Nur lesen, nie verändern; große Dateien streamen.
+
+## Umsetzungsstand (13.10.2026)
+
+**Fertig und geprüft (Selftests mit echten Frames, Aufnahmen, gezeichnete Bilder):**
+
+- **Phase 0 (Daten):** Positionsframes anderer Entitäten stehen im Strom: Opcodes `1a37 1b37 1c37 1e37 20 37 2837 2937 2a37` (Position 2 Byte hinter der Entität), `1f37 2f37` (1 Byte) und `3c37` (andere Entitäten, bisher verworfen). Auf drei Aufnahmen bilden die Messwerte einer Entität Wege mit Geschwindigkeiten von wenigen Metern pro Sekunde; Einheit Zentimeter. **Kein fester Takt:** etwa ein Messwert je 1,4 s und Spieler (er kommt bei Bewegungen und Skills), die Wege werden deshalb gerade zwischen zwei Messwerten gezeichnet.
+- **Phase 1 (Aufzeichnung):** `Aion2CombatState` führt Wege (alle 150 ms höchstens ein Punkt, Sprungfilter: ein Schritt über 35 m/s zählt erst, wenn die nächste Messung zustimmt), das Windup-Protokoll, Tode und die Gesundheit der Bosse; mit dem Kampf in `fights.db` gespeichert (nur Gruppe und Bosse).
+- **Phase 2 (Flächen lernen):** Die Größe einer Boss-Fläche wird aus den Abständen der Getroffenen zum Windup-Ort gelernt (110 % des 85. Perzentils + 50 cm, ab fünf Treffern) und in `cast-skills.json` gemerkt; bis dahin 4,5 m gestrichelt.
+- **Phase 4 (Oberfläche):** `ReplayView` (Karte: Gitter alle 10 m, Wege, Flächen, Boss mit Blickrichtung, Spieler, Treffer-Ring, Tote), `ReplayTimeline`, `FightReplayWindow` (Abspielen, Leertaste, ← →, 0,5-4×, Namen, Einpassen, Ziehen/Zoomen); Knopf „Replay“ im Spielerfenster; zehn Sprachen; README (alle zehn).
+- Zeichenbefehl `render-replay <png> [Sekunde] [Maßstab]`.
+
+**Bewusst offen:**
+
+- **Phase 3 (Boden lernen)** (Umriss der Plattform aus allen gesehenen Positionen) ist nicht gebaut.
+- Eigene Position: das Spiel schickt sie, aber bei seltenen Messwerten springt der Punkt; ein „blasses Symbol bei Unsicherheit“ gibt es nicht.
+- **Nicht mit einer echten Instanz im Spiel angesehen** (ich starte nichts auf deinem Rechner); der Aufbau aus echten Aufnahmen ist getestet (Wege, Flächen), die Oberfläche mit Beispieldaten. Bitte einmal nach einem echten Bosskampf öffnen.
+- Replay nur für Boss-Kämpfe in Instanzen einzuschränken ist nicht umgesetzt: es erscheint bei jedem Kampf, für den Wege gespeichert sind.
+- Changelog-Eintrag und Features-Seite folgen beim Merge nach `main`.

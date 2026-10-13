@@ -104,6 +104,16 @@ A fight keeps this with it in the local history, so an old boss can be looked at
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="The Rotation tab of the player window: skills on a timeline with the DPS behind them, the opener and the rotation in short">
 </p>
 
+### Replay of a boss fight (early test)
+
+In the player window of a boss fight, **Replay** plays the fight back from above: your group as class-coloured dots with the last seconds of their walk, the boss with the way it faces and its health, the areas of the skills it is winding up (amber while it winds up, red as it lands - dashed while the size is still a guess), a red ring on whoever it hit, the dead crossed out. Under the map a timeline shows the boss's big attacks (amber), the hits on the group (red), deaths, staggers (shaded) and the boss's health; click or drag on it to go to that moment. Play and pause (Space), speeds from half to four times, ← and → move five seconds, drag the map, wheel to zoom, double-click to fit it again.
+
+The positions are the game's own readings: it sends them with movements and skills, not on a regular beat, so a walk is drawn straight between two of them. The game never says how big an attack's area is: the meter learns each skill's size from who it hit and remembers it between fights. Only your group and the bosses are shown, never other players. A fight keeps its replay in the local history; fights recorded by an older version have none.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/replay@2x.webp" width="640" alt="The replay of a boss fight: the group around the boss, an area being wound up, the timeline with the boss's health">
+</p>
+
 ### Your whole character at a glance
 
 The **Character** window (person icon) shows what the game sends about you: gear with item level and

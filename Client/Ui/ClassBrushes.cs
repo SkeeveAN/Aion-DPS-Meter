@@ -23,6 +23,25 @@ internal static class ClassBrushes
 
     private const string Unknown = "#9fb3c8";
 
+    private static readonly Dictionary<string, Brush> SolidCache = new();
+
+    /// <summary>The class colour without the translucency (a dot on the replay map).</summary>
+    public static Brush Solid(string? className)
+    {
+        string key = className is not null && Colors.ContainsKey(className) ? className : "";
+        lock (SolidCache)
+        {
+            if (!SolidCache.TryGetValue(key, out Brush? brush))
+            {
+                brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(key.Length > 0 ? Colors[key] : Unknown));
+                brush.Freeze();
+                SolidCache[key] = brush;
+            }
+
+            return brush;
+        }
+    }
+
     public static Brush For(string? className)
     {
         string key = className is not null && Colors.ContainsKey(className) ? className : "";

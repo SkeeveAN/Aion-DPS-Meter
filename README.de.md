@@ -104,6 +104,16 @@ Ein Kampf behält dies in der lokalen Historie, sodass ein alter Boss erneut bet
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="Der Rotation-Tab des Spielerfensters: Skills auf einer Zeitleiste mit dem DPS dahinter, der Opener und die Rotation in Kürze">
 </p>
 
+### Replay eines Boss-Kampfs (früher Test)
+
+Im Spielerfenster eines Boss-Kampfs spielt **Replay** den Kampf von oben ab: Deine Gruppe als klassenfarbige Punkte mit den letzten Sekunden ihres Wegs, der Boss mit seiner Blickrichtung und seiner Gesundheit, die Flächen der Skills, die er gerade aufbaut (bernsteinfarben beim Aufbau, rot beim Auftreffen – gestrichelt, solange die Größe noch geraten ist), ein roter Ring um jeden, den er getroffen hat, die Toten durchgestrichen. Unter der Karte zeigt eine Zeitleiste die großen Angriffe des Bosses (bernstein), die Treffer auf die Gruppe (rot), Tode, Stagger (schattiert) und die Gesundheit des Bosses; per Klick oder Ziehen springst Du zu diesem Moment. Abspielen und Pause (Leertaste), Geschwindigkeiten von halb bis vierfach, ← und → springen fünf Sekunden, Karte ziehen, Mausrad zum Zoomen, Doppelklick zum erneuten Einpassen.
+
+Die Positionen sind die eigenen Messwerte des Spiels: Es sendet sie mit Bewegungen und Skills, nicht in regelmäßigem Takt, deshalb wird ein Weg gerade zwischen zwei Positionen gezeichnet. Das Spiel sagt nie, wie groß die Fläche eines Angriffs ist: Der Meter lernt die Größe jedes Skills daraus, wen er getroffen hat, und merkt sie sich über Kämpfe hinweg. Gezeigt werden nur Deine Gruppe und die Bosse, nie andere Spieler. Ein Kampf behält sein Replay im lokalen Verlauf; Kämpfe, die mit einer älteren Version aufgezeichnet wurden, haben keines.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/replay@2x.webp" width="640" alt="Das Replay eines Boss-Kampfs: die Gruppe um den Boss, eine Fläche im Aufbau, die Zeitleiste mit der Gesundheit des Bosses">
+</p>
+
 ### Dein ganzer Charakter auf einen Blick
 
 Das **Charakter**-Fenster (Personen-Symbol) zeigt, was das Spiel über dich sendet: Ausrüstung mit Itemlevel und

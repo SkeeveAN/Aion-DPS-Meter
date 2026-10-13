@@ -111,7 +111,7 @@ public partial class PlayerDetailsWindow : Window
     public PlayerDetailsWindow(string name, string className, string faction,
         IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf, bool heals = false,
         IReadOnlyList<Death>? deaths = null, bool taken = false, IReadOnlyList<DamageEvent>? fightEvents = null,
-        FightExtras? extras = null, int playerId = -1, DateTime? fightStart = null, DateTime? fightEnd = null)
+        FightExtras? extras = null, int playerId = -1, DateTime? fightStart = null, DateTime? fightEnd = null, ReplayData? replay = null)
     {
         // Taken: the hits this player took, one row per attacker and attack ("Transcendent
         // Bakarma : Attack"); an attacker with no name of its own is "Monster".
@@ -218,10 +218,13 @@ public partial class PlayerDetailsWindow : Window
                 : loc["Details.NoDeath"];
         }
 
+        _replay = replay;
+        ReplayButton.Visibility = replay is { HasData: true } && !taken ? Visibility.Visible : Visibility.Collapsed;
         InitRotation(extras, playerId, fightStart, fightEnd, events.Where(e => e.IsHeal == heals).ToList(), nameOf, taken, className);
     }
 
     private RotationReport? _rotation;
+    private ReplayData? _replay;
     private bool _targetsShown, _curveShown;
 
     /// <summary>The rotation and effect views of this player over the fight: from what the packet stream said besides damage (see <see cref="FightExtras"/>).
@@ -303,6 +306,14 @@ public partial class PlayerDetailsWindow : Window
         }
 
         return average;
+    }
+
+    private void OnReplayClicked(object sender, RoutedEventArgs e)
+    {
+        if (_replay is not null)
+        {
+            new FightReplayWindow(_replay) { Owner = this }.Show();
+        }
     }
 
     private void OnDetailsTabChanged(object sender, RoutedEventArgs e)

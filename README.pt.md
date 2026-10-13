@@ -104,6 +104,16 @@ Um combate guarda isto no histórico local, para que um chefe antigo possa ser v
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="A aba Rotação da janela do jogador: habilidades numa linha do tempo com o DPS por trás, a abertura e a rotação em resumo">
 </p>
 
+### Replay de uma luta contra um chefe (teste inicial)
+
+Na janela do jogador de uma luta contra um chefe, **Replay** reproduz a luta vista de cima: o seu grupo como pontos na cor da classe com os últimos segundos do seu percurso, o chefe com a direção para onde olha e a sua vida, as áreas das habilidades que ele está a preparar (âmbar enquanto prepara, vermelho quando acerta; tracejadas enquanto o tamanho ainda é um palpite), um anel vermelho em quem ele atingiu, os mortos riscados. Sob o mapa, uma linha do tempo mostra os grandes ataques do chefe (âmbar), os golpes no grupo (vermelho), as mortes, os stagger (sombreados) e a vida do chefe; clique ou arraste nela para ir a esse momento. Reproduzir e pausar (Espaço), velocidades de metade a quatro vezes, ← e → avançam ou recuam cinco segundos, arraste o mapa, roda para dar zoom, duplo clique para reajustar.
+
+As posições são as leituras do próprio jogo: ele envia-as com os movimentos e as habilidades, não a intervalos regulares, por isso um percurso é desenhado em linha reta entre duas delas. O jogo nunca diz qual é o tamanho da área de um ataque: o medidor aprende o tamanho de cada habilidade a partir de quem ela atingiu e guarda-o entre lutas. Só são mostrados o seu grupo e os chefes, nunca outros jogadores. Uma luta mantém o seu replay no histórico local; as lutas gravadas por uma versão mais antiga não têm nenhum.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/replay@2x.webp" width="640" alt="O replay de uma luta contra um chefe: o grupo em volta do chefe, uma área em preparação, a linha do tempo com a vida do chefe">
+</p>
+
 ### Todo o seu personagem num relance
 
 A janela **Personagem** (ícone de pessoa) mostra o que o jogo envia sobre você: equipamento com nível de item e

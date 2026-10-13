@@ -104,6 +104,16 @@ Un combate conserva esto en el historial local, así que se puede volver a ver u
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="La pestaña Rotación de la ventana del jugador: habilidades en una línea de tiempo con el DPS detrás, la apertura y la rotación en breve">
 </p>
 
+### Repetición de un combate contra un jefe (prueba temprana)
+
+En la ventana de jugador de un combate contra un jefe, **Repetición** reproduce el combate desde arriba: tu grupo como puntos del color de su clase con los últimos segundos de su recorrido, el jefe con la dirección hacia la que mira y su salud, las áreas de las habilidades que está preparando (ámbar mientras las prepara, rojo cuando caen; discontinuas mientras el tamaño aún es una estimación), un anillo rojo sobre a quien golpeó, los muertos tachados. Bajo el mapa, una línea de tiempo muestra los grandes ataques del jefe (ámbar), los golpes al grupo (rojo), las muertes, los stagger (sombreados) y la salud del jefe; haz clic o arrastra sobre ella para ir a ese momento. Reproducir y pausa (Espacio), velocidades de la mitad a cuatro veces, ← y → avanzan o retroceden cinco segundos, arrastra el mapa, rueda para hacer zoom, doble clic para volver a ajustarlo.
+
+Las posiciones son las lecturas propias del juego: las envía con los movimientos y las habilidades, no a intervalos regulares, por eso un recorrido se dibuja recto entre dos de ellas. El juego nunca dice qué tamaño tiene el área de un ataque: el medidor aprende el tamaño de cada habilidad según a quién golpeó y lo recuerda entre combates. Solo se muestran tu grupo y los jefes, nunca otros jugadores. Un combate conserva su repetición en el historial local; los combates grabados con una versión anterior no tienen ninguna.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/replay@2x.webp" width="640" alt="La repetición de un combate contra un jefe: el grupo alrededor del jefe, un área en preparación, la línea de tiempo con la salud del jefe">
+</p>
+
 ### Todo tu personaje de un vistazo
 
 La ventana **Personaje** (icono de persona) muestra lo que el juego envía sobre ti: equipo con nivel de objeto y
