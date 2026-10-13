@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.42.3",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The network overlay finds freezes: it shows stalls of the game connection, pings the router and the internet to tell where a freeze comes from, and writes network.log for later",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.42.2",
   "date": "2026-10-13",
   "items": [
