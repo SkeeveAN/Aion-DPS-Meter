@@ -32,6 +32,13 @@
      "Backend"
     ],
     "date": "2026-10-13"
+   },
+   {
+    "text": "Sessions: every map and instance is recorded as its own session; a Sessions menu and a session manager with a timeline, save and load, a plausibility check against the boss's hit points and the boss rage after five minutes; the upload entries moved to the top of the App menu",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
    }
   ]
  },
