@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { profilesUploadSchema, uploadSchema } from "../uploadSchema.js";
+import { isCompletePlayer, profilesUploadSchema, uploadSchema, withoutIncompletePlayers } from "../uploadSchema.js";
 import { processProfilesUpload, processUpload } from "../matching/merge.js";
 import { db } from "../db/client.js";
 import { bossNpcIds, bosses, instances, uploads } from "../db/schema.js";
@@ -43,6 +43,16 @@ export async function uploadRoutes(app: FastifyInstance) {
     if (payload.participants.filter((p) => p.isSelf).length !== 1) {
       return reply.status(400).send({ error: "exactly_one_self_participant_required" });
     }
+    // No name, server or faction: the player is not accepted (the uploader's own row has to be complete, or the upload is turned away).
+    if (!isCompletePlayer(payload.participants.find((p) => p.isSelf)!)) {
+      app.log.warn({ clientVersion: payload.clientVersion }, "profiles upload rejected: own player lacks name, server or faction");
+      return reply.status(400).send({ error: "player_incomplete", message: "Name, server and faction of the uploader are required." });
+    }
+    const cut = withoutIncompletePlayers(payload.participants);
+    if (cut.dropped.length > 0) {
+      app.log.info({ dropped: cut.dropped.length, clientVersion: payload.clientVersion }, "profiles upload: players without name, server or faction left out");
+      payload.participants = cut.kept;
+    }
 
     let result;
     try {
@@ -82,6 +92,18 @@ export async function uploadRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: "exactly_one_self_participant_required" });
     }
 
+    // The kill is judged on everybody who dealt damage, the players kept are those with name, server AND faction (top rule: the rest is not accepted).
+    const groupDamage = payload.participants.reduce((sum, p) => sum + p.totalDamage, 0);
+    if (!isCompletePlayer(payload.participants.find((p) => p.isSelf)!)) {
+      app.log.warn({ clientVersion: payload.clientVersion, bossNpcName: payload.bossNpcName }, "upload rejected: own player lacks name, server or faction");
+      return reply.status(400).send({ error: "player_incomplete", message: "Name, server and faction of the uploader are required." });
+    }
+    const cut = withoutIncompletePlayers(payload.participants);
+    if (cut.dropped.length > 0) {
+      app.log.info({ dropped: cut.dropped.length, clientVersion: payload.clientVersion, bossNpcName: payload.bossNpcName }, "upload: players without name, server or faction left out");
+      payload.participants = cut.kept;
+    }
+
     // An instance holds at most an alliance; only a world boss has more people on it.
     const worldBoss =
       payload.bossNpcId !== undefined &&
@@ -102,7 +124,6 @@ export async function uploadRoutes(app: FastifyInstance) {
     // all of the boss's hit points. Otherwise two failed 50 % attempts - or an empty run - would pass
     // as one kill. The client sends the boss's highest hit-point reading; without it nothing proves
     // the fight was a whole one.
-    const groupDamage = payload.participants.reduce((sum, p) => sum + p.totalDamage, 0);
     if (payload.bossMaxHp === undefined || groupDamage < payload.bossMaxHp * MIN_KILL_DAMAGE_SHARE) {
       app.log.warn({ groupDamage, bossMaxHp: payload.bossMaxHp, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: damage does not cover the boss's hit points");
       recordTurnedAway(payload, request.ip, [{ code: "boss_not_killed", detail: `${groupDamage} damage on ${payload.bossMaxHp ?? "unknown"} hit points` }]);

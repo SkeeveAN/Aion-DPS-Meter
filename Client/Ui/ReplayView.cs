@@ -193,7 +193,7 @@ public sealed class ReplayView : FrameworkElement
 
             Point at = ToScreen(now.X, now.Y);
             ReplayDeath? death = _data.Deaths.LastOrDefault(d => d.Entity == e.Id && d.At <= _time);
-            bool dead = death is not null && e.Role == ReplayRole.Player;
+            bool dead = death is not null && e.Role == ReplayRole.Player && (death.Until is null || _time < death.Until);
             if (e.Role == ReplayRole.Boss)
             {
                 double rb = Math.Max(9, 160 * _scale);
@@ -217,6 +217,10 @@ public sealed class ReplayView : FrameworkElement
                     var cross = new Pen(Brushes.OrangeRed, 2);
                     dc.DrawLine(cross, new Point(at.X - 6, at.Y - 6), new Point(at.X + 6, at.Y + 6));
                     dc.DrawLine(cross, new Point(at.X - 6, at.Y + 6), new Point(at.X + 6, at.Y - 6));
+                    // how long they have been dead
+                    var span = new FormattedText("☠ " + TimeSpan.FromSeconds(Math.Max(0, _time - death!.At)).ToString(@"m\:ss"), System.Globalization.CultureInfo.CurrentCulture,
+                        FlowDirection.LeftToRight, new Typeface("Segoe UI"), 10, Brushes.OrangeRed, dpi);
+                    dc.DrawText(span, new Point(at.X - span.Width / 2, at.Y - 22));
                 }
 
                 // the hit it just took: a red ring
@@ -398,6 +402,9 @@ public sealed class ReplayTimeline : FrameworkElement
             double x = X(d.At);
             dc.DrawLine(cross, new Point(x - 4, 30), new Point(x + 4, 38));
             dc.DrawLine(cross, new Point(x - 4, 38), new Point(x + 4, 30));
+            // the time dead as a bar to the revive (to the end when there was none)
+            double until = X(d.Until ?? _data.DurationSeconds);
+            dc.DrawLine(new Pen(new SolidColorBrush(Color.FromArgb(0xB0, 0xFF, 0x45, 0x00)), 3), new Point(x, 41), new Point(Math.Max(x + 2, until), 41));
         }
 
         var accent = (Brush)(TryFindResource("Brush.Accent") ?? Brushes.Orange);

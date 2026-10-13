@@ -68,7 +68,8 @@ public sealed record ReplayArea(double Start, double End, int Actor, int SkillId
 /// <summary>A boss's hit on a group member.</summary>
 public sealed record ReplayHit(double At, int Attacker, int Victim, int SkillId);
 
-public sealed record ReplayDeath(double At, int Entity);
+/// <summary>A death on the replay's clock; Until is the revive (null: not revived within the fight).</summary>
+public sealed record ReplayDeath(double At, int Entity, double? Until = null);
 
 /// <summary>A boss's health over the fight: <see cref="Seconds"/> and the matching share (0-1).</summary>
 public sealed record ReplayHp(int Entity, double[] Seconds, double[] Fraction);
@@ -119,7 +120,7 @@ public static class ReplayBuilder
         var hits = fightEvents.Where(e => !e.IsHeal && !e.IsTick && bossIds.Contains(e.SourceObjectId) && playerIds.Contains(e.TargetObjectId))
             .Select(e => new ReplayHit(Secs(e.Timestamp), e.SourceObjectId, e.TargetObjectId, e.SkillId)).OrderBy(h => h.At).ToList();
         var deaths = (extras.Deaths ?? Array.Empty<DeathRecord>()).Where(d => playerIds.Contains(d.Entity) && d.At >= start && d.At <= end)
-            .Select(d => new ReplayDeath(Secs(d.At), d.Entity)).OrderBy(d => d.At).ToList();
+            .Select(d => new ReplayDeath(Secs(d.At), d.Entity, d.RevivedAt is DateTime back ? Secs(back) : null)).OrderBy(d => d.At).ToList();
         var staggers = extras.Staggers.Where(s => s.Broke && s.At >= start && s.At <= end).Select(s => new StaggerPhase(Secs(s.At), Secs(s.At) + 5)).ToList();
         var hp = (extras.Hp ?? Array.Empty<HpSeries>()).Where(h => bossIds.Contains(h.Entity) && h.T.Length >= 2)
             .Select(h => new ReplayHp(h.Entity, h.T.Select(t => Secs(h.Start) + t / 1000.0).ToArray(), h.Permille.Select(p => p / 1000.0).ToArray())).ToList();

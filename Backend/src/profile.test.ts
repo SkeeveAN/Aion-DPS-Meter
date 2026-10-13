@@ -231,8 +231,8 @@ test("through the real routes: upload with a profile, then the player endpoint r
   try {
     const payload = {
       ...aion2Upload([
-        participant("Routey", { guild: "Akatsuki", isSelf: true, profile: selfProfile }),
-        participant("Seen", { isSelf: false, profile: { source: "seen", classId: 7, classBits: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] } }),
+        participant("Routey", { guild: "Akatsuki", faction: "Elyos", serverId: 1304, isSelf: true, profile: selfProfile }),
+        participant("Seen", { faction: "Elyos", serverId: 1304, isSelf: false, profile: { source: "seen", classId: 7, classBits: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] } }),
       ]),
       startedAt: "2026-10-01T03:00:00.000Z",
       endedAt: "2026-10-01T03:02:00.000Z",
@@ -278,8 +278,8 @@ test("players without a boss fight: POST /api/uploads/profiles stores profiles a
       game: "aion2",
       serverFingerprint: "aion2:test:13328",
       participants: [
-        { name: "Solo", className: "Gladiator", faction: "", guild: "Akatsuki", isSelf: true, profile: selfProfile },
-        { name: "Passerby", className: "Cleric", faction: "", isSelf: false, profile: { source: "seen", classId: 7, classBits: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] } },
+        { name: "Solo", className: "Gladiator", faction: "Elyos", serverId: 1304, guild: "Akatsuki", isSelf: true, profile: selfProfile },
+        { name: "Passerby", className: "Cleric", faction: "Elyos", serverId: 1304, isSelf: false, profile: { source: "seen", classId: 7, classBits: 2, gear: [{ slot: 1, itemId: 110150026, enchant: 0 }] } },
       ],
     };
     const ok = await app.inject({ method: "POST", url: "/api/uploads/profiles", payload });
@@ -309,7 +309,7 @@ test("a player that only has a profile (no boss fight) is found by name search",
       game: "aion2",
       serverFingerprint: "aion2:europe-kaisinel",
       serverName: "Europe - Kaisinel",
-      participants: [{ name: "Aahzetta", className: "Gladiator", faction: "", guild: "Akatsuki", isSelf: true, profile: selfProfile }],
+      participants: [{ name: "Aahzetta", className: "Gladiator", faction: "Elyos", serverId: 1304, guild: "Akatsuki", isSelf: true, profile: selfProfile }],
     };
     const up = await app.inject({ method: "POST", url: "/api/uploads/profiles", payload });
     assert.equal(up.statusCode, 200, up.body);

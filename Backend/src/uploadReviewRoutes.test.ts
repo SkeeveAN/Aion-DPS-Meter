@@ -30,7 +30,7 @@ after(async () => {
 
 function participant(name: string, className: string, damage: number, isSelf = false) {
   return {
-    name, className, faction: "Elyos", isSelf, totalDamage: damage, dps: 1, idps: 1, totalHealing: 0, damageTaken: 0, damageAbsorbed: 0, shieldsGiven: [], buffs: [], hps: 0,
+    name, className, faction: "Elyos", serverId: 1304, isSelf, totalDamage: damage, dps: 1, idps: 1, totalHealing: 0, damageTaken: 0, damageAbsorbed: 0, shieldsGiven: [], buffs: [], hps: 0,
     skills: [{ skill: "Cleave", hits: 100, critHits: 20, total: damage, min: 1, max: 100 }], healSkills: [],
   };
 }
@@ -104,4 +104,26 @@ test("the review queue answers only with the token, lists what waits and approve
   const second = ((await app.inject({ method: "GET", url: "/api/admin/uploads/pending", headers: admin })).json().pending as { id: number; reasons: { code: string }[] }[]).find((p) => p.reasons.some((r) => r.code === "too_fast"))!;
   assert.equal((await app.inject({ method: "POST", url: `/api/admin/uploads/${second.id}/reject`, headers: admin })).statusCode, 200);
   assert.equal((await app.inject({ method: "GET", url: "/api/admin/uploads/pending", headers: admin })).json().pending.length, 1); // the first one is still waiting
+});
+
+test("top rule: a player without name, server or faction is left out; the uploader's own row has to be complete", async () => {
+  const complete = body(10, 150);
+  const withGaps = {
+    ...complete,
+    participants: [
+      ...complete.participants,
+      { ...participant("NoServer", "Gladiator", 1000), serverId: undefined },
+      { ...participant("NoFaction", "Gladiator", 1000), faction: "" },
+    ],
+  };
+  const accepted = await post(withGaps);
+  assert.equal(accepted.statusCode, 200, accepted.body);
+  const { players } = await import("./db/schema.js");
+  const names = db.select().from(players).all().map((p) => p.name);
+  assert.ok(!names.includes("NoServer") && !names.includes("NoFaction"));
+
+  const selfGap = { ...complete, participants: complete.participants.map((p) => (p.isSelf ? { ...p, faction: "" } : p)) };
+  const refused = await post(selfGap);
+  assert.equal(refused.statusCode, 400);
+  assert.equal(refused.json().error, "player_incomplete");
 });

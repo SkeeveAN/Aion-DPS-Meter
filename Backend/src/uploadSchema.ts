@@ -114,6 +114,24 @@ export const uploadSchema = z
   });
 
 export type UploadPayload = z.infer<typeof uploadSchema>;
+
+/**
+ * The top rule for players: one without name, server AND faction (all three as the client read them) is not accepted. A client from 0.26.0
+ * on always sends all three; the server never fills a gap from the uploader's server or a guess.
+ */
+export function isCompletePlayer(p: { name: string; faction?: string; serverId?: number }): boolean {
+  return p.name.trim() !== "" && p.serverId !== undefined && (p.faction === "Elyos" || p.faction === "Asmodian");
+}
+
+/** Cuts the players that break the rule above out of an upload; how many went is returned for the log. */
+export function withoutIncompletePlayers<T extends { name: string; faction?: string; serverId?: number }>(participants: T[]): { kept: T[]; dropped: T[] } {
+  const kept: T[] = [];
+  const dropped: T[] = [];
+  for (const p of participants) {
+    (isCompletePlayer(p) ? kept : dropped).push(p);
+  }
+  return { kept, dropped };
+}
 export type ParticipantUpload = z.infer<typeof participantSchema>;
 
 /**
