@@ -34,7 +34,44 @@
     "date": "2026-10-13"
    },
    {
+    "text": "Combat overlay: boss cast bar, target of the target and healer target in one frame, each element movable on its own",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-13"
+   },
+   {
     "text": "Sessions: every map and instance is recorded as its own session; a Sessions menu and a session manager with a timeline, save and load, a plausibility check against the boss's hit points and the boss rage after five minutes; the upload entries moved to the top of the App menu",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Rotation, effects and stagger in the player window: skills on a timeline with the DPS behind them, uptime of every effect and stagger bands, also for a stored session",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Hide the overlays while a game menu is open (optional): the mouse cursor tells a menu from play, the show-cursor key does not hide, the control mode is learnt while fighting",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Settings that survive a crash (written safely, with a copy from the last start) and a reset to defaults that can be undone for 30 seconds",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "The meter in your stream: a browser source for OBS and Streamlabs that shows the meter live, on this PC only",
     "areas": [
      "Client"
     ],
@@ -49,9 +86,33 @@
     "date": "2026-10-13"
    },
    {
+    "text": "How a hit landed: Double, Perfect, Parry, Back, Front and Multi read from the hit frames, shown per skill; Double, Perfect and Parry checked against the damage they do",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
     "text": "The Features page has its own section for the session manager, with a picture of it and a jump-bar entry",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Replay of a boss fight from above (early test): the group and the boss on a map, the areas of the skills a boss winds up, hits, deaths, staggers and the boss's health on a timeline",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Plausibility of boss uploads: dates that cannot be a fight are turned away, implausible kills wait for review instead of going on the leaderboards",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
     ],
     "date": "2026-10-13"
    }

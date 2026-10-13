@@ -58,5 +58,15 @@
  "ff30506": null,
  "cb0cd72": null,
  "925eccc": null,
- "7d31149": "Sessions: every map and instance is recorded as its own session; a Sessions menu and a session manager with a timeline, save and load, a plausibility check against the boss's hit points and the boss rage after five minutes; the upload entries moved to the top of the App menu"
+ "7d31149": "Sessions: every map and instance is recorded as its own session; a Sessions menu and a session manager with a timeline, save and load, a plausibility check against the boss's hit points and the boss rage after five minutes; the upload entries moved to the top of the App menu",
+ "2fd72f5": null,
+ "2463643": null,
+ "5af9e36": null,
+ "fdfa9ab": null,
+ "a02b96f": null,
+ "21d5447": null,
+ "69f028b": null,
+ "ce7d96c": null,
+ "5d7ce42": "Rotation, effects and stagger in the player window: skills on a timeline with the DPS behind them, uptime of every effect and stagger bands, also for a stored session",
+ "54db00a": "Settings that survive a crash (written safely, with a copy from the last start) and a reset to defaults that can be undone for 30 seconds"
 }
