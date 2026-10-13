@@ -106,7 +106,7 @@ public static class CombatOverlayData
 
         foreach (BuffNotice buff in dir.Combat.BuffsOn(id, now))
         {
-            bool debuff = dir.IsKnownMonster(buff.Caster);
+            bool debuff = dir.IsKnownMonster(buff.Caster) || buff.Caster <= 0; // from a monster, or from nobody (the room)
             if ((settings.CombatHealerEffectKind == "debuffs" && !debuff) || (settings.CombatHealerEffectKind == "buffs" && debuff))
             {
                 continue;
@@ -133,7 +133,8 @@ public static class CombatOverlayData
     {
         if (dir.IsKnownPlayer(id) || dir.IsLocalPlayer(id))
         {
-            string? cls = dir.ClassOf(id);
+            // the own character's class is also known from the login record, before it used a skill
+            string? cls = dir.ClassOf(id) ?? (dir.IsLocalPlayer(id) && dir.LocalCharacter is { } own ? Aion2SkillNames.ClassFromCode(own.ClassCode) : null);
             return (dir.NameFor(id) ?? LocalizationManager.Instance["Combat.You"], cls is null ? null : Aion2Artwork.ClassEmblemPath(cls), false);
         }
 
