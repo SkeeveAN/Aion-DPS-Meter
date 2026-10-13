@@ -274,9 +274,27 @@ public sealed class CombatOverlayWindow : MovableOverlay
         }
     }
 
-    private static (double?, double?, double) Load(Part part)
+    /// <summary>Before the split the overlay was one window: the cast bar at its top, the target of the target 140 below. The cast bar takes over that
+    /// window's place (and scale), the target of the target keeps its own spot below it - once, when the cast bar has no place of its own yet.</summary>
+    private static MeterSettings LoadMigrated()
     {
         var s = MeterSettings.Load();
+        if (s.CombatCastOverlayLeft is null && s.CombatCastOverlayTop is null && s.CombatOverlayLeft is double left && s.CombatOverlayTop is double top)
+        {
+            double scale = s.CombatOverlayScale;
+            s.CombatCastOverlayLeft = left;
+            s.CombatCastOverlayTop = top;
+            s.CombatCastOverlayScale = scale;
+            s.CombatOverlayTop = top + 140 * scale;
+            s.Save();
+        }
+
+        return s;
+    }
+
+    private static (double?, double?, double) Load(Part part)
+    {
+        var s = LoadMigrated();
         return part == Part.Cast ? (s.CombatCastOverlayLeft, s.CombatCastOverlayTop, s.CombatCastOverlayScale) : (s.CombatOverlayLeft, s.CombatOverlayTop, s.CombatOverlayScale);
     }
 
