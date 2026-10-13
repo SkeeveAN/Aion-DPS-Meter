@@ -154,6 +154,15 @@ public sealed class MeterSettings
 
     /// <summary>The combat overlay (see CombatOverlayWindow): the boss cast bar, the target of the target and the healer's target in one frame.
     /// Off until switched on; every element has its own place and size inside the frame (<see cref="CombatElements"/>, in the frame's own units).</summary>
+    /// <summary>The overlays step aside while a game menu is open (the game shows the mouse cursor then). Only works in the control mode that hides the cursor while playing; off until switched on.</summary>
+    public bool HideDuringMenus { get; set; }
+
+    /// <summary>The control mode learnt so far: "Unknown", "Hidden" (the cursor is hidden while playing) or "Classic" (always shown; menus cannot be told apart).</summary>
+    public string MenuControlMode { get; set; } = "Unknown";
+
+    /// <summary>Shows the overlays for the menu that is open, or hides them again.</summary>
+    public string HotkeyShowMenu { get; set; } = "Ctrl+Alt+J";
+
     public bool ShowCombatOverlay { get; set; }
 
     public bool CombatOverlayLocked { get; set; } = true;

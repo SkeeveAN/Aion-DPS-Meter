@@ -32,6 +32,7 @@ public static class SelfCheck
         ok &= SelfCheckSessions.Run();
         ok &= SelfCheckCombatOverlay.Run();
         ok &= SelfCheckRotation.Run();
+        ok &= SelfCheckMenu.Run();
         return ok;
     }
 

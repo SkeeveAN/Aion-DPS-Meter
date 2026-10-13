@@ -84,6 +84,8 @@ dégâts reçus dans une petite seconde ligne sous le nom.
 le moindre clic. Opacité, barres de part de dégâts, vie du boss et dégâts reçus par joueur sont des options.
 L'overlay ne s'affiche que lorsque le jeu est au premier plan. Activez-le de n'importe où avec un raccourci.
 
+Facultatif (**Paramètres → Interface → Masquer pendant les menus du jeu**, désactivé par défaut) : le compteur et ses overlays s'effacent tant qu'un menu du jeu est ouvert (carte, inventaire, légion, boutique, Échap ...) et reviennent quand tu le fermes. Cela repose sur le curseur de la souris : dans le mode de contrôle qui masque le curseur pendant que tu joues, le jeu l'affiche à l'ouverture d'un menu ; maintenir la touche d'affichage du curseur (Alt par défaut) garde le compteur visible pour que tu puisses cliquer dessus, et **Ctrl+Alt+J** affiche les overlays pendant le menu ouvert. Dans le mode de contrôle classique, le curseur est toujours affiché, donc les menus ne se distinguent pas ; le compteur le remarque pendant le combat et reste simplement affiché.
+
 ### Détail des compétences pour chaque joueur
 
 **Double-clic** sur un joueur : chaque compétence avec ses coups, son taux de critique, son total, son min, son max
@@ -229,6 +231,7 @@ commandes de chat, qui ne peuvent pas fonctionner car le chat d'Aion 2 n'est pas
 | **Ctrl+Alt+B** | Overlay des boss du monde |
 | **Ctrl+Alt+N** | Overlay réseau |
 | **Ctrl+Alt+C** | Overlay de combat |
+| **Ctrl+Alt+J** | Afficher les overlays pendant ce menu |
 | **Ctrl+Alt+O** | Overlay des raccourcis (une liste déplaçable des raccourcis) |
 | **Ctrl+Alt+A** | Tous les overlays activés / désactivés |
 

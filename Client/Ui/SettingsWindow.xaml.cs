@@ -101,6 +101,9 @@ public partial class SettingsWindow : Window
         StartWithWindowsBox.IsChecked = StartupRegistration.IsEnabled();
         ShowShareBarsBox.IsChecked = settings.ShowShareBars;
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
+        HideDuringMenusBox.IsChecked = settings.HideDuringMenus;
+        ShowMenuControlStatus(settings.MenuControlMode);
+        SetHotkeyBox(HotkeyShowMenuBox, HotkeyBinding.Parse(settings.HotkeyShowMenu).ToString());
         PopulateCaptureAdapters(settings.CaptureAdapterId);
 
         // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML. Each item's
@@ -411,7 +414,7 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
-        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvCombatBox, OvPetArrowsBox, OvGatherArrowsBox };
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvCombatBox, OvShowMenuBox, OvPetArrowsBox, OvGatherArrowsBox };
 
     /// <summary>The switches of the lines the network overlay shows (Tag = the line's id).</summary>
     private IEnumerable<CheckBox> NetworkRowBoxes() =>
@@ -570,6 +573,8 @@ public partial class SettingsWindow : Window
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
         _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? false;
+        _settings.HideDuringMenus = HideDuringMenusBox.IsChecked ?? false;
+        _settings.HotkeyShowMenu = (string?)HotkeyShowMenuBox.Tag ?? "";
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
 
         Saved?.Invoke(); // the window stays open: Save applies, the ✕ / Cancel button closes
@@ -830,6 +835,15 @@ public partial class SettingsWindow : Window
         BuildPetRegionTree();
         BuildPetRegionRows();
         InitPetRare(settings);
+    }
+
+    /// <summary>Says which control mode the meter has seen: the feature works only where the game hides the cursor while playing.</summary>
+    private void ShowMenuControlStatus(string mode)
+    {
+        var loc = LocalizationManager.Instance;
+        MenuControlStatus.Text = Enum.TryParse(mode, true, out ControlMode parsed) && parsed != ControlMode.Unknown
+            ? loc["Settings.Menu.Status." + parsed]
+            : loc["Settings.Menu.Status.Unknown"];
     }
 
     /// <summary>The combat overlay's page: the two switches, the elements and their options.</summary>

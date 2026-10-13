@@ -83,6 +83,8 @@ healing and damage taken in a small second line under the name.
 taking a single click. Opacity, damage-share bars, the boss's health and damage taken per player are
 options. The overlay only draws while the game is in front. Toggle it from anywhere with a hotkey.
 
+Optional (**Settings → Interface → Hide during game menus**, off by default): the meter and its overlays step aside while one of the game's menus is open (map, inventory, legion, shop, Esc ...) and come back when you close it. It works by the mouse cursor: in the control mode that hides the cursor while you play, the game shows it when a menu opens; holding the show-cursor key (Alt by default) keeps the meter up so you can click it, and **Ctrl+Alt+J** shows the overlays for the menu that is open. In the classic control mode the cursor is always shown, so menus cannot be told apart; the meter notices that while you fight and simply stays up.
+
 ### Skill breakdown for every player
 
 **Double-click** a player: every skill with hits, crit rate, total, min, max and average, split by target,
@@ -226,6 +228,7 @@ which cannot work because Aion 2's chat is not readable from the network stream.
 | **Ctrl+Alt+B** | World boss overlay |
 | **Ctrl+Alt+N** | Network overlay |
 | **Ctrl+Alt+C** | Combat overlay |
+| **Ctrl+Alt+J** | Show the overlays during the open game menu |
 | **Ctrl+Alt+O** | Hotkey overlay (a movable list of the hotkeys) |
 | **Ctrl+Alt+A** | All overlays on / off |
 

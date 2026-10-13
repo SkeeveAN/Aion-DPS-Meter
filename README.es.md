@@ -82,6 +82,8 @@ coloca la curación y el daño recibido en una pequeña segunda línea bajo el n
 interceptar ni un solo clic. La opacidad, las barras de porcentaje de daño, la vida del jefe y el daño recibido por
 jugador son opciones. El overlay solo se dibuja mientras el juego está en primer plano. Actívalo desde cualquier sitio con un atajo.
 
+Opcional (**Ajustes → Interfaz → Ocultar durante los menús del juego**, desactivado por defecto): el medidor y sus overlays se apartan mientras hay un menú del juego abierto (mapa, inventario, legión, tienda, Esc ...) y vuelven al cerrarlo. Funciona por el cursor del ratón: en el modo de control que oculta el cursor mientras juegas, el juego lo muestra al abrir un menú; mantener pulsada la tecla de mostrar el cursor (Alt por defecto) mantiene visible el medidor para que puedas hacer clic en él, y **Ctrl+Alt+J** muestra los overlays durante el menú abierto. En el modo de control clásico el cursor siempre se muestra, por lo que los menús no se pueden distinguir; el medidor lo detecta mientras combates y simplemente se queda visible.
+
 ### Desglose de habilidades de cada jugador
 
 **Doble clic** en un jugador: todas las habilidades con golpes, tasa de crítico, total, mín., máx. y media,
@@ -227,6 +229,7 @@ chat, que no pueden funcionar porque el chat de Aion 2 no se puede leer en el tr
 | **Ctrl+Alt+B** | Overlay de jefes mundiales |
 | **Ctrl+Alt+N** | Overlay de red |
 | **Ctrl+Alt+C** | Overlay de combate |
+| **Ctrl+Alt+J** | Mostrar overlays durante este menú |
 | **Ctrl+Alt+O** | Superposición de atajos (una lista movible de los atajos) |
 | **Ctrl+Alt+A** | Todos los overlays sí / no |
 

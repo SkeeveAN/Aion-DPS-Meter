@@ -386,6 +386,51 @@ internal static class GameWindow
     [DllImport("user32.dll")]
     private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct CursorInfo { public int Size, Flags; public IntPtr Cursor; public Point Position; }
+
+    [DllImport("user32.dll")]
+    private static extern bool GetCursorInfo(ref CursorInfo info);
+
+    [DllImport("user32.dll")]
+    private static extern short GetAsyncKeyState(int key);
+
+    private const int CursorShowing = 1;
+
+    /// <summary>Whether Windows is showing a mouse cursor. The game hides it while playing (in the control mode that does) and shows it when a menu opens.
+    /// A failing call counts as "not shown": the meter then simply stays up.</summary>
+    public static bool IsCursorVisible()
+    {
+        var info = new CursorInfo { Size = Marshal.SizeOf<CursorInfo>() };
+        return GetCursorInfo(ref info) && (info.Flags & CursorShowing) != 0 && info.Cursor != IntPtr.Zero;
+    }
+
+    /// <summary>Whether any key or mouse button is held (not the lock keys). Asked only while the cursor shows, to tell a menu from the show-cursor key being held.</summary>
+    public static bool AnyKeyDown()
+    {
+        for (int key = 1; key < 255; key++)
+        {
+            if (key is 0x14 or 0x90 or 0x91)
+            {
+                continue; // Caps, Num and Scroll lock stay "on" without being held
+            }
+
+            if ((GetAsyncKeyState(key) & 0x8000) != 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether the window in front is the game itself (not the meter's own windows).</summary>
+    public static bool ForegroundIsGame()
+    {
+        IntPtr hwnd = GetForegroundWindow();
+        return hwnd != IntPtr.Zero && IsGame(hwnd);
+    }
+
     private static IntPtr _known;
     private static IntPtr _lastChecked;
     private static bool _lastWasGameOrSelf;
@@ -402,7 +447,7 @@ internal static class GameWindow
 
         if (hwnd == _lastChecked)
         {
-            return _lastWasGameOrSelf;
+            return _lastWasGameOrSelf && !(MenuWatcher.Hidden && IsGame(hwnd));
         }
 
         bool result = IsGame(hwnd);
@@ -414,13 +459,13 @@ internal static class GameWindow
 
         _lastChecked = hwnd;
         _lastWasGameOrSelf = result;
-        return result;
+        return result && !(MenuWatcher.Hidden && IsGame(hwnd)); // a game menu is open: out of the way
     }
 
     public static System.Drawing.Rectangle? ForegroundClientArea()
     {
         IntPtr hwnd = GetForegroundWindow();
-        if (hwnd == IntPtr.Zero || !IsGame(hwnd) || !GetClientRect(hwnd, out Rect client))
+        if (hwnd == IntPtr.Zero || !IsGame(hwnd) || MenuWatcher.Hidden || !GetClientRect(hwnd, out Rect client))
         {
             return null;
         }
