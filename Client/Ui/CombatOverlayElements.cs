@@ -126,6 +126,9 @@ public sealed class CombatElementHost : Border
 
     public CombatElementLayout Layout { get; }
 
+    /// <summary>The element is the only one in its window and fills it: the window's own frame is its outline and handles, so it shows none of its own.</summary>
+    public bool Chromeless { get; set; }
+
     /// <summary>Puts the layout on the element: size, scale and place.</summary>
     public void Apply()
     {
@@ -142,6 +145,11 @@ public sealed class CombatElementHost : Border
     /// <summary>Edit mode on (unlocked) or off (locked: no outline, no handles, clicks go through the whole overlay anyway).</summary>
     public void SetEditing(bool editing)
     {
+        if (Chromeless)
+        {
+            return;
+        }
+
         _editing = editing;
         BorderBrush = editing ? EditBorder : Brushes.Transparent;
         Background = editing ? EditFill : null;

@@ -95,7 +95,7 @@ public static class CombatOverlayData
             string target = atYou
                 ? loc["Combat.You"]
                 : cast.Target <= 0 || cast.Target == cast.Actor ? loc["Combat.AllAround"] : Name(dir, cast.Target, language);
-            string skill = Aion2SkillNames.Display(Aion2SkillNames.NameOf(cast.SkillId));
+            string skill = Aion2SkillNames.DisplayOf(cast.SkillId);
             string caster = Name(dir, cast.Actor, language);
             var row = new CastRowData(skill, caster, target, atYou, view.IsArea, lethal, (now - cast.Start).TotalMilliseconds, cast.DurationMs, view.LandMs, Aion2SkillIcons.PathFor(cast.SkillId) ?? (dir.BossNpcIdOf(cast.Actor) is int bossNpc ? Aion2Artwork.BossThumbPath(bossNpc) : null));
             double score = (atYou ? 200 : 0) + (lethal ? 100 : 0) + (view.IsArea ? 50 : 0) + (boss ? 40 : 0);
@@ -223,6 +223,23 @@ public sealed class CombatOverlayWindow : MovableOverlay
             AddElement(TargetNameId, _targetName, loc["Combat.Element.TargetName"], settings, _stage);
             AddElement(TargetHpId, _targetHp, loc["Combat.Element.TargetHp"], settings, _stage);
             AddElement(TargetEffectsId, _targetEffects, loc["Combat.Element.TargetEffects"], settings, _stage);
+        }
+
+        if (part != Part.Target)
+        {
+            // the cast bar and the health bar are alone in their window: the window's frame is their outline, so they simply fill it
+            CombatElementHost only = _hosts.Values.Single();
+            only.Chromeless = true;
+            only.Layout.Left = 0;
+            only.Layout.Top = 0;
+            only.Layout.Scale = 1;
+            only.Apply();
+            _stage.SizeChanged += (_, e) =>
+            {
+                only.Layout.Width = e.NewSize.Width;
+                only.Layout.Height = e.NewSize.Height;
+                only.Apply();
+            };
         }
 
         var (w, h) = LoadSize(part);
@@ -444,6 +461,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private bool RenderHp(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
+        Opacity = Math.Clamp(settings.BossHpOpacity, 0.2, 1.0);
         BossHpData? boss = frame.Boss;
         if (boss is null && _editing && settings.ShowBossHp)
         {
@@ -462,6 +480,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private bool RenderCast(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
+        Opacity = Math.Clamp(settings.CombatCastOpacity, 0.2, 1.0);
         bool any = false;
         bool castOn = settings.CombatShowBossCast;
         if (castOn && frame.Casts.Count > 0)
