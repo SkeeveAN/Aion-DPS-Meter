@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.45.5",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "The network log now pings the game server itself during a stall, so a stall can be told apart: the server host still answers ping while its game data stays away, or it does not answer at all (the route to it)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.45.4",
   "date": "2026-10-14",
   "items": [
