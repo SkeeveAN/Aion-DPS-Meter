@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.43.0",
   "date": "2026-10-13",
   "items": [
    {
@@ -12,6 +12,13 @@
    },
    {
     "text": "Hidden Cubes on the interactive map: the candidate places show again from afar, within 40 m only the cube the game announces",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "The dummy test in the new Tools menu times runs at a training dummy with a countdown overlay, keeps every run and compares runs with a timeline of skills and effects",
     "areas": [
      "Client"
     ],
