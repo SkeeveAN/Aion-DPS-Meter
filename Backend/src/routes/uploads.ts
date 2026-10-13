@@ -9,6 +9,23 @@ import { clientPolicy, requireCurrentClient } from "../clientPolicy.js";
 
 import { hashIp } from "../ipHash.js";
 import { MAX_INSTANCE_PARTICIPANTS, MIN_KILL_DAMAGE_SHARE } from "../constants.js";
+import { env } from "../env.js";
+import { assessKill, referenceFor, structuralProblems, type ReviewFinding } from "../uploadReview.js";
+import type { UploadPayload } from "../uploadSchema.js";
+
+/** Keeps what was turned away (and why) in the audit log instead of only in the process log. */
+function recordTurnedAway(payload: UploadPayload, ip: string, findings: ReviewFinding[]) {
+  db.insert(uploads)
+    .values({
+      clientVersion: payload.clientVersion,
+      uploaderReportedName: payload.participants.find((p) => p.isSelf)?.name ?? "?",
+      ipHash: hashIp(ip),
+      status: "rejected",
+      reviewReason: JSON.stringify(findings),
+      rawPayloadJson: JSON.stringify(payload),
+    })
+    .run();
+}
 
 export async function uploadRoutes(app: FastifyInstance) {
   // Aion 2 players without a boss fight (a client that read characters but killed nothing). The
@@ -88,7 +105,37 @@ export async function uploadRoutes(app: FastifyInstance) {
     const groupDamage = payload.participants.reduce((sum, p) => sum + p.totalDamage, 0);
     if (payload.bossMaxHp === undefined || groupDamage < payload.bossMaxHp * MIN_KILL_DAMAGE_SHARE) {
       app.log.warn({ groupDamage, bossMaxHp: payload.bossMaxHp, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: damage does not cover the boss's hit points");
+      recordTurnedAway(payload, request.ip, [{ code: "boss_not_killed", detail: `${groupDamage} damage on ${payload.bossMaxHp ?? "unknown"} hit points` }]);
       return reply.status(400).send({ error: "boss_not_killed", groupDamage, bossMaxHp: payload.bossMaxHp ?? null });
+    }
+
+    // Dates that cannot be a fight (end before start, none or endless, in the future) are turned away.
+    const problems = structuralProblems(payload, Date.now());
+    if (problems.length > 0) {
+      app.log.warn({ problems, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: implausible times");
+      recordTurnedAway(payload, request.ip, problems);
+      return reply.status(400).send({ error: "implausible_upload", problems });
+    }
+
+    // A kill that is formally fine but looks wrong beside other kills of the boss: in "log" mode it is only written to the log, in "on" mode it waits for review and stays off the leaderboards.
+    if (env.UPLOAD_REVIEW !== "off") {
+      const findings = assessKill(payload, referenceFor(payload));
+      if (findings.length > 0) {
+        app.log.warn({ findings, bossNpcName: payload.bossNpcName, mode: env.UPLOAD_REVIEW, clientVersion: payload.clientVersion }, "upload looks implausible");
+        if (env.UPLOAD_REVIEW === "on") {
+          db.insert(uploads)
+            .values({
+              clientVersion: payload.clientVersion,
+              uploaderReportedName: payload.participants.find((p) => p.isSelf)!.name,
+              ipHash: hashIp(request.ip),
+              status: "pending",
+              reviewReason: JSON.stringify(findings),
+              rawPayloadJson: JSON.stringify(payload),
+            })
+            .run();
+          return reply.send({ status: "pending_review", reasons: findings.map((f) => f.code) });
+        }
+      }
     }
 
     const uploaderReportedName = payload.participants.find((p) => p.isSelf)!.name;

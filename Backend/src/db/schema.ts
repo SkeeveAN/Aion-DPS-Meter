@@ -522,6 +522,10 @@ export const uploads = sqliteTable(
     // Raw payload as received, kept for audit and so the merge algorithm can be
     // improved later and re-run over history without asking clients to re-upload.
     rawPayloadJson: text("raw_payload_json").notNull(),
+    // Why an upload waits in the review queue ("pending") or was turned away ("rejected"): a JSON list of {code, detail}
+    // (see uploadReview.ts). Null for the ordinary ones. reviewedAt is set when someone approved or rejected it.
+    reviewReason: text("review_reason"),
+    reviewedAt: text("reviewed_at"),
   },
   (table) => ({
     matchedEncounterIdIdx: index("uploads_matched_encounter_id_idx").on(table.matchedEncounterId),

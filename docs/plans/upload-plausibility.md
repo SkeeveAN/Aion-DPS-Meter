@@ -1,6 +1,6 @@
 # Plausibilitätsprüfung für Boss-Uploads (Aion 2)
 
-Branch: `feature/upload-plausibility` · Stand: Plan, noch nichts umgesetzt
+Branch: `feature/upload-plausibility` · Stand: Schritte 1-4 umgesetzt (siehe „Umsetzungsstand“ am Ende)
 
 ## Ziel
 
@@ -58,3 +58,20 @@ Die Schwellen als Konstanten in `constants.ts`. **Wenige Referenzläufe** (< N):
 - Zu strenge Schwellen sperren echte Rekorde → Schwellen als Konstanten, Wirkung zuerst nur loggen („Trockenlauf“) und erst nach Sichtung der Zahlen scharf schalten.
 - Migration auf der Produktions-Datenbank: Sicherung, Transaktion, danach Prüfung.
 - Tests laufen auf dem Server (lokal fehlen die Build-Werkzeuge für `better-sqlite3`).
+
+## Umsetzungsstand (13.10.2026)
+
+**Fertig und geprüft (158 Backend-Tests grün, Typprüfung sauber; neue Tests laufen mit echter Migration und echtem Zusammenführen):**
+
+- **Schritt 1 (Formprüfung):** `structuralProblems` weist Uploads ab, deren Zeiten nicht lesbar sind, deren Ende nicht nach dem Start liegt, die kürzer als 3 s oder länger als 6 h dauern oder in der Zukunft beginnen (400 `implausible_upload`). Was abgewiesen wird (auch `boss_not_killed`), steht jetzt mit Grund in `uploads` (`status = rejected`, `review_reason`).
+- **Schritt 2 (Warteschlange):** Statt eine Freigabe-Spalte an jede Abfrage der Bestenlisten zu hängen, wartet ein auffälliger Upload **in `uploads` mit `status = pending`** und wird erst bei der Freigabe durch das normale Zusammenführen gejagt - die Bestenlisten bleiben unberührt. Migration `0050_upload_review` (Spalten `review_reason`, `reviewed_at`).
+- **Schritt 3 (`assessKill`):** reine Funktion mit Referenz aus den Kills desselben Bosses: mehr Schaden als 1,3 × Boss-HP, Boss-HP, die kein bekannter Kill hatte (±10 %), Kill schneller als 0,6 × der schnellste bekannte (bei gleichen HP), Spieler über 2,5 × Klassen-Median (ab 8 Vergleichswerten), unbekannter Boss. Beurteilt wird nur mit mindestens 3 bekannten Kills (Beta: erste Kills eines Bosses gehen immer durch); Schwellen in `constants.ts`.
+- **Betriebsart:** `UPLOAD_REVIEW=off|log|on` (Standard **`log`** = der Trockenlauf: auffällige Uploads werden nur ins Log geschrieben und wie bisher zusammengeführt; erst `on` hält sie zurück).
+- **Schritt 4 (Freigabe):** `GET /api/admin/uploads/pending`, `POST /api/admin/uploads/:id/approve|reject` mit `Authorization: Bearer <ADMIN_TOKEN>`; ohne gesetzten Token 404.
+
+**Bewusst offen:**
+
+- **Schritt 5** (Client sendet `hpCheck`-Urteil und zufällige Installations-ID) und **Schritt 6** (erneuter Upload derselben Installation nicht doppelt zählen, Konflikt bei > 2 % Abweichung markieren): nicht gebaut; erfordern Änderungen am Upload-Paket und am Zusammenführen.
+- Eine Oberfläche zum Prüfen (nur die JSON-Schnittstelle; Aufruf per `curl`).
+- **Vor dem Deployen:** Sicherung der Produktionsdatenbank (`.backup`), Migration `0050` kommt mit `dpsmeter_install`; `UPLOAD_REVIEW` zunächst auf `log` lassen, im Log die Funde ansehen, erst dann `on` setzen und `ADMIN_TOKEN` in der Server-`.env` hinterlegen.
+- Changelog-Eintrag folgt beim Merge nach `main`.

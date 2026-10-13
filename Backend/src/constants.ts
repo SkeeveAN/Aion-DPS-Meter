@@ -85,3 +85,27 @@ export const MIN_KILL_DAMAGE_SHARE = 0.9;
 
 /** Most people on an instance boss (an alliance of 20); a world boss may carry up to the schema's 300. */
 export const MAX_INSTANCE_PARTICIPANTS = 20;
+
+// ---- Plausibility of a boss upload (see uploadReview.ts) ----------------------------------------
+
+/** A kill shorter than this, or longer than the longest a raid can take, is no real fight. */
+export const MIN_KILL_SECONDS = 3;
+export const MAX_KILL_SECONDS = 6 * 3600;
+
+/** The group's damage over the boss's hit points above which a kill looks wrong (real kills sit at 90-110 %). */
+export const MAX_KILL_DAMAGE_SHARE = 1.3;
+
+/** How far the boss's hit points may be from a known reading of that boss before they count as a new, unknown value. */
+export const HP_REFERENCE_TOLERANCE = 0.1;
+
+/** A kill faster than this share of the fastest known one (same boss and hit points) is suspect. */
+export const FASTEST_KILL_FACTOR = 0.6;
+
+/** A player's damage per second above this multiple of the class's median on that boss is suspect. */
+export const CLASS_DPS_FACTOR = 2.5;
+
+/** Without at least this many known kills of the boss, nothing is judged by comparison (the project is in beta: a new boss must be able to get its first kills). */
+export const MIN_REFERENCE_RUNS = 3;
+
+/** ... and this many players of a class for the class comparison. */
+export const MIN_CLASS_SAMPLES = 8;

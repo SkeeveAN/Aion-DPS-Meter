@@ -136,6 +136,19 @@ const TRANSCENDENCE_STEPS: Readonly<Record<string, Readonly<Record<number, strin
   "deus-research-base": { 2320: "1", 2340: "2", 2360: "3", 2380: "4" },
 };
 
+/** The boss a payload names when it is on file (by NPC id, else by name), without creating anything; null for one nobody has catalogued. */
+export function findBossId(payload: UploadPayload): number | null {
+  if (payload.bossNpcId !== undefined) {
+    const byNpcId = db.select({ bossId: bossNpcIds.bossId }).from(bossNpcIds).where(eq(bossNpcIds.npcId, payload.bossNpcId)).get();
+    if (byNpcId) {
+      return byNpcId.bossId;
+    }
+  }
+
+  const npcName = payload.bossNpcName;
+  return bossesOfGame(payload.game).find(({ boss }) => boss.name === npcName || boss.npcNameAliases.includes(npcName))?.boss.id ?? null;
+}
+
 function resolveBossId(payload: UploadPayload): number {
   // Aion 2 clients know the NPC's numeric id, which is unambiguous where names are not (the same
   // boss name recurs across dungeons there) - so it wins whenever the boss is on file.
