@@ -41,7 +41,7 @@ public static class SelfCheckStream
         int port = 30000 + Random.Shared.Next(2000);
         if (!server.Start(port, key))
         {
-            Console.WriteLine("  -> the server could not start on any of ten ports: False");
+            Console.WriteLine($"  -> the server could not start on any of ten ports ({server.LastError}): False");
             return false;
         }
 

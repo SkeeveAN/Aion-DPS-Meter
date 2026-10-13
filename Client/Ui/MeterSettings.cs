@@ -160,7 +160,7 @@ public sealed class MeterSettings
     /// <summary>The stream overlay for OBS and Streamlabs (see StreamOverlayServer): a web page that shows the meter live, for the same PC or (two-PC streaming) others in the own network. Off until switched on.</summary>
     public bool StreamOverlayOn { get; set; }
 
-    public int StreamOverlayPort { get; set; } = 28920;
+    public int StreamOverlayPort { get; set; } = 8920;
 
     /// <summary>The random key in the link; empty until the first start (then made once).</summary>
     public string StreamOverlayKey { get; set; } = "";

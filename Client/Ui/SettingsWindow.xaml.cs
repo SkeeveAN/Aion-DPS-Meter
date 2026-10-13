@@ -582,7 +582,7 @@ public partial class SettingsWindow : Window
         _settings.StreamOverlayOn = StreamOverlayOnBox.IsChecked ?? false;
         _settings.StreamShowNames = StreamShowNamesBox.IsChecked ?? false;
         _settings.StreamOverlayNetwork = StreamNetworkBox.IsChecked ?? true;
-        _settings.StreamOverlayPort = int.TryParse(StreamPortBox.Text, out int streamPort) && streamPort is >= 1024 and <= 65000 ? streamPort : 28920;
+        _settings.StreamOverlayPort = int.TryParse(StreamPortBox.Text, out int streamPort) && streamPort is >= 1024 and <= 65000 ? streamPort : Streaming.StreamOverlayServer.DefaultPort;
         _settings.StreamOverlayKey = MeterSettings.Load().StreamOverlayKey; // made and renewed by MainWindow, never by this copy
         _settings.HotkeyShowMenu = (string?)HotkeyShowMenuBox.Tag ?? "";
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;

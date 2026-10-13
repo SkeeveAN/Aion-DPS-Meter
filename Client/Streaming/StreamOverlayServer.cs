@@ -16,9 +16,10 @@ namespace AionDPS.Streaming;
 /// </summary>
 public sealed class StreamOverlayServer : IDisposable
 {
-    public const int DefaultPort = 28920;
+    public const int DefaultPort = 8920;
     private const int MaxClients = 8;
     private const int PortTries = 10;
+    private const int FallbackPort = 8920;
 
     private TcpListener? _listener;
     private bool _network;
@@ -37,6 +38,9 @@ public sealed class StreamOverlayServer : IDisposable
     public bool Running => _listener is not null;
 
     public int Port { get; private set; }
+
+    /// <summary>Why the last port could not be opened (for the self test and the log).</summary>
+    public string LastError { get; private set; } = "";
 
     public int ClientCount
     {
@@ -77,28 +81,31 @@ public sealed class StreamOverlayServer : IDisposable
     /// <summary>A fresh key: 16 random bytes as 32 hex characters.</summary>
     public static string NewKey() => Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
 
-    /// <summary>Starts on <paramref name="port"/> (or the next free one, up to ten); returns whether it listens. With <paramref name="network"/> other PCs of the network can reach it.</summary>
+    /// <summary>Starts on <paramref name="port"/> (or the next free one, then fallback ports); returns whether it listens. With <paramref name="network"/> other PCs of the network can reach it.</summary>
     public bool Start(int port, string key, bool network = true)
     {
         Stop();
         _key = key;
         _network = network;
-        for (int i = 0; i < PortTries; i++)
+        // The chosen port and the next nine; then the fixed fallback ports; at last any free port (the link then changes, but it works).
+        // Windows reserves whole ranges of ports for itself (Hyper-V, WSL, Docker), the choice may sit in one: that is "access denied".
+        var candidates = Enumerable.Range(port, PortTries).Concat(Enumerable.Range(FallbackPort, PortTries)).Append(0).Distinct();
+        foreach (int candidate in candidates)
         {
-            int candidate = port + i;
             var listener = new TcpListener(network ? IPAddress.Any : IPAddress.Loopback, candidate);
             try
             {
                 listener.Start();
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
+                LastError = ex.SocketErrorCode.ToString();
                 listener.Stop();
                 continue;
             }
 
             _listener = listener;
-            Port = candidate;
+            Port = ((IPEndPoint)listener.LocalEndpoint).Port;
             _address = network ? LocalAddress() : "127.0.0.1";
             _stop = new CancellationTokenSource();
             _ = Task.Run(() => AcceptLoop(listener, _stop.Token));

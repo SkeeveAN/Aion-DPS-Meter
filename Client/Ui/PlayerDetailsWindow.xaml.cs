@@ -202,10 +202,9 @@ public partial class PlayerDetailsWindow : Window
             SummaryText.Text += $" · {loc["Details.Col.Back"]} {allKinds.Rate(allKinds.Back):0.#}% · {loc["Details.Col.Perfect"]} {allKinds.Rate(allKinds.Perfect):0.#}% · {loc["Details.Col.Double"]} {allKinds.Rate(allKinds.Double):0.#}% · {loc["Details.Col.Multi"]} {allKinds.Rate(allKinds.Multi):0.#}%";
         }
 
-        CritTileText.Text = hits > 0 ? (100.0 * critHits / hits).ToString("F1") + "%" : "n/a";
+        CritTileText.Text = hits > 0 ? (100.0 * critHits / hits).ToString("F1") + "%" : "–";
 
-        CritNoteText.Text = "Crit rates are read straight from the game server's hit data, exact for every player. "
-            + loc["Details.Kinds.Note"];
+        CritNoteText.Text = loc["Details.Crit.Note"] + " " + loc["Details.Kinds.Note"];
         CritNoteText.Visibility = heals ? Visibility.Collapsed : Visibility.Visible;
 
         // Taken: the deaths in this fight, each with its killing blow, where the crit note was.
