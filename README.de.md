@@ -159,10 +159,13 @@ etwas neuer ist als dein letzter Besuch.
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Twitch-Drops-Kampagnen mit Belohnungen und Live-Streams">
 </p>
 
-### Kampfverlauf
+### Sessions
 
-Kämpfe werden lokal aufgezeichnet, damit du dir einen früheren Boss noch einmal ansehen kannst (abschaltbar unter
-**Einstellungen → Oberfläche**). Der Meter setzt sich nach einer einstellbaren Zeit außerhalb des Kampfes zurück.
+Jede Karte und jede Instanz wird als eigene Session aufgezeichnet, damit du dir einen früheren Durchlauf noch einmal ansehen kannst. Ein Plausibilitätscheck vergleicht den Schaden mit den verlorenen Lebenspunkten des Bosses.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Session-Manager mit Zeitleiste und Plausibilitätscheck">
+</p>
 
 ## Benutzung
 

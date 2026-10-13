@@ -159,10 +159,13 @@ algo é mais recente que a sua última visita.
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Campanhas de Twitch Drops com recompensas e transmissões ao vivo">
 </p>
 
-### Histórico de lutas
+### Sessões
 
-As lutas são gravadas localmente para que você possa rever um chefe anterior (desative em
-**Configurações → Interface**). O medidor é reiniciado após um tempo configurável fora de combate.
+Cada mapa e instância é gravado como uma sessão própria, para você rever uma tentativa anterior. Uma verificação de plausibilidade compara o dano com os pontos de vida perdidos pelo chefe.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Gerenciador de sessões com linha do tempo e verificação de plausibilidade">
+</p>
 
 ## Como usar
 

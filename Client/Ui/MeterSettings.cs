@@ -23,16 +23,6 @@ public sealed class MeterSettings
 
 
 
-    /// <summary>Whether finished fights are filed into the local history (History/FightRecorder,
-    /// %AppData%\Aion DPS Meter\fights.db). Local only - nothing about it is ever uploaded.</summary>
-    public bool RecordFightHistory { get; set; } = true;
-
-    /// <summary>History retention: fights older than this, or beyond the newest
-    /// <see cref="HistoryMaxFights"/>, are pruned at startup.</summary>
-    public int HistoryRetentionDays { get; set; } = 90;
-
-    public int HistoryMaxFights { get; set; } = 2000;
-
     /// <summary>GUI display language, an ISO 639-1 code from LocalizationManager.SupportedLanguages
     /// (e.g. "de"), or "" on a fresh install to mean "use whatever LocalizationManager already
     /// auto-detected from the OS at startup, and don't overwrite it here." Independent of the game client's

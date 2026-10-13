@@ -159,10 +159,13 @@ something is newer than your last visit.
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Twitch Drops campaigns with rewards and live streams">
 </p>
 
-### Fight history
+### Sessions
 
-Fights are recorded locally so you can look at an earlier boss again (switch it off under
-**Settings → Interface**). The meter resets after a configurable time out of combat.
+Every map and instance is recorded as its own session, so you can look at an earlier run again. A plausibility check compares the damage with the boss's lost hit points.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Session manager with timeline and plausibility check">
+</p>
 
 ## Using it
 

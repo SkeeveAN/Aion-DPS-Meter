@@ -189,14 +189,7 @@ public partial class MainWindow : Window
     private readonly List<KillEvent> _kills = new();
 
 
-    // Local fight history (History/). The store is opened once and shared between the recorder
-    // (files finished fights from the live event list) and the history window. _historyMode is
-    // true while a past fight is loaded into the grid instead of the live session - the recorder
-    // stays quiet then, and the banner offers the way back.
-    private FightStore? _fightStore;
-    private FightRecorder? _fightRecorder;
-    private FightHistoryWindow? _fightHistoryWindow;
-    private bool _recordFightHistory = true;
+    // True while a past session is loaded into the grid instead of the live capture; the banner offers the way back.
     private bool _historyMode;
 
     /// <summary>"Minimize to system tray" (OnMinimizeToTrayClicked) - null until the first time
@@ -362,7 +355,7 @@ public partial class MainWindow : Window
 
         RestoreWindowGeometry(settings);
         StartCapture(settings);
-        InitializeFightHistory(settings);
+        DeleteLegacyFightHistory();
         RefreshCharacterSettings(settings);
         TryRestoreRestartSnapshot();
 
@@ -451,7 +444,7 @@ public partial class MainWindow : Window
             _historyMode = false;
             _viewedSessionNumber = null;
             HistoryBanner.Visibility = Visibility.Collapsed;
-            ClearDamageData(keepFightMemory: true);
+            ClearDamageData();
         }
 
         if (!ReferenceEquals(_source, _liveSource))
@@ -732,7 +725,6 @@ public partial class MainWindow : Window
         {
             _historyTickCounter = 0;
             _sessions.RefreshNames();
-            RecordFinishedFights(flushAll: false);
         }
     }
 
@@ -868,67 +860,22 @@ public partial class MainWindow : Window
         return false;
     }
 
-    private void InitializeFightHistory(MeterSettings settings)
+    /// <summary>The old per-fight history (fights.db) is gone for good - sessions replaced it - so a file left by an earlier version is removed.</summary>
+    private static void DeleteLegacyFightHistory()
     {
-        _recordFightHistory = settings.RecordFightHistory;
-        if (_fightStore is not null)
+        string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter");
+        foreach (string name in new[] { "fights.db", "fights.db-wal", "fights.db-shm" })
         {
-            return;
-        }
-
-        try
-        {
-            _fightStore = new FightStore(FightStore.DefaultPath);
-            _fightStore.Prune(settings.HistoryRetentionDays, settings.HistoryMaxFights);
-            _fightRecorder = new FightRecorder(_fightStore);
-        }
-        catch (Exception ex)
-        {
-            // A locked or corrupt history file must never keep the meter itself from running.
-            ShowUploadStatus($"Fight history unavailable: {ex.Message}");
-        }
-    }
-
-    /// <summary>Files every fight that has been silent long enough (or all open ones on flush -
-    /// Clear and exit) into the local history. Never while a past fight is being viewed.</summary>
-    private void RecordFinishedFights(bool flushAll)
-    {
-        IReadOnlyList<DamageEvent> filing = _sessionView == SessionView.All && ViewingLive && _sessions.Current is { } stay
-            ? stay.Data.Events
-            : _aggregator.Events;
-        if (_historyMode || !_recordFightHistory || _fightRecorder is null || filing.Count == 0)
-        {
-            return;
-        }
-
-        try
-        {
-            int written = _fightRecorder.Tick(filing, DateTime.Now, BuildFightContext(), flushAll);
-            if (written > 0 && _fightHistoryWindow is not null)
+            try
             {
-                _fightHistoryWindow.Refresh();
+                File.Delete(Path.Combine(folder, name));
+            }
+            catch (Exception)
+            {
+                // Locked or read-only: harmless, it is tried again at the next start.
             }
         }
-        catch (Exception ex)
-        {
-            ShowUploadStatus($"Fight history: {ex.Message}");
-        }
     }
-
-    /// <summary>The recorder describes participants exactly the way the grid does - same name,
-    /// class and side resolution, handed over as callbacks.</summary>
-    private FightContext BuildFightContext() => new(
-        NameOf: ResolveDisplayName,
-        ClassOf: ResolveClassName,
-        FactionOf: id => _rowsByObjectId.GetValueOrDefault(id)?.Faction ?? "",
-        IsPlayer: IsPlayerName,
-        IsSelf: id => _source?.Entities.IsLocalPlayer(id) == true,
-        IsEnemy: id => _rowsByObjectId.GetValueOrDefault(id)?.IsEnemy ?? false,
-        // No target is filtered by name: short pulls are kept out by the recorder's minimum
-        // duration and the history's retention cap.
-        IsIgnoredTarget: _ => false,
-        Game: "aion2",
-        ServerName: Aion2ServerName());
 
     private void OnAppMenuClicked(object sender, RoutedEventArgs e)
     {
@@ -937,63 +884,6 @@ public partial class MainWindow : Window
         // TopLevelHeader and never opens IsSubmenuOpen on click by itself - toggle it here.
         AppMenu.IsSubmenuOpen = !AppMenu.IsSubmenuOpen;
         e.Handled = true;
-    }
-
-    private void OnFightHistoryClicked(object sender, RoutedEventArgs e)
-    {
-        // Closes the App-menu flyout (AppMenuFlyoutStyle) when reached from there - a no-op
-        // when this fires from anywhere else, since IsSubmenuOpen is already false then.
-        AppMenu.IsSubmenuOpen = false;
-        if (_fightStore is null)
-        {
-            ShowUploadStatus("Fight history is unavailable - see the earlier notice.");
-            return;
-        }
-
-        if (_fightHistoryWindow is not null)
-        {
-            _fightHistoryWindow.Refresh();
-            _fightHistoryWindow.Activate();
-            return;
-        }
-
-        _fightHistoryWindow = new FightHistoryWindow(_fightStore) { Owner = this };
-        _fightHistoryWindow.LoadRequested += EnterHistoryMode;
-        _fightHistoryWindow.Closed += (_, _) => _fightHistoryWindow = null;
-        _fightHistoryWindow.Show();
-    }
-
-    /// <summary>
-    /// Shows a stored fight in the grid instead of the live session. The live source is swapped
-    /// for a FakeCombatSource that knows the fight's names, and the stored events are remapped
-    /// onto that source's ids (ids are per session, only names travel). Nothing is recorded while
-    /// this is on; the banner in the status row is the way back to live.
-    /// </summary>
-    private void EnterHistoryMode(FightDetail detail)
-    {
-        RecordFinishedFights(flushAll: true);
-        _historyMode = true;
-
-        var replay = new FakeCombatSource();
-        var idMap = detail.Names.ToDictionary(kv => kv.Key, kv => replay.Entities.GetOrAssignId(kv.Value));
-        ShowReplay(replay);
-        ClearDamageData(keepFightMemory: true);
-
-        foreach (FightParticipant participant in detail.Participants)
-        {
-            _playerIdentities[replay.Entities.GetOrAssignId(participant.Name)] = (participant.Name, participant.ClassName, 0);
-        }
-
-        _aggregator.IngestEvents(detail.Events.Select(ev => ev with
-        {
-            SourceObjectId = idMap.GetValueOrDefault(ev.SourceObjectId, ev.SourceObjectId),
-            TargetObjectId = idMap.GetValueOrDefault(ev.TargetObjectId, ev.TargetObjectId),
-        }));
-
-        HistoryBanner.Text = string.Format(LocalizationManager.Instance["Main.HistoryBanner"], detail.Summary.TargetName, detail.Summary.StartedAt.ToString("g"));
-        HistoryBanner.Visibility = Visibility.Visible;
-        RefreshRows();
-        Activate();
     }
 
     private void OnHistoryBannerClicked(object sender, MouseButtonEventArgs e) => OnSessionBannerLeave();
@@ -1043,7 +933,7 @@ public partial class MainWindow : Window
     private void ShowLiveView(SessionView view)
     {
         _sessionView = view;
-        ClearDamageData(keepFightMemory: true);
+        ClearDamageData();
         if (view == SessionView.All)
         {
             _aggregator.IngestEvents(_sessions.AllEvents().Concat(_sessions.AllShields()));
@@ -1136,8 +1026,6 @@ public partial class MainWindow : Window
     {
         _pollTimer.Stop();
         _updateTimer.Stop();
-        RecordFinishedFights(flushAll: true);
-        _fightStore?.Dispose();
         if (!ReferenceEquals(_source, _liveSource))
         {
             _source?.Dispose();
@@ -3308,7 +3196,6 @@ public partial class MainWindow : Window
     /// class table the way FightStore's SQLite schema does.</summary>
     private void LoadSessionIntoMeter(SessionFile.LoadedSession session)
     {
-        RecordFinishedFights(flushAll: true);
         _historyMode = true;
 
         var replay = new FakeCombatSource();
@@ -3316,7 +3203,7 @@ public partial class MainWindow : Window
         int Remap(int id) => idMap.GetValueOrDefault(id, id);
 
         ShowReplay(replay);
-        ClearDamageData(keepFightMemory: true);
+        ClearDamageData();
 
         var events = session.Events
             .Select(ev => ev with { SourceObjectId = Remap(ev.SourceObjectId), TargetObjectId = Remap(ev.TargetObjectId) })
@@ -3456,7 +3343,6 @@ public partial class MainWindow : Window
     /// live capture keeps going and recording behind it; the banner is the way back.</summary>
     private void ShowPastSession(SessionInfo session)
     {
-        RecordFinishedFights(flushAll: true);
         _historyMode = true;
         _viewedSessionNumber = session.Number;
 
@@ -3474,7 +3360,7 @@ public partial class MainWindow : Window
         }
 
         ShowReplay(replay);
-        ClearDamageData(keepFightMemory: true);
+        ClearDamageData();
 
         IEnumerable<DamageEvent> events = session.Data.Events.Concat(session.Data.Shields)
             .Select(ev => ev with { SourceObjectId = Remap(ev.SourceObjectId), TargetObjectId = Remap(ev.TargetObjectId) })
@@ -3918,16 +3804,8 @@ public partial class MainWindow : Window
             : EngagedTargets.Filter(damageEvents, _source.Entities.LocalPlayerId);
     }
 
-    private void ClearDamageData(bool keepFightMemory = false)
+    private void ClearDamageData()
     {
-        // Whatever is still open is over now - file it before it is gone.
-        RecordFinishedFights(flushAll: true);
-        // Switching views refills the grid with events that were filed already; only a real clear forgets which fights are on record.
-        if (!keepFightMemory)
-        {
-            _fightRecorder?.Reset();
-        }
-
         _aggregator.Clear();
         _groupNames.Clear();
         _avoids.Clear();
@@ -4265,7 +4143,6 @@ public partial class MainWindow : Window
             {
                 StartCapture(settings); // only a new network adapter needs a new capture: a restart forgets the map, the position and the pets of the running game
             }
-            InitializeFightHistory(settings); // possibly toggled recording
             RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
             ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
             RefreshRows();

@@ -534,7 +534,6 @@
                                              IsEnabled="{Binding IsChecked, ElementName=AutoResetBox}" PreviewTextInput="OnDigitsOnly"/>
                                     <TextBlock Grid.Column="2" Text="{local:Loc Settings.AutoReset.Seconds}" VerticalAlignment="Center"/>
                                 </Grid>
-                                <CheckBox x:Name="RecordFightHistoryBox" Content="{local:Loc Settings.RecordFightHistory}"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

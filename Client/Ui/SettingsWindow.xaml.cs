@@ -99,7 +99,6 @@ public partial class SettingsWindow : Window
         StartWithWindowsBox.IsChecked = StartupRegistration.IsEnabled();
         ShowShareBarsBox.IsChecked = settings.ShowShareBars;
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
-        RecordFightHistoryBox.IsChecked = settings.RecordFightHistory;
         PopulateCaptureAdapters(settings.CaptureAdapterId);
 
         // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML. Each item's
@@ -561,7 +560,6 @@ public partial class SettingsWindow : Window
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
         _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? false;
-        _settings.RecordFightHistory = RecordFightHistoryBox.IsChecked ?? true;
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
 
         Saved?.Invoke(); // the window stays open: Save applies, the ✕ / Cancel button closes

@@ -162,10 +162,13 @@ moment. Une pastille *Nouveau* s'affiche quand quelque chose est plus récent qu
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Campagnes Twitch Drops avec récompenses et streams en direct">
 </p>
 
-### Historique des combats
+### Sessions
 
-Les combats sont enregistrés localement pour que vous puissiez revoir un boss précédent (désactivable sous
-**Paramètres → Interface**). Le compteur se réinitialise après un délai configurable hors combat.
+Chaque carte et chaque instance est enregistrée comme session à part, pour revoir un passage précédent. Un contrôle de plausibilité compare les dégâts aux points de vie perdus par le boss.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Gestionnaire de sessions avec chronologie et contrôle de plausibilité">
+</p>
 
 ## Utilisation
 

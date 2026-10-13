@@ -160,10 +160,13 @@ Una marca *Nuevo* indica cuándo hay algo más reciente que tu última visita.
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Campañas de Twitch Drops con recompensas y streams en directo">
 </p>
 
-### Historial de combates
+### Sesiones
 
-Los combates se graban localmente para poder revisar un jefe anterior (desactívalo en
-**Ajustes → Interfaz**). El medidor se reinicia tras un tiempo configurable fuera de combate.
+Cada mapa e instancia se graba como una sesión propia, para volver a ver una partida anterior. Una comprobación de plausibilidad compara el daño con los puntos de vida que perdió el jefe.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Gestor de sesiones con línea de tiempo y comprobación de plausibilidad">
+</p>
 
 ## Uso
 

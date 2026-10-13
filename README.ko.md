@@ -159,10 +159,13 @@ AION 2 글로벌 버전과 호환됩니다. NCSOFT가 2026년 10월 5일에 출�
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="보상과 실시간 방송이 있는 트위치 드롭 캠페인">
 </p>
 
-### 전투 기록
+### 세션
 
-전투는 로컬에 기록되므로 이전 보스전을 다시 볼 수 있습니다(**설정 → 인터페이스**에서 끌 수 있습니다).
-미터는 설정한 비전투 시간이 지나면 초기화됩니다.
+맵과 인스턴스마다 별도의 세션으로 기록되므로 이전 플레이를 다시 볼 수 있습니다. 타당성 검사는 피해량을 보스가 잃은 체력과 비교합니다.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="타임라인과 타당성 검사가 있는 세션 관리자">
+</p>
 
 ## 사용법
 

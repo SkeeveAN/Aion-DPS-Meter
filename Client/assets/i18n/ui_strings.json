@@ -107,18 +107,6 @@
     "ja": "接続をリセット",
     "ko": "연결 초기화"
   },
-  "Main.MenuApp.FightHistory": {
-    "en": "Fight History",
-    "de": "Kampfverlauf",
-    "fr": "Historique des combats",
-    "es": "Historial de combates",
-    "ru": "История боёв",
-    "zh": "战斗记录",
-    "zh-TW": "戰鬥歷史",
-    "pt": "Histórico de lutas",
-    "ja": "戦闘履歴",
-    "ko": "전투 기록"
-  },
   "Main.MenuApp.ClearCurrentView": {
     "en": "Clear current view",
     "de": "Aktuelle Ansicht leeren",
@@ -587,18 +575,6 @@
     "ja": "プレイヤーごとの被ダメージを表示",
     "ko": "플레이어별 받은 대미지 표시"
   },
-  "Settings.RecordFightHistory": {
-    "en": "Record fight history",
-    "de": "Kampfverlauf aufzeichnen",
-    "fr": "Enregistrer l'historique des combats",
-    "es": "Registrar historial de combates",
-    "ru": "Записывать историю боёв",
-    "zh": "记录战斗历史",
-    "zh-TW": "記錄戰鬥歷史",
-    "pt": "Registrar histórico de lutas",
-    "ja": "戦闘履歴を記録",
-    "ko": "전투 기록 저장"
-  },
   "Settings.ThemeDark": {
     "en": "Dark",
     "de": "Dunkel",
@@ -898,18 +874,6 @@
     "pt": "Carregar no medidor",
     "ja": "メーターに読み込む",
     "ko": "미터로 불러오기"
-  },
-  "Main.HistoryBanner": {
-    "en": "Viewing stored fight: {0} ({1}) - click to return to the live session.",
-    "de": "Gespeicherter Kampf wird angezeigt: {0} ({1}) - klicken, um zur laufenden Sitzung zurückzukehren.",
-    "fr": "Combat enregistré affiché : {0} ({1}) - cliquez pour revenir à la session en direct.",
-    "es": "Mostrando combate guardado: {0} ({1}) - haz clic para volver a la sesión en vivo.",
-    "ru": "Показан сохранённый бой: {0} ({1}) - нажмите, чтобы вернуться к текущей сессии.",
-    "zh": "正在查看已保存的战斗：{0}（{1}）- 点击返回当前实时会话。",
-    "zh-TW": "正在檢視已儲存的戰鬥：{0}（{1}）- 點擊以返回目前的即時戰鬥記錄。",
-    "pt": "Exibindo luta armazenada: {0} ({1}) - clique para voltar à sessão ao vivo.",
-    "ja": "保存された戦闘を表示中：{0}（{1}）- クリックでライブセッションに戻ります。",
-    "ko": "저장된 전투를 보는 중: {0} ({1}) - 클릭하면 실시간 세션으로 돌아갑니다."
   },
   "Main.SessionBanner": {
     "en": "Viewing a loaded session from {0} - click to return to the live session.",

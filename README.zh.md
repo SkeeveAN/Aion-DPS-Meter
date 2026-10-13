@@ -151,10 +151,13 @@ AION 2 Twitch 掉落活动进行时，Twitch 按钮会打开一个页面，显�
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="带奖励和直播的 Twitch 掉落活动">
 </p>
 
-### 战斗历史
+### 会话
 
-战斗会在本地记录，方便您再次查看之前的首领战（可在
-**设置 → 界面**中关闭）。脱离战斗一段可配置的时间后，统计会重置。
+每张地图和每个副本都会作为独立会话记录，方便您再次查看之前的一次。合理性检查会将伤害与首领损失的生命值进行比对。
+
+<p align="center">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="带时间线和合理性检查的会话管理器">
+</p>
 
 ## 使用方法
 

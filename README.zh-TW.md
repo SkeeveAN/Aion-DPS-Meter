@@ -127,9 +127,13 @@ Ping、抖動、流量、封包遺失，以及您已上線多久，皆由您電�
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Twitch 掉落活動的獎勵與即時直播">
 </p>
 
-### 戰鬥歷史
+### 工作階段
 
-戰鬥會記錄在本機，讓您可以再次查看先前的首領戰（可在**設定 → 介面**中關閉）。統計器會在脫離戰鬥一段可設定的時間後重設。
+每張地圖與每個副本都會記錄為獨立的工作階段，讓您可以再次查看先前的一次。合理性檢查會將傷害與首領損失的生命值比對。
+
+<p align="center">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="含時間軸與合理性檢查的工作階段管理員">
+</p>
 
 ## 使用方式
 

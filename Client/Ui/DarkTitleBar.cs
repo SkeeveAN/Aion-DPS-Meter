@@ -11,7 +11,7 @@ namespace AionDPS.Ui;
 /// light color regardless of the app's own dark theme. Currently unused - SettingsWindow was
 /// this class's original reason to exist, but per the user it later got the full custom titlebar
 /// treatment instead of just a recolored native one; kept here as a one-line fix ready for
-/// whichever of the app's other still-native-chrome dialogs (FightHistoryWindow,
+/// whichever of the app's other still-native-chrome dialogs (
 /// PlayerDetailsWindow, PlayerDatabaseWindow) gets asked for next, without redoing this DWM call.
 /// </summary>
 internal static class DarkTitleBar
