@@ -1,5 +1,25 @@
 [
  {
+  "version": "0.45.3",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "Your own position is now known much more often: every effect you cast or renew reports where you stand, so the pet map and the replay tracks follow you while you fight instead of waiting for the rare position message",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   },
+   {
+    "text": "Your own position is now known much more often: the pet map follows you while you fight, because every effect you cast or renew reports where you stand",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.45.2",
   "date": "2026-10-14",
   "items": [
