@@ -223,9 +223,14 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private static Size StageSize(Part part, double? frameWidth, double? frameHeight) =>
         new(Math.Max(60, (frameWidth is > 0 ? frameWidth.Value : DefaultFrame(part).Width) - 6), Math.Max(40, (frameHeight is > 0 ? frameHeight.Value : DefaultFrame(part).Height) - 20));
 
+    /// <summary>A layout saved for the old single window can lie far outside the smaller window of its part (the cast bar was invisible then): at least a corner of it must be on the stage.</summary>
+    private static bool LiesOnStage(CombatElementLayout layout, Size stage) =>
+        layout.Left >= 0 && layout.Top >= 0 && layout.Left <= stage.Width - 36 && layout.Top <= stage.Height - 22;
+
     private void AddElement(string id, UIElement view, string caption, MeterSettings settings, CombatStage stage)
     {
-        if (!settings.CombatElements.TryGetValue(id, out CombatElementLayout? layout) || layout.Width <= 0 || layout.Height <= 0)
+        if (!settings.CombatElements.TryGetValue(id, out CombatElementLayout? layout) || layout.Width <= 0 || layout.Height <= 0
+            || (ReferenceEquals(stage, _stage) && !LiesOnStage(layout, StageSize(_part, LoadSize(_part).Item1, LoadSize(_part).Item2))))
         {
             layout = DefaultLayout(id);
         }
