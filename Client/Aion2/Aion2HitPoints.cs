@@ -87,6 +87,47 @@ public sealed class Aion2HitPoints
         }
     }
 
+    /// <summary>A maximum the server reported (8-byte kind 7 of the HP frame; it follows buffs that raise it).</summary>
+    public void NoteMax(int entityId, long max)
+    {
+        if (max <= 0)
+        {
+            return;
+        }
+
+        lock (_gate)
+        {
+            if (!_tracks.TryGetValue(entityId, out Track? track))
+            {
+                track = new Track();
+                _tracks[entityId] = track;
+            }
+
+            track.ReportedMax = max;
+        }
+    }
+
+    /// <summary>The entity's maximum hit points: the one the server reported when it is not below the latest reading,
+    /// else the highest reading seen (a lower bound when the meter joined mid-fight); null when nothing is known.</summary>
+    public long? MaxOf(int entityId)
+    {
+        lock (_gate)
+        {
+            if (!_tracks.TryGetValue(entityId, out Track? track))
+            {
+                return null;
+            }
+
+            long latest = track.Samples.Count > 0 ? track.Samples[^1].Hp : 0;
+            if (track.ReportedMax >= Math.Max(latest, 1))
+            {
+                return track.ReportedMax;
+            }
+
+            return track.HighestSeen > 0 ? track.HighestSeen : null;
+        }
+    }
+
     /// <summary>The entity's most recent reading, or null before the first one.</summary>
     public HpSample? Latest(int entityId)
     {
@@ -132,6 +173,7 @@ public sealed class Aion2HitPoints
     private sealed class Track
     {
         public long HighestSeen;
+        public long ReportedMax;
         public readonly List<HpSample> Samples = new();
         public readonly List<DateTime> Resets = new();
     }

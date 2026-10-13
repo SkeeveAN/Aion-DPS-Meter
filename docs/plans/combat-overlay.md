@@ -1,6 +1,6 @@
 # Kampf-Overlay: Cast-Leiste, „Ziel des Ziels“, Heiler-Ziel
 
-Branch: `feature/combat-overlay-cast-target` · Stand: Plan, noch nichts umgesetzt
+Branch: `feature/combat-overlay-cast-target` · Stand: umgesetzt (siehe „Umsetzungsstand“ am Ende)
 
 ## Ziel
 
@@ -111,3 +111,20 @@ Ergebnis von Phase 0: eine kurze Datei `docs/protocol/combat-frames.md` mit bele
 - **Debug-Aufnahmen des Clients:** `%APPDATA%\Aion DPS Meter\Debug\aion2-<Datum>-<Charakter>.jsonl` (Einstellungen → Debug-Aufnahme, [DebugRecording.cs](../../Client/Aion2/Capture)); 22 Dateien, 540 MB, 11./12.10., überwiegend Charakter „Aahz“. Gleiches Format wie die Desktop-Mitschnitte: ein JSON pro TCP-Segment `{"T","From","To","Seq","Server","Data":base64}`, Server-Port 13328.
 - **Gespeicherte Kämpfe:** `%APPDATA%\Aion DPS Meter\fights.db` (`events_gz` = gzip-JSON der Schadensereignisse).
 - Alle Dateien nur lesen, nie verändern; große Dateien streamen, nicht komplett laden.
+
+## Umsetzungsstand (13.10.2026)
+
+**Fertig und geprüft (Selftests mit echten Bytes, Aufnahmen, gezeichnete Bilder):**
+
+- Phase 0: Befunde in [docs/protocol/combat-frames.md](../protocol/combat-frames.md). Windup `0938` (Dauer, Ziel, Position), Cast `0238` (Ziel), Effekte `2a38`/`2b38`/`2c38`, Max-HP (`008d` Art 7) sind belegt.
+- Phase 1: `Aion2CombatState` (Casts, gelernte Skills in `cast-skills.json`, Ziel-Gedächtnis, Effekte), Decoder-Erweiterungen, `HitPoints.MaxOf`.
+- Phase 2: `CombatOverlayWindow` (erbt von `MovableOverlay`) mit `CombatStage` und `CombatElementHost` (Verschieben, vier Kanten, eigener Eck-Greifer; globaler Greifer des Rahmens skaliert alles); drei Elemente (`BossCastView`, `TargetOfTargetView`, `HealerTargetView`); Controller mit „nur wenn das Spiel vorn ist“.
+- Phase 3: Einstellungsseite „Kampf-Overlay“ mit den zwei Schaltern (Overlay an/aus, Overlay gesperrt an/aus) plus Elementen und Optionen; Hotkey **Ctrl+Alt+C**; „Alle Overlays an/aus“ (Ctrl+Alt+A) schaltet das Kampf-Overlay mit; Texte in zehn Sprachen; README (alle zehn); Bild; Boss-Bilder für den Client (`Tools/aion2-icons/build_boss_thumbs.py`, 34 Bosse mit Karte, sonst Emblem).
+- Zeichenbefehl `render-combatoverlay <png> [live|edit]` und `AIONDPS_LANG` für Bilder in jeder Sprache.
+
+**Bewusst noch offen:**
+
+- Ziehen/Skalieren der Elemente mit der Maus ist **nicht automatisch getestet** (braucht echte Mausereignisse); die Rechnung steht in `CombatElementHost`, bitte einmal von Hand im entsperrten Overlay ausprobieren.
+- Optionen „Ping einrechnen“ und „Ton“ der Cast-Leiste (Phase 2 des Plans) sind nicht eingebaut; „Wann es landet“ (weißer Strich/roter Teil) ist da und erscheint erst nach drei übereinstimmenden Beobachtungen je Skill.
+- Features-Seite der Website (Abschnitt + Übersetzungen) und Changelog-Eintrag kommen beim Merge nach `main`.
+- Ziel eines fremden Spielers und Auswahl per Kamera: kein Frame bekannt (siehe Protokoll-Datei).

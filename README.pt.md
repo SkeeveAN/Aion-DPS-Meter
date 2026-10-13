@@ -146,6 +146,20 @@ fixe-o no lugar e ative ou desative com um atalho.
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="O overlay de rede: ping, jitter, tráfego e perda de pacotes">
 </p>
 
+### Overlay de combate
+
+Uma moldura transparente com até três elementos, cada um dos quais você posiciona e dimensiona separadamente:
+
+- **Barra de conjuração do chefe:** no momento em que um chefe começa uma habilidade, você vê o nome dela, uma barra que diminui com o tempo restante e em quem ela está mirada (você em vermelho). Uma habilidade que atingiu vários jogadores é marcada como **ÁREA**; **LETAL** significa que o maior golpe que você recebeu dela até agora é pelo menos igual à sua vida atual. O medidor aprende cada habilidade (se é em área ou não, quando o dano dela chega) e a lembra entre as sessões.
+- **Alvo do alvo:** se o alvo que você selecionou com Tab estiver mirando em alguém, você vê em quem: um chefe com imagem e nome, um jogador com o emblema da classe e o nome.
+- **Alvo do curandeiro** (opcional): a barra de vida do alvo selecionado e os debuffs (ou buffs) nele.
+
+Desbloqueie o overlay em **Configurações → Overlay de combate** para organizá-lo: arraste o corpo de um elemento para movê-lo, puxe as bordas para redimensioná-lo, puxe o canto para escalá-lo; a alça no canto inferior direito de toda a moldura escala todos os elementos juntos. Bloqueado, ele deixa os cliques passarem e só aparece enquanto o jogo está em primeiro plano. **Ctrl+Alt+C** o liga e desliga, assim como o atalho *Todos os overlays ligados / desligados*.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="O overlay de combate: duas conjurações de chefe com barra de tempo, o alvo do alvo e o alvo do curandeiro com vida e debuffs">
+</p>
+
 ### Anúncios e Twitch Drops
 
 Um botão de megafone abre os anúncios oficiais da NCSoft no aiondps.com — manutenção, quedas, novos
@@ -198,6 +212,7 @@ que não podem funcionar porque o chat do Aion 2 não é legível a partir do fl
 | **Ctrl+Alt+E** / **Ctrl+Alt+G** | Setas de borda para mascotes / itens coletáveis |
 | **Ctrl+Alt+B** | Overlay de chefes mundiais |
 | **Ctrl+Alt+N** | Overlay de rede |
+| **Ctrl+Alt+C** | Overlay de combate |
 | **Ctrl+Alt+O** | Overlay de atalhos (uma lista móvel dos atalhos) |
 | **Ctrl+Alt+A** | Todos os overlays ligados / desligados |
 

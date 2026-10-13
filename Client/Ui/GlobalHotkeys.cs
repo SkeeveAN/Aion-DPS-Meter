@@ -20,6 +20,7 @@ public enum HotkeyAction
     ToggleAllOverlays,
     ToggleWorldBossOverlay,
     ToggleNetworkOverlay,
+    ToggleCombatOverlay,
     TogglePetArrows,
     ToggleGatherArrows,
 }
