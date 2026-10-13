@@ -120,10 +120,11 @@ export function downloadPage(): Page {
       description:
         "Free Aion 2 damage meter with live DPS/HPS per player, transparent click-through overlay and optional leaderboard upload, via passive packet capture. Windows installer, auto-updates.",
       canonicalPath: "/download",
-      jsonLd: [softwareApplicationJsonLd(), breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Download", path: "/download" }])],
+      jsonLd: [softwareApplicationJsonLd(), breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Download", path: "/download" }]),
+        {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it safe to use?", "acceptedAnswer": {"@type": "Answer", "text": "The meter only reads the network traffic your own computer already receives, through the Npcap driver. It never reads game memory, never injects code and never hooks the game client."}}, {"@type": "Question", "name": "Does it cost anything?", "acceptedAnswer": {"@type": "Answer", "text": "No. Aion DPS Meter is free and open source under the MIT license."}}, {"@type": "Question", "name": "Which AION 2 regions does it support?", "acceptedAnswer": {"@type": "Answer", "text": "The global release of AION 2, every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there."}}, {"@type": "Question", "name": "Do I need administrator rights?", "acceptedAnswer": {"@type": "Answer", "text": "Not for the meter: it installs per user. Only the installer of the Npcap driver asks for them."}}, {"@type": "Question", "name": "Are my fights uploaded automatically?", "acceptedAnswer": {"@type": "Answer", "text": "No. Uploads to the leaderboards are off by default and you decide in the settings whether to switch them on."}}]}],
     },
     body: html`
-      <h2>Download Aion DPS Meter</h2>
+      <h2>AION 2 DPS Meter Download</h2>
       <p>A damage/heal meter for Aion 2 that passively captures your own network traffic. It never reads game memory and never hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
       <p><a class="download-cta" href="/download/latest">Download the latest release</a></p>
       <p>Free Windows installer, no admin rights needed. Works with the global release of AION 2 (every region NCSOFT launched on 5 October 2026); Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
@@ -144,6 +145,17 @@ export function downloadPage(): Page {
       <p><img src="/images/features/meter.webp" alt="Aion 2 DPS meter window showing live damage per second for every group member" width="600" loading="lazy" />
       <img src="/images/features/overlay.webp" alt="Transparent click-through in-game overlay of the Aion 2 DPS meter" width="600" loading="lazy" />
       <img src="/images/features/details.webp" alt="Aion 2 combat analysis with skill breakdown and crit rates" width="600" loading="lazy" /></p>
+      <h3>FAQ</h3>
+      <h4>Is it safe to use?</h4>
+      <p>The meter only reads the network traffic your own computer already receives, through the Npcap driver. It never reads game memory, never injects code and never hooks the game client.</p>
+      <h4>Does it cost anything?</h4>
+      <p>No. Aion DPS Meter is free and open source under the MIT license.</p>
+      <h4>Which AION 2 regions does it support?</h4>
+      <p>The global release of AION 2, every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
+      <h4>Do I need administrator rights?</h4>
+      <p>Not for the meter: it installs per user. Only the installer of the Npcap driver asks for them.</p>
+      <h4>Are my fights uploaded automatically?</h4>
+      <p>No. Uploads to the leaderboards are off by default and you decide in the settings whether to switch them on.</p>
       <p><a href="/features">All features</a> · <a href="/changelog">Changelog</a> · <a href="https://github.com/SkeeveAN/Aion-DPS-Meter">Source code on GitHub</a></p>`,
   };
 }

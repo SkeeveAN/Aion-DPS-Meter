@@ -828,7 +828,23 @@ async function renderDownload() {
   }
 
   const changelogLink = el("p", { className: "download-meta" }, [link("What's new – changelog", "/changelog")]);
-  app.replaceChildren(hero, downloadSection, changelogLink, features, stepsSection, repoLink);
+  const requirements = el("div", {}, [
+    el("h2", { textContent: t("download.requirementsHeading") }),
+    el("p", { textContent: t("download.requirementsText") }),
+  ]);
+  const shots = el("div", {}, [
+    el("h2", { textContent: t("download.screenshotsHeading") }),
+    el("div", { className: "download-shots" }, [
+      ["meter", "Aion 2 DPS meter window showing live damage per second for every group member"],
+      ["overlay", "Transparent click-through in-game overlay of the Aion 2 DPS meter"],
+      ["details", "Aion 2 combat analysis with skill breakdown and crit rates"],
+    ].map(([name, alt]) => el("img", { src: `/images/features/${name}.webp`, alt, loading: "lazy" }))),
+  ]);
+  const faq = el("div", {}, [
+    el("h2", { textContent: t("download.faqHeading") }),
+    ...[1, 2, 3, 4, 5].flatMap((n) => [el("h3", { textContent: t(`download.faq${n}Q`) }), el("p", { textContent: t(`download.faq${n}A`) })]),
+  ]);
+  app.replaceChildren(hero, downloadSection, changelogLink, features, requirements, stepsSection, shots, faq, repoLink);
 }
 
 // Legions: every legion the uploads have shown. A sidebar of regions (collapsible) and servers, the larger legions as cards with
