@@ -116,7 +116,7 @@ export function downloadPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Download Aion DPS Meter for Windows – Free Damage Meter",
+      title: "AION 2 DPS Meter Download – Free Windows Damage Meter",
       description:
         "Free Aion 2 damage meter with live DPS/HPS per player, transparent click-through overlay and optional leaderboard upload, via passive packet capture. Windows installer, auto-updates.",
       canonicalPath: "/download",
@@ -125,7 +125,26 @@ export function downloadPage(): Page {
     body: html`
       <h2>Download Aion DPS Meter</h2>
       <p>A damage/heal meter for Aion 2 that passively captures your own network traffic. It never reads game memory and never hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
-      <p><a class="download-cta" href="/download/latest">Download the latest release</a></p>`,
+      <p><a class="download-cta" href="/download/latest">Download the latest release</a></p>
+      <p>Free Windows installer, no admin rights needed. Works with the global release of AION 2 (every region NCSOFT launched on 5 October 2026); Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
+      <h3>Requirements</h3>
+      <ul class="plain">
+        <li>Windows 10 or 11</li>
+        <li>The <a href="https://npcap.com" rel="noopener">Npcap</a> driver, which the meter uses to see the game's network traffic. It is not part of the installer.</li>
+      </ul>
+      <h3>Installation</h3>
+      <ol class="steps">
+        <li>Download and run the installer (installs per user).</li>
+        <li>Install the Npcap driver from npcap.com.</li>
+        <li>Start the meter, then log in with your character.</li>
+        <li>Optional: switch on the profile upload in the settings (off by default) to appear in the leaderboards.</li>
+        <li>Done. The meter updates itself whenever a new version is released.</li>
+      </ol>
+      <h3>Screenshots</h3>
+      <p><img src="/images/features/meter.webp" alt="Aion 2 DPS meter window showing live damage per second for every group member" width="600" loading="lazy" />
+      <img src="/images/features/overlay.webp" alt="Transparent click-through in-game overlay of the Aion 2 DPS meter" width="600" loading="lazy" />
+      <img src="/images/features/details.webp" alt="Aion 2 combat analysis with skill breakdown and crit rates" width="600" loading="lazy" /></p>
+      <p><a href="/features">All features</a> · <a href="/changelog">Changelog</a> · <a href="https://github.com/SkeeveAN/Aion-DPS-Meter">Source code on GitHub</a></p>`,
   };
 }
 
