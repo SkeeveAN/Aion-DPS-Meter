@@ -3,6 +3,7 @@ import { and, asc, avg, count, desc, eq, max, ne } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounterSkillUsage, encounters, instances, players, servers } from "../db/schema.js";
+import { EXACT_PARTICIPANT } from "../estimated.js";
 import { findBoss } from "./bosses.js";
 import { gameFromQuery } from "./instances.js";
 
@@ -13,6 +14,8 @@ import { gameFromQuery } from "./instances.js";
 // Pets/summons are stored as participants with className "?" (see encounterPage in seo/pages.ts):
 // never a person to compare with.
 const REAL_PLAYER = ne(encounterParticipants.className, "?");
+// Everything that ranks or averages damage only sees rows with real figures (see estimated.ts).
+const REAL_EXACT = and(REAL_PLAYER, EXACT_PARTICIPANT);
 
 function parseId(raw: unknown): number | null {
   const n = Number(raw);
@@ -31,7 +34,7 @@ function playerOnBoss(playerId: number, bossId: number) {
     return null;
   }
 
-  const scope = and(eq(encounterParticipants.playerId, playerId), eq(encounters.bossId, bossId), REAL_PLAYER);
+  const scope = and(eq(encounterParticipants.playerId, playerId), eq(encounters.bossId, bossId), REAL_EXACT);
   const totals = db
     .select({
       runs: count(),
@@ -138,7 +141,7 @@ export async function compareRoutes(app: FastifyInstance) {
         .select({ playerName: players.name, className: encounterParticipants.className })
         .from(encounterParticipants)
         .innerJoin(players, eq(encounterParticipants.playerId, players.id))
-        .where(and(eq(encounterParticipants.encounterId, row.encounterId), REAL_PLAYER))
+        .where(and(eq(encounterParticipants.encounterId, row.encounterId), REAL_EXACT))
         .orderBy(desc(encounterParticipants.totalDamage))
         .get();
       const size = db
@@ -172,7 +175,7 @@ export async function compareRoutes(app: FastifyInstance) {
       .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))
       .innerJoin(instances, eq(bosses.instanceId, instances.id))
-      .where(and(eq(encounterParticipants.playerId, playerId), REAL_PLAYER))
+      .where(and(eq(encounterParticipants.playerId, playerId), REAL_EXACT))
       .groupBy(bosses.id)
       .orderBy(asc(instances.name), asc(bosses.name))
       .all();
@@ -204,7 +207,7 @@ export async function compareRoutes(app: FastifyInstance) {
       .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
       .innerJoin(players, eq(encounterParticipants.playerId, players.id))
       .leftJoin(servers, eq(players.serverId, servers.id))
-      .where(and(eq(encounters.bossId, found.boss.id), REAL_PLAYER, exclude === null ? undefined : ne(players.id, exclude)))
+      .where(and(eq(encounters.bossId, found.boss.id), REAL_EXACT, exclude === null ? undefined : ne(players.id, exclude)))
       .groupBy(players.id)
       .orderBy(desc(max(encounterParticipants.idps)))
       .limit(300)
@@ -217,7 +220,7 @@ export async function compareRoutes(app: FastifyInstance) {
       .select({ playerId: encounterParticipants.playerId, className: encounterParticipants.className })
       .from(encounterParticipants)
       .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
-      .where(and(eq(encounters.bossId, found.boss.id), REAL_PLAYER))
+      .where(and(eq(encounters.bossId, found.boss.id), REAL_EXACT))
       .orderBy(asc(encounters.startedAt))
       .all()) {
       classes.set(row.playerId, row.className);

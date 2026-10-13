@@ -419,6 +419,7 @@ function insertParticipant(
       totalDamage: participant.totalDamage,
       dps: participant.dps,
       idps: participant.idps,
+      estimated: participant.estimated,
       totalHealing: participant.totalHealing,
       hps: participant.hps,
       damageTaken: participant.damageTaken,
@@ -449,6 +450,7 @@ function overwriteParticipant(participantId: number, participant: ParticipantUpl
       totalDamage: participant.totalDamage,
       dps: participant.dps,
       idps: participant.idps,
+      estimated: participant.estimated,
       totalHealing: participant.totalHealing,
       hps: participant.hps,
       damageTaken: participant.damageTaken,
@@ -526,7 +528,14 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
       const match = existingParticipants.find(
         (p) => normalizeName(p.players.name) === normalized,
       );
-      if (match && !match.encounter_participants.isCritRateAuthoritative) {
+      if (match && participant.estimated && !match.encounter_participants.estimated) {
+        // An exact row stays: an estimate (hit counts x typical hit) never replaces real numbers.
+        continue;
+      }
+      if (match && match.encounter_participants.estimated && !participant.estimated) {
+        // Real numbers replace an estimate (damage and skill rows), whoever reported the estimate.
+        overwriteParticipant(match.encounter_participants.id, participant, match.encounter_participants.isCritRateAuthoritative);
+      } else if (match && !match.encounter_participants.isCritRateAuthoritative) {
         overwriteParticipant(match.encounter_participants.id, participant, false);
       } else if (!match) {
         insertParticipant(encounterId, serverId, participant, false);
@@ -539,6 +548,14 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
     const sameNameMatch = existingParticipants.find(
       (p) => normalizeName(p.players.name) === normalized,
     );
+    if (sameNameMatch && participant.estimated && !sameNameMatch.encounter_participants.estimated) {
+      continue;
+    }
+    if (sameNameMatch && sameNameMatch.encounter_participants.estimated && !participant.estimated) {
+      // The estimate has nothing to compare against (class aside): real numbers simply replace it.
+      overwriteParticipant(sameNameMatch.encounter_participants.id, participant, true);
+      continue;
+    }
     if (sameNameMatch) {
       if (
         sameNameMatch.encounter_participants.className === participant.className &&
@@ -706,6 +723,8 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
       ...primary,
       isSelf: group.some((p) => p.isSelf),
       totalDamage: group.reduce((sum, p) => sum + p.totalDamage, 0),
+      // One estimated half makes the summed damage an estimate.
+      estimated: group.some((p) => p.estimated),
       totalHealing: group.reduce((sum, p) => sum + p.totalHealing, 0),
       // idps/dps are already rates, not sums-of-rates - re-derived from the summed totals divided
       // by whichever single row's own rate implies the longest window, so a merge never invents a

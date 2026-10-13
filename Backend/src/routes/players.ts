@@ -4,6 +4,7 @@ import { and, desc, eq, like, max } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { bosses, encounterParticipants, encounters, instances, players, servers } from "../db/schema.js";
+import { EXACT_PARTICIPANT } from "../estimated.js";
 import { normalizeName } from "../matching/roster.js";
 import { gameFromQuery } from "./instances.js";
 import type { Game } from "../constants.js";
@@ -26,7 +27,7 @@ import { parseIdOrSlug } from "../seo/slug.js";
  * it - the same "small N, one extra query per row" shape topGroups already uses for its roster.
  */
 export function topPlayersOverall(game: Game, serverId: number | null, limit: number) {
-  const scope = serverId === null ? eq(instances.game, game) : and(eq(instances.game, game), eq(encounters.serverId, serverId));
+  const scope = serverId === null ? and(eq(instances.game, game), EXACT_PARTICIPANT) : and(eq(instances.game, game), eq(encounters.serverId, serverId), EXACT_PARTICIPANT);
 
   const bestPerPlayer = db
     .select({ playerId: encounterParticipants.playerId, bestIdps: max(encounterParticipants.idps) })
@@ -66,7 +67,7 @@ export function topPlayersOverall(game: Game, serverId: number | null, limit: nu
         .innerJoin(bosses, eq(encounters.bossId, bosses.id))
         .innerJoin(instances, eq(bosses.instanceId, instances.id))
         .leftJoin(servers, eq(encounters.serverId, servers.id))
-        .where(and(eq(encounterParticipants.playerId, playerId), eq(encounterParticipants.idps, bestIdps)))
+        .where(and(eq(encounterParticipants.playerId, playerId), eq(encounterParticipants.idps, bestIdps), EXACT_PARTICIPANT))
         .orderBy(desc(encounters.startedAt))
         .get();
       return row;
@@ -169,6 +170,7 @@ export async function playerRoutes(app: FastifyInstance) {
         faction: encounterParticipants.faction,
         totalDamage: encounterParticipants.totalDamage,
         idps: encounterParticipants.idps,
+        estimated: encounterParticipants.estimated,
         critRatePercent: encounterParticipants.critRatePercent,
       })
       .from(encounterParticipants)

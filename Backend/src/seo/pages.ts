@@ -1,6 +1,7 @@
 import { findGuild } from "../guilds.js";
 import { and, asc, count, desc, eq, ne } from "drizzle-orm";
 import { db } from "../db/client.js";
+import { ESTIMATED_NOTE } from "../estimated.js";
 import { bosses, encounterParticipants, encounterSkillUsage, encounters, instances, players, servers } from "../db/schema.js";
 import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { findInstance, instanceColumns } from "../routes/instances.js";
@@ -685,6 +686,7 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
       className: encounterParticipants.className,
       faction: encounterParticipants.faction,
       idps: encounterParticipants.idps,
+      estimated: encounterParticipants.estimated,
       startedAt: encounters.startedAt,
     })
     .from(encounterParticipants)
@@ -697,7 +699,8 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
   const profile = buildProfileView(player.id);
   const className = profile?.className ?? runs[0]?.className ?? null;
   const faction = profile?.faction ?? runs[0]?.faction ?? null;
-  const best = runs.reduce<(typeof runs)[number] | null>((m, r) => (m === null || r.idps > m.idps ? r : m), null);
+  // Estimated damage never makes a personal best.
+  const best = runs.filter((r) => !r.estimated).reduce<(typeof runs)[number] | null>((m, r) => (m === null || r.idps > m.idps ? r : m), null);
   const path = `/players/${player.slug ?? player.id}`;
   const serverShort = (player.serverName ?? "").split(" - ").pop() ?? "";
   const classLine = [profile?.level ? `Lv. ${profile.level}` : "", className ?? "", faction ? `(${faction})` : ""].filter(Boolean).join(" ");
@@ -780,7 +783,7 @@ export function encounterPage(game: Game, id: string): Page | null {
   // ELSE's pet, so the client uploads them as their own participant row with className "?" (a
   // real player's class is always resolved by upload time).
   const roster = db
-    .select({ name: players.name, className: encounterParticipants.className, damage: encounterParticipants.totalDamage, healing: encounterParticipants.totalHealing })
+    .select({ name: players.name, className: encounterParticipants.className, damage: encounterParticipants.totalDamage, estimated: encounterParticipants.estimated, healing: encounterParticipants.totalHealing })
     .from(encounterParticipants)
     .innerJoin(players, eq(encounterParticipants.playerId, players.id))
     .where(and(eq(encounterParticipants.encounterId, encounterId), ne(encounterParticipants.className, "?")))
@@ -792,7 +795,7 @@ export function encounterPage(game: Game, id: string): Page | null {
   const server = row.serverName;
   const modeText = row.mode ? ` · ${modeLabelEn(row.instanceCategory, row.mode)}` : "";
   const title = `${name}${row.mode ? ` (${modeLabelEn(row.instanceCategory, row.mode)})` : ""}${server ? ` – ${server}` : ""} – Boss Fight – ${SITE}`;
-  const top = roster.slice(0, 3).map((p) => `${p.name} (${p.className}) ${compact(p.damage)}`);
+  const top = roster.slice(0, 3).map((p) => `${p.name} (${p.className}) ${p.estimated ? "~" : ""}${compact(p.damage)}`);
   const stats = [
     roster.length > 0 ? `${roster.length} player${roster.length === 1 ? "" : "s"}` : "",
     row.groupIDps ? `${formatInt(row.groupIDps)} group iDPS` : "",
@@ -814,7 +817,7 @@ export function encounterPage(game: Game, id: string): Page | null {
       ogImageAlt: rendered ? `${name}: damage, healing and damage taken per player` : photo ? name : undefined,
       ogImageSize: rendered ? { width: 1200, height: 630 } : undefined,
     },
-    body: html`<h2>${name}</h2><p>${server ?? ""}${modeText}</p>${roster.length > 0 ? html`<ul class="plain">${roster.map((p) => html`<li>${p.name} (${p.className}) – ${formatInt(p.damage)} damage</li>`)}</ul>` : ""}`,
+    body: html`<h2>${name}</h2><p>${server ?? ""}${modeText}</p>${roster.length > 0 ? html`<ul class="plain">${roster.map((p) => html`<li>${p.name} (${p.className}) – ${p.estimated ? "~" : ""}${formatInt(p.damage)} damage</li>`)}</ul>` : ""}${roster.some((p) => p.estimated) ? html`<p class="empty">${ESTIMATED_NOTE}</p>` : ""}`,
   };
 }
 
@@ -833,6 +836,7 @@ export function participantPage(game: Game, id: string): Page | null {
       className: encounterParticipants.className,
       totalDamage: encounterParticipants.totalDamage,
       dps: encounterParticipants.dps,
+      estimated: encounterParticipants.estimated,
       totalHealing: encounterParticipants.totalHealing,
       crit: encounterParticipants.critRatePercent,
       mode: encounters.mode,
@@ -873,7 +877,7 @@ export function participantPage(game: Game, id: string): Page | null {
   const topSkills = own.slice(0, 3).map((sk) => `${sk.skillName} ${total > 0 ? Math.round((sk.totalDamage / total) * 100) : 0}%`);
   const boss = displayName({ name: row.bossName, nameEn: row.bossNameEn });
   const modeText = row.mode ? ` (${modeLabelEn(row.instanceCategory, row.mode)})` : "";
-  const description = `${row.playerName} (${row.className}) vs ${boss}${modeText}${row.serverName ? ` on ${row.serverName}` : ""}: ${formatInt(row.totalDamage)} damage, ${formatInt(row.dps)} DPS, ${row.crit.toFixed(1)}% crit${row.totalHealing > 0 ? `, ${formatInt(row.totalHealing)} healing` : ""}${row.durationSeconds ? `, ${minutes(row.durationSeconds)} fight` : ""}.${topSkills.length > 0 ? ` Top skills: ${topSkills.join(", ")}.` : ""}`;
+  const description = `${row.playerName} (${row.className}) vs ${boss}${modeText}${row.serverName ? ` on ${row.serverName}` : ""}: ${row.estimated ? "~" : ""}${formatInt(row.totalDamage)} damage, ${row.estimated ? "~" : ""}${formatInt(row.dps)} DPS${row.estimated ? "" : `, ${row.crit.toFixed(1)}% crit`}${row.totalHealing > 0 ? `, ${formatInt(row.totalHealing)} healing` : ""}${row.durationSeconds ? `, ${minutes(row.durationSeconds)} fight` : ""}.${topSkills.length > 0 ? ` Top skills: ${topSkills.join(", ")}.` : ""}`;
   const photo = bossImage(row.bossName, row.instanceName);
   return {
     status: 200,
@@ -885,7 +889,7 @@ export function participantPage(game: Game, id: string): Page | null {
       ogImage: photo,
       ogImageAlt: photo ? boss : undefined,
     },
-    body: html`<h2>${row.playerName}</h2><p>${row.className} · ${boss}${modeText}</p><p>${formatInt(row.totalDamage)} damage · ${formatInt(row.dps)} DPS</p>`,
+    body: html`<h2>${row.playerName}</h2><p>${row.className} · ${boss}${modeText}</p><p>${row.estimated ? "~" : ""}${formatInt(row.totalDamage)} damage · ${row.estimated ? "~" : ""}${formatInt(row.dps)} DPS</p>${row.estimated ? html`<p class="empty">${ESTIMATED_NOTE}</p>` : ""}`,
   };
 }
 

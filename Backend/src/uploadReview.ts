@@ -85,12 +85,14 @@ export function assessKill(payload: UploadPayload, reference: ReviewReference): 
   const seconds = Math.max(durationSeconds(payload), 0.001);
   const groupDamage = payload.participants.reduce((sum, p) => sum + p.totalDamage, 0);
   const hp = payload.bossMaxHp;
+  // Estimated damage (hit counts x typical hit) says nothing about plausibility: the damage checks are skipped for such uploads.
+  const hasEstimatedRows = payload.participants.some((p) => p.estimated);
 
   if (!reference.bossKnown) {
     findings.push({ code: "unknown_boss", detail: `${payload.bossNpcName}${payload.bossNpcId !== undefined ? ` (${payload.bossNpcId})` : ""}` });
   }
 
-  if (hp !== undefined && groupDamage > hp * MAX_KILL_DAMAGE_SHARE) {
+  if (!hasEstimatedRows && hp !== undefined && groupDamage > hp * MAX_KILL_DAMAGE_SHARE) {
     findings.push({ code: "damage_over_hp", detail: `${groupDamage} damage on ${hp} hit points (${(groupDamage / hp).toFixed(2)}x)` });
   }
 
@@ -107,6 +109,10 @@ export function assessKill(payload: UploadPayload, reference: ReviewReference): 
 
   if (reference.clusterRuns >= MIN_REFERENCE_RUNS) {
     for (const p of payload.participants) {
+      if (p.estimated) {
+        continue;
+      }
+
       const samples = reference.classDps[p.className];
       if (!samples || samples.length < MIN_CLASS_SAMPLES) {
         continue;
@@ -144,7 +150,7 @@ export function referenceFor(payload: UploadPayload): ReviewReference {
       .select({ className: encounterParticipants.className, damage: encounterParticipants.totalDamage, seconds: encounters.durationSeconds })
       .from(encounterParticipants)
       .innerJoin(encounters, eq(encounters.id, encounterParticipants.encounterId))
-      .where(and(eq(encounters.bossId, bossId), isNotNull(encounters.bossMaxHp), between(encounters.bossMaxHp, Math.floor(hp * (1 - HP_REFERENCE_TOLERANCE)), Math.ceil(hp * (1 + HP_REFERENCE_TOLERANCE)))))
+      .where(and(eq(encounters.bossId, bossId), eq(encounterParticipants.estimated, false), isNotNull(encounters.bossMaxHp), between(encounters.bossMaxHp, Math.floor(hp * (1 - HP_REFERENCE_TOLERANCE)), Math.ceil(hp * (1 + HP_REFERENCE_TOLERANCE)))))
       .all();
     for (const person of people) {
       if (person.seconds > 0 && person.damage > 0) {

@@ -417,6 +417,9 @@ export const encounterParticipants = sqliteTable(
     totalDamage: integer("total_damage").notNull(),
     dps: real("dps").notNull(),
     idps: real("idps").notNull(),
+    // True when the damage figures (and skill rows) of this participant are estimated from hit counts (crowded world boss).
+    // Such rows never enter records, rankings or averages - only the encounter detail shows them.
+    estimated: integer("estimated", { mode: "boolean" }).notNull().default(false),
     // Per the user: AP/Kinah/EXP/loot are never uploaded, only combat performance - the healing
     // half of that (damage is totalDamage/dps/idps above). No isHeal-scoped crit rate alongside
     // critRatePercent below: that one column has only ever meant the damage crit rate, and heals

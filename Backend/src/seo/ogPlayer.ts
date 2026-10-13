@@ -84,14 +84,15 @@ function loadPlayer(key: { id: number } | { slug: string }): PlayerCard | null {
   // Same rule as the profile page: only Aion 2 characters are served.
   if (!player || !(player.fingerprint ?? "").startsWith("aion2:")) return null;
   const runs = db
-    .select({ idps: encounterParticipants.idps, className: encounterParticipants.className, faction: encounterParticipants.faction, bossName: bosses.nameEn, bossLocal: bosses.name })
+    .select({ idps: encounterParticipants.idps, estimated: encounterParticipants.estimated, className: encounterParticipants.className, faction: encounterParticipants.faction, bossName: bosses.nameEn, bossLocal: bosses.name })
     .from(encounterParticipants)
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
     .innerJoin(bosses, eq(encounters.bossId, bosses.id))
     .where(and(eq(encounterParticipants.playerId, player.id), ne(encounterParticipants.className, "?")))
     .all();
   const profile = buildProfileView(player.id);
-  const best = runs.reduce<(typeof runs)[number] | null>((m, r) => (m === null || r.idps > m.idps ? r : m), null);
+  // Estimated damage never makes a personal best.
+  const best = runs.filter((r) => !r.estimated).reduce<(typeof runs)[number] | null>((m, r) => (m === null || r.idps > m.idps ? r : m), null);
   return {
     name: player.name,
     level: profile?.level ?? null,

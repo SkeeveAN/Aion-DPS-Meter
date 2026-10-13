@@ -1,4 +1,5 @@
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
+import { ESTIMATED_NOTE, EXACT_PARTICIPANT } from "../estimated.js";
 import { withServerFaction } from "../factions.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
@@ -50,7 +51,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         .select({ playerName: players.name, className: encounterParticipants.className })
         .from(encounterParticipants)
         .innerJoin(players, eq(encounterParticipants.playerId, players.id))
-        .where(eq(encounterParticipants.encounterId, row.encounterId))
+        .where(and(eq(encounterParticipants.encounterId, row.encounterId), EXACT_PARTICIPANT))
         .orderBy(desc(encounterParticipants.totalDamage))
         .get();
       return { ...row, topPlayerName: top?.playerName ?? null, topPlayerClassName: top?.className ?? null };
@@ -126,6 +127,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         totalDamage: encounterParticipants.totalDamage,
         dps: encounterParticipants.dps,
         idps: encounterParticipants.idps,
+        estimated: encounterParticipants.estimated,
         totalHealing: encounterParticipants.totalHealing,
         hps: encounterParticipants.hps,
         damageTaken: encounterParticipants.damageTaken,
@@ -149,6 +151,8 @@ export async function encounterRoutes(app: FastifyInstance) {
     return reply.send({
       encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null },
       roster: rosterWithBuffs,
+      // Set when some damage figures are estimated from hit counts (rows with estimated = true); the page shows it as a footnote.
+      estimatedNote: rosterWithBuffs.some((r) => r.estimated) ? ESTIMATED_NOTE : null,
     });
   });
 
@@ -172,6 +176,7 @@ export async function encounterRoutes(app: FastifyInstance) {
         totalDamage: encounterParticipants.totalDamage,
         dps: encounterParticipants.dps,
         idps: encounterParticipants.idps,
+        estimated: encounterParticipants.estimated,
         totalHealing: encounterParticipants.totalHealing,
         hps: encounterParticipants.hps,
         critRatePercent: encounterParticipants.critRatePercent,

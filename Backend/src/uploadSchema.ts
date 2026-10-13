@@ -45,6 +45,9 @@ export const participantSchema = z.object({
   // true for exactly one participant per upload, the uploader themselves.
   isSelf: z.boolean(),
   totalDamage: z.number().int().min(0).max(2_000_000_000),
+  // True = the damage figures of this row (totalDamage, dps, idps, skills[].total/min/max) are ESTIMATED from hit counts (a crowded world boss
+  // only announces hits, never amounts). Heal/buffs/damageTaken are never estimated; critHits is 0 on such rows. Defaulted for older clients.
+  estimated: z.boolean().default(false),
   dps: z.number().min(0).max(5_000_000),
   idps: z.number().min(0).max(5_000_000),
   // Per the user: AP/Kinah/EXP/loot are never uploaded, only combat performance - damage AND heal.

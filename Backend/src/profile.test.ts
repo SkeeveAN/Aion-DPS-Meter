@@ -28,6 +28,7 @@ function participant(name: string, extra: Record<string, unknown> = {}) {
     totalDamage: 50_000,
     dps: 400,
     idps: 400,
+    estimated: false,
     totalHealing: 0,
     hps: 0,
     damageTaken: 0,

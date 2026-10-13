@@ -127,8 +127,11 @@ export async function uploadRoutes(app: FastifyInstance) {
     // A fight counts only when the group took the boss down: the damage dealt has to add up to (nearly)
     // all of the boss's hit points. Otherwise two failed 50 % attempts - or an empty run - would pass
     // as one kill. The client sends the boss's highest hit-point reading; without it nothing proves
-    // the fight was a whole one.
-    if (payload.bossMaxHp === undefined || groupDamage < payload.bossMaxHp * MIN_KILL_DAMAGE_SHARE) {
+    // the fight was a whole one. Exception: a crowded world boss, where the client only knows hit counts and
+    // estimates the damage of the others (`estimated` rows) - there the client has checked the boss's death itself.
+    const hasEstimatedRows = payload.participants.some((p) => p.estimated);
+    const killProvenByClient = worldBoss && hasEstimatedRows;
+    if (payload.bossMaxHp === undefined || (!killProvenByClient && groupDamage < payload.bossMaxHp * MIN_KILL_DAMAGE_SHARE)) {
       app.log.warn({ groupDamage, bossMaxHp: payload.bossMaxHp, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: damage does not cover the boss's hit points");
       recordTurnedAway(payload, request.ip, [{ code: "boss_not_killed", detail: `${groupDamage} damage on ${payload.bossMaxHp ?? "unknown"} hit points` }]);
       return reply.status(400).send({ error: "boss_not_killed", groupDamage, bossMaxHp: payload.bossMaxHp ?? null });

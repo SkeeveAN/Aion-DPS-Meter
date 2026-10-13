@@ -2,6 +2,7 @@ import { and, asc, count, desc, eq, inArray, max, or, sql } from "drizzle-orm";
 import { withServerFaction } from "../factions.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
+import { EXACT_ENCOUNTER, EXACT_PARTICIPANT } from "../estimated.js";
 import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounters, instances, playerNcCharacter, playerProfiles, players, serverCatalog, servers } from "../db/schema.js";
 import { profileBadge } from "../profileBadge.js";
 import { topBuffsByParticipant, type TopBuff } from "../skills/topBuffs.js";
@@ -101,7 +102,7 @@ export function topGroups(bossId: number, serverId: number | null, game: Game, m
       mergedUploadCount: encounters.mergedUploadCount,
     })
     .from(encounters)
-    .where(encounterScope(bossId, serverId, mode))
+    .where(and(encounterScope(bossId, serverId, mode), EXACT_ENCOUNTER))
     .orderBy(desc(encounters.groupIDps))
     .limit(TOP_N)
     .all();
@@ -183,7 +184,7 @@ export function topByClass(bossId: number, serverId: number | null, game: Game, 
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
     .innerJoin(players, eq(encounterParticipants.playerId, players.id))
     .leftJoin(servers, eq(players.serverId, servers.id))
-    .where(encounterScope(bossId, serverId, mode))
+    .where(and(encounterScope(bossId, serverId, mode), EXACT_PARTICIPANT))
     .all()
     .map(withServerFaction);
 
@@ -230,7 +231,7 @@ export function statsForBossIds(bossIds: number[], serverId: number | null, mode
   const row = db
     .select({
       runCount: count(encounters.id),
-      bestIdps: max(encounters.groupIDps),
+      bestIdps: sql<number | null>`max(case when ${EXACT_ENCOUNTER} then ${encounters.groupIDps} end)`,
       avgDurationSeconds: sql<number | null>`avg(${encounters.durationSeconds})`,
     })
     .from(encounters)
