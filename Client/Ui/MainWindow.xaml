@@ -625,7 +625,10 @@
                     <!-- The session list is built in code each time the menu opens (SessionMenu_SubmenuOpened): "All", the stay the
                          player is in now, and the last few finished ones. The uploads that used to sit here are at the top of the App menu. -->
                     <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="{DynamicResource Brush.Text}"
-                              SubmenuOpened="OnSessionMenuOpened"/>
+                              SubmenuOpened="OnSessionMenuOpened">
+                        <!-- Placeholder: a MenuItem without children is a leaf and never raises SubmenuOpened; the handler replaces it. -->
+                        <MenuItem Header="..." IsEnabled="False"/>
+                    </MenuItem>
                     <!-- Consolidated here from the App menu, per the user's request - App had
                          become a long, mixed grab-bag of session/dev/settings items; splitting
                          out everything settings-related into its own top-level dropdown (right of
