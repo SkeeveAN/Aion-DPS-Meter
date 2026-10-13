@@ -182,7 +182,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
     public enum Part { Cast, Target, Hp }
 
     public const string BossCastId = "BossCast",
-        TargetBlockId = "TargetBlock", TargetIconId = "TargetIcon", TargetNameId = "TargetName", TargetHpId = "TargetHp", TargetEffectsId = "TargetEffects";
+        BossHpId = "BossHp", TargetBlockId = "TargetBlock", TargetIconId = "TargetIcon", TargetNameId = "TargetName", TargetHpId = "TargetHp", TargetEffectsId = "TargetEffects";
 
     private static readonly string[] TargetParts = { TargetIconId, TargetNameId, TargetHpId, TargetEffectsId };
 
@@ -195,6 +195,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private readonly TargetIconView _targetIcon = new();
     private readonly TargetNameView _targetName = new();
     private readonly HpBarView _targetHp = new();
+    private readonly HpBarView _bossHp = new();
     private readonly EffectBarView _targetEffects = new();
     private readonly Dictionary<string, CombatElementHost> _hosts = new();
     private bool _editing;
@@ -214,12 +215,13 @@ public sealed class CombatOverlayWindow : MovableOverlay
         }
         else if (part == Part.Hp)
         {
-            AddElement(TargetHpId, _targetHp, loc["Combat.Element.BossHp"], settings, _stage);
+            AddElement(BossHpId, _bossHp, loc["Combat.Element.BossHp"], settings, _stage);
         }
         else
         {
             AddElement(TargetIconId, _targetIcon, loc["Combat.Element.TargetIcon"], settings, _stage);
             AddElement(TargetNameId, _targetName, loc["Combat.Element.TargetName"], settings, _stage);
+            AddElement(TargetHpId, _targetHp, loc["Combat.Element.TargetHp"], settings, _stage);
             AddElement(TargetEffectsId, _targetEffects, loc["Combat.Element.TargetEffects"], settings, _stage);
         }
 
@@ -238,16 +240,17 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private static CombatElementLayout DefaultLayout(string id) => id switch
     {
         BossCastId => new CombatElementLayout { Left = 0, Top = 0, Width = 480, Height = 132 },
-        TargetBlockId => new CombatElementLayout { Left = 0, Top = 0, Width = 240, Height = 118 },
+        TargetBlockId => new CombatElementLayout { Left = 0, Top = 0, Width = 240, Height = 152 },
         TargetIconId => new CombatElementLayout { Left = 0, Top = 0, Width = 52, Height = 52 },
         TargetNameId => new CombatElementLayout { Left = 56, Top = 0, Width = 176, Height = 52 },
-        TargetHpId => new CombatElementLayout { Left = 0, Top = 0, Width = 232, Height = 30 },
-        TargetEffectsId => new CombatElementLayout { Left = 0, Top = 56, Width = 232, Height = 54 },
+        BossHpId => new CombatElementLayout { Left = 0, Top = 0, Width = 232, Height = 30 },
+        TargetHpId => new CombatElementLayout { Left = 0, Top = 56, Width = 232, Height = 30 },
+        TargetEffectsId => new CombatElementLayout { Left = 0, Top = 90, Width = 232, Height = 54 },
         _ => new CombatElementLayout { Left = 0, Top = 0, Width = 100, Height = 40 },
     };
 
     /// <summary>The frame's size before anyone pulled it: the stage plus the rim (2 + 1 px each side) and the grip's row.</summary>
-    private static Size DefaultFrame(Part part) => part switch { Part.Cast => new Size(486, 152), Part.Hp => new Size(238, 50), _ => new Size(246, 138) };
+    private static Size DefaultFrame(Part part) => part switch { Part.Cast => new Size(486, 152), Part.Hp => new Size(238, 50), _ => new Size(246, 172) };
 
     private static Size StageSize(Part part, double? frameWidth, double? frameHeight) =>
         new(Math.Max(60, (frameWidth is > 0 ? frameWidth.Value : DefaultFrame(part).Width) - 6), Math.Max(40, (frameHeight is > 0 ? frameHeight.Value : DefaultFrame(part).Height) - 20));
@@ -449,11 +452,11 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
         if (boss is not null)
         {
-            _targetHp.Show(boss.Hp, boss.Max, false, boss.Check);
+            _bossHp.Show(boss.Hp, boss.Max, false, boss.Check);
         }
 
         bool visible = boss is not null && settings.ShowBossHp;
-        _hosts[TargetHpId].Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        _hosts[BossHpId].Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         return visible;
     }
 
@@ -484,12 +487,14 @@ public sealed class CombatOverlayWindow : MovableOverlay
         {
             _targetIcon.Show(tot);
             _targetName.Show(tot);
+            _targetHp.Show(tot.Hp, tot.MaxHp, tot.Effects is { Count: > 0 });
             _targetEffects.Show(tot.Effects ?? Array.Empty<EffectData>());
         }
 
         bool totShown = shownTot is not null;
         _hosts[TargetIconId].Visibility = totShown ? Visibility.Visible : Visibility.Collapsed;
         _hosts[TargetNameId].Visibility = totShown ? Visibility.Visible : Visibility.Collapsed;
+        _hosts[TargetHpId].Visibility = totShown && (settings.CombatShowHealer || _editing) && settings.CombatHealerHpBar ? Visibility.Visible : Visibility.Collapsed;
         _hosts[TargetEffectsId].Visibility = totShown && (settings.CombatShowHealer || _editing) && settings.CombatHealerEffects ? Visibility.Visible : Visibility.Collapsed;
         any |= totShown;
 

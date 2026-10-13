@@ -233,6 +233,7 @@ public sealed class MeterSettings
 
     /// <summary>The healer's target: its name, hit points and effects. Off until switched on.</summary>
     public bool CombatShowHealer { get; set; }
+    public bool CombatHealerHpBar { get; set; } = true;
     public bool CombatHealerEffects { get; set; } = true;
 
 
