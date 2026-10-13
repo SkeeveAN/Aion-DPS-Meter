@@ -746,6 +746,18 @@ export function processUpload(payload: UploadPayload): ProcessResult {
 }
 
 /**
+ * Files the players of a fight upload (server, name, faction, legion) without storing the fight, and queues their check against NC. For
+ * the NC gate (see ncGate.ts), which has to know the players' state before the run may count. Returns the player rows in roster order.
+ */
+export function registerUploadPlayers(payload: UploadPayload): number[] {
+  const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
+  rehomePlayers(payload.participants, serverId);
+  const ids = payload.participants.map((p) => upsertPlayer(p.name, serverOfParticipant(p, serverId), p.guild, factionOfParticipant(p)));
+  checkUploadedPlayers(payload.participants, serverId);
+  return ids;
+}
+
+/**
  * Stores the profiles of an upload that has no boss fight (see profilesUploadSchema): the server and
  * the players are found or created like for a fight, then each profile goes through upsertProfile
  * (a "seen" profile never replaces a "self" one there).

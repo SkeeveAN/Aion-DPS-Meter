@@ -2,6 +2,7 @@ import { buildServer } from "./server.js";
 import { env } from "./env.js";
 import { startStatusProbe } from "./status/serverStatus.js";
 import { startEnrichSweep, startMatchSweep } from "./ncMatch.js";
+import { startNcGateSweep } from "./ncGate.js";
 import { startReferenceCheck } from "./ncReference.js";
 import { startAnnouncements } from "./announcements.js";
 import { startPatchnotes } from "./patchnotes.js";
@@ -13,6 +14,7 @@ async function main() {
   startStatusProbe();
   startMatchSweep();
   startEnrichSweep();
+  startNcGateSweep();
   startReferenceCheck();
   startAnnouncements();
   startPatchnotes();

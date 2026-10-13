@@ -4,6 +4,7 @@ import { processProfilesUpload, processUpload } from "../matching/merge.js";
 import { db } from "../db/client.js";
 import { bossNpcIds, bosses, instances, uploads } from "../db/schema.js";
 import { eq } from "drizzle-orm";
+import { gateUpload, NC_PENDING, PLAYER_CHECK_FAILED } from "../ncGate.js";
 import { clearPageCache } from "../seo/cache.js";
 import { clientPolicy, requireCurrentClient } from "../clientPolicy.js";
 
@@ -12,6 +13,9 @@ import { MAX_INSTANCE_PARTICIPANTS, MIN_KILL_DAMAGE_SHARE } from "../constants.j
 import { env } from "../env.js";
 import { assessKill, referenceFor, structuralProblems, type ReviewFinding } from "../uploadReview.js";
 import type { UploadPayload } from "../uploadSchema.js";
+
+/** The NC gate is off in tests (no NC there) unless a test sets NC_GATE=on. */
+const gateEnabled = () => (process.env.NC_GATE ?? (process.env.NODE_TEST_CONTEXT ? "off" : "on")).toLowerCase() !== "off";
 
 /** Keeps what was turned away (and why) in the audit log instead of only in the process log. */
 function recordTurnedAway(payload: UploadPayload, ip: string, findings: ReviewFinding[]) {
@@ -156,6 +160,29 @@ export async function uploadRoutes(app: FastifyInstance) {
             .run();
           return reply.send({ status: "pending_review", reasons: findings.map((f) => f.code) });
         }
+      }
+    }
+
+    // The run counts only when NC has vouched for every player: one failed player fails the whole run, an open check holds the upload back (see ncGate.ts).
+    if (gateEnabled()) {
+      const gate = gateUpload(payload);
+      if (gate === "fail") {
+        app.log.warn({ bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: a player failed the NC check");
+        recordTurnedAway(payload, request.ip, [{ code: PLAYER_CHECK_FAILED, detail: "a player failed the NC check" }]);
+        return reply.status(400).send({ error: PLAYER_CHECK_FAILED });
+      }
+      if (gate === "wait") {
+        db.insert(uploads)
+          .values({
+            clientVersion: payload.clientVersion,
+            uploaderReportedName: payload.participants.find((p) => p.isSelf)!.name,
+            ipHash: hashIp(request.ip),
+            status: "pending",
+            reviewReason: JSON.stringify([{ code: NC_PENDING, detail: "waiting for the NC check of the players" }]),
+            rawPayloadJson: JSON.stringify(payload),
+          })
+          .run();
+        return reply.send({ status: "pending_review", reasons: [NC_PENDING] });
       }
     }
 
