@@ -84,15 +84,12 @@ public static class CombatOverlayData
             return null;
         }
 
-        if (dir.Combat.TargetOf(clicked.EntityId, now, AimAge) is not int aimed || aimed == clicked.EntityId)
-        {
-            return null;
-        }
-
-        var (name, image, isBoss) = Describe(dir, aimed, language);
+        // the health bar is always the player's own target's; picture, name and effects are the target of the target's when there is one, else the own target's
+        int shown = dir.Combat.TargetOf(clicked.EntityId, now, AimAge) is int aimed && aimed != clicked.EntityId ? aimed : clicked.EntityId;
+        var (name, image, isBoss) = Describe(dir, shown, language);
         return new TargetOfTargetData(name, Name(dir, clicked.EntityId, language), image, isBoss,
-            settings.CombatShowHealer ? dir.HitPoints.Latest(aimed)?.Hp : null, settings.CombatShowHealer ? dir.HitPoints.MaxOf(aimed) : null,
-            settings.CombatShowHealer ? Effects(dir, settings, aimed, now) : null);
+            settings.CombatShowHealer ? dir.HitPoints.Latest(clicked.EntityId)?.Hp : null, settings.CombatShowHealer ? dir.HitPoints.MaxOf(clicked.EntityId) : null,
+            settings.CombatShowHealer ? Effects(dir, settings, shown, now) : null);
     }
 
     /// <summary>The debuffs on an entity (effects from monsters or from the room, no buffs); none when effects are switched off.</summary>
