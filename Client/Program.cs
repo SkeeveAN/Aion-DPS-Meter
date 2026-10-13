@@ -1656,6 +1656,21 @@ internal static class Program
             Combat.Sources.CombatBatch polled = source.Poll(false);
             events.AddRange(polled.Damage);
             stays.Feed(polled);
+            if (source.Entities is Aion2.Aion2EntityDirectory ownersIn)
+            {
+                // summons whose owner turned up later: their earlier hits go to the owner, as the meter does
+                foreach ((int summon, int owner) in ownersIn.DrainResolvedOwners())
+                {
+                    stays.Reattribute(summon, owner);
+                    for (int i = 0; i < events.Count; i++)
+                    {
+                        if (events[i].SourceObjectId == summon)
+                        {
+                            events[i] = events[i] with { SourceObjectId = owner };
+                        }
+                    }
+                }
+            }
             foreach (Combat.Sources.ZoneChange zone in polled.ZoneChanges)
             {
                 Console.WriteLine($"aion2-replay: zone {zone.ZoneId} entered at {zone.Timestamp:yyyy-MM-dd HH:mm:ss}");

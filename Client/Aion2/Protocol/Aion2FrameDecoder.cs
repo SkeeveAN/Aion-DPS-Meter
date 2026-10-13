@@ -781,17 +781,51 @@ public sealed class Aion2FrameDecoder
         var owners = _entities.PartyPlayerIdsOfClass(className).Where(id => id != actor).ToList();
         if (owners.Count != 1)
         {
+            // the party is not read yet (the meter started a moment ago): try again with the next hits, the first ones are handed over then
+            if (owners.Count == 0 && _pendingLeftovers.Count < 64)
+            {
+                _pendingLeftovers[actor] = className;
+            }
+
             return null;
         }
 
+        _pendingLeftovers.Remove(actor);
         _entities.SetSummonOwner(actor, owners[0]);
         return owners[0];
+    }
+
+    /// <summary>Summons seen before the party was known (class of their attack): their owner is the party's only player of that class, once the roster is read.</summary>
+    private readonly Dictionary<int, string> _pendingLeftovers = new();
+
+    private void ResolvePendingLeftovers()
+    {
+        foreach ((int actor, string className) in _pendingLeftovers.ToList())
+        {
+            if (_entities.IsSpawned(actor) || _entities.HasName(actor) || _entities.SummonOwnerOf(actor) is not null)
+            {
+                _pendingLeftovers.Remove(actor);
+                continue;
+            }
+
+            var owners = _entities.PartyPlayerIdsOfClass(className).Where(id => id != actor).ToList();
+            if (owners.Count == 1)
+            {
+                _pendingLeftovers.Remove(actor);
+                _entities.SetSummonOwner(actor, owners[0]);
+            }
+        }
     }
 
     private static ReadOnlySpan<byte> OwnerMarker => new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
     private IEnumerable<DamageEvent> DecodeVarintDamage(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
+        if (_pendingLeftovers.Count > 0)
+        {
+            ResolvePendingLeftovers();
+        }
+
         int p = 2;
         if (!TryReadVarint(frame, ref p, out long target) || frame.Length < p + 2)
         {

@@ -1901,6 +1901,17 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
             _names[id] = name;
             _ids[name] = id;
+
+            // A summon announced by its owner's name (a Cleric's Divine Aura) before that name was known to belong to an id: its first hits
+            // stayed on the summon's own id ("Player #id"); now the owner is found, so they are handed over (see DrainResolvedOwners).
+            foreach ((int summon, string ownerName) in _summonOwnerNames)
+            {
+                if (ownerName == name && summon != id && !_summonOwners.ContainsKey(summon) && _resolvedOwners.Count < 4096)
+                {
+                    _summonOwners[summon] = id;
+                    _resolvedOwners.Add((summon, id));
+                }
+            }
         }
     }
 }
