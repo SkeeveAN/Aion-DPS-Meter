@@ -692,5 +692,6 @@
  "Combat overlay: the boss cast bar is a window of its own, placed and scaled apart from the target of the target": "Kampf-Overlay: Die Boss-Cast-Leiste ist ein eigenes Fenster, getrennt vom Ziel-des-Ziels platzier- und skalierbar",
  "Hidden Cubes on the interactive map: the candidate places show again from afar, within 40 m only the cube the game announces": "Hidden Cubes auf der interaktiven Karte: Die möglichen Spawn-Orte sind aus der Ferne wieder zu sehen, im Umkreis von 40 m nur der Cube, den das Spiel meldet",
  "The dummy test in the new Tools menu times runs at a training dummy with a countdown overlay, keeps every run and compares runs with a timeline of skills and effects": "Der Dummy-Test im neuen Menü Tools stoppt Läufe an einer Trainingspuppe mit einem Countdown-Overlay, behält jeden Lauf und vergleicht Läufe mit einem Zeitstrahl aus Skills und Effekten",
- "The Session menu shows its list again (All, current stay, recent sessions, session manager)": "Das Menü Session zeigt seine Liste wieder an (Alle, aktueller Aufenthalt, letzte Sessions, Session-Manager)"
+ "The Session menu shows its list again (All, current stay, recent sessions, session manager)": "Das Menü Session zeigt seine Liste wieder an (Alle, aktueller Aufenthalt, letzte Sessions, Session-Manager)",
+ "The combat overlay's health bar shows your own target's health again": "Die Lebensleiste des Kampf-Overlays zeigt wieder die Lebenspunkte deines eigenen Ziels"
 }

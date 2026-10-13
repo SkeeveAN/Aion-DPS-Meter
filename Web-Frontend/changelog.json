@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.43.2",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The combat overlay's health bar shows your own target's health again",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.43.1",
   "date": "2026-10-13",
   "items": [
