@@ -171,6 +171,13 @@ public sealed class MeterSettings
     /// <summary>Saving a session to a file also writes the rotation, effect, stagger and replay data (a few times the size of the damage alone).</summary>
     public bool SessionSaveExtras { get; set; } = true;
 
+    /// <summary>Where the session manager (with the combat analyzer) was left: place, size and the width of its left half.</summary>
+    public double? SessionWindowLeft { get; set; }
+    public double? SessionWindowTop { get; set; }
+    public double? SessionWindowWidth { get; set; }
+    public double? SessionWindowHeight { get; set; }
+    public double? SessionSplitLeft { get; set; }
+
     /// <summary>Reachable from other PCs of the network (a streaming PC running OBS); off: this PC only. On by default, the link carries a key and only the own network is answered.</summary>
     public bool StreamOverlayNetwork { get; set; } = true;
 

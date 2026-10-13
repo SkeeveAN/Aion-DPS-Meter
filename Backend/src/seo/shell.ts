@@ -30,5 +30,7 @@ export function renderShell(options: { head?: string; app?: string } = {}): stri
   if (options.app !== undefined) {
     html = html.replace(APP_MARKER, options.app);
   }
+  // Preview server for the v2 pictures: the page starts with them switched on (see V2 in Web-Frontend/app.js).
+  if (process.env.V2_PREVIEW === "1") html = html.replace("</head>", "<script>window.__V2 = true;</script></head>");
   return html;
 }

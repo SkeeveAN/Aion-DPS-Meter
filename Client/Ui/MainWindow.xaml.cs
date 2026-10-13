@@ -2171,24 +2171,38 @@ public partial class MainWindow : Window
 
     /// <summary>The combat analyzer for one player of a session: the same details as a double click in the meter, but on the hits of that session only,
     /// whatever the meter itself shows; skills, rotation, effects and the replay map.</summary>
-    private Window? BuildSessionAnalyzer(SessionInfo session, SessionManagerWindow.PlayerRow row)
+    private UIElement? BuildSessionAnalyzer(SessionInfo session, SessionManagerWindow.PlayerRow row, SessionManagerWindow.PlayerMode mode)
     {
         var all = session.Data.Events.Where(ev => !ev.IsHeal).ToList();
-        if (all.Count == 0)
+        if (session.Data.Events.Count == 0)
         {
             return null;
         }
 
-        var mine = session.Data.Events.Where(ev => ev.SourceObjectId == row.Id).ToList();
-        DateTime from = all.Min(ev => ev.Timestamp), to = all.Max(ev => ev.Timestamp);
-        FightExtras? extras = session.Extras ?? ExtrasForSession(session);
         Func<int, string?> nameOf = id => session.Names.GetValueOrDefault(id) ?? ResolveDisplayName(id);
+        bool IsPlayer(int id) => session.Classes.Count == 0 || session.Classes.ContainsKey(id);
+        if (mode == SessionManagerWindow.PlayerMode.Taken)
+        {
+            // what hit this player in the session, one row per attacker and attack
+            var hits = all.Where(ev => ev.TargetObjectId == row.Id && !session.Classes.ContainsKey(ev.SourceObjectId)).ToList();
+            return new PlayerDetailsView(row.Name, row.ClassName, "", hits, nameOf, taken: true);
+        }
+
+        if (mode == SessionManagerWindow.PlayerMode.Heal)
+        {
+            var heals = session.Data.Events.Where(ev => ev.IsHeal).ToList();
+            return new PlayerDetailsView(row.Name, row.ClassName, "", heals.Where(ev => ev.SourceObjectId == row.Id).ToList(), nameOf, heals: true, fightEvents: heals);
+        }
+
+        var mine = session.Data.Events.Where(ev => ev.SourceObjectId == row.Id).ToList();
+        DateTime from = all.Count > 0 ? all.Min(ev => ev.Timestamp) : session.Start, to = all.Count > 0 ? all.Max(ev => ev.Timestamp) : session.End ?? session.Start;
+        FightExtras? extras = session.Extras ?? ExtrasForSession(session);
         ReplayData? replay = extras is null
             ? null
             : ReplayBuilder.Build(SessionLabels.NameOf(session), extras, all, from, to,
-                id => (nameOf(id) ?? "", session.Classes.GetValueOrDefault(id) ?? "", session.Classes.ContainsKey(id)), SkillRadius,
+                id => (nameOf(id) ?? "", session.Classes.GetValueOrDefault(id) ?? "", IsPlayer(id) && session.Classes.ContainsKey(id)), SkillRadius,
                 id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)));
-        return new PlayerDetailsWindow(row.Name, row.ClassName, "", mine, nameOf, fightEvents: all, extras: extras, playerId: row.Id, fightStart: from, fightEnd: to, replay: replay);
+        return new PlayerDetailsView(row.Name, row.ClassName, "", mine, nameOf, fightEvents: all, extras: extras, playerId: row.Id, fightStart: from, fightEnd: to, replay: replay);
     }
 
     /// <summary>The rotation, effect, stagger and replay data of a session, read from the live capture, for saving it with the file: the players of the session and the bosses.</summary>
@@ -3588,17 +3602,6 @@ public partial class MainWindow : Window
         }
 
         _sessionManager = new SessionManagerWindow(_sessions) { Owner = this };
-        _sessionManager.ShowRequested += session =>
-        {
-            if (session.IsOpen)
-            {
-                ShowLiveViewFromMenu(SessionView.Current);
-            }
-            else
-            {
-                ShowPastSession(session);
-            }
-        };
         _sessionManager.ExtrasFor = ExtrasForSession;
         _sessionManager.AnalyzerFactory = BuildSessionAnalyzer;
         _sessionManager.Closed += (_, _) => _sessionManager = null;

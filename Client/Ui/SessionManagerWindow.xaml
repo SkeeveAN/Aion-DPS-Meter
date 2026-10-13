@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AionDPS.Ui"
-        Title="{local:Loc Sessions.ManagerTitle}" Height="760" Width="1180" MinHeight="420" MinWidth="760"
+        Title="{local:Loc Sessions.ManagerTitle}" Height="820" Width="1760" MinHeight="460" MinWidth="1000"
         Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
         FontSize="{DynamicResource FontSize.Base}">
     <Window.Resources>
@@ -95,7 +95,13 @@
         <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
         <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
     </Window.Resources>
-    <Grid Margin="10">
+    <Grid x:Name="RootGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="ManagerColumn" Width="900" MinWidth="620"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition x:Name="AnalyzerColumn" Width="*" MinWidth="480"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -211,14 +217,21 @@
                     <DataGridTextColumn Header="{local:Loc Sessions.Col.Enrage}" Binding="{Binding Enrage}" Width="150"/>
                 </DataGrid.Columns>
             </DataGrid>
-            <DataGrid x:Name="PlayersGrid" Grid.Row="4" SelectionChanged="OnPlayerSelected">
+            <Grid x:Name="PlayersPanel" Grid.Row="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel x:Name="ModeChips" Orientation="Horizontal" Margin="0,0,0,6"/>
+            <DataGrid x:Name="PlayersGrid" Grid.Row="1" SelectionChanged="OnPlayerSelected">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{local:Loc Main.ColumnName}" Binding="{Binding Name}" MinWidth="160" Width="*"/>
                     <DataGridTextColumn Header="{local:Loc History.ColumnClass}" Binding="{Binding ClassName, Converter={StaticResource ClassNameConverter}}" Width="110"/>
-                    <DataGridTextColumn Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage, StringFormat=N0}" Width="120"/>
+                    <DataGridTextColumn x:Name="PlayerValueColumn" Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage, StringFormat=N0}" Width="120"/>
                     <DataGridTextColumn Header="DPS" Binding="{Binding DpsDisplay}" Width="80"/>
                 </DataGrid.Columns>
             </DataGrid>
+            </Grid>
             <TextBlock x:Name="EmptyText" Grid.Row="4" Text="{local:Loc Sessions.SelectOne}" HorizontalAlignment="Center" VerticalAlignment="Center"
                        Foreground="{DynamicResource Brush.TextMuted}"/>
             <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
@@ -226,9 +239,20 @@
                           Checked="OnSaveExtrasChanged" Unchecked="OnSaveExtrasChanged"/>
                 <Button x:Name="DeleteButton" Content="{local:Loc Sessions.Delete}" Click="OnDeleteClicked" IsEnabled="False"/>
                 <Button x:Name="SaveButton" Content="{local:Loc Sessions.Save}" Click="OnSaveClicked" IsEnabled="False"/>
-                <Button x:Name="ShowButton" Content="{local:Loc Sessions.ShowInMeter}" Click="OnShowClicked" IsEnabled="False"/>
             </StackPanel>
         </Grid>
+        </Grid>
+        </Grid>
+
+        <!-- The splitter between the two halves: the session manager on the left, the combat analyzer on the right. -->
+        <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Center" VerticalAlignment="Stretch" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"
+                      Background="{DynamicResource Brush.Border}" Cursor="SizeWE" Margin="0,10"/>
+
+        <!-- The combat analyzer: the player details of the picked session, on that session's hits only. -->
+        <Grid Grid.Column="2" Margin="0,10,10,10">
+            <TextBlock x:Name="AnalyzerEmpty" Text="{local:Loc Sessions.Analyzer.Empty}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"
+                       TextAlignment="Center" MaxWidth="360" Foreground="{DynamicResource Brush.TextMuted}"/>
+            <ContentControl x:Name="AnalyzerHost" IsTabStop="False"/>
         </Grid>
     </Grid>
 </Window>

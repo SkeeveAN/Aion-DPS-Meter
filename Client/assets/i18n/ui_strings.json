@@ -4673,18 +4673,6 @@
     "ja": "削除",
     "ko": "삭제"
   },
-  "Sessions.ShowInMeter": {
-    "en": "Show in meter",
-    "de": "Im Meter anzeigen",
-    "fr": "Afficher dans le compteur",
-    "es": "Mostrar en el medidor",
-    "ru": "Показать в счётчике",
-    "zh": "在统计窗口中显示",
-    "zh-TW": "在統計視窗中顯示",
-    "pt": "Mostrar no medidor",
-    "ja": "メーターに表示",
-    "ko": "미터에 표시"
-  },
   "Sessions.SelectOne": {
     "en": "Select a session on the left.",
     "de": "Links eine Sitzung auswählen.",
@@ -6268,5 +6256,17 @@
     "pt": "Analisador de combate",
     "ja": "戦闘アナライザー",
     "ko": "전투 분석기"
+  },
+  "Sessions.Analyzer.Empty": {
+    "en": "Pick a session on the left: its players and their details appear here, on that session's hits only.",
+    "de": "Wähle links eine Sitzung: Ihre Spieler und deren Details erscheinen hier, nur mit den Treffern dieser Sitzung.",
+    "fr": "Choisissez une session à gauche : ses joueurs et leurs détails apparaissent ici, uniquement avec les coups de cette session.",
+    "es": "Elige una sesión a la izquierda: sus jugadores y sus detalles aparecen aquí, solo con los golpes de esa sesión.",
+    "ru": "Выберите сессию слева: здесь появятся её игроки и их подробности, только по ударам этой сессии.",
+    "zh": "在左侧选择一个会话：其玩家和详情会显示在这里，仅包含该会话的命中。",
+    "zh-TW": "在左側選擇一個工作階段：其玩家與詳細資料會顯示在這裡，僅包含該工作階段的命中。",
+    "pt": "Escolha uma sessão à esquerda: os jogadores e os detalhes dela aparecem aqui, só com os golpes dessa sessão.",
+    "ja": "左で記録を選ぶと、そのプレイヤーと詳細がここに表示されます(その記録の攻撃のみ)。",
+    "ko": "왼쪽에서 세션을 선택하면 해당 세션의 플레이어와 상세 정보가 여기에 표시됩니다(그 세션의 적중만 사용)."
   }
 }

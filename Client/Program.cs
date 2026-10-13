@@ -492,7 +492,8 @@ internal static class Program
         var window = new Ui.CharacterWindow(directory);
         window.ShowTab(tab);
         const double width = 1180, height = 1000;
-        var content = (System.Windows.UIElement)window.Content;
+        var content = new System.Windows.Controls.Border { Child = window };
+        content.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x0E, 0x18, 0x20));
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));
         content.UpdateLayout();
@@ -580,7 +581,10 @@ internal static class Program
 
         recorder.Sessions[1].IsSaved = true;
         var window = new Ui.SessionManagerWindow(recorder);
-        const double width = 1180, height = 760;
+        window.AnalyzerFactory = (session, row, mode) => new Ui.PlayerDetailsView(row.Name, row.ClassName, "",
+            session.Data.Events.Where(ev => ev.SourceObjectId == row.Id).ToList(), id => session.Names.GetValueOrDefault(id),
+            fightEvents: session.Data.Events.Where(ev => !ev.IsHeal).ToList());
+        const double width = 1760, height = 820;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));
@@ -675,12 +679,12 @@ internal static class Program
         var extras = new Combat.FightExtras(uses.OrderBy(u => u.At).ToList(), effects,
             new[] { new Combat.StaggerEvent(start.AddSeconds(21), 1, 0, 0, true), new Combat.StaggerEvent(start.AddSeconds(52), 1, 0, 0, true) },
             new Dictionary<int, string> { [5] = "Ichigo", [6] = "Goku" });
-        var window = new Ui.PlayerDetailsWindow("Ichigo", "Sorcerer", "", events, id => id == 1 ? "Training Scarecrow" : "Elite Guard", fightEvents: all,
+        var window = new Ui.PlayerDetailsView("Ichigo", "Sorcerer", "", events, id => id == 1 ? "Training Scarecrow" : "Elite Guard", fightEvents: all,
             extras: extras, playerId: 5, fightStart: start, fightEnd: start.AddSeconds(75));
         window.TabRotationButton.IsChecked = tab == "rotation";
         window.TabBuffsButton.IsChecked = tab == "buffs";
         const double width = 860, height = 680;
-        var content = (System.Windows.UIElement)window.Content;
+        var content = new System.Windows.Controls.Border { Child = window, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x0E, 0x18, 0x20)) };
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));
         content.UpdateLayout();

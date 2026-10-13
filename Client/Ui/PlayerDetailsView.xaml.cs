@@ -42,7 +42,7 @@ public sealed record SkillRow(string Skill, int Hits, double CritRate, long Tota
 /// follow the fight, because a table that reshuffles under the cursor while a boss is being killed
 /// is unreadable.</para>
 /// </summary>
-public partial class PlayerDetailsWindow : Window
+public partial class PlayerDetailsView : UserControl
 {
     // Each column's own header text; the sorted one gets an arrow behind it.
     private readonly Dictionary<DataGridColumn, string> _headers = new();
@@ -108,7 +108,7 @@ public partial class PlayerDetailsWindow : Window
         }
     }
 
-    public PlayerDetailsWindow(string name, string className, string faction,
+    public PlayerDetailsView(string name, string className, string faction,
         IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf, bool heals = false,
         IReadOnlyList<Death>? deaths = null, bool taken = false, IReadOnlyList<DamageEvent>? fightEvents = null,
         FightExtras? extras = null, int playerId = -1, DateTime? fightStart = null, DateTime? fightEnd = null, ReplayData? replay = null)
@@ -123,7 +123,6 @@ public partial class PlayerDetailsWindow : Window
         }
 
         InitializeComponent();
-        ThemedChrome.Apply(this);
         DataContext = new { ClassName = className, Faction = faction };
 
         HeaderText.Text = name;
@@ -311,7 +310,7 @@ public partial class PlayerDetailsWindow : Window
     {
         if (_replay is not null)
         {
-            new FightReplayWindow(_replay) { Owner = this }.Show();
+            new FightReplayWindow(_replay) { Owner = Window.GetWindow(this) }.Show();
         }
     }
 

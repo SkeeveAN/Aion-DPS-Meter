@@ -34,7 +34,7 @@ public sealed record HitKindCounts(int Known, int Back, int Front, int Perfect, 
 
 /// <summary>
 /// Groups a player's damage events by skill and counts hits/crits/totals per group. Extracted from
-/// <see cref="AionDPS.Ui.PlayerDetailsWindow"/> so the backend upload (Backend/UploadClient.cs)
+/// <see cref="AionDPS.Ui.PlayerDetailsView"/> so the backend upload (Backend/UploadClient.cs)
 /// computes crit rates the same way the UI already shows them, rather than a second, potentially
 /// diverging implementation.
 /// </summary>

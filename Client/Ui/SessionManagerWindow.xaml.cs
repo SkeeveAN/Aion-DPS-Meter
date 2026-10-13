@@ -23,13 +23,13 @@ public partial class SessionManagerWindow : Window
     private readonly DispatcherTimer _tick = new() { Interval = TimeSpan.FromSeconds(2) };
     private bool _loading;
 
-    /// <summary>Builds the combat analyzer for one player of a session (set by the main window): the player's details limited to the session's time.</summary>
-    public Func<SessionInfo, PlayerRow, Window?>? AnalyzerFactory { get; set; }
+    /// <summary>What the player list shows: who dealt, who healed, who took.</summary>
+    public enum PlayerMode { Damage, Heal, Taken }
 
-    private Window? _analyzer;
-    private bool _analyzerFollows = true;
-    private bool _moving;
-    private Point _lastLocation;
+    /// <summary>Builds the combat analyzer for one player of a session (set by the main window): the player's details limited to the session's time.</summary>
+    public Func<SessionInfo, PlayerRow, PlayerMode, UIElement?>? AnalyzerFactory { get; set; }
+
+    private PlayerMode _mode = PlayerMode.Damage;
     private bool _syncingPlayers;
     private int? _analyzedPlayer;
     private int? _analyzedSession;
@@ -94,15 +94,21 @@ public partial class SessionManagerWindow : Window
         _tick.Start();
         Closed += (_, _) =>
         {
-            CloseAnalyzer();
             _tick.Stop();
             _recorder.Changed -= OnRecorderChanged;
         };
+        RestorePlacement();
+        string[] modes = { "Main.ModeDamage", "Main.ModeHeal", "Main.ModeTaken" };
+        for (int i = 0; i < modes.Length; i++)
+        {
+            var chip = new RadioButton { Content = loc[modes[i]], Tag = (PlayerMode)i, GroupName = "playermode", IsChecked = i == 0, Style = (Style)FindResource("Chip") };
+            chip.Checked += OnModeChanged;
+            ModeChips.Children.Add(chip);
+        }
+
+        Closing += (_, _) => SavePlacement();
         Refresh();
     }
-
-    /// <summary>Raised when the user asks to see a session in the meter; MainWindow decides how (the stay in progress is the live view).</summary>
-    public event Action<SessionInfo>? ShowRequested;
 
     /// <summary>One line of the list.</summary>
     public sealed record Item(SessionInfo Session, string Title, string Facts, string Status, Brush Accent, DateTime Start, string Badge, Brush BadgeBrush);
@@ -226,10 +232,9 @@ public partial class SessionManagerWindow : Window
         LocalizationManager loc = LocalizationManager.Instance;
         bool any = session is not null;
         EmptyText.Visibility = any ? Visibility.Collapsed : Visibility.Visible;
-        PlayersGrid.Visibility = any ? Visibility.Visible : Visibility.Collapsed;
+        PlayersPanel.Visibility = any ? Visibility.Visible : Visibility.Collapsed;
         CheckPanel.Visibility = any ? Visibility.Visible : Visibility.Collapsed;
         BossGrid.Visibility = Visibility.Collapsed;
-        ShowButton.IsEnabled = any;
         SaveButton.IsEnabled = any;
         DeleteButton.IsEnabled = session is { IsOpen: false };
         if (session is null)
@@ -246,7 +251,7 @@ public partial class SessionManagerWindow : Window
         DetailTitle.Text = SessionLabels.NameOf(session);
         DetailFacts.Text = $"{(session.Kind == SessionKind.Instance ? loc["Sessions.KindInstance"] : loc["Sessions.KindMap"])} \u00B7 "
             + $"{SessionLabels.TimeSpanOf(session)} \u00B7 {FormatLength(session.Duration(DateTime.Now))}";
-        List<PlayerRow> players = PlayersOf(session);
+        List<PlayerRow> players = PlayersOf(session, _mode);
         _syncingPlayers = true;
         PlayersGrid.ItemsSource = players;
         PlayerRow? analyzed = _analyzedSession == session.Number ? players.FirstOrDefault(row => row.Id == _analyzedPlayer) : null;
@@ -305,17 +310,24 @@ public partial class SessionManagerWindow : Window
         return new BossRow(attempt.Name, attempt.Start.ToString("HH:mm:ss"), $"{(int)attempt.Duration.TotalMinutes:00}:{attempt.Duration.Seconds:00}", result, damage, enrage);
     }
 
-    /// <summary>Who dealt how much in the stay: the players (the ids a class is known for; a file from the plain meter session has no classes, then everyone).</summary>
-    private static List<PlayerRow> PlayersOf(SessionInfo session)
+    /// <summary>Who dealt, healed or took how much in the stay: the players (the ids a class is known for; a file from the plain meter session has no classes, then everyone).</summary>
+    private static List<PlayerRow> PlayersOf(SessionInfo session, PlayerMode mode)
     {
         bool onlyPlayers = session.Classes.Count > 0;
-        return session.Data.Events
-            .Where(ev => !ev.IsHeal && (!onlyPlayers || session.Classes.ContainsKey(ev.SourceObjectId)))
-            .GroupBy(ev => ev.SourceObjectId)
+        bool IsPlayer(int id) => !onlyPlayers || session.Classes.ContainsKey(id);
+        IEnumerable<IGrouping<int, DamageEvent>> groups = mode switch
+        {
+            PlayerMode.Heal => session.Data.Events.Where(ev => ev.IsHeal && IsPlayer(ev.SourceObjectId)).GroupBy(ev => ev.SourceObjectId),
+            PlayerMode.Taken => session.Data.Events.Where(ev => !ev.IsHeal && IsPlayer(ev.TargetObjectId) && !session.Classes.ContainsKey(ev.SourceObjectId)).GroupBy(ev => ev.TargetObjectId),
+            _ => session.Data.Events.Where(ev => !ev.IsHeal && IsPlayer(ev.SourceObjectId)).GroupBy(ev => ev.SourceObjectId),
+        };
+        return groups
             .Select(group =>
             {
                 List<DamageEvent> hits = group.ToList();
-                double? dps = DpsCalculator.AllDpsWallClock(hits, group.Key);
+                double? dps = mode == PlayerMode.Damage
+                    ? DpsCalculator.AllDpsWallClock(hits, group.Key)
+                    : hits.Sum(ev => ev.Amount) / Math.Max(1.0, (hits.Max(ev => ev.Timestamp) - hits.Min(ev => ev.Timestamp)).TotalSeconds);
                 return new PlayerRow(
                     group.Key,
                     session.Names.GetValueOrDefault(group.Key) ?? $"0x{group.Key:X8}",
@@ -328,8 +340,27 @@ public partial class SessionManagerWindow : Window
             .ToList();
     }
 
-    /// <summary>A double click brings the analyzer to the front; the session is already analysed since it was picked.</summary>
-    private void OnSessionDoubleClick(object sender, MouseButtonEventArgs e) => _analyzer?.Activate();
+    private void OnModeChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loading || sender is not RadioButton { Tag: PlayerMode mode } || mode == _mode)
+        {
+            return;
+        }
+
+        _mode = mode;
+        LocalizationManager loc = LocalizationManager.Instance;
+        PlayerValueColumn.Header = loc[mode switch { PlayerMode.Heal => "History.ColumnHealing", PlayerMode.Taken => "History.ColumnTaken", _ => "History.ColumnDamage" }];
+        _analyzedSession = null; // the first player of the new list is shown
+        if (SessionList.SelectedItem is Item item)
+        {
+            ShowDetails(item.Session);
+        }
+    }
+
+    /// <summary>A double click on a session does nothing more than the click: the analyzer shows it already.</summary>
+    private void OnSessionDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+    }
 
     private void OnPlayerSelected(object sender, SelectionChangedEventArgs e)
     {
@@ -339,91 +370,76 @@ public partial class SessionManagerWindow : Window
         }
     }
 
-    // ---- the combat analyzer: the player details of the picked session, in a window of its own that sits beside the manager ------------------
+    // ---- the combat analyzer: the player details of the picked session, in the right half of this window ------------------------------------------
 
     private void OpenAnalyzer(SessionInfo session, PlayerRow row)
     {
-        if (AnalyzerFactory?.Invoke(session, row) is not { } next)
+        if (AnalyzerFactory?.Invoke(session, row, _mode) is not { } view)
         {
             return;
         }
 
         _analyzedSession = session.Number;
         _analyzedPlayer = row.Id;
-        next.Title = $"{LocalizationManager.Instance["Sessions.Analyzer.Title"]} - {row.Name} - {SessionLabels.NameOf(session)}";
-        next.Owner = this;
-        next.WindowStartupLocation = WindowStartupLocation.Manual;
-
-        Window? old = _analyzer;
-        if (old is not null && !_analyzerFollows)
-        {
-            // the user moved it away: the next player appears where it stands
-            next.Left = old.Left;
-            next.Top = old.Top;
-            next.Width = old.ActualWidth;
-            next.Height = old.ActualHeight;
-        }
-        else
-        {
-            _analyzerFollows = true;
-            _moving = true;
-            double width = next.Width;
-            Rect area = SystemParameters.WorkArea;
-            next.Left = Math.Max(area.Left, Math.Min(Left + ActualWidth, area.Right - width));
-            next.Top = Top;
-            next.Height = ActualHeight;
-            _moving = false;
-        }
-
-        _analyzer = next;
-        _lastLocation = new Point(Left, Top);
-        next.LocationChanged += (_, _) =>
-        {
-            if (!_moving && ReferenceEquals(_analyzer, next))
-            {
-                _analyzerFollows = false;
-            }
-        };
-        next.Closed += (_, _) =>
-        {
-            if (ReferenceEquals(_analyzer, next))
-            {
-                _analyzer = null;
-            }
-        };
-        next.Show();
-        old?.Close();
+        AnalyzerHost.Content = view;
+        AnalyzerEmpty.Visibility = Visibility.Collapsed;
     }
 
     private void CloseAnalyzer()
     {
         _analyzedSession = null;
         _analyzedPlayer = null;
-        Window? window = _analyzer;
-        _analyzer = null;
-        window?.Close();
+        AnalyzerHost.Content = null;
+        AnalyzerEmpty.Visibility = Visibility.Visible;
     }
 
-    /// <summary>The analyzer follows the manager when that is moved, as long as the user has not put it somewhere else.</summary>
-    protected override void OnLocationChanged(EventArgs e)
+    // ---- where the window was left -------------------------------------------------------------------------------------------------------------
+
+    /// <summary>Puts the window where it was last (if that is still on a screen) and the splitter where it was.</summary>
+    private void RestorePlacement()
     {
-        base.OnLocationChanged(e);
-        if (_analyzer is { } window && _analyzerFollows)
+        MeterSettings settings = MeterSettings.Load();
+        Rect screen = new(SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop, SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
+        if (settings.SessionWindowWidth is > 600 and double width && settings.SessionWindowHeight is > 300 and double height)
         {
-            _moving = true;
-            window.Left += Left - _lastLocation.X;
-            window.Top += Top - _lastLocation.Y;
-            _moving = false;
+            Width = Math.Min(width, screen.Width);
+            Height = Math.Min(height, screen.Height);
         }
 
-        _lastLocation = new Point(Left, Top);
+        if (settings.SessionWindowLeft is double left && settings.SessionWindowTop is double top
+            && left + 100 < screen.Right && left + Width > screen.Left + 100 && top >= screen.Top - 10 && top + 60 < screen.Bottom)
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = left;
+            Top = top;
+        }
+
+        if (settings.SessionSplitLeft is > 300 and double split)
+        {
+            ManagerColumn.Width = new GridLength(split);
+        }
     }
 
-    private void OnShowClicked(object sender, RoutedEventArgs e)
+    private void SavePlacement()
     {
-        if (SessionList.SelectedItem is Item item)
+        if (WindowState != WindowState.Normal)
         {
-            ShowRequested?.Invoke(item.Session);
+            return;
+        }
+
+        try
+        {
+            MeterSettings settings = MeterSettings.Load();
+            settings.SessionWindowLeft = Left;
+            settings.SessionWindowTop = Top;
+            settings.SessionWindowWidth = ActualWidth;
+            settings.SessionWindowHeight = ActualHeight;
+            settings.SessionSplitLeft = ManagerColumn.ActualWidth;
+            settings.Save();
+        }
+        catch (IOException)
+        {
+            // the position is not worth a failure
         }
     }
 

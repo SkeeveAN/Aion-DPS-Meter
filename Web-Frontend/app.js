@@ -5,6 +5,7 @@ import { BOSS_CARDS_V2 } from "./game-data-v2.js";
 
 // Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
 const V2 = (() => {
+  if (window.__V2) return true;
   try {
     const q = new URLSearchParams(location.search).get("v2");
     if (q === "1") sessionStorage.setItem("v2", "1");
