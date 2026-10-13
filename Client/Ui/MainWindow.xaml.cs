@@ -127,6 +127,7 @@ public partial class MainWindow : Window
     private TimetableWindow? _timetable;
     private HotkeyOverlayWindow? _hotkeyOverlay;
     private WorldBossController? _worldBoss;
+    private CombatOverlayController? _combat;
     private NetworkOverlayController? _network;
     private readonly System.Windows.Threading.DispatcherTimer _gateTimer = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private bool _gameGateOpen = true;
@@ -597,6 +598,9 @@ public partial class MainWindow : Window
             case HotkeyAction.ToggleNetworkOverlay:
                 ToggleNetworkOverlay();
                 break;
+            case HotkeyAction.ToggleCombatOverlay:
+                ToggleCombatOverlay();
+                break;
             case HotkeyAction.ToggleWorldBossOverlay:
                 ToggleWorldBossOverlay();
                 break;
@@ -638,6 +642,7 @@ public partial class MainWindow : Window
             [HotkeyAction.ToggleAllOverlays] = HotkeyBinding.Parse(settings.HotkeyAllOverlays),
             [HotkeyAction.ToggleWorldBossOverlay] = HotkeyBinding.Parse(settings.HotkeyWorldBoss),
             [HotkeyAction.ToggleNetworkOverlay] = HotkeyBinding.Parse(settings.HotkeyNetwork),
+            [HotkeyAction.ToggleCombatOverlay] = HotkeyBinding.Parse(settings.HotkeyCombatOverlay),
             [HotkeyAction.TogglePetArrows] = HotkeyBinding.Parse(settings.HotkeyPetArrows),
             [HotkeyAction.ToggleGatherArrows] = HotkeyBinding.Parse(settings.HotkeyGatherArrows),
         });
@@ -716,6 +721,7 @@ public partial class MainWindow : Window
         _timetable?.RaiseToFront();
         _hotkeyOverlay?.RaiseToFront();
         _worldBoss?.RaiseToFront();
+        _combat?.RaiseToFront();
         _network?.RaiseToFront();
         _petFarm?.RaiseToFront();
         _petMapController?.RaiseToFront();
@@ -993,6 +999,7 @@ public partial class MainWindow : Window
             Aion2FieldBosses.EnablePersistence();
             _worldBoss ??= new WorldBossController();
             _network ??= new NetworkOverlayController();
+            _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory);
             _gateTimer.Tick += (_, _) => OnGateTick();
             _gateTimer.Start();
         }
@@ -1038,6 +1045,7 @@ public partial class MainWindow : Window
         _timetable?.Close();
         _hotkeyOverlay?.Close();
         _worldBoss?.Dispose();
+        _combat?.Dispose();
         _network?.Dispose();
         Aion2FieldBosses.Flush();
         _timetableReminder?.Dispose();
@@ -4650,24 +4658,33 @@ public partial class MainWindow : Window
         _settingsWindow?.SyncOverlaySwitches(settings);
     }
 
+    /// <summary>The combat controller reads the settings every second, so the switch is all it takes.</summary>
+    private void ToggleCombatOverlay()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowCombatOverlay = !settings.ShowCombatOverlay;
+        settings.Save();
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
     /// <summary>Which overlays the "all overlays" hotkey switched off, so the next press brings back exactly those.</summary>
-    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm, bool WorldBoss, bool Network)? _overlaysSwitchedOff;
+    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm, bool WorldBoss, bool Network, bool Combat)? _overlaysSwitchedOff;
 
     /// <summary>One press switches every overlay that is on off (hotkey list, timetable, interactive map, pet info); the next brings the same ones back.
     /// The DPS overlay is not among them - it is the Hide UI mode with its own hotkey.</summary>
     private void ToggleAllOverlays()
     {
         var settings = MeterSettings.Load();
-        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm || settings.ShowBossOverlay || settings.ShowNetworkOverlay;
+        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm || settings.ShowBossOverlay || settings.ShowNetworkOverlay || settings.ShowCombatOverlay;
         if (anyOn)
         {
-            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay);
-            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = settings.ShowBossOverlay = settings.ShowNetworkOverlay = false;
+            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay);
+            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = settings.ShowBossOverlay = settings.ShowNetworkOverlay = settings.ShowCombatOverlay = false;
         }
         else
         {
-            var back = _overlaysSwitchedOff ?? (true, true, true, false, true, true);
-            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay) = back;
+            var back = _overlaysSwitchedOff ?? (true, true, true, false, true, true, true);
+            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay) = back;
             _overlaysSwitchedOff = null;
         }
 

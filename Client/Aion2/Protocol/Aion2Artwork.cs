@@ -41,6 +41,40 @@ public static class Aion2Artwork
         ["Spiritmaster"] = "elementalist", ["Sorcerer"] = "sorcerer", ["Cleric"] = "cleric", ["Chanter"] = "chanter", ["Brawler"] = "fighter",
     };
 
+    private static IReadOnlyDictionary<int, string>? _bossThumbs;
+
+    /// <summary>A small picture of a boss (by its NPC id), when the website has a card for it (Tools/aion2-icons/build_boss_thumbs.py); null otherwise.</summary>
+    public static string? BossThumbPath(int npcId)
+    {
+        if (_bossThumbs is null)
+        {
+            var map = new Dictionary<int, string>();
+            try
+            {
+                string index = Path.Combine(Root, "bosses", "thumbs", "index.json");
+                if (File.Exists(index))
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(index));
+                    foreach (var entry in doc.RootElement.GetProperty("thumbs").EnumerateObject())
+                    {
+                        if (int.TryParse(entry.Name, out int id) && entry.Value.GetString() is { Length: > 0 } file)
+                        {
+                            map[id] = file;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException or KeyNotFoundException)
+            {
+                // no pictures: the overlay draws an emblem
+            }
+
+            _bossThumbs = map;
+        }
+
+        return _bossThumbs.TryGetValue(npcId, out string? name) && Existing(Path.Combine(Root, "bosses", "thumbs", name)) is { } path ? path : null;
+    }
+
     public static string? ClassEmblemPath(string className) =>
         ClassFiles.TryGetValue(className, out string? file) && Existing(Path.Combine(Root, "classes", file + ".png")) is { } path ? path : null;
 

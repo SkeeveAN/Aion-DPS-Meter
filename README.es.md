@@ -147,6 +147,20 @@ fíjalo en su sitio y actívalo o desactívalo con un atajo.
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="El overlay de red: ping, jitter, tráfico y pérdida de paquetes">
 </p>
 
+### Overlay de combate
+
+Un marco transparente con hasta tres elementos, cada uno de los cuales colocas y dimensionas por separado:
+
+- **Barra de lanzamiento del jefe:** en cuanto un jefe empieza una habilidad, ves su nombre, una barra que va bajando con el tiempo restante y a quién apunta (tú en rojo). Una habilidad que ha golpeado a varios jugadores se marca como **ÁREA**; **LETAL** significa que el golpe más alto que has recibido de ella hasta ahora es al menos igual a tu salud actual. El medidor aprende cada habilidad (si es de área o no, cuándo llega su daño) y la recuerda entre sesiones.
+- **Objetivo del objetivo:** si el objetivo que seleccionaste con Tab apunta a su vez a alguien, ves a quién: un jefe con su imagen y nombre, un jugador con el emblema de clase y nombre.
+- **Objetivo del sanador** (opcional): la barra de salud del objetivo seleccionado y los debuffs (o buffs) que tiene.
+
+Desbloquea el overlay en **Ajustes → Overlay de combate** para organizarlo: arrastra el cuerpo de un elemento para moverlo, tira de sus bordes para cambiar el tamaño, tira de su esquina para escalarlo; el asa de la esquina inferior derecha de todo el marco escala todos los elementos a la vez. Bloqueado, deja pasar los clics y solo se muestra mientras el juego está en primer plano. **Ctrl+Alt+C** lo activa y desactiva, y también lo hace el atajo *Todos los overlays sí / no*.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="El overlay de combate: dos lanzamientos de jefe con barra de tiempo, el objetivo del objetivo y el objetivo del sanador con salud y debuffs">
+</p>
+
 ### Anuncios y Twitch Drops
 
 Un botón con un megáfono abre los anuncios oficiales de NCSoft en aiondps.com — mantenimientos, caídas, nuevos
@@ -202,6 +216,7 @@ chat, que no pueden funcionar porque el chat de Aion 2 no se puede leer en el tr
 | **Ctrl+Alt+E** / **Ctrl+Alt+G** | Flechas de borde para mascotas / recolectables |
 | **Ctrl+Alt+B** | Overlay de jefes mundiales |
 | **Ctrl+Alt+N** | Overlay de red |
+| **Ctrl+Alt+C** | Overlay de combate |
 | **Ctrl+Alt+O** | Superposición de atajos (una lista movible de los atajos) |
 | **Ctrl+Alt+A** | Todos los overlays sí / no |
 

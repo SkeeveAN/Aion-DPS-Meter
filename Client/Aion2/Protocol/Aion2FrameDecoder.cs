@@ -113,6 +113,16 @@ public sealed class Aion2FrameDecoder
         }
     }
 
+    /// <summary>A skill that is being wound up: caster, skill, aim and the time the cast takes (see <see cref="DecodeWindup"/>).</summary>
+    private const int WindupOpcode = 0x0938;
+
+    /// <summary>A skill that has been cast: the same aim block, no duration. Players' skills too.</summary>
+    private const int CastOpcode = 0x0238;
+
+    private const int BuffOnOpcode = 0x2a38;
+    private const int BuffRenewedOpcode = 0x2b38;
+    private const int BuffEndOpcode = 0x2c38;
+
     public string CurrentZone { get; private set; } = "";
 
     /// <summary>The zone id of the last zone frame (0 until one arrived).</summary>
@@ -239,6 +249,23 @@ public sealed class Aion2FrameDecoder
         {
             DecodeStat(frame, timestamp);
             return Array.Empty<DamageEvent>();
+        }
+
+        switch (opcode)
+        {
+            case WindupOpcode:
+                DecodeWindup(frame, timestamp);
+                return Array.Empty<DamageEvent>();
+            case CastOpcode:
+                DecodeCastNotice(frame, timestamp);
+                return Array.Empty<DamageEvent>();
+            case BuffOnOpcode:
+            case BuffRenewedOpcode:
+                DecodeBuff(frame, timestamp, renewed: opcode == BuffRenewedOpcode);
+                return Array.Empty<DamageEvent>();
+            case BuffEndOpcode:
+                DecodeBuffEnd(frame);
+                return Array.Empty<DamageEvent>();
         }
 
         OpcodeFamily family = _protocol.FamilyOf(opcode);
@@ -556,6 +583,8 @@ public sealed class Aion2FrameDecoder
         }
 
         _entities.NoteRemoved(unchecked((int)entityId), frame[^1], timestamp);
+        _entities.Combat.NoteGone(unchecked((int)entityId), timestamp);
+        _entities.Combat.ForgetEntity(unchecked((int)entityId));
     }
 
     private void DecodeNpcSpawn(ReadOnlySpan<byte> frame, DateTime timestamp)
@@ -818,6 +847,12 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        _entities.Combat.NoteAim(source, (int)target, timestamp);
+        if (!isHeal)
+        {
+            _entities.Combat.NoteHit(timestamp, source, (int)target, skillId, amount, _entities.IsKnownPlayer((int)target), _entities.IsLocalPlayer((int)target));
+        }
+
         return new[] { new DamageEvent(timestamp, source, (int)target, amount, isHeal, skill, critical && !isHeal, SkillId: skillId) };
     }
 
@@ -911,6 +946,183 @@ public sealed class Aion2FrameDecoder
     }
 
     /// <summary>
+    /// A skill being wound up (verified on two debug recordings, 2026-10-12: 404 frames, every one reads to its end and the damage of
+    /// the same skill id by the same caster follows ~0.6 s after the cast has ended): opcode | caster (varint) | 1 byte | skill id (u32 LE) |
+    /// 1 byte | aim flags (1) | target (varint) | facing (f32, degrees) | if aim flags &amp; 2: x, y, z (f32) | cast time in ms (varint) | tail.
+    /// </summary>
+    private void DecodeWindup(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        if (!TryReadAim(frame, out int actor, out int skillId, out int target, out double facing, out float x, out float y, out float z, out bool hasPosition, out int p)
+            || !TryReadVarint(frame, ref p, out long ms) || ms is < 50 or > 120_000)
+        {
+            return;
+        }
+
+        _entities.Combat.NoteWindup(new CastNotice(actor, skillId, target, timestamp, (int)ms, facing, x, y, z, hasPosition));
+    }
+
+    /// <summary>A skill that was cast: the same layout as the windup up to the aim, without the cast time. Remembered only as
+    /// whom the caster aims at - what "the target of the target" reads.</summary>
+    private void DecodeCastNotice(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        if (TryReadAim(frame, out int actor, out _, out int target, out _, out _, out _, out _, out _, out _))
+        {
+            _entities.Combat.NoteAim(actor, target, timestamp);
+        }
+    }
+
+    private static bool TryReadAim(ReadOnlySpan<byte> frame, out int actor, out int skillId, out int target, out double facing, out float x, out float y, out float z, out bool hasPosition, out int end)
+    {
+        actor = skillId = target = 0;
+        facing = 0;
+        x = y = z = 0;
+        hasPosition = false;
+        end = 0;
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long actorId) || actorId is < 1 or > 10_000_000 || p + 8 > frame.Length)
+        {
+            return false;
+        }
+
+        p += 1;
+        uint skill = BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]);
+        p += 4;
+        if (skill is < 1 or > 300_000_000)
+        {
+            return false;
+        }
+
+        byte aimFlags = frame[p + 1];
+        p += 2;
+        if (!TryReadVarint(frame, ref p, out long targetId) || targetId is < 0 or > 10_000_000 || p + 4 > frame.Length)
+        {
+            return false;
+        }
+
+        double angle = BinaryPrimitives.ReadSingleLittleEndian(frame[p..]);
+        p += 4;
+        if (!double.IsFinite(angle) || Math.Abs(angle) > 720)
+        {
+            return false;
+        }
+
+        if ((aimFlags & 2) != 0)
+        {
+            if (p + 12 > frame.Length)
+            {
+                return false;
+            }
+
+            x = BinaryPrimitives.ReadSingleLittleEndian(frame[p..]);
+            y = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 4)..]);
+            z = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 8)..]);
+            hasPosition = float.IsFinite(x) && float.IsFinite(y) && float.IsFinite(z) && Math.Abs(x) < 10_000_000 && Math.Abs(y) < 10_000_000;
+            p += 12;
+        }
+
+        actor = (int)actorId;
+        skillId = (int)skill;
+        target = (int)targetId;
+        facing = angle;
+        end = p;
+        return true;
+    }
+
+    /// <summary>
+    /// An effect put on an entity (opcode 0x2a38 "on", 0x2b38 "renewed"; verified on a debug recording, 2026-10-12, every frame reads
+    /// to its end): target (varint) | for "on": 1 | 1 type byte | instance (varint) | effect id (u32; the skill is the id / 10) |
+    /// duration (u32 ms) | stays-on flag (u32, non-zero = no end) | 8 bytes (a server clock) | caster (varint) | ... | x, y, z (f32) at the end.
+    /// </summary>
+    private void DecodeBuff(ReadOnlySpan<byte> frame, DateTime timestamp, bool renewed)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long target) || target is < 1 or > 10_000_000 || p + 2 > frame.Length)
+        {
+            return;
+        }
+
+        if (!renewed && frame[p++] != 1)
+        {
+            return;
+        }
+
+        p += 1; // type
+        if (!TryReadVarint(frame, ref p, out long instance) || p + 12 + 8 > frame.Length)
+        {
+            return;
+        }
+
+        uint effect = BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]);
+        uint duration = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 4)..]);
+        uint stays = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 8)..]);
+        p += 12 + 8;
+        if (!TryReadVarint(frame, ref p, out long caster) || caster is < 1 or > 10_000_000 || effect is < 10 or > 2_999_999_999u)
+        {
+            return;
+        }
+
+        _entities.Combat.NoteBuff(new BuffNotice(timestamp, (int)target, (int)instance, (int)Math.Min(effect, int.MaxValue), (int)(effect / 10), stays != 0 ? -1 : (int)Math.Min(duration, 86_400_000u), (int)caster));
+    }
+
+    /// <summary>Effects that ended: target (varint) | count (1) | per effect: type (1; 0 or 7) | instance (varint) | reason (1) | for type 7: by (varint), skill (u32), 4 bytes.</summary>
+    private void DecodeBuffEnd(ReadOnlySpan<byte> frame)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long target) || target is < 1 or > 10_000_000 || p >= frame.Length)
+        {
+            return;
+        }
+
+        int count = frame[p++];
+        if (count is < 1 or > 64)
+        {
+            return;
+        }
+
+        var ended = new List<int>(count);
+        for (int i = 0; i < count; i++)
+        {
+            if (p >= frame.Length)
+            {
+                return;
+            }
+
+            int type = frame[p++];
+            if (!TryReadVarint(frame, ref p, out long instance) || p >= frame.Length)
+            {
+                return;
+            }
+
+            p += 1; // reason
+            if (type == 7)
+            {
+                if (!TryReadVarint(frame, ref p, out _) || p + 8 > frame.Length)
+                {
+                    return;
+                }
+
+                p += 8;
+            }
+            else if (type != 0)
+            {
+                return;
+            }
+
+            ended.Add((int)instance);
+        }
+
+        if (p != frame.Length)
+        {
+            return;
+        }
+
+        foreach (int instance in ended)
+        {
+            _entities.Combat.NoteBuffEnd((int)target, instance);
+        }
+    }
+
+    /// <summary>
     /// An entity's changed stats: opcode | entity (varint) | format (1) | if format &amp; 1: count (1)
     /// and that many kind (1) + u32 LE | if format &amp; 2: count (1) and that many kind (1) + i64 LE.
     /// Kind 0 of the 8-byte group is the current hit points. Verified on four captures (2026-10-02):
@@ -943,6 +1155,7 @@ public sealed class Aion2FrameDecoder
         }
 
         long? current = null;
+        long? reportedMax = null;
         if ((format & 2) != 0)
         {
             if (p >= frame.Length)
@@ -958,6 +1171,10 @@ public sealed class Aion2FrameDecoder
                 {
                     current = BinaryPrimitives.ReadInt64LittleEndian(frame[(p + 1)..]);
                 }
+                else if (frame[p] == 7)
+                {
+                    reportedMax = BinaryPrimitives.ReadInt64LittleEndian(frame[(p + 1)..]); // the maximum (it follows buffs that raise it)
+                }
             }
         }
 
@@ -967,11 +1184,17 @@ public sealed class Aion2FrameDecoder
             return;
         }
 
+        if (reportedMax is long maxHp && maxHp > 0)
+        {
+            _entities.HitPoints.NoteMax(unchecked((int)entityId), maxHp);
+        }
+
         if (current is long hp && hp >= 0)
         {
             _entities.HitPoints.Note(unchecked((int)entityId), timestamp, hp);
             if (hp == 0)
             {
+                _entities.Combat.NoteGone(unchecked((int)entityId), timestamp);
                 _entities.ClearLocalTarget(unchecked((int)entityId)); // a dead monster is no target any more
                 _entities.ForgetLiveMob(unchecked((int)entityId));
             }

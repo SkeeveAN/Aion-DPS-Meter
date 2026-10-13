@@ -146,6 +146,20 @@ lock it in place, switch it on and off with a hotkey.
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="The network overlay: ping, jitter, traffic and packet loss">
 </p>
 
+### Combat overlay
+
+One transparent frame with up to three elements, each of which you place and size on its own:
+
+- **Boss cast bar:** the moment a boss starts a skill, its name, a bar that runs down with the time left, and whom it is aimed at (you in red). A skill that has hit several players is marked **AREA**; **LETHAL** means the highest hit you took from it so far is at least your current health. The meter learns each skill (area or not, when its damage lands) and remembers it between sessions.
+- **Target of the target:** if the target you selected with Tab is itself aiming at someone, you see who: a boss with its picture and name, a player with the class emblem and name.
+- **Healer target** (optional): the selected target's health bar and the debuffs (or buffs) on it.
+
+Unlock the overlay in **Settings → Combat overlay** to arrange it: drag an element's body to move it, pull its edges to resize it, pull its corner to scale it; the grip at the bottom right of the whole frame scales all elements together. Locked, it is click-through and only shows while the game is in front. **Ctrl+Alt+C** switches it on and off, and so does the *all overlays* hotkey.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="The combat overlay: two boss casts with a time bar, the target of the target and the healer's target with health and debuffs">
+</p>
+
 ### Announcements and Twitch Drops
 
 A megaphone button opens the official NCSoft announcements on aiondps.com — maintenance, outages, new
@@ -201,6 +215,7 @@ which cannot work because Aion 2's chat is not readable from the network stream.
 | **Ctrl+Alt+E** / **Ctrl+Alt+G** | Edge arrows for pets / gatherables |
 | **Ctrl+Alt+B** | World boss overlay |
 | **Ctrl+Alt+N** | Network overlay |
+| **Ctrl+Alt+C** | Combat overlay |
 | **Ctrl+Alt+O** | Hotkey overlay (a movable list of the hotkeys) |
 | **Ctrl+Alt+A** | All overlays on / off |
 

@@ -152,6 +152,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-combatoverlay")
+        {
+            RunRenderCombatOverlayMode(args.Length > 1 ? args[1] : "combatoverlay.png", args.Length > 2 ? args[2] : "live", args.Length > 3 ? int.Parse(args[3]) : 2);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-messagebox")
         {
             RunRenderMessageBoxMode(args.Length > 1 ? args[1] : "messagebox.png");
@@ -900,6 +906,68 @@ internal static class Program
         Environment.Exit(0);
     }
 
+    /// <summary>Draws the combat overlay into a picture with made-up fight data ("live") or as it looks while it is being arranged ("edit"); no window is ever shown,
+    /// and the settings come from a throw-away folder so nothing of the player's own is read or written.</summary>
+    private static void RunRenderCombatOverlayMode(string path, string mode, int scale)
+    {
+        Environment.SetEnvironmentVariable("AIONDPS_DATA_DIR", Path.Combine(Path.GetTempPath(), "aiondps-render-combat"));
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = new Ui.MeterSettings { CombatShowHealer = true };
+        if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } language)
+        {
+            Ui.LocalizationManager.Instance.Language = language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        bool edit = mode == "edit";
+        var window = new Ui.CombatOverlayWindow();
+        window.ApplyLocked(!edit);
+        window.SetEditing(edit);
+        string bossName = Aion2.Protocol.Aion2Npcs.NameOf(2300708, Ui.LocalizationManager.Instance.Language) ?? "Ruthilis of Pain";
+        string? bossPicture = Aion2.Protocol.Aion2Artwork.BossThumbPath(2300708);
+        var frame = edit
+            ? new Ui.CombatFrame(Array.Empty<Ui.CastRowData>(), null, null)
+            : new Ui.CombatFrame(
+                new[]
+                {
+                    new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.You"], true, false, false, 900, 1500, 650, null),
+                    new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.AllAround"], false, true, true, 400, 1900, null, null),
+                },
+                new Ui.TargetOfTargetData("Seuche", bossName, Aion2.Protocol.Aion2Artwork.ClassEmblemPath("Cleric"), false),
+                new Ui.HealerData("Seuche", 12480, 20563, new[]
+                {
+                    new Ui.EffectData("Poison", null, "12", true), new Ui.EffectData("Slow", null, "5", true), new Ui.EffectData("Bleed", null, "9", true), new Ui.EffectData("Shield", null, "\u221e", false),
+                }));
+        window.Render(frame, settings);
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(700, 500));
+        int w = (int)Math.Ceiling(content.DesiredSize.Width), h = (int)Math.Ceiling(content.DesiredSize.Height);
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        var backdrop = new System.Windows.Controls.Border
+        {
+            Width = w, Height = h,
+            Background = new System.Windows.Media.LinearGradientBrush(System.Windows.Media.Color.FromRgb(0x3a, 0x4a, 0x52), System.Windows.Media.Color.FromRgb(0x1c, 0x26, 0x2e), 60),
+        };
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w * scale, h * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
+        backdrop.Measure(new System.Windows.Size(w, h));
+        backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
+        bitmap.Render(backdrop);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-combatoverlay: wrote " + path + $" ({w}x{h}), boss picture: {(bossPicture is null ? "none" : "yes")}");
+        Environment.Exit(0);
+    }
+
     /// <summary>Draws the "window will turn transparent" message box into a picture; no window is ever shown.</summary>
     private static void RunRenderMessageBoxMode(string path)
     {
@@ -1447,6 +1515,16 @@ internal static class Program
         if (source.Entities is Aion2.Aion2EntityDirectory idEnd)
         {
             Console.WriteLine($"aion2-replay: {idEnd.IdentityMovesSeen} player(s) came back under a new combat id");
+        }
+
+        if (source.Entities is Aion2.Aion2EntityDirectory combatDirectory)
+        {
+            var lessons = combatDirectory.Combat.Lessons();
+            Console.WriteLine($"aion2-replay: {lessons.Count} skill(s) learnt from casts and hits, {lessons.Count(l => l.Lesson.IsArea)} of them areas");
+            foreach (var (skillId, lesson) in lessons.Where(l => l.Lesson.Seen > 0).Take(14))
+            {
+                Console.WriteLine($"  {skillId,9} {Aion2.Protocol.Aion2SkillNames.NameOf(skillId),-28} cast {lesson.CastMs,5} ms  seen {lesson.Seen,3}  wide {lesson.Wide,3}  single {lesson.Single,3}  lands {(lesson.LandMs is int land ? land + " ms" : "?"),-7} max on you {lesson.MaxOnYou}");
+            }
         }
 
         Console.WriteLine($"aion2-replay: {segments} segment(s) on port {serverPort}, {events.Count} damage/heal event(s), calibrated={protocol.IsCalibrated}");

@@ -149,6 +149,20 @@ verrouillez-le en place, activez-le ou désactivez-le avec un raccourci.
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="L'overlay réseau : ping, gigue, trafic et perte de paquets">
 </p>
 
+### Overlay de combat
+
+Un cadre transparent avec jusqu'à trois éléments, que tu places et dimensionnes chacun séparément :
+
+- **Barre d'incantation du boss :** dès qu'un boss commence une compétence, tu vois son nom, une barre qui se vide avec le temps restant et qui elle vise (toi en rouge). Une compétence qui a touché plusieurs joueurs est marquée **ZONE** ; **MORTEL** signifie que le coup le plus fort que tu en as reçu jusqu'ici est au moins égal à ta santé actuelle. Le compteur apprend chaque compétence (de zone ou non, quand ses dégâts arrivent) et s'en souvient d'une session à l'autre.
+- **Cible de la cible :** si la cible sélectionnée avec Tab vise elle-même quelqu'un, tu vois qui : un boss avec son image et son nom, un joueur avec l'emblème de classe et son nom.
+- **Cible du soigneur** (facultatif) : la barre de vie de la cible sélectionnée et les debuffs (ou buffs) qu'elle porte.
+
+Déverrouille l'overlay dans **Paramètres → Overlay de combat** pour l'organiser : fais glisser le corps d'un élément pour le déplacer, tire sur ses bords pour le redimensionner, tire sur son coin pour le mettre à l'échelle ; la poignée en bas à droite de tout le cadre met tous les éléments à l'échelle ensemble. Verrouillé, il laisse passer les clics et ne s'affiche que lorsque le jeu est au premier plan. **Ctrl+Alt+C** l'active et le désactive, tout comme le raccourci *Tous les overlays activés / désactivés*.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="L'overlay de combat : deux incantations de boss avec barre de temps, la cible de la cible et la cible du soigneur avec vie et debuffs">
+</p>
+
 ### Annonces et Twitch Drops
 
 Un bouton en forme de mégaphone ouvre les annonces officielles de NCSoft sur aiondps.com — maintenance, pannes,
@@ -204,6 +218,7 @@ commandes de chat, qui ne peuvent pas fonctionner car le chat d'Aion 2 n'est pas
 | **Ctrl+Alt+E** / **Ctrl+Alt+G** | Flèches au bord pour les pets / les ressources |
 | **Ctrl+Alt+B** | Overlay des boss du monde |
 | **Ctrl+Alt+N** | Overlay réseau |
+| **Ctrl+Alt+C** | Overlay de combat |
 | **Ctrl+Alt+O** | Overlay des raccourcis (une liste déplaçable des raccourcis) |
 | **Ctrl+Alt+A** | Tous les overlays activés / désactivés |
 

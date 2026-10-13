@@ -65,6 +65,8 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyAllOverlaysBox, HotkeyBinding.Parse(settings.HotkeyAllOverlays).ToString());
         SetHotkeyBox(HotkeyWorldBossBox, HotkeyBinding.Parse(settings.HotkeyWorldBoss).ToString());
         SetHotkeyBox(HotkeyNetworkBox, HotkeyBinding.Parse(settings.HotkeyNetwork).ToString());
+        SetHotkeyBox(HotkeyCombatBox, HotkeyBinding.Parse(settings.HotkeyCombatOverlay).ToString());
+        InitCombatPage(settings);
         ShowNetworkOverlayBox.IsChecked = settings.ShowNetworkOverlay;
         NetworkOverlayLockedBox.IsChecked = settings.NetworkOverlayLocked;
         foreach (var box in NetworkRowBoxes())
@@ -409,7 +411,7 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
-        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvPetArrowsBox, OvGatherArrowsBox };
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvCombatBox, OvPetArrowsBox, OvGatherArrowsBox };
 
     /// <summary>The switches of the lines the network overlay shows (Tag = the line's id).</summary>
     private IEnumerable<CheckBox> NetworkRowBoxes() =>
@@ -497,6 +499,12 @@ public partial class SettingsWindow : Window
         _settings.NetworkOverlayScale = onDisk.NetworkOverlayScale;
         _settings.NetworkOverlayWidth = onDisk.NetworkOverlayWidth;
         _settings.NetworkOverlayHeight = onDisk.NetworkOverlayHeight;
+        _settings.CombatOverlayLeft = onDisk.CombatOverlayLeft;
+        _settings.CombatOverlayTop = onDisk.CombatOverlayTop;
+        _settings.CombatOverlayScale = onDisk.CombatOverlayScale;
+        _settings.CombatOverlayWidth = onDisk.CombatOverlayWidth;
+        _settings.CombatOverlayHeight = onDisk.CombatOverlayHeight;
+        _settings.CombatElements = onDisk.CombatElements;
 
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? false;
@@ -527,6 +535,8 @@ public partial class SettingsWindow : Window
         _settings.HotkeyAllOverlays = (string?)HotkeyAllOverlaysBox.Tag ?? "";
         _settings.HotkeyWorldBoss = (string?)HotkeyWorldBossBox.Tag ?? "";
         _settings.HotkeyNetwork = (string?)HotkeyNetworkBox.Tag ?? "";
+        _settings.HotkeyCombatOverlay = (string?)HotkeyCombatBox.Tag ?? "";
+        ReadCombatPage(_settings);
         _settings.ShowNetworkOverlay = ShowNetworkOverlayBox.IsChecked ?? false;
         _settings.NetworkOverlayLocked = NetworkOverlayLockedBox.IsChecked ?? true;
         _settings.NetworkOverlayHidden = NetworkRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
@@ -822,6 +832,57 @@ public partial class SettingsWindow : Window
         InitPetRare(settings);
     }
 
+    /// <summary>The combat overlay's page: the two switches, the elements and their options.</summary>
+    private void InitCombatPage(MeterSettings settings)
+    {
+        var loc = LocalizationManager.Instance;
+        ShowCombatOverlayBox.IsChecked = settings.ShowCombatOverlay;
+        CombatOverlayLockedBox.IsChecked = settings.CombatOverlayLocked;
+        CombatShowBossCastBox.IsChecked = settings.CombatShowBossCast;
+        CombatShowTargetBox.IsChecked = settings.CombatShowTargetOfTarget;
+        CombatShowHealerBox.IsChecked = settings.CombatShowHealer;
+        CombatHealerHpBox.IsChecked = settings.CombatHealerHpBar;
+        CombatHealerEffectsBox.IsChecked = settings.CombatHealerEffects;
+        CombatAllMonstersBox.IsChecked = settings.CombatCastsOfAllMonsters;
+        FillChoice(CombatCastFilterCombo, new[] { ("all", loc["Settings.Combat.Filter.All"]), ("area", loc["Settings.Combat.Filter.Area"]), ("you", loc["Settings.Combat.Filter.You"]) }, settings.CombatCastFilter);
+        FillChoice(CombatMaxCastsCombo, new[] { ("1", "1"), ("2", "2"), ("3", "3") }, Math.Clamp(settings.CombatMaxCasts, 1, 3).ToString());
+        FillChoice(CombatHealerKindCombo, new[] { ("debuffs", loc["Settings.Combat.Kind.Debuffs"]), ("buffs", loc["Settings.Combat.Kind.Buffs"]), ("all", loc["Settings.Combat.Kind.All"]) }, settings.CombatHealerEffectKind);
+    }
+
+    private static void FillChoice(ComboBox box, IEnumerable<(string Value, string Text)> choices, string selected)
+    {
+        box.Items.Clear();
+        foreach (var (value, text) in choices)
+        {
+            box.Items.Add(new ComboBoxItem { Content = text, Tag = value });
+        }
+
+        box.SelectedItem = box.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Tag == selected) ?? box.Items[0];
+    }
+
+    private static string Chosen(ComboBox box, string fallback) => (box.SelectedItem as ComboBoxItem)?.Tag as string ?? fallback;
+
+    private void ReadCombatPage(MeterSettings settings)
+    {
+        settings.ShowCombatOverlay = ShowCombatOverlayBox.IsChecked ?? false;
+        settings.CombatOverlayLocked = CombatOverlayLockedBox.IsChecked ?? true;
+        settings.CombatShowBossCast = CombatShowBossCastBox.IsChecked ?? true;
+        settings.CombatShowTargetOfTarget = CombatShowTargetBox.IsChecked ?? true;
+        settings.CombatShowHealer = CombatShowHealerBox.IsChecked ?? false;
+        settings.CombatHealerHpBar = CombatHealerHpBox.IsChecked ?? true;
+        settings.CombatHealerEffects = CombatHealerEffectsBox.IsChecked ?? true;
+        settings.CombatCastsOfAllMonsters = CombatAllMonstersBox.IsChecked ?? false;
+        settings.CombatCastFilter = Chosen(CombatCastFilterCombo, "all");
+        settings.CombatMaxCasts = int.TryParse(Chosen(CombatMaxCastsCombo, "2"), out int most) ? most : 2;
+        settings.CombatHealerEffectKind = Chosen(CombatHealerKindCombo, "debuffs");
+    }
+
+    private void OnCombatResetClicked(object sender, RoutedEventArgs e)
+    {
+        CombatOverlayWindow.ResetLayout();
+        _settings.CombatElements.Clear();
+    }
+
     /// <summary>A hotkey flipped the pet map or the timetable while this window is open: the switches follow.</summary>
     public void SyncOverlaySwitches(MeterSettings s)
     {
@@ -831,6 +892,7 @@ public partial class SettingsWindow : Window
         ShowPetFarmBox.IsChecked = s.ShowPetFarm;
         ShowBossOverlayBox.IsChecked = s.ShowBossOverlay;
         ShowNetworkOverlayBox.IsChecked = s.ShowNetworkOverlay;
+        ShowCombatOverlayBox.IsChecked = s.ShowCombatOverlay;
         ShowPetArrowsBox.IsChecked = s.ShowPetArrows;
         ShowGatherArrowsBox.IsChecked = s.ShowGatherArrows;
     }

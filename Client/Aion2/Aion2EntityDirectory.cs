@@ -1030,6 +1030,9 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// to full health (a wipe and retry under the same entity id).</summary>
     public Aion2HitPoints HitPoints { get; } = new();
 
+    /// <summary>Casts, whom entities aim at and the effects on them (see <see cref="Aion2CombatState"/>).</summary>
+    public Aion2CombatState Combat { get; } = new();
+
     // Every entity announced by the monster-appears frame: monsters and summons, never players.
     private readonly HashSet<int> _spawned = new();
 

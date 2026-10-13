@@ -30,6 +30,7 @@ public static class SelfCheck
         ok &= SelfCheckThemes.Run();
         ok &= SelfCheckHistory.Run();
         ok &= SelfCheckSessions.Run();
+        ok &= SelfCheckCombatOverlay.Run();
         return ok;
     }
 

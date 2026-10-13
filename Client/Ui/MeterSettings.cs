@@ -152,6 +152,41 @@ public sealed class MeterSettings
     public double? NetworkOverlayWidth { get; set; }
     public double? NetworkOverlayHeight { get; set; }
 
+    /// <summary>The combat overlay (see CombatOverlayWindow): the boss cast bar, the target of the target and the healer's target in one frame.
+    /// Off until switched on; every element has its own place and size inside the frame (<see cref="CombatElements"/>, in the frame's own units).</summary>
+    public bool ShowCombatOverlay { get; set; }
+
+    public bool CombatOverlayLocked { get; set; } = true;
+
+    public double? CombatOverlayLeft { get; set; }
+    public double? CombatOverlayTop { get; set; }
+    public double CombatOverlayScale { get; set; } = 1.0;
+    public double? CombatOverlayWidth { get; set; }
+    public double? CombatOverlayHeight { get; set; }
+
+    /// <summary>Place, size and scale of each element by its id ("BossCast", "TargetOfTarget", "Healer").</summary>
+    public Dictionary<string, CombatElementLayout> CombatElements { get; set; } = new();
+
+    public bool CombatShowBossCast { get; set; } = true;
+    public bool CombatShowTargetOfTarget { get; set; } = true;
+
+    /// <summary>The healer's target: its name, hit points and effects. Off until switched on.</summary>
+    public bool CombatShowHealer { get; set; }
+    public bool CombatHealerHpBar { get; set; } = true;
+    public bool CombatHealerEffects { get; set; } = true;
+
+    /// <summary>Which effects the healer's element lists: "debuffs" (put on by monsters), "buffs" (by anyone else) or "all".</summary>
+    public string CombatHealerEffectKind { get; set; } = "debuffs";
+
+    /// <summary>Which casts the bar shows: "all", "area" (at you and area attacks) or "you" (only at you).</summary>
+    public string CombatCastFilter { get; set; } = "all";
+
+    /// <summary>The most casts shown at once (1 to 3).</summary>
+    public int CombatMaxCasts { get; set; } = 2;
+
+    /// <summary>Casts of monsters that are not bosses too.</summary>
+    public bool CombatCastsOfAllMonsters { get; set; }
+
     /// <summary>Master switch of the world boss sounds: off = no boss plays its sound. Off until switched on.</summary>
     public bool BossNotify { get; set; }
 
@@ -223,6 +258,7 @@ public sealed class MeterSettings
     public string HotkeyWorldBoss { get; set; } = "Ctrl+Alt+B";
     /// <summary>Network overlay on / off.</summary>
     public string HotkeyNetwork { get; set; } = "Ctrl+Alt+N";
+    public string HotkeyCombatOverlay { get; set; } = "Ctrl+Alt+C";
     /// <summary>The arrows on the edge of the interactive map pointing at pets / gatherables that are out of view (one switch each); on by default.</summary>
     public bool ShowPetArrows { get; set; } = true;
     public bool ShowGatherArrows { get; set; } = true;
@@ -344,6 +380,9 @@ public sealed class MeterSettings
     /// path was already wrong for the older per-machine MSI, which put the exe under Program Files
     /// where an unprivileged process cannot write at all.)
     /// </summary>
+    /// <summary>The folder the settings and what the meter learns (cast-skills.json ...) live in.</summary>
+    public static string DataDirectory => Path.GetDirectoryName(SettingsPath)!;
+
     private static string SettingsPath => Path.Combine(
         Environment.GetEnvironmentVariable("AIONDPS_DATA_DIR") is { Length: > 0 } testDir // tests only: a throw-away data folder
             ? testDir : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter"),
@@ -410,4 +449,14 @@ public sealed class BossAlertSetting
 
     /// <summary>0 to 100.</summary>
     public int Volume { get; set; } = 60;
+}
+
+/// <summary>Place, size and scale of one element of the combat overlay, in the overlay frame's own units (its scaling excluded).</summary>
+public sealed class CombatElementLayout
+{
+    public double Left { get; set; }
+    public double Top { get; set; }
+    public double Width { get; set; }
+    public double Height { get; set; }
+    public double Scale { get; set; } = 1.0;
 }
