@@ -24,9 +24,9 @@ namespace AionDPS.Ui;
 /// </summary>
 public sealed class LocalizationManager : INotifyPropertyChanged
 {
-    /// <summary>The twelve languages this build actually has data for -- the set the
-    /// game's own L10N folders (mostly) cover; see assets/README.md for the "ita"/"plk" folder-name swap that this list's codes already
-    /// correct for. NativeName is what a speaker of that language would call it themselves, shown
+    /// <summary>The ten languages this build actually has data for: the eight the
+    /// game itself offers (English, German, French, Spanish, Russian, Portuguese, Japanese, Korean)
+    /// plus Simplified and Traditional Chinese. NativeName is what a speaker of that language would call it themselves, shown
     /// in the Settings picker so nobody has to already read the current language to find their own.
     /// Declared BEFORE Instance below deliberately: static field initializers run in declaration
     /// order, and Instance's own initializer runs the constructor, which needs this list already
@@ -41,8 +41,6 @@ public sealed class LocalizationManager : INotifyPropertyChanged
         ("fr", "Français"),
         ("es", "Español"),
         ("ru", "Русский"),
-        ("pl", "Polski"),
-        ("tr", "Türkçe"),
         ("zh", "中文"),
         ("zh-TW", "繁體中文"),
         ("pt", "Português (Brasil)"),
