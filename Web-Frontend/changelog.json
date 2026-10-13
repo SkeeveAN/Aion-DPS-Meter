@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.45.6",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "The app settings open again (two layout margins in the new opacity sliders had three values instead of four, which stopped the settings window from loading)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.45.5",
   "date": "2026-10-14",
   "items": [
