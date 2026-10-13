@@ -1,5 +1,33 @@
 [
  {
+  "version": "0.45.0",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "Uploads of a crowded world boss are accepted with estimated damage rows: they skip the damage-covers-hit-points check, never replace an exact row and stay out of every ranking, comparison and average",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "World boss damage of the other players is estimated: the game sends only a hit notice for them (who, whom, which skill), so each hit counts at its skill's average, scaled to the hit points the boss really lost; the rows show a ~ and the upload marks them as estimated",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "On a crowded world boss the meter now shows every player: the game sends only hit notices for the others, so their damage is estimated (marked ~) and scaled to the hit points the boss really lost; world boss kills can be uploaded again",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.44.3",
   "date": "2026-10-13",
   "items": [
