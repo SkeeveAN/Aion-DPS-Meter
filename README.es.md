@@ -186,6 +186,12 @@ Una marca *Nuevo* indica cuándo hay algo más reciente que tu última visita.
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Campañas de Twitch Drops con recompensas y streams en directo">
 </p>
 
+### El medidor en tu stream (OBS, Streamlabs)
+
+Muestra el medidor en directo sobre tu juego sin grabar su ventana: activa **Ajustes → Interfaz → Overlay de stream para OBS activado**, usa después **Copiar enlace para OBS** (o, en el icono de la bandeja, *Copiar enlace del overlay de stream (OBS)*), añade una fuente de **Navegador** en OBS o Streamlabs, pega el enlace y ajusta el tamaño de la fuente. La página sigue al medidor en directo: la vista actual (daño, curación, daño recibido, todo en una), los jugadores con icono de clase y barras, y la salud del jefe. Añade `?scale=1.5` o `?rows=5` al enlace para agrandarla o mostrar menos filas.
+
+Funciona solo en tu PC: el servidor escucha en `127.0.0.1` (nada fuera de tu ordenador puede acceder a él), el enlace lleva una clave aleatoria (con **Nueva clave** el enlace antiguo deja de funcionar), solo se atiende `GET`, la página no carga nada de ningún otro sitio y no se envía nada a nadie. Los nombres de los jugadores están **desactivados por defecto** - cada uno se muestra por su clase, como en las subidas - y se pueden activar en la misma tarjeta de ajustes.
+
 ### Historial de combates
 
 Los combates se graban localmente para poder revisar un jefe anterior (desactívalo en

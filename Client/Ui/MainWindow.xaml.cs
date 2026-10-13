@@ -129,6 +129,12 @@ public partial class MainWindow : Window
     private WorldBossController? _worldBoss;
     private CombatOverlayController? _combat;
     private MenuWatcher? _menuWatcher;
+    private Streaming.StreamOverlayServer? _streamServer;
+    private readonly DispatcherTimer _streamTimer = new() { Interval = TimeSpan.FromMilliseconds(250) };
+    private IReadOnlyList<DamageEvent> _lastShownHits = Array.Empty<DamageEvent>();
+    private string _streamLast = "";
+    private DateTime _streamSettingsAt = DateTime.MinValue;
+    private MeterSettings _streamSettings = new();
     private NetworkOverlayController? _network;
     private readonly System.Windows.Threading.DispatcherTimer _gateTimer = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private bool _gameGateOpen = true;
@@ -945,6 +951,8 @@ public partial class MainWindow : Window
             _network ??= new NetworkOverlayController();
             _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory);
             _menuWatcher ??= new MenuWatcher();
+            _streamTimer.Tick += (_, _) => StreamTick();
+            _streamTimer.Start();
             MeterSettings.BackupOnStart(); // after the first Load of this start, which restores a damaged file from the last copy
             if (MeterSettings.RecoveredFromBackup)
             {
@@ -994,6 +1002,8 @@ public partial class MainWindow : Window
         _worldBoss?.Dispose();
         _combat?.Dispose();
         _menuWatcher?.Dispose();
+        _streamTimer.Stop();
+        _streamServer?.Dispose();
         _network?.Dispose();
         Aion2FieldBosses.Flush();
         _timetableReminder?.Dispose();
@@ -1947,6 +1957,149 @@ public partial class MainWindow : Window
     /// <see cref="_selectedRunWindowEnd"/> are set (the dropdown's "#N" entries - see MobBossTag's
     /// own remarks), otherwise spans the target's whole history exactly as before.
     /// </summary>
+    // ---- the stream overlay (OBS browser source) ------------------------------------------------------------
+
+    /// <summary>Four times a second: starts, stops or restarts the server as the settings say, and sends the state when it changed - only while a browser source is connected.</summary>
+    private void StreamTick()
+    {
+        if (Headless)
+        {
+            return;
+        }
+
+        if ((DateTime.UtcNow - _streamSettingsAt).TotalSeconds >= 1)
+        {
+            _streamSettingsAt = DateTime.UtcNow;
+            _streamSettings = MeterSettings.Load();
+            if (_streamSettings.StreamOverlayOn && _streamSettings.StreamOverlayKey.Length == 0)
+            {
+                _streamSettings.StreamOverlayKey = Streaming.StreamOverlayServer.NewKey();
+                var onDisk = MeterSettings.Load();
+                onDisk.StreamOverlayKey = _streamSettings.StreamOverlayKey;
+                onDisk.Save();
+            }
+
+            bool wanted = _streamSettings.StreamOverlayOn;
+            if (!wanted)
+            {
+                _streamServer?.Dispose();
+                _streamServer = null;
+            }
+            else if (_streamServer is null || !_streamServer.Running || _streamServer.Url?.Contains("/" + _streamSettings.StreamOverlayKey + "/") != true
+                || _streamServer.Port != Math.Clamp(_streamSettings.StreamOverlayPort, 1024, 65000) && !_streamServer.Running)
+            {
+                _streamServer?.Dispose();
+                _streamServer = new Streaming.StreamOverlayServer();
+                int port = Math.Clamp(_streamSettings.StreamOverlayPort, 1024, 65000);
+                if (!_streamServer.Start(port, _streamSettings.StreamOverlayKey))
+                {
+                    ShowUploadStatus(LocalizationManager.Instance["Stream.NoPort"]);
+                    _streamServer.Dispose();
+                    _streamServer = null;
+                }
+            }
+        }
+
+        if (_streamServer is not { Running: true, ClientCount: > 0 })
+        {
+            return;
+        }
+
+        string json = BuildStreamState(_streamSettings.StreamShowNames);
+        if (json != _streamLast)
+        {
+            _streamLast = json;
+            _streamServer.Publish(json);
+        }
+    }
+
+    /// <summary>What the browser source draws now: the rows as the current view shows them, and the boss's health.</summary>
+    private string BuildStreamState(bool showNames)
+    {
+        var ordered = _rows.OrderBy(r => r.Rank > 0 ? r.Rank : int.MaxValue).ThenByDescending(r => r.Damage).ToList();
+        string label;
+        string[] headers;
+        Func<PlayerRow, (string[] Cells, string? Sub)> cells;
+        switch (_mode)
+        {
+            case MeterMode.Heal:
+                (label, headers) = ("HEAL", new[] { "HPS", "HEAL", "%" });
+                cells = r => (new[] { r.DpsCompact, r.DamageCompact, r.ShareDisplay }, null);
+                break;
+            case MeterMode.Taken:
+                (label, headers) = ("TAKEN", new[] { "DTPS", "TAKEN", "%" });
+                cells = r => (new[] { r.DpsCompact, r.DamageCompact, r.ShareDisplay }, null);
+                break;
+            case MeterMode.All:
+                (label, headers) = ("ALL", new[] { "↓", "+", "DMG" });
+                cells = r => (new[] { r.TakenCompact, r.HealCompact, r.DamageCompact }, null);
+                break;
+            case MeterMode.AllCompact:
+                (label, headers) = ("ALL+", new[] { "DPS", "DMG" });
+                cells = r => (new[] { r.DpsCompact, r.DamageCompact }, $"↓ {r.TakenCompact}  + {r.HealCompact}");
+                break;
+            default:
+                (label, headers) = ("DMG", new[] { "DPS", "DMG", "%" });
+                cells = r => (new[] { r.DpsCompact, r.DamageCompact, r.ShareDisplay }, null);
+                break;
+        }
+
+        var rows = ordered.Select(r =>
+        {
+            var (values, sub) = cells(r);
+            return new Streaming.StreamRowData(r.Rank, r.Name, r.ClassName, r.FillPercent / 100.0, _source?.Entities.IsLocalPlayer(r.ObjectId) == true, values, sub);
+        }).ToList();
+        return Streaming.StreamSnapshot.ToJson(label, headers, showNames ? rows : Streaming.StreamSnapshot.HideNames(rows), BuildStreamBoss(), 8);
+    }
+
+    private Streaming.StreamBoss? BuildStreamBoss()
+    {
+        if (_pvpOnly || _selectedTargetId is not int targetId
+            || _source?.Entities is not Aion2.Aion2EntityDirectory directory || directory.IsKnownPlayer(targetId))
+        {
+            return null;
+        }
+
+        var onTarget = _lastShownHits.Where(ev => ev.TargetObjectId == targetId).ToList();
+        long highest = directory.HitPoints.HighestSeen(targetId) ?? 0;
+        if (onTarget.Count == 0 || highest <= 0)
+        {
+            return null;
+        }
+
+        var samples = directory.HitPoints.SamplesAround(targetId, onTarget.Min(h => h.Timestamp), onTarget.Max(h => h.Timestamp));
+        if (samples.Count == 0)
+        {
+            return null;
+        }
+
+        long hp = samples[^1].Hp;
+        double percent = 100.0 * hp / highest;
+        string name = _targetNames.TryGetValue(targetId, out string? known) ? known : ResolveDisplayName(targetId);
+        return new Streaming.StreamBoss(name, percent, $"{PlayerRow.Compact(hp)} / {PlayerRow.Compact(highest)} · {percent.ToString("0", CultureInfo.InvariantCulture)}%");
+    }
+
+    /// <summary>The link for the browser source, on the clipboard.</summary>
+    private void CopyStreamLink()
+    {
+        var loc = LocalizationManager.Instance;
+        if (_streamServer?.Url is not string url)
+        {
+            ShowUploadStatus(loc["Stream.NotRunning"]);
+            return;
+        }
+
+        try
+        {
+            Clipboard.SetText(url);
+            ShowUploadStatus(loc["Stream.LinkCopied"]);
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            ShowUploadStatus(url); // the clipboard was busy: the link itself is shown instead
+        }
+    }
+
     /// <summary>The fight went online: the history remembers it (see <see cref="FightStore.MarkUploaded"/>), so "not uploaded" is true to what happened.</summary>
     private void MarkFightUploaded(EncounterUploadRequest payload)
     {
@@ -3220,6 +3373,7 @@ public partial class MainWindow : Window
                 {
                     (loc["Main.Tray.Show"], () => _trayIcon?.Restore()),
                     (loc["Main.Tray.ToggleUi"], SetHideUi),
+                    (loc["Main.Tray.StreamLink"], CopyStreamLink),
                     (loc["Main.MenuApp.CheckForUpdates"], () => _ = RunUpdateCheck(announceResult: true)),
                     (null, null),
                     (loc["Main.Tray.Exit"], Close),
@@ -3981,6 +4135,16 @@ public partial class MainWindow : Window
 
             ReopenSettings(null);
         };
+        _settingsWindow.CopyStreamLinkRequested += CopyStreamLink;
+        _settingsWindow.NewStreamKeyRequested += () =>
+        {
+            var current = MeterSettings.Load();
+            current.StreamOverlayKey = Streaming.StreamOverlayServer.NewKey();
+            current.Save();
+            _streamSettingsAt = DateTime.MinValue; // the server restarts with the new key at the next look
+            StreamTick();
+            CopyStreamLink();
+        };
         _settingsWindow.OpenHistoryRequested += () =>
         {
             OnFightHistoryClicked(this, new RoutedEventArgs());
@@ -4714,6 +4878,7 @@ public partial class MainWindow : Window
         OverlayTimeText.Text = summary is { Count: > 1 } sum ? (sum.Last - sum.First).ToString(@"m\:ss")
             : summary is null && shownHits.Count > 1 ? (shownHits.Max(h => h.Timestamp) - shownHits.Min(h => h.Timestamp)).ToString(@"m\:ss")
             : "";
+        _lastShownHits = shownHits;
         UpdateOverlayBossHp(shownHits);
     }
 

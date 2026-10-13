@@ -104,6 +104,9 @@ public partial class SettingsWindow : Window
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
         RecordFightHistoryBox.IsChecked = settings.RecordFightHistory;
         HideDuringMenusBox.IsChecked = settings.HideDuringMenus;
+        StreamOverlayOnBox.IsChecked = settings.StreamOverlayOn;
+        StreamShowNamesBox.IsChecked = settings.StreamShowNames;
+        StreamPortBox.Text = settings.StreamOverlayPort.ToString();
         NotUploadedText.Text = string.Format(LocalizationManager.Instance["Settings.History.NotUploaded"], History.FightStore.CountNotUploaded(History.FightStore.DefaultPath));
         ShowMenuControlStatus(settings.MenuControlMode);
         SetHotkeyBox(HotkeyShowMenuBox, HotkeyBinding.Parse(settings.HotkeyShowMenu).ToString());
@@ -578,6 +581,10 @@ public partial class SettingsWindow : Window
         _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? false;
         _settings.RecordFightHistory = RecordFightHistoryBox.IsChecked ?? true;
         _settings.HideDuringMenus = HideDuringMenusBox.IsChecked ?? false;
+        _settings.StreamOverlayOn = StreamOverlayOnBox.IsChecked ?? false;
+        _settings.StreamShowNames = StreamShowNamesBox.IsChecked ?? false;
+        _settings.StreamOverlayPort = int.TryParse(StreamPortBox.Text, out int streamPort) && streamPort is >= 1024 and <= 65000 ? streamPort : 28920;
+        _settings.StreamOverlayKey = MeterSettings.Load().StreamOverlayKey; // made and renewed by MainWindow, never by this copy
         _settings.HotkeyShowMenu = (string?)HotkeyShowMenuBox.Tag ?? "";
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
 
@@ -840,6 +847,14 @@ public partial class SettingsWindow : Window
         BuildPetRegionRows();
         InitPetRare(settings);
     }
+
+    public event Action? CopyStreamLinkRequested;
+
+    public event Action? NewStreamKeyRequested;
+
+    private void OnCopyStreamLinkClicked(object sender, RoutedEventArgs e) => CopyStreamLinkRequested?.Invoke();
+
+    private void OnNewStreamKeyClicked(object sender, RoutedEventArgs e) => NewStreamKeyRequested?.Invoke();
 
     /// <summary>Raised by the button next to the count of boss fights that were not uploaded; MainWindow opens the history with only those.</summary>
     public event Action? OpenHistoryRequested;

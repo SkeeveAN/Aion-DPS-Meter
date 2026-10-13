@@ -1,6 +1,6 @@
 # OBS-Browserquelle: Meter live im Stream
 
-Branch: `feature/obs-browser-overlay` · Stand: Plan, noch nichts umgesetzt
+Branch: `feature/obs-browser-overlay` · Stand: Grundfunktion umgesetzt (siehe „Umsetzungsstand“ am Ende)
 
 ## Ziel
 
@@ -43,3 +43,19 @@ Ablauf für den Nutzer: Tray-Symbol oder Menü → „Link für das Stream-Overl
 - Portkonflikt (siehe Portsuche), Firewall nicht betroffen, da nur Loopback.
 - Namen im Stream: Datenschutz-Standard ist „aus“.
 - Aggregator ist UI-Thread-gebunden → Serialisierung nur über Momentaufnahmen.
+
+## Umsetzungsstand (13.10.2026)
+
+**Fertig und geprüft (Selftest startet den echten Server und fragt ihn per HTTP ab):**
+
+- `StreamOverlayServer` (`Client/Streaming/`): `HttpListener` nur auf `127.0.0.1` (läuft ohne Administratorrechte), Port ab 28920 mit bis zu zehn Versuchen, 32-stelliger Zufallsschlüssel im Pfad (zeitkonstanter Vergleich), Host-Prüfung, nur GET/HEAD, Link ohne Schlussstrich wird weitergeleitet, strenge Antwort-Köpfe (CSP `default-src 'none'`, `no-store`, `nosniff`, `no-referrer`), Live-Daten per Server-Sent Events (höchstens 8 Browserquellen, nur der neueste Stand, Ping alle 15 s), Klassensymbole nur aus der bekannten Klassenliste.
+- Seite (`StreamOverlayPage`): ein HTML, ein CSS, ein Skript, keine Bibliotheken; transparenter Hintergrund; `?scale=` und `?rows=`; Skriptsyntax mit `node --check` geprüft.
+- Zustand (`StreamSnapshot`): Ansicht (DMG/HEAL/TAKEN/ALL/ALL+), Zeilen mit Rang, Klasse, Balken, Zahlen, Boss-Leben; Namen standardmäßig aus (Klasse + Nummer).
+- `MainWindow`: Takt alle 250 ms, **nur wenn eine Browserquelle verbunden ist** wird der Zustand gebaut; Server startet/stoppt nach Einstellung, neuer Schlüssel startet ihn neu; Tray-Eintrag und Knöpfe „Link kopieren“/„Neuer Schlüssel“; Einstellungskarte unter „Oberfläche“; zehn Sprachen; README (alle zehn).
+
+**Bewusst offen:**
+
+- Die Seite wurde nicht in einem echten Browser/OBS angesehen (kein Browser in meiner Umgebung, nichts wird auf deinem Rechner gestartet); bitte einmal in OBS mit einer Browserquelle prüfen.
+- Elemente des Kampf-Overlays (Cast-Leiste, Ziel des Ziels), Weltboss-Zeiten und ein „Stream-Fenster für Discord“ als weitere Schichten: noch nicht gebaut (Plan Punkt 5).
+- Der Zustand wird nur bei verbundener Quelle gebaut; ein Test unter Last (20 Spieler, 4 Stände/s) steht aus.
+- Changelog-Eintrag und Features-Seite folgen beim Merge nach `main`.

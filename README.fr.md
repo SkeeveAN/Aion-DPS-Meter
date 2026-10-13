@@ -188,6 +188,12 @@ moment. Une pastille *Nouveau* s'affiche quand quelque chose est plus récent qu
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Campagnes Twitch Drops avec récompenses et streams en direct">
 </p>
 
+### Le meter dans votre stream (OBS, Streamlabs)
+
+Affichez le meter en direct par-dessus votre jeu sans filmer sa fenêtre : activez **Paramètres → Interface → Overlay de stream pour OBS activé**, puis utilisez **Copier le lien pour OBS** (ou, dans l'icône de la zone de notification, *Copier le lien de l'overlay de stream (OBS)*), ajoutez une source **Navigateur** dans OBS ou Streamlabs, collez le lien et réglez la taille de la source. La page suit le meter en direct : la vue actuelle (dégâts, soins, dégâts subis, le tout en une), les joueurs avec icône de classe et barres, et la santé du boss. Ajoutez `?scale=1.5` ou `?rows=5` au lien pour l'agrandir ou afficher moins de lignes.
+
+Il ne fonctionne que sur votre PC : le serveur écoute sur `127.0.0.1` (rien en dehors de votre ordinateur ne peut l'atteindre), le lien contient une clé aléatoire (avec **Nouvelle clé**, l'ancien lien cesse de fonctionner), seul `GET` est servi, la page ne charge rien depuis ailleurs et rien n'est envoyé à personne. Les noms des joueurs sont **désactivés par défaut** - chacun est affiché par sa classe, comme dans les envois - et peuvent être activés dans la même carte de paramètres.
+
 ### Historique des combats
 
 Les combats sont enregistrés localement pour que vous puissiez revoir un boss précédent (désactivable sous

@@ -559,6 +559,22 @@
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
+                                <CheckBox x:Name="StreamOverlayOnBox" Content="{local:Loc Settings.Stream.On}"/>
+                                <CheckBox x:Name="StreamShowNamesBox" Content="{local:Loc Settings.Stream.Names}" Margin="0,4,0,0"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock Text="{local:Loc Settings.Stream.Port}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBox x:Name="StreamPortBox" Width="64" Height="24" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" MaxLength="5"
+                                             Background="{DynamicResource Brush.Control}" Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}" PreviewTextInput="OnDigitsOnly"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <Button Content="{local:Loc Settings.Stream.Copy}" Padding="10,2" Click="OnCopyStreamLinkClicked"/>
+                                    <Button Content="{local:Loc Settings.Stream.NewKey}" Padding="10,2" Margin="8,0,0,0" Click="OnNewStreamKeyClicked"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Stream.Hint}" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
                                 <Button x:Name="ResetSettingsButton" Content="{local:Loc Settings.Reset.Button}" HorizontalAlignment="Left" Padding="12,3" Click="OnResetSettingsClicked"/>
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Reset.Hint}" Margin="0,8,0,0"/>
                             </StackPanel>
