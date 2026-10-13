@@ -2,7 +2,37 @@
 
 # Aion DPS Meter
 
-Site web avec classements de boss communautaires, profils de personnages et plus encore : **https://aiondps.com** · [Toutes les fonctionnalités](https://aiondps.com/features)
+**Le compteur de DPS gratuit pour AION 2** — dégâts et soins en direct pour tout votre groupe, une surcouche qui laisse passer les clics, des classements de boss, une carte des familiers et de la récolte, un calendrier d'événements et des minuteurs de boss mondiaux. Pour Windows, open source, et il ne lit jamais la mémoire du jeu.
+
+<p align="center">
+  <a href="../../releases/latest"><b>⬇ Télécharger pour Windows</b></a> · <a href="https://aiondps.com">Site web</a> · <a href="https://aiondps.com/features">Toutes les fonctions</a> · <a href="https://aiondps.com/instances">Classements de boss</a>
+</p>
+
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/SkeeveAN/Aion-DPS-Meter?label=release" alt="release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/SkeeveAN/Aion-DPS-Meter/total?label=downloads" alt="downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Windows">
+</p>
+
+<p align="center">
+  <img src="Web-Frontend/images/features/meter@2x.webp" width="440" alt="La fenêtre du compteur : chaque joueur avec icône de classe, DPS, dégâts totaux et barre de part">
+  <img src="Web-Frontend/images/features/overlay-chips@2x.webp" width="320" alt="L'overlay traversable sous forme de petites pastilles au-dessus du jeu">
+</p>
+
+> Les noms, joueurs et chiffres des images ci-dessous sont des données de démonstration.
+
+## Pourquoi l'utiliser
+
+- DPS, iDPS et HPS en direct pour chaque joueur de votre groupe ou raid
+- Une surcouche qui laisse passer les clics
+- Détail des compétences avec taux de critique et courbe de DPS
+- Classements de boss et profils publics de personnages sur aiondps.com (envoi facultatif, désactivé par défaut)
+- Carte interactive, calendrier d'événements, minuteurs de boss mondiaux et surcouche réseau
+- Sûr : capture passive des paquets, aucune lecture de la mémoire, aucune injection
+- Gratuit, open source (MIT) et se met à jour tout seul
+
+Fonctionne avec la version mondiale d'AION 2 : toutes les régions lancées par NCSOFT le 5 octobre 2026. La Corée et Taïwan ont quelques versions d'avance, la reconnaissance des compétences peut donc y être incomplète.
 
 Un compteur de dégâts/soins et une boîte à outils pour **Aion 2**. Il lit le trafic réseau du jeu sur votre machine
 grâce au pilote [Npcap](https://npcap.com) — passivement : il n'envoie jamais de paquet et ne touche ni le
@@ -10,11 +40,6 @@ processus du jeu ni sa mémoire. Rien de votre partie ne quitte votre machine, s
 [Envois](#envois)) ; l'autre chose qu'il envoie est une vérification des mises à jour, qui demande à GitHub si une
 version plus récente existe et peut être désactivée ; voir [Mises à jour](#mises-à-jour).
 
-<p align="center">
-  <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="La fenêtre du compteur : chaque joueur avec icône de classe, DPS, dégâts totaux et barre de part">
-</p>
-
-> Les noms, joueurs et chiffres des images ci-dessous sont des données de démonstration.
 
 ## Sommaire
 

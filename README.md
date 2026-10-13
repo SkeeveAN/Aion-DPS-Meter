@@ -2,7 +2,37 @@
 
 # Aion DPS Meter
 
-Website with community boss leaderboards, character profiles and more: **https://aiondps.com** · [All features](https://aiondps.com/features)
+**The free DPS meter for AION 2** — live damage and healing for your whole group, a click-through overlay, boss leaderboards, a pet and gathering map, an event timetable and world boss timers. For Windows, open source, and it never reads game memory.
+
+<p align="center">
+  <a href="../../releases/latest"><b>⬇ Download for Windows</b></a> · <a href="https://aiondps.com">Website</a> · <a href="https://aiondps.com/features">All features</a> · <a href="https://aiondps.com/instances">Boss leaderboards</a>
+</p>
+
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/SkeeveAN/Aion-DPS-Meter?label=release" alt="release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/SkeeveAN/Aion-DPS-Meter/total?label=downloads" alt="downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Windows">
+</p>
+
+<p align="center">
+  <img src="Web-Frontend/images/features/meter@2x.webp" width="440" alt="The meter window: every player with class icon, DPS, total damage and a share bar">
+  <img src="Web-Frontend/images/features/overlay-chips@2x.webp" width="320" alt="The click-through overlay as small chips on top of the game">
+</p>
+
+> The names, players and numbers in the pictures below are demo data.
+
+## Why use it
+
+- Live DPS, iDPS and HPS for every player in your party or raid
+- A click-through overlay that never takes a click
+- Skill breakdown with crit rates and a DPS curve
+- Boss leaderboards and public character profiles on aiondps.com (optional upload, off by default)
+- Interactive map, event timetable, world boss timers and a network overlay
+- Safe: passive packet capture, no memory reading, no injection
+- Free, open source (MIT) and updates itself
+
+Works with the global release of AION 2 — every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.
 
 A damage/heal meter and toolkit for **Aion 2**. It reads the game's own network traffic on your machine
 through the [Npcap](https://npcap.com) driver — passively: it never sends a packet and never touches the
@@ -10,11 +40,6 @@ game process or its memory. Nothing about your play leaves your machine unless y
 [Uploads](#uploads)); the other thing it sends is an update check, which asks GitHub whether a newer
 release exists and can be switched off; see [Updates](#updates).
 
-<p align="center">
-  <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="The meter window: every player with class icon, DPS, total damage and a share bar">
-</p>
-
-> The names, players and numbers in the pictures below are demo data.
 
 ## Contents
 

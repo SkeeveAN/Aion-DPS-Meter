@@ -2,15 +2,40 @@
 
 # Aion DPS Meter
 
-提供社群首領排行榜、角色檔案等功能的網站：**https://aiondps.com** · [所有功能](https://aiondps.com/features)
-
-這是一款適用於 **Aion 2** 的傷害／治療統計器與工具集。它透過 [Npcap](https://npcap.com) 驅動程式讀取您電腦上遊戲本身的網路流量——完全被動：它絕不會送出任何封包，也不會碰觸遊戲處理程序或其記憶體。除非您自行上傳，否則關於您遊玩的任何資料都不會離開您的電腦（參見[上傳](#上傳)）；它送出的另一件事是更新檢查，會向 GitHub 詢問是否有較新的版本，且可以關閉；參見[更新](#更新)。
+**AION 2 免費 DPS 統計器** —— 即時顯示全隊傷害與治療，提供可點擊穿透的懸浮視窗、首領排行榜、寵物與採集地圖、活動時間表和世界首領計時器。適用於 Windows，開源，絕不讀取遊戲記憶體。
 
 <p align="center">
-  <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="統計器視窗：每位玩家的職業圖示、DPS、總傷害與佔比長條">
+  <a href="../../releases/latest"><b>⬇ 下載 Windows 版</b></a> · <a href="https://aiondps.com">網站</a> · <a href="https://aiondps.com/features">全部功能</a> · <a href="https://aiondps.com/instances">首領排行榜</a>
+</p>
+
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/SkeeveAN/Aion-DPS-Meter?label=release" alt="release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/SkeeveAN/Aion-DPS-Meter/total?label=downloads" alt="downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Windows">
+</p>
+
+<p align="center">
+  <img src="Web-Frontend/images/features/meter@2x.webp" width="440" alt="統計器視窗：每位玩家的職業圖示、DPS、總傷害與佔比長條">
+  <img src="Web-Frontend/images/features/overlay-chips@2x.webp" width="320" alt="可點擊穿透的浮動層，以小型標籤顯示在遊戲畫面上方">
 </p>
 
 > 以下圖片中的名稱、玩家與數字皆為示範資料。
+
+## 為什麼選擇它
+
+- 即時顯示隊伍或團隊中每位玩家的 DPS、iDPS 和 HPS
+- 點擊可穿透的懸浮視窗，不會攔截任何點擊
+- 技能明細，含暴擊率和 DPS 曲線
+- aiondps.com 上的首領排行榜與公開角色檔案（上傳為選用，預設關閉）
+- 互動地圖、活動時間表、世界首領計時器和網路懸浮視窗
+- 安全：被動擷取封包，不讀取記憶體，不注入程式碼
+- 免費、開源（MIT），可自動更新
+
+適用於 AION 2 全球版——即 NCSOFT 於 2026 年 10 月 5 日上線的所有地區。韓國和台灣的版本領先數個版本，因此那裡的技能辨識可能不完整。
+
+這是一款適用於 **Aion 2** 的傷害／治療統計器與工具集。它透過 [Npcap](https://npcap.com) 驅動程式讀取您電腦上遊戲本身的網路流量——完全被動：它絕不會送出任何封包，也不會碰觸遊戲處理程序或其記憶體。除非您自行上傳，否則關於您遊玩的任何資料都不會離開您的電腦（參見[上傳](#上傳)）；它送出的另一件事是更新檢查，會向 GitHub 詢問是否有較新的版本，且可以關閉；參見[更新](#更新)。
+
 
 ## 目錄
 

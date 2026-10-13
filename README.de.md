@@ -2,7 +2,37 @@
 
 # Aion DPS Meter
 
-Webseite mit Community-Boss-Ranglisten, Charakterprofilen und mehr: **https://aiondps.com** · [Alle Funktionen](https://aiondps.com/features)
+**Der kostenlose DPS-Meter für AION 2** — Live-Schaden und -Heilung für deine ganze Gruppe, ein durchklickbares Overlay, Boss-Ranglisten, eine Karte für Pets und Sammelpunkte, ein Event-Zeitplan und Weltboss-Timer. Für Windows, Open Source, und er liest nie den Spielspeicher.
+
+<p align="center">
+  <a href="../../releases/latest"><b>⬇ Für Windows herunterladen</b></a> · <a href="https://aiondps.com">Webseite</a> · <a href="https://aiondps.com/features">Alle Funktionen</a> · <a href="https://aiondps.com/instances">Boss-Ranglisten</a>
+</p>
+
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/SkeeveAN/Aion-DPS-Meter?label=release" alt="release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/SkeeveAN/Aion-DPS-Meter/total?label=downloads" alt="downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Windows">
+</p>
+
+<p align="center">
+  <img src="Web-Frontend/images/features/meter@2x.webp" width="440" alt="Das Meter-Fenster: jeder Spieler mit Klassen-Icon, DPS, Gesamtschaden und Anteilsbalken">
+  <img src="Web-Frontend/images/features/overlay-chips@2x.webp" width="320" alt="Das durchklickbare Overlay als kleine Chips über dem Spiel">
+</p>
+
+> Die Namen, Spieler und Zahlen in den folgenden Bildern sind Demodaten.
+
+## Warum dieser Meter
+
+- Live-DPS, iDPS und HPS für jeden Spieler in deiner Gruppe oder deinem Raid
+- Ein durchklickbares Overlay, das keinen Klick abfängt
+- Skill-Aufschlüsselung mit Krit-Raten und DPS-Kurve
+- Boss-Ranglisten und öffentliche Charakterprofile auf aiondps.com (Upload optional, standardmäßig aus)
+- Interaktive Karte, Event-Zeitplan, Weltboss-Timer und ein Netzwerk-Overlay
+- Sicher: passiver Paketmitschnitt, kein Speicherlesen, keine Code-Injektion
+- Kostenlos, Open Source (MIT) und aktualisiert sich selbst
+
+Funktioniert mit der globalen Version von AION 2 — allen Regionen, die NCSOFT am 5. Oktober 2026 gestartet hat. Korea und Taiwan sind einige Versionen voraus, dort kann die Skill-Erkennung unvollständig sein.
 
 Ein Schaden-/Heilungs-Meter und Werkzeugkasten für **Aion 2**. Es liest den Netzwerkverkehr des Spiels auf deinem Rechner
 über den [Npcap](https://npcap.com)-Treiber — passiv: Es sendet nie ein Paket und fasst weder den
@@ -10,11 +40,6 @@ Spielprozess noch dessen Speicher an. Nichts von deinem Spiel verlässt deinen R
 [Uploads](#uploads)); das Einzige, was sonst gesendet wird, ist die Update-Prüfung, die GitHub fragt, ob eine neuere
 Version existiert, und die sich abschalten lässt; siehe [Updates](#updates).
 
-<p align="center">
-  <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="Das Meter-Fenster: jeder Spieler mit Klassen-Icon, DPS, Gesamtschaden und Anteilsbalken">
-</p>
-
-> Die Namen, Spieler und Zahlen in den folgenden Bildern sind Demodaten.
 
 ## Inhalt
 

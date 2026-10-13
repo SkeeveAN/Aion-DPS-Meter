@@ -2,7 +2,37 @@
 
 # Aion DPS Meter
 
-コミュニティのボスランキング、キャラクタープロフィールなどを備えたウェブサイト: **https://aiondps.com** · [すべての機能](https://aiondps.com/features)
+**AION 2 向けの無料DPSメーター** — パーティ全員のダメージと回復をリアルタイム表示。クリックを通すオーバーレイ、ボスランキング、ペットと採集のマップ、イベントスケジュール、ワールドボスのタイマーを備えています。Windows対応、オープンソースで、ゲームのメモリは一切読み取りません。
+
+<p align="center">
+  <a href="../../releases/latest"><b>⬇ Windows版をダウンロード</b></a> · <a href="https://aiondps.com">ウェブサイト</a> · <a href="https://aiondps.com/features">すべての機能</a> · <a href="https://aiondps.com/instances">ボスランキング</a>
+</p>
+
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/SkeeveAN/Aion-DPS-Meter?label=release" alt="release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/SkeeveAN/Aion-DPS-Meter/total?label=downloads" alt="downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Windows">
+</p>
+
+<p align="center">
+  <img src="Web-Frontend/images/features/meter@2x.webp" width="440" alt="メーターウィンドウ: クラスアイコン、DPS、総ダメージ、シェアバーを備えた全プレイヤー">
+  <img src="Web-Frontend/images/features/overlay-chips@2x.webp" width="320" alt="ゲーム画面の上に小さなチップとして表示される、クリックを透過するオーバーレイ">
+</p>
+
+> 以下の画像に表示されている名前、プレイヤー、数値はデモデータです。
+
+## 選ばれる理由
+
+- パーティやレイドの全員のDPS、iDPS、HPSをリアルタイム表示
+- クリックを一切妨げないオーバーレイ
+- クリティカル率とDPSカーブ付きのスキル内訳
+- aiondps.com のボスランキングと公開キャラクタープロフィール（アップロードは任意、初期設定はオフ）
+- インタラクティブマップ、イベントスケジュール、ワールドボスタイマー、ネットワークオーバーレイ
+- 安全: パッシブなパケットキャプチャのみ。メモリ読み取りもコード注入もなし
+- 無料、オープンソース（MIT）、自動アップデート
+
+AION 2 のグローバル版に対応しています。NCSOFT が2026年10月5日にリリースしたすべてのリージョンが対象です。韓国と台湾は数バージョン先行しているため、スキル認識が不完全な場合があります。
 
 **Aion 2** 向けのダメージ/回復メーターとツールキットです。お使いのPC上で、ゲーム自身のネットワーク通信を
 [Npcap](https://npcap.com) ドライバー経由で読み取ります。完全にパッシブで、パケットを送信することも、
@@ -10,11 +40,6 @@
 （[アップロード](#アップロード)を参照）。それ以外に送信されるのはアップデート確認のみで、GitHubに新しいリリースがあるかを
 問い合わせるもので、オフにできます。[更新](#更新)を参照してください。
 
-<p align="center">
-  <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="メーターウィンドウ: クラスアイコン、DPS、総ダメージ、シェアバーを備えた全プレイヤー">
-</p>
-
-> 以下の画像に表示されている名前、プレイヤー、数値はデモデータです。
 
 ## 目次
 

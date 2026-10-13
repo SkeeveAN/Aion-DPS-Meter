@@ -1,7 +1,37 @@
 🇬🇧 [English](README.md) · 🇩🇪 [Deutsch](README.de.md) · 🇪🇸 **Español** · 🇫🇷 [Français](README.fr.md) · 🇷🇺 [Русский](README.ru.md) · 🇨🇳 [中文](README.zh.md) · 🇹🇼 [繁體中文](README.zh-TW.md) · 🇧🇷 [Português (Brasil)](README.pt.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md)
 # Aion DPS Meter
 
-Sitio web con clasificaciones comunitarias de jefes, perfiles de personajes y más: **https://aiondps.com** · [Todas las funciones](https://aiondps.com/features)
+**El medidor de DPS gratuito para AION 2** — daño y curación en vivo de todo tu grupo, una superposición que no intercepta clics, clasificaciones de jefes, un mapa de mascotas y recolección, un calendario de eventos y temporizadores de jefes de mundo. Para Windows, de código abierto y nunca lee la memoria del juego.
+
+<p align="center">
+  <a href="../../releases/latest"><b>⬇ Descargar para Windows</b></a> · <a href="https://aiondps.com">Sitio web</a> · <a href="https://aiondps.com/features">Todas las funciones</a> · <a href="https://aiondps.com/instances">Clasificaciones de jefes</a>
+</p>
+
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/SkeeveAN/Aion-DPS-Meter?label=release" alt="release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/SkeeveAN/Aion-DPS-Meter/total?label=downloads" alt="downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Windows">
+</p>
+
+<p align="center">
+  <img src="Web-Frontend/images/features/meter@2x.webp" width="440" alt="La ventana del medidor: cada jugador con icono de clase, DPS, daño total y una barra de porcentaje">
+  <img src="Web-Frontend/images/features/overlay-chips@2x.webp" width="320" alt="El overlay transparente al clic como pequeñas fichas sobre el juego">
+</p>
+
+> Los nombres, jugadores y cifras de las imágenes siguientes son datos de demostración.
+
+## Por qué usarlo
+
+- DPS, iDPS y HPS en vivo de cada jugador de tu grupo o banda
+- Una superposición que atraviesa los clics
+- Desglose de habilidades con tasas de crítico y curva de DPS
+- Clasificaciones de jefes y perfiles públicos de personajes en aiondps.com (subida opcional, desactivada por defecto)
+- Mapa interactivo, calendario de eventos, temporizadores de jefes de mundo y superposición de red
+- Seguro: captura pasiva de paquetes, sin leer la memoria ni inyectar código
+- Gratuito, de código abierto (MIT) y se actualiza solo
+
+Funciona con la versión global de AION 2: todas las regiones que NCSOFT lanzó el 5 de octubre de 2026. Corea y Taiwán van varias versiones por delante, por lo que allí el reconocimiento de habilidades puede ser incompleto.
 
 Un medidor de daño/curación y kit de herramientas para **Aion 2**. Lee el tráfico de red del propio juego en tu equipo
 mediante el controlador [Npcap](https://npcap.com) — de forma pasiva: nunca envía un paquete y no toca el proceso del
@@ -9,11 +39,6 @@ juego ni su memoria. Nada de tu partida sale de tu equipo salvo que lo subas (ve
 [Subidas](#subidas)); lo único que envía además es una comprobación de actualizaciones, que pregunta a GitHub si existe
 una versión más reciente y se puede desactivar; ver [Actualizaciones](#actualizaciones).
 
-<p align="center">
-  <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="La ventana del medidor: cada jugador con icono de clase, DPS, daño total y una barra de porcentaje">
-</p>
-
-> Los nombres, jugadores y cifras de las imágenes siguientes son datos de demostración.
 
 ## Contenido
 

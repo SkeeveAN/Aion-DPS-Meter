@@ -2,17 +2,42 @@
 
 # Aion DPS Meter
 
-带有社区首领排行榜、角色资料等内容的网站：**https://aiondps.com** · [全部功能](https://aiondps.com/features)
+**AION 2 免费 DPS 统计器** —— 实时显示全队伤害与治疗，提供可点击穿透的悬浮窗、首领排行榜、宠物与采集地图、活动时间表和世界首领计时器。适用于 Windows，开源，绝不读取游戏内存。
+
+<p align="center">
+  <a href="../../releases/latest"><b>⬇ 下载 Windows 版</b></a> · <a href="https://aiondps.com">网站</a> · <a href="https://aiondps.com/features">全部功能</a> · <a href="https://aiondps.com/instances">首领排行榜</a>
+</p>
+
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/SkeeveAN/Aion-DPS-Meter?label=release" alt="release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/SkeeveAN/Aion-DPS-Meter/total?label=downloads" alt="downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Windows">
+</p>
+
+<p align="center">
+  <img src="Web-Frontend/images/features/meter@2x.webp" width="440" alt="统计窗口：每位玩家都有职业图标、DPS、总伤害和占比条">
+  <img src="Web-Frontend/images/features/overlay-chips@2x.webp" width="320" alt="游戏画面上方以小标签呈现的可穿透点击悬浮窗">
+</p>
+
+> 下方图片中的名称、玩家和数字均为演示数据。
+
+## 为什么选择它
+
+- 实时显示队伍或团队中每位玩家的 DPS、iDPS 和 HPS
+- 点击可穿透的悬浮窗，不会拦截任何点击
+- 技能明细，含暴击率和 DPS 曲线
+- aiondps.com 上的首领排行榜与公开角色档案（上传为可选，默认关闭）
+- 互动地图、活动时间表、世界首领计时器和网络悬浮窗
+- 安全：被动抓包，不读取内存，不注入代码
+- 免费、开源（MIT），可自动更新
+
+适用于 AION 2 全球版——即 NCSOFT 于 2026 年 10 月 5 日开服的所有地区。韩国和台湾的版本领先数个版本，因此那里的技能识别可能不完整。
 
 适用于 **Aion 2** 的伤害/治疗统计工具和工具箱。它通过 [Npcap](https://npcap.com) 驱动在您的电脑上读取游戏自身的网络流量——纯被动：
 从不发送数据包，也不触碰游戏进程及其内存。除非您主动上传（见[上传](#上传)），否则您的游戏数据不会离开电脑；
 另外会发送的只有更新检查，即询问 GitHub 是否有新版本，可以关闭；见[更新](#更新)。
 
-<p align="center">
-  <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="统计窗口：每位玩家都有职业图标、DPS、总伤害和占比条">
-</p>
-
-> 下方图片中的名称、玩家和数字均为演示数据。
 
 ## 目录
 

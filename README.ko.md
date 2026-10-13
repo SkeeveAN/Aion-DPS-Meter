@@ -2,7 +2,37 @@
 
 # Aion DPS Meter
 
-커뮤니티 보스 랭킹, 캐릭터 프로필 등을 제공하는 웹사이트: **https://aiondps.com** · [모든 기능](https://aiondps.com/features)
+**AION 2용 무료 DPS 미터** — 파티 전체의 피해량과 치유량을 실시간으로 표시하고, 클릭이 통과하는 오버레이, 보스 순위표, 펫·채집 지도, 이벤트 일정, 월드 보스 타이머를 제공합니다. Windows용, 오픈 소스이며 게임 메모리를 절대 읽지 않습니다.
+
+<p align="center">
+  <a href="../../releases/latest"><b>⬇ Windows용 다운로드</b></a> · <a href="https://aiondps.com">웹사이트</a> · <a href="https://aiondps.com/features">모든 기능</a> · <a href="https://aiondps.com/instances">보스 순위표</a>
+</p>
+
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/SkeeveAN/Aion-DPS-Meter?label=release" alt="release"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/downloads/SkeeveAN/Aion-DPS-Meter/total?label=downloads" alt="downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey" alt="Windows">
+</p>
+
+<p align="center">
+  <img src="Web-Frontend/images/features/meter@2x.webp" width="440" alt="미터 창: 모든 플레이어의 직업 아이콘, DPS, 총 대미지, 비중 막대">
+  <img src="Web-Frontend/images/features/overlay-chips@2x.webp" width="320" alt="게임 화면 위에 작은 칩으로 표시되는 클릭 통과 오버레이">
+</p>
+
+> 아래 그림 속 이름, 플레이어, 수치는 데모 데이터입니다.
+
+## 왜 이 미터인가
+
+- 파티·레이드 모든 플레이어의 DPS, iDPS, HPS를 실시간 표시
+- 클릭을 가로채지 않는 오버레이
+- 치명타율과 DPS 곡선이 포함된 스킬 상세
+- aiondps.com의 보스 순위표와 공개 캐릭터 프로필(업로드는 선택, 기본값은 꺼짐)
+- 인터랙티브 지도, 이벤트 일정, 월드 보스 타이머, 네트워크 오버레이
+- 안전: 패시브 패킷 캡처만 사용, 메모리 읽기·코드 주입 없음
+- 무료, 오픈 소스(MIT), 자동 업데이트
+
+AION 2 글로벌 버전과 호환됩니다. NCSOFT가 2026년 10월 5일에 출시한 모든 지역이 해당됩니다. 한국과 대만은 몇 버전 앞서 있어 스킬 인식이 불완전할 수 있습니다.
 
 **Aion 2**용 대미지/치유 미터 및 도구 모음입니다. [Npcap](https://npcap.com) 드라이버를 통해 내 PC에서 게임 자체의
 네트워크 트래픽을 읽습니다. 완전히 수동 방식이라 패킷을 단 하나도 보내지 않으며 게임 프로세스나 메모리에도
@@ -10,11 +40,6 @@
 그 밖에 전송하는 것은 업데이트 확인뿐이며, GitHub에 새 릴리스가 있는지 묻는 이 요청은 끌 수 있습니다.
 [업데이트](#업데이트)를 참조하세요.
 
-<p align="center">
-  <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="미터 창: 모든 플레이어의 직업 아이콘, DPS, 총 대미지, 비중 막대">
-</p>
-
-> 아래 그림 속 이름, 플레이어, 수치는 데모 데이터입니다.
 
 ## 목차
 
