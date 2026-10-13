@@ -1244,9 +1244,14 @@ public partial class MainWindow : Window
         // One pass over the events instead of one per player: in a raid (24 players, hundreds of thousands of
         // hits) the per-player rescans, one of them sorting, froze the meter once a second.
         Dictionary<int, long> damageById = new();
+        Dictionary<int, long> estimatedById = new();
         foreach (DamageEvent hit in filtered)
         {
             damageById[hit.SourceObjectId] = damageById.GetValueOrDefault(hit.SourceObjectId) + hit.Amount;
+            if (hit.Estimated)
+            {
+                estimatedById[hit.SourceObjectId] = estimatedById.GetValueOrDefault(hit.SourceObjectId) + hit.Amount;
+            }
         }
 
         Dictionary<int, List<DamageEvent>>? allBySource = null;
@@ -1294,6 +1299,9 @@ public partial class MainWindow : Window
             ApplyIdentity(row, sourceId);
 
             row.Damage = fast ? (_pvpOnly ? _index.PvpBySource : _index.BySource).GetValueOrDefault(sourceId)?.Sum ?? 0 : damageById.GetValueOrDefault(sourceId);
+            row.IsEstimated = fast
+                ? (_pvpOnly ? _index.PvpBySource : _index.BySource).GetValueOrDefault(sourceId) is { } indexed && indexed.EstimatedSum * 2 > indexed.Sum
+                : estimatedById.GetValueOrDefault(sourceId) * 2 > row.Damage;
             // PVP mode's rate must come from the SAME PVP-only event set row.Damage above was
             // just summed from, not the unfiltered full history - same reasoning as the
             // Mob/Boss-filtered iDPS case below (see BuildEncounterUpload's own remarks on the
@@ -1587,6 +1595,7 @@ public partial class MainWindow : Window
 
             ApplyIdentity(row, sourceId);
             var mine = heals.Where(ev => ev.SourceObjectId == sourceId).ToList();
+            row.IsEstimated = false;
             row.Damage = mine.Sum(ev => ev.Amount);
             double seconds = spanSeconds ?? (mine.Max(ev => ev.Timestamp) - mine.Min(ev => ev.Timestamp)).TotalSeconds;
             row.Dps = seconds > 0 ? row.Damage / seconds : null;
@@ -1663,6 +1672,7 @@ public partial class MainWindow : Window
 
             ApplyIdentity(row, targetId);
             var mine = hits.Where(ev => ev.TargetObjectId == targetId).ToList();
+            row.IsEstimated = false;
             row.Damage = mine.Sum(ev => ev.Amount);
             row.Absorbed = absorbs.Where(ev => ev.TargetObjectId == targetId).Sum(ev => ev.Amount);
             double seconds = spanSeconds ?? (mine.Max(ev => ev.Timestamp) - mine.Min(ev => ev.Timestamp)).TotalSeconds;
@@ -2472,6 +2482,9 @@ public partial class MainWindow : Window
             : participants.Select(p => absorbed.TryGetValue(p.Name, out long amount) ? p with { DamageAbsorbed = amount } : p).ToList();
     }
 
+    /// <summary>The backend's ceiling for the players of one upload (uploadSchema.ts).</summary>
+    private const int MaxUploadParticipants = 300;
+
     private EncounterUploadRequest? BuildEncounterUpload(
         int targetId, string serverFingerprint, string? serverName,
         IReadOnlyList<DamageEvent> targetHits, DateTime windowStart, DateTime windowEnd)
@@ -2503,7 +2516,53 @@ public partial class MainWindow : Window
         string? ownName = aion2Directory?.LocalCharacter?.Name;
         // Profile and legion of the OTHER players only go along when the player agreed to it.
         bool shareOthers = MeterSettings.Load().UploadOtherPlayersProfiles;
-        foreach (PlayerRow row in _rows)
+
+        // One pass over the events instead of one per player: a world boss has a thousand of them, and each rescan of the
+        // whole history per row made building the upload take minutes.
+        var hitsBySource = targetHits.Where(e => !e.IsHeal).GroupBy(e => e.SourceObjectId).ToDictionary(g => g.Key, g => g.ToList());
+        var healsBySource = new Dictionary<int, List<DamageEvent>>();
+        var takenByTarget = new Dictionary<int, long>();
+        foreach (DamageEvent e in _aggregator.Events)
+        {
+            if (e.Timestamp < windowStart || e.Timestamp > windowEnd)
+            {
+                continue;
+            }
+
+            if (e.IsHeal)
+            {
+                if (!healsBySource.TryGetValue(e.SourceObjectId, out List<DamageEvent>? heals))
+                {
+                    healsBySource[e.SourceObjectId] = heals = new List<DamageEvent>();
+                }
+
+                heals.Add(e);
+            }
+            else if (e.SourceObjectId == targetId)
+            {
+                takenByTarget[e.TargetObjectId] = takenByTarget.GetValueOrDefault(e.TargetObjectId) + e.Amount;
+            }
+        }
+
+        var buffsByRecipient = _buffCasts
+            .Where(b => b.Timestamp >= windowStart - BuffPrePullGrace && b.Timestamp <= windowEnd)
+            .GroupBy(b => b.RecipientId).ToDictionary(g => g.Key, g => g.ToList());
+        var emptyEvents = new List<DamageEvent>();
+        var targetSpan = targetHits.Where(e => !e.IsHeal).ToList();
+        double fightSeconds = targetSpan.Count == 0 ? 0 : (targetSpan.Max(e => e.Timestamp) - targetSpan.Min(e => e.Timestamp)).TotalSeconds;
+
+        // More players than the upload takes (a world boss): the biggest by damage and the own character are worked out in full, nobody else.
+        IEnumerable<PlayerRow> uploadRows = _rows;
+        if (_rows.Count > MaxUploadParticipants)
+        {
+            uploadRows = _rows.Where(r => _source?.Entities.IsLocalPlayer(r.ObjectId) == true || (ownName is not null && r.Name == ownName))
+                .Concat(_rows.Where(r => !(_source?.Entities.IsLocalPlayer(r.ObjectId) == true || (ownName is not null && r.Name == ownName)))
+                    .OrderByDescending(r => hitsBySource.TryGetValue(r.ObjectId, out List<DamageEvent>? h) ? h.Sum(e => e.Amount) : 0)
+                    .Take(MaxUploadParticipants))
+                .ToList();
+        }
+
+        foreach (PlayerRow row in uploadRows)
         {
             if (aion2Directory is not null
                 && (row.Name.StartsWith("Player #", StringComparison.Ordinal)
@@ -2513,14 +2572,11 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            var hitsOnBoss = targetHits.Where(e => e.SourceObjectId == row.ObjectId).ToList();
+            List<DamageEvent> hitsOnBoss = hitsBySource.GetValueOrDefault(row.ObjectId) ?? emptyEvents;
             // Per the user: heals must be uploaded alongside damage - a pure healer who never hit
             // the boss would otherwise be silently dropped from the roster entirely, so a row
             // survives on EITHER contribution, not damage alone.
-            var healsBySelf = _aggregator.Events
-                .Where(e => e.IsHeal && e.SourceObjectId == row.ObjectId
-                    && e.Timestamp >= windowStart && e.Timestamp <= windowEnd)
-                .ToList();
+            List<DamageEvent> healsBySelf = healsBySource.GetValueOrDefault(row.ObjectId) ?? emptyEvents;
             // Per the user: a group member (row.IsEnemy false - see ApplySide/FactionResolver)
             // must always appear in the roster, even at 0, not just when they happen to land a
             // hit or heal inside this exact fight's tight damage-derived time window - found from
@@ -2540,8 +2596,7 @@ public partial class MainWindow : Window
             // boss; the own character always does.
             if (aion2Directory is not null && hitsOnBoss.Count == 0 && healsBySelf.Count == 0
                 && !(ownName is not null && row.Name == ownName)
-                && !_aggregator.Events.Any(e => !e.IsHeal && e.SourceObjectId == targetId && e.TargetObjectId == row.ObjectId
-                    && e.Timestamp >= windowStart && e.Timestamp <= windowEnd))
+                && !takenByTarget.ContainsKey(row.ObjectId))
             {
                 continue;
             }
@@ -2552,9 +2607,11 @@ public partial class MainWindow : Window
             // widen a clustered upload's iDPS window back out to the target id's entire history -
             // targetHits is already scoped to exactly this fight (see the two BuildEncounterUpload
             // overloads above).
-            double idps = DpsCalculator.TargetIDps(targetHits, targetId, row.ObjectId) ?? 0;
+            double idps = fightSeconds > 0 && hitsOnBoss.Count > 0 ? hitsOnBoss.Sum(e => e.Amount) / fightSeconds : 0; // as DpsCalculator.TargetIDps, with the fight's length worked out once
+            // Most of the damage is a guess (a crowded world boss, see DamageEvent.Estimated): the row says so, and its crit hits are not known.
+            bool estimated = hitsOnBoss.Count > 0 && hitsOnBoss.Count(e => e.Estimated) * 2 > hitsOnBoss.Count;
             var skills = SkillBreakdown.For(hitsOnBoss)
-                .Select(s => new SkillUsageUpload(s.Skill, s.Hits, s.CritHits, s.Total, s.Min, s.Max))
+                .Select(s => new SkillUsageUpload(s.Skill, s.Hits, estimated ? 0 : s.CritHits, s.Total, s.Min, s.Max))
                 .ToList();
             var healSkills = SkillBreakdown.For(healsBySelf, heals: true)
                 .Select(s => new SkillUsageUpload(s.Skill, s.Hits, s.CritHits, s.Total, s.Min, s.Max))
@@ -2575,10 +2632,7 @@ public partial class MainWindow : Window
             // same window - answers "who ate the boss's damage" (aggro/tank checks), which
             // totalDamage (dealt TO the boss) cannot. Windowed the same way healsBySelf is, not
             // targetHits-derived, since the boss is the SOURCE here, not the target.
-            long damageTaken = _aggregator.Events
-                .Where(e => !e.IsHeal && e.SourceObjectId == targetId && e.TargetObjectId == row.ObjectId
-                    && e.Timestamp >= windowStart && e.Timestamp <= windowEnd)
-                .Sum(e => e.Amount);
+            long damageTaken = takenByTarget.GetValueOrDefault(row.ObjectId);
 
             // Real reinforcements this row RECEIVED during the fight -
             // capped and ranked by count, same "top N" shape SkillBreakdown already uses for
@@ -2597,9 +2651,7 @@ public partial class MainWindow : Window
             // RunHeadlessClusteredUploadAsync's own remarks), so a buff from a genuinely separate,
             // much earlier kill must not bleed into this one - 30s is generous enough for any real
             // pre-pull buff sequence without reaching back that far.
-            var buffs = _buffCasts
-                .Where(b => b.RecipientId == row.ObjectId
-                    && b.Timestamp >= windowStart - BuffPrePullGrace && b.Timestamp <= windowEnd)
+            var buffs = (buffsByRecipient.GetValueOrDefault(row.ObjectId) ?? new())
                 .GroupBy(b => b.Skill)
                 .Select(g => new BuffUsageUpload(g.Key, g.Count()))
                 .OrderByDescending(b => b.Casts)
@@ -2611,7 +2663,15 @@ public partial class MainWindow : Window
                 totalDamage, idps, idps, totalHealing, hps, skills, healSkills, damageTaken, buffs,
                 shareOthers || isSelf ? aion2Directory?.GuildOf(ProfileIdOf(row), row.Name) : null,
                 shareOthers || isSelf ? BuildProfileUpload(ProfileIdOf(row)) : null,
-                ServerId: aion2Directory?.ServerIdOf(ProfileIdOf(row))));
+                ServerId: aion2Directory?.ServerIdOf(ProfileIdOf(row)),
+                Estimated: estimated));
+        }
+
+        // The backend takes at most 300 players (a world boss has the whole map on it): the biggest by damage, the own character always.
+        if (participants.Count > MaxUploadParticipants)
+        {
+            participants = participants.Where(p => p.IsSelf).Concat(participants.Where(p => !p.IsSelf).OrderByDescending(p => p.TotalDamage))
+                .Take(MaxUploadParticipants).ToList();
         }
 
         participants = AttachAbsorbed(participants, targetId, windowStart, windowEnd);
@@ -3055,6 +3115,13 @@ public partial class MainWindow : Window
         if (!BossDied(directory, hitPoints, targetId, latest))
         {
             return $"the boss was not seen dying (last reading {latest.Hp} of {maxHp})";
+        }
+
+        if (targetHits.Any(e => e.Estimated))
+        {
+            // A crowded world boss: the damage of the others is estimated and cannot prove the kill by its sum (the server sends only the hits' notices).
+            // The boss was seen dying above; the server accepts such an upload on that.
+            return null;
         }
 
         double damage = targetHits.Sum(e => (double)e.Amount);

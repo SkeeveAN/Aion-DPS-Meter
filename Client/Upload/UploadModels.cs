@@ -58,7 +58,10 @@ public sealed record ParticipantUpload(
     // The numeric id of the server this player announced himself with (his own, not the uploader's: a matched world mixes servers).
     int? ServerId = null,
     // Damage the group shields on this player absorbed from the boss, over the same window as DamageTaken.
-    long DamageAbsorbed = 0);
+    long DamageAbsorbed = 0,
+    // The damage figures of this row are estimated (a crowded world boss: the game sends the hits of other players without their damage,
+    // so each hit counts at the average of its skill). Crit hits are then 0, not measured.
+    bool Estimated = false);
 
 public sealed record ShieldGivenUpload(string PlayerName, long Amount);
 

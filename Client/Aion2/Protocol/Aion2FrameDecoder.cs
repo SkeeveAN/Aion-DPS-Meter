@@ -119,6 +119,31 @@ public sealed class Aion2FrameDecoder
     /// <summary>A skill that has been cast: the same aim block, no duration. Players' skills too.</summary>
     private const int CastOpcode = 0x0238;
 
+    /// <summary>A hit that lands: <c>opcode | attacker (varint) | 00 | target (varint) | skill id u32 | position ...</c>, about 0.3 s before the
+    /// damage frame (0x0438) of the same hit, which holds the amount. In a fight of a few players both arrive for every hit (one notice per
+    /// damaging frame: 4,331 against 4,306 in a recording of a Urugugu run). On a crowded world boss the server sends the notices of everybody around and
+    /// the damage frames of the own group only (Lagta, 2026-10-13: 12,536 notices of 1,004 players in 18 s, damage frames of 2 players). The notice holds no amount;
+    /// see <see cref="Aion2HitAverages"/>.</summary>
+    private const int HitNoticeOpcode = 0x0338;
+
+    /// <summary>How long a notice waits for its damage frame before it counts as one without (the frame follows after about 0.3 s).</summary>
+    private static readonly TimeSpan NoticeHold = TimeSpan.FromMilliseconds(1500);
+
+    private readonly Dictionary<(int Actor, int Target, int Skill), Queue<DateTime>> _notices = new();
+    private readonly Queue<(DateTime At, (int Actor, int Target, int Skill) Key, long Lost)> _noticeOrder = new();
+
+    // The estimate is scaled to what the boss really lost (see EstimateScale): per world boss, the damage the game reported in full, the
+    // estimates at their table value, and how many of them there were.
+    private readonly HashSet<int> _estimatedTargets = new();
+    private readonly Dictionary<int, long> _exactOnTarget = new();
+    private readonly Dictionary<int, (long Raw, int Hits)> _rawEstimate = new();
+
+    /// <summary>Estimated hits needed on a boss before its hit points can say how far the table is off (fewer, and the figure is the table's).</summary>
+    private const int CalibrationHits = 300;
+
+    /// <summary>The bounds of the scale: the table cannot be off by less than nothing, and a wild reading must not blow one hit up.</summary>
+    private const double MinScale = 1.0, MaxScale = 40.0;
+
     private const int BuffOnOpcode = 0x2a38;
     private const int BuffRenewedOpcode = 0x2b38;
     private const int BuffEndOpcode = 0x2c38;
@@ -182,7 +207,149 @@ public sealed class Aion2FrameDecoder
     public int Bundles { get; private set; }
     public int BundleFailures { get; private set; }
 
-    public IEnumerable<DamageEvent> Decode(ReadOnlySpan<byte> frame, DateTime timestamp) => DecodeFrame(frame, timestamp, nested: false);
+    public IEnumerable<DamageEvent> Decode(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        IEnumerable<DamageEvent> events = DecodeFrame(frame, timestamp, nested: false);
+        if (_estimatedTargets.Count > 0)
+        {
+            foreach (DamageEvent e in events)
+            {
+                if (!e.IsHeal && _estimatedTargets.Contains(e.TargetObjectId))
+                {
+                    _exactOnTarget[e.TargetObjectId] = _exactOnTarget.GetValueOrDefault(e.TargetObjectId) + e.Amount;
+                }
+            }
+        }
+
+        if (_noticeOrder.Count == 0 || _noticeOrder.Peek().At > timestamp - NoticeHold)
+        {
+            return events;
+        }
+
+        // The frames came before the notices that waited longest were expired: their hits have no damage frame, they are estimated.
+        List<DamageEvent> estimated = ExpireNotices(timestamp);
+        return estimated.Count == 0 ? events : events.Concat(estimated).ToList();
+    }
+
+    /// <summary>The notices older than <see cref="NoticeHold"/> that no damage frame took: hits whose amount the server did not send.</summary>
+    private List<DamageEvent> ExpireNotices(DateTime now)
+    {
+        var estimated = new List<DamageEvent>();
+        DateTime cutoff = now - NoticeHold;
+        while (_noticeOrder.Count > 0 && _noticeOrder.Peek().At <= cutoff)
+        {
+            (DateTime at, (int Actor, int Target, int Skill) key, long lost) = _noticeOrder.Dequeue();
+            if (!_notices.TryGetValue(key, out Queue<DateTime>? queue) || queue.Count == 0)
+            {
+                continue; // a damage frame took this one
+            }
+
+            queue.Dequeue();
+            if (queue.Count == 0)
+            {
+                _notices.Remove(key);
+            }
+
+            if (EstimateHit(at, key.Actor, key.Target, key.Skill, lost) is { } hit)
+            {
+                estimated.Add(hit);
+            }
+        }
+
+        return estimated;
+    }
+
+    /// <summary>The estimated hit of a notice that got no damage frame: only a player's damage skill on a world boss, at the skill's average hit.</summary>
+    private DamageEvent? EstimateHit(DateTime at, int actor, int target, int skillId, long lostWhenNoticed)
+    {
+        if (_entities.BossNpcIdOf(target) is not int npc || !Aion2HitAverages.IsEstimatedBoss(npc)
+            || _entities.IsSpawned(actor) || _entities.IsKnownPlayer(target)
+            || Aion2SkillNames.IsNonDamageEffect(skillId) || Aion2SkillNames.IsHealFamily(skillId)
+            || Aion2HitAverages.AverageOf(skillId) is not long average)
+        {
+            return null;
+        }
+
+        int source = _entities.SummonOwnerOf(actor) ?? actor;
+        if (Aion2SkillNames.ClassOf(skillId) is string className)
+        {
+            _entities.NoteClass(source, className);
+        }
+
+        (long raw, int hits) = _rawEstimate.GetValueOrDefault(target);
+        _rawEstimate[target] = (raw + average, hits + 1);
+        long amount = Math.Max(1, (long)Math.Round(average * EstimateScale(target, lostWhenNoticed)));
+        return new DamageEvent(at, source, target, amount, false, Aion2SkillNames.NameOf(skillId), false, SkillId: skillId, Estimated: true);
+    }
+
+    /// <summary>
+    /// How much the table's average hits have to be scaled up on this boss. The server sends the hit notices of only part of the crowd's hits
+    /// and the table's skills hit a little softer than the players there, so the estimates alone fall short of what the boss lost (Lagta,
+    /// 2026-10-13: 1,266 players, about 11 % of its 275 M hit points; the own 46 exact hits, 215 k, were an average player's share of it).
+    /// With the boss's hit points known the shortfall is measured: the hit points lost, less the damage the game did report, over the estimates at
+    /// table value. Every estimate is scaled the same, so the players keep their order and the sum is the boss's real loss.
+    /// Before <see cref="CalibrationHits"/> estimates there is no measure and the scale is 1. <paramref name="lost"/> is what the boss had lost
+    /// when the hit's notice came, not when it was settled 1.5 s later - else the scale runs ahead of the estimates and overshoots.
+    /// </summary>
+    private double EstimateScale(int target, long lost)
+    {
+        (long raw, int hits) = _rawEstimate.GetValueOrDefault(target);
+        if (hits < CalibrationHits || raw <= 0)
+        {
+            return 1.0;
+        }
+
+        long unexplained = lost - _exactOnTarget.GetValueOrDefault(target);
+        return unexplained <= 0 ? 1.0 : Math.Clamp((double)unexplained / raw, MinScale, MaxScale);
+    }
+
+    /// <summary>A hit notice: waits for the damage frame of the same hit (see <see cref="HitNoticeOpcode"/>).</summary>
+    private void DecodeHitNotice(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long actor) || p >= frame.Length)
+        {
+            return;
+        }
+
+        p++; // the byte between attacker and target
+        if (!TryReadVarint(frame, ref p, out long target) || frame.Length < p + 4)
+        {
+            return;
+        }
+
+        // Only a hit on a world boss can come to count; everything else leaves the notice out of the queue.
+        if (_entities.BossNpcIdOf(unchecked((int)target)) is not int npc || !Aion2HitAverages.IsEstimatedBoss(npc))
+        {
+            return;
+        }
+
+        _estimatedTargets.Add(unchecked((int)target));
+        var key = (unchecked((int)actor), unchecked((int)target), unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..])));
+        if (!_notices.TryGetValue(key, out Queue<DateTime>? queue))
+        {
+            _notices[key] = queue = new Queue<DateTime>();
+        }
+
+        queue.Enqueue(timestamp);
+        Aion2HitPoints points = _entities.HitPoints;
+        long lost = points.HighestSeen(key.Item2) is (> 0 and long max) && points.Latest(key.Item2) is { } latest ? max - latest.Hp : 0;
+        _noticeOrder.Enqueue((timestamp, key, lost));
+    }
+
+    /// <summary>The damage frame of a hit arrived: its notice is not an estimate any more.</summary>
+    private void TakeNotice(int actor, int target, int skillId)
+    {
+        var key = (actor, target, skillId);
+        if (_notices.TryGetValue(key, out Queue<DateTime>? queue) && queue.Count > 0)
+        {
+            queue.Dequeue();
+            if (queue.Count == 0)
+            {
+                _notices.Remove(key);
+            }
+        }
+    }
 
     private IEnumerable<DamageEvent> DecodeFrame(ReadOnlySpan<byte> frame, DateTime timestamp, bool nested)
     {
@@ -261,6 +428,9 @@ public sealed class Aion2FrameDecoder
                 return Array.Empty<DamageEvent>();
             case CastOpcode:
                 DecodeCastNotice(frame, timestamp);
+                return Array.Empty<DamageEvent>();
+            case HitNoticeOpcode:
+                DecodeHitNotice(frame, timestamp);
                 return Array.Empty<DamageEvent>();
             case BuffOnOpcode:
             case BuffRenewedOpcode:
@@ -859,6 +1029,7 @@ public sealed class Aion2FrameDecoder
 
         int skillId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
         p += 4;
+        TakeNotice((int)actor, (int)target, skillId);
         NoteCast((int)actor, skillId, timestamp);
         if (Aion2SkillNames.IsNonDamageEffect(skillId))
         {
@@ -1200,6 +1371,21 @@ public sealed class Aion2FrameDecoder
         }
 
         _entities.Combat.NoteBuff(new BuffNotice(timestamp, (int)target, (int)instance, (int)Math.Min(effect, int.MaxValue), (int)(effect / 10), stays != 0 ? -1 : (int)Math.Min(duration, 86_400_000u), (int)caster), renewed);
+
+        // The last 12 bytes are the caster's own place (206,692 effect frames of a recording all end in a plausible x, y, z; where the
+        // local player cast, it equals the position frame's to the centimetre), so every effect the local player puts on or renews is a free, exact position report -
+        // about 130 in two minutes of fighting, against 6 of the real position frames.
+        if (frame.Length - 12 > p && _entities.IsLocalPlayer((int)caster))
+        {
+            float x = BinaryPrimitives.ReadSingleLittleEndian(frame[^12..]);
+            float y = BinaryPrimitives.ReadSingleLittleEndian(frame[^8..]);
+            float z = BinaryPrimitives.ReadSingleLittleEndian(frame[^4..]);
+            if (float.IsFinite(x) && float.IsFinite(y) && float.IsFinite(z) && Math.Abs(x) is > 100 and < 500_000 && Math.Abs(y) is > 100 and < 500_000 && Math.Abs(z) < 50_000)
+            {
+                _entities.NoteLocalPosition(x, y);
+                _entities.Combat.NotePosition(timestamp, (int)caster, x, y);
+            }
+        }
     }
 
     /// <summary>Effects that ended: target (varint) | count (1) | per effect: type (1; 0 or 7) | instance (varint) | reason (1) | for type 7: by (varint), skill (u32), 4 bytes.</summary>

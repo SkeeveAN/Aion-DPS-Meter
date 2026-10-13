@@ -16,12 +16,19 @@ public sealed class DamageIndex
     public sealed class Stats
     {
         public long Sum;
+        /// <summary>The part of <see cref="Sum"/> that is estimated (see <see cref="DamageEvent.Estimated"/>).</summary>
+        public long EstimatedSum;
         public DateTime First = DateTime.MaxValue;
         public DateTime Last = DateTime.MinValue;
 
         internal void Add(DamageEvent ev)
         {
             Sum += ev.Amount;
+            if (ev.Estimated)
+            {
+                EstimatedSum += ev.Amount;
+            }
+
             if (ev.Timestamp < First)
             {
                 First = ev.Timestamp;

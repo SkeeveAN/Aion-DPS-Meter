@@ -81,8 +81,30 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public long Damage
     {
         get => _damage;
-        set { _damage = value; OnPropertyChanged(); OnPropertyChanged(nameof(DamageCompact)); OnPropertyChanged(nameof(RateOrDamageCompact)); OnPropertyChanged(nameof(TotalOrTakenCompact)); }
+        set { _damage = value; OnPropertyChanged(); OnPropertyChanged(nameof(DamageDisplay)); OnPropertyChanged(nameof(DamageCompact)); OnPropertyChanged(nameof(RateOrDamageCompact)); OnPropertyChanged(nameof(TotalOrTakenCompact)); }
     }
+
+    private bool _isEstimated;
+
+    /// <summary>Most of this player's damage is estimated, not read from the game (a crowded world boss: the server sends other players' hits without
+    /// their damage, so the meter counts each hit at the average of its skill). Shown with a "~" before the figure.</summary>
+    public bool IsEstimated
+    {
+        get => _isEstimated;
+        set
+        {
+            if (_isEstimated != value)
+            {
+                _isEstimated = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(DamageDisplay));
+                OnPropertyChanged(nameof(DamageCompact));
+            }
+        }
+    }
+
+    /// <summary>The damage with its thousands separators; "~" before it while it is an estimate.</summary>
+    public string DamageDisplay => (IsEstimated ? "~" : "") + Damage.ToString("N0", System.Globalization.CultureInfo.CurrentCulture);
 
     /// <summary>Null renders as "n/a" in the grid -- see DpsCalculator's remarks on why a single
     /// hit (or otherwise zero elapsed time) must not show a fabricated rate.</summary>
@@ -93,7 +115,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     }
 
     /// <summary>Damage and rate in thousands/millions, for the compact overlay's dense lines.</summary>
-    public string DamageCompact => Compact(Damage);
+    public string DamageCompact => (IsEstimated ? "~" : "") + Compact(Damage);
 
     public string DpsCompact => Dps is double d ? Compact((long)Math.Round(d)) : "-";
 

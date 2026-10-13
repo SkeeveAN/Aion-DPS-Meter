@@ -259,6 +259,20 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-skill-averages")
+        {
+            if (args.Length < 3)
+            {
+                Console.WriteLine("Usage: AionDPS aion2-skill-averages <out.json> <recording.jsonl> [more recordings...] [--port N]");
+                Console.WriteLine("  Replays the recordings and writes the average hit of every skill (players' hits on monsters) to the table");
+                Console.WriteLine("  the world boss estimate reads: assets/aion2/protocol/skill_hit_average.json. No game, no network, no window.");
+                return;
+            }
+
+            RunAion2SkillAverages(args);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-replay")
         {
             if (args.Length < 2)
@@ -1608,6 +1622,115 @@ internal static class Program
         }
     }
 
+    /// <summary>Average hit per skill out of recordings, for <see cref="Aion2.Protocol.Aion2HitAverages"/>. Only exact hits of players on
+    /// monsters count (no ticks, no heals, no estimates); the biggest 1 % of each skill are left out as outliers (a placeholder or a stacked burst).</summary>
+    private static void RunAion2SkillAverages(string[] args)
+    {
+        string output = args[1];
+        int port = 13328;
+        var files = new List<string>();
+        for (int i = 2; i < args.Length; i++)
+        {
+            if (args[i] == "--port" && i + 1 < args.Length)
+            {
+                port = int.Parse(args[++i]);
+            }
+            else
+            {
+                files.Add(args[i]);
+            }
+        }
+
+        var protocol = Aion2.Protocol.Aion2Protocol.Load();
+        var bySkill = new Dictionary<int, List<long>>();
+        foreach (string path in files)
+        {
+            using var source = new Aion2.Aion2PacketCombatSource(protocol);
+            var directory = (Aion2.Aion2EntityDirectory)source.Entities;
+            var hits = new List<(int Source, int Target, int Skill, long Amount)>();
+            try
+            {
+                foreach (Aion2.Capture.TcpSegment segment in Aion2.Capture.SegmentRecording.Read(path))
+                {
+                    bool fromServer = segment.Source.EndsWith(":" + port, StringComparison.Ordinal);
+                    if (!fromServer && !segment.Destination.EndsWith(":" + port, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    source.Ingest(segment with { FromServer = fromServer });
+                    foreach (Combat.DamageEvent e in source.Poll(false).Damage)
+                    {
+                        if (!e.IsHeal && !e.IsTick && !e.Estimated && e.SkillId > 0)
+                        {
+                            hits.Add((e.SourceObjectId, e.TargetObjectId, e.SkillId, e.Amount));
+                        }
+                    }
+                }
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                // a recording still being written ends in half a line: what was read before it counts
+            }
+
+            // Judged at the end of the recording, when the directory knows who is a monster and who a player.
+            int kept = 0;
+            foreach (var hit in hits)
+            {
+                if (directory.NpcIdOf(hit.Target) is null || directory.NpcIdOf(hit.Source) is not null || directory.IsKnownPlayer(hit.Target))
+                {
+                    continue;
+                }
+
+                if (!bySkill.TryGetValue(hit.Skill, out List<long>? list))
+                {
+                    bySkill[hit.Skill] = list = new List<long>();
+                }
+
+                list.Add(hit.Amount);
+                kept++;
+            }
+
+            Console.WriteLine($"aion2-skill-averages: {Path.GetFileName(path)}: {hits.Count} hit(s), {kept} on monsters");
+        }
+
+        static (long Average, int Samples) Summarize(List<long> amounts)
+        {
+            amounts.Sort();
+            int keep = amounts.Count >= 100 ? amounts.Count - amounts.Count / 100 : amounts.Count;
+            return ((long)Math.Round(amounts.Take(keep).Average()), amounts.Count);
+        }
+
+        var skills = bySkill.OrderBy(kv => kv.Key).ToDictionary(kv => kv.Key, kv => Summarize(kv.Value));
+        var families = bySkill.GroupBy(kv => kv.Key / 10).OrderBy(g => g.Key)
+            .ToDictionary(g => g.Key, g => Summarize(g.SelectMany(kv => kv.Value).ToList()));
+        using (var stream = File.Create(output))
+        using (var writer = new System.Text.Json.Utf8JsonWriter(stream, new System.Text.Json.JsonWriterOptions { Indented = true }))
+        {
+            writer.WriteStartObject();
+            writer.WriteString("generated", DateTime.UtcNow.ToString("yyyy-MM-dd"));
+            writer.WriteString("note", "Average hit of a skill (players' exact hits on monsters, top 1 percent left out) from recordings; read by Aion2HitAverages for the world boss estimate. Made by: AionDPS aion2-skill-averages.");
+            writer.WriteNumber("recordings", files.Count);
+            foreach ((string name, Dictionary<int, (long Average, int Samples)> table) in new[] { ("skills", skills), ("families", families) })
+            {
+                writer.WriteStartObject(name);
+                foreach (var (id, row) in table.Where(kv => kv.Value.Samples >= 3))
+                {
+                    writer.WriteStartObject(id.ToString());
+                    writer.WriteNumber("avg", row.Average);
+                    writer.WriteNumber("n", row.Samples);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndObject();
+        }
+
+        Console.WriteLine($"aion2-skill-averages: {skills.Count} skill(s), {skills.Count(kv => kv.Value.Samples >= Aion2.Protocol.Aion2HitAverages.MinSamples)} with {Aion2.Protocol.Aion2HitAverages.MinSamples}+ hits, written to {output}");
+    }
+
     private static void RunAion2ReplayMode(string path, int serverPort, string? ownName)
     {
         var protocol = Aion2.Protocol.Aion2Protocol.Load();
@@ -1755,6 +1878,10 @@ internal static class Program
         }
 
         Console.WriteLine($"aion2-replay: {segments} segment(s) on port {serverPort}, {events.Count} damage/heal event(s), calibrated={protocol.IsCalibrated}");
+        if (events.Any(e => e.Estimated))
+        {
+            Console.WriteLine($"aion2-replay: {events.Count(e => e.Estimated)} of them estimated from hit notices ({events.Where(e => e.Estimated).Sum(e => e.Amount):N0} damage, {events.Where(e => e.Estimated).Select(e => e.SourceObjectId).Distinct().Count()} player(s)): world boss, the server sent no amounts");
+        }
         foreach (var bossMap in Aion2.Aion2FieldBosses.Maps.Where(m => m.Id != 0))
         {
             var now = DateTime.Now;
