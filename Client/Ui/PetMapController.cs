@@ -247,7 +247,7 @@ public sealed class PetMapController : IDisposable
         {
             _pointsKey = key;
             _points = _current is null ? new() : Aion2Maps.PointsOf(_current, chosen).ToList();
-            _gatherStatic = _current is null ? new() : Aion2Gather.NamedPointsOf(_current, gatherKinds).Where(g => g.Item.Kind != "Cube").ToList();
+            _gatherStatic = _current is null ? new() : Aion2Gather.NamedPointsOf(_current, gatherKinds).ToList();
         }
 
         ShowLiveGather(gatherKinds, known, tx, ty);
@@ -354,7 +354,7 @@ public sealed class PetMapController : IDisposable
 
     /// <summary>
     /// What the map shows of the collectibles: the fixed places of the map files, except those in the player's range where the game announces nothing
-    /// (gathered or not there yet), plus what the game announces - which also covers the places the map files do not hold (Od, the Hidden Cubes).
+    /// (gathered or not there yet; for the Hidden Cubes: the candidate places far away, only the real cube near), plus what the game announces - which also covers the places the map files do not hold (Od, the Hidden Cubes).
     /// </summary>
     private void ShowLiveGather(ISet<string> keys, bool known, float px, float py)
     {
