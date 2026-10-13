@@ -987,7 +987,12 @@ internal static class Program
                     new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.AllAround"], false, true, true, 400, 1900, null, null),
                 },
                 new Ui.TargetOfTargetData("Seuche", bossName, Aion2.Protocol.Aion2Artwork.ClassEmblemPath("Cleric"), false, 12480, 20563,
-                    new[] { new Ui.EffectData("Poison", null, "12", true), new Ui.EffectData("Slow", null, "5", true), new Ui.EffectData("Bleed", null, "9", true) }));
+                    new[]
+                    {
+                        new Ui.EffectData("Murderous Burst", Aion2.Protocol.Aion2SkillIcons.PathFor(11800007), "12", true),
+                        new Ui.EffectData("Wave Blow", Aion2.Protocol.Aion2SkillIcons.PathFor(18080038), "5", true),
+                        new Ui.EffectData("Rage Burst", Aion2.Protocol.Aion2SkillIcons.PathFor(11390007), "9", true),
+                    }));
 
         window.Render(frame, settings);
         var content = (System.Windows.UIElement)window.Content;

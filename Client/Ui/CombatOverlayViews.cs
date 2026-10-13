@@ -68,6 +68,7 @@ internal static class OverlayPictures
     public static readonly Brush Text = Brush(0xF2, 0xF5, 0xF8);
     public static readonly Brush Muted = Brush(0x9D, 0xB3, 0xC2);
     public static readonly Brush Amber = Brush(0xFF, 0xBA, 0x42);
+    public static readonly Brush HpRed = Brush(0xC8, 0x32, 0x3C);
     public static readonly Brush Red = Brush(0xFF, 0x5A, 0x5A);
     public static readonly Brush Green = Brush(0x5B, 0xD0, 0x7A);
     public static readonly Brush Track = Brush(0x1B, 0x2A, 0x36, 0xD8);
@@ -265,7 +266,7 @@ public sealed class TargetNameView : Border
 public sealed class HpBarView : Border
 {
     private readonly TextBlock _text = new() { FontSize = 11, Foreground = OverlayPictures.Text, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-    private readonly Border _fill = new() { HorizontalAlignment = HorizontalAlignment.Stretch, RenderTransformOrigin = new Point(0, 0.5), RenderTransform = new ScaleTransform(1, 1), CornerRadius = new CornerRadius(3) };
+    private readonly Border _fill = new() { HorizontalAlignment = HorizontalAlignment.Stretch, RenderTransformOrigin = new Point(0, 0.5), RenderTransform = new ScaleTransform(1, 1), CornerRadius = new CornerRadius(3), Background = OverlayPictures.HpRed };
 
     public HpBarView()
     {
@@ -285,7 +286,6 @@ public sealed class HpBarView : Border
     {
         double fraction = hp is long h && max is long m && m > 0 ? Math.Clamp((double)h / m, 0, 1) : 0;
         ((ScaleTransform)_fill.RenderTransform).ScaleX = fraction;
-        _fill.Background = fraction < 0.3 ? OverlayPictures.Red : fraction < 0.6 ? OverlayPictures.Amber : OverlayPictures.Green;
         _text.Text = hp is long current
             ? max is long total && total > 0 ? $"{current:N0} / {total:N0}  ({fraction * 100:0}%)" : $"{current:N0}"
             : "–";
