@@ -955,7 +955,6 @@ public partial class SettingsWindow : Window
         CombatShowBossCastBox.IsChecked = settings.CombatShowBossCast;
         CombatShowTargetBox.IsChecked = settings.CombatShowTargetOfTarget;
         CombatShowHealerBox.IsChecked = settings.CombatShowHealer;
-        CombatHealerHpBox.IsChecked = settings.CombatHealerHpBar;
         CombatHealerEffectsBox.IsChecked = settings.CombatHealerEffects;
         CombatAllMonstersBox.IsChecked = settings.CombatCastsOfAllMonsters;
         FillChoice(CombatCastFilterCombo, new[] { ("all", loc["Settings.Combat.Filter.All"]), ("area", loc["Settings.Combat.Filter.Area"]), ("you", loc["Settings.Combat.Filter.You"]) }, settings.CombatCastFilter);
@@ -982,7 +981,6 @@ public partial class SettingsWindow : Window
         settings.CombatShowBossCast = CombatShowBossCastBox.IsChecked ?? true;
         settings.CombatShowTargetOfTarget = CombatShowTargetBox.IsChecked ?? true;
         settings.CombatShowHealer = CombatShowHealerBox.IsChecked ?? false;
-        settings.CombatHealerHpBar = CombatHealerHpBox.IsChecked ?? true;
         settings.CombatHealerEffects = CombatHealerEffectsBox.IsChecked ?? true;
         settings.CombatCastsOfAllMonsters = CombatAllMonstersBox.IsChecked ?? false;
         settings.CombatCastFilter = Chosen(CombatCastFilterCombo, "all");

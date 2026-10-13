@@ -1026,7 +1026,7 @@ public partial class MainWindow : Window
             _worldBoss ??= new WorldBossController();
             _network ??= new NetworkOverlayController();
             _dummy ??= new DummyTestController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
-            _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory);
+            _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory, BossHpCheck);
             _menuWatcher ??= new MenuWatcher();
             _streamTimer.Tick += (_, _) => StreamTick();
             _streamTimer.Start();
@@ -1454,6 +1454,37 @@ public partial class MainWindow : Window
 
     /// <summary>A target's heals on itself between two moments - a boss healing itself by the hits it
     /// takes (see Aion2FrameDecoder.DecodeVarintDot), which the HP check has to know about.</summary>
+    /// <summary>The HP check for the boss's latest fight: the damage since the last pause of half a minute, against the hit points it lost.</summary>
+    private HpCheckResult? BossHpCheck(int bossId)
+    {
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory directory)
+        {
+            return null;
+        }
+
+        var run = new List<DamageEvent>();
+        DateTime? earlier = null;
+        foreach (DamageEvent ev in _aggregator.Events.Where(e => !e.IsHeal && e.TargetObjectId == bossId).OrderByDescending(e => e.Timestamp))
+        {
+            if (earlier is DateTime e2 && (e2 - ev.Timestamp).TotalSeconds > 30)
+            {
+                break;
+            }
+
+            run.Add(ev);
+            earlier = ev.Timestamp;
+        }
+
+        if (run.Count == 0)
+        {
+            return null;
+        }
+
+        DateTime start = run.Min(h => h.Timestamp), end = run.Max(h => h.Timestamp);
+        var readings = directory.HitPoints.SamplesAround(bossId, start, end).Select(s => (s.At, s.Hp)).ToList();
+        return readings.Count == 0 ? null : HpCheck.Evaluate(readings, run.Concat(OwnHeals(bossId, start, end)).ToList(), directory.HitPoints.HighestSeen(bossId) ?? 0);
+    }
+
     private IEnumerable<DamageEvent> OwnHeals(int targetId, DateTime start, DateTime end) =>
         _aggregator.Events.Where(ev => ev.IsHeal && ev.SourceObjectId == targetId && ev.TargetObjectId == targetId
             && ev.Timestamp >= start && ev.Timestamp <= end);
@@ -5269,7 +5300,7 @@ public partial class MainWindow : Window
             : summary is null && shownHits.Count > 1 ? (shownHits.Max(h => h.Timestamp) - shownHits.Min(h => h.Timestamp)).ToString(@"m\:ss")
             : "";
         _lastShownHits = shownHits;
-        UpdateOverlayBossHp(shownHits);
+        OverlayHpBlock.Visibility = Visibility.Collapsed; // the boss's health is a window of its own now (CombatOverlayWindow.Part.Hp)
     }
 
     /// <summary>The fought boss's health in the compact overlay, with the HP check's verdict on the

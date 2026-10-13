@@ -218,6 +218,13 @@ public sealed class MeterSettings
     public double? CombatCastOverlayWidth { get; set; }
     public double? CombatCastOverlayHeight { get; set; }
 
+    /// <summary>The target's health bar is a window of its own as well.</summary>
+    public double? CombatHpOverlayLeft { get; set; }
+    public double? CombatHpOverlayTop { get; set; }
+    public double CombatHpOverlayScale { get; set; } = 1.0;
+    public double? CombatHpOverlayWidth { get; set; }
+    public double? CombatHpOverlayHeight { get; set; }
+
     /// <summary>Place, size and scale of each element by its id ("BossCast", "TargetOfTarget", "Healer").</summary>
     public Dictionary<string, CombatElementLayout> CombatElements { get; set; } = new();
 
@@ -226,7 +233,6 @@ public sealed class MeterSettings
 
     /// <summary>The healer's target: its name, hit points and effects. Off until switched on.</summary>
     public bool CombatShowHealer { get; set; }
-    public bool CombatHealerHpBar { get; set; } = true;
     public bool CombatHealerEffects { get; set; } = true;
 
 

@@ -2,11 +2,15 @@ using System.Windows;
 using System.Windows.Controls;
 using AionDPS.Aion2;
 using AionDPS.Aion2.Protocol;
+using AionDPS.Combat;
 
 namespace AionDPS.Ui;
 
 /// <summary>What the combat overlay shows at one moment: the casts (soonest first) and the target of the target. Each is null/empty when there is nothing to show.</summary>
-public sealed record CombatFrame(IReadOnlyList<CastRowData> Casts, TargetOfTargetData? TargetOfTarget);
+public sealed record CombatFrame(IReadOnlyList<CastRowData> Casts, TargetOfTargetData? TargetOfTarget, BossHpData? Boss = null);
+
+/// <summary>The fought boss's health: what it has now and the most it was seen with.</summary>
+public sealed record BossHpData(long Hp, long Max, int Id = 0, string Check = "");
 
 /// <summary>Works out the combat overlay's frame from what the packet stream said (see <see cref="Aion2CombatState"/>); no windows, so a test can run it.</summary>
 public static class CombatOverlayData
@@ -24,7 +28,32 @@ public static class CombatOverlayData
     {
         IReadOnlyList<CastRowData> casts = settings.CombatShowBossCast ? Casts(dir, settings, now, language) : Array.Empty<CastRowData>();
         TargetOfTargetData? tot = settings.CombatShowTargetOfTarget ? TargetOfTarget(dir, settings, now, language) : null;
-        return new CombatFrame(casts, tot);
+        return new CombatFrame(casts, tot, settings.ShowBossHp ? BossHp(dir, now) : null);
+    }
+
+    /// <summary>The boss being fought: the own target when it is a boss, else the one that cast most recently.</summary>
+    public static BossHpData? BossHp(Aion2EntityDirectory dir, DateTime now)
+    {
+        int? boss = dir.LocalTarget is { } clicked && !dir.IsKnownPlayer(clicked.EntityId) && IsBoss(dir, clicked.EntityId) ? clicked.EntityId : null;
+        if (boss is null)
+        {
+            foreach (CastView view in dir.Combat.Casts(now, Grace).OrderByDescending(v => v.Notice.Start))
+            {
+                if (!dir.IsKnownPlayer(view.Notice.Actor) && IsBoss(dir, view.Notice.Actor))
+                {
+                    boss = view.Notice.Actor;
+                    break;
+                }
+            }
+        }
+
+        if (boss is not int id || dir.HitPoints.Latest(id)?.Hp is not long hp)
+        {
+            return null;
+        }
+
+        long max = Math.Max(dir.HitPoints.MaxOf(id) ?? 0, dir.HitPoints.HighestSeen(id) ?? 0);
+        return max > 0 ? new BossHpData(Math.Min(hp, max), max, id) : null;
     }
 
     private static bool IsBoss(Aion2EntityDirectory dir, int entity) =>
@@ -149,8 +178,8 @@ public static class CombatOverlayData
 /// </summary>
 public sealed class CombatOverlayWindow : MovableOverlay
 {
-    /// <summary>The overlay is two windows, each placed and scaled on its own: the boss cast bar, and the target of the target.</summary>
-    public enum Part { Cast, Target }
+    /// <summary>The overlay is three windows, each placed and scaled on its own: the boss cast bar, the target of the target (picture, name, effects) and its health bar.</summary>
+    public enum Part { Cast, Target, Hp }
 
     public const string BossCastId = "BossCast",
         TargetBlockId = "TargetBlock", TargetIconId = "TargetIcon", TargetNameId = "TargetName", TargetHpId = "TargetHp", TargetEffectsId = "TargetEffects";
@@ -162,8 +191,6 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private readonly Part _part;
     private readonly CombatStage _stage;
-    /// <summary>The floor inside the target-of-the-target block: its four parts are placed on it, and only inside the block.</summary>
-    private readonly CombatStage _blockStage = new() { FillAvailable = true };
     private readonly BossCastView _bossCast = new();
     private readonly TargetIconView _targetIcon = new();
     private readonly TargetNameView _targetName = new();
@@ -172,8 +199,8 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private readonly Dictionary<string, CombatElementHost> _hosts = new();
     private bool _editing;
 
-    public CombatOverlayWindow(Part part) : base(part == Part.Cast ? "Aion DPS Boss Cast" : "Aion DPS Combat", NewStage(), () => Load(part), (l, t, sc) => Save(part, l, t, sc),
-        SystemParameters.WorkArea.Left + 40, part == Part.Cast ? 200 : 360, () => LoadSize(part), (w, h) => SaveSize(part, w, h))
+    public CombatOverlayWindow(Part part) : base(part switch { Part.Cast => "Aion DPS Boss Cast", Part.Hp => "Aion DPS Target Health", _ => "Aion DPS Combat" }, NewStage(), () => Load(part), (l, t, sc) => Save(part, l, t, sc),
+        SystemParameters.WorkArea.Left + 40, part switch { Part.Cast => 200, Part.Hp => 540, _ => 360 }, () => LoadSize(part), (w, h) => SaveSize(part, w, h))
     {
         _part = part;
         Instances.Add(this);
@@ -185,13 +212,15 @@ public sealed class CombatOverlayWindow : MovableOverlay
         {
             AddElement(BossCastId, _bossCast, loc["Combat.Element.BossCast"], settings, _stage);
         }
+        else if (part == Part.Hp)
+        {
+            AddElement(TargetHpId, _targetHp, loc["Combat.Element.BossHp"], settings, _stage);
+        }
         else
         {
-            AddElement(TargetIconId, _targetIcon, loc["Combat.Element.TargetIcon"], settings, _blockStage);
-            AddElement(TargetNameId, _targetName, loc["Combat.Element.TargetName"], settings, _blockStage);
-            AddElement(TargetHpId, _targetHp, loc["Combat.Element.TargetHp"], settings, _blockStage);
-            AddElement(TargetEffectsId, _targetEffects, loc["Combat.Element.TargetEffects"], settings, _blockStage);
-            AddElement(TargetBlockId, _blockStage, loc["Combat.Element.TargetOfTarget"], settings, _stage);
+            AddElement(TargetIconId, _targetIcon, loc["Combat.Element.TargetIcon"], settings, _stage);
+            AddElement(TargetNameId, _targetName, loc["Combat.Element.TargetName"], settings, _stage);
+            AddElement(TargetEffectsId, _targetEffects, loc["Combat.Element.TargetEffects"], settings, _stage);
         }
 
         var (w, h) = LoadSize(part);
@@ -209,16 +238,16 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private static CombatElementLayout DefaultLayout(string id) => id switch
     {
         BossCastId => new CombatElementLayout { Left = 0, Top = 0, Width = 480, Height = 132 },
-        TargetBlockId => new CombatElementLayout { Left = 0, Top = 0, Width = 240, Height = 152 },
+        TargetBlockId => new CombatElementLayout { Left = 0, Top = 0, Width = 240, Height = 118 },
         TargetIconId => new CombatElementLayout { Left = 0, Top = 0, Width = 52, Height = 52 },
         TargetNameId => new CombatElementLayout { Left = 56, Top = 0, Width = 176, Height = 52 },
-        TargetHpId => new CombatElementLayout { Left = 0, Top = 56, Width = 232, Height = 30 },
-        TargetEffectsId => new CombatElementLayout { Left = 0, Top = 90, Width = 232, Height = 54 },
+        TargetHpId => new CombatElementLayout { Left = 0, Top = 0, Width = 232, Height = 30 },
+        TargetEffectsId => new CombatElementLayout { Left = 0, Top = 56, Width = 232, Height = 54 },
         _ => new CombatElementLayout { Left = 0, Top = 0, Width = 100, Height = 40 },
     };
 
     /// <summary>The frame's size before anyone pulled it: the stage plus the rim (2 + 1 px each side) and the grip's row.</summary>
-    private static Size DefaultFrame(Part part) => part == Part.Cast ? new Size(486, 152) : new Size(246, 172);
+    private static Size DefaultFrame(Part part) => part switch { Part.Cast => new Size(486, 152), Part.Hp => new Size(238, 50), _ => new Size(246, 138) };
 
     private static Size StageSize(Part part, double? frameWidth, double? frameHeight) =>
         new(Math.Max(60, (frameWidth is > 0 ? frameWidth.Value : DefaultFrame(part).Width) - 6), Math.Max(40, (frameHeight is > 0 ? frameHeight.Value : DefaultFrame(part).Height) - 20));
@@ -250,9 +279,12 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private static (double?, double?) LoadSize(Part part)
     {
         var s = MeterSettings.Load();
-        return part == Part.Cast
-            ? (s.CombatCastOverlayWidth ?? DefaultFrame(part).Width, s.CombatCastOverlayHeight ?? DefaultFrame(part).Height)
-            : (s.CombatOverlayWidth ?? DefaultFrame(part).Width, s.CombatOverlayHeight ?? DefaultFrame(part).Height);
+        return part switch
+        {
+            Part.Cast => (s.CombatCastOverlayWidth ?? DefaultFrame(part).Width, s.CombatCastOverlayHeight ?? DefaultFrame(part).Height),
+            Part.Hp => (s.CombatHpOverlayWidth ?? DefaultFrame(part).Width, s.CombatHpOverlayHeight ?? DefaultFrame(part).Height),
+            _ => (s.CombatOverlayWidth ?? DefaultFrame(part).Width, s.CombatOverlayHeight ?? DefaultFrame(part).Height),
+        };
     }
 
     private static void SaveSize(Part part, double? width, double? height)
@@ -262,6 +294,11 @@ public sealed class CombatOverlayWindow : MovableOverlay
         {
             s.CombatCastOverlayWidth = width;
             s.CombatCastOverlayHeight = height;
+        }
+        else if (part == Part.Hp)
+        {
+            s.CombatHpOverlayWidth = width;
+            s.CombatHpOverlayHeight = height;
         }
         else
         {
@@ -300,7 +337,12 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private static (double?, double?, double) Load(Part part)
     {
         var s = LoadMigrated();
-        return part == Part.Cast ? (s.CombatCastOverlayLeft, s.CombatCastOverlayTop, s.CombatCastOverlayScale) : (s.CombatOverlayLeft, s.CombatOverlayTop, s.CombatOverlayScale);
+        return part switch
+        {
+            Part.Cast => (s.CombatCastOverlayLeft, s.CombatCastOverlayTop, s.CombatCastOverlayScale),
+            Part.Hp => (s.CombatHpOverlayLeft, s.CombatHpOverlayTop, s.CombatHpOverlayScale),
+            _ => (s.CombatOverlayLeft, s.CombatOverlayTop, s.CombatOverlayScale),
+        };
     }
 
     private static void Save(Part part, double left, double top, double scale)
@@ -311,6 +353,12 @@ public sealed class CombatOverlayWindow : MovableOverlay
             s.CombatCastOverlayLeft = left;
             s.CombatCastOverlayTop = top;
             s.CombatCastOverlayScale = scale;
+        }
+        else if (part == Part.Hp)
+        {
+            s.CombatHpOverlayLeft = left;
+            s.CombatHpOverlayTop = top;
+            s.CombatHpOverlayScale = scale;
         }
         else
         {
@@ -373,7 +421,40 @@ public sealed class CombatOverlayWindow : MovableOverlay
             return RenderCast(frame, settings, loc);
         }
 
-        return RenderTarget(frame, settings, loc);
+        return _part == Part.Hp ? RenderHp(frame, settings, loc) : RenderTarget(frame, settings, loc);
+    }
+
+    private TargetOfTargetData? ShownTarget(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
+    {
+        bool totOn = settings.CombatShowTargetOfTarget;
+        TargetOfTargetData? shown = totOn ? frame.TargetOfTarget : null;
+        if (totOn && shown is null && _editing)
+        {
+            shown = new TargetOfTargetData(loc["Combat.Sample.Player"], loc["Combat.Sample.Boss"], null, false, 6400, 10000, new[]
+            {
+                new EffectData("Poison", null, "12", true), new EffectData("Slow", null, "5", true),
+            });
+        }
+
+        return shown;
+    }
+
+    private bool RenderHp(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
+    {
+        BossHpData? boss = frame.Boss;
+        if (boss is null && _editing && settings.ShowBossHp)
+        {
+            boss = new BossHpData(6400, 10000);
+        }
+
+        if (boss is not null)
+        {
+            _targetHp.Show(boss.Hp, boss.Max, false, boss.Check);
+        }
+
+        bool visible = boss is not null && settings.ShowBossHp;
+        _hosts[TargetHpId].Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        return visible;
     }
 
     private bool RenderCast(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
@@ -398,29 +479,17 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private bool RenderTarget(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
         bool any = false;
-        bool totOn = settings.CombatShowTargetOfTarget;
-        TargetOfTargetData? shownTot = totOn ? frame.TargetOfTarget : null;
-        if (totOn && shownTot is null && _editing)
-        {
-            shownTot = new TargetOfTargetData(loc["Combat.Sample.Player"], loc["Combat.Sample.Boss"], null, false, 6400, 10000, new[]
-            {
-                new EffectData("Poison", null, "12", true), new EffectData("Slow", null, "5", true),
-            });
-        }
-
+        TargetOfTargetData? shownTot = ShownTarget(frame, settings, loc);
         if (shownTot is { } tot)
         {
             _targetIcon.Show(tot);
             _targetName.Show(tot);
-            _targetHp.Show(tot.Hp, tot.MaxHp, tot.Effects is { Count: > 0 });
             _targetEffects.Show(tot.Effects ?? Array.Empty<EffectData>());
         }
 
         bool totShown = shownTot is not null;
-        _hosts[TargetBlockId].Visibility = totShown ? Visibility.Visible : Visibility.Collapsed;
-        _hosts[TargetIconId].Visibility = Visibility.Visible;
-        _hosts[TargetNameId].Visibility = Visibility.Visible;
-        _hosts[TargetHpId].Visibility = totShown && (settings.CombatShowHealer || _editing) && settings.CombatHealerHpBar ? Visibility.Visible : Visibility.Collapsed;
+        _hosts[TargetIconId].Visibility = totShown ? Visibility.Visible : Visibility.Collapsed;
+        _hosts[TargetNameId].Visibility = totShown ? Visibility.Visible : Visibility.Collapsed;
         _hosts[TargetEffectsId].Visibility = totShown && (settings.CombatShowHealer || _editing) && settings.CombatHealerEffects ? Visibility.Visible : Visibility.Collapsed;
         any |= totShown;
 
@@ -436,15 +505,21 @@ public sealed class CombatOverlayController : IDisposable
 {
     private readonly System.Windows.Threading.DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(80) };
     private readonly Func<Aion2EntityDirectory?> _directory;
-    private CombatOverlayWindow? _overlay, _castOverlay;
+    /// <summary>Held against the boss's hit points: whether the damage counted matches what it lost (the meter owns the damage events).</summary>
+    private readonly Func<int, HpCheckResult?>? _hpCheck;
+    private DateTime _checkAt;
+    private int _checkFor;
+    private string _checkText = "";
+    private CombatOverlayWindow? _overlay, _castOverlay, _hpOverlay;
     private MeterSettings _settings = MeterSettings.Load();
     private DateTime _settingsAt = DateTime.UtcNow;
     private DateTime _savedLessonsAt = DateTime.UtcNow;
     private Aion2EntityDirectory? _lessonsFor;
 
-    public CombatOverlayController(Func<Aion2EntityDirectory?> directory)
+    public CombatOverlayController(Func<Aion2EntityDirectory?> directory, Func<int, HpCheckResult?>? hpCheck = null)
     {
         _directory = directory;
+        _hpCheck = hpCheck;
         _timer.Tick += (_, _) => Tick();
         _timer.Start();
     }
@@ -453,6 +528,7 @@ public sealed class CombatOverlayController : IDisposable
     {
         _overlay?.RaiseToFront();
         _castOverlay?.RaiseToFront();
+        _hpOverlay?.RaiseToFront();
     }
 
     public void Dispose()
@@ -461,6 +537,7 @@ public sealed class CombatOverlayController : IDisposable
         _directory()?.Combat.SaveIfChanged();
         _overlay?.Close();
         _castOverlay?.Close();
+        _hpOverlay?.Close();
     }
 
     private void Tick()
@@ -490,13 +567,15 @@ public sealed class CombatOverlayController : IDisposable
         {
             _overlay?.ShowOverlay(false);
             _castOverlay?.ShowOverlay(false);
+            _hpOverlay?.ShowOverlay(false);
             return;
         }
 
         bool locked = settings.CombatOverlayLocked;
         _overlay ??= new CombatOverlayWindow(CombatOverlayWindow.Part.Target);
         _castOverlay ??= new CombatOverlayWindow(CombatOverlayWindow.Part.Cast);
-        foreach (var window in new[] { _overlay, _castOverlay })
+        _hpOverlay ??= new CombatOverlayWindow(CombatOverlayWindow.Part.Hp);
+        foreach (var window in new[] { _overlay, _castOverlay, _hpOverlay })
         {
             window.ApplyLockedIfChanged(locked);
             window.SetEditing(!locked);
@@ -507,13 +586,28 @@ public sealed class CombatOverlayController : IDisposable
         {
             _overlay.ShowOverlay(false);
             _castOverlay.ShowOverlay(false);
+            _hpOverlay.ShowOverlay(false);
             return;
         }
 
         CombatFrame frame = dir is null
             ? new CombatFrame(Array.Empty<CastRowData>(), null)
             : CombatOverlayData.Build(dir, settings, DateTime.Now, LocalizationManager.Instance.Language);
+        if (frame.Boss is { } boss && _hpCheck is not null)
+        {
+            if (boss.Id != _checkFor || (DateTime.UtcNow - _checkAt).TotalSeconds >= 1)
+            {
+                HpCheckResult? check = _hpCheck(boss.Id);
+                _checkText = check is null ? "" : check.OverFullHealth || check.Verdict != HpCheckVerdict.Match ? "⚠ " + check.Ratio.ToString("P0", System.Globalization.CultureInfo.CurrentCulture) : "✓";
+                _checkFor = boss.Id;
+                _checkAt = DateTime.UtcNow;
+            }
+
+            frame = frame with { Boss = boss with { Check = _checkText } };
+        }
+
         _overlay.ShowOverlay(_overlay.Render(frame, settings) || !locked);
         _castOverlay.ShowOverlay(_castOverlay.Render(frame, settings) || !locked);
+        _hpOverlay.ShowOverlay(_hpOverlay.Render(frame, settings) || !locked);
     }
 }

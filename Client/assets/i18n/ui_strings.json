@@ -6165,6 +6165,18 @@
     "ja": "HP",
     "ko": "체력"
   },
+  "Combat.Element.BossHp": {
+    "en": "Boss health",
+    "de": "Boss-HP-Balken",
+    "fr": "Vie du boss",
+    "es": "Vida del jefe",
+    "ru": "Здоровье босса",
+    "zh": "首领生命",
+    "zh-TW": "首領生命",
+    "pt": "Vida do chefe",
+    "ja": "ボスのHP",
+    "ko": "보스 체력"
+  },
   "Combat.Element.TargetEffects": {
     "en": "Effects",
     "de": "Effekte",

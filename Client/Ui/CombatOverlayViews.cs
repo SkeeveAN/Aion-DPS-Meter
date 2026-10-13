@@ -288,7 +288,7 @@ public sealed class HpBarView : Border
     }
 
     /// <summary>Red; green while the target has debuffs on it. The numbers keep a dark edge so they read on either.</summary>
-    public void Show(long? hp, long? max, bool debuffed)
+    public void Show(long? hp, long? max, bool debuffed, string? check = null)
     {
         _fill.Background = debuffed ? OverlayPictures.HpGreen : OverlayPictures.HpRed;
         double fraction = hp is long h && max is long m && m > 0 ? Math.Clamp((double)h / m, 0, 1) : 0;
@@ -296,6 +296,10 @@ public sealed class HpBarView : Border
         _text.Text = hp is long current
             ? max is long total && total > 0 ? $"{current:N0} / {total:N0}  ({fraction * 100:0}%)" : $"{current:N0}"
             : "–";
+        if (!string.IsNullOrEmpty(check))
+        {
+            _text.Text += "  " + check;
+        }
     }
 }
 

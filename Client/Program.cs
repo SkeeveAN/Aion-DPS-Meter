@@ -990,7 +990,7 @@ internal static class Program
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
         bool edit = mode == "edit";
-        var windows = new[] { new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Cast), new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Target) };
+        var windows = new[] { new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Cast), new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Target), new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Hp) };
         foreach (var window in windows)
         {
             window.ApplyLocked(!edit);
