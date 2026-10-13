@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.44.0",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The boss health bar is a window of its own, the target of the target sits in a single frame, and the boss health check shows next to the numbers",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.43.3",
   "date": "2026-10-13",
   "items": [
