@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.45.4",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "A summon is no longer shown as a sixth player: when a Sorcerer's Bittercold Wind struck before the party's Sorcerer was known, it stayed an unnamed \"Player #id\" row; now it is handed to its owner as soon as the owner is known, together with the damage it already dealt",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.45.3",
   "date": "2026-10-14",
   "items": [
