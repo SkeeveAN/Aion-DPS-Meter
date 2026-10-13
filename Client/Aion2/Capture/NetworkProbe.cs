@@ -7,7 +7,7 @@ namespace AionDPS.Aion2.Capture;
 public sealed record NetworkProbeSnapshot(bool Running, string? Gateway, double? GatewayMs, int GatewayLost, int GatewayProbes, double? InternetMs, int InternetLost, int InternetProbes);
 
 /// <summary>
-/// Tells where a freeze comes from. Once a second it pings the router (the default gateway) and a public host (1.1.1.1); two tiny packets, nothing of the game.
+/// Tells where a freeze comes from. Once a second it pings the router (the default gateway), a public host (1.1.1.1) and the game server itself; three tiny packets, nothing of the game.
 /// A game stall while the router did not answer is the LAN or the router, one while only the internet did not answer is the line, and one while both answered
 /// is not the local network (the game server or the route to it). Everything that goes wrong is written to <see cref="NetworkLog"/>.
 /// </summary>
@@ -18,7 +18,7 @@ public static class NetworkProbe
     private const int WindowSeconds = 60;
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(1);
 
-    private sealed record Sample(DateTime At, bool GatewayTried, double? GatewayMs, double? InternetMs);
+    private sealed record Sample(DateTime At, bool GatewayTried, double? GatewayMs, double? InternetMs, bool ServerTried, double? ServerMs);
 
     private static readonly object Gate = new();
     private static readonly List<Sample> Samples = new();
@@ -140,12 +140,13 @@ public static class NetworkProbe
             }
 
             string? gateway = _gateway;
-            Task<double?> gw = PingAsync(gateway), net = PingAsync(InternetHost);
-            double? gwMs = await gw.ConfigureAwait(false), netMs = await net.ConfigureAwait(false);
+            string? server = NetworkStats.ServerAddress;
+            Task<double?> gw = PingAsync(gateway), net = PingAsync(InternetHost), srv = PingAsync(server);
+            double? gwMs = await gw.ConfigureAwait(false), netMs = await net.ConfigureAwait(false), srvMs = await srv.ConfigureAwait(false);
             DateTime now = DateTime.Now;
             lock (Gate)
             {
-                Samples.Add(new Sample(started, gateway is not null, gwMs, netMs));
+                Samples.Add(new Sample(started, gateway is not null, gwMs, netMs, server is not null, srvMs));
                 Samples.RemoveAll(s => s.At < now.AddSeconds(-KeepSeconds));
             }
 
@@ -212,6 +213,19 @@ public static class NetworkProbe
         {
             var inside = Samples.Where(s => s.At >= from.AddSeconds(-1) && s.At <= to).ToList();
             return (inside.Count(s => s.GatewayTried && s.GatewayMs is null), inside.Count(s => s.InternetMs is null), inside.Count);
+        }
+    }
+
+    /// <summary>The game server's own ping between two moments: how many probes got no answer, how many were sent, and the average and worst answer time.
+    /// Before is the number of answers in the 30 s before it (a server that never answers ping says nothing when it is silent now).</summary>
+    public static (int Lost, int Probes, double? Avg, double? Max, int AnsweredBefore) ServerBetween(DateTime from, DateTime to)
+    {
+        lock (Gate)
+        {
+            var inside = Samples.Where(s => s.ServerTried && s.At >= from.AddSeconds(-1) && s.At <= to).ToList();
+            var answers = inside.Where(s => s.ServerMs is not null).Select(s => s.ServerMs!.Value).ToList();
+            int before = Samples.Count(s => s.ServerTried && s.ServerMs is not null && s.At < from.AddSeconds(-1) && s.At >= from.AddSeconds(-31));
+            return (inside.Count - answers.Count, inside.Count, answers.Count > 0 ? answers.Average() : null, answers.Count > 0 ? answers.Max() : null, before);
         }
     }
 

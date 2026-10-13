@@ -67,6 +67,20 @@ public static class NetworkStats
     private static DateTime _lastLossLog = DateTime.MinValue;
     private static DateTime _lastPingLog = DateTime.MinValue;
 
+    /// <summary>The IP address of the game server (without the port), or null before there is a connection.</summary>
+    public static string? ServerAddress
+    {
+        get
+        {
+            lock (Gate)
+            {
+                string? server = _connection?.Server;
+                int colon = server?.LastIndexOf(':') ?? -1;
+                return server is null ? null : colon > 0 ? server[..colon] : server;
+            }
+        }
+    }
+
     /// <summary>The IP address of this PC on the game connection (without the port), or null before there is one.</summary>
     public static string? LocalAddress
     {
@@ -436,7 +450,13 @@ public static class NetworkStats
         }
 
         c.After = new PostStall { End = end, Segments = 1, Bytes = firstLength, BeforeSegments = beforeSegments, BeforeBytes = beforeBytes };
-        NetworkLog.Write(FormattableString.Invariant($"STALL detail: {game}; router {Ms(gwAvg, gwMax)}, internet {Ms(netAvg, netMax)}; ") +
+        var (srvLost, srvProbes, srvAvg, srvMax, srvBefore) = NetworkProbe.ServerBetween(start, end);
+        string srv = srvProbes < 2 ? "game server ping: no data"
+            : srvBefore == 0 && srvLost == srvProbes ? "game server ping: the server does not answer ping at all (no information)"
+            : FormattableString.Invariant($"game server ping: lost {srvLost}/{srvProbes}, ") + Ms(srvAvg, srvMax)
+                + (srvLost == 0 ? " -> the server host answered ping while its game data stayed away (server side, or a filter on the game port)"
+                : srvLost >= srvProbes - 1 ? " -> the server host did not answer ping either (the route to the server)" : " -> the ping to the server was partly lost");
+        NetworkLog.Write(FormattableString.Invariant($"STALL detail: {game}; router {Ms(gwAvg, gwMax)}, internet {Ms(netAvg, netMax)}; {srv}; ") +
             $"the client sent {c.GapClientBytes} bytes; last data before it was {c.LastServerSegmentBytes} bytes, the first after it {firstLength} bytes; {window}; {ttl}", end);
     }
 
