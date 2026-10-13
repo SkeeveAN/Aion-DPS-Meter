@@ -56,6 +56,9 @@ public sealed class SessionInfo
     /// <summary>The finished analysis, kept while the session has not changed (see SessionAnalyzer).</summary>
     internal (int EventCount, SessionAnalysis Result)? CachedAnalysis { get; set; }
 
+    /// <summary>The rotation, effect, stagger and replay data that came with a file the session was loaded from (null for a live session: that reads them from the capture).</summary>
+    public Combat.FightExtras? Extras { get; set; }
+
     /// <summary>Kept by the user (written to a file or loaded from one): never dropped by the age or memory limits.</summary>
     public bool IsSaved { get; set; }
 

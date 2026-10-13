@@ -168,7 +168,17 @@ public static class SelfCheckSessions
             bool outOfAll = other.AllEvents().Count == 0;
             Console.WriteLine($"  -> a saved stay reads back whole (zone, times, hits, names, classes): {same}");
             Console.WriteLine($"  -> a loaded stay goes in before the open one, is kept, and stays out of \"all\": {placed && outOfAll}");
-            return same && placed && outOfAll;
+
+            // with the extras (rotation, effects, stagger) or without, as the user chose
+            var extras = new FightExtras(new[] { new SkillUse(t0.AddSeconds(5), 1, 11800007) }, Array.Empty<BuffEvent>(), Array.Empty<StaggerEvent>(), new Dictionary<int, string> { [1] = "Aahz" });
+            string withPath = System.IO.Path.Combine(dir, "with" + SessionFile.Extension), withoutPath = System.IO.Path.Combine(dir, "without" + SessionFile.Extension);
+            SessionFile.SaveStay(withPath, stay, extras);
+            SessionFile.SaveStay(withoutPath, stay, null);
+            SessionFile.LoadedSession withFile = SessionFile.Load(withPath), withoutFile = SessionFile.Load(withoutPath);
+            bool extrasKept = withFile.Stay!.Extras is { } back && back.Uses.Count == 1 && back.Uses[0].SkillId == 11800007 && back.Names[1] == "Aahz" && withoutFile.Stay!.Extras is null
+                && new System.IO.FileInfo(withPath).Length > new System.IO.FileInfo(withoutPath).Length;
+            Console.WriteLine($"  -> saved with the extras they come back with the file; without them the file has none and is smaller: {extrasKept}");
+            return same && placed && outOfAll && extrasKept;
         }
         finally
         {

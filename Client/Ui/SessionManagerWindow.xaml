@@ -222,6 +222,8 @@
             <TextBlock x:Name="EmptyText" Grid.Row="4" Text="{local:Loc Sessions.SelectOne}" HorizontalAlignment="Center" VerticalAlignment="Center"
                        Foreground="{DynamicResource Brush.TextMuted}"/>
             <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                <CheckBox x:Name="SaveExtrasBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Sessions.SaveExtras}" ToolTip="{local:Loc Sessions.SaveExtras.Tip}" VerticalAlignment="Center" Margin="0,0,16,0"
+                          Checked="OnSaveExtrasChanged" Unchecked="OnSaveExtrasChanged"/>
                 <Button x:Name="DeleteButton" Content="{local:Loc Sessions.Delete}" Click="OnDeleteClicked" IsEnabled="False"/>
                 <Button x:Name="SaveButton" Content="{local:Loc Sessions.Save}" Click="OnSaveClicked" IsEnabled="False"/>
                 <Button x:Name="ShowButton" Content="{local:Loc Sessions.ShowInMeter}" Click="OnShowClicked" IsEnabled="False"/>

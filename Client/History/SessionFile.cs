@@ -37,7 +37,7 @@ public static class SessionFile
     private sealed record RageDto(long At, int Entity, long Engaged);
 
     private sealed record StayDto(int ZoneId, int Kind, long Start, long? End, List<EventDto> Shields, Dictionary<string, string> Classes,
-        Dictionary<string, HpDto>? Hp = null, List<RageDto>? Rages = null);
+        Dictionary<string, HpDto>? Hp = null, List<RageDto>? Rages = null, string? Extras = null);
 
     private sealed record Payload(
         int Version,
@@ -56,7 +56,7 @@ public static class SessionFile
         Kinds: d.F is int f ? (HitKinds)f : null, HitCount: d.N ?? 1);
 
     /// <summary>Writes one stay (from the session manager) as a file the same Load can read back; the extra part is what a stay needs.</summary>
-    public static void SaveStay(string path, SessionInfo stay)
+    public static void SaveStay(string path, SessionInfo stay, Combat.FightExtras? extras = null)
     {
         var payload = new Payload(
             2,
@@ -77,7 +77,8 @@ public static class SessionFile
                     kv => kv.Key.ToString(),
                     kv => new HpDto(kv.Value.Highest, kv.Value.Samples.Select(x => x.At.Ticks).ToList(), kv.Value.Samples.Select(x => x.Hp).ToList(),
                         kv.Value.Resets.Select(r => r.Ticks).ToList())),
-                stay.Enrages.Select(m => new RageDto(m.Timestamp.Ticks, m.EntityId, m.EngagedAt.Ticks)).ToList()));
+                stay.Enrages.Select(m => new RageDto(m.Timestamp.Ticks, m.EntityId, m.EngagedAt.Ticks)).ToList(),
+                extras is { IsEmpty: false } ? Convert.ToBase64String(ExtrasBlob.Pack(extras)) : null));
 
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         using FileStream output = File.Create(path);
@@ -87,7 +88,7 @@ public static class SessionFile
 
     /// <summary>The stay part of a file written by <see cref="SaveStay"/>.</summary>
     public sealed record StoredStay(int ZoneId, SessionKind Kind, DateTime Start, DateTime? End, List<DamageEvent> Shields, Dictionary<int, string> Classes,
-        Dictionary<int, TargetHp> Hp, List<EnrageMark> Enrages);
+        Dictionary<int, TargetHp> Hp, List<EnrageMark> Enrages, Combat.FightExtras? Extras = null);
 
     public static void Save(
         string path,
@@ -153,7 +154,8 @@ public static class SessionFile
                         kv.Value.Highest,
                         kv.Value.At.Zip(kv.Value.Hp, (at, hp) => new Aion2.HpSample(new DateTime(at), hp)).ToList(),
                         kv.Value.Resets.Select(r => new DateTime(r)).ToList())),
-                (s.Rages ?? new List<RageDto>()).Select(r => new EnrageMark(new DateTime(r.At), r.Entity, new DateTime(r.Engaged))).ToList())
+                (s.Rages ?? new List<RageDto>()).Select(r => new EnrageMark(new DateTime(r.At), r.Entity, new DateTime(r.Engaged))).ToList(),
+                s.Extras is { Length: > 0 } packed ? ExtrasBlob.Unpack(Convert.FromBase64String(packed)) : null)
             : null;
         return new LoadedSession(events, avoids, kills, names, payload.SavedAt, payload.Directory, stay);
     }

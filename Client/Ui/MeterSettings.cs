@@ -168,6 +168,9 @@ public sealed class MeterSettings
     /// <summary>Show player names in the stream. Off by default: everyone is shown by their class, like in the uploads.</summary>
     public bool StreamShowNames { get; set; }
 
+    /// <summary>Saving a session to a file also writes the rotation, effect, stagger and replay data (a few times the size of the damage alone).</summary>
+    public bool SessionSaveExtras { get; set; } = true;
+
     /// <summary>Reachable from other PCs of the network (a streaming PC running OBS); off: this PC only. On by default, the link carries a key and only the own network is answered.</summary>
     public bool StreamOverlayNetwork { get; set; } = true;
 

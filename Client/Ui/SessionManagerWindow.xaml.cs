@@ -23,6 +23,9 @@ public partial class SessionManagerWindow : Window
     private readonly DispatcherTimer _tick = new() { Interval = TimeSpan.FromSeconds(2) };
     private bool _loading;
 
+    /// <summary>Gives the rotation, effect, stagger and replay data of a session for saving; set by the main window (it holds the capture). Null result: none to save.</summary>
+    public Func<SessionInfo, Combat.FightExtras?>? ExtrasFor { get; set; }
+
     public SessionManagerWindow(SessionRecorder recorder)
     {
         InitializeComponent();
@@ -31,6 +34,7 @@ public partial class SessionManagerWindow : Window
 
         LocalizationManager loc = LocalizationManager.Instance;
         _loading = true;
+        SaveExtrasBox.IsChecked = MeterSettings.Load().SessionSaveExtras;
         string[] kinds = { "Sessions.FilterAll", "Sessions.FilterMaps", "Sessions.FilterInstances", "Sessions.FilterSaved" };
         for (int i = 0; i < kinds.Length; i++)
         {
@@ -325,7 +329,7 @@ public partial class SessionManagerWindow : Window
 
         try
         {
-            SessionFile.SaveStay(dialog.FileName, session);
+            SessionFile.SaveStay(dialog.FileName, session, SaveExtrasBox.IsChecked == true ? (session.Extras ?? ExtrasFor?.Invoke(session)) : null);
             session.IsSaved = true;
             Refresh();
         }
@@ -333,6 +337,19 @@ public partial class SessionManagerWindow : Window
         {
             ThemedMessageBox.Show(this, ex.Message, Title, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+    }
+
+    /// <summary>The choice is kept: the next save, and the next start, begin with it.</summary>
+    private void OnSaveExtrasChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loading || !IsLoaded)
+        {
+            return;
+        }
+
+        var settings = MeterSettings.Load();
+        settings.SessionSaveExtras = SaveExtrasBox.IsChecked == true;
+        settings.Save();
     }
 
     private static string SafeFileName(string name) =>
@@ -371,6 +388,7 @@ public partial class SessionManagerWindow : Window
         {
             session = _recorder.Import(stay.ZoneId, stay.Kind, stay.Start, stay.End);
             session.Data.IngestEvents(file.Events.Concat(stay.Shields));
+            session.Extras = stay.Extras;
             foreach ((int id, string cls) in stay.Classes)
             {
                 session.Classes[id] = cls;

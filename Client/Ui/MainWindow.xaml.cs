@@ -2169,6 +2169,20 @@ public partial class MainWindow : Window
     /// <summary>The directory the replay data is read from: the live capture, also while a stored session is on view (its ids are the live ids).</summary>
     private Aion2.Aion2EntityDirectory? ReplayDirectory => (_historyMode ? _liveSource : _source)?.Entities as Aion2.Aion2EntityDirectory;
 
+    /// <summary>The rotation, effect, stagger and replay data of a session, read from the live capture, for saving it with the file: the players of the session and the bosses.</summary>
+    private FightExtras? ExtrasForSession(SessionInfo session)
+    {
+        if (_liveSource?.Entities is not Aion2.Aion2EntityDirectory dir)
+        {
+            return null;
+        }
+
+        FightExtras extras = dir.Combat.Slice(session.Start, session.End ?? DateTime.Now, id => dir.NameFor(id) ?? dir.MonsterNameFor(id),
+            id => session.Classes.ContainsKey(id) || dir.IsKnownPlayer(id) || dir.BossNpcIdOf(id) is not null,
+            (id, from, to) => HpSeriesOf(dir, id, from, to, dir.IsKnownPlayer(id)));
+        return extras.IsEmpty ? null : extras;
+    }
+
     /// <summary>An id of the live capture as the grid knows it (the same, except while a session is on view).</summary>
     private int GridId(int liveId) => _historyMode ? _historyReplayIds.GetValueOrDefault(liveId, -1) : liveId;
 
@@ -2182,9 +2196,12 @@ public partial class MainWindow : Window
     }
 
     /// <summary>A boss's health over the fight as thousandths of its highest reading, one reading a second at most.</summary>
-    private HpSeries? ReplayHp(int id, DateTime from, DateTime to)
+    private HpSeries? ReplayHp(int id, DateTime from, DateTime to) =>
+        ReplayDirectory is { } directory ? HpSeriesOf(directory, id, from, to, IsPlayerName(GridId(id))) : null;
+
+    private static HpSeries? HpSeriesOf(Aion2.Aion2EntityDirectory directory, int id, DateTime from, DateTime to, bool isPlayer)
     {
-        if (ReplayDirectory is not { } directory || IsPlayerName(GridId(id)) || (directory.HitPoints.HighestSeen(id) ?? 0) <= 0)
+        if (isPlayer || (directory.HitPoints.HighestSeen(id) ?? 0) <= 0)
         {
             return null;
         }
@@ -3560,6 +3577,7 @@ public partial class MainWindow : Window
                 ShowPastSession(session);
             }
         };
+        _sessionManager.ExtrasFor = ExtrasForSession;
         _sessionManager.Closed += (_, _) => _sessionManager = null;
         _sessionManager.Show();
     }
@@ -3650,9 +3668,9 @@ public partial class MainWindow : Window
 
         _historyLiveIds = idMap.ToDictionary(kv => kv.Value, kv => kv.Key);
         _historyReplayIds = new Dictionary<int, int>(idMap);
-        _historyExtras = (_liveSource?.Entities as Aion2.Aion2EntityDirectory) is { } liveDir
+        _historyExtras = session.Extras ?? ((_liveSource?.Entities as Aion2.Aion2EntityDirectory) is { } liveDir
             ? liveDir.Combat.Slice(session.Start, session.End ?? DateTime.Now, id => liveDir.NameFor(id), ReplayKeeps, ReplayHp)
-            : null;
+            : null);
 
         HistoryBanner.Text = string.Format(LocalizationManager.Instance["Main.SessionViewBanner"], SessionLabels.NameOf(session), SessionLabels.TimeSpanOf(session));
         HistoryBanner.Visibility = Visibility.Visible;
