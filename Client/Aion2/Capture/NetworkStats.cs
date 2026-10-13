@@ -109,6 +109,24 @@ public static class NetworkStats
         public int GapClientSegments;
         public int GapServerAcks;
         public int GapRetransmissions;
+        public long GapClientBytes;
+        public int GapClientZeroWindows;    // segments of the client that advertised a receive window of 0 (the game PC stopped taking data)
+        public int GapServerZeroWindows;
+        public int GapTtlMin = int.MaxValue;
+        public int GapTtlMax;
+        public int LastServerTtl;
+        public int LastServerSegmentBytes;
+        public PostStall? After;            // the first second after a stall, being counted
+    }
+
+    /// <summary>What the server sent in the first second after a stall, against what it sent before: a burst means the data was held up on the way, a normal rate that the server paused.</summary>
+    private sealed class PostStall
+    {
+        public DateTime End;
+        public int Segments;
+        public long Bytes;
+        public int BeforeSegments;
+        public long BeforeBytes;
     }
 
     public static void Reset()
@@ -164,12 +182,15 @@ public static class NetworkStats
                     how = "server change (zone or instance)";
                 }
 
-                NetworkLog.Write($"connection: {how}, game server {server}", segment.Timestamp);
+                string client = segment.FromServer ? segment.Destination : segment.Source;
+                int colon = client.LastIndexOf(':');
+                string? adapter = NetworkProbe.AdapterInfo(colon > 0 ? client[..colon] : client);
+                NetworkLog.Write($"connection: {how}, game server {server}" + (adapter is null ? "" : $", this PC on {adapter}"), segment.Timestamp);
 
                 c = _connection = new Connection
                 {
                     Server = server,
-                    Client = segment.FromServer ? segment.Destination : segment.Source,
+                    Client = client,
                     Since = segment.Timestamp,
                 };
                 Pings.Clear();
@@ -187,6 +208,7 @@ public static class NetworkStats
             {
                 if (length > 0)
                 {
+                    CountAfterStall(c!, segment.Timestamp, length);
                     bucket.DownBytes += length;
                     bucket.DownSegments++;
                     if (c!.HaveServerEnd)
@@ -214,7 +236,7 @@ public static class NetworkStats
 
                     if (c.LastServerData != DateTime.MinValue && c.DataSegments >= BusySegments && segment.Timestamp - c.LastServerData >= TimeSpan.FromSeconds(StallSeconds))
                     {
-                        RecordStall(c, segment.Timestamp);
+                        RecordStall(c, segment.Timestamp, length, segment.Ttl);
                     }
 
                     c.LastServerData = segment.Timestamp;
@@ -222,10 +244,27 @@ public static class NetworkStats
                     c.GapClientSegments = 0;
                     c.GapServerAcks = 0;
                     c.GapRetransmissions = 0;
+                    c.GapClientBytes = 0;
+                    c.GapClientZeroWindows = 0;
+                    c.GapServerZeroWindows = 0;
+                    c.GapTtlMin = int.MaxValue;
+                    c.GapTtlMax = 0;
+                    c.LastServerTtl = segment.Ttl;
+                    c.LastServerSegmentBytes = length;
                 }
                 else
                 {
                     c!.GapServerAcks++;
+                    if (segment.Ttl > 0)
+                    {
+                        c.GapTtlMin = Math.Min(c.GapTtlMin, segment.Ttl);
+                        c.GapTtlMax = Math.Max(c.GapTtlMax, segment.Ttl);
+                    }
+                }
+
+                if (segment.Window == 0)
+                {
+                    c!.GapServerZeroWindows++;
                 }
 
                 // The server acknowledges what the client sent: the newest segment it covers gives the sample.
@@ -256,6 +295,7 @@ public static class NetworkStats
             }
             else if (length > 0)
             {
+                c!.GapClientBytes += length;
                 bucket.UpBytes += length;
                 bool fresh = !c!.HaveClientEnd || (int)(end - c.ClientEnd) > 0;
                 if (fresh)
@@ -275,7 +315,35 @@ public static class NetworkStats
                     c.GapRetransmissions++;
                 }
             }
+
+            if (!segment.FromServer && segment.Window == 0)
+            {
+                c!.GapClientZeroWindows++;
+            }
         }
+    }
+
+    /// <summary>Counts what the server sends in the first second after a stall and writes it when that second is over.</summary>
+    private static void CountAfterStall(Connection c, DateTime at, int length)
+    {
+        PostStall? after = c.After;
+        if (after is null)
+        {
+            return;
+        }
+
+        if (at - after.End >= TimeSpan.FromSeconds(1))
+        {
+            c.After = null;
+            NetworkLog.Write(FormattableString.Invariant($"STALL after: in the first second the server sent {after.Segments} segments, {after.Bytes} bytes; in the 10 s before the stall it sent {after.BeforeSegments / 10.0:0.#} segments, {after.BeforeBytes / 10.0:0} bytes per second -> ") +
+                (after.BeforeSegments > 0 && after.Segments > after.BeforeSegments / 10.0 * 3 + 5
+                    ? "a burst: the data was held up on the way and arrived together"
+                    : "no burst: the server just paused, nothing was held up that came later"), at);
+            return;
+        }
+
+        after.Segments++;
+        after.Bytes += length;
     }
 
     /// <summary>Once a second: if the last 10 seconds had many repeated or missing segments, write one line (at most one every 30 s).</summary>
@@ -312,7 +380,7 @@ public static class NetworkStats
     }
 
     /// <summary>The server's data came back after a pause: keep it, ask the probe where it came from, and write it to the log.</summary>
-    private static void RecordStall(Connection c, DateTime end)
+    private static void RecordStall(Connection c, DateTime end, int firstLength, int firstTtl)
     {
         DateTime start = c.LastServerData;
         string? verdict = NetworkProbe.Verdict(start, end);
@@ -335,6 +403,41 @@ public static class NetworkStats
         string seconds = stall.Seconds.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
         NetworkLog.Write($"STALL {seconds} s ({start:HH:mm:ss.f} - {end:HH:mm:ss.f}) to {c.Server}: the client sent {c.GapClientSegments} segments, " +
             $"{c.GapServerAcks} acknowledgements came from the server, {c.GapRetransmissions} repeated segments; {probe} -> {meaning}", end);
+        WriteStallDetail(c, start, end, firstLength, firstTtl);
+    }
+
+    /// <summary>The second line of a stall: how fast the connection and the probes answered meanwhile, whether either PC's receive window closed, and the route (TTL).</summary>
+    private static void WriteStallDetail(Connection c, DateTime start, DateTime end, int firstLength, int firstTtl)
+    {
+        var inside = Pings.Where(p => p.At >= start && p.At <= end).Select(p => p.Ms).ToList();
+        var before = Pings.Where(p => p.At < start).Select(p => p.Ms).ToList();
+        string game = inside.Count == 0
+            ? "no acknowledgement of the game connection was timed during it"
+            : FormattableString.Invariant($"the server answered {inside.Count} times, {inside.Min():0}/{inside.Average():0}/{inside.Max():0} ms (min/avg/max)")
+                + (before.Count > 0 ? FormattableString.Invariant($", before it {before.Average():0} ms on average") : "");
+        var (gwAvg, gwMax, netAvg, netMax) = NetworkProbe.LatencyBetween(start, end);
+        string Ms(double? avg, double? max) => avg is null ? "no answer" : FormattableString.Invariant($"{avg:0}/{max:0} ms (avg/max)");
+        string ttl = c.GapTtlMax == 0 && c.LastServerTtl == 0 && firstTtl == 0
+            ? "TTL unknown"
+            : FormattableString.Invariant($"server TTL before {c.LastServerTtl}, during {(c.GapTtlMax == 0 ? "-" : c.GapTtlMin == c.GapTtlMax ? c.GapTtlMin.ToString() : $"{c.GapTtlMin}-{c.GapTtlMax}")}, after {firstTtl}");
+        string window = c.GapClientZeroWindows > 0
+            ? $"the game PC advertised a receive window of 0 in {c.GapClientZeroWindows} segments (it stopped taking data: the game process or this PC hung)"
+            : c.GapServerZeroWindows > 0 ? $"the server advertised a receive window of 0 in {c.GapServerZeroWindows} segments (it stopped taking data)" : "no receive window closed";
+        long startSecond = start.Ticks / TimeSpan.TicksPerSecond;
+        int beforeSegments = 0;
+        long beforeBytes = 0;
+        foreach (Bucket b in Buckets)
+        {
+            if (b.Second >= startSecond - 10 && b.Second < startSecond)
+            {
+                beforeSegments += b.DownSegments;
+                beforeBytes += b.DownBytes;
+            }
+        }
+
+        c.After = new PostStall { End = end, Segments = 1, Bytes = firstLength, BeforeSegments = beforeSegments, BeforeBytes = beforeBytes };
+        NetworkLog.Write(FormattableString.Invariant($"STALL detail: {game}; router {Ms(gwAvg, gwMax)}, internet {Ms(netAvg, netMax)}; ") +
+            $"the client sent {c.GapClientBytes} bytes; last data before it was {c.LastServerSegmentBytes} bytes, the first after it {firstLength} bytes; {window}; {ttl}", end);
     }
 
     private static ref Bucket BucketAt(DateTime at)

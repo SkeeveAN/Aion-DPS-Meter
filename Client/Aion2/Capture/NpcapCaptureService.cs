@@ -157,7 +157,7 @@ public sealed class NpcapCaptureService : IDisposable
 
         try
         {
-            if (!_queue.TryAdd(new TcpSegment(raw.Timeval.Date.ToLocalTime(), source, destination, tcp.SequenceNumber, payload, fromServer, tcp.AcknowledgmentNumber)))
+            if (!_queue.TryAdd(new TcpSegment(raw.Timeval.Date.ToLocalTime(), source, destination, tcp.SequenceNumber, payload, fromServer, tcp.AcknowledgmentNumber, tcp.WindowSize, ip.TimeToLive)))
             {
                 Interlocked.Increment(ref _dropped);
             }

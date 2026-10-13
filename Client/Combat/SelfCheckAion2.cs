@@ -1597,10 +1597,16 @@ public static class SelfCheckAion2
 
         NetworkStats.Note(Up(t1.AddSeconds(7), 7000, 40));
         NetworkStats.Note(Down(t1.AddSeconds(12), serverSeq, 20, 7040));
+        serverSeq += 20;
+        NetworkStats.Note(Down(t1.AddSeconds(12.5), serverSeq, 20, 7040));
+        serverSeq += 20;
+        NetworkStats.Note(Down(t1.AddSeconds(14), serverSeq, 20, 7040)); // more than a second after the stall: closes the count
         NetworkSnapshot stalled = NetworkStats.Snapshot();
         bool stall = stalled.StallCount == 1 && Math.Abs(stalled.LongestStallSeconds - 6.1) < 0.2 && stalled.LastStallVerdict is null;
         string written = System.IO.File.Exists(logFile) ? System.IO.File.ReadAllText(logFile) : "";
-        bool logged = written.Contains("STALL 6.1 s") && written.Contains("the client sent 1 segments");
+        bool logged = written.Contains("STALL 6.1 s") && written.Contains("the client sent 1 segments")
+            && written.Contains("STALL detail:") && written.Contains("the client sent 40 bytes") && written.Contains("no receive window closed")
+            && written.Contains("STALL after: in the first second the server sent 2 segments, 40 bytes");
         Console.WriteLine($"  -> a 6 s silence of the server on a busy connection is one stall: {stall}");
         Console.WriteLine($"  -> the stall is written to the network log with what the client did meanwhile: {logged}");
         NetworkLog.PathOverride = null;

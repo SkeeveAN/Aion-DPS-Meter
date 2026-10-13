@@ -215,6 +215,44 @@ public static class NetworkProbe
         }
     }
 
+    /// <summary>How slowly the router and the internet answered between two moments (average and worst of the answers that came), null where none came.</summary>
+    public static (double? GatewayAvg, double? GatewayMax, double? InternetAvg, double? InternetMax) LatencyBetween(DateTime from, DateTime to)
+    {
+        lock (Gate)
+        {
+            var inside = Samples.Where(s => s.At >= from.AddSeconds(-1) && s.At <= to).ToList();
+            var gateway = inside.Where(s => s.GatewayMs is not null).Select(s => s.GatewayMs!.Value).ToList();
+            var internet = inside.Where(s => s.InternetMs is not null).Select(s => s.InternetMs!.Value).ToList();
+            return (gateway.Count > 0 ? gateway.Average() : null, gateway.Count > 0 ? gateway.Max() : null,
+                internet.Count > 0 ? internet.Average() : null, internet.Count > 0 ? internet.Max() : null);
+        }
+    }
+
+    /// <summary>What kind of adapter carries the game connection (cable, Wi-Fi, a tunnel such as a VPN) and how fast it is, for the log; null if it cannot be found.</summary>
+    public static string? AdapterInfo(string? local)
+    {
+        if (local is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.OperationalStatus == OperationalStatus.Up && nic.GetIPProperties().UnicastAddresses.Any(u => u.Address.ToString() == local))
+                {
+                    return FormattableString.Invariant($"{nic.NetworkInterfaceType}, {nic.Speed / 1_000_000} Mbit/s, \"{nic.Name}\"");
+                }
+            }
+        }
+        catch (NetworkInformationException)
+        {
+        }
+
+        return null;
+    }
+
     public static NetworkProbeSnapshot Snapshot()
     {
         lock (Gate)
