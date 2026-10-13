@@ -157,6 +157,17 @@ public sealed class MeterSettings
     /// <summary>The overlays step aside while a game menu is open (the game shows the mouse cursor then). Only works in the control mode that hides the cursor while playing; off until switched on.</summary>
     public bool HideDuringMenus { get; set; }
 
+    /// <summary>The stream overlay for OBS and Streamlabs (see StreamOverlayServer): a web page on this PC only that shows the meter live. Off until switched on.</summary>
+    public bool StreamOverlayOn { get; set; }
+
+    public int StreamOverlayPort { get; set; } = 28920;
+
+    /// <summary>The random key in the link; empty until the first start (then made once).</summary>
+    public string StreamOverlayKey { get; set; } = "";
+
+    /// <summary>Show player names in the stream. Off by default: everyone is shown by their class, like in the uploads.</summary>
+    public bool StreamShowNames { get; set; }
+
     /// <summary>The control mode learnt so far: "Unknown", "Hidden" (the cursor is hidden while playing) or "Classic" (always shown; menus cannot be told apart).</summary>
     public string MenuControlMode { get; set; } = "Unknown";
 

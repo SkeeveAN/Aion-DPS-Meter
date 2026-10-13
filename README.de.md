@@ -185,6 +185,12 @@ etwas neuer ist als dein letzter Besuch.
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Twitch-Drops-Kampagnen mit Belohnungen und Live-Streams">
 </p>
 
+### Der Meter in deinem Stream (OBS, Streamlabs)
+
+Zeige den Meter live über deinem Spiel, ohne sein Fenster abzufilmen: Schalte **Einstellungen → Oberfläche → Stream-Overlay für OBS an** ein, nutze dann **Link für OBS kopieren** (oder im Tray-Symbol *Link für das Stream-Overlay (OBS) kopieren*), füge in OBS oder Streamlabs eine **Browser**-Quelle hinzu, füge den Link ein und lege die Größe der Quelle fest. Die Seite folgt dem Meter live: die aktuelle Ansicht (Schaden, Heilung, erlittener Schaden, alles in einer), die Spieler mit Klassensymbol und Balken sowie die Gesundheit des Bosses. Hänge `?scale=1.5` oder `?rows=5` an den Link, um sie zu vergrößern oder weniger Zeilen anzuzeigen.
+
+Er läuft nur auf deinem PC: Der Server lauscht auf `127.0.0.1` (von außerhalb deines Computers ist er nicht erreichbar), der Link enthält einen zufälligen Schlüssel (mit **Neuer Schlüssel** funktioniert der alte Link nicht mehr), es wird nur `GET` bedient, die Seite lädt nichts von anderswo, und es wird nichts an irgendjemanden gesendet. Spielernamen sind **standardmäßig aus** - jeder wird wie in den Uploads mit seiner Klasse angezeigt - und lassen sich in derselben Einstellungskarte einschalten.
+
 ### Sessions
 
 Jede Karte und jede Instanz wird als eigene Session aufgezeichnet, damit du dir einen früheren Durchlauf noch einmal ansehen kannst. Ein Plausibilitätscheck vergleicht den Schaden mit den verlorenen Lebenspunkten des Bosses.

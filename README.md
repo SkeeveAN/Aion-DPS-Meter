@@ -185,6 +185,12 @@ something is newer than your last visit.
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Twitch Drops campaigns with rewards and live streams">
 </p>
 
+### The meter in your stream (OBS, Streamlabs)
+
+Show the meter live over your game without filming its window: switch on **Settings → Interface → Stream overlay for OBS**, then use **Copy link for OBS** (or the tray icon's *Copy stream overlay link*), add a **Browser** source in OBS or Streamlabs, paste the link and set the source's size. The page follows the meter live: the current view (damage, heal, damage taken, all in one), the players with class icon and bars, and the boss's health. Add `?scale=1.5` or `?rows=5` to the link to enlarge it or show fewer rows.
+
+It runs on your PC only: the server listens on `127.0.0.1` (nothing outside your computer can reach it), the link carries a random key (**New key** makes the old link stop working), only `GET` is served, the page loads nothing from anywhere else, and nothing is sent to anyone. Player names are **off by default** - everyone is shown by their class, like in the uploads - and can be switched on in the same settings card.
+
 ### Sessions
 
 Every map and instance is recorded as its own session, so you can look at an earlier run again. A plausibility check compares the damage with the boss's lost hit points.

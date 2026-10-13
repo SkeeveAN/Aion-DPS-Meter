@@ -185,6 +185,12 @@ algo é mais recente que a sua última visita.
   <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Campanhas de Twitch Drops com recompensas e transmissões ao vivo">
 </p>
 
+### O medidor na sua stream (OBS, Streamlabs)
+
+Mostre o medidor ao vivo sobre o seu jogo sem filmar a janela dele: ative **Configurações → Interface → Overlay de stream para OBS ligado**, depois use **Copiar link para o OBS** (ou, no ícone da bandeja, *Copiar link do overlay de stream (OBS)*), adicione uma fonte **Navegador** no OBS ou no Streamlabs, cole o link e defina o tamanho da fonte. A página acompanha o medidor ao vivo: a visualização atual (dano, cura, dano recebido, tudo em uma), os jogadores com ícone de classe e barras e a vida do chefe. Adicione `?scale=1.5` ou `?rows=5` ao link para ampliá-la ou mostrar menos linhas.
+
+Ele roda apenas no seu PC: o servidor escuta em `127.0.0.1` (nada fora do seu computador consegue acessá-lo), o link contém uma chave aleatória (com **Nova chave** o link antigo deixa de funcionar), apenas `GET` é atendido, a página não carrega nada de nenhum outro lugar e nada é enviado a ninguém. Os nomes dos jogadores ficam **desligados por padrão** - todos aparecem pela classe, como nos envios - e podem ser ligados no mesmo cartão de configurações.
+
 ### Sessões
 
 Cada mapa e instância é gravado como uma sessão própria, para você rever uma tentativa anterior. Uma verificação de plausibilidade compara o dano com os pontos de vida perdidos pelo chefe.
