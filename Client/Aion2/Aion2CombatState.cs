@@ -541,6 +541,32 @@ public sealed class Aion2CombatState
         }
     }
 
+    /// <summary>The first thing <paramref name="actor"/> did since <paramref name="since"/> besides hitting: a skill used, or an effect it put on or renewed. Null when nothing yet.</summary>
+    public DateTime? FirstActivity(int actor, DateTime since)
+    {
+        lock (_gate)
+        {
+            DateTime? first = null;
+            foreach (SkillUse u in _uses)
+            {
+                if (u.Actor == actor && u.At >= since && (first is null || u.At < first))
+                {
+                    first = u.At;
+                }
+            }
+
+            foreach (BuffEvent b in _buffLog)
+            {
+                if (b.Kind != BuffKind.End && b.Caster == actor && b.At >= since && (first is null || b.At < first))
+                {
+                    first = b.At;
+                }
+            }
+
+            return first;
+        }
+    }
+
     public void NoteStagger(StaggerEvent stagger)
     {
         lock (_gate)

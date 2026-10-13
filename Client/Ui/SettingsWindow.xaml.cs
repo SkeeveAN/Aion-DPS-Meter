@@ -502,6 +502,14 @@ public partial class SettingsWindow : Window
         _settings.BossOverlayScale = onDisk.BossOverlayScale;
         _settings.BossOverlayWidth = onDisk.BossOverlayWidth;
         _settings.BossOverlayHeight = onDisk.BossOverlayHeight;
+        _settings.ShowDummyOverlay = onDisk.ShowDummyOverlay;
+        _settings.DummyOverlayLocked = onDisk.DummyOverlayLocked;
+        _settings.DummyOverlayLeft = onDisk.DummyOverlayLeft;
+        _settings.DummyOverlayTop = onDisk.DummyOverlayTop;
+        _settings.DummyOverlayScale = onDisk.DummyOverlayScale;
+        _settings.DummyOverlayWidth = onDisk.DummyOverlayWidth;
+        _settings.DummyOverlayHeight = onDisk.DummyOverlayHeight;
+        _settings.DummyTestSeconds = onDisk.DummyTestSeconds;
         _settings.NetworkOverlayLeft = onDisk.NetworkOverlayLeft;
         _settings.NetworkOverlayTop = onDisk.NetworkOverlayTop;
         _settings.NetworkOverlayScale = onDisk.NetworkOverlayScale;

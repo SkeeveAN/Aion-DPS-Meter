@@ -6380,5 +6380,333 @@
     "pt": "Exibição durante a luta - compacto",
     "ja": "戦闘中の表示 - コンパクト",
     "ko": "전투 중 표시 - 컴팩트"
+  },
+  "Main.MenuTools": {
+    "en": "Tools",
+    "de": "Tools",
+    "fr": "Outils",
+    "es": "Herramientas",
+    "ru": "Инструменты",
+    "zh": "工具",
+    "zh-TW": "工具",
+    "pt": "Ferramentas",
+    "ja": "ツール",
+    "ko": "도구"
+  },
+  "Main.MenuTools.Analyzer": {
+    "en": "Combat analyzer",
+    "de": "Kampf-Analysator",
+    "fr": "Analyseur de combat",
+    "es": "Analizador de combate",
+    "ru": "Анализатор боя",
+    "zh": "战斗分析器",
+    "zh-TW": "戰鬥分析器",
+    "pt": "Analisador de combate",
+    "ja": "戦闘アナライザー",
+    "ko": "전투 분석기"
+  },
+  "Main.MenuTools.DummyTest": {
+    "en": "Dummy test",
+    "de": "Dummy-Test",
+    "fr": "Test sur mannequin",
+    "es": "Prueba con muñeco",
+    "ru": "Тест на манекене",
+    "zh": "木桩测试",
+    "zh-TW": "木樁測試",
+    "pt": "Teste no boneco",
+    "ja": "ダミーテスト",
+    "ko": "더미 테스트"
+  },
+  "Dummy.Title": {
+    "en": "Dummy test",
+    "de": "Dummy-Test",
+    "fr": "Test sur mannequin",
+    "es": "Prueba con muñeco",
+    "ru": "Тест на манекене",
+    "zh": "木桩测试",
+    "zh-TW": "木樁測試",
+    "pt": "Teste no boneco",
+    "ja": "ダミーテスト",
+    "ko": "더미 테스트"
+  },
+  "Dummy.Finished": {
+    "en": "Finished",
+    "de": "Fertig",
+    "fr": "Terminé",
+    "es": "Terminado",
+    "ru": "Готово",
+    "zh": "完成",
+    "zh-TW": "完成",
+    "pt": "Concluído",
+    "ja": "完了",
+    "ko": "완료"
+  },
+  "Dummy.Waiting": {
+    "en": "Waiting for the first hit, skill or buff",
+    "de": "Wartet auf den ersten Treffer, Skill oder Buff",
+    "fr": "Attend le premier coup, compétence ou buff",
+    "es": "Espera el primer golpe, habilidad o buff",
+    "ru": "Ждёт первого удара, умения или баффа",
+    "zh": "等待第一次攻击、技能或增益",
+    "zh-TW": "等待第一次攻擊、技能或增益",
+    "pt": "Aguardando o primeiro golpe, habilidade ou buff",
+    "ja": "最初の攻撃・スキル・バフを待っています",
+    "ko": "첫 공격, 스킬 또는 버프를 기다리는 중"
+  },
+  "Dummy.TabCapture": {
+    "en": "Capture",
+    "de": "Erfassen",
+    "fr": "Enregistrer",
+    "es": "Registrar",
+    "ru": "Запись",
+    "zh": "记录",
+    "zh-TW": "記錄",
+    "pt": "Registrar",
+    "ja": "記録",
+    "ko": "기록"
+  },
+  "Dummy.TabAnalyse": {
+    "en": "Analyse",
+    "de": "Analysieren",
+    "fr": "Analyser",
+    "es": "Analizar",
+    "ru": "Анализ",
+    "zh": "分析",
+    "zh-TW": "分析",
+    "pt": "Analisar",
+    "ja": "分析",
+    "ko": "분석"
+  },
+  "Dummy.Start": {
+    "en": "Start",
+    "de": "Start",
+    "fr": "Démarrer",
+    "es": "Iniciar",
+    "ru": "Старт",
+    "zh": "开始",
+    "zh-TW": "開始",
+    "pt": "Iniciar",
+    "ja": "開始",
+    "ko": "시작"
+  },
+  "Dummy.Stop": {
+    "en": "Stop",
+    "de": "Stopp",
+    "fr": "Arrêter",
+    "es": "Detener",
+    "ru": "Стоп",
+    "zh": "停止",
+    "zh-TW": "停止",
+    "pt": "Parar",
+    "ja": "停止",
+    "ko": "정지"
+  },
+  "Dummy.Duration": {
+    "en": "Test duration",
+    "de": "Testdauer"
+  },
+  "Dummy.DurationHint": {
+    "en": "Minutes:seconds, for example 2:00",
+    "de": "Minuten:Sekunden, zum Beispiel 2:00"
+  },
+  "Dummy.NoteNext": {
+    "en": "Note for the next run",
+    "de": "Notiz für den nächsten Lauf"
+  },
+  "Dummy.NoteHint": {
+    "en": "Shown with the run in the list and in the comparison",
+    "de": "Wird beim Lauf in der Liste und im Vergleich angezeigt"
+  },
+  "Dummy.ClockHint": {
+    "en": "The time only starts with your first hit, skill or buff.",
+    "de": "Die Zeit läuft erst ab dem ersten Treffer, Skill oder Buff."
+  },
+  "Dummy.NoRun": {
+    "en": "No run yet",
+    "de": "Noch kein Lauf"
+  },
+  "Dummy.CurrentRun": {
+    "en": "Run {0}",
+    "de": "Lauf {0}"
+  },
+  "Dummy.RunNumber": {
+    "en": "Run {0}",
+    "de": "Lauf {0}"
+  },
+  "Dummy.StateRunning": {
+    "en": "Running since {0}",
+    "de": "Läuft seit {0}"
+  },
+  "Dummy.RunningHint": {
+    "en": "Counted from your first hit",
+    "de": "Gezählt ab dem ersten Treffer"
+  },
+  "Dummy.FinishedHint": {
+    "en": "Recording stopped - result under Analyse",
+    "de": "Aufnahme beendet - Ergebnis unter Analysieren"
+  },
+  "Dummy.Idle": {
+    "en": "Press Start, then hit the dummy.",
+    "de": "Start drücken und den Dummy schlagen."
+  },
+  "Dummy.OverlaySample": {
+    "en": "Overlay position: unlocked, drag to move",
+    "de": "Overlay-Position: entsperrt, zum Verschieben ziehen"
+  },
+  "Dummy.Dps": {
+    "en": "DPS",
+    "de": "DPS"
+  },
+  "Dummy.Damage": {
+    "en": "Damage",
+    "de": "Schaden"
+  },
+  "Dummy.DpsNow": {
+    "en": "DPS now",
+    "de": "DPS jetzt"
+  },
+  "Dummy.DamageTotal": {
+    "en": "Total damage",
+    "de": "Schaden gesamt"
+  },
+  "Dummy.Hits": {
+    "en": "Hits",
+    "de": "Treffer"
+  },
+  "Dummy.Overlay": {
+    "en": "Overlay",
+    "de": "Overlay"
+  },
+  "Dummy.OverlayOn": {
+    "en": "Overlay on / off",
+    "de": "Overlay an / aus"
+  },
+  "Dummy.OverlayLock": {
+    "en": "Lock overlay",
+    "de": "Overlay sperren"
+  },
+  "Dummy.OverlayAll": {
+    "en": "All overlays on / off",
+    "de": "Alle Overlays an / aus"
+  },
+  "Dummy.OverlayHint": {
+    "en": "Unlocked, the overlay can be moved and scaled in the game.",
+    "de": "Entsperrt lässt sich das Overlay im Spiel verschieben und skalieren."
+  },
+  "Dummy.Runs": {
+    "en": "Recorded runs",
+    "de": "Aufgezeichnete Läufe"
+  },
+  "Dummy.RunsNone": {
+    "en": "No runs yet. Every Start makes a new run.",
+    "de": "Noch keine Läufe. Jeder Start legt einen neuen Lauf an."
+  },
+  "Dummy.ColRun": {
+    "en": "Run",
+    "de": "Lauf"
+  },
+  "Dummy.ColStart": {
+    "en": "Start",
+    "de": "Start"
+  },
+  "Dummy.ColLength": {
+    "en": "Length",
+    "de": "Dauer"
+  },
+  "Dummy.ColAvgDps": {
+    "en": "Avg DPS",
+    "de": "Ø DPS"
+  },
+  "Dummy.ColMinDps": {
+    "en": "Min DPS",
+    "de": "Min DPS"
+  },
+  "Dummy.ColMaxDps": {
+    "en": "Max DPS",
+    "de": "Max DPS"
+  },
+  "Dummy.ColDamage": {
+    "en": "Damage",
+    "de": "Schaden"
+  },
+  "Dummy.ColNote": {
+    "en": "Note",
+    "de": "Notiz"
+  },
+  "Dummy.ColMinHit": {
+    "en": "Min hit",
+    "de": "Min Treffer"
+  },
+  "Dummy.ColMaxHit": {
+    "en": "Max hit",
+    "de": "Max Treffer"
+  },
+  "Dummy.ColAvgHit": {
+    "en": "Avg hit",
+    "de": "Ø Treffer"
+  },
+  "Dummy.ColCrit": {
+    "en": "Crit",
+    "de": "Krit"
+  },
+  "Dummy.ColSkills": {
+    "en": "Skills",
+    "de": "Skills"
+  },
+  "Dummy.ColDelta": {
+    "en": "Δ Avg DPS",
+    "de": "Δ Ø DPS"
+  },
+  "Dummy.RunLive": {
+    "en": "running …",
+    "de": "läuft …"
+  },
+  "Dummy.NoteEdit": {
+    "en": "Click to edit the note",
+    "de": "Zum Bearbeiten der Notiz klicken"
+  },
+  "Dummy.Remove": {
+    "en": "Remove run",
+    "de": "Lauf entfernen"
+  },
+  "Dummy.RemoveAsk": {
+    "en": "Remove {0}?",
+    "de": "{0} entfernen?"
+  },
+  "Dummy.Compare": {
+    "en": "Compare",
+    "de": "Vergleichen"
+  },
+  "Dummy.SelectAll": {
+    "en": "Select all",
+    "de": "Alle wählen"
+  },
+  "Dummy.PickNone": {
+    "en": "No finished runs yet.",
+    "de": "Noch keine fertigen Läufe."
+  },
+  "Dummy.CompareNone": {
+    "en": "Tick the runs to compare.",
+    "de": "Läufe zum Vergleichen ankreuzen."
+  },
+  "Dummy.Comparison": {
+    "en": "Comparison",
+    "de": "Vergleich"
+  },
+  "Dummy.Timeline": {
+    "en": "Timeline: skills and effects",
+    "de": "Zeitstrahl: Skills und Effekte"
+  },
+  "Dummy.LaneSkills": {
+    "en": "Skills",
+    "de": "Skills"
+  },
+  "Dummy.LaneEffects": {
+    "en": "Effects",
+    "de": "Effekte"
+  },
+  "Dummy.TimelineNone": {
+    "en": "No skills or effects were recorded for these runs.",
+    "de": "Für diese Läufe wurden keine Skills oder Effekte aufgezeichnet."
   }
 }

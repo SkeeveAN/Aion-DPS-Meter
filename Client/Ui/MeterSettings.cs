@@ -152,6 +152,20 @@ public sealed class MeterSettings
     public double? NetworkOverlayWidth { get; set; }
     public double? NetworkOverlayHeight { get; set; }
 
+    /// <summary>The dummy test overlay (see DummyTestOverlayWindow): the countdown of a training-dummy run. Shows only while a run is waiting, running or just finished.</summary>
+    public bool ShowDummyOverlay { get; set; } = true;
+
+    public bool DummyOverlayLocked { get; set; } = true;
+
+    public double? DummyOverlayLeft { get; set; }
+    public double? DummyOverlayTop { get; set; }
+    public double DummyOverlayScale { get; set; } = 1.0;
+    public double? DummyOverlayWidth { get; set; }
+    public double? DummyOverlayHeight { get; set; }
+
+    /// <summary>The length of the last dummy test run, in seconds (the field in the dummy test window starts with it).</summary>
+    public int DummyTestSeconds { get; set; } = 120;
+
     /// <summary>The combat overlay (see CombatOverlayWindow): the boss cast bar, the target of the target and the healer's target in one frame.
     /// Off until switched on; every element has its own place and size inside the frame (<see cref="CombatElements"/>, in the frame's own units).</summary>
     /// <summary>The overlays step aside while a game menu is open (the game shows the mouse cursor then). Only works in the control mode that hides the cursor while playing; off until switched on.</summary>
