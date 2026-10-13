@@ -1259,13 +1259,50 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    private readonly Dictionary<string, int> _idOfIdentity = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _idOfName = new(StringComparer.Ordinal);
+    // name -> server -> permanent character id. A name listed on two servers belongs to two players (a matched world holds both).
+    private readonly Dictionary<string, Dictionary<int, int>> _characterOfName = new(StringComparer.Ordinal);
 
-    /// <summary>A player is one name on one server (a character name is unique per server): when the game announces him under another
-    /// combat id (a map change gives everybody new ones), the old id is the same player and <see cref="IdentityMoved"/> says so.</summary>
+    /// <summary>The permanent character id of a player, as the frames that list players carry it (see OpcodeFamily.PlayerList). It never changes with the
+    /// combat id, so it tells two players of one name apart (two servers of a matched world) and confirms that two combat ids are one player.</summary>
+    public void NoteCharacterId(string name, int serverId, int characterId)
+    {
+        if (serverId is < 1000 or > 9999 || characterId <= 0 || name.Length < 2)
+        {
+            return;
+        }
+
+        lock (_gate)
+        {
+            if (!_characterOfName.TryGetValue(name, out var servers))
+            {
+                _characterOfName[name] = servers = new Dictionary<int, int>();
+            }
+
+            servers[serverId] = characterId;
+            if (!_serverOfName.ContainsKey(name))
+            {
+                _serverOfName[name] = serverId;
+            }
+        }
+    }
+
+    /// <summary>The permanent character id of the player of this name on this server, when a player list named him (0 = not known).</summary>
+    public int CharacterIdOf(string name, int serverId)
+    {
+        lock (_gate)
+        {
+            return _characterOfName.TryGetValue(name, out var servers) && servers.TryGetValue(serverId, out int characterId) ? characterId : 0;
+        }
+    }
+
+    /// <summary>A player is one name (unique per server): when the game announces him under another combat id - a map change gives everybody new ones,
+    /// and so does coming back into view - the old id is the same player and <see cref="IdentityMoved"/> says so. Called for every frame that
+    /// names a combat id; <paramref name="serverId"/> is 0 where the frame does not carry it (the nickname frame). Not the same player when
+    /// the servers differ, when the name is listed for two servers (two permanent character ids) and the frame does not say which, or when the two ids play other classes (a namesake of another server).</summary>
     public void NoteIdentity(int id, string name, int serverId)
     {
-        if (serverId is < 1000 or > 9999 || name.Length < 2)
+        if (name.Length < 2)
         {
             return;
         }
@@ -1273,23 +1310,42 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         int? moved = null;
         lock (_gate)
         {
-            string key = serverId + "|" + name;
-            if (_idOfIdentity.TryGetValue(key, out int previous) && previous != id)
+            if (serverId is >= 1000 and <= 9999 && !_serverOfName.ContainsKey(name))
             {
-                moved = previous;
+                _serverOfName[name] = serverId;
             }
 
-            _idOfIdentity[key] = id;
-            if (moved is not null)
+            if (_idOfName.TryGetValue(name, out int previous) && previous != id && !AreNamesakes(previous, id, name, serverId))
             {
+                moved = previous;
                 IdentityMovesSeen++;
             }
+
+            _idOfName[name] = id;
         }
 
         if (moved is int old)
         {
             IdentityMoved?.Invoke(old, id);
         }
+    }
+
+    // Called under _gate: two ids that carry the same name but cannot be one player.
+    private bool AreNamesakes(int previous, int id, string name, int serverId)
+    {
+        if (serverId is >= 1000 and <= 9999 && _serverOfName.TryGetValue(name, out int known) && known != serverId)
+        {
+            return true;
+        }
+
+        // A frame without a server (the nickname frame): a name the player lists know on two servers is two players, and which one this is stays open.
+        if (serverId == 0 && _characterOfName.TryGetValue(name, out var servers) && servers.Count > 1)
+        {
+            return true;
+        }
+
+        string? before = ClassOf(previous), now = ClassOf(id);
+        return before is not null && now is not null && before != now;
     }
 
     public int IdentityMovesSeen { get; private set; }
@@ -1836,6 +1892,11 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             if (_names.TryGetValue(id, out string? before) && before != name)
             {
                 _guilds.Remove(id);
+                // The id now belongs to another player: the old name must not point to it any more.
+                if (_ids.TryGetValue(before, out int ofBefore) && ofBefore == id)
+                {
+                    _ids.Remove(before);
+                }
             }
 
             _names[id] = name;

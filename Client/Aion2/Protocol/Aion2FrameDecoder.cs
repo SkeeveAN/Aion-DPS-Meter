@@ -371,6 +371,9 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.Appearance:
                 DecodeAppearance(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.PlayerList:
+                DecodePlayerList(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.NpcSpawn:
                 DecodeNpcSpawn(frame, timestamp);
                 return Array.Empty<DamageEvent>();
@@ -1510,6 +1513,7 @@ public sealed class Aion2FrameDecoder
             if (TryReadName(frame, k, out string name))
             {
                 _entities.Register((int)id, name);
+                _entities.NoteIdentity((int)id, name, 0);
                 ReadSeenProfile(frame, (int)id, k + 1 + frame[k]);
 
                 // The faction: the byte after the 4 bytes that follow the name is 1 for a player of an Elyos server and 2 for one of an
@@ -1554,6 +1558,32 @@ public sealed class Aion2FrameDecoder
     /// it (seen: Aera of server 1303 on a Krao Cave capture, 2026-10-02); the fields are read in
     /// order now, whatever the server.
     /// </summary>
+    /// <summary>The first character id of a player the game lists; below this one a "server id | id | 00 00 | server id | name" run is a legion (their ids stayed under 1,140, players' from 8,766 on).</summary>
+    private const int FirstCharacterId = 5000;
+
+    /// <summary>
+    /// A frame that lists players with their permanent character id: <c>server id (u16) | character id (u32) | 00 00 | the same server id |
+    /// length-prefixed name</c>, found by scanning (a legion is listed the same way with a small id and is skipped).
+    /// </summary>
+    private void DecodePlayerList(ReadOnlySpan<byte> frame)
+    {
+        for (int i = 2; i + 11 < frame.Length; i++)
+        {
+            int server = frame[i] | frame[i + 1] << 8;
+            if (server is < 1000 or > 9999 || frame[i + 6] != 0 || frame[i + 7] != 0 || frame[i + 8] != frame[i] || frame[i + 9] != frame[i + 1])
+            {
+                continue;
+            }
+
+            uint characterId = BinaryPrimitives.ReadUInt32LittleEndian(frame[(i + 2)..]);
+            if (characterId >= FirstCharacterId && TryReadName(frame, i + 10, out string name, minLength: 2))
+            {
+                _entities.NoteCharacterId(name, server, (int)characterId);
+                i += 10 + frame[i + 10];
+            }
+        }
+    }
+
     private void DecodeAppearance(ReadOnlySpan<byte> frame)
     {
         int p = 2;

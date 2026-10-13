@@ -80,6 +80,10 @@ public enum OpcodeFamily
     Inspect,
     /// <summary>"Player seen" frame: skill and combat id, then <c>18 05</c>, name and guild.</summary>
     Appearance,
+    /// <summary>Frames that list players with the game's permanent character id: <c>server id (u16) | character id (u32) | 00 00 | server id | length-prefixed name</c>
+    /// (0x0360, 0x74e2, 0x82e2). Unlike the combat id, which is handed out anew whenever a player comes into view, the character id of a player stays
+    /// the same (checked on 241 players in 66 recordings of 2026-10-05 to 13: no id with two names, no name with two ids).</summary>
+    PlayerList,
     Session,
     Kill,
     Avoid,
