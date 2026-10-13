@@ -6161,18 +6161,6 @@
     "ja": "メインウィンドウ",
     "ko": "메인 창"
   },
-  "Settings.Card.BossDisplay": {
-    "en": "Display during the fight",
-    "de": "Anzeige im Kampf",
-    "fr": "Affichage pendant le combat",
-    "es": "Visualización en el combate",
-    "ru": "Отображение в бою",
-    "zh": "战斗中的显示",
-    "zh-TW": "戰鬥中的顯示",
-    "pt": "Exibição durante a luta",
-    "ja": "戦闘中の表示",
-    "ko": "전투 중 표시"
-  },
   "Settings.Nav.Stream": {
     "en": "Streaming",
     "de": "Streaming",
@@ -6328,5 +6316,29 @@
     "pt": "não revivido",
     "ja": "復活せず",
     "ko": "부활하지 않음"
+  },
+  "Settings.Card.DisplayChips": {
+    "en": "Display during the fight - chips",
+    "de": "Anzeige im Kampf - Chips",
+    "fr": "Affichage pendant le combat - puces",
+    "es": "Visualización en el combate - fichas",
+    "ru": "Отображение в бою - чипы",
+    "zh": "战斗中的显示 - 小标签",
+    "zh-TW": "戰鬥中的顯示 - 小標籤",
+    "pt": "Exibição durante a luta - chips",
+    "ja": "戦闘中の表示 - チップ",
+    "ko": "전투 중 표시 - 칩"
+  },
+  "Settings.Card.DisplayCompact": {
+    "en": "Display during the fight - compact",
+    "de": "Anzeige im Kampf - kompakt",
+    "fr": "Affichage pendant le combat - compact",
+    "es": "Visualización en el combate - compacto",
+    "ru": "Отображение в бою - компактный",
+    "zh": "战斗中的显示 - 紧凑",
+    "zh-TW": "戰鬥中的顯示 - 精簡",
+    "pt": "Exibição durante a luta - compacto",
+    "ja": "戦闘中の表示 - コンパクト",
+    "ko": "전투 중 표시 - 컴팩트"
   }
 }

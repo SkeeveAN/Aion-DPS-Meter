@@ -600,10 +600,15 @@
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
-                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.BossDisplay}"/>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayChips}"/>
                                 <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}"/>
-                                <CheckBox x:Name="ShowBossHpBox" Content="{local:Loc Settings.ShowBossHp}"/>
                                 <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayCompact}"/>
+                                <CheckBox x:Name="ShowBossHpBox" Content="{local:Loc Settings.ShowBossHp}"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">
