@@ -239,11 +239,10 @@ public sealed class TargetIconView : Border
     }
 }
 
-/// <summary>The name of the target of the target, with whose target it is above it.</summary>
+/// <summary>The name of the target of the target (one name: a boss's or a player's).</summary>
 public sealed class TargetNameView : Border
 {
     private readonly TextBlock _name = new() { FontWeight = FontWeights.Bold, FontSize = 14, Foreground = OverlayPictures.Text, TextTrimming = TextTrimming.CharacterEllipsis };
-    private readonly TextBlock _from = new() { FontSize = 11, Foreground = OverlayPictures.Muted, TextTrimming = TextTrimming.CharacterEllipsis };
 
     public TargetNameView()
     {
@@ -252,16 +251,13 @@ public sealed class TargetNameView : Border
         BorderThickness = new Thickness(1);
         CornerRadius = new CornerRadius(6);
         Padding = new Thickness(6, 4, 6, 4);
-        var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        text.Children.Add(_from);
-        text.Children.Add(_name);
-        Child = text;
+        _name.VerticalAlignment = VerticalAlignment.Center;
+        Child = _name;
     }
 
     public void Show(TargetOfTargetData data)
     {
         _name.Text = data.Name;
-        _from.Text = data.From + " →";
     }
 }
 
