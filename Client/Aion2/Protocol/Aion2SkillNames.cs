@@ -226,6 +226,19 @@ public static class Aion2SkillNames
         return englishName;
     }
 
+    /// <summary>The client's own text of one skill id in the UI language (English included: a monster's skill is "Attack" in
+    /// <see cref="NameOf"/> but has its real name in the client), else <see cref="Display"/> of the English name.</summary>
+    public static string DisplayOf(int skillId)
+    {
+        if (LoadLocalized().TryGetValue(skillId, out var names)
+            && (names.TryGetValue(Language, out string? name) || names.TryGetValue("en", out name)) && !string.IsNullOrWhiteSpace(name))
+        {
+            return name;
+        }
+
+        return Display(NameOf(skillId));
+    }
+
     // English name -> the lowest skill id under that name that has localized names.
     private static IReadOnlyDictionary<string, int> LocalizedIdsByName()
     {

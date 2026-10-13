@@ -274,6 +274,12 @@ public sealed class MeterSettings
     /// <summary>The boss's health bar in the compact overlay (current / full, %, HP check mark).</summary>
     public bool ShowBossHp { get; set; }
 
+    /// <summary>How opaque the boss health bar window is (0.2 to 1).</summary>
+    public double BossHpOpacity { get; set; } = 1.0;
+
+    /// <summary>How opaque the boss cast bar window is (0.2 to 1).</summary>
+    public double CombatCastOpacity { get; set; } = 1.0;
+
     /// <summary>Start from zero when a fight begins after <see cref="AutoResetSeconds"/> without any
     /// damage, or when a boss is pulled: the meter shows the current fight, the previous one is kept
     /// in the fight history. Off by default - a reset throws the fight on screen away, so it is the

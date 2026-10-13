@@ -53,6 +53,9 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyUploadBossBox, HotkeyBinding.Parse(settings.HotkeyUploadBoss).ToString());
         SetHotkeyBox(HotkeyModeBox, HotkeyBinding.Parse(settings.HotkeyMode).ToString());
         ShowBossHpBox.IsChecked = settings.ShowBossHp;
+        BossHpOpacitySlider.Value = Math.Clamp(settings.BossHpOpacity * 100, 20, 100);
+        CombatCastOpacitySlider.Value = Math.Clamp(settings.CombatCastOpacity * 100, 20, 100);
+        ShowCombatOpacityValues();
         ShowTimetableBox.IsChecked = settings.ShowTimetable;
         ShowPetFarmBox.IsChecked = settings.ShowPetFarm;
         PetFarmLockedBox.IsChecked = settings.PetFarmLocked;
@@ -547,6 +550,8 @@ public partial class SettingsWindow : Window
         _settings.HotkeyUploadBoss = (string?)HotkeyUploadBossBox.Tag ?? "";
         _settings.HotkeyMode = (string?)HotkeyModeBox.Tag ?? "";
         _settings.ShowBossHp = ShowBossHpBox.IsChecked ?? false;
+        _settings.BossHpOpacity = BossHpOpacitySlider.Value / 100.0;
+        _settings.CombatCastOpacity = CombatCastOpacitySlider.Value / 100.0;
         _settings.ShowTimetable = ShowTimetableBox.IsChecked ?? true;
         _settings.ShowPetFarm = ShowPetFarmBox.IsChecked ?? false;
         _settings.PetFarmLocked = PetFarmLockedBox.IsChecked ?? true;
@@ -1030,6 +1035,19 @@ public partial class SettingsWindow : Window
         bool on = ShowPetMapBox.IsChecked == true;
         PetMapSliders.IsEnabled = on;
         PetMapSliders.Opacity = on ? 1.0 : 0.4;
+    }
+
+    private void OnCombatOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowCombatOpacityValues();
+
+    private void ShowCombatOpacityValues()
+    {
+        if (BossHpOpacityValue is null || CombatCastOpacityValue is null)
+        {
+            return;
+        }
+
+        BossHpOpacityValue.Text = $"{(int)BossHpOpacitySlider.Value} %";
+        CombatCastOpacityValue.Text = $"{(int)CombatCastOpacitySlider.Value} %";
     }
 
     private void OnPetMapSliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowPetMapSliderValues();

@@ -612,6 +612,13 @@
                             <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayCompact}"/>
                                 <CheckBox x:Name="ShowBossHpBox" Content="{local:Loc Settings.ShowBossHp}"/>
+                                <Grid Margin="0,6,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="*"/><ColumnDefinition Width="56"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{local:Loc Settings.PetMap.Opacity}" VerticalAlignment="Center"/>
+                                    <Slider Grid.Column="1" x:Name="BossHpOpacitySlider" Style="{StaticResource ThemedSlider}" Minimum="20" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                            SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnCombatOpacityChanged"/>
+                                    <TextBlock Grid.Column="2" x:Name="BossHpOpacityValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                </Grid>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SettingsCard}">
@@ -629,6 +636,13 @@
                                 <ComboBox x:Name="CombatCastFilterCombo" HorizontalAlignment="Left" MinWidth="240"/>
                                 <TextBlock Text="{local:Loc Settings.Combat.MaxCasts}" Margin="0,8,0,2"/>
                                 <ComboBox x:Name="CombatMaxCastsCombo" HorizontalAlignment="Left" MinWidth="80"/>
+                                <Grid Margin="0,8,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="*"/><ColumnDefinition Width="56"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{local:Loc Settings.PetMap.Opacity}" VerticalAlignment="Center"/>
+                                    <Slider Grid.Column="1" x:Name="CombatCastOpacitySlider" Style="{StaticResource ThemedSlider}" Minimum="20" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                            SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnCombatOpacityChanged"/>
+                                    <TextBlock Grid.Column="2" x:Name="CombatCastOpacityValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                </Grid>
                                 <CheckBox x:Name="CombatAllMonstersBox" Content="{local:Loc Settings.Combat.AllMonsters}" Margin="0,8,0,0"/>
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Combat.CastHint}" Margin="0,8,0,0"/>
                             </StackPanel>
