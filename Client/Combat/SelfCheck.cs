@@ -34,6 +34,7 @@ public static class SelfCheck
         ok &= SelfCheckMenu.Run();
         ok &= SelfCheckSettings.Run();
         ok &= SelfCheckStream.Run();
+        ok &= SelfCheckHitKinds.Run();
         return ok;
     }
 

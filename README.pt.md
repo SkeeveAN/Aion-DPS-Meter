@@ -88,7 +88,7 @@ Opcional (**Configurações → Interface → Ocultar durante os menus do jogo**
 ### Detalhamento de habilidades de cada jogador
 
 **Clique duas vezes** em um jogador: cada habilidade com acertos, taxa de crítico, total, mín., máx. e média, dividida por alvo,
-além de uma curva de DPS ao longo de toda a luta. As taxas de crítico são lidas diretamente dos dados de acerto do servidor, portanto são exatas.
+além de uma curva de DPS ao longo de toda a luta. As taxas de crítico são lidas diretamente dos dados de acerto do servidor, portanto são exatas. A tabela também mostra como os golpes de uma habilidade acertaram: **Costas**, **Frente**, **Perfeito**, **Duplo** e **Multi** (vários golpes em um único acerto) como a parcela de seus acertos diretos, lida dos dados de acerto. Duplo (cerca do dobro de dano), Perfeito (um pequeno bônus) e Defesa foram conferidos com o dano que causam; Costas e Frente vêm de um byte de direção que ainda não foi verificado no jogo, e a janela avisa isso.
 
 <p align="center">
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Detalhamento de habilidades de um jogador com uma curva de dano ao longo do tempo">

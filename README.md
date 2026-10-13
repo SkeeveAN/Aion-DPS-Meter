@@ -88,7 +88,7 @@ Optional (**Settings → Interface → Hide during game menus**, off by default)
 ### Skill breakdown for every player
 
 **Double-click** a player: every skill with hits, crit rate, total, min, max and average, split by target,
-plus a DPS curve over the whole fight. Crit rates are read straight from the server's hit data, so they are exact.
+plus a DPS curve over the whole fight. Crit rates are read straight from the server's hit data, so they are exact. The table also shows how a skill's hits landed: **Back**, **Front**, **Perfect**, **Double** and **Multi** (several strikes in one hit) as the share of its direct hits, read from the hit data. Double (about twice the damage), Perfect (a small bonus) and Parry were checked against the damage they do; Back and Front come from a direction byte that has not been checked against the game yet, and the window says so.
 
 <p align="center">
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Skill breakdown of one player with a damage-over-time curve">

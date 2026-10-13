@@ -18,7 +18,21 @@ public sealed record TargetRow(string Name, long Total, double Dps, double Share
 }
 
 public sealed record SkillRow(string Skill, int Hits, double CritRate, long Total, long Min, long Max, long Average, double SharePercent,
-    System.Windows.Media.ImageSource? Icon = null);
+    System.Windows.Media.ImageSource? Icon = null, HitKindCounts? Kinds = null)
+{
+    private string Of(int count) => Kinds is { Known: > 0 } k ? k.Rate(count).ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "%" : "–";
+
+    /// <summary>The share of this skill's direct hits that landed from behind / from the front / perfect / double / as several strikes (from the hit data; "–" when it said nothing).</summary>
+    public string BackDisplay => Kinds is null ? "–" : Of(Kinds.Back);
+
+    public string FrontDisplay => Kinds is null ? "–" : Of(Kinds.Front);
+
+    public string PerfectDisplay => Kinds is null ? "–" : Of(Kinds.Perfect);
+
+    public string DoubleDisplay => Kinds is null ? "–" : Of(Kinds.Double);
+
+    public string MultiDisplay => Kinds is null ? "–" : Of(Kinds.Multi);
+}
 
 /// <summary>
 /// What the meter has gathered about one character: which abilities they used, how often, how hard
@@ -139,7 +153,7 @@ public partial class PlayerDetailsWindow : Window
                 u.Max,
                 (long)Math.Round((double)u.Total / u.Hits),
                 total > 0 ? 100.0 * u.Total / total : 0,
-                IconFor(u.SkillId, u.Skill, className)))
+                IconFor(u.SkillId, u.Skill, className), u.Kinds))
             .ToList();
 
         SkillsGrid.ItemsSource = rows;
@@ -181,9 +195,17 @@ public partial class PlayerDetailsWindow : Window
         HitsPerSecTileText.Text = seconds is double s3 ? (hits / s3).ToString("F1") : "n/a";
         HitsTileText.Text = hits.ToString("N0");
         int critHits = breakdown.Sum(u => u.CritHits);
+        // how the hits landed over the whole fight: only when the hit data said anything
+        var allKinds = HitKindCounts.Of(damage.Where(e => !e.IsTick).ToList());
+        if (!heals && !taken && allKinds.Known > 0)
+        {
+            SummaryText.Text += $" · {loc["Details.Col.Back"]} {allKinds.Rate(allKinds.Back):0.#}% · {loc["Details.Col.Perfect"]} {allKinds.Rate(allKinds.Perfect):0.#}% · {loc["Details.Col.Double"]} {allKinds.Rate(allKinds.Double):0.#}% · {loc["Details.Col.Multi"]} {allKinds.Rate(allKinds.Multi):0.#}%";
+        }
+
         CritTileText.Text = hits > 0 ? (100.0 * critHits / hits).ToString("F1") + "%" : "n/a";
 
-        CritNoteText.Text = "Crit rates are read straight from the game server's hit data, exact for every player.";
+        CritNoteText.Text = "Crit rates are read straight from the game server's hit data, exact for every player. "
+            + loc["Details.Kinds.Note"];
         CritNoteText.Visibility = heals ? Visibility.Collapsed : Visibility.Visible;
 
         // Taken: the deaths in this fight, each with its killing blow, where the crit note was.

@@ -88,7 +88,7 @@ Optional (**Einstellungen → Oberfläche → Bei Spielmenüs ausblenden**, stan
 ### Skill-Aufschlüsselung für jeden Spieler
 
 **Doppelklick** auf einen Spieler: jeder Skill mit Treffern, Crit-Rate, Summe, Min, Max und Durchschnitt, aufgeteilt nach Ziel,
-dazu eine DPS-Kurve über den gesamten Kampf. Crit-Raten werden direkt aus den Trefferdaten des Servers gelesen und sind daher exakt.
+dazu eine DPS-Kurve über den gesamten Kampf. Crit-Raten werden direkt aus den Trefferdaten des Servers gelesen und sind daher exakt. Die Tabelle zeigt außerdem, wie die Treffer einer Fertigkeit gelandet sind: **Rücken**, **Front**, **Perfekt**, **Doppelt** und **Multi** (mehrere Schläge in einem Treffer) als Anteil ihrer direkten Treffer, gelesen aus den Trefferdaten. Doppelt (etwa der doppelte Schaden), Perfekt (ein kleiner Bonus) und Parade wurden anhand des Schadens geprüft, den sie verursachen; Rücken und Front stammen aus einem Richtungsbyte, das noch nicht gegen das Spiel geprüft wurde, und das Fenster weist darauf hin.
 
 <p align="center">
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Skill-Aufschlüsselung eines Spielers mit einer Schaden-über-Zeit-Kurve">

@@ -1,6 +1,6 @@
 # Trefferarten: Perfect, Double, Back, Front (und Multi-Hit, Parade)
 
-Branch: `feature/hit-type-analysis` · Stand: Plan, noch nichts umgesetzt
+Branch: `feature/hit-type-analysis` · Stand: umgesetzt, Rücken/Front noch unbestätigt (siehe „Umsetzungsstand“ am Ende)
 
 ## Ziel
 
@@ -54,3 +54,19 @@ Ergebnis: `docs/protocol/hit-kinds.md` mit Feldlayout, Beispielbytes, Trefferquo
 - **Debug-Aufnahmen des Clients:** `%APPDATA%\Aion DPS Meter\Debug\aion2-<Datum>-<Charakter>.jsonl` (22 Dateien, 540 MB, 11./12.10.). Gleiches Format: ein JSON pro TCP-Segment `{"T","From","To","Seq","Server","Data":base64}`, Server-Port 13328.
 - **Gespeicherte Kämpfe:** `%APPDATA%\Aion DPS Meter\fights.db` (`events_gz`).
 - Nur lesen, nie verändern; große Dateien streamen.
+
+## Umsetzungsstand (13.10.2026)
+
+**Fertig und geprüft (echte Frames im Selftest, drei Aufnahmen mit rund 170.000 Treffern):**
+
+- Phase 0: Befund in [docs/protocol/hit-kinds.md](../protocol/hit-kinds.md) mit der Prüfung der Flags gegen den Schaden. **Doppelt (×2), Perfekt (×1,1) und Parade (×0,4) sind belegt**; Krit stimmt als Gegenprobe (×1,8). **Rücken/Front:** das Richtungs-Byte existiert, hat aber keinen gleichbleibenden Schadenseffekt - nicht bestätigt.
+- Phase 1: `DamageEvent` trägt `Kinds` (null = keine Angabe, z. B. Heilungen, DoT, ältere Kämpfe) und `HitCount`; der Decoder liest sie (`ReadHitKinds`); `EventBlob` und `SessionFile` speichern sie (alte Dateien laden weiter, ohne Angabe).
+- Phase 2 (Anzeige): Spalten Rücken / Front / Perfekt / Doppelt / Multi je Skill im Detailfenster (Anteil der Treffer, über die Treffer mit Angabe; „–“ ohne Angabe), Summenzeile, Hinweistext mit dem Vorbehalt zu Rücken/Front; zehn Sprachen; README (alle zehn).
+- Werkzeug: `aion2-replay` gibt am Ende die Schadenswirkung jedes Flags aus (`HitKindStats`), damit sich jede Aufnahme prüfen lässt.
+
+**Bewusst offen:**
+
+- **Testmitschnitt von dir** (siehe Protokoll-Datei: 3 Minuten, je eine Minute von hinten / vorn / seitlich), um Rücken/Front eindeutig zuzuordnen; danach entscheidet sich, ob die Spalten bleiben oder umbenannt werden.
+- Upload-Paket und Backend-Schema (optionale Felder) und die Spielerseite der Website: nicht gebaut; der Upload ist unverändert.
+- Treffer-Arten für eingehenden Schaden (Parade-Quote des Spielers) als eigene Anzeige: nicht gebaut.
+- Changelog-Eintrag und Features-Seite folgen beim Merge nach `main`.

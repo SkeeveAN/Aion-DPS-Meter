@@ -23,7 +23,9 @@ public static class SessionFile
     public static string DefaultDirectory => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aion DPS Meter", "Sessions");
 
-    private sealed record EventDto(long T, int K, int S, int G, long A, bool H, string? Sk, bool C);
+    private sealed record EventDto(long T, int K, int S, int G, long A, bool H, string? Sk, bool C,
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? F = null,
+        [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? N = null);
 
     private sealed record AvoidDto(long T, int K, int S, int G, int Kind, string? Sk);
 
@@ -49,7 +51,7 @@ public static class SessionFile
         var payload = new Payload(
             1,
             DateTime.Now,
-            events.Select(e => new EventDto(e.Timestamp.Ticks, (int)e.Timestamp.Kind, e.SourceObjectId, e.TargetObjectId, e.Amount, e.IsHeal, e.Skill, e.IsCritical)).ToList(),
+            events.Select(e => new EventDto(e.Timestamp.Ticks, (int)e.Timestamp.Kind, e.SourceObjectId, e.TargetObjectId, e.Amount, e.IsHeal, e.Skill, e.IsCritical, e.Kinds is { } kinds ? (int)kinds : null, e.HitCount > 1 ? e.HitCount : null)).ToList(),
             avoids.Select(a => new AvoidDto(a.Timestamp.Ticks, (int)a.Timestamp.Kind, a.SourceObjectId, a.TargetObjectId, (int)a.Kind, a.Skill)).ToList(),
             kills.Select(k => new KillDto(k.Timestamp.Ticks, (int)k.Timestamp.Kind, k.KillerObjectId, k.VictimObjectId, k.VictimIsPlayer)).ToList(),
             names.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value),
@@ -77,7 +79,7 @@ public static class SessionFile
             ?? throw new InvalidDataException("Not a valid Aion DPS session file.");
 
         var events = payload.Events
-            .Select(d => new DamageEvent(new DateTime(d.T, (DateTimeKind)d.K), d.S, d.G, d.A, d.H, d.Sk, d.C))
+            .Select(d => new DamageEvent(new DateTime(d.T, (DateTimeKind)d.K), d.S, d.G, d.A, d.H, d.Sk, d.C, Kinds: d.F is int f ? (HitKinds)f : null, HitCount: d.N ?? 1))
             .ToList();
         var avoids = payload.Avoids
             .Select(d => new AvoidEvent(new DateTime(d.T, (DateTimeKind)d.K), d.S, d.G, (AvoidKind)d.Kind, d.Sk))

@@ -610,6 +610,34 @@ public sealed class Aion2FrameDecoder
     }
 
     /// <summary>
+    /// How a hit landed, from the bytes after its damage type (<paramref name="p"/> is the byte after the skill id): the first flag byte's low nibble 4 is a plain hit with
+    /// nothing more; 5-7 add three bytes - a bit set (2 parry, 4 perfect, 8 double) and, two bytes on, the direction (1 back, 2 front). Null when the frame is too short or of
+    /// another kind.
+    /// </summary>
+    private static HitKinds? ReadHitKinds(ReadOnlySpan<byte> frame, int p, int flags)
+    {
+        int kind = flags & 0xf;
+        if (kind == 4)
+        {
+            return HitKinds.None;
+        }
+
+        if (kind is < 5 or > 7 || p + 5 > frame.Length)
+        {
+            return null;
+        }
+
+        byte bits = frame[p + 2], direction = frame[p + 4];
+        HitKinds kinds = HitKinds.None;
+        if ((bits & 2) != 0) { kinds |= HitKinds.Parry; }
+        if ((bits & 4) != 0) { kinds |= HitKinds.Perfect; }
+        if ((bits & 8) != 0) { kinds |= HitKinds.Double; }
+        if (direction == 1) { kinds |= HitKinds.Back; }
+        else if (direction == 2) { kinds |= HitKinds.Front; }
+        return kinds;
+    }
+
+    /// <summary>
     /// A summon that appeared before the meter started has no spawn frame on record, so neither its
     /// owner field nor its owner's name nor the cast before it is known. It still casts nothing but
     /// its summon attack (a spirit's "Fire Spirit: Leaping Slam", a Cleric's "Divine Aura", a
@@ -681,6 +709,7 @@ public sealed class Aion2FrameDecoder
         }
 
         bool critical = frame[p + 1] == 3;
+        HitKinds? kinds = ReadHitKinds(frame, p, flags);
 
         int marker = -1;
         for (int i = p + 2; i + 4 <= frame.Length; i++)
@@ -695,6 +724,7 @@ public sealed class Aion2FrameDecoder
         // The amount follows the marker and one more varint (a hit-kind field). Mostly that field is two
         // bytes long, but with larger values (battlefield frames: A0 9C 01, 94 A0 01) it is three, and
         // a fixed "marker + 6" then read the field's last byte as the damage: every hit read as 1.
+        int hitCount = marker >= 0 ? Math.Clamp((int)frame[marker], 1, 9) : 1;
         int q = marker + 4;
         if (marker < 0 || !TryReadVarint(frame, ref q, out _) || q >= frame.Length || !TryReadVarint(frame, ref q, out long amount) || amount <= 0 || amount > MaxPlausibleAmount)
         {
@@ -747,7 +777,7 @@ public sealed class Aion2FrameDecoder
             _entities.Combat.NoteHit(timestamp, source, (int)target, skillId, amount, _entities.IsKnownPlayer((int)target), _entities.IsLocalPlayer((int)target));
         }
 
-        return new[] { new DamageEvent(timestamp, source, (int)target, amount, isHeal, skill, critical && !isHeal, SkillId: skillId) };
+        return new[] { new DamageEvent(timestamp, source, (int)target, amount, isHeal, skill, critical && !isHeal, SkillId: skillId, Kinds: isHeal ? null : kinds, HitCount: hitCount) };
     }
 
     /// <summary>
