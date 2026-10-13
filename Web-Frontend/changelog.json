@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The Features page shows the combat analyzer next to the session manager in place of the old skill breakdown picture",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.42.0",
   "date": "2026-10-13",
   "items": [
