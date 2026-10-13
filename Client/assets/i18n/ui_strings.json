@@ -5968,5 +5968,77 @@
     "ja": "配信オーバーレイを起動できませんでした。空きポートがありません（設定で別のポートを試してください）。",
     "ko": "스트림 오버레이를 시작할 수 없습니다. 사용 가능한 포트가 없습니다(설정에서 다른 포트를 시도하세요).",
     "zh-TW": "無法啟動直播浮動層：沒有可用連接埠（請在設定中換一個）。"
+  },
+  "Details.Col.Back": {
+    "en": "Back",
+    "de": "Rücken",
+    "fr": "Dos",
+    "es": "Espalda",
+    "ru": "Сзади",
+    "zh": "背击",
+    "pt": "Costas",
+    "ja": "背面",
+    "ko": "후방",
+    "zh-TW": "背擊"
+  },
+  "Details.Col.Front": {
+    "en": "Front",
+    "de": "Front",
+    "fr": "Face",
+    "es": "Frente",
+    "ru": "Спереди",
+    "zh": "正面",
+    "pt": "Frente",
+    "ja": "正面",
+    "ko": "전방",
+    "zh-TW": "正面"
+  },
+  "Details.Col.Perfect": {
+    "en": "Perfect",
+    "de": "Perfekt",
+    "fr": "Parfait",
+    "es": "Perfecto",
+    "ru": "Идеально",
+    "zh": "完美",
+    "pt": "Perfeito",
+    "ja": "パーフェクト",
+    "ko": "완벽",
+    "zh-TW": "完美"
+  },
+  "Details.Col.Double": {
+    "en": "Double",
+    "de": "Doppelt",
+    "fr": "Double",
+    "es": "Doble",
+    "ru": "Двойной",
+    "zh": "双重",
+    "pt": "Duplo",
+    "ja": "ダブル",
+    "ko": "더블",
+    "zh-TW": "雙重"
+  },
+  "Details.Col.Multi": {
+    "en": "Multi",
+    "de": "Multi",
+    "fr": "Multi",
+    "es": "Multi",
+    "ru": "Мульти",
+    "zh": "多段",
+    "pt": "Multi",
+    "ja": "多段",
+    "ko": "다단",
+    "zh-TW": "多段"
+  },
+  "Details.Kinds.Note": {
+    "en": "Back, front, perfect, double and multi are the share of a skill's hits that landed that way, read from the hit data (\"–\" where it said nothing). Back and front come from a direction byte of the hit data that has not been checked against the game yet.",
+    "de": "Rücken, Front, Perfekt, Doppelt und Multi sind der Anteil der Treffer eines Skills, die so gelandet sind, gelesen aus den Trefferdaten („–“, wo sie nichts sagten). Rücken und Front stammen aus einem Richtungs-Byte der Trefferdaten, das noch nicht am Spiel geprüft ist.",
+    "fr": "Dos, face, parfait, double et multi sont la part des coups d'une compétence qui ont atterri ainsi, lue dans les données de coup (« – » lorsqu'elles ne disaient rien). Dos et face viennent d'un octet de direction des données de coup qui n'a pas encore été vérifié dans le jeu.",
+    "es": "Espalda, frente, perfecto, doble y multi son la parte de los golpes de una habilidad que cayeron así, leída de los datos del golpe (\"–\" donde no decían nada). Espalda y frente salen de un byte de dirección de los datos del golpe que aún no se ha comprobado en el juego.",
+    "ru": "Сзади, спереди, идеально, двойной и мульти - доля ударов умения, прошедших так, по данным об ударе (\"–\" там, где данных нет). «Сзади» и «спереди» берутся из байта направления в данных об ударе, который ещё не проверен в игре.",
+    "zh": "背击、正面、完美、双重和多段表示该技能的命中中以此方式命中的比例，数据来自命中信息（没有信息时显示“–”）。“背击”和“正面”来自命中信息中的方向字节，尚未在游戏中核实。",
+    "pt": "Costas, frente, perfeito, duplo e multi são a parte dos golpes de uma habilidade que acertaram assim, lida dos dados do golpe (\"–\" onde não diziam nada). Costas e frente vêm de um byte de direção dos dados do golpe que ainda não foi conferido no jogo.",
+    "ja": "背面・正面・パーフェクト・ダブル・多段は、スキルの命中のうちそのように当たった割合で、命中データから読み取っています（データがない場合は「–」）。「背面」と「正面」は命中データの方向バイトから読み取っており、まだゲーム内で確認していません。",
+    "ko": "후방·전방·완벽·더블·다단은 스킬 적중 중 그렇게 적중한 비율이며 적중 데이터에서 읽습니다(데이터가 없으면 \"–\"). \"후방\"과 \"전방\"은 적중 데이터의 방향 바이트에서 읽으며 아직 게임에서 확인하지 않았습니다.",
+    "zh-TW": "背擊、正面、完美、雙重和多段表示該技能的命中中以此方式命中的比例，資料來自命中資訊（沒有資訊時顯示「–」）。「背擊」和「正面」來自命中資訊中的方向位元組，尚未在遊戲中核實。"
   }
 }

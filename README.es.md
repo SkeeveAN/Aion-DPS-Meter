@@ -88,7 +88,7 @@ Opcional (**Ajustes → Interfaz → Ocultar durante los menús del juego**, des
 
 **Doble clic** en un jugador: todas las habilidades con golpes, tasa de crítico, total, mín., máx. y media,
 desglosadas por objetivo, además de una curva de DPS de todo el combate. Las tasas de crítico se leen directamente de
-los datos de golpe del servidor, así que son exactas.
+los datos de golpe del servidor, así que son exactas. La tabla también muestra cómo han impactado los golpes de una habilidad: **Espalda**, **Frente**, **Perfecto**, **Doble** y **Multi** (varios ataques en un solo golpe) como porcentaje de sus golpes directos, leído de los datos de golpe. Doble (aproximadamente el doble de daño), Perfecto (una pequeña bonificación) y Parada se comprobaron con el daño que causan; Espalda y Frente proceden de un byte de dirección que aún no se ha verificado en el juego, y la ventana lo indica.
 
 <p align="center">
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Desglose de habilidades de un jugador con una curva de daño a lo largo del tiempo">

@@ -639,7 +639,12 @@ internal static class Program
             {
                 var skill = skills[random.Next(skills.Length)];
                 int target = random.Next(5) == 0 ? 2 : 1;
-                events.Add(new Combat.DamageEvent(start.AddSeconds(t + random.NextDouble()), 5, target, random.Next(300, 3000) * (skill.Weight > 8 ? 1 : 3), false, skill.Skill, random.Next(5) == 0, SkillId: skill.Id));
+                {
+                    double roll = random.NextDouble();
+                    var kinds = (roll < 0.18 ? Combat.HitKinds.Back : Combat.HitKinds.Front) | (random.NextDouble() < 0.12 ? Combat.HitKinds.Perfect : 0) | (random.NextDouble() < 0.04 ? Combat.HitKinds.Double : 0);
+                    events.Add(new Combat.DamageEvent(start.AddSeconds(t + random.NextDouble()), 5, target, random.Next(300, 3000) * (skill.Weight > 8 ? 1 : 3), false, skill.Skill, random.Next(5) == 0, SkillId: skill.Id,
+                        Kinds: kinds, HitCount: random.NextDouble() < 0.1 ? 2 : 1));
+                }
             }
         }
 
@@ -1554,6 +1559,16 @@ internal static class Program
         if (source.Entities is Aion2.Aion2EntityDirectory idEnd)
         {
             Console.WriteLine($"aion2-replay: {idEnd.IdentityMovesSeen} player(s) came back under a new combat id");
+        }
+
+        if (events.Count > 0)
+        {
+            // what the hit data says about how hits landed, and whether the flags do what they are called (a double hit should do more than the same skill without it)
+            Console.WriteLine("aion2-replay: hit kinds (hits with the flag; skills compared; median damage ratio with / without):");
+            foreach (var effect in Combat.HitKindStats.Effects(events))
+            {
+                Console.WriteLine($"  {effect.Name,-8} {effect.Hits,7} hits  {effect.SkillsCompared,3} skills  x{effect.MedianRatio:0.00}");
+            }
         }
 
         if (source.Entities is Aion2.Aion2EntityDirectory combatDirectory)

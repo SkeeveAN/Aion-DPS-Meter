@@ -90,7 +90,7 @@ Facultatif (**Paramètres → Interface → Masquer pendant les menus du jeu**, 
 
 **Double-clic** sur un joueur : chaque compétence avec ses coups, son taux de critique, son total, son min, son max
 et sa moyenne, répartis par cible, plus une courbe de DPS sur tout le combat. Les taux de critique sont lus
-directement dans les données de coups du serveur ; ils sont donc exacts.
+directement dans les données de coups du serveur ; ils sont donc exacts. Le tableau montre aussi comment les coups d'une compétence ont porté : **Dos**, **Face**, **Parfait**, **Double** et **Multi** (plusieurs frappes en un seul coup) en part de ses coups directs, lue dans les données de coups. Double (environ le double des dégâts), Parfait (un petit bonus) et Parade ont été vérifiés d'après les dégâts qu'ils infligent ; Dos et Face proviennent d'un octet de direction qui n'a pas encore été vérifié dans le jeu, et la fenêtre le signale.
 
 <p align="center">
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Détail des compétences d'un joueur avec une courbe de dégâts dans le temps">
