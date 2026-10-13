@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.43.3",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The boss cast bar shows again, and a Cleric's summon no longer appears as a stranger in the group",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.43.2",
   "date": "2026-10-13",
   "items": [
