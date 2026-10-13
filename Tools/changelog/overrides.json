@@ -69,5 +69,18 @@
  "ce7d96c": null,
  "5d7ce42": "Rotation, effects and stagger in the player window: skills on a timeline with the DPS behind them, uptime of every effect and stagger bands, also for a stored session",
  "54db00a": "Settings that survive a crash (written safely, with a copy from the last start) and a reset to defaults that can be undone for 30 seconds",
- "afed447": "The meter in your stream: a browser source for OBS and Streamlabs that shows the meter live, also for a second streaming PC in your own network (never reachable from the internet)"
+ "afed447": "The meter in your stream: a browser source for OBS and Streamlabs that shows the meter live, also for a second streaming PC in your own network (never reachable from the internet)",
+ "a05dd04": null,
+ "391f37c": null,
+ "2f7780b": null,
+ "100f1ce": null,
+ "4ab021a": null,
+ "8efb5bf": null,
+ "d2bc857": null,
+ "8c89163": null,
+ "3c83fc3": null,
+ "d08d427": null,
+ "0b7c890": "Boss fight overlay: the boss cast bar and a target of the target block (picture and name, with health bar and debuffs for healers), each part movable on its own and the whole block movable and scalable together",
+ "cb54ab9": "Settings sorted: General (was Capture) with the reset, a Boss fight page with the overlay switches, a Streaming page for OBS, and one Overlays group in the hotkeys with all overlays on/off first; always on top at startup is a main window setting, not an overlay one",
+ "2637be9": null
 }
