@@ -945,7 +945,6 @@ public partial class SettingsWindow : Window
         CombatAllMonstersBox.IsChecked = settings.CombatCastsOfAllMonsters;
         FillChoice(CombatCastFilterCombo, new[] { ("all", loc["Settings.Combat.Filter.All"]), ("area", loc["Settings.Combat.Filter.Area"]), ("you", loc["Settings.Combat.Filter.You"]) }, settings.CombatCastFilter);
         FillChoice(CombatMaxCastsCombo, new[] { ("1", "1"), ("2", "2"), ("3", "3") }, Math.Clamp(settings.CombatMaxCasts, 1, 3).ToString());
-        FillChoice(CombatHealerKindCombo, new[] { ("debuffs", loc["Settings.Combat.Kind.Debuffs"]), ("buffs", loc["Settings.Combat.Kind.Buffs"]), ("all", loc["Settings.Combat.Kind.All"]) }, settings.CombatHealerEffectKind);
     }
 
     private static void FillChoice(ComboBox box, IEnumerable<(string Value, string Text)> choices, string selected)
@@ -973,7 +972,6 @@ public partial class SettingsWindow : Window
         settings.CombatCastsOfAllMonsters = CombatAllMonstersBox.IsChecked ?? false;
         settings.CombatCastFilter = Chosen(CombatCastFilterCombo, "all");
         settings.CombatMaxCasts = int.TryParse(Chosen(CombatMaxCastsCombo, "2"), out int most) ? most : 2;
-        settings.CombatHealerEffectKind = Chosen(CombatHealerKindCombo, "debuffs");
     }
 
     private void OnCombatResetClicked(object sender, RoutedEventArgs e)

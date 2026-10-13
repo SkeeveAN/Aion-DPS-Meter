@@ -95,7 +95,7 @@ public static class CombatOverlayData
             settings.CombatShowHealer ? Effects(dir, settings, aimed, now) : null);
     }
 
-    /// <summary>The effects on an entity that the settings ask for (debuffs, buffs or both); none when effects are switched off.</summary>
+    /// <summary>The debuffs on an entity (effects from monsters or from the room, no buffs); none when effects are switched off.</summary>
     private static IReadOnlyList<EffectData> Effects(Aion2EntityDirectory dir, MeterSettings settings, int id, DateTime now)
     {
         var effects = new List<EffectData>();
@@ -106,8 +106,8 @@ public static class CombatOverlayData
 
         foreach (BuffNotice buff in dir.Combat.BuffsOn(id, now))
         {
-            bool debuff = dir.IsKnownMonster(buff.Caster) || buff.Caster <= 0; // from a monster, or from nobody (the room)
-            if ((settings.CombatHealerEffectKind == "debuffs" && !debuff) || (settings.CombatHealerEffectKind == "buffs" && debuff))
+            // only debuffs: put on by a monster (the boss) or by nobody (the room)
+            if (!dir.IsKnownMonster(buff.Caster) && buff.Caster > 0)
             {
                 continue;
             }
@@ -120,7 +120,7 @@ public static class CombatOverlayData
                 continue; // an effect the game gives no name and no picture (system effects): nothing to show
             }
 
-            effects.Add(new EffectData(Aion2SkillNames.Display(english), icon, time, debuff));
+            effects.Add(new EffectData(Aion2SkillNames.Display(english), icon, time, true));
         }
 
         return effects;
@@ -343,7 +343,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
         {
             _targetIcon.Show(tot);
             _targetName.Show(tot);
-            _targetHp.Show(tot.Hp, tot.MaxHp);
+            _targetHp.Show(tot.Hp, tot.MaxHp, tot.Effects is { Count: > 0 });
             _targetEffects.Show(tot.Effects ?? Array.Empty<EffectData>());
         }
 

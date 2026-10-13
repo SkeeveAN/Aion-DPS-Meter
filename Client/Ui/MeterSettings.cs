@@ -195,8 +195,6 @@ public sealed class MeterSettings
     public bool CombatHealerHpBar { get; set; } = true;
     public bool CombatHealerEffects { get; set; } = true;
 
-    /// <summary>Which effects the healer's element lists: "debuffs" (put on by monsters), "buffs" (by anyone else) or "all".</summary>
-    public string CombatHealerEffectKind { get; set; } = "debuffs";
 
     /// <summary>Which casts the bar shows: "all", "area" (at you and area attacks) or "you" (only at you).</summary>
     public string CombatCastFilter { get; set; } = "all";

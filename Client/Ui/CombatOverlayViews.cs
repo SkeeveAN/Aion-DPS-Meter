@@ -68,6 +68,7 @@ internal static class OverlayPictures
     public static readonly Brush Text = Brush(0xF2, 0xF5, 0xF8);
     public static readonly Brush Muted = Brush(0x9D, 0xB3, 0xC2);
     public static readonly Brush Amber = Brush(0xFF, 0xBA, 0x42);
+    public static readonly Brush HpGreen = Brush(0x2E, 0x9E, 0x4F);
     public static readonly Brush HpRed = Brush(0xC8, 0x32, 0x3C);
     public static readonly Brush Red = Brush(0xFF, 0x5A, 0x5A);
     public static readonly Brush Green = Brush(0x5B, 0xD0, 0x7A);
@@ -265,7 +266,11 @@ public sealed class TargetNameView : Border
 /// <summary>A hit point bar on a card of its own (current, maximum and percent in the bar).</summary>
 public sealed class HpBarView : Border
 {
-    private readonly TextBlock _text = new() { FontSize = 11, Foreground = OverlayPictures.Text, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+    private readonly TextBlock _text = new()
+    {
+        FontSize = 11, FontWeight = FontWeights.SemiBold, Foreground = OverlayPictures.Text, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
+        Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = Colors.Black, BlurRadius = 3, ShadowDepth = 0, Opacity = 1 },
+    };
     private readonly Border _fill = new() { HorizontalAlignment = HorizontalAlignment.Stretch, RenderTransformOrigin = new Point(0, 0.5), RenderTransform = new ScaleTransform(1, 1), CornerRadius = new CornerRadius(3), Background = OverlayPictures.HpRed };
 
     public HpBarView()
@@ -282,8 +287,10 @@ public sealed class HpBarView : Border
         Child = bar;
     }
 
-    public void Show(long? hp, long? max)
+    /// <summary>Red; green while the target has debuffs on it. The numbers keep a dark edge so they read on either.</summary>
+    public void Show(long? hp, long? max, bool debuffed)
     {
+        _fill.Background = debuffed ? OverlayPictures.HpGreen : OverlayPictures.HpRed;
         double fraction = hp is long h && max is long m && m > 0 ? Math.Clamp((double)h / m, 0, 1) : 0;
         ((ScaleTransform)_fill.RenderTransform).ScaleX = fraction;
         _text.Text = hp is long current

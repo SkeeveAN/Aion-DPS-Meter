@@ -629,8 +629,6 @@
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Combat.Element.Healer}"/>
                                 <CheckBox x:Name="CombatHealerHpBox" Content="{local:Loc Settings.Combat.HealerHp}" Margin="0,2,0,0"/>
                                 <CheckBox x:Name="CombatHealerEffectsBox" Content="{local:Loc Settings.Combat.HealerEffects}" Margin="0,2,0,0"/>
-                                <TextBlock Text="{local:Loc Settings.Combat.EffectKind}" Margin="0,8,0,2"/>
-                                <ComboBox x:Name="CombatHealerKindCombo" HorizontalAlignment="Left" MinWidth="240"/>
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Combat.HealerHint}" Margin="0,8,0,0"/>
                             </StackPanel>
                         </Border>
