@@ -138,6 +138,13 @@
      "Backend"
     ],
     "date": "2026-10-13"
+   },
+   {
+    "text": "Boss cards: every boss now stands as its 3D model in the scene of its instance, lit and shadowed to match the picture",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-13"
    }
   ]
  },
