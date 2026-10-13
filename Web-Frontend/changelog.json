@@ -122,6 +122,13 @@
      "Client"
     ],
     "date": "2026-10-13"
+   },
+   {
+    "text": "Sessions can be saved with their skill rotation, effects, stagger and replay map (a checkbox in the session manager, remembered), so a file shows them again later or on another PC",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
    }
   ]
  },

@@ -82,5 +82,9 @@
  "d08d427": null,
  "0b7c890": "Boss fight overlay: the boss cast bar and a target of the target block (picture and name, with health bar and debuffs for healers), each part movable on its own and the whole block movable and scalable together",
  "cb54ab9": "Settings sorted: General (was Capture) with the reset, a Boss fight page with the overlay switches, a Streaming page for OBS, and one Overlays group in the hotkeys with all overlays on/off first; always on top at startup is a main window setting, not an overlay one",
- "2637be9": null
+ "2637be9": null,
+ "39cb99d": null,
+ "3ad034b": null,
+ "a17e3ec": null,
+ "a1f9f9c": "Sessions can be saved with their skill rotation, effects, stagger and replay map (a checkbox in the session manager, remembered), so a file shows them again later or on another PC"
 }
