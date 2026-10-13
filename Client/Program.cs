@@ -989,9 +989,9 @@ internal static class Program
                 new Ui.TargetOfTargetData("Seuche", bossName, Aion2.Protocol.Aion2Artwork.ClassEmblemPath("Cleric"), false, 12480, 20563,
                     new[]
                     {
-                        new Ui.EffectData("Murderous Burst", Aion2.Protocol.Aion2SkillIcons.PathFor(11800007), "12", true),
-                        new Ui.EffectData("Wave Blow", Aion2.Protocol.Aion2SkillIcons.PathFor(18080038), "5", true),
-                        new Ui.EffectData("Rage Burst", Aion2.Protocol.Aion2SkillIcons.PathFor(11390007), "9", true),
+                        new Ui.EffectData("Poison", null, "12", true),
+                        new Ui.EffectData("Slow", null, "5", true),
+                        new Ui.EffectData("Bleed", null, "9", true),
                     }));
 
         window.Render(frame, settings);

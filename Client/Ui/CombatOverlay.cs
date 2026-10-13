@@ -115,9 +115,9 @@ public static class CombatOverlayData
             string time = buff.Ends is { } end ? Math.Max(0, (int)Math.Ceiling((end - now).TotalSeconds)).ToString() : "∞";
             string english = Aion2SkillNames.NameOf(buff.SkillId);
             string? icon = Aion2SkillIcons.PathFor(buff.SkillId) ?? Aion2SkillIcons.PathForName(english, null);
-            if (icon is null && long.TryParse(english, out _))
+            if (icon is null && buff.Caster <= 0 && long.TryParse(english, out _))
             {
-                continue; // an effect the game gives no name and no picture (system effects): nothing to show
+                continue; // a nameless effect from nobody is a system state (rest, speed ...), not something the room does to you
             }
 
             effects.Add(new EffectData(Aion2SkillNames.Display(english), icon, time, true));
@@ -335,7 +335,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
         {
             shownTot = new TargetOfTargetData(loc["Combat.Sample.Player"], loc["Combat.Sample.Boss"], null, false, 6400, 10000, new[]
             {
-                new EffectData("Murderous Burst", Aion2SkillIcons.PathFor(11800007), "12", true), new EffectData("Wave Blow", Aion2SkillIcons.PathFor(18080038), "5", true),
+                new EffectData("Poison", null, "12", true), new EffectData("Slow", null, "5", true),
             });
         }
 

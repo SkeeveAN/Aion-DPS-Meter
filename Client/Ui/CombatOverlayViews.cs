@@ -68,8 +68,8 @@ internal static class OverlayPictures
     public static readonly Brush Text = Brush(0xF2, 0xF5, 0xF8);
     public static readonly Brush Muted = Brush(0x9D, 0xB3, 0xC2);
     public static readonly Brush Amber = Brush(0xFF, 0xBA, 0x42);
-    public static readonly Brush HpGreen = Brush(0x2E, 0x9E, 0x4F);
-    public static readonly Brush HpRed = Brush(0xC8, 0x32, 0x3C);
+    public static readonly Brush HpGreen = Brush(0x1A, 0x5E, 0x30);
+    public static readonly Brush HpRed = Brush(0x9E, 0x24, 0x2E);
     public static readonly Brush Red = Brush(0xFF, 0x5A, 0x5A);
     public static readonly Brush Green = Brush(0x5B, 0xD0, 0x7A);
     public static readonly Brush Track = Brush(0x1B, 0x2A, 0x36, 0xD8);
@@ -323,8 +323,11 @@ public sealed class EffectBarView : Border
         {
             var cell = new StackPanel { Margin = new Thickness(0, 0, 4, 2), Width = 26 };
             ImageSource? icon = OverlayPictures.Load(effect.IconPath);
+            // a debuff the game has no picture for (most of a boss's own) gets a red marker with a down arrow
             FrameworkElement picture = icon is null
-                ? OverlayPictures.Emblem(effect.Label.Length > 0 ? effect.Label[..1].ToUpperInvariant() : "?", 22, effect.Debuff ? OverlayPictures.Brush(0x5A, 0x24, 0x2A) : OverlayPictures.Brush(0x24, 0x4A, 0x36))
+                ? effect.Debuff
+                    ? OverlayPictures.Emblem("▼", 22, OverlayPictures.Brush(0x7A, 0x2A, 0x30))
+                    : OverlayPictures.Emblem(effect.Label.Length > 0 ? effect.Label[..1].ToUpperInvariant() : "?", 22, OverlayPictures.Brush(0x24, 0x4A, 0x36))
                 : new Image { Source = icon, Width = 22, Height = 22 };
             picture.ToolTip = effect.Label;
             cell.Children.Add(picture);
