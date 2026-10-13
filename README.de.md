@@ -92,6 +92,16 @@ dazu eine DPS-Kurve über den gesamten Kampf. Crit-Raten werden direkt aus den T
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Skill-Aufschlüsselung eines Spielers mit einer Schaden-über-Zeit-Kurve">
 </p>
 
+### Rotation, Effekte und Stagger
+
+Dasselbe Fenster hat zwei weitere Tabs. **Rotation** zeichnet jeden Skill, den der Spieler benutzt hat, im Moment der Benutzung auf eine Zeitleiste: Unterstützungsskills in der oberen Spur, Schadensskills darunter, ein direkt nach einem anderen eingeflochtener Skill eine Zeile tiefer, sodass eine Folge von Einflechtungen wie eine Treppe aussieht. Dahinter läuft der DPS des Spielers (der Durchschnitt der letzten fünf Sekunden) und die Momente, in denen ein Monster gestaggert war. Zieh, um dich durch den Kampf zu bewegen, **Strg + Mausrad** zoomt, und beim Überfahren eines Symbols siehst du den Einsatz (wann, der wievielte von wie vielen, die Zeit seit dem vorherigen, der DPS zu diesem Zeitpunkt). Darunter stehen der **Opener** (die ersten Skills in Reihenfolge) und die *Rotation in Kürze*: Einsätze, Pro Min., Abstand zwischen zwei Einsätzen, Erster Einsatz und der Anteil am Schaden. **Buffs** listet jeden Effekt auf, der auf dem Spieler lag, mit seiner Laufzeit, dem Teil davon, der vom Spieler selbst stammte, wie oft er aufgelegt wurde und wer ihn gegeben hat - ein Effekt, den zwei Spieler gleichzeitig aufrechterhalten haben, zählt nur einmal.
+
+Ein Kampf behält dies in der lokalen Historie, sodass ein alter Boss erneut betrachtet werden kann; mit einer älteren Version aufgezeichnete Kämpfe zeigen keine Rotation.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="Der Rotation-Tab des Spielerfensters: Skills auf einer Zeitleiste mit dem DPS dahinter, der Opener und die Rotation in Kürze">
+</p>
+
 ### Dein ganzer Charakter auf einen Blick
 
 Das **Charakter**-Fenster (Personen-Symbol) zeigt, was das Spiel über dich sendet: Ausrüstung mit Itemlevel und

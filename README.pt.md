@@ -92,6 +92,16 @@ além de uma curva de DPS ao longo de toda a luta. As taxas de crítico são lid
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Detalhamento de habilidades de um jogador com uma curva de dano ao longo do tempo">
 </p>
 
+### Rotação, efeitos e stagger
+
+A mesma janela tem mais duas abas. **Rotação** desenha numa linha do tempo cada habilidade que o jogador usou, no momento em que a usou: as habilidades de apoio na faixa de cima, as de dano abaixo, e uma habilidade intercalada logo após outra, uma linha mais abaixo, de modo que uma sequência de intercalações parece uma escada. Por trás corre o DPS do jogador (a média dos últimos cinco segundos) e os momentos em que um monstro ficou em stagger. Arraste para se mover pelo combate, **Ctrl + roda** aplica zoom e, ao passar o cursor sobre um ícone, vê-se o uso (quando, qual uso de quantos, o tempo desde o anterior, o DPS naquele momento). Abaixo ficam a **Abertura** (as primeiras habilidades, por ordem) e a *rotação em resumo*: Usos, Por min, Intervalo entre dois usos, Primeiro e a parte do dano. **Efeitos** lista cada efeito que esteve no jogador com o seu tempo ativo, a parte que veio do próprio jogador, quantas vezes foi aplicado e quem o deu; um efeito que dois jogadores mantiveram ao mesmo tempo conta uma só vez.
+
+Um combate guarda isto no histórico local, para que um chefe antigo possa ser visto de novo; os combates gravados por uma versão mais antiga não mostram rotação.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="A aba Rotação da janela do jogador: habilidades numa linha do tempo com o DPS por trás, a abertura e a rotação em resumo">
+</p>
+
 ### Todo o seu personagem num relance
 
 A janela **Personagem** (ícone de pessoa) mostra o que o jogo envia sobre você: equipamento com nível de item e

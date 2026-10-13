@@ -96,7 +96,8 @@ public partial class PlayerDetailsWindow : Window
 
     public PlayerDetailsWindow(string name, string className, string faction,
         IReadOnlyList<DamageEvent> events, Func<int, string?> nameOf, bool heals = false,
-        IReadOnlyList<Death>? deaths = null, bool taken = false, IReadOnlyList<DamageEvent>? fightEvents = null)
+        IReadOnlyList<Death>? deaths = null, bool taken = false, IReadOnlyList<DamageEvent>? fightEvents = null,
+        FightExtras? extras = null, int playerId = -1, DateTime? fightStart = null, DateTime? fightEnd = null)
     {
         // Taken: the hits this player took, one row per attacker and attack ("Transcendent
         // Bakarma : Attack"); an attacker with no name of its own is "Monster".
@@ -194,6 +195,112 @@ public partial class PlayerDetailsWindow : Window
                     : loc["Details.Died"])))
                 : loc["Details.NoDeath"];
         }
+
+        InitRotation(extras, playerId, fightStart, fightEnd, events.Where(e => e.IsHeal == heals).ToList(), nameOf, taken, className);
+    }
+
+    private RotationReport? _rotation;
+    private bool _targetsShown, _curveShown;
+
+    /// <summary>The rotation and effect views of this player over the fight: from what the packet stream said besides damage (see <see cref="FightExtras"/>).
+    /// Not in the damage-taken view, where there is no rotation to show.</summary>
+    private void InitRotation(FightExtras? extras, int playerId, DateTime? from, DateTime? to, IReadOnlyList<DamageEvent> mine, Func<int, string?> nameOf, bool taken, string className)
+    {
+        if (taken)
+        {
+            TabBar.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        // the targets table and the DPS curve make room for the rotation and the effects, which need the height
+        _targetsShown = TargetsGrid.Visibility == Visibility.Visible;
+        _curveShown = CurvePanel.Visibility == Visibility.Visible;
+        if (extras is { IsEmpty: false } && playerId >= 0 && from is DateTime start && to is DateTime end && end > start)
+        {
+            _rotation = RotationAnalysis.Build(extras, playerId, start, end, mine, nameOf);
+        }
+
+        var report = _rotation;
+        bool rotation = report is { Uses.Count: > 0 };
+        RotationBox.Visibility = OpenerRow.Visibility = RotationGrid.Visibility = rotation ? Visibility.Visible : Visibility.Collapsed;
+        NoRotationText.Visibility = rotation ? Visibility.Collapsed : Visibility.Visible;
+        if (rotation)
+        {
+            RotationGrid.ItemsSource = report!.Skills.Select(k => new RotationLine(
+                k.Name, IconFor(k.SkillId, null, className), k.Uses, k.PerMinute.ToString("0.0"),
+                k.AvgGapSeconds > 0 ? k.AvgGapSeconds.ToString("0.0") + " s" : "–", TimeSpan.FromSeconds(k.FirstAt).ToString(@"m\:ss"),
+                k.SharePercent > 0 ? k.SharePercent.ToString("0.0") + "%" : "")).ToList();
+            foreach (RotationUse use in report.Opener)
+            {
+                OpenerPanel.Children.Add(new System.Windows.Controls.Image
+                {
+                    Source = IconFor(use.SkillId, null, className), Width = 24, Height = 24, Margin = new Thickness(0, 0, 3, 0),
+                    ToolTip = Aion2.Protocol.Aion2SkillNames.Display(use.Name) + " · " + TimeSpan.FromSeconds(use.At).ToString(@"m\:ss\.f"),
+                });
+            }
+
+            Timeline.Show(report, DpsPerSecond(mine, start: from!.Value, report.DurationSeconds));
+            Timeline.Configure(ShowPassivesBox.IsChecked == true, ShowDpsBox.IsChecked == true, ShowStaggerBox.IsChecked == true);
+        }
+
+        bool buffs = report is { Buffs.Count: > 0 };
+        BuffsGrid.Visibility = buffs ? Visibility.Visible : Visibility.Collapsed;
+        NoBuffsText.Visibility = buffs ? Visibility.Collapsed : Visibility.Visible;
+        if (buffs)
+        {
+            BuffsGrid.ItemsSource = report!.Buffs.Select(b => new BuffLine(
+                b.Name, IconFor(b.SkillId, null, className), b.UptimePercent.ToString("0.0") + "%", b.FromYouPercent > 0 ? b.FromYouPercent.ToString("0.0") + "%" : "–", b.Applications, b.Givers)).ToList();
+        }
+    }
+
+    /// <summary>The player's damage per second as the average of the last five seconds, from the start of the fight.</summary>
+    private static double[] DpsPerSecond(IReadOnlyList<DamageEvent> events, DateTime start, double duration)
+    {
+        int seconds = (int)Math.Ceiling(duration) + 1;
+        var buckets = new double[seconds];
+        foreach (DamageEvent e in events.Where(e => !e.IsHeal))
+        {
+            int i = (int)(e.Timestamp - start).TotalSeconds;
+            if (i >= 0 && i < seconds)
+            {
+                buckets[i] += e.Amount;
+            }
+        }
+
+        var average = new double[seconds];
+        double window = 0;
+        for (int i = 0; i < seconds; i++)
+        {
+            window += buckets[i];
+            if (i >= 5)
+            {
+                window -= buckets[i - 5];
+            }
+
+            average[i] = window / Math.Min(5, i + 1);
+        }
+
+        return average;
+    }
+
+    private void OnDetailsTabChanged(object sender, RoutedEventArgs e)
+    {
+        if (TabHost is null)
+        {
+            return;
+        }
+
+        SkillsGrid.Visibility = TabSkillsButton.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        RotationPanel.Visibility = TabRotationButton.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        BuffsPanel.Visibility = TabBuffsButton.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        bool skills = TabSkillsButton.IsChecked == true;
+        TargetsGrid.Visibility = skills && _targetsShown ? Visibility.Visible : Visibility.Collapsed;
+        CurvePanel.Visibility = skills && _curveShown ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnRotationOptionChanged(object sender, RoutedEventArgs e)
+    {
+        Timeline?.Configure(ShowPassivesBox.IsChecked == true, ShowDpsBox.IsChecked == true, ShowStaggerBox.IsChecked == true);
     }
 
     /// <summary>The per-target table: one row per monster hit, a total row on top. Hidden in the

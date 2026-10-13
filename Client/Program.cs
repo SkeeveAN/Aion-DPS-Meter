@@ -213,12 +213,12 @@ internal static class Program
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage: AionDPS render-details <out.png>");
+                Console.WriteLine("Usage: AionDPS render-details <out.png> [skills|rotation|buffs]");
                 Console.WriteLine("  Draws a player's details window with sample hits into a picture; no window is shown.");
                 return;
             }
 
-            RunRenderDetailsMode(args[1]);
+            RunRenderDetailsMode(args[1], args.Length > 2 ? args[2] : "skills");
             return;
         }
 
@@ -461,7 +461,11 @@ internal static class Program
     {
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
-        if (settings.Language.Length > 0)
+        if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } picked)
+        {
+            Ui.LocalizationManager.Instance.Language = picked;
+        }
+        else if (settings.Language.Length > 0)
         {
             Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
         }
@@ -599,11 +603,16 @@ internal static class Program
         Environment.Exit(0);
     }
 
-    private static void RunRenderDetailsMode(string path)
+    private static void RunRenderDetailsMode(string path, string tab)
     {
+        Environment.SetEnvironmentVariable("AIONDPS_DATA_DIR", Path.Combine(Path.GetTempPath(), "aiondps-render-details"));
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
-        if (settings.Language.Length > 0)
+        if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } picked)
+        {
+            Ui.LocalizationManager.Instance.Language = picked;
+        }
+        else if (settings.Language.Length > 0)
         {
             Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
         }
@@ -615,7 +624,14 @@ internal static class Program
         var random = new Random(7);
         var events = new List<Combat.DamageEvent>();
         DateTime start = new(2026, 10, 4, 12, 0, 0, DateTimeKind.Local);
-        (string Skill, int Id, int Weight)[] skills = { ("Blaze", 11000000, 5), ("Hellfire", 11100000, 2), ("Cold Wave", 12000000, 9), ("Ice Chain", 13000000, 9), ("Bittercold Wind", 15280000, 20) };
+        // five real Sorcerer skills (with icons) so the rotation tab shows what a player really sees
+        var table = Aion2.Protocol.Aion2SkillNames.Load();
+        var sorcerer = table.Where(kv => Aion2.Protocol.Aion2SkillNames.ClassOf(kv.Key) == "Sorcerer" && !Aion2.Protocol.Aion2Artwork.IsPassive(kv.Key) && !Aion2.Protocol.Aion2SkillNames.IsNonDamageEffect(kv.Key)
+                && Aion2.Protocol.Aion2SkillIcons.PathFor(kv.Key) is not null && kv.Value is not ("Dodge" or "Basic Attack"))
+            .GroupBy(kv => kv.Value).Select(g => g.First()).Take(5).ToList();
+        (string Skill, int Id, int Weight)[] skills = sorcerer.Count >= 5
+            ? sorcerer.Select((kv, i) => (kv.Value, kv.Key, new[] { 5, 2, 9, 9, 20 }[i])).ToArray()
+            : new[] { ("Blaze", 11000000, 5), ("Hellfire", 11100000, 2), ("Cold Wave", 12000000, 9), ("Ice Chain", 13000000, 9), ("Bittercold Wind", 15280000, 20) };
         for (int t = 0; t < 75; t++)
         {
             double burst = t is > 28 and < 36 ? 3.5 : 1.0;
@@ -628,7 +644,30 @@ internal static class Program
         }
 
         var all = events.Concat(events.Select(e => e with { SourceObjectId = 6, Amount = e.Amount / 2 })).ToList();
-        var window = new Ui.PlayerDetailsWindow("Ichigo", "Sorcerer", "", events, id => id == 1 ? "Training Scarecrow" : "Elite Guard", fightEvents: all);
+        // made-up extras for the rotation and effect tabs: a use before every hit, support skills now and then, three effects and two staggers
+        var support = Aion2.Protocol.Aion2SkillNames.Load().Where(kv => kv.Value.Contains("Armor") || kv.Value.Contains("Shield") || kv.Value.Contains("Boost") || kv.Value.Contains("Stance")).Take(3).Select(kv => kv.Key).ToList();
+        var uses = events.Select(e => new Combat.SkillUse(e.Timestamp.AddSeconds(-0.12), 5, e.SkillId)).ToList();
+        for (int t = 0; t < 75; t += 18)
+        {
+            for (int i = 0; i < support.Count; i++)
+            {
+                uses.Add(new Combat.SkillUse(start.AddSeconds(t + i * 0.2), 5, support[i]));
+            }
+        }
+
+        var effects = new List<Combat.BuffEvent>();
+        for (int i = 0; i < support.Count; i++)
+        {
+            effects.Add(new Combat.BuffEvent(start.AddSeconds(i * 0.2), Combat.BuffKind.On, 5, 10 + i, support[i], i == 0 ? 6 : 5, i == 2 ? 12000 : -1));
+        }
+
+        var extras = new Combat.FightExtras(uses.OrderBy(u => u.At).ToList(), effects,
+            new[] { new Combat.StaggerEvent(start.AddSeconds(21), 1, 0, 0, true), new Combat.StaggerEvent(start.AddSeconds(52), 1, 0, 0, true) },
+            new Dictionary<int, string> { [5] = "Ichigo", [6] = "Goku" });
+        var window = new Ui.PlayerDetailsWindow("Ichigo", "Sorcerer", "", events, id => id == 1 ? "Training Scarecrow" : "Elite Guard", fightEvents: all,
+            extras: extras, playerId: 5, fightStart: start, fightEnd: start.AddSeconds(75));
+        window.TabRotationButton.IsChecked = tab == "rotation";
+        window.TabBuffsButton.IsChecked = tab == "buffs";
         const double width = 860, height = 680;
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(width, height));
@@ -1519,6 +1558,26 @@ internal static class Program
 
         if (source.Entities is Aion2.Aion2EntityDirectory combatDirectory)
         {
+            if (events.Count > 1 && source.Entities.LocalPlayerId >= 0)
+            {
+                // the rotation view's numbers for the local player over the whole recording
+                DateTime from = events.Min(e => e.Timestamp), to = events.Max(e => e.Timestamp);
+                var extras = combatDirectory.Combat.Slice(from, to, id => source.Entities.NameFor(id));
+                var own = events.Where(e => e.SourceObjectId == source.Entities.LocalPlayerId).ToList();
+                var report = Combat.RotationAnalysis.Build(extras, source.Entities.LocalPlayerId, from, to, own, id => source.Entities.NameFor(id));
+                Console.WriteLine($"aion2-replay: rotation of the local player: {report.Uses.Count} skill uses ({report.Skills.Count} skills), {report.Buffs.Count} effects, {report.Staggers.Count} staggers, {extras.Staggers.Count} stagger readings, {extras.Buffs.Count} effect events");
+                Console.WriteLine("  opener: " + string.Join(" > ", report.Opener.Select(u => $"{Aion2.Protocol.Aion2SkillNames.Display(u.Name)}@{u.At:0.0}")));
+                foreach (var skill in report.Skills.Take(6))
+                {
+                    Console.WriteLine($"  {skill.Name,-26} {skill.Uses,4} uses {skill.PerMinute,5:0.0}/min gap {skill.AvgGapSeconds,5:0.0}s share {skill.SharePercent,5:0.0}%");
+                }
+
+                foreach (var buff in report.Buffs.Take(6))
+                {
+                    Console.WriteLine($"  buff {buff.Name,-24} {buff.UptimePercent,5:0.0}% (you {buff.FromYouPercent,5:0.0}%) x{buff.Applications} {buff.Givers}");
+                }
+            }
+
             var lessons = combatDirectory.Combat.Lessons();
             Console.WriteLine($"aion2-replay: {lessons.Count} skill(s) learnt from casts and hits, {lessons.Count(l => l.Lesson.IsArea)} of them areas");
             foreach (var (skillId, lesson) in lessons.Where(l => l.Lesson.Seen > 0).Take(14))

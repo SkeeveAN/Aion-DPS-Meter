@@ -193,6 +193,11 @@ public partial class MainWindow : Window
     // True while a past session is loaded into the grid instead of the live capture; the banner offers the way back.
     private bool _historyMode;
 
+    /// <summary>The skills used, effects and stagger of the stored fight on screen (history mode), under this session's ids.</summary>
+    private FightExtras? _historyExtras;
+    /// <summary>Viewed session: replay id -> id in the live capture, so the details window can look up rotation and buffs.</summary>
+    private Dictionary<int, int> _historyLiveIds = new();
+
     /// <summary>"Minimize to system tray" (OnMinimizeToTrayClicked) - null until the first time
     /// it's actually used, so a user who never touches this never costs a single Shell_NotifyIcon
     /// call.</summary>
@@ -903,6 +908,7 @@ public partial class MainWindow : Window
 
         _historyMode = false;
         _viewedSessionNumber = null;
+        _historyExtras = null;
         HistoryBanner.Visibility = Visibility.Collapsed;
         if (_liveSource is null)
         {
@@ -3383,6 +3389,11 @@ public partial class MainWindow : Window
 
         _aggregator.IngestEvents(events);
 
+        _historyLiveIds = idMap.ToDictionary(kv => kv.Value, kv => kv.Key);
+        _historyExtras = (_liveSource?.Entities as Aion2.Aion2EntityDirectory) is { } liveDir
+            ? liveDir.Combat.Slice(session.Start, session.End ?? DateTime.Now, id => liveDir.NameFor(id))
+            : null;
+
         HistoryBanner.Text = string.Format(LocalizationManager.Instance["Main.SessionViewBanner"], SessionLabels.NameOf(session), SessionLabels.TimeSpanOf(session));
         HistoryBanner.Visibility = Visibility.Visible;
         RefreshRows();
@@ -3789,8 +3800,16 @@ public partial class MainWindow : Window
 
         var mine = _aggregator.Events.Where(ev => ev.SourceObjectId == row.ObjectId).ToList();
 
+        DateTime? fightStart = _aggregator.Events.Count > 0 ? _aggregator.Events.Min(ev => ev.Timestamp) : null;
+        DateTime? fightEnd = _aggregator.Events.Count > 0 ? _aggregator.Events.Max(ev => ev.Timestamp) : null;
+        FightExtras? extras = _historyMode
+            ? _historyExtras
+            : fightStart is DateTime from && fightEnd is DateTime to
+                ? (_source?.Entities as Aion2.Aion2EntityDirectory)?.Combat.Slice(from, to, ResolveDisplayName)
+                : null;
         new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, mine,
-            id => _source?.Entities.NameFor(id) ?? MonsterName(id) ?? ResolveDisplayName(id), heals: _healMode && !_pvpOnly, fightEvents: _aggregator.Events)
+            id => _source?.Entities.NameFor(id) ?? MonsterName(id) ?? ResolveDisplayName(id), heals: _healMode && !_pvpOnly, fightEvents: _aggregator.Events,
+            extras: extras, playerId: _historyMode ? _historyLiveIds.GetValueOrDefault(row.ObjectId, row.ObjectId) : row.ObjectId, fightStart: fightStart, fightEnd: fightEnd)
         {
             Owner = this,
         }.Show();

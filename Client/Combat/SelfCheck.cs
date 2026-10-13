@@ -31,6 +31,7 @@ public static class SelfCheck
         ok &= SelfCheckHistory.Run();
         ok &= SelfCheckSessions.Run();
         ok &= SelfCheckCombatOverlay.Run();
+        ok &= SelfCheckRotation.Run();
         return ok;
     }
 
