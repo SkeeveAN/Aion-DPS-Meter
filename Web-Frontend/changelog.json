@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.43.1",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The Session menu shows its list again (All, current stay, recent sessions, session manager)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.43.0",
   "date": "2026-10-13",
   "items": [
