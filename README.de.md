@@ -83,6 +83,8 @@ Heilung und erlittenen Schaden in eine kleine zweite Zeile unter den Namen.
 auch nur einen Klick abzufangen. Deckkraft, Schadensanteil-Balken, die Lebenspunkte des Bosses und der erlittene Schaden pro Spieler
 sind Optionen. Das Overlay zeichnet nur, solange das Spiel im Vordergrund ist. Schalte es von überall per Tastenkürzel um.
 
+Optional (**Einstellungen → Oberfläche → Bei Spielmenüs ausblenden**, standardmäßig aus): Der Meter und seine Overlays machen Platz, solange eines der Spielmenüs offen ist (Karte, Inventar, Legion, Shop, Esc ...), und kommen zurück, wenn du es schließt. Erkannt wird das am Mauszeiger: Im Steuerungsmodus, der den Cursor beim Spielen versteckt, zeigt das Spiel ihn, sobald ein Menü aufgeht; hältst du die Taste zum Anzeigen des Cursors (standardmäßig Alt), bleibt der Meter sichtbar, damit du ihn anklicken kannst, und **Ctrl+Alt+J** zeigt die Overlays für das gerade offene Menü. Im klassischen Steuerungsmodus ist der Cursor immer sichtbar, deshalb lassen sich Menüs nicht unterscheiden; der Meter bemerkt das im Kampf und bleibt dann einfach sichtbar.
+
 ### Skill-Aufschlüsselung für jeden Spieler
 
 **Doppelklick** auf einen Spieler: jeder Skill mit Treffern, Crit-Rate, Summe, Min, Max und Durchschnitt, aufgeteilt nach Ziel,
@@ -223,6 +225,7 @@ die nicht funktionieren können, weil der Chat von Aion 2 im Netzwerkverkehr nic
 | **Ctrl+Alt+B** | Weltboss-Overlay |
 | **Ctrl+Alt+N** | Netzwerk-Overlay |
 | **Ctrl+Alt+C** | Kampf-Overlay |
+| **Ctrl+Alt+J** | Overlays bei diesem Menü zeigen |
 | **Ctrl+Alt+O** | Hotkey-Overlay (eine verschiebbare Liste der Tastenkürzel) |
 | **Ctrl+Alt+A** | Alle Overlays an / aus |
 

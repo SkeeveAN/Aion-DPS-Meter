@@ -83,6 +83,8 @@ cura e dano recebido em uma pequena segunda linha abaixo do nome.
 capturar um único clique. Opacidade, barras de participação no dano, a vida do chefe e o dano recebido por jogador
 são opções. O overlay só é desenhado enquanto o jogo está em primeiro plano. Ative-o de qualquer lugar com um atalho.
 
+Opcional (**Configurações → Interface → Ocultar durante os menus do jogo**, desligado por padrão): o medidor e seus overlays saem do caminho enquanto um dos menus do jogo está aberto (mapa, inventário, legião, loja, Esc ...) e voltam quando você o fecha. Isso funciona pelo cursor do mouse: no modo de controle que esconde o cursor enquanto você joga, o jogo o mostra quando um menu abre; manter pressionada a tecla de mostrar o cursor (Alt por padrão) mantém o medidor visível para que você possa clicar nele, e **Ctrl+Alt+J** mostra os overlays durante o menu aberto. No modo de controle clássico o cursor está sempre visível, então os menus não podem ser distinguidos; o medidor percebe isso durante a luta e simplesmente continua visível.
+
 ### Detalhamento de habilidades de cada jogador
 
 **Clique duas vezes** em um jogador: cada habilidade com acertos, taxa de crítico, total, mín., máx. e média, dividida por alvo,
@@ -223,6 +225,7 @@ que não podem funcionar porque o chat do Aion 2 não é legível a partir do fl
 | **Ctrl+Alt+B** | Overlay de chefes mundiais |
 | **Ctrl+Alt+N** | Overlay de rede |
 | **Ctrl+Alt+C** | Overlay de combate |
+| **Ctrl+Alt+J** | Mostrar overlays durante este menu |
 | **Ctrl+Alt+O** | Overlay de atalhos (uma lista móvel dos atalhos) |
 | **Ctrl+Alt+A** | Todos os overlays ligados / desligados |
 

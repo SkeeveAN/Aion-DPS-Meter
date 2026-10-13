@@ -1,6 +1,6 @@
 # Menü-Erkennung über den Mauszeiger
 
-Branch: `feature/menu-detect-cursor` · Stand: Plan, noch nichts umgesetzt
+Branch: `feature/menu-detect-cursor` · Stand: umgesetzt (siehe „Umsetzungsstand“ am Ende)
 
 ## Ziel
 
@@ -47,3 +47,18 @@ Das funktioniert nur mit der **Steuerung, bei der das Spiel den Mauszeiger beim 
 - Betrieb als Administrator (siehe oben).
 - Flackern bei kurzen Zeiger-Einblendungen → Entprellung.
 - Die Steuerungsart kann sich zur Laufzeit ändern → Lernzähler klingen ab.
+
+## Umsetzungsstand (13.10.2026)
+
+**Fertig und geprüft (Selftests des Zustandsautomaten):**
+
+- `MenuDetector` (rein): 250 ms Zeiger sichtbar ohne gehaltene Taste = Menü; Alt halten = Spähen, bleibt oben; eine über 20 s gehaltene Taste gilt als hängend; 300 ms Nachlauf nach dem Verschwinden des Zeigers; nie bei anderem Fenster im Vordergrund oder solange Overlays verschoben werden.
+- `ControlModeLearner` (rein): 12 s Zeiger sichtbar beim Kämpfen = klassische Steuerung (Funktion schaltet sich ab), 15 s verborgen = Steuerung mit ausgeblendetem Zeiger; Zähler klingen ab; wird in den Einstellungen gemerkt (`MenuControlMode`).
+- `MenuWatcher` (UI-Thread, 50 ms): `GetCursorInfo`, `GetAsyncKeyState` nur bei sichtbarem Zeiger und nur jeden zweiten Blick. `GameWindow.ForegroundIsGameOrSelf()` und `ForegroundClientArea()` melden bei offenem Menü „nicht im Spiel“; dadurch weichen DPS-Overlay, Hotkey-Overlay, Karte, Zeitplan, Weltboss, Netzwerk und Kampf-Overlay alle gemeinsam aus.
+- Einstellungen: Schalter „Bei Spielmenüs ausblenden“ (aus) mit Hinweis auf die Steuerung und Statuszeile der erkannten Steuerung unter Oberfläche; Hotkey **Ctrl+Alt+J** „Overlays bei diesem Menü zeigen“; zehn Sprachen; README (alle zehn).
+
+**Bewusst offen / zu beobachten:**
+
+- Im Spiel mit echten Menüs nicht ausprobiert (ich starte nichts auf dem Rechner); bitte einmal mit Karte/Inventar prüfen.
+- Läuft das Spiel als Administrator, sieht ein normaler Prozess die gehaltenen Tasten womöglich nicht (dann hält „Alt halten“ den Meter nicht oben; der Zeiger selbst wird trotzdem erkannt). Ein Hinweis „als Administrator starten“ ist nicht eingebaut. **Zu prüfen:** ob `GetCursorInfo` selbst betroffen ist.
+- Changelog-Eintrag und Features-Seite folgen beim Merge nach `main`.

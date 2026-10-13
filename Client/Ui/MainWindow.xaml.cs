@@ -128,6 +128,7 @@ public partial class MainWindow : Window
     private HotkeyOverlayWindow? _hotkeyOverlay;
     private WorldBossController? _worldBoss;
     private CombatOverlayController? _combat;
+    private MenuWatcher? _menuWatcher;
     private NetworkOverlayController? _network;
     private readonly System.Windows.Threading.DispatcherTimer _gateTimer = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private bool _gameGateOpen = true;
@@ -567,6 +568,9 @@ public partial class MainWindow : Window
             case HotkeyAction.ToggleCombatOverlay:
                 ToggleCombatOverlay();
                 break;
+            case HotkeyAction.ShowDuringMenu:
+                _menuWatcher?.ToggleShowThisMenu();
+                break;
             case HotkeyAction.ToggleWorldBossOverlay:
                 ToggleWorldBossOverlay();
                 break;
@@ -609,6 +613,7 @@ public partial class MainWindow : Window
             [HotkeyAction.ToggleWorldBossOverlay] = HotkeyBinding.Parse(settings.HotkeyWorldBoss),
             [HotkeyAction.ToggleNetworkOverlay] = HotkeyBinding.Parse(settings.HotkeyNetwork),
             [HotkeyAction.ToggleCombatOverlay] = HotkeyBinding.Parse(settings.HotkeyCombatOverlay),
+            [HotkeyAction.ShowDuringMenu] = HotkeyBinding.Parse(settings.HotkeyShowMenu),
             [HotkeyAction.TogglePetArrows] = HotkeyBinding.Parse(settings.HotkeyPetArrows),
             [HotkeyAction.ToggleGatherArrows] = HotkeyBinding.Parse(settings.HotkeyGatherArrows),
         });
@@ -631,6 +636,10 @@ public partial class MainWindow : Window
         }
 
         CombatBatch batch = _source?.Poll(_paused) ?? CombatBatch.Empty;
+        if (_menuWatcher is not null && _source is { } liveSource && batch.Damage.Any(ev => !ev.IsHeal && liveSource.Entities.IsLocalPlayer(ev.SourceObjectId)))
+        {
+            _menuWatcher.NoteOwnHit(); // the control mode is learnt while the player fights
+        }
         _avoids.AddRange(batch.Avoids);
         _kills.AddRange(batch.Kills);
         NoteBossKills(batch.Kills);
@@ -934,6 +943,7 @@ public partial class MainWindow : Window
             _worldBoss ??= new WorldBossController();
             _network ??= new NetworkOverlayController();
             _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory);
+            _menuWatcher ??= new MenuWatcher();
             _gateTimer.Tick += (_, _) => OnGateTick();
             _gateTimer.Start();
         }
@@ -977,6 +987,7 @@ public partial class MainWindow : Window
         _hotkeyOverlay?.Close();
         _worldBoss?.Dispose();
         _combat?.Dispose();
+        _menuWatcher?.Dispose();
         _network?.Dispose();
         Aion2FieldBosses.Flush();
         _timetableReminder?.Dispose();

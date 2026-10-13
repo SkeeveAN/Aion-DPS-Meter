@@ -5092,5 +5092,77 @@
     "ja": "その時のDPS: {0}",
     "ko": "당시 DPS: {0}",
     "zh-TW": "當時 DPS：{0}"
+  },
+  "Settings.Menu.Hide": {
+    "en": "Hide during game menus",
+    "de": "Bei Spielmenüs ausblenden",
+    "fr": "Masquer pendant les menus du jeu",
+    "es": "Ocultar durante los menús del juego",
+    "ru": "Скрывать при открытых меню игры",
+    "zh": "打开游戏菜单时隐藏",
+    "pt": "Ocultar durante os menus do jogo",
+    "ja": "ゲームのメニュー表示中は隠す",
+    "ko": "게임 메뉴가 열려 있는 동안 숨기기",
+    "zh-TW": "開啟遊戲選單時隱藏"
+  },
+  "Settings.Menu.Hint": {
+    "en": "The meter and its overlays step aside while one of the game's menus is open (map, inventory, legion, shop, Esc ...) and come back when you close it. It works by the mouse cursor: in the control mode that hides the cursor while you play, the game shows it when a menu opens. Holding the show-cursor key (Alt by default) keeps the meter up, so you can click it. In the classic control mode the cursor is always shown, so menus cannot be told apart and the meter simply stays up.",
+    "de": "Der Meter und seine Overlays machen Platz, solange eines der Spielmenüs offen ist (Karte, Inventar, Legion, Shop, Esc ...), und kommen zurück, wenn du es schließt. Erkannt wird das am Mauszeiger: In der Steuerung, die den Zeiger beim Spielen ausblendet, zeigt das Spiel ihn, sobald ein Menü aufgeht. Hältst du die Taste zum Anzeigen des Zeigers (standardmäßig Alt), bleibt der Meter stehen, damit du ihn anklicken kannst. In der klassischen Steuerung ist der Zeiger immer zu sehen; dort lassen sich Menüs nicht unterscheiden, und der Meter bleibt einfach oben.",
+    "fr": "Le compteur et ses overlays s'effacent tant qu'un menu du jeu est ouvert (carte, inventaire, légion, boutique, Échap ...) et reviennent à la fermeture. La détection repose sur le curseur de la souris : dans le mode de contrôle qui le masque pendant le jeu, le jeu l'affiche à l'ouverture d'un menu. Maintenir la touche d'affichage du curseur (Alt par défaut) laisse le compteur visible pour pouvoir cliquer dessus. Dans le mode classique, le curseur est toujours affiché : les menus ne se distinguent pas et le compteur reste simplement affiché.",
+    "es": "El medidor y sus overlays se apartan mientras haya un menú del juego abierto (mapa, inventario, legión, tienda, Esc ...) y vuelven al cerrarlo. Se detecta por el cursor del ratón: en el modo de control que lo oculta mientras juegas, el juego lo muestra al abrir un menú. Mantener la tecla para mostrar el cursor (Alt por defecto) deja el medidor visible para poder pulsarlo. En el modo clásico el cursor siempre se muestra, así que los menús no se distinguen y el medidor simplemente se queda.",
+    "ru": "Измеритель и его оверлеи уходят, пока открыто одно из меню игры (карта, инвентарь, легион, магазин, Esc ...), и возвращаются после закрытия. Это определяется по курсору мыши: в режиме управления, где курсор скрыт во время игры, игра показывает его при открытии меню. Если удерживать клавишу показа курсора (по умолчанию Alt), измеритель остаётся на экране, и его можно нажать. В классическом режиме курсор виден всегда, поэтому меню не отличить, и измеритель просто остаётся.",
+    "zh": "游戏菜单（地图、背包、军团、商店、Esc 等）打开时，统计器及其悬浮窗会让开，关闭菜单后恢复。判断依据是鼠标光标：在游戏时隐藏光标的操作模式下，菜单打开时游戏会显示光标。按住显示光标的按键（默认 Alt）可让统计器保持显示，以便点击。经典操作模式下光标始终可见，无法区分菜单，统计器会一直保持显示。",
+    "pt": "O medidor e seus overlays saem do caminho enquanto um menu do jogo está aberto (mapa, inventário, legião, loja, Esc ...) e voltam ao fechá-lo. Isso funciona pelo cursor do mouse: no modo de controle que o oculta enquanto você joga, o jogo o mostra quando um menu abre. Segurar a tecla de mostrar o cursor (Alt por padrão) mantém o medidor visível para poder clicá-lo. No modo clássico o cursor é sempre mostrado, então os menus não podem ser distinguidos e o medidor simplesmente fica.",
+    "ja": "ゲームのメニュー（マップ、インベントリ、レギオン、ショップ、Esc など）が開いている間、メーターとオーバーレイは退き、閉じると戻ります。判定はマウスカーソルで行います。プレイ中にカーソルを隠す操作モードでは、メニューを開くとゲームがカーソルを表示します。カーソル表示キー（初期値はAlt）を押している間はメーターが残るので、クリックできます。クラシック操作モードではカーソルが常に表示されるため、メニューを区別できず、メーターはそのまま表示され続けます。",
+    "ko": "게임 메뉴(지도, 인벤토리, 군단, 상점, Esc 등)가 열려 있는 동안 미터와 오버레이가 비켜 있다가 메뉴를 닫으면 돌아옵니다. 마우스 커서로 판단합니다. 플레이 중 커서를 숨기는 조작 방식에서는 메뉴가 열릴 때 게임이 커서를 표시합니다. 커서 표시 키(기본 Alt)를 누르고 있으면 미터가 남아 있어 클릭할 수 있습니다. 클래식 조작 방식에서는 커서가 항상 보이므로 메뉴를 구분할 수 없어 미터가 그대로 표시됩니다.",
+    "zh-TW": "遊戲選單（地圖、背包、軍團、商店、Esc 等）開啟時，統計器與其浮動層會讓開，關閉選單後恢復。判斷依據是滑鼠游標：在遊戲時隱藏游標的操作模式下，選單開啟時遊戲會顯示游標。按住顯示游標的按鍵（預設 Alt）可讓統計器保持顯示，以便點擊。經典操作模式下游標一直可見，無法區分選單，統計器會一直保持顯示。"
+  },
+  "Settings.Menu.Status.Unknown": {
+    "en": "Control mode: not seen yet (it is learnt while you fight).",
+    "de": "Steuerung: noch nicht erkannt (sie wird im Kampf gelernt).",
+    "fr": "Mode de contrôle : pas encore détecté (il est appris pendant les combats).",
+    "es": "Modo de control: aún no detectado (se aprende mientras combates).",
+    "ru": "Режим управления: ещё не определён (определяется во время боя).",
+    "zh": "操作模式：尚未识别（战斗时自动学习）。",
+    "pt": "Modo de controle: ainda não detectado (é aprendido durante o combate).",
+    "ja": "操作モード：まだ判定されていません（戦闘中に自動で判定します）。",
+    "ko": "조작 방식: 아직 확인되지 않음(전투 중에 학습합니다).",
+    "zh-TW": "操作模式：尚未辨識（戰鬥時自動學習）。"
+  },
+  "Settings.Menu.Status.Hidden": {
+    "en": "Control mode: the cursor is hidden while playing - this works.",
+    "de": "Steuerung: Der Zeiger ist beim Spielen ausgeblendet - das funktioniert.",
+    "fr": "Mode de contrôle : le curseur est masqué pendant le jeu - cela fonctionne.",
+    "es": "Modo de control: el cursor se oculta al jugar - esto funciona.",
+    "ru": "Режим управления: курсор скрыт во время игры - это работает.",
+    "zh": "操作模式：游戏时隐藏光标 - 此功能可用。",
+    "pt": "Modo de controle: o cursor fica oculto ao jogar - isso funciona.",
+    "ja": "操作モード：プレイ中はカーソルが隠れます - この機能は使えます。",
+    "ko": "조작 방식: 플레이 중 커서가 숨겨짐 - 이 기능을 사용할 수 있습니다.",
+    "zh-TW": "操作模式：遊戲時隱藏游標 - 此功能可用。"
+  },
+  "Settings.Menu.Status.Classic": {
+    "en": "Control mode: classic (the cursor is always shown) - menus cannot be told apart, so this stays off.",
+    "de": "Steuerung: klassisch (der Zeiger ist immer sichtbar) - Menüs lassen sich nicht unterscheiden, daher bleibt das aus.",
+    "fr": "Mode de contrôle : classique (le curseur est toujours affiché) - les menus ne se distinguent pas, la fonction reste donc inactive.",
+    "es": "Modo de control: clásico (el cursor siempre se muestra) - los menús no se distinguen, así que queda desactivado.",
+    "ru": "Режим управления: классический (курсор виден всегда) - меню не отличить, поэтому функция не работает.",
+    "zh": "操作模式：经典（光标始终显示）- 无法区分菜单，因此保持关闭。",
+    "pt": "Modo de controle: clássico (o cursor é sempre mostrado) - os menus não podem ser distinguidos, então fica desligado.",
+    "ja": "操作モード：クラシック（カーソルが常に表示）- メニューを区別できないため、この機能は働きません。",
+    "ko": "조작 방식: 클래식(커서가 항상 표시됨) - 메뉴를 구분할 수 없어 꺼진 상태로 유지됩니다.",
+    "zh-TW": "操作模式：經典（游標一直顯示）- 無法區分選單，因此保持關閉。"
+  },
+  "Settings.Hotkey.ShowMenu": {
+    "en": "Show overlays during this menu",
+    "de": "Overlays bei diesem Menü zeigen",
+    "fr": "Afficher les overlays pendant ce menu",
+    "es": "Mostrar overlays durante este menú",
+    "ru": "Показать оверлеи при этом меню",
+    "zh": "在此菜单中显示悬浮窗",
+    "pt": "Mostrar overlays durante este menu",
+    "ja": "このメニュー中もオーバーレイを表示",
+    "ko": "이 메뉴에서 오버레이 표시",
+    "zh-TW": "在此選單中顯示浮動層"
   }
 }
