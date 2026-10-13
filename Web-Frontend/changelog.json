@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.42.2",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The settings of the DPS overlay are in two groups on the Boss fight page, chips and compact, so it is clear which overlay each switch belongs to",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.42.1",
   "date": "2026-10-13",
   "items": [
