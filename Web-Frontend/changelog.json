@@ -39,6 +39,14 @@
      "Client"
     ],
     "date": "2026-10-13"
+   },
+   {
+    "text": "The old fight history is gone: no more menu entry, setting, recorder or fights.db (deleted at start); sessions replace it, shown on the Features page and in the READMEs with a picture of the session manager",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-13"
    }
   ]
  },
