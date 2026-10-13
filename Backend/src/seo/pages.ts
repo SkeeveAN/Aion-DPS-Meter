@@ -98,7 +98,7 @@ export function homePage(): Page {
       <h3>Character profiles</h3>
       <p>Every uploading character gets a public profile with gear, skills, stigmas and recent encounters. Legions have their own pages that list their members on each server. Uploads are off by default and you decide what is shared.</p>
       <h3>Get started</h3>
-      <p>Install the Windows client, start Aion 2 and the meter picks up your fights automatically. Updates are installed by the client itself, and every release is documented in the changelog.</p>
+      <p>Install the Windows client, start Aion 2 and the meter picks up your fights automatically. It works with the global release of AION 2; Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there. Updates are installed by the client itself, and every release is documented in the changelog.</p>
       <ul class="plain">
         ${[DEFAULT_GAME].map((g) => html`<li><a href="/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
         <li><a href="/features">Features of the Aion 2 DPS meter</a></li>
@@ -142,6 +142,7 @@ export function featuresPage(): Page {
     body: html`
       <h1>Aion 2 DPS Meter Toolkit – everything it does</h1>
       <p>A free, open-source damage and heal meter and toolkit for Aion 2. It only reads the network traffic your own computer already receives: no memory reading, no injection, no packets sent.</p>
+      <p>It works with the global release of AION 2, every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
       <h2>Live damage and healing meter</h2>
       <p>Every player in your group or raid with name, total damage, DPS and a share bar; faction and class as icons. Filter by class, group or target. The Mob/Boss filter switches between overall DPS and true per-target iDPS, a PvE/PvP switch separates the two, and every wipe on a boss gets an entry of its own.</p>
       <h3>Five views</h3>
