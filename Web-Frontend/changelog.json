@@ -131,10 +131,11 @@
     "date": "2026-10-13"
    },
    {
-    "text": "Combat analyzer: pick a session in the session manager and its player details (skills, rotation, effects, replay map) open beside it, limited to that session; pick another player in the manager to switch, and the meter itself keeps running in the background",
+    "text": "Session manager with a combat analyzer in the same window, a splitter in the middle: pick a session and its players (by damage, healing or damage taken) open their details on the right (skills, rotation, effects, replay map), limited to that session; the window position is remembered",
     "areas": [
      "Client",
-     "Website"
+     "Website",
+     "Backend"
     ],
     "date": "2026-10-13"
    }
