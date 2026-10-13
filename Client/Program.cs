@@ -990,9 +990,13 @@ internal static class Program
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
         bool edit = mode == "edit";
-        var window = new Ui.CombatOverlayWindow();
-        window.ApplyLocked(!edit);
-        window.SetEditing(edit);
+        var windows = new[] { new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Cast), new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Target) };
+        foreach (var window in windows)
+        {
+            window.ApplyLocked(!edit);
+            window.SetEditing(edit);
+        }
+
         string bossName = Aion2.Protocol.Aion2Npcs.NameOf(2300708, Ui.LocalizationManager.Instance.Language) ?? "Ruthilis of Pain";
         string? bossPicture = Aion2.Protocol.Aion2Artwork.BossThumbPath(2300708);
         var frame = edit
@@ -1011,12 +1015,20 @@ internal static class Program
                         new Ui.EffectData("Bleed", null, "9", true),
                     }));
 
-        window.Render(frame, settings);
-        var content = (System.Windows.UIElement)window.Content;
-        content.Measure(new System.Windows.Size(700, 500));
-        int w = (int)Math.Ceiling(content.DesiredSize.Width), h = (int)Math.Ceiling(content.DesiredSize.Height);
-        content.Arrange(new System.Windows.Rect(0, 0, w, h));
-        content.UpdateLayout();
+        // the two windows one above the other, each as big as it wants to be
+        var contents = new List<(System.Windows.UIElement Content, int Width, int Height)>();
+        foreach (var window in windows)
+        {
+            window.Render(frame, settings);
+            var part = (System.Windows.UIElement)window.Content;
+            part.Measure(new System.Windows.Size(700, 500));
+            int pw = (int)Math.Ceiling(part.DesiredSize.Width), ph = (int)Math.Ceiling(part.DesiredSize.Height);
+            part.Arrange(new System.Windows.Rect(0, 0, pw, ph));
+            part.UpdateLayout();
+            contents.Add((part, pw, ph));
+        }
+
+        int w = contents.Max(c => c.Width), h = contents.Sum(c => c.Height) + 8 * (contents.Count - 1);
         var backdrop = new System.Windows.Controls.Border
         {
             Width = w, Height = h,
@@ -1026,7 +1038,18 @@ internal static class Program
         backdrop.Measure(new System.Windows.Size(w, h));
         backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
         bitmap.Render(backdrop);
-        bitmap.Render(content);
+        var visual = new System.Windows.Media.DrawingVisual();
+        using (var dc = visual.RenderOpen())
+        {
+            double y = 0;
+            foreach (var (part, pw, ph) in contents)
+            {
+                dc.DrawRectangle(new System.Windows.Media.VisualBrush(part), null, new System.Windows.Rect(0, y, pw, ph));
+                y += ph + 8;
+            }
+        }
+
+        bitmap.Render(visual);
         var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
         encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
         using (var file = File.Create(path))

@@ -197,6 +197,13 @@ public sealed class MeterSettings
     public double? CombatOverlayWidth { get; set; }
     public double? CombatOverlayHeight { get; set; }
 
+    /// <summary>The boss cast bar is a window of its own, placed and scaled apart from the target of the target (whose frame is the CombatOverlay* values).</summary>
+    public double? CombatCastOverlayLeft { get; set; }
+    public double? CombatCastOverlayTop { get; set; }
+    public double CombatCastOverlayScale { get; set; } = 1.0;
+    public double? CombatCastOverlayWidth { get; set; }
+    public double? CombatCastOverlayHeight { get; set; }
+
     /// <summary>Place, size and scale of each element by its id ("BossCast", "TargetOfTarget", "Healer").</summary>
     public Dictionary<string, CombatElementLayout> CombatElements { get; set; } = new();
 
