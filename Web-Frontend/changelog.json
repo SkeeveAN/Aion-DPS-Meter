@@ -71,7 +71,7 @@
     "date": "2026-10-13"
    },
    {
-    "text": "The meter in your stream: a browser source for OBS and Streamlabs that shows the meter live, on this PC only",
+    "text": "The meter in your stream: a browser source for OBS and Streamlabs that shows the meter live, also for a second streaming PC in your own network (never reachable from the internet)",
     "areas": [
      "Client"
     ],
@@ -113,6 +113,83 @@
      "Client",
      "Backend",
      "Database"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Combat overlay: the target of the target is one block of four parts (picture, name, health bar, effect bar)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Combat overlay: target of the target is the one block (picture, name; health bar and effects with the healer bar); separate healer target removed",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Combat overlay: the target-of-the-target name part shows one name",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Combat overlay: health bar always red, effects as skill icons (name lookup as fallback, nameless system effects left out)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Combat overlay: own class from the login record, effects from nobody (the room) count as debuffs",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Combat overlay: only debuffs (from monsters or the room); health bar red, green while the target has debuffs, numbers with a dark edge; effect-kind choice removed",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Combat overlay: darker health bar colours for readable numbers; debuffs without a picture show a red marker with a down arrow",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Combat overlay settings text: no separate healer target any more",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Settings: General (was Capture) with the reset card, Boss fight page (overlay switches, display in the fight), Streaming page, main window card for always-on-top",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Hotkeys: one Overlays group, all overlays on/off first, with the timetable, world boss, network, boss fight, menu and hotkey overlay entries",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Stream overlay for a two-PC setup: listens on the local network (switchable to this PC only), the link holds this PC's network address, only private addresses are answered",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-13"
    }

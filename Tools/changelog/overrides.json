@@ -68,5 +68,6 @@
  "69f028b": null,
  "ce7d96c": null,
  "5d7ce42": "Rotation, effects and stagger in the player window: skills on a timeline with the DPS behind them, uptime of every effect and stagger bands, also for a stored session",
- "54db00a": "Settings that survive a crash (written safely, with a copy from the last start) and a reset to defaults that can be undone for 30 seconds"
+ "54db00a": "Settings that survive a crash (written safely, with a copy from the last start) and a reset to defaults that can be undone for 30 seconds",
+ "afed447": "The meter in your stream: a browser source for OBS and Streamlabs that shows the meter live, also for a second streaming PC in your own network (never reachable from the internet)"
 }
