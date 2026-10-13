@@ -179,11 +179,17 @@ export function featuresPage(): Page {
       <h3>Five views</h3>
       <p>Damage, Heal, Damage taken and two All in One views, switched by hotkey or click.</p>
       <h3>Skill breakdown and DPS curve</h3>
-      <p>Double-click a player to see every skill with hits, crit rate, total, min, max and average, split by target, plus a DPS curve over the whole fight. Fights are kept in a local fight history so you can look at an earlier boss again.</p>
+      <p>Double-click a player to see every skill with hits, crit rate, total, min, max and average, split by target, plus a DPS curve over the whole fight. A rotation tab shows the skills on a timeline with the DPS behind them, the uptime of every effect and the stagger phases, and back, front, perfect, double and multi hits are counted per skill.</p>
       <h3>Copy to chat or Discord</h3>
       <p>One click puts a chat-ready one-line ranking on the clipboard, or a Discord table of the whole group.</p>
+      <h2>Sessions and combat analyzer</h2>
+      <p>Every map and instance is recorded as its own session on a timeline. The session manager and a combat analyzer share one window with a movable splitter: pick a session, then a player by damage, healing or damage taken, and see every detail on the right, limited to that session, with deaths and the time dead. For boss fights a plausibility check compares the counted damage with the hit points the boss really lost and shows the boss rage, and a replay map shows the fight from above. Sessions can be saved to a file, optionally with the rotation, effects and replay data.</p>
       <h2>Click-through overlay</h2>
       <p>The window turns into small chips or a compact panel on top of the game that never takes a click, with adjustable opacity and share bars, drawn only while Aion 2 is in front. Toggle it with a system-wide hotkey of your choice.</p>
+      <h2>Boss fight overlay</h2>
+      <p>The boss's casts with a countdown, whom they hit and when a hit would kill you, plus the target of the target with its picture, name, health bar and debuffs for healers. Every part moves and scales on its own.</p>
+      <h2>Streaming for OBS</h2>
+      <p>A browser source for OBS or Streamlabs shows the meter live, also from a second streaming PC in your own network. Names are off by default.</p>
       <h2>Your character</h2>
       <p>Gear with item level and enchant (including the Amplify stage), arcana, species knowledge, all skills and the full Daevanion boards. The meter keeps your last login, so the window is never empty.</p>
       <h2>Interactive map: pets and gathering</h2>
@@ -195,7 +201,7 @@ export function featuresPage(): Page {
       <h2>Announcements and Twitch Drops</h2>
       <p>One click from the meter: the official AION 2 announcements and patch notes with kind filters, and while a campaign runs, the Twitch Drops rewards, watch times and the streams with Drops enabled right now.</p>
       <h2>Hotkeys, languages and updates</h2>
-      <p>Fourteen system-wide hotkeys that work while the game has focus, all rebindable. Many languages including English, German, French, Spanish, Russian, Chinese, Portuguese, Japanese and Korean, dark and light look, and automatic background updates without an installer or admin rights.</p>
+      <p>Sixteen system-wide hotkeys that work while the game has focus, all rebindable. Many languages including English, German, French, Spanish, Russian, Chinese, Portuguese, Japanese and Korean, dark and light look, and automatic background updates without an installer or admin rights.</p>
       <h2>Community leaderboards and profiles</h2>
       <p>Uploads are optional and off by default. If you switch them on, your boss fights feed the <a href="/instances">boss leaderboards</a> and your character gets a public profile; <a href="/legions">legions</a> list their members per server.</p>
       <p><a class="download-cta" href="/download">Download the Windows client</a></p>`,

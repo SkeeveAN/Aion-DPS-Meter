@@ -98,7 +98,7 @@ dazu eine DPS-Kurve über den gesamten Kampf. Crit-Raten werden direkt aus den T
 
 Dasselbe Fenster hat zwei weitere Tabs. **Rotation** zeichnet jeden Skill, den der Spieler benutzt hat, im Moment der Benutzung auf eine Zeitleiste: Unterstützungsskills in der oberen Spur, Schadensskills darunter, ein direkt nach einem anderen eingeflochtener Skill eine Zeile tiefer, sodass eine Folge von Einflechtungen wie eine Treppe aussieht. Dahinter läuft der DPS des Spielers (der Durchschnitt der letzten fünf Sekunden) und die Momente, in denen ein Monster gestaggert war. Zieh, um dich durch den Kampf zu bewegen, **Strg + Mausrad** zoomt, und beim Überfahren eines Symbols siehst du den Einsatz (wann, der wievielte von wie vielen, die Zeit seit dem vorherigen, der DPS zu diesem Zeitpunkt). Darunter stehen der **Opener** (die ersten Skills in Reihenfolge) und die *Rotation in Kürze*: Einsätze, Pro Min., Abstand zwischen zwei Einsätzen, Erster Einsatz und der Anteil am Schaden. **Buffs** listet jeden Effekt auf, der auf dem Spieler lag, mit seiner Laufzeit, dem Teil davon, der vom Spieler selbst stammte, wie oft er aufgelegt wurde und wer ihn gegeben hat - ein Effekt, den zwei Spieler gleichzeitig aufrechterhalten haben, zählt nur einmal.
 
-Ein Kampf behält dies in der lokalen Historie, sodass ein alter Boss erneut betrachtet werden kann; mit einer älteren Version aufgezeichnete Kämpfe zeigen keine Rotation.
+Sessions, die mit den Rotationsdaten in eine Datei gespeichert wurden (siehe Sessions), zeigen sie nach dem Laden wieder.
 
 <p align="center">
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="Der Rotation-Tab des Spielerfensters: Skills auf einer Zeitleiste mit dem DPS dahinter, der Opener und die Rotation in Kürze">
@@ -175,10 +175,10 @@ Ein transparenter Rahmen mit bis zu drei Elementen, die du jeweils einzeln platz
 - **Boss-Zauberleiste:** In dem Moment, in dem ein Boss eine Fähigkeit beginnt, siehst du ihren Namen, eine ablaufende Leiste mit der Restzeit und wen sie trifft (du in Rot). Eine Fähigkeit, die mehrere Spieler getroffen hat, ist mit **FLÄCHE** markiert; **TÖDLICH** bedeutet, dass der höchste Treffer, den du davon bisher erhalten hast, mindestens deinen aktuellen Lebenspunkten entspricht. Der Meter lernt jede Fähigkeit (Fläche oder nicht, wann ihr Schaden eintrifft) und merkt sie sich über Sitzungen hinweg.
 - **Ziel des Ziels:** ein Block, der sich als Ganzes verschieben, in der Größe ändern und skalieren lässt, mit Teilen, die du darin auch einzeln platzieren kannst. Zielt das mit Tab gewählte Ziel selbst auf jemanden, siehst du, auf wen: ein Boss mit Bild und Name, ein Spieler mit Klassenemblem und Name. Die **Heiler-Leiste** (optional) ergänzt den Block um den HP-Balken dieses Ziels und die Debuffs (oder Buffs) darauf.
 
-Entsperre das Overlay unter **Einstellungen → Kampf-Overlay**, um es einzurichten: Zieh den Körper eines Elements, um es zu verschieben, zieh an den Rändern für die Größe, an der Ecke zum Skalieren; der Griff unten rechts am ganzen Rahmen skaliert alle Elemente zusammen. Gesperrt ist es klickdurchlässig und erscheint nur, solange das Spiel im Vordergrund ist. **Ctrl+Alt+C** schaltet es ein und aus, ebenso der Hotkey *Alle Overlays an / aus*.
+Entsperre das Overlay unter **Einstellungen → Boss-Kampf**, um es einzurichten: Zieh den Körper eines Elements, um es zu verschieben, zieh an den Rändern für die Größe, an der Ecke zum Skalieren; der Griff unten rechts am ganzen Rahmen skaliert alle Elemente zusammen. Gesperrt ist es klickdurchlässig und erscheint nur, solange das Spiel im Vordergrund ist. **Ctrl+Alt+C** schaltet es ein und aus, ebenso der Hotkey *Alle Overlays an / aus*.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="Das Kampf-Overlay: zwei Boss-Zauber mit Zeitleiste, das Ziel des Ziels und das Heiler-Ziel mit Leben und Debuffs">
+  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="Das Boss-Kampf-Overlay: zwei Boss-Casts mit Zeitleiste und der Block „Ziel des Ziels“ mit Bild, Name, HP-Balken und Debuffs">
 </p>
 
 ### Ankündigungen und Twitch Drops
@@ -205,10 +205,10 @@ Es funktioniert auch mit **zwei PCs** (das Spiel auf dem einen, OBS auf dem ande
 Jede Karte und jede Instanz wird als eigene Session aufgezeichnet, damit du dir einen früheren Durchlauf noch einmal ansehen kannst. Ein Plausibilitätscheck vergleicht den Schaden mit den verlorenen Lebenspunkten des Bosses.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Session-Manager mit Zeitleiste und Plausibilitätscheck">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="760" alt="Session-Manager und Kampf-Analysator in einem Fenster">
 </p>
 
-Der Verlauf merkt sich, welche Boss-Kämpfe online gelandet sind: Seine Liste hat eine Spalte **Hochgeladen**, kann nur die nicht hochgeladenen Boss-Kämpfe zeigen, und **Einstellungen → Oberfläche** nennt, wie viele es sind. Von einer älteren Version aufgezeichnete Kämpfe zeigen stattdessen ein „?“ (der Verlauf hat das damals nicht festgehalten).
+Session-Manager und **Kampf-Analysator** teilen sich ein Fenster mit verschiebbarem Trenner: links eine Session wählen, rechts öffnen sich die Spielerdetails (Skills, Rotation, Effekte, die Replay-Karte), begrenzt auf diese Session. Über der Spielerliste schaltest du zwischen **Schaden, Heilung und erlittenem Schaden** um; die Liste zeigt die Tode und wie lange jeder Spieler tot war. Der Meter selbst zeichnet im Hintergrund weiter auf. **In Datei speichern** kann Rotation, Effekte und Replay-Daten mitnehmen (ein Kontrollkästchen, das gemerkt wird; die Datei wird um ein Vielfaches größer, etwa 0,5 bis 5 MB bei einem Bosskampf von fünf Minuten), damit auch eine geladene Datei sie zeigt. Das Fenster merkt sich seinen Platz und den Trenner.
 
 ## Benutzung
 
@@ -219,7 +219,7 @@ während einer Pause sind für immer weg, ein Fortsetzen spielt also nie einen K
   liefert eine Discord-Markdown-Tabelle.
 - Das Aussehen wird unter **Einstellungen → Oberfläche** festgelegt: Theme (dunkel/hell), Schriftgröße, Sprache, Overlay-Optik
   und -Deckkraft, Start mit Windows.
-- Deine Einstellungen überstehen einen Absturz: Die Einstellungsdatei wird in einem Zug geschrieben, und eine Kopie vom letzten Start liegt daneben. Ist die Datei einmal beschädigt, wird diese Kopie wiederhergestellt (die beschädigte Datei bleibt daneben erhalten). **Einstellungen → Oberfläche → Alle Einstellungen auf Standard zurücksetzen** fragt zweimal nach und lässt sich 30 Sekunden lang rückgängig machen; deine Upload- und Datenschutz-Entscheidungen, die Update-Prüfung und dein Charakter bleiben dabei, wie sie sind.
+- Deine Einstellungen überstehen einen Absturz: Die Einstellungsdatei wird in einem Zug geschrieben, und eine Kopie vom letzten Start liegt daneben. Ist die Datei einmal beschädigt, wird diese Kopie wiederhergestellt (die beschädigte Datei bleibt daneben erhalten). **Einstellungen → Allgemein → Alle Einstellungen auf Standard zurücksetzen** fragt zweimal nach und lässt sich 30 Sekunden lang rückgängig machen; deine Upload- und Datenschutz-Entscheidungen, die Update-Prüfung und dein Charakter bleiben dabei, wie sie sind.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Einstellungen: Oberfläche, Overlay und Verhalten">

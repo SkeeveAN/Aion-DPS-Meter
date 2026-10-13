@@ -98,7 +98,7 @@ além de uma curva de DPS ao longo de toda a luta. As taxas de crítico são lid
 
 A mesma janela tem mais duas abas. **Rotação** desenha numa linha do tempo cada habilidade que o jogador usou, no momento em que a usou: as habilidades de apoio na faixa de cima, as de dano abaixo, e uma habilidade intercalada logo após outra, uma linha mais abaixo, de modo que uma sequência de intercalações parece uma escada. Por trás corre o DPS do jogador (a média dos últimos cinco segundos) e os momentos em que um monstro ficou em stagger. Arraste para se mover pelo combate, **Ctrl + roda** aplica zoom e, ao passar o cursor sobre um ícone, vê-se o uso (quando, qual uso de quantos, o tempo desde o anterior, o DPS naquele momento). Abaixo ficam a **Abertura** (as primeiras habilidades, por ordem) e a *rotação em resumo*: Usos, Por min, Intervalo entre dois usos, Primeiro e a parte do dano. **Efeitos** lista cada efeito que esteve no jogador com o seu tempo ativo, a parte que veio do próprio jogador, quantas vezes foi aplicado e quem o deu; um efeito que dois jogadores mantiveram ao mesmo tempo conta uma só vez.
 
-Um combate guarda isto no histórico local, para que um chefe antigo possa ser visto de novo; os combates gravados por uma versão mais antiga não mostram rotação.
+Sessões salvas em um arquivo com os dados de rotação (veja Sessões) mostram a rotação de novo ao serem carregadas.
 
 <p align="center">
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="A aba Rotação da janela do jogador: habilidades numa linha do tempo com o DPS por trás, a abertura e a rotação em resumo">
@@ -175,10 +175,10 @@ Uma moldura transparente com até três elementos, cada um dos quais você posic
 - **Barra de conjuração do chefe:** no momento em que um chefe começa uma habilidade, você vê o nome dela, uma barra que diminui com o tempo restante e em quem ela está mirada (você em vermelho). Uma habilidade que atingiu vários jogadores é marcada como **ÁREA**; **LETAL** significa que o maior golpe que você recebeu dela até agora é pelo menos igual à sua vida atual. O medidor aprende cada habilidade (se é em área ou não, quando o dano dela chega) e a lembra entre as sessões.
 - **Alvo do alvo:** um bloco que se move, redimensiona e escala de uma vez, com partes que você também pode posicionar separadamente dentro dele. Se o alvo que você selecionou com Tab estiver mirando em alguém, você vê em quem: um chefe com imagem e nome, um jogador com o emblema da classe e o nome. A **barra do curandeiro** (opcional) acrescenta ao bloco a barra de vida desse alvo e seus debuffs (ou buffs).
 
-Desbloqueie o overlay em **Configurações → Overlay de combate** para organizá-lo: arraste o corpo de um elemento para movê-lo, puxe as bordas para redimensioná-lo, puxe o canto para escalá-lo; a alça no canto inferior direito de toda a moldura escala todos os elementos juntos. Bloqueado, ele deixa os cliques passarem e só aparece enquanto o jogo está em primeiro plano. **Ctrl+Alt+C** o liga e desliga, assim como o atalho *Todos os overlays ligados / desligados*.
+Desbloqueie o overlay em **Configurações → Luta de chefe** para organizá-lo: arraste o corpo de um elemento para movê-lo, puxe as bordas para redimensioná-lo, puxe o canto para escalá-lo; a alça no canto inferior direito de toda a moldura escala todos os elementos juntos. Bloqueado, ele deixa os cliques passarem e só aparece enquanto o jogo está em primeiro plano. **Ctrl+Alt+C** o liga e desliga, assim como o atalho *Todos os overlays ligados / desligados*.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="O overlay de combate: duas conjurações de chefe com barra de tempo, o alvo do alvo e o alvo do curandeiro com vida e debuffs">
+  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="O overlay de luta de chefe: duas conjurações de chefe com barra de tempo e o bloco «Alvo do alvo» com imagem, nome, barra de vida e debuffs">
 </p>
 
 ### Anúncios e Twitch Drops
@@ -205,10 +205,10 @@ Também funciona com **dois PCs** (o jogo em um, o OBS no outro): copie o link p
 Cada mapa e instância é gravado como uma sessão própria, para você rever uma tentativa anterior. Uma verificação de plausibilidade compara o dano com os pontos de vida perdidos pelo chefe.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Gerenciador de sessões com linha do tempo e verificação de plausibilidade">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="760" alt="Gerenciador de sessões e analisador de combate em uma janela">
 </p>
 
-O histórico lembra quais lutas contra chefes foram enviadas online: sua lista tem uma coluna **Enviado**, pode mostrar apenas as lutas contra chefes que não foram enviadas, e **Configurações → Interface** informa quantas são. As lutas gravadas por uma versão mais antiga mostram um “?” no lugar (o histórico não registrava isso na época).
+O gerenciador de sessões e o **analisador de combate** dividem uma janela com um divisor móvel: escolha uma sessão à esquerda e, à direita, abrem-se os detalhes do jogador (habilidades, rotação, efeitos, o mapa de replay), limitados a essa sessão. Acima da lista de jogadores você alterna entre **dano, cura e dano recebido**; a lista mostra as mortes e quanto tempo cada jogador ficou morto. O próprio medidor continua gravando em segundo plano. **Salvar em arquivo** pode levar a rotação, os efeitos e os dados de replay (uma caixa que é lembrada; o arquivo fica bem maior, cerca de 0,5 a 5 MB em uma luta de chefe de cinco minutos), assim um arquivo carregado também os mostra. A janela lembra sua posição e o divisor.
 
 ## Como usar
 
@@ -219,7 +219,7 @@ durante uma pausa são ignorados de vez, então retomar nunca reproduz uma luta 
   gera uma tabela em markdown do Discord.
 - A aparência é definida em **Configurações → Interface**: tema (escuro/claro), tamanho da fonte, idioma, aparência do overlay
   e opacidade, iniciar com o Windows.
-- Suas configurações sobrevivem a uma falha: o arquivo de configurações é gravado de uma só vez, e uma cópia da última inicialização fica ao lado dele. Se o arquivo for danificado, essa cópia é restaurada (o arquivo danificado é mantido ao lado). **Configurações → Interface → Redefinir todas as configurações** pergunta duas vezes e pode ser desfeito por 30 segundos; suas escolhas de envio e privacidade, a verificação de atualizações e seu personagem permanecem como estão.
+- Suas configurações sobrevivem a uma falha: o arquivo de configurações é gravado de uma só vez, e uma cópia da última inicialização fica ao lado dele. Se o arquivo for danificado, essa cópia é restaurada (o arquivo danificado é mantido ao lado). **Configurações → Geral → Redefinir todas as configurações** pergunta duas vezes e pode ser desfeito por 30 segundos; suas escolhas de envio e privacidade, a verificação de atualizações e seu personagem permanecem como estão.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Configurações: interface, overlay e comportamento">

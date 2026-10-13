@@ -98,7 +98,7 @@ plus a DPS curve over the whole fight. Crit rates are read straight from the ser
 
 The same window has two more tabs. **Rotation** draws every skill the player used on a timeline at the moment they used it: support skills in the lane on top, damage skills below, a skill woven in right after another one row lower, so a run of weaves reads as a staircase. Behind it runs the player's DPS (the average of the last five seconds) and the moments a monster was staggered. Drag to move along the fight, **Ctrl + wheel** zooms, hover an icon for the use (when, which use of how many, the time since the one before, the DPS then). Below, the **opener** (the first skills in order) and *rotation in short*: uses, per minute, the time between two uses, the first use and the share of the damage. **Buffs** lists every effect that was on the player with its uptime, the part of it that came from the player themself, how many times it was put on, and who gave it - an effect two players kept up at once counts once.
 
-A fight keeps this with it in the local history, so an old boss can be looked at again; fights recorded by an older version show no rotation.
+Sessions that are saved to a file with the rotation data (see Sessions) show it again when loaded.
 
 <p align="center">
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="The Rotation tab of the player window: skills on a timeline with the DPS behind them, the opener and the rotation in short">
@@ -175,10 +175,10 @@ One transparent frame with up to three elements, each of which you place and siz
 - **Boss cast bar:** the moment a boss starts a skill, its name, a bar that runs down with the time left, and whom it is aimed at (you in red). A skill that has hit several players is marked **AREA**; **LETHAL** means the highest hit you took from it so far is at least your current health. The meter learns each skill (area or not, when its damage lands) and remembers it between sessions.
 - **Target of the target:** one block that moves, resizes and scales as a whole, with parts you can also place on their own inside it. If the target you selected with Tab is itself aiming at someone, you see who: a boss with its picture and name, a player with the class emblem and name. The **healer bar** (optional) adds that target's health bar and its debuffs (or buffs) to the block.
 
-Unlock the overlay in **Settings → Combat overlay** to arrange it: drag an element's body to move it, pull its edges to resize it, pull its corner to scale it; the grip at the bottom right of the whole frame scales all elements together. Locked, it is click-through and only shows while the game is in front. **Ctrl+Alt+C** switches it on and off, and so does the *all overlays* hotkey.
+Unlock the overlay in **Settings → Boss fight** to arrange it: drag an element's body to move it, pull its edges to resize it, pull its corner to scale it; the grip at the bottom right of the whole frame scales all elements together. Locked, it is click-through and only shows while the game is in front. **Ctrl+Alt+C** switches it on and off, and so does the *all overlays* hotkey.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="The combat overlay: two boss casts with a time bar, the target of the target and the healer's target with health and debuffs">
+  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="The boss fight overlay: two boss casts with a time bar and the target of the target block with picture, name, health bar and debuffs">
 </p>
 
 ### Announcements and Twitch Drops
@@ -205,10 +205,10 @@ It also works with **two PCs** (the game on one, OBS on the other): copy the lin
 Every map and instance is recorded as its own session, so you can look at an earlier run again. A plausibility check compares the damage with the boss's lost hit points.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Session manager with timeline and plausibility check">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="760" alt="Session manager and combat analyzer in one window">
 </p>
 
-The history remembers which boss fights went online: its list has an **Uploaded** column, can show only the boss fights that were not uploaded, and **Settings → Interface** says how many there are. Fights recorded by an older version show a "?" instead (the history did not keep track back then).
+The session manager and the **combat analyzer** share one window with a splitter you can move: pick a session on the left, and on the right the player details open (skills, rotation, effects, the replay map), limited to that session. Above the player list you switch between **damage, healing and damage taken**; the list shows the deaths and how long each player was dead. The meter itself keeps recording in the background. **Save to file** can take the rotation, effects and replay data with it (a checkbox that is remembered; the file gets several times bigger, about 0.5 to 5 MB for a five-minute boss fight), so a loaded file shows them too. The window remembers its place and the splitter.
 
 ## Using it
 
@@ -219,7 +219,7 @@ during a pause are skipped for good, so resuming never replays a fight you sat o
   gives you a Discord markdown table.
 - Appearance is set under **Settings → Interface**: theme (dark/light), font size, language, overlay look
   and opacity, start with Windows.
-- Your settings survive a crash: the settings file is written in one go, and a copy of the last start is kept next to it. If the file is ever damaged, that copy is restored (the damaged file is kept beside it). **Settings → Interface → Reset all settings to defaults** asks twice and can be undone for 30 seconds; your upload and privacy choices, the update check and your character stay as they are.
+- Your settings survive a crash: the settings file is written in one go, and a copy of the last start is kept next to it. If the file is ever damaged, that copy is restored (the damaged file is kept beside it). **Settings → General → Reset all settings to defaults** asks twice and can be undone for 30 seconds; your upload and privacy choices, the update check and your character stay as they are.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Settings: interface, overlay and behavior">

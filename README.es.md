@@ -98,7 +98,7 @@ los datos de golpe del servidor, así que son exactas. La tabla también muestra
 
 La misma ventana tiene dos pestañas más. **Rotación** dibuja en una línea de tiempo cada habilidad que usó el jugador, en el momento en que la usó: las habilidades de apoyo en el carril superior, las de daño debajo, y una habilidad intercalada justo después de otra, una fila más abajo, de modo que una serie de intercalados se lee como una escalera. Detrás corre el DPS del jugador (el promedio de los últimos cinco segundos) y los momentos en que un monstruo quedó en stagger. Arrastra para moverte por el combate, **Ctrl + rueda** hace zoom y, al pasar el cursor sobre un icono, ves el uso (cuándo, qué uso de cuántos, el tiempo desde el anterior, el DPS en ese momento). Debajo están la **Apertura** (las primeras habilidades en orden) y la *rotación en breve*: Usos, Por min, Intervalo entre dos usos, Primero y la parte del daño. **Efectos** enumera cada efecto que tuvo el jugador con su tiempo activo, la parte que provino del propio jugador, cuántas veces se aplicó y quién lo dio; un efecto que dos jugadores mantuvieron a la vez cuenta una sola vez.
 
-Un combate conserva esto en el historial local, así que se puede volver a ver un jefe antiguo; los combates grabados con una versión anterior no muestran rotación.
+Las sesiones guardadas en un archivo con los datos de rotación (véase Sesiones) los muestran de nuevo al cargarlas.
 
 <p align="center">
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="La pestaña Rotación de la ventana del jugador: habilidades en una línea de tiempo con el DPS detrás, la apertura y la rotación en breve">
@@ -176,10 +176,10 @@ Un marco transparente con hasta tres elementos, cada uno de los cuales colocas y
 - **Barra de lanzamiento del jefe:** en cuanto un jefe empieza una habilidad, ves su nombre, una barra que va bajando con el tiempo restante y a quién apunta (tú en rojo). Una habilidad que ha golpeado a varios jugadores se marca como **ÁREA**; **LETAL** significa que el golpe más alto que has recibido de ella hasta ahora es al menos igual a tu salud actual. El medidor aprende cada habilidad (si es de área o no, cuándo llega su daño) y la recuerda entre sesiones.
 - **Objetivo del objetivo:** un bloque que se mueve, cambia de tamaño y se escala de una vez, con partes que también puedes colocar por separado dentro de él. Si el objetivo que seleccionaste con Tab apunta a su vez a alguien, ves a quién: un jefe con su imagen y nombre, un jugador con el emblema de clase y nombre. La **barra del sanador** (opcional) añade al bloque la barra de salud de ese objetivo y sus debuffs (o buffs).
 
-Desbloquea el overlay en **Ajustes → Overlay de combate** para organizarlo: arrastra el cuerpo de un elemento para moverlo, tira de sus bordes para cambiar el tamaño, tira de su esquina para escalarlo; el asa de la esquina inferior derecha de todo el marco escala todos los elementos a la vez. Bloqueado, deja pasar los clics y solo se muestra mientras el juego está en primer plano. **Ctrl+Alt+C** lo activa y desactiva, y también lo hace el atajo *Todos los overlays sí / no*.
+Desbloquea el overlay en **Ajustes → Combate contra jefes** para organizarlo: arrastra el cuerpo de un elemento para moverlo, tira de sus bordes para cambiar el tamaño, tira de su esquina para escalarlo; el asa de la esquina inferior derecha de todo el marco escala todos los elementos a la vez. Bloqueado, deja pasar los clics y solo se muestra mientras el juego está en primer plano. **Ctrl+Alt+C** lo activa y desactiva, y también lo hace el atajo *Todos los overlays sí / no*.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="El overlay de combate: dos lanzamientos de jefe con barra de tiempo, el objetivo del objetivo y el objetivo del sanador con salud y debuffs">
+  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="El overlay de combate contra jefes: dos lanzamientos de jefe con barra de tiempo y el bloque «Objetivo del objetivo» con imagen, nombre, barra de vida y debuffs">
 </p>
 
 ### Anuncios y Twitch Drops
@@ -206,10 +206,10 @@ También funciona con **dos PC** (el juego en uno, OBS en el otro): copia el enl
 Cada mapa e instancia se graba como una sesión propia, para volver a ver una partida anterior. Una comprobación de plausibilidad compara el daño con los puntos de vida que perdió el jefe.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Gestor de sesiones con línea de tiempo y comprobación de plausibilidad">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="760" alt="Gestor de sesiones y analizador de combate en una ventana">
 </p>
 
-El historial recuerda qué combates contra jefes se subieron: su lista tiene una columna **Subido**, puede mostrar solo los combates contra jefes que no se subieron, y **Ajustes → Interfaz** indica cuántos hay. Los combates grabados por una versión anterior muestran un «?» (el historial no lo registraba entonces).
+El gestor de sesiones y el **analizador de combate** comparten una ventana con un separador móvil: elige una sesión a la izquierda y a la derecha se abren los detalles del jugador (habilidades, rotación, efectos, el mapa de repetición), limitados a esa sesión. Sobre la lista de jugadores cambias entre **daño, curación y daño recibido**; la lista muestra las muertes y cuánto tiempo estuvo muerto cada jugador. El medidor sigue grabando en segundo plano. **Guardar en archivo** puede llevarse la rotación, los efectos y los datos de repetición (una casilla que se recuerda; el archivo se hace mucho más grande, unos 0,5 a 5 MB en un combate de jefe de cinco minutos), de modo que un archivo cargado también los muestra. La ventana recuerda su posición y el separador.
 
 ## Uso
 
@@ -220,7 +220,7 @@ durante una pausa se pierden para siempre, así que al reanudar nunca se repite 
   **Copy All** te da una tabla Markdown para Discord.
 - La apariencia se ajusta en **Ajustes → Interfaz**: tema (oscuro/claro), tamaño de fuente, idioma, aspecto y
   opacidad del overlay, inicio con Windows.
-- Tus ajustes sobreviven a un fallo: el archivo de ajustes se escribe de una sola vez y junto a él se guarda una copia del último inicio. Si el archivo llega a dañarse, se restaura esa copia (el archivo dañado se conserva al lado). **Ajustes → Interfaz → Restablecer todos los ajustes** pregunta dos veces y se puede deshacer durante 30 segundos; tus decisiones de subida y privacidad, la comprobación de actualizaciones y tu personaje se quedan como están.
+- Tus ajustes sobreviven a un fallo: el archivo de ajustes se escribe de una sola vez y junto a él se guarda una copia del último inicio. Si el archivo llega a dañarse, se restaura esa copia (el archivo dañado se conserva al lado). **Ajustes → General → Restablecer todos los ajustes** pregunta dos veces y se puede deshacer durante 30 segundos; tus decisiones de subida y privacidad, la comprobación de actualizaciones y tu personaje se quedan como están.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Ajustes: interfaz, overlay y comportamiento">

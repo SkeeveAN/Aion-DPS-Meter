@@ -639,7 +639,7 @@ const FEATURE_BLOCKS = [
   { id: "modes", images: [["mode-all", 1040, 840], ["mode-all-compact", 1040, 840]] },
   { id: "overlay", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
   { id: "details", images: [["details", 1720, 1360]] },
-  { id: "sessions", images: [["sessions", 1180, 760]] },
+  { id: "sessions", images: [["sessions", 1760, 820]] },
   { id: "character", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
   // the sides of the scenes are tuned one by one in style.css, so they are fixed here and not alternated by position
   { id: "network", images: [["network", 1240, 1080, { h: 400 }], ["network-overlay", 770, 414, { h: 200 }]] },
@@ -673,7 +673,7 @@ const FEATURE_CARDS = [
   ["twitchdrops", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'],
 ];
 const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", sessions: "#e0a04a", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff" };
-// Icons of the six "And more" cards (shield, upload, clock, refresh, globe, code).
+// Icons of the nine "And more" cards (shield, upload, clock, refresh, globe, code, target, broadcast, lock).
 const FEATURE_MORE_ICONS = [
   '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
   '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/>',
@@ -681,6 +681,9 @@ const FEATURE_MORE_ICONS = [
   '<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/>',
   '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
   '<path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/>',
+  '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+  '<rect x="3" y="5" width="18" height="11" rx="2"/><path d="M8 20h8M12 16v4"/>',
+  '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
 ];
 
 // Lead sentence big, the remaining sentences as a check list (no extra translations needed).
@@ -742,7 +745,7 @@ function renderFeatures() {
     document.getElementById(`feature-${a.dataset.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
     history.replaceState(history.state, "", `${location.pathname}${location.search}#feature-${a.dataset.id}`);
   });
-  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6].map((n) =>
+  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) =>
     el("div", { className: "fx-more-card" }, [
       el("span", { className: "fx-more-ico", innerHTML: SVG(FEATURE_MORE_ICONS[n - 1]) }),
       el("div", {}, [el("h3", { textContent: t(`features.more${n}.title`) }), el("p", { textContent: t(`features.more${n}.text`) })]),

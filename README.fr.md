@@ -100,7 +100,7 @@ directement dans les données de coups du serveur ; ils sont donc exacts. Le tab
 
 La même fenêtre a deux onglets de plus. **Rotation** dessine sur une frise chronologique chaque compétence utilisée par le joueur, au moment où il l'a utilisée : les compétences de soutien sur la ligne du haut, les compétences de dégâts en dessous, et une compétence enchaînée juste après une autre une ligne plus bas, de sorte qu'une série d'enchaînements forme un escalier. Derrière, on voit le DPS du joueur (la moyenne des cinq dernières secondes) et les moments où un monstre a été en stagger. Faites glisser pour vous déplacer dans le combat, **Ctrl + molette** zoome, et en survolant une icône, vous voyez l'usage (quand, quel usage sur combien, le temps écoulé depuis le précédent, le DPS à ce moment). En dessous se trouvent l'**Ouverture** (les premières compétences dans l'ordre) et la *rotation en bref* : Usages, Par min, Écart entre deux usages, Premier et la part des dégâts. **Effets** liste chaque effet qui était sur le joueur avec sa durée d'activité, la part venant du joueur lui-même, le nombre de fois où il a été appliqué et qui l'a donné ; un effet que deux joueurs ont maintenu en même temps ne compte qu'une fois.
 
-Un combat conserve ces données dans l'historique local, ce qui permet de revoir un ancien boss ; les combats enregistrés avec une version plus ancienne n'affichent pas de rotation.
+Les sessions enregistrées dans un fichier avec les données de rotation (voir Sessions) les montrent de nouveau une fois chargées.
 
 <p align="center">
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="L'onglet Rotation de la fenêtre du joueur : compétences sur une frise chronologique avec le DPS derrière, l'ouverture et la rotation en bref">
@@ -178,10 +178,10 @@ Un cadre transparent avec jusqu'à trois éléments, que tu places et dimensionn
 - **Barre d'incantation du boss :** dès qu'un boss commence une compétence, tu vois son nom, une barre qui se vide avec le temps restant et qui elle vise (toi en rouge). Une compétence qui a touché plusieurs joueurs est marquée **ZONE** ; **MORTEL** signifie que le coup le plus fort que tu en as reçu jusqu'ici est au moins égal à ta santé actuelle. Le compteur apprend chaque compétence (de zone ou non, quand ses dégâts arrivent) et s'en souvient d'une session à l'autre.
 - **Cible de la cible :** un bloc qui se déplace, se redimensionne et se met à l'échelle d'un seul tenant, avec des éléments que tu peux aussi placer séparément à l'intérieur. Si la cible sélectionnée avec Tab vise elle-même quelqu'un, tu vois qui : un boss avec son image et son nom, un joueur avec l'emblème de classe et son nom. La **barre du soigneur** (facultative) ajoute au bloc la barre de vie de cette cible et ses debuffs (ou buffs).
 
-Déverrouille l'overlay dans **Paramètres → Overlay de combat** pour l'organiser : fais glisser le corps d'un élément pour le déplacer, tire sur ses bords pour le redimensionner, tire sur son coin pour le mettre à l'échelle ; la poignée en bas à droite de tout le cadre met tous les éléments à l'échelle ensemble. Verrouillé, il laisse passer les clics et ne s'affiche que lorsque le jeu est au premier plan. **Ctrl+Alt+C** l'active et le désactive, tout comme le raccourci *Tous les overlays activés / désactivés*.
+Déverrouille l'overlay dans **Paramètres → Combat de boss** pour l'organiser : fais glisser le corps d'un élément pour le déplacer, tire sur ses bords pour le redimensionner, tire sur son coin pour le mettre à l'échelle ; la poignée en bas à droite de tout le cadre met tous les éléments à l'échelle ensemble. Verrouillé, il laisse passer les clics et ne s'affiche que lorsque le jeu est au premier plan. **Ctrl+Alt+C** l'active et le désactive, tout comme le raccourci *Tous les overlays activés / désactivés*.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="L'overlay de combat : deux incantations de boss avec barre de temps, la cible de la cible et la cible du soigneur avec vie et debuffs">
+  <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="L'overlay de combat de boss : deux incantations de boss avec barre de temps et le bloc « Cible de la cible » avec image, nom, barre de vie et debuffs">
 </p>
 
 ### Annonces et Twitch Drops
@@ -208,10 +208,10 @@ Il fonctionne aussi avec **deux PC** (le jeu sur l'un, OBS sur l'autre) : copiez
 Chaque carte et chaque instance est enregistrée comme session à part, pour revoir un passage précédent. Un contrôle de plausibilité compare les dégâts aux points de vie perdus par le boss.
 
 <p align="center">
-  <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Gestionnaire de sessions avec chronologie et contrôle de plausibilité">
+  <img src="Web-Frontend/images/features/sessions@2x.webp" width="760" alt="Gestionnaire de sessions et analyseur de combat dans une fenêtre">
 </p>
 
-L'historique retient quels combats de boss ont été envoyés en ligne : sa liste a une colonne **Envoyé**, peut n'afficher que les combats de boss non envoyés, et **Paramètres → Interface** indique combien il y en a. Les combats enregistrés par une ancienne version affichent un « ? » à la place (l'historique ne le suivait pas à l'époque).
+Le gestionnaire de sessions et l'**analyseur de combat** partagent une fenêtre avec une séparation déplaçable : choisissez une session à gauche, et à droite s'ouvrent les détails du joueur (compétences, rotation, effets, carte de replay), limités à cette session. Au-dessus de la liste des joueurs, vous passez entre **dégâts, soins et dégâts subis** ; la liste montre les morts et le temps passé mort. Le compteur continue d'enregistrer en arrière-plan. **Enregistrer dans un fichier** peut emporter la rotation, les effets et les données de replay (une case à cocher mémorisée ; le fichier devient bien plus gros, environ 0,5 à 5 Mo pour un combat de boss de cinq minutes), pour qu'un fichier chargé les montre aussi. La fenêtre mémorise sa position et la séparation.
 
 ## Utilisation
 
@@ -222,7 +222,7 @@ pendant une pause sont perdus, la reprise ne rejoue donc jamais un combat que vo
   **Copy All** donne un tableau Markdown pour Discord.
 - L'apparence se règle sous **Paramètres → Interface** : thème (sombre/clair), taille de police, langue, aspect et
   opacité de l'overlay, démarrage avec Windows.
-- Vos réglages survivent à un plantage : le fichier de réglages est écrit en une seule fois, et une copie du dernier démarrage est conservée à côté. Si le fichier est un jour endommagé, cette copie est restaurée (le fichier endommagé est conservé à côté). **Paramètres → Interface → Réinitialiser tous les réglages** demande confirmation deux fois et peut être annulé pendant 30 secondes ; vos choix d'envoi et de confidentialité, la vérification des mises à jour et votre personnage restent tels quels.
+- Vos réglages survivent à un plantage : le fichier de réglages est écrit en une seule fois, et une copie du dernier démarrage est conservée à côté. Si le fichier est un jour endommagé, cette copie est restaurée (le fichier endommagé est conservé à côté). **Paramètres → Général → Réinitialiser tous les réglages** demande confirmation deux fois et peut être annulé pendant 30 secondes ; vos choix d'envoi et de confidentialité, la vérification des mises à jour et votre personnage restent tels quels.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Paramètres : interface, overlay et comportement">
