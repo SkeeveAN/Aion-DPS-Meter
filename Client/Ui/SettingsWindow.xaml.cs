@@ -105,6 +105,7 @@ public partial class SettingsWindow : Window
         HideDuringMenusBox.IsChecked = settings.HideDuringMenus;
         StreamOverlayOnBox.IsChecked = settings.StreamOverlayOn;
         StreamShowNamesBox.IsChecked = settings.StreamShowNames;
+        StreamNetworkBox.IsChecked = settings.StreamOverlayNetwork;
         StreamPortBox.Text = settings.StreamOverlayPort.ToString();
         ShowMenuControlStatus(settings.MenuControlMode);
         SetHotkeyBox(HotkeyShowMenuBox, HotkeyBinding.Parse(settings.HotkeyShowMenu).ToString());
@@ -580,6 +581,7 @@ public partial class SettingsWindow : Window
         _settings.HideDuringMenus = HideDuringMenusBox.IsChecked ?? false;
         _settings.StreamOverlayOn = StreamOverlayOnBox.IsChecked ?? false;
         _settings.StreamShowNames = StreamShowNamesBox.IsChecked ?? false;
+        _settings.StreamOverlayNetwork = StreamNetworkBox.IsChecked ?? true;
         _settings.StreamOverlayPort = int.TryParse(StreamPortBox.Text, out int streamPort) && streamPort is >= 1024 and <= 65000 ? streamPort : 28920;
         _settings.StreamOverlayKey = MeterSettings.Load().StreamOverlayKey; // made and renewed by MainWindow, never by this copy
         _settings.HotkeyShowMenu = (string?)HotkeyShowMenuBox.Tag ?? "";

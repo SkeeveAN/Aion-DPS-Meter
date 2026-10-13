@@ -29,6 +29,13 @@ public static class SelfCheckStream
         Console.WriteLine($"  -> without names everyone is shown by class ({names}); the state is the JSON the page reads, cut to the rows asked for ({json})");
         ok &= names && json;
 
+        bool peers = StreamOverlayServer.IsLocalPeer(System.Net.IPAddress.Parse("192.168.1.20")) && StreamOverlayServer.IsLocalPeer(System.Net.IPAddress.Parse("10.0.0.5"))
+            && StreamOverlayServer.IsLocalPeer(System.Net.IPAddress.Parse("172.20.1.1")) && StreamOverlayServer.IsLocalPeer(System.Net.IPAddress.Loopback)
+            && !StreamOverlayServer.IsLocalPeer(System.Net.IPAddress.Parse("8.8.8.8")) && !StreamOverlayServer.IsLocalPeer(System.Net.IPAddress.Parse("172.32.0.1"))
+            && !StreamOverlayServer.IsLocalPeer(System.Net.IPAddress.Parse("2001:db8::1"));
+        Console.WriteLine($"  -> only this PC and the own network (private ranges) are answered, no address from the internet: {peers}");
+        ok &= peers;
+
         string key = StreamOverlayServer.NewKey();
         using var server = new StreamOverlayServer();
         int port = 30000 + Random.Shared.Next(2000);

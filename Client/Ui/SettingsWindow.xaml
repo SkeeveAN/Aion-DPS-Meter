@@ -638,6 +638,7 @@
                         <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
                                 <CheckBox x:Name="StreamOverlayOnBox" Content="{local:Loc Settings.Stream.On}"/>
+                                <CheckBox x:Name="StreamNetworkBox" Content="{local:Loc Settings.Stream.Network}" Margin="0,4,0,0"/>
                                 <CheckBox x:Name="StreamShowNamesBox" Content="{local:Loc Settings.Stream.Names}" Margin="0,4,0,0"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                     <TextBlock Text="{local:Loc Settings.Stream.Port}" VerticalAlignment="Center" Margin="0,0,8,0"/>

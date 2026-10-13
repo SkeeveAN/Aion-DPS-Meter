@@ -2049,12 +2049,13 @@ public partial class MainWindow : Window
                 _streamServer = null;
             }
             else if (_streamServer is null || !_streamServer.Running || _streamServer.Url?.Contains("/" + _streamSettings.StreamOverlayKey + "/") != true
+                || _streamServer.Network != _streamSettings.StreamOverlayNetwork
                 || _streamServer.Port != Math.Clamp(_streamSettings.StreamOverlayPort, 1024, 65000) && !_streamServer.Running)
             {
                 _streamServer?.Dispose();
                 _streamServer = new Streaming.StreamOverlayServer();
                 int port = Math.Clamp(_streamSettings.StreamOverlayPort, 1024, 65000);
-                if (!_streamServer.Start(port, _streamSettings.StreamOverlayKey))
+                if (!_streamServer.Start(port, _streamSettings.StreamOverlayKey, _streamSettings.StreamOverlayNetwork))
                 {
                     ShowUploadStatus(LocalizationManager.Instance["Stream.NoPort"]);
                     _streamServer.Dispose();
