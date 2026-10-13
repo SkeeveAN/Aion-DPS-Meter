@@ -584,6 +584,9 @@
                                 <CheckBox x:Name="NetRowJitterBox" Tag="jitter" Content="{local:Loc Network.Row.jitter}" IsChecked="True" Margin="0,2,0,0"/>
                                 <CheckBox x:Name="NetRowTrafficBox" Tag="traffic" Content="{local:Loc Network.Row.traffic}" IsChecked="True" Margin="0,2,0,0"/>
                                 <CheckBox x:Name="NetRowLossBox" Tag="loss" Content="{local:Loc Network.Row.loss}" IsChecked="True" Margin="0,2,0,0"/>
+                                <CheckBox x:Name="NetRowStallsBox" Tag="stalls" Content="{local:Loc Network.Row.stalls}" IsChecked="True" Margin="0,2,0,0"/>
+                                <CheckBox x:Name="NetRowGatewayBox" Tag="gateway" Content="{local:Loc Network.Row.gateway}" IsChecked="True" Margin="0,2,0,0"/>
+                                <CheckBox x:Name="NetRowInternetBox" Tag="internet" Content="{local:Loc Network.Row.internet}" IsChecked="True" Margin="0,2,0,0"/>
                                 <CheckBox x:Name="NetRowConnectionBox" Tag="connection" Content="{local:Loc Network.Row.connection}" IsChecked="True" Margin="0,2,0,0"/>
                                 <CheckBox x:Name="NetRowLoadBox" Tag="load" Content="{local:Loc Network.Row.load}" IsChecked="True" Margin="0,2,0,0"/>
                             </StackPanel>

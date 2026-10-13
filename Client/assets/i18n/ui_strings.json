@@ -4397,6 +4397,46 @@
     "en": "Meter load",
     "de": "Meter-Auslastung"
   },
+  "Network.Row.stalls": {
+    "en": "Stalls (10 min)",
+    "de": "Aussetzer (10 Min.)"
+  },
+  "Network.Row.gateway": {
+    "en": "Router (last minute)",
+    "de": "Router (letzte Minute)"
+  },
+  "Network.Row.internet": {
+    "en": "Internet (last minute)",
+    "de": "Internet (letzte Minute)"
+  },
+  "Network.Stalls.None": {
+    "en": "none",
+    "de": "keine"
+  },
+  "Network.Stalls.Value": {
+    "en": "{0}× · longest {1} s · last {2} ago",
+    "de": "{0}× · längster {1} s · zuletzt vor {2}"
+  },
+  "Network.Stalls.Cause.lan": {
+    "en": "router silent: LAN / router",
+    "de": "Router stumm: LAN / Router"
+  },
+  "Network.Stalls.Cause.line": {
+    "en": "internet silent: line / provider",
+    "de": "Internet stumm: Leitung / Provider"
+  },
+  "Network.Stalls.Cause.server": {
+    "en": "local network fine: server / route",
+    "de": "lokales Netz ok: Server / Route"
+  },
+  "Network.Probe.Value": {
+    "en": "{0} ms · {1}/{2} lost",
+    "de": "{0} ms · {1}/{2} verloren"
+  },
+  "Network.Connection.Unacked": {
+    "en": "unacknowledged for {0} s",
+    "de": "unbestätigt seit {0} s"
+  },
   "Network.Waiting": {
     "en": "Waiting for game traffic …",
     "de": "Warte auf Spielverkehr …"

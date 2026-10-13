@@ -943,7 +943,8 @@ internal static class Program
 
         Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
         Ui.MainWindow.Headless = true;
-        var sample = new Aion2.Capture.NetworkSnapshot(true, "87.232.75.220:13328", TimeSpan.FromSeconds(642), 1, 0, 7, 16, 6, 49, 4.2, 8.6, 0.2, 26, 31, 0, 0, TimeSpan.FromSeconds(0.4), 0, 0);
+        var sample = new Aion2.Capture.NetworkSnapshot(true, "87.232.75.220:13328", TimeSpan.FromSeconds(642), 1, 0, 7, 16, 6, 49, 4.2, 8.6, 0.2, 26, 31, 0, 0, TimeSpan.FromSeconds(0.4), 0, 0,
+            0, 0, null, null, null, new Aion2.Capture.NetworkProbeSnapshot(true, "192.168.2.1", 1, 0, 60, 12, 0, 60));
         var window = new Ui.NetworkOverlayWindow();
         window.Render(Ui.NetworkOverlayRows.Of(sample, Array.Empty<string>()));
         var content = (System.Windows.UIElement)window.Content;

@@ -1553,6 +1553,9 @@ public static class SelfCheckAion2
     private static bool RunNetworkStatsScenario()
     {
         Console.WriteLine("[selftest] Network analysis (ping from acknowledgements, retransmissions, gaps):");
+        string logFile = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "aiondps-selftest-network.log");
+        NetworkLog.PathOverride = logFile; // the test must not write to the real log
+        System.IO.File.Delete(logFile);
         NetworkStats.Reset();
         DateTime t0 = DateTime.Now.AddSeconds(-3);
         const string server = "10.0.0.1:13328", client = "192.168.0.2:50000";
@@ -1582,7 +1585,28 @@ public static class SelfCheckAion2
         bool switches = after.Switches == 1 && after.Reconnects == 1;
         Console.WriteLine($"  -> another server counts as a switch, the same server again as a reconnect: {switches}");
         NetworkStats.Reset();
-        return ping && loss && connection && switches;
+
+        // a busy connection that goes silent for 6 s and then comes back is one stall; the log goes to a temporary file
+        DateTime t1 = DateTime.Now.AddSeconds(-30);
+        uint serverSeq = 1000;
+        for (int i = 0; i < 60; i++)
+        {
+            NetworkStats.Note(Down(t1.AddMilliseconds(i * 100), serverSeq, 20, 0));
+            serverSeq += 20;
+        }
+
+        NetworkStats.Note(Up(t1.AddSeconds(7), 7000, 40));
+        NetworkStats.Note(Down(t1.AddSeconds(12), serverSeq, 20, 7040));
+        NetworkSnapshot stalled = NetworkStats.Snapshot();
+        bool stall = stalled.StallCount == 1 && Math.Abs(stalled.LongestStallSeconds - 6.1) < 0.2 && stalled.LastStallVerdict is null;
+        string written = System.IO.File.Exists(logFile) ? System.IO.File.ReadAllText(logFile) : "";
+        bool logged = written.Contains("STALL 6.1 s") && written.Contains("the client sent 1 segments");
+        Console.WriteLine($"  -> a 6 s silence of the server on a busy connection is one stall: {stall}");
+        Console.WriteLine($"  -> the stall is written to the network log with what the client did meanwhile: {logged}");
+        NetworkLog.PathOverride = null;
+        System.IO.File.Delete(logFile);
+        NetworkStats.Reset();
+        return ping && loss && connection && switches && stall && logged;
     }
 
     private static bool RunTcpReassemblerScenario()

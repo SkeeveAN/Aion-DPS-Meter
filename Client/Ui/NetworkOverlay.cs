@@ -9,7 +9,7 @@ namespace AionDPS.Ui;
 /// <summary>The lines the network overlay can show (the ids are what <see cref="MeterSettings.NetworkOverlayHidden"/> keeps) and how they read.</summary>
 public static class NetworkOverlayRows
 {
-    public static readonly string[] Ids = { "server", "ping", "jitter", "traffic", "loss", "connection", "load" };
+    public static readonly string[] Ids = { "server", "ping", "jitter", "traffic", "loss", "stalls", "gateway", "internet", "connection", "load" };
 
     private static readonly Color Good = Color.FromRgb(0x5B, 0xD0, 0x7A);
     private static readonly Color Warn = Color.FromRgb(0xFF, 0xD2, 0x7A);
@@ -68,9 +68,33 @@ public static class NetworkOverlayRows
             rows.Add((Label("loss"), string.Format(loc["Network.Loss.Value"], s.Retransmissions, s.Gaps), bad == 0 ? Good : bad <= 5 ? Warn : Bad));
         }
 
+        if (Shown("stalls"))
+        {
+            if (s.StallCount == 0)
+            {
+                rows.Add((Label("stalls"), loc["Network.Stalls.None"], Good));
+            }
+            else
+            {
+                string cause = s.LastStallVerdict is { } v ? " · " + loc["Network.Stalls.Cause." + v] : "";
+                bool recent = s.SinceLastStall is { } ago && ago.TotalSeconds < 120;
+                rows.Add((Label("stalls"), string.Format(loc["Network.Stalls.Value"], s.StallCount, Num(s.LongestStallSeconds), WorldBossText.Duration(s.SinceLastStall ?? TimeSpan.Zero)) + cause, recent ? Bad : Warn));
+            }
+        }
+
+        if (Shown("gateway"))
+        {
+            rows.Add(ProbeRow(Label("gateway"), s.Probe.Running && s.Probe.Gateway is not null, s.Probe.GatewayMs, s.Probe.GatewayLost, s.Probe.GatewayProbes, s.Probe.Gateway));
+        }
+
+        if (Shown("internet"))
+        {
+            rows.Add(ProbeRow(Label("internet"), s.Probe.Running, s.Probe.InternetMs, s.Probe.InternetLost, s.Probe.InternetProbes, null));
+        }
+
         if (Shown("connection"))
         {
-            bool stalled = s.SinceLastData is { } since && since.TotalSeconds >= 5;
+            bool stalled = s.SinceLastData is { } since && since.TotalSeconds >= 2;
             string text = stalled
                 ? string.Format(loc["Network.Connection.Stalled"], (int)s.SinceLastData!.Value.TotalSeconds)
                 : string.Format(loc["Network.Connection.Online"], WorldBossText.Duration(s.Uptime ?? TimeSpan.Zero));
@@ -84,6 +108,11 @@ public static class NetworkOverlayRows
                 text += " · " + string.Format(loc["Network.Connection.Reconnects"], s.Reconnects);
             }
 
+            if (s.UnackedFor is { } unacked && unacked.TotalSeconds >= 2)
+            {
+                text += " · " + string.Format(loc["Network.Connection.Unacked"], (int)unacked.TotalSeconds);
+            }
+
             rows.Add((Label("connection"), text, stalled ? Bad : s.Reconnects > 0 ? Warn : Good));
         }
 
@@ -93,6 +122,17 @@ public static class NetworkOverlayRows
         }
 
         return rows;
+
+        (string, string, Color) ProbeRow(string label, bool measured, double? ms, int lost, int probes, string? host)
+        {
+            if (!measured || probes == 0)
+            {
+                return (label, "…", Neutral);
+            }
+
+            string text = string.Format(loc["Network.Probe.Value"], ms is { } m ? Num(m, "0") : "–", lost, probes) + (host is null ? "" : " · " + host);
+            return (label, text, lost == 0 && (ms ?? 0) < 30 ? Good : lost <= 2 ? Warn : Bad);
+        }
     }
 }
 
@@ -182,6 +222,7 @@ public sealed class NetworkOverlayController : IDisposable
     public void Dispose()
     {
         _timer.Stop();
+        NetworkProbe.Stop();
         _overlay?.Close();
     }
 
@@ -191,9 +232,11 @@ public sealed class NetworkOverlayController : IDisposable
         if (!settings.ShowNetworkOverlay)
         {
             _overlay?.ShowOverlay(false);
+            NetworkProbe.Stop();
             return;
         }
 
+        NetworkProbe.Start();
         bool locked = settings.NetworkOverlayLocked;
         _overlay ??= new NetworkOverlayWindow();
         _overlay.ApplyLockedIfChanged(locked);

@@ -423,7 +423,7 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches of the lines the network overlay shows (Tag = the line's id).</summary>
     private IEnumerable<CheckBox> NetworkRowBoxes() =>
-        new[] { NetRowServerBox, NetRowPingBox, NetRowJitterBox, NetRowTrafficBox, NetRowLossBox, NetRowConnectionBox, NetRowLoadBox };
+        new[] { NetRowServerBox, NetRowPingBox, NetRowJitterBox, NetRowTrafficBox, NetRowLossBox, NetRowStallsBox, NetRowGatewayBox, NetRowInternetBox, NetRowConnectionBox, NetRowLoadBox };
 
     private void OnOpenDebugFolderClicked(object sender, RoutedEventArgs e)
     {
