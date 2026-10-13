@@ -96,6 +96,23 @@ export function softwareApplicationJsonLd(): object {
     offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
     url: env.BASE_URL + "/download",
     downloadUrl: "https://github.com/SkeeveAN/Aion-DPS-Meter/releases",
+    softwareRequirements: "Windows 10 or 11, Npcap driver",
+    isAccessibleForFree: true,
+    license: "https://opensource.org/licenses/MIT",
+    inLanguage: ["en", "de", "fr", "es", "ru", "zh", "zh-TW", "pt-BR", "ja", "ko"],
+    featureList: [
+      "Live DPS and HPS meter for every player in a group or raid",
+      "Per-target iDPS, PvE/PvP split and wipe tracking",
+      "Click-through in-game overlay with global hotkeys",
+      "Skill breakdown with crit rates and DPS curve",
+      "Character view with gear, arcana, skills and Daevanion boards",
+      "Interactive map with pet spawns and gathering spots",
+      "Event timetable and world boss timers with sound reminders",
+      "Network overlay with ping, jitter and packet loss",
+      "Official AION 2 announcements and Twitch Drops",
+      "Boss leaderboards and public character profiles (optional upload)",
+      "Passive packet capture, never reads game memory",
+    ],
     description:
       "Free open-source DPS/HPS meter for Aion 2. Reads the game's network traffic passively, shows live damage and healing per player, and can upload boss fights to community leaderboards.",
   };

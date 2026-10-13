@@ -81,7 +81,7 @@ export function homePage(): Page {
     meta: {
       title: "Aion DPS Meter – Free Damage Meter & Boss Leaderboards",
       description:
-        "Free open-source Aion 2 DPS/HPS meter with boss leaderboards, mechanics guides and character profiles. Passive packet capture, never reads game memory.",
+        "Free open-source Aion 2 DPS meter: click-through overlay, boss leaderboards, character profiles, pet map, event timetable and world boss timers. No memory reading.",
       canonicalPath: "/",
       jsonLd: [websiteJsonLd(), softwareApplicationJsonLd()],
     },
@@ -91,6 +91,8 @@ export function homePage(): Page {
       <h3>What it does</h3>
       <p>Aion DPS Meter shows live damage per second and healing per second for every player in your party or raid while you play. It runs beside the game as its own window or as a transparent click-through overlay, and keeps a full log of each fight so you can review skill breakdowns and group composition afterwards.</p>
       <p>The meter works by passive packet capture: it only reads the network traffic your own computer already receives. It never reads game memory, never injects code and never hooks the game client.</p>
+      <h3>More than a damage meter</h3>
+      <p>Besides DPS and HPS the client brings an interactive map with pet spawns and gathering spots, an event timetable and world boss timers with sound reminders, a network overlay with ping and packet loss, your character with gear and Daevanion boards, and shortcuts to the official AION 2 announcements and Twitch Drops. <a href="/features">See all features</a>.</p>
       <h3>Boss leaderboards and guides</h3>
       <p>Players can optionally upload their encounters. The site turns them into community leaderboards for every instance, boss and difficulty step, from Expeditions and Nightmare levels to Ascension Rite and Transcendence stages. Each boss page also lists its mechanics, the fastest clears, the strongest groups and the best results per class, so you can compare your own run with what others achieve.</p>
       <h3>Character profiles</h3>
@@ -99,7 +101,11 @@ export function homePage(): Page {
       <p>Install the Windows client, start Aion 2 and the meter picks up your fights automatically. Updates are installed by the client itself, and every release is documented in the changelog.</p>
       <ul class="plain">
         ${[DEFAULT_GAME].map((g) => html`<li><a href="/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
+        <li><a href="/features">Features of the Aion 2 DPS meter</a></li>
         <li><a href="/legions">Legions</a></li>
+        <li><a href="/status">AION 2 server status</a></li>
+        <li><a href="/announcements">AION 2 announcements</a> and <a href="/patchnotes">patch notes</a></li>
+        <li><a href="/twitch-drops">AION 2 Twitch Drops</a></li>
         <li><a href="/download">Download the Windows client</a></li>
         <li><a href="/changelog">Changelog</a></li>
       </ul>`,
@@ -127,26 +133,39 @@ export function featuresPage(): Page {
   return {
     status: 200,
     meta: {
-      title: "Features – Aion DPS Meter",
+      title: "Aion 2 DPS Meter Features – Overlay, Pet Map, Timetable, Boss Timers",
       description:
-        "What the Aion 2 damage meter offers: live DPS/HPS per player, a click-through overlay, skill breakdowns, character and Daevanion view, interactive map, event timetable, hotkeys, the official announcements, Twitch Drops campaigns and a network overlay with ping and packet loss.",
+        "All features of the free Aion 2 DPS meter: live DPS/HPS, overlay, skill breakdown, character view, pet map, event timetable, world boss timers, network overlay.",
       canonicalPath: "/features",
-      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Features", path: "/features" }])],
+      jsonLd: [softwareApplicationJsonLd(), breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Features", path: "/features" }])],
     },
     body: html`
       <h1>Aion 2 DPS Meter Toolkit – everything it does</h1>
-      <p>A damage and heal meter for Aion 2 that only reads the network traffic your own computer already receives.</p>
-      <ul class="plain">
-        <li>Live damage and healing for everyone in your group, with DPS, iDPS per target and share bars</li>
-        <li>A click-through overlay that sits on top of the game, toggled with a hotkey of your choice</li>
-        <li>Skill breakdown with exact crit rates and a DPS curve for every player</li>
-        <li>Your character: gear, arcana, skills and the Daevanion boards</li>
-        <li>Interactive map with pet spawns and gathering spots</li>
-        <li>Event timetable with sound reminders, system-wide hotkeys and chat-ready copy</li>
-        <li>A button in the main window for the official AION 2 announcements, with kinds and filters, one click from the meter</li>
-        <li>A network overlay with ping, jitter, traffic and packet loss of your connection to the game server</li>
-        <li>A Twitch button while a Drops campaign is running: rewards, watch times and the streams with Drops enabled right now</li>
-      </ul>
+      <p>A free, open-source damage and heal meter and toolkit for Aion 2. It only reads the network traffic your own computer already receives: no memory reading, no injection, no packets sent.</p>
+      <h2>Live damage and healing meter</h2>
+      <p>Every player in your group or raid with name, total damage, DPS and a share bar; faction and class as icons. Filter by class, group or target. The Mob/Boss filter switches between overall DPS and true per-target iDPS, a PvE/PvP switch separates the two, and every wipe on a boss gets an entry of its own.</p>
+      <h3>Five views</h3>
+      <p>Damage, Heal, Damage taken and two All in One views, switched by hotkey or click.</p>
+      <h3>Skill breakdown and DPS curve</h3>
+      <p>Double-click a player to see every skill with hits, crit rate, total, min, max and average, split by target, plus a DPS curve over the whole fight. Fights are kept in a local fight history so you can look at an earlier boss again.</p>
+      <h3>Copy to chat or Discord</h3>
+      <p>One click puts a chat-ready one-line ranking on the clipboard, or a Discord table of the whole group.</p>
+      <h2>Click-through overlay</h2>
+      <p>The window turns into small chips or a compact panel on top of the game that never takes a click, with adjustable opacity and share bars, drawn only while Aion 2 is in front. Toggle it with a system-wide hotkey of your choice.</p>
+      <h2>Your character</h2>
+      <p>Gear with item level and enchant (including the Amplify stage), arcana, species knowledge, all skills and the full Daevanion boards. The meter keeps your last login, so the window is never empty.</p>
+      <h2>Interactive map: pets and gathering</h2>
+      <p>A map overlay with your position, the spawn points of the pets you are after, and the gathering spots you switch on – herbs, ores, wood, gems and more – for Verteron, Altgard and the Abyss. Edge arrows point to the nearest pet or gatherable, and a Rare tab lists pets with few spawn points.</p>
+      <h2>Event timetable and world boss timers</h2>
+      <p>An overlay lists the next events – Battlefield, Abyss sieges, Shugo Festival, Beritra Air Raid, Spacetime Rift and more – with a sound and volume per event and a reminder minutes before the start. A second overlay shows when each field boss is back, taken from the game itself, with its own sound.</p>
+      <h2>Network overlay</h2>
+      <p>Ping, jitter, traffic, packet loss and online time of your connection to the game server, measured from the traffic your PC already receives.</p>
+      <h2>Announcements and Twitch Drops</h2>
+      <p>One click from the meter: the official AION 2 announcements and patch notes with kind filters, and while a campaign runs, the Twitch Drops rewards, watch times and the streams with Drops enabled right now.</p>
+      <h2>Hotkeys, languages and updates</h2>
+      <p>Fourteen system-wide hotkeys that work while the game has focus, all rebindable. Many languages including English, German, French, Spanish, Russian, Chinese, Portuguese, Japanese and Korean, dark and light look, and automatic background updates without an installer or admin rights.</p>
+      <h2>Community leaderboards and profiles</h2>
+      <p>Uploads are optional and off by default. If you switch them on, your boss fights feed the <a href="/instances">boss leaderboards</a> and your character gets a public profile; <a href="/legions">legions</a> list their members per server.</p>
       <p><a class="download-cta" href="/download">Download the Windows client</a></p>`,
   };
 }
