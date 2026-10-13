@@ -14,9 +14,17 @@ public sealed class CombatStage : Canvas
 {
     public Size Wanted { get; set; } = new(460, 240);
 
+    /// <summary>A stage inside a block takes the block's whole size instead of a wanted size of its own.</summary>
+    public bool FillAvailable { get; set; }
+
     protected override Size MeasureOverride(Size constraint)
     {
         base.MeasureOverride(constraint);
+        if (FillAvailable && !double.IsInfinity(constraint.Width) && !double.IsInfinity(constraint.Height))
+        {
+            return constraint;
+        }
+
         return new Size(
             double.IsInfinity(constraint.Width) ? Wanted.Width : Math.Min(Wanted.Width, constraint.Width),
             double.IsInfinity(constraint.Height) ? Wanted.Height : Math.Min(Wanted.Height, constraint.Height));
@@ -30,7 +38,7 @@ public sealed class CombatStage : Canvas
 /// </summary>
 public sealed class CombatElementHost : Border
 {
-    private const double MinWidth_ = 70, MinHeight_ = 22, MinScale_ = 0.5, MaxScale_ = 3.0, EdgeThickness = 7;
+    private const double MinWidth_ = 36, MinHeight_ = 22, MinScale_ = 0.5, MaxScale_ = 3.0, EdgeThickness = 7;
     private static readonly Brush EditBorder = Freeze(new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42)));
     private static readonly Brush EditFill = Freeze(new SolidColorBrush(Color.FromArgb(0x38, 0, 0, 0)));
 

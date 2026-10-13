@@ -986,7 +986,8 @@ internal static class Program
                     new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.You"], true, false, false, 900, 1500, 650, null),
                     new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.AllAround"], false, true, true, 400, 1900, null, null),
                 },
-                new Ui.TargetOfTargetData("Seuche", bossName, Aion2.Protocol.Aion2Artwork.ClassEmblemPath("Cleric"), false),
+                new Ui.TargetOfTargetData("Seuche", bossName, Aion2.Protocol.Aion2Artwork.ClassEmblemPath("Cleric"), false, 12480, 20563,
+                    new[] { new Ui.EffectData("Poison", null, "12", true), new Ui.EffectData("Slow", null, "5", true) }),
                 new Ui.HealerData("Seuche", 12480, 20563, new[]
                 {
                     new Ui.EffectData("Poison", null, "12", true), new Ui.EffectData("Slow", null, "5", true), new Ui.EffectData("Bleed", null, "9", true), new Ui.EffectData("Shield", null, "\u221e", false),

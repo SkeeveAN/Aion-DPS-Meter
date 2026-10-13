@@ -5129,18 +5129,6 @@
     "ja": "ボスのキャスト表示",
     "ko": "보스 시전 바"
   },
-  "Combat.Element.TargetOfTarget": {
-    "en": "Target of the target",
-    "de": "Ziel des Ziels",
-    "fr": "Cible de la cible",
-    "es": "Objetivo del objetivo",
-    "ru": "Цель цели",
-    "zh": "目标的目标",
-    "zh-TW": "目標的目標",
-    "pt": "Alvo do alvo",
-    "ja": "ターゲットのターゲット",
-    "ko": "대상의 대상"
-  },
   "Combat.Element.Healer": {
     "en": "Healer target",
     "de": "Heiler-Ziel",
@@ -6112,5 +6100,65 @@
     "ja": "先行テスト：位置はゲーム自身の読み取り値です（移動やスキルに合わせて送られ、一定間隔ではありません）。範囲の大きさは当たった相手から学習し、破線はまだ推定です。",
     "ko": "초기 테스트: 위치는 게임 자체의 측정값입니다(이동과 스킬에 맞춰 전송되며 일정한 간격이 아닙니다). 범위의 크기는 맞은 대상에서 학습하며 점선은 아직 추정입니다.",
     "zh-TW": "早期測試：位置來自遊戲本身的讀數（隨移動和技能傳送，而非固定間隔）；範圍大小依據被命中的玩家學習而得，虛線 = 仍為估計。"
+  },
+  "Combat.Element.TargetIcon": {
+    "en": "Picture",
+    "de": "Bild",
+    "fr": "Image",
+    "es": "Imagen",
+    "ru": "Значок",
+    "zh": "图片",
+    "zh-TW": "圖片",
+    "pt": "Imagem",
+    "ja": "画像",
+    "ko": "이미지"
+  },
+  "Combat.Element.TargetName": {
+    "en": "Name",
+    "de": "Name",
+    "fr": "Nom",
+    "es": "Nombre",
+    "ru": "Имя",
+    "zh": "名称",
+    "zh-TW": "名稱",
+    "pt": "Nome",
+    "ja": "名前",
+    "ko": "이름"
+  },
+  "Combat.Element.TargetHp": {
+    "en": "Health",
+    "de": "HP-Balken",
+    "fr": "Vie",
+    "es": "Vida",
+    "ru": "Здоровье",
+    "zh": "生命",
+    "zh-TW": "生命",
+    "pt": "Vida",
+    "ja": "HP",
+    "ko": "체력"
+  },
+  "Combat.Element.TargetEffects": {
+    "en": "Effects",
+    "de": "Effekte",
+    "fr": "Effets",
+    "es": "Efectos",
+    "ru": "Эффекты",
+    "zh": "效果",
+    "zh-TW": "效果",
+    "pt": "Efeitos",
+    "ja": "効果",
+    "ko": "효과"
+  },
+  "Combat.Element.TargetOfTarget": {
+    "en": "Target of the target",
+    "de": "Ziel des Ziels",
+    "fr": "Cible de la cible",
+    "es": "Objetivo del objetivo",
+    "ru": "Цель цели",
+    "zh": "目标的目标",
+    "zh-TW": "目標的目標",
+    "pt": "Alvo do alvo",
+    "ja": "ターゲットのターゲット",
+    "ko": "대상의 대상"
   }
 }

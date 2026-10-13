@@ -10,8 +10,8 @@ namespace AionDPS.Ui;
 public sealed record CastRowData(
     string Name, string Detail, string TargetText, bool AtYou, bool Area, bool Lethal, double ElapsedMs, int CastMs, int? LandMs, string? IconPath);
 
-/// <summary>The target of the target: who the clicked target is aiming at.</summary>
-public sealed record TargetOfTargetData(string Name, string From, string? ImagePath, bool IsBoss);
+/// <summary>The target of the target: who the clicked target is aiming at, with its hit points and effects (null/empty when the stream said nothing).</summary>
+public sealed record TargetOfTargetData(string Name, string From, string? ImagePath, bool IsBoss, long? Hp = null, long? MaxHp = null, IReadOnlyList<EffectData>? Effects = null);
 
 /// <summary>An effect on the healer's target.</summary>
 public sealed record EffectData(string Label, string? IconPath, string Time, bool Debuff);
@@ -219,15 +219,36 @@ public sealed class BossCastView : Border
     }
 }
 
-/// <summary>The target of the target: a picture (a boss's, or a player's class) and the name of who the clicked target is aiming at.</summary>
-public sealed class TargetOfTargetView : Border
+/// <summary>The target of the target is four parts, each a card of its own that can be placed and sized on its own: picture, name, hit point bar and effect bar.</summary>
+public sealed class TargetIconView : Border
 {
     private readonly Image _picture = new() { Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center };
-    private readonly ContentControl _pictureHost = new() { Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center, Width = 56, Height = 34 };
+
+    public TargetIconView()
+    {
+        Background = OverlayPictures.Panel;
+        BorderBrush = OverlayPictures.PanelBorder;
+        BorderThickness = new Thickness(1);
+        CornerRadius = new CornerRadius(6);
+        Padding = new Thickness(4);
+        Child = _picture;
+    }
+
+    public void Show(TargetOfTargetData data)
+    {
+        ImageSource? image = OverlayPictures.Load(data.ImagePath);
+        _picture.Source = image;
+        Child = image is null ? OverlayPictures.Emblem(data.IsBoss ? "B" : "?", 34) : _picture;
+    }
+}
+
+/// <summary>The name of the target of the target, with whose target it is above it.</summary>
+public sealed class TargetNameView : Border
+{
     private readonly TextBlock _name = new() { FontWeight = FontWeights.Bold, FontSize = 14, Foreground = OverlayPictures.Text, TextTrimming = TextTrimming.CharacterEllipsis };
     private readonly TextBlock _from = new() { FontSize = 11, Foreground = OverlayPictures.Muted, TextTrimming = TextTrimming.CharacterEllipsis };
 
-    public TargetOfTargetView()
+    public TargetNameView()
     {
         Background = OverlayPictures.Panel;
         BorderBrush = OverlayPictures.PanelBorder;
@@ -237,23 +258,79 @@ public sealed class TargetOfTargetView : Border
         var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         text.Children.Add(_from);
         text.Children.Add(_name);
-        var row = new DockPanel();
-        DockPanel.SetDock(_pictureHost, Dock.Left);
-        row.Children.Add(_pictureHost);
-        row.Children.Add(text);
-        Child = row;
-        _pictureHost.Content = _picture;
+        Child = text;
     }
 
     public void Show(TargetOfTargetData data)
     {
         _name.Text = data.Name;
         _from.Text = data.From + " →";
-        ImageSource? image = OverlayPictures.Load(data.ImagePath);
-        _picture.Source = image;
-        // a boss's picture is wide, a class emblem square
-        _pictureHost.Width = data.IsBoss ? 56 : 34;
-        _pictureHost.Content = image is null ? OverlayPictures.Emblem(data.IsBoss ? "B" : "?", 34) : _picture;
+    }
+}
+
+/// <summary>A hit point bar on a card of its own (current, maximum and percent in the bar).</summary>
+public sealed class HpBarView : Border
+{
+    private readonly TextBlock _text = new() { FontSize = 11, Foreground = OverlayPictures.Text, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+    private readonly Border _fill = new() { HorizontalAlignment = HorizontalAlignment.Stretch, RenderTransformOrigin = new Point(0, 0.5), RenderTransform = new ScaleTransform(1, 1), CornerRadius = new CornerRadius(3) };
+
+    public HpBarView()
+    {
+        Background = OverlayPictures.Panel;
+        BorderBrush = OverlayPictures.PanelBorder;
+        BorderThickness = new Thickness(1);
+        CornerRadius = new CornerRadius(6);
+        Padding = new Thickness(4);
+        var bar = new Grid();
+        bar.Children.Add(new Border { Background = OverlayPictures.Track, CornerRadius = new CornerRadius(3) });
+        bar.Children.Add(_fill);
+        bar.Children.Add(_text);
+        Child = bar;
+    }
+
+    public void Show(long? hp, long? max)
+    {
+        double fraction = hp is long h && max is long m && m > 0 ? Math.Clamp((double)h / m, 0, 1) : 0;
+        ((ScaleTransform)_fill.RenderTransform).ScaleX = fraction;
+        _fill.Background = fraction < 0.3 ? OverlayPictures.Red : fraction < 0.6 ? OverlayPictures.Amber : OverlayPictures.Green;
+        _text.Text = hp is long current
+            ? max is long total && total > 0 ? $"{current:N0} / {total:N0}  ({fraction * 100:0}%)" : $"{current:N0}"
+            : "–";
+    }
+}
+
+/// <summary>The effects (debuffs, buffs or both, as chosen) as a bar of small pictures with their time left, on a card of its own.</summary>
+public sealed class EffectBarView : Border
+{
+    private readonly WrapPanel _effects = new();
+
+    public EffectBarView()
+    {
+        Background = OverlayPictures.Panel;
+        BorderBrush = OverlayPictures.PanelBorder;
+        BorderThickness = new Thickness(1);
+        CornerRadius = new CornerRadius(6);
+        Padding = new Thickness(4);
+        Child = _effects;
+    }
+
+    public void Show(IReadOnlyList<EffectData> effects) => Fill(_effects, effects);
+
+    internal static void Fill(WrapPanel panel, IReadOnlyList<EffectData> effects)
+    {
+        panel.Children.Clear();
+        foreach (EffectData effect in effects.Take(16))
+        {
+            var cell = new StackPanel { Margin = new Thickness(0, 0, 4, 2), Width = 26 };
+            ImageSource? icon = OverlayPictures.Load(effect.IconPath);
+            FrameworkElement picture = icon is null
+                ? OverlayPictures.Emblem(effect.Label.Length > 0 ? effect.Label[..1].ToUpperInvariant() : "?", 22, effect.Debuff ? OverlayPictures.Brush(0x5A, 0x24, 0x2A) : OverlayPictures.Brush(0x24, 0x4A, 0x36))
+                : new Image { Source = icon, Width = 22, Height = 22 };
+            picture.ToolTip = effect.Label;
+            cell.Children.Add(picture);
+            cell.Children.Add(new TextBlock { Text = effect.Time, FontSize = 9, Foreground = OverlayPictures.Muted, HorizontalAlignment = HorizontalAlignment.Center });
+            panel.Children.Add(cell);
+        }
     }
 }
 
@@ -311,18 +388,6 @@ public sealed class HealerTargetView : Border
             return;
         }
 
-        _effects.Children.Clear();
-        foreach (EffectData effect in data.Effects.Take(16))
-        {
-            var cell = new StackPanel { Margin = new Thickness(0, 0, 4, 2), Width = 26 };
-            ImageSource? icon = OverlayPictures.Load(effect.IconPath);
-            FrameworkElement picture = icon is null
-                ? OverlayPictures.Emblem(effect.Label.Length > 0 ? effect.Label[..1].ToUpperInvariant() : "?", 22, effect.Debuff ? OverlayPictures.Brush(0x5A, 0x24, 0x2A) : OverlayPictures.Brush(0x24, 0x4A, 0x36))
-                : new Image { Source = icon, Width = 22, Height = 22 };
-            picture.ToolTip = effect.Label;
-            cell.Children.Add(picture);
-            cell.Children.Add(new TextBlock { Text = effect.Time, FontSize = 9, Foreground = OverlayPictures.Muted, HorizontalAlignment = HorizontalAlignment.Center });
-            _effects.Children.Add(cell);
-        }
+        EffectBarView.Fill(_effects, data.Effects);
     }
 }

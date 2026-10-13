@@ -23,7 +23,7 @@ public static class CombatOverlayData
     public static CombatFrame Build(Aion2EntityDirectory dir, MeterSettings settings, DateTime now, string language)
     {
         IReadOnlyList<CastRowData> casts = settings.CombatShowBossCast ? Casts(dir, settings, now, language) : Array.Empty<CastRowData>();
-        TargetOfTargetData? tot = settings.CombatShowTargetOfTarget ? TargetOfTarget(dir, now, language) : null;
+        TargetOfTargetData? tot = settings.CombatShowTargetOfTarget ? TargetOfTarget(dir, settings, now, language) : null;
         HealerData? healer = settings.CombatShowHealer ? Healer(dir, settings, now, language) : null;
         return new CombatFrame(casts, tot, healer);
     }
@@ -78,7 +78,7 @@ public static class CombatOverlayData
         return scored.OrderByDescending(s => s.Score).ThenBy(s => s.End).Take(most).OrderBy(s => s.End).Select(s => s.Row).ToList();
     }
 
-    public static TargetOfTargetData? TargetOfTarget(Aion2EntityDirectory dir, DateTime now, string language)
+    public static TargetOfTargetData? TargetOfTarget(Aion2EntityDirectory dir, MeterSettings settings, DateTime now, string language)
     {
         if (dir.LocalTarget is not { } clicked)
         {
@@ -91,7 +91,8 @@ public static class CombatOverlayData
         }
 
         var (name, image, isBoss) = Describe(dir, aimed, language);
-        return new TargetOfTargetData(name, Name(dir, clicked.EntityId, language), image, isBoss);
+        return new TargetOfTargetData(name, Name(dir, clicked.EntityId, language), image, isBoss,
+            dir.HitPoints.Latest(aimed)?.Hp, dir.HitPoints.MaxOf(aimed), Effects(dir, settings, aimed, now));
     }
 
     public static HealerData? Healer(Aion2EntityDirectory dir, MeterSettings settings, DateTime now, string language)
@@ -104,23 +105,32 @@ public static class CombatOverlayData
         int id = clicked.EntityId;
         long? hp = dir.HitPoints.Latest(id)?.Hp;
         long? max = dir.HitPoints.MaxOf(id);
-        var effects = new List<EffectData>();
-        if (settings.CombatHealerEffects)
-        {
-            foreach (BuffNotice buff in dir.Combat.BuffsOn(id, now))
-            {
-                bool debuff = dir.IsKnownMonster(buff.Caster);
-                if ((settings.CombatHealerEffectKind == "debuffs" && !debuff) || (settings.CombatHealerEffectKind == "buffs" && debuff))
-                {
-                    continue;
-                }
+        IReadOnlyList<EffectData> effects = Effects(dir, settings, id, now);
+        return new HealerData(Name(dir, id, language), hp, max, effects);
+    }
 
-                string time = buff.Ends is { } end ? Math.Max(0, (int)Math.Ceiling((end - now).TotalSeconds)).ToString() : "∞";
-                effects.Add(new EffectData(Aion2SkillNames.Display(Aion2SkillNames.NameOf(buff.SkillId)), Aion2SkillIcons.PathFor(buff.SkillId), time, debuff));
-            }
+    /// <summary>The effects on an entity that the settings ask for (debuffs, buffs or both); none when effects are switched off.</summary>
+    private static IReadOnlyList<EffectData> Effects(Aion2EntityDirectory dir, MeterSettings settings, int id, DateTime now)
+    {
+        var effects = new List<EffectData>();
+        if (!settings.CombatHealerEffects)
+        {
+            return effects;
         }
 
-        return new HealerData(Name(dir, id, language), hp, max, effects);
+        foreach (BuffNotice buff in dir.Combat.BuffsOn(id, now))
+        {
+            bool debuff = dir.IsKnownMonster(buff.Caster);
+            if ((settings.CombatHealerEffectKind == "debuffs" && !debuff) || (settings.CombatHealerEffectKind == "buffs" && debuff))
+            {
+                continue;
+            }
+
+            string time = buff.Ends is { } end ? Math.Max(0, (int)Math.Ceiling((end - now).TotalSeconds)).ToString() : "∞";
+            effects.Add(new EffectData(Aion2SkillNames.Display(Aion2SkillNames.NameOf(buff.SkillId)), Aion2SkillIcons.PathFor(buff.SkillId), time, debuff));
+        }
+
+        return effects;
     }
 
     /// <summary>The name of an entity: a player's, a monster's (in the chosen language), or its number when nothing is known.</summary>
@@ -148,14 +158,22 @@ public static class CombatOverlayData
 /// </summary>
 public sealed class CombatOverlayWindow : MovableOverlay
 {
-    public const string BossCastId = "BossCast", TargetOfTargetId = "TargetOfTarget", HealerId = "Healer";
+    public const string BossCastId = "BossCast", HealerId = "Healer",
+        TargetBlockId = "TargetBlock", TargetIconId = "TargetIcon", TargetNameId = "TargetName", TargetHpId = "TargetHp", TargetEffectsId = "TargetEffects";
+
+    private static readonly string[] TargetParts = { TargetIconId, TargetNameId, TargetHpId, TargetEffectsId };
 
     private static CombatStage? _building;
     private static CombatOverlayWindow? _instance;
 
     private readonly CombatStage _stage;
+    /// <summary>The floor inside the target-of-the-target block: its four parts are placed on it, and only inside the block.</summary>
+    private readonly CombatStage _blockStage = new() { FillAvailable = true };
     private readonly BossCastView _bossCast = new();
-    private readonly TargetOfTargetView _targetOfTarget = new();
+    private readonly TargetIconView _targetIcon = new();
+    private readonly TargetNameView _targetName = new();
+    private readonly HpBarView _targetHp = new();
+    private readonly EffectBarView _targetEffects = new();
     private readonly HealerTargetView _healer = new();
     private readonly Dictionary<string, CombatElementHost> _hosts = new();
     private bool _editing;
@@ -167,9 +185,13 @@ public sealed class CombatOverlayWindow : MovableOverlay
         _building = null;
         var settings = MeterSettings.Load();
         var loc = LocalizationManager.Instance;
-        AddElement(BossCastId, _bossCast, loc["Combat.Element.BossCast"], settings);
-        AddElement(TargetOfTargetId, _targetOfTarget, loc["Combat.Element.TargetOfTarget"], settings);
-        AddElement(HealerId, _healer, loc["Combat.Element.Healer"], settings);
+        AddElement(BossCastId, _bossCast, loc["Combat.Element.BossCast"], settings, _stage);
+        AddElement(TargetIconId, _targetIcon, loc["Combat.Element.TargetIcon"], settings, _blockStage);
+        AddElement(TargetNameId, _targetName, loc["Combat.Element.TargetName"], settings, _blockStage);
+        AddElement(TargetHpId, _targetHp, loc["Combat.Element.TargetHp"], settings, _blockStage);
+        AddElement(TargetEffectsId, _targetEffects, loc["Combat.Element.TargetEffects"], settings, _blockStage);
+        AddElement(TargetBlockId, _blockStage, loc["Combat.Element.TargetOfTarget"], settings, _stage);
+        AddElement(HealerId, _healer, loc["Combat.Element.Healer"], settings, _stage);
         _stage.Wanted = StageSize(settings.CombatOverlayWidth, settings.CombatOverlayHeight);
         Closed += (_, _) =>
         {
@@ -190,26 +212,30 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private static CombatElementLayout DefaultLayout(string id) => id switch
     {
         BossCastId => new CombatElementLayout { Left = 0, Top = 0, Width = 480, Height = 132 },
-        TargetOfTargetId => new CombatElementLayout { Left = 0, Top = 140, Width = 232, Height = 56 },
+        TargetBlockId => new CombatElementLayout { Left = 0, Top = 140, Width = 240, Height = 152 },
+        TargetIconId => new CombatElementLayout { Left = 0, Top = 0, Width = 52, Height = 52 },
+        TargetNameId => new CombatElementLayout { Left = 56, Top = 0, Width = 176, Height = 52 },
+        TargetHpId => new CombatElementLayout { Left = 0, Top = 56, Width = 232, Height = 30 },
+        TargetEffectsId => new CombatElementLayout { Left = 0, Top = 90, Width = 232, Height = 54 },
         _ => new CombatElementLayout { Left = 240, Top = 140, Width = 240, Height = 106 },
     };
 
     /// <summary>The frame's size before anyone pulled it: the stage plus the rim (2 + 1 px each side) and the grip's row.</summary>
-    private static readonly Size DefaultFrame = new(486, 276);
+    private static readonly Size DefaultFrame = new(486, 316);
 
     private static Size StageSize(double? frameWidth, double? frameHeight) =>
         new(Math.Max(60, (frameWidth is > 0 ? frameWidth.Value : DefaultFrame.Width) - 6), Math.Max(40, (frameHeight is > 0 ? frameHeight.Value : DefaultFrame.Height) - 20));
 
-    private void AddElement(string id, UIElement view, string caption, MeterSettings settings)
+    private void AddElement(string id, UIElement view, string caption, MeterSettings settings, CombatStage stage)
     {
         if (!settings.CombatElements.TryGetValue(id, out CombatElementLayout? layout) || layout.Width <= 0 || layout.Height <= 0)
         {
             layout = DefaultLayout(id);
         }
 
-        var host = new CombatElementHost(id, _stage, view, layout, caption, SaveElement);
+        var host = new CombatElementHost(id, stage, view, layout, caption, SaveElement);
         _hosts[id] = host;
-        _stage.Children.Add(host);
+        stage.Children.Add(host);
     }
 
     private static void SaveElement(string id, CombatElementLayout layout)
@@ -312,17 +338,29 @@ public sealed class CombatOverlayWindow : MovableOverlay
         any |= castShown;
 
         bool totOn = settings.CombatShowTargetOfTarget;
-        if (totOn && frame.TargetOfTarget is { } tot)
+        TargetOfTargetData? shownTot = totOn ? frame.TargetOfTarget : null;
+        if (totOn && shownTot is null && _editing)
         {
-            _targetOfTarget.Show(tot);
-        }
-        else if (totOn && _editing)
-        {
-            _targetOfTarget.Show(new TargetOfTargetData(loc["Combat.Sample.Player"], loc["Combat.Sample.Boss"], null, false));
+            shownTot = new TargetOfTargetData(loc["Combat.Sample.Player"], loc["Combat.Sample.Boss"], null, false, 6400, 10000, new[]
+            {
+                new EffectData("Poison", null, "12", true), new EffectData("Slow", null, "5", true),
+            });
         }
 
-        bool totShown = totOn && (frame.TargetOfTarget is not null || _editing);
-        _hosts[TargetOfTargetId].Visibility = totShown ? Visibility.Visible : Visibility.Collapsed;
+        if (shownTot is { } tot)
+        {
+            _targetIcon.Show(tot);
+            _targetName.Show(tot);
+            _targetHp.Show(tot.Hp, tot.MaxHp);
+            _targetEffects.Show(tot.Effects ?? Array.Empty<EffectData>());
+        }
+
+        bool totShown = shownTot is not null;
+        _hosts[TargetBlockId].Visibility = totShown ? Visibility.Visible : Visibility.Collapsed;
+        _hosts[TargetIconId].Visibility = Visibility.Visible;
+        _hosts[TargetNameId].Visibility = Visibility.Visible;
+        _hosts[TargetHpId].Visibility = totShown && settings.CombatHealerHpBar ? Visibility.Visible : Visibility.Collapsed;
+        _hosts[TargetEffectsId].Visibility = totShown && settings.CombatHealerEffects ? Visibility.Visible : Visibility.Collapsed;
         any |= totShown;
 
         bool healerOn = settings.CombatShowHealer;

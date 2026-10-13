@@ -63,7 +63,7 @@ public static class SelfCheckCombatOverlay
         ok &= hidden && shown;
 
         entities.SetLocalTarget(19144);
-        var tot = AionDPS.Ui.CombatOverlayData.TargetOfTarget(entities, during, "en");
+        var tot = AionDPS.Ui.CombatOverlayData.TargetOfTarget(entities, new AionDPS.Ui.MeterSettings(), during, "en");
         bool totOk = tot is not null && tot.Name == "#41205" && tot.From == "#19144";
         entities.HitPoints.Note(19144, during, 6400);
         entities.HitPoints.NoteMax(19144, 10000);
