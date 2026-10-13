@@ -115,6 +115,7 @@ public sealed class Aion2CombatState
     private readonly Dictionary<int, TrackBuffer> _tracks = new();
     private readonly List<WindupRecord> _windupLog = new();
     private readonly List<DeathRecord> _deathLog = new();
+    private readonly List<(int Entity, DateTime At)> _reviveLog = new();
     private readonly List<BuffEvent> _buffLog = new();
     private readonly List<StaggerEvent> _staggerLog = new();
     private const int MaxLog = 200_000;
@@ -253,6 +254,40 @@ public sealed class Aion2CombatState
         lock (_gate)
         {
             Append(_deathLog, new DeathRecord(at, entity));
+        }
+    }
+
+    /// <summary>An entity that had 0 hit points is at a reading above 0 again: it was revived.</summary>
+    public void NoteRevive(int entity, DateTime at)
+    {
+        lock (_gate)
+        {
+            Append(_reviveLog, (entity, at));
+        }
+    }
+
+    /// <summary>The deaths between two moments with the moment of the revive (null: none in the log). The game repeats a 0 reading, so a second death
+    /// with no revive in between is the same one.</summary>
+    public List<DeathRecord> DeathsIn(DateTime from, DateTime to, Func<int, bool>? keep = null)
+    {
+        lock (_gate)
+        {
+            var result = new List<DeathRecord>();
+            var lastOf = new Dictionary<int, DeathRecord>();
+            foreach (DeathRecord death in _deathLog.Where(d => d.At >= from && d.At <= to && (keep is null || keep(d.Entity))))
+            {
+                DateTime? revived = _reviveLog.Where(r => r.Entity == death.Entity && r.At > death.At).Select(r => (DateTime?)r.At).OrderBy(r => r).FirstOrDefault();
+                if (lastOf.TryGetValue(death.Entity, out DeathRecord before) && before.RevivedAt == revived)
+                {
+                    continue; // repeated 0 reading
+                }
+
+                var record = death with { RevivedAt = revived };
+                lastOf[death.Entity] = record;
+                result.Add(record);
+            }
+
+            return result;
         }
     }
 
@@ -575,7 +610,7 @@ public sealed class Aion2CombatState
                 }
 
                 windups = _windupLog.Where(w => w.At >= from && w.At <= to && keep(w.Actor)).ToList();
-                deaths = _deathLog.Where(d => d.At >= from && d.At <= to && keep(d.Entity)).ToList();
+                deaths = DeathsIn(from, to, keep);
                 if (hpOf is not null)
                 {
                     hp = tracks.Select(t => hpOf(t.Entity, from, to)).Where(h => h is not null).Select(h => h!).ToList();

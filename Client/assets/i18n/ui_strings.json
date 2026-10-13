@@ -6268,5 +6268,65 @@
     "pt": "Escolha uma sessão à esquerda: os jogadores e os detalhes dela aparecem aqui, só com os golpes dessa sessão.",
     "ja": "左で記録を選ぶと、そのプレイヤーと詳細がここに表示されます(その記録の攻撃のみ)。",
     "ko": "왼쪽에서 세션을 선택하면 해당 세션의 플레이어와 상세 정보가 여기에 표시됩니다(그 세션의 적중만 사용)."
+  },
+  "Sessions.Col.Deaths": {
+    "en": "Deaths",
+    "de": "Tode",
+    "fr": "Morts",
+    "es": "Muertes",
+    "ru": "Смерти",
+    "zh": "死亡",
+    "zh-TW": "死亡",
+    "pt": "Mortes",
+    "ja": "死亡",
+    "ko": "사망"
+  },
+  "Sessions.Col.DeadTime": {
+    "en": "Time dead",
+    "de": "Tot für",
+    "fr": "Temps mort",
+    "es": "Tiempo muerto",
+    "ru": "Мёртв",
+    "zh": "死亡时长",
+    "zh-TW": "死亡時長",
+    "pt": "Tempo morto",
+    "ja": "死亡時間",
+    "ko": "사망 시간"
+  },
+  "Details.DeathsTotal": {
+    "en": "Deaths: {0}, dead for {1} in total (revived ones)",
+    "de": "Tode: {0}, insgesamt {1} tot (nur wiederbelebte)",
+    "fr": "Morts : {0}, {1} de mort au total (réanimés seulement)",
+    "es": "Muertes: {0}, {1} muerto en total (solo revividos)",
+    "ru": "Смертей: {0}, всего мёртв {1} (только воскрешённые)",
+    "zh": "死亡：{0} 次，累计死亡 {1}（仅计已复活的）",
+    "zh-TW": "死亡：{0} 次，累計死亡 {1}（僅計已復活的）",
+    "pt": "Mortes: {0}, {1} morto no total (só os revividos)",
+    "ja": "死亡: {0}回、合計 {1} 死亡(復活したもののみ)",
+    "ko": "사망: {0}회, 총 {1} 사망 (부활한 경우만)"
+  },
+  "Details.DeadFor": {
+    "en": "dead for {0}",
+    "de": "{0} tot",
+    "fr": "mort {0}",
+    "es": "muerto {0}",
+    "ru": "мёртв {0}",
+    "zh": "死亡 {0}",
+    "zh-TW": "死亡 {0}",
+    "pt": "morto por {0}",
+    "ja": "{0} 死亡",
+    "ko": "{0} 동안 사망"
+  },
+  "Details.NotRevived": {
+    "en": "not revived",
+    "de": "nicht wiederbelebt",
+    "fr": "non réanimé",
+    "es": "no revivido",
+    "ru": "не воскрешён",
+    "zh": "未复活",
+    "zh-TW": "未復活",
+    "pt": "não revivido",
+    "ja": "復活せず",
+    "ko": "부활하지 않음"
   }
 }

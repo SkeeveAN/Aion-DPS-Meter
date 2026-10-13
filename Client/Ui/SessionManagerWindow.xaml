@@ -225,10 +225,12 @@
             <StackPanel x:Name="ModeChips" Orientation="Horizontal" Margin="0,0,0,6"/>
             <DataGrid x:Name="PlayersGrid" Grid.Row="1" SelectionChanged="OnPlayerSelected">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="{local:Loc Main.ColumnName}" Binding="{Binding Name}" MinWidth="160" Width="*"/>
-                    <DataGridTextColumn Header="{local:Loc History.ColumnClass}" Binding="{Binding ClassName, Converter={StaticResource ClassNameConverter}}" Width="110"/>
-                    <DataGridTextColumn x:Name="PlayerValueColumn" Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage, StringFormat=N0}" Width="120"/>
-                    <DataGridTextColumn Header="DPS" Binding="{Binding DpsDisplay}" Width="80"/>
+                    <DataGridTextColumn Header="{local:Loc Main.ColumnName}" Binding="{Binding Name}" MinWidth="90" Width="*"/>
+                    <DataGridTextColumn Header="{local:Loc History.ColumnClass}" Binding="{Binding ClassName, Converter={StaticResource ClassNameConverter}}" Width="90"/>
+                    <DataGridTextColumn x:Name="PlayerValueColumn" Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage, StringFormat=N0}" Width="95"/>
+                    <DataGridTextColumn Header="DPS" Binding="{Binding DpsDisplay}" Width="60"/>
+                    <DataGridTextColumn Header="{local:Loc Sessions.Col.Deaths}" Binding="{Binding DeathsDisplay}" Width="55"/>
+                    <DataGridTextColumn Header="{local:Loc Sessions.Col.DeadTime}" Binding="{Binding DeadTime}" Width="90"/>
                 </DataGrid.Columns>
             </DataGrid>
             </Grid>

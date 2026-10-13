@@ -1,8 +1,12 @@
 namespace AionDPS.Combat;
 
 /// <summary>A player's death: when their hit points reached 0, and the hit that did it, if one
-/// landed in the seconds before.</summary>
-public readonly record struct Death(DateTime At, int PlayerId, DamageEvent? KillingBlow);
+/// landed in the seconds before, and when they were revived (null: not within what was looked at).</summary>
+public readonly record struct Death(DateTime At, int PlayerId, DamageEvent? KillingBlow, DateTime? RevivedAt = null)
+{
+    /// <summary>How long the player was dead: until the revive, else until <paramref name="end"/> (the end of what is looked at).</summary>
+    public TimeSpan DeadFor(DateTime end) => TimeSpan.FromTicks(Math.Max(0, ((RevivedAt ?? end) - At).Ticks));
+}
 
 /// <summary>
 /// Deaths read from a player's own hit points: the server reports every party member's, and a
@@ -24,6 +28,11 @@ public static class Deaths
         long? previous = null;
         foreach ((DateTime at, long hp) in readings)
         {
+            if (hp > 0 && previous == 0 && deaths.Count > 0 && deaths[^1].RevivedAt is null)
+            {
+                deaths[^1] = deaths[^1] with { RevivedAt = at }; // back on their feet
+            }
+
             if (hp == 0 && previous is not 0)
             {
                 DamageEvent? blow = null;

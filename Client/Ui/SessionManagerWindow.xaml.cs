@@ -29,6 +29,9 @@ public partial class SessionManagerWindow : Window
     /// <summary>Builds the combat analyzer for one player of a session (set by the main window): the player's details limited to the session's time.</summary>
     public Func<SessionInfo, PlayerRow, PlayerMode, UIElement?>? AnalyzerFactory { get; set; }
 
+    /// <summary>The deaths of a session (set by the main window): from the capture, or from the file the session came from. Null: not known.</summary>
+    public Func<SessionInfo, IReadOnlyList<DeathRecord>?>? DeathsFor { get; set; }
+
     private PlayerMode _mode = PlayerMode.Damage;
     private bool _syncingPlayers;
     private int? _analyzedPlayer;
@@ -113,7 +116,11 @@ public partial class SessionManagerWindow : Window
     /// <summary>One line of the list.</summary>
     public sealed record Item(SessionInfo Session, string Title, string Facts, string Status, Brush Accent, DateTime Start, string Badge, Brush BadgeBrush);
 
-    public sealed record PlayerRow(int Id, string Name, string ClassName, long Damage, string DpsDisplay);
+    public sealed record PlayerRow(int Id, string Name, string ClassName, long Damage, string DpsDisplay, int Deaths = 0, string DeadTime = "")
+    {
+        /// <summary>A dash while the deaths of the session are not known.</summary>
+        public string DeathsDisplay => Deaths < 0 ? "–" : Deaths.ToString();
+    }
 
     /// <summary>One line of the plausibility check.</summary>
     public sealed record FindingRow(string Icon, Brush Brush, string Text);
@@ -251,7 +258,7 @@ public partial class SessionManagerWindow : Window
         DetailTitle.Text = SessionLabels.NameOf(session);
         DetailFacts.Text = $"{(session.Kind == SessionKind.Instance ? loc["Sessions.KindInstance"] : loc["Sessions.KindMap"])} \u00B7 "
             + $"{SessionLabels.TimeSpanOf(session)} \u00B7 {FormatLength(session.Duration(DateTime.Now))}";
-        List<PlayerRow> players = PlayersOf(session, _mode);
+        List<PlayerRow> players = PlayersOf(session, _mode, DeathsFor?.Invoke(session));
         _syncingPlayers = true;
         PlayersGrid.ItemsSource = players;
         PlayerRow? analyzed = _analyzedSession == session.Number ? players.FirstOrDefault(row => row.Id == _analyzedPlayer) : null;
@@ -311,7 +318,7 @@ public partial class SessionManagerWindow : Window
     }
 
     /// <summary>Who dealt, healed or took how much in the stay: the players (the ids a class is known for; a file from the plain meter session has no classes, then everyone).</summary>
-    private static List<PlayerRow> PlayersOf(SessionInfo session, PlayerMode mode)
+    private static List<PlayerRow> PlayersOf(SessionInfo session, PlayerMode mode, IReadOnlyList<DeathRecord>? deaths)
     {
         bool onlyPlayers = session.Classes.Count > 0;
         bool IsPlayer(int id) => !onlyPlayers || session.Classes.ContainsKey(id);
@@ -328,12 +335,17 @@ public partial class SessionManagerWindow : Window
                 double? dps = mode == PlayerMode.Damage
                     ? DpsCalculator.AllDpsWallClock(hits, group.Key)
                     : hits.Sum(ev => ev.Amount) / Math.Max(1.0, (hits.Max(ev => ev.Timestamp) - hits.Min(ev => ev.Timestamp)).TotalSeconds);
+                DateTime end = session.End ?? DateTime.Now;
+                var mine = deaths?.Where(d => d.Entity == group.Key).ToList();
+                TimeSpan dead = mine is null ? TimeSpan.Zero : TimeSpan.FromTicks(mine.Sum(d => Math.Max(0, ((d.RevivedAt ?? end) - d.At).Ticks)));
                 return new PlayerRow(
                     group.Key,
                     session.Names.GetValueOrDefault(group.Key) ?? $"0x{group.Key:X8}",
                     session.Classes.GetValueOrDefault(group.Key) ?? "",
                     hits.Sum(ev => ev.Amount),
-                    dps is double value ? value.ToString("N0") : "-");
+                    dps is double value ? value.ToString("N0") : "-",
+                    mine?.Count ?? -1,
+                    mine is null ? "–" : mine.Count == 0 ? "" : $"{(int)dead.TotalMinutes}:{dead.Seconds:00}");
             })
             .OrderByDescending(row => row.Damage)
             .Take(30)

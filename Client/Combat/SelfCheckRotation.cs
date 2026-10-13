@@ -54,6 +54,24 @@ public static class SelfCheckRotation
         Console.WriteLine($"  -> the extras can be packed and read back: {kept}");
         ok &= kept;
 
+
+        // deaths: counted once (the game repeats a 0 reading), with the moment of the revive and how long the player was dead
+        DateTime t0 = new(2026, 10, 13, 20, 0, 0, DateTimeKind.Utc);
+        var readings = new List<(DateTime, long)> { (t0, 100), (t0.AddSeconds(5), 0), (t0.AddSeconds(6), 0), (t0.AddSeconds(30), 80), (t0.AddSeconds(60), 0) };
+        List<Death> found = Deaths.Find(7, readings, new List<DamageEvent> { new(t0.AddSeconds(4), 100, 7, 999, false, "Smash") });
+        bool deathsOk = found.Count == 2 && found[0].RevivedAt == t0.AddSeconds(30) && found[0].DeadFor(t0.AddMinutes(5)) == TimeSpan.FromSeconds(25)
+            && found[0].KillingBlow is { Amount: 999 } && found[1].RevivedAt is null && found[1].DeadFor(t0.AddSeconds(90)) == TimeSpan.FromSeconds(30);
+        var state = new Aion2.Aion2CombatState();
+        state.NoteDeath(7, t0.AddSeconds(5));
+        state.NoteDeath(7, t0.AddSeconds(6));
+        state.NoteRevive(7, t0.AddSeconds(30));
+        state.NoteDeath(7, t0.AddSeconds(60));
+        List<DeathRecord> logged = state.DeathsIn(t0, t0.AddMinutes(2));
+        FightExtras withDeaths = ExtrasBlob.Unpack(ExtrasBlob.Pack(new FightExtras(Array.Empty<SkillUse>(), Array.Empty<BuffEvent>(), Array.Empty<StaggerEvent>(), new Dictionary<int, string>(), null, null, logged)));
+        bool logOk = logged.Count == 2 && logged[0].RevivedAt == t0.AddSeconds(30) && logged[1].RevivedAt is null
+            && withDeaths.Deaths is { Count: 2 } restored && restored[0].RevivedAt == t0.AddSeconds(30) && restored[1].RevivedAt is null;
+        Console.WriteLine($"  -> a death is counted once with its revive and the time dead (25 s), the file keeps it: {deathsOk && logOk}");
+        ok &= deathsOk && logOk;
         return ok;
     }
 }

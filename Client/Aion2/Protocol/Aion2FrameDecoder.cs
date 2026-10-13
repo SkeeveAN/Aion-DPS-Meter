@@ -1292,7 +1292,13 @@ public sealed class Aion2FrameDecoder
 
         if (current is long hp && hp >= 0)
         {
+            long? before = _entities.HitPoints.Latest(unchecked((int)entityId))?.Hp;
             _entities.HitPoints.Note(unchecked((int)entityId), timestamp, hp);
+            if (hp > 0 && before == 0)
+            {
+                _entities.Combat.NoteRevive(unchecked((int)entityId), timestamp); // back on their feet
+            }
+
             if (hp == 0)
             {
                 _entities.Combat.NoteGone(unchecked((int)entityId), timestamp);

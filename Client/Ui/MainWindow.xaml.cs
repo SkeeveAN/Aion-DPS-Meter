@@ -2171,6 +2171,19 @@ public partial class MainWindow : Window
 
     /// <summary>The combat analyzer for one player of a session: the same details as a double click in the meter, but on the hits of that session only,
     /// whatever the meter itself shows; skills, rotation, effects and the replay map.</summary>
+    /// <summary>The deaths of a session with the revive: from the file it came from, else from the live capture.</summary>
+    private IReadOnlyList<DeathRecord>? DeathsForSession(SessionInfo session)
+    {
+        if (session.Extras?.Deaths is { } stored)
+        {
+            return stored;
+        }
+
+        return _liveSource?.Entities is Aion2.Aion2EntityDirectory dir
+            ? dir.Combat.DeathsIn(session.Start, session.End ?? DateTime.Now, id => session.Classes.ContainsKey(id) || dir.IsKnownPlayer(id))
+            : null;
+    }
+
     private UIElement? BuildSessionAnalyzer(SessionInfo session, SessionManagerWindow.PlayerRow row, SessionManagerWindow.PlayerMode mode)
     {
         var all = session.Data.Events.Where(ev => !ev.IsHeal).ToList();
@@ -2185,7 +2198,9 @@ public partial class MainWindow : Window
         {
             // what hit this player in the session, one row per attacker and attack
             var hits = all.Where(ev => ev.TargetObjectId == row.Id && !session.Classes.ContainsKey(ev.SourceObjectId)).ToList();
-            return new PlayerDetailsView(row.Name, row.ClassName, "", hits, nameOf, taken: true);
+            var deaths = (DeathsForSession(session) ?? Array.Empty<DeathRecord>()).Where(d => d.Entity == row.Id)
+                .Select(d => new Death(d.At, d.Entity, hits.Where(h => h.Timestamp <= d.At && h.Timestamp >= d.At - Deaths.BlowWindow).Cast<DamageEvent?>().LastOrDefault(), d.RevivedAt)).ToList();
+            return new PlayerDetailsView(row.Name, row.ClassName, "", hits, nameOf, deaths: deaths, taken: true);
         }
 
         if (mode == SessionManagerWindow.PlayerMode.Heal)
@@ -3604,6 +3619,7 @@ public partial class MainWindow : Window
         _sessionManager = new SessionManagerWindow(_sessions) { Owner = this };
         _sessionManager.ExtrasFor = ExtrasForSession;
         _sessionManager.AnalyzerFactory = BuildSessionAnalyzer;
+        _sessionManager.DeathsFor = DeathsForSession;
         _sessionManager.Closed += (_, _) => _sessionManager = null;
         _sessionManager.Show();
     }

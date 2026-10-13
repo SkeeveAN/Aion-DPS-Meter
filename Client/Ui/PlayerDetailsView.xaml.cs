@@ -209,10 +209,13 @@ public partial class PlayerDetailsView : UserControl
         // Taken: the deaths in this fight, each with its killing blow, where the crit note was.
         if (taken)
         {
+            string Span(TimeSpan span) => $"{(int)span.TotalMinutes}:{span.Seconds:00}";
             CritNoteText.Text = deaths is { Count: > 0 }
-                ? string.Join("\n", deaths.Select(d => "☠ " + d.At.ToLocalTime().ToString("HH:mm:ss") + "  " + (d.KillingBlow is DamageEvent blow
-                    ? string.Format(loc["Details.KilledBy"], nameOf(blow.SourceObjectId) ?? loc["Details.Monster"], blow.Skill ?? "?", blow.Amount.ToString("N0"))
-                    : loc["Details.Died"])))
+                ? string.Format(loc["Details.DeathsTotal"], deaths.Count, Span(TimeSpan.FromTicks(deaths.Where(d => d.RevivedAt is not null).Sum(d => (d.RevivedAt!.Value - d.At).Ticks))))
+                    + "\n" + string.Join("\n", deaths.Select(d => "☠ " + d.At.ToLocalTime().ToString("HH:mm:ss") + "  " + (d.KillingBlow is DamageEvent blow
+                        ? string.Format(loc["Details.KilledBy"], nameOf(blow.SourceObjectId) ?? loc["Details.Monster"], blow.Skill ?? "?", blow.Amount.ToString("N0"))
+                        : loc["Details.Died"])
+                        + "  ·  " + (d.RevivedAt is DateTime back ? string.Format(loc["Details.DeadFor"], Span(back - d.At)) : loc["Details.NotRevived"])))
                 : loc["Details.NoDeath"];
         }
 

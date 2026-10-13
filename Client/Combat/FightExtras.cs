@@ -22,7 +22,7 @@ public sealed record PositionTrack(int Entity, DateTime Start, int[] T, int[] X,
 /// <summary>A monster winding a skill up (the game's windup frame): where, aimed at whom, for how long. The replay draws its area while it lasts.</summary>
 public readonly record struct WindupRecord(DateTime At, int Actor, int SkillId, int Target, int DurationMs, double Facing, int X, int Y, bool HasPosition);
 
-public readonly record struct DeathRecord(DateTime At, int Entity);
+public readonly record struct DeathRecord(DateTime At, int Entity, DateTime? RevivedAt = null);
 
 /// <summary>An entity's hit points over time (a boss's), in thousandths, the time as milliseconds from <see cref="Start"/>.</summary>
 public sealed record HpSeries(int Entity, DateTime Start, int[] T, short[] Permille);
