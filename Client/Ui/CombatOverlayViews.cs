@@ -16,9 +16,6 @@ public sealed record TargetOfTargetData(string Name, string From, string? ImageP
 /// <summary>An effect on the healer's target.</summary>
 public sealed record EffectData(string Label, string? IconPath, string Time, bool Debuff);
 
-/// <summary>The healer's target: name, hit points and effects.</summary>
-public sealed record HealerData(string Name, long? Hp, long? MaxHp, IReadOnlyList<EffectData> Effects);
-
 /// <summary>Pictures for the combat overlay's elements, read once.</summary>
 internal static class OverlayPictures
 {
@@ -331,63 +328,5 @@ public sealed class EffectBarView : Border
             cell.Children.Add(new TextBlock { Text = effect.Time, FontSize = 9, Foreground = OverlayPictures.Muted, HorizontalAlignment = HorizontalAlignment.Center });
             panel.Children.Add(cell);
         }
-    }
-}
-
-/// <summary>The healer's target: its name, a hit point bar and its effects (debuffs, buffs or both, as chosen).</summary>
-public sealed class HealerTargetView : Border
-{
-    private readonly TextBlock _name = new() { FontWeight = FontWeights.Bold, FontSize = 13, Foreground = OverlayPictures.Text, TextTrimming = TextTrimming.CharacterEllipsis };
-    private readonly TextBlock _hpText = new() { FontSize = 11, Foreground = OverlayPictures.Text, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-    private readonly Border _hpFill = new() { HorizontalAlignment = HorizontalAlignment.Stretch, RenderTransformOrigin = new Point(0, 0.5), RenderTransform = new ScaleTransform(1, 1) };
-    private readonly Grid _hpBar = new() { Height = 16, Margin = new Thickness(0, 3, 0, 0) };
-    private readonly WrapPanel _effects = new() { Margin = new Thickness(0, 4, 0, 0) };
-    private bool _showHp = true, _showEffects = true;
-
-    public HealerTargetView()
-    {
-        Background = OverlayPictures.Panel;
-        BorderBrush = OverlayPictures.PanelBorder;
-        BorderThickness = new Thickness(1);
-        CornerRadius = new CornerRadius(6);
-        Padding = new Thickness(6, 4, 6, 4);
-        _hpBar.Children.Add(new Border { Background = OverlayPictures.Track, CornerRadius = new CornerRadius(3) });
-        _hpFill.CornerRadius = new CornerRadius(3);
-        _hpBar.Children.Add(_hpFill);
-        _hpBar.Children.Add(_hpText);
-        var stack = new StackPanel();
-        stack.Children.Add(_name);
-        stack.Children.Add(_hpBar);
-        stack.Children.Add(_effects);
-        Child = stack;
-    }
-
-    public void Configure(bool showHp, bool showEffects)
-    {
-        _showHp = showHp;
-        _showEffects = showEffects;
-        _hpBar.Visibility = showHp ? Visibility.Visible : Visibility.Collapsed;
-        _effects.Visibility = showEffects ? Visibility.Visible : Visibility.Collapsed;
-    }
-
-    public void Show(HealerData data)
-    {
-        _name.Text = data.Name;
-        if (_showHp)
-        {
-            double fraction = data.Hp is long hp && data.MaxHp is long max && max > 0 ? Math.Clamp((double)hp / max, 0, 1) : 0;
-            ((ScaleTransform)_hpFill.RenderTransform).ScaleX = fraction;
-            _hpFill.Background = fraction < 0.3 ? OverlayPictures.Red : fraction < 0.6 ? OverlayPictures.Amber : OverlayPictures.Green;
-            _hpText.Text = data.Hp is long h
-                ? data.MaxHp is long m && m > 0 ? $"{h:N0} / {m:N0}  ({fraction * 100:0}%)" : $"{h:N0}"
-                : "–";
-        }
-
-        if (!_showEffects)
-        {
-            return;
-        }
-
-        EffectBarView.Fill(_effects, data.Effects);
     }
 }

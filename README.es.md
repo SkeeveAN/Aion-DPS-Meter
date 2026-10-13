@@ -174,8 +174,7 @@ fíjalo en su sitio y actívalo o desactívalo con un atajo.
 Un marco transparente con hasta tres elementos, cada uno de los cuales colocas y dimensionas por separado:
 
 - **Barra de lanzamiento del jefe:** en cuanto un jefe empieza una habilidad, ves su nombre, una barra que va bajando con el tiempo restante y a quién apunta (tú en rojo). Una habilidad que ha golpeado a varios jugadores se marca como **ÁREA**; **LETAL** significa que el golpe más alto que has recibido de ella hasta ahora es al menos igual a tu salud actual. El medidor aprende cada habilidad (si es de área o no, cuándo llega su daño) y la recuerda entre sesiones.
-- **Objetivo del objetivo:** si el objetivo que seleccionaste con Tab apunta a su vez a alguien, ves a quién: un jefe con su imagen y nombre, un jugador con el emblema de clase y nombre.
-- **Objetivo del sanador** (opcional): la barra de salud del objetivo seleccionado y los debuffs (o buffs) que tiene.
+- **Objetivo del objetivo:** un bloque que se mueve, cambia de tamaño y se escala de una vez, con partes que también puedes colocar por separado dentro de él. Si el objetivo que seleccionaste con Tab apunta a su vez a alguien, ves a quién: un jefe con su imagen y nombre, un jugador con el emblema de clase y nombre. La **barra del sanador** (opcional) añade al bloque la barra de salud de ese objetivo y sus debuffs (o buffs).
 
 Desbloquea el overlay en **Ajustes → Overlay de combate** para organizarlo: arrastra el cuerpo de un elemento para moverlo, tira de sus bordes para cambiar el tamaño, tira de su esquina para escalarlo; el asa de la esquina inferior derecha de todo el marco escala todos los elementos a la vez. Bloqueado, deja pasar los clics y solo se muestra mientras el juego está en primer plano. **Ctrl+Alt+C** lo activa y desactiva, y también lo hace el atajo *Todos los overlays sí / no*.
 

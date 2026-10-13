@@ -5130,16 +5130,16 @@
     "ko": "보스 시전 바"
   },
   "Combat.Element.Healer": {
-    "en": "Healer target",
-    "de": "Heiler-Ziel",
-    "fr": "Cible du soigneur",
-    "es": "Objetivo del sanador",
-    "ru": "Цель лекаря",
-    "zh": "治疗者目标",
-    "zh-TW": "治療者目標",
-    "pt": "Alvo do curandeiro",
-    "ja": "ヒーラー用ターゲット",
-    "ko": "힐러 대상"
+    "en": "Healer bar",
+    "de": "Heiler-Leiste",
+    "fr": "Barre du soigneur",
+    "es": "Barra del sanador",
+    "ru": "Панель лекаря",
+    "zh": "治疗者栏",
+    "zh-TW": "治療者列",
+    "pt": "Barra do curandeiro",
+    "ja": "ヒーラーバー",
+    "ko": "힐러 바"
   },
   "Settings.Combat.CastFilter": {
     "en": "Which casts",
@@ -5298,16 +5298,16 @@
     "ko": "모두"
   },
   "Settings.Combat.HealerHint": {
-    "en": "Shows the target you selected with Tab: its name, health and the effects on it. A target chosen with the camera is not known to the meter.",
-    "de": "Zeigt das mit Tab gewählte Ziel: Name, Gesundheit und die Effekte darauf. Ein per Kamera gewähltes Ziel kennt der Meter nicht.",
-    "fr": "Affiche la cible choisie avec Tab : son nom, sa santé et les effets sur elle. Une cible choisie avec la caméra n'est pas connue du compteur.",
-    "es": "Muestra el objetivo elegido con Tab: su nombre, su salud y los efectos que tiene. Un objetivo elegido con la cámara no lo conoce el medidor.",
-    "ru": "Показывает цель, выбранную клавишей Tab: имя, здоровье и эффекты на ней. Цель, выбранная камерой, измерителю неизвестна.",
-    "zh": "显示用 Tab 选中的目标：名称、生命值和其身上的效果。统计器无法得知通过镜头选中的目标。",
-    "zh-TW": "顯示以 Tab 選取的目標：名稱、生命值與其身上的效果。統計器無法得知以鏡頭選取的目標。",
-    "pt": "Mostra o alvo escolhido com Tab: o nome, a vida e os efeitos nele. Um alvo escolhido com a câmera não é conhecido pelo medidor.",
-    "ja": "Tabキーで選択したターゲットの名前、HP、付与されている効果を表示します。カメラで選んだターゲットはメーターには分かりません。",
-    "ko": "Tab으로 선택한 대상의 이름, 체력, 걸려 있는 효과를 표시합니다. 카메라로 고른 대상은 미터가 알 수 없습니다."
+    "en": "Adds two parts to the target of the target block: its health bar and the effects on it. Meant for healers. The target is the one you selected with Tab; a target chosen with the camera is not known to the meter.",
+    "de": "Fügt dem Block „Ziel des Ziels“ zwei Teile hinzu: seinen HP-Balken und die Effekte darauf. Gedacht für Heiler. Das Ziel ist das, was du mit Tab ausgewählt hast; ein per Kamera gewähltes Ziel kennt der Meter nicht.",
+    "fr": "Ajoute deux éléments au bloc « Cible de la cible » : sa barre de vie et les effets qui l'affectent. Pensé pour les soigneurs. La cible est celle choisie avec Tab ; une cible choisie à la caméra n'est pas connue du compteur.",
+    "es": "Añade dos partes al bloque «Objetivo del objetivo»: su barra de vida y los efectos que tiene. Pensado para sanadores. El objetivo es el que eliges con Tab; un objetivo elegido con la cámara no lo conoce el medidor.",
+    "ru": "Добавляет в блок «Цель цели» две части: полосу здоровья и действующие эффекты. Для лекарей. Цель — та, что выбрана клавишей Tab; цель, выбранную камерой, счётчик не знает.",
+    "zh": "为“目标的目标”区块增加两部分：生命条和其身上的效果。适合治疗者使用。目标是用 Tab 选中的目标；用镜头选中的目标，计量器无法得知。",
+    "zh-TW": "為「目標的目標」區塊增加兩個部分：生命條和其身上的效果。適合治療者使用。目標是用 Tab 選取的目標；用鏡頭選取的目標，計量器無法得知。",
+    "pt": "Acrescenta dois elementos ao bloco «Alvo do alvo»: a barra de vida e os efeitos nele. Pensado para curandeiros. O alvo é o que você escolhe com Tab; um alvo escolhido com a câmera o medidor não conhece.",
+    "ja": "「ターゲットのターゲット」ブロックに、HPバーとその効果の2つを追加します。ヒーラー向けです。対象はTabで選択したもので、カメラで選んだ対象はメーターには分かりません。",
+    "ko": "‘대상의 대상’ 블록에 체력 바와 걸린 효과 두 가지를 추가합니다. 힐러용입니다. 대상은 Tab으로 선택한 대상이며, 카메라로 고른 대상은 미터가 알 수 없습니다."
   },
   "Settings.Hotkey.Combat": {
     "en": "Combat overlay on / off",

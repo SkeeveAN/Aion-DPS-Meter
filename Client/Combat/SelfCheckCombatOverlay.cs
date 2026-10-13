@@ -52,7 +52,7 @@ public static class SelfCheckCombatOverlay
         ok &= ended;
 
 
-        // what the overlay makes of it: a monster that is no boss shows only when asked for; the target of the target and the healer's target follow the clicked target
+        // what the overlay makes of it: a monster that is no boss shows only when asked for; the target of the target (and, for the healer bar, its health) follows the clicked target
         var settings = new AionDPS.Ui.MeterSettings();
         DateTime during = at.AddMilliseconds(400);
         bool hidden = AionDPS.Ui.CombatOverlayData.Casts(entities, settings, during, "en").Count == 0;
@@ -63,13 +63,14 @@ public static class SelfCheckCombatOverlay
         ok &= hidden && shown;
 
         entities.SetLocalTarget(19144);
-        var tot = AionDPS.Ui.CombatOverlayData.TargetOfTarget(entities, new AionDPS.Ui.MeterSettings(), during, "en");
-        bool totOk = tot is not null && tot.Name == "#41205" && tot.From == "#19144";
-        entities.HitPoints.Note(19144, during, 6400);
-        entities.HitPoints.NoteMax(19144, 10000);
-        var healer = AionDPS.Ui.CombatOverlayData.Healer(entities, settings, during, "en");
-        bool healerOk = healer is not null && healer.Hp == 6400 && healer.MaxHp == 10000;
-        Console.WriteLine($"  -> clicked target 19144: its target is #41205: {totOk}; its health 6,400 of 10,000: {healerOk}");
+        var tot = AionDPS.Ui.CombatOverlayData.TargetOfTarget(entities, settings, during, "en");
+        bool totOk = tot is not null && tot.Name == "#41205" && tot.From == "#19144" && tot.Hp is null;
+        entities.HitPoints.Note(41205, during, 6400);
+        entities.HitPoints.NoteMax(41205, 10000);
+        settings.CombatShowHealer = true;
+        var withBar = AionDPS.Ui.CombatOverlayData.TargetOfTarget(entities, settings, during, "en");
+        bool healerOk = withBar is not null && withBar.Hp == 6400 && withBar.MaxHp == 10000;
+        Console.WriteLine($"  -> clicked target 19144: its target is #41205: {totOk}; with the healer bar on, that target's health is 6,400 of 10,000: {healerOk}");
         ok &= totOk && healerOk;
 
         decoder.Decode(Hex("008DD47B0201" + "07" + "B51C000000000000"), at);

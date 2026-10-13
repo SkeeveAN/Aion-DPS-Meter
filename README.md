@@ -173,8 +173,7 @@ lock it in place, switch it on and off with a hotkey.
 One transparent frame with up to three elements, each of which you place and size on its own:
 
 - **Boss cast bar:** the moment a boss starts a skill, its name, a bar that runs down with the time left, and whom it is aimed at (you in red). A skill that has hit several players is marked **AREA**; **LETHAL** means the highest hit you took from it so far is at least your current health. The meter learns each skill (area or not, when its damage lands) and remembers it between sessions.
-- **Target of the target:** if the target you selected with Tab is itself aiming at someone, you see who: a boss with its picture and name, a player with the class emblem and name.
-- **Healer target** (optional): the selected target's health bar and the debuffs (or buffs) on it.
+- **Target of the target:** one block that moves, resizes and scales as a whole, with parts you can also place on their own inside it. If the target you selected with Tab is itself aiming at someone, you see who: a boss with its picture and name, a player with the class emblem and name. The **healer bar** (optional) adds that target's health bar and its debuffs (or buffs) to the block.
 
 Unlock the overlay in **Settings → Combat overlay** to arrange it: drag an element's body to move it, pull its edges to resize it, pull its corner to scale it; the grip at the bottom right of the whole frame scales all elements together. Locked, it is click-through and only shows while the game is in front. **Ctrl+Alt+C** switches it on and off, and so does the *all overlays* hotkey.
 

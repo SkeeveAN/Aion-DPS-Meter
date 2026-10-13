@@ -176,8 +176,7 @@ verrouillez-le en place, activez-le ou désactivez-le avec un raccourci.
 Un cadre transparent avec jusqu'à trois éléments, que tu places et dimensionnes chacun séparément :
 
 - **Barre d'incantation du boss :** dès qu'un boss commence une compétence, tu vois son nom, une barre qui se vide avec le temps restant et qui elle vise (toi en rouge). Une compétence qui a touché plusieurs joueurs est marquée **ZONE** ; **MORTEL** signifie que le coup le plus fort que tu en as reçu jusqu'ici est au moins égal à ta santé actuelle. Le compteur apprend chaque compétence (de zone ou non, quand ses dégâts arrivent) et s'en souvient d'une session à l'autre.
-- **Cible de la cible :** si la cible sélectionnée avec Tab vise elle-même quelqu'un, tu vois qui : un boss avec son image et son nom, un joueur avec l'emblème de classe et son nom.
-- **Cible du soigneur** (facultatif) : la barre de vie de la cible sélectionnée et les debuffs (ou buffs) qu'elle porte.
+- **Cible de la cible :** un bloc qui se déplace, se redimensionne et se met à l'échelle d'un seul tenant, avec des éléments que tu peux aussi placer séparément à l'intérieur. Si la cible sélectionnée avec Tab vise elle-même quelqu'un, tu vois qui : un boss avec son image et son nom, un joueur avec l'emblème de classe et son nom. La **barre du soigneur** (facultative) ajoute au bloc la barre de vie de cette cible et ses debuffs (ou buffs).
 
 Déverrouille l'overlay dans **Paramètres → Overlay de combat** pour l'organiser : fais glisser le corps d'un élément pour le déplacer, tire sur ses bords pour le redimensionner, tire sur son coin pour le mettre à l'échelle ; la poignée en bas à droite de tout le cadre met tous les éléments à l'échelle ensemble. Verrouillé, il laisse passer les clics et ne s'affiche que lorsque le jeu est au premier plan. **Ctrl+Alt+C** l'active et le désactive, tout comme le raccourci *Tous les overlays activés / désactivés*.
 

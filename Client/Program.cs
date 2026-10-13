@@ -979,7 +979,7 @@ internal static class Program
         string bossName = Aion2.Protocol.Aion2Npcs.NameOf(2300708, Ui.LocalizationManager.Instance.Language) ?? "Ruthilis of Pain";
         string? bossPicture = Aion2.Protocol.Aion2Artwork.BossThumbPath(2300708);
         var frame = edit
-            ? new Ui.CombatFrame(Array.Empty<Ui.CastRowData>(), null, null)
+            ? new Ui.CombatFrame(Array.Empty<Ui.CastRowData>(), null)
             : new Ui.CombatFrame(
                 new[]
                 {
@@ -987,11 +987,8 @@ internal static class Program
                     new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.AllAround"], false, true, true, 400, 1900, null, null),
                 },
                 new Ui.TargetOfTargetData("Seuche", bossName, Aion2.Protocol.Aion2Artwork.ClassEmblemPath("Cleric"), false, 12480, 20563,
-                    new[] { new Ui.EffectData("Poison", null, "12", true), new Ui.EffectData("Slow", null, "5", true) }),
-                new Ui.HealerData("Seuche", 12480, 20563, new[]
-                {
-                    new Ui.EffectData("Poison", null, "12", true), new Ui.EffectData("Slow", null, "5", true), new Ui.EffectData("Bleed", null, "9", true), new Ui.EffectData("Shield", null, "\u221e", false),
-                }));
+                    new[] { new Ui.EffectData("Poison", null, "12", true), new Ui.EffectData("Slow", null, "5", true), new Ui.EffectData("Bleed", null, "9", true) }));
+
         window.Render(frame, settings);
         var content = (System.Windows.UIElement)window.Content;
         content.Measure(new System.Windows.Size(700, 500));
