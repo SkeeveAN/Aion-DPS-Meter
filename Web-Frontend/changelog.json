@@ -129,6 +129,14 @@
      "Client"
     ],
     "date": "2026-10-13"
+   },
+   {
+    "text": "Combat analyzer: pick a session in the session manager and its player details (skills, rotation, effects, replay map) open beside it, limited to that session; pick another player in the manager to switch, and the meter itself keeps running in the background",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-13"
    }
   ]
  },

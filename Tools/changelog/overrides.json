@@ -86,5 +86,6 @@
  "39cb99d": null,
  "3ad034b": null,
  "a17e3ec": null,
- "a1f9f9c": "Sessions can be saved with their skill rotation, effects, stagger and replay map (a checkbox in the session manager, remembered), so a file shows them again later or on another PC"
+ "a1f9f9c": "Sessions can be saved with their skill rotation, effects, stagger and replay map (a checkbox in the session manager, remembered), so a file shows them again later or on another PC",
+ "c44b658": "Combat analyzer: pick a session in the session manager and its player details (skills, rotation, effects, replay map) open beside it, limited to that session; pick another player in the manager to switch, and the meter itself keeps running in the background"
 }
