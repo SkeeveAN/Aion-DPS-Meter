@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.42.0",
   "date": "2026-10-13",
   "items": [
    {
@@ -148,6 +148,21 @@
    },
    {
     "text": "Deaths are counted and the time dead is shown: in the session manager's player list, in the damage-taken view of the combat analyzer (with the killing blow) and in the replay map (a counter beside the dead and a bar on the timeline); a death is counted once and ends with the revive",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "The Features page and the READMEs describe the new sessions with the combat analyzer, the boss fight overlay, OBS streaming and the new settings pages, with new pictures",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-13"
+   },
+   {
+    "text": "Boss fight overlay with a target of the target block, session manager and combat analyzer in one window (players by damage, healing and damage taken, deaths with the time dead, rotation, effects, hit kinds and replay map), sessions saved with their extra data, OBS stream overlay for a second PC, hide during game menus, safer settings with an undoable reset, and the settings sorted into General, Boss fight and Streaming",
     "areas": [
      "Client"
     ],

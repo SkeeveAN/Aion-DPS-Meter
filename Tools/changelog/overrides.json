@@ -90,5 +90,6 @@
  "c44b658": null,
  "cf8aa95": "Session manager with a combat analyzer in the same window, a splitter in the middle: pick a session and its players (by damage, healing or damage taken) open their details on the right (skills, rotation, effects, replay map), limited to that session; the window position is remembered",
  "8df468d": "Deaths are counted and the time dead is shown: in the session manager's player list, in the damage-taken view of the combat analyzer (with the killing blow) and in the replay map (a counter beside the dead and a bar on the timeline); a death is counted once and ends with the revive",
- "0c66954": null
+ "0c66954": null,
+ "8257245": "The Features page and the READMEs describe the new sessions with the combat analyzer, the boss fight overlay, OBS streaming and the new settings pages, with new pictures"
 }
