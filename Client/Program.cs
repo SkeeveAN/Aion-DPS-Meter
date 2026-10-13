@@ -211,7 +211,7 @@ internal static class Program
 
         if (args.Length > 0 && args[0] == "render-sessions")
         {
-            RunRenderSessionsMode(args.Length > 1 ? args[1] : "sessions.png", args.Length > 2 ? int.Parse(args[2]) : 1);
+            RunRenderSessionsMode(args.Length > 1 ? args[1] : "sessions.png", args.Length > 2 ? int.Parse(args[2]) : 1, args.Length > 3 ? args[3] : null);
             return;
         }
 
@@ -516,7 +516,7 @@ internal static class Program
     }
 
     /// <summary>Draws the session manager with a day of invented stays into a picture; no window is shown.</summary>
-    private static void RunRenderSessionsMode(string path, int args_selected = 1)
+    private static void RunRenderSessionsMode(string path, int args_selected = 1, string? analyzerTab = null)
     {
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
@@ -581,7 +581,7 @@ internal static class Program
 
         recorder.Sessions[1].IsSaved = true;
         var window = new Ui.SessionManagerWindow(recorder);
-        window.AnalyzerFactory = (session, row, mode) => new Ui.PlayerDetailsView(row.Name, row.ClassName, "",
+        window.AnalyzerFactory = (session, row, mode) => analyzerTab is not null ? CreateSampleDetails(analyzerTab, row.Name, row.ClassName) : new Ui.PlayerDetailsView(row.Name, row.ClassName, "",
             session.Data.Events.Where(ev => ev.SourceObjectId == row.Id).ToList(), id => session.Names.GetValueOrDefault(id),
             fightEvents: session.Data.Events.Where(ev => !ev.IsHeal).ToList());
         const double width = 1760, height = 820;
@@ -592,6 +592,11 @@ internal static class Program
         if (window.FindName("SessionList") is System.Windows.Controls.ListBox list && list.Items.Count > 1)
         {
             list.SelectedIndex = args_selected;
+        }
+
+        if (analyzerTab is not null && window.FindName("PlayersGrid") is System.Windows.Controls.DataGrid players && players.Items.Count > 1)
+        {
+            players.SelectedIndex = 1; // the Sorcerer: the sample skills are a Sorcerer's
         }
 
         content.UpdateLayout();
@@ -613,24 +618,9 @@ internal static class Program
         Environment.Exit(0);
     }
 
-    private static void RunRenderDetailsMode(string path, string tab)
+    /// <summary>A player's details with made-up fights (five real Sorcerer skills with their icons), for the pictures of the details window and of the session manager.</summary>
+    private static Ui.PlayerDetailsView CreateSampleDetails(string tab, string name, string className)
     {
-        Environment.SetEnvironmentVariable("AIONDPS_DATA_DIR", Path.Combine(Path.GetTempPath(), "aiondps-render-details"));
-        var app = new System.Windows.Application();
-        var settings = Ui.MeterSettings.Load();
-        if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } picked)
-        {
-            Ui.LocalizationManager.Instance.Language = picked;
-        }
-        else if (settings.Language.Length > 0)
-        {
-            Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
-        }
-
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
-        Ui.MainWindow.Headless = true;
-        app.Resources.MergedDictionaries.Add(
-            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         var random = new Random(7);
         var events = new List<Combat.DamageEvent>();
         DateTime start = new(2026, 10, 4, 12, 0, 0, DateTimeKind.Local);
@@ -678,11 +668,33 @@ internal static class Program
 
         var extras = new Combat.FightExtras(uses.OrderBy(u => u.At).ToList(), effects,
             new[] { new Combat.StaggerEvent(start.AddSeconds(21), 1, 0, 0, true), new Combat.StaggerEvent(start.AddSeconds(52), 1, 0, 0, true) },
-            new Dictionary<int, string> { [5] = "Ichigo", [6] = "Goku" });
-        var window = new Ui.PlayerDetailsView("Ichigo", "Sorcerer", "", events, id => id == 1 ? "Training Scarecrow" : "Elite Guard", fightEvents: all,
+            new Dictionary<int, string> { [5] = name, [6] = "Goku" });
+        var window = new Ui.PlayerDetailsView(name, className, "", events, id => id == 1 ? "Training Scarecrow" : "Elite Guard", fightEvents: all,
             extras: extras, playerId: 5, fightStart: start, fightEnd: start.AddSeconds(75));
         window.TabRotationButton.IsChecked = tab == "rotation";
         window.TabBuffsButton.IsChecked = tab == "buffs";
+        return window;
+    }
+
+    private static void RunRenderDetailsMode(string path, string tab)
+    {
+        Environment.SetEnvironmentVariable("AIONDPS_DATA_DIR", Path.Combine(Path.GetTempPath(), "aiondps-render-details"));
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } picked)
+        {
+            Ui.LocalizationManager.Instance.Language = picked;
+        }
+        else if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
+        }
+
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var window = CreateSampleDetails(tab, "Ichigo", "Sorcerer");
         const double width = 860, height = 680;
         var content = new System.Windows.Controls.Border { Child = window, Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x0E, 0x18, 0x20)) };
         content.Measure(new System.Windows.Size(width, height));

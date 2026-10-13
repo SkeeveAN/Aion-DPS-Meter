@@ -638,7 +638,7 @@ const FEATURE_BLOCKS = [
   { id: "meter", images: [["meter", 1040, 840]] },
   { id: "modes", images: [["mode-all", 1040, 840], ["mode-all-compact", 1040, 840]] },
   { id: "overlay", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
-  { id: "details", images: [["details", 1720, 1360]] },
+  { id: "details", images: [["analyzer", 1760, 820]] },
   { id: "sessions", images: [["sessions", 1760, 820]] },
   { id: "character", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
   // the sides of the scenes are tuned one by one in style.css, so they are fixed here and not alternated by position
@@ -654,7 +654,7 @@ const FEATURE_BLOCKS = [
 // pictures offered in the designer as alternative backgrounds of a scene (images/features/alt/); the choice is saved as "bg" in feature-layout.json
 const FEATURE_BG_ALTERNATIVES = { announcements: ["announcements-1", "announcements-2", "announcements-3"], twitchdrops: ["twitchdrops-1", "twitchdrops-2", "twitchdrops-3"] };
 const FEATURE_FLIPPED = new Set(["modes", "details", "network", "timetable", "hotkeys", "twitchdrops"]);
-const FEATURE_VERSION = "20261013a";
+const FEATURE_VERSION = "20261013b";
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
