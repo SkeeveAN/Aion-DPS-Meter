@@ -525,6 +525,16 @@ public partial class SettingsWindow : Window
         _settings.CombatCastOverlayScale = onDisk.CombatCastOverlayScale;
         _settings.CombatCastOverlayWidth = onDisk.CombatCastOverlayWidth;
         _settings.CombatCastOverlayHeight = onDisk.CombatCastOverlayHeight;
+        _settings.CombatHpOverlayLeft = onDisk.CombatHpOverlayLeft;
+        _settings.CombatHpOverlayTop = onDisk.CombatHpOverlayTop;
+        _settings.CombatHpOverlayScale = onDisk.CombatHpOverlayScale;
+        _settings.CombatHpOverlayWidth = onDisk.CombatHpOverlayWidth;
+        _settings.CombatHpOverlayHeight = onDisk.CombatHpOverlayHeight;
+        _settings.HotkeyOverlayLeft = onDisk.HotkeyOverlayLeft;
+        _settings.HotkeyOverlayTop = onDisk.HotkeyOverlayTop;
+        _settings.HotkeyOverlayScale = onDisk.HotkeyOverlayScale;
+        _settings.HotkeyOverlayWidth = onDisk.HotkeyOverlayWidth;
+        _settings.HotkeyOverlayHeight = onDisk.HotkeyOverlayHeight;
         _settings.CombatElements = onDisk.CombatElements;
 
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
