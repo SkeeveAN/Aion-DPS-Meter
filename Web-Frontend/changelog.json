@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The health bar of the target of the target is back in its frame (tied to the healer switch), next to the separate boss health window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.44.1",
   "date": "2026-10-13",
   "items": [

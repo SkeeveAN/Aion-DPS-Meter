@@ -696,5 +696,6 @@
  "The Session menu shows its list again (All, current stay, recent sessions, session manager)": "Das Menü Session zeigt seine Liste wieder an (Alle, aktueller Aufenthalt, letzte Sessions, Session-Manager)",
  "The combat overlay's health bar shows your own target's health again": "Die Lebensleiste des Kampf-Overlays zeigt wieder die Lebenspunkte deines eigenen Ziels",
  "The boss cast bar shows again, and a Cleric's summon no longer appears as a stranger in the group": "Die Boss-Cast-Leiste ist wieder zu sehen, und die Beschwörung eines Klerikers erscheint nicht mehr als Fremder in der Gruppe",
- "The boss health bar is a window of its own, the target of the target sits in a single frame, and the boss health check shows next to the numbers": "Die Boss-HP-Leiste ist ein eigenes Fenster, das Ziel des Ziels sitzt in einem einzigen Rahmen, und die Prüfung der Boss-HP erscheint neben den Zahlen"
+ "The boss health bar is a window of its own, the target of the target sits in a single frame, and the boss health check shows next to the numbers": "Die Boss-HP-Leiste ist ein eigenes Fenster, das Ziel des Ziels sitzt in einem einzigen Rahmen, und die Prüfung der Boss-HP erscheint neben den Zahlen",
+ "The health bar of the target of the target is back in its frame (tied to the healer switch), next to the separate boss health window": "Die HP-Leiste des Ziels vom Ziel ist wieder in ihrem Rahmen (am Heiler-Schalter), neben dem eigenen Boss-HP-Fenster"
 }
