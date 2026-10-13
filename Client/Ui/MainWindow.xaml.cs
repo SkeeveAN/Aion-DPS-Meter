@@ -204,6 +204,8 @@ public partial class MainWindow : Window
     private FightExtras? _historyExtras;
     /// <summary>Viewed session: replay id -> id in the live capture, so the details window can look up rotation and buffs.</summary>
     private Dictionary<int, int> _historyLiveIds = new();
+    /// <summary>Viewed session: id in the live capture -> replay id (the other way round).</summary>
+    private Dictionary<int, int> _historyReplayIds = new();
 
     /// <summary>"Minimize to system tray" (OnMinimizeToTrayClicked) - null until the first time
     /// it's actually used, so a user who never touches this never costs a single Shell_NotifyIcon
@@ -2161,6 +2163,93 @@ public partial class MainWindow : Window
         }
     }
 
+    // ---- the replay map ----------------------------------------------------------------------------------------
+
+    /// <summary>The directory the replay data is read from: the live capture, also while a stored session is on view (its ids are the live ids).</summary>
+    private Aion2.Aion2EntityDirectory? ReplayDirectory => (_historyMode ? _liveSource : _source)?.Entities as Aion2.Aion2EntityDirectory;
+
+    /// <summary>An id of the live capture as the grid knows it (the same, except while a session is on view).</summary>
+    private int GridId(int liveId) => _historyMode ? _historyReplayIds.GetValueOrDefault(liveId, -1) : liveId;
+
+    /// <summary>Whose positions the replay keeps: the group (the players in the rows) and the bosses.</summary>
+    private bool ReplayKeeps(int id)
+    {
+        int gridId = GridId(id);
+        return _rowsByObjectId.ContainsKey(gridId) && IsPlayerName(gridId)
+            || ReplayDirectory?.BossNpcIdOf(id) is not null
+            || _selectedTargetId == gridId;
+    }
+
+    /// <summary>A boss's health over the fight as thousandths of its highest reading, one reading a second at most.</summary>
+    private HpSeries? ReplayHp(int id, DateTime from, DateTime to)
+    {
+        if (ReplayDirectory is not { } directory || IsPlayerName(GridId(id)) || (directory.HitPoints.HighestSeen(id) ?? 0) <= 0)
+        {
+            return null;
+        }
+
+        long highest = directory.HitPoints.HighestSeen(id)!.Value;
+        var samples = directory.HitPoints.SamplesAround(id, from, to);
+        var thinned = new List<HpSample>();
+        foreach (HpSample sample in samples)
+        {
+            if (thinned.Count == 0 || (sample.At - thinned[^1].At).TotalSeconds >= 1)
+            {
+                thinned.Add(sample);
+            }
+        }
+
+        if (thinned.Count < 2)
+        {
+            return null;
+        }
+
+        DateTime origin = thinned[0].At;
+        return new HpSeries(id, origin, thinned.Select(s => (int)(s.At - origin).TotalMilliseconds).ToArray(),
+            thinned.Select(s => (short)Math.Clamp(s.Hp * 1000 / highest, 0, 1000)).ToArray());
+    }
+
+    /// <summary>The skills learnt so far, also while a stored fight is shown (that has no live directory): from the file the learning is kept in.</summary>
+    private Aion2.Aion2CombatState? _lessonFile;
+
+    private double? SkillRadius(int skillId)
+    {
+        if (ReplayDirectory?.Combat.LessonOf(skillId)?.RadiusCm is int live)
+        {
+            return live;
+        }
+
+        if (_lessonFile is null)
+        {
+            _lessonFile = new Aion2.Aion2CombatState { FilePath = System.IO.Path.Combine(MeterSettings.DataDirectory, "cast-skills.json") };
+            _lessonFile.Load();
+        }
+
+        return _lessonFile.LessonOf(skillId)?.RadiusCm;
+    }
+
+    private ReplayData BuildReplayData(FightExtras? extras, DateTime? start, DateTime? end, IReadOnlyList<DamageEvent> events)
+    {
+        if (extras is null || start is not DateTime from || end is not DateTime to)
+        {
+            return ReplayBuilder.Build("", null, events, DateTime.Now, DateTime.Now, _ => ("", "", false), _ => null, _ => "");
+        }
+
+        string title = (_selectedTargetId is int target ? ResolveDisplayName(target) : "") + " " + from.ToString("g");
+        if (_historyMode)
+        {
+            // the extras speak in ids of the live capture, the shown session in replay ids
+            events = events.Select(ev => ev with
+            {
+                SourceObjectId = _historyLiveIds.GetValueOrDefault(ev.SourceObjectId, ev.SourceObjectId),
+                TargetObjectId = _historyLiveIds.GetValueOrDefault(ev.TargetObjectId, ev.TargetObjectId),
+            }).ToList();
+        }
+
+        return ReplayBuilder.Build(title.Trim(), extras, events, from, to,
+            id => (ResolveDisplayName(GridId(id)), ResolveClassName(GridId(id)), IsPlayerName(GridId(id))), SkillRadius, id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)));
+    }
+
     /// <summary>
     /// Builds the upload payload for whichever target <paramref name="targetId"/> refers to, from
     /// <see cref="_rows"/> as it stands right now -- so the caller must have already pointed
@@ -3559,8 +3648,9 @@ public partial class MainWindow : Window
         _aggregator.IngestEvents(events);
 
         _historyLiveIds = idMap.ToDictionary(kv => kv.Value, kv => kv.Key);
+        _historyReplayIds = new Dictionary<int, int>(idMap);
         _historyExtras = (_liveSource?.Entities as Aion2.Aion2EntityDirectory) is { } liveDir
-            ? liveDir.Combat.Slice(session.Start, session.End ?? DateTime.Now, id => liveDir.NameFor(id))
+            ? liveDir.Combat.Slice(session.Start, session.End ?? DateTime.Now, id => liveDir.NameFor(id), ReplayKeeps, ReplayHp)
             : null;
 
         HistoryBanner.Text = string.Format(LocalizationManager.Instance["Main.SessionViewBanner"], SessionLabels.NameOf(session), SessionLabels.TimeSpanOf(session));
@@ -3975,11 +4065,12 @@ public partial class MainWindow : Window
         FightExtras? extras = _historyMode
             ? _historyExtras
             : fightStart is DateTime from && fightEnd is DateTime to
-                ? (_source?.Entities as Aion2.Aion2EntityDirectory)?.Combat.Slice(from, to, ResolveDisplayName)
+                ? ReplayDirectory?.Combat.Slice(from, to, ResolveDisplayName, ReplayKeeps, ReplayHp)
                 : null;
         new PlayerDetailsWindow(row.Name, row.ClassName, row.Faction, mine,
             id => _source?.Entities.NameFor(id) ?? MonsterName(id) ?? ResolveDisplayName(id), heals: _healMode && !_pvpOnly, fightEvents: _aggregator.Events,
-            extras: extras, playerId: _historyMode ? _historyLiveIds.GetValueOrDefault(row.ObjectId, row.ObjectId) : row.ObjectId, fightStart: fightStart, fightEnd: fightEnd)
+            extras: extras, playerId: _historyMode ? _historyLiveIds.GetValueOrDefault(row.ObjectId, row.ObjectId) : row.ObjectId, fightStart: fightStart, fightEnd: fightEnd,
+            replay: BuildReplayData(extras, fightStart, fightEnd, _aggregator.Events))
         {
             Owner = this,
         }.Show();

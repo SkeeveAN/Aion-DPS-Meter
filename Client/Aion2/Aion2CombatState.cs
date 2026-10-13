@@ -40,6 +40,25 @@ public sealed class SkillLesson
 
     public int CastMs { get; set; }
 
+    /// <summary>How far (cm) players that this skill hit stood from where it was wound up: what the replay draws its area from.</summary>
+    public List<int> Reach { get; set; } = new();
+
+    /// <summary>The radius of the skill's area: 110 % of the 85th percentile of <see cref="Reach"/> and half a metre more, once five hits agree to count; null before.</summary>
+    public int? RadiusCm
+    {
+        get
+        {
+            if (Reach.Count < 5)
+            {
+                return null;
+            }
+
+            var sorted = Reach.OrderBy(v => v).ToList();
+            double p85 = sorted[Math.Min(sorted.Count - 1, (int)Math.Ceiling(sorted.Count * 0.85) - 1)];
+            return (int)Math.Clamp(p85 * 1.1 + 50, 200, 8500);
+        }
+    }
+
     /// <summary>An area when it has hit several players, in at least a quarter of its uses.</summary>
     public bool IsArea => Wide >= 1 && Wide * 4 >= Single;
 
@@ -93,6 +112,9 @@ public sealed class Aion2CombatState
     private readonly Dictionary<int, Dictionary<int, BuffNotice>> _buffs = new();
     private bool _dirty;
     private readonly List<SkillUse> _uses = new();
+    private readonly Dictionary<int, TrackBuffer> _tracks = new();
+    private readonly List<WindupRecord> _windupLog = new();
+    private readonly List<DeathRecord> _deathLog = new();
     private readonly List<BuffEvent> _buffLog = new();
     private readonly List<StaggerEvent> _staggerLog = new();
     private const int MaxLog = 200_000;
@@ -121,6 +143,128 @@ public sealed class Aion2CombatState
         }
     }
 
+    // ---- where everyone was: the replay's tracks ---------------------------------------------------------------
+
+    private const int MaxTrackPoints = 20_000;
+    private const int MaxTracks = 800;
+
+    /// <summary>A step faster than this (cm per second) is a jump: it counts only once the next reading agrees with it.</summary>
+    private const double JumpSpeed = 3500;
+
+    private sealed class TrackBuffer
+    {
+        public readonly List<(DateTime At, float X, float Y)> Points = new();
+        public (DateTime At, float X, float Y)? Pending;
+
+        public void Add(DateTime at, float x, float y)
+        {
+            if (Points.Count == 0)
+            {
+                Points.Add((at, x, y));
+                return;
+            }
+
+            var last = Points[^1];
+            double dt = (at - last.At).TotalSeconds;
+            if (dt < 0.15)
+            {
+                return; // a point every 150 ms is plenty
+            }
+
+            double speed = Math.Sqrt((x - last.X) * (x - last.X) + (y - last.Y) * (y - last.Y)) / dt;
+            if (speed > JumpSpeed && dt < 5)
+            {
+                if (Pending is { } pending && Math.Abs(x - pending.X) < 600 && Math.Abs(y - pending.Y) < 600)
+                {
+                    Points.Add(pending); // two readings agree: it really moved there
+                    Pending = null;
+                }
+                else
+                {
+                    Pending = (at, x, y);
+                    return;
+                }
+            }
+
+            Pending = null;
+            if (Points.Count >= MaxTrackPoints)
+            {
+                Points.RemoveRange(0, MaxTrackPoints / 4);
+            }
+
+            Points.Add((at, x, y));
+        }
+
+        /// <summary>Where it was at a moment, between the two readings around it; null when none is within a second and a half.</summary>
+        public (float X, float Y)? At(DateTime at)
+        {
+            if (Points.Count == 0)
+            {
+                return null;
+            }
+
+            int i = Points.FindLastIndex(p => p.At <= at);
+            if (i < 0)
+            {
+                return (at - Points[0].At).TotalSeconds > -1.5 ? (Points[0].X, Points[0].Y) : null;
+            }
+
+            var a = Points[i];
+            if (i == Points.Count - 1)
+            {
+                return (at - a.At).TotalSeconds <= 1.5 ? (a.X, a.Y) : null;
+            }
+
+            var b = Points[i + 1];
+            double span = (b.At - a.At).TotalSeconds;
+            if ((at - a.At).TotalSeconds > 1.5 || (b.At - at).TotalSeconds > 1.5)
+            {
+                return null;
+            }
+
+            double f = span > 0 ? (at - a.At).TotalSeconds / span : 0;
+            return ((float)(a.X + (b.X - a.X) * f), (float)(a.Y + (b.Y - a.Y) * f));
+        }
+    }
+
+    /// <summary>A position reading of any entity (the game sends them with its movements and skills). Places in centimetres.</summary>
+    public void NotePosition(DateTime at, int entity, float x, float y)
+    {
+        lock (_gate)
+        {
+            if (!_tracks.TryGetValue(entity, out TrackBuffer? track))
+            {
+                if (_tracks.Count >= MaxTracks)
+                {
+                    int stale = _tracks.OrderBy(kv => kv.Value.Points.Count == 0 ? DateTime.MinValue : kv.Value.Points[^1].At).First().Key;
+                    _tracks.Remove(stale);
+                }
+
+                track = new TrackBuffer();
+                _tracks[entity] = track;
+            }
+
+            track.Add(at, x, y);
+        }
+    }
+
+    public void NoteDeath(int entity, DateTime at)
+    {
+        lock (_gate)
+        {
+            Append(_deathLog, new DeathRecord(at, entity));
+        }
+    }
+
+    /// <summary>Where an entity was at a moment (see <see cref="TrackBuffer.At"/>).</summary>
+    public (float X, float Y)? PositionAt(int entity, DateTime at)
+    {
+        lock (_gate)
+        {
+            return _tracks.TryGetValue(entity, out TrackBuffer? track) ? track.At(at) : null;
+        }
+    }
+
     // ---- casts -----------------------------------------------------------------------------------------------
 
     public void NoteWindup(CastNotice cast)
@@ -135,6 +279,7 @@ public sealed class Aion2CombatState
             }
 
             _active.Add(new ActiveCast(cast));
+            Append(_windupLog, new WindupRecord(cast.Start, cast.Actor, cast.SkillId, cast.Target, cast.DurationMs, cast.Facing, (int)cast.X, (int)cast.Y, cast.HasPosition));
             _lastAim[cast.Actor] = (cast.Target, cast.Start);
             Lesson(cast.SkillId).CastMs = cast.DurationMs;
         }
@@ -205,6 +350,22 @@ public sealed class Aion2CombatState
                 if (targetIsPlayer)
                 {
                     cast.Victims.Add(target);
+                    if (cast.Notice.HasPosition && at >= cast.Notice.End - TimeSpan.FromMilliseconds(300) && _tracks.TryGetValue(target, out TrackBuffer? victimTrack)
+                        && victimTrack.At(at) is { } place)
+                    {
+                        // how far from the place the skill was wound up this player stood when it hit: what the area is learnt from
+                        double reach = Math.Sqrt((place.X - cast.Notice.X) * (place.X - cast.Notice.X) + (place.Y - cast.Notice.Y) * (place.Y - cast.Notice.Y));
+                        if (reach >= 25)
+                        {
+                            SkillLesson l = lesson ?? Lesson(skillId);
+                            l.Reach.Add((int)reach);
+                            if (l.Reach.Count > 60)
+                            {
+                                l.Reach.RemoveAt(0);
+                            }
+                        }
+                    }
+
                     if (!cast.Landed && at >= cast.Notice.End - TimeSpan.FromMilliseconds(100))
                     {
                         cast.Landed = true;
@@ -364,7 +525,7 @@ public sealed class Aion2CombatState
     }
 
     /// <summary>What was logged between two moments. Effects are taken from a few minutes earlier, so one put on before the fight began still has its start.</summary>
-    public FightExtras Slice(DateTime from, DateTime to, Func<int, string?> nameOf)
+    public FightExtras Slice(DateTime from, DateTime to, Func<int, string?> nameOf, Func<int, bool>? keep = null, Func<int, DateTime, DateTime, HpSeries?>? hpOf = null)
     {
         lock (_gate)
         {
@@ -385,7 +546,43 @@ public sealed class Aion2CombatState
                 }
             }
 
-            return new FightExtras(uses, buffs, staggers, names);
+            // the replay: the places of the entities that matter (the group, the bosses), their windups, deaths and the bosses' health
+            List<PositionTrack>? tracks = null;
+            List<WindupRecord>? windups = null;
+            List<DeathRecord>? deaths = null;
+            List<HpSeries>? hp = null;
+            if (keep is not null)
+            {
+                tracks = new List<PositionTrack>();
+                foreach (var (entity, buffer) in _tracks)
+                {
+                    if (!keep(entity))
+                    {
+                        continue;
+                    }
+
+                    int first = Math.Max(0, buffer.Points.FindLastIndex(p => p.At <= from));
+                    var points = buffer.Points.Skip(first).TakeWhile(p => p.At <= to).ToList();
+                    if (points.Count < 2)
+                    {
+                        continue;
+                    }
+
+                    DateTime origin = points[0].At;
+                    tracks.Add(new PositionTrack(entity, origin, points.Select(p => (int)(p.At - origin).TotalMilliseconds).ToArray(),
+                        points.Select(p => (int)p.X).ToArray(), points.Select(p => (int)p.Y).ToArray()));
+                    names.TryAdd(entity, nameOf(entity) ?? "");
+                }
+
+                windups = _windupLog.Where(w => w.At >= from && w.At <= to && keep(w.Actor)).ToList();
+                deaths = _deathLog.Where(d => d.At >= from && d.At <= to && keep(d.Entity)).ToList();
+                if (hpOf is not null)
+                {
+                    hp = tracks.Select(t => hpOf(t.Entity, from, to)).Where(h => h is not null).Select(h => h!).ToList();
+                }
+            }
+
+            return new FightExtras(uses, buffs, staggers, names, tracks, windups, deaths, hp);
         }
     }
 

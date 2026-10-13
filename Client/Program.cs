@@ -158,6 +158,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-replay")
+        {
+            RunRenderReplayMode(args.Length > 1 ? args[1] : "replay.png", args.Length > 2 ? double.Parse(args[2], System.Globalization.CultureInfo.InvariantCulture) : 14.0, args.Length > 3 ? int.Parse(args[3]) : 1);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-messagebox")
         {
             RunRenderMessageBoxMode(args.Length > 1 ? args[1] : "messagebox.png");
@@ -1012,6 +1018,88 @@ internal static class Program
         Environment.Exit(0);
     }
 
+    /// <summary>Draws the replay window at one moment of a made-up boss fight (eight players around a boss that winds up areas); no window is ever shown.</summary>
+    private static void RunRenderReplayMode(string path, double seconds, int scale)
+    {
+        Environment.SetEnvironmentVariable("AIONDPS_DATA_DIR", Path.Combine(Path.GetTempPath(), "aiondps-render-replay"));
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } language)
+        {
+            Ui.LocalizationManager.Instance.Language = language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        DateTime start = new(2026, 10, 4, 12, 0, 0, DateTimeKind.Local);
+        const int boss = 100;
+        var random = new Random(11);
+        string[] classes = { "Gladiator", "Templar", "Cleric", "Chanter", "Sorcerer", "Ranger", "Assassin", "Spiritmaster" };
+        string[] names = { "Jinwoo", "Goku", "Ichigo", "Naruto", "Tsubasa", "Lyra", "Wendy", "Rin" };
+        var tracks = new List<Combat.PositionTrack>();
+        for (int i = 0; i < classes.Length; i++)
+        {
+            double phase = i * Math.PI / 4;
+            var t = new List<int>();
+            var x = new List<int>();
+            var y = new List<int>();
+            for (int ms = 0; ms <= 60000; ms += 700)
+            {
+                double radius = (i < 2 ? 450 : 900 + 150 * (i % 3)) + 120 * Math.Sin(ms / 5000.0 + i);
+                double angle = phase + ms / 14000.0 * (i % 2 == 0 ? 1 : -1);
+                t.Add(ms);
+                x.Add((int)(radius * Math.Cos(angle) + random.Next(-40, 40)));
+                y.Add((int)(radius * Math.Sin(angle) + random.Next(-40, 40)));
+            }
+
+            tracks.Add(new Combat.PositionTrack(i + 1, start, t.ToArray(), x.ToArray(), y.ToArray()));
+        }
+
+        tracks.Add(new Combat.PositionTrack(boss, start, new[] { 0, 60000 }, new[] { 0, 0 }, new[] { 0, 0 }));
+        var windups = new List<Combat.WindupRecord>();
+        var hits = new List<Combat.DamageEvent>();
+        int[] skills = { 1236440, 1217430, 1223500 };
+        for (int s = 3; s < 58; s += 4)
+        {
+            int skill = skills[(s / 4) % skills.Length];
+            double angle = s * 0.9;
+            windups.Add(new Combat.WindupRecord(start.AddSeconds(s), boss, skill, (s / 4) % 8 + 1, 1500, angle * 57.3 % 360, (int)(700 * Math.Cos(angle)), (int)(700 * Math.Sin(angle)), true));
+            hits.Add(new Combat.DamageEvent(start.AddSeconds(s + 2.1), boss, (s / 4) % 8 + 1, 3000 + s * 10, false, "Attack", SkillId: skill));
+        }
+
+        var extras = new Combat.FightExtras(Array.Empty<Combat.SkillUse>(), Array.Empty<Combat.BuffEvent>(), new[] { new Combat.StaggerEvent(start.AddSeconds(30), boss, 0, 0, true) },
+            new Dictionary<int, string>(), tracks, windups, new[] { new Combat.DeathRecord(start.AddSeconds(41), 5) },
+            new[] { new Combat.HpSeries(boss, start, Enumerable.Range(0, 61).Select(s => s * 1000).ToArray(), Enumerable.Range(0, 61).Select(s => (short)(1000 - s * 15)).ToArray()) });
+        var data = Combat.ReplayBuilder.Build(Aion2.Protocol.Aion2Npcs.NameOf(2300708, Ui.LocalizationManager.Instance.Language) ?? "Boss", extras, hits, start, start.AddSeconds(60),
+            id => id == boss ? (Aion2.Protocol.Aion2Npcs.NameOf(2300708, Ui.LocalizationManager.Instance.Language) ?? "Boss", "", false) : (names[id - 1], classes[id - 1], true),
+            skill => skill == 1236440 ? 520 : null, _ => Aion2.Protocol.Aion2SkillNames.Display("Attack"));
+        var window = new Ui.FightReplayWindow(data);
+        window.ShowAt(seconds);
+        const double width = 960, height = 700;
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(width, height));
+        content.Arrange(new System.Windows.Rect(0, 0, width, height));
+        content.UpdateLayout();
+        content.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)width * scale, (int)height * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
+        var backdrop = new System.Windows.Controls.Border { Width = width, Height = height, Background = (System.Windows.Media.Brush)app.Resources["Brush.Window"] };
+        backdrop.Measure(new System.Windows.Size(width, height));
+        backdrop.Arrange(new System.Windows.Rect(0, 0, width, height));
+        bitmap.Render(backdrop);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-replay: wrote " + path);
+        Environment.Exit(0);
+    }
+
     /// <summary>Draws the "window will turn transparent" message box into a picture; no window is ever shown.</summary>
     private static void RunRenderMessageBoxMode(string path)
     {
@@ -1578,6 +1666,13 @@ internal static class Program
                 // the rotation view's numbers for the local player over the whole recording
                 DateTime from = events.Min(e => e.Timestamp), to = events.Max(e => e.Timestamp);
                 var extras = combatDirectory.Combat.Slice(from, to, id => source.Entities.NameFor(id));
+                var replayExtras = combatDirectory.Combat.Slice(from, to, id => source.Entities.NameFor(id), _ => true);
+                Console.WriteLine($"aion2-replay: replay data: {replayExtras.Tracks?.Count ?? 0} tracks ({replayExtras.Tracks?.Sum(t => t.T.Length) ?? 0} points), {replayExtras.Windups?.Count ?? 0} windups, {replayExtras.Deaths?.Count ?? 0} deaths");
+                foreach (var track in (replayExtras.Tracks ?? Array.Empty<Combat.PositionTrack>()).OrderByDescending(t => t.T.Length).Take(4))
+                {
+                    Console.WriteLine($"  entity {track.Entity,6} {source.Entities.NameFor(track.Entity),-14} {track.T.Length,5} points over {track.T[^1] / 1000.0,7:0} s, x {track.X.Min()}..{track.X.Max()} y {track.Y.Min()}..{track.Y.Max()}");
+                }
+
                 var own = events.Where(e => e.SourceObjectId == source.Entities.LocalPlayerId).ToList();
                 var report = Combat.RotationAnalysis.Build(extras, source.Entities.LocalPlayerId, from, to, own, id => source.Entities.NameFor(id));
                 Console.WriteLine($"aion2-replay: rotation of the local player: {report.Uses.Count} skill uses ({report.Skills.Count} skills), {report.Buffs.Count} effects, {report.Staggers.Count} staggers, {extras.Staggers.Count} stagger readings, {extras.Buffs.Count} effect events");

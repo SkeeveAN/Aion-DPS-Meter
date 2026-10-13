@@ -106,6 +106,16 @@ Un combat conserve ces données dans l'historique local, ce qui permet de revoir
   <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="L'onglet Rotation de la fenêtre du joueur : compétences sur une frise chronologique avec le DPS derrière, l'ouverture et la rotation en bref">
 </p>
 
+### Replay d'un combat de boss (test précoce)
+
+Dans la fenêtre du joueur d'un combat de boss, **Replay** rejoue le combat vu de dessus : votre groupe sous forme de points aux couleurs des classes avec les dernières secondes de leur déplacement, le boss avec sa direction de regard et sa santé, les zones des compétences qu'il prépare (ambre pendant la préparation, rouge à l'impact ; en pointillés tant que la taille n'est qu'une estimation), un anneau rouge sur celui qu'il a touché, les morts barrés. Sous la carte, une chronologie montre les grandes attaques du boss (ambre), les coups sur le groupe (rouge), les morts, les stagger (grisés) et la santé du boss ; cliquez ou faites glisser dessus pour aller à cet instant. Lecture et pause (Espace), vitesses de la moitié au quadruple, ← et → avancent ou reculent de cinq secondes, faites glisser la carte, molette pour zoomer, double-clic pour la recadrer.
+
+Les positions sont les relevés propres au jeu : il les envoie avec les mouvements et les compétences, pas à intervalle régulier, c'est pourquoi un déplacement est tracé en ligne droite entre deux d'entre elles. Le jeu ne dit jamais quelle est la taille de la zone d'une attaque : le meter apprend la taille de chaque compétence d'après qui elle a touché et la retient d'un combat à l'autre. Seuls votre groupe et les boss sont affichés, jamais les autres joueurs. Un combat conserve son replay dans l'historique local ; les combats enregistrés avec une ancienne version n'en ont pas.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/replay@2x.webp" width="640" alt="Le replay d'un combat de boss : le groupe autour du boss, une zone en préparation, la chronologie avec la santé du boss">
+</p>
+
 ### Tout votre personnage d'un coup d'œil
 
 La fenêtre **Personnage** (icône de personne) montre ce que le jeu envoie à votre sujet : équipement avec niveau

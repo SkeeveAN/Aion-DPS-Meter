@@ -272,6 +272,14 @@ public sealed class Aion2FrameDecoder
             case StaggerOpcode:
                 DecodeStagger(frame, timestamp);
                 return Array.Empty<DamageEvent>();
+            default:
+                if ((opcode & 0xff) == 0x37 && PositionOffset((opcode >> 8) & 0xff) is int positionOffset)
+                {
+                    DecodePosition(frame, timestamp, positionOffset);
+                    return Array.Empty<DamageEvent>();
+                }
+
+                break;
         }
 
         OpcodeFamily family = _protocol.FamilyOf(opcode);
@@ -1068,6 +1076,32 @@ public sealed class Aion2FrameDecoder
         return true;
     }
 
+    /// <summary>Movement frames of other entities: second byte 0x37, the first one of these. Where the position sits after the entity id differs by family (verified on three debug
+    /// recordings, 2026-10-12: with these offsets the readings of one entity form paths with speeds of a few metres per second).</summary>
+    private static int? PositionOffset(int first) => first switch
+    {
+        0x1a or 0x1b or 0x1c or 0x1e or 0x20 or 0x28 or 0x29 or 0x2a => 2,
+        0x1f or 0x2f => 1,
+        _ => null,
+    };
+
+    /// <summary>A position reading: opcode | entity (varint) | 1-2 bytes | x (f32) | y (f32), places in centimetres. Kept for the replay (see <see cref="Aion2CombatState"/>).</summary>
+    private void DecodePosition(ReadOnlySpan<byte> frame, DateTime timestamp, int offset)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long entity) || entity is < 1 or > 10_000_000 || frame.Length < p + offset + 8)
+        {
+            return;
+        }
+
+        float x = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + offset)..]);
+        float y = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + offset + 4)..]);
+        if (float.IsFinite(x) && float.IsFinite(y) && Math.Abs(x) is > 1 and < 200_000 && Math.Abs(y) is > 1 and < 200_000)
+        {
+            _entities.Combat.NotePosition(timestamp, (int)entity, x, y);
+        }
+    }
+
     /// <summary>
     /// A monster's stagger bar (verified on two debug recordings, 2026-10-12: 3,699 readings and 18 breaks, every frame reads to its end; the bar
     /// is 1,200 and falls with the hits taken): opcode | entity (varint) | 03 01 | max (u32) | current (u32) | 1 byte - or | 00 03 when it breaks.
@@ -1262,6 +1296,7 @@ public sealed class Aion2FrameDecoder
             if (hp == 0)
             {
                 _entities.Combat.NoteGone(unchecked((int)entityId), timestamp);
+                _entities.Combat.NoteDeath(unchecked((int)entityId), timestamp);
                 _entities.ClearLocalTarget(unchecked((int)entityId)); // a dead monster is no target any more
                 _entities.ForgetLiveMob(unchecked((int)entityId));
             }
@@ -1359,8 +1394,20 @@ public sealed class Aion2FrameDecoder
     private void DecodeLocalPosition(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;
-        if (!TryReadVarint(frame, ref p, out long entityId) || frame.Length < p + 9 || frame[p] != 3 || !_entities.IsLocalPlayer(unchecked((int)entityId)))
+        if (!TryReadVarint(frame, ref p, out long entityId) || frame.Length < p + 9 || frame[p] != 3)
         {
+            return;
+        }
+
+        if (!_entities.IsLocalPlayer(unchecked((int)entityId)))
+        {
+            // somebody else's (a dash, a correction): only the replay's tracks want it
+            float ox = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 1)..]), oy = BinaryPrimitives.ReadSingleLittleEndian(frame[(p + 5)..]);
+            if (float.IsFinite(ox) && float.IsFinite(oy) && Math.Abs(ox) is > 1 and < 200_000 && Math.Abs(oy) is > 1 and < 200_000)
+            {
+                _entities.Combat.NotePosition(timestamp, unchecked((int)entityId), ox, oy);
+            }
+
             return;
         }
 
@@ -1369,6 +1416,7 @@ public sealed class Aion2FrameDecoder
         if (float.IsFinite(x) && float.IsFinite(y) && Math.Abs(x) < 1_000_000 && Math.Abs(y) < 1_000_000)
         {
             _entities.NoteLocalPosition(x, y);
+            _entities.Combat.NotePosition(timestamp, (int)entityId, x, y);
         }
     }
 

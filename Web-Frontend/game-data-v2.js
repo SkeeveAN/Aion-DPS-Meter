@@ -106,4 +106,6 @@ export const BOSS_CARDS_V2 = {
   "Veteran Shujakan": "/images/aion2/bosses/cards-v2/veteran-shujakan.webp",
   "Visionary Karuka": "/images/aion2/bosses/cards-v2/visionary-karuka.webp",
   "Immortal Gartua": "/images/aion2/bosses/cards-v2/immortal-gartua.webp",
+  "Enhanced Harcon": "/images/aion2/bosses/cards-v2/enhanced-harcon.webp",
+  "Talisra of the Void": "/images/aion2/bosses/cards-v2/talisra-of-the-void.webp",
 };

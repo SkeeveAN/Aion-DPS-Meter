@@ -160,6 +160,7 @@
             <RadioButton x:Name="TabSkillsButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" IsChecked="True" Content="{local:Loc Details.Tab.Skills}" Checked="OnDetailsTabChanged"/>
             <RadioButton x:Name="TabRotationButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" Content="{local:Loc Details.Tab.Rotation}" Checked="OnDetailsTabChanged"/>
             <RadioButton x:Name="TabBuffsButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" Content="{local:Loc Details.Tab.Buffs}" Checked="OnDetailsTabChanged"/>
+            <Button x:Name="ReplayButton" Content="{local:Loc Replay.Button}" Visibility="Collapsed" Margin="16,0,0,0" Padding="12,3" VerticalAlignment="Center" Click="OnReplayClicked"/>
         </StackPanel>
         <Grid x:Name="TabHost">
         <DataGrid x:Name="SkillsGrid" AutoGenerateColumns="False" IsReadOnly="True"
