@@ -1,4 +1,5 @@
 {
+ "The network log records much more about a freeze (answer times, receive windows, route, the first second afterwards), to find where a freeze comes from": "Das Netzwerk-Log hält bei einem Hänger deutlich mehr fest (Antwortzeiten, Empfangsfenster, Route, die erste Sekunde danach), um die Ursache eines Hängers zu finden",
  "Encounter pages showed the error \"profileMarkAttrs is not defined\" instead of the meter; the profile marks behind the player names work again": "Begegnungsseiten zeigten die Fehlermeldung „profileMarkAttrs is not defined“ statt des Meters; die Profil-Markierungen hinter den Spielernamen funktionieren wieder",
  "The meter remembers the last used mode (damage, heal, taken, all, all compact) and starts with it again": "Der Meter merkt sich den zuletzt benutzten Modus (Schaden, Heilung, Erlittener Schaden, Alles in einem, Alles in einem kompakt) und startet beim nächsten Mal wieder damit",
  "Features page: the numbered chapter labels (01 · Record …) above each scene are gone": "Features-Seite: Die nummerierten Kapitel-Labels (01 · Aufzeichnen …) über jeder Szene entfallen",

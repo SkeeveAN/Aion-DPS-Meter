@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.44.1",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The network log records much more about a freeze (answer times, receive windows, route, the first second afterwards), to find where a freeze comes from",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.44.0",
   "date": "2026-10-13",
   "items": [
