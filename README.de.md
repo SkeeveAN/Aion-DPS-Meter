@@ -1,72 +1,194 @@
-🇬🇧 [English](README.md) · 🇩🇪 **Deutsch** · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇷🇺 [Русский](README.ru.md) · 🇵🇱 [Polski](README.pl.md) · 🇹🇷 [Türkçe](README.tr.md) · 🇨🇳 [中文](README.zh.md)
+🇬🇧 [English](README.md) · 🇩🇪 **Deutsch** · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇷🇺 [Русский](README.ru.md) · 🇨🇳 [中文](README.zh.md) · 🇹🇼 [繁體中文](README.zh-TW.md) · 🇧🇷 [Português (Brasil)](README.pt.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md)
 
 # Aion DPS Meter
 
-Webseite mit Community-Boss-Ranglisten und Charakterprofilen: **https://aiondps.com**
+Webseite mit Community-Boss-Ranglisten, Charakterprofilen und mehr: **https://aiondps.com** · [Alle Funktionen](https://aiondps.com/features)
 
-Ein Schaden-/Heal-Meter für **Aion 2**. Es liest den Netzwerkverkehr des Spiels auf deinem Rechner über
-den [Npcap](https://npcap.com)-Treiber — passiv: es sendet nie ein Paket und fasst weder den Spielprozess
-noch dessen Speicher an. Nichts von deinem Spiel verlässt deinen Rechner, außer du lädst es hoch (siehe
-[Uploads](#uploads)); dazu kommt die Update-Prüfung, die GitHub nach einer neueren Version fragt und
-abschaltbar ist; siehe [Updates](#updates).
+Ein Schaden-/Heilungs-Meter und Werkzeugkasten für **Aion 2**. Es liest den Netzwerkverkehr des Spiels auf deinem Rechner
+über den [Npcap](https://npcap.com)-Treiber — passiv: Es sendet nie ein Paket und fasst weder den
+Spielprozess noch dessen Speicher an. Nichts von deinem Spiel verlässt deinen Rechner, es sei denn, du lädst es hoch (siehe
+[Uploads](#uploads)); das Einzige, was sonst gesendet wird, ist die Update-Prüfung, die GitHub fragt, ob eine neuere
+Version existiert, und die sich abschalten lässt; siehe [Updates](#updates).
 
-> Klassisches Aion (Chat.log-basiert) ist nicht mehr Teil des Meters. Die letzte Version, die es
-> unterstützt, liegt auf dem Branch [`aion1-included`](../../tree/aion1-included).
+<p align="center">
+  <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="Das Meter-Fenster: jeder Spieler mit Klassen-Icon, DPS, Gesamtschaden und Anteilsbalken">
+</p>
+
+> Die Namen, Spieler und Zahlen in den folgenden Bildern sind Demodaten.
+
+## Inhalt
+
+[Installation](#installation) · [Was es kann](#was-es-kann) · [Benutzung](#benutzung) · [Tastenkürzel](#tastenkürzel) ·
+[Uploads](#uploads) · [Updates](#updates) · [Sprachen](#sprachen) · [Aus dem Quellcode bauen](#aus-dem-quellcode-bauen)
 
 ## Installation
 
-1. Installiere den [Npcap](https://npcap.com)-Treiber (der Meter braucht ihn, um den Verkehr des Spiels
-   zu sehen; er gehört nicht zum Installer).
-2. Lade `AionDpsMeter-win-Setup.exe` vom [neuesten Release](../../releases/latest) herunter und führe sie
-   aus. Sie installiert in dein Benutzerprofil und startet den Meter — kein Administratorrecht, kein .NET nötig.
-3. Starte den Meter und logge dich dann mit deinem Charakter ein. Der Meter liest Charakter, Ausrüstung,
-   Skills und Daevanion-Boards aus dem Spiel selbst; der Server, auf dem du spielst, wird automatisch erkannt.
+1. Installiere den [Npcap](https://npcap.com)-Treiber (der Meter braucht ihn, um den Verkehr des Spiels zu sehen;
+   er gehört nicht zum Installer).
+2. Lade `AionDpsMeter-win-Setup.exe` vom [neuesten Release](../../releases/latest) herunter und führe sie aus.
+   Sie installiert in dein Benutzerprofil und startet den Meter — keine Administratorrechte, kein .NET nötig.
+3. Starte den Meter und logge dich dann mit deinem Charakter ein. Der Meter liest Charakter, Ausrüstung, Skills und
+   Daevanion-Boards aus dem Spiel selbst; der Server, auf dem du spielst, wird automatisch erkannt.
+
+## Was es kann
+
+### Live-Schaden und Heilung für alle
+
+Jeder Spieler in deiner Gruppe oder deinem Raid mit Name, Gesamtschaden, DPS und Anteilsbalken; Fraktion und Klasse
+werden als Icons angezeigt. Filtere nach Klasse, Gruppe oder Ziel. Der **Mob/Boss**-Filter schaltet zwischen Gesamt-DPS und
+echtem **iDPS** pro Ziel um; Bosse werden aus den Daten des Spiels erkannt und mit Namen angezeigt. Ein
+**PvE/PvP**-Schalter trennt die beiden, und ein Wipe an einem Boss bekommt einen eigenen Eintrag (ein Totenkopf markiert einen Versuch,
+nach dem der Boss wieder volle Lebenspunkte hatte).
+
+### Fünf Ansichten, ein Klick entfernt
+
+**Schaden**, **Heilung**, **Erlittener Schaden** und zwei **All in One**-Ansichten. Umschalten mit dem Tastenkürzel
+(Standard **Ctrl+Alt+M**) oder per Klick auf die Modusanzeige im Overlay. *All in One* zeigt erlittenen Schaden,
+Heilung und Gesamt nebeneinander, *All in One Compact* behält die gewohnten Spalten DPS und Gesamt und setzt
+Heilung und erlittenen Schaden in eine kleine zweite Zeile unter den Namen.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/mode-all@2x.webp" width="460" alt="All-in-One-Ansicht: erlittener Schaden, Heilung und Gesamtschaden nebeneinander">
+  <img src="Web-Frontend/images/features/overlay-chips@2x.webp" width="380" alt="Das durchklickbare Overlay als kleine Chips über dem Spiel">
+</p>
+
+### Ein durchklickbares Overlay
+
+**Hide UI** macht aus dem Fenster kleine Chips (oder ein kompaktes Panel), die über Aion 2 liegen, ohne
+auch nur einen Klick abzufangen. Deckkraft, Schadensanteil-Balken, die Lebenspunkte des Bosses und der erlittene Schaden pro Spieler
+sind Optionen. Das Overlay zeichnet nur, solange das Spiel im Vordergrund ist. Schalte es von überall per Tastenkürzel um.
+
+### Skill-Aufschlüsselung für jeden Spieler
+
+**Doppelklick** auf einen Spieler: jeder Skill mit Treffern, Crit-Rate, Summe, Min, Max und Durchschnitt, aufgeteilt nach Ziel,
+dazu eine DPS-Kurve über den gesamten Kampf. Crit-Raten werden direkt aus den Trefferdaten des Servers gelesen und sind daher exakt.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Skill-Aufschlüsselung eines Spielers mit einer Schaden-über-Zeit-Kurve">
+</p>
+
+### Dein ganzer Charakter auf einen Blick
+
+Das **Charakter**-Fenster (Personen-Symbol) zeigt, was das Spiel über dich sendet: Ausrüstung mit Itemlevel und
+Verzauberung (einschließlich der Verstärkungsstufe über +15), Arkana, Artenwissen, alle Skills mit ihren Leveln
+und die vollständigen Daevanion-Boards. Es merkt sich deinen letzten Login und ist deshalb nie leer. Fahre über ein Teil für seine
+Details (Steine, gewürfelte Werte, Götterstein).
+
+<p align="center">
+  <img src="Web-Frontend/images/features/character-gear@2x.webp" width="640" alt="Das Charakter-Fenster mit Ausrüstung, Itemlevels und Verzauberung">
+</p>
+
+### Interaktive Karte mit Pets und Sammeln
+
+Ein Karten-Overlay zeigt deine Position, die Spawnpunkte der Pets, hinter denen du her bist, und die Sammelpunkte, die du
+eingeschaltet hast — Kräuter, Erze, Holz, Edelsteine und mehr — ohne per Alt-Tab auf eine Webseite zu wechseln. Aufgelistet wird nur, was deine eigene
+Fraktion nutzen kann, und die zuletzt bekannte Position bleibt auf der Karte, während das Spiel geschlossen ist. Die Pet-
+Einstellungen listen jede Region von Verteron, Altgard und dem Abyss mit ihren Pets und deinem eigenen Pet-Level auf, dazu einen
+**Selten**-Tab für Pets mit wenigen Spawnpunkten. Pfeile am Rand zeigen auf das nächste Pet oder Sammelobjekt.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/map@2x.webp" width="520" alt="Die interaktive Karte mit Pet-Spawnpunkten und der Pet-Liste">
+  <img src="Web-Frontend/images/features/gathering@2x.webp" width="230" alt="Sammel-Einstellungen: einschalten, was auf der Karte erscheint">
+</p>
+
+### Event-Zeitplan mit Erinnerungen
+
+Ein Overlay listet die nächsten Events — Schlachtfeld, die Abyss-Belagerungen (Artefakt-Belagerung), das Shugo-Fest,
+den Beritra-Luftangriff, den Raumzeit-Riss und mehr. Wähle pro Event einen Sound und eine Lautstärke und lass dich
+wenige Minuten vor dem Start erinnern. Ein Schalter aktiviert oder deaktiviert alle Erinnerungen.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/timetable@2x.webp" width="380" alt="Zeitplan-Einstellungen mit Sound und Lautstärke pro Event">
+</p>
+
+### Weltbosse in deinem Overlay
+
+Schalte einen Feldboss ein, um seinen Timer im Overlay zu sehen und seinen Sound in dem Moment zu hören, in dem er da ist. Die Zeiten
+kommen direkt aus dem Spiel; der Server sendet sie für die Karte, auf der du dich befindest, die anderen Karten zeigen ihre erst,
+nachdem du dort warst. Sound und Lautstärke werden pro Boss eingestellt, gruppiert nach Region.
+
+### Netzwerk-Overlay
+
+Ping, Jitter, Datenverkehr, Paketverlust und wie lange du schon online bist, gemessen am Verkehr, den dein PC
+ohnehin empfängt. Die Werte wechseln von Grün zu Rot, je schlechter die Verbindung wird. Wähle die gewünschten Zeilen,
+sperre die Position, schalte es per Tastenkürzel ein und aus.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="Das Netzwerk-Overlay: Ping, Jitter, Datenverkehr und Paketverlust">
+</p>
+
+### Ankündigungen und Twitch Drops
+
+Ein Megafon-Knopf öffnet die offiziellen NCSoft-Ankündigungen auf aiondps.com — Wartungen, Ausfälle, neue
+Server, Servertransfers, Entschädigungen — neueste zuerst, mit einem farbigen Label pro Art und einem Filter. Solange
+eine AION-2-Twitch-Drops-Kampagne läuft, öffnet ein Twitch-Knopf eine Seite mit ihren Belohnungen, den Stunden, die du
+zuschauen musst, einem Countdown und den Streams, bei denen Drops gerade aktiviert sind. Eine Markierung *Neu* zeigt an, wenn
+etwas neuer ist als dein letzter Besuch.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/announcements@2x.webp" width="430" alt="Offizielle AION-2-Ankündigungen mit Filter nach Art">
+  <img src="Web-Frontend/images/features/twitchdrops@2x.webp" width="430" alt="Twitch-Drops-Kampagnen mit Belohnungen und Live-Streams">
+</p>
+
+### Kampfverlauf
+
+Kämpfe werden lokal aufgezeichnet, damit du dir einen früheren Boss noch einmal ansehen kannst (abschaltbar unter
+**Einstellungen → Oberfläche**). Der Meter setzt sich nach einer einstellbaren Zeit außerhalb des Kampfes zurück.
 
 ## Benutzung
 
-Die Aufnahme beginnt, sobald der Meter läuft. **Pause verwirft** statt zu puffern: Ereignisse während einer
-Pause sind für immer weg, ein Fortsetzen spielt nie einen Kampf nach, den du ausgesessen hast.
+Die Aufnahme beginnt, sobald der Meter läuft. **Pause verwirft** statt zu puffern: Ereignisse
+während einer Pause sind für immer weg, ein Fortsetzen spielt also nie einen Kampf nach, den du ausgesessen hast.
 
-### Ansichten
+- **Copy** legt ein einzeiliges, chatfertiges Ranking in die Zwischenablage (`Name 1.234.567 (890), …`); **Copy All**
+  liefert eine Discord-Markdown-Tabelle.
+- Das Aussehen wird unter **Einstellungen → Oberfläche** festgelegt: Theme (dunkel/hell), Schriftgröße, Sprache, Overlay-Optik
+  und -Deckkraft, Start mit Windows.
 
-- **Dmg** — Schaden pro Spieler mit Summe und DPS, Klassen-Icons und sortierbarer Liste. Der
-  **Mob/Boss**-Filter schaltet die Spalte zwischen Gesamt-DPS und echtem Ziel-**iDPS** um. Bosse werden
-  aus den Daten des Spiels erkannt und mit Namen angezeigt. **Doppelklick** auf einen Spieler zeigt die
-  Skill-Aufschlüsselung.
-- **Charakter** (das Personen-Symbol) — öffnet ein Fenster mit deinem eigenen Charakter: Profil, Ausrüstung
-  mit Itemlevel und Verzauberung, Skills mit Leveln und die Daevanion-Boards. Es merkt sich deinen letzten
-  Login und ist deshalb nie leer.
+<p align="center">
+  <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Einstellungen: Oberfläche, Overlay und Verhalten">
+  <img src="Web-Frontend/images/features/hotkeys@2x.webp" width="340" alt="Einstellungen: Tastenkürzel">
+</p>
 
-### Hide UI (Overlay)
+## Tastenkürzel
 
-Macht aus dem Fenster kleine durchklickbare Chips, die über dem Spiel liegen — einer pro Spieler mit Name,
-Schaden und DPS. Umschalten mit **Strg+Alt+H**, von überall.
+Systemweit, auch wenn das Spiel den Fokus hat. Klicke unter **Einstellungen → Tastenkürzel** auf ein Feld und drücke die
+gewünschte Kombination (sie braucht Ctrl, Alt, Shift oder Win); **×** entfernt sie. Sie ersetzen Chat-Befehle,
+die nicht funktionieren können, weil der Chat von Aion 2 im Netzwerkverkehr nicht lesbar ist.
 
-### Kopieren
-
-**Copy** legt ein einzeiliges, chatfertiges Ranking in die Zwischenablage (`Name 1.234.567 (890), …`);
-**Copy All** liefert eine Discord-Markdown-Tabelle.
-
-### Tastenkürzel
-
-Systemweit, auch wenn das Spiel den Fokus hat (ändern unter **Einstellungen → Oberfläche → Tastenkürzel**): **Strg+Alt+H** Overlay, **Strg+Alt+P** Pause / Fortsetzen, **Strg+Alt+D** Ranking kopieren, **Strg+Alt+Umschalt+X** Sitzung leeren. Sie ersetzen Chat-Befehle, die nicht funktionieren können, weil der Chat von Aion 2 im Netzwerkverkehr nicht lesbar ist.
+| Standard | Aktion |
+|---|---|
+| **Ctrl+Alt+H** | Overlay (Fenster ausblenden, Chips zeigen) |
+| **Ctrl+Alt+P** | Pause / Fortsetzen |
+| **Ctrl+Alt+D** | Schadens-Ranking kopieren |
+| **Ctrl+Alt+Shift+X** | Sitzung leeren |
+| **Ctrl+Alt+U** | Boss-Schaden hochladen |
+| **Ctrl+Alt+M** | Nächster Modus (fünf Ansichten) |
+| **Ctrl+Alt+T** | Zeitplan-Overlay |
+| **Ctrl+Alt+K** | Interaktive Karte an / aus |
+| **Ctrl+Alt+E** / **Ctrl+Alt+G** | Pfeile am Rand für Pets / Sammelobjekte |
+| **Ctrl+Alt+B** | Weltboss-Overlay |
+| **Ctrl+Alt+N** | Netzwerk-Overlay |
+| **Ctrl+Alt+O** | Hotkey-Overlay (eine verschiebbare Liste der Tastenkürzel) |
+| **Ctrl+Alt+A** | Alle Overlays an / aus |
 
 ## Uploads
 
-- **Boss-Kämpfe** werden beim Klick auf Upload (Knopf oder Session-Menü) hochgeladen: Boss, beteiligte
-  Spieler, Schaden, Heilung, erlittener Schaden und Skills. Angenommen werden nur Bosse, die das Spiel
-  angekündigt hat und der Katalog kennt.
-- **Dein eigenes Charakterprofil** (Name, Klasse, Level, Ausrüstung, Skills, Daevanion, Legion, Server)
-  kann wenige Sekunden nach dem Login automatisch hochgeladen werden, damit man dich auf der Webseite findet.
-  Das ist **standardmäßig aus**; in den **Einstellungen** einschaltbar.
+- **Boss-Kämpfe** werden hochgeladen, wenn du auf Upload klickst (Knopf in der Leiste, Sitzung-Menü oder **Ctrl+Alt+U**): der
+  Boss, die beteiligten Spieler, Schaden, Heilung, erlittener Schaden und Skills. Angenommen werden nur Bosse, die das Spiel
+  angekündigt hat und der Katalog kennt. Automatischer Upload ist verfügbar und **standardmäßig aus**.
+- **Dein eigenes Charakterprofil** (Name, Klasse, Level, Ausrüstung, Skills, Daevanion, Legion, Server, Fraktion) kann
+  wenige Sekunden nach dem Login automatisch hochgeladen werden, damit man dich auf der Webseite findet. Das ist
+  **standardmäßig aus**; schalte es unter **Einstellungen** ein.
 - Ohne Upload verlässt nichts deinen Rechner.
 
 ## Updates
 
-Der Meter aktualisiert sich selbst. Er fragt beim Start und alle fünf Minuten GitHub nach einer neueren
-Version, lädt sie im Hintergrund und tauscht sie beim nächsten Start ein — kein Installer, kein UAC-Dialog.
-Ist ein Update bereit, erscheint unten eine grüne Zeile; ein Klick darauf bietet den sofortigen Neustart an.
-**App → Check for updates** macht dasselbe auf Wunsch.
+Der Meter aktualisiert sich selbst. Er fragt beim Start und danach alle fünf Minuten, solange er läuft, GitHub nach einer neueren Version,
+lädt sie im Hintergrund herunter und tauscht sie beim nächsten Start ein — kein Installer, kein UAC-Dialog. Ist ein Update bereit,
+erscheint eine grüne Zeile in der Statuszeile (und ein Abzeichen im transparenten
+Overlay); ein Klick darauf bietet den sofortigen Neustart an. **App → Nach Updates suchen** macht dasselbe auf Wunsch.
+Eine alte Version lädt noch 72 Stunden nach Erscheinen ihres Nachfolgers hoch, danach muss sie aktualisiert werden.
 
 Die Prüfung liest eine einzige URL und sendet nichts außer der Anfrage selbst:
 
@@ -74,7 +196,15 @@ Die Prüfung liest eine einzige URL und sendet nichts außer der Anfrage selbst:
 https://api.github.com/repos/SkeeveAN/Aion-DPS-Meter/releases
 ```
 
-Abschaltbar unter **Einstellungen → Updates**; der Menüpunkt funktioniert auch dann.
+Schalte sie unter **Einstellungen → Updates** ab; der Menüpunkt funktioniert auch dann weiter.
+
+## Sprachen
+
+Englisch, Deutsch, Französisch, Spanisch, Russisch, Chinesisch (vereinfacht und traditionell), Portugiesisch (Brasilien),
+Japanisch und Koreanisch — einzustellen unter **Einstellungen → Oberfläche → Sprache**. Diese README gibt es auch auf
+[Deutsch](README.de.md), [Español](README.es.md), [Français](README.fr.md), [Русский](README.ru.md),
+[中文](README.zh.md), [繁體中文](README.zh-TW.md), [Português (Brasil)](README.pt.md),
+[日本語](README.ja.md) und [한국어](README.ko.md).
 
 ## Aus dem Quellcode bauen
 
@@ -83,16 +213,16 @@ cd Client
 dotnet build
 dotnet run -- selftest                              # Selbsttests (Protokoll, Capture, Dekodierung, ...)
 dotnet run -- aion2-record <out.jsonl>              # Verkehr des Spiels aufnehmen ("stop" beendet)
-dotnet run -- aion2-replay <datei.jsonl>            # Aufnahme durch den echten Decoder abspielen
-dotnet run -- aion2-upload-dryrun <datei.jsonl>     # Uploads einer Aufnahme bauen, nichts senden
+dotnet run -- aion2-replay <file.jsonl>             # Aufnahme durch den echten Decoder abspielen
+dotnet run -- aion2-upload-dryrun <file.jsonl>      # Uploads einer Aufnahme bauen, nichts senden
 ```
 
 Nur Windows (WPF). `Tools/aion2-dat` liest die Texttabellen des Spiels (Namen in acht Sprachen); siehe dessen README.
 
 ## Hinweis zu Serverregeln
 
-Der Meter beobachtet nur passiv den Netzwerkverkehr des Spiels. Trotzdem legen Publisher eigene Regeln für
-Drittwerkzeuge fest — wirf vor der Nutzung einen Blick in die Bedingungen des Spiels.
+Der Meter beobachtet nur passiv den Netzwerkverkehr des Spiels. Trotzdem legen Publisher eigene
+Regeln für Drittwerkzeuge fest — wirf vor der Nutzung einen Blick in die Bedingungen des Spiels.
 
 ## Haftungsausschluss und Lizenz
 

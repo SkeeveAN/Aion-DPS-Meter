@@ -1,4 +1,4 @@
-🇬🇧 **English** · 🇩🇪 [Deutsch](README.de.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇷🇺 [Русский](README.ru.md) · 🇵🇱 [Polski](README.pl.md) · 🇹🇷 [Türkçe](README.tr.md) · 🇨🇳 [中文](README.zh.md)
+🇬🇧 **English** · 🇩🇪 [Deutsch](README.de.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇷🇺 [Русский](README.ru.md) · 🇨🇳 [中文](README.zh.md) · 🇹🇼 [繁體中文](README.zh-TW.md) · 🇧🇷 [Português (Brasil)](README.pt.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md)
 
 # Aion DPS Meter
 
@@ -14,8 +14,6 @@ release exists and can be switched off; see [Updates](#updates).
   <img src="Web-Frontend/images/features/meter@2x.webp" width="520" alt="The meter window: every player with class icon, DPS, total damage and a share bar">
 </p>
 
-> Classic Aion (Chat.log based) is no longer part of the meter. The last version that supports it
-> is kept on the branch [`aion1-included`](../../tree/aion1-included).
 > The names, players and numbers in the pictures below are demo data.
 
 ## Contents
@@ -202,10 +200,11 @@ Turn it off under **Settings → Updates**; the menu item keeps working when it 
 
 ## Languages
 
-English, German, French, Spanish, Russian, Polish, Turkish, Chinese (simplified and traditional),
-Portuguese (Brazil), Japanese and Korean — set under **Settings → Interface → Language**. This README is also available in
+English, German, French, Spanish, Russian, Chinese (simplified and traditional), Portuguese (Brazil),
+Japanese and Korean — set under **Settings → Interface → Language**. This README is also available in
 [Deutsch](README.de.md), [Español](README.es.md), [Français](README.fr.md), [Русский](README.ru.md),
-[Polski](README.pl.md), [Türkçe](README.tr.md) and [中文](README.zh.md).
+[中文](README.zh.md), [繁體中文](README.zh-TW.md), [Português (Brasil)](README.pt.md),
+[日本語](README.ja.md) and [한국어](README.ko.md).
 
 ## Building from source
 
