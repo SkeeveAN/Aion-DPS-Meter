@@ -868,11 +868,20 @@ public sealed class Aion2FrameDecoder
 
         if (owner is int found)
         {
+            _pendingSpawned.Remove(actor);
             _entities.SetSummonOwner(actor, found);
+        }
+        else if (party.Count == 0 && _pendingSpawned.Count < 64)
+        {
+            // nobody of the class is known in the party yet (their own casts have not been seen): try again with the next hits
+            _pendingSpawned[actor] = className;
         }
 
         return owner;
     }
+
+    /// <summary>Spawned summons without an owner whose class had no known party member yet (a Sorcerer's wind before the Sorcerer was read): handed over once exactly one is known.</summary>
+    private readonly Dictionary<int, string> _pendingSpawned = new();
 
     /// <summary>The caster accepted by <paramref name="eligible"/> who cast this variant of the
     /// summon's skill closest before it spawned, within <paramref name="window"/> (a Sorcerer
@@ -970,6 +979,22 @@ public sealed class Aion2FrameDecoder
 
     private void ResolvePendingLeftovers()
     {
+        foreach ((int actor, string className) in _pendingSpawned.ToList())
+        {
+            if (_entities.SummonOwnerOf(actor) is not null || _entities.HasName(actor))
+            {
+                _pendingSpawned.Remove(actor);
+                continue;
+            }
+
+            var owners = _entities.PartyPlayerIdsOfClass(className).Where(id => id != actor).ToList();
+            if (owners.Count == 1)
+            {
+                _pendingSpawned.Remove(actor);
+                _entities.SetSummonOwner(actor, owners[0]);
+            }
+        }
+
         foreach ((int actor, string className) in _pendingLeftovers.ToList())
         {
             if (_entities.IsSpawned(actor) || _entities.HasName(actor) || _entities.SummonOwnerOf(actor) is not null)
@@ -991,7 +1016,7 @@ public sealed class Aion2FrameDecoder
 
     private IEnumerable<DamageEvent> DecodeVarintDamage(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
-        if (_pendingLeftovers.Count > 0)
+        if (_pendingLeftovers.Count > 0 || _pendingSpawned.Count > 0)
         {
             ResolvePendingLeftovers();
         }
