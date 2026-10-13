@@ -421,6 +421,28 @@
                                    AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
                                 <Border Background="#152532" BorderBrush="#294557" BorderThickness="1" CornerRadius="10" Width="260">
                                     <StackPanel Margin="6">
+                                        <!-- Uploads: at the very top (moved here from the Session menu). Shown by the same rules as
+                                             before (RefreshUploadAvailability); the flags live in AppMenu.Tag, since a template part
+                                             has no field of its own in the code-behind. -->
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnUploadCurrentBossClicked"
+                                                Visibility="{Binding Tag.ShowBoss, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVis}}"
+                                                ToolTip="Uploads the fight currently selected in the Mob/Boss filter to aiondps.com.">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M6,11 L6,3 M3,6 L6,3 L9,6 M1,13 L11,13" Stroke="#FFBA42" StrokeThickness="1.4" Width="14" Height="13" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuSession.UploadBoss}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource AppMenuRow}" Click="OnUploadLastRunClicked"
+                                                Visibility="{Binding Tag.ShowRun, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVis}}"
+                                                ToolTip="Uploads every boss fight recorded since the last Clear, one by one, to aiondps.com.">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M6,11 L6,3 M3,6 L6,3 L9,6 M1,13 L11,13" Stroke="#FFBA42" StrokeThickness="1.4" Width="14" Height="13" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{local:Loc Main.MenuSession.UploadRun}" Foreground="#f2f5f7" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Border Height="1" Background="#21374a" Margin="4,6"
+                                                Visibility="{Binding Tag.ShowAny, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVis}}"/>
+
                                         <!-- Sitzung: Load/Save, both IsEnabled=False today - shown as an
                                              expandable group (no click target of its own) rather than two
                                              disabled rows, matching the approved prototype. -->
@@ -661,25 +683,10 @@
                          <ItemsPresenter/>. -->
                     <MenuItem x:Name="AppMenu" Header="{local:Loc Main.MenuApp}" Foreground="{DynamicResource Brush.Text}"
                               Style="{StaticResource AppMenuFlyoutStyle}" Click="OnAppMenuClicked"/>
-                    <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="{DynamicResource Brush.Text}">
-                        <!-- Uploads exactly the currently filtered boss - same action as the
-                             Damage view's Upload button (OnUploadCurrentBossClicked), reachable
-                             here too since the button only shows in that one view. Collapsed by
-                             default (per the user: no point offering an upload with nothing
-                             recorded to upload yet) - RefreshUploadAvailability shows it again the
-                             moment the Mob/Boss filter has at least one real target. -->
-                        <MenuItem x:Name="UploadBossMenuItem" Header="{local:Loc Main.MenuSession.UploadBoss}" Click="OnUploadCurrentBossClicked"
-                                  Visibility="Collapsed"
-                                  ToolTip="Uploads the fight currently selected in the Mob/Boss filter to aiondps.com."/>
-                        <!-- Everything the Mob/Boss filter has accumulated since the last Clear -
-                             one upload request per boss, so a group that split the upload across
-                             its members still gets recognized as one run server-side (see
-                             Backend/src/matching/merge.ts). Same Collapsed-until-there's-something
-                             rule as UploadBossMenuItem above. -->
-                        <MenuItem x:Name="UploadRunMenuItem" Header="{local:Loc Main.MenuSession.UploadRun}" Click="OnUploadLastRunClicked"
-                                  Visibility="Collapsed"
-                                  ToolTip="Uploads every boss fight recorded since the last Clear, one by one, to aiondps.com."/>
-                    </MenuItem>
+                    <!-- The session list is built in code each time the menu opens (SessionMenu_SubmenuOpened): "All", the stay the
+                         player is in now, and the last few finished ones. The uploads that used to sit here are at the top of the App menu. -->
+                    <MenuItem x:Name="SessionMenu" Header="{local:Loc Main.MenuSession}" Foreground="{DynamicResource Brush.Text}"
+                              SubmenuOpened="OnSessionMenuOpened"/>
                     <!-- Consolidated here from the App menu, per the user's request - App had
                          become a long, mixed grab-bag of session/dev/settings items; splitting
                          out everything settings-related into its own top-level dropdown (right of

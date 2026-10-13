@@ -197,6 +197,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-sessions")
+        {
+            RunRenderSessionsMode(args.Length > 1 ? args[1] : "sessions.png", args.Length > 2 ? int.Parse(args[2]) : 1);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-details")
         {
             if (args.Length < 2)
@@ -489,6 +495,101 @@ internal static class Program
         }
 
         Console.WriteLine("render-character: wrote " + path);
+        Environment.Exit(0);
+    }
+
+    /// <summary>Draws the session manager with a day of invented stays into a picture; no window is shown.</summary>
+    private static void RunRenderSessionsMode(string path, int args_selected = 1)
+    {
+        var app = new System.Windows.Application();
+        var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.MainWindow.Headless = true;
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+
+        var recorder = new History.SessionRecorder(zone => Aion2.Protocol.Aion2Zones.IsInstance(zone) ? History.SessionKind.Instance : History.SessionKind.Map);
+        var names = new Dictionary<int, (string Name, string Class)> { [1] = ("Skeeve", "Sorcerer"), [2] = ("Aahz", "Gladiator"), [3] = ("Chumley", "Cleric"), [4] = ("Nunzio", "Assassin") };
+        recorder.Identify = id => names.TryGetValue(id, out var n) ? (n.Name, n.Class) : (id == 100 ? "Ruthilis of Pain" : null, null);
+        var random = new Random(3);
+        DateTime day = DateTime.Today.AddHours(7);
+        (int Zone, int Minutes, int Hits)[] stays = { (1010, 120, 300), (600001, 25, 900), (20, 150, 500), (1010, 8, 0), (600092, 31, 1100), (1010, 40, 120) };
+        DateTime at = day;
+        int stayNo = 0;
+        foreach ((int zone, int minutes, int hits) in stays)
+        {
+            recorder.Enter(new Combat.Sources.ZoneChange(at, zone));
+            var batch = new List<Combat.DamageEvent>();
+            for (int i = 0; i < hits; i++)
+            {
+                batch.Add(new Combat.DamageEvent(at.AddSeconds(minutes * 60.0 * i / Math.Max(1, hits)), random.Next(1, 5), 100, random.Next(800, 9000) / (random.Next(1, 5)), false, "Hit"));
+            }
+
+            // The instances have a boss: it hits the group every two seconds and goes into a rage 55 % of the way in.
+            if (zone is 600001 or 600092)
+            {
+                for (int i = 0; i < minutes * 30; i++)
+                {
+                    bool raging = i > minutes * 30 * 0.55;
+                    batch.Add(new Combat.DamageEvent(at.AddSeconds(i * 2), 100, random.Next(1, 5), (raging ? 3600 : 1200) + random.Next(-150, 150), false, "Smash"));
+                }
+            }
+
+            batch = batch.OrderBy(e => e.Timestamp).ToList();
+            recorder.Feed(Combat.Sources.CombatBatch.DamageOnly(batch));
+            if (zone is 600001 or 600092)
+            {
+                // What the server said the boss lost: the second instance's totals are twice what it really lost.
+                long total = batch.Where(e => e.TargetObjectId == 100).Sum(e => e.Amount);
+                bool honest = zone == 600001;
+                long hp = total + 4000, max = hp;
+                var samples = new List<Aion2.HpSample> { new(at.AddSeconds(-1), hp) };
+                foreach (Combat.DamageEvent e in batch.Where(e => e.TargetObjectId == 100))
+                {
+                    hp = Math.Max(0, hp - (honest ? e.Amount : e.Amount / 2));
+                    samples.Add(new Aion2.HpSample(e.Timestamp, hp));
+                }
+
+                recorder.Sessions[^1].Hp[100] = new History.TargetHp(max, samples, Array.Empty<DateTime>());
+            }
+
+            stayNo++;
+            at = at.AddMinutes(minutes);
+        }
+
+        recorder.Sessions[1].IsSaved = true;
+        var window = new Ui.SessionManagerWindow(recorder);
+        const double width = 1180, height = 760;
+        var content = (System.Windows.UIElement)window.Content;
+        content.Measure(new System.Windows.Size(width, height));
+        content.Arrange(new System.Windows.Rect(0, 0, width, height));
+        content.UpdateLayout();
+        if (window.FindName("SessionList") is System.Windows.Controls.ListBox list && list.Items.Count > 1)
+        {
+            list.SelectedIndex = args_selected;
+        }
+
+        content.UpdateLayout();
+        content.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)width, (int)height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        var back = new System.Windows.Shapes.Rectangle { Width = width, Height = height, Fill = (System.Windows.Media.Brush)app.Resources["Brush.Window"] };
+        back.Measure(new System.Windows.Size(width, height));
+        back.Arrange(new System.Windows.Rect(0, 0, width, height));
+        bitmap.Render(back);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-sessions: wrote " + path);
         Environment.Exit(0);
     }
 
@@ -1277,6 +1378,16 @@ internal static class Program
         }
 
         var events = new List<Combat.DamageEvent>();
+        var stays = new History.SessionRecorder(zone => Aion2.Protocol.Aion2Zones.IsInstance(zone) ? History.SessionKind.Instance : History.SessionKind.Map);
+        if (source.Entities is Aion2.Aion2EntityDirectory replayDirectory)
+        {
+            stays.Identify = id => (replayDirectory.NameFor(id) ?? replayDirectory.MonsterNameFor(id), replayDirectory.ClassOf(id));
+            stays.HpSource = (id, from, to) =>
+            {
+                var samples = replayDirectory.HitPoints.SamplesAround(id, from, to);
+                return samples.Count < 2 ? null : new History.TargetHp(replayDirectory.HitPoints.HighestSeen(id) ?? 0, samples, replayDirectory.HitPoints.ResetsOf(id));
+            };
+        }
         int segments = 0;
         string? petLog = null;
         {
@@ -1299,7 +1410,38 @@ internal static class Program
 
             segments++;
             source.Ingest(segment with { FromServer = fromServer });
-            events.AddRange(source.Poll(false).Damage);
+            Combat.Sources.CombatBatch polled = source.Poll(false);
+            events.AddRange(polled.Damage);
+            stays.Feed(polled);
+            foreach (Combat.Sources.ZoneChange zone in polled.ZoneChanges)
+            {
+                Console.WriteLine($"aion2-replay: zone {zone.ZoneId} entered at {zone.Timestamp:yyyy-MM-dd HH:mm:ss}");
+            }
+        }
+
+        if (events.Count > 0)
+        {
+            stays.CloseCurrent(events[^1].Timestamp);
+        }
+
+        foreach (History.SessionInfo stay in stays.Sessions)
+        {
+            Console.WriteLine($"aion2-replay: session {stay.Number} zone {stay.ZoneId} {stay.Kind} {stay.Start:HH:mm:ss} - {(stay.End is DateTime stayEnd ? stayEnd.ToString("HH:mm:ss") : "open")}: {stay.Data.Events.Count} event(s)");
+            // The plausibility check and the rage guess for every boss fight of the stay (see History/SessionAnalysis.cs).
+            History.SessionAnalysis analysis = History.SessionAnalyzer.Analyze(stay);
+            foreach (History.BossAttempt attempt in analysis.Attempts)
+            {
+                string rage = attempt.Enrage is { } r ? $"rage after {r.At:mm\\:ss} x{r.Factor}" : "no rage seen";
+                string check = attempt.Check is { } c ? $"{c.Ratio:P0} of {c.Lost:N0} HP lost, {(c.Killed ? "killed" : "alive")}" : "no HP data";
+                Console.WriteLine($"aion2-replay:   boss {attempt.Name} {attempt.Start:HH:mm:ss} for {attempt.Duration:mm\\:ss}: {attempt.Counted:N0} damage, {check}, {rage}");
+                if (Environment.GetEnvironmentVariable("AION2_ENRAGE") == "1")
+                {
+                    // Boss damage per 30 s, to look at by eye where it jumps.
+                    var bins = stay.Data.Events.Where(e => !e.IsHeal && e.SourceObjectId == attempt.TargetId && e.Timestamp >= attempt.Start && e.Timestamp <= attempt.End)
+                        .GroupBy(e => (int)((e.Timestamp - attempt.Start).TotalSeconds / 30)).OrderBy(g => g.Key).Select(g => $"{g.Key * 30 / 60}:{g.Key * 30 % 60:00}={g.Sum(e => e.Amount):N0}");
+                    Console.WriteLine("aion2-replay:     boss damage per 30 s: " + string.Join("  ", bins));
+                }
+            }
         }
 
         if (source.Entities is Aion2.Aion2EntityDirectory idEnd)

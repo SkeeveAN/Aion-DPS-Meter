@@ -45,7 +45,101 @@ public sealed class Aion2FrameDecoder
     private const int FieldBossListOpcode = 0x0191;
     private const int ShopOpcode = 0x9156;
 
+    /// <summary>The zone frame: <c>opcode | counter u32 | zone id u32 | position ...</c>. Sent at login and on every map or instance change
+    /// (recordings 2026-10-11: 1010 Verteron, 600001 Krao Cave as an instance).</summary>
+    private const int ZoneOpcode = 0x2136;
+
+    /// <summary>An entity going into or out of combat: <c>opcode | entity (varint) | 01 01 | server time u64</c> in, <c>| 00 00</c> out
+    /// (the same entities get <c>00 01</c> frames too, which say nothing about the fight). Anchors the rage clock.</summary>
+    private const int EngageOpcode = 0x218d;
+
+    /// <summary>One stat of an entity: <c>opcode | entity (varint) | 01 | stat id u16 | value u32</c>. On a boss, stat 0xCD at 5000 or 10000 arrives
+    /// exactly 300 s after it went into combat - in the four fights of the recordings that lasted that long (Talisra x3, Divine Auldor) and in none that
+    /// ended before. The stat is no known name; that it is the rage is the reading of the timing (and the user's: the rage comes after about five minutes).</summary>
+    private const int StatOpcode = 0x4b36;
+
+    private const int RageStatId = 0x00CD;
+
+    /// <summary>The stat counts as the rage from this far into the combat (the same stat shows up in short fights and in idle, at 500 and 5000).</summary>
+    private static readonly TimeSpan RageNotBefore = TimeSpan.FromSeconds(290);
+
+    private readonly Dictionary<int, DateTime> _engaged = new();
+    private readonly HashSet<int> _enraged = new();
+    private readonly List<EnrageMark> _enrages = new();
+
+    /// <summary>The boss rages decoded since the last call, oldest first.</summary>
+    public IReadOnlyList<EnrageMark> DrainEnrages() => Drain(_enrages);
+
+    private void DecodeEngage(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long id))
+        {
+            return;
+        }
+
+        int entity = unchecked((int)id);
+        if (frame.Length == p + 2 && frame[p] == 0 && frame[p + 1] == 0)
+        {
+            _engaged.Remove(entity);
+            _enraged.Remove(entity);
+        }
+        else if (frame.Length >= p + 10 && frame[p] == 1 && frame[p + 1] == 1 && !_engaged.ContainsKey(entity))
+        {
+            if (_engaged.Count > 5000)
+            {
+                _engaged.Clear();
+            }
+
+            _engaged[entity] = timestamp;
+            _enraged.Remove(entity);
+        }
+    }
+
+    private void DecodeStat(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long id) || frame.Length != p + 7 || frame[p] != 1
+            || BinaryPrimitives.ReadUInt16LittleEndian(frame[(p + 1)..]) != RageStatId)
+        {
+            return;
+        }
+
+        int entity = unchecked((int)id);
+        uint value = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 3)..]);
+        if (value >= 5000 && _engaged.TryGetValue(entity, out DateTime start) && timestamp - start >= RageNotBefore && _enraged.Add(entity))
+        {
+            _enrages.Add(new EnrageMark(timestamp, entity, start));
+        }
+    }
+
     public string CurrentZone { get; private set; } = "";
+
+    /// <summary>The zone id of the last zone frame (0 until one arrived).</summary>
+    public int CurrentZoneId { get; private set; }
+
+    private readonly List<ZoneChange> _zoneChanges = new();
+
+    /// <summary>The zone changes decoded since the last call, oldest first. A repeat of the zone the player is already in
+    /// (a reconnect) is not a change.</summary>
+    public IReadOnlyList<ZoneChange> DrainZoneChanges() => Drain(_zoneChanges);
+
+    private void DecodeZone(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        if (frame.Length < 10)
+        {
+            return;
+        }
+
+        int zoneId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[6..]));
+        if (zoneId <= 0 || zoneId == CurrentZoneId)
+        {
+            return;
+        }
+
+        CurrentZoneId = zoneId;
+        _zoneChanges.Add(new ZoneChange(timestamp, zoneId));
+    }
 
     public int SkippedShortFrames { get; private set; }
     public int UnknownOpcodes { get; private set; }
@@ -126,6 +220,24 @@ public sealed class Aion2FrameDecoder
         if (opcode == ShopOpcode)
         {
             DecodeShop(frame);
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == ZoneOpcode)
+        {
+            DecodeZone(frame, timestamp);
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == EngageOpcode)
+        {
+            DecodeEngage(frame, timestamp);
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == StatOpcode)
+        {
+            DecodeStat(frame, timestamp);
             return Array.Empty<DamageEvent>();
         }
 

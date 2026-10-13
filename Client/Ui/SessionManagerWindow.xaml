@@ -1,0 +1,232 @@
+<Window x:Class="AionDPS.Ui.SessionManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:AionDPS.Ui"
+        Title="{local:Loc Sessions.ManagerTitle}" Height="760" Width="1180" MinHeight="420" MinWidth="760"
+        Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}"
+        FontSize="{DynamicResource FontSize.Base}">
+    <Window.Resources>
+        <local:ClassNameConverter x:Key="ClassNameConverter"/>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Padding" Value="6,4"/>
+        </Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="{DynamicResource Brush.Window}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="RowBackground" Value="{DynamicResource Brush.RowAlt}"/>
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource Brush.Panel}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource Brush.Control}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource Brush.ControlRaised}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="Padding" Value="4,3"/>
+        </Style>
+        <!-- The kind filter: a row of small toggles (the themed drop-down of the other windows is built per window). -->
+        <Style x:Key="Chip" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" Background="{DynamicResource Brush.Control}" BorderBrush="{DynamicResource Brush.Border}"
+                                BorderThickness="1" CornerRadius="10" Padding="10,2">
+                            <ContentPresenter HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.ControlHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.ControlRaised}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- One session card: a thin bar in the colour of its kind, name, time span and a line of facts. -->
+        <Style x:Key="SessionRow" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Card" Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
+                                BorderThickness="1" CornerRadius="6">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Card" Property="Background" Value="{DynamicResource Brush.ControlHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Card" Property="Background" Value="{DynamicResource Brush.ControlRaised}"/>
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{DynamicResource Color.Border}"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{DynamicResource Color.Text}"/>
+    </Window.Resources>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- The clock: arrows and a strip of the stays, the zoom beside it. Pushed with the arrows, the mouse or the wheel. -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel x:Name="ZoomChips" Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,4"/>
+            <Button Grid.Row="1" Grid.Column="0" Content="&#x25C0;" Width="30" Margin="0,18,6,0" Height="40" VerticalAlignment="Top"
+                    ToolTip="{local:Loc Sessions.Earlier}" Click="OnEarlierClicked"/>
+            <local:SessionTimeline x:Name="Timeline" Grid.Row="1" Grid.Column="1" SessionPicked="OnTimelinePicked"/>
+            <Button Grid.Row="1" Grid.Column="2" Content="&#x25B6;" Width="30" Margin="6,18,0,0" Height="40" VerticalAlignment="Top"
+                    ToolTip="{local:Loc Sessions.Later}" Click="OnLaterClicked"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- The list: search, kind filter, then the sessions grouped by day, newest first. -->
+        <DockPanel Grid.Column="0">
+            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                <TextBox x:Name="SearchBox" TextChanged="OnFilterChanged" ToolTip="{local:Loc Sessions.Search}"/>
+                <WrapPanel x:Name="KindChips" Margin="0,6,0,0"/>
+            </StackPanel>
+            <DockPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                <Button DockPanel.Dock="Right" Content="{local:Loc Sessions.Load}" Click="OnLoadFileClicked"/>
+                <TextBlock x:Name="CountText" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextMuted}"/>
+            </DockPanel>
+            <ListBox x:Name="SessionList" Background="Transparent" BorderThickness="0" ItemContainerStyle="{StaticResource SessionRow}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="OnSessionSelected"
+                     MouseDoubleClick="OnSessionDoubleClick">
+                <ListBox.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" Margin="2,8,0,4" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextMuted}"/>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListBox.GroupStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="{Binding Accent}" CornerRadius="5,0,0,5"/>
+                            <StackPanel Grid.Column="1" Margin="10,6,8,6">
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding Status}" Foreground="{DynamicResource Brush.TextMuted}"/>
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Brush.Text}"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,2,0,0">
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding Badge}" Foreground="{Binding BadgeBrush}" FontWeight="SemiBold" Margin="8,0,0,0"/>
+                                    <TextBlock Text="{Binding Facts}" Foreground="{DynamicResource Brush.TextMuted}" TextTrimming="CharacterEllipsis"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <!-- The details of the chosen session: what it was, whether the numbers hold, the bosses, the players. -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="DetailTitle" Grid.Row="0" FontSize="20" FontWeight="SemiBold"/>
+            <TextBlock x:Name="DetailFacts" Grid.Row="1" Margin="0,2,0,8" Foreground="{DynamicResource Brush.TextMuted}"/>
+            <Border x:Name="CheckPanel" Grid.Row="2" Margin="0,0,0,8" Padding="10,6" CornerRadius="6" Background="{DynamicResource Brush.Panel}"
+                    BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="{local:Loc Sessions.Check.Title}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextMuted}" Margin="0,0,0,4"/>
+                    <ItemsControl x:Name="FindingsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,1,0,1">
+                                    <TextBlock DockPanel.Dock="Left" Text="{Binding Icon}" Foreground="{Binding Brush}" Width="18" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+            <DataGrid x:Name="BossGrid" Grid.Row="3" MaxHeight="150" Margin="0,0,0,8">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{local:Loc Sessions.Col.Boss}" Binding="{Binding Name}" MinWidth="140" Width="*"/>
+                    <DataGridTextColumn Header="{local:Loc Sessions.Col.Start}" Binding="{Binding Start}" Width="70"/>
+                    <DataGridTextColumn Header="{local:Loc History.ColumnDuration}" Binding="{Binding Length}" Width="60"/>
+                    <DataGridTextColumn Header="{local:Loc Sessions.Col.Result}" Binding="{Binding Result}" Width="95"/>
+                    <DataGridTextColumn Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage}" Width="120"/>
+                    <DataGridTextColumn Header="{local:Loc Sessions.Col.Enrage}" Binding="{Binding Enrage}" Width="150"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <DataGrid x:Name="PlayersGrid" Grid.Row="4">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{local:Loc Main.ColumnName}" Binding="{Binding Name}" MinWidth="160" Width="*"/>
+                    <DataGridTextColumn Header="{local:Loc History.ColumnClass}" Binding="{Binding ClassName, Converter={StaticResource ClassNameConverter}}" Width="110"/>
+                    <DataGridTextColumn Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage, StringFormat=N0}" Width="120"/>
+                    <DataGridTextColumn Header="DPS" Binding="{Binding DpsDisplay}" Width="80"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock x:Name="EmptyText" Grid.Row="4" Text="{local:Loc Sessions.SelectOne}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Foreground="{DynamicResource Brush.TextMuted}"/>
+            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                <Button x:Name="DeleteButton" Content="{local:Loc Sessions.Delete}" Click="OnDeleteClicked" IsEnabled="False"/>
+                <Button x:Name="SaveButton" Content="{local:Loc Sessions.Save}" Click="OnSaveClicked" IsEnabled="False"/>
+                <Button x:Name="ShowButton" Content="{local:Loc Sessions.ShowInMeter}" Click="OnShowClicked" IsEnabled="False"/>
+            </StackPanel>
+        </Grid>
+        </Grid>
+    </Grid>
+</Window>

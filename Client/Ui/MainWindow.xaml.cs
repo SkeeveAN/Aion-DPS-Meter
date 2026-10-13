@@ -210,6 +210,25 @@ public partial class MainWindow : Window
     // Where combat data comes from (see Combat/Sources/ICombatSource) - the Aion 2 packet source; its Entities directory is what RefreshRows/RefreshMobBossFilterItems resolve names
     // through for ids this window didn't assign itself. Null until Settings name an install folder.
     private ICombatSource? _source;
+
+    /// <summary>The real capture. It lives as long as the window: while a stored fight or session is on show, <see cref="_source"/> is a replay
+    /// and this keeps polling, so the session recording never has a gap.</summary>
+    private ICombatSource? _liveSource;
+
+    private bool ViewingLive => ReferenceEquals(_source, _liveSource);
+
+    /// <summary>Every stay in a map or instance since the meter started, recorded whatever the grid shows (see SessionRecorder).</summary>
+    private readonly SessionRecorder _sessions = new(zone => Aion2Zones.IsInstance(zone) ? SessionKind.Instance : SessionKind.Map);
+
+    /// <summary>What the live grid follows: the stay the player is in (cleared at every map change), or everything together.</summary>
+    private enum SessionView { Current, All }
+
+    private SessionView _sessionView = SessionView.Current;
+
+    /// <summary>The session on show in a replay (null for the live views and for a stored fight).</summary>
+    private int? _viewedSessionNumber;
+
+    private readonly UploadMenuFlags _uploadFlags = new();
     private CharacterWindow? _characterWindow;
     private readonly DispatcherTimer _pollTimer = new() { Interval = TimeSpan.FromSeconds(1) };
 
@@ -236,6 +255,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        AppMenu.Tag = _uploadFlags;
+        _sessions.Identify = IdentifyForSession;
+        _sessions.HpSource = HitPointsOfTarget;
 
         // Captured now, before anything ever rebuilds MobBossFilter.Items, so
         // ApplyMobBossSearchFilter can keep re-inserting this exact instance rather than a plain
@@ -423,18 +445,36 @@ public partial class MainWindow : Window
         _captureAdapterInUse = settings.CaptureAdapterId;
         Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
         _pollTimer.Stop();
-        ReplaceSource(null);
+        if (_historyMode)
+        {
+            // A new capture ends whatever replay is on show.
+            _historyMode = false;
+            _viewedSessionNumber = null;
+            HistoryBanner.Visibility = Visibility.Collapsed;
+            ClearDamageData(keepFightMemory: true);
+        }
+
+        if (!ReferenceEquals(_source, _liveSource))
+        {
+            _source?.Dispose();
+        }
+
+        _liveSource?.Dispose();
+        _source = null;
+        _liveSource = null;
 
         var source = new Aion2PacketCombatSource(Aion2Protocol.Load(), settings.CaptureAdapterId, null, Aion2CharacterStore.DefaultPath);
         ReplaceSource(source);
+        _liveSource = source;
         // The upload entries appear once the own character is known (see RefreshUploadAvailability).
         if (source.Entities is Aion2EntityDirectory entities)
         {
             // A map change announces the own character again under another combat id: one player, one row.
             entities.LocalIdChanged += (oldId, newId) => Dispatcher.BeginInvoke(new Action(() =>
             {
-                int merged = _aggregator.MergeIds(oldId, newId);
-                if (_selectedTargetId == oldId)
+                _sessions.MergeIds(oldId, newId);
+                int merged = ViewingLive ? _aggregator.MergeIds(oldId, newId) : 0;
+                if (ViewingLive && _selectedTargetId == oldId)
                 {
                     _selectedTargetId = newId;
                 }
@@ -444,10 +484,14 @@ public partial class MainWindow : Window
             // Any other player: the same name on the same server under a new combat id is the same player.
             entities.IdentityMoved += (oldId, newId) => Dispatcher.BeginInvoke(new Action(() =>
             {
-                _aggregator.MergeIds(oldId, newId);
-                if (_selectedTargetId == oldId)
+                _sessions.MergeIds(oldId, newId);
+                if (ViewingLive)
                 {
-                    _selectedTargetId = newId;
+                    _aggregator.MergeIds(oldId, newId);
+                    if (_selectedTargetId == oldId)
+                    {
+                        _selectedTargetId = newId;
+                    }
                 }
             }));
             entities.CharacterChanged += _ => Dispatcher.BeginInvoke(new Action(() =>
@@ -622,41 +666,50 @@ public partial class MainWindow : Window
             _overlay?.InvalidatePreview();
         }
 
-        CombatBatch batch = _source?.Poll(_paused) ?? CombatBatch.Empty;
-        _avoids.AddRange(batch.Avoids);
-        _kills.AddRange(batch.Kills);
-        NoteBossKills(batch.Kills);
-        IReadOnlyList<DamageEvent> events = batch.Damage;
-        NoteBossActivity(events);
-        NoteDefeatedBosses();
+        // The live capture is polled whatever the grid shows, so the session recording goes on while a stored session is on view.
+        CombatBatch liveBatch = _liveSource?.Poll(_paused) ?? CombatBatch.Empty;
+        FeedSessions(liveBatch);
+        bool viewingLive = ViewingLive;
+        CombatBatch batch = viewingLive ? liveBatch : _source?.Poll(_paused) ?? CombatBatch.Empty;
 
         // Hits a summon dealt before its owner was known (the meter started mid-fight) go to the
         // owner once found, instead of staying on a "Player #id" row.
-        if (_source?.Entities is Aion2.Aion2EntityDirectory resolvedIn)
+        if (_liveSource?.Entities is Aion2.Aion2EntityDirectory resolvedIn)
         {
             foreach ((int summon, int owner) in resolvedIn.DrainResolvedOwners())
             {
-                _aggregator.Reattribute(summon, owner);
+                _sessions.Reattribute(summon, owner);
+                if (viewingLive)
+                {
+                    _aggregator.Reattribute(summon, owner);
+                }
             }
         }
-        if (_autoReset && !_historyMode && (StartsNewFight(events) || StartsNewBossPull(events)))
+
+        if (viewingLive && _sessionView == SessionView.Current && batch.ZoneChanges.Count > 0)
         {
-            // Files the finished fight in the history, then starts from zero.
-            ClearDamageData();
+            // A map change cuts the stay in two: what happened before it still belongs to the old view, which is then
+            // cleared (the old stay lives on in the session list) before the rest comes in.
+            IReadOnlyList<DamageEvent> damage = batch.Damage;
+            int from = 0;
+            foreach (ZoneChange zone in batch.ZoneChanges)
+            {
+                int to = from;
+                while (to < damage.Count && damage[to].Timestamp < zone.Timestamp)
+                {
+                    to++;
+                }
+
+                ApplyBatch(new CombatBatch(damage.Skip(from).Take(to - from).ToList(), Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>()));
+                ClearDamageData();
+                from = to;
+            }
+
+            ApplyBatch(new CombatBatch(damage.Skip(from).ToList(), batch.Avoids, batch.Kills));
         }
-
-        if (events.Count > 0 || batch.Avoids.Count > 0 || batch.Kills.Count > 0)
+        else
         {
-            if (events.Count > 0)
-            {
-                _aggregator.IngestEvents(events);
-            }
-
-            RefreshRows();
-            if (events.Count > 0 && _hideUiActive && _compactOverlay)
-            {
-                FollowNewestRun();
-            }
+            ApplyBatch(batch);
         }
 
         // Once a second, an always-on-top meter goes back to the front: a borderless full-screen
@@ -678,8 +731,73 @@ public partial class MainWindow : Window
         if (++_historyTickCounter >= 5)
         {
             _historyTickCounter = 0;
+            _sessions.RefreshNames();
             RecordFinishedFights(flushAll: false);
         }
+    }
+
+    /// <summary>What the grid does with one batch of the source it shows: kills and avoids, boss tracking, the automatic reset
+    /// between fights, then the events themselves.</summary>
+    private void ApplyBatch(CombatBatch batch)
+    {
+        _avoids.AddRange(batch.Avoids);
+        _kills.AddRange(batch.Kills);
+        NoteBossKills(batch.Kills);
+        IReadOnlyList<DamageEvent> events = batch.Damage;
+        NoteBossActivity(events);
+        NoteDefeatedBosses();
+
+        // The "all sessions" view is a long record by design: the automatic reset between fights would leave only the last one.
+        if (_autoReset && !_historyMode && _sessionView == SessionView.Current && (StartsNewFight(events) || StartsNewBossPull(events)))
+        {
+            // Files the finished fight in the history, then starts from zero.
+            ClearDamageData();
+        }
+
+        if (events.Count > 0 || batch.Avoids.Count > 0 || batch.Kills.Count > 0)
+        {
+            if (events.Count > 0)
+            {
+                _aggregator.IngestEvents(events);
+            }
+
+            RefreshRows();
+            if (events.Count > 0 && _hideUiActive && _compactOverlay)
+            {
+                FollowNewestRun();
+            }
+        }
+    }
+
+    private void FeedSessions(CombatBatch batch)
+    {
+        if (!batch.IsEmpty)
+        {
+            _sessions.Feed(batch);
+        }
+    }
+
+    /// <summary>What the server said about a target's hit points between two moments, kept with the session for the plausibility check.</summary>
+    private TargetHp? HitPointsOfTarget(int id, DateTime from, DateTime to)
+    {
+        if (_liveSource?.Entities is not Aion2EntityDirectory directory)
+        {
+            return null;
+        }
+
+        IReadOnlyList<HpSample> samples = directory.HitPoints.SamplesAround(id, from, to);
+        return samples.Count < 2 ? null : new TargetHp(directory.HitPoints.HighestSeen(id) ?? 0, samples, directory.HitPoints.ResetsOf(id));
+    }
+
+    /// <summary>The name and class the live capture knows for an object id right now.</summary>
+    private (string? Name, string? Class) IdentifyForSession(int id)
+    {
+        if (_liveSource?.Entities is not Aion2EntityDirectory directory)
+        {
+            return (null, null);
+        }
+
+        return (directory.NameFor(id) ?? directory.MonsterNameFor(id), directory.ClassOf(id));
     }
 
     /// <summary>
@@ -775,14 +893,17 @@ public partial class MainWindow : Window
     /// Clear and exit) into the local history. Never while a past fight is being viewed.</summary>
     private void RecordFinishedFights(bool flushAll)
     {
-        if (_historyMode || !_recordFightHistory || _fightRecorder is null || _aggregator.Events.Count == 0)
+        IReadOnlyList<DamageEvent> filing = _sessionView == SessionView.All && ViewingLive && _sessions.Current is { } stay
+            ? stay.Data.Events
+            : _aggregator.Events;
+        if (_historyMode || !_recordFightHistory || _fightRecorder is null || filing.Count == 0)
         {
             return;
         }
 
         try
         {
-            int written = _fightRecorder.Tick(_aggregator.Events, DateTime.Now, BuildFightContext(), flushAll);
+            int written = _fightRecorder.Tick(filing, DateTime.Now, BuildFightContext(), flushAll);
             if (written > 0 && _fightHistoryWindow is not null)
             {
                 _fightHistoryWindow.Refresh();
@@ -855,8 +976,8 @@ public partial class MainWindow : Window
 
         var replay = new FakeCombatSource();
         var idMap = detail.Names.ToDictionary(kv => kv.Key, kv => replay.Entities.GetOrAssignId(kv.Value));
-        ReplaceSource(replay);
-        ClearDamageData();
+        ShowReplay(replay);
+        ClearDamageData(keepFightMemory: true);
 
         foreach (FightParticipant participant in detail.Participants)
         {
@@ -875,7 +996,7 @@ public partial class MainWindow : Window
         Activate();
     }
 
-    private void OnHistoryBannerClicked(object sender, MouseButtonEventArgs e) => ExitHistoryMode();
+    private void OnHistoryBannerClicked(object sender, MouseButtonEventArgs e) => OnSessionBannerLeave();
 
     private void ExitHistoryMode()
     {
@@ -885,10 +1006,75 @@ public partial class MainWindow : Window
         }
 
         _historyMode = false;
+        _viewedSessionNumber = null;
         HistoryBanner.Visibility = Visibility.Collapsed;
-        ClearDamageData();
-        StartCapture(MeterSettings.Load());
+        if (_liveSource is null)
+        {
+            ClearDamageData();
+            StartCapture(MeterSettings.Load());
+            RefreshRows();
+            return;
+        }
+
+        // The capture never stopped: drop the replay and show the live view again.
+        if (!ReferenceEquals(_source, _liveSource))
+        {
+            _source?.Dispose();
+        }
+
+        _source = _liveSource;
+        ShowLiveView(_sessionView);
+    }
+
+    /// <summary>Shows a stored fight or session from a replay source while the live capture goes on in the background (see <see cref="_liveSource"/>).</summary>
+    private void ShowReplay(ICombatSource replay)
+    {
+        if (!ReferenceEquals(_source, _liveSource))
+        {
+            _source?.Dispose();
+        }
+
+        _source = replay;
+        replay.StatusChanged += OnSourceStatusChanged;
+        replay.Start();
+    }
+
+    /// <summary>The live grid again, filled for <paramref name="view"/>: the stay in progress so far, or everything recorded.</summary>
+    private void ShowLiveView(SessionView view)
+    {
+        _sessionView = view;
+        ClearDamageData(keepFightMemory: true);
+        if (view == SessionView.All)
+        {
+            _aggregator.IngestEvents(_sessions.AllEvents().Concat(_sessions.AllShields()));
+            HistoryBanner.Text = LocalizationManager.Instance["Main.SessionAllBanner"];
+            HistoryBanner.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            if (_sessions.Current is { } stay)
+            {
+                _aggregator.IngestEvents(stay.Data.Events.Concat(stay.Data.Shields));
+            }
+
+            HistoryBanner.Visibility = Visibility.Collapsed;
+        }
+
         RefreshRows();
+    }
+
+    /// <summary>A banner click: back to the live view of the current stay (from a stored session, a fight, or the all-sessions view).</summary>
+    private void OnSessionBannerLeave()
+    {
+        if (_historyMode)
+        {
+            _sessionView = SessionView.Current;
+            ExitHistoryMode();
+        }
+        else if (_sessionView == SessionView.All)
+        {
+            ShowLiveView(SessionView.Current);
+        }
     }
 
     /// <summary>The name the packet stream gave the object (player name, boss name from its NPC id,
@@ -952,7 +1138,12 @@ public partial class MainWindow : Window
         _updateTimer.Stop();
         RecordFinishedFights(flushAll: true);
         _fightStore?.Dispose();
-        _source?.Dispose();
+        if (!ReferenceEquals(_source, _liveSource))
+        {
+            _source?.Dispose();
+        }
+
+        _liveSource?.Dispose();
         _overlay?.Dispose();
         _hotkeys?.Dispose();
         _gateTimer.Stop();
@@ -1607,8 +1798,8 @@ public partial class MainWindow : Window
         // Aion 2 can also upload players without any boss fight (their character profiles), so the
         // single-upload entries stay available as soon as the own character is known.
         bool hasProfiles = _source?.Entities is Aion2.Aion2EntityDirectory { LocalCharacter: not null };
-        UploadBossMenuItem.Visibility = hasBossData || hasProfiles ? Visibility.Visible : Visibility.Collapsed;
-        UploadRunMenuItem.Visibility = hasBossData ? Visibility.Visible : Visibility.Collapsed;
+        _uploadFlags.ShowBoss = hasBossData || hasProfiles;
+        _uploadFlags.ShowRun = hasBossData;
         UploadBossButton.Visibility = (hasBossData || hasProfiles) && PlayersGrid.Visibility == Visibility.Visible
             ? Visibility.Visible
             : Visibility.Collapsed;
@@ -2316,6 +2507,7 @@ public partial class MainWindow : Window
     /// </summary>
     private async void OnUploadCurrentBossClicked(object sender, RoutedEventArgs e)
     {
+        AppMenu.IsSubmenuOpen = false;
         List<int> targetIds = PendingBossTargets();
         if (targetIds.Count == 0)
         {
@@ -2839,6 +3031,7 @@ public partial class MainWindow : Window
     /// </summary>
     private async void OnUploadLastRunClicked(object sender, RoutedEventArgs e)
     {
+        AppMenu.IsSubmenuOpen = false;
         int? previousTarget = _selectedTargetId;
         DateTime? previousRunWindowStart = _selectedRunWindowStart;
         DateTime? previousRunWindowEnd = _selectedRunWindowEnd;
@@ -3079,6 +3272,7 @@ public partial class MainWindow : Window
             _avoids.AddRange(session.Avoids);
             _kills.AddRange(session.Kills);
             _aggregator.IngestEvents(session.Events);
+            _sessions.Feed(new CombatBatch(session.Events, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>()));
             RefreshRows();
             ShowUploadStatus($"Resumed {session.Events.Count:N0} event(s) from before the restart.");
         }
@@ -3121,8 +3315,8 @@ public partial class MainWindow : Window
         var idMap = session.Names.ToDictionary(kv => kv.Key, kv => replay.Entities.GetOrAssignId(kv.Value));
         int Remap(int id) => idMap.GetValueOrDefault(id, id);
 
-        ReplaceSource(replay);
-        ClearDamageData();
+        ShowReplay(replay);
+        ClearDamageData(keepFightMemory: true);
 
         var events = session.Events
             .Select(ev => ev with { SourceObjectId = Remap(ev.SourceObjectId), TargetObjectId = Remap(ev.TargetObjectId) })
@@ -3140,6 +3334,164 @@ public partial class MainWindow : Window
         HistoryBanner.Visibility = Visibility.Visible;
         RefreshRows();
         Activate();
+    }
+
+    private const int RecentSessionsShown = 5;
+
+    /// <summary>Fills the Session menu each time it opens: "All", the stay the player is in, and the last few finished ones.</summary>
+    private void OnSessionMenuOpened(object sender, RoutedEventArgs e)
+    {
+        if (!ReferenceEquals(e.OriginalSource, SessionMenu))
+        {
+            return;
+        }
+
+        LocalizationManager loc = LocalizationManager.Instance;
+        bool live = ViewingLive;
+        SessionMenu.Items.Clear();
+        SessionMenu.Items.Add(SessionMenuItem(loc["Sessions.All"], loc["Sessions.AllHint"], null, live && _sessionView == SessionView.All,
+            () => ShowLiveViewFromMenu(SessionView.All)));
+        if (_sessions.Current is { } now)
+        {
+            SessionMenu.Items.Add(SessionMenuItem(SessionLabels.NameOf(now), SessionLabels.TimeSpanOf(now), SessionLabels.ColorOf(now.Kind),
+                live && _sessionView == SessionView.Current, () => ShowLiveViewFromMenu(SessionView.Current)));
+        }
+
+        SessionMenu.Items.Add(new Separator());
+        SessionMenu.Items.Add(new MenuItem { Header = loc["Sessions.Recent"], IsEnabled = false });
+        var recent = _sessions.Sessions.Where(session => !session.IsOpen).Reverse().Take(RecentSessionsShown).ToList();
+        if (recent.Count == 0)
+        {
+            SessionMenu.Items.Add(new MenuItem { Header = loc["Sessions.None"], IsEnabled = false });
+        }
+
+        foreach (SessionInfo session in recent)
+        {
+            SessionInfo shown = session;
+            SessionMenu.Items.Add(SessionMenuItem(SessionLabels.NameOf(session), SessionLabels.TimeSpanOf(session), SessionLabels.ColorOf(session.Kind),
+                _historyMode && _viewedSessionNumber == session.Number, () => ShowPastSession(shown)));
+        }
+
+        SessionMenu.Items.Add(new Separator());
+        var manager = new MenuItem { Header = loc["Sessions.OpenManager"] };
+        manager.Click += (_, _) => OpenSessionManager();
+        SessionMenu.Items.Add(manager);
+    }
+
+    private SessionManagerWindow? _sessionManager;
+
+    private void OpenSessionManager()
+    {
+        if (_sessionManager is not null)
+        {
+            _sessionManager.Activate();
+            return;
+        }
+
+        _sessionManager = new SessionManagerWindow(_sessions) { Owner = this };
+        _sessionManager.ShowRequested += session =>
+        {
+            if (session.IsOpen)
+            {
+                ShowLiveViewFromMenu(SessionView.Current);
+            }
+            else
+            {
+                ShowPastSession(session);
+            }
+        };
+        _sessionManager.Closed += (_, _) => _sessionManager = null;
+        _sessionManager.Show();
+    }
+
+    private MenuItem SessionMenuItem(string name, string detail, System.Windows.Media.Color? dot, bool isChecked, Action click)
+    {
+        var grid = new Grid { MinWidth = 260 };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(16) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        if (dot is System.Windows.Media.Color color)
+        {
+            grid.Children.Add(new System.Windows.Shapes.Ellipse
+            {
+                Width = 8,
+                Height = 8,
+                Fill = new SolidColorBrush(color),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+            });
+        }
+        else
+        {
+            var all = new TextBlock { Text = "\u221E", VerticalAlignment = VerticalAlignment.Center };
+            grid.Children.Add(all);
+        }
+
+        var nameText = new TextBlock { Text = name, VerticalAlignment = VerticalAlignment.Center };
+        Grid.SetColumn(nameText, 1);
+        grid.Children.Add(nameText);
+        var detailText = new TextBlock { Text = detail, Margin = new Thickness(16, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Opacity = 0.65 };
+        Grid.SetColumn(detailText, 2);
+        grid.Children.Add(detailText);
+
+        var item = new MenuItem { Header = grid, IsChecked = isChecked };
+        item.Click += (_, _) => click();
+        return item;
+    }
+
+    private void ShowLiveViewFromMenu(SessionView view)
+    {
+        if (_historyMode)
+        {
+            _sessionView = view;
+            ExitHistoryMode();
+        }
+        else
+        {
+            ShowLiveView(view);
+        }
+    }
+
+    /// <summary>Puts a finished session into the grid. Like a stored fight it runs on a replay source (ids remapped by name), but the
+    /// live capture keeps going and recording behind it; the banner is the way back.</summary>
+    private void ShowPastSession(SessionInfo session)
+    {
+        RecordFinishedFights(flushAll: true);
+        _historyMode = true;
+        _viewedSessionNumber = session.Number;
+
+        var replay = new FakeCombatSource();
+        var idMap = session.Names.ToDictionary(kv => kv.Key, kv => replay.Entities.GetOrAssignId(kv.Value));
+        int Remap(int id)
+        {
+            if (!idMap.TryGetValue(id, out int mapped))
+            {
+                // No name was known for this id: a stand-in name keeps it apart from every real one.
+                idMap[id] = mapped = replay.Entities.GetOrAssignId($"0x{id:X8}");
+            }
+
+            return mapped;
+        }
+
+        ShowReplay(replay);
+        ClearDamageData(keepFightMemory: true);
+
+        IEnumerable<DamageEvent> events = session.Data.Events.Concat(session.Data.Shields)
+            .Select(ev => ev with { SourceObjectId = Remap(ev.SourceObjectId), TargetObjectId = Remap(ev.TargetObjectId) })
+            .ToList();
+        foreach ((int id, string className) in session.Classes)
+        {
+            if (session.Names.TryGetValue(id, out string? name))
+            {
+                _playerIdentities[Remap(id)] = (name, className, 0);
+            }
+        }
+
+        _aggregator.IngestEvents(events);
+
+        HistoryBanner.Text = string.Format(LocalizationManager.Instance["Main.SessionViewBanner"], SessionLabels.NameOf(session), SessionLabels.TimeSpanOf(session));
+        HistoryBanner.Visibility = Visibility.Visible;
+        RefreshRows();
     }
 
     private void OnOpenSessionsFolderClicked(object sender, RoutedEventArgs e)
@@ -3566,11 +3918,15 @@ public partial class MainWindow : Window
             : EngagedTargets.Filter(damageEvents, _source.Entities.LocalPlayerId);
     }
 
-    private void ClearDamageData()
+    private void ClearDamageData(bool keepFightMemory = false)
     {
         // Whatever is still open is over now - file it before it is gone.
         RecordFinishedFights(flushAll: true);
-        _fightRecorder?.Reset();
+        // Switching views refills the grid with events that were filed already; only a real clear forgets which fights are on record.
+        if (!keepFightMemory)
+        {
+            _fightRecorder?.Reset();
+        }
 
         _aggregator.Clear();
         _groupNames.Clear();

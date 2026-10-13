@@ -85,15 +85,30 @@ public readonly record struct SourceStatus(SourceState State, string Message);
 public readonly record struct CombatBatch(
     IReadOnlyList<DamageEvent> Damage,
     IReadOnlyList<AvoidEvent> Avoids,
-    IReadOnlyList<KillEvent> Kills)
+    IReadOnlyList<KillEvent> Kills,
+    IReadOnlyList<ZoneChange>? Zones = null,
+    IReadOnlyList<EnrageMark>? Enrages = null)
 {
+    /// <summary>The boss rages of this poll (see <see cref="EnrageMark"/>); empty for a source that does not know them.</summary>
+    public IReadOnlyList<EnrageMark> EnrageMarks => Enrages ?? Array.Empty<EnrageMark>();
+
+    /// <summary>The map or instance changes of this poll (see <see cref="ZoneChange"/>); empty for a source that does not know zones.</summary>
+    public IReadOnlyList<ZoneChange> ZoneChanges => Zones ?? Array.Empty<ZoneChange>();
+
     public static CombatBatch Empty { get; } = new(Array.Empty<DamageEvent>(), Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>());
 
     public static CombatBatch DamageOnly(IReadOnlyList<DamageEvent> damage) =>
         new(damage, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>());
 
-    public bool IsEmpty => Damage.Count == 0 && Avoids.Count == 0 && Kills.Count == 0;
+    public bool IsEmpty => Damage.Count == 0 && Avoids.Count == 0 && Kills.Count == 0 && ZoneChanges.Count == 0 && EnrageMarks.Count == 0;
 }
+
+/// <summary>The local player entered another map or instance (zone id as the game sends it, see Aion2Zones for the names).</summary>
+public readonly record struct ZoneChange(DateTime Timestamp, int ZoneId);
+
+/// <summary>A boss went into its rage: the server sent the stat that marks it, <see cref="EngagedAt"/> being when the boss went into combat
+/// (the rage came five minutes after that in every long fight of the recordings of 2026-10-06 to 10-11).</summary>
+public readonly record struct EnrageMark(DateTime Timestamp, int EntityId, DateTime EngagedAt);
 
 public enum AvoidKind
 {

@@ -23,6 +23,8 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     public IReadOnlyDictionary<int, SortedSet<string>> ServerIdsSeen => _decoder.ServerIdsSeen;
     private readonly Aion2EntityDirectory _entities = new();
     private readonly System.Collections.Concurrent.ConcurrentQueue<DamageEvent> _pending = new();
+    private readonly System.Collections.Concurrent.ConcurrentQueue<ZoneChange> _zones = new();
+    private readonly System.Collections.Concurrent.ConcurrentQueue<EnrageMark> _enrages = new();
     private readonly string? _adapterId;
     private Capture.NpcapCaptureService? _capture;
     private SourceStatus _status = new(SourceState.Idle, "");
@@ -62,6 +64,9 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     public IEntityDirectory Entities => _entities;
 
     public string CurrentZone => _decoder.CurrentZone;
+
+    /// <summary>The id of the zone the local player is in (0 until the game has sent one).</summary>
+    public int CurrentZoneId => _decoder.CurrentZoneId;
 
     public bool InArena => false;
 
@@ -111,9 +116,17 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             LocalNameLearned?.Invoke(learned);
         }
 
-        if (_pending.IsEmpty)
+        // Zone changes and boss rages are not combat data of the player: they come through while paused too (the session list must stay right).
+        List<ZoneChange>? zones = null;
+        while (_zones.TryDequeue(out ZoneChange zone))
         {
-            return CombatBatch.Empty;
+            (zones ??= new List<ZoneChange>()).Add(zone);
+        }
+
+        List<EnrageMark>? enrages = null;
+        while (_enrages.TryDequeue(out EnrageMark mark))
+        {
+            (enrages ??= new List<EnrageMark>()).Add(mark);
         }
 
         var drained = new List<DamageEvent>();
@@ -122,8 +135,13 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             drained.Add(ev);
         }
 
+        if (drained.Count == 0 && zones is null && enrages is null)
+        {
+            return CombatBatch.Empty;
+        }
+
         // Paused time is discarded, not deferred - tape-recorder rule.
-        return paused ? CombatBatch.Empty : CombatBatch.DamageOnly(drained);
+        return new CombatBatch(paused ? Array.Empty<DamageEvent>() : drained, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), zones, enrages);
     }
 
     public void Dispose() => Stop();
@@ -176,6 +194,16 @@ public sealed class Aion2PacketCombatSource : ICombatSource
                     _pending.Enqueue(ev);
                     _eventsDecoded++;
                 }
+            }
+
+            foreach (ZoneChange zone in _decoder.DrainZoneChanges())
+            {
+                _zones.Enqueue(zone);
+            }
+
+            foreach (EnrageMark mark in _decoder.DrainEnrages())
+            {
+                _enrages.Enqueue(mark);
             }
 
             foreach ((string actor, string skill) in _decoder.DrainSkillUses())
