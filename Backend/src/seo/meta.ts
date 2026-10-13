@@ -98,6 +98,7 @@ export function softwareApplicationJsonLd(): object {
     downloadUrl: "https://github.com/SkeeveAN/Aion-DPS-Meter/releases",
     softwareRequirements: "Windows 10 or 11, Npcap driver",
     isAccessibleForFree: true,
+    isAccessoryOrSupplementTo: { "@type": "VideoGame", name: "AION 2", publisher: { "@type": "Organization", name: "NCSOFT" } },
     license: "https://opensource.org/licenses/MIT",
     inLanguage: ["en", "de", "fr", "es", "ru", "zh", "zh-TW", "pt-BR", "ja", "ko"],
     featureList: [
