@@ -132,6 +132,10 @@ Schalte einen Feldboss ein, um seinen Timer im Overlay zu sehen und seinen Sound
 kommen direkt aus dem Spiel; der Server sendet sie für die Karte, auf der du dich befindest, die anderen Karten zeigen ihre erst,
 nachdem du dort warst. Sound und Lautstärke werden pro Boss eingestellt, gruppiert nach Region.
 
+<p align="center">
+  <img src="Web-Frontend/images/features/worldboss@2x.webp" width="380" alt="Weltboss-Einstellungen: jeder Feldboss nach Karte mit Wiederkehrzeit, Schalter, Ton und Lautstärke">
+</p>
+
 ### Netzwerk-Overlay
 
 Ping, Jitter, Datenverkehr, Paketverlust und wie lange du schon online bist, gemessen am Verkehr, den dein PC

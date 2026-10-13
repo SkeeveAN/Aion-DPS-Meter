@@ -852,7 +852,11 @@ internal static class Program
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         var settings = Ui.MeterSettings.Load();
-        if (settings.Language.Length > 0)
+        if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } forcedLanguage)
+        {
+            Ui.LocalizationManager.Instance.Language = forcedLanguage; // pictures for the docs in a chosen language, whatever the user's settings say
+        }
+        else if (settings.Language.Length > 0)
         {
             Ui.LocalizationManager.Instance.Language = settings.Language; // so a layout can be checked in every language
         }

@@ -133,6 +133,10 @@ Activa un jefe de campo para ver su temporizador en el overlay y oír su sonido 
 provienen directamente del juego; el servidor los envía para el mapa en el que estás, y los demás mapas muestran los
 suyos una vez que has estado allí. El sonido y el volumen se ajustan por jefe, agrupados por región.
 
+<p align="center">
+  <img src="Web-Frontend/images/features/worldboss@2x.webp" width="380" alt="Ajustes de jefes de mundo: cada jefe de campo por mapa con su tiempo de reaparición, un interruptor, sonido y volumen">
+</p>
+
 ### Overlay de red
 
 Ping, jitter, tráfico, pérdida de paquetes y cuánto tiempo llevas conectado, medidos a partir del tráfico que tu PC

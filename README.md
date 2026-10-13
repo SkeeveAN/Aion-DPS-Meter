@@ -132,6 +132,10 @@ Switch on a field boss to see its timer on the overlay and hear its sound the mo
 come straight from the game; the server sends them for the map you are on, the other maps show theirs
 once you have been there. Sound and volume are set per boss, grouped by region.
 
+<p align="center">
+  <img src="Web-Frontend/images/features/worldboss@2x.webp" width="380" alt="World boss settings: every field boss by map with its respawn time, a switch, sound and volume">
+</p>
+
 ### Network overlay
 
 Ping, jitter, traffic, packet loss and how long you have been online, measured from the traffic your PC

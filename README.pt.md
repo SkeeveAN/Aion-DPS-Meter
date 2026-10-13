@@ -132,6 +132,10 @@ Ative um chefe de campo para ver o seu cronômetro no overlay e ouvir o seu som 
 vêm diretamente do jogo; o servidor os envia para o mapa em que você está, e os outros mapas mostram os deles
 depois que você passar por lá. Som e volume são definidos por chefe, agrupados por região.
 
+<p align="center">
+  <img src="Web-Frontend/images/features/worldboss@2x.webp" width="380" alt="Configurações dos chefes mundiais: cada chefe de campo por mapa com o tempo de reaparecimento, um interruptor, som e volume">
+</p>
+
 ### Overlay de rede
 
 Ping, jitter, tráfego, perda de pacotes e há quanto tempo você está online, medidos a partir do tráfego que o seu PC

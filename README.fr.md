@@ -135,6 +135,10 @@ Activez un boss de terrain pour voir son minuteur sur l'overlay et entendre son 
 horaires viennent directement du jeu ; le serveur les envoie pour la carte où vous vous trouvez, les autres cartes
 affichent les leurs une fois que vous y êtes passé. Son et volume se règlent par boss, regroupés par région.
 
+<p align="center">
+  <img src="Web-Frontend/images/features/worldboss@2x.webp" width="380" alt="Réglages des boss mondiaux : chaque boss de terrain par carte avec son temps de réapparition, un interrupteur, un son et un volume">
+</p>
+
 ### Overlay réseau
 
 Ping, gigue, trafic, perte de paquets et temps passé en ligne, mesurés à partir du trafic que votre PC reçoit
