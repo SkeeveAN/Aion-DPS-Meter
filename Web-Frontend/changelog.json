@@ -1,5 +1,25 @@
 [
  {
+  "version": "0.45.1",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "Boss cast bar and boss health bar no longer have a second frame around them when the overlay is unlocked: the window's frame is their outline",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   },
+   {
+    "text": "The boss cast bar and the boss health bar no longer show a second frame around them when the overlay is unlocked",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.45.0",
   "date": "2026-10-13",
   "items": [
