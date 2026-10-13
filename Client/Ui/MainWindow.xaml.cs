@@ -826,7 +826,8 @@ public partial class MainWindow : Window
         IsIgnoredTarget: _ => false,
         Game: "aion2",
         ServerName: Aion2ServerName(),
-        ExtrasOf: (from, to) => (_source?.Entities as Aion2.Aion2EntityDirectory)?.Combat.Slice(from, to, ResolveDisplayName));
+        ExtrasOf: (from, to) => (_source?.Entities as Aion2.Aion2EntityDirectory)?.Combat.Slice(from, to, ResolveDisplayName),
+        IsBoss: (id, name) => IsKnownBoss(name, id));
 
     private void OnAppMenuClicked(object sender, RoutedEventArgs e)
     {
@@ -944,6 +945,11 @@ public partial class MainWindow : Window
             _network ??= new NetworkOverlayController();
             _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory);
             _menuWatcher ??= new MenuWatcher();
+            MeterSettings.BackupOnStart(); // after the first Load of this start, which restores a damaged file from the last copy
+            if (MeterSettings.RecoveredFromBackup)
+            {
+                ShowUploadStatus(LocalizationManager.Instance["Main.SettingsRecovered"]);
+            }
             _gateTimer.Tick += (_, _) => OnGateTick();
             _gateTimer.Start();
         }
@@ -1941,6 +1947,20 @@ public partial class MainWindow : Window
     /// <see cref="_selectedRunWindowEnd"/> are set (the dropdown's "#N" entries - see MobBossTag's
     /// own remarks), otherwise spans the target's whole history exactly as before.
     /// </summary>
+    /// <summary>The fight went online: the history remembers it (see <see cref="FightStore.MarkUploaded"/>), so "not uploaded" is true to what happened.</summary>
+    private void MarkFightUploaded(EncounterUploadRequest payload)
+    {
+        try
+        {
+            _fightStore?.MarkUploaded(payload.BossNpcName, payload.StartedAt, payload.EndedAt);
+            _fightHistoryWindow?.Refresh();
+        }
+        catch (Exception ex) when (ex is Microsoft.Data.Sqlite.SqliteException or FormatException)
+        {
+            AutoUploadLog.Write("history: could not mark the upload: " + ex.Message);
+        }
+    }
+
     private EncounterUploadRequest? BuildEncounterUpload(int targetId, string serverFingerprint, string? serverName)
     {
         // The payload's participants come from the rows on screen, which in heal or taken mode are
@@ -2400,6 +2420,7 @@ public partial class MainWindow : Window
             UploadResult result = await UploadClient.SendAsync(payload);
             if (result.Success)
             {
+                MarkFightUploaded(payload);
                 uploadedNames.Add(payload.BossNpcName);
                 _bossUploadedUntil[targetId] = _aggregator.Events
                     .Where(ev => !ev.IsHeal && ev.TargetObjectId == targetId)
@@ -2712,6 +2733,7 @@ public partial class MainWindow : Window
             AutoUploadLog.Write($"boss {targetId} '{payload.BossNpcName}': {(result.Success ? "uploaded" : "failed: " + result.Error)}");
             if (result.Success)
             {
+                MarkFightUploaded(payload);
                 uploaded++;
             }
             else
@@ -2919,6 +2941,7 @@ public partial class MainWindow : Window
             UploadResult result = await UploadClient.SendAsync(payload);
             if (result.Success)
             {
+                MarkFightUploaded(payload);
                 uploaded++;
             }
             else
@@ -3930,29 +3953,76 @@ public partial class MainWindow : Window
             return;
         }
 
+        OpenSettings(null);
+    }
+
+    /// <summary>Opens the settings window; <paramref name="undoUntil"/> adds "Undo reset" to it (after a reset).</summary>
+    private void OpenSettings(DateTime? undoUntil)
+    {
         var settings = MeterSettings.Load();
-        _settingsWindow = new SettingsWindow(settings) { Owner = this };
+        _settingsWindow = new SettingsWindow(settings, undoUntil) { Owner = this };
         _settingsWindow.Saved += () =>
         {
             settings.Save();
-            Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
-            ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
-            ApplyHotkeys(settings); // possibly changed keys
-            ApplyTimetable(settings);
-            ApplyPetFarm(settings);
-            ApplyHotkeyOverlay(settings);
-            ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
-            if (settings.CaptureAdapterId != _captureAdapterInUse)
+            ApplySettingsEverywhere(settings);
+        };
+        _settingsWindow.ResetRequested += () =>
+        {
+            MeterSettings.ResetToDefaults();
+            ApplySettingsEverywhere(MeterSettings.Load());
+            ReopenSettings(DateTime.UtcNow.AddSeconds(30));
+        };
+        _settingsWindow.UndoRequested += () =>
+        {
+            if (MeterSettings.UndoReset())
             {
-                StartCapture(settings); // only a new network adapter needs a new capture: a restart forgets the map, the position and the pets of the running game
+                ApplySettingsEverywhere(MeterSettings.Load());
             }
-            InitializeFightHistory(settings); // possibly toggled recording
-            RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
-            ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
-            RefreshRows();
+
+            ReopenSettings(null);
+        };
+        _settingsWindow.OpenHistoryRequested += () =>
+        {
+            OnFightHistoryClicked(this, new RoutedEventArgs());
+            _fightHistoryWindow?.ShowOnlyNotUploaded();
         };
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
+    }
+
+    private void ReopenSettings(DateTime? undoUntil)
+    {
+        _settingsWindow?.Close();
+        OpenSettings(undoUntil);
+    }
+
+    /// <summary>What has to follow when the settings change: the look, the hotkeys, the overlays, the capture and the fight history.</summary>
+    private void ApplySettingsEverywhere(MeterSettings settings)
+    {
+        if (settings.Language.Length > 0)
+        {
+            LocalizationManager.Instance.Language = settings.Language;
+        }
+        else
+        {
+            LocalizationManager.Instance.UseSystemLanguage();
+        }
+
+        Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
+        ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
+        ApplyHotkeys(settings); // possibly changed keys
+        ApplyTimetable(settings);
+        ApplyPetFarm(settings);
+        ApplyHotkeyOverlay(settings);
+        ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
+        if (settings.CaptureAdapterId != _captureAdapterInUse)
+        {
+            StartCapture(settings); // only a new network adapter needs a new capture: a restart forgets the map, the position and the pets of the running game
+        }
+        InitializeFightHistory(settings); // possibly toggled recording
+        RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
+        ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
+        RefreshRows();
     }
 
     /// <summary>

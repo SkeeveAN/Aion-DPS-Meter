@@ -2,6 +2,13 @@ using AionDPS.Combat;
 
 namespace AionDPS.History;
 
+public enum UploadState
+{
+    NotUploaded,
+    Uploaded,
+    Unknown,
+}
+
 /// <summary>One row of the history list.</summary>
 public sealed record FightSummary(
     long Id,
@@ -13,8 +20,25 @@ public sealed record FightSummary(
     string Kind,
     long TotalDamage,
     int ParticipantCount,
-    string? SelfName)
+    string? SelfName,
+    string? UploadedRaw = null)
 {
+    /// <summary>NULL = a boss fight not uploaded (yet); "unknown" = recorded before the history kept track; else the time it was uploaded.</summary>
+    public UploadState Upload => UploadedRaw is null ? UploadState.NotUploaded : UploadedRaw == "unknown" ? UploadState.Unknown : UploadState.Uploaded;
+
+    public bool IsBoss => string.Equals(Kind, "boss", StringComparison.Ordinal);
+
+    public DateTime? UploadedAt => Upload == UploadState.Uploaded && DateTime.TryParse(UploadedRaw, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime at) ? at : null;
+
+    /// <summary>The history list's "Uploaded" column: the time, "not uploaded" for a boss fight, nothing for other fights and for those from before the history kept track.</summary>
+    public string UploadDisplay => Upload switch
+    {
+        UploadState.Uploaded => "✓ " + (UploadedAt?.ToString("g") ?? ""),
+        UploadState.NotUploaded when IsBoss => "–",
+        UploadState.Unknown => "?",
+        _ => "",
+    };
+
     public TimeSpan Duration => EndedAt - StartedAt;
 
     public string DurationDisplay => $"{(int)Duration.TotalMinutes}:{Duration.Seconds:D2}";

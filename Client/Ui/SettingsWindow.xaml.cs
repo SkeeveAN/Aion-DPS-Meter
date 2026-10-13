@@ -15,10 +15,11 @@ public partial class SettingsWindow : Window
 {
     private readonly MeterSettings _settings;
 
-    public SettingsWindow(MeterSettings settings)
+    public SettingsWindow(MeterSettings settings, DateTime? undoUntil = null)
     {
         InitializeComponent();
         _settings = settings;
+        ShowUndo(undoUntil);
 
         // Same saved-size pattern as MainWindow's own RestoreWindowGeometry/SaveWindowGeometry.
         // Position stays CenterOwner (see the XAML), not restored here.
@@ -103,6 +104,7 @@ public partial class SettingsWindow : Window
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
         RecordFightHistoryBox.IsChecked = settings.RecordFightHistory;
         HideDuringMenusBox.IsChecked = settings.HideDuringMenus;
+        NotUploadedText.Text = string.Format(LocalizationManager.Instance["Settings.History.NotUploaded"], History.FightStore.CountNotUploaded(History.FightStore.DefaultPath));
         ShowMenuControlStatus(settings.MenuControlMode);
         SetHotkeyBox(HotkeyShowMenuBox, HotkeyBinding.Parse(settings.HotkeyShowMenu).ToString());
         PopulateCaptureAdapters(settings.CaptureAdapterId);
@@ -837,6 +839,77 @@ public partial class SettingsWindow : Window
         BuildPetRegionTree();
         BuildPetRegionRows();
         InitPetRare(settings);
+    }
+
+    /// <summary>Raised by the button next to the count of boss fights that were not uploaded; MainWindow opens the history with only those.</summary>
+    public event Action? OpenHistoryRequested;
+
+    private void OnOpenHistoryNotUploadedClicked(object sender, RoutedEventArgs e) => OpenHistoryRequested?.Invoke();
+
+    /// <summary>Raised when the player confirmed "reset to defaults"; MainWindow does it and opens this window again, with the undo.</summary>
+    public event Action? ResetRequested;
+
+    /// <summary>Raised by "Undo reset"; MainWindow puts the settings back and opens this window again.</summary>
+    public event Action? UndoRequested;
+
+    private System.Windows.Threading.DispatcherTimer? _resetTimer;
+    private System.Windows.Threading.DispatcherTimer? _undoTimer;
+    private DateTime _undoUntil;
+
+    /// <summary>"Reset all settings": the first click asks again, the second does it. The question lapses after a few seconds.</summary>
+    private void OnResetSettingsClicked(object sender, RoutedEventArgs e)
+    {
+        var loc = LocalizationManager.Instance;
+        if (_resetTimer is { IsEnabled: true })
+        {
+            _resetTimer.Stop();
+            ResetRequested?.Invoke();
+            return;
+        }
+
+        ResetSettingsButton.Content = loc["Settings.Reset.Confirm"];
+        _resetTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+        _resetTimer.Tick += (_, _) =>
+        {
+            _resetTimer.Stop();
+            ResetSettingsButton.Content = loc["Settings.Reset.Button"];
+        };
+        _resetTimer.Start();
+    }
+
+    private void OnUndoResetClicked(object sender, RoutedEventArgs e)
+    {
+        _undoTimer?.Stop();
+        UndoRequested?.Invoke();
+    }
+
+    /// <summary>For 30 seconds after a reset the window offers to take it back.</summary>
+    private void ShowUndo(DateTime? until)
+    {
+        if (until is not DateTime end || end <= DateTime.UtcNow)
+        {
+            return;
+        }
+
+        _undoUntil = end;
+        UndoText.Visibility = UndoButton.Visibility = Visibility.Visible;
+        void Update()
+        {
+            int left = (int)Math.Ceiling((_undoUntil - DateTime.UtcNow).TotalSeconds);
+            if (left <= 0)
+            {
+                _undoTimer?.Stop();
+                UndoText.Visibility = UndoButton.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            UndoText.Text = string.Format(LocalizationManager.Instance["Settings.Reset.Undo"], left);
+        }
+
+        _undoTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _undoTimer.Tick += (_, _) => Update();
+        _undoTimer.Start();
+        Update();
     }
 
     /// <summary>Says which control mode the meter has seen: the feature works only where the game hides the cursor while playing.</summary>

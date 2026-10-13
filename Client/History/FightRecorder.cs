@@ -15,7 +15,8 @@ public sealed record FightContext(
     Func<string, bool> IsIgnoredTarget,
     string Game,
     string? ServerName,
-    Func<DateTime, DateTime, FightExtras?>? ExtrasOf = null);
+    Func<DateTime, DateTime, FightExtras?>? ExtrasOf = null,
+    Func<int, string, bool>? IsBoss = null);
 
 /// <summary>
 /// Watches the live event list and files each fight into the <see cref="FightStore"/> once it is
@@ -127,7 +128,7 @@ public sealed class FightRecorder
             segment.Start,
             segment.End,
             targetName,
-            "pve",
+            context.IsBoss?.Invoke(segment.TargetId, targetName) == true ? "boss" : "pve",
             segment.Hits.Sum(h => h.Amount),
             participants.Count,
             participants.FirstOrDefault(p => p.IsSelf)?.Name);

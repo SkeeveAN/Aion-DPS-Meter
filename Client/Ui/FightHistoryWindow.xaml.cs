@@ -27,7 +27,7 @@ public partial class FightHistoryWindow : Window
 
     public void Refresh()
     {
-        List<FightSummary> fights = _store.Query(SearchBox.Text);
+        List<FightSummary> fights = _store.Query(SearchBox.Text, onlyNotUploaded: OnlyNotUploadedBox?.IsChecked == true);
         FightsGrid.ItemsSource = fights;
         CountText.Text = fights.Count.ToString();
         ParticipantsGrid.ItemsSource = null;
@@ -35,6 +35,11 @@ public partial class FightHistoryWindow : Window
     }
 
     private void OnSearchChanged(object sender, TextChangedEventArgs e) => Refresh();
+
+    private void OnFilterChanged(object sender, RoutedEventArgs e) => Refresh();
+
+    /// <summary>Opens with the boss fights that were not uploaded (from the settings' count).</summary>
+    public void ShowOnlyNotUploaded() => OnlyNotUploadedBox.IsChecked = true;
 
     private void OnFightSelected(object sender, SelectionChangedEventArgs e)
     {

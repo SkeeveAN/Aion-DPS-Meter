@@ -1,6 +1,6 @@
 # Einstellungen sichern, Zurücksetzen mit Rückgängig, Übersicht „nicht hochgeladen“
 
-Branch: `feature/settings-backup-upload-overview` · Stand: Plan, noch nichts umgesetzt
+Branch: `feature/settings-backup-upload-overview` · Stand: Teil A–C umgesetzt (siehe „Umsetzungsstand“ am Ende)
 
 ## Ziel
 
@@ -50,3 +50,17 @@ Branch: `feature/settings-backup-upload-overview` · Stand: Plan, noch nichts um
 - Nachträglicher Upload ohne laufenden Aggregator.
 - Rückgängig nach Neustart des Meters innerhalb der 30 s (Undo-Datei vorhanden, Zeitfenster aber nur im Speicher).
 - Migration der Datenbank bei vielen gespeicherten Kämpfen (große Datei): in einer Transaktion und mit Fortschritt, nie beim Start blockieren.
+
+## Umsetzungsstand (13.10.2026)
+
+**Fertig und geprüft (Selftests mit echten Dateien in einem Wegwerf-Ordner):**
+
+- **Teil A:** `MeterSettings.Save()` schreibt atomar (`.tmp` + Ersetzen); `BackupOnStart()` kopiert eine lesbare Datei beim Start nach `meter-settings.backup.json` (nie eine beschädigte über eine gute); `Load()` hebt eine unlesbare Datei als `meter-settings.damaged-<Zeit>.json` auf (die drei neuesten), holt die Einstellungen aus der Sicherung und meldet das in der Statuszeile.
+- **Teil B:** Schaltfläche „Alle Einstellungen auf Standard zurücksetzen“ (Oberfläche), erster Klick fragt, zweiter führt aus, die Frage verfällt nach 5 s; behält Upload-/Datenschutzwahl, Erststart-Assistent, Update-Prüfung und Charakter; „Zurücksetzen rückgängig“ 30 Sekunden lang (Datei `meter-settings.undo.json`); `MainWindow.ApplySettingsEverywhere` wendet Einstellungen nach Speichern, Zurücksetzen und Rückgängig gleich an.
+- **Teil C:** Spalte `uploaded_at` in `fights.db` (Migration setzt Altbestand auf „unknown“, damit nicht Hunderte Kämpfe als „nicht hochgeladen“ erscheinen); Boss-Kämpfe werden mit `kind = boss` gespeichert; `MarkUploaded` an allen drei Upload-Stellen (auch wenn der Upload vor dem Ablegen des Kampfes kommt); Spalte „Hochgeladen“ und Filter „Nur nicht hochgeladene Boss-Kämpfe“ im Verlauf; Zahl und Knopf in den Einstellungen; zehn Sprachen; README (alle zehn).
+
+**Bewusst offen:**
+
+- **Nachträglich hochladen** eines gespeicherten Kampfes: nicht gebaut. Der Paket-Aufbau (`BuildEncounterUploadCore`) hängt am laufenden Aggregator, an den Zeilen des Fensters und an den HP-Zurücksetzungen des Bosses (`BossNotKilledReason`); ein gespeicherter Kampf trägt davon nur die Schadensereignisse. Dafür müsste der Aufbau von der Oberfläche gelöst und die Boss-Lebenspunkte mit dem Kampf gespeichert werden - ein eigener Schritt.
+- Das Ziehen/Klicken der Oberfläche (Reset-Abfrage, Rückgängig-Zeile) ist nicht automatisch getestet; bitte einmal von Hand durchspielen.
+- Changelog-Eintrag und Features-Seite folgen beim Merge nach `main`.

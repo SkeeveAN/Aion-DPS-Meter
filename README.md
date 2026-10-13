@@ -190,6 +190,8 @@ something is newer than your last visit.
 Fights are recorded locally so you can look at an earlier boss again (switch it off under
 **Settings → Interface**). The meter resets after a configurable time out of combat.
 
+The history remembers which boss fights went online: its list has an **Uploaded** column, can show only the boss fights that were not uploaded, and **Settings → Interface** says how many there are. Fights recorded by an older version show a "?" instead (the history did not keep track back then).
+
 ## Using it
 
 Recording starts as soon as the meter is running. **Pause discards** rather than defers: events
@@ -199,6 +201,7 @@ during a pause are skipped for good, so resuming never replays a fight you sat o
   gives you a Discord markdown table.
 - Appearance is set under **Settings → Interface**: theme (dark/light), font size, language, overlay look
   and opacity, start with Windows.
+- Your settings survive a crash: the settings file is written in one go, and a copy of the last start is kept next to it. If the file is ever damaged, that copy is restored (the damaged file is kept beside it). **Settings → Interface → Reset all settings to defaults** asks twice and can be undone for 30 seconds; your upload and privacy choices, the update check and your character stay as they are.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Settings: interface, overlay and behavior">

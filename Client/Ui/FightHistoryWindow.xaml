@@ -71,6 +71,7 @@
                 <DataGridTextColumn Header="{local:Loc History.ColumnDamage}" Binding="{Binding TotalDamage, StringFormat=N0}" Width="110"/>
                 <DataGridTextColumn Header="{local:Loc History.ColumnPlayers}" Binding="{Binding ParticipantCount}" Width="60"/>
                 <DataGridTextColumn Header="{local:Loc History.ColumnServer}" Binding="{Binding ServerName}" Width="120"/>
+                <DataGridTextColumn Header="{local:Loc History.ColumnUploaded}" Binding="{Binding UploadDisplay}" Width="130"/>
             </DataGrid.Columns>
         </DataGrid>
 
@@ -90,6 +91,8 @@
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
             <TextBlock x:Name="HintText" Text="{local:Loc History.Hint}" VerticalAlignment="Center"
                        Foreground="{DynamicResource Brush.TextMuted}" Margin="0,0,12,0"/>
+            <CheckBox x:Name="OnlyNotUploadedBox" Content="{local:Loc History.OnlyNotUploaded}" VerticalAlignment="Center" Margin="0,0,16,0"
+                      Checked="OnFilterChanged" Unchecked="OnFilterChanged"/>
             <Button x:Name="LoadButton" Content="{local:Loc History.LoadIntoMeter}" Click="OnLoadClicked" IsEnabled="False"/>
             <Button Content="{local:Loc Settings.Cancel}" Click="OnCloseClicked"/>
         </StackPanel>

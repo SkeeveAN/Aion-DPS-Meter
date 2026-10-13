@@ -412,36 +412,138 @@ public sealed class MeterSettings
     /// user finding an empty settings dialog.</summary>
     private static string LegacySettingsPath => Path.Combine(AppContext.BaseDirectory, "meter-settings.json");
 
+    private static string Sibling(string suffix) => Path.Combine(Path.GetDirectoryName(SettingsPath)!, "meter-settings." + suffix + ".json");
+
+    /// <summary>The copy made at each start from a settings file that read fine (see <see cref="BackupOnStart"/>).</summary>
+    private static string BackupPath => Sibling("backup");
+
+    /// <summary>What "reset to defaults" took away, kept so it can be taken back (see <see cref="UndoReset"/>).</summary>
+    private static string UndoPath => Sibling("undo");
+
+    /// <summary>True once in a session when the settings file was damaged and the settings came back from the copy of the last start.</summary>
+    public static bool RecoveredFromBackup { get; private set; }
+
     public static MeterSettings Load()
     {
-        try
+        string path = File.Exists(SettingsPath) ? SettingsPath
+            : File.Exists(LegacySettingsPath) ? LegacySettingsPath
+            : SettingsPath;
+        if (File.Exists(path))
         {
-            string path = File.Exists(SettingsPath) ? SettingsPath
-                : File.Exists(LegacySettingsPath) ? LegacySettingsPath
-                : SettingsPath;
-
-            if (File.Exists(path))
+            if (TryRead(path) is { } loaded)
             {
-                string text = File.ReadAllText(path);
-                var loaded = JsonSerializer.Deserialize<MeterSettings>(text);
-                if (loaded is not null)
+                return loaded;
+            }
+
+            // A crash or a power cut while it was being written: keep the damaged file beside the others and go back to the copy of the last start.
+            if (path == SettingsPath)
+            {
+                KeepDamaged(path);
+                if (File.Exists(BackupPath) && TryRead(BackupPath) is { } restored)
                 {
-                    return loaded;
+                    RecoveredFromBackup = true;
+                    try
+                    {
+                        File.Copy(BackupPath, SettingsPath, overwrite: true);
+                    }
+                    catch (IOException)
+                    {
+                        // the next Save writes it anyway
+                    }
+
+                    return restored;
                 }
             }
-        }
-        catch (JsonException)
-        {
-            // Fall through to defaults -- a corrupt settings file should not block the app from starting.
         }
 
         return new MeterSettings();
     }
 
+    private static MeterSettings? TryRead(string path)
+    {
+        try
+        {
+            string text = File.ReadAllText(path);
+            return text.Trim().Length == 0 ? null : JsonSerializer.Deserialize<MeterSettings>(text);
+        }
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
+    private static void KeepDamaged(string path)
+    {
+        try
+        {
+            File.Move(path, Sibling("damaged-" + DateTime.Now.ToString("yyyyMMdd-HHmmss")), overwrite: true);
+            foreach (string old in Directory.GetFiles(Path.GetDirectoryName(path)!, "meter-settings.damaged-*.json").OrderByDescending(f => f).Skip(3))
+            {
+                File.Delete(old); // the three newest are enough
+            }
+        }
+        catch (IOException)
+        {
+        }
+    }
+
+    /// <summary>Written to a file of its own first and put in place at once, so a crash or a power cut never leaves half a file.</summary>
     public void Save()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
-        File.WriteAllText(SettingsPath, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+        string temp = SettingsPath + ".tmp";
+        File.WriteAllText(temp, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+        File.Move(temp, SettingsPath, overwrite: true);
+    }
+
+    /// <summary>Copies a settings file that reads fine to the backup, once at each start; a damaged file is never copied over a good backup.</summary>
+    public static void BackupOnStart()
+    {
+        try
+        {
+            if (File.Exists(SettingsPath) && TryRead(SettingsPath) is not null)
+            {
+                File.Copy(SettingsPath, BackupPath, overwrite: true);
+            }
+        }
+        catch (IOException)
+        {
+        }
+    }
+
+    /// <summary>What a reset leaves alone: the privacy and upload decisions (a reset must never switch an upload on or off), the first-start wizard, the update check and the own character.</summary>
+    private static void KeepAcrossReset(MeterSettings from, MeterSettings to)
+    {
+        to.SetupCompleted = from.SetupCompleted;
+        to.AutoUploadProfile = from.AutoUploadProfile;
+        to.AutoUploadBoss = from.AutoUploadBoss;
+        to.UploadOtherPlayersProfiles = from.UploadOtherPlayersProfiles;
+        to.CheckForUpdates = from.CheckForUpdates;
+        to.Aion2CharacterName = from.Aion2CharacterName;
+    }
+
+    /// <summary>Puts every setting back to its default except <see cref="KeepAcrossReset"/>; what it replaced is kept for <see cref="UndoReset"/>.</summary>
+    public static void ResetToDefaults()
+    {
+        MeterSettings current = Load();
+        Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
+        File.WriteAllText(UndoPath, JsonSerializer.Serialize(current, new JsonSerializerOptions { WriteIndented = true }));
+        var fresh = new MeterSettings();
+        KeepAcrossReset(current, fresh);
+        fresh.Save();
+    }
+
+    /// <summary>Takes a reset back; false when there is nothing to take back.</summary>
+    public static bool UndoReset()
+    {
+        if (!File.Exists(UndoPath) || TryRead(UndoPath) is not { } before)
+        {
+            return false;
+        }
+
+        before.Save();
+        File.Delete(UndoPath);
+        return true;
     }
 }
 

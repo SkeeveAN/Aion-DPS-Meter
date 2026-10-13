@@ -58,10 +58,15 @@ public sealed class FightStore : IDisposable
             """);
         Execute("PRAGMA foreign_keys=ON;");
         AddColumnIfMissing("extras_gz", "BLOB");
+        // the history did not keep track of uploads before: what is stored then is "unknown", not "not uploaded"
+        if (AddColumnIfMissing("uploaded_at", "TEXT"))
+        {
+            Execute("UPDATE fights SET uploaded_at = 'unknown';");
+        }
     }
 
     /// <summary>The table predates its newer columns (CREATE IF NOT EXISTS leaves an old one as it is), so each is added once when it is missing.</summary>
-    private void AddColumnIfMissing(string name, string type)
+    private bool AddColumnIfMissing(string name, string type)
     {
         using SqliteCommand info = _connection.CreateCommand();
         info.CommandText = "PRAGMA table_info(fights);";
@@ -71,12 +76,79 @@ public sealed class FightStore : IDisposable
             {
                 if (string.Equals(reader.GetString(1), name, StringComparison.OrdinalIgnoreCase))
                 {
-                    return;
+                    return false;
                 }
             }
         }
 
         Execute($"ALTER TABLE fights ADD COLUMN {name} {type};");
+        return true;
+    }
+
+    /// <summary>Uploads whose fight the recorder has not filed yet (it files a fight a while after it ended): applied when the fight arrives.</summary>
+    private readonly List<(string Target, DateTime StartUtc, DateTime EndUtc)> _pendingMarks = new();
+
+    private static bool Overlaps(DateTime aStart, DateTime aEnd, DateTime bStart, DateTime bEnd, TimeSpan slack) =>
+        aStart.ToUniversalTime() <= bEnd.ToUniversalTime() + slack && bStart.ToUniversalTime() <= aEnd.ToUniversalTime() + slack;
+
+    /// <summary>The boss fight on <paramref name="target"/> between the two times (UTC) went online. Marks the stored fight, or remembers it for the one still to come.</summary>
+    public void MarkUploaded(string target, DateTime startUtc, DateTime endUtc)
+    {
+        TimeSpan slack = TimeSpan.FromSeconds(15);
+        var ids = new List<long>();
+        using (SqliteCommand cmd = _connection.CreateCommand())
+        {
+            cmd.CommandText = "SELECT id, started_at, ended_at FROM fights WHERE lower(target_name) = lower($target) AND uploaded_at IS NULL;";
+            cmd.Parameters.AddWithValue("$target", target);
+            using SqliteDataReader reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                DateTime started = DateTime.Parse(reader.GetString(1), null, System.Globalization.DateTimeStyles.RoundtripKind);
+                DateTime ended = DateTime.Parse(reader.GetString(2), null, System.Globalization.DateTimeStyles.RoundtripKind);
+                if (Overlaps(started, ended, startUtc, endUtc, slack))
+                {
+                    ids.Add(reader.GetInt64(0));
+                }
+            }
+        }
+
+        if (ids.Count == 0)
+        {
+            _pendingMarks.Add((target, startUtc, endUtc));
+            if (_pendingMarks.Count > 200)
+            {
+                _pendingMarks.RemoveAt(0);
+            }
+
+            return;
+        }
+
+        foreach (long id in ids)
+        {
+            Execute("UPDATE fights SET uploaded_at = $at WHERE id = $id;", ("$at", DateTime.Now.ToString("o")), ("$id", id));
+        }
+    }
+
+    /// <summary>How many boss fights in a history file were not uploaded (the number the settings show); 0 for no file.</summary>
+    public static long CountNotUploaded(string path)
+    {
+        if (!File.Exists(path))
+        {
+            return 0;
+        }
+
+        try
+        {
+            using var connection = new SqliteConnection($"Data Source={path};Mode=ReadOnly");
+            connection.Open();
+            using SqliteCommand cmd = connection.CreateCommand();
+            cmd.CommandText = "SELECT COUNT(*) FROM fights WHERE kind = 'boss' AND uploaded_at IS NULL;";
+            return cmd.ExecuteScalar() is long n ? n : 0;
+        }
+        catch (SqliteException)
+        {
+            return 0; // an older file without the column
+        }
     }
 
     public long Insert(FightDetail detail)
@@ -99,8 +171,8 @@ public sealed class FightStore : IDisposable
         {
             cmd.Transaction = tx;
             cmd.CommandText = """
-                INSERT INTO fights (game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, events_gz, extras_gz)
-                VALUES ($game, $server, $started, $ended, $target, $kind, $total, $count, $self, $events, $extras);
+                INSERT INTO fights (game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, events_gz, extras_gz, uploaded_at)
+                VALUES ($game, $server, $started, $ended, $target, $kind, $total, $count, $self, $events, $extras, $uploaded);
                 SELECT last_insert_rowid();
                 """;
             FightSummary s = detail.Summary;
@@ -115,6 +187,13 @@ public sealed class FightStore : IDisposable
             cmd.Parameters.AddWithValue("$self", (object?)s.SelfName ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$events", EventBlob.Pack(detail.Events, detail.Names));
             cmd.Parameters.AddWithValue("$extras", detail.Extras is { IsEmpty: false } extras ? ExtrasBlob.Pack(extras) : DBNull.Value);
+            int pending = _pendingMarks.FindIndex(m => string.Equals(m.Target, s.TargetName, StringComparison.OrdinalIgnoreCase)
+                && Overlaps(s.StartedAt, s.EndedAt, m.StartUtc, m.EndUtc, TimeSpan.FromSeconds(15)));
+            cmd.Parameters.AddWithValue("$uploaded", pending >= 0 ? DateTime.Now.ToString("o") : DBNull.Value);
+            if (pending >= 0)
+            {
+                _pendingMarks.RemoveAt(pending);
+            }
             long id = (long)cmd.ExecuteScalar()!;
 
             foreach (FightParticipant p in detail.Participants)
@@ -145,23 +224,26 @@ public sealed class FightStore : IDisposable
 
     /// <summary>Newest first. <paramref name="search"/> matches the target name or any participant
     /// name, case-insensitive substring; null/empty lists everything (up to the limit).</summary>
-    public List<FightSummary> Query(string? search, int limit = 500)
+    public List<FightSummary> Query(string? search, int limit = 500, bool onlyNotUploaded = false)
     {
         using SqliteCommand cmd = _connection.CreateCommand();
         if (string.IsNullOrWhiteSpace(search))
         {
-            cmd.CommandText = "SELECT id, game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name FROM fights ORDER BY started_at DESC LIMIT $limit;";
+            cmd.CommandText = "SELECT id, game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, uploaded_at FROM fights"
+                + (onlyNotUploaded ? " WHERE kind = 'boss' AND uploaded_at IS NULL" : "") + " ORDER BY started_at DESC LIMIT $limit;";
         }
         else
         {
             cmd.CommandText = """
-                SELECT id, game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name
+                SELECT id, game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, uploaded_at
                 FROM fights
-                WHERE target_name LIKE $pattern
-                   OR id IN (SELECT fight_id FROM participants WHERE name LIKE $pattern)
+                WHERE (target_name LIKE $pattern
+                   OR id IN (SELECT fight_id FROM participants WHERE name LIKE $pattern))
+                   AND ($onlyNot = 0 OR (kind = 'boss' AND uploaded_at IS NULL))
                 ORDER BY started_at DESC LIMIT $limit;
                 """;
             cmd.Parameters.AddWithValue("$pattern", "%" + search.Trim() + "%");
+            cmd.Parameters.AddWithValue("$onlyNot", onlyNotUploaded ? 1 : 0);
         }
         cmd.Parameters.AddWithValue("$limit", limit);
 
@@ -182,7 +264,7 @@ public sealed class FightStore : IDisposable
         byte[]? extrasBlob;
         using (SqliteCommand cmd = _connection.CreateCommand())
         {
-            cmd.CommandText = "SELECT id, game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, events_gz, extras_gz FROM fights WHERE id = $id;";
+            cmd.CommandText = "SELECT id, game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, uploaded_at, events_gz, extras_gz FROM fights WHERE id = $id;";
             cmd.Parameters.AddWithValue("$id", id);
             using SqliteDataReader reader = cmd.ExecuteReader();
             if (!reader.Read())
@@ -246,7 +328,8 @@ public sealed class FightStore : IDisposable
         reader.GetString(6),
         reader.GetInt64(7),
         (int)reader.GetInt64(8),
-        reader.IsDBNull(9) ? null : reader.GetString(9));
+        reader.IsDBNull(9) ? null : reader.GetString(9),
+        reader.FieldCount > 10 && !reader.IsDBNull(10) && reader.GetFieldType(10) == typeof(string) ? reader.GetString(10) : null);
 
     private int Execute(string sql, params (string Name, object Value)[] parameters)
     {

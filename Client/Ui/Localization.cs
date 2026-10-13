@@ -90,6 +90,9 @@ public sealed class LocalizationManager : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    /// <summary>Back to the display language of the system (after the settings were reset).</summary>
+    public void UseSystemLanguage() => Language = DetectSystemLanguage();
+
     /// <summary>Whatever the OS's own display language is, if this build has a table for it --
     /// otherwise English. Only consulted once, at startup, before MeterSettings.Language (an
     /// explicit prior choice) has a chance to override it -- see MainWindow's startup wiring.</summary>
