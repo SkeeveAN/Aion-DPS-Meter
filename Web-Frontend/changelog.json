@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.44.3",
+  "date": "2026-10-13",
+  "items": [
+   {
+    "text": "The boss health bar and the hotkey overlay keep their place when the settings are saved",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-13"
+   }
+  ]
+ },
+ {
   "version": "0.44.2",
   "date": "2026-10-13",
   "items": [
