@@ -6,6 +6,7 @@ import rateLimit from "@fastify/rate-limit";
 import staticPlugin from "@fastify/static";
 import { env } from "./env.js";
 import { uploadRoutes } from "./routes/uploads.js";
+import { adminUploadRoutes } from "./routes/adminUploads.js";
 import { feedbackRoutes } from "./routes/feedback.js";
 import { instanceRoutes } from "./routes/instances.js";
 import { bossRoutes } from "./routes/bosses.js";
@@ -51,6 +52,7 @@ export async function buildServer() {
   });
 
   await app.register(uploadRoutes);
+  await app.register(adminUploadRoutes);
   await app.register(feedbackRoutes);
   await app.register(instanceRoutes);
   await app.register(bossRoutes);

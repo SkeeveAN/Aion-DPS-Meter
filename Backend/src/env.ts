@@ -24,5 +24,9 @@ export const env = {
   // Twitch app (dev.twitch.tv/console, "Confidential"): only used for the public streams list of /twitch-drops; without both the live part stays empty.
   TWITCH_CLIENT_ID: process.env.TWITCH_CLIENT_ID ?? "",
   TWITCH_CLIENT_SECRET: process.env.TWITCH_CLIENT_SECRET ?? "",
+  // What happens to a boss upload that looks implausible (uploadReview.ts): "off" nothing, "log" it is written to the log and merged as before (the dry run: look at the numbers first),
+  // "on" it waits in the review queue and stays off the leaderboards until approved. ADMIN_TOKEN opens /api/admin/uploads/* (Authorization: Bearer ...); empty = switched off (404).
+  UPLOAD_REVIEW: (["off", "log", "on"].includes(process.env.UPLOAD_REVIEW ?? "") ? process.env.UPLOAD_REVIEW : "log") as "off" | "log" | "on",
+  ADMIN_TOKEN: process.env.ADMIN_TOKEN ?? "",
   BASE_URL: (process.env.BASE_URL ?? "https://aiondps.com").replace(/\/+$/, ""),
 };

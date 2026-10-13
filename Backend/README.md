@@ -178,3 +178,16 @@ dpsmeter_install
 
 Legt einen eigenen Systemuser `aion-dpsmeter` an, checkt das Repo nach `/opt/dpsmeter` aus und
 betreibt den Service unter `systemd` (`aion-dpsmeter-backend.service`).
+
+
+## Upload review (implausible boss kills)
+
+`src/uploadReview.ts` compares each boss upload with the other kills of the same boss: more damage than the boss had hit points, hit points no kill ever had, a kill much faster than the
+fastest known one, a class far above its median, a boss nobody has catalogued. It judges by comparison only once three kills of the boss are on file.
+
+- `UPLOAD_REVIEW=off|log|on` (default `log`): `log` only writes what looks wrong to the log and merges as before (the dry run); `on` keeps such uploads out of the leaderboards in the review queue
+  (`uploads.status = 'pending'`, the reasons in `review_reason`).
+- `ADMIN_TOKEN`: opens the queue (404 while empty). `GET /api/admin/uploads/pending`, `POST /api/admin/uploads/:id/approve` (runs the ordinary merge) and `POST /api/admin/uploads/:id/reject`,
+  all with `Authorization: Bearer <ADMIN_TOKEN>`.
+- Dates that cannot be a fight (end before start, shorter than 3 s, longer than 6 h, in the future) are always turned away (400) and kept with their reason in `uploads`.
+- Thresholds: `src/constants.ts` (`MAX_KILL_DAMAGE_SHARE`, `HP_REFERENCE_TOLERANCE`, `FASTEST_KILL_FACTOR`, `CLASS_DPS_FACTOR`, `MIN_REFERENCE_RUNS`, `MIN_CLASS_SAMPLES`).
