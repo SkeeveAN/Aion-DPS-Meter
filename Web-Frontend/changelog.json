@@ -1,5 +1,25 @@
 [
  {
+  "version": "0.45.2",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "Boss cast bar shows the skill names in the game language (monster skills now have their own client text), and the cast bar and the boss health bar each get an opacity slider in the settings",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   },
+   {
+    "text": "The boss cast bar now shows the skill names in your game language instead of English, and the boss cast bar and the boss health bar each have an opacity slider in the settings",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.45.1",
   "date": "2026-10-14",
   "items": [
