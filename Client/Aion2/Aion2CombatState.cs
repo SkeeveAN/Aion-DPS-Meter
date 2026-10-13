@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using AionDPS.Combat;
 
 namespace AionDPS.Aion2;
 
@@ -91,6 +92,10 @@ public sealed class Aion2CombatState
     private readonly Dictionary<int, (int Target, DateTime At)> _lastAim = new();
     private readonly Dictionary<int, Dictionary<int, BuffNotice>> _buffs = new();
     private bool _dirty;
+    private readonly List<SkillUse> _uses = new();
+    private readonly List<BuffEvent> _buffLog = new();
+    private readonly List<StaggerEvent> _staggerLog = new();
+    private const int MaxLog = 200_000;
 
     /// <summary>Where the learnt skills are kept between sessions; null keeps them in memory only (replays, pictures, tests).</summary>
     public string? FilePath { get; set; }
@@ -329,12 +334,68 @@ public sealed class Aion2CombatState
         }
     }
 
-    // ---- effects ---------------------------------------------------------------------------------------------
+    // ---- the log of a fight: what the rotation and buff views read -----------------------------------------------
 
-    public void NoteBuff(BuffNotice buff)
+    /// <summary>A skill a player used (the cast notice).</summary>
+    public void NoteSkillUse(DateTime at, int actor, int skillId)
     {
         lock (_gate)
         {
+            Append(_uses, new SkillUse(at, actor, skillId));
+        }
+    }
+
+    public void NoteStagger(StaggerEvent stagger)
+    {
+        lock (_gate)
+        {
+            Append(_staggerLog, stagger);
+        }
+    }
+
+    private static void Append<T>(List<T> list, T item)
+    {
+        if (list.Count >= MaxLog)
+        {
+            list.RemoveRange(0, MaxLog / 4);
+        }
+
+        list.Add(item);
+    }
+
+    /// <summary>What was logged between two moments. Effects are taken from a few minutes earlier, so one put on before the fight began still has its start.</summary>
+    public FightExtras Slice(DateTime from, DateTime to, Func<int, string?> nameOf)
+    {
+        lock (_gate)
+        {
+            DateTime buffFrom = from - TimeSpan.FromMinutes(10);
+            var uses = _uses.Where(u => u.At >= from && u.At <= to).ToList();
+            var buffs = _buffLog.Where(b => b.At >= buffFrom && b.At <= to).ToList();
+            var staggers = _staggerLog.Where(s => s.At >= from && s.At <= to).ToList();
+            var ids = new HashSet<int>();
+            foreach (SkillUse u in uses) { ids.Add(u.Actor); }
+            foreach (BuffEvent b in buffs) { ids.Add(b.Target); ids.Add(b.Caster); }
+            foreach (StaggerEvent s in staggers) { ids.Add(s.Entity); }
+            var names = new Dictionary<int, string>();
+            foreach (int id in ids)
+            {
+                if (nameOf(id) is { Length: > 0 } name)
+                {
+                    names[id] = name;
+                }
+            }
+
+            return new FightExtras(uses, buffs, staggers, names);
+        }
+    }
+
+    // ---- effects ---------------------------------------------------------------------------------------------
+
+    public void NoteBuff(BuffNotice buff, bool renewed = false)
+    {
+        lock (_gate)
+        {
+            Append(_buffLog, new BuffEvent(buff.At, renewed ? BuffKind.Renewed : BuffKind.On, buff.Target, buff.Instance, buff.SkillId, buff.Caster, buff.DurationMs));
             if (!_buffs.TryGetValue(buff.Target, out var byInstance))
             {
                 if (_buffs.Count >= MaxTargets)
@@ -356,10 +417,15 @@ public sealed class Aion2CombatState
         }
     }
 
-    public void NoteBuffEnd(int target, int instance)
+    public void NoteBuffEnd(int target, int instance, DateTime? at = null)
     {
         lock (_gate)
         {
+            if (at is DateTime when)
+            {
+                Append(_buffLog, new BuffEvent(when, BuffKind.End, target, instance, 0, 0, 0));
+            }
+
             if (_buffs.TryGetValue(target, out var byInstance))
             {
                 byInstance.Remove(instance);

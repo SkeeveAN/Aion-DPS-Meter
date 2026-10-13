@@ -55,6 +55,9 @@ public sealed class Aion2FrameDecoder
     private const int BuffRenewedOpcode = 0x2b38;
     private const int BuffEndOpcode = 0x2c38;
 
+    /// <summary>A monster's stagger bar: reading (03 01, max u32, current u32) or break (00 03).</summary>
+    private const int StaggerOpcode = 0x05e0;
+
     public string CurrentZone { get; private set; } = "";
 
     public int SkippedShortFrames { get; private set; }
@@ -152,7 +155,10 @@ public sealed class Aion2FrameDecoder
                 DecodeBuff(frame, timestamp, renewed: opcode == BuffRenewedOpcode);
                 return Array.Empty<DamageEvent>();
             case BuffEndOpcode:
-                DecodeBuffEnd(frame);
+                DecodeBuffEnd(frame, timestamp);
+                return Array.Empty<DamageEvent>();
+            case StaggerOpcode:
+                DecodeStagger(frame, timestamp);
                 return Array.Empty<DamageEvent>();
         }
 
@@ -853,9 +859,13 @@ public sealed class Aion2FrameDecoder
     /// whom the caster aims at - what "the target of the target" reads.</summary>
     private void DecodeCastNotice(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
-        if (TryReadAim(frame, out int actor, out _, out int target, out _, out _, out _, out _, out _, out _))
+        if (TryReadAim(frame, out int actor, out int skillId, out int target, out _, out _, out _, out _, out _, out _))
         {
             _entities.Combat.NoteAim(actor, target, timestamp);
+            if (!_entities.IsKnownMonster(actor))
+            {
+                _entities.Combat.NoteSkillUse(timestamp, actor, skillId); // the rotation view
+            }
         }
     }
 
@@ -917,6 +927,33 @@ public sealed class Aion2FrameDecoder
     }
 
     /// <summary>
+    /// A monster's stagger bar (verified on two debug recordings, 2026-10-12: 3,699 readings and 18 breaks, every frame reads to its end; the bar
+    /// is 1,200 and falls with the hits taken): opcode | entity (varint) | 03 01 | max (u32) | current (u32) | 1 byte - or | 00 03 when it breaks.
+    /// </summary>
+    private void DecodeStagger(ReadOnlySpan<byte> frame, DateTime timestamp)
+    {
+        int p = 2;
+        if (!TryReadVarint(frame, ref p, out long entity) || entity is < 1 or > 10_000_000 || p + 2 > frame.Length)
+        {
+            return;
+        }
+
+        if (frame[p] == 3 && frame[p + 1] == 1 && frame.Length >= p + 10)
+        {
+            uint max = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 2)..]);
+            uint current = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 6)..]);
+            if (max is > 0 and <= 1_000_000 && current <= max)
+            {
+                _entities.Combat.NoteStagger(new StaggerEvent(timestamp, (int)entity, (int)current, (int)max, false));
+            }
+        }
+        else if (frame[p] == 0 && frame[p + 1] == 3)
+        {
+            _entities.Combat.NoteStagger(new StaggerEvent(timestamp, (int)entity, 0, 0, true));
+        }
+    }
+
+    /// <summary>
     /// An effect put on an entity (opcode 0x2a38 "on", 0x2b38 "renewed"; verified on a debug recording, 2026-10-12, every frame reads
     /// to its end): target (varint) | for "on": 1 | 1 type byte | instance (varint) | effect id (u32; the skill is the id / 10) |
     /// duration (u32 ms) | stays-on flag (u32, non-zero = no end) | 8 bytes (a server clock) | caster (varint) | ... | x, y, z (f32) at the end.
@@ -949,11 +986,11 @@ public sealed class Aion2FrameDecoder
             return;
         }
 
-        _entities.Combat.NoteBuff(new BuffNotice(timestamp, (int)target, (int)instance, (int)Math.Min(effect, int.MaxValue), (int)(effect / 10), stays != 0 ? -1 : (int)Math.Min(duration, 86_400_000u), (int)caster));
+        _entities.Combat.NoteBuff(new BuffNotice(timestamp, (int)target, (int)instance, (int)Math.Min(effect, int.MaxValue), (int)(effect / 10), stays != 0 ? -1 : (int)Math.Min(duration, 86_400_000u), (int)caster), renewed);
     }
 
     /// <summary>Effects that ended: target (varint) | count (1) | per effect: type (1; 0 or 7) | instance (varint) | reason (1) | for type 7: by (varint), skill (u32), 4 bytes.</summary>
-    private void DecodeBuffEnd(ReadOnlySpan<byte> frame)
+    private void DecodeBuffEnd(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;
         if (!TryReadVarint(frame, ref p, out long target) || target is < 1 or > 10_000_000 || p >= frame.Length)
@@ -1006,7 +1043,7 @@ public sealed class Aion2FrameDecoder
 
         foreach (int instance in ended)
         {
-            _entities.Combat.NoteBuffEnd((int)target, instance);
+            _entities.Combat.NoteBuffEnd((int)target, instance, timestamp);
         }
     }
 

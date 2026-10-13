@@ -14,7 +14,8 @@ public sealed record FightContext(
     Func<int, bool> IsEnemy,
     Func<string, bool> IsIgnoredTarget,
     string Game,
-    string? ServerName);
+    string? ServerName,
+    Func<DateTime, DateTime, FightExtras?>? ExtrasOf = null);
 
 /// <summary>
 /// Watches the live event list and files each fight into the <see cref="FightStore"/> once it is
@@ -130,6 +131,6 @@ public sealed class FightRecorder
             segment.Hits.Sum(h => h.Amount),
             participants.Count,
             participants.FirstOrDefault(p => p.IsSelf)?.Name);
-        return new FightDetail(summary, participants, window, names);
+        return new FightDetail(summary, participants, window, names, context.ExtrasOf?.Invoke(segment.Start, segment.End));
     }
 }

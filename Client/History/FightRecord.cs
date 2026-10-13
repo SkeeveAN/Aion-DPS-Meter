@@ -40,4 +40,5 @@ public sealed record FightDetail(
     FightSummary Summary,
     IReadOnlyList<FightParticipant> Participants,
     IReadOnlyList<DamageEvent> Events,
-    IReadOnlyDictionary<int, string> Names);
+    IReadOnlyDictionary<int, string> Names,
+    FightExtras? Extras = null);

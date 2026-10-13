@@ -50,5 +50,20 @@ Die 9-Byte-Einträge (Art + i64) enthalten neben Art 0 (aktuell) gelegentlich Ar
 
 ## Noch offen
 
-- Stagger (`05e0`), Flächen (`4838`, `0e38`): in dieser Aufnahme nicht oder kaum vorhanden; folgt in `feature/rotation-buffs-stagger`.
+- Flächen (`4838`, `0e38`) und Skill-Ende (`0638`): gehören zur Replay-Karte (`feature/fight-replay-map`).
 - Ziel eines **fremden Spielers** und Auswahl **per Kamera**: kein Frame bekannt; das Element „Ziel des Ziels“ zeigt dann nichts.
+
+## Stagger `05e0` (belegt, Branch `feature/rotation-buffs-stagger`)
+
+```
+05e0 | Entität (varint) | 03 01 | Maximum (u32) | aktuell (u32) | 1 Byte      Stand des Balkens
+05e0 | Entität (varint) | 00 03                                                 der Balken ist gebrochen
+```
+
+- Geprüft an den Aufnahmen vom 12.10. (`aion2-2026-10-12_16-47-01`: 3.699 Stände und 18 Brüche, alle Frames lesen bis zum Ende). Der Balken ist 1.200 groß und sinkt mit den Treffern auf den Boss.
+- Der Frame sagt nur, **um wie viel** der Balken fiel, nicht durch wen. Eine Zuordnung zu Spielern wäre eine Schätzung (der Treffer davor) und ist nicht eingebaut.
+- Die Dauer des Staggers steht nicht im Frame; die Ansicht zeichnet 5 s ab dem Bruch.
+
+## Skill-Benutzung `0238` für die Rotation
+
+Jedes `0238` eines Akteurs, der kein bekanntes Monster ist, wird als Skill-Benutzung des Spielers mit Zeit und Skill-ID festgehalten (Obergrenze 200.000 Einträge im Speicher, je Kampf werden die Einträge seines Zeitfensters mit dem Kampf gespeichert). Skill-IDs tragen Stufe und Spezialisierung in den letzten Ziffern; die Ansicht fasst alle IDs mit demselben Namen zu einem Skill zusammen.

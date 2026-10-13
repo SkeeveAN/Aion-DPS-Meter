@@ -92,6 +92,16 @@ los datos de golpe del servidor, así que son exactas.
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Desglose de habilidades de un jugador con una curva de daño a lo largo del tiempo">
 </p>
 
+### Rotación, efectos y stagger
+
+La misma ventana tiene dos pestañas más. **Rotación** dibuja en una línea de tiempo cada habilidad que usó el jugador, en el momento en que la usó: las habilidades de apoyo en el carril superior, las de daño debajo, y una habilidad intercalada justo después de otra, una fila más abajo, de modo que una serie de intercalados se lee como una escalera. Detrás corre el DPS del jugador (el promedio de los últimos cinco segundos) y los momentos en que un monstruo quedó en stagger. Arrastra para moverte por el combate, **Ctrl + rueda** hace zoom y, al pasar el cursor sobre un icono, ves el uso (cuándo, qué uso de cuántos, el tiempo desde el anterior, el DPS en ese momento). Debajo están la **Apertura** (las primeras habilidades en orden) y la *rotación en breve*: Usos, Por min, Intervalo entre dos usos, Primero y la parte del daño. **Efectos** enumera cada efecto que tuvo el jugador con su tiempo activo, la parte que provino del propio jugador, cuántas veces se aplicó y quién lo dio; un efecto que dos jugadores mantuvieron a la vez cuenta una sola vez.
+
+Un combate conserva esto en el historial local, así que se puede volver a ver un jefe antiguo; los combates grabados con una versión anterior no muestran rotación.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="La pestaña Rotación de la ventana del jugador: habilidades en una línea de tiempo con el DPS detrás, la apertura y la rotación en breve">
+</p>
+
 ### Todo tu personaje de un vistazo
 
 La ventana **Personaje** (icono de persona) muestra lo que el juego envía sobre ti: equipo con nivel de objeto y

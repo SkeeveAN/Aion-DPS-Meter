@@ -92,6 +92,16 @@ plus a DPS curve over the whole fight. Crit rates are read straight from the ser
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Skill breakdown of one player with a damage-over-time curve">
 </p>
 
+### Rotation, effects and stagger
+
+The same window has two more tabs. **Rotation** draws every skill the player used on a timeline at the moment they used it: support skills in the lane on top, damage skills below, a skill woven in right after another one row lower, so a run of weaves reads as a staircase. Behind it runs the player's DPS (the average of the last five seconds) and the moments a monster was staggered. Drag to move along the fight, **Ctrl + wheel** zooms, hover an icon for the use (when, which use of how many, the time since the one before, the DPS then). Below, the **opener** (the first skills in order) and *rotation in short*: uses, per minute, the time between two uses, the first use and the share of the damage. **Buffs** lists every effect that was on the player with its uptime, the part of it that came from the player themself, how many times it was put on, and who gave it - an effect two players kept up at once counts once.
+
+A fight keeps this with it in the local history, so an old boss can be looked at again; fights recorded by an older version show no rotation.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="The Rotation tab of the player window: skills on a timeline with the DPS behind them, the opener and the rotation in short">
+</p>
+
 ### Your whole character at a glance
 
 The **Character** window (person icon) shows what the game sends about you: gear with item level and

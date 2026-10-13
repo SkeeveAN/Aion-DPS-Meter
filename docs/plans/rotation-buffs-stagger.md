@@ -1,6 +1,6 @@
 # Rotation, Buff-Laufzeiten und Stagger in der Spielerdetail-Ansicht
 
-Branch: `feature/rotation-buffs-stagger` · Stand: Plan, noch nichts umgesetzt
+Branch: `feature/rotation-buffs-stagger` · Stand: umgesetzt (siehe „Umsetzungsstand“ am Ende)
 
 ## Ziel
 
@@ -56,3 +56,20 @@ Der **Protokoll-Teil** (Buff an/erneuert/Ende, Stagger, Cast-Ereignisse) entsteh
 - **Debug-Aufnahmen des Clients:** `%APPDATA%\Aion DPS Meter\Debug\aion2-<Datum>-<Charakter>.jsonl` (22 Dateien, 540 MB, 11./12.10.). Gleiches Format: ein JSON pro TCP-Segment `{"T","From","To","Seq","Server","Data":base64}`, Server-Port 13328.
 - **Gespeicherte Kämpfe:** `%APPDATA%\Aion DPS Meter\fights.db` (`events_gz`).
 - Nur lesen, nie verändern; große Dateien streamen.
+
+## Umsetzungsstand (13.10.2026)
+
+**Fertig und geprüft (Selftests, echte Aufnahme, gezeichnete Bilder):**
+
+- Protokoll: Skill-Benutzung (`0238`), Effekt-Ereignisse (`2a38`/`2b38`/`2c38` als Roh-Ereignisse mit Ende) und Stagger (`05e0`, belegt) werden je Kampf mitgeschrieben (`Aion2CombatState`); Befund in [docs/protocol/combat-frames.md](../protocol/combat-frames.md).
+- Speicherung: `FightExtras` mit dem Kampf in `fights.db` (neue Spalte `extras_gz`, bestehende Datenbanken werden beim Öffnen ergänzt); Verlauf (History-Modus) und Live-Ansicht liefern sie an das Detailfenster.
+- Auswertung: `RotationAnalysis` (rein, getestet): Weaves als Treppe, Zählung je Skill (Skill-IDs mit gleichem Namen zusammengefasst), Opener, „Rotation in Kürze“, Effekt-Laufzeit als Vereinigung der Spannen (zwei Geber gleichzeitig zählen einmal), Stagger-Bänder.
+- Oberfläche: Reiter **Skills / Rotation / Buffs** im Detailfenster; Zeitachse mit Symbolen, DPS-Kurve dahinter, Stagger-Bänder, Ziehen, Strg + Rad, Hover-Text; Tabellen; Schalter „Passive / DPS über Zeit / Stagger“.
+- Texte in zehn Sprachen, README (alle zehn), Bilder; `render-details <png> [skills|rotation|buffs]` zeichnet die Ansicht.
+
+**Bewusst nicht gebaut:**
+
+- Stagger-Anteil je Spieler (Spalte und Linie): nur eine Schätzung möglich (der Frame nennt keinen Verursacher); bleibt eine Erweiterung.
+- Debuff-/Buff-Details „von wem“ nur als Namensliste; „Ally boons“ als eigene Symbole in der Zeitachse sind nicht eingebaut.
+- Das Ziehen und Zoomen der Zeitachse ist nicht automatisch getestet (echte Mausereignisse nötig); bitte einmal von Hand ansehen.
+- Changelog-Eintrag und Features-Seite folgen beim Merge nach `main`.

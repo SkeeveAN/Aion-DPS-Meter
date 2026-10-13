@@ -57,6 +57,26 @@ public sealed class FightStore : IDisposable
             CREATE INDEX IF NOT EXISTS participants_name_idx ON participants(name);
             """);
         Execute("PRAGMA foreign_keys=ON;");
+        AddColumnIfMissing("extras_gz", "BLOB");
+    }
+
+    /// <summary>The table predates its newer columns (CREATE IF NOT EXISTS leaves an old one as it is), so each is added once when it is missing.</summary>
+    private void AddColumnIfMissing(string name, string type)
+    {
+        using SqliteCommand info = _connection.CreateCommand();
+        info.CommandText = "PRAGMA table_info(fights);";
+        using (SqliteDataReader reader = info.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                if (string.Equals(reader.GetString(1), name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+            }
+        }
+
+        Execute($"ALTER TABLE fights ADD COLUMN {name} {type};");
     }
 
     public long Insert(FightDetail detail)
@@ -79,8 +99,8 @@ public sealed class FightStore : IDisposable
         {
             cmd.Transaction = tx;
             cmd.CommandText = """
-                INSERT INTO fights (game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, events_gz)
-                VALUES ($game, $server, $started, $ended, $target, $kind, $total, $count, $self, $events);
+                INSERT INTO fights (game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, events_gz, extras_gz)
+                VALUES ($game, $server, $started, $ended, $target, $kind, $total, $count, $self, $events, $extras);
                 SELECT last_insert_rowid();
                 """;
             FightSummary s = detail.Summary;
@@ -94,6 +114,7 @@ public sealed class FightStore : IDisposable
             cmd.Parameters.AddWithValue("$count", detail.Participants.Count);
             cmd.Parameters.AddWithValue("$self", (object?)s.SelfName ?? DBNull.Value);
             cmd.Parameters.AddWithValue("$events", EventBlob.Pack(detail.Events, detail.Names));
+            cmd.Parameters.AddWithValue("$extras", detail.Extras is { IsEmpty: false } extras ? ExtrasBlob.Pack(extras) : DBNull.Value);
             long id = (long)cmd.ExecuteScalar()!;
 
             foreach (FightParticipant p in detail.Participants)
@@ -158,9 +179,10 @@ public sealed class FightStore : IDisposable
     {
         FightSummary? summary;
         byte[] blob;
+        byte[]? extrasBlob;
         using (SqliteCommand cmd = _connection.CreateCommand())
         {
-            cmd.CommandText = "SELECT id, game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, events_gz FROM fights WHERE id = $id;";
+            cmd.CommandText = "SELECT id, game, server_name, started_at, ended_at, target_name, kind, total_damage, participant_count, self_name, events_gz, extras_gz FROM fights WHERE id = $id;";
             cmd.Parameters.AddWithValue("$id", id);
             using SqliteDataReader reader = cmd.ExecuteReader();
             if (!reader.Read())
@@ -170,6 +192,7 @@ public sealed class FightStore : IDisposable
 
             summary = ReadSummary(reader);
             blob = (byte[])reader["events_gz"];
+            extrasBlob = reader["extras_gz"] as byte[];
         }
 
         var participants = new List<FightParticipant>();
@@ -189,7 +212,7 @@ public sealed class FightStore : IDisposable
         }
 
         (List<DamageEvent> events, Dictionary<int, string> names) = EventBlob.Unpack(blob);
-        return new FightDetail(summary, participants, events, names);
+        return new FightDetail(summary, participants, events, names, extrasBlob is { Length: > 0 } ? ExtrasBlob.Unpack(extrasBlob) : null);
     }
 
     /// <summary>Drops fights older than the retention window and, beyond that, everything past the

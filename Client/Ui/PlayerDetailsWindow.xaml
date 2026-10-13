@@ -33,6 +33,30 @@
             <Setter Property="Margin" Value="0,0,8,0"/>
             <Setter Property="MinWidth" Value="86"/>
         </Style>
+        <!-- The switch between the skill table, the rotation and the effects. -->
+        <Style x:Key="DetailsTabButton" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Rim" Padding="12,5" BorderThickness="0,0,0,2" BorderBrush="Transparent" Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Rim" Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="StatTileLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}"/>
@@ -132,6 +156,12 @@
             </DataGrid.Columns>
         </DataGrid>
 
+        <StackPanel x:Name="TabBar" DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+            <RadioButton x:Name="TabSkillsButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" IsChecked="True" Content="{local:Loc Details.Tab.Skills}" Checked="OnDetailsTabChanged"/>
+            <RadioButton x:Name="TabRotationButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" Content="{local:Loc Details.Tab.Rotation}" Checked="OnDetailsTabChanged"/>
+            <RadioButton x:Name="TabBuffsButton" GroupName="DetailsTab" Style="{StaticResource DetailsTabButton}" Content="{local:Loc Details.Tab.Buffs}" Checked="OnDetailsTabChanged"/>
+        </StackPanel>
+        <Grid x:Name="TabHost">
         <DataGrid x:Name="SkillsGrid" AutoGenerateColumns="False" IsReadOnly="True"
                   Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
                   AlternatingRowBackground="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
@@ -175,5 +205,74 @@
                 <DataGridTextColumn Header="Avg" Binding="{Binding Average, StringFormat=N0}" Width="80"/>
             </DataGrid.Columns>
         </DataGrid>
+
+        <DockPanel x:Name="RotationPanel" Visibility="Collapsed">
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+                <CheckBox x:Name="ShowPassivesBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Rotation.ShowPassives}" IsChecked="True" Margin="0,0,16,0" Checked="OnRotationOptionChanged" Unchecked="OnRotationOptionChanged"/>
+                <CheckBox x:Name="ShowDpsBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Rotation.ShowDps}" IsChecked="True" Margin="0,0,16,0" Checked="OnRotationOptionChanged" Unchecked="OnRotationOptionChanged"/>
+                <CheckBox x:Name="ShowStaggerBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Rotation.ShowStagger}" IsChecked="True" Margin="0,0,16,0" Checked="OnRotationOptionChanged" Unchecked="OnRotationOptionChanged"/>
+                <TextBlock Text="{local:Loc Rotation.Hint}" Foreground="{DynamicResource Brush.TextSubtle}" FontSize="11" VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock x:Name="NoRotationText" DockPanel.Dock="Top" Text="{local:Loc Rotation.NoData}" Foreground="{DynamicResource Brush.TextMuted}" TextWrapping="Wrap" Margin="0,8,0,0" Visibility="Collapsed"/>
+            <Border x:Name="RotationBox" DockPanel.Dock="Top" Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" CornerRadius="4">
+                <ScrollViewer x:Name="RotationScroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Height="172">
+                    <local:RotationTimelineView x:Name="Timeline"/>
+                </ScrollViewer>
+            </Border>
+            <StackPanel x:Name="OpenerRow" DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,8,0,4">
+                <TextBlock Text="{local:Loc Rotation.Opener}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <WrapPanel x:Name="OpenerPanel" VerticalAlignment="Center"/>
+            </StackPanel>
+            <DataGrid x:Name="RotationGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                      Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
+                      AlternatingRowBackground="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
+                      HorizontalGridLinesBrush="{DynamicResource Brush.Border}" GridLinesVisibility="Horizontal"
+                      HeadersVisibility="Column" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="{local:Loc Details.Tab.Skills}" Width="*" MinWidth="180">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Icon}" Width="20" Height="20" Margin="0,1,6,1" RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.Uses}" Binding="{Binding Uses}" Width="70"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.PerMinute}" Binding="{Binding PerMinute}" Width="80"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.Gap}" Binding="{Binding AverageGap}" Width="90"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.First}" Binding="{Binding FirstAt}" Width="80"/>
+                    <DataGridTextColumn Header="{local:Loc Details.Col.Share}" Binding="{Binding Share}" Width="80"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+
+        <DockPanel x:Name="BuffsPanel" Visibility="Collapsed">
+            <TextBlock x:Name="NoBuffsText" DockPanel.Dock="Top" Text="{local:Loc Rotation.NoBuffs}" Foreground="{DynamicResource Brush.TextMuted}" TextWrapping="Wrap" Margin="0,8,0,0" Visibility="Collapsed"/>
+            <DataGrid x:Name="BuffsGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                      Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
+                      AlternatingRowBackground="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
+                      HorizontalGridLinesBrush="{DynamicResource Brush.Border}" GridLinesVisibility="Horizontal"
+                      HeadersVisibility="Column" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="{local:Loc Rotation.Col.Effect}" Width="*" MinWidth="200">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Icon}" Width="20" Height="20" Margin="0,1,6,1" RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.Uptime}" Binding="{Binding Uptime}" Width="90"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.FromYou}" Binding="{Binding FromYou}" Width="90"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.Times}" Binding="{Binding Applications}" Width="70"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.Givers}" Binding="{Binding Givers}" Width="200"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+        </Grid>
     </DockPanel>
 </Window>

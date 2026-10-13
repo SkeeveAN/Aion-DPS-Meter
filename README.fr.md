@@ -94,6 +94,16 @@ directement dans les données de coups du serveur ; ils sont donc exacts.
   <img src="Web-Frontend/images/features/details@2x.webp" width="640" alt="Détail des compétences d'un joueur avec une courbe de dégâts dans le temps">
 </p>
 
+### Rotation, effets et stagger
+
+La même fenêtre a deux onglets de plus. **Rotation** dessine sur une frise chronologique chaque compétence utilisée par le joueur, au moment où il l'a utilisée : les compétences de soutien sur la ligne du haut, les compétences de dégâts en dessous, et une compétence enchaînée juste après une autre une ligne plus bas, de sorte qu'une série d'enchaînements forme un escalier. Derrière, on voit le DPS du joueur (la moyenne des cinq dernières secondes) et les moments où un monstre a été en stagger. Faites glisser pour vous déplacer dans le combat, **Ctrl + molette** zoome, et en survolant une icône, vous voyez l'usage (quand, quel usage sur combien, le temps écoulé depuis le précédent, le DPS à ce moment). En dessous se trouvent l'**Ouverture** (les premières compétences dans l'ordre) et la *rotation en bref* : Usages, Par min, Écart entre deux usages, Premier et la part des dégâts. **Effets** liste chaque effet qui était sur le joueur avec sa durée d'activité, la part venant du joueur lui-même, le nombre de fois où il a été appliqué et qui l'a donné ; un effet que deux joueurs ont maintenu en même temps ne compte qu'une fois.
+
+Un combat conserve ces données dans l'historique local, ce qui permet de revoir un ancien boss ; les combats enregistrés avec une version plus ancienne n'affichent pas de rotation.
+
+<p align="center">
+  <img src="Web-Frontend/images/features/rotation@2x.webp" width="640" alt="L'onglet Rotation de la fenêtre du joueur : compétences sur une frise chronologique avec le DPS derrière, l'ouverture et la rotation en bref">
+</p>
+
 ### Tout votre personnage d'un coup d'œil
 
 La fenêtre **Personnage** (icône de personne) montre ce que le jeu envoie à votre sujet : équipement avec niveau
