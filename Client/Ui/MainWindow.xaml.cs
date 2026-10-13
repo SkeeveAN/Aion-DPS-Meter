@@ -2169,6 +2169,28 @@ public partial class MainWindow : Window
     /// <summary>The directory the replay data is read from: the live capture, also while a stored session is on view (its ids are the live ids).</summary>
     private Aion2.Aion2EntityDirectory? ReplayDirectory => (_historyMode ? _liveSource : _source)?.Entities as Aion2.Aion2EntityDirectory;
 
+    /// <summary>The combat analyzer for one player of a session: the same details as a double click in the meter, but on the hits of that session only,
+    /// whatever the meter itself shows; skills, rotation, effects and the replay map.</summary>
+    private Window? BuildSessionAnalyzer(SessionInfo session, SessionManagerWindow.PlayerRow row)
+    {
+        var all = session.Data.Events.Where(ev => !ev.IsHeal).ToList();
+        if (all.Count == 0)
+        {
+            return null;
+        }
+
+        var mine = session.Data.Events.Where(ev => ev.SourceObjectId == row.Id).ToList();
+        DateTime from = all.Min(ev => ev.Timestamp), to = all.Max(ev => ev.Timestamp);
+        FightExtras? extras = session.Extras ?? ExtrasForSession(session);
+        Func<int, string?> nameOf = id => session.Names.GetValueOrDefault(id) ?? ResolveDisplayName(id);
+        ReplayData? replay = extras is null
+            ? null
+            : ReplayBuilder.Build(SessionLabels.NameOf(session), extras, all, from, to,
+                id => (nameOf(id) ?? "", session.Classes.GetValueOrDefault(id) ?? "", session.Classes.ContainsKey(id)), SkillRadius,
+                id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)));
+        return new PlayerDetailsWindow(row.Name, row.ClassName, "", mine, nameOf, fightEvents: all, extras: extras, playerId: row.Id, fightStart: from, fightEnd: to, replay: replay);
+    }
+
     /// <summary>The rotation, effect, stagger and replay data of a session, read from the live capture, for saving it with the file: the players of the session and the bosses.</summary>
     private FightExtras? ExtrasForSession(SessionInfo session)
     {
@@ -3578,6 +3600,7 @@ public partial class MainWindow : Window
             }
         };
         _sessionManager.ExtrasFor = ExtrasForSession;
+        _sessionManager.AnalyzerFactory = BuildSessionAnalyzer;
         _sessionManager.Closed += (_, _) => _sessionManager = null;
         _sessionManager.Show();
     }

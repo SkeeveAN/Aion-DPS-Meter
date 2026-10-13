@@ -6256,5 +6256,17 @@
     "pt": "Salva a rotação de habilidades, os efeitos, o atordoamento e o mapa de replay no arquivo, para ver depois ou em outro PC. O arquivo fica bem maior (cerca de 0,5 a 5 MB em uma luta de chefe de cinco minutos).",
     "ja": "スキルのローテーション、効果、スタッガー、リプレイマップをファイルに一緒に保存し、後から、または別のPCで見られるようにします。ファイルはかなり大きくなります(5分のボス戦で約0.5〜5MB)。",
     "ko": "스킬 로테이션, 효과, 그로기, 리플레이 지도를 파일에 함께 저장해 나중에 또는 다른 PC에서 볼 수 있게 합니다. 파일이 훨씬 커집니다(5분짜리 보스전 기준 약 0.5~5MB)."
+  },
+  "Sessions.Analyzer.Title": {
+    "en": "Combat analyzer",
+    "de": "Kampf-Analysator",
+    "fr": "Analyseur de combat",
+    "es": "Analizador de combate",
+    "ru": "Анализатор боя",
+    "zh": "战斗分析器",
+    "zh-TW": "戰鬥分析器",
+    "pt": "Analisador de combate",
+    "ja": "戦闘アナライザー",
+    "ko": "전투 분석기"
   }
 }

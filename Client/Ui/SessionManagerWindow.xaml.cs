@@ -23,6 +23,17 @@ public partial class SessionManagerWindow : Window
     private readonly DispatcherTimer _tick = new() { Interval = TimeSpan.FromSeconds(2) };
     private bool _loading;
 
+    /// <summary>Builds the combat analyzer for one player of a session (set by the main window): the player's details limited to the session's time.</summary>
+    public Func<SessionInfo, PlayerRow, Window?>? AnalyzerFactory { get; set; }
+
+    private Window? _analyzer;
+    private bool _analyzerFollows = true;
+    private bool _moving;
+    private Point _lastLocation;
+    private bool _syncingPlayers;
+    private int? _analyzedPlayer;
+    private int? _analyzedSession;
+
     /// <summary>Gives the rotation, effect, stagger and replay data of a session for saving; set by the main window (it holds the capture). Null result: none to save.</summary>
     public Func<SessionInfo, Combat.FightExtras?>? ExtrasFor { get; set; }
 
@@ -83,6 +94,7 @@ public partial class SessionManagerWindow : Window
         _tick.Start();
         Closed += (_, _) =>
         {
+            CloseAnalyzer();
             _tick.Stop();
             _recorder.Changed -= OnRecorderChanged;
         };
@@ -95,7 +107,7 @@ public partial class SessionManagerWindow : Window
     /// <summary>One line of the list.</summary>
     public sealed record Item(SessionInfo Session, string Title, string Facts, string Status, Brush Accent, DateTime Start, string Badge, Brush BadgeBrush);
 
-    public sealed record PlayerRow(string Name, string ClassName, long Damage, string DpsDisplay);
+    public sealed record PlayerRow(int Id, string Name, string ClassName, long Damage, string DpsDisplay);
 
     /// <summary>One line of the plausibility check.</summary>
     public sealed record FindingRow(string Icon, Brush Brush, string Text);
@@ -225,6 +237,7 @@ public partial class SessionManagerWindow : Window
             DetailTitle.Text = "";
             DetailFacts.Text = "";
             PlayersGrid.ItemsSource = null;
+            CloseAnalyzer();
             FindingsList.ItemsSource = null;
             BossGrid.ItemsSource = null;
             return;
@@ -233,7 +246,31 @@ public partial class SessionManagerWindow : Window
         DetailTitle.Text = SessionLabels.NameOf(session);
         DetailFacts.Text = $"{(session.Kind == SessionKind.Instance ? loc["Sessions.KindInstance"] : loc["Sessions.KindMap"])} \u00B7 "
             + $"{SessionLabels.TimeSpanOf(session)} \u00B7 {FormatLength(session.Duration(DateTime.Now))}";
-        PlayersGrid.ItemsSource = PlayersOf(session);
+        List<PlayerRow> players = PlayersOf(session);
+        _syncingPlayers = true;
+        PlayersGrid.ItemsSource = players;
+        PlayerRow? analyzed = _analyzedSession == session.Number ? players.FirstOrDefault(row => row.Id == _analyzedPlayer) : null;
+        if (analyzed is not null)
+        {
+            PlayersGrid.SelectedItem = analyzed;
+        }
+
+        _syncingPlayers = false;
+        if (_analyzedSession != session.Number)
+        {
+            // a session picked: the analyzer opens beside the manager with its first player
+            if (players.Count > 0)
+            {
+                _syncingPlayers = true;
+                PlayersGrid.SelectedItem = players[0];
+                _syncingPlayers = false;
+                OpenAnalyzer(session, players[0]);
+            }
+            else
+            {
+                CloseAnalyzer();
+            }
+        }
 
         // The open stay is read again from the capture's hit points each time it is looked at.
         if (session.IsOpen)
@@ -280,6 +317,7 @@ public partial class SessionManagerWindow : Window
                 List<DamageEvent> hits = group.ToList();
                 double? dps = DpsCalculator.AllDpsWallClock(hits, group.Key);
                 return new PlayerRow(
+                    group.Key,
                     session.Names.GetValueOrDefault(group.Key) ?? $"0x{group.Key:X8}",
                     session.Classes.GetValueOrDefault(group.Key) ?? "",
                     hits.Sum(ev => ev.Amount),
@@ -290,12 +328,95 @@ public partial class SessionManagerWindow : Window
             .ToList();
     }
 
-    private void OnSessionDoubleClick(object sender, MouseButtonEventArgs e)
+    /// <summary>A double click brings the analyzer to the front; the session is already analysed since it was picked.</summary>
+    private void OnSessionDoubleClick(object sender, MouseButtonEventArgs e) => _analyzer?.Activate();
+
+    private void OnPlayerSelected(object sender, SelectionChangedEventArgs e)
     {
-        if (SessionList.SelectedItem is Item)
+        if (!_syncingPlayers && PlayersGrid.SelectedItem is PlayerRow row && SessionList.SelectedItem is Item item)
         {
-            OnShowClicked(sender, e);
+            OpenAnalyzer(item.Session, row);
         }
+    }
+
+    // ---- the combat analyzer: the player details of the picked session, in a window of its own that sits beside the manager ------------------
+
+    private void OpenAnalyzer(SessionInfo session, PlayerRow row)
+    {
+        if (AnalyzerFactory?.Invoke(session, row) is not { } next)
+        {
+            return;
+        }
+
+        _analyzedSession = session.Number;
+        _analyzedPlayer = row.Id;
+        next.Title = $"{LocalizationManager.Instance["Sessions.Analyzer.Title"]} - {row.Name} - {SessionLabels.NameOf(session)}";
+        next.Owner = this;
+        next.WindowStartupLocation = WindowStartupLocation.Manual;
+
+        Window? old = _analyzer;
+        if (old is not null && !_analyzerFollows)
+        {
+            // the user moved it away: the next player appears where it stands
+            next.Left = old.Left;
+            next.Top = old.Top;
+            next.Width = old.ActualWidth;
+            next.Height = old.ActualHeight;
+        }
+        else
+        {
+            _analyzerFollows = true;
+            _moving = true;
+            double width = next.Width;
+            Rect area = SystemParameters.WorkArea;
+            next.Left = Math.Max(area.Left, Math.Min(Left + ActualWidth, area.Right - width));
+            next.Top = Top;
+            next.Height = ActualHeight;
+            _moving = false;
+        }
+
+        _analyzer = next;
+        _lastLocation = new Point(Left, Top);
+        next.LocationChanged += (_, _) =>
+        {
+            if (!_moving && ReferenceEquals(_analyzer, next))
+            {
+                _analyzerFollows = false;
+            }
+        };
+        next.Closed += (_, _) =>
+        {
+            if (ReferenceEquals(_analyzer, next))
+            {
+                _analyzer = null;
+            }
+        };
+        next.Show();
+        old?.Close();
+    }
+
+    private void CloseAnalyzer()
+    {
+        _analyzedSession = null;
+        _analyzedPlayer = null;
+        Window? window = _analyzer;
+        _analyzer = null;
+        window?.Close();
+    }
+
+    /// <summary>The analyzer follows the manager when that is moved, as long as the user has not put it somewhere else.</summary>
+    protected override void OnLocationChanged(EventArgs e)
+    {
+        base.OnLocationChanged(e);
+        if (_analyzer is { } window && _analyzerFollows)
+        {
+            _moving = true;
+            window.Left += Left - _lastLocation.X;
+            window.Top += Top - _lastLocation.Y;
+            _moving = false;
+        }
+
+        _lastLocation = new Point(Left, Top);
     }
 
     private void OnShowClicked(object sender, RoutedEventArgs e)

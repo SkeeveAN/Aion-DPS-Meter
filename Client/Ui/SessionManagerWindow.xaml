@@ -211,7 +211,7 @@
                     <DataGridTextColumn Header="{local:Loc Sessions.Col.Enrage}" Binding="{Binding Enrage}" Width="150"/>
                 </DataGrid.Columns>
             </DataGrid>
-            <DataGrid x:Name="PlayersGrid" Grid.Row="4">
+            <DataGrid x:Name="PlayersGrid" Grid.Row="4" SelectionChanged="OnPlayerSelected">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{local:Loc Main.ColumnName}" Binding="{Binding Name}" MinWidth="160" Width="*"/>
                     <DataGridTextColumn Header="{local:Loc History.ColumnClass}" Binding="{Binding ClassName, Converter={StaticResource ClassNameConverter}}" Width="110"/>
