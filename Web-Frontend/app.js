@@ -626,6 +626,7 @@ const FEATURE_BLOCKS = [
   { id: "modes", images: [["mode-all", 1040, 840], ["mode-all-compact", 1040, 840]] },
   { id: "overlay", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
   { id: "details", images: [["details", 1720, 1360]] },
+  { id: "sessions", images: [["sessions", 1180, 760]] },
   { id: "character", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
   // the sides of the scenes are tuned one by one in style.css, so they are fixed here and not alternated by position
   { id: "network", images: [["network", 1240, 1080, { h: 400 }], ["network-overlay", 770, 414, { h: 200 }]] },
@@ -640,7 +641,7 @@ const FEATURE_BLOCKS = [
 // pictures offered in the designer as alternative backgrounds of a scene (images/features/alt/); the choice is saved as "bg" in feature-layout.json
 const FEATURE_BG_ALTERNATIVES = { announcements: ["announcements-1", "announcements-2", "announcements-3"], twitchdrops: ["twitchdrops-1", "twitchdrops-2", "twitchdrops-3"] };
 const FEATURE_FLIPPED = new Set(["modes", "details", "network", "timetable", "hotkeys", "twitchdrops"]);
-const FEATURE_VERSION = "20261012o";
+const FEATURE_VERSION = "20261013a";
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
@@ -648,6 +649,7 @@ const FEATURE_CARDS = [
   ["modes", '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'],
   ["overlay", '<path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5"/>'],
   ["details", '<path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/>'],
+  ["sessions", '<path d="M3 6h18M3 12h18M3 18h18"/><path d="M8 4v4M15 10v4M11 16v4"/>'],
   ["character", '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>'],
   ["network", '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M12 19.5h.01"/>'],
   ["map", '<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>'],
@@ -657,7 +659,7 @@ const FEATURE_CARDS = [
   ["announcements", '<path d="M3 11v3a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/>'],
   ["twitchdrops", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'],
 ];
-const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff" };
+const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", sessions: "#e0a04a", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff" };
 // Icons of the six "And more" cards (shield, upload, clock, refresh, globe, code).
 const FEATURE_MORE_ICONS = [
   '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
