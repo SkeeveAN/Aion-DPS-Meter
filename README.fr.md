@@ -196,6 +196,8 @@ Chaque carte et chaque instance est enregistrée comme session à part, pour rev
   <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Gestionnaire de sessions avec chronologie et contrôle de plausibilité">
 </p>
 
+L'historique retient quels combats de boss ont été envoyés en ligne : sa liste a une colonne **Envoyé**, peut n'afficher que les combats de boss non envoyés, et **Paramètres → Interface** indique combien il y en a. Les combats enregistrés par une ancienne version affichent un « ? » à la place (l'historique ne le suivait pas à l'époque).
+
 ## Utilisation
 
 L'enregistrement démarre dès que le compteur tourne. **La pause jette** au lieu de différer : les événements
@@ -205,6 +207,7 @@ pendant une pause sont perdus, la reprise ne rejoue donc jamais un combat que vo
   **Copy All** donne un tableau Markdown pour Discord.
 - L'apparence se règle sous **Paramètres → Interface** : thème (sombre/clair), taille de police, langue, aspect et
   opacité de l'overlay, démarrage avec Windows.
+- Vos réglages survivent à un plantage : le fichier de réglages est écrit en une seule fois, et une copie du dernier démarrage est conservée à côté. Si le fichier est un jour endommagé, cette copie est restaurée (le fichier endommagé est conservé à côté). **Paramètres → Interface → Réinitialiser tous les réglages** demande confirmation deux fois et peut être annulé pendant 30 secondes ; vos choix d'envoi et de confidentialité, la vérification des mises à jour et votre personnage restent tels quels.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Paramètres : interface, overlay et comportement">

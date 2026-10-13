@@ -5752,5 +5752,101 @@
     "ja": "このメニュー中もオーバーレイを表示",
     "ko": "이 메뉴에서 오버레이 표시",
     "zh-TW": "在此選單中顯示浮動層"
+  },
+  "Settings.Reset.Button": {
+    "en": "Reset all settings to defaults",
+    "de": "Alle Einstellungen auf Standard zurücksetzen",
+    "fr": "Réinitialiser tous les réglages",
+    "es": "Restablecer todos los ajustes",
+    "ru": "Сбросить все настройки",
+    "zh": "将所有设置恢复默认",
+    "pt": "Redefinir todas as configurações",
+    "ja": "すべての設定を初期値に戻す",
+    "ko": "모든 설정을 기본값으로 되돌리기",
+    "zh-TW": "將所有設定還原為預設值"
+  },
+  "Settings.Reset.Confirm": {
+    "en": "Really reset? Click again",
+    "de": "Wirklich zurücksetzen? Noch einmal klicken",
+    "fr": "Vraiment réinitialiser ? Cliquez encore",
+    "es": "¿Restablecer de verdad? Haz clic otra vez",
+    "ru": "Точно сбросить? Нажмите ещё раз",
+    "zh": "确定重置？再点一次",
+    "pt": "Redefinir mesmo? Clique de novo",
+    "ja": "本当にリセットしますか？もう一度クリック",
+    "ko": "정말 되돌릴까요? 한 번 더 누르세요",
+    "zh-TW": "確定重設？再按一次"
+  },
+  "Settings.Reset.Hint": {
+    "en": "Look, hotkeys, overlays and their places go back to how a new install has them. Your upload and privacy choices, the update check and your character stay as they are. For 30 seconds afterwards you can take it back.",
+    "de": "Aussehen, Tastenkürzel, Overlays und ihre Plätze gehen auf den Stand einer neuen Installation zurück. Deine Upload- und Datenschutzwahl, die Update-Prüfung und dein Charakter bleiben, wie sie sind. Danach kannst du es 30 Sekunden lang rückgängig machen.",
+    "fr": "L'apparence, les raccourcis, les overlays et leur emplacement reviennent à l'état d'une nouvelle installation. Vos choix d'envoi et de confidentialité, la vérification des mises à jour et votre personnage restent inchangés. Vous pouvez annuler pendant 30 secondes.",
+    "es": "El aspecto, los atajos, los overlays y su posición vuelven al estado de una instalación nueva. Tus decisiones de subida y privacidad, la comprobación de actualizaciones y tu personaje se mantienen. Después puedes deshacerlo durante 30 segundos.",
+    "ru": "Внешний вид, горячие клавиши, оверлеи и их положение возвращаются к состоянию новой установки. Ваш выбор по загрузкам и приватности, проверка обновлений и персонаж не меняются. После этого 30 секунд можно отменить сброс.",
+    "zh": "外观、快捷键、悬浮窗及其位置会恢复为全新安装时的状态。你的上传与隐私选择、更新检查和角色保持不变。之后 30 秒内可以撤销。",
+    "pt": "A aparência, os atalhos, os overlays e suas posições voltam ao estado de uma instalação nova. Suas escolhas de envio e privacidade, a verificação de atualizações e seu personagem permanecem. Depois você pode desfazer por 30 segundos.",
+    "ja": "外観、ホットキー、オーバーレイとその位置が新規インストール時の状態に戻ります。アップロードとプライバシーの選択、更新の確認、キャラクターはそのままです。その後30秒間は元に戻せます。",
+    "ko": "모양, 단축키, 오버레이와 그 위치가 새로 설치한 상태로 돌아갑니다. 업로드와 개인정보 선택, 업데이트 확인, 캐릭터는 그대로 유지됩니다. 이후 30초 동안 되돌릴 수 있습니다.",
+    "zh-TW": "外觀、快速鍵、浮動層及其位置會還原為全新安裝時的狀態。你的上傳與隱私選擇、更新檢查和角色保持不變。之後 30 秒內可以復原。"
+  },
+  "Settings.Reset.Undo": {
+    "en": "Settings reset - undo possible for {0} s",
+    "de": "Einstellungen zurückgesetzt - rückgängig möglich: {0} s",
+    "fr": "Réglages réinitialisés - annulation possible : {0} s",
+    "es": "Ajustes restablecidos - se puede deshacer: {0} s",
+    "ru": "Настройки сброшены - можно отменить: {0} с",
+    "zh": "设置已重置 - 可撤销：{0} 秒",
+    "pt": "Configurações redefinidas - dá para desfazer: {0} s",
+    "ja": "設定をリセットしました - 元に戻せる時間: {0} 秒",
+    "ko": "설정을 초기화했습니다 - 되돌릴 수 있는 시간: {0}초",
+    "zh-TW": "設定已重設 - 可復原：{0} 秒"
+  },
+  "Settings.Reset.UndoButton": {
+    "en": "Undo reset",
+    "de": "Zurücksetzen rückgängig",
+    "fr": "Annuler la réinitialisation",
+    "es": "Deshacer restablecimiento",
+    "ru": "Отменить сброс",
+    "zh": "撤销重置",
+    "pt": "Desfazer redefinição",
+    "ja": "リセットを元に戻す",
+    "ko": "초기화 되돌리기",
+    "zh-TW": "復原重設"
+  },
+  "Main.SettingsRecovered": {
+    "en": "Your settings file was damaged: the settings of the last start were restored (the damaged file is kept next to it).",
+    "de": "Deine Einstellungsdatei war beschädigt: Die Einstellungen vom letzten Start wurden wiederhergestellt (die beschädigte Datei liegt daneben).",
+    "fr": "Votre fichier de réglages était endommagé : les réglages du dernier démarrage ont été restaurés (le fichier endommagé est conservé à côté).",
+    "es": "Tu archivo de ajustes estaba dañado: se restauraron los ajustes del último inicio (el archivo dañado se guarda al lado).",
+    "ru": "Файл настроек был повреждён: восстановлены настройки с прошлого запуска (повреждённый файл сохранён рядом).",
+    "zh": "设置文件已损坏：已恢复上次启动时的设置（损坏的文件保存在旁边）。",
+    "pt": "O arquivo de configurações estava danificado: as configurações da última inicialização foram restauradas (o arquivo danificado fica ao lado).",
+    "ja": "設定ファイルが破損していたため、前回起動時の設定を復元しました（破損したファイルは隣に残してあります）。",
+    "ko": "설정 파일이 손상되어 지난 실행 때의 설정을 복원했습니다(손상된 파일은 옆에 보관됩니다).",
+    "zh-TW": "設定檔已損毀：已還原上次啟動時的設定（損毀的檔案保存在旁邊）。"
+  },
+  "History.ColumnUploaded": {
+    "en": "Uploaded",
+    "de": "Hochgeladen",
+    "fr": "Envoyé",
+    "es": "Subido",
+    "ru": "Загружено",
+    "zh": "已上传",
+    "pt": "Enviado",
+    "ja": "アップロード",
+    "ko": "업로드",
+    "zh-TW": "已上傳"
+  },
+  "History.OnlyNotUploaded": {
+    "en": "Only boss fights not uploaded",
+    "de": "Nur nicht hochgeladene Boss-Kämpfe",
+    "fr": "Seulement les combats de boss non envoyés",
+    "es": "Solo combates de jefe sin subir",
+    "ru": "Только не загруженные бои с боссами",
+    "zh": "仅显示未上传的首领战斗",
+    "pt": "Somente lutas de chefe não enviadas",
+    "ja": "未アップロードのボス戦のみ",
+    "ko": "업로드하지 않은 보스 전투만",
+    "zh-TW": "僅顯示未上傳的首領戰鬥"
   }
 }

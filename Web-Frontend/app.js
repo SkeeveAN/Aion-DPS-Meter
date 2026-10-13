@@ -1,6 +1,18 @@
 import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGameName } from "./i18n.js";
 import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, SERVER_NAMES, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
+import { BOSS_CARDS_V2 } from "./game-data-v2.js";
+
+// Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
+const V2 = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get("v2");
+    if (q === "1") sessionStorage.setItem("v2", "1");
+    if (q === "0") sessionStorage.removeItem("v2");
+    return sessionStorage.getItem("v2") === "1";
+  } catch { return false; }
+})();
+const bossCards = V2 ? { ...BOSS_CARDS, ...BOSS_CARDS_V2 } : BOSS_CARDS;
 
 const app = document.getElementById("app");
 const breadcrumb = document.getElementById("breadcrumb");
@@ -425,7 +437,7 @@ function buildTopPlayersSection(rows, game) {
 function buildRecentActivitySection(rows) {
   const cards = rows.map((r) => {
     const instanceName = displayName({ name: r.instanceName, nameEn: r.instanceNameEn });
-    const photo = BOSS_CARDS[r.bossNameEn] ?? BOSS_CARDS[r.bossName] ?? BOSS_IMAGES[r.bossNameEn] ?? BOSS_IMAGES[r.bossName] ?? INSTANCE_IMAGES[r.instanceNameEn] ?? INSTANCE_IMAGES[r.instanceName];
+    const photo = bossCards[r.bossNameEn] ?? bossCards[r.bossName] ?? BOSS_IMAGES[r.bossNameEn] ?? BOSS_IMAGES[r.bossName] ?? INSTANCE_IMAGES[r.instanceNameEn] ?? INSTANCE_IMAGES[r.instanceName];
     return el("a", { className: "hp-run", href: gp(`/encounters/${r.encounterId}`) }, [
       el("span", { className: "hp-thumb", style: photo ? `background-image:url('${smallPhoto(photo)}')` : "" }),
       el("span", { className: "hp-run-mid" }, [
@@ -2089,7 +2101,7 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   const grid = el(
     "div",
     { className: "poster-grid" },
-    sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}${modeQuery}`), BOSS_CARDS[b.name] ?? BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), BOSS_CARDS[b.name] ? "center" : BOSS_IMAGES[b.name] ? "64% center" : "top")),
+    sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}${modeQuery}`), bossCards[b.name] ?? BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), bossCards[b.name] ? "center" : BOSS_IMAGES[b.name] ? "64% center" : "top")),
   );
   app.replaceChildren(...hero, el("h2", { textContent: t("bosses.heading") }), grid);
 }

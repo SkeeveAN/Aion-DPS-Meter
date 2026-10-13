@@ -194,6 +194,8 @@ Cada mapa e instancia se graba como una sesión propia, para volver a ver una pa
   <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Gestor de sesiones con línea de tiempo y comprobación de plausibilidad">
 </p>
 
+El historial recuerda qué combates contra jefes se subieron: su lista tiene una columna **Subido**, puede mostrar solo los combates contra jefes que no se subieron, y **Ajustes → Interfaz** indica cuántos hay. Los combates grabados por una versión anterior muestran un «?» (el historial no lo registraba entonces).
+
 ## Uso
 
 La grabación empieza en cuanto el medidor está en marcha. **La pausa descarta** en lugar de aplazar: los eventos
@@ -203,6 +205,7 @@ durante una pausa se pierden para siempre, así que al reanudar nunca se repite 
   **Copy All** te da una tabla Markdown para Discord.
 - La apariencia se ajusta en **Ajustes → Interfaz**: tema (oscuro/claro), tamaño de fuente, idioma, aspecto y
   opacidad del overlay, inicio con Windows.
+- Tus ajustes sobreviven a un fallo: el archivo de ajustes se escribe de una sola vez y junto a él se guarda una copia del último inicio. Si el archivo llega a dañarse, se restaura esa copia (el archivo dañado se conserva al lado). **Ajustes → Interfaz → Restablecer todos los ajustes** pregunta dos veces y se puede deshacer durante 30 segundos; tus decisiones de subida y privacidad, la comprobación de actualizaciones y tu personaje se quedan como están.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Ajustes: interfaz, overlay y comportamiento">

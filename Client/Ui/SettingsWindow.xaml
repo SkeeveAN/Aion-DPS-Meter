@@ -323,6 +323,8 @@
         </Grid>
         <!-- Right/bottom margin keeps Cancel clear of the window's resize grip in the corner. -->
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,22,8">
+            <TextBlock x:Name="UndoText" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource Brush.Accent}" Visibility="Collapsed"/>
+            <Button x:Name="UndoButton" Content="{local:Loc Settings.Reset.UndoButton}" Click="OnUndoResetClicked" Visibility="Collapsed" Margin="0,0,16,0"/>
             <Button Content="{local:Loc Settings.Save}" Click="OnSaveClicked"/>
             <Button Content="{local:Loc Settings.Cancel}" Click="OnCancelClicked"/>
         </StackPanel>
@@ -548,6 +550,12 @@
                                 <CheckBox x:Name="HideDuringMenusBox" Content="{local:Loc Settings.Menu.Hide}"/>
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Menu.Hint}" Margin="0,8,0,0"/>
                                 <TextBlock x:Name="MenuControlStatus" Style="{StaticResource CardHint}" Margin="0,6,0,0" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <Button x:Name="ResetSettingsButton" Content="{local:Loc Settings.Reset.Button}" HorizontalAlignment="Left" Padding="12,3" Click="OnResetSettingsClicked"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Reset.Hint}" Margin="0,8,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

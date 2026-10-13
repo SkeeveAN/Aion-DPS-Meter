@@ -193,6 +193,8 @@ Jede Karte und jede Instanz wird als eigene Session aufgezeichnet, damit du dir 
   <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Session-Manager mit Zeitleiste und Plausibilitätscheck">
 </p>
 
+Der Verlauf merkt sich, welche Boss-Kämpfe online gelandet sind: Seine Liste hat eine Spalte **Hochgeladen**, kann nur die nicht hochgeladenen Boss-Kämpfe zeigen, und **Einstellungen → Oberfläche** nennt, wie viele es sind. Von einer älteren Version aufgezeichnete Kämpfe zeigen stattdessen ein „?“ (der Verlauf hat das damals nicht festgehalten).
+
 ## Benutzung
 
 Die Aufnahme beginnt, sobald der Meter läuft. **Pause verwirft** statt zu puffern: Ereignisse
@@ -202,6 +204,7 @@ während einer Pause sind für immer weg, ein Fortsetzen spielt also nie einen K
   liefert eine Discord-Markdown-Tabelle.
 - Das Aussehen wird unter **Einstellungen → Oberfläche** festgelegt: Theme (dunkel/hell), Schriftgröße, Sprache, Overlay-Optik
   und -Deckkraft, Start mit Windows.
+- Deine Einstellungen überstehen einen Absturz: Die Einstellungsdatei wird in einem Zug geschrieben, und eine Kopie vom letzten Start liegt daneben. Ist die Datei einmal beschädigt, wird diese Kopie wiederhergestellt (die beschädigte Datei bleibt daneben erhalten). **Einstellungen → Oberfläche → Alle Einstellungen auf Standard zurücksetzen** fragt zweimal nach und lässt sich 30 Sekunden lang rückgängig machen; deine Upload- und Datenschutz-Entscheidungen, die Update-Prüfung und dein Charakter bleiben dabei, wie sie sind.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Einstellungen: Oberfläche, Overlay und Verhalten">

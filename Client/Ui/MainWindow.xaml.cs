@@ -1016,6 +1016,11 @@ public partial class MainWindow : Window
             _network ??= new NetworkOverlayController();
             _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory);
             _menuWatcher ??= new MenuWatcher();
+            MeterSettings.BackupOnStart(); // after the first Load of this start, which restores a damaged file from the last copy
+            if (MeterSettings.RecoveredFromBackup)
+            {
+                ShowUploadStatus(LocalizationManager.Instance["Main.SettingsRecovered"]);
+            }
             _gateTimer.Tick += (_, _) => OnGateTick();
             _gateTimer.Start();
         }
@@ -4165,28 +4170,69 @@ public partial class MainWindow : Window
             return;
         }
 
+        OpenSettings(null);
+    }
+
+    /// <summary>Opens the settings window; <paramref name="undoUntil"/> adds "Undo reset" to it (after a reset).</summary>
+    private void OpenSettings(DateTime? undoUntil)
+    {
         var settings = MeterSettings.Load();
-        _settingsWindow = new SettingsWindow(settings) { Owner = this };
+        _settingsWindow = new SettingsWindow(settings, undoUntil) { Owner = this };
         _settingsWindow.Saved += () =>
         {
             settings.Save();
-            Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
-            ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
-            ApplyHotkeys(settings); // possibly changed keys
-            ApplyTimetable(settings);
-            ApplyPetFarm(settings);
-            ApplyHotkeyOverlay(settings);
-            ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
-            if (settings.CaptureAdapterId != _captureAdapterInUse)
+            ApplySettingsEverywhere(settings);
+        };
+        _settingsWindow.ResetRequested += () =>
+        {
+            MeterSettings.ResetToDefaults();
+            ApplySettingsEverywhere(MeterSettings.Load());
+            ReopenSettings(DateTime.UtcNow.AddSeconds(30));
+        };
+        _settingsWindow.UndoRequested += () =>
+        {
+            if (MeterSettings.UndoReset())
             {
-                StartCapture(settings); // only a new network adapter needs a new capture: a restart forgets the map, the position and the pets of the running game
+                ApplySettingsEverywhere(MeterSettings.Load());
             }
-            RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
-            ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
-            RefreshRows();
+            ReopenSettings(null);
         };
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
+    }
+
+    private void ReopenSettings(DateTime? undoUntil)
+    {
+        _settingsWindow?.Close();
+        OpenSettings(undoUntil);
+    }
+
+    /// <summary>What has to follow when the settings change: the look, the hotkeys, the overlays and the capture.</summary>
+    private void ApplySettingsEverywhere(MeterSettings settings)
+    {
+        if (settings.Language.Length > 0)
+        {
+            LocalizationManager.Instance.Language = settings.Language;
+        }
+        else
+        {
+            LocalizationManager.Instance.UseSystemLanguage();
+        }
+
+        Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
+        ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
+        ApplyHotkeys(settings); // possibly changed keys
+        ApplyTimetable(settings);
+        ApplyPetFarm(settings);
+        ApplyHotkeyOverlay(settings);
+        ExitHistoryMode(); // a viewed past fight must not survive a source change underneath it
+        if (settings.CaptureAdapterId != _captureAdapterInUse)
+        {
+            StartCapture(settings); // only a new network adapter needs a new capture: a restart forgets the map, the position and the pets of the running game
+        }
+        RefreshCharacterSettings(settings); // possibly a new/changed character list or active one
+        ApplyClassFilterAvailability(); // possibly a new/changed install folder or server display name
+        RefreshRows();
     }
 
     /// <summary>

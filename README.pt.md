@@ -193,6 +193,8 @@ Cada mapa e instância é gravado como uma sessão própria, para você rever um
   <img src="Web-Frontend/images/features/sessions@2x.webp" width="590" alt="Gerenciador de sessões com linha do tempo e verificação de plausibilidade">
 </p>
 
+O histórico lembra quais lutas contra chefes foram enviadas online: sua lista tem uma coluna **Enviado**, pode mostrar apenas as lutas contra chefes que não foram enviadas, e **Configurações → Interface** informa quantas são. As lutas gravadas por uma versão mais antiga mostram um “?” no lugar (o histórico não registrava isso na época).
+
 ## Como usar
 
 A gravação começa assim que o medidor está em execução. **Pausar descarta** em vez de adiar: os eventos
@@ -202,6 +204,7 @@ durante uma pausa são ignorados de vez, então retomar nunca reproduz uma luta 
   gera uma tabela em markdown do Discord.
 - A aparência é definida em **Configurações → Interface**: tema (escuro/claro), tamanho da fonte, idioma, aparência do overlay
   e opacidade, iniciar com o Windows.
+- Suas configurações sobrevivem a uma falha: o arquivo de configurações é gravado de uma só vez, e uma cópia da última inicialização fica ao lado dele. Se o arquivo for danificado, essa cópia é restaurada (o arquivo danificado é mantido ao lado). **Configurações → Interface → Redefinir todas as configurações** pergunta duas vezes e pode ser desfeito por 30 segundos; suas escolhas de envio e privacidade, a verificação de atualizações e seu personagem permanecem como estão.
 
 <p align="center">
   <img src="Web-Frontend/images/features/settings@2x.webp" width="340" alt="Configurações: interface, overlay e comportamento">
