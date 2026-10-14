@@ -125,7 +125,7 @@ export function downloadPage(): Page {
         {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it safe to use?", "acceptedAnswer": {"@type": "Answer", "text": "The meter only reads the network traffic your own computer already receives, through the Npcap driver. It never reads game memory, never injects code and never hooks the game client."}}, {"@type": "Question", "name": "Does it cost anything?", "acceptedAnswer": {"@type": "Answer", "text": "No. Aion DPS Meter is free and open source under the MIT license."}}, {"@type": "Question", "name": "Which AION 2 regions does it support?", "acceptedAnswer": {"@type": "Answer", "text": "The global release of AION 2, every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there."}}, {"@type": "Question", "name": "Do I need administrator rights?", "acceptedAnswer": {"@type": "Answer", "text": "Not for the meter: it installs per user. Only the installer of the Npcap driver asks for them."}}, {"@type": "Question", "name": "Are my fights uploaded automatically?", "acceptedAnswer": {"@type": "Answer", "text": "No. Uploads to the leaderboards are off by default and you decide in the settings whether to switch them on."}}]}],
     },
     body: html`
-      <h2>AION 2 DPS Meter Download</h2>
+      <h1>AION 2 DPS Meter Download</h1>
       <p>A damage/heal meter for Aion 2 that passively captures your own network traffic. It never reads game memory and never hooks the client. Runs beside the game as its own window or as a transparent overlay.</p>
       <p><a class="download-cta" href="/download/latest">Download the latest release</a></p>
       <p>Free Windows installer, no admin rights needed. Works with the global release of AION 2 (every region NCSOFT launched on 5 October 2026); Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there.</p>
@@ -223,7 +223,7 @@ export function changelogPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Changelog", path: "/changelog" }])],
     },
     body: html`
-      <h2>Changelog</h2>
+      <h1>Changelog</h1>
       <p>What changed in each release of the Aion DPS Meter Windows client. <a href="/download">Download</a></p>`,
   };
 }
@@ -238,7 +238,7 @@ export function guildsPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/legions" }])],
     },
     body: html`
-      <h2>Legions</h2>
+      <h1>Legions</h1>
       <p>The legions of the Aion 2 players known to Aion DPS, per server, with the members we have seen.</p>`,
   };
 }
@@ -259,7 +259,7 @@ export function guildPage(slug: string): Page | null {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/legions" }, { name: guild.name, path }])],
     },
     body: html`
-      <h2>${guild.name}</h2>
+      <h1>${guild.name}</h1>
       <p>${guild.serverName} · ${members.length} known member${members.length === 1 ? "" : "s"}</p>
       <ul class="plain">${members.map((m) => html`<li><a href="/players/${m.slug ?? m.id}">${m.name}</a>${m.className ? html` · ${m.className}` : ""}</li>`)}</ul>`,
   };
@@ -275,7 +275,7 @@ export function statsPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Statistics", path: "/stats" }])],
     },
     body: html`
-      <h2>Statistics</h2>
+      <h1>Statistics</h1>
       <p>Live numbers of the Aion DPS community leaderboards: players, full profiles, boss fights and downloads.</p>`,
   };
 }
@@ -290,7 +290,7 @@ export function serverStatusPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Server Status", path: "/status" }])],
     },
     body: html`
-      <h2>Server Status</h2>
+      <h1>Server Status</h1>
       <p>Live reachability of the Aion 2 login servers and game servers, checked every minute.</p>`,
   };
 }
@@ -305,7 +305,7 @@ export function announcementsPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "AION 2 Announcements", path: "/announcements" }])],
     },
     body: html`
-      <h2>AION 2 Announcements</h2>
+      <h1>AION 2 Announcements</h1>
       <p>The official AION 2 announcements: maintenance, outages, new servers, server transfers, compensation and account notices.</p>`,
   };
 }
@@ -320,7 +320,7 @@ export function patchnotesPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "AION 2 Patch Notes", path: "/patchnotes" }])],
     },
     body: html`
-      <h2>AION 2 Patch Notes</h2>
+      <h1>AION 2 Patch Notes</h1>
       <p>The official AION 2 patch notes in full text: improvements, drop rates, merchants and fixes.</p>`,
   };
 }
@@ -335,7 +335,7 @@ export function twitchDropsPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "AION 2 Twitch Drops", path: "/twitch-drops" }])],
     },
     body: html`
-      <h2>AION 2 Twitch Drops</h2>
+      <h1>AION 2 Twitch Drops</h1>
       <p>Watch AION 2 streams on Twitch with Drops enabled and earn in-game rewards. This page lists the running campaign with every reward and its watch time, how to link your NC and Twitch accounts, and the earlier campaigns.</p>`,
   };
 }
@@ -345,7 +345,7 @@ export function privateStatsPage(path: string): Page {
   return {
     status: 200,
     meta: { title: "Statistics", description: "Statistics", canonicalPath: path, noindex: true },
-    body: html`<h2>Statistics</h2>`,
+    body: html`<h1>Statistics</h1>`,
   };
 }
 
@@ -363,7 +363,7 @@ export function privacyPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Privacy Policy", path: "/privacy" }])],
     },
     body: html`
-      <h2>Privacy Policy</h2>
+      <h1>Privacy Policy</h1>
       <p>Aion DPS Meter is a free, open-source, hobby-run community project. The client passively observes your own network traffic to compute stats locally; uploading a parse to the community leaderboards is optional, and your own character profile is only uploaded automatically after login if you switch that on in the settings (off by default). See the full policy on the site for details on what gets stored and your rights.</p>`,
   };
 }
@@ -378,7 +378,7 @@ export function feedbackPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Feedback", path: "/feedback" }])],
     },
     body: html`
-      <h2>Problem / Improvement</h2>
+      <h1>Problem / Improvement</h1>
       <p>Report a bug, ask for a feature or suggest an improvement. Your message becomes a public issue on GitHub; your e-mail address is never published.</p>`,
   };
 }
@@ -393,7 +393,7 @@ export function termsPage(): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Terms of Service", path: "/terms" }])],
     },
     body: html`
-      <h2>Terms of Service</h2>
+      <h1>Terms of Service</h1>
       <p>Aion DPS Meter is a free, fan-made community project, not affiliated with or endorsed by NCSoft or any official Aion publisher. It is provided "as is", without warranty. See the full terms on the site for acceptable use and liability details.</p>`,
   };
 }
@@ -428,7 +428,7 @@ export function instancesPage(game: Game): Page {
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: `${label} instances`, path: `/instances` }]), itemListJsonLd(`${label} instances`, items)],
     },
     body: html`
-      <h2>${label} instances</h2>
+      <h1>${label} instances</h1>
       ${rows.length === 0 ? html`<p class="empty">No instances recorded yet.</p>` : html`<ul class="plain">${items.map((i) => html`<li><a href="${i.path}">${i.name}</a></li>`)}</ul>`}`,
   };
 }
@@ -474,7 +474,7 @@ export function instanceCategoryPage(game: Game, category: string, variant: "nor
       ],
     },
     body: html`
-      <h2>${label} ${catLabel}${modeText}</h2>
+      <h1>${label} ${catLabel}${modeText}</h1>
       <p>${CATEGORY_INTRO[category]}.</p>
       <ul class="plain">${items.map((i) => html`<li><a href="${i.path}">${i.name}</a></li>`)}</ul>`,
   };
@@ -499,7 +499,7 @@ export function worldBossesPage(game: Game): Page {
       ogImage: rows[0] ? INSTANCE_IMAGES[rows[0].name] : undefined,
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: `${label} world bosses`, path: `/worldbosses` }]), itemListJsonLd(`${label} world bosses`, items)],
     },
-    body: html`<h2>World Bosses</h2><p>${CATEGORY_INTRO.worldboss}.</p><ul class="plain">${items.map((i) => html`<li><a href="${i.path}">${i.name}</a></li>`)}</ul>`,
+    body: html`<h1>World Bosses</h1><p>${CATEGORY_INTRO.worldboss}.</p><ul class="plain">${items.map((i) => html`<li><a href="${i.path}">${i.name}</a></li>`)}</ul>`,
   };
 }
 
@@ -552,7 +552,7 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
       ],
     },
     body: html`
-      <h2>${name}</h2>
+      <h1>${name}</h1>
       <p>${label} ${kind || "instance"}${factText.length > 0 ? ` · ${factText.join(" · ")}` : ""} – bosses with community DPS leaderboards:</p>
       ${items.length === 0 ? html`<p class="empty">No boss fights uploaded for this instance yet.</p>` : html`<ul class="plain">${items.map((i) => html`<li><a href="${i.path}">${i.name}</a></li>`)}</ul>`}`,
   };
@@ -655,7 +655,7 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string;
       ],
     },
     body: html`
-      <h2>${name}</h2>
+      <h1>${name}</h1>
       <p>${instanceName} · ${label}${modeText ? ` · ${modeText}` : ""}${server ? html` · Leaderboard for <strong>${server.name}</strong>` : combined && scope === null ? html` · Leaderboard across all servers` : ""}</p>
       ${modes.length > 0 ? html`<p>Difficulty: ${modes.map((m) => html`<a href="${basePath}?mode=${m.mode}">${modeLabelEn(found.instanceCategory, m.mode)}</a> `)}</p>` : ""}
       ${mechanicsBlock}
@@ -738,7 +738,7 @@ export function playerPage(game: Game, idOrSlug: string): Page | null {
       ],
     },
     body: html`
-      <h2>${player.name}</h2>
+      <h1>${player.name}</h1>
       <p>${facts.join(" · ")}</p>
       ${runs.length > 0
         ? html`<p>${runText}.</p>
@@ -821,7 +821,7 @@ export function encounterPage(game: Game, id: string): Page | null {
       ogImageAlt: rendered ? `${name}: damage, healing and damage taken per player` : photo ? name : undefined,
       ogImageSize: rendered ? { width: 1200, height: 630 } : undefined,
     },
-    body: html`<h2>${name}</h2><p>${server ?? ""}${modeText}</p>${roster.length > 0 ? html`<ul class="plain">${roster.map((p) => html`<li>${p.name} (${p.className}) – ${p.estimated ? "~" : ""}${formatInt(p.damage)} damage</li>`)}</ul>` : ""}${roster.some((p) => p.estimated) ? html`<p class="empty">${ESTIMATED_NOTE}</p>` : ""}`,
+    body: html`<h1>${name}</h1><p>${server ?? ""}${modeText}</p>${roster.length > 0 ? html`<ul class="plain">${roster.map((p) => html`<li>${p.name} (${p.className}) – ${p.estimated ? "~" : ""}${formatInt(p.damage)} damage</li>`)}</ul>` : ""}${roster.some((p) => p.estimated) ? html`<p class="empty">${ESTIMATED_NOTE}</p>` : ""}`,
   };
 }
 
@@ -893,7 +893,7 @@ export function participantPage(game: Game, id: string): Page | null {
       ogImage: photo,
       ogImageAlt: photo ? boss : undefined,
     },
-    body: html`<h2>${row.playerName}</h2><p>${row.className} · ${boss}${modeText}</p><p>${row.estimated ? "~" : ""}${formatInt(row.totalDamage)} damage · ${row.estimated ? "~" : ""}${formatInt(row.dps)} DPS</p>${row.estimated ? html`<p class="empty">${ESTIMATED_NOTE}</p>` : ""}`,
+    body: html`<h1>${row.playerName}</h1><p>${row.className} · ${boss}${modeText}</p><p>${row.estimated ? "~" : ""}${formatInt(row.totalDamage)} damage · ${row.estimated ? "~" : ""}${formatInt(row.dps)} DPS</p>${row.estimated ? html`<p class="empty">${ESTIMATED_NOTE}</p>` : ""}`,
   };
 }
 
@@ -949,7 +949,7 @@ export function comparePage(kind: "players" | "runs", query: { a?: string; b?: s
   return {
     status: 200,
     meta: { title, description, canonicalPath: path, noindex: true },
-    body: html`<h2>${title}</h2><p>${description}</p>`,
+    body: html`<h1>${title}</h1><p>${description}</p>`,
   };
 }
 
@@ -979,6 +979,6 @@ export function notFoundPage(path: string): Page {
   return {
     status: 404,
     meta: { title: `Page not found – ${SITE}`, description: "This page does not exist.", canonicalPath: path, noindex: true },
-    body: html`<h2>Page not found</h2><p>There is nothing at this address. <a href="/">Back to the start page</a>.</p>`,
+    body: html`<h1>Page not found</h1><p>There is nothing at this address. <a href="/">Back to the start page</a>.</p>`,
   };
 }
