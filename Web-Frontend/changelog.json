@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.48.2",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "The Assist window and overlay no longer list passive skills' standing effects (Identify Weakness, Protection Armor, weapon training ...) as effects on you; only what was really put on you shows",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "0.48.1",
   "date": "2026-10-15",
   "items": [
