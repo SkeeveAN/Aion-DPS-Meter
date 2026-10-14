@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "The resets run on the game's clock (Korean time, so 09:00 in Central Europe in summer): the daily dungeon's 14 entries come back every Wednesday, Shugo Festival +3 and Nightmare +2 every day, the Ascension rite 3 every Wednesday, and the daily dungeon sits under Weekly; the Quai premium membership is read at login: the caps follow it (Odyle energy 840 and 21 Shugo keys with it, 560 and 12 without) and the time left shows under Time left",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.47.1",
   "date": "2026-10-14",
   "items": [
