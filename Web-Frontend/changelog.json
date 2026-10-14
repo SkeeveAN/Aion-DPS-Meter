@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.48.0",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "New Assist window under Tools (own skill cooldowns and the effects on your character, with icons, times and bars) with two switches: show it as an overlay in the game and lock that overlay (locked it is click-through, unlocked it can be moved and scaled)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "0.47.5",
   "date": "2026-10-15",
   "items": [
