@@ -1,5 +1,25 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "Theme editor: own colours, bar colours per class, theme files",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   },
+   {
+    "text": "Pet info follows the last monster hit when aiming with the camera; ask for Npcap at start when it is missing",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.45.7",
   "date": "2026-10-14",
   "items": [
