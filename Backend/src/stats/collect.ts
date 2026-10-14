@@ -81,6 +81,7 @@ export function publicStats() {
   const players = num(one("select count(*) n from players").n);
   const own = num(one("select count(*) n from player_profiles where source = 'self'").n);
   const seen = num(one("select count(*) n from player_profiles where source = 'seen'").n);
+  const ncProfiles = num(one("select count(*) n from player_profiles where source = 'nc'").n);
   const encounters = num(one("select count(*) n from encounters").n);
   const uploads = num(one("select count(*) n from uploads").n);
   const dl = one("select count(*) total, sum(downloaded_at >= datetime('now','-30 days')) last30 from downloads where is_bot = 0");
@@ -119,6 +120,7 @@ export function publicStats() {
     players,
     ownProfiles: own,
     seenProfiles: seen,
+    ncProfiles,
     encounters,
     uploads,
     downloads: { total: num(dl.total), last30: num(dl.last30) },
@@ -157,6 +159,8 @@ export function privateStats() {
   const completeness = one(
     `select sum(gear_json <> '[]') gear, sum(skills_json <> '[]') skills, sum(daevanion_json <> '[]') daevanion, count(*) n from player_profiles where source = 'self'`,
   );
+  const statusCounts = (table: string) => Object.fromEntries(all(`select status s, count(*) n from ${table} group by status`).map((r) => [String(r.s), num(r.n)]));
+  const guildCount = num(one("select count(*) n from guilds").n);
   let dbBytes = 0;
   try {
     dbBytes = statSync(env.DATABASE_PATH).size;
@@ -180,6 +184,9 @@ export function privateStats() {
     versionTotals,
     uploadStatus: status,
     ncMatch,
+    ncCharacter: statusCounts("player_nc_character"),
+    portraits: statusCounts("player_portraits"),
+    guildCount,
     newPlayersPerWeek,
     downloadsPerDay,
     downloadsByTag,
@@ -204,12 +211,26 @@ export function metricsText(): string {
     }
   };
   metric("aiondps_players", "Distinct players known (name + server).", "gauge", [[null, p.players]]);
+  const byRegion = new Map<string, number>();
+  for (const sv of p.servers) {
+    const region = sv.name.split(" - ")[0];
+    const key = `${/\[\d+\]/.test(region) ? "unresolved" : region}|${sv.faction}`;
+    byRegion.set(key, (byRegion.get(key) ?? 0) + sv.count);
+  }
+  metric("aiondps_players_by_region", "Players known per region and faction (kept coarse on purpose: per server would be about 70 series).", "gauge", [...byRegion].map(([k, n]) => [{ region: k.split("|")[0], faction: k.split("|")[1] || "unknown" }, n]));
+  metric("aiondps_players_by_class", "Distinct players per class (top 12).", "gauge", p.classes.map((c) => [{ class: c.name }, c.count]));
+  metric("aiondps_guilds", "Legions known (name + server).", "gauge", [[null, p.guildCount]]);
+  metric("aiondps_nc_match_players", "Players by result of the check against NC's character search (unchecked = no result yet).", "gauge", Object.entries(p.ncMatch).map(([s, n]) => [{ status: s }, n]));
+  metric("aiondps_nc_character_players", "Players by result of the last fetch of NC's character page (ok / none / error).", "gauge", Object.entries(p.ncCharacter).map(([s, n]) => [{ status: s }, n]));
+  metric("aiondps_portraits_players", "Players by result of the last portrait fetch (ok / none / error).", "gauge", Object.entries(p.portraits).map(([s, n]) => [{ status: s }, n]));
+  metric("aiondps_own_profile_parts", "Own-client profiles that carry gear, skills or Daevanion data.", "gauge", [[{ part: "gear" }, p.ownProfileCompleteness.gear], [{ part: "skills" }, p.ownProfileCompleteness.skills], [{ part: "daevanion" }, p.ownProfileCompleteness.daevanion]]);
+  metric("aiondps_bot_downloads_total", "Download clicks recognised as bots.", "counter", [[null, p.botDownloads]]);
   metric("aiondps_nc_reference_problems", "Differences between our server/class tables and NC's official lists at the last daily check (see ncReference.ts); -1 = not checked yet.", "gauge", [
     [{ kind: "servers" }, lastReport ? lastReport.serverProblems.length : -1],
     [{ kind: "classes" }, lastReport ? lastReport.classProblems.length : -1],
   ]);
   metric("aiondps_nc_requests_last_hour", "Requests towards NC's character pages in the last hour (the hourly budget is NC_BUDGET_PER_HOUR, default 1000 for the background sweep).", "gauge", [[null, requestsLastHour()]]);
-  metric("aiondps_profiles", "Player profiles by source (self = own client, seen = seen in a group).", "gauge", [[{ source: "self" }, p.ownProfiles], [{ source: "seen" }, p.seenProfiles]]);
+  metric("aiondps_profiles", "Player profiles by source (self = own client, seen = seen in a group, nc = built from NC's character page).", "gauge", [[{ source: "self" }, p.ownProfiles], [{ source: "seen" }, p.seenProfiles], [{ source: "nc" }, p.ncProfiles]]);
   metric("aiondps_encounters_total", "Boss fights stored.", "counter", [[null, p.encounters]]);
   metric("aiondps_uploads_total", "Uploads received, by status.", "counter", Object.entries(p.uploadStatus).map(([s, n]) => [{ status: s }, n]));
   metric("aiondps_boss_fights", "Boss fights per boss (conquest bosses with their stars).", "gauge", p.bossFights.map((b) => [{ boss: b.boss, dungeon: b.instance }, b.count]));
