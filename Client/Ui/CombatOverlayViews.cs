@@ -143,6 +143,7 @@ public sealed class BossCastView : Border
         private readonly Image _icon = new() { Width = 28, Height = 28, Stretch = Stretch.Uniform };
         private readonly ContentControl _iconHost = new() { Width = 28, Height = 28, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
         private readonly TextBlock _name = OverlayPictures.Scaled(new() { FontWeight = FontWeights.Bold, Foreground = OverlayPictures.Text, TextTrimming = TextTrimming.CharacterEllipsis }, 13);
+        private readonly TextBlock _target = OverlayPictures.Scaled(new() { FontWeight = FontWeights.SemiBold, Foreground = OverlayPictures.Amber, Margin = new Thickness(8, 0, 0, 0), TextTrimming = TextTrimming.CharacterEllipsis }, 13);
         private readonly TextBlock _detail = OverlayPictures.Scaled(new() { Foreground = OverlayPictures.Muted, TextTrimming = TextTrimming.CharacterEllipsis }, 11);
         private readonly TextBlock _tags = OverlayPictures.Scaled(new() { FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 0, 0) }, 11);
         private readonly TextBlock _time = OverlayPictures.Scaled(new() { FontWeight = FontWeights.Bold, Foreground = OverlayPictures.Text, VerticalAlignment = VerticalAlignment.Center, MinWidth = 38, TextAlignment = TextAlignment.Right }, 15);
@@ -163,10 +164,14 @@ public sealed class BossCastView : Border
 
             _iconHost.Content = _icon;
             var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+            // the skill's name on top in bold with its target in yellow right behind it (the tags at the right), the caster below
             var nameLine = new DockPanel();
             DockPanel.SetDock(_tags, Dock.Right);
             nameLine.Children.Add(_tags);
-            nameLine.Children.Add(_name);
+            var skillAndTarget = new StackPanel { Orientation = Orientation.Horizontal };
+            skillAndTarget.Children.Add(_name);
+            skillAndTarget.Children.Add(_target);
+            nameLine.Children.Add(skillAndTarget);
             text.Children.Add(nameLine);
             text.Children.Add(_detail);
 
@@ -198,10 +203,8 @@ public sealed class BossCastView : Border
         public void Update(CastRowData row)
         {
             _name.Text = row.Name;
-            // the caster stays quiet, the target stands out in yellow (you too; the red border and bar already warn)
-            _detail.Inlines.Clear();
-            _detail.Inlines.Add(new System.Windows.Documents.Run(row.Detail.Length > 0 ? row.Detail + " → " : "→ ") { Foreground = OverlayPictures.Muted });
-            _detail.Inlines.Add(new System.Windows.Documents.Run(row.TargetText) { Foreground = OverlayPictures.Amber, FontWeight = FontWeights.SemiBold });
+            _target.Text = "→ " + row.TargetText;
+            _detail.Text = row.Detail;
             _icon.Source = OverlayPictures.Load(row.IconPath);
             _iconHost.Content = _icon.Source is null ? OverlayPictures.Emblem("!", 28) : _icon;
 
@@ -299,7 +302,8 @@ public sealed class HpBarView : Border
         var bar = new Grid();
         bar.Children.Add(new Border { Background = OverlayPictures.Track, CornerRadius = new CornerRadius(3) });
         bar.Children.Add(_fill);
-        bar.Children.Add(_text);
+        // the numbers, the check and the fight time shrink to fit a narrow bar instead of being cut off at both ends
+        bar.Children.Add(new Viewbox { Child = _text, Stretch = Stretch.Uniform, StretchDirection = StretchDirection.DownOnly, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
         Child = bar;
     }
 

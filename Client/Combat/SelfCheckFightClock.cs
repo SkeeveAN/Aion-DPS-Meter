@@ -17,6 +17,9 @@ public static class SelfCheckFightClock
         bool start = dir.EngagedSince(777) == t0 && dir.EngagedSince(778) is null;
         dir.NoteDisengaged(777);
         bool reset = dir.EngagedSince(777) is null;
+        dir.NoteEngaged(779, t0);
+        dir.NoteEngaged(779, t0.AddSeconds(5), exact: true); // the signal with the start time wins over the plain flag
+        reset &= dir.EngagedSince(779) == t0.AddSeconds(5);
 
         bool format = HpBarView.FormatElapsed(TimeSpan.FromSeconds(151)) == "02:31"
             && HpBarView.FormatElapsed(TimeSpan.FromSeconds(5)) == "00:05"
