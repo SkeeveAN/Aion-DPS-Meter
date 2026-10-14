@@ -146,6 +146,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "render-checklist")
+        {
+            RunRenderChecklistMode(args[1], args.Length > 2 ? args[2] : "");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-network")
         {
             RunRenderNetworkMode(args.Length > 1 ? args[1] : "network.png", args.Length > 2 ? int.Parse(args[2]) : 2);
@@ -340,7 +346,7 @@ internal static class Program
                 app.Resources.MergedDictionaries.Add(
                     (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
                 Ui.MeterSettings startupSettings = Ui.MeterSettings.Load();
-                Ui.ThemeManager.Apply(app, startupSettings.Theme, startupSettings.FontSize);
+                Ui.ThemeManager.Apply(app, startupSettings);
                 app.Run(new Ui.MainWindow());
             }
             catch (Exception ex)
@@ -490,7 +496,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
@@ -539,7 +545,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
@@ -704,7 +710,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
@@ -791,7 +797,7 @@ internal static class Program
         kind = allCompact ? kind[..^5] : all ? kind[..^4] : kind;
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
@@ -894,6 +900,71 @@ internal static class Program
 
     /// <summary>Renders the Settings window's content (a tab of it) to a PNG without showing a window:
     /// the way to look at a layout change without opening anything on the player's screen.</summary>
+    /// <summary>Draws the checklist window (Tools menu) with two characters made of a real login list into a picture; no window is ever shown.</summary>
+    private static void RunRenderChecklistMode(string path, string language)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        string chosen = language.Length > 0 ? language : settings.Language;
+        if (chosen.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = chosen;
+        }
+
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        if (Environment.GetEnvironmentVariable("AIONDPS_REAL_TICKETS") == "1")
+        {
+            Aion2.Aion2Tickets.Reset();
+            Aion2.Aion2Tickets.EnablePersistence(); // the file in AIONDPS_DATA_DIR: the characters as the meter saved them
+        }
+        else
+        {
+            Aion2.Aion2Tickets.Reset();
+            Aion2.Aion2Tickets.TryParseList(Convert.FromHexString(Combat.SelfCheckTickets.SampleLogin), out var entries);
+            var t0 = DateTime.Now;
+            Aion2.Aion2Tickets.ReceiveList(entries, t0);
+            Aion2.Aion2Tickets.NoteCharacter("Chumley", 1304, t0.AddSeconds(4));
+            // a second character that has used a lot: the Odyle energy is down and the bonus is in use, some counters are used up
+            Aion2.Aion2Tickets.ReceiveList(entries, t0.AddSeconds(10));
+            Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.OdyleId, new Aion2.TicketValue(75, 520, 0)), t0.AddSeconds(11));
+            Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(60000003, new Aion2.TicketValue(0, 0, 0)), t0.AddSeconds(11));
+            Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(102, new Aion2.TicketValue(0, 0, 0)), t0.AddSeconds(11));
+            Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.MissionsId, new Aion2.TicketValue(5, 5, 0)), t0.AddSeconds(11));
+            Aion2.Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(14));
+        }
+
+        var window = new Ui.ChecklistWindow();
+        var content = (System.Windows.FrameworkElement)window.Content;
+        int w = (int)window.Width;
+        content.Measure(new System.Windows.Size(w, double.PositiveInfinity));
+        int h = (int)Math.Ceiling(content.DesiredSize.Height);
+        content.Measure(new System.Windows.Size(w, h));
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+        content.Measure(new System.Windows.Size(w, h));
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black };
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        backdrop.Measure(new System.Windows.Size(w, h));
+        backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
+        bitmap.Render(backdrop);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-checklist: wrote " + path);
+        Environment.Exit(0);
+    }
+
     /// <summary>Draws the world boss overlay with the bosses of the saved lists into a picture; no window is ever shown.</summary>
     private static void RunRenderBossOverlayMode(string path, int mapIndex)
     {
@@ -906,7 +977,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         Aion2.Aion2FieldBosses.EnablePersistence();
         var now = DateTime.Now;
@@ -955,7 +1026,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var sample = new Aion2.Capture.NetworkSnapshot(true, "87.232.75.220:13328", TimeSpan.FromSeconds(642), 1, 0, 7, 16, 6, 49, 4.2, 8.6, 0.2, 26, 31, 0, 0, TimeSpan.FromSeconds(0.4), 0, 0,
             0, 0, null, null, null, new Aion2.Capture.NetworkProbeSnapshot(true, "192.168.2.1", 1, 0, 60, 12, 0, 60));
@@ -995,13 +1066,13 @@ internal static class Program
         var app = new System.Windows.Application();
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
-        var settings = new Ui.MeterSettings { CombatShowHealer = true };
+        var settings = new Ui.MeterSettings { CombatShowHealer = true, ShowBossHp = true };
         if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } language)
         {
             Ui.LocalizationManager.Instance.Language = language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         bool edit = mode == "edit";
         var windows = new[] { new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Cast), new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Target), new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Hp) };
@@ -1027,7 +1098,8 @@ internal static class Program
                         new Ui.EffectData("Poison", null, "12", true),
                         new Ui.EffectData("Slow", null, "5", true),
                         new Ui.EffectData("Bleed", null, "9", true),
-                    }));
+                    }),
+                new Ui.BossHpData(1224000, 3400000, 1, "✓", Since: DateTime.Now - TimeSpan.FromSeconds(Environment.GetEnvironmentVariable("AIONDPS_FIGHT_SECONDS") is { Length: > 0 } sec ? int.Parse(sec) : 151)));
 
         // the two windows one above the other, each as big as it wants to be
         var contents = new List<(System.Windows.UIElement Content, int Width, int Height)>();
@@ -1088,7 +1160,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         DateTime start = new(2026, 10, 4, 12, 0, 0, DateTimeKind.Local);
         const int boss = 100;
@@ -1169,7 +1241,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var loc = Ui.LocalizationManager.Instance;
         var window = Ui.ThemedMessageBox.Build(null, string.Format(loc["Main.HideUiHint"], "Ctrl+Alt+H"), loc["Main.HideUiHint.Title"], System.Windows.MessageBoxButton.OK,
@@ -1224,7 +1296,7 @@ internal static class Program
             settings.PetRareMax = rareMax; // layout check only (nothing is saved here)
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         Aion2.Aion2FieldBosses.EnablePersistence(); // read-only here: the page shows the last lists the game sent
         var window = new Ui.SettingsWindow(settings);
@@ -1283,7 +1355,7 @@ internal static class Program
         Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var window = new Ui.MainWindow();
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
@@ -1327,7 +1399,7 @@ internal static class Program
     {
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var window = new Ui.MainWindow();
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
@@ -1447,7 +1519,7 @@ internal static class Program
         {
             var app = new System.Windows.Application();
             var settings = Ui.MeterSettings.Load();
-            Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+            Ui.ThemeManager.Apply(app, settings);
             Ui.MainWindow.Headless = true;
         var window = new Ui.MainWindow();
             var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
@@ -1529,7 +1601,7 @@ internal static class Program
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var map = Aion2.Protocol.Aion2Maps.All.First(m => m.Key == mapKey);
         var chosen = settings.PetMapPets.Count > 0 ? settings.PetMapPets.ToHashSet() : new HashSet<int> { 1170, 1162, 1171, 1219 };
@@ -1575,7 +1647,7 @@ internal static class Program
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         // (pet id, tab, price) of the special and pet tabs; (pet id, level, progress) as the login frame reported them
         var offers = new (int, int, long)[] { (1041, 0, 70000), (1161, 0, 80000), (1128, 0, 90000), (1108, 0, 80000), (1118, 0, 70000), (1190, 1, 80000), (1123, 1, 90000), (1096, 1, 70000), (1174, 1, 90000), (1154, 1, 90000), (1160, 1, 70000), (1060, 1, 50000), (1115, 1, 90000), (1102, 1, 70000), (1141, 1, 90000) }

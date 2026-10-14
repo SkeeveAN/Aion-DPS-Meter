@@ -53,6 +53,14 @@ public sealed class Aion2FrameDecoder
     /// (the same entities get <c>00 01</c> frames too, which say nothing about the fight). Anchors the rage clock.</summary>
     private const int EngageOpcode = 0x218d;
 
+    /// <summary>The account-status frames: the tickets (entry counts, reward counts, Odyle energy) as a list at login and as single changes; see <see cref="Aion2Tickets"/>.</summary>
+    private const int TicketListOpcode = 0x0b61;
+    private const int TicketChangeOpcode = 0x0c61;
+    private const int MissionListOpcode = 0x1c8d;
+
+    /// <summary>The local player's cooldown list (kept for later features; see <see cref="Aion2Cooldowns"/>).</summary>
+    private const int CooldownOpcode = 0x4738;
+
     /// <summary>One stat of an entity: <c>opcode | entity (varint) | 01 | stat id u16 | value u32</c>. On a boss, stat 0xCD at 5000 or 10000 arrives
     /// exactly 300 s after it went into combat - in the four fights of the recordings that lasted that long (Talisra x3, Divine Auldor) and in none that
     /// ended before. The stat is no known name; that it is the rage is the reading of the timing (and the user's: the rage comes after about five minutes).</summary>
@@ -83,6 +91,7 @@ public sealed class Aion2FrameDecoder
         {
             _engaged.Remove(entity);
             _enraged.Remove(entity);
+            _entities.NoteDisengaged(entity);
         }
         else if (frame.Length >= p + 10 && frame[p] == 1 && frame[p + 1] == 1 && !_engaged.ContainsKey(entity))
         {
@@ -93,6 +102,7 @@ public sealed class Aion2FrameDecoder
 
             _engaged[entity] = timestamp;
             _enraged.Remove(entity);
+            _entities.NoteEngaged(entity, timestamp);
         }
     }
 
@@ -398,6 +408,11 @@ public sealed class Aion2FrameDecoder
             return DecodeBundle(frame, timestamp);
         }
 
+        if (Capture.DebugRecording.Enabled)
+        {
+            Capture.ProtocolHealth.Note(opcode, frame.Length, timestamp, _protocol.SyncOpcodes); // the health monitor: part of the debug output
+        }
+
         if (DebugFrameDump is not null)
         {
             lock (DebugFrameDump)
@@ -444,6 +459,46 @@ public sealed class Aion2FrameDecoder
         if (opcode == EngageOpcode)
         {
             DecodeEngage(frame, timestamp);
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == CooldownOpcode)
+        {
+            if (Aion2Cooldowns.TryParse(frame, out List<CooldownEntry> cooldowns))
+            {
+                Aion2Cooldowns.Receive(cooldowns, timestamp);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == TicketListOpcode)
+        {
+            if (Aion2Tickets.TryParseList(frame, out List<TicketReading> tickets))
+            {
+                Aion2Tickets.ReceiveList(tickets, timestamp);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == MissionListOpcode)
+        {
+            if (Aion2Tickets.TryParseMissions(frame, out TicketReading missions))
+            {
+                Aion2Tickets.ReceiveUpdate(missions, timestamp);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == TicketChangeOpcode)
+        {
+            if (Aion2Tickets.TryParseUpdate(frame, out TicketReading ticket, out _, out _))
+            {
+                Aion2Tickets.ReceiveUpdate(ticket, timestamp);
+            }
+
             return Array.Empty<DamageEvent>();
         }
 
@@ -1146,6 +1201,10 @@ public sealed class Aion2FrameDecoder
         if (!isHeal && _entities.IsKnownPlayer(source) && !_entities.IsKnownPlayer((int)target) && _entities.SummonOwnerOf((int)target) is null)
         {
             _entities.NoteMonsterHit(source, (int)target, skillId);
+            if (_entities.IsLocalPlayer(source))
+            {
+                _entities.NoteLocalHit((int)target);
+            }
         }
 
         // A heal on a summon is not healing the group: a Spiritmaster's spirit arrives with a heal of

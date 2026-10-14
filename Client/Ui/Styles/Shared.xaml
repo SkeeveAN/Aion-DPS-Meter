@@ -212,8 +212,8 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Track" Property="Background" Value="#ffba42"/>
-                                <Setter TargetName="Track" Property="BorderBrush" Value="#ffba42"/>
+                                <Setter TargetName="Track" Property="Background" Value="{DynamicResource Brush.Switch}"/>
+                                <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource Brush.Switch}"/>
                                 <Setter TargetName="Knob" Property="Fill" Value="#1a1205"/>
                                 <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/>
                                 <Setter TargetName="Knob" Property="Margin" Value="0,0,2,0"/>

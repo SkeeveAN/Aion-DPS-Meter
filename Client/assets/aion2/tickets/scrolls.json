@@ -1,0 +1,22 @@
+{
+ "verteron": {
+  "en": "Command: Verteron",
+  "de": "Schriftrolle: Verteron",
+  "fr": "Parchemin de consigne : Verteron",
+  "es": "Orden: Verteron",
+  "ru": "Свиток приказа: Бертрон",
+  "pt": "Pergaminho de Ordem: Verteron",
+  "ja": "指令書：ベルテロン",
+  "ko": "지령서: 베르테론"
+ },
+ "abyss": {
+  "en": "Latesran Western Root Command",
+  "de": "Schriftrolle: Westwurzel von Latesran",
+  "fr": "Parchemin de consigne de Racine Ouest de Latesran",
+  "es": "Orden de la Raíz del Oeste de Latesran",
+  "ru": "Свиток приказа западных корней Ратерана",
+  "pt": "Pergaminho de Ordem da Raiz do Oeste de Latesran",
+  "ja": "西ラテスランの根の指令書",
+  "ko": "라테스란의 서쪽 뿌리 지령서"
+ }
+}

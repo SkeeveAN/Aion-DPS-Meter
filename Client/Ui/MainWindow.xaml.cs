@@ -377,9 +377,39 @@ public partial class MainWindow : Window
 
         // A fresh install, or a lost or broken settings file: the wizard asks for the language and the
         // upload options that are off by default (see WizardWindow). Never in the headless test modes.
-        if (!Headless && !settings.SetupCompleted)
+        if (!Headless)
         {
-            Loaded += (_, _) => new WizardWindow(settings) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
+            bool wizard = !settings.SetupCompleted;
+            Loaded += (_, _) =>
+            {
+                if (wizard)
+                {
+                    new WizardWindow(settings) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
+                }
+
+                AskForNpcapIfMissing();
+            };
+        }
+    }
+
+    /// <summary>Without the Npcap driver the meter sees no game traffic at all (no damage, no pet info): says so at the start and offers the download page.</summary>
+    private void AskForNpcapIfMissing()
+    {
+        if (Aion2.Capture.NpcapAvailability.Detect().IsInstalled)
+        {
+            return;
+        }
+
+        var loc = LocalizationManager.Instance;
+        if (ThemedMessageBox.Show(this, loc["Npcap.Missing.Text"], loc["Npcap.Missing.Title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(Aion2.Capture.NpcapAvailability.DownloadUrl) { UseShellExecute = true });
+            }
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+            {
+            }
         }
     }
 
@@ -1052,6 +1082,8 @@ public partial class MainWindow : Window
         {
             // the world boss overlay and sounds: the lists the game sends are kept in a file, and the controller reads the settings every second
             Aion2FieldBosses.EnablePersistence();
+            Aion2Tickets.EnablePersistence();
+            Aion2Tickets.Changed += () => Aion2Tickets.Flush();
             _worldBoss ??= new WorldBossController();
             _network ??= new NetworkOverlayController();
             _dummy ??= new DummyTestController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
@@ -1116,6 +1148,7 @@ public partial class MainWindow : Window
         _network?.Dispose();
         _dummy?.Dispose();
         Aion2FieldBosses.Flush();
+        Aion2Tickets.Flush(force: true);
         _timetableReminder?.Dispose();
         _petFarmController?.Dispose();
         _petFarm?.Close();
@@ -3752,6 +3785,41 @@ public partial class MainWindow : Window
     }
 
     private DummyTestWindow? _dummyWindow;
+    private ThemeEditorWindow? _themeEditorWindow;
+
+    private void OnOpenThemeEditorClicked(object sender, RoutedEventArgs e)
+    {
+        if (_themeEditorWindow is not null)
+        {
+            _themeEditorWindow.Activate();
+            return;
+        }
+
+        _themeEditorWindow = new ThemeEditorWindow(MeterSettings.Load()) { Owner = this };
+        _themeEditorWindow.Saved += settings =>
+        {
+            var current = MeterSettings.Load();
+            current.Theme = settings.Theme;
+            current.Save();
+            ApplySettingsEverywhere(current);
+        };
+        _themeEditorWindow.Closed += (_, _) => _themeEditorWindow = null;
+        _themeEditorWindow.Show();
+    }
+    private ChecklistWindow? _checklistWindow;
+
+    private void OnOpenChecklistClicked(object sender, RoutedEventArgs e)
+    {
+        if (_checklistWindow is not null)
+        {
+            _checklistWindow.Activate();
+            return;
+        }
+
+        _checklistWindow = new ChecklistWindow { Owner = this };
+        _checklistWindow.Closed += (_, _) => _checklistWindow = null;
+        _checklistWindow.Show();
+    }
 
     /// <summary>Tools menu: the dummy test window (one at a time).</summary>
     private void OnOpenDummyTestClicked(object sender, RoutedEventArgs e)
@@ -4652,9 +4720,17 @@ public partial class MainWindow : Window
     private void OpenSettings(DateTime? undoUntil)
     {
         var settings = MeterSettings.Load();
+        string openedTheme = settings.Theme;
         _settingsWindow = new SettingsWindow(settings, undoUntil) { Owner = this };
         _settingsWindow.Saved += () =>
         {
+            // the theme editor may have chosen a theme since this window opened
+            var onDisk = MeterSettings.Load();
+            if (settings.Theme == openedTheme)
+            {
+                settings.Theme = onDisk.Theme; // not changed in this window: keep what the theme editor saved meanwhile
+            }
+
             settings.Save();
             ApplySettingsEverywhere(settings);
         };
@@ -4705,7 +4781,11 @@ public partial class MainWindow : Window
         }
 
         Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
-        ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
+        ThemeManager.Apply(Application.Current, settings); // repaints every open window
+        foreach (PlayerRow row in _rows)
+        {
+            row.RefreshClassBrush(); // the own bar colour may have changed
+        }
         ApplyHotkeys(settings); // possibly changed keys
         ApplyTimetable(settings);
         ApplyPetFarm(settings);

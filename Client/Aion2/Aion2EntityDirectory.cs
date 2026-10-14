@@ -668,10 +668,37 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private (int EntityId, DateTime At)? _lastHit;
+
+    /// <summary>The monster the local player hit last, with the time: stands in for the target when the player aims with the camera (no mark message is sent then).</summary>
+    public (int EntityId, int? NpcId, DateTime At)? LocalHitTarget
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _lastHit is { } t ? (t.EntityId, _npcIds.TryGetValue(t.EntityId, out int npc) ? npc : null, t.At) : null;
+            }
+        }
+    }
+
+    public void NoteLocalHit(int entityId)
+    {
+        lock (_gate)
+        {
+            _lastHit = (entityId, DateTime.UtcNow);
+        }
+    }
+
     public void ClearLocalTarget(int entityId)
     {
         lock (_gate)
         {
+            if (_lastHit is { } h && h.EntityId == entityId)
+            {
+                _lastHit = null;
+            }
+
             if (_target is { } t && t.EntityId == entityId)
             {
                 _target = null;
@@ -1029,6 +1056,40 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// <summary>Every entity's hit points as the server reports them, and when a monster was reset
     /// to full health (a wipe and retry under the same entity id).</summary>
     public Aion2HitPoints HitPoints { get; } = new();
+
+    private readonly Dictionary<int, DateTime> _engagedSince = new();
+
+    /// <summary>An entity went into combat (the game's own signal 0x218d, which also fires when someone only stands too close to a boss).</summary>
+    public void NoteEngaged(int entity, DateTime at)
+    {
+        lock (_gate)
+        {
+            if (_engagedSince.Count > 5000)
+            {
+                _engagedSince.Clear();
+            }
+
+            _engagedSince.TryAdd(entity, at);
+        }
+    }
+
+    /// <summary>An entity left combat (the boss was reset, died or the fight ended).</summary>
+    public void NoteDisengaged(int entity)
+    {
+        lock (_gate)
+        {
+            _engagedSince.Remove(entity);
+        }
+    }
+
+    /// <summary>When the entity went into combat; null when it is not in combat or the meter did not see it start.</summary>
+    public DateTime? EngagedSince(int entity)
+    {
+        lock (_gate)
+        {
+            return _engagedSince.TryGetValue(entity, out DateTime at) ? at : null;
+        }
+    }
 
     /// <summary>Casts, whom entities aim at and the effects on them (see <see cref="Aion2CombatState"/>).</summary>
     public Aion2CombatState Combat { get; } = new();

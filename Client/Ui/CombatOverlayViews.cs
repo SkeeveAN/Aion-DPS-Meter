@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -54,6 +55,19 @@ internal static class OverlayPictures
 
         Cache[path] = image;
         return image;
+    }
+
+    /// <summary>Sizes (points at the standard 12 pt base) the overlay texts use; <see cref="ThemeManager"/> defines a scaled resource for each.</summary>
+    public static readonly double[] TextSizes = { 9, 11, 13, 14, 15 };
+
+    public static string SizeKey(double pt) => "FontSize.Overlay." + pt.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    /// <summary>Gives the text its size from the scaled resource, so the user's font size reaches it - live, in the overlay and the theme editor's preview.</summary>
+    public static TextBlock Scaled(TextBlock text, double pt)
+    {
+        text.FontSize = pt;
+        text.SetResourceReference(TextBlock.FontSizeProperty, SizeKey(pt));
+        return text;
     }
 
     public static Brush Brush(byte r, byte g, byte b, byte a = 255)
@@ -128,10 +142,10 @@ public sealed class BossCastView : Border
     {
         private readonly Image _icon = new() { Width = 28, Height = 28, Stretch = Stretch.Uniform };
         private readonly ContentControl _iconHost = new() { Width = 28, Height = 28, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
-        private readonly TextBlock _name = new() { FontWeight = FontWeights.Bold, FontSize = 13, Foreground = OverlayPictures.Text, TextTrimming = TextTrimming.CharacterEllipsis };
-        private readonly TextBlock _detail = new() { FontSize = 11, Foreground = OverlayPictures.Muted, TextTrimming = TextTrimming.CharacterEllipsis };
-        private readonly TextBlock _tags = new() { FontSize = 11, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 0, 0) };
-        private readonly TextBlock _time = new() { FontSize = 15, FontWeight = FontWeights.Bold, Foreground = OverlayPictures.Text, VerticalAlignment = VerticalAlignment.Center, MinWidth = 38, TextAlignment = TextAlignment.Right };
+        private readonly TextBlock _name = OverlayPictures.Scaled(new() { FontWeight = FontWeights.Bold, Foreground = OverlayPictures.Text, TextTrimming = TextTrimming.CharacterEllipsis }, 13);
+        private readonly TextBlock _detail = OverlayPictures.Scaled(new() { Foreground = OverlayPictures.Muted, TextTrimming = TextTrimming.CharacterEllipsis }, 11);
+        private readonly TextBlock _tags = OverlayPictures.Scaled(new() { FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 0, 0) }, 11);
+        private readonly TextBlock _time = OverlayPictures.Scaled(new() { FontWeight = FontWeights.Bold, Foreground = OverlayPictures.Text, VerticalAlignment = VerticalAlignment.Center, MinWidth = 38, TextAlignment = TextAlignment.Right }, 15);
         private readonly ColumnDefinition _castPart = new(), _landPart = new();
         private readonly Border _fill = new() { HorizontalAlignment = HorizontalAlignment.Stretch, RenderTransformOrigin = new Point(0, 0.5), RenderTransform = new ScaleTransform(0, 1) };
         private readonly Border _castTrack = new() { Background = OverlayPictures.Track };
@@ -244,7 +258,7 @@ public sealed class TargetIconView : Border
 /// <summary>The name of the target of the target (one name: a boss's or a player's).</summary>
 public sealed class TargetNameView : Border
 {
-    private readonly TextBlock _name = new() { FontWeight = FontWeights.Bold, FontSize = 14, Foreground = OverlayPictures.Text, TextTrimming = TextTrimming.CharacterEllipsis };
+    private readonly TextBlock _name = OverlayPictures.Scaled(new() { FontWeight = FontWeights.Bold, Foreground = OverlayPictures.Text, TextTrimming = TextTrimming.CharacterEllipsis }, 14);
 
     public TargetNameView()
     {
@@ -266,11 +280,11 @@ public sealed class TargetNameView : Border
 /// <summary>A hit point bar on a card of its own (current, maximum and percent in the bar).</summary>
 public sealed class HpBarView : Border
 {
-    private readonly TextBlock _text = new()
+    private readonly TextBlock _text = OverlayPictures.Scaled(new()
     {
-        FontSize = 11, FontWeight = FontWeights.SemiBold, Foreground = OverlayPictures.Text, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
+        FontWeight = FontWeights.SemiBold, Foreground = OverlayPictures.Text, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
         Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = Colors.Black, BlurRadius = 3, ShadowDepth = 0, Opacity = 1 },
-    };
+    }, 11);
     private readonly Border _fill = new() { HorizontalAlignment = HorizontalAlignment.Stretch, RenderTransformOrigin = new Point(0, 0.5), RenderTransform = new ScaleTransform(1, 1), CornerRadius = new CornerRadius(3), Background = OverlayPictures.HpRed };
 
     public HpBarView()
@@ -287,18 +301,38 @@ public sealed class HpBarView : Border
         Child = bar;
     }
 
-    /// <summary>Red; green while the target has debuffs on it. The numbers keep a dark edge so they read on either.</summary>
-    public void Show(long? hp, long? max, bool debuffed, string? check = null)
+    /// <summary>The boss's rage comes five minutes after the combat began (0x4b36): from 4:00 on the time turns yellow, from 4:40 red.</summary>
+    public static readonly TimeSpan RageWarn = TimeSpan.FromSeconds(240);
+    public static readonly TimeSpan RageSoon = TimeSpan.FromSeconds(280);
+    private static readonly TimeSpan LongestShown = TimeSpan.FromHours(3);
+
+    /// <summary>m:ss, or h:mm:ss from an hour on.</summary>
+    public static string FormatElapsed(TimeSpan elapsed) =>
+        elapsed.TotalHours >= 1 ? $"{(int)elapsed.TotalHours}:{elapsed.Minutes:00}:{elapsed.Seconds:00}" : $"{(int)elapsed.TotalMinutes:00}:{elapsed.Seconds:00}";
+
+    public static Brush ElapsedBrush(TimeSpan elapsed) =>
+        elapsed >= RageSoon ? OverlayPictures.Red : elapsed >= RageWarn ? OverlayPictures.Amber : OverlayPictures.Muted;
+
+    /// <summary>Red; green while the target has debuffs on it. The numbers keep a dark edge so they read on either. <paramref name="elapsed"/>: the time since the
+    /// fight began, behind the numbers (the bar of a boss only; null shows none).</summary>
+    public void Show(long? hp, long? max, bool debuffed, string? check = null, TimeSpan? elapsed = null)
     {
         _fill.Background = debuffed ? OverlayPictures.HpGreen : OverlayPictures.HpRed;
         double fraction = hp is long h && max is long m && m > 0 ? Math.Clamp((double)h / m, 0, 1) : 0;
         ((ScaleTransform)_fill.RenderTransform).ScaleX = fraction;
-        _text.Text = hp is long current
+        string numbers = hp is long current
             ? max is long total && total > 0 ? $"{current:N0} / {total:N0}  ({fraction * 100:0}%)" : $"{current:N0}"
             : "–";
         if (!string.IsNullOrEmpty(check))
         {
-            _text.Text += "  " + check;
+            numbers += "  " + check;
+        }
+
+        _text.Inlines.Clear();
+        _text.Inlines.Add(new Run(numbers));
+        if (elapsed is { } time && time >= TimeSpan.Zero && time <= LongestShown)
+        {
+            _text.Inlines.Add(new Run("  " + FormatElapsed(time)) { Foreground = ElapsedBrush(time) });
         }
     }
 }
@@ -335,7 +369,7 @@ public sealed class EffectBarView : Border
                 : new Image { Source = icon, Width = 22, Height = 22 };
             picture.ToolTip = effect.Label;
             cell.Children.Add(picture);
-            cell.Children.Add(new TextBlock { Text = effect.Time, FontSize = 9, Foreground = OverlayPictures.Muted, HorizontalAlignment = HorizontalAlignment.Center });
+            cell.Children.Add(OverlayPictures.Scaled(new TextBlock { Text = effect.Time, Foreground = OverlayPictures.Muted, HorizontalAlignment = HorizontalAlignment.Center }, 9));
             panel.Children.Add(cell);
         }
     }
