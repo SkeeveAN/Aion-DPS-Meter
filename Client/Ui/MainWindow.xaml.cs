@@ -3840,21 +3840,6 @@ public partial class MainWindow : Window
         _checklistWindow.Show();
     }
 
-    private AssistWindow? _assistWindow;
-
-    private void OnOpenAssistClicked(object sender, RoutedEventArgs e)
-    {
-        if (_assistWindow is not null)
-        {
-            _assistWindow.Activate();
-            return;
-        }
-
-        _assistWindow = new AssistWindow(() => _liveSource?.Entities as Aion2EntityDirectory) { Owner = this };
-        _assistWindow.Closed += (_, _) => _assistWindow = null;
-        _assistWindow.Show();
-    }
-
     /// <summary>Tools menu: the dummy test window (one at a time).</summary>
     private void OnOpenDummyTestClicked(object sender, RoutedEventArgs e)
     {
