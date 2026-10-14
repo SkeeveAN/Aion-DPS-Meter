@@ -1059,8 +1059,10 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     private readonly Dictionary<int, DateTime> _engagedSince = new();
 
-    /// <summary>An entity went into combat (the game's own signal 0x218d, which also fires when someone only stands too close to a boss).</summary>
-    public void NoteEngaged(int entity, DateTime at)
+    /// <summary>An entity went into combat (the game's own signal 0x218d, which also fires when someone only stands too close to a boss).
+    /// <paramref name="exact"/>: the signal that carries the start time; the plain "in combat" flag only marks the first time it was seen and
+    /// yields to the exact one.</summary>
+    public void NoteEngaged(int entity, DateTime at, bool exact = false)
     {
         lock (_gate)
         {
@@ -1069,7 +1071,14 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _engagedSince.Clear();
             }
 
-            _engagedSince.TryAdd(entity, at);
+            if (exact)
+            {
+                _engagedSince[entity] = at;
+            }
+            else
+            {
+                _engagedSince.TryAdd(entity, at);
+            }
         }
     }
 

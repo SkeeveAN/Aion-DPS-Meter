@@ -102,6 +102,11 @@ public sealed class Aion2FrameDecoder
 
             _engaged[entity] = timestamp;
             _enraged.Remove(entity);
+            _entities.NoteEngaged(entity, timestamp, exact: true);
+        }
+        else if (frame.Length == p + 2 && frame[p] == 0 && frame[p + 1] == 1)
+        {
+            // the plain "in combat" flag (most fights send only this one): good enough for the fight time on the boss bar, not for the rage mark
             _entities.NoteEngaged(entity, timestamp);
         }
     }
