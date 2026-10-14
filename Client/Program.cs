@@ -999,6 +999,7 @@ internal static class Program
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(60000003, new Aion2.TicketValue(0, 0, 0)), t0.AddSeconds(11));
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(102, new Aion2.TicketValue(0, 0, 0)), t0.AddSeconds(11));
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.MissionsId, new Aion2.TicketValue(5, 5, 0)), t0.AddSeconds(11));
+            Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.PremiumId, new Aion2.TicketValue(0, 0, DateTimeOffset.UtcNow.AddHours(16 * 24 + 20).ToUnixTimeMilliseconds())), t0.AddSeconds(11));
             Aion2.Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(14), level: 28); // a level 28 character: the daily dungeon (30) and the level 45 contents are still locked
         }
 
@@ -1973,7 +1974,8 @@ internal static class Program
         {
             ticketed.Tickets.TryGetValue(Aion2.Aion2Tickets.OdyleId, out Aion2.TicketValue odyle);
             ticketed.Tickets.TryGetValue(Aion2.Aion2Tickets.MissionsId, out Aion2.TicketValue missions);
-            Console.WriteLine($"aion2-replay: tickets of {ticketed.Name} (server {ticketed.ServerId}): Odyle {odyle.Count} + {odyle.Bonus}, missions {missions.Count} handed in");
+            ticketed.Tickets.TryGetValue(Aion2.Aion2Tickets.PremiumId, out Aion2.TicketValue premium);
+            Console.WriteLine($"aion2-replay: tickets of {ticketed.Name} (server {ticketed.ServerId}): Odyle {odyle.Count} + {odyle.Bonus}, missions {missions.Count} handed in, premium until {(premium.TimeMs > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(premium.TimeMs).ToLocalTime().ToString("g") : "none")}");
         }
 
         if (events.Count > 0)

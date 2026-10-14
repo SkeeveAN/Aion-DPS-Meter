@@ -6,7 +6,7 @@ namespace AionDPS.Aion2;
 /// <summary>
 /// What the checklist ticks by hand: the two weekly scroll purchases (12 Verteron scrolls, 20 Abyss scrolls from the NPC).
 /// The game sends nothing about them that the meter reads. (The five mandatory daily tasks come from the game: Aion2Tickets.MissionsId.) Per character, in %AppData%\Aion DPS Meter\aion2-checklist.json.
-/// The weekly counters on Wednesday at 16:00 (the times of the game's own counters; the PC's clock).
+/// The weekly counters on Wednesday at 16:00 (16:00 Korean time, the game's own clock).
 /// </summary>
 public static class ChecklistManual
 {
@@ -39,23 +39,25 @@ public static class ChecklistManual
     /// <summary>Raised when a tick or a counter changed.</summary>
     public static event Action? Changed;
 
-    /// <summary>The latest daily reset (16:00) at or before <paramref name="now"/>.</summary>
+    /// <summary>The latest daily reset (16:00 on the game's clock, Korean time) at or before <paramref name="now"/>, as local time.</summary>
     public static DateTime LastDailyReset(DateTime now)
     {
-        DateTime today = now.Date.AddHours(16);
-        return today <= now ? today : today.AddDays(-1);
+        DateTime server = ServerTime.FromLocal(now);
+        DateTime today = server.Date.AddHours(16);
+        return ServerTime.ToLocal(today <= server ? today : today.AddDays(-1));
     }
 
-    /// <summary>The latest weekly reset (Wednesday 16:00) at or before <paramref name="now"/>.</summary>
+    /// <summary>The latest weekly reset (Wednesday 16:00 on the game's clock, Korean time) at or before <paramref name="now"/>, as local time.</summary>
     public static DateTime LastWeeklyReset(DateTime now)
     {
-        DateTime d = now.Date.AddHours(16);
-        while (d > now || d.DayOfWeek != DayOfWeek.Wednesday)
+        DateTime server = ServerTime.FromLocal(now);
+        DateTime d = server.Date.AddHours(16);
+        while (d > server || d.DayOfWeek != DayOfWeek.Wednesday)
         {
             d = d.AddDays(-1);
         }
 
-        return d;
+        return ServerTime.ToLocal(d);
     }
 
     private static long Ms(DateTime local) => new DateTimeOffset(local).ToUnixTimeMilliseconds();

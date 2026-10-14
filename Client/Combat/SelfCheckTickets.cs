@@ -12,6 +12,7 @@ public static class SelfCheckTickets
     public static bool Run()
     {
         Console.WriteLine("[selftest] Tickets (login list, changes, which character they belong to, refills):");
+        ServerTime.UseDatesAsServerTimes(); // the dates below are read as the game's own clock
         byte[] list = Convert.FromHexString(SampleLogin);
         bool parsed = Aion2Tickets.TryParseList(list, out List<TicketReading> entries);
         TicketValue odyle = entries.FirstOrDefault(e => e.Id == Aion2Tickets.OdyleId).Value;
@@ -58,6 +59,40 @@ public static class SelfCheckTickets
             && Aion2Tickets.Expected(kills, 2, new DateTime(2026, 10, 14, 17, 0, 0), new DateTime(2026, 10, 15, 17, 0, 0)) == 2
             && Aion2Tickets.NextReset(kills, new DateTime(2026, 10, 14, 17, 0, 0)) == new DateTime(2026, 10, 21, 16, 0, 0)
             && Aion2Tickets.NextReset(nightmare, new DateTime(2026, 10, 14, 17, 0, 0)) == new DateTime(2026, 10, 15, 16, 0, 0);
+        // the daily dungeon: 14 new entries every Wednesday 16:00 game time (09:00 in Central Europe in summer), whatever was left; the extra entries stay behind it
+        TicketDef? dungeon = Aion2Tickets.Find(101);
+        bool dungeonRefill = dungeon is not null
+            && Aion2Tickets.Expected(dungeon, 3, new DateTime(2026, 10, 13, 17, 0, 0), new DateTime(2026, 10, 14, 17, 0, 0)) == 14
+            && Aion2Tickets.Expected(dungeon, 5, new DateTime(2026, 10, 7, 17, 0, 0), new DateTime(2026, 10, 14, 15, 0, 0)) == 5
+            && Aion2Tickets.Expected(dungeon, 3, new DateTime(2026, 10, 14, 17, 0, 0), new DateTime(2026, 10, 20, 17, 0, 0)) == 3;
+        // what the player confirmed: Shugo +3 and Nightmare +2 every day, the Ascension rite 3 every Wednesday, all at 16:00 game time
+        TicketDef? shugo = Aion2Tickets.Find(1);
+        TicketDef? awaken = Aion2Tickets.Find(80000001);
+        bool rules = shugo is not null && awaken is not null && nightmare is not null
+            && Aion2Tickets.Expected(shugo, 6, new DateTime(2026, 10, 13, 17, 0, 0), new DateTime(2026, 10, 14, 17, 0, 0)) == 9
+            && Aion2Tickets.Expected(shugo, 19, new DateTime(2026, 10, 13, 17, 0, 0), new DateTime(2026, 10, 14, 17, 0, 0)) == 21
+            && Aion2Tickets.Expected(nightmare, 1, new DateTime(2026, 10, 13, 17, 0, 0), new DateTime(2026, 10, 14, 17, 0, 0)) == 3
+            && Aion2Tickets.Expected(awaken, 1, new DateTime(2026, 10, 13, 17, 0, 0), new DateTime(2026, 10, 14, 17, 0, 0)) == 3
+            && Aion2Tickets.Expected(awaken, 1, new DateTime(2026, 10, 14, 17, 0, 0), new DateTime(2026, 10, 20, 17, 0, 0)) == 1;
+        // the membership frame: eight effects with one end (31 October 15:18:46 local, 16 days 20 hours left on the recording day)
+        string effect = "04000000" + "a9a2aef2a0010000" + "a9c65392a1010000";
+        string membershipFrame = "3be3" + "08" + string.Concat(new[] { "22", "23", "25", "26", "27", "28", "29", "2a" }.Select(id => id + effect));
+        bool membership = Aion2Tickets.TryParseMembership(Convert.FromHexString(membershipFrame), out TicketReading member)
+            && member.Id == Aion2Tickets.PremiumId && member.Value.TimeMs > 1_700_000_000_000;
+        var withPremium = new TicketCharacter("Member", 1304, DateTime.UtcNow, new Dictionary<int, TicketValue> { [Aion2Tickets.PremiumId] = member.Value }, 45);
+        long endMs = member.Value.TimeMs;
+        bool premiumKnown = Aion2Tickets.HasPremium(withPremium, DateTimeOffset.FromUnixTimeMilliseconds(endMs - 1000).UtcDateTime) == true
+            && Aion2Tickets.HasPremium(withPremium, DateTimeOffset.FromUnixTimeMilliseconds(endMs + 1000).UtcDateTime) == false
+            && Aion2Tickets.HasPremium(new TicketCharacter("Old", 1304, DateTime.UtcNow, new Dictionary<int, TicketValue>()), DateTime.UtcNow) is null
+            && !Aion2Tickets.TryParseMembership(Convert.FromHexString("3be30800"), out _);
+        bool plainCaps = shugo is not null && Aion2Tickets.Expected(shugo, 11, new DateTime(2026, 10, 13, 17, 0, 0), new DateTime(2026, 10, 14, 17, 0, 0), premium: false) == 12;
+        Console.WriteLine($"  -> membership frame read (eight effects, one end)={membership}, premium known / over / unknown={premiumKnown}, caps without it (12 keys)={plainCaps}");
+        // game time is Korean time: 16:00 there is 07:00 UTC
+        ServerTime.Reset();
+        bool korean = ServerTime.FromLocal(new DateTime(2026, 10, 14, 7, 0, 0, DateTimeKind.Utc)) == new DateTime(2026, 10, 14, 16, 0, 0)
+            && ServerTime.ToLocal(new DateTime(2026, 10, 14, 16, 0, 0)).ToUniversalTime() == new DateTime(2026, 10, 14, 7, 0, 0, DateTimeKind.Utc);
+        ServerTime.UseDatesAsServerTimes();
+        Console.WriteLine($"  -> Shugo +3 / Nightmare +2 daily and Ascension 3 on Wednesdays={rules}, daily dungeon back to 14 every Wednesday 16:00 game time={dungeonRefill}, game time is Korean time (16:00 there = 07:00 UTC)={korean}");
         Console.WriteLine($"  -> refills (daily +2 up to the cap, weekly set on Wednesday 16:00): {refills}; the table has {Aion2Tickets.Catalog.Count} tickets, German name of Odyle energy: {Aion2Tickets.Find(Aion2Tickets.OdyleId)?.NameIn("de")}");
 
         // the cooldown list 0x4738 (17:26:37, Aahz): 25 entries, Fury-type skill 11,250,000 with 109,500 left, the dodge 11,000,100 ready, 11,190,000 with 10,450
@@ -120,8 +155,9 @@ public static class SelfCheckTickets
         Console.WriteLine($"  -> counters locked by level (daily dungeon 30, Nightmare/Ascension/Invasion 45, Odyle 22, Shugo 13)={locks}");
 
         Aion2Tickets.Reset();
-        bool ok = locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
+        bool ok = membership && premiumKnown && plainCaps && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
         Console.WriteLine(ok ? "  -> OK" : "  -> FAILED");
+        ServerTime.Reset();
         return ok;
     }
 }

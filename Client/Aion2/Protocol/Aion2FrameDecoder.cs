@@ -57,6 +57,7 @@ public sealed class Aion2FrameDecoder
     private const int TicketListOpcode = 0x0b61;
     private const int TicketChangeOpcode = 0x0c61;
     private const int MissionListOpcode = 0x1c8d;
+    private const int MembershipOpcode = 0x3be3;
 
     /// <summary>The local player's cooldown list (kept for later features; see <see cref="Aion2Cooldowns"/>).</summary>
     private const int CooldownOpcode = 0x4738;
@@ -482,6 +483,16 @@ public sealed class Aion2FrameDecoder
             if (Aion2Tickets.TryParseList(frame, out List<TicketReading> tickets))
             {
                 Aion2Tickets.ReceiveList(tickets, timestamp);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == MembershipOpcode)
+        {
+            if (Aion2Tickets.TryParseMembership(frame, out TicketReading membership))
+            {
+                Aion2Tickets.ReceiveUpdate(membership, timestamp);
             }
 
             return Array.Empty<DamageEvent>();

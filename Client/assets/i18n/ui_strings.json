@@ -6605,6 +6605,18 @@
     "ja": "メーターの起動後にログインしたキャラクターがありません。カウンターはログイン時に読み取られます。一度ログインし直す（キャラクター選択）と、ここに表示されます。",
     "ko": "미터 시작 후 로그인한 캐릭터가 없습니다. 카운터는 로그인 시 읽습니다. 한 번 다시 로그인(캐릭터 선택)하면 여기에 표시됩니다."
   },
+  "Checklist.Premium": {
+    "en": "Special Quai Membership",
+    "de": "Quai-Premium-Mitgliedschaft",
+    "fr": "Adhésion spéciale Quairerk",
+    "es": "Membresía especial Quai",
+    "ru": "Премиум подписка Квайринг",
+    "zh": "Quai 特级会员",
+    "zh-TW": "Quai 特級會員",
+    "pt": "Plano Especial Quai",
+    "ja": "クァイリン特級メンバーシップ",
+    "ko": "콰이링 특급 멤버십"
+  },
   "Checklist.ScrollVerteron": {
     "en": "Verteron mandatory scrolls (bought this week)",
     "de": "Verteron-Pflichtrollen (diese Woche gekauft)",

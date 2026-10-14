@@ -59,6 +59,9 @@ public static class Aion2Tickets
     /// <summary>True when the character's level is known and below what the counter needs (a character seen before levels were saved counts as unlocked).</summary>
     public static bool IsLocked(TicketCharacter character, int ticketId) => character.Level > 0 && UnlockLevel(ticketId) > character.Level;
 
+    /// <summary>The Quai premium membership as a ticket of our own: the time field holds the end of the membership as milliseconds since 1970 (0 = none). The id is no game id.</summary>
+    public const int PremiumId = 99000002;
+
     /// <summary>The mandatory daily tasks ("Missions" of the journal: five a day) as a ticket of our own: count = handed in, bonus = taken. The id is no game id.</summary>
     public const int MissionsId = 99000001;
     public const int MissionsPerDay = 5;
@@ -176,6 +179,36 @@ public static class Aion2Tickets
 
         return p == frame.Length;
     }
+
+    /// <summary>The membership frame <c>0xe33b</c>: <c>count (u8)</c> then 21 bytes each (effect id, a flag word, start and end as milliseconds since 1970). The effects 34 to 42 are the
+    /// benefits of the Quai premium membership (remote storage, market, Odyle energy 840, 21 Shugo Festa keys ...): they come together with one end, which is the one the
+    /// membership page of the game shows (16 days 20 hours left on the day of the recording = 31 October 15:18). No such effect, or one that is over, means no membership.</summary>
+    public static bool TryParseMembership(ReadOnlySpan<byte> frame, out TicketReading reading)
+    {
+        reading = default;
+        if (frame.Length < 3 || frame.Length != 3 + 21 * frame[2])
+        {
+            return false;
+        }
+
+        long end = 0;
+        for (int i = 0; i < frame[2]; i++)
+        {
+            ReadOnlySpan<byte> entry = frame.Slice(3 + 21 * i, 21);
+            ulong stop = BinaryPrimitives.ReadUInt64LittleEndian(entry[13..]);
+            if (entry[0] is >= 34 and <= 42 && stop is > 1_500_000_000_000 and < 4_000_000_000_000)
+            {
+                end = Math.Max(end, (long)stop);
+            }
+        }
+
+        reading = new TicketReading(PremiumId, new TicketValue(0, 0, end));
+        return true;
+    }
+
+    /// <summary>True/false when the membership is known (read at login), null when this character was saved before it was read.</summary>
+    public static bool? HasPremium(TicketCharacter character, DateTime utcNow) =>
+        character.Tickets.TryGetValue(PremiumId, out TicketValue value) ? value.TimeMs > new DateTimeOffset(utcNow, TimeSpan.Zero).ToUnixTimeMilliseconds() : null;
 
     /// <summary>The quest list <c>0x1c8d</c> (right after the login list and again at every hand-in): its head holds how many of the day's five missions are
     /// taken and how many are handed in. Seen in the recordings of 12 to 14 October: 0/0 at the start of the day, the second number counts 1 to 5 with every hand-in.</summary>
@@ -393,6 +426,12 @@ public static class Aion2Tickets
     /// The game's times are the server's local time; for the EU servers that is the player's own clock.</summary>
     public static DateTime? NextReset(TicketDef def, DateTime now)
     {
+        DateTime? onServer = NextResetOnServer(def, ServerTime.FromLocal(now));
+        return onServer is { } at ? ServerTime.ToLocal(at) : null;
+    }
+
+    private static DateTime? NextResetOnServer(TicketDef def, DateTime now)
+    {
         DateTime? best = null;
         if (TimeSpan.TryParse(def.DailyAt, out TimeSpan daily) && def.DailyCount > 0)
         {
@@ -416,9 +455,12 @@ public static class Aion2Tickets
 
     /// <summary>What the count should be now, from what was reported at <paramref name="seenAt"/> (local time) and the refills since: a daily
     /// refill adds its amount up to the cap, a weekly one sets the weekly amount. A guess, not what the game says: the window marks it with "~".</summary>
-    public static int Expected(TicketDef def, int count, DateTime seenAt, DateTime now)
+    public static int Expected(TicketDef def, int count, DateTime seenAt, DateTime now, bool premium = true)
     {
-        int cap = Math.Max(def.Max, def.SubscribeMax > 0 && count > def.Max ? def.SubscribeMax : 0);
+        // the refills run on the game's clock (Korean time): both moments are looked at there
+        seenAt = ServerTime.FromLocal(seenAt);
+        now = ServerTime.FromLocal(now);
+        int cap = premium ? Math.Max(def.Max, def.SubscribeMax) : def.Max; // the member's cap (Shugo Festival keys 21) or the plain one (12)
         int value = count;
         if (TimeSpan.TryParse(def.WeeklyAt, out TimeSpan weekly) && def.WeeklyCount > 0)
         {
