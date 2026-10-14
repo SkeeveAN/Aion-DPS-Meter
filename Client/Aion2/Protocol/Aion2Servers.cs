@@ -22,7 +22,7 @@ public static class Aion2Servers
     // block are the live ones of that region; block 10 and the ids beyond are labelled "Name [id]".
     private static readonly Dictionary<int, (string Name, int PerFaction)> Regions = new()
     {
-        [1] = ("NA East", 8),
+        [1] = ("NA East", 9),
         [2] = ("NA West", 5),
         [3] = ("Europe", 23),
         [4] = ("LATAM", 6),

@@ -14,7 +14,7 @@ const ASMO_20 = ["Israphel", "Zikel", "Triniel", "Lumiel", "Marchutan", "Azphel"
 // to time and is not used anywhere - a player's faction is that of his own server). The first N servers
 // of a block are the live ones of that region; block 10 and the ids beyond are labelled "Name [id]".
 const REGIONS: Record<number, { name: string; perFaction: number }> = {
-  1: { name: "NA East", perFaction: 8 },
+  1: { name: "NA East", perFaction: 9 },
   2: { name: "NA West", perFaction: 5 },
   3: { name: "Europe", perFaction: 23 },
   4: { name: "LATAM", perFaction: 6 },
@@ -40,8 +40,9 @@ export function nameOf(serverId: number): string | null {
 const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export function canonicalServer(fingerprint: string, displayName: string | undefined): { fingerprint: string; displayName: string | undefined } {
-  const match = /^aion2:aion-2-server-(\d+)$/.exec(fingerprint);
-  const label = match ? nameOf(Number(match[1])) : null;
+  // also the "Name [id]" rows older clients filed a server under before its region was known ("aion2:hithanya-1109")
+  const match = /^aion2:(?:aion-2-server-(\d+)|[a-z0-9-]+-(\d{4}))$/.exec(fingerprint);
+  const label = match ? nameOf(Number(match[1] ?? match[2])) : null;
   if (!label) {
     return { fingerprint, displayName };
   }

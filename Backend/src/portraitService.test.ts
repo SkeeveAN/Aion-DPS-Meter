@@ -364,3 +364,11 @@ test("serverOfName maps every region's live servers to NC ids", async () => {
   assert.deepEqual(serverOfName("Europe - Lumiel"), { id: 2304, faction: "Asmodian" });
   assert.equal(serverOfName("Hithanya [1109]"), null);
 });
+
+test("the ninth NA East servers carry their region and old 'Name [id]' fingerprints are canonicalised", async () => {
+  const { serverOfName, canonicalServer } = await import("./content/aion2Servers.js");
+  assert.deepEqual(serverOfName("NA East - Hithanya"), { id: 1109, faction: "Elyos" });
+  assert.deepEqual(serverOfName("NA East - Nemon"), { id: 2109, faction: "Asmodian" });
+  assert.deepEqual(canonicalServer("aion2:hithanya-1109", "Hithanya [1109]"), { fingerprint: "aion2:na-east-hithanya", displayName: "NA East - Hithanya" });
+  assert.deepEqual(canonicalServer("aion2:aion-2-server-9999", "x"), { fingerprint: "aion2:aion-2-server-9999", displayName: "x" });
+});
