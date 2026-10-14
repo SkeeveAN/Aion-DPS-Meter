@@ -59,7 +59,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             Capture.DebugRecording.NoteCharacter(info.Name);
             if (!info.Restored)
             {
-                Aion2Tickets.NoteCharacter(info.Name, info.ServerId, info.ReceivedAt); // the tickets of the login list belong to the character named a few seconds later
+                Aion2Tickets.NoteCharacter(info.Name, info.ServerId, info.ReceivedAt, info.Level); // the tickets of the login list belong to the character named a few seconds later
             }
         };
         _protocol = protocol;

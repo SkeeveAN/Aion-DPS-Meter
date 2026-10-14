@@ -504,7 +504,7 @@
     "ko": "인터페이스"
   },
   "Settings.Theme": {
-    "en": "Theme:",
+    "en": "Design:",
     "de": "Design:",
     "fr": "Thème :",
     "es": "Tema:",
@@ -6438,28 +6438,28 @@
     "ko": "더미 테스트"
   },
   "Main.MenuTools.Checklist": {
-    "en": "Checklist",
-    "de": "Checkliste",
-    "fr": "Liste de contrôle",
-    "es": "Lista de control",
-    "ru": "Чек-лист",
-    "zh": "清单",
-    "zh-TW": "清單",
-    "pt": "Lista de verificação",
-    "ja": "チェックリスト",
-    "ko": "체크리스트"
+    "en": "Aion 2 Checklist",
+    "de": "Aion 2 Checkliste",
+    "fr": "Aion 2 Liste de contrôle",
+    "es": "Aion 2 Lista de control",
+    "ru": "Aion 2 Чек-лист",
+    "zh": "Aion 2 清单",
+    "zh-TW": "Aion 2 清單",
+    "pt": "Aion 2 Lista de verificação",
+    "ja": "Aion 2 チェックリスト",
+    "ko": "Aion 2 체크리스트"
   },
   "Checklist.Title": {
-    "en": "Checklist - Odyle energy, daily and weekly counters",
-    "de": "Checkliste - Odenergie, tägliche und wöchentliche Zähler",
-    "fr": "Liste de contrôle - énergie Odyle, compteurs quotidiens et hebdomadaires",
-    "es": "Lista de control - energía Odyle, contadores diarios y semanales",
-    "ru": "Чек-лист - энергия Одила, ежедневные и еженедельные счётчики",
-    "zh": "清单 - 奥迪尔能量、每日和每周计数",
-    "zh-TW": "清單 - 奧迪爾能量、每日與每週計數",
-    "pt": "Lista de verificação - energia Odyle, contadores diários e semanais",
-    "ja": "チェックリスト - オディル・エネルギー、デイリーとウィークリーの回数",
-    "ko": "체크리스트 - 오딜 에너지, 일일·주간 횟수"
+    "en": "Aion 2 Checklist - Odyle energy, daily and weekly counters",
+    "de": "Aion 2 Checkliste - Odenergie, tägliche und wöchentliche Zähler",
+    "fr": "Aion 2 Liste de contrôle - énergie Odyle, compteurs quotidiens et hebdomadaires",
+    "es": "Aion 2 Lista de control - energía Odyle, contadores diarios y semanales",
+    "ru": "Aion 2 Чек-лист - энергия Одила, ежедневные и еженедельные счётчики",
+    "zh": "Aion 2 清单 - 奥迪尔能量、每日和每周计数",
+    "zh-TW": "Aion 2 清單 - 奧迪爾能量、每日與每週計數",
+    "pt": "Aion 2 Lista de verificação - energia Odyle, contadores diários e semanais",
+    "ja": "Aion 2 チェックリスト - オディル・エネルギー、デイリーとウィークリーの回数",
+    "ko": "Aion 2 체크리스트 - 오딜 에너지, 일일·주간 횟수"
   },
   "Checklist.Character": {
     "en": "Character",
@@ -6592,6 +6592,18 @@
     "pt": "Energia Carregada",
     "ja": "チャージ エネルギー",
     "ko": "충전 에너지"
+  },
+  "Checklist.NeedLogin": {
+    "en": "No character has logged in since the meter started: the counters are read at login. Log in again once (character select) and yours show up here.",
+    "de": "Seit dem Start des Meters hat sich noch kein Charakter eingeloggt: Die Zähler werden beim Login gelesen. Logge dich einmal neu ein (Charakterauswahl), dann stehen deine hier.",
+    "fr": "Aucun personnage ne s'est connecté depuis le démarrage du compteur : les compteurs sont lus à la connexion. Reconnectez-vous une fois (sélection du personnage) pour voir les vôtres ici.",
+    "es": "Ningún personaje ha iniciado sesión desde que arrancó el medidor: los contadores se leen al iniciar sesión. Vuelve a iniciar sesión una vez (selección de personaje) y los tuyos aparecerán aquí.",
+    "ru": "С момента запуска метра ни один персонаж не входил в игру: счётчики считываются при входе. Войдите ещё раз (выбор персонажа), и ваши данные появятся здесь.",
+    "zh": "计量器启动后还没有角色登录：计数在登录时读取。请重新登录一次（角色选择），您的数据就会显示在这里。",
+    "zh-TW": "計量器啟動後還沒有角色登入：計數在登入時讀取。請重新登入一次（角色選擇），您的資料就會顯示在這裡。",
+    "pt": "Nenhum personagem entrou desde que o medidor iniciou: os contadores são lidos no login. Entre novamente uma vez (seleção de personagem) e os seus aparecerão aqui.",
+    "ja": "メーターの起動後にログインしたキャラクターがありません。カウンターはログイン時に読み取られます。一度ログインし直す（キャラクター選択）と、ここに表示されます。",
+    "ko": "미터 시작 후 로그인한 캐릭터가 없습니다. 카운터는 로그인 시 읽습니다. 한 번 다시 로그인(캐릭터 선택)하면 여기에 표시됩니다."
   },
   "Checklist.ScrollVerteron": {
     "en": "Verteron mandatory scrolls (bought this week)",
@@ -7042,7 +7054,7 @@
     "ko": "사용자 글꼴 크기(맨 왼쪽 = 끔):"
   },
   "Settings.Custom.UseTheme": {
-    "en": "Use the theme's colour",
+    "en": "Use the design's colour",
     "de": "Farbe des Designs verwenden",
     "fr": "Utiliser la couleur du thème",
     "es": "Usar el color del tema",
@@ -7054,8 +7066,8 @@
     "ko": "테마 색상 사용"
   },
   "Main.MenuTools.ThemeEditor": {
-    "en": "Theme editor",
-    "de": "Theme-Editor",
+    "en": "Design editor",
+    "de": "Design-Editor",
     "fr": "Éditeur de thème",
     "es": "Editor de temas",
     "ru": "Редактор темы",
@@ -7066,8 +7078,8 @@
     "ko": "테마 편집기"
   },
   "ThemeEditor.Title": {
-    "en": "Theme editor",
-    "de": "Theme-Editor",
+    "en": "Design editor",
+    "de": "Design-Editor",
     "fr": "Éditeur de thème",
     "es": "Editor de temas",
     "ru": "Редактор темы",
@@ -7126,7 +7138,7 @@
     "ko": "저장 및 적용"
   },
   "ThemeEditor.Reset": {
-    "en": "Back to theme",
+    "en": "Back to design",
     "de": "Zurück zum Design",
     "fr": "Retour au thème",
     "es": "Volver al tema",
@@ -7186,8 +7198,8 @@
     "ko": "가져오기…"
   },
   "ThemeEditor.ImportFailed": {
-    "en": "This file is not a valid theme file.",
-    "de": "Diese Datei ist keine gültige Theme-Datei.",
+    "en": "This file is not a valid design file.",
+    "de": "Diese Datei ist keine gültige Design-Datei.",
     "fr": "Ce fichier n'est pas un fichier de thème valide.",
     "es": "Este archivo no es un archivo de tema válido.",
     "ru": "Этот файл не является допустимым файлом темы.",
@@ -7306,8 +7318,8 @@
     "ko": "설정 블록"
   },
   "ThemeEditor.Name": {
-    "en": "Theme name (file):",
-    "de": "Theme-Name (Datei):",
+    "en": "Design name (file):",
+    "de": "Design-Name (Datei):",
     "fr": "Nom du thème (fichier) :",
     "es": "Nombre del tema (archivo):",
     "ru": "Имя темы (файл):",
@@ -7318,8 +7330,8 @@
     "ko": "테마 이름(파일):"
   },
   "ThemeEditor.NameReserved": {
-    "en": "This name is taken by a built-in theme. Please choose another.",
-    "de": "Dieser Name ist für ein eingebautes Theme reserviert. Bitte einen anderen wählen.",
+    "en": "This name is taken by a built-in design. Please choose another.",
+    "de": "Dieser Name ist für ein eingebautes Design reserviert. Bitte einen anderen wählen.",
     "fr": "Ce nom est réservé à un thème intégré. Choisissez-en un autre.",
     "es": "Este nombre está reservado para un tema integrado. Elige otro.",
     "ru": "Это имя занято встроенной темой. Выберите другое.",
@@ -7330,8 +7342,8 @@
     "ko": "이 이름은 내장 테마에서 사용 중입니다. 다른 이름을 선택하세요."
   },
   "ThemeEditor.NameRequired": {
-    "en": "Please enter a name for the theme first.",
-    "de": "Bitte zuerst einen Namen für das Theme eingeben.",
+    "en": "Please enter a name for the design first.",
+    "de": "Bitte zuerst einen Namen für das Design eingeben.",
     "fr": "Veuillez d'abord saisir un nom pour le thème.",
     "es": "Introduce primero un nombre para el tema.",
     "ru": "Сначала введите имя темы.",
@@ -7342,8 +7354,8 @@
     "ko": "먼저 테마 이름을 입력하세요."
   },
   "ThemeEditor.OverwriteAsk": {
-    "en": "Overwrite your theme \"{0}\"?\n\nYes = overwrite it\nNo = save as a new theme (with the name entered)",
-    "de": "Dein Theme „{0}“ überschreiben?\n\nJa = überschreiben\nNein = als neues Theme speichern (mit dem eingegebenen Namen)",
+    "en": "Overwrite your design \"{0}\"?\n\nYes = overwrite it\nNo = save as a new design (with the name entered)",
+    "de": "Dein Design „{0}“ überschreiben?\n\nJa = überschreiben\nNein = als neues Design speichern (mit dem eingegebenen Namen)",
     "fr": "Écraser votre thème « {0} » ?\n\nOui = écraser\nNon = enregistrer comme nouveau thème (avec le nom saisi)",
     "es": "¿Sobrescribir tu tema «{0}»?\n\nSí = sobrescribir\nNo = guardar como tema nuevo (con el nombre indicado)",
     "ru": "Перезаписать вашу тему «{0}»?\n\nДа = перезаписать\nНет = сохранить как новую тему (с введённым именем)",
@@ -7354,8 +7366,8 @@
     "ko": "테마 \"{0}\"을(를) 덮어쓸까요?\n\n예 = 덮어쓰기\n아니요 = 입력한 이름으로 새 테마 저장"
   },
   "ThemeEditor.NameTaken": {
-    "en": "For a new theme the name must differ from \"{0}\" - change the name.",
-    "de": "Für ein neues Theme muss der Name ein anderer sein – bitte den Namen ändern.",
+    "en": "For a new design the name must differ from \"{0}\" - change the name.",
+    "de": "Für ein neues Design muss der Name ein anderer sein – bitte den Namen ändern.",
     "fr": "Pour un nouveau thème, le nom doit être différent – modifiez-le.",
     "es": "Para un tema nuevo el nombre debe ser distinto – cámbialo.",
     "ru": "Для новой темы имя должно отличаться – измените его.",
@@ -7366,8 +7378,8 @@
     "ko": "새 테마는 이름이 달라야 합니다. 이름을 바꿔 주세요."
   },
   "ThemeEditor.ExistsAsk": {
-    "en": "A theme named \"{0}\" already exists. Overwrite it?",
-    "de": "Ein Theme „{0}“ gibt es schon. Überschreiben?",
+    "en": "A design named \"{0}\" already exists. Overwrite it?",
+    "de": "Ein Design „{0}“ gibt es schon. Überschreiben?",
     "fr": "Un thème « {0} » existe déjà. L'écraser ?",
     "es": "Ya existe un tema «{0}». ¿Sobrescribirlo?",
     "ru": "Тема «{0}» уже существует. Перезаписать?",
@@ -7414,8 +7426,8 @@
     "ko": "모든 직업 동일 색상"
   },
   "ThemeEditor.Select": {
-    "en": "Theme:",
-    "de": "Theme:",
+    "en": "Design:",
+    "de": "Design:",
     "fr": "Thème :",
     "es": "Tema:",
     "ru": "Тема:",
@@ -7426,8 +7438,8 @@
     "ko": "테마:"
   },
   "ThemeEditor.NewTheme": {
-    "en": "＋ Create new theme",
-    "de": "＋ Neues Theme erstellen",
+    "en": "＋ Create new design",
+    "de": "＋ Neues Design erstellen",
     "fr": "＋ Créer un nouveau thème",
     "es": "＋ Crear un tema nuevo",
     "ru": "＋ Создать новую тему",

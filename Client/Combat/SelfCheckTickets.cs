@@ -110,8 +110,17 @@ public static class SelfCheckTickets
             && !Aion2Tickets.TryParseMissions(Convert.FromHexString("1c8d0300"), out _);
         Console.WriteLine($"  -> mission counter from the quest list 0x1c8d: {missionsRead}");
 
+        // the level a counter needs: below it the checklist greys it out (unknown level = unlocked)
+        var low = new TicketCharacter("Low", 1304, DateTime.UtcNow, new Dictionary<int, TicketValue>(), 28);
+        var high = low with { Level = 45 };
+        var unknown = low with { Level = 0 };
+        bool locks = Aion2Tickets.IsLocked(low, 101) && Aion2Tickets.IsLocked(low, 4) && Aion2Tickets.IsLocked(low, 80000001) && Aion2Tickets.IsLocked(low, 8)
+            && !Aion2Tickets.IsLocked(low, Aion2Tickets.OdyleId) && !Aion2Tickets.IsLocked(low, 1) && !Aion2Tickets.IsLocked(high, 4) && !Aion2Tickets.IsLocked(unknown, 4)
+            && Aion2Tickets.UnlockLevel(101) == 30 && Aion2Tickets.UnlockLevel(Aion2Tickets.OdyleId) == 22;
+        Console.WriteLine($"  -> counters locked by level (daily dungeon 30, Nightmare/Ascension/Invasion 45, Odyle 22, Shugo 13)={locks}");
+
         Aion2Tickets.Reset();
-        bool ok = missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
+        bool ok = locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
         Console.WriteLine(ok ? "  -> OK" : "  -> FAILED");
         return ok;
     }

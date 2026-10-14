@@ -25,7 +25,7 @@ public readonly record struct TicketValue(int Count, int Bonus, long TimeMs);
 public readonly record struct TicketReading(int Id, TicketValue Value);
 
 /// <summary>What was last seen of one character's tickets.</summary>
-public sealed record TicketCharacter(string Name, int ServerId, DateTime SavedAt, IReadOnlyDictionary<int, TicketValue> Tickets);
+public sealed record TicketCharacter(string Name, int ServerId, DateTime SavedAt, IReadOnlyDictionary<int, TicketValue> Tickets, int Level = 0);
 
 /// <summary>
 /// The tickets of the characters (Tools > Checklist; no overlay). The server sends them twice:
@@ -44,6 +44,21 @@ public static class Aion2Tickets
 {
     public const int OdyleId = 60000001;
 
+    /// <summary>The character level a counter starts at (what the client's ContentsUnlock table says; below it nothing is counted or collected).
+    /// Shugo Festival: the quest of level 13 ("Erscheinung im Rauch" / "Verspätete Verfolgung"); the Odyle energy: the level 22 story quest
+    /// ("Handelsgilde Brisenwind" / "Der Daeva, der im Traum verweilte"), here taken as level 22; the daily dungeon 30; Nightmare, Ascension rite,
+    /// Dimensional Invasion and the Abyss 45.</summary>
+    private static readonly Dictionary<int, int> UnlockLevels = new()
+    {
+        [1] = 13, [7] = 13, [OdyleId] = 22, [101] = 30, [4] = 45, [8] = 45, [80000001] = 45, [3] = 45,
+    };
+
+    /// <summary>The level the counter needs; 0 = no known limit.</summary>
+    public static int UnlockLevel(int ticketId) => UnlockLevels.GetValueOrDefault(ticketId);
+
+    /// <summary>True when the character's level is known and below what the counter needs (a character seen before levels were saved counts as unlocked).</summary>
+    public static bool IsLocked(TicketCharacter character, int ticketId) => character.Level > 0 && UnlockLevel(ticketId) > character.Level;
+
     /// <summary>The mandatory daily tasks ("Missions" of the journal: five a day) as a ticket of our own: count = handed in, bonus = taken. The id is no game id.</summary>
     public const int MissionsId = 99000001;
     public const int MissionsPerDay = 5;
@@ -59,6 +74,7 @@ public static class Aion2Tickets
         public string Name { get; set; } = "";
         public int ServerId { get; set; }
         public long SavedMs { get; set; }
+        public int Level { get; set; }
         public Dictionary<int, long[]> Tickets { get; set; } = new();
     }
 
@@ -324,7 +340,7 @@ public static class Aion2Tickets
     /// <summary>The game named the character that is logged in (a live record, not one restored from disk); <paramref name="receivedAt"/> is when the
     /// character record came. The login frames between the list and that record announce the old character again: only a record received after
     /// the list names the one the list belongs to.</summary>
-    public static void NoteCharacter(string name, int serverId, DateTime receivedAt)
+    public static void NoteCharacter(string name, int serverId, DateTime receivedAt, int level = 0)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -342,16 +358,16 @@ public static class Aion2Tickets
 
             if (_awaitingName && _pending is not null && receivedAt >= _pendingAt)
             {
-                Characters[name] = new TicketCharacter(name, serverId, DateTime.UtcNow, _pending);
+                Characters[name] = new TicketCharacter(name, serverId, DateTime.UtcNow, _pending, level);
                 _pending = null;
                 _awaitingName = false;
                 _dirty = true;
                 changed = true;
                 Trim();
             }
-            else if (Characters.TryGetValue(name, out TicketCharacter? known) && serverId > 0 && known.ServerId != serverId)
+            else if (Characters.TryGetValue(name, out TicketCharacter? known) && ((serverId > 0 && known.ServerId != serverId) || (level > 0 && known.Level != level)))
             {
-                Characters[name] = known with { ServerId = serverId };
+                Characters[name] = known with { ServerId = serverId > 0 ? serverId : known.ServerId, Level = level > 0 ? level : known.Level };
                 _dirty = true;
             }
         }
@@ -519,7 +535,7 @@ public static class Aion2Tickets
             {
                 var tickets = c.Tickets.Where(t => t.Value.Length == 3)
                     .ToDictionary(t => t.Key, t => new TicketValue((int)t.Value[0], (int)t.Value[1], t.Value[2]));
-                Characters[c.Name] = new TicketCharacter(c.Name, c.ServerId, DateTime.SpecifyKind(DateTimeOffset.FromUnixTimeMilliseconds(c.SavedMs).DateTime, DateTimeKind.Utc), tickets);
+                Characters[c.Name] = new TicketCharacter(c.Name, c.ServerId, DateTime.SpecifyKind(DateTimeOffset.FromUnixTimeMilliseconds(c.SavedMs).DateTime, DateTimeKind.Utc), tickets, c.Level);
             }
         }
         catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
@@ -546,6 +562,7 @@ public static class Aion2Tickets
                     Name = c.Name,
                     ServerId = c.ServerId,
                     SavedMs = new DateTimeOffset(c.SavedAt, TimeSpan.Zero).ToUnixTimeMilliseconds(),
+                    Level = c.Level,
                     Tickets = c.Tickets.ToDictionary(t => t.Key, t => new[] { (long)t.Value.Count, t.Value.Bonus, t.Value.TimeMs }),
                 }).ToList(),
             };

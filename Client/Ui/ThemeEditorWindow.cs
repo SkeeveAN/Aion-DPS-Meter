@@ -169,12 +169,32 @@ public sealed class ThemeEditorWindow : Window
         {
             field.Changed += (_, _) => Rebuild();
         }
+        ShowDefaults();
 
         _bar.Changed += (_, _) => Rebuild();
         _text.Changed += (_, _) => Rebuild();
         _fontSize.ValueChanged += (_, _) => Rebuild();
         _loading = false;
         Rebuild();
+    }
+
+    /// <summary>What every field holds while it has no colour of its own: the base theme's colours and the standard class colours, shown dimmed.</summary>
+    private void ShowDefaults()
+    {
+        ResourceDictionary baseTheme = ThemeManager.Build(_settings.Theme, null);
+        string Hex(string key) => baseTheme.Contains(key) && baseTheme[key] is Color c ? $"#{c.R:X2}{c.G:X2}{c.B:X2}" : "";
+        _background.DefaultHex = Hex("Color.Window");
+        _titleBar.DefaultHex = Hex("Color.TitleBar");
+        _panel.DefaultHex = Hex("Color.Panel");
+        _control.DefaultHex = Hex("Color.Control");
+        _switch.DefaultHex = Hex("Color.Switch");
+        _toggle.DefaultHex = Hex("Color.Toggle");
+        _text.DefaultHex = Hex("Color.Text");
+        foreach (var (cls, field) in _classFields)
+        {
+            Color standard = ClassBrushes.ClassColor(cls);
+            field.DefaultHex = $"#{standard.R:X2}{standard.G:X2}{standard.B:X2}";
+        }
     }
 
     /// <summary>The list: "Create new theme" first, then every saved theme; <paramref name="select"/> is chosen (null = the new one).</summary>
@@ -332,7 +352,7 @@ public sealed class ThemeEditorWindow : Window
 
         var dialog = new Microsoft.Win32.SaveFileDialog
         {
-            Filter = "Aion DPS theme (*.aiondps-theme)|*.aiondps-theme|JSON (*.json)|*.json",
+            Filter = "Aion DPS design (*.aiondps-theme)|*.aiondps-theme|JSON (*.json)|*.json",
             FileName = name + ThemeFile.Extension,
         };
         if (dialog.ShowDialog(this) != true)
@@ -357,7 +377,7 @@ public sealed class ThemeEditorWindow : Window
     /// <summary>Loads a theme file into the fields and the preview; "Save and apply" makes it the real look.</summary>
     private void ImportTheme()
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Aion DPS theme (*.aiondps-theme;*.json)|*.aiondps-theme;*.json" };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Aion DPS design (*.aiondps-theme;*.json)|*.aiondps-theme;*.json" };
         if (dialog.ShowDialog(this) != true)
         {
             return;
