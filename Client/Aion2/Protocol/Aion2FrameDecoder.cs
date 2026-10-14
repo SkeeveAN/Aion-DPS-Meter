@@ -1190,6 +1190,10 @@ public sealed class Aion2FrameDecoder
     private IEnumerable<DamageEvent> DecodeVarintDot(ReadOnlySpan<byte> frame, DateTime timestamp)
     {
         int p = 2;
+            if (_entities.IsLocalPlayer(source))
+            {
+                _entities.NoteLocalHit((int)target);
+            }
         if (!TryReadVarint(frame, ref p, out long target) || p >= frame.Length)
         {
             SkippedShortFrames++;

@@ -668,10 +668,37 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private (int EntityId, DateTime At)? _lastHit;
+
+    /// <summary>The monster the local player hit last, with the time: stands in for the target when the player aims with the camera (no mark message is sent then).</summary>
+    public (int EntityId, int? NpcId, DateTime At)? LocalHitTarget
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _lastHit is { } t ? (t.EntityId, _npcIds.TryGetValue(t.EntityId, out int npc) ? npc : null, t.At) : null;
+            }
+        }
+    }
+
+    public void NoteLocalHit(int entityId)
+    {
+        lock (_gate)
+        {
+            _lastHit = (entityId, DateTime.UtcNow);
+        }
+    }
+
     public void ClearLocalTarget(int entityId)
     {
         lock (_gate)
         {
+            if (_lastHit is { } h && h.EntityId == entityId)
+            {
+                _lastHit = null;
+            }
+
             if (_target is { } t && t.EntityId == entityId)
             {
                 _target = null;

@@ -290,7 +290,11 @@ public sealed class PetFarmController : IDisposable
         IReadOnlyCollection<int>? pets = null;
 
         // 1. The game's own message when the player marks a monster (tab or click): the entity id leads to the NPC and the pet.
-        if (directory?.LocalTarget is { NpcId: int npcId, At: var at } && DateTime.UtcNow - at < TimeSpan.FromMinutes(2))
+        // Without a mark (aiming with the camera) the monster the player hit last stands in, for 15 seconds after the hit.
+        var marked = directory?.LocalTarget is { } m && DateTime.UtcNow - m.At < TimeSpan.FromMinutes(2) ? m : (ValueTuple<int, int?, DateTime>?)null;
+        var hit = directory?.LocalHitTarget is { } h && DateTime.UtcNow - h.At < TimeSpan.FromSeconds(15) ? h : (ValueTuple<int, int?, DateTime>?)null;
+        var current = marked is { } a && hit is { } b ? (b.Item3 > a.Item3 ? b : a) : marked ?? hit; // the later of the two
+        if (current is { Item2: int npcId })
         {
             var ofNpc = Aion2Pets.PetsOfNpc(npcId);
             if (ofNpc.Count == 0)

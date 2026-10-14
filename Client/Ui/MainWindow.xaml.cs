@@ -377,9 +377,39 @@ public partial class MainWindow : Window
 
         // A fresh install, or a lost or broken settings file: the wizard asks for the language and the
         // upload options that are off by default (see WizardWindow). Never in the headless test modes.
-        if (!Headless && !settings.SetupCompleted)
+        if (!Headless)
         {
-            Loaded += (_, _) => new WizardWindow(settings) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
+            bool wizard = !settings.SetupCompleted;
+            Loaded += (_, _) =>
+            {
+                if (wizard)
+                {
+                    new WizardWindow(settings) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
+                }
+
+                AskForNpcapIfMissing();
+            };
+        }
+    }
+
+    /// <summary>Without the Npcap driver the meter sees no game traffic at all (no damage, no pet info): says so at the start and offers the download page.</summary>
+    private void AskForNpcapIfMissing()
+    {
+        if (Aion2.Capture.NpcapAvailability.Detect().IsInstalled)
+        {
+            return;
+        }
+
+        var loc = LocalizationManager.Instance;
+        if (ThemedMessageBox.Show(this, loc["Npcap.Missing.Text"], loc["Npcap.Missing.Title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(Aion2.Capture.NpcapAvailability.DownloadUrl) { UseShellExecute = true });
+            }
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+            {
+            }
         }
     }
 

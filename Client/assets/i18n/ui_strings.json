@@ -675,6 +675,14 @@
     "ja": "ネットワークアダプター：",
     "ko": "네트워크 어댑터:"
   },
+  "Npcap.Missing.Title": {
+    "en": "Npcap is missing",
+    "de": "Npcap fehlt"
+  },
+  "Npcap.Missing.Text": {
+    "en": "The meter reads the game's network traffic through the free Npcap driver, and it is not installed on this computer. Without it nothing is measured: no damage, no pet info, no boss data.\n\nOpen the download page now? Install Npcap with the default options, then restart the meter.",
+    "de": "Der Meter liest den Netzwerkverkehr des Spiels über den kostenlosen Npcap-Treiber, und der ist auf diesem Rechner nicht installiert. Ohne ihn wird nichts gemessen: kein Schaden, keine Pet-Info, keine Bossdaten.\n\nJetzt die Download-Seite öffnen? Npcap mit den Standardoptionen installieren, danach den Meter neu starten."
+  },
   "Settings.Aion2Hint": {
     "en": "The meter reads the game's network traffic through the Npcap driver (passive, nothing is sent and the game process is never touched). Npcap must be installed from npcap.com.",
     "de": "Der Meter liest den Netzwerkverkehr des Spiels über den Npcap-Treiber (passiv, es wird nichts gesendet und der Spielprozess wird nie angefasst). Npcap muss von npcap.com installiert sein.",
