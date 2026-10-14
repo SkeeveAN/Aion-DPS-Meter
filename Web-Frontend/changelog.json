@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.47.1",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "The boss health bar no longer disappears while the boss is still your target (it is held for a few seconds between casts and also follows the boss you hit last when you aim with the camera), and it goes away when the boss is dead instead of staying at 0 %",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.47.0",
   "date": "2026-10-14",
   "items": [
