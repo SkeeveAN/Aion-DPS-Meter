@@ -34,6 +34,13 @@
      "Backend"
     ],
     "date": "2026-10-14"
+   },
+   {
+    "text": "Patch notes keep the air NC puts between chapters and paragraphs: blank lines in the text are shown as one empty line",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-14"
    }
   ]
  },
