@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "0.45.7",
   "date": "2026-10-14",
   "items": [
    {
@@ -32,6 +32,13 @@
     "areas": [
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-14"
+   },
+   {
+    "text": "Sessions now follow the instance runs: the view moves into a new session by itself, coming back to a map after an instance run picks the earlier session of that map up again, and an instance entered straight from the run before (the temple runs one after the other) starts a session of its own; the session manager is tighter, with class icons and class colours, the replay button on the session and the file buttons together",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-14"
    }
