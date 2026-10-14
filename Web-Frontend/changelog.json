@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "Profiles of players on every NC region are now filled from NC's character pages: North America, Asia and LATAM servers were skipped before, so their players got no portrait, equipment or profile; they are queued in the background and on every upload",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.45.6",
   "date": "2026-10-14",
   "items": [
