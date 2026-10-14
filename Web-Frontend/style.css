@@ -2811,6 +2811,11 @@ body:has(.download-hero) .nav-download-link:hover,
 .pn-body ul, .pn-body ol { margin: 4px 0 8px; padding-left: 22px; }
 .pn-body li > p { margin: 2px 0; }
 .pn-body h4 { margin: 12px 0 4px; }
+.pn-table { margin: 8px 0 12px; overflow-x: auto; }
+.pn-body table { border-collapse: collapse; width: 100%; }
+.pn-body th, .pn-body td { border: 1px solid var(--color-border); padding: 8px 12px; text-align: left; vertical-align: top; }
+.pn-body th { background: var(--color-surface-2, rgba(0, 0, 0, .35)); text-align: center; }
+.pn-body td > p, .pn-body th > p { margin: 0; }
 .cat-maintenance { --lab: var(--color-warning); }
 .cat-outage { --lab: var(--color-danger); }
 .cat-newServers { --lab: var(--color-info); }

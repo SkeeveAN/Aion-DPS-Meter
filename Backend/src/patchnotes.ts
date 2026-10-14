@@ -4,7 +4,7 @@ import { NC_LANGS, cleanTitle, localizeZones, ncLangFor, type NcLang } from "./a
 import { getNc } from "./portraitService.js";
 
 // NC's AION 2 patch notes (board update_xx): the one place where the full text is shown, as a small tree built from NC's editor HTML.
-// Only a fixed set of tags survives (paragraphs, bold, italic, lists, line breaks, https links); everything else, pictures included, is dropped,
+// Only a fixed set of tags survives (paragraphs, bold, italic, lists, tables, line breaks, https links); everything else, pictures included, is dropped,
 // so the frontend can build the page with createElement and never touches NC's markup.
 
 type FetchFn = typeof fetch;
@@ -14,12 +14,16 @@ const MAX_BYTES = 2 * 1024 * 1024;
 const MAX_HTML = 300_000;
 const WEB_LOCALE: Record<NcLang, string> = { en: "en-us", de: "de-de", fr: "fr-fr", es: "es-es", pt: "pt-br", ja: "ja-jp" };
 
-export type BodyNode = string | { tag: "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a"; href?: string; children: BodyNode[] };
+export type BodyNode = string | { tag: "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a" | "table" | "tr" | "td" | "th"; href?: string; children: BodyNode[] };
 
-export type Patchnote = { id: string; lang: NcLang; contentId: number; title: string; posted: number; updated: number; body: BodyNode[] };
+export type Patchnote = { id: string; lang: NcLang; contentId: number; title: string; posted: number; updated: number; body: BodyNode[]; v?: number };
 
-const TAGS: Record<string, "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a"> = {
+/** Raised when the parser learns something new (v2: tables); older stored notes are fetched again. */
+const PARSER_VERSION = 2;
+
+const TAGS: Record<string, "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a" | "table" | "tr" | "td" | "th"> = {
   div: "p", p: "p", strong: "strong", b: "strong", em: "em", i: "em", u: "u", ul: "ul", ol: "ol", li: "li", br: "br", h1: "h", h2: "h", h3: "h", h4: "h", a: "a",
+  table: "table", tr: "tr", td: "td", th: "th",
 };
 const DROP_WITH_CONTENT = new Set(["script", "style", "head", "title"]);
 const VOID = new Set(["br", "img", "hr", "input", "meta", "link"]);
@@ -35,7 +39,7 @@ function decode(text: string): string {
   });
 }
 
-type Open = { tag: "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a"; href?: string; children: BodyNode[]; source: string };
+type Open = { tag: "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a" | "table" | "tr" | "td" | "th"; href?: string; children: BodyNode[]; source: string };
 
 /** NC's editor HTML into the safe tree. */
 export function htmlToTree(html: string): BodyNode[] {
@@ -127,7 +131,7 @@ function prune(nodes: BodyNode[]): BodyNode[] {
     n.children = prune(n.children);
     if (n.tag === "a" && !n.href) {
       out.push(...n.children);
-    } else if (n.tag === "br" || plain(n.children).trim() !== "" || (n.tag !== "p" && n.tag !== "li" && n.children.some((c) => typeof c !== "string"))) {
+    } else if (n.tag === "br" || n.tag === "td" || n.tag === "th" || n.tag === "tr" || plain(n.children).trim() !== "" || (n.tag !== "p" && n.tag !== "li" && n.children.some((c) => typeof c !== "string"))) {
       out.push(n);
     }
   }
@@ -151,6 +155,7 @@ export function parseDetail(lang: NcLang, listItem: Record<string, any>, detail:
     posted,
     updated: Number.isFinite(updated) ? updated : posted,
     body: htmlToTree(html),
+    v: PARSER_VERSION,
   };
 }
 
@@ -241,7 +246,7 @@ export async function refreshPatchnotes(fetchFn: FetchFn = fetch, now = Date.now
       for (const row of rows) {
         const have = store.get(keyOf({ lang, id: String(row?.id) }));
         const updated = Number(row?.timestamps?.updatedEpoch);
-        if (have && Number.isFinite(updated) && have.updated >= updated) {
+        if (have && Number.isFinite(updated) && have.updated >= updated && have.v === PARSER_VERSION) {
           continue;
         }
         const detail = JSON.parse((await getNc(fetchFn, new URL(`${BASE}/update_${lang}/article/${encodeURIComponent(String(row.id))}`), MAX_BYTES)).body.toString("utf8"));

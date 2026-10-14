@@ -1250,9 +1250,9 @@ async function renderAnnouncements() {
   );
 }
 
-// AION 2 patch notes: the only place with NC's full text (GET /api/patchnotes answers a small tree of paragraphs, bold/italic text, lists and https links,
+// AION 2 patch notes: the only place with NC's full text (GET /api/patchnotes answers a small tree of paragraphs, bold/italic text, lists, tables and https links,
 // built here with createElement - NC's markup never reaches the page). The newest note is open, older ones fold; every note links to NC's own page.
-const PN_TAGS = { p: "p", strong: "strong", em: "em", u: "u", ul: "ul", ol: "ol", li: "li", br: "br", h: "h4", a: "a" };
+const PN_TAGS = { p: "p", strong: "strong", em: "em", u: "u", ul: "ul", ol: "ol", li: "li", br: "br", h: "h4", a: "a", table: "table", tr: "tr", td: "td", th: "th" };
 function patchnoteNodes(nodes) {
   return nodes.map((n) => {
     if (typeof n === "string") {
@@ -1260,7 +1260,8 @@ function patchnoteNodes(nodes) {
     }
     const tag = PN_TAGS[n.tag] ?? "span";
     const props = n.tag === "a" && typeof n.href === "string" && n.href.startsWith("https://") ? { href: n.href, target: "_blank", rel: "noopener" } : {};
-    return el(tag, props, tag === "br" ? [] : patchnoteNodes(n.children ?? []));
+    const node = el(tag, props, tag === "br" ? [] : patchnoteNodes(n.children ?? []));
+    return n.tag === "table" ? el("div", { className: "pn-table" }, [node]) : node;
   });
 }
 async function renderPatchnotes() {

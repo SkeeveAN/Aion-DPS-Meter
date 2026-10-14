@@ -13,6 +13,14 @@ test("NC's editor HTML becomes a small safe tree", () => {
   ]);
 });
 
+test("tables keep their rows and cells, empty cells included", () => {
+  const html = "<table><thead><tr><th>Skill Name</th><th>Changes</th></tr></thead><tbody><tr><td>Fire Wall</td><td></td></tr></tbody></table>";
+  assert.deepEqual(htmlToTree(html), [{ tag: "table", children: [
+    { tag: "tr", children: [{ tag: "th", children: ["Skill Name"] }, { tag: "th", children: ["Changes"] }] },
+    { tag: "tr", children: [{ tag: "td", children: ["Fire Wall"] }, { tag: "td", children: [] }] },
+  ] }]);
+});
+
 test("nothing outside the allowed tags survives", () => {
   const json = JSON.stringify(htmlToTree('<div><img src=x onerror=alert(1)><iframe src="https://evil"></iframe><span style="x">text</span><a href="http://plain.example">p</a></div>'));
   assert.ok(!/img|iframe|onerror|http:/.test(json), json);
