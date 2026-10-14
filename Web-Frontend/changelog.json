@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.46.4",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "The labels in the theme editor are readable again: they take the theme's text colour instead of the near-black Windows default on the dark window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.46.3",
   "date": "2026-10-14",
   "items": [
