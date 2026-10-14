@@ -187,7 +187,6 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <DockPanel Grid.Row="0">
-                <Button x:Name="ReplayButton" DockPanel.Dock="Right" Content="{local:Loc Replay.Button}" Visibility="Collapsed" Padding="12,3" VerticalAlignment="Center" Click="OnReplayClicked"/>
                 <TextBlock x:Name="DetailTitle" FontSize="20" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
             </DockPanel>
             <TextBlock x:Name="DetailFacts" Grid.Row="1" Margin="0,2,0,8" Foreground="{DynamicResource Brush.TextMuted}"/>
@@ -207,7 +206,7 @@
                     </ItemsControl>
                 </StackPanel>
             </Border>
-            <DataGrid x:Name="BossGrid" Grid.Row="3" MaxHeight="150" Margin="0,0,0,8">
+            <DataGrid x:Name="BossGrid" Grid.Row="3" MaxHeight="150" Margin="0,0,0,8" SelectionMode="Single" SelectionChanged="OnBossSelected">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{local:Loc Sessions.Col.Boss}" Binding="{Binding Name}" MinWidth="140" Width="*"/>
                     <DataGridTextColumn Header="{local:Loc History.ColumnDuration}" Binding="{Binding Length}" Width="60"/>

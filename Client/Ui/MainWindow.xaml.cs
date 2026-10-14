@@ -2292,42 +2292,44 @@ public partial class MainWindow : Window
             : null;
     }
 
-    private UIElement? BuildSessionAnalyzer(SessionInfo session, SessionManagerWindow.PlayerRow row, SessionManagerWindow.PlayerMode mode)
+    private UIElement? BuildSessionAnalyzer(SessionInfo session, SessionManagerWindow.PlayerRow row, SessionManagerWindow.PlayerMode mode, SessionManagerWindow.BossRow? boss)
     {
-        var all = session.Data.Events.Where(ev => !ev.IsHeal).ToList();
         if (session.Data.Events.Count == 0)
         {
             return null;
         }
 
+        // The picked boss narrows everything to its attempt (its time, and in damage mode the hits on it); no boss: the whole stay.
+        IReadOnlyList<DamageEvent> scoped = SessionManagerWindow.ScopedEvents(session, boss?.Attempt, mode);
+        var all = scoped.Where(ev => !ev.IsHeal).ToList();
+        string title = $"{boss?.Name ?? LocalizationManager.Instance["Sessions.Boss.Total"]}  \u203A  {row.Name}";
         Func<int, string?> nameOf = id => session.Names.GetValueOrDefault(id) ?? ResolveDisplayName(id);
-        bool IsPlayer(int id) => session.Classes.Count == 0 || session.Classes.ContainsKey(id);
         if (mode == SessionManagerWindow.PlayerMode.Taken)
         {
             // what hit this player in the session, one row per attacker and attack
             var hits = all.Where(ev => ev.TargetObjectId == row.Id && !session.Classes.ContainsKey(ev.SourceObjectId)).ToList();
             var deaths = (DeathsForSession(session) ?? Array.Empty<DeathRecord>()).Where(d => d.Entity == row.Id)
                 .Select(d => new Death(d.At, d.Entity, hits.Where(h => h.Timestamp <= d.At && h.Timestamp >= d.At - Deaths.BlowWindow).Cast<DamageEvent?>().LastOrDefault(), d.RevivedAt)).ToList();
-            return new PlayerDetailsView(row.Name, row.ClassName, "", hits, nameOf, deaths: deaths, taken: true);
+            return new PlayerDetailsView(title, row.ClassName, "", hits, nameOf, deaths: deaths, taken: true);
         }
 
         if (mode == SessionManagerWindow.PlayerMode.Heal)
         {
-            var heals = session.Data.Events.Where(ev => ev.IsHeal).ToList();
-            return new PlayerDetailsView(row.Name, row.ClassName, "", heals.Where(ev => ev.SourceObjectId == row.Id).ToList(), nameOf, heals: true, fightEvents: heals);
+            var heals = scoped.Where(ev => ev.IsHeal).ToList();
+            return new PlayerDetailsView(title, row.ClassName, "", heals.Where(ev => ev.SourceObjectId == row.Id).ToList(), nameOf, heals: true, fightEvents: heals);
         }
 
-        var mine = session.Data.Events.Where(ev => ev.SourceObjectId == row.Id).ToList();
-        DateTime from = all.Count > 0 ? all.Min(ev => ev.Timestamp) : session.Start, to = all.Count > 0 ? all.Max(ev => ev.Timestamp) : session.End ?? session.Start;
+        var mine = scoped.Where(ev => ev.SourceObjectId == row.Id).ToList();
+        DateTime from = boss?.Attempt?.Start ?? (all.Count > 0 ? all.Min(ev => ev.Timestamp) : session.Start);
+        DateTime to = boss?.Attempt?.End ?? (all.Count > 0 ? all.Max(ev => ev.Timestamp) : session.End ?? session.Start);
         FightExtras? extras = session.Extras ?? ExtrasForSession(session);
-        return new PlayerDetailsView(row.Name, row.ClassName, "", mine, nameOf, fightEvents: all, extras: extras, playerId: row.Id, fightStart: from, fightEnd: to);
+        return new PlayerDetailsView(title, row.ClassName, "", mine, nameOf, fightEvents: all, extras: extras, playerId: row.Id, fightStart: from, fightEnd: to,
+            replay: BuildSessionReplay(session, all, extras, from, to));
     }
 
-    /// <summary>The replay of a whole session (the button of the session manager), or null when the session has no replay data.</summary>
-    private ReplayData? BuildSessionReplay(SessionInfo session)
+    /// <summary>The replay of the picked boss (or the whole stay), shown by the button of the combat analyzer; null when there is no replay data.</summary>
+    private ReplayData? BuildSessionReplay(SessionInfo session, List<DamageEvent> all, FightExtras? extras, DateTime from, DateTime to)
     {
-        var all = session.Data.Events.Where(ev => !ev.IsHeal).ToList();
-        FightExtras? extras = session.Extras ?? ExtrasForSession(session);
         if (extras is null || all.Count == 0)
         {
             return null;
@@ -2335,7 +2337,6 @@ public partial class MainWindow : Window
 
         Func<int, string?> nameOf = id => session.Names.GetValueOrDefault(id) ?? ResolveDisplayName(id);
         bool IsPlayer(int id) => session.Classes.Count == 0 || session.Classes.ContainsKey(id);
-        DateTime from = all.Min(ev => ev.Timestamp), to = all.Max(ev => ev.Timestamp);
         return ReplayBuilder.Build(SessionLabels.NameOf(session), extras, all, from, to,
             id => (nameOf(id) ?? "", session.Classes.GetValueOrDefault(id) ?? "", IsPlayer(id) && session.Classes.ContainsKey(id)), SkillRadius,
             id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)));
@@ -3855,7 +3856,6 @@ public partial class MainWindow : Window
         _sessionManager = new SessionManagerWindow(_sessions) { Owner = this };
         _sessionManager.ExtrasFor = ExtrasForSession;
         _sessionManager.AnalyzerFactory = BuildSessionAnalyzer;
-        _sessionManager.ReplayFactory = BuildSessionReplay;
         _sessionManager.DeathsFor = DeathsForSession;
         _sessionManager.Closed += (_, _) => _sessionManager = null;
         _sessionManager.Show();

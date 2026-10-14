@@ -4985,6 +4985,18 @@
     "ja": "激怒",
     "ko": "격노"
   },
+  "Sessions.Boss.Total": {
+    "en": "Total",
+    "de": "Gesamt",
+    "fr": "Total",
+    "es": "Total",
+    "ru": "Всего",
+    "zh": "总计",
+    "zh-TW": "總計",
+    "pt": "Total",
+    "ja": "合計",
+    "ko": "합계"
+  },
   "Sessions.Boss.Killed": {
     "en": "defeated",
     "de": "besiegt",

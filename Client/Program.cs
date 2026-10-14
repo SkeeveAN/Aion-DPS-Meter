@@ -607,7 +607,7 @@ internal static class Program
 
         recorder.Sessions[1].IsSaved = true;
         var window = new Ui.SessionManagerWindow(recorder);
-        window.AnalyzerFactory = (session, row, mode) => analyzerTab is not null ? CreateSampleDetails(analyzerTab, row.Name, row.ClassName) : new Ui.PlayerDetailsView(row.Name, row.ClassName, "",
+        window.AnalyzerFactory = (session, row, mode, boss) => analyzerTab is not null ? CreateSampleDetails(analyzerTab, row.Name, row.ClassName) : new Ui.PlayerDetailsView(row.Name, row.ClassName, "",
             session.Data.Events.Where(ev => ev.SourceObjectId == row.Id).ToList(), id => session.Names.GetValueOrDefault(id),
             fightEvents: session.Data.Events.Where(ev => !ev.IsHeal).ToList());
         const double width = 1760, height = 820;

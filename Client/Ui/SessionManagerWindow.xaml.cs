@@ -27,12 +27,12 @@ public partial class SessionManagerWindow : Window
     public enum PlayerMode { Damage, Heal, Taken }
 
     /// <summary>Builds the combat analyzer for one player of a session (set by the main window): the player's details limited to the session's time.</summary>
-    public Func<SessionInfo, PlayerRow, PlayerMode, UIElement?>? AnalyzerFactory { get; set; }
+    /// <summary>The boss row picked in the list narrows it to that boss's attempt; null: the whole stay.</summary>
+    public Func<SessionInfo, PlayerRow, PlayerMode, BossRow?, UIElement?>? AnalyzerFactory { get; set; }
 
-    /// <summary>The replay of a whole session, or null when it has none.</summary>
-    public Func<SessionInfo, ReplayData?>? ReplayFactory { get; set; }
-
-    private ReplayData? _replay;
+    private BossRow? _boss;
+    private int? _bossSession;
+    private bool _syncingBoss;
 
     /// <summary>The deaths of a session (set by the main window): from the capture, or from the file the session came from. Null: not known.</summary>
     public Func<SessionInfo, IReadOnlyList<DeathRecord>?>? DeathsFor { get; set; }
@@ -132,7 +132,21 @@ public partial class SessionManagerWindow : Window
     public sealed record FindingRow(string Icon, Brush Brush, string Text);
 
     /// <summary>One boss attempt of the stay.</summary>
-    public sealed record BossRow(string Name, string Start, string Length, string Result, string Damage, string Enrage);
+    /// <param name="Attempt">The boss attempt the row stands for; null for the first row, the whole stay.</param>
+    public sealed record BossRow(string Name, string Start, string Length, string Result, string Damage, string Enrage, BossAttempt? Attempt = null);
+
+    /// <summary>The events of a stay that belong to the picked boss: its attempt's time, and in damage mode only the hits on it. No boss: all of them.</summary>
+    public static IReadOnlyList<DamageEvent> ScopedEvents(SessionInfo session, BossAttempt? boss, PlayerMode mode)
+    {
+        if (boss is null)
+        {
+            return session.Data.Events;
+        }
+
+        return session.Data.Events
+            .Where(ev => ev.Timestamp >= boss.Start && ev.Timestamp <= boss.End && (mode != PlayerMode.Damage || ev.TargetObjectId == boss.TargetId))
+            .ToList();
+    }
 
     private void OnRecorderChanged() => Dispatcher.BeginInvoke(new Action(Refresh));
 
@@ -253,8 +267,6 @@ public partial class SessionManagerWindow : Window
         {
             DetailTitle.Text = "";
             DetailFacts.Text = "";
-            _replay = null;
-            ReplayButton.Visibility = Visibility.Collapsed;
             PlayersGrid.ItemsSource = null;
             CloseAnalyzer();
             FindingsList.ItemsSource = null;
@@ -263,11 +275,17 @@ public partial class SessionManagerWindow : Window
         }
 
         DetailTitle.Text = SessionLabels.NameOf(session);
-        _replay = ReplayFactory?.Invoke(session);
-        ReplayButton.Visibility = _replay is { HasData: true } ? Visibility.Visible : Visibility.Collapsed;
+        // The open stay is read again from the capture's hit points each time it is looked at.
+        if (session.IsOpen)
+        {
+            _recorder.CaptureHp(session);
+        }
+
+        SessionAnalysis analysis = SessionAnalyzer.Analyze(session);
+        FillBosses(session, analysis, loc);
         DetailFacts.Text = $"{(session.Kind == SessionKind.Instance ? loc["Sessions.KindInstance"] : loc["Sessions.KindMap"])} \u00B7 "
             + $"{SessionLabels.TimeSpanOf(session)} \u00B7 {FormatLength(session.Duration(DateTime.Now))}";
-        List<PlayerRow> players = PlayersOf(session, _mode, DeathsFor?.Invoke(session));
+        List<PlayerRow> players = PlayersOf(session, _mode, DeathsFor?.Invoke(session), _boss?.Attempt);
         _syncingPlayers = true;
         PlayersGrid.ItemsSource = players;
         PlayerRow? analyzed = _analyzedSession == session.Number ? players.FirstOrDefault(row => row.Id == _analyzedPlayer) : null;
@@ -293,13 +311,6 @@ public partial class SessionManagerWindow : Window
             }
         }
 
-        // The open stay is read again from the capture's hit points each time it is looked at.
-        if (session.IsOpen)
-        {
-            _recorder.CaptureHp(session);
-        }
-
-        SessionAnalysis analysis = SessionAnalyzer.Analyze(session);
         var findings = analysis.Findings
             .Select(f => new FindingRow(SessionLabels.IconOf(f.Level), SessionLabels.LevelBrush(f.Level), string.Format(loc[f.Key], f.Args)))
             .ToList();
@@ -309,8 +320,55 @@ public partial class SessionManagerWindow : Window
         }
 
         FindingsList.ItemsSource = findings;
-        BossGrid.ItemsSource = analysis.Attempts.Select(a => BossRowOf(a, loc)).ToList();
-        BossGrid.Visibility = analysis.Attempts.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>The boss list: the whole stay first, then every attempt. The pick of the same stay stays while the list is rebuilt.</summary>
+    private void FillBosses(SessionInfo session, SessionAnalysis analysis, LocalizationManager loc)
+    {
+        var rows = new List<BossRow>();
+        if (analysis.Attempts.Count > 0)
+        {
+            TimeSpan length = TimeSpan.FromTicks(analysis.Attempts.Sum(a => a.Duration.Ticks));
+            int killed = analysis.Attempts.Count(a => a.Killed);
+            rows.Add(new BossRow(loc["Sessions.Boss.Total"], "", $"{(int)length.TotalMinutes:00}:{length.Seconds:00}",
+                $"{killed} / {analysis.Attempts.Count} {loc["Sessions.Boss.Killed"]}", analysis.Attempts.Sum(a => a.Counted).ToString("N0"), ""));
+            foreach (BossAttempt attempt in analysis.Attempts)
+            {
+                BossRow row = BossRowOf(attempt, loc);
+                int sameBoss = analysis.Attempts.Count(a => a.TargetId == attempt.TargetId);
+                if (sameBoss > 1)
+                {
+                    int number = analysis.Attempts.Where(a => a.TargetId == attempt.TargetId).ToList().IndexOf(attempt) + 1;
+                    row = row with { Name = $"{row.Name} #{number}" };
+                }
+
+                rows.Add(row);
+            }
+        }
+
+        BossRow? keep = _bossSession == session.Number && _boss?.Attempt is { } before
+            ? rows.FirstOrDefault(r => r.Attempt is { } a && a.TargetId == before.TargetId && a.Start == before.Start)
+            : null;
+        _boss = keep;
+        _bossSession = session.Number;
+        _syncingBoss = true;
+        BossGrid.ItemsSource = rows;
+        BossGrid.SelectedItem = keep ?? rows.FirstOrDefault();
+        _syncingBoss = false;
+        BossGrid.Visibility = rows.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>A boss (or the whole stay) picked: the player list and the combat analyzer follow it.</summary>
+    private void OnBossSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (_syncingBoss || BossGrid.SelectedItem is not BossRow row || SessionList.SelectedItem is not Item item)
+        {
+            return;
+        }
+
+        _boss = row.Attempt is null ? null : row;
+        _analyzedSession = null; // the first player of the new list is shown
+        ShowDetails(item.Session);
     }
 
     private static BossRow BossRowOf(BossAttempt attempt, LocalizationManager loc)
@@ -323,19 +381,20 @@ public partial class SessionManagerWindow : Window
                 $"{(int)rage.At.TotalMinutes:00}:{rage.At.Seconds:00}",
                 rage.Factor.ToString("0.#", CultureInfo.CurrentCulture))
             : loc["Sessions.Boss.NoEnrage"];
-        return new BossRow(attempt.Name, attempt.Start.ToString("HH:mm:ss"), $"{(int)attempt.Duration.TotalMinutes:00}:{attempt.Duration.Seconds:00}", result, damage, enrage);
+        return new BossRow(attempt.Name, attempt.Start.ToString("HH:mm:ss"), $"{(int)attempt.Duration.TotalMinutes:00}:{attempt.Duration.Seconds:00}", result, damage, enrage, attempt);
     }
 
     /// <summary>Who dealt, healed or took how much in the stay: the players (the ids a class is known for; a file from the plain meter session has no classes, then everyone).</summary>
-    private static List<PlayerRow> PlayersOf(SessionInfo session, PlayerMode mode, IReadOnlyList<DeathRecord>? deaths)
+    private static List<PlayerRow> PlayersOf(SessionInfo session, PlayerMode mode, IReadOnlyList<DeathRecord>? deaths, BossAttempt? boss = null)
     {
+        IReadOnlyList<DamageEvent> scoped = ScopedEvents(session, boss, mode);
         bool onlyPlayers = session.Classes.Count > 0;
         bool IsPlayer(int id) => !onlyPlayers || session.Classes.ContainsKey(id);
         IEnumerable<IGrouping<int, DamageEvent>> groups = mode switch
         {
-            PlayerMode.Heal => session.Data.Events.Where(ev => ev.IsHeal && IsPlayer(ev.SourceObjectId)).GroupBy(ev => ev.SourceObjectId),
-            PlayerMode.Taken => session.Data.Events.Where(ev => !ev.IsHeal && IsPlayer(ev.TargetObjectId) && !session.Classes.ContainsKey(ev.SourceObjectId)).GroupBy(ev => ev.TargetObjectId),
-            _ => session.Data.Events.Where(ev => !ev.IsHeal && IsPlayer(ev.SourceObjectId)).GroupBy(ev => ev.SourceObjectId),
+            PlayerMode.Heal => scoped.Where(ev => ev.IsHeal && IsPlayer(ev.SourceObjectId)).GroupBy(ev => ev.SourceObjectId),
+            PlayerMode.Taken => scoped.Where(ev => !ev.IsHeal && IsPlayer(ev.TargetObjectId) && !session.Classes.ContainsKey(ev.SourceObjectId)).GroupBy(ev => ev.TargetObjectId),
+            _ => scoped.Where(ev => !ev.IsHeal && IsPlayer(ev.SourceObjectId)).GroupBy(ev => ev.SourceObjectId),
         };
         return groups
             .Select(group =>
@@ -395,7 +454,7 @@ public partial class SessionManagerWindow : Window
 
     private void OpenAnalyzer(SessionInfo session, PlayerRow row)
     {
-        if (AnalyzerFactory?.Invoke(session, row, _mode) is not { } view)
+        if (AnalyzerFactory?.Invoke(session, row, _mode, _boss) is not { } view)
         {
             return;
         }
@@ -512,14 +571,6 @@ public partial class SessionManagerWindow : Window
 
     private static string SafeFileName(string name) =>
         string.Concat(name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
-
-    private void OnReplayClicked(object sender, RoutedEventArgs e)
-    {
-        if (_replay is not null)
-        {
-            new FightReplayWindow(_replay) { Owner = this }.Show();
-        }
-    }
 
     private void OnLoadFileClicked(object sender, RoutedEventArgs e)
     {
