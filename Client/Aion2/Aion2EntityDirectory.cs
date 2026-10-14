@@ -1057,6 +1057,40 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// to full health (a wipe and retry under the same entity id).</summary>
     public Aion2HitPoints HitPoints { get; } = new();
 
+    private readonly Dictionary<int, DateTime> _engagedSince = new();
+
+    /// <summary>An entity went into combat (the game's own signal 0x218d, which also fires when someone only stands too close to a boss).</summary>
+    public void NoteEngaged(int entity, DateTime at)
+    {
+        lock (_gate)
+        {
+            if (_engagedSince.Count > 5000)
+            {
+                _engagedSince.Clear();
+            }
+
+            _engagedSince.TryAdd(entity, at);
+        }
+    }
+
+    /// <summary>An entity left combat (the boss was reset, died or the fight ended).</summary>
+    public void NoteDisengaged(int entity)
+    {
+        lock (_gate)
+        {
+            _engagedSince.Remove(entity);
+        }
+    }
+
+    /// <summary>When the entity went into combat; null when it is not in combat or the meter did not see it start.</summary>
+    public DateTime? EngagedSince(int entity)
+    {
+        lock (_gate)
+        {
+            return _engagedSince.TryGetValue(entity, out DateTime at) ? at : null;
+        }
+    }
+
     /// <summary>Casts, whom entities aim at and the effects on them (see <see cref="Aion2CombatState"/>).</summary>
     public Aion2CombatState Combat { get; } = new();
 

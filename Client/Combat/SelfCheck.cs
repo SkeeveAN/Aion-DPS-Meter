@@ -37,6 +37,9 @@ public static class SelfCheck
         ok &= SelfCheckSettings.Run();
         ok &= SelfCheckStream.Run();
         ok &= SelfCheckHitKinds.Run();
+        ok &= SelfCheckProtocolHealth.Run();
+        ok &= SelfCheckTickets.Run();
+        ok &= SelfCheckFightClock.Run();
         ok &= SelfCheckReplay.Run();
         ok &= SelfCheckIdentity.Run();
         return ok;

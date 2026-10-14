@@ -1,0 +1,1543 @@
+{
+ "_comment": "built by Tools/aion2-dat/build_tickets.py; names = the game's own texts",
+ "tickets": [
+  {
+   "id": 1,
+   "internal": "Contents_Ticket_FieldEvent",
+   "names": {
+    "en": "Shugo Festival Reward Key",
+    "de": "Shugofesta-Schlüssel",
+    "fr": "Clé de récompense du Festival des Shugos",
+    "es": "Llave de recompensa del Festival de Shugo",
+    "ru": "Ключ Фестиваля шиго",
+    "pt": "Chave de Recompensa da Shugo Festa",
+    "ja": "シューゴ フェスタ報酬の鍵",
+    "ko": "슈고 페스타 보상 열쇠"
+   },
+   "max": 12,
+   "subscribeMax": 21,
+   "perServer": true,
+   "time": false,
+   "short": {
+    "en": "Shugo Festival",
+    "de": "Shugofesta",
+    "fr": "Festival des Shugos",
+    "es": "Festival de Shugo",
+    "ru": "Фестиваль шиго",
+    "pt": "Shugo Festa",
+    "ja": "シューゴ フェスタ",
+    "ko": "슈고 페스타"
+   },
+   "daily": {
+    "at": "16:00",
+    "count": 3
+   }
+  },
+  {
+   "id": 3,
+   "internal": "Contents_Ticket_Abyss",
+   "names": {
+    "en": "Lower Abyss Access Hours",
+    "de": "Nutzungszeit: Untere Ebene des Abyss",
+    "fr": "Temps d'utilisation de l'Abysse inférieur",
+    "es": "Tiempo de uso del Abismo Inferior",
+    "ru": "Время использования нижнего уровня Бездны",
+    "pt": "Tempo de Permanência do Piso Inferior do Abismo",
+    "ja": "アビス下層の利用時間",
+    "ko": "어비스 하층 이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 4,
+   "internal": "Contents_Ticket_BossChallenge",
+   "names": {
+    "en": "[Nightmare] Nightmare Attempt Count",
+    "de": "[Albtraum] Versuchsanzahl: Albtraum",
+    "fr": "[Cauchemar] Nombre de défis au Cauchemar",
+    "es": "Intentos de Pesadilla [Pesadilla]",
+    "ru": "[Кошмар] Кол-во попыток прохождения Кошмара",
+    "pt": "[Pesadelo] Tentativas no Pesadelo",
+    "ja": "[悪夢]悪夢の挑戦回数",
+    "ko": "[악몽] 악몽 도전 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "short": {
+    "en": "Nightmare",
+    "de": "Albtraum",
+    "fr": "Cauchemar",
+    "es": "Pesadilla",
+    "ru": "Кошмары",
+    "pt": "Pesadelo",
+    "ja": "悪夢",
+    "ko": "악몽"
+   },
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 6,
+   "internal": "Contents_Ticket_Rift_Time",
+   "names": {
+    "en": "Spacetime Rift Usage Time",
+    "de": "Nutzungszeit: Raumzeit-Riss",
+    "fr": "Temps d'utilisation de la Faille spatio-temporelle",
+    "es": "Tiempo de uso de la Grieta Espacio-Tiempo",
+    "ru": "Время использования Пространственного разлома",
+    "pt": "Tempo de Permanência na Fenda Espaço-Temporal",
+    "ja": "時空の亀裂の利用時間",
+    "ko": "시공의 균열 이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 7,
+   "internal": "Contents_Key_FieldEvent",
+   "names": {
+    "en": "Shugo Festival Reward Key",
+    "de": "Shugofesta-Schlüssel",
+    "fr": "Clé de récompense du Festival des Shugos",
+    "es": "Llave de recompensa del Festival de Shugo",
+    "ru": "Ключ Фестиваля шиго",
+    "pt": "Chave de Recompensa da Shugo Festa",
+    "ja": "シューゴ フェスタ報酬の鍵",
+    "ko": "슈고 페스타 보상 열쇠"
+   },
+   "max": 28,
+   "subscribeMax": 32,
+   "perServer": false,
+   "time": false,
+   "short": {
+    "en": "Shugo Festival",
+    "de": "Shugofesta",
+    "fr": "Festival des Shugos",
+    "es": "Festival de Shugo",
+    "ru": "Фестиваль шиго",
+    "pt": "Shugo Festa",
+    "ja": "シューゴ フェスタ",
+    "ko": "슈고 페스타"
+   },
+   "daily": {
+    "at": "16:00",
+    "count": 4
+   }
+  },
+  {
+   "id": 8,
+   "internal": "Contents_Ticket_Invasion",
+   "names": {
+    "en": "Dimensional Invasion Reward Key",
+    "de": "Dimensionale Invasion: Belohnungsschlüssel",
+    "fr": "Clé de récompense de l'Invasion dimensionnelle",
+    "es": "Llave de recompensa de Invasión dimensional",
+    "ru": "Наградной ключ Межпространственного вторжения",
+    "pt": "Chave de Recompensa da Invasão Dimensional",
+    "ja": "次元侵攻の報酬鍵",
+    "ko": "차원 침공 보상 열쇠"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": true,
+   "time": false,
+   "short": {
+    "en": "Dimensional Invasion",
+    "de": "Dimensionale Invasion",
+    "fr": "Invasion dimensionnelle",
+    "es": "Invasión dimensional",
+    "ru": "Межпространственное вторжение",
+    "pt": "Invasão Dimensional",
+    "ja": "次元侵攻",
+    "ko": "차원 침공"
+   },
+   "daily": {
+    "at": "16:00",
+    "count": 1
+   }
+  },
+  {
+   "id": 9,
+   "internal": "Contents_Ticket_Abyss_Reshanta_B",
+   "names": {
+    "en": "Middle Abyss Access Hours",
+    "de": "Nutzungszeit: Mittlere Ebene des Abyss",
+    "fr": "Temps d'utilisation de l'Abysse intermédiaire",
+    "es": "Tiempo de uso del Abismo Intermedio",
+    "ru": "Время использования среднего уровня Бездны",
+    "pt": "Tempo de Permanência do Piso Intermediário do Abismo",
+    "ja": "アビス中層の利用時間",
+    "ko": "어비스 중층 이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 13,
+   "internal": "Contents_Ticket_Abyss_Reshanta_D",
+   "names": {
+    "en": "Upper Abyss Usage Time",
+    "de": "Nutzungszeit Oberer Abyss",
+    "fr": "Temps d'utilisation de l'Abysse supérieur",
+    "es": "Tiempo de uso del Abismo Superior",
+    "ru": "Время использования верхней части Бездны",
+    "pt": "Tempo de Uso do Abismo Superior",
+    "ja": "アビス表層利用時間",
+    "ko": "어비스 표층 이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 14,
+   "internal": "Contents_Ticket_Mentor_Dungeon_Reward",
+   "names": {
+    "en": "Sprout Badge Reward Count",
+    "de": "Anzahl Sprösslingsabzeichen-Belohnungen",
+    "fr": "Nombre de badges Pousse obtenus",
+    "es": "Número de recompensas de la Insignia de brote",
+    "ru": "Количество наград: значок новичка",
+    "pt": "Quantidade de Recompensas do Distintivo de Broto",
+    "ja": "新芽バッジ報酬回数",
+    "ko": "새싹 뱃지 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 14,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 15,
+   "internal": "Contents_Ticket_Mentor_Dungeon_Reward_Server",
+   "names": {
+    "en": "Sprout Badge Reward Count",
+    "de": "Anzahl Sprösslingsabzeichen-Belohnungen",
+    "fr": "Nombre de badges Pousse obtenus",
+    "es": "Número de recompensas de la Insignia de brote",
+    "ru": "Количество наград: значок новичка",
+    "pt": "Quantidade de Recompensas do Distintivo de Broto",
+    "ja": "新芽バッジ報酬回数",
+    "ko": "새싹 뱃지 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": true,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 14,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 101,
+   "internal": "Contents_Ticket_DailyDungeon_001",
+   "names": {
+    "en": "[Daily Dungeon] Unknown Fissure Entry Count",
+    "de": "[Täglicher Dungeon] Eintrittsanzahl: Mysteriöser Riss",
+    "fr": "[Donjon quotidien] Nombre d'entrées de la Brèche inconnue",
+    "es": "Intento de entrada a la Fisura desconocida [Mazmorra diaria]",
+    "ru": "[Ежедневное подземелье] Кол-во входов в Неведомый разлом",
+    "pt": "[Masmorra Diária] Número de Entradas na Fresta Desconhecida",
+    "ja": "[デイリー ダンジョン]未知の狭間の入場回数",
+    "ko": "[일일 던전] 미지의 틈새 입장 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": true,
+   "time": false,
+   "short": {
+    "en": "Daily Dungeon",
+    "de": "Täglicher Dungeon",
+    "fr": "Donjons quotidiens",
+    "es": "Mazmorras diarias",
+    "ru": "Ежедневное подземелье",
+    "pt": "Masmorra Diária",
+    "ja": "デイリー ダンジョン",
+    "ko": "일일 던전"
+   },
+   "weekly": {
+    "at": "16:00",
+    "count": 14,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 102,
+   "internal": "Contents_Ticket_DailyDungeon_002",
+   "names": {
+    "en": "Abandoned Balaur Fortress Entry Count",
+    "de": "Eintrittsanzahl: Verlassene Balaurfeste",
+    "fr": "Nombre d'entrées de la Forteresse Balaur abandonnée",
+    "es": "Entradas a la Fortaleza Balaur Abandonada",
+    "ru": "Кол-во входов в Заброшенную крепость балауров",
+    "pt": "Número de Entradas na Fortaleza Abandonada dos Balaures",
+    "ja": "捨てられた龍族要塞の入場回数",
+    "ko": "버려진 용족 요새 입장 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 1
+   }
+  },
+  {
+   "id": 103,
+   "internal": "Contents_Ticket_DailyDungeon_003",
+   "names": {
+    "en": "Fafnium Laboratory Entry Count",
+    "de": "Eintrittsanzahl: Fafnium-Scientarium",
+    "fr": "Nombre d'entrées du Centre de recherche de Fafnium",
+    "es": "Entradas al Laboratorio de Fafnium",
+    "ru": "Кол-во входов в Лабораторию фафниума",
+    "pt": "Número de Entradas no Laboratório de Fafnium",
+    "ja": "ファフニウム研究所の入場回数",
+    "ko": "파프니움 연구소 입장 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 1
+   }
+  },
+  {
+   "id": 201,
+   "internal": "Contents_Ticket_GrowthDungeon_001",
+   "names": {
+    "en": "Silent Graveyard Usage Time",
+    "de": "Nutzungszeit: Schweigender Friedhof",
+    "fr": "Temps d'utilisation du Tombeau du silence",
+    "es": "Tiempo de uso del Cementerio Silencioso",
+    "ru": "Время использования Пантеона безмолвия",
+    "pt": "Tempo de Permanência no Cemitério do Silêncio",
+    "ja": "沈黙の墓域の利用時間",
+    "ko": "침묵의 묘역 이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 202,
+   "internal": "Contents_Ticket_GrowthDungeon_002",
+   "names": {
+    "en": "Fafnite Amphitheater Usage Time",
+    "de": "Nutzungszeit: Fafnitkessel",
+    "fr": "Temps d'utilisation du Bassin de Fafnite",
+    "es": "Tiempo de uso de la Cuenca de Fafnite",
+    "ru": "Время использования Низины фафнита",
+    "pt": "Tempo de Permanência na Bacia de Fafnite",
+    "ja": "ファフナイト盆地の利用時間",
+    "ko": "파프나이트 분지 이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 203,
+   "internal": "Contents_Ticket_GrowthDungeon_003",
+   "names": {
+    "en": "EXP Boost Colony Draft Level 1 Usage Time",
+    "de": "Nutzungszeit: Wachstumskolonie (Dummy-Stufe 1)",
+    "fr": "Temps d'utilisation du Champs du progrès niv. temporaire 1",
+    "es": "Tiempo de uso del Campo de Progreso (Nivel 1)",
+    "ru": "Время использования Зарослей роста ур. 1 (тестовый)",
+    "pt": "Tempo de Permanência na Colônia do Desenvolvimento Nv. 1",
+    "ja": "成長の群落レベル1の利用時間",
+    "ko": "성장의군락 가레벨1 이용시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 204,
+   "internal": "Contents_Ticket_GrowthDungeon_004",
+   "names": {
+    "en": "EXP Boost Colony Draft Level 2 Usage Time",
+    "de": "Nutzungszeit: Wachstumskolonie (Dummy-Stufe 2)",
+    "fr": "Temps d'utilisation du Champs du progrès niv. temporaire 2",
+    "es": "Tiempo de uso del Campo de Progreso (Nivel 2)",
+    "ru": "Время использования Зарослей роста ур. 2 (тестовый)",
+    "pt": "Tempo de Permanência na Colônia do Desenvolvimento Nv. 2",
+    "ja": "成長の群落レベル2の利用時間",
+    "ko": "성장의군락 가레벨2 이용시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 205,
+   "internal": "Contents_Ticket_GrowthDungeon_005",
+   "names": {
+    "en": "EXP Boost Colony Draft Level 3 Usage Time",
+    "de": "Nutzungszeit: Wachstumskolonie (Dummy-Stufe 3)",
+    "fr": "Temps d'utilisation du Champs du progrès niv. temporaire 3",
+    "es": "Tiempo de uso del Campo de Progreso (Nivel 3)",
+    "ru": "Время использования Зарослей роста ур. 3 (тестовый)",
+    "pt": "Tempo de Permanência na Colônia do Desenvolvimento Nv. 3",
+    "ja": "成長の群落レベル3の利用時間",
+    "ko": "성장의군락 가레벨3 이용시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 206,
+   "internal": "Contents_Ticket_GrowthDungeon_006",
+   "names": {
+    "en": "EXP Boost Colony Draft Level 4 Usage Time",
+    "de": "Nutzungszeit: Wachstumskolonie (Dummy-Stufe 4)",
+    "fr": "Temps d'utilisation du Champs du progrès niv. temporaire 4",
+    "es": "Tiempo de uso del Campo de Progreso (Nivel 4)",
+    "ru": "Время использования Зарослей роста ур. 4 (тестовый)",
+    "pt": "Tempo de Permanência na Colônia do Desenvolvimento Nv. 4",
+    "ja": "成長の群落レベル4の利用時間",
+    "ko": "성장의군락 가레벨4 이용시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000001,
+   "internal": "Contents_Ticket_ArtifactDungeon_001",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000002,
+   "internal": "Contents_Ticket_ArtifactDungeon_002",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000003,
+   "internal": "Contents_Ticket_ArtifactDungeon_003",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000004,
+   "internal": "Contents_Ticket_ArtifactDungeon_004",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000005,
+   "internal": "Contents_Ticket_ArtifactDungeon_005",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000006,
+   "internal": "Contents_Ticket_ArtifactDungeon_006",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000007,
+   "internal": "Contents_Ticket_ArtifactDungoen_101",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000008,
+   "internal": "Contents_Ticket_ArtifactDungoen_102",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000009,
+   "internal": "Contents_Ticket_ArtifactDungoen_103",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000010,
+   "internal": "Contents_Ticket_ArtifactDungoen_201",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000011,
+   "internal": "Contents_Ticket_ArtifactDungoen_202",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 10000012,
+   "internal": "Contents_Ticket_ArtifactDungoen_203",
+   "names": {
+    "en": "Usage Time",
+    "de": "Nutzungszeit",
+    "fr": "Temps d'utilisation",
+    "es": "Tiempo de uso",
+    "ru": "Время использования",
+    "pt": "Tempo de Permanência",
+    "ja": "利用時間",
+    "ko": "이용 시간"
+   },
+   "max": 0,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": true
+  },
+  {
+   "id": 60000001,
+   "internal": "reward_ticket_PartyDungeon_Common",
+   "names": {
+    "en": "Odyle Energy",
+    "de": "Odenergie",
+    "fr": "Énergie Od",
+    "es": "Energía de Od",
+    "ru": "Эфирная энергия",
+    "pt": "Energia de Od",
+    "ja": "オード エネルギー",
+    "ko": "오드 에너지"
+   },
+   "max": 560,
+   "subscribeMax": 840,
+   "perServer": false,
+   "time": false
+  },
+  {
+   "id": 60000002,
+   "internal": "Contents_Ticket_Party_Dungeon_Hard",
+   "names": {
+    "en": "[Transcendence] Transcendent Dungeon Reward Count",
+    "de": "[Transzendenz] Belohnungsanzahl: Transzendenz-Dungeon",
+    "fr": "[Transcendance] Nombre de récompenses du Donjon Transcendance",
+    "es": "Recompensas de mazmorra de Trascendencia [Trascendencia]",
+    "ru": "[Возвышение] Кол-во наград подземелья Возвышения",
+    "pt": "[Transcendência] Número de Recompensas da Masmorra de Transcendência",
+    "ja": "[超越]超越ダンジョン報酬回数",
+    "ko": "[초월] 초월 던전 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false
+  },
+  {
+   "id": 60000003,
+   "internal": "Contents_Ticket_Party_Dungeon_Normal1",
+   "names": {
+    "en": "[Conquest] Krao Cave, Draupnir Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Kraohöhle & Draupnir",
+    "fr": "[Conquête] Nombre de récompenses de Grotte Krao, Draupnir",
+    "es": "Recompensas de la Cueva de Krao y Draupnir [Conquista]",
+    "ru": "[Завоевание] Кол-во наград Пещеры крао и Драупнира",
+    "pt": "[Conquista] Número de Recompensas de Draupnir e Caverna de Krao",
+    "ja": "[征服]クラオ洞窟、ドラウプニルの報酬回数",
+    "ko": "[정복] 크라오 동굴, 드라웁니르 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60000004,
+   "internal": "Contents_Ticket_Party_Dungeon_Normal2",
+   "names": {
+    "en": "[Conquest] Urugugu Canyon, Vakron Sky Island Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Uruguguschlucht & Vakrons Luftinsel",
+    "fr": "[Conquête] Nombre de récompenses de l'Île Céleste de Vakron, Canyon Urugugu",
+    "es": "Recompensas del Cañón de Urugugu y la Isla Aérea de Vakron [Conquista]",
+    "ru": "[Завоевание] Кол-во наград Ущелья ауругу и Парящего острова Вакрона",
+    "pt": "[Conquista] Número de Recompensas da Ilha Aérea de Vakron e Desfiladeiro de Urugugu",
+    "ja": "[征服]ウルググ峡谷、バクロンの空中島の報酬回数",
+    "ko": "[정복] 우루구구 협곡, 바크론의 공중섬 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60000005,
+   "internal": "Contents_Ticket_Party_Dungeon_Normal3",
+   "names": {
+    "en": "[Conquest] Fire Temple, Ferocious Horn Den Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Feuertempel & Grimmhornhöhle",
+    "fr": "[Conquête] Nombre de récompenses de la Grotte de la Corne Féroce, Temple Divin du Feu",
+    "es": "Recompensas del Templo de Fuego y la Caverna del Cuerno Feroz [Conquista]",
+    "ru": "[Завоевание] Кол-во наград Храма огня и Логова Свирепого Рога",
+    "pt": "[Conquista] Nuemro de Recompensas da Gruta do Chifre Feroz e Templo Divino do Fogo",
+    "ja": "[征服]炎の神殿、獰猛な角岩窟の報酬回数",
+    "ko": "[정복] 불의 신전, 사나운 뿔 암굴 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60000006,
+   "internal": "Contents_Ticket_Party_Dungeon_Normal",
+   "names": {
+    "en": "[Conquest] Conquest Dungeon Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Eroberungs-Dungeon",
+    "fr": "[Conquête] Nombre de récompenses du donjon de conquête",
+    "es": "Recompensas de mazmorra de Conquista [Conquista]",
+    "ru": "[Завоевание] Кол-во наград подземелья завоевания",
+    "pt": "[Conquista] Número de Recompensas do Masmorra da Conquista",
+    "ja": "[征服]征服ダンジョン報酬回数",
+    "ko": "[정복] 정복 던전 보상 횟수"
+   },
+   "max": 21,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false
+  },
+  {
+   "id": 60000007,
+   "internal": "Contents_Ticket_Party_Dungeon_Normal_Clear",
+   "names": {
+    "en": "[Conquest] Final Boss Kill Count",
+    "de": "[Eroberung] Besiegte Endbosse",
+    "fr": "[Conquête] Nombre d'éliminations de boss final",
+    "es": "[Conquista] Intento de derrota del jefe final",
+    "ru": "[Завоевание] Кол-во побед над финальным боссом",
+    "pt": "[Conquista] Número de Abates do Chefe Final",
+    "ja": "[征服]最終ボス討伐回数",
+    "ko": "[정복] 최종 보스 처치 횟수"
+   },
+   "max": 35,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 35,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60000008,
+   "internal": "Contents_Ticket_Party_Dungeon_Hard_Clear",
+   "names": {
+    "en": "[Transcendence] Final Boss Kill Count",
+    "de": "[Transzendenz] Besiegte Endbosse",
+    "fr": "[Transcendance] Nombre d'éliminations de boss final",
+    "es": "[Trascendencia] Intento de derrota del jefe final",
+    "ru": "[Возвышение] Кол-во побед над финальным боссом",
+    "pt": "[Transcendência] Número de Abates do Chefe Final",
+    "ja": "[超越]最終ボス討伐回数",
+    "ko": "[초월] 최종 보스 처치 횟수"
+   },
+   "max": 28,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 28,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60000009,
+   "internal": "Contents_Ticket_Party_Dungeon_Unclaimed_01",
+   "names": {
+    "en": "[Conquest/Transcendence] Remaining Unobtained Cube Count",
+    "de": "[Eroberung/Transzendenz] Verbleibende Abschlüsse ohne Kubusbelohnung",
+    "fr": "[Conquête/Transcendence] Nombre de cubes non obtenus restants",
+    "es": "[Conquista/Trascendencia] Cubos no obtenidos restantes",
+    "ru": "[Завоевание/Возвышение] Оставшееся количество неполученных кубов",
+    "pt": "[Conquista/Transcendência] Quantidade Restante de Cubos Não Obtidos",
+    "ja": "[征服/超越]残りのキューブ報酬の未獲得回数",
+    "ko": "[정복/초월] 남은 큐브 보상 미획득 횟수"
+   },
+   "max": 10,
+   "subscribeMax": 0,
+   "perServer": true,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 10,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60000010,
+   "internal": "Contents_Ticket_Party_Dungeon_Unclaimed_02",
+   "names": {
+    "en": "[Conquest/Transcendence] Remaining Unobtained Cube Count",
+    "de": "[Eroberung/Transzendenz] Verbleibende Abschlüsse ohne Kubusbelohnung",
+    "fr": "[Conquête/Transcendence] Nombre de cubes non obtenus restants",
+    "es": "[Conquista/Trascendencia] Cubos no obtenidos restantes",
+    "ru": "[Завоевание/Возвышение] Оставшееся количество неполученных кубов",
+    "pt": "[Conquista/Transcendência] Quantidade Restante de Cubos Não Obtidos",
+    "ja": "[征服/超越]残りのキューブ報酬の未獲得回数",
+    "ko": "[정복/초월] 남은 큐브 보상 미획득 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60000101,
+   "internal": "Contents_Ticket_Party_KraoCave_Normal",
+   "names": {
+    "en": "[Conquest] Krao Cave Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Kraohöhle",
+    "fr": "[Conquête] Nombre de récompenses de la Grotte Krao",
+    "es": "Recompensas de la Cueva de Krao [Conquista]",
+    "ru": "[Завоевание] Кол-во наград Пещеры крао",
+    "pt": "[Conquista] Número de Recompensas da Caverna de Krao",
+    "ja": "[征服]クラオ洞窟の報酬回数",
+    "ko": "[정복] 크라오 동굴 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60000201,
+   "internal": "Contents_Ticket_Party_KraoCave_Easy",
+   "names": {
+    "en": "[Exploration] Krao Cave Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Kraohöhle",
+    "fr": "[Exploration] Nombre de récompenses de la Grotte Krao",
+    "es": "Recompensas de la Cueva de Krao [Exploración]",
+    "ru": "[Исследование] Кол-во наград Пещеры крао",
+    "pt": "[Exploração] Número de Recompensas da Caverna de Krao",
+    "ja": "[探険]クラオ洞窟の報酬回数",
+    "ko": "[탐험] 크라오 동굴 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60001101,
+   "internal": "Contents_Ticket_Party_UruguguCanyon_Easy",
+   "names": {
+    "en": "[Exploration] Urugugu Canyon Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Uruguguschlucht",
+    "fr": "[Exploration] Nombre de récompenses du Canyon Urugugu",
+    "es": "Recompensas del Cañón de Urugugu [Exploración]",
+    "ru": "[Исследование] Кол-во наград Ущелья ауругу",
+    "pt": "[Exploração] Número de Recompensas do Desfiladeiro de Urugugu",
+    "ja": "[探険]ウルググ峡谷の報酬回数",
+    "ko": "[탐험] 우루구구 협곡 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60001201,
+   "internal": "Contents_Ticket_Party_UruguguCanyon_Normal",
+   "names": {
+    "en": "[Conquest] Urugugu Canyon Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Uruguguschlucht",
+    "fr": "[Conquête] Nombre de récompenses du Canyon Urugugu",
+    "es": "Recompensas del Cañón de Urugugu [Conquista]",
+    "ru": "[Завоевание] Кол-во наград Ущелья ауругу",
+    "pt": "[Conquista] Número de Recompensas do Desfiladeiro de Urugugu",
+    "ja": "[征服]ウルググ峡谷の報酬回数",
+    "ko": "[정복] 우루구구 협곡 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60002101,
+   "internal": "Contents_Ticket_Party_FireTemple_Easy",
+   "names": {
+    "en": "[Exploration] Fire Temple Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Feuertempel",
+    "fr": "[Exploration] Nombre de récompenses du Temple Divin du Feu",
+    "es": "Recompensas del Templo de Fuego [Exploración]",
+    "ru": "[Исследование] Кол-во наград Храма огня",
+    "pt": "[Exploração] Número de Recompensas do Templo Divino do Fogo",
+    "ja": "[探険]炎の神殿の報酬回数",
+    "ko": "[탐험] 불의 신전 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60002201,
+   "internal": "Contents_Ticket_Party_FireTemple_Normal",
+   "names": {
+    "en": "[Conquest] Fire Temple Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Feuertempel",
+    "fr": "[Conquête] Nombre de récompenses du Temple Divin du Feu",
+    "es": "Recompensas del Templo de Fuego [Conquista]",
+    "ru": "[Завоевание] Кол-во наград Храма огня",
+    "pt": "[Conquista] Numero de Recompensas do Templo Divino do Fogo",
+    "ja": "[征服]炎の神殿の報酬回数",
+    "ko": "[정복] 불의 신전 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60003101,
+   "internal": "Contents_Ticket_Party_Draupnir_Easy",
+   "names": {
+    "en": "[Exploration] Draupnir Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Draupnir",
+    "fr": "[Exploration] Nombre de récompenses de Draupnir",
+    "es": "Recompensas de Draupnir [Exploración]",
+    "ru": "[Исследование] Кол-во наград Драупнира",
+    "pt": "[Exploração] Número de Recompensas de Draupnir",
+    "ja": "[探険]ドラウプニルの報酬回数",
+    "ko": "[탐험] 드라웁니르 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60003201,
+   "internal": "Contents_Ticket_Party_Draupnir_Normal",
+   "names": {
+    "en": "[Conquest] Draupnir Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Draupnir",
+    "fr": "[Conquête] Nombre de récompenses de Draupnir",
+    "es": "Recompensas de Draupnir [Conquista]",
+    "ru": "[Завоевание] Кол-во наград Драупнира",
+    "pt": "[Conquista] Número de Recompensas de Draupnir",
+    "ja": "[征服]ドラウプニルの報酬回数",
+    "ko": "[정복] 드라웁니르 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60004101,
+   "internal": "Contents_Ticket_Party_DeadDramataNest_Easy",
+   "names": {
+    "en": "[Exploration] Dying Dramata's Nest Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Nest des Toten Dramatha",
+    "fr": "[Exploration] Nombre de récompenses du Nid du Dramata Mort",
+    "es": "[Exploración] Intento de recompensa del Nido del Dramata Muerto",
+    "ru": "[Исследование] Кол-во наград Гнезда мертвой драматы",
+    "pt": "[Exploração] Número de Recompensas do Ninho de Dramata Morto",
+    "ja": "[探険]死んだドラマタの巣の報酬回数",
+    "ko": "[탐험] 죽은 드라마타의 둥지 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60004201,
+   "internal": "Contents_Ticket_Party_DeadDramataNest_Normal",
+   "names": {
+    "en": "[Conquest] Dying Dramata's Nest Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Nest des Toten Dramatha",
+    "fr": "[Conquête] Nombre de récompenses du Nid du Dramata Mort",
+    "es": "[Conquista] Intento de recompensa del Nido del Dramata Muerto",
+    "ru": "[Завоевание] Кол-во наград Гнезда мертвой драматы",
+    "pt": "[Conquista] Número de Recompensas do Ninho de Dramata Morto",
+    "ja": "[征服]死んだドラマタの巣の報酬回数",
+    "ko": "[정복] 죽은 드라마타의 둥지 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60005301,
+   "internal": "Contents_Ticket_Party_DeusCenter_Grade",
+   "names": {
+    "en": "[Transcendence] Deus Research Base Reward Count",
+    "de": "[Transzendenz] Belohnungsanzahl: Forschungsbasis Deus",
+    "fr": "[Transcendance] Nombre de récompenses de la Base de Recherche Deus",
+    "es": "Recompensas de la Base de Investigación Deus [Trascendencia]",
+    "ru": "[Возвышение] Кол-во наград Исследовательской базы Деуса",
+    "pt": "[Transcendência] Núemro de Recompensas da Base de Pesquisa Deus",
+    "ja": "[超越]デウス研究基地の報酬回数",
+    "ko": "[초월] 데우스 연구기지 보상 횟수"
+   },
+   "max": 4,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60006301,
+   "internal": "Contents_Ticket_Party_Arkanis_Grade",
+   "names": {
+    "en": "[Transcendence] Shattered Arkanis Reward Count",
+    "de": "[Transzendenz] Belohnungsanzahl: Zersplitterter Arkanis",
+    "fr": "[Transcendance] Nombre de récompenses d'Arkanis Fragmenté",
+    "es": "Recompensas de Arkanis Fragmentado [Trascendencia]",
+    "ru": "[Возвышение] Кол-во наград Расколотого Арканиса",
+    "pt": "[Transcendência] Número de Recompensas de Arcanis Despedaçada",
+    "ja": "[超越]砕けたアルカニスの報酬回数",
+    "ko": "[초월] 조각난 아르카니스 보상 횟수"
+   },
+   "max": 4,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60007101,
+   "internal": "Contents_Ticket_Party_BakronIsland_Easy",
+   "names": {
+    "en": "[Exploration] Vakron Sky Island Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Vakrons Luftinsel",
+    "fr": "[Exploration] Nombre de récompenses de l'Île Céleste de Vakron",
+    "es": "Recompensas de la Isla Aérea de Vakron [Exploración]",
+    "ru": "[Исследование] Кол-во наград Парящего острова Вакрона",
+    "pt": "[Exploração] Número de Recompensas da Ilha Aérea de Vakron",
+    "ja": "[探険]バクロンの空中島の報酬回数",
+    "ko": "[탐험] 바크론의 공중섬 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60007201,
+   "internal": "Contents_Ticket_Party_BakronIsland_Normal",
+   "names": {
+    "en": "[Conquest] Vakron Sky Island Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Vakrons Luftinsel",
+    "fr": "[Conquête] Nombre de récompenses de l'Île Céleste de Vakron",
+    "es": "Recompensas de la Isla Aérea de Vakron [Conquista]",
+    "ru": "Вакрон[Завоевание] Кол-во наград Парящего острова Вакрона",
+    "pt": "[Conquista] Número de Recompensas da Ilha Aérea de Vakron",
+    "ja": "[征服]バクロンの空中島の報酬回数",
+    "ko": "[정복] 바크론의 공중섬 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60009101,
+   "internal": "Contents_Ticket_Party_BlackClawMine_Easy",
+   "names": {
+    "en": "[Exploration] Ferocious Horn Den Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Grimmhornhöhle",
+    "fr": "[Exploration] Nombre de récompenses de la Grotte de la Corne Féroce",
+    "es": "Recompensas de la Caverna del Cuerno Feroz [Exploración]",
+    "ru": "[Исследование] Кол-во наград Логова Свирепого Рога",
+    "pt": "[Exploração] Número de Recompensas da Gruta do Chifre Feroz",
+    "ja": "[探険]獰猛な角岩窟の報酬回数",
+    "ko": "[탐험] 사나운 뿔 암굴 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60009201,
+   "internal": "Contents_Ticket_Party_BlackClawMine_Normal",
+   "names": {
+    "en": "[Conquest] Ferocious Horn Den Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Grimmhornhöhle",
+    "fr": "[Conquête] Nombre de récompenses de la Grotte de la Corne Féroce",
+    "es": "Recompensas de la Caverna del Cuerno Feroz [Conquista]",
+    "ru": "[Завоевание] Кол-во наград Логова Свирепого Рога",
+    "pt": "[Conquista] Número de Recompensas da Gruta do Chifre Feroz",
+    "ja": "[征服]獰猛な角岩窟の報酬回数",
+    "ko": "[정복] 사나운 뿔 암굴 보상 횟수"
+   },
+   "max": 14,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "daily": {
+    "at": "16:00",
+    "count": 2
+   }
+  },
+  {
+   "id": 60012101,
+   "internal": "Contents_Ticket_Party_CradleNihility_Easy",
+   "names": {
+    "en": "[Exploration] Cradle of Nihility Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Wiege des Nichts",
+    "fr": "[Exploration] Nombre de récompenses du Berceau du Néant",
+    "es": "[Exploración] Intento de recompensa de la Cuna de la Nada",
+    "ru": "[Исследование] Кол-во наград Колыбели небытия",
+    "pt": "[Exploração] Número de Recompensas do Berço do Vazio",
+    "ja": "[探険]武の揺りかごの報酬回数",
+    "ko": "[탐험] 무의 요람 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60012201,
+   "internal": "Contents_Ticket_Party_CradleNihility_Normal",
+   "names": {
+    "en": "[Conquest] Cradle of Nihility Reward Count",
+    "de": "[Eroberung] Belohnungsanzahl: Wiege des Nichts",
+    "fr": "[Conquête] Nombre de récompenses du Berceau du Néant",
+    "es": "[Conquista] Intento de recompensa de la Cuna de la Nada",
+    "ru": "[Завоевание] Кол-во наград Колыбели небытия",
+    "pt": "[Conquista] Número de Recompensas do Berço do Vazio",
+    "ja": "[征服]武の揺りかごの報酬回数",
+    "ko": "[정복] 무의 요람 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60013101,
+   "internal": "Contents_Ticket_Party_PhantomsHall_Easy",
+   "names": {
+    "en": "[Exploration] Hall of Illusion Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Illusionskorridor",
+    "fr": "[Exploration] Nombre de récompenses du Corridor d'Illusion",
+    "es": "[Exploración] Intento de recompensa del Corredor de la Ilusión",
+    "ru": "[Исследование] Кол-во наград Галереи иллюзий",
+    "pt": "[Exploração] Número de Recompensas do Corredor da Ilusão",
+    "ja": "[探険]幻影の回廊の報酬回数",
+    "ko": "[탐험] 환영의 회랑 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60014101,
+   "internal": "Contents_Ticket_Party_BlueBreathIsle_Easy",
+   "names": {
+    "en": "[Exploration] Azure Breath Island Reward Count",
+    "de": "[Erkundung] Belohnungsanzahl: Insel des Blauatems",
+    "fr": "[Exploration] Nombre de récompenses de l'Île du Souffle Azuré",
+    "es": "[Exploración] Intento de recompensa de la Isla del Aliento Azul",
+    "ru": "[Исследование] Кол-во наград Острова лазурного дыхания",
+    "pt": "[Exploração] Número de Recompensas da Ilha do Sopro Azul",
+    "ja": "[探険]青い息の島の報酬回数",
+    "ko": "[탐험] 푸른 숨의 섬 보상 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 60015101,
+   "internal": "Contents_Ticket_Party_Dungeon_Trial_01",
+   "names": {
+    "en": "[Ordeal] Final Boss Kill Count",
+    "de": "[Prüfung] Endboss-Besiegen",
+    "fr": "[Ordalie] Nombre d'éliminations du boss final",
+    "es": "[Prueba] Derrotas de jefe (final)",
+    "ru": "[Испытание] Попытки убийства финального босса",
+    "pt": "[Provação] Abates de chefes",
+    "ja": "[試練]最終ボス討伐回数",
+    "ko": "[시련] 최종 보스 처치 횟수"
+   },
+   "max": 7,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 7,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 70000001,
+   "internal": "Contents_Ticket_Suppression",
+   "names": {
+    "en": "Subjugation Ticket",
+    "de": "Unterwerfungsticket",
+    "fr": "Ticket de Neutralisation",
+    "es": "Tique de Subyugación",
+    "ru": "Билет Покорения",
+    "pt": "Bilhete da Caçada",
+    "ja": "討伐戦チケット",
+    "ko": "토벌전 티켓"
+   },
+   "max": 3,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "short": {
+    "en": "Subjugation",
+    "de": "Unterwerfung",
+    "fr": "Neutralisation",
+    "es": "Subyugación",
+    "ru": "Покорение",
+    "pt": "Caçada",
+    "ja": "討伐戦",
+    "ko": "토벌전"
+   },
+   "weekly": {
+    "at": "16:00",
+    "count": 3,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 80000001,
+   "internal": "Contents_Ticket_Awaken",
+   "names": {
+    "en": "Ascension Trial Entry Count",
+    "de": "Aszensusritus: Eintrittsversuche",
+    "fr": "Nombre d'entrées à l'épreuve d'éveil",
+    "es": "Entradas de Prueba de ascenso",
+    "ru": "Кол-во входов в Битву пробуждения",
+    "pt": "Número de Entradas do Rito de Ascensão",
+    "ja": "覚醒戦の入場回数",
+    "ko": "각성전 입장 횟수"
+   },
+   "max": 3,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "short": {
+    "en": "Ascension Trial",
+    "de": "Aszensusritus",
+    "fr": "Épreuve d'Éveil",
+    "es": "Prueba de ascenso",
+    "ru": "Битва пробуждения",
+    "pt": "Rito de Ascensão",
+    "ja": "覚醒戦",
+    "ko": "각성전"
+   },
+   "weekly": {
+    "at": "16:00",
+    "count": 3,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 90000001,
+   "internal": "Contents_Ticket_ReforgedAbyss",
+   "names": {
+    "en": "[Sanctuary] Abyssal Forge Attempt Count",
+    "de": "[Weihestätte] Versuchsanzahl: Abgrundsveredelung",
+    "fr": "[Zone sacrée] Nombre de tentatives de Creuset de l'Abîme",
+    "es": "Intentos de Forja Abismal [Santuario]",
+    "ru": "[Священные земли] Кол-во попыток прохождения Закалки пропасти",
+    "pt": "[Santuário] Tentativas da Reforja Abissal",
+    "ja": "[聖域]深淵の再錬の挑戦回数",
+    "ko": "[성역] 심연의 재련 도전 횟수"
+   },
+   "max": 4,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 4,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 90000002,
+   "internal": "Contents_Ticket_ReforgedAbyss_Clear",
+   "names": {
+    "en": "[Sanctuary] Abyssal Forge Final Boss Kill Count",
+    "de": "[Weihestätte] Abgrundsveredelung-Endboss-Besiegen",
+    "fr": "[Zone sacrée] Nombre d'éliminations du boss final du Creuset de l'Abîme",
+    "es": "[Santuario] Forja Abismal - Derrotas de jefe (final)",
+    "ru": "[Священные земли] Закалка пропасти: попытки убийства финального босса",
+    "pt": "[Santuário] Reforja Abissal - Abates de chefes",
+    "ja": "[聖域]深淵の再錬最終ボス討伐回数",
+    "ko": "[성역] 심연의 재련 최종 보스 처치 횟수"
+   },
+   "max": 1,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 1,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 90000003,
+   "internal": "Contents_Ticket_ErosionPurifier",
+   "names": {
+    "en": "[Sanctuary] Corroded Decontamination Facility Attempt Count",
+    "de": "[Weihestätte] Versuchsanzahl: Läuterungsstätte der Korrosion",
+    "fr": "[Zone sacrée] Nombre de défis au Sanctuaire de Purification de l'Érosion",
+    "es": "Intento de desafío del Purificador de Erosión [Santuario]",
+    "ru": "[Священные земли] Кол-во попыток прохождения Чистилища скверны",
+    "pt": "[Santuário] Tentativas do Posto de Purificação da Erosão",
+    "ja": "[聖域]侵食の浄化所の挑戦回数",
+    "ko": "[성역] 침식의 정화소 도전 횟수"
+   },
+   "max": 4,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 4,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 90000004,
+   "internal": "Contents_Ticket_ErosionPurifier_Clear",
+   "names": {
+    "en": "[Sanctuary] Corroded Decontamination Facility Final Boss Kill Count",
+    "de": "[Weihestätte] Läuterungsstätte-der-Korrosion-Endboss-Besiegen",
+    "fr": "[Zone sacrée] Nombre d'éliminations du boss final de la Sanctuaire de Purification de l'Érosion",
+    "es": "[Santuario] Purificatorio de Erosión - Derrotas de jefe (final)",
+    "ru": "[Священные земли] Очистилище эрозии: попытки убийства финального босса",
+    "pt": "[Santuário] Posto de Purificação da Erosão - Abates de chefes",
+    "ja": "[聖域]侵食の浄化所最終ボス討伐回数",
+    "ko": "[성역] 침식의 정화소 최종 보스 처치 횟수"
+   },
+   "max": 2,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 2,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 90000005,
+   "internal": "Contents_Ticket_MusphelHolyGrail",
+   "names": {
+    "en": "[Sanctuary] Chalice of Muspel Attempt Count",
+    "de": "[Weihestätte] Versuchsanzahl: Kelch von Muspel",
+    "fr": "[Zone sacrée] Nombre de tentatives du Calice de Muspel",
+    "es": "[Santuario] Número de intentos del Cáliz de Muspel",
+    "ru": "[Священные земли] Количество попыток Чаши Мусфеля",
+    "pt": "[Santuário] Tentativas do Cálice de Muspel",
+    "ja": "[聖域]ムスフェルの聖杯の挑戦回数",
+    "ko": "[성역] 무스펠의 성배 도전 횟수"
+   },
+   "max": 4,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 4,
+    "day": "Wednesday"
+   }
+  },
+  {
+   "id": 90000006,
+   "internal": "Contents_Ticket_MusphelHolyGrail_Clear",
+   "names": {
+    "en": "[Sanctuary] Chalice of Muspel Final Boss Kill Count",
+    "de": "[Weihestätte] Kelch-von-Muspel-Endboss-Besiegen",
+    "fr": "[Zone sacrée] Nombre d'éliminations du boss final du Calice de Muspel",
+    "es": "[Santuario] Cáliz de Muspel - Derrotas de jefe (final)",
+    "ru": "[Священные земли] Чаша Мусфеля: попытки убийства финального босса",
+    "pt": "[Santuário] Cálice de Muspel - Abates de chefes",
+    "ja": "[聖域]ムスフェルの聖杯最終ボス討伐回数",
+    "ko": "[성역] 무스펠의 성배 최종 보스 처치 횟수"
+   },
+   "max": 2,
+   "subscribeMax": 0,
+   "perServer": false,
+   "time": false,
+   "weekly": {
+    "at": "16:00",
+    "count": 2,
+    "day": "Wednesday"
+   }
+  }
+ ]
+}

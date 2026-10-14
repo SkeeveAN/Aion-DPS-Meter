@@ -1082,6 +1082,8 @@ public partial class MainWindow : Window
         {
             // the world boss overlay and sounds: the lists the game sends are kept in a file, and the controller reads the settings every second
             Aion2FieldBosses.EnablePersistence();
+            Aion2Tickets.EnablePersistence();
+            Aion2Tickets.Changed += () => Aion2Tickets.Flush();
             _worldBoss ??= new WorldBossController();
             _network ??= new NetworkOverlayController();
             _dummy ??= new DummyTestController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
@@ -1146,6 +1148,7 @@ public partial class MainWindow : Window
         _network?.Dispose();
         _dummy?.Dispose();
         Aion2FieldBosses.Flush();
+        Aion2Tickets.Flush(force: true);
         _timetableReminder?.Dispose();
         _petFarmController?.Dispose();
         _petFarm?.Close();
@@ -3802,6 +3805,20 @@ public partial class MainWindow : Window
         };
         _themeEditorWindow.Closed += (_, _) => _themeEditorWindow = null;
         _themeEditorWindow.Show();
+    }
+    private ChecklistWindow? _checklistWindow;
+
+    private void OnOpenChecklistClicked(object sender, RoutedEventArgs e)
+    {
+        if (_checklistWindow is not null)
+        {
+            _checklistWindow.Activate();
+            return;
+        }
+
+        _checklistWindow = new ChecklistWindow { Owner = this };
+        _checklistWindow.Closed += (_, _) => _checklistWindow = null;
+        _checklistWindow.Show();
     }
 
     /// <summary>Tools menu: the dummy test window (one at a time).</summary>

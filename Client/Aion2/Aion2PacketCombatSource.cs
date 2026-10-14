@@ -54,7 +54,14 @@ public sealed class Aion2PacketCombatSource : ICombatSource
                 }
             };
         }
-        _entities.CharacterChanged += info => Capture.DebugRecording.NoteCharacter(info.Name);
+        _entities.CharacterChanged += info =>
+        {
+            Capture.DebugRecording.NoteCharacter(info.Name);
+            if (!info.Restored)
+            {
+                Aion2Tickets.NoteCharacter(info.Name, info.ServerId, info.ReceivedAt); // the tickets of the login list belong to the character named a few seconds later
+            }
+        };
         _protocol = protocol;
         _decoder = new Protocol.Aion2FrameDecoder(protocol, _entities);
     }

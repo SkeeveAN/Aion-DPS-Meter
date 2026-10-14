@@ -10,7 +10,7 @@ namespace AionDPS.Ui;
 public sealed record CombatFrame(IReadOnlyList<CastRowData> Casts, TargetOfTargetData? TargetOfTarget, BossHpData? Boss = null);
 
 /// <summary>The fought boss's health: what it has now and the most it was seen with.</summary>
-public sealed record BossHpData(long Hp, long Max, int Id = 0, string Check = "");
+public sealed record BossHpData(long Hp, long Max, int Id = 0, string Check = "", DateTime? Since = null);
 
 /// <summary>Works out the combat overlay's frame from what the packet stream said (see <see cref="Aion2CombatState"/>); no windows, so a test can run it.</summary>
 public static class CombatOverlayData
@@ -53,7 +53,7 @@ public static class CombatOverlayData
         }
 
         long max = Math.Max(dir.HitPoints.MaxOf(id) ?? 0, dir.HitPoints.HighestSeen(id) ?? 0);
-        return max > 0 ? new BossHpData(Math.Min(hp, max), max, id) : null;
+        return max > 0 ? new BossHpData(Math.Min(hp, max), max, id, Since: dir.EngagedSince(id)) : null;
     }
 
     private static bool IsBoss(Aion2EntityDirectory dir, int entity) =>
@@ -465,12 +465,12 @@ public sealed class CombatOverlayWindow : MovableOverlay
         BossHpData? boss = frame.Boss;
         if (boss is null && _editing && settings.ShowBossHp)
         {
-            boss = new BossHpData(6400, 10000);
+            boss = new BossHpData(6400, 10000, Since: DateTime.Now - TimeSpan.FromSeconds(151));
         }
 
         if (boss is not null)
         {
-            _bossHp.Show(boss.Hp, boss.Max, false, boss.Check);
+            _bossHp.Show(boss.Hp, boss.Max, false, boss.Check, boss.Since is { } since ? DateTime.Now - since : null);
         }
 
         bool visible = boss is not null && settings.ShowBossHp;
