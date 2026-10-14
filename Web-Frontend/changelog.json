@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.47.5",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "A summon's first hits that arrive in the same moment as its owner is recognised (a Sorcerer's Fire Wall burn tick) are credited to the owner too, instead of leaving a \"Player #id\" row on the meter",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "0.47.4",
   "date": "2026-10-15",
   "items": [
@@ -9,13 +22,6 @@
      "Backend"
     ],
     "date": "2026-10-14"
-   },
-   {
-    "text": "A summon's first hits that arrive in the same moment as its owner is recognised (a Sorcerer's Fire Wall burn tick) are credited to the owner too, instead of leaving a \"Player #id\" row on the meter",
-    "areas": [
-     "Client"
-    ],
-    "date": "2026-10-15"
    }
   ]
  },

@@ -108,5 +108,7 @@
  "2c123f5": null,
  "6d6b79b": null,
  "4c585c9": null,
- "f0c6ee6": "The session manager's boss list starts with Total and then lists every boss; the picked entry decides what the player list and the combat analyzer show (damage, healing and damage taken limited to that boss's fight), the replay button moved from the session manager into the combat analyzer and replays the picked boss, and the analyzer's header reads boss first, then player"
+ "f0c6ee6": "The session manager's boss list starts with Total and then lists every boss; the picked entry decides what the player list and the combat analyzer show (damage, healing and damage taken limited to that boss's fight), the replay button moved from the session manager into the combat analyzer and replays the picked boss, and the analyzer's header reads boss first, then player",
+ "e0d2251": null,
+ "974ec94": "A summon's first hits that arrive in the same moment as its owner is recognised (a Sorcerer's Fire Wall burn tick) are credited to the owner too, instead of leaving a \"Player #id\" row on the meter"
 }
