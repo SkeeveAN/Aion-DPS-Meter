@@ -152,6 +152,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "render-assist")
+        {
+            RunRenderAssistMode(args[1], args.Length > 2 ? args[2] : "");
+            return;
+        }
+
         if (args.Length > 1 && args[0] == "render-checklist")
         {
             RunRenderChecklistMode(args[1], args.Length > 2 ? args[2] : "");
@@ -1029,6 +1035,67 @@ internal static class Program
         }
 
         Console.WriteLine("render-checklist: wrote " + path);
+        Environment.Exit(0);
+    }
+
+    /// <summary>Draws the assist window (Tools menu) with made-up cooldowns and effects into a picture; no window is ever shown.</summary>
+    private static void RunRenderAssistMode(string path, string language)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        string chosen = language.Length > 0 ? language : settings.Language;
+        if (chosen.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = chosen;
+            Aion2.Protocol.Aion2SkillNames.Language = chosen;
+        }
+
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        var table = Aion2.Protocol.Aion2SkillNames.Load();
+        var skills = table.Where(kv => kv.Key >= 10_000_000 && !Aion2.Protocol.Aion2Artwork.IsPassive(kv.Key) && !Aion2.Protocol.Aion2SkillNames.IsNonDamageEffect(kv.Key)
+                && Aion2.Protocol.Aion2SkillIcons.PathFor(kv.Key) is not null && kv.Value is not ("Dodge" or "Basic Attack"))
+            .GroupBy(kv => kv.Value).Select(g => g.First().Key).Take(8).ToList();
+        var effects = table.Where(kv => kv.Value.Contains("Armor") || kv.Value.Contains("Shield") || kv.Value.Contains("Boost") || kv.Value.Contains("Stance"))
+            .Where(kv => Aion2.Protocol.Aion2SkillIcons.PathFor(kv.Key) is not null).GroupBy(kv => kv.Value).Select(g => g.First().Key).Take(3).ToList();
+        int[] remaining = { 94_000, 61_000, 28_000, 9_000, 0, 0, 0, 0 };
+        var now = DateTime.Now;
+        Aion2.Aion2Cooldowns.Receive(skills.Select((id, i) => new Aion2.CooldownEntry(id, remaining[i % remaining.Length])).ToList(), now);
+        var dir = new Aion2.Aion2EntityDirectory { LocalPlayerId = 8956 };
+        int[] lasts = { 18_000, 42_000, -1 };
+        for (int i = 0; i < effects.Count; i++)
+        {
+            dir.Combat.NoteBuff(new Aion2.BuffNotice(now.AddSeconds(-5), 8956, 100 + i, effects[i] * 10, effects[i], lasts[i], 8956));
+        }
+
+        var window = new Ui.AssistWindow(() => dir);
+        var content = (System.Windows.FrameworkElement)window.Content;
+        int w = (int)window.Width;
+        content.Measure(new System.Windows.Size(w, double.PositiveInfinity));
+        int h = (int)Math.Ceiling(content.DesiredSize.Height);
+        content.Measure(new System.Windows.Size(w, h));
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+        content.Measure(new System.Windows.Size(w, h));
+        content.Arrange(new System.Windows.Rect(0, 0, w, h));
+        content.UpdateLayout();
+        var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black };
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        backdrop.Measure(new System.Windows.Size(w, h));
+        backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
+        bitmap.Render(backdrop);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-assist: wrote " + path);
         Environment.Exit(0);
     }
 

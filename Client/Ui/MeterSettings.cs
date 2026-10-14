@@ -144,6 +144,16 @@ public sealed class MeterSettings
     /// the ids of the lines switched off in the Network analysis settings are kept in <see cref="NetworkOverlayHidden"/> (everything shows by default).</summary>
     public bool ShowNetworkOverlay { get; set; }
 
+    /// <summary>The assist overlay (see AssistOverlayWindow): own cooldowns and effects, switched in the Tools > Assist window. Locked (default): click-through; unlocked: it can be moved and scaled.</summary>
+    public bool ShowAssistOverlay { get; set; }
+
+    public bool AssistOverlayLocked { get; set; } = true;
+    public double? AssistOverlayLeft { get; set; }
+    public double? AssistOverlayTop { get; set; }
+    public double AssistOverlayScale { get; set; } = 1.0;
+    public double? AssistOverlayWidth { get; set; }
+    public double? AssistOverlayHeight { get; set; }
+
     public bool NetworkOverlayLocked { get; set; } = true;
 
     public List<string> NetworkOverlayHidden { get; set; } = new();

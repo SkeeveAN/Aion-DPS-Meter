@@ -23,4 +23,4 @@ Die Zahl sinkt gleichmäßig, aber **etwa 2,3 bis 2,5-mal so schnell wie die Uhr
 
 ## Offen
 - Einheit/Faktor (oben), Bedeutung der Kleinst-IDs, `0x2238`.
-- Im C#-Decoder seit 14.10.: `Aion2Cooldowns` ([Client/Aion2/Aion2Cooldowns.cs](../../Client/Aion2/Aion2Cooldowns.cs)) hält die letzte Liste des lokalen Spielers (kurze Frames ändern nur ihren Skill). Es gibt **keine Anzeige**; das Assist-Fenster ist vorbereitet, nicht gebaut.
+- Im C#-Decoder seit 14.10.: `Aion2Cooldowns` ([Client/Aion2/Aion2Cooldowns.cs](../../Client/Aion2/Aion2Cooldowns.cs)) hält die letzte Liste des lokalen Spielers (kurze Frames ändern nur ihren Skill). Seit 15.10. zeigt das Assist-Fenster (Tools-Menü, `Client/Ui/AssistWindow.cs`) die Liste samt Effekten auf dem eigenen Charakter; die Zeit wird mit Faktor 2,4 geschätzt („~“).

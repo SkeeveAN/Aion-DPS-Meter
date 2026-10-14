@@ -127,6 +127,7 @@ public partial class MainWindow : Window
     private TimetableWindow? _timetable;
     private HotkeyOverlayWindow? _hotkeyOverlay;
     private WorldBossController? _worldBoss;
+    private AssistController? _assist;
     private CombatOverlayController? _combat;
     private MenuWatcher? _menuWatcher;
     private Streaming.StreamOverlayServer? _streamServer;
@@ -821,6 +822,7 @@ public partial class MainWindow : Window
         _timetable?.RaiseToFront();
         _hotkeyOverlay?.RaiseToFront();
         _worldBoss?.RaiseToFront();
+        _assist?.RaiseToFront();
         _combat?.RaiseToFront();
         _network?.RaiseToFront();
         _dummy?.RaiseToFront();
@@ -1103,6 +1105,7 @@ public partial class MainWindow : Window
             Aion2Tickets.EnablePersistence();
             Aion2Tickets.Changed += () => Aion2Tickets.Flush();
             _worldBoss ??= new WorldBossController();
+            _assist ??= new AssistController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
             _network ??= new NetworkOverlayController();
             _dummy ??= new DummyTestController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
             _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory, BossHpCheck);
@@ -1159,6 +1162,7 @@ public partial class MainWindow : Window
         _timetable?.Close();
         _hotkeyOverlay?.Close();
         _worldBoss?.Dispose();
+        _assist?.Dispose();
         _combat?.Dispose();
         _menuWatcher?.Dispose();
         _streamTimer.Stop();
@@ -3838,6 +3842,21 @@ public partial class MainWindow : Window
         _checklistWindow = new ChecklistWindow { Owner = this };
         _checklistWindow.Closed += (_, _) => _checklistWindow = null;
         _checklistWindow.Show();
+    }
+
+    private AssistWindow? _assistWindow;
+
+    private void OnOpenAssistClicked(object sender, RoutedEventArgs e)
+    {
+        if (_assistWindow is not null)
+        {
+            _assistWindow.Activate();
+            return;
+        }
+
+        _assistWindow = new AssistWindow(() => _liveSource?.Entities as Aion2EntityDirectory) { Owner = this };
+        _assistWindow.Closed += (_, _) => _assistWindow = null;
+        _assistWindow.Show();
     }
 
     /// <summary>Tools menu: the dummy test window (one at a time).</summary>

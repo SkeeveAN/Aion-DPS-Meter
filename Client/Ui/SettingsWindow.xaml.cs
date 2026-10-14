@@ -515,6 +515,13 @@ public partial class SettingsWindow : Window
         _settings.PetListLeft = onDisk.PetListLeft;
         _settings.PetListTop = onDisk.PetListTop;
         _settings.PetListScale = onDisk.PetListScale;
+        _settings.ShowAssistOverlay = onDisk.ShowAssistOverlay;
+        _settings.AssistOverlayLocked = onDisk.AssistOverlayLocked;
+        _settings.AssistOverlayLeft = onDisk.AssistOverlayLeft;
+        _settings.AssistOverlayTop = onDisk.AssistOverlayTop;
+        _settings.AssistOverlayScale = onDisk.AssistOverlayScale;
+        _settings.AssistOverlayWidth = onDisk.AssistOverlayWidth;
+        _settings.AssistOverlayHeight = onDisk.AssistOverlayHeight;
         _settings.BossOverlayLeft = onDisk.BossOverlayLeft;
         _settings.BossOverlayTop = onDisk.BossOverlayTop;
         _settings.BossOverlayScale = onDisk.BossOverlayScale;
