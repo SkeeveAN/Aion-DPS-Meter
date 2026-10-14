@@ -686,8 +686,26 @@ public partial class MainWindow : Window
         // The live capture is polled whatever the grid shows, so the session recording goes on while a stored session is on view.
         CombatBatch liveBatch = _liveSource?.Poll(_paused) ?? CombatBatch.Empty;
         FeedSessions(liveBatch);
+        // A new stay began (map or instance change) while an older session or the all-sessions view is on show: the view follows
+        // into the new stay, which the recorder has just opened. The grid is filled from the recorder, so this batch's hits are in it already.
+        bool followed = liveBatch.ZoneChanges.Count > 0 && (_historyMode || _sessionView == SessionView.All);
+        if (followed)
+        {
+            _sessionView = SessionView.Current;
+            if (_historyMode)
+            {
+                ExitHistoryMode();
+            }
+            else
+            {
+                ShowLiveView(SessionView.Current);
+            }
+        }
+
         bool viewingLive = ViewingLive;
-        CombatBatch batch = viewingLive ? liveBatch : _source?.Poll(_paused) ?? CombatBatch.Empty;
+        CombatBatch batch = followed
+            ? new CombatBatch(Array.Empty<DamageEvent>(), liveBatch.Avoids, liveBatch.Kills)
+            : viewingLive ? liveBatch : _source?.Poll(_paused) ?? CombatBatch.Empty;
         if (_menuWatcher is not null && _liveSource is { } liveSource && liveBatch.Damage.Any(ev => !ev.IsHeal && liveSource.Entities.IsLocalPlayer(ev.SourceObjectId)))
         {
             _menuWatcher.NoteOwnHit(); // the control mode is learnt while the player fights
@@ -726,7 +744,18 @@ public partial class MainWindow : Window
                 from = to;
             }
 
-            ApplyBatch(new CombatBatch(damage.Skip(from).ToList(), batch.Avoids, batch.Kills));
+            if (_sessions.Current is { Away.Ticks: > 0 })
+            {
+                // Back on a map after an instance run: the recorder picked the earlier stay up again, so its totals come back on show
+                // (it already holds this batch's hits after the change).
+                ShowLiveView(SessionView.Current);
+                NoteBossActivity(damage.Skip(from).ToList());
+                ApplyBatch(new CombatBatch(Array.Empty<DamageEvent>(), batch.Avoids, batch.Kills));
+            }
+            else
+            {
+                ApplyBatch(new CombatBatch(damage.Skip(from).ToList(), batch.Avoids, batch.Kills));
+            }
         }
         else
         {
@@ -2258,12 +2287,25 @@ public partial class MainWindow : Window
         var mine = session.Data.Events.Where(ev => ev.SourceObjectId == row.Id).ToList();
         DateTime from = all.Count > 0 ? all.Min(ev => ev.Timestamp) : session.Start, to = all.Count > 0 ? all.Max(ev => ev.Timestamp) : session.End ?? session.Start;
         FightExtras? extras = session.Extras ?? ExtrasForSession(session);
-        ReplayData? replay = extras is null
-            ? null
-            : ReplayBuilder.Build(SessionLabels.NameOf(session), extras, all, from, to,
-                id => (nameOf(id) ?? "", session.Classes.GetValueOrDefault(id) ?? "", IsPlayer(id) && session.Classes.ContainsKey(id)), SkillRadius,
-                id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)));
-        return new PlayerDetailsView(row.Name, row.ClassName, "", mine, nameOf, fightEvents: all, extras: extras, playerId: row.Id, fightStart: from, fightEnd: to, replay: replay);
+        return new PlayerDetailsView(row.Name, row.ClassName, "", mine, nameOf, fightEvents: all, extras: extras, playerId: row.Id, fightStart: from, fightEnd: to);
+    }
+
+    /// <summary>The replay of a whole session (the button of the session manager), or null when the session has no replay data.</summary>
+    private ReplayData? BuildSessionReplay(SessionInfo session)
+    {
+        var all = session.Data.Events.Where(ev => !ev.IsHeal).ToList();
+        FightExtras? extras = session.Extras ?? ExtrasForSession(session);
+        if (extras is null || all.Count == 0)
+        {
+            return null;
+        }
+
+        Func<int, string?> nameOf = id => session.Names.GetValueOrDefault(id) ?? ResolveDisplayName(id);
+        bool IsPlayer(int id) => session.Classes.Count == 0 || session.Classes.ContainsKey(id);
+        DateTime from = all.Min(ev => ev.Timestamp), to = all.Max(ev => ev.Timestamp);
+        return ReplayBuilder.Build(SessionLabels.NameOf(session), extras, all, from, to,
+            id => (nameOf(id) ?? "", session.Classes.GetValueOrDefault(id) ?? "", IsPlayer(id) && session.Classes.ContainsKey(id)), SkillRadius,
+            id => Aion2.Protocol.Aion2SkillNames.Display(Aion2.Protocol.Aion2SkillNames.NameOf(id)));
     }
 
     /// <summary>The rotation, effect, stagger and replay data of a session, read from the live capture, for saving it with the file: the players of the session and the bosses.</summary>
@@ -3745,6 +3787,7 @@ public partial class MainWindow : Window
         _sessionManager = new SessionManagerWindow(_sessions) { Owner = this };
         _sessionManager.ExtrasFor = ExtrasForSession;
         _sessionManager.AnalyzerFactory = BuildSessionAnalyzer;
+        _sessionManager.ReplayFactory = BuildSessionReplay;
         _sessionManager.DeathsFor = DeathsForSession;
         _sessionManager.Closed += (_, _) => _sessionManager = null;
         _sessionManager.Show();

@@ -170,14 +170,46 @@ public sealed class Aion2FrameDecoder
         }
 
         int zoneId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[6..]));
-        if (zoneId <= 0 || zoneId == CurrentZoneId)
+        if (zoneId <= 0)
         {
             return;
         }
 
+        // The place the frame puts the player (x, y as floats at 18 and 22), when it is long enough to hold them.
+        (float X, float Y)? place = frame.Length >= 26
+            ? (BinaryPrimitives.ReadSingleLittleEndian(frame[18..]), BinaryPrimitives.ReadSingleLittleEndian(frame[22..]))
+            : null;
+        // What the frame was for (u32 at 34): 0 for the first one of a visit, 2 for a move inside the zone (the next run's entrance, a cut scene's door),
+        // 4 for a revival at an obelisk or kisk (seen in the recordings; a kisk can stand anywhere, so only a move can start a run).
+        uint kind = frame.Length >= 38 ? BinaryPrimitives.ReadUInt32LittleEndian(frame[34..]) : 0;
+        if (zoneId == CurrentZoneId)
+        {
+            // The same zone again: a reconnect, a respawn or a move inside the instance - or the next run of an instance, entered straight from the run
+            // before, which puts the player back at the entrance, where the first frame of the stay did (the entrances of runs 1 to 4 of one temple lay within 800 units of each other; the other frames of the stay, a stage and a boss room, 9,000 and more away).
+            if (kind == ZoneKindMove && place is { } now && _entryPlace is { } entry && Aion2Zones.IsInstance(zoneId)
+                && timestamp - _entryAt >= RestartMinGap && Math.Sqrt(Math.Pow(now.X - entry.X, 2) + Math.Pow(now.Y - entry.Y, 2)) < RestartRadius)
+            {
+                _entryAt = timestamp;
+                _zoneChanges.Add(new ZoneChange(timestamp, zoneId, Restart: true));
+            }
+
+            return;
+        }
+
         CurrentZoneId = zoneId;
+        _entryPlace = place;
+        _entryAt = timestamp;
         _zoneChanges.Add(new ZoneChange(timestamp, zoneId));
     }
+
+    /// <summary>Where the first zone frame of the current stay put the player, and when.</summary>
+    private (float X, float Y)? _entryPlace;
+    private DateTime _entryAt;
+
+    /// <summary>A repeat of the zone frame at the entrance counts as a new run when this long after the last start, and within this many units of the first frame's place.</summary>
+    private static readonly TimeSpan RestartMinGap = TimeSpan.FromSeconds(90);
+    private const double RestartRadius = 2000;
+    private const uint ZoneKindMove = 2;
 
     public int SkippedShortFrames { get; private set; }
     public int UnknownOpcodes { get; private set; }

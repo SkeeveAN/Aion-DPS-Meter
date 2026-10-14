@@ -57,7 +57,7 @@ public sealed class SessionTimeline : FrameworkElement
     /// <summary>Hands the control the stays to draw (oldest first) and what is picked; keeps the view where it is, or on "now" while following.</summary>
     public void SetSessions(IReadOnlyList<SessionInfo> sessions, SessionInfo? selected)
     {
-        _sessions = sessions;
+        _sessions = sessions.OrderBy(s => s.Start).ToList(); // a resumed map stay is last in the list but began first: the instance run is drawn over it
         Selected = selected;
         Follow();
         InvalidateVisual();

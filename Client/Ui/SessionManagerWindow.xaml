@@ -7,6 +7,7 @@
         FontSize="{DynamicResource FontSize.Base}">
     <Window.Resources>
         <local:ClassNameConverter x:Key="ClassNameConverter"/>
+        <local:ClassIconConverter x:Key="ClassIconConverter"/>
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="{DynamicResource Brush.Panel}"/>
             <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
@@ -97,7 +98,7 @@
     </Window.Resources>
     <Grid x:Name="RootGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="ManagerColumn" Width="900" MinWidth="620"/>
+            <ColumnDefinition x:Name="ManagerColumn" Width="700" MinWidth="560"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition x:Name="AnalyzerColumn" Width="*" MinWidth="480"/>
         </Grid.ColumnDefinitions>
@@ -105,6 +106,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- The clock: arrows and a strip of the stays, the zoom beside it. Pushed with the arrows, the mouse or the wheel. -->
@@ -128,7 +130,7 @@
 
         <Grid Grid.Row="1">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="270"/>
             <ColumnDefinition Width="12"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -139,10 +141,6 @@
                 <TextBox x:Name="SearchBox" TextChanged="OnFilterChanged" ToolTip="{local:Loc Sessions.Search}"/>
                 <WrapPanel x:Name="KindChips" Margin="0,6,0,0"/>
             </StackPanel>
-            <DockPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
-                <Button DockPanel.Dock="Right" Content="{local:Loc Sessions.Load}" Click="OnLoadFileClicked"/>
-                <TextBlock x:Name="CountText" VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextMuted}"/>
-            </DockPanel>
             <ListBox x:Name="SessionList" Background="Transparent" BorderThickness="0" ItemContainerStyle="{StaticResource SessionRow}"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="OnSessionSelected"
                      MouseDoubleClick="OnSessionDoubleClick">
@@ -187,9 +185,11 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock x:Name="DetailTitle" Grid.Row="0" FontSize="20" FontWeight="SemiBold"/>
+            <DockPanel Grid.Row="0">
+                <Button x:Name="ReplayButton" DockPanel.Dock="Right" Content="{local:Loc Replay.Button}" Visibility="Collapsed" Padding="12,3" VerticalAlignment="Center" Click="OnReplayClicked"/>
+                <TextBlock x:Name="DetailTitle" FontSize="20" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+            </DockPanel>
             <TextBlock x:Name="DetailFacts" Grid.Row="1" Margin="0,2,0,8" Foreground="{DynamicResource Brush.TextMuted}"/>
             <Border x:Name="CheckPanel" Grid.Row="2" Margin="0,0,0,8" Padding="10,6" CornerRadius="6" Background="{DynamicResource Brush.Panel}"
                     BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
@@ -210,11 +210,10 @@
             <DataGrid x:Name="BossGrid" Grid.Row="3" MaxHeight="150" Margin="0,0,0,8">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{local:Loc Sessions.Col.Boss}" Binding="{Binding Name}" MinWidth="140" Width="*"/>
-                    <DataGridTextColumn Header="{local:Loc Sessions.Col.Start}" Binding="{Binding Start}" Width="70"/>
                     <DataGridTextColumn Header="{local:Loc History.ColumnDuration}" Binding="{Binding Length}" Width="60"/>
                     <DataGridTextColumn Header="{local:Loc Sessions.Col.Result}" Binding="{Binding Result}" Width="95"/>
                     <DataGridTextColumn Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage}" Width="120"/>
-                    <DataGridTextColumn Header="{local:Loc Sessions.Col.Enrage}" Binding="{Binding Enrage}" Width="150"/>
+                    <DataGridTextColumn Header="{local:Loc Sessions.Col.Enrage}" Binding="{Binding Enrage}" Width="170"/>
                 </DataGrid.Columns>
             </DataGrid>
             <Grid x:Name="PlayersPanel" Grid.Row="4">
@@ -224,26 +223,41 @@
             </Grid.RowDefinitions>
             <StackPanel x:Name="ModeChips" Orientation="Horizontal" Margin="0,0,0,6"/>
             <DataGrid x:Name="PlayersGrid" Grid.Row="1" SelectionChanged="OnPlayerSelected">
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="{Binding ClassBrush}"/>
+                    </Style>
+                </DataGrid.RowStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="{local:Loc Main.ColumnName}" Binding="{Binding Name}" MinWidth="90" Width="*"/>
-                    <DataGridTextColumn Header="{local:Loc History.ColumnClass}" Binding="{Binding ClassName, Converter={StaticResource ClassNameConverter}}" Width="90"/>
-                    <DataGridTextColumn x:Name="PlayerValueColumn" Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage, StringFormat=N0}" Width="95"/>
-                    <DataGridTextColumn Header="DPS" Binding="{Binding DpsDisplay}" Width="60"/>
-                    <DataGridTextColumn Header="{local:Loc Sessions.Col.Deaths}" Binding="{Binding DeathsDisplay}" Width="55"/>
-                    <DataGridTextColumn Header="{local:Loc Sessions.Col.DeadTime}" Binding="{Binding DeadTime}" Width="90"/>
+                    <DataGridTemplateColumn Header="{local:Loc Main.ColumnName}" MinWidth="140" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding ClassName, Converter={StaticResource ClassIconConverter}}" Width="20" Height="20" Margin="2,0,6,0"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn x:Name="PlayerValueColumn" Header="{local:Loc History.ColumnDamage}" Binding="{Binding Damage, StringFormat=N0}" Width="110"/>
+                    <DataGridTextColumn Header="DPS" Binding="{Binding DpsDisplay}" Width="80"/>
                 </DataGrid.Columns>
             </DataGrid>
             </Grid>
             <TextBlock x:Name="EmptyText" Grid.Row="4" Text="{local:Loc Sessions.SelectOne}" HorizontalAlignment="Center" VerticalAlignment="Center"
                        Foreground="{DynamicResource Brush.TextMuted}"/>
-            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                <CheckBox x:Name="SaveExtrasBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Sessions.SaveExtras}" ToolTip="{local:Loc Sessions.SaveExtras.Tip}" VerticalAlignment="Center" Margin="0,0,16,0"
-                          Checked="OnSaveExtrasChanged" Unchecked="OnSaveExtrasChanged"/>
-                <Button x:Name="DeleteButton" Content="{local:Loc Sessions.Delete}" Click="OnDeleteClicked" IsEnabled="False"/>
-                <Button x:Name="SaveButton" Content="{local:Loc Sessions.Save}" Click="OnSaveClicked" IsEnabled="False"/>
-            </StackPanel>
+            
         </Grid>
         </Grid>
+
+        <!-- Everything for a session file in one place. -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button x:Name="DeleteButton" Content="&#x1F5D1;" FontSize="16" Padding="8,0" Margin="0" ToolTip="{local:Loc Sessions.Delete}" Click="OnDeleteClicked" IsEnabled="False"/>
+            <Button Content="{local:Loc Sessions.Load}" Click="OnLoadFileClicked"/>
+            <Button x:Name="SaveButton" Content="{local:Loc Sessions.Save}" Click="OnSaveClicked" IsEnabled="False"/>
+            <CheckBox x:Name="SaveExtrasBox" Foreground="{DynamicResource Brush.Text}" Content="{local:Loc Sessions.SaveExtras}" ToolTip="{local:Loc Sessions.SaveExtras.Tip}" VerticalAlignment="Center" Margin="16,0,0,0"
+                      Checked="OnSaveExtrasChanged" Unchecked="OnSaveExtrasChanged"/>
+        </StackPanel>
         </Grid>
 
         <!-- The splitter between the two halves: the session manager on the left, the combat analyzer on the right. -->

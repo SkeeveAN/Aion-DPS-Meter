@@ -65,8 +65,11 @@ public sealed class SessionInfo
     /// <summary>Loaded from a file. Its ids belong to another run of the game, so it stays out of the "all" view and of id merging.</summary>
     public bool FromFile { get; init; }
 
-    /// <summary>First to last hit, which is what the stay was really about (the stay itself also covers the walk in and out).</summary>
-    public TimeSpan Duration(DateTime now) => (End ?? now) - Start;
+    /// <summary>The time spent elsewhere while the stay was open again: the instance runs between two visits of the same map (see <see cref="SessionRecorder.Enter"/>).</summary>
+    public TimeSpan Away { get; internal set; }
+
+    /// <summary>The stay's length without the time spent away.</summary>
+    public TimeSpan Duration(DateTime now) => (End ?? now) - Start - Away;
 }
 
 /// <summary>
@@ -112,7 +115,7 @@ public sealed class SessionRecorder
         // A rage belongs to the stay it came in (the newest stay that began before it).
         foreach (EnrageMark mark in batch.EnrageMarks)
         {
-            _sessions.LastOrDefault(s => s.Start <= mark.Timestamp)?.Enrages.Add(mark);
+            _sessions.Where(s => s.Start <= mark.Timestamp && (s.End is null || s.End >= mark.Timestamp)).MaxBy(s => s.Start)?.Enrages.Add(mark);
         }
 
         IReadOnlyList<DamageEvent> events = batch.Damage;
@@ -133,12 +136,13 @@ public sealed class SessionRecorder
         AddRange(events, next, events.Count);
     }
 
-    /// <summary>Starts a stay in <paramref name="zone"/> and ends the one before.</summary>
+    /// <summary>Starts a stay in <paramref name="zone"/> and ends the one before. Coming back to a map after instance runs (and nothing else in between)
+    /// picks up the stay the player left there, so the totals of that map are still on show; it moves to the end of the list as the current one.</summary>
     public void Enter(ZoneChange zone)
     {
         if (Current is { } open)
         {
-            if (open.ZoneId == zone.ZoneId)
+            if (open.ZoneId == zone.ZoneId && !zone.Restart)
             {
                 return;
             }
@@ -146,9 +150,37 @@ public sealed class SessionRecorder
             Close(open, zone.Timestamp);
         }
 
-        _sessions.Add(new SessionInfo(_nextNumber++, zone.ZoneId, _kindOf(zone.ZoneId), zone.Timestamp));
+        SessionKind kind = _kindOf(zone.ZoneId);
+        if (kind == SessionKind.Map && ResumableStay(zone.ZoneId) is { } resumed)
+        {
+            resumed.Away += zone.Timestamp - resumed.End!.Value;
+            resumed.End = null;
+            _sessions.Remove(resumed);
+            _sessions.Add(resumed);
+            Changed?.Invoke();
+            return;
+        }
+
+        _sessions.Add(new SessionInfo(_nextNumber++, zone.ZoneId, kind, zone.Timestamp));
         Prune(zone.Timestamp);
         Changed?.Invoke();
+    }
+
+    /// <summary>The latest stay of the live stream, looking past instance runs: it counts when it is this map and still unsaved.</summary>
+    private SessionInfo? ResumableStay(int zoneId)
+    {
+        for (int i = _sessions.Count - 1; i >= 0; i--)
+        {
+            SessionInfo s = _sessions[i];
+            if (s.FromFile || s.Kind == SessionKind.Instance)
+            {
+                continue;
+            }
+
+            return s.ZoneId == zoneId && !s.IsOpen && !s.IsSaved ? s : null;
+        }
+
+        return null;
     }
 
     /// <summary>Ends the open stay (the meter is closing or the capture stopped).</summary>
