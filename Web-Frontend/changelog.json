@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "Website: every pre-rendered page now has a proper H1 heading (fixes Bing's \"H1 tag missing\" notice)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "0.48.2",
   "date": "2026-10-15",
   "items": [
