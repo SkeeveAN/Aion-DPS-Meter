@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.48.1",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "The Assist window and overlay no longer let short, constantly renewed effects (the Chanter's mantras) jump: one row per effect, kept in the order it first appeared, and a row stays for a moment after its effect ended",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "0.48.0",
   "date": "2026-10-15",
   "items": [
