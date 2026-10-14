@@ -56,6 +56,9 @@ public sealed class ThemeEditorWindow : Window
         MinWidth = 900;
         MinHeight = 560;
 
+        // the labels of the form took the plain Windows text colour (near black on the dark window): they wear the theme's text colour
+        SetResourceReference(Control.ForegroundProperty, "Brush.Text");
+
         // the text boxes of the form (theme name, the hex codes) wear the theme: dark field, light text; the plain Windows look was white on white
         var boxStyle = new Style(typeof(TextBox));
         boxStyle.Setters.Add(new Setter(Control.BackgroundProperty, new DynamicResourceExtension("Brush.Control")));
@@ -245,6 +248,7 @@ public sealed class ThemeEditorWindow : Window
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         var text = new TextBlock { Text = label, TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) };
+        text.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
         Grid.SetColumn(control, 1);
         grid.Children.Add(text);
         grid.Children.Add(control);
