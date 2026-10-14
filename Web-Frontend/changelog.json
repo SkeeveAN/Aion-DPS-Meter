@@ -9,6 +9,14 @@
      "Backend"
     ],
     "date": "2026-10-14"
+   },
+   {
+    "text": "Patch notes keep their tables: the skill tables of NC's patch notes were flattened into loose text; they are shown as real tables again",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-14"
    }
   ]
  },
