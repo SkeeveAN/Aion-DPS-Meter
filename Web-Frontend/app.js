@@ -684,6 +684,8 @@ const FEATURE_MORE_ICONS = [
   '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
   '<rect x="3" y="5" width="18" height="11" rx="2"/><path d="M8 20h8M12 16v4"/>',
   '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 9 1.5 1.5L12 8M8 15l1.5 1.5L12 14M14 9h3M14 15h3"/>',
+  '<circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.3"/><circle cx="12" cy="7.5" r="1.3"/><circle cx="15.5" cy="10" r="1.3"/><path d="M12 21c-1.5 0-2-1.5-1-2.5s0-2.5-2-2.5"/>',
 ];
 
 // Lead sentence big, the remaining sentences as a check list (no extra translations needed).
@@ -745,7 +747,7 @@ function renderFeatures() {
     document.getElementById(`feature-${a.dataset.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
     history.replaceState(history.state, "", `${location.pathname}${location.search}#feature-${a.dataset.id}`);
   });
-  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) =>
+  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) =>
     el("div", { className: "fx-more-card" }, [
       el("span", { className: "fx-more-ico", innerHTML: SVG(FEATURE_MORE_ICONS[n - 1]) }),
       el("div", {}, [el("h3", { textContent: t(`features.more${n}.title`) }), el("p", { textContent: t(`features.more${n}.text`) })]),

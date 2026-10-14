@@ -201,6 +201,10 @@ export function featuresPage(): Page {
       <p>Ping, jitter, traffic, packet loss and online time of your connection to the game server, measured from the traffic your PC already receives.</p>
       <h2>Announcements and Twitch Drops</h2>
       <p>One click from the meter: the official AION 2 announcements and patch notes with kind filters, and while a campaign runs, the Twitch Drops rewards, watch times and the streams with Drops enabled right now.</p>
+      <h2>Aion 2 checklist</h2>
+      <p>Per character, read from the game at login: the Odyle energy (basic and charged), the entries and attempts of Shugo Festival, Nightmare, Ascension rite, Dimensional Invasion and the daily dungeon, the five mandatory daily tasks and the time left in the lower Abyss. Counters you have not reached the level for are greyed out at 0.</p>
+      <h2>Design editor</h2>
+      <p>Pick your own colours for the window, panels, buttons and bars with a colour picker, one colour per class if you like, and save them as a design you can export and import. The preview shows every change at once.</p>
       <h2>Hotkeys, languages and updates</h2>
       <p>Sixteen system-wide hotkeys that work while the game has focus, all rebindable. Many languages including English, German, French, Spanish, Russian, Chinese, Portuguese, Japanese and Korean, dark and light look, and automatic background updates without an installer or admin rights.</p>
       <h2>Community leaderboards and profiles</h2>
