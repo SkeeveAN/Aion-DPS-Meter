@@ -122,6 +122,11 @@ public sealed class AssistPanel : StackPanel
             // seconds, so rows are kept in the order they first appeared and stay a moment after their end instead of vanishing and coming back
             foreach (var group in dir.Combat.BuffsOn(self, now).GroupBy(b => b.SkillId))
             {
+                if (Aion2Artwork.IsPassiveEffect(group.Key))
+                {
+                    continue; // a passive skill's standing effect (Identify Weakness, weapon training ...) is not something put on you
+                }
+
                 string english = Aion2SkillNames.NameOf(group.Key);
                 if (long.TryParse(english, out _) && Aion2SkillIcons.PathFor(group.Key) is null)
                 {

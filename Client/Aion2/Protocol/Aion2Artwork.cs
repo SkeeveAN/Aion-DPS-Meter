@@ -35,6 +35,49 @@ public static class Aion2Artwork
         return _skillTypes.TryGetValue(skillId, out string? type) && type == "p";
     }
 
+    private static Dictionary<int, string>? _abnormalVariants, _abnormalBases;
+
+    /// <summary>
+    /// True when the client lists the effect as a passive ("P" in skill_abnormal_types.json: the variant of the skill id first, then its rank base): a permanent
+    /// trait of the character, not something that was put on it, so it does not belong in a list of the effects running on you.
+    /// </summary>
+    public static bool IsPassiveEffect(int skillId)
+    {
+        if (_abnormalVariants is null)
+        {
+            _abnormalVariants = new();
+            _abnormalBases = new();
+            try
+            {
+                string path = Path.Combine(Root, "skills", "skill_abnormal_types.json");
+                if (File.Exists(path))
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+                    foreach (var (name, target) in new[] { ("variants", _abnormalVariants), ("bases", _abnormalBases) })
+                    {
+                        if (doc.RootElement.TryGetProperty(name, out var map))
+                        {
+                            foreach (var entry in map.EnumerateObject())
+                            {
+                                if (int.TryParse(entry.Name, out int key) && entry.Value.GetString() is { } kind)
+                                {
+                                    target[key] = kind;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // a missing or damaged table only means that nothing is hidden
+            }
+        }
+
+        string? type = _abnormalVariants.TryGetValue(skillId, out string? v) ? v : _abnormalBases!.TryGetValue(skillId - skillId % 10000, out string? b) ? b : null;
+        return type == "P" || IsPassive(skillId);
+    }
+
     private static readonly Dictionary<string, string> ClassFiles = new()
     {
         ["Gladiator"] = "gladiator", ["Templar"] = "templar", ["Ranger"] = "ranger", ["Assassin"] = "assassin",
