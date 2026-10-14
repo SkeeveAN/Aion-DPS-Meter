@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.46.3",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "The account counters of a character are no longer lost when you switch characters (a large login frame no longer throws the rest of the login away, so the Odyle energy and the mandatory tasks of the second character are read too); the checklist shows the bonus behind the counters like the game does (6 (+1) / 21) with the subscriber caps; the theme editor opens tall enough for its whole form and its text fields are dark with light text instead of white on white",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.46.2",
   "date": "2026-10-14",
   "items": [
