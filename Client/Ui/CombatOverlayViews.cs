@@ -198,8 +198,10 @@ public sealed class BossCastView : Border
         public void Update(CastRowData row)
         {
             _name.Text = row.Name;
-            _detail.Text = row.Detail.Length > 0 ? row.Detail + " → " + row.TargetText : "→ " + row.TargetText;
-            _detail.Foreground = row.AtYou ? OverlayPictures.Red : OverlayPictures.Muted;
+            // the caster stays quiet, the target stands out in yellow (you too; the red border and bar already warn)
+            _detail.Inlines.Clear();
+            _detail.Inlines.Add(new System.Windows.Documents.Run(row.Detail.Length > 0 ? row.Detail + " → " : "→ ") { Foreground = OverlayPictures.Muted });
+            _detail.Inlines.Add(new System.Windows.Documents.Run(row.TargetText) { Foreground = OverlayPictures.Amber, FontWeight = FontWeights.SemiBold });
             _icon.Source = OverlayPictures.Load(row.IconPath);
             _iconHost.Content = _icon.Source is null ? OverlayPictures.Emblem("!", 28) : _icon;
 
