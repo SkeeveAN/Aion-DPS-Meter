@@ -207,7 +207,26 @@ public sealed class TcpReassembler
 
             long total = length + prefix + layout.LengthBias;
             int bodyMin = Math.Max(layout.OpcodeOffset + layout.OpcodeSize, 1);
-            if (total - prefix < bodyMin || total > layout.MaxFrameLength)
+            bool tooBig = total > layout.MaxFrameLength;
+            if (tooBig && total <= MaxKnownFrameLength && syncOpcodes is { Count: > 0 } && total - prefix >= bodyMin)
+            {
+                // A login sends frames larger than any in a fight (the character's whole record, 40 kB): in a synced stream, a big frame
+                // whose opcode is a known one is a real frame, not a lost sync. Dropping it threw away the rest of the login burst,
+                // among it the account counters (the Odyle energy of the character that just logged in).
+                int opcodeEnd = prefix + layout.OpcodeOffset + layout.OpcodeSize;
+                if (stream.Buffer.Count < opcodeEnd)
+                {
+                    return; // the opcode is still arriving
+                }
+
+                int opcodeAt = prefix + layout.OpcodeOffset;
+                int opcode = layout.OpcodeBigEndian
+                    ? stream.Buffer[opcodeAt] << 8 | stream.Buffer[opcodeAt + 1]
+                    : stream.Buffer[opcodeAt + 1] << 8 | stream.Buffer[opcodeAt];
+                tooBig = !syncOpcodes.Contains(opcode);
+            }
+
+            if (total - prefix < bodyMin || tooBig)
             {
                 Desyncs++;
                 stream.Synced = false;
@@ -226,6 +245,7 @@ public sealed class TcpReassembler
         }
     }
 
+    private const int MaxKnownFrameLength = 1 << 18;
     private const int SyncChainLength = 3;
     private const int SyncSearchWindow = 4096;
     private const int SyncGiveUpBytes = 8192;

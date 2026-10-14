@@ -146,6 +146,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "render-themeeditor")
+        {
+            RunRenderThemeEditorMode(args[1]);
+            return;
+        }
+
         if (args.Length > 1 && args[0] == "render-checklist")
         {
             RunRenderChecklistMode(args[1], args.Length > 2 ? args[2] : "");
@@ -900,6 +906,48 @@ internal static class Program
 
     /// <summary>Renders the Settings window's content (a tab of it) to a PNG without showing a window:
     /// the way to look at a layout change without opening anything on the player's screen.</summary>
+    /// <summary>Draws the theme editor into a picture; no window is ever shown.</summary>
+    private static void RunRenderThemeEditorMode(string path)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        var window = new Ui.ThemeEditorWindow(settings);
+        var content = (System.Windows.FrameworkElement)window.Content;
+        int w = (int)window.Width, h = (int)window.Height;
+        for (int pass = 0; pass < 2; pass++)
+        {
+            content.Measure(new System.Windows.Size(w, h));
+            content.Arrange(new System.Windows.Rect(0, 0, w, h));
+            content.UpdateLayout();
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+        }
+
+        var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black };
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        backdrop.Measure(new System.Windows.Size(w, h));
+        backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
+        bitmap.Render(backdrop);
+        bitmap.Render(content);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine("render-themeeditor: wrote " + path);
+        Environment.Exit(0);
+    }
+
     /// <summary>Draws the checklist window (Tools menu) with two characters made of a real login list into a picture; no window is ever shown.</summary>
     private static void RunRenderChecklistMode(string path, string language)
     {
@@ -1900,6 +1948,13 @@ internal static class Program
         if (source.Entities is Aion2.Aion2EntityDirectory idEnd)
         {
             Console.WriteLine($"aion2-replay: {idEnd.IdentityMovesSeen} player(s) came back under a new combat id");
+        }
+
+        foreach (Aion2.TicketCharacter ticketed in Aion2.Aion2Tickets.Snapshot())
+        {
+            ticketed.Tickets.TryGetValue(Aion2.Aion2Tickets.OdyleId, out Aion2.TicketValue odyle);
+            ticketed.Tickets.TryGetValue(Aion2.Aion2Tickets.MissionsId, out Aion2.TicketValue missions);
+            Console.WriteLine($"aion2-replay: tickets of {ticketed.Name} (server {ticketed.ServerId}): Odyle {odyle.Count} + {odyle.Bonus}, missions {missions.Count} handed in");
         }
 
         if (events.Count > 0)

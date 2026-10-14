@@ -176,10 +176,10 @@ public sealed class ChecklistWindow : Window
     }
 
     /// <summary>The number of a row as three cells so the numbers stand one under the other: the count right-aligned, the slash, the maximum left-aligned.</summary>
-    private static void AddNumberCells(Grid grid, int row, int firstColumn, int count, int cap, bool estimated, bool open)
+    private static void AddNumberCells(Grid grid, int row, int firstColumn, int count, int cap, bool estimated, bool open, int bonus = 0)
     {
         string brush = open ? "Brush.Accent" : "Brush.TextSubtle";
-        TextBlock now = Label((estimated ? "~" : "") + count.ToString(CultureInfo.CurrentCulture), brush, 13, bold: true);
+        TextBlock now = Label((estimated ? "~" : "") + count.ToString(CultureInfo.CurrentCulture) + (bonus > 0 ? $" (+{bonus.ToString(CultureInfo.CurrentCulture)})" : ""), brush, 13, bold: true);
         now.HorizontalAlignment = HorizontalAlignment.Right;
         now.Margin = new Thickness(0, 1, 0, 1);
         TextBlock slash = Label(" / ", "Brush.TextSubtle", 13);
@@ -199,7 +199,7 @@ public sealed class ChecklistWindow : Window
     {
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(215) }); // name
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });  // count (right-aligned)
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(62) });  // count with its bonus (right-aligned)
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });     // slash
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });  // maximum (left-aligned)
         for (int i = 0; i < extraColumns; i++)
@@ -227,13 +227,14 @@ public sealed class ChecklistWindow : Window
         {
             TicketDef def = list[i];
             int reported = character.Tickets[def.Id].Count;
+            int bonus = character.Tickets[def.Id].Bonus;
             int count = Aion2Tickets.Expected(def, reported, seenAt, now);
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             TextBlock name = Label(def.ShortIn(language), count > 0 ? "Brush.Text" : "Brush.TextSubtle", 13);
             name.Margin = new Thickness(0, 1, 0, 1);
             Grid.SetRow(name, i);
             grid.Children.Add(name);
-            AddNumberCells(grid, i, 1, count, Math.Max(def.Max, count), count != reported, count > 0);
+            AddNumberCells(grid, i, 1, count, Math.Max(CapOf(def), count + bonus), count != reported, count > 0, bonus);
         }
 
         stack.Children.Add(grid);
@@ -278,7 +279,7 @@ public sealed class ChecklistWindow : Window
         if (Aion2Tickets.Find(DailyDungeonTicket) is { } dungeon && character.Tickets.TryGetValue(dungeon.Id, out TicketValue value))
         {
             int count = Aion2Tickets.Expected(dungeon, value.Count, seenAt, now);
-            AddTableRow(grid, row++, dungeon.ShortIn(language), count, Math.Max(dungeon.Max, count), count != value.Count, countsUp: false);
+            AddTableRow(grid, row++, dungeon.ShortIn(language), count, Math.Max(CapOf(dungeon), count + value.Bonus), count != value.Count, countsUp: false, bonus: value.Bonus);
         }
 
         AddTableRow(grid, row++, ScrollName("verteron", language, loc["Checklist.ScrollVerteron"]), shared.Verteron, ChecklistManual.VerteronMax, false, countsUp: true);
@@ -288,7 +289,7 @@ public sealed class ChecklistWindow : Window
     }
 
     /// <summary>One table row: name, number (one under the other) and, for the hand-counted ones, the minus and plus.</summary>
-    private static void AddTableRow(Grid grid, int row, string name, int count, int cap, bool estimated, bool countsUp)
+    private static void AddTableRow(Grid grid, int row, string name, int count, int cap, bool estimated, bool countsUp, int bonus = 0)
     {
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         bool open = countsUp ? count < cap : count > 0;
@@ -296,8 +297,11 @@ public sealed class ChecklistWindow : Window
         label.Margin = new Thickness(0, 1, 0, 1);
         Grid.SetRow(label, row);
         grid.Children.Add(label);
-        AddNumberCells(grid, row, 1, count, cap, estimated, open);
+        AddNumberCells(grid, row, 1, count, cap, estimated, open, bonus);
     }
+
+    /// <summary>The cap the game shows: the subscriber's one where there is one (Shugo Festival keys 12, with the subscription 21), else the plain one.</summary>
+    private static int CapOf(TicketDef def) => def.SubscribeMax > def.Max ? def.SubscribeMax : def.Max;
 
     /// <summary>The time left of the access-time tickets (h:mm), in the same name column as the other tables.</summary>
     private void AddTimes(string title, IEnumerable<TicketDef> defs, TicketCharacter character, string language)
