@@ -24,6 +24,9 @@ public static class CombatOverlayData
     /// <summary>A monster this tough counts as a boss even when the game data does not say so (new bosses, Abyss bosses).</summary>
     private const long BossHitPoints = 500_000;
 
+    private static readonly TimeSpan BossHold = TimeSpan.FromSeconds(15);
+    private static (int Id, DateTime At)? _lastBoss;
+
     public static CombatFrame Build(Aion2EntityDirectory dir, MeterSettings settings, DateTime now, string language)
     {
         IReadOnlyList<CastRowData> casts = settings.CombatShowBossCast ? Casts(dir, settings, now, language) : Array.Empty<CastRowData>();
@@ -35,6 +38,11 @@ public static class CombatOverlayData
     public static BossHpData? BossHp(Aion2EntityDirectory dir, DateTime now)
     {
         int? boss = dir.LocalTarget is { } clicked && !dir.IsKnownPlayer(clicked.EntityId) && IsBoss(dir, clicked.EntityId) ? clicked.EntityId : null;
+        if (boss is null && dir.LocalHitTarget is { } hit && DateTime.UtcNow - hit.At < BossHold && !dir.IsKnownPlayer(hit.EntityId) && IsBoss(dir, hit.EntityId))
+        {
+            boss = hit.EntityId;
+        }
+
         if (boss is null)
         {
             foreach (CastView view in dir.Combat.Casts(now, Grace).OrderByDescending(v => v.Notice.Start))
@@ -47,8 +55,24 @@ public static class CombatOverlayData
             }
         }
 
+        // Aiming with the camera sends no mark message and casts come in gaps: hold the last boss for a while so the bar does not blink.
+        if (boss is int found)
+        {
+            _lastBoss = (found, DateTime.UtcNow);
+        }
+        else if (_lastBoss is { } last && DateTime.UtcNow - last.At < BossHold && dir.HitPoints.Latest(last.Id)?.Hp > 0)
+        {
+            boss = last.Id;
+        }
+
         if (boss is not int id || dir.HitPoints.Latest(id)?.Hp is not long hp)
         {
+            return null;
+        }
+
+        if (hp <= 0)
+        {
+            _lastBoss = null; // a dead boss leaves no bar behind, even when it is still marked as the target
             return null;
         }
 
