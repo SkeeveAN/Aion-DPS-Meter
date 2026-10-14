@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "Deus Research Base stage 3 bosses (NPC ids 2343xxx, 9.68 M HP) are recognised as stage 3; the unconfirmed 2360 and 2380 guesses are dropped",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.47.3",
   "date": "2026-10-14",
   "items": [
