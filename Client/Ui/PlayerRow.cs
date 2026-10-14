@@ -205,6 +205,9 @@ public sealed class PlayerRow : INotifyPropertyChanged
     /// <summary>The class colour, translucent, for that bar. Same colours as the website's meter.</summary>
     public System.Windows.Media.Brush ClassBrush => ClassBrushes.For(ClassName);
 
+    /// <summary>The bar colour setting changed: bind the bar to the new brush.</summary>
+    public void RefreshClassBrush() => OnPropertyChanged(nameof(ClassBrush));
+
     public string RankDisplay => Rank > 0 ? Rank.ToString() : "";
 
     /// <summary>This row's share of the shown rows' combined damage, 0-100 - what the bar under the

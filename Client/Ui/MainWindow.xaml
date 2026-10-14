@@ -136,7 +136,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Toggle}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource Brush.Window}"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
                             </Trigger>
@@ -162,7 +162,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Accent}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Toggle}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource Brush.Window}"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
                             </Trigger>
@@ -649,6 +649,7 @@
                         <MenuItem Header="{local:Loc Main.MenuApp.OpenSessionsFolder}" Click="OnOpenSessionsFolderClicked"/>
                         <Separator/>
                         <MenuItem Header="{local:Loc Main.MenuTools.DummyTest}" Click="OnOpenDummyTestClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.ThemeEditor}" Click="OnOpenThemeEditorClicked"/>
                     </MenuItem>
                     <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuSettings.AppSettings}" Click="OnSettingsClicked"/>

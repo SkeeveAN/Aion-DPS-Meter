@@ -13,6 +13,8 @@ public sealed class MeterSettings
     public string Theme { get; set; } = "Dark";
     public string FontSize { get; set; } = "Medium";
 
+    // "Dark", or "File:name" for a theme saved from the theme editor (see ThemeFile).
+
     /// <summary>Share-of-group bar under each row's Damage/DPS line (see PlayerRow.SharePercent).</summary>
     public bool ShowShareBars { get; set; } = true;
 

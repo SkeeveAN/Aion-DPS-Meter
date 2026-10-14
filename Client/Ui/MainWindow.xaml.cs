@@ -3752,6 +3752,27 @@ public partial class MainWindow : Window
     }
 
     private DummyTestWindow? _dummyWindow;
+    private ThemeEditorWindow? _themeEditorWindow;
+
+    private void OnOpenThemeEditorClicked(object sender, RoutedEventArgs e)
+    {
+        if (_themeEditorWindow is not null)
+        {
+            _themeEditorWindow.Activate();
+            return;
+        }
+
+        _themeEditorWindow = new ThemeEditorWindow(MeterSettings.Load()) { Owner = this };
+        _themeEditorWindow.Saved += settings =>
+        {
+            var current = MeterSettings.Load();
+            current.Theme = settings.Theme;
+            current.Save();
+            ApplySettingsEverywhere(current);
+        };
+        _themeEditorWindow.Closed += (_, _) => _themeEditorWindow = null;
+        _themeEditorWindow.Show();
+    }
 
     /// <summary>Tools menu: the dummy test window (one at a time).</summary>
     private void OnOpenDummyTestClicked(object sender, RoutedEventArgs e)
@@ -4652,9 +4673,17 @@ public partial class MainWindow : Window
     private void OpenSettings(DateTime? undoUntil)
     {
         var settings = MeterSettings.Load();
+        string openedTheme = settings.Theme;
         _settingsWindow = new SettingsWindow(settings, undoUntil) { Owner = this };
         _settingsWindow.Saved += () =>
         {
+            // the theme editor may have chosen a theme since this window opened
+            var onDisk = MeterSettings.Load();
+            if (settings.Theme == openedTheme)
+            {
+                settings.Theme = onDisk.Theme; // not changed in this window: keep what the theme editor saved meanwhile
+            }
+
             settings.Save();
             ApplySettingsEverywhere(settings);
         };
@@ -4705,7 +4734,11 @@ public partial class MainWindow : Window
         }
 
         Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
-        ThemeManager.Apply(Application.Current, settings.Theme, settings.FontSize); // repaints every open window
+        ThemeManager.Apply(Application.Current, settings); // repaints every open window
+        foreach (PlayerRow row in _rows)
+        {
+            row.RefreshClassBrush(); // the own bar colour may have changed
+        }
         ApplyHotkeys(settings); // possibly changed keys
         ApplyTimetable(settings);
         ApplyPetFarm(settings);

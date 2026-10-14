@@ -340,7 +340,7 @@ internal static class Program
                 app.Resources.MergedDictionaries.Add(
                     (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
                 Ui.MeterSettings startupSettings = Ui.MeterSettings.Load();
-                Ui.ThemeManager.Apply(app, startupSettings.Theme, startupSettings.FontSize);
+                Ui.ThemeManager.Apply(app, startupSettings);
                 app.Run(new Ui.MainWindow());
             }
             catch (Exception ex)
@@ -490,7 +490,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
@@ -539,7 +539,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
@@ -704,7 +704,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language; // skill and item names in the chosen language
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
@@ -791,7 +791,7 @@ internal static class Program
         kind = allCompact ? kind[..^5] : all ? kind[..^4] : kind;
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
@@ -906,7 +906,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         Aion2.Aion2FieldBosses.EnablePersistence();
         var now = DateTime.Now;
@@ -955,7 +955,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var sample = new Aion2.Capture.NetworkSnapshot(true, "87.232.75.220:13328", TimeSpan.FromSeconds(642), 1, 0, 7, 16, 6, 49, 4.2, 8.6, 0.2, 26, 31, 0, 0, TimeSpan.FromSeconds(0.4), 0, 0,
             0, 0, null, null, null, new Aion2.Capture.NetworkProbeSnapshot(true, "192.168.2.1", 1, 0, 60, 12, 0, 60));
@@ -1001,7 +1001,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         bool edit = mode == "edit";
         var windows = new[] { new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Cast), new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Target), new Ui.CombatOverlayWindow(Ui.CombatOverlayWindow.Part.Hp) };
@@ -1088,7 +1088,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         DateTime start = new(2026, 10, 4, 12, 0, 0, DateTimeKind.Local);
         const int boss = 100;
@@ -1169,7 +1169,7 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language;
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var loc = Ui.LocalizationManager.Instance;
         var window = Ui.ThemedMessageBox.Build(null, string.Format(loc["Main.HideUiHint"], "Ctrl+Alt+H"), loc["Main.HideUiHint.Title"], System.Windows.MessageBoxButton.OK,
@@ -1224,7 +1224,7 @@ internal static class Program
             settings.PetRareMax = rareMax; // layout check only (nothing is saved here)
         }
 
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         Aion2.Aion2FieldBosses.EnablePersistence(); // read-only here: the page shows the last lists the game sent
         var window = new Ui.SettingsWindow(settings);
@@ -1283,7 +1283,7 @@ internal static class Program
         Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var window = new Ui.MainWindow();
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
@@ -1327,7 +1327,7 @@ internal static class Program
     {
         var app = new System.Windows.Application();
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var window = new Ui.MainWindow();
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
@@ -1447,7 +1447,7 @@ internal static class Program
         {
             var app = new System.Windows.Application();
             var settings = Ui.MeterSettings.Load();
-            Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+            Ui.ThemeManager.Apply(app, settings);
             Ui.MainWindow.Headless = true;
         var window = new Ui.MainWindow();
             var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
@@ -1529,7 +1529,7 @@ internal static class Program
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         var map = Aion2.Protocol.Aion2Maps.All.First(m => m.Key == mapKey);
         var chosen = settings.PetMapPets.Count > 0 ? settings.PetMapPets.ToHashSet() : new HashSet<int> { 1170, 1162, 1171, 1219 };
@@ -1575,7 +1575,7 @@ internal static class Program
         app.Resources.MergedDictionaries.Add(
             (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
         var settings = Ui.MeterSettings.Load();
-        Ui.ThemeManager.Apply(app, settings.Theme, settings.FontSize);
+        Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         // (pet id, tab, price) of the special and pet tabs; (pet id, level, progress) as the login frame reported them
         var offers = new (int, int, long)[] { (1041, 0, 70000), (1161, 0, 80000), (1128, 0, 90000), (1108, 0, 80000), (1118, 0, 70000), (1190, 1, 80000), (1123, 1, 90000), (1096, 1, 70000), (1174, 1, 90000), (1154, 1, 90000), (1160, 1, 70000), (1060, 1, 50000), (1115, 1, 90000), (1102, 1, 70000), (1141, 1, 90000) }

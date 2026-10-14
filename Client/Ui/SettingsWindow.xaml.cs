@@ -86,7 +86,7 @@ public partial class SettingsWindow : Window
         }
         AutoResetBox.IsChecked = settings.AutoResetEnabled;
         AutoResetSecondsBox.Text = Math.Clamp(settings.AutoResetSeconds, 1, 600).ToString();
-        SelectComboItem(ThemeBox, settings.Theme);
+        PopulateThemes(settings.Theme);
         SelectComboItem(FontSizeBox, settings.FontSize);
         SelectComboItem(OverlayStyleBox, settings.OverlayStyle);
         // The nearest of the offered steps (a hand-edited file may hold any number).
@@ -123,6 +123,21 @@ public partial class SettingsWindow : Window
         }
 
         SelectComboItem(LanguageBox, LocalizationManager.Instance.Language);
+    }
+
+    /// <summary>Dark and every theme file saved from the editor.</summary>
+    private void PopulateThemes(string selected)
+    {
+        foreach (string name in ThemeFile.List())
+        {
+            ThemeBox.Items.Add(new ComboBoxItem { Content = name, Tag = ThemeFile.SelectionFor(name) });
+        }
+
+        SelectComboItem(ThemeBox, selected);
+        if (ThemeBox.SelectedItem is null)
+        {
+            SelectComboItem(ThemeBox, ThemeManager.DefaultTheme); // a theme file that is gone
+        }
     }
 
     /// <summary>Automatic (the adapter Windows routes internet traffic through), all adapters, then
