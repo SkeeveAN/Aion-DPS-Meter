@@ -26,6 +26,14 @@
      "Database"
     ],
     "date": "2026-10-14"
+   },
+   {
+    "text": "Patch notes tables now look like NC's originals: cells spanning several rows or columns, blank lines and centered text inside cells, header cells in the theme colour instead of black",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-14"
    }
   ]
  },
