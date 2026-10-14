@@ -32,6 +32,19 @@ public sealed class AssistPanel : StackPanel
     /// <summary>The highest number seen per skill since it last was ready: what the bar of a running cooldown is measured against.</summary>
     private readonly Dictionary<int, int> _peak = new();
 
+    /// <summary>How long an effect that is gone stays in the list (so a renewed one does not make its row jump away and back).</summary>
+    private static readonly TimeSpan Linger = TimeSpan.FromSeconds(2.5);
+
+    private sealed class EffectRow(int order)
+    {
+        public int Order { get; } = order;
+        public DateTime LastActive { get; set; }
+        public BuffNotice? Buff { get; set; }
+    }
+
+    private readonly Dictionary<int, EffectRow> _effects = new();
+    private int _order;
+
     public AssistPanel(bool overlay)
     {
         _overlay = overlay;
@@ -105,17 +118,44 @@ public sealed class AssistPanel : StackPanel
         int shown = 0;
         if (dir is not null && dir.LocalPlayerId is >= 0 and int self)
         {
-            foreach (BuffNotice b in dir.Combat.BuffsOn(self, now).Take(40))
+            // one row per effect: a short effect that is renewed all the time (the Chanter's mantras) gets a new instance or a new end every few
+            // seconds, so rows are kept in the order they first appeared and stay a moment after their end instead of vanishing and coming back
+            foreach (var group in dir.Combat.BuffsOn(self, now).GroupBy(b => b.SkillId))
             {
-                string english = Aion2SkillNames.NameOf(b.SkillId);
-                if (long.TryParse(english, out _) && Aion2SkillIcons.PathFor(b.SkillId) is null)
+                string english = Aion2SkillNames.NameOf(group.Key);
+                if (long.TryParse(english, out _) && Aion2SkillIcons.PathFor(group.Key) is null)
                 {
                     continue; // a nameless state (rest, speed ...) says nothing to the player
                 }
 
-                string time = b.Ends is { } end ? Seconds(Math.Max(0, (end - now).TotalSeconds)) : "∞";
-                double fraction = b.Ends is { } e2 && b.DurationMs > 0 ? Math.Clamp((e2 - now).TotalMilliseconds / b.DurationMs, 0, 1) : 0;
-                buffs.Children.Add(Row(b.SkillId, Aion2SkillNames.DisplayOf(b.SkillId), time, fraction, false));
+                BuffNotice best = group.OrderBy(b => b.Ends is null ? DateTime.MaxValue : b.Ends.Value).Last();
+                if (!_effects.TryGetValue(group.Key, out var known))
+                {
+                    known = new EffectRow(++_order);
+                    _effects[group.Key] = known;
+                }
+
+                known.LastActive = now;
+                known.Buff = best;
+            }
+
+            foreach (var (skill, row) in _effects.OrderBy(kv => kv.Value.Order).ToList())
+            {
+                if (now - row.LastActive > TimeSpan.FromSeconds(30))
+                {
+                    _effects.Remove(skill);
+                    continue;
+                }
+
+                if (now - row.LastActive > Linger || row.Buff is not { } b)
+                {
+                    continue;
+                }
+
+                bool active = row.LastActive == now;
+                string time = !active ? Seconds(0) : b.Ends is { } end ? Seconds(Math.Max(0, (end - now).TotalSeconds)) : "\u221E";
+                double fraction = active && b.Ends is { } e2 && b.DurationMs > 0 ? Math.Clamp((e2 - now).TotalMilliseconds / b.DurationMs, 0, 1) : 0;
+                buffs.Children.Add(Row(skill, Aion2SkillNames.DisplayOf(skill), time, fraction, false));
                 shown++;
             }
         }
