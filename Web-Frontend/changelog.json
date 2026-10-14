@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.46.1",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "The target of a boss cast is shown in yellow on the boss cast bar, you included (a cast at you keeps the red frame and the red bar)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.46.0",
   "date": "2026-10-14",
   "items": [
