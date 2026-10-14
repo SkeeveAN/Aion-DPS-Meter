@@ -745,13 +745,31 @@ public partial class MainWindow : Window
         // owner once found, instead of staying on a "Player #id" row.
         if (_liveSource?.Entities is Aion2.Aion2EntityDirectory resolvedIn)
         {
-            foreach ((int summon, int owner) in resolvedIn.DrainResolvedOwners())
+            var resolved = resolvedIn.DrainResolvedOwners();
+            foreach ((int summon, int owner) in resolved)
             {
                 _sessions.Reattribute(summon, owner);
                 if (viewingLive)
                 {
                     _aggregator.Reattribute(summon, owner);
                 }
+            }
+
+            // The batch just polled is only applied to the grid below, so it still holds hits of such a summon under its own id: the owner
+            // was found within this very batch (the recorder, fed before, has been handed over above). One burn tick of a Fire Wall
+            // once stayed behind as a "Player #id" row of 389.
+            if (viewingLive && resolved.Count > 0 && batch.Damage.Count > 0)
+            {
+                var ownerOf = new Dictionary<int, int>();
+                foreach ((int summon, int owner) in resolved)
+                {
+                    ownerOf[summon] = owner; // the same summon twice: the later owner wins, as in the recorder
+                }
+
+                batch = batch with
+                {
+                    Damage = batch.Damage.Select(ev => ownerOf.TryGetValue(ev.SourceObjectId, out int owner) ? ev with { SourceObjectId = owner } : ev).ToList(),
+                };
             }
         }
 
@@ -3820,6 +3838,21 @@ public partial class MainWindow : Window
         _checklistWindow = new ChecklistWindow { Owner = this };
         _checklistWindow.Closed += (_, _) => _checklistWindow = null;
         _checklistWindow.Show();
+    }
+
+    private AssistWindow? _assistWindow;
+
+    private void OnOpenAssistClicked(object sender, RoutedEventArgs e)
+    {
+        if (_assistWindow is not null)
+        {
+            _assistWindow.Activate();
+            return;
+        }
+
+        _assistWindow = new AssistWindow(() => _liveSource?.Entities as Aion2EntityDirectory) { Owner = this };
+        _assistWindow.Closed += (_, _) => _assistWindow = null;
+        _assistWindow.Show();
     }
 
     /// <summary>Tools menu: the dummy test window (one at a time).</summary>
