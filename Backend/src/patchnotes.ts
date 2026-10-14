@@ -14,12 +14,12 @@ const MAX_BYTES = 2 * 1024 * 1024;
 const MAX_HTML = 300_000;
 const WEB_LOCALE: Record<NcLang, string> = { en: "en-us", de: "de-de", fr: "fr-fr", es: "es-es", pt: "pt-br", ja: "ja-jp" };
 
-export type BodyNode = string | { tag: "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a" | "table" | "tr" | "td" | "th"; href?: string; children: BodyNode[] };
+export type BodyNode = string | { tag: "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a" | "table" | "tr" | "td" | "th"; href?: string; rowspan?: number; colspan?: number; align?: "center" | "right"; children: BodyNode[] };
 
 export type Patchnote = { id: string; lang: NcLang; contentId: number; title: string; posted: number; updated: number; body: BodyNode[]; v?: number };
 
-/** Raised when the parser learns something new (v2: tables); older stored notes are fetched again. */
-const PARSER_VERSION = 2;
+/** Raised when the parser learns something new (v2: tables, v3: row/column spans and blank lines in cells, v4: alignment and dark header cells); older stored notes are fetched again. */
+const PARSER_VERSION = 4;
 
 const TAGS: Record<string, "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a" | "table" | "tr" | "td" | "th"> = {
   div: "p", p: "p", strong: "strong", b: "strong", em: "em", i: "em", u: "u", ul: "ul", ol: "ol", li: "li", br: "br", h1: "h", h2: "h", h3: "h", h4: "h", a: "a",
@@ -39,7 +39,7 @@ function decode(text: string): string {
   });
 }
 
-type Open = { tag: "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a" | "table" | "tr" | "td" | "th"; href?: string; children: BodyNode[]; source: string };
+type Open = { tag: "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a" | "table" | "tr" | "td" | "th"; href?: string; rowspan?: number; colspan?: number; align?: "center" | "right"; children: BodyNode[]; source: string };
 
 /** NC's editor HTML into the safe tree. */
 export function htmlToTree(html: string): BodyNode[] {
@@ -87,12 +87,28 @@ export function htmlToTree(html: string): BodyNode[] {
     if (!tag) {
       continue; // unknown or dropped tag (img, span, ...): its text stays, it is just not wrapped
     }
-    const node: Open = { tag, children: [], source: name };
+    // NC's editor marks header cells with a black background instead of <th>
+    const dark = name === "td" && /background-color:\s*rgb\(\s*0,\s*0,\s*0\s*\)/i.test(m[3]);
+    const node: Open = { tag: dark ? "th" : tag, children: [], source: name };
+    if (tag === "p") {
+      const align = /text-align:\s*(center|right)/i.exec(m[3])?.[1]?.toLowerCase();
+      if (align === "center" || align === "right") {
+        node.align = align;
+      }
+    }
     if (tag === "a") {
       const href = /href\s*=\s*"([^"]*)"/i.exec(m[3])?.[1];
       const url = href ? decode(href) : "";
       if (/^https:\/\/[^\s"'<>]{1,500}$/.test(url)) {
         node.href = url;
+      }
+    }
+    if (tag === "td" || tag === "th") {
+      for (const key of ["rowspan", "colspan"] as const) {
+        const n = Number(new RegExp(`${key}\\s*=\\s*["']?(\\d{1,3})`, "i").exec(m[3])?.[1]);
+        if (n > 1 && n <= 100) {
+          node[key] = n;
+        }
       }
     }
     top.children.push(node);
@@ -112,13 +128,22 @@ function strip(n: BodyNode): BodyNode {
   if (n.href) {
     out.href = n.href;
   }
+  if (n.align) {
+    out.align = n.align;
+  }
+  if (n.rowspan) {
+    out.rowspan = n.rowspan;
+  }
+  if (n.colspan) {
+    out.colspan = n.colspan;
+  }
   return out;
 }
 
 const plain = (nodes: BodyNode[]): string => nodes.map((n) => (typeof n === "string" ? n : n.tag === "br" ? " " : plain(n.children))).join("");
 
 /** Zero-width characters out, whitespace collapsed, empty paragraphs dropped, a link without an address becomes plain content. */
-function prune(nodes: BodyNode[]): BodyNode[] {
+function prune(nodes: BodyNode[], inCell = false): BodyNode[] {
   const out: BodyNode[] = [];
   for (const n of nodes) {
     if (typeof n === "string") {
@@ -128,10 +153,10 @@ function prune(nodes: BodyNode[]): BodyNode[] {
       }
       continue;
     }
-    n.children = prune(n.children);
+    n.children = prune(n.children, inCell || n.tag === "td" || n.tag === "th");
     if (n.tag === "a" && !n.href) {
       out.push(...n.children);
-    } else if (n.tag === "br" || n.tag === "td" || n.tag === "th" || n.tag === "tr" || plain(n.children).trim() !== "" || (n.tag !== "p" && n.tag !== "li" && n.children.some((c) => typeof c !== "string"))) {
+    } else if (n.tag === "br" || n.tag === "td" || n.tag === "th" || n.tag === "tr" || (inCell && n.tag === "p" && n.children.some((c) => typeof c !== "string" && c.tag === "br")) || plain(n.children).trim() !== "" || (n.tag !== "p" && n.tag !== "li" && n.children.some((c) => typeof c !== "string"))) {
       out.push(n);
     }
   }

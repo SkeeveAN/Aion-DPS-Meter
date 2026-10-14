@@ -38,3 +38,23 @@ test("the list is per language, newest first, with the link to NC", () => {
   assert.equal(patchnoteList("de").items[0].url, `https://aion2.plaync.com/de-de/board/update/view?articleId=${"c".repeat(24)}`);
   resetPatchnotes();
 });
+
+test("cells keep their row and column spans", () => {
+  const tree = htmlToTree('<table><tr><td rowspan="3">Reset</td><td colspan=\'2\'>A</td><td rowspan="1">B</td></tr></table>');
+  assert.deepEqual(tree, [{ tag: "table", children: [{ tag: "tr", children: [
+    { tag: "td", rowspan: 3, children: ["Reset"] }, { tag: "td", colspan: 2, children: ["A"] }, { tag: "td", children: ["B"] },
+  ] }] }]);
+});
+
+test("a blank line inside a table cell keeps its height, outside a table it is dropped", () => {
+  const cell = htmlToTree("<table><tr><td><div>Hunt</div><div><br></div></td></tr></table>");
+  assert.deepEqual(cell, [{ tag: "table", children: [{ tag: "tr", children: [{ tag: "td", children: [{ tag: "p", children: ["Hunt"] }, { tag: "p", children: [{ tag: "br", children: [] }] }] }] }] }]);
+  assert.deepEqual(htmlToTree("<div>a</div><div><br></div>"), [{ tag: "p", children: ["a"] }]);
+});
+
+test("centered text and black header cells are kept", () => {
+  const tree = htmlToTree('<table><tr><td style="padding: 4px 8px; background-color: rgb(0, 0, 0);"><div style="text-align: center;">Head</div></td><td><div style="text-align: justify;">Body</div></td></tr></table>');
+  assert.deepEqual(tree, [{ tag: "table", children: [{ tag: "tr", children: [
+    { tag: "th", children: [{ tag: "p", align: "center", children: ["Head"] }] }, { tag: "td", children: [{ tag: "p", children: ["Body"] }] },
+  ] }] }]);
+});

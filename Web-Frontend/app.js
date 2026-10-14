@@ -1260,6 +1260,17 @@ function patchnoteNodes(nodes) {
     }
     const tag = PN_TAGS[n.tag] ?? "span";
     const props = n.tag === "a" && typeof n.href === "string" && n.href.startsWith("https://") ? { href: n.href, target: "_blank", rel: "noopener" } : {};
+    if (n.align === "center" || n.align === "right") {
+      props.className = `pn-${n.align}`;
+    }
+    if (n.tag === "td" || n.tag === "th") {
+      if (Number.isInteger(n.rowspan) && n.rowspan > 1) {
+        props.rowSpan = n.rowspan;
+      }
+      if (Number.isInteger(n.colspan) && n.colspan > 1) {
+        props.colSpan = n.colspan;
+      }
+    }
     const node = el(tag, props, tag === "br" ? [] : patchnoteNodes(n.children ?? []));
     return n.tag === "table" ? el("div", { className: "pn-table" }, [node]) : node;
   });
