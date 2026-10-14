@@ -97,7 +97,7 @@ public static class CombatOverlayData
                 : cast.Target <= 0 || cast.Target == cast.Actor ? loc["Combat.AllAround"] : Name(dir, cast.Target, language);
             string skill = Aion2SkillNames.DisplayOf(cast.SkillId);
             string caster = Name(dir, cast.Actor, language);
-            var row = new CastRowData(skill, caster, target, atYou, view.IsArea, lethal, (now - cast.Start).TotalMilliseconds, cast.DurationMs, view.LandMs, Aion2SkillIcons.PathFor(cast.SkillId) ?? (dir.BossNpcIdOf(cast.Actor) is int bossNpc ? Aion2Artwork.BossThumbPath(bossNpc) : null));
+            var row = new CastRowData(skill, caster, target, atYou, view.IsArea, lethal, (now - cast.Start).TotalMilliseconds, cast.DurationMs, view.LandMs, Aion2SkillIcons.PathFor(cast.SkillId) ?? (dir.BossNpcIdOf(cast.Actor) is int bossNpc ? Aion2Artwork.BossThumbPath(bossNpc) : null), Aion2SkillNames.IsGeneric(cast.SkillId));
             double score = (atYou ? 200 : 0) + (lethal ? 100 : 0) + (view.IsArea ? 50 : 0) + (boss ? 40 : 0);
             scored.Add((score, cast.End, row));
         }
@@ -489,7 +489,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
         }
         else if (castOn && _editing)
         {
-            _bossCast.Show(new[] { new CastRowData(loc["Combat.Sample.Skill"], loc["Combat.Sample.Boss"], loc["Combat.You"], true, true, false, 700, 1500, 400, null) });
+            _bossCast.Show(new[] { new CastRowData(loc["Combat.Sample.Skill"], loc["Combat.Sample.Boss"], loc["Combat.You"], true, true, false, 700, 1500, 400, null, Generic: true) });
         }
 
         bool castShown = castOn && (frame.Casts.Count > 0 || _editing);

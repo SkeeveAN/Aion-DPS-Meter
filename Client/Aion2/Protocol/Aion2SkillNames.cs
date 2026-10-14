@@ -226,6 +226,18 @@ public static class Aion2SkillNames
         return englishName;
     }
 
+    /// <summary>A plain "Attack": the skill has no name of its own (the client has no text for its id, or the text is just "Attack"), so a bar that names skills
+    /// should lead with who casts instead.</summary>
+    public static bool IsGeneric(int skillId)
+    {
+        if (!LoadLocalized().TryGetValue(skillId, out var names) || !names.TryGetValue("en", out string? english) || string.IsNullOrWhiteSpace(english))
+        {
+            return NameOf(skillId) is "Attack" || !LoadLocalized().ContainsKey(skillId);
+        }
+
+        return english == "Attack";
+    }
+
     /// <summary>The client's own text of one skill id in the UI language (English included: a monster's skill is "Attack" in
     /// <see cref="NameOf"/> but has its real name in the client), else <see cref="Display"/> of the English name.</summary>
     public static string DisplayOf(int skillId)

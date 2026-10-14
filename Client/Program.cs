@@ -944,6 +944,24 @@ internal static class Program
             encoder.Save(file);
         }
 
+        // the colour picker as it opens from a field (the popup itself is a window of its own that is never shown here)
+        var picker = new Ui.ColorPickerPanel();
+        picker.SetColor(System.Windows.Media.Color.FromRgb(0xFF, 0xBA, 0x42));
+        var pickerCard = new System.Windows.Controls.Border { Padding = new System.Windows.Thickness(8), Child = picker, BorderThickness = new System.Windows.Thickness(1) };
+        pickerCard.SetResourceReference(System.Windows.Controls.Border.BackgroundProperty, "Brush.Panel");
+        pickerCard.SetResourceReference(System.Windows.Controls.Border.BorderBrushProperty, "Brush.Border");
+        pickerCard.Measure(new System.Windows.Size(400, 400));
+        pickerCard.Arrange(new System.Windows.Rect(0, 0, pickerCard.DesiredSize.Width, pickerCard.DesiredSize.Height));
+        pickerCard.UpdateLayout();
+        var pickerBitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)pickerCard.DesiredSize.Width, (int)pickerCard.DesiredSize.Height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        pickerBitmap.Render(pickerCard);
+        var pickerEncoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        pickerEncoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(pickerBitmap));
+        using (var pickerFile = File.Create(Path.ChangeExtension(path, ".picker.png")))
+        {
+            pickerEncoder.Save(pickerFile);
+        }
+
         Console.WriteLine("render-themeeditor: wrote " + path);
         Environment.Exit(0);
     }
@@ -981,7 +999,7 @@ internal static class Program
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(60000003, new Aion2.TicketValue(0, 0, 0)), t0.AddSeconds(11));
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(102, new Aion2.TicketValue(0, 0, 0)), t0.AddSeconds(11));
             Aion2.Aion2Tickets.ReceiveUpdate(new Aion2.TicketReading(Aion2.Aion2Tickets.MissionsId, new Aion2.TicketValue(5, 5, 0)), t0.AddSeconds(11));
-            Aion2.Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(14));
+            Aion2.Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(14), level: 28); // a level 28 character: the daily dungeon (30) and the level 45 contents are still locked
         }
 
         var window = new Ui.ChecklistWindow();
@@ -1137,8 +1155,8 @@ internal static class Program
             : new Ui.CombatFrame(
                 new[]
                 {
-                    new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.You"], true, false, false, 900, 1500, 650, null),
-                    new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.AllAround"], false, true, true, 400, 1900, null, null),
+                    new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.You"], true, false, false, 900, 1500, 650, null, Generic: true),
+                    new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.DisplayOf(1801180), bossName, Ui.LocalizationManager.Instance["Combat.AllAround"], false, true, true, 400, 1900, null, null),
                 },
                 new Ui.TargetOfTargetData("Seuche", bossName, Aion2.Protocol.Aion2Artwork.ClassEmblemPath("Cleric"), false, 12480, 20563,
                     new[]
@@ -1950,6 +1968,7 @@ internal static class Program
             Console.WriteLine($"aion2-replay: {idEnd.IdentityMovesSeen} player(s) came back under a new combat id");
         }
 
+        Console.WriteLine($"aion2-replay: tickets belong now to {Aion2.Aion2Tickets.CurrentName ?? "nobody"}");
         foreach (Aion2.TicketCharacter ticketed in Aion2.Aion2Tickets.Snapshot())
         {
             ticketed.Tickets.TryGetValue(Aion2.Aion2Tickets.OdyleId, out Aion2.TicketValue odyle);

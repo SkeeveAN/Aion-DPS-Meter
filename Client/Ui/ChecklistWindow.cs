@@ -118,20 +118,29 @@ public sealed class ChecklistWindow : Window
             return;
         }
 
+        if (Aion2Tickets.CurrentName is null)
+        {
+            // the counters come with the login: a meter started after the login has not read the character's yet
+            var hint = Label(loc["Checklist.NeedLogin"], "Brush.Accent", 12);
+            hint.TextWrapping = TextWrapping.Wrap;
+            _body.Children.Add(Card(hint));
+        }
+
         DateTime now = DateTime.Now;
         DateTime seenAt = character.SavedAt.ToLocalTime();
         _seen.Text = string.Format(CultureInfo.CurrentCulture, loc["Checklist.Seen"], seenAt.ToString("g", CultureInfo.CurrentCulture));
 
-        if (character.Tickets.TryGetValue(Aion2Tickets.OdyleId, out TicketValue odyle) && Aion2Tickets.Find(Aion2Tickets.OdyleId) is { } odyleDef)
+        bool odyleLocked = Aion2Tickets.IsLocked(character, Aion2Tickets.OdyleId);
+        if ((odyleLocked || character.Tickets.ContainsKey(Aion2Tickets.OdyleId)) && Aion2Tickets.Find(Aion2Tickets.OdyleId) is { } odyleDef)
         {
-            _body.Children.Add(OdyleCard(odyleDef, odyle, language));
+            _body.Children.Add(OdyleCard(odyleDef, odyleLocked ? default : character.Tickets[Aion2Tickets.OdyleId], language, odyleLocked));
         }
 
-        AddOverview(loc["Checklist.Overall"], Overview.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && character.Tickets.ContainsKey(d.Id)).Select(d => d!), character, seenAt, now, language);
-        AddDaily(loc["Checklist.Daily"], character);
+        AddOverview(loc["Checklist.Overall"], Overview.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && (character.Tickets.ContainsKey(d.Id) || Aion2Tickets.IsLocked(character, d.Id))).Select(d => d!), character, seenAt, now, language);
+        AddDaily(loc["Checklist.Daily"], character, seenAt, now, language);
         AddWeekly(loc["Checklist.Weekly"], character, seenAt, now, language);
 
-        AddTimes(loc["Checklist.Time"], TimeTickets.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && character.Tickets.ContainsKey(d.Id)).Select(d => d!), character, language);
+        AddTimes(loc["Checklist.Time"], TimeTickets.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && (character.Tickets.ContainsKey(d.Id) || Aion2Tickets.IsLocked(character, d.Id))).Select(d => d!), character, language);
 
         var note = Label(loc["Checklist.Note"], "Brush.TextSubtle", 11);
         note.TextWrapping = TextWrapping.Wrap;
@@ -140,28 +149,28 @@ public sealed class ChecklistWindow : Window
     }
 
     /// <summary>The Odyle energy as the game's tooltip shows it: the basic energy (cap 840 with the subscription) and the charged energy (cap 2000).</summary>
-    private static UIElement OdyleCard(TicketDef def, TicketValue value, string language)
+    private static UIElement OdyleCard(TicketDef def, TicketValue value, string language, bool locked)
     {
         LocalizationManager loc = LocalizationManager.Instance;
         var stack = new StackPanel();
-        stack.Children.Add(Label(def.NameIn(language), "Brush.Text", 16, bold: true));
+        stack.Children.Add(Label(def.NameIn(language), locked ? "Brush.TextSubtle" : "Brush.Text", 16, bold: true));
         ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
-        stack.Children.Add(OdyleLine(loc["Checklist.OdyleBase"], value.Count, Math.Max(def.SubscribeMax, value.Count)));
-        stack.Children.Add(OdyleLine(loc["Checklist.OdyleCharged"], value.Bonus, Math.Max(OdyleChargedMax, value.Bonus)));
+        stack.Children.Add(OdyleLine(loc["Checklist.OdyleBase"], value.Count, Math.Max(def.SubscribeMax, value.Count), locked));
+        stack.Children.Add(OdyleLine(loc["Checklist.OdyleCharged"], value.Bonus, Math.Max(OdyleChargedMax, value.Bonus), locked));
         return Card(stack);
     }
 
     private const int OdyleChargedMax = 2000;
 
-    private static UIElement OdyleLine(string label, int value, int cap)
+    private static UIElement OdyleLine(string label, int value, int cap, bool locked = false)
     {
         var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        TextBlock name = Label(label, "Brush.Text", 13);
-        TextBlock numbers = Label($"{value:N0} / {cap:N0}", value > 0 ? "Brush.Accent" : "Brush.TextSubtle", 13, bold: true);
+        TextBlock name = Label(label, locked ? "Brush.TextSubtle" : "Brush.Text", 13);
+        TextBlock numbers = Label($"{value:N0} / {cap:N0}", value > 0 && !locked ? "Brush.Accent" : "Brush.TextSubtle", 13, bold: true);
         Grid.SetColumn(numbers, 1);
         var bar = new ProgressBar { Minimum = 0, Maximum = Math.Max(1, cap), Value = Math.Min(value, cap), Height = 6, Margin = new Thickness(0, 3, 0, 0) };
         bar.SetResourceReference(Control.ForegroundProperty, "Brush.Accent");
@@ -226,9 +235,11 @@ public sealed class ChecklistWindow : Window
         for (int i = 0; i < list.Length; i++)
         {
             TicketDef def = list[i];
-            int reported = character.Tickets[def.Id].Count;
-            int bonus = character.Tickets[def.Id].Bonus;
-            int count = Aion2Tickets.Expected(def, reported, seenAt, now);
+            bool locked = Aion2Tickets.IsLocked(character, def.Id); // the level is too low: grey, 0 / cap
+            TicketValue own = locked || !character.Tickets.TryGetValue(def.Id, out TicketValue found) ? default : found;
+            int reported = own.Count;
+            int bonus = own.Bonus;
+            int count = locked ? 0 : Aion2Tickets.Expected(def, reported, seenAt, now);
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             TextBlock name = Label(def.ShortIn(language), count > 0 ? "Brush.Text" : "Brush.TextSubtle", 13);
             name.Margin = new Thickness(0, 1, 0, 1);
@@ -241,9 +252,9 @@ public sealed class ChecklistWindow : Window
         _body.Children.Add(Card(stack));
     }
 
-    /// <summary>The mandatory daily tasks ("Missions") of the home region (Verteron for Elyos, Altgard for Asmodians) as one counter, handed in of five: from the
-    /// game's quest list. Five of five gets a tick.</summary>
-    private void AddDaily(string title, TicketCharacter character)
+    /// <summary>The daily part: the mandatory tasks ("Missions") of the home region (Verteron for Elyos, Altgard for Asmodians) as one counter, handed in of five
+    /// (five of five gets a tick), and the entries of the daily dungeon. The dungeon's cap is 14; extra entries come on top as the bonus behind the count.</summary>
+    private void AddDaily(string title, TicketCharacter character, DateTime seenAt, DateTime now, string language)
     {
         LocalizationManager loc = LocalizationManager.Instance;
         int done = character.Tickets.TryGetValue(Aion2Tickets.MissionsId, out TicketValue missions) ? missions.Count : 0;
@@ -252,7 +263,8 @@ public sealed class ChecklistWindow : Window
         stack.Children.Add(Label(title, "Brush.Text", 14, bold: true));
         ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
         Grid grid = NumberGrid(1);
-        AddTableRow(grid, 0, string.Format(CultureInfo.CurrentCulture, loc["Checklist.DailyTasks"], region), done, Aion2Tickets.MissionsPerDay, false, countsUp: true);
+        int row = 0;
+        AddTableRow(grid, row++, string.Format(CultureInfo.CurrentCulture, loc["Checklist.DailyTasks"], region), done, Aion2Tickets.MissionsPerDay, false, countsUp: true);
         if (done >= Aion2Tickets.MissionsPerDay)
         {
             TextBlock tick = Label("\u2713", "Brush.Accent", 15, bold: true);
@@ -261,11 +273,19 @@ public sealed class ChecklistWindow : Window
             grid.Children.Add(tick);
         }
 
+        bool dungeonLocked = Aion2Tickets.IsLocked(character, DailyDungeonTicket);
+        if (Aion2Tickets.Find(DailyDungeonTicket) is { } dungeon && (dungeonLocked || character.Tickets.ContainsKey(dungeon.Id)))
+        {
+            TicketValue value = dungeonLocked ? default : character.Tickets[dungeon.Id];
+            int count = dungeonLocked ? 0 : Aion2Tickets.Expected(dungeon, value.Count, seenAt, now);
+            AddTableRow(grid, row++, dungeon.ShortIn(language), count, Math.Max(dungeon.Max, count), count != value.Count, countsUp: false, bonus: value.Bonus);
+        }
+
         stack.Children.Add(grid);
         _body.Children.Add(Card(stack));
     }
 
-    /// <summary>The weekly part: the daily dungeon's entries (from the game) and the scroll purchases at the NPC (counted by hand; the shop limit is per server, so
+    /// <summary>The weekly part: the scroll purchases at the NPC (counted by hand; the shop limit is per server, so
     /// the counters are shared by all characters).</summary>
     private void AddWeekly(string title, TicketCharacter character, DateTime seenAt, DateTime now, string language)
     {
@@ -276,12 +296,6 @@ public sealed class ChecklistWindow : Window
         ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
         Grid grid = NumberGrid(0);
         int row = 0;
-        if (Aion2Tickets.Find(DailyDungeonTicket) is { } dungeon && character.Tickets.TryGetValue(dungeon.Id, out TicketValue value))
-        {
-            int count = Aion2Tickets.Expected(dungeon, value.Count, seenAt, now);
-            AddTableRow(grid, row++, dungeon.ShortIn(language), count, Math.Max(CapOf(dungeon), count + value.Bonus), count != value.Count, countsUp: false, bonus: value.Bonus);
-        }
-
         AddTableRow(grid, row++, ScrollName("verteron", language, loc["Checklist.ScrollVerteron"]), shared.Verteron, ChecklistManual.VerteronMax, false, countsUp: true);
         AddTableRow(grid, row++, ScrollName("abyss", language, loc["Checklist.ScrollAbyss"]), shared.Abyss, ChecklistManual.AbyssMax, false, countsUp: true);
         stack.Children.Add(grid);
@@ -319,7 +333,7 @@ public sealed class ChecklistWindow : Window
         for (int i = 0; i < list.Length; i++)
         {
             TicketDef def = list[i];
-            TimeSpan left = TimeSpan.FromMilliseconds(character.Tickets[def.Id].TimeMs);
+            TimeSpan left = Aion2Tickets.IsLocked(character, def.Id) || !character.Tickets.TryGetValue(def.Id, out TicketValue timeValue) ? TimeSpan.Zero : TimeSpan.FromMilliseconds(timeValue.TimeMs);
             bool open = left > TimeSpan.Zero;
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             TextBlock name = Label(def.NameIn(language), open ? "Brush.Text" : "Brush.TextSubtle", 13);

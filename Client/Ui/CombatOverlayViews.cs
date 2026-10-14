@@ -9,7 +9,7 @@ namespace AionDPS.Ui;
 
 /// <summary>One cast the bar shows.</summary>
 public sealed record CastRowData(
-    string Name, string Detail, string TargetText, bool AtYou, bool Area, bool Lethal, double ElapsedMs, int CastMs, int? LandMs, string? IconPath);
+    string Name, string Detail, string TargetText, bool AtYou, bool Area, bool Lethal, double ElapsedMs, int CastMs, int? LandMs, string? IconPath, bool Generic = false);
 
 /// <summary>The target of the target: who the clicked target is aiming at, with its hit points and effects (null/empty when the stream said nothing).</summary>
 public sealed record TargetOfTargetData(string Name, string From, string? ImagePath, bool IsBoss, long? Hp = null, long? MaxHp = null, IReadOnlyList<EffectData>? Effects = null);
@@ -202,9 +202,11 @@ public sealed class BossCastView : Border
 
         public void Update(CastRowData row)
         {
-            _name.Text = row.Name;
+            // a skill with a name of its own leads (bold) with the caster below; a plain "Attack" gives the lead to the caster and sits below, small and not bold
+            _name.Text = row.Generic ? row.Detail : row.Name;
+            _name.FontWeight = FontWeights.Bold;
             _target.Text = "→ " + row.TargetText;
-            _detail.Text = row.Detail;
+            _detail.Text = row.Generic ? row.Name : row.Detail;
             _icon.Source = OverlayPictures.Load(row.IconPath);
             _iconHost.Content = _icon.Source is null ? OverlayPictures.Emblem("!", 28) : _icon;
 
