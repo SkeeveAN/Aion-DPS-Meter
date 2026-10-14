@@ -1,5 +1,18 @@
 [
  {
+  "version": "0.47.3",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "The session manager's boss list starts with Total and then lists every boss; the picked entry decides what the player list and the combat analyzer show (damage, healing and damage taken limited to that boss's fight), the replay button moved from the session manager into the combat analyzer and replays the picked boss, and the analyzer's header reads boss first, then player",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.47.2",
   "date": "2026-10-14",
   "items": [

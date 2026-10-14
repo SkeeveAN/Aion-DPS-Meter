@@ -106,5 +106,7 @@
  "3510749": null,
  "5280d0c": null,
  "2c123f5": null,
- "6d6b79b": null
+ "6d6b79b": null,
+ "4c585c9": null,
+ "f0c6ee6": "The session manager's boss list starts with Total and then lists every boss; the picked entry decides what the player list and the combat analyzer show (damage, healing and damage taken limited to that boss's fight), the replay button moved from the session manager into the combat analyzer and replays the picked boss, and the analyzer's header reads boss first, then player"
 }
