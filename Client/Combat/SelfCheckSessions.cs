@@ -203,14 +203,32 @@ public static class SelfCheckSessions
             new[] { Hit(1200) }, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(),
             new[] { new ZoneChange(t0.AddSeconds(1190), Verteron) }));
 
+        // Back in Verteron after the cave: the earlier Verteron stay is picked up again (the list keeps the current one last).
         var sessions = recorder.Sessions;
-        bool three = sessions.Count == 3;
-        bool kinds = three && sessions[0].Kind == SessionKind.Map && sessions[1].Kind == SessionKind.Instance && sessions[2].Kind == SessionKind.Map;
-        bool split = three && sessions[0].Data.Events.Count == 4 && sessions[1].Data.Events.Count == 2 && sessions[2].Data.Events.Count == 1;
-        bool ends = three && sessions[0].End == t0.AddSeconds(600) && sessions[1].End == t0.AddSeconds(1190) && sessions[2].IsOpen;
-        Console.WriteLine($"  -> map, instance, map: {three && kinds}");
-        Console.WriteLine($"  -> events before a zone change stay with the old stay (4 / 2 / 1): {split}");
-        Console.WriteLine($"  -> a leaving stay gets its end time, the current one stays open: {ends}");
+        bool two = sessions.Count == 2;
+        bool kinds = two && sessions[0].Kind == SessionKind.Instance && sessions[1].Kind == SessionKind.Map && sessions[1].ZoneId == Verteron;
+        bool split = two && sessions[0].Data.Events.Count == 2 && sessions[1].Data.Events.Count == 5;
+        bool ends = two && sessions[0].End == t0.AddSeconds(1190) && sessions[1].IsOpen && sessions[1].Start == t0 && sessions[1].Away == TimeSpan.FromSeconds(590);
+        Console.WriteLine($"  -> map, instance, back to the map picks the map stay up again: {two && kinds}");
+        Console.WriteLine($"  -> events before a zone change stay with the old stay, the way back adds to the first (2 / 5): {split}");
+        Console.WriteLine($"  -> the instance gets its end time, the map stay is open again and counts the time away: {ends}");
+
+        // The first visit of an instance after another one is a stay of its own; two instance runs with a map between are two stays.
+        var runs = new SessionRecorder(zone => Aion2Zones.IsInstance(zone) ? SessionKind.Instance : SessionKind.Map);
+        runs.Feed(new CombatBatch(new[] { Hit(0) }, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), new[] { new ZoneChange(t0, Verteron) }));
+        runs.Feed(new CombatBatch(new[] { Hit(700) }, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), new[] { new ZoneChange(t0.AddSeconds(600), Krao) }));
+        runs.Feed(new CombatBatch(new[] { Hit(1300) }, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), new[] { new ZoneChange(t0.AddSeconds(1200), Verteron) }));
+        runs.Feed(new CombatBatch(new[] { Hit(1900) }, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), new[] { new ZoneChange(t0.AddSeconds(1800), Krao) }));
+        bool twoRuns = runs.Sessions.Count == 3 && runs.Sessions[0].Kind == SessionKind.Instance && runs.Sessions[1].ZoneId == Verteron && runs.Sessions[2].Kind == SessionKind.Instance && runs.Sessions[2].IsOpen;
+        Console.WriteLine($"  -> a second run is a stay of its own, the map stay stays one: {twoRuns}");
+
+        // A map in between (not an instance) keeps the stays apart.
+        var detour = new SessionRecorder(zone => Aion2Zones.IsInstance(zone) ? SessionKind.Instance : SessionKind.Map);
+        detour.Feed(new CombatBatch(new[] { Hit(0) }, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), new[] { new ZoneChange(t0, Verteron) }));
+        detour.Feed(new CombatBatch(new[] { Hit(700) }, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), new[] { new ZoneChange(t0.AddSeconds(600), 20) }));
+        detour.Feed(new CombatBatch(new[] { Hit(1300) }, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), new[] { new ZoneChange(t0.AddSeconds(1200), Verteron) }));
+        bool apart = detour.Sessions.Count == 3;
+        Console.WriteLine($"  -> another map in between is no instance run: the stays stay apart: {apart}");
 
         // A pass through a hall: no hit and under two minutes - no entry. The same stay with a hit is kept.
         var hall = new SessionRecorder(_ => SessionKind.Map);
@@ -225,6 +243,15 @@ public static class SelfCheckSessions
         again.Enter(new ZoneChange(t0.AddSeconds(5), Verteron));
         bool oneStay = again.Sessions.Count == 1;
         Console.WriteLine($"  -> the same zone again does not start a new stay: {oneStay}");
+
+        // An instance entered straight from the run before (the decoder marks it a restart) is a stay of its own; Krao is an instance, Verteron is not.
+        var rerun = new SessionRecorder(zone => Aion2Zones.IsInstance(zone) ? SessionKind.Instance : SessionKind.Map);
+        rerun.Enter(new ZoneChange(t0, 600022));
+        rerun.Feed(CombatBatch.DamageOnly(new[] { Hit(60) }));
+        rerun.Enter(new ZoneChange(t0.AddMinutes(20), 600022, Restart: true));
+        rerun.Feed(CombatBatch.DamageOnly(new[] { Hit(1300) }));
+        bool restarted = rerun.Sessions.Count == 2 && rerun.Sessions[0].End == t0.AddMinutes(20) && rerun.Sessions[0].Data.Events.Count == 1 && rerun.Sessions[1].IsOpen && rerun.Sessions[1].Data.Events.Count == 1;
+        Console.WriteLine($"  -> the same instance again straight from the run before is a new stay: {restarted}");
 
         // Hits before any zone frame (the meter started mid-map) go to an unknown-map stay.
         var late = new SessionRecorder(_ => SessionKind.Map);
@@ -262,6 +289,6 @@ public static class SelfCheckSessions
         bool instance = Aion2Zones.IsInstance(Krao) && !Aion2Zones.IsInstance(Verteron);
         Console.WriteLine($"  -> 600001 is an instance, 1010 is not: {instance}");
 
-        return three && kinds && split && ends && hallGone && oneStay && unknown && merged && renamed && capped && roundTrip && plausibility && rageSignal && instance;
+        return restarted && two && kinds && twoRuns && apart && split && ends && hallGone && oneStay && unknown && merged && renamed && capped && roundTrip && plausibility && rageSignal && instance;
     }
 }

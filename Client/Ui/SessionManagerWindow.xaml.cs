@@ -29,6 +29,11 @@ public partial class SessionManagerWindow : Window
     /// <summary>Builds the combat analyzer for one player of a session (set by the main window): the player's details limited to the session's time.</summary>
     public Func<SessionInfo, PlayerRow, PlayerMode, UIElement?>? AnalyzerFactory { get; set; }
 
+    /// <summary>The replay of a whole session, or null when it has none.</summary>
+    public Func<SessionInfo, ReplayData?>? ReplayFactory { get; set; }
+
+    private ReplayData? _replay;
+
     /// <summary>The deaths of a session (set by the main window): from the capture, or from the file the session came from. Null: not known.</summary>
     public Func<SessionInfo, IReadOnlyList<DeathRecord>?>? DeathsFor { get; set; }
 
@@ -119,6 +124,7 @@ public partial class SessionManagerWindow : Window
     public sealed record PlayerRow(int Id, string Name, string ClassName, long Damage, string DpsDisplay, int Deaths = 0, string DeadTime = "")
     {
         /// <summary>A dash while the deaths of the session are not known.</summary>
+        public Brush ClassBrush => ClassBrushes.For(ClassName);
         public string DeathsDisplay => Deaths < 0 ? "–" : Deaths.ToString();
     }
 
@@ -179,7 +185,6 @@ public partial class SessionManagerWindow : Window
         view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Item.Start), new DayConverter()));
         SessionList.ItemsSource = view;
         Timeline.SetSessions(_recorder.Sessions.ToList(), keep is int selectedNumber ? _recorder.Sessions.FirstOrDefault(x => x.Number == selectedNumber) : null);
-        CountText.Text = string.Format(loc["Sessions.Count"], items.Count);
         if (keep is int number && items.FirstOrDefault(item => item.Session.Number == number) is { } again)
         {
             SessionList.SelectedItem = again;
@@ -248,6 +253,8 @@ public partial class SessionManagerWindow : Window
         {
             DetailTitle.Text = "";
             DetailFacts.Text = "";
+            _replay = null;
+            ReplayButton.Visibility = Visibility.Collapsed;
             PlayersGrid.ItemsSource = null;
             CloseAnalyzer();
             FindingsList.ItemsSource = null;
@@ -256,6 +263,8 @@ public partial class SessionManagerWindow : Window
         }
 
         DetailTitle.Text = SessionLabels.NameOf(session);
+        _replay = ReplayFactory?.Invoke(session);
+        ReplayButton.Visibility = _replay is { HasData: true } ? Visibility.Visible : Visibility.Collapsed;
         DetailFacts.Text = $"{(session.Kind == SessionKind.Instance ? loc["Sessions.KindInstance"] : loc["Sessions.KindMap"])} \u00B7 "
             + $"{SessionLabels.TimeSpanOf(session)} \u00B7 {FormatLength(session.Duration(DateTime.Now))}";
         List<PlayerRow> players = PlayersOf(session, _mode, DeathsFor?.Invoke(session));
@@ -503,6 +512,14 @@ public partial class SessionManagerWindow : Window
 
     private static string SafeFileName(string name) =>
         string.Concat(name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+
+    private void OnReplayClicked(object sender, RoutedEventArgs e)
+    {
+        if (_replay is not null)
+        {
+            new FightReplayWindow(_replay) { Owner = this }.Show();
+        }
+    }
 
     private void OnLoadFileClicked(object sender, RoutedEventArgs e)
     {

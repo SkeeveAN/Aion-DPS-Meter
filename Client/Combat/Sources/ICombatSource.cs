@@ -103,8 +103,9 @@ public readonly record struct CombatBatch(
     public bool IsEmpty => Damage.Count == 0 && Avoids.Count == 0 && Kills.Count == 0 && ZoneChanges.Count == 0 && EnrageMarks.Count == 0;
 }
 
-/// <summary>The local player entered another map or instance (zone id as the game sends it, see Aion2Zones for the names).</summary>
-public readonly record struct ZoneChange(DateTime Timestamp, int ZoneId);
+/// <summary>The local player entered another map or instance (zone id as the game sends it, see Aion2Zones for the names).
+/// <paramref name="Restart"/>: the same instance again, straight from the run before (the game sends no other zone in between).</summary>
+public readonly record struct ZoneChange(DateTime Timestamp, int ZoneId, bool Restart = false);
 
 /// <summary>A boss went into its rage: the server sent the stat that marks it, <see cref="EngagedAt"/> being when the boss went into combat
 /// (the rage came five minutes after that in every long fight of the recordings of 2026-10-06 to 10-11).</summary>
