@@ -1,5 +1,26 @@
 [
  {
+  "version": "0.47.0",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "The features page lists the Aion 2 checklist and the design editor",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-14"
+   },
+   {
+    "text": "The checklist is now the Aion 2 checklist: counters whose level the character has not reached are greyed out at 0 (Shugo Festival from level 13, Odyle energy from 22, daily dungeon from 30, Nightmare, Ascension rite, Dimensional Invasion and the Abyss from 45), the daily dungeon sits under Daily with its cap of 14 and extra entries behind it, the bonus shows behind the counters like in the game, and a hint asks for a login when none was read yet; the design editor (renamed from theme editor) has a real colour picker and shows the default values dimmed; the boss cast bar shows a skill with a name of its own in bold with its target in yellow behind it, and a plain Attack below the caster",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.46.4",
   "date": "2026-10-14",
   "items": [
