@@ -46,10 +46,12 @@ test("cells keep their row and column spans", () => {
   ] }] }]);
 });
 
-test("a blank line inside a table cell keeps its height, outside a table it is dropped", () => {
+test("a blank line inside a table cell keeps its height, outside a table it is one line of air between paragraphs", () => {
   const cell = htmlToTree("<table><tr><td><div>Hunt</div><div><br></div></td></tr></table>");
   assert.deepEqual(cell, [{ tag: "table", children: [{ tag: "tr", children: [{ tag: "td", children: [{ tag: "p", children: ["Hunt"] }, { tag: "p", children: [{ tag: "br", children: [] }] }] }] }] }]);
-  assert.deepEqual(htmlToTree("<div>a</div><div><br></div>"), [{ tag: "p", children: ["a"] }]);
+  assert.deepEqual(htmlToTree("<div><br></div><div>a</div><div><br></div><div><br></div><div>b</div><div><br></div>"), [
+    { tag: "p", children: ["a"] }, { tag: "p", children: [{ tag: "br", children: [] }] }, { tag: "p", children: ["b"] },
+  ]);
 });
 
 test("centered text and black header cells are kept", () => {

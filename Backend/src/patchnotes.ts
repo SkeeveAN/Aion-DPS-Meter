@@ -18,8 +18,8 @@ export type BodyNode = string | { tag: "p" | "strong" | "em" | "u" | "ul" | "ol"
 
 export type Patchnote = { id: string; lang: NcLang; contentId: number; title: string; posted: number; updated: number; body: BodyNode[]; v?: number };
 
-/** Raised when the parser learns something new (v2: tables, v3: row/column spans and blank lines in cells, v4: alignment and dark header cells); older stored notes are fetched again. */
-const PARSER_VERSION = 4;
+/** Raised when the parser learns something new (v2: tables, v3: row/column spans and blank lines in cells, v4: alignment and dark header cells, v5: air between chapters); older stored notes are fetched again. */
+const PARSER_VERSION = 5;
 
 const TAGS: Record<string, "p" | "strong" | "em" | "u" | "ul" | "ol" | "li" | "br" | "h" | "a" | "table" | "tr" | "td" | "th"> = {
   div: "p", p: "p", strong: "strong", b: "strong", em: "em", i: "em", u: "u", ul: "ul", ol: "ol", li: "li", br: "br", h1: "h", h2: "h", h3: "h", h4: "h", a: "a",
@@ -142,6 +142,9 @@ function strip(n: BodyNode): BodyNode {
 
 const plain = (nodes: BodyNode[]): string => nodes.map((n) => (typeof n === "string" ? n : n.tag === "br" ? " " : plain(n.children))).join("");
 
+/** A paragraph that only holds a line break: NC's editor uses it as the air between chapters. */
+const blankLine = (n: BodyNode): boolean => typeof n !== "string" && n.tag === "p" && plain(n.children).trim() === "" && n.children.some((c) => typeof c !== "string" && c.tag === "br");
+
 /** Zero-width characters out, whitespace collapsed, empty paragraphs dropped, a link without an address becomes plain content. */
 function prune(nodes: BodyNode[], inCell = false): BodyNode[] {
   const out: BodyNode[] = [];
@@ -156,12 +159,13 @@ function prune(nodes: BodyNode[], inCell = false): BodyNode[] {
     n.children = prune(n.children, inCell || n.tag === "td" || n.tag === "th");
     if (n.tag === "a" && !n.href) {
       out.push(...n.children);
-    } else if (n.tag === "br" || n.tag === "td" || n.tag === "th" || n.tag === "tr" || (inCell && n.tag === "p" && n.children.some((c) => typeof c !== "string" && c.tag === "br")) || plain(n.children).trim() !== "" || (n.tag !== "p" && n.tag !== "li" && n.children.some((c) => typeof c !== "string"))) {
+    } else if (n.tag === "br" || n.tag === "td" || n.tag === "th" || n.tag === "tr" || blankLine(n) || plain(n.children).trim() !== "" || (n.tag !== "p" && n.tag !== "li" && n.children.some((c) => typeof c !== "string"))) {
       out.push(n);
     }
   }
   // a text node that only follows a block carries nothing
-  return out.filter((n, i) => !(typeof n === "string" && n.trim() === "" && (i === 0 || i === out.length - 1)));
+  // outside a cell, blank lines are one line of air at most and never first or last
+  return out.filter((n, i) => !(typeof n === "string" && n.trim() === "" && (i === 0 || i === out.length - 1)) && !(!inCell && blankLine(n) && (i === 0 || i === out.length - 1 || blankLine(out[i - 1]))));
 }
 
 export function parseDetail(lang: NcLang, listItem: Record<string, any>, detail: unknown): Patchnote | null {
