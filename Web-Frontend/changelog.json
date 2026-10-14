@@ -1,5 +1,32 @@
 [
  {
+  "version": "0.46.0",
+  "date": "2026-10-14",
+  "items": [
+   {
+    "text": "Theme editor: own colours, bar colours per class, theme files",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   },
+   {
+    "text": "Pet info follows the last monster hit when aiming with the camera; ask for Npcap at start when it is missing",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   },
+   {
+    "text": "New Checklist under Tools: the Odyle energy (basic and charged energy), the entries and attempts of Shugo Festival, Dimensional Invasion, Nightmare and Ascension Trial, the daily dungeon, the five mandatory daily tasks of Verteron or Altgard (counted from the hand-ins the game reports, ticked when five of five are done), the weekly scroll counters and the time left in the lower Abyss, per character; the boss fight time next to the health percentage (amber from 4:00, red from 4:40, before the enrage); the debug output now has a protocol health log that names the feature a patch broke",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-14"
+   }
+  ]
+ },
+ {
   "version": "0.45.7",
   "date": "2026-10-14",
   "items": [
