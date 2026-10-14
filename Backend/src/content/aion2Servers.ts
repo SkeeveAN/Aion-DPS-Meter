@@ -48,19 +48,28 @@ export function canonicalServer(fingerprint: string, displayName: string | undef
   return { fingerprint: `aion2:${slug(label)}`, displayName: label };
 }
 
+const BLOCK_OF_REGION: Record<string, number> = Object.fromEntries(Object.entries(REGIONS).map(([block, r]) => [r.name, Number(block)]));
+
 /**
- * NC's id of a European server by its display name ("Europe - Kaisinel" -> 1304, "Europe - Lumiel" -> 2304) and the faction
- * of that server; null for other regions or unknown names.
+ * NC's id of a live server of any region by its display name ("Europe - Kaisinel" -> 1304, "NA East - Nezekan" -> 1102) and the faction
+ * of that server; null for unlabelled ("Name [id]") or unknown names.
  */
-export function europeServerOf(displayName: string | null | undefined): { id: number; faction: "Elyos" | "Asmodian" } | null {
-  const name = /^Europe - (.+)$/.exec((displayName ?? "").trim())?.[1];
-  if (!name) {
+export function serverOfName(displayName: string | null | undefined): { id: number; faction: "Elyos" | "Asmodian" } | null {
+  const m = /^(.+?) - (.+)$/.exec((displayName ?? "").trim());
+  const block = m ? BLOCK_OF_REGION[m[1]] : undefined;
+  if (!m || block === undefined) {
     return null;
   }
-  const elyos = ELYOS_13.indexOf(name);
-  if (elyos >= 0 && elyos < REGIONS[3].perFaction) {
-    return { id: 1301 + elyos, faction: "Elyos" };
+  const perFaction = REGIONS[block].perFaction;
+  const elyos = ELYOS_13.indexOf(m[2]);
+  if (elyos >= 0 && elyos < perFaction) {
+    return { id: 1000 + block * 100 + 1 + elyos, faction: "Elyos" };
   }
-  const asmo = ASMO_23.indexOf(name);
-  return asmo >= 0 && asmo < REGIONS[3].perFaction ? { id: 2301 + asmo, faction: "Asmodian" } : null;
+  const asmo = ASMO_23.indexOf(m[2]);
+  return asmo >= 0 && asmo < perFaction ? { id: 2000 + block * 100 + 1 + asmo, faction: "Asmodian" } : null;
+}
+
+/** The European servers only (see serverOfName). */
+export function europeServerOf(displayName: string | null | undefined): { id: number; faction: "Elyos" | "Asmodian" } | null {
+  return /^Europe - /.test((displayName ?? "").trim()) ? serverOfName(displayName) : null;
 }

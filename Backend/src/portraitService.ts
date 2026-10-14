@@ -41,7 +41,8 @@ export const RETRY_AFTER = { ok: 7 * DAY, none: 2 * DAY, error: 1 * HOUR } as co
 export const CHARACTER_RETRY_AFTER = { ok: 3 * DAY, none: 2 * DAY, error: 1 * HOUR } as const;
 export type PortraitStatus = keyof typeof RETRY_AFTER;
 
-export type PlayerKey = { playerId: number; name: string; faction: "Elyos" | "Asmodian" | null; ownServerId: number | null };
+/** `region` is NC's region key (eu, as, nae, naw, la) of the player's server; "eu" when left out. */
+export type PlayerKey = { playerId: number; name: string; faction: "Elyos" | "Asmodian" | null; ownServerId: number | null; region?: string };
 /** characterId is NC's id for the character pages (url-decoded base64url), null when the search hit had none or a strange one. */
 export type Character = { charKey: string; serverId: number; characterId: string | null };
 /** What the character pages need: found by a search before, stored in player_nc_character. */
@@ -136,10 +137,10 @@ export function pickCharacter(list: unknown, key: Pick<PlayerKey, "name" | "fact
 }
 
 /** Name search at NC; resolves to the character or null (nothing, or not unambiguous). Network/HTTP problems throw. */
-export async function searchCharacter(fetchFn: FetchFn, key: Pick<PlayerKey, "name" | "faction" | "ownServerId">): Promise<Character | null> {
+export async function searchCharacter(fetchFn: FetchFn, key: Pick<PlayerKey, "name" | "faction" | "ownServerId" | "region">): Promise<Character | null> {
   const url = new URL(SEARCH_URL);
   url.searchParams.set("keyword", key.name);
-  url.searchParams.set("region", "eu");
+  url.searchParams.set("region", key.region ?? "eu");
   url.searchParams.set("localeInfo", "en-US");
   url.searchParams.set("page", "1");
   url.searchParams.set("size", "40");
@@ -212,14 +213,14 @@ export async function fetchCharacterLook(fetchFn: FetchFn, known: KnownCharacter
 export const FULL_FETCH_AFTER = 30 * DAY;
 
 /** The character data of one character: info + equipment + one request per Daevanion board with activated nodes. Throws on network/HTTP problems; null when the answer is unusable. */
-export async function fetchCharacterData(fetchFn: FetchFn, known: KnownCharacter): Promise<NcCharacterData | null> {
-  const info = await getNcJson(fetchFn, characterPageUrl(INFO_URL, known));
-  const equipment = await getNcJson(fetchFn, characterPageUrl(EQUIPMENT_URL, known));
+export async function fetchCharacterData(fetchFn: FetchFn, known: KnownCharacter, region = "eu"): Promise<NcCharacterData | null> {
+  const info = await getNcJson(fetchFn, characterPageUrl(INFO_URL, known, region));
+  const equipment = await getNcJson(fetchFn, characterPageUrl(EQUIPMENT_URL, known, region));
   const data = mapNcCharacter(info, equipment);
   if (data) {
     // One request per board that has activated nodes: the profile page draws the boards from them like those of the player's own client.
     for (const boardId of openBoardIds(info)) {
-      const url = characterPageUrl(DAEVANION_URL, known);
+      const url = characterPageUrl(DAEVANION_URL, known, region);
       url.searchParams.set("boardId", String(boardId));
       const board = mapDaevanionBoard(boardId, await getNcJson(fetchFn, url));
       if (board) {
@@ -280,7 +281,7 @@ export async function fetchPlayer(fetchFn: FetchFn, key: PlayerKey, needs: Needs
   if (needs.character) {
     const target: KnownCharacter | null = found?.characterId ? { characterId: found.characterId, serverId: found.serverId } : known;
     try {
-      const data = target ? await fetchCharacterData(fetchFn, target) : null;
+      const data = target ? await fetchCharacterData(fetchFn, target, key.region) : null;
       character = { status: data ? "ok" : "error", data, known: target };
     } catch {
       character = { status: "error", data: null, known: target };
@@ -441,7 +442,7 @@ export async function processPlayer(key: PlayerKey, fetchFn: FetchFn = ncFetch, 
   // The cheap look first: one request (the info answer). When it finds what the last complete fetch found, nothing else is fetched.
   if (needs.character && known && characterBefore?.status === "ok" && characterBefore.probeJson && characterBefore.fullAt !== null && now - characterBefore.fullAt < FULL_FETCH_AFTER) {
     try {
-      const look = await fetchCharacterLook(fetchFn, known);
+      const look = await fetchCharacterLook(fetchFn, known, key.region);
       if (look.name && look.name !== key.name) {
         // He has been renamed: the match check looks him up by id and renames the row.
         db.update(playerNcMatch).set({ nextTryAt: 0 }).where(eq(playerNcMatch.playerId, key.playerId)).run();

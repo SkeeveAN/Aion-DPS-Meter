@@ -195,11 +195,19 @@ test("a confirmed player gets a fetch key with his real server and race, an unco
   noteClientServer(id, 1304, 1_000_000);
   assert.equal(enrichKeyOf(id), null, "his own client's word alone is not enough, NC must confirm him");
   sqlite.prepare("update player_nc_match set status = 'verified', nc_race = 2 where player_id = ?").run(id);
-  assert.deepEqual(enrichKeyOf(id), { playerId: id, name: "Bestaetigt", faction: "Asmodian", ownServerId: 1304 });
+  assert.deepEqual(enrichKeyOf(id), { playerId: id, name: "Bestaetigt", faction: "Asmodian", ownServerId: 1304, region: "eu" });
   assert.ok(enrichDue(1000).includes(id), "no portrait and no character data yet");
   sqlite.prepare("insert into player_portraits (player_id, status, fetched_at, next_try_at) values (?, 'ok', 1, ?)").run(id, Date.now() + 1e9);
   sqlite.prepare("insert into player_nc_character (player_id, status, fetched_at, next_try_at) values (?, 'ok', 1, ?)").run(id, Date.now() + 1e9);
   assert.ok(!enrichDue(1000).includes(id), "fresh data, nothing to do");
+});
+
+test("a confirmed player of another region gets a key with that region and is listed by the sweep", () => {
+  const { enrichKeyOf, enrichDue } = ncMatchModule;
+  const id = player("Nordamerika", server("aion2:na-east-nezekan", "NA East - Nezekan"));
+  sqlite.prepare("insert into player_nc_match (player_id, status, nc_server_id, nc_race, checked_at, next_try_at) values (?, 'verified', 1102, 1, 1, 1)").run(id);
+  assert.deepEqual(enrichKeyOf(id), { playerId: id, name: "Nordamerika", faction: "Elyos", ownServerId: 1102, region: "nae" });
+  assert.ok(enrichDue(1000).includes(id));
 });
 
 test("the id NC gives the matched character is kept (decoded) with the match", async () => {

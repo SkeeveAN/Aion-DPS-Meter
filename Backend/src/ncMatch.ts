@@ -560,7 +560,7 @@ export function startMatchSweep(intervalMs = 15 * 60_000, batch = 60): void {
   setInterval(sweep, intervalMs).unref();
 }
 
-/** What the portrait/character fetch needs for a player NC has confirmed: his real server and race are known, so the search cannot pick a namesake. Null for players NC did not confirm or outside Europe (the character pages are searched there). */
+/** What the portrait/character fetch needs for a player NC has confirmed: his real server and race are known, so the search cannot pick a namesake. Null for players NC did not confirm or in a region NC cannot search (Taiwan, Korea). The key names the region of his server. */
 export function enrichKeyOf(playerId: number): PlayerKey | null {
   const row = db
     .select({ name: players.name, serverName: servers.displayName, status: playerNcMatch.status, ncServerId: playerNcMatch.ncServerId, ncRace: playerNcMatch.ncRace, faction: players.faction })
@@ -569,11 +569,11 @@ export function enrichKeyOf(playerId: number): PlayerKey | null {
     .leftJoin(servers, eq(players.serverId, servers.id))
     .where(eq(players.id, playerId))
     .get();
-  if (!row || row.status !== "verified" || row.ncServerId === null || shardOf(row.serverName) !== "eu") {
+  if (!row || row.status !== "verified" || row.ncServerId === null || shardOf(row.serverName) === null) {
     return null;
   }
   const faction = row.ncRace === 1 ? "Elyos" : row.ncRace === 2 ? "Asmodian" : row.faction === "Elyos" || row.faction === "Asmodian" ? row.faction : null;
-  return { playerId, name: row.name, faction, ownServerId: row.ncServerId };
+  return { playerId, name: row.name, faction, ownServerId: row.ncServerId, region: shardOf(row.serverName) ?? "eu" };
 }
 
 /** Puts a confirmed player into the portrait queue (ahead of the background sweep: a new player is wanted at once), which fetches his portrait and character data (the Character tab). Never throws. */
@@ -599,7 +599,7 @@ export function enrichDue(limit: number, now = Date.now()): number[] {
     .leftJoin(playerPortraits, eq(playerPortraits.playerId, players.id))
     .leftJoin(playerNcCharacter, eq(playerNcCharacter.playerId, players.id))
     .where(
-      sql`${playerNcMatch.status} = 'verified' and ${servers.displayName} like 'Europe - %'
+      sql`${playerNcMatch.status} = 'verified' and (${servers.displayName} like 'Europe - %' or ${servers.displayName} like 'NA East - %' or ${servers.displayName} like 'NA West - %' or ${servers.displayName} like 'Asia - %' or ${servers.displayName} like 'LATAM - %')
         and (${playerPortraits.nextTryAt} is null or ${playerPortraits.nextTryAt} <= ${now} or ${playerNcCharacter.nextTryAt} is null or ${playerNcCharacter.nextTryAt} <= ${now})`,
     )
     .orderBy(sql`${players.lastSeenAt} desc`)

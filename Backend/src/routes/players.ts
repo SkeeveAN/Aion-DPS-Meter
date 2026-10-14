@@ -9,7 +9,8 @@ import { normalizeName } from "../matching/roster.js";
 import { gameFromQuery } from "./instances.js";
 import type { Game } from "../constants.js";
 import { buildCharacterView, buildProfileView, factionFromFights } from "../profile.js";
-import { europeServerOf } from "../content/aion2Servers.js";
+import { serverOfName } from "../content/aion2Servers.js";
+import { shardOf } from "../ncMatch.js";
 import { portraitFile, portraitUrlFor } from "../portraitService.js";
 import { itemTipOf, ncLangOf } from "../ncItems.js";
 import { readFile } from "node:fs/promises";
@@ -187,11 +188,11 @@ export async function playerRoutes(app: FastifyInstance) {
     // The faction the client sent wins; the server (the uploader's, matched worlds mix factions) is only the fallback.
     const profile = buildProfileView(playerId);
     const faction = (player.faction || profile?.faction || factionFromFights(playerId) || factionOfServerName(player.serverName) || null) as "Elyos" | "Asmodian" | null;
-    // Official portrait (all players on European servers; fetched in the background, null until it is there). The stored server is
+    // Official portrait (all players on servers of a region NC can search; fetched in the background, null until it is there). The stored server is
     // the uploader's, so it only stands for the player's own server when it has his faction.
-    const home = europeServerOf(player.serverName);
+    const home = serverOfName(player.serverName);
     const portraitUrl = home
-      ? portraitUrlFor({ playerId, name: player.name, faction: faction ?? home.faction, ownServerId: !faction || faction === home.faction ? home.id : null })
+      ? portraitUrlFor({ playerId, name: player.name, faction: faction ?? home.faction, ownServerId: !faction || faction === home.faction ? home.id : null, region: shardOf(player.serverName) ?? "eu" })
       : null;
     // Character window data from the player's own client and/or NC's official page (fetched in the background together with the
     // portrait). Also there for players without any profile; the profile carries the same fields when it exists.

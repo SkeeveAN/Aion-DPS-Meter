@@ -356,3 +356,11 @@ test("queue: the hourly budget holds the sweep back and lets the profile somebod
   assert.deepEqual(done, [2, 1], "the viewed profile first, the sweep after the budget came back");
   assert.ok(sleeps.includes(60_000), "the queue waited a minute");
 });
+
+test("serverOfName maps every region's live servers to NC ids", async () => {
+  const { serverOfName } = await import("./content/aion2Servers.js");
+  assert.deepEqual(serverOfName("NA East - Nezekan"), { id: 1102, faction: "Elyos" });
+  assert.deepEqual(serverOfName("NA West - Siel"), { id: 1201, faction: "Elyos" });
+  assert.deepEqual(serverOfName("Europe - Lumiel"), { id: 2304, faction: "Asmodian" });
+  assert.equal(serverOfName("Hithanya [1109]"), null);
+});
