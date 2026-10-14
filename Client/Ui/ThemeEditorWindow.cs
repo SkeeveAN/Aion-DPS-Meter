@@ -52,9 +52,17 @@ public sealed class ThemeEditorWindow : Window
         LocalizationManager loc = LocalizationManager.Instance;
         Title = loc["ThemeEditor.Title"];
         Width = 1200;
-        Height = 720;
+        Height = Math.Min(940, SystemParameters.WorkArea.Height - 40); // tall enough for the whole form without scrolling
         MinWidth = 900;
         MinHeight = 560;
+
+        // the text boxes of the form (theme name, the hex codes) wear the theme: dark field, light text; the plain Windows look was white on white
+        var boxStyle = new Style(typeof(TextBox));
+        boxStyle.Setters.Add(new Setter(Control.BackgroundProperty, new DynamicResourceExtension("Brush.Control")));
+        boxStyle.Setters.Add(new Setter(Control.ForegroundProperty, new DynamicResourceExtension("Brush.Text")));
+        boxStyle.Setters.Add(new Setter(Control.BorderBrushProperty, new DynamicResourceExtension("Brush.Border")));
+        boxStyle.Setters.Add(new Setter(TextBox.CaretBrushProperty, new DynamicResourceExtension("Brush.Text")));
+        Resources[typeof(TextBox)] = boxStyle;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
         var form = new StackPanel { Margin = new Thickness(0, 0, 18, 0) };
