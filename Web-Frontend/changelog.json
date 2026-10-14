@@ -17,6 +17,15 @@
      "Backend"
     ],
     "date": "2026-10-14"
+   },
+   {
+    "text": "NA East servers Hithanya and Nemon now show their region (NA East has nine servers per faction), so their players are checked against NC and get profiles like everyone else",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-14"
    }
   ]
  },
