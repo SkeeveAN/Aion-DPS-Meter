@@ -46,14 +46,14 @@
     "date": "2026-10-15"
    },
    {
-    "text": "First-start wizard: a getting-ready card with live checks for Npcap and for the recognised character",
+    "text": "First-start wizard: a \"getting ready\" card shows live whether Npcap is installed and whether the meter has recognised your character, with the steps to get going",
     "areas": [
      "Client"
     ],
     "date": "2026-10-15"
    },
    {
-    "text": "Capture: if no game traffic arrives on the known ports, look for the game's keepalive on other TCP ports",
+    "text": "If no game traffic arrives on the usual port, the meter now looks for the game on other ports (other regions, ping reducers) for two minutes",
     "areas": [
      "Client"
     ],
