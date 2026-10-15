@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DPS by class</title>
+<style>
+  :root { --bg:#10151b; --panel:#17202a; --text:#e7edf3; --muted:#8fa0b1; --line:#2a3a4a; --box:#3d7ea6; --med:#ffba42; --you:#ff6b6b; }
+  @media (prefers-color-scheme: light) { :root { --bg:#f4f6f8; --panel:#fff; --text:#15202b; --muted:#5b6b7b; --line:#c3ccd6; --box:#6aa6c8; --med:#c47f00; --you:#d93636; } }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui, sans-serif; }
+  main { max-width:900px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; } p.sub { margin:0 0 16px; color:var(--muted); }
+  .controls { display:flex; flex-wrap:wrap; gap:12px; align-items:end; margin-bottom:16px; }
+  label { display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--muted); }
+  select, input { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:7px 9px; font-size:14px; min-width:200px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  svg { width:100%; height:auto; display:block; } text { fill:var(--text); font-size:12px; } .muted { fill:var(--muted); }
+  .note { color:var(--muted); font-size:13px; margin-top:10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>DPS by class</h1>
+  <p class="sub">Per boss and class: the lowest and highest value, the middle half of all rows and the median. Preview with the data of the local database copy.</p>
+  <div class="controls">
+    <label>Boss <select id="boss"></select></label>
+    <label>Your DPS (optional) <input id="you" type="number" min="0" placeholder="e.g. 45000"></label>
+  </div>
+  <div class="card"><svg id="chart" role="img" aria-label="Box plot of DPS per class"></svg></div>
+  <p class="note" id="note"></p>
+</main>
+<script>
+const DATA = /*DATA*/null;
+const bossSel = document.getElementById("boss"), youIn = document.getElementById("you"), svg = document.getElementById("chart"), note = document.getElementById("note");
+const total = (cs) => Object.values(cs).reduce((s, v) => s + v.length, 0);
+Object.keys(DATA).sort((a, b) => total(DATA[b]) - total(DATA[a])).forEach((b) => bossSel.add(new Option(`${b} (${total(DATA[b])} rows)`, b)));
+const q = (a, p) => { const i = (a.length - 1) * p, lo = Math.floor(i), hi = Math.ceil(i); return a[lo] + (a[hi] - a[lo]) * (i - lo); };
+const fmt = (n) => Math.round(n).toLocaleString("en");
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n);
+function el(name, attrs, text) { const e = document.createElementNS("http://www.w3.org/2000/svg", name); for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v); if (text !== undefined) e.textContent = text; return e; }
+function draw() {
+  const classes = Object.entries(DATA[bossSel.value] || {}).filter(([, v]) => v.length >= 3).sort((a, b) => q(b[1], 0.5) - q(a[1], 0.5));
+  const you = Number(youIn.value) || 0, W = 860, left = 120, right = 20, rowH = 44, top = 24, H = top + classes.length * rowH + 30;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.replaceChildren();
+  if (!classes.length) { svg.appendChild(el("text", { x: 10, y: 30, class: "muted" }, "Too few rows for this boss.")); return; }
+  const max = Math.max(...classes.map(([, v]) => v[v.length - 1]), you) * 1.05;
+  const x = (v) => left + (v / max) * (W - left - right);
+  for (let i = 0; i <= 4; i++) { const v = (max / 4) * i; svg.appendChild(el("line", { x1: x(v), x2: x(v), y1: top - 6, y2: H - 24, stroke: css("--line") })); svg.appendChild(el("text", { x: x(v), y: H - 8, "text-anchor": "middle", class: "muted" }, fmt(v))); }
+  classes.forEach(([cls, v], i) => {
+    const y = top + i * rowH + rowH / 2, mid = q(v, 0.5);
+    svg.appendChild(el("text", { x: left - 10, y: y + 4, "text-anchor": "end" }, `${cls} (${v.length})`));
+    svg.appendChild(el("line", { x1: x(v[0]), x2: x(v[v.length - 1]), y1: y, y2: y, stroke: css("--muted"), "stroke-width": 1.5 }));
+    svg.appendChild(el("rect", { x: x(q(v, 0.25)), y: y - 10, width: Math.max(2, x(q(v, 0.75)) - x(q(v, 0.25))), height: 20, rx: 3, fill: css("--box"), "fill-opacity": 0.55, stroke: css("--box") }));
+    svg.appendChild(el("line", { x1: x(mid), x2: x(mid), y1: y - 12, y2: y + 12, stroke: css("--med"), "stroke-width": 3 }));
+    const t = el("title"); t.textContent = `${cls}: min ${fmt(v[0])}, Q1 ${fmt(q(v, .25))}, median ${fmt(mid)}, Q3 ${fmt(q(v, .75))}, max ${fmt(v[v.length - 1])} (${v.length} rows)`; svg.lastChild.appendChild(t);
+  });
+  if (you) { svg.appendChild(el("line", { x1: x(you), x2: x(you), y1: top - 8, y2: H - 24, stroke: css("--you"), "stroke-width": 2, "stroke-dasharray": "5 4" })); svg.appendChild(el("text", { x: x(you) + 4, y: top - 10, fill: css("--you") }, `you ${fmt(you)}`)); }
+  const spread = classes.filter(([, v]) => v.length < 8).length;
+  note.textContent = (you ? "Dashed line: your value. " : "") + "Bar: middle half of the rows, yellow mark: median, line: lowest to highest." + (spread ? ` ${spread} class(es) have fewer than 8 rows - read them with care.` : "");
+}
+bossSel.addEventListener("change", draw); youIn.addEventListener("input", draw); draw();
+</script>
+</body>
+</html>

@@ -160,6 +160,12 @@ public sealed class MeterSettings
     public double? AssistOverlayWidth { get; set; }
     public double? AssistOverlayHeight { get; set; }
 
+    /// <summary>The skills and effects (skill ids) the player unticked in the assist window: the overlay does not show them (everything shows by default).</summary>
+    public List<int> AssistOverlayHidden { get; set; } = new();
+
+    /// <summary>Assist window and overlay: list the effects with the least time left first (renewed auras, which never run out, come last). Off: in the order they first appeared.</summary>
+    public bool AssistSortByTime { get; set; }
+
     public bool NetworkOverlayLocked { get; set; } = true;
 
     public List<string> NetworkOverlayHidden { get; set; } = new();

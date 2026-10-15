@@ -113,5 +113,12 @@
  "974ec94": "A summon's first hits that arrive in the same moment as its owner is recognised (a Sorcerer's Fire Wall burn tick) are credited to the owner too, instead of leaving a \"Player #id\" row on the meter",
  "4923f7f": "Packet reading is more robust: padding and foreign (encrypted) records between the game's messages no longer cost a resynchronisation; and a monster that targets a player (a Blazing Totem) is no longer taken for that player's summon",
  "9d19ecf": "Summons whose spawn names no owner are credited to the player their healing and buff effects are aimed at",
- "e74b6cf": "Unannounced summons (a Cleric's Divine Aura) are credited to the right player even when several party members play the same class: the strength of their hits tells them apart"
+ "e74b6cf": "Unannounced summons (a Cleric's Divine Aura) are credited to the right player even when several party members play the same class: the strength of their hits tells them apart",
+ "3392b86": "First-start wizard: a \"getting ready\" card shows live whether Npcap is installed and whether the meter has recognised your character, with the steps to get going",
+ "4291650": "If no game traffic arrives on the usual port, the meter now looks for the game on other ports (other regions, ping reducers) for two minutes",
+ "deb813b": null,
+ "c67027a": null,
+ "8de4dd5": null,
+ "9941e93": null,
+ "ed02fa9": "Boss statistics tab: the box plot shows the single rows as dots and has tooltips, plus a kill time histogram and the share of each class"
 }

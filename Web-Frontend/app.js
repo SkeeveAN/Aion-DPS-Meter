@@ -2,6 +2,7 @@ import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGa
 import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, SERVER_NAMES, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
+import { buildBossStats } from "./boss-stats.js";
 
 // Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
 const V2 = (() => {
@@ -861,7 +862,8 @@ async function renderDownload() {
   let downloadSection;
   try {
     const releases = await fetchJson(`https://api.github.com/repos/${GITHUB_REPO}/releases`);
-    const latest = releases[0];
+    // a tag with a suffix ("v1.0.0-alpha.1") is a test release: never offered here
+    const latest = releases.find((r) => !r.draft && !r.tag_name.includes("-"));
     const setupAsset = latest?.assets?.find((a) => a.name.endsWith("-Setup.exe"));
 
     if (latest && setupAsset) {
@@ -2484,9 +2486,47 @@ async function renderLeaderboard(bossSlug, params) {
     : null;
   const tabs = serverTabs(data, bossPath);
   const stats = fightStatsRow(data.stats);
-  const sections = [hero, ...(modeChips ? [modeChips] : []), ...(stats ? [stats] : [])];
+
+  // Two views of one boss: the ranking (default) and the statistics (iDPS box plot per class, top 10 of each class). The two
+  // switches sit at the right of the fight numbers, boxes of the same size.
+  const statsView = params.get("view") === "stats";
+  const viewHref = (view) => {
+    const next = new URLSearchParams(params);
+    if (view) {
+      next.set("view", view);
+    } else {
+      next.delete("view");
+    }
+    return next.toString() ? `${bossPath}?${next}` : bossPath;
+  };
+  // Icons with a tooltip: a podium for the ranking, a box plot for the statistics.
+  const VIEW_ICONS = {
+    ranking: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M4 21v-7h5v7M9.5 21V6h5v15M15 21v-10h5v10"/></svg>',
+    stats: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M7 6h10v12H7zM7 12h10"/></svg>',
+  };
+  const viewButton = (label, href, active, iconKey) => {
+    const a = el("a", { href, className: `view-button${active ? " active" : ""}`, title: label, innerHTML: VIEW_ICONS[iconKey] });
+    a.setAttribute("aria-label", label);
+    if (active) {
+      a.setAttribute("aria-current", "page");
+    }
+    return a;
+  };
+  const viewButtons = el("nav", { className: "view-buttons" }, [viewButton(t("stats.tabRanking"), viewHref(null), !statsView, "ranking"), viewButton(t("stats.tabStats"), viewHref("stats"), statsView, "stats")]);
+  const statsBar = el("div", { className: "stats-bar" }, [stats ?? el("div"), viewButtons]);
+  const sections = [hero, ...(modeChips ? [modeChips] : []), statsBar];
   if (tabs) {
     sections.push(tabs);
+  }
+
+  if (statsView) {
+    const statsQuery = new URLSearchParams(query);
+    if (data.selectedMode !== null && data.selectedMode !== undefined) {
+      statsQuery.set("mode", data.selectedMode || "unknown");
+    }
+    const bossStats = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/stats?${statsQuery}`);
+    app.replaceChildren(...sections, ...buildBossStats(bossStats, { el, t, formatNumber, classLabel, classIcon, iconLabel, playerCell, rankedRow, rankedTable, gp }));
+    return;
   }
 
   // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) are never

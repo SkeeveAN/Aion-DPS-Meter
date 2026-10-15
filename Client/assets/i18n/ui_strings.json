@@ -2851,6 +2851,102 @@
     "ja": "見かけた他のプレイヤーのプロフィール（名前、クラス、レベル、装備、レギオン）もアップロードする",
     "ko": "내가 보는 다른 플레이어의 프로필도 업로드 (이름, 직업, 레벨, 장비, 레기온)"
   },
+  "Wizard.SetupHeading": {
+    "en": "Getting ready",
+    "de": "Startklar machen",
+    "fr": "Préparation",
+    "es": "Preparativos",
+    "ru": "Подготовка",
+    "zh": "准备工作",
+    "zh-TW": "準備工作",
+    "pt": "Preparação",
+    "ja": "準備",
+    "ko": "준비"
+  },
+  "Wizard.NpcapOk": {
+    "en": "Npcap is installed – the meter can see the game's traffic.",
+    "de": "Npcap ist installiert – der Meter kann den Datenverkehr des Spiels sehen.",
+    "fr": "Npcap est installé – le compteur peut voir le trafic du jeu.",
+    "es": "Npcap está instalado: el medidor puede ver el tráfico del juego.",
+    "ru": "Npcap установлен – счётчик видит трафик игры.",
+    "zh": "已安装 Npcap – 计量器可以看到游戏的网络数据。",
+    "zh-TW": "已安裝 Npcap – 計量器可以看到遊戲的網路資料。",
+    "pt": "O Npcap está instalado – o medidor consegue ver o tráfego do jogo.",
+    "ja": "Npcap はインストール済みです – メーターがゲームの通信を読み取れます。",
+    "ko": "Npcap이 설치되어 있습니다 – 미터가 게임 트래픽을 볼 수 있습니다."
+  },
+  "Wizard.NpcapMissing": {
+    "en": "Npcap is missing – without it the meter sees nothing.",
+    "de": "Npcap fehlt – ohne es sieht der Meter nichts.",
+    "fr": "Npcap est absent – sans lui, le compteur ne voit rien.",
+    "es": "Falta Npcap: sin él, el medidor no ve nada.",
+    "ru": "Npcap не найден – без него счётчик ничего не видит.",
+    "zh": "未找到 Npcap – 没有它计量器什么也看不到。",
+    "zh-TW": "找不到 Npcap – 沒有它計量器什麼也看不到。",
+    "pt": "O Npcap não foi encontrado – sem ele o medidor não vê nada.",
+    "ja": "Npcap が見つかりません – ないとメーターは何も取得できません。",
+    "ko": "Npcap이 없습니다 – 없으면 미터가 아무것도 볼 수 없습니다."
+  },
+  "Wizard.NpcapDownload": {
+    "en": "Download Npcap",
+    "de": "Npcap herunterladen",
+    "fr": "Télécharger Npcap",
+    "es": "Descargar Npcap",
+    "ru": "Скачать Npcap",
+    "zh": "下载 Npcap",
+    "zh-TW": "下載 Npcap",
+    "pt": "Baixar o Npcap",
+    "ja": "Npcap をダウンロード",
+    "ko": "Npcap 다운로드"
+  },
+  "Wizard.TeleportStep": {
+    "en": "Start the game, then change the map or teleport once so the meter learns your character.",
+    "de": "Starte das Spiel und wechsle einmal die Karte oder teleportiere dich, damit der Meter deinen Charakter erkennt.",
+    "fr": "Lancez le jeu, puis changez de carte ou téléportez-vous une fois pour que le compteur reconnaisse votre personnage.",
+    "es": "Inicia el juego y cambia de mapa o teletranspórtate una vez para que el medidor reconozca a tu personaje.",
+    "ru": "Запустите игру и один раз смените карту или телепортируйтесь, чтобы счётчик узнал вашего персонажа.",
+    "zh": "启动游戏，然后切换一次地图或传送一次，计量器就会识别你的角色。",
+    "zh-TW": "啟動遊戲，然後切換一次地圖或傳送一次，計量器就會辨識你的角色。",
+    "pt": "Inicie o jogo e troque de mapa ou teletransporte-se uma vez para o medidor reconhecer o seu personagem.",
+    "ja": "ゲームを起動し、マップを移動するかテレポートを1回行うと、メーターがキャラクターを認識します。",
+    "ko": "게임을 실행한 뒤 맵을 이동하거나 한 번 텔레포트하면 미터가 캐릭터를 인식합니다."
+  },
+  "Wizard.CharWaiting": {
+    "en": "Waiting for your character …",
+    "de": "Warte auf deinen Charakter …",
+    "fr": "En attente de votre personnage …",
+    "es": "Esperando a tu personaje …",
+    "ru": "Ожидание вашего персонажа …",
+    "zh": "正在等待你的角色 …",
+    "zh-TW": "正在等待你的角色 …",
+    "pt": "À espera do seu personagem …",
+    "ja": "キャラクターを待っています …",
+    "ko": "캐릭터를 기다리는 중 …"
+  },
+  "Wizard.CharFound": {
+    "en": "✓ Character recognised: {0}",
+    "de": "✓ Charakter erkannt: {0}",
+    "fr": "✓ Personnage reconnu : {0}",
+    "es": "✓ Personaje reconocido: {0}",
+    "ru": "✓ Персонаж распознан: {0}",
+    "zh": "✓ 已识别角色：{0}",
+    "zh-TW": "✓ 已辨識角色：{0}",
+    "pt": "✓ Personagem reconhecido: {0}",
+    "ja": "✓ キャラクターを認識しました：{0}",
+    "ko": "✓ 캐릭터 인식됨: {0}"
+  },
+  "Wizard.FightStep": {
+    "en": "Then hit a monster or a training dummy – the damage shows up in the meter.",
+    "de": "Greife dann ein Monster oder eine Übungspuppe an – der Schaden erscheint im Meter.",
+    "fr": "Attaquez ensuite un monstre ou un mannequin d'entraînement : les dégâts apparaissent dans le compteur.",
+    "es": "Después ataca a un monstruo o a un muñeco de entrenamiento: el daño aparece en el medidor.",
+    "ru": "Затем ударьте монстра или тренировочный манекен – урон появится в счётчике.",
+    "zh": "然后攻击怪物或训练木桩，伤害会显示在计量器中。",
+    "zh-TW": "然後攻擊怪物或訓練木樁，傷害會顯示在計量器中。",
+    "pt": "Depois ataque um monstro ou um boneco de treino – o dano aparece no medidor.",
+    "ja": "そのあとモンスターか訓練用の的を攻撃すると、ダメージがメーターに表示されます。",
+    "ko": "그다음 몬스터나 훈련용 허수아비를 공격하면 피해량이 미터에 표시됩니다."
+  },
   "Wizard.Finish": {
     "en": "Finish",
     "de": "Fertig",
@@ -7884,5 +7980,53 @@
     "pt": "Lista de pets e coletáveis",
     "ja": "ペットと採集物のリスト",
     "ko": "펫 및 채집물 목록"
+  },
+  "Assist.SortByTime": {
+    "en": "Sort effects by time left (renewed auras last)",
+    "de": "Effekte nach Restzeit sortieren (erneuerte Auren zuletzt)",
+    "fr": "Trier les effets par temps restant (auras renouvelées en dernier)",
+    "es": "Ordenar los efectos por tiempo restante (auras renovadas al final)",
+    "ru": "Сортировать эффекты по оставшемуся времени (обновляемые ауры в конце)",
+    "zh": "按剩余时间排序效果（持续刷新的光环排在最后）",
+    "zh-TW": "依剩餘時間排序效果（持續更新的光環排在最後）",
+    "pt": "Ordenar os efeitos pelo tempo restante (auras renovadas por último)",
+    "ja": "効果を残り時間順に並べる（更新され続けるオーラは最後）",
+    "ko": "효과를 남은 시간 순으로 정렬 (계속 갱신되는 오라는 마지막)"
+  },
+  "Assist.ShowInOverlay": {
+    "en": "Show in the overlay",
+    "de": "Im Overlay anzeigen",
+    "fr": "Afficher dans l'overlay",
+    "es": "Mostrar en el overlay",
+    "ru": "Показывать в оверлее",
+    "zh": "在悬浮窗中显示",
+    "zh-TW": "在懸浮視窗中顯示",
+    "pt": "Mostrar no overlay",
+    "ja": "オーバーレイに表示",
+    "ko": "오버레이에 표시"
+  },
+  "Assist.PickHint": {
+    "en": "Untick what the overlay should not show.",
+    "de": "Entferne den Haken bei dem, was das Overlay nicht zeigen soll.",
+    "fr": "Décochez ce que l'overlay ne doit pas afficher.",
+    "es": "Desmarca lo que el overlay no debe mostrar.",
+    "ru": "Снимите галочку с того, что оверлей не должен показывать.",
+    "zh": "取消勾选不想在悬浮窗中显示的内容。",
+    "zh-TW": "取消勾選不想在懸浮視窗中顯示的內容。",
+    "pt": "Desmarque o que o overlay não deve mostrar.",
+    "ja": "オーバーレイに表示したくないもののチェックを外してください。",
+    "ko": "오버레이에 표시하지 않을 항목은 체크를 해제하세요."
+  },
+  "Assist.ShowAll": {
+    "en": "Show all",
+    "de": "Alle zeigen",
+    "fr": "Tout afficher",
+    "es": "Mostrar todo",
+    "ru": "Показать все",
+    "zh": "全部显示",
+    "zh-TW": "全部顯示",
+    "pt": "Mostrar tudo",
+    "ja": "すべて表示",
+    "ko": "모두 표시"
   }
 }

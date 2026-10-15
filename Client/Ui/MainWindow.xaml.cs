@@ -389,13 +389,17 @@ public partial class MainWindow : Window
             {
                 if (wizard)
                 {
-                    new WizardWindow(settings) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
+                    new WizardWindow(settings, RecognisedCharacterName) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
                 }
 
                 AskForNpcapIfMissing();
             };
         }
     }
+
+    /// <summary>The name of the local character once the capture has recognised it (the first-start wizard shows it live), else null.</summary>
+    private string? RecognisedCharacterName() =>
+        _liveSource?.Entities is Aion2.Aion2EntityDirectory directory && directory.LocalPlayerId >= 0 ? directory.NameFor(directory.LocalPlayerId) : null;
 
     /// <summary>Without the Npcap driver the meter sees no game traffic at all (no damage, no pet info): says so at the start and offers the download page.</summary>
     private void AskForNpcapIfMissing()
