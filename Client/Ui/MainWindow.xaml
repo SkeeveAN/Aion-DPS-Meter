@@ -513,9 +513,16 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- A separator in a menu: one thin line over the whole width of the menu (the default one is indented for an icon column and ends short). -->
+        <ControlTemplate x:Key="MenuSeparatorLine" TargetType="Separator">
+            <Border Height="1" Margin="6,4" HorizontalAlignment="Stretch" Background="{DynamicResource Brush.Border}"/>
+        </ControlTemplate>
         <Style TargetType="Separator">
             <Setter Property="Background" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Template" Value="{StaticResource MenuSeparatorLine}"/>
         </Style>
+        <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator" BasedOn="{StaticResource {x:Type Separator}}"/>
         <!-- Found by the user: a ToolTip popup (e.g. the Char-quick-switch's, back when it still
              existed) rendered as a bright white box - same popup-chrome issue as everything above, ToolTip's default template
              ignores Background/Foreground the same way. Simple setters ARE enough here (ToolTip's
@@ -778,20 +785,20 @@
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                         <!-- The five display modes as buttons (they were the "Mode" menu): damage, heal, damage taken, All in One,
                              All in One +. The icon pictures and the active look are set in ApplyModeButtons (assets/modes). -->
-                        <Button x:Name="ModeDamageButton" Style="{StaticResource NavButton}" Tag="Damage" ToolTip="{local:Loc Main.ModeDamage}" Click="OnModeButtonClicked">
-                            <Image x:Name="ModeDamageImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <Button x:Name="ModeDamageButton" Style="{StaticResource NavButton}" Padding="2" Tag="Damage" ToolTip="{local:Loc Main.ModeDamage}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeDamageImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Button>
-                        <Button x:Name="ModeHealButton" Style="{StaticResource NavButton}" Tag="Heal" ToolTip="{local:Loc Main.ModeHeal}" Click="OnModeButtonClicked">
-                            <Image x:Name="ModeHealImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <Button x:Name="ModeHealButton" Style="{StaticResource NavButton}" Padding="2" Tag="Heal" ToolTip="{local:Loc Main.ModeHeal}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeHealImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Button>
-                        <Button x:Name="ModeTakenButton" Style="{StaticResource NavButton}" Tag="Taken" ToolTip="{local:Loc Main.ModeTaken}" Click="OnModeButtonClicked">
-                            <Image x:Name="ModeTakenImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <Button x:Name="ModeTakenButton" Style="{StaticResource NavButton}" Padding="2" Tag="Taken" ToolTip="{local:Loc Main.ModeTaken}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeTakenImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Button>
-                        <Button x:Name="ModeAllButton" Style="{StaticResource NavButton}" Tag="All" ToolTip="{local:Loc Main.ModeAll}" Click="OnModeButtonClicked">
-                            <Image x:Name="ModeAllImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <Button x:Name="ModeAllButton" Style="{StaticResource NavButton}" Padding="2" Tag="All" ToolTip="{local:Loc Main.ModeAll}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeAllImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Button>
-                        <Button x:Name="ModeAllPlusButton" Style="{StaticResource NavButton}" Tag="AllCompact" ToolTip="{local:Loc Main.ModeAllCompact}" Click="OnModeButtonClicked">
-                            <Image x:Name="ModeAllPlusImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <Button x:Name="ModeAllPlusButton" Style="{StaticResource NavButton}" Padding="2" Tag="AllCompact" ToolTip="{local:Loc Main.ModeAllCompact}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeAllPlusImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Button>
                         <!-- Rebuilt per the user (the old single lopsided arc from (1,15) to
                              (15,12.5) via one control point at (8,8) read as pinched/asymmetric,
