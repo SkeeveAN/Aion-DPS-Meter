@@ -223,7 +223,7 @@ public sealed class NetworkOverlayController : IDisposable
         _views.Add(view);
         var settings = MeterSettings.Load();
         var snapshot = NetworkStats.Snapshot();
-        view.Render(NetworkOverlayRows.Of(snapshot.Connected ? snapshot : NetworkOverlayRows.Sample(), settings.NetworkOverlayHidden));
+        view.Render(NetworkOverlayRows.Of(!snapshot.Connected && !settings.NetworkOverlayLocked ? NetworkOverlayRows.Sample() : snapshot, settings.NetworkOverlayHidden));
         return view;
     }
 
@@ -255,7 +255,7 @@ public sealed class NetworkOverlayController : IDisposable
         if (_views.Count > 0)
         {
             NetworkProbe.Start();
-            var viewRows = NetworkOverlayRows.Of(snapshot.Connected ? snapshot : NetworkOverlayRows.Sample(), settings.NetworkOverlayHidden);
+            var viewRows = NetworkOverlayRows.Of(!snapshot.Connected && !settings.NetworkOverlayLocked ? NetworkOverlayRows.Sample() : snapshot, settings.NetworkOverlayHidden);
             foreach (var view in _views)
             {
                 view.Render(viewRows);

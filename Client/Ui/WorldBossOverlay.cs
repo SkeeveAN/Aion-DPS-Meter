@@ -139,7 +139,7 @@ public sealed class WorldBossController : IDisposable
     {
         var view = new WorldBossOverlayWindow();
         _views.Add(view);
-        view.Render(Rows(MeterSettings.Load(), DateTime.Now, forceSample: true));
+        view.Render(Rows(MeterSettings.Load(), DateTime.Now));
         return view;
     }
 
@@ -149,8 +149,8 @@ public sealed class WorldBossController : IDisposable
         view.Close();
     }
 
-    /// <summary>The rows of the overlay: the bosses that are there first, then the next to come. With none chosen, a few bosses of the game as a sample (when asked, or while positioning).</summary>
-    private static List<(string Name, string Text, bool Now)> Rows(MeterSettings settings, DateTime now, bool forceSample = false)
+    /// <summary>The rows of the overlay: the bosses that are there first, then the next to come. With none chosen, a few bosses of the game as a sample - only while the overlay is positioned.</summary>
+    private static List<(string Name, string Text, bool Now)> Rows(MeterSettings settings, DateTime now)
     {
         string language = LocalizationManager.Instance.Language;
         var watched = new List<(FieldBossMap Map, FieldBoss Boss, BossStatus Status)>();
@@ -165,7 +165,7 @@ public sealed class WorldBossController : IDisposable
             }
         }
 
-        if (watched.Count == 0 && (forceSample || !settings.BossOverlayLocked))
+        if (watched.Count == 0 && !settings.BossOverlayLocked)
         {
             // none chosen yet: the first bosses of the game, with the times the meter knows
             foreach (var map in Aion2FieldBosses.Maps)
@@ -254,7 +254,7 @@ public sealed class WorldBossController : IDisposable
 
         if (_views.Count > 0)
         {
-            var viewRows = Rows(settings, now, forceSample: true);
+            var viewRows = Rows(settings, now);
             foreach (var view in _views)
             {
                 view.Render(viewRows);

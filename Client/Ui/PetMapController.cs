@@ -54,7 +54,6 @@ public sealed class PetMapController : IDisposable
         var list = new PetListWindow();
         _mapViews.Add(map);
         _listViews.Add(list);
-        list.Render(SampleRows());
         return (map, list);
     }
 
@@ -582,7 +581,10 @@ public sealed class PetMapController : IDisposable
         {
             if (_listViews.Count > 0)
             {
-                RenderList(SampleRows()); // a tool window's list shows the sample while nothing is chosen
+                foreach (var view in _listViews)
+                {
+                    view.Render(Array.Empty<(Color, string, string, string, bool)>()); // nothing chosen, not positioned: nothing to list
+                }
             }
 
             Hide();

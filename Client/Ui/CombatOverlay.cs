@@ -224,8 +224,10 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private readonly Dictionary<string, CombatElementHost> _hosts = new();
     private bool _editing;
 
-    /// <summary>Show sample values where nothing is going on, without the handles of the edit mode (a tool window's live view).</summary>
+    /// <summary>Show sample values where nothing is going on, without the handles of the edit mode (a tool window's live view while its overlay is positioned).</summary>
     public bool SampleWhenIdle { get; set; }
+
+    public Part PartKind => _part;
 
     public CombatOverlayWindow(Part part) : base(part switch { Part.Cast => "Aion DPS Boss Cast", Part.Hp => "Aion DPS Target Health", _ => "Aion DPS Combat" }, NewStage(), () => Load(part), (l, t, sc) => Save(part, l, t, sc),
         SystemParameters.WorkArea.Left + 40, part switch { Part.Cast => 200, Part.Hp => 540, _ => 360 }, () => LoadSize(part), (w, h) => SaveSize(part, w, h), part == Part.Target ? OverlayEdgeMode.Uniform : OverlayEdgeMode.Crop)
@@ -576,7 +578,7 @@ public sealed class CombatOverlayController : IDisposable
         var made = new List<(string, CombatOverlayWindow)>();
         foreach (var (key, part) in new[] { ("Settings.Combat.CardBossHp", CombatOverlayWindow.Part.Hp), ("Settings.Combat.CardBossCast", CombatOverlayWindow.Part.Cast), ("Combat.Element.TargetOfTarget", CombatOverlayWindow.Part.Target) })
         {
-            var view = new CombatOverlayWindow(part) { SampleWhenIdle = true };
+            var view = new CombatOverlayWindow(part);
             _views.Add(view);
             made.Add((key, view));
         }
@@ -671,6 +673,13 @@ public sealed class CombatOverlayController : IDisposable
             CombatFrame viewFrame = BuildFrame(dir, settings);
             foreach (var view in _views)
             {
+                // sample values only while that overlay is being positioned
+                view.SampleWhenIdle = !(view.PartKind switch
+                {
+                    CombatOverlayWindow.Part.Cast => settings.CombatCastOverlayLocked ?? settings.CombatOverlayLocked,
+                    CombatOverlayWindow.Part.Hp => settings.CombatHpOverlayLocked ?? settings.CombatOverlayLocked,
+                    _ => settings.CombatOverlayLocked,
+                });
                 view.Render(viewFrame, settings);
             }
         }
