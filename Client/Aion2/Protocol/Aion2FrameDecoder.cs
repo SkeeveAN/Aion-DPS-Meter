@@ -886,6 +886,7 @@ public sealed class Aion2FrameDecoder
         }
 
         _spawnedAt[unchecked((int)entityId)] = timestamp;
+        _effectTargets.Remove(unchecked((int)entityId)); // the id is reused: earlier votes belong to something else
 
         // Two type bytes, then a flag: 1 = the entity carries a name (a summon's owner, e.g. a
         // Cleric's Divine Aura announced as "Psefon"), length-prefixed, before the NPC id.
@@ -1120,6 +1121,43 @@ public sealed class Aion2FrameDecoder
         }
     }
 
+    // Player summon -> how often each player was the target of its effects, for summons whose spawn names no owner.
+    private readonly Dictionary<int, Dictionary<int, int>> _effectTargets = new();
+
+    /// <summary>
+    /// A player summon fires its friendly effects (heals, buffs) at its owner: of the recordings of 2026-10-13/14, the most-targeted
+    /// player was the owner in 173 of 174 summons whose spawn names it (and filled in 90 more with no owner at all). Only NPCs of the
+    /// player-summon list vote: counting every spawned entity made 445 monsters the "summon" of the player they hit. Two or more
+    /// effects, a clear leader, and a target that is no monster and no spawned entity.
+    /// </summary>
+    private void NoteFriendlyEffect(int actor, int target)
+    {
+        if (actor == target || !_entities.IsSpawned(actor) || _entities.IsSpawned(target) || _entities.IsKnownMonster(target)
+            || _entities.SummonOwnerOf(actor) is not null || _entities.NpcIdOf(actor) is not int npc || !Aion2Npcs.IsPlayerSummon(npc))
+        {
+            return;
+        }
+
+        if (!_effectTargets.TryGetValue(actor, out var votes))
+        {
+            if (_effectTargets.Count >= 512)
+            {
+                return;
+            }
+
+            _effectTargets[actor] = votes = new Dictionary<int, int>();
+        }
+
+        votes[target] = votes.GetValueOrDefault(target) + 1;
+        var ranked = votes.OrderByDescending(v => v.Value).Take(2).ToList();
+        if (ranked[0].Value >= 2 && (ranked.Count == 1 || ranked[0].Value > ranked[1].Value))
+        {
+            _entities.SetSummonOwner(actor, ranked[0].Key);
+            _pendingSpawned.Remove(actor);
+            _effectTargets.Remove(actor);
+        }
+    }
+
     private static ReadOnlySpan<byte> OwnerMarker => new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
     private IEnumerable<DamageEvent> DecodeVarintDamage(ReadOnlySpan<byte> frame, DateTime timestamp)
@@ -1149,6 +1187,7 @@ public sealed class Aion2FrameDecoder
             if (TryReadVarint(frame, ref p, out long caster) && frame.Length >= p + 4)
             {
                 NoteCast(unchecked((int)caster), unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..])), timestamp);
+                NoteFriendlyEffect(unchecked((int)caster), unchecked((int)target));
             }
 
             return Array.Empty<DamageEvent>();
@@ -1164,6 +1203,7 @@ public sealed class Aion2FrameDecoder
         p += 4;
         TakeNotice((int)actor, (int)target, skillId);
         NoteCast((int)actor, skillId, timestamp);
+        NoteFriendlyEffect((int)actor, (int)target);
         if (Aion2SkillNames.IsNonDamageEffect(skillId))
         {
             return Array.Empty<DamageEvent>();

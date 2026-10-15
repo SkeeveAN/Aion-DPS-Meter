@@ -25,6 +25,9 @@ public static class Aion2Npcs
         return summons.Count > 0 && table.ContainsKey(npcId) && !summons.Contains(npcId);
     }
 
+    /// <summary>True for a player summon (pet, trap, aura, spirit) of the game's NpcData; false for everything else and when the list is missing.</summary>
+    public static bool IsPlayerSummon(int npcId) => (_playerSummons ??= LoadSummons()).Contains(npcId);
+
     private static HashSet<int> LoadSummons()
     {
         try
