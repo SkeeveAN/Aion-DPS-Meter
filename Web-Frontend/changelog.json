@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.1.1",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "Boss fight page of the tools window: samples show what each display looks like until a boss is targeted (with a note), and each display has its own switch that counts at once, no Save needed",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "the boss fight page of the tools window shows sample entries instead of staying empty, and its switches take effect at once",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "1.1.0",
   "date": "2026-10-15",
   "items": [
