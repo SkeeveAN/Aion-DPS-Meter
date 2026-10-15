@@ -283,6 +283,7 @@ export default {
   "leaderboard.topByClassHeading": "クラス別トップ 10",
   "stats.tabRanking": "ランキング",
   "stats.tabStats": "統計",
+  "stats.heading": "統計",
   "stats.boxHeading": "クラス別 iDPS の分布",
   "stats.yourDps": "あなたの iDPS（任意）",
   "stats.youPlaceholder": "例: 45000",

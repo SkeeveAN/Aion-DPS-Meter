@@ -283,6 +283,7 @@ export default {
   "leaderboard.topByClassHeading": "직업별 상위 10",
   "stats.tabRanking": "순위",
   "stats.tabStats": "통계",
+  "stats.heading": "통계",
   "stats.boxHeading": "직업별 iDPS 분포",
   "stats.yourDps": "내 iDPS (선택)",
   "stats.youPlaceholder": "예: 45000",

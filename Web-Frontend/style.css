@@ -3635,10 +3635,7 @@ body:has(.download-hero) .nav-download-link:hover,
 
 /* Statistics view of a boss page (see boss-stats.js): box plot per class. */
 .boxplot-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 10px 12px;
+  padding: 0;
 }
 
 .boxplot-svg {
@@ -3698,6 +3695,11 @@ body:has(.download-hero) .nav-download-link:hover,
   margin-bottom: 10px;
   color: var(--color-text-muted);
   font-size: 13px;
+}
+
+.boxplot-block .boxplot-note {
+  margin: 8px 0 0;
+  font-size: 12px;
 }
 
 .boxplot-you-input {
@@ -3777,7 +3779,3 @@ body:has(.download-hero) .nav-download-link:hover,
   }
 }
 
-.boxplot-svg {
-  max-width: 1000px;
-  margin: 0 auto;
-}

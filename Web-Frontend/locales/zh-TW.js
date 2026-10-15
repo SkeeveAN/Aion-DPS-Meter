@@ -283,6 +283,7 @@ export default {
   "leaderboard.topByClassHeading": "各職業前 10 名",
   "stats.tabRanking": "排行榜",
   "stats.tabStats": "統計",
+  "stats.heading": "統計",
   "stats.boxHeading": "各職業 iDPS 分布",
   "stats.yourDps": "你的 iDPS（選填）",
   "stats.youPlaceholder": "例如 45000",

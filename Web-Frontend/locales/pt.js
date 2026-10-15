@@ -283,6 +283,7 @@ export default {
   "leaderboard.topByClassHeading": "Top 10 por classe",
   "stats.tabRanking": "Classificação",
   "stats.tabStats": "Estatísticas",
+  "stats.heading": "Estatísticas",
   "stats.boxHeading": "Distribuição do iDPS por classe",
   "stats.yourDps": "O seu iDPS (opcional)",
   "stats.youPlaceholder": "ex.: 45000",

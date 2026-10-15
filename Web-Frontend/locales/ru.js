@@ -315,6 +315,7 @@ export default {
   "leaderboard.topByClassHeading": "Топ 10 по классу",
   "stats.tabRanking": "Рейтинг",
   "stats.tabStats": "Статистика",
+  "stats.heading": "Статистика",
   "stats.boxHeading": "Разброс iDPS по классам",
   "stats.yourDps": "Ваш iDPS (необязательно)",
   "stats.youPlaceholder": "напр. 45000",

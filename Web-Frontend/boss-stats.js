@@ -19,11 +19,11 @@ function svg(name, attrs = {}, text) {
 function buildBoxPlot(boxes, deps, yourDps) {
   const { t, formatNumber, classLabel } = deps;
   const rows = boxes.filter((b) => b.samples >= MIN_ROWS_FOR_A_BOX);
-  const width = 860;
-  const left = 130;
-  const right = 24;
-  const rowHeight = 44;
-  const top = 26;
+  const width = 470; // one box of the three-column grid
+  const left = 112;
+  const right = 14;
+  const rowHeight = 36;
+  const top = 22;
   const height = top + rows.length * rowHeight + 30;
   const chart = svg("svg", { viewBox: `0 0 ${width} ${height}`, class: "boxplot-svg", role: "img", "aria-label": t("stats.boxHeading") });
   if (rows.length === 0) {
@@ -35,7 +35,7 @@ function buildBoxPlot(boxes, deps, yourDps) {
   for (let i = 0; i <= 4; i++) {
     const value = (max / 4) * i;
     chart.appendChild(svg("line", { x1: x(value), x2: x(value), y1: top - 8, y2: height - 24, class: "boxplot-grid" }));
-    chart.appendChild(svg("text", { x: x(value), y: height - 8, "text-anchor": "middle", class: "boxplot-axis" }, formatNumber(Math.round(value))));
+    chart.appendChild(svg("text", { x: x(value), y: height - 8, "text-anchor": i === 4 ? "end" : "middle", class: "boxplot-axis" }, formatNumber(Math.round(value))));
   }
 
   rows.forEach((box, i) => {
@@ -82,8 +82,8 @@ export function buildBossStats(stats, deps) {
   input.addEventListener("input", draw);
   draw();
 
-  const boxSection = el("section", {}, [
-    el("h2", { textContent: t("stats.boxHeading") }),
+  const boxBlock = el("div", { className: "class-block boxplot-block" }, [
+    el("h3", {}, [t("stats.boxHeading")]),
     el("label", { className: "boxplot-you-field" }, [el("span", { textContent: t("stats.yourDps") }), input]),
     plotHolder,
     note,
@@ -95,12 +95,10 @@ export function buildBossStats(stats, deps) {
       el("thead", {}, [el("tr", {}, [el("th", { textContent: "#" }), el("th", { textContent: t("table.player") }), el("th", { textContent: t("participant.dps") })])]),
       el("tbody", {}, rows),
     ]);
-  const topSection = el("section", {}, [
-    el("h2", { textContent: t("leaderboard.topByClassHeading") }),
-    el(
+  const grid = el(
       "div",
       { className: "class-grid class-grid-3" },
-      classNames.map((className) => {
+      [boxBlock, ...classNames.map((className) => {
         const rows = stats.topByClass[className].map((p, i) =>
           el("tr", {}, [
             el("td", { textContent: String(i + 1) }),
@@ -109,9 +107,9 @@ export function buildBossStats(stats, deps) {
           ]),
         );
         return el("div", { className: "class-block" }, [el("h3", {}, [iconLabel(classIcon(className), classLabel(className))]), compactTable(rows)]);
-      }),
-    ),
-  ]);
+      })],
+    );
 
-  return [boxSection, topSection];
+  // The box plot is the first box of the grid, followed by the top 10 of every class.
+  return [el("section", {}, [el("h2", { textContent: t("stats.heading") }), grid])];
 }
