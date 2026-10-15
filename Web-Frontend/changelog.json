@@ -44,6 +44,28 @@
      "Website"
     ],
     "date": "2026-10-15"
+   },
+   {
+    "text": "First-start wizard: a getting-ready card with live checks for Npcap and for the recognised character",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Capture: if no game traffic arrives on the known ports, look for the game's keepalive on other TCP ports",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Website: boss pages have a Statistics tab with the iDPS spread per class (box plot) and the top 10 of every class",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-15"
    }
   ]
  },
