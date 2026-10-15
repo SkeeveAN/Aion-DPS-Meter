@@ -81,6 +81,13 @@
      "Client"
     ],
     "date": "2026-10-15"
+   },
+   {
+    "text": "Assist: optional sorting of the effects by time left; effects renewed again and again (a Chanter's mantras) count as auras, show as endless and come last",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
    }
   ]
  },
