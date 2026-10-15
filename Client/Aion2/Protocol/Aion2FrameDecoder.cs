@@ -886,6 +886,7 @@ public sealed class Aion2FrameDecoder
         }
 
         _spawnedAt[unchecked((int)entityId)] = timestamp;
+        _power.Remove(unchecked((int)entityId));
         _effectTargets.Remove(unchecked((int)entityId)); // the id is reused: earlier votes belong to something else
 
         // Two type bytes, then a flag: 1 = the entity carries a name (a summon's owner, e.g. a
@@ -1067,6 +1068,11 @@ public sealed class Aion2FrameDecoder
         }
 
         var owners = _entities.PartyPlayerIdsOfClass(className).Where(id => id != actor).ToList();
+        if (owners.Count > 1)
+        {
+            owners = OwnersByPower(actor, owners);
+        }
+
         if (owners.Count != 1)
         {
             // the party is not read yet (the meter started a moment ago): try again with the next hits, the first ones are handed over then
@@ -1119,6 +1125,51 @@ public sealed class Aion2FrameDecoder
                 _entities.SetSummonOwner(actor, owners[0]);
             }
         }
+    }
+
+    // Per actor: the damage multipliers (power scalar, 1/100 %) and the distinct skills its hits carried.
+    private readonly Dictionary<int, (HashSet<int> Scalars, HashSet<int> Skills)> _power = new();
+
+    private void NotePower(int actor, int scalar, int skillId)
+    {
+        if (!_power.TryGetValue(actor, out var entry))
+        {
+            if (_power.Count >= 2048)
+            {
+                _power.Clear(); // ids are reissued with every zone: old readings are worthless anyway
+            }
+
+            _power[actor] = entry = (new HashSet<int>(), new HashSet<int>());
+        }
+
+        if (entry.Scalars.Count < 16)
+        {
+            entry.Scalars.Add(scalar);
+        }
+
+        if (entry.Skills.Count < 64)
+        {
+            entry.Skills.Add(skillId);
+        }
+    }
+
+    /// <summary>
+    /// A summon never announced (a Cleric's Divine Aura has no spawn record) among several players of its class: every damage record
+    /// carries the actor's power scalar, a summon's is its owner's. The candidates whose scalars share a value with the summon's and
+    /// who use at least three times as many skills (a player runs a rotation, a summon repeats one or two skills); the owner when
+    /// exactly one remains, else the list unchanged. In the recordings of 2026-10-13/14 this was right 334 times and wrong 16 times
+    /// with every same-class stranger of the zone as candidate, so it is only asked of the party's players.
+    /// </summary>
+    private List<int> OwnersByPower(int summon, List<int> candidates)
+    {
+        if (!_power.TryGetValue(summon, out var mine))
+        {
+            return candidates;
+        }
+
+        var fits = candidates.Where(id => _power.TryGetValue(id, out var theirs)
+            && theirs.Scalars.Overlaps(mine.Scalars) && theirs.Skills.Count >= 3 * Math.Max(mine.Skills.Count, 1)).ToList();
+        return fits.Count == 1 ? fits : candidates;
     }
 
     // Player summon -> how often each player was the target of its effects, for summons whose spawn names no owner.
@@ -1227,11 +1278,13 @@ public sealed class Aion2FrameDecoder
         // a fixed "marker + 6" then read the field's last byte as the damage: every hit read as 1.
         int hitCount = marker >= 0 ? Math.Clamp((int)frame[marker], 1, 9) : 1;
         int q = marker + 4;
-        if (marker < 0 || !TryReadVarint(frame, ref q, out _) || q >= frame.Length || !TryReadVarint(frame, ref q, out long amount) || amount <= 0 || amount > MaxPlausibleAmount)
+        if (marker < 0 || !TryReadVarint(frame, ref q, out long powerScalar) || q >= frame.Length || !TryReadVarint(frame, ref q, out long amount) || amount <= 0 || amount > MaxPlausibleAmount)
         {
             SkippedShortFrames++;
             return Array.Empty<DamageEvent>();
         }
+
+        NotePower((int)actor, (int)powerScalar, skillId);
 
         if (skillId == DodgeSkillId)
         {
