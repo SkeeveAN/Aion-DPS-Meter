@@ -62,8 +62,67 @@ public static class Aion2Artwork
     /// True when the client lists the effect as a passive ("P" in skill_abnormal_types.json: the variant of the skill id first, then its rank base): a permanent
     /// trait of the character, not something that was put on it, so it does not belong in a list of the effects running on you.
     /// </summary>
-    public static bool IsPassiveEffect(int skillId)
+    public static bool IsPassiveEffect(int skillId) => AbnormalType(skillId) == "P" || IsPassive(skillId);
+
+    /// <summary>True when the client lists the effect as a buff ("B"): something helpful, never a debuff.</summary>
+    public static bool IsBeneficialEffect(int skillId) => AbnormalType(skillId) == "B";
+
+    /// <summary>True when the game lists the effect as a debuff ("D").</summary>
+    public static bool IsDebuffEffect(int skillId) => AbnormalType(skillId) == "D";
+
+    private static Dictionary<int, string>? _effectTypes;
+
+    /// <summary>The type the game gives an effect id (effect_types.json, from the Waffle meter: see the notice next to it); an effect id is the skill id and a level digit, so the levels of a skill are asked in turn.</summary>
+    private static string? EffectType(int skillId)
     {
+        if (_effectTypes is null)
+        {
+            _effectTypes = new();
+            try
+            {
+                string path = Path.Combine(Root, "skills", "effect_types.json");
+                if (File.Exists(path))
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+                    foreach (var entry in doc.RootElement.EnumerateObject())
+                    {
+                        if (int.TryParse(entry.Name, out int key) && entry.Value.GetString() is { } kind)
+                        {
+                            _effectTypes[key] = kind;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // a missing table only means the older table decides
+            }
+        }
+
+        string? found = null;
+        for (int level = 0; level <= 9; level++)
+        {
+            if (_effectTypes.TryGetValue(skillId * 10 + level, out string? kind))
+            {
+                if (kind == "D")
+                {
+                    return "D"; // one level that debuffs is enough
+                }
+
+                found ??= kind;
+            }
+        }
+
+        return found;
+    }
+
+    private static string? AbnormalType(int skillId)
+    {
+        if (EffectType(skillId) is { } known)
+        {
+            return known;
+        }
+
         if (_abnormalVariants is null)
         {
             _abnormalVariants = new();
@@ -95,8 +154,7 @@ public static class Aion2Artwork
             }
         }
 
-        string? type = _abnormalVariants.TryGetValue(skillId, out string? v) ? v : _abnormalBases!.TryGetValue(skillId - skillId % 10000, out string? b) ? b : null;
-        return type == "P" || IsPassive(skillId);
+        return _abnormalVariants.TryGetValue(skillId, out string? v) ? v : _abnormalBases!.TryGetValue(skillId - skillId % 10000, out string? b) ? b : null;
     }
 
     private static readonly Dictionary<string, string> ClassFiles = new()

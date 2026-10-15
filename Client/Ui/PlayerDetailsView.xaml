@@ -272,7 +272,7 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Header="{local:Loc Rotation.Col.Uptime}" Binding="{Binding Uptime}" Width="90"/>
-                    <DataGridTextColumn Header="{local:Loc Rotation.Col.FromYou}" Binding="{Binding FromYou}" Width="90"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.OnYou}" Binding="{Binding FromYou}" Width="90"/>
                     <DataGridTextColumn Header="{local:Loc Rotation.Col.Times}" Binding="{Binding Applications}" Width="70"/>
                     <DataGridTextColumn Header="{local:Loc Rotation.Col.Givers}" Binding="{Binding Givers}" Width="200"/>
                 </DataGrid.Columns>

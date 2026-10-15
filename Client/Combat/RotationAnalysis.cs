@@ -8,7 +8,7 @@ public sealed record RotationUse(double At, int SkillId, string Name, bool Passi
 /// <summary>"Rotation in short": one line per skill that was used.</summary>
 public sealed record RotationSkill(int SkillId, string Name, int Uses, double PerMinute, double AvgGapSeconds, double FirstAt, double SharePercent, bool Damaging);
 
-/// <summary>How long an effect was on the player: its share of the fight, the share of it that came from the player themself, and who gave it.</summary>
+/// <summary>How long an effect was on the player: its share of the fight, the share of it that came from the player themself, and who gave it. For a debuff, <see cref="FromYouPercent"/> is the share it was on the player themself (the rest was on the party).</summary>
 public sealed record BuffRow(int SkillId, string Name, double UptimePercent, double FromYouPercent, int Applications, string Givers);
 
 /// <summary>A moment a monster was staggered (its stagger bar broke), in seconds from the start of the fight.</summary>
@@ -80,21 +80,20 @@ public static class RotationAnalysis
 
         skills = skills.OrderByDescending(s => s.SharePercent).ThenByDescending(s => s.Uses).ToList();
         var opener = uses.Where(u => !u.Passive).Take(OpenerLength).ToList();
-        // the bosses of the fight: what has a health series, a stagger bar or winds skills up; the effects on them are the debuffs
-        var bosses = new HashSet<int>(extras.Hp?.Select(h => h.Entity) ?? Enumerable.Empty<int>());
-        bosses.UnionWith(extras.Staggers.Select(g => g.Entity));
-        bosses.UnionWith(extras.Windups?.Select(w => w.Actor) ?? Enumerable.Empty<int>());
-        bosses.Remove(playerId);
-        var debuffs = bosses.Count == 0 ? new List<BuffRow>() : Buffs(extras, playerId, start, end, duration, nameOf, target => bosses.Contains(target));
-        return new RotationReport(duration, uses, opener, skills, Buffs(extras, playerId, start, end, duration, nameOf, target => target == playerId), Staggers(extras, start, end), debuffs);
+        // the debuffs: what the game lists as a debuff on the player or someone of the group, and what a monster put on them (a caster outside the group) that is neither a buff nor a passive
+        var party = new HashSet<int>(extras.Uses.Select(u => u.Actor)) { playerId };
+        bool IsDebuff(BuffEvent ev) => party.Contains(ev.Target) && ev.Caster > 0 && ev.SkillId >= 1000 && !Aion2Artwork.IsPassiveEffect(ev.SkillId)
+            && (Aion2Artwork.IsDebuffEffect(ev.SkillId) || (!party.Contains(ev.Caster) && !Aion2Artwork.IsBeneficialEffect(ev.SkillId)));
+        var debuffs = Buffs(extras, start, end, duration, nameOf, IsDebuff, s => s.Target == playerId, playerId);
+        return new RotationReport(duration, uses, opener, skills, Buffs(extras, start, end, duration, nameOf, ev => ev.Target == playerId && !IsDebuff(ev), s => s.Caster == playerId, playerId), Staggers(extras, start, end), debuffs);
     }
 
-    private readonly record struct Span(int SkillId, int Caster, double Start, double End);
+    private readonly record struct Span(int SkillId, int Caster, int Target, double Start, double End);
 
-    private static IReadOnlyList<BuffRow> Buffs(FightExtras extras, int playerId, DateTime start, DateTime end, double duration, Func<int, string?> nameOf, Func<int, bool> targetFilter)
+    private static IReadOnlyList<BuffRow> Buffs(FightExtras extras, DateTime start, DateTime end, double duration, Func<int, string?> nameOf, Func<BuffEvent, bool> filter, Func<Span, bool> isMine, int playerId)
     {
         var spans = new List<Span>();
-        var open = new Dictionary<int, (DateTime Start, int Skill, int Caster, DateTime? Expect)>();
+        var open = new Dictionary<int, (DateTime Start, int Skill, int Caster, int Target, DateTime? Expect)>();
         var applications = new Dictionary<int, int>();
 
         void Close(int instance, DateTime at)
@@ -104,12 +103,12 @@ public static class RotationAnalysis
                 double s = Math.Max(0, (o.Start - start).TotalSeconds), e = Math.Min(duration, (at - start).TotalSeconds);
                 if (e > s)
                 {
-                    spans.Add(new Span(o.Skill, o.Caster, s, e));
+                    spans.Add(new Span(o.Skill, o.Caster, o.Target, s, e));
                 }
             }
         }
 
-        foreach (BuffEvent ev in extras.Buffs.Where(b => targetFilter(b.Target)).OrderBy(b => b.At))
+        foreach (BuffEvent ev in extras.Buffs.Where(filter).OrderBy(b => b.At))
         {
             foreach (int instance in open.Where(kv => kv.Value.Expect is DateTime expect && expect < ev.At).Select(kv => kv.Key).ToList())
             {
@@ -121,7 +120,7 @@ public static class RotationAnalysis
             {
                 case BuffKind.On:
                     Close(ev.Instance, ev.At);
-                    open[ev.Instance] = (ev.At, ev.SkillId, ev.Caster, expectAt);
+                    open[ev.Instance] = (ev.At, ev.SkillId, ev.Caster, ev.Target, expectAt);
                     applications[ev.SkillId] = applications.GetValueOrDefault(ev.SkillId) + 1;
                     break;
                 case BuffKind.Renewed:
@@ -131,7 +130,7 @@ public static class RotationAnalysis
                     }
                     else
                     {
-                        open[ev.Instance] = (ev.At, ev.SkillId, ev.Caster, expectAt);
+                        open[ev.Instance] = (ev.At, ev.SkillId, ev.Caster, ev.Target, expectAt);
                         applications[ev.SkillId] = applications.GetValueOrDefault(ev.SkillId) + 1;
                     }
 
@@ -153,7 +152,7 @@ public static class RotationAnalysis
         {
             int skillId = group.First().SkillId;
             double all = Union(group.Select(s => (s.Start, s.End)));
-            double mine = Union(group.Where(s => s.Caster == playerId).Select(s => (s.Start, s.End)));
+            double mine = Union(group.Where(isMine).Select(s => (s.Start, s.End)));
             var givers = group.Select(s => s.Caster).Distinct()
                 .Select(id => id == playerId ? null : (nameOf(id) ?? extras.Names.GetValueOrDefault(id)))
                 .Where(n => !string.IsNullOrEmpty(n) && n != "?").Distinct().Take(3).ToList();
