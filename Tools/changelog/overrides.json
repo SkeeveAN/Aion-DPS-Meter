@@ -115,5 +115,6 @@
  "9d19ecf": "Summons whose spawn names no owner are credited to the player their healing and buff effects are aimed at",
  "e74b6cf": "Unannounced summons (a Cleric's Divine Aura) are credited to the right player even when several party members play the same class: the strength of their hits tells them apart",
  "3392b86": "First-start wizard: a \"getting ready\" card shows live whether Npcap is installed and whether the meter has recognised your character, with the steps to get going",
- "4291650": "If no game traffic arrives on the usual port, the meter now looks for the game on other ports (other regions, ping reducers) for two minutes"
+ "4291650": "If no game traffic arrives on the usual port, the meter now looks for the game on other ports (other regions, ping reducers) for two minutes",
+ "deb813b": null
 }
