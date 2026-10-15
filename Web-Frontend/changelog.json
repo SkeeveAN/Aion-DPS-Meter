@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.1.0",
   "date": "2026-10-15",
   "items": [
    {
@@ -47,6 +47,13 @@
    },
    {
     "text": "Combat analyzer: debuffs are what bosses and monsters put on you and your group (own section with the share on you), no longer listed twice; the game's own buff/debuff/passive type of each effect decides (MIT-licensed table from the Waffle meter)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "the cast bar names unnamed boss skills by the shape they paint, the combat analyzer lists the debuffs bosses put on you and your group, overlays snap to a grid and dock to each other, the Odyle purchase checklist is read from the game",
     "areas": [
      "Client"
     ],
