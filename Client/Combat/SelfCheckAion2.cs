@@ -25,6 +25,7 @@ public static class SelfCheckAion2
         ok &= RunCombatSourceSeamScenario();
         ok &= RunTcpReassemblerScenario();
         ok &= RunTcpReassemblerPaddingScenario();
+        ok &= RunGameFlowDetectorScenario();
         ok &= RunNetworkStatsScenario();
         ok &= RunAion2ProtocolScenario();
         ok &= RunAion2RealCaptureScenario();
@@ -1677,6 +1678,24 @@ public static class SelfCheckAion2
             && frames[0].Span.SequenceEqual(b[1..]) && frames[1].Span.SequenceEqual(a[1..]);
         Console.WriteLine($"  -> padding and a (split) TLS record skipped without a resync, frames intact: {ok}");
         return ok;
+    }
+
+    private static bool RunGameFlowDetectorScenario()
+    {
+        Console.WriteLine("[selftest] Game flow detector (keepalive 0E 00 36 names the game's port):");
+        byte[] keepalive = { 0x0E, 0x00, 0x36, 0x01, 0x02 };
+        byte[] other = { 0x16, 0x03, 0x03, 0x00, 0x20 };
+        var now = new DateTime(2026, 10, 15, 20, 0, 0, DateTimeKind.Utc);
+        var detector = new GameFlowDetector();
+        bool noiseIgnored = !detector.Observe(443, other, now) && !detector.Observe(443, other, now) && !detector.Observe(443, other, now);
+        bool twoAreNotEnough = !detector.Observe(14000, keepalive, now) && !detector.Observe(14000, keepalive, now.AddSeconds(1));
+        bool thirdNamesThePort = detector.Observe(14000, keepalive, now.AddSeconds(2));
+        var slow = new GameFlowDetector();
+        bool tooSlowIsNoStream = !slow.Observe(9000, keepalive, now) && !slow.Observe(9000, keepalive, now.AddSeconds(20)) && !slow.Observe(9000, keepalive, now.AddSeconds(40));
+        var mixed = new GameFlowDetector();
+        bool portsCountApart = !mixed.Observe(1, keepalive, now) && !mixed.Observe(2, keepalive, now) && !mixed.Observe(3, keepalive, now);
+        Console.WriteLine($"  -> other traffic ignored: {noiseIgnored}; two keepalives are not enough: {twoAreNotEnough}; the third names the port: {thirdNamesThePort}; too slow: {tooSlowIsNoStream}; ports counted apart: {portsCountApart}");
+        return noiseIgnored && twoAreNotEnough && thirdNamesThePort && tooSlowIsNoStream && portsCountApart;
     }
 
     private static bool RunAion2ProtocolScenario()
