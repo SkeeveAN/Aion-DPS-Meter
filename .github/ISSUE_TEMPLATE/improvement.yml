@@ -1,0 +1,17 @@
+name: Improvement
+description: Something that works but could work better
+title: "[Improvement] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: now
+    attributes:
+      label: What is it like now?
+    validations:
+      required: true
+  - type: textarea
+    id: better
+    attributes:
+      label: What would make it better?
+    validations:
+      required: true

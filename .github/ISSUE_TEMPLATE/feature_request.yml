@@ -1,6 +1,7 @@
 name: Feature request
 description: An idea for the meter, the map or the website
-labels: [enhancement]
+title: "[Feature] "
+labels: [feature]
 body:
   - type: textarea
     id: goal
