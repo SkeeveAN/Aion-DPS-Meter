@@ -226,13 +226,27 @@ public abstract class MovableOverlay : Window
         }
     }
 
-    /// <summary>The overlay's own opacity (0 to 1, set per overlay in its module; the key is its title) replaces the alpha of the body's dark background.</summary>
+    private byte? _baseAlpha;
+
+    /// <summary>A least opacity (0 to 1) the overlay keeps while set, whatever its own setting says (the pet list over the shop, where it sits on the game's own window text).</summary>
+    public double? OpacityFloor { get; set; }
+
+    /// <summary>The overlay's own opacity (0 to 1, set per overlay in its module; the key is its title) replaces the alpha of the body's dark background; <see cref="OpacityFloor"/> raises it.</summary>
     public void ApplyStoredOpacity()
     {
-        if (MeterSettings.Load().OverlayOpacities.TryGetValue(Title, out double v) && _shiftHost.Child is Border { Background: SolidColorBrush bg } body)
+        if (_shiftHost.Child is not Border { Background: SolidColorBrush bg } body)
         {
-            body.Background = new SolidColorBrush(Color.FromArgb((byte)Math.Round(Math.Clamp(v, 0, 1) * 255), bg.Color.R, bg.Color.G, bg.Color.B));
+            return;
         }
+
+        _baseAlpha ??= bg.Color.A;
+        double alpha = MeterSettings.Load().OverlayOpacities.TryGetValue(Title, out double v) ? Math.Clamp(v, 0, 1) : _baseAlpha.Value / 255.0;
+        if (OpacityFloor is { } floor)
+        {
+            alpha = Math.Max(alpha, floor);
+        }
+
+        body.Background = new SolidColorBrush(Color.FromArgb((byte)Math.Round(alpha * 255), bg.Color.R, bg.Color.G, bg.Color.B));
     }
 
     public void RaiseToFront()

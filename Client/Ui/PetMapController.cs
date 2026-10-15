@@ -82,6 +82,7 @@ public sealed class PetMapController : IDisposable
     private (float X, float Y)? _shopFrom;
     private bool _shopOpen;
     private bool _inShop;
+    private const double ShopListOpacity = 0.95;
 
     /// <summary>The Black Cloud shop counts as open from the moment it sends a tab until the player walks away from where they stood (a closed shop sends nothing, so there is no other end to read).</summary>
     private void UpdateShopOpen(Aion2EntityDirectory? directory)
@@ -304,6 +305,14 @@ public sealed class PetMapController : IDisposable
         UpdateShopOpen(directory);
         var shopRows = ShopRows(directory, states);
         _inShop = _shopOpen && shopRows.Count > 0;
+        // over the shop the list sits on the game's own window text: it gets a nearly opaque background for as long as the shop is open
+        double? floor = InMenu && shopRows.Count > 0 ? ShopListOpacity : null;
+        if (_list.OpacityFloor != floor)
+        {
+            _list.OpacityFloor = floor;
+            _list.ApplyStoredOpacity();
+        }
+
         if (chosen.Count == 0 && gatherKinds.Count == 0)
         {
             if (shopRows.Count == 0)
