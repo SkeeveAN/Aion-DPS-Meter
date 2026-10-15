@@ -78,10 +78,49 @@ public sealed class PetMapController : IDisposable
 
     private bool _hideOverlays;
     private bool _lastMenu;
+    private DateTime? _shopSeenAt;
+    private (float X, float Y)? _shopFrom;
+    private bool _shopOpen;
+    private bool _inShop;
+
+    /// <summary>The Black Cloud shop counts as open from the moment it sends a tab until the player walks away from where they stood (a closed shop sends nothing, so there is no other end to read).</summary>
+    private void UpdateShopOpen(Aion2EntityDirectory? directory)
+    {
+        DateTime? at = directory?.ShopFrameAt;
+        if (directory is null || at is null)
+        {
+            _shopOpen = false;
+            _shopSeenAt = null;
+            return;
+        }
+
+        var position = directory.BestPosition;
+        if (at != _shopSeenAt)
+        {
+            _shopSeenAt = at;
+            _shopOpen = true;
+            _shopFrom = position is { } p ? (p.X, p.Y) : null;
+            return;
+        }
+
+        if (position is { } now)
+        {
+            if (_shopFrom is not { } from)
+            {
+                _shopFrom = (now.X, now.Y);
+            }
+            else if (_shopOpen && Math.Sqrt(Math.Pow(now.X - from.X, 2) + Math.Pow(now.Y - from.Y, 2)) > 300)
+            {
+                _shopOpen = false; // walked off (3 m): the shop is closed
+            }
+        }
+    }
+
+    private bool InMenu => MenuWatcher.Hidden || _inShop;
 
     public bool HasViews => _mapViews.Count > 0;
 
-    private void ShowMap(bool visible) => _map.ShowOverlay(visible && !_hideOverlays && !MenuWatcher.Hidden && _settings.PetMapShowMap);
+    private void ShowMap(bool visible) => _map.ShowOverlay(visible && !_hideOverlays && !InMenu && _settings.PetMapShowMap);
 
     private void ShowList(bool visible) => _list.ShowOverlay(visible && !_hideOverlays && _settings.PetMapShowList);
 
@@ -262,7 +301,9 @@ public sealed class PetMapController : IDisposable
         var chosen = settings.PetMapPets.Where(id => !maxPets.Contains(id)).ToHashSet();
         // only what the player's own faction can use (an earlier pick of the other side's plants no longer counts)
         var gatherKinds = Aion2Gather.Items().Where(i => settings.PetMapGatherItems.Contains(i.Key) && i.IsFor(_faction)).Select(i => i.Key).ToHashSet();
+        UpdateShopOpen(directory);
         var shopRows = ShopRows(directory, states);
+        _inShop = _shopOpen && shopRows.Count > 0;
         if (chosen.Count == 0 && gatherKinds.Count == 0)
         {
             if (shopRows.Count == 0)
@@ -360,18 +401,18 @@ public sealed class PetMapController : IDisposable
             ShowMap(!mapLocked);
         }
 
-        bool menuNow = MenuWatcher.Hidden;
+        bool menuNow = InMenu;
         if (++_ticks % 10 == 0 || _lastTarget != (tx, ty) || _lastKnownFlag != known || _lastMenu != menuNow)
         {
             _lastMenu = menuNow;
             _lastTarget = (tx, ty);
             _lastKnownFlag = known;
             // a game menu is open: the list stays only for the shop's pets (no chosen pets, no collectibles), the map steps aside
-            var rows = MenuWatcher.Hidden ? shopRows : shopRows.Concat(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds)).ToList();
+            var rows = InMenu ? shopRows : shopRows.Concat(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds)).ToList();
             RenderList(rows.Take(_list.RowCapacity).ToList()); // only what fits in the frame (plus a reserve)
         }
 
-        ShowList(!MenuWatcher.Hidden || shopRows.Count > 0);
+        ShowList(!InMenu || shopRows.Count > 0);
     }
 
     /// <summary>
@@ -400,7 +441,7 @@ public sealed class PetMapController : IDisposable
             }
             else if (state.Level >= Aion2Pets.TopLevel)
             {
-                status = loc["PetFarm.Max"];
+                status = string.Format(loc["PetFarm.Max"], state.Level);
                 color = Color.FromRgb(0x4C, 0xC8, 0x78);
             }
             else
@@ -598,7 +639,7 @@ public sealed class PetMapController : IDisposable
 
         // positioned: the frames (the list with sample rows), to grab and place; a locked one stays hidden
         RenderList(SampleRows());
-        ShowList(!listLocked && !MenuWatcher.Hidden);
+        ShowList(!listLocked && !InMenu);
         ShowMap(!mapLocked);
     }
 

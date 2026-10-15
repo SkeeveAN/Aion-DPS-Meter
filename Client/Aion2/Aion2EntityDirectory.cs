@@ -445,6 +445,20 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    /// <summary>When the newest shop tab arrived (within the five minutes the offers are kept), else null: the shop was opened, or a tab of it, then.</summary>
+    public DateTime? ShopFrameAt
+    {
+        get
+        {
+            lock (_gate)
+            {
+                var cutoff = DateTime.UtcNow - TimeSpan.FromMinutes(5);
+                var fresh = _shopPets.Values.Where(v => v.At >= cutoff).Select(v => v.At).ToList();
+                return fresh.Count > 0 ? fresh.Max() : null;
+            }
+        }
+    }
+
     /// <summary>A shop tab arrived: replaces what the same tab offered before (an empty list, e.g. the skin tab, clears it).</summary>
     public void NoteShopTab(int tab, IReadOnlyList<Aion2ShopPet> pets)
     {
