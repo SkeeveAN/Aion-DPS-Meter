@@ -8052,5 +8052,17 @@
     "pt": "Recolher ou expandir a lista de ferramentas",
     "ja": "ツール一覧を折りたたむ／展開する",
     "ko": "도구 목록 접기/펼치기"
+  },
+  "Rotation.Debuffs": {
+    "en": "Effects on the bosses (debuffs)",
+    "de": "Effekte auf die Bosse (Debuffs)",
+    "fr": "Effets sur les boss (débuffs)",
+    "es": "Efectos en los jefes (debuffs)",
+    "ru": "Эффекты на боссах (дебаффы)",
+    "zh": "首领身上的效果（减益）",
+    "zh-TW": "首領身上的效果（減益）",
+    "pt": "Efeitos nos chefes (debuffs)",
+    "ja": "ボスへの効果（デバフ）",
+    "ko": "보스에 걸린 효과(디버프)"
   }
 }

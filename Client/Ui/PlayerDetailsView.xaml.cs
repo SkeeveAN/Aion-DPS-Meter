@@ -269,12 +269,22 @@ public partial class PlayerDetailsView : UserControl
             Timeline.Configure(ShowPassivesBox.IsChecked == true, ShowDpsBox.IsChecked == true, ShowStaggerBox.IsChecked == true);
         }
 
-        bool buffs = report is { Buffs.Count: > 0 };
+        bool buffs = report is { Buffs.Count: > 0 } || report is { Debuffs.Count: > 0 };
         BuffsGrid.Visibility = buffs ? Visibility.Visible : Visibility.Collapsed;
         NoBuffsText.Visibility = buffs ? Visibility.Collapsed : Visibility.Visible;
         if (buffs)
         {
             BuffsGrid.ItemsSource = report!.Buffs.Select(b => new BuffLine(
+                b.Name, IconFor(b.SkillId, null, className), b.UptimePercent.ToString("0.0") + "%", b.FromYouPercent > 0 ? b.FromYouPercent.ToString("0.0") + "%" : "–", b.Applications, b.Givers)).ToList();
+        }
+
+        // the effects on the bosses (debuffs): what stayed on them, and how much of it came from this player
+        bool debuffs = report is { Debuffs.Count: > 0 };
+        DebuffsGrid.Visibility = debuffs ? Visibility.Visible : Visibility.Collapsed;
+        DebuffsHeader.Visibility = debuffs ? Visibility.Visible : Visibility.Collapsed;
+        if (debuffs)
+        {
+            DebuffsGrid.ItemsSource = report!.Debuffs!.Select(b => new BuffLine(
                 b.Name, IconFor(b.SkillId, null, className), b.UptimePercent.ToString("0.0") + "%", b.FromYouPercent > 0 ? b.FromYouPercent.ToString("0.0") + "%" : "–", b.Applications, b.Givers)).ToList();
         }
     }

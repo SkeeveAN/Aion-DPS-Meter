@@ -311,6 +311,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "render-petfarm")
+        {
+            RunRenderPetFarmMode(args.Length > 1 ? args[1] : "petfarm.png");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-petlist-shop")
         {
             RunRenderPetListShopMode(args.Length > 1 ? args[1] : "petlist-shop.png");
@@ -1009,6 +1015,7 @@ internal static class Program
             Aion2.Aion2Tickets.NoteCharacter("Aahz", 1304, t0.AddSeconds(14), level: 28); // a level 28 character: the daily dungeon (30) and the level 45 contents are still locked
         }
 
+        int scale = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_SCALE"), out int sc) && sc is >= 1 and <= 4 ? sc : 1; // 2 = a sharp picture for the website
         var window = new Ui.ChecklistWindow();
         var content = (System.Windows.FrameworkElement)window.Content;
         int w = (int)window.Width;
@@ -1022,7 +1029,7 @@ internal static class Program
         content.Arrange(new System.Windows.Rect(0, 0, w, h));
         content.UpdateLayout();
         var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black };
-        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w * scale, h * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
         backdrop.Measure(new System.Windows.Size(w, h));
         backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
         bitmap.Render(backdrop);
@@ -1070,6 +1077,7 @@ internal static class Program
             dir.Combat.NoteBuff(new Aion2.BuffNotice(now.AddSeconds(-5), 8956, 100 + i, effects[i] * 10, effects[i], lasts[i], 8956));
         }
 
+        int scale = int.TryParse(Environment.GetEnvironmentVariable("AIONDPS_RENDER_SCALE"), out int sc) && sc is >= 1 and <= 4 ? sc : 1; // 2 = a sharp picture for the website
         var window = new Ui.AssistWindow(() => dir);
         var content = (System.Windows.FrameworkElement)window.Content;
         int w = (int)window.Width;
@@ -1083,7 +1091,7 @@ internal static class Program
         content.Arrange(new System.Windows.Rect(0, 0, w, h));
         content.UpdateLayout();
         var backdrop = new System.Windows.Controls.Border { Width = w, Height = h, Background = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black };
-        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w * scale, h * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
         backdrop.Measure(new System.Windows.Size(w, h));
         backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
         bitmap.Render(backdrop);
@@ -1226,7 +1234,7 @@ internal static class Program
                     new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.Display("Attack"), bossName, Ui.LocalizationManager.Instance["Combat.You"], true, false, false, 900, 1500, 650, null, Generic: true),
                     new Ui.CastRowData(Aion2.Protocol.Aion2SkillNames.DisplayOf(1801180), bossName, Ui.LocalizationManager.Instance["Combat.AllAround"], false, true, true, 400, 1900, null, null),
                 },
-                new Ui.TargetOfTargetData("Seuche", bossName, Aion2.Protocol.Aion2Artwork.ClassEmblemPath("Cleric"), false, 12480, 20563,
+                new Ui.TargetOfTargetData("Plague", bossName, Aion2.Protocol.Aion2Artwork.ClassEmblemPath("Cleric"), false, 12480, 20563,
                     new[]
                     {
                         new Ui.EffectData("Poison", null, "12", true),
@@ -1257,7 +1265,11 @@ internal static class Program
         var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w * scale, h * scale, 96 * scale, 96 * scale, System.Windows.Media.PixelFormats.Pbgra32);
         backdrop.Measure(new System.Windows.Size(w, h));
         backdrop.Arrange(new System.Windows.Rect(0, 0, w, h));
-        bitmap.Render(backdrop);
+        if (Environment.GetEnvironmentVariable("AIONDPS_TRANSPARENT") != "1") // 1 = only the parts, on a see-through ground (for the website)
+        {
+            bitmap.Render(backdrop);
+        }
+
         var visual = new System.Windows.Media.DrawingVisual();
         using (var dc = visual.RenderOpen())
         {
@@ -1775,6 +1787,54 @@ internal static class Program
     }
 
     /// <summary>The pet list with the pets of an open Black Cloud shop (sample data of the recording 2026-10-11_12-34), drawn into a picture; no window is shown.</summary>
+    /// <summary>Draws the pet farming overlay (pet level of the targeted monster) with a made-up pet into a picture; no window is ever shown.</summary>
+    private static void RunRenderPetFarmMode(string path)
+    {
+        Environment.SetEnvironmentVariable("AIONDPS_DATA_DIR", Path.Combine(Path.GetTempPath(), "aiondps-render-petfarm"));
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = new Ui.MeterSettings();
+        if (Environment.GetEnvironmentVariable("AIONDPS_LANG") is { Length: > 0 } language)
+        {
+            Ui.LocalizationManager.Instance.Language = language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        var loc = Ui.LocalizationManager.Instance;
+        string[] pets = { "Sylph", "Kibelisk" };
+        string[] levels = { string.Format(loc["PetFarm.Level"], 7) + " (12/25)", loc["PetFarm.NotOwned"] };
+        var lines = new System.Windows.Controls.StackPanel();
+        for (int i = 0; i < pets.Length; i++)
+        {
+            lines.Children.Add(Ui.PetFarmWindow.BuildRow(pets[i], levels[i]));
+        }
+
+        var panel = new System.Windows.Controls.Border
+        {
+            CornerRadius = new System.Windows.CornerRadius(6), Padding = new System.Windows.Thickness(8, 5, 8, 5), Child = lines,
+            Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0xB0, 0, 0, 0)),
+            LayoutTransform = new System.Windows.Media.ScaleTransform(2, 2),
+        };
+        var visual = new System.Windows.Controls.Border { Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2a, 0x36, 0x2c)), Padding = new System.Windows.Thickness(12), Child = panel };
+        visual.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+        visual.Arrange(new System.Windows.Rect(visual.DesiredSize));
+        visual.UpdateLayout();
+        int w = (int)Math.Ceiling(visual.DesiredSize.Width), h = (int)Math.Ceiling(visual.DesiredSize.Height);
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(visual);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Console.WriteLine($"render-petfarm: wrote {path}");
+        Environment.Exit(0);
+    }
+
     private static void RunRenderPetListShopMode(string path)
     {
         var app = new System.Windows.Application();

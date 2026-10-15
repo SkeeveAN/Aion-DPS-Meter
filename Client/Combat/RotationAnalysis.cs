@@ -20,7 +20,8 @@ public sealed record RotationReport(
     IReadOnlyList<RotationUse> Opener,
     IReadOnlyList<RotationSkill> Skills,
     IReadOnlyList<BuffRow> Buffs,
-    IReadOnlyList<StaggerPhase> Staggers)
+    IReadOnlyList<StaggerPhase> Staggers,
+    IReadOnlyList<BuffRow>? Debuffs = null)
 {
     public bool HasData => Uses.Count > 0 || Buffs.Count > 0;
 }
@@ -79,12 +80,18 @@ public static class RotationAnalysis
 
         skills = skills.OrderByDescending(s => s.SharePercent).ThenByDescending(s => s.Uses).ToList();
         var opener = uses.Where(u => !u.Passive).Take(OpenerLength).ToList();
-        return new RotationReport(duration, uses, opener, skills, Buffs(extras, playerId, start, end, duration, nameOf), Staggers(extras, start, end));
+        // the bosses of the fight: what has a health series, a stagger bar or winds skills up; the effects on them are the debuffs
+        var bosses = new HashSet<int>(extras.Hp?.Select(h => h.Entity) ?? Enumerable.Empty<int>());
+        bosses.UnionWith(extras.Staggers.Select(g => g.Entity));
+        bosses.UnionWith(extras.Windups?.Select(w => w.Actor) ?? Enumerable.Empty<int>());
+        bosses.Remove(playerId);
+        var debuffs = bosses.Count == 0 ? new List<BuffRow>() : Buffs(extras, playerId, start, end, duration, nameOf, target => bosses.Contains(target));
+        return new RotationReport(duration, uses, opener, skills, Buffs(extras, playerId, start, end, duration, nameOf, target => target == playerId), Staggers(extras, start, end), debuffs);
     }
 
     private readonly record struct Span(int SkillId, int Caster, double Start, double End);
 
-    private static IReadOnlyList<BuffRow> Buffs(FightExtras extras, int playerId, DateTime start, DateTime end, double duration, Func<int, string?> nameOf)
+    private static IReadOnlyList<BuffRow> Buffs(FightExtras extras, int playerId, DateTime start, DateTime end, double duration, Func<int, string?> nameOf, Func<int, bool> targetFilter)
     {
         var spans = new List<Span>();
         var open = new Dictionary<int, (DateTime Start, int Skill, int Caster, DateTime? Expect)>();
@@ -102,7 +109,7 @@ public static class RotationAnalysis
             }
         }
 
-        foreach (BuffEvent ev in extras.Buffs.Where(b => b.Target == playerId).OrderBy(b => b.At))
+        foreach (BuffEvent ev in extras.Buffs.Where(b => targetFilter(b.Target)).OrderBy(b => b.At))
         {
             foreach (int instance in open.Where(kv => kv.Value.Expect is DateTime expect && expect < ev.At).Select(kv => kv.Key).ToList())
             {

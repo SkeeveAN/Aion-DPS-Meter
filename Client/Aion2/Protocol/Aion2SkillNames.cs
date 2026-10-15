@@ -320,6 +320,54 @@ public static class Aion2SkillNames
         }
 
         int baseId = skillId / 10000 * 10000;
-        return table.TryGetValue(baseId, out string? byBase) ? byBase : skillId.ToString();
+        if (table.TryGetValue(baseId, out string? byBase))
+        {
+            return byBase;
+        }
+
+        // an effect the skill table does not name: the client's own names of its effects (key = effect id * 10 + the level digit)
+        IReadOnlyDictionary<long, string> effects = LoadEffectNames();
+        for (int level = 1; level <= 9; level++)
+        {
+            if (effects.TryGetValue(skillId * 10L + level, out string? effect))
+            {
+                return effect;
+            }
+        }
+
+        return skillId.ToString();
+    }
+
+    private static IReadOnlyDictionary<long, string>? _effectNames;
+
+    private static IReadOnlyDictionary<long, string> LoadEffectNames()
+    {
+        if (_effectNames is { } cached)
+        {
+            return cached;
+        }
+
+        var table = new Dictionary<long, string>();
+        try
+        {
+            string path = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "skills", "abnormal_names_en.json");
+            if (File.Exists(path))
+            {
+                foreach ((string key, string name) in JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(path)) ?? new())
+                {
+                    if (long.TryParse(key, out long id))
+                    {
+                        table[id] = name;
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or JsonException)
+        {
+            // No table: effects without a skill name stay numbers.
+        }
+
+        _effectNames = table;
+        return table;
     }
 }

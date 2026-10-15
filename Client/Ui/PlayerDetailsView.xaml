@@ -255,6 +255,29 @@
 
         <DockPanel x:Name="BuffsPanel" Visibility="Collapsed">
             <TextBlock x:Name="NoBuffsText" DockPanel.Dock="Top" Text="{local:Loc Rotation.NoBuffs}" Foreground="{DynamicResource Brush.TextMuted}" TextWrapping="Wrap" Margin="0,8,0,0" Visibility="Collapsed"/>
+            <DataGrid x:Name="DebuffsGrid" DockPanel.Dock="Bottom" MaxHeight="260" Visibility="Collapsed" AutoGenerateColumns="False" IsReadOnly="True"
+                      Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
+                      AlternatingRowBackground="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
+                      HorizontalGridLinesBrush="{DynamicResource Brush.Border}" GridLinesVisibility="Horizontal"
+                      HeadersVisibility="Column" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="{local:Loc Rotation.Col.Effect}" Width="*" MinWidth="200">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Icon}" Width="20" Height="20" Margin="0,1,6,1" RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.Uptime}" Binding="{Binding Uptime}" Width="90"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.FromYou}" Binding="{Binding FromYou}" Width="90"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.Times}" Binding="{Binding Applications}" Width="70"/>
+                    <DataGridTextColumn Header="{local:Loc Rotation.Col.Givers}" Binding="{Binding Givers}" Width="200"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock x:Name="DebuffsHeader" DockPanel.Dock="Bottom" Text="{local:Loc Rotation.Debuffs}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.TextSubtle}" Margin="0,14,0,6" Visibility="Collapsed"/>
             <DataGrid x:Name="BuffsGrid" AutoGenerateColumns="False" IsReadOnly="True"
                       Background="{DynamicResource Brush.Window}" Foreground="{DynamicResource Brush.Text}" RowBackground="{DynamicResource Brush.RowAlt}"
                       AlternatingRowBackground="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}"
