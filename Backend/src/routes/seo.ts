@@ -35,7 +35,6 @@ export async function seoRoutes(app: FastifyInstance) {
     return [
       "User-agent: *",
       "Allow: /",
-      "Disallow: /api/",
       "Disallow: /download/latest",
       "Disallow: /search",
       "Disallow: /compare/",

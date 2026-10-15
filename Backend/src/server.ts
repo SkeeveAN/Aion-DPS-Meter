@@ -90,6 +90,15 @@ export async function buildServer() {
     }
   });
 
+  // robots.txt must let Googlebot fetch /api/ - the pages load their content from there when it renders them,
+  // and blocked calls left an empty shell that Search Console reported as "Soft 404". The JSON itself
+  // stays out of the index via this header.
+  app.addHook("onSend", async (request, reply) => {
+    if (request.url.startsWith("/api/")) {
+      reply.header("x-robots-tag", "noindex");
+    }
+  });
+
   // Pictures change rarely and are only replaced under a new name: a week in the browser cache keeps repeat
   // visits from fetching dozens of card photos and icons again.
   app.addHook("onSend", async (request, reply) => {
