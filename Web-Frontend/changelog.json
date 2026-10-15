@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.0.4",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "Tools window: every tool keeps its own width (checklist narrower, design editor wider, any width down to very narrow), and the list of tools can be folded",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "1.0.3",
   "date": "2026-10-15",
   "items": [
