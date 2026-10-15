@@ -4,16 +4,23 @@
   "date": "2026-10-15",
   "items": [
    {
-    "text": "Daevanion stat names on player profiles: \"PvP Add Damage\" and the other PvP/PvE stats were shown split wrongly as \"Pv P Add Damage\"",
+    "text": "Website: every pre-rendered page now has a proper H1 heading (fixes Bing's \"H1 tag missing\" notice)",
     "areas": [
      "Backend"
     ],
     "date": "2026-10-15"
    },
    {
-    "text": "Website: every pre-rendered page now has a proper H1 heading (fixes Bing's \"H1 tag missing\" notice)",
+    "text": "Website: Daevanion stat names keep PvP/PvE intact (no more \"Pv P Add Damage\")",
     "areas": [
-     "Backend"
+     "Website"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Website: the features page has new scenes for the boss fight overlay, Assist (in development), the checklist and the pet level, sessions and the combat analyzer share one scene, and the hotkey overlay and the cube sound are listed under And more",
+    "areas": [
+     "Website"
     ],
     "date": "2026-10-15"
    }
