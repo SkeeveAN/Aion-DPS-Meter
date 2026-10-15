@@ -46,3 +46,5 @@ koreanischen Drittanbieter-Meter, aion.ing) inkl. Balance-Patch-Historie, die wi
 nachvollziehen können. Diese Zahlen sollen aus eigenen Combat-Logs (AionSniffer-Aufzeichnungen,
 Prioritätenliste siehe `rdps_watchlist.json`) empirisch hergeleitet und verifiziert werden — analog
 zum Boss-HP-Abgleich, der für Aion 1 bereits als Ground-Truth-Methode genutzt wird.
+
+- `skill_shapes.json`: skill id -> one-word floor shape (circle, cone, line, triangle, ring, ringarc, cross, target, wide) for the cast bar of monster skills the client has no name for. Built from the client SkillEffectFilter rows as the Waffle meter (github.com/Waffle-ens/waffle_meter, dotnet/Assets/json/skill-shapes.json) published them; 7-digit ids only.

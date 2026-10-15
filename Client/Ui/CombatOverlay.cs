@@ -119,9 +119,11 @@ public static class CombatOverlayData
             string target = atYou
                 ? loc["Combat.You"]
                 : cast.Target <= 0 || cast.Target == cast.Actor ? loc["Combat.AllAround"] : Name(dir, cast.Target, language);
-            string skill = Aion2SkillNames.DisplayOf(cast.SkillId);
+            bool generic = Aion2SkillNames.IsGeneric(cast.SkillId);
+            // a skill the client has no name for says what it paints on the floor ("Attack to the front") instead of a bare "Attack"
+            string skill = generic && Aion2SkillShapes.KindOf(cast.SkillId) is { } shape ? loc["Combat.Shape." + shape] : Aion2SkillNames.DisplayOf(cast.SkillId);
             string caster = Name(dir, cast.Actor, language);
-            var row = new CastRowData(skill, caster, target, atYou, view.IsArea, lethal, (now - cast.Start).TotalMilliseconds, cast.DurationMs, view.LandMs, Aion2SkillIcons.PathFor(cast.SkillId) ?? (dir.BossNpcIdOf(cast.Actor) is int bossNpc ? Aion2Artwork.BossThumbPath(bossNpc) : null), Aion2SkillNames.IsGeneric(cast.SkillId));
+            var row = new CastRowData(skill, caster, target, atYou, view.IsArea, lethal, (now - cast.Start).TotalMilliseconds, cast.DurationMs, view.LandMs, Aion2SkillIcons.PathFor(cast.SkillId) ?? (dir.BossNpcIdOf(cast.Actor) is int bossNpc ? Aion2Artwork.BossThumbPath(bossNpc) : null), generic);
             double score = (atYou ? 200 : 0) + (lethal ? 100 : 0) + (view.IsArea ? 50 : 0) + (boss ? 40 : 0);
             scored.Add((score, cast.End, row));
         }
