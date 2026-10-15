@@ -2907,7 +2907,11 @@ async function renderParticipant(participantId) {
 
 // Daevanion stat tokens come from the game data as CamelCase ("CriticalResist"); shown spaced out.
 function statLabel(token) {
-  return token.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^HP /, "HP ").replace(/^MP /, "MP ");
+  return token
+    .replace(/^Pv([PE])/, "Pv$1 ")
+    .replace(/([a-z])([A-Z])/g, (m, a, b) => (a === "v" && /^[PE]$/.test(b) ? m : `${a} ${b}`))
+    .replace(/ +/g, " ")
+    .trim();
 }
 
 // Skill names come in the game client's languages (de, en, es, fr, ja, ko, pt, ru); the site's other

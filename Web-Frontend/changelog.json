@@ -4,6 +4,13 @@
   "date": "2026-10-15",
   "items": [
    {
+    "text": "Daevanion stat names on player profiles: \"PvP Add Damage\" and the other PvP/PvE stats were shown split wrongly as \"Pv P Add Damage\"",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-15"
+   },
+   {
     "text": "Website: every pre-rendered page now has a proper H1 heading (fixes Bing's \"H1 tag missing\" notice)",
     "areas": [
      "Backend"
