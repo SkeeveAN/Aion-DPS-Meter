@@ -44,10 +44,24 @@ jobs:
         # see ICE24/ICE80's sibling ICE for the exact caps) with no prerelease label -- strip
         # everything from the first "-" onward so a tag like "v1.0.0-beta.1" still produces a
         # valid "1.0.0" rather than failing the MSI build entirely.
+        #
+        # A tag with a suffix ("v1.0.0-alpha.1") is a pre-release for testers: it is packed under its full
+        # semantic version on its own Velopack channel ("alpha"), so installed stable clients (channel
+        # "win") never see it as an update, it is never marked "Latest", and the final 1.0.0 stays free.
         run: |
           version="${TAG#v}"
+          full="$version"
           version="${version%%-*}"
           echo "number=$version" >> "$GITHUB_OUTPUT"
+          if [ "$full" != "$version" ]; then
+            echo "pack=$full" >> "$GITHUB_OUTPUT"
+            echo "channel=alpha" >> "$GITHUB_OUTPUT"
+            echo "pre=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pack=$version" >> "$GITHUB_OUTPUT"
+            echo "channel=win" >> "$GITHUB_OUTPUT"
+            echo "pre=false" >> "$GITHUB_OUTPUT"
+          fi
         env:
           TAG: ${{ steps.tag.outputs.name }}
 
@@ -78,7 +92,7 @@ jobs:
         run: >
           vpk download github
           --repoUrl https://github.com/${{ github.repository }}
-          --channel win --pre true --token $env:GH_TOKEN --outputDir releases
+          --channel ${{ steps.version.outputs.channel }} --pre true --token $env:GH_TOKEN --outputDir releases
         shell: pwsh
 
       # Produces, in "releases": the installer (AionDpsMeter-win-Setup.exe), a full .nupkg, a
@@ -91,18 +105,18 @@ jobs:
           --packId AionDpsMeter
           --packTitle "Aion DPS Meter"
           --packAuthors SkeeveAN
-          --packVersion ${{ steps.version.outputs.number }}
+          --packVersion ${{ steps.version.outputs.pack }}
           --packDir publish
           --mainExe "Aion DPS.exe"
           --icon Client/assets/app/aiondps.ico
-          --channel win
+          --channel ${{ steps.version.outputs.channel }}
           --outputDir releases
 
       - name: Upload the installer as a build artifact
         uses: actions/upload-artifact@v4
         with:
           name: AionDpsMeter-${{ steps.tag.outputs.name }}
-          path: releases/AionDpsMeter-win-Setup.exe
+          path: releases/AionDpsMeter-${{ steps.version.outputs.channel }}-Setup.exe
 
       # Everything except the portable zip, which is another ~70 MB per release and duplicates
       # what the installer already carries. The index files are small but load-bearing: without
@@ -119,15 +133,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             gh release create $tag --prerelease --title $tag --notes "Release $tag"
           }
-          $files = Get-ChildItem releases -File | Where-Object { $_.Name -ne 'AionDpsMeter-win-Portable.zip' }
+          $files = Get-ChildItem releases -File | Where-Object { $_.Name -notlike '*-Portable.zip' }
           gh release upload "${{ steps.tag.outputs.name }}" $files.FullName --clobber
           # The release stays a prerelease while the files are still being uploaded; only when
           # everything is attached does it become the normal "Latest" release (the fetch for
           # delta packages and the client's updater both still look at prereleases as well).
-          gh release edit $tag --prerelease=false --latest
-          # Only the newest 10 releases are kept (deltas need the recent ones; older ones just
-          # multiply the versions); older releases are deleted together with their tags.
-          $old = gh release list --limit 200 --json tagName,createdAt | ConvertFrom-Json |
-            Sort-Object createdAt -Descending | Select-Object -Skip 10
-          foreach ($r in $old) { gh release delete $r.tagName --cleanup-tag --yes }
+          # A test release (channel alpha) stays a prerelease for good and is never "Latest".
+          if ("${{ steps.version.outputs.pre }}" -ne "true") {
+            gh release edit $tag --prerelease=false --latest
+            # Only the newest 10 stable releases are kept (deltas need the recent ones; older ones just
+            # multiply the versions); older releases are deleted together with their tags. Test releases
+            # are never counted and never deleted here.
+            $old = gh release list --limit 200 --json tagName,createdAt,isPrerelease | ConvertFrom-Json |
+              Where-Object { $_.tagName -notmatch '-' } |
+              Sort-Object createdAt -Descending | Select-Object -Skip 10
+            foreach ($r in $old) { gh release delete $r.tagName --cleanup-tag --yes }
+          }
         shell: pwsh

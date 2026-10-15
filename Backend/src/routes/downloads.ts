@@ -24,7 +24,8 @@ async function latestInstaller(): Promise<{ tag: string; url: string } | null> {
       return cache;
     }
     const releases = (await res.json()) as { tag_name: string; draft?: boolean; assets: { name: string; browser_download_url: string }[] }[];
-    const release = releases.find((r) => !r.draft && r.assets.some((a) => a.name.endsWith("-Setup.exe")));
+    // A tag with a suffix ("v1.0.0-alpha.1") is a test release: never offered to everybody.
+    const release = releases.find((r) => !r.draft && !r.tag_name.includes("-") && r.assets.some((a) => a.name.endsWith("-Setup.exe")));
     const asset = release?.assets.find((a) => a.name.endsWith("-Setup.exe"));
     if (release && asset) {
       cache = { at: Date.now(), tag: release.tag_name, url: asset.browser_download_url };

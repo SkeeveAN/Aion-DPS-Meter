@@ -853,7 +853,8 @@ async function renderDownload() {
   let downloadSection;
   try {
     const releases = await fetchJson(`https://api.github.com/repos/${GITHUB_REPO}/releases`);
-    const latest = releases[0];
+    // a tag with a suffix ("v1.0.0-alpha.1") is a test release: never offered here
+    const latest = releases.find((r) => !r.draft && !r.tag_name.includes("-"));
     const setupAsset = latest?.assets?.find((a) => a.name.endsWith("-Setup.exe"));
 
     if (latest && setupAsset) {
