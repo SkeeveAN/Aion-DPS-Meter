@@ -3869,6 +3869,7 @@ body:has(.download-hero) .nav-download-link:hover,
 /* The two views of a dungeon (bosses / statistics), below its hero. */
 .dungeon-view-buttons {
   margin: 14px 0 18px;
+  justify-content: flex-end;
 }
 
 /* The dungeon statistics: the boss table next to the class share, two boxes in a row (one on narrow windows). */
