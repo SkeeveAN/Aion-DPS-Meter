@@ -2476,12 +2476,9 @@ async function renderLeaderboard(bossSlug, params) {
     : null;
   const tabs = serverTabs(data, bossPath);
   const stats = fightStatsRow(data.stats);
-  const sections = [hero, ...(modeChips ? [modeChips] : []), ...(stats ? [stats] : [])];
-  if (tabs) {
-    sections.push(tabs);
-  }
 
-  // Two views of one boss: the ranking (default) and the statistics (iDPS box plot per class, top 10 of each class).
+  // Two views of one boss: the ranking (default) and the statistics (iDPS box plot per class, top 10 of each class). The two
+  // switches sit at the right of the fight numbers, boxes of the same size.
   const statsView = params.get("view") === "stats";
   const viewHref = (view) => {
     const next = new URLSearchParams(params);
@@ -2492,15 +2489,19 @@ async function renderLeaderboard(bossSlug, params) {
     }
     return next.toString() ? `${bossPath}?${next}` : bossPath;
   };
-  const viewTab = (label, href, active) => {
-    const a = link(label, href);
+  const viewButton = (label, href, active) => {
+    const a = link(label, href, `view-button${active ? " active" : ""}`);
     if (active) {
-      a.className = "active";
       a.setAttribute("aria-current", "page");
     }
     return a;
   };
-  sections.push(el("nav", { className: "server-tabs view-tabs" }, [viewTab(t("stats.tabRanking"), viewHref(null), !statsView), viewTab(t("stats.tabStats"), viewHref("stats"), statsView)]));
+  const viewButtons = el("nav", { className: "view-buttons" }, [viewButton(t("stats.tabRanking"), viewHref(null), !statsView), viewButton(t("stats.tabStats"), viewHref("stats"), statsView)]);
+  const statsBar = el("div", { className: "stats-bar" }, [stats ?? el("div"), viewButtons]);
+  const sections = [hero, ...(modeChips ? [modeChips] : []), statsBar];
+  if (tabs) {
+    sections.push(tabs);
+  }
 
   if (statsView) {
     const statsQuery = new URLSearchParams(query);

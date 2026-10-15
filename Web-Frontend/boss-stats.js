@@ -60,11 +60,11 @@ function buildBoxPlot(boxes, deps, yourDps) {
 
 /**
  * @param stats the answer of /api/bosses/:id/stats: { boxes, topByClass }
- * @param deps  helpers of app.js: el, t, formatNumber, classLabel, classIcon, iconLabel, playerCell, rankedRow, rankedTable, gp
+ * @param deps  helpers of app.js: el, t, formatNumber, classLabel, classIcon, iconLabel, playerCell, gp
  * @returns the nodes of the view
  */
 export function buildBossStats(stats, deps) {
-  const { el, t, classLabel, classIcon, iconLabel, playerCell, rankedRow, rankedTable, gp } = deps;
+  const { el, t, formatNumber, classLabel, classIcon, iconLabel, playerCell, gp } = deps;
   const classNames = Object.keys(stats.topByClass ?? {}).sort();
   if ((stats.boxes ?? []).length === 0 && classNames.length === 0) {
     return [el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") })];
@@ -89,16 +89,26 @@ export function buildBossStats(stats, deps) {
     note,
   ]);
 
+  // Three boxes side by side, so each one holds a compact table: rank, player, iDPS (the full row is on the encounter page).
+  const compactTable = (rows) =>
+    el("table", { className: "ranked-table compact" }, [
+      el("thead", {}, [el("tr", {}, [el("th", { textContent: "#" }), el("th", { textContent: t("table.player") }), el("th", { textContent: t("participant.dps") })])]),
+      el("tbody", {}, rows),
+    ]);
   const topSection = el("section", {}, [
     el("h2", { textContent: t("leaderboard.topByClassHeading") }),
     el(
       "div",
-      { className: "class-grid" },
+      { className: "class-grid class-grid-3" },
       classNames.map((className) => {
         const rows = stats.topByClass[className].map((p, i) =>
-          rankedRow(i + 1, playerCell(p.faction, className, p.playerName, gp(`/encounters/${p.encounterId}`), p.serverName, p), p.idps, p.totalDamage, p.totalHealing, p.topBuffs, false),
+          el("tr", {}, [
+            el("td", { textContent: String(i + 1) }),
+            el("td", {}, [playerCell(p.faction, className, p.playerName, gp(`/encounters/${p.encounterId}`), p.serverName, p)]),
+            el("td", { textContent: formatNumber(p.idps), title: `${t("table.damage")} ${formatNumber(p.totalDamage)}` }),
+          ]),
         );
-        return el("div", { className: "class-block" }, [el("h3", {}, [iconLabel(classIcon(className), classLabel(className))]), rankedTable(rows, false)]);
+        return el("div", { className: "class-block" }, [el("h3", {}, [iconLabel(classIcon(className), classLabel(className))]), compactTable(rows)]);
       }),
     ),
   ]);
