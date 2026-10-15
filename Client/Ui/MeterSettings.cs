@@ -139,6 +139,12 @@ public sealed class MeterSettings
     /// <summary>How far the content of an overlay that is cut off from its sides (the map) is moved inside its frame, by the overlay's window title (x, y).</summary>
     public Dictionary<string, double[]> OverlayShifts { get; set; } = new();
 
+    /// <summary>The width the tools window has for each tool (by the tool's id): every tool keeps its own, so the checklist can be narrow and the design editor wide.</summary>
+    public Dictionary<string, double> ToolWidths { get; set; } = new();
+
+    /// <summary>The list of tools on the left of the tools window is folded to a thin strip.</summary>
+    public bool ToolsNavCollapsed { get; set; }
+
     /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 0 to 60 (0 = none).</summary>
     public int TimetableLookaheadMinutes { get; set; } = 60;
 
