@@ -2,6 +2,7 @@ import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGa
 import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, SERVER_NAMES, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
+import { buildBossStats } from "./boss-stats.js";
 
 // Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
 const V2 = (() => {
@@ -2478,6 +2479,37 @@ async function renderLeaderboard(bossSlug, params) {
   const sections = [hero, ...(modeChips ? [modeChips] : []), ...(stats ? [stats] : [])];
   if (tabs) {
     sections.push(tabs);
+  }
+
+  // Two views of one boss: the ranking (default) and the statistics (iDPS box plot per class, top 10 of each class).
+  const statsView = params.get("view") === "stats";
+  const viewHref = (view) => {
+    const next = new URLSearchParams(params);
+    if (view) {
+      next.set("view", view);
+    } else {
+      next.delete("view");
+    }
+    return next.toString() ? `${bossPath}?${next}` : bossPath;
+  };
+  const viewTab = (label, href, active) => {
+    const a = link(label, href);
+    if (active) {
+      a.className = "active";
+      a.setAttribute("aria-current", "page");
+    }
+    return a;
+  };
+  sections.push(el("nav", { className: "server-tabs view-tabs" }, [viewTab(t("stats.tabRanking"), viewHref(null), !statsView), viewTab(t("stats.tabStats"), viewHref("stats"), statsView)]));
+
+  if (statsView) {
+    const statsQuery = new URLSearchParams(query);
+    if (data.selectedMode !== null && data.selectedMode !== undefined) {
+      statsQuery.set("mode", data.selectedMode || "unknown");
+    }
+    const bossStats = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/stats?${statsQuery}`);
+    app.replaceChildren(...sections, ...buildBossStats(bossStats, { el, t, formatNumber, classLabel, classIcon, iconLabel, playerCell, rankedRow, rankedTable, gp }));
+    return;
   }
 
   // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) are never

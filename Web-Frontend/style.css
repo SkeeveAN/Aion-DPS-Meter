@@ -3632,3 +3632,79 @@ body:has(.download-hero) .nav-download-link:hover,
 
 .download-shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
 .download-shots img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--color-border); }
+
+/* Statistics view of a boss page (see boss-stats.js): box plot per class. */
+.boxplot-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.boxplot-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.boxplot-svg text {
+  fill: var(--color-text);
+  font-size: 12px;
+}
+
+.boxplot-svg .boxplot-axis {
+  fill: var(--color-text-muted);
+}
+
+.boxplot-grid {
+  stroke: var(--color-border);
+}
+
+.boxplot-whisker {
+  stroke: var(--color-text-muted);
+  stroke-width: 1.5;
+}
+
+.boxplot-box {
+  fill: var(--color-primary);
+  fill-opacity: 0.35;
+  stroke: var(--color-primary);
+}
+
+.boxplot-median {
+  stroke: var(--color-text);
+  stroke-width: 3;
+}
+
+.boxplot-you {
+  stroke: #ff6b6b;
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+
+.boxplot-svg .boxplot-you-label {
+  fill: #ff6b6b;
+}
+
+.boxplot-note {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.boxplot-you-field {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.boxplot-you-input {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  min-width: 180px;
+}

@@ -9,6 +9,7 @@ import { topBuffsByParticipant, type TopBuff } from "../skills/topBuffs.js";
 import { parseIdOrSlug } from "../seo/slug.js";
 import { gameFromQuery } from "./instances.js";
 import { CATEGORY_MODES, type Game } from "../constants.js";
+import { boxesByClass } from "../classStats.js";
 
 const TOP_N = 10;
 
@@ -206,6 +207,17 @@ export function topByClass(bossId: number, serverId: number | null, game: Game, 
   return result;
 }
 
+/** The iDPS of every counted row of one boss, per class, as a box plot: lowest, middle half, median, highest. */
+export function classBoxes(bossId: number, serverId: number | null, mode: string | null = null) {
+  const rows = db
+    .select({ className: encounterParticipants.className, idps: encounterParticipants.idps })
+    .from(encounterParticipants)
+    .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
+    .where(and(encounterScope(bossId, serverId, mode), EXACT_PARTICIPANT))
+    .all();
+  return boxesByClass(rows);
+}
+
 export type FightStats = {
   runCount: number;
   bestIdps: number | null;
@@ -376,6 +388,36 @@ export async function bossRoutes(app: FastifyInstance) {
         return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: [], topByClass: topByClass(boss.id, scope, found.game, mode), stats });
       }
       return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: topGroups(boss.id, scope, found.game, mode), topByClass: {}, stats });
+    },
+  );
+
+  // Statistics view of the boss page: the spread of the iDPS per class (box plot) and the top 10 of each class. Scoped like the leaderboard.
+  app.get<{ Params: { id: string }; Querystring: { serverId?: string; server?: string; game?: string; mode?: string } }>(
+    "/api/bosses/:id/stats",
+    async (request, reply) => {
+      const game = gameFromQuery(request.query.game, reply);
+      if (game === null) {
+        return;
+      }
+      const found = findBoss(request.params.id, game);
+      if (!found) {
+        return reply.status(404).send({ error: "boss_not_found" });
+      }
+      const boss = found.boss;
+      const mode = request.query.mode === undefined ? null : request.query.mode === UNKNOWN_MODE ? "" : request.query.mode;
+      const explicitServer = request.query.serverId !== undefined || request.query.server !== undefined;
+      let scope: number | null = null;
+      if (!(found.game === "aion2" && !explicitServer)) {
+        const selected = selectServer(serversWithEncounters(boss.id), request.query);
+        if (selected === "invalid") {
+          return reply.status(400).send({ error: "missing_or_invalid_server_id" });
+        }
+        if (selected === null) {
+          return reply.send({ boxes: [], topByClass: {} });
+        }
+        scope = selected.id;
+      }
+      return reply.send({ boxes: classBoxes(boss.id, scope, mode), topByClass: topByClass(boss.id, scope, found.game, mode) });
     },
   );
 
