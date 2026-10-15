@@ -21,7 +21,6 @@ public sealed class PetFarmWindow : Window
     private readonly StackPanel _lines = new();
     private readonly ScaleTransform _scale = new(1, 1);
     private readonly Border _panel;
-    private readonly System.Windows.Controls.Primitives.Thumb _grip;
     private IReadOnlyList<(string Pet, string Level)> _current = Array.Empty<(string, string)>();
     private bool _locked = true;
     private double _centerX;
@@ -45,22 +44,7 @@ public sealed class PetFarmWindow : Window
         ApplyOpacity(settings.OverlayOpacity);
         SetScale(settings.PetFarmScale);
 
-        _grip = new System.Windows.Controls.Primitives.Thumb
-        {
-            Width = 12, Height = 12, Cursor = Cursors.SizeNWSE, Margin = new Thickness(0, 4, 0, 0), HorizontalAlignment = HorizontalAlignment.Right,
-            Template = GripTemplate(),
-        };
-        AttachGripResize(_grip, SetScale, () => _scale.ScaleX);
-        _grip.DragCompleted += (_, _) =>
-        {
-            var s = MeterSettings.Load();
-            s.PetFarmScale = _scale.ScaleX;
-            s.Save();
-        };
-
-        var stack = new DockPanel { LastChildFill = true }; // the grip stays visible however small the frame is pulled; the lines are cut off
-        DockPanel.SetDock(_grip, Dock.Bottom);
-        stack.Children.Add(_grip);
+        var stack = new DockPanel { LastChildFill = true };
         stack.Children.Add(new Border { Child = _lines, ClipToBounds = true });
         _panel = new Border { CornerRadius = new CornerRadius(6), Padding = new Thickness(8, 5, 8, 5), Child = stack, LayoutTransform = _scale, BorderThickness = new Thickness(1) };
         _panel.SetResourceReference(Border.BackgroundProperty, "Brush.OverlayBg");
@@ -89,49 +73,28 @@ public sealed class PetFarmWindow : Window
             s.PetFarmLeft = _centerX;
             s.PetFarmTop = Top;
             s.Save();
-        });
+        }, SetScale, OverlayEdgeMode.Uniform);
         Content = _edges.Wrap(_panel);
         _centerX = settings.PetFarmLeft ?? SystemParameters.WorkArea.Width / 2;
         Left = _centerX - 60;
         SizeChanged += (_, e) => { if (!_resizing) { Left = _centerX - e.NewSize.Width / 2; } }; // keep the middle in place when the text changes
         Top = settings.PetFarmTop ?? 140;
         ApplyLocked(settings.PetInfoLocked);
+        Action<string> onReset = name => { if (name == Title) { Dispatcher.Invoke(ReloadPlace); } };
+        OverlayPlaces.WasReset += onReset;
+        Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
     }
 
-    /// <summary>Resize by the corner grip: the bottom right corner follows the mouse (measured in this window, whose top left stays put -
-    /// the change of the grip itself would move with the window and make the scaling jitter).</summary>
-    private void AttachGripResize(System.Windows.Controls.Primitives.Thumb grip, Action<double> setScale, Func<double> getScale)
+    /// <summary>Place, size and scale from the settings again (after "reset size and position").</summary>
+    private void ReloadPlace()
     {
-        double startScale = 1, startW = 1, startH = 1, offX = 0, offY = 0;
-        grip.DragStarted += (_, _) =>
-        {
-            var p = Mouse.GetPosition(this);
-            startScale = getScale();
-            startW = Math.Max(1, ActualWidth);
-            startH = Math.Max(1, ActualHeight);
-            offX = ActualWidth - p.X;
-            offY = ActualHeight - p.Y;
-        };
-        grip.DragDelta += (_, _) =>
-        {
-            var p = Mouse.GetPosition(this);
-            double ratio = ((p.X + offX) / startW + (p.Y + offY) / startH) / 2;
-            setScale(startScale * Math.Max(0.1, ratio));
-        };
-    }
-
-    private static ControlTemplate GripTemplate()
-    {
-        var template = new ControlTemplate(typeof(System.Windows.Controls.Primitives.Thumb));
-        var grid = new FrameworkElementFactory(typeof(Grid));
-        grid.SetValue(Panel.BackgroundProperty, Brushes.Transparent);
-        var path = new FrameworkElementFactory(typeof(System.Windows.Shapes.Path));
-        path.SetValue(System.Windows.Shapes.Path.DataProperty, Geometry.Parse("M11,1 L1,11 M11,5 L5,11 M11,9 L9,11"));
-        path.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.TextSubtle");
-        path.SetValue(System.Windows.Shapes.Shape.StrokeThicknessProperty, 1.0);
-        grid.AppendChild(path);
-        template.VisualTree = grid;
-        return template;
+        var s = MeterSettings.Load();
+        SetScale(s.PetFarmScale);
+        _panel.Width = s.PetFarmWidth is > 0 ? s.PetFarmWidth.Value : double.NaN;
+        _panel.Height = s.PetFarmHeight is > 0 ? s.PetFarmHeight.Value : double.NaN;
+        _centerX = s.PetFarmLeft ?? SystemParameters.WorkArea.Width / 2;
+        Left = _centerX - ActualWidth / 2;
+        Top = s.PetFarmTop ?? 140;
     }
 
     private void SetScale(double scale)
@@ -143,7 +106,7 @@ public sealed class PetFarmWindow : Window
 
     public void ApplyOpacity(double opacity)
     {
-        opacity = Math.Clamp(double.IsFinite(opacity) ? opacity : 0.6, 0.2, 1.0);
+        opacity = Math.Clamp(double.IsFinite(opacity) ? opacity : 0.6, 0.0, 1.0);
         var brush = new SolidColorBrush(Color.FromArgb((byte)Math.Round(opacity * 255), 0, 0, 0));
         brush.Freeze();
         Resources["Brush.OverlayBg"] = brush;
@@ -153,7 +116,6 @@ public sealed class PetFarmWindow : Window
     public void ApplyLocked(bool locked)
     {
         _locked = locked;
-        _grip.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
         _edges.Show(!locked);
         _panel.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
         _panel.SetResourceReference(Border.BorderBrushProperty, locked ? "Brush.OverlayBg" : "Brush.Accent");
@@ -180,6 +142,23 @@ public sealed class PetFarmWindow : Window
         Render();
     }
 
+    /// <summary>One line of the overlay: the pet's name and, in the accent colour, what is known about its level.</summary>
+    internal static StackPanel BuildRow(string pet, string level)
+    {
+        var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1), HorizontalAlignment = HorizontalAlignment.Center };
+        var name = new TextBlock { Text = pet, FontWeight = FontWeights.Bold, FontSize = 13, VerticalAlignment = VerticalAlignment.Center };
+        name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
+        row.Children.Add(name);
+        if (level.Length > 0)
+        {
+            var detail = new TextBlock { Text = "· " + level, FontWeight = FontWeights.Bold, FontSize = 13, Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            detail.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+            row.Children.Add(detail);
+        }
+
+        return row;
+    }
+
     private void Render()
     {
         bool placeholder = _current.Count == 0 && !_locked;
@@ -193,17 +172,7 @@ public sealed class PetFarmWindow : Window
         var rows = placeholder ? new[] { (LocalizationManager.Instance["PetFarm.Placeholder"], "") } : _current.ToArray();
         foreach ((string pet, string level) in rows)
         {
-            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1), HorizontalAlignment = HorizontalAlignment.Center };
-            var name = new TextBlock { Text = pet, FontWeight = FontWeights.Bold, FontSize = 13, VerticalAlignment = VerticalAlignment.Center };
-            name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.OverlayText");
-            row.Children.Add(name);
-            if (level.Length > 0)
-            {
-                var detail = new TextBlock { Text = "· " + level, FontWeight = FontWeights.Bold, FontSize = 13, Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
-                detail.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
-                row.Children.Add(detail);
-            }
-
+            var row = BuildRow(pet, level);
             _lines.Children.Add(row);
         }
 

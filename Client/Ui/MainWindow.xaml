@@ -636,34 +636,27 @@
                          entry buried among a dozen others. -->
                     <!-- Tools: the combat analyzer (session manager), loading/saving/exporting sessions and the dummy test. The session part comes first,
                          a line sets the dummy test apart. -->
-                    <MenuItem Header="{local:Loc Main.MenuTools}" Foreground="{DynamicResource Brush.Text}">
-                        <MenuItem Header="{local:Loc Main.MenuTools.Analyzer}" Click="OnOpenSessionManagerClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.SessionGroup}">
-                            <MenuItem Header="{local:Loc Main.MenuApp.LoadSession}" Click="OnLoadSessionClicked"/>
-                            <MenuItem Header="{local:Loc Main.MenuApp.SaveSession}" Click="OnSaveSessionClicked"/>
-                        </MenuItem>
-                        <MenuItem Header="{local:Loc Main.MenuApp.ExportGroup}">
-                            <MenuItem Header="{local:Loc Main.MenuApp.ExportSession}" IsEnabled="False"/>
-                            <MenuItem Header="{local:Loc Main.MenuApp.ValidateSession}" IsEnabled="False"/>
-                        </MenuItem>
-                        <MenuItem Header="{local:Loc Main.MenuApp.OpenSessionsFolder}" Click="OnOpenSessionsFolderClicked"/>
+                                        <MenuItem Header="{local:Loc Main.MenuTools}" Foreground="{DynamicResource Brush.Text}">
+                        <MenuItem Header="{local:Loc Main.MenuTools.Checklist}" Click="OnOpenChecklistClicked"/>
+                        <MenuItem Header="{local:Loc Settings.Nav.PetMap}" Tag="petmap" Click="OnOpenModuleClicked"/>
+                        <Separator/>
+                        <MenuItem Header="{local:Loc Settings.Nav.Combat}" Tag="combat" Click="OnOpenModuleClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Assist}" Click="OnOpenAssistClicked"/>
                         <Separator/>
                         <MenuItem Header="{local:Loc Main.MenuTools.DummyTest}" Click="OnOpenDummyTestClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuTools.Checklist}" Click="OnOpenChecklistClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuTools.Assist}" Click="OnOpenAssistClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Analyzer}" Click="OnOpenSessionManagerClicked"/>
+                        <Separator/>
+                        <MenuItem Header="{local:Loc Settings.Nav.Timetable}" Tag="timetable" Click="OnOpenModuleClicked"/>
+                        <MenuItem Header="{local:Loc Settings.Nav.Boss}" Tag="boss" Click="OnOpenModuleClicked"/>
+                        <Separator/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Stream}" Tag="stream" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuTools.ThemeEditor}" Click="OnOpenThemeEditorClicked"/>
+                        <MenuItem Header="{local:Loc Settings.Nav.Network}" Tag="network" Click="OnOpenModuleClicked"/>
                     </MenuItem>
                     <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuSettings.AppSettings}" Click="OnSettingsClicked"/>
                         <MenuItem x:Name="AlwaysOnTopMenuItem" Header="{local:Loc Main.MenuSettings.AlwaysOnTop}" IsCheckable="True" Click="OnAlwaysOnTopClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuSettings.Feedback}" Click="OnFeedbackClicked"/>
-                    </MenuItem>
-                    <MenuItem Header="{local:Loc Main.MenuMode}" Foreground="{DynamicResource Brush.Text}">
-                        <MenuItem x:Name="DamageModeItem" Header="{local:Loc Main.ModeDamage}" IsCheckable="True" IsChecked="True" Click="OnModeClicked"/>
-                        <MenuItem x:Name="HealModeItem" Header="{local:Loc Main.ModeHeal}" IsCheckable="True" Click="OnModeClicked"/>
-                        <MenuItem x:Name="TakenModeItem" Header="{local:Loc Main.ModeTaken}" IsCheckable="True" Click="OnModeClicked"/>
-                        <MenuItem x:Name="AllModeItem" Header="{local:Loc Main.ModeAll}" IsCheckable="True" Click="OnModeClicked"/>
-                        <MenuItem x:Name="AllCompactModeItem" Header="{local:Loc Main.ModeAllCompact}" IsCheckable="True" Click="OnModeClicked"/>
                     </MenuItem>
                 </Menu>
 
@@ -783,10 +776,22 @@
                          placeholder since it wasn't asked to go too. See README's UI-placeholders
                          section. -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
-                        <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" ToolTip="Damage Distribution" Click="OnShowDamageView"
-                                Background="{DynamicResource Brush.Accent}" Foreground="{DynamicResource Brush.Window}">
-                            <Path Data="M3,16 L3,10 M8,16 L8,5 M13,16 L13,12" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="16" Height="16"/>
+                        <!-- The five display modes as buttons (they were the "Mode" menu): damage, heal, damage taken, All in One,
+                             All in One +. The icon pictures and the active look are set in ApplyModeButtons (assets/modes). -->
+                        <Button x:Name="ModeDamageButton" Style="{StaticResource NavButton}" Tag="Damage" ToolTip="{local:Loc Main.ModeDamage}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeDamageImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        <Button x:Name="ModeHealButton" Style="{StaticResource NavButton}" Tag="Heal" ToolTip="{local:Loc Main.ModeHeal}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeHealImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        <Button x:Name="ModeTakenButton" Style="{StaticResource NavButton}" Tag="Taken" ToolTip="{local:Loc Main.ModeTaken}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeTakenImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        <Button x:Name="ModeAllButton" Style="{StaticResource NavButton}" Tag="All" ToolTip="{local:Loc Main.ModeAll}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeAllImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        <Button x:Name="ModeAllPlusButton" Style="{StaticResource NavButton}" Tag="AllCompact" ToolTip="{local:Loc Main.ModeAllCompact}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeAllPlusImage" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Button>
                         <!-- Rebuilt per the user (the old single lopsided arc from (1,15) to
                              (15,12.5) via one control point at (8,8) read as pinched/asymmetric,
@@ -915,10 +920,10 @@
                         <ComboBoxItem Content="{local:Loc Main.FilterAllGroups}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterSelf}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterGroup}"/>
-                        <ComboBoxItem Content="{local:Loc Main.FilterAlliance}"/>
+                        <ComboBoxItem Content="{local:Loc Main.Scope.Corps}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterLegion}"/>
-                        <ComboBoxItem Content="Elyos"/>
-                        <ComboBoxItem Content="Asmodian"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterElyos}"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterAsmodian}"/>
                     </ComboBox>
                     <!-- Lists targets actually seen this session. "All" sums each source's damage
                          across every target (the ambiguous wall-clock view - see DpsCalculator

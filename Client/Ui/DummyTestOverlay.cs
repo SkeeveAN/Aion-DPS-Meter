@@ -9,7 +9,7 @@ using AionDPS.History;
 namespace AionDPS.Ui;
 
 /// <summary>What the dummy test overlay shows at one moment.</summary>
-public sealed record DummyOverlayData(string Header, string Clock, Color ClockColor, string Sub, string Stats);
+public sealed record DummyOverlayData(string Header, string Clock, Color ClockColor, string Sub, string Stats, double Fraction = 1.0);
 
 /// <summary>
 /// The dummy test overlay: the time of the run, counting down as minutes:seconds:hundredths, and after it "Finished". Placed, scaled and locked like the network
@@ -22,16 +22,24 @@ public sealed class DummyTestOverlayWindow : MovableOverlay
     private readonly TextBlock _sub = new() { FontSize = 11.5, Foreground = new SolidColorBrush(Color.FromRgb(0xDD, 0xE6, 0xEC)), HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center };
     private readonly TextBlock _stats = new() { FontSize = 12.5, FontWeight = FontWeights.Bold, Foreground = Brushes.White, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 2, 0, 0) };
 
-    public DummyTestOverlayWindow() : base("Aion DPS Dummy Test", new Border(), Load, Save, SystemParameters.WorkArea.Left + 40, 360, LoadSize, SaveSize)
+    private readonly Border _barFill = new() { CornerRadius = new CornerRadius(3), HorizontalAlignment = HorizontalAlignment.Left, Height = 6 };
+    private readonly Border _bar = new() { Height = 6, CornerRadius = new CornerRadius(3), Margin = new Thickness(0, 2, 0, 4), Background = new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF)) };
+    private double _fraction = 1;
+
+    public DummyTestOverlayWindow() : base("Aion DPS Dummy Test", new Border(), Load, Save, SystemParameters.WorkArea.Left + 40, 360, LoadSize, SaveSize, OverlayEdgeMode.Uniform)
     {
         var stack = new StackPanel { MinWidth = 250 };
         stack.Children.Add(_header);
         stack.Children.Add(_clock);
+        // the time left as a bar that slowly runs empty
+        _bar.Child = _barFill;
+        _bar.SizeChanged += (_, _) => _barFill.Width = Math.Max(0, _bar.ActualWidth * _fraction);
+        stack.Children.Add(_bar);
         stack.Children.Add(_sub);
         stack.Children.Add(_stats);
         Body = new Border
         {
-            Background = new SolidColorBrush(Color.FromArgb(0x8C, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
+            Background = new SolidColorBrush(Color.FromArgb(0x99, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
             BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(14, 6, 14, 8), Child = stack,
         };
     }
@@ -70,6 +78,9 @@ public sealed class DummyTestOverlayWindow : MovableOverlay
         _header.Text = data.Header;
         _clock.Text = data.Clock;
         _clock.Foreground = new SolidColorBrush(data.ClockColor);
+        _barFill.Background = new SolidColorBrush(data.ClockColor);
+        _fraction = Math.Clamp(data.Fraction, 0, 1);
+        _barFill.Width = Math.Max(0, _bar.ActualWidth * _fraction);
         _sub.Text = data.Sub;
         _sub.Visibility = data.Sub.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         _stats.Text = data.Stats;
@@ -221,9 +232,9 @@ public sealed class DummyTestController : IDisposable
             case DummyState.Armed:
                 return new DummyOverlayData(header, Clock(Model.Planned), Calm, loc["Dummy.Waiting"], "");
             case DummyState.Running:
-                return new DummyOverlayData(header, Clock(Model.Remaining(now)), Accent, loc["Dummy.RunningHint"], Stats(Model.Current, now));
+                return new DummyOverlayData(header, Clock(Model.Remaining(now)), Accent, loc["Dummy.RunningHint"], Stats(Model.Current, now), Model.Planned.TotalSeconds > 0 ? Model.Remaining(now).TotalSeconds / Model.Planned.TotalSeconds : 0);
             case DummyState.Finished:
-                return new DummyOverlayData(header, loc["Dummy.Finished"], Done, loc["Dummy.FinishedHint"], Stats(Model.Current, now));
+                return new DummyOverlayData(header, loc["Dummy.Finished"], Done, loc["Dummy.FinishedHint"], Stats(Model.Current, now), 0);
             default:
                 return new DummyOverlayData(loc["Dummy.Title"], Clock(TimeSpan.FromSeconds(_settings.DummyTestSeconds)), Calm, loc["Dummy.OverlaySample"], "");
         }

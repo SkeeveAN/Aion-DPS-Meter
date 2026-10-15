@@ -13,23 +13,25 @@ namespace AionDPS.Ui;
 
 /// <summary>
 /// A small transparent overlay that can be placed and scaled on its own: locked it is click-through, unlocked it takes clicks, can be dragged by
-/// its body and scaled with the grip in its corner. Place and size are kept per overlay (the pet map and the pet list are two of them).
+/// its body and scaled with the handles at its corners and edges. Place and size are kept per overlay (the pet map and the pet list are two of them).
 /// </summary>
 public abstract class MovableOverlay : Window
 {
     private const double MinScale = 0.5, MaxScale = 3.0;
     private readonly ScaleTransform _scale = new(1, 1);
     private readonly Border _frame;
-    private readonly Thumb _grip;
     private readonly Border _bodyHost = new();
+    private readonly Border _shiftHost = new();
+    private readonly TranslateTransform _shift = new();
     private readonly Func<(double? Left, double? Top, double Scale)> _load;
     private readonly Action<double, double, double> _save;
     private readonly Action<double?, double?> _saveSize;
+    private readonly Func<(double? Width, double? Height)> _loadSizeFn;
     private bool _locked = true;
     private readonly OverlayEdgeResize _edges;
 
     protected MovableOverlay(string title, UIElement body, Func<(double? Left, double? Top, double Scale)> load, Action<double, double, double> save, double defaultLeft, double defaultTop,
-        Func<(double? Width, double? Height)> loadSize, Action<double?, double?> saveSize)
+        Func<(double? Width, double? Height)> loadSize, Action<double?, double?> saveSize, OverlayEdgeMode edgeMode = OverlayEdgeMode.Crop)
     {
         Title = title;
         WindowStyle = WindowStyle.None;
@@ -44,21 +46,15 @@ public abstract class MovableOverlay : Window
         _load = load;
         _save = save;
         _saveSize = saveSize;
+        _loadSizeFn = loadSize;
 
         var saved = load();
         SetScale(saved.Scale);
-        _grip = new Thumb
-        {
-            Width = 12, Height = 12, Cursor = Cursors.SizeNWSE, Margin = new Thickness(0, 2, 0, 0), HorizontalAlignment = HorizontalAlignment.Right,
-            Template = GripTemplate(),
-        };
-        AttachGripResize(_grip, SetScale, () => _scale.ScaleX);
-        _grip.DragCompleted += (_, _) => SavePlace();
-        var stack = new DockPanel { LastChildFill = true }; // the grip stays visible however small the frame is pulled; the body is cut off
-        _bodyHost.Child = body;
+        _shiftHost.RenderTransform = _shift;
+        _shiftHost.Child = body;
+        _bodyHost.Child = _shiftHost;
         _bodyHost.ClipToBounds = true;
-        DockPanel.SetDock(_grip, Dock.Bottom);
-        stack.Children.Add(_grip);
+        var stack = new DockPanel { LastChildFill = true };
         stack.Children.Add(_bodyHost);
         _frame = new Border { Child = stack, LayoutTransform = _scale, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Padding = new Thickness(2), Background = Brushes.Transparent };
         _frame.MouseLeftButtonDown += (_, e) =>
@@ -72,11 +68,41 @@ public abstract class MovableOverlay : Window
         var size = loadSize();
         if (size.Width is > 0) { _frame.Width = size.Width.Value; }
         if (size.Height is > 0) { _frame.Height = size.Height.Value; }
-        _edges = new OverlayEdgeResize(this, _frame, () => _scale.ScaleX, () => { }, SavePlace);
+        if (edgeMode == OverlayEdgeMode.CropAnchored && MeterSettings.Load().OverlayShifts.TryGetValue(title, out double[]? shift) && shift.Length == 2)
+        {
+            _shift.X = shift[0];
+            _shift.Y = shift[1];
+        }
+
+        _edges = new OverlayEdgeResize(this, _frame, () => _scale.ScaleX, () => { }, SavePlace, SetScale, edgeMode, (x, y) => { _shift.X = x; _shift.Y = y; });
         Content = _edges.Wrap(_frame);
         Left = saved.Left ?? defaultLeft;
         Top = saved.Top ?? defaultTop;
         ApplyLocked(true);
+        _defaultLeft = defaultLeft;
+        _defaultTop = defaultTop;
+        Action<string> onReset = title => { if (title == Title) { Dispatcher.Invoke(ReloadPlace); } };
+        OverlayPlaces.WasReset += onReset;
+        Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
+    }
+
+    private readonly double _defaultLeft, _defaultTop;
+    private DateTime _opacityAt = DateTime.MinValue;
+
+    /// <summary>The place, size and scale are read from the settings again (after "reset size and position").</summary>
+    private void ReloadPlace()
+    {
+        var saved = _load();
+        SetScale(saved.Scale);
+        var size = _loadSizeFn();
+        _frame.Width = size.Width is > 0 ? size.Width.Value : double.NaN;
+        _frame.MaxHeight = double.PositiveInfinity;
+        _frame.Height = size.Height is > 0 ? size.Height.Value : double.NaN;
+        _shift.X = MeterSettings.Load().OverlayShifts.TryGetValue(Title, out double[]? shifted) && shifted.Length == 2 ? shifted[0] : 0;
+        _shift.Y = shifted is { Length: 2 } ? shifted[1] : 0;
+        Left = saved.Left ?? _defaultLeft;
+        Top = saved.Top ?? _defaultTop;
+        ApplyLocked(_locked);
     }
 
     public bool IsLocked => _locked;
@@ -99,7 +125,7 @@ public abstract class MovableOverlay : Window
     /// <summary>The content of the overlay (set by the derived window once it has built it).</summary>
     protected UIElement? Body
     {
-        set => _bodyHost.Child = value;
+        set => _shiftHost.Child = value;
     }
 
     /// <summary>Applies the lock only when it changed (the controller asks every tick).</summary>
@@ -109,42 +135,6 @@ public abstract class MovableOverlay : Window
         {
             ApplyLocked(locked);
         }
-    }
-
-    /// <summary>Resize by the corner grip: the bottom right corner follows the mouse (measured in this window, whose top left stays put -
-    /// the change of the grip itself would move with the window and make the scaling jitter).</summary>
-    private void AttachGripResize(System.Windows.Controls.Primitives.Thumb grip, Action<double> setScale, Func<double> getScale)
-    {
-        double startScale = 1, startW = 1, startH = 1, offX = 0, offY = 0;
-        grip.DragStarted += (_, _) =>
-        {
-            var p = Mouse.GetPosition(this);
-            startScale = getScale();
-            startW = Math.Max(1, ActualWidth);
-            startH = Math.Max(1, ActualHeight);
-            offX = ActualWidth - p.X;
-            offY = ActualHeight - p.Y;
-        };
-        grip.DragDelta += (_, _) =>
-        {
-            var p = Mouse.GetPosition(this);
-            double ratio = ((p.X + offX) / startW + (p.Y + offY) / startH) / 2;
-            setScale(startScale * Math.Max(0.1, ratio));
-        };
-    }
-
-    private static ControlTemplate GripTemplate()
-    {
-        var template = new ControlTemplate(typeof(Thumb));
-        var grid = new FrameworkElementFactory(typeof(Grid));
-        grid.SetValue(Panel.BackgroundProperty, Brushes.Transparent);
-        var path = new FrameworkElementFactory(typeof(System.Windows.Shapes.Path));
-        path.SetValue(System.Windows.Shapes.Path.DataProperty, Geometry.Parse("M11,1 L1,11 M11,5 L5,11 M11,9 L9,11"));
-        path.SetValue(Shape.StrokeProperty, new SolidColorBrush(Color.FromRgb(0x9D, 0xB3, 0xC2)));
-        path.SetValue(Shape.StrokeThicknessProperty, 1.0);
-        grid.AppendChild(path);
-        template.VisualTree = grid;
-        return template;
     }
 
     private void SetScale(double scale)
@@ -159,6 +149,12 @@ public abstract class MovableOverlay : Window
         _save(Left, Top, _scale.ScaleX);
         double? height = !double.IsNaN(_frame.Height) ? _frame.Height : !double.IsInfinity(_frame.MaxHeight) ? _frame.MaxHeight : null;
         _saveSize(double.IsNaN(_frame.Width) ? null : _frame.Width, height);
+        if (_shift.X != 0 || _shift.Y != 0)
+        {
+            var s = MeterSettings.Load();
+            s.OverlayShifts[Title] = new[] { _shift.X, _shift.Y };
+            s.Save();
+        }
     }
 
     /// <summary>Locked: click-through, no outline, no grip. Unlocked: clickable and outlined, so it can be found, moved and scaled.</summary>
@@ -178,7 +174,6 @@ public abstract class MovableOverlay : Window
             _frame.MaxHeight = double.PositiveInfinity;
         }
 
-        _grip.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
         _edges.Show(!locked);
         _frame.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
         _frame.BorderBrush = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42));
@@ -209,10 +204,25 @@ public abstract class MovableOverlay : Window
             return;
         }
 
+        if (!IsVisible || (DateTime.UtcNow - _opacityAt).TotalSeconds >= 2)
+        {
+            _opacityAt = DateTime.UtcNow;
+            ApplyStoredOpacity(); // also while shown: a changed opacity in the settings takes effect within a moment
+        }
+
         if (!IsVisible)
         {
             Show();
             ApplyClickThrough();
+        }
+    }
+
+    /// <summary>The overlay's own opacity (0 to 1, set per overlay in its module; the key is its title) replaces the alpha of the body's dark background.</summary>
+    public void ApplyStoredOpacity()
+    {
+        if (MeterSettings.Load().OverlayOpacities.TryGetValue(Title, out double v) && _shiftHost.Child is Border { Background: SolidColorBrush bg } body)
+        {
+            body.Background = new SolidColorBrush(Color.FromArgb((byte)Math.Round(Math.Clamp(v, 0, 1) * 255), bg.Color.R, bg.Color.G, bg.Color.B));
         }
     }
 
@@ -269,7 +279,7 @@ public sealed class PetMapWindow : MovableOverlay
     public double MeHeading { get; set; }
     private readonly TextBlock _meUnknown;
 
-    public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120, LoadSize, SaveSize)
+    public PetMapWindow() : base("Aion DPS Pet Map", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Right - ViewSize - 40, 120, LoadSize, SaveSize, OverlayEdgeMode.CropAnchored)
     {
         _me = new Polygon
         {
@@ -640,7 +650,7 @@ public sealed class PetListWindow : MovableOverlay
     {
         var panel = new Border
         {
-            Background = new SolidColorBrush(Color.FromArgb(0x8C, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
+            Background = new SolidColorBrush(Color.FromArgb(0x99, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
             BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 6, 10, 6), Child = _rows,
         };
         Body = panel;

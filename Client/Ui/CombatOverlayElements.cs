@@ -33,7 +33,7 @@ public sealed class CombatStage : Canvas
 
 /// <summary>
 /// One element of the combat overlay. Locked, it is only its content. Unlocked (the edit mode) it has an outline and can be moved by its body, pulled larger or
-/// smaller at each of its four edges, and scaled with the grip at its bottom right corner - the overlay's own grip then scales all of them together.
+/// smaller at each of its four edges, and scaled at its four corners - the overlay's own handles then scale all of them together.
 /// Place, size and scale are kept in the element's <see cref="CombatElementLayout"/> in the stage's units, and saved when a drag ends.
 /// </summary>
 public sealed class CombatElementHost : Border
@@ -46,7 +46,7 @@ public sealed class CombatElementHost : Border
     private readonly ScaleTransform _scale = new(1, 1);
     private readonly Action<string, CombatElementLayout> _save;
     private readonly Thumb _left = Edge(Cursors.SizeWE), _right = Edge(Cursors.SizeWE), _top = Edge(Cursors.SizeNS), _bottom = Edge(Cursors.SizeNS);
-    private readonly Thumb _grip;
+    private readonly Thumb[] _corners = new Thumb[4];
     private readonly TextBlock _caption;
     private bool _editing;
     private bool _dragging;
@@ -69,11 +69,6 @@ public sealed class CombatElementHost : Border
             Text = caption, FontSize = 9.5, Foreground = EditBorder, Margin = new Thickness(0, 0, 18, 1), IsHitTestVisible = false,
             HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom, Visibility = Visibility.Collapsed,
         };
-        _grip = new Thumb
-        {
-            Width = 12, Height = 12, Cursor = Cursors.SizeNWSE, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom,
-            Template = GripTemplate(), Visibility = Visibility.Collapsed,
-        };
         _left.HorizontalAlignment = HorizontalAlignment.Left;
         _left.Width = EdgeThickness;
         _right.HorizontalAlignment = HorizontalAlignment.Right;
@@ -85,7 +80,7 @@ public sealed class CombatElementHost : Border
 
         var grid = new Grid();
         grid.Children.Add(content);
-        foreach (UIElement part in new UIElement[] { _caption, _left, _right, _top, _bottom, _grip })
+        foreach (UIElement part in new UIElement[] { _caption, _left, _right, _top, _bottom })
         {
             grid.Children.Add(part);
         }
@@ -109,12 +104,30 @@ public sealed class CombatElementHost : Border
             Layout.Height = (bottom - top) / s.Scale;
         });
         Wire(_bottom, (m, s) => Layout.Height = Math.Max(MinHeight_, s.Height + (m.Y - s.Mouse.Y) / s.Scale));
-        Wire(_grip, (m, s) =>
+        // a corner scales the element: the opposite corner stays where it is, the mouse sets the distance from it
+        int index = 0;
+        foreach (var (isLeft, isTop) in new[] { (true, true), (false, true), (true, false), (false, false) })
         {
-            double rx = (m.X - s.Left) / Math.Max(1, s.Width * s.Scale);
-            double ry = (m.Y - s.Top) / Math.Max(1, s.Height * s.Scale);
-            Layout.Scale = Math.Clamp(s.Scale * Math.Max(0.1, (rx + ry) / 2), MinScale_, MaxScale_);
-        });
+            var corner = new Thumb
+            {
+                Width = 14, Height = 14, Cursor = isLeft == isTop ? Cursors.SizeNWSE : Cursors.SizeNESW,
+                HorizontalAlignment = isLeft ? HorizontalAlignment.Left : HorizontalAlignment.Right,
+                VerticalAlignment = isTop ? VerticalAlignment.Top : VerticalAlignment.Bottom,
+                Template = CornerTemplate(), Visibility = Visibility.Collapsed,
+            };
+            bool l = isLeft, t = isTop;
+            Wire(corner, (m, s) =>
+            {
+                double ax = s.Left + (l ? s.Width * s.Scale : 0), ay = s.Top + (t ? s.Height * s.Scale : 0);
+                double d0 = Math.Max(12, Math.Sqrt((s.Mouse.X - ax) * (s.Mouse.X - ax) + (s.Mouse.Y - ay) * (s.Mouse.Y - ay)));
+                double d1 = Math.Sqrt((m.X - ax) * (m.X - ax) + (m.Y - ay) * (m.Y - ay));
+                Layout.Scale = Math.Clamp(s.Scale * d1 / d0, MinScale_, MaxScale_);
+                Layout.Left = Math.Max(0, l ? ax - s.Width * Layout.Scale : ax);
+                Layout.Top = Math.Max(0, t ? ay - s.Height * Layout.Scale : ay);
+            });
+            _corners[index++] = corner;
+            grid.Children.Add(corner);
+        }
 
         MouseLeftButtonDown += OnBodyDown;
         MouseMove += OnBodyMove;
@@ -155,7 +168,11 @@ public sealed class CombatElementHost : Border
         Background = editing ? EditFill : null;
         Visibility visibility = editing ? Visibility.Visible : Visibility.Collapsed;
         _caption.Visibility = visibility;
-        _grip.Visibility = visibility;
+        foreach (Thumb corner in _corners)
+        {
+            corner.Visibility = visibility;
+        }
+
         foreach (Thumb edge in new[] { _left, _right, _top, _bottom })
         {
             edge.Visibility = visibility;
@@ -164,7 +181,7 @@ public sealed class CombatElementHost : Border
         Cursor = editing ? Cursors.SizeAll : Cursors.Arrow;
     }
 
-    private static Thumb Edge(Cursor cursor) => new() { Cursor = cursor, Background = Brushes.Transparent, Opacity = 0.01, Visibility = Visibility.Collapsed, Template = EdgeTemplate() };
+    private static Thumb Edge(Cursor cursor) => new() { Cursor = cursor, Background = Brushes.Transparent, Visibility = Visibility.Collapsed, Template = EdgeTemplate() };
 
     private static ControlTemplate EdgeTemplate()
     {
@@ -175,16 +192,17 @@ public sealed class CombatElementHost : Border
         return template;
     }
 
-    private static ControlTemplate GripTemplate()
+    private static ControlTemplate CornerTemplate()
     {
         var template = new ControlTemplate(typeof(Thumb));
         var grid = new FrameworkElementFactory(typeof(Grid));
         grid.SetValue(Panel.BackgroundProperty, Brushes.Transparent);
-        var path = new FrameworkElementFactory(typeof(System.Windows.Shapes.Path));
-        path.SetValue(System.Windows.Shapes.Path.DataProperty, Geometry.Parse("M11,1 L1,11 M11,5 L5,11 M11,9 L9,11"));
-        path.SetValue(System.Windows.Shapes.Shape.StrokeProperty, EditBorder);
-        path.SetValue(System.Windows.Shapes.Shape.StrokeThicknessProperty, 1.2);
-        grid.AppendChild(path);
+        var square = new FrameworkElementFactory(typeof(Border));
+        square.SetValue(FrameworkElement.WidthProperty, 10.0);
+        square.SetValue(FrameworkElement.HeightProperty, 10.0);
+        square.SetValue(Border.BackgroundProperty, EditBorder);
+        square.SetValue(Border.CornerRadiusProperty, new CornerRadius(2));
+        grid.AppendChild(square);
         template.VisualTree = grid;
         return template;
     }

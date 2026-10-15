@@ -13,11 +13,11 @@ public sealed class AssistOverlayWindow : MovableOverlay
 {
     public AssistPanel Panel { get; } = new(true) { MinWidth = 220, MinHeight = 40 };
 
-    public AssistOverlayWindow() : base("Aion DPS Assist", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 520, LoadSize, SaveSize)
+    public AssistOverlayWindow() : base("Aion DPS Assist", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 520, LoadSize, SaveSize, OverlayEdgeMode.Width)
     {
         Body = new Border
         {
-            Background = new SolidColorBrush(Color.FromArgb(0x8C, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
+            Background = new SolidColorBrush(Color.FromArgb(0x99, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
             BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 6, 10, 6), Child = Panel,
         };
     }

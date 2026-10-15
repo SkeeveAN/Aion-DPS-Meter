@@ -144,11 +144,11 @@ public sealed class NetworkOverlayWindow : MovableOverlay
 {
     private readonly StackPanel _rows = new() { MinWidth = 260, MinHeight = 40 };
 
-    public NetworkOverlayWindow() : base("Aion DPS Network", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 520, LoadSize, SaveSize)
+    public NetworkOverlayWindow() : base("Aion DPS Network", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 520, LoadSize, SaveSize, OverlayEdgeMode.Uniform)
     {
         Body = new Border
         {
-            Background = new SolidColorBrush(Color.FromArgb(0x8C, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
+            Background = new SolidColorBrush(Color.FromArgb(0x99, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
             BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 6, 10, 6), Child = _rows,
         };
     }

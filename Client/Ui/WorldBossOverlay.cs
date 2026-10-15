@@ -61,11 +61,11 @@ public sealed class WorldBossOverlayWindow : MovableOverlay
 {
     private readonly StackPanel _rows = new() { MinWidth = 260, MinHeight = 40 };
 
-    public WorldBossOverlayWindow() : base("Aion DPS World Boss", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 360, LoadSize, SaveSize)
+    public WorldBossOverlayWindow() : base("Aion DPS World Boss", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 360, LoadSize, SaveSize, OverlayEdgeMode.Width)
     {
         Body = new Border
         {
-            Background = new SolidColorBrush(Color.FromArgb(0x8C, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
+            Background = new SolidColorBrush(Color.FromArgb(0x99, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
             BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 6, 10, 6), Child = _rows,
         };
     }
@@ -160,20 +160,26 @@ public sealed class WorldBossController : IDisposable
         var settings = _settings;
         DateTime now = DateTime.Now;
         string language = LocalizationManager.Instance.Language;
-        var watched = new List<(FieldBossMap Map, FieldBoss Boss, BossAlertSetting Alert, BossStatus Status)>();
+        var watched = new List<(FieldBossMap Map, FieldBoss Boss, BossAlertSetting Alert, BossStatus Status)>(); // shown in the overlay
+        var sounding = new List<(FieldBoss Boss, BossAlertSetting Alert, BossStatus Status)>(); // the sound does not depend on the overlay or its switches
         foreach (var map in Aion2FieldBosses.Maps)
         {
             foreach (var boss in map.Bosses)
             {
-                if (settings.BossAlerts.TryGetValue(boss.Npc.ToString(), out var alert) && alert.Enabled)
+                if (settings.BossAlerts.TryGetValue(boss.Npc.ToString(), out var alert) && (alert.Enabled || alert.Sound.Length > 0))
                 {
-                    watched.Add((map, boss, alert, Aion2FieldBosses.StatusOf(boss, now)));
+                    var status = Aion2FieldBosses.StatusOf(boss, now);
+                    sounding.Add((boss, alert, status));
+                    if (alert.Enabled)
+                    {
+                        watched.Add((map, boss, alert, status));
+                    }
                 }
             }
         }
 
         // the sound: a watched boss that was away and is back now
-        foreach (var (_, boss, alert, status) in watched)
+        foreach (var (boss, alert, status) in sounding)
         {
             bool wasAway = _phases.TryGetValue(boss.Npc, out var before) && before is BossPhase.Respawn or BossPhase.Fixed;
             _phases[boss.Npc] = status.Phase;

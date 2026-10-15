@@ -244,7 +244,7 @@ public sealed class DummyTestWindow : Window
         overlay.Children.Add(Label(loc["Dummy.Overlay"], "Brush.TextSubtle", 13, true));
         ((TextBlock)overlay.Children[0]).Margin = new Thickness(0, 0, 18, 0);
         _overlayOn.Content = loc["Dummy.OverlayOn"];
-        _overlayLocked.Content = loc["Dummy.OverlayLock"];
+        _overlayLocked.Content = loc["Settings.PetFarm.Locked"];
         foreach (CheckBox box in new[] { _overlayOn, _overlayLocked })
         {
             box.Margin = new Thickness(0, 0, 22, 0);
@@ -263,7 +263,11 @@ public sealed class DummyTestWindow : Window
         overlay.Children.Add(all);
         var hint = Label(loc["Dummy.OverlayHint"], "Brush.TextMuted", 12);
         overlay.Children.Add(hint);
-        column.Children.Add(Card(overlay));
+        var overlayStack = new StackPanel();
+        overlayStack.Children.Add(overlay);
+        overlayStack.Children.Add(OverlayControls.OpacityRow(OverlayPlaces.Dummy, 0.6));
+        overlayStack.Children.Add(OverlayControls.ResetButton(OverlayPlaces.Dummy));
+        column.Children.Add(Card(overlayStack));
 
         // the runs
         var header = Label(loc["Dummy.Runs"], "Brush.Text", 15, true);
@@ -310,7 +314,7 @@ public sealed class DummyTestWindow : Window
 
         MeterSettings settings = MeterSettings.Load();
         settings.ShowDummyOverlay = _overlayOn.IsChecked == true;
-        settings.DummyOverlayLocked = _overlayLocked.IsChecked == true;
+        settings.DummyOverlayLocked = _overlayLocked.IsChecked != true;
         settings.Save();
     }
 
@@ -318,7 +322,7 @@ public sealed class DummyTestWindow : Window
     {
         _syncing = true;
         _overlayOn.IsChecked = settings.ShowDummyOverlay;
-        _overlayLocked.IsChecked = settings.DummyOverlayLocked;
+        _overlayLocked.IsChecked = !settings.DummyOverlayLocked;
         _syncing = false;
     }
 

@@ -141,8 +141,8 @@ public static class CombatOverlayData
         int shown = dir.Combat.TargetOf(clicked.EntityId, now, AimAge) is int aimed && aimed != clicked.EntityId ? aimed : clicked.EntityId;
         var (name, image, isBoss) = Describe(dir, shown, language);
         return new TargetOfTargetData(name, Name(dir, clicked.EntityId, language), image, isBoss,
-            settings.CombatShowHealer ? dir.HitPoints.Latest(clicked.EntityId)?.Hp : null, settings.CombatShowHealer ? dir.HitPoints.MaxOf(clicked.EntityId) : null,
-            settings.CombatShowHealer ? Effects(dir, settings, shown, now) : null);
+            settings.CombatHealerHpBar ? dir.HitPoints.Latest(clicked.EntityId)?.Hp : null, settings.CombatHealerHpBar ? dir.HitPoints.MaxOf(clicked.EntityId) : null,
+            settings.CombatHealerEffects ? Effects(dir, settings, shown, now) : null);
     }
 
     /// <summary>The debuffs on an entity (effects from monsters or from the room, no buffs); none when effects are switched off.</summary>
@@ -225,10 +225,13 @@ public sealed class CombatOverlayWindow : MovableOverlay
     private bool _editing;
 
     public CombatOverlayWindow(Part part) : base(part switch { Part.Cast => "Aion DPS Boss Cast", Part.Hp => "Aion DPS Target Health", _ => "Aion DPS Combat" }, NewStage(), () => Load(part), (l, t, sc) => Save(part, l, t, sc),
-        SystemParameters.WorkArea.Left + 40, part switch { Part.Cast => 200, Part.Hp => 540, _ => 360 }, () => LoadSize(part), (w, h) => SaveSize(part, w, h))
+        SystemParameters.WorkArea.Left + 40, part switch { Part.Cast => 200, Part.Hp => 540, _ => 360 }, () => LoadSize(part), (w, h) => SaveSize(part, w, h), part == Part.Target ? OverlayEdgeMode.Uniform : OverlayEdgeMode.Crop)
     {
         _part = part;
         Instances.Add(this);
+        Action<string> onReset = name => { if (name == Title) { Dispatcher.Invoke(ReloadLayouts); } };
+        OverlayPlaces.WasReset += onReset;
+        Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
         _stage = _building!;
         _building = null;
         var settings = MeterSettings.Load();
@@ -485,7 +488,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private bool RenderHp(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
-        Opacity = Math.Clamp(settings.BossHpOpacity, 0.2, 1.0);
+        Opacity = Math.Clamp(settings.BossHpOpacity, 0.0, 1.0);
         BossHpData? boss = frame.Boss;
         if (boss is null && _editing && settings.ShowBossHp)
         {
@@ -504,7 +507,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private bool RenderCast(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
-        Opacity = Math.Clamp(settings.CombatCastOpacity, 0.2, 1.0);
+        Opacity = Math.Clamp(settings.CombatCastOpacity, 0.0, 1.0);
         bool any = false;
         bool castOn = settings.CombatShowBossCast;
         if (castOn && frame.Casts.Count > 0)
@@ -513,7 +516,9 @@ public sealed class CombatOverlayWindow : MovableOverlay
         }
         else if (castOn && _editing)
         {
-            _bossCast.Show(new[] { new CastRowData(loc["Combat.Sample.Skill"], loc["Combat.Sample.Boss"], loc["Combat.You"], true, true, false, 700, 1500, 400, null, Generic: true) });
+            // as many sample rows as the settings allow, so the frame can be sized to what it will hold
+            _bossCast.Show(Enumerable.Range(0, Math.Clamp(settings.CombatMaxCasts, 1, 3))
+                .Select(i => new CastRowData(loc["Combat.Sample.Skill"], loc["Combat.Sample.Boss"], loc["Combat.You"], true, true, false, 700 + i * 200, 1500, 400, null, Generic: true)).ToList());
         }
 
         bool castShown = castOn && (frame.Casts.Count > 0 || _editing);
@@ -524,6 +529,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private bool RenderTarget(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
+        Opacity = Math.Clamp(settings.CombatTargetOpacity, 0.0, 1.0);
         bool any = false;
         TargetOfTargetData? shownTot = ShownTarget(frame, settings, loc);
         if (shownTot is { } tot)
@@ -537,8 +543,8 @@ public sealed class CombatOverlayWindow : MovableOverlay
         bool totShown = shownTot is not null;
         _hosts[TargetIconId].Visibility = totShown ? Visibility.Visible : Visibility.Collapsed;
         _hosts[TargetNameId].Visibility = totShown ? Visibility.Visible : Visibility.Collapsed;
-        _hosts[TargetHpId].Visibility = totShown && (settings.CombatShowHealer || _editing) && settings.CombatHealerHpBar ? Visibility.Visible : Visibility.Collapsed;
-        _hosts[TargetEffectsId].Visibility = totShown && (settings.CombatShowHealer || _editing) && settings.CombatHealerEffects ? Visibility.Visible : Visibility.Collapsed;
+        _hosts[TargetHpId].Visibility = totShown && settings.CombatHealerHpBar ? Visibility.Visible : Visibility.Collapsed;
+        _hosts[TargetEffectsId].Visibility = totShown && settings.CombatHealerEffects ? Visibility.Visible : Visibility.Collapsed;
         any |= totShown;
 
         return any;
@@ -619,18 +625,19 @@ public sealed class CombatOverlayController : IDisposable
             return;
         }
 
-        bool locked = settings.CombatOverlayLocked;
         _overlay ??= new CombatOverlayWindow(CombatOverlayWindow.Part.Target);
         _castOverlay ??= new CombatOverlayWindow(CombatOverlayWindow.Part.Cast);
         _hpOverlay ??= new CombatOverlayWindow(CombatOverlayWindow.Part.Hp);
-        foreach (var window in new[] { _overlay, _castOverlay, _hpOverlay })
+        // each of the three is positioned on its own; a window that is switched off is neither shown nor positioned
+        bool lockedTarget = settings.CombatOverlayLocked, lockedCast = settings.CombatCastOverlayLocked ?? settings.CombatOverlayLocked, lockedHp = settings.CombatHpOverlayLocked ?? settings.CombatOverlayLocked;
+        foreach (var (window, locked) in new[] { (_overlay, lockedTarget), (_castOverlay, lockedCast), (_hpOverlay, lockedHp) })
         {
             window.ApplyLockedIfChanged(locked);
             window.SetEditing(!locked);
         }
 
         bool inGame = GameWindow.ForegroundClientArea() is not null;
-        if (locked && !inGame)
+        if (!inGame && lockedTarget && lockedCast && lockedHp)
         {
             _overlay.ShowOverlay(false);
             _castOverlay.ShowOverlay(false);
@@ -654,8 +661,9 @@ public sealed class CombatOverlayController : IDisposable
             frame = frame with { Boss = boss with { Check = _checkText } };
         }
 
-        _overlay.ShowOverlay(_overlay.Render(frame, settings) || !locked);
-        _castOverlay.ShowOverlay(_castOverlay.Render(frame, settings) || !locked);
-        _hpOverlay.ShowOverlay(_hpOverlay.Render(frame, settings) || !locked);
+        // in the game, or while that window is being positioned (then only if its own switch is on)
+        _overlay.ShowOverlay(_overlay.Render(frame, settings) && (inGame || !lockedTarget));
+        _castOverlay.ShowOverlay(_castOverlay.Render(frame, settings) && (inGame || !lockedCast));
+        _hpOverlay.ShowOverlay(_hpOverlay.Render(frame, settings) && (inGame || !lockedHp));
     }
 }

@@ -15,7 +15,6 @@ public sealed class MenuWatcher : IDisposable
     private MeterSettings _settings = MeterSettings.Load();
     private DateTime _settingsAt = DateTime.UtcNow;
     private DateTime _lastOwnHit = DateTime.MinValue;
-    private bool _forceShow;
     private int _look;
     private bool _held;
 
@@ -34,15 +33,6 @@ public sealed class MenuWatcher : IDisposable
     /// <summary>The local player just dealt damage (the control mode is learnt while fighting).</summary>
     public void NoteOwnHit() => _lastOwnHit = DateTime.UtcNow;
 
-    /// <summary>The hotkey: shows the overlays for this menu (until the cursor hides again), or hides them again.</summary>
-    public void ToggleShowThisMenu()
-    {
-        if (_detector.MenuOpen)
-        {
-            _forceShow = !_forceShow;
-        }
-    }
-
     public void Dispose()
     {
         _timer.Stop();
@@ -50,7 +40,7 @@ public sealed class MenuWatcher : IDisposable
     }
 
     private static bool AllOverlaysLocked(MeterSettings s) =>
-        s.PetFarmLocked && s.PetInfoLocked && s.TimetableLocked && s.BossOverlayLocked && s.NetworkOverlayLocked && s.CombatOverlayLocked && s.AssistOverlayLocked;
+        s.PetFarmLocked && s.PetInfoLocked && s.TimetableLocked && s.BossOverlayLocked && s.NetworkOverlayLocked && s.CombatOverlayLocked && (s.CombatCastOverlayLocked ?? true) && (s.CombatHpOverlayLocked ?? true) && (s.PetListLocked ?? true) && (s.HotkeyOverlayLocked ?? true) && s.AssistOverlayLocked;
 
     private void Tick()
     {
@@ -79,7 +69,6 @@ public sealed class MenuWatcher : IDisposable
         if (!_settings.HideDuringMenus || Mode == ControlMode.Classic)
         {
             _detector.Reset();
-            _forceShow = false;
             Hidden = false;
             return;
         }
@@ -98,9 +87,8 @@ public sealed class MenuWatcher : IDisposable
         bool menu = _detector.Update(DateTime.UtcNow, inGame, cursor, _held, !AllOverlaysLocked(_settings));
         if (!menu)
         {
-            _forceShow = false;
         }
 
-        Hidden = menu && !_forceShow;
+        Hidden = menu;
     }
 }

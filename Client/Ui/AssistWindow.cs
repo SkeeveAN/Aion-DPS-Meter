@@ -31,7 +31,9 @@ public sealed class AssistWindow : Window
         var switches = new StackPanel { Margin = new Thickness(0, 0, 0, 8) };
         DockPanel.SetDock(switches, Dock.Top);
         switches.Children.Add(Switch(loc["Assist.ShowOverlay"], settings.ShowAssistOverlay, on => Change(s => s.ShowAssistOverlay = on)));
-        switches.Children.Add(Switch(loc["Assist.LockOverlay"], settings.AssistOverlayLocked, on => Change(s => s.AssistOverlayLocked = on)));
+        switches.Children.Add(Switch(loc["Settings.PetFarm.Locked"], !settings.AssistOverlayLocked, on => Change(s => s.AssistOverlayLocked = !on)));
+        switches.Children.Add(OverlayControls.OpacityRow(OverlayPlaces.Assist, 0.6));
+        switches.Children.Add(OverlayControls.ResetButton(OverlayPlaces.Assist));
         root.Children.Add(switches);
         root.Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _panel });
         Content = root;
