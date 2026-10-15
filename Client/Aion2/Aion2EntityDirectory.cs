@@ -551,6 +551,41 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _position = (x, y, DateTime.UtcNow);
+            _positionIsSpawn = false;
+        }
+    }
+
+    private bool _positionIsSpawn;
+
+    /// <summary>Where a zone frame put the player (a teleport or a loading screen): an exact place, but of the new zone, so a map change keeps it.</summary>
+    public void NoteSpawnPosition(float x, float y)
+    {
+        lock (_gate)
+        {
+            _position = (x, y, DateTime.UtcNow);
+            _positionIsSpawn = true;
+        }
+    }
+
+    private int _zoneId;
+
+    /// <summary>The zone the last zone frame named (0 before any).</summary>
+    public int ZoneId
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _zoneId;
+            }
+        }
+    }
+
+    public void NoteZone(int zoneId)
+    {
+        lock (_gate)
+        {
+            _zoneId = zoneId;
         }
     }
 
@@ -647,12 +682,17 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    /// <summary>A new map: what was learnt about the old one no longer applies.</summary>
+    /// <summary>A new map: what was learnt about the old one no longer applies. The place a zone frame put the player at is of the new map and stays
+    /// (the character record that triggers this arrives a few seconds after the zone frame).</summary>
     public void ForgetPlace()
     {
         lock (_gate)
         {
-            _position = null;
+            if (!(_positionIsSpawn && _position is { } spawn && DateTime.UtcNow - spawn.At < TimeSpan.FromSeconds(60)))
+            {
+                _position = null;
+            }
+
             _env.Clear();
             _mobPositions.Clear();
             _liveMobs.Clear();

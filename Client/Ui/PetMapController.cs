@@ -286,7 +286,8 @@ public sealed class PetMapController : IDisposable
         if (directory is not null && (DateTime.UtcNow - _lastDetect).TotalSeconds >= 1)
         {
             _lastDetect = DateTime.UtcNow;
-            var found = Aion2Maps.Detect(directory.RecentMobPositions());
+            // the zone frame names the map (and the airship above it) outright; the monsters only vote where it does not
+            var found = Aion2Maps.OfZone(directory.ZoneId) ?? Aion2Maps.Detect(directory.RecentMobPositions());
             if (found is not null && found != _current)
             {
                 _current = found;

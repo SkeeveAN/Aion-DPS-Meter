@@ -192,6 +192,8 @@ public sealed class Aion2FrameDecoder
             return;
         }
 
+        _entities.NoteZone(zoneId);
+
         // The place the frame puts the player (x, y as floats at 18 and 22), when it is long enough to hold them.
         (float X, float Y)? place = frame.Length >= 26
             ? (BinaryPrimitives.ReadSingleLittleEndian(frame[18..]), BinaryPrimitives.ReadSingleLittleEndian(frame[22..]))
@@ -199,6 +201,13 @@ public sealed class Aion2FrameDecoder
         // What the frame was for (u32 at 34): 0 for the first one of a visit, 2 for a move inside the zone (the next run's entrance, a cut scene's door),
         // 4 for a revival at an obelisk or kisk (seen in the recordings; a kisk can stand anywhere, so only a move can start a run).
         uint kind = frame.Length >= 38 ? BinaryPrimitives.ReadUInt32LittleEndian(frame[34..]) : 0;
+        // The place is also where the player stands after a teleport or a loading screen: the one exact report of his position that comes without any
+        // action (checked on a recording: it matched the first effect frame and the monsters announced around him). The pet map starts from it.
+        if (place is { } spawn && float.IsFinite(spawn.X) && float.IsFinite(spawn.Y) && Math.Abs(spawn.X) is > 100 and < 500_000 && Math.Abs(spawn.Y) is > 100 and < 500_000)
+        {
+            _entities.NoteSpawnPosition(spawn.X, spawn.Y);
+        }
+
         if (zoneId == CurrentZoneId)
         {
             // The same zone again: a reconnect, a respawn or a move inside the instance - or the next run of an instance, entered straight from the run

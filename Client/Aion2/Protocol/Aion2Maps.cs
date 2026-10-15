@@ -23,6 +23,19 @@ public static class Aion2Maps
     /// <summary>The spawn points of the pet monsters of every map file: {map table: {npc id: x, y, x, y ...}} (instances and event phases included).</summary>
     internal static IReadOnlyDictionary<string, Dictionary<int, float[]>> SpawnTables => Spawns();
 
+    /// <summary>The world map a zone id belongs to: the open maps and the legion airships that hover above them (the airship's places are the map's own
+    /// coordinates: the spawn at the middle of the Verteron airship fell on the airship's arrow of the game's Verteron map). Null for every other zone.</summary>
+    public static Aion2MapInfo? OfZone(int zoneId)
+    {
+        string? key = zoneId switch
+        {
+            1010 or 902 => "verteron",
+            1110 or 901 => "altgard",
+            _ => null,
+        };
+        return key is null ? null : All.FirstOrDefault(m => m.Key == key);
+    }
+
     public static string TileFolder(Aion2MapInfo map) => Path.Combine(Folder, "maps", map.Key);
 
     public static (double X, double Y) ToNative(Aion2MapInfo map, double worldX, double worldY) =>
