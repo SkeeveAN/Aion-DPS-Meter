@@ -37,6 +37,13 @@
      "Client"
     ],
     "date": "2026-10-15"
+   },
+   {
+    "text": "Website: a \"Star on GitHub\" link with the live star count in the footer and on the download page",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-15"
    }
   ]
  },
