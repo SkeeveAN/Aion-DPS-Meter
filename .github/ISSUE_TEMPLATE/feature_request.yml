@@ -1,0 +1,15 @@
+name: Feature request
+description: An idea for the meter, the map or the website
+labels: [enhancement]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do?
+      description: Describe the situation first, the solution second.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea

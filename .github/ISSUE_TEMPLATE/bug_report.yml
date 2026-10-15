@@ -1,0 +1,33 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Meter version
+      description: The version of the installed meter (visible in the meter window or its settings).
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, what did you see? Screenshots help.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we reproduce it?
+      description: Where were you (map, instance, boss) and what did you do?
+  - type: dropdown
+    id: region
+    attributes:
+      label: Game region
+      options: [EU, NA, Asia, Korea, Taiwan, Other]
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: A debug recording or the network log can be sent in Discord; do not paste player names or account data here.
