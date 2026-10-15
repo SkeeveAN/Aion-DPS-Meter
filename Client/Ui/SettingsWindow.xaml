@@ -28,7 +28,7 @@
         <Style x:Key="SettingsNavItem" TargetType="RadioButton">
             <Setter Property="Foreground" Value="#9db3c2"/>
             <Setter Property="Padding" Value="8,8"/>
-            <Setter Property="Margin" Value="0,0,0,2"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
@@ -343,13 +343,14 @@
              navy/orange; the reused inner controls (ComboBox/CheckBox/TextBox above) keep their
              existing {DynamicResource Brush.*} bindings untouched. -->
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="NavColumn" Width="160"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-            <Border Grid.Column="0" Background="#11202b" BorderBrush="#294557" BorderThickness="0,0,1,0">
-                <StackPanel Margin="6">
+            <!-- The pages of the settings proper as a tab strip along the top (as in the prototype). -->
+            <Border x:Name="NavBar" Grid.Row="0" Background="#11202b" BorderBrush="#294557" BorderThickness="0,0,0,1">
+                <StackPanel Margin="6,6,6,4" Orientation="Horizontal">
                     <RadioButton x:Name="NavGeneral" IsChecked="True" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
                         <StackPanel Orientation="Horizontal">
                             <Grid Width="14" Height="14" Margin="0,0,7,0">
@@ -357,7 +358,7 @@
                                 <Ellipse Width="4" Height="4" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,2,0,0"/>
                                 <Ellipse Width="4" Height="4" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,2"/>
                             </Grid>
-                            <TextBlock Text="{local:Loc Settings.Nav.General}" TextWrapping="Wrap" Width="98" FontSize="12"
+                            <TextBlock Text="{local:Loc Settings.Nav.General}" FontSize="12"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
@@ -368,35 +369,35 @@
                                 <Ellipse Width="4" Height="4" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,2,0,0"/>
                                 <Ellipse Width="4" Height="4" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,2"/>
                             </Grid>
-                            <TextBlock Text="{local:Loc Settings.Nav.Meter}" TextWrapping="Wrap" Width="98" FontSize="12"
+                            <TextBlock Text="{local:Loc Settings.Nav.Meter}" FontSize="12"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="NavInstall" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
                         <StackPanel Orientation="Horizontal">
                             <Path Data="M2,3 L12,3 L12,9 L2,9 Z M5,12 L9,12 M7,9 L7,12" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3" Width="14" Height="12" Margin="0,0,7,0"/>
-                            <TextBlock Text="{local:Loc Settings.Nav.Capture}" TextWrapping="Wrap" Width="98" FontSize="12"
+                            <TextBlock Text="{local:Loc Settings.Nav.Capture}" FontSize="12"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="NavHotkeys" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
                         <StackPanel Orientation="Horizontal">
                             <Path Data="M1,3 L13,3 L13,10 L1,10 Z M3,5.5 L4,5.5 M6,5.5 L7,5.5 M9,5.5 L10,5.5 M4,8 L10,8" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.2" Width="14" Height="12" Margin="0,0,7,0"/>
-                            <TextBlock Text="{local:Loc Settings.Hotkeys}" TextWrapping="Wrap" Width="98" FontSize="12"
+                            <TextBlock Text="{local:Loc Settings.Hotkeys}" FontSize="12"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="NavUpdates" GroupName="SettingsNav" Style="{StaticResource SettingsNavItem}">
                         <StackPanel Orientation="Horizontal">
                             <Path Data="M2,6 L6,2 L6,5 L11,5 M11,6 L7,10 L7,7 L2,7" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3" Width="14" Height="10" Margin="0,0,7,0"/>
-                            <TextBlock Text="{local:Loc Settings.Nav.System}" TextWrapping="Wrap" Width="98" FontSize="12"
+                            <TextBlock Text="{local:Loc Settings.Nav.System}" FontSize="12"
                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
                         </StackPanel>
                     </RadioButton>
                 </StackPanel>
             </Border>
 
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
               <StackPanel>
                 <!-- The frame of a tool's window (shown only for a tool, not for the settings proper): its name, the main switch of its overlay and its hotkey.
                      The switch is the tool's own "show overlay" box (the panel's copy of it is hidden), the hotkey button opens the hotkeys page. -->
