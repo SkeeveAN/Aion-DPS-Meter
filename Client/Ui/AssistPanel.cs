@@ -155,6 +155,11 @@ public sealed class AssistPanel : StackPanel
                 }
 
                 string english = Aion2SkillNames.NameOf(group.Key);
+                if (System.Text.RegularExpressions.Regex.IsMatch(english, @"^Test\d*_"))
+                {
+                    continue; // an internal test state of the game's data (Test1_Greatsword_Maintarget_MaxLv1), not an effect the player knows
+                }
+
                 if (long.TryParse(english, out _) && Aion2SkillIcons.PathFor(group.Key) is null && Aion2Artwork.EffectIconPath(group.Key) is null)
                 {
                     continue; // a nameless state (rest, speed ...) says nothing to the player

@@ -164,6 +164,11 @@ public static class CombatOverlayData
 
             string time = buff.Ends is { } end ? Math.Max(0, (int)Math.Ceiling((end - now).TotalSeconds)).ToString() : "∞";
             string english = Aion2SkillNames.NameOf(buff.SkillId);
+            if (System.Text.RegularExpressions.Regex.IsMatch(english, @"^Test\d*_"))
+            {
+                continue; // an internal test state of the game's data, not an effect the player knows
+            }
+
             string? icon = Aion2SkillIcons.PathFor(buff.SkillId) ?? Aion2SkillIcons.PathForName(english, null) ?? Aion2Artwork.EffectIconPath(buff.SkillId);
             if (icon is null && buff.Caster <= 0 && long.TryParse(english, out _))
             {
