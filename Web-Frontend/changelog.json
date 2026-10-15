@@ -1,5 +1,26 @@
 [
  {
+  "version": "1.0.6",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "Shattered Arkanis stage 3 is recognised (boss ids 2353xxx), and the fights filed without a stage move to it",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Combat analyzer: the effects on the bosses (debuffs) are listed with their uptime and the share from you; effects the skill table does not name get the client's own effect names (fewer numbers)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "1.0.5",
   "date": "2026-10-15",
   "items": [
