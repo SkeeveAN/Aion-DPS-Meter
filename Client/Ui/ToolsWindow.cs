@@ -58,6 +58,21 @@ public sealed class ToolsWindow : Window
         MinWidth = 300;
         MinHeight = 420;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        // where the window was left and how high it was
+        MeterSettings saved = MeterSettings.Load();
+        if (saved.ToolsWindowHeight is > 0)
+        {
+            Height = Math.Clamp(saved.ToolsWindowHeight.Value, MinHeight, SystemParameters.WorkArea.Height);
+        }
+
+        if (saved.ToolsWindowLeft is { } left && saved.ToolsWindowTop is { } top
+            && left >= SystemParameters.VirtualScreenLeft - 50 && left < SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth - 100
+            && top >= SystemParameters.VirtualScreenTop - 10 && top < SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight - 100)
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = left;
+            Top = top;
+        }
 
         var nav = new StackPanel { Margin = new Thickness(6) };
         var template = (ControlTemplate)XamlReader.Parse(
@@ -130,16 +145,40 @@ public sealed class ToolsWindow : Window
             {
                 MeterSettings s = MeterSettings.Load();
                 s.ToolWidths[_current] = Math.Round(ActualWidth);
+                s.ToolsWindowLeft = Left;
+                s.ToolsWindowTop = Top;
+                s.ToolsWindowHeight = Math.Round(ActualHeight);
                 s.Save();
             }
         };
         // the player sizes the window for the tool that is shown: the width is kept for that tool
         SizeChanged += (_, e) =>
         {
-            if (e.WidthChanged && !_applyingWidth && _page is not null)
+            if (!_applyingWidth && _page is not null)
             {
                 _saveWidth.Stop();
                 _saveWidth.Start();
+            }
+        };
+        LocationChanged += (_, _) =>
+        {
+            if (_page is not null)
+            {
+                _saveWidth.Stop();
+                _saveWidth.Start();
+            }
+        };
+        Closing += (_, _) =>
+        {
+            // what the last drag left, kept even when the window is closed before the pause ran out
+            if (_current is not null && WindowState == WindowState.Normal)
+            {
+                MeterSettings s = MeterSettings.Load();
+                s.ToolWidths[_current] = Math.Round(ActualWidth);
+                s.ToolsWindowLeft = Left;
+                s.ToolsWindowTop = Top;
+                s.ToolsWindowHeight = Math.Round(ActualHeight);
+                s.Save();
             }
         };
         Closed += (_, _) =>

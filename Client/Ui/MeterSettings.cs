@@ -145,6 +145,13 @@ public sealed class MeterSettings
     /// <summary>The list of tools on the left of the tools window is folded to a thin strip.</summary>
     public bool ToolsNavCollapsed { get; set; }
 
+    /// <summary>Where the tools window was left and how high it is (the width is kept per tool, see <see cref="ToolWidths"/>).</summary>
+    public double? ToolsWindowLeft { get; set; }
+
+    public double? ToolsWindowTop { get; set; }
+
+    public double? ToolsWindowHeight { get; set; }
+
     /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 0 to 60 (0 = none).</summary>
     public int TimetableLookaheadMinutes { get; set; } = 60;
 

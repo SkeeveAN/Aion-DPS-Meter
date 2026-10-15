@@ -575,6 +575,11 @@ public partial class SettingsWindow : Window
         _settings.HotkeyOverlayHeight = onDisk.HotkeyOverlayHeight;
         _settings.CombatElements = onDisk.CombatElements;
         _settings.OverlayShifts = onDisk.OverlayShifts;
+        _settings.ToolWidths = onDisk.ToolWidths;
+        _settings.ToolsNavCollapsed = onDisk.ToolsNavCollapsed;
+        _settings.ToolsWindowLeft = onDisk.ToolsWindowLeft;
+        _settings.ToolsWindowTop = onDisk.ToolsWindowTop;
+        _settings.ToolsWindowHeight = onDisk.ToolsWindowHeight;
         _settings.TimetableLeft = onDisk.TimetableLeft;
         _settings.TimetableTop = onDisk.TimetableTop;
         _settings.TimetableScale = onDisk.TimetableScale;
