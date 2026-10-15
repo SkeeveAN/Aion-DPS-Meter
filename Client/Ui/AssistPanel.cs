@@ -50,6 +50,12 @@ public sealed class AssistPanel : StackPanel
         _overlay = overlay;
     }
 
+    /// <summary>Skill ids the player does not want in the overlay (see <see cref="MeterSettings.AssistOverlayHidden"/>). The overlay leaves them out; the window lists them with an unticked box.</summary>
+    public HashSet<int> Hidden { get; set; } = new();
+
+    /// <summary>The window's box of a skill or effect was clicked: the id and whether the overlay shows it now.</summary>
+    public Action<int, bool>? ShowInOverlayChanged { get; set; }
+
     /// <summary>Whether the last <see cref="Refresh"/> had a running cooldown or an effect to show.</summary>
     public bool HasContent { get; private set; }
 
@@ -75,6 +81,11 @@ public sealed class AssistPanel : StackPanel
             if (e.Remaining > 0 && left > 0)
             {
                 _peak[e.Id] = Math.Max(_peak.GetValueOrDefault(e.Id), e.Remaining);
+                if (_overlay && Hidden.Contains(e.Id))
+                {
+                    continue;
+                }
+
                 running.Add((e.Id, left, Math.Clamp(left * CooldownRate * 1000.0 / _peak[e.Id], 0, 1)));
             }
             else
@@ -122,6 +133,11 @@ public sealed class AssistPanel : StackPanel
             // seconds, so rows are kept in the order they first appeared and stay a moment after their end instead of vanishing and coming back
             foreach (var group in dir.Combat.BuffsOn(self, now).GroupBy(b => b.SkillId))
             {
+                if (_overlay && Hidden.Contains(group.Key))
+                {
+                    continue; // unticked in the assist window
+                }
+
                 if (Aion2Artwork.IsPassiveEffect(group.Key))
                 {
                     continue; // a passive skill's standing effect (Identify Weakness, weapon training ...) is not something put on you
@@ -206,12 +222,44 @@ public sealed class AssistPanel : StackPanel
 
     private UIElement Row(int skillId, string name, string time, double fraction, bool ready)
     {
-        var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
+        var outer = new Grid { Margin = new Thickness(0, 2, 0, 2) };
+        UIElement result = outer;
+        var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         grid.RowDefinitions.Add(new RowDefinition());
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        outer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        outer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        Grid.SetColumn(grid, 1);
+        outer.Children.Add(grid);
+        if (!_overlay)
+        {
+            // the window: a box per row, ticked = the overlay shows it
+            var pick = new CheckBox
+            {
+                IsChecked = !Hidden.Contains(skillId), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0),
+                ToolTip = LocalizationManager.Instance["Assist.ShowInOverlay"],
+            };
+            pick.Click += (_, _) =>
+            {
+                bool shown = pick.IsChecked == true;
+                if (shown)
+                {
+                    Hidden.Remove(skillId);
+                }
+                else
+                {
+                    Hidden.Add(skillId);
+                }
+
+                grid.Opacity = shown ? 1 : 0.55;
+                ShowInOverlayChanged?.Invoke(skillId, shown);
+            };
+            grid.Opacity = pick.IsChecked == true ? 1 : 0.55;
+            outer.Children.Add(pick);
+        }
 
         double size = _overlay ? 24 : 28;
         var icon = new Image { Width = size, Height = size, Margin = new Thickness(0, 0, 8, 0), Source = Picture(Aion2SkillIcons.PathFor(skillId)) };
@@ -248,7 +296,7 @@ public sealed class AssistPanel : StackPanel
             grid.Children.Add(bar);
         }
 
-        return grid;
+        return result;
     }
 
     private BitmapImage? Picture(string? path)

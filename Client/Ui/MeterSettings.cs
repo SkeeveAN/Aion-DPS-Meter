@@ -154,6 +154,9 @@ public sealed class MeterSettings
     public double? AssistOverlayWidth { get; set; }
     public double? AssistOverlayHeight { get; set; }
 
+    /// <summary>The skills and effects (skill ids) the player unticked in the assist window: the overlay does not show them (everything shows by default).</summary>
+    public List<int> AssistOverlayHidden { get; set; } = new();
+
     public bool NetworkOverlayLocked { get; set; } = true;
 
     public List<string> NetworkOverlayHidden { get; set; } = new();

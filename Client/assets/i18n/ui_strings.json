@@ -7688,5 +7688,41 @@
     "pt": "Bloquear overlay",
     "ja": "オーバーレイをロック",
     "ko": "오버레이 잠금"
+  },
+  "Assist.ShowInOverlay": {
+    "en": "Show in the overlay",
+    "de": "Im Overlay anzeigen",
+    "fr": "Afficher dans l'overlay",
+    "es": "Mostrar en el overlay",
+    "ru": "Показывать в оверлее",
+    "zh": "在悬浮窗中显示",
+    "zh-TW": "在懸浮視窗中顯示",
+    "pt": "Mostrar no overlay",
+    "ja": "オーバーレイに表示",
+    "ko": "오버레이에 표시"
+  },
+  "Assist.PickHint": {
+    "en": "Untick what the overlay should not show.",
+    "de": "Entferne den Haken bei dem, was das Overlay nicht zeigen soll.",
+    "fr": "Décochez ce que l'overlay ne doit pas afficher.",
+    "es": "Desmarca lo que el overlay no debe mostrar.",
+    "ru": "Снимите галочку с того, что оверлей не должен показывать.",
+    "zh": "取消勾选不想在悬浮窗中显示的内容。",
+    "zh-TW": "取消勾選不想在懸浮視窗中顯示的內容。",
+    "pt": "Desmarque o que o overlay não deve mostrar.",
+    "ja": "オーバーレイに表示したくないもののチェックを外してください。",
+    "ko": "오버레이에 표시하지 않을 항목은 체크를 해제하세요."
+  },
+  "Assist.ShowAll": {
+    "en": "Show all",
+    "de": "Alle zeigen",
+    "fr": "Tout afficher",
+    "es": "Mostrar todo",
+    "ru": "Показать все",
+    "zh": "全部显示",
+    "zh-TW": "全部顯示",
+    "pt": "Mostrar tudo",
+    "ja": "すべて表示",
+    "ko": "모두 표시"
   }
 }

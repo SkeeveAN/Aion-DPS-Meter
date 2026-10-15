@@ -60,6 +60,7 @@ public sealed class AssistController : IDisposable
     private AssistOverlayWindow? _overlay;
     private MeterSettings _settings = MeterSettings.Load();
     private DateTime _settingsAt = DateTime.UtcNow;
+    private HashSet<int> _hidden = new();
 
     public AssistController(Func<Aion2EntityDirectory?> directory)
     {
@@ -82,6 +83,7 @@ public sealed class AssistController : IDisposable
         {
             _settings = MeterSettings.Load();
             _settingsAt = DateTime.UtcNow;
+            _hidden = _settings.AssistOverlayHidden.ToHashSet();
         }
 
         if (!_settings.ShowAssistOverlay)
@@ -93,6 +95,7 @@ public sealed class AssistController : IDisposable
         bool locked = _settings.AssistOverlayLocked;
         _overlay ??= new AssistOverlayWindow();
         _overlay.ApplyLockedIfChanged(locked);
+        _overlay.Panel.Hidden = _hidden;
         _overlay.Panel.Refresh(_directory());
         bool inGame = GameWindow.ForegroundClientArea() is not null;
         if (locked && (!inGame || !_overlay.Panel.HasContent))

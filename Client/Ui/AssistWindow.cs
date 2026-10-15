@@ -33,11 +33,39 @@ public sealed class AssistWindow : Window
         switches.Children.Add(Switch(loc["Assist.ShowOverlay"], settings.ShowAssistOverlay, on => Change(s => s.ShowAssistOverlay = on)));
         switches.Children.Add(Switch(loc["Assist.LockOverlay"], settings.AssistOverlayLocked, on => Change(s => s.AssistOverlayLocked = on)));
         root.Children.Add(switches);
+
+        // which skills and effects the overlay shows: the boxes in the list below; unticked ones are kept in the settings
+        _panel.Hidden = settings.AssistOverlayHidden.ToHashSet();
+        _panel.ShowInOverlayChanged = (id, shown) => Change(s => { s.AssistOverlayHidden.Remove(id); if (!shown) { s.AssistOverlayHidden.Add(id); } });
+        var pickBar = new DockPanel { Margin = new Thickness(0, 0, 0, 6) };
+        DockPanel.SetDock(pickBar, Dock.Top);
+        var showAll = new Button { Content = loc["Assist.ShowAll"], Padding = new Thickness(10, 2, 10, 2), Margin = new Thickness(8, 0, 0, 0) };
+        showAll.Click += (_, _) =>
+        {
+            _panel.Hidden.Clear();
+            Change(s => s.AssistOverlayHidden.Clear());
+            _panel.Refresh(_directory());
+        };
+        DockPanel.SetDock(showAll, Dock.Right);
+        var pickHint = new TextBlock { Text = loc["Assist.PickHint"], TextWrapping = TextWrapping.Wrap, FontSize = 12, VerticalAlignment = VerticalAlignment.Center };
+        pickHint.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        pickBar.Children.Add(showAll);
+        pickBar.Children.Add(pickHint);
+        root.Children.Add(pickBar);
         root.Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = _panel });
         Content = root;
         ThemedChrome.Apply(this);
 
-        _tick.Tick += (_, _) => _panel.Refresh(_directory());
+        // the list is rebuilt four times a second: not while a box is being clicked, or the click would land on a box that is gone
+        _tick.Tick += (_, _) =>
+        {
+            if (System.Windows.Input.Mouse.LeftButton == System.Windows.Input.MouseButtonState.Pressed && _panel.IsMouseOver)
+            {
+                return;
+            }
+
+            _panel.Refresh(_directory());
+        };
         _tick.Start();
         Closed += (_, _) => _tick.Stop();
         _panel.Refresh(_directory());
