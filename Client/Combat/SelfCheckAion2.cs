@@ -24,6 +24,7 @@ public static class SelfCheckAion2
         bool ok = true;
         ok &= RunCombatSourceSeamScenario();
         ok &= RunTcpReassemblerScenario();
+        ok &= RunTcpReassemblerPaddingScenario();
         ok &= RunNetworkStatsScenario();
         ok &= RunAion2ProtocolScenario();
         ok &= RunAion2RealCaptureScenario();
@@ -1651,6 +1652,31 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> retransmission ignored and counted: {retransmissionIgnored}");
         Console.WriteLine($"  -> frame split over three segments comes out whole: {splitFrameWhole}");
         return outOfOrderWaits && bothFramesCut && retransmissionIgnored && splitFrameWhole;
+    }
+
+    private static bool RunTcpReassemblerPaddingScenario()
+    {
+        Console.WriteLine("[selftest] TCP reassembly: zero padding and TLS records between varint frames:");
+        FrameLayout layout = Aion2Protocol.Load().FrameLayout;
+        static byte[] Varint(byte opcodeLow, int bodyLength) => new byte[] { (byte)(bodyLength + 4 + 2), opcodeLow, 0x10 }.Concat(Enumerable.Repeat((byte)0x55, bodyLength)).ToArray();
+        byte[] a = Varint(0x38, 6);
+        byte[] b = Varint(0x36, 9);
+        byte[] tls = new byte[] { 0x17, 0x03, 0x03, 0x00, 0x08 }.Concat(Enumerable.Repeat((byte)0xC3, 8)).ToArray();
+        byte[] padding = new byte[] { 0, 0, 0 };
+
+        var reassembler = new TcpReassembler();
+        uint seq = 5000;
+        int first = reassembler.Push(Segment(seq, a), layout).Count;
+        seq += (uint)a.Length;
+        byte[] rest = padding.Concat(tls).Concat(b).Concat(padding).Concat(a).ToArray();
+        // the TLS record arrives split: the frame behind it must wait for it, not be lost in it
+        int cut = padding.Length + 7;
+        int second = reassembler.Push(Segment(seq, rest[..cut]), layout).Count;
+        var frames = reassembler.Push(Segment(seq + (uint)cut, rest[cut..]), layout);
+        bool ok = first == 1 && second == 0 && frames.Count == 2 && reassembler.TlsRecords == 1 && reassembler.Desyncs == 0
+            && frames[0].Span.SequenceEqual(b[1..]) && frames[1].Span.SequenceEqual(a[1..]);
+        Console.WriteLine($"  -> padding and a (split) TLS record skipped without a resync, frames intact: {ok}");
+        return ok;
     }
 
     private static bool RunAion2ProtocolScenario()

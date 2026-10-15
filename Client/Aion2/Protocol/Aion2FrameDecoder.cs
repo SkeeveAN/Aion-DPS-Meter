@@ -904,6 +904,11 @@ public sealed class Aion2FrameDecoder
         int npcId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
         _entities.NoteSpawned(unchecked((int)entityId));
         _entities.RegisterNpc(unchecked((int)entityId), npcId);
+        if (ownerName is not null && Aion2Npcs.IsMonsterNotPlayerSummon(npcId))
+        {
+            ownerName = null; // a monster naming the player it targets (Blazing Totem), not that player's summon
+        }
+
         _entities.SetSummonOwnerName(unchecked((int)entityId), ownerName);
         if (frame.Length >= p + 14)
         {

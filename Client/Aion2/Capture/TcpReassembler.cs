@@ -22,6 +22,8 @@ public sealed class TcpReassembler
     public int Retransmissions { get; private set; }
     public int Frames { get; private set; }
     public int Desyncs { get; private set; }
+    /// <summary>TLS records of another connection on the same stream, skipped.</summary>
+    public int TlsRecords { get; private set; }
 
     public IReadOnlyList<ReadOnlyMemory<byte>> Push(TcpSegment segment, FrameLayout layout, IReadOnlySet<int>? syncOpcodes = null)
     {
@@ -177,6 +179,34 @@ public sealed class TcpReassembler
                 stream.Synced = true;
             }
 
+            // Zero bytes between frames are padding (a length of 0 is no frame), and a TLS record the game server sends from the
+            // same port is no game frame either: read as one, "17" is a length of 23 and the walk lands in ciphertext,
+            // swallowing real frames. Both are skipped here instead of costing a resync (a competitor meter measured 20-35 % of
+            // a boss's damage lost that way).
+            int zeros = 0;
+            while (zeros < stream.Buffer.Count && stream.Buffer[zeros] == 0)
+            {
+                zeros++;
+            }
+
+            if (zeros > 0)
+            {
+                stream.Buffer.RemoveRange(0, zeros);
+                continue;
+            }
+
+            if (TlsRecordSize(stream.Buffer) is int tlsSize && (syncOpcodes is null || !syncOpcodes.Contains(TlsLookalikeOpcode)))
+            {
+                if (stream.Buffer.Count < tlsSize)
+                {
+                    return; // the rest of the record is still to come
+                }
+
+                stream.Buffer.RemoveRange(0, tlsSize);
+                TlsRecords++;
+                continue;
+            }
+
             long length = 0;
             int prefix = 0;
             bool complete = false;
@@ -243,6 +273,22 @@ public sealed class TcpReassembler
             stream.Buffer.RemoveRange(0, (int)total);
             Frames++;
         }
+    }
+
+    /// <summary>A TLS record header read as a game frame: length 0x17 = 23, then the opcode bytes 03 03. No game frame starts so.</summary>
+    private const int TlsLookalikeOpcode = 0x0303;
+
+    /// <summary>Bytes a TLS record at the start of the buffer occupies, header included: content type 20-23, version 3.1-3.4,
+    /// then a big-endian length of at most 2^14 + 256. Null when the buffer does not start with one.</summary>
+    private static int? TlsRecordSize(List<byte> b)
+    {
+        if (b.Count < 5 || b[0] < 0x14 || b[0] > 0x17 || b[1] != 0x03 || b[2] < 0x01 || b[2] > 0x04)
+        {
+            return null;
+        }
+
+        int len = b[3] << 8 | b[4];
+        return len > 0 && len <= 16384 + 256 ? 5 + len : null;
     }
 
     private const int MaxKnownFrameLength = 1 << 18;
