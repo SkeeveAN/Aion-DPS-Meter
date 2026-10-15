@@ -293,6 +293,14 @@ public sealed class AssistPanel : StackPanel
 
         TextBlock label = Label(name, ready ? "Brush.TextSubtle" : "Brush.Text", _overlay ? 12.5 : 13);
         label.TextTrimming = TextTrimming.CharacterEllipsis;
+        if (!_overlay)
+        {
+            // the window (not the overlay) names the skill or effect id next to the name: what the game reports, for nameless or doubled names ("Attack")
+            var id = new System.Windows.Documents.Run("  #" + skillId) { FontSize = 11 };
+            id.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "Brush.TextMuted");
+            label.Inlines.Add(id);
+        }
+
         Grid.SetColumn(label, 1);
         grid.Children.Add(label);
 
