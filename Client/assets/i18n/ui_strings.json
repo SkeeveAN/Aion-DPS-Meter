@@ -8028,5 +8028,17 @@
     "pt": "Mostrar tudo",
     "ja": "すべて表示",
     "ko": "모두 표시"
+  },
+  "Stream.Clients": {
+    "en": "Connected browser sources: {0}",
+    "de": "Verbundene Browserquellen: {0}",
+    "fr": "Sources navigateur connectées : {0}",
+    "es": "Fuentes de navegador conectadas: {0}",
+    "ru": "Подключённых источников браузера: {0}",
+    "zh": "已连接的浏览器来源：{0}",
+    "zh-TW": "已連線的瀏覽器來源：{0}",
+    "pt": "Fontes de navegador conectadas: {0}",
+    "ja": "接続中のブラウザソース：{0}",
+    "ko": "연결된 브라우저 소스: {0}"
   }
 }

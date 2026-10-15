@@ -4764,7 +4764,9 @@ public partial class MainWindow : Window
         OpenSettings(null);
     }
 
-    /// <summary>A tool from the Tools menu that has no window of its own yet: its settings, in the settings window (the window keeps unsaved changes when it switches).</summary>
+    private readonly Dictionary<string, ModuleWindow> _moduleWindows = new();
+
+    /// <summary>A tool from the Tools menu: its own window with a live view, the overlay switch, the hotkey and a cog for its settings. Without a running meter (headless) it is the settings page.</summary>
     private void OnOpenModuleClicked(object sender, RoutedEventArgs e)
     {
         if (sender is not FrameworkElement { Tag: string module })
@@ -4772,13 +4774,146 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (_moduleWindows.TryGetValue(module, out ModuleWindow? open))
+        {
+            open.Activate();
+            return;
+        }
+
+        ModuleWindow? window = BuildModuleWindow(module);
+        if (window is null)
+        {
+            if (_settingsWindow is null)
+            {
+                OpenSettings(null);
+            }
+
+            _settingsWindow?.ShowModule(module);
+            _settingsWindow?.Activate();
+            return;
+        }
+
+        _moduleWindows[module] = window;
+        window.Closed += (_, _) => _moduleWindows.Remove(module);
+        window.Owner = this;
+        window.Show();
+    }
+
+    private void OpenSettingsPage(string module)
+    {
         if (_settingsWindow is null)
         {
             OpenSettings(null);
         }
 
-        _settingsWindow?.ShowModule(module);
+        if (module.Length == 0)
+        {
+            _settingsWindow?.ShowHotkeysPage();
+        }
+        else
+        {
+            _settingsWindow?.ShowModule(module);
+        }
+
         _settingsWindow?.Activate();
+    }
+
+    private ModuleWindow? BuildModuleWindow(string module)
+    {
+        var loc = LocalizationManager.Instance;
+        Action<MeterSettings> applied = ApplySettingsEverywhere;
+        Action hotkeys = () => OpenSettingsPage("");
+        Action settingsPage = () => OpenSettingsPage(module);
+        ModuleWindow? window = null;
+        switch (module)
+        {
+            case "network" when _network is not null:
+            {
+                var view = _network.CreateView();
+                window = new ModuleWindow(loc["Settings.Nav.Network"], view.DetachBody()!, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied);
+                window.Closed += (_, _) => _network?.RemoveView(view);
+                break;
+            }
+
+            case "boss" when _worldBoss is not null:
+            {
+                var view = _worldBoss.CreateView();
+                window = new ModuleWindow(loc["Settings.Nav.Boss"], view.DetachBody()!, s => s.ShowBossOverlay, (s, v) => s.ShowBossOverlay = v, s => s.HotkeyWorldBoss, hotkeys, settingsPage, applied);
+                window.Closed += (_, _) => _worldBoss?.RemoveView(view);
+                break;
+            }
+
+            case "timetable":
+            {
+                var view = new TimetableWindow();
+                UIElement body = view.DetachView();
+                view.Refresh();
+                window = new ModuleWindow(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, settingsPage, applied, view.Refresh, 420, 520);
+                window.Closed += (_, _) => view.Close();
+                break;
+            }
+
+            case "combat" when _combat is not null:
+            {
+                var views = _combat.CreateViews();
+                var stack = new StackPanel { Margin = new Thickness(0, 0, 0, 6) };
+                foreach (var (titleKey, view) in views)
+                {
+                    stack.Children.Add(ModuleWindow.Caption(loc[titleKey]));
+                    stack.Children.Add(view.DetachBody()!);
+                }
+
+                window = new ModuleWindow(loc["Settings.Nav.Combat"], stack, s => s.ShowCombatOverlay, (s, v) => s.ShowCombatOverlay = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied, null, 560, 520);
+                window.Closed += (_, _) => _combat?.RemoveViews(views.Select(v => v.View));
+                break;
+            }
+
+            case "petmap":
+            {
+                _petMapController ??= new PetMapController(() => _source?.Entities as Aion2EntityDirectory);
+                var (map, list) = _petMapController.CreateViews();
+                var stack = new StackPanel();
+                stack.Children.Add(ModuleWindow.Caption(loc["Settings.PetMap.CardMap"]));
+                stack.Children.Add(map.DetachBody()!);
+                stack.Children.Add(ModuleWindow.Caption(loc["Settings.PetMap.CardList"]));
+                stack.Children.Add(list.DetachBody()!);
+                window = new ModuleWindow(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, settingsPage, applied, null, 520, 760);
+                window.Closed += (_, _) =>
+                {
+                    _petMapController?.RemoveViews(map, list);
+                    if (!MeterSettings.Load().ShowPetMap && _petMapController is { HasViews: false })
+                    {
+                        _petMapController.Dispose();
+                        _petMapController = null;
+                    }
+                };
+                break;
+            }
+
+            case "stream":
+            {
+                var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10) };
+                status.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+                var copy = new Button { Content = loc["Settings.Stream.Copy"], HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(10, 2, 10, 2) };
+                copy.Click += (_, _) => CopyStreamLink();
+                var stack = new StackPanel { Margin = new Thickness(0, 4, 0, 0) };
+                stack.Children.Add(status);
+                stack.Children.Add(copy);
+                void Show()
+                {
+                    status.Text = _streamServer is { Running: true } server
+                        ? server.Url + "\n" + string.Format(loc["Stream.Clients"], server.ClientCount)
+                        : loc["Stream.NotRunning"];
+                    copy.IsEnabled = _streamServer is { Running: true };
+                }
+
+                Show();
+                window = new ModuleWindow(loc["Settings.Nav.Stream"], stack, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v, null, hotkeys, settingsPage, applied, Show, 520, 300);
+                break;
+            }
+        }
+
+        return window;
     }
 
     /// <summary>Opens the settings window; <paramref name="undoUntil"/> adds "Undo reset" to it (after a reset).</summary>
@@ -5326,7 +5461,7 @@ public partial class MainWindow : Window
             _petMapController ??= new PetMapController(() => _source?.Entities as Aion2EntityDirectory);
             _petMapController.ApplyLocked(settings.PetFarmLocked);
         }
-        else if (_petMapController is not null)
+        else if (_petMapController is not null && !_petMapController.HasViews)
         {
             _petMapController.Dispose();
             _petMapController = null;

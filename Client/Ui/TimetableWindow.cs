@@ -134,6 +134,15 @@ public sealed class TimetableWindow : Window
         ApplyClickThrough();
     }
 
+    /// <summary>Takes the content out of a window that is never shown, to put it into a tool's own window (a live view); <see cref="Refresh"/> keeps filling it.</summary>
+    public UIElement DetachView()
+    {
+        ApplyLocked(true);
+        var content = (UIElement)Content;
+        Content = null;
+        return content;
+    }
+
     /// <summary>Applies the lock only when it changed (the main window passes the settings on every refresh).</summary>
     public void ApplyLockedIfChanged(bool locked)
     {

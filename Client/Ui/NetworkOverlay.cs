@@ -16,6 +16,10 @@ public static class NetworkOverlayRows
     private static readonly Color Bad = Color.FromRgb(0xFF, 0x6B, 0x6B);
     private static readonly Color Neutral = Color.FromRgb(0xDD, 0xE6, 0xEC);
 
+    /// <summary>Values as they look in a game session (the measurements of a real session: a ping around 40 ms on the EU server, no loss), for a view or a frame to place without a connection.</summary>
+    public static NetworkSnapshot Sample() => new(true, "193.202.112.97:13328", TimeSpan.FromMinutes(47), 1, 0, 38, 41, 33, 62, 4.2, 12.4, 1.8, 41, 160, 0, 0, TimeSpan.FromMilliseconds(120),
+        0, 0, 0, 0, null, null, null, new NetworkProbeSnapshot(true, "192.168.160.253", 1, 0, 60, 14, 0, 60));
+
     private static string Num(double value, string format = "0.#") => value.ToString(format, CultureInfo.CurrentCulture);
 
     private static Color PingColor(double ms) => ms < 60 ? Good : ms < 120 ? Warn : Bad;
@@ -210,6 +214,24 @@ public sealed class NetworkOverlayController : IDisposable
 {
     private readonly System.Windows.Threading.DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private NetworkOverlayWindow? _overlay;
+    private readonly List<NetworkOverlayWindow> _views = new();
+
+    /// <summary>A second, never shown copy of the overlay whose content a tool window shows live (see <see cref="MovableOverlay.DetachBody"/>).</summary>
+    public NetworkOverlayWindow CreateView()
+    {
+        var view = new NetworkOverlayWindow();
+        _views.Add(view);
+        var settings = MeterSettings.Load();
+        var snapshot = NetworkStats.Snapshot();
+        view.Render(NetworkOverlayRows.Of(snapshot.Connected ? snapshot : NetworkOverlayRows.Sample(), settings.NetworkOverlayHidden));
+        return view;
+    }
+
+    public void RemoveView(NetworkOverlayWindow view)
+    {
+        _views.Remove(view);
+        view.Close();
+    }
 
     public NetworkOverlayController()
     {
@@ -229,10 +251,25 @@ public sealed class NetworkOverlayController : IDisposable
     private void Tick()
     {
         var settings = MeterSettings.Load();
+        var snapshot = NetworkStats.Snapshot();
+        if (_views.Count > 0)
+        {
+            NetworkProbe.Start();
+            var viewRows = NetworkOverlayRows.Of(snapshot.Connected ? snapshot : NetworkOverlayRows.Sample(), settings.NetworkOverlayHidden);
+            foreach (var view in _views)
+            {
+                view.Render(viewRows);
+            }
+        }
+
         if (!settings.ShowNetworkOverlay)
         {
             _overlay?.ShowOverlay(false);
-            NetworkProbe.Stop();
+            if (_views.Count == 0)
+            {
+                NetworkProbe.Stop();
+            }
+
             return;
         }
 
@@ -246,7 +283,8 @@ public sealed class NetworkOverlayController : IDisposable
             return;
         }
 
-        _overlay.Render(NetworkOverlayRows.Of(NetworkStats.Snapshot(), settings.NetworkOverlayHidden));
+        // while it is positioned and nothing is connected, sample values fill it in its real size
+        _overlay.Render(NetworkOverlayRows.Of(!snapshot.Connected && !locked ? NetworkOverlayRows.Sample() : snapshot, settings.NetworkOverlayHidden));
         _overlay.ShowOverlay(true);
     }
 }

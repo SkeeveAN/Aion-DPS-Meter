@@ -795,7 +795,10 @@ public partial class SettingsWindow : Window
 
     private void OnMasterSourceChanged(object sender, RoutedEventArgs e) => ModuleMasterBox.IsChecked = _masterSource?.IsChecked == true;
 
-    private void OnModuleKeyClicked(object sender, RoutedEventArgs e)
+    private void OnModuleKeyClicked(object sender, RoutedEventArgs e) => ShowHotkeysPage();
+
+    /// <summary>The hotkey page of the settings proper.</summary>
+    public void ShowHotkeysPage()
     {
         _module = null;
         NavHotkeys.IsChecked = true;

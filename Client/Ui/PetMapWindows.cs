@@ -122,6 +122,14 @@ public abstract class MovableOverlay : Window
 
     protected double BodyHeight => _bodyHost.ActualHeight;
 
+    /// <summary>Takes the content out of a window that is never shown, to put it into a tool's own window (a live view): the window keeps rendering into it.</summary>
+    public UIElement? DetachBody()
+    {
+        UIElement? body = _shiftHost.Child;
+        _shiftHost.Child = null;
+        return body;
+    }
+
     /// <summary>The content of the overlay (set by the derived window once it has built it).</summary>
     protected UIElement? Body
     {
