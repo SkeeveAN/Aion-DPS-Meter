@@ -66,7 +66,8 @@ let pending = [];
 const before = []; // commits from before the first <Version> existed
 for (const c of commits) {
   const touchesCsproj = c.files.some((f) => CSPROJ.includes(f));
-  const v = touchesCsproj || current === null ? versionAt(c.hash) : current;
+  let v = touchesCsproj || current === null ? versionAt(c.hash) : current;
+  if (v?.includes("-")) v = current; // a test version (1.0.0-alpha.N) is no release: its commits belong to the next real one
   const rel = /^Release (\d+\.\d+\.\d+)(?:: (.+))?$/.exec(c.subject);
   const noise = /^(Merge |Bump (the )?version|Version \d|Release workflow|Changelog)/.test(c.subject);
   const override = overrideFor(c.hash);

@@ -120,5 +120,15 @@
  "c67027a": null,
  "8de4dd5": null,
  "9941e93": null,
- "ed02fa9": "Boss statistics tab: the box plot shows the single rows as dots and has tooltips, plus a kill time histogram and the share of each class"
+ "ed02fa9": "Boss statistics tab: the box plot shows the single rows as dots and has tooltips, plus a kill time histogram and the share of each class",
+ "2d48a0b": "Tools redesign: the Tools menu lists every tool (Checklist, Interactive map, Boss fight, Skill Assist, Dummy test, Combat analyzer, Timetable, World boss, Streaming, Design editor, Network analysis); the settings only hold the basics (General, DPS meter, Capture & upload, Hotkeys, System); the five display modes are buttons in the main window; the hotkey overlay has three sections and Skill Assist gets Ctrl+Alt+S",
+ "ab3fa48": "Every tool has its own window with a live view, its overlay switch, its hotkey and a cog for its settings; window and overlay can be open at the same time; the dummy test overlay shows the time as a bar that runs empty",
+ "7bc3593": "Overlays are placed and sized alike: corner handles scale everything, the edges change width or height as suits the overlay, each overlay has its own opacity from 0 to 100 and a button to reset its size and position; \"Position overlay\" replaces \"Overlay locked\" and shows sample data in full size",
+ "be1d885": "Boss fight: three overlays of their own (boss health, boss cast, target of the target), each switched on and placed on its own; the interactive map is two overlays, the map and the list of pets and collectibles",
+ "3da758b": "The world boss sound no longer depends on the overlay; the tool windows show what you have chosen, sample data appears only while an overlay is positioned",
+ "6d345bc": "Settings: the pages are a tab strip along the top",
+ "0286e74": "Main window: the profile, Twitch Drops and announcements buttons are in the top row, the PVE/PVP switch is in the menu bar",
+ "2fcc083": null,
+ "68fe357": "Menus: the separators are one thin line over the full width",
+ "1f12be5": "Toolbar: the icon buttons show their pictures at full size"
 }
