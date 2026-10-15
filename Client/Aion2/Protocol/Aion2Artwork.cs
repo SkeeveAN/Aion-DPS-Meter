@@ -28,6 +28,27 @@ public static class Aion2Artwork
         return File.Exists(path) ? path : null;
     }
 
+    private static IReadOnlyDictionary<int, string>? _effectIcons;
+
+    /// <summary>
+    /// The icon of an effect that comes from a consumable (a scroll, a potion): the effect has no skill icon, but the item that causes it does. The table
+    /// (items/effect_icons.json, effect id -> the item's icon name) was built from the item descriptions, which name the effects they cause, and from the
+    /// item names where an effect is named like its item. Null when there is none.
+    /// </summary>
+    public static string? EffectIconPath(int effectId)
+    {
+        _effectIcons ??= ReadMap(Path.Combine(Root, "items", "effect_icons.json"));
+        foreach (int id in new[] { effectId, effectId / 10, effectId / 100 })
+        {
+            if (id > 0 && _effectIcons.TryGetValue(id, out string? name) && Path.Combine(Root, "items", "icons", name + ".png") is string path && File.Exists(path))
+            {
+                return path;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>True for passive skills ("p" in the client's skill table); everything else counts as active.</summary>
     public static bool IsPassive(int skillId)
     {

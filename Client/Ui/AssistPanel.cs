@@ -155,7 +155,7 @@ public sealed class AssistPanel : StackPanel
                 }
 
                 string english = Aion2SkillNames.NameOf(group.Key);
-                if (long.TryParse(english, out _) && Aion2SkillIcons.PathFor(group.Key) is null)
+                if (long.TryParse(english, out _) && Aion2SkillIcons.PathFor(group.Key) is null && Aion2Artwork.EffectIconPath(group.Key) is null)
                 {
                     continue; // a nameless state (rest, speed ...) says nothing to the player
                 }
@@ -287,7 +287,7 @@ public sealed class AssistPanel : StackPanel
         }
 
         double size = _overlay ? 24 : 28;
-        var icon = new Image { Width = size, Height = size, Margin = new Thickness(0, 0, 8, 0), Source = Picture(Aion2SkillIcons.PathFor(skillId)) };
+        var icon = new Image { Width = size, Height = size, Margin = new Thickness(0, 0, 8, 0), Source = Picture(Aion2SkillIcons.PathFor(skillId) ?? Aion2Artwork.EffectIconPath(skillId)) };
         Grid.SetRowSpan(icon, 2);
         grid.Children.Add(icon);
 

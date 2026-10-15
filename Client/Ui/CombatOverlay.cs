@@ -164,7 +164,7 @@ public static class CombatOverlayData
 
             string time = buff.Ends is { } end ? Math.Max(0, (int)Math.Ceiling((end - now).TotalSeconds)).ToString() : "∞";
             string english = Aion2SkillNames.NameOf(buff.SkillId);
-            string? icon = Aion2SkillIcons.PathFor(buff.SkillId) ?? Aion2SkillIcons.PathForName(english, null);
+            string? icon = Aion2SkillIcons.PathFor(buff.SkillId) ?? Aion2SkillIcons.PathForName(english, null) ?? Aion2Artwork.EffectIconPath(buff.SkillId);
             if (icon is null && buff.Caster <= 0 && long.TryParse(english, out _))
             {
                 continue; // a nameless effect from nobody is a system state (rest, speed ...), not something the room does to you
