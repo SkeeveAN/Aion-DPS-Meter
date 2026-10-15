@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.0.5",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "Tools window: width per tool, position and height are kept, also when the window is closed right after sizing and when the settings are saved",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "1.0.4",
   "date": "2026-10-15",
   "items": [
