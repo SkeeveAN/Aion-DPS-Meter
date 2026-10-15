@@ -372,6 +372,13 @@
       "when": 1791966000000,
       "tag": "0052_na_east_ninth_server",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "6",
+      "when": 1792072800000,
+      "tag": "0053_shattered_arkanis_stage_3",
+      "breakpoints": true
     }
   ]
 }

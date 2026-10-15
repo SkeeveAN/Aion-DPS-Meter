@@ -131,8 +131,9 @@ const ASCENSION_STEPS = ["easy", "medium", "hard", "extreme"];
  * 2320), so nothing is derived from a pattern; unknown ids leave the step empty ("Stage unknown" on the boss page).
  */
 const TRANSCENDENCE_STEPS: Readonly<Record<string, Readonly<Record<number, string>>>> = {
-  // Shattered Arkanis stages 3 and 4 (2370 / 2390) continue the +20 per stage seen so far; not yet confirmed by a fight.
-  "shattered-arkanis": { 2330: "1", 2350: "2", 2370: "3", 2390: "4" },
+  // Shattered Arkanis stage 3 is 2353 (Siliator 2353707 and Ruthilis 2353708, 9.68 M HP each, confirmed by the player 2026-10-15; the +20 pattern guessed 2370).
+  // Stage 4 is not seen yet, so it is left out rather than guessed.
+  "shattered-arkanis": { 2330: "1", 2350: "2", 2353: "3" },
   // Deus Research Base stage 3 is 2343, not 2360 as the +20 pattern guessed: Gelcos 2343616 and Nazmun 2343615 (9.68 M HP each, confirmed by the player
   // 2026-10-14, 1.337 x over stage 2). Stage 4 is not seen yet, so it is left out rather than guessed.
   "deus-research-base": { 2320: "1", 2340: "2", 2343: "3" },
