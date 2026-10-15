@@ -24,7 +24,7 @@ public sealed class TimetableWindow : Window
     private readonly Border _panel;
     private readonly DockPanel _header;
     private readonly Border _close;
-    private readonly Thumb _grip;
+    private readonly OverlayEdgeResize _edges;
     private bool _locked = true;
     private readonly System.Windows.Threading.DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
 
@@ -77,31 +77,18 @@ public sealed class TimetableWindow : Window
         _header = header;
         _close = close;
 
-        var grip = new Thumb
-        {
-            Width = 12, Height = 12, Cursor = Cursors.SizeNWSE, Margin = new Thickness(0, 4, 0, 0), HorizontalAlignment = HorizontalAlignment.Right,
-            Template = GripTemplate(),
-        };
-        grip.DragDelta += (_, e) => SetScale((PanelWidth * _scale.ScaleX + Math.Max(e.HorizontalChange, e.VerticalChange)) / PanelWidth);
-        grip.DragCompleted += (_, _) =>
-        {
-            var s = MeterSettings.Load();
-            s.TimetableScale = _scale.ScaleX;
-            s.Save();
-        };
-
-        _grip = grip;
         var stack = new StackPanel();
         stack.Children.Add(header);
         stack.Children.Add(_body);
-        stack.Children.Add(grip);
         _panel = new Border
         {
             Width = PanelWidth, CornerRadius = new CornerRadius(6), Padding = new Thickness(6, 5, 6, 5), Child = stack,
             LayoutTransform = _scale, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top,
         };
         _panel.SetResourceReference(Border.BackgroundProperty, "Brush.OverlayBg");
-        Content = _panel;
+        if (settings.TimetableWidth is > 0) { _panel.Width = settings.TimetableWidth.Value; }
+        _edges = new OverlayEdgeResize(this, _panel, () => _scale.ScaleX, () => { }, SavePosition, SetScale, OverlayEdgeMode.Width);
+        Content = _edges.Wrap(_panel);
         ApplyLocked(settings.TimetableLocked);
 
         Left = settings.TimetableLeft ?? SystemParameters.WorkArea.Right - PanelWidth - 40;
@@ -120,18 +107,40 @@ public sealed class TimetableWindow : Window
             }
         };
         Closed += (_, _) => _timer.Stop();
+        Action<string> onReset = name => { if (name == Title) { Dispatcher.Invoke(ReloadPlace); } };
+        OverlayPlaces.WasReset += onReset;
+        Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
     }
 
-    /// <summary>Locked: click-through, no close button, no grip. Unlocked: clickable and outlined, so it can be found, moved and scaled.</summary>
+    /// <summary>Place, width and scale from the settings again (after "reset size and position").</summary>
+    private void ReloadPlace()
+    {
+        var s = MeterSettings.Load();
+        SetScale(s.TimetableScale);
+        _panel.Width = s.TimetableWidth is > 0 ? s.TimetableWidth.Value : PanelWidth;
+        Left = s.TimetableLeft ?? SystemParameters.WorkArea.Right - PanelWidth - 40;
+        Top = s.TimetableTop ?? 120;
+    }
+
+    /// <summary>Locked: click-through, no close button, no handles. Unlocked: clickable and outlined, so it can be found, moved and scaled.</summary>
     public void ApplyLocked(bool locked)
     {
         _locked = locked;
         _close.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
-        _grip.Visibility = locked ? Visibility.Collapsed : Visibility.Visible;
+        _edges.Show(!locked);
         _header.Cursor = locked ? Cursors.Arrow : Cursors.SizeAll;
         _panel.BorderThickness = new Thickness(1);
         _panel.BorderBrush = locked ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42));
         ApplyClickThrough();
+    }
+
+    /// <summary>Takes the content out of a window that is never shown, to put it into a tool's own window (a live view); <see cref="Refresh"/> keeps filling it.</summary>
+    public UIElement DetachView()
+    {
+        ApplyLocked(true);
+        var content = (UIElement)Content;
+        Content = null;
+        return content;
     }
 
     /// <summary>Applies the lock only when it changed (the main window passes the settings on every refresh).</summary>
@@ -153,27 +162,13 @@ public sealed class TimetableWindow : Window
         }
     }
 
-    private static ControlTemplate GripTemplate()
-    {
-        var template = new ControlTemplate(typeof(Thumb));
-        var grid = new FrameworkElementFactory(typeof(Grid));
-        grid.SetValue(Panel.BackgroundProperty, Brushes.Transparent);
-        var path = new FrameworkElementFactory(typeof(System.Windows.Shapes.Path));
-        path.SetValue(System.Windows.Shapes.Path.DataProperty, Geometry.Parse("M11,1 L1,11 M11,5 L5,11 M11,9 L9,11"));
-        path.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.TextSubtle");
-        path.SetValue(System.Windows.Shapes.Shape.StrokeThicknessProperty, 1.0);
-        grid.AppendChild(path);
-        template.VisualTree = grid;
-        return template;
-    }
-
     /// <summary>How many minutes ahead an event is listed as "starts within ..." (Settings, 0 to 60; 0 lists nothing as "about to start").</summary>
     public void ApplyLookahead(int minutes) => _lookahead = TimeSpan.FromMinutes(Math.Clamp(minutes, 0, 60));
 
     /// <summary>The overlay's dark background at the Settings' opacity (the same as the DPS overlay's).</summary>
     public void ApplyOpacity(double opacity)
     {
-        opacity = Math.Clamp(double.IsFinite(opacity) ? opacity : 0.6, 0.2, 1.0);
+        opacity = Math.Clamp(double.IsFinite(opacity) ? opacity : 0.6, 0.0, 1.0);
         var brush = new SolidColorBrush(Color.FromArgb((byte)Math.Round(opacity * 255), 0, 0, 0));
         brush.Freeze();
         Resources["Brush.OverlayBg"] = brush;
@@ -191,6 +186,8 @@ public sealed class TimetableWindow : Window
         var s = MeterSettings.Load();
         s.TimetableLeft = Left;
         s.TimetableTop = Top;
+        s.TimetableScale = _scale.ScaleX;
+        s.TimetableWidth = _panel.Width;
         s.Save();
     }
 

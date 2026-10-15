@@ -18,9 +18,81 @@
     "date": "2026-10-15"
    },
    {
+    "text": "Packet reading is more robust: padding and foreign (encrypted) records between the game's messages no longer cost a resynchronisation; and a monster that targets a player (a Blazing Totem) is no longer taken for that player's summon",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Summons whose spawn names no owner are credited to the player their healing and buff effects are aimed at",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Unannounced summons (a Cleric's Divine Aura) are credited to the right player even when several party members play the same class: the strength of their hits tells them apart",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Website: a \"Star on GitHub\" link with the live star count in the footer and on the download page",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-15"
+   },
+   {
     "text": "Website: the features page has new scenes for the boss fight overlay, Assist (in development), the checklist and the pet level, sessions and the combat analyzer share one scene, and the hotkey overlay and the cube sound are listed under And more",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "First-start wizard: a \"getting ready\" card shows live whether Npcap is installed and whether the meter has recognised your character, with the steps to get going",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "If no game traffic arrives on the usual port, the meter now looks for the game on other ports (other regions, ping reducers) for two minutes",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Website: boss pages have a Statistics tab with the iDPS spread per class (box plot) and the top 10 of every class",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Boss statistics tab: the box plot shows the single rows as dots and has tooltips, plus a kill time histogram and the share of each class",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Assist window: a box in front of every skill and effect decides whether the overlay shows it",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Assist: optional sorting of the effects by time left; effects renewed again and again (a Chanter's mantras) count as auras, show as endless and come last",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-15"
    }

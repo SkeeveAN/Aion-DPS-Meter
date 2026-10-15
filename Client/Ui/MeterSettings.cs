@@ -96,7 +96,7 @@ public sealed class MeterSettings
 
     public string HotkeyCopyDamage { get; set; } = "Ctrl+Alt+D";
 
-    public string HotkeyClear { get; set; } = "Ctrl+Alt+Shift+X";
+    public string HotkeyClear { get; set; } = "Ctrl+Alt+X";
 
     /// <summary>Uploads the current boss, like the Upload button (see MainWindow.OnUploadCurrentBossClicked).</summary>
     public string HotkeyUploadBoss { get; set; } = "Ctrl+Alt+U";
@@ -133,6 +133,12 @@ public sealed class MeterSettings
     /// this existed) follows <see cref="OverlayOpacity"/>, which is what the timetable used until then.</summary>
     public double? TimetableOpacity { get; set; }
 
+    /// <summary>The own opacity (0 to 1) of overlays that have a setting for it, by the overlay's window title; none = the overlay's look as it was.</summary>
+    public Dictionary<string, double> OverlayOpacities { get; set; } = new();
+
+    /// <summary>How far the content of an overlay that is cut off from its sides (the map) is moved inside its frame, by the overlay's window title (x, y).</summary>
+    public Dictionary<string, double[]> OverlayShifts { get; set; } = new();
+
     /// <summary>How many minutes ahead the timetable overlay lists events that are about to start, 0 to 60 (0 = none).</summary>
     public int TimetableLookaheadMinutes { get; set; } = 60;
 
@@ -153,6 +159,12 @@ public sealed class MeterSettings
     public double AssistOverlayScale { get; set; } = 1.0;
     public double? AssistOverlayWidth { get; set; }
     public double? AssistOverlayHeight { get; set; }
+
+    /// <summary>The skills and effects (skill ids) the player unticked in the assist window: the overlay does not show them (everything shows by default).</summary>
+    public List<int> AssistOverlayHidden { get; set; } = new();
+
+    /// <summary>Assist window and overlay: list the effects with the least time left first (renewed auras, which never run out, come last). Off: in the order they first appeared.</summary>
+    public bool AssistSortByTime { get; set; }
 
     public bool NetworkOverlayLocked { get; set; } = true;
 
@@ -210,12 +222,18 @@ public sealed class MeterSettings
     /// <summary>The control mode learnt so far: "Unknown", "Hidden" (the cursor is hidden while playing) or "Classic" (always shown; menus cannot be told apart).</summary>
     public string MenuControlMode { get; set; } = "Unknown";
 
-    /// <summary>Shows the overlays for the menu that is open, or hides them again.</summary>
-    public string HotkeyShowMenu { get; set; } = "Ctrl+Alt+J";
 
     public bool ShowCombatOverlay { get; set; }
 
     public bool CombatOverlayLocked { get; set; } = true;
+
+    /// <summary>The cast bar and the health bar are positioned each on their own; null (a settings file from before) follows <see cref="CombatOverlayLocked"/>.</summary>
+    public bool? CombatCastOverlayLocked { get; set; }
+
+    public bool? CombatHpOverlayLocked { get; set; }
+
+    /// <summary>How opaque the target of the target is, 0 to 1.</summary>
+    public double CombatTargetOpacity { get; set; } = 0.6;
 
     public double? CombatOverlayLeft { get; set; }
     public double? CombatOverlayTop { get; set; }
@@ -241,12 +259,12 @@ public sealed class MeterSettings
     public Dictionary<string, CombatElementLayout> CombatElements { get; set; } = new();
 
     public bool CombatShowBossCast { get; set; } = true;
-    public bool CombatShowTargetOfTarget { get; set; } = true;
+    public bool CombatShowTargetOfTarget { get; set; }
 
     /// <summary>The healer's target: its name, hit points and effects. Off until switched on.</summary>
     public bool CombatShowHealer { get; set; }
-    public bool CombatHealerHpBar { get; set; } = true;
-    public bool CombatHealerEffects { get; set; } = true;
+    public bool CombatHealerHpBar { get; set; }
+    public bool CombatHealerEffects { get; set; }
 
 
     /// <summary>Which casts the bar shows: "all", "area" (at you and area attacks) or "you" (only at you).</summary>
@@ -284,7 +302,7 @@ public sealed class MeterSettings
     public double OverlayScale { get; set; } = 1.0;
 
     /// <summary>The boss's health bar in the compact overlay (current / full, %, HP check mark).</summary>
-    public bool ShowBossHp { get; set; }
+    public bool ShowBossHp { get; set; } = true;
 
     /// <summary>How opaque the boss health bar window is (0.2 to 1).</summary>
     public double BossHpOpacity { get; set; } = 1.0;
@@ -347,6 +365,9 @@ public sealed class MeterSettings
     public string HotkeyPetArrows { get; set; } = "Ctrl+Alt+E";
     public string HotkeyGatherArrows { get; set; } = "Ctrl+Alt+G";
 
+    /// <summary>Switches the skill assist overlay on and off.</summary>
+    public string HotkeyAssist { get; set; } = "Ctrl+Alt+S";
+
     /// <summary>The notice that appears when the eye (hide the window) is clicked was dismissed with "do not show again".</summary>
     public bool HideUiHintDismissed { get; set; }
 
@@ -359,6 +380,9 @@ public sealed class MeterSettings
     public double? TimetableTop { get; set; }
 
     public double TimetableScale { get; set; } = 1.0;
+
+    /// <summary>The width the timetable was pulled to (null = the default).</summary>
+    public double? TimetableWidth { get; set; }
 
     /// <summary>The pet farming overlay (see PetFarmWindow): reads the targeted monster's name from the screen and shows its pet's level. Off until switched on.</summary>
     public bool ShowPetFarm { get; set; }
@@ -379,6 +403,17 @@ public sealed class MeterSettings
 
     /// <summary>The pet map (see the Pet-Karte settings page): shown or not, how many metres around the player it covers, how opaque it is.</summary>
     public bool ShowPetMap { get; set; }
+
+    /// <summary>The interactive map is two overlays: the map and the list of pets and collectibles. Each is chosen on its own; shown only while the module's switch is on too.</summary>
+    public bool PetMapShowMap { get; set; } = true;
+
+    public bool PetMapShowList { get; set; } = true;
+
+    /// <summary>The list is positioned on its own; null (a settings file from before) follows <see cref="PetFarmLocked"/>, as the map does.</summary>
+    public bool? PetListLocked { get; set; }
+
+    /// <summary>The hotkey overlay is positioned on its own; null (a settings file from before) follows <see cref="PetFarmLocked"/>, as it did.</summary>
+    public bool? HotkeyOverlayLocked { get; set; }
 
     public int PetMapRadius { get; set; } = 150;
 

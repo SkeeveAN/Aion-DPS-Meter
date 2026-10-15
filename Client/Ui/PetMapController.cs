@@ -40,7 +40,68 @@ public sealed class PetMapController : IDisposable
     public void ApplyLocked(bool locked)
     {
         _map.ApplyLocked(locked);
-        _list.ApplyLocked(locked);
+        _list.ApplyLocked(_settings.PetListLocked ?? locked);
+    }
+
+    /// <summary>The map and the list are two overlays, each with its own switch (the module's switch is the master): shown only when both are on.</summary>
+    private readonly List<PetMapWindow> _mapViews = new();
+    private readonly List<PetListWindow> _listViews = new();
+
+    /// <summary>Never shown copies of the map and of the list whose content a tool window shows live (see <see cref="MovableOverlay.DetachBody"/>).</summary>
+    public (PetMapWindow Map, PetListWindow List) CreateViews()
+    {
+        var map = new PetMapWindow();
+        var list = new PetListWindow();
+        _mapViews.Add(map);
+        _listViews.Add(list);
+        list.Render(SampleRows());
+        return (map, list);
+    }
+
+    public void RemoveViews(PetMapWindow map, PetListWindow list)
+    {
+        _mapViews.Remove(map);
+        _listViews.Remove(list);
+        map.Close();
+        list.Close();
+    }
+
+    private string _listShown = "";
+
+    private void RenderList(IReadOnlyList<(Color, string, string, string, bool)> rows)
+    {
+        _list.Render(rows);
+        foreach (var view in _listViews)
+        {
+            view.Render(rows);
+        }
+    }
+
+    private bool _hideOverlays;
+
+    public bool HasViews => _mapViews.Count > 0;
+
+    private void ShowMap(bool visible) => _map.ShowOverlay(visible && !_hideOverlays && _settings.PetMapShowMap);
+
+    private void ShowList(bool visible) => _list.ShowOverlay(visible && !_hideOverlays && _settings.PetMapShowList);
+
+    /// <summary>Sample rows for the list while it is positioned: a few pets and collectibles of the game, in the settings' size.</summary>
+    private static IReadOnlyList<(Color, string, string, string, bool)> SampleRows()
+    {
+        string language = LocalizationManager.Instance.Language;
+        var rows = new List<(Color, string, string, string, bool)>();
+        int i = 0;
+        foreach (int pet in Aion2Pets.AllPetIds.OrderBy(p => p).Take(3))
+        {
+            rows.Add((PetMapPalette.Of(i++), Aion2Pets.PetName(pet, language) ?? $"#{pet}", string.Format(LocalizationManager.Instance["PetFarm.Level"], 1) + " · 5/" + Aion2Pets.ProgressNeeded(1), $"{40 + i * 35} m", false));
+        }
+
+        foreach (var item in Aion2Gather.Items().Take(3))
+        {
+            rows.Add((PetMapPalette.OfGather(item.Kind), item.NameIn(language), "", $"~{60 + i++ * 20} m", true));
+        }
+
+        return rows;
     }
 
     public void RaiseToFront()
@@ -164,14 +225,19 @@ public sealed class PetMapController : IDisposable
 
         var settings = _settings;
         AnnounceCubes(settings);
-        bool locked = settings.PetFarmLocked;
-        _map.ApplyLockedIfChanged(locked);
-        _list.ApplyLockedIfChanged(locked);
+        bool mapLocked = settings.PetFarmLocked, listLocked = settings.PetListLocked ?? settings.PetFarmLocked;
+        bool locked = mapLocked && listLocked;
+        _map.ApplyLockedIfChanged(mapLocked);
+        _list.ApplyLockedIfChanged(listLocked);
         bool inGame = GameWindow.ForegroundClientArea() is not null;
-        if (!inGame && locked)
+        _hideOverlays = (!inGame && locked) || !settings.ShowPetMap; // with the module's switch off only the tool window's views are fed
+        if (_hideOverlays)
         {
             Hide();
-            return;
+            if (_mapViews.Count == 0)
+            {
+                return; // nothing to show anywhere; with a tool window open the views go on
+            }
         }
 
         var directory = _directory();
@@ -201,14 +267,14 @@ public sealed class PetMapController : IDisposable
         {
             if (shopRows.Count == 0)
             {
-                ShowEmpty(locked);
+                ShowEmpty(mapLocked, listLocked);
                 return;
             }
 
             // only the pets of the open shop to show: the list without a map
-            _list.Render(shopRows.Take(_list.RowCapacity).ToList());
-            _list.ShowOverlay(true);
-            _map.ShowOverlay(!locked);
+            RenderList(shopRows.Take(_list.RowCapacity).ToList());
+            ShowList(true);
+            ShowMap(!mapLocked);
             return;
         }
 
@@ -281,22 +347,27 @@ public sealed class PetMapController : IDisposable
         _map.MeHeading = _heading;
         if (_current is not null)
         {
-            _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.2, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows);
-            _map.ShowOverlay(true);
+            _map.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows);
+            foreach (var view in _mapViews)
+            {
+                view.MeHeading = _heading;
+                view.Render(_current, _x, _y, Math.Clamp(settings.PetMapRadius, 50, 500), Math.Clamp(settings.PetMapOpacity, 0.0, 1.0), _points, live, colors, _gather, known, settings.ShowPetArrows, settings.ShowGatherArrows);
+            }
+            ShowMap(true);
         }
         else
         {
-            _map.ShowOverlay(!locked);
+            ShowMap(!mapLocked);
         }
 
         if (++_ticks % 10 == 0 || _lastTarget != (tx, ty) || _lastKnownFlag != known)
         {
             _lastTarget = (tx, ty);
             _lastKnownFlag = known;
-            _list.Render(shopRows.Concat(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds)).Take(_list.RowCapacity).ToList()); // only what fits in the frame (plus a reserve)
+            RenderList(shopRows.Concat(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds)).Take(_list.RowCapacity).ToList()); // only what fits in the frame (plus a reserve)
         }
 
-        _list.ShowOverlay(true);
+        ShowList(true);
     }
 
     /// <summary>
@@ -505,23 +576,28 @@ public sealed class PetMapController : IDisposable
         return gatherRows.Concat(petRows).OrderBy(r => double.IsNaN(r.Nearest) ? double.MaxValue : r.Nearest).Select(r => r.Row).ToList();
     }
 
-    private void ShowEmpty(bool locked)
+    private void ShowEmpty(bool mapLocked, bool listLocked)
     {
-        if (locked)
+        if (mapLocked && listLocked)
         {
+            if (_listViews.Count > 0)
+            {
+                RenderList(SampleRows()); // a tool window's list shows the sample while nothing is chosen
+            }
+
             Hide();
             return;
         }
 
-        // unlocked: only the empty frames, to grab and place
-        _list.Render(Array.Empty<(Color, string, string, string, bool)>());
-        _list.ShowOverlay(true);
-        _map.ShowOverlay(true);
+        // positioned: the frames (the list with sample rows), to grab and place; a locked one stays hidden
+        RenderList(SampleRows());
+        ShowList(!listLocked);
+        ShowMap(!mapLocked);
     }
 
     private void Hide()
     {
-        _map.ShowOverlay(false);
-        _list.ShowOverlay(false);
+        ShowMap(false);
+        ShowList(false);
     }
 }

@@ -513,9 +513,16 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- A separator in a menu: one thin line over the whole width of the menu (the default one is indented for an icon column and ends short). -->
+        <ControlTemplate x:Key="MenuSeparatorLine" TargetType="Separator">
+            <Border Height="1" Margin="6,4" HorizontalAlignment="Stretch" Background="{DynamicResource Brush.Border}"/>
+        </ControlTemplate>
         <Style TargetType="Separator">
             <Setter Property="Background" Value="{DynamicResource Brush.Border}"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Template" Value="{StaticResource MenuSeparatorLine}"/>
         </Style>
+        <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator" BasedOn="{StaticResource {x:Type Separator}}"/>
         <!-- Found by the user: a ToolTip popup (e.g. the Char-quick-switch's, back when it still
              existed) rendered as a bright white box - same popup-chrome issue as everything above, ToolTip's default template
              ignores Background/Foreground the same way. Simple setters ARE enough here (ToolTip's
@@ -636,34 +643,27 @@
                          entry buried among a dozen others. -->
                     <!-- Tools: the combat analyzer (session manager), loading/saving/exporting sessions and the dummy test. The session part comes first,
                          a line sets the dummy test apart. -->
-                    <MenuItem Header="{local:Loc Main.MenuTools}" Foreground="{DynamicResource Brush.Text}">
-                        <MenuItem Header="{local:Loc Main.MenuTools.Analyzer}" Click="OnOpenSessionManagerClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuApp.SessionGroup}">
-                            <MenuItem Header="{local:Loc Main.MenuApp.LoadSession}" Click="OnLoadSessionClicked"/>
-                            <MenuItem Header="{local:Loc Main.MenuApp.SaveSession}" Click="OnSaveSessionClicked"/>
-                        </MenuItem>
-                        <MenuItem Header="{local:Loc Main.MenuApp.ExportGroup}">
-                            <MenuItem Header="{local:Loc Main.MenuApp.ExportSession}" IsEnabled="False"/>
-                            <MenuItem Header="{local:Loc Main.MenuApp.ValidateSession}" IsEnabled="False"/>
-                        </MenuItem>
-                        <MenuItem Header="{local:Loc Main.MenuApp.OpenSessionsFolder}" Click="OnOpenSessionsFolderClicked"/>
+                                        <MenuItem Header="{local:Loc Main.MenuTools}" Foreground="{DynamicResource Brush.Text}">
+                        <MenuItem Header="{local:Loc Main.MenuTools.Checklist}" Click="OnOpenChecklistClicked"/>
+                        <MenuItem Header="{local:Loc Settings.Nav.PetMap}" Tag="petmap" Click="OnOpenModuleClicked"/>
+                        <Separator/>
+                        <MenuItem Header="{local:Loc Settings.Nav.Combat}" Tag="combat" Click="OnOpenModuleClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Assist}" Click="OnOpenAssistClicked"/>
                         <Separator/>
                         <MenuItem Header="{local:Loc Main.MenuTools.DummyTest}" Click="OnOpenDummyTestClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuTools.Checklist}" Click="OnOpenChecklistClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuTools.Assist}" Click="OnOpenAssistClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Analyzer}" Click="OnOpenSessionManagerClicked"/>
+                        <Separator/>
+                        <MenuItem Header="{local:Loc Settings.Nav.Timetable}" Tag="timetable" Click="OnOpenModuleClicked"/>
+                        <MenuItem Header="{local:Loc Settings.Nav.Boss}" Tag="boss" Click="OnOpenModuleClicked"/>
+                        <Separator/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Stream}" Tag="stream" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuTools.ThemeEditor}" Click="OnOpenThemeEditorClicked"/>
+                        <MenuItem Header="{local:Loc Settings.Nav.Network}" Tag="network" Click="OnOpenModuleClicked"/>
                     </MenuItem>
                     <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuSettings.AppSettings}" Click="OnSettingsClicked"/>
                         <MenuItem x:Name="AlwaysOnTopMenuItem" Header="{local:Loc Main.MenuSettings.AlwaysOnTop}" IsCheckable="True" Click="OnAlwaysOnTopClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuSettings.Feedback}" Click="OnFeedbackClicked"/>
-                    </MenuItem>
-                    <MenuItem Header="{local:Loc Main.MenuMode}" Foreground="{DynamicResource Brush.Text}">
-                        <MenuItem x:Name="DamageModeItem" Header="{local:Loc Main.ModeDamage}" IsCheckable="True" IsChecked="True" Click="OnModeClicked"/>
-                        <MenuItem x:Name="HealModeItem" Header="{local:Loc Main.ModeHeal}" IsCheckable="True" Click="OnModeClicked"/>
-                        <MenuItem x:Name="TakenModeItem" Header="{local:Loc Main.ModeTaken}" IsCheckable="True" Click="OnModeClicked"/>
-                        <MenuItem x:Name="AllModeItem" Header="{local:Loc Main.ModeAll}" IsCheckable="True" Click="OnModeClicked"/>
-                        <MenuItem x:Name="AllCompactModeItem" Header="{local:Loc Main.ModeAllCompact}" IsCheckable="True" Click="OnModeClicked"/>
                     </MenuItem>
                 </Menu>
 
@@ -696,7 +696,7 @@
                          and Discord's own mark for the table. They used to swap between an icon and
                          a text label depending on the active view, which meant the same button
                          looked like two different controls. -->
-                    <Button x:Name="CopyButton" Style="{StaticResource ToolbarIconButton}" Click="OnCopyClicked" Padding="6,4"
+                    <Button x:Name="CopyButton" Style="{StaticResource ToolbarIconButton}" Click="OnCopyClicked" Padding="5"
                             ToolTip="Copy a one-line chat string - the damage ranking, or an Aion-chat loot summary if the Loot view is active.">
                         <Grid Width="18" Height="16">
                             <TextBlock Text="A" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Brush.Text}"
@@ -707,7 +707,7 @@
                          grid is showing (no per-source filter exists yet for "all" to differ from
                          "visible"), but Copy yields the one-line chat string and CopyAll the
                          tab-separated table, which is what the String/Table labels say. -->
-                    <Button x:Name="CopyAllButton" Style="{StaticResource ToolbarIconButton}" Click="OnCopyAllClicked" Padding="6,4"
+                    <Button x:Name="CopyAllButton" Style="{StaticResource ToolbarIconButton}" Click="OnCopyAllClicked" Padding="5"
                             ToolTip="Copy an ASCII table in a code block, ready to paste into Discord - damage, or loot if the Loot view is active.">
                         <Grid Width="18" Height="16">
                             <!-- Discord's own mark, from the simple-icons 24x24 viewBox. The SVG
@@ -723,7 +723,7 @@
                          with only one Visible at a time - toggled in OnPauseClicked alongside the
                          ToolTip text, since the icon alone no longer carries the word "Resume".
                          Paused combat data is discarded, never replayed on Resume. -->
-                    <Button x:Name="PauseButton" Style="{StaticResource ToolbarIconButton}" Click="OnPauseClicked" Padding="6,4"
+                    <Button x:Name="PauseButton" Style="{StaticResource ToolbarIconButton}" Click="OnPauseClicked" Padding="5"
                             ToolTip="Pause recording.">
                         <Grid Width="18" Height="16">
                             <StackPanel x:Name="PauseIcon" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -733,7 +733,7 @@
                             <Path x:Name="PlayIcon" Data="M3,1 L3,15 L15,8 Z" Fill="{DynamicResource Brush.Text}" Visibility="Collapsed"/>
                         </Grid>
                     </Button>
-                    <Button x:Name="ClearButton" Style="{StaticResource ToolbarIconButton}" Click="OnClearClicked" Padding="6,4"
+                    <Button x:Name="ClearButton" Style="{StaticResource ToolbarIconButton}" Click="OnClearClicked" Padding="5"
                             ToolTip="Clear the damage list and start fresh.">
                         <Grid Width="18" Height="16">
                             <Path Data="M4,3 L14,13 M14,3 L4,13" Stroke="{DynamicResource Brush.Danger}" StrokeThickness="2"
@@ -747,6 +747,41 @@
                          mobs/bosses excluded entirely, and overrides the Mob/Boss filter rather than
                          combining with it - see OnPvpModeToggleClicked/RefreshRows. Right-aligned
                          (Grid.Column="2"), per the user. -->
+                    <!-- Profile (character window), Twitch Drops and announcements: in the top row, left of the PVE/PVP switch. -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Button x:Name="CharacterNavButton" Style="{StaticResource NavButton}" ToolTip="Open the character window (Aion 2): gear, skills, Daevanion" Click="OnShowCharacterView">
+                            <Grid Width="16" Height="16">
+                                <Ellipse Width="5.6" Height="5.6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                         StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1.2,0,0"/>
+                                <Path Data="M4,14.5 L4,11.8 Q4,8.6 8,8.6 Q12,8.6 12,11.8 L12,14.5"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="TwitchDropsButton" Style="{StaticResource ToolbarIconButton}" Click="OnTwitchDropsClicked" Padding="5" Margin="4"
+                                Visibility="Collapsed" ToolTip="{local:Loc Main.TwitchDrops.Tooltip}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="F1 M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"
+                                      Fill="#A970FF" Width="15" Height="15" Stretch="Uniform"/>
+                                <Border x:Name="TwitchDropsNewBadge" Visibility="Collapsed" Margin="5,0,0,0" Padding="6,1" CornerRadius="8"
+                                        Background="#FFD24A" VerticalAlignment="Center">
+                                    <TextBlock Text="{local:Loc Main.TwitchDrops.New}" FontSize="11" FontWeight="ExtraBold" Foreground="#1A1200"/>
+                                </Border>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="AnnouncementsButton" Style="{StaticResource ToolbarIconButton}" Click="OnAnnouncementsClicked" Padding="5" Margin="4"
+                                ToolTip="{local:Loc Main.Announcements.Tooltip}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M3,9 L3,15 L7,15 L14,20 L14,4 L7,9 Z M17,8 C18.5,9.5 18.5,14.5 17,16 M19.5,5.5 C22.5,8.5 22.5,15.5 19.5,18.5"
+                                      Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                      Width="18" Height="15" Stretch="Uniform"/>
+                                <Border x:Name="AnnouncementsNewBadge" Visibility="Collapsed" Margin="5,0,0,0" Padding="6,1" CornerRadius="8"
+                                        Background="#FFD24A" VerticalAlignment="Center">
+                                    <TextBlock Text="{local:Loc Main.Announcements.New}" FontSize="11" FontWeight="ExtraBold" Foreground="#1A1200"/>
+                                </Border>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,0,4,0" VerticalAlignment="Center"
                                 ToolTip="PVE: damage against mobs/bosses (default). PVP: damage against other players only - Arena/Abyss/GvG.">
                         <ToggleButton x:Name="PveModeButton" Style="{StaticResource PvpModeToggleLeft}"
@@ -783,10 +818,22 @@
                          placeholder since it wasn't asked to go too. See README's UI-placeholders
                          section. -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
-                        <Button x:Name="DamageNavButton" Style="{StaticResource NavButton}" ToolTip="Damage Distribution" Click="OnShowDamageView"
-                                Background="{DynamicResource Brush.Accent}" Foreground="{DynamicResource Brush.Window}">
-                            <Path Data="M3,16 L3,10 M8,16 L8,5 M13,16 L13,12" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="16" Height="16"/>
+                        <!-- The five display modes as buttons (they were the "Mode" menu): damage, heal, damage taken, All in One,
+                             All in One +. The icon pictures and the active look are set in ApplyModeButtons (assets/modes). -->
+                        <Button x:Name="ModeDamageButton" Style="{StaticResource NavButton}" Padding="2" Tag="Damage" ToolTip="{local:Loc Main.ModeDamage}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeDamageImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        <Button x:Name="ModeHealButton" Style="{StaticResource NavButton}" Padding="2" Tag="Heal" ToolTip="{local:Loc Main.ModeHeal}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeHealImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        <Button x:Name="ModeTakenButton" Style="{StaticResource NavButton}" Padding="2" Tag="Taken" ToolTip="{local:Loc Main.ModeTaken}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeTakenImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        <Button x:Name="ModeAllButton" Style="{StaticResource NavButton}" Padding="2" Tag="All" ToolTip="{local:Loc Main.ModeAll}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeAllImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Button>
+                        <Button x:Name="ModeAllPlusButton" Style="{StaticResource NavButton}" Padding="2" Tag="AllCompact" ToolTip="{local:Loc Main.ModeAllCompact}" Click="OnModeButtonClicked">
+                            <Image x:Name="ModeAllPlusImage" Width="24" Height="24" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Button>
                         <!-- Rebuilt per the user (the old single lopsided arc from (1,15) to
                              (15,12.5) via one control point at (8,8) read as pinched/asymmetric,
@@ -794,15 +841,7 @@
                              rounded-top body outline (open at the bottom, the same "person" shape
                              family as Feather/Bootstrap's own user icon), both halves mirroring
                              each other around x=8. -->
-                        <Button x:Name="CharacterNavButton" Style="{StaticResource NavButton}" ToolTip="Open the character window (Aion 2): gear, skills, Daevanion" Click="OnShowCharacterView">
-                            <Grid Width="16" Height="16">
-                                <Ellipse Width="5.6" Height="5.6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                         StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1.2,0,0"/>
-                                <Path Data="M4,14.5 L4,11.8 Q4,8.6 8,8.6 Q12,8.6 12,11.8 L12,14.5"
-                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                      StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                            </Grid>
-                        </Button>
+                        
                     </StackPanel>
                     <!-- Hide UI (eye icon) and Upload, both moved here from the icon toolbar above,
                          per the user - Hide UI now sits immediately left of Upload rather than up
@@ -820,32 +859,11 @@
                              window is click-through, which is why Ctrl+Alt+H exists to bring it back. -->
                         <!-- Twitch Drops: shown only while a campaign runs (RefreshTwitchDropsBadge), left of the announcements icon; "New" while the newest
                              campaign is one not seen at the last click. Opens the page on aiondps.com. -->
-                        <Button x:Name="TwitchDropsButton" Style="{StaticResource ToolbarIconButton}" Click="OnTwitchDropsClicked" Padding="6,4" Margin="4"
-                                Visibility="Collapsed" ToolTip="{local:Loc Main.TwitchDrops.Tooltip}">
-                            <StackPanel Orientation="Horizontal">
-                                <Path Data="F1 M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"
-                                      Fill="#A970FF" Width="15" Height="15" Stretch="Uniform"/>
-                                <Border x:Name="TwitchDropsNewBadge" Visibility="Collapsed" Margin="5,0,0,0" Padding="6,1" CornerRadius="8"
-                                        Background="#FFD24A" VerticalAlignment="Center">
-                                    <TextBlock Text="{local:Loc Main.TwitchDrops.New}" FontSize="11" FontWeight="ExtraBold" Foreground="#1A1200"/>
-                                </Border>
-                            </StackPanel>
-                        </Button>
+                        
                         <!-- AION 2 announcements: only a link to the page on aiondps.com; "New" shows beside the icon while there is
                              an announcement newer than the one seen at the last click (OnAnnouncementsClicked / RefreshAnnouncementsBadge). -->
-                        <Button x:Name="AnnouncementsButton" Style="{StaticResource ToolbarIconButton}" Click="OnAnnouncementsClicked" Padding="6,4" Margin="4"
-                                ToolTip="{local:Loc Main.Announcements.Tooltip}">
-                            <StackPanel Orientation="Horizontal">
-                                <Path Data="M3,9 L3,15 L7,15 L14,20 L14,4 L7,9 Z M17,8 C18.5,9.5 18.5,14.5 17,16 M19.5,5.5 C22.5,8.5 22.5,15.5 19.5,18.5"
-                                      Stroke="{DynamicResource Brush.Text}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                                      Width="18" Height="15" Stretch="Uniform"/>
-                                <Border x:Name="AnnouncementsNewBadge" Visibility="Collapsed" Margin="5,0,0,0" Padding="6,1" CornerRadius="8"
-                                        Background="#FFD24A" VerticalAlignment="Center">
-                                    <TextBlock Text="{local:Loc Main.Announcements.New}" FontSize="11" FontWeight="ExtraBold" Foreground="#1A1200"/>
-                                </Border>
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="HideUiButton" Style="{StaticResource ToolbarIconButton}" Click="OnHideUiClicked" Padding="6,4" Margin="4"
+                        
+                        <Button x:Name="HideUiButton" Style="{StaticResource ToolbarIconButton}" Click="OnHideUiClicked" Padding="5" Margin="4"
                                 ToolTip="Overlay mode: transparent, click-through, shows a small DPS chip per player. Ctrl+Alt+H brings the UI back.">
                             <Path Data="M1,12 C1,12 4.5,5 12,5 19.5,5 23,12 23,12 23,12 19.5,19 12,19 4.5,19 1,12 1,12 Z
                                         M12,15 A3,3 0 1 0 12,9 3,3 0 1 0 12,15 Z"
@@ -855,7 +873,7 @@
                              hidden in the Loot view and whenever there's nothing recorded yet, both
                              still handled the same way by RefreshUploadAvailability regardless of
                              where the button physically sits. -->
-                        <Button x:Name="UploadBossButton" Style="{StaticResource ToolbarIconButton}" Click="OnUploadCurrentBossClicked" Padding="6,4"
+                        <Button x:Name="UploadBossButton" Style="{StaticResource ToolbarIconButton}" Click="OnUploadCurrentBossClicked" Padding="5"
                                 Margin="4" Visibility="Collapsed"
                                 ToolTip="Uploads this boss fight to aiondps.com.">
                             <Path Data="M9,2 L9,10 M4,7 L9,2 L14,7 M3,13 L15,13"
@@ -915,10 +933,10 @@
                         <ComboBoxItem Content="{local:Loc Main.FilterAllGroups}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterSelf}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterGroup}"/>
-                        <ComboBoxItem Content="{local:Loc Main.FilterAlliance}"/>
+                        <ComboBoxItem Content="{local:Loc Main.Scope.Corps}"/>
                         <ComboBoxItem Content="{local:Loc Main.FilterLegion}"/>
-                        <ComboBoxItem Content="Elyos"/>
-                        <ComboBoxItem Content="Asmodian"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterElyos}"/>
+                        <ComboBoxItem Content="{local:Loc Main.FilterAsmodian}"/>
                     </ComboBox>
                     <!-- Lists targets actually seen this session. "All" sums each source's damage
                          across every target (the ambiguous wall-clock view - see DpsCalculator

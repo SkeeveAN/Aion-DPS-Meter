@@ -61,11 +61,11 @@ public sealed class WorldBossOverlayWindow : MovableOverlay
 {
     private readonly StackPanel _rows = new() { MinWidth = 260, MinHeight = 40 };
 
-    public WorldBossOverlayWindow() : base("Aion DPS World Boss", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 360, LoadSize, SaveSize)
+    public WorldBossOverlayWindow() : base("Aion DPS World Boss", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 360, LoadSize, SaveSize, OverlayEdgeMode.Width)
     {
         Body = new Border
         {
-            Background = new SolidColorBrush(Color.FromArgb(0x8C, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
+            Background = new SolidColorBrush(Color.FromArgb(0x99, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
             BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 6, 10, 6), Child = _rows,
         };
     }
@@ -132,6 +132,69 @@ public sealed class WorldBossController : IDisposable
     private readonly System.Windows.Threading.DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly Dictionary<int, BossPhase> _phases = new();
     private WorldBossOverlayWindow? _overlay;
+    private readonly List<WorldBossOverlayWindow> _views = new();
+
+    /// <summary>A second, never shown copy of the overlay whose content a tool window shows live (see <see cref="MovableOverlay.DetachBody"/>).</summary>
+    public WorldBossOverlayWindow CreateView()
+    {
+        var view = new WorldBossOverlayWindow();
+        _views.Add(view);
+        view.Render(Rows(MeterSettings.Load(), DateTime.Now, forceSample: true));
+        return view;
+    }
+
+    public void RemoveView(WorldBossOverlayWindow view)
+    {
+        _views.Remove(view);
+        view.Close();
+    }
+
+    /// <summary>The rows of the overlay: the bosses that are there first, then the next to come. With none chosen, a few bosses of the game as a sample (when asked, or while positioning).</summary>
+    private static List<(string Name, string Text, bool Now)> Rows(MeterSettings settings, DateTime now, bool forceSample = false)
+    {
+        string language = LocalizationManager.Instance.Language;
+        var watched = new List<(FieldBossMap Map, FieldBoss Boss, BossStatus Status)>();
+        foreach (var map in Aion2FieldBosses.Maps)
+        {
+            foreach (var boss in map.Bosses)
+            {
+                if (settings.BossAlerts.TryGetValue(boss.Npc.ToString(), out var alert) && alert.Enabled)
+                {
+                    watched.Add((map, boss, Aion2FieldBosses.StatusOf(boss, now)));
+                }
+            }
+        }
+
+        if (watched.Count == 0 && (forceSample || !settings.BossOverlayLocked))
+        {
+            // none chosen yet: the first bosses of the game, with the times the meter knows
+            foreach (var map in Aion2FieldBosses.Maps)
+            {
+                foreach (var boss in map.Bosses.Take(2))
+                {
+                    watched.Add((map, boss, Aion2FieldBosses.StatusOf(boss, now)));
+                }
+
+                if (watched.Count >= 4)
+                {
+                    break;
+                }
+            }
+        }
+
+        var rows = watched
+            .OrderBy(w => w.Status.Phase == BossPhase.Now ? 0 : w.Status.Phase == BossPhase.Unknown ? 2 : 1)
+            .ThenBy(w => w.Status.At ?? DateTime.MaxValue)
+            .Select(w => (Aion2FieldBosses.DisplayName(w.Map, w.Boss, language), WorldBossText.Of(w.Status, now), w.Status.Phase == BossPhase.Now))
+            .ToList();
+        if (rows.Count == 0)
+        {
+            rows.Add((LocalizationManager.Instance["Boss.OverlayEmpty"], "", false));
+        }
+
+        return rows;
+    }
+
     private MeterSettings _settings = MeterSettings.Load();
     private DateTime _settingsAt = DateTime.UtcNow;
 
@@ -160,26 +223,41 @@ public sealed class WorldBossController : IDisposable
         var settings = _settings;
         DateTime now = DateTime.Now;
         string language = LocalizationManager.Instance.Language;
-        var watched = new List<(FieldBossMap Map, FieldBoss Boss, BossAlertSetting Alert, BossStatus Status)>();
+        var watched = new List<(FieldBossMap Map, FieldBoss Boss, BossAlertSetting Alert, BossStatus Status)>(); // shown in the overlay
+        var sounding = new List<(FieldBoss Boss, BossAlertSetting Alert, BossStatus Status)>(); // the sound does not depend on the overlay or its switches
         foreach (var map in Aion2FieldBosses.Maps)
         {
             foreach (var boss in map.Bosses)
             {
-                if (settings.BossAlerts.TryGetValue(boss.Npc.ToString(), out var alert) && alert.Enabled)
+                if (settings.BossAlerts.TryGetValue(boss.Npc.ToString(), out var alert) && (alert.Enabled || alert.Sound.Length > 0))
                 {
-                    watched.Add((map, boss, alert, Aion2FieldBosses.StatusOf(boss, now)));
+                    var status = Aion2FieldBosses.StatusOf(boss, now);
+                    sounding.Add((boss, alert, status));
+                    if (alert.Enabled)
+                    {
+                        watched.Add((map, boss, alert, status));
+                    }
                 }
             }
         }
 
         // the sound: a watched boss that was away and is back now
-        foreach (var (_, boss, alert, status) in watched)
+        foreach (var (boss, alert, status) in sounding)
         {
             bool wasAway = _phases.TryGetValue(boss.Npc, out var before) && before is BossPhase.Respawn or BossPhase.Fixed;
             _phases[boss.Npc] = status.Phase;
             if (wasAway && status.Phase == BossPhase.Now && settings.BossNotify && alert.Sound.Length > 0 && alert.Volume > 0)
             {
                 NotifySounds.Play(alert.Sound, alert.Volume);
+            }
+        }
+
+        if (_views.Count > 0)
+        {
+            var viewRows = Rows(settings, now, forceSample: true);
+            foreach (var view in _views)
+            {
+                view.Render(viewRows);
             }
         }
 
@@ -199,18 +277,7 @@ public sealed class WorldBossController : IDisposable
             return;
         }
 
-        // the bosses that are there first, then the next to come
-        var rows = watched
-            .OrderBy(w => w.Status.Phase == BossPhase.Now ? 0 : w.Status.Phase == BossPhase.Unknown ? 2 : 1)
-            .ThenBy(w => w.Status.At ?? DateTime.MaxValue)
-            .Select(w => (Aion2FieldBosses.DisplayName(w.Map, w.Boss, language), WorldBossText.Of(w.Status, now), w.Status.Phase == BossPhase.Now))
-            .ToList();
-        if (rows.Count == 0)
-        {
-            rows.Add((LocalizationManager.Instance["Boss.OverlayEmpty"], "", false));
-        }
-
-        _overlay.Render(rows);
+        _overlay.Render(Rows(settings, now));
         _overlay.ShowOverlay(true);
     }
 }

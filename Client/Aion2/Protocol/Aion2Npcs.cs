@@ -11,7 +11,40 @@ namespace AionDPS.Aion2.Protocol;
 public static class Aion2Npcs
 {
     private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "npcs", "npc_names.json");
+    private static readonly string SummonFilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "npcs", "player_summon_npcs.json");
     private static Dictionary<int, Dictionary<string, string>>? _table;
+    private static HashSet<int>? _playerSummons;
+
+    /// <summary>True for a monster the NPC table knows that is not one of the player summons (pet, trap, aura, spirit):
+    /// a spawn of it that names a player names its target (a Blazing Totem naming the player it burns), not an owner.
+    /// False for the player summons, and for ids neither list knows.</summary>
+    public static bool IsMonsterNotPlayerSummon(int npcId)
+    {
+        var table = _table ??= Load();
+        var summons = _playerSummons ??= LoadSummons();
+        return summons.Count > 0 && table.ContainsKey(npcId) && !summons.Contains(npcId);
+    }
+
+    /// <summary>True for a player summon (pet, trap, aura, spirit) of the game's NpcData; false for everything else and when the list is missing.</summary>
+    public static bool IsPlayerSummon(int npcId) => (_playerSummons ??= LoadSummons()).Contains(npcId);
+
+    private static HashSet<int> LoadSummons()
+    {
+        try
+        {
+            if (File.Exists(SummonFilePath))
+            {
+                using var doc = JsonDocument.Parse(File.ReadAllText(SummonFilePath));
+                return doc.RootElement.GetProperty("npcs").EnumerateArray().Select(e => e.GetInt32()).ToHashSet();
+            }
+        }
+        catch (Exception ex) when (ex is IOException or JsonException or KeyNotFoundException or InvalidOperationException)
+        {
+            // No list: every named spawn stays an owner claim, as before.
+        }
+
+        return new HashSet<int>();
+    }
 
     /// <summary>The monster's name in a language, else English; null when the NPC id is unknown.</summary>
     public static string? NameOf(int npcId, string language)

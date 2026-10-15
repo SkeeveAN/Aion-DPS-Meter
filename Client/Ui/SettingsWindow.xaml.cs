@@ -19,6 +19,12 @@ public partial class SettingsWindow : Window
     {
         InitializeComponent();
         _settings = settings;
+        foreach (RadioButton nav in new[] { NavGeneral, NavMeter, NavInstall, NavHotkeys, NavUpdates })
+        {
+            nav.Checked += OnNavChecked;
+        }
+
+        ApplyView();
         ShowUndo(undoUntil);
 
         // Same saved-size pattern as MainWindow's own RestoreWindowGeometry/SaveWindowGeometry.
@@ -53,14 +59,22 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyUploadBossBox, HotkeyBinding.Parse(settings.HotkeyUploadBoss).ToString());
         SetHotkeyBox(HotkeyModeBox, HotkeyBinding.Parse(settings.HotkeyMode).ToString());
         ShowBossHpBox.IsChecked = settings.ShowBossHp;
-        BossHpOpacitySlider.Value = Math.Clamp(settings.BossHpOpacity * 100, 20, 100);
-        CombatCastOpacitySlider.Value = Math.Clamp(settings.CombatCastOpacity * 100, 20, 100);
-        ShowCombatOpacityValues();
+        BossHpOpacity.Fraction = settings.BossHpOpacity;
+        CombatCastOpacity.Fraction = settings.CombatCastOpacity;
         ShowTimetableBox.IsChecked = settings.ShowTimetable;
         ShowPetFarmBox.IsChecked = settings.ShowPetFarm;
-        PetFarmLockedBox.IsChecked = settings.PetFarmLocked;
-        PetInfoLockedBox.IsChecked = settings.PetInfoLocked;
-        TimetableLockedBox.IsChecked = settings.TimetableLocked;
+        PetFarmLockedBox.IsChecked = !settings.PetFarmLocked;
+        NetworkOpacity.Fraction = settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.Network, 0.6);
+        BossOpacity.Fraction = settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.WorldBoss, 0.6);
+        HotkeyOpacity.Fraction = settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.Hotkeys, 0.6);
+        HotkeyOverlayLockedBox.IsChecked = !(settings.HotkeyOverlayLocked ?? settings.PetFarmLocked);
+        PetListLockedBox.IsChecked = !(settings.PetListLocked ?? settings.PetFarmLocked);
+        PetMapShowMapBox.IsChecked = settings.PetMapShowMap;
+        PetMapShowListBox.IsChecked = settings.PetMapShowList;
+        PetListOpacity.Fraction = settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.PetList, 0.6);
+        PetInfoOpacity.Fraction = settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.PetInfo, settings.OverlayOpacity);
+        PetInfoLockedBox.IsChecked = !settings.PetInfoLocked;
+        TimetableLockedBox.IsChecked = !settings.TimetableLocked;
         InitPetMap(settings);
         InitBossPage(settings);
         SetHotkeyBox(HotkeyTimetableBox, HotkeyBinding.Parse(settings.HotkeyTimetable).ToString());
@@ -70,9 +84,10 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyWorldBossBox, HotkeyBinding.Parse(settings.HotkeyWorldBoss).ToString());
         SetHotkeyBox(HotkeyNetworkBox, HotkeyBinding.Parse(settings.HotkeyNetwork).ToString());
         SetHotkeyBox(HotkeyCombatBox, HotkeyBinding.Parse(settings.HotkeyCombatOverlay).ToString());
+        SetHotkeyBox(HotkeyAssistBox, HotkeyBinding.Parse(settings.HotkeyAssist).ToString());
         InitCombatPage(settings);
         ShowNetworkOverlayBox.IsChecked = settings.ShowNetworkOverlay;
-        NetworkOverlayLockedBox.IsChecked = settings.NetworkOverlayLocked;
+        NetworkOverlayLockedBox.IsChecked = !settings.NetworkOverlayLocked;
         foreach (var box in NetworkRowBoxes())
         {
             box.IsChecked = !settings.NetworkOverlayHidden.Contains((string)box.Tag);
@@ -94,8 +109,7 @@ public partial class SettingsWindow : Window
             .OrderBy(i => Math.Abs(double.Parse((string)i.Tag, System.Globalization.CultureInfo.InvariantCulture) - settings.OverlayOpacity)).First();
         OverlayOpacityBox.SelectedItem = nearest;
         double timetableOpacity = settings.TimetableOpacity ?? settings.OverlayOpacity;
-        TimetableOpacityBox.SelectedItem = TimetableOpacityBox.Items.OfType<ComboBoxItem>()
-            .OrderBy(i => Math.Abs(double.Parse((string)i.Tag, System.Globalization.CultureInfo.InvariantCulture) - timetableOpacity)).First();
+        TimetableOpacityField.Fraction = timetableOpacity;
         TimetableLookaheadSlider.Value = Math.Clamp(settings.TimetableLookaheadMinutes, 0, 60);
         InitTimetableEvents(settings);
         ShowTimetableLookahead(); // the handler does not fire when the value equals the slider's default
@@ -111,7 +125,6 @@ public partial class SettingsWindow : Window
         StreamNetworkBox.IsChecked = settings.StreamOverlayNetwork;
         StreamPortBox.Text = settings.StreamOverlayPort.ToString();
         ShowMenuControlStatus(settings.MenuControlMode);
-        SetHotkeyBox(HotkeyShowMenuBox, HotkeyBinding.Parse(settings.HotkeyShowMenu).ToString());
         PopulateCaptureAdapters(settings.CaptureAdapterId);
 
         // Built from LocalizationManager.SupportedLanguages rather than hardcoded in XAML. Each item's
@@ -437,7 +450,7 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
-        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvCombatBox, OvShowMenuBox, OvPetArrowsBox, OvGatherArrowsBox };
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvCombatBox, OvAssistBox, OvPetArrowsBox, OvGatherArrowsBox };
 
     /// <summary>The switches of the lines the network overlay shows (Tag = the line's id).</summary>
     private IEnumerable<CheckBox> NetworkRowBoxes() =>
@@ -561,6 +574,11 @@ public partial class SettingsWindow : Window
         _settings.HotkeyOverlayWidth = onDisk.HotkeyOverlayWidth;
         _settings.HotkeyOverlayHeight = onDisk.HotkeyOverlayHeight;
         _settings.CombatElements = onDisk.CombatElements;
+        _settings.OverlayShifts = onDisk.OverlayShifts;
+        _settings.TimetableLeft = onDisk.TimetableLeft;
+        _settings.TimetableTop = onDisk.TimetableTop;
+        _settings.TimetableScale = onDisk.TimetableScale;
+        _settings.TimetableWidth = onDisk.TimetableWidth;
 
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? false;
@@ -572,16 +590,25 @@ public partial class SettingsWindow : Window
         _settings.HotkeyUploadBoss = (string?)HotkeyUploadBossBox.Tag ?? "";
         _settings.HotkeyMode = (string?)HotkeyModeBox.Tag ?? "";
         _settings.ShowBossHp = ShowBossHpBox.IsChecked ?? false;
-        _settings.BossHpOpacity = BossHpOpacitySlider.Value / 100.0;
-        _settings.CombatCastOpacity = CombatCastOpacitySlider.Value / 100.0;
+        _settings.BossHpOpacity = BossHpOpacity.Fraction;
+        _settings.CombatCastOpacity = CombatCastOpacity.Fraction;
         _settings.ShowTimetable = ShowTimetableBox.IsChecked ?? true;
         _settings.ShowPetFarm = ShowPetFarmBox.IsChecked ?? false;
-        _settings.PetFarmLocked = PetFarmLockedBox.IsChecked ?? true;
-        _settings.PetInfoLocked = PetInfoLockedBox.IsChecked ?? true;
-        _settings.TimetableLocked = TimetableLockedBox.IsChecked ?? true;
+        _settings.PetFarmLocked = !(PetFarmLockedBox.IsChecked ?? false);
+        _settings.OverlayOpacities[OverlayPlaces.Network] = NetworkOpacity.Fraction;
+        _settings.OverlayOpacities[OverlayPlaces.WorldBoss] = BossOpacity.Fraction;
+        _settings.OverlayOpacities[OverlayPlaces.Hotkeys] = HotkeyOpacity.Fraction;
+        _settings.HotkeyOverlayLocked = !(HotkeyOverlayLockedBox.IsChecked ?? false);
+        _settings.PetListLocked = !(PetListLockedBox.IsChecked ?? false);
+        _settings.PetMapShowMap = PetMapShowMapBox.IsChecked ?? true;
+        _settings.PetMapShowList = PetMapShowListBox.IsChecked ?? true;
+        _settings.OverlayOpacities[OverlayPlaces.PetList] = PetListOpacity.Fraction;
+        _settings.OverlayOpacities[OverlayPlaces.PetInfo] = PetInfoOpacity.Fraction;
+        _settings.PetInfoLocked = !(PetInfoLockedBox.IsChecked ?? false);
+        _settings.TimetableLocked = !(TimetableLockedBox.IsChecked ?? false);
         _settings.ShowPetMap = ShowPetMapBox.IsChecked ?? false;
         _settings.PetMapRadius = (int)PetMapRadiusSlider.Value;
-        _settings.PetMapOpacity = PetMapOpacitySlider.Value / 100.0;
+        _settings.PetMapOpacity = PetMapOpacity.Fraction;
         _settings.PetMapPets = _petPicked.OrderBy(i => i).ToList();
         _settings.PetRegionListWidth = PetRegionLeftColumn.Width.Value;
         _settings.PetRareMax = (int)PetRareMaxSlider.Value;
@@ -594,9 +621,10 @@ public partial class SettingsWindow : Window
         _settings.HotkeyWorldBoss = (string?)HotkeyWorldBossBox.Tag ?? "";
         _settings.HotkeyNetwork = (string?)HotkeyNetworkBox.Tag ?? "";
         _settings.HotkeyCombatOverlay = (string?)HotkeyCombatBox.Tag ?? "";
+        _settings.HotkeyAssist = (string?)HotkeyAssistBox.Tag ?? "";
         ReadCombatPage(_settings);
         _settings.ShowNetworkOverlay = ShowNetworkOverlayBox.IsChecked ?? false;
-        _settings.NetworkOverlayLocked = NetworkOverlayLockedBox.IsChecked ?? true;
+        _settings.NetworkOverlayLocked = !(NetworkOverlayLockedBox.IsChecked ?? false);
         _settings.NetworkOverlayHidden = NetworkRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
         _settings.HotkeyPetArrows = (string?)HotkeyPetArrowsBox.Tag ?? "";
         _settings.HotkeyGatherArrows = (string?)HotkeyGatherArrowsBox.Tag ?? "";
@@ -615,11 +643,11 @@ public partial class SettingsWindow : Window
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
         _settings.OverlayStyle = (OverlayStyleBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.OverlayStyle;
         _settings.OverlayOpacity = double.Parse((string)((ComboBoxItem)OverlayOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
-        _settings.TimetableOpacity = double.Parse((string)((ComboBoxItem)TimetableOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
+        _settings.TimetableOpacity = TimetableOpacityField.Fraction;
         _settings.TimetableLookaheadMinutes = (int)TimetableLookaheadSlider.Value;
         _settings.TimetableNotify = TimetableNotifyBox.IsChecked ?? false;
         _settings.ShowBossOverlay = ShowBossOverlayBox.IsChecked ?? false;
-        _settings.BossOverlayLocked = BossOverlayLockedBox.IsChecked ?? true;
+        _settings.BossOverlayLocked = !(BossOverlayLockedBox.IsChecked ?? false);
         _settings.BossNotify = BossNotifyBox.IsChecked ?? false;
         _settings.BossAlerts = _bossAlerts.ToDictionary(kv => kv.Key, kv => kv.Value);
         _settings.TimetableSoundMinutes = (int)TimetableSoundSlider.Value;
@@ -634,7 +662,6 @@ public partial class SettingsWindow : Window
         _settings.StreamOverlayNetwork = StreamNetworkBox.IsChecked ?? true;
         _settings.StreamOverlayPort = int.TryParse(StreamPortBox.Text, out int streamPort) && streamPort is >= 1024 and <= 65000 ? streamPort : Streaming.StreamOverlayServer.DefaultPort;
         _settings.StreamOverlayKey = MeterSettings.Load().StreamOverlayKey; // made and renewed by MainWindow, never by this copy
-        _settings.HotkeyShowMenu = (string?)HotkeyShowMenuBox.Tag ?? "";
         _settings.CaptureAdapterId = (CaptureAdapterBox.SelectedItem as ComboBoxItem)?.Tag as string is { Length: > 0 } adapterTag ? adapterTag : null;
 
         Saved?.Invoke(); // the window stays open: Save applies, the ✕ / Cancel button closes
@@ -693,7 +720,7 @@ public partial class SettingsWindow : Window
     {
         _bossAlerts = settings.BossAlerts.ToDictionary(kv => kv.Key, kv => new BossAlertSetting { Enabled = kv.Value.Enabled, Sound = kv.Value.Sound, Volume = kv.Value.Volume });
         ShowBossOverlayBox.IsChecked = settings.ShowBossOverlay;
-        BossOverlayLockedBox.IsChecked = settings.BossOverlayLocked;
+        BossOverlayLockedBox.IsChecked = !settings.BossOverlayLocked;
         BossNotifyBox.IsChecked = settings.BossNotify;
         BuildBossPage();
         _bossTimer.Tick += (_, _) => RefreshBossTimes();
@@ -719,9 +746,145 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private static readonly string[] AllPanels =
+    {
+        "PanelGeneral", "PanelMeter", "PanelCapture", "PanelHotkeys", "PanelSystem",
+        "PanelNetwork", "PanelCombat", "PanelTimetable", "PanelBoss", "PanelPetMap", "PanelPets", "PanelGather", "PanelStream",
+    };
+
+    /// <summary>The page each button of the sidebar shows (the settings proper: only what belongs to no module).</summary>
+    private static readonly Dictionary<string, string> PageOfNav = new()
+    {
+        ["NavGeneral"] = "PanelGeneral", ["NavMeter"] = "PanelMeter", ["NavInstall"] = "PanelCapture", ["NavHotkeys"] = "PanelHotkeys", ["NavUpdates"] = "PanelSystem",
+    };
+
+    /// <summary>The tools that live in this window for now (the module's own settings, without the sidebar): title and the panels they show.</summary>
+    private static readonly Dictionary<string, (string TitleKey, string[] Panels)> Modules = new()
+    {
+        ["network"] = ("Settings.Nav.Network", new[] { "PanelNetwork" }),
+        ["combat"] = ("Settings.Nav.Combat", new[] { "PanelCombat" }),
+        ["timetable"] = ("Settings.Nav.Timetable", new[] { "PanelTimetable" }),
+        ["boss"] = ("Settings.Nav.Boss", new[] { "PanelBoss" }),
+        ["petmap"] = ("Settings.Nav.PetMap", new[] { "PanelPetMap", "PanelPets", "PanelGather" }),
+        ["stream"] = ("Settings.Nav.Stream", new[] { "PanelStream" }),
+    };
+
+    private string? _module;
+    private string _page = "NavGeneral";
+
+    private CheckBox? _masterSource;
+
+    /// <summary>The tool's own "show overlay" box (shown as the main switch in the header), its hotkey field, per tool.</summary>
+    private (CheckBox Master, TextBox? Hotkey) MasterOf(string module) => module switch
+    {
+        "network" => (ShowNetworkOverlayBox, HotkeyNetworkBox),
+        "combat" => (ShowCombatOverlayBox, HotkeyCombatBox),
+        "timetable" => (ShowTimetableBox, HotkeyTimetableBox),
+        "boss" => (ShowBossOverlayBox, HotkeyWorldBossBox),
+        "petmap" => (ShowPetMapBox, HotkeyPetMapBox),
+        _ => (StreamOverlayOnBox, null),
+    };
+
+    private void OnModuleMasterClicked(object sender, RoutedEventArgs e)
+    {
+        if (_masterSource is not null)
+        {
+            _masterSource.IsChecked = ModuleMasterBox.IsChecked == true;
+        }
+    }
+
+    private void OnMasterSourceChanged(object sender, RoutedEventArgs e) => ModuleMasterBox.IsChecked = _masterSource?.IsChecked == true;
+
+    private void OnModuleKeyClicked(object sender, RoutedEventArgs e) => ShowHotkeysPage();
+
+    /// <summary>The hotkey page of the settings proper.</summary>
+    public void ShowHotkeysPage()
+    {
+        _module = null;
+        NavHotkeys.IsChecked = true;
+        ApplyView();
+    }
+
+    private void ShowModuleHeader(string? module)
+    {
+        if (_masterSource is not null)
+        {
+            _masterSource.Checked -= OnMasterSourceChanged;
+            _masterSource.Unchecked -= OnMasterSourceChanged;
+            _masterSource = null;
+        }
+
+        ModuleHeader.Visibility = module is null ? Visibility.Collapsed : Visibility.Visible;
+        if (module is null)
+        {
+            return;
+        }
+
+        LocalizationManager loc = LocalizationManager.Instance;
+        var (master, hotkey) = MasterOf(module);
+        ModuleTitleText.Text = loc[Modules[module].TitleKey];
+        ModuleMasterText.Text = loc["Settings.Overlay.Master"];
+        _masterSource = master;
+        master.Visibility = Visibility.Collapsed; // the header's switch is this box
+        ModuleMasterBox.IsChecked = master.IsChecked == true;
+        master.Checked += OnMasterSourceChanged;
+        master.Unchecked += OnMasterSourceChanged;
+        string key = hotkey?.Text ?? "";
+        ModuleKeyButton.Visibility = hotkey is null ? Visibility.Collapsed : Visibility.Visible;
+        ModuleKeyButton.Content = key.Length > 0 ? key : loc["Settings.Hotkey.NoKey"];
+    }
+
+    private void OnNavChecked(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Name: { Length: > 0 } name })
+        {
+            _page = name;
+            ApplyView();
+        }
+    }
+
+    /// <summary>Shows one tool's own settings (null: the settings proper with the sidebar). The window keeps what was typed, so switching does not lose changes.</summary>
+    public void ShowModule(string? module)
+    {
+        _module = module;
+        ApplyView();
+    }
+
+    private void ApplyView()
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        string[] visible;
+        if (_module is not null && Modules.TryGetValue(_module, out var module))
+        {
+            NavColumn.Width = new GridLength(0);
+            visible = module.Panels;
+            Title = loc[module.TitleKey];
+        }
+        else
+        {
+            NavColumn.Width = new GridLength(160);
+            visible = new[] { PageOfNav.GetValueOrDefault(_page, "PanelGeneral") };
+            Title = loc["Settings.WindowTitle"];
+        }
+
+        ShowModuleHeader(_module is not null && Modules.ContainsKey(_module) ? _module : null);
+        foreach (string name in AllPanels)
+        {
+            if (FindName(name) is UIElement panel)
+            {
+                panel.Visibility = visible.Contains(name) ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        if (visible.Contains("PanelBoss"))
+        {
+            RefreshBossTimes(force: true);
+        }
+    }
+
     private void RefreshBossTimes(bool force = false)
     {
-        if (!force && !NavBoss.IsChecked.GetValueOrDefault())
+        if (!force && PanelBoss.Visibility != Visibility.Visible)
         {
             return;
         }
@@ -887,9 +1050,8 @@ public partial class SettingsWindow : Window
         ShowGatherArrowsBox.IsChecked = settings.ShowGatherArrows;
         LoadCubeSound(settings);
         PetMapRadiusSlider.Value = Math.Clamp(settings.PetMapRadius, 50, 500);
-        PetMapOpacitySlider.Value = Math.Clamp(settings.PetMapOpacity * 100, 20, 100);
+        PetMapOpacity.Fraction = settings.PetMapOpacity;
         ShowPetMapSliderValues();
-        OnPetMapShowChanged(null!, null!);
         BuildPetSpecies();
         BuildPetRows();
         BuildPetRegionTree();
@@ -988,10 +1150,12 @@ public partial class SettingsWindow : Window
     {
         var loc = LocalizationManager.Instance;
         ShowCombatOverlayBox.IsChecked = settings.ShowCombatOverlay;
-        CombatOverlayLockedBox.IsChecked = settings.CombatOverlayLocked;
+        CombatOverlayLockedBox.IsChecked = !settings.CombatOverlayLocked;
         CombatShowBossCastBox.IsChecked = settings.CombatShowBossCast;
         CombatShowTargetBox.IsChecked = settings.CombatShowTargetOfTarget;
-        CombatShowHealerBox.IsChecked = settings.CombatShowHealer;
+        CombatHpLockedBox.IsChecked = !(settings.CombatHpOverlayLocked ?? settings.CombatOverlayLocked);
+        CombatCastLockedBox.IsChecked = !(settings.CombatCastOverlayLocked ?? settings.CombatOverlayLocked);
+        CombatTargetOpacity.Fraction = settings.CombatTargetOpacity;
         CombatHealerHpBox.IsChecked = settings.CombatHealerHpBar;
         CombatHealerEffectsBox.IsChecked = settings.CombatHealerEffects;
         CombatAllMonstersBox.IsChecked = settings.CombatCastsOfAllMonsters;
@@ -1015,21 +1179,28 @@ public partial class SettingsWindow : Window
     private void ReadCombatPage(MeterSettings settings)
     {
         settings.ShowCombatOverlay = ShowCombatOverlayBox.IsChecked ?? false;
-        settings.CombatOverlayLocked = CombatOverlayLockedBox.IsChecked ?? true;
+        settings.CombatOverlayLocked = !(CombatOverlayLockedBox.IsChecked ?? false);
         settings.CombatShowBossCast = CombatShowBossCastBox.IsChecked ?? true;
-        settings.CombatShowTargetOfTarget = CombatShowTargetBox.IsChecked ?? true;
-        settings.CombatShowHealer = CombatShowHealerBox.IsChecked ?? false;
-        settings.CombatHealerHpBar = CombatHealerHpBox.IsChecked ?? true;
-        settings.CombatHealerEffects = CombatHealerEffectsBox.IsChecked ?? true;
+        settings.CombatShowTargetOfTarget = CombatShowTargetBox.IsChecked ?? false;
+        settings.CombatHpOverlayLocked = !(CombatHpLockedBox.IsChecked ?? false);
+        settings.CombatCastOverlayLocked = !(CombatCastLockedBox.IsChecked ?? false);
+        settings.CombatTargetOpacity = CombatTargetOpacity.Fraction;
+        settings.CombatHealerHpBar = CombatHealerHpBox.IsChecked ?? false;
+        settings.CombatHealerEffects = CombatHealerEffectsBox.IsChecked ?? false;
         settings.CombatCastsOfAllMonsters = CombatAllMonstersBox.IsChecked ?? false;
         settings.CombatCastFilter = Chosen(CombatCastFilterCombo, "all");
         settings.CombatMaxCasts = int.TryParse(Chosen(CombatMaxCastsCombo, "2"), out int most) ? most : 2;
     }
 
-    private void OnCombatResetClicked(object sender, RoutedEventArgs e)
+    /// <summary>"Reset size and position" of the overlay named in the button's tag (its window title).</summary>
+    private void OnResetOverlayPlaceClicked(object sender, RoutedEventArgs e)
     {
-        CombatOverlayWindow.ResetLayout();
-        _settings.CombatElements.Clear();
+        if (sender is FrameworkElement { Tag: string title })
+        {
+            OverlayPlaces.Reset(title);
+            MeterSettings onDisk = MeterSettings.Load();
+            _settings.CombatElements = onDisk.CombatElements;
+        }
     }
 
     /// <summary>A hotkey flipped the pet map or the timetable while this window is open: the switches follow.</summary>
@@ -1046,43 +1217,16 @@ public partial class SettingsWindow : Window
         ShowGatherArrowsBox.IsChecked = s.ShowGatherArrows;
     }
 
-    /// <summary>The map's sliders are read-only (greyed out) while the map is switched off; the pet list stays editable.</summary>
-    private void OnPetMapShowChanged(object? sender, RoutedEventArgs? e)
-    {
-        if (PetMapSliders is null)
-        {
-            return;
-        }
-
-        bool on = ShowPetMapBox.IsChecked == true;
-        PetMapSliders.IsEnabled = on;
-        PetMapSliders.Opacity = on ? 1.0 : 0.4;
-    }
-
-    private void OnCombatOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowCombatOpacityValues();
-
-    private void ShowCombatOpacityValues()
-    {
-        if (BossHpOpacityValue is null || CombatCastOpacityValue is null)
-        {
-            return;
-        }
-
-        BossHpOpacityValue.Text = $"{(int)BossHpOpacitySlider.Value} %";
-        CombatCastOpacityValue.Text = $"{(int)CombatCastOpacitySlider.Value} %";
-    }
-
     private void OnPetMapSliderChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => ShowPetMapSliderValues();
 
     private void ShowPetMapSliderValues()
     {
-        if (PetMapRadiusValue is null || PetMapOpacityValue is null)
+        if (PetMapRadiusValue is null)
         {
             return;
         }
 
         PetMapRadiusValue.Text = string.Format(LocalizationManager.Instance["Settings.PetMap.RadiusValue"], (int)PetMapRadiusSlider.Value);
-        PetMapOpacityValue.Text = $"{(int)PetMapOpacitySlider.Value} %";
     }
 
     private HashSet<string> _gatherPicked = new();

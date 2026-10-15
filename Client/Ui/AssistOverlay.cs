@@ -13,11 +13,11 @@ public sealed class AssistOverlayWindow : MovableOverlay
 {
     public AssistPanel Panel { get; } = new(true) { MinWidth = 220, MinHeight = 40 };
 
-    public AssistOverlayWindow() : base("Aion DPS Assist", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 520, LoadSize, SaveSize)
+    public AssistOverlayWindow() : base("Aion DPS Assist", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 520, LoadSize, SaveSize, OverlayEdgeMode.Width)
     {
         Body = new Border
         {
-            Background = new SolidColorBrush(Color.FromArgb(0x8C, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
+            Background = new SolidColorBrush(Color.FromArgb(0x99, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
             BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 6, 10, 6), Child = Panel,
         };
     }
@@ -60,6 +60,7 @@ public sealed class AssistController : IDisposable
     private AssistOverlayWindow? _overlay;
     private MeterSettings _settings = MeterSettings.Load();
     private DateTime _settingsAt = DateTime.UtcNow;
+    private HashSet<int> _hidden = new();
 
     public AssistController(Func<Aion2EntityDirectory?> directory)
     {
@@ -82,6 +83,7 @@ public sealed class AssistController : IDisposable
         {
             _settings = MeterSettings.Load();
             _settingsAt = DateTime.UtcNow;
+            _hidden = _settings.AssistOverlayHidden.ToHashSet();
         }
 
         if (!_settings.ShowAssistOverlay)
@@ -93,6 +95,8 @@ public sealed class AssistController : IDisposable
         bool locked = _settings.AssistOverlayLocked;
         _overlay ??= new AssistOverlayWindow();
         _overlay.ApplyLockedIfChanged(locked);
+        _overlay.Panel.Hidden = _hidden;
+        _overlay.Panel.SortByTime = _settings.AssistSortByTime;
         _overlay.Panel.Refresh(_directory());
         bool inGame = GameWindow.ForegroundClientArea() is not null;
         if (locked && (!inGame || !_overlay.Panel.HasContent))

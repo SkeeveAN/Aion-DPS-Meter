@@ -24,6 +24,9 @@ public static class SelfCheckAion2
         bool ok = true;
         ok &= RunCombatSourceSeamScenario();
         ok &= RunTcpReassemblerScenario();
+        ok &= RunTcpReassemblerPaddingScenario();
+        ok &= RunGameFlowDetectorScenario();
+        ok &= RunEffectAuraScenario();
         ok &= RunNetworkStatsScenario();
         ok &= RunAion2ProtocolScenario();
         ok &= RunAion2RealCaptureScenario();
@@ -1651,6 +1654,91 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> retransmission ignored and counted: {retransmissionIgnored}");
         Console.WriteLine($"  -> frame split over three segments comes out whole: {splitFrameWhole}");
         return outOfOrderWaits && bothFramesCut && retransmissionIgnored && splitFrameWhole;
+    }
+
+    private static bool RunTcpReassemblerPaddingScenario()
+    {
+        Console.WriteLine("[selftest] TCP reassembly: zero padding and TLS records between varint frames:");
+        FrameLayout layout = Aion2Protocol.Load().FrameLayout;
+        static byte[] Varint(byte opcodeLow, int bodyLength) => new byte[] { (byte)(bodyLength + 4 + 2), opcodeLow, 0x10 }.Concat(Enumerable.Repeat((byte)0x55, bodyLength)).ToArray();
+        byte[] a = Varint(0x38, 6);
+        byte[] b = Varint(0x36, 9);
+        byte[] tls = new byte[] { 0x17, 0x03, 0x03, 0x00, 0x08 }.Concat(Enumerable.Repeat((byte)0xC3, 8)).ToArray();
+        byte[] padding = new byte[] { 0, 0, 0 };
+
+        var reassembler = new TcpReassembler();
+        uint seq = 5000;
+        int first = reassembler.Push(Segment(seq, a), layout).Count;
+        seq += (uint)a.Length;
+        byte[] rest = padding.Concat(tls).Concat(b).Concat(padding).Concat(a).ToArray();
+        // the TLS record arrives split: the frame behind it must wait for it, not be lost in it
+        int cut = padding.Length + 7;
+        int second = reassembler.Push(Segment(seq, rest[..cut]), layout).Count;
+        var frames = reassembler.Push(Segment(seq + (uint)cut, rest[cut..]), layout);
+        bool ok = first == 1 && second == 0 && frames.Count == 2 && reassembler.TlsRecords == 1 && reassembler.Desyncs == 0
+            && frames[0].Span.SequenceEqual(b[1..]) && frames[1].Span.SequenceEqual(a[1..]);
+        Console.WriteLine($"  -> padding and a (split) TLS record skipped without a resync, frames intact: {ok}");
+        return ok;
+    }
+
+    private static bool RunGameFlowDetectorScenario()
+    {
+        Console.WriteLine("[selftest] Game flow detector (keepalive 0E 00 36 names the game's port):");
+        byte[] keepalive = { 0x0E, 0x00, 0x36, 0x01, 0x02 };
+        byte[] other = { 0x16, 0x03, 0x03, 0x00, 0x20 };
+        var now = new DateTime(2026, 10, 15, 20, 0, 0, DateTimeKind.Utc);
+        var detector = new GameFlowDetector();
+        bool noiseIgnored = !detector.Observe(443, other, now) && !detector.Observe(443, other, now) && !detector.Observe(443, other, now);
+        bool twoAreNotEnough = !detector.Observe(14000, keepalive, now) && !detector.Observe(14000, keepalive, now.AddSeconds(1));
+        bool thirdNamesThePort = detector.Observe(14000, keepalive, now.AddSeconds(2));
+        var slow = new GameFlowDetector();
+        bool tooSlowIsNoStream = !slow.Observe(9000, keepalive, now) && !slow.Observe(9000, keepalive, now.AddSeconds(20)) && !slow.Observe(9000, keepalive, now.AddSeconds(40));
+        var mixed = new GameFlowDetector();
+        bool portsCountApart = !mixed.Observe(1, keepalive, now) && !mixed.Observe(2, keepalive, now) && !mixed.Observe(3, keepalive, now);
+        Console.WriteLine($"  -> other traffic ignored: {noiseIgnored}; two keepalives are not enough: {twoAreNotEnough}; the third names the port: {thirdNamesThePort}; too slow: {tooSlowIsNoStream}; ports counted apart: {portsCountApart}");
+        return noiseIgnored && twoAreNotEnough && thirdNamesThePort && tooSlowIsNoStream && portsCountApart;
+    }
+
+    private static bool RunEffectAuraScenario()
+    {
+        Console.WriteLine("[selftest] Assist: a renewed short effect (a Chanter's mantra) is an aura, a timed effect is not:");
+        var t0 = new DateTime(2026, 10, 14, 16, 55, 58, DateTimeKind.Utc);
+
+        // a mantra: 2.4 s long, renewed every second - the end moves 1 s forward each time while the old end is still ahead
+        DateTime? end = t0.AddSeconds(2.4);
+        int renewals = 0;
+        bool aura = false;
+        for (int second = 1; second <= 3; second++)
+        {
+            DateTime now = t0.AddSeconds(second);
+            DateTime next = now.AddSeconds(2.4);
+            (renewals, aura) = EffectAura.Next(end, next, now, 2400, renewals, aura);
+            end = next;
+        }
+
+        bool mantraIsAura = aura && renewals == 3;
+
+        // a buff of 20 s that is simply running: the end never moves
+        (int r2, bool a2) = EffectAura.Next(t0.AddSeconds(20), t0.AddSeconds(20), t0.AddSeconds(5), 20000, 0, false);
+        (r2, a2) = EffectAura.Next(t0.AddSeconds(20), t0.AddSeconds(20), t0.AddSeconds(6), 20000, r2, a2);
+        bool timedIsNot = !a2 && r2 == 0;
+
+        // a 30 s buff re-cast twice stays an ordinary effect: too long to be an aura
+        (int r3, bool a3) = (0, false);
+        for (int i = 0; i < 3; i++)
+        {
+            DateTime now = t0.AddSeconds(10 * i);
+            (r3, a3) = EffectAura.Next(now.AddSeconds(25), now.AddSeconds(35), now, 30000, r3, a3);
+        }
+
+        bool longRecastIsNot = !a3 && r3 == 3;
+
+        // the effect ended and came back: the old end lies in the past, that is no renewal
+        (int r4, bool a4) = EffectAura.Next(t0.AddSeconds(1), t0.AddSeconds(30), t0.AddSeconds(10), 2400, 0, false);
+        bool comebackIsNot = r4 == 0 && !a4;
+
+        Console.WriteLine($"  -> mantra renewed every second is an aura: {mantraIsAura}; a running timed effect is not: {timedIsNot}; a long re-cast is not: {longRecastIsNot}; coming back is no renewal: {comebackIsNot}");
+        return mantraIsAura && timedIsNot && longRecastIsNot && comebackIsNot;
     }
 
     private static bool RunAion2ProtocolScenario()

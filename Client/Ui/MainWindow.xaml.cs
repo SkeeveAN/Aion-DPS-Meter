@@ -369,6 +369,10 @@ public partial class MainWindow : Window
         {
             SetMode(savedMode, save: false);
         }
+        else
+        {
+            ApplyModeButtons();
+        }
 
         RestoreWindowGeometry(settings);
         StartCapture(settings);
@@ -385,13 +389,17 @@ public partial class MainWindow : Window
             {
                 if (wizard)
                 {
-                    new WizardWindow(settings) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
+                    new WizardWindow(settings, RecognisedCharacterName) { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner }.ShowDialog();
                 }
 
                 AskForNpcapIfMissing();
             };
         }
     }
+
+    /// <summary>The name of the local character once the capture has recognised it (the first-start wizard shows it live), else null.</summary>
+    private string? RecognisedCharacterName() =>
+        _liveSource?.Entities is Aion2.Aion2EntityDirectory directory && directory.LocalPlayerId >= 0 ? directory.NameFor(directory.LocalPlayerId) : null;
 
     /// <summary>Without the Npcap driver the meter sees no game traffic at all (no damage, no pet info): says so at the start and offers the download page.</summary>
     private void AskForNpcapIfMissing()
@@ -647,8 +655,8 @@ public partial class MainWindow : Window
             case HotkeyAction.ToggleCombatOverlay:
                 ToggleCombatOverlay();
                 break;
-            case HotkeyAction.ShowDuringMenu:
-                _menuWatcher?.ToggleShowThisMenu();
+            case HotkeyAction.ToggleAssistOverlay:
+                ToggleAssistOverlay();
                 break;
             case HotkeyAction.ToggleWorldBossOverlay:
                 ToggleWorldBossOverlay();
@@ -692,7 +700,7 @@ public partial class MainWindow : Window
             [HotkeyAction.ToggleWorldBossOverlay] = HotkeyBinding.Parse(settings.HotkeyWorldBoss),
             [HotkeyAction.ToggleNetworkOverlay] = HotkeyBinding.Parse(settings.HotkeyNetwork),
             [HotkeyAction.ToggleCombatOverlay] = HotkeyBinding.Parse(settings.HotkeyCombatOverlay),
-            [HotkeyAction.ShowDuringMenu] = HotkeyBinding.Parse(settings.HotkeyShowMenu),
+            [HotkeyAction.ToggleAssistOverlay] = HotkeyBinding.Parse(settings.HotkeyAssist),
             [HotkeyAction.TogglePetArrows] = HotkeyBinding.Parse(settings.HotkeyPetArrows),
             [HotkeyAction.ToggleGatherArrows] = HotkeyBinding.Parse(settings.HotkeyGatherArrows),
         });
@@ -3805,6 +3813,9 @@ public partial class MainWindow : Window
         var manager = new MenuItem { Header = loc["Sessions.OpenManager"] };
         manager.Click += (_, _) => OpenSessionManager();
         SessionMenu.Items.Add(manager);
+        var folder = new MenuItem { Header = loc["Main.MenuApp.OpenSessionsFolder"] };
+        folder.Click += OnOpenSessionsFolderClicked;
+        SessionMenu.Items.Add(folder);
     }
 
     private DummyTestWindow? _dummyWindow;
@@ -4569,8 +4580,8 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// The ".dmg" in-game command's clipboard payload, exact format specified by the user: a
-    /// single comma-separated run (not one row per line) of "rank, name, total [dps]" tuples,
-    /// e.g. "1, Mitzuhiko, 3.123.456 [3.145], 2, Mitzuhiki, 3.123.455 [3.144]", ranked by damage
+    /// single comma-separated run (not one row per line) of "name, total [dps]" tuples,
+    /// e.g. "Mitzuhiko, 3.123.456 [3.145], Mitzuhiki, 3.123.455 [3.144]", ranked by damage
     /// descending -- independent of whatever order/filter the grid itself is currently showing.
     /// Both the damage total and the DPS figure use Aion's own "." thousands-grouping style for visual consistency with what the game itself
     /// would show, not because DPS is naturally an integer -- it's rounded to match.
@@ -4626,7 +4637,7 @@ public partial class MainWindow : Window
             string dpsText = row.Dps is double dps
                 ? Math.Round(dps).ToString("N0", DotGroupedNumberFormat)
                 : "n/a";
-            parts.Add($"{i + 1}, {row.Name}, {damageText} [{dpsText}]");
+            parts.Add($"{row.Name}, {damageText} [{dpsText}]");
         }
 
         return ChunkChatLineParts(parts, ChatLineCharLimit);
@@ -4636,8 +4647,7 @@ public partial class MainWindow : Window
     /// Copy's payload in the Damage view: one line, "Name Damage (DPS)" per entry, entries joined
     /// by ", " and ranked by damage descending regardless of how the grid is currently sorted --
     /// format specified by the user for pasting straight into the Aion chat box. Deliberately
-    /// leaner than BuildDmgRankingText (the ".dmg" command's payload, which prefixes each entry
-    /// with its rank and brackets the DPS): both stay as their own specified formats rather than
+    /// leaner than BuildDmgRankingText (the hotkey's payload, which brackets the DPS): both stay as their own specified formats rather than
     /// one being bent into the other. Numbers use Aion's own "." thousands grouping, and a row
     /// whose DPS is undefined (single hit, no elapsed time -- see DpsCalculator) shows "n/a"
     /// rather than a fabricated rate.
@@ -4746,11 +4756,164 @@ public partial class MainWindow : Window
     {
         if (_settingsWindow is not null)
         {
+            _settingsWindow.ShowModule(null);
             _settingsWindow.Activate();
             return;
         }
 
         OpenSettings(null);
+    }
+
+    private readonly Dictionary<string, ModuleWindow> _moduleWindows = new();
+
+    /// <summary>A tool from the Tools menu: its own window with a live view, the overlay switch, the hotkey and a cog for its settings. Without a running meter (headless) it is the settings page.</summary>
+    private void OnOpenModuleClicked(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { Tag: string module })
+        {
+            return;
+        }
+
+        if (_moduleWindows.TryGetValue(module, out ModuleWindow? open))
+        {
+            open.Activate();
+            return;
+        }
+
+        ModuleWindow? window = BuildModuleWindow(module);
+        if (window is null)
+        {
+            if (_settingsWindow is null)
+            {
+                OpenSettings(null);
+            }
+
+            _settingsWindow?.ShowModule(module);
+            _settingsWindow?.Activate();
+            return;
+        }
+
+        _moduleWindows[module] = window;
+        window.Closed += (_, _) => _moduleWindows.Remove(module);
+        window.Owner = this;
+        window.Show();
+    }
+
+    private void OpenSettingsPage(string module)
+    {
+        if (_settingsWindow is null)
+        {
+            OpenSettings(null);
+        }
+
+        if (module.Length == 0)
+        {
+            _settingsWindow?.ShowHotkeysPage();
+        }
+        else
+        {
+            _settingsWindow?.ShowModule(module);
+        }
+
+        _settingsWindow?.Activate();
+    }
+
+    private ModuleWindow? BuildModuleWindow(string module)
+    {
+        var loc = LocalizationManager.Instance;
+        Action<MeterSettings> applied = ApplySettingsEverywhere;
+        Action hotkeys = () => OpenSettingsPage("");
+        Action settingsPage = () => OpenSettingsPage(module);
+        ModuleWindow? window = null;
+        switch (module)
+        {
+            case "network" when _network is not null:
+            {
+                var view = _network.CreateView();
+                window = new ModuleWindow(loc["Settings.Nav.Network"], view.DetachBody()!, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied);
+                window.Closed += (_, _) => _network?.RemoveView(view);
+                break;
+            }
+
+            case "boss" when _worldBoss is not null:
+            {
+                var view = _worldBoss.CreateView();
+                window = new ModuleWindow(loc["Settings.Nav.Boss"], view.DetachBody()!, s => s.ShowBossOverlay, (s, v) => s.ShowBossOverlay = v, s => s.HotkeyWorldBoss, hotkeys, settingsPage, applied);
+                window.Closed += (_, _) => _worldBoss?.RemoveView(view);
+                break;
+            }
+
+            case "timetable":
+            {
+                var view = new TimetableWindow();
+                UIElement body = view.DetachView();
+                view.Refresh();
+                window = new ModuleWindow(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, settingsPage, applied, view.Refresh, 420, 520);
+                window.Closed += (_, _) => view.Close();
+                break;
+            }
+
+            case "combat" when _combat is not null:
+            {
+                var views = _combat.CreateViews();
+                var stack = new StackPanel { Margin = new Thickness(0, 0, 0, 6) };
+                foreach (var (titleKey, view) in views)
+                {
+                    stack.Children.Add(ModuleWindow.Caption(loc[titleKey]));
+                    stack.Children.Add(view.DetachBody()!);
+                }
+
+                window = new ModuleWindow(loc["Settings.Nav.Combat"], stack, s => s.ShowCombatOverlay, (s, v) => s.ShowCombatOverlay = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied, null, 560, 520);
+                window.Closed += (_, _) => _combat?.RemoveViews(views.Select(v => v.View));
+                break;
+            }
+
+            case "petmap":
+            {
+                _petMapController ??= new PetMapController(() => _source?.Entities as Aion2EntityDirectory);
+                var (map, list) = _petMapController.CreateViews();
+                var stack = new StackPanel();
+                stack.Children.Add(ModuleWindow.Caption(loc["Settings.PetMap.CardMap"]));
+                stack.Children.Add(map.DetachBody()!);
+                stack.Children.Add(ModuleWindow.Caption(loc["Settings.PetMap.CardList"]));
+                stack.Children.Add(list.DetachBody()!);
+                window = new ModuleWindow(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, settingsPage, applied, null, 520, 760);
+                window.Closed += (_, _) =>
+                {
+                    _petMapController?.RemoveViews(map, list);
+                    if (!MeterSettings.Load().ShowPetMap && _petMapController is { HasViews: false })
+                    {
+                        _petMapController.Dispose();
+                        _petMapController = null;
+                    }
+                };
+                break;
+            }
+
+            case "stream":
+            {
+                var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10) };
+                status.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
+                var copy = new Button { Content = loc["Settings.Stream.Copy"], HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(10, 2, 10, 2) };
+                copy.Click += (_, _) => CopyStreamLink();
+                var stack = new StackPanel { Margin = new Thickness(0, 4, 0, 0) };
+                stack.Children.Add(status);
+                stack.Children.Add(copy);
+                void Show()
+                {
+                    status.Text = _streamServer is { Running: true } server
+                        ? server.Url + "\n" + string.Format(loc["Stream.Clients"], server.ClientCount)
+                        : loc["Stream.NotRunning"];
+                    copy.IsEnabled = _streamServer is { Running: true };
+                }
+
+                Show();
+                window = new ModuleWindow(loc["Settings.Nav.Stream"], stack, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v, null, hotkeys, settingsPage, applied, Show, 520, 300);
+                break;
+            }
+        }
+
+        return window;
     }
 
     /// <summary>Opens the settings window; <paramref name="undoUntil"/> adds "Undo reset" to it (after a reset).</summary>
@@ -4855,19 +5018,82 @@ public partial class MainWindow : Window
         settings.Save();
     }
 
-    private void OnModeClicked(object sender, RoutedEventArgs e)
+    private void OnModeButtonClicked(object sender, RoutedEventArgs e)
     {
-        SetMode(sender == HealModeItem ? MeterMode.Heal : sender == TakenModeItem ? MeterMode.Taken : sender == AllModeItem ? MeterMode.All : sender == AllCompactModeItem ? MeterMode.AllCompact : MeterMode.Damage);
+        if (sender is FrameworkElement { Tag: string tag } && Enum.TryParse(tag, out MeterMode mode))
+        {
+            SetMode(mode);
+        }
+    }
+
+    private static readonly Dictionary<string, ImageSource?> ModeIcons = new();
+
+    /// <summary>One of the mode pictures in assets/modes (null when the file is missing; the button then shows nothing).</summary>
+    private static ImageSource? ModeIcon(string name)
+    {
+        if (ModeIcons.TryGetValue(name, out ImageSource? known))
+        {
+            return known;
+        }
+
+        ImageSource? image = null;
+        try
+        {
+            string path = System.IO.Path.Combine(AppContext.BaseDirectory, "assets", "modes", name + ".png");
+            if (System.IO.File.Exists(path))
+            {
+                var bitmap = new System.Windows.Media.Imaging.BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                bitmap.UriSource = new Uri(path, UriKind.Absolute);
+                bitmap.EndInit();
+                bitmap.Freeze();
+                image = bitmap;
+            }
+        }
+        catch
+        {
+        }
+
+        ModeIcons[name] = image;
+        return image;
+    }
+
+    private static SolidColorBrush ModeBrush(byte r, byte g, byte b)
+    {
+        var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+        brush.Freeze();
+        return brush;
+    }
+
+    private static readonly SolidColorBrush ModeGreen = ModeBrush(0x69, 0xE1, 0x5E);
+    private static readonly SolidColorBrush ModeRed = ModeBrush(0xFF, 0x6B, 0x5E);
+    private static readonly SolidColorBrush ModeAllActive = ModeBrush(0x2C, 0x4A, 0x60);
+
+    /// <summary>The five mode buttons: the chosen one is filled (yellow for damage, green for heal, red for damage taken, blue-grey for the two
+    /// All in One modes, whose picture is multicoloured), the others show their picture on the plain button background.</summary>
+    private void ApplyModeButtons()
+    {
+        Brush plain = (Brush)FindResource("Brush.Control");
+        void Single(Button button, Image image, string key, bool active, Brush activeBackground)
+        {
+            button.Background = active ? activeBackground : plain;
+            image.Source = ModeIcon("mode-" + key + (active ? "-on" : "-off"));
+        }
+
+        Single(ModeDamageButton, ModeDamageImage, "damage", _mode == MeterMode.Damage, (Brush)FindResource("Brush.Accent"));
+        Single(ModeHealButton, ModeHealImage, "heal", _mode == MeterMode.Heal, ModeGreen);
+        Single(ModeTakenButton, ModeTakenImage, "taken", _mode == MeterMode.Taken, ModeRed);
+        ModeAllButton.Background = _mode == MeterMode.All ? ModeAllActive : plain;
+        ModeAllImage.Source = ModeIcon("mode-all");
+        ModeAllPlusButton.Background = _mode == MeterMode.AllCompact ? ModeAllActive : plain;
+        ModeAllPlusImage.Source = ModeIcon("mode-all-plus");
     }
 
     private void SetMode(MeterMode mode, bool save = true)
     {
         _mode = mode;
-        DamageModeItem.IsChecked = mode == MeterMode.Damage;
-        HealModeItem.IsChecked = mode == MeterMode.Heal;
-        TakenModeItem.IsChecked = mode == MeterMode.Taken;
-        AllModeItem.IsChecked = mode == MeterMode.All;
-        AllCompactModeItem.IsChecked = mode == MeterMode.AllCompact;
+        ApplyModeButtons();
         UpdateDpsColumnHeader();
         RefreshRows();
         if (save && !Headless)
@@ -4979,13 +5205,6 @@ public partial class MainWindow : Window
         return null;
     }
 
-    private void OnShowDamageView(object sender, RoutedEventArgs e)
-    {
-        PlayersGrid.Visibility = Visibility.Visible;
-        SetActiveNavButton(DamageNavButton, CharacterNavButton);
-        RefreshUploadAvailability();
-    }
-
     /// <summary>Opens (or brings forward) the character window beside the meter. It lives in its own
     /// window, wider than the meter, and redraws itself when the game re-sends the record.</summary>
     private void OnShowCharacterView(object sender, RoutedEventArgs e)
@@ -5005,18 +5224,6 @@ public partial class MainWindow : Window
         _characterWindow.Closed += (_, _) => _characterWindow = null;
         _characterWindow.PlaceBeside(this);
         _characterWindow.Show();
-    }
-
-    /// <summary>Swaps which of the two nav-rail view buttons reads as "active" - an orange fill
-    /// (Brush.Accent) with dark-on-orange text (Brush.Window, same contrast pairing as the PVE/PVP
-    /// toggle) for the one just selected, back to NavButton's own plain default for the other.
-    /// Replaces the old FontWeight-only swap now that both buttons show an icon, not text.</summary>
-    private void SetActiveNavButton(Button active, Button inactive)
-    {
-        active.Background = (Brush)FindResource("Brush.Accent");
-        active.Foreground = (Brush)FindResource("Brush.Window");
-        inactive.Background = (Brush)FindResource("Brush.Control");
-        inactive.Foreground = (Brush)FindResource("Brush.Text");
     }
 
     private void OnTitleBarMouseDown(object sender, MouseButtonEventArgs e)
@@ -5178,7 +5385,7 @@ public partial class MainWindow : Window
         }
 
         _hotkeyOverlay ??= new HotkeyOverlayWindow();
-        _hotkeyOverlay.ApplyLocked(settings.PetFarmLocked);
+        _hotkeyOverlay.ApplyLocked(settings.HotkeyOverlayLocked ?? settings.PetFarmLocked);
         _hotkeyOverlay.Render(HotkeyOverlayWindow.RowsOf(settings));
         OnGateTick();
     }
@@ -5209,8 +5416,8 @@ public partial class MainWindow : Window
         }
 
         var s = _gateSettings;
-        _hotkeyOverlay.ApplyLockedIfChanged(s.PetFarmLocked);
-        _hotkeyOverlay.ShowOverlay(s.ShowHotkeyOverlay && (!s.PetFarmLocked || GameWindow.ForegroundClientArea() is not null));
+        _hotkeyOverlay.ApplyLockedIfChanged(s.HotkeyOverlayLocked ?? s.PetFarmLocked);
+        _hotkeyOverlay.ShowOverlay(s.ShowHotkeyOverlay && (!(s.HotkeyOverlayLocked ?? s.PetFarmLocked) || GameWindow.ForegroundClientArea() is not null));
     }
 
     /// <summary>Shows or hides the timetable overlay as Settings say (startup, after Settings, hotkey).</summary>
@@ -5254,7 +5461,7 @@ public partial class MainWindow : Window
             _petMapController ??= new PetMapController(() => _source?.Entities as Aion2EntityDirectory);
             _petMapController.ApplyLocked(settings.PetFarmLocked);
         }
-        else if (_petMapController is not null)
+        else if (_petMapController is not null && !_petMapController.HasViews)
         {
             _petMapController.Dispose();
             _petMapController = null;
@@ -5269,7 +5476,7 @@ public partial class MainWindow : Window
         }
 
         _petFarm ??= new PetFarmWindow();
-        _petFarm.ApplyOpacity(settings.OverlayOpacity);
+        _petFarm.ApplyOpacity(settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.PetInfo, settings.OverlayOpacity));
         _petFarm.ApplyLocked(settings.PetInfoLocked);
         _petFarmController ??= new PetFarmController(_petFarm, () => _source?.Entities as Aion2EntityDirectory);
     }
@@ -5336,6 +5543,15 @@ public partial class MainWindow : Window
         _settingsWindow?.SyncOverlaySwitches(settings);
     }
 
+    /// <summary>The assist controller reads the settings every second, so the switch is all it takes.</summary>
+    private void ToggleAssistOverlay()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowAssistOverlay = !settings.ShowAssistOverlay;
+        settings.Save();
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
     /// <summary>The combat controller reads the settings every second, so the switch is all it takes.</summary>
     private void ToggleCombatOverlay()
     {
@@ -5346,23 +5562,23 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Which overlays the "all overlays" hotkey switched off, so the next press brings back exactly those.</summary>
-    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm, bool WorldBoss, bool Network, bool Combat, bool Dummy)? _overlaysSwitchedOff;
+    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm, bool WorldBoss, bool Network, bool Combat, bool Dummy, bool Assist)? _overlaysSwitchedOff;
 
     /// <summary>One press switches every overlay that is on off (hotkey list, timetable, interactive map, pet info); the next brings the same ones back.
     /// The DPS overlay is not among them - it is the Hide UI mode with its own hotkey.</summary>
     private void ToggleAllOverlays()
     {
         var settings = MeterSettings.Load();
-        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm || settings.ShowBossOverlay || settings.ShowNetworkOverlay || settings.ShowCombatOverlay || settings.ShowDummyOverlay;
+        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm || settings.ShowBossOverlay || settings.ShowNetworkOverlay || settings.ShowCombatOverlay || settings.ShowDummyOverlay || settings.ShowAssistOverlay;
         if (anyOn)
         {
-            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay);
-            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = settings.ShowBossOverlay = settings.ShowNetworkOverlay = settings.ShowCombatOverlay = settings.ShowDummyOverlay = false;
+            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay);
+            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = settings.ShowBossOverlay = settings.ShowNetworkOverlay = settings.ShowCombatOverlay = settings.ShowDummyOverlay = settings.ShowAssistOverlay = false;
         }
         else
         {
-            var back = _overlaysSwitchedOff ?? (true, true, true, false, true, true, true, true);
-            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay) = back;
+            var back = _overlaysSwitchedOff ?? (true, true, true, false, true, true, true, true, false);
+            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay) = back;
             _overlaysSwitchedOff = null;
         }
 

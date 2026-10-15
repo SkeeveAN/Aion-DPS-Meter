@@ -36,3 +36,8 @@ Backend/data/announcements.json*
 Backend/data/patchnotes.json*
 Backend/data/twitch-drops.json*
 Web-Frontend/proto/
+
+__pycache__/
+
+# Generated translation spreadsheets for native speakers (Tools/translations/export_translations.py)
+Tools/translations/export/

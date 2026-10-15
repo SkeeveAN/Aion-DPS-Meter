@@ -13,11 +13,11 @@ public sealed class HotkeyOverlayWindow : MovableOverlay
     private readonly StackPanel _rows = new() { MinWidth = 200, MinHeight = 40 };
     private string _shown = "";
 
-    public HotkeyOverlayWindow() : base("Aion DPS Hotkeys", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 120, LoadSize, SaveSize)
+    public HotkeyOverlayWindow() : base("Aion DPS Hotkeys", new Border { Child = null }, Load, Save, SystemParameters.WorkArea.Left + 40, 120, LoadSize, SaveSize, OverlayEdgeMode.Uniform)
     {
         Body = new Border
         {
-            Background = new SolidColorBrush(Color.FromArgb(0x8C, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
+            Background = new SolidColorBrush(Color.FromArgb(0x99, 0x0E, 0x18, 0x20)), BorderBrush = new SolidColorBrush(Color.FromArgb(0x99, 0x29, 0x45, 0x57)),
             BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 6, 10, 6), Child = _rows,
         };
     }
@@ -55,29 +55,51 @@ public sealed class HotkeyOverlayWindow : MovableOverlay
     public static List<(string Name, string Keys)> RowsOf(MeterSettings s)
     {
         var loc = LocalizationManager.Instance;
-        var all = new (string Id, string NameKey, string Keys)[]
+        var sections = new (string TitleKey, (string Id, string NameKey, string Keys)[] Rows)[]
         {
-            ("HideUi", "Settings.Hotkey.HideUi", s.HotkeyHideUi),
-            ("Pause", "Settings.Hotkey.Pause", s.HotkeyPause),
-            ("CopyDamage", "Settings.Hotkey.CopyDamage", s.HotkeyCopyDamage),
-            ("Clear", "Settings.Hotkey.Clear", s.HotkeyClear),
-            ("UploadBoss", "Settings.Hotkey.UploadBoss", s.HotkeyUploadBoss),
-            ("Mode", "Settings.Hotkey.Mode", s.HotkeyMode),
-            ("Timetable", "Settings.Hotkey.Timetable", s.HotkeyTimetable),
-            ("PetMap", "Settings.Hotkey.PetMap", s.HotkeyPetMap),
-            ("HotkeyOverlay", "Settings.Hotkey.HotkeyOverlay", s.HotkeyHotkeyOverlay),
-            ("AllOverlays", "Settings.Hotkey.AllOverlays", s.HotkeyAllOverlays),
-            ("WorldBoss", "Settings.Hotkey.WorldBoss", s.HotkeyWorldBoss),
-            ("Network", "Settings.Hotkey.Network", s.HotkeyNetwork),
-            ("Combat", "Settings.Hotkey.Combat", s.HotkeyCombatOverlay),
-            ("ShowMenu", "Settings.Hotkey.ShowMenu", s.HotkeyShowMenu),
-            ("PetArrows", "Settings.Hotkey.PetArrows", s.HotkeyPetArrows),
-            ("GatherArrows", "Settings.Hotkey.GatherArrows", s.HotkeyGatherArrows),
+            ("Settings.Hotkeys.Group.Dps", new[]
+            {
+                ("HideUi", "Settings.Hotkey.HideUi", s.HotkeyHideUi),
+                ("Pause", "Settings.Hotkey.Pause", s.HotkeyPause),
+                ("CopyDamage", "Settings.Hotkey.CopyDamage", s.HotkeyCopyDamage),
+                ("Clear", "Settings.Hotkey.Clear", s.HotkeyClear),
+                ("UploadBoss", "Settings.Hotkey.UploadBoss", s.HotkeyUploadBoss),
+                ("Mode", "Settings.Hotkey.Mode", s.HotkeyMode),
+            }),
+            ("Settings.Hotkeys.Group.Overlays", new[]
+            {
+                ("AllOverlays", "Settings.Hotkey.AllOverlays", s.HotkeyAllOverlays),
+                ("HotkeyOverlay", "Settings.Hotkey.HotkeyOverlay", s.HotkeyHotkeyOverlay),
+            }),
+            ("Settings.Hotkeys.Group.Modules", new[]
+            {
+                ("PetMap", "Settings.Hotkey.PetMap", s.HotkeyPetMap),
+                ("PetArrows", "Settings.Hotkey.PetArrows", s.HotkeyPetArrows),
+                ("GatherArrows", "Settings.Hotkey.GatherArrows", s.HotkeyGatherArrows),
+                ("Combat", "Settings.Hotkey.Combat", s.HotkeyCombatOverlay),
+                ("Assist", "Main.MenuTools.Assist", s.HotkeyAssist),
+                ("Timetable", "Settings.Hotkey.Timetable", s.HotkeyTimetable),
+                ("WorldBoss", "Settings.Hotkey.WorldBoss", s.HotkeyWorldBoss),
+                ("Network", "Settings.Hotkey.Network", s.HotkeyNetwork),
+            }),
         };
-        return all.Where(h => !s.HotkeyOverlayHidden.Contains(h.Id))
-            .Select(h => (Name: loc[h.NameKey], Keys: HotkeyBinding.Parse(h.Keys).ToString()))
-            .Where(h => h.Keys.Length > 0)
-            .ToList();
+
+        // three alike sections, each a heading (a row without keys) and one flat row per hotkey; a section without a hotkey is left out
+        var result = new List<(string Name, string Keys)>();
+        foreach (var (titleKey, rows) in sections)
+        {
+            var shown = rows.Where(h => !s.HotkeyOverlayHidden.Contains(h.Id))
+                .Select(h => (Name: loc[h.NameKey], Keys: HotkeyBinding.Parse(h.Keys).ToString()))
+                .Where(h => h.Keys.Length > 0)
+                .ToList();
+            if (shown.Count > 0)
+            {
+                result.Add((loc[titleKey], ""));
+                result.AddRange(shown);
+            }
+        }
+
+        return result;
     }
 
     public void Render(IReadOnlyList<(string Name, string Keys)> rows)
@@ -92,6 +114,16 @@ public sealed class HotkeyOverlayWindow : MovableOverlay
         _rows.Children.Clear();
         foreach (var (name, keys) in rows)
         {
+            if (keys.Length == 0)
+            {
+                _rows.Children.Add(new TextBlock
+                {
+                    Text = name.ToUpperInvariant(), FontWeight = FontWeights.Bold, FontSize = 10.5, Foreground = new SolidColorBrush(Color.FromRgb(0x9D, 0xB3, 0xC2)),
+                    Margin = new Thickness(0, _rows.Children.Count == 0 ? 0 : 8, 0, 2),
+                });
+                continue;
+            }
+
             var grid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });

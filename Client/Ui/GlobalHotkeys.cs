@@ -21,9 +21,9 @@ public enum HotkeyAction
     ToggleWorldBossOverlay,
     ToggleNetworkOverlay,
     ToggleCombatOverlay,
-    ShowDuringMenu,
     TogglePetArrows,
     ToggleGatherArrows,
+    ToggleAssistOverlay,
 }
 
 /// <summary>A key plus modifiers, written "Ctrl+Alt+H" in the settings file.</summary>

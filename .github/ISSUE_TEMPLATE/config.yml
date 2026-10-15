@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and chat
+    url: https://aiondps.com
+    about: Ask on the website or the Discord linked there before opening an issue.
