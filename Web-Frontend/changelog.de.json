@@ -764,5 +764,7 @@
  "Website: the statistics of a boss have a page of their own (/bosses/<boss>/statistics) and every dungeon has a statistics page with the runs, best iDPS, kill time and class medians per boss": "Website: Die Statistik eines Bosses hat eine eigene Seite (/bosses/<Boss>/statistics) und jeder Dungeon hat eine Statistikseite mit Läufen, bester iDPS, Kampfzeit und Klassen-Median je Boss",
  "Website: the bosses / statistics buttons of a dungeon sit at the right": "Website: Die Knöpfe Bosse / Statistik eines Dungeons stehen rechts",
  "Website: the median iDPS per class in the dungeon statistics show the class icons, with the name in the tooltip": "Website: Die Median-iDPS je Klasse in der Dungeon-Statistik zeigen die Klassensymbole, der Name steht im Tooltip",
- "Website: the class share of the dungeon statistics is drawn smaller": "Website: Der Klassenanteil der Dungeon-Statistik ist kleiner gezeichnet"
+ "Website: the class share of the dungeon statistics is drawn smaller": "Website: Der Klassenanteil der Dungeon-Statistik ist kleiner gezeichnet",
+ "Assist: internal test states of the game's data (Test1_Greatsword_Maintarget_MaxLv1 and the like) are no longer listed as effects": "Assist: Interne Teststatus aus den Spieldaten (Test1_Greatsword_Maintarget_MaxLv1 und ähnliche) werden nicht mehr als Effekte aufgelistet",
+ "Tools: every tool opens in one window with the tools listed on the left in the order of the Tools menu; the combat analyzer keeps its own window": "Tools: Jedes Tool öffnet in einem gemeinsamen Fenster, links stehen die Tools in der Reihenfolge des Tools-Menüs; der Kampf-Analysator behält sein eigenes Fenster"
 }

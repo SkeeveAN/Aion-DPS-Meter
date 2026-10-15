@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.0.3",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "Assist: internal test states of the game's data (Test1_Greatsword_Maintarget_MaxLv1 and the like) are no longer listed as effects",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Tools: every tool opens in one window with the tools listed on the left in the order of the Tools menu; the combat analyzer keeps its own window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "1.0.2",
   "date": "2026-10-15",
   "items": [
