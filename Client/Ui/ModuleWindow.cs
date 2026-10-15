@@ -103,4 +103,35 @@ public sealed class ModulePage : DockPanel
         block.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
         return block;
     }
+
+    /// <summary>A grey note under a tool's header.</summary>
+    public static TextBlock Hint(string text)
+    {
+        var block = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 0, 0, 4) };
+        block.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        return block;
+    }
+
+    /// <summary>A caption with a switch at its end ("show as overlay"): the choice is kept the moment it is flipped, no Save needed.</summary>
+    public static (DockPanel Row, CheckBox Switch) SwitchCaption(string text, string switchText)
+    {
+        var row = new DockPanel { Margin = new Thickness(0, 10, 0, 4) };
+        var box = new CheckBox { VerticalAlignment = VerticalAlignment.Center };
+        if (Application.Current?.TryFindResource("SettingsSwitch") is Style style)
+        {
+            box.Style = style;
+        }
+
+        var label = new TextBlock { Text = switchText, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0), FontSize = 12 };
+        label.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        var right = new StackPanel { Orientation = Orientation.Horizontal };
+        right.Children.Add(label);
+        right.Children.Add(box);
+        DockPanel.SetDock(right, Dock.Right);
+        var caption = new TextBlock { Text = text, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
+        caption.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextSubtle");
+        row.Children.Add(right);
+        row.Children.Add(caption);
+        return (row, box);
+    }
 }

@@ -234,6 +234,9 @@ public sealed class CombatOverlayWindow : MovableOverlay
     /// <summary>Show sample values where nothing is going on, without the handles of the edit mode (a tool window's live view while its overlay is positioned).</summary>
     public bool SampleWhenIdle { get; set; }
 
+    /// <summary>A tool window's view of this overlay: it always shows something - what is going on, else sample entries - even where the overlay's own switch for it is off, so the page says what the display would be.</summary>
+    public bool Preview { get; set; }
+
     public Part PartKind => _part;
 
     public CombatOverlayWindow(Part part) : base(part switch { Part.Cast => "Aion DPS Boss Cast", Part.Hp => "Aion DPS Target Health", _ => "Aion DPS Combat" }, NewStage(), () => Load(part), (l, t, sc) => Save(part, l, t, sc),
@@ -485,9 +488,9 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
     private TargetOfTargetData? ShownTarget(CombatFrame frame, MeterSettings settings, LocalizationManager loc)
     {
-        bool totOn = settings.CombatShowTargetOfTarget;
+        bool totOn = settings.CombatShowTargetOfTarget || Preview;
         TargetOfTargetData? shown = totOn ? frame.TargetOfTarget : null;
-        if (totOn && shown is null && (_editing || SampleWhenIdle))
+        if (totOn && shown is null && (_editing || SampleWhenIdle || Preview))
         {
             shown = new TargetOfTargetData(loc["Combat.Sample.Player"], loc["Combat.Sample.Boss"], null, false, 6400, 10000, new[]
             {
@@ -502,7 +505,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
     {
         Opacity = Math.Clamp(settings.BossHpOpacity, 0.0, 1.0);
         BossHpData? boss = frame.Boss;
-        if (boss is null && (_editing || SampleWhenIdle) && settings.ShowBossHp)
+        if (boss is null && (_editing || SampleWhenIdle || Preview) && (settings.ShowBossHp || Preview))
         {
             boss = new BossHpData(6400, 10000, Since: DateTime.Now - TimeSpan.FromSeconds(151));
         }
@@ -512,7 +515,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
             _bossHp.Show(boss.Hp, boss.Max, false, boss.Check, boss.Since is { } since ? DateTime.Now - since : null);
         }
 
-        bool visible = boss is not null && settings.ShowBossHp;
+        bool visible = boss is not null && (settings.ShowBossHp || Preview);
         _hosts[BossHpId].Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         return visible;
     }
@@ -521,19 +524,19 @@ public sealed class CombatOverlayWindow : MovableOverlay
     {
         Opacity = Math.Clamp(settings.CombatCastOpacity, 0.0, 1.0);
         bool any = false;
-        bool castOn = settings.CombatShowBossCast;
+        bool castOn = settings.CombatShowBossCast || Preview;
         if (castOn && frame.Casts.Count > 0)
         {
             _bossCast.Show(frame.Casts);
         }
-        else if (castOn && (_editing || SampleWhenIdle))
+        else if (castOn && (_editing || SampleWhenIdle || Preview))
         {
             // as many sample rows as the settings allow, so the frame can be sized to what it will hold
             _bossCast.Show(Enumerable.Range(0, Math.Clamp(settings.CombatMaxCasts, 1, 3))
                 .Select(i => new CastRowData(loc["Combat.Sample.Skill"], loc["Combat.Sample.Boss"], loc["Combat.You"], true, true, false, 700 + i * 200, 1500, 400, null, Generic: true)).ToList());
         }
 
-        bool castShown = castOn && (frame.Casts.Count > 0 || _editing || SampleWhenIdle);
+        bool castShown = castOn && (frame.Casts.Count > 0 || _editing || SampleWhenIdle || Preview);
         _hosts[BossCastId].Visibility = castShown ? Visibility.Visible : Visibility.Collapsed;
         any |= castShown;
         return any;
@@ -585,7 +588,7 @@ public sealed class CombatOverlayController : IDisposable
         var made = new List<(string, CombatOverlayWindow)>();
         foreach (var (key, part) in new[] { ("Settings.Combat.CardBossHp", CombatOverlayWindow.Part.Hp), ("Settings.Combat.CardBossCast", CombatOverlayWindow.Part.Cast), ("Combat.Element.TargetOfTarget", CombatOverlayWindow.Part.Target) })
         {
-            var view = new CombatOverlayWindow(part);
+            var view = new CombatOverlayWindow(part) { Preview = true };
             _views.Add(view);
             made.Add((key, view));
         }

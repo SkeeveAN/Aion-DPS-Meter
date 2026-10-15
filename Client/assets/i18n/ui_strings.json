@@ -5461,6 +5461,18 @@
     "ja": "ボス戦オーバーレイ オン / オフ",
     "ko": "보스전 오버레이 켜기 / 끄기"
   },
+  "Combat.Page.SampleHint": {
+    "en": "The entries below are samples until you target a boss: they only show what the display looks like. A switch that is off dims its sample.",
+    "de": "Die Einträge unten sind Beispiele, bis du einen Boss ins Ziel nimmst: Sie zeigen nur, wie die Anzeige aussieht. Ist ein Schalter aus, wird sein Beispiel abgedunkelt.",
+    "fr": "Les entrées ci-dessous sont des exemples tant que vous n'avez pas ciblé de boss : elles montrent seulement l'aspect de l'affichage. Un interrupteur désactivé estompe son exemple.",
+    "es": "Las entradas de abajo son ejemplos hasta que fijes un jefe como objetivo: solo muestran el aspecto de la pantalla. Un interruptor apagado atenúa su ejemplo.",
+    "ru": "Записи ниже — примеры, пока вы не возьмёте босса в цель: они лишь показывают, как выглядит отображение. Выключенный переключатель затемняет свой пример.",
+    "zh": "在你选中首领之前，下面的条目只是示例，仅用于展示界面的样子。关闭开关后，对应示例会变暗。",
+    "zh-TW": "在你選取首領之前，下方的項目只是範例，僅用於展示介面的樣子。關閉開關後，對應範例會變暗。",
+    "pt": "As entradas abaixo são exemplos até você mirar um chefe: elas só mostram como fica a exibição. Um interruptor desligado escurece o seu exemplo.",
+    "ja": "ボスをターゲットするまで、下の項目はサンプルです。表示のイメージを示すだけです。スイッチがオフの項目は暗く表示されます。",
+    "ko": "보스를 대상으로 잡기 전까지 아래 항목은 예시입니다. 화면이 어떻게 보이는지만 보여 줍니다. 스위치를 끄면 해당 예시가 어둡게 표시됩니다."
+  },
   "Combat.You": {
     "en": "You",
     "de": "Du",
