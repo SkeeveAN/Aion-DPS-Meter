@@ -763,5 +763,6 @@
  "Assist window: the skill or effect id is shown next to the name": "Assist-Fenster: Die ID des Skills oder Effekts steht neben dem Namen",
  "Website: the statistics of a boss have a page of their own (/bosses/<boss>/statistics) and every dungeon has a statistics page with the runs, best iDPS, kill time and class medians per boss": "Website: Die Statistik eines Bosses hat eine eigene Seite (/bosses/<Boss>/statistics) und jeder Dungeon hat eine Statistikseite mit Läufen, bester iDPS, Kampfzeit und Klassen-Median je Boss",
  "Website: the bosses / statistics buttons of a dungeon sit at the right": "Website: Die Knöpfe Bosse / Statistik eines Dungeons stehen rechts",
- "Website: the median iDPS per class in the dungeon statistics show the class icons, with the name in the tooltip": "Website: Die Median-iDPS je Klasse in der Dungeon-Statistik zeigen die Klassensymbole, der Name steht im Tooltip"
+ "Website: the median iDPS per class in the dungeon statistics show the class icons, with the name in the tooltip": "Website: Die Median-iDPS je Klasse in der Dungeon-Statistik zeigen die Klassensymbole, der Name steht im Tooltip",
+ "Website: the class share of the dungeon statistics is drawn smaller": "Website: Der Klassenanteil der Dungeon-Statistik ist kleiner gezeichnet"
 }
