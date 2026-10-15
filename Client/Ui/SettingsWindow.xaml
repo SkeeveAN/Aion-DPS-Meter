@@ -411,7 +411,7 @@
                         <TextBlock x:Name="ModuleTitleText" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource Brush.Text}"/>
                     </DockPanel>
                 </Border>
-                <Grid Margin="16,14,16,6">
+                <StackPanel Margin="16,14,16,6">
                                         <StackPanel x:Name="PanelGeneral" Visibility="Collapsed">
 <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
@@ -1057,7 +1057,7 @@
                             </StackPanel>
                         </Border>
                     </StackPanel>
-                </Grid>
+                </StackPanel>
               </StackPanel>
             </ScrollViewer>
         </Grid>
