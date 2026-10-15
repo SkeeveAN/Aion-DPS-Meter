@@ -856,13 +856,13 @@ public partial class SettingsWindow : Window
         string[] visible;
         if (_module is not null && Modules.TryGetValue(_module, out var module))
         {
-            NavColumn.Width = new GridLength(0);
+            NavBar.Visibility = Visibility.Collapsed;
             visible = module.Panels;
             Title = loc[module.TitleKey];
         }
         else
         {
-            NavColumn.Width = new GridLength(160);
+            NavBar.Visibility = Visibility.Visible;
             visible = new[] { PageOfNav.GetValueOrDefault(_page, "PanelGeneral") };
             Title = loc["Settings.WindowTitle"];
         }
