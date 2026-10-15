@@ -68,28 +68,7 @@
     "date": "2026-10-15"
    },
    {
-    "text": "Boss statistics: ranking/statistics switches as boxes at the right of the fight numbers; top 10 of the classes three boxes per row",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-15"
-   },
-   {
-    "text": "Boss page: the ranking and statistics switches are icons with a tooltip",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-15"
-   },
-   {
-    "text": "Boss statistics: the box plot is the first box of the three-column grid, followed by the classes",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-15"
-   },
-   {
-    "text": "Boss statistics: box plot with the real rows as dots and tooltips, kill time histogram, class share bars, numbers table",
+    "text": "Boss statistics tab: the box plot shows the single rows as dots and has tooltips, plus a kill time histogram and the share of each class",
     "areas": [
      "Website",
      "Backend"

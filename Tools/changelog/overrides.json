@@ -116,5 +116,9 @@
  "e74b6cf": "Unannounced summons (a Cleric's Divine Aura) are credited to the right player even when several party members play the same class: the strength of their hits tells them apart",
  "3392b86": "First-start wizard: a \"getting ready\" card shows live whether Npcap is installed and whether the meter has recognised your character, with the steps to get going",
  "4291650": "If no game traffic arrives on the usual port, the meter now looks for the game on other ports (other regions, ping reducers) for two minutes",
- "deb813b": null
+ "deb813b": null,
+ "c67027a": null,
+ "8de4dd5": null,
+ "9941e93": null,
+ "ed02fa9": "Boss statistics tab: the box plot shows the single rows as dots and has tooltips, plus a kill time histogram and the share of each class"
 }
