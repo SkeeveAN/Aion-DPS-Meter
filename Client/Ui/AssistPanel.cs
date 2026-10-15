@@ -40,7 +40,18 @@ public sealed class AssistPanel : StackPanel
         public int Order { get; } = order;
         public DateTime LastActive { get; set; }
         public BuffNotice? Buff { get; set; }
+
+        /// <summary>How often the end of the effect moved forward while it was still running (a renewal).</summary>
+        public int Renewals { get; set; }
+
+        /// <summary>A short effect that is renewed again and again - a Chanter's mantra lasts 2.4 s and is renewed every second for as long as the Chanter keeps it up. In effect permanent.</summary>
+        public bool Aura { get; set; }
     }
+
+    /// <summary>The effects are listed by time left (renewed auras last) instead of by first appearance.</summary>
+    public bool SortByTime { get; set; }
+
+
 
     private readonly Dictionary<int, EffectRow> _effects = new();
     private int _order;
@@ -156,11 +167,24 @@ public sealed class AssistPanel : StackPanel
                     _effects[group.Key] = known;
                 }
 
+                // a renewal: the end moved forward while the effect was still running. Renewed twice, a short effect is an aura.
+                (known.Renewals, known.Aura) = EffectAura.Next(known.Buff?.Ends, best.Ends, now, best.DurationMs, known.Renewals, known.Aura);
+
                 known.LastActive = now;
                 known.Buff = best;
             }
 
-            foreach (var (skill, row) in _effects.OrderBy(kv => kv.Value.Order).ToList())
+            // by first appearance - or by time left: the running ones with the least left first, auras and effects without an end after them
+            IEnumerable<KeyValuePair<int, EffectRow>> ordered = _effects.OrderBy(kv => kv.Value.Order);
+            if (SortByTime)
+            {
+                ordered = _effects
+                    .OrderBy(kv => kv.Value.Aura || kv.Value.Buff is not { Ends: not null } ? 1 : 0)
+                    .ThenBy(kv => kv.Value.Aura || kv.Value.Buff is not { Ends: { } end } ? 0 : (end - now).TotalSeconds)
+                    .ThenBy(kv => kv.Value.Order);
+            }
+
+            foreach (var (skill, row) in ordered.ToList())
             {
                 if (now - row.LastActive > TimeSpan.FromSeconds(30))
                 {
@@ -174,8 +198,9 @@ public sealed class AssistPanel : StackPanel
                 }
 
                 bool active = row.LastActive == now;
-                string time = !active ? Seconds(0) : b.Ends is { } end ? Seconds(Math.Max(0, (end - now).TotalSeconds)) : "\u221E";
-                double fraction = active && b.Ends is { } e2 && b.DurationMs > 0 ? Math.Clamp((e2 - now).TotalMilliseconds / b.DurationMs, 0, 1) : 0;
+                bool endless = row.Aura || b.Ends is null;
+                string time = !active ? Seconds(0) : endless ? "\u221E" : Seconds(Math.Max(0, (b.Ends!.Value - now).TotalSeconds));
+                double fraction = active && !endless && b.Ends is { } e2 && b.DurationMs > 0 ? Math.Clamp((e2 - now).TotalMilliseconds / b.DurationMs, 0, 1) : 0;
                 buffs.Children.Add(Row(skill, Aion2SkillNames.DisplayOf(skill), time, fraction, false));
                 shown++;
             }

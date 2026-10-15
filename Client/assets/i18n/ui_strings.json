@@ -7689,6 +7689,18 @@
     "ja": "オーバーレイをロック",
     "ko": "오버레이 잠금"
   },
+  "Assist.SortByTime": {
+    "en": "Sort effects by time left (renewed auras last)",
+    "de": "Effekte nach Restzeit sortieren (erneuerte Auren zuletzt)",
+    "fr": "Trier les effets par temps restant (auras renouvelées en dernier)",
+    "es": "Ordenar los efectos por tiempo restante (auras renovadas al final)",
+    "ru": "Сортировать эффекты по оставшемуся времени (обновляемые ауры в конце)",
+    "zh": "按剩余时间排序效果（持续刷新的光环排在最后）",
+    "zh-TW": "依剩餘時間排序效果（持續更新的光環排在最後）",
+    "pt": "Ordenar os efeitos pelo tempo restante (auras renovadas por último)",
+    "ja": "効果を残り時間順に並べる（更新され続けるオーラは最後）",
+    "ko": "효과를 남은 시간 순으로 정렬 (계속 갱신되는 오라는 마지막)"
+  },
   "Assist.ShowInOverlay": {
     "en": "Show in the overlay",
     "de": "Im Overlay anzeigen",

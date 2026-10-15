@@ -32,6 +32,12 @@ public sealed class AssistWindow : Window
         DockPanel.SetDock(switches, Dock.Top);
         switches.Children.Add(Switch(loc["Assist.ShowOverlay"], settings.ShowAssistOverlay, on => Change(s => s.ShowAssistOverlay = on)));
         switches.Children.Add(Switch(loc["Assist.LockOverlay"], settings.AssistOverlayLocked, on => Change(s => s.AssistOverlayLocked = on)));
+        switches.Children.Add(Switch(loc["Assist.SortByTime"], settings.AssistSortByTime, on =>
+        {
+            _panel.SortByTime = on;
+            Change(s => s.AssistSortByTime = on);
+        }));
+        _panel.SortByTime = settings.AssistSortByTime;
         root.Children.Add(switches);
 
         // which skills and effects the overlay shows: the boxes in the list below; unticked ones are kept in the settings

@@ -26,6 +26,7 @@ public static class SelfCheckAion2
         ok &= RunTcpReassemblerScenario();
         ok &= RunTcpReassemblerPaddingScenario();
         ok &= RunGameFlowDetectorScenario();
+        ok &= RunEffectAuraScenario();
         ok &= RunNetworkStatsScenario();
         ok &= RunAion2ProtocolScenario();
         ok &= RunAion2RealCaptureScenario();
@@ -1696,6 +1697,48 @@ public static class SelfCheckAion2
         bool portsCountApart = !mixed.Observe(1, keepalive, now) && !mixed.Observe(2, keepalive, now) && !mixed.Observe(3, keepalive, now);
         Console.WriteLine($"  -> other traffic ignored: {noiseIgnored}; two keepalives are not enough: {twoAreNotEnough}; the third names the port: {thirdNamesThePort}; too slow: {tooSlowIsNoStream}; ports counted apart: {portsCountApart}");
         return noiseIgnored && twoAreNotEnough && thirdNamesThePort && tooSlowIsNoStream && portsCountApart;
+    }
+
+    private static bool RunEffectAuraScenario()
+    {
+        Console.WriteLine("[selftest] Assist: a renewed short effect (a Chanter's mantra) is an aura, a timed effect is not:");
+        var t0 = new DateTime(2026, 10, 14, 16, 55, 58, DateTimeKind.Utc);
+
+        // a mantra: 2.4 s long, renewed every second - the end moves 1 s forward each time while the old end is still ahead
+        DateTime? end = t0.AddSeconds(2.4);
+        int renewals = 0;
+        bool aura = false;
+        for (int second = 1; second <= 3; second++)
+        {
+            DateTime now = t0.AddSeconds(second);
+            DateTime next = now.AddSeconds(2.4);
+            (renewals, aura) = EffectAura.Next(end, next, now, 2400, renewals, aura);
+            end = next;
+        }
+
+        bool mantraIsAura = aura && renewals == 3;
+
+        // a buff of 20 s that is simply running: the end never moves
+        (int r2, bool a2) = EffectAura.Next(t0.AddSeconds(20), t0.AddSeconds(20), t0.AddSeconds(5), 20000, 0, false);
+        (r2, a2) = EffectAura.Next(t0.AddSeconds(20), t0.AddSeconds(20), t0.AddSeconds(6), 20000, r2, a2);
+        bool timedIsNot = !a2 && r2 == 0;
+
+        // a 30 s buff re-cast twice stays an ordinary effect: too long to be an aura
+        (int r3, bool a3) = (0, false);
+        for (int i = 0; i < 3; i++)
+        {
+            DateTime now = t0.AddSeconds(10 * i);
+            (r3, a3) = EffectAura.Next(now.AddSeconds(25), now.AddSeconds(35), now, 30000, r3, a3);
+        }
+
+        bool longRecastIsNot = !a3 && r3 == 3;
+
+        // the effect ended and came back: the old end lies in the past, that is no renewal
+        (int r4, bool a4) = EffectAura.Next(t0.AddSeconds(1), t0.AddSeconds(30), t0.AddSeconds(10), 2400, 0, false);
+        bool comebackIsNot = r4 == 0 && !a4;
+
+        Console.WriteLine($"  -> mantra renewed every second is an aura: {mantraIsAura}; a running timed effect is not: {timedIsNot}; a long re-cast is not: {longRecastIsNot}; coming back is no renewal: {comebackIsNot}");
+        return mantraIsAura && timedIsNot && longRecastIsNot && comebackIsNot;
     }
 
     private static bool RunAion2ProtocolScenario()
