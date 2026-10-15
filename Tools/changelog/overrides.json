@@ -141,5 +141,6 @@
  "769122c": "Cast bar: a boss skill the client has no name for says what it paints on the floor (\"Attack to the front\", \"Attack in a triangle\") instead of a bare \"Attack\" (the floor shapes come from the Waffle meter's data, MIT licence)",
  "1901969": null,
  "121b113": null,
- "7c771ee": "Pet shop: while the shop is open the map is hidden and the list holds only the shop's pets (no chosen pets, no collectibles), even where the game's menus are not recognised; the max level of an owned pet reads \"Level 3 (max)\" instead of \"Level {0} (max)\""
+ "7c771ee": "Pet shop: while the shop is open the map is hidden and the list holds only the shop's pets (no chosen pets, no collectibles), even where the game's menus are not recognised; the max level of an owned pet reads \"Level 3 (max)\" instead of \"Level {0} (max)\"",
+ "c38b9ed": "Pet map: after a teleport or a loading screen the map starts at the place the game reports, follows the zone (Verteron and Altgard, also on their legion airships) and no longer loses that place a moment later"
 }
