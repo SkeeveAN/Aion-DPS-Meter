@@ -3079,7 +3079,7 @@ body:has(.download-hero) .nav-download-link:hover,
 .fx-win{transform:none !important}
 .fx-stage{transform:perspective(2400px) rotateY(var(--sa,-16deg))}
 .fx-scene.flip .fx-stage{--sa:16deg}
-#feature-worldboss .fx-stage{--sa:-21deg}
+#feature-worldboss .fx-stage{--sa:21deg}
 @media(max-width:1100px){.fx-stage{transform:perspective(1400px) rotateY(calc(var(--sa,-16deg) * .6))}}
 @media(min-width:1700px){#feature-timetable .fx-win{translate:295px 0}}
 @media(min-width:1101px){#feature-hotkeys .fx-win:first-child{translate:75px 0}#feature-hotkeys .fx-win+.fx-win{translate:0 40px}}
@@ -3617,7 +3617,7 @@ body:has(.download-hero) .nav-download-link:hover,
 /* hotkeys scene is on the left now (the network scene before it shifted the alternation): stage to the left edge */
 @media(min-width:1101px){#feature-hotkeys .fx-stage{justify-content:flex-start;margin-left:24px}#feature-hotkeys .fx-win:first-child{translate:0 0}}
 /* network scene: same distance to the left edge as the details scene, the overlay picture lies in front of the settings window */
-@media(min-width:1101px){#feature-network .fx-stage{margin-left:44px}}
+@media(min-width:1700px){#feature-network .fx-stage{translate:264px 0}#feature-network .fx-win+.fx-win{margin-left:-110px}}
 #feature-network .fx-win+.fx-win{position:relative;z-index:2}
 /* all scenes: text and pictures sit the same distance from the frame (100px at 1920, less on narrower windows); the designer's offsets (feature-layout.json) move from there */
 @media(min-width:1101px){
@@ -3632,3 +3632,9 @@ body:has(.download-hero) .nav-download-link:hover,
 
 .download-shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
 .download-shots img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--color-border); }
+/* Szenen-Siegel (z. B. "In Entwicklung" beim Assist) */
+.fx-badge{display:inline-block;margin:0 0 10px;padding:3px 10px;border:1px solid var(--fx-accent);border-radius:999px;color:var(--fx-accent);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(9,13,18,.45)}
+/* Pet-Stufe: das kleine Overlay schwebt über dem Tier statt es zu verdecken */
+@media(min-width:1101px){#feature-petlevel .fx-stage{align-self:flex-start;margin-top:56px}#feature-petlevel .fx-win{--a:16deg}}
+/* Teile ohne Fenster (durchsichtiger Grund): kein Rahmen, nur Schatten */
+.fx-flat{border:0;border-radius:0;background:none;box-shadow:none;filter:drop-shadow(0 18px 24px rgba(0,0,0,.6)) drop-shadow(0 0 28px color-mix(in srgb,var(--tint) 35%,transparent))}
