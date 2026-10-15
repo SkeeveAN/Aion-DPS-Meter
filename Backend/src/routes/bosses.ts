@@ -218,6 +218,19 @@ export function classBoxes(bossId: number, serverId: number | null, mode: string
   return boxesByClass(rows);
 }
 
+/** The length in seconds of every fight of one boss in this scope, for the histogram of kill times (at most 5,000, the newest). */
+export function fightDurations(bossId: number, serverId: number | null, mode: string | null = null): number[] {
+  return db
+    .select({ seconds: encounters.durationSeconds })
+    .from(encounters)
+    .where(encounterScope(bossId, serverId, mode))
+    .orderBy(desc(encounters.id))
+    .limit(5000)
+    .all()
+    .map((r) => r.seconds)
+    .filter((v) => v > 0);
+}
+
 export type FightStats = {
   runCount: number;
   bestIdps: number | null;
@@ -413,11 +426,11 @@ export async function bossRoutes(app: FastifyInstance) {
           return reply.status(400).send({ error: "missing_or_invalid_server_id" });
         }
         if (selected === null) {
-          return reply.send({ boxes: [], topByClass: {} });
+          return reply.send({ boxes: [], durations: [], topByClass: {} });
         }
         scope = selected.id;
       }
-      return reply.send({ boxes: classBoxes(boss.id, scope, mode), topByClass: topByClass(boss.id, scope, found.game, mode) });
+      return reply.send({ boxes: classBoxes(boss.id, scope, mode), durations: fightDurations(boss.id, scope, mode), topByClass: topByClass(boss.id, scope, found.game, mode) });
     },
   );
 

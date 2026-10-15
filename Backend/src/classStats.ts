@@ -7,6 +7,18 @@ export interface ClassBox {
   median: number;
   q3: number;
   max: number;
+  /** The values themselves (ascending, at most {@link MAX_VALUES}, evenly thinned out), for the dots behind the box. */
+  values: number[];
+}
+
+const MAX_VALUES = 120;
+
+/** At most `limit` values of an ascending list, evenly spread, the first and the last always among them. */
+export function thinOut(sorted: number[], limit = MAX_VALUES): number[] {
+  if (sorted.length <= limit) {
+    return [...sorted];
+  }
+  return Array.from({ length: limit }, (_, i) => sorted[Math.round((i * (sorted.length - 1)) / (limit - 1))]!);
 }
 
 /** The p-quantile (0..1) of an ascending list, interpolated between neighbours. */
@@ -39,6 +51,7 @@ export function boxesByClass(rows: { className: string; idps: number }[]): Class
         median: quantile(sorted, 0.5),
         q3: quantile(sorted, 0.75),
         max: sorted[sorted.length - 1]!,
+        values: thinOut(sorted),
       };
     })
     .sort((a, b) => b.median - a.median);
