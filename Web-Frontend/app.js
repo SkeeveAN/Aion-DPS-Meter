@@ -2489,14 +2489,20 @@ async function renderLeaderboard(bossSlug, params) {
     }
     return next.toString() ? `${bossPath}?${next}` : bossPath;
   };
-  const viewButton = (label, href, active) => {
-    const a = link(label, href, `view-button${active ? " active" : ""}`);
+  // Icons with a tooltip: a podium for the ranking, a box plot for the statistics.
+  const VIEW_ICONS = {
+    ranking: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M4 21v-7h5v7M9.5 21V6h5v15M15 21v-10h5v10"/></svg>',
+    stats: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M7 6h10v12H7zM7 12h10"/></svg>',
+  };
+  const viewButton = (label, href, active, iconKey) => {
+    const a = el("a", { href, className: `view-button${active ? " active" : ""}`, title: label, innerHTML: VIEW_ICONS[iconKey] });
+    a.setAttribute("aria-label", label);
     if (active) {
       a.setAttribute("aria-current", "page");
     }
     return a;
   };
-  const viewButtons = el("nav", { className: "view-buttons" }, [viewButton(t("stats.tabRanking"), viewHref(null), !statsView), viewButton(t("stats.tabStats"), viewHref("stats"), statsView)]);
+  const viewButtons = el("nav", { className: "view-buttons" }, [viewButton(t("stats.tabRanking"), viewHref(null), !statsView, "ranking"), viewButton(t("stats.tabStats"), viewHref("stats"), statsView, "stats")]);
   const statsBar = el("div", { className: "stats-bar" }, [stats ?? el("div"), viewButtons]);
   const sections = [hero, ...(modeChips ? [modeChips] : []), statsBar];
   if (tabs) {

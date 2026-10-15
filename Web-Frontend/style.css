@@ -3732,7 +3732,7 @@ body:has(.download-hero) .nav-download-link:hover,
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 120px;
+  min-width: 72px;
   padding: 12px 18px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
