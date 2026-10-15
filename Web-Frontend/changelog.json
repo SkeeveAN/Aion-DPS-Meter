@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.0.0",
   "date": "2026-10-15",
   "items": [
    {
@@ -46,13 +46,6 @@
     "date": "2026-10-15"
    },
    {
-    "text": "Website: the features page has new scenes for the boss fight overlay, Assist (in development), the checklist and the pet level, sessions and the combat analyzer share one scene, and the hotkey overlay and the cube sound are listed under And more",
-    "areas": [
-     "Website"
-    ],
-    "date": "2026-10-15"
-   },
-   {
     "text": "First-start wizard: a \"getting ready\" card shows live whether Npcap is installed and whether the meter has recognised your character, with the steps to get going",
     "areas": [
      "Client"
@@ -83,6 +76,13 @@
     "date": "2026-10-15"
    },
    {
+    "text": "Website: the features page has new scenes for the boss fight overlay, Assist (in development), the checklist and the pet level, sessions and the combat analyzer share one scene, and the hotkey overlay and the cube sound are listed under And more",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-15"
+   },
+   {
     "text": "Assist window: a box in front of every skill and effect decides whether the overlay shows it",
     "areas": [
      "Client"
@@ -91,6 +91,76 @@
    },
    {
     "text": "Assist: optional sorting of the effects by time left; effects renewed again and again (a Chanter's mantras) count as auras, show as endless and come last",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Tools redesign: the Tools menu lists every tool (Checklist, Interactive map, Boss fight, Skill Assist, Dummy test, Combat analyzer, Timetable, World boss, Streaming, Design editor, Network analysis); the settings only hold the basics (General, DPS meter, Capture & upload, Hotkeys, System); the five display modes are buttons in the main window; the hotkey overlay has three sections and Skill Assist gets Ctrl+Alt+S",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Overlays are placed and sized alike: corner handles scale everything, the edges change width or height as suits the overlay, each overlay has its own opacity from 0 to 100 and a button to reset its size and position; \"Position overlay\" replaces \"Overlay locked\" and shows sample data in full size",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Every tool has its own window with a live view, its overlay switch, its hotkey and a cog for its settings; window and overlay can be open at the same time; the dummy test overlay shows the time as a bar that runs empty",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Menus: the separators are one thin line over the full width",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Toolbar: the icon buttons show their pictures at full size",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Main window: the profile, Twitch Drops and announcements buttons are in the top row, the PVE/PVP switch is in the menu bar",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Settings: the pages are a tab strip along the top",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Boss fight: three overlays of their own (boss health, boss cast, target of the target), each switched on and placed on its own; the interactive map is two overlays, the map and the list of pets and collectibles",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "The world boss sound no longer depends on the overlay; the tool windows show what you have chosen, sample data appears only while an overlay is positioned",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Version 1.0.0, the end of the beta: every tool in its own window with a live view, the settings reduced to the basics, and overlays that are placed, sized and faded alike",
     "areas": [
      "Client"
     ],

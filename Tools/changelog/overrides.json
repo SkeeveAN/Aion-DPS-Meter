@@ -130,5 +130,6 @@
  "0286e74": "Main window: the profile, Twitch Drops and announcements buttons are in the top row, the PVE/PVP switch is in the menu bar",
  "2fcc083": null,
  "68fe357": "Menus: the separators are one thin line over the full width",
- "1f12be5": "Toolbar: the icon buttons show their pictures at full size"
+ "1f12be5": "Toolbar: the icon buttons show their pictures at full size",
+ "abf4895": "Version 1.0.0, the end of the beta: every tool in its own window with a live view, the settings reduced to the basics, and overlays that are placed, sized and faded alike"
 }
