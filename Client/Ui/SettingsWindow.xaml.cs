@@ -108,6 +108,9 @@ public partial class SettingsWindow : Window
         var nearest = OverlayOpacityBox.Items.OfType<ComboBoxItem>()
             .OrderBy(i => Math.Abs(double.Parse((string)i.Tag, System.Globalization.CultureInfo.InvariantCulture) - settings.OverlayOpacity)).First();
         OverlayOpacityBox.SelectedItem = nearest;
+        OverlayGridSnapBox.IsChecked = settings.OverlayGridSnap;
+        OverlayDockingBox.IsChecked = settings.OverlayDocking;
+        SelectComboItem(OverlayGridSizeBox, settings.OverlayGridSize.ToString());
         double timetableOpacity = settings.TimetableOpacity ?? settings.OverlayOpacity;
         TimetableOpacityField.Fraction = timetableOpacity;
         TimetableLookaheadSlider.Value = Math.Clamp(settings.TimetableLookaheadMinutes, 0, 60);
@@ -575,6 +578,7 @@ public partial class SettingsWindow : Window
         _settings.HotkeyOverlayHeight = onDisk.HotkeyOverlayHeight;
         _settings.CombatElements = onDisk.CombatElements;
         _settings.OverlayShifts = onDisk.OverlayShifts;
+        _settings.OverlayDocks = onDisk.OverlayDocks;
         _settings.ToolWidths = onDisk.ToolWidths;
         _settings.ToolsNavCollapsed = onDisk.ToolsNavCollapsed;
         _settings.ToolsWindowLeft = onDisk.ToolsWindowLeft;
@@ -648,6 +652,9 @@ public partial class SettingsWindow : Window
         _settings.FontSize = (FontSizeBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.FontSize;
         _settings.OverlayStyle = (OverlayStyleBox.SelectedItem as ComboBoxItem)?.Tag as string ?? _settings.OverlayStyle;
         _settings.OverlayOpacity = double.Parse((string)((ComboBoxItem)OverlayOpacityBox.SelectedItem).Tag, System.Globalization.CultureInfo.InvariantCulture);
+        _settings.OverlayGridSnap = OverlayGridSnapBox.IsChecked ?? false;
+        _settings.OverlayDocking = OverlayDockingBox.IsChecked ?? false;
+        _settings.OverlayGridSize = int.TryParse((OverlayGridSizeBox.SelectedItem as ComboBoxItem)?.Tag as string, out int cell) ? cell : _settings.OverlayGridSize;
         _settings.TimetableOpacity = TimetableOpacityField.Fraction;
         _settings.TimetableLookaheadMinutes = (int)TimetableLookaheadSlider.Value;
         _settings.TimetableNotify = TimetableNotifyBox.IsChecked ?? false;

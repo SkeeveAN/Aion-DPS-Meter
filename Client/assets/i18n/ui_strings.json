@@ -8065,6 +8065,78 @@
     "ja": "ボスへの効果（デバフ）",
     "ko": "보스에 걸린 효과(디버프)"
   },
+  "Settings.Card.OverlayLayout": {
+    "en": "Overlay layout",
+    "de": "Overlay-Anordnung",
+    "fr": "Disposition des overlays",
+    "es": "Disposición de los overlays",
+    "ru": "Расположение оверлеев",
+    "zh": "覆盖层布局",
+    "zh-TW": "覆蓋層佈局",
+    "pt": "Disposição dos overlays",
+    "ja": "オーバーレイの配置",
+    "ko": "오버레이 배치"
+  },
+  "Settings.OverlayGrid": {
+    "en": "Place overlays on a grid",
+    "de": "Overlays am Raster platzieren",
+    "fr": "Placer les overlays sur une grille",
+    "es": "Colocar los overlays en una cuadrícula",
+    "ru": "Размещать оверлеи по сетке",
+    "zh": "按网格放置覆盖层",
+    "zh-TW": "依網格放置覆蓋層",
+    "pt": "Posicionar os overlays numa grelha",
+    "ja": "オーバーレイをグリッドに配置",
+    "ko": "오버레이를 격자에 맞춰 배치"
+  },
+  "Settings.OverlayGridSize": {
+    "en": "Grid cell size",
+    "de": "Rasterweite",
+    "fr": "Taille des cellules",
+    "es": "Tamaño de celda",
+    "ru": "Размер ячейки сетки",
+    "zh": "网格大小",
+    "zh-TW": "網格大小",
+    "pt": "Tamanho da célula",
+    "ja": "グリッドの間隔",
+    "ko": "격자 간격"
+  },
+  "Settings.OverlayGrid.Hint": {
+    "en": "While you drag an unlocked overlay, its position snaps to an invisible grid. The grid starts at the top left corner of the screen.",
+    "de": "Beim Verschieben eines entsperrten Overlays rastet seine Position an einem unsichtbaren Raster ein. Das Raster beginnt an der oberen linken Bildschirmecke.",
+    "fr": "Pendant le déplacement d'un overlay déverrouillé, sa position s'aimante à une grille invisible, qui commence au coin supérieur gauche de l'écran.",
+    "es": "Al arrastrar un overlay desbloqueado, su posición se ajusta a una cuadrícula invisible que empieza en la esquina superior izquierda de la pantalla.",
+    "ru": "При перетаскивании разблокированного оверлея его положение привязывается к невидимой сетке, которая начинается в левом верхнем углу экрана.",
+    "zh": "拖动已解锁的覆盖层时，位置会吸附到不可见的网格上，网格从屏幕左上角开始。",
+    "zh-TW": "拖曳已解鎖的覆蓋層時，位置會吸附到不可見的網格上，網格從螢幕左上角開始。",
+    "pt": "Ao arrastar um overlay desbloqueado, a sua posição encaixa numa grelha invisível que começa no canto superior esquerdo do ecrã.",
+    "ja": "ロック解除したオーバーレイをドラッグすると、位置が見えないグリッドに吸着します。グリッドは画面の左上から始まります。",
+    "ko": "잠금 해제한 오버레이를 끌면 위치가 보이지 않는 격자에 맞춰집니다. 격자는 화면 왼쪽 위 모서리에서 시작합니다."
+  },
+  "Settings.OverlayDocking": {
+    "en": "Dock overlays to each other",
+    "de": "Overlays aneinander andocken",
+    "fr": "Ancrer les overlays les uns aux autres",
+    "es": "Acoplar los overlays entre sí",
+    "ru": "Пристыковывать оверлеи друг к другу",
+    "zh": "覆盖层相互吸附",
+    "zh-TW": "覆蓋層互相吸附",
+    "pt": "Encaixar os overlays uns nos outros",
+    "ja": "オーバーレイ同士をドッキング",
+    "ko": "오버레이끼리 도킹"
+  },
+  "Settings.OverlayDocking.Hint": {
+    "en": "Drag an overlay against the edge of another one and it docks there. A docked overlay moves with its parent and follows when the parent is made larger or smaller. Drag it away to undock it.",
+    "de": "Zieh ein Overlay an den Rand eines anderen, dann dockt es dort an. Ein angedocktes Overlay wandert mit seinem Partner und folgt, wenn dieser größer oder kleiner wird. Wegziehen löst die Verbindung.",
+    "fr": "Faites glisser un overlay contre le bord d'un autre pour l'ancrer. Il suit son parent quand celui-ci est déplacé ou redimensionné. Éloignez-le pour le détacher.",
+    "es": "Arrastra un overlay hasta el borde de otro y se acopla. Un overlay acoplado se mueve con su principal y lo sigue si cambia de tamaño. Aléjalo para desacoplarlo.",
+    "ru": "Подтащите оверлей к краю другого — он пристыкуется. Пристыкованный оверлей двигается вместе с основным и следует за изменением его размера. Оттащите его, чтобы отстыковать.",
+    "zh": "把覆盖层拖到另一个的边缘即可吸附。已吸附的覆盖层会随主覆盖层移动，并跟随其大小变化。拖开即可解除。",
+    "zh-TW": "把覆蓋層拖到另一個的邊緣即可吸附。已吸附的覆蓋層會隨主覆蓋層移動，並跟隨其大小變化。拖開即可解除。",
+    "pt": "Arraste um overlay até à margem de outro e ele encaixa. Um overlay encaixado move-se com o principal e acompanha as mudanças de tamanho. Arraste-o para soltar.",
+    "ja": "オーバーレイを別のオーバーレイの端までドラッグするとドッキングします。ドッキングしたものは親と一緒に動き、親のサイズ変更にも追従します。離すにはドラッグで引き離してください。",
+    "ko": "오버레이를 다른 오버레이의 가장자리로 끌면 도킹됩니다. 도킹된 오버레이는 기준 오버레이와 함께 움직이고 크기 변화도 따라갑니다. 끌어서 떼면 해제됩니다."
+  },
   "Checklist.ShopOdyle": {
     "en": "Odyle Energy bought in the Brisenwind trade guild",
     "de": "Odenergie in der Handelsgilde Brisenwind gekauft",

@@ -497,6 +497,25 @@
                         </Border>
 <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.OverlayLayout}"/>
+                                <CheckBox x:Name="OverlayGridSnapBox" Content="{local:Loc Settings.OverlayGrid}"/>
+                                <Grid Margin="0,6,0,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{local:Loc Settings.OverlayGridSize}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <ComboBox Grid.Column="1" x:Name="OverlayGridSizeBox" Margin="0,2" HorizontalAlignment="Stretch">
+                                        <ComboBoxItem Content="10 px" Tag="10"/>
+                                        <ComboBoxItem Content="20 px" Tag="20"/>
+                                        <ComboBoxItem Content="40 px" Tag="40"/>
+                                        <ComboBoxItem Content="80 px" Tag="80"/>
+                                    </ComboBox>
+                                </Grid>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.OverlayGrid.Hint}" Margin="0,2,0,8"/>
+                                <CheckBox x:Name="OverlayDockingBox" Content="{local:Loc Settings.OverlayDocking}"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.OverlayDocking.Hint}" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+<Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayChips}"/>
                                 <CheckBox x:Name="ShowShareBarsBox" Content="{local:Loc Settings.ShowShareBars}"/>
                                 <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}"/>

@@ -84,6 +84,7 @@ public abstract class MovableOverlay : Window
         Action<string> onReset = title => { if (title == Title) { Dispatcher.Invoke(ReloadPlace); } };
         OverlayPlaces.WasReset += onReset;
         Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
+        OverlayDocking.Attach(this, SavePlace);
     }
 
     private readonly double _defaultLeft, _defaultTop;

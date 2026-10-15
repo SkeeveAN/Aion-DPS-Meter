@@ -83,6 +83,14 @@ public sealed class PetFarmWindow : Window
         Action<string> onReset = name => { if (name == Title) { Dispatcher.Invoke(ReloadPlace); } };
         OverlayPlaces.WasReset += onReset;
         Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
+        LocationChanged += (_, _) => _centerX = Left + ActualWidth / 2; // placed from outside (docked): the middle is where it is now
+        OverlayDocking.Attach(this, () =>
+        {
+            var s = MeterSettings.Load();
+            s.PetFarmLeft = _centerX;
+            s.PetFarmTop = Top;
+            s.Save();
+        });
     }
 
     /// <summary>Place, size and scale from the settings again (after "reset size and position").</summary>
@@ -250,7 +258,7 @@ public sealed class PetFarmController : IDisposable
     private async Task<IReadOnlyList<(string Pet, string Level)>> ReadOnceAsync()
     {
         var none = Array.Empty<(string, string)>();
-        if (GameWindow.ForegroundClientArea() is not { } area)
+        if (GameWindow.ForegroundClientArea(ignoreMenu: true) is not { } area)
         {
             return none; // the game is not the window in front
         }
@@ -435,10 +443,11 @@ internal static class GameWindow
         return result && !(MenuWatcher.Hidden && IsGame(hwnd)); // a game menu is open: out of the way
     }
 
-    public static System.Drawing.Rectangle? ForegroundClientArea()
+    /// <param name="ignoreMenu">True for the pet and collection views: they stay (and the shop reading works) while a game menu is open.</param>
+    public static System.Drawing.Rectangle? ForegroundClientArea(bool ignoreMenu = false)
     {
         IntPtr hwnd = GetForegroundWindow();
-        if (hwnd == IntPtr.Zero || !IsGame(hwnd) || MenuWatcher.Hidden || !GetClientRect(hwnd, out Rect client))
+        if (hwnd == IntPtr.Zero || !IsGame(hwnd) || (MenuWatcher.Hidden && !ignoreMenu) || !GetClientRect(hwnd, out Rect client))
         {
             return null;
         }

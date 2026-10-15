@@ -110,6 +110,7 @@ public sealed class TimetableWindow : Window
         Action<string> onReset = name => { if (name == Title) { Dispatcher.Invoke(ReloadPlace); } };
         OverlayPlaces.WasReset += onReset;
         Closed += (_, _) => OverlayPlaces.WasReset -= onReset;
+        OverlayDocking.Attach(this, SavePosition);
     }
 
     /// <summary>Place, width and scale from the settings again (after "reset size and position").</summary>

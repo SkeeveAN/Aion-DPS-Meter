@@ -139,6 +139,18 @@ public sealed class MeterSettings
     /// <summary>How far the content of an overlay that is cut off from its sides (the map) is moved inside its frame, by the overlay's window title (x, y).</summary>
     public Dictionary<string, double[]> OverlayShifts { get; set; } = new();
 
+    /// <summary>Overlays snap to a grid while they are dragged.</summary>
+    public bool OverlayGridSnap { get; set; }
+
+    /// <summary>The width of one grid cell in screen units (the grid is placed from the screen's top left corner).</summary>
+    public int OverlayGridSize { get; set; } = 20;
+
+    /// <summary>Overlays dock to the edges of other overlays and follow them when those are moved or change their size.</summary>
+    public bool OverlayDocking { get; set; }
+
+    /// <summary>Which overlay hangs on which, by the docked overlay's window title.</summary>
+    public Dictionary<string, OverlayDock> OverlayDocks { get; set; } = new();
+
     /// <summary>The width the tools window has for each tool (by the tool's id): every tool keeps its own, so the checklist can be narrow and the design editor wide.</summary>
     public Dictionary<string, double> ToolWidths { get; set; } = new();
 
