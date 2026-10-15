@@ -3888,3 +3888,22 @@ body:has(.download-hero) .nav-download-link:hover,
 .table-scroll {
   overflow-x: auto;
 }
+
+/* Median iDPS per class in the dungeon table: the class icon and the figure, the name in the tooltip. */
+.class-medians {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.class-median {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.class-median .class-emblem {
+  width: 24px;
+  height: 24px;
+}

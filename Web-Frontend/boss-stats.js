@@ -291,7 +291,7 @@ export function buildBossStats(stats, deps) {
  * @param deps helpers of app.js: el, t, formatNumber, classLabel, displayName, formatDuration, gp
  */
 export function buildInstanceStats(data, deps) {
-  const { el, t, formatNumber, classLabel, displayName, formatDuration, gp } = deps;
+  const { el, t, formatNumber, classLabel, classIcon, displayName, formatDuration, gp } = deps;
   const fought = data.bosses.filter((b) => b.runCount > 0);
   if (fought.length === 0) {
     return [el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") })];
@@ -308,7 +308,14 @@ export function buildInstanceStats(data, deps) {
           el("td", { textContent: formatNumber(b.runCount) }),
           el("td", { textContent: b.bestIdps ? formatNumber(b.bestIdps) : "–" }),
           el("td", { textContent: b.avgDurationSeconds ? formatDuration(b.avgDurationSeconds) : "–" }),
-          el("td", { textContent: b.classes.slice(0, 6).map((c) => `${classLabel(c.className)} ${formatNumber(Math.round(c.median))}`).join(" · ") }),
+          // the class as its icon, its name and the figure in the tooltip
+          el("td", {}, [
+            el(
+              "span",
+              { className: "class-medians" },
+              b.classes.slice(0, 6).map((c) => el("span", { className: "class-median", title: `${classLabel(c.className)}: ${formatNumber(Math.round(c.median))}` }, [classIcon(c.className), el("span", { textContent: formatNumber(Math.round(c.median)) })])),
+            ),
+          ]),
         ]),
       ),
     ),

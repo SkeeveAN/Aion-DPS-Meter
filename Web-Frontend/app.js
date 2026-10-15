@@ -2115,7 +2115,7 @@ async function renderInstanceStatistics(instanceSlug, params = new URLSearchPara
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
   hero.push(instanceViewButtons(instancePath, true));
-  app.replaceChildren(...hero, ...buildInstanceStats(data, { el, t, formatNumber, classLabel, displayName, formatDuration, gp }));
+  app.replaceChildren(...hero, ...buildInstanceStats(data, { el, t, formatNumber, classLabel, classIcon, displayName, formatDuration, gp }));
 }
 
 /** The two views of a dungeon, as on a boss page: its bosses and its statistics. */
