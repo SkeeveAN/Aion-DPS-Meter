@@ -616,7 +616,13 @@
                      needed first for the Windows-Run-key/tray-icon ones specifically) - given by
                      the user, and all four are real now (SessionFile.cs, StartupRegistration.cs,
                      TrayIcon.cs). Reset Connection is still the one remaining placeholder row. -->
-                <Menu DockPanel.Dock="Top" Background="{DynamicResource Brush.Panel}" Foreground="{DynamicResource Brush.Text}">
+                <!-- Menu bar: the menus on the left, the PVE/PVP switch at the far right. -->
+                <Grid DockPanel.Dock="Top" Background="{DynamicResource Brush.Panel}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Menu Grid.Column="0" Background="Transparent" Foreground="{DynamicResource Brush.Text}">
                     <!-- App-Menü A ("Flyout-Karte", vom User gebilligt): all 14 child MenuItems that
                          used to live here (Load/SaveSession, Export/ValidateSession, both folder
                          items, ResetConnection, ClearCurrentView,
@@ -666,6 +672,14 @@
                         <MenuItem Header="{local:Loc Main.MenuSettings.Feedback}" Click="OnFeedbackClicked"/>
                     </MenuItem>
                 </Menu>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,2,6,2" VerticalAlignment="Center"
+                                ToolTip="PVE: damage against mobs/bosses (default). PVP: damage against other players only - Arena/Abyss/GvG.">
+                        <ToggleButton x:Name="PveModeButton" Style="{StaticResource PvpModeToggleLeft}"
+                                      Content="{local:Loc Main.ModePve}" IsChecked="True" Click="OnPvpModeToggleClicked"/>
+                        <ToggleButton x:Name="PvpModeButton" Style="{StaticResource PvpModeToggleRight}"
+                                      Content="{local:Loc Main.ModePvp}" Click="OnPvpModeToggleClicked"/>
+                    </StackPanel>
+                </Grid>
 
                 <!-- Top toolbar: matches MyAion's Copy / Copy All / Pause / Clear row. All are
                      icon-only per the user's request ("... alle mit Tooltip bitte") - each ToolTip
@@ -782,13 +796,7 @@
                             </StackPanel>
                         </Button>
                     </StackPanel>
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,0,4,0" VerticalAlignment="Center"
-                                ToolTip="PVE: damage against mobs/bosses (default). PVP: damage against other players only - Arena/Abyss/GvG.">
-                        <ToggleButton x:Name="PveModeButton" Style="{StaticResource PvpModeToggleLeft}"
-                                      Content="{local:Loc Main.ModePve}" IsChecked="True" Click="OnPvpModeToggleClicked"/>
-                        <ToggleButton x:Name="PvpModeButton" Style="{StaticResource PvpModeToggleRight}"
-                                      Content="{local:Loc Main.ModePvp}" Click="OnPvpModeToggleClicked"/>
-                    </StackPanel>
+                    
                 </Grid>
 
                 <!-- View nav (Damage/Loot/Character Profile) plus Upload, in one row above the
