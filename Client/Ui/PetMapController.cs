@@ -77,10 +77,11 @@ public sealed class PetMapController : IDisposable
     }
 
     private bool _hideOverlays;
+    private bool _lastMenu;
 
     public bool HasViews => _mapViews.Count > 0;
 
-    private void ShowMap(bool visible) => _map.ShowOverlay(visible && !_hideOverlays && _settings.PetMapShowMap);
+    private void ShowMap(bool visible) => _map.ShowOverlay(visible && !_hideOverlays && !MenuWatcher.Hidden && _settings.PetMapShowMap);
 
     private void ShowList(bool visible) => _list.ShowOverlay(visible && !_hideOverlays && _settings.PetMapShowList);
 
@@ -228,7 +229,7 @@ public sealed class PetMapController : IDisposable
         bool locked = mapLocked && listLocked;
         _map.ApplyLockedIfChanged(mapLocked);
         _list.ApplyLockedIfChanged(listLocked);
-        bool inGame = GameWindow.ForegroundClientArea() is not null;
+        bool inGame = GameWindow.ForegroundClientArea(ignoreMenu: true) is not null;
         _hideOverlays = (!inGame && locked) || !settings.ShowPetMap; // with the module's switch off only the tool window's views are fed
         if (_hideOverlays)
         {
@@ -359,14 +360,18 @@ public sealed class PetMapController : IDisposable
             ShowMap(!mapLocked);
         }
 
-        if (++_ticks % 10 == 0 || _lastTarget != (tx, ty) || _lastKnownFlag != known)
+        bool menuNow = MenuWatcher.Hidden;
+        if (++_ticks % 10 == 0 || _lastTarget != (tx, ty) || _lastKnownFlag != known || _lastMenu != menuNow)
         {
+            _lastMenu = menuNow;
             _lastTarget = (tx, ty);
             _lastKnownFlag = known;
-            RenderList(shopRows.Concat(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds)).Take(_list.RowCapacity).ToList()); // only what fits in the frame (plus a reserve)
+            // a game menu is open: the list stays only for the shop's pets (no chosen pets, no collectibles), the map steps aside
+            var rows = MenuWatcher.Hidden ? shopRows : shopRows.Concat(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds)).ToList();
+            RenderList(rows.Take(_list.RowCapacity).ToList()); // only what fits in the frame (plus a reserve)
         }
 
-        ShowList(true);
+        ShowList(!MenuWatcher.Hidden || shopRows.Count > 0);
     }
 
     /// <summary>
@@ -593,7 +598,7 @@ public sealed class PetMapController : IDisposable
 
         // positioned: the frames (the list with sample rows), to grab and place; a locked one stays hidden
         RenderList(SampleRows());
-        ShowList(!listLocked);
+        ShowList(!listLocked && !MenuWatcher.Hidden);
         ShowMap(!mapLocked);
     }
 
