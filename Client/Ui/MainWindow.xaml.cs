@@ -4764,39 +4764,37 @@ public partial class MainWindow : Window
         OpenSettings(null);
     }
 
-    private readonly Dictionary<string, ModuleWindow> _moduleWindows = new();
+    private ToolsWindow? _toolsWindow;
 
-    /// <summary>A tool from the Tools menu: its own window with a live view, the overlay switch, the hotkey and a cog for its settings. Without a running meter (headless) it is the settings page.</summary>
+    /// <summary>A tool of the Tools menu: all tools share one window, the tools in the order of the menu on the left, the page of the chosen one on the right.</summary>
     private void OnOpenModuleClicked(object sender, RoutedEventArgs e)
     {
-        if (sender is not FrameworkElement { Tag: string module })
+        if (sender is FrameworkElement { Tag: string id })
         {
-            return;
+            OpenTool(id);
         }
+    }
 
-        if (_moduleWindows.TryGetValue(module, out ModuleWindow? open))
+    private void OpenTool(string id)
+    {
+        if (_toolsWindow is null)
         {
-            open.Activate();
-            return;
-        }
-
-        ModuleWindow? window = BuildModuleWindow(module);
-        if (window is null)
-        {
-            if (_settingsWindow is null)
+            var loc = LocalizationManager.Instance;
+            var groups = new[]
             {
-                OpenSettings(null);
-            }
-
-            _settingsWindow?.ShowModule(module);
-            _settingsWindow?.Activate();
-            return;
+                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]) },
+                new[] { new ToolEntry("combat", loc["Settings.Nav.Combat"]), new ToolEntry("assist", loc["Main.MenuTools.Assist"]) },
+                new[] { new ToolEntry("dummy", loc["Main.MenuTools.DummyTest"]), new ToolEntry("analyzer", loc["Main.MenuTools.Analyzer"], OwnWindow: true) },
+                new[] { new ToolEntry("timetable", loc["Settings.Nav.Timetable"]), new ToolEntry("boss", loc["Settings.Nav.Boss"]) },
+                new[] { new ToolEntry("stream", loc["Main.MenuTools.Stream"]), new ToolEntry("theme", loc["Main.MenuTools.ThemeEditor"]), new ToolEntry("network", loc["Settings.Nav.Network"]) },
+            };
+            _toolsWindow = new ToolsWindow(groups, BuildToolPage, tool => { if (tool == "analyzer") { OpenSessionManager(); } }) { Owner = this };
+            _toolsWindow.Closed += (_, _) => _toolsWindow = null;
+            _toolsWindow.Show();
         }
 
-        _moduleWindows[module] = window;
-        window.Closed += (_, _) => _moduleWindows.Remove(module);
-        window.Owner = this;
-        window.Show();
+        _toolsWindow.Select(id);
+        _toolsWindow.Activate();
     }
 
     private void OpenSettingsPage(string module)
@@ -4818,29 +4816,48 @@ public partial class MainWindow : Window
         _settingsWindow?.Activate();
     }
 
-    private ModuleWindow? BuildModuleWindow(string module)
+    /// <summary>The page of one tool for the tools window; null when the tool is not available (headless, no capture yet).</summary>
+    private ToolPage? BuildToolPage(string module)
     {
         var loc = LocalizationManager.Instance;
         Action<MeterSettings> applied = ApplySettingsEverywhere;
         Action hotkeys = () => OpenSettingsPage("");
         Action settingsPage = () => OpenSettingsPage(module);
-        ModuleWindow? window = null;
+        // a tool that is a window of its own is shown by its content: the window is never shown and closed when the page goes away
+        ToolPage Hosted(Window window) => new() { Content = ThemedChrome.TakeContent(window) ?? new Grid(), Cleanup = window.Close };
         switch (module)
         {
+            case "checklist":
+                return Hosted(new ChecklistWindow());
+            case "assist":
+                return Hosted(new AssistWindow(() => _liveSource?.Entities as Aion2EntityDirectory));
+            case "dummy" when _dummy is not null:
+                return Hosted(new DummyTestWindow(_dummy, ToggleAllOverlays));
+            case "theme":
+            {
+                var editor = new ThemeEditorWindow(MeterSettings.Load());
+                editor.Saved += settings =>
+                {
+                    var current = MeterSettings.Load();
+                    current.Theme = settings.Theme;
+                    current.Save();
+                    ApplySettingsEverywhere(current);
+                };
+                return Hosted(editor);
+            }
+
             case "network" when _network is not null:
             {
                 var view = _network.CreateView();
-                window = new ModuleWindow(loc["Settings.Nav.Network"], view.DetachBody()!, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied);
-                window.Closed += (_, _) => _network?.RemoveView(view);
-                break;
+                var page = new ModulePage(loc["Settings.Nav.Network"], view.DetachBody()!, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied);
+                return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _network?.RemoveView(view); } };
             }
 
             case "boss" when _worldBoss is not null:
             {
                 var view = _worldBoss.CreateView();
-                window = new ModuleWindow(loc["Settings.Nav.Boss"], view.DetachBody()!, s => s.ShowBossOverlay, (s, v) => s.ShowBossOverlay = v, s => s.HotkeyWorldBoss, hotkeys, settingsPage, applied);
-                window.Closed += (_, _) => _worldBoss?.RemoveView(view);
-                break;
+                var page = new ModulePage(loc["Settings.Nav.Boss"], view.DetachBody()!, s => s.ShowBossOverlay, (s, v) => s.ShowBossOverlay = v, s => s.HotkeyWorldBoss, hotkeys, settingsPage, applied);
+                return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _worldBoss?.RemoveView(view); } };
             }
 
             case "timetable":
@@ -4848,9 +4865,8 @@ public partial class MainWindow : Window
                 var view = new TimetableWindow();
                 UIElement body = view.DetachView();
                 view.Refresh();
-                window = new ModuleWindow(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, settingsPage, applied, view.Refresh, 420, 520);
-                window.Closed += (_, _) => view.Close();
-                break;
+                var page = new ModulePage(loc["Settings.Nav.Timetable"], body, s => s.ShowTimetable, (s, v) => s.ShowTimetable = v, s => s.HotkeyTimetable, hotkeys, settingsPage, applied, view.Refresh);
+                return new ToolPage { Content = page, Cleanup = () => { page.Stop(); view.Close(); } };
             }
 
             case "combat" when _combat is not null:
@@ -4859,13 +4875,12 @@ public partial class MainWindow : Window
                 var stack = new StackPanel { Margin = new Thickness(0, 0, 0, 6) };
                 foreach (var (titleKey, view) in views)
                 {
-                    stack.Children.Add(ModuleWindow.Caption(loc[titleKey]));
+                    stack.Children.Add(ModulePage.Caption(loc[titleKey]));
                     stack.Children.Add(view.DetachBody()!);
                 }
 
-                window = new ModuleWindow(loc["Settings.Nav.Combat"], stack, s => s.ShowCombatOverlay, (s, v) => s.ShowCombatOverlay = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied, null, 560, 520);
-                window.Closed += (_, _) => _combat?.RemoveViews(views.Select(v => v.View));
-                break;
+                var page = new ModulePage(loc["Settings.Nav.Combat"], stack, s => s.ShowCombatOverlay, (s, v) => s.ShowCombatOverlay = v, s => s.HotkeyCombatOverlay, hotkeys, settingsPage, applied);
+                return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _combat?.RemoveViews(views.Select(v => v.View)); } };
             }
 
             case "petmap":
@@ -4873,21 +4888,25 @@ public partial class MainWindow : Window
                 _petMapController ??= new PetMapController(() => _source?.Entities as Aion2EntityDirectory);
                 var (map, list) = _petMapController.CreateViews();
                 var stack = new StackPanel();
-                stack.Children.Add(ModuleWindow.Caption(loc["Settings.PetMap.CardMap"]));
+                stack.Children.Add(ModulePage.Caption(loc["Settings.PetMap.CardMap"]));
                 stack.Children.Add(map.DetachBody()!);
-                stack.Children.Add(ModuleWindow.Caption(loc["Settings.PetMap.CardList"]));
+                stack.Children.Add(ModulePage.Caption(loc["Settings.PetMap.CardList"]));
                 stack.Children.Add(list.DetachBody()!);
-                window = new ModuleWindow(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, settingsPage, applied, null, 520, 760);
-                window.Closed += (_, _) =>
+                var page = new ModulePage(loc["Settings.Nav.PetMap"], stack, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, settingsPage, applied);
+                return new ToolPage
                 {
-                    _petMapController?.RemoveViews(map, list);
-                    if (!MeterSettings.Load().ShowPetMap && _petMapController is { HasViews: false })
+                    Content = page,
+                    Cleanup = () =>
                     {
-                        _petMapController.Dispose();
-                        _petMapController = null;
-                    }
+                        page.Stop();
+                        _petMapController?.RemoveViews(map, list);
+                        if (!MeterSettings.Load().ShowPetMap && _petMapController is { HasViews: false })
+                        {
+                            _petMapController.Dispose();
+                            _petMapController = null;
+                        }
+                    },
                 };
-                break;
             }
 
             case "stream":
@@ -4908,12 +4927,12 @@ public partial class MainWindow : Window
                 }
 
                 Show();
-                window = new ModuleWindow(loc["Settings.Nav.Stream"], stack, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v, null, hotkeys, settingsPage, applied, Show, 520, 300);
-                break;
+                var page = new ModulePage(loc["Settings.Nav.Stream"], stack, s => s.StreamOverlayOn, (s, v) => s.StreamOverlayOn = v, null, hotkeys, settingsPage, applied, Show);
+                return new ToolPage { Content = page, Cleanup = page.Stop };
             }
         }
 
-        return window;
+        return null;
     }
 
     /// <summary>Opens the settings window; <paramref name="undoUntil"/> adds "Undo reset" to it (after a reset).</summary>

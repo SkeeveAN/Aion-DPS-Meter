@@ -22,6 +22,22 @@ public static class ThemedChrome
         typeof(CheckBox), typeof(MenuItem), typeof(Separator), typeof(Button),
     };
 
+    /// <summary>
+    /// Takes the content out of a window that <see cref="Apply"/> has dressed (title bar and frame stay behind), to put it into another window - the
+    /// tools window shows several tools' pages that way. The window is never shown; close it when the page goes away.
+    /// </summary>
+    public static UIElement? TakeContent(Window window)
+    {
+        if (window.Content is Border { Child: DockPanel dock } && dock.Children.Count > 1)
+        {
+            UIElement content = dock.Children[1];
+            dock.Children.RemoveAt(1);
+            return content;
+        }
+
+        return null;
+    }
+
     public static void Apply(Window window)
     {
         UIElement? content = window.Content as UIElement;

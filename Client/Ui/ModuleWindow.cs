@@ -6,10 +6,10 @@ using System.Windows.Threading;
 namespace AionDPS.Ui;
 
 /// <summary>
-/// The window of a tool in the Tools menu: the tool's name, its overlay switch (the master of its overlays), its hotkey (a click opens the hotkey page of the settings)
-/// and a cog for its settings, above a live view of what the tool shows. The overlay can be on at the same time; the window and the overlay do not depend on each other.
+/// The page of a tool in the tools window: the tool's name, its overlay switch (the master of its overlays), its hotkey (a click opens the hotkey page of the settings)
+/// and a cog for its settings, above a live view of what the tool shows. The overlay can be on at the same time; the page and the overlay do not depend on each other.
 /// </summary>
-public sealed class ModuleWindow : Window
+public sealed class ModulePage : DockPanel
 {
     private readonly Func<MeterSettings, bool> _getOn;
     private readonly Func<MeterSettings, string>? _getKey;
@@ -18,18 +18,13 @@ public sealed class ModuleWindow : Window
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool _syncing;
 
-    public ModuleWindow(string title, UIElement body, Func<MeterSettings, bool> getOn, Action<MeterSettings, bool> setOn, Func<MeterSettings, string>? getKey,
-        Action openHotkeys, Action openSettings, Action<MeterSettings> applied, Action? tick = null, double width = 520, double height = 560)
+    public ModulePage(string title, UIElement body, Func<MeterSettings, bool> getOn, Action<MeterSettings, bool> setOn, Func<MeterSettings, string>? getKey,
+        Action openHotkeys, Action openSettings, Action<MeterSettings> applied, Action? tick = null)
     {
         _getOn = getOn;
         _getKey = getKey;
         var loc = LocalizationManager.Instance;
-        Title = title;
-        Width = width;
-        Height = height;
-        MinWidth = 380;
-        MinHeight = 240;
-        WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        Margin = new Thickness(14, 10, 14, 14);
 
         var header = new DockPanel { Margin = new Thickness(0, 0, 0, 10) };
         var right = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
@@ -74,12 +69,9 @@ public sealed class ModuleWindow : Window
         header.Children.Add(right);
         header.Children.Add(name);
 
-        var root = new DockPanel { Margin = new Thickness(14, 10, 14, 14) };
-        DockPanel.SetDock(header, Dock.Top);
-        root.Children.Add(header);
-        root.Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, Content = body });
-        Content = root;
-        ThemedChrome.Apply(this);
+        SetDock(header, Dock.Top);
+        Children.Add(header);
+        Children.Add(new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, Content = body });
 
         Sync();
         _timer.Tick += (_, _) =>
@@ -88,8 +80,9 @@ public sealed class ModuleWindow : Window
             tick?.Invoke();
         };
         _timer.Start();
-        Closed += (_, _) => _timer.Stop();
     }
+
+    public void Stop() => _timer.Stop();
 
     /// <summary>The switch and the hotkey follow the settings (a hotkey may have flipped the switch).</summary>
     private void Sync()

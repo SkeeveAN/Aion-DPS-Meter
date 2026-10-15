@@ -650,20 +650,20 @@
                     <!-- Tools: the combat analyzer (session manager), loading/saving/exporting sessions and the dummy test. The session part comes first,
                          a line sets the dummy test apart. -->
                                         <MenuItem Header="{local:Loc Main.MenuTools}" Foreground="{DynamicResource Brush.Text}">
-                        <MenuItem Header="{local:Loc Main.MenuTools.Checklist}" Click="OnOpenChecklistClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Checklist}" Tag="checklist" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Settings.Nav.PetMap}" Tag="petmap" Click="OnOpenModuleClicked"/>
                         <Separator/>
                         <MenuItem Header="{local:Loc Settings.Nav.Combat}" Tag="combat" Click="OnOpenModuleClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuTools.Assist}" Click="OnOpenAssistClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Assist}" Tag="assist" Click="OnOpenModuleClicked"/>
                         <Separator/>
-                        <MenuItem Header="{local:Loc Main.MenuTools.DummyTest}" Click="OnOpenDummyTestClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuTools.Analyzer}" Click="OnOpenSessionManagerClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.DummyTest}" Tag="dummy" Click="OnOpenModuleClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Analyzer}" Tag="analyzer" Click="OnOpenModuleClicked"/>
                         <Separator/>
                         <MenuItem Header="{local:Loc Settings.Nav.Timetable}" Tag="timetable" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Settings.Nav.Boss}" Tag="boss" Click="OnOpenModuleClicked"/>
                         <Separator/>
                         <MenuItem Header="{local:Loc Main.MenuTools.Stream}" Tag="stream" Click="OnOpenModuleClicked"/>
-                        <MenuItem Header="{local:Loc Main.MenuTools.ThemeEditor}" Click="OnOpenThemeEditorClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.ThemeEditor}" Tag="theme" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Settings.Nav.Network}" Tag="network" Click="OnOpenModuleClicked"/>
                     </MenuItem>
                     <MenuItem Header="{local:Loc Main.MenuSettings}" Foreground="{DynamicResource Brush.Text}">
