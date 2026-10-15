@@ -3907,3 +3907,10 @@ body:has(.download-hero) .nav-download-link:hover,
   width: 24px;
   height: 24px;
 }
+
+/* The class share in the dungeon statistics: smaller text and bars than the full width of the box would give. */
+.class-grid-2 .boxplot-svg {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+}
