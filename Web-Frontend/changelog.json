@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.0.1",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "Hotkey page: the tool group and its hint say Tools instead of modules in every language",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Assist: effects of scrolls and potions (Speed, Courage and Benediction Scroll, Mana Potion and about 160 more) show the icon of their item instead of an empty space",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "1.0.0",
   "date": "2026-10-15",
   "items": [
