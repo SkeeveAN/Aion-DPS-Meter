@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using AionDPS.Aion2;
@@ -303,12 +304,28 @@ public sealed class ChecklistWindow : Window
 
         AddTableRow(grid, row++, ScrollName("verteron", language, loc["Checklist.ScrollVerteron"]), shared.Verteron, ChecklistManual.VerteronMax, false, countsUp: true);
         AddTableRow(grid, row++, ScrollName("abyss", language, loc["Checklist.ScrollAbyss"]), shared.Abyss, ChecklistManual.AbyssMax, false, countsUp: true);
+        // the purchase counter of the trade guild comes from the game; an older reset time means the week is over
+        character.Tickets.TryGetValue(Aion2Tickets.ShopOdyleId, out TicketValue shop);
+        long nowMs = new DateTimeOffset(DateTime.UtcNow, TimeSpan.Zero).ToUnixTimeMilliseconds();
+        int bought = shop.TimeMs > nowMs ? Math.Min(shop.Count, Aion2Tickets.ShopOdyleMax) : 0;
+        AddTableRow(grid, row++, loc["Checklist.ShopOdyle"], bought, Aion2Tickets.ShopOdyleMax, false, countsUp: true);
+
+        // the two conversions are a note ticked by hand (click = +1, right click = -1): the meter has not found their frame
+        ChecklistManual.State own = ChecklistManual.Get(character.Name, now);
+        AddTableRow(grid, row++, loc["Checklist.ConvertBig"], own.ConvertBig, ChecklistManual.ConvertBigMax, false, countsUp: true, step: d => StepManual(character.Name, ChecklistManual.Counter.ConvertBig, d));
+        AddTableRow(grid, row++, loc["Checklist.ConvertSmall"], own.ConvertSmall, ChecklistManual.ConvertSmallMax, false, countsUp: true, step: d => StepManual(character.Name, ChecklistManual.Counter.ConvertSmall, d));
         stack.Children.Add(grid);
         _body.Children.Add(Card(stack));
     }
 
-    /// <summary>One table row: name, number (one under the other) and, for the hand-counted ones, the minus and plus.</summary>
-    private static void AddTableRow(Grid grid, int row, string name, int count, int cap, bool estimated, bool countsUp, int bonus = 0)
+    private void StepManual(string character, ChecklistManual.Counter counter, int delta)
+    {
+        ChecklistManual.Step(character, counter, delta, DateTime.Now);
+        Render();
+    }
+
+    /// <summary>One table row: name, number (one under the other) and, for the hand-counted ones, a click area (left click +1, right click -1).</summary>
+    private static void AddTableRow(Grid grid, int row, string name, int count, int cap, bool estimated, bool countsUp, int bonus = 0, Action<int>? step = null)
     {
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         bool open = countsUp ? count < cap : count > 0;
@@ -317,6 +334,15 @@ public sealed class ChecklistWindow : Window
         Grid.SetRow(label, row);
         grid.Children.Add(label);
         AddNumberCells(grid, row, 1, count, cap, estimated, open, bonus);
+        if (step is not null)
+        {
+            var hit = new Border { Background = Brushes.Transparent, Cursor = Cursors.Hand, ToolTip = "+1: left click / -1: right click" };
+            Grid.SetRow(hit, row);
+            Grid.SetColumnSpan(hit, 4);
+            hit.MouseLeftButtonDown += (_, e) => { step(1); e.Handled = true; };
+            hit.MouseRightButtonDown += (_, e) => { step(-1); e.Handled = true; };
+            grid.Children.Add(hit);
+        }
     }
 
     /// <summary>The cap the game shows: the subscriber's one where there is one (Shugo Festival keys 12, with the subscription 21), else the plain one.</summary>

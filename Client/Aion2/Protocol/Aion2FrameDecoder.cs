@@ -56,6 +56,7 @@ public sealed class Aion2FrameDecoder
     /// <summary>The account-status frames: the tickets (entry counts, reward counts, Odyle energy) as a list at login and as single changes; see <see cref="Aion2Tickets"/>.</summary>
     private const int TicketListOpcode = 0x0b61;
     private const int TicketChangeOpcode = 0x0c61;
+    private const int ShopCountersOpcode = 0x8e56;
     private const int MissionListOpcode = 0x1c8d;
     private const int MembershipOpcode = 0x3be3;
 
@@ -493,6 +494,16 @@ public sealed class Aion2FrameDecoder
             if (Aion2Tickets.TryParseMembership(frame, out TicketReading membership))
             {
                 Aion2Tickets.ReceiveUpdate(membership, timestamp);
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == ShopCountersOpcode)
+        {
+            if (Aion2Tickets.TryParseShopCounters(frame, out TicketReading shop))
+            {
+                Aion2Tickets.ReceiveUpdate(shop, timestamp);
             }
 
             return Array.Empty<DamageEvent>();

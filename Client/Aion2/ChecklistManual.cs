@@ -16,10 +16,16 @@ public static class ChecklistManual
     public const int VerteronMax = 12;
     public const int AbyssMax = 20;
 
+    /// <summary>The two weekly conversions of Odyle energy (x16 and x4): the meter has not found their frame yet, so they are a note ticked by hand.</summary>
+    public const int ConvertBigMax = 16;
+    public const int ConvertSmallMax = 4;
+
     public sealed class State
     {
         public int Verteron { get; set; }
         public int Abyss { get; set; }
+        public int ConvertBig { get; set; }
+        public int ConvertSmall { get; set; }
         public long WeeklyAtMs { get; set; }
     }
 
@@ -87,23 +93,35 @@ public static class ChecklistManual
         {
             state.Verteron = 0;
             state.Abyss = 0;
+            state.ConvertBig = 0;
+            state.ConvertSmall = 0;
             state.WeeklyAtMs = Ms(now);
         }
     }
 
-    /// <summary>Counts a scroll purchase up or down (0 to the maximum).</summary>
-    public static void Step(string character, bool verteron, int delta, DateTime now)
+    /// <summary>The weekly counters that can be stepped by hand.</summary>
+    public enum Counter { Verteron, Abyss, ConvertBig, ConvertSmall }
+
+    /// <summary>Counts a hand-ticked entry up or down (0 to the maximum).</summary>
+    public static void Step(string character, Counter counter, int delta, DateTime now)
     {
         lock (Gate)
         {
             State state = Get(character, now);
-            if (verteron)
+            switch (counter)
             {
-                state.Verteron = Math.Clamp(state.Verteron + delta, 0, VerteronMax);
-            }
-            else
-            {
-                state.Abyss = Math.Clamp(state.Abyss + delta, 0, AbyssMax);
+                case Counter.Verteron:
+                    state.Verteron = Math.Clamp(state.Verteron + delta, 0, VerteronMax);
+                    break;
+                case Counter.Abyss:
+                    state.Abyss = Math.Clamp(state.Abyss + delta, 0, AbyssMax);
+                    break;
+                case Counter.ConvertBig:
+                    state.ConvertBig = Math.Clamp(state.ConvertBig + delta, 0, ConvertBigMax);
+                    break;
+                default:
+                    state.ConvertSmall = Math.Clamp(state.ConvertSmall + delta, 0, ConvertSmallMax);
+                    break;
             }
 
             state.WeeklyAtMs = Ms(now);

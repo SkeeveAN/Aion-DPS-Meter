@@ -65,6 +65,12 @@ public static class Aion2Tickets
     /// <summary>The mandatory daily tasks ("Missions" of the journal: five a day) as a ticket of our own: count = handed in, bonus = taken. The id is no game id.</summary>
     public const int MissionsId = 99000001;
     public const int MissionsPerDay = 5;
+
+    /// <summary>The weekly purchase of Odyle energy in the Brisenwind trade guild (limit 20 a week per character) as a ticket of our own: count = bought, time = the
+    /// game's reset time (ms since 1970; an older one means the week is over). The id is no game id; the game's own counter id is <see cref="ShopOdyleCounter"/>.</summary>
+    public const int ShopOdyleId = 99000003;
+    public const int ShopOdyleCounter = 100134;
+    public const int ShopOdyleMax = 20;
     public const int MaxCharacters = 40;
 
     private sealed class Saved
@@ -229,6 +235,37 @@ public static class Aion2Tickets
 
         reading = new TicketReading(MissionsId, new TicketValue((int)done, (int)taken, 0));
         return true;
+    }
+
+    /// <summary>The shop purchase counters <c>0x8e56</c> (the whole list a little after the login, one entry again after every purchase):
+    /// <c>00 00 | n (u8) | n x ( counter id u32 | bought u32 | reset time u64 ms )</c>. Seen on 14 October: counter 100134 = 20 after the 20 purchases of Odyle energy
+    /// (100,000 Kinah each), the reset of Wednesday 16:00 Korean time. Only the Odyle counter is read.</summary>
+    public static bool TryParseShopCounters(ReadOnlySpan<byte> frame, out TicketReading reading)
+    {
+        reading = default;
+        if (frame.Length < 5 || frame.Length != 5 + 16 * frame[4])
+        {
+            return false;
+        }
+
+        for (int i = 0; i < frame[4]; i++)
+        {
+            ReadOnlySpan<byte> entry = frame.Slice(5 + 16 * i, 16);
+            if (BinaryPrimitives.ReadUInt32LittleEndian(entry) == ShopOdyleCounter)
+            {
+                uint bought = BinaryPrimitives.ReadUInt32LittleEndian(entry[4..]);
+                ulong reset = BinaryPrimitives.ReadUInt64LittleEndian(entry[8..]);
+                if (bought > 1000 || reset is < 1_500_000_000_000 or > 4_000_000_000_000)
+                {
+                    return false;
+                }
+
+                reading = new TicketReading(ShopOdyleId, new TicketValue((int)bought, 0, (long)reset));
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>A change <c>0x0c61</c>. <paramref name="reason"/>: 2 refill, 3 used, 1 gained.</summary>

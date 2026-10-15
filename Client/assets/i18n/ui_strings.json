@@ -8064,5 +8064,41 @@
     "pt": "Efeitos nos chefes (debuffs)",
     "ja": "ボスへの効果（デバフ）",
     "ko": "보스에 걸린 효과(디버프)"
+  },
+  "Checklist.ShopOdyle": {
+    "en": "Odyle Energy bought in the Brisenwind trade guild",
+    "de": "Odenergie in der Handelsgilde Brisenwind gekauft",
+    "fr": "Énergie Od achetée à la guilde marchande de Brisenwind",
+    "es": "Energía de Od comprada en el gremio comercial de Brisenwind",
+    "ru": "Эфирная энергия куплена в торговой гильдии Бризенвинд",
+    "zh": "在布里森温德商会购买的奥德能量",
+    "zh-TW": "在布里森溫德商會購買的奧德能量",
+    "pt": "Energia de Od comprada na guilda comercial de Brisenwind",
+    "ja": "ブリゼンウィンド交易ギルドで購入したオード エネルギー",
+    "ko": "브리젠윈드 상업 길드에서 구매한 오드 에너지"
+  },
+  "Checklist.ConvertBig": {
+    "en": "Convert Odyle Energy (x16)",
+    "de": "Konvertieren: Odenergie (x16)",
+    "fr": "Convertir l'énergie Od (x16)",
+    "es": "Convertir energía de Od (x16)",
+    "ru": "Конвертация эфирной энергии (x16)",
+    "zh": "转换奥德能量 (x16)",
+    "zh-TW": "轉換奧德能量 (x16)",
+    "pt": "Converter energia de Od (x16)",
+    "ja": "オード エネルギー変換 (x16)",
+    "ko": "오드 에너지 변환 (x16)"
+  },
+  "Checklist.ConvertSmall": {
+    "en": "Convert Odyle Energy (x4)",
+    "de": "Konvertieren: Odenergie (x4)",
+    "fr": "Convertir l'énergie Od (x4)",
+    "es": "Convertir energía de Od (x4)",
+    "ru": "Конвертация эфирной энергии (x4)",
+    "zh": "转换奥德能量 (x4)",
+    "zh-TW": "轉換奧德能量 (x4)",
+    "pt": "Converter energia de Od (x4)",
+    "ja": "オード エネルギー変換 (x4)",
+    "ko": "오드 에너지 변환 (x4)"
   }
 }

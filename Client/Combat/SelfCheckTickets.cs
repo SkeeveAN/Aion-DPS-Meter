@@ -117,10 +117,10 @@ public static class SelfCheckTickets
         ChecklistManual.PathOverride = tmp;
         ChecklistManual.Reset();
         var wed = new DateTime(2026, 10, 14, 17, 0, 0); // a Wednesday after the reset
-        ChecklistManual.Step("Aahz", verteron: true, 5, wed);
-        ChecklistManual.Step("Aahz", verteron: true, 10, wed);   // stops at 12
-        ChecklistManual.Step("Aahz", verteron: false, 3, wed);
-        ChecklistManual.Step("Aahz", verteron: false, -9, wed);  // stops at 0
+        ChecklistManual.Step("Aahz", ChecklistManual.Counter.Verteron, 5, wed);
+        ChecklistManual.Step("Aahz", ChecklistManual.Counter.Verteron, 10, wed);   // stops at 12
+        ChecklistManual.Step("Aahz", ChecklistManual.Counter.Abyss, 3, wed);
+        ChecklistManual.Step("Aahz", ChecklistManual.Counter.Abyss, -9, wed);  // stops at 0
         ChecklistManual.State same = ChecklistManual.Get("Aahz", wed.AddHours(1));
         bool ticks = same.Verteron == 12 && same.Abyss == 0;
         ChecklistManual.Reset(); // read back from the file
@@ -144,6 +144,13 @@ public static class SelfCheckTickets
             && !Aion2Tickets.TryParseMissions(Convert.FromHexString("1c8d090000000500000011150200"), out _)
             && !Aion2Tickets.TryParseMissions(Convert.FromHexString("1c8d0300"), out _);
         Console.WriteLine($"  -> mission counter from the quest list 0x1c8d: {missionsRead}");
+
+        // the shop counters 0x8e56 (12:38:27 on 14 October: the 20th purchase of Odyle energy; counter 100100 = another item, not read)
+        bool shopRead = Aion2Tickets.TryParseShopCounters(Convert.FromHexString("8e5600000126870100140000008079425da1010000"), out TicketReading shop)
+            && shop.Id == Aion2Tickets.ShopOdyleId && shop.Value.Count == 20 && shop.Value.TimeMs == 1792566000000
+            && !Aion2Tickets.TryParseShopCounters(Convert.FromHexString("8e5600000104870100" + "0a0000008079425da1010000"), out _)
+            && !Aion2Tickets.TryParseShopCounters(Convert.FromHexString("8e560000"), out _);
+        Console.WriteLine($"  -> shop counter of the Odyle purchase 0x8e56: {shopRead}");
 
         // the level a counter needs: below it the checklist greys it out (unknown level = unlocked)
         var low = new TicketCharacter("Low", 1304, DateTime.UtcNow, new Dictionary<int, TicketValue>(), 28);
