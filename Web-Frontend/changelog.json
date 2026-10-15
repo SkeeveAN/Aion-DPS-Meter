@@ -1,5 +1,32 @@
 [
  {
+  "version": "1.1.2",
+  "date": "2026-10-16",
+  "items": [
+   {
+    "text": "Pet shop: while the shop is open the map is hidden and the list holds only the shop's pets (no chosen pets, no collectibles), even where the game's menus are not recognised; the max level of an owned pet reads \"Level 3 (max)\" instead of \"Level {0} (max)\"",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Pet shop: the list gets a nearly opaque background while the shop is open, so it reads over the game's own window text",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "in the pet shop the map is hidden and the list shows only the shop's pets on a nearly opaque background, and a pet at its top level reads its real level",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-16"
+   }
+  ]
+ },
+ {
   "version": "1.1.1",
   "date": "2026-10-15",
   "items": [
