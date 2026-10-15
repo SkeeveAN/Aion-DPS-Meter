@@ -87,6 +87,8 @@ export default {
   "player.profileSeen": "다른 플레이어의 클라이언트에서 확인",
   "player.profileNc": "NC 캐릭터 데이터로 보완됨",
   "footer.disclaimer": "아이온 2 및 관련된 모든 명칭, 텍스트, 아트워크는 NCSOFT의 자산입니다. Aion DPS는 NCSOFT와 제휴 관계가 없습니다. 소스 코드는 MIT 라이선스로 공개되어 있습니다.",
+  "star.label": "GitHub에서 별 주기",
+  "star.hint": "Aion DPS가 마음에 드셨나요? 별을 눌러 주시면 다른 플레이어가 찾기 쉬워집니다.",
   "nav.searchPlaceholder": "플레이어 검색, 예: Hidan",
   "nav.searchButton": "검색",
   "nav.menu": "메뉴",

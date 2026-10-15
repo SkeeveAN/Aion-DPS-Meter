@@ -383,6 +383,25 @@ async function renderHome() {
 // by the user for the encounter page specifically, but it was really every non-home route. Now a
 // standalone builder appended once, centrally, by route() itself (see its own remarks) rather than
 // something every individual render function has to remember to add.
+const ICON_STAR = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.3-6.2 3.3 1.2-6.8-5-4.9 6.9-1z"/></svg>';
+let starCountPromise;
+// The repository's star count, read once per page load from GitHub (unauthenticated, so it can be rate limited: null then).
+function fetchStarCount() {
+  starCountPromise ??= fetchJson(`https://api.github.com/repos/${GITHUB_REPO}`).then((r) => (Number.isFinite(r?.stargazers_count) ? r.stargazers_count : null), () => null);
+  return starCountPromise;
+}
+// "Star on GitHub" with the live count: an invitation, not a button that stars for you (that needs the visitor's own GitHub login).
+function buildStarLink() {
+  const count = el("span", { className: "star-count" });
+  const a = el("a", { className: "star-link", href: `https://github.com/${GITHUB_REPO}`, target: "_blank", rel: "noopener", title: t("star.hint") }, [
+    el("span", { className: "star-icon", innerHTML: ICON_STAR }),
+    el("span", { textContent: t("star.label") }),
+    count,
+  ]);
+  fetchStarCount().then((n) => (n === null ? count.remove() : (count.textContent = n.toLocaleString())));
+  return a;
+}
+
 function buildSiteFooter() {
   const cta = el("div", { className: "home-footer-cta" }, [
     el("div", { className: "home-footer-logo" }, [
@@ -401,6 +420,7 @@ function buildSiteFooter() {
         link("Changelog", "/changelog"),
         link(t("legal.privacyTitle"), "/privacy"),
         link(t("legal.termsTitle"), "/terms"),
+        buildStarLink(),
       ]),
       el("div", { className: "home-footer-social" }, [
         el("a", { href: "https://aiondps.com/twitch", target: "_blank", rel: "noopener", title: "Twitch", innerHTML: ICON_SOCIAL_TWITCH }),
@@ -864,7 +884,8 @@ async function renderDownload() {
     el("h2", { textContent: t("download.faqHeading") }),
     ...[1, 2, 3, 4, 5].flatMap((n) => [el("h3", { textContent: t(`download.faq${n}Q`) }), el("p", { textContent: t(`download.faq${n}A`) })]),
   ]);
-  app.replaceChildren(hero, downloadSection, changelogLink, features, requirements, stepsSection, shots, faq, repoLink);
+  const starNote = el("p", { className: "download-meta star-note" }, [t("star.hint") + " ", buildStarLink()]);
+  app.replaceChildren(hero, downloadSection, changelogLink, starNote, features, requirements, stepsSection, shots, faq, repoLink);
 }
 
 // Legions: every legion the uploads have shown. A sidebar of regions (collapsible) and servers, the larger legions as cards with

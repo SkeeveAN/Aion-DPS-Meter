@@ -134,6 +134,8 @@ export default {
   "player.profileSeen": "Увиден в клиенте другого игрока",
   "player.profileNc": "Добавлены данные персонажа с сайта NC",
   "footer.disclaimer": "Aion 2 и все связанные названия, тексты и графика являются собственностью NCSOFT. Aion DPS не связан с NCSOFT. Исходный код распространяется по лицензии MIT.",
+  "star.label": "Поставить звезду на GitHub",
+  "star.hint": "Нравится Aion DPS? Звезда поможет другим игрокам найти его.",
   "nav.searchPlaceholder": "Поиск игрока, напр. Hidan",
   "nav.searchButton": "Поиск",
   "nav.menu": "Меню",

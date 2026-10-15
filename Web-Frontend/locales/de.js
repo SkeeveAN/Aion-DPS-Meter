@@ -93,6 +93,8 @@ export default {
   "player.profileSeen": "Von einem anderen Spieler gesehen",
   "player.profileNc": "NCsoft-Charakterdaten ergänzt",
   "footer.disclaimer": "Aion 2 und alle zugehörigen Namen, Texte und Grafiken sind Eigentum von NCSOFT. Aion DPS steht in keiner Verbindung zu NCSOFT. Der Quellcode steht unter der MIT-Lizenz.",
+  "star.label": "Auf GitHub sternen",
+  "star.hint": "Gefällt dir Aion DPS? Mit einem Stern finden andere Spieler es leichter.",
   "nav.searchPlaceholder": "Spieler suchen, z. B. Hidan",
   "nav.searchButton": "Suchen",
   "nav.menu": "Menü",

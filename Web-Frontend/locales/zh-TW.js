@@ -87,6 +87,8 @@ export default {
   "player.profileSeen": "來自其他玩家用戶端",
   "player.profileNc": "已補充NC角色資料",
   "footer.disclaimer": "Aion 2 及所有相關名稱、文字與美術資源均為 NCSOFT 之財產。Aion DPS 與 NCSOFT 無任何關聯。原始碼以 MIT 授權條款釋出。",
+  "star.label": "在 GitHub 上加星號",
+  "star.hint": "喜歡 Aion DPS 嗎？加一個星號，能讓更多玩家找到它。",
   "nav.searchPlaceholder": "搜尋玩家，例如 Hidan",
   "nav.searchButton": "搜尋",
   "nav.menu": "選單",
