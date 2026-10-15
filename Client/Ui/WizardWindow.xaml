@@ -95,6 +95,26 @@
             </StackPanel>
         </Border>
 
+        <Separator Margin="0,4,0,14"/>
+
+        <TextBlock Style="{StaticResource Heading}" Text="{local:Loc Wizard.SetupHeading}"/>
+        <Border Style="{StaticResource SettingsCard}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="NpcapText" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    <Button x:Name="NpcapButton" Grid.Column="1" Content="{local:Loc Wizard.NpcapDownload}" Click="OnNpcapDownloadClicked"
+                            Margin="12,0,0,0" Padding="10,3" Visibility="Collapsed"/>
+                </Grid>
+                <TextBlock Style="{StaticResource Hint}" Margin="0,10,0,0" Text="{local:Loc Wizard.TeleportStep}"/>
+                <TextBlock x:Name="CharacterText" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                <TextBlock Style="{StaticResource Hint}" Margin="0,10,0,0" Text="{local:Loc Wizard.FightStep}"/>
+            </StackPanel>
+        </Border>
+
         <Button Content="{local:Loc Wizard.Finish}" Click="OnFinishClicked" MinWidth="110" IsDefault="True"
                 HorizontalAlignment="Right" Margin="0,6,0,0"/>
     </StackPanel>
