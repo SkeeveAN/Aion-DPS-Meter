@@ -25,7 +25,7 @@ public static class CombatOverlayData
     private const long BossHitPoints = 500_000;
 
     private static readonly TimeSpan BossHold = TimeSpan.FromSeconds(15);
-    private static (int Id, DateTime At)? _lastBoss;
+    private static (int Id, DateTime At, int Epoch)? _lastBoss;
 
     public static CombatFrame Build(Aion2EntityDirectory dir, MeterSettings settings, DateTime now, string language)
     {
@@ -58,9 +58,9 @@ public static class CombatOverlayData
         // Aiming with the camera sends no mark message and casts come in gaps: hold the last boss for a while so the bar does not blink.
         if (boss is int found)
         {
-            _lastBoss = (found, DateTime.UtcNow);
+            _lastBoss = (found, DateTime.UtcNow, dir.ZoneEpoch);
         }
-        else if (_lastBoss is { } last && DateTime.UtcNow - last.At < BossHold && dir.HitPoints.Latest(last.Id)?.Hp > 0)
+        else if (_lastBoss is { } last && last.Epoch == dir.ZoneEpoch && DateTime.UtcNow - last.At < BossHold && dir.HitPoints.Latest(last.Id)?.Hp > 0)
         {
             boss = last.Id;
         }

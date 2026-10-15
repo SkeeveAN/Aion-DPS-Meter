@@ -206,6 +206,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             foreach (ZoneChange zone in _decoder.DrainZoneChanges())
             {
                 _zones.Enqueue(zone);
+                _entities.ForgetFight();
             }
 
             foreach (EnrageMark mark in _decoder.DrainEnrages())

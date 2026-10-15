@@ -646,6 +646,31 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private int _zoneEpoch;
+
+    /// <summary>Counts the zone changes: what hangs on an entity of the zone left (the boss bar) must not outlive it.</summary>
+    public int ZoneEpoch
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _zoneEpoch;
+            }
+        }
+    }
+
+    /// <summary>The player entered another zone: the marked monster and the last one hit are gone with the zone.</summary>
+    public void ForgetFight()
+    {
+        lock (_gate)
+        {
+            _target = null;
+            _lastHit = null;
+            _zoneEpoch++;
+        }
+    }
+
     private (int EntityId, DateTime At)? _target;
 
     /// <summary>The monster the local player marked last (tab or click), with the time it was marked; null before any or after it died.</summary>
