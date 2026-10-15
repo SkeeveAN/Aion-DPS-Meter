@@ -1,5 +1,60 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-15",
+  "items": [
+   {
+    "text": "Boss HP bar no longer outlives the zone: a zone change forgets the marked and last-hit monster",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Checklist: the weekly Odyle energy purchase in the trade guild is read from the game (shop counter 0x8e56); the two Odyle conversions (x16, x4) are a note ticked by hand",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Overlays: optional placement on a grid and docking to each other (docked overlays follow their parent when it moves or changes size)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Pet list stays in a game menu with only the shop's pets; the pet map steps aside (the shop reading works in a menu too)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Cast bar: a boss skill the client has no name for says what it paints on the floor (\"Attack to the front\", \"Attack in a triangle\") instead of a bare \"Attack\" (the floor shapes come from the Waffle meter's data, MIT licence)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Effects: Knockdown, Fear, Silence and Knock Back have their names (read from the client's own texts) instead of numbers",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   },
+   {
+    "text": "Combat analyzer: debuffs are what bosses and monsters put on you and your group (own section with the share on you), no longer listed twice; the game's own buff/debuff/passive type of each effect decides (MIT-licensed table from the Waffle meter)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-15"
+   }
+  ]
+ },
+ {
   "version": "1.0.6",
   "date": "2026-10-15",
   "items": [
