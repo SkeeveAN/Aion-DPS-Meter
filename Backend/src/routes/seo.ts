@@ -127,11 +127,17 @@ function buildSitemap(): string {
     for (const i of instanceRows) {
       if (i.slug) {
         urls.push({ path: `${i.category === "worldboss" ? "/worldbosses" : "/instances"}/${i.slug}`, lastmod: instanceLastmod.get(i.id) ?? release });
+        if (instanceLastmod.has(i.id)) {
+          urls.push({ path: `${i.category === "worldboss" ? "/worldbosses" : "/instances"}/${i.slug}/statistics`, lastmod: instanceLastmod.get(i.id)! });
+        }
       }
     }
     for (const b of bossRows) {
       if (b.slug) {
         urls.push({ path: `/bosses/${b.slug}`, lastmod: b.lastFight ?? release });
+        if (b.lastFight) {
+          urls.push({ path: `/bosses/${b.slug}/statistics`, lastmod: b.lastFight });
+        }
       }
     }
   }

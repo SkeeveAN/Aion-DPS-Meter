@@ -2,7 +2,7 @@ import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGa
 import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, SERVER_NAMES, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
-import { buildBossStats } from "./boss-stats.js";
+import { buildBossStats, buildInstanceStats } from "./boss-stats.js";
 
 // Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
 const V2 = (() => {
@@ -2093,6 +2093,48 @@ async function renderWorldBosses() {
   }
 }
 
+
+/** The statistics page of a dungeon (/instances/<dungeon>/statistics): every boss with its fight numbers and class medians, and the share of the classes. */
+async function renderInstanceStatistics(instanceSlug, params = new URLSearchParams()) {
+  setBreadcrumb([...gameCrumbs(), t("breadcrumb.bosses")]);
+  showLoading(t("loading.bosses"));
+  const statsQuery = new URLSearchParams({ game: currentGame });
+  if (params.get("mode")) {
+    statsQuery.set("mode", params.get("mode"));
+  }
+  const [bosses, instances, stats, data] = await Promise.all([
+    fetchJson(`/api/instances/${encodeURIComponent(instanceSlug)}/bosses?game=${currentGame}`),
+    fetchJson(`/api/instances?game=${currentGame}`),
+    fetchJson(`/api/instances/${encodeURIComponent(instanceSlug)}/stats?${statsQuery}`),
+    fetchJson(`/api/instances/${encodeURIComponent(instanceSlug)}/statistics?${statsQuery}`),
+  ]);
+  const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
+  if (instance) {
+    setBreadcrumb([...areaCrumbs(instance), displayName(instance), t("stats.tabStats")]);
+  }
+  const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
+  const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
+  hero.push(instanceViewButtons(instancePath, true));
+  app.replaceChildren(...hero, ...buildInstanceStats(data, { el, t, formatNumber, classLabel, displayName, formatDuration, gp }));
+}
+
+/** The two views of a dungeon, as on a boss page: its bosses and its statistics. */
+function instanceViewButtons(instancePath, statsView) {
+  const ICONS = {
+    bosses: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+    stats: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M7 6h10v12H7zM7 12h10"/></svg>',
+  };
+  const button = (label, href, active, key) => {
+    const a = el("a", { href, className: `view-button${active ? " active" : ""}`, title: label, innerHTML: ICONS[key] });
+    a.setAttribute("aria-label", label);
+    if (active) {
+      a.setAttribute("aria-current", "page");
+    }
+    return a;
+  };
+  return el("nav", { className: "view-buttons dungeon-view-buttons" }, [button(t("stats.tabBosses"), instancePath, !statsView, "bosses"), button(t("stats.tabStats"), `${instancePath}/statistics`, statsView, "stats")]);
+}
+
 async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.bosses")]);
   showLoading(t("loading.bosses"));
@@ -2119,6 +2161,10 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   }
 
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
+  const dungeonPath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
+  if (instance && stats.runCount > 0) {
+    hero.push(instanceViewButtons(dungeonPath, false));
+  }
   // Difficulty steps of Transcendence / Ascension / Nightmare instances: the chosen one narrows the figures above and
   // the boss cards open that step's ranking.
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
@@ -2446,7 +2492,7 @@ function renderGroupBoard(groups) {
   return holder;
 }
 
-async function renderLeaderboard(bossSlug, params) {
+async function renderLeaderboard(bossSlug, params, statisticsPage = false) {
   setBreadcrumb([...gameCrumbs(), t("breadcrumb.leaderboard")]);
   showLoading(t("loading.leaderboard"));
 
@@ -2489,15 +2535,18 @@ async function renderLeaderboard(bossSlug, params) {
 
   // Two views of one boss: the ranking (default) and the statistics (iDPS box plot per class, top 10 of each class). The two
   // switches sit at the right of the fight numbers, boxes of the same size.
-  const statsView = params.get("view") === "stats";
+  const statsView = statisticsPage || params.get("view") === "stats";
+  if (params.get("view") === "stats" && !statisticsPage) {
+    // the old ?view=stats address: the statistics have a path of their own now
+    const keep = new URLSearchParams(params);
+    keep.delete("view");
+    history.replaceState(null, "", `${bossPath}/statistics${keep.toString() ? `?${keep}` : ""}`);
+  }
   const viewHref = (view) => {
     const next = new URLSearchParams(params);
-    if (view) {
-      next.set("view", view);
-    } else {
-      next.delete("view");
-    }
-    return next.toString() ? `${bossPath}?${next}` : bossPath;
+    next.delete("view");
+    const base = view === "stats" ? `${bossPath}/statistics` : bossPath;
+    return next.toString() ? `${base}?${next}` : base;
   };
   // Icons with a tooltip: a podium for the ranking, a box plot for the statistics.
   const VIEW_ICONS = {
@@ -4166,6 +4215,8 @@ async function route() {
       await renderTerms();
     } else if (section === "worldbosses" && !param) {
       await renderWorldBosses();
+    } else if ((section === "worldbosses" || section === "instances") && param && segments[2] === "statistics") {
+      await renderInstanceStatistics(param, params);
     } else if (section === "worldbosses") {
       await renderBosses(param, params);
     } else if (section === "instances" && (!param || INSTANCE_TAB_ORDER.includes(param))) {
@@ -4173,7 +4224,7 @@ async function route() {
     } else if (section === "instances") {
       await renderBosses(param, params);
     } else if (section === "bosses" && param) {
-      await renderLeaderboard(param, params);
+      await renderLeaderboard(param, params, segments[2] === "statistics");
     } else if (section === "encounters" && param) {
       await renderEncounter(param);
     } else if (section === "participants" && param) {

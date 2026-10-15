@@ -3865,3 +3865,25 @@ body:has(.download-hero) .nav-download-link:hover,
 .stats-tip-row span {
   color: var(--color-text-muted);
 }
+
+/* The two views of a dungeon (bosses / statistics), below its hero. */
+.dungeon-view-buttons {
+  margin: 14px 0 18px;
+}
+
+/* The dungeon statistics: the boss table next to the class share, two boxes in a row (one on narrow windows). */
+.class-grid.class-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .class-grid.class-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}

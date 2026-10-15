@@ -1,3 +1,4 @@
+import { instanceStatistics } from "../instanceStats.js";
 import { ne, eq, and, asc, count, desc, inArray } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import { db } from "../db/client.js";
@@ -101,6 +102,21 @@ export async function instanceRoutes(app: FastifyInstance) {
       .orderBy(asc(bosses.name))
       .all();
     return reply.send(rows);
+  });
+
+  // The statistics of a dungeon: per boss its fight numbers and class medians, plus the class share of the whole dungeon (the
+  // dungeon's "Statistics" page). Combined across the servers; a difficulty step (mode) narrows it like on the boss pages.
+  app.get<{ Params: { id: string }; Querystring: { game?: string; mode?: string } }>("/api/instances/:id/statistics", async (request, reply) => {
+    const game = gameFromQuery(request.query.game, reply);
+    if (game === null) {
+      return;
+    }
+    const instance = findInstance(request.params.id, game);
+    if (!instance) {
+      return reply.status(404).send({ error: "instance_not_found" });
+    }
+    const mode = request.query.mode === undefined ? null : request.query.mode === "unknown" ? "" : request.query.mode;
+    return reply.send({ instance: { id: instance.id, slug: instance.slug, name: instance.name, nameEn: instance.nameEn, category: instance.category }, ...instanceStatistics(instance.id, null, mode) });
   });
 
   // Best group iDPS / average kill time / run count across every one of this instance's real

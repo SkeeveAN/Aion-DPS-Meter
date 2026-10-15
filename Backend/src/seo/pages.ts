@@ -5,7 +5,8 @@ import { ESTIMATED_NOTE } from "../estimated.js";
 import { bosses, encounterParticipants, encounterSkillUsage, encounters, instances, players, servers } from "../db/schema.js";
 import { DEFAULT_GAME, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { findInstance, instanceColumns } from "../routes/instances.js";
-import { findBoss, mechanicsFor, modesFor, selectServer, UNKNOWN_MODE, serversWithEncounters, statsForBossIds, topByClass, topGroups } from "../routes/bosses.js";
+import { classBoxes, findBoss, mechanicsFor, modesFor, selectServer, UNKNOWN_MODE, serversWithEncounters, statsForBossIds, topByClass, topGroups } from "../routes/bosses.js";
+import { instanceStatistics } from "../instanceStats.js";
 import { buildProfileView, ownSkillRows } from "../profile.js";
 import { INSTANCE_FACTS, INSTANCE_IMAGES, INSTANCE_MIN_LEVEL, BOSS_IMAGES, splitConquest } from "../../../Web-Frontend/game-data.js";
 import { parseIdOrSlug } from "./slug.js";
@@ -662,6 +663,110 @@ export function bossPage(game: Game, idOrSlug: string, query: { server?: string;
       ${mechanics.length > 0 ? html`<h3>Leaderboard</h3>` : ""}
       ${!combined && serverList.length > 1 ? html`<p>Servers: ${serverList.map((s) => html`<a href="${basePath}?server=${s.slug ?? ""}">${s.name}</a> `)}</p>` : ""}
       ${table}`,
+  };
+}
+
+/** The statistics view of a boss with an address of its own (/bosses/<boss>/statistics): the iDPS spread per class, as a table for crawlers; the app draws the box plot. */
+export function bossStatisticsPage(game: Game, idOrSlug: string, query: { server?: string; mode?: string }): Page | null {
+  const found = findBoss(idOrSlug, game);
+  if (!found || found.game !== game) {
+    return null;
+  }
+  const boss = found.boss;
+  const name = displayName(boss);
+  const instanceName = found.instanceNameEn ?? found.instanceName;
+  const label = GAME_LABEL[game];
+  const modes = modesFor(boss.id, found.instanceCategory);
+  const requestedMode = modes.find((m) => m.mode === (query.mode === UNKNOWN_MODE ? "" : query.mode))?.mode;
+  const mode = modes.length === 0 ? null : requestedMode ?? [...modes].sort((a, b) => b.runs - a.runs)[0].mode;
+  const modeText = mode !== null ? modeLabelEn(found.instanceCategory, mode) : "";
+  const basePath = `/bosses/${boss.slug}`;
+  const statsPath = `${basePath}/statistics`;
+  const canonicalPath = requestedMode !== undefined ? `${statsPath}?mode=${requestedMode || UNKNOWN_MODE}` : statsPath;
+  const boxes = classBoxes(boss.id, null, mode);
+  const stats = statsForBossIds([boss.id], null, mode);
+  const top = boxes.slice(0, 4).map((b) => `${b.className} ${formatInt(b.median)}`).join(", ");
+  const description =
+    boxes.length > 0
+      ? `${name} (${instanceName}${modeText ? `, ${modeText}` : ""}, ${label}): how the iDPS spreads per class over ${stats.runCount} community run${stats.runCount === 1 ? "" : "s"} – median iDPS ${top}${boxes.length > 4 ? " and more" : ""}${stats.avgDurationSeconds ? `, average kill time ${minutes(stats.avgDurationSeconds)}` : ""}.`
+      : `${name} (${instanceName}${modeText ? `, ${modeText}` : ""}, ${label}) – iDPS statistics per class. No fights uploaded yet.`;
+  const photo = bossImage(boss.name, found.instanceName);
+  const worldBoss = found.instanceCategory === "worldboss";
+  return {
+    status: 200,
+    meta: {
+      title: `${name} iDPS Statistics per Class – ${instanceName}${modeText ? ` (${modeText})` : ""} | ${SITE}`,
+      description,
+      canonicalPath,
+      ogImage: photo,
+      ogImageAlt: photo ? `${name} – ${instanceName}` : undefined,
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: SITE, path: "/" },
+          worldBoss ? { name: `${label} world bosses`, path: `/worldbosses` } : { name: `${label} instances`, path: `/instances` },
+          { name: instanceName, path: `${worldBoss ? "/worldbosses" : "/instances"}/${found.instanceSlug}` },
+          { name, path: basePath },
+          { name: "Statistics", path: statsPath },
+        ]),
+      ],
+    },
+    body: html`
+      <h1>${name} – iDPS statistics per class</h1>
+      <p>${instanceName} · ${label}${modeText ? ` · ${modeText}` : ""} · all servers · <a href="${basePath}">Leaderboard</a></p>
+      ${boxes.length === 0
+        ? html`<p class="empty">No fights uploaded for this boss yet.</p>`
+        : html`<table><thead><tr><th>Class</th><th>Rows</th><th>Lowest</th><th>Lower quarter</th><th>Median</th><th>Upper quarter</th><th>Highest</th></tr></thead><tbody>
+      ${boxes.map((b) => html`<tr><td>${b.className}</td><td>${b.samples}</td><td>${formatInt(b.min)}</td><td>${formatInt(b.q1)}</td><td>${formatInt(b.median)}</td><td>${formatInt(b.q3)}</td><td>${formatInt(b.max)}</td></tr>`)}
+    </tbody></table>`}`,
+  };
+}
+
+/** The statistics of a dungeon (/instances/<dungeon>/statistics): every boss with its runs, best group iDPS, average kill time and the median iDPS of the classes, plus what is played there. */
+export function instanceStatisticsPage(game: Game, idOrSlug: string): Page | null {
+  const instance = findInstance(idOrSlug, game);
+  if (!instance || instance.name === UNASSIGNED_INSTANCE_NAME) {
+    return null;
+  }
+  const name = displayName(instance);
+  const label = GAME_LABEL[game];
+  const worldBoss = instance.category === "worldboss";
+  const base = worldBoss ? "/worldbosses" : "/instances";
+  const statsPath = `${base}/${instance.slug}/statistics`;
+  const data = instanceStatistics(instance.id, null, null);
+  const runs = data.bosses.reduce((n, b) => n + b.runCount, 0);
+  const fought = data.bosses.filter((b) => b.runCount > 0);
+  const description =
+    runs > 0
+      ? `${name} (${label}): kill times and best group iDPS of ${fought.length} boss${fought.length === 1 ? "" : "es"} from ${runs} community run${runs === 1 ? "" : "s"}, the median iDPS of every class on each boss and which classes are played${data.classShare.length > 0 ? ` (most: ${data.classShare.slice(0, 3).map((c) => c.className).join(", ")})` : ""}.`
+      : `${name} (${label}) – boss statistics. No fights uploaded yet.`;
+  const photo = INSTANCE_IMAGES[instance.name];
+  const totalRows = data.classShare.reduce((n, c) => n + c.samples, 0);
+  return {
+    status: 200,
+    meta: {
+      title: `${name} Statistics – Kill Times, Best iDPS and Classes per Boss | ${SITE}`,
+      description,
+      canonicalPath: statsPath,
+      ogImage: photo,
+      ogImageAlt: photo ? `${name} – ${label}` : undefined,
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: SITE, path: "/" },
+          { name: worldBoss ? `${label} world bosses` : `${label} instances`, path: worldBoss ? `/worldbosses` : `/instances` },
+          { name, path: `${base}/${instance.slug}` },
+          { name: "Statistics", path: statsPath },
+        ]),
+      ],
+    },
+    body: html`
+      <h1>${name} – statistics</h1>
+      <p>${label} · all servers · <a href="${base}/${instance.slug}">Bosses and leaderboards</a></p>
+      ${runs === 0
+        ? html`<p class="empty">No boss fights uploaded for this instance yet.</p>`
+        : html`<table><thead><tr><th>Boss</th><th>Runs</th><th>Best group iDPS</th><th>Average kill time</th><th>Median iDPS per class</th></tr></thead><tbody>
+      ${data.bosses.map((b) => html`<tr><td>${b.slug ? html`<a href="/bosses/${b.slug}/statistics">${displayName(b)}</a>` : displayName(b)}</td><td>${b.runCount}</td><td>${b.bestIdps ? formatInt(b.bestIdps) : "–"}</td><td>${b.avgDurationSeconds ? minutes(b.avgDurationSeconds) : "–"}</td><td>${b.classes.slice(0, 5).map((c) => `${c.className} ${formatInt(c.median)}`).join(", ")}</td></tr>`)}
+    </tbody></table>
+      ${data.classShare.length > 0 ? html`<h2>Classes played here</h2><p>${data.classShare.map((c) => `${c.className} ${((c.samples / Math.max(1, totalRows)) * 100).toFixed(1)} %`).join(", ")}</p>` : ""}`}`,
   };
 }
 

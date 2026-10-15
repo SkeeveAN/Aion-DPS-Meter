@@ -283,3 +283,42 @@ export function buildBossStats(stats, deps) {
 
   return [el("section", {}, [el("h2", { textContent: t("stats.heading") }), el("div", { className: "class-grid class-grid-3" }, [boxBlock, timeBlock, shareBlock, ...classBlocks])])];
 }
+
+/**
+ * The statistics of a dungeon: every boss with its runs, best group iDPS, average kill time and the median iDPS of its classes (each boss links to its own
+ * statistics), and the share of the classes over the whole dungeon.
+ * @param data the answer of /api/instances/:id/statistics: { instance, bosses, classShare }
+ * @param deps helpers of app.js: el, t, formatNumber, classLabel, displayName, formatDuration, gp
+ */
+export function buildInstanceStats(data, deps) {
+  const { el, t, formatNumber, classLabel, displayName, formatDuration, gp } = deps;
+  const fought = data.bosses.filter((b) => b.runCount > 0);
+  if (fought.length === 0) {
+    return [el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") })];
+  }
+  const header = ["stats.bossColumn", "stats.runs", "stats.bestDps", "stats.avgTime", "stats.medianPerClass"];
+  const table = el("table", { className: "ranked-table compact" }, [
+    el("thead", {}, [el("tr", {}, header.map((key) => el("th", { textContent: t(key) })))]),
+    el(
+      "tbody",
+      {},
+      data.bosses.map((b) =>
+        el("tr", {}, [
+          el("td", {}, [b.slug ? el("a", { href: gp(`/bosses/${b.slug}/statistics`), textContent: displayName(b) }) : displayName(b)]),
+          el("td", { textContent: formatNumber(b.runCount) }),
+          el("td", { textContent: b.bestIdps ? formatNumber(b.bestIdps) : "–" }),
+          el("td", { textContent: b.avgDurationSeconds ? formatDuration(b.avgDurationSeconds) : "–" }),
+          el("td", { textContent: b.classes.slice(0, 6).map((c) => `${classLabel(c.className)} ${formatNumber(Math.round(c.median))}`).join(" · ") }),
+        ]),
+      ),
+    ),
+  ]);
+  const block = (title, ...children) => el("div", { className: "class-block boxplot-block" }, [el("h3", {}, [title]), ...children]);
+  const share = buildShareChart(data.classShare, deps);
+  return [
+    el("section", {}, [
+      el("h2", { textContent: t("stats.heading") }),
+      el("div", { className: "class-grid class-grid-2" }, [block(t("stats.bossTable"), el("div", { className: "table-scroll" }, [table])), block(t("stats.shareHeading"), el("div", { className: "boxplot-card" }, [share ?? el("p", { className: "empty", textContent: t("stats.tooFew") })]))]),
+    ]),
+  ];
+}

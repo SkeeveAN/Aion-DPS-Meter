@@ -7,6 +7,8 @@ import { DEFAULT_GAME, type Game } from "../constants.js";
 import {
   appOnlyPage,
   bossPage,
+  bossStatisticsPage,
+  instanceStatisticsPage,
   instanceCategoryPage,
   downloadPage,
   changelogPage,
@@ -190,9 +192,45 @@ export async function pageRoutes(app: FastifyInstance) {
         const suffix = query.server ? `?server=${encodeURIComponent(query.server)}` : query.mode ? `?mode=${encodeURIComponent(query.mode)}` : "";
         return reply.redirect(`/bosses/${found.boss.slug}${suffix}`, 301);
       }
+      // The statistics view has its own address now (the old ?view=stats link moves there for good).
+      if ((request.query as { view?: string }).view === "stats") {
+        const keep = new URLSearchParams();
+        if (query.server) keep.set("server", query.server);
+        if (query.mode) keep.set("mode", query.mode);
+        return reply.redirect(`/bosses/${idOrSlug}/statistics${keep.toString() ? `?${keep}` : ""}`, 301);
+      }
       return sendCached(request, reply, () => bossPage(game, idOrSlug, query));
     }),
   );
+
+  // Statistics of a boss (iDPS per class) and of a dungeon (kill times, best iDPS, classes per boss): pages of their own with their own title and canonical address.
+  app.get<GameParams & { Params: { idOrSlug: string }; Querystring: { server?: string; mode?: string } }>(
+    "/bosses/:idOrSlug/statistics",
+    withGame((game, request, reply) => {
+      const { idOrSlug } = request.params as { idOrSlug: string };
+      const query = request.query as { server?: string; mode?: string };
+      const found = /^\d+$/.test(idOrSlug) ? findBoss(idOrSlug, game) : null;
+      if (found?.boss.slug) {
+        return reply.redirect(`/bosses/${found.boss.slug}/statistics`, 301);
+      }
+      return sendCached(request, reply, () => bossStatisticsPage(game, idOrSlug, query));
+    }),
+  );
+  for (const base of ["instances", "worldbosses"]) {
+    // the parameter keeps the name the sibling route of the same prefix has (/worldbosses/:slug, /instances/:idOrSlug)
+    const param = base === "worldbosses" ? "slug" : "idOrSlug";
+    app.get<GameParams & { Params: Record<string, string> }>(
+      `/${base}/:${param}/statistics`,
+      withGame((game, request, reply) => {
+        const idOrSlug = (request.params as Record<string, string>)[param];
+        const found = findInstance(idOrSlug, game);
+        if (!found || (base === "worldbosses") !== (found.category === "worldboss")) {
+          return sendNotFound(request, reply);
+        }
+        return sendCached(request, reply, () => instanceStatisticsPage(game, idOrSlug));
+      }),
+    );
+  }
 
   app.get<GameParams & { Params: { id: string } }>(
     "/players/:id",
