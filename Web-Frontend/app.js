@@ -638,14 +638,17 @@ const FEATURE_BLOCKS = [
   { id: "meter", images: [["meter", 1040, 840]] },
   { id: "modes", images: [["mode-all", 1040, 840], ["mode-all-compact", 1040, 840]] },
   { id: "overlay", images: [["overlay", 780, 338], ["overlay-chips", 780, 330]] },
+  { id: "bossfight", images: [["bossfight", 956, 700, { flat: true }]] },
+  { id: "assist", badge: "assist.badge", images: [["assist", 840, 1236]] },
   { id: "details", images: [["analyzer", 1760, 820]] },
-  { id: "sessions", images: [["sessions", 1760, 820]] },
   { id: "character", images: [["character-gear", 2360, 1800], ["character-skills", 2360, 1280]] },
+  { id: "checklist", images: [["checklist", 960, 1274]] },
   // the sides of the scenes are tuned one by one in style.css, so they are fixed here and not alternated by position
-  { id: "network", images: [["network", 1240, 1080, { h: 400 }], ["network-overlay", 770, 414, { h: 200 }]] },
   { id: "map", images: [["map", 1448, 892], ["gathering", 1240, 1480]] },
+  { id: "petlevel", images: [["petlevel", 382, 122, { h: 150 }]] },
   { id: "timetable", images: [["timetable", 1240, 1480]] },
   { id: "worldboss", images: [["worldboss", 1240, 1480]] },
+  { id: "network", images: [["network", 1240, 1080, { h: 400 }], ["network-overlay", 770, 414, { h: 200 }]] },
   { id: "hotkeys", images: [["hotkeys", 1240, 1480], ["settings", 1240, 1480]] },
   // the second picture of these two is the head of the client window with the two buttons that lead here (no frame, fading out at the bottom)
   { id: "announcements", images: [["announcements", 1400, 860, { h: 440 }], ["client-head", 1040, 300, { h: 127, head: true }]] },
@@ -653,26 +656,29 @@ const FEATURE_BLOCKS = [
 ];
 // pictures offered in the designer as alternative backgrounds of a scene (images/features/alt/); the choice is saved as "bg" in feature-layout.json
 const FEATURE_BG_ALTERNATIVES = { announcements: ["announcements-1", "announcements-2", "announcements-3"], twitchdrops: ["twitchdrops-1", "twitchdrops-2", "twitchdrops-3"] };
-const FEATURE_FLIPPED = new Set(["modes", "details", "network", "timetable", "hotkeys", "twitchdrops"]);
-const FEATURE_VERSION = "20261013b";
+const FEATURE_FLIPPED = new Set(["modes", "bossfight", "details", "checklist", "petlevel", "worldboss", "hotkeys", "twitchdrops"]);
+const FEATURE_VERSION = "20261015k";
 
 const SVG = (d, size = 30) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const FEATURE_CARDS = [
   ["meter", '<path d="M5 20V10M12 20V4M19 20v-7"/>'],
   ["modes", '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'],
   ["overlay", '<path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5"/>'],
+  ["bossfight", '<path d="M12 3 4 7v5c0 4.500 3.200 7.500 8 9 4.800-1.500 8-4.500 8-9V7z"/><path d="M12 8v4M12 15h.01"/>'],
+  ["assist", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.500 2"/><path d="M12 3v2M3 12h2"/>'],
   ["details", '<path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/>'],
-  ["sessions", '<path d="M3 6h18M3 12h18M3 18h18"/><path d="M8 4v4M15 10v4M11 16v4"/>'],
   ["character", '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>'],
-  ["network", '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M12 19.5h.01"/>'],
+  ["checklist", '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 9 1.500 1.500L12 8M8 15l1.500 1.500L12 14M14 9h3M14 15h3"/>'],
   ["map", '<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>'],
+  ["petlevel", '<circle cx="7" cy="9" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="9" r="2"/><path d="M12 21c-3 0-5-2-5-4.500 0-2 2-4 5-4s5 2 5 4c0 2.500-2 4.500-5 4.500z"/>'],
   ["timetable", '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>'],
   ["worldboss", '<path d="M12 3c-3 0-6 2.5-6 6v4l-2 4h5a3 3 0 0 0 6 0h5l-2-4V9c0-3.500-3-6-6-6z"/>'],
+  ["network", '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M12 19.5h.01"/>'],
   ["hotkeys", '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'],
   ["announcements", '<path d="M3 11v3a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/>'],
   ["twitchdrops", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'],
 ];
-const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", sessions: "#e0a04a", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff" };
+const FEATURE_TINTS = { meter: "#ff8a3d", modes: "#4fb4ff", overlay: "#ffc55a", details: "#34d3c0", sessions: "#e0a04a", character: "#ffc55a", map: "#3ee0b0", timetable: "#ffb347", worldboss: "#ff5a4f", hotkeys: "#b08cff", announcements: "#4fd1c5", twitchdrops: "#9146ff", network: "#4fb4ff", bossfight: "#ff5a4f", assist: "#6fb8ff", checklist: "#ffc55a", petlevel: "#7bd88f" };
 // Icons of the nine "And more" cards (shield, upload, clock, refresh, globe, code, target, broadcast, lock).
 const FEATURE_MORE_ICONS = [
   '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
@@ -686,12 +692,15 @@ const FEATURE_MORE_ICONS = [
   '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 9 1.5 1.5L12 8M8 15l1.5 1.5L12 14M14 9h3M14 15h3"/>',
   '<circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.3"/><circle cx="12" cy="7.5" r="1.3"/><circle cx="15.5" cy="10" r="1.3"/><path d="M12 21c-1.5 0-2-1.5-1-2.5s0-2.5-2-2.5"/>',
+  '<rect x="2" y="6" width="20" height="12" rx="2" stroke-dasharray="3 2"/><path d="M6 10h.01M10 10h.01M14 10h.01M7 14h10"/>',
+  '<path d="m12 3 8 4.500v9L12 21l-8-4.500v-9z"/><path d="M12 12v9M12 12 4 7.500M12 12l8-4.500"/>',
 ];
 
 // Lead sentence big, the remaining sentences as a check list (no extra translations needed).
 function featureText(block) {
   const [lead, ...rest] = t(`features.${block.id}.text`).split(/(?<=[。！？])|(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
   return el("div", { className: "fx-copy" }, [
+    block.badge ? el("span", { className: "fx-badge", textContent: t(`features.${block.badge}`) }) : null,
     el("h2", { textContent: t(`features.${block.id}.title`) }),
     el("p", { className: "lead", textContent: lead }),
     rest.length ? el("ul", {}, rest.map((x) => el("li", { textContent: x }))) : null,
@@ -712,7 +721,7 @@ function renderFeatures() {
         featureText(block),
         el("div", { className: "fx-stage" }, block.images.map(([name, width, height, opt], n) =>
           el("img", {
-            className: `fx-win${opt?.head ? " fx-head" : ""}`,
+            className: `fx-win${opt?.head ? " fx-head" : ""}${opt?.flat ? " fx-flat" : ""}`,
             src: `/images/features/${name}@2x.webp?v=${FEATURE_VERSION}`,
             width, height,
             loading: index === 0 ? "eager" : "lazy",
@@ -747,7 +756,7 @@ function renderFeatures() {
     document.getElementById(`feature-${a.dataset.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
     history.replaceState(history.state, "", `${location.pathname}${location.search}#feature-${a.dataset.id}`);
   });
-  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) =>
+  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13].map((n) => // 7 (boss fight overlay) and 10 (checklist) have scenes of their own now
     el("div", { className: "fx-more-card" }, [
       el("span", { className: "fx-more-ico", innerHTML: SVG(FEATURE_MORE_ICONS[n - 1]) }),
       el("div", {}, [el("h3", { textContent: t(`features.more${n}.title`) }), el("p", { textContent: t(`features.more${n}.text`) })]),
