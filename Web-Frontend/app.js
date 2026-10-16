@@ -3342,7 +3342,8 @@ function visibleSkills(profile) {
     active: profile.skills.filter((s) => !s.passive && !s.stigma && (!hasBar || s.equipped)),
     // ids like 11000000 are the class's weapon-equip entry, not a skill the player trains
     passive: profile.skills.filter((s) => s.passive && s.id % 1000000 !== 0),
-    stigma: profile.skills.filter((s) => s.stigma),
+    // a stigma at level 0 is one the player has not learned: the game's list carries it, the page does not show it
+    stigma: profile.skills.filter((s) => s.stigma && s.level > 0),
   };
 }
 
