@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.1.8",
+  "date": "2026-10-16",
+  "items": [
+   {
+    "text": "Interactive map: Pets and Gathering settings as sub pages of the map in the tools window (kept as you change them) instead of opening the settings window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-16"
+   },
+   {
+    "text": "Pets and Gathering settings as sub pages of the interactive map in the tools window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-16"
+   }
+  ]
+ },
+ {
   "version": "1.1.7",
   "date": "2026-10-16",
   "items": [
