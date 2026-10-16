@@ -143,5 +143,6 @@
  "121b113": null,
  "7c771ee": "Pet shop: while the shop is open the map is hidden and the list holds only the shop's pets (no chosen pets, no collectibles), even where the game's menus are not recognised; the max level of an owned pet reads \"Level 3 (max)\" instead of \"Level {0} (max)\"",
  "c38b9ed": "Pet map: after a teleport or a loading screen the map starts at the place the game reports, follows the zone (Verteron and Altgard, also on their legion airships) and no longer loses that place a moment later",
- "cf1d318": "Pet map: after a teleport the monsters of the old place are forgotten, and a guess from the monsters around that lies further away than you could have walked is ignored, so the map no longer swings between far monster groups while you stand still"
+ "cf1d318": "Pet map: after a teleport the monsters of the old place are forgotten, and a guess from the monsters around that lies further away than you could have walked is ignored, so the map no longer swings between far monster groups while you stand still",
+ "be5aa4d": "Uploads: players whose character window you opened are uploaded with their server and faction again (the upload carried no server for them, so the website left them out), and the server next to a name is also read from the name frames of friend and legion entries"
 }

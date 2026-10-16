@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.1.5",
+  "date": "2026-10-16",
+  "items": [
+   {
+    "text": "Uploads: players whose character window you opened are uploaded with their server and faction again (the upload carried no server for them, so the website left them out), and the server next to a name is also read from the name frames of friend and legion entries",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-16"
+   },
+   {
+    "text": "players whose character window you opened are uploaded with their server and faction again",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-16"
+   }
+  ]
+ },
+ {
   "version": "1.1.4",
   "date": "2026-10-16",
   "items": [
