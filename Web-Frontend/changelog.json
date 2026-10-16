@@ -9,6 +9,13 @@
      "Website"
     ],
     "date": "2026-10-16"
+   },
+   {
+    "text": "Players named by their own client are asked at NC again the next day for their first week (NC's search often lacks a brand-new character), then weekly instead of monthly",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-16"
    }
   ]
  },
