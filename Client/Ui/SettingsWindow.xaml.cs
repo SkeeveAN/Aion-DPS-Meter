@@ -803,9 +803,22 @@ public partial class SettingsWindow : Window
         {
             _masterSource.IsChecked = ModuleMasterBox.IsChecked == true;
         }
+
+        UpdateMasterHint();
     }
 
-    private void OnMasterSourceChanged(object sender, RoutedEventArgs e) => ModuleMasterBox.IsChecked = _masterSource?.IsChecked == true;
+    private void OnMasterSourceChanged(object sender, RoutedEventArgs e)
+    {
+        ModuleMasterBox.IsChecked = _masterSource?.IsChecked == true;
+        UpdateMasterHint();
+    }
+
+    /// <summary>The note under the tool's name appears only while the main switch is off (the switches below need it on).</summary>
+    private void UpdateMasterHint()
+    {
+        ModuleMasterHint.Text = LocalizationManager.Instance["Settings.Overlay.MasterHint"];
+        ModuleMasterHint.Visibility = ModuleMasterBox.IsChecked == true ? Visibility.Collapsed : Visibility.Visible;
+    }
 
     private void OnModuleKeyClicked(object sender, RoutedEventArgs e) => ShowHotkeysPage();
 
@@ -839,6 +852,7 @@ public partial class SettingsWindow : Window
         _masterSource = master;
         master.Visibility = Visibility.Collapsed; // the header's switch is this box
         ModuleMasterBox.IsChecked = master.IsChecked == true;
+        UpdateMasterHint();
         master.Checked += OnMasterSourceChanged;
         master.Unchecked += OnMasterSourceChanged;
         string key = hotkey?.Text ?? "";

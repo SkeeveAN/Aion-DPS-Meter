@@ -408,7 +408,11 @@
                             <CheckBox x:Name="ModuleMasterBox" Margin="0" VerticalAlignment="Center" Click="OnModuleMasterClicked"/>
                             <Button x:Name="ModuleKeyButton" Margin="12,0,0,0" Padding="10,2" MinHeight="26" Click="OnModuleKeyClicked" ToolTip="{local:Loc Settings.Hotkey.ChipTip}"/>
                         </StackPanel>
-                        <TextBlock x:Name="ModuleTitleText" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource Brush.Text}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="ModuleTitleText" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text}"/>
+                            <!-- Shown only while the main switch is off: the switches below do nothing then. -->
+                            <TextBlock x:Name="ModuleMasterHint" Visibility="Collapsed" FontSize="11" Margin="0,2,0,0" TextWrapping="Wrap" Foreground="{DynamicResource Brush.TextMuted}"/>
+                        </StackPanel>
                     </DockPanel>
                 </Border>
                 <StackPanel Margin="16,14,16,6">

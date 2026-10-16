@@ -8304,5 +8304,29 @@
     "pt": "Converter energia de Od (x4)",
     "ja": "オード エネルギー変換 (x4)",
     "ko": "오드 에너지 변환 (x4)"
+  },
+  "Settings.Configuration": {
+    "en": "Configuration",
+    "de": "Konfiguration",
+    "fr": "Configuration",
+    "es": "Configuración",
+    "ru": "Конфигурация",
+    "zh": "配置",
+    "zh-TW": "設定",
+    "pt": "Configuração",
+    "ja": "設定",
+    "ko": "구성"
+  },
+  "Settings.Overlay.MasterHint": {
+    "en": "This switch must be on for the switches below to work.",
+    "de": "Dieser Schalter muss aktiv sein, damit die Schalter darunter funktionieren.",
+    "fr": "Cet interrupteur doit être activé pour que les interrupteurs ci-dessous fonctionnent.",
+    "es": "Este interruptor debe estar activado para que funcionen los de abajo.",
+    "ru": "Этот переключатель должен быть включён, иначе переключатели ниже не работают.",
+    "zh": "必须开启此开关，下面的开关才会生效。",
+    "zh-TW": "必須開啟此開關，下方的開關才會生效。",
+    "pt": "Este interruptor tem de estar ativo para que os interruptores abaixo funcionem.",
+    "ja": "下のスイッチを有効にするには、このスイッチをオンにしておく必要があります。",
+    "ko": "아래 스위치가 작동하려면 이 스위치가 켜져 있어야 합니다."
   }
 }

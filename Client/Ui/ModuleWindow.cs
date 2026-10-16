@@ -49,21 +49,28 @@ public sealed class ModulePage : DockPanel
             s.Save();
             applied(s);
         };
-        _key.Margin = new Thickness(12, 0, 0, 0);
+        _key.Margin = new Thickness(0, 0, 8, 0);
         _key.Padding = new Thickness(10, 2, 10, 2);
         _key.MinHeight = 26;
         _key.ToolTip = loc["Settings.Hotkey.ChipTip"];
         _key.Click += (_, _) => openHotkeys();
+        var cogLabel = new StackPanel { Orientation = Orientation.Horizontal };
+        var cogIcon = new TextBlock { Text = "\uE713", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 14, VerticalAlignment = VerticalAlignment.Center };
+        var cogText = new TextBlock { Text = loc["Settings.Configuration"], Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+        cogIcon.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        cogText.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
+        cogLabel.Children.Add(cogIcon);
+        cogLabel.Children.Add(cogText);
         var cog = new Button
         {
-            Content = new TextBlock { Text = "", FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 14 },
-            Margin = new Thickness(8, 0, 0, 0), Padding = new Thickness(8, 2, 8, 2), MinHeight = 26, ToolTip = loc["Settings.WindowTitle"],
+            Content = cogLabel, Margin = new Thickness(0, 0, 8, 0), Padding = new Thickness(8, 2, 10, 2), MinHeight = 26, ToolTip = loc["Settings.WindowTitle"],
         };
+        cog.SetResourceReference(Control.BorderBrushProperty, "Brush.Accent");
         cog.Click += (_, _) => openSettings();
-        right.Children.Add(masterText);
-        right.Children.Add(_master);
         right.Children.Add(_key);
         right.Children.Add(cog);
+        right.Children.Add(masterText);
+        right.Children.Add(_master);
         var name = new TextBlock { Text = title, FontSize = 18, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
         name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Text");
         header.Children.Add(right);
