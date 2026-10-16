@@ -2728,6 +2728,13 @@ public sealed class Aion2FrameDecoder
             if (server is >= 1000 and <= 3000 && TryReadName(frame, i + 2, out string candidate, minLength: 2) && candidate != name)
             {
                 guild = candidate;
+                // the id in front of the legion name is the player's own server (a legion belongs to one server): a player whose window is opened is
+                // otherwise known by name only, and without a server (and its side) the website does not take him
+                if (server % 100 is >= 1 and <= 30)
+                {
+                    NoteServerId(server, name);
+                }
+
                 break;
             }
         }
