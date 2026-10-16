@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.1.7",
   "date": "2026-10-16",
   "items": [
    {
@@ -18,14 +18,14 @@
     "date": "2026-10-16"
    },
    {
-    "text": "Tools: the settings button now reads \"Configuration\" next to its cog, is tinted in the theme's accent colour and sits left of the overlay switch, with the hotkey to its left (when the tool has one)",
+    "text": "Tool pages: labelled, accent-coloured configuration button left of the overlay switch, hotkey left of it; hint at the main switch while it is off",
     "areas": [
      "Client"
     ],
     "date": "2026-10-16"
    },
    {
-    "text": "Tool settings: while a tool's main overlay switch is off, a short note under its name says the switches below only work with it on",
+    "text": "labelled configuration button and main-switch hint on the tool pages; NC rechecks of new characters",
     "areas": [
      "Client"
     ],
