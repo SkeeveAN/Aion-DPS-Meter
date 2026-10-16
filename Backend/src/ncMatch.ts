@@ -217,11 +217,11 @@ export async function searchHits(fetchFn: FetchFn, name: string, shard: string, 
   return all;
 }
 
-type PlayerRow = { id: number; name: string; nameNormalized: string; serverId: number | null; serverName: string | null; faction: string; guildId: number | null; guild: string | null };
+type PlayerRow = { id: number; firstSeenAt: string; name: string; nameNormalized: string; serverId: number | null; serverName: string | null; faction: string; guildId: number | null; guild: string | null };
 
 function loadPlayer(playerId: number): PlayerRow | undefined {
   return db
-    .select({ id: players.id, name: players.name, nameNormalized: players.nameNormalized, serverId: players.serverId, serverName: servers.displayName, faction: players.faction, guildId: players.guildId, guild: players.guild })
+    .select({ id: players.id, firstSeenAt: players.firstSeenAt, name: players.name, nameNormalized: players.nameNormalized, serverId: players.serverId, serverName: servers.displayName, faction: players.faction, guildId: players.guildId, guild: players.guild })
     .from(players)
     .leftJoin(servers, eq(players.serverId, servers.id))
     .where(eq(players.id, playerId))
@@ -425,7 +425,9 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   }
   if (clientServer !== null) {
     // NC does not know him (yet) or cannot tell: his client's word still counts, ask again later.
-    record(playerId, "client", { ncServerId: clientServer, candidates: decision.candidates }, now);
+    // A character that is only hours old is often not in NC's search yet: look again the next day for the first week, then weekly.
+    const young = now - Date.parse(`${player.firstSeenAt.replace(" ", "T")}Z`) < 7 * DAY;
+    record(playerId, "client", { ncServerId: clientServer, candidates: decision.candidates, nextTryAt: now + (decision.candidates === 0 ? (young ? DAY : 7 * DAY) : MATCH_RETRY_AFTER.client) }, now);
     return "client";
   }
   record(playerId, decision.status, { candidates: decision.candidates }, now);

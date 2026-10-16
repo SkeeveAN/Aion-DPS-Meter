@@ -150,7 +150,9 @@ test("a player whose own client named his server is checked by NC too, but never
   assert.equal(await processMatch(id, ncAnswer([raw({ name: "Selbst", serverId: 1305 })]), 2_000_000), "client");
   assert.equal(matchRow(id)?.status, "client");
   assert.equal(matchRow(id)?.s, 1304);
-  assert.deepEqual(dueOf([id], 2_000_000 + 29 * 24 * 3_600_000), []);
+  // NC may simply not list a young character yet: asked again the next day, not in a month
+  assert.deepEqual(dueOf([id], 2_000_000 + 23 * 3_600_000), []);
+  assert.deepEqual(dueOf([id], 2_000_000 + 25 * 3_600_000), [id]);
   // NC knows him on that server: verified
   assert.equal(await processMatch(id, ncAnswer([raw({ name: "Selbst", serverId: 1305 }), raw({ name: "Selbst", serverId: 1304 })]), 3_000_000), "verified");
   assert.equal(matchRow(id)?.status, "verified");
