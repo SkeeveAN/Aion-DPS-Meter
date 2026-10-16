@@ -1547,6 +1547,15 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    /// <summary>The server id the game announced next to a name (a player known only by his name, e.g. one whose character window was opened); null when none was seen.</summary>
+    public int? ServerIdOfName(string name)
+    {
+        lock (_gate)
+        {
+            return _serverOfName.TryGetValue(name, out int server) ? server : null;
+        }
+    }
+
     /// <summary>The server of a player: the own one from the character record, another one's from the frames that named him.</summary>
     public int? ServerIdOf(int id)
     {

@@ -466,6 +466,11 @@ public sealed class Aion2FrameDecoder
             return Array.Empty<DamageEvent>();
         }
 
+        if ((opcode & 0xFF) == 0xE2)
+        {
+            NoteNamedServers(frame); // not final: the frame is read by whatever else knows its opcode
+        }
+
         if (opcode == ZoneOpcode)
         {
             DecodeZone(frame, timestamp);
@@ -2050,6 +2055,29 @@ public sealed class Aion2FrameDecoder
             {
                 _entities.NoteCharacterId(name, server, (int)characterId);
                 i += 10 + frame[i + 10];
+            }
+        }
+    }
+
+    /// <summary>
+    /// The 0xE2 frames (a name looked at, a friend or legion entry: 76e2, 77e2, 82e2 ...) carry <c>server id (u16) | length | name</c>. A player whose character
+    /// window the local player opened is otherwise only known by name, so without this his server (and his faction) stayed unknown and the website
+    /// left him out of the upload. The id must look like a server of the two sides (1301, 2304 ...).
+    /// </summary>
+    private void NoteNamedServers(ReadOnlySpan<byte> frame)
+    {
+        for (int i = 2; i + 5 < frame.Length; i++)
+        {
+            int server = frame[i] | frame[i + 1] << 8;
+            if (server is < 1000 or > 2999 || server % 100 is < 1 or > 30)
+            {
+                continue;
+            }
+
+            if (TryReadName(frame, i + 2, out string name, minLength: 2) && char.IsLetter(name[0]))
+            {
+                NoteServerId(server, name);
+                i += 1 + frame[i + 2];
             }
         }
     }

@@ -3436,7 +3436,8 @@ public partial class MainWindow : Window
                     GearScore: inspected.GearScore > 0 ? inspected.GearScore : null,
                     Titles: inspected.Titles?.Select(t => new ProfileTitleUpload(t.Slot, t.TitleId)).ToList(),
                     Pets: inspected.Pets?.Select(k => new ProfilePetUpload(k.SpeciesId, k.Level, k.Kinds)).ToList(),
-                    BoardCounts: inspected.BoardCounts?.Select(b => new ProfileBoardCountUpload(b.BoardId, b.Count)).ToList())));
+                    BoardCounts: inspected.BoardCounts?.Select(b => new ProfileBoardCountUpload(b.BoardId, b.Count)).ToList()),
+                directory.ServerIdOfName(inspected.Name)));
         }
 
         foreach (int id in ownOnly ? Array.Empty<int>() : directory.SeenProfileIds())
