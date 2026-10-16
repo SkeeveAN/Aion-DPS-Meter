@@ -165,7 +165,7 @@
     "date": "2026-10-15"
    },
    {
-    "text": "Overlays: optional placement on a grid and docking to each other (docked overlays follow their parent when it moves or changes size)",
+    "text": "Overlays: optional placement on a grid and docking to each other (docked overlays follow their parent when it moves or changes size), requested by a legion mate",
     "areas": [
      "Client"
     ],
