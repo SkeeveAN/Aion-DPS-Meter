@@ -1474,6 +1474,18 @@ internal static class Program
         }
 
         var content = (System.Windows.UIElement)window.Content;
+        if (tab is "Pets" or "Gather" && window.TakePanel(tab == "Pets" ? "PanelPets" : "PanelGather") is { } taken)
+        {
+            // the page as the tools window shows it (layout check, nothing is saved)
+            var body = new System.Windows.Controls.StackPanel { Margin = new System.Windows.Thickness(14) };
+            body.Resources.MergedDictionaries.Add(window.Resources);
+            body.Children.Add(taken);
+            var host = new System.Windows.Controls.Border { Child = body };
+            host.SetResourceReference(System.Windows.Controls.Border.BackgroundProperty, "Brush.Window");
+            content = host;
+            width = 860;
+        }
+
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));
         content.UpdateLayout();

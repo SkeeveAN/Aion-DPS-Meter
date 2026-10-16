@@ -4783,13 +4783,19 @@ public partial class MainWindow : Window
             var loc = LocalizationManager.Instance;
             var groups = new[]
             {
-                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]) },
+                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
                 new[] { new ToolEntry("combat", loc["Settings.Nav.Combat"]), new ToolEntry("assist", loc["Main.MenuTools.Assist"]) },
                 new[] { new ToolEntry("dummy", loc["Main.MenuTools.DummyTest"]), new ToolEntry("analyzer", loc["Main.MenuTools.Analyzer"], OwnWindow: true) },
                 new[] { new ToolEntry("timetable", loc["Settings.Nav.Timetable"]), new ToolEntry("boss", loc["Settings.Nav.Boss"]) },
                 new[] { new ToolEntry("stream", loc["Main.MenuTools.Stream"]), new ToolEntry("theme", loc["Main.MenuTools.ThemeEditor"]), new ToolEntry("network", loc["Settings.Nav.Network"]) },
             };
-            _toolsWindow = new ToolsWindow(groups, BuildToolPage, tool => { if (tool == "analyzer") { OpenSessionManager(); } }) { Owner = this };
+            _toolsWindow = new ToolsWindow(groups, BuildToolPage, tool =>
+            {
+                if (tool == "analyzer")
+                {
+                    OpenSessionManager();
+                }
+            }) { Owner = this };
             _toolsWindow.Closed += (_, _) => _toolsWindow = null;
             _toolsWindow.Show();
         }
@@ -4823,7 +4829,7 @@ public partial class MainWindow : Window
         var loc = LocalizationManager.Instance;
         Action<MeterSettings> applied = ApplySettingsEverywhere;
         Action hotkeys = () => OpenSettingsPage("");
-        Action settingsPage = () => OpenSettingsPage(module);
+        Action settingsPage = () => OpenSettingsPage(module.StartsWith("petmap", StringComparison.Ordinal) ? "petmap" : module);
         // a tool that is a window of its own is shown by its content: the window is never shown and closed when the page goes away
         ToolPage Hosted(Window window) => new() { Content = ThemedChrome.TakeContent(window) ?? new Grid(), Cleanup = window.Close };
         switch (module)
@@ -4937,6 +4943,62 @@ public partial class MainWindow : Window
                             _petMapController.Dispose();
                             _petMapController = null;
                         }
+                    },
+                };
+            }
+
+            case "petmap.pets":
+            case "petmap.gather":
+            {
+                // the settings of the map's pets / collectibles: the panel of the settings window (never shown) as a page here; every change is kept a moment later
+                string panelName = module == "petmap.pets" ? "PanelPets" : "PanelGather";
+                var window = new SettingsWindow(MeterSettings.Load());
+                if (window.TakePanel(panelName) is not { } panel)
+                {
+                    window.Close();
+                    return null;
+                }
+
+                var body = new StackPanel { MinWidth = 560 };
+                body.Resources.MergedDictionaries.Add(window.Resources);
+                body.Children.Add(panel);
+                var save = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+                void Save()
+                {
+                    save.Stop();
+                    var s = MeterSettings.Load();
+                    window.ReadPanel(panelName, s);
+                    s.Save();
+                    ApplySettingsEverywhere(s);
+                }
+
+                save.Tick += (_, _) => Save();
+                void Changed(object sender, RoutedEventArgs e)
+                {
+                    save.Stop();
+                    save.Start();
+                }
+
+                foreach (var routed in new[] { System.Windows.Controls.Primitives.ButtonBase.ClickEvent, System.Windows.Controls.Primitives.ToggleButton.CheckedEvent,
+                    System.Windows.Controls.Primitives.ToggleButton.UncheckedEvent, System.Windows.Controls.Primitives.RangeBase.ValueChangedEvent,
+                    System.Windows.Controls.Primitives.Selector.SelectionChangedEvent })
+                {
+                    panel.AddHandler(routed, new RoutedEventHandler(Changed));
+                }
+
+                var page = new ModulePage(module == "petmap.pets" ? loc["Settings.Nav.Pets"] : loc["Settings.Nav.Gather"], body, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, settingsPage, applied);
+                return new ToolPage
+                {
+                    Content = page,
+                    Cleanup = () =>
+                    {
+                        page.Stop();
+                        if (save.IsEnabled)
+                        {
+                            Save();
+                        }
+
+                        window.Close();
                     },
                 };
             }

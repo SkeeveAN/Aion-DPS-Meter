@@ -511,6 +511,46 @@ public partial class SettingsWindow : Window
         Focus();
     }
 
+    /// <summary>
+    /// Hands one panel (Pets, Gathering) to the tools window, which shows it as a page of its own; this window is never shown then. The panel keeps working
+    /// on this window's controls, <see cref="ReadPanel"/> reads them back.
+    /// </summary>
+    public UIElement? TakePanel(string name)
+    {
+        if (FindName(name) is StackPanel panel && panel.Parent is Panel parent)
+        {
+            parent.Children.Remove(panel);
+            panel.Visibility = Visibility.Visible;
+            return panel;
+        }
+
+        return null;
+    }
+
+    /// <summary>Writes only what the Pets or the Gathering panel holds into the settings (the rest of this window's copy may be older than the disk).</summary>
+    public void ReadPanel(string name, MeterSettings s)
+    {
+        if (name == "PanelPets")
+        {
+            s.ShowPetFarm = ShowPetFarmBox.IsChecked ?? false;
+            s.PetInfoLocked = !(PetInfoLockedBox.IsChecked ?? false);
+            s.OverlayOpacities[OverlayPlaces.PetInfo] = PetInfoOpacity.Fraction;
+            s.ShowPetArrows = ShowPetArrowsBox.IsChecked ?? true;
+            s.PetMapPets = _petPicked.OrderBy(i => i).ToList();
+            s.PetRegionListWidth = PetRegionLeftColumn.Width.Value;
+            s.PetRareMax = (int)PetRareMaxSlider.Value;
+            s.PetRareInstanceMin = (int)PetRareInstanceSlider.Value;
+        }
+        else
+        {
+            s.ShowGatherArrows = ShowGatherArrowsBox.IsChecked ?? true;
+            s.CubeSoundEnabled = CubeSoundBox.IsChecked ?? false;
+            s.CubeSound = (CubeSoundCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "ping";
+            s.CubeSoundVolume = (int)CubeVolumeSlider.Value;
+            s.PetMapGatherItems = _gatherPicked.OrderBy(k => k).ToList();
+        }
+    }
+
     private void OnSaveClicked(object sender, RoutedEventArgs e)
     {
         // The overlays save where they were put straight to disk while this window is open; this working copy is older and

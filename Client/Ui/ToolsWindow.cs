@@ -6,7 +6,7 @@ using System.Windows.Threading;
 namespace AionDPS.Ui;
 
 /// <summary>One tool of the tools window: its entry in the list on the left.</summary>
-public sealed record ToolEntry(string Id, string Title, bool OwnWindow = false);
+public sealed record ToolEntry(string Id, string Title, bool OwnWindow = false, bool Sub = false);
 
 /// <summary>What the tools window shows for a tool: the page, and what has to happen when the page goes away (stop timers, close the hosted window).</summary>
 public sealed class ToolPage
@@ -95,9 +95,9 @@ public sealed class ToolsWindow : Window
             {
                 var button = new RadioButton
                 {
-                    GroupName = "Tools", Template = template, Cursor = System.Windows.Input.Cursors.Hand, Margin = new Thickness(0, 0, 0, 2),
+                    GroupName = "Tools", Template = template, Cursor = System.Windows.Input.Cursors.Hand, Margin = new Thickness(entry.Sub ? 22 : 0, 0, 0, 2),
                     Foreground = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#9db3c2")!,
-                    Content = new TextBlock { Text = entry.OwnWindow ? entry.Title + "  ↗" : entry.Title, FontSize = 13, TextTrimming = TextTrimming.CharacterEllipsis },
+                    Content = new TextBlock { Text = entry.OwnWindow ? entry.Title + "  ↗" : entry.Title, FontSize = entry.Sub ? 12 : 13, TextTrimming = TextTrimming.CharacterEllipsis },
                 };
                 button.Checked += (_, _) =>
                 {
