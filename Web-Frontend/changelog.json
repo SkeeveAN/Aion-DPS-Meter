@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.1.6",
+  "date": "2026-10-16",
+  "items": [
+   {
+    "text": "Uploads: the server of a player whose character window you opened is read from the window itself (the id in front of his legion's name), so he no longer depends on a login or friend notice that may have come before the meter started",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-16"
+   },
+   {
+    "text": "the server of a player whose character window you opened is read from the window itself",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-16"
+   }
+  ]
+ },
+ {
   "version": "1.1.5",
   "date": "2026-10-16",
   "items": [
