@@ -528,7 +528,11 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 {
                     var xs = recent.Select(s => s.X).OrderBy(v => v).ToList();
                     var ys = recent.Select(s => s.Y).OrderBy(v => v).ToList();
-                    return (xs[xs.Count / 2], ys[ys.Count / 2], recent.Max(s => s.At));
+                    float gx = xs[xs.Count / 2], gy = ys[ys.Count / 2];
+                    if (GuessIsPlausible(gx, gy, now))
+                    {
+                        return (gx, gy, recent.Max(s => s.At));
+                    }
                 }
 
                 // The game reports the player's own position only for some movements (not when a monster is targeted), so it can stay unknown
@@ -538,12 +542,33 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 {
                     var xs = _liveMobs.Values.Select(m => m.X).OrderBy(v => v).ToList();
                     var ys = _liveMobs.Values.Select(m => m.Y).OrderBy(v => v).ToList();
-                    return (xs[xs.Count / 2], ys[ys.Count / 2], now);
+                    if (GuessIsPlausible(xs[xs.Count / 2], ys[ys.Count / 2], now))
+                    {
+                        return (xs[xs.Count / 2], ys[ys.Count / 2], now);
+                    }
                 }
 
                 return _position;
             }
         }
+    }
+
+    /// <summary>
+    /// The middle of the monsters around the player is only a guess, and monsters far outside his range are announced too (a group that respawns
+    /// 190 m away, seen at an obelisk: the guess jumped there every ten seconds and the map swung back and forth while he stood still). A guess that
+    /// lies further from his last exact place than he could have walked since (10 m/s plus 30 m, for at most 12 s) is not taken; with no exact place
+    /// known yet every guess counts.
+    /// </summary>
+    private bool GuessIsPlausible(float x, float y, DateTime now)
+    {
+        if (_position is not { } last)
+        {
+            return true;
+        }
+
+        double seconds = Math.Min((now - last.At).TotalSeconds, 12);
+        double dx = x - last.X, dy = y - last.Y;
+        return Math.Sqrt(dx * dx + dy * dy) <= 3000 + 1000 * seconds;
     }
 
     public void NoteLocalPosition(float x, float y)
@@ -564,6 +589,12 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         {
             _position = (x, y, DateTime.UtcNow);
             _positionIsSpawn = true;
+            // the monsters and cubes announced so far belong to the place he left (the game does not always announce their end): the ones of the new place
+            // follow this frame
+            _env.Clear();
+            _mobPositions.Clear();
+            _liveMobs.Clear();
+            _recentSpawns.Clear();
         }
     }
 
