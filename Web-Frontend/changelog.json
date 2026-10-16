@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-16",
+  "items": [
+   {
+    "text": "Player page: stigmas at level 0 are not listed (a stigma the player has not learned), the counts follow",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-16"
+   }
+  ]
+ },
+ {
   "version": "1.1.6",
   "date": "2026-10-16",
   "items": [
