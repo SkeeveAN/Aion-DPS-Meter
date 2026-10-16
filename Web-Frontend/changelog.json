@@ -16,6 +16,20 @@
      "Backend"
     ],
     "date": "2026-10-16"
+   },
+   {
+    "text": "Tools: the settings button now reads \"Configuration\" next to its cog, is tinted in the theme's accent colour and sits left of the overlay switch, with the hotkey to its left (when the tool has one)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-16"
+   },
+   {
+    "text": "Tool settings: while a tool's main overlay switch is off, a short note under its name says the switches below only work with it on",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-16"
    }
   ]
  },
