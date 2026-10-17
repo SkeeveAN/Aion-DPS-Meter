@@ -1,12 +1,19 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.1.11",
   "date": "2026-10-17",
   "items": [
    {
     "text": "A run that waited for the NC check or a review is dated by the time it was uploaded, not by the time it was let through, so it shows up in the feed at the right moment",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-17"
+   },
+   {
+    "text": "the boss health bar of Wahnstreiter Kusan shows the right percentage when the meter joins a fight that is already under way",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-17"
    }
