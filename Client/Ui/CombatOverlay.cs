@@ -76,7 +76,9 @@ public static class CombatOverlayData
             return null;
         }
 
-        long max = Math.Max(dir.HitPoints.MaxOf(id) ?? 0, dir.HitPoints.HighestSeen(id) ?? 0);
+        // The server sends no maximum for most bosses, and a meter that joined mid-fight saw only a worn-down value first: the table knows the real one.
+        long known = dir.BossNpcIdOf(id) is int npc ? AionDPS.Aion2.Protocol.Aion2BossCatalog.Find(npc)?.MaxHp ?? 0 : 0;
+        long max = Math.Max(known, Math.Max(dir.HitPoints.MaxOf(id) ?? 0, dir.HitPoints.HighestSeen(id) ?? 0));
         return max > 0 ? new BossHpData(Math.Min(hp, max), max, id, Since: dir.EngagedSince(id)) : null;
     }
 

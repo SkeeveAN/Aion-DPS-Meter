@@ -8,10 +8,11 @@ namespace AionDPS.Aion2.Protocol;
 /// sends the NPC id in the frame that announces a monster (see Aion2FrameDecoder.DecodeNpcSpawn);
 /// the combat frames themselves carry only a per-spawn entity id, so this table is what turns "entity
 /// 30410" into "Enhanced Harcon". Only bosses are listed - an id that is not here is an ordinary mob.
+/// An entry may carry <c>maxHp</c>: the server sends no maximum, so a meter that joins mid-fight would take the first reading for it.
 /// </summary>
 public static class Aion2BossCatalog
 {
-    public sealed record BossInfo(int NpcId, string Name, string Instance);
+    public sealed record BossInfo(int NpcId, string Name, string Instance, long MaxHp = 0);
 
     private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "assets", "aion2", "npcs", "boss_npcs.json");
     private static IReadOnlyDictionary<int, BossInfo>? _cache;
@@ -35,7 +36,8 @@ public static class Aion2BossCatalog
                 {
                     if (int.TryParse(entry.Name, out int id))
                     {
-                        table[id] = new BossInfo(id, entry.Value.GetProperty("name").GetString() ?? "", entry.Value.GetProperty("instance").GetString() ?? "");
+                        table[id] = new BossInfo(id, entry.Value.GetProperty("name").GetString() ?? "", entry.Value.GetProperty("instance").GetString() ?? "",
+                            entry.Value.TryGetProperty("maxHp", out JsonElement hp) && hp.TryGetInt64(out long maxHp) ? maxHp : 0);
                     }
                 }
             }

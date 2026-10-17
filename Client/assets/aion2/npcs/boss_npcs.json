@@ -2064,7 +2064,8 @@
 },
 "2100076": {
 "name": "Kusan the Mad Gladiator",
-"instance": "Verteron"
+"instance": "Verteron",
+"maxHp": 160000000
 },
 "2100077": {
 "name": "Ritualist Garshim",
