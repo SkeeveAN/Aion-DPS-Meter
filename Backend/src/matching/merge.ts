@@ -744,7 +744,23 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
   });
 }
 
-export function processUpload(payload: UploadPayload): ProcessResult {
+/**
+ * `receivedAt` is the moment the upload reached the server, in the database's own text format. An upload that waited for the NC check or
+ * a review is only merged later, but the fight must show up (feed, "x minutes ago") at the time it was really uploaded, so the encounter
+ * is never dated later than its earliest upload.
+ */
+export function processUpload(payload: UploadPayload, receivedAt?: string): ProcessResult {
+  const result = processUploadAt(payload);
+  if (receivedAt) {
+    db.update(encounters)
+      .set({ createdAt: sql`min(${encounters.createdAt}, ${receivedAt})` })
+      .where(eq(encounters.id, result.encounterId))
+      .run();
+  }
+  return result;
+}
+
+function processUploadAt(payload: UploadPayload): ProcessResult {
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   rehomePlayers(payload.participants, serverId);
   payload = { ...payload, participants: mergeDuplicateParticipants(payload.participants, serverId) };

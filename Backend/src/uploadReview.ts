@@ -233,7 +233,7 @@ export function approveUpload(id: number): { encounterId: number } | null {
     throw new Error("the stored payload no longer reads: " + parsed.error.message);
   }
 
-  const result = processUpload(parsed.data);
+  const result = processUpload(parsed.data, row.receivedAt);
   db.update(uploads)
     .set({ status: "merged", matchedEncounterId: result.encounterId, serverId: result.serverId, reviewedAt: new Date().toISOString() })
     .where(eq(uploads.id, id))

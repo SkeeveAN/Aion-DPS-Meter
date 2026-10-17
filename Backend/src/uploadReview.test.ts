@@ -95,7 +95,7 @@ test("the reference comes from the kills on file; a flagged upload waits and is 
   const findings = assessKill(odd, referenceFor(odd));
   assert.ok(findings.some((f) => f.code === "too_fast"));
 
-  db.insert(uploads).values({ clientVersion: "test", uploaderReportedName: "Player0", ipHash: "x", status: "pending", reviewReason: JSON.stringify(findings), rawPayloadJson: JSON.stringify(odd) }).run();
+  db.insert(uploads).values({ clientVersion: "test", uploaderReportedName: "Player0", ipHash: "x", status: "pending", receivedAt: "2026-02-01 20:01:00", reviewReason: JSON.stringify(findings), rawPayloadJson: JSON.stringify(odd) }).run();
   const before = db.select().from(encounters).all().length;
   const waiting = pendingUploads();
   assert.equal(waiting.length, 1);
@@ -108,6 +108,8 @@ test("the reference comes from the kills on file; a flagged upload waits and is 
   assert.equal(db.select().from(encounters).all().length, before + 1);
   assert.equal(pendingUploads().length, 0);
   assert.equal(db.select().from(uploads).where(eq(uploads.id, waiting[0]!.id)).get()!.status, "merged");
+  // the fight is dated by when it was uploaded, not by when the review let it through
+  assert.equal(db.select().from(encounters).where(eq(encounters.id, approved.encounterId)).get()!.createdAt, "2026-02-01 20:01:00");
   assert.equal(approveUpload(waiting[0]!.id), null); // only once
 
   db.insert(uploads).values({ clientVersion: "test", uploaderReportedName: "Player0", ipHash: "x", status: "pending", reviewReason: "[]", rawPayloadJson: JSON.stringify(odd) }).run();
