@@ -147,5 +147,6 @@
  "be5aa4d": "Uploads: players whose character window you opened are uploaded with their server and faction again (the upload carried no server for them, so the website left them out), and the server next to a name is also read from the name frames of friend and legion entries",
  "f343c47": "Uploads: the server of a player whose character window you opened is read from the window itself (the id in front of his legion's name), so he no longer depends on a login or friend notice that may have come before the meter started",
  "5d1bd2e": "Overlays: optional placement on a grid and docking to each other (docked overlays follow their parent when it moves or changes size), requested by a legion mate",
- "2244e7f": null
+ "2244e7f": null,
+ "7395c35": null
 }

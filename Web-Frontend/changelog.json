@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.2.0",
+  "date": "2026-10-17",
+  "items": [
+   {
+    "text": "Group and damage reading: a member who left the party is gone from the group at once, summons of players outside your group and of spawns without an owner are credited correctly, and a shield's share of a blow no longer counts as damage taken",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-17"
+   },
+   {
+    "text": "new Loot tool - what you pick up from the ground, by session and map, as a page and as an overlay with a hotkey (Ctrl+Alt+L)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-17"
+   }
+  ]
+ },
+ {
   "version": "1.1.11",
   "date": "2026-10-17",
   "items": [
