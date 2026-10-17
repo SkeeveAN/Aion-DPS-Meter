@@ -1,5 +1,25 @@
 [
  {
+  "version": "1.1.9",
+  "date": "2026-10-17",
+  "items": [
+   {
+    "text": "Interactive map: the configuration button opens only the map and list settings; Pets and Gathering are no longer repeated there",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-17"
+   },
+   {
+    "text": "interactive map configuration no longer repeats the Pets and Gathering settings, which have their own pages in the tools window",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-17"
+   }
+  ]
+ },
+ {
   "version": "1.1.8",
   "date": "2026-10-16",
   "items": [
