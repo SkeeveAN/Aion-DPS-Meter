@@ -281,14 +281,22 @@ public sealed class PetMapController : IDisposable
         }
 
         var directory = _directory();
+        bool inInstance = directory is not null && Aion2Zones.IsInstance(directory.ZoneId);
 
         // Which map? (once a second; the previous one stays when no pet monster is in sight)
         if (directory is not null && (DateTime.UtcNow - _lastDetect).TotalSeconds >= 1)
         {
             _lastDetect = DateTime.UtcNow;
             // the zone frame names the map (and the airship above it) outright; the monsters only vote where it does not
-            var found = Aion2Maps.OfZone(directory.ZoneId) ?? Aion2Maps.Detect(directory.RecentMobPositions());
-            if (found is not null && found != _current)
+            var found = Aion2Maps.OfZone(directory.ZoneId) ?? (inInstance ? null : Aion2Maps.Detect(directory.RecentMobPositions()));
+            if (inInstance && _current is not null)
+            {
+                // an instance has no world map: the overworld one must not stay behind it
+                _current = null;
+                _haveView = false;
+                _pointsKey = "";
+            }
+            else if (found is not null && found != _current)
             {
                 _current = found;
                 _haveView = false;
@@ -343,7 +351,7 @@ public sealed class PetMapController : IDisposable
         }
         else
         {
-            if (_current is null && settings.PetMapLastMap is { } lastMap)
+            if (_current is null && !inInstance && settings.PetMapLastMap is { } lastMap)
             {
                 _current = Aion2Maps.All.FirstOrDefault(m => m.Key == lastMap);
                 _pointsKey = "";
