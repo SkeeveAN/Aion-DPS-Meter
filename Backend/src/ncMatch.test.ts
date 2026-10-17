@@ -456,3 +456,13 @@ test("mergePlayerRows: the older row keeps its own newer profile and takes the o
   assert.equal(db.select().from(players).where(eq(players.id, drop)).get(), undefined);
   assert.deepEqual(db.select().from(players).where(eq(players.id, keep)).get()?.aliasNamesNormalized, ["dupe"]);
 });
+
+test("the class an upload named is enough to move a player whose client sent the wrong server (before any fight of him is stored)", async () => {
+  const id = player("Altclient", kaisinel);
+  noteClientServer(id, 1304, 1_000_000);
+  ncMatchModule.noteClassHint(id, "Chanter");
+  // NC lists him on 1305 only, as a Chanter (pcId 34 = class 8)
+  assert.equal(await processMatch(id, ncAnswer([raw({ name: "Altclient", serverId: 1305, pcId: 34 })]), 2_000_000), "verified");
+  assert.equal(matchRow(id)?.via, "name-elsewhere");
+  assert.equal(matchRow(id)?.s, 1305);
+});

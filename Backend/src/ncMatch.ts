@@ -247,6 +247,17 @@ function legionServersOf(player: PlayerRow): number[] {
   return rows.length >= 2 && distinct.size === 1 ? [...distinct] : [];
 }
 
+/** The class an upload named for a player, kept in memory for the check that runs before his fights are stored (an upload that waits for NC has neither a fight nor a profile of him yet). */
+const classHints = new Map<number, string>();
+export function noteClassHint(playerId: number, className: string): void {
+  if (className !== "" && className !== "?") {
+    if (classHints.size > 5000) {
+      classHints.clear();
+    }
+    classHints.set(playerId, className);
+  }
+}
+
 function subjectOf(player: PlayerRow): Subject {
   const fight = db
     .select({ className: encounterParticipants.className })
@@ -259,7 +270,7 @@ function subjectOf(player: PlayerRow): Subject {
   return {
     name: player.name,
     faction: player.faction,
-    className: fight?.className ?? profileClass ?? "",
+    className: fight?.className ?? profileClass ?? classHints.get(player.id) ?? "",
     classFromFight: !!fight,
     level: profile?.level ?? null,
     legionServers: legionServersOf(player),

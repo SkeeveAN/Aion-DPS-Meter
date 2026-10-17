@@ -21,7 +21,7 @@ import { upsertProfile } from "../profile.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
 import { rehomeKnownPlayers } from "./rehome.js";
 import { linkPlayerGuild, reconcileGuildWithNc } from "../guilds.js";
-import { askAboutRenamed, checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
+import { askAboutRenamed, noteClassHint, checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -821,6 +821,7 @@ export function registerUploadPlayers(payload: UploadPayload): number[] {
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   rehomePlayers(payload.participants, serverId);
   const ids = payload.participants.map((p) => upsertPlayer(p.name, serverOfParticipant(p, serverId), p.guild, factionOfParticipant(p), p.characterId));
+  payload.participants.forEach((p, i) => noteClassHint(ids[i], p.className));
   checkUploadedPlayers(payload.participants, serverId);
   return ids;
 }
