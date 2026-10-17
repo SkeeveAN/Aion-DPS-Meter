@@ -158,6 +158,30 @@ test("a player whose own client named his server is checked by NC too, but never
   assert.equal(matchRow(id)?.status, "verified");
 });
 
+test("a player NC does not know on the server his client named is moved to the one character of his faction and class elsewhere", async () => {
+  // SaintlyOrder 2026-10-17: the party roster printed 2306 in front of his name and 2303 behind it; NC lists him on 2303 only
+  const id = player("Falschserver", kaisinel);
+  db.insert(playerProfiles).values({ playerId: id, source: "seen", classId: 8, level: 45 }).run();
+  noteClientServer(id, 1304, 1_000_000);
+  assert.equal(await processMatch(id, ncAnswer([raw({ name: "Falschserver", serverId: 1305, pcId: 34 })]), 2_000_000), "verified");
+  assert.equal(matchRow(id)?.status, "verified");
+  assert.equal(matchRow(id)?.s, 1305);
+  assert.equal(matchRow(id)?.via, "name-elsewhere");
+  assert.equal(serverOf(id).d, "Europe - Yustiel", "1305 is Yustiel");
+});
+
+test("a namesake of another class, or one without a known class, never moves a player whose client named his server", async () => {
+  const other = player("Namensvetter", kaisinel);
+  db.insert(playerProfiles).values({ playerId: other, source: "seen", classId: 8, level: 45 }).run();
+  noteClientServer(other, 1304, 1_000_000);
+  assert.equal(await processMatch(other, ncAnswer([raw({ name: "Namensvetter", serverId: 1305, pcId: 6 })]), 2_000_000), "client", "a Gladiator is not the Chanter he is");
+  assert.equal(serverOf(other).d, "Europe - Kaisinel");
+  const unknown = player("Klasselos", kaisinel);
+  noteClientServer(unknown, 1304, 1_000_000);
+  assert.equal(await processMatch(unknown, ncAnswer([raw({ name: "Klasselos", serverId: 1305, pcId: 34 })]), 2_000_000), "client");
+  assert.equal(serverOf(unknown).d, "Europe - Kaisinel");
+});
+
 test("a profile's class helps to pick, and a level lower than his own is no match", async () => {
   const id = player("Stufig", kaisinel);
   db.insert(playerProfiles).values({ playerId: id, source: "seen", classId: 8, level: 40 }).run();

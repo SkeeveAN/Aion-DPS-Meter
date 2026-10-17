@@ -85,7 +85,7 @@ export type Subject = {
   gearScore?: number | null;
 };
 
-export type Decision = { status: "verified" | "ambiguous" | "none"; hit: Hit | null; via: "name" | "legion" | "legion-name" | "gear" | null; candidates: number; /** The characters still in question when ambiguous. */ remaining?: Hit[] };
+export type Decision = { status: "verified" | "ambiguous" | "none"; hit: Hit | null; via: "name" | "name-elsewhere" | "legion" | "legion-name" | "gear" | null; candidates: number; /** The characters still in question when ambiguous. */ remaining?: Hit[] };
 
 const RACE_OF = { Elyos: 1, Asmodian: 2 } as const;
 
@@ -351,7 +351,7 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   if (!player || !shard) {
     return null;
   }
-  // A player whose own client named his server stays there: NC only confirms or enriches, it never moves him.
+  // A player whose own client named his server stays there: NC confirms or enriches him; it moves him only when NC knows nobody of that name there and exactly one character of his faction and class elsewhere (below).
   const before = db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, playerId)).get();
   const clientServer = before?.status === "client" ? before.ncServerId : null;
   // A player NC confirmed before is asked for by his character id: a rename changes the name, never the id, and a search by the old name would lose him.
@@ -391,6 +391,14 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
       hits = hits.filter((h) => decodeCharacterId(h.characterId) !== disproved);
     }
     decision = decide(hits, subject);
+    // The server his client named is wrong for some players (the party roster prints two ids per member and clients before 1.1.10 read the wrong one): NC knows nobody of that
+    // name there. Exactly one character of his faction AND class elsewhere is him - the class must be known and fit, so a namesake of another class never moves anyone.
+    if (clientServer !== null && decision.status === "none" && decision.candidates === 0 && subject.className) {
+      const elsewhere = decide(await searchHits(fetchFn, player.name, shard, { race }), subject);
+      if (elsewhere.status === "verified" && elsewhere.hit && elsewhere.hit.classId !== null && AION2_CLASS_BY_ID[elsewhere.hit.classId] === subject.className) {
+        decision = { ...elsewhere, via: "name-elsewhere" };
+      }
+    }
     if (decision.status === "ambiguous" && decision.remaining) {
       const byLegion = await decideByLegion(fetchFn, decision.remaining, subject, shard);
       if (byLegion) {
