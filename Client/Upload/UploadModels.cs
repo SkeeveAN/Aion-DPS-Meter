@@ -61,7 +61,9 @@ public sealed record ParticipantUpload(
     long DamageAbsorbed = 0,
     // The damage figures of this row are estimated (a crowded world boss: the game sends the hits of other players without their damage,
     // so each hit counts at the average of its skill). Crit hits are then 0, not measured.
-    bool Estimated = false);
+    bool Estimated = false,
+    // The game's permanent character id of this player (it stays when he is renamed), when a player list named him. The website uses it only as a hint to recognise a renamed character.
+    int? CharacterId = null);
 
 public sealed record ShieldGivenUpload(string PlayerName, long Amount);
 
@@ -171,4 +173,5 @@ public sealed record ProfileParticipantUpload(
     bool IsSelf,
     string? Guild,
     ProfileUpload Profile,
-    int? ServerId = null);
+    int? ServerId = null,
+    int? CharacterId = null);

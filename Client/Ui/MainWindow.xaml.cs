@@ -2780,7 +2780,8 @@ public partial class MainWindow : Window
                 shareOthers || isSelf ? aion2Directory?.GuildOf(ProfileIdOf(row), row.Name) : null,
                 shareOthers || isSelf ? BuildProfileUpload(ProfileIdOf(row)) : null,
                 ServerId: aion2Directory?.ServerIdOf(ProfileIdOf(row)),
-                Estimated: estimated));
+                Estimated: estimated,
+                CharacterId: CharacterIdFor(aion2Directory, row.Name, aion2Directory?.ServerIdOf(ProfileIdOf(row)))));
         }
 
         // The backend takes at most 300 players (a world boss has the whole map on it): the biggest by damage, the own character always.
@@ -3404,7 +3405,7 @@ public partial class MainWindow : Window
         {
             if (BuildProfileUpload(id) is { } profile)
             {
-                participants.Add(new ProfileParticipantUpload(name, className, directory.FactionOf(id) ?? "", isSelf, directory.GuildOf(id, name), profile, directory.ServerIdOf(id)));
+                participants.Add(new ProfileParticipantUpload(name, className, directory.FactionOf(id) ?? "", isSelf, directory.GuildOf(id, name), profile, directory.ServerIdOf(id), CharacterIdFor(directory, name, directory.ServerIdOf(id))));
             }
         }
 
@@ -5252,6 +5253,10 @@ public partial class MainWindow : Window
 
     /// <summary>The id to read a row's guild and profile under: the own character's row may carry an
     /// older object id than the one the game currently knows it by.</summary>
+    /// <summary>The game's permanent character id of a player for the upload (a hint for the website to recognise a renamed character), null when no player list named him.</summary>
+    private static int? CharacterIdFor(Aion2.Aion2EntityDirectory? directory, string name, int? serverId) =>
+        directory is not null && serverId is int server && directory.CharacterIdOf(name, server) is > 0 and int id ? id : null;
+
     private int ProfileIdOf(PlayerRow row) =>
         _source?.Entities is Aion2.Aion2EntityDirectory { LocalCharacter: { } own } && row.Name == own.Name
             ? own.CombatId
