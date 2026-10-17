@@ -1732,25 +1732,18 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    // Party member name -> when a roster frame last listed it.
-    private readonly Dictionary<string, DateTime> _partySeen = new(StringComparer.Ordinal);
-    private DateTime _lastPartyFrame;
+    // The members the latest roster frame listed, the local player included.
+    private HashSet<string> _party = new(StringComparer.Ordinal);
 
-    /// <summary>How long a member stays in the party after the last roster frame naming it: the
-    /// frames are re-sent every few seconds, but one frame does not always list everybody.</summary>
-    private static readonly TimeSpan PartyMemory = TimeSpan.FromSeconds(90);
-
-    /// <summary>Notes the members one party roster frame lists (the local player included).</summary>
+    /// <summary>Notes a party roster frame: it lists the group as it is now, so it replaces the previous one.
+    /// A frame changes only when somebody joins or leaves, and a party breaking up ends with a frame naming the
+    /// local player alone. Names used to be kept for 90 s after their last mention, so whoever left within 90 s
+    /// of the last frame stayed in the group for good (found in StacysView's fork, 2026-10-17).</summary>
     public void NoteParty(IReadOnlyCollection<string> names, DateTime at)
     {
         lock (_gate)
         {
-            foreach (string name in names)
-            {
-                _partySeen[name] = at;
-            }
-
-            _lastPartyFrame = at;
+            _party = new HashSet<string>(names, StringComparer.Ordinal);
             MatchPartyMembersByClass();
         }
     }
@@ -1789,22 +1782,6 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
 
         return ids;
-    }
-
-    /// <summary>True for a player whose name is known while the party is, and who is not in it - a
-    /// stranger nearby in the open world.</summary>
-    public bool IsNamedOutsideParty(int id)
-    {
-        lock (_gate)
-        {
-            if (!_names.TryGetValue(id, out string? name))
-            {
-                return false;
-            }
-
-            var party = CurrentPartyNames();
-            return party.Count > 0 && !party.Contains(name);
-        }
     }
 
     /// <summary>Notes a party member's class, as the roster gives it.</summary>
@@ -1890,8 +1867,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    /// <summary>Names in the local player's party: listed by a roster frame within
-    /// <see cref="PartyMemory"/> of the latest one. Empty when no roster has arrived yet.</summary>
+    /// <summary>Names in the local player's party: those of the latest roster frame. Empty when no roster has
+    /// arrived yet.</summary>
     public IReadOnlySet<string> PartyNames
     {
         get
@@ -1903,8 +1880,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
-    private HashSet<string> CurrentPartyNames() =>
-        _partySeen.Where(kv => _lastPartyFrame - kv.Value <= PartyMemory).Select(kv => kv.Key).ToHashSet(StringComparer.Ordinal);
+    private HashSet<string> CurrentPartyNames() => new(_party, StringComparer.Ordinal);
 
     /// <summary>A name the roster shows that is not a party member - the guild name, which every
     /// member's nickname frame repeats after its own name.</summary>

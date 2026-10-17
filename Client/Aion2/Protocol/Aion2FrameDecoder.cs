@@ -24,6 +24,10 @@ public sealed class Aion2FrameDecoder
     private readonly Dictionary<int, DateTime> _spawnedAt = new();
     private readonly Dictionary<(int Caster, int Variant), DateTime> _lastCasts = new();
 
+    // A shield's share of the blow a monster (actor) is striking a player (target) with, waiting for that blow's hit
+    // frame (see DecodeVarintDot).
+    private readonly Dictionary<(int Actor, int Target), (DateTime At, long Amount)> _shieldShares = new();
+
     /// <summary>AION2_FIND=text: reports every decoded frame holding that text (UTF-8 or UTF-16), for
     /// finding where something typed in the game - chat, say - shows up. Diagnostic only.</summary>
     /// <summary>AION2_FRAMES=file: every decoded frame (time;opcode;length;hex) for protocol analysis.</summary>
@@ -193,6 +197,7 @@ public sealed class Aion2FrameDecoder
         }
 
         _entities.NoteZone(zoneId);
+        Aion2Loot.NoteZone(zoneId);
 
         // The place the frame puts the player (x, y as floats at 18 and 22), when it is long enough to hold them.
         (float X, float Y)? place = frame.Length >= 26
@@ -569,6 +574,12 @@ public sealed class Aion2FrameDecoder
                 return Array.Empty<DamageEvent>();
             case StaggerOpcode:
                 DecodeStagger(frame, timestamp);
+                return Array.Empty<DamageEvent>();
+            case Aion2Loot.GroundItemOpcode:
+                Aion2Loot.NoteGroundItem(frame);
+                return Array.Empty<DamageEvent>();
+            case Aion2Loot.GroundGoneOpcode:
+                Aion2Loot.NoteGroundGone(frame, timestamp);
                 return Array.Empty<DamageEvent>();
             default:
                 if ((opcode & 0xff) == 0x37 && PositionOffset((opcode >> 8) & 0xff) is int positionOffset)
@@ -955,10 +966,12 @@ public sealed class Aion2FrameDecoder
         // A Cleric's Divine Aura names itself here, and its owner by name instead (above).
         int marker = frame[(p + 4)..].IndexOf(OwnerMarker);
         int q = marker < 0 ? -1 : p + 4 + marker + OwnerMarker.Length + 8;
-        if (q > 0 && q < frame.Length && TryReadVarint(frame, ref q, out long owner) && owner > 0)
-        {
-            _entities.SetSummonOwner(unchecked((int)entityId), owner == entityId ? null : unchecked((int)owner));
-        }
+        // Some monsters' spawns carry no owner block at all: a spawn is a new entity all the same, so an owner
+        // from the id's previous life goes (a world boss add once took a stale owner and showed as a player).
+        int? summoner = q > 0 && q < frame.Length && TryReadVarint(frame, ref q, out long owner) && owner > 0 && owner != entityId
+            ? unchecked((int)owner)
+            : null;
+        _entities.SetSummonOwner(unchecked((int)entityId), summoner);
     }
 
     /// <summary>
@@ -988,14 +1001,15 @@ public sealed class Aion2FrameDecoder
             return null;
         }
 
-        // A party member of the class who cast this variant just before (within 5 s); else a caster
-        // within 2 s who may be a party member not named yet (the meter started inside a dungeon)
-        // but is not known to be outside the party (open world); else the party's only player of
+        // A party member of the class who cast this variant just before (within 5 s); else any caster of
+        // it within 2 s - a party member not named yet (the meter started inside a dungeon) or a player
+        // outside the party, whose summon is theirs too (at a world boss the crowd is many small groups;
+        // refused, each Bittercold Wind showed as a player of its own); else the party's only player of
         // the class.
         int variant = skillId / 10;
         var party = _entities.PartyMemberIdsOfClass(className).Where(id => id != actor).ToList();
         int? owner = OwnerByCast(actor, variant, TimeSpan.FromSeconds(5), id => party.Contains(id))
-            ?? OwnerByCast(actor, variant, TimeSpan.FromSeconds(2), id => !_entities.IsNamedOutsideParty(id));
+            ?? OwnerByCast(actor, variant, TimeSpan.FromSeconds(2), _ => true);
         if (owner is null && party.Count == 1)
         {
             owner = party[0];
@@ -1360,7 +1374,21 @@ public sealed class Aion2FrameDecoder
             _entities.Combat.NoteHit(timestamp, source, (int)target, skillId, amount, _entities.IsKnownPlayer((int)target), _entities.IsLocalPlayer((int)target));
         }
 
-        return new[] { new DamageEvent(timestamp, source, (int)target, amount, isHeal, skill, critical && !isHeal, SkillId: skillId, Kinds: isHeal ? null : kinds, HitCount: hitCount) };
+        // A blow a shield took a share of (see DecodeVarintDot): the hit frame carries the blow's FULL amount, the
+        // player lost the rest - the hit points went down by exactly blow - share on the captures of 2026-10-08
+        // (Protection Circle 1,535 - 638 = 897, 4,460 - 1,080 = 3,380). A share from an earlier packet belongs to a
+        // blow the shield took whole. Found in StacysView's fork, checked on our own recordings.
+        long taken = amount;
+        if (!isHeal && _shieldShares.Remove(((int)actor, (int)target), out var share) && share.At == timestamp)
+        {
+            taken -= share.Amount;
+            if (taken <= 0)
+            {
+                return Array.Empty<DamageEvent>();
+            }
+        }
+
+        return new[] { new DamageEvent(timestamp, source, (int)target, taken, isHeal, skill, critical && !isHeal, SkillId: skillId, Kinds: isHeal ? null : kinds, HitCount: hitCount) };
     }
 
     /// <summary>
@@ -1446,6 +1474,26 @@ public sealed class Aion2FrameDecoder
 
         if (amount <= 0 || amount > MaxPlausibleAmount || target == actor)
         {
+            return Array.Empty<DamageEvent>();
+        }
+
+        // A shield's share of a blow: a monster's tick naming the shield a player wears. The blow itself comes in the
+        // very next hit frame with its full amount, so the share is kept to be taken off it (see DecodeVarintDamage).
+        // Counted as a blow of its own, it inflated the damage taken (captures of 2026-10-07 to 10-09).
+        if (Aion2SkillNames.ClassOf(skillId) is not null && !_entities.IsKnownPlayer(source) && _entities.IsKnownPlayer((int)target))
+        {
+            var key = ((int)actor, (int)target);
+            long earlier = _shieldShares.TryGetValue(key, out var share) && share.At == timestamp ? share.Amount : 0;
+            if (_shieldShares.Count > 512)
+            {
+                // Shares of blows taken whole, whose monster never struck that player again.
+                foreach (var stale in _shieldShares.Where(kv => kv.Value.At != timestamp).Select(kv => kv.Key).ToList())
+                {
+                    _shieldShares.Remove(stale);
+                }
+            }
+
+            _shieldShares[key] = (timestamp, earlier + amount);
             return Array.Empty<DamageEvent>();
         }
 
@@ -1925,6 +1973,7 @@ public sealed class Aion2FrameDecoder
             return;
         }
 
+        Aion2Loot.NoteInventory(frame, timestamp);
         int itemId = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[13..]));
         if (Aion2Pets.PetOfSoulItem(itemId) is int pet)
         {

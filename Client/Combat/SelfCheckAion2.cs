@@ -34,6 +34,7 @@ public static class SelfCheckAion2
         ok &= RunAion2NoDamageFrameScenario();
         ok &= RunAion2SummonOwnerScenario();
         ok &= RunAion2NamedSummonScenario();
+        ok &= RunAion2RosterReplacesPartyScenario();
         ok &= RunAion2GuildScenario();
         ok &= RunAion2PartyByClassScenario();
         ok &= RunAion2AccentAndLeftoverSummonScenario();
@@ -673,6 +674,21 @@ public static class SelfCheckAion2
         bool aurulios = hits.Any(h => h.SourceObjectId == 16061 && h.Skill == "Bittercold Wind") && dir.SummonOwnerOf(37347) == 16061;
         Console.WriteLine($"  -> Lumy's wind is Lumy's: {lumys}, Aurulio's wind is Aurulio's: {aurulios}");
         return lumys && aurulios;
+    }
+
+    /// <summary>The latest roster frame is the group: a member who left is gone at once, not 90 s later.</summary>
+    private static bool RunAion2RosterReplacesPartyScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 party roster: the latest frame replaces the earlier one:");
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        var at = new DateTime(2026, 10, 17, 20, 0, 0, DateTimeKind.Utc);
+        dir.NoteParty(new[] { "Aahz", "Skeeve", "Chumley" }, at);
+        bool three = dir.PartyNames.Count == 3;
+        dir.NoteParty(new[] { "Aahz" }, at.AddSeconds(3));
+        bool alone = dir.PartyNames.Count == 1 && dir.PartyNames.Contains("Aahz");
+        Console.WriteLine($"  -> three members listed: {three}; the next frame names the local player alone, the others are gone: {alone}");
+        return three && alone;
     }
 
     /// <summary>
