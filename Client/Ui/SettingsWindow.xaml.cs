@@ -65,6 +65,7 @@ public partial class SettingsWindow : Window
         ShowPetFarmBox.IsChecked = settings.ShowPetFarm;
         PetFarmLockedBox.IsChecked = !settings.PetFarmLocked;
         NetworkOpacity.Fraction = settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.Network, 0.6);
+        LootOpacity.Fraction = settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.Loot, 0.6);
         BossOpacity.Fraction = settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.WorldBoss, 0.6);
         HotkeyOpacity.Fraction = settings.OverlayOpacities.GetValueOrDefault(OverlayPlaces.Hotkeys, 0.6);
         HotkeyOverlayLockedBox.IsChecked = !(settings.HotkeyOverlayLocked ?? settings.PetFarmLocked);
@@ -85,6 +86,18 @@ public partial class SettingsWindow : Window
         SetHotkeyBox(HotkeyNetworkBox, HotkeyBinding.Parse(settings.HotkeyNetwork).ToString());
         SetHotkeyBox(HotkeyCombatBox, HotkeyBinding.Parse(settings.HotkeyCombatOverlay).ToString());
         SetHotkeyBox(HotkeyAssistBox, HotkeyBinding.Parse(settings.HotkeyAssist).ToString());
+        SetHotkeyBox(HotkeyLootBox, HotkeyBinding.Parse(settings.HotkeyLoot).ToString());
+        ShowLootOverlayBox.IsChecked = settings.ShowLootOverlay;
+        LootOverlayLockedBox.IsChecked = !settings.LootOverlayLocked;
+        LootWholeSessionBox.IsChecked = settings.LootOverlayWholeSession;
+        LootHideCommonBox.IsChecked = settings.LootOverlayHideCommon;
+        int[] lootLineChoices = { 3, 5, 8, 10, 15, 20, 30 };
+        int lootLines = lootLineChoices.Contains(settings.LootOverlayLines) ? settings.LootOverlayLines : 8;
+        foreach (int lines in lootLineChoices)
+        {
+            LootLinesBox.Items.Add(new ComboBoxItem { Content = lines.ToString(), Tag = lines, IsSelected = lines == lootLines });
+        }
+
         InitCombatPage(settings);
         ShowNetworkOverlayBox.IsChecked = settings.ShowNetworkOverlay;
         NetworkOverlayLockedBox.IsChecked = !settings.NetworkOverlayLocked;
@@ -453,7 +466,7 @@ public partial class SettingsWindow : Window
 
     /// <summary>The switches in front of the hotkey names: shown in the hotkey overlay or not (Tag = the hotkey's id).</summary>
     private IEnumerable<CheckBox> HotkeyOverlayRowBoxes() =>
-        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvCombatBox, OvAssistBox, OvPetArrowsBox, OvGatherArrowsBox };
+        new[] { OvHideUiBox, OvPauseBox, OvCopyDamageBox, OvClearBox, OvUploadBossBox, OvModeBox, OvTimetableBox, OvPetMapBox, OvHotkeyOverlayBox, OvAllOverlaysBox, OvWorldBossBox, OvNetworkBox, OvCombatBox, OvAssistBox, OvLootBox, OvPetArrowsBox, OvGatherArrowsBox };
 
     /// <summary>The switches of the lines the network overlay shows (Tag = the line's id).</summary>
     private IEnumerable<CheckBox> NetworkRowBoxes() =>
@@ -591,6 +604,11 @@ public partial class SettingsWindow : Window
         _settings.DummyOverlayWidth = onDisk.DummyOverlayWidth;
         _settings.DummyOverlayHeight = onDisk.DummyOverlayHeight;
         _settings.DummyTestSeconds = onDisk.DummyTestSeconds;
+        _settings.LootOverlayLeft = onDisk.LootOverlayLeft;
+        _settings.LootOverlayTop = onDisk.LootOverlayTop;
+        _settings.LootOverlayScale = onDisk.LootOverlayScale;
+        _settings.LootOverlayWidth = onDisk.LootOverlayWidth;
+        _settings.LootOverlayHeight = onDisk.LootOverlayHeight;
         _settings.NetworkOverlayLeft = onDisk.NetworkOverlayLeft;
         _settings.NetworkOverlayTop = onDisk.NetworkOverlayTop;
         _settings.NetworkOverlayScale = onDisk.NetworkOverlayScale;
@@ -645,6 +663,7 @@ public partial class SettingsWindow : Window
         _settings.ShowPetFarm = ShowPetFarmBox.IsChecked ?? false;
         _settings.PetFarmLocked = !(PetFarmLockedBox.IsChecked ?? false);
         _settings.OverlayOpacities[OverlayPlaces.Network] = NetworkOpacity.Fraction;
+        _settings.OverlayOpacities[OverlayPlaces.Loot] = LootOpacity.Fraction;
         _settings.OverlayOpacities[OverlayPlaces.WorldBoss] = BossOpacity.Fraction;
         _settings.OverlayOpacities[OverlayPlaces.Hotkeys] = HotkeyOpacity.Fraction;
         _settings.HotkeyOverlayLocked = !(HotkeyOverlayLockedBox.IsChecked ?? false);
@@ -669,10 +688,20 @@ public partial class SettingsWindow : Window
         _settings.HotkeyAllOverlays = (string?)HotkeyAllOverlaysBox.Tag ?? "";
         _settings.HotkeyWorldBoss = (string?)HotkeyWorldBossBox.Tag ?? "";
         _settings.HotkeyNetwork = (string?)HotkeyNetworkBox.Tag ?? "";
+        _settings.HotkeyLoot = (string?)HotkeyLootBox.Tag ?? "";
         _settings.HotkeyCombatOverlay = (string?)HotkeyCombatBox.Tag ?? "";
         _settings.HotkeyAssist = (string?)HotkeyAssistBox.Tag ?? "";
         ReadCombatPage(_settings);
         _settings.ShowNetworkOverlay = ShowNetworkOverlayBox.IsChecked ?? false;
+        _settings.ShowLootOverlay = ShowLootOverlayBox.IsChecked ?? false;
+        _settings.LootOverlayLocked = !(LootOverlayLockedBox.IsChecked ?? false);
+        _settings.LootOverlayWholeSession = LootWholeSessionBox.IsChecked ?? false;
+        _settings.LootOverlayHideCommon = LootHideCommonBox.IsChecked ?? false;
+        if (LootLinesBox.SelectedItem is ComboBoxItem { Tag: int lootLines })
+        {
+            _settings.LootOverlayLines = lootLines;
+        }
+
         _settings.NetworkOverlayLocked = !(NetworkOverlayLockedBox.IsChecked ?? false);
         _settings.NetworkOverlayHidden = NetworkRowBoxes().Where(b => b.IsChecked != true).Select(b => (string)b.Tag).ToList();
         _settings.HotkeyPetArrows = (string?)HotkeyPetArrowsBox.Tag ?? "";
@@ -801,7 +830,7 @@ public partial class SettingsWindow : Window
     private static readonly string[] AllPanels =
     {
         "PanelGeneral", "PanelMeter", "PanelCapture", "PanelHotkeys", "PanelSystem",
-        "PanelNetwork", "PanelCombat", "PanelTimetable", "PanelBoss", "PanelPetMap", "PanelPets", "PanelGather", "PanelStream",
+        "PanelNetwork", "PanelLoot", "PanelCombat", "PanelTimetable", "PanelBoss", "PanelPetMap", "PanelPets", "PanelGather", "PanelStream",
     };
 
     /// <summary>The page each button of the sidebar shows (the settings proper: only what belongs to no module).</summary>
@@ -814,6 +843,7 @@ public partial class SettingsWindow : Window
     private static readonly Dictionary<string, (string TitleKey, string[] Panels)> Modules = new()
     {
         ["network"] = ("Settings.Nav.Network", new[] { "PanelNetwork" }),
+        ["loot"] = ("Main.MenuTools.Loot", new[] { "PanelLoot" }),
         ["combat"] = ("Settings.Nav.Combat", new[] { "PanelCombat" }),
         ["timetable"] = ("Settings.Nav.Timetable", new[] { "PanelTimetable" }),
         ["boss"] = ("Settings.Nav.Boss", new[] { "PanelBoss" }),
@@ -830,6 +860,7 @@ public partial class SettingsWindow : Window
     private (CheckBox Master, TextBox? Hotkey) MasterOf(string module) => module switch
     {
         "network" => (ShowNetworkOverlayBox, HotkeyNetworkBox),
+        "loot" => (ShowLootOverlayBox, HotkeyLootBox),
         "combat" => (ShowCombatOverlayBox, HotkeyCombatBox),
         "timetable" => (ShowTimetableBox, HotkeyTimetableBox),
         "boss" => (ShowBossOverlayBox, HotkeyWorldBossBox),
@@ -1278,6 +1309,7 @@ public partial class SettingsWindow : Window
         ShowPetFarmBox.IsChecked = s.ShowPetFarm;
         ShowBossOverlayBox.IsChecked = s.ShowBossOverlay;
         ShowNetworkOverlayBox.IsChecked = s.ShowNetworkOverlay;
+        ShowLootOverlayBox.IsChecked = s.ShowLootOverlay;
         ShowCombatOverlayBox.IsChecked = s.ShowCombatOverlay;
         ShowPetArrowsBox.IsChecked = s.ShowPetArrows;
         ShowGatherArrowsBox.IsChecked = s.ShowGatherArrows;

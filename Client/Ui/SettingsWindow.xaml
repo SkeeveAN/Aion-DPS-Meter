@@ -663,6 +663,21 @@
                         <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Hotkeys.ModulesHint}" Margin="4,0,0,6"/>
 <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Main.MenuTools.Loot}"/>
+<Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="OvLootBox" Tag="Loot" Grid.Column="3" Margin="8,0,0,0" VerticalAlignment="Center" IsChecked="True" ToolTip="{local:Loc Settings.HotkeyOverlay.Row.Tip}"/>
+                                    <TextBlock Text="{local:Loc Settings.Hotkey.OnOff}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="HotkeyLootBox" Grid.Column="1" Height="28" Margin="0,2" IsReadOnly="True" IsReadOnlyCaretVisible="False" Cursor="Hand" GotKeyboardFocus="OnHotkeyBoxGotFocus" LostKeyboardFocus="OnHotkeyBoxLostFocus"
+                                             VerticalContentAlignment="Center" Background="{DynamicResource Brush.Control}"
+                                             Foreground="{DynamicResource Brush.Text}" BorderBrush="{DynamicResource Brush.Border}"/>
+                                    <Button Grid.Column="2" Tag="HotkeyLootBox" Click="OnHotkeyClearClicked" Height="28" Width="28" Margin="6,2,0,2" Padding="0"
+                                            Content="✕" ToolTip="{local:Loc Settings.Hotkey.Clear.Tip}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+<Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Nav.PetMap}"/>
 <Grid Margin="0,2">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -818,6 +833,29 @@
                                 <CheckBox x:Name="NetRowInternetBox" Tag="internet" Content="{local:Loc Network.Row.internet}" IsChecked="True" Margin="0,2,0,0"/>
                                 <CheckBox x:Name="NetRowConnectionBox" Tag="connection" Content="{local:Loc Network.Row.connection}" IsChecked="True" Margin="0,2,0,0"/>
                                 <CheckBox x:Name="NetRowLoadBox" Tag="load" Content="{local:Loc Network.Row.load}" IsChecked="True" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel x:Name="PanelLoot" Visibility="Collapsed">
+<Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <CheckBox x:Name="ShowLootOverlayBox" Content="{local:Loc Loot.Settings.Overlay}"/>
+                                <CheckBox x:Name="LootOverlayLockedBox" Content="{local:Loc Settings.PetFarm.Locked}" Margin="0,4,0,0"/>
+                                <local:OpacityField x:Name="LootOpacity" Margin="0,8,0,0"/>
+                                <Button Content="{local:Loc Settings.Overlay.ResetPlace}" HorizontalAlignment="Left" Margin="0,8,0,0" Padding="12,3" Tag="Aion DPS Loot" Click="OnResetOverlayPlaceClicked"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Loot.Settings.Hint}" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+<Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Loot.Settings.Content}"/>
+                                <CheckBox x:Name="LootWholeSessionBox" Content="{local:Loc Loot.Settings.WholeSession}"/>
+                                <CheckBox x:Name="LootHideCommonBox" Content="{local:Loc Loot.Settings.HideCommon}" Margin="0,4,0,0"/>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{local:Loc Loot.Settings.Lines}" VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="LootLinesBox" Grid.Column="1" Width="80"/>
+                                </Grid>
                             </StackPanel>
                         </Border>
                     </StackPanel>

@@ -73,6 +73,7 @@ public sealed class HotkeyOverlayWindow : MovableOverlay
             }),
             ("Settings.Hotkeys.Group.Modules", new[]
             {
+                ("Loot", "Main.MenuTools.Loot", s.HotkeyLoot),
                 ("PetMap", "Settings.Hotkey.PetMap", s.HotkeyPetMap),
                 ("PetArrows", "Settings.Hotkey.PetArrows", s.HotkeyPetArrows),
                 ("GatherArrows", "Settings.Hotkey.GatherArrows", s.HotkeyGatherArrows),

@@ -164,6 +164,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "render-loot")
+        {
+            RunRenderLootMode(args[1], args.Length > 2 ? args[2] : "");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-network")
         {
             RunRenderNetworkMode(args.Length > 1 ? args[1] : "network.png", args.Length > 2 ? int.Parse(args[2]) : 2);
@@ -1157,6 +1163,71 @@ internal static class Program
     }
 
     /// <summary>Draws the network overlay with sample measurements into a picture (scale 2 = twice the pixels); no window is ever shown.</summary>
+    /// <summary>Draws the loot tool (its page and its overlay) with made-up pickups into one picture; no window is ever shown, the loot log is not written.</summary>
+    private static void RunRenderLootMode(string path, string language)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        if (language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = language;
+        }
+        else if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        DateTime t = DateTime.Now.AddMinutes(-12);
+        Aion2.Aion2Loot.Clear();
+        void Pick(uint id, int item, uint count, int seconds)
+        {
+            Aion2.Aion2Loot.NoteGroundItem(Combat.SelfCheckLoot.Ground(id, item, count));
+            Aion2.Aion2Loot.NoteInventory(Combat.SelfCheckLoot.Inventory(0, item), t.AddSeconds(seconds));
+            Aion2.Aion2Loot.NoteGroundGone(Combat.SelfCheckLoot.Gone(id, 0), t.AddSeconds(seconds).AddMilliseconds(60));
+        }
+
+        Aion2.Aion2Loot.NoteZone(1010);
+        Pick(1, 534660001, 1, 0);
+        Pick(2, 534660001, 2, 30);
+        Pick(3, 110120003, 1, 90);
+        Pick(4, 513560001, 3, 200);
+        Aion2.Aion2Loot.NoteZone(20);
+        Pick(5, 513551001, 1, 400);
+        Pick(6, 534660002, 4, 500);
+        var overlay = Ui.LootText.OverlayLines(Aion2.Aion2Loot.Current, 1010, settings, sample: false);
+        var window = new Ui.LootOverlayWindow();
+        window.Render(overlay.Caption, overlay.Lines);
+        var overlayContent = window.DetachBody()!;
+        var page = new Ui.ModulePage(Ui.LocalizationManager.Instance["Main.MenuTools.Loot"], new Ui.LootPage(), s => true, (s, v) => { }, s => "Ctrl+Alt+L", () => { }, () => { }, s => { });
+        var root = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Vertical, Width = 860 };
+        var host = new System.Windows.Controls.Border { Width = 860, Height = 460, Child = page, Background = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black };
+        root.Children.Add(host);
+        var strip = new System.Windows.Controls.Border { Padding = new System.Windows.Thickness(20), Background = new System.Windows.Media.LinearGradientBrush(System.Windows.Media.Color.FromRgb(0x3a, 0x4a, 0x52), System.Windows.Media.Color.FromRgb(0x1c, 0x26, 0x2e), 60) };
+        var holder = new System.Windows.Controls.Border { Child = overlayContent, HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+        strip.Child = holder;
+        root.Children.Add(strip);
+        root.Measure(new System.Windows.Size(860, 2000));
+        root.Arrange(new System.Windows.Rect(0, 0, 860, root.DesiredSize.Height));
+        root.UpdateLayout();
+        int w = 860, h = (int)Math.Ceiling(root.DesiredSize.Height);
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(root);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        Aion2.Aion2Loot.Clear();
+        Console.WriteLine("render-loot: wrote " + path);
+        Environment.Exit(0);
+    }
+
     private static void RunRenderNetworkMode(string path, int scale)
     {
         var app = new System.Windows.Application();
@@ -1449,6 +1520,11 @@ internal static class Program
         if (window.FindName("Nav" + (tab == "Interface" ? "Ui" : tab == "Capture" ? "Install" : tab)) is System.Windows.Controls.RadioButton nav)
         {
             nav.IsChecked = true;
+        }
+
+        if (tab == "Loot")
+        {
+            window.ShowModule("loot"); // the tool's own settings, without the sidebar
         }
 
         if (Environment.GetEnvironmentVariable("AIONDPS_LONGEST_PETS") is { Length: > 0 } longest && int.TryParse(longest, out int longestCount))
@@ -2100,6 +2176,15 @@ internal static class Program
                         .GroupBy(e => (int)((e.Timestamp - attempt.Start).TotalSeconds / 30)).OrderBy(g => g.Key).Select(g => $"{g.Key * 30 / 60}:{g.Key * 30 % 60:00}={g.Sum(e => e.Amount):N0}");
                     Console.WriteLine("aion2-replay:     boss damage per 30 s: " + string.Join("  ", bins));
                 }
+            }
+        }
+
+        foreach (Aion2.LootSession loot in Aion2.Aion2Loot.Sessions.AsEnumerable().Reverse())
+        {
+            Console.WriteLine($"aion2-replay: loot session {loot.Start:HH:mm:ss} - {loot.End:HH:mm:ss}");
+            foreach (Aion2.LootMap map in loot.Maps)
+            {
+                Console.WriteLine($"aion2-replay:   zone {map.Zone}: " + string.Join(", ", map.Items.Select(i => $"{Aion2.Protocol.Aion2ItemNames.NameOf(i.ItemId, "en") ?? "#" + i.ItemId} x{i.Count}")));
             }
         }
 

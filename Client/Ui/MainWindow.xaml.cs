@@ -128,6 +128,7 @@ public partial class MainWindow : Window
     private HotkeyOverlayWindow? _hotkeyOverlay;
     private WorldBossController? _worldBoss;
     private AssistController? _assist;
+    private LootOverlayController? _loot;
     private CombatOverlayController? _combat;
     private MenuWatcher? _menuWatcher;
     private Streaming.StreamOverlayServer? _streamServer;
@@ -658,6 +659,9 @@ public partial class MainWindow : Window
             case HotkeyAction.ToggleAssistOverlay:
                 ToggleAssistOverlay();
                 break;
+            case HotkeyAction.ToggleLootOverlay:
+                ToggleLootOverlay();
+                break;
             case HotkeyAction.ToggleWorldBossOverlay:
                 ToggleWorldBossOverlay();
                 break;
@@ -701,6 +705,7 @@ public partial class MainWindow : Window
             [HotkeyAction.ToggleNetworkOverlay] = HotkeyBinding.Parse(settings.HotkeyNetwork),
             [HotkeyAction.ToggleCombatOverlay] = HotkeyBinding.Parse(settings.HotkeyCombatOverlay),
             [HotkeyAction.ToggleAssistOverlay] = HotkeyBinding.Parse(settings.HotkeyAssist),
+            [HotkeyAction.ToggleLootOverlay] = HotkeyBinding.Parse(settings.HotkeyLoot),
             [HotkeyAction.TogglePetArrows] = HotkeyBinding.Parse(settings.HotkeyPetArrows),
             [HotkeyAction.ToggleGatherArrows] = HotkeyBinding.Parse(settings.HotkeyGatherArrows),
         });
@@ -831,6 +836,7 @@ public partial class MainWindow : Window
         _hotkeyOverlay?.RaiseToFront();
         _worldBoss?.RaiseToFront();
         _assist?.RaiseToFront();
+        _loot?.RaiseToFront();
         _combat?.RaiseToFront();
         _network?.RaiseToFront();
         _dummy?.RaiseToFront();
@@ -1115,6 +1121,8 @@ public partial class MainWindow : Window
             _worldBoss ??= new WorldBossController();
             _assist ??= new AssistController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
             _network ??= new NetworkOverlayController();
+            Aion2Loot.EnablePersistence();
+            _loot ??= new LootOverlayController();
             _dummy ??= new DummyTestController(() => _liveSource?.Entities as Aion2.Aion2EntityDirectory);
             _combat ??= new CombatOverlayController(() => _source?.Entities as Aion2.Aion2EntityDirectory, BossHpCheck);
             _menuWatcher ??= new MenuWatcher();
@@ -1171,6 +1179,8 @@ public partial class MainWindow : Window
         _hotkeyOverlay?.Close();
         _worldBoss?.Dispose();
         _assist?.Dispose();
+        _loot?.Dispose();
+        Aion2Loot.Flush();
         _combat?.Dispose();
         _menuWatcher?.Dispose();
         _streamTimer.Stop();
@@ -4783,7 +4793,7 @@ public partial class MainWindow : Window
             var loc = LocalizationManager.Instance;
             var groups = new[]
             {
-                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
+                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
                 new[] { new ToolEntry("combat", loc["Settings.Nav.Combat"]), new ToolEntry("assist", loc["Main.MenuTools.Assist"]) },
                 new[] { new ToolEntry("dummy", loc["Main.MenuTools.DummyTest"]), new ToolEntry("analyzer", loc["Main.MenuTools.Analyzer"], OwnWindow: true) },
                 new[] { new ToolEntry("timetable", loc["Settings.Nav.Timetable"]), new ToolEntry("boss", loc["Settings.Nav.Boss"]) },
@@ -4836,6 +4846,13 @@ public partial class MainWindow : Window
         {
             case "checklist":
                 return Hosted(new ChecklistWindow());
+            case "loot":
+            {
+                var lootPage = new LootPage();
+                var page = new ModulePage(loc["Main.MenuTools.Loot"], lootPage, s => s.ShowLootOverlay, (s, v) => s.ShowLootOverlay = v, s => s.HotkeyLoot, hotkeys, settingsPage, applied);
+                return new ToolPage { Content = page, Cleanup = () => { page.Stop(); lootPage.Stop(); } };
+            }
+
             case "assist":
                 return Hosted(new AssistWindow(() => _liveSource?.Entities as Aion2EntityDirectory));
             case "dummy" when _dummy is not null:
@@ -5665,6 +5682,15 @@ public partial class MainWindow : Window
         _settingsWindow?.SyncOverlaySwitches(settings);
     }
 
+    /// <summary>The loot controller reads the settings every second, so the switch is all it takes.</summary>
+    private void ToggleLootOverlay()
+    {
+        var settings = MeterSettings.Load();
+        settings.ShowLootOverlay = !settings.ShowLootOverlay;
+        settings.Save();
+        _settingsWindow?.SyncOverlaySwitches(settings);
+    }
+
     /// <summary>The combat controller reads the settings every second, so the switch is all it takes.</summary>
     private void ToggleCombatOverlay()
     {
@@ -5675,23 +5701,23 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Which overlays the "all overlays" hotkey switched off, so the next press brings back exactly those.</summary>
-    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm, bool WorldBoss, bool Network, bool Combat, bool Dummy, bool Assist)? _overlaysSwitchedOff;
+    private (bool Hotkeys, bool Timetable, bool PetMap, bool PetFarm, bool WorldBoss, bool Network, bool Combat, bool Dummy, bool Assist, bool Loot)? _overlaysSwitchedOff;
 
     /// <summary>One press switches every overlay that is on off (hotkey list, timetable, interactive map, pet info); the next brings the same ones back.
     /// The DPS overlay is not among them - it is the Hide UI mode with its own hotkey.</summary>
     private void ToggleAllOverlays()
     {
         var settings = MeterSettings.Load();
-        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm || settings.ShowBossOverlay || settings.ShowNetworkOverlay || settings.ShowCombatOverlay || settings.ShowDummyOverlay || settings.ShowAssistOverlay;
+        bool anyOn = settings.ShowHotkeyOverlay || settings.ShowTimetable || settings.ShowPetMap || settings.ShowPetFarm || settings.ShowBossOverlay || settings.ShowNetworkOverlay || settings.ShowCombatOverlay || settings.ShowDummyOverlay || settings.ShowAssistOverlay || settings.ShowLootOverlay;
         if (anyOn)
         {
-            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay);
-            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = settings.ShowBossOverlay = settings.ShowNetworkOverlay = settings.ShowCombatOverlay = settings.ShowDummyOverlay = settings.ShowAssistOverlay = false;
+            _overlaysSwitchedOff = (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay, settings.ShowLootOverlay);
+            settings.ShowHotkeyOverlay = settings.ShowTimetable = settings.ShowPetMap = settings.ShowPetFarm = settings.ShowBossOverlay = settings.ShowNetworkOverlay = settings.ShowCombatOverlay = settings.ShowDummyOverlay = settings.ShowAssistOverlay = settings.ShowLootOverlay = false;
         }
         else
         {
-            var back = _overlaysSwitchedOff ?? (true, true, true, false, true, true, true, true, false);
-            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay) = back;
+            var back = _overlaysSwitchedOff ?? (true, true, true, false, true, true, true, true, false, false);
+            (settings.ShowHotkeyOverlay, settings.ShowTimetable, settings.ShowPetMap, settings.ShowPetFarm, settings.ShowBossOverlay, settings.ShowNetworkOverlay, settings.ShowCombatOverlay, settings.ShowDummyOverlay, settings.ShowAssistOverlay, settings.ShowLootOverlay) = back;
             _overlaysSwitchedOff = null;
         }
 

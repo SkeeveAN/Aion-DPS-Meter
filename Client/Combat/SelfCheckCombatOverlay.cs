@@ -68,6 +68,7 @@ public static class SelfCheckCombatOverlay
         entities.HitPoints.Note(19144, during, 6400);
         entities.HitPoints.NoteMax(19144, 10000);
         settings.CombatShowHealer = true;
+        settings.CombatHealerHpBar = true;
         var withBar = AionDPS.Ui.CombatOverlayData.TargetOfTarget(entities, settings, during, "en");
         bool healerOk = withBar is not null && withBar.Hp == 6400 && withBar.MaxHp == 10000;
         Console.WriteLine($"  -> clicked target 19144: its target is #41205: {totOk}; with the healer bar on, the health bar is the clicked target's, 6,400 of 10,000: {healerOk}");

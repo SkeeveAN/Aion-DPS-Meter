@@ -24,6 +24,7 @@ public enum HotkeyAction
     TogglePetArrows,
     ToggleGatherArrows,
     ToggleAssistOverlay,
+    ToggleLootOverlay,
 }
 
 /// <summary>A key plus modifiers, written "Ctrl+Alt+H" in the settings file.</summary>

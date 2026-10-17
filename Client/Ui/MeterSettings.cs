@@ -195,6 +195,25 @@ public sealed class MeterSettings
 
     public List<string> NetworkOverlayHidden { get; set; } = new();
 
+    /// <summary>The loot overlay (see LootOverlayWindow): what the player picked up in the running session, kept in the Loot tool. Off until switched on. Locked (default): click-through; unlocked: it can be moved and scaled.</summary>
+    public bool ShowLootOverlay { get; set; }
+
+    public bool LootOverlayLocked { get; set; } = true;
+    public double? LootOverlayLeft { get; set; }
+    public double? LootOverlayTop { get; set; }
+    public double LootOverlayScale { get; set; } = 1.0;
+    public double? LootOverlayWidth { get; set; }
+    public double? LootOverlayHeight { get; set; }
+
+    /// <summary>How many lines of loot the overlay lists at most (the rest is summed up in a last line), 3 to 30.</summary>
+    public int LootOverlayLines { get; set; } = 8;
+
+    /// <summary>What the overlay lists: the loot of the map the player is on now (default) or of the whole session.</summary>
+    public bool LootOverlayWholeSession { get; set; }
+
+    /// <summary>The overlay leaves out the items of the plainest grade (Common): the loot worth a look stands out.</summary>
+    public bool LootOverlayHideCommon { get; set; }
+
     public double? NetworkOverlayLeft { get; set; }
     public double? NetworkOverlayTop { get; set; }
     public double NetworkOverlayScale { get; set; } = 1.0;
@@ -392,6 +411,9 @@ public sealed class MeterSettings
 
     /// <summary>Switches the skill assist overlay on and off.</summary>
     public string HotkeyAssist { get; set; } = "Ctrl+Alt+S";
+
+    /// <summary>Switches the loot overlay on and off.</summary>
+    public string HotkeyLoot { get; set; } = "Ctrl+Alt+L";
 
     /// <summary>The notice that appears when the eye (hide the window) is clicked was dismissed with "do not show again".</summary>
     public bool HideUiHintDismissed { get; set; }

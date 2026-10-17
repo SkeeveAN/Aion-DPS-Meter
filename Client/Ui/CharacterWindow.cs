@@ -25,7 +25,7 @@ public sealed class CharacterWindow : Window
     private static readonly Color Gold = Color.FromRgb(0xF0, 0xB8, 0x40);
 
     // Rarity colours as the website paints them (the grade letters of the game's UI atlas).
-    private static readonly Dictionary<int, Color> GradeColors = new()
+    internal static readonly Dictionary<int, Color> GradeColors = new()
     {
         [1] = Color.FromRgb(0xAA, 0xB2, 0xBD), [2] = Color.FromRgb(0x4C, 0xC4, 0x6A), [3] = Color.FromRgb(0x3A, 0x9B, 0xE8),
         [4] = Color.FromRgb(0xF0, 0xB0, 0x30), [5] = Color.FromRgb(0xF0, 0x7A, 0x20), [6] = Color.FromRgb(0xD9, 0x4F, 0x4F),
