@@ -19,7 +19,7 @@ public sealed class ModulePage : DockPanel
     private bool _syncing;
 
     public ModulePage(string title, UIElement body, Func<MeterSettings, bool> getOn, Action<MeterSettings, bool> setOn, Func<MeterSettings, string>? getKey,
-        Action openHotkeys, Action openSettings, Action<MeterSettings> applied, Action? tick = null)
+        Action openHotkeys, Action? openSettings, Action<MeterSettings> applied, Action? tick = null)
     {
         _getOn = getOn;
         _getKey = getKey;
@@ -66,9 +66,13 @@ public sealed class ModulePage : DockPanel
             Content = cogLabel, Margin = new Thickness(0, 0, 8, 0), Padding = new Thickness(8, 2, 10, 2), MinHeight = 26, ToolTip = loc["Settings.WindowTitle"],
         };
         cog.SetResourceReference(Control.BorderBrushProperty, "Brush.Accent");
-        cog.Click += (_, _) => openSettings();
+        cog.Click += (_, _) => openSettings?.Invoke();
         right.Children.Add(_key);
-        right.Children.Add(cog);
+        if (openSettings is not null)
+        {
+            right.Children.Add(cog);
+        }
+
         right.Children.Add(masterText);
         right.Children.Add(_master);
         var name = new TextBlock { Text = title, FontSize = 18, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };

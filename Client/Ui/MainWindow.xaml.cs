@@ -4829,7 +4829,7 @@ public partial class MainWindow : Window
         var loc = LocalizationManager.Instance;
         Action<MeterSettings> applied = ApplySettingsEverywhere;
         Action hotkeys = () => OpenSettingsPage("");
-        Action settingsPage = () => OpenSettingsPage(module.StartsWith("petmap", StringComparison.Ordinal) ? "petmap" : module);
+        Action settingsPage = () => OpenSettingsPage(module);
         // a tool that is a window of its own is shown by its content: the window is never shown and closed when the page goes away
         ToolPage Hosted(Window window) => new() { Content = ThemedChrome.TakeContent(window) ?? new Grid(), Cleanup = window.Close };
         switch (module)
@@ -4986,7 +4986,7 @@ public partial class MainWindow : Window
                     panel.AddHandler(routed, new RoutedEventHandler(Changed));
                 }
 
-                var page = new ModulePage(module == "petmap.pets" ? loc["Settings.Nav.Pets"] : loc["Settings.Nav.Gather"], body, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, settingsPage, applied);
+                var page = new ModulePage(module == "petmap.pets" ? loc["Settings.Nav.Pets"] : loc["Settings.Nav.Gather"], body, s => s.ShowPetMap, (s, v) => s.ShowPetMap = v, s => s.HotkeyPetMap, hotkeys, null, applied);
                 return new ToolPage
                 {
                     Content = page,

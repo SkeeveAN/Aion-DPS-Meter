@@ -817,7 +817,7 @@ public partial class SettingsWindow : Window
         ["combat"] = ("Settings.Nav.Combat", new[] { "PanelCombat" }),
         ["timetable"] = ("Settings.Nav.Timetable", new[] { "PanelTimetable" }),
         ["boss"] = ("Settings.Nav.Boss", new[] { "PanelBoss" }),
-        ["petmap"] = ("Settings.Nav.PetMap", new[] { "PanelPetMap", "PanelPets", "PanelGather" }),
+        ["petmap"] = ("Settings.Nav.PetMap", new[] { "PanelPetMap" }),
         ["stream"] = ("Settings.Nav.Stream", new[] { "PanelStream" }),
     };
 
