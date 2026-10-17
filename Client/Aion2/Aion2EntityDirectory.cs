@@ -1513,7 +1513,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     // Called under _gate: two ids that carry the same name but cannot be one player.
     private bool AreNamesakes(int previous, int id, string name, int serverId)
     {
-        if (serverId is >= 1000 and <= 9999 && _serverOfName.TryGetValue(name, out int known) && known != serverId)
+        if (serverId is >= 1000 and <= 9999 && _serverOfName.TryGetValue(name, out int known) && known != serverId
+            && !(_otherServerIds.TryGetValue(name, out var aliases) && aliases.Contains(serverId)))
         {
             return true;
         }
@@ -1535,16 +1536,68 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
     private readonly Dictionary<string, int> _serverOfName = new(StringComparer.Ordinal);
 
-    /// <summary>A player's server id as the game announced it next to his name (appearance and party frames).</summary>
+    // Players whose server came from the party roster's second id (see NoteHomeServerOfName), and the other ids the game printed in front of their name.
+    private readonly HashSet<string> _homeServerKnown = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, HashSet<int>> _otherServerIds = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// A player's server id as the game announced it next to his name (appearance and party frames). For a player whose home server is known from the party roster
+    /// (<see cref="NoteHomeServerOfName"/>) the id is only remembered as one the game prints for him, it does not replace the home server.
+    /// </summary>
     public void NoteServerOfName(string name, int serverId)
     {
         if (serverId is >= 1000 and <= 9999)
         {
             lock (_gate)
             {
+                if (_homeServerKnown.Contains(name))
+                {
+                    if (_serverOfName.TryGetValue(name, out int home) && home != serverId)
+                    {
+                        NoteOtherServerId(name, serverId);
+                    }
+
+                    return;
+                }
+
                 _serverOfName[name] = serverId;
             }
         }
+    }
+
+    /// <summary>
+    /// The server id the party roster prints after a member's name: the character's server as NC lists it. The id in front of the name is the same for most players but
+    /// differs for some (SaintlyOrder 2306 in front, 2303 behind; NC: Triniel 2303), and NC agreed with the one behind the name for every such player checked (2026-10-17).
+    /// It wins over every other source from then on; the id in front stays known as an alias so the player's frames are not taken for a namesake.
+    /// </summary>
+    public void NoteHomeServerOfName(string name, int serverId)
+    {
+        if (serverId is < 1000 or > 9999)
+        {
+            return;
+        }
+
+        lock (_gate)
+        {
+            if (_serverOfName.TryGetValue(name, out int previous) && previous != serverId)
+            {
+                NoteOtherServerId(name, previous);
+            }
+
+            _serverOfName[name] = serverId;
+            _homeServerKnown.Add(name);
+        }
+    }
+
+    // Called under _gate.
+    private void NoteOtherServerId(string name, int serverId)
+    {
+        if (!_otherServerIds.TryGetValue(name, out var others))
+        {
+            _otherServerIds[name] = others = new HashSet<int>();
+        }
+
+        others.Add(serverId);
     }
 
     /// <summary>The server id the game announced next to a name (a player known only by his name, e.g. one whose character window was opened); null when none was seen.</summary>

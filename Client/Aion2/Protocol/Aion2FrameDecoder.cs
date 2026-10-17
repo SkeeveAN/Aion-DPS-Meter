@@ -3037,6 +3037,12 @@ public sealed class Aion2FrameDecoder
                 NoteServerId(frame[i - 2] | frame[i - 1] << 8, name);
             }
 
+            if (HomeServerBehindName(frame, after) is int homeServer)
+            {
+                NoteServerId(homeServer, name);
+                _entities.NoteHomeServerOfName(name, homeServer);
+            }
+
             _entities.NoteRosterName(name);
             if (frame[0] == 0x02 && frame[1] == 0x97 && Aion2SkillNames.ClassFromRosterCode(frame[after]) is string className)
             {
@@ -3050,6 +3056,29 @@ public sealed class Aion2FrameDecoder
         {
             _entities.NoteParty(members, timestamp);
         }
+    }
+
+    /// <summary>
+    /// The second server id of a roster member, 12 bytes behind the end of his name (class u32 | level u32 | a u32 | server u16), one byte further for members whose id is
+    /// preceded by a 0x07 marker (seen for Kaisinel, 18 05). Null when neither position holds a server of the two sides - then only the id in front of the name counts.
+    /// </summary>
+    private static int? HomeServerBehindName(ReadOnlySpan<byte> frame, int afterName)
+    {
+        foreach (int offset in stackalloc[] { 12, 13 })
+        {
+            if (afterName + offset + 2 > frame.Length)
+            {
+                continue;
+            }
+
+            int server = frame[afterName + offset] | frame[afterName + offset + 1] << 8;
+            if (server is >= 1000 and <= 2999 && server % 100 is >= 1 and <= 30)
+            {
+                return server;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>A plausible character name at <paramref name="at"/>: a length byte (3-24) followed

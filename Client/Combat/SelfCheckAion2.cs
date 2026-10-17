@@ -37,6 +37,7 @@ public static class SelfCheckAion2
         ok &= RunAion2GuildScenario();
         ok &= RunAion2PartyByClassScenario();
         ok &= RunAion2AccentAndLeftoverSummonScenario();
+        ok &= RunAion2RosterHomeServerScenario();
         ok &= RunAion2SpiritBasicAttackScenario();
         ok &= RunAion2ShieldIsNoSummonScenario();
         ok &= RunAion2TwoSorcerersScenario();
@@ -818,6 +819,35 @@ public static class SelfCheckAion2
         bool aura = hits.Count == 1 && hits[0].SourceObjectId == 250 && dir.SummonOwnerOf(46606) == 250;
         Console.WriteLine($"  -> Azaëde in the party: {azaede}; the Divine Aura's hit is Kayzia's: {aura}");
         return azaede && aura;
+    }
+
+    /// <summary>
+    /// The party roster prints two server ids per member: in front of the name and behind it. For SaintlyOrder they differ (2306 / 2303), and NC lists him on Triniel (2303);
+    /// the id behind the name was right for every player of that kind checked against NC. Real frame (2026-10-17, party of Aahz).
+    /// </summary>
+    private static bool RunAion2RosterHomeServerScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 party roster: the server id behind the name wins (real frame, SaintlyOrder 2306 in front, 2303 behind):");
+        const string roster = "0297DB1A160009666173742072756E20051B2809000003A6A4020000000709EF0202051E01A6A4020000000709025242130000002D000000FC0800000709EA10043A9E010000000000001A0000000000000001001E021BA40200000007090352796E180000002D000000650800000709070904C735010000000000005A0000000000000001011E0376050300000004090C53656E74616948656E706169100000002D0000003F0800000409EA1004C99301000000000000950000000000000001001E04353B030000001805044161687A060000002D000000DE090000071805EA1001390902000000000000C40000000000000001001E05DD1A0300000002090C5361696E746C794F72646572230000002D00000049080000FF08EA10033F8701000000000000330000000000000001000009";
+        byte[] body = Convert.FromHexString(roster);
+        var wire = new List<byte>();
+        int length = body.Length + 4;
+        while (length >= 0x80)
+        {
+            wire.Add((byte)(length & 0x7f | 0x80));
+            length >>= 7;
+        }
+
+        wire.Add((byte)length);
+        wire.AddRange(body);
+        using var source = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        var dir = (Aion2EntityDirectory)source.Entities;
+        source.Ingest(Segment(9900, wire.ToArray()));
+        source.Poll(false);
+        bool saintly = dir.ServerIdOfName("SaintlyOrder") == 2303;
+        bool others = dir.ServerIdOfName("RB") == 2311 && dir.ServerIdOfName("SentaiHenpai") == 2308 && dir.ServerIdOfName("Aahz") == 1304;
+        Console.WriteLine($"  -> SaintlyOrder on 2303: {saintly}; RB 2311, SentaiHenpai 2308, Aahz 1304 (the shifted Kaisinel layout): {others}");
+        return saintly && others;
     }
 
     /// <summary>
