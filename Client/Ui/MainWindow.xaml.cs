@@ -4794,7 +4794,7 @@ public partial class MainWindow : Window
             var loc = LocalizationManager.Instance;
             var groups = new[]
             {
-                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
+                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("attributes", loc["Main.MenuTools.Attributes"]), new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
                 new[] { new ToolEntry("combat", loc["Settings.Nav.Combat"]), new ToolEntry("assist", loc["Main.MenuTools.Assist"]) },
                 new[] { new ToolEntry("dummy", loc["Main.MenuTools.DummyTest"]), new ToolEntry("analyzer", loc["Main.MenuTools.Analyzer"], OwnWindow: true) },
                 new[] { new ToolEntry("timetable", loc["Settings.Nav.Timetable"]), new ToolEntry("boss", loc["Settings.Nav.Boss"]) },
@@ -4847,6 +4847,12 @@ public partial class MainWindow : Window
         {
             case "checklist":
                 return Hosted(new ChecklistWindow());
+            case "attributes":
+            {
+                var attributesPage = new AttributesPage(() => _liveSource?.Entities as Aion2EntityDirectory);
+                return new ToolPage { Content = attributesPage, Cleanup = attributesPage.Stop };
+            }
+
             case "loot":
             {
                 var lootPage = new LootPage();

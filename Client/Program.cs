@@ -170,6 +170,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "render-attributes")
+        {
+            RunRenderAttributesMode(args[1], args.Length > 2 && args[2] == "stats", args.Length > 3 ? args[3] : "");
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "render-network")
         {
             RunRenderNetworkMode(args.Length > 1 ? args[1] : "network.png", args.Length > 2 ? int.Parse(args[2]) : 2);
@@ -1225,6 +1231,53 @@ internal static class Program
 
         Aion2.Aion2Loot.Clear();
         Console.WriteLine("render-loot: wrote " + path);
+        Environment.Exit(0);
+    }
+
+    /// <summary>Draws the attribute tool (ring or stat tab) with sample values into a picture; no window is ever shown.</summary>
+    private static void RunRenderAttributesMode(string path, bool stats, string language)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        if (language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = language;
+        }
+        else if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        var directory = new Aion2.Aion2EntityDirectory();
+        directory.SetLocalAttributes(new Dictionary<int, int>
+        {
+            [1] = 34, [2] = 12, [4] = 38, [5] = 27, [6] = 9, [7] = 41, [8] = 54, [9] = 39, [10] = 46, [11] = 62, [13] = 24, [14] = 46, [15] = 25, [16] = 27, [17] = 28,
+        });
+        var page = new Ui.AttributesPage(() => directory);
+        if (stats)
+        {
+            page.ShowStatsTab();
+        }
+
+        var host = new System.Windows.Controls.Border { Width = 1060, Height = 760, Child = page, Background = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black };
+        host.Measure(new System.Windows.Size(1060, 760));
+        host.Arrange(new System.Windows.Rect(0, 0, 1060, 760));
+        host.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(1060, 760, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(host);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        page.Stop();
+        Console.WriteLine("render-attributes: wrote " + path);
         Environment.Exit(0);
     }
 

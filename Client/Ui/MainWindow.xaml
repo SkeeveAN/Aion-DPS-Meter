@@ -651,6 +651,7 @@
                          a line sets the dummy test apart. -->
                                         <MenuItem Header="{local:Loc Main.MenuTools}" Foreground="{DynamicResource Brush.Text}">
                         <MenuItem Header="{local:Loc Main.MenuTools.Checklist}" Tag="checklist" Click="OnOpenModuleClicked"/>
+                        <MenuItem Header="{local:Loc Main.MenuTools.Attributes}" Tag="attributes" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Main.MenuTools.Loot}" Tag="loot" Click="OnOpenModuleClicked"/>
                         <MenuItem Header="{local:Loc Settings.Nav.PetMap}" Tag="petmap" Click="OnOpenModuleClicked"/>
                         <Separator/>

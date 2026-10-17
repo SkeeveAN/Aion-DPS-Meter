@@ -40,6 +40,7 @@ public sealed class ToolsWindow : Window
     private static double DefaultWidth(string id) => id switch
     {
         "checklist" => 660,
+        "attributes" => 1060,
         "assist" => 640,
         "timetable" => 640,
         "stream" => 700,
