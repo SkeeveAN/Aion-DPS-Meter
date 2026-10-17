@@ -154,6 +154,9 @@ public sealed class MeterSettings
     /// <summary>The width the tools window has for each tool (by the tool's id): every tool keeps its own, so the checklist can be narrow and the design editor wide.</summary>
     public Dictionary<string, double> ToolWidths { get; set; } = new();
 
+    /// <summary>The height the tools window has for each tool, like <see cref="ToolWidths"/>; a tool with tabs keeps one per tab (key "tool/tab").</summary>
+    public Dictionary<string, double> ToolHeights { get; set; } = new();
+
     /// <summary>The list of tools on the left of the tools window is folded to a thin strip.</summary>
     public bool ToolsNavCollapsed { get; set; }
 

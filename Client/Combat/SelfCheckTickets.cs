@@ -138,10 +138,12 @@ public static class SelfCheckTickets
         try { File.Delete(tmp); } catch (IOException) { }
         Console.WriteLine($"  -> hand-ticked part: ticks and counters (stop at 12 and 0)={ticks}, kept until 16:00={keptUntilReset}, daily cleared and weekly kept={dailyCleared}, weekly cleared next Wednesday={weeklyCleared}, reset times={resetTimes}");
 
-        // the quest list 0x1c8d: taken and handed-in missions of the day (head of the frame at 16:21:00 on 14 October: 3 taken in the list head, 5 handed in)
+        // the quest list 0x1c8d: taken and handed-in missions of the day (head of the frame at 16:21:00 on 14 October: 3 taken in the list head, 5 handed in; on 17 October the first number reached 6 with only five missions accepted)
         bool missionsRead = Aion2Tickets.TryParseMissions(Convert.FromHexString("1c8d030000000500000011150200"), out TicketReading missions)
             && missions.Id == Aion2Tickets.MissionsId && missions.Value.Count == 5 && missions.Value.Bonus == 3
-            && !Aion2Tickets.TryParseMissions(Convert.FromHexString("1c8d090000000500000011150200"), out _)
+            && !Aion2Tickets.TryParseMissions(Convert.FromHexString("1c8d150000000500000011150200"), out _)
+            && Aion2Tickets.TryParseMissions(Convert.FromHexString("1c8d060000000500000013850200"), out TicketReading sixTaken)
+            && sixTaken.Value.Count == 5 && sixTaken.Value.Bonus == 6
             && !Aion2Tickets.TryParseMissions(Convert.FromHexString("1c8d0300"), out _);
         Console.WriteLine($"  -> mission counter from the quest list 0x1c8d: {missionsRead}");
 

@@ -14,6 +14,14 @@ public sealed class ToolPage
     public required UIElement Content { get; init; }
 
     public Action? Cleanup { get; init; }
+
+    /// <summary>The tab a tool with tabs shows now (null for a tool without tabs); the window keeps a size per tab.</summary>
+    public Func<string>? CurrentTab { get; init; }
+
+    /// <summary>Raised by the page when the player chooses another tab.</summary>
+    public event Action? TabChanged;
+
+    public void RaiseTabChanged() => TabChanged?.Invoke();
 }
 
 /// <summary>
@@ -35,6 +43,7 @@ public sealed class ToolsWindow : Window
     private Border _navBorder = null!;
     private StackPanel _navList = null!;
     private Button _navToggle = null!;
+    private string _sizeKey = "";
 
     /// <summary>The width a tool's page starts with when the player has not sized it yet: a checklist is narrow, the design editor wide.</summary>
     private static double DefaultWidth(string id) => id switch
@@ -142,15 +151,7 @@ public sealed class ToolsWindow : Window
         _saveWidth.Tick += (_, _) =>
         {
             _saveWidth.Stop();
-            if (_current is not null && WindowState == WindowState.Normal)
-            {
-                MeterSettings s = MeterSettings.Load();
-                s.ToolWidths[_current] = Math.Round(ActualWidth);
-                s.ToolsWindowLeft = Left;
-                s.ToolsWindowTop = Top;
-                s.ToolsWindowHeight = Math.Round(ActualHeight);
-                s.Save();
-            }
+            SaveSize();
         };
         // the player sizes the window for the tool that is shown: the width is kept for that tool
         SizeChanged += (_, e) =>
@@ -172,15 +173,7 @@ public sealed class ToolsWindow : Window
         Closing += (_, _) =>
         {
             // what the last drag left, kept even when the window is closed before the pause ran out
-            if (_current is not null && WindowState == WindowState.Normal)
-            {
-                MeterSettings s = MeterSettings.Load();
-                s.ToolWidths[_current] = Math.Round(ActualWidth);
-                s.ToolsWindowLeft = Left;
-                s.ToolsWindowTop = Top;
-                s.ToolsWindowHeight = Math.Round(ActualHeight);
-                s.Save();
-            }
+            SaveSize();
         };
         Closed += (_, _) =>
         {
@@ -220,6 +213,9 @@ public sealed class ToolsWindow : Window
             return;
         }
 
+        // what the last drag left belongs to the tool that is leaving
+        _saveWidth.Stop();
+        SaveSize();
         DisposePage();
         _current = id;
         _selecting = true;
@@ -227,7 +223,13 @@ public sealed class ToolsWindow : Window
         _selecting = false;
 
         _page = _build(id);
-        ApplyWidth(id);
+        if (_page is not null)
+        {
+            _page.TabChanged += OnTabChanged;
+        }
+
+        _sizeKey = KeyFor(id);
+        ApplySize(id);
         if (_page is not null)
         {
             _host.Child = _page.Content;
@@ -249,8 +251,42 @@ public sealed class ToolsWindow : Window
         _navToggle.Margin = collapsed ? new Thickness(0, 6, 0, 0) : new Thickness(6, 6, 6, 0);
     }
 
-    /// <summary>The window takes the width this tool has (kept from the last time, else its start width), within the screen.</summary>
-    private void ApplyWidth(string id)
+    /// <summary>The key a size is kept under: the tool, and for a tool with tabs the tab ("dummy/analyse").</summary>
+    private string KeyFor(string id) => _page?.CurrentTab?.Invoke() is { Length: > 0 } tab ? id + "/" + tab : id;
+
+    /// <summary>The player chose another tab: the size of the one that was shown is kept, the window takes the size of the new one.</summary>
+    private void OnTabChanged()
+    {
+        if (_current is null)
+        {
+            return;
+        }
+
+        _saveWidth.Stop();
+        SaveSize();
+        _sizeKey = KeyFor(_current);
+        ApplySize(_current);
+    }
+
+    /// <summary>Keeps width, height and place of the window for what is shown (the tool, or its tab).</summary>
+    private void SaveSize()
+    {
+        if (_sizeKey.Length == 0 || WindowState != WindowState.Normal)
+        {
+            return;
+        }
+
+        MeterSettings s = MeterSettings.Load();
+        s.ToolWidths[_sizeKey] = Math.Round(ActualWidth);
+        s.ToolHeights[_sizeKey] = Math.Round(ActualHeight);
+        s.ToolsWindowLeft = Left;
+        s.ToolsWindowTop = Top;
+        s.ToolsWindowHeight = Math.Round(ActualHeight);
+        s.Save();
+    }
+
+    /// <summary>The window takes the size this tool (or its tab) has: kept from the last time, else what the tool had without tabs, else its start width and the last height, within the screen.</summary>
+    private void ApplySize(string id)
     {
         if (WindowState != WindowState.Normal)
         {
@@ -258,13 +294,22 @@ public sealed class ToolsWindow : Window
         }
 
         MeterSettings s = MeterSettings.Load();
-        double area = SystemParameters.WorkArea.Width;
-        double width = Math.Clamp(s.ToolWidths.TryGetValue(id, out double saved) ? saved : DefaultWidth(id), MinWidth, area);
+        double width = s.ToolWidths.TryGetValue(_sizeKey, out double w) ? w : s.ToolWidths.TryGetValue(id, out double w0) ? w0 : DefaultWidth(id);
+        double height = s.ToolHeights.TryGetValue(_sizeKey, out double h) ? h : s.ToolHeights.TryGetValue(id, out double h0) ? h0 : s.ToolsWindowHeight ?? Height;
+        var area = SystemParameters.WorkArea;
+        width = Math.Clamp(width, MinWidth, area.Width);
+        height = Math.Clamp(height, MinHeight, area.Height);
         _applyingWidth = true;
         Width = width;
-        if (Left + width > SystemParameters.WorkArea.Right)
+        Height = height;
+        if (Left + width > area.Right)
         {
-            Left = Math.Max(SystemParameters.WorkArea.Left, SystemParameters.WorkArea.Right - width);
+            Left = Math.Max(area.Left, area.Right - width);
+        }
+
+        if (Top + height > area.Bottom)
+        {
+            Top = Math.Max(area.Top, area.Bottom - height);
         }
 
         _applyingWidth = false;

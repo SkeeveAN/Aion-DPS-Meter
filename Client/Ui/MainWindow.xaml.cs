@@ -4850,7 +4850,9 @@ public partial class MainWindow : Window
             case "attributes":
             {
                 var attributesPage = new AttributesPage(() => _liveSource?.Entities as Aion2EntityDirectory);
-                return new ToolPage { Content = attributesPage, Cleanup = attributesPage.Stop };
+                var attributesTool = new ToolPage { Content = attributesPage, Cleanup = attributesPage.Stop, CurrentTab = () => attributesPage.Tab };
+                attributesPage.TabChanged += attributesTool.RaiseTabChanged;
+                return attributesTool;
             }
 
             case "loot":
@@ -4863,7 +4865,13 @@ public partial class MainWindow : Window
             case "assist":
                 return Hosted(new AssistWindow(() => _liveSource?.Entities as Aion2EntityDirectory));
             case "dummy" when _dummy is not null:
-                return Hosted(new DummyTestWindow(_dummy, ToggleAllOverlays));
+            {
+                var dummyWindow = new DummyTestWindow(_dummy, ToggleAllOverlays);
+                var dummyTool = new ToolPage { Content = ThemedChrome.TakeContent(dummyWindow) ?? new Grid(), Cleanup = dummyWindow.Close, CurrentTab = () => dummyWindow.Tab };
+                dummyWindow.TabChanged += dummyTool.RaiseTabChanged;
+                return dummyTool;
+            }
+
             case "theme":
             {
                 var editor = new ThemeEditorWindow(MeterSettings.Load());

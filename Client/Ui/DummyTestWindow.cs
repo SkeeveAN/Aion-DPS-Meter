@@ -134,8 +134,17 @@ public sealed class DummyTestWindow : Window
         tab.MouseLeftButtonDown += (_, _) => select();
     }
 
+    /// <summary>The tab that is shown ("capture" or "analyse"): the tools window keeps a size for each.</summary>
+    public string Tab { get; private set; } = "capture";
+
+    /// <summary>Raised when the player chooses another tab.</summary>
+    public event Action? TabChanged;
+
     private void ShowTab(int index)
     {
+        string shown = index == 1 ? "analyse" : "capture";
+        bool changed = shown != Tab;
+        Tab = shown;
         _capturePage.Visibility = index == 0 ? Visibility.Visible : Visibility.Collapsed;
         _analysePage.Visibility = index == 1 ? Visibility.Visible : Visibility.Collapsed;
         foreach ((Border tab, bool active) in new[] { (_captureTab, index == 0), (_analyseTab, index == 1) })
@@ -147,6 +156,11 @@ public sealed class DummyTestWindow : Window
         if (index == 1)
         {
             RebuildPicker();
+        }
+
+        if (changed)
+        {
+            TabChanged?.Invoke();
         }
     }
 

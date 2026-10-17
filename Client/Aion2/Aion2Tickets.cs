@@ -66,6 +66,9 @@ public static class Aion2Tickets
     public const int MissionsId = 99000001;
     public const int MissionsPerDay = 5;
 
+    /// <summary>A character holds at most 20 quests at once; a list head with a bigger number is something else.</summary>
+    private const int MaxTakenMissions = 20;
+
     /// <summary>The weekly purchase of Odyle energy in the Brisenwind trade guild (limit 20 a week per character) as a ticket of our own: count = bought, time = the
     /// game's reset time (ms since 1970; an older one means the week is over). The id is no game id; the game's own counter id is <see cref="ShopOdyleCounter"/>.</summary>
     public const int ShopOdyleId = 99000003;
@@ -228,12 +231,13 @@ public static class Aion2Tickets
 
         uint taken = BinaryPrimitives.ReadUInt32LittleEndian(frame[2..]);
         uint done = BinaryPrimitives.ReadUInt32LittleEndian(frame[6..]);
-        if (taken > MissionsPerDay || done > MissionsPerDay)
+        // the first number is not the count of accepted missions (on 17 October it reached 6 with only five accepted, the game's own list showed five), so it is only kept and not used; only a number beyond the 20 quests a character can hold at once is no list head
+        if (taken > MaxTakenMissions || done > MaxTakenMissions)
         {
             return false;
         }
 
-        reading = new TicketReading(MissionsId, new TicketValue((int)done, (int)taken, 0));
+        reading = new TicketReading(MissionsId, new TicketValue((int)Math.Min(done, MissionsPerDay), (int)taken, 0));
         return true;
     }
 

@@ -304,8 +304,10 @@ public sealed class PetMapController : IDisposable
         // only what the player's own faction can use (an earlier pick of the other side's plants no longer counts)
         var gatherKinds = Aion2Gather.Items().Where(i => settings.PetMapGatherItems.Contains(i.Key) && i.IsFor(_faction)).Select(i => i.Key).ToHashSet();
         UpdateShopOpen(directory);
-        var shopRows = ShopRows(directory, states);
-        _inShop = _shopOpen && shopRows.Count > 0;
+        var offeredRows = ShopRows(directory, states);
+        _inShop = _shopOpen && offeredRows.Count > 0;
+        // the offers stay in memory for five minutes, but the list shows them only while the shop is open (not after the player left it)
+        var shopRows = _inShop ? offeredRows : Array.Empty<(Color, string, string, string, bool)>();
         // over the shop the list sits on the game's own window text: it gets a nearly opaque background for as long as the shop is open
         double? floor = InMenu && shopRows.Count > 0 ? ShopListOpacity : null;
         if (_list.OpacityFloor != floor)

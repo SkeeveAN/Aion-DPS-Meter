@@ -92,10 +92,22 @@ public sealed class AttributesPage : Grid
 
     private static string NodeFullName(AttributeNode node) => node.Lord ? $"{NodeName(node)} [{Loc("Character.Lord." + node.Key)}]" : NodeName(node);
 
+    /// <summary>The tab that is shown ("ring" or "stats"): the tools window keeps a size for each.</summary>
+    public string Tab => _statsTab ? "stats" : "ring";
+
+    /// <summary>Raised when the player chooses the other tab.</summary>
+    public event Action? TabChanged;
+
     private void SwitchTab(bool stats)
     {
+        if (_statsTab == stats)
+        {
+            return;
+        }
+
         _statsTab = stats;
         Rebuild();
+        TabChanged?.Invoke();
     }
 
     private void Poll(bool force = false)
