@@ -1,5 +1,26 @@
 [
  {
+  "version": "1.2.1",
+  "date": "2026-10-17",
+  "items": [
+   {
+    "text": "Renamed characters: a player NC finds under the character id of an older row is merged into it with the old name kept as an alias, and a player first seen within two days whom NC does not know yet makes a run wait instead of failing it",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-17"
+   },
+   {
+    "text": "uploads carry the game's permanent character id of each player, so the website recognises a renamed player at once instead of turning his runs away",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-17"
+   }
+  ]
+ },
+ {
   "version": "1.2.0",
   "date": "2026-10-17",
   "items": [
