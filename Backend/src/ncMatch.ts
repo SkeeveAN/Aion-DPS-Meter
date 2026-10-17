@@ -27,6 +27,8 @@ type FetchFn = typeof fetch;
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
+/** How long after we first saw a player his runs wait for NC to know him instead of being turned away (see ncGate). */
+export const YOUNG_FOR = 2 * DAY;
 /** When to ask again, by outcome ('client': after NC could not confirm him either; a fresh client player is due at once, but last in line). A verified player is looked at again now and then (a transfer or a rename); an unclear one when newer uploads may know more. */
 export const MATCH_RETRY_AFTER = { verified: 30 * DAY, client: 30 * DAY, ambiguous: 3 * DAY, none: 2 * DAY, conflict: 7 * DAY, error: 1 * HOUR } as const;
 export type MatchStatus = keyof typeof MATCH_RETRY_AFTER;
@@ -292,10 +294,38 @@ function record(playerId: number, status: MatchStatus, extra: { ncServerId?: num
 }
 
 /**
+ * One character filed under two rows (a rename: the new name's fights and profile were filed as a new player while the old row kept the history). Moves the fights and the newer
+ * profile of `dropId` to `keepId` and deletes `dropId` (its NC rows go with it). The old row's name stays as an alias of the kept one through applyName.
+ */
+export function mergePlayerRows(keepId: number, dropId: number): void {
+  if (keepId === dropId) {
+    return;
+  }
+  db.transaction((tx) => {
+    tx.update(encounterParticipants).set({ playerId: keepId }).where(eq(encounterParticipants.playerId, dropId)).run();
+    const keepProfile = tx.select({ at: playerProfiles.updatedAt }).from(playerProfiles).where(eq(playerProfiles.playerId, keepId)).get();
+    const dropProfile = tx.select({ at: playerProfiles.updatedAt }).from(playerProfiles).where(eq(playerProfiles.playerId, dropId)).get();
+    if (dropProfile && (!keepProfile || dropProfile.at >= keepProfile.at)) {
+      tx.delete(playerProfiles).where(eq(playerProfiles.playerId, keepId)).run();
+      tx.update(playerProfiles).set({ playerId: keepId }).where(eq(playerProfiles.playerId, dropId)).run();
+    } else {
+      tx.delete(playerProfiles).where(eq(playerProfiles.playerId, dropId)).run();
+    }
+    const dropRow = tx.select({ name: players.nameNormalized, aliases: players.aliasNamesNormalized, gameId: players.gameCharacterId }).from(players).where(eq(players.id, dropId)).get();
+    const keepRow = tx.select({ aliases: players.aliasNamesNormalized, gameId: players.gameCharacterId }).from(players).where(eq(players.id, keepId)).get();
+    if (dropRow && keepRow) {
+      const aliases = [...new Set([...(keepRow.aliases ?? []), ...(dropRow.aliases ?? []), dropRow.name])];
+      tx.update(players).set({ aliasNamesNormalized: aliases, gameCharacterId: keepRow.gameId ?? dropRow.gameId }).where(eq(players.id, keepId)).run();
+    }
+    tx.delete(players).where(eq(players.id, dropId)).run();
+  });
+}
+
+/**
  * NC's current name of a confirmed character. The same name (case aside from the stored spelling) changes nothing but the spelling.
  * A new name renames the player in place - slug and history stay, the old name becomes an alias so old uploads still find him - unless
- * another player of that server already carries the new name (his new fights were filed under a second row): then nothing is merged
- * and 'rename-conflict' is returned, for a human. Returns the marker for `via`, or null.
+ * another player of that server already carries the new name (his new fights were filed under a second row): that row is the same character and is merged into this one
+ * (see mergePlayerRows). Returns the marker for `via`, or null.
  */
 function applyName(player: PlayerRow, ncName: string, serverId: number): string | null {
   if (ncName === player.name) {
@@ -308,10 +338,12 @@ function applyName(player: PlayerRow, ncName: string, serverId: number): string 
   }
   const taken = db.select({ id: players.id }).from(players).where(and(eq(players.serverId, serverRowOf(serverId)), eq(players.nameNormalized, target), ne(players.id, player.id))).get();
   if (taken) {
-    return "rename-conflict";
+    // NC says this character now carries the new name, and a name is unique per server: the row that already carries it is the same character filed again (his new fights came
+    // in under the new name before the old row was asked). Its fights and profile move here.
+    mergePlayerRows(player.id, taken.id);
   }
   const row = db.select({ aliases: players.aliasNamesNormalized }).from(players).where(eq(players.id, player.id)).get();
-  const aliases = [...new Set([...(row?.aliases ?? []), player.nameNormalized])];
+  const aliases = [...new Set([...(row?.aliases ?? []), player.nameNormalized])].filter((a) => a !== target);
   db.update(players).set({ name: ncName, nameNormalized: target, aliasNamesNormalized: aliases }).where(eq(players.id, player.id)).run();
   return "renamed";
 }
@@ -425,6 +457,19 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
       dropNcData(playerId); // another character: the data of the old one must not stay
     }
     record(playerId, "verified", { ncServerId: decision.hit.serverId, ncRace: decision.hit.race, ncCharacterId: found, via: decision.via, candidates: decision.candidates }, now);
+    // The same NC character under another row of ours: a rename. The older row has the history; it takes the new name and the fights of this one.
+    const twin = found ? twinOf(playerId, found) : null;
+    if (twin !== null) {
+      const keepId = Math.min(twin, playerId);
+      const dropId = Math.max(twin, playerId);
+      mergePlayerRows(keepId, dropId);
+      const kept = loadPlayer(keepId);
+      if (kept) {
+        applyName(kept, decision.hit.name, decision.hit.serverId);
+      }
+      enrichPlayer(keepId);
+      return "verified";
+    }
     enrichPlayer(playerId);
     return "verified";
   }
@@ -434,12 +479,23 @@ export async function processMatch(playerId: number, fetchFn: FetchFn = ncFetch,
   if (clientServer !== null) {
     // NC does not know him (yet) or cannot tell: his client's word still counts, ask again later.
     // A character that is only hours old is often not in NC's search yet: look again the next day for the first week, then weekly.
-    const young = now - Date.parse(`${player.firstSeenAt.replace(" ", "T")}Z`) < 7 * DAY;
-    record(playerId, "client", { ncServerId: clientServer, candidates: decision.candidates, nextTryAt: now + (decision.candidates === 0 ? (young ? DAY : 7 * DAY) : MATCH_RETRY_AFTER.client) }, now);
+    // A renamed character is new to us and often to NC's search too: for the first two days he is asked again every three hours (his runs wait for that, see ncGate).
+    const age = now - Date.parse(`${player.firstSeenAt.replace(" ", "T")}Z`);
+    const young = age < 7 * DAY;
+    record(playerId, "client", { ncServerId: clientServer, candidates: decision.candidates, nextTryAt: now + (decision.candidates === 0 ? (age < YOUNG_FOR ? 3 * HOUR : young ? DAY : 7 * DAY) : MATCH_RETRY_AFTER.client) }, now);
     return "client";
   }
   record(playerId, decision.status, { candidates: decision.candidates }, now);
   return decision.status;
+}
+
+/** Another player row of ours that NC has confirmed as the same character (same NC character id), or null. */
+function twinOf(playerId: number, ncCharacterId: string): number | null {
+  const byMatch = db.select({ id: playerNcMatch.playerId }).from(playerNcMatch).where(and(eq(playerNcMatch.ncCharacterId, ncCharacterId), ne(playerNcMatch.playerId, playerId))).get();
+  if (byMatch) {
+    return byMatch.id;
+  }
+  return db.select({ id: playerNcCharacter.playerId }).from(playerNcCharacter).where(and(eq(playerNcCharacter.characterId, ncCharacterId), ne(playerNcCharacter.playerId, playerId))).get()?.id ?? null;
 }
 
 /** A server the player's own client named: as good as a match, but NC is still asked later (low priority, see duePlayers) to confirm him and fill in his character. */
@@ -528,6 +584,14 @@ export class MatchQueue {
 export const matchEnabled = () => process.env.NC_MATCH_OFF !== "1" && !process.env.NODE_TEST_CONTEXT;
 
 export const matchQueue = new MatchQueue((id) => processMatch(id));
+
+/** A player whose new name just turned up under his game character id: asks NC about him right now (his NC character id gives his current name). */
+export function askAboutRenamed(playerId: number, queue: MatchQueue = matchQueue): void {
+  db.update(playerNcMatch).set({ nextTryAt: 0 }).where(eq(playerNcMatch.playerId, playerId)).run();
+  if (matchEnabled() || queue !== matchQueue) {
+    queue.enqueue([playerId]);
+  }
+}
 
 /** After an upload: asks NC about the players of it that are due. Never blocks and never throws. */
 export function checkPlayers(ids: number[], queue: MatchQueue = matchQueue, now = Date.now()): number {

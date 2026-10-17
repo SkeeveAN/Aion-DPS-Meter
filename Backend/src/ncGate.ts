@@ -2,7 +2,7 @@ import { and, eq, inArray, like } from "drizzle-orm";
 import { db } from "./db/client.js";
 import { players, playerNcMatch, servers, uploads } from "./db/schema.js";
 import { registerUploadPlayers } from "./matching/merge.js";
-import { shardOf } from "./ncMatch.js";
+import { shardOf, YOUNG_FOR } from "./ncMatch.js";
 import { approveUpload } from "./uploadReview.js";
 import { uploadSchema, type UploadPayload } from "./uploadSchema.js";
 import { clearPageCache } from "./seo/cache.js";
@@ -24,7 +24,7 @@ export function gateOfPlayers(ids: number[], now = Date.now()): Gate {
     return "pass";
   }
   const rows = db
-    .select({ faction: players.faction, serverName: servers.displayName, status: playerNcMatch.status, nextTryAt: playerNcMatch.nextTryAt, candidates: playerNcMatch.candidates })
+    .select({ faction: players.faction, serverName: servers.displayName, status: playerNcMatch.status, nextTryAt: playerNcMatch.nextTryAt, candidates: playerNcMatch.candidates, firstSeenAt: players.firstSeenAt })
     .from(players)
     .leftJoin(servers, eq(players.serverId, servers.id))
     .leftJoin(playerNcMatch, eq(playerNcMatch.playerId, players.id))
@@ -46,7 +46,8 @@ export function gateOfPlayers(ids: number[], now = Date.now()): Gate {
     }
     // 'client': his own client named his server. Before NC has looked (the next try is due) the check is open; after it, "no candidate at NC"
     // is a failed check like 'none' (the search ran on his server only), several candidates stay open.
-    if (r.status === "client" && r.nextTryAt !== null && r.nextTryAt > now && r.candidates === 0) {
+    // A player we saw first within the last two days (a renamed character is one) is not turned away yet: NC's search may not know him, the run waits for the next try.
+    if (r.status === "client" && r.nextTryAt !== null && r.nextTryAt > now && r.candidates === 0 && now - Date.parse(`${r.firstSeenAt.replace(" ", "T")}Z`) >= YOUNG_FOR) {
       return "fail";
     }
     open = true;

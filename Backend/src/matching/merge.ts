@@ -1,6 +1,6 @@
 import { canonicalServer, nameOf } from "../content/aion2Servers.js";
 import { factionOfServerName } from "../factions.js";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, isNull, ne, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
   bossNpcIds,
@@ -21,7 +21,7 @@ import { upsertProfile } from "../profile.js";
 import { ensurePlayerSlug } from "../seo/playerSlug.js";
 import { rehomeKnownPlayers } from "./rehome.js";
 import { linkPlayerGuild, reconcileGuildWithNc } from "../guilds.js";
-import { checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
+import { askAboutRenamed, checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
 
 /** Time-window tolerance for two encounters to even be considered the same fight. */
 const TIME_TOLERANCE_SECONDS = 20;
@@ -252,7 +252,37 @@ function factionOfParticipant(participant: { faction?: string; serverId?: number
   return label ? factionOfServerName(label) : "";
 }
 
-function upsertPlayer(name: string, serverId: number, guild?: string, faction?: string): number {
+function upsertPlayer(name: string, serverId: number, guild?: string, faction?: string, characterId?: number): number {
+  const id = upsertPlayerRow(name, serverId, guild, faction, characterId);
+  noteGameCharacterId(id, serverId, characterId);
+  return id;
+}
+
+/**
+ * The game's permanent character id of a player, kept as a hint. A NEW row (a name we never saw) that comes with an id another row of the same server already holds is a renamed
+ * character: the old row is asked about at once - NC knows his character id and says what he is called now (the new row is merged into the old one then, see ncMatch.applyName).
+ * The id never decides anything by itself, so a made-up one costs one extra NC request.
+ */
+function noteGameCharacterId(playerId: number, serverId: number, characterId?: number): void {
+  if (characterId === undefined) {
+    return;
+  }
+  try {
+    const mine = db.select({ id: players.gameCharacterId }).from(players).where(eq(players.id, playerId)).get();
+    if (mine?.id === characterId) {
+      return;
+    }
+    const older = db.select({ id: players.id }).from(players).where(and(eq(players.serverId, serverId), eq(players.gameCharacterId, characterId), ne(players.id, playerId))).all();
+    db.update(players).set({ gameCharacterId: characterId }).where(eq(players.id, playerId)).run();
+    if (older.length === 1) {
+      askAboutRenamed(older[0].id);
+    }
+  } catch {
+    // a hint only
+  }
+}
+
+function upsertPlayerRow(name: string, serverId: number, guild?: string, faction?: string, characterId?: number): number {
   const nameNormalized = normalizeName(name);
   const existing = db
     .select()
@@ -408,7 +438,7 @@ function insertParticipant(
   participant: ParticipantUpload,
   authoritative: boolean,
 ) {
-  const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant));
+  const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant), participant.characterId);
   if (participant.profile) {
     upsertProfile(playerId, participant.profile);
   }
@@ -596,7 +626,7 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
     );
 
     if (candidates.length === 1) {
-      const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant));
+      const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant), participant.characterId);
       if (participant.profile) {
         upsertProfile(playerId, participant.profile);
       }
@@ -790,7 +820,7 @@ function processUploadAt(payload: UploadPayload): ProcessResult {
 export function registerUploadPlayers(payload: UploadPayload): number[] {
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   rehomePlayers(payload.participants, serverId);
-  const ids = payload.participants.map((p) => upsertPlayer(p.name, serverOfParticipant(p, serverId), p.guild, factionOfParticipant(p)));
+  const ids = payload.participants.map((p) => upsertPlayer(p.name, serverOfParticipant(p, serverId), p.guild, factionOfParticipant(p), p.characterId));
   checkUploadedPlayers(payload.participants, serverId);
   return ids;
 }
@@ -804,7 +834,7 @@ export function processProfilesUpload(payload: ProfilesUploadPayload): { serverI
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   rehomePlayers(payload.participants, serverId);
   for (const participant of payload.participants) {
-    const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant));
+    const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant), participant.characterId);
     upsertProfile(playerId, participant.profile);
   }
   checkUploadedPlayers(payload.participants, serverId);

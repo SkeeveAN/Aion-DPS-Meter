@@ -285,6 +285,9 @@ export const players = sqliteTable(
     // by default and Aion names are otherwise unique per side.
     name: text("name").notNull(),
     nameNormalized: text("name_normalized").notNull(),
+    // The game's permanent character id (it stays when the character is renamed), as the uploader's client saw it; null until an upload carries one. Only a hint:
+    // a new name with an id we already hold under another name asks NC about the old row at once (see matching/merge.ts noteGameCharacterIds).
+    gameCharacterId: integer("game_character_id"),
     // URL segment ("aahz-kaisinel"): name plus server, since a name is only unique per server.
     // Assigned once and then stable, even if the character is renamed (links must not rot).
     slug: text("slug"),

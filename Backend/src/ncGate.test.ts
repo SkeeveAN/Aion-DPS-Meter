@@ -71,6 +71,8 @@ test("one failed player fails the whole run, at once for known players and later
   assert.equal(first.json().status, "pending_review");
   setStatus("Ccc", "verified");
   setStatus("Ddd", "client");
+  // a player seen for more than two days: NC knows nobody of his name, the run is turned away (a younger one waits, see the next test)
+  db.update(players).set({ firstSeenAt: "2026-01-01 00:00:00" }).where(eq(players.name, "Ddd")).run();
   assert.deepEqual(settleNcPending(), { merged: 0, failed: 1 });
   assert.equal(db.select().from(encounters).all().length, 1, "no new run");
 
@@ -83,4 +85,34 @@ test("one failed player fails the whole run, at once for known players and later
   const fine = await post(body(4, ["Aaa", "Bbb"]));
   assert.equal(fine.statusCode, 200, fine.body);
   assert.notEqual(fine.json().status, "pending_review");
+});
+
+test("a player first seen within two days, whom NC does not know yet (a renamed character), makes the run wait instead of failing it", async () => {
+  const response = await post(body(5, ["Eee", "Fff"]));
+  assert.equal(response.json().status, "pending_review");
+  setStatus("Eee", "verified");
+  setStatus("Fff", "client"); // NC found nobody of that name - he was only just created
+  assert.deepEqual(settleNcPending(), { merged: 0, failed: 0 }, "young: the run waits");
+  assert.equal(db.select().from(encounters).all().length, 2, "no new run yet");
+
+  setStatus("Fff", "verified"); // NC knows him by the next try
+  assert.deepEqual(settleNcPending(), { merged: 1, failed: 0 });
+  assert.equal(db.select().from(encounters).all().length, 3);
+});
+
+test("a new name that arrives with a game character id another row of the server holds asks NC about the old row at once", async () => {
+  const withId = (day: number, names: string[], ids: Record<string, number>) => {
+    const b = body(day, names);
+    b.participants = b.participants.map((p) => ({ ...p, ...(ids[p.name] ? { characterId: ids[p.name] } : {}) }));
+    return b;
+  };
+  await post(withId(6, ["Alt1", "Gg1"], { Alt1: 777001 }));
+  const old = db.select().from(players).where(eq(players.name, "Alt1")).get()!;
+  assert.equal(old.gameCharacterId, 777001);
+  setStatus("Alt1", "verified"); // next try in a long time
+  assert.notEqual(db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, old.id)).get()?.nextTryAt, 0);
+  await post(withId(7, ["Neu1", "Gg1"], { Neu1: 777001 }));
+  assert.equal(db.select().from(playerNcMatch).where(eq(playerNcMatch.playerId, old.id)).get()?.nextTryAt, 0, "the old row is due now");
+  const fresh = db.select().from(players).where(eq(players.name, "Neu1")).get()!;
+  assert.equal(fresh.gameCharacterId, 777001);
 });

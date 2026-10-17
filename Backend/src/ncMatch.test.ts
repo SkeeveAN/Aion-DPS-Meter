@@ -14,7 +14,7 @@ after(() => sqlite.close());
 
 const ncMatchModule = await import("./ncMatch.js");
 const { decide, parseHits, processMatch, noteClientServer, dueOf, MatchQueue, shardOf, MATCH_RETRY_AFTER } = await import("./ncMatch.js");
-const { players, servers, playerProfiles } = await import("./db/schema.js");
+const { players, servers, playerProfiles, playerNcMatch } = await import("./db/schema.js");
 const { linkPlayerGuild } = await import("./guilds.js");
 const { eq } = await import("drizzle-orm");
 
@@ -150,9 +150,9 @@ test("a player whose own client named his server is checked by NC too, but never
   assert.equal(await processMatch(id, ncAnswer([raw({ name: "Selbst", serverId: 1305 })]), 2_000_000), "client");
   assert.equal(matchRow(id)?.status, "client");
   assert.equal(matchRow(id)?.s, 1304);
-  // NC may simply not list a young character yet: asked again the next day, not in a month
-  assert.deepEqual(dueOf([id], 2_000_000 + 23 * 3_600_000), []);
-  assert.deepEqual(dueOf([id], 2_000_000 + 25 * 3_600_000), [id]);
+  // NC may simply not list a young character yet (a renamed one): asked again after three hours in his first two days, not in a month
+  assert.deepEqual(dueOf([id], 2_000_000 + 2 * 3_600_000), []);
+  assert.deepEqual(dueOf([id], 2_000_000 + 4 * 3_600_000), [id]);
   // NC knows him on that server: verified
   assert.equal(await processMatch(id, ncAnswer([raw({ name: "Selbst", serverId: 1305 }), raw({ name: "Selbst", serverId: 1304 })]), 3_000_000), "verified");
   assert.equal(matchRow(id)?.status, "verified");
@@ -271,13 +271,13 @@ test("a confirmed player is looked up by his character id and renamed in place w
   assert.equal(matchRow(id)?.via, "renamed");
 });
 
-test("a new name that another player of the server already carries is left for a human, nothing is merged", async () => {
+test("a new name that another player of the server already carries is the same character filed twice: that row is merged into this one", async () => {
   const id = confirmed("Vorher", "idRename2");
   const other = player("Nachher", kaisinel);
   assert.equal(await processMatch(id, infoAnswer("Nachher"), 2_000_000), "verified");
-  assert.equal(nameOf(id).name, "Vorher");
-  assert.equal(nameOf(other).name, "Nachher");
-  assert.equal(matchRow(id)?.via, "rename-conflict");
+  assert.equal(nameOf(id).name, "Nachher");
+  assert.equal(db.select().from(players).where(eq(players.id, other)).get(), undefined, "the second row is gone");
+  assert.equal(matchRow(id)?.via, "renamed");
 });
 
 test("an unchanged name only fixes the spelling, and an id NC no longer knows falls back to the name search", async () => {
@@ -425,4 +425,34 @@ test("gear stays open when two candidates fit, one is in the grey zone, one has 
   const fromNc = player("Gearnc", kaisinel);
   profileOf(fromNc, 1500, "nc");
   assert.equal(await processMatch(fromNc, gearAnswer("Gearnc", { charAaaa1: 1520, charBbbb2: 2300 }), 1_000_000), "ambiguous", "NC's own number proves nothing about NC's characters");
+});
+
+test("a renamed character: the new row NC finds under the old row's character id is merged into the old one, with the old name kept as an alias", async () => {
+  const old = player("Caramelly", kaisinel);
+  const values = { status: "verified", ncServerId: 1304, ncRace: 1, ncCharacterId: "RenameID01=", candidates: 1, checkedAt: 1, nextTryAt: 1e15 };
+  db.insert(playerNcMatch).values({ playerId: old, ...values }).run();
+  db.insert(playerProfiles).values({ playerId: old, source: "self", updatedAt: "2026-10-17 11:00:00", level: 45 }).run();
+  const fresh = player("PaíN", kaisinel);
+  db.insert(playerProfiles).values({ playerId: fresh, source: "self", updatedAt: "2026-10-17 14:00:00", level: 46 }).run();
+
+  const status = await processMatch(fresh, ncAnswer([raw({ name: "<strong>PaíN</strong>", serverId: 1304, characterId: "RenameID01%3D" })]), 1_000_000);
+  assert.equal(status, "verified");
+  assert.equal(db.select().from(players).where(eq(players.id, fresh)).get(), undefined, "the new row is gone");
+  const kept = db.select().from(players).where(eq(players.id, old)).get()!;
+  assert.equal(kept.name, "PaíN");
+  assert.equal(kept.nameNormalized, "paín");
+  assert.deepEqual(kept.aliasNamesNormalized, ["caramelly"]);
+  assert.equal(db.select().from(playerProfiles).where(eq(playerProfiles.playerId, old)).get()?.level, 46, "the newer profile moved to the old row");
+  assert.equal(db.select().from(playerProfiles).where(eq(playerProfiles.playerId, fresh)).all().length, 0);
+});
+
+test("mergePlayerRows: the older row keeps its own newer profile and takes the other's aliases", () => {
+  const keep = player("Keeper", kaisinel);
+  const drop = player("Dupe", kaisinel);
+  db.insert(playerProfiles).values({ playerId: keep, source: "self", updatedAt: "2026-10-17 15:00:00", level: 50 }).run();
+  db.insert(playerProfiles).values({ playerId: drop, source: "self", updatedAt: "2026-10-17 10:00:00", level: 40 }).run();
+  ncMatchModule.mergePlayerRows(keep, drop);
+  assert.equal(db.select().from(playerProfiles).where(eq(playerProfiles.playerId, keep)).get()?.level, 50);
+  assert.equal(db.select().from(players).where(eq(players.id, drop)).get(), undefined);
+  assert.deepEqual(db.select().from(players).where(eq(players.id, keep)).get()?.aliasNamesNormalized, ["dupe"]);
 });

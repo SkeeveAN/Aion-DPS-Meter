@@ -32,6 +32,8 @@ export const participantSchema = z.object({
   // The numeric server id this player announced himself with (his OWN server: a matched world mixes Elyos and Asmodian
   // servers, so it is not the uploader's). Optional for older clients, which put everybody on the uploader's server.
   serverId: z.number().int().min(1000).max(99999).optional(),
+  // The game's permanent character id of this player (it stays when he is renamed); clients from 1.2.1 on send it when a player list named him. Only a hint.
+  characterId: z.number().int().positive().max(2_147_483_647).optional(),
   // Optional: only Aion 2 clients know a player's guild. Empty counts as absent.
   guild: z
     .string()
@@ -153,7 +155,7 @@ export const profilesUploadSchema = z
     participants: z
       .array(
         participantSchema
-          .pick({ name: true, className: true, faction: true, serverId: true, guild: true, isSelf: true })
+          .pick({ name: true, className: true, faction: true, serverId: true, characterId: true, guild: true, isSelf: true })
           .extend({ profile: profileSchema }),
       )
       .min(1)
