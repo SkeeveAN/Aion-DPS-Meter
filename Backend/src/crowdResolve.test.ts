@@ -84,14 +84,14 @@ test("a world boss crowd waits, is looked up at NC on both servers, and only pla
   assert.equal(waiting.length, 0);
 });
 
-test("a rift hour is the hour after each of 02:00, 05:00 ... 23:00 in Europe (with two minutes of slack)", () => {
-  const berlin = (h: number, m: number) => Date.UTC(2026, 0, 5, h - 1, m, 0); // January: UTC+1
-  for (const h of [2, 5, 8, 11, 14, 17, 20, 23]) {
-    assert.equal(riftOpen(berlin(h, 30), berlin(h, 30) + 12_000), true, `${h}:30`);
+test("a rift hour is the hour after each of 00:00, 03:00 ... 21:00 UTC (with two minutes of slack)", () => {
+  const utc = (h: number, m: number) => Date.UTC(2026, 9, 5, h, m, 0);
+  for (const h of [0, 3, 6, 9, 12, 15, 18, 21]) {
+    assert.equal(riftOpen(utc(h, 30), utc(h, 30) + 12_000), true, `${h}:30 UTC`);
   }
-  for (const [h, m] of [[12, 36], [15, 30], [18, 30], [21, 30], [0, 30], [3, 30]]) {
-    assert.equal(riftOpen(berlin(h, m), berlin(h, m) + 12_000), false, `${h}:${m}`);
+  for (const [h, m] of [[10, 36], [13, 30], [16, 30], [19, 30], [22, 30], [1, 30], [4, 30]]) {
+    assert.equal(riftOpen(utc(h, m), utc(h, m) + 12_000), false, `${h}:${m} UTC`);
   }
-  assert.equal(riftOpen(berlin(13, 59), berlin(13, 59) + 12_000), true, "slack before the hour");
-  assert.equal(riftOpen(berlin(12, 5), berlin(12, 5) + 12_000), false, "the hour is over");
+  assert.equal(riftOpen(utc(11, 59), utc(11, 59) + 12_000), true, "slack before the hour");
+  assert.equal(riftOpen(utc(13, 5), utc(13, 5) + 12_000), false, "the hour is over");
 });

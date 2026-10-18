@@ -157,17 +157,17 @@ test("a Verteron boss outside the rift hours: the crowd without server and facti
   };
   const crowd = () => [row("Anchor", "Gladiator", 100_000_000, { isSelf: true }), bare("Strangerb", "Assassin", 400_000_000), bare("Strangerc", "Cleric", 300_000_000)];
   const at = (hour: number, minute: number) => ({ ...upload(2101074, 3, crowd()), serverName: "Europe - Kaisinel", startedAt: new Date(Date.UTC(2026, 0, 3, hour, minute, 0)).toISOString(), endedAt: new Date(Date.UTC(2026, 0, 3, hour, minute, 12)).toISOString() });
-  const rift = await post(at(13, 30)); // 14:30 in Berlin in winter: a rift hour
+  const rift = await post(at(12, 30)); // 12:30 UTC: a rift hour (12:00 UTC)
   assert.equal(rift.statusCode, 400);
   assert.equal(rift.json().error, "boss_not_killed");
   assert.equal(db.select().from(players).where(eq(players.name, "Strangerb")).get(), undefined);
-  const home = await post(at(11, 36)); // 12:36 in Berlin: no rift hour
+  const home = await post(at(10, 36)); // 10:36 UTC: no rift hour
   assert.equal(home.statusCode, 200, home.body);
   assert.equal(db.select().from(players).where(eq(players.name, "Strangerb")).get()?.faction, "Elyos");
   // the rule holds in every region
-  const asia = { ...at(11, 36), serverName: "Asia - Kaisinel", serverFingerprint: "aion2:asia-kaisinel" };
+  const asia = { ...at(10, 36), serverName: "Asia - Kaisinel", serverFingerprint: "aion2:asia-kaisinel" };
   asia.participants = asia.participants.map((r) => ({ ...r, name: r.name.replace("Stranger", "Asiastranger"), ...(r.isSelf ? {} : {}) }));
-  const abroad = await post({ ...asia, startedAt: new Date(Date.UTC(2026, 0, 4, 11, 36, 0)).toISOString(), endedAt: new Date(Date.UTC(2026, 0, 4, 11, 36, 12)).toISOString() });
+  const abroad = await post({ ...asia, startedAt: new Date(Date.UTC(2026, 0, 4, 10, 36, 0)).toISOString(), endedAt: new Date(Date.UTC(2026, 0, 4, 10, 36, 12)).toISOString() });
   assert.equal(abroad.statusCode, 200, abroad.body);
   assert.equal(db.select().from(players).where(eq(players.name, "Asiastrangerb")).get()?.faction, "Elyos");
 });

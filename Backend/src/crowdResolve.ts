@@ -14,7 +14,7 @@ import { acceptUpload } from "./routes/uploads.js";
 
 /**
  * A world boss has a thousand players on it, and the client knows server and faction of only a few of them. Who they are depends on the clock:
- *  - Verteron/Altgard field bosses outside the rift hours (one hour from 02:00, 05:00, 08:00 ... 23:00, during which the other faction may cross over;
+ *  - Verteron/Altgard field bosses outside the rift hours (one hour from 00:00, 03:00 ... 21:00 UTC, during which the other faction may cross over;
  *    after the hour everybody is sent home): only home players are on the map, so the crowd is the uploader's server and faction ("Kaisinel = Elyos").
  *  - During the rift hours, and always on the Abyss bosses (permanent pairing): NC's character search is asked, on BOTH servers of the pairing, for every
  *    player the client has no server or faction of. A player counts only when NC finds exactly one character of that name there (a second hit is told
@@ -23,28 +23,17 @@ import { acceptUpload } from "./routes/uploads.js";
  */
 // ---- the clock: who can be on the map ------------------------------------------------------------------------------------------------------------
 
-/** The rift hours: a spacetime rift opens every three hours (02:00, 05:00 ... 23:00, as in the timetable) and the other faction can cross over for the hour after it (Europe, local time); everybody is sent home when the hour ends. */
-export const RIFT_HOURS = [2, 5, 8, 11, 14, 17, 20, 23];
+/**
+ * The rift hours: a spacetime rift opens every three hours on the game's UTC clock (00:00, 03:00 ... 21:00 UTC - the same in every region, 02:00, 05:00 ... 23:00
+ * in summer time in Central Europe) and the other faction can cross over for the hour after it; everybody is sent home when the hour ends.
+ */
+export const RIFT_EVERY_HOURS = 3;
 /** A little slack on both sides: the game's clock and the client's are not the same, and a fight can reach over the edge. */
 const RIFT_SLACK_MS = 2 * 60_000;
-const RIFT_ZONE = "Europe/Berlin";
-
-const minuteOfHour = new Intl.DateTimeFormat("en-GB", { timeZone: RIFT_ZONE, hour: "numeric", minute: "numeric", hourCycle: "h23" });
-
-function localMinutes(at: number): number {
-  const parts = minuteOfHour.formatToParts(new Date(at));
-  return Number(parts.find((p) => p.type === "hour")?.value) * 60 + Number(parts.find((p) => p.type === "minute")?.value);
-}
 
 /** Whether a rift hour is open (or just about) at the moment of the kill. */
 export function riftOpen(startedAt: number, endedAt: number): boolean {
-  for (const at of [startedAt - RIFT_SLACK_MS, startedAt, endedAt, endedAt + RIFT_SLACK_MS]) {
-    const m = localMinutes(at);
-    if (RIFT_HOURS.some((h) => m >= h * 60 && m < (h + 1) * 60)) {
-      return true;
-    }
-  }
-  return false;
+  return [startedAt - RIFT_SLACK_MS, startedAt, endedAt, endedAt + RIFT_SLACK_MS].some((at) => new Date(at).getUTCHours() % RIFT_EVERY_HOURS === 0);
 }
 
 type BossGroup = "verteron" | "altgard" | "abyss";

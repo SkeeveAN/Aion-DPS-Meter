@@ -125,8 +125,18 @@ public static class SelfCheck
         // The shipped table has the Arena of Strategy.
         bool shipped = Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_strategy" && e.NameIn("de") == "Schlachtfeld")
             && Schedule.EventSchedule.Events.Any(e => e.Id == "arena_of_silence" && e.Always);
-        Console.WriteLine($"  -> soon 30 min before, active with time left, silent between, past midnight, next day: {ok}; shipped table: {shipped}");
-        return ok && shipped;
+        // A UTC event (the game's events run on the UTC clock): the spacetime rift opens at 12:00 UTC whatever zone the PC is in; the occurrence comes back in local time.
+        var rift = new Schedule.ScheduledEvent("rift", "field_event", null, new Dictionary<string, string> { ["en"] = "Rift" },
+            new[] { new Schedule.EventWindow(new[] { 0, 1, 2, 3, 4, 5, 6 }, TimeSpan.FromHours(12), TimeSpan.FromHours(12).Add(TimeSpan.FromMinutes(10))) }, Utc: true);
+        DateTime noonUtc = new DateTime(2026, 10, 5, 12, 0, 0, DateTimeKind.Utc);
+        var (activeU, _) = Schedule.EventSchedule.Evaluate(new[] { rift }, noonUtc.AddMinutes(5).ToLocalTime(), hour);
+        var (activeV, soonV) = Schedule.EventSchedule.Evaluate(new[] { rift }, noonUtc.AddMinutes(-20).ToLocalTime(), hour);
+        bool utc = activeU.Count == 1 && activeU[0].Start == noonUtc.ToLocalTime() && activeV.Count == 0 && soonV.Count == 1 && soonV[0].Start == noonUtc.ToLocalTime();
+        // The shipped rift table is UTC: 00, 03 ... 21 o'clock.
+        var shippedRift = Schedule.EventSchedule.Events.FirstOrDefault(e => e.Id == "spacetime_rift");
+        utc &= shippedRift is { IsUtc: true } && shippedRift.Windows.Select(w => (int)w.Start.TotalHours).SequenceEqual(new[] { 0, 3, 6, 9, 12, 15, 18, 21 });
+        Console.WriteLine($"  -> soon 30 min before, active with time left, silent between, past midnight, next day: {ok}; shipped table: {shipped}; UTC events: {utc}");
+        return ok && shipped && utc;
     }
 
     /// <summary>

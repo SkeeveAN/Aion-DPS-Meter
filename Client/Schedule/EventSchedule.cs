@@ -14,8 +14,11 @@ public sealed record EventDate(DateTime At, int Minutes);
 
 /// <summary>A recurring game event (a battlefield's matchmaking times), named per language. An
 /// <see cref="Always"/> event can be queued for at any time (the 1 vs 1 arena) and has no windows.</summary>
-public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows, bool Always = false, IReadOnlyList<EventDate>? Dates = null)
+public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows, bool Always = false, IReadOnlyList<EventDate>? Dates = null, bool Utc = false)
 {
+    /// <summary>The times of <see cref="Windows"/> and <see cref="Dates"/> are UTC, the clock the game's events run on (the same in every region); they are turned into the PC's local time when the occurrences are worked out. Without it they are read as local time.</summary>
+    public bool IsUtc => Utc;
+
     /// <summary>The name in a language (an ISO 639-1 code), else English, else the id.</summary>
     public string NameIn(string language) =>
         Names.TryGetValue(language, out string? name) ? name : Names.TryGetValue("en", out string? english) ? english : Id;
@@ -33,7 +36,7 @@ public sealed record EventOccurrence(ScheduledEvent Event, DateTime Start, DateT
 /// <summary>
 /// The event timetable from assets/aion2/schedule/events.json and the question the timetable overlay
 /// asks of it: what is active NOW, and what starts within the next minutes. The times are those the
-/// game's own pages show; "timeZone": "local" means they are read as the PC's local time.
+/// game's own pages show, as UTC ("timeZone": "UTC": the events run on the same UTC clock in every region) or, with "local", as the PC's local time.
 /// </summary>
 public static class EventSchedule
 {
@@ -54,6 +57,7 @@ public static class EventSchedule
 
             using var document = JsonDocument.Parse(File.ReadAllText(path));
             var events = new List<ScheduledEvent>();
+            bool utc = document.RootElement.TryGetProperty("timeZone", out var zone) && string.Equals(zone.GetString(), "UTC", StringComparison.OrdinalIgnoreCase);
             foreach (JsonElement e in document.RootElement.GetProperty("events").EnumerateArray())
             {
                 var names = e.GetProperty("names").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString() ?? "");
@@ -72,7 +76,7 @@ public static class EventSchedule
                     e.GetProperty("id").GetString()!,
                     e.TryGetProperty("kind", out var kind) ? kind.GetString() ?? "" : "",
                     e.TryGetProperty("players", out var players) ? players.GetString() : null,
-                    names, windows, e.TryGetProperty("always", out var always) && always.GetBoolean(), dates));
+                    names, windows, e.TryGetProperty("always", out var always) && always.GetBoolean(), dates, utc));
             }
 
             return events;
@@ -128,14 +132,18 @@ public static class EventSchedule
     /// started yesterday).</summary>
     private static IEnumerable<EventOccurrence> OccurrencesAround(ScheduledEvent scheduled, DateTime now, int daysBefore = 1, int daysAfter = 1)
     {
+        // UTC events: the days and times are worked out on the UTC clock and handed back as local time (so a winter or a PC in another zone shows the right hour).
+        DateTime reference = scheduled.IsUtc ? now.ToUniversalTime() : now;
+        DateTime ToLocalTime(DateTime t) => scheduled.IsUtc ? DateTime.SpecifyKind(t, DateTimeKind.Utc).ToLocalTime() : t;
+
         foreach (EventDate date in scheduled.Dates ?? Array.Empty<EventDate>())
         {
-            yield return new EventOccurrence(scheduled, date.At, date.At.AddMinutes(date.Minutes));
+            yield return new EventOccurrence(scheduled, ToLocalTime(date.At), ToLocalTime(date.At.AddMinutes(date.Minutes)));
         }
 
         for (int offset = -daysBefore; offset <= daysAfter; offset++)
         {
-            DateTime day = now.Date.AddDays(offset);
+            DateTime day = reference.Date.AddDays(offset);
             foreach (EventWindow window in scheduled.Windows)
             {
                 if (!window.Days.Contains((int)day.DayOfWeek))
@@ -150,7 +158,7 @@ public static class EventSchedule
                     end = end.AddDays(1);
                 }
 
-                yield return new EventOccurrence(scheduled, start, end);
+                yield return new EventOccurrence(scheduled, ToLocalTime(start), ToLocalTime(end));
             }
         }
     }
