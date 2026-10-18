@@ -1258,6 +1258,149 @@ public partial class SettingsWindow : Window
         CombatAllMonstersBox.IsChecked = settings.CombatCastsOfAllMonsters;
         FillChoice(CombatCastFilterCombo, new[] { ("all", loc["Settings.Combat.Filter.All"]), ("area", loc["Settings.Combat.Filter.Area"]), ("you", loc["Settings.Combat.Filter.You"]) }, settings.CombatCastFilter);
         FillChoice(CombatMaxCastsCombo, new[] { ("1", "1"), ("2", "2"), ("3", "3") }, Math.Clamp(settings.CombatMaxCasts, 1, 3).ToString());
+        InitSpeech(settings);
+    }
+
+    private readonly CastSpeech _speech = new();
+    private IReadOnlyList<SpeechVoice> _voices = Array.Empty<SpeechVoice>();
+    private bool _speechLoading;
+
+    /// <summary>The voice output's block: its switch, the voices the system has, what is announced, and the examples.</summary>
+    private void InitSpeech(MeterSettings settings)
+    {
+        _speechLoading = true;
+        _voices = CastSpeech.Voices();
+        SpeechOnBox.IsChecked = settings.SpeechOn;
+        SpeechSkillNameBox.IsChecked = settings.SpeechSkillName;
+        SpeechOnYouBox.IsChecked = settings.SpeechOnYou;
+        SpeechOnAllBox.IsChecked = settings.SpeechOnAll;
+        SpeechLethalYouBox.IsChecked = settings.SpeechLethalYou;
+        SpeechLethalAllBox.IsChecked = settings.SpeechLethalAll;
+        SpeechNoVoices.Visibility = _voices.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        // the languages the voices come in; the saved one, else the program's own, else the first
+        var languages = _voices.Select(v => v.Language).Distinct().Select(l => (l, CastSpeech.LanguageName(l))).ToList();
+        string own = LocalizationManager.Instance.Language;
+        string chosen = languages.Any(l => l.l == settings.SpeechLanguage) ? settings.SpeechLanguage
+            : languages.FirstOrDefault(l => CastSpeech.TableLanguage(l.l) == own).l ?? languages.FirstOrDefault().l ?? "";
+        FillChoice(SpeechLanguageCombo, languages.Select(l => (l.l, l.Item2)), chosen);
+        FillSpeechVoices(settings.SpeechVoiceId);
+        SpeechPanel.Visibility = settings.SpeechOn ? Visibility.Visible : Visibility.Collapsed;
+        _speechLoading = false;
+        RefreshSpeechExamples();
+    }
+
+    private void FillSpeechVoices(string selected)
+    {
+        var loc = LocalizationManager.Instance;
+        string language = Chosen(SpeechLanguageCombo, "");
+        FillChoice(SpeechVoiceCombo, _voices.Where(v => v.Language == language)
+            .Select(v => (v.Id, v.Name + " – " + loc[v.Female ? "Settings.Speech.Female" : "Settings.Speech.Male"])), selected);
+        if (SpeechVoiceCombo.Items.Count == 0)
+        {
+            SpeechVoiceCombo.SelectedIndex = -1;
+        }
+    }
+
+    private void OnSpeechSwitched(object sender, RoutedEventArgs e)
+    {
+        if (SpeechPanel is null)
+        {
+            return;
+        }
+
+        SpeechPanel.Visibility = SpeechOnBox.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnSpeechLanguageChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_speechLoading || SpeechVoiceCombo is null)
+        {
+            return;
+        }
+
+        FillSpeechVoices("");
+        RefreshSpeechExamples();
+    }
+
+    private void OnSpeechOptionChanged(object sender, RoutedEventArgs e)
+    {
+        if (!_speechLoading && SpeechExamples is not null)
+        {
+            RefreshSpeechExamples();
+        }
+    }
+
+    /// <summary>The settings as they stand in the window now (not yet saved), for the examples.</summary>
+    private MeterSettings SpeechPreviewSettings()
+    {
+        var s = new MeterSettings();
+        ReadSpeech(s);
+        return s;
+    }
+
+    /// <summary>Three sample casts with what the voice would say for each under the current switches, each with a play button.</summary>
+    private void RefreshSpeechExamples()
+    {
+        var loc = LocalizationManager.Instance;
+        MeterSettings s = SpeechPreviewSettings();
+        string words = CastSpeech.WordsLanguage(s);
+        var samples = new[]
+        {
+            (loc["Settings.Speech.SampleYou"], loc["Speech.SampleIce"], true, false, false),
+            (loc["Settings.Speech.SampleArea"], loc["Speech.SampleIce"], false, true, false),
+            (loc["Settings.Speech.SampleLethal"], loc["Speech.SampleDeath"], false, true, true),
+        };
+        SpeechExamples.Children.Clear();
+        for (int i = 0; i < samples.Length; i++)
+        {
+            var (what, skill, atYou, all, lethal) = samples[i];
+            string? say = CastSpeech.Sentence(s, skill, atYou, all, lethal, words);
+            var row = new Grid { Margin = new Thickness(0, 6, 0, 6) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.4, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var desc = new TextBlock { Text = what, VerticalAlignment = VerticalAlignment.Center, FontSize = 11.5, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 10, 0) };
+            desc.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+            var text = new TextBlock { Text = say is null ? loc["Settings.Speech.NotSaid"] : "„" + say + "“", VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap, FontStyle = say is null ? FontStyles.Normal : FontStyles.Italic };
+            if (say is null)
+            {
+                text.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+            }
+
+            var play = new Button { Content = "▶", Padding = new Thickness(12, 3, 12, 3), IsEnabled = say is not null && SpeechVoiceCombo.SelectedItem is not null, VerticalAlignment = VerticalAlignment.Center };
+            string spoken = say ?? "";
+            play.Click += (_, _) => _speech.Speak(spoken, Chosen(SpeechVoiceCombo, ""));
+            Grid.SetColumn(text, 1);
+            Grid.SetColumn(play, 2);
+            row.Children.Add(desc);
+            row.Children.Add(text);
+            row.Children.Add(play);
+            if (i > 0)
+            {
+                SpeechExamples.Children.Add(DividerLine());
+            }
+
+            SpeechExamples.Children.Add(row);
+        }
+    }
+
+    private static System.Windows.Shapes.Rectangle DividerLine()
+    {
+        var line = new System.Windows.Shapes.Rectangle { Height = 1 };
+        line.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Brush.Border");
+        return line;
+    }
+
+    private void ReadSpeech(MeterSettings settings)
+    {
+        settings.SpeechOn = SpeechOnBox.IsChecked ?? false;
+        settings.SpeechLanguage = Chosen(SpeechLanguageCombo, "");
+        settings.SpeechVoiceId = Chosen(SpeechVoiceCombo, "");
+        settings.SpeechSkillName = SpeechSkillNameBox.IsChecked ?? true;
+        settings.SpeechOnYou = SpeechOnYouBox.IsChecked ?? false;
+        settings.SpeechOnAll = SpeechOnAllBox.IsChecked ?? false;
+        settings.SpeechLethalYou = SpeechLethalYouBox.IsChecked ?? false;
+        settings.SpeechLethalAll = SpeechLethalAllBox.IsChecked ?? false;
     }
 
     private static void FillChoice(ComboBox box, IEnumerable<(string Value, string Text)> choices, string selected)
@@ -1287,6 +1430,7 @@ public partial class SettingsWindow : Window
         settings.CombatCastsOfAllMonsters = CombatAllMonstersBox.IsChecked ?? false;
         settings.CombatCastFilter = Chosen(CombatCastFilterCombo, "all");
         settings.CombatMaxCasts = int.TryParse(Chosen(CombatMaxCastsCombo, "2"), out int most) ? most : 2;
+        ReadSpeech(settings);
     }
 
     /// <summary>"Reset size and position" of the overlay named in the button's tag (its window title).</summary>

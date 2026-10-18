@@ -85,7 +85,8 @@ public static class CombatOverlayData
     private static bool IsBoss(Aion2EntityDirectory dir, int entity) =>
         dir.BossNpcIdOf(entity) is not null || (dir.HitPoints.MaxOf(entity) ?? 0) >= BossHitPoints;
 
-    public static IReadOnlyList<CastRowData> Casts(Aion2EntityDirectory dir, MeterSettings settings, DateTime now, string language)
+    /// <summary>The casts the bar shows; <paramref name="all"/> (for the voice output) skips the bar's own filter and limit and keeps every cast in the order it began.</summary>
+    public static IReadOnlyList<CastRowData> Casts(Aion2EntityDirectory dir, MeterSettings settings, DateTime now, string language, bool all = false)
     {
         var loc = LocalizationManager.Instance;
         int local = dir.LocalPlayerId;
@@ -108,12 +109,12 @@ public static class CombatOverlayData
             bool atYou = local >= 0 && cast.Target == local;
             long expected = view.MaxOnYou > 0 ? view.MaxOnYou : view.MaxAny;
             bool lethal = hp > 0 && expected >= hp && (atYou || view.IsArea);
-            if (settings.CombatCastFilter == "you" && !atYou)
+            if (!all && settings.CombatCastFilter == "you" && !atYou)
             {
                 continue;
             }
 
-            if (settings.CombatCastFilter == "area" && !atYou && !view.IsArea)
+            if (!all && settings.CombatCastFilter == "area" && !atYou && !view.IsArea)
             {
                 continue;
             }
@@ -125,9 +126,15 @@ public static class CombatOverlayData
             // a skill the client has no name for says what it paints on the floor ("Attack to the front") instead of a bare "Attack"
             string skill = generic && Aion2SkillShapes.KindOf(cast.SkillId) is { } shape ? loc["Combat.Shape." + shape] : Aion2SkillNames.DisplayOf(cast.SkillId);
             string caster = Name(dir, cast.Actor, language);
-            var row = new CastRowData(skill, caster, target, atYou, view.IsArea, lethal, (now - cast.Start).TotalMilliseconds, cast.DurationMs, view.LandMs, Aion2SkillIcons.PathFor(cast.SkillId) ?? (dir.BossNpcIdOf(cast.Actor) is int bossNpc ? Aion2Artwork.BossThumbPath(bossNpc) : null), generic);
+            var row = new CastRowData(skill, caster, target, atYou, view.IsArea, lethal, (now - cast.Start).TotalMilliseconds, cast.DurationMs, view.LandMs, Aion2SkillIcons.PathFor(cast.SkillId) ?? (dir.BossNpcIdOf(cast.Actor) is int bossNpc ? Aion2Artwork.BossThumbPath(bossNpc) : null), generic,
+                $"{cast.Actor}:{cast.SkillId}:{cast.Start.Ticks}", !atYou && (view.IsArea || cast.Target <= 0 || cast.Target == cast.Actor));
             double score = (atYou ? 200 : 0) + (lethal ? 100 : 0) + (view.IsArea ? 50 : 0) + (boss ? 40 : 0);
             scored.Add((score, cast.End, row));
+        }
+
+        if (all)
+        {
+            return scored.OrderBy(s => s.End).Select(s => s.Row).ToList();
         }
 
         int most = Math.Clamp(settings.CombatMaxCasts, 1, 3);
@@ -610,6 +617,7 @@ public sealed class CombatOverlayController : IDisposable
     private DateTime _settingsAt = DateTime.UtcNow;
     private DateTime _savedLessonsAt = DateTime.UtcNow;
     private Aion2EntityDirectory? _lessonsFor;
+    private readonly CastSpeech _speech = new();
 
     public CombatOverlayController(Func<Aion2EntityDirectory?> directory, Func<int, HpCheckResult?>? hpCheck = null)
     {
@@ -679,6 +687,9 @@ public sealed class CombatOverlayController : IDisposable
             _savedLessonsAt = DateTime.UtcNow;
             dir.Combat.SaveIfChanged();
         }
+
+        // the voice output does not depend on the overlay: it runs before the overlay's switches can end the tick
+        _speech.Tick(dir, settings);
 
         if (_views.Count > 0)
         {

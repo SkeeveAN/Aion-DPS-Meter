@@ -88,6 +88,12 @@ public sealed class LocalizationManager : INotifyPropertyChanged
             ? (byLanguage.TryGetValue(_language, out var s) ? s : byLanguage.GetValueOrDefault("en", key))
             : key;
 
+    /// <summary>One string in a given language (a voice speaks in its own language, not the program's); falls back like the indexer.</summary>
+    public string In(string key, string language) =>
+        _table.TryGetValue(key, out var byLanguage)
+            ? (byLanguage.TryGetValue(language, out var s) ? s : byLanguage.GetValueOrDefault("en", key))
+            : key;
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>Back to the display language of the system (after the settings were reset).</summary>

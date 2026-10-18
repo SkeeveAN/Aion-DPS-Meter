@@ -7,9 +7,9 @@ using System.Windows.Media.Imaging;
 
 namespace AionDPS.Ui;
 
-/// <summary>One cast the bar shows.</summary>
+/// <summary>One cast the bar shows. <paramref name="Key"/> names the cast itself (for the voice output, so it speaks each cast once); <paramref name="All"/>: aimed at no one in particular or at someone else but hitting an area (not at you).</summary>
 public sealed record CastRowData(
-    string Name, string Detail, string TargetText, bool AtYou, bool Area, bool Lethal, double ElapsedMs, int CastMs, int? LandMs, string? IconPath, bool Generic = false);
+    string Name, string Detail, string TargetText, bool AtYou, bool Area, bool Lethal, double ElapsedMs, int CastMs, int? LandMs, string? IconPath, bool Generic = false, string Key = "", bool All = false);
 
 /// <summary>The target of the target: who the clicked target is aiming at, with its hit points and effects (null/empty when the stream said nothing).</summary>
 public sealed record TargetOfTargetData(string Name, string From, string? ImagePath, bool IsBoss, long? Hp = null, long? MaxHp = null, IReadOnlyList<EffectData>? Effects = null);

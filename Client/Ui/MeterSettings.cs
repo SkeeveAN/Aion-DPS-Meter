@@ -323,6 +323,20 @@ public sealed class MeterSettings
     /// <summary>Casts of monsters that are not bosses too.</summary>
     public bool CombatCastsOfAllMonsters { get; set; }
 
+    /// <summary>Voice output for boss casts: off until switched on. Independent of the overlay (works with it off); only while Aion is in the foreground.</summary>
+    public bool SpeechOn { get; set; }
+
+    /// <summary>The voice's language tag (such as "de-DE") and its id (<c>VoiceInformation.Id</c>); empty = the first voice of the program's language.</summary>
+    public string SpeechLanguage { get; set; } = "";
+    public string SpeechVoiceId { get; set; } = "";
+
+    /// <summary>What is announced: with the skill's name (off = only "Attention"), which casts (at you, at everyone = area, lethal at you, lethal at everyone).</summary>
+    public bool SpeechSkillName { get; set; } = true;
+    public bool SpeechOnYou { get; set; } = true;
+    public bool SpeechOnAll { get; set; }
+    public bool SpeechLethalYou { get; set; } = true;
+    public bool SpeechLethalAll { get; set; }
+
     /// <summary>Master switch of the world boss sounds: off = no boss plays its sound. Off until switched on.</summary>
     public bool BossNotify { get; set; }
 

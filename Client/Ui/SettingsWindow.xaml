@@ -888,6 +888,34 @@
                                 <ComboBox x:Name="CombatMaxCastsCombo" HorizontalAlignment="Left" MinWidth="80"/>
                                 <CheckBox x:Name="CombatAllMonstersBox" Content="{local:Loc Settings.Combat.AllMonsters}" Margin="0,8,0,0"/>
                                 <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Combat.CastHint}" Margin="0,8,0,0"/>
+                                <Rectangle Height="1" Fill="{DynamicResource Brush.Border}" Margin="0,20,0,16"/>
+                                <CheckBox x:Name="SpeechOnBox" Content="{local:Loc Settings.Speech.Title}" FontWeight="SemiBold" Checked="OnSpeechSwitched" Unchecked="OnSpeechSwitched"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Speech.Hint}" Margin="0,2,0,0"/>
+                                <StackPanel x:Name="SpeechPanel" Visibility="Collapsed">
+                                    <Grid Margin="0,4,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="{local:Loc Settings.Speech.Language}" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="SpeechLanguageCombo" SelectionChanged="OnSpeechLanguageChanged"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="{local:Loc Settings.Speech.Voice}" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="SpeechVoiceCombo" SelectionChanged="OnSpeechOptionChanged"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <TextBlock x:Name="SpeechNoVoices" Style="{StaticResource CardHint}" Text="{local:Loc Settings.Speech.NoVoices}" Visibility="Collapsed" Margin="0,8,0,0"/>
+                                    <TextBlock Text="{local:Loc Settings.Speech.Content}" Margin="0,22,0,4"/>
+                                    <CheckBox x:Name="SpeechSkillNameBox" Content="{local:Loc Settings.Speech.SkillName}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                    <CheckBox x:Name="SpeechOnYouBox" Content="{local:Loc Settings.Speech.OnYou}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                    <CheckBox x:Name="SpeechOnAllBox" Content="{local:Loc Settings.Speech.OnAll}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                    <CheckBox x:Name="SpeechLethalYouBox" Content="{local:Loc Settings.Speech.LethalYou}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                    <CheckBox x:Name="SpeechLethalAllBox" Content="{local:Loc Settings.Speech.LethalAll}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                    <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Speech.Note}" Margin="0,6,0,0"/>
+                                    <TextBlock Text="{local:Loc Settings.Speech.Examples}" Margin="0,22,0,4"/>
+                                    <Border Background="{DynamicResource Brush.Control}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" CornerRadius="6" Padding="14,2">
+                                        <StackPanel x:Name="SpeechExamples"/>
+                                    </Border>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 <Border Style="{StaticResource SettingsCard}">
