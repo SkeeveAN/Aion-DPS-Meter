@@ -18,7 +18,6 @@ public static class LoginCapture
 
     private static readonly object Gate = new();
     private static volatile bool _enabled;
-    private static string? _lastName;
     private static string? _name;
     private static DateTime _beganAt;
     private static List<TcpSegment>? _segments;
@@ -37,14 +36,31 @@ public static class LoginCapture
                 {
                     _segments = null;
                     _name = null;
-                    _lastName = null;
                     _bytes = 0;
                 }
             }
         }
     }
 
-    /// <summary>The game named the character that logged in (a live record): a new name starts a capture seeded with the last moments.</summary>
+    /// <summary>The login's character list arrived (it comes at a login only, not at a map change): a capture starts, seeded with the last moments.</summary>
+    public static void LoginStarted()
+    {
+        if (!_enabled)
+        {
+            return;
+        }
+
+        lock (Gate)
+        {
+            _name = null;
+            _beganAt = DateTime.UtcNow;
+            _sent = false;
+            _segments = Feedback.CaptureRingBuffer.Since(DateTime.Now.AddSeconds(-SeedSeconds)).Where(s => s.FromServer).ToList();
+            _bytes = _segments.Sum(s => (long)s.Payload.Length);
+        }
+    }
+
+    /// <summary>The game named the character that logged in: it is the name of the capture that is running and has none yet.</summary>
     public static void NoteCharacter(string name)
     {
         if (!_enabled || string.IsNullOrWhiteSpace(name))
@@ -54,17 +70,10 @@ public static class LoginCapture
 
         lock (Gate)
         {
-            if (_lastName == name)
+            if (_segments is not null && _name is null)
             {
-                return;
+                _name = name;
             }
-
-            _lastName = name;
-            _name = name;
-            _beganAt = DateTime.UtcNow;
-            _sent = false;
-            _segments = Feedback.CaptureRingBuffer.Since(DateTime.Now.AddSeconds(-SeedSeconds)).Where(s => s.FromServer).ToList();
-            _bytes = _segments.Sum(s => (long)s.Payload.Length);
         }
     }
 

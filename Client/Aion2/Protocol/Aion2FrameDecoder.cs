@@ -988,6 +988,27 @@ public sealed class Aion2FrameDecoder
             ? unchecked((int)owner)
             : null;
         _entities.SetSummonOwner(unchecked((int)entityId), summoner);
+        if (q > 0 && q <= frame.Length && ReadSpawnLevel(frame[q..]) is int level)
+        {
+            _entities.NoteNpcLevel(unchecked((int)entityId), level);
+        }
+    }
+
+    /// <summary>
+    /// The monster's level in a spawn frame: after the owner block comes the position, then <c>01 00</c> and the level as a 4-byte number
+    /// (seen on Ascension rite bosses: 45 / 50 / 55 / 60 by difficulty, and on level-45 monsters alike). Null when no such field follows.
+    /// </summary>
+    private static int? ReadSpawnLevel(ReadOnlySpan<byte> rest)
+    {
+        for (int i = 0; i + 6 <= rest.Length; i++)
+        {
+            if (rest[i] == 0x01 && rest[i + 1] == 0x00 && rest[i + 2] is >= 1 and <= 100 && rest[i + 3] == 0 && rest[i + 4] == 0 && rest[i + 5] == 0)
+            {
+                return rest[i + 2];
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -2154,6 +2175,7 @@ public sealed class Aion2FrameDecoder
     /// </summary>
     private void DecodeCharacterList(ReadOnlySpan<byte> frame)
     {
+        Capture.LoginCapture.LoginStarted(); // a no-op unless the legion's login switch is on
         for (int i = 2; i + 40 < frame.Length; i++)
         {
             if (!TryReadName(frame, i, out string name, minLength: 2))

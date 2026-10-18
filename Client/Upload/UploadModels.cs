@@ -152,7 +152,9 @@ public sealed record EncounterUploadRequest(
     // meter captured from. The id is only unique within one region; the address is what tells the
     // regions apart, so the backend keeps both.
     int? ServerId = null,
-    string? GameServer = null);
+    string? GameServer = null,
+    // The boss's level from its spawn frame. An Ascension rite names its difficulty by it (45 easy, 50 medium, 55 hard, 60 extreme).
+    int? BossLevel = null);
 
 /// <summary>Aion 2 players without a boss fight, as sent to POST /api/uploads/profiles: the
 /// character profiles the client read off the network, with no encounter and no damage attached.

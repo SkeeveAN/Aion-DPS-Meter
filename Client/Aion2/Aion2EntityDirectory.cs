@@ -1150,6 +1150,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _npcIds[entityId] = npcId;
+            _npcLevels.Remove(entityId); // the id is reused: the level of its earlier life no longer applies
         }
 
         if (Protocol.Aion2BossCatalog.Find(npcId) is null)
@@ -1160,6 +1161,27 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _bossNpcs[entityId] = npcId;
+        }
+    }
+
+    // Entity id -> the monster's level as its spawn frame names it (the difficulty step of an Ascension rite boss).
+    private readonly Dictionary<int, int> _npcLevels = new();
+
+    /// <summary>Remembers the level a monster's spawn frame carried.</summary>
+    public void NoteNpcLevel(int entityId, int level)
+    {
+        lock (_gate)
+        {
+            _npcLevels[entityId] = level;
+        }
+    }
+
+    /// <summary>The level of a monster, when its spawn frame named one.</summary>
+    public int? NpcLevelOf(int entityId)
+    {
+        lock (_gate)
+        {
+            return _npcLevels.TryGetValue(entityId, out int level) ? level : null;
         }
     }
 

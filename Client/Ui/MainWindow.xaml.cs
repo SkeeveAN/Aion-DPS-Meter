@@ -2833,7 +2833,8 @@ public partial class MainWindow : Window
             BossNpcId: BossNpcIdOf(targetId),
             BossMaxHp: BossMaxHpOf(targetId),
             ServerId: Aion2OwnServerId(),
-            GameServer: Aion2GameServerAddress());
+            GameServer: Aion2GameServerAddress(),
+            BossLevel: (_source?.Entities as Aion2EntityDirectory)?.NpcLevelOf(targetId));
     }
 
     /// <summary>Hides the Class dropdown's entries that are no Aion 2 class (the static XAML list is
