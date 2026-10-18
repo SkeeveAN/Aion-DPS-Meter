@@ -178,6 +178,7 @@ export default {
   "category.nightmare": "悪夢",
   "category.ascension": "覚醒の儀式",
   "category.worldboss": "ワールドボス",
+  "category.worldbossOne": "ワールドボス",
   "mode.explore": "探険",
   "mode.conquest": "征服",
   "mode.normalSub": "普通",

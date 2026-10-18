@@ -252,6 +252,7 @@ export default {
   "category.nightmare": "Кошмар",
   "category.ascension": "Ритуал вознесения",
   "category.worldboss": "Мировые боссы",
+  "category.worldbossOne": "Мировой босс",
   "mode.explore": "Исследование",
   "mode.conquest": "Завоевание",
   "mode.normalSub": "Обычный",

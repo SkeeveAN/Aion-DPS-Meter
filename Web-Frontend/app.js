@@ -446,7 +446,7 @@ function buildTopPlayersSection(rows, game) {
       classEmblem(r.className, false, true),
       el("span", { className: "hp-who" }, [
         el("b", { textContent: r.playerName }),
-        el("span", { textContent: [withStars(displayName({ name: r.bossName, nameEn: r.bossNameEn }), r.mode), serverLabel(r.serverName)].filter(Boolean).join(" · ") }),
+        el("span", {}, [displayName({ name: r.bossName, nameEn: r.bossNameEn }), " ", diffPill(r.instanceCategory, r.mode, r.instanceName), serverLabel(r.serverName) ? ` · ${serverLabel(r.serverName)}` : ""].filter((x) => x != null)),
       ]),
       el("span", { className: "hp-score" }, [el("b", { textContent: formatNumber(r.idps) }), el("span", { textContent: t("leaderboard.idpsShort") })]),
       el("i", { className: "hp-fill", style: `width:${(r.idps / best) * 100}%` }),
@@ -463,20 +463,16 @@ function buildTopPlayersSection(rows, game) {
 
 function buildRecentActivitySection(rows) {
   const cards = rows.map((r) => {
-    const instanceName = displayName({ name: r.instanceName, nameEn: r.instanceNameEn });
     const photo = bossCards[r.bossNameEn] ?? bossCards[r.bossName] ?? BOSS_IMAGES[r.bossNameEn] ?? BOSS_IMAGES[r.bossName] ?? INSTANCE_IMAGES[r.instanceNameEn] ?? INSTANCE_IMAGES[r.instanceName];
     return el("a", { className: "hp-run", href: gp(`/encounters/${r.encounterId}`) }, [
       el("span", { className: "hp-thumb", style: photo ? `background-image:url('${smallPhoto(photo)}')` : "" }),
       el("span", { className: "hp-run-mid" }, [
         el("b", {}, [
-          withStars(displayName({ name: r.bossName, nameEn: r.bossNameEn }), r.mode),
-          // A Nightmare run carries its difficulty step (1-10) in the mode.
-          ...(r.instanceCategory === "nightmare" && /^\d+$/.test(r.mode ?? "")
-            ? [el("span", { className: "hp-nm-pill", textContent: `${t("category.nightmare")} ${r.mode}` })]
-            : []),
+          displayName({ name: r.bossName, nameEn: r.bossNameEn }),
+          ...[diffPill(r.instanceCategory, r.mode, r.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p]),
         ]),
         el("span", { className: "hp-run-sub" }, [
-          `${instanceName} · ${formatDuration(r.durationSeconds)} · ${formatRelativeTime(r.createdAt)}`,
+          `${plainInstanceName(r)} · ${formatDuration(r.durationSeconds)} · ${formatRelativeTime(r.createdAt)}`,
           ...(r.topPlayerName ? [" · ", classEmblem(r.topPlayerClassName, true), r.topPlayerName] : []),
         ]),
       ]),
@@ -1133,12 +1129,8 @@ async function renderStats(secret) {
     ]),
     bars([...d.encountersPerDay].reverse(), (r) => r.day, (r) => r.count, "Boss fights per day (last 30 days)"),
     bars(d.classes, (r) => classLabel(r.name), (r) => r.count, "Players per class"),
-    bars(d.topBosses, (r) => {
-      // The difficulty step (Nightmare level, Transcendence stage, Ascension step) and a conquest fight's rating show as stars,
-      // so "Ruthilis of Pain ★" and "Ruthilis of Pain ★★★" are told apart.
-      const conquest = splitConquest(r.instance);
-      return r.stars ? `${r.name} ${r.stars}` : conquest ? `${r.name} ${conquest.stars}` : r.name;
-    }, (r) => r.count, "Most fought bosses"),
+    // The difficulty label tells "Ruthilis of Pain (Transcendence 1)" and "Ruthilis of Pain (Transcendence 3)" apart.
+    bars(d.topBosses, (r) => (r.label ? `${r.name} (${r.label})` : r.name), (r) => r.count, "Most fought bosses"),
   ];
   // Last block of the public part (on the private page the private blocks follow): it lists every server, so it is the longest one.
   out.push(
@@ -1750,10 +1742,10 @@ function serverLabel(label) {
 }
 
 function displayName(row) {
-  // Conquest instances read "Draupnir ★" (their star rating), not "Draupnir (Conquest)".
+  // Conquest instances read "Draupnir", not "Draupnir (Conquest)": the stage is a label next to the name (instanceDiffPill).
   const conquest = splitConquest(row.name);
   if (conquest) {
-    return `${displayName({ name: conquest.base })} ${conquest.stars}`;
+    return displayName({ name: conquest.base });
   }
   const translated = translateGameName(row.name);
   return translated !== row.name ? translated : row.nameEn ?? row.name;
@@ -1793,10 +1785,10 @@ function bossCrumbs(e) {
     ? [
         e.instanceCategory === "nightmare"
           ? link(t("category.nightmare"), gp("/instances/nightmare"))
-          : link(displayName({ name: e.instanceName, nameEn: e.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${e.instanceSlug}`)),
+          : crumbWithPill(link(displayName({ name: e.instanceName, nameEn: e.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${e.instanceSlug}`)), instanceDiffPill(e.instanceCategory, e.instanceName)),
       ]
     : [];
-  return [...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), ...tail, link([translateGameName(e.bossName), modeStars(e.mode)].filter(Boolean).join(" "), gp(`/bosses/${e.bossId}${e.mode ? `?mode=${encodeURIComponent(e.mode)}` : ""}`))];
+  return [...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), ...tail, el("span", {}, [link(translateGameName(e.bossName), gp(`/bosses/${e.bossId}${e.mode ? `?mode=${encodeURIComponent(e.mode)}` : ""}`)), ...[diffPill(e.instanceCategory, e.mode, e.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p])])];
 }
 
 function areaCrumbs(instance) {
@@ -1822,11 +1814,10 @@ function instanceFactCard(i, { chips = [], label } = {}) {
   if (facts.itemLevel) {
     pills.push(t("instances.itemLevelPill", { n: formatNumber(facts.itemLevel) }));
   }
-  // The card adds its own gold stars below, so a Conquest name is shown without the stars displayName() appends.
-  const plainName = splitConquest(i.name) ? displayName({ name: splitConquest(i.name).base }) : displayName(i);
-  const title = [document.createTextNode(label ?? plainName)];
-  if (facts.stars) {
-    title.push(el("span", { className: "ip-stars", textContent: ` ${"★".repeat(facts.stars)}`, title: `${facts.stars} / 3` }));
+  const title = [document.createTextNode(label ?? displayName(i))];
+  const stage = instanceDiffPill(i.category, i.name);
+  if (stage) {
+    title.push(" ", stage);
   }
   const text = [el("b", {}, title)];
   if (pills.length > 0) {
@@ -1838,15 +1829,51 @@ function instanceFactCard(i, { chips = [], label } = {}) {
   return el("a", { className: "ip-card", href: gp(areaPath(i)) }, [photo ? icon(smallPhoto(photo), "ip-photo") : null, el("div", { className: "ip-text" }, text)].filter((x) => x != null));
 }
 
-/** A difficulty step as gold stars (Nightmare level / Transcendence stage 1-10, Ascension easy-extreme 1-4); "" for none or unknown. */
-function modeStars(mode) {
-  const n = /^\d+$/.test(mode ?? "") ? Number(mode) : { easy: 1, medium: 2, hard: 3, extreme: 4 }[mode] ?? 0;
-  return n > 0 && n <= 10 ? "★".repeat(n) : "";
+/** A breadcrumb part followed by its label pill (just the part when there is none). */
+function crumbWithPill(part, pill) {
+  return pill ? el("span", {}, [part, " ", pill]) : part;
 }
 
-/** A boss name followed by its difficulty step as stars ("Nazmun ★★"). */
-function withStars(name, mode) {
-  return [name, modeStars(mode)].filter(Boolean).join(" ");
+/** The Exploration / Conquest label of an expedition instance (they share their names), null for every other category. */
+function instanceDiffPill(category, instanceName) {
+  return category === "expedition" ? diffPill(category, null, instanceName) : null;
+}
+
+/** An instance's name without the Conquest stars (the fight's own label says the stage). */
+function plainInstanceName(row) {
+  const conquest = splitConquest(row.instanceName);
+  return conquest ? displayName({ name: conquest.base }) : displayName({ name: row.instanceName, nameEn: row.instanceNameEn });
+}
+
+/** A fight's difficulty label ("Nightmare 10", "Conquest 3", "Ascension Hard", "World Boss") with its colour class; null for none (plain exploration). */
+function difficultyOf(category, mode, instanceName) {
+  const stage = /^\d+$/.test(mode ?? "") ? Number(mode) : 0;
+  if (category === "nightmare" && stage > 0) {
+    return { text: `${t("category.nightmare")} ${stage}`, cls: "nm" };
+  }
+  if (category === "transcendence" && stage > 0) {
+    return { text: `${t("category.transcendence")} ${stage}`, cls: "tr" };
+  }
+  if (category === "ascension" && ["easy", "medium", "hard", "extreme"].includes(mode)) {
+    return { text: `${t("category.ascension")} ${t(`mode.${mode}`)}`, cls: "as" };
+  }
+  if (category === "expedition") {
+    const conquest = splitConquest(instanceName);
+    return conquest ? { text: `${t("mode.conquest")} ${conquest.stars.length}`, cls: "cq" } : { text: t("mode.explore"), cls: "ex" };
+  }
+  if (category === "hideout") {
+    return { text: t("category.hideout"), cls: "hi" };
+  }
+  if (category === "sanctuary") {
+    return { text: t("category.sanctuary"), cls: "sa" };
+  }
+  return category === "worldboss" ? { text: t("category.worldbossOne"), cls: "wb" } : null;
+}
+
+/** The difficulty label as a coloured pill (see difficultyOf); null when the fight has none. */
+function diffPill(category, mode, instanceName) {
+  const d = difficultyOf(category, mode, instanceName);
+  return d ? el("span", { className: `diff-pill diff-${d.cls}`, textContent: d.text }) : null;
 }
 
 function modeLabel(mode) {
@@ -2087,6 +2114,10 @@ function instanceHero(instance, bossCount, stats) {
   const photo = INSTANCE_IMAGES[instance.name];
   const level = INSTANCE_MIN_LEVEL[instance.name];
   const pills = [];
+  const stage = difficultyOf(instance.category, null, instance.name);
+  if (stage && instance.category === "expedition") {
+    pills.push(el("span", { className: "instance-hero-pill", textContent: stage.text }));
+  }
   if (level !== undefined) {
     pills.push(el("span", { className: "instance-hero-pill", textContent: `Lv. ${level}` }));
   }
@@ -2152,7 +2183,7 @@ async function renderInstanceStatistics(instanceSlug, params = new URLSearchPara
   ]);
   const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
   if (instance) {
-    setBreadcrumb([...areaCrumbs(instance), displayName(instance), t("stats.tabStats")]);
+    setBreadcrumb([...areaCrumbs(instance), crumbWithPill(displayName(instance), instanceDiffPill(instance.category, instance.name)), t("stats.tabStats")]);
   }
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
@@ -2199,7 +2230,7 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   ]);
   const instance = instances.find((i) => i.slug === instanceSlug || String(i.id) === String(instanceSlug));
   if (instance) {
-    setBreadcrumb([...areaCrumbs(instance), displayName(instance)]);
+    setBreadcrumb([...areaCrumbs(instance), crumbWithPill(displayName(instance), instanceDiffPill(instance.category, instance.name))]);
   }
 
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
@@ -2380,6 +2411,10 @@ function bossHero(data) {
   const photo = BOSS_IMAGES[boss.name] ?? INSTANCE_IMAGES[boss.instanceName];
   const level = INSTANCE_MIN_LEVEL[boss.instanceName];
   const pills = [];
+  const stage = difficultyOf(boss.instanceCategory, data.selectedMode, boss.instanceName);
+  if (stage) {
+    pills.push(el("span", { className: "instance-hero-pill", textContent: stage.text }));
+  }
   if (level !== undefined) {
     pills.push(el("span", { className: "instance-hero-pill", textContent: `Lv. ${level}` }));
   }
@@ -2558,8 +2593,8 @@ async function renderLeaderboard(bossSlug, params, statisticsPage = false) {
   const instanceCrumb =
     data.boss.instanceCategory === "nightmare"
       ? link(t("category.nightmare"), gp("/instances/nightmare"))
-      : link(displayName({ name: data.boss.instanceName, nameEn: data.boss.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${data.boss.instanceSlug}`));
-  setBreadcrumb([...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), instanceCrumb, [bossName, modeStars(data.selectedMode)].filter(Boolean).join(" ")]);
+      : crumbWithPill(link(displayName({ name: data.boss.instanceName, nameEn: data.boss.instanceNameEn }), gp(`${worldBoss ? "/worldbosses" : "/instances"}/${data.boss.instanceSlug}`)), instanceDiffPill(data.boss.instanceCategory, data.boss.instanceName));
+  setBreadcrumb([...(worldBoss ? [link(t("breadcrumb.home"), "/"), link(t("category.worldboss"), gp("/worldbosses"))] : gameCrumbs()), instanceCrumb, el("span", {}, [bossName, ...[diffPill(data.boss.instanceCategory, data.selectedMode, data.boss.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p])])]);
 
   const hero = bossHero(data);
   // Difficulty steps (Nightmare level, Ascension difficulty, ...): each one is ranked on its own.
@@ -2910,9 +2945,12 @@ async function renderEncounter(encounterId) {
       textContent: `${t("encounter.appVersion")} ${data.encounter.appVersion ?? t("encounter.appVersionUnknown")}`,
     }),
   ];
-  // The difficulty step in words next to the stars in the title (seven stars are hard to count).
-  if (data.encounter.mode) {
-    pills.unshift(el("span", { className: "instance-hero-pill", textContent: data.encounter.instanceCategory === "nightmare" ? `${t("category.nightmare")} ${data.encounter.mode}` : modeLabel(data.encounter.mode) }));
+  // The difficulty label (Nightmare 10, Conquest 3, World Boss, ...) leads the pills.
+  const difficulty = difficultyOf(data.encounter.instanceCategory, data.encounter.mode, data.encounter.instanceName);
+  if (difficulty) {
+    pills.unshift(el("span", { className: "instance-hero-pill", textContent: difficulty.text }));
+  } else if (data.encounter.mode && !["explore", "conquest"].includes(data.encounter.mode)) {
+    pills.unshift(el("span", { className: "instance-hero-pill", textContent: modeLabel(data.encounter.mode) }));
   }
   // Same picture as the boss page: the boss's own banner, else the instance photo.
   const bossBanner = BOSS_IMAGES[data.encounter.bossName];
@@ -2925,7 +2963,7 @@ async function renderEncounter(encounterId) {
   }
   heroChildren.push(
     el("div", { className: "instance-hero-content" }, [
-      el("h1", { className: "instance-hero-title", textContent: withStars(bossName, data.encounter.mode) }),
+      el("h1", { className: "instance-hero-title", textContent: bossName }),
       el("div", { className: "instance-hero-meta" }, pills),
     ]),
   );
@@ -3037,7 +3075,7 @@ async function renderParticipant(participantId) {
       el("span", { className: "pt-emb" }, [classEmblem(p.className, false)]),
       el("div", {}, [
         el("h2", {}, [p.playerName, profileIcon({ hasProfile: true, playerId: p.playerId, playerSlug: p.playerSlug, profileKind: p.profileKind, profileNc: p.profileNc })]),
-        el("div", { className: "pt-sub", textContent: `${withStars(translateGameName(e.bossName), e.mode)} · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}` }),
+        el("div", { className: "pt-sub" }, [translateGameName(e.bossName), " ", diffPill(e.instanceCategory, e.mode, e.instanceName), ` · ${formatDate(new Date(e.startedAt))} · ${minutes}:${seconds}`].filter((x) => x != null)),
         el("div", { className: "pt-tags" }, tags),
       ]),
     ]),
@@ -3691,7 +3729,7 @@ function renderRunsTab(history) {
   const rows = history.map((h) =>
     el("tr", {}, [
       el("td", { textContent: formatDate(new Date(h.startedAt)) }),
-      el("td", {}, [link(withStars(translateGameName(h.bossName), h.mode), gp(`/encounters/${h.encounterId}`))]),
+      el("td", {}, [link(translateGameName(h.bossName), gp(`/encounters/${h.encounterId}`)), ...[diffPill(h.instanceCategory, h.mode, h.instanceName)].filter((x) => x != null).flatMap((p) => [" ", p])]),
       el("td", {}, [iconLabel(classIcon(h.className), h.className)]),
       el("td", { textContent: formatNumber(h.totalDamage) }),
       el("td", { textContent: formatNumber(h.idps) }),

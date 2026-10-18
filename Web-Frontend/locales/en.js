@@ -184,6 +184,7 @@ export default {
   "category.nightmare": "Nightmare",
   "category.ascension": "Ascension Rite",
   "category.worldboss": "World Bosses",
+  "category.worldbossOne": "World Boss",
   "mode.explore": "Exploration",
   "mode.conquest": "Conquest",
   "mode.normalSub": "Normal",

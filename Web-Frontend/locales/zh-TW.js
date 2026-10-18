@@ -178,6 +178,7 @@ export default {
   "category.nightmare": "夢魘",
   "category.ascension": "昇華儀式",
   "category.worldboss": "世界首領",
+  "category.worldbossOne": "世界首領",
   "mode.explore": "探索",
   "mode.conquest": "征服",
   "mode.normalSub": "普通",

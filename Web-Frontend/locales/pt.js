@@ -178,6 +178,7 @@ export default {
   "category.nightmare": "Pesadelo",
   "category.ascension": "Rito de Ascensão",
   "category.worldboss": "Chefes mundiais",
+  "category.worldbossOne": "Chefe mundial",
   "mode.explore": "Exploração",
   "mode.conquest": "Conquista",
   "mode.normalSub": "Normal",

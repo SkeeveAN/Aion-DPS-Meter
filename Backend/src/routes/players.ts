@@ -61,6 +61,7 @@ export function topPlayersOverall(game: Game, serverId: number | null, limit: nu
           instanceName: instances.name,
           instanceNameEn: instances.nameEn,
           instanceSlug: instances.slug,
+          instanceCategory: instances.category,
           startedAt: encounters.startedAt,
         })
         .from(encounterParticipants)
@@ -168,6 +169,8 @@ export async function playerRoutes(app: FastifyInstance) {
         encounterId: encounters.id,
         bossId: bosses.id,
         bossName: bosses.name,
+        instanceName: instances.name,
+        instanceCategory: instances.category,
         mode: encounters.mode,
         startedAt: encounters.startedAt,
         className: encounterParticipants.className,
@@ -180,6 +183,7 @@ export async function playerRoutes(app: FastifyInstance) {
       .from(encounterParticipants)
       .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
       .innerJoin(bosses, eq(encounters.bossId, bosses.id))
+      .innerJoin(instances, eq(bosses.instanceId, instances.id))
       .where(eq(encounterParticipants.playerId, playerId))
       .orderBy(desc(encounters.startedAt))
       .all()

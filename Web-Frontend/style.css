@@ -2524,7 +2524,7 @@ body:has(.download-hero) .nav-download-link:hover,
 .hp-rank { font-size: 1.3rem; font-weight: 700; color: var(--medal, var(--color-text-muted)); text-align: center; }
 .hp-prow .lb-emblem { width: 40px; height: 40px; }
 .hp-who b { display: block; }
-.hp-who span { display: block; font-size: 0.78rem; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hp-who > span { display: block; font-size: 0.78rem; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hp-score { text-align: right; }
 .hp-score b { display: block; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 .hp-score span { font-size: 0.72rem; color: var(--color-text-muted); }
@@ -2686,7 +2686,6 @@ body:has(.download-hero) .nav-download-link:hover,
 .mode-chip:hover { border-color: var(--color-primary); }
 .mode-chip.active { background: var(--color-primary); border-color: var(--color-primary); color: #1a1205; font-weight: 700; }
 .mode-chip.active small { color: #3a2a08; }
-.ip-stars { color: #ffd166; letter-spacing: 1px; }
 .ip-seg a { font: inherit; background: transparent; color: var(--color-text); border: 0; padding: 7px 18px; text-decoration: none; display: inline-block; }
 .ip-seg a[aria-pressed="true"] { background: var(--color-surface2); font-weight: 700; color: var(--color-primary); }
 
@@ -2762,14 +2761,26 @@ body:has(.download-hero) .nav-download-link:hover,
 
 /* Nightmare step pill on the start page's recent runs. */
 .hp-run-mid b { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.hp-nm-pill {
-  display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 99px; white-space: nowrap;
-  font-size: 0.72rem; font-weight: 600; line-height: 1.5;
-  color: #7a3fd0; background: rgba(122, 63, 208, 0.12); border: 1px solid rgba(122, 63, 208, 0.45);
+.diff-pill {
+  display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 99px; white-space: nowrap; vertical-align: middle;
+  font-size: 0.72rem; font-weight: 600; line-height: 1.5; border: 1px solid;
 }
-:root[data-theme="dark"] .hp-nm-pill, :root:not([data-theme="light"]) .hp-nm-pill {
-  color: #c9a2ff; background: rgba(176, 124, 255, 0.16); border-color: rgba(201, 162, 255, 0.45);
-}
+.diff-nm { color: #7a3fd0; background: rgba(122, 63, 208, 0.12); border-color: rgba(122, 63, 208, 0.45); }
+.diff-ex { color: #2a7d3f; background: rgba(80, 190, 110, 0.13); border-color: rgba(42, 125, 63, 0.45); }
+.diff-cq { color: #9a6b00; background: rgba(255, 184, 50, 0.16); border-color: rgba(190, 130, 0, 0.5); }
+.diff-tr { color: #1b6fb8; background: rgba(60, 160, 255, 0.12); border-color: rgba(27, 111, 184, 0.45); }
+.diff-as { color: #b4531f; background: rgba(255, 130, 60, 0.14); border-color: rgba(180, 83, 31, 0.5); }
+.diff-hi { color: #1c7c6e; background: rgba(40, 190, 170, 0.14); border-color: rgba(28, 124, 110, 0.5); }
+.diff-sa { color: #8a3f9a; background: rgba(210, 120, 230, 0.14); border-color: rgba(138, 63, 154, 0.45); }
+.diff-wb { color: #b3307f; background: rgba(255, 110, 190, 0.13); border-color: rgba(179, 48, 127, 0.45); }
+:root[data-theme="dark"] .diff-nm, :root:not([data-theme="light"]) .diff-nm { color: #c9a2ff; background: rgba(176, 124, 255, 0.16); border-color: rgba(201, 162, 255, 0.45); }
+:root[data-theme="dark"] .diff-ex, :root:not([data-theme="light"]) .diff-ex { color: #8fd19e; background: rgba(80, 190, 110, 0.14); border-color: rgba(143, 209, 158, 0.45); }
+:root[data-theme="dark"] .diff-cq, :root:not([data-theme="light"]) .diff-cq { color: #ffc857; background: rgba(255, 184, 50, 0.15); border-color: rgba(255, 200, 87, 0.5); }
+:root[data-theme="dark"] .diff-tr, :root:not([data-theme="light"]) .diff-tr { color: #6fc3ff; background: rgba(60, 160, 255, 0.15); border-color: rgba(111, 195, 255, 0.5); }
+:root[data-theme="dark"] .diff-as, :root:not([data-theme="light"]) .diff-as { color: #ffab7a; background: rgba(255, 130, 60, 0.15); border-color: rgba(255, 171, 122, 0.5); }
+:root[data-theme="dark"] .diff-hi, :root:not([data-theme="light"]) .diff-hi { color: #5fe0cc; background: rgba(40, 190, 170, 0.15); border-color: rgba(95, 224, 204, 0.5); }
+:root[data-theme="dark"] .diff-sa, :root:not([data-theme="light"]) .diff-sa { color: #e6a2f5; background: rgba(210, 120, 230, 0.15); border-color: rgba(230, 162, 245, 0.45); }
+:root[data-theme="dark"] .diff-wb, :root:not([data-theme="light"]) .diff-wb { color: #ff9ad5; background: rgba(255, 110, 190, 0.15); border-color: rgba(255, 154, 213, 0.5); }
 
 /* Changelog page */
 .changelog-group { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); margin: 0 0 12px; }

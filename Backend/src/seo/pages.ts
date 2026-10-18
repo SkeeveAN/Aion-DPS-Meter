@@ -73,8 +73,8 @@ function compact(n: number): string {
 
 export function displayName(row: { name: string; nameEn: string | null }): string {
   const name = row.nameEn ?? row.name;
-  const conquest = splitConquest(name); // "Draupnir (Conquest)" is shown as "Draupnir ★"
-  return conquest ? `${conquest.base} ${conquest.stars}` : name;
+  const conquest = splitConquest(name); // "Draupnir (Conquest)" is shown as "Draupnir (Conquest 1)": the stage in words, as on the website
+  return conquest ? `${conquest.base} (Conquest ${conquest.stars.length})` : name;
 }
 
 export function homePage(): Page {
@@ -526,7 +526,7 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
     level !== undefined ? `from level ${level}` : "",
     facts.players ? `${facts.players} players` : "",
     facts.itemLevel ? `item level ${formatInt(facts.itemLevel)}` : "",
-    facts.stars ? `${"★".repeat(facts.stars)} difficulty` : "",
+    facts.stars ? `Conquest ${facts.stars}` : "",
   ].filter(Boolean);
   const photo = INSTANCE_IMAGES[instance.name];
   const kind = [category, mode].filter(Boolean).join(" · ");

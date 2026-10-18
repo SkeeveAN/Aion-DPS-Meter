@@ -252,6 +252,7 @@ export default {
   "category.nightmare": "Cauchemar",
   "category.ascension": "Rite d'ascension",
   "category.worldboss": "Boss du monde",
+  "category.worldbossOne": "Boss mondial",
   "mode.explore": "Exploration",
   "mode.conquest": "Conquête",
   "mode.normalSub": "Normal",

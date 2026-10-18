@@ -178,6 +178,7 @@ export default {
   "category.nightmare": "악몽",
   "category.ascension": "각성",
   "category.worldboss": "월드 보스",
+  "category.worldbossOne": "월드 보스",
   "mode.explore": "탐험",
   "mode.conquest": "정복",
   "mode.normalSub": "보통",

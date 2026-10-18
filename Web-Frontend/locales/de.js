@@ -184,6 +184,7 @@ export default {
   "category.nightmare": "Albtraum",
   "category.ascension": "Aszensusritus",
   "category.worldboss": "Weltbosse",
+  "category.worldbossOne": "Weltboss",
   "mode.explore": "Erkundung",
   "mode.conquest": "Eroberung",
   "mode.normalSub": "Normal",

@@ -108,8 +108,8 @@ export interface FightRow {
 
 export interface Fight {
   boss: string;
-  /** The boss's difficulty step in words ("Stage 2"), "" when it has none. */
-  step: string;
+  /** The fight's difficulty label ("Transzendenz 2") with its colour, null when it has none. */
+  step: { text: string; color: string } | null;
   instance: string;
   art: string | undefined;
   durationSeconds: number;
@@ -118,18 +118,45 @@ export interface Fight {
   rows: FightRow[];
 }
 
-/** The difficulty step as the preview words it: Nightmare "Level 7" / "Stufe 7", Transcendence "Stage 2" / "Stufe 2", Ascension "Hard" / "Schwer". */
-function stepLabel(category: string | null, mode: string, lang: string): string {
-  if (mode === "") return "";
+/** The label colours of the website (dark theme), per category; a Conquest expedition has its own. */
+const STEP_COLORS: Record<string, string> = {
+  nightmare: "#c9a2ff",
+  conquest: "#ffc857",
+  expedition: "#8fd19e",
+  transcendence: "#6fc3ff",
+  ascension: "#ffab7a",
+  hideout: "#5fe0cc",
+  sanctuary: "#e6a2f5",
+  worldboss: "#ff9ad5",
+};
+
+/** The fight's difficulty label as the website words it (German or English): "Albtraum 10", "Eroberung 3", "Aszensusritus Schwer", "Weltboss". "" for none. */
+function stepLabel(category: string | null, mode: string, instanceName: string, lang: string): { text: string; color: string } | null {
+  const text = stepText(category, mode, instanceName, lang);
+  return text ? { text, color: STEP_COLORS[category === "expedition" && splitConquest(instanceName) ? "conquest" : category ?? ""] ?? COLORS.damage } : null;
+}
+
+function stepText(category: string | null, mode: string, instanceName: string, lang: string): string {
   const de = lang === "de";
-  if (/^\d+$/.test(mode)) return `${de ? "Stufe" : category === "nightmare" ? "Level" : "Stage"} ${mode}`;
-  const names: Record<string, [string, string]> = { easy: ["Easy", "Leicht"], medium: ["Medium", "Mittel"], hard: ["Hard", "Schwer"], extreme: ["Extreme", "Extrem"] };
-  return names[mode]?.[de ? 1 : 0] ?? "";
+  const stage = /^\d+$/.test(mode) ? mode : "";
+  if (category === "nightmare" && stage) return `${de ? "Albtraum" : "Nightmare"} ${stage}`;
+  if (category === "transcendence" && stage) return `${de ? "Transzendenz" : "Transcendence"} ${stage}`;
+  if (category === "ascension") {
+    const names: Record<string, [string, string]> = { easy: ["Easy", "Einfach"], medium: ["Medium", "Mittel"], hard: ["Hard", "Schwer"], extreme: ["Extreme", "Extrem"] };
+    const word = names[mode]?.[de ? 1 : 0];
+    return word ? `${de ? "Aszensusritus" : "Ascension Rite"} ${word}` : "";
+  }
+  if (category === "expedition") {
+    const conquest = splitConquest(instanceName);
+    return conquest ? `${de ? "Eroberung" : "Conquest"} ${conquest.stars.length}` : de ? "Erkundung" : "Exploration";
+  }
+  const words: Record<string, [string, string]> = { hideout: ["Hideout", "Unterschlupf"], sanctuary: ["Sanctuary", "Heiligtum"], worldboss: ["World Boss", "Weltboss"] };
+  return words[category ?? ""]?.[de ? 1 : 0] ?? "";
 }
 
 function translated(name: string, lang: string): string {
   const conquest = splitConquest(name);
-  if (conquest) return `${translated(conquest.base, lang)} ${conquest.stars}`;
+  if (conquest) return translated(conquest.base, lang); // the stage is the label next to the boss name
   const entry = (GAME_NAME_TRANSLATIONS as Record<string, Record<string, string> | undefined>)[name];
   return entry?.[lang] ?? name;
 }
@@ -177,7 +204,7 @@ function loadFight(game: Game, id: number, lang: string): Fight | null {
   const instanceEn = row.instanceNameEn ?? row.instanceName;
   return {
     boss: translated(bossEn, lang),
-    step: stepLabel(row.instanceCategory, row.mode, lang),
+    step: stepLabel(row.instanceCategory, row.mode, row.instanceName, lang),
     instance: translated(instanceEn, lang),
     art: bossImage(row.bossName, row.instanceName) ?? bossImage(bossEn, instanceEn),
     durationSeconds: row.durationSeconds,
@@ -187,6 +214,16 @@ function loadFight(game: Game, id: number, lang: string): Fight | null {
   };
 }
 
+/** The label as the website draws it: a rounded pill in the category colour, its text on the title's baseline. */
+function stepPill(step: { text: string; color: string }, x: number, baseline: number, size: number, bold: number): string {
+  const pad = size * 0.45;
+  const width = textWidth(step.text, size * bold * 0.9) + pad * 2; // the shared estimate runs wide for this size
+  const height = size * 1.55;
+  const top = baseline - size * 0.36 - height / 2;
+  return `<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${width.toFixed(1)}" height="${height.toFixed(1)}" rx="${(height / 2).toFixed(1)}" fill="${step.color}" fill-opacity=".18" stroke="${step.color}" stroke-opacity=".6" stroke-width="2"/>
+<text x="${(x + pad).toFixed(1)}" y="${baseline}" font-size="${size.toFixed(1)}" font-weight="700" fill="${step.color}">${escapeXml(step.text)}</text>`;
+}
+
 export function buildSvg(fight: Fight, lang: string): string {
   const fmt = (n: number) => Math.round(n).toLocaleString(LOCALE_TAGS[lang]);
   const C = COLORS;
@@ -194,11 +231,11 @@ export function buildSvg(fight: Fight, lang: string): string {
   const maxDamage = Math.max(...rows.map((r) => r.damage), 1);
 
   // Boss name: as large as fits next to the iDPS block on the right.
-  // The step ("Stage 2") sits behind the name at 55 % of its size and shares its width budget.
+  // The label ("Transcendence 2") sits behind the name at 55 % of its size and shares its width budget.
   const stepRatio = 0.55;
   // textWidth() is made for regular weight; the bold title is about 15 % wider.
   const bold = 1.15;
-  const budget = 700 / Math.max(textWidth(fight.boss, bold) + (fight.step ? 0.4 + textWidth(fight.step, stepRatio * bold) : 0), 1);
+  const budget = 700 / Math.max(textWidth(fight.boss, bold) + (fight.step ? 0.4 + 0.9 * stepRatio + textWidth(fight.step.text, stepRatio * bold) : 0), 1);
   const bossSize = Math.min(64, budget);
   const duration = `${Math.floor(fight.durationSeconds / 60)}:${String(Math.round(fight.durationSeconds % 60)).padStart(2, "0")}`;
 
@@ -207,9 +244,9 @@ export function buildSvg(fight: Fight, lang: string): string {
 ${art ? `<image href="${art}" width="${WIDTH}" height="${HEIGHT}" preserveAspectRatio="xMidYMid slice" opacity=".4"/>` : ""}
 <rect width="${WIDTH}" height="${HEIGHT}" fill="${C.page}" opacity=".6"/>
 <text x="48" y="76" font-size="${bossSize.toFixed(1)}" font-weight="700" fill="${C.text}">${escapeXml(fight.boss)}</text>
-${fight.step ? `<text x="${(48 + textWidth(fight.boss, bossSize * bold) + bossSize * 0.4).toFixed(1)}" y="76" font-size="${(bossSize * stepRatio).toFixed(1)}" font-weight="700" fill="${C.damage}">${escapeXml(fight.step)}</text>` : ""}
-<text x="1152" y="62" font-size="40" font-weight="700" fill="${C.damage}" text-anchor="end">${escapeXml(fmt(fight.groupIDps))}/s</text>
-<text x="1152" y="104" font-size="26" fill="${C.muted}" text-anchor="end">AION DPS · aiondps.com</text>`;
+${fight.step ? stepPill(fight.step, 48 + textWidth(fight.boss, bossSize * bold) + bossSize * 0.4, 76, bossSize * stepRatio, bold) : ""}
+<text x="1152" y="76" font-size="40" font-weight="700" fill="${C.damage}" text-anchor="end">${escapeXml(fmt(fight.groupIDps))}/s</text>
+<text x="1152" y="124" font-size="26" fill="${C.muted}" text-anchor="end">AION DPS · aiondps.com</text>`;
 
   // Second line: instance, then player count and duration as icon + number.
   let x = 48;

@@ -68,12 +68,25 @@ function versionUsage() {
   return { versions, total };
 }
 
-const ASCENSION_STARS: Record<string, number> = { easy: 1, medium: 2, hard: 3, extreme: 4 };
+const ASCENSION_WORDS: Record<string, string> = { easy: "Easy", medium: "Medium", hard: "Hard", extreme: "Extreme" };
 
-/** A boss's difficulty step as stars: Nightmare level and Transcendence stage 1-10 / 1-4, Ascension Easy to Extreme 1-4. "" when unknown. */
-function starsOf(mode: string): string {
-  const n = /^\d+$/.test(mode) ? Number(mode) : ASCENSION_STARS[mode] ?? 0;
-  return n > 0 && n <= 10 ? "★".repeat(n) : "";
+/** A fight's difficulty label (English, the statistics page is English): "Nightmare 10", "Conquest 3", "Ascension Hard", "World Boss". "" for none. */
+function labelOf(category: string, mode: string, instance: string): string {
+  const stage = /^\d+$/.test(mode) ? Number(mode) : 0;
+  if (category === "nightmare" && stage > 0) {
+    return `Nightmare ${stage}`;
+  }
+  if (category === "transcendence" && stage > 0) {
+    return `Transcendence ${stage}`;
+  }
+  if (category === "ascension" && ASCENSION_WORDS[mode]) {
+    return `Ascension ${ASCENSION_WORDS[mode]}`;
+  }
+  if (category === "expedition") {
+    const conquest = splitConquest(instance);
+    return conquest ? `Conquest ${conquest.stars.length}` : "Explore";
+  }
+  return { hideout: "Hideout", sanctuary: "Sanctuary", worldboss: "World Boss" }[category] ?? "";
 }
 
 /** Totals that are safe to show to everybody: counts only, nothing that identifies a person. */
@@ -114,8 +127,8 @@ export function publicStats() {
   }
   const servers = [...serverCounts.values()].sort((x, y) => y.count - x.count);
   const topBosses = all(
-    `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, e.mode mode, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id, e.mode order by n desc limit 10`,
-  ).map((r) => ({ name: String(r.en ?? r.name), instance: String(r.instance), stars: starsOf(String(r.mode ?? "")), count: num(r.n) }));
+    `select b.name_en en, b.name name, coalesce(i.name_en, i.name) instance, i.category cat, e.mode mode, count(*) n from encounters e join bosses b on b.id = e.boss_id join instances i on i.id = b.instance_id where b.is_trash_mob = 0 group by e.boss_id, e.mode order by n desc limit 10`,
+  ).map((r) => ({ name: String(r.en ?? r.name), instance: String(r.instance), label: labelOf(String(r.cat ?? ""), String(r.mode ?? ""), String(r.instance)), count: num(r.n) }));
   return {
     players,
     ownProfiles: own,
