@@ -23,6 +23,13 @@
      "Backend"
     ],
     "date": "2026-10-18"
+   },
+   {
+    "text": "World boss kills: two uploads of the same kill with the same boss hit points are one run even when each saw another part of the crowd",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-18"
    }
   ]
  },
