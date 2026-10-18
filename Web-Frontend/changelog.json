@@ -17,6 +17,14 @@
      "Database"
     ],
     "date": "2026-10-18"
+   },
+   {
+    "text": "Server matchmaking pairs are linked to the servers known from uploads (and pick up a server's id when its first upload arrives) instead of the client's picker list",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-18"
    }
   ]
  },
