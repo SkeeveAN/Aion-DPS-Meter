@@ -58,8 +58,11 @@ const post = (payload: unknown) => app.inject({ method: "POST", url: "/api/uploa
 const rowOf = (encounterId: number, name: string) =>
   db.select().from(encounterParticipants).innerJoin(players, eq(players.id, encounterParticipants.playerId)).where(eq(encounterParticipants.encounterId, encounterId)).all().find((r) => r.players.name === name)!.encounter_participants;
 
-test("a world boss upload with estimated rows is accepted although the damage is far below the boss's hit points", async () => {
-  const payload = upload(9100001, 1, [row("Anna", "Gladiator", 300_000, { isSelf: true }), row("Bob", "Assassin", 200_000, { estimated: true }), row("Cara", "Cleric", 100_000, { estimated: true })]);
+test("a world boss upload with estimated rows is accepted when the damage covers 75 % of the hit points, below that it is turned away", async () => {
+  const low = await post(upload(9100001, 1, [row("Anna", "Gladiator", 300_000, { isSelf: true }), row("Bob", "Assassin", 200_000, { estimated: true }), row("Cara", "Cleric", 100_000, { estimated: true })]));
+  assert.equal(low.statusCode, 400);
+  assert.equal(low.json().error, "boss_not_killed");
+  const payload = upload(9100001, 1, [row("Anna", "Gladiator", 300_000_000, { isSelf: true }), row("Bob", "Assassin", 300_000_000, { estimated: true }), row("Cara", "Cleric", 160_000_000, { estimated: true })]);
   const response = await post(payload);
   assert.equal(response.statusCode, 200, response.body);
   const id = response.json().encounterId as number;

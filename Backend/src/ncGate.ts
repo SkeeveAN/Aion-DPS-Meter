@@ -1,6 +1,6 @@
 import { and, eq, inArray, like } from "drizzle-orm";
 import { db } from "./db/client.js";
-import { players, playerNcMatch, servers, uploads } from "./db/schema.js";
+import { bossNpcIds, bosses, instances, players, playerNcMatch, servers, uploads } from "./db/schema.js";
 import { registerUploadPlayers } from "./matching/merge.js";
 import { shardOf, YOUNG_FOR } from "./ncMatch.js";
 import { approveUpload } from "./uploadReview.js";
@@ -55,9 +55,31 @@ export function gateOfPlayers(ids: number[], now = Date.now()): Gate {
   return open ? "wait" : "pass";
 }
 
-/** Files the players of the upload and judges the run by them. */
+/** Whether the NPC id belongs to a world boss (an instance of the category "worldboss"). */
+export function isWorldBossNpc(npcId: number | undefined): boolean {
+  return (
+    npcId !== undefined &&
+    db
+      .select({ category: instances.category })
+      .from(bossNpcIds)
+      .innerJoin(bosses, eq(bosses.id, bossNpcIds.bossId))
+      .innerJoin(instances, eq(instances.id, bosses.instanceId))
+      .where(eq(bossNpcIds.npcId, npcId))
+      .get()?.category === "worldboss"
+  );
+}
+
+/**
+ * Files the players of the upload and judges the run by them. On a world boss a thousand strangers are on it and NC cannot vouch for all of them in time (one
+ * failed name would turn the whole kill away): there only the uploader is judged, the others are filed and checked later like every player.
+ */
 export function gateUpload(payload: UploadPayload): Gate {
-  return gateOfPlayers(registerUploadPlayers(payload));
+  const ids = registerUploadPlayers(payload);
+  if (!isWorldBossNpc(payload.bossNpcId)) {
+    return gateOfPlayers(ids);
+  }
+  const self = payload.participants.findIndex((p) => p.isSelf);
+  return self < 0 ? gateOfPlayers(ids) : gateOfPlayers([ids[self]]);
 }
 
 /** Looks at every upload that waits for NC: merges the ones whose players are all verified, turns away the ones with a failed player. Returns what it settled. */

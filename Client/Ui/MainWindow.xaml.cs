@@ -2568,8 +2568,66 @@ public partial class MainWindow : Window
             : participants.Select(p => absorbed.TryGetValue(p.Name, out long amount) ? p with { DamageAbsorbed = amount } : p).ToList();
     }
 
-    /// <summary>The backend's ceiling for the players of one upload (uploadSchema.ts).</summary>
+    /// <summary>The backend's ceiling for the players of one upload (uploadSchema.ts). Not applied to a world boss: the whole map is on it, and a cut would drop the players who matter for the damage total.</summary>
     private const int MaxUploadParticipants = 300;
+
+    /// <summary>Whether the target is a world boss of the field maps (see Aion2HitAverages.IsEstimatedBoss): proven by its NPC id from the game's own traffic.</summary>
+    private bool IsWorldBossTarget(int targetId) =>
+        _source?.Entities is Aion2.Aion2EntityDirectory directory && directory.BossNpcIdOf(targetId) is int npc && Aion2.Protocol.Aion2HitAverages.IsEstimatedBoss(npc);
+
+    /// <summary>How many of the players who hit the target have no name or class yet (their "appeared" or cast frames have not been read). Such rows are left out of the upload.</summary>
+    private int UnresolvedAttackers(int targetId)
+    {
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory directory)
+        {
+            return 0;
+        }
+
+        var unresolved = new HashSet<int>();
+        var seen = new HashSet<int>();
+        foreach (DamageEvent e in _aggregator.Events)
+        {
+            if (e.TargetObjectId != targetId || e.IsHeal || !seen.Add(e.SourceObjectId))
+            {
+                continue;
+            }
+
+            string? name = directory.NameFor(e.SourceObjectId);
+            if (name is null || name.StartsWith("Player #", StringComparison.Ordinal) || name.StartsWith("0x", StringComparison.Ordinal) || !ClassCatalog.IsKnownClass(directory.ClassOf(e.SourceObjectId) ?? ""))
+            {
+                unresolved.Add(e.SourceObjectId);
+            }
+        }
+
+        return unresolved.Count;
+    }
+
+    /// <summary>
+    /// A world boss is uploaded only when the data is complete: the players who hit it all have a name and a class (else the upload leaves them out, as happened
+    /// with 5 of 1000 players). Waits while that number goes down; gives up when it stands still for 30 s or after 3 minutes.
+    /// </summary>
+    private async Task WaitForCompleteWorldBossAsync(int targetId)
+    {
+        DateTime start = DateTime.UtcNow, lastProgress = start;
+        int best = int.MaxValue;
+        while (true)
+        {
+            int open = UnresolvedAttackers(targetId);
+            if (open < best)
+            {
+                best = open;
+                lastProgress = DateTime.UtcNow;
+            }
+
+            if (open == 0 || DateTime.UtcNow - lastProgress >= TimeSpan.FromSeconds(30) || DateTime.UtcNow - start >= TimeSpan.FromMinutes(3))
+            {
+                AutoUploadLog.Write($"boss {targetId}: world boss data {(open == 0 ? "complete" : $"as complete as it gets ({open} players without name or class)")} after {(DateTime.UtcNow - start).TotalSeconds:N0} s");
+                return;
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(3));
+        }
+    }
 
     /// <summary>
     /// Same payload construction, but with the target's hits and the time window supplied by the
@@ -2644,7 +2702,7 @@ public partial class MainWindow : Window
 
         // More players than the upload takes (a world boss): the biggest by damage and the own character are worked out in full, nobody else.
         IEnumerable<PlayerRow> uploadRows = _rows;
-        if (_rows.Count > MaxUploadParticipants)
+        if (_rows.Count > MaxUploadParticipants && !IsWorldBossTarget(targetId))
         {
             uploadRows = _rows.Where(r => _source?.Entities.IsLocalPlayer(r.ObjectId) == true || (ownName is not null && r.Name == ownName))
                 .Concat(_rows.Where(r => !(_source?.Entities.IsLocalPlayer(r.ObjectId) == true || (ownName is not null && r.Name == ownName)))
@@ -2738,8 +2796,8 @@ public partial class MainWindow : Window
                 CharacterId: CharacterIdFor(aion2Directory, row.Name, aion2Directory?.ServerIdOf(ProfileIdOf(row)))));
         }
 
-        // The backend takes at most 300 players (a world boss has the whole map on it): the biggest by damage, the own character always.
-        if (participants.Count > MaxUploadParticipants)
+        // The backend takes at most 300 players of an instance fight: the biggest by damage, the own character always. A world boss has no cut.
+        if (participants.Count > MaxUploadParticipants && !IsWorldBossTarget(targetId))
         {
             participants = participants.Where(p => p.IsSelf).Concat(participants.Where(p => !p.IsSelf).OrderByDescending(p => p.TotalDamage))
                 .Take(MaxUploadParticipants).ToList();
@@ -3191,8 +3249,9 @@ public partial class MainWindow : Window
         if (targetHits.Any(e => e.Estimated))
         {
             // A crowded world boss: the damage of the others is estimated and cannot prove the kill by its sum (the server sends only the hits' notices).
-            // The boss was seen dying above; the server accepts such an upload on that.
-            return null;
+            // The boss was seen dying above. The estimate never adds up to the whole, so the line is lower: 75 % of the hit points (constants.ts MIN_WORLD_BOSS_DAMAGE_SHARE).
+            double estimatedDamage = targetHits.Sum(e => (double)e.Amount);
+            return estimatedDamage >= maxHp * 0.75 ? null : $"world boss: damage {estimatedDamage:N0} covers less than 75 % of the boss's {maxHp:N0} hit points";
         }
 
         double damage = targetHits.Sum(e => (double)e.Amount);
@@ -3263,6 +3322,11 @@ public partial class MainWindow : Window
         string? lastError = null;
         foreach (int targetId in targetIds)
         {
+            if (IsWorldBossTarget(targetId))
+            {
+                await WaitForCompleteWorldBossAsync(targetId);
+            }
+
             _selectedTargetId = targetId;
             _selectedRunWindowStart = null;
             _selectedRunWindowEnd = null;

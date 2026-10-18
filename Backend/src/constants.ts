@@ -83,6 +83,12 @@ export const CATEGORY_MODES: Readonly<Record<string, readonly string[]>> = {
  */
 export const MIN_KILL_DAMAGE_SHARE = 0.9;
 
+/**
+ * The same for a world boss: its crowd's damage is partly estimated from hit counts (see estimated.ts), which lands a real kill at about
+ * 80-87 % of the boss's hit points, so the line is lower. The share is shown on the encounter page.
+ */
+export const MIN_WORLD_BOSS_DAMAGE_SHARE = 0.75;
+
 /** Most people on an instance boss (an alliance of 20); a world boss may carry up to the schema's 300. */
 export const MAX_INSTANCE_PARTICIPANTS = 20;
 

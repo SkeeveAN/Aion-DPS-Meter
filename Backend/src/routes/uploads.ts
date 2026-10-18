@@ -9,7 +9,7 @@ import { clearPageCache } from "../seo/cache.js";
 import { clientPolicy, requireCurrentClient } from "../clientPolicy.js";
 
 import { hashIp } from "../ipHash.js";
-import { MAX_INSTANCE_PARTICIPANTS, MIN_KILL_DAMAGE_SHARE } from "../constants.js";
+import { MAX_INSTANCE_PARTICIPANTS, MIN_KILL_DAMAGE_SHARE, MIN_WORLD_BOSS_DAMAGE_SHARE } from "../constants.js";
 import { env } from "../env.js";
 import { assessKill, referenceFor, structuralProblems, type ReviewFinding } from "../uploadReview.js";
 import type { UploadPayload } from "../uploadSchema.js";
@@ -82,7 +82,8 @@ export async function uploadRoutes(app: FastifyInstance) {
     return reply.send({ status: "profiles", ...result });
   });
 
-  app.post("/api/uploads", { preHandler: requireCurrentClient }, async (request, reply) => {
+  // A world boss upload carries a thousand players (a few MB); nginx allows 40 MB.
+  app.post("/api/uploads", { preHandler: requireCurrentClient, bodyLimit: 40 * 1024 * 1024 }, async (request, reply) => {
     const parseResult = uploadSchema.safeParse(request.body);
     if (!parseResult.success) {
       app.log.warn({ details: parseResult.error.flatten(), issues: parseResult.error.issues.slice(0, 6).map((i) => `${i.path.join(".")}: ${i.message}`), body: request.body }, "upload rejected: invalid payload");
@@ -128,10 +129,11 @@ export async function uploadRoutes(app: FastifyInstance) {
     // all of the boss's hit points. Otherwise two failed 50 % attempts - or an empty run - would pass
     // as one kill. The client sends the boss's highest hit-point reading; without it nothing proves
     // the fight was a whole one. Exception: a crowded world boss, where the client only knows hit counts and
-    // estimates the damage of the others (`estimated` rows) - there the client has checked the boss's death itself.
+    // estimates the damage of the others (`estimated` rows) - there the line is lower (MIN_WORLD_BOSS_DAMAGE_SHARE), because the estimate
+    // never adds up to the whole.
     const hasEstimatedRows = payload.participants.some((p) => p.estimated);
-    const killProvenByClient = worldBoss && hasEstimatedRows;
-    if (payload.bossMaxHp === undefined || (!killProvenByClient && groupDamage < payload.bossMaxHp * MIN_KILL_DAMAGE_SHARE)) {
+    const minShare = worldBoss && hasEstimatedRows ? MIN_WORLD_BOSS_DAMAGE_SHARE : MIN_KILL_DAMAGE_SHARE;
+    if (payload.bossMaxHp === undefined || groupDamage < payload.bossMaxHp * minShare) {
       app.log.warn({ groupDamage, bossMaxHp: payload.bossMaxHp, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: damage does not cover the boss's hit points");
       recordTurnedAway(payload, request.ip, [{ code: "boss_not_killed", detail: `${groupDamage} damage on ${payload.bossMaxHp ?? "unknown"} hit points` }]);
       return reply.status(400).send({ error: "boss_not_killed", groupDamage, bossMaxHp: payload.bossMaxHp ?? null });

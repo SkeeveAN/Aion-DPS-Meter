@@ -463,6 +463,8 @@ export default {
   "stats.participants": "Participants",
   "stats.participantsNote": "+{count} companions",
   "stats.totalDamage": "Total damage",
+  "stats.bossHpCovered": "Boss HP covered",
+  "stats.bossHpCoveredNote": "Damage of the listed players, partly estimated from hit counts, against the boss's hit points",
   "participant.roleHealer": "Healer",
   "participant.roleTank": "Tank",
   "participant.roleDd": "DD",

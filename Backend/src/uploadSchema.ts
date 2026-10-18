@@ -90,8 +90,8 @@ export const uploadSchema = z
   bossMaxHp: z.number().int().positive().max(100_000_000_000).optional(),
   startedAt: z.string().min(1),
   endedAt: z.string().min(1),
-  // Up to 300 for a world boss (the whole map is on it); the route cuts instance bosses down to MAX_INSTANCE_PARTICIPANTS.
-  participants: z.array(participantSchema).min(1).max(300),
+  // A world boss has the whole map on it (a thousand and more players, no cut); the route cuts instance bosses down to MAX_INSTANCE_PARTICIPANTS.
+  participants: z.array(participantSchema).min(1).max(5000),
   // The server the uploader plays on, "aion2:<server slug>" (derived from the server id in the
   // game's own character record) - required: without it runs of different servers could not be
   // told apart.

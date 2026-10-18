@@ -463,6 +463,8 @@ export default {
   "stats.participants": "Teilnehmer",
   "stats.participantsNote": "+{count} Begleiter",
   "stats.totalDamage": "Gesamtschaden",
+  "stats.bossHpCovered": "Boss-HP abgedeckt",
+  "stats.bossHpCoveredNote": "Schaden der aufgeführten Spieler, zum Teil aus Trefferzahlen geschätzt, im Verhältnis zu den Lebenspunkten des Bosses",
   "participant.roleHealer": "Heiler",
   "participant.roleTank": "Tank",
   "participant.roleDd": "DD",

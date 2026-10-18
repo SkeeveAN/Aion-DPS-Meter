@@ -2940,6 +2940,10 @@ async function renderEncounter(encounterId) {
     statCard(formatDuration(data.encounter.durationSeconds), t("encounter.duration")),
     statCard(formatNumber(totalDamage), t("stats.totalDamage")),
   ]);
+  // A crowded world boss: the damage is partly estimated, so the share of the boss's hit points the list adds up to is shown (the server asks for 75 %).
+  if (data.encounter.bossMaxHp > 0 && data.roster.some((p) => p.estimated)) {
+    statsRow.append(statCard(`${((totalDamage / data.encounter.bossMaxHp) * 100).toFixed(0)}%`, t("stats.bossHpCovered"), t("stats.bossHpCoveredNote")));
+  }
 
   const grid = el("div", { className: "encounter-grid" }, [
     meterPanel(data.roster),
