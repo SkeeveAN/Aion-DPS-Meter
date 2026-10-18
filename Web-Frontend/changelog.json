@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.5.4",
   "date": "2026-10-18",
   "items": [
    {
@@ -8,6 +8,13 @@
     "areas": [
      "Client",
      "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "the timetable has the Abyss executor bosses (Mon, Thu, Sat) and Guardian Lord Nahma (Fri, Sun), and its countdowns follow the game server's clock instead of the PC's, which is a few tenths of a second off",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-18"
    }
