@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.4.1",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "only instances with pet monsters get a map on the pet map (25 instead of 49), the others show none",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.4.0",
   "date": "2026-10-18",
   "items": [
