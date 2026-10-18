@@ -164,4 +164,10 @@ test("a Verteron boss outside the rift hours: the crowd without server and facti
   const home = await post(at(11, 36)); // 12:36 in Berlin: no rift hour
   assert.equal(home.statusCode, 200, home.body);
   assert.equal(db.select().from(players).where(eq(players.name, "Strangerb")).get()?.faction, "Elyos");
+  // the rule holds in every region
+  const asia = { ...at(11, 36), serverName: "Asia - Kaisinel", serverFingerprint: "aion2:asia-kaisinel" };
+  asia.participants = asia.participants.map((r) => ({ ...r, name: r.name.replace("Stranger", "Asiastranger"), ...(r.isSelf ? {} : {}) }));
+  const abroad = await post({ ...asia, startedAt: new Date(Date.UTC(2026, 0, 4, 11, 36, 0)).toISOString(), endedAt: new Date(Date.UTC(2026, 0, 4, 11, 36, 12)).toISOString() });
+  assert.equal(abroad.statusCode, 200, abroad.body);
+  assert.equal(db.select().from(players).where(eq(players.name, "Asiastrangerb")).get()?.faction, "Elyos");
 });

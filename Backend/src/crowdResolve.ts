@@ -14,12 +14,12 @@ import { acceptUpload } from "./routes/uploads.js";
 
 /**
  * A world boss has a thousand players on it, and the client knows server and faction of only a few of them. Who they are depends on the clock:
- *  - Verteron/Altgard field bosses outside the rift hours (one hour from 02:00, 05:00, 08:00 ... 23:00 in Europe, during which the other faction may cross over;
+ *  - Verteron/Altgard field bosses outside the rift hours (one hour from 02:00, 05:00, 08:00 ... 23:00, during which the other faction may cross over;
  *    after the hour everybody is sent home): only home players are on the map, so the crowd is the uploader's server and faction ("Kaisinel = Elyos").
  *  - During the rift hours, and always on the Abyss bosses (permanent pairing): NC's character search is asked, on BOTH servers of the pairing, for every
  *    player the client has no server or faction of. A player counts only when NC finds exactly one character of that name there (a second hit is told
  *    apart by the class the upload names); whoever is not placed stays without server and faction and is left out by the top rule (isCompletePlayer).
- * Where the rule is not known (another region, a world boss that is on no list) NC is asked, never a guess.
+ * Where the rule is not known (a world boss that is on no list, an uploader of the other faction than the map) NC is asked, never a guess.
  */
 // ---- the clock: who can be on the map ------------------------------------------------------------------------------------------------------------
 
@@ -67,13 +67,13 @@ function bossGroup(npcId: number | undefined): BossGroup | null {
 
 /**
  * How the crowd of a world boss kill is placed: "home" (the uploader's server and faction), "lookup" (NC, both servers of the pairing).
- * Home only for a field boss of the uploader's own map, in Europe, with no rift hour open - everything else is looked up.
+ * Home only for a field boss of the uploader's own map with no rift hour open (in every region) - everything else is looked up.
  */
 export function crowdMode(payload: UploadPayload): "home" | "lookup" {
   const group = bossGroup(payload.bossNpcId);
   const self = payload.participants.find((p) => p.isSelf);
   const mapFaction = group === "verteron" ? "Elyos" : group === "altgard" ? "Asmodian" : null;
-  if (mapFaction === null || self === undefined || self.faction !== mapFaction || self.serverId === undefined || !/^Europe - /.test(payload.serverName ?? "")) {
+  if (mapFaction === null || self === undefined || self.faction !== mapFaction || self.serverId === undefined) {
     return "lookup";
   }
   return riftOpen(Date.parse(payload.startedAt), Date.parse(payload.endedAt)) ? "lookup" : "home";
