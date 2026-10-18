@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.5.8",
   "date": "2026-10-18",
   "items": [
    {
@@ -28,6 +28,13 @@
     "text": "World boss kills: two uploads of the same kill with the same boss hit points are one run even when each saw another part of the crowd",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "the legion login recording is sent on its own timer and several logins in a row (character switch) are all kept - before, an active player never gave the upload the quiet moment it waited for; the upload log of the automatic boss upload can be trimmed again",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-18"
    }
