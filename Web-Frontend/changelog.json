@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "World boss crowds on the home maps count: a player of a Verteron or Altgard field boss without faction or server gets the map's faction and the uploader's server, and a world boss kill is judged by the players that are kept, not by the damage the top rule cut out",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.5.2",
   "date": "2026-10-18",
   "items": [
