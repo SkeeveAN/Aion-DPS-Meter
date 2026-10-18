@@ -23,8 +23,10 @@ import { rehomeKnownPlayers } from "./rehome.js";
 import { linkPlayerGuild, reconcileGuildWithNc } from "../guilds.js";
 import { askAboutRenamed, noteClassHint, checkPlayers, noteClientServer, refreshAfterUpload } from "../ncMatch.js";
 
-/** Time-window tolerance for two encounters to even be considered the same fight. */
+/** Time-window tolerance of the END for two encounters to even be considered the same fight (the kill is one moment for everybody). */
 const TIME_TOLERANCE_SECONDS = 20;
+/** The START may differ more: an uploader who joined late or whose first hit came later saw the fight begin up to half a minute after the others (three runs 20-22 s apart were not merged). */
+const START_TOLERANCE_SECONDS = 60;
 /** Jaccard similarity above which a roster counts as "the same group". */
 const ROSTER_SIMILARITY_THRESHOLD = 0.5;
 /**
@@ -396,7 +398,7 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
       const existingStartMs = Date.parse(e.startedAt);
       const existingEndMs = Date.parse(e.endedAt);
       return (
-        Math.abs(existingStartMs - startedAtMs) <= TIME_TOLERANCE_SECONDS * 1000 &&
+        Math.abs(existingStartMs - startedAtMs) <= START_TOLERANCE_SECONDS * 1000 &&
         Math.abs(existingEndMs - endedAtMs) <= TIME_TOLERANCE_SECONDS * 1000
       );
     });

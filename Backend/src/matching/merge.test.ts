@@ -505,3 +505,14 @@ test("a world boss kill uploaded first with a few names and later with the whole
   const largeGroup = upload("Group Boss", 40);
   assert.notEqual(largeGroup.encounterId, smallGroup.encounterId, "an instance boss still needs a Jaccard of 0.5 (9 of 40 is not)");
 });
+
+test("the same kill seen to begin 22 seconds later by another uploader is one encounter, while a different end is not", () => {
+  const instance = db.insert(instances).values({ name: "Late place", nameEn: "Late place", game: "aion2", slug: "late-place", category: "expedition" }).returning().get();
+  db.insert(bosses).values({ name: "Late Boss", instanceId: instance.id }).run();
+  const at = (start: string, end: string) => processUpload(basePayload({ bossNpcName: "Late Boss", startedAt: start, endedAt: end }));
+  const first = at("2026-05-01T16:53:05.600Z", "2026-05-01T16:54:14.000Z");
+  const late = at("2026-05-01T16:53:27.900Z", "2026-05-01T16:54:14.400Z");
+  assert.equal(late.encounterId, first.encounterId, "start 22 s later, end the same: the same kill");
+  const other = at("2026-05-01T16:53:27.900Z", "2026-05-01T16:55:14.400Z");
+  assert.notEqual(other.encounterId, first.encounterId, "another end is another fight");
+});
