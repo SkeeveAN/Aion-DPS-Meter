@@ -13,20 +13,25 @@ migrate(db, { migrationsFolder: path.join(path.dirname(fileURLToPath(import.meta
 after(() => sqlite.close());
 
 const { parseMatchmaking } = await import("./serverMatchmaking.js");
+const { servers } = await import("./db/schema.js");
 const { currentMatches, matchedServer, syncMatchmakingToDb } = await import("./serverMatchmakingDb.js");
 
 const fixture = (name: string) => (JSON.parse(readFileSync(new URL(`./fixtures/nc-server-matchmaking-${name}.json`, import.meta.url), "utf8")) as { article: { content: { content: string } } }).article.content.content;
 const europe = () => ({ region: "Europe", noticeId: "n1", pairs: parseMatchmaking(fixture("lineup")).filter((p) => p.region === "Europe") });
 
-test("first sync opens one row per pair and links the catalog servers that exist", () => {
+const upload = (name: string) => Number(db.insert(servers).values({ fingerprint: `aion2:${name.toLowerCase().replace(/\W+/g, "-")}`, displayName: name }).run().lastInsertRowid);
+const kaisinelId = upload("Europe - Kaisinel");
+const lumielId = upload("Europe - Lumiel");
+
+test("first sync opens one row per pair and links the servers known from uploads", () => {
   assert.deepEqual(syncMatchmakingToDb([europe()], 1000), { opened: 23, closed: 0 });
   assert.equal(currentMatches("Europe").length, 23);
   assert.equal(matchedServer("Europe", "Kaisinel"), "Lumiel");
   assert.equal(matchedServer("Europe", "Lumiel"), "Kaisinel");
   assert.equal(matchedServer("Asia", "Kaisinel"), null);
   const kaisinel = currentMatches("Europe").find((m) => m.elyosServer === "Kaisinel");
-  assert.ok(kaisinel?.elyosCatalogId && kaisinel.asmodianCatalogId, "Kaisinel and Lumiel are in server_catalog");
-  assert.equal(currentMatches("Europe").find((m) => m.elyosServer === "Ishtar")?.elyosCatalogId, null);
+  assert.deepEqual([kaisinel?.elyosServerId, kaisinel?.asmodianServerId], [kaisinelId, lumielId]);
+  assert.equal(currentMatches("Europe").find((m) => m.elyosServer === "Ishtar")?.elyosServerId, null);
 });
 
 test("the same list again changes nothing; a changed pairing closes the old row and opens a new one", () => {
@@ -37,6 +42,14 @@ test("the same list again changes nothing; a changed pairing closes the old row 
   assert.equal(matchedServer("Europe", "Kaisinel"), "Beritra");
   assert.equal(matchedServer("Europe", "Lumiel"), null);
   assert.equal(currentMatches("Europe").length, 23);
+});
+
+test("a server that uploads later gets its id on the open row", () => {
+  const ishtarId = upload("Europe - Ishtar");
+  const list = europe();
+  list.pairs = list.pairs.map((p) => (p.elyos === "Kaisinel" ? { ...p, asmodian: "Beritra" } : p)); // the state the test before left
+  assert.deepEqual(syncMatchmakingToDb([list], 3500), { opened: 0, closed: 0 });
+  assert.equal(currentMatches("Europe").find((m) => m.elyosServer === "Ishtar")?.elyosServerId, ishtarId);
 });
 
 test("a region the notices do not mention keeps its rows", () => {

@@ -1,6 +1,6 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "./db/client.js";
-import { serverCatalog, serverMatchmaking } from "./db/schema.js";
+import { servers, serverMatchmaking } from "./db/schema.js";
 import { load, matchmakingView, refreshMatchmaking, type MatchPair } from "./serverMatchmaking.js";
 
 // The matchmaking pairs of NC's notices (serverMatchmaking.ts) in the database, so the rest of the site can use them. One row per pairing and period:
@@ -12,7 +12,7 @@ type Region = { region: string | null; noticeId: string; pairs: MatchPair[] };
 export function syncMatchmakingToDb(regions: Region[], now = Date.now()): { opened: number; closed: number } {
   let opened = 0;
   let closed = 0;
-  const catalog = new Map(db.select({ id: serverCatalog.id, name: serverCatalog.name }).from(serverCatalog).all().map((r) => [r.name, r.id]));
+  const known = new Map(db.select({ id: servers.id, name: servers.displayName }).from(servers).all().map((r) => [r.name ?? "", r.id]));
   db.transaction((tx) => {
     for (const r of regions) {
       if (!r.region || r.pairs.length === 0) {
@@ -31,8 +31,11 @@ export function syncMatchmakingToDb(regions: Region[], now = Date.now()): { open
           continue;
         }
         have.add(k);
-        if (row.phase !== p.phase || row.updatedLabel !== p.updated || row.noticeId !== r.noticeId) {
-          tx.update(serverMatchmaking).set({ phase: p.phase, updatedLabel: p.updated, noticeId: r.noticeId }).where(eq(serverMatchmaking.id, row.id)).run();
+        // a server that sent its first upload since the row was opened gets its id now
+        const elyosServerId = row.elyosServerId ?? known.get(`${r.region} - ${p.elyos}`) ?? null;
+        const asmodianServerId = row.asmodianServerId ?? known.get(`${r.region} - ${p.asmodian}`) ?? null;
+        if (row.phase !== p.phase || row.updatedLabel !== p.updated || row.noticeId !== r.noticeId || elyosServerId !== row.elyosServerId || asmodianServerId !== row.asmodianServerId) {
+          tx.update(serverMatchmaking).set({ phase: p.phase, updatedLabel: p.updated, noticeId: r.noticeId, elyosServerId, asmodianServerId }).where(eq(serverMatchmaking.id, row.id)).run();
         }
       }
       for (const [k, p] of wanted) {
@@ -44,8 +47,8 @@ export function syncMatchmakingToDb(regions: Region[], now = Date.now()): { open
             region: r.region,
             elyosServer: p.elyos,
             asmodianServer: p.asmodian,
-            elyosCatalogId: catalog.get(`${r.region} - ${p.elyos}`) ?? null,
-            asmodianCatalogId: catalog.get(`${r.region} - ${p.asmodian}`) ?? null,
+            elyosServerId: known.get(`${r.region} - ${p.elyos}`) ?? null,
+            asmodianServerId: known.get(`${r.region} - ${p.asmodian}`) ?? null,
             phase: p.phase,
             updatedLabel: p.updated,
             noticeId: r.noticeId,

@@ -627,7 +627,7 @@ export const playerNcMatch = sqliteTable("player_nc_match", {
 
 // Which Elyos server shares its world with which Asmodian server, from NC's matchmaking notices (see serverMatchmaking.ts). One row per pairing and period:
 // valid_to is null while NC still lists it, a changed pairing closes the old row and opens a new one, so the history of the pairings is kept. The names are as
-// NC writes them; the catalog ids are filled where the server exists in server_catalog ("<Region> - <Server>").
+// NC writes them; the server ids are filled where the server is known from uploads (servers.display_name "<Region> - <Server>") and added once it shows up.
 export const serverMatchmaking = sqliteTable(
   "server_matchmaking",
   {
@@ -635,8 +635,8 @@ export const serverMatchmaking = sqliteTable(
     region: text("region").notNull(),
     elyosServer: text("elyos_server").notNull(),
     asmodianServer: text("asmodian_server").notNull(),
-    elyosCatalogId: integer("elyos_catalog_id").references(() => serverCatalog.id),
-    asmodianCatalogId: integer("asmodian_catalog_id").references(() => serverCatalog.id),
+    elyosServerId: integer("elyos_server_id").references(() => servers.id),
+    asmodianServerId: integer("asmodian_server_id").references(() => servers.id),
     // "Launch" | "Advanced Access" | null where the notice names no phase
     phase: text("phase"),
     // NC's own "Time Updated" text of the pairing, kept as written
