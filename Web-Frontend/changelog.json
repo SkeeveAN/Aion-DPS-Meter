@@ -1,12 +1,19 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.4.0",
   "date": "2026-10-18",
   "items": [
    {
     "text": "Backend: an address with a slash at the end, like /changelog/ or /bosses/<boss>/, now redirects to the page instead of answering 404",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "the pet map now shows the instances - 49 dungeon and party instance maps from the game's own map pictures (floor shape only, placed by the monsters' spawn points), the pet monsters of the instance on them, the overworld map no longer stays behind you inside an instance",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-18"
    }
