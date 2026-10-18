@@ -3090,6 +3090,7 @@ public partial class MainWindow : Window
             return;
         }
 
+        StartLoginDumpTimer();
         if (_profileUploadTimer is null)
         {
             _profileUploadTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
@@ -3102,7 +3103,6 @@ public partial class MainWindow : Window
                     await UploadOwnProfileAsync();
                 }
 
-                await UploadLoginDumpAsync();
             };
         }
 
@@ -3140,39 +3140,64 @@ public partial class MainWindow : Window
         }
     }
 
+    private System.Windows.Threading.DispatcherTimer? _loginDumpTimer;
+    private bool _loginDumpBusy;
+
+    /// <summary>Its own timer: the profile upload waits for a quiet moment, which an active player never gives it (stat frames keep coming).</summary>
+    private void StartLoginDumpTimer()
+    {
+        if (_loginDumpTimer is not null)
+        {
+            return;
+        }
+
+        _loginDumpTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+        _loginDumpTimer.Tick += async (_, _) => await UploadLoginDumpAsync();
+        _loginDumpTimer.Start();
+    }
+
     private async Task UploadLoginDumpAsync()
     {
-        if (!MeterSettings.Load().ShareLoginWithLegion
-            || _source?.Entities is not Aion2.Aion2EntityDirectory { LocalCharacter: { Restored: false } own } directory)
+        if (_loginDumpBusy || !Aion2.Capture.LoginCapture.Pending)
         {
             return;
         }
 
-        if (!IsLoginShareEligible())
+        _loginDumpBusy = true;
+        try
         {
-            Aion2.Capture.LoginCapture.Done(own.Name); // left the legion: nothing is sent
-            return;
-        }
+            if (!MeterSettings.Load().ShareLoginWithLegion)
+            {
+                return;
+            }
 
-        if (Aion2.Capture.LoginCapture.Collecting(own.Name))
+            Aion2.Capture.LoginCapture.Flush();
+            while (Aion2.Capture.LoginCapture.Next() is { } item)
+            {
+                // Only for a character the login's character list put in that legion, on that server; anything else is dropped unsent.
+                if (_source?.Entities is not Aion2.Aion2EntityDirectory { LocalCharacter: { } own } directory
+                    || own.ServerId != LoginShareServerId
+                    || !string.Equals(directory.AccountLegionOf(item.Name)?.Trim(), LoginShareLegion, StringComparison.OrdinalIgnoreCase))
+                {
+                    Aion2.Capture.LoginCapture.Done(item.Name);
+                    continue;
+                }
+
+                var request = new LoginDumpUploadRequest(AppVersion.Text, item.Name, LoginShareLegion, own.ServerId, Aion2GameServerAddress(), Convert.ToBase64String(item.Gzip));
+                UploadResult result = await UploadClient.SendLoginDumpAsync(request);
+                AutoUploadLog.Write(result.Success ? $"login of {item.Name}: {item.Gzip.Length / 1024} KB sent to the legion analysis" : $"login of {item.Name}: not sent - {result.Error}");
+                if (!result.Success)
+                {
+                    break; // tried again with the next tick
+                }
+
+                Aion2.Capture.LoginCapture.Done(item.Name);
+            }
+        }
+        finally
         {
-            _profileUploadTimer?.Start(); // the login is still being recorded: look again in a few seconds
-            return;
+            _loginDumpBusy = false;
         }
-
-        if (Aion2.Capture.LoginCapture.Finished(own.Name) is not { } gzip)
-        {
-            return;
-        }
-
-        var request = new LoginDumpUploadRequest(AppVersion.Text, own.Name, LoginShareLegion, own.ServerId, Aion2GameServerAddress(), Convert.ToBase64String(gzip));
-        UploadResult result = await UploadClient.SendLoginDumpAsync(request);
-        if (result.Success)
-        {
-            Aion2.Capture.LoginCapture.Done(own.Name);
-        }
-
-        AutoUploadLog.Write(result.Success ? $"login of {own.Name}: {gzip.Length / 1024} KB sent to the legion analysis" : $"login of {own.Name}: not sent - {result.Error}");
     }
 
     // ---- a boss fight goes online by itself (opt-in) --------------------------------------------

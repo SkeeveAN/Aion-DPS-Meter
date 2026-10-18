@@ -21,7 +21,7 @@ public static class AutoUploadLog
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 if (File.Exists(path) && new FileInfo(path).Length > 200_000)
                 {
-                    File.WriteAllLines(path, File.ReadLines(path).TakeLast(500));
+                    File.WriteAllLines(path, File.ReadLines(path).TakeLast(500).ToList()); // read to the end first: the file is written over itself
                 }
 
                 File.AppendAllText(path, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {message}{Environment.NewLine}");

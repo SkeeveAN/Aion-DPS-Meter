@@ -23,6 +23,7 @@ public static class LoginCapture
     private static List<TcpSegment>? _segments;
     private static long _bytes;
     private static bool _sent;
+    private static readonly List<(string Name, byte[] Gzip)> _ready = new();
 
     public static bool Enabled
     {
@@ -37,6 +38,7 @@ public static class LoginCapture
                     _segments = null;
                     _name = null;
                     _bytes = 0;
+                    _ready.Clear();
                 }
             }
         }
@@ -50,6 +52,7 @@ public static class LoginCapture
             return;
         }
 
+        Flush(force: true); // a capture that is still running when the next login begins is finished early, not lost
         lock (Gate)
         {
             _name = null;
@@ -96,27 +99,28 @@ public static class LoginCapture
         }
     }
 
-    /// <summary>True while the capture of <paramref name="name"/> still collects.</summary>
-    public static bool Collecting(string name)
+    /// <summary>A capture is running or waits to be sent (cheap check for the sender's timer).</summary>
+    public static bool Pending
     {
-        lock (Gate)
-        {
-            return _segments is not null && !_sent && _name == name && DateTime.UtcNow - _beganAt <= TimeSpan.FromSeconds(ExtraSeconds);
-        }
+        get { lock (Gate) { return _enabled && (_segments is not null || _ready.Count > 0); } }
     }
 
-    /// <summary>The finished capture of <paramref name="name"/> as gzip of JSON lines (the format of the debug recording), or null.</summary>
-    public static byte[]? Finished(string name)
+    /// <summary>Moves the running capture to the queue of finished ones once its time is up (or at once with <paramref name="force"/>: the next login begins).</summary>
+    public static void Flush(bool force = false)
     {
         TcpSegment[] copy;
+        string name;
         lock (Gate)
         {
-            if (_segments is null || _sent || _name != name || DateTime.UtcNow - _beganAt <= TimeSpan.FromSeconds(ExtraSeconds))
+            if (_segments is null || _sent || _name is null || (!force && DateTime.UtcNow - _beganAt <= TimeSpan.FromSeconds(ExtraSeconds)))
             {
-                return null;
+                return;
             }
 
             copy = _segments.ToArray();
+            name = _name;
+            _segments = null;
+            _bytes = 0;
         }
 
         using var memory = new MemoryStream();
@@ -129,19 +133,30 @@ public static class LoginCapture
             }
         }
 
-        return memory.ToArray();
+        lock (Gate)
+        {
+            _ready.Add((name, memory.ToArray()));
+        }
     }
 
-    /// <summary>The capture was delivered (or must not be sent any more): it is dropped from memory.</summary>
+    /// <summary>The oldest finished capture that is not delivered yet, or null.</summary>
+    public static (string Name, byte[] Gzip)? Next()
+    {
+        lock (Gate)
+        {
+            return _ready.Count > 0 ? _ready[0] : null;
+        }
+    }
+
+    /// <summary>The capture was delivered (or must not be sent any more): it is dropped.</summary>
     public static void Done(string name)
     {
         lock (Gate)
         {
-            if (_name == name)
+            int index = _ready.FindIndex(r => r.Name == name);
+            if (index >= 0)
             {
-                _sent = true;
-                _segments = null;
-                _bytes = 0;
+                _ready.RemoveAt(index);
             }
         }
     }
