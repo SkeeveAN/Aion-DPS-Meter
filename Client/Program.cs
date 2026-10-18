@@ -1700,6 +1700,22 @@ internal static class Program
         var type = typeof(Ui.MainWindow);
         var source = new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load());
         type.GetField("_source", flags)!.SetValue(window, source);
+        // A recording that starts after the login has no character record: the stored character of the last session (maybe another one) would be "self".
+        // AION_OWN_NAME names the character the recording belongs to.
+        if (Environment.GetEnvironmentVariable("AION_OWN_NAME") is { Length: > 0 } ownCharacter)
+        {
+            if (source.Entities is Aion2.Aion2EntityDirectory ownDirectory)
+            {
+                ownDirectory.SetConfiguredLocalName(ownCharacter);
+                // the saved character of the last session (another one) must not be "self" either
+                var characterField = typeof(Aion2.Aion2EntityDirectory).GetField("_character", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (characterField?.GetValue(ownDirectory) is Aion2.Aion2CharacterInfo { Restored: true })
+                {
+                    characterField.SetValue(ownDirectory, null);
+                }
+            }
+        }
+
         var tick = type.GetMethod("OnPollTimerTick", flags)!;
 
         var segments = Aion2.Capture.SegmentRecording.Read(path)
@@ -1797,6 +1813,18 @@ internal static class Program
             {
                 Console.WriteLine($"aion2-upload-dryrun: --send {wanted}: no such fight in this recording, skipped");
                 continue;
+            }
+
+            // The recording has no login of its own character: the character of the last session shows as "self". AION_OWN_NAME names the real one.
+            if (Environment.GetEnvironmentVariable("AION_OWN_NAME") is { Length: > 0 } realSelf)
+            {
+                if (!match.Participants.Any(p => p.Name == realSelf))
+                {
+                    Console.WriteLine($"aion2-upload-dryrun: --send {wanted}: {realSelf} is not in this fight, skipped");
+                    continue;
+                }
+
+                match = match with { Participants = match.Participants.Where(p => p.Name == realSelf || !(p.IsSelf && p.TotalDamage == 0)).Select(p => p with { IsSelf = p.Name == realSelf }).ToList() };
             }
 
             var result = Upload.UploadClient.SendAsync(match).GetAwaiter().GetResult();
