@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "Backend: an address with a slash at the end, like /changelog/ or /bosses/<boss>/, now redirects to the page instead of answering 404",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.3.3",
   "date": "2026-10-18",
   "items": [
