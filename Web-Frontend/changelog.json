@@ -1,5 +1,20 @@
 [
  {
+  "version": "1.5.2",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "world boss kills are uploaded whole - every player who hit the boss goes up (no cut at 300), the upload waits until all of them have a name and class, and the server asks for 75 % of the boss's hit points; the encounter page shows how much of them the list covers",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.5.1",
   "date": "2026-10-18",
   "items": [
