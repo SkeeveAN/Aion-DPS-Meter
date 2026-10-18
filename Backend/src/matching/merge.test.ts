@@ -485,3 +485,23 @@ test("the difficulty of an Ascension Rite boss comes from its level, else from t
   assert.equal(modeOf(2701853), "easy", "and the highest id is Easy");
   assert.equal(modeOf(2709999), "", "an id that is not known has no step");
 });
+
+test("a world boss kill uploaded first with a few names and later with the whole crowd is one encounter; an instance boss is not merged that way", () => {
+  const crowdOf = (names: string[]) =>
+    names.map((name, i) => ({ ...basePayload().participants[1], name, isSelf: i === 0, totalDamage: 900_000 - i * 1000 }));
+  const names = (n: number) => Array.from({ length: n }, (_, i) => `Held${i}`);
+  for (const [category, boss] of [["worldboss", "Crowd Boss"], ["expedition", "Group Boss"]] as const) {
+    const instance = db.insert(instances).values({ name: `${boss} place`, nameEn: `${boss} place`, game: "aion2", slug: `${boss}-place`, category }).returning().get();
+    db.insert(bosses).values({ name: boss, instanceId: instance.id }).run();
+  }
+  const upload = (boss: string, count: number) =>
+    processUpload(basePayload({ bossNpcName: boss, participants: crowdOf(names(count)), startedAt: "2026-04-01T20:00:00.000Z", endedAt: "2026-04-01T20:03:12.000Z" }));
+
+  const small = upload("Crowd Boss", 9);
+  const large = upload("Crowd Boss", 300);
+  assert.equal(large.encounterId, small.encounterId, "the nine names lie in the crowd: the same kill");
+
+  const smallGroup = upload("Group Boss", 9);
+  const largeGroup = upload("Group Boss", 40);
+  assert.notEqual(largeGroup.encounterId, smallGroup.encounterId, "an instance boss still needs a Jaccard of 0.5 (9 of 40 is not)");
+});

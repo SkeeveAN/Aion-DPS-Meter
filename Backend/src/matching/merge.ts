@@ -27,6 +27,13 @@ import { askAboutRenamed, noteClassHint, checkPlayers, noteClientServer, refresh
 const TIME_TOLERANCE_SECONDS = 20;
 /** Jaccard similarity above which a roster counts as "the same group". */
 const ROSTER_SIMILARITY_THRESHOLD = 0.5;
+/**
+ * A world boss has a crowd on it, and what each uploader saw of it differs a lot (a client of an older version knew eight names, a later one
+ * the whole thousand): Jaccard of 9 against 1107 names is below 1 %. So on a world boss it is enough that the smaller roster lies in the larger one.
+ */
+const WORLD_BOSS_CONTAINMENT_THRESHOLD = 0.8;
+/** The smaller roster needs this many names for the containment rule - below it a couple of shared names would prove nothing. */
+const WORLD_BOSS_CONTAINMENT_MIN_NAMES = 5;
 /** How far a returning participant's damage may drift between uploads and still count as the same row. */
 const DAMAGE_MATCH_TOLERANCE = 0.15;
 
@@ -345,6 +352,34 @@ function upsertPlayerRow(name: string, serverId: number, guild?: string, faction
   return playerId;
 }
 
+function isWorldBossId(bossId: number): boolean {
+  return (
+    db
+      .select({ category: instances.category })
+      .from(bosses)
+      .innerJoin(instances, eq(bosses.instanceId, instances.id))
+      .where(eq(bosses.id, bossId))
+      .get()?.category === "worldboss"
+  );
+}
+
+/** Share of the smaller roster that is in the larger one; 0 when the smaller has too few names for the rule (see WORLD_BOSS_CONTAINMENT_*). */
+function containment(a: ReadonlySet<string>, b: ReadonlySet<string>): number {
+  const [small, large] = a.size <= b.size ? [a, b] : [b, a];
+  if (small.size < WORLD_BOSS_CONTAINMENT_MIN_NAMES) {
+    return 0;
+  }
+  let shared = 0;
+  for (const name of small) {
+    if (large.has(name)) {
+      shared += 1;
+    }
+  }
+  const share = shared / small.size;
+  // reported as a similarity: reaches the threshold of the roster rule only when the containment rule is met
+  return share >= WORLD_BOSS_CONTAINMENT_THRESHOLD ? Math.max(share, ROSTER_SIMILARITY_THRESHOLD) : 0;
+}
+
 function findCandidateEncounter(bossId: number, serverId: number, payload: UploadPayload) {
   const startedAtMs = Date.parse(payload.startedAt);
   const endedAtMs = Date.parse(payload.endedAt);
@@ -387,6 +422,7 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
     payload.participants.map((p) => normalizeName(p.name)),
   );
 
+  const worldBoss = isWorldBossId(bossId);
   let best: { encounterId: number; similarity: number } | null = null;
   for (const candidate of timeCandidates) {
     const existingRoster = db
@@ -400,6 +436,7 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
     const similarity = Math.max(
       jaccardSimilarity(uploadRosterNamesWithoutSelf, existingNames),
       jaccardSimilarity(uploadRosterNamesWithSelf, existingNames),
+      worldBoss ? containment(uploadRosterNamesWithSelf, existingNames) : 0,
     );
     if (similarity >= ROSTER_SIMILARITY_THRESHOLD && (!best || similarity > best.similarity)) {
       best = { encounterId: candidate.id, similarity };
