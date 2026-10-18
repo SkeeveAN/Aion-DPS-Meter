@@ -16,6 +16,13 @@
      "Backend"
     ],
     "date": "2026-10-18"
+   },
+   {
+    "text": "Runs of the same group: a kill that another uploader saw begin up to a minute later is merged into one run (existing duplicates merged)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-18"
    }
   ]
  },
