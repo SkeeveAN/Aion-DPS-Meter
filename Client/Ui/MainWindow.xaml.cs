@@ -490,6 +490,7 @@ public partial class MainWindow : Window
     {
         _captureAdapterInUse = settings.CaptureAdapterId;
         Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
+        Aion2.Capture.LoginCapture.Enabled = settings.ShareLoginWithLegion;
         _pollTimer.Stop();
         if (_historyMode)
         {
@@ -3082,7 +3083,8 @@ public partial class MainWindow : Window
 
     private void ScheduleOwnProfileUpload()
     {
-        if (Headless || !MeterSettings.Load().AutoUploadProfile)
+        // Always runs (but never in a headless mode): besides the upload it keeps the "legion member" flag of the settings up to date.
+        if (Headless)
         {
             return;
         }
@@ -3093,12 +3095,83 @@ public partial class MainWindow : Window
             _profileUploadTimer.Tick += async (_, _) =>
             {
                 _profileUploadTimer.Stop();
-                await UploadOwnProfileAsync();
+                UpdateLoginShareEligibility();
+                if (MeterSettings.Load().AutoUploadProfile)
+                {
+                    await UploadOwnProfileAsync();
+                }
+
+                await UploadLoginDumpAsync();
             };
         }
 
         _profileUploadTimer.Stop();
         _profileUploadTimer.Start();
+    }
+
+    // ---- the login of a legion member (opt-in, hidden for everybody else) ------------------------
+    // Members of Akatsuki on Kaisinel get a switch in Settings > General. With it on, the whole login traffic of the character (what the game server
+    // sent while it logged in) goes once per login to the community server, which keeps it for a short time to find what ties the characters of one
+    // player together. The switch is hidden, the capture is not even started and nothing is sent for anybody else - the server checks the legion again.
+
+    private const string LoginShareLegion = "Akatsuki";
+    private const int LoginShareServerId = 1304; // Europe - Kaisinel (Elyos)
+
+    private bool IsLoginShareEligible() =>
+        _source?.Entities is Aion2.Aion2EntityDirectory { LocalCharacter: { } own } directory
+        && own.ServerId == LoginShareServerId
+        && string.Equals(directory.GuildOf(own.CombatId, own.Name)?.Trim(), LoginShareLegion, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Remembers in the settings whether the logged-in character is in that legion (decides whether the settings show the switch).</summary>
+    private void UpdateLoginShareEligibility()
+    {
+        if (_source?.Entities is not Aion2.Aion2EntityDirectory { LocalCharacter: not null })
+        {
+            return;
+        }
+
+        bool eligible = IsLoginShareEligible();
+        var settings = MeterSettings.Load();
+        if (settings.LoginShareEligible != eligible)
+        {
+            settings.LoginShareEligible = eligible;
+            settings.Save();
+        }
+    }
+
+    private async Task UploadLoginDumpAsync()
+    {
+        if (!MeterSettings.Load().ShareLoginWithLegion
+            || _source?.Entities is not Aion2.Aion2EntityDirectory { LocalCharacter: { Restored: false } own } directory)
+        {
+            return;
+        }
+
+        if (!IsLoginShareEligible())
+        {
+            Aion2.Capture.LoginCapture.Done(own.Name); // left the legion: nothing is sent
+            return;
+        }
+
+        if (Aion2.Capture.LoginCapture.Collecting(own.Name))
+        {
+            _profileUploadTimer?.Start(); // the login is still being recorded: look again in a few seconds
+            return;
+        }
+
+        if (Aion2.Capture.LoginCapture.Finished(own.Name) is not { } gzip)
+        {
+            return;
+        }
+
+        var request = new LoginDumpUploadRequest(AppVersion.Text, own.Name, LoginShareLegion, own.ServerId, Aion2GameServerAddress(), Convert.ToBase64String(gzip));
+        UploadResult result = await UploadClient.SendLoginDumpAsync(request);
+        if (result.Success)
+        {
+            Aion2.Capture.LoginCapture.Done(own.Name);
+        }
+
+        AutoUploadLog.Write(result.Success ? $"login of {own.Name}: {gzip.Length / 1024} KB sent to the legion analysis" : $"login of {own.Name}: not sent - {result.Error}");
     }
 
     // ---- a boss fight goes online by itself (opt-in) --------------------------------------------
@@ -5146,6 +5219,7 @@ public partial class MainWindow : Window
         }
 
         Aion2.Capture.DebugRecording.Enabled = settings.DebugRecording;
+        Aion2.Capture.LoginCapture.Enabled = settings.ShareLoginWithLegion;
         ThemeManager.Apply(Application.Current, settings); // repaints every open window
         foreach (PlayerRow row in _rows)
         {

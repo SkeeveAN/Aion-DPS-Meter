@@ -52,6 +52,9 @@ public partial class SettingsWindow : Window
         AutoUploadBossBox.IsChecked = settings.AutoUploadBoss;
         DebugRecordingBox.IsChecked = settings.DebugRecording;
         UploadOtherProfilesBox.IsChecked = settings.UploadOtherPlayersProfiles;
+        // Only members of Akatsuki on Kaisinel see this switch (a member who switched it on and then left the legion keeps seeing it, to be able to switch it off).
+        LoginShareCard.Visibility = settings.LoginShareEligible || settings.ShareLoginWithLegion ? Visibility.Visible : Visibility.Collapsed;
+        ShareLoginBox.IsChecked = settings.ShareLoginWithLegion;
         SetHotkeyBox(HotkeyHideUiBox, HotkeyBinding.Parse(settings.HotkeyHideUi).ToString());
         SetHotkeyBox(HotkeyPauseBox, HotkeyBinding.Parse(settings.HotkeyPause).ToString());
         SetHotkeyBox(HotkeyCopyDamageBox, HotkeyBinding.Parse(settings.HotkeyCopyDamage).ToString());
@@ -651,6 +654,8 @@ public partial class SettingsWindow : Window
         _settings.CheckForUpdates = CheckForUpdatesBox.IsChecked ?? true;
         _settings.AutoUploadProfile = AutoUploadProfileBox.IsChecked ?? false;
         _settings.UploadOtherPlayersProfiles = UploadOtherProfilesBox.IsChecked ?? false;
+        _settings.ShareLoginWithLegion = ShareLoginBox.IsChecked ?? false;
+        _settings.LoginShareEligible = onDisk.LoginShareEligible;
         _settings.HotkeyHideUi = (string?)HotkeyHideUiBox.Tag ?? "";
         _settings.HotkeyPause = (string?)HotkeyPauseBox.Tag ?? "";
         _settings.HotkeyCopyDamage = (string?)HotkeyCopyDamageBox.Tag ?? "";

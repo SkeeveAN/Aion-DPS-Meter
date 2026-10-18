@@ -9156,5 +9156,41 @@
     "pt": "Golpe mortal",
     "ja": "致命の一撃",
     "ko": "죽음의 일격"
+  },
+  "Settings.LoginShare.Title": {
+    "en": "Legion: login data",
+    "de": "Legion: Login-Daten",
+    "fr": "Legion: login data",
+    "es": "Legion: login data",
+    "ru": "Legion: login data",
+    "zh": "Legion: login data",
+    "zh-TW": "Legion: login data",
+    "pt": "Legion: login data",
+    "ja": "Legion: login data",
+    "ko": "Legion: login data"
+  },
+  "Settings.LoginShare.Hint": {
+    "en": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
+    "de": "Wird nur Mitgliedern der Legion Akatsuki auf Kaisinel angezeigt. Wenn aktiv, wird bei jedem Login alles, was der Spielserver beim Einloggen deines Charakters sendet (der komplette Login-Datenverkehr; kein Chat, nichts, was dein PC sendet, kein Passwort), einmal auf aiondps.com hochgeladen. Es wird nur kurz gespeichert, um herauszufinden, welche Charaktere zu einem Spieler gehören, und danach gelöscht. Standardmäßig aus.",
+    "fr": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
+    "es": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
+    "ru": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
+    "zh": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
+    "zh-TW": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
+    "pt": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
+    "ja": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default.",
+    "ko": "Only shown to members of the legion Akatsuki on Kaisinel. With this on, everything the game server sends while your character logs in (the full login traffic, no chat, nothing the PC sends, no password) is uploaded once per login to aiondps.com. It is stored for a short time only, to find out what ties the characters of one player together, and then deleted. Off by default."
+  },
+  "Settings.LoginShare": {
+    "en": "Upload my complete login for the legion analysis",
+    "de": "Meinen kompletten Login für die Legions-Analyse hochladen",
+    "fr": "Upload my complete login for the legion analysis",
+    "es": "Upload my complete login for the legion analysis",
+    "ru": "Upload my complete login for the legion analysis",
+    "zh": "Upload my complete login for the legion analysis",
+    "zh-TW": "Upload my complete login for the legion analysis",
+    "pt": "Upload my complete login for the legion analysis",
+    "ja": "Upload my complete login for the legion analysis",
+    "ko": "Upload my complete login for the legion analysis"
   }
 }

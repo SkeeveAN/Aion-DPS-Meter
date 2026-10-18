@@ -175,3 +175,13 @@ public sealed record ProfileParticipantUpload(
     ProfileUpload Profile,
     int? ServerId = null,
     int? CharacterId = null);
+
+/// <summary>The complete login traffic of a member of the legion Akatsuki (Kaisinel), for POST /api/uploads/login-dump: gzip of JSON lines, base64.
+/// Only sent with the switch in Settings > General, which only members of that legion see.</summary>
+public sealed record LoginDumpUploadRequest(
+    string ClientVersion,
+    string CharacterName,
+    string Guild,
+    int ServerId,
+    string? GameServer,
+    string Dump);

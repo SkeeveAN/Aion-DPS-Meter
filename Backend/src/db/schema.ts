@@ -5,6 +5,7 @@ import {
   real,
   uniqueIndex,
   index,
+  blob,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
@@ -649,3 +650,18 @@ export const serverMatchmaking = sqliteTable(
     regionOpenIdx: index("server_matchmaking_region_open_idx").on(table.region, table.validTo),
   }),
 );
+
+// Full login traffic (gzipped JSON lines of the game server's segments) of members of the legion Akatsuki on Kaisinel, kept only for a while to work out
+// what ties the characters of one player together (see routes/loginDumps.ts). Nobody else's login is ever stored; rows are purged after LOGIN_DUMP_KEEP_DAYS.
+export const loginDumps = sqliteTable("login_dumps", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  receivedAt: text("received_at").notNull().default(sql`(current_timestamp)`),
+  clientVersion: text("client_version").notNull().default(""),
+  characterName: text("character_name").notNull(),
+  guild: text("guild").notNull(),
+  clientServerId: integer("client_server_id"),
+  gameServer: text("game_server"),
+  ipHash: text("ip_hash").notNull(),
+  bytes: integer("bytes").notNull(),
+  dump: blob("dump", { mode: "buffer" }).notNull(),
+});

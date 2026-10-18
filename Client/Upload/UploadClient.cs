@@ -191,6 +191,26 @@ public static class UploadClient
         }
     }
 
+    /// <summary>Posts the login traffic of a legion member (see <see cref="LoginDumpUploadRequest"/>). Same never-throws contract as <see cref="SendAsync"/>.</summary>
+    public static async Task<UploadResult> SendLoginDumpAsync(LoginDumpUploadRequest payload)
+    {
+        if (IsBlocked)
+        {
+            return BlockedResult();
+        }
+
+        try
+        {
+            using HttpResponseMessage response =
+                await Http.PostAsJsonAsync($"{ApiBaseUrl}/api/uploads/login-dump", payload, JsonOptions);
+            return response.IsSuccessStatusCode ? UploadResult.Ok : await FailureOf(response);
+        }
+        catch (Exception ex)
+        {
+            return UploadResult.Failed(ex.Message);
+        }
+    }
+
     private static string Truncate(string s, int maxLength) =>
         s.Length <= maxLength ? s : s[..maxLength] + "...";
 }

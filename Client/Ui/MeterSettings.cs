@@ -115,6 +115,13 @@ public sealed class MeterSettings
     /// data about people who did not agree to anything. With it off only the own character is sent.</summary>
     public bool UploadOtherPlayersProfiles { get; set; }
 
+    /// <summary>Only for members of the legion Akatsuki on Kaisinel (the switch is hidden for everybody else): the complete login traffic of the character is
+    /// sent once per login to the community server, which keeps it for a short time to work out what ties the characters of one player together. Off by default.</summary>
+    public bool ShareLoginWithLegion { get; set; }
+
+    /// <summary>The last time the character was seen: in that legion on that server. Decides whether the settings show the switch above; written by the main window, never by the user.</summary>
+    public bool LoginShareEligible { get; set; }
+
     /// <summary>False until the first-start wizard (WizardWindow) has been through: a fresh install, or a
     /// settings file that was lost or broken. A settings file from before the wizard existed does not have
     /// the field either, so every install sees the wizard once after updating to the version that brought it
@@ -694,6 +701,8 @@ public sealed class MeterSettings
         to.AutoUploadProfile = from.AutoUploadProfile;
         to.AutoUploadBoss = from.AutoUploadBoss;
         to.UploadOtherPlayersProfiles = from.UploadOtherPlayersProfiles;
+        to.ShareLoginWithLegion = from.ShareLoginWithLegion;
+        to.LoginShareEligible = from.LoginShareEligible;
         to.CheckForUpdates = from.CheckForUpdates;
         to.Aion2CharacterName = from.Aion2CharacterName;
     }

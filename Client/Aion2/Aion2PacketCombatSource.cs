@@ -63,6 +63,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             Capture.DebugRecording.NoteCharacter(info.Name);
             if (!info.Restored)
             {
+                Capture.LoginCapture.NoteCharacter(info.Name); // a no-op unless the legion's login switch is on
                 Aion2Tickets.NoteCharacter(info.Name, info.ServerId, info.ReceivedAt, info.Level); // the tickets of the login list belong to the character named a few seconds later
             }
         };
@@ -281,6 +282,7 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     {
         Feedback.CaptureRingBuffer.Add(segment); // for "attach recording" in the feedback window
         Capture.DebugRecording.Add(segment); // only while Settings > Debug recording is on
+        Capture.LoginCapture.Add(segment); // only while the legion's login switch is on
         Ingest(segment);
     }
 

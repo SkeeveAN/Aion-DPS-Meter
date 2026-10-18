@@ -473,6 +473,13 @@
                                 <TextBlock x:Name="MenuControlStatus" Style="{StaticResource CardHint}" Margin="0,6,0,0" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Border>
+<Border x:Name="LoginShareCard" Style="{StaticResource SettingsCard}" Visibility="Collapsed">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.LoginShare.Title}"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.LoginShare.Hint}"/>
+                                <CheckBox x:Name="ShareLoginBox" Content="{local:Loc Settings.LoginShare}"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                     <StackPanel x:Name="PanelMeter" Visibility="Collapsed">
 <Border Style="{StaticResource SettingsCard}">
