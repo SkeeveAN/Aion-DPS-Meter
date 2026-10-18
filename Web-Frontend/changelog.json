@@ -1,5 +1,32 @@
 [
  {
+  "version": "1.3.3",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "an upload is saved in one step so a failure leaves no half fight, the legion list, statistics, top players and player pages are served faster, the NC rate limit also holds when requests arrive together, and a Twitch outage no longer slows the drops page",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "Website: the features page loads its background pictures only when you scroll near them and the home page loads its three lists at the same time",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "faster meter - the boss view of a big fight takes about half the time, long fights use less memory, the character file is saved in the background every few seconds, a repeated network packet no longer throws the capture buffer count off, and several small slowdowns in the overlays, the pet map and the packet reading are gone",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.3.2",
   "date": "2026-10-17",
   "items": [
