@@ -2119,6 +2119,66 @@
     "ja": "ホルン",
     "ko": "뿔피리"
   },
+  "Sound.warhorn": {
+    "en": "War horn",
+    "de": "Schlachthorn",
+    "fr": "Cor de guerre",
+    "es": "Cuerno de guerra",
+    "ru": "Боевой рог",
+    "zh": "战角",
+    "zh-TW": "戰角",
+    "pt": "Trompa de guerra",
+    "ja": "戦の角笛",
+    "ko": "전쟁 뿔피리"
+  },
+  "Sound.fanfare": {
+    "en": "Fanfare",
+    "de": "Fanfare",
+    "fr": "Fanfare",
+    "es": "Fanfarria",
+    "ru": "Фанфары",
+    "zh": "号令",
+    "zh-TW": "號令",
+    "pt": "Fanfarra",
+    "ja": "ファンファーレ",
+    "ko": "팡파르"
+  },
+  "Sound.blades": {
+    "en": "Blades",
+    "de": "Klingen",
+    "fr": "Lames",
+    "es": "Espadas",
+    "ru": "Клинки",
+    "zh": "刀剑",
+    "zh-TW": "刀劍",
+    "pt": "Lâminas",
+    "ja": "刃",
+    "ko": "검극"
+  },
+  "Sound.roar": {
+    "en": "Roar",
+    "de": "Gebrüll",
+    "fr": "Rugissement",
+    "es": "Rugido",
+    "ru": "Рёв",
+    "zh": "咆哮",
+    "zh-TW": "咆哮",
+    "pt": "Rugido",
+    "ja": "咆哮",
+    "ko": "포효"
+  },
+  "Sound.bounce": {
+    "en": "Bounce",
+    "de": "Hüpfer",
+    "fr": "Rebond",
+    "es": "Rebote",
+    "ru": "Прыжок",
+    "zh": "蹦跳",
+    "zh-TW": "蹦跳",
+    "pt": "Pulinho",
+    "ja": "ピョン",
+    "ko": "통통"
+  },
   "Settings.Hotkeys.Group.Dps": {
     "en": "DPS meter",
     "de": "DPS-Meter",

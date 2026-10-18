@@ -7,7 +7,7 @@ namespace AionDPS.Ui;
 public static class NotifySounds
 {
     /// <summary>The ids of the sounds, in the order the settings offer them.</summary>
-    public static readonly string[] All = { "chime", "bell", "ping", "blip", "drop", "horn" };
+    public static readonly string[] All = { "chime", "bell", "ping", "blip", "drop", "horn", "warhorn", "fanfare", "blades", "roar", "bounce" };
 
     private static readonly List<MediaPlayer> Playing = new();
 
