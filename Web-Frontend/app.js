@@ -1148,6 +1148,8 @@ async function renderStats(secret) {
       ]),
       bars([...d.uploadsPerDay].reverse(), (r) => `${r.day} · ${r.uploaders} uploader${r.uploaders === 1 ? "" : "s"}`, (r) => r.uploads, "Uploads per day"),
       versionBars(d),
+      // How many different uploaders (= people running the client) each server has.
+      bars(d.uploaderServers ?? [], (r) => iconLabel(factionIcon(r.faction), serverLabel(r.name)), (r) => r.count, "Unique uploaders per server"),
       bars([...d.downloadsPerDay].reverse(), (r) => `${r.day} · ${r.unique} unique`, (r) => r.clicks, "Downloads per day"),
       bars(d.downloadsByTag, (r) => r.tag, (r) => r.count, `Downloads per version (${nf(d.botDownloads)} bot clicks not counted)`),
       bars(d.gameServers, (r) => `${r.address} · ${r.servers || "?"}`, (r) => r.uploads, "Game servers the clients captured from (uploads)"),

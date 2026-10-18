@@ -150,6 +150,13 @@ export function privateStats() {
     "select date(received_at) day, count(*) n, count(distinct ip_hash) u from uploads where received_at >= datetime('now','-30 days') group by day order by day",
   ).map((r) => ({ day: String(r.day), uploads: num(r.n), uploaders: num(r.u) }));
   const activeUploaders = (days: number) => num(one("select count(distinct ip_hash) n from uploads where received_at >= datetime('now', ?)", `-${days} days`).n);
+  // Unique uploaders per server: distinct salted IP hashes of the uploads filed under that server (rejected ones don't count); a hash is no person, but the closest thing the data has.
+  const uploaderServers = all(
+    `select coalesce(s.display_name, s.fingerprint) name,
+       (select c.faction from server_catalog c where c.name = s.display_name and c.game = 'aion2' limit 1) sfaction,
+       count(distinct u.ip_hash) n
+     from uploads u join servers s on s.id = u.server_id where u.status <> 'rejected' group by u.server_id order by n desc`,
+  ).map((r) => ({ name: String(r.name), faction: (r.sfaction ? String(r.sfaction) : factionOfServerName(String(r.name))) || "", count: num(r.n) }));
   const { versions, total: versionTotals } = versionUsage();
   const status = Object.fromEntries(all("select status s, count(*) n from uploads group by status").map((r) => [String(r.s), num(r.n)]));
   // How far the automatic check of the players against NC's character search is (see ncMatch.ts); "unchecked" players have no result yet.
@@ -192,6 +199,7 @@ export function privateStats() {
     bossFights,
     gameServers,
     uploadsPerDay,
+    uploaderServers,
     activeUploaders: { d1: activeUploaders(1), d7: activeUploaders(7), d30: activeUploaders(30) },
     versions,
     versionTotals,
