@@ -15,6 +15,7 @@ What is in the data:
 - World -> map (fitted 2026-10-18 on 4,000+ monster spawn points of ~25 maps, 98 % of them on the floor mask): the UI scale is 0.0196 UI units
   per world unit like on the open maps (0.01958 .. 0.01976) and the map's centre sits at UI (2c): pixel fraction = 0.5 + (world * 0.0196 - 2c) / (2h),
   x to the right and y down, no flip or rotation (checked with fits of scale and offset per map: the offset came out as -c within a few UI units).
+- Only instances with pet monsters get a map (the pet map has nothing else to show there; there are no collectibles in instances' data).
 - Not built: maps whose plane is not square in UI units (Dungeon_L_0004, Dungeon_D_0011, RootCellar: wider than high or the other way round) and
   the sector grids that are not square (Dungeon_0005 1x5, ReforgedAbyss 4x5): the client's map model has one scale and a square grid.
 """
@@ -70,6 +71,10 @@ def main():
         if gx != gy or abs(hx - hy) > 0.02 * hx:
             skipped.append(f"{name} (grid {gx}x{gy}, half {hx:.0f}x{hy:.0f})")
             continue
+        tables = [t for t in spawn_tables if os.path.basename(t) == name or os.path.basename(t).startswith(name + "_")]
+        if not tables:
+            skipped.append(f"{name} (no pet monsters: nothing to show on it)")
+            continue
         grid, tile = gx, 2048
         whole = grid * tile
         target = os.path.join(out, name)
@@ -87,7 +92,6 @@ def main():
                 rgb.save(os.path.join(target, f"{col}_{row}.jpg"), "JPEG", quality=80, optimize=True)
                 alpha.resize((tile // 2, tile // 2), Image.BILINEAR).save(os.path.join(target, f"{col}_{row}_a.png"), optimize=True)
         scale = UI_PER_WORLD * whole / (2 * hx)
-        tables = [t for t in spawn_tables if os.path.basename(t) == name or os.path.basename(t).startswith(name + "_")]
         maps[name] = {
             "title": (zones[ids[0]]["names"].get("en") or name),
             "table": tables[0] if tables else "",

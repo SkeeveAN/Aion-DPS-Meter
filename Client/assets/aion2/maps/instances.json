@@ -163,22 +163,6 @@
    ],
    "masked": false
   },
-  "Draconic_002": {
-   "title": "Beritra Brigade Fortress",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0200704,
-   "offsetX": 1024.0,
-   "offsetY": 1024.0,
-   "zones": [
-    690011,
-    690012,
-    690013
-   ],
-   "masked": false
-  },
   "Draconic_004": {
    "title": "Orcus's Grave",
    "table": "Dungeon/DraconicCrisis/Draconic_004/Draconic_004_Normal",
@@ -251,76 +235,6 @@
    ],
    "masked": true
   },
-  "DreamCrossroad": {
-   "title": "Dream Crossroad",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0200704,
-   "offsetX": 1024.0,
-   "offsetY": 1024.0,
-   "zones": [
-    200001
-   ],
-   "masked": true
-  },
-  "DreamOfPain": {
-   "title": "Dream of Torment",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0200704,
-   "offsetX": 1024.0,
-   "offsetY": 1024.0,
-   "zones": [
-    200002
-   ],
-   "masked": true
-  },
-  "Dungeon_0003": {
-   "title": "Nightmare",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0802816,
-   "offsetX": 1038.832017408,
-   "offsetY": 1024.108483764224,
-   "zones": [
-    200003
-   ],
-   "masked": false
-  },
-  "Dungeon_0004": {
-   "title": "Narun's Dream",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0200704,
-   "offsetX": 924.794640384,
-   "offsetY": 1235.27825408,
-   "zones": [
-    200004
-   ],
-   "masked": true
-  },
-  "Dungeon_0006": {
-   "title": "Dream of Shattered Fragments",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0200704,
-   "offsetX": 1024.0,
-   "offsetY": 1024.0,
-   "zones": [
-    200006
-   ],
-   "masked": true
-  },
   "Dungeon_D_0001": {
    "title": "Crypt",
    "table": "Dungeon/Quest/Dark/Dungeon_D_0001",
@@ -334,20 +248,6 @@
    "offsetY": 1024.0,
    "zones": [
     220001
-   ],
-   "masked": true
-  },
-  "Dungeon_D_0002": {
-   "title": "Zikel's Sanctum",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0401408,
-   "offsetX": 873.39569152,
-   "offsetY": 1503.36372736,
-   "zones": [
-    220002
    ],
    "masked": true
   },
@@ -399,132 +299,6 @@
    ],
    "masked": true
   },
-  "Dungeon_D_0009": {
-   "title": "Destruction Archon Underground Fortress",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.01967686274509804,
-   "offsetX": 712.5480909803921,
-   "offsetY": 1062.5039520627452,
-   "zones": [
-    220009
-   ],
-   "masked": true
-  },
-  "Dungeon_D_0010": {
-   "title": "Blades Hideout",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0401408,
-   "offsetX": 1304.03995648,
-   "offsetY": 1087.893643264,
-   "zones": [
-    220010
-   ],
-   "masked": true
-  },
-  "Dungeon_D_0014": {
-   "title": "Kaisinel's Collapsed Sanctum",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.03935372549019608,
-   "offsetX": 801.4043658039216,
-   "offsetY": 953.6514690509804,
-   "zones": [
-    220014
-   ],
-   "masked": true
-  },
-  "Dungeon_D_0019": {
-   "title": "Blades Secret Storage",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0401408,
-   "offsetX": 935.645249536,
-   "offsetY": 758.2060544000001,
-   "zones": [
-    220019
-   ],
-   "masked": true
-  },
-  "Dungeon_D_0020": {
-   "title": "Executioner's Tower",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.03935372549019608,
-   "offsetX": 982.7427789803921,
-   "offsetY": 1144.9305007686276,
-   "zones": [
-    220020
-   ],
-   "masked": true
-  },
-  "Dungeon_D_0021": {
-   "title": "Floating Temple of Arkanis",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0392,
-   "offsetX": 1024.0,
-   "offsetY": 1024.0,
-   "zones": [
-    220021
-   ],
-   "masked": true
-  },
-  "Dungeon_D_0022": {
-   "title": "Fire Temple",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0802816,
-   "offsetX": 2358.98126336,
-   "offsetY": -81.93941504000009,
-   "zones": [
-    220022
-   ],
-   "masked": true
-  },
-  "Dungeon_L_0008": {
-   "title": "Illusion Hideout",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.03935372549019608,
-   "offsetX": 639.1125935686275,
-   "offsetY": 957.2220887843138,
-   "zones": [
-    210008
-   ],
-   "masked": true
-  },
-  "Dungeon_L_0009": {
-   "title": "Zumion Relic Storage",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0401408,
-   "offsetX": 1070.754156544,
-   "offsetY": 856.0809984,
-   "zones": [
-    210009
-   ],
-   "masked": true
-  },
   "Dungeon_L_0010": {
    "title": "Nahid Disposal Plant",
    "table": "Dungeon/Quest/Light/Dungeon_L_0010",
@@ -538,76 +312,6 @@
    "offsetY": 1244.80006144,
    "zones": [
     210010
-   ],
-   "masked": true
-  },
-  "Dungeon_L_0011": {
-   "title": "Ardus Shrine",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0401408,
-   "offsetX": 1023.58879371264,
-   "offsetY": 877.918969856,
-   "zones": [
-    210011
-   ],
-   "masked": true
-  },
-  "Dungeon_L_0014": {
-   "title": "Zikel's Collapsed Barracks",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.03935372549019608,
-   "offsetX": 969.6457266196078,
-   "offsetY": 1025.654197067294,
-   "zones": [
-    210014
-   ],
-   "masked": true
-  },
-  "Dungeon_L_0017": {
-   "title": "Fountain of Life",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0401408,
-   "offsetX": 911.315615744,
-   "offsetY": 1429.31318784,
-   "zones": [
-    210017
-   ],
-   "masked": true
-  },
-  "Dungeon_L_0018": {
-   "title": "Light Crash Site",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0401408,
-   "offsetX": 1271.957389312,
-   "offsetY": 770.080124928,
-   "zones": [
-    210018
-   ],
-   "masked": true
-  },
-  "Dungeon_L_0019": {
-   "title": "Lepharist Research Center",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0401408,
-   "offsetX": 941.57205504,
-   "offsetY": 754.08863232,
-   "zones": [
-    210019
    ],
    "masked": true
   },
@@ -689,34 +393,6 @@
    ],
    "masked": true
   },
-  "IllicitTradeSpot": {
-   "title": "Illicit Trade Spot",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0802816,
-   "offsetX": 1097.716719616,
-   "offsetY": 960.3250782208,
-   "zones": [
-    210012
-   ],
-   "masked": true
-  },
-  "Impetusium_Arena": {
-   "title": "Impetusium Arena",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0401408,
-   "offsetX": 1023.30094936064,
-   "offsetY": 1021.03931469824,
-   "zones": [
-    8
-   ],
-   "masked": false
-  },
   "MirrorHeart": {
    "title": "Mirror of Scarlet Desire",
    "table": "Dungeon/Party/MirrorHeart/MirrorHeart_G_04",
@@ -754,22 +430,6 @@
    "zones": [
     620021,
     620022
-   ],
-   "masked": true
-  },
-  "PhantomsHall": {
-   "title": "Hall of Illusion",
-   "table": "",
-   "tables": [],
-   "tile": 2048,
-   "grid": 1,
-   "scale": 0.0100352,
-   "offsetX": 1024.0,
-   "offsetY": 1024.0,
-   "zones": [
-    600131,
-    600132,
-    600133
    ],
    "masked": true
   },
