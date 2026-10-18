@@ -4,6 +4,20 @@
   "date": "2026-10-18",
   "items": [
    {
+    "text": "the timetable runs on the game's UTC clock - the events (spacetime rift, battlefield, Shugo festival, air raid, Abyss raid) come at the same moment in every region and in winter and summer time and are shown in your PC's time; the world boss rift hours on the server follow the same clock",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
+  "version": "1.5.3",
+  "date": "2026-10-18",
+  "items": [
+   {
     "text": "World boss crowds on the home maps count: a player of a Verteron or Altgard field boss without faction or server gets the map's faction and the uploader's server, and a world boss kill is judged by the players that are kept, not by the damage the top rule cut out",
     "areas": [
      "Backend"
@@ -92,6 +106,13 @@
     "text": "The home rule for a world boss crowd outside the rift hours holds in every region, not only in Europe",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "the compact overlay panel can let mouse clicks through to the game - a new switch in the settings, Display during the fight - compact (issue #19)",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-18"
    }
