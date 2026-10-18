@@ -113,6 +113,12 @@ export async function buildServer() {
     if (request.url.startsWith("/api/")) {
       return reply.status(404).send({ error: "not_found" });
     }
+    // /changelog/ and /bosses/<boss>/ are the same page as without the slash; send crawlers and
+    // old links there instead of a 404 (an unknown path then still ends in the real 404 page).
+    const [urlPath, query] = request.url.split("?", 2);
+    if ((request.method === "GET" || request.method === "HEAD") && urlPath.length > 1 && urlPath.endsWith("/") && !urlPath.endsWith("//")) {
+      return reply.redirect(`${urlPath.replace(/\/+$/, "")}${query ? `?${query}` : ""}`, 301);
+    }
     return sendNotFound(request, reply);
   });
 
