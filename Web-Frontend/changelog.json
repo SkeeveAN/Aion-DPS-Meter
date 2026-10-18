@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.5.0",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "voice output for the boss cast bar - the chosen Windows voice announces boss casts (with or without the skill name, at you, at everyone, lethal), works with the overlay switched off while Aion is in front, with example sentences to listen to in the settings",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.4.2",
   "date": "2026-10-18",
   "items": [
