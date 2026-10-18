@@ -58,6 +58,24 @@ public static class BossFight
         return seconds > 0 ? damage / seconds : null;
     }
 
+    /// <summary>The time from the first to the last hit on the target in <paramref name="shown"/>, in seconds (0 for none or a single instant).
+    /// The same for every source of the fight, so a list of rows asks for it once and divides each source's damage by it
+    /// (<see cref="Dps"/> asks the list anew for each source).</summary>
+    public static double SecondsOnTarget(IReadOnlyList<DamageEvent> shown, int targetId)
+    {
+        DateTime? first = null, last = null;
+        foreach (DamageEvent ev in shown)
+        {
+            if (ev.TargetObjectId == targetId)
+            {
+                first = first is null || ev.Timestamp < first ? ev.Timestamp : first;
+                last = last is null || ev.Timestamp > last ? ev.Timestamp : last;
+            }
+        }
+
+        return first is DateTime a && last is DateTime b ? (b - a).TotalSeconds : 0;
+    }
+
     /// <summary>
     /// Whether this batch starts a new boss pull, so the meter should start from zero: it hits a
     /// boss that has no hit on record yet, or one whose health was reset to full (a wipe) after its

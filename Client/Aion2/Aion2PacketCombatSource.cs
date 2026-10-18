@@ -29,6 +29,13 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     private Capture.NpcapCaptureService? _capture;
     private SourceStatus _status = new(SourceState.Idle, "");
 
+    private static readonly TimeSpan CharacterSaveDelay = TimeSpan.FromSeconds(3);
+    private readonly object _saveGate = new();
+    private readonly object _saveIo = new();
+    private string? _characterStorePath;
+    private System.Threading.Timer? _saveTimer;
+    private bool _saveDirty;
+
     public Aion2PacketCombatSource(Protocol.Aion2Protocol protocol, string? adapterId = null, string? ownCharacterName = null, string? characterStorePath = null)
     {
         _adapterId = adapterId;
@@ -46,13 +53,10 @@ public sealed class Aion2PacketCombatSource : ICombatSource
             _entities.RestoreInspected(Aion2CharacterStore.LoadInspected(inspectedPath));
             _entities.InspectedChanged += () => Aion2CharacterStore.SaveInspected(inspectedPath, _entities.InspectedPlayers());
 
-            _entities.CharacterChanged += _ =>
-            {
-                if (_entities.ToSaved() is { } snapshot)
-                {
-                    Aion2CharacterStore.Save(characterStorePath, snapshot);
-                }
-            };
+            // Every record of the login burst and every stat frame reports a change; the file is written once per few seconds instead of
+            // once per report (the snapshot is rebuilt and serialized in full each time), and off the capture thread.
+            _characterStorePath = characterStorePath;
+            _entities.CharacterChanged += _ => ScheduleCharacterSave();
         }
         _entities.CharacterChanged += info =>
         {
@@ -111,6 +115,50 @@ public sealed class Aion2PacketCombatSource : ICombatSource
     {
         _capture?.Dispose();
         _capture = null;
+        FlushCharacterSave(); // what was reported in the last seconds is not lost
+    }
+
+    /// <summary>Marks the character data as changed; the first change after a write starts the timer, later ones ride along (so a steady
+    /// stream of stat frames still reaches the disk every few seconds).</summary>
+    private void ScheduleCharacterSave()
+    {
+        lock (_saveGate)
+        {
+            if (_saveDirty)
+            {
+                return;
+            }
+
+            _saveDirty = true;
+            _saveTimer ??= new System.Threading.Timer(_ => FlushCharacterSave(), null, System.Threading.Timeout.InfiniteTimeSpan, System.Threading.Timeout.InfiniteTimeSpan);
+            _saveTimer.Change(CharacterSaveDelay, System.Threading.Timeout.InfiniteTimeSpan);
+        }
+    }
+
+    private void FlushCharacterSave()
+    {
+        if (_characterStorePath is not { } path)
+        {
+            return;
+        }
+
+        lock (_saveGate)
+        {
+            if (!_saveDirty)
+            {
+                return;
+            }
+
+            _saveDirty = false;
+        }
+
+        lock (_saveIo)
+        {
+            if (_entities.ToSaved() is { } snapshot)
+            {
+                Aion2CharacterStore.Save(path, snapshot);
+            }
+        }
     }
 
     public CombatBatch Poll(bool paused)
@@ -151,7 +199,15 @@ public sealed class Aion2PacketCombatSource : ICombatSource
         return new CombatBatch(paused ? Array.Empty<DamageEvent>() : drained, Array.Empty<AvoidEvent>(), Array.Empty<KillEvent>(), zones, enrages);
     }
 
-    public void Dispose() => Stop();
+    public void Dispose()
+    {
+        Stop();
+        lock (_saveGate)
+        {
+            _saveTimer?.Dispose();
+            _saveTimer = null;
+        }
+    }
 
     /// <summary>
     /// A live one-line health report for the status bar: once the game server has been seen, how

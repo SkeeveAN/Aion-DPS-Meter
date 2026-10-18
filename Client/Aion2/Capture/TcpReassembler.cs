@@ -70,6 +70,12 @@ public sealed class TcpReassembler
             return;
         }
 
+        // A retransmission of a waiting segment replaces it: the byte count must follow the replacement, not grow by it.
+        if (stream.Pending.TryGetValue(sequence, out ReadOnlyMemory<byte> replaced))
+        {
+            stream.PendingBytes -= replaced.Length;
+        }
+
         stream.Pending[sequence] = payload;
         stream.PendingBytes += payload.Length;
         if (stream.Pending.Count > MaxPendingSegments || stream.PendingBytes > MaxPendingBytes)

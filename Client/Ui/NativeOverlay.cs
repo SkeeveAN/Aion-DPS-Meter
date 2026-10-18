@@ -35,17 +35,34 @@ internal sealed class NativeOverlay : IDisposable
     /// meter above its dimmed overlay would put the meter in the way of the selection.</summary>
     private static bool ScreenClippingActive()
     {
+        // The poll timer raises every visible overlay in one go, and each of them asks; the answer is the same for all of them, so the
+        // process lookup (a handle open and a name resolution) runs once per tick, not once per overlay.
+        long now = Environment.TickCount64;
+        if (now - _clippingCheckedAt < ClippingCacheMs)
+        {
+            return _clippingActive;
+        }
+
+        bool active;
         try
         {
             GetWindowThreadProcessId(GetForegroundWindow(), out uint pid);
             using var process = System.Diagnostics.Process.GetProcessById((int)pid);
-            return process.ProcessName is "ScreenClippingHost" or "SnippingTool" or "ScreenSketch";
+            active = process.ProcessName is "ScreenClippingHost" or "SnippingTool" or "ScreenSketch";
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception)
         {
-            return false;
+            active = false;
         }
+
+        _clippingActive = active;
+        _clippingCheckedAt = now;
+        return active;
     }
+
+    private const long ClippingCacheMs = 250;
+    private static long _clippingCheckedAt = long.MinValue / 2;
+    private static bool _clippingActive;
 
     private static readonly IntPtr HwndTopmost = new(-1);
     private const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010;

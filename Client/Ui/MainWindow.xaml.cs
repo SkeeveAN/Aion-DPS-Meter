@@ -40,11 +40,6 @@ public partial class MainWindow : Window
     /// <summary>The stress test sets this to compare the totals of the index with those of a full rescan.</summary>
     internal bool ForceFullRefresh { get; set; }
 
-    /// <summary>The index answers the usual views: damage (PvE or PvP) of everybody, without a picked target, scope or
-    /// All in One. The rest (a target's fight, Heal and Taken modes, the compact overlay's Group/Corps) still rescan.</summary>
-    private bool CanUseIndex => !ForceFullRefresh && _selectedTargetId is null && !(ScopeActive && _scope != MeterScope.All)
-        && !_allData && !(_healMode && !_pvpOnly) && !(_takenMode && !_pvpOnly);
-
     private readonly Dictionary<int, PlayerRow> _rowsByObjectId = new();
     private readonly Dictionary<int, string> _targetNames = new();
 
@@ -585,38 +580,12 @@ public partial class MainWindow : Window
         Dispatcher.BeginInvoke(new Action(() => ShowUploadStatus(status.Message)));
     }
 
-    // Per fight: which real buffs (not damage/heal skills) each RECIPIENT received, for the web
-    // frontend's "Buffs" column (see BuildEncounterUpload) - a parallel side-channel list, same
-    // shape/reasoning as _lootRows above, since a buff cast is neither a DamageEvent nor something
-    // LiveAggregator's damage/heal model has any use for. Keyed by recipient rather than caster so
-    // a Cleric/Chanter's group-wide buff shows up on every party member it actually landed on, not
-    // only on whoever cast it.
-    private readonly List<(DateTime Timestamp, int RecipientId, string Skill)> _buffCasts = new();
-
     /// <summary>The gear entry of a profile upload, with the mana stones and rolled stats when they were read.</summary>
     private static ProfileGearUpload GearUpload(Aion2.Aion2EquippedItem i) => new(i.SlotIndex, i.ItemId, i.Enchant,
         i.Stones?.Select(k => new ProfileStoneUpload(k.StatId, k.Tier)).ToList(),
         i.Stats?.Select(k => new ProfileStatUpload(k.StatId, k.Value)).ToList(),
         i.GodstoneId > 0 ? i.GodstoneId : null,
         i.SkillBonuses?.Select(k => new ProfileSkillBonusUpload(k.SkillId, k.Level)).ToList());
-
-    /// <summary>Individually named items the user wants tracked regardless of grade, beyond the
-    /// Godstone/Design/Recipe prefix rule -- exact names, not a broader pattern: e.g. "Bundle" on
-    /// its own would also match 1.379 unrelated crafting-material items in ItemDatabase (Log
-    /// Bundle, Fiber Bundle, ...), which is exactly the "every single piece of trash loot" the
-    /// user asked to stop tracking in the first place.</summary>
-    private static readonly HashSet<string> AlwaysTrackedItemNames = new()
-    {
-        "Veteran's Composite Manastone Bundle",
-        // Stahlmauerbastion's own reward box - Legend grade (confirmed in
-        // assets/items/items_origincdx_4x.json, id 188052600), so it would otherwise fall below
-        // the Unique+ threshold below just like the Manastone Bundle above.
-        "Beritran Supply Box",
-    };
-
-    /// <summary>Slot categories the user calls "Schmuck" for the 65er/60er jewelry rule above -
-    /// English substrings since ItemDatabase's names are all English (see its own remarks).</summary>
-    private static readonly string[] JewelrySlotKeywords = { "Belt", "Ring", "Earring", "Necklace", "Helm", "Helmet" };
 
     /// <summary>
     /// What a global hotkey (see GlobalHotkeys) does. They replace the in-game chat commands, which
@@ -1207,14 +1176,20 @@ public partial class MainWindow : Window
     /// </summary>
     private void RefreshRows()
     {
-        bool fast = CanUseIndex;
-        if (fast)
+        // The index takes in what is new in every view (a few events a second): the target list and the heals are read from it
+        // everywhere, and the views that ask nothing of a picked target or the scope take their damage side from it too.
+        if (!ForceFullRefresh)
         {
             _index.Update(_aggregator, IsPlayerName);
-            fast = !_pvpOnly || _index.TimeOrdered;
         }
 
-        RefreshMobBossFilterItems(fast);
+        // The index answers the damage side of every view that asks nothing of a picked target or of the compact overlay's Group/Corps
+        // scope: Damage, PvP, Heal, Taken and All in One. The views of one target's fight and the scoped ones still rescan (a boss
+        // fight's list follows rules that look at the whole stretch of events, and the scope at who fought what).
+        bool damageIndexed = !ForceFullRefresh && _selectedTargetId is null && !(ScopeActive && _scope != MeterScope.All)
+            && (!_pvpOnly || _index.TimeOrdered);
+
+        RefreshMobBossFilterItems(!ForceFullRefresh);
 
         // !IsHeal here is the fix for a real bug found by terminal_windows against a real
         // heal-bearing session: without it, a pure healer ("Potion" -- a heal-effect name, not a
@@ -1230,7 +1205,7 @@ public partial class MainWindow : Window
         // A specific numbered run (both _selectedRunWindow* set - see MobBossTag's own remarks)
         // narrows further to that one run's own time span, not the target's whole history.
         Dictionary<int, bool> targetIsPlayer = new(); // the directory lookup takes a lock; once per target, not per hit
-        List<DamageEvent> filtered = fast ? new List<DamageEvent>() : _pvpOnly
+        List<DamageEvent> filtered = damageIndexed ? new List<DamageEvent>() : _pvpOnly
             ? damageOnly.Where(ev => targetIsPlayer.TryGetValue(ev.TargetObjectId, out bool known) ? known : targetIsPlayer[ev.TargetObjectId] = IsPlayerName(ev.TargetObjectId)).ToList()
             : _selectedTargetId is int targetId
                 ? ShownFightHits(damageOnly, targetId)
@@ -1254,11 +1229,11 @@ public partial class MainWindow : Window
         // they belong in the list (and in an upload's roster). Heals inside the shown window by
         // players the meter has identified add them; bounded to that window so someone who healed
         // an hour ago elsewhere does not come back at a permanent 0.
-        long shownCount = fast ? (_pvpOnly ? _index.PvpCount : _index.DamageCount) : filtered.Count;
+        long shownCount = damageIndexed ? (_pvpOnly ? _index.PvpCount : _index.DamageCount) : filtered.Count;
         (DateTime, DateTime)? filteredSpan = shownCount == 0 ? null
-            : fast ? (_pvpOnly ? (_index.PvpFirst, _index.PvpLast) : (_index.DamageFirst, _index.DamageLast))
+            : damageIndexed ? (_pvpOnly ? (_index.PvpFirst, _index.PvpLast) : (_index.DamageFirst, _index.DamageLast))
             : (filtered.Min(ev => ev.Timestamp), filtered.Max(ev => ev.Timestamp));
-        (int, DateTime, DateTime)? shownSummary = fast && filteredSpan is (DateTime summaryFrom, DateTime summaryTo)
+        (int, DateTime, DateTime)? shownSummary = damageIndexed && filteredSpan is (DateTime summaryFrom, DateTime summaryTo)
             ? ((int)Math.Min(shownCount, int.MaxValue), summaryFrom, summaryTo)
             : null;
 
@@ -1267,7 +1242,7 @@ public partial class MainWindow : Window
             RefreshHealRows(filteredSpan);
             RankRows();
             UpdateHpCheck(OnSelectedTarget(filtered));
-            UpdateCompactOverlay(filtered);
+            UpdateCompactOverlay(filtered, shownSummary);
             return;
         }
 
@@ -1276,12 +1251,12 @@ public partial class MainWindow : Window
             RefreshTakenRows(filteredSpan);
             RankRows();
             UpdateHpCheck(OnSelectedTarget(filtered));
-            UpdateCompactOverlay(filtered);
+            UpdateCompactOverlay(filtered, shownSummary);
             return;
         }
 
         var healSourceIds = filteredSpan is (DateTime spanStart, DateTime spanEnd)
-            ? (fast ? _index.Heals : _aggregator.Events)
+            ? (damageIndexed ? _index.Heals : _aggregator.Events)
                 .Where(ev => ev.IsHeal && ev.Timestamp >= spanStart && ev.Timestamp <= spanEnd && IsPlayerName(ev.SourceObjectId))
                 .Select(ev => ev.SourceObjectId)
             : Enumerable.Empty<int>();
@@ -1303,7 +1278,7 @@ public partial class MainWindow : Window
                 .GroupBy(ev => ev.TargetObjectId).ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount))
             : new Dictionary<int, long>();
 
-        var sourceIds = (fast ? (_pvpOnly ? _index.PvpBySource.Keys : _index.BySource.Keys) : filtered.Select(ev => ev.SourceObjectId).Distinct())
+        var sourceIds = (damageIndexed ? (_pvpOnly ? _index.PvpBySource.Keys : _index.BySource.Keys) : filtered.Select(ev => ev.SourceObjectId).Distinct())
             .Union(healSourceIds)
             .Union(hostileTakenById.Keys)
             .Where(IsPlayerName)
@@ -1313,7 +1288,7 @@ public partial class MainWindow : Window
         // shown window - from the selected target only when one is picked, so the figure answers
         // "how much did this boss put on whom", the same scope BuildEncounterUpload's damageTaken
         // uses for the website's distribution chart.
-        IEnumerable<DamageEvent> takenWindow = fast ? Enumerable.Empty<DamageEvent>()
+        IEnumerable<DamageEvent> takenWindow = damageIndexed ? Enumerable.Empty<DamageEvent>()
             : filteredSpan is (DateTime takenStart, DateTime takenEnd)
                 ? damageOnly.Where(ev => ev.Timestamp >= takenStart && ev.Timestamp <= takenEnd)
                 : Enumerable.Empty<DamageEvent>();
@@ -1321,12 +1296,12 @@ public partial class MainWindow : Window
             .Where(ev => _pvpOnly || _selectedTargetId is not int selectedAttacker || ev.SourceObjectId == selectedAttacker)
             .GroupBy(ev => ev.TargetObjectId)
             .ToDictionary(g => g.Key, g => g.Sum(ev => ev.Amount));
-        long TakenOf(int id) => !fast ? damageTakenById.GetValueOrDefault(id)
+        long TakenOf(int id) => !damageIndexed ? damageTakenById.GetValueOrDefault(id)
             : filteredSpan is not (DateTime from, DateTime to) ? 0
             : _pvpOnly ? _index.TakenBetween(id, from, to)
             : _index.TakenByTarget.GetValueOrDefault(id);
 
-        // ClassFilter, per the user: was purely decorative until other players' classes started
+                // ClassFilter, per the user: was purely decorative until other players' classes started
         // being detected at all (see ResolveClassName) -- now that a class can actually be known
         // for someone besides "You", picking one filters the grid down to it for real. An empty
         // result when nobody of that class is currently present is correct, not a bug.
@@ -1357,7 +1332,7 @@ public partial class MainWindow : Window
         }
 
         Dictionary<int, List<DamageEvent>>? allBySource = null;
-        if (!fast && !_pvpOnly && _selectedTargetId is null)
+        if (!damageIndexed && !_pvpOnly && _selectedTargetId is null)
         {
             allBySource = new();
             foreach (DamageEvent hit in _aggregator.Events)
@@ -1372,10 +1347,14 @@ public partial class MainWindow : Window
         }
 
         Dictionary<int, List<DamageEvent>>? pvpBySource = null;
-        if (!fast && _pvpOnly)
+        if (!damageIndexed && _pvpOnly)
         {
             pvpBySource = filtered.GroupBy(ev => ev.SourceObjectId).ToDictionary(g => g.Key, g => g.ToList());
         }
+
+                // A picked target's DPS is each source's damage over the time of the hits on that target - one span for all rows, so it is
+        // worked out once here and not by a pass over all the hits for every row.
+        double targetSeconds = _selectedTargetId is int spanTarget && !damageIndexed && !_pvpOnly ? BossFight.SecondsOnTarget(filtered, spanTarget) : 0;
 
         // Rows are added before the values are set: the sorted view cannot be held back while the list itself changes.
         foreach (int sourceId in sourceIds)
@@ -1400,8 +1379,8 @@ public partial class MainWindow : Window
             // must update an already-existing row immediately, not just rows created after the fact.
             ApplyIdentity(row, sourceId);
 
-            row.Damage = fast ? (_pvpOnly ? _index.PvpBySource : _index.BySource).GetValueOrDefault(sourceId)?.Sum ?? 0 : damageById.GetValueOrDefault(sourceId);
-            row.IsEstimated = fast
+            row.Damage = damageIndexed ? (_pvpOnly ? _index.PvpBySource : _index.BySource).GetValueOrDefault(sourceId)?.Sum ?? 0 : damageById.GetValueOrDefault(sourceId);
+            row.IsEstimated = damageIndexed
                 ? (_pvpOnly ? _index.PvpBySource : _index.BySource).GetValueOrDefault(sourceId) is { } indexed && indexed.EstimatedSum * 2 > indexed.Sum
                 : estimatedById.GetValueOrDefault(sourceId) * 2 > row.Damage;
             // PVP mode's rate must come from the SAME PVP-only event set row.Damage above was
@@ -1412,11 +1391,11 @@ public partial class MainWindow : Window
             // numbered run's iDPS must come from that same run's own window, the same
             // one-source-of-truth reasoning the PVP branch above already follows (see
             // BuildEncounterUpload's own remarks on the totalDamage/idps bug this once caused).
-            row.Dps = fast ? (_pvpOnly ? _index.PvpBySource : _index.BySource).GetValueOrDefault(sourceId)?.Rate
+            row.Dps = damageIndexed ? (_pvpOnly ? _index.PvpBySource : _index.BySource).GetValueOrDefault(sourceId)?.Rate
                 : _pvpOnly
                 ? DpsCalculator.AllDpsWallClock(pvpBySource!.GetValueOrDefault(sourceId) ?? new List<DamageEvent>(), sourceId)
-                : _selectedTargetId is int t
-                    ? BossFight.Dps(filtered, t, sourceId)
+                : _selectedTargetId is not null
+                    ? (targetSeconds > 0 ? damageById.GetValueOrDefault(sourceId) / targetSeconds : null)
                     : DpsCalculator.AllDpsWallClock(allBySource!.GetValueOrDefault(sourceId) ?? new List<DamageEvent>(), sourceId);
             row.AllMode = _allMode;
             row.AllCompact = _allCompactMode;
@@ -1430,7 +1409,7 @@ public partial class MainWindow : Window
             row.Faction = (_source?.Entities as Aion2.Aion2EntityDirectory)?.FactionOf(sourceId) ?? "";
         }
 
-        // Rank and share are relative to what is on screen, so they are settled once every row's
+                // Rank and share are relative to what is on screen, so they are settled once every row's
         // damage for this refresh is known - and by damage, not by the grid's current sort order.
         RankRows();
         UpdateHpCheck(OnSelectedTarget(filtered));
@@ -1717,7 +1696,8 @@ public partial class MainWindow : Window
     private List<DamageEvent> HealsInSpan((DateTime Start, DateTime End)? span)
     {
         var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
-        return _aggregator.Events
+        // The index keeps the heals apart (RefreshRows has just taken in the new events): the damage hits, most of the list, are not walked.
+        return (ForceFullRefresh ? _aggregator.Events : _index.Heals)
             .Where(ev => ev.IsHeal && IsPlayerName(ev.SourceObjectId)
                 && directory?.SummonOwnerOf(ev.TargetObjectId) is null
                 && (span is not (DateTime from, DateTime to) || (ev.Timestamp >= from && ev.Timestamp <= to)))
@@ -2563,16 +2543,6 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Same payload construction, but with the target's hits and the time window supplied by the
-    /// caller instead of always spanning that target id's ENTIRE history. Needed because
-    /// a boss farmed multiple times in one session can keep the same target id across every
-    /// kill - a headless clustered upload (see RunHeadlessClusteredUploadAsync) has to pass in one kill-cluster's hits/window at
-    /// a time so each real fight gets its own upload instead of one merged across the whole file.
-    /// The 3-argument overload above is just this one, called with that target's full history.
-    /// </summary>
-    private static readonly TimeSpan BuffPrePullGrace = TimeSpan.FromSeconds(30);
-
-    /// <summary>
     /// Fills in the damage the group shields absorbed per player (see <see cref="ShieldSkills"/>), over the same
     /// window and from the same attacker as <c>DamageTaken</c>, so the website can draw the taken-damage bar
     /// part red (got through) and part blue (absorbed). The shield names no caster, so nobody is credited with it.
@@ -2601,6 +2571,14 @@ public partial class MainWindow : Window
     /// <summary>The backend's ceiling for the players of one upload (uploadSchema.ts).</summary>
     private const int MaxUploadParticipants = 300;
 
+    /// <summary>
+    /// Same payload construction, but with the target's hits and the time window supplied by the
+    /// caller instead of always spanning that target id's ENTIRE history. Needed because
+    /// a boss farmed multiple times in one session can keep the same target id across every
+    /// kill - a headless clustered upload (see RunHeadlessClusteredUploadAsync) has to pass in one kill-cluster's hits/window at
+    /// a time so each real fight gets its own upload instead of one merged across the whole file.
+    /// The 3-argument overload above is just this one, called with that target's full history.
+    /// </summary>
     private EncounterUploadRequest? BuildEncounterUpload(
         int targetId, string serverFingerprint, string? serverName,
         IReadOnlyList<DamageEvent> targetHits, DateTime windowStart, DateTime windowEnd)
@@ -2660,9 +2638,6 @@ public partial class MainWindow : Window
             }
         }
 
-        var buffsByRecipient = _buffCasts
-            .Where(b => b.Timestamp >= windowStart - BuffPrePullGrace && b.Timestamp <= windowEnd)
-            .GroupBy(b => b.RecipientId).ToDictionary(g => g.Key, g => g.ToList());
         var emptyEvents = new List<DamageEvent>();
         var targetSpan = targetHits.Where(e => !e.IsHeal).ToList();
         double fightSeconds = targetSpan.Count == 0 ? 0 : (targetSpan.Max(e => e.Timestamp) - targetSpan.Min(e => e.Timestamp)).TotalSeconds;
@@ -2750,29 +2725,8 @@ public partial class MainWindow : Window
             // targetHits-derived, since the boss is the SOURCE here, not the target.
             long damageTaken = takenByTarget.GetValueOrDefault(row.ObjectId);
 
-            // Real reinforcements this row RECEIVED during the fight -
-            // capped and ranked by count, same "top N" shape SkillBreakdown already uses for
-            // damage/heal skills above, just counting applications instead of summing damage. Keyed
-            // by recipient, not caster, so a Cleric/Chanter group buff shows up on every party
-            // member's own row, not only on whoever cast it.
-            //
-            // The lower bound is windowStart minus BuffPrePullGrace, not windowStart itself - found
-            // from a real run where a pre-pull buff (Daevic Fury I) landed one second before the
-            // first recorded hit and was silently dropped from the upload entirely (not just
-            // filtered by isLongLastingBuff server-side - it never made it into the payload at
-            // all). Buffing right as you engage, a fraction of a second before your first hit
-            // actually lands, is completely normal, so the strict windowStart the damage/heal
-            // events above use is too tight specifically for buffs. Not unbounded, though: this
-            // target id persists across every future kill of the same boss in this session (see
-            // RunHeadlessClusteredUploadAsync's own remarks), so a buff from a genuinely separate,
-            // much earlier kill must not bleed into this one - 30s is generous enough for any real
-            // pre-pull buff sequence without reaching back that far.
-            var buffs = (buffsByRecipient.GetValueOrDefault(row.ObjectId) ?? new())
-                .GroupBy(b => b.Skill)
-                .Select(g => new BuffUsageUpload(g.Key, g.Count()))
-                .OrderByDescending(b => b.Casts)
-                .Take(8)
-                .ToList();
+            // Nothing has ever filled a per-player list of buffs received for the upload (the side-channel meant for it was never wired up), so it is empty; the field stays in the payload for the backend.
+            var buffs = new List<BuffUsageUpload>();
 
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
@@ -5957,22 +5911,48 @@ public partial class MainWindow : Window
         ComboBoxItem? newest = null, newestBoss = null;
         DateTime newestHit = DateTime.MinValue, newestBossHit = DateTime.MinValue;
         var directory = _source?.Entities as Aion2.Aion2EntityDirectory;
+
+        // One pass over the events for all entries of the list (the list may hold a dozen targets and runs): each event is matched against
+        // the entries of its own target only, instead of every entry scanning every event.
+        var entries = new List<(ComboBoxItem Item, MobBossTag Tag)>();
+        var byTarget = new Dictionary<int, List<int>>();
         foreach (ComboBoxItem item in MobBossFilter.Items.OfType<ComboBoxItem>())
         {
-            if (item.Tag is not MobBossTag tag)
+            if (item.Tag is MobBossTag entryTag)
+            {
+                if (!byTarget.TryGetValue(entryTag.TargetId, out List<int>? slots))
+                {
+                    byTarget[entryTag.TargetId] = slots = new List<int>();
+                }
+
+                slots.Add(entries.Count);
+                entries.Add((item, entryTag));
+            }
+        }
+
+        var lastHits = new DateTime[entries.Count];
+        foreach (DamageEvent ev in _aggregator.Events)
+        {
+            if (ev.IsHeal || !byTarget.TryGetValue(ev.TargetObjectId, out List<int>? slots))
             {
                 continue;
             }
 
-            DateTime last = DateTime.MinValue;
-            foreach (DamageEvent ev in _aggregator.Events)
+            foreach (int slot in slots)
             {
-                if (!ev.IsHeal && ev.TargetObjectId == tag.TargetId && ev.Timestamp > last
+                MobBossTag tag = entries[slot].Tag;
+                if (ev.Timestamp > lastHits[slot]
                     && (tag.WindowStart is not DateTime from || (ev.Timestamp >= from && ev.Timestamp <= tag.WindowEnd)))
                 {
-                    last = ev.Timestamp;
+                    lastHits[slot] = ev.Timestamp;
                 }
             }
+        }
+
+        for (int i = 0; i < entries.Count; i++)
+        {
+            (ComboBoxItem item, MobBossTag tag) = entries[i];
+            DateTime last = lastHits[i];
 
             if (last > newestHit)
             {

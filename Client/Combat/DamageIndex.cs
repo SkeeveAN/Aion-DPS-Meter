@@ -74,7 +74,17 @@ public sealed class DamageIndex
     public long PvpCount { get; private set; }
     public DateTime PvpFirst { get; private set; } = DateTime.MaxValue;
     public DateTime PvpLast { get; private set; } = DateTime.MinValue;
-    private readonly Dictionary<int, List<DamageEvent>> _pending = new();
+
+    /// <summary>What a target that is no known player has taken so far, per source. Only totals, counts and the first and last
+    /// time are kept: that is all PvP counting asks of a hit, so the hits themselves need not be held a second time (nearly every
+    /// target is a monster and never becomes a player; a copy of each of its hits would double the memory of the index).</summary>
+    private sealed class PendingTarget
+    {
+        public long Count;
+        public readonly Dictionary<int, Stats> BySource = new();
+    }
+
+    private readonly Dictionary<int, PendingTarget> _pending = new();
 
     // Per target, the damage it took in time order, to answer "how much between a and b" without a scan.
     private readonly Dictionary<int, TargetLine> _taken = new();
@@ -139,12 +149,13 @@ public sealed class DamageIndex
             }
             else
             {
-                if (!_pending.TryGetValue(ev.TargetObjectId, out List<DamageEvent>? waiting))
+                if (!_pending.TryGetValue(ev.TargetObjectId, out PendingTarget? waiting))
                 {
-                    _pending[ev.TargetObjectId] = waiting = new List<DamageEvent>();
+                    _pending[ev.TargetObjectId] = waiting = new PendingTarget();
                 }
 
-                waiting.Add(ev);
+                waiting.Count++;
+                Count(waiting.BySource, ev.SourceObjectId, ev);
             }
         }
 
@@ -158,11 +169,7 @@ public sealed class DamageIndex
                     continue;
                 }
 
-                foreach (DamageEvent ev in _pending[target])
-                {
-                    CountPvp(ev);
-                }
-
+                MergePending(_pending[target]);
                 _pending.Remove(target);
             }
         }
@@ -203,6 +210,27 @@ public sealed class DamageIndex
         }
 
         return lo;
+    }
+
+    /// <summary>Counts what a target took before it was known as a player: the same totals, counts and times as counting its hits one by one.</summary>
+    private void MergePending(PendingTarget waiting)
+    {
+        foreach ((int source, Stats part) in waiting.BySource)
+        {
+            if (!PvpBySource.TryGetValue(source, out Stats? stats))
+            {
+                PvpBySource[source] = stats = new Stats();
+            }
+
+            stats.Sum += part.Sum;
+            stats.EstimatedSum += part.EstimatedSum;
+            stats.First = part.First < stats.First ? part.First : stats.First;
+            stats.Last = part.Last > stats.Last ? part.Last : stats.Last;
+            PvpFirst = part.First < PvpFirst ? part.First : PvpFirst;
+            PvpLast = part.Last > PvpLast ? part.Last : PvpLast;
+        }
+
+        PvpCount += waiting.Count;
     }
 
     private void CountPvp(DamageEvent ev)

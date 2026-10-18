@@ -119,6 +119,13 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-view-check")
+        {
+            // aion2-view-check <recording.jsonl>...: the list's views from a real recording, the meter's way against a full rescan
+            ViewCheck.Run(args);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-stress")
         {
             // aion2-stress [duel|raid] [stages, comma separated]: made-up game traffic through the real decoder and window logic

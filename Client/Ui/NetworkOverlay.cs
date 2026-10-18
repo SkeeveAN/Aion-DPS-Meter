@@ -248,9 +248,25 @@ public sealed class NetworkOverlayController : IDisposable
         _overlay?.Close();
     }
 
+    private MeterSettings? _tickSettings;
+    private (DateTime WrittenUtc, long Length) _tickSettingsStamp;
+
+    /// <summary>The settings for a tick: read again only when the file was written since the last tick (read-only use, never saved back).</summary>
+    private MeterSettings TickSettings()
+    {
+        var stamp = MeterSettings.FileStamp();
+        if (_tickSettings is null || stamp.Length < 0 || stamp != _tickSettingsStamp)
+        {
+            _tickSettings = MeterSettings.Load();
+            _tickSettingsStamp = stamp;
+        }
+
+        return _tickSettings;
+    }
+
     private void Tick()
     {
-        var settings = MeterSettings.Load();
+        var settings = TickSettings();
         var snapshot = NetworkStats.Snapshot();
         if (_views.Count > 0)
         {

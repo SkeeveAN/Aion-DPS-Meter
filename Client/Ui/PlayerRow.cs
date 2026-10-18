@@ -34,7 +34,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string Name
     {
         get => _name;
-        set { _name = value; OnPropertyChanged(); OnPropertyChanged(nameof(NameDisplay)); }
+        set { if (_name == value) { return; } _name = value; OnPropertyChanged(); OnPropertyChanged(nameof(NameDisplay)); }
     }
 
     private int _deaths;
@@ -43,7 +43,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public int Deaths
     {
         get => _deaths;
-        set { _deaths = value; OnPropertyChanged(); OnPropertyChanged(nameof(NameDisplay)); }
+        set { if (_deaths == value) { return; } _deaths = value; OnPropertyChanged(); OnPropertyChanged(nameof(NameDisplay)); }
     }
 
     /// <summary>The name, followed by a skull and the count when the player died.</summary>
@@ -52,13 +52,13 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string ClassName
     {
         get => _className;
-        set { _className = value; OnPropertyChanged(); OnPropertyChanged(nameof(ClassBrush)); }
+        set { if (_className == value) { return; } _className = value; OnPropertyChanged(); OnPropertyChanged(nameof(ClassBrush)); }
     }
 
     public int Level
     {
         get => _level;
-        set { _level = value; OnPropertyChanged(); }
+        set { if (_level == value) { return; } _level = value; OnPropertyChanged(); }
     }
 
     /// <summary>"Elyos"/"Asmodian", or empty while nothing has placed this player on a side yet.
@@ -66,7 +66,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string Faction
     {
         get => _faction;
-        set { _faction = value; OnPropertyChanged(); }
+        set { if (_faction == value) { return; } _faction = value; OnPropertyChanged(); }
     }
 
     /// <summary>Drives the row's background. Kept separate from <see cref="Faction"/> because the
@@ -75,13 +75,13 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public bool IsEnemy
     {
         get => _isEnemy;
-        set { _isEnemy = value; OnPropertyChanged(); }
+        set { if (_isEnemy == value) { return; } _isEnemy = value; OnPropertyChanged(); }
     }
 
     public long Damage
     {
         get => _damage;
-        set { _damage = value; OnPropertyChanged(); OnPropertyChanged(nameof(DamageDisplay)); OnPropertyChanged(nameof(DamageCompact)); OnPropertyChanged(nameof(RateOrDamageCompact)); OnPropertyChanged(nameof(TotalOrTakenCompact)); }
+        set { if (_damage == value) { return; } _damage = value; OnPropertyChanged(); OnPropertyChanged(nameof(DamageDisplay)); OnPropertyChanged(nameof(DamageCompact)); OnPropertyChanged(nameof(RateOrDamageCompact)); OnPropertyChanged(nameof(TotalOrTakenCompact)); }
     }
 
     private bool _isEstimated;
@@ -111,7 +111,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public double? Dps
     {
         get => _dps;
-        set { _dps = value; OnPropertyChanged(); OnPropertyChanged(nameof(DpsDisplay)); OnPropertyChanged(nameof(DpsCompact)); OnPropertyChanged(nameof(RateOrHealDisplay)); OnPropertyChanged(nameof(RateOrDamageCompact)); }
+        set { if (_dps == value) { return; } _dps = value; OnPropertyChanged(); OnPropertyChanged(nameof(DpsDisplay)); OnPropertyChanged(nameof(DpsCompact)); OnPropertyChanged(nameof(RateOrHealDisplay)); OnPropertyChanged(nameof(RateOrDamageCompact)); }
     }
 
     /// <summary>Damage and rate in thousands/millions, for the compact overlay's dense lines.</summary>
@@ -138,14 +138,14 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public long? RelicAp
     {
         get => _relicAp;
-        set { _relicAp = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
+        set { if (_relicAp == value) { return; } _relicAp = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     /// <summary>Mirror MeterSettings.ShowRelicAp - see ShowDamageTaken's own remarks.</summary>
     public bool ShowRelicAp
     {
         get => _showRelicAp;
-        set { _showRelicAp = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
+        set { if (_showRelicAp == value) { return; } _showRelicAp = value; OnPropertyChanged(); OnPropertyChanged(nameof(ApDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     /// <summary>Per the user: only the relic share, not the combined total -- this line's whole
@@ -162,7 +162,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public int Rank
     {
         get => _rank;
-        set { _rank = value; OnPropertyChanged(); OnPropertyChanged(nameof(RankDisplay)); }
+        set { if (_rank == value) { return; } _rank = value; OnPropertyChanged(); OnPropertyChanged(nameof(RankDisplay)); }
     }
 
     /// <summary>This row's damage as a share of the biggest row shown, 0-100 - the length of the coloured
@@ -170,7 +170,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public double FillPercent
     {
         get => _fillPercent;
-        set { _fillPercent = value; OnPropertyChanged(); }
+        set { if (_fillPercent == value) { return; } _fillPercent = value; OnPropertyChanged(); }
     }
 
     private double _fillPercent;
@@ -180,7 +180,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public long Absorbed
     {
         get => _absorbed;
-        set { _absorbed = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasAbsorbed)); OnPropertyChanged(nameof(AbsorbedDisplay)); OnPropertyChanged(nameof(AbsorbedCompact)); }
+        set { if (_absorbed == value) { return; } _absorbed = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasAbsorbed)); OnPropertyChanged(nameof(AbsorbedDisplay)); OnPropertyChanged(nameof(AbsorbedCompact)); }
     }
 
     /// <summary>All in One modes: the shield absorbed something on this player, shown in blue beside the damage taken.</summary>
@@ -197,7 +197,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public double AbsorbedFillPercent
     {
         get => _absorbedFillPercent;
-        set { _absorbedFillPercent = value; OnPropertyChanged(); }
+        set { if (_absorbedFillPercent == value) { return; } _absorbedFillPercent = value; OnPropertyChanged(); }
     }
 
     private double _absorbedFillPercent;
@@ -215,7 +215,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public double SharePercent
     {
         get => _sharePercent;
-        set { _sharePercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShareDisplay)); OnPropertyChanged(nameof(ShareOrHealCompact)); }
+        set { if (_sharePercent == value) { return; } _sharePercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShareDisplay)); OnPropertyChanged(nameof(ShareOrHealCompact)); }
     }
 
     public string ShareDisplay => SharePercent.ToString("0.0", System.Globalization.CultureInfo.CurrentCulture) + "%";
@@ -225,7 +225,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public long DamageTaken
     {
         get => _damageTaken;
-        set { _damageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); OnPropertyChanged(nameof(TotalOrTakenCompact)); OnPropertyChanged(nameof(TakenCompact)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
+        set { if (_damageTaken == value) { return; } _damageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); OnPropertyChanged(nameof(TotalOrTakenCompact)); OnPropertyChanged(nameof(TakenCompact)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     public string TakenDisplay => !AllCompact && (ShowDamageTaken || AllMode) && DamageTaken > 0 ? $"↓ {DamageTaken:N0}" : "";
@@ -239,6 +239,11 @@ public sealed class PlayerRow : INotifyPropertyChanged
         get => _allCompact;
         set
         {
+            if (_allCompact == value)
+            {
+                return;
+            }
+
             _allCompact = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(TakenDisplay));
@@ -261,6 +266,11 @@ public sealed class PlayerRow : INotifyPropertyChanged
         get => _allMode;
         set
         {
+            if (_allMode == value)
+            {
+                return;
+            }
+
             _allMode = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(TakenDisplay));
@@ -280,6 +290,11 @@ public sealed class PlayerRow : INotifyPropertyChanged
         get => _healing;
         set
         {
+            if (_healing == value)
+            {
+                return;
+            }
+
             _healing = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(RateOrHealDisplay));
@@ -310,13 +325,13 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public bool ShowShareBar
     {
         get => _showShareBar;
-        set { _showShareBar = value; OnPropertyChanged(); }
+        set { if (_showShareBar == value) { return; } _showShareBar = value; OnPropertyChanged(); }
     }
 
     public bool ShowDamageTaken
     {
         get => _showDamageTaken;
-        set { _showDamageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
+        set { if (_showDamageTaken == value) { return; } _showDamageTaken = value; OnPropertyChanged(); OnPropertyChanged(nameof(TakenDisplay)); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     /// <summary>Avoided-attack tally ("D 3 · P 12 · B 8 (41%)", see Combat/DefenseStats) - blank
@@ -324,7 +339,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string DefenseDisplay
     {
         get => _defenseDisplay;
-        set { _defenseDisplay = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSecondaryInfo)); }
+        set { if (_defenseDisplay == value) { return; } _defenseDisplay = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     /// <summary>Kills/deaths/biggest hit against players (see Combat/PvpStats) - only filled in
@@ -332,7 +347,7 @@ public sealed class PlayerRow : INotifyPropertyChanged
     public string PvpDisplay
     {
         get => _pvpDisplay;
-        set { _pvpDisplay = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSecondaryInfo)); }
+        set { if (_pvpDisplay == value) { return; } _pvpDisplay = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSecondaryInfo)); }
     }
 
     public PlayerRow(int objectId)

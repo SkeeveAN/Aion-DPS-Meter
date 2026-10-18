@@ -566,6 +566,21 @@ public sealed class MeterSettings
     /// <summary>True once in a session when the settings file was damaged and the settings came back from the copy of the last start.</summary>
     public static bool RecoveredFromBackup { get; private set; }
 
+    /// <summary>Changes whenever the settings file is written. A timer can compare it to reuse its last <see cref="Load"/> instead of
+    /// reading and parsing the file again on every tick; a negative length means "no settings file", where nothing is worth caching.</summary>
+    public static (DateTime WrittenUtc, long Length) FileStamp()
+    {
+        try
+        {
+            var info = new FileInfo(SettingsPath);
+            return info.Exists ? (info.LastWriteTimeUtc, info.Length) : (DateTime.MinValue, -1);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return (DateTime.MinValue, -2);
+        }
+    }
+
     public static MeterSettings Load()
     {
         string path = File.Exists(SettingsPath) ? SettingsPath

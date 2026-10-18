@@ -97,9 +97,16 @@ public sealed class AssistController : IDisposable
         _overlay.ApplyLockedIfChanged(locked);
         _overlay.Panel.Hidden = _hidden;
         _overlay.Panel.SortByTime = _settings.AssistSortByTime;
-        _overlay.Panel.Refresh(_directory());
         bool inGame = GameWindow.ForegroundClientArea() is not null;
-        if (locked && (!inGame || !_overlay.Panel.HasContent))
+        if (locked && !inGame)
+        {
+            // Hidden anyway while the game is not in front: the whole panel is not rebuilt for nobody to see (four times a second).
+            _overlay.ShowOverlay(false);
+            return;
+        }
+
+        _overlay.Panel.Refresh(_directory());
+        if (locked && !_overlay.Panel.HasContent)
         {
             _overlay.ShowOverlay(false);
             return;

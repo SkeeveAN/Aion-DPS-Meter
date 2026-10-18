@@ -265,20 +265,51 @@ public static class PetMapPalette
 
     public static Color Of(int index) => (Color)ColorConverter.ConvertFromString(Hex[index % Hex.Length]);
 
-    /// <summary>The colour of a kind of collectible (shown as a diamond).</summary>
-    public static Color OfGather(string kind) => (Color)ColorConverter.ConvertFromString(kind switch
+    private static readonly Dictionary<string, Color> GatherColors = new();
+    private static readonly Dictionary<Color, SolidColorBrush> FrozenBrushes = new();
+
+    /// <summary>The colour of a kind of collectible (shown as a diamond). Looked up for every point on every map tick, so each kind is parsed once.</summary>
+    public static Color OfGather(string kind)
     {
-        "Od" => "#7FE3FF",
-        "Herb" => "#3DDC84",
-        "Food" => "#FFC24D",
-        "Ore" => "#C9CED6",
-        "Wood" => "#B5835A",
-        "Gemstone" => "#E08CFF",
-        "Cotton" => "#F3EBD3",
-        "Fragment" => "#FF7B7B",
-        "Cube" => "#FFD84D",
-        _ => "#FFFFFF",
-    });
+        lock (GatherColors)
+        {
+            if (!GatherColors.TryGetValue(kind, out Color color))
+            {
+                color = (Color)ColorConverter.ConvertFromString(kind switch
+                {
+                    "Od" => "#7FE3FF",
+                    "Herb" => "#3DDC84",
+                    "Food" => "#FFC24D",
+                    "Ore" => "#C9CED6",
+                    "Wood" => "#B5835A",
+                    "Gemstone" => "#E08CFF",
+                    "Cotton" => "#F3EBD3",
+                    "Fragment" => "#FF7B7B",
+                    "Cube" => "#FFD84D",
+                    _ => "#FFFFFF",
+                });
+                GatherColors[kind] = color;
+            }
+
+            return color;
+        }
+    }
+
+    /// <summary>A frozen brush of a colour, shared: the map assigns one to every dot every 50 ms, and a fresh unfrozen brush each time is garbage and a re-render trigger.</summary>
+    public static SolidColorBrush BrushOf(Color color)
+    {
+        lock (FrozenBrushes)
+        {
+            if (!FrozenBrushes.TryGetValue(color, out SolidColorBrush? brush))
+            {
+                brush = new SolidColorBrush(color);
+                brush.Freeze();
+                FrozenBrushes[color] = brush;
+            }
+
+            return brush;
+        }
+    }
 }
 
 /// <summary>
@@ -448,7 +479,7 @@ public sealed class PetMapWindow : MovableOverlay
             }
 
             var d = _dots[dot++];
-            d.Fill = new SolidColorBrush(colors.GetValueOrDefault(pet, Colors.White));
+            d.Fill = PetMapPalette.BrushOf(colors.GetValueOrDefault(pet, Colors.White));
             Canvas.SetLeft(d, px - 4.5);
             Canvas.SetTop(d, py - 4.5);
             d.Visibility = Visibility.Visible;
@@ -477,7 +508,7 @@ public sealed class PetMapWindow : MovableOverlay
             }
 
             var m = _gatherMarks[mark++];
-            m.Fill = new SolidColorBrush(PetMapPalette.OfGather(kind));
+            m.Fill = PetMapPalette.BrushOf(PetMapPalette.OfGather(kind));
             Canvas.SetLeft(m, px);
             Canvas.SetTop(m, py);
             m.Visibility = Visibility.Visible;
@@ -506,7 +537,7 @@ public sealed class PetMapWindow : MovableOverlay
             }
 
             var d = _liveDots[liveDot++];
-            d.Fill = new SolidColorBrush(colors.GetValueOrDefault(pet, Colors.White));
+            d.Fill = PetMapPalette.BrushOf(colors.GetValueOrDefault(pet, Colors.White));
             Canvas.SetLeft(d, px - 8.5);
             Canvas.SetTop(d, py - 8.5);
             d.Visibility = Visibility.Visible;
@@ -578,7 +609,7 @@ public sealed class PetMapWindow : MovableOverlay
             }
 
             var ar = _edgeArrows[arrow++];
-            ar.Fill = new SolidColorBrush(color);
+            ar.Fill = PetMapPalette.BrushOf(color);
             ar.RenderTransform = new RotateTransform(Math.Atan2(by, bx) * 180 / Math.PI);
             Canvas.SetLeft(ar, halfX + bx * t);
             Canvas.SetTop(ar, halfY + by * t);

@@ -209,8 +209,11 @@ public sealed class Aion2Protocol
 
     public OpcodeFamily FamilyOf(int opcode) => _families.GetValueOrDefault(opcode, OpcodeFamily.Unknown);
 
+    // Shared for every family without fields: the decoder asks for the fields of each frame that reaches it, most of them unknown ones.
+    private static readonly IReadOnlyDictionary<string, FieldSpec> NoFields = new Dictionary<string, FieldSpec>();
+
     public IReadOnlyDictionary<string, FieldSpec> FieldsOf(OpcodeFamily family) =>
-        _fields.GetValueOrDefault(family) ?? new Dictionary<string, FieldSpec>();
+        _fields.GetValueOrDefault(family) ?? NoFields;
 
     public IEnumerable<OpcodeFamily> KnownFamilies => _families.Values.Distinct();
 

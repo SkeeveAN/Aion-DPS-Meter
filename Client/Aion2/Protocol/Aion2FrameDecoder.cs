@@ -3146,15 +3146,14 @@ public sealed class Aion2FrameDecoder
             return false;
         }
 
-        string candidate;
-        try
-        {
-            candidate = new UTF8Encoding(false, true).GetString(frame.Slice(at + 1, length));
-        }
-        catch (ArgumentException)
+        // Byte scans call this at every offset and almost all of them hit bytes that are no text: checked up front, no exception per miss.
+        ReadOnlySpan<byte> bytes = frame.Slice(at + 1, length);
+        if (!System.Text.Unicode.Utf8.IsValid(bytes))
         {
             return false;
         }
+
+        string candidate = Encoding.UTF8.GetString(bytes);
 
         foreach (char c in candidate)
         {
