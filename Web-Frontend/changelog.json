@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.4.2",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "five new notification sounds - war horn, fanfare, blades, roar and bounce - to pick for any reminder or alert",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.4.1",
   "date": "2026-10-18",
   "items": [
