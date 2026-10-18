@@ -468,3 +468,20 @@ test("a participant without a faction gets that of the server he announced himse
   const f = (sqlite.prepare("select faction f from players where name_normalized = 'ohnefraktion'").get() as { f: string }).f;
   assert.equal(f, "Asmodian", "2308 is an Asmodian server");
 });
+
+test("the difficulty of an Ascension Rite boss comes from its level, else from the ids known so far, never from the rank of the id", () => {
+  const instance = db.insert(instances).values({ name: "Sanctum Test", nameEn: "Sanctum Test", game: "aion2", slug: "sanctum-test", category: "ascension" }).returning().get();
+  const boss = db.insert(bosses).values({ name: "Featherstorm Test", instanceId: instance.id }).returning().get();
+  for (const npcId of [2701774, 2701829, 2701841, 2701853, 2709999]) {
+    db.insert(bossNpcIds).values({ bossId: boss.id, npcId }).run();
+  }
+  const modeOf = (npcId: number, bossLevel?: number) => {
+    const out = processUpload(basePayload({ bossNpcName: "Featherstorm Test", bossNpcId: npcId, bossLevel, startedAt: `2026-03-0${bossLevel ? 1 : 2}T20:00:00.000Z`, endedAt: `2026-03-0${bossLevel ? 1 : 2}T20:03:12.000Z` }));
+    return (sqlite.prepare("select mode from encounters where id = ?").get(out.encounterId) as { mode: string }).mode;
+  };
+  assert.equal(modeOf(2701774, 60), "extreme", "the level of a new client wins");
+  assert.equal(modeOf(2701774, 45), "easy", "even against the id (the level is what the game says)");
+  assert.equal(modeOf(2701774), "extreme", "an old client's id 2701774 is known as Extreme, though it is the lowest id of the boss");
+  assert.equal(modeOf(2701853), "easy", "and the highest id is Easy");
+  assert.equal(modeOf(2709999), "", "an id that is not known has no step");
+});

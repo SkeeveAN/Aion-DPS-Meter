@@ -93,12 +93,12 @@ function bossesOfGame(game: Game) {
 }
 
 /**
- * Difficulty step encoded in a boss's NPC ids: the n-th id (ascending) of a Nightmare boss is level n; the first four of
- * an Ascension Rite boss are Easy, Medium, Hard and Extreme (a Divided Aponos fight with 2701789, the second id, was
- * confirmed as the second step by the player). Further ids of an Ascension boss are not a step. Transcendence has no
+ * Difficulty step encoded in a boss's NPC ids: the n-th id (ascending) of a Nightmare boss is level n. An Ascension Rite
+ * boss's step is its level when the client sent it, else the table of the ids known so far (ASCENSION_STEP_BY_NPC); any other
+ * id has no step. Transcendence has no
  * rule common to its instances; only the steps a player confirmed are known (TRANSCENDENCE_STEPS).
  */
-export function modeFromNpcId(bossId: number, npcId: number): string {
+export function modeFromNpcId(bossId: number, npcId: number, bossLevel?: number): string {
   const row = db
     .select({ category: instances.category, slug: instances.slug })
     .from(bosses)
@@ -108,7 +108,10 @@ export function modeFromNpcId(bossId: number, npcId: number): string {
   if (row?.category === "transcendence") {
     return TRANSCENDENCE_STEPS[row.slug ?? ""]?.[Math.floor(npcId / 1000)] ?? "";
   }
-  if (row?.category !== "nightmare" && row?.category !== "ascension") {
+  if (row?.category === "ascension") {
+    return (bossLevel !== undefined ? ASCENSION_STEP_BY_LEVEL[bossLevel] : undefined) ?? ASCENSION_STEP_BY_NPC[npcId] ?? "";
+  }
+  if (row?.category !== "nightmare") {
     return "";
   }
   const ids = db.select({ npcId: bossNpcIds.npcId }).from(bossNpcIds).where(eq(bossNpcIds.bossId, bossId)).all().map((r) => r.npcId).sort((a, b) => a - b);
@@ -116,13 +119,22 @@ export function modeFromNpcId(bossId: number, npcId: number): string {
   if (index < 0) {
     return "";
   }
-  if (row.category === "ascension") {
-    return ASCENSION_STEPS[index] ?? "";
-  }
   return String(index + 1);
 }
 
-const ASCENSION_STEPS = ["easy", "medium", "hard", "extreme"];
+/** The difficulty of an Ascension Rite by the boss's level (from its spawn frame). */
+const ASCENSION_STEP_BY_LEVEL: Readonly<Record<number, string>> = { 45: "easy", 50: "medium", 55: "hard", 60: "extreme" };
+
+/**
+ * The step of an Ascension boss whose NPC id is known to belong to it, for clients that do not send the level. The ids are one per step, but their
+ * order differs between bosses (Divided Aponos rises with the level, Featherstorm Duduri and Watchful Raptor Dodori fall), so the step is not read off
+ * the rank. Confirmed by the boss's level in recorded spawn frames and by its hit points (about 590k / 740k / 1.17M / 1.7M for 45 / 50 / 55 / 60).
+ */
+const ASCENSION_STEP_BY_NPC: Readonly<Record<number, string>> = {
+  2701753: "easy", 2701789: "medium", 2701807: "hard", // Divided Aponos
+  2701853: "easy", 2701841: "medium", 2701829: "hard", 2701774: "extreme", // Featherstorm Duduri
+  2701854: "easy", 2701842: "medium", 2701830: "hard", 2701788: "extreme", // Watchful Raptor Dodori
+};
 
 /**
  * Transcendence step by instance and the first four digits of the boss's NPC ids (2330709 -> 2330). Only what a player
@@ -802,7 +814,7 @@ function processUploadAt(payload: UploadPayload): ProcessResult {
   // Nightmare bosses carry one NPC id per level (Pinopi 2980040 = level 1 ... 2980049 = level 10), so
   // the level is read off the id when the client did not name it.
   if (payload.mode === "" && payload.bossNpcId !== undefined) {
-    payload = { ...payload, mode: modeFromNpcId(bossId, payload.bossNpcId) };
+    payload = { ...payload, mode: modeFromNpcId(bossId, payload.bossNpcId, payload.bossLevel) };
   }
   const candidateEncounterId = findCandidateEncounter(bossId, serverId, payload);
 
