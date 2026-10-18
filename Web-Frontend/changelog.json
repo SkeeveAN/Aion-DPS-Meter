@@ -9,6 +9,14 @@
      "Backend"
     ],
     "date": "2026-10-18"
+   },
+   {
+    "text": "Server matchmaking from NC's notices: which Elyos server shares its world with which Asmodian server is read from the announcements every 30 minutes (all three notice layouts, every region) and kept in the database with its history",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-18"
    }
   ]
  },
