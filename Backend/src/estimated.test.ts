@@ -146,3 +146,24 @@ test("rankings and averages ignore estimated rows", () => {
   // Eva's own row of the second kill is exact (5,000,000 / 100), only Gus's estimate is left out.
   assert.equal(top.find((t) => t!.playerName === "Eva")!.idps, 50_000);
 });
+
+test("the crowd of a field boss without faction and server gets the map's faction and the uploader's server; on another world boss it is cut and the kill fails", async () => {
+  const field = makeBoss("worldboss", "Fieldy", 2101074);
+  const bare = (name: string, className: string, damage: number) => {
+    const r: Record<string, unknown> = { ...row(name, className, damage, { estimated: true }) };
+    delete r.faction;
+    delete r.serverId;
+    return r as ReturnType<typeof row>;
+  };
+  const crowd = [row("Anna", "Gladiator", 100_000_000, { isSelf: true }), bare("Bob", "Assassin", 400_000_000), bare("Cara", "Cleric", 300_000_000)];
+  const ok = await post(upload(2101074, 3, crowd));
+  assert.equal(ok.statusCode, 200, ok.body);
+  const id = ok.json().encounterId as number;
+  assert.equal(rowOf(id, "Bob").faction, "Elyos");
+  assert.equal(db.select().from(players).where(eq(players.name, "Bob")).get()?.faction, "Elyos");
+  // the same crowd on a world boss that is no home-map field boss: the strangers are cut, the 1 % that is left is no kill
+  const other = await post(upload(9100001, 3, crowd));
+  assert.equal(other.statusCode, 400);
+  assert.equal(other.json().error, "boss_not_killed");
+  void field;
+});

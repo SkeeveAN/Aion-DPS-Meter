@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { fillFieldBossCrowd } from "../fieldBoss.js";
 import { isCompletePlayer, profilesUploadSchema, uploadSchema, withoutIncompletePlayers } from "../uploadSchema.js";
 import { processProfilesUpload, processUpload } from "../matching/merge.js";
 import { db } from "../db/client.js";
@@ -103,6 +104,10 @@ export async function uploadRoutes(app: FastifyInstance) {
       app.log.warn({ clientVersion: payload.clientVersion, bossNpcName: payload.bossNpcName }, "upload rejected: own player lacks name, server or faction");
       return reply.status(400).send({ error: "player_incomplete", message: "Name, server and faction of the uploader are required." });
     }
+    const crowdFilled = fillFieldBossCrowd(payload.bossNpcId, payload.participants);
+    if (crowdFilled > 0) {
+      app.log.info({ crowdFilled, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload: field boss crowd got the map's faction and the uploader's server");
+    }
     const cut = withoutIncompletePlayers(payload.participants);
     if (cut.dropped.length > 0) {
       app.log.info({ dropped: cut.dropped.length, clientVersion: payload.clientVersion, bossNpcName: payload.bossNpcName }, "upload: players without name, server or faction left out");
@@ -133,10 +138,12 @@ export async function uploadRoutes(app: FastifyInstance) {
     // never adds up to the whole.
     const hasEstimatedRows = payload.participants.some((p) => p.estimated);
     const minShare = worldBoss && hasEstimatedRows ? MIN_WORLD_BOSS_DAMAGE_SHARE : MIN_KILL_DAMAGE_SHARE;
-    if (payload.bossMaxHp === undefined || groupDamage < payload.bossMaxHp * minShare) {
-      app.log.warn({ groupDamage, bossMaxHp: payload.bossMaxHp, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: damage does not cover the boss's hit points");
-      recordTurnedAway(payload, request.ip, [{ code: "boss_not_killed", detail: `${groupDamage} damage on ${payload.bossMaxHp ?? "unknown"} hit points` }]);
-      return reply.status(400).send({ error: "boss_not_killed", groupDamage, bossMaxHp: payload.bossMaxHp ?? null });
+    // On a world boss the line is held by the players that are kept: what the top rule cut out does not count for the kill, else 1 % of the damage could pass as a kill.
+    const judgedDamage = worldBoss ? payload.participants.reduce((sum, p) => sum + p.totalDamage, 0) : groupDamage;
+    if (payload.bossMaxHp === undefined || judgedDamage < payload.bossMaxHp * minShare) {
+      app.log.warn({ groupDamage: judgedDamage, bossMaxHp: payload.bossMaxHp, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload rejected: damage does not cover the boss's hit points");
+      recordTurnedAway(payload, request.ip, [{ code: "boss_not_killed", detail: `${judgedDamage} damage on ${payload.bossMaxHp ?? "unknown"} hit points` }]);
+      return reply.status(400).send({ error: "boss_not_killed", groupDamage: judgedDamage, bossMaxHp: payload.bossMaxHp ?? null });
     }
 
     // Dates that cannot be a fight (end before start, none or endless, in the future) are turned away.
