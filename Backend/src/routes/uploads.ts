@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { CROWD_PENDING, crowdLookupEnabled, crowdToLookUp } from "../crowdResolve.js";
+import { CROWD_PENDING, crowdLookupEnabled, crowdMode, crowdToLookUp, fillHomeCrowd } from "../crowdResolve.js";
 import { isCompletePlayer, profilesUploadSchema, uploadSchema, withoutIncompletePlayers } from "../uploadSchema.js";
 import { processProfilesUpload, processUpload } from "../matching/merge.js";
 import { db } from "../db/client.js";
@@ -52,9 +52,17 @@ export async function acceptUpload(log: Log, payload: UploadPayload, ipHash: str
       log.warn({ clientVersion: payload.clientVersion, bossNpcName: payload.bossNpcName }, "upload rejected: own player lacks name, server or faction");
       return { status: 400, body: { error: "player_incomplete", message: "Name, server and faction of the uploader are required." } };
     }
-    // A world boss crowd: the players the client knows no server or faction of are looked up at NC (both servers of the pairing) before the upload is
-    // filed - nobody is given a server or faction by a guess. The lookup takes minutes (NC is asked slowly), so the upload waits (see crowdResolve.ts).
-    if (!crowdChecked && crowdLookupEnabled() && isWorldBossNpc(payload.bossNpcId) && crowdToLookUp(payload).length > 0) {
+    // A world boss crowd: the players the client knows no server or faction of are placed by the clock (crowdResolve.ts): outside the rift hours on a
+    // home-map field boss they are the uploader's own; else they are looked up at NC (both servers of the pairing) before the upload is filed, which
+    // takes minutes (NC is asked slowly), so the upload waits. Nobody is given a server or faction by a guess.
+    const worldBossUpload = isWorldBossNpc(payload.bossNpcId);
+    if (worldBossUpload && crowdMode(payload) === "home") {
+      const filled = fillHomeCrowd(payload);
+      if (filled > 0) {
+        log.info({ filled, bossNpcName: payload.bossNpcName, clientVersion: payload.clientVersion }, "upload: home crowd outside the rift hours got the uploader's server and faction");
+      }
+    }
+    if (!crowdChecked && crowdLookupEnabled() && worldBossUpload && crowdToLookUp(payload).length > 0) {
       db.insert(uploads)
         .values({
           clientVersion: payload.clientVersion,

@@ -16,7 +16,7 @@ const { default: Fastify } = await import("fastify");
 const { uploadRoutes } = await import("./routes/uploads.js");
 const { bossNpcIds, bosses, encounters, instances, players, uploads } = await import("./db/schema.js");
 const { syncMatchmakingToDb } = await import("./serverMatchmakingDb.js");
-const { settleCrowdPending, candidateServers } = await import("./crowdResolve.js");
+const { settleCrowdPending, candidateServers, riftOpen } = await import("./crowdResolve.js");
 const { eq } = await import("drizzle-orm");
 
 const app = Fastify({ logger: false });
@@ -82,4 +82,16 @@ test("a world boss crowd waits, is looked up at NC on both servers, and only pla
   assert.equal(names.Fay, undefined, "not found at all");
   const waiting = db.select().from(uploads).where(eq(uploads.status, "pending")).all();
   assert.equal(waiting.length, 0);
+});
+
+test("a rift hour is the hour after each of 02:00, 05:00 ... 23:00 in Europe (with two minutes of slack)", () => {
+  const berlin = (h: number, m: number) => Date.UTC(2026, 0, 5, h - 1, m, 0); // January: UTC+1
+  for (const h of [2, 5, 8, 11, 14, 17, 20, 23]) {
+    assert.equal(riftOpen(berlin(h, 30), berlin(h, 30) + 12_000), true, `${h}:30`);
+  }
+  for (const [h, m] of [[12, 36], [15, 30], [18, 30], [21, 30], [0, 30], [3, 30]]) {
+    assert.equal(riftOpen(berlin(h, m), berlin(h, m) + 12_000), false, `${h}:${m}`);
+  }
+  assert.equal(riftOpen(berlin(13, 59), berlin(13, 59) + 12_000), true, "slack before the hour");
+  assert.equal(riftOpen(berlin(12, 5), berlin(12, 5) + 12_000), false, "the hour is over");
 });

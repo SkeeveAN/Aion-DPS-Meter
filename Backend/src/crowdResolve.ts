@@ -7,15 +7,93 @@ import { shardOf } from "./ncMatch.js";
 import { ncFetch } from "./portraitService.js";
 import { matchedServer } from "./serverMatchmakingDb.js";
 import { isCompletePlayer, uploadSchema, type UploadPayload } from "./uploadSchema.js";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { acceptUpload } from "./routes/uploads.js";
 
 /**
- * A world boss has a thousand players on it, and the client knows server and faction of only a few of them. Nobody is given a server or a faction
- * by a guess (not even the uploader's own as a fallback): the server asks NC's character search, on BOTH servers of the pairing (the Elyos server
- * and the Asmodian server that share the world - rifts bring the other faction in), and a player counts only when NC finds exactly one character
- * of that name there (a second hit is told apart by the class the upload names). Whoever is not found that way stays without server and faction
- * and is left out by the top rule (uploadSchema.ts isCompletePlayer).
+ * A world boss has a thousand players on it, and the client knows server and faction of only a few of them. Who they are depends on the clock:
+ *  - Verteron/Altgard field bosses outside the rift hours (one hour from 02:00, 05:00, 08:00 ... 23:00 in Europe, during which the other faction may cross over;
+ *    after the hour everybody is sent home): only home players are on the map, so the crowd is the uploader's server and faction ("Kaisinel = Elyos").
+ *  - During the rift hours, and always on the Abyss bosses (permanent pairing): NC's character search is asked, on BOTH servers of the pairing, for every
+ *    player the client has no server or faction of. A player counts only when NC finds exactly one character of that name there (a second hit is told
+ *    apart by the class the upload names); whoever is not placed stays without server and faction and is left out by the top rule (isCompletePlayer).
+ * Where the rule is not known (another region, a world boss that is on no list) NC is asked, never a guess.
  */
+// ---- the clock: who can be on the map ------------------------------------------------------------------------------------------------------------
+
+/** The rift hours: a spacetime rift opens every three hours (02:00, 05:00 ... 23:00, as in the timetable) and the other faction can cross over for the hour after it (Europe, local time); everybody is sent home when the hour ends. */
+export const RIFT_HOURS = [2, 5, 8, 11, 14, 17, 20, 23];
+/** A little slack on both sides: the game's clock and the client's are not the same, and a fight can reach over the edge. */
+const RIFT_SLACK_MS = 2 * 60_000;
+const RIFT_ZONE = "Europe/Berlin";
+
+const minuteOfHour = new Intl.DateTimeFormat("en-GB", { timeZone: RIFT_ZONE, hour: "numeric", minute: "numeric", hourCycle: "h23" });
+
+function localMinutes(at: number): number {
+  const parts = minuteOfHour.formatToParts(new Date(at));
+  return Number(parts.find((p) => p.type === "hour")?.value) * 60 + Number(parts.find((p) => p.type === "minute")?.value);
+}
+
+/** Whether a rift hour is open (or just about) at the moment of the kill. */
+export function riftOpen(startedAt: number, endedAt: number): boolean {
+  for (const at of [startedAt - RIFT_SLACK_MS, startedAt, endedAt, endedAt + RIFT_SLACK_MS]) {
+    const m = localMinutes(at);
+    if (RIFT_HOURS.some((h) => m >= h * 60 && m < (h + 1) * 60)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+type BossGroup = "verteron" | "altgard" | "abyss";
+let groupOf: Map<number, BossGroup> | null = null;
+
+function bossGroup(npcId: number | undefined): BossGroup | null {
+  if (groupOf === null) {
+    groupOf = new Map();
+    try {
+      const file = join(dirname(fileURLToPath(import.meta.url)), "data", "aion2", "worldbosses.json");
+      for (const item of (JSON.parse(readFileSync(file, "utf8")) as { items: { group: BossGroup; npcId: number }[] }).items) {
+        groupOf.set(item.npcId, item.group);
+      }
+    } catch {
+      // no list: every world boss is looked up
+    }
+  }
+  return npcId === undefined ? null : (groupOf.get(npcId) ?? null);
+}
+
+/**
+ * How the crowd of a world boss kill is placed: "home" (the uploader's server and faction), "lookup" (NC, both servers of the pairing).
+ * Home only for a field boss of the uploader's own map, in Europe, with no rift hour open - everything else is looked up.
+ */
+export function crowdMode(payload: UploadPayload): "home" | "lookup" {
+  const group = bossGroup(payload.bossNpcId);
+  const self = payload.participants.find((p) => p.isSelf);
+  const mapFaction = group === "verteron" ? "Elyos" : group === "altgard" ? "Asmodian" : null;
+  if (mapFaction === null || self === undefined || self.faction !== mapFaction || self.serverId === undefined || !/^Europe - /.test(payload.serverName ?? "")) {
+    return "lookup";
+  }
+  return riftOpen(Date.parse(payload.startedAt), Date.parse(payload.endedAt)) ? "lookup" : "home";
+}
+
+/** The home rule: players without server or faction are the uploader's (outside the rift hours only home players are on the map). Returns how many were filled. */
+export function fillHomeCrowd(payload: UploadPayload): number {
+  const self = payload.participants.find((p) => p.isSelf)!;
+  let filled = 0;
+  for (const p of payload.participants) {
+    if (p.isSelf || isCompletePlayer(p)) {
+      continue;
+    }
+    p.faction = self.faction;
+    p.serverId = self.serverId;
+    filled++;
+  }
+  return filled;
+}
+
 export const CROWD_PENDING = "crowd_pending";
 /** Marks a player NC could not place uniquely; not Elyos or Asmodian, so the top rule leaves him out. */
 export const CROWD_UNRESOLVED = "?";

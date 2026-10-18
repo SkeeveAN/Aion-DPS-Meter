@@ -147,18 +147,21 @@ test("rankings and averages ignore estimated rows", () => {
   assert.equal(top.find((t) => t!.playerName === "Eva")!.idps, 50_000);
 });
 
-test("a world boss crowd without faction and server is never filled by a guess: the strangers are cut and the kill fails (no lookup at NC in the tests)", async () => {
-  const field = makeBoss("worldboss", "Fieldy", 2101074);
+test("a Verteron boss outside the rift hours: the crowd without server and faction is the uploader's; inside a rift hour nobody is guessed (no NC in the tests): the strangers are cut and the kill fails", async () => {
+  makeBoss("worldboss", "Fieldy", 2101074);
   const bare = (name: string, className: string, damage: number) => {
     const r: Record<string, unknown> = { ...row(name, className, damage, { estimated: true }) };
     delete r.faction;
     delete r.serverId;
     return r as ReturnType<typeof row>;
   };
-  const crowd = [row("Anchor", "Gladiator", 100_000_000, { isSelf: true }), bare("Strangerb", "Assassin", 400_000_000), bare("Strangerc", "Cleric", 300_000_000)];
-  const res = await post(upload(2101074, 3, crowd));
-  assert.equal(res.statusCode, 400);
-  assert.equal(res.json().error, "boss_not_killed");
+  const crowd = () => [row("Anchor", "Gladiator", 100_000_000, { isSelf: true }), bare("Strangerb", "Assassin", 400_000_000), bare("Strangerc", "Cleric", 300_000_000)];
+  const at = (hour: number, minute: number) => ({ ...upload(2101074, 3, crowd()), serverName: "Europe - Kaisinel", startedAt: new Date(Date.UTC(2026, 0, 3, hour, minute, 0)).toISOString(), endedAt: new Date(Date.UTC(2026, 0, 3, hour, minute, 12)).toISOString() });
+  const rift = await post(at(13, 30)); // 14:30 in Berlin in winter: a rift hour
+  assert.equal(rift.statusCode, 400);
+  assert.equal(rift.json().error, "boss_not_killed");
   assert.equal(db.select().from(players).where(eq(players.name, "Strangerb")).get(), undefined);
-  void field;
+  const home = await post(at(11, 36)); // 12:36 in Berlin: no rift hour
+  assert.equal(home.statusCode, 200, home.body);
+  assert.equal(db.select().from(players).where(eq(players.name, "Strangerb")).get()?.faction, "Elyos");
 });
