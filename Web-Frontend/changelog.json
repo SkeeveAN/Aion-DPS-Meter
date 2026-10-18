@@ -25,6 +25,13 @@
      "Database"
     ],
     "date": "2026-10-18"
+   },
+   {
+    "text": "World boss crowds are placed by NC, never guessed: players of a world boss without server or faction are looked up in NC's character search on both servers of the current pairing (rifts bring the other faction in), only a character found exactly once gets its server and faction, everybody else stays without both and is left out - the home-map fallback is gone",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-18"
    }
   ]
  },
