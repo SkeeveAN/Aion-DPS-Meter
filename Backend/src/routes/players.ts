@@ -15,6 +15,7 @@ import { portraitFile, portraitUrlFor } from "../portraitService.js";
 import { itemTipOf, ncLangOf } from "../ncItems.js";
 import { readFile } from "node:fs/promises";
 import { parseIdOrSlug } from "../seo/slug.js";
+import { cached } from "../seo/cache.js";
 
 /**
  * Each player's own single best fight (highest iDPS), ranked - the homepage's "top players"
@@ -92,7 +93,9 @@ export async function playerRoutes(app: FastifyInstance) {
       }
     }
 
-    return reply.send(topPlayersOverall(game, serverId, limit));
+    // The ranking scans every participant row; the homepage asks for it on each visit. Kept for a minute (an accepted upload clears it anyway).
+    const json = cached(`players:top:${game}:${serverId}:${limit}`, 60_000, () => JSON.stringify(topPlayersOverall(game, serverId, limit)));
+    return reply.type("application/json; charset=utf-8").send(json);
   });
 
   // serverId narrows the search when given; without it, results span every server, which is why

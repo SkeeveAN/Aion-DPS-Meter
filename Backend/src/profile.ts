@@ -285,7 +285,9 @@ type ReportSkill = { skillName: string; hits: number; critHits: number; totalDam
  * damage per hit (a status marker, not damage) are left out.
  */
 export function ownSkillRows<T extends ReportSkill>(className: string, rows: T[]): T[] {
-  const names = loadJson<Record<string, string>>("skill_names.json", {});
+  // The shared once-loaded copy: the 500 KB file was parsed again on every call, per participant of every report.
+  skillNames ??= loadJson<Record<string, string>>("skill_names.json", {});
+  const names = skillNames;
   const merged = new Map<string, T>();
   for (const row of rows) {
     const ids = skillIdsOf(row.skillName);

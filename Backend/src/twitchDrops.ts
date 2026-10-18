@@ -229,6 +229,9 @@ export type LiveDrops = { checkedAt: string; streams: number; viewers: number; c
 let liveCache: { at: number; data: LiveDrops } | null = null;
 let appToken: { value: string; expires: number } | null = null;
 const LIVE_TTL_MS = 5 * 60_000;
+const LIVE_RETRY_MS = 60_000;
+let liveFailedAt: number | null = null;
+let liveInflight: Promise<LiveDrops | null> | null = null;
 
 async function twitchToken(fetchFn: FetchFn, now: number): Promise<string | null> {
   if (!env.TWITCH_CLIENT_ID || !env.TWITCH_CLIENT_SECRET) {
@@ -259,6 +262,18 @@ export async function liveDrops(fetchFn: FetchFn = fetch, now = Date.now()): Pro
   if (liveCache && now - liveCache.at < LIVE_TTL_MS) {
     return liveCache.data;
   }
+  // While Twitch does not answer, the page serves the last data (or none) for a minute instead of waiting for the timeouts on every visit.
+  if (liveFailedAt !== null && now - liveFailedAt < LIVE_RETRY_MS) {
+    return liveCache?.data ?? null;
+  }
+  // One request towards Twitch at a time, however many visitors arrive while it runs.
+  liveInflight ??= fetchLiveDrops(fetchFn, now).finally(() => {
+    liveInflight = null;
+  });
+  return liveInflight;
+}
+
+async function fetchLiveDrops(fetchFn: FetchFn, now: number): Promise<LiveDrops | null> {
   try {
     for (let attempt = 0; attempt < 2; attempt++) {
       const token = await twitchToken(fetchFn, now);
@@ -285,9 +300,11 @@ export async function liveDrops(fetchFn: FetchFn = fetch, now = Date.now()): Pro
         channels: drops.slice(0, 8).map((s) => ({ login: s.user_login, name: s.user_name, viewers: s.viewer_count, title: s.title.slice(0, 120), language: s.language })),
       };
       liveCache = { at: now, data };
+      liveFailedAt = null;
       return data;
     }
   } catch {
+    liveFailedAt = now;
     return liveCache?.data ?? null;
   }
   return null;

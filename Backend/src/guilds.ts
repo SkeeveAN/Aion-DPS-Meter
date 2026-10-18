@@ -180,7 +180,9 @@ export function listGuilds(options: { stats?: boolean } = {}): GuildInfo[] {
       serverId: guilds.serverId,
       serverName: servers.displayName,
       classId: playerProfiles.classId,
-      gearJson: playerProfiles.gearJson,
+      // The gear lists are the heavy column and only the stats view reads them; the member count alone (a player profile asks for it on
+      // every visit) must not drag every member's gear out of the database.
+      gearJson: options.stats ? playerProfiles.gearJson : sql<string | null>`null`,
     })
     .from(players)
     .innerJoin(guilds, eq(players.guildId, guilds.id))

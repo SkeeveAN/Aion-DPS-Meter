@@ -1,7 +1,7 @@
 import { canonicalServer, nameOf } from "../content/aion2Servers.js";
 import { factionOfServerName } from "../factions.js";
 import { and, eq, isNull, ne, sql } from "drizzle-orm";
-import { db } from "../db/client.js";
+import { db, sqlite } from "../db/client.js";
 import {
   bossNpcIds,
   bosses,
@@ -780,14 +780,18 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
  * is never dated later than its earliest upload.
  */
 export function processUpload(payload: UploadPayload, receivedAt?: string): ProcessResult {
-  const result = processUploadAt(payload);
-  if (receivedAt) {
-    db.update(encounters)
-      .set({ createdAt: sql`min(${encounters.createdAt}, ${receivedAt})` })
-      .where(eq(encounters.id, result.encounterId))
-      .run();
-  }
-  return result;
+  // One transaction for the whole upload: the dozens of single inserts commit (and sync to disk) once instead of one by one, and a
+  // failure half way leaves no half-written fight behind.
+  return sqlite.transaction((): ProcessResult => {
+    const result = processUploadAt(payload);
+    if (receivedAt) {
+      db.update(encounters)
+        .set({ createdAt: sql`min(${encounters.createdAt}, ${receivedAt})` })
+        .where(eq(encounters.id, result.encounterId))
+        .run();
+    }
+    return result;
+  })();
 }
 
 function processUploadAt(payload: UploadPayload): ProcessResult {
@@ -832,12 +836,14 @@ export function registerUploadPlayers(payload: UploadPayload): number[] {
  * (a "seen" profile never replaces a "self" one there).
  */
 export function processProfilesUpload(payload: ProfilesUploadPayload): { serverId: number; players: number } {
-  const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
-  rehomePlayers(payload.participants, serverId);
-  for (const participant of payload.participants) {
-    const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant), participant.characterId);
-    upsertProfile(playerId, participant.profile);
-  }
-  checkUploadedPlayers(payload.participants, serverId);
-  return { serverId, players: payload.participants.length };
+  return sqlite.transaction(() => {
+    const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
+    rehomePlayers(payload.participants, serverId);
+    for (const participant of payload.participants) {
+      const playerId = upsertPlayer(participant.name, serverOfParticipant(participant, serverId), participant.guild, factionOfParticipant(participant), participant.characterId);
+      upsertProfile(playerId, participant.profile);
+    }
+    checkUploadedPlayers(payload.participants, serverId);
+    return { serverId, players: payload.participants.length };
+  })();
 }

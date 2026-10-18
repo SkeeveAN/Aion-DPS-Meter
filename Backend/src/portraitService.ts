@@ -302,11 +302,13 @@ export function pacedFetch(
 ): FetchFn {
   let last = -Infinity;
   return (async (input: Parameters<FetchFn>[0], init?: Parameters<FetchFn>[1]) => {
-    const wait = last + minGapMs - now();
+    // The slot is taken before sleeping: callers arriving together queue up one gap apart instead of all computing the same wait and firing at once.
+    const startAt = Math.max(now(), last + minGapMs);
+    last = startAt;
+    const wait = startAt - now();
     if (wait > 0) {
       await sleep(wait);
     }
-    last = now();
     return fetchFn(input, init);
   }) as FetchFn;
 }

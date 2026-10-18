@@ -242,8 +242,8 @@ export async function pageRoutes(app: FastifyInstance) {
         const slug = row ? ensurePlayerSlug(row.id) : null;
         return slug ? reply.redirect(`/players/${slug}`, 301) : sendNotFound(request, reply);
       }
-      const page = playerPage(game, id);
-      return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
+      // Cached like the other content pages: the profile page loads the player's whole run history and gear, and crawlers and link previews hit it in bulk.
+      return sendCached(request, reply, () => playerPage(game, id));
     }),
   );
 

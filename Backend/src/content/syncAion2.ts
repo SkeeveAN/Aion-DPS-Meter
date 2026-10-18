@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { bossMechanics, bossNpcIds, bosses, encounters, instances, uploads } from "../db/schema.js";
 import { loadAion2Content, type Aion2Mechanic } from "./aion2Content.js";
@@ -120,7 +120,15 @@ export function reassignConquestEncounters(): number {
   const rows = db
     .select({ encounterId: uploads.matchedEncounterId, raw: uploads.rawPayloadJson })
     .from(uploads)
-    .where(eq(uploads.status, "merged"))
+    // Only the conquest block is of interest, so the (large) payloads of every other fight are not even loaded. json_valid guards the
+    // extraction: a row with unreadable JSON is skipped, as the parse below would have skipped it.
+    .where(
+      and(
+        eq(uploads.status, "merged"),
+        sql`case when json_valid(${uploads.rawPayloadJson}) then json_extract(${uploads.rawPayloadJson}, '$.bossNpcId') end >= 2300000`,
+        sql`case when json_valid(${uploads.rawPayloadJson}) then json_extract(${uploads.rawPayloadJson}, '$.bossNpcId') end < 2400000`,
+      ),
+    )
     .all();
   const seen = new Set<number>();
   for (const row of rows) {
