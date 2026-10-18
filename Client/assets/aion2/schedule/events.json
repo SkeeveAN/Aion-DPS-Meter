@@ -1018,6 +1018,49 @@
           "end": "21:10"
         }
       ]
+    },
+    {
+      "id": "executor_bosses",
+      "kind": "world_boss",
+      "names": {
+        "en": "Executor Bosses (Abyss)",
+        "de": "Vollstrecker-Bosse (Abyss)"
+      },
+      "windows": [
+        {
+          "days": [
+            1,
+            4,
+            6
+          ],
+          "start": "19:30",
+          "end": "20:00"
+        }
+      ]
+    },
+    {
+      "id": "guardian_lord_nahma",
+      "kind": "world_boss",
+      "names": {
+        "de": "Wächtergott Nahma",
+        "en": "Guardian Lord Nahma",
+        "es": "Gran Vigía Nahma",
+        "fr": "Nahma le seigneur gardien",
+        "ja": "守護神将ナフマ",
+        "ko": "수호신장 나흐마",
+        "pt": "Senhor Guardião Nahma",
+        "ru": "Лорд-хранитель Нахма"
+      },
+      "windows": [
+        {
+          "days": [
+            0,
+            5
+          ],
+          "start": "19:00",
+          "end": "19:30"
+        }
+      ]
     }
   ]
 }

@@ -48,6 +48,8 @@ public sealed class Aion2FrameDecoder
     /// <summary>The opcode of the field boss list of a map (the in-game map, Exploration, Field monsters).</summary>
     private const int FieldBossListOpcode = 0x0191;
     private const int ShopOpcode = 0x9156;
+    /// <summary>The server's clock about every 50 ms: opcode and the UTC time in milliseconds (see <see cref="ServerClock"/>).</summary>
+    private const int ServerClockOpcode = 0x0036;
 
     /// <summary>The zone frame: <c>opcode | counter u32 | zone id u32 | position ...</c>. Sent at login and on every map or instance change
     /// (recordings 2026-10-11: 1010 Verteron, 600001 Krao Cave as an instance).</summary>
@@ -452,6 +454,12 @@ public sealed class Aion2FrameDecoder
                     Console.WriteLine($"AION2_FIND {timestamp:HH:mm:ss.fff} opcode 0x{opcode:x4} len {frame.Length} at {at}: {Convert.ToHexString(frame[..Math.Min(frame.Length, 160)])}");
                 }
             }
+        }
+
+        if (opcode == ServerClockOpcode && frame.Length == 10)
+        {
+            ServerClock.Note(System.Buffers.Binary.BinaryPrimitives.ReadInt64LittleEndian(frame[2..10]), DateTime.UtcNow);
+            return Array.Empty<DamageEvent>();
         }
 
         if (opcode == FieldBossListOpcode)

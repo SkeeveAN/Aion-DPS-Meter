@@ -34,7 +34,7 @@ public sealed class TimetableReminder : IDisposable
         }
 
         TimeSpan lead = TimeSpan.FromMinutes(Math.Clamp(_settings.TimetableSoundMinutes, 0, 60));
-        DateTime now = DateTime.Now;
+        DateTime now = Aion2.ServerClock.Now; // the PC's time, corrected by the server clock's offset
         foreach (ScheduledEvent scheduled in EventSchedule.Events)
         {
             if (scheduled.Always || !_settings.TimetableEvents.TryGetValue(scheduled.Id, out var setting) || setting.Sound.Length == 0 || setting.Volume <= 0)

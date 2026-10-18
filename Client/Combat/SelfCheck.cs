@@ -135,8 +135,21 @@ public static class SelfCheck
         // The shipped rift table is UTC: 00, 03 ... 21 o'clock.
         var shippedRift = Schedule.EventSchedule.Events.FirstOrDefault(e => e.Id == "spacetime_rift");
         utc &= shippedRift is { IsUtc: true } && shippedRift.Windows.Select(w => (int)w.Start.TotalHours).SequenceEqual(new[] { 0, 3, 6, 9, 12, 15, 18, 21 });
-        Console.WriteLine($"  -> soon 30 min before, active with time left, silent between, past midnight, next day: {ok}; shipped table: {shipped}; UTC events: {utc}");
-        return ok && shipped && utc;
+        // The server clock: the offset to the PC's clock is taken from the frames (about 0.5 s), a value minutes off (a replay) is ignored.
+        Aion2.ServerClock.Reset();
+        DateTime pcNow = DateTime.UtcNow;
+        long serverMs = new DateTimeOffset(pcNow, TimeSpan.Zero).ToUnixTimeMilliseconds() + 500;
+        Aion2.ServerClock.Note(serverMs, pcNow);
+        bool clock = Math.Abs(Aion2.ServerClock.Offset.TotalMilliseconds - 500) < 1;
+        Aion2.ServerClock.Note(serverMs + 3_600_000, pcNow);
+        clock &= Math.Abs(Aion2.ServerClock.Offset.TotalMilliseconds - 500) < 1;
+        Aion2.ServerClock.Reset();
+        clock &= Aion2.ServerClock.Offset == TimeSpan.Zero;
+        // The shipped table also has the Abyss's executor bosses and Guardian Lord Nahma (UTC, 19:30 Mon/Thu/Sat and 19:00 Fri/Sun).
+        bool boss = Schedule.EventSchedule.Events.Any(e => e.Id == "executor_bosses" && e.Windows[0].Days.SequenceEqual(new[] { 1, 4, 6 }) && e.Windows[0].Start == TimeSpan.FromHours(19.5))
+            && Schedule.EventSchedule.Events.Any(e => e.Id == "guardian_lord_nahma" && e.NameIn("de") == "Wächtergott Nahma" && e.Windows[0].Days.SequenceEqual(new[] { 0, 5 }));
+        Console.WriteLine($"  -> soon 30 min before, active with time left, silent between, past midnight, next day: {ok}; shipped table: {shipped}; UTC events: {utc}; server clock: {clock}; executor bosses and Nahma: {boss}");
+        return ok && shipped && utc && clock && boss;
     }
 
     /// <summary>

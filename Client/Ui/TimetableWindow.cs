@@ -198,7 +198,7 @@ public sealed class TimetableWindow : Window
     {
         var loc = LocalizationManager.Instance;
         string language = loc.Language;
-        DateTime now = DateTime.Now;
+        DateTime now = Aion2.ServerClock.Now; // the PC's time, corrected by the server clock's offset
         if (_panel.Child is StackPanel { Children: [DockPanel { Children: [_, TextBlock title] }, ..] })
         {
             title.Text = loc["Timetable.Title"];
