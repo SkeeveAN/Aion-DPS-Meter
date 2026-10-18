@@ -118,6 +118,7 @@ public partial class MainWindow : Window
     /// RefreshRows runs every second and must not re-read the settings file each time.</summary>
     private bool _showShareBars = true;
     private bool _compactOverlay;
+    private bool _compactClickThrough;
     private bool _showBossHp;
     private TimetableWindow? _timetable;
     private HotkeyOverlayWindow? _hotkeyOverlay;
@@ -465,6 +466,7 @@ public partial class MainWindow : Window
         _scope = Enum.TryParse(settings.ViewScope, true, out MeterScope scope) ? scope : MeterScope.Group;
         UpdateScopeControls();
         _compactOverlay = string.Equals(settings.OverlayStyle, "Compact", StringComparison.OrdinalIgnoreCase);
+        _compactClickThrough = settings.CompactClickThrough;
         SetCompactOverlayScale(settings.OverlayScale);
         // Both overlay looks paint their dark backgrounds with this brush (DynamicResource); the
         // theme's own is the same colour at 60 %.
@@ -5787,9 +5789,9 @@ public partial class MainWindow : Window
         CompactOverlayPanel.Visibility = _hideUiActive && _compactOverlay && _gameGateOpen ? Visibility.Visible : Visibility.Collapsed;
 
         // The chips let every click through to the game. The compact panel takes clicks (a player's
-        // skills, dragging it into place); the window is truly transparent around it, so the rest of
-        // the screen still reaches the game.
-        _overlay?.SetClickThrough(_hideUiActive && !_compactOverlay);
+        // skills, dragging it into place) unless "click-through" is chosen in Settings; the window is
+        // truly transparent around it, so the rest of the screen still reaches the game.
+        _overlay?.SetClickThrough(_hideUiActive && (!_compactOverlay || _compactClickThrough));
         RefreshUpdateBadge();
     }
 

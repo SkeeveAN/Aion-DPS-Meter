@@ -135,6 +135,7 @@ public partial class SettingsWindow : Window
         StartWithWindowsBox.IsChecked = StartupRegistration.IsEnabled();
         ShowShareBarsBox.IsChecked = settings.ShowShareBars;
         ShowDamageTakenBox.IsChecked = settings.ShowDamageTaken;
+        CompactClickThroughBox.IsChecked = settings.CompactClickThrough;
         HideDuringMenusBox.IsChecked = settings.HideDuringMenus;
         StreamOverlayOnBox.IsChecked = settings.StreamOverlayOn;
         StreamShowNamesBox.IsChecked = settings.StreamShowNames;
@@ -737,6 +738,7 @@ public partial class SettingsWindow : Window
         _settings.AlwaysOnTopOnStartup = AlwaysOnTopBox.IsChecked ?? false;
         _settings.ShowShareBars = ShowShareBarsBox.IsChecked ?? true;
         _settings.ShowDamageTaken = ShowDamageTakenBox.IsChecked ?? false;
+        _settings.CompactClickThrough = CompactClickThroughBox.IsChecked ?? false;
         _settings.HideDuringMenus = HideDuringMenusBox.IsChecked ?? false;
         _settings.StreamOverlayOn = StreamOverlayOnBox.IsChecked ?? false;
         _settings.StreamShowNames = StreamShowNamesBox.IsChecked ?? false;

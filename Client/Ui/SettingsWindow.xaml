@@ -525,6 +525,13 @@
                                 <CheckBox x:Name="ShowDamageTakenBox" Content="{local:Loc Settings.ShowDamageTaken}"/>
                             </StackPanel>
                         </Border>
+<Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.DisplayCompact}"/>
+                                <CheckBox x:Name="CompactClickThroughBox" Content="{local:Loc Settings.CompactClickThrough}"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.CompactClickThrough.Hint}" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                     <StackPanel x:Name="PanelCapture" Visibility="Collapsed">
 <Border Style="{StaticResource SettingsCard}">

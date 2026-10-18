@@ -126,6 +126,10 @@ public sealed class MeterSettings
     /// clicks, so it can be dragged, scaled and a player opened).</summary>
     public string OverlayStyle { get; set; } = "Chips";
 
+    /// <summary>Compact look only: the panel lets every click through to the game, like the chips do.
+    /// Off by default - then it takes clicks (drag, scale, open a player).</summary>
+    public bool CompactClickThrough { get; set; }
+
     /// <summary>How opaque the overlay's dark backgrounds are, 0.2 to 1 (both looks).</summary>
     public double OverlayOpacity { get; set; } = 0.6;
 

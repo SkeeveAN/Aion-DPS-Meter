@@ -6697,6 +6697,30 @@
     "ja": "戦闘中の表示 - コンパクト",
     "ko": "전투 중 표시 - 컴팩트"
   },
+  "Settings.CompactClickThrough": {
+    "en": "Click-through panel",
+    "de": "Panel durchklickbar",
+    "fr": "Panneau cliquable à travers",
+    "es": "Panel transparente a los clics",
+    "ru": "Панель пропускает клики",
+    "zh": "面板可点击穿透",
+    "zh-TW": "面板可點擊穿透",
+    "pt": "Painel com cliques passando",
+    "ja": "パネルをクリック透過にする",
+    "ko": "패널 클릭 통과"
+  },
+  "Settings.CompactClickThrough.Hint": {
+    "en": "Mouse clicks go straight through the compact panel to the game, like with the chips. Then it can no longer be dragged, scaled or opened by clicking - switch it off to arrange it.",
+    "de": "Mausklicks gehen durch das kompakte Panel direkt ins Spiel, wie bei den Chips. Dann lässt es sich nicht mehr per Klick verschieben, skalieren oder öffnen - zum Anordnen die Option ausschalten.",
+    "fr": "Les clics de souris traversent le panneau compact jusqu'au jeu, comme pour les puces. Il ne peut alors plus être déplacé, redimensionné ou ouvert par clic - désactivez l'option pour l'arranger.",
+    "es": "Los clics del ratón atraviesan el panel compacto hasta el juego, como con las fichas. Entonces no se puede mover, escalar ni abrir con clics: desactiva la opción para colocarlo.",
+    "ru": "Клики мыши проходят сквозь компактную панель прямо в игру, как у плашек. Тогда её нельзя перетаскивать, масштабировать или открывать кликом - отключите опцию, чтобы расположить её.",
+    "zh": "鼠标点击会直接穿过紧凑面板到达游戏,与标签相同。此时无法通过点击拖动、缩放或打开面板——需要调整位置时请关闭此选项。",
+    "zh-TW": "滑鼠點擊會直接穿過精簡面板到達遊戲,與標籤相同。此時無法透過點擊拖曳、縮放或開啟面板——需要調整位置時請關閉此選項。",
+    "pt": "Os cliques do mouse atravessam o painel compacto direto para o jogo, como nos chips. Assim ele não pode mais ser arrastado, redimensionado ou aberto com cliques - desligue a opção para organizá-lo.",
+    "ja": "マウスのクリックはコンパクトパネルを通り抜けてゲームに届きます(チップと同じ)。その間はクリックで移動・拡大縮小・展開ができません。配置するときはオフにしてください。",
+    "ko": "마우스 클릭이 컴팩트 패널을 그대로 통과해 게임으로 전달됩니다(칩과 동일). 이때는 클릭으로 이동, 크기 조절, 열기를 할 수 없으니 배치할 때는 옵션을 끄세요."
+  },
   "Main.MenuTools": {
     "en": "Tools",
     "de": "Tools",
