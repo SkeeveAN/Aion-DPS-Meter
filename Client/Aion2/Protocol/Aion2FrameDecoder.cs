@@ -60,6 +60,8 @@ public sealed class Aion2FrameDecoder
     private const int EngageOpcode = 0x218d;
 
     /// <summary>The account-status frames: the tickets (entry counts, reward counts, Odyle energy) as a list at login and as single changes; see <see cref="Aion2Tickets"/>.</summary>
+    /// <summary>The character list at login (all characters of the account, each with name, server, legion), sent for the own account only.</summary>
+    private const int CharacterListOpcode = 0x2636;
     private const int TicketListOpcode = 0x0b61;
     private const int TicketChangeOpcode = 0x0c61;
     private const int ShopCountersOpcode = 0x8e56;
@@ -503,6 +505,12 @@ public sealed class Aion2FrameDecoder
                 Aion2Cooldowns.Receive(cooldowns, timestamp);
             }
 
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == CharacterListOpcode)
+        {
+            DecodeCharacterList(frame);
             return Array.Empty<DamageEvent>();
         }
 
@@ -2135,6 +2143,28 @@ public sealed class Aion2FrameDecoder
             {
                 NoteServerId(server, name);
                 i += 1 + frame[i + 2];
+            }
+        }
+    }
+
+    /// <summary>
+    /// The character list of the login: per character a length-prefixed name and, 38 bytes after the name, the length-prefixed legion (checked on
+    /// the four characters of one account, 2026-10-17: Aahz, Skeeve, Chumley and Nunzio, all "Akatsuki"). The own character record carries no
+    /// legion, so this is where the meter learns its own; it is only ever looked up by the exact name of the character that logged in.
+    /// </summary>
+    private void DecodeCharacterList(ReadOnlySpan<byte> frame)
+    {
+        for (int i = 2; i + 40 < frame.Length; i++)
+        {
+            if (!TryReadName(frame, i, out string name, minLength: 2))
+            {
+                continue;
+            }
+
+            int guildAt = i + 1 + frame[i] + 38;
+            if (TryReadName(frame, guildAt, out string guild, minLength: 2) && guild != name)
+            {
+                _entities.NoteAccountLegion(name, guild);
             }
         }
     }

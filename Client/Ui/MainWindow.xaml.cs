@@ -3120,7 +3120,7 @@ public partial class MainWindow : Window
     private bool IsLoginShareEligible() =>
         _source?.Entities is Aion2.Aion2EntityDirectory { LocalCharacter: { } own } directory
         && own.ServerId == LoginShareServerId
-        && string.Equals(directory.GuildOf(own.CombatId, own.Name)?.Trim(), LoginShareLegion, StringComparison.OrdinalIgnoreCase);
+        && string.Equals((directory.GuildOf(own.CombatId, own.Name) ?? directory.AccountLegionOf(own.Name))?.Trim(), LoginShareLegion, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Remembers in the settings whether the logged-in character is in that legion (decides whether the settings show the switch).</summary>
     private void UpdateLoginShareEligibility()

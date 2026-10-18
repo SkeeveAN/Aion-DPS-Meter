@@ -1714,6 +1714,26 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private readonly Dictionary<string, string> _accountLegions = new(StringComparer.Ordinal);
+
+    /// <summary>A character of the own account with its legion, from the login's character list.</summary>
+    public void NoteAccountLegion(string name, string legion)
+    {
+        lock (_gate)
+        {
+            _accountLegions[name] = legion;
+        }
+    }
+
+    /// <summary>The legion of a character of the own account (the login's character list), or null.</summary>
+    public string? AccountLegionOf(string name)
+    {
+        lock (_gate)
+        {
+            return _accountLegions.GetValueOrDefault(name);
+        }
+    }
+
     public string? GuildOf(int id)
     {
         lock (_gate)
