@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "Ascension rite runs: the difficulty (Easy to Extreme) is read from the boss's level, so runs of Featherstorm Duduri and Watchful Raptor Dodori no longer show the wrong difficulty (existing runs corrected)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.5.7",
   "date": "2026-10-18",
   "items": [
