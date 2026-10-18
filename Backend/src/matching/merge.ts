@@ -439,6 +439,9 @@ function findCandidateEncounter(bossId: number, serverId: number, payload: Uploa
       jaccardSimilarity(uploadRosterNamesWithoutSelf, existingNames),
       jaccardSimilarity(uploadRosterNamesWithSelf, existingNames),
       worldBoss ? containment(uploadRosterNamesWithSelf, existingNames) : 0,
+      // The same world boss on the same server at the same moment with exactly the same hit points is one kill, even when each uploader saw
+      // another part of the crowd (21 and 30 names, 6 in common). Only when both know the number - a reading from a late join is lower.
+      worldBoss && payload.bossMaxHp !== undefined && candidate.bossMaxHp === payload.bossMaxHp ? 1 : 0,
     );
     if (similarity >= ROSTER_SIMILARITY_THRESHOLD && (!best || similarity > best.similarity)) {
       best = { encounterId: candidate.id, similarity };

@@ -516,3 +516,17 @@ test("the same kill seen to begin 22 seconds later by another uploader is one en
   const other = at("2026-05-01T16:53:27.900Z", "2026-05-01T16:55:14.400Z");
   assert.notEqual(other.encounterId, first.encounterId, "another end is another fight");
 });
+
+test("a world boss kill with exactly the same hit points at the same moment is one encounter even when the crowds hardly overlap", () => {
+  const instance = db.insert(instances).values({ name: "Field place", nameEn: "Field place", game: "aion2", slug: "field-place", category: "worldboss" }).returning().get();
+  db.insert(bosses).values({ name: "Field Boss", instanceId: instance.id }).run();
+  const crowd = (prefix: string, count: number) =>
+    Array.from({ length: count }, (_, i) => ({ ...basePayload().participants[1], name: `${prefix}${i}`, isSelf: i === 0, totalDamage: 900_000 - i * 1000 }));
+  const at = (prefix: string, count: number, hp: number | undefined, end: string) =>
+    processUpload(basePayload({ bossNpcName: "Field Boss", bossMaxHp: hp, participants: crowd(prefix, count), startedAt: "2026-06-01T22:35:45.000Z", endedAt: end }));
+  const first = at("A", 21, 311_945_047, "2026-06-01T22:35:58.000Z");
+  const second = at("B", 30, 311_945_047, "2026-06-01T22:36:00.500Z");
+  assert.equal(second.encounterId, first.encounterId, "same hit points, same moment: the same kill");
+  const noHp = at("C", 30, undefined, "2026-06-01T22:36:00.500Z");
+  assert.notEqual(noHp.encounterId, first.encounterId, "without the number the rosters decide, and they do not overlap");
+});
