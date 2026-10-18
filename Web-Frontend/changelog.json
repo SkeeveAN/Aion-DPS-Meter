@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.5.1",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "the start wizard and the attribute hint no longer say a teleport is enough - the character data comes at login, so they ask to log in again via the character select",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.5.0",
   "date": "2026-10-18",
   "items": [
