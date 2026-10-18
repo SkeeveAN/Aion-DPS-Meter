@@ -4,22 +4,6 @@
   "date": "2026-10-18",
   "items": [
    {
-    "text": "Difficulty shows as a coloured label instead of stars - Nightmare 10, Conquest 3, Transcendence 2, Ascension Hard, Exploration, Hideout, Sanctuary and World Boss - on the start page, the encounter, boss and instance pages, the breadcrumbs, the run list of a player, the statistics and the link previews of a fight; the instance cards keep no stars either",
-    "areas": [
-     "Website",
-     "Backend"
-    ],
-    "date": "2026-10-18"
-   },
-   {
-    "text": "The link preview of the website lists the tools - damage and healing meter, combat analyzer, boss attack warnings, several overlays, character, pets and gathering map, timetable and to-do list - and the fight preview lines up its title and numbers on one baseline",
-    "areas": [
-     "Website",
-     "Backend"
-    ],
-    "date": "2026-10-18"
-   },
-   {
     "text": "World boss crowds on the home maps count: a player of a Verteron or Altgard field boss without faction or server gets the map's faction and the uploader's server, and a world boss kill is judged by the players that are kept, not by the damage the top rule cut out",
     "areas": [
      "Backend"
@@ -51,6 +35,61 @@
    },
    {
     "text": "World boss crowds follow the clock: outside the rift hours (one hour from 02:00, 05:00, 08:00 ... 23:00 in Europe) the players of a home-map field boss are the uploader's own server and faction, during a rift hour and on the Abyss bosses every unknown player is looked up in NC on both servers of the pairing and only a character found exactly once gets server and faction",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "Difficulty as coloured labels instead of stars (start page, encounter, boss, instance pages, run list, statistics, link previews); new link preview picture of the website",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "Link preview picture: the list panel hugs its text, no logo remnant in the corner",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "Link preview picture: a tight panel behind each text line on the left too",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "Link preview picture: back to the version with the list panel hugging its text",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "Link preview picture: each list group is one shape with flowing rounded steps",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "Link preview picture: the obelisk sits in the gap between the texts",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-18"
+   },
+   {
+    "text": "The home rule for a world boss crowd outside the rift hours holds in every region, not only in Europe",
     "areas": [
      "Backend"
     ],
