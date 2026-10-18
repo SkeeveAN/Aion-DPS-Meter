@@ -147,7 +147,7 @@ test("rankings and averages ignore estimated rows", () => {
   assert.equal(top.find((t) => t!.playerName === "Eva")!.idps, 50_000);
 });
 
-test("the crowd of a field boss without faction and server gets the map's faction and the uploader's server; on another world boss it is cut and the kill fails", async () => {
+test("a world boss crowd without faction and server is never filled by a guess: the strangers are cut and the kill fails (no lookup at NC in the tests)", async () => {
   const field = makeBoss("worldboss", "Fieldy", 2101074);
   const bare = (name: string, className: string, damage: number) => {
     const r: Record<string, unknown> = { ...row(name, className, damage, { estimated: true }) };
@@ -155,15 +155,10 @@ test("the crowd of a field boss without faction and server gets the map's factio
     delete r.serverId;
     return r as ReturnType<typeof row>;
   };
-  const crowd = [row("Anna", "Gladiator", 100_000_000, { isSelf: true }), bare("Bob", "Assassin", 400_000_000), bare("Cara", "Cleric", 300_000_000)];
-  const ok = await post(upload(2101074, 3, crowd));
-  assert.equal(ok.statusCode, 200, ok.body);
-  const id = ok.json().encounterId as number;
-  assert.equal(rowOf(id, "Bob").faction, "Elyos");
-  assert.equal(db.select().from(players).where(eq(players.name, "Bob")).get()?.faction, "Elyos");
-  // the same crowd on a world boss that is no home-map field boss: the strangers are cut, the 1 % that is left is no kill
-  const other = await post(upload(9100001, 3, crowd));
-  assert.equal(other.statusCode, 400);
-  assert.equal(other.json().error, "boss_not_killed");
+  const crowd = [row("Anchor", "Gladiator", 100_000_000, { isSelf: true }), bare("Strangerb", "Assassin", 400_000_000), bare("Strangerc", "Cleric", 300_000_000)];
+  const res = await post(upload(2101074, 3, crowd));
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.json().error, "boss_not_killed");
+  assert.equal(db.select().from(players).where(eq(players.name, "Strangerb")).get(), undefined);
   void field;
 });
