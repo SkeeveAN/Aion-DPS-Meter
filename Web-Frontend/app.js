@@ -329,7 +329,12 @@ async function renderHome() {
     ]),
   ]);
 
-  const aion2Stats = await fetchJson("/api/stats/summary?game=aion2").catch(() => null);
+  // The three requests do not depend on each other: started together, the page waits for the slowest instead of the sum.
+  const aion2StatsRequest = fetchJson("/api/stats/summary?game=aion2").catch(() => null);
+  const topPlayersRequest = fetchJson("/api/players/top?game=aion2&limit=5").catch(() => []);
+  const recentActivityRequest = fetchJson("/api/activity/recent?game=aion2&limit=5").catch(() => []);
+
+  const aion2Stats = await aion2StatsRequest;
   const totals = {
     encounterCount: aion2Stats?.encounterCount ?? 0,
     parseCount: aion2Stats?.parseCount ?? 0,
@@ -345,11 +350,11 @@ async function renderHome() {
       : null;
 
   // Aion 2's official servers are one comparable standard, so the ranking runs combined across them.
-  const topPlayers = await fetchJson("/api/players/top?game=aion2&limit=5").catch(() => []);
+  const topPlayers = await topPlayersRequest;
   const topPlayersGame = "aion2";
   const topPlayersSection = topPlayers.length > 0 ? buildTopPlayersSection(topPlayers, topPlayersGame) : null;
 
-  const recentActivity = (await fetchJson("/api/activity/recent?game=aion2&limit=5").catch(() => []))
+  const recentActivity = (await recentActivityRequest)
     .map((r) => ({ ...r, game: "aion2" }))
     .sort((a, b) => parseServerTime(b.createdAt) - parseServerTime(a.createdAt));
   const recentActivitySectionEl = recentActivity.length > 0 ? buildRecentActivitySection(recentActivity) : null;
@@ -728,6 +733,9 @@ function featureText(block) {
   ].filter(Boolean));
 }
 
+// Set by renderFeatures, run by route() when the page is left.
+let featuresCleanup = null;
+
 function renderFeatures() {
   setBreadcrumb([link(t("breadcrumb.home"), "/"), t("breadcrumb.features")]);
   document.title = `${t("features.title")} – ${SITE_TITLE}`;
@@ -735,9 +743,10 @@ function renderFeatures() {
     el("section", {
       id: `feature-${block.id}`,
       className: `fx-scene${FEATURE_FLIPPED.has(block.id) ? " flip" : ""}`,
-      style: `--bg:url(/images/features/scene-${block.id}.webp?v=${FEATURE_VERSION});--tint:${FEATURE_TINTS[block.id]}`,
+      // The backdrop (--bg, read by .fx-bg) is set once the scene comes near the viewport, see below: all of them together are 1.6 MB.
+      style: `--tint:${FEATURE_TINTS[block.id]}`,
     }, [
-      el("div", { className: "fx-bg", style: `background:url(/images/features/scene-${block.id}.webp?v=${FEATURE_VERSION}) center / cover no-repeat` }),
+      el("div", { className: "fx-bg" }),
       el("div", { className: "fx-inner" }, [
         featureText(block),
         el("div", { className: "fx-stage" }, block.images.map(([name, width, height, opt], n) =>
@@ -768,8 +777,41 @@ function renderFeatures() {
     if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) current = scenes.length - 1;
     links.forEach((a, i) => a.classList.toggle("on", i === current));
   };
-  window.addEventListener("scroll", spy, { passive: true });
-  window.addEventListener("resize", spy);
+  // At most one run per frame, however many scroll events the browser sends.
+  let spyFrame = 0;
+  const spyLater = () => {
+    if (!spyFrame) {
+      spyFrame = requestAnimationFrame(() => {
+        spyFrame = 0;
+        spy();
+      });
+    }
+  };
+  window.addEventListener("scroll", spyLater, { passive: true });
+  window.addEventListener("resize", spyLater);
+  // Backdrops load when a scene is within a few screens of the viewport; without IntersectionObserver all load at once, as before.
+  const loadBackdrop = (scene) => scene.style.setProperty("--bg", `url(/images/features/scene-${scene.id.slice("feature-".length)}.webp?v=${FEATURE_VERSION})`);
+  let backdrops = null;
+  if ("IntersectionObserver" in window) {
+    backdrops = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          loadBackdrop(entry.target);
+          backdrops.unobserve(entry.target);
+        }
+      }
+    }, { rootMargin: "1500px 0px" });
+    scenes.forEach((s) => backdrops.observe(s));
+  } else {
+    scenes.forEach(loadBackdrop);
+  }
+  // The next route() calls this: the page's window listeners must not outlive it (each visit would add a pair).
+  featuresCleanup = () => {
+    window.removeEventListener("scroll", spyLater);
+    window.removeEventListener("resize", spyLater);
+    if (spyFrame) cancelAnimationFrame(spyFrame);
+    backdrops?.disconnect();
+  };
   jump.addEventListener("click", (e) => {
     const a = e.target.closest("a");
     if (!a) return;
@@ -4135,6 +4177,10 @@ function isAppPath(pathname) {
 }
 
 async function route() {
+  if (featuresCleanup) {
+    featuresCleanup();
+    featuresCleanup = null;
+  }
   markActiveNav();
   // Old links such as /instances#nightmare move to the real address of that category.
   if (location.pathname.replace(/\/+$/, "") === "/instances" && INSTANCE_TAB_ORDER.includes(location.hash.replace("#", ""))) {
