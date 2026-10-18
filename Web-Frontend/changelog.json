@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.5.7",
+  "date": "2026-10-18",
+  "items": [
+   {
+    "text": "the legion login recording also starts when the same character logs in again (it is triggered by the login's character list now, not by a new name)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-18"
+   }
+  ]
+ },
+ {
   "version": "1.5.6",
   "date": "2026-10-18",
   "items": [
