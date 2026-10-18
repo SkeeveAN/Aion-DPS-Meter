@@ -15,3 +15,10 @@ with `Tools/aion2-icons` Extract: `dump <out> "WorldMap/World_L_A/Res/World_L_A_
 ## Calibration (2026-10-08)
 `calibration.json`: Verteron (`World_L_A`) is fitted - image px = offset + scale x world coordinate, no flip or rotation (see the file). Altgard and
 Abyss still need two or three known places (position of the player from a recording + the same place in the map) before they can be fitted.
+
+## Instance maps (2026-10-18)
+`build_instance_maps.py` builds the maps of the instances (`Client/assets/aion2/maps/<Map>/` + `instances.json`); the header of the script says what goes in
+and how the world -> map mapping was found (UI scale 0.0196 per world unit, centre at UI 2c of the UMap's `WorldMapBounds`, checked against ~4,000 spawn
+points). Dump the inputs with `Tools/aion2-icons` Extract (`export <out> UI/Map/WorldMap/<folder>/Res/`, `json <out> WorldMap/<folder>/WorldMap_<Map>.umap` or
+`SharedMap_<Map>.umap`; the `json` mode needs `AION_USMAP` and the `.umap` filter of the build on D:). 49 maps; not built: the non-square ones
+(Dungeon_L_0004, Dungeon_D_0011, Dungeon_0005, ReforgedAbyss) and RootCellar (spawn points do not fit its map).

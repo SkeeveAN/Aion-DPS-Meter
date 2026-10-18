@@ -1897,7 +1897,7 @@ internal static class Program
         var settings = Ui.MeterSettings.Load();
         Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
-        var map = Aion2.Protocol.Aion2Maps.All.First(m => m.Key == mapKey);
+        var map = Aion2.Protocol.Aion2Maps.All.Concat(Aion2.Protocol.Aion2Maps.Instances).First(m => m.Key == mapKey);
         var chosen = settings.PetMapPets.Count > 0 ? settings.PetMapPets.ToHashSet() : new HashSet<int> { 1170, 1162, 1171, 1219 };
         var points = Aion2.Protocol.Aion2Maps.PointsOf(map, chosen);
         var pets = points.Select(p => p.PetId).Distinct().OrderBy(i => i).ToList();

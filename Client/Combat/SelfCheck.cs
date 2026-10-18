@@ -40,6 +40,7 @@ public static class SelfCheck
         ok &= SelfCheckHitKinds.Run();
         ok &= SelfCheckProtocolHealth.Run();
         ok &= SelfCheckTickets.Run();
+        ok &= SelfCheckMaps.Run();
         ok &= SelfCheckLoot.Run();
         ok &= SelfCheckFightClock.Run();
         ok &= SelfCheckColorPicker.Run();

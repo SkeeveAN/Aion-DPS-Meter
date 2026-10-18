@@ -5,7 +5,12 @@ namespace AionDPS.Aion2.Protocol;
 
 /// <summary>One world map of the game as the pet map draws it: its tiles (assets/aion2/maps/&lt;key&gt;), the size of a tile and the grid, and
 /// how a world coordinate becomes a pixel of the whole map (<c>pixel = offset + scale * world</c>, no flip, no rotation).</summary>
-public sealed record Aion2MapInfo(string Key, string Title, string Table, int Tile, int Grid, double Scale, double OffsetX, double OffsetY);
+public sealed record Aion2MapInfo(string Key, string Title, string Table, int Tile, int Grid, double Scale, double OffsetX, double OffsetY,
+    IReadOnlyList<string>? Tables = null, IReadOnlyList<int>? Zones = null)
+{
+    /// <summary>An instance (dungeon) map: it belongs to the zone ids of its entrance and not to the open world.</summary>
+    public bool Instance => Zones is { Count: > 0 };
+}
 
 /// <summary>
 /// The three world maps (Verteron, Altgard, the Abyss), the spawn points of the pet monsters on them (pets/spawns.json, read out of the client's
@@ -16,17 +21,26 @@ public static class Aion2Maps
 {
     private static readonly string Folder = Path.Combine(AppContext.BaseDirectory, "assets", "aion2");
     private static List<Aion2MapInfo>? _maps;
+    private static List<Aion2MapInfo>? _instances;
     private static Dictionary<string, Dictionary<int, float[]>>? _spawns;
 
-    public static IReadOnlyList<Aion2MapInfo> All => _maps ??= LoadMaps();
+    public static IReadOnlyList<Aion2MapInfo> All => _maps ??= LoadMaps("maps.json");
+
+    /// <summary>The maps of the instances (maps/instances.json, built by Tools/aion2-maps/build_instance_maps.py); apart from <see cref="All"/>, which stays the open world.</summary>
+    public static IReadOnlyList<Aion2MapInfo> Instances => _instances ??= LoadMaps("instances.json");
 
     /// <summary>The spawn points of the pet monsters of every map file: {map table: {npc id: x, y, x, y ...}} (instances and event phases included).</summary>
     internal static IReadOnlyDictionary<string, Dictionary<int, float[]>> SpawnTables => Spawns();
 
-    /// <summary>The world map a zone id belongs to: the open maps and the legion airships that hover above them (the airship's places are the map's own
+    /// <summary>The map a zone id belongs to: the instance maps, the open maps and the legion airships that hover above them (the airship's places are the map's own
     /// coordinates: the spawn at the middle of the Verteron airship fell on the airship's arrow of the game's Verteron map). Null for every other zone.</summary>
     public static Aion2MapInfo? OfZone(int zoneId)
     {
+        if (Instances.FirstOrDefault(m => m.Zones!.Contains(zoneId)) is { } instance)
+        {
+            return instance;
+        }
+
         string? key = zoneId switch
         {
             1010 or 902 => "verteron",
@@ -83,20 +97,33 @@ public static class Aion2Maps
     public static IReadOnlyList<(int PetId, float X, float Y)> PointsOf(Aion2MapInfo map, ISet<int> pets)
     {
         var result = new List<(int, float, float)>();
-        if (pets.Count == 0 || !Spawns().TryGetValue(map.Table, out var table))
+        if (pets.Count == 0)
         {
             return result;
         }
 
-        foreach ((int npc, float[] points) in table)
+        // an instance has one spawn table per difficulty: the same places, so each place is drawn once
+        var seen = new HashSet<(int, float, float)>();
+        foreach (string tableName in map.Tables is { Count: > 0 } ? map.Tables : new[] { map.Table })
         {
-            foreach (int pet in Aion2Pets.PetsOfNpc(npc))
+            if (!Spawns().TryGetValue(tableName, out var table))
             {
-                if (pets.Contains(pet))
+                continue;
+            }
+
+            foreach ((int npc, float[] points) in table)
+            {
+                foreach (int pet in Aion2Pets.PetsOfNpc(npc))
                 {
-                    for (int i = 0; i + 1 < points.Length; i += 2)
+                    if (pets.Contains(pet))
                     {
-                        result.Add((pet, points[i], points[i + 1]));
+                        for (int i = 0; i + 1 < points.Length; i += 2)
+                        {
+                            if (seen.Add((pet, points[i], points[i + 1])))
+                            {
+                                result.Add((pet, points[i], points[i + 1]));
+                            }
+                        }
                     }
                 }
             }
@@ -105,12 +132,12 @@ public static class Aion2Maps
         return result;
     }
 
-    private static List<Aion2MapInfo> LoadMaps()
+    private static List<Aion2MapInfo> LoadMaps(string file)
     {
         var list = new List<Aion2MapInfo>();
         try
         {
-            string path = Path.Combine(Folder, "maps", "maps.json");
+            string path = Path.Combine(Folder, "maps", file);
             if (File.Exists(path))
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(path));
@@ -119,7 +146,9 @@ public static class Aion2Maps
                     var v = m.Value;
                     list.Add(new Aion2MapInfo(m.Name, v.GetProperty("title").GetString() ?? m.Name, v.GetProperty("table").GetString() ?? "",
                         v.GetProperty("tile").GetInt32(), v.GetProperty("grid").GetInt32(), v.GetProperty("scale").GetDouble(),
-                        v.GetProperty("offsetX").GetDouble(), v.GetProperty("offsetY").GetDouble()));
+                        v.GetProperty("offsetX").GetDouble(), v.GetProperty("offsetY").GetDouble(),
+                        v.TryGetProperty("tables", out var tables) ? tables.EnumerateArray().Select(t => t.GetString() ?? "").ToList() : null,
+                        v.TryGetProperty("zones", out var zones) ? zones.EnumerateArray().Select(z => z.GetInt32()).ToList() : null));
                 }
             }
         }

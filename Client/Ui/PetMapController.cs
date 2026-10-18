@@ -289,9 +289,9 @@ public sealed class PetMapController : IDisposable
             _lastDetect = DateTime.UtcNow;
             // the zone frame names the map (and the airship above it) outright; the monsters only vote where it does not
             var found = Aion2Maps.OfZone(directory.ZoneId) ?? (inInstance ? null : Aion2Maps.Detect(directory.RecentMobPositions()));
-            if (inInstance && _current is not null)
+            if (found is null && inInstance && _current is not null)
             {
-                // an instance has no world map: the overworld one must not stay behind it
+                // an instance without a map of its own: the overworld one must not stay behind it
                 _current = null;
                 _haveView = false;
                 _pointsKey = "";
@@ -526,7 +526,7 @@ public sealed class PetMapController : IDisposable
     private void RememberPosition(float x, float y)
     {
         _lastKnown = (x, y);
-        if (_current is null || (DateTime.UtcNow - _savedAt).TotalSeconds < 10)
+        if (_current is null || _current.Instance || (DateTime.UtcNow - _savedAt).TotalSeconds < 10)
         {
             return;
         }

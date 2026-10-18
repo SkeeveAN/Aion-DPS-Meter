@@ -1,0 +1,835 @@
+{
+ "maps": {
+  "Arkanis": {
+   "title": "Shattered Arkanis",
+   "table": "Dungeon/Party/Arkanis/Arkanis_G_03",
+   "tables": [
+    "Dungeon/Party/Arkanis/Arkanis_G_03",
+    "Dungeon/Party/Arkanis/Arkanis_G_01",
+    "Dungeon/Party/Arkanis/Arkanis_G_09",
+    "Dungeon/Party/Arkanis/Arkanis_G_06"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 1128.850296832,
+   "offsetY": 1107.283709952,
+   "zones": [
+    600061,
+    600063,
+    600065,
+    600068,
+    610062
+   ],
+   "masked": true
+  },
+  "BakronIsland": {
+   "title": "Vakron Sky Island",
+   "table": "Dungeon/Party/BakronIsland/BakronIsland_Normal",
+   "tables": [
+    "Dungeon/Party/BakronIsland/BakronIsland_Normal",
+    "Dungeon/Party/BakronIsland/BakronIsland_Hard",
+    "Dungeon/Party/BakronIsland/BakronIsland_Easy"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0100352,
+   "offsetX": 1024.0,
+   "offsetY": 936.618663936,
+   "zones": [
+    600071,
+    600072,
+    600073
+   ],
+   "masked": true
+  },
+  "BlueBreathIsle": {
+   "title": "Azure Breath Island",
+   "table": "Dungeon/Party/BlueBreathIsle/BlueBreathIsle_Normal",
+   "tables": [
+    "Dungeon/Party/BlueBreathIsle/BlueBreathIsle_Normal",
+    "Dungeon/Party/BlueBreathIsle/BlueBreathIsle_Hard",
+    "Dungeon/Party/BlueBreathIsle/BlueBreathIsle_Easy"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0100352,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    600141,
+    600142,
+    600143
+   ],
+   "masked": true
+  },
+  "CoastalCave": {
+   "title": "Coastal Cave",
+   "table": "Dungeon/CoastalCave",
+   "tables": [
+    "Dungeon/CoastalCave"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 874.42020352,
+   "offsetY": 1159.34332928,
+   "zones": [
+    210001
+   ],
+   "masked": true
+  },
+  "CradleNihility": {
+   "title": "Cradle of Nihility",
+   "table": "Dungeon/Party/CradleNihility/CradleNihility_Normal",
+   "tables": [
+    "Dungeon/Party/CradleNihility/CradleNihility_Normal",
+    "Dungeon/Party/CradleNihility/CradleNihility_Hard",
+    "Dungeon/Party/CradleNihility/CradleNihility_Easy"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0100352,
+   "offsetX": 905.0585856,
+   "offsetY": 1104.08242176,
+   "zones": [
+    600121,
+    600122,
+    600123
+   ],
+   "masked": true
+  },
+  "DeadDramataNest": {
+   "title": "Dying Dramata's Nest",
+   "table": "Dungeon/Party/DeadDramataNest/DeadDramataNest_Normal",
+   "tables": [
+    "Dungeon/Party/DeadDramataNest/DeadDramataNest_Normal",
+    "Dungeon/Party/DeadDramataNest/DeadDramataNest_Hard",
+    "Dungeon/Party/DeadDramataNest/DeadDramataNest_Easy"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0100352,
+   "offsetX": 1166.1803008,
+   "offsetY": 852.475392,
+   "zones": [
+    600041,
+    600042,
+    610044
+   ],
+   "masked": true
+  },
+  "DeusCenter": {
+   "title": "Deus Research Base",
+   "table": "Dungeon/Party/DeusCenter/DeusCenter_Easy",
+   "tables": [
+    "Dungeon/Party/DeusCenter/DeusCenter_Easy",
+    "Dungeon/Party/DeusCenter/DeusCenter_G_09",
+    "Dungeon/Party/DeusCenter/DeusCenter_G_06",
+    "Dungeon/Party/DeusCenter/DeusCenter_G_03",
+    "Dungeon/Party/DeusCenter/DeusCenter_G_01"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0100352,
+   "offsetX": 768.54444032,
+   "offsetY": 1011.91794432,
+   "zones": [
+    600051,
+    600053,
+    600055,
+    600058,
+    610052
+   ],
+   "masked": true
+  },
+  "Draconic_001": {
+   "title": "Subjugation Closed",
+   "table": "Dungeon/DraconicCrisis/Draconic_001/Draconic_001_Normal",
+   "tables": [
+    "Dungeon/DraconicCrisis/Draconic_001/Draconic_001_Normal",
+    "Dungeon/DraconicCrisis/Draconic_001/Draconic_001_Hard",
+    "Dungeon/DraconicCrisis/Draconic_001/Draconic_001_Easy"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0392,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    690001,
+    690002,
+    690003
+   ],
+   "masked": false
+  },
+  "Draconic_002": {
+   "title": "Beritra Brigade Fortress",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    690011,
+    690012,
+    690013
+   ],
+   "masked": false
+  },
+  "Draconic_004": {
+   "title": "Orcus's Grave",
+   "table": "Dungeon/DraconicCrisis/Draconic_004/Draconic_004_Normal",
+   "tables": [
+    "Dungeon/DraconicCrisis/Draconic_004/Draconic_004_Normal",
+    "Dungeon/DraconicCrisis/Draconic_004/Draconic_004_Hell",
+    "Dungeon/DraconicCrisis/Draconic_004/Draconic_004_Hard",
+    "Dungeon/DraconicCrisis/Draconic_004/Draconic_004_Extreme",
+    "Dungeon/DraconicCrisis/Draconic_004/Draconic_004_Easy",
+    "Dungeon/DraconicCrisis/Draconic_004/Draconic_004_Despair"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 1112.545804288,
+   "offsetY": 1010.0862089216,
+   "zones": [
+    690031,
+    690032,
+    690033,
+    690034,
+    690035,
+    690036
+   ],
+   "masked": false
+  },
+  "Draconic_005": {
+   "title": "Fafnite Forge",
+   "table": "Dungeon/DraconicCrisis/Draconic_005/Draconic_005_Hell",
+   "tables": [
+    "Dungeon/DraconicCrisis/Draconic_005/Draconic_005_Hell",
+    "Dungeon/DraconicCrisis/Draconic_005/Draconic_005_Hard",
+    "Dungeon/DraconicCrisis/Draconic_005/Draconic_005_Extreme",
+    "Dungeon/DraconicCrisis/Draconic_005/Draconic_005_Easy",
+    "Dungeon/DraconicCrisis/Draconic_005/Draconic_005_Despair",
+    "Dungeon/DraconicCrisis/Draconic_005/Draconic_005_Normal"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 950.26724864,
+   "offsetY": 1211.911344128,
+   "zones": [
+    690041,
+    690042,
+    690043,
+    690044,
+    690045,
+    690046
+   ],
+   "masked": false
+  },
+  "Draupnir": {
+   "title": "Draupnir",
+   "table": "Dungeon/Party/Draupnir/Draupnir_Hard",
+   "tables": [
+    "Dungeon/Party/Draupnir/Draupnir_Hard",
+    "Dungeon/Party/Draupnir/Draupnir_Easy",
+    "Dungeon/Party/Draupnir/Draupnir_Normal"
+   ],
+   "tile": 2048,
+   "grid": 2,
+   "scale": 0.01999200037094532,
+   "offsetX": 2048.0,
+   "offsetY": 2048.0,
+   "zones": [
+    600031,
+    600032,
+    600033
+   ],
+   "masked": true
+  },
+  "DreamCrossroad": {
+   "title": "Dream Crossroad",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    200001
+   ],
+   "masked": true
+  },
+  "DreamOfPain": {
+   "title": "Dream of Torment",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    200002
+   ],
+   "masked": true
+  },
+  "Dungeon_0003": {
+   "title": "Nightmare",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0802816,
+   "offsetX": 1038.832017408,
+   "offsetY": 1024.108483764224,
+   "zones": [
+    200003
+   ],
+   "masked": false
+  },
+  "Dungeon_0004": {
+   "title": "Narun's Dream",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 924.794640384,
+   "offsetY": 1235.27825408,
+   "zones": [
+    200004
+   ],
+   "masked": true
+  },
+  "Dungeon_0006": {
+   "title": "Dream of Shattered Fragments",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    200006
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0001": {
+   "title": "Crypt",
+   "table": "Dungeon/Quest/Dark/Dungeon_D_0001",
+   "tables": [
+    "Dungeon/Quest/Dark/Dungeon_D_0001"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    220001
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0002": {
+   "title": "Zikel's Sanctum",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 873.39569152,
+   "offsetY": 1503.36372736,
+   "zones": [
+    220002
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0006": {
+   "title": "Collapsed Oracle",
+   "table": "Dungeon/Quest/Dark/Dungeon_D_0006",
+   "tables": [
+    "Dungeon/Quest/Dark/Dungeon_D_0006"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0392,
+   "offsetX": 715.99612,
+   "offsetY": 1346.613,
+   "zones": [
+    220006
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0007": {
+   "title": "Root of the Sacred Tree",
+   "table": "Dungeon/Quest/Dark/Dungeon_D_0007",
+   "tables": [
+    "Dungeon/Quest/Dark/Dungeon_D_0007"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 1059.273334784,
+   "offsetY": 1364.42271744,
+   "zones": [
+    220007
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0008": {
+   "title": "Dranactus Underkeep",
+   "table": "Dungeon/Quest/Dark/Dungeon_D_0008",
+   "tables": [
+    "Dungeon/Quest/Dark/Dungeon_D_0008"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 569.966592,
+   "offsetY": 1089.731330048,
+   "zones": [
+    220008
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0009": {
+   "title": "Destruction Archon Underground Fortress",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.01967686274509804,
+   "offsetX": 712.5480909803921,
+   "offsetY": 1062.5039520627452,
+   "zones": [
+    220009
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0010": {
+   "title": "Blades Hideout",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 1304.03995648,
+   "offsetY": 1087.893643264,
+   "zones": [
+    220010
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0014": {
+   "title": "Kaisinel's Collapsed Sanctum",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.03935372549019608,
+   "offsetX": 801.4043658039216,
+   "offsetY": 953.6514690509804,
+   "zones": [
+    220014
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0019": {
+   "title": "Blades Secret Storage",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 935.645249536,
+   "offsetY": 758.2060544000001,
+   "zones": [
+    220019
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0020": {
+   "title": "Executioner's Tower",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.03935372549019608,
+   "offsetX": 982.7427789803921,
+   "offsetY": 1144.9305007686276,
+   "zones": [
+    220020
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0021": {
+   "title": "Floating Temple of Arkanis",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0392,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    220021
+   ],
+   "masked": true
+  },
+  "Dungeon_D_0022": {
+   "title": "Fire Temple",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0802816,
+   "offsetX": 2358.98126336,
+   "offsetY": -81.93941504000009,
+   "zones": [
+    220022
+   ],
+   "masked": true
+  },
+  "Dungeon_L_0008": {
+   "title": "Illusion Hideout",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.03935372549019608,
+   "offsetX": 639.1125935686275,
+   "offsetY": 957.2220887843138,
+   "zones": [
+    210008
+   ],
+   "masked": true
+  },
+  "Dungeon_L_0009": {
+   "title": "Zumion Relic Storage",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 1070.754156544,
+   "offsetY": 856.0809984,
+   "zones": [
+    210009
+   ],
+   "masked": true
+  },
+  "Dungeon_L_0010": {
+   "title": "Nahid Disposal Plant",
+   "table": "Dungeon/Quest/Light/Dungeon_L_0010",
+   "tables": [
+    "Dungeon/Quest/Light/Dungeon_L_0010"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 690.46321152,
+   "offsetY": 1244.80006144,
+   "zones": [
+    210010
+   ],
+   "masked": true
+  },
+  "Dungeon_L_0011": {
+   "title": "Ardus Shrine",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 1023.58879371264,
+   "offsetY": 877.918969856,
+   "zones": [
+    210011
+   ],
+   "masked": true
+  },
+  "Dungeon_L_0014": {
+   "title": "Zikel's Collapsed Barracks",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.03935372549019608,
+   "offsetX": 969.6457266196078,
+   "offsetY": 1025.654197067294,
+   "zones": [
+    210014
+   ],
+   "masked": true
+  },
+  "Dungeon_L_0017": {
+   "title": "Fountain of Life",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 911.315615744,
+   "offsetY": 1429.31318784,
+   "zones": [
+    210017
+   ],
+   "masked": true
+  },
+  "Dungeon_L_0018": {
+   "title": "Light Crash Site",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 1271.957389312,
+   "offsetY": 770.080124928,
+   "zones": [
+    210018
+   ],
+   "masked": true
+  },
+  "Dungeon_L_0019": {
+   "title": "Lepharist Research Center",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 941.57205504,
+   "offsetY": 754.08863232,
+   "zones": [
+    210019
+   ],
+   "masked": true
+  },
+  "ErosionPurifier": {
+   "title": "Corroded Decontamination Facility",
+   "table": "Dungeon/Party/ErosionPurifier/ErosionPurifier_01",
+   "tables": [
+    "Dungeon/Party/ErosionPurifier/ErosionPurifier_01"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0100352,
+   "offsetX": 1157.8385817600001,
+   "offsetY": 984.56003584,
+   "zones": [
+    620011
+   ],
+   "masked": true
+  },
+  "FafniteGully": {
+   "title": "Abyssal Horn Den",
+   "table": "Dungeon/Party/FafniteGully/FafniteGully_G_04",
+   "tables": [
+    "Dungeon/Party/FafniteGully/FafniteGully_G_04",
+    "Dungeon/Party/FafniteGully/FafniteGully_G_03",
+    "Dungeon/Party/FafniteGully/FafniteGully_G_02",
+    "Dungeon/Party/FafniteGully/FafniteGully_G_01"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 457.3538304,
+   "offsetY": 1301.600256,
+   "zones": [
+    610070,
+    610071,
+    610072,
+    610073
+   ],
+   "masked": true
+  },
+  "Fire_Temple": {
+   "title": "Fire Temple",
+   "table": "Dungeon/Party/Fire_Temple/Fire_Temple_Normal",
+   "tables": [
+    "Dungeon/Party/Fire_Temple/Fire_Temple_Normal",
+    "Dungeon/Party/Fire_Temple/Fire_Temple_Hard",
+    "Dungeon/Party/Fire_Temple/Fire_Temple_Easy"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.019832411067193675,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    600021,
+    600022,
+    600023
+   ],
+   "masked": true
+  },
+  "HornCave": {
+   "title": "Ferocious Horn Den",
+   "table": "Dungeon/Party/HornCave/HornCave_Normal",
+   "tables": [
+    "Dungeon/Party/HornCave/HornCave_Normal",
+    "Dungeon/Party/HornCave/HornCave_Hard",
+    "Dungeon/Party/HornCave/HornCave_Easy"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 795.8453248000001,
+   "offsetY": 1202.08659456,
+   "zones": [
+    600091,
+    600092,
+    600093
+   ],
+   "masked": true
+  },
+  "IllicitTradeSpot": {
+   "title": "Illicit Trade Spot",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0802816,
+   "offsetX": 1097.716719616,
+   "offsetY": 960.3250782208,
+   "zones": [
+    210012
+   ],
+   "masked": true
+  },
+  "Impetusium_Arena": {
+   "title": "Impetusium Arena",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0401408,
+   "offsetX": 1023.30094936064,
+   "offsetY": 1021.03931469824,
+   "zones": [
+    8
+   ],
+   "masked": false
+  },
+  "MirrorHeart": {
+   "title": "Mirror of Scarlet Desire",
+   "table": "Dungeon/Party/MirrorHeart/MirrorHeart_G_04",
+   "tables": [
+    "Dungeon/Party/MirrorHeart/MirrorHeart_G_04",
+    "Dungeon/Party/MirrorHeart/MirrorHeart_G_03",
+    "Dungeon/Party/MirrorHeart/MirrorHeart_G_02",
+    "Dungeon/Party/MirrorHeart/MirrorHeart_G_01"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 913.7759641600001,
+   "offsetY": 1123.003078656,
+   "zones": [
+    610020,
+    610021,
+    610022,
+    610023
+   ],
+   "masked": true
+  },
+  "MusphelHolyGrail": {
+   "title": "Chalice of Muspel",
+   "table": "Dungeon/Party/MusphelHolyGrail/MusphelHolyGrail_02",
+   "tables": [
+    "Dungeon/Party/MusphelHolyGrail/MusphelHolyGrail_02",
+    "Dungeon/Party/MusphelHolyGrail/MusphelHolyGrail_01"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 642.4184832000001,
+   "offsetY": 1210.86119936,
+   "zones": [
+    620021,
+    620022
+   ],
+   "masked": true
+  },
+  "PhantomsHall": {
+   "title": "Hall of Illusion",
+   "table": "",
+   "tables": [],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0100352,
+   "offsetX": 1024.0,
+   "offsetY": 1024.0,
+   "zones": [
+    600131,
+    600132,
+    600133
+   ],
+   "masked": true
+  },
+  "StrigikAltar": {
+   "title": "Aullaeu Altar",
+   "table": "Dungeon/Quest/Light/StrigikAltar",
+   "tables": [
+    "Dungeon/Quest/Light/StrigikAltar"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 914.3100416,
+   "offsetY": 1180.0008704,
+   "zones": [
+    210007
+   ],
+   "masked": true
+  },
+  "SunkenTemple": {
+   "title": "Submerged Life Temple",
+   "table": "Dungeon/Party/SunkenTemple/SunkenTemple_G_03",
+   "tables": [
+    "Dungeon/Party/SunkenTemple/SunkenTemple_G_03",
+    "Dungeon/Party/SunkenTemple/SunkenTemple_G_02",
+    "Dungeon/Party/SunkenTemple/SunkenTemple_G_01",
+    "Dungeon/Party/SunkenTemple/SunkenTemple_G_04"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0200704,
+   "offsetX": 933.752164352,
+   "offsetY": 1150.75022848,
+   "zones": [
+    610010,
+    610011,
+    610012,
+    610013
+   ],
+   "masked": true
+  },
+  "Urugugu_Canyon": {
+   "title": "Urugugu Canyon",
+   "table": "Dungeon/Party/Urugugu_Canyon/Urugugu_Canyon_Hard",
+   "tables": [
+    "Dungeon/Party/Urugugu_Canyon/Urugugu_Canyon_Hard",
+    "Dungeon/Party/Urugugu_Canyon/Urugugu_Canyon_Easy",
+    "Dungeon/Party/Urugugu_Canyon/Urugugu_Canyon_Normal"
+   ],
+   "tile": 2048,
+   "grid": 1,
+   "scale": 0.0100352,
+   "offsetX": 664.82528256,
+   "offsetY": 1203.15742208,
+   "zones": [
+    600011,
+    600012,
+    600013
+   ],
+   "masked": true
+  }
+ }
+}
