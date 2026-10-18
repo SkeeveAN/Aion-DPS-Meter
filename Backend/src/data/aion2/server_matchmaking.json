@@ -1,0 +1,279 @@
+{
+ "_note": "Official NCSOFT server matchmaking (Elyos server <-> Asmodian server, one shared PvP world). Pairings change periodically; reference data only, not used for faction logic (a player's faction is that of their own server).",
+ "snapshots": [
+  {
+   "asOf": "2026-10-05",
+   "fetched": "2026-10-18",
+   "source": "https://lounge.plaync.com/feed/83069 (The Battle Lines Are Drawn - Global Launch Server & Matchmaking Lineup)",
+   "regions": {
+    "Europe": [
+     {
+      "elyos": "Nania",
+      "asmodian": "Hadala",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Tahavatha",
+      "asmodian": "Ludra",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Luteros",
+      "asmodian": "Ulgorn",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Phernos",
+      "asmodian": "Munin",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Daminu",
+      "asmodian": "Odar",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Kasaka",
+      "asmodian": "Zemurru",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Bakarma",
+      "asmodian": "Kromede",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Tsenka",
+      "asmodian": "Quai",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Kochi",
+      "asmodian": "Baba",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Siel",
+      "asmodian": "Israphel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Nezekan",
+      "asmodian": "Zikel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Vaizel",
+      "asmodian": "Triniel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Kaisinel",
+      "asmodian": "Lumiel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Yustiel",
+      "asmodian": "Marchutan",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Ariel",
+      "asmodian": "Azphel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Fregion",
+      "asmodian": "Ereshkigal",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Meslamtaeda",
+      "asmodian": "Beritra",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Hithanya",
+      "asmodian": "Nemon",
+      "phase": "Advanced Access"
+     }
+    ],
+    "NA East": [
+     {
+      "elyos": "Kaisinel",
+      "asmodian": "Lumiel",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Yustiel",
+      "asmodian": "Marchutan",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Ariel",
+      "asmodian": "Azphel",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Fregion",
+      "asmodian": "Ereshkigal",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Meslamtaeda",
+      "asmodian": "Beritra",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Siel",
+      "asmodian": "Israphel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Nezekan",
+      "asmodian": "Zikel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Vaizel",
+      "asmodian": "Triniel",
+      "phase": "Advanced Access"
+     }
+    ],
+    "NA West": [
+     {
+      "elyos": "Vaizel",
+      "asmodian": "Triniel",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Kaisinel",
+      "asmodian": "Lumiel",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Yustiel",
+      "asmodian": "Marchutan",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Siel",
+      "asmodian": "Israphel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Nezekan",
+      "asmodian": "Zikel",
+      "phase": "Advanced Access"
+     }
+    ],
+    "Latin America": [
+     {
+      "elyos": "Vaizel",
+      "asmodian": "Triniel",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Kaisinel",
+      "asmodian": "Lumiel",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Yustiel",
+      "asmodian": "Marchutan",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Ariel",
+      "asmodian": "Azphel",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Siel",
+      "asmodian": "Israphel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Nezekan",
+      "asmodian": "Zikel",
+      "phase": "Advanced Access"
+     }
+    ],
+    "Asia": [
+     {
+      "elyos": "Kaisinel",
+      "asmodian": "Lumiel",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Yustiel",
+      "asmodian": "Marchutan",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Ariel",
+      "asmodian": "Azphel",
+      "phase": "Launch"
+     },
+     {
+      "elyos": "Siel",
+      "asmodian": "Israphel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Nezekan",
+      "asmodian": "Zikel",
+      "phase": "Advanced Access"
+     },
+     {
+      "elyos": "Vaizel",
+      "asmodian": "Triniel",
+      "phase": "Advanced Access"
+     }
+    ]
+   }
+  }
+ ],
+ "asiaNoticeTimes": {
+  "source": "aion2_global board notice_en article 6ac3983171f8fb7c2a7a33b8 (lounge feed 83081, Server Matchmaking Information (Asia))",
+  "pairs": [
+   [
+    "Siel",
+    "Israphel"
+   ],
+   [
+    "Nezekan",
+    "Zikel"
+   ],
+   [
+    "Vaizel",
+    "Triniel"
+   ],
+   [
+    "Kaisinel",
+    "Lumiel"
+   ],
+   [
+    "Yustiel",
+    "Marchutan"
+   ],
+   [
+    "Ariel",
+    "Azphel"
+   ],
+   [
+    "Fregion",
+    "Ereshkigal"
+   ],
+   [
+    "Meslamtaeda",
+    "Beritra"
+   ]
+  ],
+  "updated": {
+   "Siel-Israphel..Ariel-Azphel": "2026-10-05 22:00 JST",
+   "Fregion-Ereshkigal": "2026-10-05 22:33 JST",
+   "Meslamtaeda-Beritra": "2026-10-05 23:10 JST"
+  }
+ }
+}

@@ -386,6 +386,13 @@
       "when": 1792250000000,
       "tag": "0054_game_character_id",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "6",
+      "when": 1792330000000,
+      "tag": "0055_server_matchmaking",
+      "breakpoints": true
     }
   ]
 }

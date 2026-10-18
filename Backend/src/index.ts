@@ -7,6 +7,7 @@ import { startReferenceCheck } from "./ncReference.js";
 import { startAnnouncements } from "./announcements.js";
 import { startPatchnotes } from "./patchnotes.js";
 import { startTwitchDrops } from "./twitchDrops.js";
+import { startMatchmaking } from "./serverMatchmakingDb.js";
 
 async function main() {
   const app = await buildServer();
@@ -19,6 +20,7 @@ async function main() {
   startAnnouncements();
   startPatchnotes();
   startTwitchDrops();
+  startMatchmaking();
 }
 
 main().catch((err) => {
