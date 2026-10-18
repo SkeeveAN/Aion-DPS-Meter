@@ -2960,16 +2960,16 @@
     "ko": "Npcap 다운로드"
   },
   "Wizard.TeleportStep": {
-    "en": "Start the game, then change the map or teleport once so the meter learns your character.",
-    "de": "Starte das Spiel und wechsle einmal die Karte oder teleportiere dich, damit der Meter deinen Charakter erkennt.",
-    "fr": "Lancez le jeu, puis changez de carte ou téléportez-vous une fois pour que le compteur reconnaisse votre personnage.",
-    "es": "Inicia el juego y cambia de mapa o teletranspórtate una vez para que el medidor reconozca a tu personaje.",
-    "ru": "Запустите игру и один раз смените карту или телепортируйтесь, чтобы счётчик узнал вашего персонажа.",
-    "zh": "启动游戏，然后切换一次地图或传送一次，计量器就会识别你的角色。",
-    "zh-TW": "啟動遊戲，然後切換一次地圖或傳送一次，計量器就會辨識你的角色。",
-    "pt": "Inicie o jogo e troque de mapa ou teletransporte-se uma vez para o medidor reconhecer o seu personagem.",
-    "ja": "ゲームを起動し、マップを移動するかテレポートを1回行うと、メーターがキャラクターを認識します。",
-    "ko": "게임을 실행한 뒤 맵을 이동하거나 한 번 텔레포트하면 미터가 캐릭터를 인식합니다."
+    "en": "Start the game and log in with your character - if you are already in, go back to the character select once and log in again - so the meter learns your character.",
+    "de": "Starte das Spiel und logge dich mit deinem Charakter ein - bist du schon drin, gehe einmal zurück zur Charakterauswahl und logge dich neu ein -, damit der Meter deinen Charakter erkennt.",
+    "fr": "Lancez le jeu et connectez-vous avec votre personnage - si vous y êtes déjà, retournez une fois à la sélection du personnage et reconnectez-vous - pour que le compteur reconnaisse votre personnage.",
+    "es": "Inicia el juego e inicia sesión con tu personaje - si ya estás dentro, vuelve una vez a la selección de personaje y entra de nuevo - para que el medidor reconozca a tu personaje.",
+    "ru": "Запустите игру и войдите персонажем - если вы уже в игре, вернитесь один раз к выбору персонажа и войдите снова, - чтобы метр узнал вашего персонажа.",
+    "zh": "启动游戏并登录你的角色——如果已经在游戏中，请先返回一次角色选择再重新登录——这样计量器才能识别你的角色。",
+    "zh-TW": "啟動遊戲並登入你的角色——如果已經在遊戲中，請先返回一次角色選擇再重新登入——這樣計量器才能辨識你的角色。",
+    "pt": "Inicie o jogo e entre com o seu personagem - se já estiver dentro, volte uma vez à seleção de personagem e entre de novo - para que o medidor reconheça o seu personagem.",
+    "ja": "ゲームを起動してキャラクターでログインしてください。すでにログイン中なら、一度キャラクター選択に戻ってログインし直すと、メーターがキャラクターを認識します。",
+    "ko": "게임을 실행하고 캐릭터로 로그인하세요. 이미 접속 중이라면 캐릭터 선택 화면으로 한 번 돌아가 다시 로그인해야 미터가 캐릭터를 인식합니다."
   },
   "Wizard.CharWaiting": {
     "en": "Waiting for your character …",
@@ -8498,16 +8498,16 @@
     "ko": "포인트마다 각 효과가 0.1% 증가합니다."
   },
   "Attributes.NoData": {
-    "en": "No values yet. They arrive when you log in or change zone.",
-    "de": "Noch keine Werte. Sie kommen beim Einloggen oder Zonenwechsel.",
-    "fr": "Pas encore de valeurs. Elles arrivent à la connexion ou au changement de zone.",
-    "es": "Aún no hay valores. Llegan al iniciar sesión o cambiar de zona.",
-    "ru": "Значений пока нет. Они приходят при входе в игру или смене зоны.",
-    "zh": "暂无数值。登录或切换区域时会收到。",
-    "zh-TW": "暫無數值。登入或切換區域時會收到。",
-    "pt": "Ainda sem valores. Eles chegam ao entrar no jogo ou trocar de zona.",
-    "ja": "まだ値がありません。ログイン時やゾーン移動時に届きます。",
-    "ko": "아직 값이 없습니다. 로그인하거나 지역을 이동하면 받아옵니다."
+    "en": "No values yet. They arrive when you log in (character select).",
+    "de": "Noch keine Werte. Sie kommen beim Einloggen (Charakterauswahl).",
+    "fr": "Pas encore de valeurs. Elles arrivent à la connexion (sélection du personnage).",
+    "es": "Aún no hay valores. Llegan al iniciar sesión (selección de personaje).",
+    "ru": "Значений пока нет. Они приходят при входе (выбор персонажа).",
+    "zh": "暂无数值。登录时（角色选择）会发送。",
+    "zh-TW": "暫無數值。登入時（角色選擇）會送出。",
+    "pt": "Ainda sem valores. Eles chegam no login (seleção de personagem).",
+    "ja": "まだ値がありません。ログイン時（キャラクター選択）に届きます。",
+    "ko": "아직 값이 없습니다. 로그인(캐릭터 선택) 시 전송됩니다."
   },
   "Attributes.StatsNote": {
     "en": "The game does not send your own stat values. Here you see what each stat does and how much of it comes from your attributes and Lord values.",
