@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-20",
+  "items": [
+   {
+    "text": "Website: boss cards of the expedition and transcendence dungeons show the final boss last and mark the order (any order before the final boss, or step by step as in Vakron, Ferocious Horn Den and the transcendence dungeons)",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-20"
+   }
+  ]
+ },
+ {
   "version": "1.10.2",
   "date": "2026-10-19",
   "items": [
