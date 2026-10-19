@@ -557,6 +557,9 @@ public sealed class MeterSettings
 
     public string StatCalcSide { get; set; } = "unknown";
 
+    /// <summary>Whether the player chose the side himself (a click on a side or on "take from my last fight"); until then the calculator takes it from the last fight or the character's stats.</summary>
+    public bool StatCalcSideChosen { get; set; }
+
     public int StatCalcSideRate { get; set; } = 70;
 
     /// <summary>The identifier of this installation, made and saved when there is none yet.</summary>

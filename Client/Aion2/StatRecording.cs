@@ -6,7 +6,7 @@ using AionDPS.Update;
 namespace AionDPS.Aion2;
 
 /// <summary>What the player says about the recording: the mode of the calculator and what it assumed (the rates it was set to, the expert settings).</summary>
-public sealed record StatRecordingSetup(string Mode, string Side, double SideRate, double CritRate, double AttackRatioBuff, double AmpBuff, double CritAmpBuff, double SmiteBuff, double BossResistance, double CritBase, double SmiteBonus);
+public sealed record StatRecordingSetup(string Mode, string Side, double SideRate, double CritRate, double AttackRatioBuff, double AmpBuff, double CritAmpBuff, double SmiteBuff, double BossResistance, double CritBase, double SmiteBonus, double CritResist = 0);
 
 /// <summary>Who recorded, without a name or a legion: class, level, server and faction.</summary>
 public sealed record StatRecordingCharacter(int? ClassId, int? Level, int? ServerId, string Faction);

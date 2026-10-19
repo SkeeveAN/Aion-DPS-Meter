@@ -53,9 +53,31 @@ public static class SelfCheckStatCalc
 
         bool supported = StatCalc.IsSupported(frame) && !StatCalc.IsSupported(new Dictionary<int, int> { [19] = 100, [1] = 5 });
         Console.WriteLine($"  -> a character without a physical attack is not calculated: {supported}");
+        // the target's crit resistance lowers a crit's worth; the measured crit multiplier and the side from the stats
+        double plainCrit = StatCalc.Index(stats, setup with { CritRate = 40 });
+        bool resist = StatCalc.Index(stats, setup with { CritRate = 40, CritResist = 30 }) < plainCrit;
+        DateTime t0 = new(2026, 10, 19, 18, 0, 0);
+        var fight = new List<DamageEvent>();
+        for (int skill = 1; skill <= 4; skill++)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                fight.Add(new DamageEvent(t0.AddSeconds(skill * 10 + i), 1, 100, 1000 + i, false, "S", false, SkillId: skill, Kinds: HitKinds.Front));
+                fight.Add(new DamageEvent(t0.AddSeconds(skill * 10 + i + 0.5), 1, 100, (long)((1000 + i) * 1.7), false, "S", true, SkillId: skill, Kinds: HitKinds.Front));
+            }
+        }
+
+        double? ratio = StatCalc.MeasureCritRatio(fight);
+        bool measured = ratio is { } r && Math.Abs(r - 1.7) < 0.05 && StatCalc.MeasureCritRatio(fight.Take(10).ToList()) is null; // too few skills: no value
+        // a Perfect or Double hit is not a plain one: a fight made of them only has no ratio
+        bool special = StatCalc.MeasureCritRatio(fight.Select(e => e with { Kinds = HitKinds.Perfect }).ToList()) is null;
+        var favour = StatCalc.FromFrame(new Dictionary<int, int> { [589] = 560, [102] = 93 });
+        var favourBack = StatCalc.FromFrame(new Dictionary<int, int> { [589] = 0, [102] = 400 });
+        bool sides = StatCalc.SideFromStats(favour) == AttackSide.Front && StatCalc.SideFromStats(favourBack) == AttackSide.Back && StatCalc.SideFromStats(StatCalc.FromFrame(new Dictionary<int, int>())) == AttackSide.Unknown;
+        Console.WriteLine($"  -> a crit resistance lowers the worth of a crit; the crit multiplier is measured from crit and plain hits of the same skill, monster and side; the side comes from the larger direction bonus: {resist && measured && special && sides}");
         bool recording = RunRecording(frame);
         bool network = RunNetworkReport();
-        return read && zero && signs && side && crits && expert && lever && supported && recording && network;
+        return read && zero && signs && side && crits && expert && lever && supported && resist && measured && special && sides && recording && network;
     }
 
     /// <summary>The network report: the shape the server asks for, a file name with the version and the start of the period, and nothing of the player's machine in it (no IP address, no PC or account name).</summary>

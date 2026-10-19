@@ -10152,5 +10152,65 @@
     "pt": "Nenhum conteúdo do jogo e nenhum chat",
     "ja": "ゲーム内容やチャットは含みません",
     "ko": "게임 내용과 채팅 없음"
+  },
+  "StatCalc.Expert.CritResist": {
+    "en": "Target's crit damage resistance (%)",
+    "de": "Krit-Schadensresistenz des Ziels (%)",
+    "fr": "Résistance du cible aux dégâts critiques (%)",
+    "es": "Resistencia del objetivo al daño crítico (%)",
+    "ru": "Сопротивление цели критическому урону (%)",
+    "zh": "目标的暴击伤害抗性（%）",
+    "zh-TW": "目標的暴擊傷害抗性（%）",
+    "pt": "Resistência do alvo a dano crítico (%)",
+    "ja": "ターゲットのクリティカルダメージ耐性（％）",
+    "ko": "대상의 치명타 피해 저항(%)"
+  },
+  "StatCalc.SideAuto": {
+    "en": "Side taken from your stats: {0}",
+    "de": "Seite aus deinen Stats abgeleitet: {0}",
+    "fr": "Côté déduit de vos stats : {0}",
+    "es": "Lado deducido de tus stats: {0}",
+    "ru": "Сторона определена по вашим статам: {0}",
+    "zh": "根据你的属性得出的方向：{0}",
+    "zh-TW": "根據你的屬性得出的方向：{0}",
+    "pt": "Lado deduzido dos seus stats: {0}",
+    "ja": "ステータスから判断した方向：{0}",
+    "ko": "스탯에서 추정한 방향: {0}"
+  },
+  "StatCalc.SideHintFront": {
+    "en": "The skills of your class favour attacks from the front.",
+    "de": "Die Skills deiner Klasse sind auf Angriffe von vorne ausgelegt.",
+    "fr": "Les compétences de votre classe favorisent les attaques de face.",
+    "es": "Las habilidades de tu clase favorecen los ataques de frente.",
+    "ru": "Умения вашего класса рассчитаны на атаки спереди.",
+    "zh": "你的职业技能更适合从正面攻击。",
+    "zh-TW": "你的職業技能更適合從正面攻擊。",
+    "pt": "As habilidades da sua classe favorecem ataques de frente.",
+    "ja": "このクラスのスキルは前方からの攻撃に向いています。",
+    "ko": "이 직업의 스킬은 정면 공격에 유리합니다."
+  },
+  "StatCalc.SideHintBack": {
+    "en": "The skills of your class favour attacks from behind.",
+    "de": "Die Skills deiner Klasse sind auf Angriffe von hinten ausgelegt.",
+    "fr": "Les compétences de votre classe favorisent les attaques dans le dos.",
+    "es": "Las habilidades de tu clase favorecen los ataques por la espalda.",
+    "ru": "Умения вашего класса рассчитаны на атаки сзади.",
+    "zh": "你的职业技能更适合从背后攻击。",
+    "zh-TW": "你的職業技能更適合從背後攻擊。",
+    "pt": "As habilidades da sua classe favorecem ataques pelas costas.",
+    "ja": "このクラスのスキルは後方からの攻撃に向いています。",
+    "ko": "이 직업의 스킬은 후면 공격에 유리합니다."
+  },
+  "StatCalc.MeasuredCrit": {
+    "en": "Crit hits do ×{0} of a plain hit; base multiplier {1} %.",
+    "de": "Krit-Treffer machen ×{0} eines normalen Treffers; Basis-Multiplikator {1} %.",
+    "fr": "Les coups critiques font ×{0} d'un coup normal ; multiplicateur de base {1} %.",
+    "es": "Los golpes críticos hacen ×{0} de uno normal; multiplicador base {1} %.",
+    "ru": "Критический удар наносит ×{0} от обычного; базовый множитель {1} %.",
+    "zh": "暴击是普通命中的 ×{0}；基础倍率 {1}%。",
+    "zh-TW": "暴擊是普通命中的 ×{0}；基礎倍率 {1}%。",
+    "pt": "Golpes críticos fazem ×{0} de um normal; multiplicador base {1} %.",
+    "ja": "クリティカルは通常ヒットの×{0}、基本倍率は{1}％です。",
+    "ko": "치명타는 일반 타격의 ×{0}배, 기본 배율은 {1}%입니다."
   }
 }

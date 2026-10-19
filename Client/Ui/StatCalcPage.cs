@@ -33,7 +33,7 @@ public sealed class StatCalcPage : Grid
     private readonly Dictionary<string, TextBox> _expertBoxes = new();
     private readonly Dictionary<string, double> _expert = new()
     {
-        ["attack"] = 0, ["amp"] = 0, ["critAmp"] = 0, ["smite"] = 0, ["resist"] = 0, ["critBase"] = StatCalc.DefaultCritBase, ["smiteBonus"] = StatCalc.DefaultSmiteBonus,
+        ["attack"] = 0, ["amp"] = 0, ["critAmp"] = 0, ["smite"] = 0, ["resist"] = 0, ["critResist"] = 0, ["critBase"] = StatCalc.DefaultCritBase, ["smiteBonus"] = StatCalc.DefaultSmiteBonus,
     };
 
     private readonly StatRecorder _recorder = new();
@@ -53,6 +53,8 @@ public sealed class StatCalcPage : Grid
     private FrameworkElement? _sideRateRow;
 
     private bool _expertMode;
+    private bool _sideChosen;
+    private readonly TextBlock _classHint = new() { FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0) };
     private AttackSide _side = AttackSide.Unknown;
     private string _signature = "?";
     private IReadOnlyDictionary<int, int>? _frame;
@@ -71,6 +73,7 @@ public sealed class StatCalcPage : Grid
 
         MeterSettings saved = MeterSettings.Load();
         _expertMode = saved.StatCalcExpert;
+        _sideChosen = saved.StatCalcSideChosen || saved.StatCalcSide != "unknown"; // a side picked in 1.7.x counts as chosen
         _side = saved.StatCalcSide switch { "front" => AttackSide.Front, "back" => AttackSide.Back, _ => AttackSide.Unknown };
         _sideSlider.Value = Math.Clamp(saved.StatCalcSideRate, 0, 100);
 
@@ -196,8 +199,10 @@ public sealed class StatCalcPage : Grid
     private void SetSide(AttackSide side)
     {
         _side = side;
+        _sideChosen = true;
         MeterSettings s = MeterSettings.Load();
         s.StatCalcSide = side switch { AttackSide.Front => "front", AttackSide.Back => "back", _ => "unknown" };
+        s.StatCalcSideChosen = true;
         s.Save();
         UpdateSideButtons();
         OnAssumptionChanged();
@@ -225,7 +230,7 @@ public sealed class StatCalcPage : Grid
 
     private StatCalcSetup Setup() => new(_critSlider.Value, _side, _sideSlider.Value,
         _expertMode ? _expert["attack"] : 0, _expertMode ? _expert["amp"] : 0, _expertMode ? _expert["critAmp"] : 0, _expertMode ? _expert["smite"] : 0, _expertMode ? _expert["resist"] : 0,
-        _expertMode ? _expert["critBase"] : StatCalc.DefaultCritBase, _expertMode ? _expert["smiteBonus"] : StatCalc.DefaultSmiteBonus);
+        _expert["critBase"], _expertMode ? _expert["smiteBonus"] : StatCalc.DefaultSmiteBonus, _expertMode ? _expert["critResist"] : 0);
 
     private void Poll(bool force = false)
     {
@@ -254,6 +259,7 @@ public sealed class StatCalcPage : Grid
         _stats = frame is null ? new Dictionary<StatKey, double>() : StatCalc.FromFrame(frame);
         if (rebuild)
         {
+            AutoSide();
             Rebuild();
         }
         else
@@ -329,6 +335,15 @@ public sealed class StatCalcPage : Grid
 
         stack.Children.Add(sides);
         UpdateSideButtons();
+        _classHint.Text = ClassHint();
+        _classHint.Visibility = _classHint.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _classHint.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
+        if (_classHint.Parent is Panel oldHint)
+        {
+            oldHint.Children.Remove(_classHint);
+        }
+
+        stack.Children.Add(_classHint);
         _sideRateRow = SliderRow(Loc("StatCalc.SideRate"), _sideSlider, _sideValue);
         _sideRateRow.Margin = new Thickness(0, 10, 0, 0);
         stack.Children.Add(_sideRateRow);
@@ -354,7 +369,7 @@ public sealed class StatCalcPage : Grid
         foreach ((string key, string text, double fallback) in new[]
         {
             ("attack", "StatCalc.Expert.Attack", 0.0), ("amp", "StatCalc.Expert.Amp", 0.0), ("critAmp", "StatCalc.Expert.CritAmp", 0.0), ("smite", "StatCalc.Expert.Smite", 0.0),
-            ("resist", "StatCalc.Expert.Resist", 0.0), ("critBase", "StatCalc.Expert.CritBase", StatCalc.DefaultCritBase), ("smiteBonus", "StatCalc.Expert.SmiteBonus", StatCalc.DefaultSmiteBonus),
+            ("resist", "StatCalc.Expert.Resist", 0.0), ("critResist", "StatCalc.Expert.CritResist", 0.0), ("critBase", "StatCalc.Expert.CritBase", StatCalc.DefaultCritBase), ("smiteBonus", "StatCalc.Expert.SmiteBonus", StatCalc.DefaultSmiteBonus),
         })
         {
             stack.Children.Add(ExpertRow(key, Loc(text), fallback));
@@ -559,7 +574,7 @@ public sealed class StatCalcPage : Grid
     // ---------------------------------------------------------------- measured rates
 
     /// <summary>The player's own hits of the last fight (back from the newest, until a pause of a minute): how many direct hits, and the shares of crits, back, front and doubles.</summary>
-    private (int Hits, double Crit, double Back, double Front, double Double, double Perfect)? Measure()
+    private (int Hits, double Crit, double Back, double Front, double Double, double Perfect, double? CritRatio)? Measure()
     {
         int local = _directory()?.LocalPlayerId ?? -1;
         if (local < 0)
@@ -587,7 +602,8 @@ public sealed class StatCalcPage : Grid
 
         double Share(Func<DamageEvent, bool> test) => 100.0 * fight.Count(test) / fight.Count;
         bool Has(DamageEvent e, HitKinds kind) => e.Kinds is { } k && (k & kind) != 0;
-        return (fight.Count, Share(e => e.IsCritical), Share(e => Has(e, HitKinds.Back)), Share(e => Has(e, HitKinds.Front)), Share(e => Has(e, HitKinds.Double)), Share(e => Has(e, HitKinds.Perfect)));
+        return (fight.Count, Share(e => e.IsCritical), Share(e => Has(e, HitKinds.Back)), Share(e => Has(e, HitKinds.Front)), Share(e => Has(e, HitKinds.Double)), Share(e => Has(e, HitKinds.Perfect)),
+            StatCalc.MeasureCritRatio(fight));
     }
 
     private void TakeFromFight()
@@ -599,15 +615,70 @@ public sealed class StatCalcPage : Grid
             return;
         }
 
+        _sideChosen = true;
+        MeterSettings s = MeterSettings.Load();
+        s.StatCalcSideChosen = true;
+        s.Save();
+        ApplyMeasured(m);
+    }
+
+    /// <summary>Sets the crit rate, the side and its share and - where the fight had enough crits and plain hits - the crit multiplier from the measured fight. The multiplier is kept as the
+    /// base that adds up with the crit amplification of the stats to exactly what was measured, so a change of that stat still counts.</summary>
+    private void ApplyMeasured((int Hits, double Crit, double Back, double Front, double Double, double Perfect, double? CritRatio) m)
+    {
         _building = true;
         _critSlider.Value = Math.Round(m.Crit);
         AttackSide side = m.Back >= m.Front && m.Back >= 10 ? AttackSide.Back : m.Front > m.Back && m.Front >= 10 ? AttackSide.Front : AttackSide.Unknown;
         _side = side;
         _sideSlider.Value = Math.Round(side == AttackSide.Back ? m.Back : side == AttackSide.Front ? m.Front : _sideSlider.Value);
+        string text = string.Format(Loc("StatCalc.Measured"), m.Hits, Num(m.Crit, "0"), Num(m.Back, "0"), Num(m.Front, "0"), Num(m.Double, "0"), Num(m.Perfect, "0"));
+        if (m.CritRatio is { } ratio)
+        {
+            double amp = _stats.GetValueOrDefault(StatKey.CritAmp);
+            double critBase = Math.Clamp(Math.Round(ratio * 100 - amp), 100, 400);
+            _expert["critBase"] = critBase;
+            if (_expertBoxes.TryGetValue("critBase", out TextBox? box))
+            {
+                box.Text = Num(critBase);
+            }
+
+            text += " " + string.Format(Loc("StatCalc.MeasuredCrit"), Num(ratio, "0.00"), Num(critBase, "0"));
+        }
+
+        _measured.Text = text;
         _building = false;
         UpdateSideButtons();
         OnAssumptionChanged();
-        _measured.Text = string.Format(Loc("StatCalc.Measured"), m.Hits, Num(m.Crit, "0"), Num(m.Back, "0"), Num(m.Front, "0"), Num(m.Double, "0"), Num(m.Perfect, "0"));
+    }
+
+    /// <summary>Until the player has chosen a side, takes what the last fight shows, or else the side the character's own direction bonuses favour.</summary>
+    private void AutoSide()
+    {
+        if (_sideChosen || _frame is null)
+        {
+            return;
+        }
+
+        if (Measure() is { } m)
+        {
+            ApplyMeasured(m);
+            return;
+        }
+
+        AttackSide fromStats = StatCalc.SideFromStats(_stats);
+        _side = fromStats;
+        UpdateSideButtons();
+        if (fromStats != AttackSide.Unknown)
+        {
+            _measured.Text = string.Format(Loc("StatCalc.SideAuto"), Loc(fromStats == AttackSide.Front ? "StatCalc.SideFront" : "StatCalc.SideBack"));
+        }
+    }
+
+    /// <summary>What the skills of the player's class say about a side (the client's skill tables: effects that only work on a front or a back attack). A hint, not a default: how the player really attacks is another matter.</summary>
+    private string ClassHint()
+    {
+        int code = _directory()?.LocalCharacter?.ClassCode ?? 0;
+        return code > 0 ? ((code - 1) / 4) switch { 1 or 2 => Loc("StatCalc.SideHintFront"), 4 or 8 => Loc("StatCalc.SideHintBack"), _ => "" } : "";
     }
 
     // ---------------------------------------------------------------- recording
@@ -646,7 +717,7 @@ public sealed class StatCalcPage : Grid
         int? classId = character is { ClassCode: > 0 } ? (character.ClassCode - 1) / 4 : null;
         StatCalcSetup setup = Setup();
         var recordingSetup = new StatRecordingSetup(_expertMode ? "expert" : "simple", _side.ToString().ToLowerInvariant(), setup.SideRate, setup.CritRate, setup.AttackRatioBuff, setup.AmpBuff,
-            setup.CritAmpBuff, setup.SmiteBuff, setup.BossResistance, setup.CritBase, setup.SmiteBonus);
+            setup.CritAmpBuff, setup.SmiteBuff, setup.BossResistance, setup.CritBase, setup.SmiteBonus, setup.CritResist);
         _recordingJson = StatRecording.Build(MeterSettings.EnsureAnonymousId(), start, end, recordingSetup, new StatRecordingCharacter(classId, character?.Level, serverId, StatRecording.FactionOf(serverId)),
             _recorder.StartStats, statsEnd, _recorder.Changes, mine, extras, local,
             id => directory?.NpcIdOf(id), id => directory?.MonsterNameFor(id));

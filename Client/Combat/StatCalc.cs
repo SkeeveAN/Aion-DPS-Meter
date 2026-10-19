@@ -40,7 +40,8 @@ public sealed record StatCalcSetup(
     double SmiteBuff = 0,
     double BossResistance = 0,
     double CritBase = StatCalc.DefaultCritBase,
-    double SmiteBonus = StatCalc.DefaultSmiteBonus);
+    double SmiteBonus = StatCalc.DefaultSmiteBonus,
+    double CritResist = 0);
 
 /// <summary>The damage index of a character as it is and with the changes, and what one more percent of damage costs in each stat.</summary>
 public sealed record StatCalcResult(double Before, double After, double GainPercent, IReadOnlyList<StatCalcLever> Levers);
@@ -90,6 +91,50 @@ public static class StatCalc
 
     public static IEnumerable<StatKey> Keys => Specs.Keys;
 
+    /// <summary>
+    /// How much a critical hit does against a plain one: the median over the skills of the median critical hit against the median plain hit of the same skill on the same monster from the same
+    /// side (a hit with a Perfect, Double or Parry flag or with several strikes is left out). It holds everything that acts on a crit - the character's stats and the monster's resistance -
+    /// so it is better than any rule from the stats; null when fewer than three skills have three hits of each kind.
+    /// </summary>
+    public static double? MeasureCritRatio(IReadOnlyList<DamageEvent> hits)
+    {
+        const HitKinds Special = HitKinds.Parry | HitKinds.Perfect | HitKinds.Double;
+        var groups = new Dictionary<(int Skill, int Target, int Side), (List<double> Crit, List<double> Plain)>();
+        foreach (DamageEvent e in hits)
+        {
+            if (e.IsHeal || e.IsTick || e.Estimated || e.Amount <= 0 || e.HitCount != 1 || ((e.Kinds ?? HitKinds.None) & Special) != 0)
+            {
+                continue;
+            }
+
+            var key = (e.SkillId, e.TargetObjectId, (int)((e.Kinds ?? HitKinds.None) & (HitKinds.Back | HitKinds.Front)));
+            if (!groups.TryGetValue(key, out var lists))
+            {
+                lists = (new List<double>(), new List<double>());
+                groups[key] = lists;
+            }
+
+            (e.IsCritical ? lists.Crit : lists.Plain).Add(e.Amount);
+        }
+
+        var ratios = groups.Values.Where(g => g.Crit.Count >= 3 && g.Plain.Count >= 3).Select(g => Median(g.Crit) / Median(g.Plain)).OrderBy(r => r).ToList();
+        return ratios.Count >= 3 ? Median(ratios) : null;
+    }
+
+    private static double Median(List<double> values)
+    {
+        var sorted = values.OrderBy(v => v).ToList();
+        int n = sorted.Count;
+        return n % 2 == 1 ? sorted[n / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+    }
+
+    /// <summary>The side a character's own stats favour: the one whose direction bonus (front or back amplification) is the larger; unknown when neither has one or they are equal.</summary>
+    public static AttackSide SideFromStats(IReadOnlyDictionary<StatKey, double> stats)
+    {
+        double front = Get(stats, StatKey.FrontAmp), back = Get(stats, StatKey.BackAmp);
+        return front > back && front > 0 ? AttackSide.Front : back > front && back > 0 ? AttackSide.Back : AttackSide.Unknown;
+    }
+
     /// <summary>The values of a stat frame as the calculator's table (percentages in percent); a stat the frame did not send is 0.</summary>
     public static Dictionary<StatKey, double> FromFrame(IReadOnlyDictionary<int, int> frame)
     {
@@ -123,7 +168,7 @@ public static class StatCalc
         double amplification = Math.Max(1 + (Get(stats, StatKey.AllAmp) + Get(stats, StatKey.PveAmp) + Get(stats, StatKey.BossAmp) + setup.AmpBuff - setup.BossResistance) / 100, 0);
 
         double critRate = Math.Clamp(setup.CritRate, 0, 100) / 100;
-        double critMultiplier = Math.Max((setup.CritBase + Get(stats, StatKey.CritAmp) + setup.CritAmpBuff) / 100, 1);
+        double critMultiplier = Math.Max((setup.CritBase + Get(stats, StatKey.CritAmp) + setup.CritAmpBuff - setup.CritResist) / 100, 1);
         double crit = 1 + critRate * (critMultiplier - 1);
 
         double smiteChance = Math.Clamp((Get(stats, StatKey.Smite) + setup.SmiteBuff) / 100, 0, 1);
