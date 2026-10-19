@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.8.0",
   "date": "2026-10-19",
   "items": [
    {
@@ -8,6 +8,22 @@
     "areas": [
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-19"
+   },
+   {
+    "text": "Website: the encounter page lists what ran on each player - own buffs, buffs from the group and consumables - in one players list with a damage / healing / damage taken switch; the server stores the uptime and givers of buffs once the meter sends them",
+    "areas": [
+     "Website",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-19"
+   },
+   {
+    "text": "for every player of a boss fight the meter now uploads the helpful effects that ran on them (how much of the fight, how often, who gave them), so the website can show own buffs, buffs from the group and consumables next to the damage",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-19"
    }
