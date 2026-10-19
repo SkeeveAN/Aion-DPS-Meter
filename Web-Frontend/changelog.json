@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "Website: the technical article uses the whole page width in two columns instead of one narrow column",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.8.0",
   "date": "2026-10-19",
   "items": [
