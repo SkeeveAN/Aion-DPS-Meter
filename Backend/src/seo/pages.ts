@@ -187,6 +187,10 @@ export function guidePage(): Page {
       title: g("title"),
       description: g("metaDesc"),
       canonicalPath: "/aion-2-dps-meter",
+      // WhatsApp cuts a square out of the middle of the preview picture, so this one keeps its text there.
+      ogImage: "/og/guide.png?v=20261019",
+      ogImageAlt: "AION 2 DPS Meter – Features, Installation & Comparison",
+      ogImageSize: { width: 1200, height: 630 },
       jsonLd: [
         softwareApplicationJsonLd(),
         breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: g("breadcrumb"), path: "/aion-2-dps-meter" }]),
