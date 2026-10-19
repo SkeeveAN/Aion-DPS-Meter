@@ -2182,6 +2182,11 @@ public sealed class Aion2FrameDecoder
     private void DecodeCharacterList(ReadOnlySpan<byte> frame)
     {
         Capture.LoginCapture.LoginStarted(); // a no-op unless the legion's login switch is on
+        if (TryReadAccountKey(frame, out string accountKey))
+        {
+            _entities.NoteAccountKey(accountKey);
+        }
+
         for (int i = 2; i + 40 < frame.Length; i++)
         {
             if (!TryReadName(frame, i, out string name, minLength: 2))
@@ -2195,6 +2200,33 @@ public sealed class Aion2FrameDecoder
                 _entities.NoteAccountLegion(name, guild);
             }
         }
+    }
+
+    /// <summary>
+    /// The account key: a 12-character text, length-prefixed, right before <c>2a 00 00 00 01 02 01</c> in the character list of the login. It is the same
+    /// on every character of one account and differs between accounts (checked on the login traffic of two accounts with four characters each, 2026-10-19).
+    /// </summary>
+    private static bool TryReadAccountKey(ReadOnlySpan<byte> frame, out string key)
+    {
+        key = "";
+        ReadOnlySpan<byte> marker = [0x2a, 0x00, 0x00, 0x00, 0x01, 0x02, 0x01];
+        int at = frame.IndexOf(marker);
+        if (at < 13 || frame[at - 13] != 12)
+        {
+            return false;
+        }
+
+        ReadOnlySpan<byte> text = frame.Slice(at - 12, 12);
+        foreach (byte b in text)
+        {
+            if (b is < 0x21 or > 0x7e)
+            {
+                return false;
+            }
+        }
+
+        key = System.Text.Encoding.ASCII.GetString(text);
+        return true;
     }
 
     private void DecodeAppearance(ReadOnlySpan<byte> frame)

@@ -1971,6 +1971,31 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     }
 
     private readonly Dictionary<string, string> _accountLegions = new(StringComparer.Ordinal);
+    private string? _accountKey;
+
+    /// <summary>The account key of the login's character list (the same on every character of one account); replaced at every login.</summary>
+    public void NoteAccountKey(string key)
+    {
+        lock (_gate)
+        {
+            _accountKey = key;
+        }
+    }
+
+    /// <summary>A hash of the account key of the current login (16 hex digits), or null before the character list arrived. The key itself is never sent.</summary>
+    public string? AccountKeyHash()
+    {
+        lock (_gate)
+        {
+            if (_accountKey is null)
+            {
+                return null;
+            }
+
+            byte[] digest = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.ASCII.GetBytes("aiondps-account:" + _accountKey));
+            return Convert.ToHexString(digest, 0, 8).ToLowerInvariant();
+        }
+    }
 
     /// <summary>A character of the own account with its legion, from the login's character list.</summary>
     public void NoteAccountLegion(string name, string legion)

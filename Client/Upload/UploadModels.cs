@@ -101,7 +101,9 @@ public sealed record ProfileUpload(
     int? ActivePetLevel = null,
     // Own character only: every skill preset seen so far (the server sends only the active one; the others are as last seen), the
     // active one marked. Skills above is the active preset. Null/empty = a character without presets.
-    IReadOnlyList<ProfilePresetUpload>? Presets = null);
+    IReadOnlyList<ProfilePresetUpload>? Presets = null,
+    // Own character only: a hash of the account key of the login's character list (16 hex digits); the same on every character of one account.
+    string? AccountKey = null);
 
 /// <summary>One skill preset: its number (1..), whether it is the active one, when it was last seen (UTC) and its skills.</summary>
 public sealed record ProfilePresetUpload(int Index, bool Active, DateTime SeenAt, IReadOnlyList<ProfileSkillUpload> Skills);

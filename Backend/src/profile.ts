@@ -129,6 +129,8 @@ export const profileSchema = z.object({
   wingSkinId: z.number().int().min(0).max(2_000_000_000).optional(),
   activePet: z.number().int().min(0).max(2_000_000_000).optional(),
   activePetLevel: z.number().int().min(0).max(1000).optional(),
+  // Own character only: a hash (16 hex digits) of the account key the game sends with the login's character list; the same on every character of one account.
+  accountKey: z.string().regex(/^[0-9a-f]{16}$/).optional(),
 });
 
 export type ProfileUpload = z.infer<typeof profileSchema>;
@@ -189,6 +191,7 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     wingSkinId: profile.wingSkinId ? profile.wingSkinId : (existing?.wingSkinId ?? null),
     activePet: profile.activePet ? profile.activePet : (existing?.activePet ?? null),
     // The level belongs to the pet it was read for: a new pet without a level does not inherit the old pet's.
+    accountKey: profile.source === "self" && profile.accountKey ? profile.accountKey : (existing?.accountKey ?? null),
     activePetLevel: profile.activePetLevel ? profile.activePetLevel : (!profile.activePet || profile.activePet === existing?.activePet ? (existing?.activePetLevel ?? null) : null),
   };
   if (row) {

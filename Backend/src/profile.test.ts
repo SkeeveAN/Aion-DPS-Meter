@@ -190,6 +190,17 @@ test("a newer own upload replaces the old one but keeps skills and boards when i
   assert.equal(view.daevanion.length, 1);
 });
 
+test("the account key of an own upload is stored, kept by a later upload without one and ignored for a seen profile", () => {
+  const id = playerId("Aahz");
+  const key = () => db.select({ k: playerProfiles.accountKey }).from(playerProfiles).where(eq(playerProfiles.playerId, id)).get()?.k;
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 35, classId: 1, classBits: 2, accountKey: "0123456789abcdef" }));
+  assert.equal(key(), "0123456789abcdef");
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 36, classId: 1, classBits: 2 }));
+  assert.equal(key(), "0123456789abcdef");
+  assert.equal(profileSchema.safeParse({ source: "self", accountKey: "$qcxVk1UFBpf" }).success, false); // the raw key is never accepted
+  assert.equal(JSON.stringify(buildProfileView(id)).includes("0123456789abcdef"), false);
+});
+
 test("titles, pet circles and board counts of a seen player are stored and resolved", () => {
   processUpload(
     aion2Upload([

@@ -367,6 +367,8 @@ export const playerProfiles = sqliteTable("player_profiles", {
   wingSkinId: integer("wing_skin_id"),
   activePet: integer("active_pet"),
   activePetLevel: integer("active_pet_level"),
+  // A hash of the account key of the login's character list (own character only): the same on every character of one account. Internal, never shown or sent out.
+  accountKey: text("account_key"),
 });
 
 export const encounters = sqliteTable(

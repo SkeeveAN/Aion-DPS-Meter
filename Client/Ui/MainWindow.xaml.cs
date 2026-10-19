@@ -5461,7 +5461,8 @@ public partial class MainWindow : Window
                     ? directory.LocalPetStates.Where(p => p.PetId == activePet).Select(p => (int?)p.Level).FirstOrDefault()
                     : null,
                 Presets: directory.LocalPresets.Select(x => new ProfilePresetUpload(x.Index, x.Active, x.SeenAt.ToUniversalTime(),
-                    x.Skills.Select(k => new ProfileSkillUpload(k.SkillId, k.Level, k.BaseLevel, k.Stigma, k.Equipped, k.Stones)).ToList())).ToList());
+                    x.Skills.Select(k => new ProfileSkillUpload(k.SkillId, k.Level, k.BaseLevel, k.Stigma, k.Equipped, k.Stones)).ToList())).ToList(),
+                AccountKey: directory.AccountKeyHash());
         }
 
         // A character window the local player opened for this player: level and the full equipment with
