@@ -112,6 +112,13 @@ export async function buildServer() {
     }
   });
 
+  // The favicons and the touch icon only change under a new file name too (and sit on every page): a week as well.
+  app.addHook("onSend", async (request, reply) => {
+    if (reply.statusCode === 200 && /^\/(favicon-\d+x\d+|apple-touch-icon)\.png$/.test(request.url.split("?")[0])) {
+      reply.header("cache-control", "public, max-age=604800");
+    }
+  });
+
   // A wrong address must answer 404 with a real page, never 200 with an empty app shell - crawlers
   // would otherwise index every typo as a page. API callers keep getting JSON.
   app.setNotFoundHandler((request, reply) => {

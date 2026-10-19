@@ -28,6 +28,7 @@
 - Desglose de habilidades con tasas de crítico y curva de DPS
 - Clasificaciones de jefes y perfiles públicos de personajes en aiondps.com (subida opcional, desactivada por defecto)
 - Mapa interactivo, calendario de eventos, temporizadores de jefes de mundo y superposición de red
+- Lanzamientos de jefes anunciados por voz, un registro de botín, una herramienta de atributos y una lista de tareas diarias
 - Seguro: captura pasiva de paquetes, sin leer la memoria ni inyectar código
 - Gratuito, de código abierto (MIT) y se actualiza solo
 
@@ -80,7 +81,7 @@ coloca la curación y el daño recibido en una pequeña segunda línea bajo el n
 
 **Hide UI** convierte la ventana en pequeñas fichas (o un panel compacto) que se sitúan sobre Aion 2 sin
 interceptar ni un solo clic. La opacidad, las barras de porcentaje de daño, la vida del jefe y el daño recibido por
-jugador son opciones. El overlay solo se dibuja mientras el juego está en primer plano. Actívalo desde cualquier sitio con un atajo.
+jugador son opciones. El panel compacto puede, opcionalmente, dejar pasar los clics del ratón al juego. El overlay solo se dibuja mientras el juego está en primer plano. Actívalo desde cualquier sitio con un atajo.
 
 Opcional (**Ajustes → Interfaz → Ocultar durante los menús del juego**, desactivado por defecto): el medidor y sus overlays se apartan mientras hay un menú del juego abierto (mapa, inventario, legión, tienda, Esc ...) y vuelven al cerrarlo. Funciona por el cursor del ratón: en el modo de control que oculta el cursor mientras juegas, el juego lo muestra al abrir un menú; mantener pulsada la tecla de mostrar el cursor (Alt por defecto) mantiene visible el medidor para que puedas hacer clic en él, y **Ctrl+Alt+J** muestra los overlays durante el menú abierto. En el modo de control clásico el cursor siempre se muestra, por lo que los menús no se pueden distinguir; el medidor lo detecta mientras combates y simplemente se queda visible.
 
@@ -121,6 +122,8 @@ encantamiento (incluida la fase de Amplificación por encima de +15), arcanos, c
 habilidades con sus niveles y los tableros de Daevanion completos. Guarda tu último inicio de sesión, así que nunca
 está vacía. Pasa el ratón sobre una pieza para ver sus detalles (piedras, atributos obtenidos, piedra divina).
 
+El medidor también detecta cuál de tus **presets de habilidades** está activo y conserva todos los que ha visto: niveles de habilidad, stigmas y piedras. La pestaña de habilidades muestra cada preset con las piedras de sus habilidades, y la descripción emergente de una habilidad enumera las piedras y los efectos que desbloquea un stigma, con las palabras del propio juego.
+
 <p align="center">
   <img src="Web-Frontend/images/features/character-gear@2x.webp" width="640" alt="La ventana Personaje con equipo, niveles de objeto y encantamiento">
 </p>
@@ -132,7 +135,7 @@ recolección que activaste — hierbas, minerales, madera, gemas y más — sin 
 listan los recursos que puede usar tu propia facción, y la última posición conocida permanece en el mapa mientras el
 juego está cerrado. Los ajustes de mascotas listan cada región de Verteron, Altgard y el Abismo con sus mascotas y tu
 propio nivel de mascota, además de una pestaña **Raros** para mascotas con pocos puntos de aparición. Unas flechas en
-el borde señalan la mascota o el recurso recolectable más cercano.
+el borde señalan la mascota o el recurso recolectable más cercano. Dentro de una mazmorra o instancia de grupo, el mapa cambia a esa instancia (25 mapas a partir de las imágenes del propio juego, para las instancias que tienen monstruos de mascota) y muestra sus monstruos de mascota.
 
 <p align="center">
   <img src="Web-Frontend/images/features/map@2x.webp" width="520" alt="El mapa interactivo con puntos de aparición de mascotas y la lista de mascotas">
@@ -143,7 +146,7 @@ el borde señalan la mascota o el recurso recolectable más cercano.
 
 Un overlay lista los próximos eventos — Campo de batalla, los asedios del Abismo (Asedio de artefactos), el Festival
 Shugo, el Ataque aéreo de Beritra, la Grieta espaciotemporal y más. Elige un sonido y un volumen por evento y recibe
-un aviso unos minutos antes de que empiece. Un interruptor activa o desactiva todos los recordatorios.
+un aviso unos minutos antes de que empiece. Un interruptor activa o desactiva todos los recordatorios. Las horas siguen el reloj UTC del servidor del juego, así que son las mismas en todas las regiones y en horario de verano e invierno, y se muestran en la hora de tu PC. También figuran los jefes ejecutores del Abismo (lun, jue, sáb) y la Señora Guardiana Nahma (vie, dom), y hay diez sonidos de notificación para elegir.
 
 <p align="center">
   <img src="Web-Frontend/images/features/timetable@2x.webp" width="380" alt="Ajustes de horarios con un sonido y un volumen por evento">
@@ -176,11 +179,15 @@ Un marco transparente con hasta tres elementos, cada uno de los cuales colocas y
 - **Barra de lanzamiento del jefe:** en cuanto un jefe empieza una habilidad, ves su nombre, una barra que va bajando con el tiempo restante y a quién apunta (tú en rojo). Una habilidad que ha golpeado a varios jugadores se marca como **ÁREA**; **LETAL** significa que el golpe más alto que has recibido de ella hasta ahora es al menos igual a tu salud actual. El medidor aprende cada habilidad (si es de área o no, cuándo llega su daño) y la recuerda entre sesiones.
 - **Objetivo del objetivo:** un bloque que se mueve, cambia de tamaño y se escala de una vez, con partes que también puedes colocar por separado dentro de él. Si el objetivo que seleccionaste con Tab apunta a su vez a alguien, ves a quién: un jefe con su imagen y nombre, un jugador con el emblema de clase y nombre. La **barra del sanador** (opcional) añade al bloque la barra de salud de ese objetivo y sus debuffs (o buffs).
 
-Desbloquea el overlay en **Ajustes → Combate contra jefes** para organizarlo: arrastra el cuerpo de un elemento para moverlo, tira de sus bordes para cambiar el tamaño, tira de su esquina para escalarlo; el asa de la esquina inferior derecha de todo el marco escala todos los elementos a la vez. Bloqueado, deja pasar los clics y solo se muestra mientras el juego está en primer plano. **Ctrl+Alt+C** lo activa y desactiva, y también lo hace el atajo *Todos los overlays sí / no*.
+Desbloquea el overlay en **Ajustes → Combate contra jefes** para organizarlo: arrastra el cuerpo de un elemento para moverlo, tira de sus bordes para cambiar el tamaño, tira de su esquina para escalarlo; el asa de la esquina inferior derecha de todo el marco escala todos los elementos a la vez. Bloqueado, deja pasar los clics y solo se muestra mientras el juego está en primer plano. La voz de Windows elegida también puede **anunciar por voz los lanzamientos de jefes** (con o sin el nombre de la habilidad, dirigidos a ti, a todos, letales), incluso con el overlay desactivado mientras Aion está en primer plano; los ajustes tienen frases de ejemplo para escuchar. **Ctrl+Alt+C** lo activa y desactiva, y también lo hace el atajo *Todos los overlays sí / no*.
 
 <p align="center">
   <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="El overlay de combate contra jefes: dos lanzamientos de jefe con barra de tiempo y el bloque «Objetivo del objetivo» con imagen, nombre, barra de vida y debuffs">
 </p>
+
+### Botín, atributos y la lista de tareas diarias
+
+La ventana **Herramientas** los enumera a la izquierda. La herramienta **Botín** muestra lo que recoges del suelo, por sesión y mapa, como página y como overlay (**Ctrl+Alt+L**). La herramienta **Atributos** muestra el anillo de atributos con tus puntos, lo que hace cada atributo y valor de Señor (0,1 % por punto), todas las bonificaciones sumadas, y una pestaña de estadísticas que explica cada estadística con su parte procedente del anillo. La **lista de tareas** guarda tus tareas diarias y semanales, lee del juego las misiones diarias obligatorias y la compra semanal de energía de Odyle, y deja el resto para marcar a mano. Cada herramienta recuerda su propio ancho y alto.
 
 ### Anuncios y Twitch Drops
 
@@ -247,6 +254,7 @@ chat, que no pueden funcionar porque el chat de Aion 2 no se puede leer en el tr
 | **Ctrl+Alt+B** | Overlay de jefes mundiales |
 | **Ctrl+Alt+N** | Overlay de red |
 | **Ctrl+Alt+C** | Overlay de combate |
+| **Ctrl+Alt+L** | Overlay de botín |
 | **Ctrl+Alt+J** | Mostrar overlays durante este menú |
 | **Ctrl+Alt+O** | Superposición de atajos (una lista movible de los atajos) |
 | **Ctrl+Alt+A** | Todos los overlays sí / no |

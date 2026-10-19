@@ -29,6 +29,7 @@
 - Detalhamento de habilidades com taxa de crítico e curva de DPS
 - Rankings de chefes e perfis públicos de personagens em aiondps.com (envio opcional, desativado por padrão)
 - Mapa interativo, agenda de eventos, temporizadores de chefes mundiais e sobreposição de rede
+- Conjurações de chefes anunciadas por voz, um registro de saque, uma ferramenta de atributos e uma lista de tarefas diárias
 - Seguro: captura passiva de pacotes, sem ler a memória nem injetar código
 - Gratuito, de código aberto (MIT) e se atualiza sozinho
 
@@ -81,7 +82,7 @@ cura e dano recebido em uma pequena segunda linha abaixo do nome.
 
 **Ocultar UI** transforma a janela em pequenas fichas (ou um painel compacto) que ficam sobre o Aion 2 sem
 capturar um único clique. Opacidade, barras de participação no dano, a vida do chefe e o dano recebido por jogador
-são opções. O overlay só é desenhado enquanto o jogo está em primeiro plano. Ative-o de qualquer lugar com um atalho.
+são opções. O painel compacto pode, opcionalmente, deixar os cliques do mouse passarem para o jogo. O overlay só é desenhado enquanto o jogo está em primeiro plano. Ative-o de qualquer lugar com um atalho.
 
 Opcional (**Configurações → Interface → Ocultar durante os menus do jogo**, desligado por padrão): o medidor e seus overlays saem do caminho enquanto um dos menus do jogo está aberto (mapa, inventário, legião, loja, Esc ...) e voltam quando você o fecha. Isso funciona pelo cursor do mouse: no modo de controle que esconde o cursor enquanto você joga, o jogo o mostra quando um menu abre; manter pressionada a tecla de mostrar o cursor (Alt por padrão) mantém o medidor visível para que você possa clicar nele, e **Ctrl+Alt+J** mostra os overlays durante o menu aberto. No modo de controle clássico o cursor está sempre visível, então os menus não podem ser distinguidos; o medidor percebe isso durante a luta e simplesmente continua visível.
 
@@ -121,6 +122,8 @@ encantamento (incluindo o estágio de Amplificação acima de +15), arcana, conh
 e os quadros completos de Daevanion. Ela guarda o seu último login, portanto nunca fica vazia. Passe o mouse sobre uma peça para ver seus
 detalhes (pedras, atributos sorteados, pedra divina).
 
+O medidor também percebe qual dos seus **presets de habilidades** está ativo e guarda todos os que já viu: níveis de habilidades, stigmas e pedras. A aba de habilidades mostra cada preset com as pedras das suas habilidades, e a dica de uma habilidade lista as pedras e os efeitos que um stigma desbloqueia, com as palavras do próprio jogo.
+
 <p align="center">
   <img src="Web-Frontend/images/features/character-gear@2x.webp" width="640" alt="A janela Personagem com equipamento, níveis de item e encantamento">
 </p>
@@ -131,7 +134,7 @@ Um overlay de mapa mostra a sua posição, os pontos de surgimento das mascotes 
 ativou — ervas, minérios, madeira, gemas e mais — sem precisar alternar para um site com Alt+Tab. Só é listado o que a sua
 própria facção pode usar, e a última posição conhecida permanece no mapa enquanto o jogo está fechado. As configurações de
 mascotes listam todas as regiões de Verteron, Altgard e do Abismo com suas mascotes e o seu próprio nível de mascote, além de uma
-aba **Raros** para mascotes com poucos pontos de surgimento. Setas na borda apontam para a mascote ou o item coletável mais próximo.
+aba **Raros** para mascotes com poucos pontos de surgimento. Setas na borda apontam para a mascote ou o item coletável mais próximo. Dentro de uma masmorra ou instância de grupo, o mapa muda para essa instância (25 mapas feitos com as imagens do próprio jogo, para as instâncias que têm monstros de mascote) e mostra os monstros de mascote dela.
 
 <p align="center">
   <img src="Web-Frontend/images/features/map@2x.webp" width="520" alt="O mapa interativo com pontos de surgimento de mascotes e a lista de mascotes">
@@ -142,7 +145,7 @@ aba **Raros** para mascotes com poucos pontos de surgimento. Setas na borda apon
 
 Um overlay lista os próximos eventos — Campo de Batalha (Battlefield), os cercos do Abismo (Artifact Siege), o Festival Shugo,
 o Ataque Aéreo de Beritra, a Fenda do Espaço-Tempo e mais. Escolha um som e o volume por evento e seja lembrado
-alguns minutos antes de ele começar. Um único botão liga ou desliga todos os lembretes.
+alguns minutos antes de ele começar. Um único botão liga ou desliga todos os lembretes. Os horários seguem o relógio UTC do servidor do jogo, então são os mesmos em todas as regiões e no horário de verão e de inverno, e são mostrados no horário do seu PC. Os chefes executores do Abismo (seg, qui, sáb) e a Senhora Guardiã Nahma (sex, dom) também são listados, e há dez sons de notificação para escolher.
 
 <p align="center">
   <img src="Web-Frontend/images/features/timetable@2x.webp" width="380" alt="Configurações de horários com um som e volume por evento">
@@ -175,11 +178,15 @@ Uma moldura transparente com até três elementos, cada um dos quais você posic
 - **Barra de conjuração do chefe:** no momento em que um chefe começa uma habilidade, você vê o nome dela, uma barra que diminui com o tempo restante e em quem ela está mirada (você em vermelho). Uma habilidade que atingiu vários jogadores é marcada como **ÁREA**; **LETAL** significa que o maior golpe que você recebeu dela até agora é pelo menos igual à sua vida atual. O medidor aprende cada habilidade (se é em área ou não, quando o dano dela chega) e a lembra entre as sessões.
 - **Alvo do alvo:** um bloco que se move, redimensiona e escala de uma vez, com partes que você também pode posicionar separadamente dentro dele. Se o alvo que você selecionou com Tab estiver mirando em alguém, você vê em quem: um chefe com imagem e nome, um jogador com o emblema da classe e o nome. A **barra do curandeiro** (opcional) acrescenta ao bloco a barra de vida desse alvo e seus debuffs (ou buffs).
 
-Desbloqueie o overlay em **Configurações → Luta de chefe** para organizá-lo: arraste o corpo de um elemento para movê-lo, puxe as bordas para redimensioná-lo, puxe o canto para escalá-lo; a alça no canto inferior direito de toda a moldura escala todos os elementos juntos. Bloqueado, ele deixa os cliques passarem e só aparece enquanto o jogo está em primeiro plano. **Ctrl+Alt+C** o liga e desliga, assim como o atalho *Todos os overlays ligados / desligados*.
+Desbloqueie o overlay em **Configurações → Luta de chefe** para organizá-lo: arraste o corpo de um elemento para movê-lo, puxe as bordas para redimensioná-lo, puxe o canto para escalá-lo; a alça no canto inferior direito de toda a moldura escala todos os elementos juntos. Bloqueado, ele deixa os cliques passarem e só aparece enquanto o jogo está em primeiro plano. A voz do Windows escolhida também pode **anunciar as conjurações de chefes** por voz (com ou sem o nome da habilidade, em você, em todos, letal), mesmo com o overlay desligado enquanto o Aion está em primeiro plano; as configurações têm frases de exemplo para ouvir. **Ctrl+Alt+C** o liga e desliga, assim como o atalho *Todos os overlays ligados / desligados*.
 
 <p align="center">
   <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="O overlay de luta de chefe: duas conjurações de chefe com barra de tempo e o bloco «Alvo do alvo» com imagem, nome, barra de vida e debuffs">
 </p>
+
+### Saque, atributos e a lista de tarefas diárias
+
+A janela **Ferramentas** os lista à esquerda. A ferramenta **Saque** mostra o que você pega do chão, por sessão e mapa, como uma página e como um overlay (**Ctrl+Alt+L**). A ferramenta **Atributos** mostra o anel de atributos com os seus pontos, o que cada atributo e valor de Lorde faz (0,1 % por ponto), todos os bônus somados e uma aba de estatísticas que explica cada estatística com a sua parte vinda do anel. A **lista de tarefas** guarda as suas tarefas diárias e semanais, lê do jogo as missões diárias obrigatórias e a compra semanal de energia de Odyle e deixa o resto para marcar à mão. Cada ferramenta lembra a sua própria largura e altura.
 
 ### Anúncios e Twitch Drops
 
@@ -246,6 +253,7 @@ que não podem funcionar porque o chat do Aion 2 não é legível a partir do fl
 | **Ctrl+Alt+B** | Overlay de chefes mundiais |
 | **Ctrl+Alt+N** | Overlay de rede |
 | **Ctrl+Alt+C** | Overlay de combate |
+| **Ctrl+Alt+L** | Overlay de saque |
 | **Ctrl+Alt+J** | Mostrar overlays durante este menu |
 | **Ctrl+Alt+O** | Overlay de atalhos (uma lista móvel dos atalhos) |
 | **Ctrl+Alt+A** | Todos os overlays ligados / desligados |

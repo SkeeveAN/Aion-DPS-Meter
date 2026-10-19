@@ -29,6 +29,7 @@
 - Détail des compétences avec taux de critique et courbe de DPS
 - Classements de boss et profils publics de personnages sur aiondps.com (envoi facultatif, désactivé par défaut)
 - Carte interactive, calendrier d'événements, minuteurs de boss mondiaux et surcouche réseau
+- Incantations de boss annoncées par la voix, journal de butin, outil d'attributs et checklist quotidienne
 - Sûr : capture passive des paquets, aucune lecture de la mémoire, aucune injection
 - Gratuit, open source (MIT) et se met à jour tout seul
 
@@ -82,7 +83,7 @@ dégâts reçus dans une petite seconde ligne sous le nom.
 
 **Hide UI** transforme la fenêtre en petites pastilles (ou en panneau compact) posées sur Aion 2 sans intercepter
 le moindre clic. Opacité, barres de part de dégâts, vie du boss et dégâts reçus par joueur sont des options.
-L'overlay ne s'affiche que lorsque le jeu est au premier plan. Activez-le de n'importe où avec un raccourci.
+Le panneau compact peut, en option, laisser passer les clics de la souris vers le jeu. L'overlay ne s'affiche que lorsque le jeu est au premier plan. Activez-le de n'importe où avec un raccourci.
 
 Facultatif (**Paramètres → Interface → Masquer pendant les menus du jeu**, désactivé par défaut) : le compteur et ses overlays s'effacent tant qu'un menu du jeu est ouvert (carte, inventaire, légion, boutique, Échap ...) et reviennent quand tu le fermes. Cela repose sur le curseur de la souris : dans le mode de contrôle qui masque le curseur pendant que tu joues, le jeu l'affiche à l'ouverture d'un menu ; maintenir la touche d'affichage du curseur (Alt par défaut) garde le compteur visible pour que tu puisses cliquer dessus, et **Ctrl+Alt+J** affiche les overlays pendant le menu ouvert. Dans le mode de contrôle classique, le curseur est toujours affiché, donc les menus ne se distinguent pas ; le compteur le remarque pendant le combat et reste simplement affiché.
 
@@ -123,6 +124,8 @@ d'objet et enchantement (y compris le niveau d'Amplification au-delà de +15), a
 toutes les compétences avec leurs niveaux et les plateaux Daevanion complets. Elle garde votre dernière connexion
 et n'est donc jamais vide. Survolez une pièce pour ses détails (pierres, statistiques obtenues, pierre divine).
 
+Le compteur remarque aussi lequel de vos **presets de compétences** est actif et conserve chaque preset qu'il a vu : niveaux des compétences, stigmas et pierres. L'onglet des compétences montre chaque preset avec les pierres de ses compétences, et l'infobulle d'une compétence liste les pierres et les effets qu'un stigma débloque, avec les mots du jeu.
+
 <p align="center">
   <img src="Web-Frontend/images/features/character-gear@2x.webp" width="640" alt="La fenêtre Personnage avec équipement, niveaux d'objet et enchantement">
 </p>
@@ -134,7 +137,7 @@ récolte que vous avez activés — herbes, minerais, bois, gemmes et plus — s
 que votre propre faction peut utiliser est listé, et la dernière position connue reste sur la carte tant que le
 jeu est fermé. Les réglages des pets listent chaque région de Verteron, d'Altgard et de l'Abysse avec ses pets et
 votre propre niveau de pet, plus un onglet **Rares** pour les pets ayant peu de points d'apparition. Des flèches
-au bord indiquent le pet ou la ressource la plus proche.
+au bord indiquent le pet ou la ressource la plus proche. Dans un donjon ou une instance de groupe, la carte bascule sur cette instance (25 cartes tirées des images du jeu, pour les instances qui ont des monstres pets) et montre ses monstres pets.
 
 <p align="center">
   <img src="Web-Frontend/images/features/map@2x.webp" width="520" alt="La carte interactive avec points d'apparition de pets et liste des pets">
@@ -145,7 +148,7 @@ au bord indiquent le pet ou la ressource la plus proche.
 
 Un overlay liste les prochains événements — Champ de bataille, sièges de l'Abysse (Siège d'artefact), Fête des
 Shugo, Raid aérien de Beritra, Faille spatio-temporelle et plus. Choisissez un son et un volume par événement et
-soyez prévenu quelques minutes avant son début. Un seul commutateur active ou désactive tous les rappels.
+soyez prévenu quelques minutes avant son début. Un seul commutateur active ou désactive tous les rappels. Les heures suivent l'horloge UTC du serveur de jeu : elles sont donc identiques dans toutes les régions, été comme hiver, et s'affichent à l'heure de votre PC. Les boss exécuteurs de l'Abysse (lun, jeu, sam) et le Seigneur gardien Nahma (ven, dim) sont aussi listés, et dix sons de notification sont au choix.
 
 <p align="center">
   <img src="Web-Frontend/images/features/timetable@2x.webp" width="380" alt="Réglages des horaires avec un son et un volume par événement">
@@ -178,11 +181,15 @@ Un cadre transparent avec jusqu'à trois éléments, que tu places et dimensionn
 - **Barre d'incantation du boss :** dès qu'un boss commence une compétence, tu vois son nom, une barre qui se vide avec le temps restant et qui elle vise (toi en rouge). Une compétence qui a touché plusieurs joueurs est marquée **ZONE** ; **MORTEL** signifie que le coup le plus fort que tu en as reçu jusqu'ici est au moins égal à ta santé actuelle. Le compteur apprend chaque compétence (de zone ou non, quand ses dégâts arrivent) et s'en souvient d'une session à l'autre.
 - **Cible de la cible :** un bloc qui se déplace, se redimensionne et se met à l'échelle d'un seul tenant, avec des éléments que tu peux aussi placer séparément à l'intérieur. Si la cible sélectionnée avec Tab vise elle-même quelqu'un, tu vois qui : un boss avec son image et son nom, un joueur avec l'emblème de classe et son nom. La **barre du soigneur** (facultative) ajoute au bloc la barre de vie de cette cible et ses debuffs (ou buffs).
 
-Déverrouille l'overlay dans **Paramètres → Combat de boss** pour l'organiser : fais glisser le corps d'un élément pour le déplacer, tire sur ses bords pour le redimensionner, tire sur son coin pour le mettre à l'échelle ; la poignée en bas à droite de tout le cadre met tous les éléments à l'échelle ensemble. Verrouillé, il laisse passer les clics et ne s'affiche que lorsque le jeu est au premier plan. **Ctrl+Alt+C** l'active et le désactive, tout comme le raccourci *Tous les overlays activés / désactivés*.
+Déverrouille l'overlay dans **Paramètres → Combat de boss** pour l'organiser : fais glisser le corps d'un élément pour le déplacer, tire sur ses bords pour le redimensionner, tire sur son coin pour le mettre à l'échelle ; la poignée en bas à droite de tout le cadre met tous les éléments à l'échelle ensemble. Verrouillé, il laisse passer les clics et ne s'affiche que lorsque le jeu est au premier plan. La voix Windows choisie peut aussi **annoncer les incantations de boss** à voix haute (avec ou sans le nom de la compétence, vers toi, vers tout le monde, mortelle), même avec l'overlay désactivé tant qu'Aion est au premier plan ; les paramètres proposent des phrases d'exemple à écouter. **Ctrl+Alt+C** l'active et le désactive, tout comme le raccourci *Tous les overlays activés / désactivés*.
 
 <p align="center">
   <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="L'overlay de combat de boss : deux incantations de boss avec barre de temps et le bloc « Cible de la cible » avec image, nom, barre de vie et debuffs">
 </p>
+
+### Butin, attributs et checklist quotidienne
+
+La fenêtre **Outils** les liste à gauche. L'outil **Butin** montre ce que tu ramasses au sol, par session et par carte, sous forme de page et d'overlay (**Ctrl+Alt+L**). L'outil **Attributs** montre l'anneau des attributs avec tes points, ce que fait chaque attribut et chaque valeur de Seigneur (0,1 % par point), tous les bonus additionnés, et un onglet de statistiques qui explique chaque statistique avec sa part venant de l'anneau. La **checklist** garde tes tâches quotidiennes et hebdomadaires, lit dans le jeu les quêtes quotidiennes obligatoires et l'achat hebdomadaire d'énergie d'Odyle, et laisse le reste à cocher à la main. Chaque outil mémorise sa propre largeur et sa propre hauteur.
 
 ### Annonces et Twitch Drops
 
@@ -249,6 +256,7 @@ commandes de chat, qui ne peuvent pas fonctionner car le chat d'Aion 2 n'est pas
 | **Ctrl+Alt+B** | Overlay des boss du monde |
 | **Ctrl+Alt+N** | Overlay réseau |
 | **Ctrl+Alt+C** | Overlay de combat |
+| **Ctrl+Alt+L** | Overlay de butin |
 | **Ctrl+Alt+J** | Afficher les overlays pendant ce menu |
 | **Ctrl+Alt+O** | Overlay des raccourcis (une liste déplaçable des raccourcis) |
 | **Ctrl+Alt+A** | Tous les overlays activés / désactivés |

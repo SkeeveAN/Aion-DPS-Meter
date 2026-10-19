@@ -29,6 +29,7 @@
 - Skill-Aufschlüsselung mit Krit-Raten und DPS-Kurve
 - Boss-Ranglisten und öffentliche Charakterprofile auf aiondps.com (Upload optional, standardmäßig aus)
 - Interaktive Karte, Event-Zeitplan, Weltboss-Timer und ein Netzwerk-Overlay
+- Boss-Casts per Sprachausgabe angesagt, ein Beute-Log, ein Attribute-Tool und eine tägliche Checkliste
 - Sicher: passiver Paketmitschnitt, kein Speicherlesen, keine Code-Injektion
 - Kostenlos, Open Source (MIT) und aktualisiert sich selbst
 
@@ -81,7 +82,7 @@ Heilung und erlittenen Schaden in eine kleine zweite Zeile unter den Namen.
 
 **Hide UI** macht aus dem Fenster kleine Chips (oder ein kompaktes Panel), die über Aion 2 liegen, ohne
 auch nur einen Klick abzufangen. Deckkraft, Schadensanteil-Balken, die Lebenspunkte des Bosses und der erlittene Schaden pro Spieler
-sind Optionen. Das Overlay zeichnet nur, solange das Spiel im Vordergrund ist. Schalte es von überall per Tastenkürzel um.
+sind Optionen. Das kompakte Panel kann optional Mausklicks zum Spiel durchlassen. Das Overlay zeichnet nur, solange das Spiel im Vordergrund ist. Schalte es von überall per Tastenkürzel um.
 
 Optional (**Einstellungen → Oberfläche → Bei Spielmenüs ausblenden**, standardmäßig aus): Der Meter und seine Overlays machen Platz, solange eines der Spielmenüs offen ist (Karte, Inventar, Legion, Shop, Esc ...), und kommen zurück, wenn du es schließt. Erkannt wird das am Mauszeiger: Im Steuerungsmodus, der den Cursor beim Spielen versteckt, zeigt das Spiel ihn, sobald ein Menü aufgeht; hältst du die Taste zum Anzeigen des Cursors (standardmäßig Alt), bleibt der Meter sichtbar, damit du ihn anklicken kannst, und **Ctrl+Alt+J** zeigt die Overlays für das gerade offene Menü. Im klassischen Steuerungsmodus ist der Cursor immer sichtbar, deshalb lassen sich Menüs nicht unterscheiden; der Meter bemerkt das im Kampf und bleibt dann einfach sichtbar.
 
@@ -121,6 +122,8 @@ Verzauberung (einschließlich der Verstärkungsstufe über +15), Arkana, Artenwi
 und die vollständigen Daevanion-Boards. Es merkt sich deinen letzten Login und ist deshalb nie leer. Fahre über ein Teil für seine
 Details (Steine, gewürfelte Werte, Götterstein).
 
+Der Meter erkennt außerdem, welches deiner **Skill-Presets** gerade aktiv ist, und merkt sich jedes Preset, das er gesehen hat: Skill-Level, Stigmas und Steine. Der Skills-Tab zeigt jedes Preset mit den Steinen seiner Skills, und der Tooltip eines Skills listet die Steine und die Effekte, die ein Stigma freischaltet, in den Worten des Spiels.
+
 <p align="center">
   <img src="Web-Frontend/images/features/character-gear@2x.webp" width="640" alt="Das Charakter-Fenster mit Ausrüstung, Itemlevels und Verzauberung">
 </p>
@@ -131,7 +134,7 @@ Ein Karten-Overlay zeigt deine Position, die Spawnpunkte der Pets, hinter denen 
 eingeschaltet hast — Kräuter, Erze, Holz, Edelsteine und mehr — ohne per Alt-Tab auf eine Webseite zu wechseln. Aufgelistet wird nur, was deine eigene
 Fraktion nutzen kann, und die zuletzt bekannte Position bleibt auf der Karte, während das Spiel geschlossen ist. Die Pet-
 Einstellungen listen jede Region von Verteron, Altgard und dem Abyss mit ihren Pets und deinem eigenen Pet-Level auf, dazu einen
-**Selten**-Tab für Pets mit wenigen Spawnpunkten. Pfeile am Rand zeigen auf das nächste Pet oder Sammelobjekt.
+**Selten**-Tab für Pets mit wenigen Spawnpunkten. Pfeile am Rand zeigen auf das nächste Pet oder Sammelobjekt. In einem Dungeon oder einer Gruppeninstanz wechselt die Karte zu dieser Instanz (25 Karten aus den eigenen Bildern des Spiels, für die Instanzen mit Pet-Monstern) und zeigt deren Pet-Monster.
 
 <p align="center">
   <img src="Web-Frontend/images/features/map@2x.webp" width="520" alt="Die interaktive Karte mit Pet-Spawnpunkten und der Pet-Liste">
@@ -142,7 +145,7 @@ Einstellungen listen jede Region von Verteron, Altgard und dem Abyss mit ihren P
 
 Ein Overlay listet die nächsten Events — Schlachtfeld, die Abyss-Belagerungen (Artefakt-Belagerung), das Shugo-Fest,
 den Beritra-Luftangriff, den Raumzeit-Riss und mehr. Wähle pro Event einen Sound und eine Lautstärke und lass dich
-wenige Minuten vor dem Start erinnern. Ein Schalter aktiviert oder deaktiviert alle Erinnerungen.
+wenige Minuten vor dem Start erinnern. Ein Schalter aktiviert oder deaktiviert alle Erinnerungen. Die Zeiten folgen der UTC-Uhr des Spielservers, sind also in jeder Region und in Sommer- wie Winterzeit gleich, und werden in der Zeit deines PCs angezeigt. Auch die Abyss-Vollstrecker-Bosse (Mo, Do, Sa) und Wächterfürstin Nahma (Fr, So) sind aufgelistet, und es stehen zehn Benachrichtigungstöne zur Auswahl.
 
 <p align="center">
   <img src="Web-Frontend/images/features/timetable@2x.webp" width="380" alt="Zeitplan-Einstellungen mit Sound und Lautstärke pro Event">
@@ -175,11 +178,15 @@ Ein transparenter Rahmen mit bis zu drei Elementen, die du jeweils einzeln platz
 - **Boss-Zauberleiste:** In dem Moment, in dem ein Boss eine Fähigkeit beginnt, siehst du ihren Namen, eine ablaufende Leiste mit der Restzeit und wen sie trifft (du in Rot). Eine Fähigkeit, die mehrere Spieler getroffen hat, ist mit **FLÄCHE** markiert; **TÖDLICH** bedeutet, dass der höchste Treffer, den du davon bisher erhalten hast, mindestens deinen aktuellen Lebenspunkten entspricht. Der Meter lernt jede Fähigkeit (Fläche oder nicht, wann ihr Schaden eintrifft) und merkt sie sich über Sitzungen hinweg.
 - **Ziel des Ziels:** ein Block, der sich als Ganzes verschieben, in der Größe ändern und skalieren lässt, mit Teilen, die du darin auch einzeln platzieren kannst. Zielt das mit Tab gewählte Ziel selbst auf jemanden, siehst du, auf wen: ein Boss mit Bild und Name, ein Spieler mit Klassenemblem und Name. Die **Heiler-Leiste** (optional) ergänzt den Block um den HP-Balken dieses Ziels und die Debuffs (oder Buffs) darauf.
 
-Entsperre das Overlay unter **Einstellungen → Boss-Kampf**, um es einzurichten: Zieh den Körper eines Elements, um es zu verschieben, zieh an den Rändern für die Größe, an der Ecke zum Skalieren; der Griff unten rechts am ganzen Rahmen skaliert alle Elemente zusammen. Gesperrt ist es klickdurchlässig und erscheint nur, solange das Spiel im Vordergrund ist. **Ctrl+Alt+C** schaltet es ein und aus, ebenso der Hotkey *Alle Overlays an / aus*.
+Entsperre das Overlay unter **Einstellungen → Boss-Kampf**, um es einzurichten: Zieh den Körper eines Elements, um es zu verschieben, zieh an den Rändern für die Größe, an der Ecke zum Skalieren; der Griff unten rechts am ganzen Rahmen skaliert alle Elemente zusammen. Gesperrt ist es klickdurchlässig und erscheint nur, solange das Spiel im Vordergrund ist. Die gewählte Windows-Stimme kann Boss-Casts auch **per Sprachausgabe ansagen** (mit oder ohne Skillnamen, auf dich, auf alle, tödlich), selbst bei ausgeschaltetem Overlay, solange Aion im Vordergrund ist; in den Einstellungen gibt es Beispielsätze zum Anhören. **Ctrl+Alt+C** schaltet es ein und aus, ebenso der Hotkey *Alle Overlays an / aus*.
 
 <p align="center">
   <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="Das Boss-Kampf-Overlay: zwei Boss-Casts mit Zeitleiste und der Block „Ziel des Ziels“ mit Bild, Name, HP-Balken und Debuffs">
 </p>
+
+### Beute, Attribute und die tägliche Checkliste
+
+Das **Tools**-Fenster listet diese links auf. Das **Beute**-Tool zeigt, was du vom Boden aufhebst, nach Session und Karte, als Seite und als Overlay (**Ctrl+Alt+L**). Das **Attribute**-Tool zeigt den Attributring mit deinen Punkten, was jedes Attribut und jeder Lord-Wert bewirkt (0,1 % pro Punkt), alle Boni zusammengerechnet und einen Stat-Tab, der jeden Stat mit seinem Anteil aus dem Ring erklärt. Die **Checkliste** führt deine täglichen und wöchentlichen Aufgaben, liest die Pflicht-Tagesquests und den wöchentlichen Odyle-Energie-Kauf aus dem Spiel und überlässt den Rest dem Abhaken von Hand. Jedes Tool merkt sich seine eigene Breite und Höhe.
 
 ### Ankündigungen und Twitch Drops
 
@@ -246,6 +253,7 @@ die nicht funktionieren können, weil der Chat von Aion 2 im Netzwerkverkehr nic
 | **Ctrl+Alt+B** | Weltboss-Overlay |
 | **Ctrl+Alt+N** | Netzwerk-Overlay |
 | **Ctrl+Alt+C** | Kampf-Overlay |
+| **Ctrl+Alt+L** | Beute-Overlay |
 | **Ctrl+Alt+J** | Overlays bei diesem Menü zeigen |
 | **Ctrl+Alt+O** | Hotkey-Overlay (eine verschiebbare Liste der Tastenkürzel) |
 | **Ctrl+Alt+A** | Alle Overlays an / aus |

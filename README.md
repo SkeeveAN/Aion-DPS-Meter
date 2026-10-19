@@ -29,6 +29,7 @@
 - Skill breakdown with crit rates and a DPS curve
 - Boss leaderboards and public character profiles on aiondps.com (optional upload, off by default)
 - Interactive map, event timetable, world boss timers and a network overlay
+- Boss casts announced by voice, a loot log, an attributes tool and a daily checklist
 - Safe: passive packet capture, no memory reading, no injection
 - Free, open source (MIT) and updates itself
 
@@ -81,7 +82,7 @@ healing and damage taken in a small second line under the name.
 
 **Hide UI** turns the window into small chips (or a compact panel) that sit on top of Aion 2 without
 taking a single click. Opacity, damage-share bars, the boss's health and damage taken per player are
-options. The overlay only draws while the game is in front. Toggle it from anywhere with a hotkey.
+options. The compact panel can optionally let mouse clicks through to the game. The overlay only draws while the game is in front. Toggle it from anywhere with a hotkey.
 
 Optional (**Settings → Interface → Hide during game menus**, off by default): the meter and its overlays step aside while one of the game's menus is open (map, inventory, legion, shop, Esc ...) and come back when you close it. It works by the mouse cursor: in the control mode that hides the cursor while you play, the game shows it when a menu opens; holding the show-cursor key (Alt by default) keeps the meter up so you can click it, and **Ctrl+Alt+J** shows the overlays for the menu that is open. In the classic control mode the cursor is always shown, so menus cannot be told apart; the meter notices that while you fight and simply stays up.
 
@@ -121,6 +122,8 @@ enchant (including the Amplify stage above +15), arcana, species knowledge, all 
 and the full Daevanion boards. It keeps your last login, so it is never empty. Hover a piece for its
 details (stones, rolled stats, god stone).
 
+The meter also notices which of your **skill presets** is active and keeps every preset it has seen: skill levels, stigmas and stones. The skills tab shows each preset with the stones of its skills, and a skill's tooltip lists the stones and the effects a stigma unlocks, in the game's own words.
+
 <p align="center">
   <img src="Web-Frontend/images/features/character-gear@2x.webp" width="640" alt="The Character window with equipment, item levels and enchant">
 </p>
@@ -131,7 +134,7 @@ A map overlay shows your position, the spawn points of the pets you are after an
 switched on — herbs, ores, wood, gems and more — without alt-tabbing to a website. Only what your own
 faction can use is listed, and the last known position stays on the map while the game is closed. The pet
 settings list every region of Verteron, Altgard and the Abyss with its pets and your own pet level, plus a
-**Rare** tab for pets with few spawn points. Edge arrows point to the nearest pet or gatherable.
+**Rare** tab for pets with few spawn points. Edge arrows point to the nearest pet or gatherable. Inside a dungeon or party instance the map switches to that instance (25 maps from the game's own pictures, for the instances that have pet monsters) and shows its pet monsters.
 
 <p align="center">
   <img src="Web-Frontend/images/features/map@2x.webp" width="520" alt="The interactive map with pet spawn points and the pet list">
@@ -142,7 +145,7 @@ settings list every region of Verteron, Altgard and the Abyss with its pets and 
 
 An overlay lists the next events — Battlefield, the Abyss sieges (Artifact Siege), the Shugo Festival,
 the Beritra Air Raid, the Spacetime Rift and more. Pick a sound and volume per event and get reminded a
-few minutes before it starts. One switch turns all reminders on or off.
+few minutes before it starts. One switch turns all reminders on or off. The times follow the game server's UTC clock, so they are the same in every region and in summer and winter time, and are shown in your PC's time. The Abyss executor bosses (Mon, Thu, Sat) and Guardian Lord Nahma (Fri, Sun) are listed too, and there are ten notification sounds to choose from.
 
 <p align="center">
   <img src="Web-Frontend/images/features/timetable@2x.webp" width="380" alt="Timetable settings with a sound and volume per event">
@@ -175,11 +178,15 @@ One transparent frame with up to three elements, each of which you place and siz
 - **Boss cast bar:** the moment a boss starts a skill, its name, a bar that runs down with the time left, and whom it is aimed at (you in red). A skill that has hit several players is marked **AREA**; **LETHAL** means the highest hit you took from it so far is at least your current health. The meter learns each skill (area or not, when its damage lands) and remembers it between sessions.
 - **Target of the target:** one block that moves, resizes and scales as a whole, with parts you can also place on their own inside it. If the target you selected with Tab is itself aiming at someone, you see who: a boss with its picture and name, a player with the class emblem and name. The **healer bar** (optional) adds that target's health bar and its debuffs (or buffs) to the block.
 
-Unlock the overlay in **Settings → Boss fight** to arrange it: drag an element's body to move it, pull its edges to resize it, pull its corner to scale it; the grip at the bottom right of the whole frame scales all elements together. Locked, it is click-through and only shows while the game is in front. **Ctrl+Alt+C** switches it on and off, and so does the *all overlays* hotkey.
+Unlock the overlay in **Settings → Boss fight** to arrange it: drag an element's body to move it, pull its edges to resize it, pull its corner to scale it; the grip at the bottom right of the whole frame scales all elements together. Locked, it is click-through and only shows while the game is in front. The chosen Windows voice can also **announce boss casts** by voice (with or without the skill name, at you, at everyone, lethal), even with the overlay switched off while Aion is in front; the settings have example sentences to listen to. **Ctrl+Alt+C** switches it on and off, and so does the *all overlays* hotkey.
 
 <p align="center">
   <img src="Web-Frontend/images/features/combat-overlay@2x.webp" width="480" alt="The boss fight overlay: two boss casts with a time bar and the target of the target block with picture, name, health bar and debuffs">
 </p>
+
+### Loot, attributes and the daily checklist
+
+The **Tools** window lists these on the left. The **Loot** tool shows what you pick up from the ground, by session and map, as a page and as an overlay (**Ctrl+Alt+L**). The **Attributes** tool shows the attribute ring with your points, what each attribute and Lord value does (0.1 % per point), all bonuses added up, and a stat tab that explains every stat with its share from the ring. The **checklist** keeps your daily and weekly tasks, reads the mandatory daily quests and the weekly Odyle energy purchase from the game, and leaves the rest to tick by hand. Every tool remembers its own width and height.
 
 ### Announcements and Twitch Drops
 
@@ -246,6 +253,7 @@ which cannot work because Aion 2's chat is not readable from the network stream.
 | **Ctrl+Alt+B** | World boss overlay |
 | **Ctrl+Alt+N** | Network overlay |
 | **Ctrl+Alt+C** | Combat overlay |
+| **Ctrl+Alt+L** | Loot overlay |
 | **Ctrl+Alt+J** | Show the overlays during the open game menu |
 | **Ctrl+Alt+O** | Hotkey overlay (a movable list of the hotkeys) |
 | **Ctrl+Alt+A** | All overlays on / off |
