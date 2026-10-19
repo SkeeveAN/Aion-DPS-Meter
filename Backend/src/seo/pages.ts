@@ -9,7 +9,7 @@ import { classBoxes, findBoss, mechanicsFor, modesFor, selectServer, UNKNOWN_MOD
 import { instanceStatistics } from "../instanceStats.js";
 import { buildProfileView, ownSkillRows } from "../profile.js";
 import { INSTANCE_FACTS, INSTANCE_IMAGES, INSTANCE_MIN_LEVEL, BOSS_IMAGES, splitConquest } from "../../../Web-Frontend/game-data.js";
-import { GUIDE_ASOF, GUIDE_FAQ, GUIDE_OSS, GUIDE_ROWS, GUIDE_STEPS, GUIDE_STRONG, GUIDE_TABLES, GUIDE_WEAK, GUIDE_WHAT } from "../../../Web-Frontend/guide-data.js";
+import { GUIDE_ASOF, GUIDE_FAQ, GUIDE_OSS, GUIDE_ROWS, GUIDE_STRONG, GUIDE_TABLES, GUIDE_WEAK, GUIDE_WHAT } from "../../../Web-Frontend/guide-data.js";
 import enStrings from "../../../Web-Frontend/locales/en.js";
 import { parseIdOrSlug } from "./slug.js";
 import { formatInt, html, Raw } from "./html.js";
@@ -204,7 +204,7 @@ export function guidePage(): Page {
       <h2>${g("h.what")}</h2>
       ${list(GUIDE_WHAT, "what")}
       <h2>${g("h.install")}</h2>
-      <ol class="steps">${GUIDE_STEPS.map((k) => html`<li>${g(`step.${k}`)}</li>`)}</ol>
+      <p>${g("installShort")} <a href="/download">${g("download")}</a></p>
       <p>${g("installNote")}</p>
       <h2>${g("h.measure")}</h2>
       <p>${g("measure.p1")}</p><p>${g("measure.p2")}</p><p>${g("measure.p3")}</p>

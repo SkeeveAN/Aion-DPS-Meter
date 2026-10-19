@@ -3,7 +3,7 @@ import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, I
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
 import { buildBossStats, buildInstanceStats } from "./boss-stats.js";
-import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_STEPS, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
+import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
 
 // Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
 const V2 = (() => {
@@ -685,7 +685,7 @@ function renderGuide() {
     el("p", {}, [link(t("guide.download"), "/download", "btn btn-gold"), " ", link(t("guide.allFeatures"), "/features", "btn btn-ghost")]),
     el("h2", { textContent: t("guide.h.what") }), list(GUIDE_WHAT, "guide.what"),
     el("h2", { textContent: t("guide.h.install") }),
-    el("ol", { className: "guide-list" }, GUIDE_STEPS.map((k) => el("li", { textContent: t(`guide.step.${k}`) }))),
+    el("p", {}, [`${t("guide.installShort")} `, link(t("guide.download"), "/download")]),
     el("p", { textContent: t("guide.installNote") }),
     el("h2", { textContent: t("guide.h.measure") }),
     ...["p1", "p2", "p3"].map((k) => el("p", { textContent: t(`guide.measure.${k}`) })),

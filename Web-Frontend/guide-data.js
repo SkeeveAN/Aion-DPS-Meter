@@ -110,8 +110,7 @@ export const GUIDE_TABLES = [
 ];
 
 export const GUIDE_WHAT = ["meter", "overlay", "analyzer", "bossfight", "assist", "character", "tools", "stream", "board"];
-export const GUIDE_STEPS = ["npcap", "installer", "start"];
 export const GUIDE_WEAK = ["stars", "regions", "platform", "driver", "missing", "boards", "unreleased"];
 export const GUIDE_STRONG = ["analyzer", "oneTool", "boards", "update", "extras"];
 export const GUIDE_OSS = ["check", "lockin", "paywall", "fixes", "licenses"];
-export const GUIDE_FAQ = ["safe", "free", "regions", "admin", "upload", "tracker"];
+export const GUIDE_FAQ = ["tracker", "choose", "rdps"];
