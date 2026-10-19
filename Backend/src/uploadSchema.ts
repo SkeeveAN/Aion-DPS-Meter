@@ -24,7 +24,20 @@ const buffUsageSchema = z.object({
   uptimePermille: z.number().int().min(0).max(1000).default(0),
   // The other players of the fight who gave it; empty = the participant's own effect.
   givers: z.array(z.string().trim().min(1).max(64)).max(8).default([]),
+  // When the effect was on the participant: start and end of each span, flattened (start, end, start, end ...), in tenths of a second from the start of the fight.
+  spans: z.array(z.number().int().min(0).max(100_000)).max(400).optional(),
 });
+
+// The time axis of one participant (clients from 1.9.0 on): which skill was used when, and when the participant died. Times are tenths of a second from the start of the
+// fight; times[i] is the use of skills[index[i]].
+const timelineSchema = z
+  .object({
+    skills: z.array(z.object({ id: z.number().int().min(0).max(2_000_000_000), name: z.string().min(1).max(120) })).max(120),
+    times: z.array(z.number().int().min(0).max(100_000)).max(4000),
+    index: z.array(z.number().int().min(0).max(119)).max(4000),
+    deaths: z.array(z.number().int().min(0).max(100_000)).max(40).default([]),
+  })
+  .refine((t) => t.times.length === t.index.length && t.index.every((i) => i < t.skills.length), { message: "timeline: times and index must pair up with skills" });
 
 export const participantSchema = z.object({
   name: z.string().trim().min(1).max(64),
@@ -78,6 +91,8 @@ export const participantSchema = z.object({
   // recipient's own row, not only the caster's. Defaulted for the same rollout reason as
   // damageTaken above.
   buffs: z.array(buffUsageSchema).max(80).default([]),
+  // The time axis of this row (see timelineSchema). Optional: older clients do not send it.
+  timeline: timelineSchema.optional(),
 });
 
 export const uploadSchema = z
@@ -111,6 +126,8 @@ export const uploadSchema = z
   // by every region, the address is what tells them apart. Optional for older clients.
   serverId: z.number().int().positive().max(99999).optional(),
   gameServer: z.string().trim().max(64).optional(),
+  // The boss's health over the fight: (tenths of a second from the start, thousandths of its health) pairs, flattened. Optional (clients from 1.9.0 on).
+  bossHp: z.array(z.number().int().min(0).max(100_000)).max(800).optional(),
   })
   .superRefine((payload, ctx) => {
     // Aion 2 has a fixed, small class roster; a class outside it is a client bug worth rejecting

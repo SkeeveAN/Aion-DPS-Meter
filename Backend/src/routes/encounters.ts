@@ -8,6 +8,7 @@ import { profileBadge } from "../profileBadge.js";
 import { ownSkillRows, skillIconByName, skillNamesByName } from "../profile.js";
 import { topBuffsByParticipant } from "../skills/topBuffs.js";
 import { encounterBuffDetails } from "../encounterBuffs.js";
+import { hasTimeline, loadEncounterTimeline } from "../encounterTimeline.js";
 import { gameFromQuery } from "./instances.js";
 
 // One specific fight's full group roster (mirrors myaion.eu's PvESession) - reachable from the
@@ -59,6 +60,16 @@ export async function encounterRoutes(app: FastifyInstance) {
     });
 
     return reply.send(withTopPlayer);
+  });
+
+  // The time axis of a fight (skills used, effects and boss health over time) from clients that send it; 404 when none did.
+  app.get<{ Params: { id: string } }>("/api/encounters/:id/timeline", async (request, reply) => {
+    const encounterId = Number(request.params.id);
+    if (!Number.isInteger(encounterId)) {
+      return reply.status(400).send({ error: "invalid_encounter_id" });
+    }
+    const timeline = loadEncounterTimeline(encounterId);
+    return timeline ? reply.send(timeline) : reply.status(404).send({ error: "no_timeline" });
   });
 
   app.get<{ Params: { id: string } }>("/api/encounters/:id", async (request, reply) => {
@@ -152,7 +163,7 @@ export async function encounterRoutes(app: FastifyInstance) {
     const rosterWithBuffs = roster.map(({ profileSource, ncCharacterId, ncAttributes, ...r }) => ({ ...withServerFaction(r), hasProfile: r.hasProfile != null, ...profileBadge(profileSource, ncCharacterId, ncAttributes), topBuffs: topBuffs.get(r.participantId) ?? [], buffs: buffDetails.get(r.participantId) ?? [] }));
 
     return reply.send({
-      encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null },
+      encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null, hasTimeline: hasTimeline(encounterId) },
       roster: rosterWithBuffs,
       // Set when some damage figures are estimated from hit counts (rows with estimated = true); the page shows it as a footnote.
       estimatedNote: rosterWithBuffs.some((r) => r.estimated) ? ESTIMATED_NOTE : null,

@@ -560,3 +560,34 @@ test("a character renamed between two uploads of the same fight stays one partic
   assert.equal(new Set(ids).size, ids.length, "no player twice in one fight");
   assert.equal(rows.length, 5);
 });
+
+test("the time axis of a fight is stored once per player: the upload with the most skill uses stays, and the boss health curve is kept", async () => {
+  const { encounterTimelines } = await import("../db/schema.js");
+  const { loadEncounterTimeline } = await import("../encounterTimeline.js");
+  const instance = db.insert(instances).values({ name: "Timeline place", nameEn: "Timeline place", game: "aion2", slug: "timeline-place", category: "expedition" }).returning().get();
+  db.insert(bosses).values({ name: "Timeline Boss", instanceId: instance.id }).run();
+  const timeline = (times: number[]) => ({ skills: [{ id: 1, name: "Rending Blow" }], times, index: times.map(() => 0), deaths: [] });
+  const at = (start: string, uses: number[], bossHp: number[]) =>
+    processUpload(
+      basePayload({
+        bossNpcName: "Timeline Boss",
+        startedAt: start,
+        endedAt: "2026-08-01T18:01:30.000Z",
+        bossHp,
+        participants: basePayload().participants.map((p) => (p.name === "Anna" ? { ...p, timeline: timeline(uses) } : p)),
+      }),
+    );
+  const first = at("2026-08-01T18:00:00.000Z", [10, 30], [0, 1000, 100, 900]);
+  const second = at("2026-08-01T18:00:01.000Z", [10, 30, 50, 70], [0, 1000, 20, 980, 40, 950, 60, 900, 80, 850]);
+  const third = at("2026-08-01T18:00:00.000Z", [10], []);
+  assert.equal(second.encounterId, first.encounterId);
+  assert.equal(third.encounterId, first.encounterId);
+  const rows = db.select().from(encounterTimelines).all();
+  const anna = rows.filter((r) => JSON.parse(r.dataJson).times.length === 4);
+  assert.equal(anna.length, 1, "the longest axis is kept, the shorter ones are not stored over it");
+  const shaped = loadEncounterTimeline(first.encounterId)!;
+  assert.deepEqual(shaped.players.map((p) => p.name), ["Anna"]);
+  assert.equal(shaped.players[0]!.uses.length, 4);
+  assert.equal(shaped.players[0]!.uses[0]![0], 2, "the second upload began one second later: its 1.0 s is 2.0 s on the encounter's clock");
+  assert.equal(shaped.bossHp.length, 5);
+});

@@ -398,6 +398,8 @@ export const encounters = sqliteTable(
     // The boss's highest hit-point reading as a client saw it (the game's own HP frame). Explore and
     // conquest differ 2-3x in it, so it tells them apart where the NPC id cannot. Null = not reported.
     bossMaxHp: integer("boss_max_hp"),
+    // The boss's health over the fight: pairs of (tenths of a second from the start, thousandths of its health), flattened. Null = not reported.
+    bossHpJson: text("boss_hp_json"),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(current_timestamp)`),
@@ -505,11 +507,21 @@ export const encounterBuffUsage = sqliteTable(
     skillId: integer("skill_id").notNull().default(0),
     uptimePermille: integer("uptime_permille").notNull().default(0),
     giversJson: text("givers_json").notNull().default("[]"),
+    // When the effect was on the participant: start and end of each span, flattened, in tenths of a second from the start of the fight (JSON array of numbers).
+    spansJson: text("spans_json").notNull().default("[]"),
   },
   (table) => ({
     participantIdIdx: index("encounter_buff_usage_participant_id_idx").on(table.participantId),
   }),
 );
+
+// The time axis of one participant: skills used, deaths (see the client's TimelineUpload). One JSON document per participant; only the encounter page reads it.
+export const encounterTimelines = sqliteTable("encounter_timelines", {
+  participantId: integer("participant_id")
+    .primaryKey()
+    .references(() => encounterParticipants.id),
+  dataJson: text("data_json").notNull(),
+});
 
 export const uploads = sqliteTable(
   "uploads",

@@ -3,6 +3,7 @@ import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, I
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
 import { buildBossStats, buildGearFilter, buildInstanceStats } from "./boss-stats.js";
+import { buildBuffsPerSkill, buildGroupTimeline } from "./encounter-timeline.js";
 import { ARTICLE, articleSegments } from "./article-data.js";
 import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
 
@@ -3277,6 +3278,18 @@ async function renderEncounter(encounterId) {
     : el("div", { className: "encounter-grid" }, [meterPanel(data.roster), el("div", { className: "encounter-side-col" }, [aggroPanel(data.roster)])]);
 
   app.replaceChildren(hero, statsRow, compareButton(t("compare.ctaRuns"), compareLink("/compare/runs", { a: data.encounter.id })), grid);
+
+  // Fights whose uploads carry a time axis get the group timeline and the buffs per skill below the lists (a failed request just leaves them out).
+  if (data.encounter.hasTimeline) {
+    try {
+      const timeline = await fetchJson(`/api/encounters/${encodeURIComponent(encounterId)}/timeline`);
+      const deps = { el, t, formatNumber, classLabel, classIcon, iconLabel, getLocale };
+      const panels = [buildGroupTimeline(timeline, deps), buildBuffsPerSkill(timeline, deps)].filter((p) => p !== null);
+      grid.after(...panels);
+    } catch {
+      // the lists above stay as they are
+    }
+  }
 }
 
 function skillTable(skills) {

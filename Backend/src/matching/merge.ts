@@ -6,6 +6,7 @@ import {
   bossNpcIds,
   bosses,
   encounterBuffUsage,
+  encounterTimelines,
   encounterParticipants,
   encounterSkillUsage,
   encounters,
@@ -474,6 +475,12 @@ function insertSkillUsage(participantId: number, skills: ParticipantUpload["skil
     .run();
 }
 
+/**
+ * The start of the upload being stored (its own clock zero): the times of the time axis (skills, effects, boss health) are tenths of a second from it, and several uploads of one
+ * fight start at slightly different moments, so each stored piece carries it and the API lines them up. Set by processUploadAt (an upload is stored in one synchronous step).
+ */
+let uploadOrigin = "";
+
 /** Same idea as insertSkillUsage above, but for real buffs (see encounterBuffUsage's own remarks
  * on why it's a separate table rather than another isHeal-style flag). */
 function insertBuffUsage(participantId: number, buffs: ParticipantUpload["buffs"]) {
@@ -482,8 +489,42 @@ function insertBuffUsage(participantId: number, buffs: ParticipantUpload["buffs"
   }
 
   db.insert(encounterBuffUsage)
-    .values(buffs.map((b) => ({ participantId, skillName: b.skill, casts: b.casts, skillId: b.skillId, uptimePermille: b.uptimePermille, giversJson: JSON.stringify(b.givers) })))
+    .values(buffs.map((b) => ({ participantId, skillName: b.skill, casts: b.casts, skillId: b.skillId, uptimePermille: b.uptimePermille, giversJson: JSON.stringify(b.givers), spansJson: JSON.stringify({ o: uploadOrigin, s: b.spans ?? [] }) })))
     .run();
+}
+
+/**
+ * The time axis of a participant. Every client of a fight sees every player's skills, so several uploads bring one: the one with the most skill uses is kept
+ * (a client that joined late or lost packets has fewer), never a second copy.
+ */
+function storeTimeline(participantId: number, timeline: ParticipantUpload["timeline"]) {
+  if (!timeline || timeline.times.length === 0) {
+    return;
+  }
+  const existing = db.select().from(encounterTimelines).where(eq(encounterTimelines.participantId, participantId)).get();
+  if (existing) {
+    const known = (JSON.parse(existing.dataJson) as { times?: unknown[] }).times?.length ?? 0;
+    if (known >= timeline.times.length) {
+      return;
+    }
+  }
+  const dataJson = JSON.stringify({ ...timeline, origin: uploadOrigin });
+  db.insert(encounterTimelines)
+    .values({ participantId, dataJson })
+    .onConflictDoUpdate({ target: encounterTimelines.participantId, set: { dataJson } })
+    .run();
+}
+
+/** The boss's health curve: kept when the fight has none yet or the new one has more points. */
+function storeBossHp(encounterId: number, bossHp: number[]) {
+  if (bossHp.length < 4) {
+    return;
+  }
+  const row = db.select({ json: encounters.bossHpJson }).from(encounters).where(eq(encounters.id, encounterId)).get();
+  const known = row?.json ? ((JSON.parse(row.json) as { p?: unknown[] }).p?.length ?? 0) : 0;
+  if (known < bossHp.length) {
+    db.update(encounters).set({ bossHpJson: JSON.stringify({ o: uploadOrigin, p: bossHp }) }).where(eq(encounters.id, encounterId)).run();
+  }
 }
 
 function insertParticipant(
@@ -521,6 +562,7 @@ function insertParticipant(
   insertSkillUsage(participantId, participant.skills, false);
   insertSkillUsage(participantId, participant.healSkills, true);
   insertBuffUsage(participantId, participant.buffs);
+  storeTimeline(participantId, participant.timeline);
 }
 
 function critRateOf(participant: ParticipantUpload): number {
@@ -558,6 +600,7 @@ function overwriteParticipant(participantId: number, participant: ParticipantUpl
     db.delete(encounterBuffUsage).where(eq(encounterBuffUsage.participantId, participantId)).run();
     insertBuffUsage(participantId, participant.buffs);
   }
+  storeTimeline(participantId, participant.timeline);
 }
 
 function recomputeEncounterTotals(encounterId: number, startedAtIso: string, endedAtIso: string) {
@@ -793,6 +836,7 @@ export function mergeBuffLists(a: ParticipantUpload["buffs"], b: ParticipantUplo
       casts: existing.casts + buff.casts,
       skillId: existing.skillId || buff.skillId,
       uptimePermille: Math.max(existing.uptimePermille, buff.uptimePermille),
+      spans: buff.uptimePermille > existing.uptimePermille ? buff.spans : existing.spans,
       givers: [...new Set([...existing.givers, ...buff.givers])].slice(0, 8),
     });
   }
@@ -859,6 +903,7 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
       skills: group.reduce((acc, p) => mergeSkillLists(acc, p.skills), [] as ParticipantUpload["skills"]),
       healSkills: group.reduce((acc, p) => mergeSkillLists(acc, p.healSkills), [] as ParticipantUpload["healSkills"]),
       buffs: group.reduce((acc, p) => mergeBuffLists(acc, p.buffs), [] as ParticipantUpload["buffs"]),
+      timeline: group.map((p) => p.timeline).filter((t) => t !== undefined).sort((a, b) => b!.times.length - a!.times.length)[0],
     };
   });
 }
@@ -884,6 +929,7 @@ export function processUpload(payload: UploadPayload, receivedAt?: string): Proc
 }
 
 function processUploadAt(payload: UploadPayload): ProcessResult {
+  uploadOrigin = payload.startedAt;
   const serverId = upsertServer(payload.serverFingerprint, payload.serverName);
   rehomePlayers(payload.participants, serverId);
   payload = { ...payload, participants: mergeDuplicateParticipants(payload.participants, serverId) };
@@ -897,11 +943,13 @@ function processUploadAt(payload: UploadPayload): ProcessResult {
 
   if (candidateEncounterId) {
     mergeIntoEncounter(candidateEncounterId, serverId, payload);
+    storeBossHp(candidateEncounterId, payload.bossHp ?? []);
     checkUploadedPlayers(payload.participants, serverId);
     return { status: "merged", encounterId: candidateEncounterId, serverId };
   }
 
   const encounterId = createEncounter(bossId, serverId, payload);
+  storeBossHp(encounterId, payload.bossHp ?? []);
   checkUploadedPlayers(payload.participants, serverId);
   return { status: "created", encounterId, serverId };
 }
