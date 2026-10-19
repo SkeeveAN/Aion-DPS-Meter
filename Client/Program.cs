@@ -322,6 +322,22 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-buff-selftest")
+        {
+            // only the buff-upload check, no window (the full selftest builds overlays)
+            Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+            bool buffOk = Combat.SelfCheckBuffUpload.Run();
+            Console.WriteLine(buffOk ? "[selftest] BUFF CHECKS PASSED" : "[selftest] BUFF CHECKS FAILED");
+            Environment.Exit(buffOk ? 0 : 1);
+            return;
+        }
+
+        if (args.Length > 2 && args[0] == "aion2-buff-dump")
+        {
+            Combat.BuffDump.Run(args[1], args[2], 13328, args.Length > 3 ? args[3] : null);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-replay")
         {
             if (args.Length < 2)
@@ -1866,7 +1882,14 @@ internal static class Program
             Console.WriteLine($"  {request.BossNpcName} (entity {targetId}) NPC id {request.BossNpcId}, level {request.BossLevel}, max HP {request.BossMaxHp}, game {request.Game}, server {request.ServerName} [{request.ServerFingerprint}], {request.StartedAt:HH:mm:ss}-{request.EndedAt:HH:mm:ss} UTC, {request.Participants.Count} participant(s), {request.Participants.Count(p => p.IsSelf)} self");
             foreach (var p in request.Participants.OrderByDescending(x => x.TotalDamage))
             {
-                Console.WriteLine($"      {p.Name,-12} {p.ClassName,-13} self={p.IsSelf,-5} damage {p.TotalDamage,9:N0} taken {p.DamageTaken,8:N0} heal {p.TotalHealing,7:N0} guild {p.Guild ?? "-"} profile {(p.Profile is null ? "-" : p.Profile.Source)}");
+                Console.WriteLine($"      {p.Name,-12} {p.ClassName,-13} self={p.IsSelf,-5} damage {p.TotalDamage,9:N0} taken {p.DamageTaken,8:N0} heal {p.TotalHealing,7:N0} guild {p.Guild ?? "-"} profile {(p.Profile is null ? "-" : p.Profile.Source)} buffs {p.Buffs?.Count ?? 0} (group {p.Buffs?.Count(b => b.Givers is { Count: > 0 }) ?? 0})");
+                if (Environment.GetEnvironmentVariable("AION_DRYRUN_BUFFS") == "1")
+                {
+                    foreach (var b in (p.Buffs ?? Array.Empty<Upload.BuffUsageUpload>()).Take(40))
+                    {
+                        Console.WriteLine($"          {b.Skill,-28} id {b.SkillId,9} uptime {b.UptimePermille / 10.0,5:0.0}% x{b.Casts,-4} givers {(b.Givers is { Count: > 0 } g ? string.Join("/", g) : "-")}");
+                    }
+                }
             }
         }
 

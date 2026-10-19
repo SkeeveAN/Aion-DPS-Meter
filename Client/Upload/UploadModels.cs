@@ -19,8 +19,10 @@ public sealed record SkillUsageUpload(string Skill, int Hits, int CritHits, long
 /// damage/crit/min/max to report, and forcing those fields to 0 would misrepresent them as measured
 /// zeros rather than "not applicable". <see cref="Casts"/> counts how many times this row was
 /// affected by the skill, whether self-cast or landed on them by a Cleric/Chanter's group buff -
-/// not how many times this row itself cast it.</summary>
-public sealed record BuffUsageUpload(string Skill, int Casts);
+/// not how many times this row itself cast it. <see cref="SkillId"/> is the game's effect id (the website finds the icon and the localized name by it),
+/// <see cref="UptimePermille"/> the share of the fight the effect was on this row (0..1000), <see cref="Givers"/> the other players of the fight who gave it
+/// (empty: the row's own effect).</summary>
+public sealed record BuffUsageUpload(string Skill, int Casts, int SkillId = 0, int UptimePermille = 0, IReadOnlyList<string>? Givers = null);
 
 /// <summary>One player's contribution to an encounter. <see cref="IsSelf"/> mirrors the client's own
 /// "You" check (see MainWindow.ResolveDisplayName) - the backend trusts THIS row's crit rate for

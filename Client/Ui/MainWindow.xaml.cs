@@ -2640,6 +2640,9 @@ public partial class MainWindow : Window
     /// a time so each real fight gets its own upload instead of one merged across the whole file.
     /// The 3-argument overload above is just this one, called with that target's full history.
     /// </summary>
+    /// <summary>More rows than this (a crowded world boss) and the upload carries no buff table.</summary>
+    private const int MaxBuffRows = 60;
+
     private EncounterUploadRequest? BuildEncounterUpload(
         int targetId, string serverFingerprint, string? serverName,
         IReadOnlyList<DamageEvent> targetHits, DateTime windowStart, DateTime windowEnd)
@@ -2671,6 +2674,10 @@ public partial class MainWindow : Window
         string? ownName = aion2Directory?.LocalCharacter?.Name;
         // Profile and legion of the OTHER players only go along when the player agreed to it.
         bool shareOthers = MeterSettings.Load().UploadOtherPlayersProfiles;
+        // The effects on every player over this fight, cut once (a crowded world boss has hundreds of rows: no buff table for it, the work would grow with them).
+        var buffExtras = aion2Directory is not null && _rows.Count <= MaxBuffRows
+            ? aion2Directory.Combat.Slice(windowStart, windowEnd, id => aion2Directory.NameFor(id))
+            : null;
 
         // One pass over the events instead of one per player: a world boss has a thousand of them, and each rescan of the
         // whole history per row made building the upload take minutes.
@@ -2786,8 +2793,10 @@ public partial class MainWindow : Window
             // targetHits-derived, since the boss is the SOURCE here, not the target.
             long damageTaken = takenByTarget.GetValueOrDefault(row.ObjectId);
 
-            // Nothing has ever filled a per-player list of buffs received for the upload (the side-channel meant for it was never wired up), so it is empty; the field stays in the payload for the backend.
-            var buffs = new List<BuffUsageUpload>();
+            // The helpful effects that ran on this player (uptime, how often, who gave them): the website's buff columns.
+            var buffs = buffExtras is not null && aion2Directory is not null
+                ? BuffUpload.For(buffExtras, row.ObjectId, windowStart, windowEnd, id => aion2Directory.NameFor(id)).ToList()
+                : new List<BuffUsageUpload>();
 
             participants.Add(new ParticipantUpload(
                 row.Name, row.ClassName, row.Faction, isSelf,
@@ -2805,6 +2814,10 @@ public partial class MainWindow : Window
             participants = participants.Where(p => p.IsSelf).Concat(participants.Where(p => !p.IsSelf).OrderByDescending(p => p.TotalDamage))
                 .Take(MaxUploadParticipants).ToList();
         }
+
+        // an effect whose giver is nobody of this fight came from a monster: not a buff (the givers kept are the fight's players)
+        var participantNames = participants.Select(p => p.Name).ToHashSet();
+        participants = participants.Select(p => p with { Buffs = BuffUpload.KeepGroupSources(p.Buffs ?? Array.Empty<BuffUsageUpload>(), participantNames) }).ToList();
 
         participants = AttachAbsorbed(participants, targetId, windowStart, windowEnd);
 
