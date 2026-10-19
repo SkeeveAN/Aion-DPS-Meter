@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "Website: every main page has its own preview picture (home, features, download, changelog, legions, statistics, server status, announcements, patch notes, Twitch Drops, technical background), with the text in the middle so WhatsApp's square cut keeps it readable",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.7.1",
   "date": "2026-10-19",
   "items": [
