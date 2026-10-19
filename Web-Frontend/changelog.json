@@ -9,6 +9,15 @@
      "Website"
     ],
     "date": "2026-10-19"
+   },
+   {
+    "text": "The meter's own profile upload carries a hash of the account key of the login (never the key itself), so the server can tell which characters belong to one account; stored internally, shown nowhere",
+    "areas": [
+     "Client",
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-19"
    }
   ]
  },
