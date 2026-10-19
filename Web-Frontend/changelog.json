@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "A character renamed after its first upload no longer shows up several times in one fight: later uploads are matched to the fight's players by the old name too, so damage and the group's damage per second are no longer counted twice",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.8.1",
   "date": "2026-10-19",
   "items": [
