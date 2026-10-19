@@ -4119,3 +4119,23 @@ body:has(.download-hero) .nav-download-link:hover,
 .bf-badge { position: absolute; left: -4px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: var(--color-surface); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .bf-badge .class-emblem, .bf-badge .class-badge { width: 11px; height: 11px; font-size: 6px; }
 .buff-legend { font-size: 12px; color: var(--color-text-muted); margin: 10px 0 0; }
+
+/* gear score filter (boss ranking, statistics of a boss and of a dungeon) */
+.gear-filter { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; margin: 6px 0 14px; }
+.gear-filter .lb-bar { margin: 0; }
+.gear-note { font-size: 0.8rem; color: var(--color-text-muted); }
+.lb-seg a { color: var(--color-text-muted); font-size: 0.85rem; padding: 6px 14px; text-decoration: none; }
+.lb-seg a[aria-selected="true"] { background: var(--color-primary); color: var(--color-primary-on); font-weight: 600; }
+.lb-seg a:hover:not([aria-selected="true"]) { color: var(--color-text); }
+
+/* skills of a class at one boss */
+.skill-stats { grid-column: 1 / -1; }
+.skill-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.skill-tab { border: 1px solid var(--color-border); background: none; color: var(--color-text-muted); border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 0.85rem; cursor: pointer; }
+.skill-tab.active { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-primary-on); font-weight: 600; }
+.skill-table td, .skill-table th { white-space: nowrap; }
+.skill-name { display: flex; align-items: center; gap: 8px; }
+.skill-ico { width: 28px; height: 28px; border-radius: 6px; background: var(--color-surface); flex: none; overflow: hidden; display: inline-block; }
+.skill-ico img { width: 28px; height: 28px; display: block; }
+.skill-share { width: 34%; }
+.skill-share i { display: inline-block; height: 10px; border-radius: 5px; background: var(--color-primary); vertical-align: middle; margin-right: 8px; min-width: 3px; max-width: calc(100% - 60px); }

@@ -215,7 +215,8 @@ export async function pageRoutes(app: FastifyInstance) {
       const query = request.query as { server?: string; mode?: string };
       const found = /^\d+$/.test(idOrSlug) ? findBoss(idOrSlug, game) : null;
       if (found?.boss.slug) {
-        return reply.redirect(`/bosses/${found.boss.slug}/statistics`, 301);
+        const keep = new URLSearchParams(request.query as Record<string, string>);
+        return reply.redirect(`/bosses/${found.boss.slug}/statistics${keep.toString() ? `?${keep}` : ""}`, 301);
       }
       return sendCached(request, reply, () => bossStatisticsPage(game, idOrSlug, query));
     }),

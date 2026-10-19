@@ -56,3 +56,66 @@ export function boxesByClass(rows: { className: string; idps: number }[]): Class
     })
     .sort((a, b) => b.median - a.median);
 }
+
+/** What one class did at one boss, skill by skill (the skill table of the boss page's statistics view). */
+export interface SkillStat {
+  skill: string;
+  /** Share of the class's damage on this boss, 0..1. */
+  damageShare: number;
+  /** In how many of the class's rows the skill was used, 0..1. */
+  runShare: number;
+  /** Hits per row that used the skill. */
+  hitsPerRun: number;
+  /** Crit hits of all hits, 0..1. */
+  critRate: number;
+  averageHit: number;
+}
+
+export interface ClassSkills {
+  className: string;
+  samples: number;
+  skills: SkillStat[];
+}
+
+const SKILLS_PER_CLASS = 12;
+const MIN_ROWS_FOR_SKILLS = 3;
+/** A skill used by fewer of the rows than this is left out (a rare or misread skill says nothing about the class). */
+const MIN_RUN_SHARE = 0.1;
+
+/**
+ * The skills of every class from per-skill totals (rows that used the skill, hits, crit hits, damage) and the number of rows
+ * (participants with damage) per class. Strongest skill first; a class with too few rows has no table.
+ */
+export function skillStatsByClass(
+  skillRows: { className: string; skill: string; runs: number; hits: number; critHits: number; damage: number }[],
+  samples: Map<string, number>,
+): ClassSkills[] {
+  const byClass = new Map<string, typeof skillRows>();
+  for (const row of skillRows) {
+    if (row.damage > 0 && row.hits > 0 && row.skill !== "") {
+      (byClass.get(row.className) ?? byClass.set(row.className, []).get(row.className)!).push(row);
+    }
+  }
+  const result: ClassSkills[] = [];
+  for (const [className, rows] of byClass) {
+    const rowCount = samples.get(className) ?? 0;
+    const total = rows.reduce((sum, r) => sum + r.damage, 0);
+    if (rowCount < MIN_ROWS_FOR_SKILLS || total <= 0) {
+      continue;
+    }
+    const skills = rows
+      .filter((r) => r.runs / rowCount >= MIN_RUN_SHARE)
+      .sort((a, b) => b.damage - a.damage)
+      .slice(0, SKILLS_PER_CLASS)
+      .map((r) => ({
+        skill: r.skill,
+        damageShare: r.damage / total,
+        runShare: Math.min(1, r.runs / rowCount),
+        hitsPerRun: r.hits / r.runs,
+        critRate: r.critHits / r.hits,
+        averageHit: r.damage / r.hits,
+      }));
+    result.push({ className, samples: rowCount, skills });
+  }
+  return result.sort((a, b) => b.samples - a.samples);
+}

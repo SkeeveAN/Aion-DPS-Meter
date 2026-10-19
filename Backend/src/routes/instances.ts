@@ -5,6 +5,7 @@ import { db } from "../db/client.js";
 import { bosses, encounters, instances, serverCatalogInstances } from "../db/schema.js";
 import { CATEGORY_MODES, DEFAULT_GAME, isGame, UNASSIGNED_INSTANCE_NAME, type Game } from "../constants.js";
 import { parseIdOrSlug } from "../seo/slug.js";
+import { parseGearRange } from "../gearFilter.js";
 import { selectServer, serversWithEncountersForBossIds, statsForBossIds } from "./bosses.js";
 
 /** `?game=` is optional everywhere - absent means aion2, the only game served. */
@@ -106,7 +107,7 @@ export async function instanceRoutes(app: FastifyInstance) {
 
   // The statistics of a dungeon: per boss its fight numbers and class medians, plus the class share of the whole dungeon (the
   // dungeon's "Statistics" page). Combined across the servers; a difficulty step (mode) narrows it like on the boss pages.
-  app.get<{ Params: { id: string }; Querystring: { game?: string; mode?: string } }>("/api/instances/:id/statistics", async (request, reply) => {
+  app.get<{ Params: { id: string }; Querystring: { game?: string; mode?: string; gear?: string } }>("/api/instances/:id/statistics", async (request, reply) => {
     const game = gameFromQuery(request.query.game, reply);
     if (game === null) {
       return;
@@ -116,7 +117,7 @@ export async function instanceRoutes(app: FastifyInstance) {
       return reply.status(404).send({ error: "instance_not_found" });
     }
     const mode = request.query.mode === undefined ? null : request.query.mode === "unknown" ? "" : request.query.mode;
-    return reply.send({ instance: { id: instance.id, slug: instance.slug, name: instance.name, nameEn: instance.nameEn, category: instance.category }, ...instanceStatistics(instance.id, null, mode) });
+    return reply.send({ instance: { id: instance.id, slug: instance.slug, name: instance.name, nameEn: instance.nameEn, category: instance.category }, ...instanceStatistics(instance.id, null, mode, parseGearRange(request.query.gear)) });
   });
 
   // Best group iDPS / average kill time / run count across every one of this instance's real
@@ -124,7 +125,7 @@ export async function instanceRoutes(app: FastifyInstance) {
   // pills and, later, an instance-level "Statistiken" tab. Server scoping mirrors a boss
   // leaderboard exactly (see bosses.ts selectServer/statsForBossIds): never merged across
   // classic-Aion servers, combined by default only for Aion 2.
-  app.get<{ Params: { id: string }; Querystring: { game?: string; serverId?: string; server?: string; mode?: string } }>(
+  app.get<{ Params: { id: string }; Querystring: { game?: string; serverId?: string; server?: string; mode?: string; gear?: string } }>(
     "/api/instances/:id/stats",
     async (request, reply) => {
       const game = gameFromQuery(request.query.game, reply);
@@ -179,7 +180,7 @@ export async function instanceRoutes(app: FastifyInstance) {
       );
       const modes = stepNames.length === 0 ? [] : stepNames.map((mode) => ({ mode, runs: stepRuns.get(mode) ?? 0 }));
       const selectedMode = stepNames.includes(request.query.mode ?? "") ? request.query.mode! : null;
-      const stats = statsForBossIds(bossIds, scope, selectedMode);
+      const stats = statsForBossIds(bossIds, scope, selectedMode, parseGearRange(request.query.gear));
       return reply.send({ instanceId: instance.id, servers: serverList, selectedServerId: scope, combined, modes, selectedMode, ...stats });
     },
   );

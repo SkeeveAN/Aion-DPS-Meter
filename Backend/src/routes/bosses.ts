@@ -3,13 +3,15 @@ import { withServerFaction } from "../factions.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client.js";
 import { EXACT_ENCOUNTER, EXACT_PARTICIPANT } from "../estimated.js";
-import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounters, instances, playerNcCharacter, playerProfiles, players, serverCatalog, servers } from "../db/schema.js";
+import { bossMechanics, bossNpcIds, bosses, encounterParticipants, encounterSkillUsage, encounters, instances, playerNcCharacter, playerProfiles, players, serverCatalog, servers } from "../db/schema.js";
 import { profileBadge } from "../profileBadge.js";
 import { topBuffsByParticipant, type TopBuff } from "../skills/topBuffs.js";
 import { parseIdOrSlug } from "../seo/slug.js";
 import { gameFromQuery } from "./instances.js";
 import { CATEGORY_MODES, type Game } from "../constants.js";
-import { boxesByClass } from "../classStats.js";
+import { boxesByClass, skillStatsByClass } from "../classStats.js";
+import { skillIconByName, skillNamesByName } from "../profile.js";
+import { gearCondition, knownGearCondition, parseGearRange, type GearRange } from "../gearFilter.js";
 
 const TOP_N = 10;
 
@@ -60,8 +62,9 @@ export function serversWithEncounters(bossId: number) {
 }
 
 /** One boss, optionally narrowed to a server and to one difficulty step (null = every step). */
-function encounterScope(bossId: number, serverId: number | null, mode: string | null) {
+function encounterScope(bossId: number, serverId: number | null, mode: string | null, gear: GearRange | null = null) {
   return and(
+    gearCondition(gear),
     eq(encounters.bossId, bossId),
     serverId === null ? undefined : eq(encounters.serverId, serverId),
     mode === null ? undefined : eq(encounters.mode, mode),
@@ -93,7 +96,7 @@ export function modesFor(bossId: number, category: string | null) {
 /** The address spells the "no known step" tab as ?mode=unknown (an empty value reads as "not given"). */
 export const UNKNOWN_MODE = "unknown";
 
-export function topGroups(bossId: number, serverId: number | null, game: Game, mode: string | null = null) {
+export function topGroups(bossId: number, serverId: number | null, game: Game, mode: string | null = null, gear: GearRange | null = null) {
   const groups = db
     .select({
       encounterId: encounters.id,
@@ -103,7 +106,7 @@ export function topGroups(bossId: number, serverId: number | null, game: Game, m
       mergedUploadCount: encounters.mergedUploadCount,
     })
     .from(encounters)
-    .where(and(encounterScope(bossId, serverId, mode), EXACT_ENCOUNTER))
+    .where(and(encounterScope(bossId, serverId, mode, gear), EXACT_ENCOUNTER))
     .orderBy(desc(encounters.groupIDps))
     .limit(TOP_N)
     .all();
@@ -168,7 +171,7 @@ export function topGroups(bossId: number, serverId: number | null, game: Game, m
 }
 
 /** "Top 10 per class" for a solo target - fetch once, group and cap in JS (a few thousand rows at most). */
-export function topByClass(bossId: number, serverId: number | null, game: Game, mode: string | null = null) {
+export function topByClass(bossId: number, serverId: number | null, game: Game, mode: string | null = null, gear: GearRange | null = null) {
   const allParticipants = db
     .select({
       participantId: encounterParticipants.id,
@@ -185,7 +188,7 @@ export function topByClass(bossId: number, serverId: number | null, game: Game, 
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
     .innerJoin(players, eq(encounterParticipants.playerId, players.id))
     .leftJoin(servers, eq(players.serverId, servers.id))
-    .where(and(encounterScope(bossId, serverId, mode), EXACT_PARTICIPANT))
+    .where(and(encounterScope(bossId, serverId, mode, gear), EXACT_PARTICIPANT))
     .all()
     .map(withServerFaction);
 
@@ -208,22 +211,69 @@ export function topByClass(bossId: number, serverId: number | null, game: Game, 
 }
 
 /** The iDPS of every counted row of one boss, per class, as a box plot: lowest, middle half, median, highest. */
-export function classBoxes(bossId: number, serverId: number | null, mode: string | null = null) {
+export function classBoxes(bossId: number, serverId: number | null, mode: string | null = null, gear: GearRange | null = null) {
   const rows = db
     .select({ className: encounterParticipants.className, idps: encounterParticipants.idps })
     .from(encounterParticipants)
     .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
-    .where(and(encounterScope(bossId, serverId, mode), EXACT_PARTICIPANT))
+    .where(and(encounterScope(bossId, serverId, mode, gear), EXACT_PARTICIPANT))
     .all();
   return boxesByClass(rows);
 }
 
+/** Per class and skill: in how many rows the skill was used, its hits, crit hits and damage - plus how many rows each class has. */
+export function classSkills(bossId: number, serverId: number | null, mode: string | null = null, gear: GearRange | null = null) {
+  const scope = and(encounterScope(bossId, serverId, mode, gear), EXACT_PARTICIPANT);
+  const skillRows = db
+    .select({
+      className: encounterParticipants.className,
+      skill: encounterSkillUsage.skillName,
+      runs: sql<number>`count(distinct ${encounterParticipants.id})`,
+      hits: sql<number>`sum(${encounterSkillUsage.hits})`,
+      critHits: sql<number>`sum(${encounterSkillUsage.critHits})`,
+      damage: sql<number>`sum(${encounterSkillUsage.totalDamage})`,
+    })
+    .from(encounterSkillUsage)
+    .innerJoin(encounterParticipants, eq(encounterSkillUsage.participantId, encounterParticipants.id))
+    .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
+    .where(and(scope, eq(encounterSkillUsage.isHeal, false)))
+    .groupBy(encounterParticipants.className, encounterSkillUsage.skillName)
+    .all();
+  const rowCounts = db
+    .select({ className: encounterParticipants.className, rows: count(encounterParticipants.id) })
+    .from(encounterParticipants)
+    .innerJoin(encounters, eq(encounterParticipants.encounterId, encounters.id))
+    .where(and(scope, sql`${encounterParticipants.totalDamage} > 0`))
+    .groupBy(encounterParticipants.className)
+    .all();
+  return skillStatsByClass(skillRows, new Map(rowCounts.map((r) => [r.className, r.rows])));
+}
+
+/** The game's icon and the names in every language of each skill (Aion 2: the stored name is the English one of the client). */
+function withSkillArt(classes: ReturnType<typeof classSkills>) {
+  return classes.map((c) => ({
+    ...c,
+    skills: c.skills.map((s) => ({ ...s, icon: skillIconByName(s.skill, c.className), names: skillNamesByName(s.skill, c.className) })),
+  }));
+}
+
+/** How many fights of this boss in this scope have a known gear score (all of them: what the filter can work with). */
+export function gearCoverage(bossId: number, serverId: number | null, mode: string | null = null) {
+  const scope = encounterScope(bossId, serverId, mode);
+  const row = db
+    .select({ runs: count(encounters.id), known: sql<number>`sum(case when ${knownGearCondition()} then 1 else 0 end)` })
+    .from(encounters)
+    .where(scope)
+    .get();
+  return { runs: row?.runs ?? 0, known: row?.known ?? 0 };
+}
+
 /** The length in seconds of every fight of one boss in this scope, for the histogram of kill times (at most 5,000, the newest). */
-export function fightDurations(bossId: number, serverId: number | null, mode: string | null = null): number[] {
+export function fightDurations(bossId: number, serverId: number | null, mode: string | null = null, gear: GearRange | null = null): number[] {
   return db
     .select({ seconds: encounters.durationSeconds })
     .from(encounters)
-    .where(encounterScope(bossId, serverId, mode))
+    .where(encounterScope(bossId, serverId, mode, gear))
     .orderBy(desc(encounters.id))
     .limit(5000)
     .all()
@@ -244,7 +294,7 @@ export type FightStats = {
  * only ever the picked one or (Aion 2) explicitly combined. Empty beats wrong - a boss/instance
  * with no encounters yet reports null stats, never a fabricated zero.
  */
-export function statsForBossIds(bossIds: number[], serverId: number | null, mode: string | null = null): FightStats {
+export function statsForBossIds(bossIds: number[], serverId: number | null, mode: string | null = null, gear: GearRange | null = null): FightStats {
   if (bossIds.length === 0) {
     return { runCount: 0, bestIdps: null, avgDurationSeconds: null };
   }
@@ -252,6 +302,7 @@ export function statsForBossIds(bossIds: number[], serverId: number | null, mode
     inArray(encounters.bossId, bossIds),
     serverId === null ? undefined : eq(encounters.serverId, serverId),
     mode === null ? undefined : eq(encounters.mode, mode),
+    gearCondition(gear),
   );
   const row = db
     .select({
@@ -331,7 +382,7 @@ export function selectServer(
 }
 
 export async function bossRoutes(app: FastifyInstance) {
-  app.get<{ Params: { id: string }; Querystring: { serverId?: string; server?: string; game?: string; mode?: string } }>(
+  app.get<{ Params: { id: string }; Querystring: { serverId?: string; server?: string; game?: string; mode?: string; gear?: string } }>(
     "/api/bosses/:id/leaderboard",
     async (request, reply) => {
       const game = gameFromQuery(request.query.game, reply);
@@ -392,20 +443,22 @@ export async function bossRoutes(app: FastifyInstance) {
         });
       }
       const scope = combined ? null : selected!.id;
-      const stats = statsForBossIds([boss.id], scope, mode);
+      const gear = parseGearRange(request.query.gear);
+      const stats = statsForBossIds([boss.id], scope, mode, gear);
+      const gearInfo = { ...gearCoverage(boss.id, scope, mode), selected: gear };
 
       // Per the user: a real group fight and a solo practice target (e.g. Training Dummy) rank
       // completely differently - one boss is never both, so only the query the page actually
       // needs runs. isSolo is manually curated (see README), same pattern as isTrashMob.
       if (boss.isSolo) {
-        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: [], topByClass: topByClass(boss.id, scope, found.game, mode), stats });
+        return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: [], topByClass: topByClass(boss.id, scope, found.game, mode, gear), stats, gear: gearInfo });
       }
-      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: topGroups(boss.id, scope, found.game, mode), topByClass: {}, stats });
+      return reply.send({ boss: bossResponse, servers: serverList, selectedServerId: scope, combined, modes, selectedMode: mode, topGroups: topGroups(boss.id, scope, found.game, mode, gear), topByClass: {}, stats, gear: gearInfo });
     },
   );
 
   // Statistics view of the boss page: the spread of the iDPS per class (box plot) and the top 10 of each class. Scoped like the leaderboard.
-  app.get<{ Params: { id: string }; Querystring: { serverId?: string; server?: string; game?: string; mode?: string } }>(
+  app.get<{ Params: { id: string }; Querystring: { serverId?: string; server?: string; game?: string; mode?: string; gear?: string } }>(
     "/api/bosses/:id/stats",
     async (request, reply) => {
       const game = gameFromQuery(request.query.game, reply);
@@ -430,7 +483,14 @@ export async function bossRoutes(app: FastifyInstance) {
         }
         scope = selected.id;
       }
-      return reply.send({ boxes: classBoxes(boss.id, scope, mode), durations: fightDurations(boss.id, scope, mode), topByClass: topByClass(boss.id, scope, found.game, mode) });
+      const gear = parseGearRange(request.query.gear);
+      return reply.send({
+        boxes: classBoxes(boss.id, scope, mode, gear),
+        durations: fightDurations(boss.id, scope, mode, gear),
+        topByClass: topByClass(boss.id, scope, found.game, mode, gear),
+        skills: found.game === "aion2" ? withSkillArt(classSkills(boss.id, scope, mode, gear)) : classSkills(boss.id, scope, mode, gear),
+        gear: { ...gearCoverage(boss.id, scope, mode), selected: gear },
+      });
     },
   );
 

@@ -30,3 +30,23 @@ test("thinOut keeps short lists and spreads long ones with both ends", () => {
   assert.equal(thin[0], 0);
   assert.equal(thin[9], 999);
 });
+
+test("skillStatsByClass: shares of the class damage, rare skills and thin classes left out", async () => {
+  const { skillStatsByClass } = await import("./classStats.js");
+  const rows = [
+    { className: "Gladiator", skill: "Big", runs: 20, hits: 100, critHits: 50, damage: 3000 },
+    { className: "Gladiator", skill: "Small", runs: 5, hits: 20, critHits: 2, damage: 1000 },
+    { className: "Gladiator", skill: "Rare", runs: 1, hits: 5, critHits: 5, damage: 900 },
+    { className: "Cleric", skill: "Only", runs: 2, hits: 4, critHits: 0, damage: 100 },
+  ];
+  const result = skillStatsByClass(rows, new Map([["Gladiator", 20], ["Cleric", 2]]));
+  assert.equal(result.length, 1, "a class with two rows has no table");
+  const [glad] = result;
+  assert.equal(glad!.samples, 20);
+  assert.deepEqual(glad!.skills.map((s) => s.skill), ["Big", "Small"], "the skill used by one row of twenty is left out");
+  assert.equal(glad!.skills[0]!.runShare, 1);
+  assert.equal(glad!.skills[0]!.hitsPerRun, 5);
+  assert.equal(glad!.skills[0]!.critRate, 0.5);
+  assert.equal(glad!.skills[0]!.averageHit, 30);
+  assert.ok(Math.abs(glad!.skills[0]!.damageShare - 3000 / 4900) < 1e-9);
+});

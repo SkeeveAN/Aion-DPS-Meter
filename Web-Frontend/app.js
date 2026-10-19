@@ -2,7 +2,7 @@ import { LOCALES, getLocale, setLocale, t, formatNumber, formatDate, translateGa
 import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, INSTANCE_MIN_LEVEL, INSTANCE_FACTS, SERVER_NAMES, splitConquest } from "./game-data.js";
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
-import { buildBossStats, buildInstanceStats } from "./boss-stats.js";
+import { buildBossStats, buildGearFilter, buildInstanceStats } from "./boss-stats.js";
 import { ARTICLE, articleSegments } from "./article-data.js";
 import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
 
@@ -2279,6 +2279,9 @@ async function renderInstanceStatistics(instanceSlug, params = new URLSearchPara
   if (params.get("mode")) {
     statsQuery.set("mode", params.get("mode"));
   }
+  if (params.get("gear")) {
+    statsQuery.set("gear", params.get("gear"));
+  }
   const [bosses, instances, stats, data] = await Promise.all([
     fetchJson(`/api/instances/${encodeURIComponent(instanceSlug)}/bosses?game=${currentGame}`),
     fetchJson(`/api/instances?game=${currentGame}`),
@@ -2292,7 +2295,12 @@ async function renderInstanceStatistics(instanceSlug, params = new URLSearchPara
   const hero = instance ? [instanceHero(instance, bosses.length, stats)] : [];
   const instancePath = gp(`/${instance && isWorldBossArea(instance) ? "worldbosses" : "instances"}/${instanceSlug}`);
   hero.push(instanceViewButtons(instancePath, true));
-  app.replaceChildren(...hero, ...buildInstanceStats(data, { el, t, formatNumber, classLabel, classIcon, displayName, formatDuration, gp }));
+  const gearHref = (range) => {
+    const next = new URLSearchParams(params);
+    range ? next.set("gear", range) : next.delete("gear");
+    return next.toString() ? `${instancePath}/statistics?${next}` : `${instancePath}/statistics`;
+  };
+  app.replaceChildren(...hero, ...buildInstanceStats(data, { el, t, formatNumber, classLabel, classIcon, displayName, formatDuration, gp, gearHref }));
 }
 
 /** The two views of a dungeon, as on a boss page: its bosses and its statistics. */
@@ -2688,6 +2696,9 @@ async function renderLeaderboard(bossSlug, params, statisticsPage = false) {
   if (params.get("mode")) {
     query.set("mode", params.get("mode"));
   }
+  if (params.get("gear")) {
+    query.set("gear", params.get("gear"));
+  }
   const data = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/leaderboard?${query}`);
   const bossPath = gp(`/bosses/${data.boss.slug}`);
   const bossName = displayName(data.boss);
@@ -2729,6 +2740,14 @@ async function renderLeaderboard(bossSlug, params, statisticsPage = false) {
     const base = view === "stats" ? `${bossPath}/statistics` : bossPath;
     return next.toString() ? `${base}?${next}` : base;
   };
+  // The gear score filter keeps everything else of the address (difficulty step, server) and stays on the view that is open.
+  const gearHref = (range) => {
+    const next = new URLSearchParams(params);
+    next.delete("view");
+    range ? next.set("gear", range) : next.delete("gear");
+    const base = statsView ? `${bossPath}/statistics` : bossPath;
+    return next.toString() ? `${base}?${next}` : base;
+  };
   // Icons with a tooltip: a podium for the ranking, a box plot for the statistics.
   const VIEW_ICONS = {
     ranking: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M4 21v-7h5v7M9.5 21V6h5v15M15 21v-10h5v10"/></svg>',
@@ -2755,7 +2774,7 @@ async function renderLeaderboard(bossSlug, params, statisticsPage = false) {
       statsQuery.set("mode", data.selectedMode || "unknown");
     }
     const bossStats = await fetchJson(`/api/bosses/${encodeURIComponent(bossSlug)}/stats?${statsQuery}`);
-    app.replaceChildren(...sections, ...buildBossStats(bossStats, { el, t, formatNumber, classLabel, classIcon, iconLabel, playerCell, rankedRow, rankedTable, gp }));
+    app.replaceChildren(...sections, ...buildBossStats(bossStats, { el, t, formatNumber, classLabel, classIcon, iconLabel, playerCell, rankedRow, rankedTable, gp, getLocale, gearHref }));
     return;
   }
 
@@ -2798,12 +2817,13 @@ async function renderLeaderboard(bossSlug, params, statisticsPage = false) {
     return;
   }
 
+  const gearBar = buildGearFilter(data.gear, gearHref, { el, t, formatNumber });
   if (data.topGroups.length === 0) {
-    app.replaceChildren(...sections, el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") }));
+    app.replaceChildren(...sections, ...(gearBar ? [gearBar] : []), el("p", { className: "empty", textContent: t(data.gear?.selected ? "gear.empty" : "leaderboard.emptyNoFights") }));
     return;
   }
 
-  app.replaceChildren(...sections, el("h3", {}, [t("leaderboard.topGroupsHeading", { n: data.topGroups.length })]), renderGroupBoard(data.topGroups));
+  app.replaceChildren(...sections, el("h3", {}, [t("leaderboard.topGroupsHeading", { n: data.topGroups.length })]), ...(gearBar ? [gearBar] : []), renderGroupBoard(data.topGroups));
 }
 
 // m:ss - short enough to sit next to "Zeitpunkt"/"App Version" in a two-column meta table, unlike

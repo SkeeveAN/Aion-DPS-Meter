@@ -241,7 +241,8 @@ export function buildBossStats(stats, deps) {
   const classNames = Object.keys(stats.topByClass ?? {}).sort();
   const boxes = stats.boxes ?? [];
   if (boxes.length === 0 && classNames.length === 0) {
-    return [el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") })];
+    // With a gear score range chosen the filter stays, so another range can be picked.
+    return [...[buildGearFilter(stats.gear, deps.gearHref, deps)].filter((x) => x !== null), el("p", { className: "empty", textContent: t(stats.gear?.selected ? "gear.empty" : "leaderboard.emptyNoFights") })];
   }
 
   const empty = (key) => el("p", { className: "empty", textContent: t(key) });
@@ -281,7 +282,95 @@ export function buildBossStats(stats, deps) {
     return el("div", { className: "class-block" }, [el("h3", {}, [iconLabel(classIcon(className), classLabel(className))]), compactTable(rows)]);
   });
 
-  return [el("section", {}, [el("h2", { textContent: t("stats.heading") }), el("div", { className: "class-grid class-grid-3" }, [boxBlock, timeBlock, shareBlock, ...classBlocks])])];
+  const skillBlock = buildSkillStats(stats.skills, deps);
+  const gearBar = buildGearFilter(stats.gear, deps.gearHref, deps);
+  return [el("section", {}, [el("h2", { textContent: t("stats.heading") }), ...(gearBar ? [gearBar] : []), el("div", { className: "class-grid class-grid-3" }, [boxBlock, timeBlock, shareBlock, ...(skillBlock ? [skillBlock] : []), ...classBlocks])])];
+}
+
+// The gear score filter above the rankings and statistics: runs whose known gear scores all lie in one range. A link per range, so the
+// choice is part of the address (shareable, back button works).
+const GEAR_RANGES = [
+  { key: "all", range: null },
+  { key: "low", range: "-1500" },
+  { key: "mid", range: "1500-2000" },
+  { key: "high", range: "2000-" },
+];
+
+/**
+ * @param gear   { runs, known, selected } from the API: how many runs have a known gear score and the range in use
+ * @param hrefFor function(range or null) -> the address that shows this range
+ * @returns the filter row, or null when no run has a gear score at all
+ */
+export function buildGearFilter(gear, hrefFor, deps) {
+  const { el, t, formatNumber } = deps;
+  if (!gear || gear.known === 0) {
+    return null;
+  }
+  const selectedKey = gear.selected ? `${gear.selected.min > 0 ? gear.selected.min : ""}-${gear.selected.max < Number.MAX_SAFE_INTEGER ? gear.selected.max : ""}` : null;
+  const label = (key) =>
+    key === "all" ? t("gear.all") : key === "low" ? t("gear.upTo", { max: formatNumber(1500) }) : key === "mid" ? t("gear.between", { min: formatNumber(1500), max: formatNumber(2000) }) : t("gear.from", { min: formatNumber(2000) });
+  const seg = el(
+    "div",
+    { className: "lb-seg", role: "group" },
+    GEAR_RANGES.map(({ key, range }) => {
+      const a = el("a", { href: hrefFor(range), textContent: label(key) });
+      a.setAttribute("aria-selected", String(range === selectedKey));
+      return a;
+    }),
+  );
+  return el("div", { className: "gear-filter" }, [
+    el("div", { className: "lb-bar" }, [el("span", { className: "lb-bar-label", textContent: t("gear.label") }), seg]),
+    el("span", { className: "gear-note", textContent: t("gear.note", { known: formatNumber(gear.known), runs: formatNumber(gear.runs) }) }),
+  ]);
+}
+
+/** The skill table of one class at this boss, with one tab per class. */
+function buildSkillStats(classes, deps) {
+  const { el, t, formatNumber, classLabel, classIcon, iconLabel, getLocale } = deps;
+  if (!classes || classes.length === 0) {
+    return null;
+  }
+  const block = el("div", { className: "class-block skill-stats" });
+  const draw = (className) => {
+    const current = classes.find((c) => c.className === className) ?? classes[0];
+    const tabs = el(
+      "div",
+      { className: "skill-tabs", role: "group" },
+      classes.map((c) => {
+        const b = el("button", { type: "button", className: `skill-tab${c.className === current.className ? " active" : ""}` }, [iconLabel(classIcon(c.className), classLabel(c.className))]);
+        b.addEventListener("click", () => draw(c.className));
+        return b;
+      }),
+    );
+    const top = current.skills[0]?.damageShare ?? 1;
+    const percent = (v) => `${Math.round(v * 100)} %`;
+    const row = (s) => {
+      const name = s.names?.[getLocale()] ?? s.skill;
+      const tile = el("span", { className: "skill-ico" });
+      if (s.icon) {
+        const img = el("img", { src: `/images/aion2/icons/skill/${s.icon}.webp`, alt: "", loading: "lazy", width: 28, height: 28 });
+        img.addEventListener("error", () => img.remove());
+        tile.append(img);
+      }
+      return el("tr", {}, [
+        el("td", { className: "skill-name" }, [tile, el("span", { textContent: name })]),
+        el("td", { className: "skill-share" }, [el("i", { style: `width:${top > 0 ? (s.damageShare / top) * 80 : 0}%` }), el("b", { textContent: percent(s.damageShare) })]),
+        el("td", { textContent: percent(s.runShare) }),
+        el("td", { textContent: formatNumber(Math.round(s.hitsPerRun)) }),
+        el("td", { textContent: percent(s.critRate) }),
+        el("td", { textContent: formatNumber(Math.round(s.averageHit)) }),
+      ]);
+    };
+    const head = ["stats.skillColumn", "stats.skillShare", "stats.skillUsed", "stats.skillHits", "stats.skillCrit", "stats.skillAverage"];
+    block.replaceChildren(
+      el("h3", {}, [t("stats.skillsHeading")]),
+      tabs,
+      el("table", { className: "ranked-table compact skill-table" }, [el("thead", {}, [el("tr", {}, head.map((k) => el("th", { textContent: t(k) })))]), el("tbody", {}, current.skills.map(row))]),
+      el("p", { className: "boxplot-note", textContent: t("stats.skillNote", { n: formatNumber(current.samples) }) }),
+    );
+  };
+  draw(classes[0].className);
+  return block;
 }
 
 /**
@@ -294,7 +383,7 @@ export function buildInstanceStats(data, deps) {
   const { el, t, formatNumber, classLabel, classIcon, displayName, formatDuration, gp } = deps;
   const fought = data.bosses.filter((b) => b.runCount > 0);
   if (fought.length === 0) {
-    return [el("p", { className: "empty", textContent: t("leaderboard.emptyNoFights") })];
+    return [...[buildGearFilter(data.gear, deps.gearHref, deps)].filter((x) => x !== null), el("p", { className: "empty", textContent: t(data.gear?.selected ? "gear.empty" : "leaderboard.emptyNoFights") })];
   }
   const header = ["stats.bossColumn", "stats.runs", "stats.bestDps", "stats.avgTime", "stats.medianPerClass"];
   const table = el("table", { className: "ranked-table compact" }, [
@@ -325,6 +414,7 @@ export function buildInstanceStats(data, deps) {
   return [
     el("section", {}, [
       el("h2", { textContent: t("stats.heading") }),
+      ...[buildGearFilter(data.gear, deps.gearHref, deps)].filter((x) => x !== null),
       el("div", { className: "class-grid class-grid-2" }, [block(t("stats.bossTable"), el("div", { className: "table-scroll" }, [table])), block(t("stats.shareHeading"), el("div", { className: "boxplot-card" }, [share ?? el("p", { className: "empty", textContent: t("stats.tooFew") })]))]),
     ]),
   ];
