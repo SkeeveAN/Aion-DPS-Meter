@@ -198,6 +198,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _stones.Clear();
                 _presets.Clear();
                 _activePreset = 1;
+                _presetKnown = false;
+                _liveLists = false;
                 _pruneStigmas = false;
             }
 
@@ -258,6 +260,9 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             _fullEquipment = equipment;
             _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma, s.Equipped, s.Stones)).ToList();
             _activePreset = saved.ActivePreset is >= 1 and <= 9 ? saved.ActivePreset : 1;
+            // A file from before the presets (1.5.x) does not say which preset its lists belong to.
+            _presetKnown = saved.Presets.Count > 0;
+            _liveLists = false;
             _presetAt = saved.SavedAt;
             _stigmas.Clear();
             _stigmas.UnionWith(_skills.Where(k => k.Stigma).Select(k => k.SkillId));
@@ -1063,6 +1068,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 .Where(old => skills.All(s => s.SkillId != old.SkillId))
                 .Where(old => classPrefix is null || old.SkillId / 1_000_000 is < 10 or >= 20 || old.SkillId / 1_000_000 == classPrefix)
                 .Concat(skills);
+            _liveLists = true;
             var listed = merged.Select(k => k.SkillId).ToHashSet();
             if (_pruneStigmas)
             {
@@ -1093,6 +1099,8 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     private int _activePreset = 1;
     private DateTime _presetAt = DateTime.Now;
     private bool _pruneStigmas;
+    private bool _presetKnown;
+    private bool _liveLists; // the game sent a skill list, stigma list or slot choices in this session (not only a restored file)
     private readonly Dictionary<int, PresetSlot> _presets = new();
     private readonly Dictionary<int, int[]> _stones = new();
 
@@ -1121,6 +1129,18 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         lock (_gate)
         {
             _listsAt = DateTime.UtcNow;
+            if (!_presetKnown)
+            {
+                _presetKnown = true;
+                if (!_liveLists)
+                {
+                    // The first word of the game on the active preset and only a restored list from before the presets is held: it is taken to
+                    // belong to that preset - the lists of the login overwrite it, it is not parked as another preset.
+                    _activePreset = number;
+                    return;
+                }
+            }
+
             if (number == _activePreset)
             {
                 return;
@@ -1193,6 +1213,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
+            _liveLists = true;
             foreach (var (id, v) in slots)
             {
                 _stones[id] = v;
@@ -1216,8 +1237,18 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
-            // A skill the new frame does not list at all keeps its earlier flag (see SetLocalSkills).
-            _stigmas.RemoveWhere(listed.Contains);
+            // The login list names the stigmas of the active preset and no others: it replaces the set (a leftover from a restored file or
+            // from the other preset would show as a fifth stigma). A frame that names none leaves the set as it was.
+            _liveLists = true;
+            if (ids.Count > 0)
+            {
+                _stigmas.Clear();
+            }
+            else
+            {
+                _stigmas.RemoveWhere(listed.Contains);
+            }
+
             _stigmas.UnionWith(ids);
             if (_skills is not null)
             {

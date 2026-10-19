@@ -1467,12 +1467,26 @@ public static class SelfCheckAion2
         directory.SwitchPreset(1);
         bool returned = directory.LocalSkills.First(k => k.SkillId == keen).Stones!.SequenceEqual(new[] { 1, 4, 0 }) && directory.LocalSkills.Any(k => k.SkillId == rage && k.Stigma);
 
+        // A file from before the presets: both stigmas of two presets flagged, no preset known. The login list names the four of the active
+        // one and replaces the flags; the first word on the preset is adopted, not parked as preset 1.
+        var legacy = new Aion2EntityDirectory();
+        legacy.RestoreFrom(new Aion2SavedCharacter
+        {
+            Name = "Aahz", ClassCode = 6, Level = 45, SavedAt = DateTime.Now,
+            Skills = { new Aion2SavedCharacter.SavedSkill(rage, 5, 5, true), new Aion2SavedCharacter.SavedSkill(tenacious, 5, 5, true), new Aion2SavedCharacter.SavedSkill(lunge, 20, 20, true) },
+        });
+        legacy.SwitchPreset(2);
+        legacy.SetLocalStigmas(new HashSet<int> { rage, lunge }, new HashSet<int> { rage, lunge });
+        bool oldFile = legacy.ActivePreset == 2 && legacy.LocalPresets.Count == 1 && legacy.LocalPresets[0].Index == 2
+            && legacy.LocalSkills.Where(k => k.Stigma).Select(k => k.SkillId).OrderBy(k => k).SequenceEqual(new[] { rage, lunge }.OrderBy(k => k));
+
+        Console.WriteLine($"  -> a file from before the presets: its first preset word is adopted and the login stigmas replace its flags: {oldFile}");
         Console.WriteLine($"  -> preset 1 keeps its stones and two stigmas: {first}");
         Console.WriteLine($"  -> the burst after a switch fills preset 2 (own stones, Tenaciousness not Rage Burst): {emptyAtSwitch && second2}");
         Console.WriteLine($"  -> both presets are known, the active one marked: {both}");
         Console.WriteLine($"  -> a restart restores both: {restored}");
         Console.WriteLine($"  -> switching back brings preset 1 back: {returned}");
-        return first && emptyAtSwitch && second2 && both && restored && returned;
+        return first && oldFile && emptyAtSwitch && second2 && both && restored && returned;
     }
 
     /// <summary>The local player's data survives a meter restart: it is written when the game sends it
