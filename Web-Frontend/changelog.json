@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.6.0",
   "date": "2026-10-19",
   "items": [
    {
@@ -22,6 +22,16 @@
     "text": "Website: the legion table can be sorted by a click on a column heading",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-19"
+   },
+   {
+    "text": "skill presets - the meter notices which of the character's skill presets is active and keeps every preset it has seen (skill levels, stigmas, stones) and uploads them; the skills tab of the profile shows each preset with the stones of the skills, and the tooltips of skills show the stones and the effects a stigma unlocks in the game's own words (with the base level and the bonus)",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend",
+     "Database"
     ],
     "date": "2026-10-19"
    }
