@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.10.2",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "the character window switches between all characters of the account, showing the basics from the character list and the equipment, attributes, skills, species knowledge, wings and pet as aiondps.com holds them, with a button that opens the character on the website; the number the character list shows is now called item level (not combat power) in the checklist",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.10.1",
   "date": "2026-10-19",
   "items": [
