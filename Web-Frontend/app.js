@@ -765,6 +765,8 @@ const FEATURE_MORE_ICONS = [
   '<circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.3"/><circle cx="12" cy="7.5" r="1.3"/><circle cx="15.5" cy="10" r="1.3"/><path d="M12 21c-1.5 0-2-1.5-1-2.5s0-2.5-2-2.5"/>',
   '<rect x="2" y="6" width="20" height="12" rx="2" stroke-dasharray="3 2"/><path d="M6 10h.01M10 10h.01M14 10h.01M7 14h10"/>',
   '<path d="m12 3 8 4.500v9L12 21l-8-4.500v-9z"/><path d="M12 12v9M12 12 4 7.500M12 12l8-4.500"/>',
+  '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12h.01M8 16h2M12 16h2M16 16h.01"/>',
+  '<path d="M3 17l5-6 4 3 5-8 4 5"/><path d="M3 21h18"/>',
 ];
 
 // Lead sentence big, the remaining sentences as a check list (no extra translations needed).
@@ -864,7 +866,7 @@ function renderFeatures() {
     document.getElementById(`feature-${a.dataset.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
     history.replaceState(history.state, "", `${location.pathname}${location.search}#feature-${a.dataset.id}`);
   });
-  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13].map((n) => // 7 (boss fight overlay) and 10 (checklist) have scenes of their own now
+  const more = el("div", { className: "fx-mores" }, [1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 15].map((n) => // 7 (boss fight overlay) and 10 (checklist) have scenes of their own now
     el("div", { className: "fx-more-card" }, [
       el("span", { className: "fx-more-ico", innerHTML: SVG(FEATURE_MORE_ICONS[n - 1]) }),
       el("div", {}, [el("h3", { textContent: t(`features.more${n}.title`) }), el("p", { textContent: t(`features.more${n}.text`) })]),

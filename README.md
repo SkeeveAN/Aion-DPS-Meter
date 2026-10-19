@@ -171,6 +171,14 @@ lock it in place, switch it on and off with a hotkey.
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="The network overlay: ping, jitter, traffic and packet loss">
 </p>
 
+### Stat calculator (beta)
+
+See what a change of stats does to your damage before you swap a piece. It starts from your own stats as the game sends them; you say which side you mostly hit from (front, back, don't know) and your crit rate, or take both from your last fight. Type a change into any stat and read the damage with it against the damage now, plus how much of each stat gives one more percent. The expert mode adds buffs and the boss's resistance and is still in beta. The result is an estimate, because the game's damage formula is not published: it says "3.8 % more", never "this much damage". **Start recording** writes down your stats and the hits of a fight for up to 10 minutes; **Send** uploads it after showing exactly what goes out - no name, no legion, no IP address, only a random identifier of your installation - so that the calculator can be made better. The idea comes from the Stat Efficiency Calculator of [RATmeter](https://github.com/Kuroukihime/AIon2-Dps-Meter); layout, code and formula are our own.
+
+### Network report
+
+Under **Tools → Network**: **Save report** writes the last 15 minutes of your connection (ping, jitter, packet loss, the answer times of your router, the internet and the game server, pauses and what caused them, the kind of adapter) as a formatted JSON file named `aiondps_VERSION_DATE_TIME.json` where you choose; **Send report** sends the same report to the developer. It holds no IP address of yours and no names (not of the PC, the Windows account, an adapter, a character or a legion); before sending, a box lists what is in it and what is not. The idea of a saved diagnostic report comes from the environment diagnostics of the Aletheia meter.
+
 ### Combat overlay
 
 One transparent frame with up to three elements, each of which you place and size on its own:

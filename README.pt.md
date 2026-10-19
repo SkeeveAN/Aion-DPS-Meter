@@ -171,6 +171,14 @@ fixe-o no lugar e ative ou desative com um atalho.
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="O overlay de rede: ping, jitter, tráfego e perda de pacotes">
 </p>
 
+### Calculadora de stats (beta)
+
+Veja o que uma mudança de stats faz com o seu dano antes de trocar uma peça. Ela parte dos seus próprios stats como o jogo os envia; você indica de que lado ataca mais (frente, costas, não sei) e sua taxa de crítico, ou toma os dois do seu último combate. Digite uma mudança em qualquer stat e leia o dano com ela contra o dano atual, além de quanto de cada stat dá um por cento a mais. O modo especialista acrescenta buffs e a resistência do chefe e ainda está em beta. O resultado é uma estimativa, porque a fórmula de dano do jogo não é publicada: diz «3,8 % a mais», nunca «tanto dano». **Iniciar gravação** anota seus stats e os golpes de um combate por até 10 minutos; **Enviar** os envia depois de mostrar exatamente o que sai - sem nome, sem legião, sem endereço IP, só um identificador aleatório da sua instalação - para melhorar a calculadora. A ideia vem do Stat Efficiency Calculator do [RATmeter](https://github.com/Kuroukihime/AIon2-Dps-Meter); o layout, o código e a fórmula são nossos.
+
+### Relatório de rede
+
+Em **Ferramentas → Rede**: **Salvar relatório** grava os últimos 15 minutos da sua conexão (ping, jitter, perda de pacotes, tempos de resposta do roteador, da internet e do servidor do jogo, pausas e sua causa, tipo de adaptador) em um arquivo JSON formatado chamado `aiondps_VERSAO_DATA_HORA.json`, onde você escolher; **Enviar relatório** envia o mesmo relatório ao desenvolvedor. Ele não contém nenhum endereço IP seu nem nomes (nem do PC, da conta do Windows, de um adaptador, de um personagem ou de uma legião); antes de enviar, uma janela lista o que ele contém e o que não contém. A ideia de um relatório de diagnóstico salvo vem do diagnóstico de ambiente do medidor Aletheia.
+
 ### Overlay de combate
 
 Uma moldura transparente com até três elementos, cada um dos quais você posiciona e dimensiona separadamente:

@@ -174,6 +174,14 @@ verrouillez-le en place, activez-le ou désactivez-le avec un raccourci.
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="L'overlay réseau : ping, gigue, trafic et perte de paquets">
 </p>
 
+### Calculateur de stats (bêta)
+
+Voyez ce qu'un changement de stats donne sur vos dégâts avant de remplacer une pièce. Il part de vos propres stats telles que le jeu les envoie ; vous indiquez de quel côté vous attaquez surtout (face, dos, je ne sais pas) et votre taux de crit, ou vous reprenez les deux de votre dernier combat. Saisissez un changement dans n'importe quelle stat et lisez les dégâts avec, face aux dégâts actuels, ainsi que la quantité de chaque stat qui donne un pour cent de plus. Le mode expert ajoute les buffs et la résistance du boss et reste en bêta. Le résultat est une estimation, car la formule de dégâts du jeu n'est pas publiée : il indique « 3,8 % de plus », jamais « tant de dégâts ». **Démarrer l'enregistrement** note vos stats et les coups d'un combat pendant 10 minutes au plus ; **Envoyer** les transmet après avoir montré exactement ce qui part - ni nom, ni légion, ni adresse IP, seulement un identifiant aléatoire de votre installation - pour améliorer le calculateur. L'idée vient du Stat Efficiency Calculator de [RATmeter](https://github.com/Kuroukihime/AIon2-Dps-Meter) ; la mise en page, le code et la formule sont les nôtres.
+
+### Rapport réseau
+
+Sous **Outils → Réseau** : **Enregistrer le rapport** écrit les 15 dernières minutes de votre connexion (ping, gigue, pertes de paquets, temps de réponse du routeur, d'internet et du serveur de jeu, coupures et leur cause, type d'adaptateur) dans un fichier JSON formaté nommé `aiondps_VERSION_DATE_HEURE.json`, à l'endroit de votre choix ; **Envoyer le rapport** transmet le même rapport au développeur. Il ne contient aucune adresse IP de votre part ni aucun nom (ni du PC, du compte Windows, d'un adaptateur, d'un personnage ou d'une légion) ; avant l'envoi, une fenêtre liste ce qu'il contient et ce qu'il ne contient pas. L'idée d'un rapport de diagnostic enregistré vient du diagnostic d'environnement du meter Aletheia.
+
 ### Overlay de combat
 
 Un cadre transparent avec jusqu'à trois éléments, que tu places et dimensionnes chacun séparément :

@@ -268,6 +268,10 @@ export function featuresPage(): Page {
       <p>Per character, read from the game at login: the Odyle energy (basic and charged), the entries and attempts of Shugo Festival, Nightmare, Ascension rite, Dimensional Invasion and the daily dungeon, the five mandatory daily tasks and the time left in the lower Abyss. Counters you have not reached the level for are greyed out at 0.</p>
       <h2>Design editor</h2>
       <p>Pick your own colours for the window, panels, buttons and bars with a colour picker, one colour per class if you like, and save them as a design you can export and import. The preview shows every change at once.</p>
+      <h2>Stat calculator (beta)</h2>
+      <p>See what a change of stats does to your damage before you swap a piece: your own stats from the game, the side you hit from and your crit rate, plus an expert mode with buffs and boss resistance. It is an estimate; you can record a fight and send it to help make it better.</p>
+      <h2>Network report</h2>
+      <p>Save the last 15 minutes of your connection as a JSON file, or send it: ping, packet loss, pauses and what caused them, without IP address or names. You see exactly what is sent before it goes out.</p>
       <h2>Hotkeys, languages and updates</h2>
       <p>Sixteen system-wide hotkeys that work while the game has focus, all rebindable. Many languages including English, German, French, Spanish, Russian, Chinese, Portuguese, Japanese and Korean, dark and light look, and automatic background updates without an installer or admin rights.</p>
       <h2>Community leaderboards and profiles</h2>

@@ -172,6 +172,14 @@ fíjalo en su sitio y actívalo o desactívalo con un atajo.
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="El overlay de red: ping, jitter, tráfico y pérdida de paquetes">
 </p>
 
+### Calculadora de stats (beta)
+
+Mira qué efecto tiene un cambio de stats en tu daño antes de cambiar una pieza. Parte de tus propios stats tal como los envía el juego; indicas desde qué lado atacas sobre todo (frente, espalda, no lo sé) y tu tasa de crítico, o tomas ambos de tu último combate. Escribe un cambio en cualquier stat y lee el daño resultante frente al daño actual, además de cuánto de cada stat da un uno por ciento más. El modo experto añade buffs y la resistencia del jefe y sigue en beta. El resultado es una estimación, porque la fórmula de daño del juego no está publicada: dice «3,8 % más», nunca «tanto daño». **Iniciar grabación** anota tus stats y los golpes de un combate hasta 10 minutos; **Enviar** los sube tras mostrar exactamente qué sale - sin nombre, sin legión, sin dirección IP, solo un identificador aleatorio de tu instalación - para poder mejorar la calculadora. La idea viene del Stat Efficiency Calculator de [RATmeter](https://github.com/Kuroukihime/AIon2-Dps-Meter); el diseño, el código y la fórmula son nuestros.
+
+### Informe de red
+
+En **Herramientas → Red**: **Guardar informe** escribe los últimos 15 minutos de tu conexión (ping, jitter, pérdida de paquetes, tiempos de respuesta del router, internet y servidor del juego, pausas y su causa, tipo de adaptador) en un archivo JSON con formato llamado `aiondps_VERSION_FECHA_HORA.json` donde elijas; **Enviar informe** envía el mismo informe al desarrollador. No contiene ninguna dirección IP tuya ni nombres (ni del PC, la cuenta de Windows, un adaptador, un personaje o una legión); antes de enviar, un cuadro enumera qué contiene y qué no. La idea de un informe de diagnóstico guardado viene del diagnóstico de entorno del medidor Aletheia.
+
 ### Overlay de combate
 
 Un marco transparente con hasta tres elementos, cada uno de los cuales colocas y dimensionas por separado:

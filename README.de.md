@@ -171,6 +171,14 @@ sperre die Position, schalte es per Tastenkürzel ein und aus.
   <img src="Web-Frontend/images/features/network-overlay@2x.webp" width="340" alt="Das Netzwerk-Overlay: Ping, Jitter, Datenverkehr und Paketverlust">
 </p>
 
+### Stat-Rechner (Beta)
+
+Sieh, was eine Änderung der Werte für deinen Schaden bedeutet, bevor du ein Teil tauschst. Der Rechner startet mit deinen eigenen Werten, wie das Spiel sie sendet; du gibst an, von welcher Seite du überwiegend angreifst (vorne, hinten, weiß ich nicht) und deine Krit-Rate, oder übernimmst beides aus deinem letzten Kampf. Trage bei einem Wert eine Änderung ein und lies den Schaden damit gegen den Schaden jetzt ab, dazu wie viel von jedem Wert ein Prozent mehr bringt. Der Experten-Modus ergänzt Buffs und die Resistenz des Bosses und ist noch Beta. Das Ergebnis ist eine Näherung, weil die Schadensformel des Spiels nicht veröffentlicht ist: Es sagt „3,8 % mehr“, nie „so viel Schaden“. **Aufnahme starten** schreibt bis zu 10 Minuten lang deine Werte und die Treffer eines Kampfs mit; **Senden** lädt sie hoch, nachdem es genau zeigt, was rausgeht - kein Name, keine Legion, keine IP-Adresse, nur eine zufällige Kennung deiner Installation -, damit der Rechner besser werden kann. Die Idee stammt vom Stat Efficiency Calculator von [RATmeter](https://github.com/Kuroukihime/AIon2-Dps-Meter); Layout, Code und Formel sind unsere eigenen.
+
+### Netzwerk-Bericht
+
+Unter **Werkzeuge → Netzwerk**: **Bericht speichern** schreibt die letzten 15 Minuten deiner Verbindung (Ping, Jitter, Paketverlust, die Antwortzeiten von Router, Internet und Spielserver, Aussetzer und ihre Ursache, die Art des Adapters) als formatierte JSON-Datei namens `aiondps_VERSION_DATUM_UHRZEIT.json` dorthin, wo du es auswählst; **Bericht senden** schickt denselben Bericht an den Entwickler. Er enthält keine IP-Adresse von dir und keine Namen (nicht von PC, Windows-Konto, Adapter, Charakter oder Legion); vor dem Senden listet ein Fenster auf, was enthalten ist und was nicht. Die Idee eines gespeicherten Diagnose-Berichts stammt von der Umgebungs-Diagnose des Aletheia-Meters.
+
 ### Kampf-Overlay
 
 Ein transparenter Rahmen mit bis zu drei Elementen, die du jeweils einzeln platzierst und in der Größe anpasst:
