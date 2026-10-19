@@ -67,6 +67,8 @@ public sealed class Aion2FrameDecoder
     private const int ShopCountersOpcode = 0x8e56;
     private const int MissionListOpcode = 0x1c8d;
     private const int MembershipOpcode = 0x3be3;
+    /// <summary>The Daeva pass state (<see cref="Aion2Tickets.TryParsePass"/>): at login with both passes, later one entry per change.</summary>
+    private const int PassOpcode = 0x24e3;
 
     /// <summary>The local player's cooldown list (kept for later features; see <see cref="Aion2Cooldowns"/>).</summary>
     private const int CooldownOpcode = 0x4738;
@@ -526,9 +528,25 @@ public sealed class Aion2FrameDecoder
 
         if (opcode == MembershipOpcode)
         {
-            if (Aion2Tickets.TryParseMembership(frame, out TicketReading membership))
+            if (Aion2Tickets.TryParseMembershipFrame(frame, out List<TicketReading> membership))
             {
-                Aion2Tickets.ReceiveUpdate(membership, timestamp);
+                foreach (TicketReading reading in membership)
+                {
+                    Aion2Tickets.ReceiveUpdate(reading, timestamp);
+                }
+            }
+
+            return Array.Empty<DamageEvent>();
+        }
+
+        if (opcode == PassOpcode)
+        {
+            if (Aion2Tickets.TryParsePass(frame, out List<TicketReading> passes))
+            {
+                foreach (TicketReading reading in passes)
+                {
+                    Aion2Tickets.ReceiveUpdate(reading, timestamp);
+                }
             }
 
             return Array.Empty<DamageEvent>();

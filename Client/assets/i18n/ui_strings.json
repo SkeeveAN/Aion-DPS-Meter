@@ -10212,5 +10212,113 @@
     "pt": "Golpes críticos fazem ×{0} de um normal; multiplicador base {1} %.",
     "ja": "クリティカルは通常ヒットの×{0}、基本倍率は{1}％です。",
     "ko": "치명타는 일반 타격의 ×{0}배, 기본 배율은 {1}%입니다."
+  },
+  "Checklist.DaevaPass": {
+    "de": "Daeva-Pass",
+    "en": "Daeva Pass",
+    "es": "Pase Daeva",
+    "fr": "Pass Daeva",
+    "ja": "ディーヴァ パス",
+    "ko": "데바 패스",
+    "pt": "Passe de Daeva",
+    "ru": "Пропуск даэва"
+  },
+  "Checklist.PassLight1": {
+    "de": "Legion der Morgenröte",
+    "en": "Dawn Legion",
+    "es": "Legión del Alba",
+    "fr": "Légion de l'Aube",
+    "ja": "暁のレギオン",
+    "ko": "새벽의 레기온",
+    "pt": "Legião da Alvorada",
+    "ru": "Легион рассвета"
+  },
+  "Checklist.PassLight2": {
+    "de": "Ruf der Welt",
+    "en": "Planet's Call",
+    "es": "Llamada del mundo",
+    "fr": "Appel du Monde",
+    "ja": "世界の呼びかけ",
+    "ko": "세계의 부름",
+    "pt": "Chamado do Mundo",
+    "ru": "Зов мира"
+  },
+  "Checklist.AutoLoot": {
+    "de": "Auto. Aufsammeln durch Pets",
+    "en": "Pet Auto-Loot",
+    "es": "Recogida automática de mascotas",
+    "fr": "Ramassage automatique des familiers",
+    "ja": "ペット自動拾得",
+    "ko": "펫 자동 줍기",
+    "pt": "Autocoleta de Mascote",
+    "ru": "Автосбор питомцем"
+  },
+  "Checklist.Subs": {
+    "en": "Subscriptions & tickets",
+    "de": "Abo & Tickets"
+  },
+  "Checklist.DaysHours": {
+    "en": "{0} d {1} h",
+    "de": "{0} Tg {1} Std"
+  },
+  "Checklist.HoursOnly": {
+    "en": "{0} h",
+    "de": "{0} Std"
+  },
+  "Checklist.Until": {
+    "en": "until {0}",
+    "de": "bis {0}"
+  },
+  "Checklist.PremiumLoses": {
+    "en": "afterwards without: Remote Storage, Market, Exchange, Wind Breeze Merchants; Odyle Energy max. {0} instead of {1}; Shugo Festival keys max. {2} instead of {3}",
+    "de": "danach ohne: Fernlager, Marktplatz, Tauschbörse, Handelsgilde; Odenergie max. {0} statt {1}; Shugofesta-Schlüssel max. {2} statt {3}"
+  },
+  "Checklist.PremiumEnded": {
+    "en": "expired on {0}",
+    "de": "abgelaufen am {0}"
+  },
+  "Checklist.PremiumNow": {
+    "en": "now without: Remote Storage, Market, Exchange, Wind Breeze Merchants",
+    "de": "jetzt ohne: Fernlager, Marktplatz, Tauschbörse, Handelsgilde"
+  },
+  "Checklist.AutoLootNone": {
+    "en": "no ticket active",
+    "de": "kein Ticket aktiv"
+  },
+  "Checklist.AutoLootNote": {
+    "en": "keeps running while OFF",
+    "de": "läuft auch bei AUS weiter"
+  },
+  "Checklist.WarnLostOne": {
+    "en": "{0} is lost",
+    "de": "{0} verfällt"
+  },
+  "Checklist.WarnLostMany": {
+    "en": "{0} are lost",
+    "de": "{0} verfallen"
+  },
+  "Checklist.PassEnds": {
+    "en": "ends {0}",
+    "de": "endet {0}"
+  },
+  "Checklist.PassEnded": {
+    "en": "ended {0}",
+    "de": "beendet am {0}"
+  },
+  "Checklist.PassLevel": {
+    "en": "Level {0}  ·  {1} / {2} XP",
+    "de": "Stufe {0}  ·  {1} / {2} XP"
+  },
+  "Checklist.PassTotal": {
+    "en": "{0} XP in total",
+    "de": "{0} XP gesamt"
+  },
+  "Checklist.PassWeek": {
+    "en": "Week {0} / {1}",
+    "de": "Woche {0} / {1}"
+  },
+  "Checklist.WarnLegend": {
+    "en": "▲ is lost tomorrow or runs out soon",
+    "de": "▲ geht morgen verloren oder läuft bald ab"
   }
 }

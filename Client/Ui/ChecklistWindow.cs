@@ -145,12 +145,17 @@ public sealed class ChecklistWindow : Window
         AddDaily(loc["Checklist.Daily"], character);
         AddWeekly(loc["Checklist.Weekly"], character, seenAt, now, language);
 
-        AddTimes(loc["Checklist.Time"], TimeTickets.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && (character.Tickets.ContainsKey(d.Id) || Aion2Tickets.IsLocked(character, d.Id))).Select(d => d!), character, language);
+        AddSubscriptions(loc["Checklist.Subs"], TimeTickets.Select(id => Aion2Tickets.Find(id)).Where(d => d is not null && (character.Tickets.ContainsKey(d.Id) || Aion2Tickets.IsLocked(character, d.Id))).Select(d => d!), character, language);
+        AddPass(loc["Checklist.DaevaPass"], character, language);
 
         var note = Label(loc["Checklist.Note"], "Brush.TextSubtle", 11);
         note.TextWrapping = TextWrapping.Wrap;
         note.Margin = new Thickness(4, 4, 4, 0);
         _body.Children.Add(note);
+        var legend = Label(loc["Checklist.WarnLegend"], "Brush.TextSubtle", 11);
+        legend.TextWrapping = TextWrapping.Wrap;
+        legend.Margin = new Thickness(4, 2, 4, 0);
+        _body.Children.Add(legend);
     }
 
     /// <summary>The Odyle energy as the game's tooltip shows it: the basic energy (cap 840 with the subscription) and the charged energy (cap 2000).</summary>
@@ -227,6 +232,7 @@ public sealed class ChecklistWindow : Window
     /// <summary>The overview as a table: the names left, the numbers one under the other in a column right behind them.</summary>
     private void AddOverview(string title, IEnumerable<TicketDef> defs, TicketCharacter character, DateTime seenAt, DateTime now, string language)
     {
+        LocalizationManager loc = LocalizationManager.Instance;
         TicketDef[] list = defs.ToArray();
         if (list.Length == 0)
         {
@@ -236,7 +242,7 @@ public sealed class ChecklistWindow : Window
         var stack = new StackPanel();
         stack.Children.Add(Label(title, "Brush.Text", 14, bold: true));
         ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
-        Grid grid = NumberGrid(0);
+        Grid grid = NumberGrid(1);
         for (int i = 0; i < list.Length; i++)
         {
             TicketDef def = list[i];
@@ -251,6 +257,15 @@ public sealed class ChecklistWindow : Window
             Grid.SetRow(name, i);
             grid.Children.Add(name);
             AddNumberCells(grid, i, 1, count, Math.Max(CapOf(def), count + bonus), count != reported, count > 0, bonus);
+            // the next daily refill would run over the cap: part of it is lost tomorrow
+            int lost = locked ? 0 : Aion2Tickets.LostAtNextRefill(def, count, _premium);
+            if (lost > 0)
+            {
+                UIElement badge = WarnBadge(string.Format(CultureInfo.CurrentCulture, loc[lost == 1 ? "Checklist.WarnLostOne" : "Checklist.WarnLostMany"], lost), "Brush.Warning");
+                Grid.SetRow(badge, i);
+                Grid.SetColumn(badge, 4);
+                grid.Children.Add(badge);
+            }
         }
 
         stack.Children.Add(grid);
@@ -348,59 +363,176 @@ public sealed class ChecklistWindow : Window
     /// <summary>The cap the game shows: the subscriber's one where there is one (Shugo Festival keys 12, with the subscription 21), else the plain one.</summary>
     private int CapOf(TicketDef def) => _premium && def.SubscribeMax > def.Max ? def.SubscribeMax : def.Max;
 
-    /// <summary>The time left of the access-time tickets (h:mm), in the same name column as the other tables.</summary>
-    private void AddTimes(string title, IEnumerable<TicketDef> defs, TicketCharacter character, string language)
+    /// <summary>How soon a membership or ticket counts as "runs out soon" (red or amber with a warning triangle).</summary>
+    private static readonly TimeSpan SoonLeft = TimeSpan.FromDays(3);
+
+    /// <summary>The time left as days and hours ("11 d 23 h"), as hours under a day.</summary>
+    private static string LeftText(TimeSpan left)
     {
-        TicketDef[] list = defs.ToArray();
-        TimeSpan? premiumLeft = character.Tickets.TryGetValue(Aion2Tickets.PremiumId, out TicketValue premiumValue) && premiumValue.TimeMs > 0
-            ? DateTimeOffset.FromUnixTimeMilliseconds(premiumValue.TimeMs) - DateTimeOffset.UtcNow
-            : null;
-        if (list.Length == 0 && premiumLeft is not { Ticks: > 0 })
+        LocalizationManager loc = LocalizationManager.Instance;
+        return left.TotalDays >= 1
+            ? string.Format(CultureInfo.CurrentCulture, loc["Checklist.DaysHours"], (int)left.TotalDays, left.Hours)
+            : string.Format(CultureInfo.CurrentCulture, loc["Checklist.HoursOnly"], Math.Max(1, (int)left.TotalHours));
+    }
+
+    /// <summary>A warning: a small triangle with an exclamation mark and a short text behind it.</summary>
+    private static UIElement WarnBadge(string text, string brush)
+    {
+        var panel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+        var triangle = new System.Windows.Shapes.Polygon { Points = new PointCollection { new Point(8, 0), new Point(16, 14), new Point(0, 14) } };
+        triangle.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, brush);
+        var mark = new TextBlock { Text = "!", FontSize = 9, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Bottom };
+        mark.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Window");
+        var shape = new Grid { Width = 16, Height = 14, VerticalAlignment = VerticalAlignment.Center };
+        shape.Children.Add(triangle);
+        shape.Children.Add(mark);
+        panel.Children.Add(shape);
+        TextBlock label = Label(text, brush, 11);
+        label.Margin = new Thickness(5, 0, 0, 0);
+        panel.Children.Add(label);
+        return panel;
+    }
+
+    /// <summary>One line of the membership card: the name left, the time right (with a triangle when it runs out soon), and under it small lines.</summary>
+    private static void AddSubscriptionRow(StackPanel stack, string name, string right, string rightBrush, string? warnBrush, bool muted, params string[] notes)
+    {
+        var grid = new Grid { Margin = new Thickness(0, 3, 0, 0) };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        TextBlock label = Label(name, muted ? "Brush.TextSubtle" : "Brush.Text", 13);
+        var value = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+        if (warnBrush is not null)
+        {
+            UIElement badge = WarnBadge("", warnBrush);
+            ((StackPanel)badge).Margin = new Thickness(0, 0, 6, 0);
+            value.Children.Add(badge);
+        }
+
+        value.Children.Add(Label(right, rightBrush, 13, bold: true));
+        Grid.SetColumn(value, 1);
+        grid.Children.Add(label);
+        grid.Children.Add(value);
+        stack.Children.Add(grid);
+        foreach (string note in notes)
+        {
+            TextBlock line = Label(note, warnBrush == "Brush.Danger" ? "Brush.Danger" : "Brush.TextSubtle", 11);
+            line.TextWrapping = TextWrapping.Wrap;
+            line.Margin = new Thickness(0, 1, 0, 0);
+            stack.Children.Add(line);
+        }
+    }
+
+    /// <summary>Membership, pet auto-loot and the access times: when they run out, and what is gone then.</summary>
+    private void AddSubscriptions(string title, IEnumerable<TicketDef> defs, TicketCharacter character, string language)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        TicketDef[] times = defs.ToArray();
+        DateTime now = DateTime.Now;
+        bool hasMember = character.Tickets.TryGetValue(Aion2Tickets.PremiumId, out TicketValue member) && member.TimeMs > 0;
+        bool hasLoot = character.Tickets.TryGetValue(Aion2Tickets.AutoLootId, out TicketValue loot);
+        if (times.Length == 0 && !hasMember && !hasLoot)
         {
             return;
         }
 
         var stack = new StackPanel();
         stack.Children.Add(Label(title, "Brush.Text", 14, bold: true));
-        ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 4);
-        Grid grid = NumberGrid(0);
-        for (int i = 0; i < list.Length; i++)
+        ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 2);
+        if (hasMember)
         {
-            TicketDef def = list[i];
+            DateTime end = DateTimeOffset.FromUnixTimeMilliseconds(member.TimeMs).LocalDateTime;
+            TimeSpan left = end - now;
+            TicketDef? odyle = Aion2Tickets.Find(Aion2Tickets.OdyleId);
+            TicketDef? keys = Aion2Tickets.Find(1);
+            string gone = string.Format(CultureInfo.CurrentCulture, loc["Checklist.PremiumLoses"], odyle?.Max ?? 560, odyle?.SubscribeMax ?? 840, keys?.Max ?? 12, keys?.SubscribeMax ?? 21);
+            if (left > TimeSpan.Zero)
+            {
+                bool soon = left < SoonLeft;
+                AddSubscriptionRow(stack, loc["Checklist.Premium"], LeftText(left), soon ? "Brush.Danger" : "Brush.Accent", soon ? "Brush.Danger" : null, false,
+                    string.Format(CultureInfo.CurrentCulture, loc["Checklist.Until"], end.ToString("g", CultureInfo.CurrentCulture)) + "  ·  " + gone);
+            }
+            else
+            {
+                AddSubscriptionRow(stack, loc["Checklist.Premium"], string.Format(CultureInfo.CurrentCulture, loc["Checklist.PremiumEnded"], end.ToString("d", CultureInfo.CurrentCulture)), "Brush.Danger", "Brush.Danger", false,
+                    loc["Checklist.PremiumNow"]);
+            }
+        }
+
+        if (hasLoot)
+        {
+            string lootName = loc["Checklist.AutoLoot"];
+            DateTime end = loot.TimeMs > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(loot.TimeMs).LocalDateTime : DateTime.MinValue;
+            TimeSpan left = end - now;
+            if (loot.TimeMs > 0 && left > TimeSpan.Zero)
+            {
+                bool soon = left < SoonLeft;
+                AddSubscriptionRow(stack, lootName, LeftText(left), "Brush.Accent", soon ? "Brush.Warning" : null, false,
+                    string.Format(CultureInfo.CurrentCulture, loc["Checklist.Until"], end.ToString("g", CultureInfo.CurrentCulture)) + "  ·  " + loc["Checklist.AutoLootNote"]);
+            }
+            else
+            {
+                AddSubscriptionRow(stack, lootName, loc["Checklist.AutoLootNone"], "Brush.TextSubtle", null, true);
+            }
+        }
+
+        foreach (TicketDef def in times)
+        {
             TimeSpan left = Aion2Tickets.IsLocked(character, def.Id) || !character.Tickets.TryGetValue(def.Id, out TicketValue timeValue) ? TimeSpan.Zero : TimeSpan.FromMilliseconds(timeValue.TimeMs);
             bool open = left > TimeSpan.Zero;
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            TextBlock name = Label(def.NameIn(language), open ? "Brush.Text" : "Brush.TextSubtle", 13);
-            name.Margin = new Thickness(0, 1, 0, 1);
-            Grid.SetRow(name, i);
-            TextBlock time = Label($"{(int)left.TotalHours}:{left.Minutes:00}", open ? "Brush.Accent" : "Brush.TextSubtle", 13, bold: true);
-            time.HorizontalAlignment = HorizontalAlignment.Right;
-            time.Margin = new Thickness(0, 1, 0, 1);
-            Grid.SetRow(time, i);
-            Grid.SetColumn(time, 1);
-            Grid.SetColumnSpan(time, 3);
-            grid.Children.Add(name);
-            grid.Children.Add(time);
+            AddSubscriptionRow(stack, def.NameIn(language), $"{(int)left.TotalHours}:{left.Minutes:00}", open ? "Brush.Accent" : "Brush.TextSubtle", null, !open);
         }
 
-        if (premiumLeft is { Ticks: > 0 } member)
+        _body.Children.Add(Card(stack));
+    }
+
+    /// <summary>The Daeva passes of the character: level (where the cost of the levels is known), experience of the week against the weekly limit, end of the pass.</summary>
+    private void AddPass(string title, TicketCharacter character, string language)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        var found = Aion2Tickets.Passes.Where(p => character.Tickets.ContainsKey(p.TicketId)).ToArray();
+        if (found.Length == 0)
         {
-            // the membership of the Quai premium (read at login): how long it still runs
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            TextBlock memberName = Label(LocalizationManager.Instance["Checklist.Premium"], "Brush.Text", 13);
-            memberName.Margin = new Thickness(0, 1, 0, 1);
-            Grid.SetRow(memberName, list.Length);
-            TextBlock memberLeft = Label($"{(int)member.TotalDays} d {member.Hours} h", "Brush.Accent", 13, bold: true);
-            memberLeft.HorizontalAlignment = HorizontalAlignment.Right;
-            memberLeft.Margin = new Thickness(0, 1, 0, 1);
-            Grid.SetRow(memberLeft, list.Length);
-            Grid.SetColumn(memberLeft, 1);
-            Grid.SetColumnSpan(memberLeft, 3);
-            grid.Children.Add(memberName);
-            grid.Children.Add(memberLeft);
+            return;
         }
 
-        stack.Children.Add(grid);
+        var stack = new StackPanel();
+        stack.Children.Add(Label(title, "Brush.Text", 14, bold: true));
+        ((TextBlock)stack.Children[0]).Margin = new Thickness(0, 0, 0, 2);
+        foreach (Aion2Tickets.PassDef pass in found)
+        {
+            TicketValue value = character.Tickets[pass.TicketId];
+            int week = Math.Min(value.Bonus, pass.WeeklyLimit);
+            bool full = value.Bonus >= pass.WeeklyLimit;
+            var head = new Grid { Margin = new Thickness(0, 6, 0, 0) };
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            head.Children.Add(Label(loc[pass.NameKey], "Brush.Text", 13, bold: true));
+            bool ended = DateTime.Now >= pass.End;
+            TextBlock end = Label(string.Format(CultureInfo.CurrentCulture, loc[ended ? "Checklist.PassEnded" : "Checklist.PassEnds"], pass.End.ToString("g", CultureInfo.CurrentCulture)), "Brush.TextSubtle", 11);
+            Grid.SetColumn(end, 1);
+            head.Children.Add(end);
+            stack.Children.Add(head);
+
+            var line = new Grid { Margin = new Thickness(0, 1, 0, 0) };
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            Aion2Tickets.PassLevel? level = Aion2Tickets.PassLevelOf(pass.TicketId, value.Count);
+            string levelText = level is { } l
+                ? string.Format(CultureInfo.CurrentCulture, loc["Checklist.PassLevel"], l.Level, l.Into.ToString("N0", CultureInfo.CurrentCulture), l.Need.ToString("N0", CultureInfo.CurrentCulture))
+                : string.Format(CultureInfo.CurrentCulture, loc["Checklist.PassTotal"], value.Count.ToString("N0", CultureInfo.CurrentCulture));
+            line.Children.Add(Label(levelText, "Brush.TextSubtle", 12));
+            TextBlock weekText = Label(string.Format(CultureInfo.CurrentCulture, loc["Checklist.PassWeek"], week.ToString("N0", CultureInfo.CurrentCulture), pass.WeeklyLimit.ToString("N0", CultureInfo.CurrentCulture)), full ? "Brush.Heal" : "Brush.Accent", 12, bold: true);
+            Grid.SetColumn(weekText, 1);
+            line.Children.Add(weekText);
+            stack.Children.Add(line);
+
+            var bar = new ProgressBar { Minimum = 0, Maximum = pass.WeeklyLimit, Value = week, Height = 5, Margin = new Thickness(0, 3, 0, 0) };
+            bar.SetResourceReference(Control.ForegroundProperty, full ? "Brush.Heal" : "Brush.Accent");
+            bar.SetResourceReference(Control.BackgroundProperty, "Brush.Control");
+            bar.SetResourceReference(Control.BorderBrushProperty, "Brush.Border");
+            stack.Children.Add(bar);
+        }
+
         _body.Children.Add(Card(stack));
     }
 

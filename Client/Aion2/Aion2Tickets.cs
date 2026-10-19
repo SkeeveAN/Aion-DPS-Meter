@@ -219,6 +219,143 @@ public static class Aion2Tickets
     public static bool? HasPremium(TicketCharacter character, DateTime utcNow) =>
         character.Tickets.TryGetValue(PremiumId, out TicketValue value) ? value.TimeMs > new DateTimeOffset(utcNow, TimeSpan.Zero).ToUnixTimeMilliseconds() : null;
 
+    /// <summary>The pet auto-loot ticket ("Auto. Aufsammeln durch Pets", 30 days, bound to the character) as a ticket of our own: the time field holds its end
+    /// (ms since 1970, 0 = no ticket). The id is no game id. It is entry 44 of the membership frame <c>0x3be3</c> (the eight benefits are 34 to 42);
+    /// confirmed on 19 October 2026 with the time the game showed for Nunzio (29 d 5 h) and Aahz (12 d 8 h).</summary>
+    public const int AutoLootId = 99000004;
+    private const int AutoLootEntry = 44;
+
+    /// <summary>The membership frame as the readings it holds: the membership (the benefits 34 to 42) and the pet auto-loot ticket (entry 44). A frame with
+    /// the ticket alone (it comes alone when a ticket is used) leaves the membership as it was; an empty list means neither.</summary>
+    public static bool TryParseMembershipFrame(ReadOnlySpan<byte> frame, out List<TicketReading> readings)
+    {
+        readings = new List<TicketReading>();
+        if (frame.Length < 3 || frame.Length != 3 + 21 * frame[2])
+        {
+            return false;
+        }
+
+        long member = 0, loot = 0;
+        bool hasBenefit = false, hasLoot = false;
+        for (int i = 0; i < frame[2]; i++)
+        {
+            ReadOnlySpan<byte> entry = frame.Slice(3 + 21 * i, 21);
+            ulong stop = BinaryPrimitives.ReadUInt64LittleEndian(entry[13..]);
+            bool plausible = stop is > 1_500_000_000_000 and < 4_000_000_000_000;
+            if (entry[0] is >= 34 and <= 42)
+            {
+                hasBenefit = true;
+                if (plausible)
+                {
+                    member = Math.Max(member, (long)stop);
+                }
+            }
+            else if (entry[0] == AutoLootEntry)
+            {
+                hasLoot = true;
+                if (plausible)
+                {
+                    loot = Math.Max(loot, (long)stop);
+                }
+            }
+        }
+
+        bool empty = frame[2] == 0;
+        if (empty || hasBenefit)
+        {
+            readings.Add(new TicketReading(PremiumId, new TicketValue(0, 0, member)));
+        }
+
+        if (empty || hasBenefit || hasLoot)
+        {
+            readings.Add(new TicketReading(AutoLootId, new TicketValue(0, 0, loot)));
+        }
+
+        return readings.Count > 0;
+    }
+
+    /// <summary>One Daeva pass as the game counts it: the id of its entry in the pass frame <c>0x24e3</c>, the id of the ticket of our own that holds it
+    /// (count = all experience, bonus = experience of this week, time = when it was last gained), the weekly limit and the end of the pass.</summary>
+    public sealed record PassDef(int TicketId, int FrameId, string NameKey, int WeeklyLimit, DateTime End);
+
+    /// <summary>The two passes of the first season on the Elyos side (the Asmodian ones have other ids, not seen yet): "Dawn Legion" (<c>String_UI_BATTLEPASSGROUP_LIGHT_S1_1</c>)
+    /// and "Planet's Call" (<c>..._LIGHT_S1_2</c>). The limits and end dates are those the game showed on 19 October 2026 (the ends are on the player's clock).</summary>
+    public static readonly PassDef[] Passes =
+    {
+        new(99000010, 10044, "Checklist.PassLight1", 50000, new DateTime(2026, 12, 16, 9, 0, 0, DateTimeKind.Local)),
+        new(99000011, 10045, "Checklist.PassLight2", 15000, new DateTime(2026, 10, 28, 9, 0, 0, DateTimeKind.Local)),
+    };
+
+    /// <summary>The pass frame <c>0x24e3</c> (at login with both passes, later with the one that changed): an entry is <c>id u32 | all experience u32 |
+    /// experience of this week u32 | time of the last gain u64 | ...</c>. Checked on the 40 login dumps of 19 October 2026 and against the numbers the game showed
+    /// for Nunzio, Chumley and Skeeve (the second number is the weekly one, the limit is 50,000 and 15,000).</summary>
+    public static bool TryParsePass(ReadOnlySpan<byte> frame, out List<TicketReading> readings)
+    {
+        readings = new List<TicketReading>();
+        foreach (PassDef pass in Passes)
+        {
+            for (int at = 3; at + 20 <= frame.Length; at++)
+            {
+                if (BinaryPrimitives.ReadUInt32LittleEndian(frame[at..]) != (uint)pass.FrameId)
+                {
+                    continue;
+                }
+
+                uint all = BinaryPrimitives.ReadUInt32LittleEndian(frame[(at + 4)..]);
+                uint week = BinaryPrimitives.ReadUInt32LittleEndian(frame[(at + 8)..]);
+                ulong gained = BinaryPrimitives.ReadUInt64LittleEndian(frame[(at + 12)..]);
+                if (all <= 100_000_000 && week <= all && gained is > 1_500_000_000_000 and < 4_000_000_000_000)
+                {
+                    readings.Add(new TicketReading(pass.TicketId, new TicketValue((int)all, (int)week, (long)gained)));
+                    break;
+                }
+            }
+        }
+
+        return readings.Count > 0;
+    }
+
+    /// <summary>A pass level worked out from all experience: the level, the experience in it and what it needs.</summary>
+    public readonly record struct PassLevel(int Level, int Into, int Need);
+
+    /// <summary>The level of a pass for all experience, or null where the cost of the levels is not known: the first pass costs 400 for the first level and 1,600 for
+    /// the next ones, the second 700 each (both checked up to the level 16 and 15 on 19 October 2026); higher levels cost more (level 82: 2,300, level 51: 5,000),
+    /// the table between is not known.</summary>
+    public static PassLevel? PassLevelOf(int ticketId, int all)
+    {
+        if (ticketId == Passes[0].TicketId)
+        {
+            const int FirstLevel = 400, Level = 1600, KnownUntil = FirstLevel + 15 * Level;
+            if (all < FirstLevel)
+            {
+                return new PassLevel(1, all, FirstLevel);
+            }
+
+            return all < KnownUntil ? new PassLevel(2 + (all - FirstLevel) / Level, (all - FirstLevel) % Level, Level) : null;
+        }
+
+        if (ticketId == Passes[1].TicketId)
+        {
+            const int Level = 700, KnownUntil = 15 * Level;
+            return all < KnownUntil ? new PassLevel(1 + all / Level, all % Level, Level) : null;
+        }
+
+        return null;
+    }
+
+    /// <summary>How much of what the next daily refill brings is lost because the counter is full: <c>count + refill - cap</c>, at most the refill, 0 where
+    /// the ticket has no daily refill. The Odyle energy and the weekly tickets (the weekly refill sets the amount) have none.</summary>
+    public static int LostAtNextRefill(TicketDef def, int count, bool premium)
+    {
+        if (def.DailyCount <= 0 || !TimeSpan.TryParse(def.DailyAt, out _))
+        {
+            return 0;
+        }
+
+        int cap = premium && def.SubscribeMax > def.Max ? def.SubscribeMax : def.Max;
+        return cap <= 0 ? 0 : Math.Clamp(count + def.DailyCount - cap, 0, def.DailyCount);
+    }
+
     /// <summary>The quest list <c>0x1c8d</c> (right after the login list and again at every hand-in): its head holds how many of the day's five missions are
     /// taken and how many are handed in. Seen in the recordings of 12 to 14 October: 0/0 at the start of the day, the second number counts 1 to 5 with every hand-in.</summary>
     public static bool TryParseMissions(ReadOnlySpan<byte> frame, out TicketReading reading)

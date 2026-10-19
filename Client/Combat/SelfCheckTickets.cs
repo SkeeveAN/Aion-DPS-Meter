@@ -87,6 +87,45 @@ public static class SelfCheckTickets
             && !Aion2Tickets.TryParseMembership(Convert.FromHexString("3be30800"), out _);
         bool plainCaps = shugo is not null && Aion2Tickets.Expected(shugo, 11, new DateTime(2026, 10, 13, 17, 0, 0), new DateTime(2026, 10, 14, 17, 0, 0), premium: false) == 12;
         Console.WriteLine($"  -> membership frame read (eight effects, one end)={membership}, premium known / over / unknown={premiumKnown}, caps without it (12 keys)={plainCaps}");
+        // the pet auto-loot ticket (entry 44 of the membership frame) and the Daeva passes (frame 0x24e3), real frames of 19 October 2026: Nunzio's login at 16:31
+        // (the ticket ran until 17 November 21:45, the game showed 29 d 5 h; the passes 22,720 and 10,190), Skeeve's change at 16:55 (second pass 2,100 / 240)
+        const string withTicket = "3be3092204000000a9a2aef2a0010000a9c65392a10100002304000000a9a2aef2a0010000a9c65392a10100002504000000a9a2aef2a0010000a9c65392a10100002604000000a9a2aef2a0010000a9c65392a10100002704000000a9a2aef2a0010000a9c65392a10100002804000000a9a2aef2a0010000a9c65392a10100002904000000a9a2aef2a0010000a9c65392a10100002a04000000a9a2aef2a0010000a9c65392a10100002c0800000083328c50a101000083fa0aeba1010000";
+        bool ticketFrame = Aion2Tickets.TryParseMembershipFrame(Convert.FromHexString(withTicket), out List<TicketReading> ticketReadings)
+            && ticketReadings.Count == 2
+            && ticketReadings.Single(r => r.Id == Aion2Tickets.PremiumId).Value.TimeMs == member.Value.TimeMs
+            && Math.Abs(ticketReadings.Single(r => r.Id == Aion2Tickets.AutoLootId).Value.TimeMs - new DateTimeOffset(2026, 11, 17, 21, 45, 0, TimeSpan.FromHours(2)).ToUnixTimeMilliseconds()) < 60_000;
+        string benefits = withTicket.Substring(6, 8 * 42);
+        bool noTicket = Aion2Tickets.TryParseMembershipFrame(Convert.FromHexString("3be308" + benefits), out List<TicketReading> noTicketReadings)
+            && noTicketReadings.Single(r => r.Id == Aion2Tickets.AutoLootId).Value.TimeMs == 0
+            && noTicketReadings.Single(r => r.Id == Aion2Tickets.PremiumId).Value.TimeMs == member.Value.TimeMs;
+        // a frame with the ticket alone (a ticket was used) leaves the membership alone; an empty list means neither; a broken length is refused
+        bool ticketAlone = Aion2Tickets.TryParseMembershipFrame(Convert.FromHexString("3be301" + withTicket.Substring(6 + 8 * 42, 42)), out List<TicketReading> aloneReadings)
+            && aloneReadings.Count == 1 && aloneReadings[0].Id == Aion2Tickets.AutoLootId && aloneReadings[0].Value.TimeMs > 1_700_000_000_000
+            && Aion2Tickets.TryParseMembershipFrame(Convert.FromHexString("3be300"), out List<TicketReading> emptyReadings) && emptyReadings.Count == 2 && emptyReadings.All(r => r.Value.TimeMs == 0)
+            && !Aion2Tickets.TryParseMembershipFrame(Convert.FromHexString("3be30900"), out _);
+        bool passFrame = Aion2Tickets.TryParsePass(Convert.FromHexString("24e3023c270000c0580000c05800001efe8754a101000000fff8b9c6ffffff013687010001368701000e0236870100e80a030037870100e80a03000a010000003d270000ce270000ce27000012328854a1010000000776aacafeffff0148a607000148a607000e0248a60700409c000049a60700409c000001000000"), out List<TicketReading> passReadings)
+            && passReadings.Count == 2
+            && passReadings.Single(r => r.Id == Aion2Tickets.Passes[0].TicketId).Value is { Count: 22720, Bonus: 22720 }
+            && passReadings.Single(r => r.Id == Aion2Tickets.Passes[1].TicketId).Value is { Count: 10190, Bonus: 10190 }
+            && Aion2Tickets.TryParsePass(Convert.FromHexString("24e3013d27000034080000f00000005f1e0c54a101000000a70a4e02feffff0148a607000148a60700020248a60700409c000049a60700409c00000201000000"), out List<TicketReading> passChange)
+            && passChange.Count == 1 && passChange[0].Id == Aion2Tickets.Passes[1].TicketId && passChange[0].Value is { Count: 2100, Bonus: 240 }
+            && !Aion2Tickets.TryParsePass(Convert.FromHexString("24e300"), out _);
+        // the levels as the game showed them: first pass 15 (1,520 of 1,600), 16 (280), 15 (1,540); second pass 15 (460 of 700), 8 (210), 4 (0); above the known levels no answer
+        int first = Aion2Tickets.Passes[0].TicketId, second = Aion2Tickets.Passes[1].TicketId;
+        bool passLevels = Aion2Tickets.PassLevelOf(first, 22720) == new Aion2Tickets.PassLevel(15, 1520, 1600)
+            && Aion2Tickets.PassLevelOf(first, 23080) == new Aion2Tickets.PassLevel(16, 280, 1600)
+            && Aion2Tickets.PassLevelOf(first, 22740) == new Aion2Tickets.PassLevel(15, 1540, 1600)
+            && Aion2Tickets.PassLevelOf(first, 19110) == new Aion2Tickets.PassLevel(13, 1110, 1600)
+            && Aion2Tickets.PassLevelOf(second, 10260) == new Aion2Tickets.PassLevel(15, 460, 700)
+            && Aion2Tickets.PassLevelOf(second, 5110) == new Aion2Tickets.PassLevel(8, 210, 700)
+            && Aion2Tickets.PassLevelOf(second, 2100) == new Aion2Tickets.PassLevel(4, 0, 700)
+            && Aion2Tickets.PassLevelOf(first, 150000) is null && Aion2Tickets.PassLevelOf(second, 45000) is null && Aion2Tickets.PassLevelOf(12345, 10) is null;
+        // the warning of the checklist: what the next daily refill brings beyond the cap is lost (Nightmare 14, Shugo 12 / 21 with the membership)
+        bool lostTomorrow = shugo is not null && nightmare is not null && dungeon is not null
+            && Aion2Tickets.LostAtNextRefill(nightmare, 13, true) == 1 && Aion2Tickets.LostAtNextRefill(nightmare, 14, true) == 2 && Aion2Tickets.LostAtNextRefill(nightmare, 12, true) == 0
+            && Aion2Tickets.LostAtNextRefill(shugo, 20, true) == 2 && Aion2Tickets.LostAtNextRefill(shugo, 18, true) == 0 && Aion2Tickets.LostAtNextRefill(shugo, 11, false) == 2
+            && Aion2Tickets.LostAtNextRefill(dungeon, 14, true) == 0;
+        Console.WriteLine($"  -> pet auto-loot ticket read / none / alone / empty={ticketFrame}/{noTicket}/{ticketAlone}, Daeva pass frames={passFrame}, pass levels={passLevels}, lost at the next refill={lostTomorrow}");
         // game time is Korean time: 16:00 there is 07:00 UTC
         ServerTime.Reset();
         bool korean = ServerTime.FromLocal(new DateTime(2026, 10, 14, 7, 0, 0, DateTimeKind.Utc)) == new DateTime(2026, 10, 14, 16, 0, 0)
@@ -164,7 +203,7 @@ public static class SelfCheckTickets
         Console.WriteLine($"  -> counters locked by level (daily dungeon 30, Nightmare/Ascension/Invasion 45, Odyle 22, Shugo 13)={locks}");
 
         Aion2Tickets.Reset();
-        bool ok = membership && premiumKnown && plainCaps && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
+        bool ok = membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
         Console.WriteLine(ok ? "  -> OK" : "  -> FAILED");
         ServerTime.Reset();
         return ok;
