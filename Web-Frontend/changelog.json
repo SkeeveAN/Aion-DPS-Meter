@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "Website: the comparison page no longer repeats the installation steps and the FAQ of the download page - it links there and answers two new questions instead (which meter to choose, why there is no rDPS)",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.7.0",
   "date": "2026-10-19",
   "items": [
