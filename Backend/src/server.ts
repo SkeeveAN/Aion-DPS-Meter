@@ -7,6 +7,8 @@ import staticPlugin from "@fastify/static";
 import { env } from "./env.js";
 import { uploadRoutes } from "./routes/uploads.js";
 import { loginDumpRoutes, startLoginDumpPurge } from "./routes/loginDumps.js";
+import { statRecordingRoutes } from "./routes/statRecordings.js";
+import { networkReportRoutes } from "./routes/networkReports.js";
 import { startUploadArchive } from "./uploadArchive.js";
 import { adminUploadRoutes } from "./routes/adminUploads.js";
 import { feedbackRoutes } from "./routes/feedback.js";
@@ -50,11 +52,13 @@ export async function buildServer() {
     timeWindow: "1 minute",
     // Only the upload endpoint needs protecting - the read-only leaderboard
     // routes are cheap, indexed lookups with no reason to throttle browsing.
-    allowList: (request) => !request.url.startsWith("/api/uploads") && !request.url.startsWith("/api/feedback"),
+    allowList: (request) => !request.url.startsWith("/api/uploads") && !request.url.startsWith("/api/feedback") && !request.url.startsWith("/api/diagnostics"),
   });
 
   await app.register(uploadRoutes);
   await app.register(loginDumpRoutes);
+  await app.register(statRecordingRoutes);
+  await app.register(networkReportRoutes);
   startLoginDumpPurge();
   startUploadArchive(app.log);
   await app.register(adminUploadRoutes);

@@ -669,3 +669,34 @@ export const loginDumps = sqliteTable("login_dumps", {
   bytes: integer("bytes").notNull(),
   dump: blob("dump", { mode: "buffer" }).notNull(),
 });
+
+// What a player's stat calculator recorded and chose to send (see routes/statRecordings.ts): the stat table of the character before and after, the hits and rates of the
+// recorded fight, the buffs and what the player said about the fight. Deliberately linked to nothing else (no player, no upload, no encounter): the columns are for
+// sorting, the whole recording is the gzipped JSON. No name, no legion and no IP address of the sender is stored; anonId is a random value of one installation.
+export const statRecordings = sqliteTable("stat_recordings", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  receivedAt: text("received_at").notNull().default(sql`(current_timestamp)`),
+  clientVersion: text("client_version").notNull().default(""),
+  anonId: text("anon_id").notNull(),
+  classId: integer("class_id"),
+  level: integer("level"),
+  serverId: integer("server_id"),
+  faction: text("faction"),
+  mode: text("mode").notNull().default("simple"),
+  durationSeconds: integer("duration_seconds").notNull().default(0),
+  bytes: integer("bytes").notNull(),
+  payload: blob("payload", { mode: "buffer" }).notNull(),
+});
+
+// A player's network report of the last fifteen minutes (see routes/networkReports.ts), sent after the player saw what is in it. Linked to nothing else, no IP address,
+// no name; anonId is a random value of one installation.
+export const networkReports = sqliteTable("network_reports", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  receivedAt: text("received_at").notNull().default(sql`(current_timestamp)`),
+  clientVersion: text("client_version").notNull().default(""),
+  anonId: text("anon_id").notNull(),
+  periodSeconds: integer("period_seconds").notNull().default(0),
+  stallCount: integer("stall_count").notNull().default(0),
+  bytes: integer("bytes").notNull(),
+  payload: blob("payload", { mode: "buffer" }).notNull(),
+});
