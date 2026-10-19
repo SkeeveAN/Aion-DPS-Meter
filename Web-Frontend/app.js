@@ -1053,21 +1053,55 @@ async function renderGuild(slug) {
   }
   const { guild, members } = data;
   setBreadcrumb([link(t("breadcrumb.home"), "/"), link(t("guild.listTitle"), "/legions"), guild.name]);
-  const rows = members.map((m) => el("tr", {}, [
+  // Sortable by a click on the heading: text columns start ascending, number columns descending; a second click reverses.
+  const columns = [
+    { label: t("guild.player"), text: true, value: (m) => m.name },
+    { label: t("guild.class"), text: true, value: (m) => (m.className ? classLabel(m.className) : "") },
+    { label: t("guild.level"), value: (m) => m.level },
+    { label: t("guild.gearScore"), title: t("guild.gearScoreHint"), value: (m) => m.gearScore },
+    { label: t("profile.combatPowerShort"), value: (m) => m.combatPower },
+    { label: t("guild.avgItemLevel"), title: t("guild.avgItemLevelHint"), value: (m) => m.avgItemLevel },
+  ];
+  const cells = (m) => [
     el("td", {}, [link(m.name, `/players/${m.slug ?? m.id}`), profileIcon({ ...m, hasProfile: m.profileKind != null, playerId: m.id, playerSlug: m.slug })]),
     el("td", {}, [m.className ? iconLabel(classIcon(m.className), classLabel(m.className)) : ""]),
     el("td", { textContent: m.level ?? "" }),
     el("td", { textContent: m.gearScore ? formatNumber(m.gearScore) : "–" }),
     el("td", { textContent: m.combatPower ? formatNumber(m.combatPower) : "–" }),
     el("td", { textContent: m.avgItemLevel ? formatNumber(m.avgItemLevel) : "–" }),
-  ]));
+  ];
+  let sortIndex = 2;
+  let sortDesc = true;
+  const tbody = el("tbody", {});
+  const headers = columns.map((c, i) => el("th", { className: "sortable", textContent: c.label, title: c.title ?? "", onclick: () => {
+    sortDesc = sortIndex === i ? !sortDesc : !c.text;
+    sortIndex = i;
+    draw();
+  } }));
+  function draw() {
+    const { value, text } = columns[sortIndex];
+    const dir = sortDesc ? -1 : 1;
+    const sorted = [...members].sort((x, y) => {
+      const a = value(x);
+      const b = value(y);
+      // Players without a value always sit at the bottom, whichever way it is sorted.
+      if ((a == null || a === "") !== (b == null || b === "")) {
+        return a == null || a === "" ? 1 : -1;
+      }
+      const diff = text ? String(a).localeCompare(String(b)) : (a ?? 0) - (b ?? 0);
+      return diff * dir || x.name.localeCompare(y.name);
+    });
+    tbody.replaceChildren(...sorted.map((m) => el("tr", {}, cells(m))));
+    headers.forEach((h, i) => {
+      h.setAttribute("aria-sort", i === sortIndex ? (sortDesc ? "descending" : "ascending") : "none");
+      h.dataset.arrow = i === sortIndex ? (sortDesc ? "▼" : "▲") : "";
+    });
+  }
+  draw();
   app.replaceChildren(
     el("h2", { textContent: guild.name }),
     el("p", { className: "download-meta", textContent: `${serverLabel(guild.serverName)} · ${t("guild.members", { count: members.length })}` }),
-    el("table", { className: "guild-table" }, [
-      el("thead", {}, [el("tr", {}, [el("th", { textContent: t("guild.player") }), el("th", { textContent: t("guild.class") }), el("th", { textContent: t("guild.level") }), el("th", { textContent: t("guild.gearScore"), title: t("guild.gearScoreHint") }), el("th", { textContent: t("profile.combatPowerShort") }), el("th", { textContent: t("guild.avgItemLevel"), title: t("guild.avgItemLevelHint") })])]),
-      el("tbody", {}, rows),
-    ]),
+    el("table", { className: "guild-table" }, [el("thead", {}, [el("tr", {}, headers)]), tbody]),
   );
 }
 

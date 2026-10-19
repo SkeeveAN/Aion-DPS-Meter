@@ -2890,6 +2890,9 @@ body:has(.download-hero) .nav-download-link:hover,
 .guild-table { border-collapse: collapse; width: 100%; max-width: 760px; }
 .guild-table th, .guild-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--color-border); }
 .guild-table th { color: var(--color-text-muted); font-size: 12px; }
+.guild-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+.guild-table th.sortable:hover { color: var(--color-text); }
+.guild-table th.sortable::after { content: " " attr(data-arrow); display: inline-block; min-width: 1em; }
 
 /* Legion list: servers in a collapsible sidebar, the larger legions as cards, the small ones as a list. */
 .faction-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; background: var(--color-text-muted); }
