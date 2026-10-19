@@ -16,6 +16,14 @@
      "Website"
     ],
     "date": "2026-10-20"
+   },
+   {
+    "text": "Website: the buffs per skill list shows theostones with their icon and keeps its rows aligned",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-20"
    }
   ]
  },
