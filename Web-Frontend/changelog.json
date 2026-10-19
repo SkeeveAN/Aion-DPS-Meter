@@ -1,12 +1,19 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.8.2",
   "date": "2026-10-19",
   "items": [
    {
     "text": "A character renamed after its first upload no longer shows up several times in one fight: later uploads are matched to the fight's players by the old name too, so damage and the group's damage per second are no longer counted twice",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-19"
+   },
+   {
+    "text": "the stat calculator takes the crit multiplier from your own crit and plain hits (it holds your stats and the monster's resistance) instead of a fixed guess, takes the side you attack from out of your last fight or your own front and back bonuses until you choose one, says which side the skills of your class favour, and has an expert field for the target's crit damage resistance",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-19"
    }
