@@ -16,6 +16,14 @@
      "Backend"
     ],
     "date": "2026-10-19"
+   },
+   {
+    "text": "Backend: the server can now store stat recordings and network reports that a player chooses to send - two new tables that link to no player, profile or fight and hold no name, legion or IP address",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-19"
    }
   ]
  },
