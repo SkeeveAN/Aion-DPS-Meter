@@ -152,5 +152,6 @@
  "e2c62f9": null,
  "01cb10d": "Legion login analysis, for members of the legion Akatsuki on Kaisinel only and OFF by default: Settings > General shows an extra switch, \"Upload my complete login for the legion analysis\", but only to characters that are in Akatsuki on Kaisinel - everybody else never sees it, nothing is recorded and nothing is sent for them. When a member switches it on, the meter records what the game server sends while the character logs in (the complete login traffic of that moment: character list, pets, appearance and world state - no chat, nothing your PC sends, no password) and uploads it once per login to aiondps.com. It is meant to find out which characters belong to the same player, which the game does not tell. The server accepts it only from Akatsuki on Kaisinel, stores it for analysis only (deleted automatically after 14 days at the latest, and by hand as soon as the analysis is done) and never shows it on the website. Switching the option off stops the recording and the upload at once",
  "1f01103": null,
- "3592978": null
+ "3592978": null,
+ "13b2fa7": "Website: the favicons and the touch icon stay in the browser cache for a week instead of an hour; the READMEs in all ten languages describe the loot tool, the attributes tool, the daily checklist, voice output for boss casts, skill presets, the instance maps of the pet map and the new timetable times, and list the Ctrl+Alt+L hotkey"
 }

@@ -11,7 +11,7 @@
     "date": "2026-10-19"
    },
    {
-    "text": "Website: the favicons and the touch icon stay in the browser cache for a week instead of an hour",
+    "text": "Website: the favicons and the touch icon stay in the browser cache for a week instead of an hour; the READMEs in all ten languages describe the loot tool, the attributes tool, the daily checklist, voice output for boss casts, skill presets, the instance maps of the pet map and the new timetable times, and list the Ctrl+Alt+L hotkey",
     "areas": [
      "Backend"
     ],
