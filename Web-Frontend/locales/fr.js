@@ -90,6 +90,7 @@ export default {
   "profile.skillBonuses": "Compétences : {list}",
   "profile.note": "Les valeurs des pierres et les stigmas ne font pas partie des données.",
   "profile.avgShort": "Niv. d'objet",
+  "profile.combatPowerShort": "Puissance de combat",
   "profile.gearPowerShort": "Puissance d'équipement",
   "profile.legendBonus": "bonus (Daevanion, équipement)",
   "profile.tabRuns": "Runs",

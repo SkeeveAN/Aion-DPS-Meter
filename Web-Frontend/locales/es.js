@@ -90,6 +90,7 @@ export default {
   "profile.skillBonuses": "Habilidades: {list}",
   "profile.note": "Las cantidades de las piedras y los estigmas no forman parte de los datos.",
   "profile.avgShort": "Nivel de objeto",
+  "profile.combatPowerShort": "Poder de combate",
   "profile.gearPowerShort": "Poder de equipo",
   "profile.legendBonus": "bono (Daevanion, equipo)",
   "profile.tabRuns": "Runs",

@@ -326,6 +326,7 @@ export default {
   "profile.skillBonuses": "스킬: {list}",
   "profile.note": "마석 수치와 스티그마는 데이터에 포함되어 있지 않습니다.",
   "profile.avgShort": "아이템 레벨",
+  "profile.combatPowerShort": "전투력",
   "profile.gearPowerShort": "장비력",
   "profile.upgrade": "강화할 가치 있음",
   "profile.upgradeNote": "가장 좋은 장비(아이템 레벨 {max}) 기준으로 측정했습니다.",

@@ -326,6 +326,7 @@ export default {
   "profile.skillBonuses": "技能：{list}",
   "profile.note": "魔石數值與刻印不在資料範圍內。",
   "profile.avgShort": "裝備等級",
+  "profile.combatPowerShort": "戰鬥力",
   "profile.gearPowerShort": "裝備強度",
   "profile.upgrade": "值得升級",
   "profile.upgradeNote": "以最佳部位為基準（裝備等級 {max}）。",

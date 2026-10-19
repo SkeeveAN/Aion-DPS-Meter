@@ -85,6 +85,7 @@ export default {
   "profile.skillBonuses": "技能：{list}",
   "profile.note": "魔石的数值和烙印不属于数据。",
   "profile.avgShort": "物品等级",
+  "profile.combatPowerShort": "战斗力",
   "profile.gearPowerShort": "装备强度",
   "profile.legendBonus": "加成（Daevanion、装备）",
   "profile.tabRuns": "战绩",
