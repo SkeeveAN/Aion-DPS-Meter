@@ -1,0 +1,20 @@
+#!/bin/bash
+# aiondps-SQLite-Sicherungen: letzte 7 Tage alle, danach je Kalendertag die neueste, aelter als 90 Tage weg.
+# Fasst nie die Live-Datenbank an (nur Muster dpsmeter.pre-*.sqlite, Backup-Ordner und /tmp-Reste).
+now=$(date +%s)
+rotate() {
+  find "$1" -maxdepth 1 -type f -name "$2" -printf '%T@\t%p\n' | sort -rn | awk -F'\t' -v n="$now" '
+    { age=(n-$1)/86400; day=strftime("%Y-%m-%d",$1)
+      if (age<=7) next
+      if (age>90) { print $2; next }
+      if (day in s) print $2; else s[day]=1 }' |
+  while IFS= read -r f; do rm -f -- "$f" && echo "$(date -Is) entfernt $f"; done
+}
+# Vollkopien (ueber 100 MB, z. B. vor einer grossen Aenderung der Live-Datenbank) sind teuer: sie fliegen nach 7 Tagen ganz raus.
+# Die kleinen Zwischenstaende folgen weiter der Regel oben (je Kalendertag die neueste, 90 Tage).
+find /opt/dpsmeter/Backend/data -maxdepth 1 -type f -name 'dpsmeter.pre-*.sqlite' -size +100M -mtime +7 -print |
+  while IFS= read -r f; do rm -f -- "$f" && echo "$(date -Is) entfernt (gross, ueber 7 Tage) $f"; done
+rotate /opt/dpsmeter/Backend/data 'dpsmeter.pre-*.sqlite'
+rotate /root/dpsmeter-backups '*.sqlite'
+rotate /tmp 'dps*.sqlite'
+rotate /tmp 'pre-*.sqlite'
