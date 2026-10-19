@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.10.1",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "the checklist lists every character of the account for switching, with class, level, combat power and last online and a note to log in with a character again for its current counters, and the profile upload now also sends the basics of your other characters (name, class, level, legion, server and the game's character id) so the server fetches the rest",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.10.0",
   "date": "2026-10-19",
   "items": [
