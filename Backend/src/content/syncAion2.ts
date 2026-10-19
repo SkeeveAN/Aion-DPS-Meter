@@ -120,6 +120,7 @@ export function reassignConquestEncounters(): number {
   const rows = db
     .select({ encounterId: uploads.matchedEncounterId, raw: uploads.rawPayloadJson })
     .from(uploads)
+    // A payload that was packed (see uploadArchive.ts) reads as empty here and is skipped: this clean-up only concerned fights of the first days.
     // Only the conquest block is of interest, so the (large) payloads of every other fight are not even loaded. json_valid guards the
     // extraction: a row with unreadable JSON is skipped, as the parse below would have skipped it.
     .where(

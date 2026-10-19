@@ -529,6 +529,8 @@ export const uploads = sqliteTable(
     // Raw payload as received, kept for audit and so the merge algorithm can be
     // improved later and re-run over history without asking clients to re-upload.
     rawPayloadJson: text("raw_payload_json").notNull(),
+    // The same text as gzip once the upload is settled (see uploadArchive.ts); raw_payload_json is then empty. Null while the plain text is in use.
+    rawPayloadGz: blob("raw_payload_gz", { mode: "buffer" }),
     // Why an upload waits in the review queue ("pending") or was turned away ("rejected"): a JSON list of {code, detail}
     // (see uploadReview.ts). Null for the ordinary ones. reviewedAt is set when someone approved or rejected it.
     reviewReason: text("review_reason"),

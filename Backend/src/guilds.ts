@@ -32,8 +32,10 @@ export interface GuildMember extends ProfileBadge {
   name: string;
   className: string | null;
   level: number | null;
-  /** The game's own gear score; only known for players whose character window an uploader opened. */
+  /** NC's gear power (what the profile shows), else the game's own gear score from an opened character window. */
   gearScore: number | null;
+  /** NC's combat power, as on the profile. */
+  combatPower: number | null;
   /** Our own average item level of the worn gear. */
   avgItemLevel: number | null;
 }
@@ -237,6 +239,8 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       profileSource: playerProfiles.source,
       ncCharacterId: playerNcCharacter.characterId,
       ncAttributes: playerNcCharacter.attributesJson,
+      ncItemLevel: playerNcCharacter.itemLevel,
+      ncCombatPower: playerNcCharacter.combatPower,
     })
     .from(players)
     .leftJoin(playerProfiles, eq(playerProfiles.playerId, players.id))
@@ -251,7 +255,8 @@ export function findGuild(slug: string): { guild: GuildInfo; members: GuildMembe
       name: r.name,
       className: r.classId ? (AION2_CLASS_BY_ID[r.classId] ?? null) : null,
       level: r.level,
-      gearScore: r.gearScore,
+      gearScore: r.ncItemLevel ?? r.gearScore,
+      combatPower: r.ncCombatPower,
       avgItemLevel: r.gearJson ? averageItemLevelOf(r.gearJson) : null,
       ...profileBadge(r.profileSource, r.ncCharacterId, r.ncAttributes),
     }))
