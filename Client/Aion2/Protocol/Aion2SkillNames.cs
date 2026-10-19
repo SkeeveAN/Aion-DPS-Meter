@@ -179,8 +179,9 @@ public static class Aion2SkillNames
     /// </summary>
     public static string? ClassFromCode(int classCode)
     {
-        int id = classCode / 4;
-        return classCode % 4 is 1 or 2 && id is >= 1 and <= 8 ? ClassById[id - 1] : null;
+        // 4 * class id + 1..4: the last part is faction and sex (1, 2 Elyos; 3, 4 Asmodian), so the class id is (code - 1) / 4 for all of them.
+        int id = (classCode - 1) / 4;
+        return classCode >= 1 && id is >= 1 and <= 8 ? ClassById[id - 1] : null;
     }
 
     /// <summary>

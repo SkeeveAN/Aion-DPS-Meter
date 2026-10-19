@@ -2239,7 +2239,8 @@ public sealed class Aion2FrameDecoder
             }
 
             int after = k + 1 + frame[k];
-            if (after + 11 > frame.Length || frame[after + 6] != 1)
+            // The byte at +6 is the faction: 1 Elyos, 2 Asmodian (an Asmodian character - Templar 11, Ranger 15 on NA East, issues #17/#20 - was never read while 1 was required).
+            if (after + 11 > frame.Length || frame[after + 6] is not (1 or 2))
             {
                 continue;
             }
@@ -2249,7 +2250,7 @@ public sealed class Aion2FrameDecoder
             // be 18 05, so the own record of anyone not on Kaisinel was never read; a plausible class
             // code (4 * class + faction bit, see Aion2SkillNames.ClassFromCode) checks the match instead.
             int classCode = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 2)..]));
-            if (classCode % 4 is not (1 or 2) || classCode / 4 is < 1 or > 9)
+            if (classCode < 1 || (classCode - 1) / 4 is < 1 or > 9)
             {
                 continue;
             }
