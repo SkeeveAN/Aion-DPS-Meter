@@ -482,7 +482,7 @@ function insertBuffUsage(participantId: number, buffs: ParticipantUpload["buffs"
   }
 
   db.insert(encounterBuffUsage)
-    .values(buffs.map((b) => ({ participantId, skillName: b.skill, casts: b.casts })))
+    .values(buffs.map((b) => ({ participantId, skillName: b.skill, casts: b.casts, skillId: b.skillId, uptimePermille: b.uptimePermille, giversJson: JSON.stringify(b.givers) })))
     .run();
 }
 
@@ -553,8 +553,11 @@ function overwriteParticipant(participantId: number, participant: ParticipantUpl
   insertSkillUsage(participantId, participant.skills, false);
   insertSkillUsage(participantId, participant.healSkills, true);
 
-  db.delete(encounterBuffUsage).where(eq(encounterBuffUsage.participantId, participantId)).run();
-  insertBuffUsage(participantId, participant.buffs);
+  // A client that sends no buffs (an older one) must not wipe what another upload of the same fight already brought.
+  if (participant.buffs.length > 0) {
+    db.delete(encounterBuffUsage).where(eq(encounterBuffUsage.participantId, participantId)).run();
+    insertBuffUsage(participantId, participant.buffs);
+  }
 }
 
 function recomputeEncounterTotals(encounterId: number, startedAtIso: string, endedAtIso: string) {
@@ -765,6 +768,28 @@ function mergeSkillLists<T extends { skill: string; hits?: number; critHits?: nu
   return [...bySkill.values()];
 }
 
+/** Two buff lists of one person (a renamed character's two rows): the counts add up, the uptime is the longer of the two (the same fight, seen twice), the givers are united. */
+export function mergeBuffLists(a: ParticipantUpload["buffs"], b: ParticipantUpload["buffs"]): ParticipantUpload["buffs"] {
+  const bySkill = new Map<string, ParticipantUpload["buffs"][number]>();
+  for (const buff of [...a, ...b]) {
+    const existing = bySkill.get(buff.skill);
+    if (!existing) {
+      bySkill.set(buff.skill, { ...buff, givers: [...buff.givers] });
+      continue;
+    }
+
+    bySkill.set(buff.skill, {
+      skill: existing.skill,
+      casts: existing.casts + buff.casts,
+      skillId: existing.skillId || buff.skillId,
+      uptimePermille: Math.max(existing.uptimePermille, buff.uptimePermille),
+      givers: [...new Set([...existing.givers, ...buff.givers])].slice(0, 8),
+    });
+  }
+
+  return [...bySkill.values()];
+}
+
 /**
  * Per the user: a real character rename otherwise splits one person across two participant rows
  * in the SAME upload forever, since the client's own Chat.log parsing has no way to know
@@ -823,7 +848,7 @@ function mergeDuplicateParticipants(participants: ParticipantUpload[], serverId:
       shieldsGiven: [...group.flatMap((p) => p.shieldsGiven).reduce((acc, g) => acc.set(g.playerName, (acc.get(g.playerName) ?? 0) + g.amount), new Map<string, number>())].map(([playerName, amount]) => ({ playerName, amount })),
       skills: group.reduce((acc, p) => mergeSkillLists(acc, p.skills), [] as ParticipantUpload["skills"]),
       healSkills: group.reduce((acc, p) => mergeSkillLists(acc, p.healSkills), [] as ParticipantUpload["healSkills"]),
-      buffs: group.reduce((acc, p) => mergeSkillLists(acc, p.buffs), [] as ParticipantUpload["buffs"]),
+      buffs: group.reduce((acc, p) => mergeBuffLists(acc, p.buffs), [] as ParticipantUpload["buffs"]),
     };
   });
 }

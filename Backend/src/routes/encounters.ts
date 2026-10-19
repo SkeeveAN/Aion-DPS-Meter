@@ -7,6 +7,7 @@ import { bosses, encounterParticipants, encounters, encounterSkillUsage, instanc
 import { profileBadge } from "../profileBadge.js";
 import { ownSkillRows, skillIconByName, skillNamesByName } from "../profile.js";
 import { topBuffsByParticipant } from "../skills/topBuffs.js";
+import { encounterBuffDetails } from "../encounterBuffs.js";
 import { gameFromQuery } from "./instances.js";
 
 // One specific fight's full group roster (mirrors myaion.eu's PvESession) - reachable from the
@@ -145,8 +146,10 @@ export async function encounterRoutes(app: FastifyInstance) {
       .all();
 
     const topBuffs = topBuffsByParticipant(roster.map((r) => r.participantId));
+    // The buffs that ran on each player (uptime, who gave them), sorted into own / group / consumable for the page's buff columns.
+    const buffDetails = encounterBuffDetails(roster);
     // hasProfile: true when the player has a character profile page (see /api/players/:id).
-    const rosterWithBuffs = roster.map(({ profileSource, ncCharacterId, ncAttributes, ...r }) => ({ ...withServerFaction(r), hasProfile: r.hasProfile != null, ...profileBadge(profileSource, ncCharacterId, ncAttributes), topBuffs: topBuffs.get(r.participantId) ?? [] }));
+    const rosterWithBuffs = roster.map(({ profileSource, ncCharacterId, ncAttributes, ...r }) => ({ ...withServerFaction(r), hasProfile: r.hasProfile != null, ...profileBadge(profileSource, ncCharacterId, ncAttributes), topBuffs: topBuffs.get(r.participantId) ?? [], buffs: buffDetails.get(r.participantId) ?? [] }));
 
     return reply.send({
       encounter: { ...encounter, appVersion: latestUpload?.clientVersion ?? null },

@@ -499,6 +499,10 @@ export const encounterBuffUsage = sqliteTable(
       .references(() => encounterParticipants.id),
     skillName: text("skill_name").notNull(),
     casts: integer("casts").notNull(),
+    // The game's effect id (0: the client did not send it), the share of the fight the effect was on (thousandths) and the other players who gave it (JSON array of names).
+    skillId: integer("skill_id").notNull().default(0),
+    uptimePermille: integer("uptime_permille").notNull().default(0),
+    giversJson: text("givers_json").notNull().default("[]"),
   },
   (table) => ({
     participantIdIdx: index("encounter_buff_usage_participant_id_idx").on(table.participantId),

@@ -18,6 +18,12 @@ const skillUsageSchema = z.object({
 const buffUsageSchema = z.object({
   skill: z.string().min(1).max(120),
   casts: z.number().int().positive().max(100_000),
+  // The game's effect id (the website looks the icon and the localized name up by it); 0 from a client that does not send it.
+  skillId: z.number().int().min(0).max(2_000_000_000).default(0),
+  // The share of the fight the effect was on this participant, in thousandths (0..1000).
+  uptimePermille: z.number().int().min(0).max(1000).default(0),
+  // The other players of the fight who gave it; empty = the participant's own effect.
+  givers: z.array(z.string().trim().min(1).max(64)).max(8).default([]),
 });
 
 export const participantSchema = z.object({

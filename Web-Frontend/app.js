@@ -2885,10 +2885,18 @@ function meterProfileLink(p) {
   return icon;
 }
 
-function meterRow(rank, p, metric, max) {
+function meterRow(rank, p, metric, max, opts = {}) {
   const meta = classMeta(p.className);
   const value = p[metric];
   const pct = max > 0 ? (value / max) * 100 : 0;
+  // Damage taken: a red bar (the group shields' share is hatched behind the part that got through, see aggroPanel), not the class colour.
+  const absorbed = opts.danger ? (p.damageAbsorbed ?? 0) : 0;
+  const fills = opts.danger
+    ? [
+        el("div", { className: "meter-row-fill meter-row-fill-danger", style: `width: ${pct.toFixed(1)}%;` }),
+        absorbed > 0 ? el("div", { className: "meter-row-fill meter-row-fill-shield", style: `left: ${pct.toFixed(1)}%; width: ${max > 0 ? ((absorbed / max) * 100).toFixed(1) : 0}%;` }) : null,
+      ].filter((x) => x != null)
+    : [el("div", { className: "meter-row-fill", style: `width: ${pct.toFixed(1)}%; background: ${hexToRgba(meta.color, 0.28)};` })];
   const isPet = p.className === "?";
   const serverTag = currentGame === "aion2" && p.serverName ? el("span", { className: "server-tag", textContent: serverLabel(p.serverName), title: serverLabel(p.serverName) }) : null;
 
@@ -2896,7 +2904,7 @@ function meterRow(rank, p, metric, max) {
     "a",
     { className: "meter-row" + (isPet ? " meter-row-pet" : ""), href: gp(`/participants/${p.participantId}`) },
     [
-      el("div", { className: "meter-row-fill", style: `width: ${pct.toFixed(1)}%; background: ${hexToRgba(meta.color, 0.28)};` }),
+      ...fills,
       el("div", { className: "meter-row-content" }, [
         el("span", { className: "meter-rank" + (rank === 1 ? " meter-rank-top" : ""), textContent: `${rank}` }),
         ...[factionIcon(p.faction), classIcon(p.className)].filter((x) => x != null),
@@ -2966,13 +2974,167 @@ function meterPanel(roster) {
   ]);
 }
 
+// ---- Players panel with the buff columns (encounters whose uploads carry buff data) ----------------------------------------------------------------------
+
+const BUFF_OWN_MAX = 8;
+const BUFF_GROUP_SLOTS = 10;
+const BUFF_SCROLL_SLOTS = 8;
+const BUFF_DIM_BELOW = 300; // thousandths: a buff that ran less than 30 % of the fight is shown dimmed
+
+function buffLabel(b) {
+  return b.names?.[getLocale()] ?? b.names?.en ?? b.name;
+}
+
+function buffTile(b, roster, owner) {
+  const label = buffLabel(b);
+  const tip =
+    t("encounter.buffTip", { name: label, uptime: (b.uptimePermille / 10).toFixed(0), casts: b.casts }) +
+    (b.givers.length > 0 ? t("encounter.buffTipGivers", { givers: b.givers.join(", ") }) : "");
+  const tile = el("span", { className: "bf-tile" + (b.uptimePermille < BUFF_DIM_BELOW ? " dim" : ""), title: tip });
+  const src = b.icon && b.iconKind ? `/images/aion2/icons/${b.iconKind}/${b.icon}.webp` : null;
+  if (src) {
+    const img = el("img", { className: "bf-icon", src, alt: "", loading: "lazy", width: 64, height: 64 });
+    img.addEventListener("error", () => {
+      img.remove();
+      tile.prepend(el("span", { className: "bf-initials", textContent: label.slice(0, 2) }));
+    });
+    tile.append(img);
+  } else {
+    tile.append(el("span", { className: "bf-initials", textContent: label.slice(0, 2) }));
+  }
+  if (b.casts > 1) {
+    tile.append(el("s", { className: "bf-count", textContent: String(Math.min(b.casts, 99)) }));
+  }
+  if (b.kind === "group") {
+    const giver = b.givers.length > 0 ? roster.find((p) => p.playerName === b.givers[0]) : owner;
+    if (giver && giver.className !== "?") {
+      tile.append(el("u", { className: "bf-badge" }, [classIcon(giver.className)]));
+    }
+  }
+  return tile;
+}
+
+// Group and consumable buffs sit in fixed slots, the same buff in the same place for every player (a gap where a player did not have it);
+// all buff food shares one slot (only one can be active at a time). Own buffs are class specific and are listed freely.
+function buffSlotKeys(roster, kind) {
+  const stats = new Map();
+  for (const p of roster) {
+    for (const b of p.buffs ?? []) {
+      if (b.kind !== kind || (kind === "consumable" && b.food)) {
+        continue;
+      }
+      const e = stats.get(b.name) ?? { n: 0, up: 0 };
+      e.n += 1;
+      e.up = Math.max(e.up, b.uptimePermille);
+      stats.set(b.name, e);
+    }
+  }
+  const keys = [...stats.entries()].sort((a, b) => b[1].n - a[1].n || b[1].up - a[1].up).map(([k]) => k);
+  if (kind === "consumable") {
+    const hasFood = roster.some((p) => (p.buffs ?? []).some((b) => b.kind === "consumable" && b.food));
+    return [...keys.slice(0, BUFF_SCROLL_SLOTS), ...(hasFood ? ["\u0000food"] : [])];
+  }
+  return keys.slice(0, BUFF_GROUP_SLOTS);
+}
+
+function buffCell(p, roster, kind, slotKeys) {
+  const mine = (p.buffs ?? []).filter((b) => b.kind === kind);
+  let tiles;
+  if (kind === "own") {
+    tiles = mine.slice(0, BUFF_OWN_MAX).map((b) => buffTile(b, roster, p));
+  } else {
+    tiles = slotKeys.map((key) => {
+      const pool = key === "\u0000food" ? mine.filter((b) => b.food) : mine.filter((b) => b.name === key && !b.food);
+      const b = pool.sort((a, c) => c.uptimePermille - a.uptimePermille)[0];
+      return b ? buffTile(b, roster, p) : el("span", { className: "bf-tile bf-gap" });
+    });
+  }
+  return el("td", { className: "pp-buffs" }, [el("div", { className: "bf-cell" }, tiles)]);
+}
+
+const PLAYER_METRICS = [
+  { key: "totalDamage", label: () => t("table.damage"), sorted: () => t("encounter.sortedByDamage"), danger: false },
+  { key: "totalHealing", label: () => t("participant.totalHealing"), sorted: () => t("encounter.sortedByHealing"), danger: false },
+  { key: "damageTaken", label: () => t("encounter.aggroHeading"), sorted: () => t("encounter.sortedByTaken"), danger: true },
+];
+
+// Replaces the damage list and the damage-taken list: one row per player with the damage / healing / damage-taken bar (switchable) and the buff columns.
+function playersPanel(roster) {
+  assignRoles(roster);
+  let metric = PLAYER_METRICS[0];
+  const slots = { group: buffSlotKeys(roster, "group"), consumable: buffSlotKeys(roster, "consumable") };
+  const petCount = roster.filter((p) => p.className === "?").length;
+  const petsSuffix = petCount > 0 ? t("encounter.petsSuffix", { count: petCount }) : "";
+
+  const titleEl = el("span", { className: "meter-panel-title" });
+  const subtitleEl = el("span", { className: "meter-panel-subtitle" });
+  const body = el("tbody");
+  const buttons = PLAYER_METRICS.map((m) => {
+    const b = el("button", { type: "button", textContent: m.label() });
+    b.addEventListener("click", () => select(m));
+    return b;
+  });
+
+  function totalOf(p) {
+    return metric.danger ? (p.damageTaken ?? 0) + (p.damageAbsorbed ?? 0) : p[metric.key];
+  }
+
+  function renderRows() {
+    const sorted = [...roster].sort((a, b) => totalOf(b) - totalOf(a));
+    const max = Math.max(...sorted.map(totalOf), 1);
+    titleEl.textContent = metric.label();
+    subtitleEl.textContent = t("encounter.rosterSubtitle", { count: roster.length, pets: petsSuffix, sorted: metric.sorted() });
+    body.replaceChildren(
+      ...sorted.map((p, i) =>
+        el("tr", {}, [
+          el("td", { className: "pp-main" }, [meterRow(i + 1, p, metric.key, max, { danger: metric.danger })]),
+          buffCell(p, roster, "own", []),
+          buffCell(p, roster, "group", slots.group),
+          buffCell(p, roster, "consumable", slots.consumable),
+        ]),
+      ),
+    );
+  }
+
+  function select(m) {
+    metric = m;
+    buttons.forEach((b, i) => {
+      const on = PLAYER_METRICS[i] === m;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+    renderRows();
+  }
+
+  const table = el("table", { className: "players-table" }, [
+    el("thead", {}, [
+      el("tr", {}, [
+        el("th", { textContent: t("table.player") }),
+        el("th", { className: "r", textContent: t("encounter.buffsOwn") }),
+        el("th", { className: "r", textContent: t("encounter.buffsGroup") }),
+        el("th", { className: "r", textContent: t("encounter.buffsConsumable") }),
+      ]),
+    ]),
+    body,
+  ]);
+  select(metric);
+  return el("div", { className: "meter-panel players-panel" }, [
+    el("div", { className: "meter-panel-header" }, [
+      el("div", { className: "meter-panel-heading" }, [titleEl, subtitleEl]),
+      el("div", { className: "category-filter" }, buttons),
+    ]),
+    table,
+    el("p", { className: "buff-legend", textContent: t("encounter.buffLegend") }),
+  ]);
+}
+
 // Damage TAKEN from the boss, i.e. aggro/tanking - a different question from the Schaden panel
 // above (who hit the boss) and kept visually distinct (compact rows, danger-tinted bars, its own
 // subheading) so the two are never mistaken for the same ranking, unlike the old page's two
 // same-looking bar charts. damageTaken is 0 for every row from a client older than the field
 // itself (see uploadSchema.ts) - such an encounter just renders an all-zero list rather than
 // erroring.
-function aggroPanel(roster) {
+function aggroPanel(roster, protectionOnly = false) {
   // Group shields (Chanter, Templar): damageAbsorbed is what the shields on a player soaked up, drawn
   // as a hatched blue section behind the part that got through. Empty until the client reports it;
   // without any absorbed damage the panel looks exactly as before.
@@ -2998,7 +3160,7 @@ function aggroPanel(roster) {
         el("span", {}, [el("i", { className: "sl-shield" }), t("encounter.legendShield")]),
       ])
     : null;
-  const panels = [
+  const panels = protectionOnly ? [] : [
     el("div", { className: "meter-panel" }, [
       el("div", { className: "meter-panel-heading" }, [
         el("span", { className: "meter-panel-title", textContent: t("encounter.aggroHeading") }),
@@ -3086,10 +3248,12 @@ async function renderEncounter(encounterId) {
     statsRow.append(statCard(`${((totalDamage / data.encounter.bossMaxHp) * 100).toFixed(0)}%`, t("stats.bossHpCovered"), t("stats.bossHpCoveredNote")));
   }
 
-  const grid = el("div", { className: "encounter-grid" }, [
-    meterPanel(data.roster),
-    el("div", { className: "encounter-side-col" }, [aggroPanel(data.roster)]),
-  ]);
+  // An encounter whose uploads carry buff data gets the players panel with the buff columns (it also holds the damage-taken list);
+  // an older one keeps the damage list with the damage-taken panel beside it.
+  const hasBuffs = data.roster.some((p) => (p.buffs ?? []).length > 0);
+  const grid = hasBuffs
+    ? el("div", { className: "encounter-stack" }, [playersPanel(data.roster), aggroPanel(data.roster, true)])
+    : el("div", { className: "encounter-grid" }, [meterPanel(data.roster), el("div", { className: "encounter-side-col" }, [aggroPanel(data.roster)])]);
 
   app.replaceChildren(hero, statsRow, compareButton(t("compare.ctaRuns"), compareLink("/compare/runs", { a: data.encounter.id })), grid);
 }

@@ -428,6 +428,13 @@
       "when": 1792456000000,
       "tag": "0060_stat_recordings_network_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "6",
+      "when": 1792542000000,
+      "tag": "0061_buff_usage_detail",
+      "breakpoints": true
     }
   ]
 }
