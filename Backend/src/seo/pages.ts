@@ -9,6 +9,8 @@ import { classBoxes, findBoss, mechanicsFor, modesFor, selectServer, UNKNOWN_MOD
 import { instanceStatistics } from "../instanceStats.js";
 import { buildProfileView, ownSkillRows } from "../profile.js";
 import { INSTANCE_FACTS, INSTANCE_IMAGES, INSTANCE_MIN_LEVEL, BOSS_IMAGES, splitConquest } from "../../../Web-Frontend/game-data.js";
+import { GUIDE_ASOF, GUIDE_FAQ, GUIDE_OSS, GUIDE_ROWS, GUIDE_STEPS, GUIDE_STRONG, GUIDE_TABLES, GUIDE_WEAK, GUIDE_WHAT } from "../../../Web-Frontend/guide-data.js";
+import enStrings from "../../../Web-Frontend/locales/en.js";
 import { parseIdOrSlug } from "./slug.js";
 import { formatInt, html, Raw } from "./html.js";
 import { breadcrumbJsonLd, itemListJsonLd, profileJsonLd, softwareApplicationJsonLd, websiteJsonLd, type PageMeta } from "./meta.js";
@@ -104,6 +106,7 @@ export function homePage(): Page {
       <ul class="plain">
         ${[DEFAULT_GAME].map((g) => html`<li><a href="/instances">${GAME_LABEL[g]} – instances &amp; boss leaderboards</a></li>`)}
         <li><a href="/features">Features of the Aion 2 DPS meter</a></li>
+        <li><a href="/aion-2-dps-meter">Aion 2 DPS meter: features, installation and comparison</a></li>
         <li><a href="/legions">Legions</a></li>
         <li><a href="/status">AION 2 server status</a></li>
         <li><a href="/announcements">AION 2 announcements</a> and <a href="/patchnotes">patch notes</a></li>
@@ -159,6 +162,60 @@ export function downloadPage(): Page {
       <h4>Are my fights uploaded automatically?</h4>
       <p>No. Uploads to the leaderboards are off by default and you decide in the settings whether to switch them on.</p>
       <p><a href="/features">All features</a> · <a href="/changelog">Changelog</a> · <a href="https://github.com/SkeeveAN/Aion-DPS-Meter">Source code on GitHub</a></p>`,
+  };
+}
+
+const en = enStrings as unknown as Record<string, string>;
+
+/** The comparison page for the searches "AION 2 DPS meter / damage meter / combat tracker". The text and tables come from
+ *  the same files as the app's version (Web-Frontend/guide-data.js and the English strings), so there is one source. */
+export function guidePage(): Page {
+  const g = (key: string, params?: Record<string, string>) => (en[`guide.${key}`] ?? key).replace(/\{(\w+)\}/g, (m: string, n: string) => params?.[n] ?? m);
+  const cell = (value: string) => (value.startsWith("$") ? g(`c.${value.slice(1)}`) : value);
+  const list = (keys: string[], prefix: string) => html`<ul class="plain">${keys.map((k) => html`<li>${g(`${prefix}.${k}`)}</li>`)}</ul>`;
+  const table = (spec: (typeof GUIDE_TABLES)[number]) => html`
+    <h3>${g(`t.${spec.id}`)}</h3>
+    <table>
+      <thead><tr><th scope="col">${g("rowHead")}</th>${spec.columns.map((c) => html`<th scope="col">${c.url ? html`<a href="${c.url}" rel="noopener">${c.name}</a>` : c.name}</th>`)}</tr></thead>
+      <tbody>${GUIDE_ROWS.map((row) => html`<tr><th scope="row">${g(`r.${row}`)}</th>${spec.columns.map((c) => html`<td>${cell(c.cells[row])}</td>`)}</tr>`)}</tbody>
+    </table>`;
+  const faq = GUIDE_FAQ.map((k) => ({ q: g(`faq.${k}.q`), a: g(`faq.${k}.a`) }));
+  return {
+    status: 200,
+    meta: {
+      title: g("title"),
+      description: g("metaDesc"),
+      canonicalPath: "/aion-2-dps-meter",
+      jsonLd: [
+        softwareApplicationJsonLd(),
+        breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: g("breadcrumb"), path: "/aion-2-dps-meter" }]),
+        { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
+      ],
+    },
+    body: html`
+      <h1>${g("title")}</h1>
+      <p>${g("intro")}</p>
+      <p><a class="download-cta" href="/download">${g("download")}</a> · <a href="/features">${g("allFeatures")}</a></p>
+      <h2>${g("h.what")}</h2>
+      ${list(GUIDE_WHAT, "what")}
+      <h2>${g("h.install")}</h2>
+      <ol class="steps">${GUIDE_STEPS.map((k) => html`<li>${g(`step.${k}`)}</li>`)}</ol>
+      <p>${g("installNote")}</p>
+      <h2>${g("h.measure")}</h2>
+      <p>${g("measure.p1")}</p><p>${g("measure.p2")}</p><p>${g("measure.p3")}</p>
+      <h2>${g("h.compare")}</h2>
+      <p>${g("compare.intro", { date: GUIDE_ASOF })}</p>
+      ${GUIDE_TABLES.map(table)}
+      <p>${g("lago")}</p><p>${g("rdpsWhy")}</p><p>${g("also")}</p>
+      <h2>${g("h.weak")}</h2>
+      ${list(GUIDE_WEAK, "weak")}
+      <h2>${g("h.strong")}</h2>
+      ${list(GUIDE_STRONG, "strong")}
+      <h2>${g("h.oss")}</h2>
+      ${list(GUIDE_OSS, "oss")}
+      <h2>${g("h.faq")}</h2>
+      ${faq.map((f) => html`<h4>${f.q}</h4><p>${f.a}</p>`)}
+      <p><a href="/download">Download</a> · <a href="/features">Features</a> · <a href="/changelog">Changelog</a> · <a href="https://github.com/SkeeveAN/Aion-DPS-Meter">Source code on GitHub</a></p>`,
   };
 }
 

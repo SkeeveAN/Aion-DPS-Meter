@@ -3,6 +3,7 @@ import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, I
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
 import { buildBossStats, buildInstanceStats } from "./boss-stats.js";
+import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_STEPS, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
 
 // Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
 const V2 = (() => {
@@ -22,7 +23,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "features", "changelog", "twitch-drops", "stats", "status", "announcements", "patchnotes", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "features", "aion-2-dps-meter", "changelog", "twitch-drops", "stats", "status", "announcements", "patchnotes", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -653,6 +654,53 @@ async function renderPrivacy() {
 
 async function renderTerms() {
   renderLegalPage("terms", "legal.termsTitle", "legal.termsIntro");
+}
+
+// /aion-2-dps-meter: what the meter does, how to install it and a comparison with other AION 2 meters. The tables come from
+// guide-data.js, the same data the server writes into the page for crawlers.
+function renderGuide() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("guide.breadcrumb")]);
+  document.title = `${t("guide.title")} – ${SITE_TITLE}`;
+  const cellText = (value) => (value.startsWith("$") ? t(`guide.c.${value.slice(1)}`) : value);
+  const cellClass = (value) => (value === "$yes" ? "guide-yes" : value === "$no" ? "guide-no" : value === "$na" ? "guide-na" : "");
+  const list = (keys, prefix) => el("ul", { className: "guide-list" }, keys.map((k) => el("li", { textContent: t(`${prefix}.${k}`) })));
+  const table = (spec) => el("div", { className: "guide-table-wrap" }, [
+    el("h3", { textContent: t(`guide.t.${spec.id}`) }),
+    el("table", { className: "guide-table" }, [
+      el("thead", {}, [el("tr", {}, [
+        el("th", { scope: "col", textContent: t("guide.rowHead") }),
+        ...spec.columns.map((c) => el("th", { scope: "col", className: c.ours ? "guide-ours" : "" }, [
+          c.url ? el("a", { href: c.url, target: "_blank", rel: "noopener", textContent: c.name }) : document.createTextNode(c.name),
+        ])),
+      ])]),
+      el("tbody", {}, GUIDE_ROWS.map((row) => el("tr", {}, [
+        el("th", { scope: "row", textContent: t(`guide.r.${row}`) }),
+        ...spec.columns.map((c) => el("td", { className: `${c.ours ? "guide-ours " : ""}${cellClass(c.cells[row])}`.trim(), textContent: cellText(c.cells[row]) })),
+      ]))),
+    ]),
+  ]);
+  app.replaceChildren(el("div", { className: "guide-page" }, [
+    el("h1", { textContent: t("guide.title") }),
+    el("p", { className: "guide-intro", textContent: t("guide.intro") }),
+    el("p", {}, [link(t("guide.download"), "/download", "btn btn-gold"), " ", link(t("guide.allFeatures"), "/features", "btn btn-ghost")]),
+    el("h2", { textContent: t("guide.h.what") }), list(GUIDE_WHAT, "guide.what"),
+    el("h2", { textContent: t("guide.h.install") }),
+    el("ol", { className: "guide-list" }, GUIDE_STEPS.map((k) => el("li", { textContent: t(`guide.step.${k}`) }))),
+    el("p", { textContent: t("guide.installNote") }),
+    el("h2", { textContent: t("guide.h.measure") }),
+    ...["p1", "p2", "p3"].map((k) => el("p", { textContent: t(`guide.measure.${k}`) })),
+    el("h2", { textContent: t("guide.h.compare") }),
+    el("p", { className: "guide-intro", textContent: t("guide.compare.intro", { date: GUIDE_ASOF }) }),
+    ...GUIDE_TABLES.map(table),
+    el("p", { textContent: t("guide.lago") }),
+    el("p", { textContent: t("guide.rdpsWhy") }),
+    el("p", { textContent: t("guide.also") }),
+    el("h2", { textContent: t("guide.h.weak") }), list(GUIDE_WEAK, "guide.weak"),
+    el("h2", { textContent: t("guide.h.strong") }), list(GUIDE_STRONG, "guide.strong"),
+    el("h2", { textContent: t("guide.h.oss") }), list(GUIDE_OSS, "guide.oss"),
+    el("h2", { textContent: t("guide.h.faq") }),
+    ...GUIDE_FAQ.flatMap((k) => [el("h3", { textContent: t(`guide.faq.${k}.q`) }), el("p", { textContent: t(`guide.faq.${k}.a`) })]),
+  ]));
 }
 
 // Feature tour: one scene per feature - a generated backdrop, the text on one side and the real client windows (rendered from the client itself,
@@ -4462,6 +4510,8 @@ async function route() {
       await renderDownload();
     } else if (section === "features") {
       renderFeatures();
+    } else if (section === "aion-2-dps-meter") {
+      renderGuide();
     } else if (section === "changelog") {
       await renderChangelog();
     } else if (section === "twitch-drops") {

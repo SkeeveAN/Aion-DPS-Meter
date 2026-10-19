@@ -4070,3 +4070,22 @@ body:has(.download-hero) .nav-download-link:hover,
 .js main:has(>[data-ssr]){min-height:100vh}
 /* Header controls are filled in by app.js: reserve their final size so the row does not jump (CLS). */
 @media(min-width:721px){.theme-switcher{box-sizing:border-box;min-width:70px;min-height:38px}.lang-switcher{width:170px}}
+
+/* /aion-2-dps-meter (app.js renderGuide): prose plus three comparison tables. Made for the 1872 px content width of a
+   1920x1080 screen: wide columns, 16 px text, generous row padding; below 1100 px the table scrolls sideways instead of squeezing. */
+.guide-page h2 { margin: 44px 0 14px; font-size: 24px; }
+.guide-page h3 { margin: 30px 0 12px; font-size: 19px; }
+.guide-page p, .guide-list li { font-size: 17px; line-height: 1.6; max-width: 62em; }
+.guide-page .guide-intro { color: var(--color-text-muted); }
+.guide-list { padding-left: 1.3em; }
+.guide-list li { margin: 6px 0; }
+.guide-table-wrap { overflow-x: auto; margin-bottom: 8px; }
+.guide-table { width: 100%; min-width: 1100px; border-collapse: collapse; table-layout: fixed; font-size: 16px; line-height: 1.5; }
+.guide-table th, .guide-table td { padding: 14px 18px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--color-border); overflow-wrap: anywhere; }
+.guide-table thead th { font-size: 18px; border-bottom: 2px solid var(--color-border); vertical-align: bottom; }
+.guide-table tbody th { width: 17%; font-weight: 600; color: var(--color-text-muted); }
+.guide-table thead th:first-child { width: 17%; }
+.guide-table .guide-ours { background: color-mix(in srgb, var(--color-primary) 12%, transparent); }
+.guide-table td.guide-na { color: var(--color-text-muted); }
+.guide-table td.guide-yes { color: var(--color-success); font-weight: 600; }
+.guide-table td.guide-no { color: var(--color-danger); font-weight: 600; }

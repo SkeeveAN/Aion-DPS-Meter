@@ -5,7 +5,7 @@
 **The free DPS meter for AION 2** — live damage and healing for your whole group, a click-through overlay, boss leaderboards, a pet and gathering map, an event timetable and world boss timers. For Windows, open source, and it never reads game memory.
 
 <p align="center">
-  <a href="../../releases/latest"><b>⬇ Download for Windows</b></a> · <a href="https://aiondps.com">Website</a> · <a href="https://aiondps.com/features">All features</a> · <a href="https://aiondps.com/instances">Boss leaderboards</a>
+  <a href="../../releases/latest"><b>⬇ Download for Windows</b></a> · <a href="https://aiondps.com">Website</a> · <a href="https://aiondps.com/features">All features</a> · <a href="https://aiondps.com/aion-2-dps-meter">Comparison with other meters</a> · <a href="https://aiondps.com/instances">Boss leaderboards</a>
 </p>
 
 <p align="center">
