@@ -33,7 +33,7 @@ public static class BuffUpload
             // "★" is the player themself; the upload names only the others (no giver at all = the player's own effect)
             var givers = row.Givers.Split(", ", StringSplitOptions.RemoveEmptyEntries).Where(g => g != "★").ToList();
             list.Add(new BuffUsageUpload(Aion2SkillNames.NameOf(row.SkillId), Math.Max(1, row.Applications), row.SkillId,
-                (int)Math.Round(Math.Clamp(row.UptimePercent, 0, 100) * 10), givers));
+                (int)Math.Round(Math.Clamp(row.UptimePercent, 0, 100) * 10), givers, SpansOf(row.Spans)));
             if (list.Count >= MaxPerPlayer)
             {
                 break;
@@ -42,6 +42,64 @@ public static class BuffUpload
 
         return list;
     }
+
+    /// <summary>The most spans one effect carries in the upload (the backend takes 200 pairs).</summary>
+    public const int MaxSpans = 200;
+
+    /// <summary>Spans closer than this are one (a flicker of the same effect).</summary>
+    private const double JoinGapSeconds = 0.5;
+
+    /// <summary>The spans of an effect for the upload: start and end of each one flattened, in tenths of a second. Gaps under half a second are closed; when more than
+    /// <see cref="MaxSpans"/> remain, the shortest gaps are closed until they fit.</summary>
+    public static IReadOnlyList<int>? SpansOf(IReadOnlyList<(double Start, double End)>? spans)
+    {
+        if (spans is null || spans.Count == 0)
+        {
+            return null;
+        }
+
+        var list = new List<(double Start, double End)>();
+        foreach (var (s, e) in spans.OrderBy(x => x.Start))
+        {
+            if (list.Count > 0 && s - list[^1].End < JoinGapSeconds)
+            {
+                list[^1] = (list[^1].Start, Math.Max(list[^1].End, e));
+            }
+            else
+            {
+                list.Add((s, e));
+            }
+        }
+
+        while (list.Count > MaxSpans)
+        {
+            int at = 0;
+            double smallest = double.MaxValue;
+            for (int i = 1; i < list.Count; i++)
+            {
+                double gap = list[i].Start - list[i - 1].End;
+                if (gap < smallest)
+                {
+                    smallest = gap;
+                    at = i;
+                }
+            }
+
+            list[at - 1] = (list[at - 1].Start, list[at].End);
+            list.RemoveAt(at);
+        }
+
+        var flat = new List<int>(list.Count * 2);
+        foreach (var (s, e) in list)
+        {
+            flat.Add(Tenths(s));
+            flat.Add(Math.Max(Tenths(e), Tenths(s)));
+        }
+
+        return flat;
+    }
+
+    private static int Tenths(double seconds) => (int)Math.Clamp(Math.Round(seconds * 10), 0, 100_000);
 
     /// <summary>
     /// Drops what the group did not give: an effect with a named giver who is nobody of this fight came from a monster (it hit the whole party), so it is no buff.

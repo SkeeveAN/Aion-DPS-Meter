@@ -35,6 +35,30 @@ public static class SelfCheckBuffUpload
         var kept = BuffUpload.KeepGroupSources(list, new HashSet<string> { "Me", "Wendy" });
         bool monster = list.Any(b => b.SkillId == monsterEffect) && kept.All(b => b.SkillId != monsterEffect) && kept.Any(b => b.SkillId == light);
         Console.WriteLine($"  -> what a monster gave is dropped, the group's buff stays: {monster}");
-        return uptime && givers && noPotion && monster;
+
+        // the spans: the effect from Wendy ran from 0 s to 10 s, the scroll the whole fight
+        bool spans = lightRow?.Spans is { Count: 2 } ls && ls[0] == 0 && ls[1] == 100 && scrollRow?.Spans is { Count: 2 } ss && ss[0] == 0 && ss[1] >= 195;
+        Console.WriteLine($"  -> the spans of an effect go along in tenths of a second: {spans}");
+        var flicker = BuffUpload.SpansOf(new[] { (0.0, 1.0), (1.2, 2.0), (5.0, 6.0) });
+        bool joined = flicker is { Count: 4 } f && f[0] == 0 && f[1] == 20 && f[2] == 50 && f[3] == 60;
+        var many = Enumerable.Range(0, 500).Select(i => (i * 2.0, i * 2.0 + 1.0)).ToList();
+        bool capped = BuffUpload.SpansOf(many) is { } m && m.Count <= BuffUpload.MaxSpans * 2 && m[0] == 0;
+        Console.WriteLine($"  -> a flicker under half a second is one span, too many spans are joined to fit: {joined && capped}");
+
+        // the time axis: skills used (the passive and the duplicates by name aside), the death of the player, the boss's health
+        var uses = new List<SkillUse> { new(start.AddSeconds(1), you, 11000100), new(start.AddSeconds(3.5), you, 11000100), new(start.AddSeconds(6), you, 11000200), new(start.AddSeconds(2), wendy, 17000010) };
+        var deaths = new List<DeathRecord> { new(start.AddSeconds(8), you), new(start.AddSeconds(9), wendy) };
+        var hp = new List<HpSeries> { new(boss, start, new[] { 0, 200, 400, 5000, 10_000 }, new short[] { 1000, 990, 985, 600, 300 }) };
+        var withTime = extras with { Uses = uses, Deaths = deaths, Hp = hp };
+        TimelineUpload? line = TimelineBuilder.For(withTime, you, start, end, id => names.GetValueOrDefault(id));
+        bool axis = line is not null && line.Times.Count == 3 && line.Times[0] == 10 && line.Times[1] == 35 && line.Times[2] == 60 && line.Skills.Count == 2
+            && line.Index[0] == line.Index[1] && line.Index[2] != line.Index[0] && line.Deaths.SequenceEqual(new[] { 80 });
+        Console.WriteLine($"  -> the player's skill uses and death in tenths of a second, nobody else's: {axis}");
+        IReadOnlyList<int>? curve = TimelineBuilder.BossHp(withTime, boss, start, end);
+        bool health = curve is not null && curve.Count % 2 == 0 && curve[0] == 0 && curve[1] == 1000 && curve[^1] == 300 && curve[^2] == 100;
+        Console.WriteLine($"  -> the boss's health curve, at most one point per half second: {health}");
+        bool noUses = TimelineBuilder.For(FightExtras.Empty, you, start, end, _ => null) is null;
+        Console.WriteLine($"  -> a player without skill uses has no time axis: {noUses}");
+        return uptime && givers && noPotion && monster && spans && joined && capped && axis && health && noUses;
     }
 }

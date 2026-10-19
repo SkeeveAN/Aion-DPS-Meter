@@ -9,7 +9,7 @@ public sealed record RotationUse(double At, int SkillId, string Name, bool Passi
 public sealed record RotationSkill(int SkillId, string Name, int Uses, double PerMinute, double AvgGapSeconds, double FirstAt, double SharePercent, bool Damaging);
 
 /// <summary>How long an effect was on the player: its share of the fight, the share of it that came from the player themself, and who gave it. For a debuff, <see cref="FromYouPercent"/> is the share it was on the player themself (the rest was on the party).</summary>
-public sealed record BuffRow(int SkillId, string Name, double UptimePercent, double FromYouPercent, int Applications, string Givers);
+public sealed record BuffRow(int SkillId, string Name, double UptimePercent, double FromYouPercent, int Applications, string Givers, IReadOnlyList<(double Start, double End)>? Spans = null);
 
 /// <summary>A moment a monster was staggered (its stagger bar broke), in seconds from the start of the fight.</summary>
 public sealed record StaggerPhase(double Start, double End);
@@ -159,10 +159,29 @@ public static class RotationAnalysis
             bool self = group.Any(s => s.Caster == playerId);
             string giverText = string.Join(", ", (self ? new[] { "★" } : Array.Empty<string?>()).Concat(givers));
             rows.Add(new BuffRow(skillId, Aion2SkillNames.Display(group.Key), 100.0 * all / duration, 100.0 * mine / duration,
-                group.Select(s => s.SkillId).Distinct().Sum(id => applications.GetValueOrDefault(id)), giverText));
+                group.Select(s => s.SkillId).Distinct().Sum(id => applications.GetValueOrDefault(id)), giverText, Merge(group.Select(s => (s.Start, s.End)))));
         }
 
         return rows.Where(r => r.UptimePercent >= 0.5).OrderByDescending(r => r.UptimePercent).Take(60).ToList();
+    }
+
+    /// <summary>The union of intervals as separate, ordered spans (an effect two givers kept up at once is one span).</summary>
+    private static IReadOnlyList<(double Start, double End)> Merge(IEnumerable<(double Start, double End)> intervals)
+    {
+        var merged = new List<(double Start, double End)>();
+        foreach (var (s, e) in intervals.OrderBy(i => i.Start))
+        {
+            if (merged.Count > 0 && s <= merged[^1].End)
+            {
+                merged[^1] = (merged[^1].Start, Math.Max(merged[^1].End, e));
+            }
+            else
+            {
+                merged.Add((s, e));
+            }
+        }
+
+        return merged;
     }
 
     /// <summary>The length of the union of intervals - an effect two givers kept up at once counts once.</summary>

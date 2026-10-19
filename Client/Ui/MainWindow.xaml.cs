@@ -2678,6 +2678,8 @@ public partial class MainWindow : Window
         var buffExtras = aion2Directory is not null && _rows.Count <= MaxBuffRows
             ? aion2Directory.Combat.Slice(windowStart, windowEnd, id => aion2Directory.NameFor(id))
             : null;
+        // the boss's health over the fight, for the website's group timeline
+        IReadOnlyList<int>? bossHp = buffExtras is not null ? TimelineBuilder.BossHp(buffExtras, targetId, windowStart, windowEnd) : null;
 
         // One pass over the events instead of one per player: a world boss has a thousand of them, and each rescan of the
         // whole history per row made building the upload take minutes.
@@ -2805,7 +2807,10 @@ public partial class MainWindow : Window
                 shareOthers || isSelf ? BuildProfileUpload(ProfileIdOf(row)) : null,
                 ServerId: aion2Directory?.ServerIdOf(ProfileIdOf(row)),
                 Estimated: estimated,
-                CharacterId: CharacterIdFor(aion2Directory, row.Name, aion2Directory?.ServerIdOf(ProfileIdOf(row)))));
+                CharacterId: CharacterIdFor(aion2Directory, row.Name, aion2Directory?.ServerIdOf(ProfileIdOf(row))),
+                Timeline: buffExtras is not null && aion2Directory is not null
+                    ? TimelineBuilder.For(buffExtras, row.ObjectId, windowStart, windowEnd, id => aion2Directory.NameFor(id))
+                    : null));
         }
 
         // The backend takes at most 300 players of an instance fight: the biggest by damage, the own character always. A world boss has no cut.
@@ -2847,7 +2852,8 @@ public partial class MainWindow : Window
             BossMaxHp: BossMaxHpOf(targetId),
             ServerId: Aion2OwnServerId(),
             GameServer: Aion2GameServerAddress(),
-            BossLevel: (_source?.Entities as Aion2EntityDirectory)?.NpcLevelOf(targetId));
+            BossLevel: (_source?.Entities as Aion2EntityDirectory)?.NpcLevelOf(targetId),
+            BossHp: bossHp);
     }
 
     /// <summary>Hides the Class dropdown's entries that are no Aion 2 class (the static XAML list is

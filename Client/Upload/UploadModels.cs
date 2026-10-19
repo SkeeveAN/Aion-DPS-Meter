@@ -22,7 +22,14 @@ public sealed record SkillUsageUpload(string Skill, int Hits, int CritHits, long
 /// not how many times this row itself cast it. <see cref="SkillId"/> is the game's effect id (the website finds the icon and the localized name by it),
 /// <see cref="UptimePermille"/> the share of the fight the effect was on this row (0..1000), <see cref="Givers"/> the other players of the fight who gave it
 /// (empty: the row's own effect).</summary>
-public sealed record BuffUsageUpload(string Skill, int Casts, int SkillId = 0, int UptimePermille = 0, IReadOnlyList<string>? Givers = null);
+public sealed record BuffUsageUpload(string Skill, int Casts, int SkillId = 0, int UptimePermille = 0, IReadOnlyList<string>? Givers = null, IReadOnlyList<int>? Spans = null);
+
+/// <summary>One skill of a player's <see cref="TimelineUpload"/>: the game's skill id and its name.</summary>
+public sealed record TimelineSkillUpload(int Id, string Name);
+
+/// <summary>The time axis of one player: which skill was used when, and when they died. Times are tenths of a second from the start of the uploaded fight;
+/// <see cref="Times"/>[i] is a use of <see cref="Skills"/>[<see cref="Index"/>[i]].</summary>
+public sealed record TimelineUpload(IReadOnlyList<TimelineSkillUpload> Skills, IReadOnlyList<int> Times, IReadOnlyList<int> Index, IReadOnlyList<int> Deaths);
 
 /// <summary>One player's contribution to an encounter. <see cref="IsSelf"/> mirrors the client's own
 /// "You" check (see MainWindow.ResolveDisplayName) - the backend trusts THIS row's crit rate for
@@ -65,7 +72,9 @@ public sealed record ParticipantUpload(
     // so each hit counts at the average of its skill). Crit hits are then 0, not measured.
     bool Estimated = false,
     // The game's permanent character id of this player (it stays when he is renamed), when a player list named him. The website uses it only as a hint to recognise a renamed character.
-    int? CharacterId = null);
+    int? CharacterId = null,
+    // When this player used which skill, and when they died (see TimelineUpload). Null where the client has no data for it.
+    TimelineUpload? Timeline = null);
 
 public sealed record ShieldGivenUpload(string PlayerName, long Amount);
 
@@ -165,7 +174,9 @@ public sealed record EncounterUploadRequest(
     int? ServerId = null,
     string? GameServer = null,
     // The boss's level from its spawn frame. An Ascension rite names its difficulty by it (45 easy, 50 medium, 55 hard, 60 extreme).
-    int? BossLevel = null);
+    int? BossLevel = null,
+    // The boss's health over the fight: (tenths of a second from the start, thousandths of its health) pairs, flattened. Null when not read.
+    IReadOnlyList<int>? BossHp = null);
 
 /// <summary>Aion 2 players without a boss fight, as sent to POST /api/uploads/profiles: the
 /// character profiles the client read off the network, with no encounter and no damage attached.
