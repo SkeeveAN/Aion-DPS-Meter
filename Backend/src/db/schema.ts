@@ -350,6 +350,8 @@ export const playerProfiles = sqliteTable("player_profiles", {
   gearScore: integer("gear_score"),
   gearJson: text("gear_json").notNull().default("[]"),
   skillsJson: text("skills_json").notNull().default("[]"),
+  // The skill presets of the own character as last seen ([{index, active, seenAt, skills}]); skillsJson is the active one.
+  presetsJson: text("presets_json").notNull().default("[]"),
   daevanionJson: text("daevanion_json").notNull().default("[]"),
   // Species knowledge (Cognia, Fera, Natura, Varia, Specia): level, progress and analysed effects; own character only.
   speciesJson: text("species_json").notNull().default("[]"),

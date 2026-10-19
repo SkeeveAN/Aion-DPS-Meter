@@ -284,6 +284,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "aion2-preset-check")
+        {
+            RunAion2PresetCheck(args[1], args.Length > 2 ? int.Parse(args[2]) : 13328);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-ui-live")
         {
             RunAion2UiLiveMode(args.Length > 1 ? int.Parse(args[1]) : 70);
@@ -1687,6 +1693,43 @@ internal static class Program
         }
 
         Environment.Exit(0);
+    }
+
+    /// <summary>Plays a recording through the packet source (no window) and prints the skill presets each time the game switches one.</summary>
+    private static void RunAion2PresetCheck(string path, int serverPort)
+    {
+        var source = new Aion2.Aion2PacketCombatSource(Aion2.Protocol.Aion2Protocol.Load());
+        var directory = (Aion2.Aion2EntityDirectory)source.Entities;
+        var names = Aion2.Protocol.Aion2SkillNames.Load();
+        Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+        int last = -1;
+        string lastSummary = "";
+        foreach (var segment in Aion2.Capture.SegmentRecording.Read(path)
+                     .Where(s => s.Source.EndsWith(":" + serverPort, StringComparison.Ordinal) || s.Destination.EndsWith(":" + serverPort, StringComparison.Ordinal))
+                     .Select(s => s with { FromServer = s.Source.EndsWith(":" + serverPort, StringComparison.Ordinal) }))
+        {
+            source.Ingest(segment);
+            string summary = Summarise();
+            if (directory.ActivePreset != last || summary != lastSummary)
+            {
+                Console.WriteLine($"{segment.Timestamp:HH:mm:ss.fff} active preset {directory.ActivePreset}: {summary}");
+                last = directory.ActivePreset;
+                lastSummary = summary;
+            }
+        }
+
+        Console.WriteLine("final:");
+        foreach (var preset in directory.LocalPresets)
+        {
+            Console.WriteLine($"  preset {preset.Index}{(preset.Active ? " (active)" : "")} seen {preset.SeenAt:HH:mm:ss}: {preset.Skills.Count} skills");
+            Console.WriteLine("    stigmas: " + string.Join(", ", preset.Skills.Where(k => k.Stigma && k.SkillId % 10000 == 0).Select(k => $"{names.GetValueOrDefault(k.SkillId)} Lv{k.Level}")));
+            foreach (var k in preset.Skills.Where(k => k.SkillId % 10000 == 0 && !k.Stigma && k.Stones is not null && k.Equipped))
+            {
+                Console.WriteLine($"    {names.GetValueOrDefault(k.SkillId),-20} Lv{k.Level,2}/{k.BaseLevel,-2} stones [{string.Join(",", k.Stones!)}]");
+            }
+        }
+
+        string Summarise() => string.Join(", ", directory.LocalSkills.Where(k => k.Stigma && k.SkillId % 10000 == 0).Select(k => $"{names.GetValueOrDefault(k.SkillId)} {k.Level}")) + $" | {directory.LocalSkills.Count} skills, presets known {directory.LocalPresets.Count}";
     }
 
     private static void RunAion2UploadDryRun(string path, string serverName, int serverPort, string[] sendOnly)

@@ -75,6 +75,10 @@ public enum OpcodeFamily
     Stigmas,
     /// <summary>The local player's skill bar (the three macro pages) at login: which skills sit on it.</summary>
     SkillBar,
+    /// <summary>One skill's specialisation slots re-sent on a change (0x0739): <c>opcode | skill id (u32) | slot count (u8) | per slot: number (u8), choice id (u32)</c>; same records as the login list.</summary>
+    SpecSlots,
+    /// <summary>The active skill preset (0x92e2): pairs of (category, preset number); category 2 is the one the skill window follows. Sent first in the burst of frames a preset change causes, and at login.</summary>
+    PresetSwitch,
     /// <summary>Another player's character window ("inspect"): name, class, level, gear score, legion and the
     /// full equipment with enchant levels. Sent when the local player opens that player's profile.</summary>
     Inspect,

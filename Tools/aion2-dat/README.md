@@ -94,3 +94,12 @@ and name in eight languages. Player-built Kisks have no fixed place and are not 
 `build_pet_instances.py <spawns.json> <backend instances.json> <l10n dir> <out.json>` writes `Client/assets/aion2/pets/instances.json`: a name (eight languages) for every map
 file other than the three world maps on which pet monsters spawn (`String_STR_Map_<map name>_body`, else the backend's instance table, else none).
 `Aion2PetRare` counts the pets' spawn points per map and instance from `spawns.json`; the world bosses among the pet mobs (`Aion2FieldBosses`) are listed on their own.
+
+## Skill specialisation texts (2026-10-19)
+`build_skill_spec.py <l10n dir> <out dir> <SkillEffect.bin> <SkillAbnormalEffect.bin>` writes `Web-Frontend/skill-spec/<lang>.json` (stone texts of active
+skills and effect texts of stigmas, from the `..._specialized_skill_desc` keys). The numbers in those texts are placeholders into the two effect
+tables; `skill_effect_tables.py` reads their value lists (row layout in its docstring) and fills them in: `{se:<row>:effect_valueNN:<fmt>}`,
+`{abe:<row>:valueNN:<fmt>}`, `{se_abe:<se>:<abe>:valueNN:<fmt>}`; formats divide100 / divide10 / time (milliseconds, unit per language) / *abs.
+Checked against the game's own tooltips (Keen Strike "Absorbiert 1 % LP", "[Verheerender Schlag]-Abklingzeit −1 Sek."; Zikel's Blessing "+10 %
+PvE, +5 % PvP"): 472 of 473 placeholders resolve. The tables are decrypted by `dectable.py` or by the Extract tool of Tools/aion2-icons
+(`table <out> SkillEffect SkillAbnormalEffect`).

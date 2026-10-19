@@ -23,7 +23,12 @@ public sealed record Aion2RolledStat(int StatId, long Value);
 
 /// <summary>One learned skill: total level (what the game shows) and the trained base level; the
 /// difference is a bonus from gear or other sources.</summary>
-public sealed record Aion2SkillEntry(int SkillId, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
+/// <summary><paramref name="Stones"/>: the choice in each specialisation slot of an active skill (1-5 = the five stones of that skill, 0 = empty); null = not read.</summary>
+public sealed record Aion2SkillEntry(int SkillId, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false, IReadOnlyList<int>? Stones = null);
+
+/// <summary>One of the skill presets of the local player (the game keeps up to three; the server only ever sends the active one,
+/// so the others are known from the time they were last active).</summary>
+public sealed record Aion2PresetInfo(int Index, bool Active, DateTime SeenAt, IReadOnlyList<Aion2SkillEntry> Skills);
 
 /// <summary>What the "player appeared" frame says about another player: class and the class bits (decoded
 /// from its class code; the low two bits are NOT a faction - Elyos characters carry 1 and 2) and the visible
@@ -190,6 +195,10 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _activePet = null;
                 _stigmas.Clear();
                 _bar.Clear();
+                _stones.Clear();
+                _presets.Clear();
+                _activePreset = 1;
+                _pruneStigmas = false;
             }
 
             DropRestoredListsOfOthers(info.Name);
@@ -247,7 +256,30 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
             var equipment = saved.Equipment.Select(i => new Aion2EquippedItem(i.Slot, i.ItemId, i.Enchant, i.Stones, i.Stats, i.GodstoneId, i.SkillBonuses)).ToList();
             _character = new Aion2CharacterInfo(-1, saved.Name, saved.ClassCode, saved.Level, equipment, saved.SavedAt, Restored: true, ServerId: saved.ServerId);
             _fullEquipment = equipment;
-            _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList();
+            _skills = saved.Skills.Select(s => new Aion2SkillEntry(s.Id, s.Level, s.BaseLevel, s.Stigma, s.Equipped, s.Stones)).ToList();
+            _activePreset = saved.ActivePreset is >= 1 and <= 9 ? saved.ActivePreset : 1;
+            _presetAt = saved.SavedAt;
+            _stigmas.Clear();
+            _stigmas.UnionWith(_skills.Where(k => k.Stigma).Select(k => k.SkillId));
+            _stones.Clear();
+            foreach (var k in _skills.Where(k => k.Stones is not null))
+            {
+                _stones[k.SkillId] = k.Stones!.ToArray();
+            }
+
+            _presets.Clear();
+            foreach (var preset in saved.Presets.Where(x => x.Index != _activePreset && x.Index is >= 1 and <= 9))
+            {
+                var list = preset.Skills.Select(k => new Aion2SkillEntry(k.Id, k.Level, k.BaseLevel, k.Stigma, false, k.Stones)).ToList();
+                _presets[preset.Index] = new PresetSlot
+                {
+                    Skills = list,
+                    Stigmas = list.Where(k => k.Stigma).Select(k => k.SkillId).ToHashSet(),
+                    Stones = list.Where(k => k.Stones is not null).ToDictionary(k => k.SkillId, k => k.Stones!.ToArray()),
+                    At = preset.SeenAt,
+                };
+            }
+
             _daevanion = saved.Daevanion.Select(b => new Aion2DaevanionBoard(b.Board, b.Nodes)).ToList();
             _species = saved.Species.Select(k => new Aion2SpeciesKnowledge(k.Id, k.Level, k.Progress,
                 k.Effects.Select(e => new Aion2SpeciesEffect(e.Page, e.Slot, e.Stat, e.Value, e.Kind)).ToList())).ToList();
@@ -309,7 +341,10 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 ServerId = c.ServerId,
                 SavedAt = DateTime.Now,
                 Equipment = (_fullEquipment ?? c.Equipment).Select(i => new Aion2SavedCharacter.SavedItem(i.SlotIndex, i.ItemId, i.Enchant, i.Stones, i.Stats, i.GodstoneId, i.SkillBonuses)).ToList(),
-                Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
+                Skills = (_skills ?? Array.Empty<Aion2SkillEntry>()).Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped, s.Stones?.ToArray())).ToList(),
+                ActivePreset = _activePreset,
+                Presets = PresetsLocked().Select(x => new Aion2SavedCharacter.SavedPreset(x.Index, x.SeenAt,
+                    x.Skills.Select(s => new Aion2SavedCharacter.SavedSkill(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped, s.Stones?.ToArray())).ToList())).ToList(),
                 Daevanion = (_daevanion ?? Array.Empty<Aion2DaevanionBoard>()).Select(b => new Aion2SavedCharacter.SavedBoard(b.BoardId, b.NodeIds.ToList())).ToList(),
                 Species = (_species ?? Array.Empty<Aion2SpeciesKnowledge>()).Select(k => new Aion2SavedCharacter.SavedSpecies(k.SpeciesId, k.Level, k.Progress,
                     k.Effects.Select(e => new Aion2SavedCharacter.SavedEffect(e.Page, e.Slot, e.StatId, e.Value, e.Kind)).ToList())).ToList(),
@@ -1028,7 +1063,146 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 .Where(old => skills.All(s => s.SkillId != old.SkillId))
                 .Where(old => classPrefix is null || old.SkillId / 1_000_000 is < 10 or >= 20 || old.SkillId / 1_000_000 == classPrefix)
                 .Concat(skills);
-            _skills = merged.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId), Equipped = _bar.Contains(s.SkillId) }).ToList();
+            var listed = merged.Select(k => k.SkillId).ToHashSet();
+            if (_pruneStigmas)
+            {
+                // The first full list after a switch to a preset not seen before: a stigma it does not list is not in that preset.
+                _stigmas.IntersectWith(listed);
+                _pruneStigmas = false;
+            }
+
+            _skills = merged.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId), Equipped = _bar.Contains(s.SkillId), Stones = StonesOf(s.SkillId) }).ToList();
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    // ---- skill presets -------------------------------------------------------------------------------------------------
+    // The server sends only the active preset. The skill list, stigmas and stone choices of the preset that was active are kept
+    // in _skills/_stigmas/_stones; on a switch they go to _presets and the data of the new preset (or, if it was never seen, the
+    // unchanged part of the old one, which the burst of frames after the switch overwrites) takes their place.
+
+    private sealed class PresetSlot
+    {
+        public IReadOnlyList<Aion2SkillEntry>? Skills;
+        public HashSet<int> Stigmas = new();
+        public Dictionary<int, int[]> Stones = new();
+        public DateTime At;
+    }
+
+    private int _activePreset = 1;
+    private DateTime _presetAt = DateTime.Now;
+    private bool _pruneStigmas;
+    private readonly Dictionary<int, PresetSlot> _presets = new();
+    private readonly Dictionary<int, int[]> _stones = new();
+
+    private IReadOnlyList<int>? StonesOf(int skillId) => _stones.TryGetValue(skillId, out var v) ? v : null;
+
+    /// <summary>The number of the active skill preset (1 until the game says otherwise).</summary>
+    public int ActivePreset
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _activePreset;
+            }
+        }
+    }
+
+    /// <summary>The preset the game switched to (frame 0x92e2, also sent at login).</summary>
+    public void SwitchPreset(int number)
+    {
+        if (number is < 1 or > 9)
+        {
+            return;
+        }
+
+        lock (_gate)
+        {
+            _listsAt = DateTime.UtcNow;
+            if (number == _activePreset)
+            {
+                return;
+            }
+
+            // The time a preset shows is when it was last left (the active one: when it became active), so the profile upload only changes
+            // with its content and not with every list the game re-sends.
+            _presetAt = DateTime.Now;
+            FlushPreset();
+            _activePreset = number;
+            if (_presets.TryGetValue(number, out PresetSlot? known))
+            {
+                _skills = known.Skills;
+                _stigmas.Clear();
+                _stigmas.UnionWith(known.Stigmas);
+                _stones.Clear();
+                foreach (var (id, v) in known.Stones)
+                {
+                    _stones[id] = v;
+                }
+
+                _presetAt = known.At;
+                _pruneStigmas = false;
+            }
+            else
+            {
+                _skills = null;
+                _pruneStigmas = true;
+            }
+        }
+
+        NotifyCharacterChanged();
+    }
+
+    private void FlushPreset()
+    {
+        if (_skills is null && _stigmas.Count == 0 && _stones.Count == 0)
+        {
+            return;
+        }
+
+        _presets[_activePreset] = new PresetSlot { Skills = _skills, Stigmas = new HashSet<int>(_stigmas), Stones = new Dictionary<int, int[]>(_stones), At = _presetAt };
+    }
+
+    private IReadOnlyList<Aion2PresetInfo> PresetsLocked()
+    {
+        FlushPreset();
+        return _presets.OrderBy(kv => kv.Key)
+            .Where(kv => kv.Value.Skills is { Count: > 0 })
+            .Select(kv => new Aion2PresetInfo(kv.Key, kv.Key == _activePreset, kv.Value.At,
+                kv.Value.Skills!.Select(k => k with { Stigma = kv.Value.Stigmas.Contains(k.SkillId), Equipped = _bar.Contains(k.SkillId), Stones = kv.Value.Stones.TryGetValue(k.SkillId, out var v) ? v : null }).ToList()))
+            .ToList();
+    }
+
+    /// <summary>Every preset seen so far, the active one marked; one entry when the character has no presets.</summary>
+    public IReadOnlyList<Aion2PresetInfo> LocalPresets
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return PresetsLocked();
+            }
+        }
+    }
+
+    /// <summary>The choices in the specialisation slots of skills (skill id to the stone numbers; 0 = empty). A stigma has
+    /// five slots, an active skill three; <paramref name="stigmas"/> are the ones seen with five slots.</summary>
+    public void SetLocalSpecSlots(IReadOnlyDictionary<int, int[]> slots, IReadOnlySet<int> stigmas)
+    {
+        lock (_gate)
+        {
+            foreach (var (id, v) in slots)
+            {
+                _stones[id] = v;
+            }
+
+            _stigmas.UnionWith(stigmas);
+            if (_skills is not null)
+            {
+                _skills = _skills.Select(s => s with { Stigma = _stigmas.Contains(s.SkillId), Stones = StonesOf(s.SkillId) }).ToList();
+            }
         }
 
         NotifyCharacterChanged();

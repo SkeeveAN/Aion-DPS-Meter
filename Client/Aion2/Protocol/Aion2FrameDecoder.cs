@@ -687,6 +687,12 @@ public sealed class Aion2FrameDecoder
             case OpcodeFamily.SkillBar:
                 DecodeSkillBar(frame);
                 return Array.Empty<DamageEvent>();
+            case OpcodeFamily.SpecSlots:
+                DecodeSpecSlots(frame, 2);
+                return Array.Empty<DamageEvent>();
+            case OpcodeFamily.PresetSwitch:
+                DecodePresetSwitch(frame);
+                return Array.Empty<DamageEvent>();
             case OpcodeFamily.Inspect:
                 DecodeInspect(frame, timestamp);
                 return Array.Empty<DamageEvent>();
@@ -2735,6 +2741,81 @@ public sealed class Aion2FrameDecoder
         if (listed.Count > 0)
         {
             _entities.SetLocalStigmas(stigmas, listed);
+            DecodeSpecSlots(frame, 3);
+        }
+    }
+
+    /// <summary>
+    /// The specialisation slots of skills: per skill its base id (u32), the slot count (u8: 3 for an active skill, 5 for a stigma)
+    /// and per slot a number (u8, 1..count) and the choice (u32, 0 = empty; otherwise base id + 10 x the stone number 1-5).
+    /// The login list (0x39) holds all skills, the update frame (0x0739) one skill. Read by scanning from <paramref name="start"/>,
+    /// the way the stigma list is.
+    /// </summary>
+    private void DecodeSpecSlots(ReadOnlySpan<byte> frame, int start)
+    {
+        IReadOnlyDictionary<int, string> names = Aion2SkillNames.Load();
+        var slots = new Dictionary<int, int[]>();
+        var stigmas = new HashSet<int>();
+        for (int p = start; p + 5 < frame.Length; p++)
+        {
+            int id = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[p..]));
+            if (id < 1_000_000 || id % 10000 != 0 || frame[p + 4] is not (3 or 5) || !names.ContainsKey(id))
+            {
+                continue;
+            }
+
+            int count = frame[p + 4];
+            int q = p + 5;
+            if (q + count * 5 > frame.Length)
+            {
+                continue;
+            }
+
+            var choice = new int[count];
+            bool ok = true;
+            for (int k = 0; k < count && ok; k++)
+            {
+                int at = q + k * 5;
+                int value = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(at + 1)..]));
+                int stone = value == 0 ? 0 : (value - id) / 10;
+                ok = frame[at] == k + 1 && (value == 0 || value > id && (value - id) % 10 == 0 && stone <= 9);
+                choice[k] = stone;
+            }
+
+            if (!ok)
+            {
+                continue;
+            }
+
+            slots[id] = choice;
+            if (count == 5)
+            {
+                stigmas.Add(id);
+            }
+
+            p = q + count * 5 - 1;
+        }
+
+        if (slots.Count > 0)
+        {
+            _entities.SetLocalSpecSlots(slots, stigmas);
+        }
+    }
+
+    /// <summary>
+    /// The active skill preset (0x92e2): in the short form <c>00 00 | count | (category, preset) pairs | 00</c>, at login the same
+    /// pairs after a longer header. Category 2 is the one the skill window follows (categories 3 and 4 always matched it in
+    /// the recordings), so the pairs are looked for as 02 a 03 b 04 c.
+    /// </summary>
+    private void DecodePresetSwitch(ReadOnlySpan<byte> frame)
+    {
+        for (int i = 2; i + 5 < frame.Length; i++)
+        {
+            if (frame[i] == 2 && frame[i + 2] == 3 && frame[i + 4] == 4 && frame[i + 1] is >= 1 and <= 9)
+            {
+                _entities.SwitchPreset(frame[i + 1]);
+                return;
+            }
         }
     }
 

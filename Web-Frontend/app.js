@@ -3456,15 +3456,15 @@ function renderArcanaTab(profile) {
 }
 
 // The three lists the skills tab shows; the tab counts and the header count use the same lists.
-function visibleSkills(profile) {
-  const hasBar = profile.skills.some((s) => s.equipped);
+function visibleSkills(profile, skills = profile.skills) {
+  const hasBar = skills.some((s) => s.equipped);
   return {
     // With a skill bar in the profile only the equipped actives are listed, as in the game's skill window.
-    active: profile.skills.filter((s) => !s.passive && !s.stigma && (!hasBar || s.equipped)),
+    active: skills.filter((s) => !s.passive && !s.stigma && (!hasBar || s.equipped)),
     // ids like 11000000 are the class's weapon-equip entry, not a skill the player trains
-    passive: profile.skills.filter((s) => s.passive && s.id % 1000000 !== 0),
+    passive: skills.filter((s) => s.passive && s.id % 1000000 !== 0),
     // a stigma at level 0 is one the player has not learned: the game's list carries it, the page does not show it
-    stigma: profile.skills.filter((s) => s.stigma && s.level > 0),
+    stigma: skills.filter((s) => s.stigma && s.level > 0),
   };
 }
 
@@ -3473,41 +3473,185 @@ function visibleSkillCount(profile) {
   return v.active.length + v.passive.length + v.stigma.length;
 }
 
-function renderSkillsTab(profile) {
-  const section = (title, list, cls) =>
-    el("div", { className: "pf-card" }, [
-      el("h4", {}, [el("span", { className: `pf-dot ${cls}` }), `${title} · ${list.length}`]),
-      el(
-        "div",
-        { className: "pf-skill-grid" },
-        list.map((s) => {
-          const name = localizedSkillName(s);
-          const tile = el("div", { className: "pf-skill" }, [
-            iconTile("skill", s.icon, name, { color: s.passive ? "#3fcf55" : "#f0a030", badge: `${t("profile.levelShort")} ${s.level}`, badgeClass: s.level > s.baseLevel ? "bonus" : "" }),
-            el("span", { className: "pf-skill-name", textContent: name }),
-          ]);
-          attachTooltip(tile, () => [
-            el("div", { className: "pf-tip-head" }, [
-              el("div", { className: "pf-tip-title", textContent: name }),
-              el("div", { className: "pf-tip-sub", textContent: `${t("profile.skillLevel")} ${s.level}${s.level > s.baseLevel ? ` (${s.baseLevel} + ${s.level - s.baseLevel})` : ""}` }),
-            ]),
-          ]);
-          return tile;
-        }),
-      ),
-    ]);
-  // Side by side: active | passive | stigma (the stigma block only exists once a profile carries
-  // the flag; the game lets a player equip only four of them).
-  const v = visibleSkills(profile);
-  const blocks = [
-    section(t("profile.skillsActive"), v.active, "active"),
-    section(t("profile.skillsPassive"), v.passive, "passive"),
-    v.stigma.length > 0 ? section(t("profile.skillsStigma"), v.stigma, "stigma") : null,
-  ].filter((x) => x != null);
-  return el("div", {}, [
-    el("div", { className: "pf-skills", style: `--blocks:${blocks.length}` }, blocks),
-    el("p", { className: "profile-source" }, [el("i", { className: "pf-key bonus" }), ` ${t("profile.legendBonus")}`]),
+// ---- Specialisation texts: the five stones of an active skill and the effects of a stigma (levels 5, 10, 15, 20), from the game
+// client's own texts (Web-Frontend/skill-spec/<language>.json, { skill id: [text x 5] }). Loaded when the skills tab is drawn;
+// a tooltip opened before it arrived simply lacks that part.
+const SPEC_LANGUAGES = ["de", "en", "es", "fr", "ja", "ko", "pt", "ru"];
+const STONE_BASE = "/images/aion2/stones";
+const STIGMA_EFFECT_LEVELS = [5, 10, 15, 20];
+// A slot of an active skill opens with the skill's level 8, 12 and 20 (only the third one is known to stay shut below its level).
+let skillSpec = { lang: "", data: null, pending: null };
+
+function loadSkillSpec() {
+  const lang = SPEC_LANGUAGES.includes(getLocale()) ? getLocale() : "en";
+  if (skillSpec.lang !== lang) {
+    skillSpec = { lang, data: null, pending: null };
+  }
+  skillSpec.pending ??= fetch(`/skill-spec/${lang}.json`)
+    .then((r) => (r.ok ? r.json() : {}))
+    .then((data) => {
+      skillSpec.data = data;
+    })
+    .catch(() => {
+      skillSpec.data = {};
+    });
+  return skillSpec.pending;
+}
+
+function skillSpecTexts(skill) {
+  return skillSpec.data?.[String(skill.id)] ?? null;
+}
+
+function stoneImg(number, size) {
+  return el("img", { className: "pf-stone-img", src: `${STONE_BASE}/stone${number}.webp`, alt: "", width: size, height: size, loading: "lazy" });
+}
+
+// The three slots of an active skill as small shields under its icon: a stone, an empty slot or (the third) a shut one.
+function stoneSlotState(skill, index) {
+  const stone = skill.stones?.[index] ?? 0;
+  if (stone > 0) {
+    return "stone";
+  }
+  return index === 2 && skill.level < 20 ? "locked" : "empty";
+}
+
+function stoneRow(skill, name) {
+  const row = el("div", { className: "pf-stones" });
+  for (let i = 0; i < 3; i++) {
+    const state = stoneSlotState(skill, i);
+    const slot = el("span", { className: `pf-stone ${state}` }, state === "stone" ? [stoneImg(skill.stones[i], 17)] : []);
+    if (state === "stone") {
+      attachTooltip(slot, () => stoneTip(skill, name, i));
+    }
+    row.append(slot);
+  }
+  return row;
+}
+
+function stoneText(skill, stone) {
+  return skillSpecTexts(skill)?.[stone - 1] || "";
+}
+
+function stoneTip(skill, name, index) {
+  const stone = skill.stones[index];
+  return [
+    el("div", { className: "pf-tip-head", style: "--ico-color:#f0a030" }, [
+      el("div", { className: "pf-tip-stonehead" }, [
+        stoneImg(stone, 24),
+        el("div", {}, [
+          el("div", { className: "pf-tip-title", textContent: stoneText(skill, stone) || `${t("profile.skillSpecial")} ${stone}` }),
+          el("div", { className: "pf-tip-sub", textContent: `${name} · ${t("profile.specialSlot", { n: index + 1 })}` }),
+        ]),
+      ]),
+    ]),
+  ];
+}
+
+// The tooltip of a skill: name, base level with the bonus beside it, and what its specialisations do. An active skill lists its
+// three slots and all five stones (the chosen ones lit); a stigma lists the four effects it unlocks by level.
+function skillTip(skill, name) {
+  const base = skill.baseLevel > 0 ? skill.baseLevel : skill.level;
+  const bonus = skill.level - base;
+  const sections = [
+    el("div", { className: "pf-tip-head", style: `--ico-color:${skill.passive ? "#3fcf55" : "#f0a030"}` }, [
+      el("div", { className: "pf-tip-title", textContent: name }),
+      el("div", { className: "pf-tip-sub" }, [
+        `${t("profile.skillLevelLong")} ${base}`,
+        bonus > 0 ? el("b", { className: "pf-tip-bonus", textContent: ` (+${bonus})` }) : null,
+      ].filter((x) => x != null)),
+    ]),
+  ];
+  const texts = skillSpecTexts(skill);
+  if (skill.stigma && texts) {
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, STIGMA_EFFECT_LEVELS.map((need, i) => {
+        const on = skill.level >= need;
+        return el("div", { className: `pf-spec-row gold ${on ? "on" : "off"}` }, [
+          el("span", { className: "pf-eff" }, [
+            el("img", { src: `${STONE_BASE}/effect.webp`, alt: "", width: 20, height: 20 }),
+            on ? null : el("b", { textContent: String(need) }),
+          ].filter((x) => x != null)),
+          el("span", { className: "pf-spec-text", textContent: texts[i] || "" }),
+          on ? null : el("img", { className: "pf-spec-lock", src: `${STONE_BASE}/lock.webp`, alt: "", width: 16, height: 16 }),
+        ].filter((x) => x != null));
+      })),
+    );
+  } else if (!skill.passive && !skill.stigma && skill.stones && texts) {
+    const slots = [0, 1, 2].map((i) => {
+      const state = stoneSlotState(skill, i);
+      return el("span", { className: `pf-slot-box ${state}` }, [
+        state === "stone" ? stoneImg(skill.stones[i], 34) : state === "locked" ? el("img", { src: `${STONE_BASE}/lock.webp`, alt: "", width: 34, height: 34 }) : null,
+      ].filter((x) => x != null));
+    });
+    sections.push(
+      el("div", { className: "pf-tip-sec" }, [
+        el("div", { className: "pf-tip-sec-title", textContent: t("profile.skillSpecial") }),
+        el("div", { className: "pf-slot-boxes" }, slots),
+        ...[1, 2, 3, 4, 5].map((n) =>
+          el("div", { className: `pf-spec-row ${skill.stones.includes(n) ? "on" : "off"}` }, [
+            stoneImg(n, 18),
+            el("span", { className: "pf-spec-text", textContent: texts[n - 1] || "" }),
+          ]),
+        ),
+      ]),
+    );
+  }
+  return sections;
+}
+
+function skillTile(s) {
+  const name = localizedSkillName(s);
+  const tile = el("div", { className: "pf-skill" }, [
+    iconTile("skill", s.icon, name, { color: s.passive ? "#3fcf55" : "#f0a030", badge: `${t("profile.levelShort")} ${s.level}`, badgeClass: s.level > s.baseLevel ? "bonus" : "" }),
+    el("span", { className: "pf-skill-name", textContent: name }),
   ]);
+  for (const target of [...tile.children]) {
+    // the wide tooltip (the same builder asked again) for the ones that list specialisations
+    attachTooltip(target, () => skillTip(s, name), () => Promise.resolve(skillSpecTexts(s) && (s.stigma || s.stones) ? skillTip(s, name) : null));
+  }
+  if (!s.passive && !s.stigma && s.stones) {
+    tile.append(stoneRow(s, name));
+  }
+  return tile;
+}
+
+function skillCard(title, list, cls) {
+  return el("div", { className: "pf-card" }, [
+    el("h4", {}, [el("span", { className: `pf-dot ${cls}` }), `${title} · ${list.length}`]),
+    el("div", { className: "pf-skill-grid" }, list.map(skillTile)),
+  ]);
+}
+
+// The three blocks of one skill list: active | passive | stigma (the stigma block only exists once a profile carries the flag;
+// the game lets a player equip only four of them).
+function skillBlocks(profile, skills) {
+  const v = visibleSkills(profile, skills);
+  const blocks = [
+    skillCard(t("profile.skillsActive"), v.active, "active"),
+    skillCard(t("profile.skillsPassive"), v.passive, "passive"),
+    v.stigma.length > 0 ? skillCard(t("profile.skillsStigma"), v.stigma, "stigma") : null,
+  ].filter((x) => x != null);
+  return el("div", { className: "pf-skills", style: `--blocks:${blocks.length}` }, blocks);
+}
+
+function renderSkillsTab(profile) {
+  loadSkillSpec();
+  // A character with several skill presets gets the three blocks once per preset, headed with the preset's number (the game
+  // sends only the active one, so the others are as they were when last active).
+  const body =
+    profile.presets?.length > 1
+      ? el("div", { className: "pf-presets" }, profile.presets.map((preset) =>
+          el("section", { className: "pf-preset" }, [
+            el("div", { className: "pf-preset-head" }, [
+              el("h3", { textContent: `${t("profile.skillPreset")} ${preset.index}` }),
+              el("span", { className: `pf-preset-chip${preset.active ? " on" : ""}`, textContent: preset.active ? t("profile.presetActive") : t("profile.presetSaved") }),
+              preset.seenAt && !preset.active ? el("span", { className: "pf-preset-seen", textContent: t("profile.presetSeen", { when: formatDate(new Date(preset.seenAt)) }) }) : null,
+            ].filter((x) => x != null)),
+            skillBlocks(profile, preset.skills),
+          ]),
+        ))
+      : skillBlocks(profile, profile.skills);
+  return el("div", {}, [body, el("p", { className: "profile-source" }, [el("i", { className: "pf-key bonus" }), ` ${t("profile.legendBonus")}`])]);
 }
 
 // Species knowledge (pet window): one card per species with its level and the analysed effects. Percent

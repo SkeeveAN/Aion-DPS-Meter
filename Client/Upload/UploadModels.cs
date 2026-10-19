@@ -96,7 +96,13 @@ public sealed record ProfileUpload(
     int? WingSkinId = null,
     int? ActivePet = null,
     // Level (1..3) of the summoned pet from the pet list; null when no pet is summoned or the list does not contain it.
-    int? ActivePetLevel = null);
+    int? ActivePetLevel = null,
+    // Own character only: every skill preset seen so far (the server sends only the active one; the others are as last seen), the
+    // active one marked. Skills above is the active preset. Null/empty = a character without presets.
+    IReadOnlyList<ProfilePresetUpload>? Presets = null);
+
+/// <summary>One skill preset: its number (1..), whether it is the active one, when it was last seen (UTC) and its skills.</summary>
+public sealed record ProfilePresetUpload(int Index, bool Active, DateTime SeenAt, IReadOnlyList<ProfileSkillUpload> Skills);
 
 public sealed record ProfileTitleUpload(int Slot, int TitleId);
 
@@ -115,7 +121,8 @@ public sealed record ProfileStoneUpload(int Stat, int Tier);
 /// <summary>A stat rolled on the item (stat id and value in the game's units).</summary>
 public sealed record ProfileStatUpload(int Stat, long Value);
 
-public sealed record ProfileSkillUpload(int Id, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
+/// <summary>Stones: the choice in each specialisation slot (1-5 = the skill's five stones, 0 = empty); null when not read.</summary>
+public sealed record ProfileSkillUpload(int Id, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false, IReadOnlyList<int>? Stones = null);
 
 public sealed record ProfileBoardUpload(int Board, IReadOnlyList<int> Nodes);
 

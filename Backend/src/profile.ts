@@ -14,6 +14,18 @@ import type { NcCharacterData } from "./ncCharacter.js";
  * "self" is the uploader's own character (level, full equipment with enchants, skills, Daevanion);
  * "seen" is what a client could read off another player (class, faction and the visible equipment).
  */
+const skillSchema = z.object({
+  id: z.number().int().min(1).max(2_000_000_000),
+  level: z.number().int().min(0).max(60),
+  baseLevel: z.number().int().min(0).max(60).default(0),
+  // Stigmas of the uploader's own character (the skills the game lists with five variants).
+  stigma: z.boolean().default(false),
+  // On the first macro page of the uploader's skill bar (what the game's skill window lists as equipped).
+  equipped: z.boolean().default(false),
+  // The choice in each specialisation slot (1-5 = the skill's five stones, 0 = empty); absent when the client did not read it.
+  stones: z.array(z.number().int().min(0).max(9)).max(5).optional(),
+});
+
 export const profileSchema = z.object({
   source: z.enum(["self", "seen"]),
   level: z.number().int().min(1).max(200).optional(),
@@ -43,19 +55,18 @@ export const profileSchema = z.object({
     // 25 pieces seen on a real character (slots up to 29); the cap only fends off nonsense.
     .max(64)
     .default([]),
-  skills: z
+  skills: z.array(skillSchema).max(400).default([]),
+  // Own character only: every skill preset seen so far, the active one marked (skills above is the active preset).
+  presets: z
     .array(
       z.object({
-        id: z.number().int().min(1).max(2_000_000_000),
-        level: z.number().int().min(0).max(60),
-        baseLevel: z.number().int().min(0).max(60).default(0),
-        // Stigmas of the uploader's own character (the skills the game lists with five variants).
-        stigma: z.boolean().default(false),
-        // On the first macro page of the uploader's skill bar (what the game's skill window lists as equipped).
-        equipped: z.boolean().default(false),
+        index: z.number().int().min(1).max(9),
+        active: z.boolean().default(false),
+        seenAt: z.string().max(40).optional(),
+        skills: z.array(skillSchema).max(400).default([]),
       }),
     )
-    .max(400)
+    .max(9)
     .default([]),
   daevanion: z
     .array(
@@ -130,7 +141,7 @@ export type ProfileUpload = z.infer<typeof profileSchema>;
 export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & Pick<ProfileUpload, "source">): void {
   // The upload route has already run profileSchema (which fills these defaults); callers that go
   // straight to the merge code may omit the lists.
-  const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], daevanion: input.daevanion ?? [], species: input.species ?? [], titles: input.titles ?? [], pets: input.pets ?? [], boardCounts: input.boardCounts ?? [] };
+  const profile = { ...input, gear: input.gear ?? [], skills: input.skills ?? [], presets: input.presets ?? [], daevanion: input.daevanion ?? [], species: input.species ?? [], titles: input.titles ?? [], pets: input.pets ?? [], boardCounts: input.boardCounts ?? [] };
   // A client that carries a leftover of another character (a twink played before) sends boards of the wrong class: a board's
   // id starts with its class (41 = Assassin's first board). Boards of any other class than the profile's are dropped.
   const boardClass = profile.classId ?? (db.select({ classId: playerProfiles.classId }).from(playerProfiles).where(eq(playerProfiles.playerId, playerId)).get()?.classId ?? undefined);
@@ -163,6 +174,9 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
     // The skill list, the Daevanion boards and the species knowledge only exist for "self"; a later upload from the same
     // person that lacks them (their client started mid-session) must not wipe what was stored.
     skillsJson: profile.skills.length > 0 ? JSON.stringify(profile.skills) : (existing?.skillsJson ?? "[]"),
+    // The presets come with the skills: a client that sends skills without presets (an older one) has no others to offer, and the
+    // presets stored from a newer client would show a state that is no longer true.
+    presetsJson: profile.presets.length > 0 ? JSON.stringify(profile.presets) : profile.skills.length > 0 ? "[]" : (existing?.presetsJson ?? "[]"),
     daevanionJson: profile.daevanion.length > 0 ? JSON.stringify(profile.daevanion) : (existing?.daevanionJson ?? "[]"),
     speciesJson: profile.species.length > 0 ? JSON.stringify(profile.species) : (existing?.speciesJson ?? "[]"),
     // Titles, pets and board counts: an upload that lacks them (older client, a window without that part) keeps what is stored.
@@ -185,6 +199,30 @@ export function upsertProfile(playerId: number, input: Partial<ProfileUpload> & 
   } else {
     db.insert(playerProfiles).values({ playerId, ...values }).run();
   }
+}
+
+type ProfileSkill = {
+  id: number;
+  name: string;
+  names?: Record<string, string>;
+  icon: string | null;
+  passive: boolean;
+  stigma: boolean;
+  equipped: boolean;
+  level: number;
+  baseLevel: number;
+  /** The choice in each specialisation slot of an active skill (1-5 = the skill's five stones, 0 = empty); null when not read. */
+  stones: number[] | null;
+};
+type StoredSkill = { id: number; level: number; baseLevel: number; stigma?: boolean; equipped?: boolean; stones?: number[] };
+
+/** The skill rows as the skill window lists them: only the base entries (the list also carries each skill's specialisation
+ *  variants, which would repeat the same name), highest level first. */
+function skillRows(list: StoredSkill[]): ProfileSkill[] {
+  return list
+    .filter((s) => s.id % 10000 === 0)
+    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), names: skillNamesI18n![String(s.id)], icon: skillIcons![String(s.id)] ?? null, passive: skillTypes![String(s.id)] === "p", stigma: s.stigma === true, equipped: s.equipped === true, level: s.level, baseLevel: s.baseLevel, stones: s.stones ?? null }))
+    .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
 }
 
 const NODE_GRADE: Record<string, number> = { Common: 1, Rare: 2, Legend: 3, Unique: 4 };
@@ -365,7 +403,9 @@ export type ProfileView = {
     skillBonuses: { skill: number; name: string; names?: Record<string, string>; level: number }[] | null;
   }[];
   averageItemLevel: number | null;
-  skills: { id: number; name: string; names?: Record<string, string>; icon: string | null; passive: boolean; stigma: boolean; equipped: boolean; level: number; baseLevel: number }[];
+  skills: ProfileSkill[];
+  /** Every skill preset seen so far (own character), the active one marked; empty for a character without presets or an old client. */
+  presets: { index: number; active: boolean; seenAt: string | null; skills: ProfileSkill[] }[];
   daevanion: {
     board: number;
     name: string;
@@ -529,12 +569,13 @@ export function buildProfileView(playerId: number): ProfileView | null {
     .sort((a, b) => a.slot - b.slot);
   const known = gear.filter((g) => g.itemLevel > 0);
 
-  // Only the base entries (id ends in 0000): the list also carries each skill's specialisation
-  // variants, which would repeat the same name.
-  const skills = (JSON.parse(row.skillsJson) as { id: number; level: number; baseLevel: number; stigma?: boolean; equipped?: boolean }[])
-    .filter((s) => s.id % 10000 === 0)
-    .map((s) => ({ id: s.id, name: skillNames![String(s.id)] ?? String(s.id), names: skillNamesI18n![String(s.id)], icon: skillIcons![String(s.id)] ?? null, passive: skillTypes![String(s.id)] === "p", stigma: s.stigma === true, equipped: s.equipped === true, level: s.level, baseLevel: s.baseLevel }))
-    .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
+  const skills = skillRows(JSON.parse(row.skillsJson) as StoredSkill[]);
+  // Presets only when the character has more than one: a single one is what skills already shows.
+  const storedPresets = JSON.parse(row.presetsJson ?? "[]") as { index: number; active?: boolean; seenAt?: string; skills: StoredSkill[] }[];
+  const presets =
+    storedPresets.length > 1
+      ? storedPresets.sort((x, y) => x.index - y.index).map((x) => ({ index: x.index, active: x.active === true, seenAt: x.seenAt ?? null, skills: skillRows(x.skills) }))
+      : [];
 
   const boards = (JSON.parse(row.daevanionJson) as { board: number; nodes: number[] }[]).map((b) => {
     const stats: Record<string, number> = {};
@@ -612,6 +653,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
     gear,
     averageItemLevel: known.length > 0 ? Math.round((known.reduce((s, g) => s + g.itemLevel, 0) / known.length) * 10) / 10 : null,
     skills,
+    presets,
     daevanion: boards,
     species,
     titles: (JSON.parse(row.titlesJson) as { slot: number; titleId: number }[])

@@ -476,3 +476,43 @@ test("boards of another class than the profile's are dropped: a twink's leftover
   assert.deepEqual((JSON.parse(row.daevanionJson) as { board: number }[]).map((b) => b.board), [11]);
   assert.deepEqual((JSON.parse(row.boardCountsJson) as { board: number }[]).map((b) => b.board), [11]);
 });
+
+test("skill presets: stored with the stone choices, shown only with more than one, replaced together with the skills", () => {
+  processUpload(aion2Upload([participant("Presetty")]));
+  const id = playerId("Presetty");
+  const skill = (level: number, stones: number[]) => ({ id: 11020000, level, baseLevel: 10, stigma: false, equipped: true, stones });
+  const stigma = (id2: number, level: number) => ({ id: id2, level, baseLevel: level, stigma: true, equipped: true, stones: [1, 2, 3, 4, 0] });
+  upsertProfile(id, profileSchema.parse({
+    source: "self", level: 45, classId: 1, classBits: 1,
+    gear: [{ slot: 1, itemId: 110150026, enchant: 0 }],
+    skills: [skill(17, [3, 2, 0]), stigma(11380000, 5)],
+    presets: [
+      { index: 1, active: false, seenAt: "2026-10-18T21:45:00Z", skills: [skill(17, [1, 4, 0]), stigma(11390000, 5)] },
+      { index: 2, active: true, seenAt: "2026-10-18T21:49:00Z", skills: [skill(17, [3, 2, 0]), stigma(11380000, 5)] },
+    ],
+  }));
+  const view = buildProfileView(id)!;
+  assert.equal(view.presets.length, 2);
+  assert.deepEqual(view.presets.map((p) => [p.index, p.active]), [[1, false], [2, true]]);
+  const keen = view.presets[0].skills.find((s) => s.name === "Keen Strike")!;
+  assert.deepEqual(keen.stones, [1, 4, 0]);
+  assert.deepEqual(view.presets[1].skills.find((s) => s.name === "Keen Strike")!.stones, [3, 2, 0]);
+  assert.equal(view.presets[0].skills.find((s) => s.stigma)?.name, "Rage Burst");
+  assert.equal(view.presets[1].skills.find((s) => s.stigma)?.name, "Tenaciousness");
+  assert.deepEqual(view.skills.find((s) => s.name === "Keen Strike")!.stones, [3, 2, 0]);
+
+  // a single preset is what skills already shows
+  upsertProfile(id, profileSchema.parse({ source: "self", skills: [skill(17, [1, 4, 0])], presets: [{ index: 1, active: true, skills: [skill(17, [1, 4, 0])] }] }));
+  assert.equal(buildProfileView(id)!.presets.length, 0);
+  // skills from an older client (no presets) drop the stored presets; an upload without skills keeps them
+  upsertProfile(id, profileSchema.parse({ source: "self", skills: [skill(17, [3, 2, 0])], presets: [{ index: 1, active: false, skills: [skill(17, [1, 4, 0])] }, { index: 2, active: true, skills: [skill(17, [3, 2, 0])] }] }));
+  upsertProfile(id, profileSchema.parse({ source: "self", level: 46 }));
+  assert.equal(buildProfileView(id)!.presets.length, 2);
+  upsertProfile(id, profileSchema.parse({ source: "self", skills: [skill(17, [3, 2, 0])] }));
+  assert.equal(buildProfileView(id)!.presets.length, 0);
+});
+
+test("migration 0059 adds the presets column with an empty default", () => {
+  const cols = sqlite.prepare("pragma table_info(player_profiles)").all() as { name: string; dflt_value: string | null }[];
+  assert.equal(cols.find((c) => c.name === "presets_json")?.dflt_value, "'[]'");
+});

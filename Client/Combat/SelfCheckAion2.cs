@@ -56,6 +56,7 @@ public static class SelfCheckAion2
         ok &= RunAion2ItemDetailsScenario();
         ok &= RunAion2SpeciesScenario();
         ok &= RunAion2CharacterStoreScenario();
+        ok &= RunAion2PresetScenario();
         ok &= RunAion2SeenProfileScenario();
         ok &= RunRestartSnapshotScenario();
         ok &= RunAion2BossSpawnScenario();
@@ -1422,6 +1423,56 @@ public static class SelfCheckAion2
         Console.WriteLine($"  -> Cognia: nine effects, Angriffskraft (Boss) 14 first, Eisenwall 1,45 %, Zusatzpräzision 25: {cognia}");
         Console.WriteLine($"  -> Natura, Varia and Specia effects as shown: {others}");
         return levels && fera && cognia && others;
+    }
+
+    /// <summary>Skill presets: the server sends only the active one. A switch parks the old preset's skills, stigmas and stone choices, the
+    /// burst after it fills the new one (a stigma it does not list is dropped, the stones it does not resend stay), a switch back brings the
+    /// parked one back, and all of it survives a restart.</summary>
+    private static bool RunAion2PresetScenario()
+    {
+        Console.WriteLine("[selftest] Aion 2 skill presets:");
+        const int keen = 11020000, rage = 11390000, tenacious = 11380000, lunge = 11400000;
+        var directory = new Aion2EntityDirectory();
+        directory.SetLocalCharacter(new Aion2CharacterInfo(331, "Aahz", 6, 45, new[] { new Aion2EquippedItem(1, 110150026) }, DateTime.Now));
+        directory.SwitchPreset(1);
+        directory.SetLocalSkills(new[] { new Aion2SkillEntry(keen, 17, 10), new Aion2SkillEntry(rage, 5, 5), new Aion2SkillEntry(lunge, 20, 20) });
+        directory.SetLocalStigmas(new HashSet<int> { rage, lunge }, new HashSet<int> { rage, lunge });
+        directory.SetLocalSpecSlots(new Dictionary<int, int[]> { [keen] = new[] { 1, 4, 0 } }, new HashSet<int>());
+        bool first = directory.ActivePreset == 1 && directory.LocalSkills.First(k => k.SkillId == keen).Stones!.SequenceEqual(new[] { 1, 4, 0 })
+            && directory.LocalSkills.Count(k => k.Stigma) == 2;
+
+        // Switch to preset 2: its list has Tenaciousness instead of Rage Burst, a lower Crushing level and other stones for Keen Strike.
+        directory.SwitchPreset(2);
+        bool emptyAtSwitch = directory.LocalSkills.Count == 0;
+        directory.SetLocalSpecSlots(new Dictionary<int, int[]> { [keen] = new[] { 3, 2, 0 }, [tenacious] = new[] { 1, 2, 3, 4, 0 } }, new HashSet<int> { tenacious });
+        directory.SetLocalSkills(new[] { new Aion2SkillEntry(keen, 17, 10), new Aion2SkillEntry(tenacious, 5, 5), new Aion2SkillEntry(lunge, 20, 20) });
+        var second = directory.LocalSkills;
+        bool second2 = second.First(k => k.SkillId == keen).Stones!.SequenceEqual(new[] { 3, 2, 0 })
+            && second.Where(k => k.Stigma).Select(k => k.SkillId).OrderBy(k => k).SequenceEqual(new[] { tenacious, lunge })
+            && second.All(k => k.SkillId != rage);
+
+        var presets = directory.LocalPresets;
+        bool both = presets.Count == 2 && presets[0].Index == 1 && !presets[0].Active && presets[1].Index == 2 && presets[1].Active
+            && presets[0].Skills.First(k => k.SkillId == keen).Stones!.SequenceEqual(new[] { 1, 4, 0 })
+            && presets[0].Skills.Any(k => k.SkillId == rage && k.Stigma) && presets[0].Skills.All(k => k.SkillId != tenacious);
+
+        // A restart keeps both, with the active one marked.
+        var next = new Aion2EntityDirectory();
+        next.RestoreFrom(directory.ToSaved()!);
+        var back = next.LocalPresets;
+        bool restored = next.ActivePreset == 2 && back.Count == 2 && back[0].Skills.Any(k => k.SkillId == rage && k.Stigma)
+            && back[1].Skills.First(k => k.SkillId == keen).Stones!.SequenceEqual(new[] { 3, 2, 0 });
+
+        // Back to preset 1: its own skills return at once.
+        directory.SwitchPreset(1);
+        bool returned = directory.LocalSkills.First(k => k.SkillId == keen).Stones!.SequenceEqual(new[] { 1, 4, 0 }) && directory.LocalSkills.Any(k => k.SkillId == rage && k.Stigma);
+
+        Console.WriteLine($"  -> preset 1 keeps its stones and two stigmas: {first}");
+        Console.WriteLine($"  -> the burst after a switch fills preset 2 (own stones, Tenaciousness not Rage Burst): {emptyAtSwitch && second2}");
+        Console.WriteLine($"  -> both presets are known, the active one marked: {both}");
+        Console.WriteLine($"  -> a restart restores both: {restored}");
+        Console.WriteLine($"  -> switching back brings preset 1 back: {returned}");
+        return first && emptyAtSwitch && second2 && both && restored && returned;
     }
 
     /// <summary>The local player's data survives a meter restart: it is written when the game sends it

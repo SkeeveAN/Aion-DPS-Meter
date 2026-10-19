@@ -5425,7 +5425,7 @@ public partial class MainWindow : Window
                 known ? Aion2.Protocol.Aion2SkillNames.ClassIdOfCode(code) : null,
                 known ? Aion2.Protocol.Aion2SkillNames.ClassBitsOfCode(code) : null,
                 directory.LocalEquipment.Select(GearUpload).ToList(),
-                directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
+                directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped, s.Stones)).ToList(),
                 directory.LocalDaevanion.Select(b => new ProfileBoardUpload(b.BoardId, b.NodeIds.ToList())).ToList(),
                 directory.LocalSpecies.Select(k => new ProfileSpeciesUpload(k.SpeciesId, k.Level, k.Progress,
                     k.Effects.Select(e => new ProfileSpeciesEffectUpload(e.Page, e.Slot, e.StatId, e.Value, e.Kind)).ToList())).ToList(),
@@ -5437,7 +5437,9 @@ public partial class MainWindow : Window
                 ActivePet: directory.LocalActivePet,
                 ActivePetLevel: directory.LocalActivePet is > 0 and int activePet
                     ? directory.LocalPetStates.Where(p => p.PetId == activePet).Select(p => (int?)p.Level).FirstOrDefault()
-                    : null);
+                    : null,
+                Presets: directory.LocalPresets.Select(x => new ProfilePresetUpload(x.Index, x.Active, x.SeenAt.ToUniversalTime(),
+                    x.Skills.Select(k => new ProfileSkillUpload(k.SkillId, k.Level, k.BaseLevel, k.Stigma, k.Equipped, k.Stones)).ToList())).ToList());
         }
 
         // A character window the local player opened for this player: level and the full equipment with

@@ -13,6 +13,8 @@ public sealed class Aion2SavedCharacter
     public DateTime SavedAt { get; set; }
     public List<SavedItem> Equipment { get; set; } = new();
     public List<SavedSkill> Skills { get; set; } = new();
+    public int ActivePreset { get; set; } = 1;
+    public List<SavedPreset> Presets { get; set; } = new();
     public List<SavedBoard> Daevanion { get; set; } = new();
     public List<SavedSpecies> Species { get; set; } = new();
     public List<SavedTitle> Titles { get; set; } = new();
@@ -27,7 +29,10 @@ public sealed class Aion2SavedCharacter
 
     public sealed record SavedItem(int Slot, int ItemId, int Enchant, IReadOnlyList<Aion2Stone>? Stones = null, IReadOnlyList<Aion2RolledStat>? Stats = null, int GodstoneId = 0, IReadOnlyList<Aion2SkillBonus>? SkillBonuses = null);
 
-    public sealed record SavedSkill(int Id, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false);
+    public sealed record SavedSkill(int Id, int Level, int BaseLevel, bool Stigma = false, bool Equipped = false, int[]? Stones = null);
+
+    /// <summary>A skill preset of the character as last seen (the active one is also what <see cref="Skills"/> holds).</summary>
+    public sealed record SavedPreset(int Index, DateTime SeenAt, List<SavedSkill> Skills);
 
     public sealed record SavedBoard(int Board, List<int> Nodes);
 

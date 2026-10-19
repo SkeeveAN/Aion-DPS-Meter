@@ -2213,6 +2213,141 @@ header .wordmark {
   display: block;
   line-height: 1.2;
 }
+/* skill presets and specialisation stones (profile, skills tab) */
+.pf-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.pf-preset-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 10px;
+}
+.pf-preset-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.pf-preset-chip {
+  padding: 2px 12px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(240, 160, 48, 0.16);
+  color: #c47a10;
+  border: 1px solid rgba(240, 160, 48, 0.5);
+}
+.pf-preset-chip.on {
+  background: #f0a030;
+  color: #1a1204;
+}
+.pf-preset-seen {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+.pf-stones {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 5px;
+}
+.pf-stone {
+  width: 17px;
+  height: 17px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.pf-stone.empty {
+  border: 1px dashed rgba(128, 138, 150, 0.6);
+  width: 15px;
+  height: 15px;
+  margin: 1px;
+}
+.pf-stone.locked {
+  background: rgba(128, 138, 150, 0.22);
+  width: 15px;
+  height: 15px;
+  margin: 1px;
+}
+.pf-stone-img {
+  display: block;
+  object-fit: contain;
+}
+.pf-tip-bonus {
+  color: #5bd36b;
+}
+.pf-tip-stonehead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pf-slot-boxes {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.pf-slot-box {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: #111316;
+  border: 1px solid #2c3036;
+}
+.pf-spec-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #2a8d8d;
+}
+.pf-spec-row.on {
+  color: #5ff2f2;
+  font-weight: 700;
+}
+.pf-spec-row.gold.on {
+  color: #ffd66b;
+}
+.pf-spec-row.gold.off {
+  color: #7a6a44;
+}
+.pf-spec-text {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.25;
+}
+.pf-eff {
+  position: relative;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+}
+.pf-eff img {
+  display: block;
+}
+.pf-spec-row.off .pf-eff img {
+  filter: grayscale(0.7) brightness(0.55);
+}
+.pf-eff b {
+  position: absolute;
+  font-size: 0.7rem;
+  color: #e8e0cf;
+  text-shadow: 0 0 3px #000;
+}
+.pf-spec-lock {
+  flex: none;
+  opacity: 0.8;
+}
 .pf-dot {
   display: inline-block;
   width: 10px;
