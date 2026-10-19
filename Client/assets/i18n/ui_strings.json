@@ -9242,16 +9242,16 @@
     "ko": "아직 값이 없습니다. 캐릭터 선택 화면에서 캐릭터로 로그인하면 게임이 스탯을 보내 줍니다."
   },
   "StatCalc.Unsupported": {
-    "en": "This character has no physical attack profile (a mage, for example). The calculator is not built for that yet. Record a fight and send it so that we can add it.",
-    "de": "Dieser Charakter hat kein körperliches Angriffsprofil (zum Beispiel ein Magier). Dafür ist der Rechner noch nicht ausgelegt. Nimm einen Kampf auf und sende ihn, damit wir das nachtragen können.",
-    "fr": "Ce personnage n'a pas de profil d'attaque physique (un mage par exemple). Le calculateur n'est pas encore prévu pour cela. Enregistrez un combat et envoyez-le pour que nous puissions l'ajouter.",
-    "es": "Este personaje no tiene perfil de ataque físico (un mago, por ejemplo). La calculadora aún no está preparada para eso. Graba un combate y envíalo para que podamos añadirlo.",
-    "ru": "У этого персонажа нет профиля физической атаки (например, у мага). Калькулятор пока не рассчитан на это. Запишите бой и отправьте его, чтобы мы могли это добавить.",
-    "zh": "该角色没有物理攻击属性（例如法师）。计算器暂不支持。请录制一场战斗并发送，我们会据此补充。",
-    "zh-TW": "該角色沒有物理攻擊屬性（例如法師）。計算器暫不支援。請錄製一場戰鬥並傳送，我們會據此補充。",
-    "pt": "Este personagem não tem perfil de ataque físico (um mago, por exemplo). A calculadora ainda não foi feita para isso. Grave um combate e envie para que possamos adicionar.",
-    "ja": "このキャラクターには物理攻撃のステータスがありません（例：魔道星）。計算機はまだ対応していません。戦闘を記録して送信してください。対応に役立てます。",
-    "ko": "이 캐릭터는 물리 공격 프로필이 없습니다(예: 마도성). 계산기가 아직 지원하지 않습니다. 전투를 녹화해 보내 주시면 추가하겠습니다."
+    "en": "The stats of this character do not contain the attack values the calculator needs. Record a fight and send it so that we can add it.",
+    "de": "Die Stats dieses Charakters enthalten nicht die Angriffswerte, die der Rechner braucht. Nimm einen Kampf auf und sende ihn, damit wir das nachtragen können.",
+    "fr": "Les stats de ce personnage ne contiennent pas les valeurs d'attaque dont le calculateur a besoin. Enregistrez un combat et envoyez-le pour que nous puissions l'ajouter.",
+    "es": "Los stats de este personaje no contienen los valores de ataque que necesita la calculadora. Graba un combate y envíalo para que podamos añadirlo.",
+    "ru": "В статах этого персонажа нет значений атаки, которые нужны калькулятору. Запишите бой и отправьте его, чтобы мы могли это добавить.",
+    "zh": "该角色的属性中没有计算器所需的攻击数值。请录制一场战斗并发送，我们会据此补充。",
+    "zh-TW": "該角色的屬性中沒有計算器所需的攻擊數值。請錄製一場戰鬥並傳送，我們會據此補充。",
+    "pt": "Os stats deste personagem não contêm os valores de ataque de que a calculadora precisa. Grave um combate e envie para que possamos adicionar.",
+    "ja": "このキャラクターのステータスには、計算機に必要な攻撃値が含まれていません。戦闘を記録して送信してください。対応に役立てます。",
+    "ko": "이 캐릭터의 스탯에는 계산기에 필요한 공격 값이 없습니다. 전투를 녹화해 보내 주시면 추가하겠습니다."
   },
   "StatCalc.Note": {
     "en": "An estimate: the game's exact damage formula is not published. The result says \"3.8 % more\", never \"this much damage\". The values are your character's current stats.",
