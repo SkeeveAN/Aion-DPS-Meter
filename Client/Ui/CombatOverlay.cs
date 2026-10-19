@@ -10,7 +10,7 @@ namespace AionDPS.Ui;
 public sealed record CombatFrame(IReadOnlyList<CastRowData> Casts, TargetOfTargetData? TargetOfTarget, BossHpData? Boss = null);
 
 /// <summary>The fought boss's health: what it has now and the most it was seen with.</summary>
-public sealed record BossHpData(long Hp, long Max, int Id = 0, string Check = "", DateTime? Since = null);
+public sealed record BossHpData(long Hp, long Max, int Id = 0, string Check = "", DateTime? Since = null, int RageSeconds = AionDPS.Aion2.Protocol.Aion2BossRage.DefaultSeconds);
 
 /// <summary>Works out the combat overlay's frame from what the packet stream said (see <see cref="Aion2CombatState"/>); no windows, so a test can run it.</summary>
 public static class CombatOverlayData
@@ -79,7 +79,7 @@ public static class CombatOverlayData
         // The server sends no maximum for most bosses, and a meter that joined mid-fight saw only a worn-down value first: the table knows the real one.
         long known = dir.BossNpcIdOf(id) is int npc ? AionDPS.Aion2.Protocol.Aion2BossCatalog.Find(npc)?.MaxHp ?? 0 : 0;
         long max = Math.Max(known, Math.Max(dir.HitPoints.MaxOf(id) ?? 0, dir.HitPoints.HighestSeen(id) ?? 0));
-        return max > 0 ? new BossHpData(Math.Min(hp, max), max, id, Since: dir.EngagedSince(id)) : null;
+        return max > 0 ? new BossHpData(Math.Min(hp, max), max, id, Since: dir.EngagedSince(id), RageSeconds: AionDPS.Aion2.Protocol.Aion2BossRage.SecondsFor(dir.BossNpcIdOf(id))) : null;
     }
 
     private static bool IsBoss(Aion2EntityDirectory dir, int entity) =>
@@ -521,7 +521,7 @@ public sealed class CombatOverlayWindow : MovableOverlay
 
         if (boss is not null)
         {
-            _bossHp.Show(boss.Hp, boss.Max, false, boss.Check, boss.Since is { } since ? DateTime.Now - since : null);
+            _bossHp.Show(boss.Hp, boss.Max, false, boss.Check, boss.Since is { } since ? DateTime.Now - since : null, boss.RageSeconds);
         }
 
         bool visible = boss is not null && (settings.ShowBossHp || Preview);

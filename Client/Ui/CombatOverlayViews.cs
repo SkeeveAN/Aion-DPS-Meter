@@ -309,21 +309,24 @@ public sealed class HpBarView : Border
         Child = bar;
     }
 
-    /// <summary>The boss's rage comes five minutes after the combat began (0x4b36): from 4:00 on the time turns yellow, from 4:40 red.</summary>
-    public static readonly TimeSpan RageWarn = TimeSpan.FromSeconds(240);
-    public static readonly TimeSpan RageSoon = TimeSpan.FromSeconds(280);
+    /// <summary>The boss's rage comes after a time of its own, five minutes for most (0x4b36; see Aion2BossRage): the time turns yellow a minute before, red 20 s before.</summary>
+    public static readonly TimeSpan RageWarnBefore = TimeSpan.FromSeconds(60);
+    public static readonly TimeSpan RageSoonBefore = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan LongestShown = TimeSpan.FromHours(3);
 
     /// <summary>m:ss, or h:mm:ss from an hour on.</summary>
     public static string FormatElapsed(TimeSpan elapsed) =>
         elapsed.TotalHours >= 1 ? $"{(int)elapsed.TotalHours}:{elapsed.Minutes:00}:{elapsed.Seconds:00}" : $"{(int)elapsed.TotalMinutes:00}:{elapsed.Seconds:00}";
 
-    public static Brush ElapsedBrush(TimeSpan elapsed) =>
-        elapsed >= RageSoon ? OverlayPictures.Red : elapsed >= RageWarn ? OverlayPictures.Amber : OverlayPictures.Muted;
+    public static Brush ElapsedBrush(TimeSpan elapsed, int rageSeconds = AionDPS.Aion2.Protocol.Aion2BossRage.DefaultSeconds)
+    {
+        var rage = TimeSpan.FromSeconds(rageSeconds);
+        return elapsed >= rage - RageSoonBefore ? OverlayPictures.Red : elapsed >= rage - RageWarnBefore ? OverlayPictures.Amber : OverlayPictures.Muted;
+    }
 
     /// <summary>Red; green while the target has debuffs on it. The numbers keep a dark edge so they read on either. <paramref name="elapsed"/>: the time since the
     /// fight began, behind the numbers (the bar of a boss only; null shows none).</summary>
-    public void Show(long? hp, long? max, bool debuffed, string? check = null, TimeSpan? elapsed = null)
+    public void Show(long? hp, long? max, bool debuffed, string? check = null, TimeSpan? elapsed = null, int rageSeconds = AionDPS.Aion2.Protocol.Aion2BossRage.DefaultSeconds)
     {
         _fill.Background = debuffed ? OverlayPictures.HpGreen : OverlayPictures.HpRed;
         double fraction = hp is long h && max is long m && m > 0 ? Math.Clamp((double)h / m, 0, 1) : 0;
@@ -340,7 +343,7 @@ public sealed class HpBarView : Border
         _text.Inlines.Add(new Run(numbers));
         if (elapsed is { } time && time >= TimeSpan.Zero && time <= LongestShown)
         {
-            _text.Inlines.Add(new Run("  " + FormatElapsed(time)) { Foreground = ElapsedBrush(time) });
+            _text.Inlines.Add(new Run("  " + FormatElapsed(time)) { Foreground = ElapsedBrush(time, rageSeconds) });
         }
     }
 }

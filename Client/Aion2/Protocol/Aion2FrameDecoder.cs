@@ -78,8 +78,8 @@ public sealed class Aion2FrameDecoder
 
     private const int RageStatId = 0x00CD;
 
-    /// <summary>The stat counts as the rage from this far into the combat (the same stat shows up in short fights and in idle, at 500 and 5000).</summary>
-    private static readonly TimeSpan RageNotBefore = TimeSpan.FromSeconds(290);
+    /// <summary>The stat counts as the rage from this far before the boss's rage time into the combat (the same stat shows up in short fights and in idle, at 500 and 5000).</summary>
+    private static readonly TimeSpan RageTolerance = TimeSpan.FromSeconds(10);
 
     private readonly Dictionary<int, DateTime> _engaged = new();
     private readonly HashSet<int> _enraged = new();
@@ -132,7 +132,7 @@ public sealed class Aion2FrameDecoder
 
         int entity = unchecked((int)id);
         uint value = BinaryPrimitives.ReadUInt32LittleEndian(frame[(p + 3)..]);
-        if (value >= 5000 && _engaged.TryGetValue(entity, out DateTime start) && timestamp - start >= RageNotBefore && _enraged.Add(entity))
+        if (value >= 5000 && _engaged.TryGetValue(entity, out DateTime start) && timestamp - start >= TimeSpan.FromSeconds(Aion2BossRage.SecondsFor(_entities.BossNpcIdOf(entity))) - RageTolerance && _enraged.Add(entity))
         {
             _enrages.Add(new EnrageMark(timestamp, entity, start));
         }
