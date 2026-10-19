@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "Website: the boss and dungeon statistics and the boss ranking can be narrowed by gear score (a run is kept when every known gear score in it lies in the range, with a note on how many runs have one), and the boss statistics show for every class which skills it uses at this boss - share of the class damage, how many runs used it, hits per run, crit rate and average hit",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.8.2",
   "date": "2026-10-19",
   "items": [
