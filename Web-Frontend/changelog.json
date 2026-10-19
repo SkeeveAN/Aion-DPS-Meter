@@ -9,6 +9,13 @@
      "Website"
     ],
     "date": "2026-10-20"
+   },
+   {
+    "text": "Website: the buffs per skill list on the fight page shows icons only, bigger, with the name and share as a tooltip, and wraps instead of running past the edge",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-20"
    }
   ]
  },
