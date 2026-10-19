@@ -668,7 +668,8 @@ function renderArticle() {
     if (type === "ul" || type === "ol") return el(type, { className: "guide-list" }, value.map((item) => el("li", {}, inline(item))));
     return el("p", { className: type === "lead" ? "guide-intro" : "" }, inline(value));
   };
-  app.replaceChildren(el("div", { className: "guide-page article-page" }, [el("h1", { textContent: ARTICLE.title }), ...ARTICLE.blocks.map(block)]));
+  const [lead, ...rest] = ARTICLE.blocks;
+  app.replaceChildren(el("div", { className: "guide-page article-page" }, [el("h1", { textContent: ARTICLE.title }), block(lead), el("div", { className: "article-columns" }, rest.map(block))]));
 }
 
 // /aion-2-dps-meter: what the meter does, how to install it and a comparison with other AION 2 meters. The tables come from

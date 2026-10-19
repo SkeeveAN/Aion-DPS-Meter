@@ -4091,8 +4091,13 @@ body:has(.download-hero) .nav-download-link:hover,
 .guide-table td.guide-no { color: var(--color-danger); font-weight: 600; }
 
 /* /how-it-works (app.js renderArticle): readable prose width. */
-.article-page p, .article-page li { max-width: 52em; }
-.article-page .guide-intro { font-size: 19px; }
+/* Two columns across the whole 1872 px content width: lines stay about 90 characters long instead of 250. */
+.article-page p, .article-page li { max-width: none; font-size: 18px; }
+.article-page .guide-intro { font-size: 20px; max-width: none; }
+.article-columns { column-count: 2; column-gap: 72px; }
+.article-columns h2 { break-after: avoid; margin-top: 0; padding-top: 34px; }
+.article-columns ul, .article-columns ol, .article-columns p { break-inside: avoid; }
+@media (max-width: 1100px) { .article-columns { column-count: 1; } }
 
 /* ---- Players panel with the buff columns (encounters whose uploads carry buff data, see app.js playersPanel) ---- */
 .encounter-stack { display: flex; flex-direction: column; gap: 20px; }
