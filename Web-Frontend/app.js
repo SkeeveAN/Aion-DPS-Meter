@@ -304,6 +304,7 @@ const GITHUB_REPO = "SkeeveAN/Aion-DPS-Meter";
  * (Backend/src/routes/stats.ts already returns honest zeros for an empty game), and the top
  * players/recent activity columns only draw from whichever games actually have real rows.
  */
+const BANNER_WIN_SIZE = { meter: [1040, 840], "map-crop": [878, 570] };
 async function renderHome() {
   setBreadcrumb([]);
   document.title = HOME_TITLE;
@@ -312,7 +313,7 @@ async function renderHome() {
   // Slim banner = the Features hero (same look as the tour's scenes): it points at the three entry areas (Features, Instances, World Bosses)
   // but stays small, so Top players and Recent activity below remain the main content.
   const bannerWin = (name, h) =>
-    el("img", { className: "home-banner-win", src: `/images/features/${name}@2x.webp?v=${FEATURE_VERSION}`, alt: "", style: `--h:${h}px` });
+    el("img", { className: "home-banner-win", width: BANNER_WIN_SIZE[name][0], height: BANNER_WIN_SIZE[name][1], src: `/images/features/${name}@2x.webp?v=${FEATURE_VERSION}`, alt: "", style: `--h:${h}px` });
   const heroRow = el("section", { className: "home-banner" }, [
     el("div", { className: "home-banner-bg" }),
     el("div", { className: "home-banner-stage" }, [bannerWin("meter", 250), bannerWin("map-crop", 220)]),
