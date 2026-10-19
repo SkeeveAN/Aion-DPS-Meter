@@ -2218,6 +2218,14 @@ public sealed class Aion2FrameDecoder
                 _entities.NoteAccountLegion(name, guild);
             }
         }
+
+        // every character of the account with its basics: for the checklist's character switch and the profile upload (the rest of a character is fetched by the server)
+        List<AccountCharacter> account = AccountCharacterList.Parse(frame);
+        if (account.Count > 0)
+        {
+            _entities.NoteAccountCharacters(account);
+            Aion2Tickets.NoteListedCharacters(_entities.AccountKeyHash(), account);
+        }
     }
 
     /// <summary>

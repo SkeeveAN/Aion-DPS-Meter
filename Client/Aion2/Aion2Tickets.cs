@@ -25,7 +25,9 @@ public readonly record struct TicketValue(int Count, int Bonus, long TimeMs);
 public readonly record struct TicketReading(int Id, TicketValue Value);
 
 /// <summary>What was last seen of one character's tickets.</summary>
-public sealed record TicketCharacter(string Name, int ServerId, DateTime SavedAt, IReadOnlyDictionary<int, TicketValue> Tickets, int Level = 0);
+public sealed record TicketCharacter(
+    string Name, int ServerId, DateTime SavedAt, IReadOnlyDictionary<int, TicketValue> Tickets, int Level = 0,
+    string? Account = null, int ClassCode = 0, int CombatPower = 0, long LastOnlineMs = 0, string? Legion = null);
 
 /// <summary>
 /// The tickets of the characters (Tools > Checklist; no overlay). The server sends them twice:
@@ -88,6 +90,12 @@ public static class Aion2Tickets
         public long SavedMs { get; set; }
         public int Level { get; set; }
         public Dictionary<int, long[]> Tickets { get; set; } = new();
+        // from the character list of the login (every character of the account, also those never logged in with the meter)
+        public string? Account { get; set; }
+        public int ClassCode { get; set; }
+        public int CombatPower { get; set; }
+        public long LastOnlineMs { get; set; }
+        public string? Legion { get; set; }
     }
 
     private static readonly object Gate = new();
@@ -134,7 +142,7 @@ public static class Aion2Tickets
     {
         lock (Gate)
         {
-            return Characters.Values.OrderByDescending(c => c.SavedAt).ToList();
+            return Characters.Values.OrderByDescending(c => c.Tickets.Count > 0).ThenByDescending(c => c.SavedAt).ThenBy(c => c.Name, StringComparer.Ordinal).ToList();
         }
     }
 
@@ -569,7 +577,9 @@ public static class Aion2Tickets
 
             if (_awaitingName && _pending is not null && receivedAt >= _pendingAt)
             {
-                Characters[name] = new TicketCharacter(name, serverId, DateTime.UtcNow, _pending, level);
+                Characters[name] = Characters.TryGetValue(name, out TicketCharacter? listed)
+                    ? listed with { ServerId = serverId > 0 ? serverId : listed.ServerId, SavedAt = DateTime.UtcNow, Tickets = _pending, Level = level > 0 ? level : listed.Level }
+                    : new TicketCharacter(name, serverId, DateTime.UtcNow, _pending, level);
                 _pending = null;
                 _awaitingName = false;
                 _dirty = true;
@@ -579,6 +589,64 @@ public static class Aion2Tickets
             else if (Characters.TryGetValue(name, out TicketCharacter? known) && ((serverId > 0 && known.ServerId != serverId) || (level > 0 && known.Level != level)))
             {
                 Characters[name] = known with { ServerId = serverId > 0 ? serverId : known.ServerId, Level = level > 0 ? level : known.Level };
+                _dirty = true;
+            }
+        }
+
+        if (changed)
+        {
+            Changed?.Invoke();
+        }
+    }
+
+    /// <summary>The character list of a login: every character of the account gets an entry (for the checklist's character switch), also those that never logged in
+    /// with the meter and so have no counters yet. Basics (class, level, combat power, legion, last online) are refreshed for all of them; an entry that
+    /// only the list ever showed and that is gone from the list (deleted) is removed again.</summary>
+    public static void NoteListedCharacters(string? account, IReadOnlyList<AccountCharacter> listed)
+    {
+        bool changed = false;
+        lock (Gate)
+        {
+            var names = new HashSet<string>(listed.Select(c => c.Name), StringComparer.Ordinal);
+            foreach (AccountCharacter c in listed)
+            {
+                if (Characters.TryGetValue(c.Name, out TicketCharacter? known))
+                {
+                    TicketCharacter updated = known with
+                    {
+                        ServerId = c.ServerId > 0 ? c.ServerId : known.ServerId,
+                        Level = c.Level > 0 ? c.Level : known.Level,
+                        Account = account ?? known.Account,
+                        ClassCode = c.ClassCode,
+                        CombatPower = c.CombatPower,
+                        LastOnlineMs = c.LastOnlineMs,
+                        Legion = c.Legion,
+                    };
+                    if (updated != known)
+                    {
+                        Characters[c.Name] = updated;
+                        changed = true;
+                    }
+                }
+                else
+                {
+                    Characters[c.Name] = new TicketCharacter(c.Name, c.ServerId, DateTime.UtcNow, new Dictionary<int, TicketValue>(), c.Level, account, c.ClassCode, c.CombatPower, c.LastOnlineMs, c.Legion);
+                    changed = true;
+                }
+            }
+
+            if (account is not null)
+            {
+                foreach (TicketCharacter gone in Characters.Values.Where(c => c.Account == account && c.Tickets.Count == 0 && !names.Contains(c.Name)).ToList())
+                {
+                    Characters.Remove(gone.Name);
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                Trim();
                 _dirty = true;
             }
         }
@@ -755,7 +823,7 @@ public static class Aion2Tickets
             {
                 var tickets = c.Tickets.Where(t => t.Value.Length == 3)
                     .ToDictionary(t => t.Key, t => new TicketValue((int)t.Value[0], (int)t.Value[1], t.Value[2]));
-                Characters[c.Name] = new TicketCharacter(c.Name, c.ServerId, DateTime.SpecifyKind(DateTimeOffset.FromUnixTimeMilliseconds(c.SavedMs).DateTime, DateTimeKind.Utc), tickets, c.Level);
+                Characters[c.Name] = new TicketCharacter(c.Name, c.ServerId, DateTime.SpecifyKind(DateTimeOffset.FromUnixTimeMilliseconds(c.SavedMs).DateTime, DateTimeKind.Utc), tickets, c.Level, c.Account, c.ClassCode, c.CombatPower, c.LastOnlineMs, c.Legion);
             }
         }
         catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
@@ -784,6 +852,11 @@ public static class Aion2Tickets
                     SavedMs = new DateTimeOffset(c.SavedAt, TimeSpan.Zero).ToUnixTimeMilliseconds(),
                     Level = c.Level,
                     Tickets = c.Tickets.ToDictionary(t => t.Key, t => new[] { (long)t.Value.Count, t.Value.Bonus, t.Value.TimeMs }),
+                    Account = c.Account,
+                    ClassCode = c.ClassCode,
+                    CombatPower = c.CombatPower,
+                    LastOnlineMs = c.LastOnlineMs,
+                    Legion = c.Legion,
                 }).ToList(),
             };
             _dirty = false;

@@ -2006,6 +2006,30 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
     }
 
+    private readonly Dictionary<string, AccountCharacter> _accountCharacters = new(StringComparer.Ordinal);
+
+    /// <summary>The characters of the own account from the login's character list (all of them, not only the one that logged in); replaced at every login.</summary>
+    public void NoteAccountCharacters(IReadOnlyList<AccountCharacter> characters)
+    {
+        lock (_gate)
+        {
+            _accountCharacters.Clear();
+            foreach (AccountCharacter character in characters)
+            {
+                _accountCharacters[character.Name] = character;
+            }
+        }
+    }
+
+    /// <summary>The characters of the own account as the last character list showed them, in the order of the list.</summary>
+    public IReadOnlyList<AccountCharacter> AccountCharacters()
+    {
+        lock (_gate)
+        {
+            return _accountCharacters.Values.ToList();
+        }
+    }
+
     /// <summary>The legion of a character of the own account (the login's character list), or null.</summary>
     public string? AccountLegionOf(string name)
     {

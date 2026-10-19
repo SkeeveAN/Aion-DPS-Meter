@@ -202,8 +202,32 @@ public static class SelfCheckTickets
             && Aion2Tickets.UnlockLevel(101) == 30 && Aion2Tickets.UnlockLevel(Aion2Tickets.OdyleId) == 22;
         Console.WriteLine($"  -> counters locked by level (daily dungeon 30, Nightmare/Ascension/Invasion 45, Odyle 22, Shugo 13)={locks}");
 
+        // the character list of the login (0x2636): every character of the account with its basics, cut out of the real list of 19 October 2026 (two of the four
+        // characters of one account; the game showed Aahz at level 45 with 2,661 and Skeeve at level 22 with 318)
+        string zeros = new('0', 160);
+        List<AccountCharacter> account = AccountCharacterList.Parse(Convert.FromHexString("26360000" + "00000000ca080000044161687a0600000001022d00000000000000650a0000000000000000000001000000000000000000000008416b617473756b695eea9254a1010000ea917b47bac1964600b6f546f8070000e1b5a9f2a0010000" + zeros + "353b03000000180500000000f649824fa10100002cd8cc0100000000" + "00000000c70e000006536b656576651a000000010216000000000000003e01000025140c000000000001000000000000000000000008416b617473756b69c8351a54a1010000d910b3c60ff23047009065462908000019460e06a1010000" + zeros + "d6c303000000180500000000f649824fa1010000b4d2cc0100000000"));
+        bool listRead = account.Count == 2
+            && account[0] is { Name: "Aahz", ClassCode: 6, Faction: 1, Level: 45, CombatPower: 2661, Legion: "Akatsuki", ServerId: 1304, CharacterId: 211765, LastOnlineMs: 1792420276830, CreatedMs: 1790777603553 }
+            && account[1] is { Name: "Skeeve", ClassCode: 26, Faction: 1, Level: 22, CombatPower: 318, Legion: "Akatsuki", ServerId: 1304, CharacterId: 246742, LastOnlineMs: 1792412366280, CreatedMs: 1791102961177 }
+            && AccountCharacterList.Parse(Convert.FromHexString("26360000000000")).Count == 0;
+        // the list gives every character of the account an entry in the checklist (without counters); a deleted one that only the list showed goes again,
+        // one that has counters stays; a login keeps what the list told
         Aion2Tickets.Reset();
-        bool ok = membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
+        Aion2Tickets.NoteListedCharacters("acct", account);
+        IReadOnlyList<TicketCharacter> listed = Aion2Tickets.Snapshot();
+        bool listedEntries = listed.Count == 2 && listed.All(c => c.Tickets.Count == 0 && c.Account == "acct") && listed.Single(c => c.Name == "Skeeve").CombatPower == 318;
+        Aion2Tickets.NoteListedCharacters("acct", new[] { account[0] });
+        bool deletedGone = Aion2Tickets.Snapshot().Count == 1 && Aion2Tickets.Snapshot()[0].Name == "Aahz";
+        DateTime loginAt = new(2026, 10, 19, 17, 0, 0, DateTimeKind.Utc);
+        Aion2Tickets.ReceiveList(new[] { new TicketReading(Aion2Tickets.PremiumId, new TicketValue(0, 0, 1_800_000_000_000)) }, loginAt);
+        Aion2Tickets.NoteCharacter("Aahz", 1304, loginAt.AddSeconds(4), 45);
+        TicketCharacter loggedIn = Aion2Tickets.Snapshot().Single(c => c.Name == "Aahz");
+        Aion2Tickets.NoteListedCharacters("acct", new[] { account[1] }); // Aahz has counters now: stays although this list lacks him
+        bool listKept = loggedIn.Tickets.Count == 1 && loggedIn.ClassCode == 6 && loggedIn.CombatPower == 2661
+            && Aion2Tickets.Snapshot().Select(c => c.Name).OrderBy(n => n, StringComparer.Ordinal).SequenceEqual(new[] { "Aahz", "Skeeve" });
+        Console.WriteLine($"  -> character list read (two real entries: class, level, combat power, legion, times, server, character id)={listRead}, entries for characters without counters={listedEntries}, deleted one goes={deletedGone}, login keeps the list's basics={listKept}");
+        Aion2Tickets.Reset();
+        bool ok = listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
         Console.WriteLine(ok ? "  -> OK" : "  -> FAILED");
         ServerTime.Reset();
         return ok;

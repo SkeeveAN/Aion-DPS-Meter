@@ -10320,5 +10320,25 @@
   "Checklist.WarnLegend": {
     "en": "▲ is lost tomorrow or runs out soon",
     "de": "▲ geht morgen verloren oder läuft bald ab"
+  },
+  "Checklist.Level": {
+    "en": "Level {0}",
+    "de": "Stufe {0}"
+  },
+  "Checklist.CombatPower": {
+    "en": "Combat power {0}",
+    "de": "Kampfkraft {0}"
+  },
+  "Checklist.LastOnline": {
+    "en": "last online {0}",
+    "de": "zuletzt online {0}"
+  },
+  "Checklist.RelogNew": {
+    "en": "No counters yet: log in once with this character (character switch) and its counters show up here.",
+    "de": "Noch keine Zähler: Logge dich einmal mit diesem Charakter ein (Charakterwechsel), dann stehen seine Zähler hier."
+  },
+  "Checklist.RelogOld": {
+    "en": "As of this character's last login. Log in with it again to see current data.",
+    "de": "Stand vom letzten Login dieses Charakters. Für aktuelle Daten mit ihm umloggen."
   }
 }

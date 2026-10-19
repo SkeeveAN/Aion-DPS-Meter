@@ -3603,6 +3603,39 @@ public partial class MainWindow : Window
             Add(id, name, className, false);
         }
 
+        // The other characters of the uploader's own account (the character list of the login): the basics only - class, level, faction, legion, server and
+        // the character id the game's own search knows; the server fetches the rest from there. They are the uploader's own characters, so they go with the own profile.
+        foreach (Aion2.AccountCharacter alt in directory.AccountCharacters())
+        {
+            if (alt.Name == local.Name || participants.Any(p => p.Name == alt.Name))
+            {
+                continue;
+            }
+
+            string? altClass = Aion2.Protocol.Aion2SkillNames.ClassFromCode(alt.ClassCode);
+            if (altClass is null || alt.ServerId <= 0)
+            {
+                continue;
+            }
+
+            participants.Add(new ProfileParticipantUpload(
+                alt.Name,
+                altClass,
+                alt.Faction == 2 ? "Asmodian" : "Elyos",
+                false,
+                alt.Legion,
+                new ProfileUpload(
+                    "seen",
+                    alt.Level,
+                    Aion2.Protocol.Aion2SkillNames.ClassIdOfCode(alt.ClassCode),
+                    Aion2.Protocol.Aion2SkillNames.ClassBitsOfCode(alt.ClassCode),
+                    Array.Empty<ProfileGearUpload>(),
+                    Array.Empty<ProfileSkillUpload>(),
+                    Array.Empty<ProfileBoardUpload>()),
+                alt.ServerId,
+                alt.CharacterId > 0 ? alt.CharacterId : null));
+        }
+
         return participants.Count == 0
             ? null
             : new ProfilesUploadRequest(AppVersion.Text, fingerprint, displayName, participants.Take(60).ToList(), ServerId: Aion2OwnServerId(), GameServer: Aion2GameServerAddress());

@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using AionDPS.Aion2;
+using AionDPS.Data;
 
 namespace AionDPS.Ui;
 
@@ -93,7 +94,7 @@ public sealed class ChecklistWindow : Window
             var chip = new Border
             {
                 Padding = new Thickness(16, 5, 16, 5), Margin = new Thickness(0, 0, 8, 4), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6),
-                Cursor = System.Windows.Input.Cursors.Hand, Child = Label(name, "Brush.Text", 14, bold: true),
+                Cursor = System.Windows.Input.Cursors.Hand, Child = Label(name, c.Tickets.Count > 0 ? "Brush.Text" : "Brush.TextSubtle", 14, bold: true),
             };
             chip.SetResourceReference(Border.BackgroundProperty, active ? "Brush.ControlRaised" : "Brush.Control");
             chip.SetResourceReference(Border.BorderBrushProperty, active ? "Brush.Accent" : "Brush.Border");
@@ -120,6 +121,44 @@ public sealed class ChecklistWindow : Window
             _seen.Text = "";
             _body.Children.Add(Card(Label(loc["Checklist.Empty"], "Brush.TextMuted", 13)));
             return;
+        }
+
+        if (character.Tickets.Count == 0)
+        {
+            // a character the login's list showed but that never logged in with the meter: its basics, and what it takes to see its counters
+            _seen.Text = "";
+            var listed = new StackPanel();
+            listed.Children.Add(Label(character.Name, "Brush.Text", 16, bold: true));
+            if (BasicsText(character, language) is { Length: > 0 } basicsText)
+            {
+                TextBlock basicsLine = Label(basicsText, "Brush.TextSubtle", 12);
+                basicsLine.TextWrapping = TextWrapping.Wrap;
+                basicsLine.Margin = new Thickness(0, 3, 0, 0);
+                listed.Children.Add(basicsLine);
+            }
+
+            TextBlock relogNew = Label(loc["Checklist.RelogNew"], "Brush.Accent", 12);
+            relogNew.TextWrapping = TextWrapping.Wrap;
+            relogNew.Margin = new Thickness(0, 8, 0, 0);
+            listed.Children.Add(relogNew);
+            _body.Children.Add(Card(listed));
+            return;
+        }
+
+        if (BasicsText(character, language) is { Length: > 0 } characterLine)
+        {
+            TextBlock basics = Label(characterLine, "Brush.TextSubtle", 12);
+            basics.TextWrapping = TextWrapping.Wrap;
+            basics.Margin = new Thickness(4, 0, 4, 6);
+            _body.Children.Add(basics);
+        }
+
+        if (Aion2Tickets.CurrentName is { } online && online != character.Name)
+        {
+            TextBlock relogOld = Label(loc["Checklist.RelogOld"], "Brush.TextMuted", 11);
+            relogOld.TextWrapping = TextWrapping.Wrap;
+            relogOld.Margin = new Thickness(4, 0, 4, 6);
+            _body.Children.Add(relogOld);
         }
 
         if (Aion2Tickets.CurrentName is null)
@@ -362,6 +401,40 @@ public sealed class ChecklistWindow : Window
 
     /// <summary>The cap the game shows: the subscriber's one where there is one (Shugo Festival keys 12, with the subscription 21), else the plain one.</summary>
     private int CapOf(TicketDef def) => _premium && def.SubscribeMax > def.Max ? def.SubscribeMax : def.Max;
+
+    /// <summary>Class, level, combat power, legion and when the character was last online, as the character list of the login showed them ("" when it showed none).</summary>
+    private static string BasicsText(TicketCharacter character, string language)
+    {
+        LocalizationManager loc = LocalizationManager.Instance;
+        var parts = new List<string>();
+        if (character.ClassCode > 0 && Aion2.Protocol.Aion2SkillNames.ClassFromCode(character.ClassCode) is { } className)
+        {
+            parts.Add(ClassCatalog.DisplayName(className, language));
+        }
+
+        if (character.Level > 0)
+        {
+            parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.Level"], character.Level));
+        }
+
+        if (character.CombatPower > 0)
+        {
+            parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.CombatPower"], character.CombatPower.ToString("N0", CultureInfo.CurrentCulture)));
+        }
+
+        if (!string.IsNullOrEmpty(character.Legion))
+        {
+            parts.Add("<" + character.Legion + ">");
+        }
+
+        // the character that is online now shows the time of the list as its last time: only the others tell something
+        if (character.LastOnlineMs > 0 && character.Name != Aion2Tickets.CurrentName)
+        {
+            parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.LastOnline"], DateTimeOffset.FromUnixTimeMilliseconds(character.LastOnlineMs).LocalDateTime.ToString("g", CultureInfo.CurrentCulture)));
+        }
+
+        return string.Join("  \u00b7  ", parts);
+    }
 
     /// <summary>How soon a membership or ticket counts as "runs out soon" (red or amber with a warning triangle).</summary>
     private static readonly TimeSpan SoonLeft = TimeSpan.FromDays(3);
