@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.6.1",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "the stigmas of the active skill preset are exactly the ones the game lists - a stigma left over from the other preset or from the file of an earlier version no longer shows as a fifth one, and a character file from before the presets is not filed as a wrong preset",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.6.0",
   "date": "2026-10-19",
   "items": [
