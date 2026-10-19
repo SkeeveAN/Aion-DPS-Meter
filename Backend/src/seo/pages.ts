@@ -9,6 +9,7 @@ import { classBoxes, findBoss, mechanicsFor, modesFor, selectServer, UNKNOWN_MOD
 import { instanceStatistics } from "../instanceStats.js";
 import { buildProfileView, ownSkillRows } from "../profile.js";
 import { INSTANCE_FACTS, INSTANCE_IMAGES, INSTANCE_MIN_LEVEL, BOSS_IMAGES, splitConquest } from "../../../Web-Frontend/game-data.js";
+import { ARTICLE, articleSegments } from "../../../Web-Frontend/article-data.js";
 import { GUIDE_ASOF, GUIDE_FAQ, GUIDE_OSS, GUIDE_ROWS, GUIDE_STRONG, GUIDE_TABLES, GUIDE_WEAK, GUIDE_WHAT } from "../../../Web-Frontend/guide-data.js";
 import enStrings from "../../../Web-Frontend/locales/en.js";
 import { parseIdOrSlug } from "./slug.js";
@@ -167,6 +168,28 @@ export function downloadPage(): Page {
 
 // Web-Frontend has no package.json, so at run time Node may hand the default export over wrapped in { default }.
 const en = ((enStrings as unknown as { default?: Record<string, string> }).default ?? enStrings) as unknown as Record<string, string>;
+
+/** The technical article; text and markup come from Web-Frontend/article-data.js, the same file the app renders. */
+export function articlePage(): Page {
+  const inline = (text: string) => articleSegments(text).map((s) => (s.href ? html`<a href="${s.href}">${s.text}</a>` : s.bold ? html`<strong>${s.text}</strong>` : s.text));
+  const block = ([type, value]: [string, string | string[]]) => {
+    if (type === "h2") return html`<h2>${value as string}</h2>`;
+    if (type === "ul") return html`<ul class="plain">${(value as string[]).map((i) => html`<li>${inline(i)}</li>`)}</ul>`;
+    if (type === "ol") return html`<ol class="steps">${(value as string[]).map((i) => html`<li>${inline(i)}</li>`)}</ol>`;
+    return html`<p>${inline(value as string)}</p>`;
+  };
+  return {
+    status: 200,
+    meta: {
+      title: `${ARTICLE.title} – ${SITE}`,
+      description: ARTICLE.description,
+      canonicalPath: ARTICLE.path,
+      ogType: "article",
+      jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Technical background", path: ARTICLE.path }])],
+    },
+    body: html`<h1>${ARTICLE.title}</h1>${ARTICLE.blocks.map(block)}`,
+  };
+}
 
 /** The comparison page for the searches "AION 2 DPS meter / damage meter / combat tracker". The text and tables come from
  *  the same files as the app's version (Web-Frontend/guide-data.js and the English strings), so there is one source. */

@@ -84,6 +84,7 @@ function buildSitemap(): string {
     { path: "/download", lastmod: release },
     { path: "/features", lastmod: release },
     { path: "/aion-2-dps-meter", lastmod: release },
+    { path: "/how-it-works", lastmod: release },
     { path: "/changelog", lastmod: release },
     { path: "/twitch-drops", lastmod: release },
     { path: "/stats", lastmod: lastFightAll },

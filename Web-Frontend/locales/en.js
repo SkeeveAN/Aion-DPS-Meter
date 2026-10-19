@@ -818,4 +818,5 @@ export default {
   "guide.faq.choose.a": "That depends on what you need. Use the tables: your region (some meters cover Korea and Taiwan fully, ours only partly), your platform (Windows or Linux), the extras you want (map, timers, leaderboards, rotation view, rDPS) and whether you want the source code to be open. Whatever you pick, check what it does with your data.",
   "guide.faq.rdps.q": "Why does the meter not show rDPS?",
   "guide.faq.rdps.a": "rDPS estimates how much of a player's damage comes from other players' buffs and moves that share to whoever set the buff. That rests on modelling assumptions, not on measured numbers. We show the iDPS per target and the fight time instead, which show the effect of a buff on the group without estimating anything.",
+  "footer.howItWorks": "Technical background",
 };

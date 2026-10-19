@@ -4089,3 +4089,7 @@ body:has(.download-hero) .nav-download-link:hover,
 .guide-table td.guide-na { color: var(--color-text-muted); }
 .guide-table td.guide-yes { color: var(--color-success); font-weight: 600; }
 .guide-table td.guide-no { color: var(--color-danger); font-weight: 600; }
+
+/* /how-it-works (app.js renderArticle): readable prose width. */
+.article-page p, .article-page li { max-width: 52em; }
+.article-page .guide-intro { font-size: 19px; }

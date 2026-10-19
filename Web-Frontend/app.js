@@ -3,6 +3,7 @@ import { smallPhoto, INSTANCE_IMAGES, INSTANCE_FOCUS, BOSS_IMAGES, BOSS_CARDS, I
 import { initThemeSwitcher } from "./theme.js";
 import { BOSS_CARDS_V2 } from "./game-data-v2.js";
 import { buildBossStats, buildInstanceStats } from "./boss-stats.js";
+import { ARTICLE, articleSegments } from "./article-data.js";
 import { GUIDE_ASOF, GUIDE_ROWS, GUIDE_TABLES, GUIDE_WHAT, GUIDE_WEAK, GUIDE_STRONG, GUIDE_OSS, GUIDE_FAQ } from "./guide-data.js";
 
 // Preview switch for the v2 boss cards: ?v2=1 turns it on for this tab, ?v2=0 off. Without it nothing changes.
@@ -23,7 +24,7 @@ const breadcrumb = document.getElementById("breadcrumb");
 // Real path URLs (/aion2/bosses/enhanced-harcon) - one address per page, so search engines and
 // Discord previews see distinct pages. The first path segment names the game (only Aion 2 exists
 // now; the segment stays so every shared link keeps working).
-const APP_SECTIONS = ["download", "features", "aion-2-dps-meter", "changelog", "twitch-drops", "stats", "status", "announcements", "patchnotes", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
+const APP_SECTIONS = ["download", "features", "aion-2-dps-meter", "how-it-works", "changelog", "twitch-drops", "stats", "status", "announcements", "patchnotes", "legions", "guilds", "feedback", "privacy", "terms", "instances", "worldbosses", "bosses", "players", "encounters", "participants", "compare", "search"];
 const DEFAULT_GAME = "aion2";
 let currentGame = DEFAULT_GAME;
 
@@ -426,6 +427,7 @@ function buildSiteFooter() {
     el("div", { className: "home-footer-links" }, [
       el("div", { className: "home-footer-legal" }, [
         link("Changelog", "/changelog"),
+        link(t("footer.howItWorks"), "/how-it-works"),
         link(t("legal.privacyTitle"), "/privacy"),
         link(t("legal.termsTitle"), "/terms"),
         buildStarLink(),
@@ -654,6 +656,19 @@ async function renderPrivacy() {
 
 async function renderTerms() {
   renderLegalPage("terms", "legal.termsTitle", "legal.termsIntro");
+}
+
+// /how-it-works: the technical article (article-data.js), English only like the changelog.
+function renderArticle() {
+  setBreadcrumb([link(t("breadcrumb.home"), "/"), t("footer.howItWorks")]);
+  document.title = `${ARTICLE.title} – ${SITE_TITLE}`;
+  const inline = (text) => articleSegments(text).map((s) => (s.href ? link(s.text, s.href) : s.bold ? el("strong", { textContent: s.text }) : document.createTextNode(s.text)));
+  const block = ([type, value]) => {
+    if (type === "h2") return el("h2", { textContent: value });
+    if (type === "ul" || type === "ol") return el(type, { className: "guide-list" }, value.map((item) => el("li", {}, inline(item))));
+    return el("p", { className: type === "lead" ? "guide-intro" : "" }, inline(value));
+  };
+  app.replaceChildren(el("div", { className: "guide-page article-page" }, [el("h1", { textContent: ARTICLE.title }), ...ARTICLE.blocks.map(block)]));
 }
 
 // /aion-2-dps-meter: what the meter does, how to install it and a comparison with other AION 2 meters. The tables come from
@@ -4514,6 +4529,8 @@ async function route() {
       renderFeatures();
     } else if (section === "aion-2-dps-meter") {
       renderGuide();
+    } else if (section === "how-it-works") {
+      renderArticle();
     } else if (section === "changelog") {
       await renderChangelog();
     } else if (section === "twitch-drops") {

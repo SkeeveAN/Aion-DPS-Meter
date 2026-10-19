@@ -748,4 +748,5 @@ export default {
   "guide.faq.choose.a": "Depende de lo que necesites. Usa las tablas: tu región (algunos medidores cubren Corea y Taiwán por completo, el nuestro solo en parte), tu plataforma (Windows o Linux), los extras que quieras (mapa, temporizadores, clasificaciones, vista de rotación, rDPS) y si quieres que el código fuente sea abierto. Elijas lo que elijas, revisa qué hace con tus datos.",
   "guide.faq.rdps.q": "¿Por qué el medidor no muestra rDPS?",
   "guide.faq.rdps.a": "El rDPS estima cuánto del daño de un jugador procede de los buffs de otros jugadores y asigna esa parte a quien puso el buff. Eso se basa en supuestos de un modelo, no en cifras medidas. En su lugar mostramos el iDPS por objetivo y la duración del combate, que muestran el efecto de un buff en el grupo sin estimar nada.",
+  "footer.howItWorks": "Detalles técnicos",
 };

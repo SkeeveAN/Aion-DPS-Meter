@@ -12,6 +12,7 @@ import {
   instanceCategoryPage,
   downloadPage,
   guidePage,
+  articlePage,
   changelogPage,
   twitchDropsPage,
   featuresPage,
@@ -83,6 +84,7 @@ export async function pageRoutes(app: FastifyInstance) {
   app.get("/", async (request, reply) => send(reply, render(homePage(), requestPath(request))));
   app.get("/download", async (request, reply) => send(reply, render(downloadPage(), requestPath(request))));
   app.get("/aion-2-dps-meter", async (request, reply) => send(reply, render(guidePage(), requestPath(request))));
+  app.get("/how-it-works", async (request, reply) => send(reply, render(articlePage(), requestPath(request))));
   app.get("/features", async (request, reply) => send(reply, render(featuresPage(), requestPath(request))));
   app.get("/changelog", async (request, reply) => send(reply, render(changelogPage(), requestPath(request))));
   app.get("/twitch-drops", async (request, reply) => send(reply, render(twitchDropsPage(), requestPath(request))));

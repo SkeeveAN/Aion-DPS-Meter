@@ -818,4 +818,5 @@ export default {
   "guide.faq.choose.a": "Das hängt davon ab, was du brauchst. Nutze die Tabellen: deine Region (manche Meter decken Korea und Taiwan vollständig ab, unserer nur teilweise), deine Plattform (Windows oder Linux), die Extras, die du willst (Karte, Timer, Bestenlisten, Rotationsansicht, rDPS), und ob der Quellcode offen sein soll. Egal wofür du dich entscheidest: Prüfe, was das Programm mit deinen Daten macht.",
   "guide.faq.rdps.q": "Warum zeigt der Meter kein rDPS?",
   "guide.faq.rdps.a": "rDPS schätzt, wie viel vom Schaden eines Spielers auf die Buffs anderer Spieler zurückgeht, und schreibt diesen Anteil dem zu, der den Buff gesetzt hat. Das beruht auf Modellannahmen und nicht auf gemessenen Zahlen. Wir zeigen stattdessen den iDPS pro Ziel und die Kampfzeit. Daran sieht man die Wirkung eines Buffs auf die Gruppe, ohne etwas zu schätzen.",
+  "footer.howItWorks": "Technischer Hintergrund",
 };
