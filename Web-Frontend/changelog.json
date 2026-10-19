@@ -10,6 +10,14 @@
      "Backend"
     ],
     "date": "2026-10-19"
+   },
+   {
+    "text": "Website: new page /how-it-works with the technical article on passive combat tracking (Npcap, .NET 10), linked in the footer as Technical background",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-19"
    }
   ]
  },
