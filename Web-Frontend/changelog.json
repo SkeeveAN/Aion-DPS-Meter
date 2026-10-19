@@ -1,5 +1,19 @@
 [
  {
+  "version": "1.5.10",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "Asmodian characters upload their class bits correctly (the server turned a Templar's or Ranger's profile away) and the character windows of other Asmodian players are read too",
+    "areas": [
+     "Client",
+     "Backend"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.5.9",
   "date": "2026-10-19",
   "items": [
