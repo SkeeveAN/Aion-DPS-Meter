@@ -50,6 +50,7 @@ public sealed class ToolsWindow : Window
     {
         "checklist" => 660,
         "attributes" => 1060,
+        "statcalc" => 1180,
         "assist" => 640,
         "timetable" => 640,
         "stream" => 700,

@@ -191,6 +191,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
                 _petStates = null;
                 _titles = null;
                 _attributes = null;
+                _stats = null;
                 _wing = null;
                 _activePet = null;
                 _stigmas.Clear();
@@ -914,6 +915,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     }
 
     private Dictionary<int, int>? _attributes;
+    private Dictionary<int, int>? _stats;
     private Aion2Wing? _wing;
     private int? _activePet;
 
@@ -954,6 +956,33 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
         }
 
         NotifyCharacterChanged();
+    }
+
+    /// <summary>Every value of the stat frame (<see cref="OpcodeFamily.Attributes"/>) of the local player by stat id, the base attributes and
+    /// Lord values included (the stat window's attack, damage boni and rates: see <see cref="Aion2StatIds"/>); null before it arrived.
+    /// Not stored with the character file: the stat calculator needs the values of this session only.</summary>
+    public IReadOnlyDictionary<int, int>? LocalStats
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _stats is null ? null : new Dictionary<int, int>(_stats);
+            }
+        }
+    }
+
+    /// <summary>Merges the ids of a stat frame into the stat table (a later frame lists only what changed).</summary>
+    public void SetLocalStats(IReadOnlyDictionary<int, int> values)
+    {
+        lock (_gate)
+        {
+            _stats ??= new Dictionary<int, int>();
+            foreach (var pair in values)
+            {
+                _stats[pair.Key] = pair.Value;
+            }
+        }
     }
 
     /// <summary>The wing and wing skin of the local player; null when the login record did not carry them.</summary>

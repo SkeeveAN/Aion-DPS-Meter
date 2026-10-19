@@ -1530,7 +1530,7 @@ public static class SelfCheckAion2
             // Fresh data replaces the restored record.
             next.SetLocalCharacter(new Aion2CharacterInfo(2037, "Aahz", 6, 34, Array.Empty<Aion2EquippedItem>(), DateTime.Now));
             bool replaced = next.LocalCharacter is { Level: 34, Restored: false } && next.LocalPlayerId == 2037;
-            bool className = Aion2SkillNames.ClassFromCode(6) == "Gladiator" && Aion2SkillNames.ClassFromCode(34) == "Chanter" && Aion2SkillNames.ClassFromCode(18) == "Assassin" && Aion2SkillNames.ClassFromCode(7) is null;
+            bool className = Aion2SkillNames.ClassFromCode(6) == "Gladiator" && Aion2SkillNames.ClassFromCode(34) == "Chanter" && Aion2SkillNames.ClassFromCode(18) == "Assassin" && Aion2SkillNames.ClassFromCode(7) == "Gladiator" && Aion2SkillNames.ClassFromCode(3) is null;
 
             Console.WriteLine($"  -> the data is written to disk when the game sends it: {written}");
             Console.WriteLine($"  -> a new session restores name, level, gear with enchant, skills and boards: {header && lists}");

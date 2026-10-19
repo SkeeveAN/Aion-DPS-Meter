@@ -14,7 +14,7 @@ namespace AionDPS.Ui;
 /// <summary>
 /// The page of the attribute tool: the attribute ring as in the game (six main attributes inside, ten Lord values around them, the player's points on each), and on the right what the
 /// chosen one does and what it gives the player - 0.1 % per point on each effect - with all effects of all nodes added up below. A second tab explains the stats of the stat page and shows
-/// how much of each comes from the ring. The values are the ones the server sends (stat frame 0x4936); the stat values themselves are not sent, so only the share from the ring is shown.
+/// how much of each comes from the ring. The values are the ones the server sends (stat frame 0x4936). The same frame carries the stat window's own values too (see Aion2EntityDirectory.LocalStats, used by the stat calculator); this tab still only shows the share that comes from the ring.
 /// A reading page: no overlay, no hotkey, no settings.
 /// </summary>
 public sealed class AttributesPage : Grid

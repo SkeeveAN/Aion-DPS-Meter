@@ -548,6 +548,30 @@ public sealed class MeterSettings
     /// adapter, else a NetworkInterface.Id. Matters when a gaming VPN carries the game's traffic.</summary>
     public string? CaptureAdapterId { get; set; }
 
+    /// <summary>A random identifier of this installation, made the first time something is sent that must not carry a name (the stat recordings and network reports); it
+    /// ties those sendings of one installation together and to nothing else - no name, no account. Empty until then (see <see cref="EnsureAnonymousId"/>).</summary>
+    public string AnonymousId { get; set; } = "";
+
+    /// <summary>The stat calculator: the expert mode, the side the player mostly hits from ("unknown", "front", "back") and how much of the hits land there, in percent.</summary>
+    public bool StatCalcExpert { get; set; }
+
+    public string StatCalcSide { get; set; } = "unknown";
+
+    public int StatCalcSideRate { get; set; } = 70;
+
+    /// <summary>The identifier of this installation, made and saved when there is none yet.</summary>
+    public static string EnsureAnonymousId()
+    {
+        MeterSettings settings = Load();
+        if (settings.AnonymousId.Length == 0)
+        {
+            settings.AnonymousId = Guid.NewGuid().ToString("N");
+            settings.Save();
+        }
+
+        return settings.AnonymousId;
+    }
+
     /// <summary>The user's own Aion 2 character name. Aion 2 frames name every player but give no
     /// hint which one is you, so the meter matches this name; it fills it in by itself as soon as
     /// the stream reveals it (a party roster), and Settings lets it be typed for solo play.</summary>
@@ -698,6 +722,7 @@ public sealed class MeterSettings
     private static void KeepAcrossReset(MeterSettings from, MeterSettings to)
     {
         to.SetupCompleted = from.SetupCompleted;
+        to.AnonymousId = from.AnonymousId;
         to.AutoUploadProfile = from.AutoUploadProfile;
         to.AutoUploadBoss = from.AutoUploadBoss;
         to.UploadOtherPlayersProfiles = from.UploadOtherPlayersProfiles;

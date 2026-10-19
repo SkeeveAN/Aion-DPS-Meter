@@ -2341,7 +2341,8 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>
     /// The stat frame of the local player: <c>opcode | 00 00 | varint n | n x (u16 id, i32 value) | 8 bytes</c>. Only the base
-    /// attributes and Lord values (ids 1..17, see <see cref="Aion2Attributes"/>) are kept. Checked 2026-10-10 on Aahz.
+    /// attributes and Lord values (ids 1..17, see <see cref="Aion2Attributes"/>) go to the character; every id goes to the session's stat table
+    /// (<see cref="Aion2EntityDirectory.LocalStats"/>). Checked 2026-10-10 on Aahz.
     /// </summary>
     private void DecodeAttributes(ReadOnlySpan<byte> frame)
     {
@@ -2352,18 +2353,26 @@ public sealed class Aion2FrameDecoder
         }
 
         var values = new Dictionary<int, int>();
+        var all = new Dictionary<int, int>();
         for (long i = 0; i < count; i++, p += 6)
         {
             int id = BinaryPrimitives.ReadUInt16LittleEndian(frame[p..]);
+            int value = BinaryPrimitives.ReadInt32LittleEndian(frame[(p + 2)..]);
+            all[id] = value;
             if (id is >= Aion2Attributes.FirstId and <= Aion2Attributes.LastId)
             {
-                values[id] = BinaryPrimitives.ReadInt32LittleEndian(frame[(p + 2)..]);
+                values[id] = value;
             }
         }
 
         if (values.Count > 0)
         {
             _entities.SetLocalAttributes(values);
+        }
+
+        if (all.Count > 0)
+        {
+            _entities.SetLocalStats(all);
         }
     }
 

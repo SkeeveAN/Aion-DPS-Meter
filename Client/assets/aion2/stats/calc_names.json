@@ -1,0 +1,162 @@
+{
+ "FixedAttack": {
+  "de": "Zusatzangriffskraft",
+  "en": "Attack Bonus",
+  "es": "Ataque Adicional",
+  "fr": "ATQ supplémentaire",
+  "ja": "追加攻撃力",
+  "ko": "추가 공격력",
+  "pt": "Ataque Adicional",
+  "ru": "Доп. АТК"
+ },
+ "GearAttack": {
+  "de": "Angriffskraft",
+  "en": "Attack",
+  "es": "Ataque",
+  "fr": "ATQ",
+  "ja": "攻撃力",
+  "ko": "공격력",
+  "pt": "Ataque",
+  "ru": "АТК"
+ },
+ "MaxAttack": {
+  "de": "Max. Angriffskraft",
+  "en": "Max Attack",
+  "es": "Ataque Máximo",
+  "fr": "ATQ max",
+  "ja": "最大攻撃力",
+  "ko": "최대 공격력",
+  "pt": "Ataque Máx.",
+  "ru": "Макс. АТК"
+ },
+ "MinAttack": {
+  "de": "Min. Angriffskraft",
+  "en": "Min Attack",
+  "es": "Ataque Mínimo",
+  "fr": "ATQ min",
+  "ja": "最小攻撃力",
+  "ko": "최소 공격력",
+  "pt": "Ataque Mín.",
+  "ru": "Мин. АТК"
+ },
+ "AttackRatio": {
+  "de": "Angriffskraft +",
+  "en": "Attack increase",
+  "es": "Aumento de Ataque",
+  "fr": "Augmentation de l'ATQ",
+  "ja": "攻撃力増加",
+  "ko": "공격력 증가",
+  "pt": "Aumento de Ataque",
+  "ru": "Увеличение АТК"
+ },
+ "WeaponAmp": {
+  "de": "Verstärkung (Waffenschaden)",
+  "en": "Weapon Damage Boost",
+  "es": "Amplificación de Daño de Arma",
+  "fr": "Boost de DGT arme",
+  "ja": "武器ダメージ増幅",
+  "ko": "무기 피해 증폭",
+  "pt": "Amplificação de Dano de Arma",
+  "ru": "Увелич. урона оружия"
+ },
+ "AllAmp": {
+  "de": "Schadensverstärkung",
+  "en": "Damage Boost",
+  "es": "Amplificación de Daño",
+  "fr": "Boost de DGT",
+  "ja": "ダメージ増幅",
+  "ko": "피해 증폭",
+  "pt": "Amplificação de Dano",
+  "ru": "Увелич. урона"
+ },
+ "PveAmp": {
+  "de": "Schadensverstärkung (PvE)",
+  "en": "PvE Damage Boost",
+  "es": "Amplificación de Daño de JcE",
+  "fr": "Boost de DGT JcE",
+  "ja": "PvEダメージ増幅",
+  "ko": "PVE 피해 증폭",
+  "pt": "Amplificação de Dano em JvA",
+  "ru": "Увеличение урона в PvE"
+ },
+ "BossAmp": {
+  "de": "Schadensverstärkung (Boss)",
+  "en": "Boss Damage Boost",
+  "es": "Amplificación de Daño de Jefe",
+  "fr": "Boost de DGT boss",
+  "ja": "ボス ダメージ増幅",
+  "ko": "보스 피해 증폭",
+  "pt": "Aumento de Dano contra Chefe",
+  "ru": "Увеличение урона по боссам"
+ },
+ "CritAmp": {
+  "de": "Krit.-Schadensverstärkung",
+  "en": "Critical Damage Boost",
+  "es": "Amplificación de Daño Crítico",
+  "fr": "Boost de DGT CRIT",
+  "ja": "クリティカル ダメージ増幅",
+  "ko": "치명타 피해 증폭",
+  "pt": "Amplificação de Dano Crítico",
+  "ru": "Увелич. крит. урона"
+ },
+ "Perfect": {
+  "de": "Perfektion",
+  "en": "Perfect Chance",
+  "es": "Perforación",
+  "fr": "Coup parfait",
+  "ja": "完璧",
+  "ko": "완벽",
+  "pt": "Acerto Perfeito",
+  "ru": "Совершенный удар"
+ },
+ "Smite": {
+  "de": "Wucht",
+  "en": "Double Chance",
+  "es": "Golpe",
+  "fr": "Coup puissant",
+  "ja": "強打",
+  "ko": "강타",
+  "pt": "Golpe Potente",
+  "ru": "Мощный удар"
+ },
+ "FrontAmp": {
+  "de": "Schadensverstärkung (Frontal)",
+  "en": "Front Attack Damage Boost",
+  "es": "Amplificación de Daño Frontal",
+  "fr": "Boost de DGT frontaux",
+  "ja": "前方ダメージ増幅",
+  "ko": "전방 피해 증폭",
+  "pt": "Amplificação de Dano de Ataque Frontal",
+  "ru": "Увеличение урона от атаки спереди"
+ },
+ "BackAmp": {
+  "de": "Schadensverstärkung (Rückseitig)",
+  "en": "Back Attack Damage Boost",
+  "es": "Amplificación de Daño por la Espalda",
+  "fr": "Boost de DGT dans le dos",
+  "ja": "後方ダメージ増幅",
+  "ko": "후방 피해 증폭",
+  "pt": "Amplificação de Dano da Retaguarda",
+  "ru": "Увеличение урона от атаки с тыла"
+ },
+ "PveAdd": {
+  "de": "Angriffskraft (PvE)",
+  "en": "PvE Attack",
+  "es": "Ataque JcE",
+  "fr": "ATQ JcE",
+  "ja": "PvE攻撃力",
+  "ko": "PVE 공격력",
+  "pt": "Ataque em JvA",
+  "ru": "АТК в PvE"
+ },
+ "BossAdd": {
+  "de": "Angriffskraft (Boss)",
+  "en": "Boss Attack",
+  "es": "Ataque de Jefe",
+  "fr": "ATQ contre les boss",
+  "ja": "ボス攻撃力",
+  "ko": "보스 공격력",
+  "pt": "Ataque contra Chefe",
+  "ru": "АТК по боссу"
+ }
+}

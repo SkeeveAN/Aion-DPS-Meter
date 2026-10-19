@@ -90,6 +90,7 @@ public sealed class NpcapCaptureService : IDisposable
             IReadOnlyList<ILiveDevice> selected = CaptureAdapters.Select(all.Cast<ILiveDevice>().ToList(), _adapterId, out string? selectionNote);
             int opened = 0;
             NetworkStats.Reset();
+            NetworkHistory.Start();
             NetworkStats.QueueProbe = () => (_queue.Count, Dropped);
             _worker ??= StartWorker();
             foreach (ILiveDevice device in selected)

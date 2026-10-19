@@ -177,6 +177,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 1 && args[0] == "render-statcalc")
+        {
+            RunRenderStatCalcMode(args[1], args.Length > 2 && args[2] == "expert", args.Length > 3 ? args[3] : "");
+            return;
+        }
+
         if (args.Length > 1 && args[0] == "render-attributes")
         {
             RunRenderAttributesMode(args[1], args.Length > 2 && args[2] == "stats", args.Length > 3 ? args[3] : "");
@@ -1294,6 +1300,63 @@ internal static class Program
         Environment.Exit(0);
     }
 
+    private static void RunRenderStatCalcMode(string path, bool expert, string language)
+    {
+        var app = new System.Windows.Application();
+        app.Resources.MergedDictionaries.Add(
+            (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
+        var settings = Ui.MeterSettings.Load();
+        if (language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = language;
+        }
+        else if (settings.Language.Length > 0)
+        {
+            Ui.LocalizationManager.Instance.Language = settings.Language;
+        }
+
+        settings.StatCalcExpert = expert;
+        settings.StatCalcSide = "back";
+        settings.StatCalcSideRate = 62;
+        settings.Save();
+        Ui.ThemeManager.Apply(app, settings);
+        Ui.MainWindow.Headless = true;
+        var directory = new Aion2.Aion2EntityDirectory();
+        directory.SetLocalStats(new Dictionary<int, int>
+        {
+            [19] = 277, [317] = 1050, [31] = 542, [33] = 431, [425] = 337, [32] = 1000, [28] = 500, [379] = 1500, [44] = 600, [442] = 1750, [443] = 620, [589] = 560, [102] = 93, [56] = 259, [50] = 55,
+        });
+        var page = new Ui.StatCalcPage(() => directory, () => Array.Empty<Combat.DamageEvent>());
+        page.ApplyAssumptions(34, Combat.AttackSide.Back, 62);
+        page.ApplyChange(Combat.StatKey.GearAttack, 120);
+        page.ApplyChange(Combat.StatKey.CritAmp, -2);
+        page.ApplyChange(Combat.StatKey.AllAmp, 2.5);
+        int height = expert ? 1000 : 760;
+        var host = new System.Windows.Controls.Border { Width = 1180, Height = height, Child = page, Background = (System.Windows.Media.Brush)app.Resources["Brush.Window"] ?? System.Windows.Media.Brushes.Black };
+        // the button style the tools window takes over from the main window (see ThemedChrome); the picture has no main window
+        host.Resources[typeof(System.Windows.Controls.Button)] = System.Windows.Markup.XamlReader.Parse(
+            "<Style xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" TargetType=\"Button\">" +
+            "<Setter Property=\"Background\" Value=\"{DynamicResource Brush.Control}\"/><Setter Property=\"Foreground\" Value=\"{DynamicResource Brush.Text}\"/>" +
+            "<Setter Property=\"BorderBrush\" Value=\"{DynamicResource Brush.Border}\"/><Setter Property=\"BorderThickness\" Value=\"1\"/>" +
+            "<Setter Property=\"Template\"><Setter.Value><ControlTemplate TargetType=\"Button\"><Border x:Name=\"Bd\" Background=\"{TemplateBinding Background}\" BorderBrush=\"{TemplateBinding BorderBrush}\" BorderThickness=\"{TemplateBinding BorderThickness}\" Padding=\"{TemplateBinding Padding}\"><ContentPresenter HorizontalAlignment=\"Center\" VerticalAlignment=\"Center\"/></Border>" +
+            "<ControlTemplate.Triggers><Trigger Property=\"IsEnabled\" Value=\"False\"><Setter TargetName=\"Bd\" Property=\"Opacity\" Value=\"0.4\"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style>");
+        host.Measure(new System.Windows.Size(1180, height));
+        host.Arrange(new System.Windows.Rect(0, 0, 1180, height));
+        host.UpdateLayout();
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(1180, height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(host);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using (var file = File.Create(path))
+        {
+            encoder.Save(file);
+        }
+
+        page.Stop();
+        Console.WriteLine("render-statcalc: wrote " + path);
+        Environment.Exit(0);
+    }
+
     private static void RunRenderNetworkMode(string path, int scale)
     {
         var app = new System.Windows.Application();
@@ -2322,6 +2385,28 @@ internal static class Program
         if (source.Entities is Aion2.Aion2EntityDirectory idEnd)
         {
             Console.WriteLine($"aion2-replay: {idEnd.IdentityMovesSeen} player(s) came back under a new combat id");
+        }
+
+        if (Environment.GetEnvironmentVariable("AION2_STATS") == "1" && source.Entities is Aion2.Aion2EntityDirectory statsDirectory && statsDirectory.LocalStats is { } stats)
+        {
+            Console.WriteLine($"aion2-replay: stat frame of the own character, {stats.Count} ids: " + string.Join("  ", stats.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}")));
+        }
+
+        if (Environment.GetEnvironmentVariable("AION2_STATREC") is { Length: > 0 } statRecPath && source.Entities is Aion2.Aion2EntityDirectory recDirectory && recDirectory.LocalStats is { } recStats && events.Count > 0)
+        {
+            // a stat recording over the whole replay, to check the document's size and its shape against the server on real data (nothing is sent)
+            DateTime recStart = events.Min(e => e.Timestamp), recEnd = events.Max(e => e.Timestamp);
+            int recLocal = recDirectory.LocalPlayerId;
+            var recMine = events.Where(e => e.SourceObjectId == recLocal).ToList();
+            Combat.FightExtras recExtras = recDirectory.Combat.Slice(recStart, recEnd, _ => null);
+            Aion2.Aion2CharacterInfo? recCharacter = recDirectory.LocalCharacter;
+            int? recServer = recCharacter is { ServerId: > 0 } ? recCharacter.ServerId : null;
+            var recSetup = new Aion2.StatRecordingSetup("expert", "back", 60, 30, 0, 0, 0, 0, 0, 150, 100);
+            string recJson = Aion2.StatRecording.Build(new string('a', 32), recStart, recEnd, recSetup,
+                new Aion2.StatRecordingCharacter(recCharacter is { ClassCode: > 0 } ? (recCharacter.ClassCode - 1) / 4 : null, recCharacter?.Level, recServer, Aion2.StatRecording.FactionOf(recServer)),
+                recStats, recStats, Array.Empty<Aion2.StatChange>(), recMine, recExtras, recLocal, id => recDirectory.NpcIdOf(id), id => recDirectory.MonsterNameFor(id));
+            File.WriteAllText(statRecPath, recJson);
+            Console.WriteLine($"aion2-replay: stat recording of {recMine.Count} own events written to {statRecPath} ({recJson.Length / 1024} KB)");
         }
 
         Console.WriteLine($"aion2-replay: tickets belong now to {Aion2.Aion2Tickets.CurrentName ?? "nobody"}");

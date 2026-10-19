@@ -487,6 +487,15 @@ public static class NetworkStats
         }
     }
 
+    /// <summary>The pauses of the connection that ended after a moment (the last fifty are kept).</summary>
+    public static IReadOnlyList<NetworkStall> StallHistory(DateTime from)
+    {
+        lock (Gate)
+        {
+            return Stalls.Where(s => s.End >= from).ToList();
+        }
+    }
+
     public static NetworkSnapshot Snapshot()
     {
         (int queued, long dropped) = QueueProbe?.Invoke() ?? (0, 0);

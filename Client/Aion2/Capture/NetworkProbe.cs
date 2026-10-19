@@ -267,6 +267,30 @@ public static class NetworkProbe
         return null;
     }
 
+    /// <summary>One probe second as the network report lists it: how fast the router, the internet host and the game server answered (null = no answer; the Tried flags tell a missing answer from a probe that was not sent).</summary>
+    public readonly record struct ProbeSample(DateTime At, bool GatewayTried, double? GatewayMs, double? InternetMs, bool ServerTried, double? ServerMs);
+
+    /// <summary>The probe seconds since a moment (the probe keeps the last fifteen minutes, and only while it runs).</summary>
+    public static IReadOnlyList<ProbeSample> History(DateTime from)
+    {
+        lock (Gate)
+        {
+            return Samples.Where(s => s.At >= from).Select(s => new ProbeSample(s.At, s.GatewayTried, s.GatewayMs, s.InternetMs, s.ServerTried, s.ServerMs)).ToList();
+        }
+    }
+
+    /// <summary>Whether the probe is running now.</summary>
+    public static bool IsRunning
+    {
+        get
+        {
+            lock (Gate)
+            {
+                return _cts is not null;
+            }
+        }
+    }
+
     public static NetworkProbeSnapshot Snapshot()
     {
         lock (Gate)

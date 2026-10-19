@@ -46,6 +46,7 @@ public static class SelfCheck
         ok &= SelfCheckColorPicker.Run();
         ok &= SelfCheckReplay.Run();
         ok &= SelfCheckIdentity.Run();
+        ok &= SelfCheckStatCalc.Run();
         return ok;
     }
 

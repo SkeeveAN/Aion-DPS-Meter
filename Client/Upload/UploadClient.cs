@@ -211,6 +211,36 @@ public static class UploadClient
         }
     }
 
+    /// <summary>Posts a network report (see Aion2/Capture/NetworkReport.cs) the player has looked at and agreed to send. Same never-throws contract as <see cref="SendAsync"/>.</summary>
+    public static Task<UploadResult> SendNetworkReportAsync(string json) => PostJsonAsync("/api/diagnostics/network", json);
+
+    /// <summary>Posts a stat recording (see Aion2/StatRecording.cs) the player has looked at and agreed to send. Same never-throws contract as <see cref="SendAsync"/>.</summary>
+    public static Task<UploadResult> SendStatRecordingAsync(string json) => PostJsonAsync("/api/uploads/stat-recording", json);
+
+    private static async Task<UploadResult> PostJsonAsync(string path, string json)
+    {
+        if (IsBlocked)
+        {
+            await RecheckIfDueAsync();
+        }
+
+        if (IsBlocked)
+        {
+            return BlockedResult();
+        }
+
+        try
+        {
+            using var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await Http.PostAsync($"{ApiBaseUrl}{path}", content);
+            return response.IsSuccessStatusCode ? UploadResult.Ok : await FailureOf(response);
+        }
+        catch (Exception ex)
+        {
+            return UploadResult.Failed(ex.Message);
+        }
+    }
+
     private static string Truncate(string s, int maxLength) =>
         s.Length <= maxLength ? s : s[..maxLength] + "...";
 }

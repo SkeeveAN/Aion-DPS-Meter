@@ -4913,7 +4913,7 @@ public partial class MainWindow : Window
             var loc = LocalizationManager.Instance;
             var groups = new[]
             {
-                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("attributes", loc["Main.MenuTools.Attributes"]), new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
+                new[] { new ToolEntry("checklist", loc["Main.MenuTools.Checklist"]), new ToolEntry("attributes", loc["Main.MenuTools.Attributes"]), new ToolEntry("statcalc", loc["Main.MenuTools.StatCalc"]), new ToolEntry("loot", loc["Main.MenuTools.Loot"]), new ToolEntry("petmap", loc["Settings.Nav.PetMap"]), new ToolEntry("petmap.pets", loc["Settings.Nav.Pets"], Sub: true), new ToolEntry("petmap.gather", loc["Settings.Nav.Gather"], Sub: true) },
                 new[] { new ToolEntry("combat", loc["Settings.Nav.Combat"]), new ToolEntry("assist", loc["Main.MenuTools.Assist"]) },
                 new[] { new ToolEntry("dummy", loc["Main.MenuTools.DummyTest"]), new ToolEntry("analyzer", loc["Main.MenuTools.Analyzer"], OwnWindow: true) },
                 new[] { new ToolEntry("timetable", loc["Settings.Nav.Timetable"]), new ToolEntry("boss", loc["Settings.Nav.Boss"]) },
@@ -4974,6 +4974,12 @@ public partial class MainWindow : Window
                 return attributesTool;
             }
 
+            case "statcalc":
+            {
+                var calcPage = new StatCalcPage(() => _liveSource?.Entities as Aion2EntityDirectory, () => _aggregator.Events);
+                return new ToolPage { Content = calcPage, Cleanup = calcPage.Stop };
+            }
+
             case "loot":
             {
                 var lootPage = new LootPage();
@@ -5007,7 +5013,10 @@ public partial class MainWindow : Window
             case "network" when _network is not null:
             {
                 var view = _network.CreateView();
-                var page = new ModulePage(loc["Settings.Nav.Network"], view.DetachBody()!, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied);
+                var networkBody = new StackPanel();
+                networkBody.Children.Add(view.DetachBody()!);
+                networkBody.Children.Add(new NetworkReportPanel());
+                var page = new ModulePage(loc["Settings.Nav.Network"], networkBody, s => s.ShowNetworkOverlay, (s, v) => s.ShowNetworkOverlay = v, s => s.HotkeyNetwork, hotkeys, settingsPage, applied);
                 return new ToolPage { Content = page, Cleanup = () => { page.Stop(); _network?.RemoveView(view); } };
             }
 
