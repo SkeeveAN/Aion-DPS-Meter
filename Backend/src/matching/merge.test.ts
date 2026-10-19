@@ -530,3 +530,33 @@ test("a world boss kill with exactly the same hit points at the same moment is o
   const noHp = at("C", 30, undefined, "2026-06-01T22:36:00.500Z");
   assert.notEqual(noHp.encounterId, first.encounterId, "without the number the rosters decide, and they do not overlap");
 });
+
+test("a character renamed between two uploads of the same fight stays one participant, whichever name an upload uses", () => {
+  const at = (name: string, isSelf: boolean) =>
+    processUpload(
+      basePayload({
+        bossNpcName: "Renamed Boss",
+        startedAt: "2026-07-01T18:00:00.000Z",
+        endedAt: "2026-07-01T18:01:30.000Z",
+        participants: [
+          ...["Anna", "Cora", "Dino", "Emil"].map((n) => ({ ...basePayload().participants[0], name: n, isSelf: false })),
+          { ...basePayload().participants[1], name, isSelf },
+        ],
+      }),
+    );
+  const instance = db.insert(instances).values({ name: "Rename place", nameEn: "Rename place", game: "aion2", slug: "rename-place", category: "expedition" }).returning().get();
+  db.insert(bosses).values({ name: "Renamed Boss", instanceId: instance.id }).run();
+
+  const first = at("Oldname", true);
+  // The NC check renames the character; the old name stays as an alias.
+  db.update(players).set({ name: "Newname", nameNormalized: "newname", aliasNamesNormalized: ["oldname"] }).where(eq(players.name, "Oldname")).run();
+  const second = at("Oldname", true);
+  const third = at("Oldname", false);
+  assert.equal(second.encounterId, first.encounterId);
+  assert.equal(third.encounterId, first.encounterId);
+
+  const rows = db.select().from(encounterParticipants).where(eq(encounterParticipants.encounterId, first.encounterId)).all();
+  const ids = rows.map((r) => r.playerId);
+  assert.equal(new Set(ids).size, ids.length, "no player twice in one fight");
+  assert.equal(rows.length, 5);
+});

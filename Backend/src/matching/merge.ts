@@ -595,6 +595,13 @@ function recomputeEncounterTotals(encounterId: number, startedAtIso: string, end
     .run();
 }
 
+/** The stored player an uploaded name stands for - by its current name or by an alias of a renamed character - without creating anything. */
+function knownPlayerId(name: string, serverId: number): number | undefined {
+  const normalized = normalizeName(name);
+  const onServer = db.select().from(players).where(eq(players.serverId, serverId)).all();
+  return (onServer.find((p) => p.nameNormalized === normalized) ?? onServer.find((p) => p.aliasNamesNormalized.includes(normalized)))?.id;
+}
+
 /** Merges a new upload's participants into an already-matched encounter, correcting a wrong self-name where possible. */
 function mergeIntoEncounter(encounterId: number, serverId: number, payload: UploadPayload) {
   const existing = db.select().from(encounters).where(eq(encounters.id, encounterId)).get()!;
@@ -615,8 +622,10 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
       // saw them (damage dealt is broadcast, not viewer-dependent) - only
       // update non-authoritative rows, never overwrite a self-report.
       const normalized = normalizeName(participant.name);
+      // Also the old name of a renamed character: the row of that player is the same person.
+      const knownId = knownPlayerId(participant.name, serverOfParticipant(participant, serverId));
       const match = existingParticipants.find(
-        (p) => normalizeName(p.players.name) === normalized,
+        (p) => normalizeName(p.players.name) === normalized || p.players.id === knownId,
       );
       if (match && participant.estimated && !match.encounter_participants.estimated) {
         // An exact row stays: an estimate (hit counts x typical hit) never replaces real numbers.
@@ -635,8 +644,9 @@ function mergeIntoEncounter(encounterId: number, serverId: number, payload: Uplo
 
     // The uploader's own row - the one that might carry a wrong self-name.
     const normalized = normalizeName(participant.name);
+    const knownId = knownPlayerId(participant.name, serverOfParticipant(participant, serverId));
     const sameNameMatch = existingParticipants.find(
-      (p) => normalizeName(p.players.name) === normalized,
+      (p) => normalizeName(p.players.name) === normalized || p.players.id === knownId,
     );
     if (sameNameMatch && participant.estimated && !sameNameMatch.encounter_participants.estimated) {
       continue;
