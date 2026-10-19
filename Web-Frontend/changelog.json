@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.7.0",
   "date": "2026-10-19",
   "items": [
    {
@@ -39,6 +39,21 @@
     "areas": [
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-19"
+   },
+   {
+    "text": "Website: the features page and the READMEs describe the stat calculator and the network report",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-19"
+   },
+   {
+    "text": "new Stat calculator tool (simple and expert mode, beta) that shows what a change of stats does to your damage, with an optional recording of a fight you can send to make it better (idea from the Stat Efficiency Calculator of RATmeter, own layout, code and formula), the meter now reads every stat the game sends for your character, and a network report that saves or sends the last 15 minutes of your connection without IP address or names",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-19"
    }
