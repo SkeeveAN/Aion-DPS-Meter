@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.7.1",
   "date": "2026-10-19",
   "items": [
    {
@@ -16,6 +16,13 @@
     "areas": [
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-19"
+   },
+   {
+    "text": "the stat calculator's note for a character without the attack values no longer names a mage as an example - a mage's stats carry the same attack values as every other class",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-19"
    }
