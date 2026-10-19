@@ -165,7 +165,8 @@ export function downloadPage(): Page {
   };
 }
 
-const en = enStrings as unknown as Record<string, string>;
+// Web-Frontend has no package.json, so at run time Node may hand the default export over wrapped in { default }.
+const en = ((enStrings as unknown as { default?: Record<string, string> }).default ?? enStrings) as unknown as Record<string, string>;
 
 /** The comparison page for the searches "AION 2 DPS meter / damage meter / combat tracker". The text and tables come from
  *  the same files as the app's version (Web-Frontend/guide-data.js and the English strings), so there is one source. */
