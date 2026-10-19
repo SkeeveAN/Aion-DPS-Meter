@@ -3558,8 +3558,8 @@ public partial class MainWindow : Window
                 new ProfileUpload(
                     "seen",
                     inspected.Level,
-                    inspected.ClassCode / 4,
-                    inspected.ClassCode % 4,
+                    Aion2.Protocol.Aion2SkillNames.ClassIdOfCode(inspected.ClassCode),
+                    Aion2.Protocol.Aion2SkillNames.ClassBitsOfCode(inspected.ClassCode),
                     inspected.Gear.Select(GearUpload).ToList(),
                     Array.Empty<ProfileSkillUpload>(),
                     Array.Empty<ProfileBoardUpload>(),
@@ -5418,12 +5418,12 @@ public partial class MainWindow : Window
 
             Aion2CharacterInfo character = live;
             int code = character.ClassCode;
-            bool known = code % 4 is 1 or 2 && code / 4 is >= 1 and <= 8;
+            bool known = Aion2.Protocol.Aion2SkillNames.ClassIdOfCode(code) is >= 1 and <= 8;
             return new ProfileUpload(
                 "self",
                 character.Level,
-                known ? code / 4 : null,
-                known ? code % 4 : null,
+                known ? Aion2.Protocol.Aion2SkillNames.ClassIdOfCode(code) : null,
+                known ? Aion2.Protocol.Aion2SkillNames.ClassBitsOfCode(code) : null,
                 directory.LocalEquipment.Select(GearUpload).ToList(),
                 directory.LocalSkills.Select(s => new ProfileSkillUpload(s.SkillId, s.Level, s.BaseLevel, s.Stigma, s.Equipped)).ToList(),
                 directory.LocalDaevanion.Select(b => new ProfileBoardUpload(b.BoardId, b.NodeIds.ToList())).ToList(),
@@ -5448,8 +5448,8 @@ public partial class MainWindow : Window
             return new ProfileUpload(
                 "seen",
                 window.Level,
-                window.ClassCode / 4,
-                window.ClassCode % 4,
+                Aion2.Protocol.Aion2SkillNames.ClassIdOfCode(window.ClassCode),
+                Aion2.Protocol.Aion2SkillNames.ClassBitsOfCode(window.ClassCode),
                 window.Gear.Select(GearUpload).ToList(),
                 Array.Empty<ProfileSkillUpload>(),
                 Array.Empty<ProfileBoardUpload>(),

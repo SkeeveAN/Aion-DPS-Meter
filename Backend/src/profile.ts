@@ -18,8 +18,9 @@ export const profileSchema = z.object({
   source: z.enum(["self", "seen"]),
   level: z.number().int().min(1).max(200).optional(),
   classId: z.number().int().min(1).max(9).optional(),
-  // The low two bits of the class code (4 * class id + bits). Not a faction. Clients up to 0.27 sent them as "faction".
-  classBits: z.number().int().min(1).max(2).optional(),
+  // The last part of the class code (4 * class id + 1..4): 1 and 2 on Elyos characters, 3 on Asmodian ones (4 expected). Not a faction. Clients up to 0.27 sent them as "faction";
+  // 1.5.9 sent the raw remainder (0 to 3) for Asmodians, so 0 is accepted too.
+  classBits: z.number().int().min(0).max(4).optional(),
   faction: z.number().int().min(1).max(2).optional(),
   // The gear score ("Ausrüstungswert") the game shows in a character window (only when the uploader opened that window).
   gearScore: z.number().int().min(1).max(100_000_000).optional(),

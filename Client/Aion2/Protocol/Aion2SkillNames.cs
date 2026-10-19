@@ -177,6 +177,12 @@ public static class Aion2SkillNames
     /// Templar 9/10, Ranger 13/14, Assassin 17/18, Spiritmaster 21/22, Sorcerer 25/26, Cleric 29/30,
     /// Chanter 33/34). Verified on four known characters; null for anything outside that pattern.
     /// </summary>
+    /// <summary>The class id of a class code (4 * id + 1..4), 0 when the code is none.</summary>
+    public static int ClassIdOfCode(int classCode) => classCode >= 1 ? (classCode - 1) / 4 : 0;
+
+    /// <summary>The last part of a class code, 1..4: 1 and 2 on Elyos characters, 3 on Asmodian ones (seen on two; 4 is expected).</summary>
+    public static int ClassBitsOfCode(int classCode) => classCode >= 1 ? (classCode - 1) % 4 + 1 : 0;
+
     public static string? ClassFromCode(int classCode)
     {
         // 4 * class id + 1..4: the last part is faction and sex (1, 2 Elyos; 3, 4 Asmodian), so the class id is (code - 1) / 4 for all of them.

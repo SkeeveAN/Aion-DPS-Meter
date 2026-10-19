@@ -2826,7 +2826,7 @@ public sealed class Aion2FrameDecoder
         int classCode = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[after..]));
         int level = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 6)..]));
         int gearScore = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 14)..]));
-        if (classCode % 4 is not (1 or 2) || classCode / 4 is < 1 or > 9 || level is < 1 or > 200)
+        if (classCode < 1 || (classCode - 1) / 4 is < 1 or > 9 || level is < 1 or > 200)
         {
             return;
         }
@@ -3087,8 +3087,8 @@ public sealed class Aion2FrameDecoder
         }
 
         int code = unchecked((int)BinaryPrimitives.ReadUInt32LittleEndian(frame[afterName..]));
-        int? classId = code % 4 is 1 or 2 && code / 4 is >= 1 and <= 8 ? code / 4 : null;
-        int? classBits = classId is null ? null : code % 4;
+        int? classId = Aion2SkillNames.ClassIdOfCode(code) is >= 1 and <= 8 ? Aion2SkillNames.ClassIdOfCode(code) : null;
+        int? classBits = classId is null ? null : Aion2SkillNames.ClassBitsOfCode(code);
 
         var gear = new List<Aion2EquippedItem>();
         var slots = new HashSet<int>();
