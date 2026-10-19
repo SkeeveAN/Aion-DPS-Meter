@@ -1,10 +1,17 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.10.0",
   "date": "2026-10-19",
   "items": [
    {
     "text": "Boss rage time per boss: the fight time on the boss bar turns yellow a minute and red 20 seconds before the boss's own rage time (Vakron 210 s, Bargott and Kaldrix 480 s, Eternal Ludra 600 s, the rest 300 s), taken from the game's boss table; the rage signal is accepted from 10 seconds before that time",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-19"
+   },
+   {
+    "text": "the checklist shows a warning triangle behind a counter when the next daily refill would run over its cap and part of it is lost, when the Quai premium membership runs out and what is gone after it, when the character's pet auto-loot ticket runs out, and for both Daeva passes the experience of the week against its limit, the end of the pass and the level as far as the costs of the levels are known",
     "areas": [
      "Client"
     ],
