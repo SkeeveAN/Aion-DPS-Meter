@@ -430,7 +430,7 @@ export default {
   "guild.level": "等级",
   "guild.notFound": "未知的军团。",
   "guild.gearScore": "装备评分",
-  "guild.gearScoreHint": "游戏角色窗口中的装备评分（头盔图标旁）；仅当有上传者打开过其窗口时才已知",
+  "guild.gearScoreHint": "与个人资料相同，来自NC官方角色页面的装备值；若没有，则使用游戏角色窗口中的装备评分",
   "guild.avgItemLevel": "平均物品等级",
   "guild.avgItemLevelHint": "已穿戴装备的平均物品等级（由 Aion DPS 计算）",
   "nav.features": "功能",

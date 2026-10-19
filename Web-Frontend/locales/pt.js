@@ -451,7 +451,7 @@ export default {
   "guild.level": "Nível",
   "guild.notFound": "Esta legião não é conhecida.",
   "guild.gearScore": "Gear Score",
-  "guild.gearScoreHint": "O Gear Score da janela de personagem do jogo (ao lado do ícone do elmo); conhecido apenas para jogadores cuja janela foi aberta por quem envia os dados",
+  "guild.gearScoreHint": "Gear power da página oficial de personagens da NC, como no perfil; se faltar, o Gear Score da janela de personagem do jogo",
   "guild.avgItemLevel": "Nível de item médio",
   "guild.avgItemLevelHint": "Nível de item médio do equipamento usado (calculado pelo Aion DPS)",
   "nav.features": "Recursos",

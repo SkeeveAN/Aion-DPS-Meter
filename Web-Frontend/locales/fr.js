@@ -435,7 +435,7 @@ export default {
   "guild.level": "Niveau",
   "guild.notFound": "Cette légion est inconnue.",
   "guild.gearScore": "Gear Score",
-  "guild.gearScoreHint": "Le gear score de la fenêtre du personnage (à côté de l'icône du casque) ; connu seulement si un utilisateur a ouvert sa fenêtre",
+  "guild.gearScoreHint": "Gear power de la page officielle du personnage chez NC, comme sur le profil ; à défaut, le gear score de la fenêtre du personnage du jeu",
   "guild.avgItemLevel": "Niv. d'objet moy.",
   "guild.avgItemLevelHint": "Niveau d'objet moyen de l'équipement porté (calculé par Aion DPS)",
   "nav.features": "Fonctions",

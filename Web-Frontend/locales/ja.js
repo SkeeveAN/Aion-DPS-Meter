@@ -451,7 +451,7 @@ export default {
   "guild.level": "レベル",
   "guild.notFound": "このレギオンは見つかりません。",
   "guild.gearScore": "ギアスコア",
-  "guild.gearScoreHint": "ゲームのキャラクターウィンドウに表示されるギアスコア（ヘルムのアイコンの横）。アップローダーがそのウィンドウを開いたプレイヤーのみ判明します",
+  "guild.gearScoreHint": "プロフィールと同じ、NC公式キャラクターページの装備値。ない場合はゲームのキャラクターウィンドウのギアスコア",
   "guild.avgItemLevel": "平均アイテムレベル",
   "guild.avgItemLevelHint": "着用中の装備の平均アイテムレベル（Aion DPS による算出）",
   "nav.features": "機能",

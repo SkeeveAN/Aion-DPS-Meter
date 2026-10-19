@@ -506,7 +506,7 @@ export default {
   "guild.level": "Level",
   "guild.notFound": "Diese Legion ist nicht bekannt.",
   "guild.gearScore": "Gear Score",
-  "guild.gearScoreHint": "Der Gear Score aus dem Charakterfenster des Spiels (neben dem Helm-Symbol); nur bekannt, wenn ein Uploader dessen Fenster geöffnet hat",
+  "guild.gearScoreHint": "Ausrüstungswert von NCs offizieller Charakterseite wie im Profil; sonst der Gear Score aus dem Charakterfenster des Spiels",
   "guild.avgItemLevel": "Ø Itemlevel",
   "guild.avgItemLevelHint": "Durchschnittliches Itemlevel der getragenen Ausrüstung (von Aion DPS berechnet)",
   "nav.features": "Funktionen",

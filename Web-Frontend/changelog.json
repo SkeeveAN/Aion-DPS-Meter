@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "Backend: the payloads of settled uploads are stored gzipped and those of old profile-only uploads are dropped, so the database grows far slower",
+    "areas": [
+     "Backend",
+     "Database"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.5.10",
   "date": "2026-10-19",
   "items": [

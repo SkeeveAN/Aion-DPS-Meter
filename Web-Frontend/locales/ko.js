@@ -451,7 +451,7 @@ export default {
   "guild.level": "레벨",
   "guild.notFound": "알 수 없는 레기온입니다.",
   "guild.gearScore": "기어 스코어",
-  "guild.gearScoreHint": "게임 캐릭터 창(투구 아이콘 옆)에 표시되는 기어 스코어이며, 업로더가 창을 열어 본 플레이어만 알 수 있습니다",
+  "guild.gearScoreHint": "프로필과 같은, NC 공식 캐릭터 페이지의 장비 수치입니다. 없으면 게임 캐릭터 창의 기어 스코어를 표시합니다",
   "guild.avgItemLevel": "평균 아이템 레벨",
   "guild.avgItemLevelHint": "착용한 장비의 평균 아이템 레벨 (Aion DPS가 계산)",
   "nav.features": "기능",

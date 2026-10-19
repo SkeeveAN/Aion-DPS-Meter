@@ -451,7 +451,7 @@ export default {
   "guild.level": "等級",
   "guild.notFound": "未知的軍團。",
   "guild.gearScore": "裝備評分",
-  "guild.gearScoreHint": "遊戲角色視窗中的裝備評分（頭盔圖示旁）；僅在有上傳者開啟過該玩家視窗時才會得知",
+  "guild.gearScoreHint": "與個人檔案相同，來自NC官方角色頁面的裝備值；若沒有，則使用遊戲角色視窗中的裝備評分",
   "guild.avgItemLevel": "平均裝備等級",
   "guild.avgItemLevelHint": "已穿戴裝備的平均裝備等級（由 Aion DPS 計算）",
   "nav.features": "功能",
