@@ -196,7 +196,7 @@ export function buildBuffsPerSkill(timeline, deps) {
       const label = b.names?.[getLocale()] ?? b.names?.en ?? b.name;
       const holder = el("span", { className: "sb-ico" });
       if (b.icon && b.iconKind) {
-        const img = el("img", { src: `/images/aion2/icons/${b.iconKind}/${b.icon}.webp`, alt: "", loading: "lazy", width: 22, height: 22 });
+        const img = el("img", { src: `/images/aion2/icons/${b.iconKind}/${b.icon}.webp`, alt: "", loading: "lazy", width: 32, height: 32 });
         img.addEventListener("error", () => img.remove());
         holder.append(img);
       }
@@ -217,7 +217,7 @@ export function buildBuffsPerSkill(timeline, deps) {
             return null;
           }
           const { holder, label } = tile(b);
-          return el("span", { className: `sb-chip sb-${b.kind}`, title: label }, [holder, el("span", { textContent: label }), el("b", { textContent: `${Math.round(share.share * 100)} %` })]);
+          return el("span", { className: `sb-chip sb-${b.kind}`, title: `${label} – ${Math.round(share.share * 100)} %`, "aria-label": label }, [holder, el("b", { textContent: `${Math.round(share.share * 100)} %` })]);
         })
         .filter((c) => c !== null);
       return el("tr", {}, [
