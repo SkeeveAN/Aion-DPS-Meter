@@ -80,6 +80,12 @@ export function displayName(row: { name: string; nameEn: string | null }): strin
   return conquest ? `${conquest.base} (Conquest ${conquest.stars.length})` : name;
 }
 
+/** Each main page has its own preview picture (Web-Frontend/og/pages/<slug>.jpg, 1200x630) with the text in the middle,
+ *  because WhatsApp cuts a square out of the middle of the picture. */
+function pageCard(slug: string): Pick<PageMeta, "ogImage" | "ogImageSize" | "ogImageAlt"> {
+  return { ogImage: `/og/pages/${slug}.jpg?v=20261019`, ogImageSize: { width: 1200, height: 630 }, ogImageAlt: "Aion DPS Meter" };
+}
+
 export function homePage(): Page {
   return {
     status: 200,
@@ -88,6 +94,7 @@ export function homePage(): Page {
       description:
         "Free open-source Aion 2 DPS meter: click-through overlay, boss leaderboards, character profiles, pet map, event timetable and world boss timers. No memory reading.",
       canonicalPath: "/",
+      ...pageCard("home"),
       jsonLd: [websiteJsonLd(), softwareApplicationJsonLd()],
     },
     body: html`
@@ -126,6 +133,7 @@ export function downloadPage(): Page {
       description:
         "Free Aion 2 damage meter with live DPS/HPS per player, transparent click-through overlay and optional leaderboard upload, via passive packet capture. Windows installer, auto-updates.",
       canonicalPath: "/download",
+      ...pageCard("download"),
       jsonLd: [softwareApplicationJsonLd(), breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Download", path: "/download" }]),
         {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it safe to use?", "acceptedAnswer": {"@type": "Answer", "text": "The meter only reads the network traffic your own computer already receives, through the Npcap driver. It never reads game memory, never injects code and never hooks the game client."}}, {"@type": "Question", "name": "Does it cost anything?", "acceptedAnswer": {"@type": "Answer", "text": "No. Aion DPS Meter is free and open source under the MIT license."}}, {"@type": "Question", "name": "Which AION 2 regions does it support?", "acceptedAnswer": {"@type": "Answer", "text": "The global release of AION 2, every region NCSOFT launched on 5 October 2026. Korea and Taiwan run a few versions ahead, so skill recognition may be incomplete there."}}, {"@type": "Question", "name": "Do I need administrator rights?", "acceptedAnswer": {"@type": "Answer", "text": "Not for the meter: it installs per user. Only the installer of the Npcap driver asks for them."}}, {"@type": "Question", "name": "Are my fights uploaded automatically?", "acceptedAnswer": {"@type": "Answer", "text": "No. Uploads to the leaderboards are off by default and you decide in the settings whether to switch them on."}}]}],
     },
@@ -184,6 +192,7 @@ export function articlePage(): Page {
       title: `${ARTICLE.title} – ${SITE}`,
       description: ARTICLE.description,
       canonicalPath: ARTICLE.path,
+      ...pageCard("how-it-works"),
       ogType: "article",
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Technical background", path: ARTICLE.path }])],
     },
@@ -255,6 +264,7 @@ export function featuresPage(): Page {
       description:
         "All features of the free Aion 2 DPS meter: live DPS/HPS, overlay, skill breakdown, character view, pet map, event timetable, world boss timers, network overlay.",
       canonicalPath: "/features",
+      ...pageCard("features"),
       jsonLd: [softwareApplicationJsonLd(), breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Features", path: "/features" }])],
     },
     body: html`
@@ -310,6 +320,7 @@ export function changelogPage(): Page {
       title: "Changelog – Aion DPS Meter",
       description: "What changed in each release of the Aion DPS Meter Windows client, newest first.",
       canonicalPath: "/changelog",
+      ...pageCard("changelog"),
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Changelog", path: "/changelog" }])],
     },
     body: html`
@@ -325,6 +336,7 @@ export function guildsPage(): Page {
       title: "Legions – Aion DPS Meter",
       description: "The legions of the Aion 2 players known to Aion DPS, per server, with the members we have seen.",
       canonicalPath: "/legions",
+      ...pageCard("legions"),
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Legions", path: "/legions" }])],
     },
     body: html`
@@ -362,6 +374,7 @@ export function statsPage(): Page {
       title: "Statistics – Aion DPS Meter",
       description: "How many players, characters with full profiles, boss fights and downloads Aion DPS has - live numbers from the community leaderboards.",
       canonicalPath: "/stats",
+      ...pageCard("stats"),
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Statistics", path: "/stats" }])],
     },
     body: html`
@@ -377,6 +390,7 @@ export function serverStatusPage(): Page {
       title: "Server Status – Aion DPS Meter",
       description: "Are the Aion 2 login and game servers reachable right now? Live checks every minute, uptime of the last 24 hours and the worlds on each game server address.",
       canonicalPath: "/status",
+      ...pageCard("status"),
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "Server Status", path: "/status" }])],
     },
     body: html`
@@ -392,6 +406,7 @@ export function announcementsPage(): Page {
       title: "AION 2 Announcements – Aion DPS Meter",
       description: "The official AION 2 announcements in one place: maintenance, outages, new servers, server transfers, compensation and account notices, in your language and with colored labels.",
       canonicalPath: "/announcements",
+      ...pageCard("announcements"),
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "AION 2 Announcements", path: "/announcements" }])],
     },
     body: html`
@@ -407,6 +422,7 @@ export function patchnotesPage(): Page {
       title: "AION 2 Patch Notes – Aion DPS Meter",
       description: "The official AION 2 patch notes in full text, in your language: improvements, drop rates, merchants and fixes, newest first.",
       canonicalPath: "/patchnotes",
+      ...pageCard("patchnotes"),
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "AION 2 Patch Notes", path: "/patchnotes" }])],
     },
     body: html`
@@ -422,6 +438,7 @@ export function twitchDropsPage(): Page {
       title: "AION 2 Twitch Drops – Aion DPS Meter",
       description: "AION 2 Twitch Drops: the running campaign with every reward and its watch time, how to link your accounts and claim, and the earlier campaigns.",
       canonicalPath: "/twitch-drops",
+      ...pageCard("twitch-drops"),
       jsonLd: [breadcrumbJsonLd([{ name: SITE, path: "/" }, { name: "AION 2 Twitch Drops", path: "/twitch-drops" }])],
     },
     body: html`
