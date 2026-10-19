@@ -10325,10 +10325,6 @@
     "en": "Level {0}",
     "de": "Stufe {0}"
   },
-  "Checklist.CombatPower": {
-    "en": "Combat power {0}",
-    "de": "Kampfkraft {0}"
-  },
   "Checklist.LastOnline": {
     "en": "last online {0}",
     "de": "zuletzt online {0}"
@@ -10340,5 +10336,63 @@
   "Checklist.RelogOld": {
     "en": "As of this character's last login. Log in with it again to see current data.",
     "de": "Stand vom letzten Login dieses Charakters. Für aktuelle Daten mit ihm umloggen."
+  },
+  "Checklist.ItemLevel": {
+    "de": "Gegenstandsstufe {0}",
+    "en": "Item Level {0}",
+    "es": "Nivel de objeto {0}",
+    "fr": "Niv. d'objet {0}",
+    "ja": "アイテム レベル {0}",
+    "ko": "아이템 레벨 {0}",
+    "pt": "Nível do Item {0}",
+    "ru": "Ур. предметов {0}"
+  },
+  "Character.ItemLevel": {
+    "de": "Gegenstandsstufe",
+    "en": "Item Level",
+    "es": "Nivel de objeto",
+    "fr": "Niv. d'objet",
+    "ja": "アイテム レベル",
+    "ko": "아이템 레벨",
+    "pt": "Nível do Item",
+    "ru": "Ур. предметов"
+  },
+  "Character.CombatPower": {
+    "de": "Kampfkraft",
+    "en": "Combat Power",
+    "es": "Poder de combate",
+    "fr": "Puissance de combat",
+    "ja": "戦闘力",
+    "ko": "전투력",
+    "pt": "Poder de Combate",
+    "ru": "Боевая мощь"
+  },
+  "Character.OtherNeedUpload": {
+    "en": "The server fetches this character's data from aiondps.com: switch on the automatic profile upload (settings) so the character is known there.",
+    "de": "Die Daten dieses Charakters holt der Server von aiondps.com: Schalte dafür den automatischen Profil-Upload ein (Einstellungen), dann ist der Charakter dort bekannt."
+  },
+  "Character.OtherNotFound": {
+    "en": "The server does not know this character yet. With the profile upload on it fetches it shortly after your next login; look again later.",
+    "de": "Der Server kennt diesen Charakter noch nicht. Mit eingeschaltetem Profil-Upload holt er ihn kurz nach deinem nächsten Login; später noch einmal ansehen."
+  },
+  "Character.OtherOffline": {
+    "en": "aiondps.com cannot be reached right now.",
+    "de": "aiondps.com ist gerade nicht erreichbar."
+  },
+  "Character.OtherLoading": {
+    "en": "Fetching the data from aiondps.com ...",
+    "de": "Hole die Daten von aiondps.com ..."
+  },
+  "Character.OtherUpdated": {
+    "en": " (as of {0})",
+    "de": " (Stand {0})"
+  },
+  "Character.OtherFooter": {
+    "en": "Basics from your character list (as of your last login), the rest from aiondps.com{0}. Log in with this character for current data.",
+    "de": "Grunddaten aus der Charakterliste (Stand deines letzten Logins), der Rest vom Server aiondps.com{0}. Für aktuelle Daten mit diesem Charakter einloggen."
+  },
+  "Character.OpenWebsite": {
+    "en": "Open on aiondps.com (Daevanion boards, item details, fights)",
+    "de": "Auf aiondps.com öffnen (Daevanion-Bretter, Item-Details, Kämpfe)"
   }
 }

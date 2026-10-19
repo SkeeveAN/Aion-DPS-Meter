@@ -203,19 +203,19 @@ public static class SelfCheckTickets
         Console.WriteLine($"  -> counters locked by level (daily dungeon 30, Nightmare/Ascension/Invasion 45, Odyle 22, Shugo 13)={locks}");
 
         // the character list of the login (0x2636): every character of the account with its basics, cut out of the real list of 19 October 2026 (two of the four
-        // characters of one account; the game showed Aahz at level 45 with 2,661 and Skeeve at level 22 with 318)
+        // characters of one account; the game showed Aahz at level 45 with item level 2,661 and Skeeve at level 22 with 318)
         string zeros = new('0', 160);
         List<AccountCharacter> account = AccountCharacterList.Parse(Convert.FromHexString("26360000" + "00000000ca080000044161687a0600000001022d00000000000000650a0000000000000000000001000000000000000000000008416b617473756b695eea9254a1010000ea917b47bac1964600b6f546f8070000e1b5a9f2a0010000" + zeros + "353b03000000180500000000f649824fa10100002cd8cc0100000000" + "00000000c70e000006536b656576651a000000010216000000000000003e01000025140c000000000001000000000000000000000008416b617473756b69c8351a54a1010000d910b3c60ff23047009065462908000019460e06a1010000" + zeros + "d6c303000000180500000000f649824fa1010000b4d2cc0100000000"));
         bool listRead = account.Count == 2
-            && account[0] is { Name: "Aahz", ClassCode: 6, Faction: 1, Level: 45, CombatPower: 2661, Legion: "Akatsuki", ServerId: 1304, CharacterId: 211765, LastOnlineMs: 1792420276830, CreatedMs: 1790777603553 }
-            && account[1] is { Name: "Skeeve", ClassCode: 26, Faction: 1, Level: 22, CombatPower: 318, Legion: "Akatsuki", ServerId: 1304, CharacterId: 246742, LastOnlineMs: 1792412366280, CreatedMs: 1791102961177 }
+            && account[0] is { Name: "Aahz", ClassCode: 6, Faction: 1, Level: 45, ItemLevel: 2661, Legion: "Akatsuki", ServerId: 1304, CharacterId: 211765, LastOnlineMs: 1792420276830, CreatedMs: 1790777603553 }
+            && account[1] is { Name: "Skeeve", ClassCode: 26, Faction: 1, Level: 22, ItemLevel: 318, Legion: "Akatsuki", ServerId: 1304, CharacterId: 246742, LastOnlineMs: 1792412366280, CreatedMs: 1791102961177 }
             && AccountCharacterList.Parse(Convert.FromHexString("26360000000000")).Count == 0;
         // the list gives every character of the account an entry in the checklist (without counters); a deleted one that only the list showed goes again,
         // one that has counters stays; a login keeps what the list told
         Aion2Tickets.Reset();
         Aion2Tickets.NoteListedCharacters("acct", account);
         IReadOnlyList<TicketCharacter> listed = Aion2Tickets.Snapshot();
-        bool listedEntries = listed.Count == 2 && listed.All(c => c.Tickets.Count == 0 && c.Account == "acct") && listed.Single(c => c.Name == "Skeeve").CombatPower == 318;
+        bool listedEntries = listed.Count == 2 && listed.All(c => c.Tickets.Count == 0 && c.Account == "acct") && listed.Single(c => c.Name == "Skeeve").ItemLevel == 318;
         Aion2Tickets.NoteListedCharacters("acct", new[] { account[0] });
         bool deletedGone = Aion2Tickets.Snapshot().Count == 1 && Aion2Tickets.Snapshot()[0].Name == "Aahz";
         DateTime loginAt = new(2026, 10, 19, 17, 0, 0, DateTimeKind.Utc);
@@ -223,11 +223,41 @@ public static class SelfCheckTickets
         Aion2Tickets.NoteCharacter("Aahz", 1304, loginAt.AddSeconds(4), 45);
         TicketCharacter loggedIn = Aion2Tickets.Snapshot().Single(c => c.Name == "Aahz");
         Aion2Tickets.NoteListedCharacters("acct", new[] { account[1] }); // Aahz has counters now: stays although this list lacks him
-        bool listKept = loggedIn.Tickets.Count == 1 && loggedIn.ClassCode == 6 && loggedIn.CombatPower == 2661
+        bool listKept = loggedIn.Tickets.Count == 1 && loggedIn.ClassCode == 6 && loggedIn.ItemLevel == 2661
             && Aion2Tickets.Snapshot().Select(c => c.Name).OrderBy(n => n, StringComparer.Ordinal).SequenceEqual(new[] { "Aahz", "Skeeve" });
-        Console.WriteLine($"  -> character list read (two real entries: class, level, combat power, legion, times, server, character id)={listRead}, entries for characters without counters={listedEntries}, deleted one goes={deletedGone}, login keeps the list's basics={listKept}");
+        Console.WriteLine($"  -> character list read (two real entries: class, level, item level, legion, times, server, character id)={listRead}, entries for characters without counters={listedEntries}, deleted one goes={deletedGone}, login keeps the list's basics={listKept}");
+        // what the server answers for another character (GET /api/players/:id, shaped like the real answer for Namì): the profile and NC's character view are read together
+        const string serverAnswer = """
+            {"player":{"id":119,"slug":"namitio-kaisinel","name":"Namì","guild":"Akatsuki","faction":"Elyos","serverId":4,"serverName":"Europe - Kaisinel"},
+             "character":{"attributes":{"main":[{"id":1,"key":"str","value":39}],"lords":[{"id":7,"key":"justice","value":62}]},"wing":{"id":30200101},"wingSkin":{"id":30500101},
+                          "activePet":{"id":1192,"level":2},"combatPower":116565,"itemLevel":2400},
+             "profile":{"level":45,"className":"Cleric","averageItemLevel":70.1,"updatedAt":"2026-10-19 17:36:05","titles":[{"slot":1,"titleId":13010021}],
+                        "skills":[{"id":17290000,"level":20,"baseLevel":20,"stigma":true,"equipped":false,"stones":null},{"id":11010000,"level":5,"baseLevel":5,"stigma":false,"equipped":true,"stones":[1,2]}],
+                        "species":[{"id":2,"level":10,"progress":0,"effects":[{"page":1,"slot":0,"stat":19,"value":15,"kind":5}]}],"pets":[{"species":2,"level":10,"kinds":[5,1,2]}],
+                        "daevanion":[{"board":71,"activePoints":113},{"board":72,"activePoints":20}],
+                        "gear":[{"slot":1,"itemId":110730047,"enchant":15,"stones":[{"stat":104,"tier":2},{"stat":317,"tier":3}],"stats":[{"stat":282,"value":1220}],"godstone":{"itemId":19950004,"name":"Theostone"},
+                                 "skillBonuses":[{"skill":11170000,"level":1}]},{"slot":3,"itemId":210330052}]}}
+            """;
+        using System.Text.Json.JsonDocument answer = System.Text.Json.JsonDocument.Parse(serverAnswer);
+        AionDPS.Upload.RemoteCharacter? remote = AionDPS.Upload.RemoteCharacterClient.Parse(answer.RootElement);
+        using System.Text.Json.JsonDocument bare = System.Text.Json.JsonDocument.Parse("{\"player\":{\"name\":\"Heimdall\"},\"character\":{\"itemLevel\":40}}");
+        AionDPS.Upload.RemoteCharacter? bareRemote = AionDPS.Upload.RemoteCharacterClient.Parse(bare.RootElement);
+        using System.Text.Json.JsonDocument nothing = System.Text.Json.JsonDocument.Parse("{\"error\":\"player_not_found\"}");
+        bool remoteRead = remote is { Name: "Namì", Level: 45, ClassName: "Cleric", Faction: "Elyos", Guild: "Akatsuki", ItemLevel: 2400, CombatPower: 116565, WingId: 30200101, WingSkinId: 30500101, ActivePetId: 1192, ActivePetLevel: 2 }
+            && Math.Abs(remote.AverageItemLevel - 70.1) < 0.001 && remote.Gear.Count == 2 && remote.Titles.Count == 1 && remote.Titles[0].TitleId == 13010021
+            && remote.Gear[0] is { SlotIndex: 1, ItemId: 110730047, Enchant: 15, GodstoneId: 19950004 } weapon && weapon.Stones!.Count == 2 && weapon.Stones[1].StatId == 317 && weapon.Stones[1].Tier == 3
+            && weapon.Stats![0].StatId == 282 && weapon.Stats[0].Value == 1220 && weapon.SkillBonuses![0].SkillId == 11170000
+            && remote.Gear[1] is { SlotIndex: 3, Enchant: 0, GodstoneId: 0 }
+            && remote.Attributes is { } values && values[1] == 39 && values[7] == 62
+            && remote.Slug == "namitio-kaisinel" && remote.Skills!.Count == 2 && remote.Skills[0] is { SkillId: 17290000, Level: 20, Stigma: true, Equipped: false, Stones: null }
+            && remote.Skills[1] is { SkillId: 11010000, Equipped: true } && remote.Skills[1].Stones!.SequenceEqual(new[] { 1, 2 })
+            && remote.Species![0] is { SpeciesId: 2, Level: 10 } && remote.Species[0].Effects[0] is { Page: 1, Slot: 0, StatId: 19, Value: 15, Kind: 5 }
+            && remote.Pets![0] is { SpeciesId: 2, Level: 10 } && remote.Pets[0].Kinds.SequenceEqual(new[] { 5, 1, 2 }) && remote.DaevanionPoints == 133
+            && bareRemote is { Name: "Heimdall", ItemLevel: 40, Attributes: null } && bareRemote.Gear.Count == 0
+            && AionDPS.Upload.RemoteCharacterClient.Parse(nothing.RootElement) is null;
+        Console.WriteLine($"  -> the server's answer for another character read (equipment with stones and god stone, attributes, wings, pet, titles; a character without a profile; no player)={remoteRead}");
         Aion2Tickets.Reset();
-        bool ok = listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
+        bool ok = remoteRead && listRead && listedEntries && deletedGone && listKept && membership && premiumKnown && plainCaps && ticketFrame && noTicket && ticketAlone && passFrame && passLevels && lostTomorrow && rules && dungeonRefill && korean && locks && missionsRead && ticks && keptUntilReset && dailyCleared && weeklyCleared && resetTimes && cooldownOk && shortKeeps && listOk && truncated && gain && used && refill && notYet && bound && changed && refills && Aion2Tickets.Catalog.Count == 70;
         Console.WriteLine(ok ? "  -> OK" : "  -> FAILED");
         ServerTime.Reset();
         return ok;

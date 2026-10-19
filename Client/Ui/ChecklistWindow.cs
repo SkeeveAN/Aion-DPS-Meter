@@ -402,7 +402,7 @@ public sealed class ChecklistWindow : Window
     /// <summary>The cap the game shows: the subscriber's one where there is one (Shugo Festival keys 12, with the subscription 21), else the plain one.</summary>
     private int CapOf(TicketDef def) => _premium && def.SubscribeMax > def.Max ? def.SubscribeMax : def.Max;
 
-    /// <summary>Class, level, combat power, legion and when the character was last online, as the character list of the login showed them ("" when it showed none).</summary>
+    /// <summary>Class, level, item level, legion and when the character was last online, as the character list of the login showed them ("" when it showed none).</summary>
     private static string BasicsText(TicketCharacter character, string language)
     {
         LocalizationManager loc = LocalizationManager.Instance;
@@ -417,9 +417,9 @@ public sealed class ChecklistWindow : Window
             parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.Level"], character.Level));
         }
 
-        if (character.CombatPower > 0)
+        if (character.ItemLevel > 0)
         {
-            parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.CombatPower"], character.CombatPower.ToString("N0", CultureInfo.CurrentCulture)));
+            parts.Add(string.Format(CultureInfo.CurrentCulture, loc["Checklist.ItemLevel"], character.ItemLevel.ToString("N0", CultureInfo.CurrentCulture)));
         }
 
         if (!string.IsNullOrEmpty(character.Legion))

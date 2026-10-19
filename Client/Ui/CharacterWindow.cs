@@ -41,7 +41,14 @@ public sealed class CharacterWindow : Window
     private readonly Dictionary<string, BitmapImage?> _images = new();
     private string _tab = "character";
     private BitmapImage? _portrait;
-    private string? _portraitAskedFor;
+    private readonly HashSet<string> _portraitAsked = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, BitmapImage> _portraits = new(StringComparer.Ordinal);
+    /// <summary>The other character of the account whose data the window shows instead of the logged-in one (null = the logged-in one).</summary>
+    private string? _viewing;
+    private string? _remoteKey;
+    private Upload.RemoteLookup? _remote;
+    private bool _pictureMode;
+    private Upload.RemoteCharacter? _pictureRemote;
     private int _boardIndex;
 
     private sealed record GearRow(Aion2EquippedItem Item, Aion2ItemInfo? Info);
@@ -50,6 +57,15 @@ public sealed class CharacterWindow : Window
     public void ShowTab(string id)
     {
         _tab = id;
+        Render();
+    }
+
+    /// <summary>For the picture mode: shows another character of the account with the data given as the server's answer, without asking the server.</summary>
+    public void ShowOtherForPicture(string name, Upload.RemoteCharacter? remote)
+    {
+        _pictureMode = true;
+        _pictureRemote = remote;
+        _viewing = name;
         Render();
     }
 
@@ -252,6 +268,15 @@ public sealed class CharacterWindow : Window
     private void Render()
     {
         Aion2CharacterInfo? character = _directory.LocalCharacter;
+        // another character of the account: its basics come from the character list, the rest from the server
+        if ((_viewing is not null && (character is null || _viewing != character.Name) && AccountCharacterNames().Contains(_viewing))
+            || (character is null && AccountCharacterNames().Count > 0 && (_viewing ??= AccountCharacterNames()[0]) is not null))
+        {
+            RenderOther(_viewing!, character?.Name);
+            return;
+        }
+
+        _viewing = null;
         if (character is null)
         {
             Title = "Character";
@@ -283,13 +308,14 @@ public sealed class CharacterWindow : Window
         int nodes = boards.Sum(b => Aion2DaevanionCatalog.Summarize(b.BoardId, b.NodeIds).ActivePoints);
 
         Title = $"{character.Name} - Character";
+        _portrait = _portraits.GetValueOrDefault(character.ServerId + "/" + character.Name);
 
         var tabs = new List<(string Id, string Label, int Count, Func<UIElement> Build)>();
         // The attributes arrive with the stat frame; until it was seen there is no tab.
         if (_directory.LocalAttributes is { } attributes)
         {
             tabs.Add(("character", Loc("Character.Tab"), MainAttributes.Length + Lords.Length, () => BuildCharacter(attributes)));
-            StartPortraitLoad(character);
+            StartPortraitLoad(character.Name, character.ServerId);
         }
 
         if (equipmentRows.Count > 0)
@@ -323,6 +349,11 @@ public sealed class CharacterWindow : Window
         }
 
         var page = new StackPanel { Margin = new Thickness(16, 14, 16, 0) };
+        if (BuildSwitcher(character.Name) is { } switcher)
+        {
+            page.Children.Add(switcher);
+        }
+
         page.Children.Add(BuildStrip(character, className, guild, average, skills.Count, nodes));
         if (tabs.Count > 0)
         {
@@ -452,6 +483,342 @@ public sealed class CharacterWindow : Window
             foreach (UIElement look in looks)
             {
                 chips.Children.Add(look);
+            }
+        }
+
+        if (chips.Children.Count > 0)
+        {
+            content.Children.Add(chips);
+        }
+
+        return Card(content, new Thickness(16, 14, 22, 14));
+    }
+
+    // ---------------------------------------------------------------- the other characters of the account
+
+    /// <summary>The characters of the logged-in character's account that the character list of the login named (all of them, also those the meter never saw log in).</summary>
+    private List<string> AccountCharacterNames()
+    {
+        string? account = _directory.AccountKeyHash();
+        return Aion2Tickets.Snapshot().Where(c => c.ClassCode > 0 && (account is null || c.Account == account)).Select(c => c.Name).ToList();
+    }
+
+    /// <summary>The row of characters to switch between (the logged-in one first); null when the account has only one.</summary>
+    private UIElement? BuildSwitcher(string? localName)
+    {
+        List<string> names = AccountCharacterNames();
+        if (localName is not null)
+        {
+            names.Remove(localName);
+            names.Insert(0, localName);
+        }
+
+        if (names.Count < 2)
+        {
+            return null;
+        }
+
+        string shown = _viewing ?? localName ?? names[0];
+        var wrap = new WrapPanel { Margin = new Thickness(0, 0, 0, 10) };
+        foreach (string name in names)
+        {
+            bool active = name == shown;
+            var chip = new Border
+            {
+                Padding = new Thickness(14, 5, 14, 5), Margin = new Thickness(0, 0, 8, 6), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(14),
+                Cursor = Cursors.Hand, Background = Res(active ? "Brush.ControlRaised" : "Brush.Control"), BorderBrush = Res(active ? "Brush.Accent" : "Brush.Border"),
+                Child = Text(name, 12.5, FontWeights.SemiBold, Res(active ? "Brush.Text" : "Brush.TextSubtle")),
+            };
+            string target = name;
+            chip.MouseLeftButtonDown += (_, _) =>
+            {
+                _viewing = target == localName ? null : target;
+                _remoteKey = null; // a character asked again: the server may have its data by now
+                Render();
+            };
+            wrap.Children.Add(chip);
+        }
+
+        return wrap;
+    }
+
+    private async Task LoadRemoteAsync(string name, int serverId, string key)
+    {
+        Upload.RemoteLookup result = await Upload.RemoteCharacterClient.GetAsync(name, FingerprintOf(serverId));
+        await Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (_remoteKey == key)
+            {
+                _remote = result;
+                Render();
+            }
+        }));
+    }
+
+    /// <summary>Another character of the account: the basics from the character list of the login, the rest (equipment, attributes, wings, pet) as the server holds it.
+    /// Fetched only with the profile upload on - the character is only on the server then, and it is the one place the meter asks about it.</summary>
+    private void RenderOther(string name, string? localName)
+    {
+        TicketCharacter? basics = Aion2Tickets.Snapshot().FirstOrDefault(c => c.Name == name);
+        if (basics is null)
+        {
+            _viewing = null;
+            _host.Content = new Border { Padding = new Thickness(24), Child = Text(Loc("Character.OtherNotFound"), 13, brush: Res("Brush.TextMuted"), wrap: TextWrapping.Wrap) };
+            return;
+        }
+
+        string className = Aion2SkillNames.ClassFromCode(basics.ClassCode) ?? "?";
+        Title = $"{name} - Character";
+        _portrait = _portraits.GetValueOrDefault(basics.ServerId + "/" + name);
+        Upload.RemoteCharacter? remote = null;
+        string? status = null;
+        if (_pictureMode)
+        {
+            remote = _pictureRemote;
+            status = remote is null ? Loc("Character.OtherNotFound") : null;
+        }
+        else if (MainWindow.Headless || !MeterSettings.Load().AutoUploadProfile)
+        {
+            status = Loc("Character.OtherNeedUpload");
+        }
+        else
+        {
+            StartPortraitLoad(name, basics.ServerId);
+            string key = FingerprintOf(basics.ServerId) + "/" + name;
+            if (_remoteKey != key)
+            {
+                _remoteKey = key;
+                _remote = null;
+                _ = LoadRemoteAsync(name, basics.ServerId, key);
+            }
+
+            switch (_remote?.Status)
+            {
+                case Upload.RemoteLookupStatus.Found:
+                    remote = _remote.Character;
+                    break;
+                case Upload.RemoteLookupStatus.NotFound:
+                    status = Loc("Character.OtherNotFound");
+                    break;
+                case Upload.RemoteLookupStatus.Unreachable:
+                    status = Loc("Character.OtherOffline");
+                    break;
+                default:
+                    status = Loc("Character.OtherLoading");
+                    break;
+            }
+        }
+
+        var gear = (remote?.Gear ?? Array.Empty<Aion2EquippedItem>())
+            .Select(e => new GearRow(e, Aion2ItemCatalog.Find(e.ItemId)))
+            .OrderBy(x => x.Item.SlotIndex)
+            .ToList();
+        var arcana = gear.Where(x => x.Info?.Slot == "Arcana").ToList();
+        var equipmentRows = gear.Where(x => x.Info?.Slot != "Arcana").ToList();
+        var known = gear.Where(x => x.Info is not null).Select(x => x.Info!).ToList();
+        double average = known.Count > 0 ? known.Average(i => i.ItemLevel) : remote?.AverageItemLevel ?? 0;
+
+        var tabs = new List<(string Id, string Label, int Count, Func<UIElement> Build)>();
+        if (remote?.Attributes is { } attributes)
+        {
+            tabs.Add(("character", Loc("Character.Tab"), MainAttributes.Length + Lords.Length, () => BuildCharacter(attributes)));
+        }
+
+        if (equipmentRows.Count > 0)
+        {
+            tabs.Add(("equipment", "Equipment", equipmentRows.Count, () => BuildEquipment(equipmentRows, className, average)));
+        }
+
+        // the skills the server holds (as the character's own client uploaded them); the Daevanion boards are only counts there, so their tab stays with the website
+        var skills = (remote?.Skills ?? Array.Empty<Aion2SkillEntry>()).Where(k => k.SkillId % 10000 == 0).ToList();
+        if (skills.Count > 0)
+        {
+            tabs.Add(("skills", "Skills", skills.Count, () => BuildSkills(skills)));
+        }
+
+        var species = remote?.Species ?? Array.Empty<Aion2SpeciesKnowledge>();
+        if (species.Count > 0)
+        {
+            tabs.Add(("species", "Species Knowledge", species.Count, () => BuildSpecies(species, remote!.Pets ?? Array.Empty<Aion2Pet>())));
+        }
+
+        if (arcana.Count > 0)
+        {
+            tabs.Add(("arcana", "Arcana", arcana.Count, () => BuildArcana(arcana)));
+        }
+
+        if (tabs.Count > 0 && tabs.All(t => t.Id != _tab))
+        {
+            _tab = tabs[0].Id;
+        }
+
+        var page = new StackPanel { Margin = new Thickness(16, 14, 16, 0) };
+        if (BuildSwitcher(localName) is { } switcher)
+        {
+            page.Children.Add(switcher);
+        }
+
+        page.Children.Add(BuildOtherStrip(basics, className, remote, average, skills.Count));
+        if (tabs.Count > 0)
+        {
+            page.Children.Add(BuildTabBar(tabs.Select(t => (t.Id, t.Label, t.Count)).ToList()));
+            page.Children.Add(new Border { Margin = new Thickness(0, 14, 0, 0), Child = tabs.First(t => t.Id == _tab).Build() });
+        }
+        else if (status is not null)
+        {
+            page.Children.Add(Text(status, 12.5, brush: Res("Brush.Accent"), margin: new Thickness(2, 14, 0, 0), wrap: TextWrapping.Wrap));
+        }
+
+        if (remote?.Slug is { Length: > 0 } slug)
+        {
+            // everything the website shows about the character (Daevanion boards, item tooltips, fight history) is one click away, not rebuilt here
+            var open = new Border
+            {
+                Padding = new Thickness(14, 6, 14, 6), Margin = new Thickness(0, 14, 0, 0), HorizontalAlignment = HorizontalAlignment.Left, BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(6), Cursor = Cursors.Hand, Background = Res("Brush.Control"), BorderBrush = Res("Brush.Accent"),
+                Child = Text(Loc("Character.OpenWebsite"), 12.5, FontWeights.SemiBold, Res("Brush.Accent")),
+            };
+            open.MouseLeftButtonDown += (_, _) =>
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://aiondps.com/players/" + Uri.EscapeDataString(slug)) { UseShellExecute = true });
+                }
+                catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+                {
+                    // no browser to open: nothing to do
+                }
+            };
+            page.Children.Add(open);
+        }
+
+        string updated = remote?.UpdatedAt is { Length: > 0 } at ? string.Format(CultureInfo.CurrentCulture, Loc("Character.OtherUpdated"), at) : "";
+        page.Children.Add(Text(string.Format(CultureInfo.CurrentCulture, Loc("Character.OtherFooter"), updated), 11, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 16, 0, 12), wrap: TextWrapping.Wrap));
+        _host.Content = page;
+        if (IsLoaded)
+        {
+            Dispatcher.BeginInvoke(new Action(FitHeightToContent), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+    }
+
+    /// <summary>The strip of another character: emblem, name, class, level, faction, legion and server, the item level of the list, the combat power the server has
+    /// from NC, the average item level of the worn pieces, and the titles, wings and pet the server knows.</summary>
+    private UIElement BuildOtherStrip(TicketCharacter basics, string className, Upload.RemoteCharacter? remote, double average, int skillCount)
+    {
+        string language = LocalizationManager.Instance.Language;
+        var row = new Grid();
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        UIElement badge = EmblemBadge(className, 56, 12);
+        Grid.SetColumn(badge, 0);
+        row.Children.Add(badge);
+
+        int level = basics.Level > 0 ? basics.Level : remote?.Level ?? 0;
+        var names = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
+        names.Children.Add(Text(basics.Name, 22, FontWeights.Bold));
+        names.Children.Add(Text($"{ClassCatalog.DisplayName(className, language)} · Level {level}", 12.5, brush: Res("Brush.TextMuted")));
+        var meta = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 0) };
+        string? faction = (basics.ServerId / 1000) switch { 1 => "Elyos", 2 => "Asmodian", _ => remote?.Faction };
+        if (faction is not null)
+        {
+            if (Picture(Path.Combine(AppContext.BaseDirectory, "assets", "races", "icons", faction + ".png")) is { } flag)
+            {
+                meta.Children.Add(new Image { Source = flag, Width = 16, Height = 16, Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center });
+            }
+
+            meta.Children.Add(Text(faction, 12, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 0, 14, 0)));
+        }
+
+        string? legion = basics.Legion ?? remote?.Guild;
+        if (!string.IsNullOrEmpty(legion))
+        {
+            meta.Children.Add(Text($"Legion: {legion}", 12, brush: Res("Brush.TextMuted"), margin: new Thickness(0, 0, 14, 0)));
+        }
+
+        if (basics.ServerId > 0)
+        {
+            meta.Children.Add(Text(Aion2Servers.NameOf(basics.ServerId), 12, brush: Res("Brush.TextMuted")));
+        }
+
+        if (meta.Children.Count > 0)
+        {
+            names.Children.Add(meta);
+        }
+
+        Grid.SetColumn(names, 1);
+        row.Children.Add(names);
+
+        var numbers = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        if (basics.ItemLevel > 0)
+        {
+            numbers.Children.Add(Number(basics.ItemLevel.ToString("N0", CultureInfo.CurrentCulture), Loc("Character.ItemLevel"), Gold));
+        }
+
+        if (remote is { CombatPower: > 0 })
+        {
+            numbers.Children.Add(Number(remote.CombatPower.ToString("N0", CultureInfo.CurrentCulture), Loc("Character.CombatPower"), null));
+        }
+
+        if (average > 0)
+        {
+            numbers.Children.Add(Number(average.ToString("F1", CultureInfo.CurrentCulture), "Avg item level", null));
+        }
+
+        if (skillCount > 0)
+        {
+            numbers.Children.Add(Number(skillCount.ToString(), "Skills", null));
+        }
+
+        if (remote is { DaevanionPoints: > 0 })
+        {
+            numbers.Children.Add(Number(remote.DaevanionPoints.ToString(), "Daevanion points", null));
+        }
+
+        Grid.SetColumn(numbers, 2);
+        row.Children.Add(numbers);
+
+        var content = new StackPanel();
+        content.Children.Add(row);
+        var chips = new WrapPanel { Margin = new Thickness(0, 12, 0, 0) };
+        if (remote is not null)
+        {
+            foreach (Aion2TitleSlot slot in remote.Titles.OrderBy(t => t.Slot))
+            {
+                if (Aion2Titles.Find(slot.TitleId, language) is { } title)
+                {
+                    chips.Children.Add(Chip(title.Name, GradeChipColor(title.Grade)));
+                }
+            }
+
+            var looks = new List<UIElement>();
+            if (remote.WingId > 0 && Aion2Wings.Find(remote.WingId, language) is { } wingInfo)
+            {
+                looks.Add(Chip(wingInfo.Name, GradeChipColor(wingInfo.Grade), wingInfo.IconPath));
+            }
+
+            if (remote.WingSkinId > 0 && Aion2Wings.Find(remote.WingSkinId, language) is { } skinInfo)
+            {
+                looks.Add(Chip(skinInfo.Name, GradeChipColor(skinInfo.Grade), skinInfo.IconPath, badge: Loc("Character.Skin")));
+            }
+
+            if (remote.ActivePetId > 0 && Aion2Pets.PetName(remote.ActivePetId, language) is { } petName)
+            {
+                looks.Add(Chip(petName, GradeChipColor("Common"), Aion2Pets.PetIconPath(remote.ActivePetId), level: remote.ActivePetLevel > 0 ? remote.ActivePetLevel : null));
+            }
+
+            if (looks.Count > 0)
+            {
+                if (chips.Children.Count > 0)
+                {
+                    chips.Children.Add(new Border { Width = 1, Height = 24, Margin = new Thickness(2, 4, 10, 10), Background = Res("Brush.Border") });
+                }
+
+                foreach (UIElement look in looks)
+                {
+                    chips.Children.Add(look);
+                }
             }
         }
 
@@ -803,26 +1170,29 @@ public sealed class CharacterWindow : Window
         return canvas;
     }
 
+    private static string FingerprintOf(int serverId) =>
+        "aion2:" + System.Text.RegularExpressions.Regex.Replace(Aion2Servers.NameOf(serverId).ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
+
     /// <summary>Fetches the portrait once per character and session - only when the profile upload is switched on
     /// (the player is only on the server then), never in the headless picture modes. Errors leave the tab without it.</summary>
-    private void StartPortraitLoad(Aion2CharacterInfo character)
+    private void StartPortraitLoad(string name, int serverId)
     {
-        if (MainWindow.Headless || character.ServerId <= 0 || string.IsNullOrEmpty(character.Name))
+        if (MainWindow.Headless || serverId <= 0 || string.IsNullOrEmpty(name))
         {
             return;
         }
 
-        string key = character.ServerId + "/" + character.Name;
-        if (_portraitAskedFor == key || !MeterSettings.Load().AutoUploadProfile)
+        string key = serverId + "/" + name;
+        if (_portraits.ContainsKey(key) || _portraitAsked.Contains(key) || !MeterSettings.Load().AutoUploadProfile)
         {
             return;
         }
 
-        _portraitAskedFor = key;
-        string fingerprint = "aion2:" + System.Text.RegularExpressions.Regex.Replace(Aion2Servers.NameOf(character.ServerId).ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
+        _portraitAsked.Add(key);
+        string fingerprint = FingerprintOf(serverId);
         _ = Task.Run(async () =>
         {
-            string? file = await Upload.PortraitClient.GetAsync(character.Name, fingerprint);
+            string? file = await Upload.PortraitClient.GetAsync(name, fingerprint);
             if (file is null)
             {
                 return;
@@ -838,7 +1208,7 @@ public sealed class CharacterWindow : Window
                 image.Freeze();
                 await Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    _portrait = image;
+                    _portraits[key] = image;
                     Render();
                 }));
             }

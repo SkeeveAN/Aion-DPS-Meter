@@ -576,8 +576,29 @@ internal static class Program
         directory.RestoreFrom(saved);
         var window = new Ui.CharacterWindow(directory);
         window.ShowTab(tab);
+        // AIONDPS_OTHER = "name|class code|level|item level|server id|legion" shows another character of the account instead; AIONDPS_OTHER_JSON is the file with
+        // the server's answer for it (GET /api/players/:id), none = the character the server does not know.
+        if (Environment.GetEnvironmentVariable("AIONDPS_OTHER") is { Length: > 0 } other)
+        {
+            string[] f = other.Split('|');
+            var listed = new Aion2.AccountCharacter(f[0], int.Parse(f[1]), 1, int.Parse(f[2]), int.Parse(f[3]), f.Length > 5 && f[5].Length > 0 ? f[5] : null, 0, 0, int.Parse(f[4]), 0);
+            Aion2.Aion2Tickets.NoteListedCharacters(null, new[] { listed });
+            Aion2.Aion2Tickets.NoteListedCharacters(null, new[] { new Aion2.AccountCharacter(saved.Name, saved.ClassCode, 1, saved.Level, 0, null, 0, 0, saved.ServerId, 0) });
+            Upload.RemoteCharacter? remote = null;
+            if (Environment.GetEnvironmentVariable("AIONDPS_OTHER_JSON") is { Length: > 0 } json && File.Exists(json))
+            {
+                using System.Text.Json.JsonDocument answer = System.Text.Json.JsonDocument.Parse(File.ReadAllText(json));
+                remote = Upload.RemoteCharacterClient.Parse(answer.RootElement);
+            }
+
+            window.ShowOtherForPicture(f[0], remote);
+        }
+
         const double width = 1180, height = 1000;
-        var content = new System.Windows.Controls.Border { Child = window };
+        // a Window cannot be the child of a border: its content (the page inside the window's chrome) is drawn instead
+        System.Windows.UIElement? inner = window.Content as System.Windows.UIElement;
+        window.Content = null;
+        var content = new System.Windows.Controls.Border { Child = inner };
         content.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x0E, 0x18, 0x20));
         content.Measure(new System.Windows.Size(width, height));
         content.Arrange(new System.Windows.Rect(0, 0, width, height));

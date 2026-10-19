@@ -12,21 +12,21 @@ namespace AionDPS.Aion2;
 /// <param name="ClassCode">4 * class id + class bits (see <see cref="Protocol.Aion2SkillNames.ClassFromCode"/>).</param>
 /// <param name="Faction">1 Elyos, 2 Asmodian (the byte behind the class code).</param>
 /// <param name="Level">The character level.</param>
-/// <param name="CombatPower">The combat power ("Kampfkraft") the selection screen shows.</param>
+/// <param name="ItemLevel">The item level ("Gegenstandsstufe", the number beside the helmet the selection screen shows) - not the combat power, which only NC's character pages have.</param>
 /// <param name="Legion">The legion of the character, null when it has none.</param>
 /// <param name="LastOnlineMs">When the character was last online (ms since 1970); the time of the list for the character that is online now, 0 = unknown.</param>
 /// <param name="CreatedMs">When the character was created (ms since 1970), 0 = unknown.</param>
 /// <param name="ServerId">The server of the character (1304 = Kaisinel), 0 = not found.</param>
 /// <param name="CharacterId">The character id the game's own character search knows it by, 0 = not found.</param>
 public sealed record AccountCharacter(
-    string Name, int ClassCode, int Faction, int Level, int CombatPower, string? Legion, long LastOnlineMs, long CreatedMs, int ServerId, int CharacterId);
+    string Name, int ClassCode, int Faction, int Level, int ItemLevel, string? Legion, long LastOnlineMs, long CreatedMs, int ServerId, int CharacterId);
 
 /// <summary>
 /// Reads the characters out of the character list frame. An entry is: a length-prefixed name, then the class code (u32), the faction (1 or 2), one byte,
-/// the level (u8), seven zero bytes, the combat power (u32), 20 bytes, the length-prefixed legion, the time last online (u64), the place logged out at
+/// the level (u8), seven zero bytes, the item level (u32), 20 bytes, the length-prefixed legion, the time last online (u64), the place logged out at
 /// (three floats and a subzone id), the creation time (u64), the visible equipment (260 bytes per piece) and a tail with the character id, the server id
 /// and a time. Checked on the 52 character lists of the login dumps of 19 October 2026 (12 characters of three accounts) against the character selection
-/// screens of two accounts (level, combat power, legion and the time "Vor 16 Min." matched on every character).
+/// screens of two accounts (level, item level, legion and the time "Vor 16 Min." matched on every character).
 /// </summary>
 public static class AccountCharacterList
 {
@@ -67,7 +67,7 @@ public static class AccountCharacterList
             int classCode = (int)BinaryPrimitives.ReadUInt32LittleEndian(frame[after..]);
             int faction = frame[after + 4];
             int level = frame[after + 6];
-            int power = (int)Math.Min(int.MaxValue, BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 14)..]));
+            int itemLevel = (int)Math.Min(int.MaxValue, BinaryPrimitives.ReadUInt32LittleEndian(frame[(after + 14)..]));
 
             int legionAt = after + 38;
             int legionLength = frame[legionAt];
@@ -101,7 +101,7 @@ public static class AccountCharacterList
                 }
             }
 
-            characters.Add(new AccountCharacter(name, classCode, faction, level, power, legion, lastOnline, created, serverId, characterId));
+            characters.Add(new AccountCharacter(name, classCode, faction, level, itemLevel, legion, lastOnline, created, serverId, characterId));
         }
 
         return characters;

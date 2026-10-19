@@ -27,7 +27,7 @@ public readonly record struct TicketReading(int Id, TicketValue Value);
 /// <summary>What was last seen of one character's tickets.</summary>
 public sealed record TicketCharacter(
     string Name, int ServerId, DateTime SavedAt, IReadOnlyDictionary<int, TicketValue> Tickets, int Level = 0,
-    string? Account = null, int ClassCode = 0, int CombatPower = 0, long LastOnlineMs = 0, string? Legion = null);
+    string? Account = null, int ClassCode = 0, int ItemLevel = 0, long LastOnlineMs = 0, string? Legion = null);
 
 /// <summary>
 /// The tickets of the characters (Tools > Checklist; no overlay). The server sends them twice:
@@ -93,7 +93,8 @@ public static class Aion2Tickets
         // from the character list of the login (every character of the account, also those never logged in with the meter)
         public string? Account { get; set; }
         public int ClassCode { get; set; }
-        public int CombatPower { get; set; }
+        public int ItemLevel { get; set; }
+        public int CombatPower { get; set; } // 1.10.1 saved the item level under this name; read on, no longer written
         public long LastOnlineMs { get; set; }
         public string? Legion { get; set; }
     }
@@ -600,7 +601,7 @@ public static class Aion2Tickets
     }
 
     /// <summary>The character list of a login: every character of the account gets an entry (for the checklist's character switch), also those that never logged in
-    /// with the meter and so have no counters yet. Basics (class, level, combat power, legion, last online) are refreshed for all of them; an entry that
+    /// with the meter and so have no counters yet. Basics (class, level, item level, legion, last online) are refreshed for all of them; an entry that
     /// only the list ever showed and that is gone from the list (deleted) is removed again.</summary>
     public static void NoteListedCharacters(string? account, IReadOnlyList<AccountCharacter> listed)
     {
@@ -618,7 +619,7 @@ public static class Aion2Tickets
                         Level = c.Level > 0 ? c.Level : known.Level,
                         Account = account ?? known.Account,
                         ClassCode = c.ClassCode,
-                        CombatPower = c.CombatPower,
+                        ItemLevel = c.ItemLevel,
                         LastOnlineMs = c.LastOnlineMs,
                         Legion = c.Legion,
                     };
@@ -630,7 +631,7 @@ public static class Aion2Tickets
                 }
                 else
                 {
-                    Characters[c.Name] = new TicketCharacter(c.Name, c.ServerId, DateTime.UtcNow, new Dictionary<int, TicketValue>(), c.Level, account, c.ClassCode, c.CombatPower, c.LastOnlineMs, c.Legion);
+                    Characters[c.Name] = new TicketCharacter(c.Name, c.ServerId, DateTime.UtcNow, new Dictionary<int, TicketValue>(), c.Level, account, c.ClassCode, c.ItemLevel, c.LastOnlineMs, c.Legion);
                     changed = true;
                 }
             }
@@ -823,7 +824,7 @@ public static class Aion2Tickets
             {
                 var tickets = c.Tickets.Where(t => t.Value.Length == 3)
                     .ToDictionary(t => t.Key, t => new TicketValue((int)t.Value[0], (int)t.Value[1], t.Value[2]));
-                Characters[c.Name] = new TicketCharacter(c.Name, c.ServerId, DateTime.SpecifyKind(DateTimeOffset.FromUnixTimeMilliseconds(c.SavedMs).DateTime, DateTimeKind.Utc), tickets, c.Level, c.Account, c.ClassCode, c.CombatPower, c.LastOnlineMs, c.Legion);
+                Characters[c.Name] = new TicketCharacter(c.Name, c.ServerId, DateTime.SpecifyKind(DateTimeOffset.FromUnixTimeMilliseconds(c.SavedMs).DateTime, DateTimeKind.Utc), tickets, c.Level, c.Account, c.ClassCode, c.ItemLevel != 0 ? c.ItemLevel : c.CombatPower, c.LastOnlineMs, c.Legion);
             }
         }
         catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
@@ -854,7 +855,7 @@ public static class Aion2Tickets
                     Tickets = c.Tickets.ToDictionary(t => t.Key, t => new[] { (long)t.Value.Count, t.Value.Bonus, t.Value.TimeMs }),
                     Account = c.Account,
                     ClassCode = c.ClassCode,
-                    CombatPower = c.CombatPower,
+                    ItemLevel = c.ItemLevel,
                     LastOnlineMs = c.LastOnlineMs,
                     Legion = c.Legion,
                 }).ToList(),
