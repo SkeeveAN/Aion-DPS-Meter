@@ -1807,12 +1807,37 @@ function formatBytes(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+// Boss order of the expedition and transcendence dungeons by instance slug, English boss names, the final boss last. sequence: true = the
+// bosses have to be killed one after the other in this order, otherwise the ones before the final boss are interchangeable.
+const EXPEDITION_BOSS_ORDER = {
+  "urugugu-canyon": { sequence: false, bosses: ["Guardian Captain Raur", "Judge Urahum", "Divine Auldor"] },
+  "draupnir": { sequence: false, bosses: ["Phantasmal Lakshmi", "Predator Saraswati", "Transcendent Bakarma"] },
+  "krao-cave": { sequence: false, bosses: ["Enhanced Harcon", "Neglected Gadioton", "Ultimate Berk"] },
+  "fire-temple": { sequence: false, bosses: ["Black Smoke Murute", "Red Spark Ignus", "Silver Blade Rotan", "Kromede's Desire"] },
+  "vakron-sky-island": { sequence: true, bosses: ["Tiere", "Thamon", "Vakron"] },
+  "ferocious-horn-den": { sequence: true, bosses: ["Watchdog Kwapo", "Shining Mau Totem", "Necromancer Duanka", "Ferocious Horn Nuakum"] },
+  "cradle-of-nihility": { sequence: false, bosses: ["Multiverse Veltiras", "Solemn Valkan", "Afflicted Bakarma"] },
+  "hall-of-illusion": { sequence: false, bosses: ["Glassvein", "Nazarak", "Nathara"] },
+  "azure-breath-island": { sequence: false, bosses: ["Expanding Xyrepe", "Wise Baumnute", "Awakened Alturadon"] },
+  "citadel-of-the-fallen-daeva": { sequence: false, bosses: ["Forbidden Hexbeast Griosa", "Willful Turgen", "Basilus the False"] },
+  "consumed-deus-research-base": { sequence: false, bosses: ["Lab Director Zylus", "Overseer Gromkas", "Prideful Atiel"] },
+  "shattered-arkanis": { sequence: true, bosses: ["Ruthilis of Pain", "Siliator of Deceit", "Talisra of the Void"] },
+  "submerged-life-temple": { sequence: true, bosses: ["Singing Ellyde", "Deep Sea Pydeon", "Submerged Emon"] },
+  "noirans-hidden-legacy": { sequence: true, bosses: ["Incomplete Braunt", "Mad Klominster", "Askran"] },
+  "abyssal-horn-den": { sequence: true, bosses: ["Kapu", "Dhakan", "Gargaum"] },
+  "mirror-of-scarlet-desire": { sequence: true, bosses: ["Rotar", "Robstino", "Ordeal of Love", "Kromede's Desolation"] },
+  "deus-research-base": { sequence: true, bosses: ["Gelcos", "Nazmun", "Atiel"] },
+};
+
 // Shared by the instance grid and the boss grid below - a "poster" tile is just a photo (optional),
 // a dark scrim for legibility, and a light title overlaid on top, linking somewhere. objectPosition
 // defaults to centered (right for a landscape instance photo) but a boss portrait is a tall
 // character render - "top" keeps the face in frame instead of centering on the torso.
-function posterCard(href, photo, title, objectPosition) {
+function posterCard(href, photo, title, objectPosition, badge) {
   const children = [el("div", { className: "poster-scrim" })];
+  if (badge) {
+    children.push(el("div", { className: badge.final ? "poster-badge poster-badge--final" : "poster-badge", textContent: badge.text }));
+  }
   if (photo) {
     const img = icon(smallPhoto(photo), "poster-photo");
     if (objectPosition) {
@@ -2375,15 +2400,33 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   // is alphabetical on the raw (untranslated) name, which happens to put Sheba's ahead of
   // Ahuradim's. A tiny curated override rather than a general boss-ordering feature.
   const BOSS_SORT_OVERRIDE = { "Gardenführer Achradim": 0, "Brigade General Sheba": 1 };
+  // Expedition runs (explore and conquest share the bosses): the final boss always comes last. `sequence` says the bosses
+  // must be killed in exactly this order; without it the ones before the final boss may be taken in any order. The
+  // badges on the cards show which case applies.
+  const dungeonOrder = EXPEDITION_BOSS_ORDER[(instance?.slug ?? instanceSlug).replace(/-conquest$/, "")];
+  const orderIndex = (b) => dungeonOrder?.bosses.indexOf(b.nameEn ?? b.name) ?? -1;
   const sortedBosses = [...bosses].sort((a, b) => {
+    if (dungeonOrder && orderIndex(a) !== orderIndex(b)) {
+      return orderIndex(a) - orderIndex(b);
+    }
     const priority = (BOSS_SORT_OVERRIDE[a.name] ?? Infinity) - (BOSS_SORT_OVERRIDE[b.name] ?? Infinity);
     return priority !== 0 ? priority : a.name.localeCompare(b.name);
   });
+  const bossBadge = (b) => {
+    const index = orderIndex(b);
+    if (!dungeonOrder || index < 0 || sortedBosses.length !== dungeonOrder.bosses.length) {
+      return undefined;
+    }
+    if (index === dungeonOrder.bosses.length - 1) {
+      return { text: t("boss.finalBoss"), final: true };
+    }
+    return { text: dungeonOrder.sequence ? t("boss.orderStep", { n: index + 1 }) : t("boss.anyOrder") };
+  };
 
   const grid = el(
     "div",
     { className: "poster-grid" },
-    sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}${modeQuery}`), bossCards[b.name] ?? BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), bossCards[b.name] ? "center" : BOSS_IMAGES[b.name] ? "64% center" : "top")),
+    sortedBosses.map((b) => posterCard(gp(`/bosses/${b.slug}${modeQuery}`), bossCards[b.name] ?? BOSS_IMAGES[b.name] ?? instancePhoto, displayName(b), bossCards[b.name] ? "center" : BOSS_IMAGES[b.name] ? "64% center" : "top", bossBadge(b))),
   );
   app.replaceChildren(...hero, el("h2", { textContent: t("bosses.heading") }), grid);
 }

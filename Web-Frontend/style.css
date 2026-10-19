@@ -4163,3 +4163,23 @@ body:has(.download-hero) .nav-download-link:hover,
 .sb-ico { width: 22px; height: 22px; border-radius: 50%; overflow: hidden; background: var(--color-border); flex: none; display: inline-block; }
 .sb-ico img { width: 22px; height: 22px; display: block; }
 .sb-panel .skill-table td:nth-child(2) { text-align: right; padding-right: 24px; }
+
+/* Order marker on a boss card of an expedition dungeon (see EXPEDITION_BOSS_ORDER in app.js). */
+.poster-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(13, 21, 28, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.poster-badge--final {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
