@@ -42,7 +42,7 @@ export interface TimelinePlayerOut {
   participantId: number;
   name: string;
   className: string;
-  skills: { id: number; name: string; names?: Record<string, string>; icon: string | null; uses: number }[];
+  skills: { id: number; name: string; names?: Record<string, string>; icon: string | null; iconKind: "skill" | "item"; uses: number }[];
   /** [seconds from the start of the fight, index into skills] */
   uses: [number, number][];
   deaths: number[];
@@ -101,7 +101,12 @@ export function shapeTimeline(
     for (const [, idx] of uses) {
       counts.set(idx, (counts.get(idx) ?? 0) + 1);
     }
-    const skills = p.timeline.skills.map((s, i) => ({ id: s.id, name: s.name, names: art.skillNames(s.name, p.className), icon: art.skillIcon(s.name, p.className), uses: counts.get(i) ?? 0 }));
+    // a theostone is an item, not a skill: its icon comes from the effect table
+    const skills = p.timeline.skills.map((s, i) => {
+      const own = art.skillIcon(s.name, p.className);
+      const item = own ? null : buffIcon(s.id);
+      return { id: s.id, name: s.name, names: art.skillNames(s.name, p.className) ?? buffNames(s.id, s.name), icon: own ?? item?.icon ?? null, iconKind: own ? ("skill" as const) : (item?.iconKind ?? "skill"), uses: counts.get(i) ?? 0 };
+    });
 
     // the effects of this player that have spans, with the page's kind (own / group / consumable)
     const kinds = new Map((classified.get(p.id) ?? []).map((b) => [b.skill, b.kind] as const));

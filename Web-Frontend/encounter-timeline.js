@@ -206,7 +206,7 @@ export function buildBuffsPerSkill(timeline, deps) {
       const skill = current.skills[line.skill];
       const art = el("span", { className: "skill-ico" });
       if (skill.icon) {
-        const img = el("img", { src: `/images/aion2/icons/skill/${skill.icon}.webp`, alt: "", loading: "lazy", width: 28, height: 28 });
+        const img = el("img", { src: `/images/aion2/icons/${skill.iconKind ?? "skill"}/${skill.icon}.webp`, alt: "", loading: "lazy", width: 28, height: 28 });
         img.addEventListener("error", () => img.remove());
         art.append(img);
       }
@@ -221,7 +221,7 @@ export function buildBuffsPerSkill(timeline, deps) {
         })
         .filter((c) => c !== null);
       return el("tr", {}, [
-        el("td", { className: "skill-name" }, [art, el("span", { textContent: skillLabel(skill, getLocale) })]),
+        el("td", {}, [el("div", { className: "skill-name" }, [art, el("span", { textContent: skillLabel(skill, getLocale) })])]),
         el("td", { textContent: formatNumber(line.uses) }),
         el("td", { className: "sb-chips" }, chips.length > 0 ? chips : [el("span", { className: "gear-note", textContent: t("skillBuffs.none") })]),
       ]);

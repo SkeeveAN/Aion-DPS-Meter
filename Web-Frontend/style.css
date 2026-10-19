@@ -4158,6 +4158,7 @@ body:has(.download-hero) .nav-download-link:hover,
 .tl-key-use { width: 3px; height: 14px; background: var(--color-primary); }
 .tl-key-group { width: 18px; height: 4px; background: #58d38c; }
 .sb-panel .skill-table { width: 100%; }
+.sb-panel .skill-table td { vertical-align: middle; }
 .sb-panel .skill-table td.sb-chips { white-space: normal; width: 100%; }
 .sb-chips > * { vertical-align: middle; }
 .sb-chip { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; margin: 2px 4px 2px 0; padding: 3px 4px; min-width: 44px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); font-size: 0.72rem; line-height: 1; cursor: default; }
