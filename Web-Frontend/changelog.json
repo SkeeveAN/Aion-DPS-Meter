@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-19",
+  "items": [
+   {
+    "text": "Website: the pages no longer jump while they load (layout shift 0.84 to 0 on desktop) - the header controls keep their final size, the crawler text is hidden until the page is drawn, and the home banner picture is smaller and preloaded instead of an unused hero image",
+    "areas": [
+     "Website"
+    ],
+    "date": "2026-10-19"
+   }
+  ]
+ },
+ {
   "version": "1.6.1",
   "date": "2026-10-19",
   "items": [
