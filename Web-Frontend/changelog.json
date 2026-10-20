@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.11.1",
+  "date": "2026-10-20",
+  "items": [
+   {
+    "text": "the timetable marks the Beritra Air Raid (Dimensional Invasion) as possible, since the game starts it at random within the hourly slots and not at every one",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-20"
+   }
+  ]
+ },
+ {
   "version": "1.11.0",
   "date": "2026-10-20",
   "items": [
