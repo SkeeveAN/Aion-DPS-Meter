@@ -150,7 +150,12 @@ export type UploadPayload = z.infer<typeof uploadSchema>;
  * on always sends all three; the server never fills a gap from the uploader's server or a guess.
  */
 export function isCompletePlayer(p: { name: string; faction?: string; serverId?: number }): boolean {
-  return p.name.trim() !== "" && p.serverId !== undefined && (p.faction === "Elyos" || p.faction === "Asmodian");
+  return isCharacterName(p.name) && p.serverId !== undefined && (p.faction === "Elyos" || p.faction === "Asmodian");
+}
+
+/** A character name is letters and digits of any script, nothing else: no space, no punctuation (an NPC title like "Siliator of Deceit" read as a player is none). */
+export function isCharacterName(name: string): boolean {
+  return /^[\p{L}\p{N}\p{M}]{1,24}$/u.test(name);
 }
 
 /** Cuts the players that break the rule above out of an upload; how many went is returned for the log. */
