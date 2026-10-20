@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.10.5",
   "date": "2026-10-20",
   "items": [
    {
@@ -14,6 +14,13 @@
     "text": "Website: a player whose name has a space or a sign other than letters and digits is cut out of an upload like one without server or faction (an NPC title read as a player was stored)",
     "areas": [
      "Backend"
+    ],
+    "date": "2026-10-20"
+   },
+   {
+    "text": "the live estimate of a world boss's damage starts to calibrate earlier (after 30 hits instead of 300) and may correct downwards, so the meter's own figure is closer to the boss's hit points in a small group",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-20"
    }
