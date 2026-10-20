@@ -44,12 +44,33 @@ STATS = {
 PERCENT = {47, 158, 282, 445, 28, 32, 44, 70, 74, 102, 146, 147, 159, 205, 235, 425, 426, 442, 443, 444, 446, 447, 448, 449}  # 159 and 442 seen as 3,3 % and 2,4 % in the game; the rest by name and size
 # sent in hundredths but shown as a whole number (FP 27193 -> 272)
 HUNDREDTHS = {298}
-# What a mana stone adds, by stat id and tier (1 white, 2 green, 3 blue): only combinations seen in an in-game tooltip, nothing
-# extrapolated (Block+7 / MP+15 white shoulders, Block+10 / MP+30 green earring and bracelet, LP+30 white greatsword).
-STONE_VALUES = {255: {1: 7, 2: 10}, 199: {1: 15, 2: 30}, 193: {1: 30}, 569: {3: 20}}
+# What a mana stone adds, by stat id and tier (1 white/Common, 2 green/Rare, 3 blue/Legend), from the client's ImprintMagicStoneProb table. A stone's value depends on
+# the group it was rolled from, and a piece does not say which: only the groups of the low pieces (ms_10 and ms_20 common_normal, ms_10 rare_abyss) agree with each
+# other (all 16 stats, Common and Rare identical; Legend kept only where they agree), and every low piece a player showed (levels 40-76: Block+10 / MP+30 green,
+# LP+30 white, MP+15 white, Block (PvP)+20 blue ...) fits them while the level-30 group is ruled out. The website shows these values for pieces up to
+# LOW_STONE_LEVEL and none above (the groups of level 40 differ, e.g. LP green 50 on a Nuakum helm, 60 on Kromede earrings).
+STONE_TABLE = os.environ.get("AION2_STONE_TABLE", os.path.expanduser("~/aion2-data/decoded/AION2/Content/Data/Table/ImprintMagicStoneProb.json"))
+LOW_GROUPS = ("ms_10_common_normal", "ms_20_common_normal", "ms_10_rare_abyss")
+GRADE_TIER = {"Common": 1, "Rare": 2, "Legend": 3}
+
+
+def stone_values():
+    rows = json.load(open(STONE_TABLE, encoding="utf-8"))["Properties"]["Data"]
+    seen = {}
+    for r in rows:
+        if r["ImprintGroupName"] in LOW_GROUPS:
+            token = r["AddStatType"].split("::")[1]
+            seen.setdefault(token, []).append({GRADE_TIER[g["StatGrade"].split("::")[1]]: g["StatValue"] for g in r["StatInfos"] if g["StatGrade"].split("::")[1] in GRADE_TIER})
+    out = {}
+    for token, groups in seen.items():
+        out[token] = {t: v for t, v in groups[0].items() if all(g.get(t) == v for g in groups)}
+    return out
+
+
 LOCALES = {"de": "de-DE", "en": "en-US", "es": "es-ES", "fr": "fr-FR", "ru": "ru-RU", "pt": "pt-BR", "ja": "ja-JP", "ko": "ko-KR"}
 
 src, out = sys.argv[1], sys.argv[2]
+STONES = stone_values()
 tables = {code: json.load(open(os.path.join(src, f"l10n_{loc}.json"), encoding="utf-8")) for code, loc in LOCALES.items()}
 result = {}
 for stat_id, token in STATS.items():
@@ -59,7 +80,7 @@ for stat_id, token in STATS.items():
         sys.exit(f"no text for stat {stat_id} ({token})")
     result[str(stat_id)] = {"names": names, **({"percent": True} if stat_id in PERCENT else {}),
                             **({"hundredths": True} if stat_id in HUNDREDTHS else {}),
-                            **({"stone": {str(t): v for t, v in STONE_VALUES[stat_id].items()}} if stat_id in STONE_VALUES else {})}
+                            **({"stone": {str(t): v for t, v in STONES[token].items()}} if STONES.get(token) else {})}
 with open(out, "w", encoding="utf-8") as f:
     json.dump(result, f, ensure_ascii=False, indent=1, sort_keys=False)
     f.write("\n")

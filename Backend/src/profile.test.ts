@@ -132,8 +132,8 @@ test("the profile names the mana stones and rolled stats of a piece in the clien
   const view = buildProfileView(playerId("Aahz"))!;
   const earring = view.gear.find((g) => g.slot === 11)!;
   assert.deepEqual(earring.stones?.map((k) => [k.stat, k.name, k.tier]), [[255, "Block", 2], [317, "Attack", 2], [0, "", 0], [307, "Defense", 1]]);
-  // amounts only where a tooltip showed them for that stat and tier: Block+10 green, nothing known for Attack or Defense
-  assert.deepEqual(earring.stones?.map((k) => k.value), [10, null, null, null]);
+  // amounts from the client's stone table for a low piece (Aulamus' Earrings, level 76): Block green 10, Attack green 3, Defense white 10
+  assert.deepEqual(earring.stones?.map((k) => k.value), [10, 3, null, 10]);
   assert.equal(earring.godstone?.names?.de, "Götterstein: Aulvicars Zauber");
   assert.deepEqual(earring.skillBonuses?.map((k) => [k.name, k.names?.de, k.level]), [["Overhead Slam", "Abwärtsschlag", 1]]);
   assert.equal(earring.stones?.[1].names?.de, "Angriffskraft");

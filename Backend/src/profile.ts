@@ -262,6 +262,9 @@ type SpeciesData = {
 let speciesData: SpeciesData | null = null;
 // Stat id -> names (Tools/aion2-dat/build_item_stats.py) for the mana stones and rolled stats on equipment.
 let itemStats: Record<string, { names: Record<string, string>; percent?: boolean; hundredths?: boolean; stone?: Record<string, number> }> | null = null;
+// A mana stone's value depends on the group it was rolled from, which a piece does not tell. The groups of the low pieces agree with each other and fit every
+// piece up to this item level that players showed (Tools/aion2-dat/build_item_stats.py); above it the groups differ, so no value is shown.
+const LOW_STONE_LEVEL = 76;
 // Godstone item id -> names in the client languages (Tools/aion2-dat/build_item_stats.py).
 let godstones: Record<string, Record<string, string>> | null = null;
 // Title id -> names in every client language and the game's grade (Tools/aion2-dat/build_titles.py).
@@ -563,7 +566,7 @@ export function buildProfileView(playerId: number): ProfileView | null {
         enchant: g.enchant,
         zenit: zenitStage(g.enchant),
         zenitBonus: info?.[1] === "MainHand" && zenitStage(g.enchant) > 0 ? { attack: 10 * zenitStage(g.enchant), damageBoostPercent: zenitStage(g.enchant) } : null,
-        stones: g.stones ? g.stones.map((k) => ({ stat: k.stat, ...(k.stat > 0 ? statName(k.stat) : { name: "" }), tier: k.tier, value: itemStats![String(k.stat)]?.stone?.[String(k.tier)] ?? null })) : null,
+        stones: g.stones ? g.stones.map((k) => ({ stat: k.stat, ...(k.stat > 0 ? statName(k.stat) : { name: "" }), tier: k.tier, value: (info?.[4] ?? 0) > 0 && info![4] <= LOW_STONE_LEVEL ? itemStats![String(k.stat)]?.stone?.[String(k.tier)] ?? null : null })) : null,
         stats: g.stats ? g.stats.map((k) => ({ stat: k.stat, ...statName(k.stat), value: itemStats![String(k.stat)]?.hundredths === true ? Math.round(k.value / 100) : k.value, percent: itemStats![String(k.stat)]?.percent === true })) : null,
         godstone: g.godstone ? { itemId: g.godstone, name: godstones![String(g.godstone)]?.en ?? `Item ${g.godstone}`, names: godstones![String(g.godstone)] } : null,
         skillBonuses: g.skillBonuses ? g.skillBonuses.map((k) => ({ skill: k.skill, name: skillNames![String(k.skill)] ?? String(k.skill), names: skillNamesI18n![String(k.skill)], level: k.level })) : null,
