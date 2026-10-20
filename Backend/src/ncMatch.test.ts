@@ -50,6 +50,8 @@ test("nothing is guessed: no hit, a hit of the other faction, or a lone hit of a
   assert.equal(decide([hit({ name: "Aahz", race: 2 })], subject({ faction: "Elyos" })).status, "none");
   assert.equal(decide([hit({ name: "Aahz", classId: 8 })], subject({ className: "Gladiator", classFromFight: true })).status, "none");
   assert.equal(decide([hit({ name: "Aahz", classId: 8 })], subject({ className: "Gladiator", classFromFight: false })).status, "verified", "a class from his profile only narrows, it does not veto");
+  assert.equal(decide([hit({ name: "Aahz", classId: 8 })], subject({ className: "Cleric", classFromFight: true, profileClassName: "Chanter" })).status, "verified", "the client's profile class agrees with the one hit: the fight's class does not veto it");
+  assert.equal(decide([hit({ name: "Aahz", classId: 8 })], subject({ className: "Cleric", classFromFight: true, profileClassName: "Gladiator" })).status, "none", "profile and fight both disagree with the hit: somebody else");
 });
 
 test("a search answer is read defensively", () => {

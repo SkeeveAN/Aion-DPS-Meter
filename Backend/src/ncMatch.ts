@@ -77,6 +77,8 @@ export type Subject = {
   className: string;
   /** True when the class was read off his skills in a fight (reliable), false when it only comes from his profile. */
   classFromFight: boolean;
+  /** The class of a profile the client read (not NC's own): when it agrees with the one hit, a different class read off a fight does not veto it - the fight's guess (Cleric for a Chanter) is the weaker. */
+  profileClassName?: string;
   /** Level from his profile; a character never loses levels, so the hit's level must not be lower. */
   level: number | null;
   /** The server his legion is on, when two or more verified members of it agree; empty otherwise. */
@@ -117,7 +119,7 @@ export function decide(hits: Hit[], s: Subject): Decision {
   }
   if (c.length === 1) {
     // A lone character of another class is somebody else with the same name (our player was renamed or deleted).
-    if (s.classFromFight && s.className && c[0].classId !== null && AION2_CLASS_BY_ID[c[0].classId] !== s.className) {
+    if (s.classFromFight && s.className && c[0].classId !== null && AION2_CLASS_BY_ID[c[0].classId] !== s.className && AION2_CLASS_BY_ID[c[0].classId] !== s.profileClassName) {
       return { status: "none", hit: null, via: null, candidates: 1 };
     }
     return { status: "verified", hit: c[0], via: "name", candidates: 1 };
@@ -272,6 +274,7 @@ function subjectOf(player: PlayerRow): Subject {
     faction: player.faction,
     className: fight?.className ?? profileClass ?? classHints.get(player.id) ?? "",
     classFromFight: !!fight,
+    profileClassName: profile && profile.source !== "nc" ? profileClass : undefined,
     level: profile?.level ?? null,
     legionServers: legionServersOf(player),
     guild: player.guild ?? "",
