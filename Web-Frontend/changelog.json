@@ -45,6 +45,13 @@
      "Backend"
     ],
     "date": "2026-10-20"
+   },
+   {
+    "text": "Website: the mana stones of a piece up to item level 76 carry their value from the client's stone table (Block +10, LP +30 and so on); higher pieces show none, as the groups differ there",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-20"
    }
   ]
  },
