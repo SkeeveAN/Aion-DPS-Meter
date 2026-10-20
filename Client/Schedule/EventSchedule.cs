@@ -14,10 +14,13 @@ public sealed record EventDate(DateTime At, int Minutes);
 
 /// <summary>A recurring game event (a battlefield's matchmaking times), named per language. An
 /// <see cref="Always"/> event can be queued for at any time (the 1 vs 1 arena) and has no windows.</summary>
-public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows, bool Always = false, IReadOnlyList<EventDate>? Dates = null, bool Utc = false)
+public sealed record ScheduledEvent(string Id, string Kind, string? Players, IReadOnlyDictionary<string, string> Names, IReadOnlyList<EventWindow> Windows, bool Always = false, IReadOnlyList<EventDate>? Dates = null, bool Utc = false, bool Possible = false)
 {
     /// <summary>The times of <see cref="Windows"/> and <see cref="Dates"/> are UTC, the clock the game's events run on (the same in every region); they are turned into the PC's local time when the occurrences are worked out. Without it they are read as local time.</summary>
     public bool IsUtc => Utc;
+
+    /// <summary>The slots are only possible times: the game starts the event at random within them (the Dimensional Invasion does not take place at every slot), so the timetable says "possible" instead of promising it.</summary>
+    public bool IsPossible => Possible;
 
     /// <summary>The name in a language (an ISO 639-1 code), else English, else the id.</summary>
     public string NameIn(string language) =>
@@ -76,7 +79,8 @@ public static class EventSchedule
                     e.GetProperty("id").GetString()!,
                     e.TryGetProperty("kind", out var kind) ? kind.GetString() ?? "" : "",
                     e.TryGetProperty("players", out var players) ? players.GetString() : null,
-                    names, windows, e.TryGetProperty("always", out var always) && always.GetBoolean(), dates, utc));
+                    names, windows, e.TryGetProperty("always", out var always) && always.GetBoolean(), dates, utc,
+                    e.TryGetProperty("possible", out var possible) && possible.GetBoolean()));
             }
 
             return events;

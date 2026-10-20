@@ -10438,5 +10438,17 @@
   "Settings.Audio.DeviceMissing": {
     "en": "Saved device (not connected)",
     "de": "Gespeichertes Gerät (nicht angeschlossen)"
+  },
+  "Timetable.Possible": {
+    "en": "possible",
+    "de": "möglich",
+    "fr": "possible",
+    "es": "posible",
+    "ru": "возможно",
+    "zh": "可能出现",
+    "zh-TW": "可能出現",
+    "pt": "possível",
+    "ja": "出現する場合あり",
+    "ko": "나올 수 있음"
   }
 }

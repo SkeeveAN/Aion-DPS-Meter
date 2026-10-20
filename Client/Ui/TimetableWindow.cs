@@ -264,8 +264,11 @@ public sealed class TimetableWindow : Window
         }
     }
 
-    private static string Label(EventOccurrence o, string language) =>
-        o.Event.Players is { Length: > 0 } players ? $"{o.Event.NameIn(language)} ({players})" : o.Event.NameIn(language);
+    private static string Label(EventOccurrence o, string language)
+    {
+        string name = o.Event.Players is { Length: > 0 } players ? $"{o.Event.NameIn(language)} ({players})" : o.Event.NameIn(language);
+        return o.Event.IsPossible ? $"{name} ({LocalizationManager.Instance.In("Timetable.Possible", language)})" : name;
+    }
 
     /// <summary>"1:23 h" / "42 min" / "0:30 min" - hours and minutes, seconds under ten minutes.</summary>
     private static string Span(TimeSpan span)
