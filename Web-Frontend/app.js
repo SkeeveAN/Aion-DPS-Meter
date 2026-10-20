@@ -3587,17 +3587,17 @@ function gearTipDetails(g) {
   const locale = getLocale();
   const statName = (x) => x.names?.[locale] ?? x.names?.en ?? x.name;
   const sections = [];
-  if (g.stats?.length) {
+  // The rolled stats and the skill bonuses of a piece are one block, as in the game and in the tooltip built from NC's page: a skill belongs there as much as Might or Critical Hit does.
+  const rolled = [
+    ...(g.stats ?? []).map((x) => el("div", { className: "pf-tip-row" }, [el("span", { textContent: statName(x) }), el("strong", { textContent: speciesValue(x) })])),
+    ...(g.skillBonuses ?? []).map((x) => el("div", { className: "pf-tip-row pf-tip-skill" }, [el("span", { textContent: x.names?.[locale] ?? x.name }), el("strong", { textContent: `${t("profile.levelAbbr")} +${x.level}` })])),
+  ];
+  if (rolled.length > 0) {
     sections.push(
       el("div", { className: "pf-tip-sec" }, [
-        el("div", { className: "pf-tip-sec-title", textContent: t("profile.rolledStats") }),
-        ...g.stats.map((x) => el("div", { className: "pf-tip-row" }, [el("span", { textContent: statName(x) }), el("strong", { textContent: speciesValue(x) })])),
-      ]),
-    );
-  }
-  if (g.skillBonuses?.length) {
-    sections.push(
-      el("div", { className: "pf-tip-sec" }, g.skillBonuses.map((x) => el("div", { className: "pf-tip-row" }, [el("span", { textContent: x.names?.[locale] ?? x.name }), el("strong", { textContent: `+${x.level}` })]))),
+        g.stats?.length ? el("div", { className: "pf-tip-sec-title", textContent: t("profile.rolledStats") }) : null,
+        ...rolled,
+      ].filter((x) => x != null)),
     );
   }
   if (g.stones?.length) {
