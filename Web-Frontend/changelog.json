@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-20",
+  "items": [
+   {
+    "text": "Website: the player check against NC no longer turns down a character when only the class read off a fight differs and the class from the client's own profile agrees with it (a Chanter taken for a Cleric stayed unverified)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-20"
+   }
+  ]
+ },
+ {
   "version": "1.10.4",
   "date": "2026-10-20",
   "items": [
