@@ -1,10 +1,17 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.11.0",
   "date": "2026-10-20",
   "items": [
    {
     "text": "the pet and collectibles list stays hidden in an instance when none of its rows could show a distance and no shop prices are open (it only listed the chosen names)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-20"
+   },
+   {
+    "text": "the voice output has a volume per kind of announcement, and the audio output of the meter's sounds (voice and notification sounds) can be set to a device of its own, such as the headset while the game plays on the speakers",
     "areas": [
      "Client"
     ],
