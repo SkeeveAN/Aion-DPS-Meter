@@ -2664,6 +2664,16 @@ public partial class MainWindow : Window
             return null;
         }
 
+        // A world boss that was seen dying lost all its hit points: the estimated hits are scaled once to that (see EstimateRescale).
+        if (targetHits.Any(e => e.Estimated) && _source?.Entities is Aion2EntityDirectory bossDirectory
+            && bossDirectory.HitPoints.HighestSeen(targetId) is (> 0 and long bossLost) && bossDirectory.HitPoints.Latest(targetId) is { } bossLatest
+            && BossDied(bossDirectory, bossDirectory.HitPoints, targetId, bossLatest)
+            && EstimateRescale.FactorFor(targetHits, bossLost) is double rescale)
+        {
+            targetHits = EstimateRescale.Apply(targetHits, rescale);
+            AutoUploadLog.Write($"boss {targetId}: estimated hits scaled by {rescale:N3} to the {bossLost:N0} hit points the boss lost");
+        }
+
         var participants = new List<ParticipantUpload>();
         // Aion 2: the name only exists for players whose "appeared" frame the client saw, and the
         // class for those seen casting - an unnamed "Player #id" or a row without a class the backend
