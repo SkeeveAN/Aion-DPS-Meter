@@ -1393,7 +1393,20 @@ public static class SelfCheckAion2
         bool disk = oldEntry is { Enchant: 2, Stones: null, Stats: null } && newEntry is { Slot: 11 } && Stones(new Aion2EquippedItem(11, 1, 10, newEntry.Stones)) == "255/2 317/2 116/2 307/2"
             && newEntry.Stats?.Count == 4 && newEntry.Stats[0] is { StatId: 199, Value: 96 };
         Console.WriteLine($"  -> saved with the character file and read back (and an older entry without stones still loads): {disk}");
-        return ownOk && kromOk && aulOk && disk && weaponOk && guardOk;
+
+        // a looked-at player keeps his faction, server and "uploaded" mark on disk; a window saved by an older meter has none of them
+        var withOrigin = seen! with { Faction = "Asmodian", ServerId = 2315 };
+        var readBack = JsonSerializer.Deserialize<Aion2InspectedPlayer>(JsonSerializer.Serialize(withOrigin));
+        var plain = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(JsonSerializer.Serialize(withOrigin))!;
+        plain.Remove("Faction");
+        plain.Remove("ServerId");
+        plain.Remove("UploadedAt");
+        var fromOlder = JsonSerializer.Deserialize<Aion2InspectedPlayer>(JsonSerializer.Serialize(plain));
+        entities.MarkInspectedUploaded("Testspieler", seen.ReceivedAt);
+        bool originOk = readBack is { Faction: "Asmodian", ServerId: 2315 } && fromOlder is { Name: "Testspieler", Faction: null, ServerId: null, UploadedAt: null }
+            && entities.InspectedPlayers().First(p => p.Name == "Testspieler").UploadedAt is not null;
+        Console.WriteLine($"  -> a looked-at player keeps faction, server and the uploaded mark on disk; an older file without them still loads; marking sticks: {originOk}");
+        return ownOk && kromOk && aulOk && disk && weaponOk && guardOk && originOk;
     }
 
     /// <summary>The species knowledge of the pet window, cut out of the real login frame 0x0090 of 2026-10-05

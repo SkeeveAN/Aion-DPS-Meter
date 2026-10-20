@@ -47,7 +47,13 @@ public sealed record Aion2InspectedPlayer(
     DateTime ReceivedAt,
     IReadOnlyList<Aion2TitleSlot>? Titles = null,
     IReadOnlyList<Aion2Pet>? Pets = null,
-    IReadOnlyList<Aion2BoardCount>? BoardCounts = null);
+    IReadOnlyList<Aion2BoardCount>? BoardCounts = null,
+    // Faction ("Elyos"/"Asmodian") and server id of the player, as far as the stream named him when his window was opened (or later): kept with the
+    // window because a restart of the meter forgets the stream, and the community server leaves out a player without them.
+    string? Faction = null,
+    int? ServerId = null,
+    // When this window went to the community server (by itself, see MainWindow.UploadInspectedAsync); null = not yet. Kept with the window so a restart does not send it twice.
+    DateTime? UploadedAt = null);
 
 /// <summary>The wing item id (30xxxxxx) and the wing skin id (304xxxxx, 0 = no skin) of the local player.</summary>
 public sealed record Aion2Wing(int WingId, int SkinId);
@@ -1312,6 +1318,7 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     /// <summary>Remembers a character window of another player; a newer one for the same name replaces it.</summary>
     public void SetInspected(Aion2InspectedPlayer player)
     {
+        player = WithKnownOrigin(player);
         lock (_gate)
         {
             _inspected[player.Name] = player;
@@ -1319,6 +1326,30 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
 
         InspectedChanged?.Invoke();
     }
+
+    /// <summary>Notes that this very window (same name, same time) was uploaded.</summary>
+    public void MarkInspectedUploaded(string name, DateTime receivedAt)
+    {
+        lock (_gate)
+        {
+            if (_inspected.TryGetValue(name, out var window) && window.ReceivedAt == receivedAt)
+            {
+                _inspected[name] = window with { UploadedAt = DateTime.Now };
+            }
+        }
+
+        InspectedChanged?.Invoke();
+    }
+
+    /// <summary>The window with the faction and the server the stream knows for the name filled in where they are still missing.</summary>
+    private Aion2InspectedPlayer WithKnownOrigin(Aion2InspectedPlayer player) =>
+        player.Faction is { Length: > 0 } && player.ServerId is > 0
+            ? player
+            : player with
+            {
+                Faction = player.Faction is { Length: > 0 } ? player.Faction : FactionOfName(player.Name),
+                ServerId = player.ServerId is > 0 ? player.ServerId : ServerIdOfName(player.Name),
+            };
 
     /// <summary>Raised after a character window was remembered (the owner saves the list).</summary>
     public event Action? InspectedChanged;
@@ -1339,6 +1370,16 @@ public sealed class Aion2EntityDirectory : IEntityDirectory
     {
         lock (_gate)
         {
+            // A player named after his window was opened gets his faction and server now; the next save keeps them.
+            foreach (var entry in _inspected.ToList())
+            {
+                var known = WithKnownOrigin(entry.Value);
+                if (known.Faction != entry.Value.Faction || known.ServerId != entry.Value.ServerId)
+                {
+                    _inspected[entry.Key] = known;
+                }
+            }
+
             return _inspected.Values.ToList();
         }
     }

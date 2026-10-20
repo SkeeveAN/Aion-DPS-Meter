@@ -546,6 +546,8 @@ public partial class MainWindow : Window
                 RefreshUploadAvailability();
                 ScheduleOwnProfileUpload();
             }));
+            // A character window of another player was opened: it goes online by itself a few seconds later (see ScheduleInspectedUpload).
+            entities.InspectedChanged += () => Dispatcher.BeginInvoke(new Action(ScheduleInspectedUpload));
         }
 
         _pollTimer.Start();
@@ -3132,6 +3134,7 @@ public partial class MainWindow : Window
                 if (MeterSettings.Load().AutoUploadProfile)
                 {
                     await UploadOwnProfileAsync();
+                    await UploadInspectedAsync();
                 }
 
             };
@@ -3541,7 +3544,103 @@ public partial class MainWindow : Window
         }
     }
 
-    private ProfilesUploadRequest? BuildProfilesUpload(string fingerprint, string? displayName, bool ownOnly = false)
+    // ---- the character windows of other players go online by themselves ---------------------------
+    // Per the user: a player whose character window was opened (an arena opponent, someone met on the road) is meant to be found on the site, and
+    // having to remember a manual upload before the next restart lost him (one such player was lost with the crash that followed). Only with the
+    // settings "profiles of other players" and "upload my profile" both on; every window goes once. One the community server would turn away
+    // (no faction or server known yet) waits and is tried again with the next window or the next character record.
+
+    private System.Windows.Threading.DispatcherTimer? _inspectedUploadTimer;
+    private bool _inspectedUploadBusy;
+
+    private void ScheduleInspectedUpload()
+    {
+        if (Headless)
+        {
+            return;
+        }
+
+        var settings = MeterSettings.Load();
+        if (!settings.AutoUploadProfile || !settings.UploadOtherPlayersProfiles)
+        {
+            return;
+        }
+
+        if (_inspectedUploadTimer is null)
+        {
+            _inspectedUploadTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+            _inspectedUploadTimer.Tick += async (_, _) =>
+            {
+                _inspectedUploadTimer.Stop();
+                await UploadInspectedAsync();
+            };
+        }
+
+        _inspectedUploadTimer.Stop();
+        _inspectedUploadTimer.Start();
+    }
+
+    private async Task UploadInspectedAsync()
+    {
+        var settings = MeterSettings.Load();
+        if (_inspectedUploadBusy || !settings.AutoUploadProfile || !settings.UploadOtherPlayersProfiles
+            || _source?.Entities is not Aion2.Aion2EntityDirectory { LocalCharacter: { Restored: false } } directory
+            || directory.LocalEquipment.Count == 0
+            || ResolveServerIdentity() is not (string fingerprint, var displayName))
+        {
+            return;
+        }
+
+        // The windows not yet sent (a newer window of the same name counts as new); older ones than a day are left alone, so the first start
+        // after an update does not send what was looked at weeks ago.
+        var pending = directory.InspectedPlayers()
+            .Where(p => p.UploadedAt is null && p.ReceivedAt > DateTime.Now.AddHours(-24))
+            .ToDictionary(p => p.Name, p => p.ReceivedAt, StringComparer.Ordinal);
+        if (pending.Count == 0)
+        {
+            return;
+        }
+
+        ProfilesUploadRequest? request = BuildProfilesUpload(fingerprint, displayName, onlyNames: pending.Keys.ToHashSet(StringComparer.Ordinal));
+        if (request is null)
+        {
+            return;
+        }
+
+        // The server turns away a player without faction or server; those stay pending.
+        var ready = request.Participants.Where(p => p.IsSelf || (p.Faction.Length > 0 && p.ServerId is > 0)).ToList();
+        var names = ready.Where(p => !p.IsSelf).Select(p => p.Name).ToList();
+        if (names.Count == 0)
+        {
+            return;
+        }
+
+        _inspectedUploadBusy = true;
+        try
+        {
+            UploadResult result = await UploadClient.SendProfilesAsync(request with { Participants = ready });
+            if (result.Success)
+            {
+                foreach (string name in names)
+                {
+                    directory.MarkInspectedUploaded(name, pending[name]);
+                }
+
+                ShowUploadStatus($"Profile of {string.Join(", ", names)} uploaded.");
+                AutoUploadLog.Write($"profile upload of looked-at players: {string.Join(", ", names)}");
+            }
+            else
+            {
+                AutoUploadLog.Write($"profile upload of looked-at players failed: {result.Error}");
+            }
+        }
+        finally
+        {
+            _inspectedUploadBusy = false;
+        }
+    }
+
+    private ProfilesUploadRequest? BuildProfilesUpload(string fingerprint, string? displayName, bool ownOnly = false, IReadOnlySet<string>? onlyNames = null)
     {
         if (_source?.Entities is not Aion2.Aion2EntityDirectory directory || directory.LocalCharacter is not { } local)
         {
@@ -3574,7 +3673,7 @@ public partial class MainWindow : Window
         foreach (var inspected in ownOnly ? Array.Empty<Aion2.Aion2InspectedPlayer>() : directory.InspectedPlayers())
         {
             string? inspectedClass = Aion2.Protocol.Aion2SkillNames.ClassFromCode(inspected.ClassCode);
-            if (inspectedClass is null || inspected.Name == local.Name)
+            if (inspectedClass is null || inspected.Name == local.Name || (onlyNames is not null && !onlyNames.Contains(inspected.Name)))
             {
                 continue;
             }
@@ -3583,7 +3682,7 @@ public partial class MainWindow : Window
             participants.Add(new ProfileParticipantUpload(
                 inspected.Name,
                 inspectedClass,
-                directory.FactionOfName(inspected.Name) ?? "",
+                directory.FactionOfName(inspected.Name) ?? inspected.Faction ?? "",
                 false,
                 inspected.Guild,
                 new ProfileUpload(
@@ -3598,10 +3697,10 @@ public partial class MainWindow : Window
                     Titles: inspected.Titles?.Select(t => new ProfileTitleUpload(t.Slot, t.TitleId)).ToList(),
                     Pets: inspected.Pets?.Select(k => new ProfilePetUpload(k.SpeciesId, k.Level, k.Kinds)).ToList(),
                     BoardCounts: inspected.BoardCounts?.Select(b => new ProfileBoardCountUpload(b.BoardId, b.Count)).ToList()),
-                directory.ServerIdOfName(inspected.Name)));
+                directory.ServerIdOfName(inspected.Name) ?? inspected.ServerId));
         }
 
-        foreach (int id in ownOnly ? Array.Empty<int>() : directory.SeenProfileIds())
+        foreach (int id in ownOnly || onlyNames is not null ? Array.Empty<int>() : directory.SeenProfileIds())
         {
             string? name = directory.NameFor(id);
             string? className = directory.ClassOf(id)
@@ -3617,7 +3716,7 @@ public partial class MainWindow : Window
 
         // The other characters of the uploader's own account (the character list of the login): the basics only - class, level, faction, legion, server and
         // the character id the game's own search knows; the server fetches the rest from there. They are the uploader's own characters, so they go with the own profile.
-        foreach (Aion2.AccountCharacter alt in directory.AccountCharacters())
+        foreach (Aion2.AccountCharacter alt in onlyNames is not null ? Array.Empty<Aion2.AccountCharacter>() : directory.AccountCharacters())
         {
             if (alt.Name == local.Name || participants.Any(p => p.Name == alt.Name))
             {

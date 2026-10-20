@@ -126,6 +126,20 @@ internal static class Program
             return;
         }
 
+        if (args.Length > 0 && args[0] == "aion2-session-sim")
+        {
+            // aion2-session-sim <recording.jsonl>: stay, change the map, fight, change back - what the list and the session menu show at each step
+            SessionSim.Run(args);
+            return;
+        }
+
+        if (args.Length > 0 && args[0] == "aion2-profile-upload")
+        {
+            // aion2-profile-upload <recording> <data-folder copy> <names> [--send]: puts the profile of looked-at players online after the fact
+            ProfileUploadTool.Run(args);
+            return;
+        }
+
         if (args.Length > 0 && args[0] == "aion2-stress")
         {
             // aion2-stress [duel|raid] [stages, comma separated]: made-up game traffic through the real decoder and window logic
@@ -389,6 +403,7 @@ internal static class Program
             // and collide with this one. Building System.Windows.Application by hand keeps the
             // console entry points and the GUI in the same exe without fighting over program entry.
             var app = new System.Windows.Application();
+            CrashLog.Hook(app); // crash.log in the data folder: what an unhandled error was, for the next report
             // A screen reader, an overlay or a capture tool that reads the window through UI Automation
             // can ask a list item for its name just after the row behind it was replaced; WPF's own
             // ItemAutomationPeer.GetNameCore then throws a NullReferenceException from inside layout
@@ -420,6 +435,7 @@ internal static class Program
                 // Without a console there is nowhere for an unhandled startup exception to show
                 // up, so the failure looks like nothing happening at all -- put it on screen
                 // instead of letting the process die silently.
+                CrashLog.Write("the meter could not start", ex);
                 System.Windows.MessageBox.Show(ex.ToString(), "Aion DPS konnte nicht starten",
                     System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
