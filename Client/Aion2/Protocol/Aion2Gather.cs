@@ -39,7 +39,7 @@ public static class Aion2Gather
             return null;
         }
 
-        return (own.ServerId / 1000) switch { 1 => "Elyos", 2 => "Asmodian", _ => own.ClassCode % 4 == 2 ? "Elyos" : null };
+        return (own.ServerId / 1000) switch { 1 => "Elyos", 2 => "Asmodian", _ => Aion2SkillNames.FactionOfCode(own.ClassCode) };
     }
 
     /// <summary>The collectible (its kind and item key) an env object id of the data stream stands for, null for any other object.</summary>

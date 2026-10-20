@@ -1185,10 +1185,10 @@ public static class SelfCheckAion2
 
         static byte[] U32(uint v) => BitConverter.GetBytes(v);
         string character = "3336cb025fa1c12837044161687a18050600000001210000000000000000000000b6ec460f8ac1900600010000000000000000000000000003000000000000000000000000990eb788890c000200000000000000000000000000030000000000000000000000000e570f8b0c00030000000000000000000000000003000000000000000000000000dd0e777b860c000400000000000000000000000000030000000000000000000000000e1702880c00050000000000000000000000000003000000000000000000000000dd0efe958c0c000600000000000000000000000000030000000000000000000000000e961c8e0c00070000000000000000000000000003000000000000000000000000dd0e36a38f0c000800000000000000000000000000030000000000000000000000000e7e5c7c1200090000000000000000000000000003000000000000000000000000dd0e2e0a7e12000a00000000000000000000000000030000000000000000000000000e2c0a7e12000b0000000000000000000000000003000000000000000000000000dd0e";
-        byte[] Record(uint wing, uint? skin, bool extra) => Convert.FromHexString(character)
+        byte[] Record(uint wing, uint? skin, bool extra, byte faction = 1) => Convert.FromHexString(character)
             .Concat(new byte[] { 0, 0, 0, 0 })
             .Concat(Convert.FromHexString("a0860100a0860100")).Concat(U32(0x30d40)).Concat(U32(0x30d40))
-            .Concat(extra ? new byte[] { 1, 0, 0, 0, 1 } : new byte[] { 1 })
+            .Concat(extra ? new byte[] { faction, 0, 0, 0, faction } : new byte[] { faction })
             .Concat(U32(wing)).Concat(skin is uint k ? U32(k) : Array.Empty<byte>()).Concat(U32(13050017)).ToArray();
 
         // Aahz: wing 30500200 + skin 30400400
@@ -1202,6 +1202,17 @@ public static class SelfCheckAion2
         using var b = new Aion2PacketCombatSource(Aion2Protocol.Load());
         b.Ingest(Segment(500, Wire(Record(30200600, null, true))));
         bool chumley = ((Aion2EntityDirectory)b.Entities).LocalWing is { WingId: 30200600, SkinId: 0 };
+
+        // Kijin (Asmodian, 20 October 2026): the marker byte is 2, wing 40200100 and a wing-type skin 40201500; the Elyos skin 30201500 is read too
+        using var asmo = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        asmo.Ingest(Segment(500, Wire(Record(40200100, 40201500, false, 2))));
+        using var asmoExtra = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        asmoExtra.Ingest(Segment(500, Wire(Record(40500200, null, true, 2))));
+        using var elyosWingSkin = new Aion2PacketCombatSource(Aion2Protocol.Load());
+        elyosWingSkin.Ingest(Segment(500, Wire(Record(30200101, 30201500, false))));
+        bool asmodian = ((Aion2EntityDirectory)asmo.Entities).LocalWing is { WingId: 40200100, SkinId: 40201500 }
+            && ((Aion2EntityDirectory)asmoExtra.Entities).LocalWing is { WingId: 40500200, SkinId: 0 }
+            && ((Aion2EntityDirectory)elyosWingSkin.Entities).LocalWing is { WingId: 30200101, SkinId: 30201500 };
 
         // Layout mismatch: nothing instead of garbage
         using var c = new Aion2PacketCombatSource(Aion2Protocol.Load());
@@ -1245,6 +1256,7 @@ public static class SelfCheckAion2
 
         Console.WriteLine($"  -> Aahz: wing 30500200, skin 30400400: {aahz}");
         Console.WriteLine($"  -> Chumley: wing 30200600 without skin (both record variants): {chumley}");
+        Console.WriteLine($"  -> Asmodian wing 40200100 + skin 40201500 (marker byte 2), Elyos wing-type skin: {asmodian}");
         Console.WriteLine($"  -> an implausible wing id yields nothing: {garbage}");
         Console.WriteLine($"  -> stats frame: ids 1..17 only, missing Intelligence = 0: {attributes}");
         Console.WriteLine($"  -> pet list header = active pet 1124, level 3: {pet}");
@@ -1262,7 +1274,7 @@ public static class SelfCheckAion2
             && Aion2Wings.Find(1, "en") is null
             && Aion2Pets.PetIconPath(1124) is not null;
         Console.WriteLine($"  -> wing/skin lookup (names en/de, grade, icon) and pet picture: {lookups}");
-        return aahz && chumley && garbage && attributes && pet && restored && lookups;
+        return aahz && chumley && asmodian && garbage && attributes && pet && restored && lookups;
     }
 
     /// <summary>The two login lists from the 2026-10-01 relog: equipment (three real item entries -

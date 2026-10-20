@@ -2229,30 +2229,44 @@ public sealed class Aion2FrameDecoder
     }
 
     /// <summary>
-    /// The account key: a 12-character text, length-prefixed, right before <c>2a 00 00 00 01 02 01</c> in the character list of the login. It is the same
-    /// on every character of one account and differs between accounts (checked on the login traffic of two accounts with four characters each, 2026-10-19).
+    /// The account key: a 12-character text starting with <c>$</c>, length-prefixed, at the head of the character list of the login. It is the same
+    /// on every character of one game account and differs between accounts (checked on the login traffic of two accounts with four characters each, 2026-10-19).
+    /// The game account belongs to one server, so the same Steam account has one key per server. Behind the key come a count byte (<c>2a</c> Elyos, <c>2c</c>
+    /// Asmodian), three zero bytes, the faction (<c>01</c> Elyos, <c>02</c> Asmodian) and <c>02 01</c> (53 Elyos login dumps, two Asmodian accounts, 2026-10-20),
+    /// so only the layout is checked, not the values.
     /// </summary>
-    private static bool TryReadAccountKey(ReadOnlySpan<byte> frame, out string key)
+    internal static bool TryReadAccountKey(ReadOnlySpan<byte> frame, out string key)
     {
         key = "";
-        ReadOnlySpan<byte> marker = [0x2a, 0x00, 0x00, 0x00, 0x01, 0x02, 0x01];
-        int at = frame.IndexOf(marker);
-        if (at < 13 || frame[at - 13] != 12)
+        int limit = Math.Min(frame.Length - 20, 64);
+        for (int at = 13; at < limit; at++)
         {
-            return false;
-        }
-
-        ReadOnlySpan<byte> text = frame.Slice(at - 12, 12);
-        foreach (byte b in text)
-        {
-            if (b is < 0x21 or > 0x7e)
+            if (frame[at - 13] != 12 || frame[at - 12] != (byte)'$'
+                || frame[at + 1] != 0 || frame[at + 2] != 0 || frame[at + 3] != 0
+                || frame[at + 4] is not (1 or 2) || frame[at + 5] != 0x02 || frame[at + 6] != 0x01)
             {
-                return false;
+                continue;
+            }
+
+            ReadOnlySpan<byte> text = frame.Slice(at - 12, 12);
+            bool printable = true;
+            foreach (byte b in text)
+            {
+                if (b is < 0x21 or > 0x7e)
+                {
+                    printable = false;
+                    break;
+                }
+            }
+
+            if (printable)
+            {
+                key = System.Text.Encoding.ASCII.GetString(text);
+                return true;
             }
         }
 
-        key = System.Text.Encoding.ASCII.GetString(text);
-        return true;
+        return false;
     }
 
     private void DecodeAppearance(ReadOnlySpan<byte> frame)
@@ -2350,14 +2364,14 @@ public sealed class Aion2FrameDecoder
 
     /// <summary>The constant block in the own character record that precedes the wing: <c>a0 86 01 00 a0 86 01 00</c>
     /// (100000 twice), then two u32, then <c>01</c> or <c>01 00 00 00 01</c>, then the wing (u32), the optional wing
-    /// skin (u32, 304xxxxx) and the title id.</summary>
+    /// skin (u32, a wing of the same table: 30xxxxxx Elyos, 40xxxxxx Asmodian) and the title id. The byte before the wing is the faction (1 or 2).</summary>
     private static readonly byte[] WingAnchor = { 0xa0, 0x86, 0x01, 0x00, 0xa0, 0x86, 0x01, 0x00 };
 
     /// <summary>
     /// Reads the wing and its skin from the own character record (0x3336), anchored on <see cref="WingAnchor"/>. Checked
     /// 2026-10-10 against Aahz (wing 30500200, skin 30400400), Chumley (30200600, no skin) and the older recordings
-    /// (30101200 with and without skin). Anything that does not fit the layout - a wing outside 30000000..30599999 or
-    /// inside the skin range 304xxxxx - yields null, never a guess.
+    /// (30101200 with and without skin), and 20 October 2026 against an Asmodian (wing 40200100, skin 40201500). Anything that does not fit the layout - a wing
+    /// outside 30000000..30599999 (Asmodian: 40000000..40599999) or inside the skin range 304xxxxx - yields null, never a guess.
     /// </summary>
     private static Aion2Wing? TryReadWing(ReadOnlySpan<byte> frame)
     {
@@ -2369,11 +2383,12 @@ public sealed class Aion2FrameDecoder
 
         int q = anchor + 16;
         int wingAt;
-        if (q + 5 <= frame.Length && frame[q] == 1 && frame[q + 1] == 0 && frame[q + 2] == 0 && frame[q + 3] == 0 && frame[q + 4] == 1)
+        // the marker byte is the faction (1 Elyos, 2 Asmodian: Kijin's record of 20 October 2026 reads 02 a4 67 65 02 = wing 40200100)
+        if (q + 5 <= frame.Length && frame[q] is 1 or 2 && frame[q + 1] == 0 && frame[q + 2] == 0 && frame[q + 3] == 0 && frame[q + 4] == frame[q])
         {
             wingAt = q + 5;
         }
-        else if (q < frame.Length && frame[q] == 1)
+        else if (q < frame.Length && frame[q] is 1 or 2)
         {
             wingAt = q + 1;
         }
@@ -2387,14 +2402,17 @@ public sealed class Aion2FrameDecoder
             return null;
         }
 
+        // Asmodian wings carry the same numbers as the Elyos ones, 10,000,000 higher (40xxxxxx; NC's data of 1,244 Asmodians, wings.json holds both)
         uint wing = BinaryPrimitives.ReadUInt32LittleEndian(frame[wingAt..]);
-        if (wing is < 30_000_000 or > 30_599_999 || wing is >= 30_400_000 and <= 30_499_999)
+        uint wingBase = wing >= 40_000_000 ? wing - 10_000_000 : wing;
+        if (wingBase is < 30_000_000 or > 30_599_999 || wingBase is >= 30_400_000 and <= 30_499_999)
         {
             return null;
         }
 
         uint skin = wingAt + 8 <= frame.Length ? BinaryPrimitives.ReadUInt32LittleEndian(frame[(wingAt + 4)..]) : 0;
-        return new Aion2Wing((int)wing, skin is >= 30_400_000 and <= 30_499_999 ? (int)skin : 0);
+        uint skinBase = skin >= 40_000_000 ? skin - 10_000_000 : skin;
+        return new Aion2Wing((int)wing, skinBase is >= 30_000_000 and <= 30_799_999 ? (int)skin : 0);
     }
 
     /// <summary>

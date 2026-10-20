@@ -579,7 +579,7 @@ public sealed class ChecklistWindow : Window
             var head = new Grid { Margin = new Thickness(0, 6, 0, 0) };
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            head.Children.Add(Label(loc[pass.NameKey], "Brush.Text", 13, bold: true));
+            head.Children.Add(Label(loc[pass.NameKeyFor(character.ServerId)], "Brush.Text", 13, bold: true));
             bool ended = DateTime.Now >= pass.End;
             TextBlock end = Label(string.Format(CultureInfo.CurrentCulture, loc[ended ? "Checklist.PassEnded" : "Checklist.PassEnds"], pass.End.ToString("g", CultureInfo.CurrentCulture)), "Brush.TextSubtle", 11);
             Grid.SetColumn(end, 1);

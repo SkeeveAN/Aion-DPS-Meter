@@ -285,14 +285,20 @@ public static class Aion2Tickets
 
     /// <summary>One Daeva pass as the game counts it: the id of its entry in the pass frame <c>0x24e3</c>, the id of the ticket of our own that holds it
     /// (count = all experience, bonus = experience of this week, time = when it was last gained), the weekly limit and the end of the pass.</summary>
-    public sealed record PassDef(int TicketId, int FrameId, string NameKey, int WeeklyLimit, DateTime End);
+    public sealed record PassDef(int TicketId, int FrameId, string NameKey, int WeeklyLimit, DateTime End, int AsmodianFrameId = 0, string? AsmodianNameKey = null)
+    {
+        /// <summary>The text key of the pass' name for a character of a faction (the server id's thousands: 2 = Asmodian).</summary>
+        public string NameKeyFor(int serverId) => serverId / 1000 == 2 && AsmodianNameKey is not null ? AsmodianNameKey : NameKey;
+    }
 
-    /// <summary>The two passes of the first season on the Elyos side (the Asmodian ones have other ids, not seen yet): "Dawn Legion" (<c>String_UI_BATTLEPASSGROUP_LIGHT_S1_1</c>)
-    /// and "Planet's Call" (<c>..._LIGHT_S1_2</c>). The limits and end dates are those the game showed on 19 October 2026 (the ends are on the player's clock).</summary>
+    /// <summary>The two passes of the first season: "Dawn Legion" (<c>String_UI_BATTLEPASSGROUP_LIGHT_S1_1</c>, entry 10044) and "Planet's Call" (<c>..._LIGHT_S1_2</c>, 10045) on
+    /// the Elyos side, "Ishalgen Mercenary" (<c>..._DARK_S1_1</c>, 20044) and "Planet's Call" (<c>..._DARK_S1_2</c>, 20045) on the Asmodian side. The limits and the ends are the
+    /// same for both sides in the game's table (BattlePassGroup: 50,000 / 15,000 a week, 16 December and 28 October 2026 16:00 UTC) and are those the game showed on
+    /// 19 October 2026 (the ends are on the player's clock). The Asmodian ids were read from two Asmodian recordings of 20 October 2026.</summary>
     public static readonly PassDef[] Passes =
     {
-        new(99000010, 10044, "Checklist.PassLight1", 50000, new DateTime(2026, 12, 16, 9, 0, 0, DateTimeKind.Local)),
-        new(99000011, 10045, "Checklist.PassLight2", 15000, new DateTime(2026, 10, 28, 9, 0, 0, DateTimeKind.Local)),
+        new(99000010, 10044, "Checklist.PassLight1", 50000, new DateTime(2026, 12, 16, 9, 0, 0, DateTimeKind.Local), 20044, "Checklist.PassDark1"),
+        new(99000011, 10045, "Checklist.PassLight2", 15000, new DateTime(2026, 10, 28, 9, 0, 0, DateTimeKind.Local), 20045, "Checklist.PassDark2"),
     };
 
     /// <summary>The pass frame <c>0x24e3</c> (at login with both passes, later with the one that changed): an entry is <c>id u32 | all experience u32 |
@@ -305,7 +311,8 @@ public static class Aion2Tickets
         {
             for (int at = 3; at + 20 <= frame.Length; at++)
             {
-                if (BinaryPrimitives.ReadUInt32LittleEndian(frame[at..]) != (uint)pass.FrameId)
+                uint entry = BinaryPrimitives.ReadUInt32LittleEndian(frame[at..]);
+                if (entry != (uint)pass.FrameId && entry != (uint)pass.AsmodianFrameId)
                 {
                     continue;
                 }

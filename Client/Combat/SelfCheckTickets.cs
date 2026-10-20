@@ -110,6 +110,22 @@ public static class SelfCheckTickets
             && Aion2Tickets.TryParsePass(Convert.FromHexString("24e3013d27000034080000f00000005f1e0c54a101000000a70a4e02feffff0148a607000148a60700020248a60700409c000049a60700409c00000201000000"), out List<TicketReading> passChange)
             && passChange.Count == 1 && passChange[0].Id == Aion2Tickets.Passes[1].TicketId && passChange[0].Value is { Count: 2100, Bonus: 240 }
             && !Aion2Tickets.TryParsePass(Convert.FromHexString("24e300"), out _);
+        // an Asmodian's login (Kijin, 20 October 2026): the passes carry the ids 20044 and 20045 and land on the same two tickets; the name follows the character's side
+        bool asmodianPass = Aion2Tickets.TryParsePass(Convert.FromHexString("24e3024c4e00004eb00100e2b80000c9189e4da1010000000e2c918d01000001d60d030001d60d03003e02d60d0300e80a0300d70d0300e80a03000a010000004d4e000072970000983a000047b60548a101000000367c6e2bffffff01e82c090001e82c09003202e82c0900409c0000e92c0900409c000001000000"), out List<TicketReading> asmoReadings)
+            && asmoReadings.Count == 2
+            && asmoReadings.Single(r => r.Id == Aion2Tickets.Passes[0].TicketId).Value is { Count: 110670, Bonus: 47330 }
+            && asmoReadings.Single(r => r.Id == Aion2Tickets.Passes[1].TicketId).Value is { Count: 38770, Bonus: 15000 }
+            && Aion2Tickets.Passes[0].NameKeyFor(2321) == "Checklist.PassDark1" && Aion2Tickets.Passes[0].NameKeyFor(1304) == "Checklist.PassLight1"
+            && Aion2Tickets.Passes[1].NameKeyFor(2303) == "Checklist.PassDark2" && Aion2Tickets.Passes[1].NameKeyFor(0) == "Checklist.PassLight2";
+        passFrame = passFrame && asmodianPass;
+        // the account key of the character list: Elyos (2a 00 00 00 01 02 01) and Asmodian (2c 00 00 00 02 02 01) heads cut from real lists of 19 and 20 October 2026
+        static byte[] ListHead(string hex) => Convert.FromHexString(hex).Concat(new byte[40]).ToArray();
+        bool accountKeys = AionDPS.Aion2.Protocol.Aion2FrameDecoder.TryReadAccountKey(ListHead("2636000005832200000c24716378566b3155464270662a000000010201"), out string elyosKey) && elyosKey == "$qcxVk1UFBpf"
+            && AionDPS.Aion2.Protocol.Aion2FrameDecoder.TryReadAccountKey(ListHead("2636000005832200000c244d57663551596166727a352c000000020201"), out string asmoKey) && asmoKey == "$MWf5QYafrz5"
+            && !AionDPS.Aion2.Protocol.Aion2FrameDecoder.TryReadAccountKey(ListHead("2636000005832200000c244d57663551596166727a352c000000030201"), out _)
+            && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(14) == "Elyos" && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(13) == "Elyos" && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(15) == "Asmodian"
+            && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(16) == "Asmodian" && AionDPS.Aion2.Protocol.Aion2SkillNames.FactionOfCode(0) is null;
+        passFrame = passFrame && accountKeys;
         // the levels as the game showed them: first pass 15 (1,520 of 1,600), 16 (280), 15 (1,540); second pass 15 (460 of 700), 8 (210), 4 (0); above the known levels no answer
         int first = Aion2Tickets.Passes[0].TicketId, second = Aion2Tickets.Passes[1].TicketId;
         bool passLevels = Aion2Tickets.PassLevelOf(first, 22720) == new Aion2Tickets.PassLevel(15, 1520, 1600)

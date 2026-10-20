@@ -10243,6 +10243,26 @@
     "pt": "Chamado do Mundo",
     "ru": "Зов мира"
   },
+  "Checklist.PassDark1": {
+    "de": "Söldner von Ishalgen",
+    "en": "Ishalgen Mercenary",
+    "es": "Mercenario de Ishalgen",
+    "fr": "Mercenaire d'Ishalgen",
+    "ja": "イスハルゲンの傭兵",
+    "ko": "이스할겐의 용병",
+    "pt": "Mercenário de Ishalgen",
+    "ru": "Наемник Исхальгена"
+  },
+  "Checklist.PassDark2": {
+    "de": "Ruf der Welt",
+    "en": "Planet's Call",
+    "es": "Llamada del mundo",
+    "fr": "Appel du Monde",
+    "ja": "世界の呼びかけ",
+    "ko": "세계의 부름",
+    "pt": "Chamado do Mundo",
+    "ru": "Зов мира"
+  },
   "Checklist.AutoLoot": {
     "de": "Auto. Aufsammeln durch Pets",
     "en": "Pet Auto-Loot",

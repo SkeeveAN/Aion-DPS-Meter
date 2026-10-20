@@ -394,8 +394,8 @@ public sealed class CharacterWindow : Window
         names.Children.Add(Text($"{ClassCatalog.DisplayName(className, LocalizationManager.Instance.Language)} · Level {character.Level}", 12.5, brush: Res("Brush.TextMuted")));
         // Faction, legion and server on one line, like the website's profile header.
         var meta = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 0) };
-        // 2 in the class code's faction bit is Elyos (see Aion2EntityDirectory.FactionOf); the other value is not known to mean Asmodian.
-        string? faction = character.ClassCode % 4 == 2 ? "Elyos" : _directory.FactionOf(character.CombatId);
+        // the faction the game's server names; the class code's last part (1, 2 Elyos, 3, 4 Asmodian) only where there is none
+        string? faction = _directory.FactionOf(character.CombatId) ?? Aion2.Protocol.Aion2SkillNames.FactionOfCode(character.ClassCode);
         if (faction is not null)
         {
             if (Picture(Path.Combine(AppContext.BaseDirectory, "assets", "races", "icons", faction + ".png")) is { } flag)

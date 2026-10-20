@@ -183,6 +183,10 @@ public static class Aion2SkillNames
     /// <summary>The last part of a class code, 1..4: 1 and 2 on Elyos characters, 3 on Asmodian ones (seen on two; 4 is expected).</summary>
     public static int ClassBitsOfCode(int classCode) => classCode >= 1 ? (classCode - 1) % 4 + 1 : 0;
 
+    /// <summary>The faction a class code points to: 1 and 2 are Elyos, 3 and 4 Asmodian (the profiles of the database: 4,630 of 4,640 Elyos have 1 or 2, 1,122 of 1,157 Asmodians have 3 or 4).
+    /// Only for a character whose server is not known; null when the code is none.</summary>
+    public static string? FactionOfCode(int classCode) => ClassBitsOfCode(classCode) switch { 1 or 2 => "Elyos", 3 or 4 => "Asmodian", _ => null };
+
     public static string? ClassFromCode(int classCode)
     {
         // 4 * class id + 1..4: the last part is faction and sex (1, 2 Elyos; 3, 4 Asmodian), so the class id is (code - 1) / 4 for all of them.
