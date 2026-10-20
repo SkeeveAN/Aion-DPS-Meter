@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.10.3",
   "date": "2026-10-20",
   "items": [
    {
@@ -22,6 +22,13 @@
     "areas": [
      "Website",
      "Backend"
+    ],
+    "date": "2026-10-20"
+   },
+   {
+    "text": "Asmodian characters are read completely - the account key of the character list (so the checklist can tell the characters of an account apart), the wings and wing skins, and the Daeva passes (Ishalgen Mercenary and Planet's Call) in the checklist; a character's faction no longer falls back to a rule that only fitted Elyos",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-20"
    }
