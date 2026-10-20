@@ -1,7 +1,7 @@
 [
  {
-  "version": "Unreleased",
-  "date": "2026-10-20",
+  "version": "1.11.4",
+  "date": "2026-10-21",
   "items": [
    {
     "text": "Website: gear tooltips name two more rolled stats, Might and Critical Damage Defense, instead of \"Stat 1\" and \"Stat 41\" (and the other base attributes: Dexterity, Intelligence, Constitution, Willpower)",
