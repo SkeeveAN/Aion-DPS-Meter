@@ -59,6 +59,15 @@
      "Client"
     ],
     "date": "2026-10-20"
+   },
+   {
+    "text": "Website and meter: the skill Upward Strike of the Gladiator shows its icon as the game does (the upward flame burst) instead of the purple figure the client's skill table names",
+    "areas": [
+     "Client",
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-21"
    }
   ]
  },
