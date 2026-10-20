@@ -166,10 +166,14 @@ public sealed class Aion2FrameDecoder
     private readonly Dictionary<int, (long Raw, int Hits)> _rawEstimate = new();
 
     /// <summary>Estimated hits needed on a boss before its hit points can say how far the table is off (fewer, and the figure is the table's).</summary>
-    private const int CalibrationHits = 300;
+    private const int CalibrationHits = 30;
 
-    /// <summary>The bounds of the scale: the table cannot be off by less than nothing, and a wild reading must not blow one hit up.</summary>
-    private const double MinScale = 1.0, MaxScale = 40.0;
+    /// <summary>Estimated hits at which the measured scale counts in full; between <see cref="CalibrationHits"/> and this it is blended in, so a few early hits cannot swing it.</summary>
+    private const int FullCalibrationHits = 300;
+
+    /// <summary>The bounds of the scale: the players of a small group hit harder or softer than the table's typical player (aiondps.com, 2026-10-20: world bosses between 81 and 115 % of their hit points),
+    /// so it may go below the table's value too; a wild reading must not blow one hit up.</summary>
+    private const double MinScale = 0.25, MaxScale = 40.0;
 
     private const int BuffOnOpcode = 0x2a38;
     private const int BuffRenewedOpcode = 0x2b38;
@@ -357,7 +361,7 @@ public sealed class Aion2FrameDecoder
     /// 2026-10-13: 1,266 players, about 11 % of its 275 M hit points; the own 46 exact hits, 215 k, were an average player's share of it).
     /// With the boss's hit points known the shortfall is measured: the hit points lost, less the damage the game did report, over the estimates at
     /// table value. Every estimate is scaled the same, so the players keep their order and the sum is the boss's real loss.
-    /// Before <see cref="CalibrationHits"/> estimates there is no measure and the scale is 1. <paramref name="lost"/> is what the boss had lost
+    /// Before <see cref="CalibrationHits"/> estimates there is no measure and the scale is 1; up to <see cref="FullCalibrationHits"/> the measure is blended in. <paramref name="lost"/> is what the boss had lost
     /// when the hit's notice came, not when it was settled 1.5 s later - else the scale runs ahead of the estimates and overshoots.
     /// </summary>
     private double EstimateScale(int target, long lost)
@@ -369,7 +373,14 @@ public sealed class Aion2FrameDecoder
         }
 
         long unexplained = lost - _exactOnTarget.GetValueOrDefault(target);
-        return unexplained <= 0 ? 1.0 : Math.Clamp((double)unexplained / raw, MinScale, MaxScale);
+        if (unexplained <= 0)
+        {
+            return 1.0;
+        }
+
+        double measured = Math.Clamp((double)unexplained / raw, MinScale, MaxScale);
+        double weight = Math.Min(1.0, (double)(hits - CalibrationHits) / (FullCalibrationHits - CalibrationHits));
+        return 1.0 + (measured - 1.0) * weight;
     }
 
     /// <summary>A hit notice: waits for the damage frame of the same hit (see <see cref="HitNoticeOpcode"/>).</summary>
