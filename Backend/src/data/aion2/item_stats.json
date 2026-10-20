@@ -580,6 +580,71 @@
   },
   "percent": true
  },
+ "444": {
+  "names": {
+   "de": "Regeneration",
+   "en": "Regeneration",
+   "es": "Recuperación",
+   "fr": "Restauration",
+   "ru": "Регенерация",
+   "pt": "Recuperação",
+   "ja": "再生",
+   "ko": "재생"
+  },
+  "percent": true
+ },
+ "446": {
+  "names": {
+   "de": "Perfekter Widerstand",
+   "en": "Perfect Resist",
+   "es": "Resistencia a Perforación",
+   "fr": "RÉS parfaite",
+   "ru": "Сопротивление Совершенному удару",
+   "pt": "Resistência a Acerto Perfeito",
+   "ja": "完璧抵抗",
+   "ko": "완벽 저항"
+  },
+  "percent": true
+ },
+ "447": {
+  "names": {
+   "de": "Wucht-Widerstand",
+   "en": "Double Resist",
+   "es": "Resistencia a Golpe",
+   "fr": "RÉS coup puissant",
+   "ru": "Сопротивление Мощному удару",
+   "pt": "Resistência a Golpe Potente",
+   "ja": "強打抵抗",
+   "ko": "강타 저항"
+  },
+  "percent": true
+ },
+ "448": {
+  "names": {
+   "de": "Regenerations-Penetration",
+   "en": "Regeneration Penetration",
+   "es": "Penetración de Recuperación",
+   "fr": "Perforation de la restauration",
+   "ru": "Пробитие Регенерации",
+   "pt": "Penetração de Regeneração",
+   "ja": "再生貫通",
+   "ko": "재생 관통"
+  },
+  "percent": true
+ },
+ "449": {
+  "names": {
+   "de": "Eisenwall-Penetration",
+   "en": "Endurance Penetration",
+   "es": "Penetración de Tenacidad",
+   "fr": "Perforation blindage",
+   "ru": "Пробитие Непробиваемости",
+   "pt": "Penetração de Solidez",
+   "ja": "鉄壁貫通",
+   "ko": "철벽 관통"
+  },
+  "percent": true
+ },
  "298": {
   "names": {
    "de": "FP",
