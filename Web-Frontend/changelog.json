@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.11.3",
+  "date": "2026-10-20",
+  "items": [
+   {
+    "text": "a player whose character window was opened goes online by itself, with his faction and server kept across a restart of the meter, and an unhandled error leaves a crash.log in the data folder",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-20"
+   }
+  ]
+ },
+ {
   "version": "1.11.2",
   "date": "2026-10-20",
   "items": [
