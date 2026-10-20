@@ -16,6 +16,13 @@
      "Website"
     ],
     "date": "2026-10-20"
+   },
+   {
+    "text": "Website: the rolled stat FP (Flight Power) on a piece of gear is named and shown as a whole number (272) instead of \"Stat 298\" with 27,193",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-20"
    }
   ]
  },
