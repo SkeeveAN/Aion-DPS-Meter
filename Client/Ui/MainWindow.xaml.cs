@@ -1784,7 +1784,9 @@ public partial class MainWindow : Window
     /// <summary>A player is an object the meter has seen casting a class skill or whose "appeared"
     /// frame it read; everything else is an NPC (shown by its hex id or boss name).</summary>
     private bool IsPlayerName(int id) =>
-        _source?.Entities is Aion2.Aion2EntityDirectory entities && entities.IsKnownPlayer(id);
+        _source?.Entities is Aion2.Aion2EntityDirectory entities && entities.IsKnownPlayer(id)
+        // a stored session or fight runs on a replay source that knows no players: the identities it came with (name and class are only known for players) tell instead, so its PvP view (the arena) is not empty
+        || (_historyMode && _playerIdentities.ContainsKey(id));
 
     /// <summary>Sets Name/ClassName/Level for one row: from the stored identity when a past fight is
     /// shown, else from the packet stream - the name and class the directory has learned for the id.</summary>
@@ -4186,7 +4188,13 @@ public partial class MainWindow : Window
 
         _aggregator.IngestEvents(events);
 
-        _historyLiveIds = idMap.ToDictionary(kv => kv.Value, kv => kv.Key);
+        // two live ids with the same name share one replay id (the replay merges by name), so the way back keeps the first of them
+        _historyLiveIds = new Dictionary<int, int>();
+        foreach (var (live, mapped) in idMap)
+        {
+            _historyLiveIds.TryAdd(mapped, live);
+        }
+
         _historyReplayIds = new Dictionary<int, int>(idMap);
         _historyExtras = session.Extras ?? ((_liveSource?.Entities as Aion2.Aion2EntityDirectory) is { } liveDir
             ? liveDir.Combat.Slice(session.Start, session.End ?? DateTime.Now, id => liveDir.NameFor(id), ReplayKeeps, ReplayHp)
