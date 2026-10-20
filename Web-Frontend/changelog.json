@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-20",
+  "items": [
+   {
+    "text": "Sessions: a finished session or a loaded file no longer crashes the meter when two ids share a name, and its PvP view (the arena) lists the players instead of staying empty",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-20"
+   }
+  ]
+ },
+ {
   "version": "1.11.1",
   "date": "2026-10-20",
   "items": [
