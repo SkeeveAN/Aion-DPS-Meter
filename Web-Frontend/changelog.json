@@ -37,6 +37,14 @@
      "Backend"
     ],
     "date": "2026-10-20"
+   },
+   {
+    "text": "Website: the stone Block (PvP) is named and carries its value (+20), and a percentage on gear shows without a trailing zero as in the game (2 % instead of 2,0 %)",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-20"
    }
   ]
  },
