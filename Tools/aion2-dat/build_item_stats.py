@@ -10,7 +10,8 @@ Angriffskraft 24, Ausweichen 24; an Enraged Kromede Earring: Kritischer Treffer 
 MP-Regeneration 27, Block 31) and against the species table's ids (build_species.py, matched there against the pet
 window). The ImprintMagicStoneProb table of the client names the stone stats by the same tokens (EStat::Block, Evasion,
 Accuracy, Critical, CriticalResist, HPMax, MPMax, ArmorDefense, WeaponFixingDamage ...). Ids that no screenshot has
-confirmed (the small ids 1-6 look like the six base attributes) stay out and show as "Stat <id>" on the website.
+confirmed stay out and show as "Stat <id>" on the website (1 = Macht is confirmed; 2, 3, 4 and 6 are the other base attributes by the
+numbering of the stat frame, where 5 = Praezision matched).
 "percent" stats are sent in hundredths (Endurance 145 = 1.45 %).
 """
 import json
@@ -18,8 +19,11 @@ import os
 import sys
 
 STATS = {
+    1: "STR",  # Macht 31 of the greatsword tooltip, confirmed by the player 2026-10-20 (the website showed "Stat 1")
+    2: "DEX", 3: "INT", 4: "CON", 6: "WIS",  # the other base attributes: the stat frame's ids 1..6 (Aion2Attributes), same numbering as 5 = AGI; not yet seen on a piece
     5: "AGI", 282: "CombatSpeed",  # Praezision 26 and Kampftempo 10,7 % of the greatsword tooltip (2026-10-09)
-    19: "FixingDamage", 38: "CriticalAddDamage", 47: "DecreaseCriticalDamage", 52: "Defense",
+    19: "FixingDamage", 38: "CriticalAddDamage", 41: "CriticalDamageDefense",  # Krit.-Verteidigung 157 of the Nuakum Gloves, confirmed by the player 2026-10-20
+    47: "DecreaseCriticalDamage", 52: "Defense",
     98: "BackAttackDamage", 99: "BackAttackDefense", 104: "Accuracy", 116: "Evasion", 128: "Critical", 133: "CriticalResist",
     158: "AbnormalAccuracy", 193: "HPMax", 199: "MPMax", 200: "MPRegen", 255: "Block",
     307: "ArmorDefense", 312: "ArmorEvasion", 317: "WeaponFixingDamage", 445: "IronWall", 588: "FrontAttackDefense",

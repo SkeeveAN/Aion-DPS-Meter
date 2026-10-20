@@ -1,9 +1,69 @@
 {
+ "1": {
+  "names": {
+   "de": "Macht",
+   "en": "Might",
+   "es": "Fuerza",
+   "fr": "Force",
+   "ru": "Мощь",
+   "pt": "Poder",
+   "ja": "威力",
+   "ko": "위력"
+  }
+ },
+ "2": {
+  "names": {
+   "de": "Agilität",
+   "en": "Dexterity",
+   "es": "Destreza",
+   "fr": "Dextérité",
+   "ru": "Ловкость",
+   "pt": "Agilidade",
+   "ja": "敏捷",
+   "ko": "민첩"
+  }
+ },
+ "3": {
+  "names": {
+   "de": "Intelligenz",
+   "en": "Intelligence",
+   "es": "Inteligencia",
+   "fr": "Intelligence",
+   "ru": "Интеллект",
+   "pt": "Inteligência",
+   "ja": "知識",
+   "ko": "지식"
+  }
+ },
+ "4": {
+  "names": {
+   "de": "Vitalität",
+   "en": "Constitution",
+   "es": "Vitalidad",
+   "fr": "Santé",
+   "ru": "Здоровье",
+   "pt": "Vitalidade",
+   "ja": "HP",
+   "ko": "체력"
+  }
+ },
+ "6": {
+  "names": {
+   "de": "Wille",
+   "en": "Willpower",
+   "es": "Voluntad",
+   "fr": "Volonté",
+   "ru": "Воля",
+   "pt": "Determinação",
+   "ja": "意志",
+   "ko": "의지"
+  }
+ },
  "5": {
   "names": {
    "de": "Präzision",
    "en": "Precision",
-   "es": "Precisión",
+   "es": "Exactitud",
    "fr": "Exactitude",
    "ru": "Точность",
    "pt": "Exatidão",
@@ -46,6 +106,18 @@
    "pt": "Ataque Crítico",
    "ja": "クリティカル攻撃力",
    "ko": "치명타 공격력"
+  }
+ },
+ "41": {
+  "names": {
+   "de": "Krit.-Verteidigung",
+   "en": "Critical Damage Defense",
+   "es": "Defensa Crítica",
+   "fr": "DÉF CRIT",
+   "ru": "ЗЩТ от крит. удара",
+   "pt": "Defesa de Acerto Crítico",
+   "ja": "クリティカル防御力",
+   "ko": "치명타 방어력"
   }
  },
  "47": {
