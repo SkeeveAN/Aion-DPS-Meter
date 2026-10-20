@@ -580,6 +580,21 @@
   },
   "percent": true
  },
+ "569": {
+  "names": {
+   "de": "Block (PvP)",
+   "en": "PvP Block",
+   "es": "Bloqueo JcJ",
+   "fr": "Blocage JcJ",
+   "ru": "Блок в PvP",
+   "pt": "Bloqueio em JvJ",
+   "ja": "PvPガード",
+   "ko": "PVP 막기"
+  },
+  "stone": {
+   "3": 20
+  }
+ },
  "444": {
   "names": {
    "de": "Regeneration",

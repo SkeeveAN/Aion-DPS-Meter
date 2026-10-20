@@ -36,6 +36,7 @@ STATS = {
     442: "Perfect", 443: "HardHit", 587: "FrontAttackDamage", 44: "AmplifyCriticalDamage",
     # 442..449 in the game's own order: Perfect, HardHit, Restoration, IronWall, PerfectResist, HardHitResist, IgnoreRestoration, IgnoreIronWall (the enum list lacks Perfect,
     # Restoration and IronWall). 444 = Regeneration 1,5 % seen on Hanya's Red Agate Breastplate 2026-10-20; 449 was anchored before by the species table.
+    569: "PvPBlock",  # a blue (tier 3) stone "Block (PvP) +20" on Miko's Vakron Pauldrons, 2026-10-20
     444: "Restoration", 446: "PerfectResist", 447: "HardHitResist", 448: "IgnoreRestoration", 449: "IgnoreIronWall",
     298: "FPMax",  # "FP" (Flight Power) 272 on Kromede Earrings, sent as 27193 = hundredths (confirmed by the player 2026-10-20)
     307: "ArmorDefense", 312: "ArmorEvasion", 317: "WeaponFixingDamage", 445: "IronWall", 588: "FrontAttackDefense",
@@ -45,7 +46,7 @@ PERCENT = {47, 158, 282, 445, 28, 32, 44, 70, 74, 102, 146, 147, 159, 205, 235, 
 HUNDREDTHS = {298}
 # What a mana stone adds, by stat id and tier (1 white, 2 green, 3 blue): only combinations seen in an in-game tooltip, nothing
 # extrapolated (Block+7 / MP+15 white shoulders, Block+10 / MP+30 green earring and bracelet, LP+30 white greatsword).
-STONE_VALUES = {255: {1: 7, 2: 10}, 199: {1: 15, 2: 30}, 193: {1: 30}}
+STONE_VALUES = {255: {1: 7, 2: 10}, 199: {1: 15, 2: 30}, 193: {1: 30}, 569: {3: 20}}
 LOCALES = {"de": "de-DE", "en": "en-US", "es": "es-ES", "fr": "fr-FR", "ru": "ru-RU", "pt": "pt-BR", "ja": "ja-JP", "ko": "ko-KR"}
 
 src, out = sys.argv[1], sys.argv[2]

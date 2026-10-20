@@ -3967,7 +3967,8 @@ function speciesValue(effect) {
   if (!effect.percent) {
     return formatNumber(effect.value);
   }
-  const text = (effect.value / 100).toFixed(1);
+  // like the game: "2 %" and "1,2 %", no trailing zero
+  const text = (effect.value / 100).toFixed(1).replace(/\.0$/, "");
   const decimal = (1.1).toLocaleString(getLocale()).charAt(1);
   return `${text.replace(".", decimal)} %`;
 }
