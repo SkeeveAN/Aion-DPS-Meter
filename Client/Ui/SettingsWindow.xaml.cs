@@ -698,6 +698,7 @@ public partial class SettingsWindow : Window
         _settings.HotkeyCombatOverlay = (string?)HotkeyCombatBox.Tag ?? "";
         _settings.HotkeyAssist = (string?)HotkeyAssistBox.Tag ?? "";
         ReadCombatPage(_settings);
+        _settings.AudioDeviceId = Chosen(AudioDeviceCombo, "");
         _settings.ShowNetworkOverlay = ShowNetworkOverlayBox.IsChecked ?? false;
         _settings.ShowLootOverlay = ShowLootOverlayBox.IsChecked ?? false;
         _settings.LootOverlayLocked = !(LootOverlayLockedBox.IsChecked ?? false);
@@ -1266,6 +1267,21 @@ public partial class SettingsWindow : Window
         FillChoice(CombatCastFilterCombo, new[] { ("all", loc["Settings.Combat.Filter.All"]), ("area", loc["Settings.Combat.Filter.Area"]), ("you", loc["Settings.Combat.Filter.You"]) }, settings.CombatCastFilter);
         FillChoice(CombatMaxCastsCombo, new[] { ("1", "1"), ("2", "2"), ("3", "3") }, Math.Clamp(settings.CombatMaxCasts, 1, 3).ToString());
         InitSpeech(settings);
+        InitAudioDevices(settings);
+    }
+
+    /// <summary>The audio output choice: the Windows default first, then the devices the system has; a saved device that is not connected now stays listed.</summary>
+    private void InitAudioDevices(MeterSettings settings)
+    {
+        var loc = LocalizationManager.Instance;
+        var devices = AudioOutput.Devices().Select(d => (d.Id, d.Name)).ToList();
+        if (settings.AudioDeviceId.Length > 0 && devices.All(d => d.Id != settings.AudioDeviceId))
+        {
+            devices.Add((settings.AudioDeviceId, loc["Settings.Audio.DeviceMissing"]));
+        }
+
+        devices.Insert(0, ("", loc["Settings.Audio.DeviceDefault"]));
+        FillChoice(AudioDeviceCombo, devices, settings.AudioDeviceId);
     }
 
     private readonly CastSpeech _speech = new();
@@ -1283,6 +1299,11 @@ public partial class SettingsWindow : Window
         SpeechOnAllBox.IsChecked = settings.SpeechOnAll;
         SpeechLethalYouBox.IsChecked = settings.SpeechLethalYou;
         SpeechLethalAllBox.IsChecked = settings.SpeechLethalAll;
+        SpeechVolumeOnYouSlider.Value = Math.Clamp(settings.SpeechVolumeOnYou, 0, 100);
+        SpeechVolumeOnAllSlider.Value = Math.Clamp(settings.SpeechVolumeOnAll, 0, 100);
+        SpeechVolumeLethalYouSlider.Value = Math.Clamp(settings.SpeechVolumeLethalYou, 0, 100);
+        SpeechVolumeLethalAllSlider.Value = Math.Clamp(settings.SpeechVolumeLethalAll, 0, 100);
+        ShowSpeechVolumes();
         SpeechNoVoices.Visibility = _voices.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         // the languages the voices come in; the saved one, else the program's own, else the first
         var languages = _voices.Select(v => v.Language).Distinct().Select(l => (l, CastSpeech.LanguageName(l))).ToList();
@@ -1327,6 +1348,22 @@ public partial class SettingsWindow : Window
 
         FillSpeechVoices("");
         RefreshSpeechExamples();
+    }
+
+    private void ShowSpeechVolumes()
+    {
+        SpeechVolumeOnYouValue.Text = (int)SpeechVolumeOnYouSlider.Value + " %";
+        SpeechVolumeOnAllValue.Text = (int)SpeechVolumeOnAllSlider.Value + " %";
+        SpeechVolumeLethalYouValue.Text = (int)SpeechVolumeLethalYouSlider.Value + " %";
+        SpeechVolumeLethalAllValue.Text = (int)SpeechVolumeLethalAllSlider.Value + " %";
+    }
+
+    private void OnSpeechVolumeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (SpeechVolumeLethalAllValue is not null) // sliders fire while the window is still being built
+        {
+            ShowSpeechVolumes();
+        }
     }
 
     private void OnSpeechOptionChanged(object sender, RoutedEventArgs e)
@@ -1376,7 +1413,8 @@ public partial class SettingsWindow : Window
 
             var play = new Button { Content = "▶", Padding = new Thickness(12, 3, 12, 3), IsEnabled = say is not null && SpeechVoiceCombo.SelectedItem is not null, VerticalAlignment = VerticalAlignment.Center };
             string spoken = say ?? "";
-            play.Click += (_, _) => _speech.Speak(spoken, Chosen(SpeechVoiceCombo, ""));
+            double volume = CastSpeech.Volume(s, atYou, all, lethal);
+            play.Click += (_, _) => _speech.Speak(spoken, Chosen(SpeechVoiceCombo, ""), volume, Chosen(AudioDeviceCombo, ""));
             Grid.SetColumn(text, 1);
             Grid.SetColumn(play, 2);
             row.Children.Add(desc);
@@ -1408,6 +1446,10 @@ public partial class SettingsWindow : Window
         settings.SpeechOnAll = SpeechOnAllBox.IsChecked ?? false;
         settings.SpeechLethalYou = SpeechLethalYouBox.IsChecked ?? false;
         settings.SpeechLethalAll = SpeechLethalAllBox.IsChecked ?? false;
+        settings.SpeechVolumeOnYou = (int)SpeechVolumeOnYouSlider.Value;
+        settings.SpeechVolumeOnAll = (int)SpeechVolumeOnAllSlider.Value;
+        settings.SpeechVolumeLethalYou = (int)SpeechVolumeLethalYouSlider.Value;
+        settings.SpeechVolumeLethalAll = (int)SpeechVolumeLethalAllSlider.Value;
     }
 
     private static void FillChoice(ComboBox box, IEnumerable<(string Value, string Text)> choices, string selected)

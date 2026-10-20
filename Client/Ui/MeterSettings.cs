@@ -348,6 +348,15 @@ public sealed class MeterSettings
     public bool SpeechLethalYou { get; set; } = true;
     public bool SpeechLethalAll { get; set; }
 
+    /// <summary>Volume (0 to 100 percent) per kind of announcement.</summary>
+    public int SpeechVolumeOnYou { get; set; } = 100;
+    public int SpeechVolumeOnAll { get; set; } = 100;
+    public int SpeechVolumeLethalYou { get; set; } = 100;
+    public int SpeechVolumeLethalAll { get; set; } = 100;
+
+    /// <summary>The audio output of all the meter's sounds (<c>DeviceInformation.Id</c>); empty = the Windows default device.</summary>
+    public string AudioDeviceId { get; set; } = "";
+
     /// <summary>Master switch of the world boss sounds: off = no boss plays its sound. Off until switched on.</summary>
     public bool BossNotify { get; set; }
 
@@ -700,6 +709,7 @@ public sealed class MeterSettings
     /// <summary>Written to a file of its own first and put in place at once, so a crash or a power cut never leaves half a file.</summary>
     public void Save()
     {
+        AudioOutput.DeviceId = AudioDeviceId;
         Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
         string temp = SettingsPath + ".tmp";
         File.WriteAllText(temp, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));

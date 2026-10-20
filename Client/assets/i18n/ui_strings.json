@@ -10414,5 +10414,29 @@
   "Character.OpenWebsite": {
     "en": "Open on aiondps.com (Daevanion boards, item details, fights)",
     "de": "Auf aiondps.com öffnen (Daevanion-Bretter, Item-Details, Kämpfe)"
+  },
+  "Settings.Speech.Volume": {
+    "en": "Volume per announcement",
+    "de": "Lautstärke je Ansage"
+  },
+  "Settings.Audio.Title": {
+    "en": "Audio output",
+    "de": "Audio-Ausgabe"
+  },
+  "Settings.Audio.Hint": {
+    "en": "Where the meter's sounds play: the voice output and the notification sounds. It can be another device than the game uses, for example the headset while the game plays on the speakers. A device that is not connected falls back to the Windows default.",
+    "de": "Wo die Töne des Meters laufen: Sprachausgabe und Hinweistöne. Das kann ein anderes Gerät sein als das des Spiels, etwa das Headset, während das Spiel über die Boxen spielt. Ist das Gerät nicht angeschlossen, nimmt der Meter das Windows-Standardgerät."
+  },
+  "Settings.Audio.Device": {
+    "en": "Output device",
+    "de": "Ausgabegerät"
+  },
+  "Settings.Audio.DeviceDefault": {
+    "en": "Windows default device",
+    "de": "Windows-Standardgerät"
+  },
+  "Settings.Audio.DeviceMissing": {
+    "en": "Saved device (not connected)",
+    "de": "Gespeichertes Gerät (nicht angeschlossen)"
   }
 }

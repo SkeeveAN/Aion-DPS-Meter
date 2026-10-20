@@ -411,6 +411,7 @@ internal static class Program
                 app.Resources.MergedDictionaries.Add(
                     (System.Windows.ResourceDictionary)System.Windows.Application.LoadComponent(new Uri("/Ui/Styles/Shared.xaml", UriKind.Relative)));
                 Ui.MeterSettings startupSettings = Ui.MeterSettings.Load();
+                Ui.AudioOutput.DeviceId = startupSettings.AudioDeviceId;
                 Ui.ThemeManager.Apply(app, startupSettings);
                 app.Run(new Ui.MainWindow());
             }
@@ -1187,6 +1188,11 @@ internal static class Program
             Ui.LocalizationManager.Instance.Language = settings.Language;
         }
 
+        if (Environment.GetEnvironmentVariable("AIONDPS_SPEECH_ON") is { Length: > 0 })
+        {
+            settings.SpeechOn = true; // layout check only (nothing is saved here)
+        }
+
         Ui.ThemeManager.Apply(app, settings);
         Ui.MainWindow.Headless = true;
         Aion2.Aion2FieldBosses.EnablePersistence();
@@ -1688,9 +1694,14 @@ internal static class Program
             nav.IsChecked = true;
         }
 
-        if (tab == "Loot")
+        if (Environment.GetEnvironmentVariable("AIONDPS_SPEECH_ON") is { Length: > 0 } && window.FindName("SpeechOnBox") is System.Windows.Controls.CheckBox speechOn)
         {
-            window.ShowModule("loot"); // the tool's own settings, without the sidebar
+            speechOn.IsChecked = true; // layout check: the voice output block open
+        }
+
+        if (tab is "Loot" or "Combat")
+        {
+            window.ShowModule(tab.ToLowerInvariant()); // the tool's own settings, without the sidebar
         }
 
         if (Environment.GetEnvironmentVariable("AIONDPS_LONGEST_PETS") is { Length: > 0 } longest && int.TryParse(longest, out int longestCount))

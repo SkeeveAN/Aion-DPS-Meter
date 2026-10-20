@@ -1,6 +1,6 @@
 using System.Globalization;
-using System.IO;
-using System.Media;
+using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.Media.SpeechSynthesis;
 using AionDPS.Aion2;
 
@@ -18,7 +18,8 @@ public sealed class CastSpeech
     private readonly HashSet<string> _said = new();
     private readonly object _gate = new();
     private int _latest;
-    private SoundPlayer? _player;
+    private MediaPlayer? _player;
+    private IDisposable? _playing;
 
     /// <summary>The voices the system has, by language and name; empty when the speech engine is not there.</summary>
     public static IReadOnlyList<SpeechVoice> Voices()
@@ -34,6 +35,33 @@ public sealed class CastSpeech
         {
             return Array.Empty<SpeechVoice>();
         }
+    }
+
+    /// <summary>The volume (0 to 1) of an announcement: that of the kind that made it count; several kinds at once give the loudest.</summary>
+    public static double Volume(MeterSettings s, bool atYou, bool all, bool lethal)
+    {
+        int percent = 0;
+        if (atYou && s.SpeechOnYou)
+        {
+            percent = Math.Max(percent, s.SpeechVolumeOnYou);
+        }
+
+        if (all && s.SpeechOnAll)
+        {
+            percent = Math.Max(percent, s.SpeechVolumeOnAll);
+        }
+
+        if (lethal && atYou && s.SpeechLethalYou)
+        {
+            percent = Math.Max(percent, s.SpeechVolumeLethalYou);
+        }
+
+        if (lethal && all && s.SpeechLethalAll)
+        {
+            percent = Math.Max(percent, s.SpeechVolumeLethalAll);
+        }
+
+        return Math.Clamp(percent, 0, 100) / 100.0;
     }
 
     private static string Clean(string display) => display.StartsWith("Microsoft ", StringComparison.OrdinalIgnoreCase) ? display[10..] : display;
@@ -115,6 +143,7 @@ public sealed class CastSpeech
         DateTime now = DateTime.Now;
         string words = WordsLanguage(settings);
         var fresh = new List<string>();
+        double volume = 0;
         var keys = new HashSet<string>();
         foreach (CastRowData row in CombatOverlayData.Casts(dir, settings, now, LocalizationManager.Instance.Language, all: true))
         {
@@ -132,6 +161,7 @@ public sealed class CastSpeech
             }
 
             fresh.Add(sentence);
+            volume = Math.Max(volume, Volume(settings, row.AtYou, row.All, row.Lethal));
         }
 
         lock (_gate)
@@ -141,12 +171,12 @@ public sealed class CastSpeech
 
         if (fresh.Count > 0)
         {
-            Speak(string.Join(". ", fresh), settings.SpeechVoiceId);
+            Speak(string.Join(". ", fresh), settings.SpeechVoiceId, volume, AudioOutput.DeviceId);
         }
     }
 
-    /// <summary>Speaks a text now (a newer one cuts off the one still running); also what the play buttons of the settings use.</summary>
-    public void Speak(string text, string voiceId)
+    /// <summary>Speaks a text now (a newer one cuts off the one still running) at a volume of 0 to 1 on the chosen device (empty or gone = the Windows default); also what the play buttons of the settings use.</summary>
+    public void Speak(string text, string voiceId, double volume, string deviceId)
     {
         int mine = Interlocked.Increment(ref _latest);
         _ = Task.Run(async () =>
@@ -159,26 +189,30 @@ public sealed class CastSpeech
                     synth.Voice = voice;
                 }
 
-                using var stream = await synth.SynthesizeTextToStreamAsync(text);
-                var bytes = new byte[stream.Size];
-                using (var reader = new Windows.Storage.Streams.DataReader(stream))
-                {
-                    await reader.LoadAsync((uint)stream.Size);
-                    reader.ReadBytes(bytes);
-                }
-
+                var stream = await synth.SynthesizeTextToStreamAsync(text);
                 if (mine != Volatile.Read(ref _latest))
                 {
+                    stream.Dispose();
                     return; // a newer text came while this one was made
                 }
 
-                SoundPlayer player = new(new MemoryStream(bytes));
+                var source = MediaSource.CreateFromStream(stream, stream.ContentType);
+                var player = new MediaPlayer { Volume = Math.Clamp(volume, 0, 1), Source = source };
+                await AudioOutput.ApplyAsync(player, deviceId);
+
+                var holder = new Playing(player, source, stream);
+                MediaPlayer? old;
+                IDisposable? oldPlaying;
                 lock (_gate)
                 {
-                    _player?.Stop();
+                    old = _player;
+                    oldPlaying = _playing;
                     _player = player;
+                    _playing = holder;
                 }
 
+                old?.Pause();
+                oldPlaying?.Dispose();
                 player.Play();
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
@@ -186,5 +220,15 @@ public sealed class CastSpeech
                 // no voice or no audio device: the meter goes on without the announcement
             }
         });
+    }
+
+    private sealed class Playing(MediaPlayer player, MediaSource source, IDisposable stream) : IDisposable
+    {
+        public void Dispose()
+        {
+            player.Dispose();
+            source.Dispose();
+            stream.Dispose();
+        }
     }
 }

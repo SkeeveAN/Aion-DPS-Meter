@@ -445,6 +445,17 @@
                         </Border>
 <Border Style="{StaticResource SettingsCard}">
                             <StackPanel>
+                                <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Audio.Title}"/>
+                                <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Audio.Hint}"/>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="300"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{local:Loc Settings.Audio.Device}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                    <ComboBox Grid.Column="1" x:Name="AudioDeviceCombo" Margin="0,2" HorizontalAlignment="Stretch"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+<Border Style="{StaticResource SettingsCard}">
+                            <StackPanel>
                                 <TextBlock Style="{StaticResource CardTitle}" Text="{local:Loc Settings.Card.MainWindow}"/>
                                 <CheckBox x:Name="AlwaysOnTopBox" Content="{local:Loc Settings.AlwaysOnTop}"/>
                             </StackPanel>
@@ -918,12 +929,40 @@
                                         </StackPanel>
                                     </Grid>
                                     <TextBlock x:Name="SpeechNoVoices" Style="{StaticResource CardHint}" Text="{local:Loc Settings.Speech.NoVoices}" Visibility="Collapsed" Margin="0,8,0,0"/>
-                                    <TextBlock Text="{local:Loc Settings.Speech.Content}" Margin="0,22,0,4"/>
+                                    <Grid Margin="0,22,0,4">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="164"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{local:Loc Settings.Speech.Content}"/>
+                                        <TextBlock Grid.Column="1" Text="{local:Loc Settings.Speech.Volume}" Style="{StaticResource CardHint}" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                    </Grid>
                                     <CheckBox x:Name="SpeechSkillNameBox" Content="{local:Loc Settings.Speech.SkillName}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
-                                    <CheckBox x:Name="SpeechOnYouBox" Content="{local:Loc Settings.Speech.OnYou}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
-                                    <CheckBox x:Name="SpeechOnAllBox" Content="{local:Loc Settings.Speech.OnAll}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
-                                    <CheckBox x:Name="SpeechLethalYouBox" Content="{local:Loc Settings.Speech.LethalYou}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
-                                    <CheckBox x:Name="SpeechLethalAllBox" Content="{local:Loc Settings.Speech.LethalAll}" Margin="0,2,0,0" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                    <Grid Margin="0,2,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/><ColumnDefinition Width="44"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
+                                        <CheckBox x:Name="SpeechOnYouBox" Grid.ColumnSpan="4" Content="{local:Loc Settings.Speech.OnYou}" VerticalAlignment="Center" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                        <Slider Grid.Column="1" x:Name="SpeechVolumeOnYouSlider" Style="{StaticResource ThemedSlider}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                                SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnSpeechVolumeChanged"/>
+                                        <TextBlock Grid.Column="2" x:Name="SpeechVolumeOnYouValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/><ColumnDefinition Width="44"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
+                                        <CheckBox x:Name="SpeechOnAllBox" Grid.ColumnSpan="4" Content="{local:Loc Settings.Speech.OnAll}" VerticalAlignment="Center" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                        <Slider Grid.Column="1" x:Name="SpeechVolumeOnAllSlider" Style="{StaticResource ThemedSlider}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                                SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnSpeechVolumeChanged"/>
+                                        <TextBlock Grid.Column="2" x:Name="SpeechVolumeOnAllValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/><ColumnDefinition Width="44"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
+                                        <CheckBox x:Name="SpeechLethalYouBox" Grid.ColumnSpan="4" Content="{local:Loc Settings.Speech.LethalYou}" VerticalAlignment="Center" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                        <Slider Grid.Column="1" x:Name="SpeechVolumeLethalYouSlider" Style="{StaticResource ThemedSlider}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                                SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnSpeechVolumeChanged"/>
+                                        <TextBlock Grid.Column="2" x:Name="SpeechVolumeLethalYouValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/><ColumnDefinition Width="44"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
+                                        <CheckBox x:Name="SpeechLethalAllBox" Grid.ColumnSpan="4" Content="{local:Loc Settings.Speech.LethalAll}" VerticalAlignment="Center" Checked="OnSpeechOptionChanged" Unchecked="OnSpeechOptionChanged"/>
+                                        <Slider Grid.Column="1" x:Name="SpeechVolumeLethalAllSlider" Style="{StaticResource ThemedSlider}" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                                SmallChange="5" LargeChange="10" VerticalAlignment="Center" Margin="0,2" ValueChanged="OnSpeechVolumeChanged"/>
+                                        <TextBlock Grid.Column="2" x:Name="SpeechVolumeLethalAllValue" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{DynamicResource Brush.Text}"/>
+                                    </Grid>
                                     <TextBlock Style="{StaticResource CardHint}" Text="{local:Loc Settings.Speech.Note}" Margin="0,6,0,0"/>
                                     <TextBlock Text="{local:Loc Settings.Speech.Examples}" Margin="0,22,0,4"/>
                                     <Border Background="{DynamicResource Brush.Control}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1" CornerRadius="6" Padding="14,2">
