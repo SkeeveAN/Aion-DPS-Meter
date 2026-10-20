@@ -9,6 +9,13 @@
      "Backend"
     ],
     "date": "2026-10-20"
+   },
+   {
+    "text": "Website: a player whose name has a space or a sign other than letters and digits is cut out of an upload like one without server or faction (an NPC title read as a player was stored)",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-20"
    }
   ]
  },
