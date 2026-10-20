@@ -1,5 +1,18 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-20",
+  "items": [
+   {
+    "text": "the pet and collectibles list stays hidden in an instance when none of its rows could show a distance and no shop prices are open (it only listed the chosen names)",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-20"
+   }
+  ]
+ },
+ {
   "version": "1.10.5",
   "date": "2026-10-20",
   "items": [
