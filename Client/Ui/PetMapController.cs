@@ -82,6 +82,7 @@ public sealed class PetMapController : IDisposable
     private (float X, float Y)? _shopFrom;
     private bool _shopOpen;
     private bool _inShop;
+    private bool _listUseless;
     private const double ShopListOpacity = 0.95;
 
     /// <summary>The Black Cloud shop counts as open from the moment it sends a tab until the player walks away from where they stood (a closed shop sends nothing, so there is no other end to read).</summary>
@@ -430,9 +431,11 @@ public sealed class PetMapController : IDisposable
             // a game menu is open: the list stays only for the shop's pets (no chosen pets, no collectibles), the map steps aside
             var rows = InMenu ? shopRows : shopRows.Concat(Rows(petsHere, colors, tx, ty, states, live, known, gatherKinds)).ToList();
             RenderList(rows.Take(_list.RowCapacity).ToList()); // only what fits in the frame (plus a reserve)
+            // in an instance with no pet or collectible to place (no distance in any row) and no shop prices the list has nothing to say: it stays hidden
+            _listUseless = inInstance && !InMenu && rows.All(r => string.IsNullOrEmpty(r.Item4));
         }
 
-        ShowList(!InMenu || shopRows.Count > 0);
+        ShowList((!InMenu || shopRows.Count > 0) && !_listUseless);
     }
 
     /// <summary>
