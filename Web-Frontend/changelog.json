@@ -23,6 +23,13 @@
      "Backend"
     ],
     "date": "2026-10-20"
+   },
+   {
+    "text": "Website: gear tooltips name another 21 stats from the order of the game's stat list (Damage Boost, Status Effect Resist, Perfect, Natural HP Regen, Front Attack and so on) instead of \"Stat <number>\"",
+    "areas": [
+     "Backend"
+    ],
+    "date": "2026-10-20"
    }
   ]
  },
