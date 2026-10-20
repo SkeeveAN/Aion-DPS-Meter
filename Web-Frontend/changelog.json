@@ -1,5 +1,18 @@
 [
  {
+  "version": "1.10.4",
+  "date": "2026-10-20",
+  "items": [
+   {
+    "text": "the estimated damage on a world boss is scaled to the boss's hit points once the fight is over - a small group no longer ends above 100 %, a short crowd fight no longer below 85 %",
+    "areas": [
+     "Client"
+    ],
+    "date": "2026-10-20"
+   }
+  ]
+ },
+ {
   "version": "1.10.3",
   "date": "2026-10-20",
   "items": [
