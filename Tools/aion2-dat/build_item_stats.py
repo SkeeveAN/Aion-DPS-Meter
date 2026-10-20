@@ -26,9 +26,12 @@ STATS = {
     47: "DecreaseCriticalDamage", 52: "Defense",
     98: "BackAttackDamage", 99: "BackAttackDefense", 104: "Accuracy", 116: "Evasion", 128: "Critical", 133: "CriticalResist",
     158: "AbnormalAccuracy", 193: "HPMax", 199: "MPMax", 200: "MPRegen", 255: "Block",
+    298: "FPMax",  # "FP" (Flight Power) 272 on Kromede Earrings, sent as 27193 = hundredths (confirmed by the player 2026-10-20)
     307: "ArmorDefense", 312: "ArmorEvasion", 317: "WeaponFixingDamage", 445: "IronWall", 588: "FrontAttackDefense",
 }
 PERCENT = {47, 158, 282, 445}
+# sent in hundredths but shown as a whole number (FP 27193 -> 272)
+HUNDREDTHS = {298}
 # What a mana stone adds, by stat id and tier (1 white, 2 green, 3 blue): only combinations seen in an in-game tooltip, nothing
 # extrapolated (Block+7 / MP+15 white shoulders, Block+10 / MP+30 green earring and bracelet, LP+30 white greatsword).
 STONE_VALUES = {255: {1: 7, 2: 10}, 199: {1: 15, 2: 30}, 193: {1: 30}}
@@ -43,6 +46,7 @@ for stat_id, token in STATS.items():
     if "en" not in names:
         sys.exit(f"no text for stat {stat_id} ({token})")
     result[str(stat_id)] = {"names": names, **({"percent": True} if stat_id in PERCENT else {}),
+                            **({"hundredths": True} if stat_id in HUNDREDTHS else {}),
                             **({"stone": {str(t): v for t, v in STONE_VALUES[stat_id].items()}} if stat_id in STONE_VALUES else {})}
 with open(out, "w", encoding="utf-8") as f:
     json.dump(result, f, ensure_ascii=False, indent=1, sort_keys=False)

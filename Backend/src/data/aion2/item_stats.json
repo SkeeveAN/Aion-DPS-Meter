@@ -289,6 +289,19 @@
    "2": 10
   }
  },
+ "298": {
+  "names": {
+   "de": "FP",
+   "en": "Flight Power",
+   "es": "Energía de Vuelo",
+   "fr": "Envol",
+   "ru": "ОП",
+   "pt": "Energia de Voo",
+   "ja": "飛行力",
+   "ko": "비행력"
+  },
+  "hundredths": true
+ },
  "307": {
   "names": {
    "de": "Verteidigung",
