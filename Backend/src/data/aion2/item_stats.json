@@ -289,6 +289,297 @@
    "2": 10
   }
  },
+ "28": {
+  "names": {
+   "de": "Schadensverstärkung",
+   "en": "Damage Boost",
+   "es": "Amplificación de Daño",
+   "fr": "Boost de DGT",
+   "ru": "Увелич. урона",
+   "pt": "Amplificação de Dano",
+   "ja": "ダメージ増幅",
+   "ko": "피해 증폭"
+  },
+  "percent": true
+ },
+ "32": {
+  "names": {
+   "de": "Verstärkung (Waffenschaden)",
+   "en": "Weapon Damage Boost",
+   "es": "Amplificación de Daño de Arma",
+   "fr": "Boost de DGT arme",
+   "ru": "Увелич. урона оружия",
+   "pt": "Amplificação de Dano de Arma",
+   "ja": "武器ダメージ増幅",
+   "ko": "무기 피해 증폭"
+  },
+  "percent": true
+ },
+ "58": {
+  "names": {
+   "de": "Angriffskraft (PvP)",
+   "en": "PvP Attack",
+   "es": "Ataque JcJ",
+   "fr": "ATQ JcJ",
+   "ru": "АТК в PvP",
+   "pt": "Ataque em JvJ",
+   "ja": "PvP攻撃力",
+   "ko": "PVP 공격력"
+  }
+ },
+ "61": {
+  "names": {
+   "de": "Verteidigung (PvP)",
+   "en": "PvP Defense",
+   "es": "Defensa JcJ",
+   "fr": "DÉF JcJ",
+   "ru": "ЗЩТ в PvP",
+   "pt": "Defesa em JvJ",
+   "ja": "PvP防御力",
+   "ko": "PVP 방어력"
+  }
+ },
+ "70": {
+  "names": {
+   "de": "Schadensresistenz",
+   "en": "Damage Tolerance",
+   "es": "Tolerancia a Daño",
+   "fr": "Tolérance aux DGT",
+   "ru": "Стойкость к урону",
+   "pt": "Tolerância a Dano",
+   "ja": "ダメージ耐性",
+   "ko": "피해 내성"
+  },
+  "percent": true
+ },
+ "74": {
+  "names": {
+   "de": "Schadensresistenz (Waffenschaden)",
+   "en": "Weapon Damage Tolerance",
+   "es": "Tolerancia a Daño de Arma",
+   "fr": "Tolérance aux DGT d'arme",
+   "ru": "Стойкость к урону от оружия",
+   "pt": "Tolerância a Dano de Arma",
+   "ja": "武器ダメージ耐性",
+   "ko": "무기 피해 내성"
+  },
+  "percent": true
+ },
+ "102": {
+  "names": {
+   "de": "Schadensverstärkung (Rückseitig)",
+   "en": "Back Attack Damage Boost",
+   "es": "Amplificación de Daño por la Espalda",
+   "fr": "Boost de DGT dans le dos",
+   "ru": "Увеличение урона от атаки с тыла",
+   "pt": "Amplificação de Dano da Retaguarda",
+   "ja": "後方ダメージ増幅",
+   "ko": "후방 피해 증폭"
+  },
+  "percent": true
+ },
+ "113": {
+  "names": {
+   "de": "Präzision (PvP)",
+   "en": "PvP Accuracy",
+   "es": "Precisión JcJ",
+   "fr": "Précision JcJ",
+   "ru": "Меткость в PvP",
+   "pt": "Precisão em JvJ",
+   "ja": "PvP命中",
+   "ko": "PVP 명중"
+  }
+ },
+ "125": {
+  "names": {
+   "de": "Ausweichen (PvP)",
+   "en": "PvP Evasion",
+   "es": "Evasión JcJ",
+   "fr": "Esquive JcJ",
+   "ru": "УКЛ в PvP",
+   "pt": "Evasão em JvJ",
+   "ja": "PvP回避",
+   "ko": "PVP 회피"
+  }
+ },
+ "132": {
+  "names": {
+   "de": "Krit.-Treffer (PvP)",
+   "en": "PvP Critical Hit",
+   "es": "Crítico JcJ",
+   "fr": "CRIT JcJ",
+   "ru": "Крит. удар в PvP",
+   "pt": "Acerto Crítico em JvJ",
+   "ja": "PvPクリティカル",
+   "ko": "PVP 치명타"
+  }
+ },
+ "146": {
+  "names": {
+   "de": "Mehrfachtreffer",
+   "en": "Multi-hit Chance",
+   "es": "Acierto de Multigolpe",
+   "fr": "Taux multi-coups",
+   "ru": "Попадание мультиударом",
+   "pt": "Acerto de Golpes Múltiplos",
+   "ja": "多段ヒット的中",
+   "ko": "다단 히트 적중"
+  },
+  "percent": true
+ },
+ "147": {
+  "names": {
+   "de": "Widerstand (Mehrfachtreffer)",
+   "en": "Multi-hit Resist",
+   "es": "Resistencia a Multigolpe",
+   "fr": "RÉS multi-coups",
+   "ru": "Сопротивление мультиудару",
+   "pt": "Resistência a Golpes Múltiplos",
+   "ja": "多段ヒット抵抗",
+   "ko": "다단 히트 저항"
+  },
+  "percent": true
+ },
+ "159": {
+  "names": {
+   "de": "Widerstand (Statuseffekte)",
+   "en": "Status Effect Resist",
+   "es": "Resistencia a Efectos de Estado",
+   "fr": "RÉS aux altérations d'état",
+   "ru": "Сопротивление негат. эффектам",
+   "pt": "Resistência a Alteração de Estado",
+   "ja": "状態異常抵抗",
+   "ko": "상태이상 저항"
+  },
+  "percent": true
+ },
+ "194": {
+  "names": {
+   "de": "LP-Regeneration (Natürlich)",
+   "en": "Natural HP Regen",
+   "es": "Recuperación Natural de Puntos de Vida",
+   "fr": "Régénération naturelle des PV",
+   "ru": "Естественное восстановление ОЗ",
+   "pt": "Recuperação Natural de PV",
+   "ja": "HP自然回復",
+   "ko": "생명력 자연 회복"
+  }
+ },
+ "205": {
+  "names": {
+   "de": "Bewegungstempo",
+   "en": "Move Speed",
+   "es": "Velocidad de Movimiento",
+   "fr": "VIT de déplacement",
+   "ru": "Скорость движения",
+   "pt": "Velocidade de Movimento",
+   "ja": "移動速度",
+   "ko": "이동 속도"
+  },
+  "percent": true
+ },
+ "235": {
+  "names": {
+   "de": "Heilung (Erhalten)",
+   "en": "Incoming Heal",
+   "es": "Curación Recibida",
+   "fr": "Soins reçus",
+   "ru": "Получ. исцеление",
+   "pt": "Cura Recebida",
+   "ja": "受ける治癒量",
+   "ko": "받는 치유량"
+  },
+  "percent": true
+ },
+ "318": {
+  "names": {
+   "de": "Präzision",
+   "en": "Accuracy",
+   "es": "Precisión",
+   "fr": "Précision",
+   "ru": "Меткость",
+   "pt": "Precisão",
+   "ja": "命中",
+   "ko": "명중"
+  }
+ },
+ "425": {
+  "names": {
+   "de": "Angriffskraft +",
+   "en": "Attack increase",
+   "es": "Aumento de Ataque",
+   "fr": "Augmentation de l'ATQ",
+   "ru": "Увеличение АТК",
+   "pt": "Aumento de Ataque",
+   "ja": "攻撃力増加",
+   "ko": "공격력 증가"
+  },
+  "percent": true
+ },
+ "426": {
+  "names": {
+   "de": "Verteidigung +",
+   "en": "Defense increase",
+   "es": "Aumento de Defensa",
+   "fr": "Augmentation de la DÉF",
+   "ru": "Увеличение ЗЩТ",
+   "pt": "Aumento de Defesa",
+   "ja": "防御力増加",
+   "ko": "방어력 증가"
+  },
+  "percent": true
+ },
+ "442": {
+  "names": {
+   "de": "Perfektion",
+   "en": "Perfect Chance",
+   "es": "Perforación",
+   "fr": "Coup parfait",
+   "ru": "Совершенный удар",
+   "pt": "Acerto Perfeito",
+   "ja": "完璧",
+   "ko": "완벽"
+  },
+  "percent": true
+ },
+ "443": {
+  "names": {
+   "de": "Wucht",
+   "en": "Double Chance",
+   "es": "Golpe",
+   "fr": "Coup puissant",
+   "ru": "Мощный удар",
+   "pt": "Golpe Potente",
+   "ja": "強打",
+   "ko": "강타"
+  },
+  "percent": true
+ },
+ "587": {
+  "names": {
+   "de": "Angriffskraft (Frontal)",
+   "en": "Front Attack",
+   "es": "Ataque Frontal",
+   "fr": "ATQ frontale",
+   "ru": "АТК спереди",
+   "pt": "Ataque Frontal",
+   "ja": "前方攻撃力",
+   "ko": "전방 공격력"
+  }
+ },
+ "44": {
+  "names": {
+   "de": "Krit.-Schadensverstärkung",
+   "en": "Critical Damage Boost",
+   "es": "Amplificación de Daño Crítico",
+   "fr": "Boost de DGT CRIT",
+   "ru": "Увелич. крит. урона",
+   "pt": "Amplificação de Dano Crítico",
+   "ja": "クリティカル ダメージ増幅",
+   "ko": "치명타 피해 증폭"
+  },
+  "percent": true
+ },
  "298": {
   "names": {
    "de": "FP",

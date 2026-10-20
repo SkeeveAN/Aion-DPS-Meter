@@ -26,10 +26,18 @@ STATS = {
     47: "DecreaseCriticalDamage", 52: "Defense",
     98: "BackAttackDamage", 99: "BackAttackDefense", 104: "Accuracy", 116: "Evasion", 128: "Critical", 133: "CriticalResist",
     158: "AbnormalAccuracy", 193: "HPMax", 199: "MPMax", 200: "MPRegen", 255: "Block",
+    # The rest follows from the EStat enum order (a2meter/Aion2Meter StatMapping.cs, 557 names) with the step-wise offset between id and enum index
+    # (+1 up to id 18, +4 up to 51, +5 up to 127, +6 up to 145, +8 up to 254, +9 up to 281 and on to 318, +10 from 393, +11 at 443; the steps sit where the
+    # client has a stat the list lacks: Defense 52, Critical 128, Block 255, Perfect 442, IronWall 445). Checked by the player on gear tooltips 2026-10-20:
+    # 194 LP-Regeneration, 159 Widerstand (Statuseffekte) 3,3 %, 442 Perfektion 2,4 %, 587 Angriffskraft (Frontal) 97. Not named yet: 136, 319-392, 444, 446, 447, 449 (position of a step unknown).
+    28: "AmplifyAllDamage", 32: "AmplifyWeaponDamage", 58: "PvPAddDamage", 61: "PvPDamageDefense", 70: "DecreaseDamage", 74: "DecreaseWeaponDamage",
+    102: "AmplifyBackAttack", 113: "PvPAccuracy", 125: "PvPEvasion", 132: "PvPCritical", 146: "AdditionalHitRate", 147: "AdditionalHitResistRate",
+    159: "AbnormalResistance", 194: "HPRegen", 205: "MoveSpeed", 235: "AmplifyHpHealGet", 318: "WeaponAccuracy", 425: "DamageRatio", 426: "DefenseRatio",
+    442: "Perfect", 443: "HardHit", 587: "FrontAttackDamage", 44: "AmplifyCriticalDamage",
     298: "FPMax",  # "FP" (Flight Power) 272 on Kromede Earrings, sent as 27193 = hundredths (confirmed by the player 2026-10-20)
     307: "ArmorDefense", 312: "ArmorEvasion", 317: "WeaponFixingDamage", 445: "IronWall", 588: "FrontAttackDefense",
 }
-PERCENT = {47, 158, 282, 445}
+PERCENT = {47, 158, 282, 445, 28, 32, 44, 70, 74, 102, 146, 147, 159, 205, 235, 425, 426, 442, 443}  # 159 and 442 seen as 3,3 % and 2,4 % in the game; the rest by name and size
 # sent in hundredths but shown as a whole number (FP 27193 -> 272)
 HUNDREDTHS = {298}
 # What a mana stone adds, by stat id and tier (1 white, 2 green, 3 blue): only combinations seen in an in-game tooltip, nothing
