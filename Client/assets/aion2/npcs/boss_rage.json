@@ -1,5 +1,5 @@
 {
- "_note": "Boss rage (berserk) time in seconds after the fight began, per NPC id, from the client table NpcData.BossBerserkInvokeTime (client 2.0.7). Not listed = 300.",
+ "_note": "Boss rage (berserk) time in seconds after the fight began, per NPC id, from the client table NpcData.BossBerserkInvokeTime (client of 2026-10-21). Not listed = 300.",
  "rage": {
   "2090718": 300,
   "2090719": 600,
@@ -43,10 +43,10 @@
   "2310601": 300,
   "2311301": 300,
   "2311403": 300,
-  "2320171": 300,
+  "2320171": 240,
   "2320218": 300,
   "2320371": 300,
-  "2320471": 300,
+  "2320471": 240,
   "2320509": 300,
   "2320601": 300,
   "2320812": 300,
