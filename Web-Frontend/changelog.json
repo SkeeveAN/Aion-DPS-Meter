@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-21",
+  "items": [
+   {
+    "text": "Website: the crafting calculator is in the feature tour, the comparison with other meters and the readmes",
+    "areas": [
+     "Client",
+     "Website"
+    ],
+    "date": "2026-10-21"
+   }
+  ]
+ },
+ {
   "version": "1.13.0",
   "date": "2026-10-21",
   "items": [
