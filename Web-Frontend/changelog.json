@@ -1,6 +1,6 @@
 [
  {
-  "version": "Unreleased",
+  "version": "1.13.0",
   "date": "2026-10-21",
   "items": [
    {
@@ -36,9 +36,16 @@
     "date": "2026-10-21"
    },
    {
-    "text": "Website: the footer shows the privacy policy and the terms of use on the left next to the logo",
+    "text": "Website: privacy policy and terms of use in the footer sit on the left next to the logo",
     "areas": [
      "Website"
+    ],
+    "date": "2026-10-21"
+   },
+   {
+    "text": "Crafting calculator: mark recipes for the whole account or one character and see which materials are still missing, in a window or as an overlay, with ingots and dust broken down into their ore and the stock read from inventory, storage and account storage",
+    "areas": [
+     "Client"
     ],
     "date": "2026-10-21"
    }
