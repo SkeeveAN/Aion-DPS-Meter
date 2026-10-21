@@ -16,4 +16,4 @@ export const INSTANCE_MIN_LEVEL: Record<string, number>;
 export const INSTANCE_FACTS: Record<string, { players?: string; itemLevel?: number; stars?: number }>;
 export const INSTANCE_FOCUS: Record<string, string>;
 export const BOSS_CARDS: Record<string, string>;
-export function splitConquest(name: string | null | undefined): { base: string; stars: string } | null;
+export function splitConquest(name: string | null | undefined): { base: string; stars: string; hard: boolean } | null;

@@ -29,8 +29,8 @@ export interface Aion2Instance {
   legacyNames?: string[];
   /** Not offered by the EU client (yet): kept in the database, never listed. */
   hidden?: boolean;
-  /** Expedition difficulty: explore = normal, conquest = hard. */
-  variant?: "explore" | "conquest";
+  /** Expedition difficulty: explore = Exploration, conquest = Conquest, advanced = Conquest [Hard] (the client's DungeonDifficulty Advanced; NPC ids 232xxxx). */
+  variant?: "explore" | "conquest" | "advanced";
 }
 
 export interface Aion2Boss {

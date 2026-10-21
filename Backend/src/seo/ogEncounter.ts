@@ -148,7 +148,7 @@ function stepText(category: string | null, mode: string, instanceName: string, l
   }
   if (category === "expedition") {
     const conquest = splitConquest(instanceName);
-    return conquest ? `${de ? "Eroberung" : "Conquest"} ${conquest.stars.length}` : de ? "Erkundung" : "Exploration";
+    return conquest ? `${de ? (conquest.hard ? "Eroberung [Schwierig]" : "Eroberung") : conquest.hard ? "Conquest [Hard]" : "Conquest"} ${conquest.stars.length}` : de ? "Erkundung" : "Exploration";
   }
   const words: Record<string, [string, string]> = { hideout: ["Hideout", "Unterschlupf"], sanctuary: ["Sanctuary", "Heiligtum"], worldboss: ["World Boss", "Weltboss"] };
   return words[category ?? ""]?.[de ? 1 : 0] ?? "";

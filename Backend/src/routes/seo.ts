@@ -122,7 +122,7 @@ function buildSitemap(): string {
       }
     }
 
-    for (const p of ["/instances", "/instances/expedition", "/instances/expedition/hard", "/instances/nightmare", "/instances/ascension", "/instances/transcendence", "/worldbosses"]) {
+    for (const p of ["/instances", "/instances/expedition", "/instances/expedition/conquest", "/instances/expedition/conquest-hard", "/instances/nightmare", "/instances/ascension", "/instances/transcendence", "/worldbosses"]) {
       urls.push({ path: p, lastmod: newest });
     }
     for (const i of instanceRows) {

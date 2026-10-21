@@ -1926,7 +1926,7 @@ function areaCrumbs(instance) {
 }
 
 function baseInstanceName(i) {
-  return i.name.replace(/ \(Conquest\)$/, "");
+  return i.name.replace(/ \(Conquest( \[Hard\])?\)$/, "");
 }
 
 /** Card with photo, name and facts (level, players are only shown where the data has them). */
@@ -1989,7 +1989,10 @@ function difficultyOf(category, mode, instanceName) {
   }
   if (category === "expedition") {
     const conquest = splitConquest(instanceName);
-    return conquest ? { text: `${t("mode.conquest")} ${conquest.stars.length}`, cls: "cq" } : { text: t("mode.explore"), cls: "ex" };
+    if (conquest) {
+      return { text: `${t(conquest.hard ? "mode.conquestHard" : "mode.conquest")} ${conquest.stars.length}`, cls: conquest.hard ? "ch" : "cq" };
+    }
+    return { text: t("mode.explore"), cls: "ex" };
   }
   if (category === "hideout") {
     return { text: t("category.hideout"), cls: "hi" };
@@ -2018,15 +2021,19 @@ const CATEGORY_MODE_LIST = {
   transcendence: ["1", "2", "3", "4"],
 };
 
+/** The three difficulty tabs of the expeditions, as the game's dungeon window names them: variant of the instance, address, label. */
+const EXPEDITION_TABS = [
+  ["explore", "/instances/expedition", "mode.explore"],
+  ["conquest", "/instances/expedition/conquest", "mode.conquest"],
+  ["advanced", "/instances/expedition/conquest-hard", "mode.conquestHard"],
+];
+
 function expeditionPane(list, variant) {
-  const hard = variant === "hard";
-  const items = list.filter((i) => (hard ? i.variant === "conquest" : i.variant !== "conquest"));
-  const seg = el("div", { className: "ip-seg", role: "group" }, [
-    ["normal", "/instances/expedition", t("mode.explore"), t("mode.normalSub")],
-    ["hard", "/instances/expedition/hard", t("mode.conquest"), t("mode.hardSub")],
-  ].map(([v, href, name, sub]) => {
-    const a = el("a", { href: gp(href), textContent: `${name} · ${sub}` });
-    a.setAttribute("aria-pressed", String((v === "hard") === hard));
+  const wanted = { conquest: "conquest", "conquest-hard": "advanced" }[variant] ?? "explore";
+  const items = list.filter((i) => (i.variant ?? "explore") === wanted);
+  const seg = el("div", { className: "ip-seg", role: "group" }, EXPEDITION_TABS.map(([v, href, label]) => {
+    const a = el("a", { href: gp(href), textContent: t(label) });
+    a.setAttribute("aria-pressed", String(v === wanted));
     return a;
   }));
   const body = el("div", { className: "ip-grid" }, items.map((i) => instanceFactCard(i, { label: displayName({ name: baseInstanceName(i), nameEn: baseInstanceName(i) }) })));
@@ -2142,7 +2149,7 @@ async function renderInstances(categoryParam, variantParam) {
   const categories = [...INSTANCE_TAB_ORDER.filter((c) => groups.has(c)), ...[...groups.keys()].filter((c) => !INSTANCE_TAB_ORDER.includes(c))];
   const countOf = (category) => {
     const list = groups.get(category);
-    return category === "expedition" ? list.filter((i) => i.variant !== "conquest").length : list.length;
+    return category === "expedition" ? list.filter((i) => (i.variant ?? "explore") === "explore").length : list.length;
   };
   const current = categories.includes(categoryParam) ? categoryParam : categories[0];
 
@@ -2403,7 +2410,7 @@ async function renderBosses(instanceSlug, params = new URLSearchParams()) {
   // Expedition runs (explore and conquest share the bosses): the final boss always comes last. `sequence` says the bosses
   // must be killed in exactly this order; without it the ones before the final boss may be taken in any order. The
   // badges on the cards show which case applies.
-  const dungeonOrder = EXPEDITION_BOSS_ORDER[(instance?.slug ?? instanceSlug).replace(/-conquest$/, "")];
+  const dungeonOrder = EXPEDITION_BOSS_ORDER[(instance?.slug ?? instanceSlug).replace(/-conquest(-hard)?$/, "")];
   const orderIndex = (b) => dungeonOrder?.bosses.indexOf(b.nameEn ?? b.name) ?? -1;
   const sortedBosses = [...bosses].sort((a, b) => {
     if (dungeonOrder && orderIndex(a) !== orderIndex(b)) {

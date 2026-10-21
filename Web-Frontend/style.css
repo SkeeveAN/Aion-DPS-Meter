@@ -2903,6 +2903,7 @@ body:has(.download-hero) .nav-download-link:hover,
 .diff-nm { color: #7a3fd0; background: rgba(122, 63, 208, 0.12); border-color: rgba(122, 63, 208, 0.45); }
 .diff-ex { color: #2a7d3f; background: rgba(80, 190, 110, 0.13); border-color: rgba(42, 125, 63, 0.45); }
 .diff-cq { color: #9a6b00; background: rgba(255, 184, 50, 0.16); border-color: rgba(190, 130, 0, 0.5); }
+.diff-ch { color: #b3362a; background: rgba(230, 80, 60, 0.13); border-color: rgba(179, 54, 42, 0.5); }
 .diff-tr { color: #1b6fb8; background: rgba(60, 160, 255, 0.12); border-color: rgba(27, 111, 184, 0.45); }
 .diff-as { color: #b4531f; background: rgba(255, 130, 60, 0.14); border-color: rgba(180, 83, 31, 0.5); }
 .diff-hi { color: #1c7c6e; background: rgba(40, 190, 170, 0.14); border-color: rgba(28, 124, 110, 0.5); }
@@ -2911,6 +2912,7 @@ body:has(.download-hero) .nav-download-link:hover,
 :root[data-theme="dark"] .diff-nm, :root:not([data-theme="light"]) .diff-nm { color: #c9a2ff; background: rgba(176, 124, 255, 0.16); border-color: rgba(201, 162, 255, 0.45); }
 :root[data-theme="dark"] .diff-ex, :root:not([data-theme="light"]) .diff-ex { color: #8fd19e; background: rgba(80, 190, 110, 0.14); border-color: rgba(143, 209, 158, 0.45); }
 :root[data-theme="dark"] .diff-cq, :root:not([data-theme="light"]) .diff-cq { color: #ffc857; background: rgba(255, 184, 50, 0.15); border-color: rgba(255, 200, 87, 0.5); }
+:root[data-theme="dark"] .diff-ch, :root:not([data-theme="light"]) .diff-ch { color: #ff9a8a; background: rgba(230, 80, 60, 0.16); border-color: rgba(255, 154, 138, 0.5); }
 :root[data-theme="dark"] .diff-tr, :root:not([data-theme="light"]) .diff-tr { color: #6fc3ff; background: rgba(60, 160, 255, 0.15); border-color: rgba(111, 195, 255, 0.5); }
 :root[data-theme="dark"] .diff-as, :root:not([data-theme="light"]) .diff-as { color: #ffab7a; background: rgba(255, 130, 60, 0.15); border-color: rgba(255, 171, 122, 0.5); }
 :root[data-theme="dark"] .diff-hi, :root:not([data-theme="light"]) .diff-hi { color: #5fe0cc; background: rgba(40, 190, 170, 0.15); border-color: rgba(95, 224, 204, 0.5); }

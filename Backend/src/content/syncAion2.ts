@@ -111,7 +111,7 @@ export function syncAion2Content(): { instances: number; bosses: number; npcIds:
 /**
  * Expedition explore and conquest are separate bosses, told apart by the NPC id the client reported
  * (block 231xxxx = explore, 230xxxx = conquest - checked on HP: the 230 block has 2-3x the boss HP;
- * 232/233 are higher conquest stars). A fight uploaded before the ids were sorted out can sit on the
+ * 232xxxx = Conquest [Hard] (advanced, client map data 2026-10-21), 233 is not sorted out). A fight uploaded before the ids were sorted out can sit on the
  * wrong twin, so every merged fight is moved to whichever boss owns its NPC id. Idempotent: a fight
  * already on the owner, or one without a known id, is left alone.
  */

@@ -76,8 +76,8 @@ function compact(n: number): string {
 
 export function displayName(row: { name: string; nameEn: string | null }): string {
   const name = row.nameEn ?? row.name;
-  const conquest = splitConquest(name); // "Draupnir (Conquest)" is shown as "Draupnir (Conquest 1)": the stage in words, as on the website
-  return conquest ? `${conquest.base} (Conquest ${conquest.stars.length})` : name;
+  const conquest = splitConquest(name); // "Draupnir (Conquest)" is shown as "Draupnir (Conquest 1)", "(Conquest [Hard])" as "(Conquest [Hard] 1)": the stage in words, as on the website
+  return conquest ? `${conquest.base} (Conquest${conquest.hard ? " [Hard]" : ""} ${conquest.stars.length})` : name;
 }
 
 /** Each main page has its own preview picture (Web-Frontend/og/pages/<slug>.jpg, 1200x630) with the text in the middle,
@@ -518,11 +518,11 @@ export function instancesPage(game: Game): Page {
   // "Expedition (6 dungeons, normal & hard), Nightmare (7 bosses), ..." - what the page really offers.
   const byCategory = new Map<string, number>();
   for (const r of rows) {
-    if (r.variant !== "conquest") {
+    if (r.variant === "explore" || r.variant === null) {
       byCategory.set(r.category ?? "other", (byCategory.get(r.category ?? "other") ?? 0) + 1);
     }
   }
-  const parts = [...byCategory].map(([c, n]) => `${CATEGORY_LABEL[c] ?? "Other"} (${n}${c === "expedition" ? ", Normal & Hard" : c === "nightmare" ? ", 10 levels each" : ""})`);
+  const parts = [...byCategory].map(([c, n]) => `${CATEGORY_LABEL[c] ?? "Other"} (${n}${c === "expedition" ? ", Exploration, Conquest & Conquest [Hard]" : c === "nightmare" ? ", 10 levels each" : ""})`);
   return {
     status: 200,
     meta: {
@@ -543,7 +543,7 @@ export function instancesPage(game: Game): Page {
 export const INSTANCE_CATEGORY_SLUGS = ["expedition", "nightmare", "ascension", "transcendence"] as const;
 
 const CATEGORY_INTRO: Record<string, string> = {
-  expedition: "Expeditions in two difficulties: Exploration (normal) and Conquest (hard)",
+  expedition: "Expeditions in three difficulties: Exploration, Conquest and Conquest [Hard]",
   nightmare: "Nightmare bosses, each with ten challenge levels that are ranked separately",
   ascension: "Ascension Rite instances with four difficulties: Easy, Medium, Hard and Extreme",
   transcendence: "Transcendence dungeons with four stages",
@@ -551,12 +551,12 @@ const CATEGORY_INTRO: Record<string, string> = {
 };
 
 /** One category of the instance overview (/instances/nightmare, /instances/expedition/hard ...) - its own address so it can be found and shared. */
-export function instanceCategoryPage(game: Game, category: string, variant: "normal" | "hard" | null): Page | null {
+export function instanceCategoryPage(game: Game, category: string, variant: "normal" | "conquest" | "conquest-hard" | null): Page | null {
   if (!(INSTANCE_CATEGORY_SLUGS as readonly string[]).includes(category)) {
     return null;
   }
   const label = GAME_LABEL[game];
-  const wanted = category === "expedition" ? (variant === "hard" ? "conquest" : "explore") : null;
+  const wanted = category === "expedition" ? (variant === "conquest-hard" ? "advanced" : variant === "conquest" ? "conquest" : "explore") : null;
   const rows = db
     .select(instanceColumns)
     .from(instances)
@@ -566,8 +566,8 @@ export function instanceCategoryPage(game: Game, category: string, variant: "nor
     .filter((r) => wanted === null || r.variant === wanted);
   const items = rows.map((r) => ({ name: displayName(r), path: `/instances/${r.slug}` }));
   const catLabel = CATEGORY_LABEL[category];
-  const modeText = wanted === "conquest" ? " – Hard Mode (Conquest)" : wanted === "explore" ? " – Normal Mode (Exploration)" : "";
-  const path = `/instances/${category}${variant === "hard" ? "/hard" : ""}`;
+  const modeText = wanted === "advanced" ? " – Conquest [Hard]" : wanted === "conquest" ? " – Conquest" : wanted === "explore" ? " – Exploration" : "";
+  const path = `/instances/${category}${wanted === "advanced" ? "/conquest-hard" : wanted === "conquest" ? "/conquest" : ""}`;
   return {
     status: 200,
     meta: {
@@ -625,7 +625,7 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
   const label = GAME_LABEL[game];
   const items = bossRows.map((b) => ({ name: displayName(b), path: `/bosses/${b.slug}` }));
   const category = CATEGORY_LABEL[instance.category ?? ""] ?? "";
-  const mode = instance.variant === "conquest" ? "Hard mode (Conquest)" : instance.variant === "explore" ? "Normal mode (Exploration)" : "";
+  const mode = instance.variant === "advanced" ? "Conquest [Hard]" : instance.variant === "conquest" ? "Conquest" : instance.variant === "explore" ? "Exploration" : "";
   const facts = INSTANCE_FACTS[instance.name] ?? {};
   const level = INSTANCE_MIN_LEVEL[instance.name];
   const factText = [
@@ -641,7 +641,7 @@ export function instancePage(game: Game, idOrSlug: string): Page | null {
   return {
     status: 200,
     meta: {
-      title: `${name}${instance.variant === "conquest" ? "" : mode ? " (Normal)" : ""} – ${label} ${worldBoss ? "World" : category || "Instance"} Bosses & DPS Leaderboard | ${SITE}`,
+      title: `${name}${instance.variant === "explore" ? " (Exploration)" : ""} – ${label} ${worldBoss ? "World" : category || "Instance"} Bosses & DPS Leaderboard | ${SITE}`,
       description:
         items.length > 0
           ? `${name} (${label}${kind ? `, ${kind}` : ""}${factText.length > 0 ? `; ${factText.join(", ")}` : ""}): ${items.length} boss${items.length === 1 ? "" : "es"} – ${items.slice(0, 6).map((i) => i.name).join(", ")}. Mechanics guides and top group DPS.`

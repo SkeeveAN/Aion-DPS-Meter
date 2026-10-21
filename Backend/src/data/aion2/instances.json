@@ -1005,6 +1005,152 @@
       "category": "worldboss",
       "sortOrder": 309,
       "hidden": false
+    },
+    {
+      "key": "Krao:hard",
+      "slug": "krao-cave-conquest-hard",
+      "name": {
+        "en": "Krao Cave (Conquest [Hard])",
+        "de": "Kraohöhle (Eroberung [Schwierig])",
+        "fr": "Grotte de Krao (Conquête [Difficile])",
+        "es": "Cueva de Krao (Conquista [Difícil])",
+        "ja": "クラオ洞窟 (征服[難しい])",
+        "pt": "Caverna de Krao (Conquista [Difícil])",
+        "ru": "Пещера крао ([Сложный] Завоевание)",
+        "ko": "크라오 동굴 (정복[어려움])"
+      },
+      "category": "expedition",
+      "sortOrder": 301,
+      "modes": {
+        "advanced": {
+          "minLevel": 45,
+          "players": "1-5",
+          "itemLevel": 2600
+        }
+      },
+      "variant": "advanced",
+      "hidden": false
+    },
+    {
+      "key": "Draupnir:hard",
+      "slug": "draupnir-conquest-hard",
+      "name": {
+        "en": "Draupnir (Conquest [Hard])",
+        "de": "Draupnir (Eroberung [Schwierig])",
+        "fr": "Draupnir (Conquête [Difficile])",
+        "es": "Draupnir (Conquista [Difícil])",
+        "ja": "ドラウプニル (征服[難しい])",
+        "pt": "Draupnir (Conquista [Difícil])",
+        "ru": "Драупнир ([Сложный] Завоевание)",
+        "ko": "드라웁니르 (정복[어려움])"
+      },
+      "category": "expedition",
+      "sortOrder": 302,
+      "modes": {
+        "advanced": {
+          "minLevel": 45,
+          "players": "1-5",
+          "itemLevel": 2600
+        }
+      },
+      "variant": "advanced",
+      "hidden": false
+    },
+    {
+      "key": "UC:hard",
+      "slug": "urugugu-canyon-conquest-hard",
+      "name": {
+        "en": "Urugugu Canyon (Conquest [Hard])",
+        "de": "Uruguguschlucht (Eroberung [Schwierig])",
+        "fr": "Canyon Urugugu (Conquête [Difficile])",
+        "es": "Cañón de Urugugu (Conquista [Difícil])",
+        "ja": "ウルググ峡谷 (征服[難しい])",
+        "pt": "Desfiladeiro de Urugugu (Conquista [Difícil])",
+        "ru": "Ущелье ауругу ([Сложный] Завоевание)",
+        "ko": "우루구구 협곡 (정복[어려움])"
+      },
+      "category": "expedition",
+      "sortOrder": 303,
+      "modes": {
+        "advanced": {
+          "minLevel": 45,
+          "players": "2-5"
+        }
+      },
+      "variant": "advanced",
+      "hidden": true
+    },
+    {
+      "key": "FT:hard",
+      "slug": "fire-temple-conquest-hard",
+      "name": {
+        "en": "Fire Temple (Conquest [Hard])",
+        "de": "Feuertempel (Eroberung [Schwierig])",
+        "fr": "Temple Divin du Feu (Conquête [Difficile])",
+        "es": "Templo de Fuego (Conquista [Difícil])",
+        "ja": "炎の神殿 (征服[難しい])",
+        "pt": "Templo Divino do Fogo (Conquista [Difícil])",
+        "ru": "Храм огня ([Сложный] Завоевание)",
+        "ko": "불의 신전 (정복[어려움])"
+      },
+      "category": "expedition",
+      "sortOrder": 304,
+      "modes": {
+        "advanced": {
+          "minLevel": 45,
+          "players": "1-5"
+        }
+      },
+      "variant": "advanced",
+      "hidden": true
+    },
+    {
+      "key": "Bakron:hard",
+      "slug": "vakron-sky-island-conquest-hard",
+      "name": {
+        "en": "Vakron Sky Island (Conquest [Hard])",
+        "de": "Vakrons Luftinsel (Eroberung [Schwierig])",
+        "fr": "Île Céleste de Vakron (Conquête [Difficile])",
+        "es": "Isla Aérea de Vakron (Conquista [Difícil])",
+        "ja": "バクロンの空中島 (征服[難しい])",
+        "pt": "Ilha Aérea de Vakron (Conquista [Difícil])",
+        "ru": "Парящий остров Вакрона ([Сложный] Завоевание)",
+        "ko": "바크론의 공중섬 (정복[어려움])"
+      },
+      "category": "expedition",
+      "sortOrder": 305,
+      "modes": {
+        "advanced": {
+          "minLevel": 45,
+          "players": "2-5"
+        }
+      },
+      "variant": "advanced",
+      "hidden": true
+    },
+    {
+      "key": "MauCave:hard",
+      "slug": "ferocious-horn-den-conquest-hard",
+      "name": {
+        "en": "Ferocious Horn Den (Conquest [Hard])",
+        "de": "Grimmhornhöhle (Eroberung [Schwierig])",
+        "fr": "Grotte de la Corne Féroce (Conquête [Difficile])",
+        "es": "Caverna del Cuerno Feroz (Conquista [Difícil])",
+        "ja": "獰猛な角岩窟 (征服[難しい])",
+        "pt": "Gruta do Chifre Feroz (Conquista [Difícil])",
+        "ru": "Логово Свирепого Рога ([Сложный] Завоевание)",
+        "ko": "사나운 뿔 암굴 (정복[어려움])"
+      },
+      "category": "expedition",
+      "sortOrder": 306,
+      "modes": {
+        "advanced": {
+          "minLevel": 45,
+          "players": "1-5"
+        }
+      },
+      "variant": "advanced",
+      "hidden": true
     }
   ]
 }

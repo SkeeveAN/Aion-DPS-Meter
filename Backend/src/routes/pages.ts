@@ -175,10 +175,14 @@ export async function pageRoutes(app: FastifyInstance) {
     "/instances/expedition/:variant",
     withGame((game, request, reply) => {
       const variant = (request.params as { variant: string }).variant;
-      const page = variant === "hard" || variant === "normal" ? instanceCategoryPage(game, "expedition", variant) : null;
+      // The old addresses move for good: /normal is the exploration tab, /hard was the conquest tab.
       if (variant === "normal") {
         return reply.redirect("/instances/expedition", 301);
       }
+      if (variant === "hard") {
+        return reply.redirect("/instances/expedition/conquest", 301);
+      }
+      const page = variant === "conquest" || variant === "conquest-hard" ? instanceCategoryPage(game, "expedition", variant) : null;
       return page ? send(reply, render(page, requestPath(request))) : sendNotFound(request, reply);
     }),
   );
