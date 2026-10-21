@@ -218,7 +218,7 @@ public sealed class CraftConfigWindow : Window
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var name = new TextBlock { Text = text, FontWeight = header || active ? FontWeights.SemiBold : FontWeights.Normal, FontSize = indent > 0 ? 12.5 : 13 };
+        var name = new TextBlock { Text = text, FontWeight = header || active ? FontWeights.SemiBold : FontWeights.Normal, FontSize = indent > 0 ? 12.5 : 13, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 0, 6, 0) };
         if (active)
         {
             name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");

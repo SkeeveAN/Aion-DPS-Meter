@@ -10501,342 +10501,1022 @@
   },
   "Main.MenuTools.Craft": {
     "en": "Crafting calculator",
-    "de": "Crafting-Rechner"
+    "de": "Crafting-Rechner",
+    "fr": "Calculateur de craft",
+    "es": "Calculadora de crafteo",
+    "ru": "Калькулятор крафта",
+    "pt": "Calculadora de crafting",
+    "ja": "クラフト計算機",
+    "ko": "제작 계산기",
+    "zh": "制作计算器",
+    "zh-TW": "製作計算器"
   },
   "Craft.ConfigTitle": {
     "en": "Crafting calculator – configuration",
-    "de": "Crafting-Rechner – Konfiguration"
+    "de": "Crafting-Rechner – Konfiguration",
+    "fr": "Calculateur de craft – configuration",
+    "es": "Calculadora de crafteo – configuración",
+    "ru": "Калькулятор крафта – настройки",
+    "pt": "Calculadora de crafting – configuração",
+    "ja": "クラフト計算機 – 設定",
+    "ko": "제작 계산기 – 설정",
+    "zh": "制作计算器 – 配置",
+    "zh-TW": "製作計算器 – 設定"
   },
   "Craft.OnlyMissing": {
     "en": "Only missing",
-    "de": "Nur Fehlendes"
+    "de": "Nur Fehlendes",
+    "fr": "Seulement ce qui manque",
+    "es": "Solo lo que falta",
+    "ru": "Только недостающее",
+    "pt": "Só o que falta",
+    "ja": "不足のみ",
+    "ko": "부족한 것만",
+    "zh": "仅显示缺少的",
+    "zh-TW": "僅顯示缺少的"
   },
   "Craft.Everything": {
     "en": "Everything",
-    "de": "Alles"
+    "de": "Alles",
+    "fr": "Tout",
+    "es": "Todo",
+    "ru": "Всё",
+    "pt": "Tudo",
+    "ja": "すべて",
+    "ko": "전체",
+    "zh": "全部",
+    "zh-TW": "全部"
   },
   "Craft.Empty": {
     "en": "No recipes marked yet. Open the configuration (button above) and mark the recipes you want to craft.",
-    "de": "Noch keine Rezepte markiert. Öffne die Konfiguration (Knopf oben) und markiere die Rezepte, die du herstellen willst."
+    "de": "Noch keine Rezepte markiert. Öffne die Konfiguration (Knopf oben) und markiere die Rezepte, die du herstellen willst.",
+    "fr": "Aucune recette marquée pour l'instant. Ouvre la configuration (bouton ci-dessus) et marque les recettes que tu veux fabriquer.",
+    "es": "Aún no hay recetas marcadas. Abre la configuración (botón de arriba) y marca las recetas que quieres fabricar.",
+    "ru": "Рецепты пока не отмечены. Откройте настройки (кнопка выше) и отметьте рецепты, которые хотите создать.",
+    "pt": "Nenhuma receita marcada ainda. Abra a configuração (botão acima) e marque as receitas que você quer fabricar.",
+    "ja": "マークされたレシピはまだありません。設定（上のボタン）を開いて、作りたいレシピをマークしてください。",
+    "ko": "아직 표시한 레시피가 없습니다. 설정(위 버튼)을 열고 만들고 싶은 레시피를 표시하세요.",
+    "zh": "尚未标记任何配方。请打开配置（上方按钮），标记您想制作的配方。",
+    "zh-TW": "尚未標記任何配方。請開啟設定（上方按鈕），標記您想製作的配方。"
   },
   "Craft.AlsoMake": {
     "en": "Also craft:",
-    "de": "Dazu herstellen:"
+    "de": "Dazu herstellen:",
+    "fr": "À fabriquer aussi :",
+    "es": "Fabricar también:",
+    "ru": "Дополнительно создать:",
+    "pt": "Fabricar também:",
+    "ja": "あわせて作る：",
+    "ko": "함께 제작:",
+    "zh": "另需制作：",
+    "zh-TW": "另需製作："
   },
   "Craft.AllThere": {
     "en": "Everything is there ✓",
-    "de": "Alles vorhanden ✓"
+    "de": "Alles vorhanden ✓",
+    "fr": "Tout est là ✓",
+    "es": "Todo está ✓",
+    "ru": "Всё есть ✓",
+    "pt": "Está tudo aqui ✓",
+    "ja": "すべてそろっています ✓",
+    "ko": "모두 있습니다 ✓",
+    "zh": "材料齐全 ✓",
+    "zh-TW": "材料齊全 ✓"
   },
   "Craft.InStorage": {
     "en": "{0} in storage",
-    "de": "{0} im Lager"
+    "de": "{0} im Lager",
+    "fr": "{0} dans l'entrepôt",
+    "es": "{0} en el almacén",
+    "ru": "{0} в хранилище",
+    "pt": "{0} no armazém",
+    "ja": "倉庫に{0}",
+    "ko": "창고에 {0}",
+    "zh": "仓库中有 {0}",
+    "zh-TW": "倉庫中有 {0}"
   },
   "Craft.InAccountStorage": {
     "en": "{0} in account storage",
-    "de": "{0} im Serverlager"
+    "de": "{0} im Serverlager",
+    "fr": "{0} dans l'entrepôt du compte",
+    "es": "{0} en el almacén de la cuenta",
+    "ru": "{0} в хранилище аккаунта",
+    "pt": "{0} no armazém da conta",
+    "ja": "アカウント倉庫に{0}",
+    "ko": "계정 창고에 {0}",
+    "zh": "账号仓库中有 {0}",
+    "zh-TW": "帳號倉庫中有 {0}"
   },
   "Craft.NoStock": {
     "en": "No stock read yet – it is read when you enter the world (log in).",
-    "de": "Noch kein Bestand gelesen – er wird beim Betreten der Welt (Login) eingelesen."
+    "de": "Noch kein Bestand gelesen – er wird beim Betreten der Welt (Login) eingelesen.",
+    "fr": "Aucun stock lu pour l'instant – il est lu à l'entrée dans le monde (connexion).",
+    "es": "Aún no se han leído las existencias; se leen al entrar en el mundo (inicio de sesión).",
+    "ru": "Запасы ещё не считаны – они считываются при входе в мир (логин).",
+    "pt": "Nenhum estoque lido ainda – ele é lido ao entrar no mundo (login).",
+    "ja": "在庫はまだ読み取られていません。ワールドに入る（ログインする）と読み取られます。",
+    "ko": "아직 재고를 읽지 못했습니다. 월드에 들어갈 때(로그인) 읽어 옵니다.",
+    "zh": "尚未读取库存，进入游戏世界（登录）时会读取。",
+    "zh-TW": "尚未讀取庫存，進入遊戲世界（登入）時會讀取。"
   },
   "Craft.StockNote": {
     "en": "Stock: login {0}",
-    "de": "Bestand: Login {0}"
+    "de": "Bestand: Login {0}",
+    "fr": "Stock : connexion {0}",
+    "es": "Existencias: inicio de sesión {0}",
+    "ru": "Запасы: логин {0}",
+    "pt": "Estoque: login {0}",
+    "ja": "在庫：ログイン {0}",
+    "ko": "재고: 로그인 {0}",
+    "zh": "库存：登录 {0}",
+    "zh-TW": "庫存：登入 {0}"
   },
   "Craft.StockListed": {
     "en": "inventory matched {0}",
-    "de": "Inventar abgeglichen {0}"
+    "de": "Inventar abgeglichen {0}",
+    "fr": "inventaire comparé {0}",
+    "es": "inventario contrastado {0}",
+    "ru": "инвентарь сверен {0}",
+    "pt": "inventário conferido {0}",
+    "ja": "インベントリ照合 {0}",
+    "ko": "인벤토리 대조 {0}",
+    "zh": "背包已核对 {0}",
+    "zh-TW": "背包已核對 {0}"
   },
   "Craft.More": {
     "en": "+ {0} more",
-    "de": "+ {0} weitere"
+    "de": "+ {0} weitere",
+    "fr": "+ {0} autres",
+    "es": "+ {0} más",
+    "ru": "+ ещё {0}",
+    "pt": "+ {0} a mais",
+    "ja": "＋他{0}件",
+    "ko": "+ {0}개 더",
+    "zh": "+ 还有 {0} 项",
+    "zh-TW": "+ 還有 {0} 項"
   },
   "Craft.Missing": {
     "en": "Still missing",
-    "de": "Fehlt noch"
+    "de": "Fehlt noch",
+    "fr": "Il manque encore",
+    "es": "Aún falta",
+    "ru": "Ещё не хватает",
+    "pt": "Ainda falta",
+    "ja": "まだ不足",
+    "ko": "아직 부족",
+    "zh": "仍然缺少",
+    "zh-TW": "仍然缺少"
   },
   "Craft.Sample.1": {
     "en": "Fresh Fruit",
-    "de": "Frische Frucht"
+    "de": "Frische Frucht",
+    "fr": "Fruit frais",
+    "es": "Fruto fresco",
+    "ru": "Свежий плод",
+    "pt": "Fruta Fresca",
+    "ja": "新鮮な果実",
+    "ko": "신선한 열매",
+    "zh": "Fresh Fruit",
+    "zh-TW": "Fresh Fruit"
   },
   "Craft.Sample.2": {
     "en": "Fresh Aria",
-    "de": "Frische Aria"
+    "de": "Frische Aria",
+    "fr": "Aria fraîche",
+    "es": "Aria fresca",
+    "ru": "Свежий вереск",
+    "pt": "Aria Fresca",
+    "ja": "新鮮なアンゼリカ",
+    "ko": "신선한 안젤리카",
+    "zh": "Fresh Aria",
+    "zh-TW": "Fresh Aria"
   },
   "Craft.Sample.3": {
-    "en": "Fine Od",
-    "de": "Feines Od"
+    "en": "Fine Odyle",
+    "de": "Feines Od",
+    "fr": "Od d'une grande pureté",
+    "es": "Od de alta pureza",
+    "ru": "Эфир высокой чистоты",
+    "pt": "Od Fino",
+    "ja": "高純度のオード",
+    "ko": "순도 높은 오드",
+    "zh": "Fine Odyle",
+    "zh-TW": "Fine Odyle"
   },
   "Craft.Search": {
     "en": "Search and mark recipes",
-    "de": "Rezepte suchen und markieren"
+    "de": "Rezepte suchen und markieren",
+    "fr": "Chercher et marquer des recettes",
+    "es": "Buscar y marcar recetas",
+    "ru": "Поиск и отметка рецептов",
+    "pt": "Buscar e marcar receitas",
+    "ja": "レシピを検索してマーク",
+    "ko": "레시피 검색 및 표시",
+    "zh": "搜索并标记配方",
+    "zh-TW": "搜尋並標記配方"
   },
   "Craft.FoldIn": {
     "en": "fold in ▴",
-    "de": "zuklappen ▴"
+    "de": "zuklappen ▴",
+    "fr": "replier ▴",
+    "es": "plegar ▴",
+    "ru": "свернуть ▴",
+    "pt": "recolher ▴",
+    "ja": "たたむ ▴",
+    "ko": "접기 ▴",
+    "zh": "收起 ▴",
+    "zh-TW": "收起 ▴"
   },
   "Craft.FoldOut": {
     "en": "unfold ▾",
-    "de": "aufklappen ▾"
+    "de": "aufklappen ▾",
+    "fr": "déplier ▾",
+    "es": "desplegar ▾",
+    "ru": "развернуть ▾",
+    "pt": "expandir ▾",
+    "ja": "開く ▾",
+    "ko": "펼치기 ▾",
+    "zh": "展开 ▾",
+    "zh-TW": "展開 ▾"
   },
   "Craft.OnlyMarked": {
     "en": "Only marked",
-    "de": "Nur markierte"
+    "de": "Nur markierte",
+    "fr": "Seulement les marquées",
+    "es": "Solo las marcadas",
+    "ru": "Только отмеченные",
+    "pt": "Só as marcadas",
+    "ja": "マーク済みのみ",
+    "ko": "표시한 것만",
+    "zh": "仅已标记",
+    "zh-TW": "僅已標記"
   },
   "Craft.All": {
     "en": "All",
-    "de": "Alle"
+    "de": "Alle",
+    "fr": "Tout",
+    "es": "Todo",
+    "ru": "Все",
+    "pt": "Todos",
+    "ja": "全体",
+    "ko": "전체",
+    "zh": "全部",
+    "zh-TW": "全部"
   },
   "Craft.NoResults": {
     "en": "No recipes found.",
-    "de": "Keine Rezepte gefunden."
+    "de": "Keine Rezepte gefunden.",
+    "fr": "Aucune recette trouvée.",
+    "es": "No se encontraron recetas.",
+    "ru": "Рецепты не найдены.",
+    "pt": "Nenhuma receita encontrada.",
+    "ja": "レシピが見つかりません。",
+    "ko": "레시피를 찾지 못했습니다.",
+    "zh": "未找到配方。",
+    "zh-TW": "找不到配方。"
   },
   "Craft.MoreResults": {
     "en": "{0} more – narrow the search.",
-    "de": "{0} weitere – Suche verfeinern."
+    "de": "{0} weitere – Suche verfeinern.",
+    "fr": "{0} de plus – affine la recherche.",
+    "es": "{0} más – afina la búsqueda.",
+    "ru": "Ещё {0} – уточните поиск.",
+    "pt": "Mais {0} – refine a busca.",
+    "ja": "さらに{0}件 – 検索を絞り込んでください。",
+    "ko": "{0}개 더 있음 – 검색을 좁혀 보세요.",
+    "zh": "还有 {0} 项 – 请缩小搜索范围。",
+    "zh-TW": "還有 {0} 項 – 請縮小搜尋範圍。"
   },
   "Craft.Level": {
     "en": "Level {0}",
-    "de": "Stufe {0}"
+    "de": "Stufe {0}",
+    "fr": "Niv. {0}",
+    "es": "Nivel {0}",
+    "ru": "Ур. {0}",
+    "pt": "Nível {0}",
+    "ja": "Lv.{0}",
+    "ko": "Lv. {0}",
+    "zh": "等级 {0}",
+    "zh-TW": "等級 {0}"
   },
   "Craft.Mine": {
     "en": "My recipes",
-    "de": "Meine Rezepte"
+    "de": "Meine Rezepte",
+    "fr": "Mes recettes",
+    "es": "Mis recetas",
+    "ru": "Мои рецепты",
+    "pt": "Minhas receitas",
+    "ja": "マイレシピ",
+    "ko": "내 레시피",
+    "zh": "我的配方",
+    "zh-TW": "我的配方"
   },
   "Craft.MineSummary": {
     "en": "{0} recipes · {1} crafts",
-    "de": "{0} Rezepte · {1} Herstellungen"
+    "de": "{0} Rezepte · {1} Herstellungen",
+    "fr": "{0} recettes · {1} fabrications",
+    "es": "{0} recetas · {1} fabricaciones",
+    "ru": "Рецептов: {0} · созданий: {1}",
+    "pt": "{0} receitas · {1} fabricações",
+    "ja": "{0}件のレシピ · 計{1}回",
+    "ko": "레시피 {0}개 · 제작 {1}회",
+    "zh": "{0} 个配方 · 共 {1} 次制作",
+    "zh-TW": "{0} 個配方 · 共 {1} 次製作"
   },
   "Craft.OrderHint": {
     "en": "order = who gets the stock first",
-    "de": "Reihenfolge = wer den Bestand zuerst bekommt"
+    "de": "Reihenfolge = wer den Bestand zuerst bekommt",
+    "fr": "ordre = qui reçoit le stock en premier",
+    "es": "orden = quién recibe primero las existencias",
+    "ru": "порядок = кто получает запасы первым",
+    "pt": "ordem = quem recebe o estoque primeiro",
+    "ja": "順番＝先に在庫を受け取るレシピ",
+    "ko": "순서 = 재고를 먼저 받는 레시피",
+    "zh": "顺序 = 谁先获得库存",
+    "zh-TW": "順序 = 誰先取得庫存"
   },
   "Craft.MineEmpty": {
     "en": "Nothing marked yet. Unfold \"Search and mark recipes\" above and tick what you want to craft.",
-    "de": "Noch nichts markiert. Klappe oben „Rezepte suchen und markieren\" auf und hake an, was du herstellen willst."
+    "de": "Noch nichts markiert. Klappe oben „Rezepte suchen und markieren\" auf und hake an, was du herstellen willst.",
+    "fr": "Rien de marqué pour l'instant. Déplie « Chercher et marquer des recettes » ci-dessus et coche ce que tu veux fabriquer.",
+    "es": "Aún no hay nada marcado. Despliega «Buscar y marcar recetas» arriba y marca lo que quieres fabricar.",
+    "ru": "Пока ничего не отмечено. Разверните «Поиск и отметка рецептов» выше и отметьте, что хотите создать.",
+    "pt": "Nada marcado ainda. Expanda «Buscar e marcar receitas» acima e marque o que quer fabricar.",
+    "ja": "まだ何もマークされていません。上の「レシピを検索してマーク」を開き、作りたいものにチェックを入れてください。",
+    "ko": "아직 표시한 것이 없습니다. 위의 \"레시피 검색 및 표시\"를 펼치고 만들고 싶은 것을 체크하세요.",
+    "zh": "尚未标记任何内容。请展开上方的“搜索并标记配方”，勾选您想制作的配方。",
+    "zh-TW": "尚未標記任何內容。請展開上方的「搜尋並標記配方」，勾選您想製作的配方。"
   },
   "Craft.Recipe": {
     "en": "Recipe",
-    "de": "Rezept"
+    "de": "Rezept",
+    "fr": "Recette",
+    "es": "Receta",
+    "ru": "Рецепт",
+    "pt": "Receita",
+    "ja": "レシピ",
+    "ko": "레시피",
+    "zh": "配方",
+    "zh-TW": "配方"
   },
   "Craft.Count": {
     "en": "Count",
-    "de": "Anzahl"
+    "de": "Anzahl",
+    "fr": "Nombre",
+    "es": "Cantidad",
+    "ru": "Кол-во",
+    "pt": "Quantidade",
+    "ja": "回数",
+    "ko": "횟수",
+    "zh": "次数",
+    "zh-TW": "次數"
   },
   "Craft.WholeAccount": {
     "en": "Whole account",
-    "de": "Account-weit"
+    "de": "Account-weit",
+    "fr": "Tout le compte",
+    "es": "Toda la cuenta",
+    "ru": "Весь аккаунт",
+    "pt": "Conta toda",
+    "ja": "アカウント全体",
+    "ko": "계정 전체",
+    "zh": "整个账号",
+    "zh-TW": "整個帳號"
   },
   "Craft.DragTip": {
     "en": "Drag to change the order",
-    "de": "Ziehen zum Verschieben"
+    "de": "Ziehen zum Verschieben",
+    "fr": "Faire glisser pour changer l'ordre",
+    "es": "Arrastra para cambiar el orden",
+    "ru": "Перетащите, чтобы изменить порядок",
+    "pt": "Arraste para mudar a ordem",
+    "ja": "ドラッグして順番を変更",
+    "ko": "끌어서 순서 변경",
+    "zh": "拖动以更改顺序",
+    "zh-TW": "拖曳以變更順序"
   },
   "Craft.Display": {
     "en": "Display",
-    "de": "Anzeige"
+    "de": "Anzeige",
+    "fr": "Affichage",
+    "es": "Visualización",
+    "ru": "Отображение",
+    "pt": "Exibição",
+    "ja": "表示",
+    "ko": "표시",
+    "zh": "显示",
+    "zh-TW": "顯示"
   },
   "Craft.Overlay": {
     "en": "Overlay",
-    "de": "Overlay"
+    "de": "Overlay",
+    "fr": "Overlay",
+    "es": "Overlay",
+    "ru": "Оверлей",
+    "pt": "Overlay",
+    "ja": "オーバーレイ",
+    "ko": "오버레이",
+    "zh": "悬浮窗",
+    "zh-TW": "浮動層"
   },
   "Craft.Calculation": {
     "en": "Calculation",
-    "de": "Berechnung"
+    "de": "Berechnung",
+    "fr": "Calcul",
+    "es": "Cálculo",
+    "ru": "Расчёт",
+    "pt": "Cálculo",
+    "ja": "計算",
+    "ko": "계산",
+    "zh": "计算",
+    "zh-TW": "計算"
   },
   "Craft.Movable": {
     "en": "Move (unlock)",
-    "de": "Verschieben (entsperren)"
+    "de": "Verschieben (entsperren)",
+    "fr": "Déplacer (déverrouiller)",
+    "es": "Mover (desbloquear)",
+    "ru": "Перемещать (разблокировать)",
+    "pt": "Mover (desbloquear)",
+    "ja": "移動する（ロック解除）",
+    "ko": "이동(잠금 해제)",
+    "zh": "移动（解锁）",
+    "zh-TW": "移動（解鎖）"
   },
   "Craft.Lines": {
     "en": "Lines",
-    "de": "Zeilen"
+    "de": "Zeilen",
+    "fr": "Lignes",
+    "es": "Líneas",
+    "ru": "Строки",
+    "pt": "Linhas",
+    "ja": "行数",
+    "ko": "줄 수",
+    "zh": "行数",
+    "zh-TW": "行數"
   },
   "Craft.Opacity": {
     "en": "Opacity",
-    "de": "Deckkraft"
+    "de": "Deckkraft",
+    "fr": "Opacité",
+    "es": "Opacidad",
+    "ru": "Прозрачность",
+    "pt": "Opacidade",
+    "ja": "透明度",
+    "ko": "투명도",
+    "zh": "不透明度",
+    "zh-TW": "不透明度"
   },
   "Craft.PlaceLabel": {
     "en": "Reset place",
-    "de": "Platz zurücksetzen"
+    "de": "Platz zurücksetzen",
+    "fr": "Réinitialiser la place",
+    "es": "Restablecer posición",
+    "ru": "Сбросить положение",
+    "pt": "Redefinir posição",
+    "ja": "位置をリセット",
+    "ko": "위치 초기화",
+    "zh": "重置位置",
+    "zh-TW": "重置位置"
   },
   "Craft.ResetPlace": {
     "en": "Reset",
-    "de": "Zurücksetzen"
+    "de": "Zurücksetzen",
+    "fr": "Réinitialiser",
+    "es": "Restablecer",
+    "ru": "Сбросить",
+    "pt": "Redefinir",
+    "ja": "リセット",
+    "ko": "초기화",
+    "zh": "重置",
+    "zh-TW": "重置"
   },
   "Craft.Resolve": {
     "en": "Break intermediates into materials",
-    "de": "Zwischenprodukte auflösen"
+    "de": "Zwischenprodukte auflösen",
+    "fr": "Décomposer les produits intermédiaires",
+    "es": "Descomponer los productos intermedios",
+    "ru": "Раскладывать промежуточные изделия",
+    "pt": "Decompor os intermediários",
+    "ja": "中間素材を分解する",
+    "ko": "중간 재료 분해",
+    "zh": "分解中间产物",
+    "zh-TW": "分解中間產物"
   },
   "Craft.CountInventory": {
     "en": "Count inventory",
-    "de": "Inventar zählen"
+    "de": "Inventar zählen",
+    "fr": "Compter l'inventaire",
+    "es": "Contar el inventario",
+    "ru": "Учитывать инвентарь",
+    "pt": "Contar o inventário",
+    "ja": "インベントリを数える",
+    "ko": "인벤토리 포함",
+    "zh": "计入背包",
+    "zh-TW": "計入背包"
   },
   "Craft.CountStorage": {
     "en": "Count storage",
-    "de": "Lager zählen"
+    "de": "Lager zählen",
+    "fr": "Compter l'entrepôt",
+    "es": "Contar el almacén",
+    "ru": "Учитывать хранилище",
+    "pt": "Contar o armazém",
+    "ja": "倉庫を数える",
+    "ko": "창고 포함",
+    "zh": "计入仓库",
+    "zh-TW": "計入倉庫"
   },
   "Craft.CountAccount": {
     "en": "Count account storage",
-    "de": "Serverlager zählen"
+    "de": "Serverlager zählen",
+    "fr": "Compter l'entrepôt du compte",
+    "es": "Contar el almacén de la cuenta",
+    "ru": "Учитывать хранилище аккаунта",
+    "pt": "Contar o armazém da conta",
+    "ja": "アカウント倉庫を数える",
+    "ko": "계정 창고 포함",
+    "zh": "计入账号仓库",
+    "zh-TW": "計入帳號倉庫"
   },
   "Config.Save": {
     "en": "Save",
-    "de": "Speichern"
+    "de": "Speichern",
+    "fr": "Enregistrer",
+    "es": "Guardar",
+    "ru": "Сохранить",
+    "pt": "Salvar",
+    "ja": "保存",
+    "ko": "저장",
+    "zh": "保存",
+    "zh-TW": "儲存"
   },
   "Config.Discard": {
     "en": "Discard",
-    "de": "Verwerfen"
+    "de": "Verwerfen",
+    "fr": "Ignorer",
+    "es": "Descartar",
+    "ru": "Отменить изменения",
+    "pt": "Descartar",
+    "ja": "破棄",
+    "ko": "버리기",
+    "zh": "放弃",
+    "zh-TW": "捨棄"
   },
   "Config.Cancel": {
     "en": "Cancel",
-    "de": "Abbrechen"
+    "de": "Abbrechen",
+    "fr": "Annuler",
+    "es": "Cancelar",
+    "ru": "Отмена",
+    "pt": "Cancelar",
+    "ja": "キャンセル",
+    "ko": "취소",
+    "zh": "取消",
+    "zh-TW": "取消"
   },
   "Config.Close": {
     "en": "Close",
-    "de": "Schließen"
+    "de": "Schließen",
+    "fr": "Fermer",
+    "es": "Cerrar",
+    "ru": "Закрыть",
+    "pt": "Fechar",
+    "ja": "閉じる",
+    "ko": "닫기",
+    "zh": "关闭",
+    "zh-TW": "關閉"
   },
   "Config.Unsaved": {
     "en": "There are unsaved changes.\nDo you want to save them?",
-    "de": "Es gibt ungespeicherte Änderungen.\nMöchtest du sie speichern?"
+    "de": "Es gibt ungespeicherte Änderungen.\nMöchtest du sie speichern?",
+    "fr": "Il y a des modifications non enregistrées.\nVeux-tu les enregistrer ?",
+    "es": "Hay cambios sin guardar.\n¿Quieres guardarlos?",
+    "ru": "Есть несохранённые изменения.\nСохранить их?",
+    "pt": "Há alterações não salvas.\nDeseja salvá-las?",
+    "ja": "保存されていない変更があります。\n保存しますか？",
+    "ko": "저장하지 않은 변경 사항이 있습니다.\n저장하시겠습니까?",
+    "zh": "有未保存的更改。\n是否保存？",
+    "zh-TW": "有未儲存的變更。\n是否儲存？"
   },
   "Craft.Cat.Blacksmithing": {
     "en": "Blacksmithing",
-    "de": "Schmiedekunst"
+    "de": "Schmieden",
+    "fr": "Forge",
+    "es": "Herrería",
+    "ru": "Кузнечное дело",
+    "pt": "Armaria",
+    "ja": "鍛冶",
+    "ko": "대장",
+    "zh": "锻造",
+    "zh-TW": "鍛造"
   },
   "Craft.Cat.Tailoring": {
-    "en": "Tailoring",
-    "de": "Schneiderei"
+    "en": "Armorsmithing",
+    "de": "Rüstung",
+    "fr": "Armure",
+    "es": "Armadura",
+    "ru": "Бронное дело",
+    "pt": "Armoraria",
+    "ja": "防具",
+    "ko": "갑옷",
+    "zh": "防具制作",
+    "zh-TW": "防具製作"
   },
   "Craft.Cat.Jewelcrafting": {
-    "en": "Jewelcrafting",
-    "de": "Juwelierskunst"
+    "en": "Handicrafting",
+    "de": "Schmuckherstellung",
+    "fr": "Artisanat",
+    "es": "Orfebrería",
+    "ru": "Ювелирное дело",
+    "pt": "Artesanato",
+    "ja": "細工",
+    "ko": "세공",
+    "zh": "工艺",
+    "zh-TW": "工藝"
   },
   "Craft.Cat.Alchemy": {
     "en": "Alchemy",
-    "de": "Alchemie"
+    "de": "Alchemie",
+    "fr": "Alchimie",
+    "es": "Alquimia",
+    "ru": "Алхимия",
+    "pt": "Alquimia",
+    "ja": "錬金",
+    "ko": "연금",
+    "zh": "炼金",
+    "zh-TW": "煉金"
   },
   "Craft.Cat.Cooking": {
     "en": "Cooking",
-    "de": "Kochen"
+    "de": "Kochen",
+    "fr": "Cuisine",
+    "es": "Cocina",
+    "ru": "Кулинария",
+    "pt": "Culinária",
+    "ja": "料理",
+    "ko": "요리",
+    "zh": "烹饪",
+    "zh-TW": "烹飪"
   },
   "Craft.Tab.Boots": {
-    "en": "Boots",
-    "de": "Stiefel"
+    "en": "Shoes",
+    "de": "Stiefel",
+    "fr": "Chaussures",
+    "es": "Calzado",
+    "ru": "Обувь",
+    "pt": "Botas",
+    "ja": "シューズ",
+    "ko": "신발",
+    "zh": "鞋子",
+    "zh-TW": "鞋子"
   },
   "Craft.Tab.Bow": {
-    "en": "Bows",
-    "de": "Bögen"
+    "en": "Bow",
+    "de": "Bogen",
+    "fr": "Arc",
+    "es": "Arco",
+    "ru": "Луки",
+    "pt": "Arco",
+    "ja": "ボウ",
+    "ko": "활",
+    "zh": "弓",
+    "zh-TW": "弓"
   },
   "Craft.Tab.Bracelet": {
-    "en": "Bracelets",
-    "de": "Armbänder"
+    "en": "Bracelet",
+    "de": "Armband",
+    "fr": "Bracelet",
+    "es": "Pulsera",
+    "ru": "Браслеты",
+    "pt": "Bracelete",
+    "ja": "ブレスレット",
+    "ko": "팔찌",
+    "zh": "手镯",
+    "zh-TW": "手鐲"
   },
   "Craft.Tab.Cape": {
-    "en": "Capes",
-    "de": "Umhänge"
+    "en": "Cloak",
+    "de": "Umhang",
+    "fr": "Cape",
+    "es": "Capa",
+    "ru": "Мантия",
+    "pt": "Capa",
+    "ja": "マント",
+    "ko": "망토",
+    "zh": "披风",
+    "zh-TW": "披風"
   },
   "Craft.Tab.Dagger": {
-    "en": "Daggers",
-    "de": "Dolche"
+    "en": "Dagger",
+    "de": "Dolch",
+    "fr": "Dague",
+    "es": "Daga",
+    "ru": "Кинжалы",
+    "pt": "Adaga",
+    "ja": "ダガー",
+    "ko": "단검",
+    "zh": "匕首",
+    "zh-TW": "匕首"
   },
   "Craft.Tab.Earring": {
     "en": "Earrings",
-    "de": "Ohrringe"
+    "de": "Ohrring",
+    "fr": "Boucles d'oreilles",
+    "es": "Pendientes",
+    "ru": "Серьги",
+    "pt": "Brinco",
+    "ja": "イヤリング",
+    "ko": "귀걸이",
+    "zh": "耳环",
+    "zh-TW": "耳環"
   },
   "Craft.Tab.Food": {
     "en": "Food",
-    "de": "Speisen"
+    "de": "Essen",
+    "fr": "Nourritures",
+    "es": "Comida",
+    "ru": "Еда",
+    "pt": "Comida",
+    "ja": "料理",
+    "ko": "음식",
+    "zh": "食物",
+    "zh-TW": "食物"
   },
   "Craft.Tab.Gloves": {
     "en": "Gloves",
-    "de": "Handschuhe"
+    "de": "Handschuhe",
+    "fr": "Gants",
+    "es": "Guantes",
+    "ru": "Перчатки",
+    "pt": "Luvas",
+    "ja": "グローブ",
+    "ko": "장갑",
+    "zh": "手套",
+    "zh-TW": "手套"
   },
   "Craft.Tab.Greatsword": {
-    "en": "Greatswords",
-    "de": "Großschwerter"
+    "en": "Greatsword",
+    "de": "Großschwert",
+    "fr": "Espadon",
+    "es": "Espadón",
+    "ru": "Двуручные мечи",
+    "pt": "Montante",
+    "ja": "グレートソード",
+    "ko": "대검",
+    "zh": "大剑",
+    "zh-TW": "大劍"
   },
   "Craft.Tab.Guarder": {
-    "en": "Guardians",
-    "de": "Schützer"
+    "en": "Guard",
+    "de": "Schützer",
+    "fr": "Garde-bras",
+    "es": "Arma de Puño",
+    "ru": "Наручи",
+    "pt": "Guarda-braço",
+    "ja": "ガーダー",
+    "ko": "가더",
+    "zh": "守护者",
+    "zh-TW": "守護者"
   },
   "Craft.Tab.Helmet": {
-    "en": "Helmets",
-    "de": "Helme"
+    "en": "Helm",
+    "de": "Helm",
+    "fr": "Casque",
+    "es": "Yelmo",
+    "ru": "Шлемы",
+    "pt": "Elmo",
+    "ja": "ヘルム",
+    "ko": "투구",
+    "zh": "头盔",
+    "zh-TW": "頭盔"
   },
   "Craft.Tab.Mace": {
-    "en": "Maces",
-    "de": "Streitkolben"
+    "en": "Mace",
+    "de": "Streitkolben",
+    "fr": "Masse",
+    "es": "Maza",
+    "ru": "Булавы",
+    "pt": "Maça",
+    "ja": "メイス",
+    "ko": "전곤",
+    "zh": "钉锤",
+    "zh-TW": "釘錘"
   },
   "Craft.Tab.MagicStone": {
-    "en": "Magic stones",
-    "de": "Magiesteine"
+    "en": "Manastone/Soulstone",
+    "de": "Manastein / Seelenstein",
+    "fr": "Pierre de mana / Pierre d'âme",
+    "es": "Piedra de maná / Piedra de alma",
+    "ru": "Камни маны / духовные камни",
+    "pt": "Pedra de Mana / Pedra Vital",
+    "ja": "魔石/霊石",
+    "ko": "마석/영석",
+    "zh": "魔石/灵魂石",
+    "zh-TW": "魔石／靈魂石"
   },
   "Craft.Tab.Magicbook": {
-    "en": "Grimoires",
-    "de": "Grimoires"
+    "en": "Spellbook",
+    "de": "Grimoire",
+    "fr": "Grimoire",
+    "es": "Grimorio",
+    "ru": "Гримуары",
+    "pt": "Grimório",
+    "ja": "スペルブック",
+    "ko": "법서",
+    "zh": "魔法书",
+    "zh-TW": "魔法書"
   },
   "Craft.Tab.Necklace": {
-    "en": "Necklaces",
-    "de": "Halsketten"
+    "en": "Necklace",
+    "de": "Halskette",
+    "fr": "Collier",
+    "es": "Collar",
+    "ru": "Ожерелья",
+    "pt": "Colar",
+    "ja": "ネックレス",
+    "ko": "목걸이",
+    "zh": "项链",
+    "zh-TW": "項鍊"
   },
   "Craft.Tab.Orb": {
-    "en": "Orbs",
-    "de": "Orbs"
+    "en": "Orb",
+    "de": "Orb",
+    "fr": "Orbe",
+    "es": "Orbe",
+    "ru": "Сферы",
+    "pt": "Orbe",
+    "ja": "オーブ",
+    "ko": "보주",
+    "zh": "法珠",
+    "zh-TW": "法珠"
   },
   "Craft.Tab.Pants": {
-    "en": "Leg guards",
-    "de": "Beinschutz"
+    "en": "Legs",
+    "de": "Hose",
+    "fr": "Bas",
+    "es": "Pieza inferior",
+    "ru": "Низ",
+    "pt": "Pernas",
+    "ja": "ボトムス",
+    "ko": "하의",
+    "zh": "护腿",
+    "zh-TW": "護腿"
   },
   "Craft.Tab.Potion": {
     "en": "Potions",
-    "de": "Tränke"
+    "de": "Trank",
+    "fr": "Potions",
+    "es": "Pociones",
+    "ru": "Зелья",
+    "pt": "Poção",
+    "ja": "ポーション",
+    "ko": "물약",
+    "zh": "药水",
+    "zh-TW": "藥水"
   },
   "Craft.Tab.Ring": {
-    "en": "Rings",
-    "de": "Ringe"
+    "en": "Ring",
+    "de": "Ring",
+    "fr": "Anneau",
+    "es": "Anillo",
+    "ru": "Кольца",
+    "pt": "Anel",
+    "ja": "リング",
+    "ko": "반지",
+    "zh": "戒指",
+    "zh-TW": "戒指"
   },
   "Craft.Tab.Scroll": {
-    "en": "Scrolls",
-    "de": "Rollen"
+    "en": "Scroll",
+    "de": "Rolle",
+    "fr": "Parchemin",
+    "es": "Pergaminos",
+    "ru": "Свитки",
+    "pt": "Pergaminho",
+    "ja": "スクロール",
+    "ko": "주문서",
+    "zh": "卷轴",
+    "zh-TW": "卷軸"
   },
   "Craft.Tab.Shoulder": {
-    "en": "Shoulder plates",
-    "de": "Schulterplatten"
+    "en": "Pauldrons",
+    "de": "Schulterplatten",
+    "fr": "Épaulettes",
+    "es": "Hombreras",
+    "ru": "Наплечники",
+    "pt": "Espaldeiras",
+    "ja": "ショルダー",
+    "ko": "견갑",
+    "zh": "肩甲",
+    "zh-TW": "肩甲"
   },
   "Craft.Tab.Staff": {
-    "en": "Staves",
-    "de": "Stäbe"
+    "en": "Staff",
+    "de": "Stab",
+    "fr": "Bâton",
+    "es": "Bastón",
+    "ru": "Посохи",
+    "pt": "Cajado",
+    "ja": "ワンド",
+    "ko": "법봉",
+    "zh": "法杖",
+    "zh-TW": "法杖"
   },
   "Craft.Tab.Sword": {
-    "en": "Longswords",
-    "de": "Langschwerter"
+    "en": "Longsword",
+    "de": "Langschwert",
+    "fr": "Épée",
+    "es": "Espada larga",
+    "ru": "Длинные мечи",
+    "pt": "Espada Longa",
+    "ja": "ロングソード",
+    "ko": "장검",
+    "zh": "长剑",
+    "zh-TW": "長劍"
   },
   "Craft.Tab.Torso": {
-    "en": "Chest armor",
-    "de": "Brustpanzer"
+    "en": "Top",
+    "de": "Oberteil",
+    "fr": "Haut",
+    "es": "Pieza superior",
+    "ru": "Верх",
+    "pt": "Torso",
+    "ja": "トップス",
+    "ko": "상의",
+    "zh": "上衣",
+    "zh-TW": "上衣"
   },
   "Craft.Tab.Misc_Alchemy": {
     "en": "Miscellaneous",
-    "de": "Sonstiges"
+    "de": "Sonstiges",
+    "fr": "Divers",
+    "es": "Otros",
+    "ru": "Другое",
+    "pt": "Outros",
+    "ja": "その他",
+    "ko": "기타",
+    "zh": "其他",
+    "zh-TW": "其他"
   },
   "Craft.Tab.Misc_Blacksmithing": {
     "en": "Miscellaneous",
-    "de": "Sonstiges"
+    "de": "Sonstiges",
+    "fr": "Divers",
+    "es": "Otros",
+    "ru": "Другое",
+    "pt": "Outros",
+    "ja": "その他",
+    "ko": "기타",
+    "zh": "其他",
+    "zh-TW": "其他"
   },
   "Craft.Tab.Misc_Jewelcrafting": {
     "en": "Miscellaneous",
-    "de": "Sonstiges"
+    "de": "Sonstiges",
+    "fr": "Divers",
+    "es": "Otros",
+    "ru": "Другое",
+    "pt": "Outros",
+    "ja": "その他",
+    "ko": "기타",
+    "zh": "其他",
+    "zh-TW": "其他"
   },
   "Craft.Tab.Misc_Tailoring": {
     "en": "Miscellaneous",
-    "de": "Sonstiges"
+    "de": "Sonstiges",
+    "fr": "Divers",
+    "es": "Otros",
+    "ru": "Другое",
+    "pt": "Outros",
+    "ja": "その他",
+    "ko": "기타",
+    "zh": "其他",
+    "zh-TW": "其他"
   },
   "Craft.Tab.Misc": {
     "en": "Miscellaneous",
-    "de": "Sonstiges"
+    "de": "Sonstiges",
+    "fr": "Divers",
+    "es": "Otros",
+    "ru": "Другое",
+    "pt": "Outros",
+    "ja": "その他",
+    "ko": "기타",
+    "zh": "其他",
+    "zh-TW": "其他"
   },
   "Craft.SearchHint": {
     "en": "Search recipe …",
-    "de": "Rezept suchen …"
+    "de": "Rezept suchen …",
+    "fr": "Chercher une recette …",
+    "es": "Buscar receta …",
+    "ru": "Поиск рецепта …",
+    "pt": "Buscar receita …",
+    "ja": "レシピを検索 …",
+    "ko": "레시피 검색 …",
+    "zh": "搜索配方 …",
+    "zh-TW": "搜尋配方 …"
   }
 }
