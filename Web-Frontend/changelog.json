@@ -1,5 +1,19 @@
 [
  {
+  "version": "Unreleased",
+  "date": "2026-10-21",
+  "items": [
+   {
+    "text": "Server status: a banner for the maintenance read from NCSoft's notice (the servers say online while the login is closed), the four figures, and a tab for each region with one tile per game address",
+    "areas": [
+     "Website",
+     "Backend"
+    ],
+    "date": "2026-10-21"
+   }
+  ]
+ },
+ {
   "version": "1.11.6",
   "date": "2026-10-21",
   "items": [
