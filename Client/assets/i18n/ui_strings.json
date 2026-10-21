@@ -3670,7 +3670,7 @@
   "Character.AttrMain": {
     "en": "Main attributes",
     "de": "Hauptwerte",
-    "fr": "Attributs principaux",
+    "fr": "Stats principales",
     "es": "Main attributes",
     "ru": "Main attributes",
     "zh": "Main attributes",
@@ -3730,7 +3730,7 @@
   "Character.Attr.agi": {
     "en": "Precision",
     "de": "Präzision",
-    "fr": "Précision",
+    "fr": "Exactitude",
     "es": "Precision",
     "ru": "Precision",
     "zh": "Precision",
@@ -3778,7 +3778,7 @@
   "Character.Attr.justice": {
     "en": "Justice",
     "de": "Gerechtigkeit",
-    "fr": "Justice",
+    "fr": "Justice [Nezakan]",
     "es": "Justice",
     "ru": "Justice",
     "zh": "Justice",
@@ -3790,7 +3790,7 @@
   "Character.Attr.destruction": {
     "en": "Destruction",
     "de": "Zerstörung",
-    "fr": "Destruction",
+    "fr": "Destruction [Zikel]",
     "es": "Destruction",
     "ru": "Destruction",
     "zh": "Destruction",
@@ -3802,7 +3802,7 @@
   "Character.Attr.death": {
     "en": "Death",
     "de": "Tod",
-    "fr": "Mort",
+    "fr": "Mort [Triniel]",
     "es": "Death",
     "ru": "Death",
     "zh": "Death",
@@ -3814,7 +3814,7 @@
   "Character.Attr.wisdom": {
     "en": "Wisdom",
     "de": "Weisheit",
-    "fr": "Sagesse",
+    "fr": "Sagesse [Lumiel]",
     "es": "Wisdom",
     "ru": "Wisdom",
     "zh": "Wisdom",
@@ -3826,7 +3826,7 @@
   "Character.Attr.destiny": {
     "en": "Destiny",
     "de": "Schicksal",
-    "fr": "Destin",
+    "fr": "Destinée [Marchutan]",
     "es": "Destiny",
     "ru": "Destiny",
     "zh": "Destiny",
@@ -3838,7 +3838,7 @@
   "Character.Attr.space": {
     "en": "Space",
     "de": "Raum",
-    "fr": "Espace",
+    "fr": "Espace [Israphel]",
     "es": "Space",
     "ru": "Space",
     "zh": "Space",
@@ -3850,7 +3850,7 @@
   "Character.Attr.time": {
     "en": "Time",
     "de": "Zeit",
-    "fr": "Temps",
+    "fr": "Temps [Siel]",
     "es": "Time",
     "ru": "Time",
     "zh": "Time",
@@ -3862,7 +3862,7 @@
   "Character.Attr.life": {
     "en": "Life",
     "de": "Leben",
-    "fr": "Vie",
+    "fr": "Vie [Yustiel]",
     "es": "Life",
     "ru": "Life",
     "zh": "Life",
@@ -3874,7 +3874,7 @@
   "Character.Attr.illusion": {
     "en": "Illusion",
     "de": "Illusion",
-    "fr": "Illusion",
+    "fr": "Illusion [Kaisinel]",
     "es": "Illusion",
     "ru": "Illusion",
     "zh": "Illusion",
@@ -3886,7 +3886,7 @@
   "Character.Attr.freedom": {
     "en": "Freedom",
     "de": "Freiheit",
-    "fr": "Liberté",
+    "fr": "Liberté [Vaizel]",
     "es": "Freedom",
     "ru": "Freedom",
     "zh": "Freedom",
@@ -8444,7 +8444,7 @@
   "Checklist.ShopOdyle": {
     "en": "Odyle Energy bought in the Brisenwind trade guild",
     "de": "Odenergie in der Handelsgilde Brisenwind gekauft",
-    "fr": "Énergie Od achetée à la guilde marchande Brise Légère",
+    "fr": "Énergie Od achetée à la Boutique Brise Légère",
     "es": "Energía de Od comprada en el gremio comercial de Brisenwind",
     "ru": "Эфирная энергия куплена в торговой гильдии Бризенвинд",
     "zh": "在布里森温德商会购买的奥德能量",
@@ -10384,7 +10384,7 @@
   "Checklist.PremiumLoses": {
     "en": "afterwards without: Remote Storage, Market, Exchange, Wind Breeze Merchants; Odyle Energy max. {0} instead of {1}; Shugo Festival keys max. {2} instead of {3}",
     "de": "danach ohne: Fernlager, Marktplatz, Tauschbörse, Handelsgilde; Odenergie max. {0} statt {1}; Shugofesta-Schlüssel max. {2} statt {3}",
-    "fr": "ensuite sans : Entrepôt à distance, Marché, Échange, Brise Légère ; énergie Od max. {0} au lieu de {1} ; clés de la Fête des Shugos max. {2} au lieu de {3}"
+    "fr": "ensuite sans : Entrepôt à distance, Marché, Échange, Boutique Brise Légère ; énergie Od max. {0} au lieu de {1} ; clés de la Fête des Shugos max. {2} au lieu de {3}"
   },
   "Checklist.PremiumEnded": {
     "en": "expired on {0}",
@@ -10394,7 +10394,7 @@
   "Checklist.PremiumNow": {
     "en": "now without: Remote Storage, Market, Exchange, Wind Breeze Merchants",
     "de": "jetzt ohne: Fernlager, Marktplatz, Tauschbörse, Handelsgilde",
-    "fr": "actuellement sans : Entrepôt à distance, Marché, Échange, Brise Légère"
+    "fr": "actuellement sans : Entrepôt à distance, Marché, Échange, Boutique Brise Légère"
   },
   "Checklist.AutoLootNone": {
     "en": "no ticket active",
